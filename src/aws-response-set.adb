@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
+--                         Copyright (C) 2002-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -427,7 +427,6 @@ package body AWS.Response.Set is
       Handle   : access Resources.Streams.Stream_Type'Class;
       Encoding : in     Messages.Content_Encoding := Messages.Identity) is
    begin
-
       case Encoding is
          when Messages.GZip     =>
             D.Stream := Resources.Streams.ZLib.Deflate_Create
