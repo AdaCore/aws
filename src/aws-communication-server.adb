@@ -30,7 +30,7 @@
 
 --  $Id$
 
-with Ada.Unchecked_Deallocation;
+--  with Ada.Unchecked_Deallocation;
 
 with AWS.Messages;
 with AWS.Parameters;
@@ -40,7 +40,7 @@ with AWS.Utils;
 
 package body AWS.Communication.Server is
 
-   Com_Server : AWS.Server.HTTP_Access;
+   Com_Server : AWS.Server.HTTP;
    --  The server that will handle all communication requests
 
    Context : T_Access;
@@ -87,10 +87,12 @@ package body AWS.Communication.Server is
    begin
       if URI = AWS_Com then
          Fill_Parameter_Set;
-         return Callback (AWS.Parameters.Get (P_Set, "HOST"),
-                          AWS.Parameters.Get (P_Set, "NAME"),
-                          Context,
-                          PS (1 .. I));
+         return Callback
+           (AWS.Parameters.Get (P_Set, "HOST"),
+            AWS.Parameters.Get (P_Set, "NAME"),
+            Context,
+            PS (1 .. I));
+
       else
          return Response.Acknowledge
            (Messages.S412,
@@ -103,11 +105,8 @@ package body AWS.Communication.Server is
    --------------
 
    procedure Shutdown is
-      procedure Free is new Ada.Unchecked_Deallocation
-        (AWS.Server.HTTP, AWS.Server.HTTP_Access);
    begin
-      AWS.Server.Shutdown (Com_Server.all);
-      Free (Com_Server);
+      AWS.Server.Shutdown (Com_Server);
    end Shutdown;
 
    -----------
@@ -116,12 +115,10 @@ package body AWS.Communication.Server is
 
    procedure Start (Port : in Positive; Context : in T_Access) is
    begin
-      Com_Server := new AWS.Server.HTTP;
-
       Server.Context := Context;
 
       AWS.Server.Start
-        (Com_Server.all, "Communication Server",
+        (Com_Server, "Communication Server",
          Max_Connection => 1,
          Port           => Port,
          Callback       => Receive'Unrestricted_Access);
