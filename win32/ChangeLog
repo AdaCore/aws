@@ -1,3 +1,8 @@
+2004-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* poll.adb:
+	Use Definitions.nfds_t for poll array index.
+
 2004-10-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
