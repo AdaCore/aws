@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                            Copyright (C) 2003                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -77,7 +77,7 @@ procedure Zdemo is
       elsif URI = "/z_file" then
          --  Returns a compressed file (already compressed on disk)
          return Response.File
-           (Content_Type => "image/png",
+           (Content_Type => MIME.Image_Png,
             Filename     => "adains.png.gz",
             Encoding     => Messages.GZip);
 
