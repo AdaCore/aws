@@ -1,3 +1,41 @@
+2003-12-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-xml.ads:
+        (Load_Response) [Unbounded_String]: New routine.
+        Patch from Wiljan Derks.
+
+	* soap-client.adb:
+	(Call): Use Unbounded_String to support larger SOAP payload.
+        Patch from Wiljan Derks.
+
+	* soap-message-xml.adb:
+        (Load_Response): Use XML parameter directly, avoid local copy.
+        (Load_Response) [Unbounded_String]: New routine.
+	(Parse_String): Do not normalize the node as this is time consuming.
+         This implementation is faster.
+        Patch from Wiljan Derks.
+
+	* soap-types.ads, soap-types.adb:
+	(S) [Unbounded_String]: New routine.
+	(V) [Unbounded_String]: New routine.
+        (Get) [Unbounded_String]: New routine.
+        Patch from Wiljan Derks.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	(Get) [Unbounded_String]: New routine.
+        Patch from Wiljan Derks.
+
+	* soap-utils.adb:
+	(To_Utf8) [Unbounded_String]: New routine.
+        (From_Utf8) [Unbounded_String]: New routine.
+        (Encode): Add support for characters code 0 .. 32.
+        Patch from Wiljan Derks.
+
+	* soap-utils.ads:
+	(To_Utf8) [Unbounded_String]: New routine.
+        (From_Utf8) [Unbounded_String]: New routine.
+        Patch from Wiljan Derks.
+
 2003-12-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-types.ads, soap-types.adb:
@@ -148,7 +186,7 @@
 	* soap-types.adb:
 	(XSD_Enumeration): Renamed SOAP_Enumeration.
 	(XML_Image) [SOAP_Enumeration]: Fix indentation.
-	
+
 	* soap-types.ads:
 	(XSD_Enumeration): Renamed to SOAP_Enumeration.
 
@@ -230,7 +268,7 @@
 	* soap-generator-skel.adb:
 	(New_Procedure): Fix generated code layout for routine without
 	 parameter.
-	
+
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
@@ -265,7 +303,7 @@
 	(Put_Types): Idem.
 	(Start_Service): Initialize Location here. Call CB.Start_Service
 	 if needed. Set Unit name.
-	
+
 	* soap-generator.ads:
 	(Gen_CB): New routine.
 	(Object): Add First_Proc and Unit fields.
@@ -311,7 +349,7 @@
 	* soap-generator-skel.adb:
 	(Output_Parameters): Handle derived types.
 	(New_Procedure): Idem.
-	
+
 	* soap-generator-stub.adb:
 	(Output_Derived): New routine.
 	(Output_Parameter): Handle derived types.
@@ -390,7 +428,7 @@
 	* soap-generator-stub.adb:
 	(Output_Result): Add _Type suffix to generated array routine.
 	(New_Procedure): Idem.
-	
+
 	* soap-generator.adb:
 	(Types_From): New routine.
 	Lot of changes to add suffix _Type to generated array type
@@ -415,13 +453,13 @@
 	(Output_Array): Add recursive call to generate all parameters. Fix
 	 a bug where generation stopped after the first array.
 	(Output_Record): Idem. Fix a bug where generation stopped after
-	 the first record. 
+	 the first record.
 
 	* soap-generator-skel.adb:
 	(New_Procedure): Prefix record and arrays with the name of the
 	 variable. Fix code generation when more than one array or record
 	 is passed to a routine.
-	
+
 2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-wsdl.ads, soap-wsdl.adb:
@@ -489,7 +527,7 @@
 
 	* makefile:
 	Use variable instead of directly calling tools.
-	
+
 	* soap-wsdl.adb:
 	(Is_Standard): Add pragma Unreferenced.
 
@@ -502,10 +540,10 @@
 
 	* soap-generator-skel.adb:
 	(New_Procedure): Use WSDL.Set_Routine instead of SOAP_Constructor.
-	
+
 	* soap-generator-stub.adb:
 	(Output_Simple): Use WSDL.Set_Routine instead of SOAP_Constructor.
-	
+
 	* soap-generator.adb:
 	(SOAP_Constructor): Removed. Not used anymore.
 	(To_Ada_Type): Implementation based on SOAP.WSDL.To_Ada.
@@ -517,9 +555,9 @@
 	 converting it to an Ada type.
 	(Set_Routine.Set_Routine): Removed.
 	(Set_Type): Implementation based on SOAP.WSDL.Set_Type.
-	
+
 	* soap-utils.ads, soap-utils.adb:
-	(Is_Ada_Reserved_Word): Moved here from SOAP.WSDL.	
+	(Is_Ada_Reserved_Word): Moved here from SOAP.WSDL.
 
 	* soap-wsdl-parser.adb:
 	(Parse_Part): Do not check for type name here, use routine from
@@ -534,7 +572,7 @@
 	(Set_Routine): New routine.
 	(Set_Type): New routine.
 	(Is_Ada_Reserved_Word): Moved to SOAP.Utils.
-	
+
 	* soap-wsdl.adb:
 	(To_Ada): Add Context parameter.
 	(V_Routine): New routine.
@@ -547,12 +585,12 @@
 2003-06-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-wsdl-parser.adb:
-	(Parse_Array): Fix assertion.	
+	(Parse_Array): Fix assertion.
 
 2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-client.ads, soap-client.adb:
-	(Call): Change connection mode to "in". Reformat parameter. 
+	(Call): Change connection mode to "in". Reformat parameter.
 
 	* soap-client.adb:
 	(Call): Add SOAPAction for the persistent connection. Pass it to
@@ -604,7 +642,7 @@
 
 	* soap-dispatchers.ads, soap-dispatchers.adb,
 	  soap-dispatchers-callback.ads, soap-dispatchers-callback.adb:
-	New packages for be able to have special SOAP dispatchers and 
+	New packages for be able to have special SOAP dispatchers and
 	 callbacks.
 
 2003-06-19  Pascal Obry  <p.obry@wanadoo.fr>
@@ -748,7 +786,7 @@
 	(Parse_Array): Parse array element if this one is not a standard
 	 SOAP type.
 	(Parse_Parameter): Fix exception message.
-	
+
 	* soap-utils.ads, soap-utils.adb:
 	(Aray_Type): New routine.
 	(Is_Array): A name terminated with Array is also reported as an
@@ -793,12 +831,12 @@
 	(Accept_Document): New procedure.
 	(Parse_Binding): Raise an exception if document style binding and
 	 not activated.
-	
+
 	* soap-wsdl-parser.ads:
 	(Accept_RPC): Removed.
 	(Accept_Document): New procedure.
 	(Object): Remove field Accept_RPC, add field Accept_Dcument.
-	
+
 2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-types.ads:
@@ -867,7 +905,7 @@
 	(Get_Routine): Fix record convertion routine name.
 	(Type_Name): Idem.
 	(Start_Service): Generate renaming for To_Unbounded_String.
-	
+
 	* soap-wsdl-parser.adb:
 	(Parse_Parameter): Handle arrays.
 	(Verbose): Use a Verbose_Level to support multi-level verbose mode.
@@ -881,7 +919,7 @@
 
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* soap-generator-skel.adb: 
+	* soap-generator-skel.adb:
 	(Start_Service): Generate pragma Warnings Off to workaorund a
 	 wrong warnings issued by GNAT. Fixed in 3.17.
 
@@ -890,7 +928,7 @@
 	* soap-generator-stub.adb, soap-generator-skel.adb:
 	(New_Procedure): Handle properly case of routines without input data
 	 and/or without return data.
-	
+
 	* soap-generator.adb:
 	(Put_Header): Handle properly case of routines without input data
 	 and/or without return data.
@@ -965,7 +1003,7 @@
 	* soap-generator-stub.adb:
 	(New_Procedure): Correctly handle the case of a single Base64 returned.
 	(Start_Service): Generate with clause for Ada.Calendar.
-	
+
 	* soap-generator.adb:
 	(SOAP_Constructor): Return a string (was a character), handle the
 	 P_B64 case.
@@ -1016,7 +1054,7 @@
 	(Start_Service): Generate with clause for SOAP.Utils.
 
 	* soap-generator.adb:
-	(New_Procedure): Add Namespace parameter. Pass Namespace to 
+	(New_Procedure): Add Namespace parameter. Pass Namespace to
 	 stub/skel New_Procedure calls.
 	(Put_Header): Properly handle array formal parameter.
 	(To_Ada_Type): Handle lower case type representation. Add int handling.
@@ -1025,7 +1063,7 @@
 	(Set_Type): Handle lower case type representation.
 	(Put_Types): Handle subtype declaration for routines returning an
 	 array.
-	
+
 	* soap-generator.ads:
 	(Version): Set to 0.8.
 	(New_Procedure): Add Namespace parameter.
@@ -1043,7 +1081,7 @@
 	(Parse_Operation): Read and store the namespace.
 	(Parse_Part): Handle boolean type.
 	(Parse_PortType): Pass the namespace to New_Procedure call.
-	
+
 	* soap-wsdl-parser.ads:
 	(New_Procedure): Add Namespace parameter.
 	(Object): Add Namespace field.
@@ -1072,7 +1110,7 @@
 	(Safe_Pointers): New package.
 
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
 	* soap-generator.adb:
 	(Generate_Record): Align generated record fields for the
 	 spec. Generated code looks better.
@@ -1088,7 +1126,7 @@
 	* soap-generator-skel.adb:
 	(New_Procedure): Remove a call to Format_Name, we do not want to
 	 change the name of the SOAP entities as they are part of the spec.
-	
+
 	* soap-generator.adb:
 	(Format_Name): Do not add an underscore before or after a dot.
 	(Generate_Record): Add missing calls to Format_Name. This allow
@@ -1229,7 +1267,7 @@
 
 	* soap-client.ads:
 	Update comment about SOAPAction.
-	Minor reformatting.	
+	Minor reformatting.
 
 	* soap-message-payload.ads, soap-message-payload.adb:
 	(Build): Name_Space default set to Default_Name_Space.
@@ -1245,7 +1283,7 @@
 	(Parse_Base64): Correctly handle empty Base64 content.
 	(Parse_Wrapper): Retrieved and set the name space as encoded into
 	 the wrapper object.
-	Minor reformatting.	
+	Minor reformatting.
 
 	* soap-message.adb:
 	(XML_Image): Do not use hard coded dummy name space but the one
@@ -1268,7 +1306,7 @@
 	(Finalize): [for Composite] Properly release all objects.
 	A lot of changes in aggregate construction due to object being
 	 a controlled object.
-	
+
 	* soap-types.ads:
 	(Object): Now a controlled object to properly release the memory.
 	 Needed to fix a big memory leak on composite objects.
@@ -1278,7 +1316,7 @@
 	(Composite): Add Object_Set_Access here.
 	(SOAP_Record): Derived directly from Composite adding no field.
 	(SOAP_Array): Idem.
-	
+
 2002-07-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-types.ads:
@@ -1287,7 +1325,7 @@
 	(Initialize): New routines for SOAP_Array and SOAP_Record.
 	(Finalize): Idem.
 	Minor reformatting.
-	
+
 	* soap-types.adb:
 	A lot of changes due to data structure change for handling
 	 composite types by reference.
@@ -1340,7 +1378,7 @@
 
 	* soap-types.adb:
 	Minor comment fix.
-	
+
 	* soap-types.adb:
 	(Array_Type): Fix implementation. Handle properly Array with a
 	 single record.
@@ -1397,7 +1435,7 @@
 	(Call): [HTTP_Connection] New function.
 	Remove with AWS.Client.
 	Patch from Wiljan Derks.
-	
+
 	* soap-client.ads:
 	(Call): [HTTP_Connection] New function.
 	Move with AWS.Client here instead of body.
@@ -1464,9 +1502,9 @@
 
 2001-09-21  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* makefile: 
+	* makefile:
 	(GARGS): use GFLAGS passed from makefile in parent directory.
-	
+
 	* soap-message-reader.ads:
 	Removes unused with clause.
 
@@ -1591,7 +1629,7 @@
 
 	* makefile:
 	(GFLAGS): mode XML path to main makefile.
-	
+
 	* makefile:
 	Initial revision.
 
