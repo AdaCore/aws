@@ -1,10 +1,6 @@
 
 # $Id$
 
-ifeq ($(LDAP), 1)
-BUILD_OPT = test_ldap
-endif
-
 build_res:
 	echo Generate resources for res_demo
 	$(AWSRES) -q -r rdemo adains.png page3.html
@@ -15,10 +11,6 @@ build_wsdl:
 	$(WSDL2AWS) -q -f -doc -noskel interoplab_main.wsdl
 
 force:
-
-test_ldap: force
-	echo Building $@;
-	-$(GNATMAKE) $(GARGS) test_ldap -bargs $(BARGS) -largs $(LARGS) -lldap
 
 ifeq (${PRJ_BUILD}, Debug)
 AWSRES	 = ../.build/debug/tools/awsres
@@ -43,6 +35,8 @@ setup:
 
 build: build_res $(BUILD_EXT)
 	$(GNATMAKE) -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Pdemos_ssl -XSocket=${SOCKET} \
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 clean:
 	$(RM) -fr ../.build/debug/demos
