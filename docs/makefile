@@ -57,22 +57,23 @@ ada.sed: makefile
 	./gentexifile $< NOGROUP
 
 aws.dvi: aws.texi $(APIFILES)
-	texi2dvi --clean aws.texi
+	-texi2dvi --clean aws.texi
 
 aws.ps: aws.dvi
-	dvips aws.dvi
+	-dvips aws.dvi -o aws.ps
 
 aws.info: aws.texi
-	makeinfo aws.texi
+	-makeinfo aws.texi
 
 aws.html: aws.texi
-	texi2html.pl -menu -monolithic aws.texi
+	-texi2html.pl -menu -monolithic aws.texi
 
 aws.txt: aws.texi
-	makeinfo --no-headers aws.texi > aws.txt
+	-makeinfo --no-headers aws.texi > aws.txt
 
 prog: build.adb
-	gnatmake build -I../src -I../soap -I../include
+	gnatmake build -I../src -I../soap -I../include \
+		$(INCLUDES) -largs $(LIBS)
 
 aws.texi: prog aws.texi.tmplt
 	./build | tr -d '\r' > aws.texi
