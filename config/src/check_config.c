@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #ifdef _WIN32
+#define WIN2000SUPPORT
 #include <ws2tcpip.h>
 #else
 #include <sys/poll.h>
@@ -36,6 +37,7 @@ main (void)
   const int ai_next_offset      = (void *)&ai.ai_next      - ai_ptr;
 
 #ifdef _WIN32
+  const char *i_conv      = "Stdcall";
   const int s_nfds_t      = s_long;
   const int s_fd_type     = s_int;
   const int s_events_type = s_short;
@@ -46,6 +48,7 @@ main (void)
   const int v_POLLHUP     = 16;
   const int v_POLLNVAL    = 32;
 #else
+  const char *i_conv      = "C";
   const struct pollfd v_pollfd;
   const int s_nfds_t      = sizeof (nfds_t);
   const int s_fd_type     = sizeof (v_pollfd.fd);
@@ -67,8 +70,13 @@ main (void)
 #ifdef _WIN32
   // libpoll.a need for poll call emulation.
   printf ("   pragma Linker_Options (\"-lpoll\");\n");
-  //  libws2_32.a need for getaddrinfo freeaddrinfo routines.
+#ifdef WIN2000SUPPORT
+  // libwspiapi.a need for getaddrinfo freeaddrinfo routines in Windows 2000.
+  printf ("   pragma Linker_Options (\"-lwspiapi\");\n\n");
+#else
+  // libws2_32.a need for getaddrinfo freeaddrinfo routines in Windows XP/2003.
   printf ("   pragma Linker_Options (\"-lws2_32\");\n\n");
+#endif
 #endif
 
   /* POLL constants */
@@ -153,6 +161,25 @@ main (void)
   printf ("      ai_next      : Addr_Info_Access;\n");
   printf ("   end record;\n");
   printf ("   pragma Convention (C, Addr_Info);\n\n");
+
+  printf ("   function GetAddrInfo\n");
+  printf ("     (node    : in     C.Strings.chars_ptr;\n");
+  printf ("      service : in     C.Strings.chars_ptr;\n");
+  printf ("      hints   : in     Addr_Info;\n");
+  printf ("      res     : access Addr_Info_Access)\n");
+  printf ("      return C.int;\n\n");
+
+  printf ("   procedure FreeAddrInfo (res : in Addr_Info_Access);\n\n");
+
+  printf ("private\n\n");
+
+#ifdef WIN2000SUPPORT
+  printf ("   pragma Import (Stdcall, GetAddrInfo, \"WspiapiGetAddrInfo\");\n");
+  printf ("   pragma Import (Stdcall, FreeAddrInfo, \"WspiapiFreeAddrInfo\");\n\n");
+#else
+  printf ("   pragma Import (%s, GetAddrInfo, \"getaddrinfo\");\n", i_conv);
+  printf ("   pragma Import (%s, FreeAddrInfo, \"freeaddrinfo\");\n\n", i_conv);
+#endif
 
   printf ("end AWS.OS_Lib.Definitions;\n");
 
