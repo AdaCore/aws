@@ -33,6 +33,7 @@
 with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
+with Ada.Strings.Fixed;
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
 
