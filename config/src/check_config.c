@@ -20,6 +20,10 @@
 #include <errno.h>
 #endif
 
+#ifdef sun
+#include <sys/filio.h>
+#endif
+
 int
 main (void)
 {
