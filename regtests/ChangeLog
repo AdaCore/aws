@@ -1,3 +1,11 @@
+2004-05-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* sp.adb, ssp.adb, sp_pck.ads, sp_pck.adb:
+	All common code moved to Sp_Pck.
+
+	* ctab.adb:
+	Free table at the end.
+
 2004-05-17  Pascal Obry  <pascal@obry.org>
 
 	* ctab.adb:
