@@ -76,6 +76,10 @@ package AWS.Utils is
    function Get_MD5 (Data : in String) return MD5.Digest_String;
    --  Returns the MD5 digest value for the Data string.
 
+   function Quote (Str : in String) return String;
+   pragma Inline (Quote);
+   --  Returns Str with character '"' added at the start and the end.
+
    ---------------
    -- Semaphore --
    ---------------
