@@ -32,8 +32,12 @@ package AWS.Utils is
 
    --  general helper functions are to be found here.
 
-   function Image (N : Natural) return String;
+   function Image (N : in Natural) return String;
    --  return image of N without the leading blank.
+
+   function Image (D : in Duration) return String;
+   --  return image of N without the leading blank and with only 2 decimals
+   --  numbers.
 
    function Gethostname return String;
    --  Return hostname.
