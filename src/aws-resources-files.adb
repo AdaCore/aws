@@ -31,6 +31,7 @@
 --  $Id$
 
 with AWS.OS_Lib;
+with AWS.Resources.Release;
 
 package body AWS.Resources.Files is
 
@@ -111,7 +112,7 @@ package body AWS.Resources.Files is
 
    exception
       when Stream_IO.Name_Error =>
-         Free (File);
+         AWS.Resources.Release (File);
          raise;
    end Open;
 

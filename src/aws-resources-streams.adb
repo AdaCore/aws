@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with AWS.Resources.Release;
+
 package body AWS.Resources.Streams is
 
    ------------
@@ -53,7 +55,7 @@ package body AWS.Resources.Streams is
    is
       pragma Unreferenced (Resource);
    begin
-      Free (File);
+      AWS.Resources.Release (File);
    end Release;
 
    ----------

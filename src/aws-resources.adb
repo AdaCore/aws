@@ -32,6 +32,7 @@
 
 with AWS.Resources.Files;
 with AWS.Resources.Embedded;
+with AWS.Resources.Release;
 
 package body AWS.Resources is
 
@@ -192,7 +193,7 @@ package body AWS.Resources is
    is
       pragma Unreferenced (File);
    begin
-      Free (File_Access);
+      AWS.Resources.Release (File_Access);
    end Release;
 
    ----------
