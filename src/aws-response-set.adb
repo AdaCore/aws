@@ -75,7 +75,7 @@ package body AWS.Response.Set is
    begin
       Check_Memory_Stream (D);
 
-      RSM.Append (RSM.Stream_Type (D.Stream.all), Item);
+      RSM.Append (RSM.Stream_Type'Class (D.Stream.all), Item);
    end Append_Body;
 
    procedure Append_Body
@@ -84,7 +84,7 @@ package body AWS.Response.Set is
    begin
       Check_Memory_Stream (D);
 
-      RSM.Append (RSM.Stream_Type (D.Stream.all), Item);
+      RSM.Append (RSM.Stream_Type'Class (D.Stream.all), Item);
    end Append_Body;
 
    procedure Append_Body (D : in out Data; Item : in String) is
@@ -174,6 +174,25 @@ package body AWS.Response.Set is
          D.Mode   := Message;
       end if;
    end Check_Memory_Stream;
+
+   -----------
+   -- Clear --
+   -----------
+
+   procedure Clear (D : in out Data) is
+      use type Resources.Streams.Stream_Access;
+   begin
+      if not D.Ref_Counter.Stream_Taken and then D.Stream /= null then
+         Resources.Streams.Close (D.Stream.all);
+         Free (D.Stream);
+      end if;
+
+      Headers.Set.Reset (D.Header);
+
+      D.Mode        := No_Data;
+      D.Status_Code := Messages.S200;
+      D.Filename    := Null_Unbounded_String;
+   end Clear;
 
    -------------------------
    -- Clear_Memory_Stream --
