@@ -41,19 +41,12 @@ package body AWS.OS_Lib is
      return Ada.Calendar.Time;
    --  Returns a Calendar.Time from an OS_Time variable.
 
-   ------------------
-   -- Is_Directory --
-   ------------------
-
-   function Is_Directory (Filename : in String) return Boolean
-     renames GNAT.OS_Lib.Is_Directory;
-
-   ---------------------
-   -- Is_Regular_File --
-   ---------------------
-
-   function Is_Regular_File (Filename : in String) return Boolean
-     renames GNAT.OS_Lib.Is_Regular_File;
+   Max_Path : constant Integer;
+   pragma Import (C, Max_Path, "max_path_len");
+   --  Maximum length of an allowable full path name on the system,
+   --  including a terminating NUL character.
+   --  ??? We have to check length of path for avoid GNAT bug with too long
+   --  path in versions older than 3.17 and 5.02.
 
    ---------------
    -- File_Size --
@@ -102,6 +95,35 @@ package body AWS.OS_Lib is
    begin
       return OS_Time_To_Calendar_Time (C_Time (null));
    end GMT_Clock;
+
+   ------------------
+   -- Is_Directory --
+   ------------------
+
+   function Is_Directory (Filename : in String) return Boolean is
+   begin
+      --  ??? We have to check length of path for avoid GNAT bug with too long
+      --  path in versions older than 3.17 and 5.02.
+      --  The comparition operator is "<" because Max_Path is length of path
+      --  including terminating NUL. So Ada string length should be shorter for
+      --  one symbol.
+
+      return Filename'Length < Max_Path
+             and then GNAT.OS_Lib.Is_Directory (Filename);
+   end Is_Directory;
+
+   ---------------------
+   -- Is_Regular_File --
+   ---------------------
+
+   function Is_Regular_File (Filename : in String) return Boolean is
+   begin
+      --  ??? We have to check length of path for avoid GNAT bug with too long
+      --  path in versions older than 3.17 and 5.02.
+
+      return Filename'Length < Max_Path
+             and then GNAT.OS_Lib.Is_Regular_File (Filename);
+   end Is_Regular_File;
 
    ------------------------------
    -- OS_Time_To_Calendar_Time --

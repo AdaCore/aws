@@ -1,3 +1,10 @@
+2003-11-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-os_lib__gnat.adb:
+	(Max_Path): New constant.
+	(Is_Directory): Test for path length before call GNAT routine.
+	(Is_Regular_File): Idem.
+
 2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-translator-conversion__p.adb, aws-translator-conversion__f.adb:
@@ -18,7 +25,7 @@
 
 	* makefile:
 	Use variable instead of directly calling tools.
-	
+
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -57,7 +64,7 @@
 
 	* aws-soap__soap.ads, aws-soap__soap.adb:
 	Initial revision.
-	
+
 	* aws-soap__nosoap.ads, aws-soap__nosoap.adb:
 	Initial revision.
 
@@ -77,7 +84,7 @@
 	* makefile:
 	Initial revision.
 
-	* aws-os_lib__gnat.adb, aws-os_lib__posix.adb, 
+	* aws-os_lib__gnat.adb, aws-os_lib__posix.adb,
           aws-os_lib__adasockets.adb:
 	Moved (and renamed) from ../include.
 
