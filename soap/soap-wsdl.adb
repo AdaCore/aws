@@ -72,6 +72,7 @@ package body SOAP.WSDL is
 
    function Is_Standard (XSD_Type : in String) return Boolean is
       P : Parameter_Type;
+      pragma Unreferenced (P);
    begin
       P := To_Type (XSD_Type);
       return True;
