@@ -119,6 +119,8 @@ package body AWS.Resources.Embedded is
 
       K : Stream_Element_Offset renames Resource.K;
    begin
+      Resource.LFT := False;
+
       if K = Resource.Buffer'Last then
          Last := 0;
       else
@@ -127,14 +129,16 @@ package body AWS.Resources.Embedded is
          for I in K .. Resource.Buffer'Last loop
 
             if Resource.Buffer (I) = LF then     -- UNIX style line terminator
-               Resource.K := I + 1;
+               Resource.K   := I + 1;
+               Resource.LFT := True;
                exit;
 
             elsif Resource.Buffer (I) = CR       -- DOS style line terminator
               and then I + 1 <= Resource.Buffer'Last
               and then Resource.Buffer (I + 1) = LF
             then
-               Resource.K := I + 2;
+               Resource.K   := I + 2;
+               Resource.LFT := True;
                exit;
 
             else
@@ -153,6 +157,15 @@ package body AWS.Resources.Embedded is
    begin
       return Exists (Name);
    end Is_Regular_File;
+
+   -------------------
+   -- LF_Terminated --
+   -------------------
+
+   function LF_Terminated (Resource : in File_Tagged) return Boolean is
+   begin
+      return Resource.LFT;
+   end LF_Terminated;
 
    ----------
    -- Open --
