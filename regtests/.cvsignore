@@ -87,6 +87,8 @@ b~upload3.ads
 b~workorder.adb
 b~workorder.ads
 check_mem.res
+check_mem.run1
+check_mem.run2
 ctab.res
 dirop.res
 dummy.res
