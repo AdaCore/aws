@@ -1167,7 +1167,7 @@ package body SOAP.Generator is
 
          Text_IO.Put_Line
            (Type_Adb,
-            "         Name);");
+            "         Name, """ & To_String (P.T_Name) & """);");
 
          Text_IO.Put_Line (Type_Adb, "      return Result;");
          Text_IO.Put_Line (Type_Adb, "   end To_SOAP_Object;");
