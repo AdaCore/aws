@@ -1,3 +1,8 @@
+2002-12-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-containers-tables-set.ads, aws-containers-tables-set.adb:
+	(Update): New routine.
+
 2002-12-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-containers-tables.ads:
