@@ -116,12 +116,16 @@ begin
    AWS.Jabber.Connect
      (Server, To_String (Host), To_String (Login), To_String (Pwd));
 
-   AWS.Jabber.Check_Presence
-     (Server, To_String (User) & '@' & To_String (Host), Status);
+   for K in 1 .. 2 loop
+      AWS.Jabber.Check_Presence
+        (Server, To_String (User) & '@' & To_String (Host), Status);
 
-   Text_IO.Put_Line ("Status : " & AWS.Jabber.Presence_Status'Image (Status));
+      Text_IO.Put_Line
+        ("Status : " & AWS.Jabber.Presence_Status'Image (Status));
+   end loop;
 
    AWS.Jabber.Close (Server);
+
 exception
    when others =>
       Display_Usage;
