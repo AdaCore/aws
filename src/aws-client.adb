@@ -272,9 +272,8 @@ package body AWS.Client is
          Result := Response.Build (To_String (CT), Read_Chunk, Status);
 
       else
-
          if CT_Len = 0 and then CT = MIME.Text_HTML then
-            --  here we do not know the message body length, but this is a
+            --  Here we do not know the message body length, but this is a
             --  textual data, read it as a string.
             Result := Response.Build (To_String (CT), Read_Message, Status);
          else
@@ -467,7 +466,20 @@ package body AWS.Client is
       Proxy_Pwd  : in String := No_Data)
      return Response.Data
    is
+      use Streams;
+   begin
+      return Post (URL, Translator.To_Stream_Element_Array (Data),
+                   User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
+   end Post;
 
+   function Post (URL        : in String;
+                  Data       : in Streams.Stream_Element_Array;
+                  User       : in String := No_Data;
+                  Pwd        : in String := No_Data;
+                  Proxy      : in String := No_Data;
+                  Proxy_User : in String := No_Data;
+                  Proxy_Pwd  : in String := No_Data) return Response.Data
+   is
       Connect : HTTP_Connection := Create (URL, User, Pwd,
                                            Proxy, Proxy_User, Proxy_Pwd,
                                            Persistent => False);
@@ -772,7 +784,7 @@ package body AWS.Client is
    procedure Post
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
-      Data       : in     String;
+      Data       : in     Streams.Stream_Element_Array;
       URI        : in     String := No_Data)
    is
       Try_Count : Integer := Connection.Retry;
@@ -789,17 +801,18 @@ package body AWS.Client is
                Sockets.Put_Line (Sock,
                                  Messages.Content_Type (Messages. Form_Data));
 
-               --  send message Content_Length
+               --  Send message Content_Length
+
                Sockets.Put_Line (Sock, Messages.Content_Length (Data'Length));
 
                Sockets.New_Line (Sock);
 
-               --  send message body
+               --  Send message body
 
-               Sockets.Put_Line (Sock, Data);
+               Sockets.Send (Sock, Data);
             end;
 
-            --  get answer from server
+            --  Get answer from server
 
             Get_Response (Connection, Result);
 
@@ -817,6 +830,16 @@ package body AWS.Client is
                Disconnect (Connection);
          end;
       end loop;
+   end Post;
+
+   procedure Post
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Data       : in     String;
+      URI        : in     String := No_Data) is
+   begin
+      Post (Connection, Result,
+            Translator.To_Stream_Element_Array (Data), URI);
    end Post;
 
    ---------
