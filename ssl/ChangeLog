@@ -4,6 +4,9 @@
 	(SSL_ERROR_*): New constants.
 	(SSL_get_error): New routine.
 
+	* ssl-wrappers.ads, ssl-wrappers.adb:
+	(SSL_get_error): New routine.
+
 2004-03-10  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* ssl-thin.ads, ssl-wrappers.ads, ssl-wrappers.adb:

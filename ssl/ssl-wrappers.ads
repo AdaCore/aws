@@ -66,6 +66,9 @@ package SSL.Wrappers is
    procedure SSL_read;
    pragma Export (C, SSL_read, "SSL_read");
 
+   procedure SSL_get_error;
+   pragma Export (C, SSL_get_error, "SSL_get_error");
+
    procedure RSA_generate_key;
    pragma Export (C, RSA_generate_key, "RSA_generate_key");
 
