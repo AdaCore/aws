@@ -193,7 +193,7 @@ is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
 
-         Filename      : constant String := Response.Message_Body (Answer);
+         Filename      : constant String := Response.Filename (Answer);
          Is_Up_To_Date : Boolean;
 
       begin
@@ -364,30 +364,32 @@ is
          if AWS.Status.Method (C_Stat) /= AWS.Status.HEAD then
 
             declare
-               Message_Body : constant Unbounded_String
+               use Streams;
+
+               Message_Body   : constant Stream_Element_Array
                  := Response.Message_Body (Answer);
-               Message_Length : constant Natural := Length (Message_Body);
 
-               I              : Integer := 1;
-               I_Next         : Integer;
+               Message_Length : constant Stream_Element_Offset
+                 := Message_Body'Length;
 
-               Portion_Size   : constant := 16#4000#;
+               I          : Stream_Element_Offset := 1;
+               I_Next     : Stream_Element_Offset;
+
+               Piece_Size : constant := 16#4000#;
             begin
-               loop
-                  I_Next := I + Portion_Size;
+               Send_Message_Body : loop
+                  I_Next := I + Piece_Size;
 
                   if I_Next > Message_Length then
-                     Sockets.Put
-                       (Sock,
-                        Slice (Message_Body, I, Message_Length));
-                     exit;
+                     Sockets.Send (Sock, Message_Body (I .. Message_Length));
+                     exit Send_Message_Body;
                   else
-                     Sockets.Put (Sock, Slice (Message_Body, I, I_Next - 1));
+                     Sockets.Send (Sock, Message_Body (I .. I_Next - 1));
                   end if;
 
                   HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
                   I := I_Next;
-               end loop;
+               end loop Send_Message_Body;
             end;
          end if;
       end Send_Message;
