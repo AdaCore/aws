@@ -1,3 +1,14 @@
+2003-11-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-generator.adb:
+	(To_XSD): Add tns: namespace to all non xsd types.
+	(Write_Binding): Issue proper tns: prefix when needed.
+	(Write_Header): Add targetNamespace and xmlns:tns attributes.
+	(Write_Operation): Issue proper tns: prefix when needed.
+	(Write_Service): Idem.
+	This makes the WSDL document generated compatible with the
+	 WSDL2Java tool.
+
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:
