@@ -1,5 +1,12 @@
 2004-11-03  Pascal Obry  <pascal@obry.org>
 
+	* aws-client.adb:
+        (Endoced_URI): New routine.
+	(Open_Send_Common_Header): Do not parse URI which is only the
+         pathname and parameters. Endode spaces in URI in all cases. It
+         is safer to avoid spaces in the URI.
+        Minor reformatting.
+
 	* templates_parser.ads:
 	(For_Every_Association): New routine.
 
