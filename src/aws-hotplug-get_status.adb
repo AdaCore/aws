@@ -32,21 +32,17 @@ function AWS.Hotplug.Get_Status
   (Filters : in Filter_Set) return Templates_Parser.Translate_Table
 is
 
-   Regexp : Unbounded_String;
-   URL    : Unbounded_String;
+   use Templates_Parser;
+
+   Regexp : Vector_Tag;
+   URL    : Vector_Tag;
 
 begin
    for K in 1 .. Filters.Count loop
-      if K /= 1 then
-         Regexp := Regexp & '|';
-         URL    := URL & '|';
-      end if;
-
       Regexp := Regexp & Filters.Set (K).Regexp_Str;
       URL    := URL    & Filters.Set (K).URL;
    end loop;
 
-   return Templates_Parser.Translate_Table'
-     (Templates_Parser.Assoc ("HP_REGEXP_L", To_String (Regexp), True),
-      Templates_Parser.Assoc ("HP_URL_L", To_String (URL), True));
+   return Translate_Table'(Assoc ("HP_REGEXP_L", Regexp),
+                           Assoc ("HP_URL_L",    URL));
 end AWS.Hotplug.Get_Status;
