@@ -1,3 +1,15 @@
+2004-03-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-parser.adb:
+	(Type_Name): Add support for SOAP_Base64 runtime type.
+        Minor reformatting.
+        Update copyright notice.
+
+	* ada2wsdl-generator.adb:
+	(Return_Type): Output the return type in verbose mode.
+        (To_XSD): Handle SOAP_Base64.
+        Update copyright notice.
+
 2004-03-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tools.gpr:
