@@ -58,6 +58,10 @@ package AWS.Resources.Streams.Memory.ZLib is
    --  Complete compression, flush internal compression buffer to the
    --  memory stream.
 
+   procedure Close (Resource : in out Stream_Type);
+   --  Close the ZLib stream, release all memory associated with the Resource
+   --  object.
+
 private
 
    type Stream_Type is new Memory.Stream_Type with record
