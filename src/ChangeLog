@@ -1,5 +1,10 @@
 2004-11-07  Pascal Obry  <pascal@obry.org>
 
+	* aws-services-split_pages-alpha.adb:
+	(Get_Page_Ranges): Fix test for numeric keys (all of them must be in
+         the same page).
+        Comment at bit more the code.
+
 	* aws-services-split_pages-alpha.ads:
 	(Set_Default_Href): Add comment.
 
