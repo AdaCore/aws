@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -217,17 +217,14 @@ package body AWS.Client is
 
       if Connection.Cleaner /= null then
          if not Connection.Cleaner'Terminated then
-            --  We don't want to fail here, we really want to free the cleaner
-            --  object.
+            --  We don't want to fail here, we really want to free the
+            --  cleaner object.
 
             begin
                Connection.Cleaner.Next_Phase;
             exception
                when Tasking_Error =>
-                  --  We could fail on the entry call in case of task complete.
-                  --  others exceptions should be treated as unexpected,
-                  --  and we should know about it for inverstigation
-
+                  --  Raised if the Cleaner task has completed
                   null;
             end;
          end if;
