@@ -440,7 +440,13 @@ install: force
 	-$(CP) tools/ada2wsdl${EXEEXT} $(INSTALL)/AWS/tools
 	$(CP) -p $(INSTALL)/AWS/lib/*.ali $(INSTALL)/AWS/obj
 	$(CP) set-aws.* $(INSTALL)/AWS
+ifdef XMLADA
 	$(CP) config/projects/aws.gpr $(INSTALL)/AWS
+else
+	$(SED) -e 's/with "xmlada";//' \
+		< config/projects/aws.gpr \
+		> $(INSTALL)/AWS/aws.gpr
+endif
 	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 	-$(CHMOD) uog-w $(INSTALL)/AWS/components/*.ali
