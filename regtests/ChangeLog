@@ -1,3 +1,18 @@
+2004-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Do not create BDIR macros, it sent from main makefile.
+	Add dot before external BDIR macros, to be on one level apper.
+	(build_drivers:) Add -largs -laws workaroung for GCC 3.4.2 bug.
+	Put tlog into ALONE_TESTS.
+
+	* soap5.out, soap6.out, soap7.out, sslcfg.out, upload4.out, wsdl_6.out,
+	  wsdl_7.out, wsdl_b.out:
+	Remove CR at end of line.
+
+	* tlog.out:
+	Update output.
+
 2004-10-07  Pascal Obry  <pascal@obry.org>
 
 	* regtests.gpr:
@@ -11,12 +26,12 @@
 
 	* unexph2.out:
 	Update output.
-	
+
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
 	(clean): Add filez.tmplt.
-	
+
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
 	* makefile.lst:
@@ -39,7 +54,7 @@
 	 the makefile. It will be quite easier to add a new non regression
 	 test. Note that it is still possible to simplify the process a
 	 bit, this will be done later.
-	
+
 2004-10-04  Pascal Obry  <pascal@obry.org>
 
 	* test_soap3.adb:
