@@ -39,7 +39,9 @@ package body AWS.Utils is
 
    use Ada;
 
+   pragma Warnings (Off);
    package Integer_Random is new Ada.Numerics.Discrete_Random (Random_Integer);
+   pragma Warnings (On);
 
    Random_Generator : Integer_Random.Generator;
 
