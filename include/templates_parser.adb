@@ -392,7 +392,7 @@ package body Templates_Parser is
    --  Returns string representation for the Tag variable.
 
    function Translate (T : in Tag; Value : in String) return String;
-   --  Returns the result of T.Name after applying all filters.
+   --  Returns the result of Value after applying all filters for tag T.
 
    procedure Release (T : in out Tag);
    --  Release all memory associated with Tag.
@@ -2767,6 +2767,9 @@ package body Templates_Parser is
          --  Returns the variable name for the include tag Tag. Tag is a
          --  numeric value and represent the Nth include parameter.
 
+         function Is_Number (Name : in String) return Boolean;
+         --  Returns True if Name is an include tag variable ($<n>)
+
          ------------------
          -- Get_Variable --
          ------------------
@@ -2811,7 +2814,7 @@ package body Templates_Parser is
                      E := E - 1;
                   end if;
 
-                  --  Always return the variable unquoted
+                  --  Always return the variable or value unquoted
 
                   if Variables (S) = '"' then
                      return Variables (S + 1  .. E - 1);
@@ -2837,6 +2840,19 @@ package body Templates_Parser is
             end loop;
          end Get_Variable;
 
+         ---------------
+         -- Is_Number --
+         ---------------
+
+         function Is_Number (Name : in String) return Boolean is
+         begin
+            return Name'Length > 1
+              and then Name (Name'First) = '$'
+              and then Strings.Fixed.Count
+                         (Name, Strings.Maps.Constants.Decimal_Digit_Set)
+                       = Name'Length - 1;
+         end Is_Number;
+
          -------------
          -- Replace --
          -------------
@@ -2845,22 +2861,6 @@ package body Templates_Parser is
 
             use type Data.NKind;
             use type Data.Tree;
-
-            function Is_Number (Name : in String) return Boolean;
-            --  Returns True if Name is an include tag variable ($<n>)
-
-            ---------------
-            -- Is_Number --
-            ---------------
-
-            function Is_Number (Name : in String) return Boolean is
-            begin
-               return Name'Length > 1
-                 and then Name (Name'First) = '$'
-                 and then Strings.Fixed.Count
-                            (Name, Strings.Maps.Constants.Decimal_Digit_Set)
-                          = Name'Length - 1;
-            end Is_Number;
 
             procedure Free is
                new Ada.Unchecked_Deallocation (Data.Node, Data.Tree);
@@ -2876,6 +2876,26 @@ package body Templates_Parser is
                      T := Data.Parse (Get_Variable (To_String (T.Var.Name)));
                      T.Next := Old.Next;
 
+                     case T.Kind is
+                        when Data.Var =>
+                           --  The new node is also a variable, inherit all the
+                           --  filters.
+                           T.Var.Filters := Old.Var.Filters;
+
+                        when Data.Text =>
+                           --  The new node is a value, apply filters if the
+                           --  previous node had some.
+
+                           if Old.Var.Filters /= null then
+                              T.Value := To_Unbounded_String
+                                (Translate (Old.Var, To_String (T.Value)));
+                           end if;
+
+                           --  Free filters
+                           Release (Old.Var);
+                     end case;
+
+                     --  Free only node
                      Free (Old);
                   end if;
                end if;
@@ -2884,13 +2904,116 @@ package body Templates_Parser is
             end if;
          end Replace;
 
+         -------------
+         -- Replace --
+         -------------
+
+         procedure Replace (T : in out Expr.Tree) is
+
+            use type Expr.NKind;
+            use type Expr.Tree;
+
+            procedure Free is
+               new Ada.Unchecked_Deallocation (Expr.Node, Expr.Tree);
+
+            Old : Expr.Tree := T;
+
+         begin
+            if T /= null then
+
+               case T.Kind is
+                  when Expr.Var =>
+                     if Is_Number (To_String (T.Var.Name)) then
+                        --  Here we have an include variable name, replace it
+
+                        declare
+                           New_Value : constant String
+                             := Get_Variable (To_String (T.Var.Name));
+                        begin
+                           if Strings.Fixed.Index (New_Value, " ") = 0 then
+                              T := Expr.Parse (New_Value);
+
+                           else
+                              --  There is some spaces in the new value,
+                              --  this can't be a variable so it is a value
+                              --  with multiple word, quote it to ensure a
+                              --  correct parsing.
+
+                              T := Expr.Parse ('"' & New_Value & '"');
+                           end if;
+                        end;
+
+                        case T.Kind is
+                           when Expr.Var =>
+                              --  The new node is also a variable, inherit all
+                              --  the filters.
+                              T.Var.Filters := Old.Var.Filters;
+
+                           when Expr.Value =>
+                              --  The new node is a value, apply filters if the
+                              --  previous node had some.
+
+                              if Old.Var.Filters /= null then
+                                 T.V := To_Unbounded_String
+                                   (Translate (Old.Var, To_String (T.V)));
+                              end if;
+
+                              --  Free filters
+                              Release (Old.Var);
+
+                           when Expr.Op | Expr.U_Op =>
+                              --  Should never happen
+                              Fatal_Error
+                                ("Var or Value node kind expected,"
+                                   & " Op or U_Op found ");
+                        end case;
+
+                        Free (Old);
+                     end if;
+
+                  when Expr.Op =>
+                    Replace (T.Left);
+                    Replace (T.Right);
+
+                  when Expr.U_Op =>
+                     Replace (T.Next);
+
+                  when Expr.Value =>
+                     null;
+
+               end case;
+            end if;
+         end Replace;
+
+         -------------
+         -- Replace --
+         -------------
+
          procedure Replace (T : in out Tree) is
             use type Tree;
          begin
             if T /= null then
-               if T.Kind = Text then
-                  Replace (T.Text);
-               end if;
+               case T.Kind is
+                  when Text =>
+                     Replace (T.Text);
+
+                  when If_Stmt =>
+                     Replace (T.Cond);
+                     Replace (T.N_True);
+                     Replace (T.N_False);
+
+                  when Table_Stmt =>
+                     Replace (T.Sections);
+
+                  when Include_Stmt =>
+                     Replace (T.File.C_Info);
+
+                  when Section_Stmt =>
+                     Replace (T.N_Section);
+
+                  when Info | C_Info =>
+                     null;
+               end case;
 
                Replace (T.Next);
             end if;
