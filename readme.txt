@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             January 14th, 2003
+   Pascal Obry                                             January 15th, 2003
 
 
 
@@ -47,7 +47,7 @@ Here are the main changes:
    - Add support for client upload (see AWS.Client.Upload).
 
    - Send file size in the chunk transfert encoding. This make it possible for
-     the browser to display the download's progression.
+     the browser to display the download's progress-bar.
 
    - Fix SOAP name space handling. It is now possible to set the name space
      for a Payload and AWS correctly set the name space as defined in incoming
@@ -80,7 +80,7 @@ Here are the main changes:
 
    - Option added to AWS.Client.Get to automatically follow redirection.
 
-   - Add some support for the Jabber protocol (Message and Presence detection)
+   - Add some supports for the Jabber protocol (Message and Presence detection)
 
    - Improve performance when sending small files.
 
@@ -97,7 +97,7 @@ Here are the main changes:
    - Complete rewrite of the socket handling. Sockets are now buffered for
      reading and writing making AWS faster. The AWS.Net interface also
      provide two implementations one based on GNAT.Sockets (the default) and
-     on based AdaSockets.
+     one based AdaSockets.
 
      This is a big change and means that there is some incompatibilities. For
      example now for all socket errors the exception AWS.Net.Socket_Error is
@@ -158,12 +158,15 @@ Templates_Parser sources:
    design and code.
 
 GNU/Ada - GNAT
-   You need at least version 3.14 to use AWS 1.3.
+
+   You need at least version 3.15 to use AWS 1.3.
 
    ftp://cs.nyu.edu/pub/gnat/
 
-Socket binding:
-   Since AWS 1.2 you need at least version 1.0 of the Socket binding.
+Socket binding (Optional) :
+
+   Since AWS 1.2 you need at least version 1.0 of the Socket binding. Note
+   that by default AWS uses GNAT.Sockets.
 
    for Win32:
       http://perso.wanadoo.fr/pascal.obry/contrib.html
@@ -173,6 +176,7 @@ Socket binding:
       http://www.rfc1149.net/devel/adasockets
 
 XMLada (optional):
+
    You need this library only if you want to use AWS SOAP feature. You need
    at least XMLada 0.7.1.
 
@@ -302,6 +306,8 @@ AWS uses
 
 - http://www.forexcoach.com site is powered by AWS. This site has been done by
   Dmitriy Anisimkov.
+
+
 
 Thanks to all who have reported bugs and have sent us patches.
 
