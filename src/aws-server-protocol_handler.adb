@@ -33,12 +33,16 @@ with Ada.Integer_Text_IO;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Interfaces.C;
 
+with AWS.Log;
 with AWS.Messages;
 with AWS.OS_Lib;
 with AWS.Session;
 with AWS.Status;
 with AWS.Server.Config;
+with AWS.Server.Get_Status;
+with AWS.Utils;
 
 separate (AWS.Server)
 
@@ -331,6 +335,8 @@ is
 
       Status := Response.Status_Code (Answer);
 
+      Log.Write (C_Stat, Status, HTTP_Server.Slots.Get_Peername (Index));
+
       if Response.Mode (Answer) = Response.Message then
          Send_Message;
 
@@ -368,7 +374,7 @@ is
       procedure File_Upload (Start_Boundary, End_Boundary : in String;
                              Parse_Boundary               : in Boolean)
       is
-         --  ??? Implementation would be more efficient if the imput socket
+         --  ??? Implementation would be more efficient if the input socket
          --  stream was cached. Here the socket is read char by char.
 
          Name           : Unbounded_String;
@@ -526,15 +532,19 @@ is
          ---------------------
 
          function Target_Filename (Filename : in String) return String is
-            I : Natural := Fixed.Index (Filename,
-                                        Maps.To_Set ("/\"),
-                                        Going => Strings.Backward);
+            I   : Natural := Fixed.Index (Filename,
+                                          Maps.To_Set ("/\"),
+                                          Going => Strings.Backward);
+            UID : Natural;
          begin
+            File_Upload_UID.Get (UID);
             if I = 0 then
                return Server.Config.Upload_Directory (HTTP_Server)
+                 & Utils.Image (UID) & '_'
                  & Filename;
             else
                return Server.Config.Upload_Directory (HTTP_Server)
+                 & Utils.Image (UID) & '_'
                  & Filename (I + 1 .. Filename'Last);
             end if;
          end Target_Filename;
@@ -1096,7 +1106,6 @@ is
    end Send_File_Size;
 
 begin
-
    C_Stat := Status.No_Data;
 
    --  this new connection has been initialized because some data are
