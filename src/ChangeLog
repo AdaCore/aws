@@ -1,3 +1,18 @@
+2002-10-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources.ads, aws-resources.adb:
+	(File_Tagged): LFT new field.
+	(LF_Terminated): Private abstract function removed.
+	(Get_Line): Private abstract procedure removed.
+	(LF_Terminated): Implementation here now.
+	(Get_Line): Implementation here now.
+
+	* aws-resources-embedded.ads, aws-resources-embedded.adb,
+	  aws-resources-files.ads, aws-resources-files.adb:
+	(File_Tagged): LFT field removed.
+	(LF_Terminated): Private function removed.
+	(Get_Line): Private procedure removed.
+
 2002-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-parameters.ads:
