@@ -237,11 +237,13 @@ package body Stub is
       is
          use type WSDL.Parameter_Type;
       begin
-         if Prefix /= "" and then N.P_Type = WSDL.P_String then
-            --  A string inside a record
-            Text_IO.Put (Stub_Adb, "SOAP.Utils.US");
+         if Prefix /= "" then
+            --  Inside a record
+            Text_IO.Put
+              (Stub_Adb,
+               WSDL.Set_Routine (N.P_Type, Context => WSDL.Component));
          else
-            Text_IO.Put (Stub_Adb, SOAP_Constructor (N.P_Type));
+            Text_IO.Put (Stub_Adb, WSDL.Set_Routine (N.P_Type));
          end if;
 
          Text_IO.Put
