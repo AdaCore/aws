@@ -324,8 +324,11 @@ package AWS.Client is
      (Connection : in     HTTP_Connection;
       Result     :    out Response.Data;
       SOAPAction : in     String;
-      Data       : in     String);
+      Data       : in     String;
+      Streaming  : in     Boolean := False);
    --  Same as SOAP_Post above but using a Connection
+   --  Streaming is for be able to parse response XML on the fly,
+   --  without intermediate buffer.
 
    procedure Close (Connection : in out HTTP_Connection);
    --  Close connection, it releases all associated resources
