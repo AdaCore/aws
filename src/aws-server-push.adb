@@ -226,6 +226,8 @@ package body AWS.Server.Push is
                   Success : Boolean;
                begin
                   Send_Data (Holder, Data, Content_Type);
+
+                  Table.Containers.Next (Cursor);
                exception
                   when Net.Socket_Error =>
                      declare
@@ -234,12 +236,16 @@ package body AWS.Server.Push is
                           := Table.Containers.Key (Cursor);
                      begin
                         Table.Insert (Unregistered, Key, Holder, C, Success);
+
+                        --  We have to move cursor to the next position before
+                        --  delete element from current position.
+
+                        Table.Containers.Next (Cursor);
+
                         Unregister (Key, True);
                      end;
                end;
             end;
-
-            Table.Containers.Next (Cursor);
          end loop;
       end Send;
 
