@@ -1,3 +1,51 @@
+2000-09-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads:
+	(Slot): removes Quit field (was not used anymore).
+
+	* aws-server.adb:
+	(Get): properly set Abortable status here. minor reformating.
+	(Line): removes call to Set_Abortable.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): minor reformating.
+	(Get_Message_Header): set abortable status here.
+	(Protocol_Handler): remove call to Set_Abortable.
+
+	* aws-server-get_status.adb:
+	removes Quit variable (does not exist anymore).
+
+2000-09-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_File): close file if there is an exception raised during
+	 transfert.
+
+2000-09-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-mime.ads:
+	Add some comments.
+
+2000-09-11  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Get_Host_Name): removed.
+	(Port_Not_Default): new function.
+	(Open_Socket): send correct "Host:" field.
+	(Init_Connection): minor change to User-Agent field value.
+
+2000-09-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Header_Date_Serv): Use OS_Lib.OS_Clock instead of Calendar.Clock.
+
+	* aws-response.adb: 
+	(Acknowledge): add Content_Type string.
+	Properly set the content type when message body non empty.
+
+	* aws-response.ads:
+	(Acknowledge): add Content_Type string.
+
 2000-09-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
