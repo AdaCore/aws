@@ -42,12 +42,13 @@ with GNAT.Table;
 with GNAT.Calendar.Time_IO;
 with Sockets;
 
+with AWS.Digest;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.OS_Lib;
-with AWS.Translator;
 with AWS.Net;
-with AWS.Digest;
+with AWS.OS_Lib;
+with AWS.Response.Set;
+with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Client is
@@ -728,6 +729,11 @@ package body AWS.Client is
 
       if not Get_Body then
          Result := Response.Build (To_String (CT), "", Status);
+
+         --  Force Response Data content length
+
+         Response.Set.Content_Length (Result, CT_Len);
+
          Disconnect;
          Set_Phase (Connection, Not_Monitored);
          Check_Status;
