@@ -1,3 +1,13 @@
+2004-10-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Move "gen_sources" dependence from "run" to "gen_main".
+	Remove "gen_main" dependence from run (build already depend on it).
+
+	* regtests.gpr:
+	Change case of Test_Mode. Looks like project parameter names
+	 are case sensitive.
+
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -34,11 +44,11 @@
 	Renamed split1.adb, split1.out and split1.ini to avoid
 	 duplicate name with demo.
 
-	* interoplab_main.adb, interoplab_main.out: 
+	* interoplab_main.adb, interoplab_main.out:
 	Renamed interoplab_main1.adb and interoplab_main1.ini to avoid
 	 duplicate name with demo.
 
-	* dispatch.adb, dispatch.out, dispatch.ini: 
+	* dispatch.adb, dispatch.out, dispatch.ini:
 	Renamed dispatch1.adb, dispatch1.out and dispatch1.ini to avoid
 	 duplicate name with demo.
 
@@ -51,7 +61,7 @@
 	Lot of changes to use new way to build AWS based on project files.
 	It is possible to improve this part as most regression test
 	 executable could be build using a project file too.
-	
+
 2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* tmem.adb:
