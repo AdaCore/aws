@@ -211,15 +211,15 @@ package body Memory_Streams is
       ------------
 
       procedure Append (Data : in Element_Array) is
-         Buffer_Len_1    : constant Element_Offset
+         Buffer_Len_1  : constant Element_Offset
            := Buffer'Last - Buffer_Offset;
          --  Buffer remain length minus 1
 
-         Current_Len_1   : constant Element_Offset
+         Current_Len_1 : constant Element_Offset
            := Data'Last - Stream.Current_Offset;
          --  Data remain length minus 1
 
-         Current_Last    : Element_Index;
+         Current_Last  : Element_Index;
       begin
          Block_Over := Buffer_Len_1 >= Current_Len_1;
 
