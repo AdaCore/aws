@@ -1,3 +1,14 @@
+2003-09-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser-filter.adb:
+	Update to version 6.1. Add all code related to filters here. New
+	 filter SLICE.
+
+	* templates_parser-expr.adb, templates_parser-input.ads,
+	  templates_parser.adb:
+	Update to version 6.1. Some reformating.
+	Some more speed optimization.
+
 2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.ads, templates_parser.adb:
