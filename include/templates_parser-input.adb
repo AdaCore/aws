@@ -116,6 +116,7 @@ package body Templates_Parser.Input is
 
       File := new File_Record;
       Open (File.all, Name, Form);
+      Support_Compressed (File.all, State => False);
    exception
       when Ada.IO_Exceptions.Name_Error =>
          Free (File);
