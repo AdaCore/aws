@@ -31,6 +31,7 @@
 --  $Id$
 
 with AWS.Containers.Tables;
+with Sockets;
 
 package AWS.Headers is
 
@@ -42,8 +43,15 @@ package AWS.Headers is
 
    subtype VString_Array is AWS.Containers.Tables.VString_Array;
 
+   subtype Name_Value_Type is AWS.Containers.Tables.Name_Value_Type;
+
    Format_Error : exception;
    --  Raised when header line format is wrong.
+
+   procedure Send_Header
+     (Headers : in List;
+      Socket  : in Sockets.Socket_FD'Class);
+   --  Send all header lines to the socket appropriate formated.
 
    function Get_Line
      (Headers : in List;
