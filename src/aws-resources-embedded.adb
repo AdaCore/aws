@@ -82,6 +82,27 @@ package body AWS.Resources.Embedded is
       Streams.Create (File, Stream);
    end Create;
 
+   -----------
+   -- Exist --
+   -----------
+
+   function Exist (Name : in String) return File_Instance is
+   begin
+      if not Is_GZip (Name)
+        and then Res_Files.Is_Present (Files_Table, Name & GZip_Ext)
+      then
+         if Res_Files.Is_Present (Files_Table, Name) then
+            return Both;
+         else
+            return GZip;
+         end if;
+      elsif Res_Files.Is_Present (Files_Table, Name) then
+         return Plain;
+      else
+         return None;
+      end if;
+   end Exist;
+
    ---------------
    -- File_Size --
    ---------------
@@ -104,7 +125,7 @@ package body AWS.Resources.Embedded is
          raise Resource_Error;
       end if;
 
-      Res_Files.Get_Value (Files_Table, Name & ".gz", N, Found);
+      Res_Files.Get_Value (Files_Table, Name & GZip_Ext, N, Found);
 
       if Found then
          return N.File_Buffer'Length;
@@ -132,7 +153,7 @@ package body AWS.Resources.Embedded is
          raise Resource_Error;
       end if;
 
-      Res_Files.Get_Value (Files_Table, Name & ".gz", N, Found);
+      Res_Files.Get_Value (Files_Table, Name & GZip_Ext, N, Found);
 
       if Found then
          return N.File_Time;
@@ -149,7 +170,7 @@ package body AWS.Resources.Embedded is
    begin
       return Res_Files.Is_Present (Files_Table, Name)
         or else (not Is_GZip (Name)
-                 and then Res_Files.Is_Present (Files_Table, Name & ".gz"));
+                 and then Res_Files.Is_Present (Files_Table, Name & GZip_Ext));
    end Is_Regular_File;
 
    ----------
@@ -193,7 +214,7 @@ package body AWS.Resources.Embedded is
          Open_File (Name);
 
       elsif GZip then
-         Open_File (Name & ".gz");
+         Open_File (Name & GZip_Ext);
 
          if not Found then
             Open_File (Name);
@@ -207,7 +228,7 @@ package body AWS.Resources.Embedded is
          Open_File (Name);
 
          if not Found then
-            Open_File (Name & ".gz");
+            Open_File (Name & GZip_Ext);
 
             if Found then
                Stream := Streams.ZLib.Inflate_Create
