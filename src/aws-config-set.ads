@@ -162,6 +162,9 @@ package AWS.Config.Set is
    procedure Case_Sensitive_Parameters (O : in out Object; Value : in Boolean);
    --  Parameters are handled with the case if Value is True.
 
+   procedure Line_Stack_Size (O : in out Object; Value : in Positive);
+   --  HTTP lines stack size.
+
    -------------------------
    -- Per Process Options --
    -------------------------
@@ -221,6 +224,7 @@ private
       Up_Image,
       Down_Image,
       Logo_Image,
-      Case_Sensitive_Parameters);
+      Case_Sensitive_Parameters,
+      Line_Stack_Size);
 
 end AWS.Config.Set;

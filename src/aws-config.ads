@@ -156,7 +156,10 @@ package AWS.Config is
    --  Is the server working through th SSL
 
    function Case_Sensitive_Parameters (O : in Object) return Boolean;
-   --  Http parameters are case sensitive.
+   --  HTTP parameters are case sensitive.
+
+   function Line_Stack_Size (O : in Object) return Positive;
+   --  HTTP lines stack size.
 
    -------------------------
    -- Per Process options --
@@ -200,7 +203,8 @@ private
       Up_Image,
       Down_Image,
       Logo_Image,
-      Case_Sensitive_Parameters);
+      Case_Sensitive_Parameters,
+      Line_Stack_Size);
 
    --  List of token (keyword) recognized by the parser. There must be one
    --  entry for every option name to be handled.
@@ -233,6 +237,7 @@ private
       Up_Image,
       Down_Image,
       Logo_Image,
+      Line_Stack_Size,
       Case_Sensitive_Parameters,
       Session_Cleanup_Interval,
       Session_Lifetime);
@@ -351,7 +356,10 @@ private
            (Bool, Default.Security),
 
          Case_Sensitive_Parameters =>
-           (Bool, Default.Case_Sensitive_Parameters));
+           (Bool, Default.Case_Sensitive_Parameters),
+
+         Line_Stack_Size =>
+           (Pos, Default.Line_Stack_Size));
 
    type Object is record
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;
