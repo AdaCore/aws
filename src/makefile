@@ -4,7 +4,7 @@
 .SILENT: all build build_ssl build_std distrib ssl_mode std_mode
 
 SSL	= ../ssl
-GFLAGS	= -g -O2 -gnatwu -gnaty -I../ssl
+GFLAGS	= -g -O2 -gnatwu -gnaty -I../ssl -I../include
 
 SOURCES	= aws-client.adb aws-messages.adb aws-response.adb aws-server.adb \
 	aws-status.adb aws-translater.adb aws-url.adb
@@ -17,6 +17,10 @@ all:
 	echo ""
 
 build: build_$(MODE)
+	gnatmake -c -O2 -g -I../include templates_parser
+	gnatmake -c -O2 -g -I../include avl_tree_generic
+	gcc -c -O2 -g -I../include aws-session.adb
+	gcc -c -O2 -g -I../include aws-server-get_status.adb
 	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
 
 build_ssl:
@@ -34,4 +38,4 @@ build_std:
 	echo '    Body_File_Name => "aws-net-std.adb");' >> gnat.adc
 
 clean:
-	-rm *.o *.ali *.exe aws.tar* gnat.adc
+	-rm *.o *.ali gnat.adc build_ssl
