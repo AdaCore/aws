@@ -1,3 +1,15 @@
+2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* upload3.adb:
+	Use new unexpected exceptions handler spec.
+
+	* upload2.adb:
+	Use new unexpected exceptions handler spec.
+
+	* unexph.adb:
+	Use new unexpected exceptions handler spec.
+	Update copyright notice.
+
 2003-01-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
