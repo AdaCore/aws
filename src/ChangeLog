@@ -1,5 +1,8 @@
 2002-03-28  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-parameters.ads:
+	Minor comment fix.
+
 	* aws-parameters-set.adb:
 	(Add): Fix implementation using HTTP_Data tree for key/value by
 	 order retrieval.
