@@ -39,7 +39,7 @@ LARGS = $(LFLAGS) $(LIBS) -L../ssl -lnosslaws
 endif
 
 # SOAP regression tests
-RT_SOAP = soap1 soap2 soap3 workorder testxml test_speed test_soap \
+RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
 	test_soap2 test_soap3 test_soap4 test_soap5 disp_soap $(RT_SOAP_SEC)
 
 # Standard regression tests
