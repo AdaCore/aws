@@ -7,11 +7,14 @@
 #
 #   1) create the appropriate Ada program (let's call it mytest.adb)
 #   2) create the expected output mytest.out
-#   3) add mytest to either RT_SOAP or RT_STD, RT_SOAP_SEC or RT_STD_SEC
+#   3) add mytest to either :
 #      RT_SOAP     : for SOAP tests using HTTP
 #      RT_STD      : for standard tests using HTTP
 #      RT_SOAP_SEC : for SOAP tests using HTTPS
 #      RT_STD_SEC  : for standard tests using HTTPS
+#      OTH_TESTS   : tests with specific target (not using standard procedure)
+#      WSDL_TESTS  : WSDL tests
+#      WSDL_ATESTS : WSDL tests using the wsdl2aws -a option (Ada Name Style)
 
 GARGS = -i -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
@@ -46,23 +49,27 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tlog unexph2 sp $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
-STD_TESTS  = $(RT_STD)
-OTH_TESTS  = tres dirop
-WSDL_TESTS =
+STD_TESTS   = $(RT_STD)
+OTH_TESTS   = tres dirop
+WSDL_TESTS  =
+WSDL_ATESTS =
 else
-STD_TESTS  = $(RT_STD) $(RT_SOAP)
-OTH_TESTS  = tres dirop check_mem
-WSDL_TESTS = test_wsdl test_wsdl2 
+STD_TESTS   = $(RT_STD) $(RT_SOAP)
+OTH_TESTS   = tres dirop check_mem
+WSDL_TESTS  = test_wsdl test_wsdl2 
+WSDL_ATESTS = test_wsdl3 
 endif
 
 ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
-		$(addsuffix $(EXEEXT), $(OTH_TESTS))
+	$(addsuffix $(EXEEXT), $(OTH_TESTS)) \
+	$(addsuffix $(EXEEXT), $(WSDL_TESTS)) \
+	$(addsuffix $(EXEEXT), $(WSDL_ATESTS))
 
 run : build checks
 
 force:
 
-build: init $(STD_TESTS) $(OTH_TESTS) $(WSDL_TESTS)
+build: init $(STD_TESTS) $(OTH_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS)
 
 init:
 	cp ../demos/cert.pem .
@@ -98,6 +105,15 @@ dirop: force
 $(WSDL_TESTS): force
 	echo -n Building $@
 	../tools/wsdl2aws -q -f $@.wsdl
+	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
+	echo ",  run it"
+	rm -f $@.res
+	./$@ > $@.res
+	-diff -c -w $@.out $@.res >> alldifs
+
+$(WSDL_ATESTS): force
+	echo -n Building $@
+	../tools/wsdl2aws -q -f -a $@.wsdl
 	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
@@ -168,3 +184,4 @@ clean:
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
 	-rm -f alldifs *.log run? check_mem.run? hello_demo* out.gdb out.tmp
+	-rm -f stockquoteservice* stock_quote_service*
