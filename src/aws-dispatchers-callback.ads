@@ -45,14 +45,14 @@ package AWS.Dispatchers.Callback is
 
    function Create
      (Callback : in Response.Callback)
-     return Handler;
+      return Handler;
    pragma Inline (Create);
    --  Build a dispatcher for the specified callback.
 
    function Dispatch
      (Dispatcher : in Handler;
       Request    : in Status.Data)
-     return Response.Data;
+      return Response.Data;
 
 private
 

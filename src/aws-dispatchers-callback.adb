@@ -38,7 +38,7 @@ package body AWS.Dispatchers.Callback is
 
    function Create
      (Callback : in Response.Callback)
-     return Handler is
+      return Handler is
    begin
       return (AWS.Dispatchers.Handler with Callback => Callback);
    end Create;
