@@ -45,7 +45,7 @@ package SSL.Wrappers is
 
    --  All routines below raise Program_Error
 
-   procedure SSL_Set_Shutdown;
+   procedure SSL_set_shutdown;
    pragma Export (C, SSL_set_shutdown, "SSL_set_shutdown");
 
    procedure SSL_set_read_ahead;
@@ -104,7 +104,7 @@ package SSL.Wrappers is
    procedure SSL_connect;
    pragma Export (C, SSL_connect, "SSL_connect");
 
-   procedure SSL_set_connect_state   ;
+   procedure SSL_set_connect_state;
    pragma Export (C, SSL_set_connect_state, "SSL_set_connect_state");
 
    procedure TLSv1_client_method;
