@@ -309,19 +309,50 @@ is
          end if;
       end Send_Message;
 
-   begin
-      --  check if the status page is requested or the status page logo. These
-      --  are AWS internal page that should not be handled by AWS users.
+      URI : constant String := AWS.Status.URI (C_Stat);
 
-      if AWS.Status.URI (C_Stat) = Admin_URI then
+   begin
+      --  Check if the status page, status page logo or status page images are
+      --  requested. These are AWS internal data that should not be handled by
+      --  AWS users.
+
+      if URI = Admin_URI then
+         --  status page
          Answer := Response.Build
            (Content_Type => "text/html",
             Message_Body => Get_Status (HTTP_Server));
 
-      elsif AWS.Status.URI (C_Stat) = Admin_URI & "-logo" then
+      elsif URI = Admin_URI & "-logo" then
+         --  status page logo
          Answer := Response.File
            (Content_Type => "image/gif",
             Filename     => "logo.gif");
+
+      elsif URI = Admin_URI & "-uparr" then
+         --  status page hotplug up-arrow
+         Answer := Response.File
+           (Content_Type => "image/gif",
+            Filename     => "up.gif");
+
+      elsif URI = Admin_URI & "-downarr" then
+         --  status page hotplug down-arrow
+         Answer := Response.File
+           (Content_Type => "image/gif",
+            Filename     => "down.gif");
+
+      elsif URI = Admin_URI & "-HPup" then
+         --  status page hotplug up message
+         Hotplug.Move_Up
+           (HTTP_Server.Filters,
+            Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
+         Answer := Response.Moved (Admin_URI);
+
+      elsif URI = Admin_URI & "-HPdown" then
+         --  status page hotplug down message
+         Hotplug.Move_Down
+           (HTTP_Server.Filters,
+            Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
+         Answer := Response.Moved (Admin_URI);
 
       else
          --  otherwise, check if a session needs to be created
