@@ -1,3 +1,11 @@
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
+	* ssl_lib.gpr, crypto_lib.gpr:
+	Initial revision.
+
+	* ssl.gpr:
+	Import the SSL external library project files ssl_lib and crypto_lib.
+
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* ssl.gpr:

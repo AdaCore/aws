@@ -1,3 +1,11 @@
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-ssl.adb:
+	Remove pragma Linker_Options for aws_nossl. This causes too much
+	 problem to find a correct library ordering when using GNAT
+	 Project File. Now AWS provides all project files to properly
+	 build applications which are SSL based or not.
+
 2004-09-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:
