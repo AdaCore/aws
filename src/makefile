@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build build_ssl build_std distrib
+.SILENT: all build build_ssl build_std distrib ssl_mode std_mode
 
 SSL	= ../ssl
 GFLAGS	= -g -O2 -gnatwu -gnaty -I../ssl
@@ -20,13 +20,15 @@ build: build_$(MODE)
 	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
 
 build_ssl:
-	-rm *.o *.ali
+	-rm *.o *.ali build_std
+	echo > build_ssl
 	echo 'pragma Source_File_Name' > gnat.adc
 	echo '   (aws.net,' >> gnat.adc
 	echo '    Body_File_Name => "aws-net-ssl.adb");' >> gnat.adc
 
 build_std:
-	-rm *.o *.ali
+	-rm *.o *.ali build_ssl
+	echo > build_std
 	echo 'pragma Source_File_Name' > gnat.adc
 	echo '   (aws.net,' >> gnat.adc
 	echo '    Body_File_Name => "aws-net-std.adb");' >> gnat.adc
