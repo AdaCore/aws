@@ -46,7 +46,6 @@ with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Session;
 with AWS.Services.Split_Pages;
-with AWS.Services.Files;
 with AWS.Status;
 with AWS.Templates;
 with AWS.Translator;
@@ -159,7 +158,7 @@ procedure Check_Mem is
         or else URI = "/fileb.txt"
         or else URI = "/filec.txt"
       then
-         return Services.Files.Open (URI (URI'First + 1 .. URI'Last), Request);
+         return Response.File ("text/plain", URI (URI'First + 1 .. URI'Last));
 
       elsif URI = "/no-template" then
          declare
