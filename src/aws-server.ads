@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -46,8 +46,8 @@ with Ada.Exceptions;
 
 package AWS.Server is
 
-   Def_Admin_URI   : String renames Default.Admin_URI;
-   Def_Upload_Dir  : String renames Default.Upload_Directory;
+   Def_Admin_URI       : String renames Default.Admin_URI;
+   Def_Upload_Dir      : String renames Default.Upload_Directory;
    Def_Max_Connect     : constant := Default.Max_Connection;
    Def_Port            : constant := Default.Server_Port;
    Def_Line_Stack_Size : constant := Default.Line_Stack_Size;
@@ -60,6 +60,10 @@ package AWS.Server is
                 Termination : in Boolean);
    --  Unexpected exception handler can be set to monitor server errors.
    --  Termination is set to true if the line has been terminated.
+
+   ---------------------------
+   -- Server initialization --
+   ---------------------------
 
    procedure Start
      (Web_Server : in out HTTP;
@@ -106,14 +110,9 @@ package AWS.Server is
    --  parameters name will be handled without case sensitivity. Upload
    --  directory point to a directory where uploaded files will be stored.
 
-   procedure Set_Unexpected_Exception_Handler
-     (Web_Server : in out HTTP;
-      Handler    : in     Unexpected_Exception_Handler);
-   --  Set the unexpected exception handler. It is called whenever an
-   --  unrecoverable error has been detected. The default handler just display
-   --  (on standard output) an error message with the location of the
-   --  error. By changing this handler it is possible to log or display full
-   --  symbolic stack backtrace if needed.
+   ------------------------
+   -- Server termination --
+   ------------------------
 
    procedure Shutdown (Web_Server : in out HTTP);
    --  Stop the server and release all associated memory. This routine can
@@ -129,8 +128,33 @@ package AWS.Server is
    --  (No_Server mode) or the 'q' key has been pressed. If mode is set to
    --  Forever Wait will never return. The process will have to be killed.
 
+   --------------------------
+   -- Server configuration --
+   --------------------------
+
    function Config (Web_Server : in HTTP) return AWS.Config.Object;
    --  Returns configuration object for Web_Server.
+
+   procedure Set_Unexpected_Exception_Handler
+     (Web_Server : in out HTTP;
+      Handler    : in     Unexpected_Exception_Handler);
+   --  Set the unexpected exception handler. It is called whenever an
+   --  unrecoverable error has been detected. The default handler just display
+   --  (on standard output) an error message with the location of the
+   --  error. By changing this handler it is possible to log or display full
+   --  symbolic stack backtrace if needed.
+
+   procedure Set
+     (Web_Server : in out HTTP;
+      Dispatcher : in     Dispatchers.Handler'Class);
+   --  Dynamically associate a new dispatcher object to the server. With the
+   --  feature it is possible to change server behavior at runtime. The
+   --  complete set of callback procedures will be changed when calling this
+   --  routine.
+
+   ----------------
+   -- Server Log --
+   ----------------
 
    procedure Start_Log
      (Web_Server      : in out HTTP;
@@ -336,7 +360,7 @@ private
       Start_Time        : Ada.Calendar.Time;
       --  Date and Time when server was started.
 
-      Shutdown          : Boolean     := True;
+      Shutdown          : Boolean := True;
       --  True when server is shutdown. This will be set to False when server
       --  will be started.
 
@@ -357,6 +381,7 @@ private
       --  Loggin support.
 
       Dispatcher        : Dispatchers.Handler_Class_Access;
+      pragma Atomic (Dispatcher);
       --  Dispatcher for the user actions.
 
       Filters           : Hotplug.Filter_Set;
@@ -365,14 +390,14 @@ private
       Lines             : Line_Set_Access;
       --  The tasks doing the job.
 
-      Exception_Handler : Unexpected_Exception_Handler :=
-         Default_Unexpected_Exception_Handler'Access;
-      --  Exception handle used for unexpected errors found on the server
-      --  implementation.
-
-      Slots           : Slots_Access;
+      Slots             : Slots_Access;
       --  Information about each tasks above. This is a protected object to
       --  support concurrency.
+
+      Exception_Handler : Unexpected_Exception_Handler
+         := Default_Unexpected_Exception_Handler'Access;
+      --  Exception handle used for unexpected errors found on the server
+      --  implementation.
    end record;
 
    procedure Initialize (Web_Server : in out HTTP);
