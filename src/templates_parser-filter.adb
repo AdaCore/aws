@@ -39,6 +39,7 @@ package body Filter is
    Plus_Token          : aliased constant String := """+""";
    Minus_Token         : aliased constant String := """-""";
    Divide_Token        : aliased constant String := """/""";
+   Abs_Token           : aliased constant String := "ABS";
    Add_Token           : aliased constant String := "ADD";
    Add_Param_Token     : aliased constant String := "ADD_PARAM";
    BR_2_LF_Token       : aliased constant String := "BR_2_LF";
@@ -57,6 +58,7 @@ package body Filter is
    Match_Token         : aliased constant String := "MATCH";
    Modulo_Token        : aliased constant String := "MOD";
    Mult_Token          : aliased constant String := "MULT";
+   Neg_Token           : aliased constant String := "NEG";
    No_Context_Token    : aliased constant String := "NO_CONTEXT";
    No_Digit_Token      : aliased constant String := "NO_DIGIT";
    No_Letter_Token     : aliased constant String := "NO_LETTER";
@@ -91,6 +93,9 @@ package body Filter is
 
          Divide         =>
            (Divide_Token'Access,         Divide'Access),
+
+         Absolute       =>
+           (Abs_Token'Access,            Absolute'Access),
 
          Add            =>
            (Add_Token'Access,            Plus'Access),
@@ -146,8 +151,11 @@ package body Filter is
          Mult           =>
            (Mult_Token'Access,           Multiply'Access),
 
-         No_Context       =>
-           (No_Context_Token'Access,       No_Context'Access),
+         Neg            =>
+           (Neg_Token'Access,            Neg'Access),
+
+         No_Context     =>
+           (No_Context_Token'Access,     No_Context'Access),
 
          No_Digit       =>
            (No_Digit_Token'Access,       No_Digit'Access),
@@ -287,7 +295,9 @@ package body Filter is
       use Strings.Maps;
    begin
       return S'Length > 0
-        and then Is_Subset (To_Set (S), Constants.Decimal_Digit_Set);
+        and then Is_Subset
+          (To_Set (S),
+           Constants.Decimal_Digit_Set or To_Set ("-"));
    end Is_Number;
 
    ----------
@@ -351,6 +361,28 @@ package body Filter is
    --
    --  Filters definition start here
    --
+
+   --------------
+   -- Absolute --
+   --------------
+
+   function Absolute
+     (S : in String;
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
+      return String
+   is
+      pragma Unreferenced (T, I);
+   begin
+      Check_Null_Parameter (P);
+
+      if S = "" or not Is_Number (S) then
+         return "";
+      else
+         return Image (abs Integer'Value (S));
+      end if;
+   end Absolute;
 
    ---------------
    -- Add_Param --
@@ -904,6 +936,28 @@ package body Filter is
          return "TRUE";
       end if;
    end Match;
+
+   ---------
+   -- Neg --
+   ---------
+
+   function Neg
+     (S : in String;
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
+      return String
+   is
+      pragma Unreferenced (T, I);
+   begin
+      Check_Null_Parameter (P);
+
+      if S = "" or not Is_Number (S) then
+         return "";
+      else
+         return Image (Integer'Value (S) * (-1));
+      end if;
+   end Neg;
 
    ----------------
    -- No_Context --
