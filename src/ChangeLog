@@ -1,5 +1,13 @@
 2003-11-05  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Value_For): Removed. Use Headers.Values.Search instead. Code
+	 clean-up.
+	Minor comment fixes.
+
+	* aws-resources-embedded.ads:
+	Minor comment fixes.
+
 	* aws-pop.adb:
 	(Get): Use AWS.Headers.Values.Search instead of
 	 AWS.Headers.Get_Field_Value.
