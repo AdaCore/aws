@@ -14,7 +14,7 @@ GARGS = $(GFLAGSY) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) -L../ssl -lssl -lcrypto ../win32/aws.coff
+LARGS = $(LFLAGS) $(LIBS) -L../win32 -L../ssl -lssl -lcrypto ../win32/aws.coff
 else
 LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto -ladasockets
 endif
@@ -26,14 +26,14 @@ GARGS = $(GFLAGSY) -i -I../src -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) ../win32/aws.coff
+LARGS = $(LFLAGS) $(LIBS) -L../win32 ../win32/aws.coff
 else
 LARGS = $(LFLAGS) $(LIBS) -ladasockets
 endif
 endif
 
 build: runme agent auth ws wps com_1 com_2 main hotplug hello_world \
-	text_input vh_demo dispatch res_demo
+	text_input vh_demo dispatch res_demo test_ldap
 
 force:
 
@@ -79,6 +79,9 @@ dispatch: force
 res_demo: force
 	../tools/awsres -q -r rdemo adains.png page3.html
 	gnatmake $(GARGS) res_demo -bargs $(BARGS) -largs $(LARGS)
+
+test_ldap: force
+	gnatmake $(GARGS) test_ldap -bargs $(BARGS) -largs $(LARGS) -lldap
 
 build_soap: force
 	(if [ -e ../soap/soap.o ] ; then \
