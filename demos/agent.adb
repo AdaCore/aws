@@ -80,51 +80,51 @@ procedure Agent is
 
    procedure Parse_Command_Line is
    begin
-     loop
-        case GNAT.Command_Line.Getopt ("f d u: p: pu: pp: proxy: k n") is
+      loop
+         case GNAT.Command_Line.Getopt ("f d u: p: pu: pp: proxy: k n") is
 
-           when ASCII.NUL =>
-              exit;
+            when ASCII.NUL =>
+               exit;
 
-           when 'f' =>
-              Force := True;
+            when 'f' =>
+               Force := True;
 
-           when 'n' =>
-              Wait_Key := False;
+            when 'n' =>
+               Wait_Key := False;
 
-           when 'd' =>
-              AWS.Client.Set_Debug (On => True);
+            when 'd' =>
+               AWS.Client.Set_Debug (On => True);
 
-           when 'k' =>
-              Keep_Alive := True;
+            when 'k' =>
+               Keep_Alive := True;
 
-           when 'u' =>
-              User := To_Unbounded_String (GNAT.Command_Line.Parameter);
+            when 'u' =>
+               User := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
-           when 'p' =>
-              if GNAT.Command_Line.Full_Switch = "p" then
-                 Pwd := To_Unbounded_String (GNAT.Command_Line.Parameter);
+            when 'p' =>
+               if GNAT.Command_Line.Full_Switch = "p" then
+                  Pwd := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
-              elsif GNAT.Command_Line.Full_Switch = "pu" then
-                 Proxy_User :=
-                   To_Unbounded_String (GNAT.Command_Line.Parameter);
+               elsif GNAT.Command_Line.Full_Switch = "pu" then
+                  Proxy_User :=
+                    To_Unbounded_String (GNAT.Command_Line.Parameter);
 
-              elsif GNAT.Command_Line.Full_Switch = "pp" then
-                 Proxy_Pwd :=
-                   To_Unbounded_String (GNAT.Command_Line.Parameter);
+               elsif GNAT.Command_Line.Full_Switch = "pp" then
+                  Proxy_Pwd :=
+                    To_Unbounded_String (GNAT.Command_Line.Parameter);
 
-              elsif GNAT.Command_Line.Full_Switch = "proxy" then
-                 Proxy :=
-                   To_Unbounded_String (GNAT.Command_Line.Parameter);
-              end if;
+               elsif GNAT.Command_Line.Full_Switch = "proxy" then
+                  Proxy :=
+                    To_Unbounded_String (GNAT.Command_Line.Parameter);
+               end if;
 
-           when others =>
-              raise Program_Error;         -- cannot occurs!
-        end case;
-     end loop;
+            when others =>
+               raise Program_Error;         -- cannot occurs!
+         end case;
+      end loop;
 
-     Method := Status.Request_Method'Value (GNAT.Command_Line.Get_Argument);
-     URL    := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
+      Method := Status.Request_Method'Value (GNAT.Command_Line.Get_Argument);
+      URL    := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
    end Parse_Command_Line;
 
    Data : Response.Data;

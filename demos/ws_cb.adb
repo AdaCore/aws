@@ -57,7 +57,7 @@ package body WS_CB is
 
    --  Simple ID generator.
 
-   protected New_Client_Id is
+   protected New_Client_ID is
       procedure Get (New_ID : out String);
    private
       ID : Natural := 0;
