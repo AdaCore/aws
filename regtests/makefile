@@ -26,7 +26,7 @@ LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto
 endif
 
 RT_SOAP_SEC = test_sec_soap
-RT_STD_SEC = tsgetparam
+RT_STD_SEC = tsgetparam ssp
 
 else
 # Without SSL support
@@ -43,7 +43,7 @@ RT_SOAP = soap1 soap2 soap3 workorder testxml test_speed test_soap \
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tres2 upload unexph auth moved turl2 turl3 test_templates_if \
 	head hval turl4 ctab sock1 file redirect hostip upload2 upload3 \
-	tlog unexph2 dirop $(RT_STD_SEC)
+	tlog unexph2 dirop sp $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
 ALL_TESTS = $(RT_STD)
