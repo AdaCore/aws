@@ -4,7 +4,7 @@
 .SILENT: all build build clean clean_noapiref distrib install build_tarball
 .SILENT: display build_aws build_lib build_doc build_tools build_soap
 .SILENT: build_soap_demos build_ssllib build_soaplib build_win32 build_include
-.SILENT: build_demos run_regtests
+.SILENT: build_demos run_regtests setup
 
 # NOTE: You should not have to change this makefile. Configuration options can
 # be changed in makefile.conf
@@ -169,6 +169,7 @@ clean: clean_noapiref
 
 clean_noapiref:
 	${MAKE} -C include clean $(ALL_OPTIONS)
+	${MAKE} -C config clean $(ALL_OPTIONS)
 	${MAKE} -C src clean $(ALL_OPTIONS)
 	${MAKE} -C demos clean $(ALL_OPTIONS)
 	${MAKE} -C ssl clean $(ALL_OPTIONS)
@@ -178,6 +179,12 @@ clean_noapiref:
 	${MAKE} -C win32 clean $(ALL_OPTIONS)
 	${MAKE} -C tools clean $(ALL_OPTIONS)
 	-rm -f *.~*.*~
+
+setup:
+	${MAKE} -C config setup
+	${MAKE} -C win32 build
+	-mkdir obj
+	-mkdir lib
 
 display:
 	echo ""
