@@ -11,21 +11,23 @@ endif
 
 GARGS	= -q -u -I../src $(OFLAGS)
 
-SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
-	table_of_static_keys_and_dynamic_values_g \
-	table_of_static_keys_and_static_values_g \
-	table_of_strings_and_static_values_g.adb \
-	strings_cutter.adb md5.adb \
+SOURCES	= strings_cutter.adb md5.adb \
 	memory_streams.adb zlib-thin.adb zlib.adb \
 	sha.ads sha-process_data.adb sha-strings.adb \
 	ai302-containers-hash_tables.adb \
 	ai302-containers-indefinite_hashed_maps.adb \
+	ai302-containers-indefinite_ordered_sets.adb \
+	ai302-containers-red_black_trees.adb \
 	ai302-containers-prime_numbers.adb ai302.ads \
 	ai302-containers.ads ai302-strings.ads \
 	ai302-strings-hash.adb strings_maps.ads \
 	charles-algorithms-generic_lower_bound.adb \
-	charles-algorithms-generic_lower_bound.ads \
-	charles-algorithms.ads charles.ads
+	charles-algorithms.ads charles.ads \
+	charles-algorithms-generic_compare.adb \
+	charles-algorithms-generic_includes.adb \
+	charles-algorithms-generic_set_difference.adb \
+	charles-algorithms-generic_set_intersection.adb \
+	charles-algorithms-generic_set_symmetric_difference.adb
 
 UNITS = $(sort $(basename $(SOURCES)))
 
