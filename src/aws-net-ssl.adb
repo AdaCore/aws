@@ -69,6 +69,9 @@ package body AWS.Net.SSL is
    pragma Inline (Error_If);
    --  Raises Socket_Error if Error is true. Attach the SSL error message
 
+   procedure Do_Handshake (Socket : in out Socket_Type; Success : out Boolean);
+   --  Perform SSL handshake.
+
    function Error_Stack return String;
    --  Returns error stack of the last SSL error in multiple lines.
 
@@ -108,7 +111,9 @@ package body AWS.Net.SSL is
 
    procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
-      New_Socket : in out Socket_Type) is
+      New_Socket : in out Socket_Type)
+   is
+      Success : Boolean;
    begin
       if New_Socket.Config = null then
          Initialize_Default_Config;
@@ -120,25 +125,11 @@ package body AWS.Net.SSL is
 
          New_Socket.Config.Set_FD (New_Socket);
 
-         Handshake : loop
-            case TSSL.SSL_accept (New_Socket.SSL) is
-               when  1 => exit SSL_Accept;
-               when -1 =>
-                  declare
-                     Error_Code : constant Integer
-                       := Integer (TSSL.SSL_get_error (New_Socket.SSL, -1));
-                  begin
-                     case Error_Code is
-                        when TSSL.SSL_ERROR_WANT_READ  =>
-                           Wait_For (Input, New_Socket);
-                        when TSSL.SSL_ERROR_WANT_WRITE =>
-                           Wait_For (Output, New_Socket);
-                        when others => exit Handshake;
-                     end case;
-                  end;
-               when others => exit Handshake;
-            end case;
-         end loop Handshake;
+         TSSL.SSL_set_accept_state (New_Socket.SSL);
+
+         Do_Handshake (New_Socket, Success);
+
+         exit SSL_Accept when Success;
 
          Shutdown (New_Socket);
 
@@ -161,7 +152,9 @@ package body AWS.Net.SSL is
    procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
-      Port     : in     Positive) is
+      Port     : in     Positive)
+   is
+      Success : Boolean;
    begin
       Net.Std.Connect (NSST (Socket), Host, Port);
 
@@ -172,58 +165,48 @@ package body AWS.Net.SSL is
 
       Socket.Config.Set_FD (Socket);
 
-      while TSSL.SSL_connect (Socket.SSL) = -1 loop
-         declare
-            Error_Code : constant Integer
-              := Integer (TSSL.SSL_get_error (Socket.SSL, -1));
+      TSSL.SSL_set_connect_state (Socket.SSL);
 
-            Err_Code : TSSL.Error_Code;
+      Do_Handshake (Socket, Success);
 
-            use type TSSL.Error_Code;
-         begin
-            case Error_Code is
-               when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
-               when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
-               when others =>
-                  Err_Code := TSSL.ERR_get_error;
-
-                  Net.Std.Shutdown (NSST (Socket));
-                  Free (Socket);
-
-                  if Err_Code = 0 then
-                     Ada.Exceptions.Raise_Exception
-                       (Socket_Error'Identity,
-                        "Error (" & Utils.Image (Error_Code)
-                        & ") on SSL connect initiation");
-                  else
-                     Ada.Exceptions.Raise_Exception
-                       (Socket_Error'Identity, Error_Str (Err_Code));
-                  end if;
-            end case;
-         end;
-      end loop;
+      if not Success then
+         Net.Std.Shutdown (NSST (Socket));
+         Free (Socket);
+         Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error_Stack);
+      end if;
    end Connect;
 
    ------------------
    -- Do_Handshake --
    ------------------
 
-   procedure Do_Handshake (Socket : in out Socket_Type) is
+   procedure Do_Handshake (Socket : in out Socket_Type; Success : out Boolean)
+   is
       Res : Interfaces.C.int;
    begin
       loop
          Res := TSSL.SSL_do_handshake (Socket.SSL);
 
-         exit when Res = 1;
+         Success := Res = 1;
+
+         exit when Success;
 
          case TSSL.SSL_get_error (Socket.SSL, Res) is
             when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
             when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
-            when others =>
-               Ada.Exceptions.Raise_Exception
-                 (Socket_Error'Identity, Error_Stack);
+            when others => exit;
          end case;
       end loop;
+   end Do_Handshake;
+
+   procedure Do_Handshake (Socket : in out Socket_Type) is
+      Success : Boolean;
+   begin
+      Do_Handshake (Socket, Success);
+
+      if not Success then
+         Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error_Stack);
+      end if;
    end Do_Handshake;
 
    --------------
