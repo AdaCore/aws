@@ -2,6 +2,7 @@
 
 	* aws-response.adb:
 	(Message_Body): New routine returning message stream.
+	Update copyright years.
 
 2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
