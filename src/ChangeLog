@@ -1,5 +1,16 @@
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): Add aws-services-files.adb.
+
+	* aws-services-files.ads, aws-services-files.adb:
+	Initial revision.
+
+	* aws-mime.ads, aws-mime.adb:
+	Fix casing of GZip and GTar.
+	
+2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-pop.ads, aws-pop.adb:
 	(Get_Header): New function.
 	(For_Every_Message_Header): New procedure.
