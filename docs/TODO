@@ -104,3 +104,5 @@ implemented:
 
 - Add GNAT project files to build/use AWS (partly done, projects are there but
   not used).
+
+- Document SOAP.Dispatchers.Callback
