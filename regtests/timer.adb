@@ -91,6 +91,9 @@ begin
       GNAT.Calendar.Split
         (Now, Year, Month, Day, Hour, Minute, Second, Sub_Second);
       exit when Second < 50;
+
+      delay 1.0;
+      Now := Calendar.Clock;
    end loop;
 
    --  Config
