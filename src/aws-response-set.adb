@@ -33,8 +33,20 @@
 with AWS.Translator;
 with AWS.Headers.Set;
 with AWS.Digest;
+with AWS.Resources.Streams.Memory;
 
 package body AWS.Response.Set is
+
+   package RSM renames AWS.Resources.Streams.Memory;
+
+   procedure Check_Memory_Stream (D : in out Data);
+   pragma Inline (Check_Memory_Stream);
+   --  Test if the memory stream allocated and create it if necessary.
+
+   procedure Clear_Memory_Stream (D : in out Data);
+   pragma Inline (Clear_Memory_Stream);
+   --  Test if the memory stream allocated and create it if necessary,
+   --  if the stream already created, clear it.
 
    ----------------
    -- Add_Header --
@@ -47,6 +59,33 @@ package body AWS.Response.Set is
    begin
       Headers.Set.Add (D.Header, Name, Value);
    end Add_Header;
+
+   -----------------
+   -- Append_Body --
+   -----------------
+
+   procedure Append_Body
+     (D    : in out Data;
+      Item : in     Streams.Stream_Element_Array)  is
+   begin
+      Check_Memory_Stream (D);
+
+      RSM.Append (RSM.Stream_Type (D.Stream.all), Item);
+   end Append_Body;
+
+   procedure Append_Body
+     (D    : in out Data;
+      Item : in     Utils.Stream_Element_Array_Access) is
+   begin
+      Check_Memory_Stream (D);
+
+      RSM.Append (RSM.Stream_Type (D.Stream.all), Item);
+   end Append_Body;
+
+   procedure Append_Body (D : in out Data; Item : in String) is
+   begin
+      Append_Body (D, Translator.To_Stream_Element_Array (Item));
+   end Append_Body;
 
    --------------------
    -- Authentication --
@@ -109,6 +148,34 @@ package body AWS.Response.Set is
             Value => String (Value));
       end if;
    end Cache_Control;
+
+   -------------------------
+   -- Check_Memory_Stream --
+   -------------------------
+
+   procedure Check_Memory_Stream (D : in out Data) is
+      use type Resources.Streams.Stream_Access;
+   begin
+      if D.Stream = null then
+         D.Stream := new RSM.Stream_Type;
+         D.Mode   := Message;
+      end if;
+   end Check_Memory_Stream;
+
+   -------------------------
+   -- Clear_Memory_Stream --
+   -------------------------
+
+   procedure Clear_Memory_Stream (D : in out Data) is
+      use type Resources.Streams.Stream_Access;
+   begin
+      if D.Stream = null then
+         D.Stream := new RSM.Stream_Type;
+         D.Mode   := Message;
+      else
+         RSM.Clear (RSM.Stream_Type (D.Stream.all));
+      end if;
+   end Clear_Memory_Stream;
 
    ------------------
    -- Content_Type --
@@ -191,18 +258,18 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : in     Streams.Stream_Element_Array) is
    begin
-      Utils.Free (D.Message_Body);
-      D.Message_Body   := new Streams.Stream_Element_Array'(Value);
-      D.Mode           := Message;
+      Clear_Memory_Stream (D);
+
+      RSM.Append (RSM.Stream_Type (D.Stream.all), Value);
    end Message_Body;
 
    procedure Message_Body
      (D     : in out Data;
       Value : in     Utils.Stream_Element_Array_Access) is
    begin
-      Utils.Free (D.Message_Body);
-      D.Message_Body   := Value;
-      D.Mode           := Message;
+      Clear_Memory_Stream (D);
+
+      RSM.Append (RSM.Stream_Type (D.Stream.all), Value);
    end Message_Body;
 
    procedure Message_Body
@@ -219,27 +286,26 @@ package body AWS.Response.Set is
       use Streams;
 
       Chunk_Size  : constant := 8 * 1_024;
-      Len         : constant Stream_Element_Offset
-        := Stream_Element_Offset (Length (Value));
+      Len         : constant Natural := Length (Value);
 
-      Message     : Utils.Stream_Element_Array_Access
-        := new Stream_Element_Array (1 .. Len);
-      First, Last : Stream_Element_Offset;
+      First, Last : Natural;
    begin
-      --  First convert the message to a Stream_Element_Array
+      --  Prepare the memory stream
+
+      Clear_Memory_Stream (D);
+
       First := 1;
 
       loop
-         Last := Stream_Element_Offset'Min (First + Chunk_Size - 1, Len);
+         Last := Integer'Min (First + Chunk_Size - 1, Len);
 
-         Message (First .. Last)
-           := Translator.To_Stream_Element_Array
-                (Slice (Value, Positive (First), Natural (Last)));
+         RSM.Append
+           (RSM.Stream_Type (D.Stream.all),
+            Translator.To_Stream_Element_Array (Slice (Value, First, Last)));
+
          First := Last + 1;
          exit when First > Len;
       end loop;
-
-      Message_Body (D, Message);
    end Message_Body;
 
    ----------
