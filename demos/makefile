@@ -38,9 +38,13 @@ ifdef XMLADA
 DEMOS := $(DEMOS) test_jabber
 endif
 
+ifeq ($(LDAP), 1)
+BUILD_OPT = test_ldap
+endif
+
 SOAP_DEMOS = soap_client soap_server soap_svs soap_cvs
 
-build: build_res build_std test_ldap
+build: build_res build_std $(BUILD_OPT)
 
 $(DEMOS): force
 	echo Building $@;
@@ -64,6 +68,7 @@ build_res:
 force:
 
 test_ldap: force
+	echo Building $@;
 	-gnatmake $(GARGS) test_ldap -bargs $(BARGS) -largs $(LARGS) -lldap
 
 build_soap: $(SOAP_DEMOS)
