@@ -43,6 +43,34 @@ demo.html
    Server    : 
    Port      : 80
    URI       : demo.html
+../demo.html
+../demo.html
+   Server    : 
+   Port      : 80
+   URI       : ../demo.html
+   *
+   Server    : 
+   Port      : 80
+   URI       : ../demo.html
+Error on http://myserver:8088/../demo.html - URI can't start with /..
+http://myserver.com
+http://myserver.com/
+   Server    : myserver.com
+   Port      : 80
+   URI       : /
+   *
+   Server    : myserver.com
+   Port      : 80
+   URI       : /
+https://myserver.com
+https://myserver.com/
+   Server    : myserver.com
+   Port      : 443
+   URI       : /
+   *
+   Server    : myserver.com
+   Port      : 443
+   URI       : /
 kye/demo.html
 kye/demo.html
    Server    : 
