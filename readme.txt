@@ -99,8 +99,9 @@ Here are the main changes since AWS 2.0 :
    - Add exception handler in generated SOAP code for callback and server
      skeleton.
 
-   - Add a new package AWS.Net.Generic_Sets which support user's data
-     associated with each sockets.
+   - Add a new package AWS.Net.Generic_Sets which support waiting for
+     input/output availability on group of sockets and user's data
+     associated with each sockets in group.
 
    - New support for HTTP/SOAP messages with attachments. This support is for
      now only at the library level, there is no WSDL support nor direct
@@ -406,8 +407,8 @@ Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
-Audran Le Baron, Thierry Lelegard, Nicolas Lesbats, Jean-François Rameau,
-Maxim Reznik, Jean-Pierre Rosen, Jerôme Roussel, Ariane Sinibardy,
+Audran Le Baron, Thierry Lelegard, Nicolas Lesbats, Jean-Franï¿½is Rameau,
+Maxim Reznik, Jean-Pierre Rosen, Jerme Roussel, Ariane Sinibardy,
 Henrik Sundberg.
 
 
