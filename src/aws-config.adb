@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -63,6 +63,15 @@ package body AWS.Config is
    begin
       return O.P (Case_Sensitive_Parameters).Bool_Value;
    end Case_Sensitive_Parameters;
+
+   -----------------
+   -- Certificate --
+   -----------------
+
+   function Certificate return String is
+   begin
+      return To_String (Process_Options (Certificate).Str_Value);
+   end Certificate;
 
    ------------------------
    -- Check_URL_Validity --
