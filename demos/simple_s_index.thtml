@@ -1,0 +1,18 @@
+@@-- Builds a simple index for Split pages (secondary index)
+@@-- Simply displays all entries
+@@-- Parameters: $1: Treatment of entries without Hrefs (optional)
+@@--             $1=ALL   All entries without Href are displayed
+@@--             $1=ALPHA Only alpha entries without Href are displayed
+@@--             $1=NONE (or unspecified) No entry without Href is displayed
+@@--
+
+@@TABLE@@
+  @@IF@@ @_IS_EMPTY:TRIM:S_HREFS_V_@
+    @@IF@@ @_UPPER:$1_@ = ALL or (@_UPPER:$1_@ = ALPHA and @_UPPER:S_INDEXES_V_@ >= A and @_UPPER:S_INDEXES_V_@ <= Z)
+      @_S_INDEXES_V_@
+    @@END_IF@@
+  @@ELSE@@
+    <a href="@_S_HREFS_V_@">@_WEB_NBSP:S_INDEXES_V_@</a>
+  @@END_IF@@
+@@END_TABLE@@
+
