@@ -1,0 +1,19 @@
+AWS Module
+./
+./
+@
+NONE
+8080
+10
+aws.ini-status_page
+server_config.ini-directory_browser_page
+
+Server Config
+./
+./
+@
+Monthly
+1259
+10
+aws.ini-status_page
+from_ada_file
