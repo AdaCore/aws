@@ -101,7 +101,7 @@ package body Templates_Parser is
    -----------
 
    function Quote (Str : in String) return String is
-      K : Natural := Strings.Fixed.Index (Str, " ");
+      K : constant Natural := Strings.Fixed.Index (Str, " ");
    begin
       if K = 0 then
          return Str;
