@@ -24,7 +24,8 @@ LIB_IS   =  -lxmlada_input_sources-$(v_XMLADA)
 LIBS	 = -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX)
 endif
 
-INSTALL	 = /usr/Ada.Libraries/AWS
+INSTALL	 = /usr/Ada.Libraries
+# AWS will be installed under $(INSTALL)/AWS
 
 # compiler
 RELEASE_GFLAGS	= -O2 -gnatn
@@ -174,31 +175,31 @@ distrib: clean build_doc
 	rm -fr $${AWS})
 
 install:
-	-rm -fr $(INSTALL)
-	mkdir $(INSTALL)
-	mkdir $(INSTALL)/lib
-	mkdir $(INSTALL)/include
-	mkdir $(INSTALL)/icons
-	mkdir $(INSTALL)/images
-	mkdir $(INSTALL)/templates
-	mkdir $(INSTALL)/docs
-	mkdir $(INSTALL)/components
+	-rm -fr $(INSTALL)/AWS
+	mkdir $(INSTALL)/AWS
+	mkdir $(INSTALL)/AWS/lib
+	mkdir $(INSTALL)/AWS/include
+	mkdir $(INSTALL)/AWS/icons
+	mkdir $(INSTALL)/AWS/images
+	mkdir $(INSTALL)/AWS/templates
+	mkdir $(INSTALL)/AWS/docs
+	mkdir $(INSTALL)/AWS/components
 	ar cr libaws.a src/*.o
 	-ar cr libaws.a ssl/*.o
 	-ar cr libaws.a soap/*.o
-	cp src/*.ad[sb] ssl/*.ad[sb] $(INSTALL)/include
-	-cp soap/*.ad[sb] $(INSTALL)/include
-	cp src/*.ali $(INSTALL)/lib
-	-cp ssl/*.ali $(INSTALL)/lib
-	-cp soap/*.ali $(INSTALL)/lib
-	chmod uog-w $(INSTALL)/lib/*.ali
-	mv libaws.a $(INSTALL)/lib
-	-cp docs/aws.html $(INSTALL)/docs
-	cp docs/templates_parser.html $(INSTALL)/docs
-	-cp docs/aws.txt $(INSTALL)/docs
-	-cp docs/*.info* $(INSTALL)/docs
-	cp demos/*.thtml $(INSTALL)/templates
-	cp icons/*.gif $(INSTALL)/icons
-	cp demos/aws_*.png $(INSTALL)/images
-	-cp ssl/*.a $(INSTALL)/lib
-	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/components
+	cp src/*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
+	-cp soap/*.ad[sb] $(INSTALL)/AWS/include
+	cp src/*.ali $(INSTALL)/AWS/lib
+	-cp ssl/*.ali $(INSTALL)/AWS/lib
+	-cp soap/*.ali $(INSTALL)/AWS/lib
+	chmod uog-w $(INSTALL)/AWS/lib/*.ali
+	mv libaws.a $(INSTALL)/AWS/lib
+	-cp docs/aws.html $(INSTALL)/AWS/docs
+	cp docs/templates_parser.html $(INSTALL)/AWS/docs
+	-cp docs/aws.txt $(INSTALL)/AWS/docs
+	-cp docs/*.info* $(INSTALL)/AWS/docs
+	cp demos/*.thtml $(INSTALL)/AWS/templates
+	cp icons/*.gif $(INSTALL)/AWS/icons
+	cp demos/aws_*.png $(INSTALL)/AWS/images
+	-cp ssl/*.a $(INSTALL)/AWS/lib
+	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/AWS/components
