@@ -42,6 +42,9 @@ package AWS.Messages is
    Get_Token : constant String := "GET ";
    subtype Get_Range is Positive range Get_Token'Range;
 
+   Head_Token : constant String := "HEAD ";
+   subtype Head_Range is Positive range Head_Token'Range;
+
    Post_Token : constant String := "POST ";
    subtype Post_Range is Positive range Post_Token'Range;
 
@@ -61,6 +64,8 @@ package AWS.Messages is
    Transfer_Encoding_Token : constant String := "Transfer-Encoding: ";
    subtype Transfer_Encoding_Range is
      Positive range Transfer_Encoding_Token'Range;
+
+   Form_Data : constant String := "application/x-www-form-urlencoded";
 
    type Status_Code is
      (S100, S101,
@@ -93,12 +98,13 @@ package AWS.Messages is
 
    function Status_Line (Code : in Status_Code) return String;
 
-   function Content_Length (Size : in Positive) return String;
+   function Content_Length (Size : in Natural) return String;
 
    function Content_Type (Format : in String) return String;
 
    function Connection (Mode : in String) return String;
 
+   function Www_Authenticate (Realm : in String) return String;
 
    --  helper functions
 
