@@ -490,7 +490,7 @@ is
                                       Streams.Stream_IO.Out_File,
                                       Target_Filename (To_String (Filename)));
 
-            Read_File: Loop
+            Read_File : loop
                Sockets.Receive (Sock, Data);
 
                while Data (1) = 13 loop
