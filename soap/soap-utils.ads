@@ -125,14 +125,14 @@ package SOAP.Utils is
    --  to map to Ada type.
 
    function US
-     (V      : in Unbounded_String;
-      Name   : in String  := "item")
+     (V    : in Unbounded_String;
+      Name : in String  := "item")
       return Types.XSD_String;
    --  Returns the SOAP string for the given Unbounded_String value and name
 
    function C
-     (V      : in Character;
-      Name   : in String  := "item")
+     (V    : in Character;
+      Name : in String  := "item")
       return Types.SOAP_Enumeration;
    --  Returns the SOAP string for the given Character value and name
 
