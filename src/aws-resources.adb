@@ -118,6 +118,15 @@ package body AWS.Resources is
       end if;
    end Is_Regular_File;
 
+   -------------------
+   -- LF_Terminated --
+   -------------------
+
+   function LF_Terminated (Resource : in File_Type) return Boolean is
+   begin
+      return LF_Terminated (Resource.all);
+   end LF_Terminated;
+
    ----------
    -- Open --
    ----------
