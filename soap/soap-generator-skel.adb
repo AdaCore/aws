@@ -585,6 +585,7 @@ package body Skel is
       Text_IO.Put_Line (Skel_Ads, "with AWS.Response;");
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with SOAP.Message.Payload;");
+      Text_IO.Put_Line (Skel_Ads, "with SOAP.Types;");
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with " & U_Name & ".Types;");
       Text_IO.New_Line (Skel_Ads);
@@ -604,7 +605,6 @@ package body Skel is
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Response.Error;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Parameters;");
-      Text_IO.Put_Line (Skel_Adb, "with SOAP.Types;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Utils;");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "package body " & U_Name & ".Server is");
