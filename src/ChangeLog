@@ -1,5 +1,27 @@
 2004-11-06  Pascal Obry  <pascal@obry.org>
 
+	* aws-services-split_pages-uniform.adb:
+	Use a shorter CVS tag to avoid long line warning.
+
+	* templates_parser-filter.adb:
+	(Max_Token): New constant.
+	(Min_Token): Idem.
+	(Table): Add Min and Max filters.
+	(Is_Number): Moved to parent package.
+	(Max): New filter.
+	(Min): Idem.
+	Minor reformatting.
+
+	* templates_parser.adb:
+	(Is_Number): Moved here from Filter separate.
+	(Filter): Add support for Min and Max filters.
+	(Max): New filter.
+	(Min): Idem.
+	(Load_Include_Parameters): Handle now named include parameters.
+	Work for DB05-012.
+
+2004-11-06  Pascal Obry  <pascal@obry.org>
+
 	* aws-services-split_pages-alpha.ads,
           aws-services-split_pages-alpha.adb,
           aws-services-split_pages-shared.ads,
@@ -15,26 +37,26 @@
 	Initial revision.
 
 	* aws-services-split_pages.ads, aws-services-split_pages.adb:
-        (Page_Range): New type.
-        (Ranges_Table): New type.
-        (URI_Table): New type.
-        (Splitter): New abstract taggeg type, root of all splitters.
-        (Get_Page_Ranges): New abstract routine.
-        (Get_Translations): Idem.
-        (Parse) [Translate_Table]: New routine.
-        (Parse) [Translate_Set]: New routine.
-        This new version implements an abstract interface for all splitters
-         found in child packages. Note that the previous parse routine is
-         now implemented using the uniform splitter.
+	(Page_Range): New type.
+	(Ranges_Table): New type.
+	(URI_Table): New type.
+	(Splitter): New abstract taggeg type, root of all splitters.
+	(Get_Page_Ranges): New abstract routine.
+	(Get_Translations): Idem.
+	(Parse) [Translate_Table]: New routine.
+	(Parse) [Translate_Set]: New routine.
+	This new version implements an abstract interface for all splitters
+	 found in child packages. Note that the previous parse routine is
+	  now implemented using the uniform splitter.
 
 2004-11-03  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.adb:
-        (Endoced_URI): New routine.
+	(Endoced_URI): New routine.
 	(Open_Send_Common_Header): Do not parse URI which is only the
-         pathname and parameters. Endode spaces in URI in all cases. It
-         is safer to avoid spaces in the URI.
-        Minor reformatting.
+	 pathname and parameters. Endode spaces in URI in all cases. It
+	 is safer to avoid spaces in the URI.
+	Minor reformatting.
 
 	* templates_parser.ads:
 	(For_Every_Association): New routine.
@@ -138,8 +160,8 @@
 	(Analyse.Flatten_Parameters): New routine.
 	(Parse_State): Add new field F_Params.
 	(Empty_State): Update accordingly.
-	(Analyse): In Translate and Analyse calls properly pass the F_Params
-	 state.
+	(Analyse): In Translate and Analyse calls properly pass the
+	 F_Params state.
 	This changes are made to support $<n> in filter parameters.
 	Minor reformatting.
 
