@@ -43,6 +43,7 @@ with AWS.Status.Set;
 with AWS.Config;
 with AWS.Server.Get_Status;
 with AWS.Utils;
+with AWS.MIME;
 
 separate (AWS.Server)
 
@@ -322,25 +323,25 @@ is
       if URI = Admin_URI then
          --  status page
          Answer := Response.Build
-           (Content_Type => "text/html",
+           (Content_Type => MIME.Text_HTML,
             Message_Body => Get_Status (HTTP_Server));
 
       elsif URI = Admin_URI & "-logo" then
          --  status page logo
          Answer := Response.File
-           (Content_Type => "image/gif",
+           (Content_Type => MIME.Image_Gif,
             Filename     => "logo.gif");
 
       elsif URI = Admin_URI & "-uparr" then
          --  status page hotplug up-arrow
          Answer := Response.File
-           (Content_Type => "image/gif",
+           (Content_Type => MIME.Image_Gif,
             Filename     => "up.gif");
 
       elsif URI = Admin_URI & "-downarr" then
          --  status page hotplug down-arrow
          Answer := Response.File
-           (Content_Type => "image/gif",
+           (Content_Type => MIME.Image_Gif,
             Filename     => "down.gif");
 
       elsif URI = Admin_URI & "-HPup" then
@@ -1171,7 +1172,7 @@ begin
       --  exit if connection has not the Keep-Alive status or we are working
       --  on HTTP/1.0 protocol or we have a single slot.
 
-      exit when Status.Connection (C_Stat) /= "Keep-Alive"
+      exit For_Every_Request when Status.Connection (C_Stat) /= "Keep-Alive"
         or else Status.HTTP_Version (C_Stat) = HTTP_10
         or else HTTP_Server.Slots.N = 1;
 
