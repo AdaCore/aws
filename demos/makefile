@@ -42,11 +42,21 @@ SOAP_DEMOS = soap_client soap_server soap_svs soap_cvs
 
 build: build_res build_std test_ldap
 
-build_std:
-	for file in $(DEMOS); do \
-		echo Building $$file; \
-		gnatmake $(GARGS) $$file -bargs $(BARGS) -largs $(LARGS); \
-	done
+$(DEMOS): force
+	echo Building $@;
+	gnatmake $(GARGS) $@ -bargs $(BARGS) -largs $(LARGS);
+
+$(SOAP_DEMOS): force
+	(if [ -e ../soap/soap.o ] ; then \
+	   echo Building $@; \
+	   gnatmake $(GARGS) $@ -bargs $(BARGS) -largs $(LARGS); \
+	else \
+	   echo ""; \
+	   echo Please build SOAP library before building SOAP demos;\
+	   exit 1; \
+	fi)
+
+build_std: $(DEMOS)
 
 build_res:
 	../tools/awsres -q -r rdemo adains.png page3.html
@@ -56,16 +66,7 @@ force:
 test_ldap: force
 	-gnatmake $(GARGS) test_ldap -bargs $(BARGS) -largs $(LARGS) -lldap
 
-build_soap:
-	(if [ -e ../soap/soap.o ] ; then \
-	   for file in $(SOAP_DEMOS); do \
-		echo Building $$file; \
-		gnatmake $(GARGS) $$file -bargs $(BARGS) -largs $(LARGS); \
-	   done; \
-	else \
-	   echo ""; \
-	   echo Please build SOAP library before building SOAP demos;\
-	fi)
+build_soap: $(SOAP_DEMOS)
 
 clean:
 	-rm -f *.o *.ali *.exe b~*.* *.~*.*.~ rdemo*
