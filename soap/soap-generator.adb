@@ -825,7 +825,6 @@ package body SOAP.Generator is
          Text_IO.Put_Line (Type_Adb, "      Name : in String := ""item"")");
          Text_IO.Put_Line (Type_Adb, "      return SOAP.Types.SOAP_Record");
          Text_IO.Put_Line (Type_Adb, "   is");
-         Text_IO.Put_Line (Type_Adb, "      pragma Unreferenced (Name);");
          Text_IO.Put_Line (Type_Adb, "      Result : SOAP.Types.SOAP_Record;");
          Text_IO.Put_Line (Type_Adb, "   begin");
 
@@ -875,7 +874,7 @@ package body SOAP.Generator is
 
          Text_IO.Put_Line
            (Type_Adb,
-            "         """ & To_String (P.C_Name) & """);");
+            "         Name);");
 
          Text_IO.Put_Line (Type_Adb, "      return Result;");
          Text_IO.Put_Line (Type_Adb, "   end To_SOAP_Object;");
