@@ -1,9 +1,11 @@
 Start main, wait for server to start...
 Server started
 
-Filename = ./0.upload.ali
+Client Filename = upload.ali
+Server Filename = ./0.upload.ali
 => call ok
 
-Filename = ./1.upload.adb
+Client Filename = upload.adb
+Server Filename = ./1.upload.adb
 => call ok
 
