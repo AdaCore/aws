@@ -88,13 +88,16 @@ package body SOAP.Types is
    -------
 
    function A
-     (V    : in Object_Set;
-      Name : in String)
+     (V         : in Object_Set;
+      Name      : in String;
+      Type_Name : in String := "")
       return SOAP_Array is
    begin
-      return (Finalization.Controlled
-                with To_Unbounded_String (Name),
-                     new Natural'(1), new Object_Set'(V));
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name),
+           new Natural'(1), new Object_Set'(V),
+           To_Unbounded_String (Type_Name));
    end A;
 
    ------------
@@ -898,6 +901,12 @@ package body SOAP.Types is
 
          T : Ada.Tags.Tag;
       begin
+         --  If we have a specified type name return it
+
+         if O.Type_Name /= Null_Unbounded_String then
+            return To_String (O.Type_Name);
+         end if;
+
          --  Empty array
 
          if O.O'Length = 0 then
