@@ -4,7 +4,7 @@
 .SILENT: build gnat_oslib posix_oslib win32_oslib adasockets gnatsockets clean
 .SILENT: aws-translator-conversion.adb
 
-GARGS	= -q $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
+GARGS	= $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 
 SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-communication-server.adb aws-communication.adb \
@@ -29,21 +29,24 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-smtp-client.adb aws-smtp.adb aws-status-set.adb aws-status.adb \
 	aws-templates.ads aws-translator.adb aws-url-raise_url_error.adb \
 	aws-url.adb aws-utils.adb aws.ads aws-exceptions.ads \
-	aws-status-translate_table.adb aws-server-status.adb
+	aws-status-translate_table.adb aws-server-status.adb aws-soap.adb
 
 ifdef XMLADA
 SOURCES := $(SOURCES) ../xsrc/aws-jabber.adb
+GARGS := $(GARGS) -I../soap
 endif
 
 UNITS = $(sort $(basename $(SOURCES)))
 
+CONF_UNITS = aws-translator-conversion.adb aws-net-std.adb \
+		aws-soap.ads aws-soap.adb
 force:
 
 $(UNITS): force
 	echo Building $@
 	gnatmake -u $(GARGS) $@
 
-build: aws-translator-conversion.adb aws-net-std.adb $(UNITS)
+build: $(CONF_UNITS) $(UNITS)
 
 aws-translator-conversion.adb:
 	${MAKE} -C ../config setup
@@ -53,6 +56,15 @@ ifdef ADASOCKETS
 	cp ../config/aws-net-std__adasockets.adb aws-net-std.adb
 else
 	cp ../config/aws-net-std__gnat.adb aws-net-std.adb
+endif
+
+aws-soap.ads aws-soap.adb:
+ifdef XMLADA
+	cp ../config/aws-soap__soap.ads aws-soap.ads
+	cp ../config/aws-soap__soap.adb aws-soap.adb
+else
+	cp ../config/aws-soap__nosoap.adb aws-soap.ads
+	cp ../config/aws-soap__nosoap.adb aws-soap.adb
 endif
 
 adasockets:
@@ -79,3 +91,4 @@ clean:
 	-rm -f *.o *.ali aws-os_lib.adb *.~*.*~
 	-rm -f aws-translator-conversion.adb
 	-rm -f aws-net-std.adb
+	-rm -f aws-soap.ad[sb]
