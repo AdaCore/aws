@@ -291,14 +291,12 @@ package body AWS.Net.SSL is
               (Ctx    => Context,
                File   => To_C (Key_File_Name),
                C_Type => TSSL.SSL_Filetype_Pem) = -1);
-         --  ??? To_C memory leak
 
          Error_If
            (TSSL.SSL_Ctx_Use_Certificate_File
               (Ctx    => Context,
                File   => To_C (Cert_Filename),
                C_Type => TSSL.SSL_Filetype_Pem) = -1);
-         --  ??? To_C memory leak
 
          Error_If
            (TSSL.SSL_Ctx_Check_Private_Key (Ctx => Context) = -1);
