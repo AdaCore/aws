@@ -1,3 +1,10 @@
+2003-11-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-pop.ads, aws-pop.adb:
+	Change Server by Mailbox. Better reading API.
+	(Mailbox_Size): Renamed to Size. This is a consequence of above
+	 change.
+
 2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-os_lib.ads:
