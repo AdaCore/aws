@@ -708,9 +708,11 @@ web_elements/icons/tex.gif
 web_elements/icons/text.gif
 web_elements/icons/unknown.gif
 web_elements/icons/uu.gif
+web_elements/javascripts/cookies.js
 web_elements/makefile
 web_elements/menu_css/arrow.png
 web_elements/menu_css/menu.tcss
+web_elements/notebook/cookies.js
 web_elements/notebook/notebook.thtml
 web_elements/readme.txt
 web_elements/rounded_boxes/rcorner.gif
