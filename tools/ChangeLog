@@ -1,5 +1,11 @@
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
+	* ada2wsdl-generator.adb:
+	(Write_Derived): Properly generate name space.
+	(Write_Enumeration): Idem.
+
+2004-12-02  Pascal Obry  <pascal@obry.org>
+
 	* ada2wsdl-parser.adb:
 	Lot of changes to support for name spaces. Now all WSDL	definitions
 	 for records, arrays, derived types are generated with the package
