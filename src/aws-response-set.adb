@@ -50,6 +50,17 @@ package body AWS.Response.Set is
       D.Status_Code    := Messages.S401;
    end Authentication;
 
+   --------------------
+   -- Content_Length --
+   --------------------
+
+   procedure Content_Length
+     (D     : in out Data;
+      Value : in     Natural) is
+   begin
+      D.Content_Length := Value;
+   end Content_Length;
+
    ------------------
    -- Content_Type --
    ------------------
