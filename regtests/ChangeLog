@@ -1,6 +1,11 @@
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	($(ASIS_TESTS)): Remove wsdl2aws's -a option.
+	
+2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	(RT_SOAP_ASIS): Add wsdl_5.
 	($(ASIS_TESTS)): Add wsdl2aws's -cb option.
 
