@@ -46,11 +46,13 @@ package body User_Strm is
    ------------
 
    procedure Create
-     (Resource : in out AWS.Resources.Streams.Stream_Type'Class;
-      Size     : in     Stream_Element_Offset) is
+     (Resource       : in out AWS.Resources.Streams.Stream_Type'Class;
+      Size           : in     Stream_Element_Offset;
+      Undefined_Size : in     Boolean) is
    begin
-      File_Tagged (Resource).Size   := Size;
-      File_Tagged (Resource).Offset := 0;
+      File_Tagged (Resource).Undefined_Size := Undefined_Size;
+      File_Tagged (Resource).Size           := Size;
+      File_Tagged (Resource).Offset         := 0;
    end Create;
 
    -----------------
@@ -102,5 +104,18 @@ package body User_Strm is
 
       end loop;
    end Read;
+
+   ----------
+   -- Size --
+   ----------
+
+   function Size (File : in File_Tagged) return Stream_Element_Offset is
+   begin
+      if File.Undefined_Size then
+         return AWS.Resources.Undefined_Length;
+      else
+         return File.Size;
+      end if;
+   end Size;
 
 end User_Strm;
