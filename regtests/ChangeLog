@@ -1,3 +1,14 @@
+2003-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* test_wsdl2.out, test_wsdl3.out:
+	Remove DOS style CR from end of line.
+
+	* dirop.tmplt:
+	Ignore CVS directory.
+
+	* makefile:
+	Put dirop regtest to the regular way.
+
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -18,7 +29,8 @@
 2003-03-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
-	Add ./ before tgdb, becouse MSYS could not start just tgdb.
+	Add ./ before tgdb, in case of ./ not in the path environment
+	 variable.
 
 	* tgdb:
 	Use expr instead of bc utility, becouse MSYS do not have bc.
