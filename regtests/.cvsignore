@@ -63,6 +63,7 @@ b~upload.adb
 b~upload.ads
 b~workorder.adb
 b~workorder.ads
+ctab.res
 dummy.res
 file.res
 file.tmplt
