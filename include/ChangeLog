@@ -1,3 +1,8 @@
+2003-02-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std-gnat.adb:
+	(Peer_Addr): Remove the port.
+
 2003-02-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
