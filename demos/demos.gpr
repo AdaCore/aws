@@ -62,6 +62,12 @@ project Demos is
          for Exec_Dir use "../.build/release/demos";
    end case;
 
+   ---------
+   -- Ide --
+   ---------
+
+   package Ide renames Shared.Ide;
+
    --------------
    -- Compiler --
    --------------
