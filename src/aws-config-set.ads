@@ -115,25 +115,25 @@ package AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration);
    --  Number of seconds to timout on waiting for a client request.
-   --  This is a timeout for urgent request when ressources are missing.
+   --  This is a timeout for urgent request when resources are missing.
 
    procedure Force_Client_Header_Timeout
      (O     : in out Object;
       Value : in     Duration);
    --  Number of seconds to timout on waiting for client header.
-   --  This is a timeout for urgent request when ressources are missing.
+   --  This is a timeout for urgent request when resources are missing.
 
    procedure Force_Client_Data_Timeout
      (O     : in out Object;
       Value : in     Duration);
    --  Number of seconds to timout on waiting for client message body.
-   --  This is a timeout for urgent request when ressources are missing.
+   --  This is a timeout for urgent request when resources are missing.
 
    procedure Force_Server_Response_Timeout
      (O     : in out Object;
       Value : in     Duration);
    --  Number of seconds to timout on waiting for client to accept answer.
-   --  This is a timeout for urgent request when ressources are missing.
+   --  This is a timeout for urgent request when resources are missing.
 
    procedure Send_Timeout
      (O  : in out Object;

@@ -120,19 +120,19 @@ package AWS.Config is
 
    function Force_Wait_For_Client_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for a client request.
-   --  This is a timeout for urgent request when ressources are missing.
+   --  This is a timeout for urgent request when resources are missing.
 
    function Force_Client_Header_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client header.
-   --  This is a timeout for urgent request when ressources are missing.
+   --  This is a timeout for urgent request when resources are missing.
 
    function Force_Client_Data_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client message body.
-   --  This is a timeout for urgent request when ressources are missing.
+   --  This is a timeout for urgent request when resources are missing.
 
    function Force_Server_Response_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client to accept answer.
-   --  This is a timeout for urgent request when ressources are missing.
+   --  This is a timeout for urgent request when resources are missing.
 
    function Send_Timeout (O : in Object) return Duration;
    --  Number of seconds to timeout when sending chunck of data.

@@ -56,7 +56,7 @@ package AWS.Client is
       Proxy_Pwd  : in String := No_Data)
      return Response.Data;
    --  retreive the message data given a specific URL. It open a connection
-   --  with the server and ask for the ressource specified in the URL it then
+   --  with the server and ask for the resource specified in the URL it then
    --  return it in the Response.Data structure.
    --  If User/Pwd are given then it uses it to access the URL.
    --
@@ -180,7 +180,7 @@ package AWS.Client is
    --  Same as Post above but using a Connection.
 
    procedure Close (Connection : in out HTTP_Connection);
-   --  Close connection, it releases all associated ressources.
+   --  Close connection, it releases all associated resources.
 
 private
 
