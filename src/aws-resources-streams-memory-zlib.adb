@@ -35,6 +35,10 @@
 
 package body AWS.Resources.Streams.Memory.ZLib is
 
+   procedure Flush (Resource : in out Stream_Type);
+   --  Complete compression, flush internal compression buffer to the
+   --  memory stream.
+
    ------------
    -- Append --
    ------------
@@ -95,6 +99,8 @@ package body AWS.Resources.Streams.Memory.ZLib is
       Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
       Header       : in     Header_Type        := ZL.Default) is
    begin
+      Resource.Flushed := False;
+
       ZL.Deflate_Init
         (Resource.Filter, Level, Strategy, Method,
          Window_Bits, Memory_Level, Header);
@@ -104,7 +110,7 @@ package body AWS.Resources.Streams.Memory.ZLib is
    -- Flush --
    -----------
 
-   procedure Flush (Resource : in out Stream_Type'Class) is
+   procedure Flush (Resource : in out Stream_Type) is
       Flush_Buffer : Stream_Element_Array (1 .. 1024);
       Last         : Stream_Element_Offset;
    begin
@@ -115,6 +121,8 @@ package body AWS.Resources.Streams.Memory.ZLib is
 
          exit when Last < Flush_Buffer'Last;
       end loop;
+
+      Resource.Flushed := True;
    end Flush;
 
    ------------------------
@@ -126,8 +134,39 @@ package body AWS.Resources.Streams.Memory.ZLib is
       Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
       Header      : in     Header_Type      := ZL.Default) is
    begin
+      Resource.Flushed := False;
+
       ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
    end Inflate_Initialize;
 
+
+   ----------
+   -- Read --
+   ----------
+
+   procedure Read
+     (Resource : in out Stream_Type;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset) is
+   begin
+      if not Resource.Flushed then
+         Flush (Resource);
+      end if;
+
+      Read (Memory.Stream_Type (Resource), Buffer, Last);
+   end Read;
+
+   ----------
+   -- Size --
+   ----------
+
+   function Size (Resource : in Stream_Type) return Stream_Element_Offset is
+   begin
+      if not Resource.Flushed then
+         Flush (Resource.Self.all);
+      end if;
+
+      return Size (Memory.Stream_Type (Resource));
+   end Size;
 
 end AWS.Resources.Streams.Memory.ZLib;
