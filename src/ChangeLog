@@ -1,3 +1,8 @@
+2001-09-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_General_Header): use Messages.Connection constructor.
+
 2001-09-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
