@@ -111,7 +111,7 @@ win32_oslib:
 build_doc:
 	echo ""
 	echo "=== Build doc"
-	${MAKE} -C docs build $(ALL_OPTIONS)
+	${MAKE} -C docs build $(GALL_OPTIONS)
 
 build_apiref:
 	echo ""
@@ -288,6 +288,7 @@ MODULES_CLEAN = ${MODULES:%=%_clean}
 
 ifdef XMLADA
 PRJ_XMLADA=Installed
+GEXT_MODULE := gxmlada
 else
 PRJ_XMLADA=Disabled
 GEXT_MODULE := gxmlada_dummy
@@ -353,6 +354,9 @@ gposix_dummy:
 	echo "project POSIX is" > $(PRJDIR)/posix.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/posix.gpr
 	echo "end POSIX;" >> $(PRJDIR)/posix.gpr
+
+gxmlada:
+	-$(RM) -f $(PRJDIR)/xmlada.gpr
 
 gxmlada_dummy:
 	echo "project XMLADA is" > $(PRJDIR)/xmlada.gpr
