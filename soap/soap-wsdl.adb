@@ -49,10 +49,15 @@ package body SOAP.WSDL is
    function Is_Standard (XSD_Type : in String) return Boolean is
    begin
       if XSD_Type = "string"
+        or else XSD_Type = "String"
         or else XSD_Type = "integer"
+        or else XSD_Type = "Integer"
         or else XSD_Type = "int"
+        or else XSD_Type = "Int"
         or else XSD_Type = "float"
+        or else XSD_Type = "Float"
         or else XSD_Type = "boolean"
+        or else XSD_Type = "Boolean"
         or else XSD_Type = "timeInstant"
         or else XSD_Type = "dateTime"
         or else XSD_Type = "base64Binary"
@@ -111,16 +116,18 @@ package body SOAP.WSDL is
    function To_Type (XSD_Type : in String) return Parameter_Type is
       use Exceptions;
    begin
-      if XSD_Type = "string" then
+      if XSD_Type = "string" or else XSD_Type = "String" then
          return P_String;
 
-      elsif XSD_Type = "integer" or else XSD_Type = "int" then
+      elsif XSD_Type = "integer" or else XSD_Type = "int"
+        or else XSD_Type = "Integer" or else XSD_Type = "Int"
+      then
          return P_Integer;
 
-      elsif XSD_Type = "float" then
+      elsif XSD_Type = "float" or else XSD_Type = "Float" then
          return P_Float;
 
-      elsif XSD_Type = "boolean" then
+      elsif XSD_Type = "boolean" or else XSD_Type = "Boolean" then
          return P_Boolean;
 
       elsif XSD_Type = "timeInstant" or else XSD_Type = "dateTime" then
