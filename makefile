@@ -135,7 +135,7 @@ ifdef XMLADA
 	-$(AR) cr lib/libaws.a soap/*.o
 endif
 ifeq (${OS}, Windows_NT)
-	-$(AR) cr lib/libaws.a lib/poll.o
+	-$(AR) cr lib/libaws.a win32/poll.o
 endif
 
 build_scripts:
