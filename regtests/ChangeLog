@@ -1,3 +1,10 @@
+2002-10-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(tres): Change handling of the result, the >> was not working on
+	 my current bash version. This is equivalent and works fine. Very
+	 strange !
+
 2002-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* upload.out:
