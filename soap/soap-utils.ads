@@ -109,14 +109,29 @@ package SOAP.Utils is
    function Get (Item : in Types.Object'Class) return Unbounded_String;
    --  Returns an Unbounded_String for Item. Item must be a SOAP string object
 
+   function Get (Item : in Types.Object'Class) return Character;
+   --  Returns a Character for Item. Item must be a SOAP string object
+
    function V (O : in Types.XSD_String) return Unbounded_String;
-   --  Returns the Ubounded_String representation for the SOAP string parameter
+   --  Returns the Unbounded_String representation for the SOAP string
+   --  parameter.
+
+   function V (O : in Types.XSD_String) return Character;
+   --  Returns the character representation for the SOAP string
+   --  parameter. This is supposed to be a string with a single character to
+   --  map to Ada type.
 
    function US
      (V      : in Unbounded_String;
       Name   : in String  := "item")
       return Types.XSD_String;
    --  Returns the SOAP string for the given Unbounded_String value and name
+
+   function C
+     (V      : in Character;
+      Name   : in String  := "item")
+      return Types.XSD_String;
+   --  Returns the SOAP string for the given Character value and name
 
    --  Smart pointers support used for array access in SOAP record. The memory
    --  used by a safe pointer is released automatically when no more reference

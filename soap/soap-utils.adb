@@ -43,6 +43,18 @@ package body SOAP.Utils is
 
    use Ada.Strings.Unbounded;
 
+   -------
+   -- C --
+   -------
+
+   function C
+     (V      : in Character;
+      Name   : in String  := "item")
+      return Types.XSD_String is
+   begin
+      return SOAP.Types.S (String'(1 => V), Name);
+   end C;
+
    ------------
    -- Encode --
    ------------
@@ -81,6 +93,12 @@ package body SOAP.Utils is
    function Get (Item : in Types.Object'Class) return Unbounded_String is
    begin
       return To_Unbounded_String (String'(Types.Get (Item)));
+   end Get;
+
+   function Get (Item : in Types.Object'Class) return Character is
+      Str : constant String := String'(Types.Get (Item));
+   begin
+      return Str (1);
    end Get;
 
    --------------------------
@@ -275,6 +293,11 @@ package body SOAP.Utils is
    function V (O : in Types.XSD_String) return Unbounded_String is
    begin
       return To_Unbounded_String (Types.V (O));
+   end V;
+
+   function V (O : in Types.XSD_String) return Character is
+   begin
+      return Types.V (O) (1);
    end V;
 
 end SOAP.Utils;
