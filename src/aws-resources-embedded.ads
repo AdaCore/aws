@@ -69,9 +69,12 @@ private
    type File_Tagged is new Resources.File_Tagged with record
       Buffer : Buffer_Access;
       K      : Streams.Stream_Element_Offset;
+      LFT    : Boolean;
    end record;
 
    function End_Of_File (Resource : in File_Tagged) return Boolean;
+
+   function LF_Terminated (Resource : in File_Tagged) return Boolean;
 
    procedure Read
      (Resource : in out File_Tagged;

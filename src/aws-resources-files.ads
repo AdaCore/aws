@@ -60,9 +60,12 @@ private
       Buffer  : Stream_Element_Array (1 .. Buffer_Size);
       Current : Stream_Element_Offset := 1;
       Last    : Stream_Element_Offset := 0;
+      LFT     : Boolean; -- LF terminated state
    end record;
 
    function End_Of_File (Resource : in File_Tagged) return Boolean;
+
+   function LF_Terminated (Resource : in File_Tagged) return Boolean;
 
    procedure Read
      (Resource : in out File_Tagged;
