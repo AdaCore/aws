@@ -140,7 +140,7 @@ $(WSDL2AWS): force
 	echo -n Building $@
 	echo ",  run it"
 	rm -f $@.res
-	../tools/wsdl2aws -q -f -a -doc $@.wsdl | grep Message > $@.res
+	../tools/wsdl2aws -q -f -doc $@.wsdl | grep Message > $@.res
 	-diff -c -w $@.out $@.res >> alldifs
 
 $(ASIS_TESTS): force
