@@ -50,6 +50,26 @@ procedure SOAP_Server is
 
    WS  : AWS.Server.HTTP;
 
+   function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data;
+   --  Main SOAP Callback.
+
+   --------
+   -- CB --
+   --------
+
+   function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+      SOAPAction : constant String := AWS.Status.SOAPAction (Request);
+   begin
+      if SOAPAction = "/soapdemo" then
+         return SOAP_CB (Request);
+
+      else
+         return AWS.Response.Build
+           ("text/html",
+            "<p>This is not a SOAP action !");
+      end if;
+   end CB;
+
    -------------
    -- SOAP_CB --
    -------------
@@ -114,23 +134,6 @@ procedure SOAP_Server is
            (SOAP.Message.Response.Error.Build
             (SOAP.Message.Response.Error.Client, "Parameter error"));
    end SOAP_CB;
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
-      SOAPAction : constant String := AWS.Status.SOAPAction (Request);
-   begin
-      if SOAPAction = "/soapdemo" then
-         return SOAP_CB (Request);
-
-      else
-         return AWS.Response.Build
-           ("text/html",
-            "<p>This is not a SOAP action !");
-      end if;
-   end CB;
 
 begin
    AWS.Server.Start (WS, "SOAP demo",

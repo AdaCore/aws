@@ -48,6 +48,34 @@ procedure SOAP_Client is
    use SOAP.Types;
    use type SOAP.Parameters.List;
 
+   procedure Error (E : in Message.Response.Error.Object);
+   --  Display SOAP Error.
+
+   ---------
+   -- Bad --
+   ---------
+
+   procedure Bad is
+      P_Set : Parameters.List := +I (10, "p");
+
+      P     : Message.Payload.Object;
+
+   begin
+      P := Message.Payload.Build ("This_Proc", P_Set);
+
+      declare
+         R : constant Message.Response.Object'Class :=
+           SOAP.Client.Call ("http://localhost:8080/soapdemo", P);
+      begin
+         if Message.Response.Is_Error (R) then
+            Error (Message.Response.Error.Object (R));
+
+         else
+            Text_IO.Put_Line ("ERROR: This should be a SOAP Error Message");
+         end if;
+      end;
+   end Bad;
+
    -----------
    -- Error --
    -----------
@@ -91,31 +119,6 @@ procedure SOAP_Client is
          Text_IO.New_Line;
       end;
    end Good;
-
-   ---------
-   -- Bad --
-   ---------
-
-   procedure Bad is
-      P_Set : Parameters.List := +I (10, "p");
-
-      P     : Message.Payload.Object;
-
-   begin
-      P := Message.Payload.Build ("This_Proc", P_Set);
-
-      declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call ("http://localhost:8080/soapdemo", P);
-      begin
-         if Message.Response.Is_Error (R) then
-            Error (Message.Response.Error.Object (R));
-
-         else
-            Text_IO.Put_Line ("ERROR: This should be a SOAP Error Message");
-         end if;
-      end;
-   end Bad;
 
 begin
    Text_IO.Put_Line ("==> Call GOOD");
