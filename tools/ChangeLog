@@ -1,3 +1,14 @@
+2004-11-02  Pascal Obry  <pascal@obry.org>
+
+	* ada2wsdl-parser.adb:
+        (Analyse_Array_Component): New routine.
+        (Analyse_Type): Call Analyse_Array_Component after parsing an array.
+        (Register_Deferred): Do not insert the element into the list if it
+         already exists. Fix problem with duplicate WSDL type definition.
+
+	* ada2wsdl-generator.adb:
+	(Start_Array): Output (<>) if unconstrained array.
+
 2004-10-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
