@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -665,7 +665,7 @@ package body SOAP.Generator is
                  (WSDL.To_Type (Name), Context => WSDL.Component);
 
             else
-               return Name & "_Type";
+               return Format_Name (O, Name) & "_Type";
             end if;
          end To_Ada_Type;
 
@@ -792,7 +792,8 @@ package body SOAP.Generator is
             Text_IO.Put (Type_Ads, F_Name & "_Index, " & F_Name);
          end if;
 
-         Text_IO.Put_Line (Type_Ads, ", " & Get_Routine (P) & ");");
+         Text_IO.Put_Line
+           (Type_Ads, ", " & Format_Name (O, Get_Routine (P)) & ");");
 
          Text_IO.New_Line (Type_Ads);
 
@@ -1346,7 +1347,7 @@ package body SOAP.Generator is
                      return WSDL.Get_Routine
                        (WSDL.To_Type (T_Name), WSDL.Component);
                   else
-                     return "To_" & T_Name & "_Type";
+                     return "To_" & Format_Name (O, T_Name) & "_Type";
                   end if;
                end;
 
@@ -1560,16 +1561,17 @@ package body SOAP.Generator is
                return WSDL.To_Ada (N.P_Type, Context => WSDL.Component);
 
             when WSDL.Parameters.K_Derived =>
-               return To_String (N.D_Name) & "_Type";
+               return Format_Name (O, To_String (N.D_Name)) & "_Type";
 
             when WSDL.Parameters.K_Enumeration =>
-               return To_String (N.E_Name) & "_Type";
+               return Format_Name (O, To_String (N.E_Name)) & "_Type";
 
             when WSDL.Parameters.K_Array =>
-               return To_String (N.T_Name) & "_Type_Safe_Access";
+               return Format_Name (O, To_String (N.T_Name))
+                 & "_Type_Safe_Access";
 
             when WSDL.Parameters.K_Record =>
-               return To_String (N.T_Name) & "_Type";
+               return Format_Name (O, To_String (N.T_Name)) & "_Type";
          end case;
       end Type_Name;
 
@@ -1598,7 +1600,8 @@ package body SOAP.Generator is
                   Text_IO.Put_Line
                     (Type_Ads,
                      "   subtype " & L_Proc & "_Result is "
-                       & To_String (Output.D_Name) & "_Type;");
+                       & Format_Name (O, To_String (Output.D_Name))
+                       & "_Type;");
 
 
                when WSDL.Parameters.K_Enumeration =>
@@ -1609,7 +1612,8 @@ package body SOAP.Generator is
                   Text_IO.Put_Line
                     (Type_Ads,
                      "   subtype " & L_Proc & "_Result is "
-                       & To_String (Output.E_Name) & "_Type;");
+                       & Format_Name (O, To_String (Output.E_Name))
+                       & "_Type;");
 
 
                when WSDL.Parameters.K_Record | WSDL.Parameters.K_Array =>
@@ -1620,7 +1624,8 @@ package body SOAP.Generator is
                   Text_IO.Put_Line
                     (Type_Ads,
                      "   subtype " & L_Proc & "_Result is "
-                       & To_String (Output.T_Name) & "_Type;");
+                       & Format_Name (O, To_String (Output.T_Name))
+                       & "_Type;");
             end case;
 
          else
