@@ -1,3 +1,15 @@
+2004-09-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wspiapi.h:
+	Microsoft header file for emulate protocol independent API functions
+	 if necessary. Need for support Windows 2000.
+
+	* wspiapi.c:
+	Need to compile wspiapi.h to object file.
+
+	* makefile:
+	Build libwspiapi.a.
+
 2004-09-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* poll.adb:
@@ -8,7 +20,7 @@
 	* poll.ads:
 	Use definitions from AWS.OS_Lib.Definitions.
 	Fix header.
-	
+
 	* poll.adb:
 	Use definitions from AWS.OS_Lib.Definitions.
 	Add comments.
