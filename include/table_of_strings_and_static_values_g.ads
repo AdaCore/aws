@@ -4,10 +4,12 @@
 --    All Rights Reserved.                                                   --
 -------------------------------------------------------------------------------
 
---+ TITLE:      GENERIC PACKAGE FOR TABLES OF STRINGS ASSOCIATED WITH VALUES.
---+ REVISION:   13-JUL-1992 Ph. Kipfer (PKR), File header format
---+ APPROVAL:   03-DEC-1987 C. Genillard.
---+ CREATION:   13-AUG-1987 A. Strohmeier.
+--  TITLE:      GENERIC PACKAGE FOR TABLES OF STRINGS ASSOCIATED WITH VALUES.
+--  REVISION:   29-AUG-2003 Dmitriy Anisimkov, new Get_Value routine with
+--              Found flag out parameter.
+--  REVISION:   13-JUL-1992 Ph. Kipfer (PKR), File header format
+--  APPROVAL:   03-DEC-1987 C. Genillard.
+--  CREATION:   13-AUG-1987 A. Strohmeier.
 
 with Table_Of_Dynamic_Keys_And_Static_Values_G;
 generic

@@ -5,6 +5,8 @@
 -------------------------------------------------------------------------------
 
 --  TITLE:      GENERIC PACKAGE FOR ASSOCIATIVE TABLES.
+--  REVISION:   29-AUG-2003 Dmitriy Anisimkov, new Get_Value routine with
+--              Found flag out parameter.
 --  REVISION:   13-JUL-1992 Ph. Kipfer (PKR), File header format
 --  APPROVAL:   03-DEC-1987 C. Genillard.
 --  CREATION:   29-JUN-1987 A. Strohmeier.
