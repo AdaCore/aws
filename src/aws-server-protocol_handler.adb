@@ -96,10 +96,13 @@ is
    procedure Parse (Command : in String);
    --  Parse a line sent by the client and do what is needed
 
-   procedure Send_Resource_Body (File : in out Resources.File_Type);
+   procedure Send_Resource_Body
+     (File   : in out Resources.File_Type;
+      Length :    out Natural);
    --  Send the last header line Transfer-encoding if necessary.
    --  terminate header
    --  and message body from the File.
+   --  Length returns the actual number of bytes sent.
 
    procedure Answer_To_Client;
    --  This procedure use the C_Stat status data to send the correct answer
@@ -134,6 +137,7 @@ is
       Answer : Response.Data;
 
       Status : Messages.Status_Code;
+      Length : Natural := 0;
 
       procedure Create_Session;
       --  Create a session if needed
@@ -219,6 +223,18 @@ is
                Messages.Location (Response.Location (Answer)));
          end if;
 
+         --  Checking if we have to close connection becouse
+         --  of undefined message length.
+         if Response.Content_Length (Answer) = Response.Undefined_Length
+            --  We could not use transfer-encoding chunked
+            --  for define length of message body.
+            and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
+            --  We have to send message_body
+            and then AWS.Status.Method (C_Stat) /= AWS.Status.HEAD
+         then
+            Will_Close := True;
+         end if;
+
          Send_General_Header;
 
          --  Send file info in case of file
@@ -236,9 +252,11 @@ is
 
          --  The message body length
 
-         Sockets.Put_Line
-           (Sock,
-            Messages.Content_Length (Response.Content_Length (Answer)));
+         if Response.Content_Length (Answer) /= Response.Undefined_Length then
+            Sockets.Put_Line
+              (Sock,
+               Messages.Content_Length (Response.Content_Length (Answer)));
+         end if;
 
          --  Send message body only if needed
 
@@ -248,7 +266,7 @@ is
 
          else
             Response.Create_Resource (File, Answer);
-            Send_Resource_Body (File);
+            Send_Resource_Body (File, Length);
          end if;
       end Send_Data;
 
@@ -474,7 +492,7 @@ is
 
       case Response.Mode (Answer) is
 
-         when Response.File | Response.Message =>
+         when Response.File | Response.Stream | Response.Message =>
             Send_Data;
 
          when Response.Header =>
@@ -489,7 +507,7 @@ is
 
       end case;
 
-      AWS.Log.Write (HTTP_Server.Log, C_Stat, Answer);
+      AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Length);
    end Answer_To_Client;
 
    ----------------------
@@ -1224,7 +1242,10 @@ is
    -- Send_Resource_Body --
    ------------------------
 
-   procedure Send_Resource_Body (File : in out Resources.File_Type) is
+   procedure Send_Resource_Body
+     (File   : in out Resources.File_Type;
+      Length :    out Natural)
+   is
       use type Streams.Stream_Element_Offset;
 
       procedure Send_File;
@@ -1253,6 +1274,8 @@ is
 
             Sockets.Send (Sock, Buffer (1 .. Last));
 
+            Length := Length + Positive (Last);
+
             HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
          end loop;
       end Send_File;
@@ -1276,6 +1299,8 @@ is
             Sockets.Send (Sock, Buffer (1 .. Last));
             Sockets.New_Line (Sock);
 
+            Length := Length + Positive (Last);
+
             HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
          end loop;
 
@@ -1286,6 +1311,7 @@ is
       end Send_File_Chunked;
 
    begin
+      Length := 0;
 
       if Status.HTTP_Version (C_Stat) = HTTP_10 then
          --  Terminate header
