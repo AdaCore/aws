@@ -1,7 +1,18 @@
-2003-11-03  Pascal Obry  <p.obry@wanadoo.fr>
+2003-11-04  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-containers-key_value.ads:
-	(Free): New routine.
+	* aws-pop.ads, aws-pop.adb:
+	Initial revision.
+
+	* aws-headers.ads, aws-headers.adb:
+	(Get_Field_Value): New routine.
+
+	* aws-messages.ads:
+	Minor reformatting.
+
+	* makefile:
+	(SOURCES): Add aws-pop.adb.
+
+2003-11-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-smtp-client.ads:
 	Minor comment fix.
