@@ -229,10 +229,12 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/components/ai302
 	$(MKDIR) $(INSTALL)/AWS/tools
 	$(MKDIR) $(INSTALL)/AWS/projects
-	$(CP) -p src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) -p src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) -p templates_parser/src/t*.ad[sb] $(INSTALL)/AWS/include
 ifeq ($(XMLADA),true)
 	$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) -p xsrc/*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) -p templates_parser/xsrc/*.ad[sb] $(INSTALL)/AWS/include
 endif
 	$(CP) -p $(BDIR)/lib/* $(INSTALL)/AWS/lib
 	$(CP) -p $(BDIR)/obj/* $(INSTALL)/AWS/obj
@@ -242,7 +244,8 @@ endif
 	$(CP) lib/libz.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
 	-$(CP) docs/aws_api.xml $(INSTALL)/AWS/docs
-	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
+	$(CP) templates_parser/docs/templates_parser.html $(INSTALL)/AWS/docs
+	$(CP) templates_parser/docs/templates_parser.info* $(INSTALL)/AWS/docs
 	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
 	-$(CP) docs/*.info* $(INSTALL)/AWS/docs
 	-$(CP) -r docs/html/* $(INSTALL)/AWS/docs/html
