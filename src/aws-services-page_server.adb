@@ -64,7 +64,7 @@ package body AWS.Services.Page_Server is
                    (Server.Config (Server.Get_Current.all));
          begin
             return AWS.Response.Build
-              (Content_Type => "text/html",
+              (Content_Type => MIME.Text_HTML,
                Message_Body =>
                  AWS.Services.Directory.Browse
                    (Filename, Directory_Browser_Page, Request));
