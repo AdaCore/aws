@@ -482,7 +482,7 @@ ${MODULES_CLEAN}: force
 gbuild: $(MODULES_BUILD)
 
 gclean: $(MODULES_CLEAN)
-	-rm -fr .build asis.gpr xmlada.gpr
+	-rm -fr .build asis.gpr
 
 gasis:
 	echo "project ASIS is" > asis.gpr
