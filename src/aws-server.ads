@@ -93,20 +93,26 @@ private
       --  We should think about it. Maybe we should not trust the clients
       --  who are spending too much server time in sending data
 
-      Server_Response
+      Server_Response,
       --  We are trusting ourselves but client may be too slow purposely in
       --  receiving data and we should disconnect him.
+
+      Server_Processing
+      --  While send/receiving large data.
      );
 
    subtype Abortable_Phase is Slot_Phase
-     range Wait_For_Client .. Slot_Phase'Last;
+     range Wait_For_Client .. Server_Response;
+
+   subtype Data_Phase is Abortable_Phase
+     range Client_Data .. Server_Response;
 
    --  This is Force timeouts and timeouts for Line_Cleaner task.
 
    type Timeout_Mode is (Cleaner, Force);
 
    --  maybe this timeouts should be in the server configuration
-   Timeouts : array (Timeout_Mode, Abortable_Phase) of Duration
+   Timeouts : constant array (Timeout_Mode, Abortable_Phase) of Duration
      := (Cleaner => -- Timeouts for Line_Cleaner
            (Wait_For_Client  => Config.Cleaner_Wait_For_Client_Timeout,
             Client_Header    => Config.Cleaner_Client_Header_Timeout,
@@ -119,11 +125,16 @@ private
             Client_Data      => Config.Force_Client_Data_Timeout,
             Server_Response  => Config.Cleaner_Server_Response_Timeout));
 
+   Data_Timeouts : constant array (Data_Phase) of Duration
+     := (Client_Data     => Config.Receive_Timeout,
+         Server_Response => Config.Send_Timeout);
+
    type Slot is record
       Sock                  : Sockets.Socket_FD;
       Peername              : Ada.Strings.Unbounded.Unbounded_String;
       Phase                 : Slot_Phase := Closed;
       Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
+      Data_Time_Stamp       : Ada.Calendar.Time;
       Slot_Activity_Counter : Natural := 0;
       Activity_Counter      : Natural := 0;
    end record;
@@ -148,6 +159,9 @@ private
       procedure Mark_Phase (Index : in Positive; Phase : Slot_Phase);
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
+
+      procedure Mark_Data_Time_Stamp (Index : in Positive);
+      --  Mark timestamp for receive or send chunk of data.
 
       function Is_Abortable
         (Index : in Positive;
