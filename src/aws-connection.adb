@@ -101,6 +101,16 @@ package body AWS.Connection is
 
    task Line_Cleaner;
    --  run through the slots and see if some of them could be closed.
+   --
+   --  ??? this should be fixed at some point by using the sockets time-out
+   --  options (setsockopt). This has been implemented under NT, but the
+   --  implementation is not that simple under UNIX with the current Sockets
+   --  package interface. When this is done the Line_Cleaner task could be
+   --  completly removed.
+
+   procedure Abort_Slot (S : in out Slot);
+   --  abort slot S, which means the associated socket is closed and the state
+   --  of the slot is set to aborted.
 
    ----------
    -- Line --
@@ -669,7 +679,7 @@ package body AWS.Connection is
 
    begin
 
-      loop
+      Never_Exit : loop
 
          begin
 
@@ -705,12 +715,6 @@ package body AWS.Connection is
 
             end loop For_Every_Request;
 
-            Sockets.Shutdown (Sock);
-
-            Slot.Free      := True;
-            Slot.Abortable := False;
-            Ressources.Release;
-
          exception
 
             --  we must never exit from the outer loop as a Line task is
@@ -720,30 +724,24 @@ package body AWS.Connection is
             when Sockets.Connection_Closed =>
                Text_IO.Put_Line ("Connection time-out, close it.");
 
-               Sockets.Shutdown (Sock);
-
-               --  free the slot to be sure the Line will gets recycled.
-
-               Slot.Free      := True;
-               Slot.Abortable := False;
-               Ressources.Release;
-
             when E : others =>
                Text_IO.Put_Line ("A problem has been detected!");
                Text_IO.Put_Line ("Connection will be closed...");
                Text_IO.New_Line;
                Text_IO.Put_Line (Exceptions.Exception_Information (E));
 
-               Sockets.Shutdown (Sock);
-
-               --  free the slot to be sure the Line will gets recycled.
-
-               Slot.Free      := True;
-               Slot.Abortable := False;
-               Ressources.Release;
          end;
 
-      end loop;
+         if not Slot.Aborted then
+            Abort_Slot (Slot.all);
+         end if;
+
+         Slot.Free      := True;
+         Slot.Abortable := False;
+         Slot.Aborted   := False;
+         Ressources.Release;
+
+      end loop Never_Exit;
 
    end Line;
 
@@ -766,11 +764,21 @@ package body AWS.Connection is
                --  line, free the slot and release the ressource
                --  associated. So the line will gets recycled.
 
-               Sockets.Shutdown (Slots (S).Sock);
+               Abort_Slot (Slots (S));
             end if;
          end loop;
       end loop;
    end Line_Cleaner;
+
+   ----------------
+   -- Abort_Slot --
+   ----------------
+
+   procedure Abort_Slot (S : in out Slot) is
+   begin
+      Sockets.Shutdown (S.Sock);
+      S.Aborted := True;
+   end Abort_Slot;
 
    ------------------
    -- Create_Slots --
@@ -810,7 +818,7 @@ package body AWS.Connection is
          --  anyway this line is the safest one to close for now.
 
          if To_Be_Closed /= 0 then
-            Sockets.Shutdown (Slots (To_Be_Closed).Sock);
+            Abort_Slot (Slots (To_Be_Closed));
             Ressources.Get;
             return Slots (To_Be_Closed).L;
          end if;
