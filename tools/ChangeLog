@@ -1,3 +1,10 @@
+2003-11-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(EXECS): New target (real executable names).
+	(ALL_EXEC): Based on EXECS.
+	(clean): Add *~
+
 2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.ads, ada2wsdl-generator.adb:
