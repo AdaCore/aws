@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -84,9 +84,7 @@ private
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
 
-   function Size
-     (Resource : in File_Tagged)
-      return   Stream_Element_Offset;
+   function Size (Resource : in File_Tagged) return Stream_Element_Offset;
 
    procedure Close (Resource : in out File_Tagged);
 

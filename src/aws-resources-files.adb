@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -166,9 +166,7 @@ package body AWS.Resources.Files is
    -- Size --
    ----------
 
-   function Size
-     (Resource : in File_Tagged)
-      return   Stream_Element_Offset is
+   function Size (Resource : in File_Tagged) return Stream_Element_Offset is
    begin
       return Stream_Element_Offset (Stream_IO.Size (Resource.File));
    end Size;

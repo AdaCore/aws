@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -56,7 +56,7 @@ private
    type File_Tagged is new Resources.File_Tagged with record
       File    : Stream_IO.File_Type;
       Stream  : Stream_IO.Stream_Access;
-      --  below are data for buffered access to the file.
+      --  Below are data for buffered access to the file.
       Buffer  : Stream_Element_Array (1 .. Buffer_Size);
       Current : Stream_Element_Offset := 1;
       Last    : Stream_Element_Offset := 0;
@@ -69,9 +69,7 @@ private
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
 
-   function Size
-     (Resource : in File_Tagged)
-      return   Stream_Element_Offset;
+   function Size (Resource : in File_Tagged) return Stream_Element_Offset;
 
    procedure Close (Resource : in out File_Tagged);
 
