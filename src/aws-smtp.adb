@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,7 +31,11 @@
 
 --  $Id$
 
+with Ada.Strings.Fixed;
+
 package body AWS.SMTP is
+
+   use Ada;
 
    C_211 : aliased constant String := "System status";
    C_214 : aliased constant String := "Help message";
@@ -116,6 +120,21 @@ package body AWS.SMTP is
       raise Reply_Code_Error;
    end Image;
 
+   function Image
+     (E_Mail : in E_Mail_Data;
+      Mode   : in Address_Mode := Full) return String is
+   begin
+      case Mode is
+         when Full =>
+            return To_String (E_Mail.Name)
+              & " <" & To_String (E_Mail.Address) & '>';
+         when Name =>
+            return To_String (E_Mail.Name);
+         when Address =>
+            return To_String (E_Mail.Address);
+      end case;
+   end Image;
+
    -----------
    -- Is_Ok --
    -----------
@@ -148,6 +167,40 @@ package body AWS.SMTP is
 
       raise Reply_Code_Error;
    end Name;
+
+   -----------
+   -- Parse --
+   -----------
+
+   function Parse (E_Mail : in String) return E_Mail_Data is
+      use Strings.Fixed;
+
+      I1, I2 : Natural;
+   begin
+      I1 := Index (E_Mail, "<");
+      I2 := Index (E_Mail, ">");
+
+      if I1 = 0 or else I2 = 0 or else I1 > I2 then
+
+         I1 := Index (E_Mail, "(");
+         I2 := Index (E_Mail, ")");
+
+         if I1 = 0 or else I2 = 0 or else I1 > I2 then
+            raise Constraint_Error;
+         else
+            --  Syntax: e-mail (Name)
+            return SMTP.E_Mail
+              (Address => Trim (E_Mail (E_Mail'First .. I1 - 1), Strings.Both),
+               Name    => Trim (E_Mail (I1 + 1 .. I2 - 1), Strings.Both));
+         end if;
+
+      else
+         --  Syntax: Name <e-mail>
+         return SMTP.E_Mail
+           (Name    => Trim (E_Mail (E_Mail'First .. I1 - 1), Strings.Both),
+            Address => Trim (E_Mail (I1 + 1 .. I2 - 1), Strings.Both));
+      end if;
+   end Parse;
 
    -----------------
    -- Status_Code --
