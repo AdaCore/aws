@@ -226,6 +226,15 @@ package body SOAP.Generator is
       O.CVS_Tag := True;
    end CVS_Tag;
 
+   -----------
+   -- Debug --
+   -----------
+
+   procedure Debug (O : in out Object) is
+   begin
+      O.Debug := True;
+   end Debug;
+
    -----------------
    -- End_Service --
    -----------------
