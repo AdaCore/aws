@@ -34,6 +34,7 @@ with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Sets.Thin;
+with AWS.OS_Lib.Definitions;
 
 package body AWS.Net.Sets is
 
@@ -142,11 +143,12 @@ package body AWS.Net.Sets is
 
       case Mode is
          when Input  =>
-            Set.Poll (Set.Last).Events := Thin.POLLIN;
+            Set.Poll (Set.Last).Events := OS_Lib.Definitions.POLLIN;
          when Output =>
-            Set.Poll (Set.Last).Events := Thin.POLLOUT;
+            Set.Poll (Set.Last).Events := OS_Lib.Definitions.POLLOUT;
          when Both   =>
-            Set.Poll (Set.Last).Events := Thin.POLLIN + Thin.POLLOUT;
+            Set.Poll (Set.Last).Events
+              := OS_Lib.Definitions.POLLIN + OS_Lib.Definitions.POLLOUT;
       end case;
    end Add_Private;
 
@@ -267,23 +269,28 @@ package body AWS.Net.Sets is
 
    function To_State (Event : in Thin.Events_Type) return Socket_State is
       use type Thin.Events_Type;
+      use OS_Lib;
    begin
-      if (Event and (Thin.POLLERR
-                    or Thin.POLLHUP
-                    or Thin.POLLNVAL
-                    or Thin.POLLIN
-                    or Thin.POLLPRI
-                    or Thin.POLLOUT)) = 0
+      if (Event and (Definitions.POLLERR
+                    or Definitions.POLLHUP
+                    or Definitions.POLLNVAL
+                    or Definitions.POLLIN
+                    or Definitions.POLLPRI
+                    or Definitions.POLLOUT)) = 0
       then
          return None;
       end if;
 
-      if (Event and (Thin.POLLERR or Thin.POLLHUP or Thin.POLLNVAL)) /= 0 then
+      if (Event and
+          (Definitions.POLLERR
+           or Definitions.POLLHUP
+           or Definitions.POLLNVAL)) /= 0
+      then
          return Error;
       end if;
 
-      if (Event and (Thin.POLLIN or Thin.POLLPRI)) /= 0 then
-         if (Event and Thin.POLLOUT) /= 0 then
+      if (Event and (Definitions.POLLIN or Definitions.POLLPRI)) /= 0 then
+         if (Event and Definitions.POLLOUT) /= 0 then
             return Both;
          else
             return Input;
@@ -312,7 +319,7 @@ package body AWS.Net.Sets is
       Result := Integer
         (Thin.Poll
            (FDS     => Set.Poll (Set.Poll'First)'Address,
-            Nfds    => Thin.Length_Type (Set.Last),
+            Nfds    => Thin.nfds_t (Set.Last),
             Timeout => Poll_Timeout));
 
       if Result < 0 then

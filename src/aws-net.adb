@@ -32,12 +32,12 @@
 
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
+with Interfaces.C;
 
 with AWS.Net.Sets.Thin;
 with AWS.Net.Std;
 with AWS.Net.SSL;
-
-with Interfaces.C;
+with AWS.OS_Lib.Definitions;
 
 package body AWS.Net is
 
@@ -170,17 +170,18 @@ package body AWS.Net is
    --------------
 
    procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type'Class) is
-      use AWS.Net.Sets;
       use Interfaces;
+      use AWS.Net.Sets;
+      use OS_Lib;
 
       use type C.int;
       use type Thin.Events_Type;
 
       To_Poll_Mode : constant array (Wait_Mode) of Thin.Events_Type
-        := (Input => Thin.POLLIN, Output => Thin.POLLOUT);
+        := (Input => Definitions.POLLIN, Output => Definitions.POLLOUT);
 
       PFD : aliased Thin.Pollfd
-        := (Fd      => C.int (Get_FD (Socket)),
+        := (Fd      => Thin.FD_Type (Get_FD (Socket)),
             Events  => To_Poll_Mode (Mode),
             REvents => 0);
       RC      : C.int;
