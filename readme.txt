@@ -218,7 +218,7 @@ AWS 1.4 has been compiled and has passed all tests on:
 
    Windows XP, GNAT 3.16a1 and 5.01a
 
-   GNU/Linux x66, GNAT 3.16a1 and 5.01a
+   GNU/Linux x86, GNAT 3.16a1 and 5.01a
 
    SPARC Solaris 8, GNAT 3.16a1
 
@@ -278,7 +278,7 @@ Socket binding (Optional) :
 XMLada (optional):
 
    You need this library only if you want to use AWS SOAP feature. You need
-   at least XMLada 0.7.1.
+   at least XMLada 1.0.
 
    http://libre.act-europe.fr/
 
