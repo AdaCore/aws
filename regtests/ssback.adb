@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003-2004                       --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,7 +32,11 @@
 
 with Back_Pack;
 
+with Get_Free_Port;
+
 procedure SSBack is
+   Port : Natural := 4469;
 begin
-   Back_Pack.Run ("https", 4469);
+   Get_Free_Port (Port);
+   Back_Pack.Run ("https", Port);
 end SSBack;
