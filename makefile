@@ -12,6 +12,7 @@ all:
 build:
 	make -C src build
 	make -C demos build
+	make -C docs build
 
 clean:
 	make -C src clean
@@ -20,5 +21,7 @@ clean:
 distrib:
 	-rm -f aws.tar*
 	tar cf aws.tar makefile src/makefile demos/makefile \
-		src/*.ad[sb] demos/*.ads demos/[ar]*.adb demos/*.gif
+		src/*.ad[sb] demos/r*.ads demos/[ar]*.adb demos/*.gif \
+		docs/aws.texi docs/aws.html docs/aws.txt docs/aws.info \
+		docs/aws.ps
 	gzip -9 aws.tar
