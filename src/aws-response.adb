@@ -302,7 +302,7 @@ package body AWS.Response is
       Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
       Encoding      : in Messages.Content_Encoding := Messages.Identity;
       Once          : in Boolean                   := False;
-      Disposition   : in Disposition_Mode          := Inline;
+      Disposition   : in Disposition_Mode          := None;
       User_Filename : in String                    := "")
       return Data
    is
@@ -631,7 +631,7 @@ package body AWS.Response is
       Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
       Encoding      : in     Messages.Content_Encoding := Messages.Identity;
       Server_Close  : in     Boolean                   := True;
-      Disposition   : in     Disposition_Mode          := Inline;
+      Disposition   : in     Disposition_Mode          := None;
       User_Filename : in     String                    := "")
       return Data
    is
