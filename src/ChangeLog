@@ -1,5 +1,10 @@
 2000-10-22  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
+	* makefile:
+	(SOURCES): add aws-log.adb aws-hotplug.adb aws-communication.adb
+	 aws-communication-server.adb aws-communication-client.adb
+	 aws-server-hotplug.adb
+
 	* aws-hotplug.adb:
 	(Apply): fix style error.
 
