@@ -79,7 +79,7 @@ package body Sp_Pck is
          Client.Create
            (Connection  => Connect (J),
             Host        => URL,
-            Timeouts    => (15, 15),
+            Timeouts    => (15.0, 15.0),
             Server_Push => True);
 
          Client.Get (Connect (J), Answer, "/uri?mode="
