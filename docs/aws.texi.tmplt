@@ -2643,10 +2643,10 @@ Here is the spec for this handler:
 @cartouche
 @group
 @b{type} Unexpected_Exception_Handler @b{is access}
-  @b{procedure} (E           : @b{in}     Ada.Exceptions.Exception_Occurrence;
-             Log         : @b{in out} AWS.Log.Object;
-             Error       : @b{in}     Data;
-             Answer      : @b{in out} Response.Data);
+  @b{procedure} (E      : @b{in}     Ada.Exceptions.Exception_Occurrence;
+             Log    : @b{in out} AWS.Log.Object;
+             Error  : @b{in}     Data;
+             Answer : @b{in out} Response.Data);
 @end group
 @end cartouche
 @end smallexample
@@ -3146,11 +3146,46 @@ next pages and can also contains an index of the pages.
 
 @noindent
 The @code{AWS}'s split page feature can automatically do that for
-you. Given template @code{Translate_Table} and the max line per page
-it returns the first page and create a set of transient pages for all
-other pages. A set of template tags are used to reference the previous
-and next page and also to build the page index.
-@pxref{AWS.Services.Split_Pages}.
+you. Given template @code{Translate_Table} or @code{Translate_Set} and the
+max line per page it returns the first page and create a set of
+transient pages for all other pages. A set of template tags are used
+to reference the previous and next page and also to build the page index.
+
+@noindent
+There is different ways to split a set of pages and ready-to-use
+splitters are available:
+
+@table @b
+@item Alpha
+Split in (at most) 28 pages, one for empty fields, one for all fields
+that start with a digit, and one for each different initial letter.
+@pxref{AWS.Services.Split_Pages.Alpha}.
+
+@item Alpha.Bounded
+Same as the alpha splitter, but pages larger than a Max_Per_Page value
+are further splitted.
+A secondary index is generated that gives the various pages for a given
+letter. @pxref{AWS.Services.Split_Pages.Alpha.Bounded}.
+
+@item Uniform
+Split in pages of length Max_Per_Page (except the last one). This
+corresponds to the default service in Split_Pages package.
+@pxref{AWS.Services.Split_Pages.Uniform}.
+
+@item Uniform.Alpha
+Same as the uniform splitter, but builds in addition an alphabetical
+secondary index from a key field.
+@pxref{AWS.Services.Split_Pages.Uniform.Alpha}.
+
+@item Uniform.Overlapping
+Same as the uniform splitter, but pages (except the first one)
+repeat Overlap lines from the previous page in addition to the
+Max_Per_Page lines. @pxref{AWS.Services.Split_Pages.Uniform.Overlapping}.
+@end table
+
+@noindent
+Using the spliter abstract interface it is possible to build a
+customized splitter algorithm. @pxref{AWS.Services.Split_Pages}.
 
 @c ======================================================================
 
@@ -5713,6 +5748,11 @@ AWS User's API:
 * AWS.Services.Dispatchers.Virtual_Host::
 * AWS.Services.Page_Server::
 * AWS.Services.Split_Pages::
+* AWS.Services.Split_Pages.Alpha::
+* AWS.Services.Split_Pages.Alpha.Bounded::
+* AWS.Services.Split_Pages.Uniform::
+* AWS.Services.Split_Pages.Uniform.Alpha::
+* AWS.Services.Split_Pages.Uniform.Overlapping::
 * AWS.Services.Transient_Pages::
 * AWS.Session::
 * AWS.SMTP::
@@ -6095,6 +6135,41 @@ SOAP User's API:
 @cindex AWS.Services.Split_Pages
 
 @include aws-services-split_pages.ads.texi
+
+@page
+@node AWS.Services.Split_Pages.Alpha
+@appendixsec AWS.Services.Split_Pages.Alpha
+@cindex AWS.Services.Split_Pages.Alpha
+
+@include aws-services-split_pages-alpha.ads.texi
+
+@page
+@node AWS.Services.Split_Pages.Alpha.Bounded
+@appendixsec AWS.Services.Split_Pages.Alpha.Bounded
+@cindex AWS.Services.Split_Pages.Alpha.Bounded
+
+@include aws-services-split_pages-alpha-bounded.ads.texi
+
+@page
+@node AWS.Services.Split_Pages.Uniform
+@appendixsec AWS.Services.Split_Pages.Uniform
+@cindex AWS.Services.Split_Pages.Alpha.Uniform
+
+@include aws-services-split_pages-uniform.ads.texi
+
+@page
+@node AWS.Services.Split_Pages.Uniform.Alpha
+@appendixsec AWS.Services.Split_Pages.Uniform.Alpha
+@cindex AWS.Services.Split_Pages.Alpha.Uniform.Alpha
+
+@include aws-services-split_pages-uniform-alpha.ads.texi
+
+@page
+@node AWS.Services.Split_Pages.Uniform.Overlapping
+@appendixsec AWS.Services.Split_Pages.Uniform.Overlapping
+@cindex AWS.Services.Split_Pages.Alpha.Uniform.Overlapping
+
+@include aws-services-split_pages-uniform-overlapping.ads.texi
 
 @page
 @node AWS.Services.Transient_Pages
