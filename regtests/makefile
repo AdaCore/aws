@@ -42,7 +42,7 @@ RT_SOAP = soap1 soap2 soap3 workorder testxml test_speed test_soap \
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown \
 	tres2 upload unexph auth moved turl2 turl3 strm test_templates_if \
-	head hval turl4 ctab sock1 file redirect hostip $(RT_STD_SEC)
+	head hval turl4 ctab sock1 file redirect hostip upload2 $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
 ALL_TESTS = $(RT_STD)
