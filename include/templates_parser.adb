@@ -2508,6 +2508,8 @@ package body Templates_Parser is
 
          if Stop = 0 then
             Stop := Last;
+         else
+            Stop := Stop - 1;
          end if;
 
          return To_Unbounded_String (Buffer (Start .. Stop));
