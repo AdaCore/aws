@@ -45,7 +45,7 @@
 @chapter Introduction
 
 @noindent
-AWS stand for Ada Web Server. It is an Ada implementation of the
+@code{AWS} stand for @i{Ada Web Server}. It is an Ada implementation of the
 HTTP/1.1 protocol as defined in the RFC 2616 from June 1999.
 
 @noindent
@@ -53,7 +53,7 @@ The goal is not to build a full Web server but more to make it possible
 to use a Web browser (like Internet Explorer, or Netscape Navigator) to
 control an Ada application. As we'll see later it is also possible to
 have two Ada programs exchange informations via the HTTP protocol. This
-is possible as AWS also implement the client side of the HTTP protocol.
+is possible as @code{AWS} also implement the client side of the HTTP protocol.
 
 @noindent
 Moreover with this library it is possible to have more than one server
@@ -63,26 +63,33 @@ for differents services priority. Client which must be served with a
 very high priority can be assigned a specific port for example.
 
 @noindent
-You must keep in mind that this is work in progress and only a very
-small part of the HTTP/1.1 protocol is implemented. Nevertheless the
-AWS project grows as days goes...
+As designed, @code{AWS} big difference with a standard @code{CGI} server
+is that there is only one executable. A @code{CGI} server has one
+executable for each request or so, this becomes a pain to build and
+to distribute when the project gets bigger. We will also see that it is
+easier with @code{AWS} to deal with session data.
 
 @noindent
-AWS support also HTTPS (secure HTTP) using SSL. This is based on OpenSSL
+You must keep in mind that this is work in progress and only a small
+part of the HTTP/1.1 protocol is implemented. Nevertheless the
+@code{AWS} project grows as days goes...
+
+@noindent
+@code{AWS} support also HTTPS (secure HTTP) using SSL. This is based on OpenSSL
 a very good and Open Source SSL implementation.
 
 @node How to build it ?
 @chapter How to build it ?
 
 @noindent
-AWS has been developped with GNAT under Windows NT but should be fairly
-portable. To build AWS you need:
+@code{AWS} has been developped with GNAT under Windows NT but should be fairly
+portable. To build @code{AWS} you need:
 
 @itemize @bullet
 
 @item an Ada95 compiler
 
-There is many of them. AWS has been developped with GNAT but should use
+There is many of them. @code{AWS} has been developped with GNAT but should use
 only Ada95 features. So any Ada95 compiler should be usable.
 
 @item a POSIX binding (Interface to the underlying OS services) ;
@@ -142,17 +149,17 @@ to build AWS:
 @section Basic notion
 
 @noindent
-AWS is not a Web Server like @i{IIS} or @i{Apache}, it is a component to
+@code{AWS} is not a Web Server like @i{IIS} or @i{Apache}, it is a component to
 embedded HTTP protocol in an application. It means that it is possible
 to build an application which can also answer to a standard browser like
-@i{Internet Explorer} or @i{Netscape Navigator}. Since AWS provides
+@i{Internet Explorer} or @i{Netscape Navigator}. Since @code{AWS} provides
 support client and server HTTP protocol applications can communicate
 through the HTTP channel. This give a way to build distributed applications.
 
 @noindent
-An application using AWS can open many HTTP channels. Each channel will use
-a specific port. So it is possible to embedded some HTTP and some HTTPS
-channels in the same application.
+An application using @code{AWS} can open many HTTP channels. Each
+channel will use a specific port. So it is possible to embedded some
+HTTP and some HTTPS channels in the same application.
 
 @noindent
 To build a server you must:
@@ -315,16 +322,16 @@ the new value.
 @chapter Status page
 
 @noindent
-The status page gives information about the AWS internal status. For
+The status page gives information about the @code{AWS} internal status. For
 example it returns the server socket ID, the number of simultaneous
 connection, the number of time a connection has been used...
 
 @noindent
-To display the information AWS use a template file. The template file is
-an HTML file with some specific file recongnized by the parser. For more
-information about how does the template parser works, please look for
-the template parser distribution at @url{http://perso.wanadoo.fr/} in
-the Ada section.
+To display the information @code{AWS} use a template file. The template
+file is an HTML file with some specific file recongnized by the
+parser. For more information about how does the template parser works,
+please look for the template parser distribution at
+@url{http://perso.wanadoo.fr/} in the Ada section.
 
 @noindent
 Here are the tag variables recognized by AWS:
@@ -409,7 +416,7 @@ key is to be inserted in a table.
 
 @item VERSION
 
-AWS version number.
+@code{AWS} version number.
 
 @end table
 
