@@ -145,7 +145,7 @@ package body AWS.Server.Status is
 
          procedure For_Each_Session
            (N          : in     Positive;
-            SID        : in     Session.ID;
+            SID        : in     Session.Id;
             Time_Stamp : in     Calendar.Time;
             Quit       : in out Boolean);
          --  add session SID to the list
@@ -179,7 +179,7 @@ package body AWS.Server.Status is
 
          procedure For_Each_Session
            (N          : in     Positive;
-            SID        : in     Session.ID;
+            SID        : in     Session.Id;
             Time_Stamp : in     Calendar.Time;
             Quit       : in out Boolean)
          is

@@ -180,7 +180,7 @@ package AWS.Status is
    pragma Inline (Has_Session);
    --  Returns true if a session ID has been received.
 
-   function Session                (D : in Data) return Session.ID;
+   function Session                (D : in Data) return Session.Id;
    pragma Inline (Session);
    --  Returns the Session ID for the request. Raises Constraint_Error if
    --  server's session support not activated.
@@ -304,7 +304,7 @@ private
       Auth_Response     : Unbounded_String; -- for Digest
 
       --  Session
-      Session_ID        : AWS.Session.ID        := AWS.Session.No_Session;
+      Session_Id        : AWS.Session.Id        := AWS.Session.No_Session;
       Session_Created   : Boolean               := False;
    end record;
 

@@ -733,7 +733,7 @@ package body AWS.Client is
 
          AWS.Headers.Set.Add
            (Headers => Root_Part_Header,
-            Name    => AWS.Messages.Content_ID_Token,
+            Name    => AWS.Messages.Content_Id_Token,
             Value   => Root_Content_Id);
 
       end Build_Root_Part_Header;

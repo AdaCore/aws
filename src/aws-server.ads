@@ -96,7 +96,7 @@ package AWS.Server is
    --  each resource requested. Port is the Web server port. If Security is
    --  set to True the server will use an HTTPS/SSL connection. If Session is
    --  set to True the server will be able to get a status for each client
-   --  connected. A session ID is used for that, on the client side it is a
+   --  connected. A session Id is used for that, on the client side it is a
    --  cookie. Case_Sensitive_Parameters if set to False it means that the CGI
    --  parameters name will be handled without case sensitivity. Upload
    --  directory point to a directory where uploaded files will be stored.

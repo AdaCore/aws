@@ -77,7 +77,7 @@ package body AWS.Services.Web_Mail is
 
    function Callback (Request : in AWS.Status.Data) return AWS.Response.Data is
       WWW_Root   : String renames AWS.Config.WWW_Root (Config.Get_Current);
-      WM_Session : constant Session.ID := Status.Session (Request);
+      WM_Session : constant Session.Id := Status.Session (Request);
       URI        : constant String     := Status.URI (Request);
 
       procedure Check_Session;
@@ -180,7 +180,7 @@ package body AWS.Services.Web_Mail is
    ------------
 
    function Delete (Request : in AWS.Status.Data) return AWS.Response.Data is
-      WM_Session : constant Session.ID := Status.Session (Request);
+      WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
       POP_Server : constant String
@@ -211,7 +211,7 @@ package body AWS.Services.Web_Mail is
    -----------
 
    function Login (Request : in Status.Data) return Response.Data is
-      WM_Session : constant Session.ID      := Status.Session (Request);
+      WM_Session : constant Session.Id      := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
    begin
       Session.Set (WM_Session, "WM_SMTP_SERVER",
@@ -233,7 +233,7 @@ package body AWS.Services.Web_Mail is
       use type Templates.Translate_Table;
 
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
-      WM_Session : constant Session.ID := Status.Session (Request);
+      WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
       POP_Server : constant String
@@ -371,7 +371,7 @@ package body AWS.Services.Web_Mail is
       use type Templates.Translate_Table;
 
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
-      WM_Session : constant Session.ID := Status.Session (Request);
+      WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
       SMTP_Server : constant String
@@ -458,7 +458,7 @@ package body AWS.Services.Web_Mail is
 
    function Send (Request : in AWS.Status.Data) return AWS.Response.Data is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
-      WM_Session : constant Session.ID := Status.Session (Request);
+      WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
       POP_Server : constant String
@@ -537,7 +537,7 @@ package body AWS.Services.Web_Mail is
 
    function Summary (Request : in AWS.Status.Data) return AWS.Response.Data is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
-      WM_Session : constant Session.ID := Status.Session (Request);
+      WM_Session : constant Session.Id := Status.Session (Request);
 
       POP_Server : constant String
         := Session.Get (WM_Session, "WM_POP_SERVER");
