@@ -4,6 +4,8 @@
 	(Send_File): handle exception when a file is not found. We don't
 	 want to crash in this case.
 	(File_Upload): handle properly the server name on the server side.
+	(Answer_To_Client): return an error message in case status.tmplt
+	 file can not be found.
 
 	* aws-communication-server.ads:
 	Fix comments.
