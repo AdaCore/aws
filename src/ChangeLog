@@ -1,3 +1,15 @@
+2005-01-09  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Name_Parameter): Fully prefix the return value to avoid ambiguity
+	 detected by recent GNAT versions.
+	Fix for E109-002.
+
+	* aws-pop.ads, aws-pop.adb:
+	(Get): Rename parameter from Attachment to Index to avoid
+	 ambiguity as detected by recent GNAT version.
+	Fix for E109-002.
+
 2004-12-23  Pascal Obry  <pascal@obry.net>
 
 	* aws-services-web_mail.ads:
