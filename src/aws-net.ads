@@ -173,6 +173,13 @@ package AWS.Net is
    --  Sets the timeout for the socket read/write operations
 
 private
+
+   type Wait_Mode is (Input, Output);
+
+   procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type'Class);
+   --  Wait for a socket to be ready for input or output operation.
+   --  Raises Socket_Error if an error or timeout occurs.
+
    --  This object is to cache data writed to the stream. It is more efficient
    --  than to write byte by byte on the stream.
 

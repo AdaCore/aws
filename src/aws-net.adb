@@ -30,10 +30,14 @@
 
 --  $Id$
 
+with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
+with AWS.Net.Sets.Thin;
 with AWS.Net.Std;
 with AWS.Net.SSL;
+
+with Interfaces.C;
 
 package body AWS.Net is
 
@@ -128,5 +132,60 @@ package body AWS.Net is
    begin
       return new Socket_Type'Class'(Socket (Security));
    end Socket;
+
+   --------------
+   -- Wait_For --
+   --------------
+
+   procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type'Class) is
+      use AWS.Net.Sets;
+      use Interfaces;
+
+      use type C.int;
+      use type Thin.Events_Type;
+
+      To_Poll_Mode : constant array (Wait_Mode) of Thin.Events_Type
+        := (Input => Thin.Pollin, Output => Thin.Pollout);
+
+      PFD : Thin.Pollfd
+        := (Fd      => C.int (Get_FD (Socket)),
+            Events  => To_Poll_Mode (Mode),
+            Revents => 0);
+      RC      : C.int;
+      Timeout : C.int;
+   begin
+      if Socket.Timeout >= Duration (C.int'Last / 1000) then
+         Timeout := C.int'Last;
+      else
+         Timeout := C.int (Socket.Timeout * 1000);
+      end if;
+
+      RC := Thin.Poll (PFD'Address, 1, Timeout);
+
+      case RC is
+         when -1 =>
+            Ada.Exceptions.Raise_Exception
+              (Socket_Error'Identity,
+               "Wait_For_" & Wait_Mode'Image (Mode)
+                 & " error code" & Integer'Image (Std.Errno));
+
+         when  0 =>
+            Ada.Exceptions.Raise_Exception
+              (Socket_Error'Identity,
+               Wait_Mode'Image (Mode) & " timeout.");
+
+         when  1 =>
+            if PFD.REvents = To_Poll_Mode (Mode) then
+               return;
+            else
+               Ada.Exceptions.Raise_Exception
+                 (Socket_Error'Identity,
+                  Wait_Mode'Image (Mode) & "_Wait error.");
+            end if;
+
+         when others => raise Program_Error;
+      end case;
+
+   end Wait_For;
 
 end AWS.Net;
