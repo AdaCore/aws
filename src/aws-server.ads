@@ -414,7 +414,7 @@ private
       --  All server properties controled by the configuration file.
 
       Log               : AWS.Log.Object;
-      --  Loggin support.
+      --  Logging support.
 
       Error_Log         : aliased AWS.Log.Object;
       --  Error loggin support.

@@ -397,7 +397,7 @@ package body AWS.Session is
          procedure Modify
            (SID  : in     ID;
             Node : in out Session_Node);
-         --  Adjust time stamp and retreive the value associated to key.
+         --  Adjust time stamp and retrieve the value associated to key.
 
          Found : Boolean;
 

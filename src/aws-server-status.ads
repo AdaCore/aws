@@ -30,7 +30,7 @@
 
 --  $Id$
 
---  This package provides routine to retreive server's internal status
+--  This package provides routine to retrieve server's internal status
 
 with Ada.Calendar;
 

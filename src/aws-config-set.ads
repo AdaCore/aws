@@ -44,7 +44,7 @@ package AWS.Config.Set is
    procedure WWW_Root (O : in out Object; Value : in String);
    --  This is the root directory name for the server. This variable is not
    --  used internally by AWS. It is supposed to be used by the callback
-   --  procedures who want to retreive physical objects (images, Web
+   --  procedures who want to retrieve physical objects (images, Web
    --  pages...). The default value is the current working directory.
 
    procedure Admin_URI (O : in out Object; Value : in String);

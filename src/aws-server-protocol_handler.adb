@@ -123,7 +123,7 @@ is
    procedure Answer_To_Client;
    --  This procedure use the C_Stat status data to build the correct answer
    --  to the client. If Force_Answer is not Empty it will be sent back to the
-   --  client's browser, otherwise the answer will be retreived from user's
+   --  client's browser, otherwise the answer will be retrieved from user's
    --  callback.
 
    procedure Send (Answer : in Response.Data);
