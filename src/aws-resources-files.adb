@@ -126,7 +126,7 @@ package body AWS.Resources.Files is
 
    begin
       if Is_GZip (Name) then
-         --  Don't let to try get file Name & ".gz.gz".
+         --  Don't try to open file Name & ".gz.gz"
 
          GZip := False;
 
@@ -140,6 +140,7 @@ package body AWS.Resources.Files is
 
             GZip := False;
          end if;
+
       else
          Open_File (Name, False);
 

@@ -257,6 +257,7 @@ package body AWS.Response is
             if GZip_Out then
                Set.Update_Header (D, Messages.Content_Encoding_Token, "gzip");
             end if;
+
          when Response.File_Once =>
             declare
                Stream : AWS.Resources.Streams.Stream_Access;
