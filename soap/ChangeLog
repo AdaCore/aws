@@ -1,6 +1,24 @@
 2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
+	(Output_Parameters): Correctly handle the case of a single Base64
+	 returned.
+	(New_Procedure): Generate better error message with procedure
+	 reference and error message from exception.
+	(Start_Service): Generate with clause for Ada.Exceptions in body.
+
+	* soap-generator.adb:
+	(Generate_Record): Remove generated pragma unreferenced, this
+	 parameter should be used. Correctly generate the name of the
+	 array parameter.
+
+	* soap-parameters.adb:
+	(Argument): Do not output dot at the end of the error message.
+	(Check): Idem.
+
+2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
 	(New_Procedure): Remove space in some case. Fix style of
 	 generated sources.
 
