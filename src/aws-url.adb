@@ -301,11 +301,11 @@ package body AWS.URL is
 
       --  Checks for prefix
 
-      if Messages.Is_Match (URL, HTTP_Token) then
+      if Messages.Match (URL, HTTP_Token) then
          O.Port := Default_HTTP_Port;
          Parse (URL (URL'First + HTTP_Token'Length .. P));
 
-      elsif Messages.Is_Match (URL, HTTPS_Token) then
+      elsif Messages.Match (URL, HTTPS_Token) then
          O.Port := Default_HTTPS_Port;
          Parse (URL (URL'First + HTTPS_Token'Length .. P));
          O.Security := True;

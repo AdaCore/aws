@@ -1038,24 +1038,24 @@ is
 
    procedure Parse (Command : in String) is
    begin
-      if Messages.Is_Match (Command, Messages.Host_Token) then
+      if Messages.Match (Command, Messages.Host_Token) then
          Status.Set.Host
            (C_Stat,
             Command (Messages.Host_Token'Length + 1 .. Command'Last));
 
-      elsif Messages.Is_Match (Command, Messages.Connection_Token) then
+      elsif Messages.Match (Command, Messages.Connection_Token) then
          Status.Set.Connection
            (C_Stat,
             Command (Messages.Connection_Token'Length + 1 .. Command'Last));
 
-      elsif Messages.Is_Match (Command, Messages.Content_Length_Token) then
+      elsif Messages.Match (Command, Messages.Content_Length_Token) then
          Status.Set.Content_Length
            (C_Stat,
             Natural'Value
             (Command (Messages.Content_Length_Token'Length + 1
                       .. Command'Last)));
 
-      elsif Messages.Is_Match (Command, Messages.Content_Type_Token) then
+      elsif Messages.Match (Command, Messages.Content_Type_Token) then
          declare
             Pos : constant Natural := Fixed.Index (Command, ";");
          begin
@@ -1075,7 +1075,7 @@ is
             end if;
          end;
 
-      elsif Messages.Is_Match
+      elsif Messages.Match
         (Command, Messages.If_Modified_Since_Token)
       then
          Status.Set.If_Modified_Since
@@ -1083,14 +1083,14 @@ is
             Command (Messages.If_Modified_Since_Token'Length + 1
                      .. Command'Last));
 
-      elsif Messages.Is_Match
+      elsif Messages.Match
         (Command, Messages.Authorization_Token)
       then
          Status.Set.Authorization
            (C_Stat,
             Command (Messages.Authorization_Token'Length + 1 .. Command'Last));
 
-      elsif Messages.Is_Match (Command, Messages.Cookie_Token) then
+      elsif Messages.Match (Command, Messages.Cookie_Token) then
          declare
             use Ada.Strings;
 
@@ -1117,19 +1117,19 @@ is
             end if;
          end;
 
-      elsif Messages.Is_Match (Command, Messages.SOAPAction_Token) then
+      elsif Messages.Match (Command, Messages.SOAPAction_Token) then
          Status.Set.SOAPAction
            (C_Stat,
             Command
               (Messages.SOAPAction_Token'Length + 2 .. Command'Last - 1));
 
-      elsif Messages.Is_Match (Command, Messages.User_Agent_Token) then
+      elsif Messages.Match (Command, Messages.User_Agent_Token) then
          Status.Set.User_Agent
            (C_Stat,
             Command
               (Messages.User_Agent_Token'Length + 1 .. Command'Last));
 
-      elsif Messages.Is_Match (Command, Messages.Referer_Token) then
+      elsif Messages.Match (Command, Messages.Referer_Token) then
          Status.Set.Referer
            (C_Stat,
             Command
@@ -1229,14 +1229,14 @@ is
    begin
       Cut_Command;
 
-      if Messages.Is_Match (Command, Messages.Get_Token) then
+      if Messages.Match (Command, Messages.Get_Token) then
          Status.Set.Request (C_Stat, Status.GET, Resource, HTTP_Version);
          AWS.Parameters.Set.Add (P_List, Parameters);
 
-      elsif Messages.Is_Match (Command, Messages.Head_Token) then
+      elsif Messages.Match (Command, Messages.Head_Token) then
          Status.Set.Request (C_Stat, Status.HEAD, Resource, HTTP_Version);
 
-      elsif Messages.Is_Match (Command, Messages.Post_Token) then
+      elsif Messages.Match (Command, Messages.Post_Token) then
          Status.Set.Request (C_Stat, Status.POST, Resource, HTTP_Version);
 
       end if;
@@ -1389,7 +1389,7 @@ begin
       Get_Message_Data;
 
       Will_Close :=
-        AWS.Messages.Is_Match (Status.Connection (C_Stat), "close")
+        AWS.Messages.Match (Status.Connection (C_Stat), "close")
         or else HTTP_Server.Slots.N = 1
         or else (Status.HTTP_Version (C_Stat) = HTTP_10
                    and then
