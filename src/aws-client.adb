@@ -45,9 +45,11 @@ package body AWS.Client is
 
    End_Section : constant String := "";
 
-   function Get_Response (Socket : in Sockets.Socket_FD'Class)
+   function Get_Response (Socket   : in Sockets.Socket_FD'Class;
+                          Get_Body : in Boolean := True)
                          return Response.Data;
-   --  Receives response from server for GET and POST commands
+   --  Receives response from server for GET and POST and HEAD commands.
+   --  If Get_Body is set then the message body will be read.
 
    function Init_Connection
      (Method     : in String;
@@ -179,7 +181,8 @@ package body AWS.Client is
    -- Get_Response --
    ------------------
 
-   function Get_Response (Socket : in Sockets.Socket_FD'Class)
+   function Get_Response (Socket   : in Sockets.Socket_FD'Class;
+                          Get_Body : in Boolean := True)
                          return Response.Data
    is
 
@@ -277,6 +280,10 @@ package body AWS.Client is
          return Response.Build (To_String (CT), To_String (Location), Status);
       end if;
 
+      if not Get_Body then
+         return Response.Build (To_String (CT), "", Status);
+      end if;
+
       --  read the message body
 
       if To_String (TE) = "chunked" then
@@ -355,6 +362,28 @@ package body AWS.Client is
 
       return Get_Response (Sock);
    end Get;
+
+   ----------
+   -- Head --
+   ----------
+
+   function Head (URL        : in String;
+                  User       : in String := No_Data;
+                  Pwd        : in String := No_Data;
+                  Proxy      : in String := No_Data;
+                  Proxy_User : in String := No_Data;
+                  Proxy_Pwd  : in String := No_Data) return Response.Data
+   is
+
+      Sock : Sockets.Socket_FD'Class :=
+        Init_Connection ("HEAD", URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
+
+   begin
+
+      Sockets.New_Line (Sock);
+
+      return Get_Response (Sock, Get_Body => False);
+   end Head;
 
    ------------------
    -- Parse_Header --
