@@ -1,6 +1,9 @@
 2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	(GFLAGS): mode XML path to main makefile.
+	
+	* makefile:
 	Initial revision.
 
 2001-08-26  Pascal Obry  <p.obry@wanadoo.fr>
