@@ -27,6 +27,11 @@ BARGS = -E
 LARGS = $(LIBS)
 endif
 
+# Include Win32 resource file
+ifeq (${OS}, Windows_NT)
+LARGS := $(LARGS) ../win32/aws.coff
+endif
+
 build: runme agent auth ws wps com_1 com_2 main hotplug hello_world \
 	text_input vh_demo dispatch
 
