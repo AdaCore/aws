@@ -20,7 +20,7 @@ procedure Hload is
    use Ada;
    use Ada.Strings.Unbounded;
 
-   Max_Client : constant := 2;
+   Max_Client : constant := 18;
 
    function Image (K : in Positive) return String;
 
@@ -37,22 +37,24 @@ procedure Hload is
 
    task body Client is
       Name : Unbounded_String;
+      Connect : AWS.Client.HTTP_Connection;
    begin
       accept Start (Name : in String) do
          Client.Name := To_Unbounded_String (Name);
       end Start;
 
+      AWS.Client.Create (Connect, "http://localhost:1234", Timeouts => (5, 5));
+
       for K in 1 .. 3000 loop
          begin
             declare
-               K_Img : constant String := Image (K);
-               R : AWS.Response.Data
-                 := AWS.Client.Get
-                 ("http://localhost:1234/toto?PARAM=" & K_Img);
---               Expected : constant String := "Data:" & K_Img;
-               Expected : constant String := "0123456789";
+               K_Img : constant String := Image (K) & '-' & To_String (Name);
+               R : AWS.Response.Data;
+               Expected : constant String := "Data:" & K_Img;
             begin
-               if not (Expected = String'(AWS.Response.Message_Body (R))) then
+               AWS.Client.Get (Connect, R, "/toto?PARAM=" & K_Img);
+
+               if Expected /= String'(AWS.Response.Message_Body (R)) then
                   Text_IO.Put_Line
                     ("nok " & K_Img &
                      "expected " & Expected
@@ -93,7 +95,7 @@ begin
      (WS, "Heavy Loaded",
       CB'Unrestricted_Access,
       Port           => 1234,
-      Max_Connection => 1,
+      Max_Connection => 16,
       Session        => True);
 
    Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
