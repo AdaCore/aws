@@ -53,7 +53,7 @@ $(AWS_COFF): aws.rc
 	$(WINDRES) -i aws.rc -o $(AWS_COFF)
 
 clean:
-	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP) *~ aws.coff
+	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP) $(AWS_COFF) *~
 
 setup_dir:
 	-$(MKDIR) -p $(ODIR)
