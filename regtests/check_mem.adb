@@ -42,6 +42,13 @@ with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
 
+with SOAP.Client;
+with SOAP.Message.Payload;
+with SOAP.Message.Response;
+with SOAP.Message.XML;
+with SOAP.Parameters;
+with SOAP.Types;
+
 procedure Check_Mem is
 
    use Ada;
@@ -49,6 +56,8 @@ procedure Check_Mem is
    use AWS;
 
    function CB (Request : in Status.Data) return Response.Data;
+
+   function SOAP_CB (Request : in Status.Data) return Response.Data;
 
    task Server is
       entry Started;
@@ -74,10 +83,14 @@ procedure Check_Mem is
    --------
 
    function CB (Request : in Status.Data) return Response.Data is
-      URI    : constant String          := Status.URI (Request);
-      P_List : constant Parameters.List := Status.Parameters (Request);
+      SOAP_Action : constant String := Status.SOAPAction (Request);
+      URI         : constant String          := Status.URI (Request);
+      P_List      : constant Parameters.List := Status.Parameters (Request);
    begin
-      if URI = "/simple" then
+      if SOAP_Action = "/soap_demo" then
+         return SOAP_CB (Request);
+
+      elsif URI = "/simple" then
          Check (Natural'Image (Parameters.Count (P_List)));
          Check (Parameters.Get (P_List, "p1"));
          Check (Parameters.Get (P_List, "p2"));
@@ -144,6 +157,45 @@ procedure Check_Mem is
          Put_Line ("Server Error " & Exceptions.Exception_Information (E));
    end Server;
 
+   -------------
+   -- SOAP_CB --
+   -------------
+
+   function SOAP_CB (Request : in Status.Data) return Response.Data is
+      use SOAP.Types;
+      use SOAP.Parameters;
+
+      Payload      : constant SOAP.Message.Payload.Object
+        := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+
+      SOAP_Proc    : constant String
+        := SOAP.Message.Payload.Procedure_Name (Payload);
+
+      Parameters   : constant SOAP.Parameters.List
+        := SOAP.Message.Parameters (Payload);
+
+      Response     : SOAP.Message.Response.Object;
+      R_Parameters : SOAP.Parameters.List;
+
+   begin
+      Response := SOAP.Message.Response.From (Payload);
+
+      declare
+         X : constant Integer := SOAP.Parameters.Get (Parameters, "x");
+         Y : constant Integer := SOAP.Parameters.Get (Parameters, "y");
+      begin
+         if SOAP_Proc = "multProc" then
+            R_Parameters := +I (X * Y, "result");
+         elsif SOAP_Proc = "addProc" then
+            R_Parameters := +I (X + Y, "result");
+         end if;
+      end;
+
+      SOAP.Message.Set_Parameters (Response, R_Parameters);
+
+      return SOAP.Message.Response.Build (Response);
+   end SOAP_CB;
+
    ------------
    -- Client --
    ------------
@@ -161,6 +213,32 @@ procedure Check_Mem is
          Check (Response.Message_Body (R));
       end Request;
 
+      procedure Request (Proc : in String; X, Y : in Integer) is
+         use SOAP.Types;
+         use type SOAP.Parameters.List;
+
+         P_Set   : constant SOAP.Parameters.List := +I (X, "x") & I (Y, "y");
+         Payload : SOAP.Message.Payload.Object;
+      begin
+         Payload := SOAP.Message.Payload.Build (Proc, P_Set);
+
+         declare
+            Response     : constant SOAP.Message.Response.Object'Class
+              := SOAP.Client.Call
+                   ("http://localhost:" & S_Port & "/soap_demo",
+                    Payload,
+                    "/soap_demo");
+
+            R_Parameters : constant SOAP.Parameters.List
+              := SOAP.Message.Parameters (Response);
+
+            Result : constant Integer
+              := SOAP.Parameters.Get (R_Parameters, "result");
+         begin
+            null;
+         end;
+      end Request;
+
    begin
       Request ("/simple");
       Request ("/simple?p1=8&p2=azerty%20qwerty");
@@ -175,6 +253,13 @@ procedure Check_Mem is
 
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/file");
+
+      Request ("multProc", 2, 3);
+      Request ("multProc", 98, 123);
+      Request ("multProc", 5, 9);
+      Request ("addProc", 2, 3);
+      Request ("addProc", 98, 123);
+      Request ("addProc", 5, 9);
    end Client;
 
 begin
