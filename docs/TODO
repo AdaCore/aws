@@ -155,6 +155,8 @@ implemented:
   used to authenticate the user at the other side. This certificate based
   authentication is more secure than the standard user/password only.
 
+- Add WSDL support for SOAP messages with attachments.
+
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply-all support to the Web_Mail service.
