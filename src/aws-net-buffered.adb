@@ -172,9 +172,12 @@ package body AWS.Net.Buffered is
    procedure Read (Socket : in Socket_Type'Class) is
       C      : Read_Cache renames Socket.C.R_Cache;
    begin
-      C.First := C.Buffer'First;
-      C.Last  := C.Buffer'First - 1; -- Be ready for timeout in the next call.
       Receive (Socket, C.Buffer, C.Last);
+
+      --  Reset the C.First only after successful Receive, the buffer would
+      --  remain empty on timeout this way.
+
+      C.First := C.Buffer'First;
    end Read;
 
    procedure Read
