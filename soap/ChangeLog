@@ -1,3 +1,25 @@
+2003-11-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add SOAP.XML.
+
+	* soap-message-xml.adb:
+	(Parse_Param): Fix detection of node without type definition.
+	 Simplify code.
+	(Parse_Record): Handle special case where the node is in fact an
+	 enumeration.
+
+	* soap-wsdl-parser.adb:
+	(Get_Attr_Value): Moved to SOAP.XML.
+	Use XML.Get_Attr_Value in many places.
+
+	* soap-wsdl.adb:
+	(To_XSD): Set P_Integer to xsd:int (xsd:integer is wrong has it is
+	 by default a decimal representation).
+
+	* soap-xml.ads, soap-xml.adb:
+	Initial revision.
+
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-stub.adb:
