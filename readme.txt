@@ -88,7 +88,12 @@ Here are the main changes since AWS 1.3 :
    - Fix memory leak in the sessions container.
 
    - Properly handle SOAPAction in SOAP persistent connections. It was not
-     possible to change the SOAPAction value for each request.
+     possible to change the SOAPAction value for each request. The same
+     SOAPAction was used for all requests over the same connection.
+
+     This change is not upward compatible. The SOAPAction value must be
+     removed from the persistent connection creation (AWS.Client.Create)
+     and passed to the SOAP.Client.Call.
 
    - Change AWS.Client.SOAP_Post and SOAP.Client.Call spec for the persistent
      connection cases. This is not upward compatible but easier to use. The
