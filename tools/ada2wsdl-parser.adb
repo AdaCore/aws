@@ -186,6 +186,9 @@ package body Ada2WSDL.Parser is
    --  defines exactly one name. This should definitely be made an extension
    --  query
 
+   function Image (Str : in Wide_String) return String;
+   --  Returns the trimed string representation of Str
+
    procedure Analyse_Structure;
    --  Go through all entities and generate WSDL
 
@@ -195,7 +198,7 @@ package body Ada2WSDL.Parser is
    --  ASIS, closes and deletes needed files.
 
    ------------------------------------
-   -- Deffered Asis types to analyse --
+   -- Deferred Asis types to analyse --
    ------------------------------------
 
    type Element_Set is array (Positive range <>) of Asis.Element;
@@ -209,6 +212,10 @@ package body Ada2WSDL.Parser is
 
    Index          : Natural := 0;
    --  Current Index in the Deferred_Types array
+
+   function Register_Deferred (E : in Asis.Declaration) return String;
+   --  Register a deferred type to be generated after first
+   --  pass. Returns the name of the type.
 
    ----------------
    -- Add_Option --
@@ -246,8 +253,10 @@ package body Ada2WSDL.Parser is
       --  represented by Node. Upon exit, sets Change_Line is set True
       --  if the following "is" for the body should be generated on a new line
 
-      function Image (Str : in Wide_String) return String;
-      --  Returns the trimed string representation of Str
+      procedure Array_Type_Suffix
+        (E           : in     Asis.Element;
+         Type_Suffix :    out Unbounded_String;
+         Length      :    out Positive);
 
       function Type_Name (Elem : in Asis.Element) return String;
       --  Returns the type name for Elem
@@ -478,6 +487,14 @@ package body Ada2WSDL.Parser is
 
          use Extensions.Flat_Kinds;
 
+         type U_Array_Def is record
+            Name, Comp_Type : Unbounded_String;
+            Length          : Positive;
+         end record;
+
+         Deferred_U_Arrays : array (1 .. 500) of U_Array_Def;
+         U_Array_Index : Natural := 0;
+
          procedure Analyse_Field (Component : in Asis.Element);
          --  Analyse a field from the record
 
@@ -486,6 +503,7 @@ package body Ada2WSDL.Parser is
          -------------------
 
          procedure Analyse_Field (Component : in Asis.Element) is
+
             Elem  : constant Asis.Element
               := Definitions.Subtype_Mark
                    (Definitions.Component_Subtype_Indication
@@ -493,13 +511,92 @@ package body Ada2WSDL.Parser is
 
             Names : constant Defining_Name_List
               := Declarations.Names (Component);
+
+            E : Asis.Element := Elem;
+
+            CND : Asis.Element;
+
+            Type_Name : Unbounded_String;
+
          begin
+            if Elements.Expression_Kind (E) = A_Selected_Component then
+               E := Expressions.Selector (E);
+            end if;
+
+            CND := Expressions.Corresponding_Name_Declaration (E);
+
+            E := Declarations.Type_Declaration_View (CND);
+
+            if Flat_Element_Kind (E) = An_Unconstrained_Array_Definition then
+               declare
+                  Type_Suffix : Unbounded_String;
+               begin
+                  U_Array_Index := U_Array_Index + 1;
+
+                  --  Set array's component type information
+
+                  E := Definitions.Array_Component_Definition (E);
+
+                  Deferred_U_Arrays (U_Array_Index).Comp_Type
+                    := To_Unbounded_String (Image (Text.Element_Image (E)));
+
+                  --  Set array's type name
+
+                  E := CND;
+
+                  Deferred_U_Arrays (U_Array_Index).Name
+                    := To_Unbounded_String
+                         (Image
+                            (Text.Element_Image
+                               (Declarations.Names (CND) (1))));
+
+                  --  Get array's constraint, an array inside a record must be
+                  --  constrained.
+
+                  E := Definitions.Subtype_Constraint
+                         (Definitions.Component_Subtype_Indication
+                            (Declarations.Object_Declaration_View
+                               (Component)));
+
+                  declare
+                     R : constant Asis.Discrete_Range_List
+                       := Definitions.Discrete_Ranges (E);
+                  begin
+                     if R'Length /= 1 then
+                        Raise_Spec_Error
+                          (E,
+                           Message => "Arrays with multiple dimensions not "
+                             & "supported.");
+                     end if;
+
+                     --  Add array's name suffix
+                     Array_Type_Suffix
+                       (R (1), Type_Suffix,
+                        Deferred_U_Arrays (U_Array_Index).Length);
+
+                     Append (Deferred_U_Arrays (U_Array_Index).Name,
+                             Type_Suffix);
+                  end;
+
+                  Type_Name := Deferred_U_Arrays (U_Array_Index).Name;
+               end;
+            end if;
+
+            if Type_Name = Null_Unbounded_String then
+               --  If type name not set, then compute it now
+               Type_Name := To_Unbounded_String
+                 (Analyse_Structure.Type_Name (Elem));
+            end if;
+
             for K in Names'Range loop
                Generator.New_Component
                  (Comp_Name => Image (Text.Element_Image (Names (K))),
-                  Comp_Type => Type_Name (Elem));
+                  Comp_Type => To_String (Type_Name));
             end loop;
          end Analyse_Field;
+
+         Name : constant String
+           := Image (Text.Element_Image (Declarations.Names (Elem)(1)));
 
          E : Asis.Definition := Declarations.Type_Declaration_View (Elem);
 
@@ -507,11 +604,12 @@ package body Ada2WSDL.Parser is
 
       begin
          case Type_Kind is
+            --  ???
+            --  We should check for a subtype here
 
             when A_Record_Type_Definition =>
 
-               Generator.Start_Record
-                 (Image (Text.Element_Image (Declarations.Names (Elem)(1))));
+               Generator.Start_Record (Name);
 
                E := Definitions.Record_Definition (E);
 
@@ -524,31 +622,121 @@ package body Ada2WSDL.Parser is
                   end loop;
                end;
 
-            when An_Unconstrained_Array_Definition
-              | A_Constrained_Array_Definition
-              =>
+               --  Create now all deferred arrays
+
+               for K in 1 .. U_Array_Index loop
+                  Generator.Start_Array
+                    (To_String (Deferred_U_Arrays (K).Name),
+                     To_String (Deferred_U_Arrays (K).Comp_Type),
+                     Deferred_U_Arrays (K).Length);
+               end loop;
+
+            when A_Constrained_Array_Definition =>
+
+               declare
+                  S : constant Asis.Definition_List
+                    := Definitions.Discrete_Subtype_Definitions (E);
+
+                  Array_Len   : Natural;
+                  Type_Suffix : Unbounded_String;
+                  C           : Asis.Element;
+               begin
+                  if S'Length /= 1 then
+                     Raise_Spec_Error
+                       (E,
+                        Message => "Arrays with multiple dimensions not "
+                          & "supported.");
+                  end if;
+
+                  if Flat_Element_Kind (S (1))
+                    = A_Discrete_Simple_Expression_Range_As_Subtype_Definition
+                  then
+                     --  This is the constraint (a .. b)
+                     C := S (1);
+                  else
+                     --  This is a subtype definition as constraint
+                     --  (Positive range a .. b)
+                     C := Definitions.Subtype_Constraint (S (1));
+                  end if;
+
+                  Array_Type_Suffix (C, Type_Suffix, Array_Len);
+
+                  E := Definitions.Array_Component_Definition (E);
+
+                  Generator.Start_Array
+                    (Name,
+                     Image (Text.Element_Image (E)),
+                     Array_Len);
+               end;
+
+            when An_Unconstrained_Array_Definition =>
 
                E := Definitions.Array_Component_Definition (E);
 
                Generator.Start_Array
-                 (Image (Text.Element_Image (Declarations.Names (Elem)(1))),
+                 (Name,
                   Image (Text.Element_Image (E)));
 
             when A_Derived_Type_Definition =>
 
+               declare
+                  TDV  : constant Asis.Element
+                    := Declarations.Type_Declaration_View
+                         (Definitions.Corresponding_Root_Type (E));
+                  PST  : Asis.Element;
+                  C    : Asis.Constraint;
+                  Comp : Asis.Element;
+               begin
+                  if Flat_Element_Kind (TDV)
+                    = An_Unconstrained_Array_Definition
+                  then
+                     --  This is derived type from an array, we have to create
+                     --  a new array definition if this derived type as a set
+                     --  of constraint.
+
+                     PST := Definitions.Parent_Subtype_Indication (E);
+
+                     C    := Definitions.Subtype_Constraint (PST);
+                     Comp := Definitions.Array_Component_Definition (TDV);
+
+                     if Flat_Element_Kind (C) = An_Index_Constraint then
+                        --  This derived type has constraints
+                        declare
+                           R : constant Asis.Discrete_Range_List
+                             := Definitions.Discrete_Ranges (C);
+                           Type_Suffix : Unbounded_String;
+                           Array_Len   : Natural;
+                        begin
+                           if R'Length /= 1 then
+                              Raise_Spec_Error
+                                (C,
+                                 Message => "Arrays with multiple dimensions"
+                                   & " not supported.");
+                           end if;
+
+                           Array_Type_Suffix (R (1), Type_Suffix, Array_Len);
+
+                           if not Generator.Type_Exists (Name) then
+                              Generator.Start_Array
+                                (Name,
+                                 Image (Text.Element_Image (Comp)),
+                                 Array_Len);
+                           end if;
+                           return;
+                        end;
+                     end if;
+                  end if;
+               end;
+
                E := Definitions.Subtype_Mark
                       (Definitions.Parent_Subtype_Indication (E));
 
-               Generator.Register_Derived
-                 (Image (Text.Element_Image (Declarations.Names (Elem) (1))),
-                  Type_Name (E));
+               Generator.Register_Derived (Name, Type_Name (E));
 
             when An_Enumeration_Type_Definition =>
 
                if not Options.Enum_To_String then
-                  Generator.Start_Enumeration
-                    (Image (Text.Element_Image
-                              (Declarations.Names (Elem)(1))));
+                  Generator.Start_Enumeration (Name);
 
                   declare
                      D : constant Asis.Declaration_List
@@ -569,15 +757,33 @@ package body Ada2WSDL.Parser is
          end case;
       end Analyse_Type;
 
-      -----------
-      -- Image --
-      -----------
+      -----------------------
+      -- Array_Type_Suffix --
+      -----------------------
 
-      function Image (Str : in Wide_String) return String is
+      procedure Array_Type_Suffix
+        (E           : in     Asis.Element;
+         Type_Suffix :    out Unbounded_String;
+         Length      :    out Positive)
+      is
+         use Extensions.Flat_Kinds;
+
+         Low : constant Asis.Expression := Definitions.Lower_Bound (E);
+         Up  : constant Asis.Expression := Definitions.Upper_Bound (E);
       begin
-         return Strings.Fixed.Trim
-           (Characters.Handling.To_String (Str), Strings.Both);
-      end Image;
+         declare
+            Low_Str : constant String := Image (Text.Element_Image (Low));
+            Up_Str  : constant String := Image (Text.Element_Image (Up));
+         begin
+            Length := Integer'Value (Up_Str) - Integer'Value (Low_Str) + 1;
+            Type_Suffix := To_Unbounded_String ("_" & Low_Str & "_" & Up_Str);
+         exception
+            when others =>
+               Raise_Spec_Error
+                 (E,
+                  Message => "Only arrays with one numeric index supported.");
+         end;
+      end Array_Type_Suffix;
 
       ---------------
       -- Type_Name --
@@ -588,10 +794,6 @@ package body Ada2WSDL.Parser is
 
          procedure Check_Float (E : in Asis.Element);
          --  Issue a warning if E has not the right digits
-
-         function Register_Deferred (E : in Asis.Declaration) return String;
-         --  Register a deferred type to be generated after first
-         --  pass. Returns the name of the type.
 
          -----------------
          -- Check_Float --
@@ -608,22 +810,6 @@ package body Ada2WSDL.Parser is
                     & " items.");
             end if;
          end Check_Float;
-
-         -----------------------
-         -- Register_Deferred --
-         -----------------------
-
-         function Register_Deferred (E : in Asis.Declaration) return String is
-            Name : constant String
-              := Image (Text.Element_Image (Declarations.Names (E) (1)));
-         begin
-            if not Generator.Type_Exists (Name) then
-               Index := Index + 1;
-               Deferred_Types (Index) := E;
-            end if;
-
-            return Name;
-         end Register_Deferred;
 
          E   : Asis.Element := Elem;
          CFS : Asis.Declaration;
@@ -693,6 +879,20 @@ package body Ada2WSDL.Parser is
                --  Record the type to generate the corresponding schema.
 
                return Register_Deferred (CFS);
+
+            when A_Constrained_Array_Definition
+              | An_Unconstrained_Array_Definition
+              =>
+               --  If this array definition is the standard Ada String,
+               --  returns it, no need to analyse this further.
+
+               if Characters.Handling.To_Lower
+                 (Image (Text.Element_Image (Elem))) = "string"
+               then
+                  return "string";
+               else
+                  return Register_Deferred (CFS);
+               end if;
 
             when others =>
                E := Declarations.Names (CFS) (1);
@@ -1003,6 +1203,16 @@ package body Ada2WSDL.Parser is
       end if;
    end Go_Up;
 
+   -----------
+   -- Image --
+   -----------
+
+   function Image (Str : in Wide_String) return String is
+   begin
+      return Strings.Fixed.Trim
+        (Characters.Handling.To_String (Str), Strings.Both);
+   end Image;
+
    ----------------
    -- Initialize --
    ----------------
@@ -1028,6 +1238,22 @@ package body Ada2WSDL.Parser is
       return Characters.Handling.To_String
         (Declarations.Defining_Name_Image (Def_Name));
    end Name;
+
+   -----------------------
+   -- Register_Deferred --
+   -----------------------
+
+   function Register_Deferred (E : in Asis.Declaration) return String is
+      Name : constant String
+        := Image (Text.Element_Image (Declarations.Names (E) (1)));
+   begin
+      if not Generator.Type_Exists (Name) then
+         Index := Index + 1;
+         Deferred_Types (Index) := E;
+      end if;
+
+      return Name;
+   end Register_Deferred;
 
    -----------
    -- Start --
