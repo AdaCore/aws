@@ -1,3 +1,8 @@
+2003-02-05  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* makefile, sp.adb, sp.out, ssp.adb, ssp.out:
+	Server push regression tests.
+
 2003-02-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
