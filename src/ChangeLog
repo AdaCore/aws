@@ -1,3 +1,20 @@
+2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status-set.adb: 
+	Reformat code. Fix some comments.
+
+2003-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Default_Unexpected_Exception_Handler): Trim log message.
+	(Shutdown): Properly close the error log.
+
+	* aws-server-protocol_handler.adb:
+	Properly reinitialize the Data_Sent variable at each iteration.
+	Do not initialize Answer (not needed).
+	If an error occurs while calling the unexpected exception handler
+	 exit the loop. Fix a potential memory leak.
+	
 2003-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
