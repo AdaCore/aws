@@ -42,6 +42,15 @@ package body AWS.Status is
 
    use Ada.Strings;
 
+   ---------------------
+   -- Accept_Encoding --
+   ---------------------
+
+   function Accept_Encoding (D : in Data) return String is
+   begin
+      return Headers.Get (D.Header, Messages.Accept_Encoding_Token);
+   end Accept_Encoding;
+
    --------------------------
    -- Authorization_CNonce --
    --------------------------
@@ -289,6 +298,32 @@ package body AWS.Status is
    begin
       return D.SOAP_Action;
    end Is_SOAP;
+
+   ------------------
+   -- Is_Supported --
+   ------------------
+
+   function Is_Supported
+     (D        : in Data;
+      Encoding : in Messages.Content_Encoding)
+      return Boolean
+   is
+      Encoding_Image : constant String
+        := Messages.Content_Encoding'Image (Encoding);
+   begin
+      for K in
+        1 .. Headers.Count (D.Header, Messages.Accept_Encoding_Token)
+      loop
+         if Messages.Match
+           (Headers.Get (D.Header, Messages.Accept_Encoding_Token, K),
+            Encoding_Image)
+         then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Is_Supported;
 
    ----------------
    -- Keep_Alive --
