@@ -121,10 +121,11 @@ package body Runme_CB is
       else
          return AWS.Response.Build
            (Content_Type => "text/html",
-            Message_Body => "<p>Hello, I'm glad you ask for " & URI & '.'
+            Message_Body => "<p>Hello " & AWS.Status.Peername (Request)
+            & ", I'm glad you ask for " & URI & '.'
             & "<p>I'm the runme demo. Note that this"
             & " message could have been"
-            & " fetched on my file system..."
+            & " fetched on my file system... See Templates_Parser :)"
             & "<p>counter = " & Natural'Image (C)
             & "<p><img src=""/first_img"">"
             & "<p>Enter your name <form method=get action=/get-form>"
