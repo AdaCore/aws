@@ -1,3 +1,8 @@
+2002-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Header): Allow multiple line header fields.
+
 2002-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.ads, aws-server.adb, aws-server-protocol_handler.adb:
