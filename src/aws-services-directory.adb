@@ -547,10 +547,14 @@ package body AWS.Services.Directory is
          File_Tree.Insert (Order_Tree, File_Entry, Nothing);
       end loop;
 
+      Close (Dir_Iterator);
+
       --  Iterate through the tree and fill the vector tag before insertion
       --  into the translate table.
 
       For_Each_File (Order_Tree);
+
+      Destroy (Order_Tree);
 
       return (Assoc ("URI",           End_Slash (AWS.Status.URI (Request))),
               Assoc ("VERSION",       AWS.Version),
