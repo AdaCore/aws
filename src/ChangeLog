@@ -1,8 +1,15 @@
 2004-05-21  Pascal Obry  <pascal@obry.org>
 
 	* aws-response.adb:
+	(File): Refine again the implementation. If the Attachment is not
+	 forced it is still possible to have the filename properly passed
+	 using the "inline" Content-Disposition. See RFC2183.
+
+2004-05-21  Pascal Obry  <pascal@obry.org>
+
+	* aws-response.adb:
 	(File): Remove debug code checked-in by error in revision 1.689.
-	
+
 2004-05-21  Pascal Obry  <pascal@obry.org>
 
 	* aws-response.adb:
