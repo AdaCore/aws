@@ -485,6 +485,7 @@ PRJ_ASIS=Installed
 GEXT_MODULE := $(GEXT_MODULE) gasis
 else
 PRJ_ASIS=Disabled
+GEXT_MODULE := gasis_dummy
 endif
 
 ifdef DEBUG
@@ -518,6 +519,12 @@ gasis:
 	echo " for Source_Dirs use (Path);" >> asis.gpr
 	echo " for Object_Dir use Path;" >> asis.gpr
 	echo " LIB_Path := \"-L\" & Path;" >> asis.gpr
+	echo "end ASIS;" >> asis.gpr
+
+gasis_dummy:
+	echo "project ASIS is" > asis.gpr
+	echo " for Source_Dirs use ();" >> asis.gpr
+	echo " LIB_Path := \"\";" >> asis.gpr
 	echo "end ASIS;" >> asis.gpr
 
 gsetup: $(GEXT_MODULE) $(MODULES_SETUP)
