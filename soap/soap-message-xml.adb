@@ -191,8 +191,8 @@ package body SOAP.Message.XML is
 
    function Parse_Record
      (Name : in String;
-      N : in DOM.Core.Node;
-      S : in State)
+      N    : in DOM.Core.Node;
+      S    : in State)
       return Types.Object'Class;
 
    function Parse_Enumeration
