@@ -816,8 +816,8 @@ package body SOAP.Generator is
                   Text_IO.Put (Type_Adb, Get_Routine (N));
 
                   Text_IO.Put
-                    (Type_Adb, "(SOAP.Types.V ("
-                       & Format_Name (O, To_String (N.Name)) & "))");
+                    (Type_Adb,
+                     " (" & Format_Name (O, To_String (N.Name)) & ")");
                end if;
             end if;
 
@@ -933,7 +933,7 @@ package body SOAP.Generator is
             end;
 
          else
-            return "To_" & Name & "_Type";
+            return "To_" & Name;
          end if;
       end Get_Routine;
 
@@ -1103,7 +1103,7 @@ package body SOAP.Generator is
             if Utils.Is_Array (To_String (N.C_Name)) then
                return To_String (N.C_Name) & "_Safe_Access";
             else
-               return To_String (N.C_Name) & "_Record";
+               return To_String (N.C_Name) & "_Type";
             end if;
          end if;
       end Type_Name;
@@ -1280,6 +1280,12 @@ package body SOAP.Generator is
       Text_IO.Put_Line (Type_Ads, "   pragma Elaborate_Body;");
       Text_IO.New_Line (Type_Ads);
       Text_IO.Put_Line (Type_Ads, "   use Ada.Strings.Unbounded;");
+      Text_IO.New_Line (Type_Ads);
+      Text_IO.Put_Line (Type_Ads, "    function ""+""");
+      Text_IO.Put_Line (Type_Ads, "      (Str : in String)");
+      Text_IO.Put_Line (Type_Ads, "       return Unbounded_String");
+      Text_IO.Put_Line (Type_Ads, "       renames To_Unbounded_String;");
+
 
       Put_File_Header (O, Type_Adb);
 
