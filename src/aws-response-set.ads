@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                          Copyright (C) 2002-2003                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -108,37 +108,42 @@ package AWS.Response.Set is
       Mode  : in     Authentication_Mode := Basic;
       Stale : in     Boolean             := False);
    pragma Inline (Authentication);
-   --  Set the authentication mode requested by server.
-   --  Set the status code to the 401.
+   --  Set the authentication mode requested by server. Set the status code to
+   --  the 401.
 
    procedure Stream
      (D              : in out Data;
       Handle         : in     Resources.Streams.Stream_Access;
       Content_Length : in     Content_Length_Type);
    pragma Inline (Stream);
-   --  Set the user defined data stream.
-   --  set the Mode field to Stream.
+   --  Set the user defined data stream. Set the Mode field to Stream.
 
    procedure Message_Body
      (D     : in out Data;
       Value : in     Streams.Stream_Element_Array);
    pragma Inline (Message_Body);
-   --  Set message body as a binary content.
-   --  set the Mode field to Message.
+   --  Set message body as a binary content. Set the Mode field to Message.
+
+   procedure Message_Body
+     (D     : in out Data;
+      Value : in     Utils.Stream_Element_Array_Access);
+   pragma Inline (Message_Body);
+   --  Set message body as a binary content. Set the Mode field to Message.
+   --  Note that there is no need to free Value object. This will be done when
+   --  the response object will have been sent.
 
    procedure Message_Body
      (D     : in out Data;
       Value : in     Strings.Unbounded.Unbounded_String);
    pragma Inline (Message_Body);
-   --  Set the message body content as a unbounded_string.
-   --  set the Mode field to Message.
+   --  Set the message body content as a unbounded_string. Set the Mode field
+   --  to Message.
 
    procedure Message_Body
      (D     : in out Data;
       Value : in     String);
    pragma Inline (Message_Body);
-   --  Set the message body content as a string.
-   --  set the Mode field to Message.
+   --  Set the message body content as a string. Set the Mode field to Message.
 
    function Is_Valid (D : in Data) return Boolean;
    --  Checking validity of the HTTP response
