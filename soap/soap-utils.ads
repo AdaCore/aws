@@ -59,7 +59,7 @@ package SOAP.Utils is
    --  Returns True if Name is an Ada reserved word
 
    ----------------------------------
-   -- Basic_8bit string convertion --
+   -- Basic_8bit string conversion --
    ----------------------------------
 
    function To_Utf8 (Str : in String) return String;
