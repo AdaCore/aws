@@ -70,11 +70,13 @@ package body SOAP.Parameters is
    function Argument
      (P    : in List;
       Name : in String)
-      return Types.Object'Class is
+      return Types.Object'Class
+   is
+      use type Types.Object_Safe_Pointer;
    begin
       for K in 1 .. P.N loop
-         if Types.Name (P.V (K).O.all) = Name then
-            return P.V (K).O.all;
+         if Types.Name (-P.V (K)) = Name then
+            return -P.V (K);
          end if;
       end loop;
 
@@ -90,9 +92,11 @@ package body SOAP.Parameters is
    function Argument
      (P : in List;
       N : in Positive)
-      return Types.Object'Class is
+      return Types.Object'Class
+   is
+      use type Types.Object_Safe_Pointer;
    begin
-      return P.V (N).O.all;
+      return -P.V (N);
    end Argument;
 
    --------------------
@@ -242,9 +246,10 @@ package body SOAP.Parameters is
    -----------
 
    function Exist (P : in List; Name : in String) return Boolean is
+      use type Types.Object_Safe_Pointer;
    begin
       for K in 1 .. P.N loop
-         if Types.Name (P.V (K).O.all) = Name then
+         if Types.Name (-P.V (K)) = Name then
             return True;
          end if;
       end loop;
