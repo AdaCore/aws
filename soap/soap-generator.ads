@@ -37,7 +37,7 @@ with SOAP.WSDL.Parameters;
 
 package SOAP.Generator is
 
-   Version : constant String := "0.6";
+   Version : constant String := "0.8";
 
    Generator_Error : exception;
 
@@ -59,6 +59,7 @@ package SOAP.Generator is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
+      Namespace  : in     String;
       Input      : in     WSDL.Parameters.P_Set;
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set);
