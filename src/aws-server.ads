@@ -414,8 +414,4 @@ private
    procedure Initialize (Web_Server : in out HTTP);
    procedure Finalize   (Web_Server : in out HTTP);
 
-   function Exception_String (Exception_Information : in String) return String;
-   --  Returns an exception information data in a single line. All CR and LF
-   --  are converted to spaces, trailing spaces are removed.
-
 end AWS.Server;
