@@ -74,11 +74,10 @@ main (void)
   printf ("   pragma Linker_Options (\"-lpoll\");\n");
 #ifdef WIN2000SUPPORT
   // libwspiapi.a need for getaddrinfo freeaddrinfo routines in Windows 2000.
-  printf ("   pragma Linker_Options (\"-lwspiapi\");\n\n");
-#else
+  printf ("   pragma Linker_Options (\"-lwspiapi\");\n");
+#endif
   // libws2_32.a need for getaddrinfo freeaddrinfo routines in Windows XP/2003.
   printf ("   pragma Linker_Options (\"-lws2_32\");\n\n");
-#endif
 #endif
 
   /* POLL constants */
@@ -95,6 +94,10 @@ main (void)
   printf ("   AI_PASSIVE     : constant := %d;\n",   AI_PASSIVE);
   printf ("   AI_CANONNAME   : constant := %d;\n",   AI_CANONNAME);
   printf ("   AI_NUMERICHOST : constant := %d;\n\n", AI_NUMERICHOST);
+
+  /* constants needed for AWS and not defined in AdaSockets */
+
+  printf ("   IPPROTO_TCP : constant := %d;\n\n", IPPROTO_TCP);
 
   /* nfds_t */
 
