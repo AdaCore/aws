@@ -40,10 +40,8 @@ win32_oslib:
 	$(CP) ../config/aws-os_lib__win32.adb aws-os_lib.adb
 
 setup: gnatsockets gnat_oslib
-	-$(MKDIR) -p ../.build/debug/obj
-	-$(MKDIR) -p ../.build/debug/lib
-	-$(MKDIR) -p ../.build/release/obj
-	-$(MKDIR) -p ../.build/release/lib
+	-$(MKDIR) -p ../$(BDIR)/obj
+	-$(MKDIR) -p ../$(BDIR)/lib
 
 build:
 	$(GNATMAKE) -Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
