@@ -1,6 +1,27 @@
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
 	* ada2wsdl-generator.adb:
+	(Type_Exists): Add NS parameter to check using the object's name space.
+	(Write_Header): Generates a version/data tag into an XML comment.
+
+	* ada2wsdl-generator.ads:
+	(Type_Exists): Add NS parameter to check using the object's name space.
+
+	* ada2wsdl-parser.adb:
+	(Name_Space): Add _pkg at the end to avoid conflicts with package name.
+	Call the generator only if we do not have already generated the
+	 code for a type (based on the name and namespace).
+	(Register_Deferred): Do not check against duplicate object
+	 here. This was wrong it is now done by the generator and properly
+	 check against the name space.
+	
+	* ada2wsdl.ads:
+	(Version): Bump to 1.1.
+	Update copyright notice.
+
+2004-12-02  Pascal Obry  <pascal@obry.org>
+
+	* ada2wsdl-generator.adb:
 	(Write_Derived): Properly generate name space.
 	(Write_Enumeration): Idem.
 

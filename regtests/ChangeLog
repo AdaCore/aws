@@ -1,5 +1,10 @@
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
+	* wsdl_b.out:
+	Update output.
+
+2004-12-02  Pascal Obry  <pascal@obry.org>
+
 	* wsdl_a.out, wsdl_b.out, register.out:
 	Update output.
 
