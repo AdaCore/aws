@@ -29,6 +29,10 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Charles.Algorithms.Generic_Set_Intersection;
+with Charles.Algorithms.Generic_Set_Difference;
+with Charles.Algorithms.Generic_Set_Symmetric_Difference;
+with Charles.Algorithms.Generic_Includes;
 with Ada.Unchecked_Deallocation;
 with System;  use type System.Address;
 
@@ -194,7 +198,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       while X /= null loop
 
          declare
-            Y : constant Node_Access := Copy_Node (X);
+            Y : Node_Access := Copy_Node (X);
          begin
 
             P.Left := Y;
@@ -434,7 +438,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       Insert_Sans_Hint
         (Container.Tree,
          New_Item,
-         Position.Node,
+         Node_Access (Position),
          Success);
 
       --pragma Debug (Check_Invariant (Container.Tree));
@@ -444,25 +448,21 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
    procedure Delete (Container : in out Set;
                      Position  : in out Cursor) is
+
+      X : Node_Access := Node_Access (Position);
+
    begin
 
-      if Position.Node = null
-        or else Position.Node = Container.Tree.Back
-      then
+      if Position = null then
          return;
       end if;
 
-      pragma Assert (Position.Node.Color /= White);
+      pragma Assert (Position.Color /= White);
 
-      Delete (Container.Tree, Position.Node);
+      Delete (Container.Tree, X);
+      Free (X);
 
-      declare
-         X : Node_Access := Position.Node;
-      begin
-         Free (X);
-      end;
-
-      Position.Node := null;
+      Position := null;
 
       --pragma Debug (Check_Invariant (Container.Tree));
 
@@ -471,85 +471,123 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
    function Find (Container : Set;
                   Item      : Element_Type) return Cursor is
+
+      Node : constant Node_Access :=
+        Element_Keys.Find (Container.Tree, Item);
    begin
-      return (Node => Element_Keys.Find (Container.Tree, Item));
+      return Cursor (Node);
    end;
 
 
    function Is_In (Item      : Element_Type;
                    Container : Set) return Boolean is
    begin
-      return Find (Container, Item) /= No_Element;
+      return Find (Container, Item) /= null;
    end;
 
 
    function First (Container : Set) return Cursor is
+      Node : constant Node_Access := First (Container.Tree);
    begin
-      return (Node => First (Container.Tree));
+      if Node = Container.Tree.Back then
+         pragma Assert (Container.Tree.Length = 0);
+         return null;
+      end if;
+
+      return Cursor (Node);
    end;
 
 
    function First_Element (Container : Set) return Element_Type is
       C : constant Cursor := First (Container);
    begin
-      return C.Node.Element.all;
+      return C.Element.all;
    end;
 
 
    function Last (Container : Set) return Cursor is
+      Node : constant Node_Access := Last (Container.Tree);
    begin
-      return (Node => Last (Container.Tree));
+      if Node = Container.Tree.Back then
+         pragma Assert (Container.Tree.Length = 0);
+         return null;
+      end if;
+
+      return Cursor (Node);
    end;
 
 
    function Last_Element (Container : Set) return Element_Type is
       C : constant Cursor := Last (Container);
    begin
-      return C.Node.Element.all;
-   end;
-
-
-   function Back (Container : Set) return Cursor is
-   begin
-      return (Node => Container.Tree.Back);
+      return C.Element.all;
    end;
 
 
    function Next (Position : Cursor) return Cursor is
+
+      Node : Node_Access;
+
    begin
-      --TODO
-      return (Node => Succ (Position.Node));
-   end;
+
+      if Position = null then
+         return null;
+      end if;
+
+      Node := Succ (Node_Access (Position));
+
+      if Node.Color = White then  -- back
+         return null;
+      end if;
+
+      return Cursor (Node);
+
+   end Next;
 
 
    function Previous (Position : Cursor) return Cursor is
+
+      Node : Node_Access;
+
    begin
-      return (Node => Pred (Position.Node));
-   end;
+
+      if Position = null then
+         return null;
+      end if;
+
+      Node := Pred (Node_Access (Position));
+
+      if Node.Color = White then  -- back
+         return null;
+      end if;
+
+      return Cursor (Node);
+
+   end Previous;
 
 
    procedure Next (Position : in out Cursor) is
    begin
-      Position.Node := Succ (Position.Node);
+      Position := Next (Position);
    end;
 
 
    procedure Previous (Position : in out Cursor) is
    begin
-      Position.Node := Pred (Position.Node);
+      Position := Previous (Position);
    end;
 
 
    function Element (Position : Cursor) return Element_Type is
    begin
-      return Position.Node.Element.all;  --works for Back node, too
+      return Position.Element.all;  -- note that Back.Element = null
    end;
 
 
    procedure Generic_Update (Position : in Cursor) is
    begin
-      pragma Assert (Position.Node.Color /= White);
-      Process (Position.Node.Element.all);
+      pragma Assert (Position.Color /= White);
+      Process (Position.Element.all);
    end;
 
 
@@ -592,39 +630,39 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
    function "<" (Left, Right : Cursor) return Boolean is
    begin
-      return Left.Node.Element.all < Right.Node.Element.all;
+      return Left.Element.all < Right.Element.all;
    end;
 
 
    function ">" (Left, Right : Cursor) return Boolean is
       -- L > R same as R < L
    begin
-      return Right.Node.Element.all < Left.Node.Element.all;
+      return Right.Element.all < Left.Element.all;
    end;
 
 
    function "<" (Left : Cursor; Right : Element_Type)
       return Boolean is
    begin
-      return Left.Node.Element.all < Right;
+      return Left.Element.all < Right;
    end;
 
    function ">" (Left : Cursor; Right : Element_Type)
       return Boolean is
    begin
-      return Right < Left.Node.Element.all;
+      return Right < Left.Element.all;
    end;
 
    function "<" (Left : Element_Type; Right : Cursor)
       return Boolean is
    begin
-      return Left < Right.Node.Element.all;
+      return Left < Right.Element.all;
    end;
 
    function ">" (Left : Element_Type; Right : Cursor)
       return Boolean is
    begin
-      return Right.Node.Element.all < Left;
+      return Right.Element.all < Left;
    end;
 
 
@@ -633,7 +671,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       procedure Process (Node : Node_Access) is
          pragma Inline (Process);
       begin
-         Process (Cursor'(Node => Node));
+         Process (Cursor (Node));
       end;
 
       procedure Iterate is
@@ -648,7 +686,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       procedure Process (Node : Node_Access) is
          pragma Inline (Process);
       begin
-         Process (Cursor'(Node => Node));
+         Process (Cursor (Node));
       end;
 
       procedure Iterate is
@@ -687,10 +725,12 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
 
       function Find (Container : Set;
-                     Key       : Key_Type)
-        return Cursor is
+                     Key       : Key_Type) return Cursor is
+
+         Node : constant Node_Access :=
+           Key_Keys.Find (Container.Tree, Key);
       begin
-         return (Node => Key_Keys.Find (Container.Tree, Key));
+         return Cursor (Node);
       end;
 
 
@@ -698,7 +738,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
                       Container : Set)
          return Boolean is
       begin
-         return Find (Container, Key) /= Back (Container);
+         return Find (Container, Key) /= null;
       end;
 
 
@@ -708,7 +748,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
          C : constant Cursor := Find (Container, Key);
       begin
-         return C.Node.Element.all;
+         return C.Element.all;
       end;
 
 
@@ -740,25 +780,25 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       function "<" (Left : Key_Type; Right : Cursor)
          return Boolean is
       begin
-         return Left < Right.Node.Element.all;
+         return Left < Right.Element.all;
       end;
 
       function ">" (Left : Key_Type; Right : Cursor)
          return Boolean is
       begin
-         return Left > Right.Node.Element.all;
+         return Left > Right.Element.all;
       end;
 
       function "<" (Left : Cursor; Right : Key_Type)
         return Boolean is
       begin
-         return Right > Left.Node.Element.all;
+         return Right > Left.Element.all;
       end;
 
       function ">" (Left : Cursor; Right : Key_Type)
         return Boolean is
       begin
-         return Right < Left.Node.Element.all;
+         return Right < Left.Element.all;
       end;
 
 
@@ -796,7 +836,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
          Insert_Sans_Hint
            (Container.Tree,
             Key,
-            Position.Node,
+            Node_Access (Position),
             Success);
 
       end Generic_Insertion;
@@ -809,6 +849,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       Container : in     Set) is
 
       procedure Process (Node : Node_Access) is
+         pragma Inline (Process);
       begin
          Element_Type'Output (Stream, Node.Element.all);
       end;
@@ -858,6 +899,516 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       Read (Container.Tree, N);
 
    end Read;
+
+
+   function Has_Element (Position : Cursor) return Boolean is
+   begin
+      if Position = null then
+         return False;
+      end if;
+
+      pragma Assert (Position.Color /= White);
+
+      return True;
+   end;
+
+
+   procedure Insert_With_Hint
+     (Dst_Tree : in out Tree_Type;
+      Dst_Hint : in     Node_Access;
+      Src_Node : in     Node_Access;
+      Dst_Node :    out Node_Access) is
+
+      function New_Node return Node_Access is
+         pragma Inline (New_Node);
+
+         Element : Element_Access :=
+           new Element_Type'(Src_Node.Element.all);
+
+         Node : Node_Access;
+
+      begin
+
+         begin
+            Node := new Node_Type;
+         exception
+            when others =>
+               Free (Element);
+               raise;
+         end;
+
+         Node.Color := Red;
+         Node.Element := Element;
+
+         return Node;
+
+      end New_Node;
+
+      procedure Insert_Post is
+         new Element_Keys.Generic_Insert_Post (New_Node);
+
+      procedure Insert_Sans_Hint is
+         new Element_Keys.Generic_Conditional_Insert (Insert_Post);
+
+      procedure Insert_With_Hint is
+         new Element_Keys.Generic_Conditional_Insert_With_Hint
+            (Insert_Post,
+             Insert_Sans_Hint);
+
+      Success  : Boolean;
+
+   begin -- Insert_With_Hint
+
+      Insert_With_Hint
+        (Dst_Tree,
+         Dst_Hint,
+         Src_Node.Element.all,
+         Dst_Node,
+         Success);
+
+      --pragma Debug (Check_Invariant (Set.Tree));
+
+   end Insert_With_Hint;
+
+
+   procedure Union
+     (Target : in out Set;
+      Source : in     Set) is
+
+      Hint : Node_Access;
+
+      procedure Process (Node : Node_Access) is
+         pragma Inline (Process);
+      begin
+         Insert_With_Hint
+           (Dst_Tree => Target.Tree,
+            Dst_Hint => Hint,
+            Src_Node => Node,
+            Dst_Node => Hint);
+      end;
+
+      procedure Iterate is
+         new Tree_Types.Generic_Iteration (Process);
+
+   begin -- Union
+
+      if Target'Address = Source'Address then
+         return;
+      end if;
+
+      Iterate (Source.Tree);
+
+   end Union;
+
+
+
+   function Union (Left, Right : Set) return Set is
+   begin
+
+      if Left'Address = Right'Address then
+         return Left;
+      end if;
+
+      declare
+
+         Result : Set := Left;  --TODO: fix this here and elsewhere
+         Hint   : Node_Access;
+
+         procedure Process (Node : Node_Access) is
+            pragma Inline (Process);
+         begin
+            Insert_With_Hint
+              (Dst_Tree => Result.Tree,
+               Dst_Hint => Hint,
+               Src_Node => Node,
+               Dst_Node => Hint);
+         end;
+
+         procedure Iterate is
+            new Tree_Types.Generic_Iteration (Process);
+
+      begin
+
+         Iterate (Right.Tree);
+
+         return Result;
+
+      end;
+
+   end Union;
+
+
+
+   procedure Intersection
+     (Target : in out Set;
+      Source : in     Set) is
+
+      Tgt : Node_Access := First (Target.Tree);
+      Src : Node_Access := First (Source.Tree);
+
+      Tgt_Back : constant Node_Access := Target.Tree.Back;
+      Src_Back : constant Node_Access := Source.Tree.Back;
+
+   begin
+
+      if Target'Address = Source'Address then
+         return;
+      end if;
+
+      while Tgt /= Tgt_Back
+        and then Src /= Src_Back
+      loop
+
+         if Tgt.Element.all < Src.Element.all then
+
+            declare
+               X : Node_Access := Tgt;
+            begin
+               Tgt := Succ (Tgt);
+               Delete (Target.Tree, X);
+               Free (X);
+            end;
+
+         elsif Src.Element.all < Tgt.Element.all then
+
+            Src := Succ (Src);
+
+         else
+
+            Tgt := Succ (Tgt);
+            Src := Succ (Src);
+
+         end if;
+
+      end loop;
+
+   end Intersection;
+
+
+
+   function Intersection (Left, Right : Set) return Set is
+   begin
+
+      if Left'Address = Right'Address then
+         return Left;
+      end if;
+
+      declare
+
+         Result : Set;
+
+         procedure Process (Node : Node_Access) is
+            pragma Inline (Process);
+
+            Dst_Node : Node_Access;
+         begin
+            Insert_With_Hint
+              (Dst_Tree => Result.Tree,
+               Dst_Hint => Result.Tree.Back,
+               Src_Node => Node,
+               Dst_Node => Dst_Node);
+         end;
+
+         procedure Intersection is
+            new Charles.Algorithms.Generic_Set_Intersection
+              (Node_Access,
+               Is_Less => Is_Less_Node_Node);
+
+      begin
+
+         Intersection
+           (First (Left.Tree), Left.Tree.Back,
+            First (Right.Tree), Right.Tree.Back);
+
+         return Result;
+
+      end;
+
+   end Intersection;
+
+
+
+   procedure Difference
+     (Target : in out Set;
+      Source : in     Set) is
+
+      Tgt : Node_Access := First (Target.Tree);
+      Src : Node_Access := First (Source.Tree);
+
+      Tgt_Back : constant Node_Access := Target.Tree.Back;
+      Src_Back : constant Node_Access := Source.Tree.Back;
+
+   begin
+
+      if Target'Address = Source'Address then
+         Clear (Target);
+         return;
+      end if;
+
+      loop
+
+         if Tgt = Tgt_Back then
+            return;
+         end if;
+
+         if Src = Src_Back then
+            return;
+         end if;
+
+         if Tgt.Element.all < Src.Element.all then
+
+            Tgt := Succ (Tgt);
+
+         elsif Src.Element.all < Tgt.Element.all then
+
+            Src := Succ (Src);
+
+         else
+
+            declare
+               X : Node_Access := Tgt;
+            begin
+               Tgt := Succ (Tgt);
+               Delete (Target.Tree, X);
+               Free (X);
+            end;
+
+            Src := Succ (Src);
+
+         end if;
+
+      end loop;
+
+   end Difference;
+
+
+
+   function Difference (Left, Right : Set) return Set is
+   begin
+
+      if Left'Address = Right'Address then
+         return Empty_Set;
+      end if;
+
+      declare
+
+         Result : Set;
+
+         procedure Process (Node : Node_Access) is
+            pragma Inline (Process);
+
+            Dst_Node : Node_Access;
+         begin
+            Insert_With_Hint
+              (Dst_Tree => Result.Tree,
+               Dst_Hint => Result.Tree.Back,
+               Src_Node => Node,
+               Dst_Node => Dst_Node);
+         end;
+
+         procedure Difference is
+            new Charles.Algorithms.Generic_Set_Difference
+              (Node_Access,
+               Is_Less => Is_Less_Node_Node);
+
+      begin
+
+         Difference
+           (First (Left.Tree), Left.Tree.Back,
+            First (Right.Tree), Right.Tree.Back);
+
+         return Result;
+
+      end;
+
+   end Difference;
+
+
+
+   procedure Symmetric_Difference
+     (Target : in out Set;
+      Source : in     Set) is
+
+      Tgt : Node_Access := First (Target.Tree);
+      Src : Node_Access := First (Source.Tree);
+
+      Tgt_Back : constant Node_Access := Target.Tree.Back;
+      Src_Back : constant Node_Access := Source.Tree.Back;
+
+      New_Tgt_Node : Node_Access;
+
+   begin
+
+      if Target'Address = Source'Address then
+         Clear (Target);
+         return;
+      end if;
+
+      loop
+
+         if Tgt = Tgt_Back then
+
+            while Src /= Src_Back loop
+
+               Insert_With_Hint
+                 (Dst_Tree => Target.Tree,
+                  Dst_Hint => Target.Tree.Back,
+                  Src_Node => Src,
+                  Dst_Node => New_Tgt_Node);
+
+               Src := Succ (Src);
+
+            end loop;
+
+            return;
+
+         end if;
+
+         if Src = Src_Back then
+            return;
+         end if;
+
+         if Tgt.Element.all < Src.Element.all then
+
+            Tgt := Succ (Tgt);
+
+         elsif Src.Element.all < Tgt.Element.all then
+
+            Insert_With_Hint
+              (Dst_Tree => Target.Tree,
+               Dst_Hint => Tgt,
+               Src_Node => Src,
+               Dst_Node => New_Tgt_Node);
+
+            Src := Succ (Src);
+
+         else
+
+            declare
+               X : Node_Access := Tgt;
+            begin
+               Tgt := Succ (Tgt);
+               Delete (Target.Tree, X);
+               Free (X);
+            end;
+
+            Src := Succ (Src);
+
+         end if;
+
+      end loop;
+
+   end Symmetric_Difference;
+
+
+
+   function Symmetric_Difference (Left, Right : Set) return Set is
+   begin
+
+      if Left'Address = Right'Address then
+         return Empty_Set;
+      end if;
+
+      declare
+
+         Result : Set;
+
+         procedure Process (Node : Node_Access) is
+            pragma Inline (Process);
+
+            Dst_Node : Node_Access;
+         begin
+            Insert_With_Hint
+              (Dst_Tree => Result.Tree,
+               Dst_Hint => Result.Tree.Back,
+               Src_Node => Node,
+               Dst_Node => Dst_Node);
+         end;
+
+         procedure Symmetric_Difference is
+            new Charles.Algorithms.Generic_Set_Symmetric_Difference
+              (Node_Access,
+               Is_Less => Is_Less_Node_Node);
+
+      begin
+
+         Symmetric_Difference
+           (First (Left.Tree), Left.Tree.Back,
+            First (Right.Tree), Right.Tree.Back);
+
+         return Result;
+
+      end;
+
+   end Symmetric_Difference;
+
+
+
+   function Is_Subset
+     (Item      : Set;
+      Container : Set) return Boolean is
+
+      function Is_Subset is
+         new Charles.Algorithms.Generic_Includes
+           (Node_Access,
+            Is_Less => Is_Less_Node_Node);
+
+   begin
+
+      if Item'Address = Container'Address then
+         return True;
+      end if;
+
+      if Item.Tree.Length > Container.Tree.Length then
+         return False;
+      end if;
+
+      return Is_Subset (First (Container.Tree), Container.Tree.Back,
+                        First (Item.Tree), Item.Tree.Back);
+
+   end Is_Subset;
+
+
+   function Is_Disjoint
+     (Item      : Set;
+      Container : Set) return Boolean is
+
+      L_Node : Node_Access := First (Item.Tree);
+      R_Node : Node_Access := First (Container.Tree);
+
+      L_Back : constant Node_Access := Item.Tree.Back;
+      R_Back : constant Node_Access := Container.Tree.Back;
+
+   begin
+
+      loop
+
+         if L_Node = L_Back then
+            return True;
+         end if;
+
+         if R_Node = R_Back then
+            return True;
+         end if;
+
+         if L_Node.Element.all < R_Node.Element.all then
+
+            L_Node := Succ (L_Node);
+
+         elsif R_Node.Element.all < L_Node.Element.all then
+
+            R_Node := Succ (R_Node);
+
+         else
+
+            return False;
+
+         end if;
+
+      end loop;
+
+   end Is_Disjoint;
+
 
 
 end AI302.Containers.Indefinite_Ordered_Sets;

@@ -31,6 +31,7 @@
 
 with AI302.Containers.Prime_Numbers;
 with Ada.Unchecked_Deallocation;
+with System;  use type System.Address;
 
 package body AI302.Containers.Hash_Tables is
 
@@ -285,21 +286,25 @@ package body AI302.Containers.Hash_Tables is
    end Clear;
 
 
-   procedure Swap (L, R : in out Hash_Table_Type) is
-
-      LB : constant Buckets_Access := L.Buckets;
-      LL : constant Size_Type := L.Length;
-
+   procedure Move (Target, Source : in out Hash_Table_Type) is
    begin
 
-      L.Buckets := R.Buckets;
-      L.Length := R.Length;
+      if Target'Address = Source'Address then
+         --this should be ok, since ht_t is volatile,
+         --and hence is passed by reference
+         return;
+      end if;
 
-      R.Buckets := LB;
-      R.Length := LL;
+      if Target.Length > 0 then
+         raise Constraint_Error;
+      end if;
 
-   end Swap;
+      Free (Target.Buckets);
 
+      Target := Source;
+      Source := Hash_Table_Type'(null, 0);
+
+   end Move;
 
 
    procedure Rehash

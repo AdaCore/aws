@@ -99,8 +99,41 @@ package AI302.Containers.Indefinite_Ordered_Sets is
    procedure Delete_Last (Container : in out Set);
 
 
-   --TODO: lots of stuff here
+   procedure Union (Target : in out Set;
+                    Source : in     Set);
 
+   function Union (Left, Right : Set) return Set;
+
+   function "or" (Left, Right : Set) return Set renames Union;
+
+   procedure Intersection (Target : in out Set;
+                           Source : in     Set);
+
+   function Intersection (Left, Right : Set) return Set;
+
+   function "and" (Left, Right : Set) return Set renames Intersection;
+
+   procedure Difference (Target : in out Set;
+                         Source : in     Set);
+
+   function Difference (Left, Right : Set) return Set;
+
+   function "-" (Left, Right : Set) return Set renames Difference;
+
+   procedure Symmetric_Difference (Target : in out Set;
+                                   Source : in     Set);
+
+   function Symmetric_Difference (Left, Right : Set) return Set;
+
+   function "xor" (Left, Right : Set) return Set renames Symmetric_Difference;
+
+   function Is_Subset (Item      : Set;
+                       Container : Set)
+      return Boolean;
+
+   function Is_Disjoint (Item      : Set;
+                         Container : Set)
+      return Boolean;
 
    function Is_In (Item      : Element_Type;
                    Container : Set) return Boolean;
@@ -131,6 +164,8 @@ package AI302.Containers.Indefinite_Ordered_Sets is
    procedure Next (Position : in out Cursor);
 
    procedure Previous (Position : in out Cursor);
+
+   function Has_Element (Position : Cursor) return Boolean;
 
    function "<" (Left, Right : Cursor) return Boolean;
 
@@ -286,12 +321,9 @@ private
    procedure Finalize (Container : in out Set);
 
 
-   type Cursor is
-      record
-         Node : Node_Access;
-      end record;
+   type Cursor is new Node_Access;
 
-   No_Element : constant Cursor := (Node => null);
+   No_Element : constant Cursor := null;
 
 
    use Ada.Streams;
