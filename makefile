@@ -117,7 +117,7 @@ clean:
 	make -C regtests clean
 	-rm *.~*.*~
 	rm makefile.conf
-	cvs update makefile.conf
+	echo MODE=std > makefile.conf
 
 distrib: clean build_doc
 	-rm -f aws-*.tar*
