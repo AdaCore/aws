@@ -64,6 +64,7 @@ package body SOAP.Client is
 
       Message_Body : Unbounded_String;
       Response     : AWS.Response.Data;
+      Result       : Unbounded_String;
 
       --------------
       -- RPC_Call --
@@ -94,10 +95,9 @@ package body SOAP.Client is
 
    begin
       Message_Body := SOAP.Message.XML.Image (P);
-
       RPC_Call;
-
-      return Message.XML.Load_Response (AWS.Response.Message_Body (Response));
+      Result := AWS.Response.Message_Body (Response);
+      return Message.XML.Load_Response (Result);
    end Call;
 
    ----------
@@ -112,11 +112,13 @@ package body SOAP.Client is
    is
       Message_Body : Unbounded_String;
       Response     : AWS.Response.Data;
+      Result       : Unbounded_String;
    begin
       Message_Body := SOAP.Message.XML.Image (P);
       AWS.Client.SOAP_Post
         (Connection, Response, SOAPAction, To_String (Message_Body));
-      return Message.XML.Load_Response (AWS.Response.Message_Body (Response));
+      Result := AWS.Response.Message_Body (Response);
+      return Message.XML.Load_Response (Result);
    end Call;
 
 end SOAP.Client;
