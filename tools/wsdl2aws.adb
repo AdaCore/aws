@@ -171,7 +171,7 @@ procedure WSDL2AWS is
 
       loop
          case Command_Line.Getopt
-           ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
+           ("d q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
               & "cb types: main:")
          is
             when ASCII.NUL => exit;
@@ -193,6 +193,8 @@ procedure WSDL2AWS is
             when 'd' =>
                if Command_Line.Full_Switch = "doc" then
                   SOAP.WSDL.Parser.Accept_Document (Gen);
+               elsif Command_Line.Full_Switch = "d" then
+                  SOAP.Generator.Debug (Gen);
                else
                   raise Syntax_Error;
                end if;
@@ -343,6 +345,7 @@ exception
       New_Line;
       Put_Line ("Usage: wsdl2aws [options] <file|URL>");
       Put_Line ("   -q           Quiet mode");
+      Put_Line ("   -d           Generate debug code");
       Put_Line ("   -a           Ada style identifier");
       Put_Line ("   -f           Force files creation stub/skeleton/WSDL");
       Put_Line ("   -s           Skip non supported SOAP routines");
