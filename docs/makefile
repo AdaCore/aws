@@ -58,6 +58,11 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-services-dispatchers.ads.texi \
 	../src/aws-services-page_server.ads.texi \
 	../src/aws-services-split_pages.ads.texi \
+	../src/aws-services-split_pages-uniform.ads.texi \
+	../src/aws-services-split_pages-uniform-alpha.ads.texi \
+	../src/aws-services-split_pages-uniform-overlapping.ads.texi \
+	../src/aws-services-split_pages-alpha.ads.texi \
+	../src/aws-services-split_pages-alpha-bounded.ads.texi \
 	../src/aws-services-transient_pages.ads.texi \
 	../src/aws-session.ads.texi \
 	../src/aws-smtp-client.ads.texi \
