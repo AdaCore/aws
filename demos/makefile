@@ -7,7 +7,8 @@
 .SILENT: soap_cvs wsdl_demo_client wsdl_demo_server interoplab_main 
 .SILENT: soap_server_disp build_wsdl
 
-GFLAGSY = $(patsubst -gnatwe -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GFLAGS))
+GY_tmp  = $(patsubst -gnatwe,,$(GFLAGS))
+GFLAGSY = $(patsubst -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GY_tmp))
 # We do not want to check for separate spec for the demos (s option).
 
 GARGS = -m -q $(GFLAGSY) -i -I../src -I../xsrc -I../ssl -I../include \
