@@ -2037,20 +2037,21 @@ package body Templates_Parser is
    begin
       Found := True;
 
-      if Cursor'Length > T.Data.Nested_Level then
+      if Cursor'Length <= Up_Value then
+         --  The current cursor length is smaller than the up_level attribute
+         --  in this case we just inline the tag.
+         Inlined := True;
+
+      elsif Cursor'Length > T.Data.Nested_Level then
          C := Cursor'Last - T.Data.Nested_Level + 1 - Up_Value;
          P := Cursor (C);
-
-      elsif T.Data.Nested_Level < Up_Value then
-         Inlined := True;
 
       elsif Cursor'Length /= 0 then
          C := Cursor'First;
          P := Cursor (C);
       end if;
 
-      if Cursor'Length = 0 or else Inlined then
-         --  No cursor, we just want the streamed T image
+      if Inlined then
          Result := Image (T);
 
       else
