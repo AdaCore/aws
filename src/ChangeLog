@@ -1,3 +1,19 @@
+2004-08-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads:
+	(Send): New abstract routine. First one become non abstract.
+
+	* aws-net.adb:
+	(Send): Non abstract Send implementation.
+
+	* aws-net-std.ads, aws-net-ssl.ads:
+	(Send): Add out parameter Last.
+
+	* aws-net-ssl.adb:
+	(Send): Add out parameter Last. Change implementation.
+	(TS_SSL.Initialize): Add mode flags SSL_MODE_ENABLE_PARTIAL_WRITE
+	 and SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER.
+
 2004-08-08  Pascal Obry  <pascal@obry.org>
 
 	* aws-server.ads:
