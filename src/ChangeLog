@@ -1,3 +1,11 @@
+2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads, aws-net-std.ads, aws-net-ssl.ads:
+	(Connect): Add Wait parameter, True by default. Fix comments.
+
+	* aws-net-ssl.adb:
+	(Connect): Do SSL handshake only on waiting connection.
+
 2004-10-16  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
