@@ -51,6 +51,7 @@ procedure NBConn_Proc (Security : Boolean) is
 
    task Server_Task is
       entry Get (N : Positive);
+      entry Done;
    end Server_Task;
 
    task body Server_Task is
@@ -77,9 +78,17 @@ procedure NBConn_Proc (Security : Boolean) is
          Net.Shutdown (Peer.all);
          Net.Free (Peer);
       end loop;
+
+      accept Done;
+
    exception
       when E : others =>
          Put_Line ("Server task " & Ada.Exceptions.Exception_Information (E));
+
+         select
+           accept Done;
+         or delay 1.0;
+         end select;
    end Server_Task;
 
 begin
@@ -117,6 +126,8 @@ begin
       end;
    end loop;
 
+   Server_Task.Done;
+
    for J in Clients'Range loop
       Net.Shutdown (Clients (J).all);
       Net.Free (Clients (J));
@@ -128,4 +139,9 @@ begin
 exception
    when E : others =>
       Put_Line ("Main task " & Ada.Exceptions.Exception_Information (E));
+
+      select
+        Server_Task.Done;
+      or delay 1.0;
+      end select;
 end NBConn_Proc;
