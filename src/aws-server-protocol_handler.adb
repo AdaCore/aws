@@ -103,7 +103,8 @@ is
    --  Parse a line sent by the client and do what is needed
 
    procedure Send_Resource
-     (File   : in out Resources.File_Type;
+     (Method : in     Status.Request_Method;
+      File   : in out Resources.File_Type;
       Length :    out Natural);
    --  Send the last header line Transfer-encoding if necessary. Terminate
    --  header and message body from the File.
@@ -264,14 +265,10 @@ is
                Messages.Content_Length (Response.Content_Length (Answer)));
          end if;
 
-         --  Send message body only if needed
+         --  Send message body
 
-         if AWS.Status.Method (C_Stat) = AWS.Status.HEAD then
-            Sockets.New_Line (Sock);
-         else
-            Response.Create_Resource (File, Answer);
-            Send_Resource (File, Length);
-         end if;
+         Response.Create_Resource (File, Answer);
+         Send_Resource (AWS.Status.Method (C_Stat), File, Length);
       end Send_Data;
 
       -------------------------
@@ -1270,9 +1267,11 @@ is
    -------------------
 
    procedure Send_Resource
-     (File   : in out Resources.File_Type;
+     (Method : in     Status.Request_Method;
+      File   : in out Resources.File_Type;
       Length :    out Natural)
    is
+      use type Status.Request_Method;
       use type Streams.Stream_Element_Offset;
 
       procedure Send_File;
@@ -1345,7 +1344,9 @@ is
 
          Sockets.New_Line (Sock);
 
-         Send_File;
+         if Method /= Status.HEAD then
+            Send_File;
+         end if;
 
       else
          --  Always use chunked transfer encoding method for HTTP/1.1 even if
@@ -1358,7 +1359,9 @@ is
          Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
          Sockets.New_Line (Sock);
 
-         Send_File_Chunked;
+         if Method /= Status.HEAD then
+            Send_File_Chunked;
+         end if;
       end if;
 
       Resources.Close (File);
