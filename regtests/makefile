@@ -35,7 +35,7 @@ ifeq ($(MODE),ssl)
 LARGS := $(LARGS) -lssl -lcrypto
 
 RT_SOAP_SEC = test_sec_soap
-RT_STD_SEC = tsgetparam ssp ssback cert
+RT_STD_SEC = tsgetparam ssp ssback cert ssock2
 
 else
 # Without SSL support
