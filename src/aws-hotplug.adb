@@ -29,8 +29,11 @@
 --  $Id$
 
 with AWS.Client;
+with AWS.Parameters;
 
 package body AWS.Hotplug is
+
+   use Ada.Strings.Unbounded;
 
    procedure Adjust (Filters : in out Filter_Set);
    --  Check that the filter set is large enough to receive a new value. If it
@@ -59,20 +62,45 @@ package body AWS.Hotplug is
 
    procedure Apply
      (Filters : in     Filter_Set;
-      URI     : in     String;
+      Status  : in     AWS.Status.Data;
       Found   :    out Boolean;
-      Data    :    out Response.Data) is
+      Data    :    out Response.Data)
+   is
+      URI : constant String := AWS.Status.URI (Status);
+      P   : constant AWS.Parameters.List := Aws.Status.Parameters (Status);
+
+      function Parameters return String;
+      --  Returns the list of parameters suitable to send to a GET HTTP
+      --  command "?name1=value1&name2=value2...".
+
+      function Parameters return String is
+         Result : Unbounded_String;
+      begin
+         for K in 1 .. AWS.Parameters.Count (P) loop
+            if K = 1 then
+               Append (Result, '?');
+            else
+               Append (Result, '&');
+            end if;
+
+            Append (Result, AWS.Parameters.Get_Name (P, K));
+            Append (Result, '=' & AWS.Parameters.Get_Value (P, K));
+         end loop;
+
+         return To_String (Result);
+      end Parameters;
+
    begin
       Found := False;
 
-      Look_For_Filters :
-      for K in 1 .. Filters.Count loop
+      Look_For_Filters : for K in 1 .. Filters.Count loop
 
          if GNAT.Regexp.Match (URI, Filters.Set (K).Regexp) then
             --  we must call the registered server to get the Data.
 
             Data := Client.Get (To_String (Filters.Set (K).URL)
-                                & URI (URI'First + 1 .. URI'Last));
+                                & URI (URI'First + 1 .. URI'Last)
+                                & Parameters);
             Found := True;
             exit Look_For_Filters;
          end if;
