@@ -1,5 +1,17 @@
 2001-07-24  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-config.adb:
+	(WWW_Root_Token): new constant.
+	(WWW_Root_Value): new variable.
+	(Parameters): add WW_Root handling into the table.
+	(Program_Ini_File): correctly create the init filename from a
+	 program name when it is launched using the full path name.
+	(WWW_Root): new function.
+
+	* aws-config.ads:
+	(Default_WWW_Root): new constant.
+	(WWW_Root): new function.
+
 	* makefile:
 	(build): do not build AWS.Services.Directory with optimization.
 
