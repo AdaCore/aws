@@ -1,3 +1,18 @@
+2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* src_include.gpr:
+	Initial revision.
+	
+	* makefile:
+	Add section to build AWS based on project files.
+	(gbuild): New target.
+	(gclean): Idem.
+	(gsetup): Idem.
+
+	* include.gpr: 
+	New version, this version make it possible to develop AWS using
+	 the project files from GPS.
+
 2003-07-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:

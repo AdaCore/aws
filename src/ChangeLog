@@ -1,3 +1,18 @@
+2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.adb:
+	(Integer_Random): Ignore warnings during instantiation of this package.
+
+	* makefile:
+	Add section to build AWS based on project files.
+	(gbuild): New target.
+	(gclean): Idem.
+	(gsetup): Idem.
+
+	* src.gpr:
+	New version, this version make it possible to develop AWS using
+	 the project files from GPS.
+
 2003-07-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
