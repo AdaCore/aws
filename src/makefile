@@ -3,7 +3,7 @@
 
 .SILENT: all build distrib
 
-GFLAGS	= -g -gnatwu
+GFLAGS	= -g -gnatwu -gnaty
 
 all:
 	echo "Targets:"
