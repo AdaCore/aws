@@ -110,6 +110,9 @@ private
    type Slot_Phase is
      (Closed,
 
+      Aborted,
+      --  After socket shutdown
+
       Wait_For_Client,
       --  We can abort keep-alive connection in this stage
 
@@ -143,8 +146,10 @@ private
 
    type Data_Timeouts_Array is array (Data_Phase) of Duration;
 
+   type Socket_Access is access all Sockets.Socket_FD'Class;
+
    type Slot is record
-      Sock                  : Sockets.Socket_FD;
+      Sock                  : Socket_Access := null;
       Socket_Taken          : Boolean := False;
       Peername              : Ada.Strings.Unbounded.Unbounded_String;
       Phase                 : Slot_Phase := Closed;
@@ -200,10 +205,14 @@ private
       function Free_Slots return Natural;
       --  Returns number of free slots.
 
-      procedure Get (FD : in Sockets.Socket_FD; Index : in Positive);
+      procedure Get (FD : in Socket_Access; Index : in Positive);
       --  Mark slot at position Index to be used. This slot will be associated
       --  with the socket FD. Phase set to Client_Header.
 
+      procedure Shutdown (Index : in Positive);
+      --  Break all communications over the slot.
+      --  Slot phase is set to Aborted.
+      
       procedure Release  (Index : in Positive);
       --  Release slot number Index. Slot phase is set to Closed.
 
