@@ -5772,6 +5772,7 @@ AWS User's API:
 * AWS.Server.Log::
 * AWS.Server.Push::
 * AWS.Server.Status::
+* AWS.Services.Callbacks::
 * AWS.Services.Directory::
 * AWS.Services.Dispatchers::
 * AWS.Services.Dispatchers.Method::
@@ -6117,6 +6118,13 @@ SOAP User's API:
 @cindex AWS.Server.Status
 
 @include aws-server-status.ads.texi
+
+@page
+@node AWS.Services.Callbacks
+@appendixsec AWS.Services.Callbacks
+@cindex AWS.Services.Callbacks
+
+@include aws-services-callbacks.ads.texi
 
 @page
 @node AWS.Services.Directory
