@@ -53,7 +53,9 @@ package Templates_Parser is
    ----------------
 
    type Vector_Tag is private;
-   --  A vector tag is a set of string.
+   --  A vector tag is a set of strings. Note that this object is using a
+   --  by-reference semantic. A reference counter is associated to it and
+   --  the memory is realeased when there is no more reference to it.
 
    function "+" (Value : in String) return Vector_Tag;
    --  Vector_Tag constructor.
@@ -102,7 +104,9 @@ package Templates_Parser is
    --  Add Value (converted to a String) at the end of the vector tag set.
 
    procedure Clear (Vect : in out Vector_Tag);
-   --  Removes all values in the vector tag.
+   --  Removes all values in the vector tag. Current Vect is not released but
+   --  the returned object is separated (not using the same reference) from
+   --  the original one.
 
    function Size (Vect : in Vector_Tag) return Natural;
    --  Returns the number of value into Vect.
@@ -116,9 +120,13 @@ package Templates_Parser is
    ----------------
 
    type Matrix_Tag is private;
+   --  A matrix tag is a set of vectors. Note that this object is using a
+   --  by-reference semantic. A reference counter is associated to it and
+   --  the memory is realeased when there is no more reference to it.
 
    function "+" (Vect : in Vector_Tag) return Matrix_Tag;
-   --  Matrix_Tag constructor.
+   --  Matrix_Tag constructor. It returns a matrix with a single row whose
+   --  value is Vect.
 
    function "&"
      (Matrix : in Matrix_Tag;
@@ -127,7 +135,7 @@ package Templates_Parser is
    --  Returns Matrix with Vect added to the end.
 
    function Size (Matrix : in Matrix_Tag) return Natural;
-   --  Returns the number of Vector_Tag inside the Matrix.
+   --  Returns the number of Vector_Tag (rows) inside the Matrix.
 
    function Vector (Matrix : in Matrix_Tag; N : in Positive) return Vector_Tag;
    --  Returns Nth Vector_Tag in the Matrix.
