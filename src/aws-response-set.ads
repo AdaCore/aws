@@ -82,12 +82,6 @@ package AWS.Response.Set is
    pragma Inline (Content_Type);
    --  Set the Cache_Control mode for the message
 
-   procedure Content_Length
-     (D     : in out Data;
-      Value : in     Natural);
-   pragma Inline (Content_Length);
-   --  Set the MIME content length for the message body
-
    procedure Filename
      (D     : in out Data;
       Value : in     String);
@@ -112,9 +106,8 @@ package AWS.Response.Set is
    --  the 401.
 
    procedure Stream
-     (D              : in out Data;
-      Handle         : access Resources.Streams.Stream_Type'Class;
-      Content_Length : in     Content_Length_Type);
+     (D       : in out Data;
+      Handle  : access Resources.Streams.Stream_Type'Class);
    pragma Inline (Stream);
    --  Set the user defined data stream. Set the Mode field to Stream.
 
