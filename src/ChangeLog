@@ -1,3 +1,11 @@
+2003-02-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-headers.ads:
+	Remove list of inherited routines. Add note about them.
+	
+	* aws-parameters.ads:
+	Remove list of inherited routines. Add note about them.
+
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
