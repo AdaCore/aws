@@ -1,6 +1,25 @@
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	Use gnatmake's -m option everywhere.
+
+	* wsdl_6.adb:
+	(Echo_Set): New procedure.
+
+	* wsdl_6.ads:
+	(Set_Of_Int): New type.
+	(Echo_Set): New procedure.
+
+	* wsdl_6.java:
+	Add test for array.
+
+	* wsdl_6_main.adb:
+	Add test for array.
+	
+	* wsdl_6.out:
+	Update output.
+
+	* makefile:
 	(clean): Add WSDL_6 and wsdl_6.class.
 	
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
