@@ -1,5 +1,8 @@
 2002-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-net.adb:
+	Initial revision.
+
 	* makefile:
 	(ssl_mode): Removed.
 	(std_mode): Removed.
