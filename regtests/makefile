@@ -130,7 +130,7 @@ endif
 $(ASIS_TESTS): force
 	echo -n Building $@
 	../tools/ada2wsdl -q -f -a http://localhost:3333 $@.ads -o $@.wsdl
-	../tools/wsdl2aws -q -f $@.wsdl
+	../tools/wsdl2aws -q -f -types $@ $@.wsdl
 	gnatmake -g $@_main $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
