@@ -46,7 +46,7 @@ package AWS.Attachments is
    procedure Add
      (Attachments : in out List;
       Filename    : in     String;
-      Content_Id  : in     String);
+      Content_ID  : in     String);
    --  Adds an Attachment to the list. The header of the Attachment is
    --  generated.
 
@@ -104,7 +104,7 @@ package AWS.Attachments is
      (Attachments : in List;
       Boundary    : in String) return Natural;
    --  Returns the complete size of all attachments including the surrounding
-   --  boundarys.
+   --  boundaries.
 
    procedure Send
      (Socket      : in AWS.Net.Socket_Type'Class;
