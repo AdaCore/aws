@@ -111,6 +111,14 @@ package body AWS.Client is
    --  Open the the Connection if it is not open. Send the common HTTP headers
    --  for all requests like the proxy, authentification, user agent, host.
 
+   procedure Internal_Post
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Data       : in     Streams.Stream_Element_Array;
+      URI        : in     String;
+      SOAPAction : in     String);
+   --  Common base routine for Post and SOAP_Post routines.
+
    procedure Set_Phase
      (Connection : in out HTTP_Connection;
       Phase      : in     Client_Phase);
@@ -876,6 +884,87 @@ package body AWS.Client is
       end loop Retry;
    end Head;
 
+   -------------------
+   -- Internal_Post --
+   -------------------
+
+   procedure Internal_Post
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Data       : in     Streams.Stream_Element_Array;
+      URI        : in     String;
+      SOAPAction : in     String)
+   is
+      No_Data   : Unbounded_String renames Null_Unbounded_String;
+      Try_Count : Natural := Connection.Retry;
+
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+
+   begin
+      Retry : loop
+         begin
+            Open_Send_Common_Header (Connection, "POST", URI);
+
+            declare
+               Sock : Net.Socket_Type'Class renames Connection.Socket.all;
+            begin
+
+               if SOAPAction = No_Data then
+                  Send_Header
+                    (Sock,
+                     Messages.Content_Type (MIME.Application_Form_Data));
+
+               else
+                  --  SOAP header
+
+                  Send_Header (Sock, Messages.SOAPAction (SOAPAction));
+
+                  Send_Header
+                    (Sock,
+                     Messages.Content_Type (MIME.Text_XML));
+               end if;
+
+               --  Send message Content_Length
+
+               Send_Header (Sock, Messages.Content_Length (Data'Length));
+
+               Net.Buffered.New_Line (Sock);
+
+               --  Send message body
+
+               Net.Buffered.Write (Sock, Data);
+            end;
+
+            --  Get answer from server
+
+            Get_Response (Connection, Result, not Connection.Server_Push);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+            end if;
+
+         exception
+
+            when Net.Socket_Error =>
+
+               Disconnect (Connection);
+
+               if Try_Count = 0 then
+                  Result := Response.Build
+                    (MIME.Text_HTML, "Post Timeout", Messages.S408);
+                  Set_Phase (Connection, Not_Monitored);
+                  exit Retry;
+               end if;
+
+               Try_Count := Try_Count - 1;
+         end;
+      end loop Retry;
+   end Internal_Post;
+
    -----------------------------
    -- Open_Send_Common_Header --
    -----------------------------
@@ -1164,14 +1253,6 @@ package body AWS.Client is
 
       Send_Authentication_Header
         (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
-
-      --  SOAP header
-
-      if Connection.SOAPAction /= No_Data then
-         Send_Header
-           (Sock.all,
-            Messages.SOAPAction (To_String (Connection.SOAPAction)));
-      end if;
 
       Set_Phase (Connection, Not_Monitored);
    end Open_Send_Common_Header;
@@ -1516,72 +1597,9 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Data       : in     Streams.Stream_Element_Array;
-      URI        : in     String := No_Data)
-   is
-      No_Data   : Unbounded_String renames Null_Unbounded_String;
-      Try_Count : Natural := Connection.Retry;
-
-      Auth_Attempts : Auth_Attempts_Count := (others => 2);
-      Auth_Is_Over  : Boolean;
-
+      URI        : in     String := No_Data) is
    begin
-      Retry : loop
-         begin
-            Open_Send_Common_Header (Connection, "POST", URI);
-
-            declare
-               Sock : Net.Socket_Type'Class renames Connection.Socket.all;
-            begin
-
-               if Connection.SOAPAction = No_Data then
-                  Send_Header
-                    (Sock,
-                     Messages.Content_Type (MIME.Application_Form_Data));
-
-               else
-                  Send_Header
-                    (Sock,
-                     Messages.Content_Type (MIME.Text_XML));
-               end if;
-
-               --  Send message Content_Length
-
-               Send_Header (Sock, Messages.Content_Length (Data'Length));
-
-               Net.Buffered.New_Line (Sock);
-
-               --  Send message body
-
-               Net.Buffered.Write (Sock, Data);
-            end;
-
-            --  Get answer from server
-
-            Get_Response (Connection, Result, not Connection.Server_Push);
-
-            Decrement_Authentication_Attempt
-              (Connection, Auth_Attempts, Auth_Is_Over);
-
-            if Auth_Is_Over then
-               return;
-            end if;
-
-         exception
-
-            when Net.Socket_Error =>
-
-               Disconnect (Connection);
-
-               if Try_Count = 0 then
-                  Result := Response.Build
-                    (MIME.Text_HTML, "Post Timeout", Messages.S408);
-                  Set_Phase (Connection, Not_Monitored);
-                  exit Retry;
-               end if;
-
-               Try_Count := Try_Count - 1;
-         end;
-      end loop Retry;
+      Internal_Post (Connection, Result, Data, URI, SOAPAction => No_Data);
    end Post;
 
    ----------
@@ -1879,9 +1897,7 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Connection.SOAPAction := Value (SOAPAction);
-
-      Post (Connection, Result, Data);
+      SOAP_Post (Connection, Result, SOAPAction, Data => Data);
       Close (Connection);
       return Result;
 
@@ -1894,19 +1910,15 @@ package body AWS.Client is
    procedure SOAP_Post
      (Connection : in     HTTP_Connection;
       Result     :    out Response.Data;
-      SOAPAction : in     String          := No_Data;
+      SOAPAction : in     String;
       Data       : in     String) is
    begin
-      Connection.Self.SOAPAction := Value (SOAPAction);
-
-      Post (Connection.Self.all, Result, Data);
-
-      Connection.Self.SOAPAction := Null_Unbounded_String;
-
-   exception
-      when others =>
-         Connection.Self.SOAPAction := Null_Unbounded_String;
-         raise;
+      Internal_Post
+        (Connection => Connection.Self.all,
+         Result     => Result,
+         Data       => AWS.Translator.To_Stream_Element_Array (Data),
+         URI        => No_Data,
+         SOAPAction => SOAPAction);
    end SOAP_Post;
 
    ------------
