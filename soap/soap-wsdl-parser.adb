@@ -57,7 +57,8 @@ package body SOAP.WSDL.Parser is
       Name    : in String        := "";
       NS      : in Boolean       := False)
       return DOM.Core.Node;
-   --  Returns child node named Name
+   --  Returns child node named Element having the value Name for attribute
+   --  "name" if specified.
 
    function "+" (Str : in String) return Unbounded_String
      renames To_Unbounded_String;
@@ -394,10 +395,7 @@ package body SOAP.WSDL.Parser is
          Element : in String;
          Name    : in String)
          return DOM.Core.Node;
-
-      K : Positive := Element'First;
-      E : Natural;
-      N : DOM.Core.Node := Parent;
+      --  Recursive procedure that does the job
 
       ------------------
       -- Get_Node_Int --
@@ -409,44 +407,63 @@ package body SOAP.WSDL.Parser is
          Name    : in String)
          return DOM.Core.Node
       is
-         N : DOM.Core.Node;
+         N, R : DOM.Core.Node;
+         E    : Natural;
       begin
-         --  Iterate through childs, look for "service"
+         if Element = "" then
+            --  No more element to look for
+            if Name = ""
+              or else XML.Get_Attr_Value (Parent, "name") = Name
+            then
+               --  There is no attribute to look for or we are in the right
+               --  node, return this node.
+               return Parent;
+            else
+               --  No found otherwise
+               return null;
+            end if;
+         end if;
+
+         E := Strings.Fixed.Index (Element, ".");
+
+         if E = 0 then
+            --  No more separator, this is the last element
+            E := Element'Last;
+         else
+            E := E - 1;
+         end if;
+
+         --  Iterate through childs, look for element
 
          N := XML.First_Child (Parent);
 
-         while N /= null loop
-            exit when
-              ((not NS and then DOM.Core.Nodes.Local_Name (N) = Element)
-               or else (NS and then DOM.Core.Nodes.Node_Name (N) = Element))
-              and then (Name = ""
-                        or else XML.Get_Attr_Value (N, "name") = Name);
-            N := XML.Next_Sibling (N);
-         end loop;
+         declare
+            E_Name : constant String := Element (Element'First .. E);
+         begin
+            R := null;
 
-         return N;
+            while N /= null loop
+               if (not NS and then DOM.Core.Nodes.Local_Name (N) = E_Name)
+                 or else (NS and then DOM.Core.Nodes.Node_Name (N) = E_Name)
+               then
+                  --  We found this element, check next one
+                  R := Get_Node_Int
+                    (N, Element (E + 2 .. Element'Last), Name);
+                  --  Exit now ff we have found the right node, otherwise let's
+                  --  try the next sibling.
+                  exit when R /= null;
+               end if;
+               N := XML.Next_Sibling (N);
+            end loop;
+         end;
+
+         return R;
       end Get_Node_Int;
 
    begin
       Trace ("(Get_Node) - " & Element & " -> " & Name, Parent);
 
-      while K < Element'Last loop
-         E := Strings.Fixed.Index (Element (K .. Element'Last), ".");
-
-         if E = 0 then
-            E := Element'Last;
-            N := Get_Node_Int (N, Element (K .. E), Name);
-         else
-            E := E - 1;
-            N := Get_Node_Int (N, Element (K .. E), "");
-         end if;
-
-         exit when N = null;
-
-         K := E + 2;
-      end loop;
-
-      return N;
+      return Get_Node_Int (Parent, Element, Name);
    end Get_Node;
 
    --------------
