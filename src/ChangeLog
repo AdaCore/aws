@@ -1,3 +1,49 @@
+2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GARGS): Add -q (quiet mode) option.
+	(.SILENT): Add aws-translator-conversion.adb.
+	(build): Echo the current built package.
+	(aws-translator-conversion.adb): Add echo. 
+
+	* aws-server-protocol_handler.adb:
+	(Send_General_Header): Send the cache control header if needed.
+	Minor reformatting.
+
+	* aws-dispatchers-callback.ads, aws-dispatchers-callback.adb:
+	Minor reformatting.
+
+	* aws-messages.adb:
+	(Cache_Control): New routine.
+
+	* aws-messages.ads:
+	(Cache_Control_Token): New constant.
+	(Cache_Option): New type.
+	(Unspecified): New constant.
+	(No_Cache): Idem.
+	(No_Store): Idem.
+	(Cache_Control): New routine.
+
+	* aws-response-set.adb:
+	(Cache_Control): New procedure.
+
+	* aws-response-set.ads:
+	(Cache_Control): New procedure.
+	Minor comment editing.
+
+	* aws-response.adb:
+	(Build): Add Cache_Control parameter.
+	(Stream): Idem.
+	(Cache_Control): New function.
+
+	* aws-response.ads:
+	(Undefined_Length): Move full definition to the private part.
+	(Build): Add Cache_Control parameter.
+	(Stream): Idem.
+	(Cache_Control): New function.
+	(Data): Add Cache_Control field.
+	Minor reformatting.
+
 2002-12-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-services-dispatchers-uri.adb:

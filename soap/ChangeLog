@@ -1,3 +1,9 @@
+2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GARGS): Add -q and -u (quiet mode).
+	(build): Echo the current compiled package.
+
 2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-types.ads:

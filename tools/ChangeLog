@@ -1,3 +1,8 @@
+2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(awsres): Echo progress report.
+
 2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* awsres.adb:
