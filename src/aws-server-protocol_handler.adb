@@ -200,7 +200,8 @@ is
            Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
             and then
            OS_Lib.File_Timestamp (Response.Message_Body (Answer))
-            <= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
+            = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
+         --  Equal used here see [RFC 2616 - 14.25]
 
          if Is_Up_To_Date then
             --  [RFC 2616 - 10.3.5]
