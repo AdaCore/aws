@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -69,6 +69,10 @@ package AWS.Utils is
    function Quote (Str : in String) return String;
    pragma Inline (Quote);
    --  Returns Str with character '"' added at the start and the end.
+
+   function CRLF_2_Spaces (Str : in String) return String;
+   --  Returns an str in a single line. All CR and LF are converted to spaces,
+   --  trailing spaces are removed.
 
    ---------------
    -- Semaphore --
