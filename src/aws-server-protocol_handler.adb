@@ -74,7 +74,7 @@ is
    P_List         : AWS.Parameters.List; -- Form data
 
    Sock           : Sockets.Socket_FD'Class
-     renames HTTP_Server.Slots.Get (Index).Sock.all;
+     renames HTTP_Server.Slots.Get (Index => Index).Sock.all;
 
    Socket_Taken   : Boolean := False;
    --  Set to True if a socket has been reserved for a push session.
