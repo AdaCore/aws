@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,7 +35,7 @@ package AWS.Containers.Tables.Set is
    procedure Add
      (Table       : in out Table_Type;
       Name, Value : in     String);
-   --  Add a new Key/Value pair into the parameter set.
+   --  Add a new Key/Value pair into Table
 
    procedure Update
      (Table : in out Table_Type;
@@ -52,13 +52,13 @@ package AWS.Containers.Tables.Set is
    procedure Case_Sensitive
      (Table : in out Table_Type;
       Mode  : in     Boolean);
-   --  If Mode is True it will use all parameters with case sensitivity.
+   --  If Mode is True it will use all parameters with case sensitivity
 
    procedure Reset (Table : in out Table_Type);
-   --  Removes all object from the Set. Set will be reinitialized and will be
+   --  Removes all object from Table. Table will be reinitialized and will be
    --  ready for new use.
 
    procedure Free (Table : in out Table_Type);
-   --  Release all memory used by the table.
+   --  Release all memory used by the table
 
 end AWS.Containers.Tables.Set;
