@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build clean wrappers
+.SILENT: all build clean
 
 GARGS = -c $(INCLUDES) $(GFLAGS) -gnatwu
 
