@@ -7,9 +7,12 @@
 	(Database.Unsafe_Delete_Session): Use Session_Set.Remove with
 	 Was_Present flag instead of exception handling.
 
-	* aws-containers-tables.adb
+	* aws-containers-tables.adb:
 	(Get_Indexes): Use new Index_Table.Get_Value routine instead of
 	 generic instantiation of Update_Value_Or_Status_G.
+
+	* aws-containers-tables-set.adb:
+	Use pragma Unreferenced instead of pragma Warning.
 
 2003-08-28  Pascal Obry  <p.obry@wanadoo.fr>
 
