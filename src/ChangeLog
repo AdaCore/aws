@@ -1,3 +1,18 @@
+2002-12-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-status-set.ads, aws-status-set.adb:
+	(Free): New routine.
+
+	* aws-server-protocol_handler.adb:
+	Use AWS.Status.Set.Free routine.
+
+	* aws-containers-tables.ads, aws-containers-tables.adb,
+	  aws-containers-tables-set.adb:
+	New implementation based on GNAT.Dynamic_Tables for indexing
+	by positive number instead of AVL Tree for indexing by order
+	and instead of Strings_Cutter for indexing the values with the
+	same name.
+
 2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
