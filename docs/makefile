@@ -2,7 +2,7 @@
 # $Id$
 
 .SILENT: clean build ada.sed aws.ps aws.info aws.dvi aws.txt aws.html aws.texi
-.SILENT: prog
+.SILENT: prog check_env
 
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
@@ -29,7 +29,12 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../soap/soap-parameters.ads.texi ../soap/soap-types.ads.texi \
 	../soap/soap-client.ads.texi
 
-build: aws.ps aws.html aws.txt aws.info
+
+check_env:
+	(if ! [ -e ../src/aws-os_lib.adb ]; then \
+	   cp ../include/aws-os_lib-gnat.adb ../src/aws-os_lib.adb; fi)
+
+build: check_env aws.ps aws.html aws.txt aws.info
 	echo done
 
 ada.sed: makefile
