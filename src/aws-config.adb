@@ -52,6 +52,7 @@ package body AWS.Config is
    Upload_Directory_Token   : aliased constant String := "upload_directory";
    Max_Connection_Token     : aliased constant String := "max_connection";
    Server_Port_Token        : aliased constant String := "server_port";
+   Hotplug_Port_Token       : aliased constant String := "hotplug_port";
    Send_Timeout_Token       : aliased constant String := "send_timeout";
    Receive_Timeout_Token    : aliased constant String := "receive_timeout";
    Status_Page_Token        : aliased constant String := "status_page";
@@ -105,6 +106,7 @@ package body AWS.Config is
 
    Max_Connection_Value     : aliased Positive := Default_Max_Connection;
    Server_Port_Value        : aliased Positive := Default_Server_Port;
+   Hotplug_Port_value       : aliased Positive := Default_Hotplug_Port;
 
    Session_Cleanup_Interval_Value : aliased Duration
      := Default_Session_Cleanup_Interval;
@@ -205,6 +207,9 @@ package body AWS.Config is
       (Pos, Server_Port_Token'Access,
        Server_Port_Value'Access),
 
+      (Pos, Hotplug_Port_Token'Access,
+       Hotplug_Port_Value'Access),
+
       (Dur, Session_Cleanup_Interval_Token'Access,
        Session_Cleanup_Interval_Value'Access),
 
@@ -242,7 +247,9 @@ package body AWS.Config is
        Receive_Timeout_Value'Access));
 
    procedure Initialize;
-   --  Read aws.ini file if present and initialize this package accordingly.
+   --  Read aws.ini and <program name>.ini files if present and initialize
+   --  this package accordingly. File aws.ini is parsed before <program
+   --  name>.ini and the later overrides values set by the former.
 
    ---------------
    -- Admin_URI --
@@ -333,6 +340,15 @@ package body AWS.Config is
    begin
       return Force_Server_Response_Timeout_Value;
    end Force_Server_Response_Timeout;
+
+   ------------------
+   -- Hotplug_Port --
+   ------------------
+
+   function Hotplug_Port return Positive is
+   begin
+      return Hotplug_Port_Value;
+   end Hotplug_Port;
 
    ----------------
    -- Initialize --
