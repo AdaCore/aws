@@ -45,14 +45,14 @@ package body AWS.LDAP.Client is
 
    use type IC.int;
 
-   C_Scope : array (Scope_Type) of IC.int
+   C_Scope : constant array (Scope_Type) of IC.int
      := (LDAP_Scope_Default   => Thin.LDAP_SCOPE_DEFAULT,
          LDAP_Scope_Base      => Thin.LDAP_SCOPE_BASE,
          LDAP_Scope_One_Level => Thin.LDAP_SCOPE_ONELEVEL,
          LDAP_Scope_Subtree   => Thin.LDAP_SCOPE_SUBTREE);
    --  Map Scope_Type with the corresponding C values
 
-   C_Bool : array (Boolean) of IC.int := (False => 0, True => 1);
+   C_Bool : constant array (Boolean) of IC.int := (False => 0, True => 1);
    --  Map Boolean with the corrsponding C values
 
    procedure Raise_Error (Code : in Thin.Return_Code; Message : in String);
