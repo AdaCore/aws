@@ -61,10 +61,10 @@ package body SOAP.WSDL.Parser is
    --  Returns child node named Name
 
    function First_Child (Parent : in DOM.Core.Node) return DOM.Core.Node;
-   --  Returns the first child, ship #text nodes
+   --  Returns the first child, skip #text nodes
 
    function Next_Sibling (N : in DOM.Core.Node) return DOM.Core.Node;
-   --  Returns the next sibling, ship #text nodes
+   --  Returns the next sibling, skip #text nodes
 
    function "+" (Str : in String) return Unbounded_String
      renames To_Unbounded_String;
