@@ -55,18 +55,6 @@ package AWS.Status is
 
    type Socket_Access is access all Socket_Type;
 
-   function Authorization_Mode (D : in Data) return Authorization_Type;
-   pragma Inline (Authorization_Mode);
-   --  Get the type of the "Authorization:" parameter
-
-   function Authorization_Name (D : in Data) return String;
-   pragma Inline (Authorization_Name);
-   --  Get the value for the name in the "Authorization:" parameter
-
-   function Authorization_Password (D : in Data) return String;
-   pragma Inline (Authorization_Password);
-   --  Get the value for the password in the "Authorization:" parameter
-
    function Check_Digest (D : in Data; Password : in String) return Boolean;
    --  This function is used by the digest authentication to check if the
    --  client password is correct.
@@ -74,23 +62,35 @@ package AWS.Status is
    --  the server check that the client knows the right password using the
    --  MD5 checksum.
 
-   function Authorization_Realm (D : in Data) return String;
+   function Authorization_Mode     (D : in Data) return Authorization_Type;
+   pragma Inline (Authorization_Mode);
+   --  Get the type of the "Authorization:" parameter
+
+   function Authorization_Name     (D : in Data) return String;
+   pragma Inline (Authorization_Name);
+   --  Get the value for the name in the "Authorization:" parameter
+
+   function Authorization_Password (D : in Data) return String;
+   pragma Inline (Authorization_Password);
+   --  Get the value for the password in the "Authorization:" parameter
+
+   function Authorization_Realm    (D : in Data) return String;
    pragma Inline (Authorization_Realm);
    --  Get the value for the "realm" in the "Authorization:" parameter
 
-   function Authorization_Nonce (D : in Data) return String;
+   function Authorization_Nonce    (D : in Data) return String;
    pragma Inline (Authorization_Nonce);
    --  Get the value for the "nonce" in the "Authorization:" parameter
 
-   function Authorization_NC (D : in Data) return String;
+   function Authorization_NC       (D : in Data) return String;
    pragma Inline (Authorization_NC);
    --  Get the value for the "nc" in the "Authorization:" parameter
 
-   function Authorization_CNonce (D : in Data) return String;
+   function Authorization_CNonce   (D : in Data) return String;
    pragma Inline (Authorization_CNonce);
    --  Get the value for the "cnonce" in the "Authorization:" parameter
 
-   function Authorization_QOP (D : in Data) return String;
+   function Authorization_QOP      (D : in Data) return String;
    pragma Inline (Authorization_QOP);
    --  Get the value for the "qop" in the "Authorization:" parameter
 
@@ -163,11 +163,11 @@ package AWS.Status is
    --  Returns the socket used to transfert data between the client and
    --  server.
 
-   function URI (D : in Data) return String;
+   function URI                    (D : in Data) return String;
    pragma Inline (URI);
    --  Returns the requested resource.
 
-   function URI (D : in Data) return URL.Object;
+   function URI                    (D : in Data) return URL.Object;
    pragma Inline (URI);
    --  As above but return an URL object.
 
