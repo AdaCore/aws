@@ -1,3 +1,17 @@
+2004-11-08  Pascal Obry  <pascal@obry.org>
+
+	* aws-services-web_mail.adb:
+	(Context_Data): New record.
+        (Load_Context): New procedure.
+        (Delete): Use Load_Context to get the proper POP/SMTP context from
+         the session id.
+        (Message): Idem.
+        (Reply): Idem.
+        (Send): Idem.
+        (Summary): Idem.
+        This implements support for non standard port for POP and SMTP
+         servers and is also a good cleanup as more code is shared.
+
 2004-11-07  Pascal Obry  <pascal@obry.org>
 
 	* aws-services-split_pages-alpha.adb:
