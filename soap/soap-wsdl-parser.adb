@@ -158,6 +158,13 @@ package body SOAP.WSDL.Parser is
       return Parameters.Parameter;
    --  Returns array in node N
 
+   function Is_Array
+     (O : in Object'Class;
+      N : in DOM.Core.Node)
+      return Boolean;
+   --  Returns True if N is an array description node. Set the array element
+   --  name into the object.
+
    -----------
    -- Debug --
    -----------
@@ -334,6 +341,83 @@ package body SOAP.WSDL.Parser is
       return N;
    end Get_Node;
 
+   --------------
+   -- Is_Array --
+   --------------
+
+   function Is_Array
+     (O : in Object'Class;
+      N : in DOM.Core.Node)
+      return Boolean
+   is
+      function Array_Elements return Unbounded_String;
+      --  Returns array's element type encoded in node L
+
+      L : DOM.Core.Node := N;
+
+      --------------------
+      -- Array_Elements --
+      --------------------
+
+      function Array_Elements return Unbounded_String is
+         Attributes : constant  DOM.Core.Named_Node_Map
+           := DOM.Core.Nodes.Attributes (L);
+      begin
+         --  Look for arrayType in Attributes list
+
+         for K in 1 .. DOM.Core.Nodes.Length (Attributes) loop
+
+            declare
+               N : constant DOM.Core.Node
+                 := DOM.Core.Nodes.Item (Attributes, K);
+            begin
+               if Utils.No_NS (DOM.Core.Nodes.Node_Name (N)) = "arrayType" then
+                  --  Found get the value removing []
+                  declare
+                     Value : constant String
+                       := Utils.No_NS (DOM.Core.Nodes.Node_Value (N));
+                     Last  : Natural;
+                  begin
+                     Last := Strings.Fixed.Index (Value, "[");
+
+                     if Last = 0 then
+                        Raise_Exception
+                          (WSDL_Error'Identity,
+                           "missing [] in arrayType value.");
+                     end if;
+
+                     return To_Unbounded_String
+                       (Value (Value'First .. Last - 1));
+                  end;
+               end if;
+            end;
+         end loop;
+
+         Raise_Exception
+           (WSDL_Error'Identity, "array element type not found.");
+      end Array_Elements;
+
+   begin
+      if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
+         L := First_Child (L);
+
+         if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexContent" then
+            L := First_Child (L);
+
+            if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "restriction" then
+               L := First_Child (L);
+
+               if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "attribute" then
+                  O.Self.Array_Elements := Array_Elements;
+                  return True;
+               end if;
+            end if;
+         end if;
+      end if;
+
+      return False;
+   end Is_Array;
+
    ------------
    -- Length --
    ------------
@@ -429,7 +513,7 @@ package body SOAP.WSDL.Parser is
       Document : in WSDL.Object)
       return Parameters.Parameter
    is
-      P : Parameters.Parameter (Parameters.K_Composite);
+      P : Parameters.Parameter (Parameters.K_Array);
    begin
       Trace ("(Parse_Array)", R);
 
@@ -438,8 +522,7 @@ package body SOAP.WSDL.Parser is
          and then DOM.Core.Nodes.Node_Name (R) = "complexType");
 
       declare
-         Name   : constant String := Get_Attr_Value (R, "name", False);
-         T_Name : constant String := Utils.Array_Type (Name);
+         Name : constant String := Get_Attr_Value (R, "name", False);
       begin
          --  Set array name, R is a complexType node
 
@@ -449,14 +532,16 @@ package body SOAP.WSDL.Parser is
          end if;
 
          P.Name   := O.Current_Name;
-         P.C_Name := +Name;
+         P.T_Name := +Name;
+         P.E_Type := O.Array_Elements;
 
-         if not WSDL.Is_Standard (T_Name) then
+         if not WSDL.Is_Standard (To_String (O.Array_Elements)) then
             --  This is not a standard type, parse it
             declare
                N : constant DOM.Core.Node
                  := Get_Node (DOM.Core.Node (Document),
-                              "definitions.types.schema.complexType", T_Name);
+                              "definitions.types.schema.complexType",
+                              To_String (O.Array_Elements));
             begin
                --  ??? Right now pretend that it is a record, there is
                --  certainly some cases not covered here.
@@ -583,14 +668,13 @@ package body SOAP.WSDL.Parser is
 
       declare
          NL   : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
-         Name : constant String := Get_Attr_Value (CT_Node, "name");
       begin
          if (Length (NL) > 1 and then not Sequence) then
             --  This is a record or composite type
 
             Add_Parameter (O, Parse_Record (O, CT_Node, Document));
 
-         elsif Utils.Is_Array (Name) then
+         elsif Is_Array (O, CT_Node) then
 
             Add_Parameter (O, Parse_Array (O, CT_Node, Document));
 
@@ -709,7 +793,7 @@ package body SOAP.WSDL.Parser is
                   "types.schema.complexType for " & P_Type & " not found.");
             end if;
 
-            if Utils.Is_Array (P_Type) then
+            if Is_Array (O, R) then
                declare
                   P : Parameters.Parameter := Parse_Array (O, R, Document);
                begin
@@ -918,7 +1002,7 @@ package body SOAP.WSDL.Parser is
       Document : in WSDL.Object)
       return Parameters.Parameter
    is
-      P : Parameters.Parameter (Parameters.K_Composite);
+      P : Parameters.Parameter (Parameters.K_Record);
       N : DOM.Core.Node;
    begin
       Trace ("(Parse_Record)", R);
@@ -933,7 +1017,7 @@ package body SOAP.WSDL.Parser is
          --  Set record name, R is a complexType node
 
          P.Name   := O.Current_Name;
-         P.C_Name := +Name;
+         P.T_Name := +Name;
 
          --  Enter complexType element
 
