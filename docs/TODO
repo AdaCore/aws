@@ -148,13 +148,6 @@ implemented:
 
 - Add SMTP authentication support
 
-- Add a time period dispatcher. This will be a new AWS.Services.Dispatcher
-  child, the idea is to have a set of time period associated with a callback,
-  the same URI will be dispatched to the right callback depending on the
-  current local time. I had this idea while looking at the TF1 Web Site (one
-  of the TV channel in France), they have a set of links to the first page,
-  late in the evening the links tends to point to adult contents :)
-
 - Add support for compressed data in the memory stream on the client side.
   User should be able to choose uncompressing data at the read stage.
   This enhancement will reduce the memory used by the data.
@@ -171,8 +164,10 @@ implemented:
 - Add GNAT project files to use AWS. Only support for developpers has been
   implemented.
 
-- Add a simple Web Mail service (AWS.Services.Web_Mail) using the AWS.POP and
-  AWS.SMTP API.
-
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
+
+- Document the Time dispatcher.
+
+- Improve the Web_Mail high level service to be able to reply and to handle CC
+  recipients.
