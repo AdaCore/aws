@@ -39,8 +39,6 @@ package AWS.Services.Split_Pages.Uniform.Overlapping is
    --
    --  Tags:
    --  Same as the Uniform splitter
-   --  Usable templates for displaying an index:
-   --  Same as the Uniform splitter
 
    type Splitter
      (Max_Per_Page : Positive;

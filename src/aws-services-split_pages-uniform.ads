@@ -48,10 +48,6 @@ package AWS.Services.Split_Pages.Uniform is
    --
    --  HREFS_V and INDEXES_V can be used to create an index to the generated
    --  pages.
-   --  Usable templates for displaying the primary index:
-   --  simple_index.thtml
-   --  sliding_index.thtml
-   --  bounded_index.thtml
 
    type Splitter (Max_Per_Page : Positive)
      is new Split_Pages.Splitter with private;
