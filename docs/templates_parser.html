@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 7 July 2004
+<p>Date: 18 September 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -51,6 +51,7 @@
 <li><a name="toc_Other%20services"></a>
     <a href="#Other%20services">Other services</a>
 <ul>
+<li><a href="#Context">Context</a>
 <li><a href="#Tag%20utils">Tag utils</a>
 <li><a href="#XML%20representation">XML representation</a>
 <li><a href="#Debug">Debug</a>
@@ -538,6 +539,13 @@ found in <code>gawk</code>, <code>sed</code> or <code>grep</code> tools.
 <p>Returns variable modulo N. If the current variable value is not a
 number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
+
+<br><dt><code>NO_CONTEXT</code>
+<dd>
+
+<p>This is a special command filter which indicates that the tag must not
+be searched in the context. See see <a href="#Context">Context</a>. <code>NO_CONTEXT</code> must be
+the first filter. This filter returns the value as-is.
 
 <br><dt><code>NO_DIGIT</code>
 <dd>
@@ -1592,14 +1600,42 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <h2>Other services</h2>
 
 <ul>
-<li><a accesskey=1 href="#Tag%20utils">Tag utils</a>: 
-<li><a accesskey=2 href="#XML%20representation">XML representation</a>: 
-<li><a accesskey=3 href="#Debug">Debug</a>: 
+<li><a accesskey=1 href="#Context">Context</a>: 
+<li><a accesskey=2 href="#Tag%20utils">Tag utils</a>: 
+<li><a accesskey=3 href="#XML%20representation">XML representation</a>: 
+<li><a accesskey=4 href="#Debug">Debug</a>: 
 </ul>
+
+<p><hr>
+Node:<a name="Context">Context</a>,
+Next:<a rel=next accesskey=n href="#Tag%20utils">Tag utils</a>,
+Up:<a rel=up accesskey=u href="#Other%20services">Other services</a>
+<br>
+
+<h3>Context</h3>
+
+<p>The context object can be used to dynamically handle tags. Such
+context can be passed to the <code>Parse</code> routines. If a template's tag
+is not found in the <code>Translate_Table</code> the context callback method
+is called by the parser. The default callback method does nothing, it
+is up to the user to define it. The callback procedure is defined as
+follow:
+
+<br><pre><b>procedure</b> Callback
+  (Context  : <b>access</b> Templates_Parser.Context;
+   Variable : <b>in</b>     String;
+   Result   :    <b>out</b> Unbounded_String;
+   Found    :    <b>out</b> Boolean);
+</pre>
+
+<p><code>Result</code> must be set with the value for the tag <code>Variable</code>
+and <code>Found</code> set to <code>True</code>, otherwise <code>Found</code> can be set
+to <code>False</code>.
 
 <p><hr>
 Node:<a name="Tag%20utils">Tag utils</a>,
 Next:<a rel=next accesskey=n href="#XML%20representation">XML representation</a>,
+Previous:<a rel=previous accesskey=p href="#Context">Context</a>,
 Up:<a rel=up accesskey=u href="#Other%20services">Other services</a>
 <br>
 
@@ -2225,6 +2261,7 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <li>Command, INCLUDE: <a href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>
 <li>Command, TABLE: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
 <li>Command, TERMINATE_SECTIONS: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+<li>Context: <a href="#Context">Context</a>
 <li>Debug: <a href="#Debug">Debug</a>
 <li>Filter, "*": <a href="#Filters">Filters</a>
 <li>Filter, "+": <a href="#Filters">Filters</a>
@@ -2245,6 +2282,7 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <li>Filter, LOWER: <a href="#Filters">Filters</a>
 <li>Filter, MATCH: <a href="#Filters">Filters</a>
 <li>Filter, MOD: <a href="#Filters">Filters</a>
+<li>Filter, NO_CONTEXT: <a href="#Filters">Filters</a>
 <li>Filter, NO_DIGIT: <a href="#Filters">Filters</a>
 <li>Filter, NO_LETTER: <a href="#Filters">Filters</a>
 <li>Filter, NO_SPACE: <a href="#Filters">Filters</a>
