@@ -784,7 +784,21 @@ The name of the server. This must be used when calling
 @cindex Server_Port
 The port where server will wait for incomming connections requests. This
 must be used when calling @code{AWS.Server.Start}. The default is
-@_SERVER_PORT_@
+@_SERVER_PORT_@.
+
+@item Session_Lifetime (duration)
+@cindex Session_Lifetime (duration)
+
+Number of seconds to keep session information. After this period a
+session is obsoleted and will be removed at next cleanup. The default
+is @_SESSION_LIFETIME_@ seconds.
+
+@item Session_Cleanup_Interval (duration)
+@cindex Session_Cleanup_Interval (duration)
+
+Number of seconds between each run of the session cleanup task. This
+task will remove all session data that have been obsoleted. The
+default is @_SESSION_CLEANUP_INTERVAL_@ seconds.
 
 @item Status_Page (string)
 @cindex Status_Page
@@ -1322,6 +1336,29 @@ The server HTTP port.
 @cindex SERVER_SOCK
 
 Server socket ID.
+
+@item SESSION_LIFETIME
+@cindex SESSION_LIFETIME
+
+Number of seconds to keep session information. After this period a
+session is obsoleted and will be removed at next cleanup.
+
+@item SESSION_CLEANUP_INTERVAL
+@cindex SESSION_CLEANUP_INTERVAL
+
+Number of seconds between each run of the session cleanup task. This
+task will remove all session data that have been obsoleted.
+
+@item SESSIONS_TS_V (vector tag)
+@cindex SESSIONS_TS_V
+
+A list of time stamp. Each item correspond to a session last access time.
+
+@item SESSIONS_TERMINATE_V (vector tag)
+@cindex SESSIONS_TERMINATE_V
+
+A list of time. Each item correspond to the time when the session will
+be obsoleted.
 
 @item SESSIONS_V (vector tag)
 @cindex SESSIONS_V
