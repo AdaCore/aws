@@ -473,14 +473,6 @@ package body AWS.URL is
       end if;
 
       return O;
-
-   exception
-
-      when URL_Error =>
-         raise;
-
-      when others =>
-         raise URL_Error;
    end Parse;
 
    --------------
