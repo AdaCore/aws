@@ -38,43 +38,43 @@ package SOAP.Parameters is
    --  This is the maximum number of parameters supported by this
    --  implementation.
 
-   type Set is private;
+   type List is private;
 
-   function Argument_Count (P : in Set) return Natural;
+   function Argument_Count (P : in List) return Natural;
    --  Returns the number of parameters in P.
 
-   function Argument (P : in Set; Name : in String) return Types.Object'Class;
+   function Argument (P : in List; Name : in String) return Types.Object'Class;
    --  Returns parameters named Name in P. Raises Types.Data_Error if not
    --  found.
 
-   function Argument (P : in Set; N : in Positive) return Types.Object'Class;
+   function Argument (P : in List; N : in Positive) return Types.Object'Class;
    --  Returns Nth parameters in P. Raises Types.Data_Error if not found.
 
-   function Exist (P : in Set; Name : in String) return Boolean;
+   function Exist (P : in List; Name : in String) return Boolean;
    --  Returns True if parameter named Name exist in P and False otherwise.
 
-   function Get (P : in Set; Name : in String) return Integer;
+   function Get (P : in List; Name : in String) return Integer;
    --  Returns parameter named Name in P as an Integer value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Integer.
 
-   function Get (P : in Set; Name : in String) return Long_Float;
+   function Get (P : in List; Name : in String) return Long_Float;
    --  Returns parameter named Name in P as a Float value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Float.
 
-   function Get (P : in Set; Name : in String) return String;
+   function Get (P : in List; Name : in String) return String;
    --  Returns parameter named Name in P as a String value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a String.
 
-   function Get (P : in Set; Name : in String) return Boolean;
+   function Get (P : in List; Name : in String) return Boolean;
    --  Returns parameter named Name in P as a Boolean value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Boolean.
 
-   function Get (P : in Set; Name : in String) return Types.SOAP_Record;
+   function Get (P : in List; Name : in String) return Types.SOAP_Record;
    --  Returns parameter named Name in P as a SOAP Struct value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Struct.
 
-   function Get (P : in Set; Name : in String) return Types.SOAP_Array;
+   function Get (P : in List; Name : in String) return Types.SOAP_Array;
    --  Returns parameter named Name in P as a SOAP Array value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
    --  Array.
@@ -83,25 +83,25 @@ package SOAP.Parameters is
    -- Constructors --
    ------------------
 
-   function "&" (P : in Set; O : in Types.Object'Class) return Set;
-   function "+" (O : in Types.Object'Class) return Set;
+   function "&" (P : in List; O : in Types.Object'Class) return List;
+   function "+" (O : in Types.Object'Class) return List;
 
    ----------------
    -- Validation --
    ----------------
 
-   procedure Check (P : in Set; N : in Natural);
+   procedure Check (P : in List; N : in Natural);
    --  Checks that there is exactly N parameters or raise Types.Data_Error.
 
-   procedure Check_Int (P : in Set; Name : in String);
+   procedure Check_Int (P : in List; Name : in String);
    --  Checks that parameter named Name exist and is an Integer value.
 
-   procedure Check_Float (P : in Set; Name : in String);
+   procedure Check_Float (P : in List; Name : in String);
    --  Checks that parameter named Name exist and is a Float value.
 
 private
 
-   type Set is record
+   type List is record
       V : Types.Object_Set (1 .. Max_Parameters);
       N : Natural := 0;
    end record;

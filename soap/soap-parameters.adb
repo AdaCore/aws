@@ -43,8 +43,8 @@ package body SOAP.Parameters is
    -- "&" --
    ---------
 
-   function "&" (P : in Set; O : in Types.Object'Class) return Set is
-      NP : Set := P;
+   function "&" (P : in List; O : in Types.Object'Class) return List is
+      NP : List := P;
    begin
       NP.N := NP.N + 1;
       NP.V (NP.N) := Types."+" (O);
@@ -55,8 +55,8 @@ package body SOAP.Parameters is
    -- "+" --
    ---------
 
-   function "+" (O : in Types.Object'Class) return Set is
-      P : Set;
+   function "+" (O : in Types.Object'Class) return List is
+      P : List;
    begin
       P.V (1) := Types."+" (O);
       P.N := 1;
@@ -68,7 +68,7 @@ package body SOAP.Parameters is
    --------------
 
    function Argument
-     (P    : in Set;
+     (P    : in List;
       Name : in String)
       return Types.Object'Class is
    begin
@@ -88,7 +88,7 @@ package body SOAP.Parameters is
    --------------
 
    function Argument
-     (P : in Set;
+     (P : in List;
       N : in Positive)
       return Types.Object'Class is
    begin
@@ -99,7 +99,7 @@ package body SOAP.Parameters is
    -- Argument_Count --
    --------------------
 
-   function Argument_Count (P : in Set) return Natural is
+   function Argument_Count (P : in List) return Natural is
    begin
       return P.N;
    end Argument_Count;
@@ -108,7 +108,7 @@ package body SOAP.Parameters is
    -- Check --
    -----------
 
-   procedure Check (P : in Set; N : in Natural) is
+   procedure Check (P : in List; N : in Natural) is
    begin
       if P.N /= N then
          Exceptions.Raise_Exception
@@ -117,7 +117,7 @@ package body SOAP.Parameters is
       end if;
    end Check;
 
-   procedure Check_Int (P : in Set; Name : in String) is
+   procedure Check_Int (P : in List; Name : in String) is
       O : Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Integer then
@@ -128,7 +128,7 @@ package body SOAP.Parameters is
       end if;
    end Check_Int;
 
-   procedure Check_Float (P : in Set; Name : in String) is
+   procedure Check_Float (P : in List; Name : in String) is
       O : Types.Object'Class := Argument (P, Name);
    begin
       if O not in Types.XSD_Float then
@@ -143,7 +143,7 @@ package body SOAP.Parameters is
    -- Exist --
    -----------
 
-   function Exist (P : in Set; Name : in String) return Boolean is
+   function Exist (P : in List; Name : in String) return Boolean is
    begin
       for K in 1 .. P.N loop
          if Types.Name (P.V (K).O.all) = Name then
@@ -158,32 +158,32 @@ package body SOAP.Parameters is
    -- Get --
    ---------
 
-   function Get (P : in Set; Name : in String) return Integer is
+   function Get (P : in List; Name : in String) return Integer is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in Set; Name : in String) return Long_Float is
+   function Get (P : in List; Name : in String) return Long_Float is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in Set; Name : in String) return String is
+   function Get (P : in List; Name : in String) return String is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in Set; Name : in String) return Boolean is
+   function Get (P : in List; Name : in String) return Boolean is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in Set; Name : in String) return Types.SOAP_Record is
+   function Get (P : in List; Name : in String) return Types.SOAP_Record is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in Set; Name : in String) return Types.SOAP_Array is
+   function Get (P : in List; Name : in String) return Types.SOAP_Array is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
