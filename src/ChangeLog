@@ -1,3 +1,18 @@
+2004-09-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads:
+	(Event_Type): New type.
+	(Event_Set): New type.
+	(Wait_Event_Type): New type.
+	(Wait_Event_Set): New type.
+	(Wait): New routine.
+	(Wait_Mode): Removed.
+	(Wait_For): Use Wait_Event_Type instead of Wait_Mode.
+
+	* aws-net.adb:
+	(Wait): New routine.
+	(Wait_For): Based on Wait routine now.
+
 2004-09-18  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb, templates_parser-filter.adb:
