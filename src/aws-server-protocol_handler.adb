@@ -134,9 +134,6 @@ is
 
       Status : Messages.Status_Code;
 
-      Send_Session_Cookie : Boolean := False;
-      --  Will be set to True if a session Cookie must be sent in the header.
-
       procedure Create_Session;
       --  Create a session if needed
 
@@ -178,12 +175,8 @@ is
            and then (AWS.Status.Session (C_Stat) = Session.No_Session
                      or else not Session.Exist (AWS.Status.Session (C_Stat)))
          then
-            declare
-               Cookie : constant String := Session.Image (Session.Create);
-            begin
-               AWS.Status.Set.Session (C_Stat, Cookie);
-               Send_Session_Cookie := True;
-            end;
+            AWS.Status.Set.Session (C_Stat);
+            --  Generate the session ID.
          end if;
       end Create_Session;
 
@@ -250,7 +243,7 @@ is
          --  Session
 
          if CNF.Session (HTTP_Server.Properties)
-           and then Send_Session_Cookie
+           and then AWS.Status.Session_Created (C_Stat)
          then
             --  This is an HTTP connection with session but there is no session
             --  ID set yet. So, send cookie to client browser.
