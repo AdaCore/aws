@@ -1,3 +1,20 @@
+2002-11-11  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_Resource): Add parameter Method. Send resource content only
+	 if not HEAD method.
+	(Send_Data): Always call Send_Resource even in the HEAD case, to
+	 be able to send the last headers. In the HEAD case the headers
+	 must be exactly the same as it would have been for a GET request,
+	 only the body is omitted.
+
+	* aws-response-set.ads, aws-response-set.adb:
+	(Content_Length): New routine.
+
+	* aws-client.adb:
+	(Get_Response): In case were no body should be returned	(HEAD method)
+	 we still need to set properly the Content_Length.
+
 2002-11-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.ads:
