@@ -61,6 +61,13 @@ status.</H3>
 <td><b>@_YES_NO:SESSION_@</b>
 </tr>
 
+@@IF@@ @_SESSION_@
+<tr>
+<td>Session Life Time
+<td><b>@_SESSION_LIFETIME_@ secs</b>
+</tr>
+@@END_IF@@
+
 </table>
 
 <br>
@@ -127,7 +134,7 @@ status.</H3>
   <ol>
   @@TABLE@@
 
-  <li>Session ID: <b>@_SESSIONS_V_@</b>
+  <li>Session ID: <b>@_SESSIONS_V_@</b> (<i>@_SESSIONS_TS_V_@</i>)
 
   <table>
   <tr>
