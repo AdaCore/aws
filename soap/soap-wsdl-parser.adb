@@ -458,7 +458,7 @@ package body SOAP.WSDL.Parser is
                  := Get_Node (DOM.Core.Node (Document),
                               "definitions.types.schema.complexType", T_Name);
             begin
-               --  ??? Right now pretent that it is a record, there is
+               --  ??? Right now pretend that it is a record, there is
                --  certainly some cases not covered here.
                Parameters.Append (P.P, Parse_Record (O, N, Document));
             end;
@@ -718,6 +718,7 @@ package body SOAP.WSDL.Parser is
                end;
 
             else
+               O.Self.Current_Name := +Get_Attr_Value (N, "name");
                return Parse_Record (O, R, Document);
             end if;
          end;
