@@ -100,6 +100,9 @@ package body AWS.Client is
    pragma Inline (Send_Header);
    --  Send header Data to socket and call Debug_Message.
 
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Sockets.Socket_FD'Class, Socket_Access);
+
    -------------------
    -- Build_Cleaner --
    -------------------
@@ -165,7 +168,7 @@ package body AWS.Client is
 
          if Connection.Current_Phase = P then
             Sockets.Shutdown (Connection.Socket.all);
-            Connection.Socket := null;
+            Free (Connection.Socket);
          end if;
 
       end loop Phase_Loop;
@@ -180,9 +183,6 @@ package body AWS.Client is
    -----------
 
    procedure Close (Connection : in out HTTP_Connection) is
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Sockets.Socket_FD'Class, Socket_Access);
 
       procedure Free is new Ada.Unchecked_Deallocation
         (Cleaner_Task, Cleaner_Access);
@@ -1365,6 +1365,21 @@ package body AWS.Client is
    exception
       when others =>
          Close (Connection);
+         return Response.Build (MIME.Text_HTML, "Timeouts", Messages.S408);
+   end SOAP_Post;
+
+   function SOAP_Post
+     (Connection : access HTTP_Connection;
+      Data       : in String)
+     return Response.Data
+   is
+      Result     : Response.Data;
+   begin
+      Post (Connection.all, Result, Data);
+      return Result;
+   exception
+      when others =>
+         Close (Connection.all);
          return Response.Build (MIME.Text_HTML, "Timeouts", Messages.S408);
    end SOAP_Post;
 
