@@ -49,9 +49,10 @@ procedure Tgetparam is
 
    function CB (Request : in Status.Data) return Response.Data;
 
-   task Server;
-
-   Stopped : Boolean := False;
+   task Server is
+      entry Started;
+      entry Stopped;
+   end Server;
 
    HTTP : AWS.Server.HTTP;
 
@@ -111,11 +112,13 @@ procedure Tgetparam is
       Put_Line ("Server started");
       New_Line;
 
-      delay 5.0;
+      accept Started;
 
-      if Stopped = False then
+      select
+         accept Stopped;
+      or delay 5.0;
          Put_Line ("Too much time to do the job !");
-      end if;
+      end select;
 
       AWS.Server.Shutdown (HTTP);
    exception
@@ -138,7 +141,7 @@ procedure Tgetparam is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   delay 2.0;
+   Server.Started;
 
    Request ("http://localhost:7645/simple");
    Request ("http://localhost:7645/simple?p1=8&p2=azerty%20qwerty");
@@ -154,7 +157,7 @@ begin
 
    Request ("http://localhost:7645/simple?p1=8&p2=azerty%20qwerty");
 
-   Stopped := True;
+   Server.Stopped;
 
 exception
    when E : others =>

@@ -57,9 +57,10 @@ procedure Test_SOAP is
    function CB      (Request : in Status.Data) return Response.Data;
    function SOAP_CB (Request : in Status.Data) return Response.Data;
 
-   task Server;
-
-   Stopped : Boolean := False;
+   task Server is
+      entry Started;
+      entry Stopped;
+   end Server;
 
    HTTP : AWS.Server.HTTP;
 
@@ -121,11 +122,13 @@ procedure Test_SOAP is
       Put_Line ("Server started");
       New_Line;
 
-      delay 5.0;
+      accept Started;
 
-      if Stopped = False then
+      select
+         accept Stopped;
+      or delay 5.0;
          Put_Line ("Too much time to do the job !");
-      end if;
+      end select;
 
       AWS.Server.Shutdown (HTTP);
    exception
@@ -177,7 +180,7 @@ procedure Test_SOAP is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   delay 2.0;
+   Server.Started;
 
    Request ("multProc", 2, 3);
    Request ("multProc", 9, 9);
@@ -187,7 +190,7 @@ begin
    Request ("addProc", 9, 9);
    Request ("addProc", 10, 73);
 
-   Stopped := True;
+   Server.Stopped;
 
 exception
    when E : others =>

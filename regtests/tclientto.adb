@@ -49,9 +49,10 @@ procedure Tclientto is
 
    function CB (Request : in Status.Data) return Response.Data;
 
-   task Server;
-
-   Stopped : Boolean := False;
+   task Server is
+      entry Started;
+      entry Stopped;
+   end Server;
 
    HTTP : AWS.Server.HTTP;
 
@@ -91,11 +92,9 @@ procedure Tclientto is
       Put_Line ("Server started");
       New_Line;
 
-      loop
-         delay 2.0;
+      accept Started;
 
-         exit when Stopped;
-      end loop;
+      accept Stopped;
 
       AWS.Server.Shutdown (HTTP);
    exception
@@ -162,16 +161,16 @@ procedure Tclientto is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   delay 2.0;
+   Server.Started;
 
    Request;
 
    Alive_Request;
 
-   Stopped := True;
+   Server.Stopped;
 
 exception
    when E : others =>
-      Stopped := True;
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Server.Stopped;
 end Tclientto;
