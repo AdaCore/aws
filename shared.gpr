@@ -83,4 +83,12 @@ project Shared is
 
    end Builder;
 
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker is
+      for Default_Switches ("Ada") use ("-lz");
+   end Linker;
+
 end Shared;
