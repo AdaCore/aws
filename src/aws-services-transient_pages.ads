@@ -40,14 +40,8 @@ package AWS.Services.Transient_Pages is
    type Stream_Type is
      new AWS.Resources.Streams.Memory.Stream_Type with null record;
 
-   procedure Release
-     (Resource : in     Stream_Type;
-      File     : in out AWS.Resources.File_Type);
-   --  We override this routine here as we do not want the server to release
-   --  the stream handle. This is handled internaly.
-
    function Get_URI return String;
-   --  Create a uniq URI, must be used to register a transient web page
+   --  Create a unique URI, must be used to register a transient web page
 
    procedure Register
      (URI       : in String;
@@ -59,5 +53,17 @@ package AWS.Services.Transient_Pages is
    function Get (URI : in String) return AWS.Resources.Streams.Stream_Access;
    --  Returns the stream access for the URI or null if this URI has not been
    --  registered.
+
+private
+
+   procedure Close (Resource : in out Stream_Type);
+   --  We override this routine here as we do not want the server to release
+   --  the stream handle. This is handled internaly.
+
+   procedure Release
+     (Resource : in     Stream_Type;
+      File     : in out AWS.Resources.File_Type);
+   --  We override this routine here as we do not want the server to release
+   --  the stream handle. This is handled internaly.
 
 end AWS.Services.Transient_Pages;
