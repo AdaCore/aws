@@ -66,6 +66,7 @@ with AWS.Response;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Status;
+with AWS.URL;
 
 procedure Agent is
 
@@ -192,10 +193,10 @@ procedure Agent is
       URL    := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
    end Parse_Command_Line;
 
-   Data : Response.Data;
+   Data       : Response.Data;
+   URL_Object : AWS.URL.Object;
 
 begin
-
    if Ada.Command_Line.Argument_Count = 0 then
       Text_IO.Put_Line ("Usage: agent [options] [GET/PUT] <URL>");
       Text_IO.Put_Line ("       -f           force display of message body.");
@@ -219,6 +220,8 @@ begin
 
    Parse_Command_Line;
 
+   URL_Object := AWS.URL.Parse (To_String (URL));
+
    Client.Create
      (Connection  => Connect,
       Host        => To_String (URL),
@@ -239,7 +242,6 @@ begin
       Mode       => Proxy_Auth);
 
    loop
-
       if Method = Status.GET then
 
          if Keep_Alive then
@@ -254,6 +256,7 @@ begin
 
       else
          --  ??? PUT just send a simple piece of Data.
+         --  ??? would also be nice to handle POST request
          Client.Put (Connection => Connect,
                      Result     => Data,
                      Data       => "Un essai");
@@ -285,14 +288,24 @@ begin
          end if;
 
       else
-         Text_IO.Put_Line
-           (Messages.Content_Type (Response.Content_Type (Data)));
+         if not AWS.URL.Security (URL_Object) then
+            --  We can't output headers for an HTTPS request as this is not
+            --  yet decoded.
+            --  ??? would be nice to decode HTTPS stream
+            Text_IO.Put_Line
+              (Messages.Content_Type (Response.Content_Type (Data)));
 
-         Text_IO.Put_Line
-           (Messages.Content_Length (Response.Content_Length (Data)));
+            Text_IO.Put_Line
+              (Messages.Content_Length (Response.Content_Length (Data)));
+
+         else
+            --  For HTTPS request file output, this is the raw crypted
+            --  stream.
+            File := True;
+         end if;
 
          if Force or else File then
-            --  this is not a text/html body, but output it anyway
+            --  This is not a text/html body, but output it anyway
 
             declare
                use Streams;
