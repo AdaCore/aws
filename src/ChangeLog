@@ -1,6 +1,21 @@
 2004-10-26  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
+	(I_Kind): Removed.
+	(Parameters_Data): Removed.
+	(Include_Parameters): Change definition, this is cleaner.
+	(Flatten_Parameters): Translate variable here, this is cleaner and
+	 it is possible to handle attributes.
+	(I_Translate): Inherit attribute only if the tag has no attribute
+	 already definied. Handles include parameters with attribute.
+
+	* templates_parser-filter.adb:
+	(Value): Simplify code, the new include parameters set is now already
+	 translated.
+
+2004-10-26  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
 	(Max_Include_Parameters): Moved to main body as it is shared by
          two different sub-packages.
         (I_Kind): New type.
