@@ -42,6 +42,14 @@ package AWS.Resources is
 
    type File_Type is limited private;
 
+   subtype Content_Length_Type is Stream_Element_Offset;
+
+   Undefined_Length : constant Content_Length_Type;
+   --  Undefined length could be used when we do not know the message stream
+   --  length at the start of transfer. The end of message could be determined
+   --  by the chunked transfer-encoding in the HTTP/1.1, or by the closing
+   --  connection in the HTTP/1.0.
+
    procedure Open
      (File :    out File_Type;
       Name : in     String;
@@ -73,6 +81,11 @@ package AWS.Resources is
    --  Returns True if last line returned by Get_Line was terminated with a LF
    --  or CR+LF on DOS based systems.
 
+   function Size (Resource : in File_Type) return Content_Length_Type;
+   --  Returns the size (in bytes) of the resource. If the size of the
+   --  resource is not defined, the routine Size returns Undefined_Length
+   --  value.
+
    function Is_Regular_File
      (Name : in String)
       return Boolean;
@@ -80,8 +93,8 @@ package AWS.Resources is
    --  for in memory file then for disk file.
 
    function File_Size
-     (Name : in String)
-      return Ada.Streams.Stream_Element_Offset;
+     (Name   : in String)
+      return Stream_Element_Offset;
    --  Returns Filename's size in bytes. Checks first for in memory file
    --  then for disk file.
 
@@ -92,6 +105,8 @@ package AWS.Resources is
    --  for in memory file then for disk file.
 
 private
+
+   Undefined_Length : constant Content_Length_Type := -1;
 
    type File_Tagged is abstract tagged limited record
       LFT : Boolean; -- LF terminated state
@@ -112,6 +127,11 @@ private
      (Resource : in out File_Tagged;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
+      is abstract;
+
+   function Size
+     (Resource : in File_Tagged)
+      return   Stream_Element_Offset
       is abstract;
 
    procedure Close (File : in out File_Tagged)
