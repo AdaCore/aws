@@ -89,6 +89,8 @@ ASIS_TESTS   = $(RT_SOAP_ASIS)
 ASIS2_TESTS  = $(RT_SOAP_ASIS_PARSE)
 endif
 
+OTH_TESTS   =
+
 ALL_EXEC = $(addsuffix $(EXEEXT), $(ALONE_TESTS) $(OTH_TESTS) generate test_all)
 
 TOGETHER = $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS))
@@ -137,7 +139,7 @@ init:
 	rm -f *.res
 
 $(ALONE_TESTS): force
-	echo -n Building $@
+	echo -n "Building " $@
 	gnatmake -m -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 ifdef GDB_REGTESTS
@@ -148,35 +150,35 @@ endif
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(WSDL_TESTS): force
-	echo -n Building $@
+	echo Preparing $@
 	../tools/wsdl2aws -q -f -doc $@.wsdl
 
 $(WSDL_ATESTS): force
-	echo -n Building $@
+	echo Preparing $@
 	../tools/wsdl2aws -q -f -a -doc $@.wsdl
 
 $(WSDL2AWS): force
-	echo -n Building $@
+	echo -n "Building " $@
 	echo ",  run it"
 	../tools/wsdl2aws -q -f -doc $@.wsdl | grep Message > $@.res
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(ASIS_TESTS): force
-	echo -n Building $@
+	echo Preparing $@
 	../tools/ada2wsdl -q -f $(INCLUDES) -I../include -I../soap -I../src \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
 	../tools/wsdl2aws -q -f -cb -types $@ $@.wsdl
 
 $(ASIS2_TESTS): force
 	rm -f $@.res
-	echo -n Building $@
+	echo "Running  " $@
 	../tools/ada2wsdl -v -f $@.ads -o $@.wsdl > tmp 2>&1
 	tail +3 tmp > $@.res
 	rm tmp
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 tres: force
-	echo -n Building tres
+	echo -n "Building " tres
 	echo "line 1, file 1" > file1.html
 	echo "line 2, file 1" >> file1.html
 	echo "line 1, file 2" > file2.html
@@ -216,7 +218,7 @@ tres: force
 # memory.
 
 check_mem: force
-	echo -n Building check_mem
+	echo -n "Building " check_mem
 	sed 's/4,/1000,/;s/8,/1000,/' ../src/aws-containers-tables.ads \
 		> aws-containers-tables.ads
 	gnatmake -g check_mem $(GARGS) -largs $(LARGS) -bargs -E -largs -lgmem
