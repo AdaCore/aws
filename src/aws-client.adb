@@ -36,6 +36,7 @@ with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
 
+with GNAT.Table;
 with Sockets;
 
 with AWS.Messages;
@@ -535,11 +536,11 @@ package body AWS.Client is
          --  it is closed by the server. At this time an exception will be
          --  raised as we are trying to read the socket.
 
-         while True loop
+         loop
             declare
-               One_Line : constant String := Sockets.Get_Line (Sock);
+               Part : constant String := Sockets.Get (Sock);
             begin
-               Append (Results, One_Line);
+               Append (Results, Part);
             end;
          end loop;
 
@@ -635,8 +636,60 @@ package body AWS.Client is
                  (To_String (CT), Read_Message, Status);
 
             else
-               Result := Response.Build
-                 (To_String (CT), Sockets.Receive (Sock), Status);
+               declare
+
+                  package Stream_Element_Table is new GNAT.Table
+                    (Streams.Stream_Element, Positive, 1, 30_000, 10_000);
+
+                  procedure Add (B : in Streams.Stream_Element_Array);
+                  --  Add B to Data
+
+                  procedure Read_Until_Close;
+                  --  Read data on socket, stop when the socket is closed.
+
+                  ---------
+                  -- Add --
+                  ---------
+
+                  procedure Add (B : in Streams.Stream_Element_Array) is
+                  begin
+                     for K in B'Range loop
+                        Stream_Element_Table.Increment_Last;
+                        Stream_Element_Table.Table
+                          (Stream_Element_Table.Last) := B (K);
+                        --  ??? in GNAT 3.15 we will use:
+                        --  Stream_Element_Table.Append (B (K));
+                     end loop;
+                  end Add;
+
+                  ----------------------
+                  -- Read_Until_Close --
+                  ----------------------
+
+                  procedure Read_Until_Close is
+                  begin
+                     loop
+                        declare
+                           Data : constant Streams.Stream_Element_Array
+                             := Sockets.Receive (Sock);
+                        begin
+                           Add (Data);
+                        end;
+                     end loop;
+                  exception
+                     when others =>
+                        null;
+                  end Read_Until_Close;
+
+               begin
+                  Read_Until_Close;
+
+                  Result := Response.Build
+                    (To_String (CT),
+                     Streams.Stream_Element_Array
+                       (Stream_Element_Table.Table.all),
+                     Status);
+               end;
             end if;
 
          else
