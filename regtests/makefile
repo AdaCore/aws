@@ -43,14 +43,14 @@ RT_SOAP = soap1 soap2 soap3 workorder testxml test_speed test_soap \
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tres2 upload unexph auth moved turl2 turl3 test_templates_if \
 	head hval turl4 ctab sock1 file redirect hostip upload2 upload3 \
-	tlog unexph2 dirop sp $(RT_STD_SEC)
+	tlog unexph2 sp $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
 STD_TESTS = $(RT_STD)
-OTH_TESTS= tres
+OTH_TESTS= tres dirop
 else
 STD_TESTS = $(RT_STD) $(RT_SOAP)
-OTH_TESTS= tres check_mem
+OTH_TESTS= tres dirop check_mem
 endif
 
 ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
@@ -74,6 +74,14 @@ $(STD_TESTS): force
 	echo ",  run it"
 	rm -f $@.res
 	./$@ > $@.res
+	-diff -c -w $@.out $@.res >> alldifs
+
+dirop: force
+	echo -n Building dirop
+	gnatmake -g dirop $(GARGS) -largs $(LARGS) -bargs -E
+	echo ",  run it"
+	rm -f $@.res
+	./$@ | grep -v "CVS/" > $@.res
 	-diff -c -w $@.out $@.res >> alldifs
 
 tres: force
