@@ -470,7 +470,7 @@ package body AWS.LDAP.Client is
    function Is_Open (Dir : in Directory) return Boolean is
       use type Thin.LDAP_Type;
    begin
-      return not (Dir = Null_Directory);
+      return Dir /= Null_Directory;
    end Is_Open;
 
    -------
