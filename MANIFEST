@@ -694,12 +694,7 @@ templates_parser/docs/templates_parser.info*
 templates_parser/docs/templates_parser.texi
 templates_parser/docs/user.tmplt
 templates_parser/makefile
-templates_parser/regtests/3l1.tmplt
-templates_parser/regtests/3l2.tmplt
-templates_parser/regtests/3level.tmplt
-templates_parser/regtests/a.tmplt
 templates_parser/regtests/aws_status.thtml
-templates_parser/regtests/b.tmplt
 templates_parser/regtests/base.tmplt
 templates_parser/regtests/blocks1.out
 templates_parser/regtests/blocks1.tmplt
@@ -718,7 +713,6 @@ templates_parser/regtests/blocks6.tmplt
 templates_parser/regtests/blocks6_pt.out
 templates_parser/regtests/blocks7.out
 templates_parser/regtests/blocks7.tmplt
-templates_parser/regtests/c.tmplt
 templates_parser/regtests/context.adb
 templates_parser/regtests/context.out
 templates_parser/regtests/context.tmplt
@@ -728,13 +722,10 @@ templates_parser/regtests/dir/subdir/footer.tmplt
 templates_parser/regtests/empty.adb
 templates_parser/regtests/error.tmplt
 templates_parser/regtests/filter.adb
-templates_parser/regtests/foot.tmplt
 templates_parser/regtests/ftp.out
 templates_parser/regtests/ftp.tmplt
 templates_parser/regtests/ftp2.tmplt
 templates_parser/regtests/gtag.tmplt
-templates_parser/regtests/head.tmplt
-templates_parser/regtests/incl.tmplt
 templates_parser/regtests/include.adb
 templates_parser/regtests/include.out
 templates_parser/regtests/include.tmplt
@@ -749,7 +740,6 @@ templates_parser/regtests/include_1.html
 templates_parser/regtests/include_2.html
 templates_parser/regtests/include_simple.incl
 templates_parser/regtests/lp.tmplt
-templates_parser/regtests/main.tmplt
 templates_parser/regtests/makefile
 templates_parser/regtests/not_initialized.adb
 templates_parser/regtests/not_initialized.out
@@ -784,6 +774,7 @@ templates_parser/regtests/test_templates_if.out
 templates_parser/regtests/testcache.adb
 templates_parser/regtests/testcat.adb
 templates_parser/regtests/testcat.out
+templates_parser/regtests/testcat.tmplt
 templates_parser/regtests/testme.adb
 templates_parser/regtests/testme.out
 templates_parser/regtests/testme.tmplt
