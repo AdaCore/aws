@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                     Dmitriy Anisimkov - Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -59,6 +59,15 @@ package AWS.Client is
                  Proxy      : in String := No_Data;
                  Proxy_User : in String := No_Data;
                  Proxy_Pwd  : in String := No_Data) return Response.Data;
-   --  send to the server a PUT request to URL with Data
+   --  send to the server URL a PUT request with Data
+
+   function Post (URL        : in String;
+                  Data       : in String;
+                  User       : in String := No_Data;
+                  Pwd        : in String := No_Data;
+                  Proxy      : in String := No_Data;
+                  Proxy_User : in String := No_Data;
+                  Proxy_Pwd  : in String := No_Data) return Response.Data;
+   --  send to the server URL a POST request with Data
 
 end AWS.Client;
