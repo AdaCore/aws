@@ -1,3 +1,15 @@
+2001-03-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Geet_Peername): Fix C_Getpeername call prototype to match latest
+	 version of Adasocket.
+
+	* aws-server-get_status.adb:
+	(Slot_Table): do not ouput Socket value if it is not open.
+
+	* aws-config.adb:
+	(Regexp): fix typo (patch from Sune Falck).
+
 2001-03-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:

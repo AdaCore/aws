@@ -1,56 +1,36 @@
 
 			    A W S - Ada Web Sever
-
-March 7th, 2001.
+                               0 . 9 . 10
+				       
+March 10th, 2001.
 
 
 Dmitriy Anisimkov and I are happy to announce the availability of the 
-AWS 0.9.9 release. This version is close to the 1.0 version. We plan to
+AWS 0.9.10 release. This version is close to the 1.0 version. We plan to
 change slightly the API at this stage but it should be mostly stable.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
-an HTTP component to embedded in any application. AWS is fully developed in
+an HTTP component to embedded in any applications. AWS is fully developed in
 Ada with GNAT.
 
-This new version has a lot of changes:
+This is a maintenance release:
 
-  - Many bugs have been fixed (as always!)
+  - hotplug_cb.ads was missing from the distribution. Reported by Sune Falck.
 
-  - Add first version of a configuration file (aws.ini).
+  - can be used with latest version of Adasocket 0.1.12 and 0.1.13. With this
+    release you should use the updated Win32 port (see link below). Reported
+    by Sune Falck.
 
-  - Add logging facility (log format is very close to the Apache one). The log
-    file can be configured to change daily or monthly.
+  - In the administrative page, if the socket is not opened a dummy value was
+    reported, not the character minus is displayed. Reported by Sune Falck.
 
-  - AWS support select HTML tags with multiple values (i.e. a parameter name
-    can be given a list of values)
-
-  - Add an API to use AWS as a communication layer between programs.
-
-  - Add support for Hotplug module (dynamically bound module into a running
-    Web  server). See documentation. This uses the communication API. Support
-    for Hotplug modules is at a beta stage.
-
-  - POSIX implementation of the OS_Lib.GMT_Clock function now returns GMT
-    time. The GMT_Clock was correct only with the GNAT and Win32
-    implementation of OS_Lib.
-
-  - Client method HEAD is implemented.
-
-  - AWS.Status is lightler because all routines to set the status have been
-    moved to another unit.
-
-  - AWS.Client now support Keep-Alive connection.
-
-  - We have simplified the makefile and build process, but this needs
-    certainly some more improvements.
-
-  - And again, improve the documentation.
+  - some minor bugs have been fixed.
 
 At this stage we feel that AWS is ready to build small to medium Web
 server. AWS has been reported to work under Windows NT, Linux and FreeBSD 4.1.
 
-With this new version you'll need at least version 0.1.9 of the Socket binding
-from ENST. It has been tested and works fine with version 0.1.11.
+With this new version you'll need at least version 0.1.11 of the Socket binding
+from ENST. It has been tested and works fine with version 0.1.13 too.
 
 You can download AWS and the Sockets binding for Win32 directly from:
 http://perso.wanadoo.fr/pascal.obry/contrib.html
