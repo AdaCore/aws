@@ -631,10 +631,18 @@ is
             end Check_EOF;
 
          begin
-            Streams.Stream_IO.Create
-              (File,
-               Streams.Stream_IO.Out_File,
-               To_String (Server_Filename));
+            begin
+               Streams.Stream_IO.Create
+                 (File,
+                  Streams.Stream_IO.Out_File,
+                  To_String (Server_Filename));
+            exception
+               when Text_IO.Name_Error =>
+                  --  We can't create the file, add a clear exception message
+                  Exceptions.Raise_Exception
+                    (Text_IO.Name_Error'Identity,
+                     "Cannot create file " & To_String (Server_Filename));
+            end;
 
             Read_File : loop
                Net.Buffered.Read (Sock, Data);
@@ -680,6 +688,15 @@ is
                Net.Buffered.Read (Sock, Data);
                Net.Buffered.Read (Sock, Data);
             end if;
+
+         exception
+            when Text_IO.Device_Error =>
+               --  We can't write to the file, there is probably no space left
+               --  on devide.
+               Exceptions.Raise_Exception
+                 (Text_IO.Device_Error'Identity,
+                  "No space left on device while writting "
+                    & To_String (Server_Filename));
          end Get_File_Data;
 
          ---------------------
