@@ -1,3 +1,9 @@
+2003-02-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.adb:
+	(Accept_Socket): Free SSL handle before reuse.
+	(Set_FD): Clear existent SSL handle before set socket handle.
+
 2003-02-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-headers.ads:
