@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -43,6 +43,7 @@ package body AWS.Messages is
 
    S100_Message : aliased constant String := "Continue";
    S101_Message : aliased constant String := "Switching Protocols";
+
    S200_Message : aliased constant String := "OK";
    S201_Message : aliased constant String := "Create";
    S202_Message : aliased constant String := "Accepted";
@@ -50,6 +51,7 @@ package body AWS.Messages is
    S204_Message : aliased constant String := "No Content";
    S205_Message : aliased constant String := "Reset Content";
    S206_Message : aliased constant String := "Partial Content";
+
    S300_Message : aliased constant String := "Multiple Choices";
    S301_Message : aliased constant String := "Moved Permanently";
    S302_Message : aliased constant String := "Found";
@@ -57,6 +59,7 @@ package body AWS.Messages is
    S304_Message : aliased constant String := "Not Modified";
    S305_Message : aliased constant String := "Use Proxy";
    S307_Message : aliased constant String := "Temporary Redirect";
+
    S400_Message : aliased constant String := "Bad Request";
    S401_Message : aliased constant String := "Unauthorized";
    S402_Message : aliased constant String := "Payment Required";
@@ -75,6 +78,7 @@ package body AWS.Messages is
    S415_Message : aliased constant String := "Unsupported Media Type";
    S416_Message : aliased constant String := "Requestd range not satisfiable";
    S417_Message : aliased constant String := "Expectation Failed";
+
    S500_Message : aliased constant String := "Internal Server Error";
    S501_Message : aliased constant String := "Not Implemented";
    S502_Message : aliased constant String := "Bad Gateway";

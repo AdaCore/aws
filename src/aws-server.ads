@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -408,17 +408,17 @@ private
 
    type HTTP is new Ada.Finalization.Limited_Controlled with record
       Self              : HTTP_Access := HTTP'Unchecked_Access;
-      --  Point to the record.
+      --  Point to the record
 
       Start_Time        : Ada.Calendar.Time;
-      --  Date and Time when server was started.
+      --  Date and Time when server was started
 
       Shutdown          : Boolean := True;
       --  True when server is shutdown. This will be set to False when server
       --  will be started.
 
       Sock              : Net.Std.Socket_Type;
-      --  This is the server socket for incoming connection.
+      --  This is the server socket for incoming connection
 
       Sock_Sem          : Socket_Semaphore;
       --  Semaphore used to serialize the accepts call on the server socket
@@ -429,25 +429,25 @@ private
       --  if the slots is still in used and closed it if possible.
 
       Properties        : CNF.Object := CNF.Get_Current;
-      --  All server properties controled by the configuration file.
+      --  All server properties controled by the configuration file
 
       Log               : AWS.Log.Object;
-      --  Logging support.
+      --  Logging support
 
       Error_Log         : aliased AWS.Log.Object;
-      --  Error loggin support.
+      --  Error loggin support
 
       Dispatcher        : Dispatchers.Handler_Class_Access;
-      --  Dispatcher for the user actions.
+      --  Dispatcher for the user actions
 
       Dispatcher_Sem    : Utils.RW_Semaphore (Writers => 1);
-      --  RW semaphore to be able to change dynamically the Dispatcher object.
+      --  RW semaphore to be able to change dynamically the Dispatcher object
 
       Filters           : Hotplug.Filter_Set;
-      --  Hotplug filters are recorded here.
+      --  Hotplug filters are recorded here
 
       Lines             : Line_Set_Access;
-      --  The tasks doing the job.
+      --  The tasks doing the job
 
       Slots             : Slots_Access;
       --  Information about each tasks above. This is a protected object to
