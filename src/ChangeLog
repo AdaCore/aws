@@ -1,3 +1,29 @@
+2002-03-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-dispatchers.adb:
+	(Free): New procedure.
+	(Adjust): Change to use reference counter as a pointer.
+	(Finalize): Change to use reference counter as a pointer. Free
+	 reference counter when set to 0.
+	(Initialize): Change to use reference counter as a pointer.
+	(Ref_Counter): Returns 0 if Ref_Counter is null and
+	 Ref_Counter.all otherwise.
+
+	* aws-dispatchers.ads:
+	(Handler): Ref_Counter is an access. Previous implementation was
+	 wrong. The reference counter must be shared by all objects.
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Data): Remove exception handler for Constraint_Error
+	 now that Adasockets have its own exception Socket_Error.
+
+	* aws-server.adb:
+	(Line): Remove exception handler for Constraint_Error now that
+	Adasockets have its own exception Socket_Error.
+
+	* aws.ads:
+	(Connection_Error): Removed.
+
 2002-03-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
