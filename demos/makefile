@@ -3,20 +3,18 @@
 
 .SILENT: all auth runme agent ws clean
 
-# You must change the path to the socket library.
-
+ifeq ($(MODE),ssl)
 # For SSL support, note that -lgdi32 is Win32 specific and should be removed
 # under others platforms.
 
-ifeq ($(MODE),ssl)
-GARGS = -I../src -I../ssl -I../include -I/usr/Ada.Libraries/sockets -i -gnatwu -g
+GARGS = -I../src -I../ssl -I../include -i -gnatwu -g
 BARGS = -E
 LARGS = -L../win32 -lssl -lcrypto -lRSAglue -lgdi32
 
 else
 # Without SSL support
 
-GARGS = -I../src -I../include -I/usr/Ada.Libraries/sockets -i -gnatwu -g
+GARGS = -I../src -I../include -i -gnatwu -g
 BARGS = -E
 LARGS =
 endif
