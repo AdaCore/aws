@@ -1,3 +1,16 @@
+2004-09-29  Pascal Obry  <pascal@obry.org>
+
+	* src.gpr:
+	Do not add win32 source dir here. We are now using a specific
+	 project for Win32.
+
+	* makefile:
+	Extensive changes to support build based on GNAT Project files.
+	The makefile based build has been removed.
+
+	* aws-net-ssl.adb:
+	(nosslaws): Renamed to aws_nossl for consistency with other libraries.
+
 2004-09-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:

@@ -1,3 +1,14 @@
+2004-09-29  Pascal Obry  <pascal@obry.org>
+
+	* src/check_config.c:
+	Rename -laws-win32 to -laws_win32. Projects files does not support
+	 libraries with minus so we now use the "aws_" prefix for all AWS
+	 libraries for consistency.
+
+	* makefile:
+	Extensive changes to support build based on GNAT Project files.
+	The makefile based build has been removed.
+
 2004-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:

@@ -1,3 +1,13 @@
+2004-09-29  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	Extensive changes to support build based on GNAT Project files.
+	The makefile based build has been removed.
+
+	* demos.gpr:
+	Add with for project "win32".
+	Minor reformatting.
+
 2004-09-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* agent.adb:
