@@ -39,6 +39,7 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with SOAP.Utils;
 
 with Stock_Quote_Service.Client;
 with Stock_Quote_Service.Server;
@@ -67,6 +68,8 @@ procedure Test_WSDL3 is
    function SOAP_CB is new
      Stock_Quote_Service.Server.Get_Last_Trade_Price_CB (Get_Last_Trade_Price);
 
+   function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
+
    --------
    -- CB --
    --------
@@ -75,7 +78,7 @@ procedure Test_WSDL3 is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "http://localhost/GetTradePrices" then
-         return SOAP_CB (Request);
+         return SOAP_Wrapper (Request);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;

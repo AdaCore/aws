@@ -39,6 +39,8 @@ with AWS.Response;
 with AWS.Server;
 with AWS.Status;
 
+with SOAP.Utils;
+
 with Hello_Demo.Server;
 
 procedure WSDL_Demo_Server is
@@ -53,6 +55,8 @@ procedure WSDL_Demo_Server is
 
    function SOAP_CB is new Hello_Demo.Server.sayHello_CB (sayHello);
 
+   function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
+
    --------
    -- CB --
    --------
@@ -61,7 +65,7 @@ procedure WSDL_Demo_Server is
       SOAPAction : constant String := Status.SOAPAction (Request);
    begin
       if SOAPAction = "sayHello" then
-         return SOAP_CB (Request);
+         return SOAP_Wrapper (Request);
       else
          return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
       end if;
