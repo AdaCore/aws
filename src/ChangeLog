@@ -1,5 +1,11 @@
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-log.adb:
+	Remove withed unit AWS.Default (not used anymore).
+
+	* aws-response.ads, aws-response.adb:
+	(Stream): Set Stream_Size to default value Undefined_Length.
+
 	* aws.ads:
 	(Version): Set to 1.3-rc2.
 
