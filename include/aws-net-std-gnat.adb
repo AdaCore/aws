@@ -103,10 +103,21 @@ package body AWS.Net.Std is
       Port   : in Natural;
       Host   : in String := "")
    is
-      Sock_Addr : constant Sockets.Sock_Addr_Type
-        := (Sockets.Family_Inet,
-            Sockets.Inet_Addr (Host), Sockets.Port_Type (Port));
+      Sock_Addr : Sockets.Sock_Addr_Type;
    begin
+      if Host = "" then
+         --  Not Host specified, we use localhost
+         Sock_Addr
+           := (Sockets.Family_Inet,
+               Sockets.Addresses (Sockets.Get_Host_By_Name ("localhost"), 1),
+               Sockets.Port_Type (Port));
+      else
+         Sock_Addr
+           := (Sockets.Family_Inet,
+               Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1),
+               Sockets.Port_Type (Port));
+      end if;
+
       Sockets.Bind_Socket (SFD (Socket.S.all), Sock_Addr);
    exception
       when E : others =>
