@@ -43,6 +43,19 @@ package body AWS.Resources.Streams is
       Resource := File_Type (Stream);
    end Create;
 
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release
+     (Resource : in     Stream_Type;
+      File     : in out File_Type)
+   is
+      pragma Unreferenced (Resource);
+   begin
+      Free (File);
+   end Release;
+
    ----------
    -- Size --
    ----------

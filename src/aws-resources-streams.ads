@@ -55,6 +55,11 @@ package AWS.Resources.Streams is
    --  stream implementation knows about the size (in bytes) of the stream
    --  this routine should be redefined.
 
+   procedure Release
+     (Resource : in     Stream_Type;
+      File     : in out File_Type);
+   --  Release File handle
+
    procedure Create
      (Resource :    out File_Type;
       Stream   : in     Stream_Access);
