@@ -1,5 +1,11 @@
 2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-generator.adb:
+	(Put_Header): Fix indent for routines without paratemeters but with
+	 return value.
+
+2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* soap-wsdl.adb:
 	(To_Type): Remove "use Exceptions", not used.
 
