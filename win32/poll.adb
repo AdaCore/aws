@@ -81,17 +81,17 @@ is
       writefds  : in System.Address;
       exceptfds : in System.Address;
       timeout   : in System.Address)
-      return C.Int;
+      return C.int;
    pragma Import (Stdcall, C_Select, "select");
 
    Poll_Ptr : constant Conversion.Object_Pointer
      := Conversion.To_Pointer (Fds);
 
-   timeout_v : aliased Timeval;
+   Timeout_V : aliased Timeval;
 
-   rfds : aliased FD_Set_Type;
-   wfds : aliased FD_Set_Type;
-   efds : aliased FD_Set_Type;
+   Rfds : aliased FD_Set_Type;
+   Wfds : aliased FD_Set_Type;
+   Efds : aliased FD_Set_Type;
 
    FD_Events : Thin.Events_Type;
    Rs        : C.int;
@@ -112,26 +112,26 @@ begin
       return Failure;
    end if;
 
-   timeout_v.tv_sec  := C.long (Timeout) / 1000;
-   timeout_v.tv_usec := C.long (Timeout) mod 1000;
+   Timeout_V.tv_sec  := C.long (Timeout) / 1000;
+   Timeout_V.tv_usec := C.long (Timeout) mod 1000;
 
    for J in 1 .. Nfds loop
       FD_Events := Poll_Ptr (J).Events;
 
       if (FD_Events and (Thin.Pollin or Thin.Pollpri)) /= 0 then
-         FD_SET (Poll_Ptr (J).FD, rfds);
+         FD_SET (Poll_Ptr (J).FD, Rfds);
       elsif (FD_Events and Thin.Pollout) /= 0 then
-         FD_SET (Poll_Ptr (J).FD, wfds);
+         FD_SET (Poll_Ptr (J).FD, Wfds);
       end if;
 
-      FD_SET (Poll_Ptr (J).FD, efds);
+      FD_SET (Poll_Ptr (J).FD, Efds);
    end loop;
 
    if Timeout < 0 then
       Rs := C_Select (0, Rfds'Address, Wfds'Address, Efds'Address,
                       System.Null_Address);
    else
-      Rs := C_Select (0, rfds'Address, wfds'Address, efds'Address,
+      Rs := C_Select (0, Rfds'Address, Wfds'Address, Efds'Address,
                       Timeout_V'Address);
    end if;
 
@@ -142,17 +142,17 @@ begin
          Good   := False;
          Poll_Ptr (J).REvents := 0;
 
-         if FD_ISSET (Poll_Ptr (J).FD, rfds'Address) /= 0 then
+         if FD_ISSET (Poll_Ptr (J).FD, Rfds'Address) /= 0 then
             Good := True;
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.Pollin;
          end if;
 
-         if FD_ISSET (Poll_Ptr (J).FD, wfds'Address) /= 0 then
+         if FD_ISSET (Poll_Ptr (J).FD, Wfds'Address) /= 0 then
             Good := True;
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.Pollout;
          end if;
 
-         if FD_ISSET (Poll_Ptr (J).FD, efds'Address) /= 0 then
+         if FD_ISSET (Poll_Ptr (J).FD, Efds'Address) /= 0 then
             Good := True;
             Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.Pollerr;
          end if;
