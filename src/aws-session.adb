@@ -173,11 +173,18 @@ package body AWS.Session is
 
       Next_Run : Calendar.Time := Calendar.Clock + Session_Check_Interval;
    begin
-      loop
-         delay until Next_Run;
+      Clean_Dead_Sessions: loop
+         select
+            accept Stop;
+            exit Clean_Dead_Sessions;
+         or
+            delay until Next_Run;
+         end select;
+
          Database.Clean;
          Next_Run := Next_Run + Session_Check_Interval;
-      end loop;
+      end loop Clean_Dead_Sessions;
+
    exception
       when E : others =>
          Ada.Text_IO.Put_Line
@@ -212,13 +219,14 @@ package body AWS.Session is
       -- Stop --
       ----------
 
-      procedure Stop is
+      procedure Stop (Need_Release : out Boolean)  is
       begin
          Server_Count := Server_Count - 1;
 
          if Server_Count = 0 then
-            abort Cleaner_Task.all;
-            Cleaner_Task := null;
+            Need_Release := True;
+         else
+            Need_Release := False;
          end if;
       end Stop;
 
