@@ -1,0 +1,5 @@
+Ok,  URL_Exception for : javascript:retour()
+Ok,  URL_Exception for : javascript:retour('kkk')
+Ok,  URL_Exception for : kkk:retour('uuu')
+OK,  no exception raised : ()
+OK,  no exception raised : '
