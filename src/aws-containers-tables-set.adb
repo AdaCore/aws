@@ -196,4 +196,99 @@ package body AWS.Containers.Tables.Set is
       Data_Table.Init (Table.Data);
    end Reset;
 
+   ------------
+   -- Update --
+   ------------
+
+   procedure Update
+     (Table : in out Table_Type;
+      Name  : in     String;
+      Value : in     String;
+      N     : in     Positive := 1)
+   is
+
+      L_Key   : constant String
+        :=  Normalize_Name (Name, not Table.Case_Sensitive);
+
+      Found   : Boolean;
+
+      procedure Update_Value
+        (Key    : in     String;
+         Values : in out Name_Index_Table);
+      --  Append value to the current key's values
+
+      ------------------
+      -- Update_Value --
+      ------------------
+
+      procedure Update_Value
+        (Key    : in     String;
+         Values : in out Name_Index_Table)
+      is
+         pragma Warnings (Off, Key);
+      begin
+         if Key_Positive (N) <= Name_Indexes.Last (Values) then
+
+            declare
+               Index : Positive := Values.Table (Key_Positive (N));
+            begin
+               Free (Table.Data.Table (Index));
+               Table.Data.Table (Index) :=
+                  new Element'
+                       (Name_Length  => Name'Length,
+                        Value_Length => Value'Length,
+                        Name         => Name,
+                        Value        => Value);
+            end;
+
+         elsif Key_Positive (N) = Name_Indexes.Last (Values) + 1 then
+            Data_Table.Append
+              (Table.Data,
+               new Element'
+                 (Name_Length  => Name'Length,
+                  Value_Length => Value'Length,
+                  Name         => Name,
+                  Value        => Value));
+
+            Name_Indexes.Append (Values, Data_Table.Last (Table.Data));
+         else
+            raise Constraint_Error;
+         end if;
+      end Update_Value;
+
+      procedure Update is
+         new Index_Table.Update_Value_Or_Status_G (Update_Value);
+
+   begin
+
+      Update
+        (Table => Index_Table.Table_Type (Table.Index.all),
+         Key   => L_Key,
+         Found => Found);
+
+      if not Found then
+
+         if N /= 1 then
+            raise Constraint_Error;
+         end if;
+
+         declare
+            Values : Name_Index_Table;
+         begin
+            Name_Indexes.Init (Values);
+
+            Data_Table.Append
+              (Table.Data,
+               new Element'
+                 (Name_Length  => Name'Length,
+                  Value_Length => Value'Length,
+                  Name         => Name,
+                  Value        => Value));
+
+            Name_Indexes.Append (Values, Data_Table.Last (Table.Data));
+            Insert (Table.Index.all, L_Key, Values);
+         end;
+      end if;
+   end Update;
+
 end AWS.Containers.Tables.Set;

@@ -37,6 +37,18 @@ package AWS.Containers.Tables.Set is
       Name, Value : in     String);
    --  Add a new Key/Value pair into the parameter set.
 
+   procedure Update
+     (Table : in out Table_Type;
+      Name  : in     String;
+      Value : in     String;
+      N     : in     Positive := 1);
+   --  Update the N-th Value with the given Name into the Table.
+   --  The container could already have more than one value associated with
+   --  this name. If there is M values with this Name, then if:
+   --     N <= M      => update the value
+   --     N  = M + 1  => the pair name=value is appended to the table
+   --     N  > M + 1  => Constraint_Error raised
+
    procedure Case_Sensitive
      (Table : in out Table_Type;
       Mode  : in     Boolean);
