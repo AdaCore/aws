@@ -52,26 +52,40 @@ package body AWS.Net.SSL is
 
    subtype NSST is Net.Std.Socket_Type;
 
-   Private_Key : TSSL.RSA     := Null_Ptr;
-   Context     : TSSL.SSL_Ctx := Null_Ptr;
-
-   SSL_Initialized : Boolean := False;
-   pragma Atomic (SSL_Initialized);
-
    procedure Error_If (Error  : in Boolean);
    pragma Inline (Error_If);
    --  Raises Socket_Error if Error is true. Attach the SSL error message
 
-   procedure Set_FD (Socket : in out Socket_Type);
-   --  Bind the SSL socket handle with the socket
-
    procedure Set_Read_Ahead (Socket : in Socket_Type; Value : in Boolean);
+   --  ???
 
    function Error_Str (Code : in TSSL.Error_Code) return String;
-
-   procedure Finalize;
+   --  Returns the SSL error message for error Code
 
    procedure Init_Random;
+   --  Initialize the SSL library with a random number
+
+   ------------------------------
+   -- Thread safe SSL handling --
+   ------------------------------
+
+   protected TS_SSL is
+
+      procedure Set_FD (Socket : in out Socket_Type);
+      --  Bind the SSL socket handle with the socket
+
+      procedure Initialize
+        (Certificate_Filename : in String;
+         Security_Mode        : in Method := SSLv23;
+         Key_Filename         : in String := "");
+
+      procedure Finalize;
+
+   private
+      Initialized : Boolean      := False;
+      Private_Key : TSSL.RSA     := Null_Ptr;
+      Context     : TSSL.SSL_Ctx := Null_Ptr;
+   end TS_SSL;
 
    -------------------
    -- Accept_Socket --
@@ -85,7 +99,7 @@ package body AWS.Net.SSL is
          Net.Std.Accept_Socket
            (NSST (Socket.S.all), NSST (Socket_Type (New_Socket).S.all));
 
-         Set_FD (Socket_Type (New_Socket));
+         TS_SSL.Set_FD (Socket_Type (New_Socket));
 
          TSSL.SSL_Set_Accept_State (Socket_Type (New_Socket).SSL);
 
@@ -162,16 +176,6 @@ package body AWS.Net.SSL is
       return C.To_Ada (Buffer);
    end Error_Str;
 
-   --------------
-   -- Finalise --
-   --------------
-
-   procedure Finalize is
-   begin
-      TSSL.SSL_Ctx_Free (Context);
-      Context := Null_Ptr;
-   end Finalize;
-
    ----------
    -- Free --
    ----------
@@ -184,6 +188,7 @@ package body AWS.Net.SSL is
       end if;
 
       Net.Std.Free (NSST (Socket.S.all));
+      Release_Cache (Socket);
    end Free;
 
    ------------
@@ -229,146 +234,9 @@ package body AWS.Net.SSL is
    procedure Initialize
      (Certificate_Filename : in String;
       Security_Mode        : in Method := SSLv23;
-      Key_Filename         : in String := "")
-   is
-
-      type Meth_Func is access function return TSSL.SSL_Method;
-      pragma Convention (C, Meth_Func);
-
-      procedure Set_Quiet_Shutdown (Value : in Boolean := True);
-
-      procedure Set_Sess_Cache_Size (Value : in Natural);
-
-      procedure Set_Certificate
-        (Cert_Filename : in String;
-         Key_Filename  : in String := "");
-
-      Methods : constant array (Method) of Meth_Func
-        := (SSLv2          => TSSL.SSLv2_Method'Access,
-            SSLv2_Server   => TSSL.SSLv2_Server_Method'Access,
-            SSLv2_Client   => TSSL.SSLv2_Client_Method'Access,
-            SSLv23         => TSSL.SSLv23_Method'Access,
-            SSLv23_Server  => TSSL.SSLv23_Server_Method'Access,
-            SSLv23_Client  => TSSL.SSLv23_Client_Method'Access,
-            Tlsv1          => TSSL.Tlsv1_Method'Access,
-            Tlsv1_Server   => TSSL.Tlsv1_Server_Method'Access,
-            Tlsv1_Client   => TSSL.Tlsv1_Client_Method'Access,
-            SSLv3          => TSSL.SSLv3_Method'Access,
-            SSLv3_Server   => TSSL.SSLv3_Server_Method'Access,
-            SSLv3_Client   => TSSL.SSLv3_Client_Method'Access);
-
-      ---------------------
-      -- Set_Certificate --
-      ---------------------
-
-      procedure Set_Certificate
-        (Cert_Filename : in String;
-         Key_Filename  : in String := "")
-      is
-
-         function Key_File_Name return String;
-         --  Returns the key file (Key_Filename) if it is defined and the
-         --  certificate filename (Cert_Filename) otherwise.
-
-         -------------------
-         -- Key_File_Name --
-         -------------------
-
-         function Key_File_Name return String is
-         begin
-            if Key_Filename = "" then
-               return Cert_Filename;
-            else
-               return Key_Filename;
-            end if;
-         end Key_File_Name;
-
-         use Interfaces.C;
-
-      begin
-         Error_If
-           (TSSL.SSL_Ctx_Use_Privatekey_File
-              (Ctx    => Context,
-               File   => To_C (Key_File_Name),
-               C_Type => TSSL.SSL_Filetype_Pem) = -1);
-
-         Error_If
-           (TSSL.SSL_Ctx_Use_Certificate_File
-              (Ctx    => Context,
-               File   => To_C (Cert_Filename),
-               C_Type => TSSL.SSL_Filetype_Pem) = -1);
-
-         Error_If
-           (TSSL.SSL_Ctx_Check_Private_Key (Ctx => Context) = -1);
-
-         if TSSL.SSL_Ctx_Ctrl
-           (Ctx  => Context,
-            Cmd  => TSSL.SSL_Ctrl_Need_Tmp_Rsa,
-            Larg => 0,
-            Parg => Null_Ptr) /= 0
-         then
-            Error_If
-              (TSSL.SSL_Ctx_Ctrl
-                 (Ctx  => Context,
-                  Cmd  => TSSL.SSL_Ctrl_Set_Tmp_Rsa,
-                  Larg => 0,
-                  Parg => Private_Key) = -1);
-         end if;
-      end Set_Certificate;
-
-      ------------------------
-      -- Set_Quiet_Shutdown --
-      ------------------------
-
-      procedure Set_Quiet_Shutdown (Value : in Boolean := True) is
-      begin
-         TSSL.SSL_Ctx_Set_Quiet_Shutdown
-           (Ctx  => Context,
-            Mode => Boolean'Pos (Value));
-      end Set_Quiet_Shutdown;
-
-      -------------------------
-      -- Set_Sess_Cache_Size --
-      -------------------------
-
-      procedure Set_Sess_Cache_Size (Value : in Natural) is
-      begin
-         Error_If
-           (TSSL.SSL_Ctx_Ctrl
-              (Ctx  => Context,
-               Cmd  => TSSL.SSL_Ctrl_Set_Sess_Cache_Size,
-               Larg => Interfaces.C.int (Value),
-               Parg => Null_Ptr) = -1);
-      end Set_Sess_Cache_Size;
-
+      Key_Filename         : in String := "") is
    begin
-      if not SSL_Initialized then
-
-         if Context /= Null_Ptr then
-            Finalize;
-         end if;
-
-         --  Initialize context
-
-         Context := TSSL.SSL_Ctx_New (Methods (Security_Mode).all);
-         Error_If (Context = Null_Ptr);
-
-         --  Initialize private key
-
-         Private_Key :=
-           TSSL.Rsa_Generate_Key (Bits     => 512,
-                                  E        => TSSL.Rsa_F4,
-                                  Callback => null,
-                                  Cb_Arg   => Null_Ptr);
-         Error_If (Private_Key = Null_Ptr);
-
-         Set_Certificate (Certificate_Filename, Key_Filename);
-
-         Set_Quiet_Shutdown;
-         Set_Sess_Cache_Size (16);
-
-         SSL_Initialized := True;
-      end if;
+      TS_SSL.Initialize (Certificate_Filename, Security_Mode, Key_Filename);
    end Initialize;
 
    ------------
@@ -422,23 +290,6 @@ package body AWS.Net.SSL is
       Error_If (TSSL.SSL_Write (Socket.SSL, Data'Address, Data'Length) = -1);
    end Send;
 
-   ------------
-   -- Set_FD --
-   ------------
-
-   procedure Set_FD (Socket : in out Socket_Type) is
-   begin
-      if Socket.SSL = Null_Ptr then
-         Socket.SSL := TSSL.SSL_New (Context);
-         Error_If (Socket.SSL = Null_Ptr);
-      end if;
-
-      Error_If
-        (TSSL.SSL_Set_Fd
-           (Socket.SSL,
-            Interfaces.C.int (Get_FD (Socket))) = -1);
-   end Set_FD;
-
    --------------------
    -- Set_Read_Ahead --
    --------------------
@@ -469,12 +320,196 @@ package body AWS.Net.SSL is
    begin
       S    := Net.Std.Socket;
       Sock := new Socket_Type;
+
       Socket_Type (Sock.all).S := S;
 
-      Set_FD (Socket_Type (Sock.all));
+      TS_SSL.Set_FD (Socket_Type (Sock.all));
 
       return Sock;
    end Socket;
+
+   ------------
+   -- TS_SSL --
+   ------------
+
+   protected body TS_SSL is
+
+      --------------
+      -- Finalize --
+      --------------
+
+      procedure Finalize is
+      begin
+         TSSL.SSL_Ctx_Free (Context);
+         Context := Null_Ptr;
+      end Finalize;
+
+      ----------------
+      -- Initialize --
+      ----------------
+
+      procedure Initialize
+        (Certificate_Filename : in String;
+         Security_Mode        : in Method := SSLv23;
+         Key_Filename         : in String := "")
+      is
+
+         type Meth_Func is access function return TSSL.SSL_Method;
+         pragma Convention (C, Meth_Func);
+
+         procedure Set_Quiet_Shutdown (Value : in Boolean := True);
+
+         procedure Set_Sess_Cache_Size (Value : in Natural);
+
+         procedure Set_Certificate
+           (Cert_Filename : in String;
+            Key_Filename  : in String := "");
+
+         Methods : constant array (Method) of Meth_Func
+           := (SSLv2          => TSSL.SSLv2_Method'Access,
+               SSLv2_Server   => TSSL.SSLv2_Server_Method'Access,
+               SSLv2_Client   => TSSL.SSLv2_Client_Method'Access,
+               SSLv23         => TSSL.SSLv23_Method'Access,
+               SSLv23_Server  => TSSL.SSLv23_Server_Method'Access,
+               SSLv23_Client  => TSSL.SSLv23_Client_Method'Access,
+               Tlsv1          => TSSL.Tlsv1_Method'Access,
+               Tlsv1_Server   => TSSL.Tlsv1_Server_Method'Access,
+               Tlsv1_Client   => TSSL.Tlsv1_Client_Method'Access,
+               SSLv3          => TSSL.SSLv3_Method'Access,
+               SSLv3_Server   => TSSL.SSLv3_Server_Method'Access,
+               SSLv3_Client   => TSSL.SSLv3_Client_Method'Access);
+
+         ---------------------
+         -- Set_Certificate --
+         ---------------------
+
+         procedure Set_Certificate
+           (Cert_Filename : in String;
+            Key_Filename  : in String := "")
+         is
+
+            function Key_File_Name return String;
+            --  Returns the key file (Key_Filename) if it is defined and the
+            --  certificate filename (Cert_Filename) otherwise.
+
+            -------------------
+            -- Key_File_Name --
+            -------------------
+
+            function Key_File_Name return String is
+            begin
+               if Key_Filename = "" then
+                  return Cert_Filename;
+               else
+                  return Key_Filename;
+               end if;
+            end Key_File_Name;
+
+            use Interfaces.C;
+
+         begin
+            Error_If
+              (TSSL.SSL_Ctx_Use_Privatekey_File
+                 (Ctx    => Context,
+                  File   => To_C (Key_File_Name),
+                  C_Type => TSSL.SSL_Filetype_Pem) = -1);
+
+            Error_If
+              (TSSL.SSL_Ctx_Use_Certificate_File
+                 (Ctx    => Context,
+                  File   => To_C (Cert_Filename),
+                  C_Type => TSSL.SSL_Filetype_Pem) = -1);
+
+            Error_If
+              (TSSL.SSL_Ctx_Check_Private_Key (Ctx => Context) = -1);
+
+            if TSSL.SSL_Ctx_Ctrl
+              (Ctx  => Context,
+               Cmd  => TSSL.SSL_Ctrl_Need_Tmp_Rsa,
+               Larg => 0,
+               Parg => Null_Ptr) /= 0
+            then
+               Error_If
+                 (TSSL.SSL_Ctx_Ctrl
+                    (Ctx  => Context,
+                     Cmd  => TSSL.SSL_Ctrl_Set_Tmp_Rsa,
+                     Larg => 0,
+                     Parg => Private_Key) = -1);
+            end if;
+         end Set_Certificate;
+
+         ------------------------
+         -- Set_Quiet_Shutdown --
+         ------------------------
+
+         procedure Set_Quiet_Shutdown (Value : in Boolean := True) is
+         begin
+            TSSL.SSL_Ctx_Set_Quiet_Shutdown
+              (Ctx  => Context,
+               Mode => Boolean'Pos (Value));
+         end Set_Quiet_Shutdown;
+
+         -------------------------
+         -- Set_Sess_Cache_Size --
+         -------------------------
+
+         procedure Set_Sess_Cache_Size (Value : in Natural) is
+         begin
+            Error_If
+              (TSSL.SSL_Ctx_Ctrl
+                 (Ctx  => Context,
+                  Cmd  => TSSL.SSL_Ctrl_Set_Sess_Cache_Size,
+                  Larg => Interfaces.C.int (Value),
+                  Parg => Null_Ptr) = -1);
+         end Set_Sess_Cache_Size;
+
+      begin
+         if not Initialized then
+            if Context /= Null_Ptr then
+               Finalize;
+            end if;
+
+            --  Initialize context
+
+            Context := TSSL.SSL_Ctx_New (Methods (Security_Mode).all);
+            Error_If (Context = Null_Ptr);
+
+            --  Initialize private key
+
+            Private_Key :=
+              TSSL.Rsa_Generate_Key (Bits     => 512,
+                                     E        => TSSL.Rsa_F4,
+                                     Callback => null,
+                                     Cb_Arg   => Null_Ptr);
+            Error_If (Private_Key = Null_Ptr);
+
+            Set_Certificate (Certificate_Filename, Key_Filename);
+
+            Set_Quiet_Shutdown;
+            Set_Sess_Cache_Size (16);
+
+            Initialized := True;
+         end if;
+      end Initialize;
+
+      ------------
+      -- Set_FD --
+      ------------
+
+      procedure Set_FD (Socket : in out Socket_Type) is
+      begin
+         if Socket.SSL = Null_Ptr then
+            Socket.SSL := TSSL.SSL_New (Context);
+            Error_If (Socket.SSL = Null_Ptr);
+         end if;
+
+         Error_If
+           (TSSL.SSL_Set_Fd
+              (Socket.SSL,
+               Interfaces.C.int (Get_FD (Socket))) = -1);
+      end Set_FD;
+
+   end TS_SSL;
 
 begin
    TSSL.SSL_Load_Error_Strings;
