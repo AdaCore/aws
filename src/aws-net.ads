@@ -136,26 +136,26 @@ package AWS.Net is
    function Host_Name return String;
    --  Returns the running host name
 
-   procedure Set_Send_Buffer
+   procedure Set_Send_Buffer_Size
      (Socket : in Socket_Type;
       Size   : in Natural)
       is abstract;
    --  Set the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
-   procedure Set_Receive_Buffer
+   procedure Set_Receive_Buffer_Size
      (Socket : in Socket_Type;
       Size   : in Natural)
       is abstract;
    --  Set the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
-   function Get_Send_Buffer (Socket : in Socket_Type) return Natural
+   function Get_Send_Buffer_Size (Socket : in Socket_Type) return Natural
       is abstract;
    --  Returns the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
-   function Get_Receive_Buffer (Socket : in Socket_Type) return Natural
+   function Get_Receive_Buffer_Size (Socket : in Socket_Type) return Natural
       is abstract;
    --  Returns the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.

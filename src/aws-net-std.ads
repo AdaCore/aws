@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -99,13 +99,13 @@ package AWS.Net.Std is
 
    function Host_Name return String;
 
-   procedure Set_Send_Buffer
+   procedure Set_Send_Buffer_Size
      (Socket : in Socket_Type;
       Size   : in Natural);
    --  Set the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
-   procedure Set_Receive_Buffer
+   procedure Set_Receive_Buffer_Size
      (Socket : in Socket_Type;
       Size   : in Natural);
    --  Set the internal socket receive buffer size.
@@ -116,11 +116,11 @@ package AWS.Net.Std is
       Blocking : in Boolean);
    --  Set the blocking mode for the socket.
 
-   function Get_Send_Buffer (Socket : in Socket_Type) return Natural;
+   function Get_Send_Buffer_Size (Socket : in Socket_Type) return Natural;
    --  Returns the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
-   function Get_Receive_Buffer (Socket : in Socket_Type) return Natural;
+   function Get_Receive_Buffer_Size (Socket : in Socket_Type) return Natural;
    --  Returns the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
