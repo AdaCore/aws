@@ -229,13 +229,22 @@ package body AWS.Messages is
         and then U_Str (1 .. Pattern'Length) = U_Pattern;
    end Is_Match;
 
+   -------------------
+   -- Last_Modified --
+   -------------------
+
+   function Last_Modified (Date : in Calendar.Time) return String is
+   begin
+      return Last_Modified_Token & To_HTTP_Date (Date);
+   end Last_Modified;
+
    --------------
    -- Location --
    --------------
 
    function Location (URL : in String) return String is
    begin
-      return "Location: " & URL;
+      return Location_Token & URL;
    end Location;
 
    -------------------------
