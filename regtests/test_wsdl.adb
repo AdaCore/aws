@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,8 +40,8 @@ with AWS.Server;
 with AWS.Status;
 with SOAP.Utils;
 
-with Hello_Demo.Client;
-with Hello_Demo.Server;
+with R_Hello_Demo.Client;
+with R_Hello_Demo.Server;
 
 procedure Test_WSDL is
 
@@ -52,7 +52,7 @@ procedure Test_WSDL is
    procedure WSDL_Demo_Client is
       use Ada;
    begin
-      Text_IO.Put_Line (Hello_Demo.Client.sayHello (Firstname => "AWS"));
+      Text_IO.Put_Line (R_Hello_Demo.Client.sayHello (Firstname => "AWS"));
    end WSDL_Demo_Client;
 
    function sayHello (Firstname : in String) return String;
@@ -61,7 +61,7 @@ procedure Test_WSDL is
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB is new Hello_Demo.Server.sayHello_CB (sayHello);
+   function SOAP_CB is new R_Hello_Demo.Server.sayHello_CB (sayHello);
 
    function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
 
@@ -92,7 +92,7 @@ begin
    Server.Start
      (H_Server, "WSDL Hello demo",
       CB'Unrestricted_Access,
-      Port => Hello_Demo.Server.Port);
+      Port => R_Hello_Demo.Server.Port);
 
    WSDL_Demo_Client;
 
