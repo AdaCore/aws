@@ -77,21 +77,41 @@ package AWS.Server is
 
 private
 
-   Keep_Open_Duration : constant Duration := 80.0;
+   Keep_Open_Duration    : constant Duration := 80.0;
+   Client_Header_Timeout : constant Duration := 5.0;
+
+   type Slot_Phase is
+     (Closed,
+
+      Wait_For_Client,
+      --  We can abort keep-alive connection in this stage
+
+      Client_Header,
+      --  We can abort keep-alive connection when client header
+      --  takes too much time
+
+      Client_Data,
+      --  We should think about it. Maybe we should not trust the clients
+      --  who are spending too much server time in sending data
+
+      Server_Response
+      --  We are already trust to ourselves
+     );
 
    type Slot is record
       Sock                  : Sockets.Socket_FD;
       Peername              : Ada.Strings.Unbounded.Unbounded_String;
-      Opened                : Boolean := False;
       Abortable             : Boolean := False;
+      Phase                 : Slot_Phase := Closed;
+      Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
       Slot_Activity_Counter : Natural := 0;
       Activity_Counter      : Natural := 0;
-      Activity_Time_Stamp   : Ada.Calendar.Time := Ada.Calendar.Clock;
    end record;
 
    --  Abortable is set to true when the line can be aborted by closing the
-   --  associated socket. Activity_Time_Stamp is the last time the line has
-   --  been used. The line with the oldest activity could be closed.
+   --  associated socket. Phase_Time_Stamp is the last time when Phase of line
+   --  has been changed. The line in Abortable state and with oldest
+   --  Phase_Time_Stamp could be closed.
    --  Also a line is closed after Keep_Open_Duration seconds of inactivity.
 
    type Slot_Set is array (Positive range <>) of Slot;
@@ -102,16 +122,15 @@ private
 
    protected type Slots (N : Positive) is
 
-      procedure Set_Abortable (Index : in Positive; Flag : in Boolean);
-      --  Set Abortable field to Flag for the Line number Index. This flag is
-      --  used by the Line_Cleaner to know if a line can be aborted safely.
-
       procedure Set_Peername (Index : in Positive; Peername : in String);
       --  Set the Peername for the associated socket.
 
-      procedure Mark_Activity_Time (Index : in Positive);
+      procedure Mark_Phase (Index : in Positive; Phase : Slot_Phase);
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
+
+      procedure Check_Timeouts;
+      --  Check slots timeout and set slots abortable state if possible.
 
       procedure Abort_Oldest  (Force : in Boolean);
       --  Abort oldest line (the line with the oldest activity time stamp) if
@@ -143,6 +162,11 @@ private
       Set             : Slot_Set (1 .. N);
       Count           : Natural := N;
       Abortable_Count : Natural := 0;
+
+      procedure Set_Abortable (Index : in Positive; Flag : in Boolean);
+      --  Set Abortable field to Flag for the Line number Index. This flag is
+      --  used by the Line_Cleaner to know if a line can be aborted safely.
+
    end Slots;
 
    ----------
@@ -170,21 +194,37 @@ private
      (Max_Connection : Positive := Default_Connection) is
    limited record
       Self                      : HTTP_Access := HTTP'Unchecked_Access;
+      --  Point to the record.
       Shutdown                  : Boolean     := False;
+      --  True when shutdown has been requested.
       Name                      : Unbounded_String;
+      --  The server's name.
       Upload_Path               : Unbounded_String;
+      --  Path where uploaded file will be stored.
       Sock                      : Sockets.Socket_FD;
-      --  this is the server socket for incoming connection.
-      Lines                     : Line_Set (1 .. Max_Connection);
-      Slots                     : Server.Slots (Max_Connection);
-      Cleaner                   : Line_Cleaner (HTTP'Unchecked_Access);
-      Admin_URI                 : Unbounded_String;
-      Filters                   : Hotplug.Filter_Set;
+      --  This is the server socket for incoming connection.
       Port                      : Positive;
+      --  The Web server port.
+      Cleaner                   : Line_Cleaner (HTTP'Unchecked_Access);
+      --  Task in charge of cleaning slots status. It checks from time to time
+      --  is the slots is still in used and closed it if possible.
+      Admin_URI                 : Unbounded_String;
+      --  URI to get the administrative page.
       Security                  : Boolean;
-      CB                        : Response.Callback;
+      --  Is set to true if this is an SSL server.
       Session                   : Boolean;
+      --  Is set to true if server must support session data.
       Case_Sensitive_Parameters : Boolean;
+      --  Is set to true if forms parameters name are case sensitive.
+      CB                        : Response.Callback;
+      --  User's callback procedure.
+      Filters                   : Hotplug.Filter_Set;
+      --  Hotplug filters are recorded here.
+      Lines                     : Line_Set (1 .. Max_Connection);
+      --  The tasks doing the job.
+      Slots                     : Server.Slots (Max_Connection);
+      --  Information about each tasks above. This is a protected object to
+      --  support concurrency.
    end record;
 
 end AWS.Server;
