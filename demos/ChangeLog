@@ -1,3 +1,11 @@
+2003-11-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(DEMOS): Add split.
+
+	* split.adb, split.thtml:
+	Initial revision.
+
 2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
 
 	* demos.gpr:
