@@ -42,6 +42,7 @@ with Ada.Strings.Unbounded;
 
 with AWS.Status;
 with AWS.Response;
+with AWS.Messages;
 
 package AWS.Log is
 
@@ -71,6 +72,15 @@ package AWS.Log is
       Connect_Stat : in     Status.Data;
       Answer       : in     Response.Data);
    --  Write log info if activated (i.e. Start routine above as been called).
+
+   procedure Write
+     (Log            : in out Object;
+      Connect_Stat   : in     Status.Data;
+      Status_Code    : in     Messages.Status_Code;
+      Content_Length : in     Natural);
+   --  Write log info if activated (i.e. Start routine above as been called).
+   --  We need Content_Length parameter separated from AWS.Response.Data
+   --  becouse Content_Length could be undefined there.
 
    procedure Write
      (Log          : in out Object;
