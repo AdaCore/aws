@@ -1,3 +1,13 @@
+2002-12-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Add filenames
+	aws-digest.adb aws-headers-set.adb
+	aws-hotplug-get_status.adb aws-resources-embedded.adb
+	aws-resources-files.adb aws-resources-streams.adb aws-resources.adb
+	aws-response-set.adb aws-url-raise_url_error.adb aws.ads
+	to the SOURCE file list and order it by filename.
+
 2002-12-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
