@@ -218,17 +218,6 @@ package body AWS.Status.Set is
       D.Parameters := Set;
    end Parameters;
 
-   -------------
-   -- Payload --
-   -------------
-
-   procedure Payload
-     (D       : in out Data;
-      Payload : in     String) is
-   begin
-      D.Payload := To_Unbounded_String (Payload);
-   end Payload;
-
    --------------
    -- Peername --
    --------------

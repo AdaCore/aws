@@ -86,9 +86,4 @@ package AWS.Status.Set is
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.
 
-   procedure Payload
-     (D       : in out Data;
-      Payload : in     String);
-   --  Set the XML Payload message.
-
 end AWS.Status.Set;
