@@ -44,6 +44,11 @@ package body AWS.Digest is
 
    Private_Key : MD5.Context;
 
+   type Word is mod 2 ** 31;
+
+   Nonce_Idx   : Word := 0;
+   pragma Atomic (Nonce_Idx);
+
    Nonce_Expiration : constant Duration := 300.0;
    --  Expiration expressed in seconds
 
@@ -165,11 +170,13 @@ package body AWS.Digest is
       Ctx := Private_Key;
 
       Seconds_Int := Natural (Float'Floor (Float (Seconds_Now)));
+      Nonce_Idx   := Nonce_Idx + 1;
 
       MD5.Update (Ctx, To_Byte_Array (Year_Now));
       MD5.Update (Ctx, To_Byte_Array (Month_Now));
       MD5.Update (Ctx, To_Byte_Array (Day_Now));
-      MD5.Update (Ctx, To_Byte_Array (Seconds_Int));
+      MD5.Update (Ctx, To_Byte_Array (Natural (Seconds_Int)));
+      MD5.Update (Ctx, To_Byte_Array (Integer (Nonce_Idx)));
 
       --  Place the digest string representation into the result variable
 
