@@ -44,7 +44,9 @@ package AWS.Containers.Tables is
       Name  : String (1 .. Name_Length);
       Value : String (1 .. Value_Length);
    end record;
-   --  Data type to store name/value pair retrieved from a Table_Type.
+   --  Data type to store name/value pair retrieved from a Table_Type
+
+   Null_Element : constant Element;
 
    type VString_Array is array (Positive range <>)
      of Ada.Strings.Unbounded.Unbounded_String;
@@ -63,50 +65,53 @@ package AWS.Containers.Tables is
    --  Returns True if Key exist in Table.
 
    function Get
-     (Table  : in Table_Type;
-      Name   : in String;
-      N      : in Positive := 1)
+     (Table : in Table_Type;
+      Name  : in String;
+      N     : in Positive := 1)
       return String;
    --  Returns the Nth value associated with Key into Table. Returns
    --  the emptry string if key does not exist.
 
    function Get_Name
-     (Table  : in Table_Type;
-      N      : in Positive := 1)
+     (Table : in Table_Type;
+      N     : in Positive := 1)
       return String;
    --  Returns the Nth Name in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get_Value
-     (Table  : in Table_Type;
-      N      : in Positive := 1)
+     (Table : in Table_Type;
+      N     : in Positive := 1)
       return String;
    --  Returns the Nth Value in Table or the empty string if there is
    --  no parameter with this number.
 
    function Get
-     (Table  : in Table_Type;
-      N      : in Positive)
+     (Table : in Table_Type;
+      N     : in Positive)
       return Element;
-   --  Returns N'th name/value pair.
+   --  Returns N'th name/value pair. Returns Null_Element if if there is no
+   --  such item in the table.
 
    function Get_Names
-     (Table  : in Table_Type;
-      Sort   : in Boolean := False)
+     (Table : in Table_Type;
+      Sort  : in Boolean := False)
       return VString_Array;
    --  Returns array of unique key names. If Sort is True, the returned names
    --  array is sorted in alphabetical order. This is of course slightly
    --  slower than returning unsorted results.
 
    function Get_Values
-     (Table  : in Table_Type;
-      Name   : in String)
+     (Table : in Table_Type;
+      Name  : in String)
       return VString_Array;
    --  Returns all values for the specified parameter key name.
 
 private
    --  A Table_Type must be initialized by calling
    --  AWS.Containers.Tables.Set.Reset, Server is responsible for doing that.
+
+   Null_Element : constant Element := (0, 0, "", "");
 
    type Element_Access is access all Element;
    --  Data type to keep the name/value pair in the
