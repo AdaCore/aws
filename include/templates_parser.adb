@@ -2879,8 +2879,9 @@ package body Templates_Parser is
                      case T.Kind is
                         when Data.Var =>
                            --  The new node is also a variable, inherit all the
-                           --  filters.
+                           --  filters and attribute
                            T.Var.Filters := Old.Var.Filters;
+                           T.Var.Attr    := Old.Var.Attr;
 
                         when Data.Text =>
                            --  The new node is a value, apply filters if the
@@ -2948,6 +2949,7 @@ package body Templates_Parser is
                               --  The new node is also a variable, inherit all
                               --  the filters.
                               T.Var.Filters := Old.Var.Filters;
+                              T.Var.Attr    := Old.Var.Attr;
 
                            when Expr.Value =>
                               --  The new node is a value, apply filters if the
