@@ -34,8 +34,11 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with Strings_Maps;
 with DOM.Core.Nodes;
 
+with AWS.Utils;
+with SOAP.Name_Space;
 with SOAP.Types;
 with SOAP.Utils;
 with SOAP.XML;
@@ -50,6 +53,12 @@ package body SOAP.WSDL.Parser is
    Verbose_Mode  : Verbose_Level := 0;
    Skip_Error    : Boolean       := False;
    NS_SOAP       : Unbounded_String;
+
+   No_Name_Space : Name_Space.Object renames Name_Space.No_Name_Space;
+
+   package Name_Spaces is new Strings_Maps (Unbounded_String);
+   NS     : Name_Spaces.Map;
+   NS_Num : Natural := 0;
 
    function Get_Node
      (Parent  : in DOM.Core.Node;
@@ -172,6 +181,10 @@ package body SOAP.WSDL.Parser is
    procedure Check_Character (R : in DOM.Core.Node);
    --  Checks that N is a valid schema definition for a Character Ada type
 
+   function Get_Target_Name_Space
+     (N : in DOM.Core.Node) return Name_Space.Object;
+   --  Returns the targetNamespace
+
    -----------
    -- Debug --
    -----------
@@ -197,7 +210,8 @@ package body SOAP.WSDL.Parser is
       Name   : in     String;
       P_Type : in     Parameter_Type) is
    begin
-      Add_Parameter (O, (Parameters.K_Simple, +Name, null, P_Type));
+      Add_Parameter
+        (O, (Parameters.K_Simple, +Name, No_Name_Space, null, P_Type));
    end Add_Parameter;
 
    procedure Add_Parameter
@@ -476,6 +490,35 @@ package body SOAP.WSDL.Parser is
 
       return Get_Node_Int (Parent, Element, Name);
    end Get_Node;
+
+   ---------------------------
+   -- Get_Target_Name_Space --
+   ---------------------------
+
+   function Get_Target_Name_Space
+     (N : in DOM.Core.Node) return Name_Space.Object
+   is
+      V : constant String := XML.Get_Attr_Value (N, "targetNamespace", True);
+      P : Name_Spaces.Cursor;
+      R : Boolean;
+   begin
+      P := Name_Spaces.Containers.Find (NS, V);
+
+      if Name_Spaces.Containers.Has_Element (P) then
+         return Name_Space.Create
+           (To_String (Name_Spaces.Containers.Element (P)), V);
+
+      else
+         NS_Num := NS_Num + 1;
+         declare
+            Name : constant String := "n" & AWS.Utils.Image (NS_Num);
+         begin
+            Name_Spaces.Containers.Insert
+              (NS, V, To_Unbounded_String (Name), P, R);
+            return Name_Space.Create (Name, V);
+         end;
+      end if;
+   end Get_Target_Name_Space;
 
    --------------
    -- Is_Array --
@@ -969,8 +1012,9 @@ package body SOAP.WSDL.Parser is
       Trace ("(Parse_Parameter)", N);
 
       if WSDL.Is_Standard (P_Type) then
-         return (Parameters.K_Simple, +XML.Get_Attr_Value (N, "name"),
-                 null, To_Type (P_Type));
+         return
+           (Parameters.K_Simple, +XML.Get_Attr_Value (N, "name"),
+            No_Name_Space, null, To_Type (P_Type));
 
       elsif P_Type = "anyType" then
          Raise_Exception
@@ -1209,6 +1253,8 @@ package body SOAP.WSDL.Parser is
       pragma Assert
         (R /= null
          and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
+
+      P.NS := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (R));
 
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
