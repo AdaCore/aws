@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
@@ -70,10 +71,12 @@ package body AWS.Client is
    procedure Disconnect (Connection : in out HTTP_Connection);
    --  Close connection. Further use is not possible.
 
-   procedure Send_Command
+   procedure Open_Send_Common_Header
      (Connection : in out HTTP_Connection;
       Method     : in     String;
       URI        : in     String);
+   --  Open the the Connection if it is not open. Send the common HTTP headers
+   --  for all requests like the proxy, authentification, user agent, host.
 
    ----------------
    -- Disconnect --
@@ -288,7 +291,7 @@ package body AWS.Client is
             begin
                Sockets.Receive (Sock, Elements);
 
-               if CT = MIME.Text_HTML then
+               if CT = MIME.Text_HTML or else CT = MIME.Text_XML Then
 
                   --  if the content is textual info put it in a string
 
@@ -303,9 +306,8 @@ package body AWS.Client is
 
                   --  this is some kind of binary data.
 
-                  Result := Response.Build (To_String (CT),
-                                            Elements,
-                                            Status);
+                  Result := Response.Build
+                    (To_String (CT), Elements, Status);
                end if;
             end;
          end if;
@@ -482,17 +484,20 @@ package body AWS.Client is
                    User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
    end Post;
 
-   function Post (URL        : in String;
-                  Data       : in Streams.Stream_Element_Array;
-                  User       : in String := No_Data;
-                  Pwd        : in String := No_Data;
-                  Proxy      : in String := No_Data;
-                  Proxy_User : in String := No_Data;
-                  Proxy_Pwd  : in String := No_Data) return Response.Data
+   function Post
+     (URL        : in String;
+      Data       : in Streams.Stream_Element_Array;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
+     return Response.Data
    is
-      Connect : HTTP_Connection := Create (URL, User, Pwd,
-                                           Proxy, Proxy_User, Proxy_Pwd,
-                                           Persistent => False);
+      Connect : HTTP_Connection
+        := Create (URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+                   Persistent => False);
+
       Result  : Response.Data;
 
    begin
@@ -500,6 +505,33 @@ package body AWS.Client is
       Close (Connect);
       return Result;
    end Post;
+
+   ---------------
+   -- SOAP_Post --
+   ---------------
+
+   function SOAP_Post
+     (URL        : in String;
+      Data       : in String;
+      SOAPAction : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
+     return Response.Data
+   is
+      Connect : HTTP_Connection
+        := Create (URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+                   SOAPAction => SOAPAction, Persistent => False);
+
+      Result  : Response.Data;
+
+   begin
+      Post (Connect, Result, Data);
+      Close (Connect);
+      return Result;
+   end SOAP_Post;
 
    -----------
    -- Close --
@@ -520,11 +552,11 @@ package body AWS.Client is
       Connection.Socket := null;
    end Close;
 
-   ------------------
-   -- Send_Command --
-   ------------------
+   -----------------------------
+   -- Open_Send_Common_Header --
+   -----------------------------
 
-   procedure Send_Command
+   procedure Open_Send_Common_Header
      (Connection : in out HTTP_Connection;
       Method     : in     String;
       URI        : in     String)
@@ -597,6 +629,8 @@ package body AWS.Client is
 
    begin
 
+      --  Open socket if needed.
+
       if not Connection.Opened then
          Sock := AWS.Net.Connect
            (AWS.URL.Server_Name (Connection.Connect_URL),
@@ -606,6 +640,8 @@ package body AWS.Client is
          Connection.Socket.all := Sock;
          Connection.Opened     := True;
       end if;
+
+      --  Header command.
 
       if Connection.Proxy = No_Data then
 
@@ -638,18 +674,21 @@ package body AWS.Client is
 
       end if;
 
-      if Connection.Cookie /= Null_Unbounded_String then
+      --  Cookie
+
+      if Connection.Cookie /= No_Data then
          Sockets.Put_Line
            (Sock, Messages.Cookie_Token & To_String (Connection.Cookie));
       end if;
 
-      --  Sockets.Put_Line (Sock, "Pragma: no-cache");
       Sockets.Put_Line (Sock, Messages.Host (Host_Address));
       Sockets.Put_Line (Sock, Messages.Accept_Type ("text/html, */*"));
       Sockets.Put_Line (Sock, Messages.Accept_Language ("fr, us"));
       Sockets.Put_Line
         (Sock,
          Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
+
+      --  User Authentification
 
       if Connection.User /= No_Data
         and then Connection.Pwd /= No_Data
@@ -663,6 +702,8 @@ package body AWS.Client is
               & ':' & To_String (Connection.Pwd))));
       end if;
 
+      --  Proxy Authentification
+
       if Connection.Proxy_User /= No_Data
         and then Connection.Proxy_Pwd /= No_Data
       then
@@ -674,7 +715,16 @@ package body AWS.Client is
            (To_String (Connection.Proxy_User)
             & ':' & To_String (Connection.Proxy_Pwd))));
       end if;
-   end Send_Command;
+
+      --  SOAP header
+
+      if Connection.SOAPAction /= No_Data then
+         Sockets.Put_Line
+           (Sock,
+            Messages.SOAPAction (To_String (Connection.SOAPAction)));
+      end if;
+
+   end Open_Send_Common_Header;
 
    ------------
    -- Create --
@@ -688,9 +738,27 @@ package body AWS.Client is
       Proxy_User : in String   := No_Data;
       Proxy_Pwd  : in String   := No_Data;
       Retry      : in Positive := Retry_Default;
+      SOAPAction : in String   := No_Data;
       Persistent : in Boolean  := True)
      return HTTP_Connection
    is
+      function Set (V : in String) return Unbounded_String;
+      --  Returns V as an Unbounded_String if V is not the empty string
+      --  otherwise it returns Null_Unbounded_String.
+
+      ---------
+      -- Set --
+      ---------
+
+      function Set (V : in String) return Unbounded_String is
+      begin
+         if V = No_Data then
+            return Null_Unbounded_String;
+         else
+            return To_Unbounded_String (V);
+         end if;
+      end Set;
+
       Connect_URL : AWS.URL.Object;
       Host_URL    : AWS.URL.Object := AWS.URL.Parse (Host);
       Proxy_URL   : AWS.URL.Object := AWS.URL.Parse (Proxy);
@@ -704,12 +772,12 @@ package body AWS.Client is
       return (Host        => To_Unbounded_String (Host),
               Host_URL    => Host_URL,
               Connect_URL => Connect_URL,
-              User        => To_Unbounded_String (User),
-              Pwd         => To_Unbounded_String (Pwd),
-              Proxy       => To_Unbounded_String (Proxy),
+              User        => Set (User),
+              Pwd         => Set (Pwd),
+              Proxy       => Set (Proxy),
               Proxy_URL   => Proxy_URL,
-              Proxy_User  => To_Unbounded_String (Proxy_User),
-              Proxy_Pwd   => To_Unbounded_String (Proxy_Pwd),
+              Proxy_User  => Set (Proxy_User),
+              Proxy_Pwd   => Set (Proxy_Pwd),
               Opened      => True,
               Socket      => new Sockets.Socket_FD'Class'
                 (AWS.Net.Connect (AWS.URL.Server_Name (Connect_URL),
@@ -717,6 +785,7 @@ package body AWS.Client is
                                   AWS.URL.Security (Connect_URL))),
               Retry       => Create.Retry,
               Cookie      => Null_Unbounded_String,
+              SOAPAction  => Set (SOAPAction),
               Persistent  => Persistent);
    end Create;
 
@@ -729,13 +798,13 @@ package body AWS.Client is
       Result     :    out Response.Data;
       URI        : in     String          := No_Data)
    is
-      Try_Count : Integer := Connection.Retry;
+      Try_Count : Natural := Connection.Retry;
    begin
 
       loop
          begin
 
-            Send_Command (Connection, "GET", URI);
+            Open_Send_Common_Header (Connection, "GET", URI);
 
             Sockets.New_Line (Connection.Socket.all);
 
@@ -766,13 +835,13 @@ package body AWS.Client is
       Result     :    out Response.Data;
       URI        : in     String := No_Data)
    is
-      Try_Count : Integer := Connection.Retry;
+      Try_Count : Natural := Connection.Retry;
    begin
 
       loop
          begin
 
-            Send_Command (Connection, "HEAD", URI);
+            Open_Send_Common_Header (Connection, "HEAD", URI);
 
             Sockets.New_Line (Connection.Socket.all);
 
@@ -803,19 +872,30 @@ package body AWS.Client is
       Data       : in     Streams.Stream_Element_Array;
       URI        : in     String := No_Data)
    is
-      Try_Count : Integer := Connection.Retry;
+      No_Data : Unbounded_String renames Null_Unbounded_String;
+
+      Try_Count : Natural := Connection.Retry;
    begin
 
       loop
          begin
 
-            Send_Command (Connection, "POST", URI);
+            Open_Send_Common_Header (Connection, "POST", URI);
 
             declare
                Sock : Sockets.Socket_FD'Class := Connection.Socket.all;
             begin
-               Sockets.Put_Line (Sock,
-                                 Messages.Content_Type (Messages. Form_Data));
+
+               if Connection.SOAPAction = No_Data then
+                  Sockets.Put_Line
+                    (Sock,
+                     Messages.Content_Type (MIME.Appl_Form_Data));
+
+               else
+                  Sockets.Put_Line
+                    (Sock,
+                     Messages.Content_Type (MIME.Text_XML));
+               end if;
 
                --  Send message Content_Length
 
@@ -876,14 +956,14 @@ package body AWS.Client is
       Location : Unbounded_String;
       Connect  : Unbounded_String;
 
-      Try_Count : Integer := Connection.Retry;
+      Try_Count : Natural := Connection.Retry;
 
    begin
 
       loop
 
          begin
-            Send_Command (Connection, "PUT", URI);
+            Open_Send_Common_Header (Connection, "PUT", URI);
 
             --  send message Content_Length
 
