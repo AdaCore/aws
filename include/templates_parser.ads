@@ -33,10 +33,9 @@ with Ada.Strings.Unbounded;
 
 package Templates_Parser is
 
-   Template_Error : exception;
+   use Ada.Strings.Unbounded;
 
-   Max_Template_Lines : constant := 5_000;
-   --  maximum number of lines a template file can have.
+   Template_Error : exception;
 
    Default_Begin_Tag : constant String := "@@_";
    Default_End_Tag   : constant String := "_@@";
@@ -47,41 +46,56 @@ package Templates_Parser is
    --
 
    type Vector_Tag is private;
-   --  a vector tag is a set of string.
+   --  A vector tag is a set of string.
 
    function "+" (Value : in String) return Vector_Tag;
+   --  Vector_Tag constructor.
+
+   function "+" (Value : in Character) return Vector_Tag;
+   --  Vector_Tag constructor.
+
+   function "+" (Value : in Boolean) return Vector_Tag;
+   --  Vector_Tag constructor.
+
+   function "+" (Value : in Unbounded_String) return Vector_Tag;
+   --  Vector_Tag constructor.
+
+   function "+" (Value : in Integer) return Vector_Tag;
    --  Vector_Tag constructor.
 
    function "&"
      (Vect  : in Vector_Tag;
       Value : in String)
      return Vector_Tag;
-   --  add Value at the end of the vector tag set.
+   --  Add Value at the end of the vector tag set.
 
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Character)
      return Vector_Tag;
-   --  add Value at the end of the vector tag set.
+   --  Add Value at the end of the vector tag set.
 
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Boolean)
      return Vector_Tag;
-   --  add Value (either string TRUE or FALSE) at the end of the vector tag
+   --  Add Value (either string TRUE or FALSE) at the end of the vector tag
    --  set.
 
    function "&"
      (Vect  : in Vector_Tag;
-      Value : in Ada.Strings.Unbounded.Unbounded_String)
+      Value : in Unbounded_String)
      return Vector_Tag;
-   --  add Value at the end of the vector tag set.
+   --  Add Value at the end of the vector tag set.
 
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Integer)
      return Vector_Tag;
-   --  add Value (converted to a String) at the end of the vector tag set.
+   --  Add Value (converted to a String) at the end of the vector tag set.
+
+   function Size (Vect : in Vector_Tag) return Natural;
+   --  Returns the number of value into Vect.
 
    --
    --  Association table
@@ -99,16 +113,16 @@ package Templates_Parser is
       Begin_Tag : in String    := Default_Begin_Tag;
       End_Tag   : in String    := Default_End_Tag)
      return Association;
-   --  build an Association (Variable = Value) to be added to a
+   --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is a string.
 
    function Assoc
      (Variable  : in String;
-      Value     : in Ada.Strings.Unbounded.Unbounded_String;
+      Value     : in Unbounded_String;
       Begin_Tag : in String    := Default_Begin_Tag;
       End_Tag   : in String    := Default_End_Tag)
      return Association;
-   --  build an Association (Variable = Value) to be added to a
+   --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is an
    --  Unbounded_String.
 
@@ -118,7 +132,7 @@ package Templates_Parser is
       Begin_Tag : in String    := Default_Begin_Tag;
       End_Tag   : in String    := Default_End_Tag)
      return Association;
-   --  build an Association (Variable = Value) to be added to a
+   --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is an Integer.
    --  It will be displayed without leading space if positive.
 
@@ -129,7 +143,7 @@ package Templates_Parser is
       Begin_Tag : in String     := Default_Begin_Tag;
       End_Tag   : in String     := Default_End_Tag)
      return Association;
-   --  build an Association (Variable = Value) to be added to a
+   --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a vector tag association, value is a
    --  Vector_Tag. If the vector tag is found outside a table tag statement
    --  it is returned as a single string, each value beeing separater by the
@@ -141,7 +155,7 @@ package Templates_Parser is
       Begin_Tag : in String    := Default_Begin_Tag;
       End_Tag   : in String    := Default_End_Tag)
      return Association;
-   --  build an Association (Variable = Value) to be added to a
+   --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. It set the variable to TRUE or FALSE depending on
    --  value.
 
@@ -149,39 +163,28 @@ package Templates_Parser is
    --  Parsing and Translating
    --
 
-   type Template_File is private;
-
    function Parse
-     (Template_Filename : in String;
-      Translations      : in Translate_Table := No_Translation)
+     (Filename     : in String;
+      Translations : in Translate_Table := No_Translation;
+      Cached       : in Boolean         := False)
      return String;
-   --  parse the Template_File replacing variables' occurences by the
-   --  corresponding values.
-
-   function Parse
-     (Template     : in Template_File;
-      Translations : in Translate_Table := No_Translation)
-     return String;
-   --  parse the Template replacing variables' occurences by the
-   --  corresponding values.
+   --  Parse the Template_File replacing variables' occurences by the
+   --  corresponding values. If Cached is set to True, Filename tree will be
+   --  recorded into a cache to quick retrieval.
 
    function Translate
      (Template     : in String;
       Translations : in Translate_Table := No_Translation)
      return String;
-   --  just translate the variable in the Template using the Translations
+   --  Just translate the variable in the Template using the Translations
    --  table. This function does not parse the command tag (TABLE, IF,
    --  INCLUDE).
 
-   function Open
-     (Template_Filename : in String)
-     return Template_File;
-   --  open a template file on disk and create an in-memory template to be
-   --  parsed later.
+   procedure Print_Tree (Filename : in String);
+   --  Use for debugging purpose only, it will output the internal tree
+   --  representation.
 
 private
-
-   use Ada.Strings.Unbounded;
 
    ------------------
    --  Vector Tags --
@@ -230,26 +233,5 @@ private
      := (2 .. 1 => Association'(Std,
                                 Null_Unbounded_String,
                                 Null_Unbounded_String));
-
-   -------------------
-   -- Template_File --
-   -------------------
-
-   subtype Line_Index is Natural range 0 .. Max_Template_Lines;
-
-   type Template_Content is array (Positive range <>) of Unbounded_String;
-   type Template_Lines is access Template_Content;
-
-   type Counter is access Natural;
-
-   type Template_File is new Ada.Finalization.Controlled with record
-      Count    : Counter;
-      Filename : Unbounded_String;
-      Lines    : Template_Lines;
-   end record;
-
-   procedure Initialize (Template : in out Template_File);
-   procedure Finalize   (Template : in out Template_File);
-   procedure Adjust     (Template : in out Template_File);
 
 end Templates_Parser;
