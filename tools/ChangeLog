@@ -1,6 +1,12 @@
 2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:
+	Add support for -o option used to specified the name of the local
+	 file when using wsdl2aws with an URL.
+	
+2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wsdl2aws.adb:
 	(Get_Document): New procedure to retreive WSDL document from an URL.
 	(Parse_Command_Line): Add support for -s option.
 	Load document from the Web if WSDL document name start with http://
