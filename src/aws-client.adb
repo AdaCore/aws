@@ -614,9 +614,7 @@ package body AWS.Client is
          declare
             CT  : constant String := To_String (Get_Response.CT);
          begin
-            if CT'Length > 5
-              and then CT (CT'First .. CT'First + 4) = "text/"
-            then
+            if MIME.Is_Text (CT) then
                --  This is a textual chunked encoded body
                Result := Response.Build
                  (CT, Translator.To_String (Read_Chunk), Status);
@@ -628,19 +626,26 @@ package body AWS.Client is
          end;
 
       else
-         if CT_Len = 0 and then CT = MIME.Text_HTML then
-            --  Here we do not know the message body length, but this is a
-            --  textual data, read it as a string.
+         if CT_Len = 0 then
+            if MIME.Is_Text (To_String (CT)) then
+               --  Here we do not know the message body length, but this is a
+               --  textual data, read it as a string.
 
-            Result := Response.Build (To_String (CT), Read_Message, Status);
+               Result := Response.Build
+                 (To_String (CT), Read_Message, Status);
+
+            else
+               Result := Response.Build
+                 (To_String (CT), Sockets.Receive (Sock), Status);
+            end if;
+
          else
 
             declare
                Elements : Streams.Stream_Element_Array
                  := Read_Binary_Message (CT_Len);
             begin
-               if CT = MIME.Text_HTML or else CT = MIME.Text_XML then
-
+               if MIME.Is_Text (To_String (CT)) then
                   Result := Response.Build
                     (To_String (CT), Translator.To_String (Elements), Status);
 
