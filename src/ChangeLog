@@ -1,6 +1,12 @@
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-digest.adb:
+	(Create_Nonce): Remove useless conversion introduced by error in
+	 previous check-in.
+	
+2004-06-02  Pascal Obry  <pascal@obry.org>
+
+	* aws-digest.adb:
 	(Word): New type.
 	(Nonce_Idx): New atomic variable.
 	(Create_Nonce): Ensure that we do not generate the same nonce
