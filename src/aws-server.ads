@@ -91,6 +91,14 @@ package AWS.Server is
    --  properly before releasing the memory. The log facilities will be
    --  automatically stopped by calling Stop_Log below.
 
+   type Termination is (No_Server, Q_Key_Pressed, Forever);
+
+   procedure Wait (Mode : in Termination := No_Server);
+   --  The purpose of this procedure is to control the main procedure
+   --  termination. This procedure will return only when no server is active
+   --  (No_Server mode) or the 'q' key has been pressed. If mode is set to
+   --  Forever Wait will never return. The process will have to be killed.
+
    function Config (Web_Server : in HTTP) return AWS.Config.Object;
    --  Returns configuration object for Web_Server.
 
@@ -308,6 +316,7 @@ private
       --  support concurrency.
    end record;
 
+   procedure Initialize (Web_Server : in out HTTP);
    procedure Finalize (Web_Server : in out HTTP);
 
 end AWS.Server;
