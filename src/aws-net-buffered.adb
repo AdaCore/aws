@@ -202,6 +202,12 @@ package body AWS.Net.Buffered is
          Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
          C.First := C_Last + 1;
       end;
+
+      --  Data could remain in internal socket buffer.
+
+      if Last < Data'Last and then Pending (Socket) > 0 then
+         Receive (Socket, Data (Last + 1 .. Data'Last), Last);
+      end if;
    end Read;
 
    function Read
