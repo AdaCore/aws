@@ -473,16 +473,16 @@ package body AWS.Response is
    ------------
 
    function Stream
-     (Content_Type  : in String;
-      Stream_Handle : in Resources.Streams.Stream_Access;
-      Stream_Size   : in Content_Length_Type   := Undefined_Length;
-      Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.No_Cache)
+     (Content_Type  : in     String;
+      Handle        : access Resources.Streams.Stream_Type'Class;
+      Size          : in     Content_Length_Type     := Undefined_Length;
+      Status_Code   : in     Messages.Status_Code    := Messages.S200;
+      Cache_Control : in     Messages.Cache_Option   := Messages.No_Cache)
       return Data
    is
       Result : Data;
    begin
-      Set.Stream        (Result, Stream_Handle, Stream_Size);
+      Set.Stream        (Result, Handle, Size);
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
       Set.Cache_Control (Result, Cache_Control);
