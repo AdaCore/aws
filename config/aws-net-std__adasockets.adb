@@ -207,7 +207,7 @@ package body AWS.Net.Std is
             if Wait then
                declare
                   Events : constant Event_Set
-                    := Wait (Socket, (Output => True, Input => False));
+                    := Net.Wait (Socket, (Output => True, Input => False));
                begin
                   if Events (Error) then
                      Errno := Std.Errno (Socket);
