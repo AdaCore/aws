@@ -143,7 +143,7 @@ package AWS.MIME is
    --  found the MIME Content type where Filename matches one of the specific
    --  rules set by Add_Regexp (see below).
    --  Returns "application/octet-stream" if the file type is unknown
-   --  (i.e. not extension and no regular expression match filename).
+   --  (i.e. no extension and no regular expression match filename).
 
    function Is_Text (MIME_Type : in String) return Boolean;
    --  Returns True if the MIME_Type is a text data
