@@ -30,7 +30,8 @@
 
 --  $Id$
 
---  Same as Test_SOAP but with a persistent connection
+--  Same as Test_SOAP but with a persistent connection. Check also that SOAP
+--  and non-SOAP request are handled properly in this case.
 
 with Ada.Text_IO;
 with Ada.Exceptions;
@@ -66,7 +67,7 @@ procedure Test_SOAP5 is
 
    HTTP       : AWS.Server.HTTP;
 
-   Connection : aliased Client.HTTP_Connection;
+   Connection : Client.HTTP_Connection;
 
    --------
    -- CB --
@@ -79,6 +80,11 @@ procedure Test_SOAP5 is
 
       if SOAPAction = "/add" or else SOAPAction = "/mul" then
          return SOAP_CB (Request);
+
+      elsif SOAPAction = "" then
+         return Response.Build
+           (MIME.Text_HTML,
+            "This is not a SOAP request : " & Status.URI (Request));
 
       else
          Put_Line ("This is not a known SOAP request : " & SOAPAction);
@@ -106,7 +112,7 @@ procedure Test_SOAP5 is
 
       declare
          Response     : constant SOAP.Message.Response.Object'Class :=
-           SOAP.Client.Call (Connection'Unchecked_Access, SOAPAction, Payload);
+           SOAP.Client.Call (Connection, SOAPAction, Payload);
 
          R_Parameters : constant SOAP.Parameters.List
            := SOAP.Message.Parameters (Response);
@@ -197,6 +203,13 @@ begin
    Request ("multProc", 2, 3, "/mul");
    Request ("multProc", 9, 9, "/mul");
    Request ("multProc", 10, 73, "/mul");
+
+   declare
+      Resp : Response.Data;
+   begin
+      Client.Get (Connection, Resp, "/this/resource");
+      Text_IO.Put_Line ("Get : " & Response.Message_Body (Resp));
+   end;
 
    Request ("addProc", 2, 3, "/add");
    Request ("addProc", 9, 9, "/add");
