@@ -1,3 +1,8 @@
+2002-09-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* turl.out:
+	Fix output, better error message.
+
 2002-09-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* auth.adb:
