@@ -59,7 +59,7 @@ package body AWS.Services.Files is
 
          return Response.File
            (MIME.Content_Type (Filename),
-            Filename & ".gz",
+            Z_Filename,
             Encoding => Messages.GZip);
 
       elsif OS_Lib.Is_Regular_File (Filename) then
@@ -81,8 +81,7 @@ package body AWS.Services.Files is
             In_Stream := new Resources.Streams.Disk.Stream_Type;
 
             Resources.Streams.Disk.Open
-              (Resources.Streams.Disk.Stream_Type (In_Stream.all),
-               Filename & ".gz");
+              (Resources.Streams.Disk.Stream_Type (In_Stream.all), Z_Filename);
 
             --  Bind the input stream to the decoding stream
 
@@ -91,14 +90,11 @@ package body AWS.Services.Files is
             Resources.Streams.ZLib.Inflate_Initialize
               (Stream_Type (Decoding_Stream.all), In_Stream);
 
-            --  Stream would not be encoded, so Content-Encoding would be
-            --  Identity.
-            --  Content_Type would be of the original non-compressed file
-            --  anyway.
+            --  Stream will be decoded on-the-fly, the content type is the one
+            --  of the original non-compressed file.
 
             return Response.Stream
-              (MIME.Content_Type (Filename),
-               Decoding_Stream);
+              (MIME.Content_Type (Filename), Decoding_Stream);
          end;
 
       else
