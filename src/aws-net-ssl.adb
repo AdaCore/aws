@@ -33,8 +33,8 @@
 --  Routines here are wrappers around standard sockets and SSL.
 --
 --  IMPORTANT: The default certificate used for the SSL connection is
---  "cert.pem" (in the working directory) if it exists. If this file does not
---  exists it is required to initialize the SSL layer certificate with
+--  "cert.pem" (in the working directory) if it exists. If this file does
+--  not exists it is required to initialize the SSL layer certificate with
 --  AWS.Server.Set_Security.
 
 with Ada.Calendar;
@@ -89,13 +89,12 @@ package body AWS.Net.SSL is
    --  Dummy verify procedure that always return ok. This is needed to be able
    --  to retreive the client's certificate.
 
-   protected Pivate_Key_Holder is
+   protected Private_Key_Holder is
       procedure Get (Key : out TSSL.RSA);
    private
       Private_Key : TSSL.RSA := TSSL.Null_Pointer;
-   end Pivate_Key_Holder;
-   --  Creation of private key takes quite a period of time,
-   --  and we need only one private key for process.
+   end Private_Key_Holder;
+   --  The private key to use by all SSL servers
 
    -------------------
    -- Accept_Socket --
@@ -139,8 +138,7 @@ package body AWS.Net.SSL is
 
          Shutdown (New_Socket);
 
-         --  We cannot reuse allocated SSL handle.
-         --  Free it before the next use.
+         --  We cannot reuse allocated SSL handle, Free it before the next use
 
          TSSL.SSL_free (New_Socket.SSL);
          New_Socket.SSL := TSSL.Null_Pointer;
@@ -304,11 +302,11 @@ package body AWS.Net.SSL is
          Exchange_Certificate => CNF.Exchange_Certificate (Default));
    end Initialize_Default_Config;
 
-   -----------------------
-   -- Pivate_Key_Holder --
-   -----------------------
+   ------------------------
+   -- Private_Key_Holder --
+   ------------------------
 
-   protected body Pivate_Key_Holder is
+   protected body Private_Key_Holder is
 
       ---------
       -- Get --
@@ -331,7 +329,7 @@ package body AWS.Net.SSL is
          Key := Private_Key;
       end Get;
 
-   end Pivate_Key_Holder;
+   end Private_Key_Holder;
 
    -------------
    -- Receive --
@@ -571,7 +569,7 @@ package body AWS.Net.SSL is
                declare
                   Private_Key : TSSL.RSA;
                begin
-                  Pivate_Key_Holder.Get (Private_Key);
+                  Private_Key_Holder.Get (Private_Key);
 
                   Error_If
                     (TSSL.SSL_CTX_ctrl
