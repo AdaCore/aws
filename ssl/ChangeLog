@@ -1,3 +1,24 @@
+2001-10-12  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* ssl-thin.ads:
+	(SSL_SENT_SHUTDOWN): new constant.
+	(SSL_RECEIVED_SHUTDOWN): idem.
+	(SSL_Library_Init): new procedure.
+	(Err_Error_String_N): idem.
+	(ERR_Remove_Stat): idem.
+	(SSL_Set_Connect_State ): idem.
+	(SSL_Set_Accept_State): idem.
+	(SSL_Set_Shutdown): idem.
+	
+	* ssl.adb: 
+	(Free): new procedure.
+	Many other fixes to fix a bug.
+	
+	* ssl.ads:
+	(Connection_Error): exception removed.
+	(Shutdown): add comments.
+	(Free): new procedure.
+
 2001-10-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl.adb:
