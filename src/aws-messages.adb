@@ -232,9 +232,9 @@ package body AWS.Messages is
 
       function Weekday (Date : Calendar.Time) return String is
          C         : Integer;
-         Y         : Integer := Calendar.Year (Time);
-         M         : Integer := Calendar.Month (Time);
-         D         : Integer := Calendar.Day (Time);
+         Y         : Integer := Calendar.Year (Date);
+         M         : Integer := Calendar.Month (Date);
+         D         : Integer := Calendar.Day (Date);
 
          Day_Names : constant array (Integer range 0 .. 6) of String (1 .. 3)
            := ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
