@@ -4,6 +4,12 @@
 	(Is_Read_Ready): Former Could_Read.
 	(Is_Write_Ready): Former Could_Write.
 
+	* aws-net-generic_sets.ads:
+	(Waiting_Mode): New Error waiting mode.
+
+	* aws-net-generic_sets.adb:
+	(Add_Private): Take care about Error waiting mode.
+
 2004-09-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets.adb:
