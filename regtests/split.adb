@@ -132,7 +132,7 @@ procedure Split is
       First := Index (M_Body, "next=[");
       Last  := Index (M_Body, "]", Strings.Backward);
 
-      R := Client.Get ("http://localhost:1268/" &
+      R := Client.Get ("http://localhost:1268" &
                        Slice (M_Body, First + 6, Last - 1));
 
       M_Body := Response.Message_Body (R);
@@ -151,7 +151,7 @@ procedure Split is
       First := Index (M_Body, "previous=[");
       Last  := Index (M_Body, "]");
 
-      R := Client.Get ("http://localhost:1268/" &
+      R := Client.Get ("http://localhost:1268" &
                        Slice (M_Body, First + 10, Last - 1));
 
       M_Body := Response.Message_Body (R);
