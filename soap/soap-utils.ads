@@ -55,6 +55,9 @@ package SOAP.Utils is
    function No_NS (Name : in String) return String;
    --  Returns Name without leading name space if present
 
+   function With_NS (NS, Name : in String) return String;
+   --  Returns NS:Name if NS is not empty otherwise just return Name
+
    function Is_Ada_Reserved_Word (Name : in String) return Boolean;
    --  Returns True if Name is an Ada reserved word
 
