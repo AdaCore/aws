@@ -1253,13 +1253,6 @@ is
          Buffer : Streams.Stream_Element_Array (1 .. 4_096);
 
       begin
-         --  Terminate header
-
-         Sockets.Put_Line (Sock, Messages.Content_Length (File_Size));
-         Sockets.New_Line (Sock);
-
-         --  Send file content
-
          loop
             Resources.Read (File, Buffer, Last);
 
@@ -1269,7 +1262,6 @@ is
 
             HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
          end loop;
-
       end Send_File;
 
       ---------------------
@@ -1281,11 +1273,6 @@ is
          Buffer : Streams.Stream_Element_Array (1 .. 1_024);
 
       begin
-         --  Terminate header
-
-         Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
-         Sockets.New_Line (Sock);
-
          loop
             Resources.Read (File, Buffer, Last);
 
@@ -1310,13 +1297,25 @@ is
 
       Send_File_Time (Sock, Filename);
 
+      Sockets.Put_Line (Sock, Messages.Content_Length (File_Size));
+
       if HTTP_Version = HTTP_10 then
+         --  Terminate header
+
+         Sockets.New_Line (Sock);
+
          Send_File;
+
       else
          --  Always use chunked transfer encoding method for HTTP/1.1 even if
          --  it also support standard method.
          --  ??? it could be better to use the standard method for small files
          --  (should be faster).
+
+         --  Terminate header
+
+         Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
+         Sockets.New_Line (Sock);
 
          Send_File_Chunked;
       end if;
