@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -68,6 +68,16 @@ package body AWS.Config.Set is
    begin
       O.P (Case_Sensitive_Parameters).Bool_Value := Value;
    end Case_Sensitive_Parameters;
+
+   -----------------
+   -- Certificate --
+   -----------------
+
+   procedure Certificate (Filename : in String) is
+   begin
+      Process_Options (Certificate).Str_Value
+        := To_Unbounded_String (Filename);
+   end Certificate;
 
    ---------------------------------
    -- Cleaner_Client_Data_Timeout --
