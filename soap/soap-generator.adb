@@ -889,7 +889,8 @@ package body SOAP.Generator is
 
                   Text_IO.Put
                     (Type_Adb,
-                     " (R." & Format_Name (O, To_String (N.Name)) & " )");
+                     " (R." & Format_Name (O, To_String (N.Name))
+                       & ", """ & To_String (N.Name) & """)");
             end case;
 
             if N.Next = null then
