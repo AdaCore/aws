@@ -34,7 +34,7 @@
 --
 --  IMPORTANT: The default certificate used for the SSL connection is
 --  "cert.pem" (in the working directory) if it exists. If this file does not
---  exits it is required to initialize the SSL layer certificate with
+--  exists it is required to initialize the SSL layer certificate with
 --  SSL.Set_Certificate.
 
 with SSL;
@@ -43,6 +43,7 @@ with Ada.Tags;
 package body AWS.Net is
 
    SSL_Initialized : Boolean := False;
+   pragma Atomic (SSL_Initialized);
 
    procedure Init;
    --  Initialize OpenSSL library
@@ -91,8 +92,10 @@ package body AWS.Net is
             begin
                SSL.Connect (Sock, Host, Port);
             exception
-               when Sockets.Socket_Error | Sockets.Connection_Refused
-               | SSL.Lib_Error =>
+               when Sockets.Socket_Error
+                 | Sockets.Connection_Refused
+                 | SSL.Lib_Error
+                 =>
                   Sockets.Shutdown (Sockets.Socket_FD (Sock));
                   Free (Sock);
                   raise;
