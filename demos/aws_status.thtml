@@ -78,7 +78,11 @@ status.</H3>
 <tr bgcolor=white>
 <td align=center>@_TABLE_LINE_@
 <td align=center>@_SOCK_V_@
-<td align=center>@_PEER_NAME_V_@
+@@IF@@ @_EXIST@_PEER_NAME_V_@
+  <td align=center>@_PEER_NAME_V_@
+@@ELSE@@
+  <td align=center>&nbsp;
+@@END_IF@@
 <td align=center>@_CAPITALIZE@_PHASE_V_@
 <td align=center>@_YES_NO@_ABORTABLE_V_@
 <td align=center>@_ACTIVITY_COUNTER_V_@
@@ -89,7 +93,11 @@ status.</H3>
 <tr bgcolor=turquoise>
 <td align=center>@_TABLE_LINE_@
 <td align=center>@_SOCK_V_@
-<td align=center>@_PEER_NAME_V_@
+@@IF@@ @_EXIST@_PEER_NAME_V_@
+  <td align=center>@_PEER_NAME_V_@
+@@ELSE@@
+  <td align=center>&nbsp;
+@@END_IF@@
 <td align=center>@_CAPITALIZE@_PHASE_V_@
 <td align=center>@_YES_NO@_ABORTABLE_V_@
 <td align=center>@_ACTIVITY_COUNTER_V_@
