@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -55,10 +55,11 @@ package body SOAP.Client is
       Timeouts   : in AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
       return Message.Response.Object'Class
    is
-      function SOAP_Action return String;
-      --  Returns not empty SOAPAction anyway.
 
-      Connection   : AWS.Client.HTTP_Connection;
+      function SOAP_Action return String;
+      --  Returns the proper SOAPAction string for this call
+
+      Connection : AWS.Client.HTTP_Connection;
 
       -----------------
       -- SOAP_Action --
@@ -76,7 +77,6 @@ package body SOAP.Client is
 
          else
             return SOAPAction;
-
          end if;
       end SOAP_Action;
 
@@ -84,22 +84,19 @@ package body SOAP.Client is
       AWS.Client.Create
         (Connection,
          URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-         Persistent  => False,
-         Timeouts    => Timeouts);
+         Persistent => False,
+         Timeouts   => Timeouts);
 
       declare
          Result : constant Message.Response.Object'Class
            := Call (Connection, SOAP_Action, P);
       begin
          AWS.Client.Close (Connection);
-
          return Result;
       end;
-
    exception
       when others =>
          AWS.Client.Close (Connection);
-
          raise;
    end Call;
 
