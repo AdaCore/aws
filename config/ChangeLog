@@ -1,5 +1,12 @@
 2004-01-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-net-std__adasockets.adb:
+	(Wait_For): New routine.
+	(Receive): Use Wait_For for timeout control.
+	(Send): Idem.
+
+2004-01-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-net-std__gnat.adb, aws-net-std__adasockets.adb:
 	(Socket_Hidden): Put original socket inside record. It is for shorter
 	 access (Socket.S.FD instead of SFD (Socket.S.all)) and prepear place
