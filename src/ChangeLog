@@ -1,3 +1,33 @@
+2004-05-28  Pascal Obry  <pascal@obry.org>
+
+	* aws-containers-tables-set.adb:
+	(Unchecked_Deallocation): With clause removed, not needed anymore.
+	(Free) [Element_Access]: Removed.
+	(Free_Elements): Removed.
+	(Add): Add directly an element into the vector, no need to create
+	 a pointer to it now.
+	(Free) [Table_Type]: Remove call to Free_Elements.
+	(Upadte): No need to free element before replacing it. Add directly
+	 an element into the vector, no need to create a pointer to it now. 
+
+	* aws-containers-tables.adb:
+	(Get): Remove .all as now we have an Element not a pointer to it.
+
+	* aws-containers-tables.ads:
+	(Table_Type): Removes obsolete comment about initialization.
+	(Element_Access): Removed.
+	(Data_Table): Is now an Indefinite_Vector so it is possible to
+	 store directly an Element. No need to mess with pointers, the
+	 containers does that for us.
+
+	* aws-parameters.ads:
+	(List): Removes obsolete comment about initialization.
+
+	* aws-resources-streams-disk.ads, aws-resources-streams-disk.adb:
+	(Open): Set Form to "shared=no". This is needed to enable
+	 concurrent read.
+	Update copyright notice.
+
 2004-05-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:
