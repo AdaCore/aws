@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                June 27th, 2004
+   Pascal Obry                                               August 15th, 2004
 
 
 
@@ -161,6 +161,16 @@ Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
 
 Previous version of AWS have been built on FreeBSD 4.1 and MacOSX.
+
+
+Known problems:
+---------------
+
+- There is a bug in Internet Explorer which prevents to download a file when
+  the connection is using the SSL encryption and there is the "Cache-Control"
+  header set to "no-cache".
+
+  See: http://support.microsoft.com/?kbid=323308
 
 
 Pointers:
