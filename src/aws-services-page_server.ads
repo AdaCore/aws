@@ -36,10 +36,10 @@
 --  the requested ressource is a directory. There is two specials files that
 --  are recognized:
 --
---    404.html               The Web page returned if the requested page is
---                           not found. Note that this page must have more
---                           than 512 characters otherwise IE 5.5 and higher
---                           will display its 404 internal messages instead.
+--    404.thtml              The Web page returned if the requested page is
+--                           not found. This is a template with a single tag
+--                           variable named PAGE. It will be replaced by the
+--                           ressource which was not found.
 --
 --    aws_directory.thtml    The template page used for directory browsing.
 --                           See AWS.Services.Directory for a full description
