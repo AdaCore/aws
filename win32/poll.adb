@@ -118,9 +118,9 @@ begin
    for J in 1 .. Nfds loop
       FD_Events := Poll_Ptr (J).Events;
 
-      if (FD_Events and (Thin.Pollin or Thin.Pollpri)) /= 0 then
+      if (FD_Events and (Thin.POLLIN or Thin.POLLPRI)) /= 0 then
          FD_SET (Poll_Ptr (J).FD, Rfds);
-      elsif (FD_Events and Thin.Pollout) /= 0 then
+      elsif (FD_Events and Thin.POLLOUT) /= 0 then
          FD_SET (Poll_Ptr (J).FD, Wfds);
       end if;
 
@@ -144,17 +144,17 @@ begin
 
          if FD_ISSET (Poll_Ptr (J).FD, Rfds'Address) /= 0 then
             Good := True;
-            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.Pollin;
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.POLLIN;
          end if;
 
          if FD_ISSET (Poll_Ptr (J).FD, Wfds'Address) /= 0 then
             Good := True;
-            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.Pollout;
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.POLLOUT;
          end if;
 
          if FD_ISSET (Poll_Ptr (J).FD, Efds'Address) /= 0 then
             Good := True;
-            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.Pollerr;
+            Poll_Ptr (J).REvents := Poll_Ptr (J).REvents or Thin.POLLERR;
          end if;
 
          if Good then
