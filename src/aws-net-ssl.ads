@@ -60,9 +60,15 @@ package AWS.Net.SSL is
    procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
-      Port     : in     Positive);
-   --  Connect a socket on a given host/port. If Security is true an secure
-   --  socket will be used
+      Port     : in     Positive;
+      Wait     : in     Boolean := True);
+   --  Connect a socket on a given host/port.
+   --  If Wait is True routine would wait established connection
+   --  for timeout, specified by Set_Timeout routine.
+   --  If Wait is False routine would return immediately, not waiting
+   --  for establised connection and do not SSL handshake.
+   --  Connection completion could be waited by Wait routine with Output
+   --  set to True in Events parameter.
 
    procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it
