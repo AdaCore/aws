@@ -1,3 +1,17 @@
+2004-06-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.ads:
+	(Abort_On_Timeout): Change Done out parameter to Socket.
+	(Shutdown): Name changed to Get_For_Shutdown,
+	 added out parameter Socket.
+	(Release): Added out Boolean parameter.
+
+	* aws-server.adb:
+	(Line): Shutdown and Free the socket if necessary.
+	(Line_Cleaner): Shutdown the socket was gotten from
+	 Abort_On_Timeout.
+	(Shutdown): Use Get_For_Shutdown instead of Shutdown.
+
 2004-06-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.ads:

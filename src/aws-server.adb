@@ -357,6 +357,8 @@ package body AWS.Server is
 
             Free_Slots : Natural;
 
+            Need_Shutdown : Boolean;
+
             Keep_Alive_Limit : constant Positive
                := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
 
@@ -384,7 +386,12 @@ package body AWS.Server is
             Protocol_Handler
               (HTTP_Server.all, Slot_Index, Free_Slots >= Keep_Alive_Limit);
 
-            HTTP_Server.Slots.Release (Slot_Index);
+            HTTP_Server.Slots.Release (Slot_Index, Need_Shutdown);
+
+            if Need_Shutdown then
+               Net.Shutdown (Socket);
+               Net.Free (Socket);
+            end if;
          end;
       end loop;
 
@@ -413,8 +420,8 @@ package body AWS.Server is
    ------------------
 
    task body Line_Cleaner is
-      Mode : Timeout_Mode;
-      Done : Boolean := False;
+      Mode   : Timeout_Mode;
+      Socket : Socket_Access;
    begin
       loop
          select
@@ -427,9 +434,14 @@ package body AWS.Server is
          end select;
 
          loop
-            Server.Slots.Abort_On_Timeout (Mode, Done);
+            Server.Slots.Abort_On_Timeout (Mode, Socket);
 
-            exit when Mode /= Force or else Done;
+            if Socket = null then
+               exit when Mode /= Force;
+            else
+               Net.Shutdown (Socket.all);
+               exit;
+            end if;
 
             select
                accept Force;
@@ -543,7 +555,15 @@ package body AWS.Server is
       --  Release the slots
 
       for S in 1 .. Web_Server.Slots.N loop
-         Web_Server.Slots.Shutdown (S);
+         declare
+            Socket : Socket_Access;
+         begin
+            Web_Server.Slots.Get_For_Shutdown (S, Socket);
+
+            if Socket /= null then
+               Net.Shutdown (Socket.all);
+            end if;
+         end;
       end loop;
 
       --  Wait for all lines to be terminated to be able to release associated
@@ -640,16 +660,20 @@ package body AWS.Server is
       ----------------------
 
       procedure Abort_On_Timeout
-        (Mode : in Timeout_Mode; Done : out Boolean) is
+        (Mode   : in     Timeout_Mode;
+         Socket :    out Socket_Access) is
       begin
-         Done := False;
-
          for S in Table'Range loop
             if Is_Abortable (S, Mode) then
-               Shutdown (S);
-               Done := True;
+               Get_For_Shutdown (S, Socket);
+
+               if Socket /= null then
+                  return;
+               end if;
             end if;
          end loop;
+
+         Socket := null;
       end Abort_On_Timeout;
 
       ----------------
@@ -669,6 +693,22 @@ package body AWS.Server is
       begin
          return Table (Index);
       end Get;
+
+      ----------------------
+      -- Get_For_Shutdown --
+      ----------------------
+
+      procedure Get_For_Shutdown
+        (Index  : in     Positive;
+         Socket :    out Socket_Access) is
+      begin
+         if Table (Index).Phase not in Closed .. Aborted then
+            Mark_Phase (Index, Aborted);
+            Socket := Table (Index).Sock;
+         else
+            Socket := null;
+         end if;
+      end Get_For_Shutdown;
 
       ------------------
       -- Get_Peername --
@@ -782,11 +822,15 @@ package body AWS.Server is
       -- Release --
       -------------
 
-      procedure Release (Index : in Positive) is
+      procedure Release
+        (Index    : in     Positive;
+         Shutdown :    out Boolean)
+      is
          use type Socket_Access;
       begin
          pragma Assert (Count < N);
          --  No more release than it is possible
+
          pragma Assert
            ((Table (Index).Phase = Closed
                and then -- If phase is closed, then Sock must be null
@@ -796,25 +840,22 @@ package body AWS.Server is
 
          Count := Count + 1;
 
+         Shutdown := False;
+
          if Table (Index).Phase /= Closed then
-
             if not Table (Index).Socket_Taken  then
+               if Table (Index).Phase = Aborted then
+                  --  If it was aborted, we can free it here.
 
-               if Table (Index).Phase /= Aborted then
-                  begin
-                     --  This must never fail, it is possible that Shutdown
-                     --  raise Socket_Error if the slot has been aborted by
-                     --  the browser for example.
-                     Net.Shutdown (Table (Index).Sock.all);
-                  exception
-                     when Net.Socket_Error =>
-                        null;
-                  end;
+                  Net.Free (Table (Index).Sock.all);
+               else
+                  --  We have to shutdown socket only if
+                  --  it was not aborted and was not closed.
+
+                  Shutdown := True;
                end if;
 
-               Net.Free (Table (Index).Sock.all);
             else
-
                Table (Index).Socket_Taken := False;
             end if;
 
@@ -854,18 +895,6 @@ package body AWS.Server is
          Timeouts := Phase_Timeouts;
          Slots.Data_Timeouts := Set_Timeouts.Data_Timeouts;
       end Set_Timeouts;
-
-      --------------
-      -- Shutdown --
-      --------------
-
-      procedure Shutdown (Index : in Positive) is
-      begin
-         if Table (Index).Phase not in Closed .. Aborted then
-            Mark_Phase (Index, Aborted);
-            Net.Shutdown (Table (Index).Sock.all);
-         end if;
-      end Shutdown;
 
       ------------------
       -- Socket_Taken --
