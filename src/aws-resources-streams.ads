@@ -47,12 +47,12 @@ package AWS.Resources.Streams is
       Last     :    out Stream_Element_Offset)
       is abstract;
 
-   procedure Close (File : in out Stream_Type)
+   procedure Close (Resource : in out Stream_Type)
       is abstract;
 
    procedure Create
-     (File   :    out File_Type;
-      Buffer : in     Stream_Access);
+     (Resource :    out File_Type;
+      Buffer   : in     Stream_Access);
    pragma Inline (Create);
    --  Create the resource from user defined resource.
 
