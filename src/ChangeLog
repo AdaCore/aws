@@ -1,3 +1,9 @@
+2004-11-16  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Field): Fix test to detect Up_Level attribute going on or above
+	 the top level.
+
 2004-11-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
