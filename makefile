@@ -319,7 +319,7 @@ install: force
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
 	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
-	$(CP) lib/*.dll $(INSTALL)/AWS/lib
+	$(CP) win32/*.dll $(INSTALL)/AWS/lib
 endif
 
 #############################################################################
