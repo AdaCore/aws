@@ -1,6 +1,12 @@
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* test_speed.adb:
+	(Check_Computer_Speed): Add allocation as this does have a big
+	 impact on the gdb speed.
+
+2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* test_speed.adb:
 	Compute time allowed to pass the test by checking computer speed.
 
 2003-03-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
