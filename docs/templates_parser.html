@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 23 May 2001 -->
+     from templates_parser.texi on 21 July 2001 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
@@ -15,19 +15,21 @@
 <H1>Table of Contents</H1>
 <UL>
 <LI><A NAME="TOC1" HREF="templates_parser.html#SEC1">Introduction</A>
-<LI><A NAME="TOC2" HREF="templates_parser.html#SEC2">How to use it ?</A>
+<LI><A NAME="TOC2" HREF="templates_parser.html#SEC2">What is a tag ?</A>
+<LI><A NAME="TOC3" HREF="templates_parser.html#SEC3">Variable tags</A>
 <UL>
-<LI><A NAME="TOC3" HREF="templates_parser.html#SEC3">What is a tag ?</A>
-<LI><A NAME="TOC4" HREF="templates_parser.html#SEC4">Variable tags</A>
-<LI><A NAME="TOC5" HREF="templates_parser.html#SEC5">Tag statements</A>
+<LI><A NAME="TOC4" HREF="templates_parser.html#SEC4">Discrete, Boolean, Vector and Matrix</A>
+<LI><A NAME="TOC5" HREF="templates_parser.html#SEC5">Filters</A>
+<LI><A NAME="TOC6" HREF="templates_parser.html#SEC6">Other variables tags</A>
+</UL>
+<LI><A NAME="TOC7" HREF="templates_parser.html#SEC7">Tag statements</A>
 <UL>
-<LI><A NAME="TOC6" HREF="templates_parser.html#SEC6">INCLUDE tag statement</A>
-<LI><A NAME="TOC7" HREF="templates_parser.html#SEC7">IF tag statement</A>
-<LI><A NAME="TOC8" HREF="templates_parser.html#SEC8">TABLE tag statement</A>
+<LI><A NAME="TOC8" HREF="templates_parser.html#SEC8">INCLUDE tag statement</A>
+<LI><A NAME="TOC9" HREF="templates_parser.html#SEC9">IF tag statement</A>
+<LI><A NAME="TOC10" HREF="templates_parser.html#SEC10">TABLE tag statement</A>
 </UL>
-</UL>
-<LI><A NAME="TOC9" HREF="templates_parser.html#SEC9">Last notes</A>
-<LI><A NAME="TOC10" HREF="templates_parser.html#SEC10">Templates_Parser Ada spec</A>
+<LI><A NAME="TOC11" HREF="templates_parser.html#SEC11">Last notes</A>
+<LI><A NAME="TOC12" HREF="templates_parser.html#SEC12">Templates_Parser Ada spec</A>
 </UL>
 <P><HR><P>
 
@@ -122,24 +124,13 @@ of data. You just have to provides as many templates as you like.
 </P>
 
 
-<H1><A NAME="SEC2" HREF="templates_parser.html#TOC2">How to use it ?</A></H1>
-
-
-<UL>
-<LI><A HREF="templates_parser.html#SEC3">What is a tag ?</A>
-<LI><A HREF="templates_parser.html#SEC4">Variable tags</A>
-<LI><A HREF="templates_parser.html#SEC5">Tag statements</A>
-</UL>
-
-
-
-<H2><A NAME="SEC3" HREF="templates_parser.html#TOC3">What is a tag ?</A></H2>
+<H1><A NAME="SEC2" HREF="templates_parser.html#TOC2">What is a tag ?</A></H1>
 
 <P>
 A tag is a string found in the template page and surrounded by a specific set
 of characters. The default is <B>@_</B> at the start and <B>_@</B> at the
 end of the tag. This default can be changed using <CODE>Set_Tag_Separators</CODE>
-routine, see section <A HREF="templates_parser.html#SEC10">Templates_Parser Ada spec</A>. Note that it must be changed
+routine, see section <A HREF="templates_parser.html#SEC12">Templates_Parser Ada spec</A>. Note that it must be changed
 as the first API call and should not be changed after that.
 
 </P>
@@ -197,13 +188,24 @@ powerful construct that you can use into a template file.
 </P>
 
 
-<H2><A NAME="SEC4" HREF="templates_parser.html#TOC4">Variable tags</A></H2>
+<H1><A NAME="SEC3" HREF="templates_parser.html#TOC3">Variable tags</A></H1>
+
+
+<UL>
+<LI><A HREF="templates_parser.html#SEC4">Discrete Boolean Vector and Matrix</A>
+<LI><A HREF="templates_parser.html#SEC5">Filters</A>
+<LI><A HREF="templates_parser.html#SEC6">Other variables tags</A>
+</UL>
+
+
+
+<H2><A NAME="SEC4" HREF="templates_parser.html#TOC4">Discrete, Boolean, Vector and Matrix</A></H2>
 
 <P>
 A variable tag is a specific string to be replaced by the template
 parser. There is four kinds of variable tags: <B>discrete</B>, <B>boolean</B>,
 <B>vector</B> and <B>matrix</B>. All variables tags are build using the Assoc
-constructors, see section <A HREF="templates_parser.html#SEC10">Templates_Parser Ada spec</A>.
+constructors, see section <A HREF="templates_parser.html#SEC12">Templates_Parser Ada spec</A>.
 
 </P>
 <DL COMPACT>
@@ -225,7 +227,7 @@ statement.
 <DD>
 A vector tag is a variable which represent a set of values. These kind of
 variables will be used with the TABLE tag statement 
-see section <A HREF="templates_parser.html#SEC8">TABLE tag statement</A>. Outside a table statement it will be
+see section <A HREF="templates_parser.html#SEC10">TABLE tag statement</A>. Outside a table statement it will be
 replaced by all values in the vector tag.
 
 There is many overloaded constructors to build vector tags (see "+"
@@ -252,25 +254,22 @@ A matrix variable tag is built by concatenating vector variables.
 
 </DL>
 
+
+
+<H2><A NAME="SEC5" HREF="templates_parser.html#TOC5">Filters</A></H2>
+
 <P>
 All kinds of variable tag can have one or more function-prefix or filter. The
 function prefix is applied to the variable value. The syntax is
-<CODE>@_[[FILTER_NAME:]FILTER_NAME:]SOME_VAR_@</CODE>. The current filters are:
+<CODE>@_[[FILTER_NAME[(parameter)]:]FILTER_NAME[(parameter)]:]SOME_VAR_@</CODE>.
+Filters are evaluated from right to left.
+
+</P>
+<P>
+The current filters are:
 
 </P>
 <DL COMPACT>
-
-<DT><CODE>UPPER</CODE>
-<DD>
-Put all characters in the variable in upper-case.
-
-<DT><CODE>LOWER</CODE>
-<DD>
-Put all characters in the variable in lower-case.
-
-<DT><CODE>REVERSE</CODE>
-<DD>
-Reverse the string.
 
 <DT><CODE>CAPITALIZE</CODE>
 <DD>
@@ -282,15 +281,49 @@ a space or an underscore which are set in upper-case.
 Keep only letters and digits all others characters are changed to
 spaces.
 
+<DT><CODE>COMA_2_POINT</CODE>
+<DD>
+Replaces all comas by points.
+
+<DT><CODE>CONTRACT</CODE>
+<DD>
+Converts any suite of spaces by a single space character.
+
+<DT><CODE>EXIST</CODE>
+<DD>
+Returns <B>True</B> if variable is set and has a value different that the null
+string and <B>False</B> otherwize.
+
+<DT><CODE>FORMAT_NUMBER</CODE>
+<DD>
+Returns the number with a space added between each 3 digits
+blocks. The decimal part is not transformed. If the data is not a
+number nothing is done.
+
+<DT><CODE>IS_EMPTY</CODE>
+<DD>
+Returns <B>True</B> if variable is the empty string and <B>False</B> otherwize.
+
+<DT><CODE>LOWER</CODE>
+<DD>
+Put all characters in the variable in lower-case.
+
+<DT><CODE>MATCH(<I>REGEXP</I>)</CODE>
+<DD>
+Returns <B>True</B> if variable match the regular expression passed as
+filter's parameter.
+
+<DT><CODE>NO_DIGIT</CODE>
+<DD>
+Replaces all digits by spaces.
+
+<DT><CODE>NO_LETTER</CODE>
+<DD>
+Replaces all letters by spaces.
+
 <DT><CODE>NO_SPACE</CODE>
 <DD>
 Removes all spaces in the variable.
-
-<DT><CODE>YES_NO</CODE>
-<DD>
-If variable value is <B>True</B> it returns <B>Yes</B>, if <B>False</B> it
-returns <B>No</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
-capitalized (all upper, all lower or first letter capital).
 
 <DT><CODE>OUI_NON</CODE>
 <DD>
@@ -298,14 +331,44 @@ If variable value is <B>True</B> it returns <B>Oui</B>, if <B>False</B> it
 returns <B>Non</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
 capitalized (all upper, all lower or first letter capital).
 
-<DT><CODE>EXIST</CODE>
+<DT><CODE>POINT_2_COMA</CODE>
 <DD>
-Returns <B>True</B> if variable is set and has a value different that the null
-string and <B>False</B> otherwize.
+Replaces all comas by points.
 
-<DT><CODE>IS_EMPTY</CODE>
+<DT><CODE>REPEAT(<I>N</I>)</CODE>
 <DD>
-Returns <B>True</B> if variable is the empty string and <B>False</B> otherwize.
+Returns N times the variable, N beeing passed as filter's parameter.
+
+<DT><CODE>REVERSE</CODE>
+<DD>
+Reverse the string.
+
+<DT><CODE>SIZE</CODE>
+<DD>
+Returns the size (number of characters) of the string value.
+
+<DT><CODE>TRIM</CODE>
+<DD>
+Removes leading and trailing spaces.
+
+<DT><CODE>UPPER</CODE>
+<DD>
+Put all characters in the variable in upper-case.
+
+<DT><CODE>WEB_ESCAPE</CODE>
+<DD>
+Replaces characters '&#60;', '&#62;', '"' and '&#38;' by corresponding HTML
+sequences: &#38;lt; &#38;gt; &#38;quot; and &#38;amp; 
+
+<DT><CODE>WEB_NBSP</CODE>
+<DD>
+Replaces all spaces by an HTML non breaking space.
+
+<DT><CODE>YES_NO</CODE>
+<DD>
+If variable value is <B>True</B> it returns <B>Yes</B>, if <B>False</B> it
+returns <B>No</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
+capitalized (all upper, all lower or first letter capital).
 
 </DL>
 
@@ -322,12 +385,58 @@ If VAR is set to "<I>vector_tag</I>" then:
 @_CAPITALIZE:VAR_@          -&#62;  Vector_Tag
 @_EXIST:VAR_@               -&#62;  TRUE
 @_UPPER:REVERSE:VAR_@       -&#62;  GAT_ROTCEV
+@_MATCH(VEC.*):UPPER:VAR_   -&#62;  TRUE
 
 </PRE>
 
 
 
-<H2><A NAME="SEC5" HREF="templates_parser.html#TOC5">Tag statements</A></H2>
+<H2><A NAME="SEC6" HREF="templates_parser.html#TOC6">Other variables tags</A></H2>
+
+<P>
+There is some specific variables tags that can be used in any
+templates. Here is a description of them:
+
+</P>
+<DL COMPACT>
+
+<DT><CODE>YEAR</CODE>
+<DD>
+Current year number using 4 digits.
+
+<DT><CODE>MONTH</CODE>
+<DD>
+Current month number using 2 digits.
+
+<DT><CODE>DAY</CODE>
+<DD>
+Current day number using 2 digits.
+
+<DT><CODE>HOUR</CODE>
+<DD>
+Current hour using range 0 to 23 using 2 digits.
+
+<DT><CODE>MINUTE</CODE>
+<DD>
+Current minute using 2 digits.
+
+<DT><CODE>SECOND</CODE>
+<DD>
+Current seconds using 2 digits.
+
+<DT><CODE>MONTH_NAME</CODE>
+<DD>
+Current full month name (January .. December).
+
+<DT><CODE>DAY_NAME</CODE>
+<DD>
+Current full day name (Monday .. Sunday).
+
+</DL>
+
+
+
+<H1><A NAME="SEC7" HREF="templates_parser.html#TOC7">Tag statements</A></H1>
 
 <P>
 There is three different tag statements. A tag statement is surrounded
@@ -336,24 +445,14 @@ by <CODE>@@</CODE>. The tag statements are:
 </P>
 
 <UL>
-<LI>INCLUDE
-
-<LI>IF
-
-<LI>TABLE
-
-</UL>
-
-
-<UL>
-<LI><A HREF="templates_parser.html#SEC6">INCLUDE tag statement</A>
-<LI><A HREF="templates_parser.html#SEC7">IF tag statement</A>
-<LI><A HREF="templates_parser.html#SEC8">TABLE tag statement</A>
+<LI><A HREF="templates_parser.html#SEC8">INCLUDE tag statement</A>
+<LI><A HREF="templates_parser.html#SEC9">IF tag statement</A>
+<LI><A HREF="templates_parser.html#SEC10">TABLE tag statement</A>
 </UL>
 
 
 
-<H3><A NAME="SEC6" HREF="templates_parser.html#TOC6">INCLUDE tag statement</A></H3>
+<H2><A NAME="SEC8" HREF="templates_parser.html#TOC8">INCLUDE tag statement</A></H2>
 
 <P>
 This tag is used to include another template file. This is useful if you
@@ -371,7 +470,7 @@ have the same header and/or footer in all your HTML pages. For example:
 
 
 
-<H3><A NAME="SEC7" HREF="templates_parser.html#TOC7">IF tag statement</A></H3>
+<H2><A NAME="SEC9" HREF="templates_parser.html#TOC9">IF tag statement</A></H2>
 
 <P>
 This is the conditional tag statement. The complete form is:
@@ -379,16 +478,19 @@ This is the conditional tag statement. The complete form is:
 </P>
 
 <PRE>
-@@IF@@ &#60;expression&#62;
+@@IF@@ &#60;expression1&#62;
    part1
-@@ELSE@@
+@@ELSIF@@ &#60;expression2&#62;
    part2
+@@ELSE@@
+   part3
 @@END_IF@@
 </PRE>
 
 <P>
-The part1 one will be parsed if expression evaluate to "TRUE" and the part2
-will be parse in any other case.
+The part1 one will be parsed if expression1 evaluate to "TRUE", part2
+will be parsed if expression2 evaluate to "TRUE" and the part3 will
+be parse in any other case. The ELSIF and ELSE part are optional.
 
 </P>
 <P>
@@ -540,7 +642,7 @@ Will display:
 
 
 
-<H3><A NAME="SEC8" HREF="templates_parser.html#TOC8">TABLE tag statement</A></H3>
+<H2><A NAME="SEC10" HREF="templates_parser.html#TOC10">TABLE tag statement</A></H2>
 
 <P>
 A table tag is useful to generate HTML table for example. Basicly the
@@ -1127,7 +1229,7 @@ A3.1, A3.2
 
 
 
-<H1><A NAME="SEC9" HREF="templates_parser.html#TOC9">Last notes</A></H1>
+<H1><A NAME="SEC11" HREF="templates_parser.html#TOC11">Last notes</A></H1>
 
 <P>
 The templates parser has be written to parse HTML page but it is usable
@@ -1152,7 +1254,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 
 
 
-<H1><A NAME="SEC10" HREF="templates_parser.html#TOC10">Templates_Parser Ada spec</A></H1>
+<H1><A NAME="SEC12" HREF="templates_parser.html#TOC12">Templates_Parser Ada spec</A></H1>
 
 
 <PRE>
@@ -1355,13 +1457,26 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -----------------------------
 
    <B>function</B> Parse
-     (Filename     : <B>in</B> String;
-      Translations : <B>in</B> Translate_Table := No_Translation;
-      Cached       : <B>in</B> Boolean         := False)
+     (Filename          : <B>in</B> String;
+      Translations      : <B>in</B> Translate_Table := No_Translation;
+      Cached            : <B>in</B> Boolean         := False;
+      Keep_Unknown_Tags : <B>in</B> Boolean         := False)
      <B>return</B> String;
    -- <I> Parse the Template_File replacing variables' occurences by the</I>
    -- <I> corresponding values. If Cached <B>is</B> set to True, Filename tree will be</I>
-   -- <I> <B>record</B>ed <B>in</B>to a cache to quick retrieval.</I>
+   -- <I> <B>record</B>ed <B>in</B>to a cache to quick retrieval. If Keep_Unknown_Tags <B>is</B> set</I>
+   -- <I> to True then tags that are not <B>in</B> the translate table are keept</I>
+   -- <I> as-is if it is part of the template data. If this tags <B>is</B> part <B>of</B> a</I>
+   -- <I> condition (in an IF statement tag), the condition will evaluate to</I>
+   -- <I> False.</I>
+
+   <B>function</B> Parse
+     (Filename          : <B>in</B> String;
+      Translations      : <B>in</B> Translate_Table := No_Translation;
+      Cached            : <B>in</B> Boolean         := False;
+      Keep_Unknown_Tags : <B>in</B> Boolean         := False)
+     <B>return</B> Unbounded_String;
+   -- <I> Idem as above but <B>return</B>s an Unbounded_String.</I>
 
    <B>function</B> Translate
      (Template     : <B>in</B> String;
@@ -1466,7 +1581,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 </PRE>
 
 <P><HR><P>
-This document was generated on 23 May 2001 using the
+This document was generated on 21 July 2001 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
