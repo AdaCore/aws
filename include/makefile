@@ -13,6 +13,14 @@ SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
 	templates_parser.adb templates_parser-input.adb \
 	sha.ads sha-process_data.adb sha-strings.adb
 
+UNITS = $(sort $(basename $(SOURCES)))
+
+force:
+
+$(UNITS): force
+	echo Building $@
+	gnatmake -u $(GARGS) $@
+
 all:
 	echo "Targets:"
 	echo ""
@@ -20,13 +28,11 @@ all:
 	echo "clean:     remove generated files"
 	echo ""
 
-build: 
+check_oslib:
 	(if ! [ -e ../src/aws-os_lib.adb ]; then \
 	   cp aws-os_lib-gnat.adb ../src/aws-os_lib.adb; fi)
-	for file in $(SOURCES); do \
-	   echo Building $$file; \
-	   gnatmake $(GARGS) $$file; \
-	done
+
+build: check_oslib $(UNITS)
 
 clean:
 	-rm *.o *.ali
