@@ -114,6 +114,7 @@ clean:
 	make -C ssl clean
 	make -C docs clean
 	make -C soap clean
+	make -C regtests clean
 	-rm *.~*.*~
 	rm makefile.conf
 	cvs update makefile.conf
