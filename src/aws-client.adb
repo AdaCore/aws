@@ -254,8 +254,6 @@ package body AWS.Client is
       Connection.Opened := True;
    exception
       when E : Net.Socket_Error =>
-         Net.Shutdown (Connection.Socket.all);
-         Net.Free (Connection.Socket);
          Connection.Opened := False;
 
          Exceptions.Raise_Exception
