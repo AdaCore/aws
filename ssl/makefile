@@ -6,7 +6,7 @@
 GARGS = -c $(INCLUDES) -gnatwu -O2
 
 build:
-	gnatmake $(GARGS) ssl.adb
+	gnatmake -q $(GARGS) ssl.adb
 
 clean:
 	-rm *.ali *.o *.a
