@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 21 July 2001 -->
+     from templates_parser.texi on 16 April 2002 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
@@ -79,7 +79,7 @@ inline HTML command.
 
 <P>
 With the templates parser package these problems are gone. The code and
-the design is <B>completly</B> separated. This is a very important
+the design is <B>completely</B> separated. This is a very important
 point. PHP or JSP have tried this but most of the time you have the
 script embedded into the Web template. And worst you need to use another
 language just for your Web development.
@@ -292,7 +292,7 @@ Converts any suite of spaces by a single space character.
 <DT><CODE>EXIST</CODE>
 <DD>
 Returns <B>True</B> if variable is set and has a value different that the null
-string and <B>False</B> otherwize.
+string and <B>False</B> otherwise.
 
 <DT><CODE>FORMAT_NUMBER</CODE>
 <DD>
@@ -302,7 +302,7 @@ number nothing is done.
 
 <DT><CODE>IS_EMPTY</CODE>
 <DD>
-Returns <B>True</B> if variable is the empty string and <B>False</B> otherwize.
+Returns <B>True</B> if variable is the empty string and <B>False</B> otherwise.
 
 <DT><CODE>LOWER</CODE>
 <DD>
@@ -337,7 +337,7 @@ Replaces all comas by points.
 
 <DT><CODE>REPEAT(<I>N</I>)</CODE>
 <DD>
-Returns N times the variable, N beeing passed as filter's parameter.
+Returns N times the variable, N being passed as filter's parameter.
 
 <DT><CODE>REVERSE</CODE>
 <DD>
@@ -507,8 +507,8 @@ Returns TRUE if A equal B
 <DT><CODE>A &#62; B</CODE>
 <DD>
 Returns TRUE if A greater than B. If A and B are numbers it returns the
-the number comparason (5 &#62; 003 = TRUE) otherwise it returns the string
-comparaison (5 &#62; 003 = FALSE).
+the number comparison (5 &#62; 003 = TRUE) otherwise it returns the string
+comparison ("5" &#62; "003" = FALSE).
 
 <DT><CODE>A &#62;= B</CODE>
 <DD>
@@ -645,7 +645,7 @@ Will display:
 <H2><A NAME="SEC10" HREF="templates_parser.html#TOC10">TABLE tag statement</A></H2>
 
 <P>
-A table tag is useful to generate HTML table for example. Basicly the
+A table tag is useful to generate HTML table for example. Basically the
 code between the <CODE>@@TABLE@@</CODE> and <CODE>@@END_TABLE@@</CODE> will
 be repeated as many time as the vector tag will have of values. If many
 vector tags are specified in a table statement, the code between the
@@ -657,7 +657,7 @@ all vector tags in the table tag statement.
 A table tag statement is a kind of implicit iterator. This is a very
 important concept to build HTML table. Using <CODE>Vector_Tag</CODE> or
 <CODE>Matrix_Tag</CODE> variable in a <CODE>@@TABLE@@</CODE> tag statement it is
-possible to build very complexe Web pages.
+possible to build very complex Web pages.
 
 </P>
 <P>
@@ -749,7 +749,7 @@ The following output will be generated:
 Note that we use vector tag variables here. A discrete variable tag in a table
 will be replaced by the same (the only one) value for each row. A vector
 tag outside a table will be displayed as a list of values, each value
-beeing separated by a specified string. The default is a comma and a
+being separated by a specified string. The default is a comma and a
 space ", ".
 
 </P>
@@ -766,14 +766,14 @@ The complete prototype for the <CODE>Vector_Tag</CODE> Assoc function is:
 <I>--  build an Association (Variable = Value) to be added to a</I>
 <I>--  Translate_Table. This is a vector tag association, value is a</I>
 <I>--  Vector_Tag. If the vector tag is found outside a table tag statement</I>
-<I>--  it is returned as a single string, each value beeing separater by the</I>
+<I>--  it is returned as a single string, each value being separated by the</I>
 <I>--  specified separator.</I>
 </PRE>
 
 <P>
 A table can contain many sections. The section to use will be selected
 depending on the current line. For example, a table with two sections
-will use different data on even and odd lines. This is usefull, for
+will use different data on even and odd lines. This is useful, for
 example, when you want to alternate the line background color for a
 better lisibility when working on HTML pages.
 
@@ -1064,6 +1064,7 @@ Sorry, not available
 &#60;td&#62;
 Sorry, not available
 
+
 </PRE>
 
 <P>
@@ -1202,6 +1203,7 @@ A3.2
 &#60;/td&#62;
 &#60;/tr&#62;
 
+
 The same matrix inside a single table:
 
 &#60;tr&#62;
@@ -1219,11 +1221,13 @@ A2.1, A2.2
 A3.1, A3.2
 &#60;/tr&#62;
 
+
 The same matrix outside a table:
 
 A1.1, A1.2
 A2.1, A2.2
 A3.1, A3.2
+
 
 </PRE>
 
@@ -1368,6 +1372,10 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    <B>function</B> Size (Vect : <B>in</B> Vector_Tag) <B>return</B> Natural;
    -- <I> Returns the number <B>of</B> value <B>in</B>to Vect.</I>
 
+   <B>function</B> Item (Vect : in Vector_Tag; N : <B>in</B> Positive) <B>return</B> String;
+   -- <I> Returns the Nth Vector Tag's item. Raises Constraint_Error if there <B>is</B></I>
+   -- <I> no such Item <B>in</B> the vector (i.e. vector length &#60; N).</I>
+
    ----------------
    -- <I>Matrix Tag --</I>
    ----------------
@@ -1438,7 +1446,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -- <I> Build an Association (Variable = Value) to be added to a</I>
    -- <I> Translate_Table. This is a vector tag association, value <B>is</B> a</I>
    -- <I> Vector_Tag. If the vector tag <B>is</B> found <B>out</B>side a table tag statement</I>
-   -- <I> it <B>is</B> <B>return</B>ed as a single string, each value beeing separater by the</I>
+   -- <I> it <B>is</B> <B>return</B>ed as a single string, each value being separated by the</I>
    -- <I> specified separator.</I>
 
    <B>function</B> Assoc
@@ -1462,10 +1470,10 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
       Cached            : <B>in</B> Boolean         := False;
       Keep_Unknown_Tags : <B>in</B> Boolean         := False)
      <B>return</B> String;
-   -- <I> Parse the Template_File replacing variables' occurences by the</I>
+   -- <I> Parse the Template_File replacing variables' occurrences by the</I>
    -- <I> corresponding values. If Cached <B>is</B> set to True, Filename tree will be</I>
-   -- <I> <B>record</B>ed <B>in</B>to a cache to quick retrieval. If Keep_Unknown_Tags <B>is</B> set</I>
-   -- <I> to True then tags that are not <B>in</B> the translate table are keept</I>
+   -- <I> <B>record</B>ed <B>in</B>to a cache for quick retrieval. If Keep_Unknown_Tags <B>is</B> set</I>
+   -- <I> to True then tags that are not <B>in</B> the translate table are kept</I>
    -- <I> as-is if it is part of the template data. If this tags <B>is</B> part <B>of</B> a</I>
    -- <I> condition (in an IF statement tag), the condition will evaluate to</I>
    -- <I> False.</I>
@@ -1581,7 +1589,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 </PRE>
 
 <P><HR><P>
-This document was generated on 21 July 2001 using the
+This document was generated on 16 April 2002 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
