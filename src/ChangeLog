@@ -1,5 +1,8 @@
 2001-07-28  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile: 
+	(SOURCES): Add AWS.Session.Control module.
+
 	* aws-server.adb: 
 	(Start): call Start from AWS.Session.Control was in AWS.Session.
 	(Shutdown): call Shutdown from AWS.Session.Control was in AWS.Session.
