@@ -1532,7 +1532,12 @@ calling @code{AWS.Server.Start}. The default is @file{@_ADMIN_URI_@}.
 @item Certificate (string)
 @cindex Certificate (string)
 Set the certificate file to be used with the secure servers. The
-default is @file{@_DEFAULT_CERTIFICATE_@}.
+default is @file{@_DEFAULT_CERTIFICATE_@}. A single certificate or
+certificate chain is supported. The certificates must be in PEM format
+and in chain must be sorted starting with the subject's certificate, followed
+by intermediate CA certificates if applicable, and ending at the highest
+level (root) CA. If file contain only single certificate, it could be
+followed by primary key. Key parameter mast be empty this way.
 
 @item Case_Sensitive_Parameters (boolean)
 @cindex Case_Sensitive_Parameters
