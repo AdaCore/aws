@@ -1,5 +1,13 @@
 2004-12-23  Pascal Obry  <pascal@obry.net>
 
+	* aws-services-web_mail.ads:
+	Document new WM_TO_ALL template variable.
+
+	* aws-services-web_mail.adb:
+	(Reply): Add To_All parameter and set the new WM_TO_ALL template
+         variable.
+        (Callback): Handle new wm_reply_all URL for the reply all support.
+
 	* aws-services-callbacks.ads, aws-services-callbacks.adb:
 	Initial revision.
 

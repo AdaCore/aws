@@ -1,5 +1,8 @@
 2004-12-23  Pascal Obry  <pascal@obry.net>
 
+	* wm_message.thtml, wm_reply.thtml:
+	Add support for reply all command.
+
 	* we_test_notebook.html:
 	Update test to use some optional parameters.
 
