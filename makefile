@@ -19,6 +19,7 @@ include makefile.conf
 ADASOCKETS = /usr/Ada.Libraries/adasockets
 
 # XMLADA package, needed if you want to build SOAP's AWS support.
+# comment out XMLADA if you don't want to build with SOAP support.
 #XMLADA	 = /usr/Ada.Libraries/XMLada
 v_XMLADA = -0.7
 
@@ -45,19 +46,21 @@ else
 EXEEXT =
 endif
 
+STYLE_FLAGS	= -gnatwcfipru -gnatwe -gnaty3abcefhiklmnoprst
+
 # compiler
 RELEASE_GFLAGS	= -O2 -gnatn
-DEBUG_GFLAGS	= -g -m -gnatwu -gnaty3abcefhiklmnoprst
+DEBUG_GFLAGS	= -g -m
 
 # linker
 RELEASE_LFLAGS	= -s
 DEBUG_LFLAGS	=
 
 ifdef DEBUG
-GFLAGS		= $(DEBUG_GFLAGS)
+GFLAGS		= $(DEBUG_GFLAGS) $(STYLE_FLAGS)
 LFLAGS		= $(DEBUG_LFLAGS)
 else
-GFLAGS		= $(RELEASE_GFLAGS)
+GFLAGS		= $(RELEASE_GFLAGS) $(STYLE_FLAGS)
 LFLAGS		= $(RELEASE_LFLAGS)
 endif
 
@@ -151,7 +154,7 @@ build_win32:
 build_apiref:
 	${MAKE} -C docs apiref
 
-run_regtests:
+run_regtests: build_tools
 	${MAKE} -C regtests run $(ALL_OPTIONS)
 
 clean: clean_noapiref
