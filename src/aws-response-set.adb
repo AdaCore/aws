@@ -352,7 +352,7 @@ package body AWS.Response.Set is
    begin
       Clear_Memory_Stream (D);
 
-      RSM.Append (RSM.Stream_Type (D.Stream.all), Value);
+      Append_Body (D, Value);
    end Message_Body;
 
    procedure Message_Body
