@@ -117,6 +117,10 @@ package AWS.Session is
       return Boolean;
    --  Returns True if Key exist in session SID.
 
+   ---------------
+   -- Iterators --
+   ---------------
+
    generic
       with procedure Action
         (N          : in     Positive;
@@ -145,11 +149,30 @@ package AWS.Session is
    --  Exist) but any routines which modify the data will block (i.e. Touch,
    --  Set, Remove, Delete will dead lock).
 
+   --------------
+   -- Lifetime --
+   --------------
+
    procedure Set_Lifetime (Seconds : in Duration);
    --  Set the lifetime for session data.
 
    function Get_Lifetime return Duration;
    --  Get current session lifetime for session data.
+
+   ----------------------
+   -- Session Callback --
+   ----------------------
+
+   type Callback is access procedure (SID : in ID);
+   --  Callback procedure called when a sesssion is deleted from the server.
+
+   procedure Set_Callback (Callback : in Session.Callback);
+   --  Set the callback procedure to call when a session is deleted from the
+   --  server. If Callback is Null the session's callback will be removed.
+
+   ----------------
+   -- Session IO --
+   ----------------
 
    procedure Save (File_Name : in String);
    --  Save all sessions data into File_Name.
