@@ -538,6 +538,10 @@ package body AWS.Server is
           Server_Response =>
             CNF.Send_Timeout (Web_Server.Properties)));
 
+      --  Started time
+
+      Web_Server.Start_Time := Calendar.Clock;
+
       --  Initialize the connection lines
 
       Web_Server.Lines := new Line_Set (1 .. Web_Server.Max_Connection);
