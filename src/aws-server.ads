@@ -164,7 +164,8 @@ package AWS.Server is
    procedure Start_Log
      (Web_Server      : in out HTTP;
       Split_Mode      : in     Log.Split_Mode := Log.None;
-      Filename_Prefix : in     String         := "");
+      Filename_Prefix : in     String         := "";
+      Auto_Flush      : in     Boolean        := False);
    --  Activate server's logging activity. See AWS.Log.
 
    procedure Stop_Log (Web_Server : in out HTTP);

@@ -997,9 +997,10 @@ package body AWS.Server is
    ---------------
 
    procedure Start_Log
-     (Web_Server        : in out HTTP;
-      Split_Mode        : in     Log.Split_Mode := Log.None;
-      Filename_Prefix   : in     String         := "")
+     (Web_Server      : in out HTTP;
+      Split_Mode      : in     Log.Split_Mode := Log.None;
+      Filename_Prefix : in     String         := "";
+      Auto_Flush      : in     Boolean        := False)
    is
       use type AWS.Log.Split_Mode;
    begin
@@ -1017,7 +1018,8 @@ package body AWS.Server is
         (Web_Server.Log,
          Log.Split_Mode'Value (CNF.Log_Split_Mode (Web_Server.Properties)),
          CNF.Log_File_Directory (Web_Server.Properties),
-         CNF.Log_Filename_Prefix (Web_Server.Properties));
+         CNF.Log_Filename_Prefix (Web_Server.Properties),
+         Auto_Flush => Auto_Flush);
    end Start_Log;
 
    --------------------
