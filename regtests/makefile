@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: checks tres check_mem
+.SILENT:
 
 # To add a new test:
 #
@@ -49,8 +49,12 @@ LARGS := $(LARGS) ../lib/poll.o
 endif
 
 # SOAP regression tests
-RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
+RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_soap \
 	test_soap2 test_soap3 test_soap4 test_soap5 disp_soap $(RT_SOAP_SEC)
+
+ifdef EXTRA_TESTS
+RT_SOAP := test_speed $(RT_SOAP)
+endif
 
 # SOAP/WSDL test using ada2wsdl (ASIS package required)
 # Names must start with wsdl_ and be followed by a single digit between 0
@@ -60,8 +64,12 @@ RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6
 RT_SOAP_ASIS_PARSE = wsdl_a wsdl_b
 
 # Standard regression tests, could be only each in separate executable
-RT_STD_ALONE = dispatch dispatch_method dispatch_vh tlog upload2 upload3 \
+RT_STD_ALONE = dispatch dispatch_method dispatch_vh upload2 upload3 \
 	server_config
+
+ifdef EXTRA_TESTS
+RT_STD_ALONE := tlog $(RT_STD_ALONE)
+endif
 
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
