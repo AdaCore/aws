@@ -1,5 +1,10 @@
 2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* templates_parser-input.adb:
+	(Open): Remove call to Support_Compressed.
+
+2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* memory_streams.adb:
 	(Append): Fix to be able to accept pointer with arbitrary range.
 	(Read): Idem.
