@@ -309,10 +309,10 @@ package body Skel is
 
             when WSDL.Parameters.K_Array =>
                Text_IO.Put_Line
-                 (Skel_Adb, Format_Name (O, To_String (N.T_Name)));
+                 (Skel_Adb, Format_Name (O, To_String (N.T_Name)) & "_Type");
                Text_IO.Put_Line
                  (Skel_Adb, "           := To_"
-                    & Format_Name (O, To_String (N.T_Name)) & " (V ("
+                    & Format_Name (O, To_String (N.T_Name)) & "_Type (V ("
                     & To_String (N.Name) & "_"
                     & Format_Name (O, To_String (N.T_Name)) & "_Array));");
 
