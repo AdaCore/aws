@@ -266,16 +266,18 @@ begin
    AWS.Server.Start (WS, Disp, Conf);
 
    AWS.Net.Log.Callbacks.Initialize
-     ("wsdl_6.log", AWS.Net.Log.Callbacks.Text'Access);
+     ("wsdl_6.netlog", AWS.Net.Log.Callbacks.Text'Access);
 
    if Ada.Command_Line.Argument_Count = 1
      and then Ada.Command_Line.Argument (1) = "-j"
    then
       AWS.Server.Wait (AWS.Server.Forever);
+      AWS.Net.Log.Callbacks.Finalize;
 
    else
       Client;
 
+      AWS.Net.Log.Callbacks.Finalize;
       AWS.Server.Shutdown (WS);
    end if;
 end WSDL_6_Main;
