@@ -80,6 +80,8 @@ b~sock1.adb
 b~sock1.ads
 b~sp.adb
 b~sp.ads
+b~split.adb
+b~split.ads
 b~ssback.adb
 b~ssback.ads
 b~ssp.adb
@@ -275,6 +277,7 @@ sock1.tmp
 sp
 sp.res
 sp.tmp
+split.res
 ssback
 ssback.res
 ssp
