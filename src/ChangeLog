@@ -1,3 +1,30 @@
+2001-09-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-get_status.adb:
+	(Translations): Add START_TIME tag.
+
+	* aws-server.adb:
+	(Start): Set the Start_Time field with current date and time.
+
+	* aws-server.ads:
+	(HTTP): Add Start_Time field.
+
+	* aws-server-protocol_handler.adb:
+	Removes a duplicate with line for Stream_IO.
+	Add some comments.
+	Minor layout fix.
+
+	* aws-server.adb:
+	(Shutdown): release memory for new task access.
+	(Start): minor layout change.
+	(Start): create tasks objects.
+
+	* aws-server.ads:
+	(Line_Set_Access): new type.
+	(Line_Cleaner_Access): new type.
+	(HTTP): use Line_Cleaner_Access and Line_Set_Access to avoid
+	 creating the tasks when HTTP object is created.
+
 2001-09-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
