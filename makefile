@@ -99,27 +99,27 @@ endif
 
 build_aws:
 	echo ""
-	echo === Build library
+	echo "=== Build library"
 	${MAKE} -C src build $(ALL_OPTIONS)
 
 build_tools:
 	echo ""
-	echo === Build tools
+	echo "=== Build tools"
 	${MAKE} -C tools build $(ALL_OPTIONS)
 
 build_demos: build_lib build_tools
 	echo ""
-	echo === Build demos
+	echo "=== Build demos"
 	${MAKE} -C demos build $(ALL_OPTIONS)
 
 build_ssllib:
 	echo ""
-	echo === Build SSL support
+	echo "=== Build SSL support"
 	${MAKE} -C ssl build $(ALL_OPTIONS)
 
 build_soaplib: build_include build_lib
 	echo ""
-	echo === Build SOAP library
+	echo "=== Build SOAP library"
 	${MAKE} -C soap build $(ALL_OPTIONS)
 
 build_soap: build_soaplib
@@ -141,27 +141,27 @@ win32_oslib:
 
 build_doc:
 	echo ""
-	echo === Build doc
+	echo "=== Build doc"
 	${MAKE} -C docs build $(ALL_OPTIONS)
 
 build_include:
 	echo ""
-	echo === Build components
+	echo "=== Build components"
 	${MAKE} -C include build $(ALL_OPTIONS)
 
 build_win32:
 	echo ""
-	echo === Build win32 specific packages
+	echo "=== Build win32 specific packages"
 	${MAKE} -C win32 build $(ALL_OPTIONS)
 
 build_apiref:
 	echo ""
-	echo === Build API References
+	echo "=== Build API References"
 	${MAKE} -s -C docs apiref
 
 run_regtests: build_tools
 	echo ""
-	echo === Run regression tests
+	echo "=== Run regression tests"
 	${MAKE} -C regtests run $(ALL_OPTIONS) GDB_REGTESTS="$(GDB_REGTESTS)"
 
 clean: clean_noapiref
