@@ -1,3 +1,9 @@
+2003-02-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-status.ads, aws-status.adb:
+	(Header): New routine for get the header container, the same way
+	 like Parameters is for get Parameters container.
+
 2003-02-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.ads, aws-server.adb:
