@@ -87,6 +87,9 @@ Here are the main changes since AWS 1.3 :
 
    - Fix memory leak in the sessions container.
 
+   - Properly handle SOAPAction in SOAP persistent connections. It was not
+     possible to change the SOAPAction value for each request.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
