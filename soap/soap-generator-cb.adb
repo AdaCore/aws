@@ -117,8 +117,8 @@ package body CB is
 
       Text_IO.Put_Line (CB_Adb, "   function " & Proc & "_CB is");
       Text_IO.Put_Line (CB_Adb, "     new " & To_String (O.Unit)
-                          & ".Server." & L_Proc & "_CB ("
-                          & To_String (O.Types_Spec) & "." & Proc & ");");
+                        & ".Server." & L_Proc & "_CB ("
+                        & Procs_Spec (O) & "." & Proc & ");");
 
       --  Write SOAP_CB body
 
@@ -182,7 +182,12 @@ package body CB is
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "with SOAP.Message.Response.Error;");
       Text_IO.New_Line (CB_Adb);
-      Text_IO.Put_Line (CB_Adb, "with " & To_String (O.Types_Spec) & ";");
+      Text_IO.Put_Line (CB_Adb, "with " & Types_Spec (O) & ";");
+
+      if Types_Spec (O) /= Procs_Spec (O) then
+         Text_IO.Put_Line (CB_Adb, "with " & Procs_Spec (O) & ";");
+      end if;
+
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "with " & U_Name & ".Server;");
       Text_IO.Put_Line (CB_Adb, "with " & U_Name & ".Types;");
