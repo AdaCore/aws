@@ -1,3 +1,8 @@
+2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* demos.gpr:
+	Add COFF object for all demos.
+
 2003-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
