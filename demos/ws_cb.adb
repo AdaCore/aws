@@ -193,6 +193,7 @@ package body WS_CB is
    ---------
 
    function Put (Request : in AWS.Status.Data) return AWS.Response.Data is
+      pragma Unreferenced (Request);
    begin
       return AWS.Response.Acknowledge (Status_Code => AWS.Messages.S200);
    end Put;
