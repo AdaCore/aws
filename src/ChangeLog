@@ -1,5 +1,35 @@
 2004-06-25  Pascal Obry  <pascal@obry.org>
 
+	* templates_parser.adb:
+	Adjust to new AI302 version.	
+
+	* aws-session.adb:
+	Adjust to new AI302 version.	
+
+	* aws-services-transient_pages.adb, aws-resources-embedded.adb:
+	Adjust to new AI302 version.	
+
+	* aws-services-dispatchers-virtual_host.ads,
+	  aws-services-dispatchers-virtual_host.adb:
+	Adjust to new AI302 version.
+
+	* aws-server-push.ads, aws-server-push.adb:
+	Adjust to new AI302 version.
+
+	* aws-server-protocol_handler.adb:
+	Minor comment fix.
+
+	* aws-digest.adb:
+	Sort with clauses.
+
+	* aws-mime.adb:
+	Adjust to new AI302 version.
+
+	* aws-containers-key_value.ads, aws-containers-tables.adb:
+	Adjust to new AI302 version.
+
+2004-06-25  Pascal Obry  <pascal@obry.org>
+
 	* aws-session.adb:
 	(Key_Value_Set_Access): New type.
 	(Session_Node): Root field is now a Key_Value_Set_Access.
