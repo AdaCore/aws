@@ -167,7 +167,5 @@ implemented:
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
 
-- Document the Time dispatcher.
-
 - Improve the Web_Mail high level service to be able to reply and to handle CC
   recipients.
