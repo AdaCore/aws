@@ -31,7 +31,7 @@
 
 with Ada.Exceptions;
 
-package body SSL.Wrappers is
+package body SSL_Wrappers is
 
    procedure Raise_Error;
    --  Raises program error with a clear message that no-SSL support has been
@@ -489,4 +489,4 @@ package body SSL.Wrappers is
       Raise_Error;
    end X509_NAME_oneline;
 
-end SSL.Wrappers;
+end SSL_Wrappers;
