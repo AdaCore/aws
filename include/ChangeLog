@@ -1,0 +1,7 @@
+2003-01-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std-adasockets.adb:
+	Initial revision.
+
+	* aws-net-std-gnat.adb:
+	Initial revision.
