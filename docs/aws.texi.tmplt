@@ -44,6 +44,7 @@
 * Using AWS::
 * High level services::
 * Using SOAP::
+* Using WSDL::
 * Sending e-mail::
 * LDAP::
 * Jabber::
@@ -2531,6 +2532,16 @@ described in Ada as follow:
 
 @c ----------------------------------------------------------------------
 
+@node Using WSDL
+@chapter Using WSDL
+@cindex WSDL
+@cindex Web Service Definition Language
+
+@noindent
+To be filed.
+
+@c ----------------------------------------------------------------------
+
 @node Sending e-mail
 @chapter Sending e-mail
 @cindex Sending e-mail
@@ -3314,6 +3325,7 @@ AWS User API:
 * AWS.Server::
 * AWS.Server.Hotplug::
 * AWS.Server.Push::
+* AWS.Server.Status::
 * AWS.Services.Directory::
 * AWS.Services.Dispatchers::
 * AWS.Services.Dispatchers.Method::
@@ -3498,6 +3510,12 @@ SOAP User API:
 @cindex AWS.Server.Push
 
 @include ../src/aws-server-push.ads.texi
+
+@node AWS.Server.Status
+@section AWS.Server.Status
+@cindex AWS.Server.Status
+
+@include ../src/aws-server-status.ads.texi
 
 @node AWS.Services.Directory
 @section AWS.Services.Directory
