@@ -203,7 +203,11 @@ package body Templates_Parser is
          Replace,
          --  Replaces part of the string using a regultar expression. This is
          --  equivalent to the well known "s/<regexp>/<new value>/" sed
-         --  command.
+         --  command. It replaces only the first match.
+
+         Replace_All,
+         --  Idem as above, but replace all matches. This equivalent to the
+         --  well known "s/<regexp>/<new value>/g" sed command.
 
          Invert,
          --  Reverse string.
@@ -406,6 +410,12 @@ package body Templates_Parser is
          return String;
 
       function Replace
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
+
+      function Replace_All
         (S : in String;
          P : in Parameter_Data  := No_Parameter;
          T : in Translate_Table := No_Translation)
