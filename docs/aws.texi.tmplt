@@ -1961,7 +1961,7 @@ Jean-Fran@,cois Rameau.
 @cindex References
 
 @noindent
-Here are a list of documents used to implement AWS:
+Here is a list of documents used to implement @code{AWS} and @code{SOAP}:
 
 @enumerate 1
 
