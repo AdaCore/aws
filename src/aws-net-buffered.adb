@@ -63,7 +63,7 @@ package body AWS.Net.Buffered is
    -----------
 
    procedure Flush (Socket : in Socket_Type'Class) is
-      C : Cache renames Socket.Self.W_Cache;
+      C : Cache renames Socket.C.W_Cache;
    begin
       if C.Size /= 0 then
 
@@ -84,7 +84,7 @@ package body AWS.Net.Buffered is
    --------------
 
    function Get_Byte (Socket : in Socket_Type'Class) return Stream_Element is
-      C    : Cache renames Socket.Self.R_Cache;
+      C    : Cache renames Socket.C.R_Cache;
       Byte : Stream_Element;
    begin
       if C.Size = 0 then
@@ -199,7 +199,7 @@ package body AWS.Net.Buffered is
 
    procedure Read (Socket : in Socket_Type'Class) is
 
-      C      : Cache renames Socket.Self.R_Cache;
+      C      : Cache renames Socket.C.R_Cache;
 
       Buffer : constant Stream_Element_Array := Receive (Socket, R_Cache_Size);
       --  Read a chunk of data from the socket
@@ -215,7 +215,7 @@ package body AWS.Net.Buffered is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array
    is
-      C : Cache renames Socket.Self.R_Cache;
+      C : Cache renames Socket.C.R_Cache;
    begin
       Flush (Socket);
 
@@ -275,7 +275,7 @@ package body AWS.Net.Buffered is
      (Socket : in Socket_Type'Class;
       Item   : in Stream_Element)
    is
-      C : Cache renames Socket.Self.W_Cache;
+      C : Cache renames Socket.C.W_Cache;
    begin
       if C.Size = C.Max_Size then
          --  The buffer is full, write part of it
