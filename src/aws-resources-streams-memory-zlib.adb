@@ -33,8 +33,6 @@
 --  $Date$
 --  $Author$
 
-with Ada.Unchecked_Deallocation;
-
 package body AWS.Resources.Streams.Memory.ZLib is
 
    ------------
@@ -69,20 +67,9 @@ package body AWS.Resources.Streams.Memory.ZLib is
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access)
-   is
-      Copy : Stream_Element_Access := Buffer;
-      --  Wee need a buffer access copy to be able deallocate it.
-
-      procedure Free is new Ada.Unchecked_Deallocation
-                              (Stream_Element_Array, Stream_Element_Access);
+      Buffer   : in     Stream_Element_Access) is
    begin
-      --  ??? This is wrong, Buffer.all could be too big to fit on the stack
-      --  !!! I think compiler should use reference here. I'll check it.
-
       Append (Resource, Buffer.all);
-
-      Free (Copy);
    end Append;
 
    -----------
