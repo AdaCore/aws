@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2003                         --
+--                          Copyright (C) 2002-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -80,7 +80,7 @@ package AWS.Response.Set is
    procedure Cache_Control
      (D     : in out Data;
       Value : in     Messages.Cache_Option);
-   pragma Inline (Content_Type);
+   pragma Inline (Cache_Control);
    --  Set the Cache_Control mode for the message
 
    procedure Location
