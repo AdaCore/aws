@@ -39,6 +39,8 @@ with Ada.Streams;
 
 with AWS.Session;
 with AWS.Parameters;
+with AWS.URL;
+
 with Sockets;
 
 package AWS.Status is
@@ -153,9 +155,24 @@ package AWS.Status is
    --  Returns the socket used to transfert data between the client and
    --  server.
 
-   function URI                    (D : in Data) return String;
+   function URI
+     (D              : in Data;
+      Check_Validity : in Boolean := True;
+      Normalize      : in Boolean := False)
+      return String;
    pragma Inline (URI);
-   --  Returns the requested resource
+   --  Returns the requested resource. If Check_Validity is True
+   --  AWS.URL.URL_Error will be raised if the URI reference a directory above
+   --  the Web root directory. If Normalize is True, references to parent
+   --  directories ".." and current directory "." are removed.
+
+   function URI
+     (D              : in Data;
+      Check_Validity : in Boolean := True;
+      Normalize      : in Boolean := False)
+      return URL.Object;
+   pragma Inline (URI);
+   --  As above but return an URL object, moreover this URL can be normalized.
 
    function User_Agent             (D : in Data) return String;
    pragma Inline (User_Agent);
@@ -196,7 +213,7 @@ private
       Host              : Unbounded_String;
       Peername          : Unbounded_String;
       Method            : Request_Method     := GET;
-      URI               : Unbounded_String;
+      URI               : AWS.URL.Object;
       Parameters        : AWS.Parameters.List;
       Binary_Data       : Stream_Element_Array_Access := null;
       HTTP_Version      : Unbounded_String;
