@@ -28,13 +28,11 @@
 
 --  $Id$
 
-with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
-with Ada.Task_Identification;
 
 with POSIX;
 with POSIX_File_Status;
@@ -48,11 +46,6 @@ package body AWS.Connection is
 
    use Ada;
    use Ada.Strings;
-
-   type Slot is record
-      L    : Line;
-      Free : Boolean := True;
-   end record;
 
    type Slot_Set is array (Positive range <>) of Slot;
    type Slot_Set_Access is access Slot_Set;
@@ -69,7 +62,9 @@ package body AWS.Connection is
 
       entry Get;
 
-      procedure Free;
+      procedure Release;
+
+      function Free return Boolean;
 
    private
       Count : Natural := N;
@@ -82,9 +77,14 @@ package body AWS.Connection is
          Count := Count - 1;
       end Get;
 
-      procedure Free is
+      procedure Release is
       begin
          Count := Count + 1;
+      end Release;
+
+      function Free return Boolean is
+      begin
+         return Count > 0;
       end Free;
 
    end Counter;
@@ -99,26 +99,8 @@ package body AWS.Connection is
    HTTP_10 : constant String := "HTTP/1.0";
    HTTP_11 : constant String := "HTTP/1.1";
 
-   ----------
-   -- Free --
-   ----------
-
-   procedure Free (T : in Task_Identification.Task_ID) is
-      use type Task_Identification.Task_ID;
-   begin
-      for K in Slots'Range loop
-         if Slots (K).L'Identity = T then
-            Slots (K).Free := True;
-            return;
-         end if;
-      end loop;
-
-      --  We really should find the Task_ID, if not we just can't do anything,
-      --  there is something wrong going on.
-
-      Exceptions.Raise_Exception (Internal_Error'Identity,
-                                  Message => ("Free: Task_ID not found."));
-   end Free;
+   task Line_Cleaner;
+   --  run through the slots and see if some of them could be closed.
 
    ----------
    -- Line --
@@ -126,7 +108,8 @@ package body AWS.Connection is
 
    task body Line is
 
-      Sock    : Sockets.Socket_FD;
+      Sock      : Sockets.Socket_FD renames Slot.Sock;
+
       Handler : Response.Callback;
       C_Stat  : Status.Data;         --  connection status
 
@@ -409,11 +392,17 @@ package body AWS.Connection is
                declare
                   Data : constant String := Sockets.Get_Line (Sock);
                begin
-                  Text_IO.Put_Line ("H=" & Data);
+                  --  a request by the client has been received, do not abort
+                  --  until this request is handled.
+
+                  Slot.Abortable := False;
+
                   exit when Data = End_Of_Message;
 
                   Parse (Data);
                end;
+
+               Slot.Activity_Time_Stamp := Calendar.Clock;
             exception
                when Constraint_Error =>
                   --  here we time-out on Sockets.Get_Line
@@ -700,6 +689,8 @@ package body AWS.Connection is
 
             For_Every_Request: loop
 
+               Slot.Abortable := True;
+
                Get_Message_Header;
 
                Get_Message_Data;
@@ -713,8 +704,9 @@ package body AWS.Connection is
 
             Sockets.Shutdown (Sock);
 
-            Free (Task_Identification.Current_Task);
-            Ressources.Free;
+            Slot.Free      := True;
+            Slot.Abortable := False;
+            Ressources.Release;
 
          exception
 
@@ -725,10 +717,13 @@ package body AWS.Connection is
             when Sockets.Connection_Closed =>
                Text_IO.Put_Line ("Connection time-out, close it.");
 
+               Sockets.Shutdown (Sock);
+
                --  free the slot to be sure the Line will gets recycled.
 
-               Free (Task_Identification.Current_Task);
-               Ressources.Free;
+               Slot.Free      := True;
+               Slot.Abortable := False;
+               Ressources.Release;
 
             when E : others =>
                Text_IO.Put_Line ("A problem has been detected!");
@@ -736,15 +731,43 @@ package body AWS.Connection is
                Text_IO.New_Line;
                Text_IO.Put_Line (Exceptions.Exception_Information (E));
 
+               Sockets.Shutdown (Sock);
+
                --  free the slot to be sure the Line will gets recycled.
 
-               Free (Task_Identification.Current_Task);
-               Ressources.Free;
+               Slot.Free      := True;
+               Slot.Abortable := False;
+               Ressources.Release;
          end;
 
       end loop;
 
    end Line;
+
+   ------------------
+   -- Line_Cleaner --
+   ------------------
+
+   task body Line_Cleaner is
+      use type Calendar.Time;
+   begin
+      loop
+         delay 30.0;
+
+         for S in Slots'Range loop
+            if Slots (S).Abortable
+              and then (Calendar.Clock -
+                        Slots (S).Activity_Time_Stamp) > Keep_Open_Duration
+            then
+               --  We just close the socket, this will raise an exception in
+               --  line, free the slot and release the ressource
+               --  associated. So the line will gets recycled.
+
+               Sockets.Shutdown (Slots (S).Sock);
+            end if;
+         end loop;
+      end loop;
+   end Line_Cleaner;
 
    ------------------
    -- Create_Slots --
@@ -761,7 +784,39 @@ package body AWS.Connection is
    -------------------
 
    function Get_Free_Slot return Line is
+      use type Calendar.Time;
+
+      To_Be_Closed : Natural := 0;
+      Time_Stamp   : Calendar.Time := Calendar.Clock;
    begin
+
+      --  there is not free line, check if we can close one.
+
+      if not Ressources.Free then
+         for S in Slots'Range loop
+            if Slots (S).Abortable
+              and then Slots (S).Activity_Time_Stamp < Time_Stamp
+            then
+               To_Be_Closed := S;
+               Time_Stamp   := Slots (S).Activity_Time_Stamp;
+            end if;
+         end loop;
+
+         --  ??? note that this is not completly safe. The Abortable state of
+         --  the line could have been changed since we have checked it. But
+         --  anyway this line is the safest one to close for now.
+
+         if To_Be_Closed /= 0 then
+            Sockets.Shutdown (Slots (To_Be_Closed).Sock);
+            Ressources.Get;
+            return Slots (To_Be_Closed).L;
+         end if;
+
+         --  if there is no abortable line, just wait for a line freed by
+         --  Line_Cleaner.
+
+      end if;
+
       Ressources.Get;
 
       for K in Slots'Range loop
@@ -770,6 +825,11 @@ package body AWS.Connection is
             return Slots (K).L;
          end if;
       end loop;
+
+      --  this should never happend as Ressources.Get will returns only if
+      --  there is a free slot.
+
+      raise Program_Error;
    end Get_Free_Slot;
 
 end AWS.Connection;
