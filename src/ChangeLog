@@ -1,5 +1,9 @@
 2004-12-22  Pascal Obry  <pascal@obry.net>
 
+	* aws-config-ini.ads:
+	Minor comment fix.
+        Update copyright notice.
+
 	* templates_parser.adb:
 	(Check) [Include_Parameters]: New function.
 	(Get_Max_Lines): Properly check the include parameters. This fix
@@ -23,7 +27,7 @@
 	 include parameters.
 	(Analyse): Update all calls to Translate and I_Translate to pass
 	 the state. Also update recursive call to Analyse.
-	
+
 2004-12-17  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
