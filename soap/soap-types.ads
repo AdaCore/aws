@@ -233,9 +233,12 @@ package SOAP.Types is
    function XML_Type  (O : in SOAP_Record) return String;
 
    function R
-     (V    : in Object_Set;
-      Name : in String)
+     (V         : in Object_Set;
+      Name      : in String;
+      Type_Name : in String := "")
       return SOAP_Record;
+   --  If Type_Name is omitted then the type name is the name of the record.
+   --  Type_Name must be specified for item into an array for example.
 
    function V (O : in SOAP_Record; Name : in String) return Object'Class;
    --  Returns SOAP_Record field named Name
@@ -432,6 +435,8 @@ private
 
    type SOAP_Array is new Composite with null record;
 
-   type SOAP_Record is new Composite with null record;
+   type SOAP_Record is new Composite with record
+      Type_Name : Unbounded_String;
+   end record;
 
 end SOAP.Types;
