@@ -40,6 +40,8 @@ aws-services-dispatchers-uri.ads.texi
 aws-services-dispatchers-virtual_host.ads.texi
 aws-services-dispatchers.ads.texi
 aws-services-page_server.ads.texi
+aws-services-split_pages.ads.texi
+aws-services-transient_pages.ads.texi
 aws-session.ads.texi
 aws-smtp-client.ads.texi
 aws-smtp.ads.texi
