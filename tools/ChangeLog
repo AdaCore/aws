@@ -1,3 +1,9 @@
+2003-07-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wsdl2aws.adb:
+	Handle Name_Error exception and properly report that the file was
+	 not found.
+
 2003-05-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:
