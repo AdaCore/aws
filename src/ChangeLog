@@ -1,3 +1,9 @@
+2002-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-translator-conversion-f.adb, aws-translator-conversion-p.adb,
+	  aws-translator.adb, test_uconv.adb, makefile:
+	Change the name of separate package Binary to Conversion.
+
 2002-10-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* test_uconv.adb:
