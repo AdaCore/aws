@@ -1,3 +1,11 @@
+2002-11-22  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* makefile:
+	Add hval regression test.
+
+	* hval.adb, hval.out:
+	Initial revision.
+
 2002-11-11  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
