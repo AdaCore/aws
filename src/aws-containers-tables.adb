@@ -157,7 +157,7 @@ package body AWS.Containers.Tables is
 
    function Get_Names
      (Table : in Table_Type;
-      Sort  : Boolean := False)
+      Sort  : in Boolean := False)
       return VString_Array
    is
 
