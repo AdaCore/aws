@@ -1,4 +1,70 @@
+2001-08-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Many changes to support server push.
+	(Socket_Taklen): new boolean.
+	(Answer_To_Client): set socket in status data before calling
+	 user's callback. Check for Soket_Taken answer.
+	(Send_File_Chuncked.Hex): moved to AWS.Utils.
+	Exit main loop if the Socket has been taken by user's.
+
+	* aws-server-push.ads, aws-server-push.adb:
+	Initial revision.
+
+	* aws-status-set.adb: 
+	(Socket): new procedure.
+	
+	* aws-status-set.ads: 
+	(Socket): new procedure.
+	Fix layout.
+
+	* aws-status.adb:
+	Put routines in alphabetical order.
+
+	* aws-utils.ads, aws-utils.adb:
+	(Hex): Moved here from Protocol_Handler.
+
 2001-08-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-parameters.ads:
+	(List): do not initialize Data field. This is now done by Reset to
+	 avoid memory leak.
+
+	* aws-parameters-set.adb: 
+	(Reset): destroy data if it exists otherwise create an empty set.
+	(Free): new procedure.
+
+	* aws-parameters-set.ads:
+	(Reset): fix comment.
+	(Free): new procedure.
+
+	* aws-status.ads, aws-status.adb:
+	Miror reformating.
+
+	* aws-server-protocol_handler.adb:
+	(Socket_Taken): new boolean.
+
+	* aws-status.adb:
+	(Socket): new function.
+
+	* aws-status.ads:
+	(Socket): new function.
+	(Data): add field Socket.
+
+	* aws-server.adb:
+	(Socket_Taken): new procedure in Slots protected object.
+	(Release): do not shutdown Socket if it has been "taken".
+
+	* aws-server.ads:
+	(Socket_Taken): new procedure in Slots protected object.
+	(Slot): add boolean field Socket_Taken.
+
+	* aws-response.adb: 
+	(Socket_Taken): new constructor function.
+
+	* aws-response.ads:
+	(Socket_Taken): new constructor function.
+	(Data_Mode): Add Socket_Taken to the enumeration.
 
 	* aws-server-protocol_handler.adb:
 	Remove call to AWS.Parameters.Set.Reset has this this already done
