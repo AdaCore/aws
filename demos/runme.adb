@@ -60,7 +60,7 @@
 with Ada.Text_IO;
 
 with AWS.Log;
-with AWS.Server;
+with AWS.Server.Log;
 
 with Runme_CB;
 
@@ -88,8 +88,8 @@ begin
                      Session        => True,
                      Callback       => Runme_CB.Service'Access);
 
-   AWS.Server.Start_Log (WS, Split_Mode => AWS.Log.Daily);
-   AWS.Server.Start_Log (WSS, Filename_Prefix => "runme-secure");
+   AWS.Server.Log.Start (WS, Split_Mode => AWS.Log.Daily);
+   AWS.Server.Log.Start (WSS, Filename_Prefix => "runme-secure");
 
    --  Wait for 'q' key pressed...
 

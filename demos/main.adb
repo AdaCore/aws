@@ -53,6 +53,7 @@
 with Ada.Text_IO;
 
 with AWS.Server.Hotplug;
+with AWS.Server.Log;
 
 with Hotplug_CB;
 
@@ -74,7 +75,7 @@ begin
 
    AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
 
-   AWS.Server.Start_Log (WS);
+   AWS.Server.Log.Start (WS);
 
    AWS.Server.Wait;
 end Main;
