@@ -85,6 +85,7 @@ soap3.res
 sock1.res
 strm.res
 tclientto.res
+test_sec_soap.res
 test_soap.res
 test_speed.res
 test_templates_if.res
