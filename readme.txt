@@ -48,7 +48,7 @@ Non upward compatible changes
 Note that the changes listed below can introduce non upward compatibility.
 In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
-but we really prefer to have a clean API instead of keeping awkwards
+but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
    - Array types generated with wsdl2aws will now have a _Type suffix. This
@@ -118,7 +118,7 @@ Pointers:
 AWS User's Mailing List:
    http://lists.act-europe.fr/mailman/listinfo/aws
 
-AWS Home Page (sources and documentation): 
+AWS Home Page (sources and printable documentations in Postscript and PDF):
    http://libre.act-europe.fr/aws
 
 Templates_Parser sources: 
