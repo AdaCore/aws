@@ -167,8 +167,7 @@ package body AWS.Client is
          --  now.
 
          if Connection.Current_Phase = P then
-            Sockets.Shutdown (Connection.Socket.all);
-            Free (Connection.Socket);
+            Disconnect (Connection.all);
          end if;
 
       end loop Phase_Loop;
@@ -211,10 +210,9 @@ package body AWS.Client is
 
       end if;
 
-      if not (Connection.Socket = null) then
-         Sockets.Shutdown (Connection.Socket.all);
-         Free (Connection.Socket);
-      end if;
+      Disconnect (Connection);
+      Free (Connection.Socket);
+
    end Close;
 
    ------------
@@ -222,17 +220,18 @@ package body AWS.Client is
    ------------
 
    procedure Create
-     (Connection : in out HTTP_Connection;
-      Host       : in     String;
-      User       : in     String          := No_Data;
-      Pwd        : in     String          := No_Data;
-      Proxy      : in     String          := No_Data;
-      Proxy_User : in     String          := No_Data;
-      Proxy_Pwd  : in     String          := No_Data;
-      Retry      : in     Natural         := Retry_Default;
-      SOAPAction : in     String          := No_Data;
-      Persistent : in     Boolean         := True;
-      Timeouts   : in     Timeouts_Values := No_Timeout)
+     (Connection  : in out HTTP_Connection;
+      Host        : in     String;
+      User        : in     String          := No_Data;
+      Pwd         : in     String          := No_Data;
+      Proxy       : in     String          := No_Data;
+      Proxy_User  : in     String          := No_Data;
+      Proxy_Pwd   : in     String          := No_Data;
+      Retry       : in     Natural         := Retry_Default;
+      SOAPAction  : in     String          := No_Data;
+      Persistent  : in     Boolean         := True;
+      Timeouts    : in     Timeouts_Values := No_Timeout;
+      Server_Push : in     Boolean         := False)
    is
       function Set (V : in String) return Unbounded_String;
       --  Returns V as an Unbounded_String if V is not the empty string
@@ -281,6 +280,16 @@ package body AWS.Client is
       Connection.SOAPAction      := Set (SOAPAction);
       Connection.Persistent      := Persistent;
       Connection.Current_Phase   := Not_Monitored;
+      Connection.Server_Push     := Server_Push;
+
+      if Persistent and then Connection.Retry = 0 then
+         --  In this case the connection termination can be initiated by the
+         --  server or the client after a period. So the connection could be
+         --  closed while trying to get some data from the server. To be nicer
+         --  from user's point of view just make sure we retry at least one
+         --  time before reporting an error.
+         Connection.Retry := 1;
+      end if;
 
       if Connection.With_Timeouts then
          Connection.Timeouts     := Timeouts;
@@ -306,8 +315,10 @@ package body AWS.Client is
 
    procedure Disconnect (Connection : in out HTTP_Connection) is
    begin
-      Sockets.Shutdown (Connection.Socket.all);
-      Connection.Opened := False;
+      if not Connection.Opened then
+         Sockets.Shutdown (Connection.Socket.all);
+         Connection.Opened := False;
+      end if;
    end Disconnect;
 
    ---------
@@ -324,7 +335,6 @@ package body AWS.Client is
       Timeouts   : in Timeouts_Values := No_Timeout)
      return Response.Data
    is
-
       Connection : HTTP_Connection (Timeouts /= No_Timeout);
       Result     : Response.Data;
 
@@ -364,12 +374,12 @@ package body AWS.Client is
 
             Sockets.New_Line (Connection.Socket.all);
 
-            Get_Response (Connection, Result);
+            Get_Response (Connection, Result, not Connection.Server_Push);
 
             return;
 
          exception
-            when Sockets.Connection_Closed | Constraint_Error =>
+            when Sockets.Connection_Closed | Sockets.Socket_Error =>
 
                if Try_Count = 0 then
                   Close (Connection);
@@ -425,7 +435,9 @@ package body AWS.Client is
 
       procedure Disconnect is
       begin
-         if Messages.Is_Match (To_String (Connect), "close") then
+         if Messages.Is_Match (To_String (Connect), "close")
+           and not Connection.Server_Push
+         then
             Disconnect (Connection);
          end if;
       end Disconnect;
@@ -547,7 +559,7 @@ package body AWS.Client is
          return To_String (Results);
 
       exception
-         when others =>
+         when Sockets.Connection_Closed | Sockets.Socket_Error =>
             return To_String (Results);
       end Read_Message;
 
@@ -677,7 +689,7 @@ package body AWS.Client is
                         end;
                      end loop;
                   exception
-                     when others =>
+                     when Sockets.Connection_Closed | Sockets.Socket_Error =>
                         null;
                   end Read_Until_Close;
 
@@ -730,7 +742,6 @@ package body AWS.Client is
       Timeouts   : in Timeouts_Values := No_Timeout)
      return Response.Data
    is
-
       Connection : HTTP_Connection (Timeouts /= No_Timeout);
       Result     : Response.Data;
 
@@ -774,7 +785,7 @@ package body AWS.Client is
             return;
 
          exception
-            when Sockets.Connection_Closed | Constraint_Error =>
+            when Sockets.Connection_Closed | Sockets.Socket_Error =>
 
                if Try_Count = 0 then
                   Close (Connection);
@@ -798,7 +809,6 @@ package body AWS.Client is
       Method     : in     String;
       URI        : in     String)
    is
-
       Sock    : Sockets.Socket_FD'Class := Connection.Socket.all;
 
       No_Data : Unbounded_String renames Null_Unbounded_String;
@@ -1070,7 +1080,7 @@ package body AWS.Client is
       use Streams;
    begin
       return Post (URL, Translator.To_Stream_Element_Array (Data),
-                   User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
+                   User, Pwd, Proxy, Proxy_User, Proxy_Pwd, Timeouts);
    end Post;
 
    ----------
@@ -1117,14 +1127,12 @@ package body AWS.Client is
       Data       : in     Streams.Stream_Element_Array;
       URI        : in     String := No_Data)
    is
-      No_Data : Unbounded_String renames Null_Unbounded_String;
-
+      No_Data   : Unbounded_String renames Null_Unbounded_String;
       Try_Count : Natural := Connection.Retry;
    begin
 
       loop
          begin
-
             Open_Send_Common_Header (Connection, "POST", URI);
 
             declare
@@ -1155,13 +1163,13 @@ package body AWS.Client is
 
             --  Get answer from server
 
-            Get_Response (Connection, Result);
+            Get_Response (Connection, Result, not Connection.Server_Push);
 
             return;
 
          exception
 
-            when Sockets.Connection_Closed | Constraint_Error =>
+            when Sockets.Connection_Closed | Sockets.Socket_Error =>
 
                if Try_Count = 0 then
                   Close (Connection);
@@ -1205,7 +1213,6 @@ package body AWS.Client is
       Timeouts   : in Timeouts_Values := No_Timeout)
      return Response.Data
    is
-
       Connection : HTTP_Connection (Timeouts /= No_Timeout);
       Result     : Response.Data;
 
@@ -1235,7 +1242,6 @@ package body AWS.Client is
       Data       : in     String;
       URI        : in     String          := No_Data)
    is
-      Sock : Sockets.Socket_FD'Class := Connection.Socket.all;
       CT       : Unbounded_String;
       CT_Len   : Natural;
       TE       : Unbounded_String;
@@ -1254,17 +1260,18 @@ package body AWS.Client is
 
             --  Send message Content_Length
 
-            Send_Header (Sock, Messages.Content_Length (Data'Length));
+            Send_Header
+              (Connection.Socket.all, Messages.Content_Length (Data'Length));
 
-            Sockets.New_Line (Sock);
+            Sockets.New_Line (Connection.Socket.all);
 
             --  Send message body
 
-            Sockets.Put_Line (Sock, Data);
+            Sockets.Put_Line (Connection.Socket.all, Data);
 
             --  Get answer from server
 
-            Parse_Header (Sock, Status, CT_Len, CT, TE,
+            Parse_Header (Connection.Socket.all, Status, CT_Len, CT, TE,
                           Location, Connect, Connection.Cookie);
 
             if Messages.Is_Match (To_String (Connect), "close") then
@@ -1276,7 +1283,7 @@ package body AWS.Client is
             return;
 
          exception
-            when Sockets.Connection_Closed | Constraint_Error =>
+            when Sockets.Connection_Closed | Sockets.Socket_Error =>
 
                if Try_Count = 0 then
                   Close (Connection);
@@ -1290,6 +1297,51 @@ package body AWS.Client is
          end;
       end loop;
    end Put;
+
+   ----------------
+   -- Read_Until --
+   ----------------
+
+   function Read_Until
+     (Connection : in HTTP_Connection;
+      Delimiter  : in String)
+     return String
+   is
+      Sample_Idx : Natural := Delimiter'First;
+
+      function Read_Until return String;
+
+      function Read_Until return String is
+         Buffer : String (1 .. 1024);
+      begin
+         for I in Buffer'Range loop
+            begin
+               Buffer (I) := Sockets.Get_Char (Connection.Socket.all);
+            exception
+               when Sockets.Connection_Closed | Sockets.Socket_Error =>
+                  return Buffer (Buffer'First .. I - 1);
+            end;
+
+            if Buffer (I) = Delimiter (Sample_Idx) then
+
+               if Sample_Idx = Delimiter'Last then
+                  return Buffer (Buffer'First .. I);
+
+               else
+                  Sample_Idx := Sample_Idx + 1;
+               end if;
+
+            else
+               Sample_Idx := Delimiter'First;
+            end if;
+         end loop;
+
+         return Buffer & Read_Until;
+      end Read_Until;
+
+   begin
+      return Read_Until;
+   end Read_Until;
 
    -----------------
    -- Send_Header --
@@ -1366,10 +1418,6 @@ package body AWS.Client is
       Post (Connection, Result, Data);
       Close (Connection);
       return Result;
-   exception
-      when others =>
-         Close (Connection);
-         return Response.Build (MIME.Text_HTML, "Timeouts", Messages.S408);
    end SOAP_Post;
 
    function SOAP_Post
@@ -1381,10 +1429,6 @@ package body AWS.Client is
    begin
       Post (Connection.all, Result, Data);
       return Result;
-   exception
-      when others =>
-         Close (Connection.all);
-         return Response.Build (MIME.Text_HTML, "Timeouts", Messages.S408);
    end SOAP_Post;
 
 end AWS.Client;
