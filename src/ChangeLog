@@ -1,3 +1,8 @@
+2002-11-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-headers-values.ads, aws-headers-values.adb:
+	New package parsing the header value.
+
 2002-11-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-containers.ads, aws-containers-key_value.ads
