@@ -1,5 +1,19 @@
 2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* simple.adb:
+	Add header.
+
+	* makefile: 
+	(RT_STD): Add file.
+
+2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* file.adb, file.out:
+	Initial revision.
+
+	* zerolength.html:
+	Initial revision.
+
 	* makefile:
 	(RT_STD): Add sock1.
 
