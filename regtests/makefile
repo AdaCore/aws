@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: checks checks_header checks_soap checks_out checks_tres tres
+.SILENT: checks tres check_mem
 
 # To add a new test:
 #
@@ -57,11 +57,13 @@ run : build checks
 
 force:
 
-build: init tres $(ALL_TESTS)
+build: init tres $(ALL_TESTS) check_mem
 
 init:
 	cp ../demos/cert.pem .
 	rm -f alldifs
+	echo "" > alldifs
+	echo "### Every output after this line is a regression ###" >> alldifs
 
 $(ALL_TESTS): force
 	echo -n Building $@
@@ -71,11 +73,8 @@ $(ALL_TESTS): force
 	./$@ > $@.res
 	-diff -c -w $@.out $@.res >> alldifs
 
-checks_out: checks_tres
-	cat alldifs
-
 tres: force
-	echo -n Building tres;
+	echo -n Building tres
 	echo "line 1, file 1" > file1.html
 	echo "line 2, file 1" >> file1.html
 	echo "line 1, file 2" > file2.html
@@ -105,18 +104,33 @@ tres: force
 	echo ",  run it again"
 	./tres 1246 > tres-2.res
 	cat tres-1.res tres-2.res > tres.res
-	diff -c -w tres.out tres.res > alldifs
+	-diff -c -w tres.out tres.res >> alldifs
 
-checks_tres:
-	-diff -c -w tres.out tres.res
+# We change 2 values in aws-containers-tables.ads because it's implementation
+# is based on GNAT.Dynamic_Tables which uses a low-level realloc. This
+# construct is not correctly handled by gnatmem. As this checks is really
+# target dependent what we do is to run twice the same program, each time with
+# a different number of HTTP requests, then we compare the final non freed
+# memory.
 
-checks_header:
-	echo ""
-	echo "### Every output after this line means there is a regression ###"
+check_mem: force
+	echo -n Building check_mem
+	sed 's/4,/1000,/;s/8,/1000,/' ../src/aws-containers-tables.ads \
+		> aws-containers-tables.ads
+	gnatmake -g check_mem $(GARGS) -largs $(LARGS) -bargs -E -largs -lgmem
+	rm -f aws-containers-tables.*
+	echo -n ",  run it"
+	./check_mem 2 1248 > check_mem.res
+	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 5 | grep "   Final" > run1
+	echo ",  run it again"
+	./check_mem 30 1249 >> check_mem.res
+	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 5 | grep "   Final" > run2
+	-diff -c -w run1 run2 >> alldifs
 
-checks: checks_header checks_out
+checks:
+	cat alldifs
 
 clean:
 	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
-	-rm -f ?.upload.* strm-*.log cert.pem $(ALL_EXEC)
+	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
