@@ -1,3 +1,13 @@
+2003-10-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Make dependence aws-net-std.adb from
+	 ../config/aws-net-std__adasockets.adb
+	 or from ../config/aws-net-std__gnat.adb, otherwise update of
+	 ../config/aws-net-std__adasockets.adb or
+	 ../config/aws-net-std__gnat.adb does not cause update of
+	 aws-net-std.adb
+
 2003-09-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:

@@ -50,10 +50,11 @@ build: $(CONF_UNITS) $(UNITS)
 aws-translator-conversion.adb:
 	${MAKE} -C ../config setup
 
-aws-net-std.adb:
 ifdef ADASOCKETS
+aws-net-std.adb: ../config/aws-net-std__adasockets.adb
 	$(CP) ../config/aws-net-std__adasockets.adb aws-net-std.adb
 else
+aws-net-std.adb: ../config/aws-net-std__gnat.adb
 	$(CP) ../config/aws-net-std__gnat.adb aws-net-std.adb
 endif
 
