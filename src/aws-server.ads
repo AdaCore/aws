@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2000-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -393,10 +393,13 @@ private
 
    task type Line_Cleaner (Server : HTTP_Access) is
       entry Force;
+      --  Force a line to be closed
+      entry Shutdown;
+      --  Terminate the line clean task
    end Line_Cleaner;
 
    type Line_Cleaner_Access is access Line_Cleaner;
-   --  run through the slots and see if some of them could be closed
+   --  Run through the slots and see if some of them could be closed
 
    ----------------------
    -- Socket_Semaphore --
