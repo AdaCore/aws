@@ -37,7 +37,6 @@ with GNAT.Regexp;
 
 with AWS.MIME;
 with AWS.Dispatchers.Callback;
-with System.Address_To_Access_Conversions;
 
 package body AWS.Services.Dispatchers.URI is
 
@@ -98,24 +97,6 @@ package body AWS.Services.Dispatchers.URI is
    --------------
 
    procedure Finalize (Dispatcher : in out Handler) is
-
-      use System;
-
-      function To_Address (Table : in URI_Table.Table_Ptr) return Address;
-      pragma Inline (To_Address);
-
-      package Table_Conversions is
-         new System.Address_To_Access_Conversions (URI_Table.Big_Table_Type);
-
-      function To_Address (Table : in URI_Table.Table_Ptr) return Address is
-      begin
-         return Table_Conversions.To_Address
-           (Table_Conversions.Object_Pointer (Table));
-      end To_Address;
-
-      procedure Free (Adr : in Address);
-      pragma Import (C, Free, "__gnat_free");
-
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
@@ -124,11 +105,7 @@ package body AWS.Services.Dispatchers.URI is
             Free (Dispatcher.Table.Table (K));
          end loop;
 
-         --  URI_Table.Free (Dispatcher.Table);
-         --  Only available on GNAT 3.15, on GNAT 3.14 we do it ourself.
-         --  With GNAT 3.15 we can remove all declarations in Finalize.
-
-         Free (To_Address (Dispatcher.Table.Table));
+         URI_Table.Free (Dispatcher.Table);
       end if;
    end Finalize;
 
