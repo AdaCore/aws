@@ -183,6 +183,19 @@ package body AWS.Messages is
       return Content_Type_Token & Format;
    end Content_Type;
 
+   --------------------
+   -- Does_Not_Match --
+   --------------------
+
+   function Does_Not_Match (Str, Pattern : in String) return Boolean is
+      use Ada.Characters;
+      U_Str     : constant String := Handling.To_Upper (Str);
+      U_Pattern : constant String := Handling.To_Upper (Pattern);
+   begin
+      return Pattern'Length > Str'Length
+        or else U_Str (1 .. Pattern'Length) /= U_Pattern;
+   end Does_Not_Match;
+
    ----------
    -- Host --
    ----------
