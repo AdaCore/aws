@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD W3 HTML 3.2//EN">
+
+<!-- $Id$ -->
+
+<html>
+<head>
+<title>AWS - Status page</title>
+</head>
+
+<body>
+
+<table width=100%>
+
+<tr>
+<td width=50%>
+<H2 align=center>Ada Web Server Status</H2>
+
+<td width=50%>
+<img align=center src="logo.gif"> Version @@_VERSION_@@
+</table>
+
+<br>
+<hr>
+<br>
+
+<p>The following data describe server <b>@@_SERVER_NAME_@@</b> current status.
+
+<br>
+<br>
+
+<table>
+
+<tr>
+<td width=250>Maximum connection
+<td><b>@@_MAX_CONNECTION_@@</b>
+</tr>
+
+<tr>
+<td>Server Port
+<td><b>@@_SERVER_PORT_@@</b>
+</tr>
+
+<tr>
+<td>Server Socket
+<td><b>@@_SERVER_SOCK_@@</b>
+</tr>
+
+<tr>
+<td>Server Security (HTTPS/SSL)
+<td><b>@@_SECURITY_@@</b>
+</tr>
+
+</table>
+
+<p>Slots information are given below:
+
+<br>
+<br>
+
+<table>
+
+<tr bgcolor=yellow>
+<td>Slot number
+<td>Socket
+<td>Opened
+<td>Abortable
+<td>Quit
+<td>Activity Counter
+<td>Activity Time Stamp
+</tr>
+
+@@TABLE@@
+<tr bgcolor=white>
+<td align=center>@@_TABLE_LINE_@@
+<td align=center>@@_SOCK_T_@@
+<td>@@_OPENED_T_@@
+<td>@@_ABORTABLE_T_@@
+<td>@@_QUIT_T_@@
+<td align=center>@@_ACTIVITY_COUNTER_T_@@
+<td>@@_ACTIVITY_TIME_STAMP_T_@@
+</tr>
+@@SECTION@@
+<tr bgcolor=turquoise>
+<td align=center>@@_TABLE_LINE_@@
+<td align=center>@@_SOCK_T_@@
+<td>@@_OPENED_T_@@
+<td>@@_ABORTABLE_T_@@
+<td>@@_QUIT_T_@@
+<td align=center>@@_ACTIVITY_COUNTER_T_@@
+<td>@@_ACTIVITY_TIME_STAMP_T_@@
+</tr>
+@@END_TABLE@@
+
+</table>
+
+<br>
+<br>
+<hr>
+<br>
+
+<p>AWS - has been developped in Ada with GNAT (http://www.gnat.com)
+<p><a href="mailto:anisimkov@yahoo.com">Dmitriy Anisimkov</a>, 
+<a href="mailto:p.obry@wanadoo.fr">Pascal Obry</a>
+
+</body>
+</html>
