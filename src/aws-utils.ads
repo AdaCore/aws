@@ -39,8 +39,8 @@ package AWS.Utils is
    --  Integer type for random number generation
 
    type Null_Record is null record;
-   --  Type could be used for instantiate generic packages when we need not
-   --  some of the type parameters.
+   --  Can be used to instantiate generic packages in place of generic
+   --  parameters that are not needed.
 
    -------------------------------
    --  General helper functions --
