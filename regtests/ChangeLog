@@ -1,3 +1,18 @@
+2003-11-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Initialize WSDL2AWS variable.
+
+	* wsdl_6.out:
+	Update output.
+
+	* wsdl_6.ads, wsdl_6.adb:
+	(Set_Of_Rec): New type.
+	(Echo_Set_Rec): New routine.
+
+	* wsdl_6_main.adb:
+	Add check for array of records.
+
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
