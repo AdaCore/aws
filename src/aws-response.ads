@@ -343,7 +343,6 @@ private
    procedure Finalize   (Object : in out Data);
 
    procedure Free is new Ada.Unchecked_Deallocation
-                           (Resources.Streams.Stream_Type'Class,
-                            Resources.Streams.Stream_Access);
+     (Resources.Streams.Stream_Type'Class, Resources.Streams.Stream_Access);
 
 end AWS.Response;
