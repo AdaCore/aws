@@ -1,3 +1,15 @@
+2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* test_sec_soap.out, tsgetparam.out:
+	Initial revision.
+
+	* makefile:
+	Add comment about how should regression tests be added.
+	(CHECKS_SEC_SOAP): Removed.
+	(CHECKS_SEC_STD): Removed.
+	Removes most of the targets here and use a for loop based on a
+	 demo list for build, run and check the results.
+
 2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
