@@ -39,13 +39,14 @@ with Ada.Text_IO;
 with Table_Of_Static_Keys_And_Dynamic_Values_G;
 
 with AWS.Default;
-with AWS.Key_Value;
+with AWS.Containers.Key_Value;
 with AWS.Utils;
 
 package body AWS.Session is
 
    use Ada;
    use Ada.Strings.Unbounded;
+   use Containers;
 
    SID_Prefix             : constant String := "SID-";
 
@@ -60,7 +61,7 @@ package body AWS.Session is
 
    type Session_Node is record
       Time_Stamp : Calendar.Time;
-      Root       : AWS.Key_Value.Set;
+      Root       : Key_Value.Set;
    end record;
 
    procedure Assign
