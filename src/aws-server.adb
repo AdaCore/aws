@@ -90,6 +90,15 @@ package body AWS.Server is
 
    end File_Upload_UID;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Web_Server : in out HTTP) is
+   begin
+      Shutdown (Web_Server);
+   end Finalize;
+
    ----------
    -- Line --
    ----------
@@ -155,7 +164,7 @@ package body AWS.Server is
                --  of them, try to abort one of them.
 
                if HTTP_Server.Slots.Free_Slots = 1
-                 and then HTTP_Server.Max_Connection > 1
+                 and then CNF.Max_Connection (HTTP_Server.Properties) > 1
                then
                   HTTP_Server.Cleaner.Force;
                end if;
@@ -249,6 +258,9 @@ package body AWS.Server is
       procedure Free is
          new Ada.Unchecked_Deallocation (Line_Set, Line_Set_Access);
 
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Slots, Slots_Access);
+
    begin
       Web_Server.Shutdown := True;
 
@@ -261,13 +273,17 @@ package body AWS.Server is
       abort Web_Server.Cleaner.all;
       Free (Web_Server.Cleaner);
 
+      --  Release lines
+
+      Free (Web_Server.Lines);
+
       --  Release the slots
 
-      for S in 1 .. Web_Server.Max_Connection loop
+      for S in 1 .. CNF.Max_Connection (Web_Server.Properties) loop
          Web_Server.Slots.Release (S);
       end loop;
 
-      Free (Web_Server.Lines);
+      Free (Web_Server.Slots);
 
       --  Release the session server if needed
 
@@ -467,12 +483,13 @@ package body AWS.Server is
      (Web_Server                : in out HTTP;
       Name                      : in     String;
       Callback                  : in     Response.Callback;
-      Admin_URI                 : in     String          := Def_Admin_URI;
-      Port                      : in     Positive        := Def_Port;
-      Security                  : in     Boolean         := False;
-      Session                   : in     Boolean         := False;
-      Case_Sensitive_Parameters : in     Boolean         := True;
-      Upload_Directory          : in     String          := Def_Upload_Dir) is
+      Max_Connection            : in     Positive         := Def_Max_Connect;
+      Admin_URI                 : in     String           := Def_Admin_URI;
+      Port                      : in     Positive         := Def_Port;
+      Security                  : in     Boolean          := False;
+      Session                   : in     Boolean          := False;
+      Case_Sensitive_Parameters : in     Boolean          := True;
+      Upload_Directory          : in     String           := Def_Upload_Dir) is
    begin
       CNF.Set.Server_Name      (Web_Server.Properties, Name);
       CNF.Set.Admin_URI        (Web_Server.Properties, Admin_URI);
@@ -480,6 +497,7 @@ package body AWS.Server is
       CNF.Set.Security         (Web_Server.Properties, Security);
       CNF.Set.Session          (Web_Server.Properties, Session);
       CNF.Set.Upload_Directory (Web_Server.Properties, Upload_Directory);
+      CNF.Set.Max_Connection   (Web_Server.Properties, Max_Connection);
 
       CNF.Set.Case_Sensitive_Parameters
         (Web_Server.Properties, Case_Sensitive_Parameters);
@@ -509,8 +527,18 @@ package body AWS.Server is
       Callback   : in     Response.Callback)
    is
       Accepting_Socket : Sockets.Socket_FD;
+
+      Max_Connection   : constant Positive
+        := CNF.Max_Connection (Web_Server.Properties);
+
    begin
       Web_Server.CB := Callback;
+
+      --  Initialize slots
+
+      Web_Server.Slots := new Slots (Max_Connection);
+
+      --  Set timeouts
 
       Web_Server.Slots.Set_Timeouts
         ((Cleaner => -- Timeouts for Line_Cleaner
@@ -544,7 +572,7 @@ package body AWS.Server is
 
       --  Initialize the connection lines
 
-      Web_Server.Lines := new Line_Set (1 .. Web_Server.Max_Connection);
+      Web_Server.Lines := new Line_Set (1 .. Max_Connection);
 
       --  Initialize the cleaner task
 
@@ -568,7 +596,7 @@ package body AWS.Server is
 
       --  Start each connection lines.
 
-      for I in 1 .. Web_Server.Max_Connection loop
+      for I in 1 .. Max_Connection loop
          Web_Server.Lines (I).Start (Web_Server, I);
       end loop;
 
