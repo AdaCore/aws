@@ -63,9 +63,9 @@ package AWS.Response is
 
    Undefined_Length : constant := -1;
    --  Undefined length could be used when we do not know the message length
-   --  on the start of transfer. The end of message could be
-   --  determined by the chunked transfer-encoding in the HTTP/1.1,
-   --  or by the closing connection in the HTTP/1.0.
+   --  at the start of transfer. The end of message could be determined by the
+   --  chunked transfer-encoding in the HTTP/1.1, or by the closing connection
+   --  in the HTTP/1.0.
 
    Default_Moved_Message : constant String
      := "Page moved<br><a href=""_@_"">Click here</a>";
