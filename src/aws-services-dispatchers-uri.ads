@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -48,7 +48,7 @@ package AWS.Services.Dispatchers.URI is
    function Dispatch
      (Dispatcher : in Handler;
       Request    : in Status.Data)
-     return Response.Data;
+      return Response.Data;
    --  Dispatch will return the value returned by the first callback matching
    --  the request. Note that if a callback returns the Response.Empty
    --  message, Dispatch will just continue to the next matching callback. In
