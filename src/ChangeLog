@@ -1,5 +1,20 @@
 2002-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-url.adb:
+	(Normalize): Pass the right message to Raise_URL_Error.
+	(Parse): Use Raise_URL_Error to raise the exceptions and pass a
+	 clear message about the problem.
+	
+	* aws-url-raise_url_error.ads: 
+	Add Message parameter.
+	Update copyright notice.
+	
+	* aws-url-raise_url_error.adb: 
+	Add Message parameter and display it instead of the hard coded one.
+	Update copyright notice.
+
+2002-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-utils.ads, aws-utils.adb:
 	(Is_Number): New routine.
 
