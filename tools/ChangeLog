@@ -1,3 +1,10 @@
+2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-parser.adb:
+	(Type_Name): Properly check for Boolean special enumeration.
+	 Returns the right float type used (float, long_float or
+	 long_long_float).
+	
 2003-11-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.adb:
