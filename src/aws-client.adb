@@ -34,6 +34,7 @@ with Ada.Streams;
 with Sockets;
 
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Translater;
 with AWS.URL;
 with AWS.Net;
@@ -304,7 +305,7 @@ package body AWS.Client is
 
       else
 
-         if CT_Len = 0 and then CT = "text/html" then
+         if CT_Len = 0 and then CT = MIME.Text_HTML then
             --  here we do not know the message body length, but this is a
             --  textual data, read it as a string.
 
@@ -319,7 +320,7 @@ package body AWS.Client is
                Sockets.Receive (Sock, Elements);
                Sockets.Shutdown (Sock);
 
-               if CT = "text/html" then
+               if CT = MIME.Text_HTML then
 
                   --  if the content is textual info put it in a string
 
