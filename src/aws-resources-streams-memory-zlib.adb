@@ -65,17 +65,6 @@ package body AWS.Resources.Streams.Memory.ZLib is
       Write (Resource.Filter, Buffer, ZL.No_Flush);
    end Append;
 
-   ------------
-   -- Append --
-   ------------
-
-   procedure Append
-     (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access) is
-   begin
-      Append (Resource, Buffer.all);
-   end Append;
-
    -----------
    -- Close --
    -----------

@@ -76,11 +76,6 @@ package AWS.Resources.Streams.Memory.ZLib is
       Buffer   : in     Stream_Element_Array);
    --  Compress and Append Buffer into the memory stream
 
-   procedure Append
-     (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access);
-   --  Compress and Append Buffer into the memory stream
-
    procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;

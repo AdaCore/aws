@@ -53,11 +53,6 @@ package AWS.Resources.Streams.Memory is
       Buffer   : in     Stream_Element_Array);
    --  Append Buffer into the memory stream
 
-   procedure Append
-     (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access);
-   --  Append Buffer into the memory stream
-
    procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;

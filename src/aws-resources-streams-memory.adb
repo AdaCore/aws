@@ -46,13 +46,6 @@ package body AWS.Resources.Streams.Memory is
       Containers.Append (Resource.Data, Buffer);
    end Append;
 
-   procedure Append
-     (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access) is
-   begin
-      Containers.Append (Resource.Data, Buffer);
-   end Append;
-
    -----------
    -- Clear --
    -----------
