@@ -1,3 +1,8 @@
+2003-06-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-wsdl-parser.adb:
+	(Parse_Array): Fix assertion.	
+
 2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-client.ads, soap-client.adb:
