@@ -1,5 +1,16 @@
 2004-05-20  Pascal Obry  <pascal@obry.org>
 
+	* templates_parser-xml.ads, templates_parser-xml.adb:
+	Moved to xsrc directory.
+
+	* makefile:
+	(TMPLT_SOURCES): Add templates_parser-xml.adb only if XMLADA
+	 defined.
+	($(TMPLT_UNITS)): Fix gnatmake arguments.
+
+	* templates_parser.ads, templates_parser.adb:
+	(Insert): New routine.
+
 	* aws-response.adb:
 	(File): Add new parameter Attachment. If Attachment is set to True
 	 or the Content-Type is in the application category add the
