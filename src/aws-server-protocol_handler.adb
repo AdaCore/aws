@@ -1462,34 +1462,33 @@ begin
 
          when E : others =>
 
-            if Data_Sent then
+            declare
+               use type Response.Data_Mode;
+
+               Answer : Response.Data;
+            begin
+               HTTP_Server.Exception_Handler
+                 (E,
+                  HTTP_Server.Error_Log,
+                  AWS.Exceptions.Data'(False, Index, C_Stat),
+                  Answer);
+
                --  We have an exception while sending data back to the
-               --  client. This is most probably an exception coming from a
-               --  user's stream. The only option is to exit and close the
-               --  connection, we can't recover in a middle of a response.
-               exit For_Every_Request;
+               --  client. This is most probably an exception coming
+               --  from a user's stream. The only option is to exit and
+               --  close the connection, we can't recover in a middle of
+               --  a response.
 
-            else
-               declare
-                  use type Response.Data_Mode;
+               exit For_Every_Request when Data_Sent;
 
-                  Answer : Response.Data;
-               begin
-                  HTTP_Server.Exception_Handler
-                    (E,
-                     HTTP_Server.Error_Log,
-                     AWS.Exceptions.Data'(False, Index, C_Stat),
-                     Answer);
-
-                  if Response.Mode (Answer) /= Response.No_Data then
-                     HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
-                     Send (Answer);
-                  end if;
-               exception
-                  when others =>
-                     exit For_Every_Request;
-               end;
-            end if;
+               if Response.Mode (Answer) /= Response.No_Data then
+                  HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+                  Send (Answer);
+               end if;
+            exception
+               when others =>
+                  exit For_Every_Request;
+            end;
       end;
 
       --  Exit if connection has not the Keep-Alive status or we are working
