@@ -43,7 +43,7 @@ package AWS.Response is
 
    type Data is private;
 
-   type Data_Mode is (Message, File);
+   type Data_Mode is (Header, Message, File);
 
    function Build (Content_Type : in String;
                    Message_Body : in String;
@@ -55,6 +55,8 @@ package AWS.Response is
                    Status_Code  : in Messages.Status_Code := Messages.S200)
                   return Data;
 
+   function Acknowledge (Status_Code : in Messages.Status_Code) return Data;
+
    function Authenticate (Realm : in String) return Data;
 
    function File (Content_Type : in String;
@@ -62,7 +64,7 @@ package AWS.Response is
 
    function Mode           (D : in Data) return Data_Mode;
    function Status_Code    (D : in Data) return Messages.Status_Code;
-   function Content_Length (D : in Data) return Positive;
+   function Content_Length (D : in Data) return Natural;
    function Content_Type   (D : in Data) return String;
    function Message_Body   (D : in Data) return String;
    function Realm          (D : in Data) return String;
