@@ -154,8 +154,8 @@ status.</H3>
 <hr>
 <br>
 
-<p>AWS has been developed in Ada with GNAT 
-(see <a href="http://www.gnat.com">ACT Web site</a>).
+<p>AWS has been developed in Ada with GNU/Ada compiler
+(see GNAT on <a href="http://www.gnat.com">ACT Web site</a>).
 <p><a href="mailto:anisimkov@yahoo.com">Dmitriy Anisimkov</a>, 
 <a href="mailto:p.obry@wanadoo.fr">Pascal Obry</a>
 
