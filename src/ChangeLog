@@ -1,3 +1,33 @@
+2003-12-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add aws-services-web_mail.adb.
+
+	* aws-services-web_mail.ads, aws-services-web_mail.adb:
+	Initial revision.
+
+	* aws-resources.ads:
+	Minor comment fix.
+
+	* aws-services-page_server.adb:
+	(Callback): Use MIME.Text_HTML instead of string.
+
+	* aws-pop.adb:
+	(Stream_Type): Move here from spec.
+	(CRLF): New constant.
+	(Delete): New routine.
+	(Size) [Message]: New routine.
+	(Content) [Attachment]: Returns a Stream_Access.
+	(Get): Use CRLF, use new routine Delete to delete a message if needed.
+	(Get_Header): Retreive the message size.
+	
+	* aws-pop.ads:
+	(Stream_Type): Move to body.
+	(Delete): New routine.
+	(Size) [Message]: New routine.
+	(Content) [Attachment]: Returns a Stream_Access.
+	(Message): Add Size field.
+
 2003-12-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-config.ads:
