@@ -1,3 +1,8 @@
+2003-01-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.adb:
+	(Is_Number): Cleaner implementation.
+
 2003-01-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.ads, aws-utils.adb:
