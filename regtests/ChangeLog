@@ -1,3 +1,18 @@
+2002-09-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap3.adb, soap3.out:
+	Initial revision.
+
+	* makefile:
+	Add soap3 regression test. Test for null SOAP-ENC:base64 and null
+	 string. Also check name space handling.
+
+	* soap1.out:
+	Fix to use the right name space.
+
+	* test_soap.adb:
+	(Request): Set the SOAPAction.
+
 2002-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tc_soap_names.adb:
