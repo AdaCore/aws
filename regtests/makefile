@@ -17,11 +17,11 @@
 #      RT_SOAP_SEC : for SOAP tests using HTTPS
 #      RT_STD_SEC  : for standard tests using HTTPS
 
-ifeq ($(MODE),ssl)
-# With SSL support
-
 GARGS = -i -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
+
+ifeq ($(MODE),ssl)
+# With SSL support
 
 ifeq (${OS}, Windows_NT)
 LARGS = $(LFLAGS) $(LIBS) -L../ssl -lssl -lcrypto
@@ -35,9 +35,7 @@ RT_STD_SEC = tsgetparam
 else
 # Without SSL support
 
-GARGS = -i -q -I../src -I../include -I../soap $(INCLUDES)
-BARGS = -E
-LARGS = $(LFLAGS) $(LIBS)
+LARGS = $(LFLAGS) $(LIBS) ../ssl/ssl-wrappers.o
 
 endif
 
