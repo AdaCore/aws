@@ -1041,7 +1041,7 @@ is
 
          Status.Set.Session
            (C_Stat,
-            Command (Messages.Cookie_Token'Length + 4 .. Command'Last));
+            Command (Messages.Cookie_Token'Length + 5 .. Command'Last));
       end if;
 
    exception
