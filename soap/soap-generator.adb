@@ -418,7 +418,7 @@ package body SOAP.Generator is
       end if;
 
       if Input /= null then
-         Text_IO.Put      (File, "      (");
+         Text_IO.Put      (File, "     (");
 
          --  Output parameters
 
@@ -452,7 +452,7 @@ package body SOAP.Generator is
                Text_IO.Put_Line (File, ")");
             else
                Text_IO.Put_Line (File, ";");
-               Text_IO.Put      (File, "       ");
+               Text_IO.Put      (File, "      ");
             end if;
 
             N := N.Next;
@@ -460,7 +460,7 @@ package body SOAP.Generator is
       end if;
 
       if Output /= null then
-         Text_IO.Put (File, "       return ");
+         Text_IO.Put (File, "      return ");
 
          Text_IO.Put (File, Result_Type (O, Proc, Output));
       end if;
@@ -1175,6 +1175,18 @@ package body SOAP.Generator is
          return L_Proc & "_Result";
       end if;
    end Result_Type;
+
+   ---------------
+   -- Set_Proxy --
+   ---------------
+
+   procedure Set_Proxy
+     (O : in out Object; Proxy, User, Password : in String) is
+   begin
+      O.Proxy  := To_Unbounded_String (Proxy);
+      O.P_User := To_Unbounded_String (User);
+      O.P_Pwd  := To_Unbounded_String (Password);
+   end Set_Proxy;
 
    ----------
    -- Skel --
