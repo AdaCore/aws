@@ -1,3 +1,8 @@
+2002-01-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-client.adb:
+	(RPC_Call): Rename URI to URL.
+
 2001-10-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-xml.adb:

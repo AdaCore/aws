@@ -1,3 +1,43 @@
+2002-01-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Fix minor syntax error.
+
+	* aws-server-get_status.adb:
+	(Slot_Table.Peer_Name): Initialize using Peer_Addr and
+	 Sockets.Naming.Image.
+
+	* aws-server-hotplug.adb:
+	Add Ada.Strings.Unbounded.
+
+	* aws-server-protocol_handler.adb:
+	Removes Interfaces.C.
+	Removes the Sock parameter.
+	(Sock): New variable, initialized using the Slots.
+
+	* aws-server.adb:
+	Remove Ada.Unchecked_Conversion, Interfaces.C, Sockets.Thin.
+	(Get_Peername): Removed.
+	(Protocol_Handler): Remove Sock parameter.
+	(Slots): Remove Free.
+	(Slots.Get): Update Alive_Counter and Alive_Time_Stamp.
+	(Slots.Mark_Phase): Raise Sockets.Connection_Closed if Slot is
+	 Aborted and we ask for a Close.
+	(Slots.Set_Peer_Addr): New rountine.
+
+	* aws-server.ads:
+	Remove Ada.Strings.Unbounded and Sockets (not used).
+	(Slot): Remove Peername field, add Peer_Addr, Alive_Time_Stamp, 
+	 Alive_Counter.
+	(Slots): Remove Set_Peername routine, add Set_Peer_Addr. Remove
+	 Free which is not used.
+
+2002-01-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-stream_io.adb:
+	(Free): Do not flush the stream since Shutdown has already been
+	 closed.
+
 2002-01-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-config-set.ads, aws-config-set.adb:
