@@ -66,7 +66,10 @@ procedure Strm is
    Connect : Client.HTTP_Connection;
    R       : Response.Data;
 
-   File_Size : constant := 100_000;
+   File_Size : constant := 98_100;
+   --  !!! Do not change the file size.
+   --  It is just for control error when only CRC in the last chunk
+   --  of the deflate compressed data.
 
    Base_URL : constant String := "http://localhost:1238";
 

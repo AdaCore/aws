@@ -76,14 +76,18 @@ package body User_Strm is
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
    is
-      Symbol_First  : constant Character := '0';
-      Symbol_Last   : constant Character := 'z';
+      Symbol_First  : constant Character := '!';
+      Symbol_Last   : constant Character := '~';
       Symbol_Length : constant Stream_Element
         := Character'Pos (Symbol_Last) - Character'Pos (Symbol_First) + 1;
 
       Item          : Stream_Element;
 
    begin
+      --  !!! Do not change the way of the data for read.
+      --  It is just for control error when only CRC in the last chunk
+      --  of the deflate compressed data.
+
       Last := Buffer'First - 1;
 
       for I in Buffer'Range loop
@@ -98,10 +102,13 @@ package body User_Strm is
          Buffer (I) := Character'Pos (Symbol_First)
            + Item mod Symbol_Length;
 
-         if Item  mod (Symbol_Length - 1) = 0 then
+         if Resource.Offset mod 80 = 0 then
             Buffer (I) := 10;
          end if;
 
+         if Resource.Offset mod 81 = 0 then
+            Buffer (I) := 9;
+         end if;
       end loop;
    end Read;
 
