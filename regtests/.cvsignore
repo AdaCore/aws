@@ -8,6 +8,8 @@ auth.res
 auth.tmp
 auth2
 auth2.res
+b~afile.adb
+b~afile.ads
 b~append.adb
 b~append.ads
 b~auth.adb
