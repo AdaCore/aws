@@ -167,9 +167,9 @@ private
       --  Send Data to the client whose ID is Client_ID.
 
       procedure Send
-        (Data           : in     Client_Output_Type;
-         Content_Type   : in     String;
-         Not_Responding : in out Table.Table_Type);
+        (Data         : in     Client_Output_Type;
+         Content_Type : in     String;
+         Unregistered : in out Table.Table_Type);
       --  Send Data to all clients registered. Not_Responding will contain a
       --  list of client that have have not responded to the request. These
       --  clients have been removed from the list of registered client.
