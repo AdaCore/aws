@@ -32,6 +32,15 @@
 
 package body AWS.Config.Set is
 
+   -----------------------
+   -- Accept_Queue_Size --
+   -----------------------
+
+   procedure Accept_Queue_Size (O : in out Object; Value : in Positive) is
+   begin
+      O.P (Accept_Queue_Size).Pos_Value := Value;
+   end Accept_Queue_Size;
+
    ---------------
    -- Admin_URI --
    ---------------
