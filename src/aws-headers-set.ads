@@ -34,21 +34,26 @@ with AWS.Parameters.Set;
 
 package AWS.Headers.Set is
 
-   procedure Parse (C : in out Container; Line : in String);
-   --  Parse HTTP header Line and insert the corresponding data into
-   --  the container.
+   procedure Parse (Headers : in out List; Line : in String);
+   --  Parse HTTP header Line and insert the corresponding data at the end
+   --  of the Headers container.
 
-   procedure Add (C : in out Container; Name, Value : in String);
-   --  Add HTTP header name/value into the container.
+   procedure Add (Headers : in out List; Name, Value : in String);
    pragma Inline (Add);
+   --  Add HTTP header name/value at the end of the Headers container. Note
+   --  that there is no check about validity of this header. This service is
+   --  provided to be able to create user-defined headers.
 
-   procedure Reset (C : in out Container);
-   --  Removes all object from the Set. Set will be reinitialized and will be
-   --  ready for new use.
+   procedure Reset (Headers : in out List);
    pragma Inline (Reset);
+   --  Removes all object from Headers. Headers will be reinitialized and will
+   --  be ready for new use.
 
-   procedure Free (C : in out Container);
-   --  Release all memory used by the container.
+   procedure Free (Headers : in out List);
    pragma Inline (Free);
+   --  Release all memory used by the List container.
+
+   procedure Debug (Activate : in Boolean);
+   --  Turn on Debug output.
 
 end AWS.Headers.Set;
