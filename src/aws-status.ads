@@ -178,7 +178,7 @@ package AWS.Status is
 
    function Has_Session            (D : in Data) return Boolean;
    pragma Inline (Has_Session);
-   --  Returns true if a session ID has been received.
+   --  Returns true if a session ID has been received
 
    function Session                (D : in Data) return Session.Id;
    pragma Inline (Session);
