@@ -40,20 +40,22 @@ project Tools is
 
    for Languages use ("Ada", "Changelog", "Project file", "makefile");
 
-   for Main use ("awsres.adb");
+   for Main use ("awsres.adb", "hotplug_password.adb");
 
    case Shared.XMLAda is
       when "Installed" =>
          for Main use project'Main & ("wsdl2aws.adb");
       when "Disabled" =>
-         null;
+         --  Should be replaced by null as supported by GNAT 5.03
+         for Main use project'Main;
    end case;
 
    case Shared.ASIS is
       when "Installed" =>
          for Main use project'Main & ("ada2wsdl-main.adb");
       when "Disabled" =>
-         null;
+         --  Should be replaced by null as supported by GNAT 5.03
+         for Main use project'Main;
    end case;
 
    case Shared.Build is
