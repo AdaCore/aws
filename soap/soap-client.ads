@@ -42,15 +42,17 @@ package SOAP.Client is
      (URL        : in String;
       P          : in Message.Payload.Object;
       SOAPAction : in String         := Not_Specified)
-     return Message.Response.Object'Class;
+      return Message.Response.Object'Class;
    --  Send a SOAP HTTP request to URL address. The P is the Payload and
    --  SOAPAction is the required HTTP field. If it is not specified then the
-   --  URI (URL resource) will be used for the SOAP action field.
+   --  URI (URL resource) will be used for the SOAPAction field. The complete
+   --  format is "URL & '#' & Procedure_Name" (Procedure_Name is retrieved
+   --  from the Payload object.
 
    function Call
      (Connection : access AWS.Client.HTTP_Connection;
       P          : in     Message.Payload.Object)
-     return Message.Response.Object'Class;
+      return Message.Response.Object'Class;
    --  Idem as above, but use an already opened connection.
 
 private
