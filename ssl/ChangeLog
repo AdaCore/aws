@@ -1,3 +1,8 @@
+2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add -q (quiet mode) to gnatmake call.
+
 2002-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl.adb:
