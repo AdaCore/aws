@@ -176,7 +176,6 @@ package body AWS.Server is
    procedure Finalize (Web_Server : in out HTTP) is
    begin
       Shutdown (Web_Server);
-      Counter.Remove;
    end Finalize;
 
    ----------------
@@ -186,7 +185,7 @@ package body AWS.Server is
    procedure Initialize (Web_Server : in out HTTP) is
       pragma Warnings (Off, Web_Server);
    begin
-      Counter.Add;
+      null;
    end Initialize;
 
    ----------
@@ -445,6 +444,10 @@ package body AWS.Server is
       --  Close log, this ensure that all data will be written to the file.
 
       Stop_Log (Web_Server);
+
+      --  Server removed
+
+      Counter.Remove;
    end Shutdown;
 
    -----------
@@ -816,6 +819,8 @@ package body AWS.Server is
            (Session_Check_Interval => CNF.Session_Cleanup_Interval,
             Session_Lifetime       => CNF.Session_Lifetime);
       end if;
+
+      Counter.Add;
    end Start;
 
    ---------------
