@@ -1,3 +1,8 @@
+2004-06-04  Pascal Obry  <pascal@obry.org>
+
+	* aws-client-xml-input_sources.adb:
+	(Eof): Update comments.
+
 2004-06-03  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml-input_sources.adb:
