@@ -1,3 +1,40 @@
+2004-12-01  Pascal Obry  <obry@adacore.com>
+
+	* soap-wsdl-parameters.adb:
+	Update copyright notice.
+
+2004-12-01  Pascal Obry  <obry@adacore.com>
+
+	* soap-generator.adb:
+	Rewrite a good part of the code generator to comply with the
+	 namespace defintion found in the WSDL document. One nice feature
+	 is that it is now possible to share definitions found in
+	 different WSDL document if they have the same name and are in the
+	 same namespace. This avoids lot of unchecked conversion between
+	 fully compatible types. The new code generated is fully
+	 compatible with the previous version, so it should have zero
+	 impact on current code (this was the case for all non regression
+	 tests).
+
+	* soap-generator-cb.adb:
+	(Tmp_Adb): New variable.
+	(End_Service): Close Tmp_Adb.
+	(Start_Service): Create Tmp_Adb.
+	Those modifications are in relation with soap-generator.adb changes.
+
+	* soap-generator.ads:
+	(Version): Bump to 2.0.
+
+	* soap-wsdl-parameters.ads, soap-wsdl-parameters.adb:
+	(Type_Name): New function.
+
+	* soap-wsdl-parser.adb:
+	(Get_Target_Name_Space): Look for the targetNamespace into the
+	 whole hierarchy not only the parent node.
+	(Parse_Array): Set the namespace.
+	(Build_Derived): Idem.
+	(Build_Enumeration): Idem.
+
 2004-11-29  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator.adb:
