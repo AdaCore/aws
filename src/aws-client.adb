@@ -62,7 +62,8 @@ package body AWS.Client is
       Status            :    out Messages.Status_Code;
       Content_Length    :    out Natural;
       Content_Type      :    out Unbounded_String;
-      Transfer_Encoding :    out Unbounded_String);
+      Transfer_Encoding :    out Unbounded_String;
+      Location          :    out Unbounded_String);
    --  Read server answer and set corresponding variable with the value
    --  read. Most of the field are ignored right now.
 
@@ -159,12 +160,17 @@ package body AWS.Client is
       function Read_Chunk return Streams.Stream_Element_Array;
       --  read a chunk object from the stream
 
-      Sock    : Sockets.Socket_FD;
-      CT      : Unbounded_String;
-      CT_Len  : Natural;
-      TE      : Unbounded_String;
-      Status  : Messages.Status_Code;
-      Message : Unbounded_String;
+      function Read_Message return String;
+      --  read a textual message from the socket for which there is no known
+      --  length.
+
+      Sock     : Sockets.Socket_FD;
+      CT       : Unbounded_String;
+      CT_Len   : Natural := 0;
+      TE       : Unbounded_String;
+      Location : Unbounded_String;
+      Status   : Messages.Status_Code;
+      Message  : Unbounded_String;
 
       ----------------
       -- Read_Chunk --
@@ -203,13 +209,49 @@ package body AWS.Client is
          end if;
       end Read_Chunk;
 
+      ------------------
+      -- Read_Message --
+      ------------------
+
+      function Read_Message return String is
+         Results : Unbounded_String;
+      begin
+         --  we don't know the message body length, so read the socket until
+         --  it is closed by the server. At this time an exception will be
+         --  raised as are trying to read the socket.
+
+         while True loop
+            declare
+               One_Line : constant String := Sockets.Get_Line (Sock);
+            begin
+               Append (Results, One_Line);
+            end;
+         end loop;
+
+         return To_String (Results);
+
+      exception
+         when others =>
+            return To_String (Results);
+      end Read_Message;
+
+      use type Messages.Status_Code;
+
    begin
       Init_Connection (Sock, "GET",
                        URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
 
       Sockets.New_Line (Sock);
 
-      Parse_Header (Sock, Status, CT_Len, CT, TE);
+      Parse_Header (Sock, Status, CT_Len, CT, TE, Location);
+
+      --  check for special status
+
+      if Status = Messages.S301 then
+         --  moved permanently
+
+         return Response.Build (To_String (CT), To_String (Location), Status);
+      end if;
 
       --  read the message body
 
@@ -227,43 +269,44 @@ package body AWS.Client is
          --  CRLF
          --
 
-         declare
-            Elements : Streams.Stream_Element_Array := Read_Chunk;
-         begin
-            return Response.Build (To_String (CT),
-                                   Elements,
-                                   Status);
-         end;
+         return Response.Build (To_String (CT), Read_Chunk, Status);
 
       else
 
-         declare
-            Elements : Streams.Stream_Element_Array
-              (1 .. Streams.Stream_Element_Offset (CT_Len));
-         begin
-            Sockets.Receive (Sock, Elements);
-            Sockets.Shutdown (Sock);
+         if CT_Len = 0 and then CT = "text/html" then
+            --  here we do not know the message body length, but this it is a
+            --  textual data, read it as a string.
 
-            if CT = "text/html" then
+            return Response.Build (To_String (CT), Read_Message, Status);
 
-               --  if the content is textual info put it in a string
+         else
 
-               for K in Elements'Range loop
-                  Append (Message, Character'Val (Natural (Elements (K))));
-               end loop;
+            declare
+               Elements : Streams.Stream_Element_Array
+                 (1 .. Streams.Stream_Element_Offset (CT_Len));
+            begin
+               Sockets.Receive (Sock, Elements);
+               Sockets.Shutdown (Sock);
 
-               return Response.Build (To_String (CT),
-                                      To_String (Message),
-                                      Status);
-            else
+               if CT = "text/html" then
 
-               --  this is some kind of binary data.
+                  --  if the content is textual info put it in a string
 
-               return Response.Build (To_String (CT),
-                                      Elements,
-                                      Status);
-            end if;
-         end;
+                  for K in Elements'Range loop
+                     Append (Message, Character'Val (Natural (Elements (K))));
+                  end loop;
+
+                  return Response.Build (To_String (CT),
+                                         To_String (Message),
+                                         Status);
+               else
+
+                  --  this is some kind of binary data.
+
+                  return Response.Build (To_String (CT), Elements, Status);
+               end if;
+            end;
+         end if;
       end if;
 
    exception
@@ -280,7 +323,8 @@ package body AWS.Client is
       Status            :    out Messages.Status_Code;
       Content_Length    :    out Natural;
       Content_Type      :    out Unbounded_String;
-      Transfer_Encoding :    out Unbounded_String) is
+      Transfer_Encoding :    out Unbounded_String;
+      Location          :    out Unbounded_String) is
    begin
       loop
          declare
@@ -301,6 +345,10 @@ package body AWS.Client is
             elsif Messages.Is_Match (Line, Messages.Content_Length_Token) then
                Content_Length := Natural'Value
                  (Line (Messages.Content_Length_Range'Last + 1 .. Line'Last));
+
+            elsif Messages.Is_Match (Line, Messages.Location_Token) then
+               Location := To_Unbounded_String
+                 (Line (Messages.Location_Token'Last + 1 .. Line'Last));
 
             elsif Messages.Is_Match (Line,
                                      Messages.Transfer_Encoding_Token)
@@ -329,11 +377,12 @@ package body AWS.Client is
                  Proxy_User : in String := No_Data;
                  Proxy_Pwd  : in String := No_Data) return Response.Data
    is
-      Sock    : Sockets.Socket_FD;
-      CT      : Unbounded_String;
-      CT_Len  : Natural;
-      TE      : Unbounded_String;
-      Status  : Messages.Status_Code;
+      Sock     : Sockets.Socket_FD;
+      CT       : Unbounded_String;
+      CT_Len   : Natural;
+      TE       : Unbounded_String;
+      Status   : Messages.Status_Code;
+      Location : Unbounded_String;
    begin
       Init_Connection (Sock, "PUT",
                        URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
@@ -350,7 +399,7 @@ package body AWS.Client is
 
       --  get answer from server
 
-      Parse_Header (Sock, Status, CT_Len, CT, TE);
+      Parse_Header (Sock, Status, CT_Len, CT, TE, Location);
 
       return Response.Acknowledge (Status);
    end Put;
