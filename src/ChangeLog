@@ -1,3 +1,22 @@
+2003-06-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Data): Remove special read data for SOAP Payload.
+
+	* aws-status.ads:
+	(Data): Remove field Payload. Payload would be in the Binary_Data
+	 for SOAP requests now.
+
+	* aws-status.adb:
+	(Payload): Get SOAP Payload just from Binary_Data.
+
+	* aws-status-translate_table.adb:
+	Use AWS.Status.Payload routine call instead of
+	 direct read from Payload field.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	(Payload): Remove. The Payload would be set just to the message body.
+
 2003-06-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.ads:
