@@ -65,6 +65,9 @@ package AWS.Server is
    -- Server initialization --
    ---------------------------
 
+   --  Note that starting a sercure server if AWS has not been configured to
+   --  support HTTPS will raise Program_Error.
+
    procedure Start
      (Web_Server : in out HTTP;
       Callback   : in     Response.Callback;
@@ -124,9 +127,9 @@ package AWS.Server is
 
    procedure Wait (Mode : in Termination := No_Server);
    --  The purpose of this procedure is to control the main procedure
-   --  termination. This procedure will return only when no server is active
+   --  termination. This procedure will return only when no server are running
    --  (No_Server mode) or the 'q' key has been pressed. If mode is set to
-   --  Forever Wait will never return. The process will have to be killed.
+   --  Forever, Wait will never return and the process will have to be killed.
 
    --------------------------
    -- Server configuration --
@@ -151,6 +154,12 @@ package AWS.Server is
    --  feature it is possible to change server behavior at runtime. The
    --  complete set of callback procedures will be changed when calling this
    --  routine.
+
+   procedure Set_Security (Certificate_Filename : in String);
+   --  Set security option for AWS. Certificate_Filename is the name of a file
+   --  containing a certificate and the private key. This must be called
+   --  before starting the first secure server. After that the call will have
+   --  no effect.
 
    ----------------
    -- Server Log --
