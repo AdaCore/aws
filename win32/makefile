@@ -6,6 +6,8 @@
 
 ifeq (${OS}, Windows_NT)
 
+   RES = aws.coff
+
    ifeq (${MODE}, ssl)
       IMPORT_LIB = build_lib
    else
@@ -13,10 +15,11 @@ ifeq (${OS}, Windows_NT)
    endif
 
 else
+   RES        =
    IMPORT_LIB =
 endif
 
-build: $(IMPORT_LIB)
+build: $(RES) $(IMPORT_LIB)
 
 ../ssl/libssl.a: libssl32.dll
 	dll2def libssl32.dll > ssl.def
@@ -32,5 +35,8 @@ build: $(IMPORT_LIB)
 
 build_lib: ../ssl/libssl.a ../ssl/libcrypto.a
 
+aws.coff: aws.rc
+	windres -i aws.rc -o aws.coff
+
 clean:
-	-rm ../ssl/*.a *~
+	-rm ../ssl/*.a *~ aws.coff
