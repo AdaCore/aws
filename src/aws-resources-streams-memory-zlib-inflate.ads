@@ -39,11 +39,11 @@ package AWS.Resources.Streams.Memory.ZLib.Inflate is
 
    type Stream_Type is new ZLib.Stream_Type with private;
 
-   procedure Init
+   procedure Initialize
      (Resource    : in out Stream_Type;
       Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
       Header      : in     Header_Type      := ZL.Default);
-   --  Initialize
+   --  Initialize the decompression
 
 private
 
