@@ -30,19 +30,14 @@
 
 --  $Id$
 
-with Ada.Strings.Unbounded;
-
 with Sax.Readers;
 with Sax.Attributes;
 with Unicode.CES;
 
 with SOAP.Message.Payload;
-with SOAP.Message.Response;
-with SOAP.Message.Error;
+with SOAP.Message.Response.Error;
 
 package SOAP.Message.XML is
-
-   use Ada.Strings.Unbounded;
 
    function Load_Payload
      (XML : in String)
@@ -138,7 +133,7 @@ private
 
    type Response_Reader is new SOAP_Reader with record
       Is_Error : Boolean := False;
-      Response : Message.Error.Object;
+      Response : Message.Response.Error.Object;
    end record;
 
    function Is_Error (Handler : in Response_Reader) return Boolean;
