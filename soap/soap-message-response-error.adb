@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -38,8 +38,8 @@ package body SOAP.Message.Response.Error is
    Client_Faultcode           : constant String := "Client";
    Server_Faultcode           : constant String := "Server";
 
-   Start_Fault_Env            : constant String := "<SOAP-ENV:Fault>";
-   End_Fault_Env              : constant String := "</SOAP-ENV:Fault>";
+   Start_Fault_Env            : constant String := "<soap:Fault>";
+   End_Fault_Env              : constant String := "</soap:Fault>";
 
    function Fault_Code (Name, Subname : in String) return Faultcode;
    --  Returns the Faultcode for Name and Subname. If Subname is empty it
