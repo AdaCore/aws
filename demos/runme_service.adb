@@ -48,9 +48,10 @@ package body Runme_Service is
    use GNAT;
 
    Stop_Request   : Boolean := False;
-   Update_Request : Boolean := False;
+   pragma Atomic (Stop_Request);
 
    Running        : Boolean := False;
+   pragma Atomic (Running);
 
    WSS : AWS.Server.HTTP;
    WS  : AWS.Server.HTTP;
@@ -99,23 +100,23 @@ package body Runme_Service is
 
    procedure Main is
    begin
-      --  change to the right directory
+      --  Change to the right directory
       Directory_Operations.Change_Dir (Runme_Info.Get_Executable_Path);
 
-      --  set SSL certificate
+      --  Set SSL certificate
       SSL.Set_Certificate (Runme_Info.Get_Executable_Path & "cert.pem");
 
-      --  all output goes to a log file.
+      --  All output goes to a log file.
       Text_IO.Create (Output, Text_IO.Out_File, "runme.service.log");
       Text_IO.Set_Output (Output);
 
-      --  update state.
+      --  Update state.
 
       Service.Status.Set
         (Target    => Server.Status,
          New_State => Service.Status.Run_State);
 
-      --  start servers.
+      --  Start servers.
 
       Running := True;
 
