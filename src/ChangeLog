@@ -1,3 +1,45 @@
+2003-11-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add aws-services-dispatchers-transient_pages.adb
+	 aws-services-split_pages.adb aws-services-transient_pages.adb.
+
+	* aws-services-split_pages.ads, aws-services-split_pages.adb:
+	Initial revision.
+
+	* aws-services-dispatchers-transient_pages.adb:
+	Initial revision.
+
+	* aws-services-dispatchers-transient_pages.ads:
+	Initial revision.
+
+	* aws-services-transient_pages.ads:
+	Initial revision.
+	
+	* aws-services-transient_pages.adb:
+	Initial revision.
+	Note that this implementation is a proof of concept far from being
+	 a good one. See comments.
+
+	* aws-resources-files.ads:
+	Minor reformatting.
+
+	* aws-resources-streams-memory.ads:
+	Minor reformatting.
+
+	* aws-resources-streams.ads, aws-resources-streams.adb:
+	(Release): New routine.
+
+	* aws-resources.adb:
+	(Close): Do not call Free directly to release the memory associated 
+	 with the handle but call Release dispatching operation.
+	(Release): New routine.
+	Minor reformatting.
+
+	* aws-resources.ads:
+	Minor reformatting.
+	(Release): New routine.
+
 2003-11-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-pop.ads, aws-pop.adb:

@@ -32,6 +32,8 @@ b~soap_server_disp.adb
 b~soap_server_disp.ads
 b~soap_svs.adb
 b~soap_svs.ads
+b~split.adb
+b~split.ads
 b~test_jabber.adb
 b~test_jabber.ads
 b~test_ldap.adb
