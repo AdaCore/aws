@@ -1,3 +1,36 @@
+2002-10-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Set): New routine.
+	Update copyright notice.
+
+	* aws-server.ads:
+	(Set): New routine.
+	(HTTP): Set field Dispatcher Atomic.
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-ldap-client.ads, aws-ldap-client.adb:
+	Initial revision.
+
+	* aws-ldap-thin.ads, aws-ldap-thin.adb:
+	Initial revision.
+
+	* aws-ldap.ads:
+	Initial revision.
+
+	* aws-response-set.adb:
+	Minor reformatting.
+	Remove 2000-2001 from copyright header.
+	Set file to UNIX format.
+	
+	* aws-response-set.ads:
+	Minor reformatting.
+	Remove 2000-2001 from copyright header.
+
+	* aws-response.adb:
+	Minor reformatting.
+
 2002-10-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-response-set.ads, aws-response-set.adb:
