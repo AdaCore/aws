@@ -197,11 +197,13 @@ package body AWS.Server is
          AWS.Log.Write
            (Log,
             Error.Request,
-            Strings.Fixed.Translate
-              (Exception_Information (E),
-               Strings.Maps.To_Mapping
-                 (From => ASCII.CR & ASCII.LF,
-                  To   => "  ")));
+            Strings.Fixed.Trim
+              (Strings.Fixed.Translate
+                 (Exception_Information (E),
+                  Strings.Maps.To_Mapping
+                    (From => ASCII.CR & ASCII.LF,
+                     To   => "  ")),
+               Strings.Right));
 
          if AWS.OS_Lib.Is_Regular_File (Fatal_Error_Template) then
             Answer := Response.Build
@@ -511,9 +513,11 @@ package body AWS.Server is
          Session.Control.Shutdown;
       end if;
 
-      --  Close log, this ensure that all data will be written to the file.
+      --  Close logs, this ensure that all data will be written to the file.
 
       Stop_Log (Web_Server);
+
+      Stop_Error_Log (Web_Server);
 
       --  Server removed
 
