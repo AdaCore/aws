@@ -74,7 +74,7 @@ package AWS.Response is
 
    function URL (Location : in String)
      return Data;
-   --  This send an Ok message (Messages.S200) and jump to the specified URL.
+   --  This ask the server for a redirection to the specified URL.
 
    function Moved
      (Location : in String;
