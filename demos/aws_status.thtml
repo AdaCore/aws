@@ -68,7 +68,6 @@ status.</H3>
 <td>Socket
 <td>Opened
 <td>Abortable
-<td>Quit
 <td>Activity Counter
 <td>Activity Time Stamp
 </tr>
@@ -79,7 +78,6 @@ status.</H3>
 <td align=center>@@_SOCK_L_@@
 <td align=center>@@YES_NO@@_OPENED_L_@@
 <td align=center>@@YES_NO@@_ABORTABLE_L_@@
-<td align=center>@@YES_NO@@_QUIT_L_@@
 <td align=center>@@_ACTIVITY_COUNTER_L_@@
 <td>@@_ACTIVITY_TIME_STAMP_L_@@
 </tr>
@@ -89,7 +87,6 @@ status.</H3>
 <td align=center>@@_SOCK_L_@@
 <td align=center>@@YES_NO@@_OPENED_L_@@
 <td align=center>@@YES_NO@@_ABORTABLE_L_@@
-<td align=center>@@YES_NO@@_QUIT_L_@@
 <td align=center>@@_ACTIVITY_COUNTER_L_@@
 <td>@@_ACTIVITY_TIME_STAMP_L_@@
 </tr>
@@ -121,7 +118,8 @@ status.</H3>
 <hr>
 <br>
 
-<p>AWS has been developed in Ada with GNAT (http://www.gnat.com).
+<p>AWS has been developed in Ada with GNAT 
+(see <a href="http://www.gnat.com">ACT Web site</a>).
 <p><a href="mailto:anisimkov@yahoo.com">Dmitriy Anisimkov</a>, 
 <a href="mailto:p.obry@wanadoo.fr">Pascal Obry</a>
 
