@@ -1,3 +1,8 @@
+2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* memory_streams.ads, memory_streams.adb:
+	Change File parameter name to Stream.
+
 2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* zlib.adb:
