@@ -76,8 +76,6 @@ package body SOAP.Message.XML is
    Start_Body      : constant String := "<SOAP-ENV:Body>";
    End_Body        : constant String := "</SOAP-ENV:Body>";
 
-   Start_Fault_Env : constant String := "<SOAP-ENV:Fault>";
-
    type Array_State is (Void, A_Undefined, A_Int, A_Float, A_String,
                         A_Boolean, A_Time_Instant, A_Base64);
 
