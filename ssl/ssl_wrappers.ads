@@ -29,7 +29,7 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-package SSL.Wrappers is
+package SSL_Wrappers is
 
    --  The routines below must not raise Program_Error as they are called
    --  during the SSL initialization.
@@ -186,4 +186,4 @@ package SSL.Wrappers is
    procedure SSL_CTX_set_verify;
    pragma Export (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
 
-end SSL.Wrappers;
+end SSL_Wrappers;
