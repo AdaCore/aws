@@ -1,3 +1,42 @@
+2003-07-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources.ads:
+	(Size): New routine for File_Type.
+	(Size): New abstract routine for private File_Tagged.
+
+	* aws-resources.adb:
+	(Size): Dispatch call for File_Tagged routine Size.
+
+	* aws-resources-embedded.ads, aws-resources-embedded.adb,
+	  aws-resources-files.ads, aws-resources-files.adb:
+	(Size): New defined routine.
+
+	* aws-resources-streams.ads, aws-resources-streams.adb:
+	(Size): New routine returns Undefined_Size by default.
+
+	* aws-response-set.adb:
+	(Update_Data_From_Header): Removed.
+	(Content_Length): Removed.
+	(Stream): Remove parameter Content_Length.
+
+	* aws-response-set.ads:
+	(Content_Length): Removed.
+	(Stream): Remove parameter Content_Length.
+
+	* aws-response.adb:
+	(Content_Length): Get Content_Length from HTTP header.
+	(Stream): Remove Content_Length parameter.
+
+	* aws-response.ads:
+	(Stream): Remove Content_Length parameter.
+	(Undefined_Length): Copy constant from AWS.Resources.
+	(Data): Remove Content_Length field.
+
+	* aws-server-protocol_handler.adb:
+	Use Stream_Element_Offset for all stream length variables and
+	 parameters.
+	(Send_Data): Get content length from the AWS.Resources.Size call.
+
 2003-06-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.ads:
