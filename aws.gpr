@@ -41,6 +41,7 @@ with "tools/tools";
 project AWS is
 
    for Source_Dirs use ();
+   for Object_Dir use ".build";
 
    package Ide is
       for Vcs_Kind use "CVS";
