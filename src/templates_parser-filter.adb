@@ -202,8 +202,8 @@ package body Filter is
 
    function Replace_One_Or_All
      (S   : in String;
-      P   : in Parameter_Data  := No_Parameter;
-      T   : in Translate_Table := No_Translation;
+      P   : in Parameter_Data := No_Parameter;
+      T   : in Translate_Set  := Null_Set;
       One : Boolean)
       return String;
    --  Routine used to implement the REPLACE (One set to True) and REPLACE_ALL
@@ -211,7 +211,7 @@ package body Filter is
 
    function Value
      (Str          : in String;
-      Translations : in Translate_Table)
+      Translations : in Translate_Set)
       return String;
    --  Returns the value for Str, or if Str is a tag, returns it's value
 
@@ -351,8 +351,8 @@ package body Filter is
 
    function Add_Param
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       function Get (Str : in String) return String;
@@ -394,8 +394,8 @@ package body Filter is
 
    function BR_2_LF
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -435,8 +435,8 @@ package body Filter is
 
    function Capitalize
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -465,8 +465,8 @@ package body Filter is
 
    function Clean_Text
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -498,8 +498,8 @@ package body Filter is
 
    function Coma_2_Point
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -522,8 +522,8 @@ package body Filter is
 
    function Contract
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -569,8 +569,8 @@ package body Filter is
 
    function Del_Param
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -623,8 +623,8 @@ package body Filter is
 
    function Exist
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -644,8 +644,8 @@ package body Filter is
 
    function Format_Date
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       Date_Only : constant := 10;
@@ -697,8 +697,8 @@ package body Filter is
 
    function Format_Number
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -773,8 +773,8 @@ package body Filter is
 
    function Is_Empty
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -794,8 +794,8 @@ package body Filter is
 
    function LF_2_BR
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -833,8 +833,8 @@ package body Filter is
 
    function Lower
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -850,8 +850,8 @@ package body Filter is
 
    function Match
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -879,8 +879,8 @@ package body Filter is
 
    function No_Digit
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -905,8 +905,8 @@ package body Filter is
 
    function No_Letter
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -929,8 +929,8 @@ package body Filter is
 
    function No_Space
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -955,8 +955,8 @@ package body Filter is
 
    function Oui_Non
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -992,8 +992,8 @@ package body Filter is
 
    function Point_2_Coma
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1016,8 +1016,8 @@ package body Filter is
 
    function Repeat
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       N : Natural;
@@ -1053,8 +1053,8 @@ package body Filter is
 
    function Replace
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
    begin
@@ -1067,8 +1067,8 @@ package body Filter is
 
    function Replace_All
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
    begin
@@ -1081,8 +1081,8 @@ package body Filter is
 
    function Replace_One_Or_All
      (S   : in String;
-      P   : in Parameter_Data  := No_Parameter;
-      T   : in Translate_Table := No_Translation;
+      P   : in Parameter_Data := No_Parameter;
+      T   : in Translate_Set  := Null_Set;
       One : Boolean)
       return String
    is
@@ -1161,8 +1161,8 @@ package body Filter is
 
    function Replace_Param
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       Param : constant String  := To_String (P.S);
@@ -1190,8 +1190,8 @@ package body Filter is
 
    function Reverse_Data
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1211,8 +1211,8 @@ package body Filter is
 
    function Size
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1228,8 +1228,8 @@ package body Filter is
 
    function Slice
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1247,8 +1247,8 @@ package body Filter is
 
    function Trim
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1264,8 +1264,8 @@ package body Filter is
 
    function Upper
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1281,8 +1281,8 @@ package body Filter is
 
    function Web_Escape
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1327,8 +1327,8 @@ package body Filter is
 
    function Web_NBSP
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1360,8 +1360,8 @@ package body Filter is
 
    function Yes_No
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       pragma Unreferenced (T);
@@ -1397,8 +1397,8 @@ package body Filter is
 
    function Plus
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       N, V : Integer;
@@ -1432,8 +1432,8 @@ package body Filter is
 
    function Minus
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       N, V : Integer;
@@ -1467,8 +1467,8 @@ package body Filter is
 
    function Divide
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       N, V : Integer;
@@ -1502,8 +1502,8 @@ package body Filter is
 
    function Multiply
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       N, V : Integer;
@@ -1537,8 +1537,8 @@ package body Filter is
 
    function Modulo
      (S : in String;
-      P : in Parameter_Data  := No_Parameter;
-      T : in Translate_Table := No_Translation)
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
       return String
    is
       N, V : Integer;
@@ -1594,17 +1594,23 @@ package body Filter is
 
    function Value
      (Str          : in String;
-      Translations : in Translate_Table)
-      return String is
+      Translations : in Translate_Set)
+      return String
+   is
+      use type Containers.Cursor_Type;
+      Pos : Containers.Cursor_Type;
    begin
-      for K in Translations'Range loop
-         if Translations (K).Kind = Std
-           and then
-             To_String (Translations (K).Variable) = Str
-         then
-            return To_String (Translations (K).Value);
-         end if;
-      end loop;
+      Pos := Containers.Find (Translations.Set.all, Str);
+
+      if Pos /= Containers.Null_Cursor then
+         declare
+            Tk : constant Association := Containers.Element (Pos);
+         begin
+            if Tk.Kind = Std then
+               return To_String (Tk.Value);
+            end if;
+         end;
+      end if;
 
       return Str;
    end Value;

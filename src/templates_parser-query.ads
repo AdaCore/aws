@@ -40,10 +40,14 @@ package Templates_Parser.Query is
       return String;
    --  Returns the variable name for Association
 
-   function Vector
+   function Composite
      (Association : in Templates_Parser.Association)
-      return Vector_Tag;
+      return Tag;
    --  Returns the vector tag for this association, raises Constraint_Error
    --  if it is not a vector.
+
+   function Nested_Level (T : in Tag) return Positive;
+   --  Returns the nested level for tag T, 1 means that this is a vector tag,
+   --  2 that it is a matrix.
 
 end Templates_Parser.Query;
