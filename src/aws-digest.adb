@@ -32,6 +32,7 @@
 
 with Ada.Calendar;
 with Ada.Unchecked_Conversion;
+with Ada.Strings.Maps.Constants;
 
 with MD5;
 
@@ -78,6 +79,16 @@ package body AWS.Digest is
       end if;
 
       Split (Now, Year_Now, Month_Now, Day_Now, Seconds_Now);
+
+      declare
+         use Ada.Strings.Maps;
+      begin
+         if not Is_Subset (To_Set (Value (1 .. 5)),
+           Constants.Hexadecimal_Digit_Set)
+         then
+            return False;
+         end if;
+      end;
 
       Seconds_Nonce := Utils.Hex_Value (Value (1 .. 5));
 
