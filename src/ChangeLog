@@ -1,3 +1,11 @@
+2004-09-18  Pascal Obry  <pascal@obry.org>
+
+	* aws-session.adb:
+	Minor reformatting.
+
+	* aws-net-buffered.adb:
+	(Read): Minor reformatting and fix comments.
+
 2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-buffered.adb:
