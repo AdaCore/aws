@@ -1,0 +1,16 @@
+started
+-- file1.txt --
+line 1, file 1
+line 2, file 1
+
+-- file2.txt --
+line 1, file 2
+line 2, file 2
+line 3, file 2
+
+-- file2.txt.gz unzipped --
+line 1, file 2
+line 2, file 2
+line 3, file 2
+
+shutdown
