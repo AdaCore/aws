@@ -1,5 +1,9 @@
 2004-05-24  Pascal Obry  <pascal@obry.org>
 
+	* templates_parser.adb:
+	(Translate): Do not call Callback for Null_Context.
+        Minor reformatting.
+
 	* aws-response-set.adb:
 	Minor reformatting.
 
