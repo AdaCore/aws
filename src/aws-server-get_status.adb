@@ -33,7 +33,6 @@ with GNAT.Calendar.Time_IO;
 
 with AWS.Session;
 with AWS.Hotplug.Get_Status;
-with AWS.Status;
 
 function AWS.Server.Get_Status (Server : in HTTP) return String is
 
