@@ -174,8 +174,7 @@ package body AWS.Client is
            and then P /= Not_Monitored
            and then Connection.Opened
          then
-            Connection.Opened := False;
-            Sockets.Shutdown (Connection.Socket.all);
+            Disconnect (Connection);
          end if;
 
       end loop Phase_Loop;
@@ -447,7 +446,7 @@ package body AWS.Client is
       procedure Free is new Ada.Unchecked_Deallocation
         (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
-      Sock : constant Sockets.Socket_FD'Class := Connection.Socket.all;
+      Sock     : constant Sockets.Socket_FD'Class := Connection.Socket.all;
 
       CT       : Unbounded_String;
       CT_Len   : Natural              := 0;
@@ -752,7 +751,7 @@ package body AWS.Client is
          else
 
             declare
-               Elements : Stream_Element_Array_Access
+               Elements : constant Stream_Element_Array_Access
                  := Read_Binary_Message (CT_Len);
             begin
                if MIME.Is_Text (To_String (CT)) then
@@ -871,8 +870,7 @@ package body AWS.Client is
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
       --  otherwise.
 
-      function Port_Not_Default (Port : in Positive)
-        return String;
+      function Port_Not_Default (Port : in Positive) return String;
       --  Returns the port image (preceded by character ':') if it is not the
       --  default port.
 
@@ -906,9 +904,7 @@ package body AWS.Client is
       -- Port_Not_Default --
       ----------------------
 
-      function Port_Not_Default
-        (Port : in Positive)
-        return String is
+      function Port_Not_Default (Port : in Positive) return String is
       begin
          if Port = 80 then
             return "";
@@ -921,8 +917,8 @@ package body AWS.Client is
          end if;
       end Port_Not_Default;
 
-      Host_Address : constant String :=
-        AWS.URL.Host (Connection.Host_URL)
+      Host_Address : constant String
+        := AWS.URL.Host (Connection.Host_URL)
         & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
 
    begin
@@ -1060,7 +1056,7 @@ package body AWS.Client is
             Debug_Message ("< ", Line);
 
             if Line = End_Section and then Status /= Messages.S100 then
-               --  exit if we got and End_Section (empty line) and the status
+               --  Exit if we got and End_Section (empty line) and the status
                --  is not 100 (continue).
                exit;
 
@@ -1083,8 +1079,9 @@ package body AWS.Client is
                Location := To_Unbounded_String
                   (Line (Messages.Location_Token'Last + 1 .. Line'Last));
 
-            elsif Messages.Is_Match (Line,
-                  Messages.Transfer_Encoding_Token) then
+            elsif Messages.Is_Match
+              (Line, Messages.Transfer_Encoding_Token)
+            then
 
                Transfer_Encoding := To_Unbounded_String
                   (Line (Messages.Transfer_Encoding_Range'Last + 1
@@ -1094,8 +1091,9 @@ package body AWS.Client is
                Connection := To_Unbounded_String
                   (Line (Messages.Connection_Token'Last + 1 .. Line'Last));
 
-            elsif Messages.Is_Match (Line, Messages.
-                  Proxy_Connection_Token) then
+            elsif Messages.Is_Match
+              (Line, Messages.Proxy_Connection_Token)
+            then
                Connection := To_Unbounded_String
                   (Line (Messages.Proxy_Connection_Token'Last + 1 .. Line'
                      Last));
@@ -1105,7 +1103,7 @@ package body AWS.Client is
                   (Line (Messages.Set_Cookie_Token'Last + 1 .. Line'Last));
 
             else
-               --  everything else is ignore right now
+               --  Everything else is ignore right now
                null;
             end if;
          end;
