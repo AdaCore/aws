@@ -28,16 +28,17 @@
 
 --  $Id$
 
-with Ada.Exceptions;
-with Ada.Characters.Handling;
 with Ada.Calendar;
+with Ada.Characters.Handling;
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
-with GNAT.Calendar.Time_IO;
 with AWS.OS_Lib;
+
+with GNAT.Calendar.Time_IO;
 with GNAT.Regpat;
 
 with Templates_Parser.Input;
@@ -1299,6 +1300,8 @@ package body Templates_Parser is
       T.Ref_Count         := new Integer'(1);
       T.Data              := new Tag_Data;
       T.Data.Count        := 0;
+      T.Data.Min          := Natural'Last;
+      T.Data.Max          := 0;
       T.Data.Head         := null;
       T.Data.Last         := null;
       T.Data.Position     := (null, new Integer'(1));
