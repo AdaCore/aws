@@ -1,5 +1,36 @@
 2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-embedded.adb:
+	(Node): Add field Mode.
+	(Read_Uncompressed): New routine.
+	(Read) [Z_File_Tagged]: New routine.
+	(Close) [Z_File_Tagged]: New routine.
+	(Support_Compressed) [Z_File_Tagged]: New routine.
+
+	* aws-resources-embedded.ads:
+	(Data_Mode): New type.
+	(Register): Add new parameter Mode to specify if the resource is
+	 compressed or not.
+	(Z_File_Tagged): New type.
+	(Read) [Z_File_Tagged]: New routine.
+	(Close) [Z_File_Tagged]: New routine.
+	(Support_Compressed) [Z_File_Tagged]: New routine.
+
+	* aws-resources-streams-memory-zlib.ads,
+	  aws-resources-streams-memory-zlib.adb:
+	Undo previous change.
+
+	* aws-resources-streams-zlib.ads, aws-resources-streams-zlib.adb:
+	Undo previous change.
+	
+	* aws-resources.ads, aws-resources.adb:
+	Undo previous changes.
+	Keep only Support_Compressed routine.
+	This implementation support only uncompress of embedded compressed
+	 resources.
+	
+2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-resources.adb:
 	Fix bad indentation.
 
