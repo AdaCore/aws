@@ -1,6 +1,12 @@
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
+	(BUILD): New variable only set on Windows platforms.
+	(build): Use it.
+	
+2004-09-29  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
 	(SUPPORT): New variable only set on Windows platforms. Fix build
 	 failure on non Windows OS.
 	(setup): Use it.
