@@ -35,6 +35,7 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Messages;
 with AWS.Translator;
+with AWS.Parameters.Set;
 
 package body AWS.Status.Set is
 
@@ -44,8 +45,9 @@ package body AWS.Status.Set is
    -- Authorization --
    -------------------
 
-   procedure Authorization (D             : in out Data;
-                            Authorization : in     String)
+   procedure Authorization
+     (D             : in out Data;
+      Authorization : in     String)
    is
       Basic_Token : constant String := "Basic ";
    begin
@@ -87,8 +89,9 @@ package body AWS.Status.Set is
    -- Binary --
    ------------
 
-   procedure Binary (D         : in out Data;
-                     Parameter : in     Stream_Element_Array) is
+   procedure Binary
+     (D         : in out Data;
+      Parameter : in     Stream_Element_Array) is
    begin
       D.Binary_Data := new Stream_Element_Array'(Parameter);
    end Binary;
@@ -106,8 +109,9 @@ package body AWS.Status.Set is
    -- Content_Length --
    --------------------
 
-   procedure Content_Length (D              : in out Data;
-                             Content_Length : in     Natural) is
+   procedure Content_Length
+     (D              : in out Data;
+      Content_Length : in     Natural) is
    begin
       D.Content_Length := Content_Length;
    end Content_Length;
@@ -116,8 +120,9 @@ package body AWS.Status.Set is
    -- Content_Type --
    ------------------
 
-   procedure Content_Type (D            : in out Data;
-                           Content_Type : in     String) is
+   procedure Content_Type
+     (D            : in out Data;
+      Content_Type : in     String) is
    begin
       D.Content_Type := To_Unbounded_String (Content_Type);
    end Content_Type;
@@ -126,8 +131,9 @@ package body AWS.Status.Set is
    -- File_Up_To_Date --
    ---------------------
 
-   procedure File_Up_To_Date (D               : in out Data;
-                              File_Up_To_Date : in     Boolean) is
+   procedure File_Up_To_Date
+     (D               : in out Data;
+      File_Up_To_Date : in     Boolean) is
    begin
       D.File_Up_To_Date := File_Up_To_Date;
    end File_Up_To_Date;
@@ -145,8 +151,9 @@ package body AWS.Status.Set is
    -- If_Modified_Since --
    -----------------------
 
-   procedure If_Modified_Since (D                 : in out Data;
-                                If_Modified_Since : in     String) is
+   procedure If_Modified_Since
+     (D                 : in out Data;
+      If_Modified_Since : in     String) is
    begin
       D.If_Modified_Since := To_Unbounded_String (If_Modified_Since);
    end If_Modified_Since;
@@ -155,8 +162,9 @@ package body AWS.Status.Set is
    -- Multipart_Boundary --
    ------------------------
 
-   procedure Multipart_Boundary (D        : in out Data;
-                                 Boundary : in     String) is
+   procedure Multipart_Boundary
+     (D        : in out Data;
+      Boundary : in     String) is
    begin
       D.Boundary := To_Unbounded_String (Boundary);
    end Multipart_Boundary;
@@ -184,10 +192,11 @@ package body AWS.Status.Set is
    -- Request --
    -------------
 
-   procedure Request (D            : in out Data;
-                      Method       : in     Request_Method;
-                      URI          : in     String;
-                      HTTP_Version : in     String) is
+   procedure Request
+     (D            : in out Data;
+      Method       : in     Request_Method;
+      URI          : in     String;
+      HTTP_Version : in     String) is
    begin
       D.Method       := Method;
       D.URI          := To_Unbounded_String (URI);
@@ -219,14 +228,17 @@ package body AWS.Status.Set is
       D.Auth_Name         := Null_Unbounded_String;
       D.Auth_Password     := Null_Unbounded_String;
       D.Session_ID        := Null_Unbounded_String;
+
+      AWS.Parameters.Set.Reset (D.Parameters);
    end Reset;
 
    -------------
    -- Session --
    -------------
 
-   procedure Session  (D  : in out Data;
-                       ID : in     String) is
+   procedure Session
+     (D  : in out Data;
+      ID : in     String) is
    begin
       D.Session_ID := To_Unbounded_String (ID);
    end Session;
