@@ -6,6 +6,9 @@
 	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
 	New generic package.
 
+	* makefile:
+	Add aws-net-generic_sets.adb.
+
 2004-09-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets-thin.ads:
