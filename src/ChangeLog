@@ -1,3 +1,24 @@
+2000-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_Message): send Location field is needed.
+
+	* aws-response.adb:
+	(Acknowledge): add initialization for new Location field.
+	(Authenticate): add initialization for new Location field.
+	(Build): add initialization for new Location field.
+	(Moved): new function.
+	(File): add initialization for new Location field.
+	(Location): return the Location field.
+	
+	* aws-response.ads:
+	(Default_Moved_Message): new constant.
+	(Moved): new function.
+	(Data): Add field Location.
+
+	* aws-messages.ads, aws-messages.adb:
+	(Location): new function.
+
 2000-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
