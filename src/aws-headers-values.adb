@@ -53,55 +53,6 @@ package body AWS.Headers.Values is
    --  from First index. Returns First = 0 if it has reached the end of
    --  Data. Returns Name_Last = 0 if an un-named value has been found.
 
-   function Exist_Unnamed_Value
-     (Header_Value   : in String;
-      Value          : in String;
-      Case_Sensitive : in Boolean := True)
-      return Boolean
-   is
-      First       : Natural;
-      Name_First  : Positive;
-      Name_Last   : Natural;
-      Value_First : Positive;
-      Value_Last  : Natural;
-
-      Map     : Maps.Character_Mapping;
-      M_Value : String (Value'Range);
-
-   begin
-      if Case_Sensitive then
-         Map     := Maps.Identity;
-         M_Value := Value;
-      else
-         Map     := Maps.Constants.Upper_Case_Map;
-         M_Value := Fixed.Translate (Value, Map);
-      end if;
-
-      First := Fixed.Index
-        (Source => Header_Value,
-         Set    => Spaces,
-         Test   => Outside);
-
-      loop
-         Next_Value
-           (Header_Value, First,
-            Name_First, Name_Last,
-            Value_First, Value_Last);
-
-         if Name_Last = 0
-           and then M_Value = Fixed.Translate
-              (Header_Value (Value_First .. Value_Last), Map)
-         then
-            return True;
-         end if;
-
-         exit when First = 0;
-      end loop;
-
-      --  There is not such value
-      return False;
-   end Exist_Unnamed_Value;
-
    -----------------------
    -- Get_Unnamed_Value --
    -----------------------
@@ -474,5 +425,58 @@ package body AWS.Headers.Values is
 
       return To_Set;
    end Split;
+
+   --------------------------
+   -- Unnamed_Value_Exists --
+   --------------------------
+
+   function Unnamed_Value_Exists
+     (Header_Value   : in String;
+      Value          : in String;
+      Case_Sensitive : in Boolean := True)
+      return Boolean
+   is
+      First       : Natural;
+      Name_First  : Positive;
+      Name_Last   : Natural;
+      Value_First : Positive;
+      Value_Last  : Natural;
+
+      Map     : Maps.Character_Mapping;
+      M_Value : String (Value'Range);
+
+   begin
+      if Case_Sensitive then
+         Map     := Maps.Identity;
+         M_Value := Value;
+      else
+         Map     := Maps.Constants.Upper_Case_Map;
+         M_Value := Fixed.Translate (Value, Map);
+      end if;
+
+      First := Fixed.Index
+        (Source => Header_Value,
+         Set    => Spaces,
+         Test   => Outside);
+
+      loop
+         Next_Value
+           (Header_Value, First,
+            Name_First, Name_Last,
+            Value_First, Value_Last);
+
+         if Name_Last = 0
+           and then M_Value = Fixed.Translate
+              (Header_Value (Value_First .. Value_Last), Map)
+         then
+            return True;
+         end if;
+
+         exit when First = 0;
+      end loop;
+
+      --  There is not such value
+      return False;
+   end Unnamed_Value_Exists;
 
 end AWS.Headers.Values;
