@@ -32,7 +32,7 @@ with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 
-with AWS.Translater;
+with AWS.Translator;
 with AWS.Utils;
 with AWS.Key_Value;
 
@@ -76,7 +76,7 @@ package body AWS.Parameters.Set is
 
       L_Key   : constant String   := Normalize_Name
         (Name, not Parameter_List.Case_Sensitive);
-      L_Value : constant String   := Translater.Decode_URL (Value);
+      L_Value : constant String   := Translator.Decode_URL (Value);
    begin
       Parameter_List.Count := Parameter_List.Count + 1;
 

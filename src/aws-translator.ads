@@ -30,7 +30,7 @@
 
 with Ada.Streams;
 
-package AWS.Translater is
+package AWS.Translator is
 
    function Decode_URL (Str : in String) return String;
    --  The translations are:
@@ -48,4 +48,4 @@ package AWS.Translater is
                           return Ada.Streams.Stream_Element_Array;
    --  Decode B64_Data using the base64 algorithm
 
-end AWS.Translater;
+end AWS.Translator;

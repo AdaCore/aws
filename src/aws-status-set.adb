@@ -32,7 +32,7 @@ with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Messages;
-with AWS.Translater;
+with AWS.Translator;
 
 package body AWS.Status.Set is
 
@@ -53,7 +53,7 @@ package body AWS.Status.Set is
             use Ada.Streams;
 
             Auth_Bin : Stream_Element_Array :=
-              Translater.Base64_Decode
+              Translator.Base64_Decode
               (Authorization (Basic_Token'Length + Authorization'First
                               .. Authorization'Last));
             Auth_Str : String (1 .. Auth_Bin'Length);

@@ -36,7 +36,7 @@ with Sockets;
 
 with AWS.Messages;
 with AWS.MIME;
-with AWS.Translater;
+with AWS.Translator;
 with AWS.Net;
 
 package body AWS.Client is
@@ -631,7 +631,7 @@ package body AWS.Client is
            (Sock,
             Messages.Authorization
             ("Basic",
-             AWS.Translater.Base64_Encode
+             AWS.Translator.Base64_Encode
              (To_String (Connection.User)
               & ':' & To_String (Connection.Pwd))));
       end if;
@@ -643,7 +643,7 @@ package body AWS.Client is
          (Sock,
           Messages.Proxy_Authorization
           ("Basic",
-           AWS.Translater.Base64_Encode
+           AWS.Translator.Base64_Encode
            (To_String (Connection.Proxy_User)
             & ':' & To_String (Connection.Proxy_Pwd))));
       end if;
