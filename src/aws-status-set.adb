@@ -314,7 +314,7 @@ package body AWS.Status.Set is
       Authorization (D);
 
       declare
-         Content_Length : String := AWS.Headers.Get
+         Content_Length : constant String := AWS.Headers.Get
            (D.Header, Messages.Content_Length_Token);
       begin
          if Content_Length /= "" then
