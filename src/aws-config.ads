@@ -37,8 +37,29 @@
 --  descripted below.
 --
 --  It is then possible to use AWS.Config to initialize the HTTP settings.
+--
+--  If file aws.ini is not found all functions below will return the default
+--  value as declared at the start of the package.
 
 package AWS.Config is
+
+
+   Default_Server_Name        : constant String := "[no name]";
+   Default_Admin_URI          : constant String := "";
+   Default_Server_Port        : constant        := 8080;
+   Default_Max_Connection     : constant        := 5;
+   Default_Log_File_Directory : constant String := "./";
+   Default_Upload_Directory   : constant String := "./";
+
+   Default_Cleaner_Wait_For_Client_Timeout : constant Duration :=  80.0;
+   Default_Cleaner_Client_Header_Timeout   : constant Duration :=  20.0;
+   Default_Cleaner_Client_Data_Timeout     : constant Duration := 300.0;
+   Default_Cleaner_Server_Response_Timeout : constant Duration := 300.0;
+
+   Default_Force_Wait_For_Client_Timeout   : constant Duration :=   2.0;
+   Default_Force_Client_Header_Timeout     : constant Duration :=   3.0;
+   Default_Force_Client_Data_Timeout       : constant Duration :=  10.0;
+   Default_Force_Server_Response_Timeout   : constant Duration :=  10.0;
 
    function Server_Name return String;
    --  Format: Server_Name <string>
@@ -66,5 +87,45 @@ package AWS.Config is
    --  Format: Upload_Directory <string>
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
+
+   function Cleaner_Wait_For_Client_Timeout return Duration;
+   --  Format: Cleaner_Wait_For_Client <duration>
+   --  Number of seconds to timout on waiting for a client request.
+   --  This is a timeout for regular cleaning task.
+
+   function Cleaner_Client_Header_Timeout   return Duration;
+   --  Format: Cleaner_Client_Header <duration>
+   --  Number of seconds to timout on waiting for client header.
+   --  This is a timeout for regular cleaning task.
+
+   function Cleaner_Client_Data_Timeout     return Duration;
+   --  Format: Cleaner_Client_Data  <duration>
+   --  Number of seconds to timout on waiting for client message body.
+   --  This is a timeout for regular cleaning task.
+
+   function Cleaner_Server_Response_Timeout return Duration;
+   --  Format: Cleaner_Server_Response <duration>
+   --  Number of seconds to timout on waiting for client to accept answer.
+   --  This is a timeout for regular cleaning task.
+
+   function Force_Wait_For_Client_Timeout   return Duration;
+   --  Format: Force_Wait_For_Client <duration>
+   --  Number of seconds to timout on waiting for a client request.
+   --  This is a timeout for urgent request when ressources are missing.
+
+   function Force_Client_Header_Timeout     return Duration;
+   --  Format: Force_Client_Header <duration>
+   --  Number of seconds to timout on waiting for client header.
+   --  This is a timeout for urgent request when ressources are missing.
+
+   function Force_Client_Data_Timeout       return Duration;
+   --  Format: Force_Client_Data <duration>
+   --  Number of seconds to timout on waiting for client message body.
+   --  This is a timeout for urgent request when ressources are missing.
+
+   function Force_Server_Response_Timeout   return Duration;
+   --  Format: Force_Server_Response <duration>
+   --  Number of seconds to timout on waiting for client to accept answer.
+   --  This is a timeout for urgent request when ressources are missing.
 
 end AWS.Config;
