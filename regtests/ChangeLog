@@ -1,5 +1,10 @@
 2004-09-17  Pascal Obry  <pascal@obry.org>
 
+	* upload5.out: 
+	Fix output.
+	
+2004-09-17  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	(RT_STD): Add upload5.
 
