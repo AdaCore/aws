@@ -408,6 +408,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end TLSv1_server_method;
 
+   ---------------
+   -- X509_free --
+   ---------------
+
+   procedure X509_free is
+   begin
+      Raise_Error;
+   end X509_free;
+
    --------------------------
    -- X509_get_issuer_name --
    --------------------------
