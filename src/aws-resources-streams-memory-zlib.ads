@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                            Copyright (C) 2003-2004                       --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,7 +34,7 @@
 --  $Author$
 
 --  This API is used as for standard memory stream (see parent package), the
---  only difference is that the stream is compressed.
+--  only difference is that the stream is compressing/decompressing on append.
 
 with ZLib;
 
@@ -76,7 +76,7 @@ package AWS.Resources.Streams.Memory.ZLib is
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Array;
       Trim     : in     Boolean := False);
-   --  Compress and Append Buffer into the memory stream
+   --  Compress/decompress and Append Buffer into the memory stream
 
    procedure Read
      (Resource : in out Stream_Type;
