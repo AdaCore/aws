@@ -38,17 +38,12 @@ package AWS.Config.Set is
    -- Per Server Options --
    ------------------------
 
+   ------------
+   -- Server --
+   ------------
+
    procedure Server_Name (O : in out Object; Value : in String);
    --  This is the name of the server as set by AWS.Server.Start
-
-   procedure WWW_Root (O : in out Object; Value : in String);
-   --  This is the root directory name for the server. This variable is not
-   --  used internally by AWS. It is supposed to be used by the callback
-   --  procedures who want to retrieve physical objects (images, Web
-   --  pages...). The default value is the current working directory.
-
-   procedure Admin_URI (O : in out Object; Value : in String);
-   --  This is the name of the admin server page as set by AWS.Server.Start
 
    procedure Server_Host (O : in out Object; Value : in String);
    --  This is the server host as set by the HTTP object declaration
@@ -56,25 +51,22 @@ package AWS.Config.Set is
    procedure Server_Port (O : in out Object; Value : in Positive);
    --  This is the server port as set by the HTTP object declaration
 
-   procedure Security (O : in out Object; Value : in Boolean);
-   --  Enable security (HTTPS/SSL) if Value is True
-
-   procedure Certificate (O : in out Object; Filename : in String);
-   --  Set the certificate to be used with the secure server
-
-   procedure Key (O : in out Object; Filename : in String);
-   --  Set the key to be used with the secure server
-
-   procedure Security_Mode (O : in out Object; Mode : in String);
-   --  Set the security mode to be used with the secure server. Only values
-   --  from AWS.Net.SSL.Method can be used.
-
-   procedure Exchange_Certificate (O : in out Object; Value : in Boolean);
-   --  Set to True to request the client to send its certificate to the server
-
    procedure Hotplug_Port (O : in out Object; Value : in Positive);
    --  This is the hotplug communication port needed to register and
    --  un-register an hotplug module.
+
+   procedure Session (O : in out Object; Value : in Boolean);
+   --  Enable session handling is Value is True
+
+   procedure Case_Sensitive_Parameters (O : in out Object; Value : in Boolean);
+   --  Parameters are handled with the case if Value is True
+
+   procedure Line_Stack_Size (O : in out Object; Value : in Positive);
+   --  HTTP lines stack size
+
+   ----------------
+   -- Connection --
+   ----------------
 
    procedure Max_Connection (O : in out Object; Value : in Positive);
    --  This is the max simultaneous connections as set by the HTTP object
@@ -94,6 +86,27 @@ package AWS.Config.Set is
    --  value will be and less "connection refused" will be reported to the
    --  client.
 
+   ----------
+   -- Data --
+   ----------
+
+   procedure WWW_Root (O : in out Object; Value : in String);
+   --  This is the root directory name for the server. This variable is not
+   --  used internally by AWS. It is supposed to be used by the callback
+   --  procedures who want to retrieve physical objects (images, Web
+   --  pages...). The default value is the current working directory.
+
+   procedure Upload_Directory (O : in out Object; Value : in String);
+   --  This point to the directory where uploaded files will be stored. The
+   --  directory returned will end with a directory separator.
+
+   procedure Directory_Browser_Page (O : in out Object; Value : in String);
+   --  Filename for the directory browser template page.
+
+   ---------
+   -- Log --
+   ---------
+
    procedure Log_File_Directory (O : in out Object; Value : in String);
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
@@ -112,12 +125,28 @@ package AWS.Config.Set is
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
-   procedure Upload_Directory (O : in out Object; Value : in String);
-   --  This point to the directory where uploaded files will be stored. The
-   --  directory returned will end with a directory separator.
+   ------------
+   -- Status --
+   ------------
 
-   procedure Session (O : in out Object; Value : in Boolean);
-   --  Enable session handling is Value is True.
+   procedure Admin_URI (O : in out Object; Value : in String);
+   --  This is the name of the admin server page as set by AWS.Server.Start
+
+   procedure Status_Page (O : in out Object; Value : in String);
+   --  Filename for the status template page
+
+   procedure Up_Image (O : in out Object; Value : in String);
+   --  Filename for the up arrow image used in the status page
+
+   procedure Down_Image (O : in out Object; Value : in String);
+   --  Filename for the down arrow image used in the status page
+
+   procedure Logo_Image (O : in out Object; Value : in String);
+   --  Filename for the AWS logo image used in the status page
+
+   --------------
+   -- Timeouts --
+   --------------
 
    procedure Cleaner_Wait_For_Client_Timeout
      (O     : in out Object;
@@ -173,26 +202,29 @@ package AWS.Config.Set is
    procedure Receive_Timeout (O : in out Object; Value : in Duration);
    --  Number of seconds to timeout when receiving chunck of data.
 
-   procedure Status_Page (O : in out Object; Value : in String);
-   --  Filename for the status template page.
+   --------------
+   -- Security --
+   --------------
 
-   procedure Directory_Browser_Page (O : in out Object; Value : in String);
-   --  Filename for the directory browser template page.
+   procedure Check_URL_Validity (O : in out Object; Value : in Boolean);
+   --  Set the check URL validity flag. If True an URL that reference a
+   --  resource above the Web root will be rejected.
 
-   procedure Up_Image (O : in out Object; Value : in String);
-   --  Filename for the up arrow image used in the status page.
+   procedure Security (O : in out Object; Value : in Boolean);
+   --  Enable security (HTTPS/SSL) if Value is True
 
-   procedure Down_Image (O : in out Object; Value : in String);
-   --  Filename for the down arrow image used in the status page.
+   procedure Certificate (O : in out Object; Filename : in String);
+   --  Set the certificate to be used with the secure server
 
-   procedure Logo_Image (O : in out Object; Value : in String);
-   --  Filename for the AWS logo image used in the status page.
+   procedure Key (O : in out Object; Filename : in String);
+   --  Set the key to be used with the secure server
 
-   procedure Case_Sensitive_Parameters (O : in out Object; Value : in Boolean);
-   --  Parameters are handled with the case if Value is True.
+   procedure Security_Mode (O : in out Object; Mode : in String);
+   --  Set the security mode to be used with the secure server. Only values
+   --  from AWS.Net.SSL.Method can be used.
 
-   procedure Line_Stack_Size (O : in out Object; Value : in Positive);
-   --  HTTP lines stack size.
+   procedure Exchange_Certificate (O : in out Object; Value : in Boolean);
+   --  Set to True to request the client to send its certificate to the server
 
    -------------------------
    -- Per Process Options --
@@ -230,6 +262,6 @@ package AWS.Config.Set is
      (Name          : in String;
       Value         : in String;
       Error_Context : in String := "");
-   --  Set one of the AWS HTTP per process parameters. See description above.
+   --  Set one of the AWS HTTP per process parameters. See description above
 
 end AWS.Config.Set;
