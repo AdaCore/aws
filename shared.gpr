@@ -33,7 +33,7 @@
 project Shared is
 
    type Build_Type is ("Debug", "Release");
-   Build : Build_Type := external ("AWS_BUILD", "Debug");
+   Build : Build_Type := external ("PRJ_BUILD", "Debug");
 
    type OS_Type is ("GNU/Linux", "Windows_NT");
    OS : OS_Type := external ("OS", "GNU/Linux");
@@ -45,14 +45,14 @@ project Shared is
    ------------
 
    type XMLAda_Type is ("Installed", "Disabled");
-   XMLAda : XMLAda_Type := external ("AWS_XMLAda", "Installed");
+   XMLAda : XMLAda_Type := external ("PRJ_XMLAda", "Installed");
 
    ----------
    -- ASIS --
    ----------
 
    type ASIS_Type is ("Installed", "Disabled");
-   ASIS : ASIS_Type := external ("AWS_ASIS", "Installed");
+   ASIS : ASIS_Type := external ("PRJ_ASIS", "Installed");
 
    -------------------------
    -- Compression library --
