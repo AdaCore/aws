@@ -30,109 +30,149 @@
 
 --  $Id$
 
+with Ada.Characters.Handling;
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
-with Ada.Exceptions;
 
+with AWS.Headers.Set;
+with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Translator;
 with AWS.Parameters.Set;
-with AWS.Utils;
 
 package body AWS.Status.Set is
 
    use Ada.Strings;
 
+   procedure Authorization (D : in out Data);
+   --  Parse the Authorization parameters from the Authorization header value.
+
+   procedure Update_Data_From_Header (D : in out Data);
+   --  Update some Data fields from the internal Data header container.
+   --  The Update_Data_From_Header should be called after the complete
+   --  header parsing.
+
    -------------------
    -- Authorization --
    -------------------
 
-   procedure Authorization
-     (D             : in out Data;
-      Authorization : in     String)
-   is
-      Basic_Token  : constant String := "Basic ";
-      Digest_Token : constant String := "Digest ";
+   procedure Authorization (D : in out Data) is
+
+      Header_Value : constant String :=
+         AWS.Headers.Get (D.Header, Messages.Authorization_Token);
+
+      procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
+
+      procedure Value (Item : in String; Quit : in out Boolean);
+
+      -----------------
+      -- Named_Value --
+      -----------------
+
+      procedure Named_Value
+        (Name, Value : in String;
+         Quit        : in out Boolean)
+      is
+
+         type Digest_Attribute is
+           (Username, Realm, Nonce, NC, CNonce,
+            QOP, URI, Response, Algorithm);
+         --  The enumeration type is using to be able to
+         --  use the name in the case statement.
+         --  The case statement has usially faster implementation.
+
+         Attribute : Digest_Attribute;
+
+         function "+"
+           (Item : in String)
+            return Unbounded_String
+           renames To_Unbounded_String;
+
+      begin
+         begin
+            Attribute := Digest_Attribute'Value (Name);
+         exception
+            when Constraint_Error =>
+               --  Ignoring unrecognized attribute
+               return;
+         end;
+
+         --  Check if the attributes is for the Digest authenticatio schema.
+         --  AWS does not support othe authentication schemas with attributes
+         --  now.
+         if D.Auth_Mode /= Digest then
+            Quit := True;
+         end if;
+
+         case Attribute is
+            when Username  => D.Auth_Name     := +Value;
+            when Realm     => D.Auth_Realm    := +Value;
+            when NC        => D.Auth_NC       := +Value;
+            when CNonce    => D.Auth_CNonce   := +Value;
+            when QOP       => D.Auth_QOP      := +Value;
+            when Nonce     => D.Auth_Nonce    := +Value;
+            when Response  => D.Auth_Response := +Value;
+            when URI       => D.URI
+              := URL.Parse (Value, False, False);
+            when Algorithm =>
+               if Value /= "MD5" then
+                  Ada.Exceptions.Raise_Exception
+                     (Constraint_Error'Identity,
+                      "Only MD5 algorithm is supported.");
+               end if;
+         end case;
+      end Named_Value;
+
+      -----------
+      -- Value --
+      -----------
+
+      procedure Value (Item : in String; Quit : in out Boolean) is
+         Upper_Item : String := Ada.Characters.Handling.To_Upper (Item);
+      begin
+         if Upper_Item = "BASIC" then
+
+            D.Auth_Mode := Basic;
+
+            Quit := True;
+
+            --  We could not continue to parse Basic authentication
+            --  by the regular way, becouse next value is Base64
+            --  encoded username:password, it is possibe to be
+            --  symbol '=' there, our parser could
+            --  think that it is name/value delimiter.
+            declare
+               use Ada.Streams;
+
+               Auth_Str : constant String
+                 := Translator.To_String (Translator.Base64_Decode
+                   (Header_Value (Item'Length + 2 .. Header_Value'Last)));
+
+               Delimit  : Natural := Fixed.Index (Auth_Str, ":");
+            begin
+
+               if Delimit = 0 then
+                  D.Auth_Name := To_Unbounded_String (Auth_Str);
+               else
+                  D.Auth_Name
+                    := To_Unbounded_String (Auth_Str (1 .. Delimit - 1));
+                  D.Auth_Password
+                    := To_Unbounded_String (Auth_Str
+                                              (Delimit + 1 .. Auth_Str'Last));
+               end if;
+            end;
+
+         elsif Upper_Item = "DIGEST" then
+            D.Auth_Mode := Digest;
+
+         end if;
+      end Value;
+
+      procedure Parse is new Headers.Values.Parse (Value, Named_Value);
+
    begin
-      if Messages.Match (Authorization, Basic_Token) then
-
-         D.Auth_Mode := Basic;
-
-         declare
-            use Ada.Streams;
-
-            Auth_Bin : constant Stream_Element_Array
-              := Translator.Base64_Decode
-              (Authorization
-                 (Basic_Token'Length + Authorization'First
-                    .. Authorization'Last));
-
-            Auth_Str : String (1 .. Auth_Bin'Length);
-            K        : Positive := Auth_Str'First;
-            Delimit  : Natural;
-         begin
-
-            for i in Auth_Bin'Range loop
-               Auth_Str (K)
-                 := Character'Val (Stream_Element'Pos (Auth_Bin (i)));
-               K := K + 1;
-            end loop;
-
-            Delimit := Fixed.Index (Auth_Str, ":");
-
-            if Delimit = 0 then
-               D.Auth_Name := To_Unbounded_String (Auth_Str);
-            else
-               D.Auth_Name
-                 := To_Unbounded_String (Auth_Str (1 .. Delimit - 1));
-               D.Auth_Password
-                 := To_Unbounded_String (Auth_Str
-                                           (Delimit + 1 .. Auth_Str'Last));
-            end if;
-         end;
-      elsif Messages.Match (Authorization, Digest_Token) then
-
-         D.Auth_Mode := Digest;
-
-         declare
-
-            type Digest_Attribute is
-              (Username, Realm, Nonce, NC, CNonce,
-               QOP, URI, Response, Algorithm);
-
-            type Result_Set is array (Digest_Attribute) of Unbounded_String;
-
-            Result : Result_Set;
-
-            procedure Parse_Auth_Line is
-               new Utils.Parse_HTTP_Header_Line (Digest_Attribute, Result_Set);
-
-         begin
-            Parse_Auth_Line
-              (Data   => Authorization
-                 (Authorization'First + Digest_Token'Length
-                    .. Authorization'Last),
-               Result => Result);
-
-            D.URI
-              := URL.Parse (To_String (Result (URI)), False, False);
-            D.Auth_Name     := Result (Username);
-            D.Auth_Realm    := Result (Realm);
-            D.Auth_Nonce    := Result (Nonce);
-            D.Auth_Response := Result (Response);
-            D.Auth_NC       := Result (NC);
-            D.Auth_CNonce   := Result (CNonce);
-            D.Auth_QOP      := Result (QOP);
-
-            if Result (Algorithm) /= Null_Unbounded_String
-              and then To_String (Result (Algorithm)) /= "MD5"
-            then
-               Ada.Exceptions.Raise_Exception
-                  (Constraint_Error'Identity,
-                   "Only MD5 algorithm is supported.");
-            end if;
-         end;
-      end if;
+      Parse (Header_Value);
    end Authorization;
 
    ------------
@@ -146,37 +186,6 @@ package body AWS.Status.Set is
       D.Binary_Data := new Stream_Element_Array'(Parameter);
    end Binary;
 
-   ----------------
-   -- Connection --
-   ----------------
-
-   procedure Connection (D : in out Data; Connection : in String) is
-   begin
-      D.Connection := To_Unbounded_String (Connection);
-   end Connection;
-
-   --------------------
-   -- Content_Length --
-   --------------------
-
-   procedure Content_Length
-     (D              : in out Data;
-      Content_Length : in     Natural) is
-   begin
-      D.Content_Length := Content_Length;
-   end Content_Length;
-
-   ------------------
-   -- Content_Type --
-   ------------------
-
-   procedure Content_Type
-     (D            : in out Data;
-      Content_Type : in     String) is
-   begin
-      D.Content_Type := To_Unbounded_String (Content_Type);
-   end Content_Type;
-
    ----------
    -- Free --
    ----------
@@ -187,28 +196,11 @@ package body AWS.Status.Set is
    procedure Free (D : in out Data) is
    begin
       Free (D.Binary_Data);
+
       AWS.Parameters.Set.Free (D.Parameters);
+      AWS.Headers.Set.Free (D.Header);
+
    end Free;
-
-   ----------
-   -- Host --
-   ----------
-
-   procedure Host (D : in out Data; Host : in String) is
-   begin
-      D.Host := To_Unbounded_String (Host);
-   end Host;
-
-   -----------------------
-   -- If_Modified_Since --
-   -----------------------
-
-   procedure If_Modified_Since
-     (D                 : in out Data;
-      If_Modified_Since : in     String) is
-   begin
-      D.If_Modified_Since := To_Unbounded_String (If_Modified_Since);
-   end If_Modified_Since;
 
    ----------------
    -- Keep_Alive --
@@ -220,17 +212,6 @@ package body AWS.Status.Set is
    begin
       D.Keep_Alive := Flag;
    end Keep_Alive;
-
-   ------------------------
-   -- Multipart_Boundary --
-   ------------------------
-
-   procedure Multipart_Boundary
-     (D        : in out Data;
-      Boundary : in     String) is
-   begin
-      D.Boundary := To_Unbounded_String (Boundary);
-   end Multipart_Boundary;
 
    ----------------
    -- Parameters --
@@ -263,16 +244,17 @@ package body AWS.Status.Set is
       D.Peername := To_Unbounded_String (Peername);
    end Peername;
 
-   -------------
-   -- Referer --
-   -------------
+   -----------------
+   -- Read_Header --
+   -----------------
 
-   procedure Referer
-     (D       : in out Data;
-      Referer : in     String) is
+   procedure Read_Header
+     (Socket : in Net.Socket_Type'Class;
+      D : in out Data) is
    begin
-      D.Referer := To_Unbounded_String (Referer);
-   end Referer;
+      Headers.Set.Read (D.Header, Socket);
+      Update_Data_From_Header (D);
+   end Read_Header;
 
    -------------
    -- Request --
@@ -297,14 +279,9 @@ package body AWS.Status.Set is
    begin
       Free (D.Binary_Data);
 
-      D.Connection        := Null_Unbounded_String;
-      D.Host              := Null_Unbounded_String;
       D.Method            := GET;
       D.HTTP_Version      := Null_Unbounded_String;
-      D.Content_Type      := Null_Unbounded_String;
-      D.Boundary          := Null_Unbounded_String;
       D.Content_Length    := 0;
-      D.If_Modified_Since := Null_Unbounded_String;
       D.Auth_Mode         := None;
       D.Auth_Name         := Null_Unbounded_String;
       D.Auth_Password     := Null_Unbounded_String;
@@ -318,6 +295,7 @@ package body AWS.Status.Set is
       D.Session_Created   := False;
 
       AWS.Parameters.Set.Reset (D.Parameters);
+      AWS.Headers.Set.Reset (D.Header);
    end Reset;
 
    -------------
@@ -325,29 +303,11 @@ package body AWS.Status.Set is
    -------------
 
    procedure Session
-     (D  : in out Data;
-      ID : in     String) is
-   begin
-      D.Session_ID := AWS.Session.Value (ID);
-   end Session;
-
-   procedure Session
      (D : in out Data) is
    begin
       D.Session_ID      := AWS.Session.Create;
       D.Session_Created := True;
    end Session;
-
-   ----------------
-   -- SOAPAction --
-   ----------------
-
-   procedure SOAPAction
-     (D          : in out Data;
-      SOAPAction : in     String) is
-   begin
-      D.SOAPAction := To_Unbounded_String (SOAPAction);
-   end SOAPAction;
 
    ------------
    -- Socket --
@@ -360,15 +320,119 @@ package body AWS.Status.Set is
       D.Socket := Sock;
    end Socket;
 
-   ----------------
-   -- User_Agent --
-   ----------------
+   -----------------------------
+   -- Update_Data_From_Header --
+   -----------------------------
 
-   procedure User_Agent
-     (D          : in out Data;
-      User_Agent : in     String) is
+   procedure Update_Data_From_Header (D : in out Data) is
    begin
-      D.User_Agent := To_Unbounded_String (User_Agent);
-   end User_Agent;
+      Authorization (D);
+      declare
+         Content_Length : String := AWS.Headers.Get
+           (D.Header, Messages.Content_Length_Token);
+      begin
+         if Content_Length /= "" then
+            D.Content_Length := Integer'Value (Content_Length);
+         end if;
+      end;
+
+      D.SOAP_Action := AWS.Headers.Exist
+         (D.Header, Messages.SOAPAction_Token);
+
+      declare
+         use AWS.Headers;
+         Cookies_Set : VString_Array := Get_Values
+            (D.Header,
+             Messages.Cookie_Token);
+
+      begin
+         for Idx in Cookies_Set'Range loop
+            declare
+
+               --  The expected Cookie line is:
+               --  Cookie: ... AWS=<cookieID>[,;] ...
+
+               use type AWS.Session.ID;
+
+               procedure Value
+                 (Item : in     String;
+                  Quit : in out Boolean);
+               --  Called for every un-named value read from the header value
+
+               procedure Named_Value
+                 (Name  : in     String;
+                  Value : in     String;
+                  Quit  : in out Boolean);
+               --  Called for every named value read from the header value
+
+               -----------------
+               -- Named_Value --
+               -----------------
+
+               procedure Named_Value
+                 (Name  : in     String;
+                  Value : in     String;
+                  Quit  : in out Boolean) is
+               begin
+
+                  --  Check if it is AWS Cookie.
+                  if Name /= "AWS" then
+                     return;
+                  end if;
+
+                  D.Session_ID := AWS.Session.Value (Value);
+
+                  --  Check if the cookie value was correct.
+                  if D.Session_ID = AWS.Session.No_Session then
+                     return;
+                  end if;
+
+                  --  Check if cookie exists in the server.
+                  if not AWS.Session.Exist (D.Session_ID) then
+
+                     --  reset to empty cookie if not exists.
+                     --  We don't interesting in not existing values.
+
+                     D.Session_ID := AWS.Session.No_Session;
+
+                     return;
+                  end if;
+
+                  --  If all filters done, we found our cookie !
+                  Quit := True;
+               end Named_Value;
+
+               -----------
+               -- Value --
+               -----------
+
+               procedure Value
+                 (Item : in     String;
+                  Quit : in out Boolean)
+               is
+                  pragma Warnings (Off, Item);
+                  pragma Warnings (Off, Quit);
+               begin
+                  --  Just ignore for now.
+                  --  We are looking only for AWS=<cookieID>
+                  null;
+               end Value;
+
+               -----------
+               -- Parse --
+               -----------
+
+               procedure Parse is new AWS.Headers.Values.Parse
+                                        (Value, Named_Value);
+
+            begin
+               Parse (To_String (Cookies_Set (Idx)));
+
+               --  exit when we found existing cookie.
+               exit when D.Session_ID /= AWS.Session.No_Session;
+            end;
+         end loop;
+      end;
+   end Update_Data_From_Header;
 
 end AWS.Status.Set;
