@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
+--                         Copyright (C) 2004-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -148,7 +148,7 @@ package body Sp_Pck is
 
       Data := 1000.0;
 
-      --  Init the all modes server push transfers.
+      --  Initialize all the push servers
 
       for J in Connect'Range loop
          Client.Create
@@ -160,6 +160,8 @@ package body Sp_Pck is
          Client.Get (Connect (J), Answer, "/uri?mode="
             & Server_Push.Mode'Image (J));
       end loop;
+
+      --  Send some data
 
       for K in 1 .. 32 loop
 
@@ -185,8 +187,8 @@ package body Sp_Pck is
       end loop;
 
       for J in Connect'Range loop
-         --  Next line would automatically unregister
-         --  server push clients, closed in previous iterations.
+         --  Next line will automatically unregister server push clients,
+         --  closed in previous iterations.
          --  Last connection would not be unregistered.
 
          Server_Push.Send (Push, Data, "text/plain");
