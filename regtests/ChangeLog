@@ -1,5 +1,8 @@
 2002-07-03  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(clean): Removes uploaded files.
+
 	* upload.adb:
 	Allow only 5 seconds to the server.
 
