@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Unchecked_Deallocation;
+
 package body AWS.Session.Control is
 
    -----------
@@ -48,8 +50,30 @@ package body AWS.Session.Control is
    --------------
 
    procedure Shutdown is
+
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Cleaner, Cleaner_Access);
+
+
+      Need_Release : Boolean;
+
    begin
-      Cleaner_Control.Stop;
+      Cleaner_Control.Stop (Need_Release);
+
+      if Need_Release then
+
+         Cleaner_Task.Stop;
+
+         --  Wait for task termination
+
+         while not Cleaner_Task'Terminated loop
+            delay 0.5;
+         end loop;
+
+         --  Release memory
+
+         Free (Cleaner_Task);
+      end if;
    end Shutdown;
 
 end AWS.Session.Control;
