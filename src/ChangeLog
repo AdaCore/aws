@@ -1,3 +1,126 @@
+2003-11-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-resources-release.ads, aws-resources-release.adb:
+	Removed.
+
+	* makefile:
+	(SOURCES): Add aws-resources-streams-disk.adb
+	 aws-resources-streams-disk-once.adb
+
+	* aws-services-transient_pages.ads:
+	(Default_Lifetime): Removed.
+	(Stream_Type): Removed, now this API can be used with any kind of
+	 streams.
+	(Close): Removed.
+	(Release): Removed.
+
+	* aws-services-transient_pages.adb:
+	(Clean_Interval): New variable.
+	(Register): Set Clean_Interval.
+	(Generate_ID): Add some comments.
+	(Close): Removed.
+	(Get): Reset stream using the root class method.
+	(Release): Removed.
+	Minor reformatting.
+	
+	* aws-services-split_pages.adb:
+	(Parse): Use memory stream API directly as the Stream_Type has
+	 been removed from Transient_Pages. Use Config.Transient_Lifetime
+	 to register each transient pages.
+
+	* aws-services-dispatchers-transient_pages.adb:
+	(Dispatch): Create stream object with Server_Close to False.
+
+	* aws-server.adb:
+	(Start): Properly pass Transient_Check_Interval, remove ???.
+
+	* aws-server-protocol_handler.adb:
+	(Send_Resource): New parameter Close. Close the resource only if
+	 Close is True.
+	(Send_Data): Pass Close parameter to Send_Resource.
+
+	* aws-response.ads:
+	(Date_Mode): Add File_Once, document each mode.
+	(File): Add parameter once.
+	(Stream): Add parameter Server_Close.
+	Minor reformatting.
+
+	* aws-response.adb:
+	(Close_Resource): New procedure.
+	(Create_Resource): Handle File_Once case.
+	(File): Add parameter once. Set Mode to File or File_Once
+	 depending on Once value.
+	(Stream): Set the close by server state.
+	
+	* aws-response-set.ads, aws-response-set.adb:
+	(Close_Resource): New routine.
+
+	* aws-resources.adb:
+	(Close): Call Free instead of Release.
+	(Reset): New routine.
+	(Release): Removed.
+	Update copyright notice.
+
+	* aws-resources.ads:
+	(Reset): New routine.
+	(Release): Removed.
+	(Free): New (was removed in previous check-in).
+
+	* aws-resources-streams.adb:
+	(Release): Removed.
+
+	* aws-resources-streams.ads:
+	(Release): Removed.
+	(Reset): New rotuine.
+
+	* aws-resources-streams-zlib.ads, aws-resources-streams-zlib.adb:
+	(Reset): New routine.
+
+	* aws-resources-streams-disk-once.ads, 
+	  aws-resources-streams-disk-once.adb:
+	Initial revision.
+
+	* aws-resources-streams-disk.ads, aws-resources-streams-disk.adb:
+	Initial revision.
+
+	* aws-resources-files.ads:
+	Removes all the private part, the implementation is now based on
+	 the on-disk streams.
+
+	* aws-resources-files.adb:
+	(Close): Removed.
+	(End_Of_File): Removed.
+	(Read): Removed.
+	(Size): Removed.
+	(Open): Implementation using AWS.Resources.Streams.Disk API.
+
+	* aws-resources-embedded.ads, aws-resources-embedded.adb:
+	(Reset): New routine.
+
+	* aws-default.ads:
+	(Transient_Cleanup_Interval): New constant.
+	(Transient_Lifetime): Idem.
+	Reformat code and order routines.
+
+	* aws-config.ads:
+	(Transient_Cleanup_Interval): New routine.
+	(Transient_Lifetime): Idem.
+	(Parameter_Name): Add Transient_Cleanup_Interval and Transient_Lifetime
+
+	* aws-config.adb:
+	(Transient_Cleanup_Interval): New routine.
+	(Transient_Lifetime): Idem.
+
+	* aws-config-set.ads:
+	(Transient_Cleanup_Interval): New routine.
+	(Transient_Lifetime): Idem.
+	Fix typo in comment.
+	
+	* aws-config-set.adb:
+	(Transient_Cleanup_Interval): New routine.
+	(Transient_Lifetime): Idem.
+	Minor reformatting.
+
 2003-11-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-streams.ads:

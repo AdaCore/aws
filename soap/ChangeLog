@@ -1,3 +1,18 @@
+2003-11-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-stub.adb:
+	(Output_Record): Use To_SOAP_Object instead of inlined code. Note
+	 that the code generated was wrong for records containing another
+	 record.
+
+	* soap-generator.adb:
+	(Generate_Record): Add missing record name in generated code for
+	 To_SOAP_Object.
+
+	* soap-wsdl.adb:
+	(From_Ada): Handle Unbounded_String and Character as SOAP strings,
+	 handles Positive and Natural as aliases to Integer.
+
 2003-11-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-wsdl.adb:

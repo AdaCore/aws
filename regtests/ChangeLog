@@ -1,3 +1,28 @@
+2003-11-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS): Add wsdl_3.
+	(RT_STD): Add once.
+	(build): Sort tests except $(OTH_TESTS).
+
+	* check_mem.ini:
+	Initial revision.
+
+	* once.adb, once.out:
+	Initial revision.
+
+	* wsdl_3_main.adb, wsdl_3_server.ads, wsdl_3_server.adb:
+	Initial revision.
+
+	* wsdl_3.ads, wsdl_3.adb, wsdl_3.out:
+	Initial revision.
+
+	* error_strm.ads, error_strm.adb:
+	(Reset): New routine.
+
+	* user_strm.ads, user_strm.adb:
+	(Reset): New routine.
+
 2003-11-10  Pascal Obry  <pascal.obry@edf.fr>
 
 	* makefile:

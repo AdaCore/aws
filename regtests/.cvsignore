@@ -48,6 +48,8 @@ b~moved.adb
 b~moved.ads
 b~multiple.adb
 b~multiple.ads
+b~once.adb
+b~once.ads
 b~param.adb
 b~param.ads
 b~redirect.adb
@@ -154,6 +156,8 @@ b~wsdl_1_main.adb
 b~wsdl_1_main.ads
 b~wsdl_2_main.adb
 b~wsdl_2_main.ads
+b~wsdl_3_main.adb
+b~wsdl_3_main.ads
 b~zapp.adb
 b~zapp.ads
 b~zbig.adb
@@ -162,6 +166,8 @@ b~zfile.adb
 b~zfile.ads
 b~zstrm.adb
 b~zstrm.ads
+b~zstrm2.adb
+b~zstrm2.ads
 check_mem
 check_mem.res
 check_mem.run1
@@ -234,6 +240,7 @@ moved.res
 moved.tmp
 multiple
 multiple.res
+once.res
 param
 param.res
 param.tmp
@@ -414,6 +421,15 @@ wsdl_2_service-server.ads
 wsdl_2_service-types.adb
 wsdl_2_service-types.ads
 wsdl_2_service.ads
+wsdl_3.res
+wsdl_3.wsdl
+wsdl_3_service-client.adb
+wsdl_3_service-client.ads
+wsdl_3_service-server.adb
+wsdl_3_service-server.ads
+wsdl_3_service-types.adb
+wsdl_3_service-types.ads
+wsdl_3_service.ads
 wsdl_a.res
 wsdl_a.wsdl
 zapp
@@ -424,3 +440,4 @@ zfile
 zfile.res
 zstrm
 zstrm.res
+zstrm2.res
