@@ -82,7 +82,7 @@ package body SOAP.Parameters is
 
       Exceptions.Raise_Exception
         (Types.Data_Error'Identity,
-         "Argument named '" & Name & "' not found.");
+         "Argument named " & Name & " not found");
    end Argument;
 
    --------------
@@ -117,7 +117,7 @@ package body SOAP.Parameters is
       if P.N /= N then
          Exceptions.Raise_Exception
            (Types.Data_Error'Identity,
-            "(check) Too many arguments.");
+            "(check) Too many arguments");
       end if;
    end Check;
 
