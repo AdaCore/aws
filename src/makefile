@@ -16,7 +16,11 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-services.ads aws-services-directory.adb aws-default.ads \
 	aws-config.adb aws-config-ini.adb aws-config-set.adb \
 	aws-net.adb aws-net-stream_io.adb aws-services-page_server.adb \
-	aws-services-virtual_host.adb
+	aws-templates.ads aws-services-dispatchers.adb \
+	aws-services-dispatchers-uri.adb \
+	aws-services-dispatchers-method.adb \
+	aws-services-dispatchers-callback.adb \
+	aws-services-dispatchers-virtual_host.adb
 
 build:
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
