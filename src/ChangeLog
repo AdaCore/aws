@@ -1,3 +1,20 @@
+2004-06-25  Pascal Obry  <pascal@obry.org>
+
+	* aws-session.adb:
+	(Key_Value_Set_Access): New type.
+	(Session_Node): Root field is now a Key_Value_Set_Access.
+	(Add_Session): Adjust to new Session_Node defintion.
+	(Destroy): Free Root filed.
+	(Get_Value): Adjust to new Session_Node defintion.
+	(Key_Exist): Idem.
+	(New_Session): Idem.
+	(Remove_Key): Idem.
+	(Set_Value): More efficient implementation. Remove ??? comment.
+	 Adjust to new Session_Node defintion.
+	(For_Every_Data): Adjust to new Session_Node defintion.
+	(Process): Idem.
+	Fix bad performances introduced when moving to the AI302 containers.
+	
 2004-06-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.ads:
