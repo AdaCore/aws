@@ -1597,12 +1597,11 @@ package body Filter is
       Translations : in Translate_Set)
       return String
    is
-      use type Containers.Cursor_Type;
-      Pos : Containers.Cursor_Type;
+      Pos : Containers.Cursor;
    begin
       Pos := Containers.Find (Translations.Set.all, Str);
 
-      if Pos /= Containers.Null_Cursor then
+      if Containers.Has_Element (Pos) then
          declare
             Tk : constant Association := Containers.Element (Pos);
          begin

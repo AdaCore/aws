@@ -44,7 +44,7 @@ package body Templates_Parser.XML is
    function Image (Translations : in Translate_Set) return Unbounded_String is
       Result : Unbounded_String;
 
-      procedure Process (Cursor : in Containers.Cursor_Type);
+      procedure Process (Cursor : in Containers.Cursor);
       --  Iterator
 
       procedure Add (Str : in String);
@@ -64,7 +64,7 @@ package body Templates_Parser.XML is
       -- Process --
       -------------
 
-      procedure Process (Cursor : in Containers.Cursor_Type) is
+      procedure Process (Cursor : in Containers.Cursor) is
 
          Item : constant Association := Containers.Element (Cursor);
          --  Current item
@@ -151,21 +151,6 @@ package body Templates_Parser.XML is
                    (Var (Var'First .. L), Translations.Set.all);
             end if;
          end Is_Label;
-
-         -----------------
-         -- Process_Std --
-         -----------------
-
-         procedure Process_Std is
-         begin
-            Add ("   <SimpleTag>");
-            Add ("      <Tag>");
-            Add ("         <Name>" & Var & "</Name>");
-            Add_Label;
-            Add ("      </Tag>");
-            Add ("      <V>" & To_String (Item.Value) & "</V>");
-            Add ("   </SimpleTag>");
-         end Process_Std;
 
          -----------------------
          -- Process_Composite --
@@ -293,6 +278,21 @@ package body Templates_Parser.XML is
 
             Add ("   </CompositeTag>");
          end Process_Composite;
+
+         -----------------
+         -- Process_Std --
+         -----------------
+
+         procedure Process_Std is
+         begin
+            Add ("   <SimpleTag>");
+            Add ("      <Tag>");
+            Add ("         <Name>" & Var & "</Name>");
+            Add_Label;
+            Add ("      </Tag>");
+            Add ("      <V>" & To_String (Item.Value) & "</V>");
+            Add ("   </SimpleTag>");
+         end Process_Std;
 
       begin
          --  Do not process labels encoded for another variable
