@@ -56,8 +56,8 @@ package AWS.Resources.Streams.Memory is
    procedure Append
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Access);
-   --  Append pointer to the static Buffer into the memory stream as is.
-   --  The stream would not free it on close.
+   --  Append static data pointed to Buffer into the memory stream as is.
+   --  The stream will not free the memory on close.
 
    procedure Read
      (Resource : in out Stream_Type;
