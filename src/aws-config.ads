@@ -68,6 +68,11 @@ package AWS.Config is
    function Admin_URI (O : in Object) return String;
    --  This is the name of the admin server page as set by AWS.Server.Start.
 
+   function Server_Host (O : in Object) return String;
+   --  This is the server host. Can be used if the computer has a more than
+   --  one IP addresses. It is possible to have two servers at the same port
+   --  on the same machine, both being binded on different IP addresses.
+
    function Server_Port (O : in Object) return Positive;
    --  This is the server port as set by the HTTP object declaration.
 
@@ -179,6 +184,7 @@ private
      (Server_Name,
       WWW_Root,
       Admin_URI,
+      Server_Host,
       Server_Port,
       Security,
       Hotplug_Port,
@@ -213,6 +219,7 @@ private
      (Server_Name,
       WWW_Root,
       Admin_URI,
+      Server_Host,
       Server_Port,
       Security,
       Hotplug_Port,
@@ -342,6 +349,9 @@ private
 
          Accept_Queue_Size =>
            (Pos, Default.Accept_Queue_Size),
+
+         Server_Host =>
+           (Str, Null_Unbounded_String),
 
          Server_Port =>
            (Pos, Default.Server_Port),
