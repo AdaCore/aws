@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,7 +34,7 @@ package AWS is
 
    pragma Pure;
 
-   Version      : constant String := "2.0w";
+   Version      : constant String := "2.0a";
 
    HTTP_Version : constant String := "HTTP/1.1";
 
