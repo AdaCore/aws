@@ -44,6 +44,8 @@ with SHA.Strings;
 with Unicode.CES.Basic_8bit;
 
 with AWS.Key_Value;
+with AWS.Net.Buffered;
+with AWS.Translator;
 with AWS.Utils;
 
 package body AWS.Jabber is
@@ -115,6 +117,10 @@ package body AWS.Jabber is
    --  Returns password's digest for the Jabber authentication. This is the
    --  Base64 encoded SHA password's signature.
 
+   function User_JID (Server : in Jabber.Server) return String;
+   pragma Inline (User_JID);
+   --  Returns the JID of the connected user.
+
    ----------------
    -- Characters --
    ----------------
@@ -143,7 +149,7 @@ package body AWS.Jabber is
    --------------------
 
    procedure Check_Presence
-     (Server : in out Jabber.Server;
+     (Server : in     Jabber.Server;
       JID    : in     String;
       Status :    out Presence_Status)
    is
@@ -152,11 +158,14 @@ package body AWS.Jabber is
    begin
       --  Send a presence inquiry message
 
-      Sockets.Put_Line
-        (Server.Sock,
+      Net.Buffered.Put_Line
+        (Server.Sock.all,
          "<presence xmlns='jabber:client' type='probe' id='ja_cp'"
+           & " from='partage@ada.ldc.edf.fr'"
            & " to='" & JID & "'>"
            & "</presence>");
+
+      Net.Buffered.Flush (Server.Sock.all);
 
       Check_Presence_Response : loop
          --  Wait for an incoming response
@@ -168,7 +177,7 @@ package body AWS.Jabber is
             exit Check_Presence_Response when Try = 0;
          end loop;
 
-         Server.MB.Get (Message);
+         Server.Self.MB.Get (Message);
          Check_Message (Message);
 
          exit Check_Presence_Response
@@ -193,16 +202,20 @@ package body AWS.Jabber is
    -----------
 
    procedure Close (Server : in out Jabber.Server) is
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Incoming_Stream, Incoming_Stream_Access);
    begin
       if Server.Started then
          --  Let's annouce that we are going offline
 
-         Sockets.Put_Line
-           (Server.Sock,
+         Net.Buffered.Put_Line
+           (Server.Sock.all,
             "<presence type='unavailable' from='"
               & To_String (Server.User)
               & '@'
               & To_String (Server.Host) & "'/>");
+
+         Net.Buffered.Flush (Server.Sock.all);
 
          --  Wait for the message to be received
 
@@ -214,13 +227,17 @@ package body AWS.Jabber is
 
          --  Send closing stream element
 
-         Sockets.Put_Line (Server.Sock, "</stream:stream>");
-         Sockets.Shutdown (Server.Sock);
+         Net.Buffered.Put_Line (Server.Sock.all, "</stream:stream>");
+         Net.Buffered.Shutdown (Server.Sock.all);
+         Net.Free (Server.Sock);
 
-      else
-         --  Terminate task if not yet started
+         --  Terminate task Incoming_Stream
 
-         Server.Stream.Stop;
+         while not Server.Stream'Terminated loop
+            delay 1.0;
+         end loop;
+
+         Free (Server.Stream);
       end if;
    end Close;
 
@@ -243,33 +260,33 @@ package body AWS.Jabber is
 
       --  Open socket to Jabber Server
 
-      Sockets.Socket (Server.Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
+      Server.Sock := Net.Socket (Security => False);
 
       begin
-         Sockets.Connect (Server.Sock, Host, Port);
+         Net.Connect (Server.Sock.all, Host, Port);
       exception
-         when others =>
-            Server.Stream.Stop;
-
+         when Net.Socket_Error =>
             Raise_Exception ("Can't connect to "
                                & Host & ':' & Utils.Image (Port));
       end;
 
       --  Start Incoming_Stream reader
 
-      Server.Stream.Start;
+      Server.Stream := new Incoming_Stream (Server.Self);
 
       Server.Started := True;
 
       --  Initialize the Jabber protocol
 
-      Sockets.Put_Line
-        (Server.Sock,
+      Net.Buffered.Put_Line
+        (Server.Sock.all,
          "<?xml version='1.0' encoding='UTF-8' ?>"
            & "<stream:stream to=" & Utils.Quote (Host)
            & " xmlns='jabber:client'"
            & " xmlns:stream='http://etherx.jabber.org/streams'>");
 
+
+      Net.Buffered.Flush (Server.Sock.all);
 
       Server.MB.Get (Message);
       Check_Message (Message);
@@ -283,13 +300,15 @@ package body AWS.Jabber is
 
       --  Authentication phase using jabber:iq:auth method
 
-      Sockets.Put_Line
-        (Server.Sock,
+      Net.Buffered.Put_Line
+        (Server.Sock.all,
          "<iq xmlns='jabber:client' type='get' id='ja_auth'>"
            & " <query xmlns='jabber:iq:auth'>"
            & "    <username>" & User & "</username>"
            & "</query>"
            & "</iq>");
+
+      Net.Buffered.Flush (Server.Sock.all);
 
       --  Check which kind of authentication is supported
 
@@ -301,8 +320,8 @@ package body AWS.Jabber is
          --  supported to avoid sending the password in plain ASCII over the
          --  Internet.
 
-         Sockets.Put_Line
-           (Server.Sock,
+         Net.Buffered.Put_Line
+           (Server.Sock.all,
             "<iq xmlns='jabber:client' type='set' id='ja_shaauth'>"
               & " <query xmlns='jabber:iq:auth'>"
               & "    <username>" & User & "</username>"
@@ -317,8 +336,8 @@ package body AWS.Jabber is
          --  Plain authentication supported, use this one if digest is not
          --  supported by the server.
 
-         Sockets.Put_Line
-           (Server.Sock,
+         Net.Buffered.Put_Line
+           (Server.Sock.all,
             "<iq xmlns='jabber:client' type='set' id='ja_sauth'>"
               & " <query xmlns='jabber:iq:auth'>"
               & "    <username>" & User & "</username>"
@@ -327,6 +346,8 @@ package body AWS.Jabber is
               & "</query>"
               & "</iq>");
       end if;
+
+      Net.Buffered.Flush (Server.Sock.all);
 
       Release (Message);
 
@@ -339,12 +360,14 @@ package body AWS.Jabber is
       --  Send our presence, as this is an application and not a real user we
       --  send an initial dnd (Do Not Disturb) status.
 
-      Sockets.Put_Line
-        (Server.Sock,
-         "<presence from='" & User & '@' & Host & "' id='ja_pres'>"
+      Net.Buffered.Put_Line
+        (Server.Sock.all,
+         "<presence from='" & User_JID (Server) & "' id='ja_pres'>"
            & "<show>dnd</show>"
            & "<status>AWS Project</status>"
            & "</presence>");
+
+      Net.Buffered.Flush (Server.Sock.all);
 
       Server.MB.Get (Message);
       Check_Message (Message);
@@ -544,37 +567,27 @@ package body AWS.Jabber is
       end Parse_Message;
 
    begin
-      select
-         --  To start wait for the socket be open and ready to be used
-         accept Start;
+      loop
+         declare
+            XML_Response : constant String
+              := Translator.To_String (Net.Buffered.Read (Server.Sock.all));
 
-         loop
-            declare
-               XML_Response : constant String := Sockets.Get (Server.Sock);
-               Start, Stop  : Positive        := XML_Response'First;
-            begin
-               loop
-                  Get_Message (XML_Response, Start, Stop);
+            Start, Stop  : Positive := XML_Response'First;
+         begin
+            loop
+               Get_Message (XML_Response, Start, Stop);
 
-                  exit when Start > XML_Response'Last;
+               exit when Start > XML_Response'Last;
 
-                  if Start < Stop then
-                     Parse_Message (XML_Response (Start .. Stop));
-                  end if;
-               end loop;
-            end;
-         end loop;
-
-      or
-         --  Or stop now if the connection is closed before it is started
-         accept Stop;
-
-      or
-         terminate;
-      end select;
+               if Start < Stop then
+                  Parse_Message (XML_Response (Start .. Stop));
+               end if;
+            end loop;
+         end;
+      end loop;
 
    exception
-      when Sockets.Socket_Error =>
+      when Net.Socket_Error =>
          --  We have been deconnected, this is the way Jabber terminate the
          --  session.
          null;
@@ -703,17 +716,17 @@ package body AWS.Jabber is
    ------------------
 
    procedure Send_Message
-     (Server  : in out Jabber.Server;
-      JID     : in     String;
-      Subject : in     String;
-      Content : in     String)
+     (Server  : in Jabber.Server;
+      JID     : in String;
+      Subject : in String;
+      Content : in String)
    is
       Message : Message_Access;
    begin
       --  Send Message
 
-      Sockets.Put_Line
-        (Server.Sock,
+      Net.Buffered.Put_Line
+        (Server.Sock.all,
          "<message xmlns='jabber:client' type='headline'"
            & " id='id_msg' to='" & JID &"'>"
            & " <thread xmlns='jabber:client'>ja_msg</thread>"
@@ -721,7 +734,9 @@ package body AWS.Jabber is
            & " <body xmlns='jabber:client'>" & Content & "</body>"
            & "</message>");
 
-      Server.MB.Get (Message);
+      Net.Buffered.Flush (Server.Sock.all);
+
+      Server.Self.MB.Get (Message);
       Check_Message (Message);
       Release (Message);
    end Send_Message;
@@ -790,6 +805,15 @@ package body AWS.Jabber is
          return Offline;
       end if;
    end To_Presence_Status;
+
+   --------------
+   -- User_JID --
+   --------------
+
+   function User_JID (Server : in Jabber.Server) return String is
+   begin
+      return To_String (Server.User) & '@' & To_String (Server.Host);
+   end User_JID;
 
    -----------
    -- Value --
