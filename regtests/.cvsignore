@@ -1,3 +1,4 @@
+WSDL_6
 alldifs
 append
 append.res
@@ -466,6 +467,7 @@ wsdl_5_service-server.ads
 wsdl_5_service-types.adb
 wsdl_5_service-types.ads
 wsdl_5_service.ads
+wsdl_6.class
 wsdl_6.res
 wsdl_6.wsdl
 wsdl_6_service-cb.adb
