@@ -28,7 +28,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$
+--  $Date$
+--  $Author$
 
 --  Portable convertion between String and Stream_Element_Array.
 
