@@ -37,6 +37,7 @@ with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
+with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Net.Buffered;
 with AWS.Translator;
@@ -307,8 +308,9 @@ package body AWS.POP is
 
          declare
             Filename : constant String
-              := Headers.Get_Field_Value
-                   (Attachment.Headers, Content_Disposition, "filename");
+              := Headers.Values.Search
+                   (Headers.Get (Attachment.Headers, Content_Disposition),
+                   "filename");
          begin
             if Filename /= "" then
                Attachment.Filename := To_Unbounded_String (Filename);
@@ -362,8 +364,9 @@ package body AWS.POP is
 
       declare
          Boundary_Field : constant String
-           := Headers.Get_Field_Value
-                (Mess.Headers, Messages.Content_Type_Token, "boundary");
+           := Headers.Values.Search
+                (Headers.Get (Mess.Headers, Messages.Content_Type_Token),
+                 "boundary");
       begin
          if Boundary_Field /= "" then
             Boundary := To_Unbounded_String ("--" & Boundary_Field);
@@ -392,6 +395,7 @@ package body AWS.POP is
                  := Net.Buffered.Get_Line (Server.Sock);
             begin
                exit when Response = To_String (Boundary);
+               Append (Mess.Content, Response & ASCII.CR & ASCII.LF);
             end;
          end loop;
 
@@ -413,6 +417,17 @@ package body AWS.POP is
                end if;
 
                exit when Last;
+            end;
+         end loop;
+
+         --  Now read until the end of the message body
+
+         loop
+            declare
+               Response : constant String
+                 := Net.Buffered.Get_Line (Server.Sock);
+            begin
+               exit when Response = ".";
             end;
          end loop;
       end if;
