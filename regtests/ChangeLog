@@ -1,3 +1,8 @@
+2004-12-13  Pascal Obry  <pascal@obry.org>
+
+	* dispatch1.adb, dispatch1.out:
+	Update to test for new Prefix option in URI Registrer routine.
+
 2004-12-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait_proc.adb, wait.out, wait_sec.out:
