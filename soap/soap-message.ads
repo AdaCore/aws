@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -41,35 +41,35 @@ package SOAP.Message is
    type Object is tagged private;
 
    Default_Name_Space : constant String := "http://mns.org/";
-   --  Default name space used by AWS if none as been specified.
+   --  Default name space used by AWS if none as been specified
 
    function XML_Image (M : in Object) return Unbounded_String;
    --  Returns the XML image for the wrapper and parameters. This is designed
    --  to be used by Payload and Response object.
 
    function Name_Space   (M : in Object'Class) return String;
-   --  Returns message Namespace.
+   --  Returns message Namespace
 
    function Wrapper_Name (M : in Object'class) return String;
-   --  Returns wrapper name.
+   --  Returns wrapper name
 
    function Parameters   (M : in Object'class) return SOAP.Parameters.List;
-   --  Returns the parameter.
+   --  Returns the parameter
 
    procedure Set_Name_Space
      (M    : in out Object'Class;
       Name : in     String);
-   --  Set message's Namespace.
+   --  Set message's Namespace
 
    procedure Set_Wrapper_Name
      (M     : in out Object'Class;
       Name  : in     String);
-   --  Set message's wrapper name.
+   --  Set message's wrapper name
 
    procedure Set_Parameters
      (M     : in out Object'Class;
       P_Set : in     SOAP.Parameters.List);
-   --  Set message's parameters.
+   --  Set message's parameters
 
 private
 
