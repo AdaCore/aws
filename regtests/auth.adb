@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -79,39 +79,35 @@ procedure Auth is
            and then AWS.Status.Authorization_Password (Request) = Auth_Password
          then
             return AWS.Response.Build
-              ("text/plain",
-               "Basic authorization OK!");
+              ("text/plain", "Basic authorization OK!");
          else
-            return AWS.Response.Authenticate ("AWS regtest",
-               AWS.Response.Basic);
+            return AWS.Response.Authenticate
+              ("AWS regtest", AWS.Response.Basic);
          end if;
 
       elsif Status.URI (Request) = Digest_Protected_URI then
 
          if AWS.Status.Check_Digest (Request, Auth_Password) then
             return AWS.Response.Build
-              ("text/plain",
-               "Digest authorization OK!");
+              ("text/plain", "Digest authorization OK!");
          else
-            return AWS.Response.Authenticate ("AWS regtest",
-               AWS.Response.Digest);
+            return AWS.Response.Authenticate
+              ("AWS regtest", AWS.Response.Digest);
          end if;
 
       elsif Status.URI (Request) = Any_Protected_URI then
 
          if AWS.Status.Check_Digest (Request, Auth_Password) then
             return AWS.Response.Build
-              ("text/plain",
-               "AWS strongest authorization OK!");
+              ("text/plain", "AWS strongest authorization OK!");
          else
-            return AWS.Response.Authenticate ("AWS regtest",
-               AWS.Response.Any);
+            return AWS.Response.Authenticate
+              ("AWS regtest", AWS.Response.Any);
          end if;
 
       else
          return AWS.Response.Build
-           ("text/plain",
-            "No authentication.");
+           ("text/plain", "No authentication.");
       end if;
    end CB;
 
