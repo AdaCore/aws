@@ -43,12 +43,18 @@ package AWS.Default is
    Hotplug_Port              : constant        := 8888;
    Max_Connection            : constant        := 5;
    Accept_Queue_Size         : constant        := 64;
-   Log_File_Directory        : constant String := "./";
-   Log_Filename_Prefix       : constant String := "";
-   Log_Split_Mode            : constant String := "NONE";
-   Error_Log_Filename_Prefix : constant String := "";
-   Error_Log_Split_Mode      : constant String := "NONE";
    Upload_Directory          : constant String := "./";
+
+   --  Log values. The character '@' in the error log filename prefix is
+   --  replaced by the running program name.
+
+   Log_File_Directory        : constant String := "./";
+
+   Log_Split_Mode            : constant String := "NONE";
+   Log_Filename_Prefix       : constant String := "@";
+
+   Error_Log_Split_Mode      : constant String := "NONE";
+   Error_Log_Filename_Prefix : constant String := "@_error";
 
    --  All times are in seconds
 
