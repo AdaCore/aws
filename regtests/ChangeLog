@@ -1,3 +1,11 @@
+2002-10-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* turl2.adb:
+	Add test for "/..filename", "/.filename", "..filename" and ".filename"
+
+	* turl2.out:
+	Update for new tests.
+
 2002-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* turl2.out:
