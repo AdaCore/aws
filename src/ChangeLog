@@ -1,3 +1,14 @@
+2001-09-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-config-ini.adb:
+	(Error_Message): Send error message to Current_Error.
+
+	* aws-server.adb:
+	(Line): Send error message to Current_Error.
+
+	* aws-session.adb:
+	(Cleaner): Send error message to Current_Error.
+
 2001-09-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-log.adb:
