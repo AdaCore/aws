@@ -64,6 +64,11 @@ package AWS.Default is
    Line_Stack_Size                 : constant         := 16#150_000#;
    Case_Sensitive_Parameters       : constant Boolean := True;
 
+   --  Client configuration
+
+   User_Agent                      : constant String
+     := "AWS (Ada Web Server) v" & Version;
+
    --  Log values. The character '@' in the error log filename prefix is
    --  replaced by the running program name.
 
@@ -115,7 +120,11 @@ package AWS.Default is
    --  Security
 
    Security                        : constant Boolean := False;
+   Security_Mode                   : constant String  := "SSLv23";
    Certificate                     : constant String  := "cert.pem";
+   Key                             : constant String  := "";
+   Client_Certificate              : constant String  := "client.pem";
+   Exchange_Certificate            : constant Boolean := False;
    Check_URL_Validity              : constant Boolean := True;
 
 end AWS.Default;
