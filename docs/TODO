@@ -198,21 +198,6 @@ implemented:
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
 
-- As we are going to have a general architecture for reusable Web elements it
-  would be nice to have an enhanced way to "configure" a template file.
-  One idea is to entroduce constants set during parsing.
-
-  @@SET@@ <name> = <value>
-
-  Then <name> becomes a standard () templates variable.
-
-  <value> can be either a string or an include templates parameter $n.
-  It is also possible to combine the 2 with a '|'.
-
-  @@SET@@ <name> = $n|<str>
-
-  This means use $n include parameter value if specified or <str> if not.
-
 - Check if it is possible to pass some more information into the template
   parsers context when using callbacks.
 
