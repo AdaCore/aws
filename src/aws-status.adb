@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -136,7 +136,10 @@ package body AWS.Status is
    function Check_Digest (D : in Data; Password : in String) return Boolean is
 
       function Get_Nonce return String;
-      --  ??? needs some comments
+      --  returns Nonce for the Digest authentication without "qop"
+      --  parameter, or [nonce]:[nc]:[cnonce]:[qop] for the Digest
+      --  authentication with qop parameter.
+      --  It is just for convinience to implement RFC 2617 3.2.2.1.
 
       ---------------
       -- Get_Nonce --
