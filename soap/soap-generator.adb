@@ -423,7 +423,7 @@ package body SOAP.Generator is
          Text_IO.Put (File, "procedure " & L_Proc);
 
          if Input /= null then
-            Text_IO.New_Line;
+            Text_IO.New_Line (File);
          end if;
 
       else
@@ -462,7 +462,8 @@ package body SOAP.Generator is
             end if;
 
             if N.Next = null then
-               Text_IO.Put_Line (File, ")");
+               Text_IO.Put (File, ")");
+
             else
                Text_IO.Put_Line (File, ";");
                Text_IO.Put      (File, "      ");
@@ -473,6 +474,7 @@ package body SOAP.Generator is
       end if;
 
       if Output /= null then
+         Text_IO.New_Line (File);
          Text_IO.Put (File, "      return ");
 
          Text_IO.Put (File, Result_Type (O, Proc, Output));
