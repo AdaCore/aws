@@ -1,5 +1,9 @@
 2002-03-17  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-status-set.adb:
+	Minor reformatting.
+	Removed commented out code.
+
 	* aws-server-protocol_handler.adb:
 	(Send_File): Do not call Status.Set.File_Up_To_Date as it is of no
 	 use at this point.
