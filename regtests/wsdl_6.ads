@@ -1,0 +1,71 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                            Copyright (C) 2003                            --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimokv - Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $Id$
+
+with Ada.Strings.Unbounded;
+
+package WSDL_6 is
+
+   use Ada.Strings.Unbounded;
+
+   type Color is (Red, GrEEn, Blue);
+
+   type Rec is record
+      A : Integer;
+      B : Long_Float;
+      C : Long_Long_Float;
+      D : Character;
+      E : Unbounded_String;
+      F : Boolean;
+   end record;
+
+   type New_Rec is record
+      NC : Color;
+      NR : Rec;
+   end record;
+
+   function Plus (Value : in Natural) return Natural;
+
+   function Next (Col : in Color) return Color;
+
+   function Echo_Int (V : in Integer) return Integer;
+
+   function Echo_Float (V : in Long_Float) return Long_Float;
+
+   function Echo_Boolean (V : in Boolean) return Boolean;
+
+   function Echo_Double (V : in Long_Long_Float) return Long_Long_Float;
+
+   function Echo_Rec (V : in Rec) return Rec;
+
+   function Echo_New_Rec (V : in New_Rec) return New_Rec;
+
+end WSDL_6;
