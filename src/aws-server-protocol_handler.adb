@@ -305,16 +305,17 @@ is
          Sockets.Put_Line (Sock,
                            "Server: AWS (Ada Web Server) v" & Version);
 
-         --  Connection
+         --  Connection, check connection string with Match to skip connection
+         --  options [RFC 2616 - 14.10].
 
-         if Will_Close then
-            --  We was deciding to close connection after answer to client.
+         if Will_Close
+           or else Messages.Match (To_String (Status_Connection), "close")
+         then
+            --  We have decided to close connection after answering the client
 
             Sockets.Put_Line (Sock, Messages.Connection ("close"));
          else
-            Sockets.Put_Line
-              (Sock,
-               Messages.Connection (To_String (Status_Connection)));
+            Sockets.Put_Line (Sock, Messages.Connection ("keep-alive"));
          end if;
 
          --  Handle authentication message
@@ -965,7 +966,7 @@ is
 
       procedure Parse_Header_Lines (Line : in String);
       --  Parse the Line eventually catenated with the next line if it is a
-      --  continuation line (see RFC 2616 4.2).
+      --  continuation line see [RFC 2616 - 4.2].
 
       ------------------------
       -- Parse_Header_Lines --
@@ -1249,7 +1250,7 @@ is
       Cut_Command;
 
       --  GET and HEAD can have a set of parameters (query) attached. This is
-      --  not really standard (see RFC 2616 - 13.9) but is widely used now.
+      --  not really standard see [RFC 2616 - 13.9] but is widely used now.
       --
       --  POST parameters are passed into the message body, we do not allow
       --  parameters here even is this could be possible but as of today this
