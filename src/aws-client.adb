@@ -40,12 +40,6 @@ package body AWS.Client is
    use Ada.Strings;
    use Ada.Strings.Unbounded;
 
-   Content_Type_Token : constant String := "Content-Type: ";
-   subtype Content_Type_Range is Positive range Content_Type_Token'Range;
-
-   Content_Length_Token : constant String := "Content-Length: ";
-   subtype Content_Length_Range is Positive range Content_Length_Token'Range;
-
    HTTP_Token : constant String := "http://";
    subtype HTTP_Range is Positive range HTTP_Token'Range;
 
@@ -79,7 +73,7 @@ package body AWS.Client is
       function Image (P : in Positive) return String;
       --  return P image without leading space
 
-      Sock : Sockets.Socket_FD;
+      Sock    : Sockets.Socket_FD;
       CT      : Unbounded_String;
       CT_Len  : Natural;
       Message : Unbounded_String;
@@ -164,8 +158,14 @@ package body AWS.Client is
       Cut_URL;
 
       -- Connect to server
+
       Sock := Sockets.Socket (Sockets.AF_INET, Sockets.SOCK_STREAM);
+
+      Text_IO.Put_Line ("Connect to " & Server & Positive'Image (Port));
+
       Sockets.Connect (Sock, Server, Port);
+
+      Text_IO.Put_Line ("Send request...");
 
       Sockets.Put_Line (Sock, "GET " & URI & ' ' & HTTP_Version);
       Sockets.Put_Line (Sock, "Accept: text/html");
@@ -179,20 +179,17 @@ package body AWS.Client is
          declare
             Line : constant String := Sockets.Get_Line (Sock);
          begin
+            Text_IO.Put_Line ("H=" & Line);
             if Line = End_Section then
                exit Parse_Header;
 
-            elsif Line'Length > Content_Type_Range'Last and then
-              Line (Content_Type_Range) = Content_Type_Token
-            then
+            elsif Messages.Is_Match (Line, Messages.Content_Type_Token) then
                CT := To_Unbounded_String
-                 (Line (Content_Type_Token'Last + 1 .. Line'Last));
+                 (Line (Messages.Content_Type_Token'Last + 1 .. Line'Last));
 
-            elsif Line'Length > Content_Length_Range'Last and then
-              Line (Content_Length_Range) = Content_Length_Token
-            then
+            elsif Messages.Is_Match (Line, Messages.Content_Length_Token) then
                CT_Len := Natural'Value
-                 (Line (Content_Length_Range'Last + 1 .. Line'Last));
+                 (Line (Messages.Content_Length_Range'Last + 1 .. Line'Last));
             else
                --  everything else is ignore right now
                null;
@@ -204,6 +201,7 @@ package body AWS.Client is
          declare
             Line : constant String := Sockets.Get_Line (Sock);
          begin
+            Text_IO.Put_Line ("B=" & Line);
             M_Len := M_Len + Line'Length + CRLF_Size;
 
             Message := Message & Line & CRLF;
@@ -222,4 +220,3 @@ package body AWS.Client is
    end Get;
 
 end AWS.Client;
-
