@@ -5,7 +5,6 @@
 .SILENT: prog check_env aws.pdf
 .SILENT: check_api apiref clean_apiref adabrowse_apiref gnathtml_apiref
 
-
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
 		subtype generic limited access all
@@ -54,7 +53,11 @@ check_env:
 	(if ! [ -e ../src/aws-os_lib.adb ]; then \
 	   cp ../include/aws-os_lib-gnat.adb ../src/aws-os_lib.adb; fi)
 
-build: check_env aws.ps aws.pdf aws.html aws.txt aws.info
+aws_docs : aws.ps aws.pdf aws.html aws.txt aws.info
+
+sg_docs : style-guide.ps style-guide.pdf style-guide.html style-guide.txt style-guide.info
+
+build: check_env aws_docs sg_docs
 	echo done
 
 ada.sed: makefile
@@ -75,26 +78,29 @@ ada.sed: makefile
 %.adb.texi: %.adb ada.sed gentexifile
 	./gentexifile $< NOGROUP
 
+%.dvi : %.texi
+	-texi2dvi --clean $<
+
+%.ps : %.dvi
+	-dvips $< -o $@
+
+%.pdf : %.ps
+	-ps2pdf $< $@
+
+%.info : %.texi
+	-makeinfo $<
+
+%.html : %.texi
+	-texi2html.pl -menu -monolithic $<
+
+%.txt : %.texi
+	-makeinfo --no-headers $< > $@
+
 aws.dvi: aws.texi $(APIFILES)
 	-texi2dvi --clean aws.texi
 
-aws.ps: aws.dvi
-	-dvips aws.dvi -o aws.ps
-
-aws.pdf: aws.ps
-	-ps2pdf aws.ps aws.pdf
-
-aws.info: aws.texi
-	-makeinfo aws.texi
-
-aws.html: aws.texi
-	-texi2html.pl -menu -monolithic aws.texi
-
-aws.txt: aws.texi
-	-makeinfo --no-headers aws.texi > aws.txt
-
 prog: build.adb
-	gnatmake build -I../src -I../soap -I../include \
+	gnatmake -m build -I../src -I../soap -I../include \
 		$(INCLUDES) -largs $(LIBS)
 
 aws.texi: prog aws.texi.tmplt
@@ -148,6 +154,8 @@ adabrowse_apiref: check_api
 clean:
 	-rm aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
           $(APIFILES) *~ *.o *.ali
+	-rm style-guide.texi style-guide.dvi style-guide.html \
+	  style-guide.info* style-guide.log style-guide.ps style-guide.txt
 
 clean_apiref:
 	-rm -fr html
