@@ -38,9 +38,37 @@ project Regtests is
    for Source_Dirs use (".");
    for Object_Dir use ".";
 
+   for Languages use ("Ada", "ChangeLog", "Project file");
+
+   for Main use ("sessions4.adb");
+
+   ---------
+   -- Ide --
+   ---------
+
    package Ide renames Shared.Ide;
 
-   package Compiler renames Shared.Compiler;
+   --------------
+   -- Compiler --
+   --------------
+
+   package Compiler is
+
+      case Shared.Build is
+         when "Debug" =>
+            for Default_Switches ("Ada")
+              use ("-m", "-g", "-gnaty3abcefhiklmnoprt");
+
+         when "Release" =>
+            for Default_Switches ("Ada")
+              use ("-O2", "-gnatws", "-gnatn");
+      end case;
+
+   end Compiler;
+
+   -------------
+   -- Builder --
+   -------------
 
    package Builder renames Shared.Builder;
 
