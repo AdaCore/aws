@@ -147,17 +147,18 @@ private
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
 
-      function Check_Timeouts return Boolean;
-      --  Return true if Force_Timeouts found
-
       function Is_Abortable
         (Index : in Positive;
          Mode  : in Timeout_Mode)
         return Boolean;
       --  Return True when slot can be aborted.
 
-      procedure Abort_On_Timeout (Mode : in Timeout_Mode);
+      procedure Abort_On_Timeout (Mode : in Timeout_Mode; Done : out Boolean);
       --  Abort slots if timeout exceeded.
+      --  Set Done to True in case of abortion.
+
+      function Free_Slots return Natural;
+      --  Returns number of free slots.
 
       entry Get (FD : in Sockets.Socket_FD; Index : in Positive);
       --  Mark slot at position Index to be used. This slot will be associated
