@@ -83,7 +83,7 @@ $(STD_TESTS): force
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
-	tgdb $@ > $@.res
+	./tgdb $@ > $@.res
 else
 	./$@ > $@.res
 endif
@@ -95,7 +95,7 @@ dirop: force
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
-	tgdb $@ | grep -v "CVS/" > $@.res
+	./tgdb $@ | grep -v "CVS/" > $@.res
 else
 	./$@ | grep -v "CVS/" > $@.res
 endif
@@ -108,7 +108,7 @@ $(WSDL_TESTS): force
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
-	tgdb $@ > $@.res
+	./tgdb $@ > $@.res
 else
 	./$@ > $@.res
 endif
@@ -121,7 +121,7 @@ $(WSDL_ATESTS): force
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
-	tgdb $@ > $@.res
+	./tgdb $@ > $@.res
 else
 	./$@ > $@.res
 endif
