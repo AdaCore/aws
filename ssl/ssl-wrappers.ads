@@ -88,6 +88,10 @@ package SSL.Wrappers is
    pragma Export
      (C, SSL_CTX_use_certificate_file, "SSL_CTX_use_certificate_file");
 
+   procedure SSL_CTX_use_certificate_chain_file;
+   pragma Export (C, SSL_CTX_use_certificate_chain_file,
+                    "SSL_CTX_use_certificate_chain_file");
+
    procedure SSL_CTX_use_PrivateKey_file;
    pragma Export
      (C, SSL_CTX_use_PrivateKey_file, "SSL_CTX_use_PrivateKey_file");
