@@ -44,7 +44,7 @@ package SOAP.WSDL is
    --  Load and parse a WSDL document and return the XML tree representation
 
    type Parameter_Type is
-     (P_Integer, P_Float, P_String, P_Boolean, P_Time, P_B64);
+     (P_Integer, P_Float, P_Double, P_String, P_Boolean, P_Time, P_B64);
    --  These are the types supported by the WSDL parser
 
    function To_Type (XSD_Type : in String) return Parameter_Type;
@@ -55,6 +55,9 @@ package SOAP.WSDL is
 
    function To_Ada (P : in Parameter_Type) return String;
    --  Returns P's Ada type string representation
+
+   function Is_Ada_Reserved_Word (Name : in String) return Boolean;
+   --  Returns True if Name is an Ada reserved word
 
 private
 
