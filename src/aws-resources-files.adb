@@ -106,8 +106,8 @@ package body AWS.Resources.Files is
         (File_Tagged (File.all).File,
          Stream_IO.In_File, Name, Form);
 
-      File_Tagged (File.all).Stream :=
-        Stream_IO.Stream (File_Tagged (File.all).File);
+      File_Tagged (File.all).Stream
+        := Stream_IO.Stream (File_Tagged (File.all).File);
 
    exception
       when Stream_IO.Name_Error =>
@@ -139,8 +139,7 @@ package body AWS.Resources.Files is
       else
          --  Return the current buffer
 
-         Buffer
-           (Buffer'First .. Buffer'First + Buf_Len - 1)
+         Buffer (Buffer'First .. Buffer'First + Buf_Len - 1)
            := Resource.Buffer (Resource.Current .. Resource.Last);
 
          --  And read the remaining data directly on the file
