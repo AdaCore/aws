@@ -1447,7 +1447,7 @@ calling @code{AWS.Server.Start}. The default is @file{@_ADMIN_URI_@}.
 @item Certificate (string)
 @cindex Certificate (string)
 Set the certificate file to be used with the secure servers. The
-default is @file{@_CERTIFICATE_@}.
+default is @file{@_DEFAULT_CERTIFICATE_@}.
 
 @item Check_URL_Validity (boolean)
 @cindex Check_URL_Validity
@@ -3892,8 +3892,47 @@ Specify the name of the spec containing the Ada implementation of the
 to instantiate all the server side @code{SOAP} callbacks used by the main
 @code{SOAP} dispatcher routine.
 
-@item -main
-Specify the name of the server's procedure main to generate.
+@item -main filename
+Specify the name of the server's procedure main to generate. If
+file @file{<filename>.amt} (Ada Main Template) is present, it uses this
+template file to generate the main procedure. The template can
+reference the following variable tags:
+
+@table @b
+@item SOAP_SERVICE
+The name of the service as described into the @code{WSDL}
+document. This tag can be used to include the right units
+
+@smallexample
+@cartouche
+@group
+@b{with} @@_SOAP_SERVICE_@@.Client;
+@b{with} @@_SOAP_SERVICE_@@.CB;
+@end group
+@end cartouche
+@end smallexample
+
+@item SOAP_VERSION
+The AWS's SOAP version.
+
+@item AWS_VERSION
+The AWS's version.
+
+@item UNIT_NAME
+The name of the generated unit. This is the name of the procedure that
+will be created.
+
+@smallexample
+@cartouche
+@group
+@b{procedure} @@_UNIT_NAME_@@ @b{is}
+@b{begin}
+   ...
+@end group
+@end cartouche
+@end smallexample
+
+@end table
 
 @item -proxy name|IP
 Use this proxy to access the @code{WSDL} document and generate code to access
