@@ -29,10 +29,11 @@
 --  $Id$
 
 --  Com_1 and Com_2 are two demos programs which are using the AWS
---  communication protocol. You must first launch Com_1 then Com_2.
+--  communication protocol. See documentation about these demos on com_1.adb.
 
-with Ada.Text_IO;
+with Ada.Command_Line;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.Communication.Client;
 with AWS.Communication.Server;
@@ -76,9 +77,14 @@ procedure Com_2 is
    Answer : Response.Data;
 
 begin
+   if Command_Line.Argument_Count = 0 then
+      Text_IO.Put_Line ("Usage: com_2 <computer>");
+      return;
+   end if;
+
    for K in 1 .. 10 loop
       Answer := Communication.Client.Send_Message
-        ("localhost", 1234, "mes2." & Utils.Image (K));
+        (Command_Line.Argument (1), 1234, "mes2." & Utils.Image (K));
       Text_IO.Put_Line ("< reply " & Response.Message_Body (Answer));
    end loop;
 end Com_2;
