@@ -50,6 +50,7 @@ procedure Tres2 is
    --  Create file for the test
 
    F : Resources.File_Type;
+   Filename : constant String := "file.tmp";
 
    Buffer : String (1 .. 1_024);
    Last   : Natural;
@@ -67,7 +68,7 @@ procedure Tres2 is
       L3   : constant Stream_Element_Array :=
         Translator.To_Stream_Element_Array ("abc" & ASCII.LF);
    begin
-      Stream_IO.Create (File, Stream_IO.Out_File, "file");
+      Stream_IO.Create (File, Stream_IO.Out_File, Filename);
 
       Stream_IO.Write (File, L1);
       Stream_IO.Write (File, L2);
@@ -83,7 +84,7 @@ procedure Tres2 is
 begin
    Create_File;
 
-   Resources.Open (F, "file");
+   Resources.Open (F, Filename);
 
    Resources.Get_Line (F, Buffer, Last);
    Text_IO.Put_Line ("1) " & Buffer (1 .. Last));
