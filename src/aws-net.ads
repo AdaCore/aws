@@ -137,6 +137,13 @@ package AWS.Net is
    --  Read a chunk of data from the socket and returns it. It always return
    --  something and then must wait for available data on the socket.
 
+   function Pending
+     (Socket : in Socket_Type)
+      return Stream_Element_Count
+      is abstract;
+   --  Returns the number of bytes which are available inside socket
+   --  for immediate read.
+
    ------------
    -- Others --
    ------------

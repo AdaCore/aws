@@ -85,6 +85,10 @@ package AWS.Net.SSL is
       Last   :    out Stream_Element_Offset);
    pragma Inline (Receive);
 
+   function Pending (Socket : in Socket_Type) return Stream_Element_Count;
+   --  Returns the number of bytes which are available inside socket
+   --  for immediate read.
+
    --------------------
    -- Initialization --
    --------------------
