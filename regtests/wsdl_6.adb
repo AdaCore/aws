@@ -95,6 +95,15 @@ package body WSDL_6 is
       return Set;
    end Echo_Set;
 
+   ------------------
+   -- Echo_Set_Rec --
+   ------------------
+
+   function Echo_Set_Rec (Set : in Set_Of_Rec) return Set_Of_Rec is
+   begin
+      return Set;
+   end Echo_Set_Rec;
+
    ----------
    -- Next --
    ----------

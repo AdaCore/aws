@@ -54,6 +54,8 @@ package WSDL_6 is
 
    type Set_Of_Int is array (Positive range <>) of Integer;
 
+   type Set_Of_Rec is array (Positive range <>) of Rec;
+
    function Plus (Value : in Natural) return Natural;
 
    function Next (Col : in Color) return Color;
@@ -71,5 +73,7 @@ package WSDL_6 is
    function Echo_New_Rec (V : in New_Rec) return New_Rec;
 
    function Echo_Set (Set : in Set_Of_Int) return Set_Of_Int;
+
+   function Echo_Set_Rec (Set : in Set_Of_Rec) return Set_Of_Rec;
 
 end WSDL_6;
