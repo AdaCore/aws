@@ -78,8 +78,14 @@ package body AWS.Config is
    Force_Server_Response_Timeout_Value : Duration
      := Default_Force_Server_Response_Timeout;
 
+   Send_Timeout_Value : Duration
+     := Default_Send_Timeout;
+
+   Receive_Timeout_Value : Duration
+     := Default_Receive_Timeout;
+
    procedure Initialize;
-   --  read aws.ini file if present and initialize this package accordingly.
+   --  Read aws.ini file if present and initialize this package accordingly.
 
    ---------------
    -- Admin_URI --
@@ -162,7 +168,6 @@ package body AWS.Config is
    begin
       return Force_Server_Response_Timeout_Value;
    end Force_Server_Response_Timeout;
-
 
    ----------------
    -- Initialize --
@@ -338,6 +343,24 @@ package body AWS.Config is
                               Error_Message ("wrong value for " & Key);
                         end;
 
+                     elsif Key = "Send_Timeout" then
+                        begin
+                           Send_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Receive_Timeout" then
+                        begin
+                           Receive_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
                      else
                         Error_Message ("unrecognized option " & Key);
                      end if;
@@ -373,6 +396,23 @@ package body AWS.Config is
       return Max_Connection_Value;
    end Max_Connection;
 
+   ---------------------
+   -- Receive_Timeout --
+   ---------------------
+
+   function Receive_Timeout return Duration is
+   begin
+      return Receive_Timeout_Value;
+   end Receive_Timeout;
+
+   ------------------
+   -- Send_Timeout --
+   ------------------
+
+   function Send_Timeout return Duration is
+   begin
+      return Send_Timeout_Value;
+   end Send_Timeout;
    -----------------
    -- Server_Name --
    -----------------
