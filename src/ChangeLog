@@ -1,3 +1,9 @@
+2003-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-session.adb:
+	Fix comment about Get_Sessions_And_Lock usage. It is not using in
+	 the session cleaner now.
+
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb:

@@ -126,8 +126,7 @@ package body AWS.Session is
       --  seconds.
 
       --
-      --  Not safe routines. These are only to be used by iterators and the
-      --  task cleaner.
+      --  Not safe routines. These are only to be used by iterators.
       --
 
       procedure Get_Sessions_And_Lock (Sessions : out Session_Set_Access);
