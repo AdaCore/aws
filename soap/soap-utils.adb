@@ -37,6 +37,7 @@ with Ada.Unchecked_Deallocation;
 with Unicode.CES.Utf8;
 with Unicode.CES.Basic_8bit;
 
+with AWS.Utils;
 with SOAP.Message.XML;
 
 package body SOAP.Utils is
@@ -69,6 +70,10 @@ package body SOAP.Utils is
             when '&'    => Append (Result, "&amp;");
             when '''    => Append (Result, "&apos;");
             when '"'    => Append (Result, "&quot;");
+            when Character'Val (0) .. Character'Val (31) =>
+               Append (Result, "&#");
+               Append (Result, AWS.Utils.Dec (Character'Pos (Str (K))));
+               Append (Result, ';');
             when others => Append (Result, Str (K));
          end case;
       end loop;
@@ -84,6 +89,40 @@ package body SOAP.Utils is
    begin
       return Unicode.CES.Basic_8bit.From_Utf32
         (Unicode.CES.Utf8.To_Utf32 (Str));
+   end From_Utf8;
+
+   function From_Utf8 (Str : in Unbounded_String) return Unbounded_String is
+      Idx      : Integer := 1;
+      Buf      : String (1 .. 6);
+      Buf_Last : Integer := 0;
+      Ch32     : Unicode.Unicode_Char;
+      W        : Integer;
+      Result   : Unbounded_String;
+   begin
+      loop
+         while Idx <= Length (Str)
+           and then Buf_Last < Buf'Last
+         loop
+            Buf (Buf_Last + 1) := Element (Str, Idx);
+            Idx := Idx + 1;
+            Buf_Last := Buf_Last + 1;
+         end loop;
+
+         exit when Buf_Last = 0;
+
+         W := 1;
+         Unicode.CES.Utf8.Read (Buf, W, Ch32);
+         W := W - 1;
+
+         for I in 1 .. Buf_Last - W loop
+            Buf (I) := Buf (I + W);
+         end loop;
+
+         Buf_Last := Buf_Last - W;
+         Append (Result, Character'Val (Ch32));
+      end loop;
+
+      return Result;
    end From_Utf8;
 
    ---------
@@ -309,6 +348,20 @@ package body SOAP.Utils is
    begin
       return Unicode.CES.Utf8.From_Utf32
         (Unicode.CES.Basic_8bit.To_Utf32 (Str));
+   end To_Utf8;
+
+   function To_Utf8 (Str : in Unbounded_String) return Unbounded_String is
+      Chars : String (1 .. 6);
+      Idx : Integer;
+      Result : Unbounded_String;
+   begin
+      for I in 1 .. Length (Str) loop
+         Idx := 0;
+         Unicode.CES.Utf8.Encode
+            (Character'Pos (Element (Str, I)), Chars, Idx);
+         Append (Result, Chars (1 .. Idx));
+      end loop;
+      return Result;
    end To_Utf8;
 
    --------
