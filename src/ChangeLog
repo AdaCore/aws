@@ -1,5 +1,25 @@
 2002-03-28  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-parameters-set.adb:
+	(Add): Fix implementation using HTTP_Data tree for key/value by
+	 order retrieval.
+	(Reset): Destroy HTTP_Data.
+
+	* aws-parameters.adb:
+	(Name_Count): New function.
+	(Get_Names): New function.
+	(Get_Values): New function.
+	(Count): New implementation, using HTTP_Data field.
+	(Get_Name): Idem.
+	(Get_Value): Idem.
+
+	* aws-parameters.ads:
+	(VString_Array): New type.
+	(Name_Count): New function.
+	(Get_Names): New function.
+	(Get_Values): New function.
+	(List): Removes Count field, add HTTP_Data.
+
 	* aws-client.adb:
 	(Disconnect): Close if connection is opened.
 	(Cleaner_Task): Start entry take an HTTP_Connection_Access. Use it.
