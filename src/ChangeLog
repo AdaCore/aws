@@ -1,5 +1,10 @@
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-mime.ads:
+	(Content_Type): Move to the right section.
+
+2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-client.adb:
 	Change references to Content_Encoding type now in AWS.Messages.
 
