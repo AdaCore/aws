@@ -154,7 +154,7 @@ package body AWS.Services.Directory is
       Back_Ordr   : Unbounded_String;
       --  Reverse ordering rules. This rules is the opposite of the above one.
 
-      Order_Set : Unbounded_String;
+      Order_Set   : Unbounded_String;
       --  This variable is set with the order rules from the Web page ORDER
       --  variable. The value is a set of characters each one represent an
       --  ordering key:
@@ -170,7 +170,7 @@ package body AWS.Services.Directory is
       --  Furthermore, an upper-case character means an ascending order and a
       --  lower-case character means a descending order.
 
-      Ordr : array (Order_Mode'Range) of Unbounded_String;
+      Ordr         : array (Order_Mode'Range) of Unbounded_String;
       --  This table will receive the string rule (a set of Order_Char) for
       --  each order.
 
@@ -436,7 +436,7 @@ package body AWS.Services.Directory is
 
       function To_Order_Mode (C : in Order_Char) return Order_Mode is
       begin
-         return Order_Mode'Value ("" & C);
+         return Order_Mode'Value (String'(1 => C));
       end To_Order_Mode;
 
       Dir_Str : constant String := End_Slash (Directory_Name);
@@ -536,8 +536,8 @@ package body AWS.Services.Directory is
                File_Entry.Size := -1;
             else
 
-               File_Entry.Size :=
-                 Integer (AWS.OS_Lib.File_Size (Full_Pathname));
+               File_Entry.Size
+                 := Integer (AWS.OS_Lib.File_Size (Full_Pathname));
             end if;
 
             File_Entry.Name := To_Unbounded_String (Filename);
