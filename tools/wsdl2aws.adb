@@ -45,6 +45,7 @@ procedure WSDL2AWS is
    use Ada.Exceptions;
    use Ada.Strings.Unbounded;
    use GNAT;
+   use type SOAP.WSDL.Parser.Verbose_Level;
 
    Syntax_Error : exception;
 
@@ -56,6 +57,8 @@ procedure WSDL2AWS is
    Filename : Unbounded_String;
 
    WSDL_Des : Boolean := False;
+
+   Verbose  : SOAP.WSDL.Parser.Verbose_Level := 0;
 
    ------------------------
    -- Parse_Command_Line --
@@ -84,7 +87,8 @@ procedure WSDL2AWS is
                end if;
 
             when 'v' =>
-               SOAP.WSDL.Parser.Verbose;
+               Verbose := Verbose + 1;
+               SOAP.WSDL.Parser.Verbose (Verbose);
 
             when 'w' =>
                if Command_Line.Full_Switch = "wsdl" then
@@ -145,6 +149,7 @@ exception
       Text_IO.Put_Line ("   -f       Force stub/skeleton generation");
       Text_IO.Put_Line ("   -rpc     Accept RPC style binding");
       Text_IO.Put_Line ("   -v       Verbose mode");
+      Text_IO.Put_Line ("   -v -v    Very verbose mode");
       Text_IO.Put_Line ("   -wsdl    Add WSDL file in unit comment");
       Text_IO.Put_Line ("   -cvs     Add CVS tag in unit's headers");
       Text_IO.Put_Line ("   -nostub  Do not create stub units");
