@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2002                         --
+--                        Copyright (C) 1999 - 2003                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -430,6 +430,7 @@ package body Templates_Parser is
       end if;
 
       --  Tag name
+
       Append (R, T.Name);
 
       --  Attributes
@@ -697,7 +698,6 @@ package body Templates_Parser is
 
    end Data;
 
-
    ------------------
    --  Expressions --
    ------------------
@@ -817,12 +817,12 @@ package body Templates_Parser is
             Used      : Natural := 0;        --  >0 if currently used
 
          when Text =>
-            Text    : Data.Tree;
+            Text      : Data.Tree;
 
          when If_Stmt =>
-            Cond    : Expr.Tree;
-            N_True  : Tree;
-            N_False : Tree;
+            Cond      : Expr.Tree;
+            N_True    : Tree;
+            N_False   : Tree;
 
          when Table_Stmt =>
             Terminate_Sections : Boolean;
@@ -2382,11 +2382,19 @@ package body Templates_Parser is
 
       function Build_Include_Pathname
         (Include_Filename : in Unbounded_String)
-        return String;
+         return String;
       --  Returns the full pathname to the include file (Include_Filename). It
       --  returns Include_Filename if there is a pathname specified, or the
       --  pathname of the main template file as a prefix of the include
       --  filename.
+
+      procedure Replace_Include_Variables
+        (File      : in out Static_Tree;
+         Variables : in     String);
+      --  Parse the include tree and replace all include variables (numeric
+      --  name) with the corresponding value in Variables (a set of space
+      --  separated words). The first word in Variables is the include file
+      --  name (variable 0), other words are the parameters (variable 1 .. N).
 
       type Parse_Mode is
         (Parse_Std,              --  in standard line
@@ -2462,17 +2470,17 @@ package body Templates_Parser is
          Start := Strings.Fixed.Index (Buffer (First .. Last), Blank);
 
          if Start = 0 then
-            Fatal_Error ("@@IF@@ missing condition");
+            Fatal_Error ("missing parameter");
          end if;
 
          if Buffer (Last) = ASCII.CR then
-            --  last character is a DOS CR (certainly because the template
+            --  Last character is a DOS CR (certainly because the template
             --  file is in DOS format), ignore it as this is not part of the
             --  parameter.
             Last := Last - 1;
          end if;
 
-         return Buffer (Start .. Last);
+         return Strings.Fixed.Trim (Buffer (Start .. Last), Strings.Both);
       end Get_All_Parameters;
 
       -------------------------
@@ -2518,7 +2526,10 @@ package body Templates_Parser is
          else
             Line := Line + 1;
 
-            Input.Get_Line (File, Buffer, Last);
+            loop
+               Input.Get_Line (File, Buffer, Last);
+               exit when Buffer (Buffer'First .. Buffer'First + 3) /= "@@--";
+            end loop;
 
             First := Strings.Fixed.Index (Buffer (1 .. Last), Blank, Outside);
 
@@ -2656,8 +2667,8 @@ package body Templates_Parser is
 
             T.Line := Line;
 
-            T.Cond    := Expr.Parse (Get_All_Parameters);
-            T.N_True  := Parse (Parse_If);
+            T.Cond   := Expr.Parse (Get_All_Parameters);
+            T.N_True := Parse (Parse_If);
 
             if Is_Stmt (End_If_Token) then
                T.N_False := null;
@@ -2673,7 +2684,7 @@ package body Templates_Parser is
 
             end if;
 
-            T.Next    := Parse (Mode);
+            T.Next := Parse (Mode);
 
             return T;
 
@@ -2699,6 +2710,11 @@ package body Templates_Parser is
               Load (Build_Include_Pathname (Get_First_Parameter),
                     Cached, True);
 
+            --  Now we must replace the include parameters (if present) into
+            --  the included file tree.
+
+            Replace_Include_Variables (T.File, Get_All_Parameters);
+
             I_File := new Node'(Include_Stmt, I_File, Line, T.File);
 
             T.Next := Parse (Mode);
@@ -2711,8 +2727,7 @@ package body Templates_Parser is
             T.Line := Line;
 
             if Input.LF_Terminated (File)
-              and then (not Input.End_Of_File (File)
-                          or else Include_File)
+              and then (not Input.End_Of_File (File) or else Include_File)
             then
                --  Add a LF is the read line with terminated by a LF. Do not
                --  add this LF if we reach the end of file except for included
@@ -2726,6 +2741,158 @@ package body Templates_Parser is
             return T;
          end if;
       end Parse;
+
+      -------------------------------
+      -- Replace_Include_Variables --
+      -------------------------------
+
+      procedure Replace_Include_Variables
+        (File      : in out Static_Tree;
+         Variables : in     String)
+      is
+         procedure Replace (T : in out Tree);
+         --  Recursive routine to parse the tree for all Data.Tree node
+
+         procedure Replace (T : in out Data.Tree);
+         --  Recursive routine that replace all numeric variables by the
+         --  corresponding parameter in Variables.
+
+         function Get_Variable (Tag : in String) return String;
+         --  Returns the variable name for the include tag Tag. Tag is a
+         --  numeric value and represent the Nth include parameter.
+
+         ------------------
+         -- Get_Variable --
+         ------------------
+
+         function Get_Variable (Tag : in String) return String is
+            T : constant Natural
+              := Natural'Value (Tag (Tag'First + 1 .. Tag'Last));
+            S : Natural := Variables'First;
+            E : Natural;
+            K : Natural := 0;
+         begin
+            loop
+               if Variables (S) = '"' then
+                  --  Search for the ending quote
+
+                  E := Strings.Fixed.Index
+                    (Variables (S + 1 .. Variables'Last), """");
+
+                  if E = 0 then
+                     Fatal_Error ("Missing quote");
+                  else
+                     E := E + 1;
+                  end if;
+
+               else
+                  --  Search for the next separator
+
+                  E := Strings.Fixed.Index
+                    (Variables (S .. Variables'Last), Blank);
+               end if;
+
+               if E = 0 and then K /= T then
+                  --  Not found, return the original tag name
+                  return To_String (Begin_Tag) & Tag & To_String (End_Tag);
+
+               elsif K = T then
+                  --  We have found the right variable
+
+                  if E = 0 then
+                     E := Variables'Last;
+                  else
+                     E := E - 1;
+                  end if;
+
+                  --  Always return the variable unquoted
+
+                  if Variables (S) = '"' then
+                     return Variables (S + 1  .. E - 1);
+                  else
+                     return Variables (S .. E);
+                  end if;
+
+               else
+                  --  Set the new start
+
+                  S := E;
+
+                  S := Strings.Fixed.Index
+                    (Variables (S .. Variables'Last), Blank, Strings.Outside);
+
+                  if S = 0 then
+                     --  No more values, return the original tag name
+                     return To_String (Begin_Tag) & Tag & To_String (End_Tag);
+                  end if;
+               end if;
+
+               K := K + 1;
+            end loop;
+         end Get_Variable;
+
+         -------------
+         -- Replace --
+         -------------
+
+         procedure Replace (T : in out Data.Tree) is
+
+            use type Data.NKind;
+            use type Data.Tree;
+
+            function Is_Number (Name : in String) return Boolean;
+            --  Returns True if Name is an include tag variable ($<n>)
+
+            ---------------
+            -- Is_Number --
+            ---------------
+
+            function Is_Number (Name : in String) return Boolean is
+            begin
+               return Name'Length > 1
+                 and then Name (Name'First) = '$'
+                 and then Strings.Fixed.Count
+                            (Name, Strings.Maps.Constants.Decimal_Digit_Set)
+                          = Name'Length - 1;
+            end Is_Number;
+
+            procedure Free is
+               new Ada.Unchecked_Deallocation (Data.Node, Data.Tree);
+
+            Old : Data.Tree := T;
+
+         begin
+            if T /= null then
+               if T.Kind = Data.Var then
+                  if Is_Number (To_String (T.Var.Name)) then
+                     --  Here we have an include variable name, replace it
+
+                     T := Data.Parse (Get_Variable (To_String (T.Var.Name)));
+                     T.Next := Old.Next;
+
+                     Free (Old);
+                  end if;
+               end if;
+
+               Replace (T.Next);
+            end if;
+         end Replace;
+
+         procedure Replace (T : in out Tree) is
+            use type Tree;
+         begin
+            if T /= null then
+               if T.Kind = Text then
+                  Replace (T.Text);
+               end if;
+
+               Replace (T.Next);
+            end if;
+         end Replace;
+
+      begin
+         Replace (File.C_Info);
+      end Replace_Include_Variables;
 
       T     : Static_Tree;
       New_T : Tree;

@@ -1,14 +1,14 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 24 January 2003 -->
+     from templates_parser.texi on 25 Febuary 2003 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
 <BODY>
 <H1>Templates Parser</H1>
 <H2>$Revision$</H2>
-<H2>Date: 24 January 2003</H2>
+<H2>Date: 25 Febuary 2003</H2>
 <ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
 <P>
 <P><HR><P>
@@ -28,12 +28,13 @@
 </UL>
 <LI><A NAME="TOC9" HREF="templates_parser.html#SEC9">Tag statements</A>
 <UL>
-<LI><A NAME="TOC10" HREF="templates_parser.html#SEC10">INCLUDE tag statement</A>
-<LI><A NAME="TOC11" HREF="templates_parser.html#SEC11">IF tag statement</A>
-<LI><A NAME="TOC12" HREF="templates_parser.html#SEC12">TABLE tag statement</A>
+<LI><A NAME="TOC10" HREF="templates_parser.html#SEC10">Comments tag statement</A>
+<LI><A NAME="TOC11" HREF="templates_parser.html#SEC11">INCLUDE tag statement</A>
+<LI><A NAME="TOC12" HREF="templates_parser.html#SEC12">IF tag statement</A>
+<LI><A NAME="TOC13" HREF="templates_parser.html#SEC13">TABLE tag statement</A>
 </UL>
-<LI><A NAME="TOC13" HREF="templates_parser.html#SEC13">Last notes</A>
-<LI><A NAME="TOC14" HREF="templates_parser.html#SEC14">Templates_Parser Ada spec</A>
+<LI><A NAME="TOC14" HREF="templates_parser.html#SEC14">Last notes</A>
+<LI><A NAME="TOC15" HREF="templates_parser.html#SEC15">Templates_Parser Ada spec</A>
 </UL>
 <P><HR><P>
 
@@ -134,7 +135,7 @@ of data. You just have to provides as many templates as you like.
 A tag is a string found in the template page and surrounded by a specific set
 of characters. The default is <B>@_</B> at the start and <B>_@</B> at the
 end of the tag. This default can be changed using <CODE>Set_Tag_Separators</CODE>
-routine, see section <A HREF="templates_parser.html#SEC14">Templates_Parser Ada spec</A>. Note that it must be changed
+routine, see section <A HREF="templates_parser.html#SEC15">Templates_Parser Ada spec</A>. Note that it must be changed
 as the first API call and should not be changed after that.
 
 </P>
@@ -209,7 +210,7 @@ powerful construct that you can use into a template file.
 A variable tag is a specific string to be replaced by the template
 parser. There is four kinds of variable tags: <B>discrete</B>, <B>boolean</B>,
 <B>vector</B> and <B>matrix</B>. All variables tags are build using the Assoc
-constructors, see section <A HREF="templates_parser.html#SEC14">Templates_Parser Ada spec</A>.
+constructors, see section <A HREF="templates_parser.html#SEC15">Templates_Parser Ada spec</A>.
 
 </P>
 <DL COMPACT>
@@ -231,7 +232,7 @@ statement.
 <DD>
 A vector tag is a variable which represent a set of values. These kind of
 variables will be used with the TABLE tag statement 
-see section <A HREF="templates_parser.html#SEC12">TABLE tag statement</A>. Outside a table statement it will be
+see section <A HREF="templates_parser.html#SEC13">TABLE tag statement</A>. Outside a table statement it will be
 replaced by all values in the vector tag.
 
 There is many overloaded constructors to build vector tags (see "+"
@@ -546,14 +547,38 @@ by <CODE>@@</CODE>. The tag statements are:
 </P>
 
 <UL>
-<LI><A HREF="templates_parser.html#SEC10">INCLUDE tag statement</A>
-<LI><A HREF="templates_parser.html#SEC11">IF tag statement</A>
-<LI><A HREF="templates_parser.html#SEC12">TABLE tag statement</A>
+<LI><A HREF="templates_parser.html#SEC10">Comments tag statement</A>
+<LI><A HREF="templates_parser.html#SEC11">INCLUDE tag statement</A>
+<LI><A HREF="templates_parser.html#SEC12">IF tag statement</A>
+<LI><A HREF="templates_parser.html#SEC13">TABLE tag statement</A>
 </UL>
 
 
 
-<H2><A NAME="SEC10" HREF="templates_parser.html#TOC10">INCLUDE tag statement</A></H2>
+<H2><A NAME="SEC10" HREF="templates_parser.html#TOC10">Comments tag statement</A></H2>
+
+<P>
+Every line starting with <B>@@--</B> are comments and are completly
+ignored by the parser. The resulting page will have the exact same
+format and number of lines with or without the comments.
+
+</P>
+
+<PRE>
+@@-- This template is used to display the client's data
+@@-- It uses the following tags:
+@@--
+@@--    @_CID_@       Client ID
+@@--    @_ITEMS_V_@   List of items (vector tag)
+
+&#60;P&#62;Client @_CID_@
+
+...
+</PRE>
+
+
+
+<H2><A NAME="SEC11" HREF="templates_parser.html#TOC11">INCLUDE tag statement</A></H2>
 
 <P>
 This tag is used to include another template file. This is useful if you
@@ -569,9 +594,44 @@ have the same header and/or footer in all your HTML pages. For example:
 @@INCLUDE@@ footer.tmplt
 </PRE>
 
+<P>
+It is also possible to pass arguments to the include file. These parameters
+are put after the include filename. It is possible to reference these
+parameters into the included file with the special variable names
+<CODE>@_$&#60;n&#62;_@</CODE>, where <I>n</I> is the include's parameter indice (0 is
+the include filename, 1 the first parameter and so on).
+
+</P>
+
+<PRE>
+@@INCLUDE@@ another.tmplt @_VAR_@ azerty
+</PRE>
+
+<P>
+In file <TT>`another.tmplt'</TT>
+
+</P>
+<DL COMPACT>
+
+<DT><CODE>@_$0_@</CODE>
+<DD>
+is another.tmplt
+<DT><CODE>@_$1_@</CODE>
+<DD>
+is the variable @_VAR_@
+<DT><CODE>@_$2_@</CODE>
+<DD>
+is the string "azerty"
+</DL>
+
+<P>
+If an include variable references a non existing include parameter the
+tag is kept as-is.
+
+</P>
 
 
-<H2><A NAME="SEC11" HREF="templates_parser.html#TOC11">IF tag statement</A></H2>
+<H2><A NAME="SEC12" HREF="templates_parser.html#TOC12">IF tag statement</A></H2>
 
 <P>
 This is the conditional tag statement. The complete form is:
@@ -645,8 +705,10 @@ Returns TRUE if either A is FALSE and FALSE otherwise.
 </DL>
 
 <P>
-To build an expression it is possible to use the parentheses. A value
-with spaces must be quoted as a string. So valid expressions could be:
+The default evaluation order is done from left to right, all operators
+having the same precedence. To build an expression it is possible to
+use the parentheses to change the evaluation order. A value with
+spaces must be quoted as a string. So valid expressions could be:
 
 </P>
 
@@ -762,7 +824,7 @@ Will display:
 
 
 
-<H2><A NAME="SEC12" HREF="templates_parser.html#TOC12">TABLE tag statement</A></H2>
+<H2><A NAME="SEC13" HREF="templates_parser.html#TOC13">TABLE tag statement</A></H2>
 
 <P>
 A table tag is useful to generate HTML table for example. Basically the
@@ -1353,7 +1415,7 @@ A3.1, A3.2
 
 
 
-<H1><A NAME="SEC13" HREF="templates_parser.html#TOC13">Last notes</A></H1>
+<H1><A NAME="SEC14" HREF="templates_parser.html#TOC14">Last notes</A></H1>
 
 <P>
 The templates parser has be written to parse HTML page but it is usable
@@ -1378,7 +1440,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 
 
 
-<H1><A NAME="SEC14" HREF="templates_parser.html#TOC14">Templates_Parser Ada spec</A></H1>
+<H1><A NAME="SEC15" HREF="templates_parser.html#TOC15">Templates_Parser Ada spec</A></H1>
 
 
 <PRE>
@@ -1718,7 +1780,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 </PRE>
 
 <P><HR><P>
-This document was generated on 24 January 2003 using the
+This document was generated on 25 Febuary 2003 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
