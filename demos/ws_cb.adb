@@ -98,11 +98,15 @@ package body WS_CB is
    begin
       if AWS.Status.Method (Request) = AWS.Status.GET
         or else AWS.Status.Method (Request) = AWS.Status.POST
+        or else AWS.Status.Method (Request) = AWS.Status.HEAD
       then
          return Get (Request);
 
       elsif AWS.Status.Method (Request) = AWS.Status.PUT then
          return Put (Request);
+
+      else
+         return AWS.Response.Acknowledge (Status_Code => Messages.S405);
       end if;
    end Service;
 
