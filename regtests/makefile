@@ -75,8 +75,17 @@ $(STD_TESTS): force
 	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
+ifdef GDB_REGTESTS
+	gdb --exec=./$@ --command=cmd.gdb --batch > out.gdb
+	mv -f out.gdb $@.res
+	cat $@.out > out.tmp
+	echo "" >> out.tmp
+	echo "Program exited normally." >> out.tmp
+	-diff -c -w out.tmp $@.res >> alldifs
+else
 	./$@ > $@.res
 	-diff -c -w $@.out $@.res >> alldifs
+endif
 
 dirop: force
 	echo -n Building dirop
