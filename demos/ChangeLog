@@ -1,3 +1,8 @@
+2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Minor reformatting.
+
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* interoplab_main.adb:
