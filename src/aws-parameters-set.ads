@@ -34,8 +34,11 @@ package AWS.Parameters.Set is
 
    procedure Add
      (Parameter_List : in out List;
-      Name, Value    : in     String);
+      Name, Value    : in     String;
+      Decode         : in     Boolean := True);
    --  Add a new Key/Value pair into the parameter set.
+   --  If Decode is true, decodes Name and Value. This is used when handling
+   --  multipart/form-data for example.
 
    procedure Add (Parameter_List : in out List; Parameters : in String);
    --  Set parameters for the current request. This is used for a POST method
