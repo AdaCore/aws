@@ -33,7 +33,8 @@
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
-with AWS.Net;
+with AWS.Default;
+with AWS.Net.SSL.Certificate;
 with AWS.Response;
 with AWS.URL;
 
@@ -186,15 +187,27 @@ package AWS.Client is
       Retry       : in     Natural         := Retry_Default;
       Persistent  : in     Boolean         := True;
       Timeouts    : in     Timeouts_Values := No_Timeout;
-      Server_Push : in     Boolean         := False);
+      Server_Push : in     Boolean         := False;
+      Certificate : in     String          := Default.Client_Certificate;
+      User_Agent  : in     String          := Default.User_Agent);
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The connection will be tried Retry times if it fails. If
    --  persistent is True the connection will remain open otherwise it will be
    --  closed after each request. User/Pwd are the server authentication info,
    --  Proxy is the name of the proxy server to use, Proxy_USer/Proxy_Pwd are
-   --  the proxy authentication data. Timeouts are the send/receive timeouts
-   --  for each request. If Server_Push is True the connection will be used to
-   --  push information to the client.
+   --  the proxy authentication data. Only Basic authentication is supported
+   --  from this routine, for Digest authentication see below. Timeouts are
+   --  the send/receive timeouts for each request. If Server_Push is True the
+   --  connection will be used to push information to the client.
+   --  Certificate can be set to specify the certificate filename to use for
+   --  the secure connection. User_Agent can be overridden to whatever you want
+   --  the client interface to present itself to the server.
+
+   function Get_Certificate
+     (Connection : in HTTP_Connection)
+      return AWS.Net.SSL.Certificate.Object;
+   --  Return the certificate used for the secure connection. If this is not a
+   --  secure connection, returns Net.SSL.Certificate.Undefined.
 
    procedure Set_WWW_Authentication
      (Connection : in out HTTP_Connection;
@@ -362,11 +375,14 @@ private
       Persistent    : Boolean;
       Server_Push   : Boolean;
       Cookie        : Unbounded_String;
-      Socket        : Net.Socket_Access;
+      Socket        : AWS.Net.Socket_Access;
       Retry         : Natural;
       Current_Phase : Client_Phase;
       Timeouts      : Timeouts_Values;
       Cleaner       : Cleaner_Access;
+      Certificate   : Unbounded_String;
+      User_Agent    : Unbounded_String;
+      SSL_Config    : AWS.Net.SSL.Config;
    end record;
 
 end AWS.Client;
