@@ -162,8 +162,10 @@ private
 
    type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
+   type Natural_Access is access Natural;
+
    type Data is new Ada.Finalization.Controlled with record
-      Ref_Counter    : Natural := 1;
+      Ref_Counter    : Natural_Access;
       Mode           : Data_Mode;
       Status_Code    : Messages.Status_Code;
       Content_Length : Natural;
