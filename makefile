@@ -3,6 +3,11 @@
 
 .SILENT: all build_std build_ssl clean distrib
 
+# update INCLUDES to point to the libraries directories for POSIX and Sockets
+# or use ADA_INCLUDE_PATH or ADA_OBJECTS_PATH
+
+INCLUDES =
+
 all:
 	echo "Targets :"
 	echo "build_std:    to build everything (without SSL support)"
@@ -11,19 +16,19 @@ all:
 	echo "distrib:      to build a tarball distribution"
 
 build_aws_std:
-	make -C src build MODE=std
+	make -C src build MODE=std INCLUDES=$(INCLUDES)
 
 build_aws_ssl:
-	make -C src build MODE=ssl
+	make -C src build MODE=ssl INCLUDES=$(INCLUDES)
 
 build_demo_std:
-	make -C demos build MODE=std
+	make -C demos build MODE=std INCLUDES=$(INCLUDES)
 
 build_demo_ssl:
-	make -C demos build MODE=ssl
+	make -C demos build MODE=ssl INCLUDES=$(INCLUDES)
 
 build_ssllib:
-	make -C ssl build
+	make -C ssl build INCLUDES=$(INCLUDES)
 
 build_std: build_include build_aws_std build_demo_std
 
