@@ -1,3 +1,11 @@
+2003-04-01  Pascal Obry  <obry@act-europe.fr>
+
+	* aws-mime.adb:
+	Do not use GNAT.Dynamic_Tables for the R_MIME_Type which has 2
+	 controlled fields as it is not supported by this component.
+	 Implements a simple linked list.
+	Add some comments on protected object spec.
+
 2003-03-31  Pascal Obry  <obry@act-europe.fr>
 
 	* aws-client.adb:
