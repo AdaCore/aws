@@ -1,3 +1,17 @@
+2003-11-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add templates_parser-query.adb.
+	
+	* memory_streams.adb:
+	Minor reformatting.
+
+	* templates_parser-query.ads, templates_parser-query.adb:
+	Initial revision from 6.4.
+
+	* templates_parser.ads:
+	Update to version 6.4.
+
 2003-11-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb, templates_parser-cached_files.adb:
