@@ -63,10 +63,12 @@ package SOAP.Utils is
    ----------------------------------
 
    function To_Utf8 (Str : in String) return String;
+   function To_Utf8 (Str : in Unbounded_String) return Unbounded_String;
    pragma Inline (To_Utf8);
    --  Convert the Basic_8bit encoded Str string to Utf-8
 
    function From_Utf8 (Str : in String) return String;
+   function From_Utf8 (Str : in Unbounded_String) return Unbounded_String;
    pragma Inline (From_Utf8);
    --  Convert the Utf-8 encoded Str string to Basic_8bit
 
