@@ -70,7 +70,8 @@ package body AWS.Log is
          First := First + 1;
       end if;
 
-      Last := Strings.Fixed.Index (Name, ".", Strings.Backward);
+      Last := Strings.Fixed.Index
+        (Name (First .. Name'Last), ".", Strings.Backward);
 
       if Last = 0 then
          Last := Name'Last;
