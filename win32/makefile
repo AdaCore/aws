@@ -6,9 +6,13 @@
 # Build the library only if Win32 OS. On other OS these libraries must be
 # installed separately or are most of the time already installed.
 
+LIBSSL		= ../lib/libssl.a
+LIBCRYPTO	= ../lib/libcrypto.a
+LIBLDAP		= ../lib/libldap.a
+
 ifeq (${OS}, Windows_NT)
    RES        = aws.coff
-   IMPORT_LIB = build_lib libldap.a
+   IMPORT_LIB = build_lib $(LIBLDAP)
 else
    RES        =
    IMPORT_LIB =
@@ -16,26 +20,29 @@ endif
 
 build: $(RES) $(IMPORT_LIB)
 
-libssl.a: libssl32.dll
+$(LIBSSL): libssl32.dll
 	dll2def libssl32.dll > ssl.def
 	$(DLLTOOL) --def ssl.def --dllname libssl32.dll \
-	        --output-lib libssl.a
+	        --output-lib $(LIBSSL)
 	$(RM) ssl.def
+	$(CP) libssl32.dll ../lib
 
-libcrypto.a: libeay32.dll
+$(LIBCRYPTO): libeay32.dll
 	$(DLL2DEF) libeay32.dll > crypto.def
 	$(DLLTOOL) --def crypto.def --dllname libeay32.dll \
-		--output-lib libcrypto.a
+		--output-lib $(LIBCRYPTO)
 	$(RM) crypto.def
+	$(CP) libeay32.dll ../lib
 
-libldap.a: wldap32.def
+$(LIBLDAP): wldap32.def
 	$(DLLTOOL) --def wldap32.def --dllname wldap32.dll \
-		--output-lib libldap.a
+		--output-lib $(LIBLDAP)
 
-build_lib: libssl.a libcrypto.a
+build_lib: $(LIBSSL) $(LIBCRYPTO)
 
 aws.coff: aws.rc
 	$(WINDRES) -i aws.rc -o aws.coff
+	$(CP) aws.coff ../lib
 
 clean:
 	-$(RM) -f *.a *~ aws.coff
