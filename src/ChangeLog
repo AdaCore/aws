@@ -1,3 +1,22 @@
+2003-02-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
+	(Mark_Phase): Raise Net.Socket_Error instead PROGRAM_ERROR, becouse
+	 the server line could try to setup non-close phase after the abort
+	 state if the abortion happen after socket operation and before
+	 Mark_Phase call.
+
+	* aws-net-stream_io.ads, aws-net-stream_io.ads:
+	(Free): Add parameter Socket for be able not to release socket
+	 internal memory, becouse socket would be necessary to reuse after
+	 creation stream from it.
+
+	* aws-server-push.adb:
+	(Register): Now the socket could be reused in case of Registration
+	 failure. We should not free the socket on the registtration failure,
+	 becouse it would be necessary to send HTTP error responce to the HTTP
+	 client claiming for server-push connection.
+
 2003-02-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:
