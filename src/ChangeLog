@@ -1,3 +1,10 @@
+2004-05-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-services-transient_pages.adb:
+	(Cleaner): Error output in case of exception in task.
+	(Clean): Do not get element from cursor twice.
+	Split CVS macros.
+
 2004-05-19  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-xml.ads:
