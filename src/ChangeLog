@@ -1,3 +1,9 @@
+2003-05-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-mime.ads, aws-mime.adb:
+	(Text_CSS): New MIME type. Web browser Mozilla does not recognize
+	 Cascade Style Sheet files without Content-Type: text/css
+	 
 2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
