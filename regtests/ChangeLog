@@ -1,3 +1,26 @@
+2003-11-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS): Add wsdl_2.
+	(build): Put $(ASIS_TESTS) before $(OTH_TESTS).
+	(clean): Remove wsdl_?_service* (files generated for the wsdl_?
+	 regtests).
+
+	* wsdl_1_main.adb:
+	Remove with WSDL_1 unit, not needed.
+
+	* wsdl_2_server.ads, wsdl_2_server.adb:
+	Initial revision.
+
+	* wsdl_2_main.adb:
+	Initial revision.
+
+	* wsdl_2.out:
+	Initial revision.
+
+	* wsdl_2.ads, wsdl_2.adb:
+	Initial revision.
+
 2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
