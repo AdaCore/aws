@@ -167,4 +167,7 @@ implemented:
 
 - Add reply-all support to the Web_Mail service.
 
-- Fix bug in the alpha splitter
+- Check status of PAGE_INDEX/PAGE_NUMBER and upward compatibility.
+
+- Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
+  We should be able to remove the tools/makefile kludge (-largs -laws).
