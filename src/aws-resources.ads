@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -131,7 +131,7 @@ private
 
    function Size
      (Resource : in File_Tagged)
-      return   Stream_Element_Offset
+      return Stream_Element_Offset
       is abstract;
 
    procedure Close (File : in out File_Tagged)
