@@ -93,3 +93,7 @@ implemented:
   transparent to users.
 
 - Should we be able to associate a new Dispatcher object to the server ?
+
+- Generate API doc using gnathtml
+
+- Handle URL parameters in AWS.URL (characters after ?).
