@@ -105,10 +105,11 @@ is
    procedure Send_Resource
      (Method : in     Status.Request_Method;
       File   : in out Resources.File_Type;
-      Length :    out Natural);
-   --  Send the last header line Transfer-encoding if necessary. Terminate
-   --  header and message body from the File.
-   --  Length returns the actual number of bytes sent.
+      Length : in out Response.Content_Length_Type);
+   --  Send the last header line Transfer-Encoding and Content_Length if
+   --  necessary and send the file content. Length is the size of the
+   --  resource/file as known before the call, Length returned value is the
+   --  actual number of bytes sent.
 
    procedure Answer_To_Client;
    --  This procedure use the C_Stat status data to send the correct answer
@@ -143,7 +144,7 @@ is
       Answer : Response.Data;
 
       Status : Messages.Status_Code;
-      Length : Natural := 0;
+      Length : Response.Content_Length_Type := 0;
 
       procedure Create_Session;
       --  Create a session if needed
@@ -196,19 +197,25 @@ is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
 
-         Filename      : constant String := Response.Filename (Answer);
+         Filename      : constant String
+           := Response.Filename (Answer);
+
+         File_Size     : constant Response.Content_Length_Type
+           := Response.Content_Length (Answer);
+
          Is_Up_To_Date : Boolean;
 
          File_Mode     : constant Boolean
            := Response.Mode (Answer) = Response.File;
-         File          : Resources.File_Type;
 
+         File          : Resources.File_Type;
       begin
          Is_Up_To_Date := File_Mode
-            and then Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
-            and then
+              and then
+           Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
+              and then
            Resources.File_Timestamp (Filename)
-            = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
+             = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
          --  Equal used here see [RFC 2616 - 14.25]
 
          if Is_Up_To_Date then
@@ -246,7 +253,7 @@ is
 
          Send_General_Header;
 
-         --  Send file info in case of file
+         --  Send file last-modified timestamp info in case of a file
 
          if File_Mode then
             Sockets.Put_Line
@@ -257,17 +264,20 @@ is
          Sockets.Put_Line
            (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
 
-         --  The message body length
-
-         if Response.Content_Length (Answer) /= Response.Undefined_Length then
-            Sockets.Put_Line
-              (Sock,
-               Messages.Content_Length (Response.Content_Length (Answer)));
-         end if;
+         --  Note that we cannot send the Content_Length header at this
+         --  point. A server must not send Content_Length if the
+         --  transfer-coding used is not identity. Here the file can be sent
+         --  using either identity or chunked transfer-coding. The proper
+         --  header will be sent in Send_Resource see [RFC 2616 - 4.4].
 
          --  Send message body
 
          Response.Create_Resource (File, Answer);
+
+         --  Length is the real resource/file size
+
+         Length := File_Size;
+
          Send_Resource (AWS.Status.Method (C_Stat), File, Length);
       end Send_Data;
 
@@ -1269,10 +1279,14 @@ is
    procedure Send_Resource
      (Method : in     Status.Request_Method;
       File   : in out Resources.File_Type;
-      Length :    out Natural)
+      Length : in out Response.Content_Length_Type)
    is
       use type Status.Request_Method;
       use type Streams.Stream_Element_Offset;
+
+      Small_File_Size : constant := 4 * 1_024;
+      --  This is what AWS understand as being a small file. AWS will try to
+      --  not send such file with the chunked method.
 
       procedure Send_File;
       --  Send file in one part
@@ -1318,6 +1332,10 @@ is
          CRLF : constant Streams.Stream_Element_Array
            := (1 => Character'Pos (ASCII.CR), 2 => Character'Pos (ASCII.LF));
 
+         Last_Chunk : constant Streams.Stream_Element_Array
+           := Character'Pos ('0') & CRLF & CRLF;
+         --  Last chunk for a chunked encoding stream. See [RFC 2616 - 3.6.1]
+
       begin
          loop
             Resources.Read (File, Buffer, Last);
@@ -1327,51 +1345,67 @@ is
             HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
 
             declare
-               Packet : constant Streams.Stream_Element_Array
-                 := Translator.To_Stream_Element_Array
-                      (Utils.Hex (Positive (Last)))
+               H_Last : constant String := Utils.Hex (Positive (Last));
+
+               Chunk  : constant Streams.Stream_Element_Array
+                 := Translator.To_Stream_Element_Array (H_Last)
                  & CRLF
                  & Buffer (1 .. Last)
                  & CRLF;
+               --  A chunk is composed of:
+               --     the Size of the chunk in hexadecimal
+               --     a line feed
+               --     the chunk
+               --     a line feed
+
             begin
                --  Check if the last data portion.
 
                if Last < Buffer'Last then
                   --  No more data, add the terminating chunk
-                  Sockets.Send
-                    (Sock, Packet & Character'Pos ('0') & CRLF & CRLF);
+                  Sockets.Send (Sock, Chunk & Last_Chunk);
                   exit;
                else
-                  Sockets.Send (Sock, Packet);
+                  Sockets.Send (Sock, Chunk);
                end if;
             end;
          end loop;
       end Send_File_Chunked;
 
    begin
-      Length := 0;
-
-      if Status.HTTP_Version (C_Stat) = HTTP_10 then
+      if Status.HTTP_Version (C_Stat) = HTTP_10
+        or else (Length /= Response.Undefined_Length
+                   and then Length < Small_File_Size)
+      then
          --  Terminate header
 
-         Sockets.New_Line (Sock);
+         if Length = Response.Undefined_Length then
+            --  This happen in case of user's defined stream for example.
+            --  Since the size can't be know in advance it is not possible to
+            --  support stream oriented data in HTTP/1.0. In such case we send
+            --  nothing.
 
-         if Method /= Status.HEAD then
-            Send_File;
+            Sockets.Put_Line (Sock, Messages.Content_Length (0));
+            Sockets.New_Line (Sock);
+
+         else
+            Sockets.Put_Line (Sock, Messages.Content_Length (Length));
+            Sockets.New_Line (Sock);
+
+            if Method /= Status.HEAD then
+               Length := 0;
+               Send_File;
+            end if;
          end if;
 
       else
-         --  Always use chunked transfer encoding method for HTTP/1.1 even if
-         --  it also support standard method.
-         --  ??? it could be better to use the standard method for small files
-         --  (should be faster).
-
-         --  Terminate header
+         --  Terminate header, do not send Content_Length see [RFC 2616 - 4.4]
 
          Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
          Sockets.New_Line (Sock);
 
          if Method /= Status.HEAD then
+            Length := 0;
             Send_File_Chunked;
          end if;
       end if;
