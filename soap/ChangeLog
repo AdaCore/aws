@@ -1,4 +1,15 @@
-2003-11-14  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.adb:
+	(Put_Types): Fix handling of derived returned types.
+
+	* soap-generator-stub.adb, soap-generator-skel.adb:
+	(New_Procedure): Fix handling of derived returned types.
+
+	* soap-wsdl-parser.adb:
+	(Parse_PortType): Do not raise an error if there is no input or
+	 output tag. This handles properly Notification and Request-response
+	 operations as defined in the WSDL definition.
 
 	* soap-generator.ads:
 	(Version): Set to 1.2.
