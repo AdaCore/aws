@@ -179,6 +179,10 @@ main (void)
   printf ("private\n\n");
 
 #ifdef WIN2000SUPPORT
+  printf ("   function WSPIAPI_init return Integer;\n");
+  printf ("   pragma Import (C, WSPIAPI_init, \"WSPIAPI_init\");\n");
+  printf ("   Dummy : constant Integer := WSPIAPI_init;\n\n");
+
   printf ("   pragma Import (Stdcall, GetAddrInfo, \"WspiapiGetAddrInfo\");\n");
   printf ("   pragma Import (Stdcall, FreeAddrInfo, \"WspiapiFreeAddrInfo\");\n\n");
 #else
