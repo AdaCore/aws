@@ -1,3 +1,10 @@
+2004-11-14  Pascal Obry  <pascal@obry.org>
+
+	* aws-services-web_mail.adb:
+	(Callback): Remove unused variables SMTP_Server, User_Name, and
+	 Password.
+	(Check_Session): Remove initialization for those variables.
+
 2004-11-12  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
