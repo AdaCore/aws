@@ -143,9 +143,7 @@ private
       procedure Finalize;
 
    private
-      Initialized : Boolean      := False;
-      Private_Key : TSSL.RSA     := TSSL.Null_Pointer;
-      Context     : TSSL.SSL_CTX := TSSL.Null_Pointer;
+      Context : TSSL.SSL_CTX := TSSL.Null_Pointer;
    end TS_SSL;
 
    type Config is access TS_SSL;
