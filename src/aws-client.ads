@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -256,7 +256,7 @@ package AWS.Client is
      (Connection : in out HTTP_Connection;
       Delimiter  : in     String;
       Result     : in out Ada.Strings.Unbounded.Unbounded_String);
-   --  Idem as above but returns the result as an Unbounded_String.
+   --  Idem as above but returns the result as an Unbounded_String
 
    procedure Read_Some
      (Connection : in out HTTP_Connection;
@@ -264,68 +264,68 @@ package AWS.Client is
       Last       :    out Ada.Streams.Stream_Element_Offset);
    --  Reads any available data from the client connection.
    --  If no data available, we would wait for read timeout.
-   --  Last < Data'First after call mean that no more data available in the
-   --  http responce. Connection have to be created with parameter
+   --  Last < Data'First after call means that no more data is available in
+   --  the http response. Connection have to be created with parameter
    --  Server_Push => True.
 
    procedure Read
      (Connection : in out HTTP_Connection;
       Data       :    out Ada.Streams.Stream_Element_Array;
       Last       :    out Ada.Streams.Stream_Element_Offset);
-   --  Reads data from the client connection until all Data buffer would be
-   --  filled, or responce data completed. Last < Data'Last after call mean
-   --  that no more data available in http responce. Connection have to be
-   --  created with parameter Server_Push => True.
+   --  Reads data from the client connection until Data buffer if filled
+   --  or we reached the end of the response. Last < Data'Last after call
+   --  means that no more data is available in http response. Connection have
+   --  to be created with parameter Server_Push => True.
 
    procedure Get
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       URI        : in     String          := No_Data);
-   --  Same as Get above but using a Connection.
+   --  Same as Get above but using a Connection
 
    procedure Head
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       URI        : in     String          := No_Data);
-   --  Same as Head above but using a Connection.
+   --  Same as Head above but using a Connection
 
    procedure Put
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Data       : in     String;
       URI        : in     String          := No_Data);
-   --  Same as Put above but using a Connection.
+   --  Same as Put above but using a Connection
 
    procedure Post
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Data       : in     String;
       URI        : in     String          := No_Data);
-   --  Same as Post above but using a Connection.
+   --  Same as Post above but using a Connection
 
    procedure Post
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Data       : in     Ada.Streams.Stream_Element_Array;
       URI        : in     String          := No_Data);
-   --  Same as Post above but using a Connection.
+   --  Same as Post above but using a Connection
 
    procedure Upload
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Filename   : in     String;
       URI        : in     String          := No_Data);
-   --  Same as Upload above but using a Connection.
+   --  Same as Upload above but using a Connection
 
    procedure SOAP_Post
      (Connection : in     HTTP_Connection;
       Result     :    out Response.Data;
       SOAPAction : in     String;
       Data       : in     String);
-   --  Same as SOAP_Post above but using a Connection.
+   --  Same as SOAP_Post above but using a Connection
 
    procedure Close (Connection : in out HTTP_Connection);
-   --  Close connection, it releases all associated resources.
+   --  Close connection, it releases all associated resources
 
    procedure Set_Debug (On : in Boolean);
    --  Set debug mode on/off. If debug is activated the request header and the
@@ -366,11 +366,11 @@ private
      array (Authentication_Level) of Authentication_Type;
 
    type Transfer_Type is
-     (None,           -- Connection is not in transfer state.
+     (None,           -- Connection is not in transfer state
       Chunked,        -- Transfer-encoding chunked
       Content_Length, -- Content-Length defined
-      Until_Close,    -- Document end on close socket.
-      End_Response);  -- Document is over.
+      Until_Close,    -- Document end on close socket
+      End_Response);  -- Document is over
 
    type HTTP_Connection is limited record
       Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
