@@ -159,7 +159,7 @@ Socket binding:
       http://perso.wanadoo.fr/pascal.obry/contrib.html
 
    for UNIX:
-      http://www.infres.enst.fr/ANC/
+      http://www.rfc1149.net/devel/adasockets
 
 POSIX Binding (optional) :
 
