@@ -1,3 +1,9 @@
+2001-09-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-reader.adb:
+	(Ignorable_Whitespace): remove handling for ASCII.CR since an XML
+	 parser should removes all ASCII.CR occurences.
+
 2001-09-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile: 
