@@ -202,8 +202,8 @@ package body AWS.Server is
                      HTTP_Server.Cleaner.Force;
                   or
                      delay 4.0;
-                     Ada.Text_IO.Put_Line (Text_IO.Current_Error,
-                                           "Server too busy.");
+                     Ada.Text_IO.Put_Line
+                       (Text_IO.Current_Error, "Server too busy.");
                   end select;
                end if;
 
@@ -712,6 +712,11 @@ package body AWS.Server is
 
       Web_Server.Sock := Accepting_Socket;
 
+      --  Set Shutdown to False here since it must be done before starting the
+      --  lines.
+
+      Web_Server.Shutdown := False;
+
       --  Start each connection lines.
 
       for I in 1 .. Max_Connection loop
@@ -725,8 +730,6 @@ package body AWS.Server is
            (Session_Check_Interval => CNF.Session_Cleanup_Interval,
             Session_Lifetime       => CNF.Session_Lifetime);
       end if;
-
-      Web_Server.Shutdown := False;
    end Start;
 
    ---------------
