@@ -1,3 +1,8 @@
+2004-10-08  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(F_TOGETHER): Filter out generate.adb, this is not a test.
+
 2004-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
