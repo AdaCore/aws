@@ -38,7 +38,7 @@ project Docs is
 
    for Languages use ("Ada", "Project file");
 
-   for Main use ("build.adb");
+   for Main use ("build.adb", "gen_gps_ref.adb");
 
    ---------
    -- Ide --
