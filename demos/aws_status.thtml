@@ -64,14 +64,14 @@ status.</H3>
 <table>
 
 <tr bgcolor=yellow>
-<td>Slot number
-<td>Socket
-<td>Last Client IP
-<td>Phase
-<td>Abortable
-<td>Activity Counter
-<td>Slot Activity Counter
-<td>Activity Time Stamp
+<td align=center>Slot number
+<td align=center>Socket
+<td align=center>Last Client IP
+<td align=center>Phase
+<td align=center>Abortable
+<td align=center>Slot Counter
+<td align=center>Socket Counter
+<td align=center>Activity Time Stamp
 </tr>
 
 @@TABLE@@
@@ -83,7 +83,7 @@ status.</H3>
 @@ELSE@@
   <td align=center>&nbsp;
 @@END_IF@@
-<td align=center>@_CAPITALIZE@_PHASE_V_@
+<td align=center>@_CAPITALIZE:PHASE_V_@
 <td align=center>@_YES_NO:ABORTABLE_V_@
 <td align=center>@_ACTIVITY_COUNTER_V_@
 <td align=center>@_SLOT_ACTIVITY_COUNTER_V_@
@@ -98,7 +98,7 @@ status.</H3>
 @@ELSE@@
   <td align=center>&nbsp;
 @@END_IF@@
-<td align=center>@_CAPITALIZE@_PHASE_V_@
+<td align=center>@_CAPITALIZE:PHASE_V_@
 <td align=center>@_YES_NO:ABORTABLE_V_@
 <td align=center>@_ACTIVITY_COUNTER_V_@
 <td align=center>@_SLOT_ACTIVITY_COUNTER_V_@
