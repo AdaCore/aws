@@ -6,6 +6,9 @@
 	* aws-client.adb:
 	(Create): Set Security_Mode to SSLv23_Client.
 
+	* aws-resources-streams-zlib.adb:
+	(Close): Ignore ZLib filter close errors.
+
 2004-01-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.ads, aws-utils.adb:
