@@ -166,12 +166,6 @@ implemented:
   attribute:
   @@TABLE@@ @@SORT:VAR@@
 
-- Add a routine to reverse a vector tag either in the API or as a table
-  attribute:
-  @@TABLE@@ @@REVERSE:VAR@@
-
-  Have a way to combine table attributes : @@SORT:REVERSE:VAR@@
-
 - Add a routine to do a synchronized sort on multiple vector tag (from a
   Translate_Set for example.
 
