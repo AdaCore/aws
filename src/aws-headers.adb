@@ -30,10 +30,7 @@
 
 --  $Id$
 
-with Ada.Streams;
-
 with AWS.Net.Buffered;
-with AWS.Translator;
 
 package body AWS.Headers is
 
@@ -61,52 +58,11 @@ package body AWS.Headers is
 
    procedure Send_Header
      (Headers : in List;
-      Socket  : in Net.Socket_Type'Class)
-   is
-      use Ada.Streams;
-
-      Buffer : Stream_Element_Array (1 .. 1024);
-      pragma Warnings (Off, Buffer);
-      --  The buffer is to send bigger data chunk at once.
-      --  The SSL implementation is working better with bigger chunk.
-      --  ??? This buffering should not be done there but in the socket
-      --  implementation.
-
-      CRLF   : Stream_Element_Array :=
-         (1 => Character'Pos (ASCII.CR),
-          2 => Character'Pos (ASCII.LF));
-      --  End of line.
-
-      First  : Stream_Element_Offset := Buffer'First;
-      Last   : Stream_Element_Offset;
-
+      Socket  : in Net.Socket_Type'Class) is
    begin
       for J in 1 .. Count (Headers) loop
-         declare
-            Line : constant Stream_Element_Array
-              := AWS.Translator.To_Stream_Element_Array
-              (Get_Line (Headers, J)) & CRLF;
-         begin
-            Last := First + Line'Length - 1;
-
-            if Last > Buffer'Last then
-               Net.Buffered.Write
-                 (Socket,
-                  Buffer (Buffer'First .. First - 1) & Line);
-               First := Buffer'First;
-
-            else
-               Buffer (First .. Last) := Line;
-               First := Last + 1;
-            end if;
-         end;
+         Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));
       end loop;
-
-      if First > Buffer'First then
-         Net.Buffered.Write
-           (Socket,
-            Buffer (Buffer'First .. First - 1));
-      end if;
    end Send_Header;
 
 end AWS.Headers;
