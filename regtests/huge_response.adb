@@ -30,51 +30,9 @@
 
 --  $Id$
 
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
-
-with AWS.Client;
-with AWS.MIME;
-with AWS.Response.Set;
-with AWS.Server;
-with AWS.Status;
+with Huge_Response_Proc;
 
 procedure Huge_Response is
-
-   use Ada;
-   use Ada.Strings.Unbounded;
-   use AWS;
-
-   Len_Message : constant := 20_000_000;
-   Sample      : constant String  := "0123456789";
-   Message     : Unbounded_String := (Len_Message / Sample'Length) * Sample;
-
-   WS : Server.HTTP;
-
-   function CB (Request : in Status.Data) return Response.Data is
-   begin
-      return Response.Build (MIME.Text_HTML, Message);
-   end CB;
-
-   R : Response.Data;
-
 begin
-   Server.Start
-     (WS, "huge_message",
-      CB'Unrestricted_Access,
-      Port           => 1257,
-      Max_Connection => 5);
-
-   Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
-
-   R := Client.Get ("http://localhost:1257");
-
-   if Message = Unbounded_String'(Response.Message_Body (R)) then
-      Text_IO.Put_Line ("Ok");
-   else
-      Text_IO.Put_Line ("Nok: " & To_String (Response.Message_Body (R)));
-   end if;
-
-   Server.Shutdown (WS);
-   Ada.Text_IO.Put_Line ("shutdown");
+   Huge_Response_Proc (1257, False);
 end Huge_Response;
