@@ -28,6 +28,8 @@
 
 --  $Id$
 
+with Ada.Strings.Fixed;
+
 with Interfaces.C.Strings;
 
 with Sockets.Thin;
@@ -57,10 +59,25 @@ package body AWS.Utils is
    -- Image --
    -----------
 
-   function Image (N : Natural) return String is
+   function Image (N : in Natural) return String is
       N_Img : constant String := Natural'Image (N);
    begin
       return N_Img (N_Img'First + 1 .. N_Img'Last);
+   end Image;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (D : in Duration) return String is
+      D_Img : constant String := Duration'Image (D);
+      K     : constant Natural := Ada.Strings.Fixed.Index (D_Img, ".");
+   begin
+      if K = 0 then
+         return D_Img (D_Img'First + 1 .. D_Img'Last);
+      else
+         return D_Img (D_Img'First + 1 .. K + 2);
+      end if;
    end Image;
 
 end AWS.Utils;
