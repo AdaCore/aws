@@ -200,6 +200,8 @@ implemented:
 - Use GNAT.MD5 instead of include/md5.
 
 - Use Ada.Containers (remove AI302 components).
+  AWS.Services.Directory should use Ordered_Sets instead of
+  Indefinite_Ordered_Sets.
 
 - Clean-up ASIS configuration. Use new ASIS setup based on project files.
   Remove the setup for older version of ASIS having no project file.
