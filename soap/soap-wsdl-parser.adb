@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
@@ -158,12 +159,13 @@ package body SOAP.WSDL.Parser is
       return Parameters.Parameter;
    --  Returns array in node N
 
-   function Parse_Derived
+   function Parse_Simple
      (O        : in Object'Class;
       R        : in DOM.Core.Node;
       Document : in WSDL.Object)
       return Parameters.Parameter;
-   --  Returns derived type in node N
+   --  Returns the derived or enumeration type in node N (N must be a
+   --  simpleType schema node).
 
    function Is_Array
      (O : in Object'Class;
@@ -277,6 +279,14 @@ package body SOAP.WSDL.Parser is
          declare
             Base : constant String := Get_Attr_Value (N, "base", False);
          begin
+            if Characters.Handling.To_Lower (Name) /= "character"
+              or else Base /= "string"
+            then
+               Raise_Exception
+                 (WSDL_Error'Identity,
+                  "Schema does not correspond to Ada Character type.");
+            end if;
+
             N := Character_Facet (N, Child => True);
 
             if N /= null
@@ -779,64 +789,6 @@ package body SOAP.WSDL.Parser is
    end Parse_Binding;
 
    -------------------
-   -- Parse_Derived --
-   -------------------
-
-   function Parse_Derived
-     (O        : in Object'Class;
-      R        : in DOM.Core.Node;
-      Document : in WSDL.Object)
-      return Parameters.Parameter
-   is
-      pragma Unreferenced (Document);
-
-      P : Parameters.Parameter (Parameters.K_Derived);
-      N : DOM.Core.Node;
-
-   begin
-      Trace ("(Parse_Derived)", R);
-
-      pragma Assert
-        (R /= null
-         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "simpleType");
-
-      declare
-         Name : constant String := Get_Attr_Value (R, "name", False);
-      begin
-         --  Set record name, R is a complexType node
-
-         P.Name   := O.Current_Name;
-         P.D_Name := +Name;
-
-         --  Enter simpleType restriction
-
-         N := First_Child (R);
-
-         declare
-            Base : constant String := Get_Attr_Value (N, "base", False);
-         begin
-            if WSDL.Is_Standard (Base) then
-               P.Parent_Type := To_Type (Base);
-
-               if P.Parent_Type = WSDL.P_Character then
-                  Check_Character (R);
-               end if;
-
-            else
-               --  We do not support derived type at more than one level for
-               --  now.
-
-               Raise_Exception
-                 (WSDL_Error'Identity,
-                  "Parent type must be a standard type.");
-            end if;
-         end;
-
-         return P;
-      end;
-   end Parse_Derived;
-
-   -------------------
    -- Parse_Element --
    -------------------
 
@@ -866,7 +818,7 @@ package body SOAP.WSDL.Parser is
       end if;
 
       if DOM.Core.Nodes.Local_Name (N) = "simpleType" then
-         Add_Parameter (O, Parse_Derived (O, CT_Node, Document));
+         Add_Parameter (O, Parse_Simple (O, CT_Node, Document));
 
       else
          --  This is a complexType, continue analyse
@@ -1018,7 +970,7 @@ package body SOAP.WSDL.Parser is
 
                else
                   O.Self.Current_Name := +Get_Attr_Value (N, "name");
-                  return Parse_Derived (O, R, Document);
+                  return Parse_Simple (O, R, Document);
                end if;
             end if;
 
@@ -1312,6 +1264,130 @@ package body SOAP.WSDL.Parser is
 
       End_Service (O, -Name);
    end Parse_Service;
+
+   ------------------
+   -- Parse_Simple --
+   ------------------
+
+   function Parse_Simple
+     (O        : in Object'Class;
+      R        : in DOM.Core.Node;
+      Document : in WSDL.Object)
+      return Parameters.Parameter
+   is
+      pragma Unreferenced (Document);
+
+      function Build_Derived
+        (Name, Base : in String)
+         return Parameters.Parameter;
+      --  Returns the derived type definition
+
+      function Build_Enumeration
+        (Name, Base : in String;
+         E          : in DOM.Core.Node)
+         return Parameters.Parameter;
+      --  Returns the enumeration type definition
+
+      -------------------
+      -- Build_Derived --
+      -------------------
+
+      function Build_Derived
+        (Name, Base : in String)
+         return Parameters.Parameter
+      is
+         P : Parameters.Parameter (Parameters.K_Derived);
+      begin
+         P.Name   := O.Current_Name;
+         P.D_Name := +Name;
+
+         if WSDL.Is_Standard (Base) then
+            P.Parent_Type := To_Type (Base);
+
+            if P.Parent_Type = WSDL.P_Character then
+               Check_Character (R);
+            end if;
+
+         else
+            --  We do not support derived type at more than one level for
+            --  now.
+
+            Raise_Exception
+              (WSDL_Error'Identity,
+               "Parent type must be a standard type.");
+         end if;
+
+         return P;
+      end Build_Derived;
+
+      -----------------------
+      -- Build_Enumeration --
+      -----------------------
+
+      function Build_Enumeration
+        (Name, Base : in String;
+         E          : in DOM.Core.Node)
+         return Parameters.Parameter
+      is
+         pragma Unreferenced (Base);
+
+         P : Parameters.Parameter (Parameters.K_Enumeration);
+         N : DOM.Core.Node := E;
+      begin
+         P.Name   := O.Current_Name;
+         P.E_Name := +Name;
+
+         while N /= null
+           and then DOM.Core.Nodes.Node_Name (E) = "enumeration"
+         loop
+            declare
+               Value : constant String := Get_Attr_Value (N, "value", False);
+            begin
+               if P.E_Def = Null_Unbounded_String then
+                  P.E_Def := +("(" & Value);
+               else
+                  Append (P.E_Def, +(" ," & Value));
+               end if;
+            end;
+
+            N := Next_Sibling (N);
+         end loop;
+
+         Append (P.E_Def, ")");
+
+         return P;
+      end Build_Enumeration;
+
+      N, E : DOM.Core.Node;
+
+      Name : Unbounded_String;
+      Base : Unbounded_String;
+
+   begin
+      Trace ("(Parse_Simple)", R);
+
+      pragma Assert
+        (R /= null
+         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "simpleType");
+
+      Name := +Get_Attr_Value (R, "name", False);
+
+      --  Enter simpleType restriction
+
+      N := First_Child (R);
+
+      Base := +Get_Attr_Value (N, "base", False);
+
+      --  Check if this is an enumeration
+
+      E := First_Child (N);
+
+      if E /= null and then DOM.Core.Nodes.Node_Name (E) = "enumeration" then
+         return Build_Enumeration (-Name, -Base, E);
+      else
+         return Build_Derived (-Name, -Base);
+      end if;
+   end Parse_Simple;
 
    -------------------
    -- Start_Service --
