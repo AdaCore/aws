@@ -1,6 +1,9 @@
 2001-05-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
+	(Send_File): Send Date: field in the 304 case (up to date).
+	
+	* aws-server-protocol_handler.adb:
 	Set properly the status of the socket actvity using Mark_Phase.
 
 	* aws-server.adb:
