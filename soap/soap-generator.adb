@@ -1856,6 +1856,14 @@ package body SOAP.Generator is
         (Type_Ads, "   pragma Warnings (Off, Ada.Strings.Unbounded);");
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Types);");
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Utils);");
+
+      if O.Types_Spec /= Null_Unbounded_String then
+         Text_IO.Put_Line
+           (Type_Ads,
+            "   pragma Warnings (Off, " & To_String (O.Types_Spec) & ");");
+         Text_IO.New_Line (Type_Ads);
+      end if;
+
       Text_IO.New_Line (Type_Ads);
       Text_IO.Put_Line (Type_Ads, "   pragma Style_Checks (Off);");
       Text_IO.New_Line (Type_Ads);
