@@ -225,22 +225,10 @@ package body AWS.Net.Sets is
 
    procedure Remove_Socket (Set : in out Socket_Set_Type) is
 
-      procedure Delete_Current (Set : in out Socket_Set_Type);
-      --  Delete current selected socket in Set
-
-      --------------------
-      -- Delete_Current --
-      --------------------
-
-      procedure Delete_Current (Set : in out Socket_Set_Type) is
-      begin
-         Set.Set (Set.Current)  := Set.Set (Set.Last);
-         Set.Poll (Set.Current) := Set.Poll (Set.Last);
-
-         Set.Last := Set.Last - 1;
-
-         Next_Private (Set);
-      end Delete_Current;
+      procedure Free is
+        new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
+      --  We could not use AWS.Net.Free because Socket_Set_Type did not
+      --  allocate internal socket data.
 
    begin
       if Set.Current > Set.Last then
@@ -248,10 +236,15 @@ package body AWS.Net.Sets is
       end if;
 
       if Set.Set (Set.Current).Allocated then
-         Free (Set.Set (Set.Current).Socket);
+         Remove_Socket.Free (Set.Set (Set.Current).Socket);
       end if;
 
-      Delete_Current (Set);
+      Set.Set (Set.Current)  := Set.Set (Set.Last);
+      Set.Poll (Set.Current) := Set.Poll (Set.Last);
+
+      Set.Last := Set.Last - 1;
+
+      Next_Private (Set);
    end Remove_Socket;
 
    -----------
