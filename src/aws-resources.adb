@@ -30,17 +30,12 @@
 
 --  $Id$
 
-with Ada.Unchecked_Deallocation;
-
 with AWS.Resources.Files;
 with AWS.Resources.Embedded;
 
 package body AWS.Resources is
 
    use Ada;
-
-   procedure Free is
-      new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
 
    -----------
    -- Close --
