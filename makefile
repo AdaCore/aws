@@ -4,7 +4,7 @@
 .SILENT: all build build clean clean_noapiref distrib install build_tarball
 .SILENT: display build_aws build_lib build_doc build_tools build_soap
 .SILENT: build_soap_demos build_ssllib build_soaplib build_win32 build_include
-.SILENT: build_demos run_regtests setup
+.SILENT: build_demos run_regtests setup build_apiref
 
 # NOTE: You should not have to change this makefile. Configuration options can
 # be changed in makefile.conf
@@ -101,7 +101,7 @@ endif
 
 build_aws:
 	echo ""
-	echo "=== Build library"
+	echo "=== Build AWS library"
 	${MAKE} -C src build $(ALL_OPTIONS)
 
 build_tools:
