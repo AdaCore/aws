@@ -1,3 +1,15 @@
+2004-05-31  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Add ../xsrc to include directories.
+
+	* soap-client.adb:
+	(Call): Use streaming XML parsing.
+
+	* soap-message-xml.ads, soap-message-xml.adb:
+	(Load_Response): New routine for streaming XML parsing just from HTTP
+	 client connection.
+
 2004-05-20  Pascal Obry  <pascal@obry.org>
 
 	* soap-wsdl-parser.adb:
