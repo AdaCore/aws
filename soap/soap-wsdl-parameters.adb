@@ -103,6 +103,11 @@ package body SOAP.WSDL.Parameters is
                Text_IO.Put_Line
                  (To_String (P.Name) & " ; " & To_String (P.D_Name));
 
+            elsif P.Mode = Parameters.K_Enumeration then
+               Text_IO.Put ("[enumeration] ");
+               Text_IO.Put_Line
+                 (To_String (P.Name) & " ; " & To_String (P.E_Name));
+
             else
                if P.Mode = Parameters.K_Array then
                   Text_IO.Put ("[array] ");
@@ -134,7 +139,7 @@ package body SOAP.WSDL.Parameters is
 
    begin
       if P /= null then
-         if P.Mode /= K_Simple and then P.Mode /= K_Derived then
+         if P.Mode = K_Array or else P.Mode = K_Record then
             Release (P.P);
          end if;
 
