@@ -181,15 +181,10 @@ GNU/Ada - GNAT
 
 Socket binding (Optional) :
 
-   Since AWS 1.2 you need at least version 1.0 of the Socket binding. Note
+   Since AWS 2.1 you need at least version 1.8.4.4 of the Socket binding. Note
    that by default AWS uses GNAT.Sockets.
 
-   for Win32:
-      http://www.obry.org/contrib.html
-      http://vagul.tripod.com/adasockets.tgz
-
-   for UNIX:
-      http://www.rfc1149.net/devel/adasockets
+   http://www.rfc1149.net/devel/adasockets
 
 XMLada (optional):
 
