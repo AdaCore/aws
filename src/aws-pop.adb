@@ -526,17 +526,16 @@ package body AWS.POP is
    end Get;
 
    function Get
-     (Message    : in POP.Message'Class;
-      Attachment : in Positive)
+     (Message : in POP.Message'Class;
+      Index   : in Positive)
       return Attachment
    is
       P : Attachment_Access := Message.Attachments;
    begin
-      for K in 2 .. Attachment loop
+      for K in 2 .. Index loop
 
          if P = null then
-            Raise_Exception
-              (Constraint_Error'Identity, "No such attachment");
+            Raise_Exception (Constraint_Error'Identity, "No such attachment");
          end if;
 
          P := P.Next;

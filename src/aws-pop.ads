@@ -164,8 +164,8 @@ package AWS.POP is
    --  Returns the number of Attachments into Message
 
    function Get
-     (Message    : in POP.Message'Class;
-      Attachment : in Positive)
+     (Message : in POP.Message'Class;
+      Index   : in Positive)
       return Attachment;
    --  Returns the Nth Attachment for Message, Raises Constraint_Error if
    --  there is not such attachment.
