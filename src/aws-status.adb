@@ -74,6 +74,15 @@ package body AWS.Status is
       return To_String (D.Content_Type);
    end Content_Type;
 
+   -----------
+   -- Count --
+   -----------
+
+   function Count (D : in Data; Name : in String) return Natural is
+   begin
+      return AWS.Parameters.Count (D.Parameters, Name);
+   end Count;
+
    ---------------------
    -- File_Up_To_Date --
    ---------------------
@@ -153,7 +162,8 @@ package body AWS.Status is
 
    function Parameter (D              : in Data;
                        Name           : in String;
-                       Case_Sensitive : in Boolean := True) return String
+                       N              : in Positive := 1;
+                       Case_Sensitive : in Boolean  := True) return String
    is
 
       function Equal (S1, S2 : in String) return Boolean;
@@ -167,13 +177,19 @@ package body AWS.Status is
            = Characters.Handling.To_Upper (S2);
       end Equal;
 
+      Index : Natural := 0;
+
    begin
       if Case_Sensitive then
-         return Parameters.Get (D.Parameters, Name);
+         return Parameters.Get (D.Parameters, Name, N);
       else
          for K in 1 .. Parameters.Count (D.Parameters) loop
             if Equal (Parameters.Get_Key (D.Parameters, K), Name) then
-               return Parameters.Get_Value (D.Parameters, K);
+               Index := Index + 1;
+
+               if Index = N then
+                  return Parameters.Get_Value (D.Parameters, K);
+               end if;
             end if;
          end loop;
 
