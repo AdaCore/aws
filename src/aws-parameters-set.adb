@@ -33,6 +33,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Translator;
 with AWS.Utils;
@@ -158,13 +159,37 @@ package body AWS.Parameters.Set is
       Parameter_List.Case_Sensitive := Mode;
    end Case_Sensitive;
 
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Parameter_List : in out List) is
+
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Key_Value.Set, Key_Value.Set_Access);
+
+      use type Key_Value.Set_Access;
+
+   begin
+      if not (Parameter_List.Data = null) then
+         Key_Value.Destroy (Parameter_List.Data.all);
+         Free (Parameter_List.Data);
+      end if;
+   end Free;
+
    -----------
    -- Reset --
    -----------
 
    procedure Reset (Parameter_List : in out List) is
+      use type Key_Value.Set_Access;
    begin
-      Key_Value.Destroy (Parameter_List.Data.all);
+      if Parameter_List.Data = null then
+         Parameter_List.Data := new Key_Value.Set;
+      else
+         Key_Value.Destroy (Parameter_List.Data.all);
+      end if;
+
       Parameter_List.Count := 0;
    end Reset;
 
