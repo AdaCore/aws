@@ -1,5 +1,10 @@
 2002-12-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-containers-tables.ads, aws-containers-tables.adb:
+	(Get_Names): Add Sort parameter.
+
+2002-12-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-containers-tables-set.ads, aws-containers-tables-set.adb:
 	(Update): New routine.
 
