@@ -325,7 +325,33 @@ is
          --  Send message body only if needed
 
          if AWS.Status.Method (C_Stat) /= AWS.Status.HEAD then
-            Sockets.Put_Line (Sock, Response.Message_Body (Answer));
+
+            declare
+               Message_Body : constant Unbounded_String
+                 := Response.Message_Body (Answer);
+               Message_Length : constant Natural := Length (Message_Body);
+
+               I              : Integer := 1;
+               I_Next         : Integer;
+
+               Portion_Size   : constant := 16#4000#;
+            begin
+               loop
+                  I_Next := I + Portion_Size;
+
+                  if I_Next > Message_Length then
+                     Sockets.Put_Line
+                       (Sock,
+                        Slice (Message_Body, I, Message_Length));
+                     exit;
+                  else
+                     Sockets.Put (Sock, Slice (Message_Body, I, I_Next - 1));
+                  end if;
+
+                  HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
+                  I := I_Next;
+               end loop;
+            end;
          end if;
       end Send_Message;
 
@@ -397,8 +423,9 @@ is
          declare
             Found : Boolean;
          begin
-            --  Check the hotplug filters
+            HTTP_Server.Slots.Mark_Phase (Index, Server_Processing);
 
+            --  Check the hotplug filters
             Hotplug.Apply (HTTP_Server.Filters,
                            AWS.Status.URI (C_Stat), Found, Answer);
 
@@ -408,6 +435,8 @@ is
                  (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
                Answer := HTTP_Server.CB (C_Stat);
             end if;
+
+            HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
          end;
       end if;
 
@@ -595,6 +624,9 @@ is
                if Index > Buffer'Last then
                   Streams.Stream_IO.Write (File, Buffer);
                   Index := Buffer'First;
+
+                  HTTP_Server.Slots.Mark_Data_Time_Stamp
+                    (Protocol_Handler.Index);
                end if;
             end loop Read_File;
 
@@ -803,9 +835,14 @@ is
 
             begin
                declare
-                  Data : constant Streams.Stream_Element_Array
-                    := Sockets.Receive (Sock);
+                  use Streams;
+
+                  Data : Stream_Element_Array
+                    (1
+                     ..
+                     Stream_Element_Offset (Status.Content_Length (C_Stat)));
                begin
+                  Sockets.Receive (Sock, Data);
                   AWS.Status.Set.Binary (C_Stat, Data);
                end;
 
@@ -1115,6 +1152,8 @@ is
             Streams.Stream_IO.Read (File, Buffer, Last);
             exit when Last <= 0;
             Sockets.Send (Sock, Buffer (1 .. Last));
+
+            HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
          end loop;
 
       end Send_File;
@@ -1154,6 +1193,8 @@ is
 
             Sockets.Send (Sock, Buffer (1 .. Last));
             Sockets.New_Line (Sock);
+
+            HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
          end loop;
 
          --  Last chunk
