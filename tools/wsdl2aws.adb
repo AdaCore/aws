@@ -155,7 +155,10 @@ procedure WSDL2AWS is
 
       for K in 1 .. Ada.Command_Line.Argument_Count loop
          Append (All_Options, Ada.Command_Line.Argument (K));
-         Append (All_Options, " ");
+
+         if K /= Ada.Command_Line.Argument_Count then
+            Append (All_Options, " ");
+         end if;
       end loop;
 
       SOAP.Generator.Options (Gen, To_String (All_Options));
