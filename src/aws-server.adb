@@ -194,11 +194,6 @@ package body AWS.Server is
             Exception_Information (E));
 
       else
-         AWS.Log.Write
-           (Log,
-            Error.Request,
-            Exception_String (Exception_Information (E)));
-
          if AWS.OS_Lib.Is_Regular_File (Fatal_Error_Template) then
             Answer := Response.Build
               (MIME.Text_HTML,
@@ -228,22 +223,6 @@ package body AWS.Server is
          end if;
       end if;
    end Default_Unexpected_Exception_Handler;
-
-   ----------------------
-   -- Exception_String --
-   ----------------------
-
-   function Exception_String
-     (Exception_Information : in String)
-      return String is
-   begin
-      return Strings.Fixed.Trim
-        (Strings.Fixed.Translate
-           (Exception_Information,
-            Strings.Maps.To_Mapping
-              (From => ASCII.CR & ASCII.LF, To   => "  ")),
-         Strings.Right);
-   end Exception_String;
 
    ---------------------
    -- File_Upload_UID --
