@@ -185,15 +185,6 @@ package body AWS.Status is
       return AWS.Session.Value (Session (D));
    end Session;
 
-   ---------
-   -- URI --
-   ---------
-
-   function URI (D : in Data) return String is
-   begin
-      return To_String (D.URI);
-   end URI;
-
    ------------
    -- Socket --
    ------------
@@ -202,5 +193,14 @@ package body AWS.Status is
    begin
       return D.Socket.all;
    end Socket;
+
+   ---------
+   -- URI --
+   ---------
+
+   function URI (D : in Data) return String is
+   begin
+      return To_String (D.URI);
+   end URI;
 
 end AWS.Status;
