@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -27,13 +27,18 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
 --  $Id$
 
 --  Test for socket timeouts
 
 with STO_Proc;
 
+with Get_Free_Port;
+
 procedure STO is
+   Port : Natural := 8801;
 begin
-   STO_Proc (False, 8801);
+   Get_Free_Port (Port);
+   STO_Proc (False, Port);
 end STO;
