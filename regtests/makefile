@@ -331,7 +331,7 @@ clean:
 	-rm -f google_search_service*
 	-rm -f wsdl_?_service* wsdl4* wsdl_parse_?-* wsdl_parse_?.ads
 	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
-	-rm -f test_all.adb
+	-rm -f test_all.adb filez.tmplt
 	-rm -fr ../icons/test-dir1
 	-rm -fr ../icons/test-dir2
 	-rm -fr ../icons/test-dir3
