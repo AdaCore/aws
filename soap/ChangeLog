@@ -1,5 +1,11 @@
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-generator-skel.adb: 
+	(Start_Service): Generate pragma Warnings Off to workaorund a
+	 wrong warnings issued by GNAT. Fixed in 3.17.
+
+2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* soap-generator-stub.adb, soap-generator-skel.adb:
 	(New_Procedure): Handle properly case of routines without input data
 	 and/or without return data.

@@ -1,5 +1,11 @@
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* interoplab_main.adb:
+	(T_echoStruct): Add pragma Warnings Off to workaorund a wrong
+	 warnings issued by GNAT. Fixed in 3.17.
+	
+2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* interoplab_main.out:
 	Update output.
 	
