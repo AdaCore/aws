@@ -64,3 +64,8 @@ implemented:
 
 - The simple page Server callback demo should be put in the AWS.Services
   hierarchy.
+
+- Would be nice to have a very light version of the Web Server - LAWS for
+  Light Ada Web Server - this will be a nice solution for the communication
+  sub-system. A LAWS would have only one task, no file-upload, not all the
+  mechanisms to handle the concurrency...
