@@ -15,20 +15,23 @@ ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
    IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBWIN32) $(LIBLDAP)
    BUILD      = build_win32
-   SUPPORT    = build_c_support
 else
    RES        =
    IMPORT_LIB =
    BUILD      =
-   SUPPORT    =
 endif
+
+ODIR = ../$(BDIR)/win32/obj
 
 force:
 
 build: $(BUILD)
 
-build_win32:
-	$(GNATMAKE) -Pwin32 -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+build_win32: $(ODIR)/gai_strerror.o $(ODIR)/wspiapi.o
+	$(GNATMAKE) -Pwin32 -XAWS_BUILD=${PRJ_BUILD}
+
+$(ODIR)/%.o: %.o
+	$(CP) $< $(ODIR)/$<
 
 $(LIBSSL): libssl32.dll ssl.def
 	echo Building libssl.a
@@ -49,17 +52,11 @@ $(AWS_COFF): aws.rc
 	echo Building aws.coff
 	$(WINDRES) -i aws.rc -o $(AWS_COFF)
 
-build_c_support: wspiapi.o gai_strerror.o
-	$(CP) wspiapi.o gai_strerror.o ../.build/debug/win32/obj
-	$(CP) wspiapi.o gai_strerror.o ../.build/release/win32/obj
-
 clean:
 	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBLDAP) *~ aws.coff
 
 setup_dir:
-	-$(MKDIR) -p ../.build/debug/win32/obj
-	-$(MKDIR) -p ../.build/debug/win32/lib
-	-$(MKDIR) -p ../.build/release/win32/obj
-	-$(MKDIR) -p ../.build/release/win32/lib
+	-$(MKDIR) -p $(ODIR)
+	-$(MKDIR) -p ../$(BDIR)/win32/lib
 
-setup: setup_dir $(RES) $(IMPORT_LIB) $(SUPPORT)
+setup: setup_dir $(RES) $(IMPORT_LIB)
