@@ -55,9 +55,12 @@ package body AWS.Server is
    use Ada;
    use type Net.Socket_Access;
 
+   type Data_Access is access all Status.Data;
+
    type Line_Attribute_Record is record
       Server : HTTP_Access;
       Line   : Positive;
+      Data   : Data_Access;
    end record;
 
    procedure Free is new Ada.Unchecked_Deallocation
@@ -77,7 +80,7 @@ package body AWS.Server is
    --  Start web server with current configuration.
 
    procedure Protocol_Handler
-     (HTTP_Server : in out HTTP;
+     (HTTP_Server : in out HTTP_Access;
       Index       : in     Positive;
       Keep_Alive  : in     Boolean);
    --  Handle the lines, this is where all the HTTP protocol is defined.
@@ -108,7 +111,7 @@ package body AWS.Server is
    end Counter;
 
    package Line_Attribute is
-     new Task_Attributes (Line_Attribute_Record, (null, 1));
+     new Task_Attributes (Line_Attribute_Record, (null, 1, null));
    --  A line specific attribute
 
    ------------------------------
@@ -300,6 +303,15 @@ package body AWS.Server is
       return Line_Attribute.Value.Server;
    end Get_Current;
 
+   ----------------
+   -- Get_Status --
+   ----------------
+
+   function Get_Status return Status.Data is
+   begin
+      return Line_Attribute.Value.Data.all;
+   end Get_Status;
+
    ----------------------
    -- Give_Back_Socket --
    ----------------------
@@ -344,8 +356,6 @@ package body AWS.Server is
          terminate;
       end select;
 
-      Line_Attribute.Set_Value ((HTTP_Server, Slot_Index));
-
       --  Real job start here, we will exit only if there is an unrecoverable
       --  problem.
 
@@ -388,7 +398,7 @@ package body AWS.Server is
             end if;
 
             Protocol_Handler
-              (HTTP_Server.all, Slot_Index, Free_Slots >= Keep_Alive_Limit);
+              (HTTP_Server, Slot_Index, Free_Slots >= Keep_Alive_Limit);
 
             HTTP_Server.Slots.Release (Slot_Index, Need_Shutdown);
 
@@ -464,7 +474,7 @@ package body AWS.Server is
    ----------------------
 
    procedure Protocol_Handler
-     (HTTP_Server : in out HTTP;
+     (HTTP_Server : in out HTTP_Access;
       Index       : in     Positive;
       Keep_Alive  : in     Boolean) is separate;
 
