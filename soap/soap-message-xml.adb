@@ -36,7 +36,7 @@ with Ada.Exceptions;
 with Ada.Calendar;
 
 with Input_Sources.Strings;
-with Unicode.CES.Basic_8bit;
+with Unicode.CES.Utf8;
 with DOM.Core.Nodes;
 with Sax.Readers;
 
@@ -56,7 +56,7 @@ package body SOAP.Message.XML is
 
    Max_Object_Size : constant := 250;
 
-   XML_Header : constant String := "<?xml version=""1.0""?>";
+   XML_Header : constant String := "<?xml version='1.0' encoding='UTF-8'?>";
 
    URL_Enc    : constant String := "http://schemas.xmlsoap.org/soap/encoding/";
    URL_Env    : constant String := "http://schemas.xmlsoap.org/soap/envelope/";
@@ -193,7 +193,7 @@ package body SOAP.Message.XML is
 
    begin
       Open (Str'Unchecked_Access,
-            Unicode.CES.Basic_8bit.Basic_8bit_Encoding,
+            Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
       --  If True, xmlns:* attributes will be reported in Start_Element
@@ -219,7 +219,7 @@ package body SOAP.Message.XML is
 
    function Load_Response
      (XML : in String)
-     return Message.Response.Object'Class
+      return Message.Response.Object'Class
    is
       use Input_Sources.Strings;
 
@@ -232,7 +232,7 @@ package body SOAP.Message.XML is
 
    begin
       Open (Str'Unchecked_Access,
-            Unicode.CES.Basic_8bit.Basic_8bit_Encoding,
+            Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
       --  If True, xmlns:* attributes will be reported in Start_Element
@@ -694,11 +694,11 @@ package body SOAP.Message.XML is
                                            + Natural'Value (TI (15 .. 16)) * 60
                                            + Natural'Value (TI (18 .. 19))));
 
-      if TI'Last = 19                         -- No timezone
+      if TI'Last = 19                           -- No timezone
         or else
-        (TI'Last = 20 and then TI (20) = 'Z') --  GMT timezone
+          (TI'Last = 20 and then TI (20) = 'Z') --  GMT timezone
         or else
-        TI'Last < 22                          -- No enough timezone data
+          TI'Last < 22                          -- No enough timezone data
       then
          return Types.T (T, Name);
       else
