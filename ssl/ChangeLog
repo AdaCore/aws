@@ -1,3 +1,8 @@
+2002-02-28  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* makefile:
+	Put ssl.ads into the make process.
+
 2003-02-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl-thin.ads:
