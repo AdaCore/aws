@@ -64,6 +64,13 @@ main (void)
   printf ("package AWS.OS_Lib.Definitions is\n\n");
   printf ("   use Interfaces;\n\n");
 
+#ifdef _WIN32
+  // libpoll.a need for poll call emulation.
+  printf ("   pragma Linker_Options (\"-lpoll\");\n");
+  //  libws2_32.a need for getaddrinfo freeaddrinfo routines.
+  printf ("   pragma Linker_Options (\"-lws2_32\");\n\n");
+#endif
+
   /* POLL constants */
 
   printf ("   POLLIN   : constant := %d;\n", v_POLLIN);
@@ -72,6 +79,12 @@ main (void)
   printf ("   POLLERR  : constant := %d;\n", v_POLLERR);
   printf ("   POLLHUP  : constant := %d;\n", v_POLLHUP);
   printf ("   POLLNVAL : constant := %d;\n\n", v_POLLNVAL);
+
+  /* getaddrinfo constants */
+
+  printf ("   AI_PASSIVE     : constant := %d;\n",   AI_PASSIVE);
+  printf ("   AI_CANONNAME   : constant := %d;\n",   AI_CANONNAME);
+  printf ("   AI_NUMERICHOST : constant := %d;\n\n", AI_NUMERICHOST);
 
   /* nfds_t */
 
