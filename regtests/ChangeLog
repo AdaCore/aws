@@ -1,3 +1,8 @@
+2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* sock3_proc.adb:
+	Show difference.
+
 2004-09-17  Pascal Obry  <pascal@obry.org>
 
 	* upload5.out: 
