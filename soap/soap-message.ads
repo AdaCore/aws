@@ -40,6 +40,9 @@ package SOAP.Message is
 
    type Object is tagged private;
 
+   Default_Name_Space : constant String := "http://mns.org/";
+   --  Default name space used by AWS if none as been specified.
+
    function XML_Image (M : in Object) return Unbounded_String;
    --  Returns the XML image for the wrapper and parameters. This is designed
    --  to be used by Payload and Response object.
@@ -71,7 +74,8 @@ package SOAP.Message is
 private
 
    type Object is tagged record
-      Name_Space   : Unbounded_String;
+      Name_Space   : Unbounded_String
+        := To_Unbounded_String (Default_Name_Space);
       Wrapper_Name : Unbounded_String;
       P            : SOAP.Parameters.List;
    end record;
