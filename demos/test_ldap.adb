@@ -61,7 +61,7 @@ begin  -- LDAP_Test
    LDAP.Client.Bind (Directory, User_DN, User_PW);
 
    Response_Set := LDAP.Client.Search
-     (Directory, Base_DN, LDAP.Client.LDAP_Scope_Subtree, Filter,
+     (Directory, Base_DN, Filter, LDAP.Client.LDAP_Scope_Subtree,
       LDAP.Client.Attributes
         ("cn", "sn", "telephonenumber"));
 
