@@ -1,0 +1,7 @@
+2002-06-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Initial revision.
+
+	* awsres.adb:
+	Initial revision.
