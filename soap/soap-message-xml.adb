@@ -49,11 +49,10 @@ with SOAP.XML;
 package body SOAP.Message.XML is
 
    use Ada;
-   use Ada.Strings.Unbounded;
    use DOM.Core.Nodes;
    use SOAP.Message.Reader;
 
-   NL         : constant String := ASCII.CR & ASCII.LF;
+   NL : constant String := ASCII.CR & ASCII.LF;
 
    Max_Object_Size : constant := 2_048;
    --  This is the maximum number of items in a record or an array supported
@@ -252,15 +251,13 @@ package body SOAP.Message.XML is
    is
       use Input_Sources.Strings;
 
-      Str     : aliased String := XML;
-
       Source  : String_Input;
       Reader  : Tree_Reader;
       S       : State;
       Doc     : DOM.Core.Document;
 
    begin
-      Open (Str'Unchecked_Access,
+      Open (XML'Unrestricted_Access,
             Unicode.CES.Utf8.Utf8_Encoding,
             Source);
 
@@ -293,6 +290,26 @@ package body SOAP.Message.XML is
          return Message.Response.Error.Build
            (Faultcode   => Message.Response.Error.Client,
             Faultstring => Exceptions.Exception_Message (E));
+   end Load_Response;
+
+   function Load_Response
+     (XML : in Unbounded_String)
+      return Message.Response.Object'Class
+   is
+      S : String_Access := new String (1 .. Length (XML));
+   begin
+      --  Copy XML content to local S string
+      for I in 1 .. Length (XML) loop
+         S (I) := Element (XML, I);
+      end loop;
+
+      declare
+         Result : constant Message.Response.Object'Class
+           := Load_Response (S.all);
+      begin
+         Free (S);
+         return Result;
+      end;
    end Load_Response;
 
    -----------------
@@ -741,19 +758,20 @@ package body SOAP.Message.XML is
       return Types.Object'Class
    is
       use type DOM.Core.Node;
+      use type DOM.Core.Node_Types;
 
-      Value : DOM.Core.Node;
+      L : DOM.Core.Node_List := Child_Nodes (N);
+      S : Unbounded_String;
+      P : DOM.Core.Node;
    begin
-      Normalize (N);
-      Value := First_Child (N);
+      for I in 0 .. Length (L) - 1 loop
+         P := Item (L, I);
+         if P.Node_Type = DOM.Core.Text_Node then
+            Append (S, Node_Value (P));
+         end if;
+      end loop;
 
-      if Value = null then
-         --  No node found, this is an empty string.
-         return Types.S ("", Name);
-
-      else
-         return Types.S (Node_Value (Value), Name);
-      end if;
+      return Types.S (S, Name);
    end Parse_String;
 
    ------------------------
