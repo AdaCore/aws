@@ -49,7 +49,10 @@ package body SOAP.XML is
    begin
       N := DOM.Core.Nodes.First_Child (Parent);
 
-      while N /= null and then N.Node_Type = DOM.Core.Text_Node loop
+      while N /= null
+        and then (N.Node_Type = DOM.Core.Text_Node
+                  or else N.Node_Type = DOM.Core.Comment_Node)
+      loop
          --  DOM.Core.Nodes.Node_Name (N) = "#text" loop
          N := DOM.Core.Nodes.Next_Sibling (N);
       end loop;
@@ -155,11 +158,11 @@ package body SOAP.XML is
       use type DOM.Core.Node_Types;
       M : DOM.Core.Node := N;
    begin
-      --  ??? .Node_Type = DOM.Core.Text_Node
       loop
          M := DOM.Core.Nodes.Next_Sibling (M);
---        exit when M = null or else DOM.Core.Nodes.Node_Name (M) /= "#text";
-         exit when M = null or else M.Node_Type /= DOM.Core.Text_Node;
+         exit when M = null
+           or else (M.Node_Type /= DOM.Core.Text_Node
+                    and then M.Node_Type /= DOM.Core.Comment_Node);
       end loop;
 
       return M;
