@@ -118,6 +118,15 @@ package body AWS.Config is
       return O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value;
    end Cleaner_Wait_For_Client_Timeout;
 
+   ----------------------------
+   -- Directory_Browser_Page --
+   ----------------------------
+
+   function Directory_Browser_Page (O : in Object) return String is
+   begin
+      return To_String (O.P (Directory_Browser_Page).Str_Value);
+   end Directory_Browser_Page;
+
    ----------------
    -- Down_Image --
    ----------------
