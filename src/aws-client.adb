@@ -613,6 +613,11 @@ package body AWS.Client is
 
       Close (Connection);
       return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
    end Get;
 
    ---------
@@ -681,6 +686,11 @@ package body AWS.Client is
       Head (Connection, Result);
       Close (Connection);
       return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
    end Head;
 
    ----------
@@ -1018,6 +1028,11 @@ package body AWS.Client is
       Post (Connection, Result, Data);
       Close (Connection);
       return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
    end Post;
 
    ----------
@@ -1131,6 +1146,11 @@ package body AWS.Client is
       Put (Connection, Result, Data);
       Close (Connection);
       return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
    end Put;
 
    ---------
