@@ -1,0 +1,11 @@
+All keys:
+ 1] one = un
+ 2] two = deux
+Exist:
+one TRUE
+xne FALSE
+All values 1:
+ 1 - un
+All values 2:
+ 1 - un
+ 2 - 1 1 1
