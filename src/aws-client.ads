@@ -184,7 +184,6 @@ package AWS.Client is
       Proxy_User  : in     String          := No_Data;
       Proxy_Pwd   : in     String          := No_Data;
       Retry       : in     Natural         := Retry_Default;
-      SOAPAction  : in     String          := No_Data;
       Persistent  : in     Boolean         := True;
       Timeouts    : in     Timeouts_Values := No_Timeout;
       Server_Push : in     Boolean         := False);
@@ -282,6 +281,7 @@ package AWS.Client is
 
    function SOAP_Post
      (Connection  : access HTTP_Connection;
+      SOAPAction  : in     String          := No_Data;
       Data        : in     String)
       return Response.Data;
    --  Same as SOAP_Post above but using a Connection.
