@@ -69,6 +69,23 @@ package body AWS.Net is
       return Net.Std.Host_Name;
    end Host_Name;
 
+   -------------
+   -- Receive --
+   -------------
+
+   function Receive
+     (Socket : in Socket_Type'Class;
+      Max    : in Stream_Element_Count := 4096)
+      return Stream_Element_Array
+   is
+      Result : Stream_Element_Array (1 .. Max);
+      Last   : Stream_Element_Offset;
+   begin
+      Receive (Socket, Result, Last);
+
+      return Result (1 .. Last);
+   end Receive;
+
    -------------------
    -- Release_Cache --
    -------------------
