@@ -18,6 +18,7 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-config-set.ads.texi ../src/aws-server-push.ads.texi \
 	../src/aws-services-directory.ads.texi ../src/aws-templates.ads.texi \
 	../src/aws-services-page_server.ads.texi \
+	../src/aws-dispatchers.ads.texi \
 	../src/aws-services-dispatchers.ads.texi \
 	../src/aws-services-dispatchers-callback.ads.texi \
 	../src/aws-services-dispatchers-method.ads.texi \
