@@ -1,3 +1,24 @@
+2003-01-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(File_Upload): Rewrite a good part of it to handle textarea with
+	 multiple line in a multipart MIME message. Use Start_Boundary and
+	 End_Boundary instead of building them each time.
+	(End_Boundary_Signature): Removed.
+	(Get_File_Data): Check for end-boundary signature. Set End_Found.
+	(Get_Message_Header): Properly null out the Status_Content_Type
+	 for each request. Fix bug where a new boundary was not handled
+	 properly. In this case a multipart message was not properly
+	 parsed and part of the message was just skipped.
+	Minor reformatting.
+	Add comments.
+	Update copyright notice.
+
+	* aws-client.adb:
+	(Get): Use exception handler only for the connection part.
+	Minor reformatting.
+	Update copyright notice.
+
 2003-01-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.adb:
