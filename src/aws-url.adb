@@ -45,14 +45,15 @@ package body AWS.URL is
 
    Not_Escaped : constant Escape_Code := "  ";
 
-   function Code (C : Character) return Escape_Code;
+   function Code (C : in Character) return Escape_Code;
+   pragma Inline (Code);
    --  Returns hexadecimal code for character C.
 
    ----------
    -- Code --
    ----------
 
-   function Code (C : Character) return Escape_Code is
+   function Code (C : in Character) return Escape_Code is
    begin
       return Utils.Hex (Character'Pos (C));
    end Code;
@@ -170,14 +171,14 @@ package body AWS.URL is
       K : Natural;
       P : Natural;
    begin
-      --  checks for parent directory
+      --  Checks for parent directory
 
       loop
          K := Index (URL.Path, "/../");
 
          exit when K = 0;
 
-         --  look for previous directory, which should be removed.
+         --  Look for previous directory, which should be removed.
 
          P := Strings.Fixed.Index
            (Slice (URL.Path, 1, K - 1), "/", Strings.Backward);
@@ -187,7 +188,7 @@ package body AWS.URL is
          Delete (URL.Path, P, K + 2);
       end loop;
 
-      --  checks for current directory and removes all occurences
+      --  Checks for current directory and removes all occurences
 
       loop
          K := Index (URL.Path, "/./");
@@ -228,7 +229,7 @@ package body AWS.URL is
       O : Object;
 
       procedure Parse (URL : in String);
-      --  parse URL, the URL must not contain the HTTP_Token prefix.
+      --  Parse URL, the URL must not contain the HTTP_Token prefix.
 
       -----------
       -- Parse --
@@ -241,9 +242,13 @@ package body AWS.URL is
            renames To_Unbounded_String;
 
          procedure Parse_Path_File;
-         --  Parse Path and File.
+         --  Parse Path and File URL information
 
          I1, I2 : Natural;
+
+         ---------------------
+         -- Parse_Path_File --
+         ---------------------
 
          procedure Parse_Path_File is
             PF : constant String := URL (I2 + 1 .. URL'Last);
@@ -424,27 +429,10 @@ package body AWS.URL is
 
    function URL (URL : in Object) return String is
 
-      function HTTP return String;
-      pragma Inline (HTTP);
-      --  Returns the HTTP protocol to be used.
-
       function Port return String;
       pragma Inline (Port);
       --  Returns the port number if not the standard HTTP or HTTPS Port and
       --  the empty string otherwise.
-
-      ----------
-      -- HTTP --
-      ----------
-
-      function HTTP return String is
-      begin
-         if URL.Security then
-            return "https://";
-         else
-            return "http://";
-         end if;
-      end HTTP;
 
       ----------
       -- Port --
@@ -472,7 +460,8 @@ package body AWS.URL is
       if Host (URL) = "" then
          return Pathname (URL);
       else
-         return HTTP & Host (URL) & Port & Pathname (URL);
+         return Protocol_Name (URL) & "://"
+           & Host (URL) & Port & Pathname (URL);
       end if;
    end URL;
 
