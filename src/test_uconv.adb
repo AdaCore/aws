@@ -30,12 +30,12 @@
 
 --  $Id$
 
---  Detection of the availability fast unchecked converstion between
---  String and Stream_Element_Array. Copies the aws-translator-binary-f.adb
---  to the aws-translator-binary.adb if the fast unchecked converstion
---  could be used, or else copies the aws-translator-binary-p.adb
---  to the aws-translator-binary.adb if the fast unchecked convertion
---  could not be used.
+--  Detection of the fast unchecked conversion availability between
+--  String and Stream_Element_Array. Copy file aws-translator-binary-f.adb
+--  to aws-translator-binary.adb if the fast unchecked conversion
+--  is supported on the target, or otherwise copy aws-translator-binary-p.adb
+--  to aws-translator-binary.adb if the fast unchecked conversion
+--  cannot be used.
 
 with Ada.Unchecked_Conversion;
 with Ada.Streams.Stream_IO; use Ada.Streams;
@@ -70,29 +70,35 @@ procedure Test_UConv is
    function To_String is
      new Ada.Unchecked_Conversion (Fixed_Array, Fixed_String);
 
-   procedure Copy_File (Source : String)
-   is
+   ---------------
+   -- Copy_File --
+   ---------------
+
+   procedure Copy_File (Source : String) is
       use Ada.Streams.Stream_IO;
       Source_File : File_Type;
       Target_File : File_Type;
-      Buffer  : Stream_Element_Array (0 .. 1024);
-      Last    : Stream_Element_Offset;
+      Buffer      : Stream_Element_Array (0 .. 1024);
+      Last        : Stream_Element_Offset;
    begin
       Open   (Source_File, In_File,  Source);
       Create (Target_File, Out_File, Target);
+
       loop
          Read  (Source_File, Buffer, Last);
          Write (Target_File, Buffer (0 .. Last));
          exit when Last < Buffer'Last;
       end loop;
+
       Close (Source_File);
       Close (Target_File);
    end Copy_File;
 
 begin
    if Fixed_Array'Size = Fixed_String'Size
-   and then Fixed_Array'Alignment = Fixed_String'Alignment
-   and then Sample = To_String (To_Stream_Elements (Sample)) then
+     and then Fixed_Array'Alignment = Fixed_String'Alignment
+     and then Sample = To_String (To_Stream_Elements (Sample))
+   then
       Copy_File (Prefix & "-f" & Suffix);
    else
       Copy_File (Prefix & "-p" & Suffix);
