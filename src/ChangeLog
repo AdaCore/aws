@@ -1,3 +1,10 @@
+2000-11-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-os_lib.adb:
+	(Is_Regular_File): do not return an exception but return False if
+	 file does not exist.
+	(Is_Directory): idem.
+
 2000-11-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response.adb:
