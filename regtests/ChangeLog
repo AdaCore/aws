@@ -1,3 +1,23 @@
+2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wsdl_4.out:
+	Update output.
+
+	* wsdl_4_server.adb:
+	Handle new Try4 routine.
+
+	* wsdl_4_main.adb:
+	Test all routines in WSDL_4.
+
+	* wsdl_4.adb:
+	(Try): First implementation.
+	(Try2): First implementation.
+	(Try4): New routine.
+
+	* wsdl_4.ads:
+	(Try4): New routine. Function with no input parameter and a
+	 derived returned type.
+
 2003-11-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -37,7 +57,7 @@
 	* user_strm.ads, user_strm.adb:
 	(Reset): New routine.
 
-2003-11-10  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
 	(RT_STD): Add zstrm2.
@@ -59,12 +79,12 @@
 	* split.adb, split.tmplt, split.out:
 	Initial revision.
 
-2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
 	Fix previous check-in. Most regtests were deactivated.
 	
-2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
 	(RT_SOAP_ASIS): Document.

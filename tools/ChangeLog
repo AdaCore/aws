@@ -1,4 +1,10 @@
-2003-11-14  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-generator.adb:
+	(Write_Message): Handle cases where there is no output or not input.
+	(Write_Operation): Idem.
+	This handles properly Notification operations and Request-response
+	 operations as defined the the WSDL definition.
 
 	* ada2wsdl.ads:
 	(Version): Set to 0.8.
