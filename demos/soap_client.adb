@@ -75,7 +75,7 @@ procedure SOAP_Client is
 
       declare
          R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call ("http://pascal:8080/soapdemo", P);
+           SOAP.Client.Call ("http://localhost:8080/soapdemo", P);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -104,7 +104,7 @@ procedure SOAP_Client is
 
       declare
          R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call ("http://pascal:8080/soapdemo", P);
+           SOAP.Client.Call ("http://localhost:8080/soapdemo", P);
       begin
          if Message.Response.Is_Error (R) then
             Error (Message.Response.Error.Object (R));

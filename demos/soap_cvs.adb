@@ -64,7 +64,7 @@ procedure SOAP_CVS is
       declare
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://pascal:8080/validator1", P);
+           ("http://localhost:8080/validator1", P);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -96,7 +96,7 @@ procedure SOAP_CVS is
       declare
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://pascal:8080/validator1", P);
+           ("http://localhost:8080/validator1", P);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -126,7 +126,7 @@ procedure SOAP_CVS is
       declare
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://pascal:8080/validator1", P);
+           ("http://localhost:8080/validator1", P);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -158,7 +158,7 @@ procedure SOAP_CVS is
       declare
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://pascal:8080/validator1", P);
+           ("http://localhost:8080/validator1", P);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -190,7 +190,7 @@ procedure SOAP_CVS is
       declare
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://pascal:8080/validator1", P);
+           ("http://localhost:8080/validator1", P);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -229,7 +229,7 @@ procedure SOAP_CVS is
       declare
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://pascal:8080/validator1", P);
+           ("http://localhost:8080/validator1", P);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -256,7 +256,7 @@ procedure SOAP_CVS is
       declare
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://pascal:8080/validator1", P);
+           ("http://localhost:8080/validator1", P);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -291,7 +291,7 @@ procedure SOAP_CVS is
       declare
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call
-           ("http://pascal:8080/validator1", P);
+           ("http://localhost:8080/validator1", P);
 
          P : constant Parameters.List := SOAP.Message.Parameters (R);
 
