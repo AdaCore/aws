@@ -22,7 +22,7 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-services-dispatchers-virtual_host.adb \
 	aws-server-push.adb
 
-build:
+build: aws-translator-binary.adb
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
 # compile aws-services-directory.adb without optimisation
 # work around a bug in GNAT 3.14, 3.15.
@@ -30,6 +30,10 @@ build:
 	for file in $(SOURCES); do \
 	   gnatmake $(GARGS) $$file -largs $(LFLAGS); \
 	done
+
+aws-translator-binary.adb:
+	gnatmake test_uconv
+	./test_uconv
 
 ssl_mode:
 	-rm -f *.o *.ali
