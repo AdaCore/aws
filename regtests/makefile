@@ -119,6 +119,11 @@ init:
 	cp ../demos/cert.pem .
 	touch -t `date --date='Feb 3 04:05:00 GMT 2001' +%Y%m%d%H%M` \
 	   ../icons/*.gif
+	-mkdir ../icons/test-dir1
+	-mkdir ../icons/test-dir2
+	-mkdir ../icons/test-dir3
+	touch -t `date --date='Jan 2 03:04:00 GMT 2004' +%Y%m%d%H%M` \
+	   ../icons/test-dir?
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
 	-rm file[abc].txt* > /dev/null 2>&1
@@ -241,3 +246,6 @@ clean:
 	-rm -f wsdl_?_service* wsdl4*
 	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
 	-rm -f test_all.adb
+	-rm ../icons/test-dir1
+	-rm ../icons/test-dir2
+	-rm ../icons/test-dir3
