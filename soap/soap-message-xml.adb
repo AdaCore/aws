@@ -581,12 +581,21 @@ package body SOAP.Message.XML is
    ------------------
 
    function Parse_String (N : in DOM.Core.Node) return Types.Object'Class is
+      use type DOM.Core.Node;
+
       Name  : constant String := Local_Name (N);
       Value : DOM.Core.Node;
    begin
       Normalize (N);
       Value := First_Child (N);
-      return Types.S (Node_Value (Value), Name, Encode => False);
+
+      if Value = null then
+         --  No node found, this is an empty string.
+         return Types.S ("", Name, Encode => False);
+
+      else
+         return Types.S (Node_Value (Value), Name, Encode => False);
+      end if;
    end Parse_String;
 
    ------------------------
