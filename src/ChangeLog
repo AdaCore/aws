@@ -1,3 +1,21 @@
+2004-08-18  Pascal Obry  <pascal@obry.org>
+
+	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+
+	* aws-response.ads:
+	Fix authentication spelling error in comment.
+
+	* aws-messages.adb:
+	(S407_Message): Fix authentication spelling in error message.
+
+	* aws-client.ads:
+	(Set_Debug): Move to the end of the spec.
+	Fix authentication spelling error in comment.
+
+	* aws-client.adb:
+	Fix authentication spelling error in comment.
+
 2004-08-15  Pascal Obry  <pascal@obry.org>
 
 	* aws-net.ads:
