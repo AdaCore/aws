@@ -41,7 +41,7 @@ RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
 	test_soap2 test_soap3 test_soap4 test_soap5 disp_soap $(RT_SOAP_SEC)
 
 # SOAP/WSDL test using ada2wsdl (ASIS package required)
-RT_SOAP_ASIS = wsdl_1
+RT_SOAP_ASIS = wsdl_1 wsdl_2
 
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
@@ -79,7 +79,7 @@ run : build checks
 force:
 
 build: init $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
-	$(OTH_TESTS) $(ASIS_TESTS)
+	$(ASIS_TESTS) $(OTH_TESTS)
 
 init:
 	cp ../demos/cert.pem .
@@ -207,3 +207,4 @@ clean:
 	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
 	-rm -f stockquoteservice* stock_quote_service*
 	-rm -f interoplab-* interoplab.ad* googlesearchservice*
+	-rm -f wsdl_?_service*
