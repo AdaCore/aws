@@ -69,10 +69,6 @@ implemented:
 - Merge the message handling on the server and client side. Right now both are
   using different implementations.
 
-- Implement the AWS.Response.Set.Append_Body routines and the
-  AWS.Response.Data internal data storage instead of one dynamically
-  allocated data array.
-
 - AWS.Client support a single cookie. This is a bad limitation and must be
   fixed. It must also handle properly the case where a cookie value is
   updated.
