@@ -813,7 +813,7 @@ package body Templates_Parser is
             Ref       : Natural := 0;        --  Number of ref in the cache
 
          when C_Info =>
-            Obsolete  : Boolean := False;    --  True if newerversion in cache
+            Obsolete  : Boolean := False;    --  True if newer version in cache
             Used      : Natural := 0;        --  >0 if currently used
 
          when Text =>
@@ -4064,7 +4064,7 @@ package body Templates_Parser is
 
             if T.File.Info.Ref = 0 then
                --  No more reference to this include file we release it.
-               Release (T.File.C_Info);
+               Release (T.File.Info);
             end if;
 
             Release (T.Next);
