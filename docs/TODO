@@ -52,9 +52,6 @@ implemented:
 - Support Session ID encoded into the URL to avoid use of cookie. Such a
   session ID will only be valid for the current session of course.
 
-- Support session parameter of any types (only Boolean, Float, Integer and
-  String are supported currently).
-
 - Build a Web based file-system framework (AWSFS). Using GET/PUT to handle
   variables, inherited from a specific type, whose value is stored on an AWS
   server. The value will be automatically retrieved at initialization time and
