@@ -975,7 +975,7 @@ package body AWS.Session is
       begin
          Get_Node (Sessions, SID, Node, Cursor, Found);
 
-         Key_Value_Size := Natural (Key_Value.Size (Node.Root));
+         Key_Value_Size := Natural (Key_Value.Length (Node.Root));
 
          if Key_Value_Size > 0 then
             ID'Output (Stream_Ptr, SID);
