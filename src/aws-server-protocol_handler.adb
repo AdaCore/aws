@@ -162,9 +162,10 @@ is
       --------------------
 
       procedure Create_Session is
+         use type Session.ID;
       begin
          if CNF.Session (HTTP_Server.Properties)
-           and then (AWS.Status.Session (C_Stat) = ""
+           and then (AWS.Status.Session (C_Stat) = Session.No_Session
                      or else not Session.Exist (AWS.Status.Session (C_Stat)))
          then
             declare
@@ -192,7 +193,8 @@ is
 
             Sockets.Put_Line
               (Sock,
-               "Set-Cookie: AWS=" & AWS.Status.Session (C_Stat));
+               "Set-Cookie: AWS="
+               & Session.Image (AWS.Status.Session (C_Stat)));
          end if;
 
          --  Date
