@@ -1,3 +1,69 @@
+2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-get_status.adb:
+	Use AWS.Templates instead of Templates_Parser directly.
+	Minor reformatting.
+	Update copyright notice.	
+
+	* makefile:
+	(SOURCES): Add aws-exceptions.ads.
+
+	* aws-server-protocol_handler.adb:
+	(Set_Close_Status): New routine.
+	(Will_Close): Initialize to True.
+	Move the exceptions handling in the request loop instead of the
+	 procedure. This way it is possible to stay keep-alive for non
+	 Socket_Error exceptions.
+
+	* aws-server.ads:
+	(Def_Admin_URI): Removed.
+	(Def_Upload_Dir): Removed.
+	(Def_Max_Connect): Removed.
+	(Def_Port): Removed.
+	(Def_Line_Stack_Size): Removed.
+	(Unexpected_Exception_Handler): Moved to AWS.Exceptions.
+	(Start_Error_Log): New routine.
+	(Stop_Error_Log): Idem.
+	(HTTP): Add Error_Log object.
+	
+	* aws-server.adb:
+	(Default_Unexpected_Exception_Handler): New implementation based
+	 on AWS.Exceptions. In fatal error display a message on standard
+	 error, for non fatal error write to the log and send back a 500
+	 message to the client (either a built-in message or 500.tmplt is
+	 present).
+
+	* aws-default.ads:
+	(Error_Log_Filename_Prefix): New constant.
+	(Error_Log_Split_Mode): New constant.
+	
+	* aws-config-set.ads:
+	(Error_Log_Filename_Prefix): New routine.
+	(Error_Log_Split_Mode): Idem.
+	Remove all inlines.
+	Update copyright notice.
+	
+	* aws-config-set.adb:
+	(Error_Log_Filename_Prefix): New routine.
+	(Error_Log_Split_Mode): Idem.
+	Update copyright notice.
+	
+	* aws-config.ads:
+	(Error_Log_Filename_Prefix): New routine.
+	(Error_Log_Split_Mode): Idem.
+	(Parameter_Name): Add Error_Log_Filename_Prefix and
+	 Error_Log_Split_Mode.
+	Place all inlines next to the spec.
+	Update copyright notice.
+
+	* aws-config.adb:
+	(Error_Log_Filename_Prefix): New routine.
+	(Error_Log_Split_Mode): Idem.
+	Update copyright notice.
+	
+	* aws-exceptions.ads:
+	Initial revision.
+
 2003-01-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
