@@ -1,3 +1,8 @@
+2002-12-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-headers-set.ads, aws-headers-set.adb:
+	(Read): New routine, reading the header from the socket.
+
 2002-12-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-ldap-client.adb:
