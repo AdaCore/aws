@@ -74,7 +74,7 @@ package AWS.Config is
    function Server_Host (O : in Object) return String;
    pragma Inline (Server_Host);
    --  This is the server host. Can be used if the computer has a more than
-   --  one IP addresses. It is possible to have two servers at the same port
+   --  one IP address. It is possible to have two servers at the same port
    --  on the same machine, both being binded on different IP addresses.
 
    function Server_Port (O : in Object) return Positive;
