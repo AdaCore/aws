@@ -56,6 +56,8 @@ package body Filter is
    LF_2_BR_Token       : aliased constant String := "LF_2_BR";
    Lower_Token         : aliased constant String := "LOWER";
    Match_Token         : aliased constant String := "MATCH";
+   Max_Token           : aliased constant String := "MAX";
+   Min_Token           : aliased constant String := "MIN";
    Modulo_Token        : aliased constant String := "MOD";
    Mult_Token          : aliased constant String := "MULT";
    Neg_Token           : aliased constant String := "NEG";
@@ -144,6 +146,12 @@ package body Filter is
 
          Match          =>
            (Match_Token'Access,          Match'Access),
+
+         Max            =>
+           (Max_Token'Access,            Max'Access),
+
+         Min            =>
+           (Min_Token'Access,            Min'Access),
 
          Modulo         =>
            (Modulo_Token'Access,         Modulo'Access),
@@ -286,19 +294,6 @@ package body Filter is
             return '(' & Image (P.First) & " .. " & Image (P.Last) & ')';
       end case;
    end Image;
-
-   ---------------
-   -- Is_Number --
-   ---------------
-
-   function Is_Number (S : in String) return Boolean is
-      use Strings.Maps;
-   begin
-      return S'Length > 0
-        and then Is_Subset
-          (To_Set (S),
-           Constants.Decimal_Digit_Set or To_Set ("-"));
-   end Is_Number;
 
    ----------
    -- Mode --
@@ -938,6 +933,48 @@ package body Filter is
    end Match;
 
    ---------
+   -- Max --
+   ---------
+
+   function Max
+     (S : in String;
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
+      return String
+   is
+      pragma Unreferenced (T, I);
+      V_Str : constant String := To_String (P.S);
+   begin
+      if Is_Number (V_Str) and then Is_Number (S) then
+         return Image (Integer'Max (Integer'Value (V_Str), Integer'Value (S)));
+      else
+         return "";
+      end if;
+   end Max;
+
+   ---------
+   -- Min --
+   ---------
+
+   function Min
+     (S : in String;
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
+      return String
+   is
+      pragma Unreferenced (T, I);
+      V_Str : constant String := To_String (P.S);
+   begin
+      if Is_Number (V_Str) and then Is_Number (S) then
+         return Image (Integer'Min (Integer'Value (V_Str), Integer'Value (S)));
+      else
+         return "";
+      end if;
+   end Min;
+
+   ---------
    -- Neg --
    ---------
 
@@ -993,8 +1030,8 @@ package body Filter is
       Check_Null_Parameter (P);
 
       for K in S'Range loop
-         if Strings.Maps.Is_In (S (K),
-                                Strings.Maps.Constants.Decimal_Digit_Set)
+         if Strings.Maps.Is_In
+           (S (K), Strings.Maps.Constants.Decimal_Digit_Set)
          then
             Result (K) := ' ';
          end if;
