@@ -38,6 +38,8 @@ project Win32 is
    case Shared.OS is
       when "Windows_NT" =>
          for Source_Files use ("poll.adb");
+         for Library_Name use "aws_win32";
+         for Library_Kind use "static";
       when others =>
          for Source_Files use ();
    end case;
@@ -50,8 +52,5 @@ project Win32 is
          for Object_Dir use "../.build/release/win32/obj";
          for Library_Dir use "../.build/release/win32/lib";
    end case;
-
-   for Library_Name use "aws_win32";
-   for Library_Kind use "static";
 
 end Win32;
