@@ -379,10 +379,13 @@ gasis_dummy:
 
 gadasockets:
 	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
-	echo "   Path := \"$(ADASOCKETS)/lib/adasockets\";" \
-		>> $(PRJDIR)/sockets.gpr
-	echo "   for Source_Dirs use (Path);" >> $(PRJDIR)/sockets.gpr
-	echo "   for Object_Dir use Path;" >> $(PRJDIR)/sockets.gpr
+	echo "   Path := \"$(ADASOCKETS)/lib\";" >> $(PRJDIR)/sockets.gpr
+	echo "   Src_Path := Path & \"/adasockets\";" >> $(PRJDIR)/sockets.gpr
+	echo "   for Source_Dirs use (Src_Path);" >> $(PRJDIR)/sockets.gpr
+	echo "   for Object_Dir use Src_Path;" >> $(PRJDIR)/sockets.gpr
+	echo "   for Library_Name use \"adasockets\";" >> $(PRJDIR)/sockets.gpr
+	echo "   for Library_Kind use \"static\";" >> $(PRJDIR)/sockets.gpr
+	echo "   for Library_Dir use Path;" >> $(PRJDIR)/sockets.gpr
 	echo "end Sockets;" >> $(PRJDIR)/sockets.gpr
 
 gsockets_dummy:
