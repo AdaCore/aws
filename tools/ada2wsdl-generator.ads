@@ -66,7 +66,9 @@ package Ada2WSDL.Generator is
    -- Array --
    -----------
 
-   procedure Start_Array (Name, Component_Type : in String);
+   procedure Start_Array
+     (Name, Component_Type : in String;
+      Length               : in Natural := 0);
    --  Must be called when an array definition has been parsed
 
    -----------------
