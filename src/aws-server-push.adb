@@ -117,14 +117,15 @@ package body AWS.Server.Push is
       --------------
 
       procedure Register
-        (Client_ID       : in Client_Key;
-         Holder          : in Client_Holder;
-         Close_Duplicate : in Boolean)
+        (Client_ID       : in     Client_Key;
+         Holder          : in out Client_Holder;
+         Close_Duplicate : in     Boolean)
       is
          Duplicate : Boolean;
       begin
 
          if not Open then
+            Net.Stream_IO.Free (Holder.Stream, False);
             raise Closed;
          end if;
 
@@ -135,6 +136,7 @@ package body AWS.Server.Push is
                Unregister (Client_ID, True);
                Table.Insert (Container, Client_ID, Holder);
             else
+               Net.Stream_IO.Free (Holder.Stream, False);
                raise Duplicate_Client_ID;
             end if;
          end if;
@@ -173,11 +175,11 @@ package body AWS.Server.Push is
       end Register;
 
       procedure Register
-        (Client_ID         : in Client_Key;
-         Holder            : in Client_Holder;
-         Init_Data         : in Client_Output_Type;
-         Init_Content_Type : in String;
-         Close_Duplicate   : in Boolean) is
+        (Client_ID         : in     Client_Key;
+         Holder            : in out Client_Holder;
+         Init_Data         : in     Client_Output_Type;
+         Init_Content_Type : in     String;
+         Close_Duplicate   : in     Boolean) is
       begin
          Register (Client_ID, Holder, Close_Duplicate);
 
@@ -376,7 +378,7 @@ package body AWS.Server.Push is
             Net.Stream_IO.Shutdown (Value.Stream);
          end if;
 
-         Net.Stream_IO.Free (Value.Stream);
+         Net.Stream_IO.Free (Value.Stream, Close_Socket);
 
       exception
          when Table.Missing_Item_Error =>
@@ -418,10 +420,6 @@ package body AWS.Server.Push is
          Init_Data,
          Init_Content_Type,
          Close_Duplicate);
-   exception
-      when Closed | Duplicate_Client_ID =>
-         Net.Stream_IO.Free (Holder.Stream);
-         raise;
    end Register;
 
    procedure Register
@@ -435,10 +433,6 @@ package body AWS.Server.Push is
       Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
    begin
       Server.Register (Client_ID, Holder, Close_Duplicate);
-   exception
-      when Closed | Duplicate_Client_ID =>
-         Net.Stream_IO.Free (Holder.Stream);
-         raise;
    end Register;
 
    -------------

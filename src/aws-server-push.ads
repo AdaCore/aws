@@ -227,23 +227,25 @@ private
       --  See above.
 
       procedure Shutdown
-        (Final_Data        : in Client_Output_Type;
+        (Final_Data         : in Client_Output_Type;
          Final_Content_Type : in String);
       --  See above.
 
       procedure Register
-        (Client_ID       : in Client_Key;
-         Holder          : in Client_Holder;
-         Close_Duplicate : in Boolean);
+        (Client_ID       : in     Client_Key;
+         Holder          : in out Client_Holder;
+         Close_Duplicate : in     Boolean);
       --  See above.
+      --  Holder would be released in case of registration failure.
 
       procedure Register
-        (Client_ID         : in Client_Key;
-         Holder            : in Client_Holder;
-         Init_Data         : in Client_Output_Type;
-         Init_Content_Type : in String;
-         Close_Duplicate   : in Boolean);
+        (Client_ID         : in     Client_Key;
+         Holder            : in out Client_Holder;
+         Init_Data         : in     Client_Output_Type;
+         Init_Content_Type : in     String;
+         Close_Duplicate   : in     Boolean);
       --  See above.
+      --  Holder would be released in case of registration failure.
 
       procedure Send_To
         (Client_ID    : in Client_Key;
