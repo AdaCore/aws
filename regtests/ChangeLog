@@ -1,3 +1,19 @@
+2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	($(ASIS_TESTS)): Call ada2wsdl with $(INCLUDES) and -I for AWS
+	 packages.
+
+	* wsdl_6.adb:
+	(Echo_Complex_Rec): New routine.
+
+	* wsdl_6.ads:
+	(Complex_Rec): New record containing an array safe pointer.
+	(Echo_Complex_Rec): New routine.
+
+	* wsdl_6_main.adb, wsdl_6.java:
+	Add test for array in record.
+
 2003-11-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl_6.java:
