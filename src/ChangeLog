@@ -1,5 +1,9 @@
 2002-10-25  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+	Put lines added in previous check-in in UNIX format.
+
 	* aws-server-get_status.adb:
 	Add many variables into the association table
 	 ACCEPT_QUEUE_SIZE,
