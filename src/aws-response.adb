@@ -253,4 +253,21 @@ package body AWS.Response is
       return D.Status_Code;
    end Status_Code;
 
+   ---------
+   -- URL --
+   ---------
+
+   function URL (Location : in String)
+     return Data is
+   begin
+      return Data'(Response.Message,
+                   Messages.S301,
+                   0,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   To_Unbounded_String (Location),
+                   Null_Unbounded_String,
+                   null);
+   end URL;
+
 end AWS.Response;
