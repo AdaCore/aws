@@ -242,7 +242,7 @@ build_tarball:
 	$(CP) regtests/*.out regtests/*.ad* regtests/*.wsdl $${AWS}/regtests;\
 	$(CP) regtests/ChangeLog regtests/*.tmplt $${AWS}/regtests;\
 	$(CP) regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
-	$(CP) regtests/makefile $${AWS}/regtests;\
+	$(CP) regtests/makefile regtests/*.ini $${AWS}/regtests;\
 	$(CP) docs/aws.texi.tmplt docs/build.adb docs/makefile $${AWS}/docs;\
 	$(CP) docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
 	$(CP) docs/aws.info* docs/aws.ps docs/aws.pdf $${AWS}/docs;\
