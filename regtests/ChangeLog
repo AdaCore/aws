@@ -1,5 +1,8 @@
 2003-11-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* wsdl_6.java:
+	Add check for array of records.
+
 	* makefile:
 	Initialize WSDL2AWS variable.
 

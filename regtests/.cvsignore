@@ -247,6 +247,7 @@ moved.res
 moved.tmp
 multiple
 multiple.res
+once
 once.res
 param
 param.res
@@ -458,6 +459,7 @@ wsdl_4_service-types.ads
 wsdl_4_service.ads
 wsdl_5.res
 wsdl_5.wsdl
+wsdl_5_main
 wsdl_5_service-cb.adb
 wsdl_5_service-cb.ads
 wsdl_5_service-client.adb
@@ -470,6 +472,7 @@ wsdl_5_service.ads
 wsdl_6.class
 wsdl_6.res
 wsdl_6.wsdl
+wsdl_6_main
 wsdl_6_service-cb.adb
 wsdl_6_service-cb.ads
 wsdl_6_service-client.adb
@@ -500,4 +503,5 @@ zfile
 zfile.res
 zstrm
 zstrm.res
+zstrm2
 zstrm2.res
