@@ -150,6 +150,15 @@ package body AWS.Response is
                    null);
    end File;
 
+   --------------
+   -- Location --
+   --------------
+
+   function Location (D : in Data) return String is
+   begin
+      return To_String (D.Message_Body);
+   end Location;
+
    ------------------
    -- Message_Body --
    ------------------

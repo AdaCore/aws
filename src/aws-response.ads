@@ -66,6 +66,7 @@ package AWS.Response is
    function Status_Code    (D : in Data) return Messages.Status_Code;
    function Content_Length (D : in Data) return Natural;
    function Content_Type   (D : in Data) return String;
+   function Location       (D : in Data) return String;
    function Message_Body   (D : in Data) return String;
    function Realm          (D : in Data) return String;
    function Binary         (D : in Data) return Streams.Stream_Element_Array;
