@@ -289,13 +289,13 @@ package body AWS.Messages is
       function Month_Number (Month_Name : in String)
                             return Calendar.Month_Number is
       begin
-          for I in Calendar.Month_Number loop
-             if Month_Name = Messages.Month_Name (I) then
-                return I;
-             end if;
-          end loop;
-          Exceptions.Raise_Exception (Internal_Error'Identity,
-                                      "Month_Number: Month name not found");
+         for I in Calendar.Month_Number loop
+            if Month_Name = Messages.Month_Name (I) then
+               return I;
+            end if;
+         end loop;
+         Exceptions.Raise_Exception (Internal_Error'Identity,
+                                     "Month_Number: Month name not found");
       end Month_Number;
 
    begin

@@ -94,7 +94,7 @@ package body AWS.Client is
          Buffer : Interfaces.C.char_array (1 .. 100);
          Res    : Interfaces.C.int;
       begin
-         Res := Sockets.Thin.C_gethostname (Buffer (1)'Address, 100);
+         Res := Sockets.Thin.C_Gethostname (Buffer (1)'Address, 100);
          return Interfaces.C.To_Ada (Buffer);
       end Get_Host_Name;
 
@@ -102,7 +102,7 @@ package body AWS.Client is
       URL_Data   := AWS.URL.Parse (URL);
       Proxy_Data := AWS.URL.Parse (Proxy);
 
-      -- Connect to server
+      --  Connect to server
 
       if Proxy = No_Data then
          Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);

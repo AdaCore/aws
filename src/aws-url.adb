@@ -46,6 +46,13 @@ package body AWS.URL is
 
       O : Object;
 
+      procedure Parse (URL : in String);
+      --  parse URL, the URL must not contain the HTTP_Token prefix.
+
+      -----------
+      -- Parse --
+      -----------
+
       procedure Parse (URL : in String) is
 
          function US (S : in String)

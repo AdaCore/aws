@@ -156,6 +156,9 @@ package body AWS.Connection is
          procedure Send_Connection;
          --  send the Connection: data
 
+         procedure Send_Header;
+         --  send HTTP message header.
+
          procedure Send_File;
          --  send a binary file to the client
 
@@ -232,9 +235,9 @@ package body AWS.Connection is
 
          end Send_File;
 
-         ------------------
-         -- Send_Message --
-         ------------------
+         -----------------
+         -- Send_Header --
+         -----------------
 
          procedure Send_Header is
             use type AWS.Status.Request_Method;
@@ -327,7 +330,7 @@ package body AWS.Connection is
                               return Calendar.Time is
       begin
          return POSIX_Calendar.To_Time
-           (Posix_File_Status.Last_Modification_Time_Of
+           (POSIX_File_Status.Last_Modification_Time_Of
             (POSIX_File_Status.Get_File_Status
              (POSIX.To_POSIX_String (Filename))));
       end File_Timestamp;
@@ -687,7 +690,7 @@ package body AWS.Connection is
             --  connection. We will exit this loop only if the client request
             --  so or if we time-out on waiting for a request.
 
-            For_Every_Request: loop
+            For_Every_Request : loop
 
                Slot.Abortable := True;
 

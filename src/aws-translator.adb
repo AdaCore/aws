@@ -219,7 +219,7 @@ package body AWS.Translater is
    begin
       for C in B64_Data'Range loop
 
-         if B64_Data (C) = ASCII.LF or else B64_Data (C) = ASCII.CR Then
+         if B64_Data (C) = ASCII.LF or else B64_Data (C) = ASCII.CR then
             null;
 
          else
