@@ -30,7 +30,32 @@
 
 --  $Id$
 
+with AWS.Net;
+
 package AWS.Response.Set is
+
+   procedure Add_Header
+     (D     : in out Data;
+      Name  : in     String;
+      Value : in     String);
+   pragma Inline (Add_Header);
+   --  Add header name/value to the header container.
+   --  Should be used inside of server's callback when the user want
+   --  to add its own header lines to the response.
+
+   procedure Update_Header
+     (D     : in out Data;
+      Name  : in     String;
+      Value : in     String;
+      N     : in     Positive := 1);
+   pragma Inline (Update_Header);
+   --  Update N-th header name/value in the header container.
+   --  Should be used inside of server's callback when the user want
+   --  to add/modify its own header lines to the response.
+
+   procedure Read_Header (Socket : in Net.Socket_Type'Class; D : in out Data);
+   --  Read all header data from the socket and fill appropriate
+   --  internal data fields from the header values.
 
    procedure Mode
      (D     : in out Data;

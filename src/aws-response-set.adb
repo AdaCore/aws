@@ -31,8 +31,27 @@
 --  $Id$
 
 with AWS.Translator;
+with AWS.Headers.Set;
+with AWS.Digest;
 
 package body AWS.Response.Set is
+
+   procedure Update_Data_From_Header (D : in out Data);
+   --  Update some Data fields from the internal Data header container.
+   --  The Update_Data_From_Header should be called after the complete
+   --  header parsing.
+
+   ----------------
+   -- Add_Header --
+   ----------------
+
+   procedure Add_Header
+     (D     : in out Data;
+      Name  : in     String;
+      Value : in     String) is
+   begin
+      Headers.Set.Add (D.Header, Name, Value);
+   end Add_Header;
 
    --------------------
    -- Authentication --
@@ -42,11 +61,39 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Realm : in     String;
       Mode  : in     Authentication_Mode := Basic;
-      Stale : in     Boolean             := False) is
+      Stale : in     Boolean             := False)
+   is
+      N : Positive := 1;
+      --  The index for the update of WWW-Authenticate header values.
+      --  We are not using AWS.Headers.Set.Add routine for add WWW-Authenticate
+      --  header lines, becouse user could call this routine more than once.
    begin
-      D.Realm          := To_Unbounded_String (Realm);
-      D.Authentication := Mode;
-      D.Auth_Stale     := Stale;
+
+      --  In case of Authenticate = Any
+      --  We should create both header lines
+      --  WWW-Authenticate: Basic
+      --  and
+      --  WWW-Authenticate: Digest
+
+      if Mode = Digest or Mode = Any then
+         Headers.Set.Update
+           (D.Header,
+            Name  => Messages.WWW_Authenticate_Token,
+            Value => "Digest qop=""auth"", realm=""" & Realm
+                     & """, stale=""" & Boolean'Image (Stale)
+                     & """, nonce=""" & AWS.Digest.Create_Nonce & """",
+            N => N);
+         N := N + 1;
+      end if;
+
+      if Mode = Basic or Mode = Any then
+         Headers.Set.Update
+           (D.Header,
+            Name  => Messages.WWW_Authenticate_Token,
+            Value => "Basic realm=""" & Realm & """",
+            N     => N);
+      end if;
+
       D.Status_Code    := Messages.S401;
    end Authentication;
 
@@ -58,7 +105,10 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : in     Messages.Cache_Option) is
    begin
-      D.Cache_Control := To_Unbounded_String (String (Value));
+      Headers.Set.Update
+        (D.Header,
+         Name  => Messages.Cache_Control_Token,
+         Value => String (Value));
    end Cache_Control;
 
    --------------------
@@ -80,7 +130,10 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : in     String) is
    begin
-      D.Content_Type := To_Unbounded_String (Value);
+      Headers.Set.Update
+        (D.Header,
+         Name  => Messages.Content_Type_Token,
+         Value => Value);
    end Content_Type;
 
    --------------
@@ -119,9 +172,14 @@ package body AWS.Response.Set is
             Redirection_Code := False;
       end case;
 
-      return (Redirection_Code xor D.Location = Null_Unbounded_String)
+      return (Redirection_Code
+                xor not Headers.Exist
+                          (D.Header,
+                           Messages.Location_Token))
         and then (D.Status_Code = Messages.S401
-                    xor D.Realm = Null_Unbounded_String);
+                    xor not Headers.Exist
+                              (D.Header,
+                               Messages.WWW_Authenticate_Token));
    end Is_Valid;
 
    --------------
@@ -132,7 +190,10 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : in     String) is
    begin
-      D.Location := To_Unbounded_String (Value);
+      Headers.Set.Update
+        (D.Header,
+         Name  => Messages.Location_Token,
+         Value => Value);
    end Location;
 
    ------------------
@@ -175,6 +236,18 @@ package body AWS.Response.Set is
    end Mode;
 
    -----------------
+   -- Read_Header --
+   -----------------
+
+   procedure Read_Header
+     (Socket : in Net.Socket_Type'Class;
+      D : in out Data) is
+   begin
+      Headers.Set.Read (D.Header, Socket);
+      Update_Data_From_Header (D);
+   end Read_Header;
+
+   -----------------
    -- Status_Code --
    -----------------
 
@@ -198,5 +271,33 @@ package body AWS.Response.Set is
       D.Content_Length := Content_Length;
       D.Mode           := Stream;
    end Stream;
+
+   -----------------------------
+   -- Update_Data_From_Header --
+   -----------------------------
+
+   procedure Update_Data_From_Header (D : in out Data) is
+      Content_Length_Image : constant String :=
+        Headers.Get (D.Header, Messages.Content_Length_Token);
+   begin
+      if Content_Length_Image = "" then
+         D.Content_Length := Undefined_Length;
+      else
+         D.Content_Length := Content_Length_Type'Value (Content_Length_Image);
+      end if;
+   end Update_Data_From_Header;
+
+   -------------------
+   -- Update_Header --
+   -------------------
+
+   procedure Update_Header
+     (D     : in out Data;
+      Name  : in     String;
+      Value : in     String;
+      N     : in     Positive := 1) is
+   begin
+      Headers.Set.Update (D.Header, Name, Value, N);
+   end Update_Header;
 
 end AWS.Response.Set;
