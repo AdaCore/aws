@@ -60,7 +60,7 @@ build_res:
 	../tools/awsres -q -r rdemo adains.png page3.html
 
 build_wsdl:
-	echo Generate stub/skel from WSDL document
+	echo Generate stub/skel from WSDL documents
 	../tools/wsdl2aws -q -f -doc hello.wsdl
 	../tools/wsdl2aws -q -f -doc -noskel interoplab_main.wsdl
 
