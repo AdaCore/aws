@@ -24,8 +24,6 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 
 build:
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
-	(if ! [ -e aws-os_lib.adb ]; then \
-	   cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb; fi)
 # compile aws-services-directory.adb without optimisation
 # work around a bug in GNAT 3.14, 3.15.
 	gnatmake -u $(GARGS) -O0 aws-services-directory.adb -largs $(LFLAGS);
