@@ -1,5 +1,19 @@
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-containers-tables.adb:
+	Minor reformatting.
+
+	* aws-status.adb:
+	Minor reformatting.
+
+	* aws-smtp-client.adb:
+	(Open): Call Shutdown to close the socket and release memory
+	 associated to the connection.
+	(Shutdown): New procedure.
+	(Send): Properly call Shutdown to safely close the socket.
+
+2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-translator.adb:
 	(Compress_Decompress): Do not use an access parameter. This is
 	 just not needed.

@@ -1,8 +1,14 @@
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* zdemo.adb:
+	Update copyright notice.
+	Use AWS.MIME instead of hard-coded string.
+
+2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* zdemo.adb:
 	Removes unused with clauses.
-	
+
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* adains.png.gz:
