@@ -1,3 +1,17 @@
+2001-10-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session-control.adb, aws-translator.adb: 
+	Put all routines in alphabetical order.
+
+	* aws-server.adb, aws-server-protocol_handler.adb:
+	Put all routines in alphabetical order.
+
+	* aws-net-ssl.adb, aws-net-std.adb:
+	Put all routines in alphabetical order.
+
+	* aws-client.adb, aws-hotplug.adb, aws-messages.adb:
+	Put all routines in alphabetical order.
+
 2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
