@@ -1,5 +1,32 @@
 2002-03-03  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): Add missing aws-server-push.adb file.
+
+	* aws-services-dispatchers-virtual_host.adb:
+	Put all routines in alphabetical order.
+
+	* aws-session.adb:
+	Put all routines in alphabetical order.
+
+	* aws-server-push.adb:
+	Put all routines in alphabetical order.
+	Minor reformatting.
+	
+	* makefile:
+	(build): Cleanup makefile for GNAT 3.14. (GNAT 3.13 is no more
+	 supported).
+
+	* aws-session.adb:
+	Minor reformatting.
+
+	* aws-services-dispatchers-uri.adb:
+	(Finalize): Workaround missing GNAT 3.14 feature in GNAT.Dynamic_Table
+	 which is in 3.15.
+
+	* aws-services-directory.adb:
+	Put all routines in alphabetical order.
+
 	* aws-server.adb:
 	(Start): Add Server_Host to Bind call.
 
