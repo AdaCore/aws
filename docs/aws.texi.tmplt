@@ -2,7 +2,7 @@
 @c %**start of header
 @setfilename aws.info
 @settitle Ada Web Server
-@setchapternewpage off
+@setchapternewpage on
 @syncodeindex fn cp
 
 @iftex
@@ -105,6 +105,7 @@ There is many of them. @code{AWS} has been developped with GNAT but uses
 only Ada95 features. So any Ada95 compiler should be usable.
 
 @item a socket binding ;
+@cindex socket binding
 
 Under Windows you must use the one distributed at:
 @url{http://perso.wanadoo.fr/pascal.obry} which is a port (done 
@@ -114,12 +115,14 @@ Under UNIX you must use the socket binding from ENST
 @url{http://www.infres.enst.fr/ANC/}.
 
 @item a POSIX binding - Interface to the underlying OS services (optional) ;
+@cindex POSIX
 
 Under Windows you can use the one distributed at: 
 @url{http://perso.wanadoo.fr/pascal.obry}. Under UNIX look for the 
 Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
 @item OpenSSL (optional) ;
+@cindex OpenSLL
 
 OpenSSL is an Open Source toolkit implementing the Secure Sockets Layer
 (SSL v2 and v3) and much more. You'll find libraries for Win32 into this
@@ -130,6 +133,7 @@ distribution from @url{http://www.openssl.org} and build it.
 
 @node AWS.OS_Lib
 @section AWS.OS_Lib
+@cindex AWS.OS_Lib
 
 @noindent
 The @code{AWS.OS_Lib} has 3 implementations. One using @code{POSIX}, one using
@@ -181,6 +185,7 @@ $ make win32_oslib
 
 @node Building
 @section Building
+@cindex Building
 
 @noindent
 When you have built and configured all libraries you must either set
@@ -216,7 +221,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 @ifinfo
 @menu
 * Basic notion::
-* Configuration file::
+* Configuration files::
 * Session handling::
 * File upload::
 * Client side::
@@ -260,6 +265,7 @@ To build a server you must:
 @enumerate
 
 @item declare the HTTP channel
+@cindex HTTP declaration
 
 @smallexample
 WS  : AWS.Server.HTTP (Max_Connection => 3);
@@ -277,10 +283,10 @@ server will certainly need something like 20 or 30 simultaneous connections.
 
  using the port 1234. This channel is not secure (False) and
 answer will be given by the procedure Service. It is possible to
-configure the server via a configuration file named @file{aws.ini}
-@xref{Configuration file}.
+configure the server via two configuration files @xref{Configuration files}.
 
 @item Start the server
+@cindex starting server
 
 @noindent
 You need to start the server before using it. This is done by calling
@@ -321,6 +327,7 @@ You need to start the server before using it. This is done by calling
 @table @b
 
 @item Web_Server
+@cindex Web_Server
 
 this is the Web server to start.
 
@@ -330,39 +337,46 @@ This is a string to identify the server. This name will be used for
 example in the administrative status page.
 
 @item Callback
+@cindex Callback
 
 This is the procedure to call for each requested ressources. In this
 procedure you must handle all the possible URI that you want to support.
 (see below).
 
 @item Admin_URI
+@cindex Admin_URI
 
 This is a special URI recongnized internally by the server. If this URI
 is requested the server will return the administrative page. This page
-is built using the @file{status.tmplt} template. @pxref{Status page}.
+is built using a specific template page (default is
+@file{@_STATUS_PAGE_@}) @pxref{Status page}.
 
 The administrative page returns many information about the server. It is
-possible to configure the server via a configuration file named @file{aws.ini}
-@xref{Configuration file}.
+possible to configure the server via two configuration files
+@xref{Configuration files}.
 
 @item Port
+@cindex Port
 
 This is the port to use for the Web server. You can use any free port on
 your computer. Note that under some OS specific range could be reserved
 or needs specials privileges (port 80 under Linux for example).
 
 @item Security
+@cindex Security
 
 If Security is set to True the server will use an HTTPS/SSL
 connection. This part uses the OpenSSL library.
 
 @item Session
+@cindex Session
 
 If Session is set to true the server will keep a session ID for each
 client. The client will be able to save and get variables associated
 with this session ID.
 
 @item Case_Sensitive_Parameters
+@cindex Case_Sensitive_Parameters
 
 If set to True the CGI name parameters will be handled without using the
 case.
@@ -429,6 +443,8 @@ AWS.Response.File (Content_Type => "image/png",
 
 @node Form parameters
 @subsection Form parameters
+@cindex Form parameters
+@cindex Parameters
 
 @noindent
 Form parameters are stored into a table of key/value pair. The key is the form
@@ -478,9 +494,11 @@ or value and the number of parameters. Here are some examples:
 
 @table @code
 @item AWS.Parameters.Get (P, "name")
+@cindex Parameters Get
 Returns the value for parameter named @b{name}
 
 @item AWS.Parameters.Get_Name (P, 1)
+@cindex Parameters Get_Name
 Returns the string "name".
 
 @item AWS.Parameters.Get (P, 1)
@@ -504,136 +522,172 @@ connection status data. For a discussion about the callback procedure
 
 @node Distribution of an AWS server
 @subsection Distribution of an AWS server
+@cindex Distributing
 
 @noindent
 The directory containing the server program must contain the following
 files if you plan to use a status page @xref{Status page}.
 
 @table @file
-@item status.tmplt
+@item @_STATUS_PAGE_@
 
 The template HTML file for the @code{AWS} status page.
 
-@item logo.png
+@item @_LOGO_IMAGE_@
 
 The @code{AWS} logo displayed on the status page.
 
-@item up.png
+@item @_UP_IMAGE_@
 
 The @code{AWS} hotplug table up arrow.
 
-@item down.png
+@item @_DOWN_IMAGE_@
 
 The @code{AWS} hotplug table down arrow.
 
 @end table
 
-@smallexample
-@cartouche
-@group
-This documentation is not complete. Have a look at the demos directory. 
-Almost all features are used by the samples there.
-@end group
-@end cartouche
-@end smallexample
+@noindent
+Note that these filename are the current AWS default. But it is
+possible for example to change this using the configuration files
+@pxref{Configuration files}.
 
-@node Configuration file
-@section Configuration file
+@node Configuration files
+@section Configuration files
+@cindex Configuration files
 
 @noindent
-The configuration file is a way to configure the server without
-recompiling it. The configuration file is named @file{aws.ini}, current
-supported options are:
+Configuration files are a way to configure the server without
+recompiling it. There is two configurations files:
+
+@table @file
+
+@item aws.ini
+@cindex aws.ini
+
+This file is parsed first and correspond to configuation for all AWS
+server runs from the same directory.
+
+@item <program_name>.ini
+@cindex program_name.ini
+
+This file is parsed after @file{aws.ini}. It is possible with this
+initialization file to have specific settings for some servers.
+
+@end table
+
+@noindent
+Current supported options are:
 
 @table @code
 @item Admin_URI (string)
+@cindex Admin_URI
 This is the URI to call the administrative page. This must be used when
 calling @code{AWS.Server.Start}. The default is @file{@_ADMIN_URI_@}.
 
 @item Cleaner_Wait_For_Client_Timeout (duration)
+@cindex Cleaner_Wait_For_Client_Timeout
 Number of seconds to timout on waiting for a client request. This is a
 timeout for regular cleaning task. The default is
 @_CT_WAIT_FOR_CLIENT_@ seconds.
 
 @item Cleaner_Client_Header_Timeout (duration)
+@cindex Cleaner_Client_Header_Timeout
 Number of seconds to timout on waiting for client header. This is a
 timeout for regular cleaning task. The default is @_CT_CLIENT_HEADER_@ seconds.
 
 @item Cleaner_Client_Data_Timeout (duration)
+@cindex Cleaner_Client_Data_Timeout
 Number of seconds to timout on waiting for client message body. This
 is a timeout for regular cleaning task. The default is
 @_CT_CLIENT_DATA_@ seconds.
 
 @item Cleaner_Server_Response_Timeout (duration)
+@cindex Cleaner_Server_Response_Timeout
 Number of seconds to timout on waiting for client to accept
 answer. This is a timeout for regular cleaning task. The default is
 @_CT_SERVER_RESPONSE_@ seconds.
 
 @item Down_Image (string).
+@cindex Down_Image
 The name of the down arrow image to use in the status page. The default is
 @file{@_DOWN_IMAGE_@}.
 
 @item Force_Wait_For_Client_Timeout (duration)
+@cindex Force_Wait_For_Client_Timeout
 Number of seconds to timout on waiting for a client request. This is a
 timeout for urgent request when ressources are missing. The default is
 @_FT_WAIT_FOR_CLIENT_@ seconds.
 
 @item Force_Client_Header_Timeout (duration)
+@cindex Force_Client_Header_Timeout
 Number of seconds to timout on waiting for client header. This is a
 timeout for urgent request when ressources are missing. The default is
 @_FT_CLIENT_HEADER_@ seconds.
 
 @item Force_Client_Data_Timeout (duration)
+@cindex Force_Client_Data_Timeout
 Number of seconds to timout on waiting for client message body. This
 is a timeout for urgent request when ressources are missing. The default is
 @_FT_CLIENT_DATA_@ seconds.
 
 @item Force_Server_Response_Timeout (duration)
+@cindex Force_Server_Response_Timeout
 Number of seconds to timout on waiting for client to accept answer. This 
 is a timeout for urgent request when ressources are missing. The default is
 @_FT_SERVER_RESPONSE_@ seconds.
 
 @item Log_File_Directory (string)
+@cindex Log_File_Directory
 This is to set the directory where log file must be written. This
 parameter will be used automatically by @code{AWS.Log} if logging
 facility is enabled. By default log files are written in the current
 directory. The default is @file{@_LOG_FILE_DIR_@}.
 
 @item Logo (string).
+@cindex Logo
 The name of the logo image to use in the status page. The default is
 @file{@_LOGO_IMAGE_@}.
 
 @item Max_Connection (positive)
+@cindex Max_Connection
 This is the maximum number of simultaneous connections for the
 server. This must be used when declaring the @code{HTTP} object. The
 default is @_MAX_CONNECT_@.
 
 @item Receive_Timeout (duration)
+@cindex Receive_Timeout
 Number of seconds to timeout when receiving chunck of data. The
 default is @_RECEIVE_TIMEOUT_@ seconds.
 
 @item Send_Timeout (duration)
+@cindex Send_Timeout
 Number of seconds to timeout when sending chunck of data. The default is
 @_SEND_TIMEOUT_@ seconds.
 
 @item Server_Name (string)
+@cindex Server_Name
 The name of the server. This must be used when calling
 @code{AWS.Server.Start}. The default is @b{@_SERVER_NAME_@}.
 
 @item Server_Port (integer)
+@cindex Server_Port
 The port where server will wait for incomming connections requests. This
 must be used when calling @code{AWS.Server.Start}. The default is
 @_SERVER_PORT_@
 
 @item Status_Page (string)
+@cindex Status_Page
 The name of the status page to used. The default is
 @file{@_STATUS_PAGE_@}.
 
 @item Up_Image (string).
+@cindex Up_Image
 The name of the up arrow image to use in the status page. The default is
 @file{@_UP_IMAGE_@}.
 
 @item Upload_Directory (string)
+@cindex Upload_Directory
 This is to set the directory where upload files must be stored. By
 default uploaded files are written in the current directory. The
 default is @file{@_UPLOAD_DIR_@}.
@@ -660,6 +714,7 @@ Server.Start (WS,
 
 @node Session handling
 @section Session handling
+@cindex Session
 
 @noindent
 @code{AWS} provides a way to keep session data while users are
@@ -742,6 +797,7 @@ the new value.
 
 @node File upload
 @section File upload
+@cindex File upload
 
 @noindent
 File upload is the way to send a file from the client to the server. To
@@ -761,8 +817,8 @@ File to process: <INPUT NAME=filename TYPE=FILE>
 
 @noindent
 On the server side, AWS will retrieve the file and put it into the
-upload directory. This directory can be changed using the configuration file.
-@xref{Configuration file}.
+upload directory. This directory can be changed using the configuration files.
+@xref{Configuration files}.
 
 @noindent
 AWS will also setup the form parameters as usual. In the above example
@@ -779,6 +835,8 @@ The value is "Send File"
 
 @node Client side
 @section Client side
+@cindex Client protocol
+@cindex client HTTP
 
 @noindent
 @code{AWS} is not only a server it also implement the HTTP and HTTPS
@@ -833,6 +891,8 @@ example. Look at the @code{agent} program in the @code{demos} directory.
 
 @node Communication
 @section Communication
+@cindex Communication
+@cindex Sending message
 
 @ifinfo
 @menu
@@ -851,6 +911,7 @@ done on both sides.
 
 @node Communication - client side
 @subsection Communication - client side
+@cindex Communication, Client
 
 @noindent
 On the client side it is quite simple. You just have to send a message
@@ -877,6 +938,7 @@ callback procedure.
 
 @node Communication - server side
 @subsection Communication - server side
+@cindex Communication, Server
 
 @noindent
 On the server side things are a bit more complex but not that
@@ -924,6 +986,7 @@ Note that this communication API is used by the Hotplug module facility
 
 @node Hotplug module
 @section Hotplug module
+@cindex hotplug
 
 @ifinfo
 @menu
@@ -1026,6 +1089,7 @@ A complete example can be found in the demos directory. Look for
 
 @node Server Log
 @section Server Log
+@cindex logs
 
 @noindent
 It is possible to have the server activitly logged into the file
@@ -1051,6 +1115,7 @@ is found at the end of the log data line.
 
 @node Status page
 @chapter Status page
+@cindex Status
 
 @noindent
 The status page gives information about the @code{AWS} internal status. For
@@ -1058,11 +1123,11 @@ example it returns the server socket ID, the number of simultaneous
 connection, the number of time a connection has been used...
 
 @noindent
-To display the information @code{AWS} use a template file. The template
-file @file{status.tmplt} is an HTML file with some specific file
-recongnized by the parser. For more information about how does the
-template parser works, please look for the template parser distribution at
-@url{http://perso.wanadoo.fr/} in the Ada section.
+To display the information @code{AWS} use a template file. The
+template file (default is @file{@_STATUS_PAGE_@}) is an HTML file with
+some specific file recongnized by the parser. For more information
+about how does the template parser works, please look for the template
+parser distribution at @url{http://perso.wanadoo.fr/} in the Ada section.
 
 @noindent
 Here are the tag variables recognized by AWS status page:
@@ -1070,12 +1135,14 @@ Here are the tag variables recognized by AWS status page:
 @table @b
 
 @item ABORTABLE_V (vector tag)
+@cindex ABORTABLE_V
 
 A list of boolean. One for each connection. True means that this
 connection can be aborted if none is available. This is to be inserted
 in a template table.
 
 @item ACTIVITY_COUNTER_V (vector tag)
+@cindex ACTIVITY_COUNTER_V
 
 A list of natural. One for each connection. This is the number of
 request the connection has answered. This counter is reset each time the
@@ -1083,78 +1150,94 @@ connection is closed. In other word this is the number of request a
 keep-alive connection has processed.
 
 @item ACTIVITY_TIME_STAMP_V (vector tag)
+@cindex ACTIVITY_TIME_STAMP_V
 
 A list of date. One for each connection. This is the time of the latest
 request answered.
 
 @item KEYS_M (matrix tag)
+@cindex KEYS_M
 
 A list of set of keys (for each key correspond a value in the tag
 VALUES_L, see below). Each key in the vector tag start with an HTML
 "<td>" tag. This is to be able to display the key/value in column.
 
 @item LOGO
+@cindex LOGO
 
 A string to be placed in an img HTML tag. This is the name of the AWS
 logo image.
 
 @item MAX_CONNECTION
+@cindex MAX_CONNECTION
 
 Maximum number of simultaneous connections.
 
 @item OPENED_V (vector tag)
+@cindex OPENED_V
 
 A list of boolean. One for each connection. True means that the socket
 is open. This is to be inserted in a template table.
 
 @item PEERNAME_V (vector tag)
+@cindex PEERNAME_V
 
 A list of peer name. One for each connection. This is the name of the last
 peer connected to the slot.
 
 @item QUIT_V (vector tag)
+@cindex QUIT_V
 
 A list of boolean. One for each connection. True means that the
 connection will terminate as soon as possible. This is to be inserted
 in a template table.
 
 @item SECURITY
+@cindex SECURITY
 
 A boolean set to True if this is a secure socket (HTTPS/SSL).
 
 @item SERVER_NAME
+@cindex SERVER_NAME
 
 Name of the server. This is set when starting the server with
 @code{AWS.Server.Start}.
 
 @item SERVER_PORT
+@cindex SERVER_PORT
 
 The server HTTP port.
 
 @item SERVER_SOCK
+@cindex SERVER_SOCK
 
 Server socket ID.
 
 @item SESSIONS_V (vector tag)
+@cindex SESSIONS_V
 
 A list of session ID.
 
 @item SLOT_ACTIVITY_COUNTER_V (vector tag)
+@cindex SLOT_ACTIVITY_COUNTER_V
 
 A list of natural. One for each connection. This is the total number of
 requests the slot has answered. This counter is never reseted.
 
 @item SOCK_V (vector tag)
+@cindex SOCK_V
 
 A list of sockets ID. One for each connection.
 
 @item VALUES_M (matrix tag)
+@cindex VALUES_M
 
 A list of set of values (for each value correspond a key in the vector tag
 KEYS_L, see above). Each key in the vector tag start with an HTML "<td>"
 tag. This is to be able to display the key/value in column.
 
 @item VERSION
+@cindex VERSION
 
 @code{AWS} version number.
 
@@ -1168,16 +1251,19 @@ here please have a look at the documentation.
 @chapter Last notes
 
 @noindent
-Note that this is an ongoing project at its early stage. The goal is not
-to do a full Web Server, for that @i{Apache} is unbeatable. If you have an
-idea or need a feature not yet implemented, send us a mail.
+Note that this is an ongoing project but it is quite mature at this
+point. The goal is not to do a full Web Server, for that @i{Apache} is
+unbeatable. AWS is and will stay an embedded HTTP component with a nice
+framework to build Web applications. If you have an idea or need a
+feature not yet implemented, send us a mail.
 
 @noindent
 Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 @noindent
-So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
+So thanks goes to Wiljan Derks, Sune Falck, David C. Hoos,
+Jean-Fran@,cois Rameau.
 
 @node AWS API
 @chapter AWS API
@@ -1202,71 +1288,85 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 
 @node AWS.Client
 @section AWS.Client
+@cindex AWS.Client
 
 @include ../src/aws-client.ads.texi
 
 @node AWS.Communication
 @section AWS.Communication
+@cindex AWS.Communication
 
 @include ../src/aws-communication.ads.texi
 
 @node AWS.Communication.Client
 @section AWS.Communication.Client
+@cindex AWS.Communication.Client
 
 @include ../src/aws-communication-client.ads.texi
 
 @node AWS.Communication.Server
 @section AWS.Communication.Server
+@cindex AWS.Communication.Server
 
 @include ../src/aws-communication-server.ads.texi
 
 @node AWS.Config
 @section AWS.Config
+@cindex AWS.Config
 
 @include ../src/aws-config.ads.texi
 
 @node AWS.Log
 @section AWS.Log
+@cindex AWS.Log
 
 @include ../src/aws-log.ads.texi
 
 @node AWS.MIME
 @section AWS.MIME
+@cindex AWS.MIME
 
 @include ../src/aws-mime.ads.texi
 
 @node AWS.Parameters
 @section AWS.Parameters
+@cindex AWS.Parameters
 
 @include ../src/aws-parameters.ads.texi
 
 @node AWS.Response
 @section AWS.Response
+@cindex AWS.Response
 
 @include ../src/aws-response.ads.texi
 
 @node AWS.Server
 @section AWS.Server
+@cindex AWS.Server
 
 @include ../src/aws-server.ads.texi
 
 @node AWS.Server.Hotplug
 @section AWS.Server.Hotplug
+@cindex AWS.Server.Hotplug
 
 @include ../src/aws-server-hotplug.ads.texi
 
 @node AWS.Session
 @section AWS.Session
+@cindex AWS.Session
 
 @include ../src/aws-session.ads.texi
 
 @node AWS.Status
 @section AWS.Status
+@cindex AWS.Status
 
 @include ../src/aws-status.ads.texi
 
 @node References
 @chapter References
+@cindex References
 
 @noindent
 Here are a list of documents used to implement AWS:
@@ -1274,6 +1374,7 @@ Here are a list of documents used to implement AWS:
 @enumerate 1
 
 @item RFC 1867
+@cindex RFC 1867
 
 @smallexample
 Network Working Group                                           E. Nebel
@@ -1286,6 +1387,7 @@ Category: Experimental                                 Xerox Corporation
 @end smallexample
 
 @item RFC 1945
+@cindex RFC 1945
 
 @smallexample
 Network Working Group                                     T. Berners-Lee
@@ -1301,6 +1403,7 @@ Category: Informational                                      R. Fielding
 @end smallexample
 
 @item RFC 2109
+@cindex RFC 2109
 
 @smallexample
 Network Working Group                                         D. Kristol
@@ -1314,6 +1417,7 @@ Category: Standards Track                                    L. Montulli
 @end smallexample
 
 @item RFC 2616
+@cindex RFC 2616
 
 @smallexample
 Network Working Group                                      R. Fielding
@@ -1337,6 +1441,7 @@ Category: Standards Track                                   Compaq/W3C
 @end smallexample
 
 @item RFC 2617
+@cindex RFC 2617
 
 @smallexample
 Network Working Group                                          J. Franks
@@ -1360,6 +1465,7 @@ Category: Standards Track                                 Verisign, Inc.
 @end smallexample
 
 @item draft 302
+@cindex draft 302
 
 @smallexample
 Transport Layer Security Working Group                  Alan O. Freier
@@ -1384,5 +1490,10 @@ Expire in six months                                    Philip Karlton
 @end smallexample
 
 @end enumerate
+
+@node Index
+@unnumbered Index
+
+@printindex cp
 
 @bye
