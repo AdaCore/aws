@@ -1,3 +1,8 @@
+2004-06-22  Pascal Obry  <pascal@obry.org>
+
+	* xmlt_proc.adb:
+	Catch XML_Fatal_Error to conform to new XML/Ada implementation.
+
 2004-06-21  Pascal Obry  <pascal@obry.org>
 
 	* tmem.adb:
