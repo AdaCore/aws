@@ -44,8 +44,6 @@ with Sockets;
 package AWS.Status is
 
    type Data is private;
-   --  Parameters_Case_Sensitive indicate if the parameters name are to be
-   --  handled with case sensitivity or not. Default is True.
 
    type Request_Method is (GET, HEAD, POST, PUT);
 
@@ -69,8 +67,15 @@ package AWS.Status is
    function Peername               (D : in Data) return String;
    function Session                (D : in Data) return String;
    function Session                (D : in Data) return AWS.Session.ID;
-   function URI                    (D : in Data) return String;
    function Socket                 (D : in Data) return Socket_Type;
+   function URI                    (D : in Data) return String;
+
+   function Is_SOAP                (D : in Data) return Boolean;
+   --  Returns True if it is a SOAP request. In this case SOAPAction return
+   --  the SOAPAction header and Payload returns the XML SOAP Payload message.
+
+   function SOAPAction             (D : in Data) return String;
+   function Payload                (D : in Data) return String;
 
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
 
@@ -86,6 +91,7 @@ private
    pragma Inline (URI);
    pragma Inline (HTTP_Version);
    pragma Inline (Socket);
+   pragma Inline (Is_SOAP);
 
    use Ada.Strings.Unbounded;
 
@@ -109,6 +115,8 @@ private
       Auth_Name         : Unbounded_String;
       Auth_Password     : Unbounded_String;
       Session_ID        : Unbounded_String;
+      SOAPAction        : Unbounded_String;
+      Payload           : Unbounded_String;
    end record;
 
 end AWS.Status;
