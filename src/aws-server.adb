@@ -612,11 +612,6 @@ package body AWS.Server is
             Mark_Phase (Index, Closed);
             Set (Index).Sock := null;
          end if;
-
-      exception
-         when others =>
-            Mark_Phase (Index, Closed);
-            Set (Index).Sock := null;
       end Release;
 
       -------------------
@@ -651,7 +646,6 @@ package body AWS.Server is
          if Set (Index).Phase not in Closed .. Aborted then
             Mark_Phase (Index, Aborted);
             Sockets.Shutdown (Set (Index).Sock.all);
-            Set (Index).Sock := null;
          end if;
       end Shutdown;
 
@@ -883,7 +877,7 @@ package body AWS.Server is
 
          when Forever =>
             loop
-               delay Calendar.Day_Duration'Last;
+               delay Duration'Last;
             end loop;
       end case;
    end Wait;
