@@ -1,3 +1,8 @@
+2002-06-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-resources-files.adb:
+	(Open): Remove buffer initialization, this is not needed.
+
 2002-06-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources.ads, aws-resources.adb:
