@@ -1,5 +1,14 @@
 2004-03-09  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* templates_parser.adb, templates_parser-print_tree.adb,
+          templates_parser-cached_files.adb:
+        Better cache handling implementation.
+        Properly release memory of cached files and properly detect up to
+         date files for any include level.
+	Update to version 7.5.
+
+2004-03-09  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-client.adb:
 	(Close): Update comments.
         Update copyright notice.
