@@ -38,6 +38,8 @@ b~param.adb
 b~param.ads
 b~redirect.adb
 b~redirect.ads
+b~server_config.adb
+b~server_config.ads
 b~server_info.adb
 b~server_info.ads
 b~sessions.adb
@@ -182,6 +184,8 @@ redirect.res
 redirect.tmp
 run1
 run2
+server_config.res
+server_info.res
 sessions.res
 sessions2.res
 shutdown.res
