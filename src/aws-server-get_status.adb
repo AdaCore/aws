@@ -134,7 +134,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
    function Slot_Table return Translate_Table is
 
       Sock                  : Vector_Tag;
-      Opened                : Vector_Tag;
+      Phase                 : Vector_Tag;
       Abortable             : Vector_Tag;
       Activity_Counter      : Vector_Tag;
       Slot_Activity_Counter : Vector_Tag;
@@ -147,13 +147,13 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       for K in 1 .. Server.Max_Connection loop
          Slot_Data := Server.Slots.Get (Index => K);
 
-         if Slot_Data.Opened then
+         if Slot_Data.Phase /= Closed then
             Sock := Sock & Integer (Sockets.Get_FD (Slot_Data.Sock));
          else
             Sock := Sock & '-';
          end if;
 
-         Opened := Opened & Slot_Data.Opened;
+         Phase     := Phase & Slot_Phase'Image (Slot_Data.Phase);
 
          Abortable := Abortable & Slot_Data.Abortable;
 
@@ -169,14 +169,14 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
            & Slot_Data.Slot_Activity_Counter;
 
          Activity_Time_Stamp := Activity_Time_Stamp &
-           GNAT.Calendar.Time_IO.Image (Slot_Data.Activity_Time_Stamp,
+           GNAT.Calendar.Time_IO.Image (Slot_Data.Phase_Time_Stamp,
                                         "%a %D %T");
       end loop;
 
       return Translate_Table'
         (Assoc ("SOCK_V",                  Sock),
          Assoc ("PEER_NAME_V",             Peer_Name),
-         Assoc ("OPENED_V",                Opened),
+         Assoc ("PHASE_V",                 Phase),
          Assoc ("ABORTABLE_V",             Abortable),
          Assoc ("SLOT_ACTIVITY_COUNTER_V", Slot_Activity_Counter),
          Assoc ("ACTIVITY_COUNTER_V",      Activity_Counter),
