@@ -22,9 +22,12 @@ build_demo_std:
 build_demo_ssl:
 	make -C demos build MODE=ssl
 
-build_std: build_aws_std build_doc build_demo_std
+build_ssllib:
+	make -C ssl build
 
-build_ssl: build_aws_ssl build_doc build_demo_ssl
+build_std: build_aws_std build_demo_std
+
+build_ssl: build_ssllib build_aws_ssl build_demo_ssl
 
 build_doc:
 	make -C docs build
@@ -32,11 +35,14 @@ build_doc:
 clean:
 	make -C src clean
 	make -C demos clean
+	make -C ssl clean
+	make -C docs clean
 
 distrib:
 	-rm -f aws.tar*
 	tar cf aws.tar makefile src/makefile demos/makefile src/ChangeLog \
 		src/*.ad[sb] demos/r*.ads demos/[ar]*.adb demos/*.gif \
 		docs/aws.texi docs/aws.html docs/aws.txt docs/aws.info \
-		docs/aws.ps win32/*.a
+		docs/aws.ps docs/makefile win32/*.a win32/*.txt \
+		demos/cert.pem ssl/*.ad*
 	gzip -9 aws.tar

@@ -1,3 +1,18 @@
+2000-08-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Line): minor text message change.
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Data): correctly detect a closed socket.
+	(Get_Message_Header): idem
+
+2000-07-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-ssl.adb: 
+	(Accept_Socket): remove call to Init.
+	(AWS.Net): add call to Init during elaboration of the package.
+
 2000-07-26    Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws.ads:

@@ -4,7 +4,7 @@
 .SILENT: all build build_ssl build_std distrib
 
 SSL	= ../ssl
-GFLAGS	= -g -gnatwu -gnaty -I../ssl
+GFLAGS	= -g -O2 -gnatwu -gnaty -I../ssl
 
 SOURCES	= aws-client.adb aws-messages.adb aws-response.adb aws-server.adb \
 	aws-status.adb aws-translater.adb aws-url.adb

@@ -6,8 +6,7 @@
 GARGS = -c -I/usr/Ada.Libraries/sockets -gnatwu -O2
 
 build:
-	gcc $(GARGS) ssl.adb
-	gcc $(GARGS) ssl-thin.ads
+	gnatmake $(GARGS) ssl.adb
 
 clean:
 	-rm *.ali *.o
