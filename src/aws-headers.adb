@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Strings.Unbounded;
+
 with AWS.Net.Buffered;
 
 package body AWS.Headers is
@@ -52,13 +54,51 @@ package body AWS.Headers is
       end if;
    end Get_Line;
 
+   ----------------
+   -- Get_Values --
+   ----------------
+
+   function Get_Values
+     (Headers : in List;
+      Name    : in String)
+      return String
+   is
+      Values : VString_Array := Get_Values (Headers, Name);
+
+      function Get_Values (Start_From : Positive) return String;
+      --  Return string of header values comma separated
+      --  concateneted starting from Start_From index.
+
+      ----------------
+      -- Get_Values --
+      ----------------
+
+      function Get_Values (Start_From : Positive) return String is
+         Value : constant String
+            := Ada.Strings.Unbounded.To_String (Values (Start_From));
+      begin
+         if Start_From = Values'Last then
+            return Value;
+         else
+            return Value & ", " & Get_Values (Start_From + 1);
+         end if;
+      end Get_Values;
+
+   begin
+      if Values'Length > 0 then
+         return Get_Values (Values'First);
+      else
+         return "";
+      end if;
+   end Get_Values;
+
    -----------------
    -- Send_Header --
    -----------------
 
    procedure Send_Header
-     (Headers : in List;
-      Socket  : in Net.Socket_Type'Class) is
+     (Socket  : in Net.Socket_Type'Class;
+      Headers : in List) is
    begin
       for J in 1 .. Count (Headers) loop
          Net.Buffered.Put_Line (Socket, Get_Line (Headers, J));

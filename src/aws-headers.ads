@@ -49,8 +49,8 @@ package AWS.Headers is
    --  Raised when header line format is wrong
 
    procedure Send_Header
-     (Headers : in List;
-      Socket  : in Net.Socket_Type'Class);
+     (Socket  : in Net.Socket_Type'Class;
+      Headers : in List);
    --  Send all header lines in Headers list to the socket
 
    function Get_Line
@@ -70,6 +70,14 @@ package AWS.Headers is
    --     Content_Type: multipart/mixed; boundary="0123_The_Boundary_Value_"
    --
    --  For a file upload content type header style.
+
+   function Get_Values
+     (Headers : in List;
+      Name    : in String)
+      return String;
+   --  Returns all values for the specified header field Name in a
+   --  comma-separated string. This format is conformant to [RFC 2616 - 4.2]
+   --  (see last paragraph).
 
    ------------------------
    -- Inherited routines --
