@@ -13,8 +13,12 @@ you also need to set it properly if you use XML/Ada for example.
 
    $ export ADA_PROJECT_PATH=<aws_root>/.build/projects
 
-Look for ADASOCKETS, XMLADA, ASIS, POSIX, and INSTALL make's
-variables. Then building AWS is as simple as:
+If you have XML/Ada installed and plan to build AWS with SOAP support you must
+be sure that ADA_PROJECT_PATH point to the XML/Ada projects. See XML/Ada
+documentation.
+
+Look for ADASOCKETS, ASIS, POSIX, and INSTALL make's variables. Then building
+AWS is as simple as:
 
    $ make setup build install
 
@@ -27,8 +31,7 @@ the AWS User's Guide.
 Building from CVS
 -----------------
 
-If you got the AWS sources from CVS you'll also need to check out the
-Templates_Parser module:
-
-   $ cd AWS
-   $ cvs -d :pserver:anoncvs@libre.adacore.com:/anoncvs co templates_parser
+If you got the AWS sources from CVS you'll need to adjust the
+templates_parser/templates_parser.gpr file to build with XML/Ada support.
+For now this needs to be done manually. If you have XML/Ada installed you can
+uncomment the 'with "xmlada";' line.
