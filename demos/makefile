@@ -2,13 +2,12 @@
 # $Id$
 
 .SILENT: all auth runme agent ws clean soap hotplug com_1 com_2 hello_world
-.SILENT: main soap_server soap_client
+.SILENT: main build_soap
 
 ifeq ($(MODE),ssl)
-# For SSL support, note that -lgdi32 is Win32 specific and should be removed
-# under others platforms.
+# With SSL support
 
-GARGS = -m -I../src -I../ssl -I../include -I../soap $(INCLUDES) -i -gnatwu -g
+GARGS = $(GFLAGS) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
@@ -20,12 +19,12 @@ endif
 else
 # Without SSL support
 
-GARGS = -m -I../src -I../include -I../soap $(INCLUDES) -i -gnatwu -g
+GARGS = $(GFLAGS) -i -I../src -I../include -I../soap $(INCLUDES)
 BARGS = -E
 LARGS = $(LIBS)
 endif
 
-build: runme agent auth ws com_1 com_2 main hotplug hello_world soap
+build: runme agent auth ws com_1 com_2 main hotplug hello_world
 
 runme:
 	gnatmake $(GARGS) runme -bargs $(BARGS) -largs $(LARGS)
@@ -54,7 +53,7 @@ hotplug:
 hello_world:
 	gnatmake $(GARGS) hello_world -bargs $(BARGS) -largs $(LARGS)
 
-soap:
+build_soap:
 	(if [ -e ../soap/soap.o ] ; then \
 	gnatmake $(GARGS) soap_client -bargs $(BARGS) -largs $(LARGS); \
 	gnatmake $(GARGS) soap_server -bargs $(BARGS) -largs $(LARGS); \
