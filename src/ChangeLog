@@ -1,3 +1,20 @@
+2001-05-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.ads:
+	(ID): defined using Max_Int.
+
+	* aws-hotplug-get_status.adb:
+	Use suffix _V for vector tag (was _L for historical reasons).
+	
+	* aws-server-get_status.adb:
+	(Session_Table): Update to use Matrix_Tag. There is no more HTML
+	 tag hard coded. Use suffix _V for vector tag (was _L for
+	 historical reasons).
+
+	* aws-server-protocol_handler.adb:
+	(Parse): fix bug in parsing the Cookie line. Some format were not
+	 supported.
+
 2001-05-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb:
