@@ -18,6 +18,9 @@
 	(Deflate_Intialize): pragma Inline.
 	(Inflate_Initialize): pragma Inline.
 
+	* aws-resources-streams-zlib.ads, aws-resources-streams-zlib.adb:
+	(Deflate_Create): New routine.
+
 2003-10-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
