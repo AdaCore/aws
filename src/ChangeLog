@@ -1,3 +1,49 @@
+2004-05-17  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.ads, templates_parser.adb:
+	(Finalize): Fix typo introduced in previous check-in.
+
+2004-05-17  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-xml.adb, templates_parser-filter.adb:
+	Use new AI302 Container.
+
+	* aws-resources-streams-zlib.adb:
+	(Deflate_Create): Result set constant.
+	(Inflate_Create): Result set constant.
+        Minor reformatting.
+        Update copyright notice.
+
+	* aws-resources-embedded.ads:
+	(Register): Minor comment update.
+
+	* aws-net-stream_io.adb:
+	(Stream): Set Result constant.
+        Update copyright notice.
+
+	* aws-net-ssl.adb:
+	(Default_Config): Set constant.
+        Update copyright notice.
+
+	* aws-services-transient_pages.adb, aws-session.adb,
+          aws-services-dispatchers-virtual_host.ads,
+          aws-services-dispatchers-virtual_host.adb, aws-mime.adb,
+          aws-resources-embedded.adb, aws-server-push.ads, aws-server-push.adb,
+          aws-session.ads, aws-session.adb, aws-containers-tables.ads,
+          aws-containers-tables.adb, aws-containers-key_value.ads,
+          aws-containers-tables-set.ads, aws-containers-tables-set.adb,
+          aws-services-directory.adb:
+	Use AI302.Containers (future standard Ada.Containers library) instead
+         of Table_Of...G containers.
+        Update copyright notice.
+
+	* aws-services-split_pages.adb:
+	(Parse): Use Templates.Composite instead of Item (has been renamed).
+
+	* templates_parser.ads, templates_parser.adb:
+	(Item) [Tag]: Renamed Composite.
+        Use new naming for the AI302.Containers.
+
 2004-05-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:

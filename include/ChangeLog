@@ -1,3 +1,70 @@
+2004-05-17  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(SOURCES): Remove Table_Of...G add AI302 and Charles components.
+
+	* ai302-containers-indefinite_ordered_sets.adb:
+	(Process): Remove inefective pragma Inline.
+
+	* table_of_strings_and_static_values_g.ads,
+	  table_of_strings_and_static_values_g.adb:
+	Removed.
+
+	* table_of_static_keys_and_static_values_g.ads,
+	  table_of_static_keys_and_static_values_g.adb:
+	Removed.
+
+	* table_of_static_keys_and_dynamic_values_g.ads,
+	  table_of_static_keys_and_dynamic_values_g.adb:
+	Removed.
+
+	* table_of_dynamic_keys_and_static_values_g.ads,
+	  table_of_dynamic_keys_and_static_values_g.adb:
+	Removed.
+
+2004-05-17  Pascal Obry  <pascal@obry.org>
+
+	* charles-algorithms-generic_includes.ads,
+          charles-algorithms-generic_includes.adb:
+	Initial revision.
+
+	* charles-algorithms-generic_set_intersection.ads,
+	  charles-algorithms-generic_set_intersection.adb:
+	Initial revision.
+
+
+	* charles-algorithms-generic_set_difference.ads,
+	  charles-algorithms-generic_set_difference.adb:
+	Initial revision.
+
+
+	* charles-algorithms-generic_set_symmetric_difference.ads,
+	  charles-algorithms-generic_set_symmetric_difference.adb:
+	Initial revision.
+
+
+	* strings_maps.ads:
+	(Map): New type.
+        (Cursor): New subtype.
+        (Has_Element): New routine.
+
+	* ai302-containers-indefinite_ordered_sets.ads,
+          ai302-containers-indefinite_ordered_sets.adb,
+          ai302-containers-indefinite_hashed_maps.ads,
+          ai302-containers-indefinite_hashed_maps.adb,
+          ai302-containers-hash_tables.ads, ai302-containers-hash_tables.adb:
+	New version.
+
+2004-05-16  Pascal Obry  <pascal@obry.org>
+
+	* charles-algorithms-generic_compare.ads,
+	  charles-algorithms-generic_compare.adb,
+	  ai302-containers-red_black_trees.ads,
+	  ai302-containers-red_black_trees.adb,
+	  ai302-containers-indefinite_ordered_sets.ads,
+	  ai302-containers-indefinite_ordered_sets.adb:
+	Initial revision.
+
 2004-05-14  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -231,7 +298,7 @@
 	* zlib/*:
 	Prerelease 1.2.0.8.
 
-2003-11-10  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-10  Pascal Obry  <pascal@obry.org>
 
 	* zlib.adb:
 	Minor reformatting.
@@ -261,12 +328,12 @@
 	Update to version 6.3.
 	This fixes the way errors from include files are reported.
 
-2003-10-23  Pascal Obry  <pascal.obry@edf.fr>
+2003-10-23  Pascal Obry  <pascal@obry.org>
 
 	* zlib.adb:
 	Revert back previous change.
 
-2003-10-23  Pascal Obry  <pascal.obry@edf.fr>
+2003-10-23  Pascal Obry  <pascal@obry.org>
 
 	* zlib.adb:
 	Add pragma Linker_Options -lz.

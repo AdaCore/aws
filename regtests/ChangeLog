@@ -1,3 +1,14 @@
+2004-05-17  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(RT_STD): Add ctable.
+
+	* sp.adb, ssp.adb:
+	Factorize code in Sp_Pck.
+
+	* sp_pck.ads, sp_pck.adb:
+	Initial revision.
+
 2004-04-27  Pascal Obry  <pascal@obry.org>
 
 	* sockto.adb:
@@ -77,7 +88,7 @@
 	Enclose all tests inside an exception handler. Ensure that even if
 	 a test fails the test suite continue to run.
 	
-2004-04-06  Pascal Obry  <pascal.obry@edf.fr>
+2004-04-06  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
 	(RT_STD): Add smtp.

@@ -1,3 +1,10 @@
+2004-05-17  Pascal Obry  <pascal@obry.org>
+	
+	* aws-jabber.adb:
+	Use AI302.Containers (future standard Ada.Containers library) instead
+         of Table_Of...G containers.
+        Update copyright notice.
+
 2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-jabber.adb:
