@@ -1,3 +1,23 @@
+2000-10-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Get_Response): new parameter Get_Body. Read message body only if
+	 Get_Body is set.
+	(Head): new function.
+	
+	* aws-client.ads:
+	(Head): new function.
+
+	* aws-os_lib.adb:
+	(GMT_Clock): renaming of OS_Clock. Correct implementation that
+	 does return the GMT time.
+
+	* aws-os_lib.ads:
+	(GMT_Clock): renaming of OS_Clock.
+
+	* aws-server-protocol_handler.adb:
+	(Header_Date_Serv): use GMT_Clock (was OS_Clock).
+
 2000-10-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-communication-server.adb:
