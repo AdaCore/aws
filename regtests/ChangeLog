@@ -1,3 +1,23 @@
+2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS): Add wsdl_6.
+	
+	* wsdl_6_main.adb:
+	Add support for option -j to be able to run this as a server only
+	 program to test the Java client (wsdl_6.java).
+
+	* wsdl_6.java:
+	Initial revision. This file is the Java program equivalent to
+	 wsdl_6_main.adb. It is not run automatically and requires
+	 Axis/Tomcat installed. This is used to check interoperability of
+	 AWS with others SOAP/WSDL implementation.
+
+2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wsdl_6.ads, wsdl_6.adb, wsdl_6.out, wsdl_6_main.adb:
+	Initial revision.
+
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
