@@ -36,7 +36,9 @@
 --
 --  This API has been tested on Windows and Linux (OpenLDAP).
 
+with Ada.Exceptions;
 with Ada.Strings.Unbounded;
+
 with AWS.LDAP.Thin;
 
 package AWS.LDAP.Client is
@@ -71,6 +73,12 @@ package AWS.LDAP.Client is
    --  from the thin binding.
 
    Null_Set : constant String_Set;
+
+   function Get_Error
+     (E : in Ada.Exceptions.Exception_Occurrence)
+      return Thin.Return_Code;
+   --  Returns the error code in the LDAP_Error exception occurence E. Returns
+   --  Think.LDAP_SUCCESS if no error code has been found.
 
    ----------------
    -- Attributes --
@@ -168,11 +176,11 @@ package AWS.LDAP.Client is
 
    procedure Bind
      (Dir      : in out Directory;
-      Login    : in String;
-      Password : in String);
+      Login    : in     String;
+      Password : in     String);
    --  Bind to the server by providing a login and password
 
-   procedure Unbind (Dir : in Directory);
+   procedure Unbind (Dir : in out Directory);
    --  Must be called to release resources asociated with the Directory.
 
    function Is_Open (Dir : in Directory) return Boolean;
@@ -231,8 +239,8 @@ package AWS.LDAP.Client is
    --  stop iteration; its initial value is False.
 
    function First_Attribute
-     (Dir  : in Directory;
-      Node : in LDAP_Message;
+     (Dir  : in     Directory;
+      Node : in     LDAP_Message;
       BER  : access BER_Element)
       return String;
    --  Returns the first attribute for the entry. It initialize an iteraror
