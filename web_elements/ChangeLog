@@ -1,3 +1,16 @@
+2004-12-22  Pascal Obry  <pascal@obry.net>
+
+	* notebook/notebook.thtml:
+	Use "/we_js/" alias for the javascripts code.
+	Clarify note about cookies, AWS require cokies only if session is
+	 needed.
+
+	* javascripts/cookies.js:
+	Initial revision.
+
+	* readme.txt:
+	Add note about new javascripts directory and needed alias.
+
 2004-12-21 Emmanuel Briot <briot@adacore.com>
 
 	* notebook/notebook.thtml:

@@ -1,9 +1,16 @@
+2004-12-22  Pascal Obry  <pascal@obry.org>
+
+	* web_elements.adb:
+	(CB_JS): New callbacks.
+        Add alias for "we_js" to the javascripts directory.
+        Minor reformating.
+
 2004-12-13  Pascal Obry  <pascal@obry.net>
 
 	* demos.gpr:
 	(Mains): Add web_elements.adb.
 
-	* we_test_menu_css.html, we_test_notebook.html, 
+	* we_test_menu_css.html, we_test_notebook.html,
 	  we_test_rounded_boxes.html, we_library.html:
 	Initial revision.
 
