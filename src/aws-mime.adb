@@ -100,8 +100,8 @@ package body AWS.MIME is
    -- Content --
    -------------
 
-   function Content_Type (Filename : in String) return String
-   is
+   function Content_Type (Filename : in String) return String is
+
       Default_Content_Type : constant String := "application/octet-stream";
       Pos                  : Natural :=
         Strings.Fixed.Index (Filename,
