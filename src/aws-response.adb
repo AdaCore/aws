@@ -210,7 +210,8 @@ package body AWS.Response is
 
    function File
      (Content_Type : in String;
-      Filename     : in String) return Data is
+      Filename     : in String)
+     return Data is
    begin
       return Data'(Finalization.Controlled with
                    new Natural'(1),

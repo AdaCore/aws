@@ -108,8 +108,10 @@ package AWS.Response is
    --  will then ask for an authentification. Realm string will be displayed
    --  by the Web Browser in the authentification dialog box.
 
-   function File (Content_Type : in String;
-                  Filename     : in String) return Data;
+   function File
+     (Content_Type : in String;
+      Filename     : in String)
+     return Data;
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file.
 
