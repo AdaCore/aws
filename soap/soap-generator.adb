@@ -490,7 +490,9 @@ package body SOAP.Generator is
             K := K - 1;
          end if;
 
-         return Name (8 .. K);
+         --  First character is converted in lower case
+
+         return Characters.Handling.To_Lower (Name (8)) & Name (9 .. K);
       end Array_Type;
 
       --------------------
@@ -818,7 +820,7 @@ package body SOAP.Generator is
 
          function Get_Routine (Name : in String) return String is
          begin
-            if Name = "String" then
+            if Name = "string" then
                return "SOAP.Utils.Get";
             else
                return "SOAP.Types.Get";
@@ -894,22 +896,22 @@ package body SOAP.Generator is
 
          function Set_Routine (Name : in String) return String is
          begin
-            if Name = "String" then
+            if Name = "String" or else Name = "string" then
                return "SOAP.Types.S";
 
             elsif Name = "Unbounded_String" then
                return "SOAP.Utils.US";
 
-            elsif Name = "Integer" then
+            elsif Name = "Integer" or else Name = "integer" then
                return "SOAP.Types.I";
 
-            elsif Name = "Float" then
+            elsif Name = "Float" or else Name = "float" then
                return "SOAP.Types.F";
 
             elsif Name = "Long_Float" then
                return "SOAP.Types.F";
 
-            elsif Name = "Boolean" then
+            elsif Name = "Boolean" or else Name = "boolean" then
                return "SOAP.Types.B";
 
             elsif Name = "Ada.Calendar.Time" then
@@ -1149,12 +1151,13 @@ package body SOAP.Generator is
 
       Text_IO.Put_Line (Type_Ads, "package " & L_Name & ".Types is");
       Text_IO.New_Line (Type_Ads);
-      Text_IO.Put_Line (Type_Ads, "   pragma Elaborate_Body;");
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, Ada.Calendar);");
       Text_IO.Put_Line
         (Type_Ads, "   pragma Warnings (Off, Ada.Strings.Unbounded);");
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Types);");
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Utils);");
+      Text_IO.New_Line (Type_Ads);
+      Text_IO.Put_Line (Type_Ads, "   pragma Elaborate_Body;");
       Text_IO.New_Line (Type_Ads);
       Text_IO.Put_Line (Type_Ads, "   use Ada.Strings.Unbounded;");
 
