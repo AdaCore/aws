@@ -55,6 +55,11 @@ package AWS.Status.Set is
       Content_Type : in     String);
    --  Set value for "Content-Type:" parameter
 
+   procedure Keep_Alive
+     (D    : in out Data;
+      Flag : in     Boolean);
+   --  Set the Keep-Alive flag for the current HTTP connection.
+
    procedure Multipart_Boundary
      (D        : in out Data;
       Boundary : in     String);

@@ -127,6 +127,10 @@ package AWS.Status is
    pragma Inline (If_Modified_Since);
    --  Get value for "If-Modified-Since:" parameter
 
+   function Keep_Alive             (D : in Data) return Boolean;
+   pragma Inline (Keep_Alive);
+   --  Returns the flag if the current HTTP connection is keep-alive.
+
    function Method                 (D : in Data) return Request_Method;
    pragma Inline (Method);
    --  Returns the request method.
@@ -224,6 +228,7 @@ private
       Content_Type      : Unbounded_String;
       Boundary          : Unbounded_String;
       Content_Length    : Natural            := 0;
+      Keep_Alive        : Boolean;
       If_Modified_Since : Unbounded_String;
       File_Up_To_Date   : Boolean            := False;
       Socket            : Socket_Access;
