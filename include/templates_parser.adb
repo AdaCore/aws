@@ -1950,8 +1950,13 @@ package body Templates_Parser is
       --  Get all parameters on the current line.
 
       function Is_Stmt (Stmt : in String) return Boolean;
+      pragma Inline (Is_Stmt);
       --  Returns True is Stmt is found at the begining of the current line
       --  ignoring leading blank characters.
+
+      function EOF return Boolean;
+      pragma Inline (EOF);
+      --  Returns True if the end of file has been reach.
 
       function Build_Include_Pathname
         (Include_Filename : in Unbounded_String)
@@ -2004,6 +2009,15 @@ package body Templates_Parser is
          end if;
       end Build_Include_Pathname;
 
+      ---------
+      -- EOF --
+      ---------
+
+      function EOF return Boolean is
+      begin
+         return Last = 0;
+      end EOF;
+
       -----------------
       -- Fatal_Error --
       -----------------
@@ -2024,6 +2038,10 @@ package body Templates_Parser is
          Start : Natural;
       begin
          Start := Strings.Fixed.Index (Buffer (First .. Last), Blank);
+
+         if Start = 0 then
+            Fatal_Error ("@@IF@@ missing condition");
+         end if;
 
          if Buffer (Last) = ASCII.CR then
             --  last character is a DOS CR (certainly because the template
@@ -2072,6 +2090,7 @@ package body Templates_Parser is
       function Get_Next_Line return Boolean is
       begin
          if Text_IO.End_Of_File (File) then
+            Last := 0;
             return True;
          else
             Line := Line + 1;
@@ -2161,7 +2180,6 @@ package body Templates_Parser is
                end if;
 
             when Parse_Section =>
-
                if Is_Stmt (End_If_Token) then
                   Fatal_Error ("@@END_IF@@ found, @@END_TABLE@@ expected");
                end if;
@@ -2174,6 +2192,10 @@ package body Templates_Parser is
 
                if Is_Stmt (End_Table_Token) then
                   T.N_Section := null;
+
+               elsif EOF then
+                  Fatal_Error ("EOF found, @@END_TABLE@@ expected");
+
                else
                   T.N_Section := Parse (Parse_Section);
                end if;
@@ -2216,6 +2238,9 @@ package body Templates_Parser is
             elsif Is_Stmt (Elsif_Token) then
                T.N_False := Parse (Parse_Elsif);
 
+            elsif EOF then
+               Fatal_Error ("EOF found, @@END_IF@@ expected");
+
             else
                T.N_False := Parse (Parse_Else);
 
@@ -2243,12 +2268,12 @@ package body Templates_Parser is
 
             T.Line := Line;
 
-            T.File     :=
+            T.File :=
               Load (Build_Include_Pathname (Get_First_Parameter), Cached);
 
-            I_File     := new Node'(Include_Stmt, I_File, Line, T.File);
+            I_File := new Node'(Include_Stmt, I_File, Line, T.File);
 
-            T.Next     := Parse (Mode);
+            T.Next := Parse (Mode);
 
             return T;
 
@@ -3022,7 +3047,7 @@ package body Templates_Parser is
                        (Template_Error'Identity,
                         "In " & Filename
                         & " at line" & Natural'Image (T.Line) & ' '
-                        & Exceptions.Exception_Message (E) & '.');
+                        & Exceptions.Exception_Information (E) & '.');
                end;
 
                Append (Results, ASCII.LF);
