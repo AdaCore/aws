@@ -1,3 +1,12 @@
+2004-09-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* dispatch.adb, dispatch_method.adb, dispatch_vh.adb, dispatch_vh.out,
+	  sock2_proc.adb, tcom.adb:
+	Use Get_Free_Port.
+
+	* sockext_proc.adb:
+	Fix comment.
+
 2004-08-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* disp_soap_proc.adb, file2.adb, sessions.adb, sessions2.adb,

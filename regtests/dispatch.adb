@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -33,18 +33,24 @@
 with Ada.Text_IO;
 
 with AWS.Client;
-with AWS.Config;
+with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
 with AWS.Server;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
 with AWS.Response;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Dispatch is
 
    use Ada;
    use AWS;
    use AWS.Services;
+
+   Cfg       : Config.Object;
+   Free_Port : Positive;
 
    function CB1
      (Request : in AWS.Status.Data)
@@ -95,7 +101,7 @@ procedure Dispatch is
       R : Response.Data;
    begin
       Text_IO.Put_Line (URI);
-      R := Client.Get ("http://localhost:1265" & URI);
+      R := Client.Get ("http://localhost:" & AWS.Utils.Image (Free_Port) & URI);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
 
@@ -119,10 +125,16 @@ begin
    Services.Dispatchers.URI.Register_Default_Callback
      (H, AWS.Dispatchers.Callback.Create (Default'Unrestricted_Access));
 
+   Cfg := AWS.Config.Get_Current;
+
+   Free_Port := AWS.Config.Server_Port (Cfg);
+   Get_Free_Port (Free_Port);
+   AWS.Config.Set.Server_Port (Cfg, Free_Port);
+
    AWS.Server.Start
      (WS,
       Dispatcher => H,
-      Config     => AWS.Config.Get_Current);
+      Config     => Cfg);
 
    Test ("/thisone");
    Test ("/disp");

@@ -1,4 +1,4 @@
-http://localhost:1266/thisone
+http://localhost
 > Dispatch 1 !
-http://127.0.0.1:1266/thisone
+http://127.0.0.1
 > Dispatch 2 !

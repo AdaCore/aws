@@ -37,6 +37,8 @@ with Ada.Streams;
 
 with AWS.Net;
 
+with Get_Free_Port;
+
 procedure Sock2_Proc (Security : Boolean; Port : Positive) is
 
    use AWS;
@@ -45,8 +47,10 @@ procedure Sock2_Proc (Security : Boolean; Port : Positive) is
 
    Sample : Stream_Element_Array (1 .. 100_000);
 
-   Server       : Net.Socket_Type'Class := Net.Socket (False);
-   Peer, Client : Net.Socket_Type'Class := Net.Socket (Security);
+   Server : Net.Socket_Type'Class := Net.Socket (False);
+   Peer   : Net.Socket_Type'Class := Net.Socket (Security);
+
+   Free_Port : Positive := Port;
 
    task Client_Side is
       entry Start;
@@ -58,11 +62,14 @@ procedure Sock2_Proc (Security : Boolean; Port : Positive) is
    -----------------
 
    task body Client_Side is
-      First : Stream_Element_Offset := Sample'First;
+      First  : Stream_Element_Offset := Sample'First;
+      Client : Net.Socket_Type'Class := Net.Socket (Security);
    begin
       accept Start;
 
-      Net.Connect (Client, "localhost", Port);
+      delay 0.125;
+
+      Net.Connect (Client, "localhost", Free_Port);
 
       loop
          declare
@@ -99,9 +106,11 @@ begin
                       (J mod Stream_Element_Offset (Stream_Element'Last));
    end loop;
 
+   Get_Free_Port (Free_Port);
+
    Text_IO.Put_Line ("start");
 
-   Net.Bind (Server, Port);
+   Net.Bind (Server, Free_Port);
    Net.Listen (Server);
 
    Client_Side.Start;

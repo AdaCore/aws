@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -33,18 +33,24 @@
 with Ada.Text_IO;
 
 with AWS.Client;
-with AWS.Config;
+with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
 with AWS.Server;
 with AWS.Services.Dispatchers.Method;
 with AWS.Status;
 with AWS.Response;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Dispatch_Method is
 
    use Ada;
    use AWS;
    use AWS.Services;
+
+   Cfg       : Config.Object;
+   Free_Port : Positive;
 
    function CB1
      (Request : in AWS.Status.Data)
@@ -90,20 +96,29 @@ begin
    Services.Dispatchers.Method.Register
      (H, Status.POST, CB3'Unrestricted_Access);
 
+   Free_Port := AWS.Config.Server_Port (Cfg);
+   Get_Free_Port (Free_Port);
+   AWS.Config.Set.Server_Port (Cfg, Free_Port);
+
    AWS.Server.Start
      (WS,
       Dispatcher => H,
-      Config     => AWS.Config.Get_Current);
+      Config     => Cfg);
 
-   R := Client.Get ("http://localhost:1267/test");
-   Text_IO.Put_Line ("> " & Response.Message_Body (R));
+   declare
+      URL : constant String
+        := "http://localhost:" & Utils.Image (Free_Port) & "/test";
+   begin
+      R := Client.Get (URL);
+      Text_IO.Put_Line ("> " & Response.Message_Body (R));
 
-   R := Client.Post ("http://localhost:1267/test", "go");
-   Text_IO.Put_Line ("> " & Response.Message_Body (R));
+      R := Client.Post (URL, "go");
+      Text_IO.Put_Line ("> " & Response.Message_Body (R));
 
-   R := Client.Head ("http://localhost:1267/test");
-   Text_IO.Put_Line ("> " & Response.Message_Body (R));
-   Text_IO.Put_Line ("> " & Integer'Image (Response.Content_Length (R)));
+      R := Client.Head (URL);
+      Text_IO.Put_Line ("> " & Response.Message_Body (R));
+      Text_IO.Put_Line ("> " & Integer'Image (Response.Content_Length (R)));
+   end;
 
    --  Close servers.
 
