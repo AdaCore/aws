@@ -1,3 +1,8 @@
+2003-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* check_mem.adb:
+	Add test for memory leak in the memory streams.
+
 2003-10-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zstrm.adb, zstrm.out, makefile:
