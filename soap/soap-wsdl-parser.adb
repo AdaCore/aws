@@ -519,7 +519,7 @@ package body SOAP.WSDL.Parser is
 
       pragma Assert
         (R /= null
-         and then DOM.Core.Nodes.Node_Name (R) = "complexType");
+         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
 
       declare
          Name : constant String := Get_Attr_Value (R, "name", False);
