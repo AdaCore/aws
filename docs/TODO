@@ -43,3 +43,5 @@ implemented:
 - Support SOAP and Web-Service framework.
 
 - Will be nice to add all timeouts to the AWS status page.
+
+- Will be nice to have AWS.Client.Get follow the redirection if requested.

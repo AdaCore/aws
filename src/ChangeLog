@@ -1,3 +1,21 @@
+2001-06-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb:
+	(Clean): Work around a GNAT bug when compiling with optimization on.
+
+	* aws-client.ads:
+	Reindent code.
+
+	* aws-config.adb:
+	(Hotplug_Port_Token): new constant.
+	(Hotplug_Port_Value): new variable.
+	(Hotplug_Port): new function.
+	(Initialize): update comment.
+	
+	* aws-config.ads:
+	(Default_Hotplug_Port): new constant.
+	(Hotplug_Port): new function.
+
 2001-06-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-*:
