@@ -58,7 +58,14 @@ package AWS.Response is
    --  This is the Web Server Callback procedure. A client must declare and
    --  pass such procedure to the HTTP record.
 
-   type Data_Mode is (Header, Message, File, Stream, Socket_Taken, No_Data);
+   type Data_Mode is
+     (Header,         -- Send only the HTTP header
+      Message,        -- Send a standard HTTP message
+      File,           -- Send a file
+      File_Once,      -- Send a file once, delete it after sending
+      Stream,         -- Send a stream
+      Socket_Taken,   -- Socket has been taken from the server
+      No_Data);       -- No data, this is not a response
 
    type Authentication_Mode is (Any, Basic, Digest);
    --  The authentication mode.
@@ -114,14 +121,15 @@ package AWS.Response is
       Cache_Control : in Messages.Cache_Option        := Messages.Unspecified;
       Encoding      : in Messages.Content_Encoding    := Messages.Identity)
       return Data;
-   --  Idem above, but the message body is a stream element array.
+   --  Idem above, but the message body is a stream element array
 
    function File
      (Content_Type  : in String;
       Filename      : in String;
       Status_Code   : in Messages.Status_Code      := Messages.S200;
       Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
-      Encoding      : in Messages.Content_Encoding := Messages.Identity)
+      Encoding      : in Messages.Content_Encoding := Messages.Identity;
+      Once          : in Boolean                   := False)
       return Data;
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file.
@@ -131,27 +139,22 @@ package AWS.Response is
       Handle        : access Resources.Streams.Stream_Type'Class;
       Status_Code   : in     Messages.Status_Code      := Messages.S200;
       Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
-      Encoding      : in     Messages.Content_Encoding := Messages.Identity)
+      Encoding      : in     Messages.Content_Encoding := Messages.Identity;
+      Server_Close  : in     Boolean                   := True)
       return Data;
    --  Returns a message whose message body is the content of the user
    --  defined stream. The Content_Type must indicate the MIME type for
    --  the data stream, Stream_Size the total number of bytes and Status_Code
    --  the header status code which should be send back to client's browser.
-
-   procedure Create_Resource
-     (D    : in     Data;
-      File :    out AWS.Resources.File_Type);
-   pragma Inline (Create_Resource);
-   --  Creates the resource object (either a file or in-memory object) for
-   --  the data to be sent to the client. The resource should be closed after
-   --  use.
+   --  If Server_Close is set to False the server will not close the stream
+   --  after sending it, it is then user's responsability to close the stream.
 
    ------------------------------
    -- Redirection Constructors --
    ------------------------------
 
    function URL (Location : in String) return Data;
-   --  This ask the server for a redirection to the specified URL.
+   --  This ask the server for a redirection to the specified URL
 
    function Moved
      (Location : in String;
@@ -209,7 +212,7 @@ package AWS.Response is
       N    : in Positive)
       return String;
    pragma Inline (Header);
-   --  Return the N-th value for header Name.
+   --  Return the N-th value for header Name
 
    function Header
      (D    : in Data;
@@ -221,11 +224,11 @@ package AWS.Response is
 
    procedure Send_Header (Socket : in Net.Socket_Type'Class; D : in Data);
    pragma Inline (Send_Header);
-   --  Send all header lines to the socket.
+   --  Send all header lines to the socket
 
    function Status_Code (D : in Data) return Messages.Status_Code;
    pragma Inline (Status_Code);
-   --  Returns the status code.
+   --  Returns the status code
 
    function Content_Length (D : in Data) return Content_Length_Type;
    pragma Inline (Content_Length);
@@ -234,7 +237,7 @@ package AWS.Response is
 
    function Content_Type (D : in Data) return String;
    pragma Inline (Content_Type);
-   --  Returns the MIME type for the message body.
+   --  Returns the MIME type for the message body
 
    function Cache_Control (D : in Data) return Messages.Cache_Option;
    pragma Inline (Cache_Control);
@@ -251,7 +254,7 @@ package AWS.Response is
 
    function Mode (D : in Data) return Data_Mode;
    pragma Inline (Mode);
-   --  Returns the data mode, either Header, Message or File.
+   --  Returns the data mode, either Header, Message or File
 
    function Message_Body (D : in Data) return String;
    pragma Inline (Message_Body);
@@ -265,14 +268,14 @@ package AWS.Response is
    function Message_Body
      (D      : in Data)
       return Strings.Unbounded.Unbounded_String;
-   --  Returns message body content as an unbounded_string.
+   --  Returns message body content as an unbounded_string
 
    function Message_Body (D : in Data) return Streams.Stream_Element_Array;
-   --  Returns message body as a binary content.
+   --  Returns message body as a binary content
 
    function Filename (D : in Data) return String;
    pragma Inline (Filename);
-   --  Returns the filename which should be sent back.
+   --  Returns the filename which should be sent back
 
    --------------------
    -- Authentication --
@@ -280,15 +283,30 @@ package AWS.Response is
 
    function Realm (D : in Data) return String;
    pragma Inline (Realm);
-   --  Returns the Realm for the current authentification request.
+   --  Returns the Realm for the current authentification request
 
    function Authentication (D : in Data) return Authentication_Mode;
    pragma Inline (Authentication);
-   --  Returns the authentication mode requested by server.
+   --  Returns the authentication mode requested by server
 
    function Authentication_Stale (D : in Data) return Boolean;
    pragma Inline (Authentication_Stale);
-   --  Returns the stale parameter for authentication.
+   --  Returns the stale parameter for authentication
+
+   ---------------
+   -- Resources --
+   ---------------
+
+   procedure Create_Resource
+     (D    : in     Data;
+      File :    out AWS.Resources.File_Type);
+   pragma Inline (Create_Resource);
+   --  Creates the resource object (either a file or in-memory object) for
+   --  the data to be sent to the client. The resource should be closed after
+   --  use.
+
+   function Close_Resource (D : in Data) return Boolean;
+   --  Returns True if the resource stream must be close
 
 private
 
@@ -333,6 +351,7 @@ private
       Filename     : Unbounded_String;
       Stream       : Resources.Streams.Stream_Access;
       Header       : AWS.Headers.List;
+      Close_Stream : Boolean              := True;
    end record;
 
    procedure Initialize (Object : in out Data);
