@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 15 November 2004
+<p>Date: 14 December 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -47,6 +47,7 @@
 <li><a href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>
 <li><a href="#IF%20tag%20statement">IF tag statement</a>
 <li><a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+<li><a href="#SET%20tag%20statement">SET tag statement</a>
 </ul>
 <li><a name="toc_Other%20services"></a>
     <a href="#Other%20services">Other services</a>
@@ -864,6 +865,7 @@ by <code>@@</code>. The tag statements are:
 <li><a accesskey=2 href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>: 
 <li><a accesskey=3 href="#IF%20tag%20statement">IF tag statement</a>: 
 <li><a accesskey=4 href="#TABLE%20tag%20statement">TABLE tag statement</a>: 
+<li><a accesskey=5 href="#SET%20tag%20statement">SET tag statement</a>: 
 </ul>
 
 <p><hr>
@@ -1101,6 +1103,7 @@ template:
 
 <p><hr>
 Node:<a name="TABLE%20tag%20statement">TABLE tag statement</a>,
+Next:<a rel=next accesskey=n href="#SET%20tag%20statement">SET tag statement</a>,
 Previous:<a rel=previous accesskey=p href="#IF%20tag%20statement">IF tag statement</a>,
 Up:<a rel=up accesskey=u href="#Tag%20statements">Tag statements</a>
 <br>
@@ -1670,6 +1673,48 @@ A3.1, A3.2
 </pre>
 
 <p><hr>
+Node:<a name="SET%20tag%20statement">SET tag statement</a>,
+Previous:<a rel=previous accesskey=p href="#TABLE%20tag%20statement">TABLE tag statement</a>,
+Up:<a rel=up accesskey=u href="#Tag%20statements">Tag statements</a>
+<br>
+
+<h3>SET tag statement</h3>
+
+<p>The <code>SET</code> command tag can be used to define a constant or an
+alias for an include file parameter. This is especially important in
+the context of reusable template files. For example, instead of having
+many references to the <b>red</b> color in an HTML document, it is better to
+define a constant <var>COLOR</var> with the value <b>red</b> and use <var>COLOR</var>
+everywhere. It is then easier to change the color afterward.
+
+<p>The first form, to define a simple constant that can be used as any
+other variable in a template file, is:
+
+<br><pre>
+@@SET@@ &lt;name&gt; = &lt;value&gt;
+</pre>
+
+<p>The second form, to define an alias for a template file parameter, is:
+
+<br><pre>
+@@SET@@ &lt;name&gt; = $n [| &lt;default_value&gt;]
+</pre>
+
+<p>In this case &lt;name&gt; is an alias for the Nth include parameter. In this
+form it is also possible to define a default value that would be used
+if the Nth include parameter is not specified.
+
+<p>Some examples:
+
+<br><pre>
+@@SET@@ COLOR = red
+
+@@SET@@ SIZE = $1
+
+@@SET@@ COLOR = $4 | green
+</pre>
+
+<p><hr>
 Node:<a name="Other%20services">Other services</a>,
 Next:<a rel=next accesskey=n href="#Last%20notes">Last notes</a>,
 Previous:<a rel=previous accesskey=p href="#Tag%20statements">Tag statements</a>,
@@ -1700,7 +1745,8 @@ is called by the parser. The default callback method does nothing, it
 is up to the user to define it. The callback procedure is defined as
 follow:
 
-<br><pre><b>procedure</b> Callback
+<br><pre>
+<p><b>procedure</b> Callback
   (Context  : <b>access</b> Templates_Parser.Context;
    Variable : <b>in</b>     String;
    Result   :    <b>out</b> Unbounded_String;
@@ -2353,6 +2399,7 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <li>Command, IF: <a href="#IF%20tag%20statement">IF tag statement</a>
 <li>Command, IF expression: <a href="#IF%20tag%20statement">IF tag statement</a>
 <li>Command, INCLUDE: <a href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>
+<li>Command, SET: <a href="#SET%20tag%20statement">SET tag statement</a>
 <li>Command, TABLE: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
 <li>Command, TERMINATE_SECTIONS: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
 <li>Context: <a href="#Context">Context</a>
