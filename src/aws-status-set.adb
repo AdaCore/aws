@@ -295,6 +295,7 @@ package body AWS.Status.Set is
       D.Auth_QOP          := Null_Unbounded_String;
       D.Auth_Response     := Null_Unbounded_String;
       D.Session_ID        := AWS.Session.No_Session;
+      D.Session_Created   := False;
 
       AWS.Parameters.Set.Reset (D.Parameters);
    end Reset;
@@ -308,6 +309,13 @@ package body AWS.Status.Set is
       ID : in     String) is
    begin
       D.Session_ID := AWS.Session.Value (ID);
+   end Session;
+
+   procedure Session
+     (D  : in out Data) is
+   begin
+      D.Session_ID      := AWS.Session.Create;
+      D.Session_Created := True;
    end Session;
 
    ----------------

@@ -65,6 +65,10 @@ package AWS.Status.Set is
       ID : in     String);
    --  Set Session to ID.
 
+   procedure Session
+     (D  : in out Data);
+   --  Generate new Session.
+
    procedure Host (D : in out Data; Host : in String);
    --  Set value for "Host:" parameter
 
