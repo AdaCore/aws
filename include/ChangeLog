@@ -1,3 +1,8 @@
+2003-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* memory_streams.ads, memory_streams.adb:
+	New generic package.
+
 2003-08-30  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* table_of_dynamic_keys_and_static_values_g.ads,
