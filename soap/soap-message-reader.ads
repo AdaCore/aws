@@ -35,7 +35,6 @@
 
 with Sax.Readers;          use Sax.Readers;
 with Sax.Attributes;
-with Sax.Exceptions;
 with Unicode.CES;
 with DOM.Core;             use DOM.Core;
 
