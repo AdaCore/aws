@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 Marsh 4, 2003
+   Pascal Obry                                                 Marsh 5th, 2003
 
 
 
@@ -26,101 +26,14 @@ version.
 The SOAP implementation has been validated on http://validator.soapware.org/.
 
 
-Here are the main changes since AWS 1.2:
+Here are the main changes since AWS 1.3 :
 
-   - Fix bug in Client module in reading chunk size returned by some
-     Web servers.
+   - wsdl2aws, new tool. Generate SOAP/AWS stub/skeleton for a WSDL
+     document. With this tool it is very easy to build or to connect to Web
+     Services.
 
-   - Fix bug in Client module when reading large binary data.
-
-   - Fix bug in Client module when reading empty file (file whose size
-     Content-Length is 0).
-
-   - Fix bug in log where client IP addresses could be wrong.
-
-   - Fix resource leak (socket) in the Client module.
-
-   - Correctly handle HTTP headers continuation lines in the client API.
-
-   - Add support for embedded resources. An AWS server can now be easily
-     built as a stand-alone executable. All resources (images, templates,
-     HTML pages...) can be embedded into the executable. See AWS.Resources
-     tree and the AWSRes tools to help building the embedded resources. There
-     is also a support for user defined stream.
-
-   - Add support for client upload (see AWS.Client.Upload).
-
-   - Send file size in the chunk transfer encoding. This make it possible for
-     the browser to display the download's progress-bar.
-
-   - Fix SOAP name space handling. It is now possible to set the name space
-     for a Payload and AWS correctly set the name space as defined in incoming
-     requests.
-
-   - Add complete HTML code browsing facility using gnathtml. See
-     aws/docs/html directory.
-
-   - Add support for Digest authentication (far more secure than the
-     Basic one).
-
-   - Fix a serious file upload bug. Some files were not correctly detected in
-     the MIME sections.
-
-   - AWS is now safer, by default URL are checked for validity and an
-     exception is raised if an URL try to reach a resource above the Web
-     root. This was not a big problem in AWS as most URL are just "string"
-     which does not reference file on disk.
-
-   - Add support to send SMTP e-mail (MIME attachments are supported).
-
-   - Add LDAP client binding (support read access LDAP servers).
-
-   - Add support for user/password in URL.
-
-   - Add fast support for string/stream_element_array conversion in
-     AWS.Translator if the compiler/target support it.
-
-   - Support HTTP header lines in multiple lines as permitted by the RFC.
-
-   - Option added to AWS.Client.Get to automatically follow redirection.
-
-   - Add some supports for the Jabber protocol (Message and Presence detection)
-
-   - Improve performance when sending small files.
-
-   - Fix bug in chunk protocol, it was working fine but was not conforming to
-     the RFC.
-
-   - Fix chunked encoding over SSL incompatibility with Opera browser (really
-     an Opera bug)
-
-   - Update to Templates_Parser 4.7 (add +,add,-,sub,*,mult,/,div,mod filters,
-     support attributes for vectors and matrix, add not and /= operators).
-     This new version completely preserve the template's format.
-
-   - Complete rewrite of the socket handling. Sockets are now buffered for
-     reading and writing making AWS faster. The AWS.Net interface also
-     provide two implementations one based on GNAT.Sockets (the default) and
-     one based AdaSockets.
-
-     This is a big change and means that there is some incompatibilities. For
-     example now for all socket errors the exception AWS.Net.Socket_Error is
-     raised, it used to be some AdaSockets errors (either Connection_Refused
-     or Socket_Error.
-
-   - SSL support is now specified at link time and not at configuration time.
-     To build an SSL/AWS application you just need to link with -lssl and
-     -lcrypto. There is no specific AWS configuration.
-
-   - Add support for error log file
-
-   - Better handling of unexpected errors and give a way to the client to send
-     back a message.
-
-   - AWS now parse and record all header lines from requests. It is also
-     possible to add any header lines to an HTTP response.
-
-   - AWS has support for cache control (see AWS.Response API)
+   - Fix memory leak in templates parser when using a non existent template
+     file.
 
    - Plus many small fixes, enhancements and documentation work.
 
