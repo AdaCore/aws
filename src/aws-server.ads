@@ -72,8 +72,7 @@ package AWS.Server is
       Security                  : in     Boolean           := False;
       Session                   : in     Boolean           := False;
       Case_Sensitive_Parameters : in     Boolean           := True;
-      Upload_Directory          : in     String            := Def_Upload_Dir;
-      Log_Split_Mode            : in     Log.Split_Mode    := Log.None);
+      Upload_Directory          : in     String            := Def_Upload_Dir);
    --  Start the Web server. It initialize the connections lines.
    --  Name is just a string used to identify the server. This is used for
    --  example in the administrative page. Admin_URI must be set to enable the
@@ -93,7 +92,10 @@ package AWS.Server is
    function Config (Web_Server : in HTTP) return AWS.Config.Object;
    --  Returns configuration object for Web_Server.
 
-   procedure Start_Log (Web_Server : in out HTTP);
+   procedure Start_Log
+     (Web_Server      : in out HTTP;
+      Split_Mode      : in     Log.Split_Mode := Log.None;
+      Filename_Prefix : in     String         := "");
    --  Activate server's logging activity. See AWS.Log.
 
    procedure Stop_Log (Web_Server : in out HTTP);
