@@ -1,6 +1,14 @@
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-configuration__aws.ads:
+	Split CVS tag to avoid long lines.
+	
+	* templates_parser-input__aws.adb:
+	Split CVS tag to avoid long lines.
+	
+2005-02-16  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-configuration__aws.ads:
 	Initial revision.
 
 	* templates_parser-input__aws.adb:
