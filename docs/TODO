@@ -117,5 +117,11 @@ implemented:
 
 - Add POP3 support
 
-=============== Point to fix before next release
+- Add a time period dispatcher. This will be a new AWS.Services.Dispatcher
+  child, the idea is to have a set of time period associated with a callback,
+  the same URI will be dispatched to the right callback depending on the
+  current local time. I had this idea while looking at the TF1 Web Site (one
+  of the TV channel in France), they have a set of links to the first page,
+  late in the evening the links tends to point to adult contents :)
 
+=============== Point to fix before next release
