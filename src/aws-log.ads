@@ -71,7 +71,7 @@ package AWS.Log is
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
       Answer       : in     Response.Data);
-   --  Write log info if activated (i.e. Start routine above as been called).
+   --  Write log info if activated (i.e. Start routine above has been called).
 
    procedure Write
      (Log            : in out Object;
@@ -86,7 +86,7 @@ package AWS.Log is
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
       Data         : in     String);
-   --  Write user's log info if activated.  (i.e. Start routine above as been
+   --  Write user's log info if activated.  (i.e. Start routine above has been
    --  called).
 
    procedure Stop (Log : in out Object);
