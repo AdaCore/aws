@@ -37,4 +37,4 @@ aws.coff: aws.rc
 	windres -i aws.rc -o aws.coff
 
 clean:
-	-rm *.a *~ aws.coff
+	-rm -f *.a *~ aws.coff
