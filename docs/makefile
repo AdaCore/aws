@@ -29,7 +29,10 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-messages.ads.texi \
 	../src/aws-mime.ads.texi \
 	../src/aws-parameters.ads.texi \
+	../src/aws-resources-files.ads.texi \
+	../src/aws-resources-embedded.ads.texi \
 	../src/aws-resources-streams.ads.texi \
+	../src/aws-resources-streams-memory.ads.texi \
 	../src/aws-resources.ads.texi \
 	../src/aws-response.ads.texi \
 	../src/aws-server-hotplug.ads.texi \
@@ -102,7 +105,8 @@ ada.sed: makefile
 	-makeinfo $<
 
 %.html: %.texi
-	-texi2html -menu -monolithic $<
+	-makeinfo --html --no-split --ifinfo $<
+#	-texi2html -menu -monolithic $<
 
 %.txt: %.texi
 	-makeinfo --no-headers $< > $@
