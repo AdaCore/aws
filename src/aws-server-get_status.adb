@@ -164,7 +164,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Slot_Data := Server.Slots.Get (Index => K);
 
          if Slot_Data.Phase /= Closed then
-            Sock := Sock & Integer (Sockets.Get_FD (Slot_Data.Sock));
+            Sock := Sock & Integer (Sockets.Get_FD (Slot_Data.Sock.all));
          else
             Sock := Sock & '-';
          end if;
