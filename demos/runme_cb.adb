@@ -53,6 +53,10 @@ package body Runme_CB is
       C := C + 1;
       AWS.Session.Set (Session_ID, "counter", C);
 
+      if C > 5 then
+         AWS.Session.Set (Session_ID, "another", "string value");
+      end if;
+
       if URI = "/first_img" then
          return AWS.Response.File (Content_Type => "image/png",
                                    Filename     => "adains.png");
