@@ -13,3 +13,5 @@ distributed with AWS as a convenience but are not part of AWS.
 
 * AWS.OS_Lib* are 3 implementations of the same AWS.OS_Lib spec. One using 
   POSIX, one for GNAT and one for Win32 OS.
+
+* MD5 from Rolf Ebert (no known address) and Christoph Grein <Christ-Usch.Grein@T-Online.de>
