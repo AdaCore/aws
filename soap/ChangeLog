@@ -1,3 +1,28 @@
+2004-11-26  Pascal Obry  <pascal@obry.org>
+
+	* soap-types.ads, soap-types.adb:
+        Add support for xsd:short types.
+        Minor reformatting.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	(Get) [Short]: New function.
+
+	* soap-wsdl.ads:
+	(Parameter_Type): Add P_Short.
+
+	* soap-wsdl.adb:
+        (From_Ada): Handle P_Short.
+        (Get_Routine): Idem.
+        (Set_Routine): Idem.
+        (Set_Type): Idem.
+        (To_Ada): Idem.
+        (To_Type): Idem.
+        (To_XSD): Idem.
+        (V_Routine): Idem.
+
+	* soap-wsdl-parser.adb:
+        (Get_Node): Fix implementation to support sibling with the same name.
+
 2004-11-04  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator-cb.adb:
@@ -12,7 +37,7 @@
 	(Start_Service): Generate with clause for Procs_Spec if needed.
 	Use Types_Spec routine everywhere instead of directly reading the
 	 object field.
-	
+
 	* soap-generator.ads:
 	(Procs_Spec): New function.
 	(Types_Spec): New function.
