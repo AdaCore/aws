@@ -301,27 +301,23 @@ package body AWS.Net.Std is
    -- Receive --
    -------------
 
-   function Receive
-     (Socket : in Socket_Type;
-      Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array
-   is
-      Buffer : Stream_Element_Array (1 .. Max);
-      Last   : Stream_Element_Count := 0;
+   procedure Receive
+     (Socket : in     Socket_Type;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset) is
    begin
       Wait_For (Input, Socket);
 
-      Sockets.Receive_Socket (Socket.S.FD, Buffer, Last);
+      Sockets.Receive_Socket (Socket.S.FD, Data, Last);
 
       --  Check if socket closed by peer.
 
-      if Last = Buffer'First - 1 then
+      if Last = Data'First - 1 then
          Ada.Exceptions.Raise_Exception
            (Socket_Error'Identity,
             Message => "Receive : Socket closed by peer.");
       end if;
 
-      return Buffer (1 .. Last);
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Receive");

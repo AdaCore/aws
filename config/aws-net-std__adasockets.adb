@@ -282,14 +282,14 @@ package body AWS.Net.Std is
    -- Receive --
    -------------
 
-   function Receive
-     (Socket : in Socket_Type;
-      Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array is
+   procedure Receive
+     (Socket : in     Socket_Type;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset) is
    begin
       Wait_For (Input, Socket);
 
-      return Sockets.Receive (Socket.S.FD, Max);
+      Sockets.Receive_Some (Socket.S.FD, Data, Last);
    exception
       when E : Sockets.Socket_Error       |
                Sockets.Connection_Closed  |
