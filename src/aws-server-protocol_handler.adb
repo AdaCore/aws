@@ -38,7 +38,6 @@ with POSIX_Calendar;
 
 with AWS.Messages;
 with AWS.Status;
-with AWS.Translater;
 
 separate (AWS.Server)
 
@@ -310,8 +309,7 @@ is
                   Char_Data (CDI) := Character'Val (Data (K));
                   CDI := CDI + 1;
                end loop;
-               Status.Set_Parameters (C_Stat,
-                                      Translater.Decode_URL (Char_Data));
+               Status.Set_Parameters (C_Stat, Char_Data);
             end;
 
          else
@@ -439,7 +437,7 @@ is
          if I3 = 0 then
             return "";
          else
-            return Translater.Decode_URL (Command (I3 + 1 .. I2 - 1));
+            return Command (I3 + 1 .. I2 - 1);
          end if;
       end Parameters;
 
