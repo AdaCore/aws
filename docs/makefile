@@ -56,19 +56,13 @@ APIFILES = ../src/aws.ads.texi \
 	../soap/soap-parameters.ads.texi \
 	../soap/soap-types.ads.texi
 
-ifeq (${OS}, Windows_NT)
-TEXI2HTML = texi2html.pl
-else
-TEXI2HTML = texi2html
-endif
-
 check_env:
 	(if ! [ -e ../src/aws-os_lib.adb ]; then \
 	   cp ../config/aws-os_lib__gnat.adb ../src/aws-os_lib.adb; fi)
 
-aws_docs : aws.ps aws.pdf aws.html aws.txt aws.info
+aws_docs: aws.ps aws.pdf aws.html aws.txt aws.info
 
-sg_docs : style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
+sg_docs: style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
 	style-guide.info
 
 build: check_env aws_docs sg_docs
@@ -93,22 +87,22 @@ ada.sed: makefile
 %.adb.texi: %.adb ada.sed gentexifile
 	./gentexifile $< NOGROUP
 
-%.dvi : %.texi
+%.dvi: %.texi
 	-texi2dvi --clean --quiet $<
 
-%.ps : %.dvi
+%.ps: %.dvi
 	-dvips -q $< -o $@
 
-%.pdf : %.ps
+%.pdf: %.ps
 	-ps2pdf $< $@
 
-%.info : %.texi
+%.info: %.texi
 	-makeinfo $<
 
-%.html : %.texi
-	-$(TEXI2HTML) -menu -monolithic $<
+%.html: %.texi
+	-texi2html -menu -monolithic $<
 
-%.txt : %.texi
+%.txt: %.texi
 	-makeinfo --no-headers $< > $@
 
 aws.dvi: aws.texi $(APIFILES)
