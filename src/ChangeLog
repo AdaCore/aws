@@ -1,5 +1,11 @@
 2002-10-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-status.adb:
+	(Check_Digest): Add comment.
+	Update copyright notice to 2002.
+
+2002-10-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-digest.adb:
 	(Check_Nonce): Checking for the 5 first chars is hexadecimal.
 
