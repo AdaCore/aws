@@ -1,5 +1,10 @@
 2003-07-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* zlib.ads, zlib.adb:
+	Synchronize with ZLib-Ada CVS repository.
+
+2003-07-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* zlib.adb:
 	Minor reformat.
 

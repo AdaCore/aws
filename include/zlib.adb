@@ -277,7 +277,9 @@ package body ZLib is
                Out_Last,
                Flush_Finish (Last < In_Buffer'First));
 
-            Data_Out (Out_Buffer (Out_Buffer'First .. Out_Last));
+            if Out_Buffer'First <= Out_Last then
+               Data_Out (Out_Buffer (Out_Buffer'First .. Out_Last));
+            end if;
 
             exit Main when Stream_End (Filter);
 
@@ -609,7 +611,7 @@ package body ZLib is
          Add_Data (Simple_GZip_Header);
 
          Translate_Auto
-           (Filter => Filter,
+           (Filter   => Filter,
             In_Data  => In_Data,
             In_Last  => In_Last,
             Out_Data => Out_Data (Out_First .. Out_Data'Last),
@@ -667,7 +669,7 @@ package body ZLib is
 
       loop
          Translate
-           (Filter => Filter,
+           (Filter   => Filter,
             In_Data  => Item (In_First .. Item'Last),
             In_Last  => In_Last,
             Out_Data => Buffer,
