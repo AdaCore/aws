@@ -1,5 +1,14 @@
 2003-10-05  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.ads, aws-server.adb:
+	(Socket_Semaphore): Implement a socket queue instead of a single
+	 socket space. This is better for performance.
+
+	* aws-net.ads: 
+	(Socket_Set): New type.
+
+2003-10-05  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-client.adb:
 	Change Set.Append_Encode by Set.Data_Encoding.
 	Minor reformatting.
