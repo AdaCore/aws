@@ -68,7 +68,8 @@ procedure Build is
          Assoc ("UPLOAD_DIR", Default.Upload_Directory),
          Assoc ("LINE_STACK_SIZE", Default.Line_Stack_Size),
          Assoc ("CHECK_URL_VALIDITY", Default.Check_URL_Validity),
-         Assoc ("CERTIFICATE", Default.Certificate),
+         Assoc ("DEFAULT_CERTIFICATE", Default.Certificate),
+         Assoc ("ADMIN_URI", Default.Admin_URI),
          Assoc ("CT_WAIT_FOR_CLIENT",
                 Image (Default.Cleaner_Wait_For_Client_Timeout)),
          Assoc ("CT_CLIENT_HEADER",
@@ -104,5 +105,5 @@ procedure Build is
         );
 
 begin
-   Text_IO.Put_Line (Parse ("aws.texi.tmplt", T));
+   Text_IO.Put_Line (Parse ("aws.texi.tmplt", T, Keep_Unknown_Tags => True));
 end Build;
