@@ -39,6 +39,7 @@ with Ada.Streams;
 
 with AWS.Session;
 with AWS.Parameters;
+with Sockets;
 
 package AWS.Status is
 
@@ -47,6 +48,10 @@ package AWS.Status is
    --  handled with case sensitivity or not. Default is True.
 
    type Request_Method is (GET, HEAD, POST, PUT);
+   
+   subtype Socket_Type is Sockets.Socket_FD'Class;
+   
+   type Socket_Access is access all Socket_Type;
 
    function Authorization_Name     (D : in Data) return String;
    function Authorization_Password (D : in Data) return String;
@@ -65,6 +70,7 @@ package AWS.Status is
    function Session                (D : in Data) return String;
    function Session                (D : in Data) return AWS.Session.ID;
    function URI                    (D : in Data) return String;
+   function Socket                 (D : in Data) return Socket_Type;
 
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
 
@@ -79,6 +85,7 @@ private
    pragma Inline (Method);
    pragma Inline (URI);
    pragma Inline (HTTP_Version);
+   pragma Inline (Socket);
 
    use Ada.Strings.Unbounded;
 
@@ -98,6 +105,7 @@ private
       Content_Length    : Natural            := 0;
       If_Modified_Since : Unbounded_String;
       File_Up_To_Date   : Boolean            := False;
+      Socket            : Socket_Access;
       Auth_Name         : Unbounded_String;
       Auth_Password     : Unbounded_String;
       Session_ID        : Unbounded_String;
