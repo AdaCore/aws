@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Unchecked_Deallocation;
+
 with GNAT.Regexp;
 
 with AWS.MIME;
@@ -81,7 +83,7 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Finalize (Dispatcher : in out Handler) is
    begin
-      Dispatcher.Ref_Counter := Dispatcher.Ref_Counter - 1;
+      Finalize (Dispatchers.Handler (Dispatcher));
 
       if Dispatcher.Ref_Counter = 0 then
          for K in 1 .. URI_Table.Last (Dispatcher.Table) loop
@@ -97,7 +99,7 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Initialize (Dispatcher : in out Handler) is
    begin
-      Dispatcher.Ref_Counter := 1;
+      Initialize (Dispatchers.Handler (Dispatcher));
       URI_Table.Init (Dispatcher.Table);
    end Initialize;
 

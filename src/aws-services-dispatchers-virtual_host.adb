@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with AWS.MIME;
 with AWS.Status;
@@ -47,9 +48,9 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    -- Finalize --
    --------------
 
-   procedure Finalize   (Dispatcher : in out Handler) is
+   procedure Finalize (Dispatcher : in out Handler) is
    begin
-      Dispatcher.Ref_Counter := Dispatcher.Ref_Counter - 1;
+      Finalize (Dispatchers.Handler (Dispatcher));
 
       if Dispatcher.Ref_Counter = 0 then
          Virtual_Host_Table.Destroy (Dispatcher.Table.all);
@@ -64,7 +65,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Initialize (Dispatcher : in out Handler) is
    begin
-      Dispatcher.Ref_Counter := 1;
+      Initialize (Dispatchers.Handler (Dispatcher));
       Dispatcher.Table := new Virtual_Host_Table.Table_Type;
    end Initialize;
 
