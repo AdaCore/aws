@@ -51,7 +51,11 @@ package body Runme_CB is
            (Content_Type => "text/html",
             Message_Body =>
               "<p>Ok, that's the end of it for now!"
-            & "<p>Your name is " & AWS.Status.Parameter (Request, "name"));
+            & "<p>Your name is " & AWS.Status.Parameter (Request, "name")
+            & "<p>parameter name (1) = "
+            & AWS.Status.Parameter_Name (Request, 1)
+            & "<p>parameter name (2) = "
+            & AWS.Status.Parameter_Name (Request, 2));
 
       elsif URI = "/get-form" then
          return AWS.Response.Build
