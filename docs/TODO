@@ -71,7 +71,7 @@ implemented:
   mechanisms to handle the concurrency...
 
 - Add a service to handle the call of the right procedure for the requested
-  URI. This is a kind of dispatched and will remove the needs for a big case
+  URI. This is a kind of dispatcher and will remove the needs for a big case
   in the user's callback procedure. AWS.Services.Dispatcher.Callback. User
   will be able to register/unregister a callback for URI starting with a
   specific string or matching a regular expression.
