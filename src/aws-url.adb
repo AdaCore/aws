@@ -170,7 +170,7 @@ package body AWS.URL is
          Parse (URL (URL'First + HTTPS_Token'Length .. URL'Last));
          O.Security := True;
 
-      else
+      elsif URL /= "" then
          --  No server and port, just an URL.
 
          if URL (URL'First) = '/' then
