@@ -113,6 +113,8 @@ package body Templates_Parser is
    Filter_Web_NBSP_Token      : aliased constant String := "WEB_NBSP";
    Filter_Coma_2_Point_Token  : aliased constant String := "COMA_2_POINT";
    Filter_Point_2_Coma_Token  : aliased constant String := "POINT_2_COMA";
+   Filter_LF_2_BR_Token       : aliased constant String := "LF_2_BR";
+   Filter_BR_2_LF_Token       : aliased constant String := "BR_2_LF";
    Filter_Plus_Token          : aliased constant String := """+""";
    Filter_Add_Token           : aliased constant String := "ADD";
    Filter_Minus_Token         : aliased constant String := """-""";
@@ -128,7 +130,10 @@ package body Templates_Parser is
    --  replacing it in the template file.
 
    type Filters_Mode is
-     (Capitalize,
+     (BR_2_LF,
+      --  Replaces all <BR> HTML tag by a LF character.
+
+      Capitalize,
       --  Lower case except char before spaces and underscores.
 
       Clean_Text,
@@ -153,6 +158,9 @@ package body Templates_Parser is
 
       Is_Empty,
       --  Returns "TRUE" if var is empty and "FALSE" otherwise.
+
+      LF_2_BR,
+      --  Replaces all LF character to <BR> HTML tag.
 
       Lower,
       --  Lower case.
@@ -264,6 +272,9 @@ package body Templates_Parser is
    procedure Check_Null_Parameter (P : in Parameter_Data);
    --  Raises Template_Error if P is not equal to Null_Parameter.
 
+   function BR_2_LF_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
    function Capitalize_Filter
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
@@ -283,6 +294,9 @@ package body Templates_Parser is
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Is_Empty_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+   function LF_2_BR_Filter
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Lower_Filter
@@ -1260,6 +1274,39 @@ package body Templates_Parser is
       end if;
    end Check_Null_Parameter;
 
+   --------------------
+   -- BR_2_LF_Filter --
+   --------------------
+
+   function BR_2_LF_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String
+   is
+      Result : String (S'Range);
+      K      : Positive := Result'First;
+      J      : Positive := S'First;
+   begin
+      Check_Null_Parameter (P);
+
+      loop
+         if S (J) = '<'
+           and then J + 3 <= S'Last
+           and then Characters.Handling.To_Lower (S (J .. J + 3)) = "<br>"
+         then
+            Result (K) := ASCII.LF;
+            K := K + 1;
+            J := J + 4;
+         else
+            Result (K) := S (J);
+            K := K + 1;
+            J := J + 1;
+         end if;
+
+         exit when J > S'Last;
+      end loop;
+
+      return Result (Result'First .. K - 1);
+   end BR_2_LF_Filter;
+
    -----------------------
    -- Capitalize_Filter --
    -----------------------
@@ -1493,6 +1540,41 @@ package body Templates_Parser is
          return "FALSE";
       end if;
    end Is_Empty_Filter;
+
+   --------------------
+   -- LF_2_BR_Filter --
+   --------------------
+
+   function LF_2_BR_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String
+   is
+      N      : constant Natural
+        := Fixed.Count (S, Strings.Maps.To_Set (ASCII.LF));
+   begin
+      Check_Null_Parameter (P);
+
+      if N = 0 then
+         --  No LF, return the original string
+         return S;
+      end if;
+
+      declare
+         Result : String (1 .. S'Length + N * 3);
+         K      : Positive := S'First;
+      begin
+         for J in S'Range loop
+            if S (J) = ASCII.LF then
+               Result (K .. K + 3) := "<br>";
+               K := K + 4;
+            else
+               Result (K) := S (J);
+               K := K + 1;
+            end if;
+         end loop;
+
+         return Result (1 .. K - 1);
+      end;
+   end LF_2_BR_Filter;
 
    ------------------
    -- Lower_Filter --
@@ -1987,7 +2069,10 @@ package body Templates_Parser is
    --  Filter Table
 
    Filter_Table : constant array (Filters_Mode) of Filter_Record
-     := (Capitalize     =>
+     := (BR_2_LF        =>
+           (Filter_BR_2_LF_Token'Access,        BR_2_LF_Filter'Access),
+
+         Capitalize     =>
            (Filter_Capitalize_Token'Access,     Capitalize_Filter'Access),
 
          Clean_Text     =>
@@ -2010,6 +2095,9 @@ package body Templates_Parser is
 
          Is_Empty       =>
            (Filter_Is_Empty_Token'Access,       Is_Empty_Filter'Access),
+
+         LF_2_BR        =>
+           (Filter_LF_2_BR_Token'Access,        LF_2_BR_Filter'Access),
 
          Lower          =>
            (Filter_Lower_Token'Access,          Lower_Filter'Access),
