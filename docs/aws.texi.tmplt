@@ -121,7 +121,7 @@ On Windows you must use the one distributed at:
 Win32 port (done by Dmitriy Anisimkov) of the ENST version.
 
 On UNIX you must use the socket binding from ENST 
-@url{http://www.infres.enst.fr/ANC/}.
+@url{http://www.rfc1149.net/devel/adasockets}.
 
 @item a POSIX binding - Interface to the underlying OS services (@b{optional}) ;
 @cindex POSIX
