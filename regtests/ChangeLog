@@ -1,3 +1,23 @@
+2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS): New target.
+	(ASIS_TESTS): New variable.
+	(build): Add $(ASIS_TESTS)
+	($(ASIS_TESTS)): New target.
+
+	* wsdl_1_server.ads, wsdl_1_server.adb:
+	Initial revision.
+
+	* wsdl_1_main.adb:
+	Initial revision.
+
+	* wsdl_1.out:
+	Initial revision.
+
+	* wsdl_1.ads, wsdl_1.adb:
+	Initial revision.
+
 2003-10-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
