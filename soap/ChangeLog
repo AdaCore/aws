@@ -1,3 +1,27 @@
+2003-05-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap.ads:
+	(Version): Set to 1.2.
+	Update copyright header.
+
+	* soap-message-reader.adb:
+	(Characters): Use Utils.From_Utf8.
+
+	* soap-message-xml.adb:
+	(XML_Header): Add encoding style (Utf8).
+	(Load_Payload): Parse using Utf8 encoding.
+	(Load_Response): Idem.
+	Minor reformatting.
+
+	* soap-types.adb:
+	(S): Encode strings in Utf8.
+	(V): Code back the string to Basic_8bit (standard string).
+
+	* soap-utils.ads, soap-utils.adb:
+	(To_Utf8): New routine.
+	(From_Utf8): New routine.
+	Update copyright header.
+
 2003-05-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-xml.adb:
