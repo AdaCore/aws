@@ -48,7 +48,11 @@ package SOAP.Utils is
 
    function Is_Array (Name : in String) return Boolean;
    pragma Inline (Is_Array);
-   --  Returns true if Name is an WSDL array (i.e. starting with ArrayOf)
+   --  Returns True if Name is an WSDL array (i.e. starting with ArrayOf or
+   --  terminating with Array)
+
+   function Array_Type (Name : in String) return String;
+   --  Returns the type of the array element given the array Name
 
    function No_NS (Name : in String) return String;
    --  Returns Str without leading name space if present
