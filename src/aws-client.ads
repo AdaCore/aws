@@ -102,7 +102,8 @@ package AWS.Client is
       Proxy      : in String   := No_Data;
       Proxy_User : in String   := No_Data;
       Proxy_Pwd  : in String   := No_Data;
-      Retry      : in Positive := Retry_Default)
+      Retry      : in Positive := Retry_Default;
+      Persistent : in Boolean  := True)
      return HTTP_Connection;
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The request will be tried Retry time if it fails.
@@ -149,6 +150,7 @@ private
       Proxy_User  : Unbounded_String;
       Proxy_Pwd   : Unbounded_String;
       Opened      : Boolean;
+      Persistent  : Boolean;
       Socket      : Socket_Access;
       Retry       : Positive;
    end record;
