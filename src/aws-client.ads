@@ -33,6 +33,7 @@
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
+with AWS.Attachments;
 with AWS.Default;
 with AWS.Net.SSL.Certificate;
 with AWS.Response;
@@ -67,6 +68,10 @@ package AWS.Client is
 
    No_Timeout : constant Timeouts_Values;
    --  No timeout, allow infinite time to send or retrieve data
+
+   --------------
+   -- Messages --
+   --------------
 
    function Get
      (URL                : in String;
@@ -122,40 +127,43 @@ package AWS.Client is
    --  Put will retry one time if it fails.
 
    function Post
-     (URL        : in String;
-      Data       : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
+     (URL         : in String;
+      Data        : in String;
+      User        : in String               := No_Data;
+      Pwd         : in String               := No_Data;
+      Proxy       : in String               := No_Data;
+      Proxy_User  : in String               := No_Data;
+      Proxy_Pwd   : in String               := No_Data;
+      Timeouts    : in Timeouts_Values      := No_Timeout;
+      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
    function Post
-     (URL        : in String;
-      Data       : in Ada.Streams.Stream_Element_Array;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
+     (URL         : in String;
+      Data        : in Ada.Streams.Stream_Element_Array;
+      User        : in String               := No_Data;
+      Pwd         : in String               := No_Data;
+      Proxy       : in String               := No_Data;
+      Proxy_User  : in String               := No_Data;
+      Proxy_Pwd   : in String               := No_Data;
+      Timeouts    : in Timeouts_Values      := No_Timeout;
+      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data;
    --  Idem as above but with binary data.
 
    function SOAP_Post
-     (URL        : in String;
-      Data       : in String;
-      SOAPAction : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
+     (URL         : in String;
+      Data        : in String;
+      SOAPAction  : in String;
+      User        : in String               := No_Data;
+      Pwd         : in String               := No_Data;
+      Proxy       : in String               := No_Data;
+      Proxy_User  : in String               := No_Data;
+      Proxy_Pwd   : in String               := No_Data;
+      Timeouts    : in Timeouts_Values      := No_Timeout;
+      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
@@ -300,17 +308,19 @@ package AWS.Client is
    --  Same as Put above but using a Connection
 
    procedure Post
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Data       : in     String;
-      URI        : in     String          := No_Data);
+     (Connection  : in out HTTP_Connection;
+      Result      :    out Response.Data;
+      Data        : in     String;
+      URI         : in     String               := No_Data;
+      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List);
    --  Same as Post above but using a Connection
 
    procedure Post
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Data       : in     Ada.Streams.Stream_Element_Array;
-      URI        : in     String          := No_Data);
+     (Connection  : in out HTTP_Connection;
+      Result      :    out Response.Data;
+      Data        : in     Ada.Streams.Stream_Element_Array;
+      URI         : in     String               := No_Data;
+      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List);
    --  Same as Post above but using a Connection
 
    procedure Upload
@@ -321,11 +331,12 @@ package AWS.Client is
    --  Same as Upload above but using a Connection
 
    procedure SOAP_Post
-     (Connection : in     HTTP_Connection;
-      Result     :    out Response.Data;
-      SOAPAction : in     String;
-      Data       : in     String;
-      Streaming  : in     Boolean := False);
+     (Connection  : in     HTTP_Connection;
+      Result      :    out Response.Data;
+      SOAPAction  : in     String;
+      Data        : in     String;
+      Streaming   : in     Boolean              := False;
+      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List);
    --  Same as SOAP_Post above but using a Connection
    --  Streaming is to be able to parse response XML on the fly,
    --  without intermediate buffer.
@@ -397,7 +408,7 @@ private
       Proxy         : Unbounded_String;
       Proxy_URL     : AWS.URL.Object;
       Auth          : Authentication_Set;
-      Opened        : Boolean            := False;
+      Opened        : Boolean                      := False;
       Persistent    : Boolean;
       Streaming     : Boolean;
       Cookie        : Unbounded_String;

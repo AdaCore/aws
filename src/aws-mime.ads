@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -118,6 +118,7 @@ package AWS.MIME is
    ---------------
 
    Multipart_Form_Data         : constant String := "multipart/form-data";
+   Multipart_Related           : constant String := "multipart/related";
    Multipart_X_Mixed_Replace   : constant String
      := "multipart/x-mixed-replace";
 
@@ -144,6 +145,10 @@ package AWS.MIME is
    --  rules set by Add_Regexp (see below).
    --  Returns "application/octet-stream" if the file type is unknown
    --  (i.e. no extension and no regular expression match filename).
+
+   function Extension (Content_Type : in String) return String;
+   --  Returns the best guess of the extension to use for the Content Type.
+   --  Note that extensions added indirectly by Add_Regexp are not searched.
 
    function Is_Text (MIME_Type : in String) return Boolean;
    --  Returns True if the MIME_Type is a text data

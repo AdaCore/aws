@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -84,5 +84,10 @@ package AWS.Status.Set is
    --  Set the Socket for the status. User callback can then retrieve the
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.
+
+   procedure Attachments
+     (D           : in out Data;
+      Attachments : in     AWS.Attachments.List);
+   --  Adds a list of Attachments to D
 
 end AWS.Status.Set;

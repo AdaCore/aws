@@ -52,6 +52,15 @@ package body AWS.Status is
       return Headers.Get (D.Header, Messages.Accept_Encoding_Token);
    end Accept_Encoding;
 
+   -----------------
+   -- Attachments --
+   -----------------
+
+   function Attachments (D : in Data) return AWS.Attachments.List is
+   begin
+      return D.Attachments;
+   end Attachments;
+
    --------------------------
    -- Authorization_CNonce --
    --------------------------

@@ -42,7 +42,9 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 
+with AWS.Attachments;
 with AWS.Config;
+with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Log;
 with AWS.Messages;
@@ -51,6 +53,7 @@ with AWS.Net.Buffered;
 with AWS.OS_Lib;
 with AWS.Parameters.Set;
 with AWS.Resources;
+with AWS.Resources.Streams.Memory;
 with AWS.Session;
 with AWS.Server.Get_Status;
 with AWS.Status.Set;
@@ -74,10 +77,10 @@ is
    use type Resources.Content_Length_Type;
 
    Case_Sensitive_Parameters : constant Boolean
-     := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
+   := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
 
    Admin_URI      : constant String
-     := CNF.Admin_URI (HTTP_Server.Properties);
+   := CNF.Admin_URI (HTTP_Server.Properties);
 
    HTTP_10        : constant String := "HTTP/1.0";
 
@@ -86,7 +89,7 @@ is
    P_List         : AWS.Parameters.List; -- Form data
 
    Sock_Ptr       : constant Socket_Access
-     := HTTP_Server.Slots.Get (Index => Index).Sock;
+   := HTTP_Server.Slots.Get (Index => Index).Sock;
 
    Sock           : Net.Socket_Type'Class renames Sock_Ptr.all;
 
@@ -109,6 +112,7 @@ is
 
    Status_Connection         : Unbounded_String;
    Status_Multipart_Boundary : Unbounded_String;
+   Status_Root_Part_CID      : Unbounded_String;
    Status_Content_Type       : Unbounded_String;
    Support_Compressed        : Boolean;
 
@@ -198,10 +202,10 @@ is
          --  AWS Internal status page handling.
 
          if Admin_URI'Length > 0
-              and then
-           URI'Length >= Admin_URI'Length
-              and then
-           URI (URI'First .. URI'First + Admin_URI'Length - 1) = Admin_URI
+           and then
+             URI'Length >= Admin_URI'Length
+             and then
+               URI (URI'First .. URI'First + Admin_URI'Length - 1) = Admin_URI
          then
 
             if URI = Admin_URI then
@@ -216,9 +220,9 @@ is
                      Answer := Response.Build
                        (Content_Type => MIME.Text_HTML,
                         Message_Body =>
-                          "Status template error. Please check "
-                          & "that '" & CNF.Status_Page (HTTP_Server.Properties)
-                          & "' file is valid.");
+                        "Status template error. Please check "
+                        & "that '" & CNF.Status_Page (HTTP_Server.Properties)
+                        & "' file is valid.");
                end;
 
             elsif URI = Admin_URI & "-logo" then
@@ -268,7 +272,7 @@ is
               (Status_Code   => Messages.S403,
                Content_Type  => "text/plain",
                Message_Body  => "Request " & URI & ASCII.LF
-                 & " trying to reach resource above the Web root directory.");
+               & " trying to reach resource above the Web root directory.");
 
          else
             --  Otherwise, check if a session needs to be created
@@ -348,13 +352,39 @@ is
 
       use type Status.Request_Method;
 
-      Multipart_Boundary : constant String
-        := To_String (Status_Multipart_Boundary);
+      type Message_Mode is
+        (Root_Attachment,   -- Read the root attachment
+         Attachment,        -- Read an attachment
+         File_Upload);      -- Read a file upload
+
+      procedure Get_File_Data
+        (Server_Filename : in     String;
+         Start_Boundary  : in     String;
+         Mode            : in     Message_Mode;
+         Headers         : in     AWS.Headers.List;
+         End_Found       :    out Boolean);
+      --  Read file data from the stream, set End_Found if the end-boundary
+      --  signature has been read. Server_Filename is the filename to be used
+      --  for on-disk content (Attachment and File_Upload mode).
 
       procedure File_Upload
         (Start_Boundary, End_Boundary : in String;
          Parse_Boundary               : in Boolean);
       --  Handle file upload data coming from the client browser
+
+      procedure Store_Attachments
+        (Start_Boundary, End_Boundary : in String;
+         Parse_Boundary               : in Boolean;
+         Root_Part_CID                : in String);
+      --  Store attachments coming from the client browser
+
+      Multipart_Boundary : constant String
+        := To_String (Status_Multipart_Boundary);
+
+      Root_Part_CID : constant String
+        := To_String (Status_Root_Part_CID);
+
+      Attachments : AWS.Attachments.List;
 
       -----------------
       -- File_Upload --
@@ -367,209 +397,15 @@ is
          Name            : Unbounded_String;
          Filename        : Unbounded_String;
          Server_Filename : Unbounded_String;
-         Content_Type    : Unbounded_String;
-         File            : Streams.Stream_IO.File_Type;
          Is_File_Upload  : Boolean;
+         Headers         : AWS.Headers.List;
 
          End_Found       : Boolean := False;
          --  Set to true when the end-boundary has been found
 
-         type Error_State is (No_Error, Name_Error, Device_Error);
-         --  This state is to monitor the file upload process. If we receice
-         --  Name_Error or Device_Error while writing data on disk we need to
-         --  continue reading all data from the socket if we want to be able
-         --  to send back an error message.
-
-         Error : Error_State := No_Error;
-
-         procedure Get_File_Data;
-         --  Read file data from the stream, set End_Found if the end-boundary
-         --  signature has been read.
-
          function Target_Filename (Filename : in String) return String;
          --  Returns the full path name for the file as stored on the
          --  server side.
-
-         -------------------
-         -- Get_File_Data --
-         -------------------
-
-         procedure Get_File_Data is
-
-            use type Streams.Stream_Element;
-            use type Streams.Stream_Element_Offset;
-            use type Streams.Stream_Element_Array;
-
-            function Check_EOF return Boolean;
-            --  Returns True if we have reach the end of file data
-
-            procedure Write (Buffer : in Streams.Stream_Element_Array);
-            pragma Inline (Write);
-            --  Write buffer to the file, handle the Device_Error exception
-
-            Buffer : Streams.Stream_Element_Array (1 .. 4096);
-            Index  : Streams.Stream_Element_Offset := Buffer'First;
-
-            Data   : Streams.Stream_Element_Array (1 .. 1);
-
-            ---------------
-            -- Check_EOF --
-            ---------------
-
-            function Check_EOF return Boolean is
-
-               Signature : constant Streams.Stream_Element_Array
-                 := (1 => 13, 2 => 10)
-                    & Translator.To_Stream_Element_Array (Start_Boundary);
-
-               Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
-               Index  : Streams.Stream_Element_Offset := Buffer'First;
-
-               procedure Write_Data;
-               --  Put buffer data into the main buffer (Get_Data.Buffer). If
-               --  the main buffer is not big enough, it will write the buffer
-               --  into the file bdefore.
-
-               ----------------
-               -- Write_Data --
-               ----------------
-
-               procedure Write_Data is
-               begin
-                  if Error /= No_Error then
-                     return;
-                  end if;
-
-                  if Get_File_Data.Buffer'Last
-                    < Get_File_Data.Index + Index - 1
-                  then
-                     Write (Get_File_Data.Buffer
-                              (Get_File_Data.Buffer'First
-                                 .. Get_File_Data.Index - 1));
-                     Get_File_Data.Index := Get_File_Data.Buffer'First;
-                  end if;
-
-                  Get_File_Data.Buffer
-                    (Get_File_Data.Index .. Get_File_Data.Index + Index - 2)
-                    := Buffer (Buffer'First .. Index - 1);
-
-                  Get_File_Data.Index := Get_File_Data.Index + Index - 1;
-               end Write_Data;
-
-            begin
-               Buffer (Index) := 13;
-               Index := Index + 1;
-
-               loop
-                  Net.Buffered.Read (Sock, Data);
-
-                  if Data (1) = 13 then
-                     Write_Data;
-                     return False;
-                  end if;
-
-                  Buffer (Index) := Data (1);
-
-                  if Index = Buffer'Last then
-                     if Buffer = Signature then
-                        return True;
-                     else
-                        Write_Data;
-                        return False;
-                     end if;
-                  end if;
-
-                  Index := Index + 1;
-
-               end loop;
-            end Check_EOF;
-
-            -----------
-            -- Write --
-            -----------
-
-            procedure Write (Buffer : in Streams.Stream_Element_Array) is
-            begin
-               if Error = No_Error then
-                  Streams.Stream_IO.Write (File, Buffer);
-               end if;
-            exception
-               when Text_IO.Device_Error =>
-                  Error := Device_Error;
-            end Write;
-
-         begin
-            begin
-               Streams.Stream_IO.Create
-                 (File,
-                  Streams.Stream_IO.Out_File,
-                  To_String (Server_Filename));
-            exception
-               when Text_IO.Name_Error =>
-                  Error := Name_Error;
-            end;
-
-            Read_File : loop
-               Net.Buffered.Read (Sock, Data);
-
-               while Data (1) = 13 loop
-                  exit Read_File when Check_EOF;
-               end loop;
-
-               Buffer (Index) := Data (1);
-               Index := Index + 1;
-
-               if Index > Buffer'Last then
-                  Write (Buffer);
-                  Index := Buffer'First;
-
-                  HTTP_Server.Slots.Mark_Data_Time_Stamp
-                    (Protocol_Handler.Index);
-               end if;
-            end loop Read_File;
-
-            if Index /= Buffer'First then
-               Write (Buffer (Buffer'First .. Index - 1));
-            end if;
-
-            if Error = No_Error then
-               Streams.Stream_IO.Close (File);
-            end if;
-
-            --  Check for end-boundary, at this point we have at least two
-            --  chars. Either the terminating "--" or CR+LF.
-
-            Net.Buffered.Read (Sock, Data);
-            Net.Buffered.Read (Sock, Data);
-
-            if Data (1) = 10 then
-               --  We have CR+LF, it is a start-boundary
-               End_Found := False;
-
-            else
-               --  We have read the "--", read line terminator. This is the
-               --  end-boundary.
-
-               End_Found := True;
-               Net.Buffered.Read (Sock, Data);
-               Net.Buffered.Read (Sock, Data);
-            end if;
-
-            if Error = Name_Error then
-               --  We can't create the file, add a clear exception message
-               Ada.Exceptions.Raise_Exception
-                 (Text_IO.Name_Error'Identity,
-                  "Cannot create file " & To_String (Server_Filename));
-
-            elsif Error = Device_Error then
-               --  We can't write to the file, there is probably no space left
-               --  on devide.
-               Ada.Exceptions.Raise_Exception
-                 (Text_IO.Device_Error'Identity,
-                  "No space left on device while writting "
-                    & To_String (Server_Filename));
-            end if;
-         end Get_File_Data;
 
          ---------------------
          -- Target_Filename --
@@ -581,7 +417,6 @@ is
                               Going => Strings.Backward);
             Upload_Path : constant String
               := CNF.Upload_Directory (HTTP_Server.Properties);
-
             UID         : Natural;
          begin
             File_Upload_UID.Get (UID);
@@ -618,7 +453,7 @@ is
          --  Read file upload parameters
 
          declare
-            use Headers;
+            use AWS.Headers;
             Data       : constant String := Net.Buffered.Get_Line (Sock);
             L_Name     : constant String := Values.Search (Data, "name");
             L_Filename : constant String := Values.Search (Data, "filename");
@@ -632,39 +467,29 @@ is
          --  Reach the data
 
          loop
-            declare
-               Data : constant String := Net.Buffered.Get_Line (Sock);
-            begin
-               if Data = "" then
-                  exit;
-               else
-                  Content_Type := To_Unbounded_String
-                    (Data
-                     (Messages.Content_Type_Token'Length + 1 .. Data'Last));
-               end if;
-            end;
+            exit when Net.Buffered.Get_Line (Sock) = "";
          end loop;
 
          --  Read file/field data
 
          if Is_File_Upload then
-            --  This part of the multipart message contains file data.
-
-            --  Set Server_Filename, the name of the file in the local file
-            --  sytstem.
+            --  This part of the multipart message contains file data
 
             if CNF.Upload_Directory (HTTP_Server.Properties) = "" then
                Ada.Exceptions.Raise_Exception
                  (Constraint_Error'Identity,
                   "File upload not supported by server "
-                  & CNF.Server_Name (HTTP_Server.Properties));
+                    & CNF.Server_Name (HTTP_Server.Properties));
             end if;
+
+            --  Set Server_Filename, the name of the file in the local file
+            --  sytstem.
 
             Server_Filename := To_Unbounded_String
               (Target_Filename (To_String (Filename)));
 
             if To_String (Filename) /= "" then
-               --  First value is the uniq name on the server side
+               --  First value is the unique name on the server side
 
                AWS.Parameters.Set.Add
                  (P_List,
@@ -686,7 +511,12 @@ is
                --  Read file data, set End_Found if the end-boundary signature
                --  has been read.
 
-               Get_File_Data;
+               Get_File_Data
+                 (To_String (Server_Filename),
+                  Start_Boundary,
+                  File_Upload,
+                  Headers,
+                  End_Found);
 
                if not End_Found then
                   File_Upload (Start_Boundary, End_Boundary, False);
@@ -736,6 +566,324 @@ is
          end if;
       end File_Upload;
 
+      -------------------
+      -- Get_File_Data --
+      -------------------
+
+      procedure Get_File_Data
+        (Server_Filename : in     String;
+         Start_Boundary  : in     String;
+         Mode            : in     Message_Mode;
+         Headers         : in     AWS.Headers.List;
+         End_Found       :    out Boolean)
+      is
+         use type Streams.Stream_Element;
+         use type Streams.Stream_Element_Offset;
+         use type Streams.Stream_Element_Array;
+
+         type Error_State is (No_Error, Name_Error, Device_Error);
+         --  This state is to monitor the file upload process. If we receice
+         --  Name_Error or Device_Error while writing data on disk we need to
+         --  continue reading all data from the socket if we want to be able
+         --  to send back an error message.
+
+         function Check_EOF return Boolean;
+         --  Returns True if we have reach the end of file data
+
+         procedure Write (Buffer : in Streams.Stream_Element_Array);
+         pragma Inline (Write);
+         --  Write buffer to the file, handle the Device_Error exception
+
+         File    : Streams.Stream_IO.File_Type;
+         Buffer  : Streams.Stream_Element_Array (1 .. 4096);
+         Index   : Streams.Stream_Element_Offset := Buffer'First;
+
+         Content : AWS.Resources.Streams.Memory.Stream_Type;
+         --  Used for root part
+
+         Data   : Streams.Stream_Element_Array (1 .. 1);
+
+         Error  : Error_State := No_Error;
+
+         ---------------
+         -- Check_EOF --
+         ---------------
+
+         function Check_EOF return Boolean is
+
+            Signature : constant Streams.Stream_Element_Array
+              := (1 => 13, 2 => 10)
+                   & Translator.To_Stream_Element_Array (Start_Boundary);
+
+            Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
+            Index  : Streams.Stream_Element_Offset := Buffer'First;
+
+            procedure Write_Data;
+            --  Put buffer data into the main buffer (Get_Data.Buffer). If
+            --  the main buffer is not big enough, it will write the buffer
+            --  into the file before.
+
+            ----------------
+            -- Write_Data --
+            ----------------
+
+            procedure Write_Data is
+            begin
+               if Error /= No_Error then
+                  return;
+               end if;
+
+               if Get_File_Data.Buffer'Last
+                 < Get_File_Data.Index + Index - 1
+               then
+                  Write (Get_File_Data.Buffer
+                           (Get_File_Data.Buffer'First
+                              .. Get_File_Data.Index - 1));
+                  Get_File_Data.Index := Get_File_Data.Buffer'First;
+               end if;
+
+               Get_File_Data.Buffer
+                 (Get_File_Data.Index .. Get_File_Data.Index + Index - 2)
+                 := Buffer (Buffer'First .. Index - 1);
+
+               Get_File_Data.Index := Get_File_Data.Index + Index - 1;
+            end Write_Data;
+
+         begin
+            Buffer (Index) := 13;
+            Index := Index + 1;
+
+            loop
+               Net.Buffered.Read (Sock, Data);
+
+               if Data (1) = 13 then
+                  Write_Data;
+                  return False;
+               end if;
+
+               Buffer (Index) := Data (1);
+
+               if Index = Buffer'Last then
+                  if Buffer = Signature then
+                     return True;
+                  else
+                     Write_Data;
+                     return False;
+                  end if;
+               end if;
+
+               Index := Index + 1;
+            end loop;
+         end Check_EOF;
+
+         -----------
+         -- Write --
+         -----------
+
+         procedure Write (Buffer : in Streams.Stream_Element_Array) is
+         begin
+            if Error = No_Error then
+               if Mode in Attachment .. File_Upload then
+                  Streams.Stream_IO.Write (File, Buffer);
+               else
+                  --  This is the root part of an MIME attachment, set the
+                  --  memory stream with the content read.
+                  AWS.Resources.Streams.Memory.Append (Content, Buffer);
+               end if;
+            end if;
+         exception
+            when Text_IO.Device_Error =>
+               Error := Device_Error;
+         end Write;
+
+      begin
+         begin
+            if Mode in Attachment .. File_Upload then
+               Streams.Stream_IO.Create
+                 (File,
+                  Streams.Stream_IO.Out_File, Server_Filename);
+            else
+               AWS.Resources.Streams.Memory.Clear (Content);
+            end if;
+         exception
+            when Text_IO.Name_Error =>
+               Error := Name_Error;
+         end;
+
+         Read_File : loop
+            Net.Buffered.Read (Sock, Data);
+
+            while Data (1) = 13 loop
+               exit Read_File when Check_EOF;
+            end loop;
+
+            Buffer (Index) := Data (1);
+            Index := Index + 1;
+
+            if Index > Buffer'Last then
+               Write (Buffer);
+               Index := Buffer'First;
+
+               HTTP_Server.Slots.Mark_Data_Time_Stamp
+                 (Protocol_Handler.Index);
+            end if;
+         end loop Read_File;
+
+         if Index /= Buffer'First then
+            Write (Buffer (Buffer'First .. Index - 1));
+         end if;
+
+         if Error = No_Error then
+            case Mode is
+               when Root_Attachment =>
+                  declare
+                     Data : Streams.Stream_Element_Array
+                       (1 .. Streams.Stream_Element_Offset
+                          (AWS.Resources.Streams.Memory.Size (Content)));
+                     Last :  Streams.Stream_Element_Offset;
+                  begin
+                     AWS.Resources.Streams.Memory.Read
+                       (Resource => Content,
+                        Buffer   => Data,
+                        Last     => Last);
+                     AWS.Status.Set.Binary (C_Stat, Data);
+                     AWS.Resources.Streams.Memory.Close (Content);
+                  end;
+
+               when Attachment =>
+                  Streams.Stream_IO.Close (File);
+                  AWS.Attachments.Add
+                    (Attachments, Server_Filename, Headers);
+
+               when File_Upload =>
+                  Streams.Stream_IO.Close (File);
+            end case;
+         end if;
+
+         --  Check for end-boundary, at this point we have at least two
+         --  chars. Either the terminating "--" or CR+LF.
+
+         Net.Buffered.Read (Sock, Data);
+         Net.Buffered.Read (Sock, Data);
+
+         if Data (1) = 10 then
+            --  We have CR+LF, it is a start-boundary
+            End_Found := False;
+
+         else
+            --  We have read the "--", read line terminator. This is the
+            --  end-boundary.
+
+            End_Found := True;
+            Net.Buffered.Read (Sock, Data);
+            Net.Buffered.Read (Sock, Data);
+         end if;
+
+         if Error = Name_Error then
+            --  We can't create the file, add a clear exception message
+            Ada.Exceptions.Raise_Exception
+              (Text_IO.Name_Error'Identity,
+               "Cannot create file " & Server_Filename);
+
+         elsif Error = Device_Error then
+            --  We can't write to the file, there is probably no space left
+            --  on devide.
+            Ada.Exceptions.Raise_Exception
+              (Text_IO.Device_Error'Identity,
+               "No space left on device while writting " & Server_Filename);
+         end if;
+      end Get_File_Data;
+
+      -----------------------
+      -- Store_Attachments --
+      -----------------------
+
+      procedure Store_Attachments
+        (Start_Boundary, End_Boundary : in String;
+         Parse_Boundary               : in Boolean;
+         Root_Part_CID                : in String)
+      is
+         Server_Filename : Unbounded_String;
+         Content_ID      : Unbounded_String;
+         Headers         : AWS.Headers.List;
+
+         End_Found       : Boolean := False;
+         --  Set to true when the end-boundary has been found
+
+         function Attachment_Filename (Extension : in String) return String;
+         --  Returns the full path name for the file as stored on the
+         --  server side.
+
+         -------------------------
+         -- Attachment_Filename --
+         -------------------------
+
+         function Attachment_Filename (Extension : in String) return String is
+            Upload_Path : constant String
+              := CNF.Upload_Directory (HTTP_Server.Properties);
+            UID         : Natural;
+         begin
+            File_Upload_UID.Get (UID);
+
+            if Extension = "" then
+               return Upload_Path & Utils.Image (UID);
+            else
+               return Upload_Path & Utils.Image (UID) & '.' & Extension;
+            end if;
+         end Attachment_Filename;
+
+      begin
+         --  Reach the boundary
+
+         if Parse_Boundary then
+            loop
+               declare
+                  Data : constant String := Net.Buffered.Get_Line (Sock);
+               begin
+                  exit when Data = Start_Boundary;
+
+                  if Data = End_Boundary then
+                     --  This is the end of the multipart data
+                     return;
+                  end if;
+               end;
+            end loop;
+         end if;
+
+         --  Read header
+
+         AWS.Headers.Set.Read (Sock, Headers);
+
+         Content_ID := To_Unbounded_String
+           (AWS.Headers.Get (Headers, Messages.Content_ID_Token));
+
+         --  Read file/field data
+
+         if Content_ID = Status_Root_Part_CID then
+            Get_File_Data
+              ("", Start_Boundary, Root_Attachment, Headers, End_Found);
+
+         else
+            Server_Filename := To_Unbounded_String
+              (Attachment_Filename
+                 (AWS.MIME.Extension
+                    (AWS.Headers.Get (Headers, Messages.Content_Type_Token))));
+
+            Get_File_Data
+              (To_String (Server_Filename),
+               Start_Boundary, Attachment, Headers, End_Found);
+         end if;
+
+         --  More attachments ?
+
+         if End_Found then
+            AWS.Status.Set.Attachments (C_Stat, Attachments);
+         else
+            Store_Attachments
+              (Start_Boundary, End_Boundary, False, Root_Part_CID);
+         end if;
+      end Store_Attachments;
+
    begin
       --  Is there something to read ?
 
@@ -774,6 +922,16 @@ is
             File_Upload ("--" & Multipart_Boundary,
                          "--" & Multipart_Boundary & "--",
                          True);
+
+         elsif Status.Method (C_Stat) = Status.POST
+           and then Status_Content_Type = MIME.Multipart_Related
+         then
+            --  Attachments are to be written to separate files
+
+            Store_Attachments ("--" & Multipart_Boundary,
+                               "--" & Multipart_Boundary & "--",
+                               True,
+                               Root_Part_CID);
 
          else
             --  Let's suppose for now that all others content type data are
@@ -846,10 +1004,14 @@ is
          procedure Named_Value
            (Name, Value : in String;
             Quit        : in out Boolean) is
+            pragma Unreferenced (Quit);
+            L_Name : constant String :=
+                       Ada.Characters.Handling.To_Lower (Name);
          begin
-            if Ada.Characters.Handling.To_Lower (Name) = "boundary" then
+            if L_Name = "boundary" then
                Status_Multipart_Boundary := To_Unbounded_String (Value);
-               Quit := True;
+            elsif L_Name = "start" then
+               Status_Root_Part_CID := To_Unbounded_String (Value);
             end if;
          end Named_Value;
 
@@ -988,9 +1150,9 @@ is
          end if;
       end Parameters;
 
-      ---------
-      -- URI --
-      ---------
+      --------------
+      -- Resource --
+      --------------
 
       function Resource return String is
       begin
@@ -1056,21 +1218,21 @@ is
          use type AWS.Status.Request_Method;
 
          Filename      : constant String
-           := Response.Filename (Answer);
+         := Response.Filename (Answer);
 
          Is_Up_To_Date : Boolean;
 
          File_Mode     : constant Boolean
-           := Response.Mode (Answer) = Response.File;
+         := Response.Mode (Answer) = Response.File;
 
          File          : Resources.File_Type;
       begin
          Is_Up_To_Date := File_Mode
-              and then
-           Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
-              and then
-           Resources.File_Timestamp (Filename)
-             = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
+           and then
+         Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
+           and then
+         Resources.File_Timestamp (Filename)
+         = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
          --  Equal used here see [RFC 2616 - 14.25]
 
          if Is_Up_To_Date then
@@ -1101,10 +1263,10 @@ is
          --  message length comming from a user's stream.
 
          if Length = Resources.Undefined_Length
-            and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
-            --  We cannot use transfer-encoding chunked in HTTP_10
-            and then AWS.Status.Method (C_Stat) /= AWS.Status.HEAD
-            --  We have to send message_body
+           and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
+         --  We cannot use transfer-encoding chunked in HTTP_10
+           and then AWS.Status.Method (C_Stat) /= AWS.Status.HEAD
+         --  We have to send message_body
          then
             --  In this case we need to close the connection explicitly at the
             --  end of the transfer.
@@ -1214,8 +1376,8 @@ is
       case Response.Mode (Answer) is
 
          when Response.File | Response.File_Once
-           | Response.Stream | Response.Message
-           =>
+            | Response.Stream | Response.Message
+            =>
             Send_Data;
 
          when Response.Header =>
@@ -1302,10 +1464,10 @@ is
          --  Each chunk will have a maximum length of Buffer'Length
 
          CRLF : constant Streams.Stream_Element_Array
-           := (1 => Character'Pos (ASCII.CR), 2 => Character'Pos (ASCII.LF));
+         := (1 => Character'Pos (ASCII.CR), 2 => Character'Pos (ASCII.LF));
 
          Last_Chunk : constant Streams.Stream_Element_Array
-           := Character'Pos ('0') & CRLF & CRLF;
+         := Character'Pos ('0') & CRLF & CRLF;
          --  Last chunk for a chunked encoding stream. See [RFC 2616 - 3.6.1]
 
       begin
@@ -1327,10 +1489,10 @@ is
                H_Last : constant String := Utils.Hex (Positive (Last));
 
                Chunk  : constant Streams.Stream_Element_Array
-                 := Translator.To_Stream_Element_Array (H_Last)
-                 & CRLF
-                 & Buffer (1 .. Last)
-                 & CRLF;
+               := Translator.To_Stream_Element_Array (H_Last)
+               & CRLF
+               & Buffer (1 .. Last)
+               & CRLF;
                --  A chunk is composed of:
                --     the Size of the chunk in hexadecimal
                --     a line feed
@@ -1422,10 +1584,9 @@ is
       Will_Close := AWS.Messages.Match (Connection, "close")
         or else not Keep_Alive
         or else (Status.HTTP_Version (C_Stat) = HTTP_10
-                   and then
+                 and then
                  AWS.Messages.Does_Not_Match (Connection, "keep-alive"));
    end Set_Close_Status;
-
 
 begin
    --  This new connection has been initialized because some data are
@@ -1465,17 +1626,17 @@ begin
          Answer_To_Client;
 
       exception
-         --  We must never exit the loop with an exception. This loop is
-         --  supposed to be used for the keep-alive connection. We must exit
-         --  properly and the slot will be closed. An exception propagated
-         --  outside of this loop will kill definitely one of the server's
-         --  slot.
+            --  We must never exit the loop with an exception. This loop is
+            --  supposed to be used for the keep-alive connection. We must exit
+            --  properly and the slot will be closed. An exception propagated
+            --  outside of this loop will kill definitely one of the server's
+            --  slot.
 
          when Net.Socket_Error =>
             --  Exit from keep-alive loop in case of socket error
             exit For_Every_Request;
 
-         when E : others =>
+            when E : others =>
 
             declare
                use type Response.Data_Mode;
@@ -1517,7 +1678,7 @@ begin
                   --  certainly been closed while sending back the answer.
                   exit For_Every_Request;
 
-               when E : others =>
+                  when E : others =>
                   --  Here we got an exception (other than Net.Socket_Error).
                   --  It is probably due to a problem in a user's stream
                   --  implementation. Just log the problem and exit.
@@ -1525,8 +1686,8 @@ begin
                     (HTTP_Server.Error_Log,
                      C_Stat,
                      "Exception handler bug "
-                       & Utils.CRLF_2_Spaces
-                           (Ada.Exceptions.Exception_Information (E)));
+                     & Utils.CRLF_2_Spaces
+                       (Ada.Exceptions.Exception_Information (E)));
                   exit For_Every_Request;
             end;
       end;
