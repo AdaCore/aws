@@ -1,5 +1,10 @@
 2004-12-22  Pascal Obry  <pascal@obry.net>
 
+	* readme.txt:
+	Fix javascripts alias.
+	
+2004-12-22  Pascal Obry  <pascal@obry.net>
+
 	* notebook/notebook.thtml:
 	Use "/we_js/" alias for the javascripts code.
 	Clarify note about cookies, AWS require cokies only if session is
