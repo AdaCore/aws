@@ -28,6 +28,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
+--  $Id$
+
 with AWS.Status;
 with Templates_Parser;
 
