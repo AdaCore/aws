@@ -1,3 +1,11 @@
+2003-11-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* zlib/*.c, zlib/*.h:
+	Release 1.2.1.
+
+	* zlib/ChangeLog:
+	Make it binary for CVS, because it contain CVS macros in text.
+
 2003-11-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zlib/*:
