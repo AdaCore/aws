@@ -1,5 +1,21 @@
 2003-01-14  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	(Accept_Socket_Serialized): Do not free memory there. It is now
+	 done by Accept_Socket.
+
+	* aws-net-std.adb:
+	(Accept_Socket): Release New_Sockect memory.
+
+	* aws-net-ssl.adb:
+	(Accept_Socket): Release New_Sockect memory.
+
+	* aws-net.ads:
+	(Accept_Socket): New_Socket is set to null if there is a problem.
+	 Cleaner semantic.
+
+2003-01-14  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(aws-translator-conversion.adb): Use EXEEXT to remove test_uconv.
 
