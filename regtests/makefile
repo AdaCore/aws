@@ -10,11 +10,11 @@ run : turl tgetparam checks
 
 turl:
 	gnatmake -g turl $(INCLUDES) -largs $(LIBS) -bargs -E
-	turl > turl.res
+	./turl > turl.res
 
 tgetparam:
 	gnatmake -g tgetparam  $(INCLUDES) -largs $(LIBS) -bargs -E
-	tgetparam > tgetparam.res
+	./tgetparam > tgetparam.res
 
 checks:
 	echo "### Every output after this line means there is a regression ###"
