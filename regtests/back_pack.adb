@@ -148,10 +148,12 @@ package body Back_Pack is
    ---------
 
    procedure Run (Protocol : in String; Port : in Positive) is
+
       URL : constant String
         := Protocol & "://localhost:" & Utils.Image (Port);
 
       task IO is
+         entry Start;
          entry Put_Line (Str : in String);
          entry Put_Line_1 (Str : in String);
          entry Put_Line_2 (Str : in String);
@@ -178,6 +180,7 @@ package body Back_Pack is
          end Write_Line;
 
       begin
+         accept Start;
          loop
             select
                accept Put_Line_1 (Str : in String) do
@@ -236,18 +239,27 @@ package body Back_Pack is
          accept Stopped;
       exception
          when E : others =>
-            IO.Put_Line
-              ("Wait_Call error " & Ada.Exceptions.Exception_Information (E));
+            Text_IO.Put_Line
+              (Text_IO.Standard_Error,
+               "Wait_Call error " & Ada.Exceptions.Exception_Information (E));
       end Wait_Call;
 
    begin
-      Server.Start
-        (WS,
-         "file",
-         CB'Access,
-         Security       => Protocol = "https",
-         Port           => Port,
-         Max_Connection => 5);
+      IO.Start;
+
+      begin
+         Server.Start
+           (WS,
+            "file",
+            CB'Access,
+            Security       => Protocol = "https",
+            Port           => Port,
+            Max_Connection => 5);
+      exception
+         when others =>
+            IO.Stop;
+            raise;
+      end;
 
       IO.Put_Line ("started");
 
@@ -280,6 +292,14 @@ package body Back_Pack is
       delay 1.0;
 
       Server.Shutdown (WS);
+
+   exception
+      when E: others =>
+         Text_IO.Put_Line
+           (Text_IO.Standard_Error,
+            "Run error " & Ada.Exceptions.Exception_Information (E));
+         IO.Stop;
+         Wait_Call.Stopped;
    end Run;
 
 end Back_Pack;
