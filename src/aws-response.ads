@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                          Copyright (C) 2000-2001                         --
+--                      Dmitriy Anisimkov & Pascal Obry                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,9 +42,6 @@ package AWS.Response is
 
    use Ada;
 
-   --  ??? This package should certainly be rewritten using an OO design using
-   --  a set of tagged objects
-
    type Data is private;
 
    type Data_Mode is (Header, Message, File);
@@ -58,18 +55,20 @@ package AWS.Response is
    --  Constructors
    --
 
-   function Build (Content_Type : in String;
-                   Message_Body : in String;
-                   Status_Code  : in Messages.Status_Code := Messages.S200)
-                  return Data;
+   function Build
+     (Content_Type : in String;
+      Message_Body : in String;
+      Status_Code  : in Messages.Status_Code := Messages.S200)
+     return Data;
    --  Return a message whose body is passed into Message_Body. The
    --  Content_Type parameter is the MIME type for the message
    --  body. Status_Code is the response status (see Messages.Status_Code
    --  definition).
 
-   function Build (Content_Type : in String;
-                   Message_Body : in Streams.Stream_Element_Array;
-                   Status_Code  : in Messages.Status_Code := Messages.S200)
+   function Build
+     (Content_Type : in String;
+      Message_Body : in Streams.Stream_Element_Array;
+      Status_Code  : in Messages.Status_Code := Messages.S200)
      return Data;
    --  Idem above, but the message body is a stream element array.
 
@@ -77,15 +76,17 @@ package AWS.Response is
      return Data;
    --  This send an Ok message (Messages.S200) and jump to the specified URL.
 
-   function Moved (Location     : in String;
-                   Message      : in String := Default_Moved_Message)
+   function Moved
+     (Location : in String;
+      Message  : in String := Default_Moved_Message)
      return Data;
    --  This send back a moved message (Messages.S301) with the specified
    --  message body.
 
-   function Acknowledge (Status_Code  : in Messages.Status_Code;
-                         Message_Body : in String := "";
-                         Content_Type : in String := MIME.Text_HTML)
+   function Acknowledge
+     (Status_Code  : in Messages.Status_Code;
+      Message_Body : in String := "";
+      Content_Type : in String := MIME.Text_HTML)
      return Data;
    --  Returns a message to the Web browser. This routine must be used to
    --  send back an error message to the Web browser. For example if a
