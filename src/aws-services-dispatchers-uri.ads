@@ -28,7 +28,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$ $Date$ $Author$
 
 --  Dispatch a specific request to a callback depending on the URI.
 
@@ -56,12 +57,24 @@ package AWS.Services.Dispatchers.URI is
    --  Register URI to use the specified dispatcher. URI is the full string
    --  that must match the ressource requested (with the leading /).
 
+   procedure Register
+     (Dispatcher : in out Handler;
+      URI        : in     String;
+      Action     : in     Response.Callback);
+   --  Idem as above but take a callback procedure as parameter.
+
    procedure Register_Regexp
      (Dispatcher : in out Handler;
       URI        : in     String;
       Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register URI to use the specified dispatcher. URI is a regular
    --  expression that must math the ressource requested (with the leading /).
+
+   procedure Register_Regexp
+     (Dispatcher : in out Handler;
+      URI        : in     String;
+      Action     : in     Response.Callback);
+   --  Idem as above but take a callback procedure as parameter.
 
    procedure Unregister
      (Dispatcher : in out Handler;
