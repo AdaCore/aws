@@ -169,8 +169,6 @@ package body AWS.Resources.Files is
 
       File_Tagged (File.all).Stream :=
         Stream_IO.Stream (File_Tagged (File.all).File);
-
-      File_Tagged (File.all).Buffer  := (others => 0);
    end Open;
 
    ----------
