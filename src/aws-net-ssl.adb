@@ -284,6 +284,8 @@ package body AWS.Net.SSL is
 
       Net.Std.Assign (NSST (Sock.all), S.all);
 
+      Free (S);
+
       TS_SSL.Set_FD (Socket_Type (Sock.all));
 
       return Sock;
