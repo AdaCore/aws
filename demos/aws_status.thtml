@@ -145,7 +145,7 @@ status.</H3>
   <ol>
   @@TABLE@@
 
-  <li>Session ID: <b>@_SESSIONS_V_@</b> 
+  <li>Session ID: <tt><font size=+1><b>@_SESSIONS_V_@</b></font></tt>
      (<i>@_SESSIONS_TS_V_@</i> ... <i>@_SESSIONS_TERMINATE_V_@</i>)
 
   <table>
