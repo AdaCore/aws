@@ -1,5 +1,11 @@
 2003-01-15  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-net-std-gnat.adb:
+	(Shutdown): Properly call shutdown before close to ensure that all
+	 data are sent/receive.
+
+2003-01-15  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-net-std-adasockets.adb:
 	Initial revision.
 
