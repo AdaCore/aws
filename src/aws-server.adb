@@ -221,7 +221,9 @@ package body AWS.Server is
             Set (To_Be_Closed).Opened := False;
 
          elsif To_Be_Closed = 0 and Force then
-            Ada.Text_IO.Put_Line ("Bug.");
+            --  ??? this case should never happen, code should be removed at
+            --  some point.
+            raise Internal_Error;
          end if;
       end Abort_Oldest;
 
