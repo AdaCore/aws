@@ -33,6 +33,7 @@
 with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.IO_Exceptions;
+with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -45,6 +46,7 @@ with AWS.Server;
 with AWS.Session;
 with AWS.Status;
 with AWS.Templates;
+with AWS.Translator;
 with AWS.Utils;
 
 with SOAP.Client;
@@ -325,13 +327,52 @@ procedure Check_Mem is
       Request ("addProc", 5, 9);
    end Client;
 
+   procedure Check_Zlib is
+
+      use type Streams.Stream_Element_Array;
+
+      procedure Test (Str : in String) is
+         Data   : aliased Streams.Stream_Element_Array
+           := Translator.To_Stream_Element_Array (Str);
+         Comp   : Utils.Stream_Element_Array_Access;
+         Decomp : Utils.Stream_Element_Array_Access;
+      begin
+         Comp   := Translator.Compress (Data'Unchecked_Access);
+         Decomp := Translator.Decompress (Comp);
+
+         if Data = Decomp.all then
+            Text_IO.Put_Line ("Ok");
+         else
+            Text_IO.Put_Line ("Nok: " & Translator.To_String (Decomp.all));
+         end if;
+
+         Text_IO.Put_Line
+           (Data'Length'Img & " bytes compressed to" & Comp'Length'Img);
+
+         Utils.Free (Comp);
+         Utils.Free (Decomp);
+      end Test;
+
+   begin
+      Test ("simple");
+
+      Test ("A longer text to test the real factor compression which is "
+              & "almost null on very small chunk of data. So this test is "
+              & "one on which we will display real size.");
+   end Check_Zlib;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
    Server.Started;
 
+   --  This is the main loop. Be sure to run everything inside this
+   --  loop. Check_Mem is checked between 2 runs with a different number of
+   --  iterations.
+
    for K in 1 .. Integer'Value (Command_Line.Argument (1)) loop
       Client;
+      Check_Zlib;
    end loop;
 
    Server.Stopped;
