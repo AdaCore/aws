@@ -1,0 +1,6 @@
+
+with "../shared.gpr";
+
+project Tools is
+
+end Tools;
