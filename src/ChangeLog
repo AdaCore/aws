@@ -1,3 +1,47 @@
+2002-10-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Target_Filename): I and Upload_Path set to constant.
+	(File_Upload): Correctly detect file upload section in a MIME
+	 message. Initialize Server_Filename only when used.
+	
+	* aws-status-set.adb:
+	(Authorization): URI field initialized with the parsed URI.
+	(Request): Idem.
+	(Reset): Remove URI initialization.
+
+	* aws-status.adb:
+	(URI): Add Check_Validity and Normalize parameters. Check_Validity
+	 is True by default for security reasons.
+	(URI): New function returning an URL.Object.
+
+	* aws-status.ads:
+	(URI): Add Check_Validity and Normalize parameters. Check_Validity
+	 is True by default for security reasons.
+	(URI): New function returning an URL.Object.
+	(Data): URI field is now an URL.Object.
+
+	* aws-url.adb:
+	(Normalize): Raises exception based on the URL status. Note that
+	 the normalization is not done there now as it is done when parsing
+	 the URL.
+	(Parse): Record the normalized URL and raise URL_Error based on
+	 this status.
+	(Is_Valid): New function.
+
+	* aws-url.ads:
+	(Parse): Add parameter Normalize.
+	(Is_Valid): New function.
+	(Path_Status): New type.
+	(Object): Add N_Path and Status fields.
+	Fix error in URL description.
+
+	* aws-url-raise_url_error.ads, aws-url-raise_url_error.adb:
+	Initial revision.
+
+	* aws-utils.adb:
+	(Gethostname): Name and Len set to constant.
+
 2002-09-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-url.adb:
