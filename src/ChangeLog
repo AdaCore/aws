@@ -1,10 +1,41 @@
+2004-04-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-smtp-client.adb:
+        (Address_Mode): Moved to AWS.SMTP.
+        (E_Mail): Moved to AWS.SMTP and renamed Image.
+        (Output_Header): Update code to use Image instead of E_Mail.
+	Update copyright notice.
+
+	* aws-services-web_mail.adb:
+	(Reply): New routine.
+        (Send): Idem.
+        (Check_Session): Add support for WM_SMTP_SERVER.
+        (Callback): Add handling for /wm_reply and /wm_send URI.
+        (Login): Add support for WM_SMTP_SERVER.
+        (Message): Change variable name from WM_INDEX to WM_MESSAGE.
+        (Summary): Change variable name from WM_INDEX_V to WM_MESSAGE_V.
+
+	* aws-services-web_mail.ads:
+	Document new template wm_reply.thtml.
+        Fix some variable tags name in comments.
+
+	* aws-smtp.adb:
+	(Parse): New routine.
+        Update copyright notice.
+
+	* aws-smtp.ads:
+	(E_Mail): Fix comments.
+        (Parse): New routine.
+        (Address_Mode): New type. Moved here from SMTP.Client body.
+        (Image) [E_Mail_Data]: New routine. Moved here from SMTP.Client body.
+
 2004-04-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net.ads, aws-net.adb:
 	(Wait_Mode): Moved from aws-net-std__adasockets.adb.
 	(Wait_For): Idem.
 
-2004-03-23  Pascal Obry <p.obry@wanadoo.fr>
+2004-03-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-headers-set.adb:
 	Minor reformatting.
@@ -9516,7 +9547,7 @@
 	(Accept_Socket): remove call to Init.
 	(AWS.Net): add call to Init during elaboration of the package.
 
-2000-07-26    Pascal Obry <p.obry@wanadoo.fr>
+2000-07-26    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
 	(Version): updated to 0.6
@@ -9527,7 +9558,7 @@
 	* aws-server.adb:
 	Fix minor typo.
 
-2000-07-26    Pascal Obry <p.obry@wanadoo.fr>
+2000-07-26    Pascal Obry  <p.obry@wanadoo.fr>
 
 	Integration of Dmitriy Anisimkov SSL implementation into AWS.
 
@@ -9600,13 +9631,13 @@
 	(Line_Cleaner): use Abort_Slot instead of Sosckets.Shutdown
 	(Get_Free_Slot): idem
 
-2000-04-01    Pascal Obry <p.obry@wanadoo.fr>
+2000-04-01    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb, aws-connection.adb, aws-messages.adb,
 	  aws-translater.adb, aws-url.adb:
 	Minor reformatting to conform to -gnaty switch.
 
-2000-04-01    Pascal Obry <p.obry@wanadoo.fr>
+2000-04-01    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads
 	(Version): changed to 0.4
@@ -9625,20 +9656,20 @@
 	(Line): Shut down properly the sockets when needed.
 	(Get_Free_Slot): try abort some line slot if there is no free one.
 
-2000-03-10    Pascal Obry <p.obry@wanadoo.fr>
+2000-03-10    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-connection.adb:
 	(Line): never exit with an exception from the outer loop in this
 	task. We have a pool of Line that gets recycled.
 
-2000-03-05    Pascal Obry <p.obry@wanadoo.fr>
+2000-03-05    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-connection.adb:
 	(line): do not send a message to the client when an exception has
 	 occured since this is because the server has most certainly
 	 closed the connection. (fixes from Dmitriy Anisimkov)
 
-2000-02-14    Pascal Obry <p.obry@wanadoo.fr>
+2000-02-14    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
 	(Get): Handle status 301 (moved permanently) with Location message.
@@ -9650,7 +9681,7 @@
 	* aws-response.ads, aws-response.adb:
 	(Location): new function
 
-2000-02-05    Pascal Obry <p.obry@wanadoo.fr>
+2000-02-05    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-clients.adb:
 	(Put): new function
@@ -9690,7 +9721,7 @@
 	A lot of changes to handle PUT method and handle POST method with
 	binary data.
 
-2000-02-04    Pascal Obry <p.obry@wanadoo.fr>
+2000-02-04    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-clients.adb:
 	(Get_Host_Name): new function use to get the host name to send to
@@ -9700,7 +9731,7 @@
 	(Weekday): fix minor bug (use local var for time)
 	[patch from Sune Falck]
 
-2000-01-24    Pascal Obry <p.obry@wanadoo.fr>
+2000-01-24    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
 	(Internal_Error): exception added.
@@ -9726,10 +9757,10 @@
 	instead of a function. Changed Month_Number to use the array
 	Month_Name. Added function Weekday.
 
-2000-01-22    Pascal Obry <p.obry@wanadoo.fr>
+2000-01-22    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws*.ad[sb]: this is to be considered the first version of AWS
 
-2000-01-16    Pascal Obry <p.obry@wanadoo.fr>
+2000-01-16    Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws*.ad[sb]: this is the very first release.
