@@ -36,24 +36,12 @@ package AWS.Resources.Embedded is
 
    use Ada;
 
-   type File_Type is new Resources.File_Type with private;
+   type Buffer_Access is access constant Streams.Stream_Element_Array;
 
    procedure Open
-     (File :    out File_Access;
+     (File :    out File_Type;
       Name : in     String;
       Form : in     String    := "");
-
-   procedure Read
-     (Resource : in out File_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
-
-   procedure Get_Line
-     (Resource  : in out File_Type;
-      Buffer    :    out String;
-      Last      :    out Natural);
-
-   function End_Of_File (Resource : in File_Type) return Boolean;
 
    function Is_Regular_File (Name : in String) return Boolean;
 
@@ -62,8 +50,6 @@ package AWS.Resources.Embedded is
       return Ada.Streams.Stream_Element_Offset;
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time;
-
-   type Buffer_Access is access constant Streams.Stream_Element_Array;
 
    procedure Register
      (Name      : in String;
@@ -80,11 +66,23 @@ package AWS.Resources.Embedded is
 
 private
 
-   procedure Close (Resource : in out File_Type);
-
-   type File_Type is new Resources.File_Type with record
+   type File_Tagged is new Resources.File_Tagged with record
       Buffer : Buffer_Access;
       K      : Streams.Stream_Element_Offset;
    end record;
+
+   function End_Of_File (Resource : in File_Tagged) return Boolean;
+
+   procedure Read
+     (Resource : in out File_Tagged;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset);
+
+   procedure Get_Line
+     (Resource  : in out File_Tagged;
+      Buffer    :    out String;
+      Last      :    out Natural);
+
+   procedure Close (Resource : in out File_Tagged);
 
 end AWS.Resources.Embedded;
