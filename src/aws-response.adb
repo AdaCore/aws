@@ -121,39 +121,6 @@ package body AWS.Response is
                    null);
    end Build;
 
-   function Moved (Location     : in String;
-                   Message      : in String := Default_Moved_Message)
-                  return Data
-   is
-      use Ada.Strings;
-
-      function Build_Message_Body return String;
-      --  Return proper message body using Message template. It replaces _@_
-      --  in Message by Location.
-
-      function Build_Message_Body return String is
-         Start : constant Natural := Fixed.Index (Message, "_@_");
-      begin
-         if Start = 0 then
-            return Message;
-         else
-            return Fixed.Replace_Slice (Message, Start, Start + 2, Location);
-         end if;
-      end Build_Message_Body;
-
-      Message_Body : constant String := Build_Message_Body;
-
-   begin
-      return Data'(Response.Message,
-                   Messages.S301,
-                   Message_Body'Length,
-                   To_Unbounded_String ("text/html"),
-                   To_Unbounded_String (Message_Body),
-                   To_Unbounded_String (Location),
-                   Null_Unbounded_String,
-                   null);
-   end Moved;
-
    function Build (Content_Type : in String;
                    Message_Body : in Streams.Stream_Element_Array;
                    Status_Code  : in Messages.Status_Code := Messages.S200)
@@ -230,6 +197,43 @@ package body AWS.Response is
    begin
       return D.Mode;
    end Mode;
+
+   -----------
+   -- Moved --
+   -----------
+
+   function Moved (Location     : in String;
+                   Message      : in String := Default_Moved_Message)
+                  return Data
+   is
+      use Ada.Strings;
+
+      function Build_Message_Body return String;
+      --  Return proper message body using Message template. It replaces _@_
+      --  in Message by Location.
+
+      function Build_Message_Body return String is
+         Start : constant Natural := Fixed.Index (Message, "_@_");
+      begin
+         if Start = 0 then
+            return Message;
+         else
+            return Fixed.Replace_Slice (Message, Start, Start + 2, Location);
+         end if;
+      end Build_Message_Body;
+
+      Message_Body : constant String := Build_Message_Body;
+
+   begin
+      return Data'(Response.Message,
+                   Messages.S301,
+                   Message_Body'Length,
+                   To_Unbounded_String ("text/html"),
+                   To_Unbounded_String (Message_Body),
+                   To_Unbounded_String (Location),
+                   Null_Unbounded_String,
+                   null);
+   end Moved;
 
    -----------
    -- Realm --
