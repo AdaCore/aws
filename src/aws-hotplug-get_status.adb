@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -44,9 +44,14 @@ is
    pragma Warnings (Off, URL);
 
 begin
-   for K in 1 .. Filters.Count loop
-      Regexp := Regexp & Filters.Set (K).Regexp_Str;
-      URL    := URL    & Filters.Set (K).URL;
+   for K in 1 .. Filter_Table.Length (Filters.Set) loop
+      declare
+         Item : constant Filter_Data
+           := Filter_Table.Element (Filters.Set, Positive (K));
+      begin
+         Regexp := Regexp & Item.Regexp_Str;
+         URL    := URL    & Item.URL;
+      end;
    end loop;
 
    return Translate_Table'(Assoc ("HP_REGEXP_V", Regexp),
