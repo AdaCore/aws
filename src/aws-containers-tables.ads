@@ -111,7 +111,7 @@ private
    type Element_Access is access all Element;
    --  Data type to keep the name/value pair in the
    --  GNAT.Dynamic_Tables.Table_Type.
-   --  We cannot use Unbounded_String becouse GNAT.Dynamic_Tables
+   --  We cannot use Unbounded_String because GNAT.Dynamic_Tables
    --  does not support controlled objects.
 
    type Key_Positive is new Positive;

@@ -405,8 +405,8 @@ package body AWS.LDAP.Client is
    procedure Free (Chain : in LDAP_Message) is
       Res : IC.int;
       pragma Warnings (Off, Res);
-      --  We are not using pragma Unreferenced here becouse of GNAT 3.15p.
-      --  It is count left side assignment as a reference.
+      --  We are not using pragma Unreferenced here because of GNAT 3.15p.
+      --  It counts left side assignment as a reference.
    begin
       Res := Thin.ldap_msgfree (Chain);
    end Free;
@@ -747,8 +747,8 @@ package body AWS.LDAP.Client is
    procedure Unbind (Dir : in out Directory) is
       Res : IC.int;
       pragma Warnings (Off, Res);
-      --  We are not using pragma Unreferenced here becouse of GNAT 3.15p.
-      --  It is count left side assignment as a reference.
+      --  We are not using pragma Unreferenced here because of GNAT 3.15p.
+      --  It counts left side assignment as a reference.
    begin
       if Is_Open (Dir) then
          Res := Thin.ldap_unbind_s (Dir);

@@ -105,7 +105,7 @@ package body AWS.Response.Set is
       N : Positive := 1;
       --  The index for the update of WWW-Authenticate header values.
       --  We are not using AWS.Headers.Set.Add routine for add WWW-Authenticate
-      --  header lines, becouse user could call this routine more than once.
+      --  header lines, because user could call this routine more than once.
    begin
       --  In case of Authenticate = Any
       --  We should create both header lines

@@ -316,8 +316,8 @@ package body AWS.Status is
       use Headers;
    begin
       --  Get the Boundary value from the Contant_Type header value.
-      --  We do not need to have the boundary in the Status.Data preparsed,
-      --  becouse the AWS is not using function Multipart_Boundary internally.
+      --  We do not need to have the boundary in the Status.Data pre-parsed,
+      --  because AWS is not using function Multipart_Boundary internally.
 
       return Values.Search
         (Get (D.Header, Messages.Content_Type_Token),

@@ -477,7 +477,7 @@ package body AWS.Session is
          Result := False;
          Update_Value (Sessions, SID, Found);
 
-         --  Found does not matter, becouse the Result was False and would
+         --  Found does not matter, because Result was False and would be
          --  set to True only if Found.
       end Key_Exist;
 
