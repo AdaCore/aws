@@ -42,8 +42,10 @@ with AWS.Messages;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server;
+with AWS.Session;
 with AWS.Status;
 with AWS.Templates;
+with AWS.Utils;
 
 with SOAP.Client;
 with SOAP.Message.Payload;
@@ -88,10 +90,21 @@ procedure Check_Mem is
    --------
 
    function CB (Request : in Status.Data) return Response.Data is
-      SOAP_Action : constant String := Status.SOAPAction (Request);
+      SOAP_Action : constant String          := Status.SOAPAction (Request);
       URI         : constant String          := Status.URI (Request);
       P_List      : constant Parameters.List := Status.Parameters (Request);
+      SID         : constant Session.ID      := Status.Session (Request);
+
+      N           : Natural := 0;
    begin
+      if Session.Exist (SID, "key") then
+         N := Session.Get (SID, "key");
+         N := N + 1;
+      end if;
+
+      Session.Set (SID, "key", N);
+      Session.Set (SID, "key" & Utils.Image (N), "a value");
+
       if SOAP_Action = "/soap_demo" then
          return SOAP_CB (Request);
 
@@ -182,7 +195,10 @@ procedure Check_Mem is
    begin
       AWS.Server.Start
         (HTTP, "check_mem",
-         CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
+         CB'Unrestricted_Access,
+         Port           => Port,
+         Max_Connection => 5,
+         Session        => True);
 
       Put_Line ("Server started");
       New_Line;
