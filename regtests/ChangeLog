@@ -3,6 +3,9 @@
 	* dummy.adb, dummy.out, zstrm2.adb, zstrm2.out:
 	Add dummy output.
 
+	* generate.adb:
+	Generator for the fast test executor.
+
 2003-12-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* eres.adb, eres.out, makefile:
