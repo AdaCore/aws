@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -117,7 +117,7 @@ package AWS.Services.Directory is
    function Browse
      (Directory_Name : in String;
       Request        : in AWS.Status.Data)
-     return Translate_Table;
+      return Translate_Table;
    --  Returns a translation table containing information parsed from
    --  Directory_Name. This is supposed to be used with a directory template.
 
@@ -126,7 +126,7 @@ package AWS.Services.Directory is
       Template_Filename : in String;
       Request           : in AWS.Status.Data;
       Translations      : in Translate_Table := No_Translation)
-     return String;
+      return String;
    --  Parses directory Directory_Name and use Templates_Parser to fill in the
    --  template Template_Filename. It is possible to specified some specifics
    --  tags in Translations.
