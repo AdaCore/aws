@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                         Copyright (C) 2000-2001                          --
+--                     Dmitriy Anisimkov & Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -32,50 +32,58 @@ with AWS.Key_Value;
 
 package AWS.Parameters is
 
-   type Set is private;
+   type List is private;
 
-   Empty_Set : constant Set;
+   function Count (Parameter_List : in List) return Natural;
+   --  Returns the number of item in Parameter_List.
 
-   procedure Add (Parameter_Set : in out Set;
-                  Key, Value    : in     String);
-   --  Add a new Key/Value pair into the parameter set.
-
-   function Count (Parameter_Set : in Set) return Natural;
-   --  Returns the number of item in Parameter_Set.
-
-   function Count (Parameter_Set : in Set; Key : in String) return Natural;
-   --  Returns the number of value for Key in Parameter_Set. It returns 0 if
+   function Count (Parameter_List : in List; Name : in String) return Natural;
+   --  Returns the number of value for Key in Parameter_List. It returns 0 if
    --  Key does not exist.
 
-   function Exist (Parameter_Set : in Set; Key : in String) return Boolean;
-   --  Returns True if Key exist in Parameter_Set.
+   function Exist (Parameter_List : in List; Name : in String) return Boolean;
+   --  Returns True if Key exist in Parameter_List.
 
-   function Get (Parameter_Set : in Set;
-                 Key           : in String;
-                 N             : in Positive := 1) return String;
-   --  Returns the Nth value associated with Key into Parameter_Set. Returns
+   function Get
+     (Parameter_List : in List;
+      Name           : in String;
+      N              : in Positive := 1)
+     return String;
+   --  Returns the Nth value associated with Key into Parameter_List. Returns
    --  the emptry string if key does not exist.
 
-   function Get_Key   (Parameter_Set : in Set; N : in Positive) return String;
-   --  Returns the Nth Key in Parameter_Set or the empty string if there is no
-   --  such Key.
+   function Get_Name
+     (Parameter_List : in List;
+      N              : in Positive := 1)
+     return String;
+   --  Returns the Nth Name in Parameter_List or the empty string if there is
+   --  no parameter with this Name.
 
-   function Get_Value (Parameter_Set : in Set; N : in Positive) return String;
-   --  Returns the Nth Value in Parameter_Set or the empty string if there is
+   function Get_Value
+     (Parameter_List : in List;
+      N              : in Positive := 1)
+     return String;
+   --  Returns the Nth Value in Parameter_List or the empty string if there is
    --  no such Value.
-
-   procedure Release (Parameter_Set : in out Set);
-   --  Release all memory used by Set. Set will be reinitialized and will be
-   --  ready for new use.
 
 private
 
-   type Set is record
-      Data  : Key_Value.Set;
-      Count : Natural := 0;
+   type List is record
+      Case_Sensitive : Boolean := True;
+      Data           : Key_Value.Set;
+      Count          : Natural := 0;
    end record;
 
-   ES : Set;
-   Empty_Set : constant Set := ES;
+   function Internal_Get
+     (Parameter_List : in List;
+      Name           : in String;
+      N              : in Natural)
+     return String;
+   pragma Inline (Internal_Get);
+   --  Returns the Nth value associated with Key into Parameter_List. Returns
+   --  the emptry string if key does not exist. If N = 0 it returns as-is all
+   --  the values as inserted in the tree for Key.
+
+   Val_Separator : constant Character := ASCII.VT;
 
 end AWS.Parameters;
