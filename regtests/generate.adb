@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -63,12 +63,6 @@ procedure Generate is
       Res_Ext : constant String := ".res";
       Lf      : Character renames ASCII.Lf;
    begin
-      if not AWS.OS_Lib.Is_Regular_File (Name & ".ads") then
-         Create (Spec, Out_File, Name & ".ads");
-         Put_Line (Spec, "procedure " & Name & ';');
-         Close (Spec);
-      end if;
-
       Put_Line (Main, "with " & Name & ';');
 
       U.Append
