@@ -92,7 +92,7 @@ ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS
 build_lib: build_ssllib build_include build_aws build_win32
 
 ifdef XMLADA
-build: build_lib build_soaplib build_demos build_soap_demos
+build: build_lib build_soaplib build_demos
 else
 build: build_lib build_demos
 endif
@@ -111,11 +111,6 @@ build_demos: build_lib build_tools
 	echo ""
 	echo === Build demos
 	${MAKE} -C demos build $(ALL_OPTIONS)
-
-build_soap_demos:
-	echo ""
-	echo === Build SOAP demos
-	${MAKE} -C demos build_soap $(ALL_OPTIONS)
 
 build_ssllib:
 	echo ""
