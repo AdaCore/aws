@@ -104,7 +104,7 @@ package body Runme_Service is
       Directory_Operations.Change_Dir (Runme_Info.Get_Executable_Path);
 
       --  Set SSL certificate
-      SSL.Set_Certificate (Runme_Info.Get_Executable_Path & "cert.pem");
+      AWS.Server.Set_Security (Runme_Info.Get_Executable_Path & "cert.pem");
 
       --  All output goes to a log file.
       Text_IO.Create (Output, Text_IO.Out_File, "runme.service.log");
