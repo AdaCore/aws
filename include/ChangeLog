@@ -1,6 +1,6 @@
 2003-11-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
-	* zlib/*.c, zlib/*.h:
+	* zlib/*:
 	Release 1.2.1.
 
 	* zlib/ChangeLog:
