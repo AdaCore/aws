@@ -209,7 +209,8 @@ package body AWS.Net.Std is
       if not Wait (Socket, (Output => True, Input => False)) (Output) then
          Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
          Free (Socket.S);
-         Raise_Exception (Errno, "Connect timeout.");
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity, "Connect timeout.");
       end if;
 
       Set_Cache (Socket);
@@ -527,5 +528,5 @@ begin
    --  We should remove this call after remove libwspiapi.a usage.
    --  libwspiapi.a need for support Windows 2000.
 
-   OSD.FreeAddrInfo (null);
+   OSD.FreeAddrInfo (Get_Addr_Info ("", 88, OSD.AI_PASSIVE));
 end AWS.Net.Std;
