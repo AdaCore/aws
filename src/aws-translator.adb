@@ -78,8 +78,9 @@ package body AWS.Translator is
    -- Base64_Encode --
    -------------------
 
-   function Base64_Encode (Data : Streams.Stream_Element_Array)
-                          return String
+   function Base64_Encode
+     (Data : in Streams.Stream_Element_Array)
+     return String
    is
       use Streams;
       use type Streams.Stream_Element;
@@ -250,5 +251,41 @@ package body AWS.Translator is
 
       return Result (1 .. R - 1 - Pad);
    end Base64_Decode;
+
+   -----------------------------
+   -- To_Stream_Element_Array --
+   -----------------------------
+
+   function To_Stream_Element_Array
+     (Data : in String)
+     return Streams.Stream_Element_Array
+   is
+      use Streams;
+
+      Result : Stream_Element_Array
+        (Stream_Element_Offset (Data'First)
+         .. Stream_Element_Offset (Data'Last));
+   begin
+      for K in Data'Range loop
+         Result (Stream_Element_Offset (K)) := Character'Pos (Data (K));
+      end loop;
+      return Result;
+   end To_Stream_Element_Array;
+
+   ---------------
+   -- To_String --
+   ---------------
+
+   function To_String
+     (Data : in Streams.Stream_Element_Array)
+     return String
+   is
+      Result : String (Integer (Data'First) .. Integer (Data'Last));
+   begin
+      for K in Data'Range loop
+         Result (Integer (K)) := Character'Val (Data (K));
+      end loop;
+      return Result;
+   end To_String;
 
 end AWS.Translator;
