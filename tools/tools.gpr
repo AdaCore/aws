@@ -34,6 +34,7 @@ with "../shared.gpr";
 with "../include/include";
 with "../src/src";
 with "../ssl/nossl";
+with "../xmlada";
 
 project Tools is
 
@@ -65,5 +66,13 @@ project Tools is
    -------------
 
    package Builder renames Shared.Builder;
+
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker is
+      for Switches ("wsdl2aws.adb") use ("-lz") & Shared.LIB_XMLAda;
+   end Linker;
 
 end Tools;
