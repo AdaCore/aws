@@ -1,5 +1,16 @@
 2004-08-24  Pascal Obry  <pascal@obry.org>
 
+	* aws-config-set.adb:
+	(Upload_Directory): Handle properly null upload directory.
+
+	* aws-server-protocol_handler.adb:
+	(File_Upload): Raise exception if file upload is not supported by
+	 the server.
+	Minor comment fix.
+
+	* aws-default.ads:
+	(Upload_Directory): Set to "" (no upload directory by default).
+
 	* aws-server.adb:
 	Minor reformatting.
 
