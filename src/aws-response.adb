@@ -508,6 +508,7 @@ package body AWS.Response is
    begin
       Set.Status_Code (Result, Messages.S301);
       Set.Location    (Result, Location);
+      Set.Mode (Result, Header);
       return Result;
    end URL;
 
