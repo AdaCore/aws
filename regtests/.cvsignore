@@ -340,6 +340,7 @@ sock1
 sock1.res
 sock1.tmp
 sock2.res
+sockto.res
 sp
 sp.res
 sp.tmp
@@ -352,6 +353,7 @@ ssock2.res
 ssp
 ssp.res
 ssp.tmp
+sto.res
 stock_quote_service-client.adb
 stock_quote_service-client.ads
 stock_quote_service-server.adb
@@ -470,6 +472,7 @@ upload2.tmp
 upload3
 upload3.res
 upload3.tmp
+wait
 wait.res
 workorder
 workorder.res
