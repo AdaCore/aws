@@ -35,6 +35,8 @@
 with Sax.Attributes;       use Sax.Attributes;
 with Unicode;              use Unicode;
 with Unicode.CES;          use Unicode.CES;
+with Unicode.CES.Utf8;
+with Unicode.CES.Basic_8bit;
 with DOM.Core.Nodes;       use DOM.Core.Nodes;
 with DOM.Core.Documents;   use DOM.Core.Documents;
 with DOM.Core.Elements;    use DOM.Core.Elements;
@@ -49,10 +51,15 @@ package body SOAP.Message.Reader is
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
+      --  Ch comes from the SAX parser and is Utf8 encoded. We convert it back
+      --  to Basic_8bit (standard Ada strings).
+      Str : constant String
+        := Unicode.CES.Basic_8bit.From_Utf32 (Unicode.CES.Utf8.To_Utf32 (Ch));
+
       Tmp : Node;
    begin
       Tmp := Append_Child
-        (Handler.Current_Node, Create_Text_Node (Handler.Tree, Ch));
+        (Handler.Current_Node, Create_Text_Node (Handler.Tree, Str));
    end Characters;
 
    -----------------
