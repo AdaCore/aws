@@ -306,6 +306,8 @@ MODULES_SETUP = ${MODULES:%=%_setup}
 
 MODULES_CLEAN = ${MODULES:%=%_clean}
 
+## XML/Ada
+
 ifeq (${XMLADA}, true)
 PRJ_XMLADA=Installed
 GEXT_MODULE := gxmlada
@@ -314,19 +316,36 @@ PRJ_XMLADA=Disabled
 GEXT_MODULE := gxmlada_dummy
 endif
 
+## AdaSockets
+
 ifdef ADASOCKETS
 GEXT_MODULE := $(GEXT_MODULE) gadasockets
 else
 GEXT_MODULE := $(GEXT_MODULE) gsockets_dummy
 endif
 
+## ASIS
+
 ifdef ASIS
+ifeq (${ASIS}, Installed)
+PRJ_ASIS=Installed
+GEXT_MODULE := $(GEXT_MODULE) gasis_clean
+else
+ifeq (${ASIS}, Disabled)
+PRJ_ASIS=Disabled
+GEXT_MODULE := $(GEXT_MODULE) gasis_clean
+else
 PRJ_ASIS=Installed
 GEXT_MODULE := $(GEXT_MODULE) gasis
+endif
+endif
+
 else
 PRJ_ASIS=Disabled
 GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
 endif
+
+# AI302
 
 ifeq ($(AI302), Internal)
 PRJ_AI302=Internal
@@ -335,6 +354,8 @@ else
 PRJ_AI302=External
 GEXT_MODULE := $(GEXT_MODULE) gai302_external
 endif
+
+## Debug
 
 ifdef DEBUG
 PRJ_BUILD=Debug
@@ -364,18 +385,21 @@ clean: $(MODULES_CLEAN)
 PRJDIR = .build/projects
 
 gasis:
-	echo "project ASIS is" > $(PRJDIR)/asis.gpr
-	echo "   Path := \"$(ASIS)\";" >> $(PRJDIR)/asis.gpr
-	echo "   for Source_Dirs use (Path);" >> $(PRJDIR)/asis.gpr
-	echo "   for Object_Dir use Path;" >> $(PRJDIR)/asis.gpr
-	echo "   LIB_Path := \"-L\" & Path;" >> $(PRJDIR)/asis.gpr
-	echo "end ASIS;" >> $(PRJDIR)/asis.gpr
+	echo "project ASIS is" > $(PRJDIR)/asis.gpr;
+	echo "   Path := \"$(ASIS)\";" >> $(PRJDIR)/asis.gpr;
+	echo "   for Source_Dirs use (Path);" >> $(PRJDIR)/asis.gpr;
+	echo "   for Object_Dir use Path;" >> $(PRJDIR)/asis.gpr;
+	echo "   LIB_Path := \"-L\" & Path;" >> $(PRJDIR)/asis.gpr;
+	echo "end ASIS;" >> $(PRJDIR)/asis.gpr;
 
 gasis_dummy:
-	echo "project ASIS is" > $(PRJDIR)/asis.gpr
-	echo "   for Source_Dirs use ();" >> $(PRJDIR)/asis.gpr
-	echo "   LIB_Path := \"\";" >> $(PRJDIR)/asis.gpr
-	echo "end ASIS;" >> $(PRJDIR)/asis.gpr
+	echo "project ASIS is" > $(PRJDIR)/asis.gpr;
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/asis.gpr;
+	echo "   LIB_Path := \"\";" >> $(PRJDIR)/asis.gpr;
+	echo "end ASIS;" >> $(PRJDIR)/asis.gpr;
+
+gasis_clean:
+	-$(RM) -f $(PRJDIR)/asis.gpr
 
 gadasockets:
 	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
