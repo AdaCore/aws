@@ -33,8 +33,8 @@
 --  $Date$
 --  $Author$
 
-with Memory_Streams;
 with AWS.Utils;
+with Memory_Streams;
 
 package AWS.Resources.Streams.Memory is
 
