@@ -1,3 +1,16 @@
+2005-03-23  Pascal Obry  <pascal@obry.net>
+
+	* src.gpr: 
+	(Full_Debug_Switches): Variable removed.
+	(Limited_Debug_Switches): Idem.
+	(TP_Common_Switches): New variable.
+	(Compiler): Update to use new variables. Cleaner and now we
+	 activate the style checks in Debug and Release mode.
+
+	* aws-server.ads:
+	Minor reformatting.
+	Update copyright notice.
+
 2005-03-09  Pascal Obry  <pascal@obry.org>
 
 	* aws-server.ads:
