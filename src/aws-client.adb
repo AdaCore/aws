@@ -235,7 +235,7 @@ package body AWS.Client is
       use type Net.Socket_Access;
       Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
    begin
-      pragma Assert (not Connect.Opened);
+      pragma Assert (not Connection.Opened);
       --  This should never be called with an open connection.
 
       --  Keep-alive reconnection will be with old socket. We cannot reuse it,
