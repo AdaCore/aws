@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -53,10 +53,10 @@ package AWS.Exceptions is
    end record;
 
    type Unexpected_Exception_Handler is access
-     procedure (E           : in     Ada.Exceptions.Exception_Occurrence;
-                Log         : in out AWS.Log.Object;
-                Error       : in     Data;
-                Answer      : in out Response.Data);
+     procedure (E      : in     Ada.Exceptions.Exception_Occurrence;
+                Log    : in out AWS.Log.Object;
+                Error  : in     Data;
+                Answer : in out Response.Data);
    --  Unexpected exception handler can be set to monitor server errors.
    --  Answer can be set with the answer to send back to the client's
    --  browser. Note that this is possible only for non fatal error
