@@ -422,6 +422,12 @@ regtests/wait.out
 regtests/wait_proc.adb
 regtests/wait_sec.adb
 regtests/wait_sec.out
+regtests/wait_pack.adb
+regtests/wait_pack.ads
+regtests/wait2.adb
+regtests/wait2.out
+regtests/wait2_sec.adb
+regtests/wait2_sec.out
 regtests/workorder.adb
 regtests/workorder.out
 regtests/zapp.adb
@@ -493,6 +499,8 @@ src/aws-mime.adb
 src/aws-mime.ads
 src/aws-net-buffered.adb
 src/aws-net-buffered.ads
+src/aws-net-generic_sets.adb
+src/aws-net-generic_sets.ads
 src/aws-net-sets.adb
 src/aws-net-sets.ads
 src/aws-net-ssl-certificate.adb
