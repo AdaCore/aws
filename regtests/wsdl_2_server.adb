@@ -44,33 +44,9 @@ package body WSDL_2_Server is
    use Ada;
    use SOAP;
 
-   function Add_Wrapper
-     (A, B : in  WSDL_2_Service.Types.Complex_Type)
-      return WSDL_2_Service.Types.Complex_Type;
+   function Add_CB is new WSDL_2_Service.Server.Add_CB (WSDL_2.Add);
 
-   function Sum_Wrapper
-     (T : in  WSDL_2_Service.Types.Table)
-      return Integer;
-
-   function Add_CB is new WSDL_2_Service.Server.Add_CB (Add_Wrapper);
-
-   function Sum_CB is new WSDL_2_Service.Server.Sum_CB (Sum_Wrapper);
-
-   -----------------
-   -- Add_Wrapper --
-   -----------------
-
-   function Add_Wrapper
-     (A, B : in  WSDL_2_Service.Types.Complex_Type)
-      return WSDL_2_Service.Types.Complex_Type
-   is
-      WA, WB, WR : WSDL_2.Complex;
-   begin
-      WA := (Float (A.X), Float (A.Y));
-      WB := (Float (B.X), Float (B.Y));
-      WR := WSDL_2.Add (WA, WB);
-      return (Long_Float (WR.X), Long_Float (WR.Y));
-   end Add_Wrapper;
+   function Sum_CB is new WSDL_2_Service.Server.Sum_CB (WSDL_2.Sum);
 
    -------------
    -- HTTP_CB --
@@ -105,16 +81,5 @@ package body WSDL_2_Server is
                "Wrong SOAP action " & SOAPAction));
       end if;
    end SOAP_CB;
-
-   -----------------
-   -- Sum_Wrapper --
-   -----------------
-
-   function Sum_Wrapper
-     (T : in  WSDL_2_Service.Types.Table)
-      return Integer is
-   begin
-      return WSDL_2.Sum (WSDL_2.Table (T));
-   end Sum_Wrapper;
 
 end WSDL_2_Server;
