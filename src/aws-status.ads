@@ -54,138 +54,136 @@ package AWS.Status is
    type Socket_Access is access all Socket_Type;
 
    function Authorization_Mode (D : in Data) return Authorization_Type;
-   --  Get the type of the "Authorization:" parameter
    pragma Inline (Authorization_Mode);
+   --  Get the type of the "Authorization:" parameter
 
    function Authorization_Name (D : in Data) return String;
-   --  Get the value for the name in the "Authorization:" parameter
    pragma Inline (Authorization_Name);
+   --  Get the value for the name in the "Authorization:" parameter
 
    function Authorization_Password (D : in Data) return String;
-   --  Get the value for the password in the "Authorization:" parameter
    pragma Inline (Authorization_Password);
+   --  Get the value for the password in the "Authorization:" parameter
 
-   function Check_Digest (D : in Data; Password : String) return Boolean;
-   --  This function used in the digest authentication
-   --  to indicate that the client know the right password.
-   --  The password is not transferred between client and server,
-   --  But server could understand that client know the right password by the
+   function Check_Digest (D : in Data; Password : in String) return Boolean;
+   --  This function is used by the digest authentication to check if the
+   --  client password is correct.
+   --  The password is not transferred between the client and the server,
+   --  the server check that the client knows the right password using the
    --  MD5 checksum.
-   --  Calculation of the MD5 checksum and comparision with
-   --  received from client is here.
 
    function Authorization_Realm (D : in Data) return String;
-   --  Get the value for the "realm" in the "Authorization:" parameter
    pragma Inline (Authorization_Realm);
+   --  Get the value for the "realm" in the "Authorization:" parameter
 
    function Authorization_Nonce (D : in Data) return String;
-   --  Get the value for the "nonce" in the "Authorization:" parameter
    pragma Inline (Authorization_Nonce);
+   --  Get the value for the "nonce" in the "Authorization:" parameter
 
    function Authorization_NC (D : in Data) return String;
-   --  Get the value for the "nc" in the "Authorization:" parameter
    pragma Inline (Authorization_NC);
+   --  Get the value for the "nc" in the "Authorization:" parameter
 
    function Authorization_CNonce (D : in Data) return String;
-   --  Get the value for the "cnonce" in the "Authorization:" parameter
    pragma Inline (Authorization_CNonce);
+   --  Get the value for the "cnonce" in the "Authorization:" parameter
 
    function Authorization_QOP (D : in Data) return String;
-   --  Get the value for the "qop" in the "Authorization:" parameter
    pragma Inline (Authorization_QOP);
+   --  Get the value for the "qop" in the "Authorization:" parameter
 
    function Authorization_Response (D : in Data) return String;
-   --  Get the value for the "responce" in the "Authorization:" parameter
    pragma Inline (Authorization_Response);
+   --  Get the value for the "responce" in the "Authorization:" parameter
 
    function Connection             (D : in Data) return String;
-   --  Get the value for "Connection:" parameter
    pragma Inline (Connection);
+   --  Get the value for "Connection:" parameter
 
    function Content_Length         (D : in Data) return Natural;
+   pragma Inline (Content_Length);
    --  Get the value for "Content-Length:" parameter, this is the number of
    --  bytes in the message body.
-   pragma Inline (Content_Length);
 
    function Content_Type           (D : in Data) return String;
-   --  Get value for "Content-Type:" parameter
    pragma Inline (Content_Type);
+   --  Get value for "Content-Type:" parameter
 
    function Has_Session            (D : in Data) return Boolean;
-   --  Returns true if a session ID has been received.
    pragma Inline (Has_Session);
+   --  Returns true if a session ID has been received.
 
    function Host                   (D : in Data) return String;
-   --  Get value for "Host:" parameter
    pragma Inline (Host);
+   --  Get value for "Host:" parameter
 
    function HTTP_Version           (D : in Data) return String;
-   --  Returns the HTTP version used by the client.
    pragma Inline (HTTP_Version);
+   --  Returns the HTTP version used by the client.
 
    function If_Modified_Since      (D : in Data) return String;
-   --  Get value for "If-Modified-Since:" parameter
    pragma Inline (If_Modified_Since);
+   --  Get value for "If-Modified-Since:" parameter
 
    function Method                 (D : in Data) return Request_Method;
-   --  Returns the request method.
    pragma Inline (Method);
+   --  Returns the request method.
 
    function Multipart_Boundary     (D : in Data) return String;
+   pragma Inline (Multipart_Boundary);
    --  Get value for the boundary part in "Content-Type: ...; boundary=..."
    --  parameter. This is a string that will be used to separate each chunk of
    --  data in a multipart message.
-   pragma Inline (Multipart_Boundary);
 
    function Parameters             (D : in Data) return Parameters.List;
+   pragma Inline (Parameters);
    --  Returns the list of parameters for the request. This list can be empty
    --  if there was no form or URL parameters.
-   pragma Inline (Parameters);
 
    function Peername               (D : in Data) return String;
-   --  Returns the name of the peer (the name of the client computer)
    pragma Inline (Peername);
+   --  Returns the name of the peer (the name of the client computer)
 
    function Session                (D : in Data) return AWS.Session.ID;
-   --  Returns the Session ID for the request.
    pragma Inline (Session);
+   --  Returns the Session ID for the request.
 
    function Socket                 (D : in Data) return Socket_Type;
+   pragma Inline (Socket);
    --  Returns the socket used to transfert data between the client and
    --  server.
-   pragma Inline (Socket);
 
    function URI                    (D : in Data) return String;
-   --  Returns the requested resource
    pragma Inline (URI);
+   --  Returns the requested resource
 
    function User_Agent             (D : in Data) return String;
-   --  Get value for "User-Agent:" parameter
    pragma Inline (User_Agent);
+   --  Get value for "User-Agent:" parameter
 
    function Referer                (D : in Data) return String;
-   --  Get value for "Referer:" parameter
    pragma Inline (Referer);
+   --  Get value for "Referer:" parameter
 
    function Is_SOAP                (D : in Data) return Boolean;
+   pragma Inline (Is_SOAP);
    --  Returns True if it is a SOAP request. In this case SOAPAction return
    --  the SOAPAction header and Payload returns the XML SOAP Payload message.
-   pragma Inline (Is_SOAP);
 
    function SOAPAction             (D : in Data) return String;
+   pragma Inline (SOAPAction);
    --  Get value for "SOAPAction:" parameter. This is a standard header to
    --  support SOAP over HTTP protocol.
-   pragma Inline (SOAPAction);
 
    function Payload                (D : in Data) return String;
-   --  Returns the XML Payload message. XML payload is the actual SOAP request
    pragma Inline (Payload);
+   --  Returns the XML Payload message. XML payload is the actual SOAP request
 
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
 
    function Binary_Data (D : in Data) return Stream_Element_Array;
-   --  Returns the binary data message content.
    pragma Inline (Binary_Data);
+   --  Returns the binary data message content.
 
 private
 
