@@ -37,7 +37,7 @@ endif
 
 # SOAP regression tests
 RT_SOAP = soap1 soap2 soap3 workorder testxml test_speed test_soap \
-	test_wsdl $(RT_SOAP_SEC)
+	$(RT_SOAP_SEC)
 
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
@@ -50,7 +50,7 @@ STD_TESTS = $(RT_STD)
 OTH_TESTS= tres dirop
 else
 STD_TESTS = $(RT_STD) $(RT_SOAP)
-OTH_TESTS= tres dirop check_mem
+OTH_TESTS= tres dirop test_wsdl check_mem
 endif
 
 ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
