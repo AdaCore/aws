@@ -1,3 +1,14 @@
+2003-10-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add aws-resources-streams-zlib.adb.
+
+	* aws-resources-streams-memory-zlib.ads:
+	Remove general comment.
+
+	* aws-resources-streams-zlib.adb:
+	Put file in UNIX format.
+
 2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources-streams-memory-zlib.ads:
