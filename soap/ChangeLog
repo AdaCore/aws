@@ -1,3 +1,9 @@
+2003-11-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-wsdl.adb:
+	Replace references to Tree_Readers by DOM.Readers to comply to
+	XMLAda 1.0.
+
 2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
 
 	* soap-generator.adb:
