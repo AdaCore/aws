@@ -22,6 +22,7 @@ config/projects/aws_ssl.gpr
 config/projects/components.gpr
 config/projects/crypto_lib.gpr
 config/projects/nossl_lib.gpr
+config/projects/shared.gpr
 config/projects/ssl_lib.gpr
 config/src/check_config.c
 config/src/test_uconv.adb
