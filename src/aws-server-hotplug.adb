@@ -55,8 +55,9 @@ package body AWS.Server.Hotplug is
    -- Activate_Hotplug --
    ----------------------
 
-   procedure Activate (Web_Server : in HTTP_Access;
-                       Port       : in Positive) is
+   procedure Activate
+     (Web_Server : in HTTP_Access;
+      Port       : in Positive) is
    begin
       Hotplug_Server.Start (Port, Web_Server);
    end Activate;
@@ -71,7 +72,9 @@ package body AWS.Server.Hotplug is
       Web_Server : in HTTP_Access;
       Parameters : in Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
-     return Response.Data is
+      return Response.Data
+   is
+      pragma Unreferenced (Server);
    begin
       --  There is two kind of message REGISTER and UNREGISTER. The format
       --  are (parameters are between <>):
