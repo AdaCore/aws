@@ -44,6 +44,10 @@ LARGS := $(LARGS) -lnosslaws
 
 endif
 
+ifeq (${OS}, Windows_NT)
+LARGS := $(LARGS) ../lib/poll.o
+endif
+
 # SOAP regression tests
 RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
 	test_soap2 test_soap3 test_soap4 test_soap5 disp_soap $(RT_SOAP_SEC)
@@ -65,7 +69,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	head hval turl4 ctab file redirect hostip unexph2 sp sessions zres \
 	dirop multiple tcom tmime sessions2 sessions3 huge_response sback \
 	server_info append compress zapp zbig zfile zstrm split zstrm2 once \
-	get_post zopen timer tmem file2 eres sock1 sock2 sessions4 \
+	get_post zopen timer tmem file2 eres sock1 sock2 sessions4 wait \
 	$(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
