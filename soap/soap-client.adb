@@ -72,7 +72,7 @@ package body SOAP.Client is
                Response := AWS.Client.SOAP_Post
                  (URL,
                   To_String (Message_Body),
-                  AWS.URL.URI (URL_Object));
+                  AWS.URL.URL (URL_Object));
             end;
 
          else
@@ -93,16 +93,14 @@ package body SOAP.Client is
 
    function Call
      (Connection : access AWS.Client.HTTP_Connection;
-      P          : in     Message.Payload.Object;
-      SOAPAction : in     String                     := Not_Specified)
+      P          : in     Message.Payload.Object)
      return Message.Response.Object'Class
    is
       Message_Body : Unbounded_String;
       Response     : AWS.Response.Data;
    begin
       Message_Body := SOAP.Message.XML.Image (P);
-      Response := AWS.Client.SOAP_Post
-        (Connection, To_String (Message_Body));
+      Response := AWS.Client.SOAP_Post (Connection, To_String (Message_Body));
       return Message.XML.Load_Response (AWS.Response.Message_Body (Response));
    end Call;
 
