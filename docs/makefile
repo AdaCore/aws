@@ -48,6 +48,8 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-services-dispatchers-virtual_host.ads.texi \
 	../src/aws-services-dispatchers.ads.texi \
 	../src/aws-services-page_server.ads.texi \
+	../src/aws-services-split_pages.ads.texi \
+	../src/aws-services-transient_pages.ads.texi \
 	../src/aws-session.ads.texi \
 	../src/aws-smtp-client.ads.texi \
 	../src/aws-smtp.ads.texi \
@@ -79,10 +81,12 @@ build: check_env aws_docs sg_docs
 	echo Documentation built with success.
 
 ada.sed: makefile
-	echo "s/\([^@]\)@\([^@]\)/\1@@\2/g" > ada.sed
+	echo "s/\([^@_]\)@\([^@_]\)/\1@@\2/" > ada.sed
 	echo "s/-- \(.*\)$$/-- @i{\1}/" >> ada.sed
-	echo "s/\([^-][^-][^\"]*\)\"\([^\"]*\)\"/\1\"@i{\2}\"/g" >> ada.sed
-	echo "s/@@/@@@@/g" >> ada.sed
+	echo "/--/!s/\([^-][^-][^\"]*\)\"\([^\"]*\)\"/\1\"@i{\2}\"/g" \
+		>> ada.sed
+	echo "s/\([^@]\)@_/\1@@_/g" >> ada.sed
+	echo "s/_@\([^@]\)/_@@\1/g" >> ada.sed
 	echo "s/_@_/_@@_/g" >> ada.sed
 	for kw in $(ADA_KW); do \
 		echo "s/^\([^-]* \)$$kw/\1@b{$$kw}/g" >> ada.sed; \
