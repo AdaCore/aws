@@ -31,10 +31,11 @@
 --  $Id$
 
 --  Detection of the fast unchecked conversion availability between
---  String and Stream_Element_Array. Copy file aws-translator-conversion-f.adb
---  to aws-translator-conversion.adb if the fast unchecked conversion
---  is supported on the target, or otherwise copy
---  aws-translator-conversion-p.adb to aws-translator-conversion.adb
+--  String and Stream_Element_Array. Copy file
+--  aws-translator-conversion__f.adb to aws-translator-conversion.adb
+--  if the fast unchecked conversion is supported on the target,
+--  or otherwise copy
+--  aws-translator-conversion__p.adb to aws-translator-conversion.adb
 --  if the fast unchecked conversion cannot be used.
 
 with Ada.Unchecked_Conversion;
