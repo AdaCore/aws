@@ -140,7 +140,7 @@ Major supported features are:
 
 @item Server push
 
-@item SMTP mail (client API)
+@item SMTP / POP (client API)
 
 @item LDAP (client API)
 
@@ -226,7 +226,7 @@ If you want to use the @code{AWS/LDAP} API
 on UNIX based systems, you need to install properly the @code{OpenLDAP}
 package. On Windows you don't need to install it as the
 @file{libldap.a} library will be built by @code{AWS} and will use the
-standard Windows @code{LDAP} DLL @file{wldap32.dll}.
+standard Windows @code{LDAP DLL} @file{wldap32.dll}.
 
 You can download OpenLDAP from @url{http://www.openldap.org}.
 
@@ -238,14 +238,16 @@ You can download OpenLDAP from @url{http://www.openldap.org}.
 
 @noindent
 The @code{AWS.OS_Lib} has 3 implementations. One using @code{POSIX}, one using
-@code{GNAT.OS_Lib} and one using direct @code{Win32} calls.
+@code{GNAT.OS_Lib} and one using direct @code{Win32} calls. This last
+one is not anymore supported in this version. Contribution is welcome
+of course.
 
 @table @b
 
 @item GNAT.OS_Lib implementation
 
-Version using @code{GNAT.OS_Lib} is GNAT dependent and will run on whatever OS 
-GNAT has be ported to. This is the @b{default implementation} used.
+Version using @code{GNAT.OS_Lib} is GNAT dependent and will run on whatever
+OS GNAT has be ported to. This is the @b{default implementation} used.
 
 @smallexample
 @cartouche
@@ -270,7 +272,7 @@ $ make posix_oslib
 @end cartouche
 @end smallexample
 
-@item Win32 implementation
+@item Win32 implementation (not anymore supported)
 
 Version for Win32 should be usable by any Ada compiler for Windows 
 95/98/NT/2000/XP.
