@@ -53,10 +53,7 @@ package body Memory_Streams is
    procedure Append
      (Stream : in out Stream_Type;
       Value  : in     Element_Array;
-      Trim   : in     Boolean := False)
-   is
-      Block_Length : constant Element_Offset
-        := Stream.Last_Length + Value'Length;
+      Trim   : in     Boolean := False) is
    begin
       if Value'Length = 0 then
          if Trim then
@@ -81,53 +78,65 @@ package body Memory_Streams is
          Stream.Last        := Stream.First;
          Stream.Last_Length := Value'Length;
 
-      elsif Block_Length <= Stream.Last.Data'Length then
-         Stream.Last.Data (Stream.Last_Length + 1
-                           .. Block_Length) := Value;
-         Stream.Last_Length := Block_Length;
-
-         if Trim then
-            Trim_Last_Block (Stream);
-         end if;
-
-      elsif Stream.Last_Length < Stream.Last.Data'Length then
-         declare
-            Split_Value : constant Element_Index
-              := Value'First + Stream.Last.Data'Length - Stream.Last_Length;
-            Next_Length : constant Element_Index
-              := Value'Last - Split_Value + 1;
-         begin
-            Stream.Last.Data (Stream.Last_Length + 1 .. Stream.Last.Data'Last)
-              := Value (Value'First .. Split_Value - 1);
-
-            Stream.Last.Next := new Buffer_Type (False);
-            Stream.Last      := Stream.Last.Next;
-
-            if Next_Length >= Next_Block_Length or else Trim then
-               Stream.Last.Data := new Element_Array (1 .. Next_Length);
-            else
-               Stream.Last.Data := new Element_Array (1 .. Next_Block_Length);
-            end if;
-
-            Stream.Last.Data (1 .. Next_Length)
-              := Value (Split_Value .. Value'Last);
-
-            Stream.Last_Length := Next_Length;
-         end;
-
       else
-         Stream.Last.Next := new Buffer_Type (False);
-         Stream.Last      := Stream.Last.Next;
 
-         if Value'Length >= Next_Block_Length or else Trim then
-            Stream.Last.Data := new Element_Array (1 .. Value'Length);
-         else
-            Stream.Last.Data := new Element_Array (1 .. Next_Block_Length);
-         end if;
+         declare
+            Block_Length : constant Element_Offset
+              := Stream.Last_Length + Value'Length;
+         begin
+            if Block_Length <= Stream.Last.Data'Length then
+               Stream.Last.Data
+                 (Stream.Last_Length + 1 .. Block_Length) := Value;
+               Stream.Last_Length := Block_Length;
 
-         Stream.Last.Data (1 .. Value'Length) := Value;
+               if Trim then
+                  Trim_Last_Block (Stream);
+               end if;
 
-         Stream.Last_Length := Value'Length;
+            elsif Stream.Last_Length < Stream.Last.Data'Length then
+               declare
+                  Split_Value : constant Element_Index
+                    := Value'First
+                         + Stream.Last.Data'Length - Stream.Last_Length;
+                  Next_Length : constant Element_Index
+                    := Value'Last - Split_Value + 1;
+               begin
+                  Stream.Last.Data
+                    (Stream.Last_Length + 1 .. Stream.Last.Data'Last)
+                    := Value (Value'First .. Split_Value - 1);
+
+                  Stream.Last.Next := new Buffer_Type (False);
+                  Stream.Last      := Stream.Last.Next;
+
+                  if Next_Length >= Next_Block_Length or else Trim then
+                     Stream.Last.Data := new Element_Array (1 .. Next_Length);
+                  else
+                     Stream.Last.Data
+                       := new Element_Array (1 .. Next_Block_Length);
+                  end if;
+
+                  Stream.Last.Data (1 .. Next_Length)
+                    := Value (Split_Value .. Value'Last);
+
+                  Stream.Last_Length := Next_Length;
+               end;
+
+            else
+               Stream.Last.Next := new Buffer_Type (False);
+               Stream.Last      := Stream.Last.Next;
+
+               if Value'Length >= Next_Block_Length or else Trim then
+                  Stream.Last.Data := new Element_Array (1 .. Value'Length);
+               else
+                  Stream.Last.Data
+                    := new Element_Array (1 .. Next_Block_Length);
+               end if;
+
+               Stream.Last.Data (1 .. Value'Length) := Value;
+
+               Stream.Last_Length := Value'Length;
+            end if;
+         end;
       end if;
 
       Stream.Length := Stream.Length + Value'Length;
