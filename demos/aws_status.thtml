@@ -121,6 +121,7 @@ status.</H3>
 <table>
 
 <tr bgcolor=yellow>
+<td width=20>Order
 <td width=150>Module Regexp
 <td width=300>Server address
 <td>
@@ -128,6 +129,7 @@ status.</H3>
 
 @@TABLE@@
 <tr bgcolor=white>
+<td>@@_TABLE_LINE_@@
 <td align=center>@@_HP_REGEXP_L_@@
 <td>@@_HP_URL_L_@@
 <td><a href="@@_ADMIN_@@-HPup?N=@@_TABLE_LINE_@@">
@@ -137,6 +139,7 @@ status.</H3>
 </tr>
 @@SECTION@@
 <tr bgcolor=turquoise>
+<td>@@_TABLE_LINE_@@
 <td align=center>@@_HP_REGEXP_L_@@
 <td>@@_HP_URL_L_@@
 <td><a href="@@_ADMIN_@@-HPup?N=@@_TABLE_LINE_@@">
