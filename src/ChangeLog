@@ -1,3 +1,17 @@
+2002-10-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-get_status.adb:
+	Add many variables into the association table
+	 ACCEPT_QUEUE_SIZE,
+	 CLEANER_WAIT_FOR_CLIENT_TIMEOUT, CLEANER_CLIENT_HEADER_TIMEOUT,
+	 CLEANER_CLIENT_DATA_TIMEOUT, CLEANER_SERVER_RESPONSE_TIMEOUT,
+	 FORCE_WAIT_FOR_CLIENT_TIMEOUT, FORCE_CLIENT_HEADER_TIMEOUT,
+	 FORCE_CLIENT_DATA_TIMEOUT, FORCE_SERVER_RESPONSE_TIMEOUT,
+	 RECEIVE_TIMEOUT, SEND_TIMEOUT, STATUS_PAGE, UPLOAD_DIRECTORY
+
+	* aws-server.ads:
+	(HTTP) Add comment.
+
 2002-10-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* test_uconv.adb:
