@@ -1,5 +1,20 @@
 2000-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): update list.
+	(build): add build step for AWS.Parameters unit.
+
+	* aws-client.adb:
+	(Init_Connection): Host header data must reference the target
+	 computer and not the proxy.
+	Removes unused units.
+
+	* aws-server-protocol_handler.adb:
+	Fix bad casing and layout.
+
+	* aws-server-config.ads:
+	Fix bad casing.
+
 	* aws-server-protocol_handler.adb:
 	(Target_Filename): moved (one level up).
 	(File_Upload): better way to check for file upload mode. Fix
