@@ -1,3 +1,11 @@
+2002-09-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* auth.adb:
+	Minor reformatting.
+
+	* moved.adb:
+	Minor reformatting.
+
 2002-09-25  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* moved.adb, moved.out:

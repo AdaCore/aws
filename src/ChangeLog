@@ -1,4 +1,46 @@
-2002-09-20  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+2002-09-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status.adb:
+	Minor reformatting.
+	
+	* aws-status.ads:
+	Minor reformatting.
+	Put the pragma Inline next to the spec (before the comment).
+	
+	* aws-status-set.adb:
+	Minor reformatting.
+
+	* aws-session.adb:
+	Minor reformatting.
+	Add some missing routine headers.
+
+	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+
+	* aws-response.ads, aws-response.adb:
+	Minor reformatting.
+
+	* aws-messages.ads, aws-messages.adb:
+	Minor reformatting.
+
+	* aws-digest.ads, aws-digest.adb: 
+	Reformat code.
+
+	* aws-client.ads:
+	Minor reformatting.
+	Fix some comments.
+
+	* aws-client.adb:
+	Reformat code. Put some ??? to indicate a need for more comments.
+
+	* aws-utils.ads:
+	Reformat code.
+	Fix comments.
+
+	* aws-utils.adb:
+	Reformat code.
+
+2002-09-25  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* aws-client.adb:
 	(Decrement_Authentication_Attempt): New routine.
@@ -14,8 +56,8 @@
 	(Post): Add authentication attempts counter.
 	(Put): Add authentication attempts counter.
 	(Upload): Add authentication attempts counter.
-	(Open_Send_Common_Header): Add local procedure Send_Authentication_Header
-	 for the WWW and for Proxy authentication.
+	(Open_Send_Common_Header): Add local procedure
+	 Send_Authentication_Header for the WWW and for Proxy authentication.
 
 	* aws-client.ads:
 	(Auth_Mode): New type derived from AWS.Response.Authentication_Mode;
