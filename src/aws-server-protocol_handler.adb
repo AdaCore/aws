@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,7 +34,7 @@
 --  $Author$
 
 --  This procedure is responsible of handling the HTTP protocol. Every
---  responses and coming requests are parsed/formated here.
+--  responses and incoming requests are parsed/formated here.
 
 with Ada.Characters.Handling;
 with Ada.Streams.Stream_IO;
