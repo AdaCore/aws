@@ -41,59 +41,18 @@ package AWS.Status.Set is
    procedure Free (D : in out Data);
    --  Free all allocated memory.
 
-   procedure Authorization (D             : in out Data;
-                            Authorization : in     String);
-   --  Set value for "Authorization:" parameter
-
-   procedure Connection (D : in out Data; Connection : in String);
-   --  Set value for "Connection:" parameter
-
-   procedure Content_Length
-     (D              : in out Data;
-      Content_Length : in     Natural);
-   --  Set value for "Content-Length:" parameter
-
-   procedure Content_Type
-     (D            : in out Data;
-      Content_Type : in     String);
-   --  Set value for "Content-Type:" parameter
+   procedure Read_Header (Socket : in Net.Socket_Type'Class; D : in out Data);
+   --  Reading all header data from the socket and fill appropriate
+   --  internal data fields from the header values.
 
    procedure Keep_Alive
      (D    : in out Data;
       Flag : in     Boolean);
    --  Set the Keep-Alive flag for the current HTTP connection.
 
-   procedure Multipart_Boundary
-     (D        : in out Data;
-      Boundary : in     String);
-   --  Set value for "Content-Type: ...; boundary=..." parameter
-
-   procedure Session
-     (D  : in out Data;
-      ID : in     String);
-   --  Set Session to ID
-
    procedure Session
      (D : in out Data);
    --  Generate new Session ID
-
-   procedure Host (D : in out Data; Host : in String);
-   --  Set value for "Host:" parameter
-
-   procedure If_Modified_Since
-     (D                 : in out Data;
-      If_Modified_Since : in     String);
-   --  Set value for "If-Modified-Since:" parameter
-
-   procedure User_Agent
-     (D          : in out Data;
-      User_Agent : in     String);
-   --  Set value for "User-Agent:" parameter
-
-   procedure Referer
-     (D       : in out Data;
-      Referer : in     String);
-   --  Set value for "Referer:" parameter
 
    procedure Peername
      (D        : in out Data;
@@ -126,12 +85,6 @@ package AWS.Status.Set is
    --  Set the Socket for the status. User callback can then retreive the
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.
-
-   procedure SOAPAction
-     (D          : in out Data;
-      SOAPAction : in     String);
-   --  Set value for "SOAPAction:" parameter. This is a standard header to
-   --  support SOAP over HTTP protocol.
 
    procedure Payload
      (D       : in out Data;
