@@ -96,6 +96,12 @@ is
    --  to the client using this socket. The value will be changed by
    --  Set_Close_Status.
 
+   Data_Sent      : Boolean := False;
+   --  Will be set to true when some data will have been sent back to the
+   --  client. At this point it is not possible to send an unexpected
+   --  exception message to the client. The only option in case of problems is
+   --  to close the connection.
+
    --  Duplication of some status fields for faster access
 
    Status_Connection         : Unbounded_String;
@@ -1194,6 +1200,8 @@ is
       use type Response.Data;
 
    begin
+      Data_Sent := True;
+
       Status := Response.Status_Code (Answer);
 
       case Response.Mode (Answer) is
@@ -1452,25 +1460,34 @@ begin
 
          when E : others =>
 
-            declare
-               use type Response.Data_Mode;
+            if Data_Sent then
+               --  We have an exception while sending data back to the
+               --  client. This is most probably an exception coming from a
+               --  user's stream. The only option is to exit and close the
+               --  connection, we can't recover in a middle of a response.
+               exit For_Every_Request;
 
-               Answer : Response.Data := Response.Empty;
-            begin
-               HTTP_Server.Exception_Handler
-                 (E,
-                  HTTP_Server.Error_Log,
-                  AWS.Exceptions.Data'(False, Index, C_Stat),
-                  Answer);
+            else
+               declare
+                  use type Response.Data_Mode;
 
-               if Response.Mode (Answer) /= Response.No_Data then
-                  HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
-                  Send (Answer);
-               end if;
-            exception
-               when Net.Socket_Error =>
-                  exit For_Every_Request;
-            end;
+                  Answer : Response.Data := Response.Empty;
+               begin
+                  HTTP_Server.Exception_Handler
+                    (E,
+                     HTTP_Server.Error_Log,
+                     AWS.Exceptions.Data'(False, Index, C_Stat),
+                     Answer);
+
+                  if Response.Mode (Answer) /= Response.No_Data then
+                     HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+                     Send (Answer);
+                  end if;
+               exception
+                  when Net.Socket_Error =>
+                     exit For_Every_Request;
+               end;
+            end if;
       end;
 
       --  Exit if connection has not the Keep-Alive status or we are working
