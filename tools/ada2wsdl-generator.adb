@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,6 +35,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Utils;
+with SOAP.Types;
 with SOAP.WSDL;
 
 with Ada2WSDL.Options;
@@ -283,6 +284,11 @@ package body Ada2WSDL.Generator is
       New_P : constant Parameter_Access
         := new Parameter'(+"Result", +Name, +To_XSD (Name), null);
    begin
+      if Options.Verbose then
+         Text_IO.Put_Line
+           ("        return " & Name & " (" & (-New_P.XSD_Name) & ')');
+      end if;
+
       API (Index).Return_Type := New_P;
    end Return_Type;
 
@@ -398,6 +404,9 @@ package body Ada2WSDL.Generator is
       if Ada_Type = "character" then
          Character_Schema := True;
          return "tns:Character";
+
+      elsif Ada_Type = "SOAP_Base64" then
+         return Types.XML_Base64_Binary;
       end if;
 
       WSDL.From_Ada (Ada_Type, P, Standard);
