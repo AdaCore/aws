@@ -31,35 +31,54 @@
 --  $Id$
 
 with Ada.Characters.Handling;
-with Ada.Strings.Unbounded;
 
 with Interfaces;
 
 package body AWS.Translator is
 
-   use Ada;
-   use Ada.Strings.Unbounded;
+   use Ada.Streams;
 
-   -------------------
-   -- Base64_Decode --
-   -------------------
-
-   function Base64_Decode (B64_Data : in String)
-                          return Streams.Stream_Element_Array
+   function Base64_Decode
+     (B64_Data : in String)
+     return Stream_Element_Array
    is
-      use Streams;
-      use type Interfaces.Unsigned_32;
-      use type Streams.Stream_Element_Offset;
+      use Interfaces;
 
-      function Base64 (C : in Character) return Interfaces.Unsigned_32;
-      --  returns the base64 stream element given a character
+      function Base64 (C : in Character)
+        return Interfaces.Unsigned_32;
+      pragma Inline (Base64);
+      --  Returns the base64 stream element given a character
 
-      function Shift_Left (Value  : in Interfaces.Unsigned_32;
-                           Amount : in Natural) return Interfaces.Unsigned_32;
+      Base64_Values : constant array (Character) of Interfaces.Unsigned_32
+        := ('A' => 0, 'B' => 1, 'C' => 2, 'D' => 3, 'E' => 4, 'F' => 5,
+            'G' => 6, 'H' => 7, 'I' => 8, 'J' => 9, 'K' => 10, 'L' => 11,
+            'M' => 12, 'N' => 13, 'O' => 14, 'P' => 15, 'Q' => 16, 'R' => 17,
+            'S' => 18, 'T' => 19, 'U' => 20, 'V' => 21, 'W' => 22, 'X' => 23,
+            'Y' => 24, 'Z' => 25,
+
+            'a' => 26, 'b' => 27, 'c' => 28, 'd' => 29, 'e' => 30, 'f' => 31,
+            'g' => 32, 'h' => 33, 'i' => 34, 'j' => 35, 'k' => 36, 'l' => 37,
+            'm' => 38, 'n' => 39, 'o' => 40, 'p' => 41, 'q' => 42, 'r' => 43,
+            's' => 44, 't' => 45, 'u' => 46, 'v' => 47, 'w' => 48, 'x' => 49,
+            'y' => 50, 'z' => 51,
+
+            '0' => 52, '1' => 53, '2' => 54, '3' => 55, '4' => 56,
+            '5' => 57, '6' => 58, '7' => 59, '8' => 60, '9' => 61,
+
+            '+' => 62,
+            '/' => 63,
+            others => 16#ffffffff#);
+
+      function Shift_Left
+        (Value  : in Interfaces.Unsigned_32;
+         Amount : in Natural)
+        return Interfaces.Unsigned_32;
       pragma Import (Intrinsic, Shift_Left);
 
-      function Shift_Right (Value  : in Interfaces.Unsigned_32;
-                            Amount : in Natural) return Interfaces.Unsigned_32;
+      function Shift_Right
+        (Value  : in Interfaces.Unsigned_32;
+         Amount : in Natural)
+        return Interfaces.Unsigned_32;
       pragma Import (Intrinsic, Shift_Right);
 
       Result : Stream_Element_Array
@@ -71,19 +90,11 @@ package body AWS.Translator is
 
       Pad    : Stream_Element_Offset := 0;
 
-      function Base64 (C : in Character) return Interfaces.Unsigned_32 is
+      function Base64 (C : in Character)
+        return Interfaces.Unsigned_32 is
       begin
-         if C in 'A' .. 'Z' then
-            return Character'Pos (C) - Character'Pos ('A');
-         elsif C in 'a' .. 'z' then
-            return Character'Pos (C) - Character'Pos ('a') + 26;
-         elsif C in '0' .. '9' then
-            return Character'Pos (C) - Character'Pos ('0') + 52;
-         elsif C = '+' then
-            return 62;
-         else
-            return 63;
-         end if;
+         pragma Assert (Base64_Values (C) < 64);
+         return Base64_Values (C);
       end Base64;
 
    begin
@@ -125,91 +136,85 @@ package body AWS.Translator is
    -- Base64_Encode --
    -------------------
 
-   function Base64_Encode
-     (Data : in Streams.Stream_Element_Array)
+   function Base64_Encode (Data : Stream_Element_Array)
      return String
    is
-      use Streams;
-      use type Streams.Stream_Element;
-
-      function Base64 (E : in Stream_Element) return Character;
-      --  returns the base64 character given a number
-
-      function Shift_Left (Value  : in Stream_Element;
-                           Amount : in Natural) return Stream_Element;
+      function Shift_Left
+        (Value  : in Stream_Element;
+         Amount : in Natural)
+        return Stream_Element;
       pragma Import (Intrinsic, Shift_Left);
 
-      function Shift_Right (Value  : in Stream_Element;
-                            Amount : in Natural) return Stream_Element;
+      function Shift_Right
+        (Value  : in Stream_Element;
+         Amount : in Natural)
+        return Stream_Element;
       pragma Import (Intrinsic, Shift_Right);
 
-      Result : Unbounded_String;
-      Length : Natural := 0;
-      State  : Positive range 1 .. 3 := 1;
-      E, Old : Stream_Element := 0;
+      Encoded_Length : constant Integer := 4 * ((Data'Length + 2) / 3);
 
-      function Base64 (E : in Stream_Element) return Character is
-         V : Natural := Natural (E);
-      begin
-         if V in 0 .. 25 then
-            return Character'Val (V + Character'Pos ('A'));
-         elsif V in 26 .. 51 then
-            return Character'Val (V - 26 + Character'Pos ('a'));
-         elsif V in 52 .. 61 then
-            return Character'Val (V - 52 + Character'Pos ('0'));
-         elsif V = 62 then
-            return '+';
-         else
-            return '/';
-         end if;
-      end Base64;
+      Result : String (1 .. Encoded_Length);
+
+      Last   : Integer := Result'First - 1;
+
+      State  : Positive range 1 .. 3 := 1;
+      E, Prev_E : Stream_Element := 0;
+
+      Base64 : constant array (Stream_Element range 0 .. 63) of Character
+        := ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            '+', '/');
 
    begin
       for C in Data'Range loop
          E := Data (C);
 
+         Last := Last + 1;
+
          case State is
             when 1 =>
-               Append (Result, Base64 (Shift_Right (E, 2) and 16#3F#));
+               Result (Last) := Base64 (Shift_Right (E, 2) and 16#3F#);
                State := 2;
+
             when 2 =>
-               Append (Result, Base64 ((Shift_Left (Old, 4) and 16#30#)
-                                        or (Shift_Right (E, 4) and 16#F#)));
+               Result (Last) := Base64 ((Shift_Left (Prev_E, 4) and 16#30#)
+                                        or (Shift_Right (E, 4) and 16#F#));
                State := 3;
+
             when 3 =>
-               Append (Result, Base64 ((Shift_Left (Old, 2) and 16#3C#)
-                                       or (Shift_Right (E, 6) and 16#3#)));
-               Append (Result, Base64 (E and 16#3F#));
+               Result (Last) := Base64 ((Shift_Left (Prev_E, 2) and 16#3C#)
+                                        or (Shift_Right (E, 6) and 16#3#));
+               Last := Last + 1;
+               Result (Last) := Base64 (E and 16#3F#);
                State := 1;
          end case;
 
-         Old := E;
-
-         Length := Length + 1;
-
-         if Length >= 72 then
-            Append (Result, ASCII.LF);
-            Length := 0;
-         end if;
+         Prev_E := E;
       end loop;
 
       case State is
          when 1 =>
             null;
          when 2 =>
-            Append (Result, Base64 (Shift_Left (Old, 4) and 16#30#) & "==");
+            Last := Last + 1;
+            Result (Last) := Base64 (Shift_Left (Prev_E, 4) and 16#30#);
          when 3 =>
-            Append (Result, Base64 (Shift_Left (Old, 2) and 16#3C#) & '=');
+            Last := Last + 1;
+            Result (Last) := Base64 (Shift_Left (Prev_E, 2) and 16#3C#);
       end case;
 
-      return To_String (Result);
+      pragma Assert ((Result'Last - Last) < 3);
+      Result (Last + 1 .. Result'Last) := (others => '=');
+      return Result;
    end Base64_Encode;
 
    function Base64_Encode (Data : in String) return String is
-      use type Streams.Stream_Element_Offset;
-      Stream_Data : Streams.Stream_Element_Array
-        (1 .. Streams.Stream_Element_Offset (Data'Length));
-      I : Streams.Stream_Element_Offset := 1;
+      Stream_Data : Stream_Element_Array
+        (1 .. Stream_Element_Offset (Data'Length));
+      I : Stream_Element_Offset := 1;
    begin
       for K in Data'Range loop
          Stream_Data (I) := Character'Pos (Data (K));
@@ -233,8 +238,8 @@ package body AWS.Translator is
 
          elsif Str (I) = '%'
            and then I + 2 <= Str'Last
-           and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 1))
-           and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 2))
+           and then Ada.Characters.Handling.Is_Hexadecimal_Digit (Str (I + 1))
+           and then Ada.Characters.Handling.Is_Hexadecimal_Digit (Str (I + 2))
          then
             declare
                Hex_Num : constant String := "16#" & Str (I + 1 .. I + 2) & '#';
@@ -260,10 +265,8 @@ package body AWS.Translator is
 
    function To_Stream_Element_Array
      (Data : in String)
-     return Streams.Stream_Element_Array
+     return Stream_Element_Array
    is
-      use Streams;
-
       Result : Stream_Element_Array
         (Stream_Element_Offset (Data'First)
          .. Stream_Element_Offset (Data'Last));
@@ -279,7 +282,7 @@ package body AWS.Translator is
    ---------------
 
    function To_String
-     (Data : in Streams.Stream_Element_Array)
+     (Data : in Stream_Element_Array)
      return String
    is
       Result : String (Integer (Data'First) .. Integer (Data'Last));
