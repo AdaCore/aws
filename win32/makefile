@@ -2,10 +2,18 @@
 
 .SILENT: all build build_lib clean libssl.a libcrypto.a
 
+# build the library only if Win32 OS and SSL mode
+
 ifeq (${OS}, Windows_NT)
-IMPORT_LIB = build_lib
+
+   ifeq (${MODE}, ssl)
+      IMPORT_LIB = build_lib
+   else
+      IMPORT_LIB =
+   endif
+
 else
-IMPORT_LIB =
+   IMPORT_LIB =
 endif
 
 build: $(IMPORT_LIB)
