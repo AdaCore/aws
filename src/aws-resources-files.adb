@@ -84,7 +84,7 @@ package body AWS.Resources.Files is
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time is
    begin
-      return OS_Lib.File_Timestamp (Name);
+      return OS_Lib.File_Time_Stamp (Name);
    exception
       when OS_Lib.No_Such_File =>
          if Is_GZip (Name) then
