@@ -1,4 +1,4 @@
-2004-11-16  Pascal Obry  <obry@adacore.com>
+2004-11-16  Pascal Obry  <pascal@obry.org>
 
 	* demos.gpr, demos_ssl.gpr:
 	(Binder): New package renamed from Demos_Shared.Binder.
