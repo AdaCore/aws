@@ -1,3 +1,52 @@
+2002-06-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-dispatchers-uri.ads:
+	Update comment.
+
+	* aws-translator.ads: 
+	(To_String): Add pragma Inline.
+	(To_Stream_Element_Array): Idem.
+	Minor reformatting.
+
+	* aws-client.adb:
+	(Get_Response): Handle properly binary files whose length is 0.
+
+2002-06-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-directory.adb:
+	(Each_Entry): Add pragma Unreferenced.
+
+	* aws-server-push.adb:
+	(Action): Add pragma Unreferenced.
+	(Free): Add pragma Unreferenced.
+	(Action): Add pragma Unreferenced.
+
+	* aws-server-hotplug.adb:
+	(Message): Add pragma Unreferenced.
+
+	* aws-net-std.adb:
+	(Free): Add pragma Unreferenced.
+
+	* aws-response.adb:
+	(Filename): New routine.
+	(Message_Body): [return Stream_Element_Array] - was Binary.
+	(Binary): Renamed to Message_Body.
+	Add parameter name in aggregate to ease reading.
+	
+	* aws-response.ads:
+	(Filename): New routine.
+	(Message_Body): [return Stream_Element_Array] - was Binary.
+	(Binary): Renamed to Message_Body.
+
+	* aws-server-protocol_handler.adb:
+	(Send_File): Use Response.Filename insted of Message_Body.
+	(Send_Message): Message_Body is now a Stream_Element_Array structure.
+
+	* aws-translator.ads:
+	(To_String): Add pragma inline.
+	(To_Stream_Element_Array): Idem.
+	Minor reformatting.
+
 2002-06-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
