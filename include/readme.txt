@@ -6,43 +6,9 @@ distributed with AWS as a convenience but are not part of AWS.
 
 Note that all of them have a license compatible with AWS.
 
-* All Table_Of_..._Keys_And_..._Values_G are from Swiss Federal Institute of 
-  Technology (EPFL). 
-  
-   License:
+* AI302/* are a preliminary version of the future Ada.Containers standard.
+  License GMGPL.
 
-   Conditions governing the use and distribution of the LGL software components
-   developed by the Software Engineering Laboratory (LGL) at the Swiss Federal
-   Institute of Technology at Lausanne (EPFL).
-
-        Contact Address
-          EPFL-DI-LGL
-     Prof. A. Strohmeier
-          IN Ecublens
-       CH-1015 Lausanne
-         Switzerland
-
-   The LGL and the EPFL assume NO responsibility for the use or reliability of
-   the software. It is provided "AS IS" and without any express or implied
-   warranties of merchantability and fitness for a particular purpose.
-
-   LGL software components may be freely copied and distributed in source
-   and/or binary form. You are asked to help keep the source files of the LGL
-   software components consistent, identical everywhere in the world. Changes
-   are permissible for local use, but we ask that you not redistribute them as
-   part of the LGL Component Library. The software is being actively
-   maintained and all corrections/suggestions that you may have should be sent
-   to: lgl-components@di.epfl.ch
-
-   You may not sell this software component but you may charge a distribution
-   fee or include it in an application. There are no royalties for the use of
-   this software; we only ask that any documentation acknowledge that it
-   includes software developed by the LGL. The fact that a product includes
-   software written by the LGL may not be used to endorse or promote the
-   product without specific prior written permission.
-
-   Usage of this component in derived works is otherwise unrestricted.
- 
 * Strings_Cutter is from Pascal Obry.
   License GMGPL.
 
