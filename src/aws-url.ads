@@ -59,8 +59,14 @@ package AWS.URL is
    function Security (URL : in Object) return Boolean;
    --  Returns True if it is an secure HTTP (HTTPS) URL.
 
-   function URI (URL : in Object) return String;
-   --  Returns the URI.
+   function URI (URL : in Object; Encode : in Boolean := False) return String;
+   --  Returns the URI. If Encode is True then the URI will be encoded using
+   --  the Encode routine.
+
+   function Encode (URL : in String) return String;
+   --  Encode URL. Many characters are forbiden into an URL and needs to be
+   --  encoded. A character is encoded by %XY where XY is the character's
+   --  ASCII hexadecimal code. For example a space is encoded as %20.
 
 private
 
