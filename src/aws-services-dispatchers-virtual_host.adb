@@ -48,6 +48,64 @@ package body AWS.Services.Dispatchers.Virtual_Host is
      (Virtual_Host_Table.Table_Type, VH_Table_Access);
 
    --------------
+   -- Dispatch --
+   --------------
+
+   function Dispatch
+     (Dispatcher : in Handler;
+      Request    : in AWS.Status.Data)
+     return AWS.Response.Data
+   is
+      Hostname : constant String := Status.Host (Request);
+      Location : Unbounded_String;
+      K        : Natural;
+      Node     : VH_Node;
+   begin
+      K := Strings.Fixed.Index (Hostname, ":");
+
+      if K = 0 then
+         K := Hostname'Last;
+      else
+         K := K - 1;
+      end if;
+
+      if Virtual_Host_Table.Is_Present
+        (Dispatcher.Table.all, Hostname (Hostname'First .. K))
+      then
+         Virtual_Host_Table.Get_Value
+           (Dispatcher.Table.all, Hostname (Hostname'First .. K), Node);
+
+         case Node.Mode is
+            when Host     =>
+
+               declare
+                  P : constant Parameters.List := Status.Parameters (Request);
+               begin
+                  Location := To_Unbounded_String ("http://");
+                  Append (Location, To_String (Node.Hostname));
+                  Append (Location, Status.URI (Request));
+                  Append (Location, Parameters.URI_Format (P));
+               end;
+
+               return AWS.Response.URL (To_String (Location));
+
+            when Callback =>
+               return Dispatch (Node.Action.all, Request);
+         end case;
+      end if;
+
+      if Dispatcher.Action = null then
+         return AWS.Response.Build
+           (MIME.Text_HTML,
+            "<p>Virtual Hosting is activated but no virtual host match "
+            & Status.Host (Request)
+            & "<p>Please check your AWS Virtual Host configuration");
+      else
+         return Dispatch (Dispatcher.Action.all, Request);
+      end if;
+   end Dispatch;
+
+   --------------
    -- Finalize --
    --------------
 
@@ -139,63 +197,5 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    begin
       Virtual_Host_Table.Remove (Dispatcher.Table.all, Virtual_Hostname);
    end Unregister;
-
-   -----------------
-   -- VH_Callback --
-   -----------------
-
-   function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in AWS.Status.Data)
-     return AWS.Response.Data
-   is
-      Hostname : constant String := Status.Host (Request);
-      Location : Unbounded_String;
-      K        : Natural;
-      Node     : VH_Node;
-   begin
-      K := Strings.Fixed.Index (Hostname, ":");
-
-      if K = 0 then
-         K := Hostname'Last;
-      else
-         K := K - 1;
-      end if;
-
-      if Virtual_Host_Table.Is_Present
-        (Dispatcher.Table.all, Hostname (Hostname'First .. K))
-      then
-         Virtual_Host_Table.Get_Value
-           (Dispatcher.Table.all, Hostname (Hostname'First .. K), Node);
-
-         case Node.Mode is
-            when Host     =>
-
-               declare
-                  P : constant Parameters.List := Status.Parameters (Request);
-               begin
-                  Location := To_Unbounded_String ("http://");
-                  Append (Location, To_String (Node.Hostname));
-                  Append (Location, Status.URI (Request));
-                  Append (Location, Parameters.URI_Format (P));
-               end;
-
-               return AWS.Response.URL (To_String (Location));
-
-            when Callback =>
-               return Dispatch (Node.Action.all, Request);
-         end case;
-      end if;
-
-      if Dispatcher.Action = null then
-         return AWS.Response.Build
-           (MIME.Text_HTML,
-            "<p>Virtual Hosting is activated but no virtual host match "
-            & Status.Host (Request)
-            & "<p>Please check your AWS Virtual Host configuration");
-      else
-         return Dispatch (Dispatcher.Action.all, Request);
-      end if;
-   end Dispatch;
 
 end AWS.Services.Dispatchers.Virtual_Host;
