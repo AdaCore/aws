@@ -108,6 +108,22 @@ package SOAP.Types is
    function V (O : in XSD_Float) return Long_Float;
 
    ------------
+   -- Double --
+   ------------
+
+   XML_Double : constant String := "xsd:double";
+
+   type XSD_Double is new Scalar with private;
+
+   function Image     (O : in XSD_Double) return String;
+   function XML_Image (O : in XSD_Double) return String;
+   function XML_Type  (O : in XSD_Double) return String;
+
+   function D (V : in Long_Long_Float;
+               Name : in String := "item") return XSD_Double;
+   function V (O : in XSD_Double) return Long_Long_Float;
+
+   ------------
    -- String --
    ------------
 
@@ -262,8 +278,12 @@ package SOAP.Types is
    --  Integer.
 
    function Get (O : in Object'Class) return Long_Float;
-   --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
+   --  Returns O value as a Long_Float. Raises Data_Error if O is not a SOAP
    --  Float.
+
+   function Get (O : in Object'Class) return Long_Long_Float;
+   --  Returns O value as a Long_Long_Float. Raises Data_Error if O is not a
+   --  SOAP Double.
 
    function Get (O : in Object'Class) return String;
    --  Returns O value as a String. Raises Data_Error if O is not a SOAP
@@ -343,6 +363,10 @@ private
 
    type XSD_Float is new Scalar with record
       V : Long_Float;
+   end record;
+
+   type XSD_Double is new Scalar with record
+      V : Long_Long_Float;
    end record;
 
    type XSD_String is new Scalar with record
