@@ -81,7 +81,14 @@ APIFILES = ../src/aws.ads.texi \
 	../soap/soap-parameters.ads.texi \
 	../soap/soap-types.ads.texi
 
-aws_docs: aws.ps aws.pdf aws.html aws.txt aws.info
+ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads))
+
+force:
+
+aws_api.xml: prog force
+	gen_gps_ref $(ALL_API)
+
+aws_docs: aws_api.xml aws.ps aws.pdf aws.html aws.txt aws.info
 
 sg_docs: style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
 	style-guide.info
