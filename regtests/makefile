@@ -4,7 +4,7 @@
 .SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
 .SILENT: checks checks_header checks_soap shutdown testxml turl2 turl3
 .SILENT: soap1 soap2 soap3 workorder tres tres2 upload unexph test_speed
-.SILENT: test_soap moved auth strm test_templates_if
+.SILENT: test_soap moved auth strm test_templates_if head
 
 #INCLUDES = -I../src -I../ssl -I../include
 #LIBS     = -L../ssl -lssl -lcrypto
@@ -34,7 +34,7 @@ rt_soap: soap1 soap2 soap3 workorder testxml test_speed test_soap
 
 # Standard regression tests
 rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2 \
-	upload unexph auth moved turl2 turl3 strm test_templates_if
+	upload unexph auth moved turl2 turl3 strm test_templates_if head
 
 ifeq ($(XMLADA),)
 run : rt_std checks
@@ -165,6 +165,10 @@ strm: force
 	gnatmake -g strm $(GARGS) -largs $(LARGS) -bargs -E
 	./strm > strm.res
 
+head: force
+	gnatmake -g head $(GARGS) -largs $(LARGS) -bargs -E
+	./head > head.res
+
 checks_soap:
 	-diff -c -w soap1.out soap1.res
 	-diff -c -w soap2.out soap2.res
@@ -199,6 +203,7 @@ endif
 	-diff -c -w auth.out auth.res
 	-diff -c -w strm.out strm.res
 	-diff -c -w test_templates_if.out test_templates_if.res
+	-diff -c -w head.out head.res
 	-diff -c upload.ali 0.upload.ali
 	-diff -c upload.adb 1.upload.adb
 
