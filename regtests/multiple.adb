@@ -82,16 +82,16 @@ begin
 
    AWS.Server.Start
      (HTTP1, "server1",
-      CB'Unrestricted_Access, Port => 1243, Max_Connection => 5);
+      CB'Unrestricted_Access, Port => 1252, Max_Connection => 5);
 
    AWS.Server.Start
      (HTTP2, "server2",
-      CB'Unrestricted_Access, Port => 1244, Max_Connection => 5);
+      CB'Unrestricted_Access, Port => 1253, Max_Connection => 5);
 
-   Request ("http://localhost:1243/call");
-   Request ("http://localhost:1244/call");
-   Request ("http://localhost:1244/call");
-   Request ("http://localhost:1243/call");
+   Request ("http://localhost:1252/call");
+   Request ("http://localhost:1253/call");
+   Request ("http://localhost:1253/call");
+   Request ("http://localhost:1252/call");
 
    AWS.Server.Shutdown (HTTP1);
    AWS.Server.Shutdown (HTTP2);
