@@ -1,5 +1,8 @@
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
+	* makefile:
+	(SOURCES): Add aws-attachments.adb.
+
 	* aws-attachments.adb:
 	(Add): Another Content_ID casing fix.
 	
