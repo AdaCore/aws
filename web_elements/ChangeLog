@@ -1,6 +1,12 @@
 2004-12-22  Pascal Obry  <pascal@obry.net>
 
 	* notebook/notebook.thtml:
+	Add optional parameters $7 to handle an offset for the height of
+	 the tab. Can be used to adjust tab height for big fonts.
+	
+2004-12-22  Pascal Obry  <pascal@obry.net>
+
+	* notebook/notebook.thtml:
 	Add the CVS tag removed in a previous check-in.
 
 	* readme.txt:
