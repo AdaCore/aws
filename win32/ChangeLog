@@ -1,5 +1,16 @@
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
+	* makefile:
+	(SUPPORT): New variable only set on Windows platforms. Fix build
+	 failure on non Windows OS.
+	(setup): Use it.
+
+	* win32.gpr:
+	(Library_Name): Put into Windows_NT specific section.
+	(Library_Kind): Idem.
+
+2004-09-29  Pascal Obry  <pascal@obry.org>
+
 	* win32.gpr:
 	Initial revision.	
 
