@@ -1,3 +1,8 @@
+2002-03-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-client.adb:
+	(RPC_Call): Use Pathname instead of URL (previous fix was wrong).
+
 2002-03-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-xml.adb:

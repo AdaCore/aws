@@ -71,3 +71,6 @@ implemented:
   level. Right now a task is doing the job.
 
 - Support compress/gzip encoding if client sypport it.
+
+- Sort out problem with client socket that are not closed and can't be
+  reused. This happen if a lot of requests are done to the server.
