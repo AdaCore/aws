@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Command_Line;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
@@ -46,7 +47,6 @@ with SOAP.WSDL.Parser;
 
 procedure WSDL2AWS is
 
-   use Ada;
    use Ada.Exceptions;
    use Ada.Strings.Unbounded;
    use GNAT;
@@ -79,6 +79,8 @@ procedure WSDL2AWS is
    ------------------
 
    function Get_Document (URL : in Unbounded_String) return Unbounded_String is
+      use Ada;
+
       L_URL    : constant String := To_String (URL);
       Filename : Unbounded_String
         := To_Unbounded_String (Directory_Operations.File_Name (L_URL));
@@ -147,7 +149,19 @@ procedure WSDL2AWS is
    ------------------------
 
    procedure Parse_Command_Line is
+      All_Options : Unbounded_String;
    begin
+      --  Get all options
+
+      for K in 1 .. Ada.Command_Line.Argument_Count loop
+         Append (All_Options, Ada.Command_Line.Argument (K));
+         Append (All_Options, " ");
+      end loop;
+
+      SOAP.Generator.Options (Gen, To_String (All_Options));
+
+      --  Now parse arguments
+
       loop
          case Command_Line.Getopt
            ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel")
@@ -229,7 +243,7 @@ procedure WSDL2AWS is
       Filename := To_Unbounded_String (Command_Line.Get_Argument);
    end Parse_Command_Line;
 
-   use Text_IO;
+   use Ada.Text_IO;
 
 begin
    Parse_Command_Line;
