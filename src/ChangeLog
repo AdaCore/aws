@@ -1,3 +1,8 @@
+2004-06-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.adb:
+	(Free): Rename internal generic instantiation to Deallocation.
+
 2004-06-27  Pascal Obry  <pascal@obry.org>
 
 	* aws-net.adb:
