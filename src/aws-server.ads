@@ -395,6 +395,9 @@ private
    -- Socket_Semaphore --
    ----------------------
 
+   Max_Sockets : constant := 10;
+   --  Maximum number of sockets into the queue
+
    protected type Socket_Semaphore is
 
       entry Put_Socket (Socket : in Net.Socket_Access);
@@ -409,8 +412,12 @@ private
       --  parameter in Seize_Or_Socket was null.
 
    private
-      Socket : Net.Socket_Access;
-      Seized : Boolean := False;
+      Size    : Natural  := 0; -- Current size of the queue, waiting sockets
+      Current : Positive := 1; -- Index to current socket
+      Last    : Positive := 1; -- Index to last socket
+
+      Sockets : Net.Socket_Set (1 .. Max_Sockets);
+      Seized  : Boolean := False;
    end Socket_Semaphore;
 
    ----------
