@@ -1,3 +1,16 @@
+2004-07-11  Pascal Obry  <pascal@obry.org>
+
+	* README.txt:
+	Initial revision.
+
+	* wsdl_6.java:
+	Fix test to match the one in the Ada part.
+	Update comments about the procedure to use this test.
+	Update copyright notice.
+	
+	* wsdl_6_main.adb, wsdl_6.out:
+	Output adjusted to the Java one.
+
 2004-07-10  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
