@@ -105,7 +105,7 @@ ada.sed: makefile
 	-makeinfo --no-headers $< > $@
 
 aws.dvi: aws.texi $(APIFILES)
-	-texi2dvi --clean aws.texi
+	-texi2dvi --clean --quiet aws.texi
 
 prog: build.adb
 	gnatmake -m -q build -I../src -I../soap -I../include \
