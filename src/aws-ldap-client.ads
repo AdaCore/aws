@@ -37,7 +37,7 @@ package AWS.LDAP.Client is
 
    use Ada.Strings.Unbounded;
 
-   Default_Port : constant Positive := Positive (Thin.LDAP_Port);
+   Default_Port : constant Positive := Positive (Thin.LDAP_PORT);
 
    subtype Directory    is Thin.LDAP_Type;
    subtype LDAP_Message is Thin.LDAPMessage;

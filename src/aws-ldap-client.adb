@@ -121,7 +121,7 @@ package body AWS.LDAP.Client is
       Free (C_Login);
       Free (C_Password);
 
-      if Res /= Thin.LDAP_Success then
+      if Res /= Thin.LDAP_SUCCESS then
          Raise_Error (Res, "Bind failed");
       end if;
    end Bind;
@@ -184,18 +184,6 @@ package body AWS.LDAP.Client is
       end;
    end Explode_DN;
 
-   -----------------
-   -- First_Entry --
-   -----------------
-
-   function First_Entry
-     (Dir   : in Directory;
-      Chain : in LDAP_Message)
-      return LDAP_Message is
-   begin
-      return Thin.ldap_first_entry (Dir, Chain);
-   end First_Entry;
-
    ---------------------
    -- First_Attribute --
    ---------------------
@@ -217,6 +205,18 @@ package body AWS.LDAP.Client is
          return R;
       end;
    end First_Attribute;
+
+   -----------------
+   -- First_Entry --
+   -----------------
+
+   function First_Entry
+     (Dir   : in Directory;
+      Chain : in LDAP_Message)
+      return LDAP_Message is
+   begin
+      return Thin.ldap_first_entry (Dir, Chain);
+   end First_Entry;
 
    --------------------------
    -- For_Every_Attributes --

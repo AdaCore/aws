@@ -79,7 +79,7 @@ package AWS.LDAP.Thin is
    LDAP_NO_ATTRS                   : constant chars_ptr := NS ("1.1");
    LDAP_ALL_USER_ATTRIBUTES        : constant chars_ptr := NS ("*");
    LDAP_ALL_OPERATIONAL_ATTRIBUTES : constant chars_ptr := NS ("+");
-   -- OpenLDAP extension
+   --  OpenLDAP extension
 
    --  LDAP_OPTions defined by draft-ldapext-ldap-c-api-02
    --  0x0000 - 0x0fff reserved for api options
@@ -307,7 +307,7 @@ package AWS.LDAP.Thin is
    --  sasl methods
 
    LDAP_SASL_SIMPLE : constant System.Address := System.Null_Address;
-   LDAP_SASL_NULL   : constant Chars_Ptr      := NS ("");
+   LDAP_SASL_NULL   : constant chars_ptr      := NS ("");
 
 
    --  authentication methods available
@@ -362,7 +362,7 @@ package AWS.LDAP.Thin is
    LDAP_SCOPE_ONELEVEL     : constant := 16#0001#;
    LDAP_SCOPE_SUBTREE      : constant := 16#0002#;
 
-   -- possible error codes we can return
+   --  possible error codes we can return
 
    subtype Return_Code is C.int range 16#00# .. 16#61#;
 
@@ -468,7 +468,7 @@ package AWS.LDAP.Thin is
    LDAP_CLIENT_LOOP               : constant := 16#60#;
    --  draft-ietf-ldap-c-api-xx
    LDAP_REFERRAL_LIMIT_EXCEEDED   : constant := 16#61#;
-   -- draft-ietf-ldap-c-api-xx
+   --  draft-ietf-ldap-c-api-xx
 
    LDAP_FILT_MAXSIZ : constant := 1024;
 
@@ -495,9 +495,9 @@ package AWS.LDAP.Thin is
    --  parameter is bad
 
    LDAP_URL_ERR_BADSCHEME    : constant := 16#03#;
-   -- URL doesn't begin with "ldap[si]://"
+   --  URL doesn't begin with "ldap[si]://"
    LDAP_URL_ERR_BADENCLOSURE : constant := 16#04#;
-   -- URL is missing trailing ">"
+   --  URL is missing trailing ">"
    LDAP_URL_ERR_BADURL       : constant := 16#05#;
    --  URL is bad
    LDAP_URL_ERR_BADHOST      : constant := 16#06#;
@@ -526,19 +526,19 @@ package AWS.LDAP.Thin is
       return LDAP_Type;
 
    function ldap_simple_bind
-     (ld     : in LDAP_TYpe;
+     (ld     : in LDAP_Type;
       who    : in chars_ptr;
       passwd : in chars_ptr)
       return C.int;
 
    function ldap_simple_bind_s
-     (ld     : in LDAP_TYpe;
+     (ld     : in LDAP_Type;
       who    : in chars_ptr;
       passwd : in chars_ptr)
       return C.int;
 
    function ldap_bind_s
-     (ld         : in LDAP_TYpe;
+     (ld         : in LDAP_Type;
       who        : in chars_ptr;
       passwd     : in chars_ptr;
       authmethod : in C.int)
