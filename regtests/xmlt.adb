@@ -31,8 +31,11 @@
 --  $Id$
 
 with XMLT_Proc;
+with Get_Free_Port;
 
 procedure XMLT is
+   Port : Natural := 8789;
 begin
-   XMLT_Proc (8789, False);
+   Get_Free_Port (Port);
+   XMLT_Proc (Port, False);
 end XMLT;

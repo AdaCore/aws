@@ -40,6 +40,9 @@ with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Messages;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Auth is
 
@@ -65,7 +68,8 @@ procedure Auth is
    Auth_Username : constant String := "AWS";
    Auth_Password : constant String := "letmein";
 
-   R : Response.Data;
+   R    : Response.Data;
+   Port : Natural := 1236;
 
    --------
    -- CB --
@@ -127,9 +131,11 @@ procedure Auth is
 
    task body Server is
    begin
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (HTTP, "Test authentication.",
-         CB'Unrestricted_Access, Port => 1236, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -144,7 +150,7 @@ begin
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:1236",
+      Host       => "http://localhost:" & Utils.Image (Port),
       Timeouts   => (5, 5));
 
    --  Test for basic authentication.

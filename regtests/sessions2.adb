@@ -42,13 +42,17 @@ with AWS.Response;
 with AWS.Server;
 with AWS.Session;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Sessions2 is
 
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
+   Port : Natural := 1256;
 
    task type T_Client is
       entry Start (N : in Positive);
@@ -95,7 +99,7 @@ procedure Sessions2 is
          T_Client.N := N;
       end Start;
 
-      Client.Create (C, "http://localhost:1256");
+      Client.Create (C, "http://localhost:" & Utils.Image (Port));
 
       for K in 1 .. 10 loop
          Client.Get (C, R, "/");
@@ -115,10 +119,12 @@ procedure Sessions2 is
 
    task body Server is
    begin
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (WS, "session",
          CB'Unrestricted_Access,
-         Port           => 1256,
+         Port           => Port,
          Max_Connection => 5,
          Session        => True);
 

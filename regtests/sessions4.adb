@@ -39,13 +39,17 @@ with AWS.Response;
 with AWS.Server;
 with AWS.Session;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Sessions4 is
 
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
+   Port : Natural := 1274;
 
    C  : Client.HTTP_Connection;
    R  : Response.Data;
@@ -120,10 +124,12 @@ procedure Sessions4 is
 
    task body Server is
    begin
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (WS, "session",
          CB'Unrestricted_Access,
-         Port           => 1274,
+         Port           => Port,
          Max_Connection => 5,
          Session        => True);
 
@@ -142,7 +148,7 @@ procedure Sessions4 is
 begin
    Server.Started;
 
-   Client.Create (C, "http://localhost:1274");
+   Client.Create (C, "http://localhost:" & Utils.Image (Port));
 
    Client.Get (C, R, "/");
    Ada.Text_IO.Put_Line ("Response : " & Response.Message_Body (R));

@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -33,7 +33,11 @@
 
 with Sock2_Proc;
 
+with Get_Free_Port;
+
 procedure SSock2 is
+   Port : Natural := 4400;
 begin
-   Sock2_Proc (True, 4400);
+   Get_Free_Port (Port);
+   Sock2_Proc (True, Port);
 end SSock2;

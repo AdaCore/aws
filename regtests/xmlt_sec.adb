@@ -32,7 +32,11 @@
 
 with XMLT_Proc;
 
+with Get_Free_Port;
+
 procedure XMLT_Sec is
+   Port : Natural := 4489;
 begin
-   XMLT_Proc (4489, True);
+   Get_Free_Port (Port);
+   XMLT_Proc (Port, True);
 end XMLT_Sec;
