@@ -24,7 +24,6 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-exceptions.ads.texi \
 	../src/aws-headers.ads.texi \
 	../src/aws-headers-values.ads.texi \
-	../src/aws-jabber.ads.texi \
 	../src/aws-ldap-client.ads.texi \
 	../src/aws-log.ads.texi \
 	../src/aws-messages.ads.texi \
@@ -49,6 +48,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-status.ads.texi \
 	../src/aws-templates.ads.texi \
 	../src/aws-url.ads.texi \
+	../xsrc/aws-jabber.ads.texi \
 	../soap/soap.ads.texi \
 	../soap/soap-client.ads.texi \
 	../soap/soap-message-xml.ads.texi \
