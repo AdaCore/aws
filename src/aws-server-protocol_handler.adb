@@ -1241,7 +1241,7 @@ is
       procedure Send_File_Chunked;
       --  Send file in chunk (HTTP/1.1 only)
 
-      File : Resources.File_Access;
+      File : Resources.File_Type;
       Last : Streams.Stream_Element_Offset;
 
       ---------------
@@ -1263,7 +1263,7 @@ is
          --  Send file content
 
          loop
-            Resources.Read (File.all, Buffer, Last);
+            Resources.Read (File, Buffer, Last);
 
             exit when Last < Buffer'First;
 
@@ -1289,7 +1289,7 @@ is
          Sockets.New_Line (Sock);
 
          loop
-            Resources.Read (File.all, Buffer, Last);
+            Resources.Read (File, Buffer, Last);
 
             exit when Last < Buffer'First;
 
