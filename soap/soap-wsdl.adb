@@ -33,6 +33,7 @@
 --  This package provides services to handle WSDL.
 
 with Ada.Exceptions;
+with Ada.Characters.Handling;
 
 with Input_Sources.File;
 with Sax.Readers;
@@ -42,48 +43,41 @@ package body SOAP.WSDL is
 
    use Ada;
 
-   --------------------------
-   -- Is_Ada_Reserved_Word --
-   --------------------------
+   -----------------
+   -- Get_Routine --
+   -----------------
 
-   --  ??? This needs to be completed
-
-   function Is_Ada_Reserved_Word (Name : in String) return Boolean is
+   function Get_Routine
+     (P       : in Parameter_Type;
+      Context : in Context_Type := Parameter)
+      return String is
    begin
-      if Name = "return" then
-         return True;
-      end if;
-
-      return False;
-   end Is_Ada_Reserved_Word;
+      case P is
+         when P_String =>
+            if Context = Component then
+               return "SOAP.Utils.Get";
+            else
+               return "SOAP.Types.Get";
+            end if;
+         when P_Integer | P_Double | P_Float | P_Boolean
+           | P_Time | P_B64
+           =>
+            return "SOAP.Types.Get";
+      end case;
+   end Get_Routine;
 
    -----------------
    -- Is_Standard --
    -----------------
 
    function Is_Standard (XSD_Type : in String) return Boolean is
+      P : Parameter_Type;
    begin
-      if XSD_Type = "string"
-        or else XSD_Type = "String"
-        or else XSD_Type = "integer"
-        or else XSD_Type = "Integer"
-        or else XSD_Type = "int"
-        or else XSD_Type = "Int"
-        or else XSD_Type = "float"
-        or else XSD_Type = "Float"
-        or else XSD_Type = "double"
-        or else XSD_Type = "Double"
-        or else XSD_Type = "boolean"
-        or else XSD_Type = "Boolean"
-        or else XSD_Type = "timeInstant"
-        or else XSD_Type = "dateTime"
-        or else XSD_Type = "base64Binary"
-      then
-         return True;
-
-      else
+      P := To_Type (XSD_Type);
+      return True;
+   exception
+      when WSDL_Error =>
          return False;
-      end if;
    end Is_Standard;
 
    ----------
@@ -110,20 +104,70 @@ package body SOAP.WSDL is
       return Object (Tree_Readers.Get_Tree (Reader));
    end Load;
 
+   -----------------
+   -- Set_Routine --
+   -----------------
+
+   function Set_Routine
+     (P       : in Parameter_Type;
+      Context : in Context_Type := Parameter)
+      return String is
+   begin
+      case P is
+         when P_Integer => return "SOAP.Types.I";
+         when P_Float   => return "SOAP.Types.F";
+         when P_Double  => return "SOAP.Types.D";
+         when P_Boolean => return "SOAP.Types.B";
+         when P_Time    => return "SOAP.Types.T";
+         when P_B64     => return "SOAP.Types.B64";
+         when P_String  =>
+            if Context = Parameter then
+               return "SOAP.Types.S";
+            else
+               return "SOAP.Utils.US";
+            end if;
+      end case;
+   end Set_Routine;
+
+   --------------
+   -- Set_Type --
+   --------------
+
+   function Set_Type (P : in Parameter_Type) return String is
+   begin
+      case P is
+         when P_Integer => return "SOAP.Types.XSD_Integer";
+         when P_Float   => return "SOAP.Types.XSD_Float";
+         when P_Double  => return "SOAP.Types.XSD_Double";
+         when P_Boolean => return "SOAP.Types.XSD_Boolean";
+         when P_Time    => return "SOAP.Types.XSD_Time_Instant";
+         when P_B64     => return "SOAP.Types.SOAP_Base64";
+         when P_String  => return "SOAP.Types.XSD_String";
+      end case;
+   end Set_Type;
+
    ------------
    -- To_Ada --
    ------------
 
-   function To_Ada (P : in Parameter_Type) return String is
+   function To_Ada
+     (P       : in Parameter_Type;
+      Context : in Context_Type := Parameter)
+      return String is
    begin
       case P is
          when P_Integer => return "Integer";
          when P_Float   => return "Long_Float";
          when P_Double  => return "Long_Long_Float";
-         when P_String  => return "String";
          when P_Boolean => return "Boolean";
          when P_Time    => return "Ada.Calendar.Time";
          when P_B64     => return "String";
+         when P_String  =>
+            if Context = Parameter then
+               return "String";
+            else
+               return "Unbounded_String";
+            end if;
       end case;
    end To_Ada;
 
@@ -133,28 +177,29 @@ package body SOAP.WSDL is
 
    function To_Type (XSD_Type : in String) return Parameter_Type is
       use Exceptions;
+
+      L_Type : constant String := Characters.Handling.To_Lower (XSD_Type);
+
    begin
-      if XSD_Type = "string" or else XSD_Type = "String" then
+      if L_Type = "string" then
          return P_String;
 
-      elsif XSD_Type = "integer" or else XSD_Type = "int"
-        or else XSD_Type = "Integer" or else XSD_Type = "Int"
-      then
+      elsif L_Type = "integer" or else L_Type = "int" then
          return P_Integer;
 
-      elsif XSD_Type = "float" or else XSD_Type = "Float" then
+      elsif L_Type = "float" then
          return P_Float;
 
-      elsif XSD_Type = "double" or else XSD_Type = "Double" then
+      elsif L_Type = "double" then
          return P_Double;
 
-      elsif XSD_Type = "boolean" or else XSD_Type = "Boolean" then
+      elsif L_Type = "boolean" then
          return P_Boolean;
 
-      elsif XSD_Type = "timeInstant" or else XSD_Type = "dateTime" then
+      elsif L_Type = "timeinstant" or else L_Type = "datetime" then
          return P_Time;
 
-      elsif XSD_Type = "base64Binary" then
+      elsif L_Type = "base64binary" then
          return P_B64;
 
       else
@@ -163,5 +208,28 @@ package body SOAP.WSDL is
             "(To_Type) Type " & XSD_Type & " not supported.");
       end if;
    end To_Type;
+
+   ---------------
+   -- V_Routine --
+   ---------------
+
+   function V_Routine
+     (P       : in Parameter_Type;
+      Context : in Context_Type := Parameter)
+      return String is
+   begin
+      case P is
+         when P_String =>
+            if Context = Component then
+               return "SOAP.Utils.V";
+            else
+               return "SOAP.Types.V";
+            end if;
+         when P_Integer | P_Double | P_Float | P_Boolean
+           | P_Time | P_B64
+           =>
+            return "SOAP.Types.V";
+      end case;
+   end V_Routine;
 
 end SOAP.WSDL;
