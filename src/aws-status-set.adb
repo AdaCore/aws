@@ -33,7 +33,6 @@
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
-with Ada.Unchecked_Deallocation;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -191,12 +190,9 @@ package body AWS.Status.Set is
    -- Free --
    ----------
 
-   procedure Free is new Ada.Unchecked_Deallocation
-     (Stream_Element_Array, Stream_Element_Array_Access);
-
    procedure Free (D : in out Data) is
    begin
-      Free (D.Binary_Data);
+      Utils.Free (D.Binary_Data);
 
       AWS.Parameters.Set.Free (D.Parameters);
       AWS.Headers.Set.Free (D.Header);
@@ -277,7 +273,7 @@ package body AWS.Status.Set is
 
    procedure Reset (D : in out Data) is
    begin
-      Free (D.Binary_Data);
+      Utils.Free (D.Binary_Data);
 
       D.Method            := GET;
       D.HTTP_Version      := Null_Unbounded_String;
