@@ -2187,22 +2187,22 @@ will check for incoming requests it will be picked up.
 @node Server Log
 @section Server Log
 @cindex logs
-@cindex Start_Log
-@cindex Stop_Log
-@cindex Start_Error_Log
-@cindex Stop_Error_Log
-@cindex Flush_Log
+@cindex Log.Start
+@cindex Log.Stop
+@cindex Log.Start_Error
+@cindex Log.Stop_Error
+@cindex Log.Flush
 
 @noindent
 It is possible to have the server activity logged into the file
 @file{<progname>-Y-M-D.log}. To activate the logging you must call the
-@code{AWS.Server.Start_Log}, and it is possible to stop logging by calling
-@code{AWS.Server.Stop_Log}. Note that @code{AWS.Server.Start_Log} have
-a parameter named Auto_Flush to control output buffering. This
+@code{AWS.Server.Log.Start}, and it is possible to stop logging by calling
+@code{AWS.Server.Log.Stop}. Note that @code{AWS.Server.Log.Start} have
+a parameter named @code{Auto_Flush} to control output buffering. This
 parameter is False by default. If set to True, the log file will be
 automatically flushed after each data. If the server logging is not
 buffered, i.e. Auto_Flush is False, the log can still be flushed by
-calling the @code{AWS.Server.Flush_Log} routine. @xref{AWS.Log}, for
+calling the @code{AWS.Server.Log.Flush} routine. @xref{AWS.Log}, for
 more information especially about the way rotating logs can be
 setup. Using this feature it is possible to have automatic split of
 the log file each day, each month or at every run. See @code{AWS.Log}
@@ -2224,9 +2224,14 @@ For example:
 @end smallexample
 
 @noindent
-@code{AWS} also support error log files. If activated every error
-detected by @code{AWS} will gets logged into this file. See 
-@code{AWS.Server.Start_Error_Log} and @code{AWS.Server.Stop_Error_Log}.
+@code{AWS} also support error log files. If activated every internal error
+detected by @code{AWS} will gets logged into this special file. See 
+@code{AWS.Server.Log.Start_Error} and
+@code{AWS.Server.Log.Stop_Error}.
+
+@noindent
+For the full set of routines supporting the log facility
+@pxref{AWS.Server.Log} .
 
 @node Secure server
 @section Secure server
@@ -2261,7 +2266,7 @@ default. A secure server must use a valid certificate, the default one
 is @file{@_DEFAULT_CERTIFICATE_@}. This certificate has been
 created by the openssl tool and is valid until year 2008. Yet, this
 certificate has not been signed. To build a secure server user's can
-rely on you must have a valid certificate signed by one of the
+rely on, you must have a valid certificate signed by one of the
 @b{Certificate Authorities}.
 
 @noindent
@@ -4361,6 +4366,7 @@ AWS User's API:
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Hotplug::
+* AWS.Server.Log::
 * AWS.Server.Push::
 * AWS.Server.Status::
 * AWS.Services.Directory::
@@ -4603,6 +4609,13 @@ SOAP User's API:
 @cindex AWS.Server.Hotplug
 
 @include aws-server-hotplug.ads.texi
+
+@page
+@node AWS.Server.Log
+@appendixsec AWS.Server.Log
+@cindex AWS.Server.Log
+
+@include aws-server-log.ads.texi
 
 @page
 @node AWS.Server.Push
