@@ -1,3 +1,16 @@
+2001-11-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Counter): new protected record.
+	(Wait): new procedure.
+	(Initialize): new procedure.
+	(Finalize): decrement counter.
+	
+	* aws-server.ads:
+	(Termination): new type.
+	(Wait): new procedure.
+	(Initialize): new procedure.
+
 2001-11-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb:
