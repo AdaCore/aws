@@ -1,3 +1,10 @@
+2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* awsres.adb:
+	(Create): Set to gzip header format. Use AWS.Resources.Streams for
+	 get file data and compression. Compression of the complete file
+	 instead of 200K chunk compression.
+
 2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* awsres.adb:
