@@ -19,7 +19,7 @@ force:
 
 $(TOOLS): force
 	echo Building $@ tools
-	gnatmake $(GARGS) $@ -largs -s $(LIBS)
+	$(GNATMAKE) $(GARGS) $@ -largs -s $(LIBS)
 
 clean:
 	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.ad[sb]
@@ -32,7 +32,7 @@ gsetup:
 	$(MKDIR) -p ../.build/release/tools/obj
 
 gbuild:
-	gnatmake -Ptools -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Ptools -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 gclean:
 	$(RM) -fr ../.build/debug/tools

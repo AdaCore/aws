@@ -25,7 +25,7 @@ force:
 
 $(UNITS): force
 	echo Building $@
-	gnatmake -u $(GARGS) $@
+	$(GNATMAKE) -u $(GARGS) $@
 
 all:
 	echo "Targets:"
@@ -46,7 +46,8 @@ clean:
 # Configuration for GNAT Projet Files
 
 gbuild:
-	gnatmake -Psrc_include -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Psrc_include -XAWS_BUILD=${PRJ_BUILD} \
+		-XXMLADA=${PRJ_XMLADA}
 
 gsetup:
 	-$(MKDIR) -p ../.build/debug/include

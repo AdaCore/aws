@@ -55,7 +55,7 @@ build: $(BUILD_SPECIFIC) $(DEMOS) $(BUILD_OPT)
 
 $(DEMOS): force
 	echo Building $@;
-	gnatmake $(GARGS) $@ -bargs $(BARGS) -largs $(LARGS)
+	$(GNATMAKE) $(GARGS) $@ -bargs $(BARGS) -largs $(LARGS)
 
 build_res:
 	echo Generate resources for res_demo
@@ -70,7 +70,7 @@ force:
 
 test_ldap: force
 	echo Building $@;
-	-gnatmake $(GARGS) test_ldap -bargs $(BARGS) -largs $(LARGS) -lldap
+	-$(GNATMAKE) $(GARGS) test_ldap -bargs $(BARGS) -largs $(LARGS) -lldap
 
 build_soap: $(SOAP_DEMOS)
 
@@ -99,7 +99,7 @@ gsetup:
 	-$(MKDIR) -p ../.build/release/demos/obj
 
 gbuild: build_res build_wsdl
-	gnatmake -Pdemos -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Pdemos -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 gclean:
 	$(RM) -fr ../.build/debug/demos

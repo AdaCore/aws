@@ -13,13 +13,13 @@ setup: ../src/aws-translator-conversion.adb
 
 ../src/aws-translator-conversion.adb:
 	echo Setup conversion support
-	gnatmake -q src/test_uconv
+	$(GNATMAKE) -q src/test_uconv
 	./test_uconv
-	-rm test_uconv$(EXEEXT) test_uconv.o test_uconv.ali
-	mv aws-translator-conversion.adb ../src
+	-$(RM) test_uconv$(EXEEXT) test_uconv.o test_uconv.ali
+	$(MV) aws-translator-conversion.adb ../src
 
 clean:
-	-rm -f *.o *.ali *.~*.*~ *.exe
+	-$(RM) -f *.o *.ali *.~*.*~ *.exe
 
 #############################################################################
 # Configuration for GNAT Projet Files
