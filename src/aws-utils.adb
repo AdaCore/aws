@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -42,6 +42,19 @@ package body AWS.Utils is
    package Integer_Random is new Ada.Numerics.Discrete_Random (Random_Integer);
 
    Random_Generator : Integer_Random.Generator;
+
+   -------------------
+   -- CRLF_2_Spaces --
+   -------------------
+
+   function CRLF_2_Spaces (Str : in String) return String is
+   begin
+      return Strings.Fixed.Trim
+        (Strings.Fixed.Translate
+           (Str, Strings.Maps.To_Mapping
+              (From => ASCII.CR & ASCII.LF, To   => "  ")),
+         Strings.Right);
+   end CRLF_2_Spaces;
 
    -------------
    -- Get_MD5 --
