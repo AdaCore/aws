@@ -21,6 +21,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-default.ads.texi \
 	../src/aws-dispatchers-callback.ads.texi \
 	../src/aws-dispatchers.ads.texi \
+	../src/aws-exceptions.ads.texi \
 	../src/aws-headers.ads.texi \
 	../src/aws-headers-values.ads.texi \
 	../src/aws-jabber.ads.texi \
