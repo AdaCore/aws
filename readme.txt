@@ -144,6 +144,13 @@ Here are the main changes since AWS 1.3 :
 
    - New routines to compress / decompress a file using the Gzip encoding.
 
+   - AWS.Response.Set.Message_Body (with an access to a Stream_Element_Array)
+     has been removed. There was not clean way to integrate this with the ZLib
+     memory stream supprot.
+
+     => This is not upward compatible. Add ".all" to the parameter to use the
+     version with a Stream_Element_Array formal parameter.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
