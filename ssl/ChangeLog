@@ -1,6 +1,11 @@
 2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	(build): Rename libsslaws.a to libnosslaws.a.
+
+2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	(wrappers): Removed.
 	(build): Build libsslaws.a.
 
