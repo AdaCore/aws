@@ -59,7 +59,8 @@ UNITS = $(sort $(basename $(SOURCES)))
 
 TMPLT_UNITS = $(sort $(basename $(TMPLT_SOURCES)))
 
-CONF_UNITS = aws-translator-conversion.adb aws-net-std.adb
+CONF_UNITS = aws-translator-conversion.adb aws-net-std.adb \
+	aws-os_lib-definitions.ads
 
 force:
 
@@ -75,6 +76,9 @@ build: $(CONF_UNITS) $(UNITS) $(TMPLT_UNITS)
 
 aws-translator-conversion.adb:
 	${MAKE} -C ../config setup
+
+aws-os_lib-definitions.ads:
+	$(MAKE) -C ../config setup
 
 ifdef ADASOCKETS
 aws-net-std.adb: ../config/aws-net-std__adasockets.adb
@@ -106,6 +110,7 @@ win32_oslib:
 
 clean:
 	-$(RM) -f *.o *.ali aws-os_lib.adb *.~*.*~
+	-$(RM) -f aws-os_lib-definitions.ads
 	-$(RM) -f aws-translator-conversion.adb
 	-$(RM) -f aws-net-std.adb
 	-$(RM) -f aws-soap.ad[sb]
