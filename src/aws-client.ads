@@ -52,6 +52,14 @@ package AWS.Client is
    --
    --  Only Basic authetification is supported (i.e. Digest is not).
 
+   function Head (URL        : in String;
+                  User       : in String := No_Data;
+                  Pwd        : in String := No_Data;
+                  Proxy      : in String := No_Data;
+                  Proxy_User : in String := No_Data;
+                  Proxy_Pwd  : in String := No_Data) return Response.Data;
+   --  Idem as above but we do not get the message body.
+
    function Put (URL        : in String;
                  Data       : in String;
                  User       : in String := No_Data;
@@ -59,7 +67,7 @@ package AWS.Client is
                  Proxy      : in String := No_Data;
                  Proxy_User : in String := No_Data;
                  Proxy_Pwd  : in String := No_Data) return Response.Data;
-   --  send to the server URL a PUT request with Data
+   --  Send to the server URL a PUT request with Data
 
    function Post (URL        : in String;
                   Data       : in String;
@@ -68,6 +76,6 @@ package AWS.Client is
                   Proxy      : in String := No_Data;
                   Proxy_User : in String := No_Data;
                   Proxy_Pwd  : in String := No_Data) return Response.Data;
-   --  send to the server URL a POST request with Data
+   --  Send to the server URL a POST request with Data
 
 end AWS.Client;
