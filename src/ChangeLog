@@ -1,3 +1,12 @@
+2002-11-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-protocol_handler.adb:
+	(Send_General_Header): We don't have to check for matching
+	 Connection parameter to 'close', it is already made in the
+	 first Will_Close assignment.
+	Move comment about 'close' matching to the first Will_Close
+	 assignment.
+
 2002-11-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-messages.ads:
