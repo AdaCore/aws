@@ -1,3 +1,8 @@
+2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	Removes unused with clause (Ada.Text_IO).
+
 2001-08-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
