@@ -16,8 +16,10 @@ procedure Demo is
       Incoming_Socket  : Sockets.Socket_FD;
 
    begin
-      Accepting_Socket := Sockets.Socket (Sockets.AF_INET,
-                                          Sockets.SOCK_STREAM);
+      Sockets.Socket (Accepting_Socket,
+                      Sockets.AF_INET,
+                      Sockets.SOCK_STREAM);
+
       Sockets.Setsockopt (Accepting_Socket,
                           Sockets.SOL_SOCKET,
                           Sockets.SO_REUSEADDR,
@@ -27,16 +29,16 @@ procedure Demo is
 
       Sockets.Listen (Accepting_Socket);
 
-      Incoming_Socket := Sockets.Accept_Socket (Accepting_Socket);
+      Sockets.Accept_Socket (Accepting_Socket, Incoming_Socket);
    end Server;
 
    procedure Client is
       Sock : Sockets.Socket_FD;
    begin
-      Sock := Sockets.Socket (Sockets.AF_INET, Sockets.SOCK_STREAM);
-      Sockets.Connect (Sock, "130.98.248.13", 3128);
+      Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
+      Sockets.Connect (Sock, "dieppe", 1234);
 
-      Sockets.Put_Line (Sock, "GET http://www.microsoft.com/ HTTP/1.1");
+      Sockets.Put_Line (Sock, "HEAD /last HTTP/1.1");
 --      Sockets.Put_Line (Sock, "Date: Thu, 18 Jan 2000 06:46:00 GMT");
 --      Sockets.Put_Line (Sock, "Accept: image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*");
       Sockets.Put_Line (Sock, "Accept: */*");
@@ -47,7 +49,7 @@ procedure Demo is
 --      Sockets.Put_Line (Sock, "Content-Length: 0");
 --      Sockets.Put_Line (Sock, "Content-Type: application/x-www-form-urlencoded");
       Sockets.Put_Line (Sock, "User-Agent: AWS");
-      Sockets.Put_Line (Sock, "Host: www.microsoft.com");
+      Sockets.Put_Line (Sock, "Host: dieppe");
       Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
 --      Sockets.Put_Line (Sock, "Extension: Security/Remote-Passphrase");
 
@@ -67,7 +69,7 @@ procedure Demo is
 
       Sockets.Shutdown (Sock);
 
-      Sock := Sockets.Socket (Sockets.AF_INET, Sockets.SOCK_STREAM);
+      Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
       Sockets.Connect (Sock, "130.98.248.13", 3128);
 
       Sockets.Put_Line (Sock, "GET http://www.microsoft.com/ HTTP/1.1");
