@@ -157,7 +157,7 @@ portable across platforms. To build @code{AWS} you need:
 @code{AWS} uses some @code{GNAT} specific packages and we have no plan
 to support another compiler at this point. It is too much work for us
 to check if @code{AWS} compiles to other compilers anyway. To build
-this version you need at least @code{GNAT 3.14}. On Windows you must also
+this version you need at least @code{GNAT 3.15}. On Windows you must also
 install @code{GNATWin} (Windows specific package).
 
 @item a socket binding ;
@@ -259,16 +259,28 @@ $ make win32_oslib
 @noindent
 When you have built and configured all libraries you must either set
 ADA_INCLUDE_PATH and ADA_OBJECTS_PATH (for GNAT) to point to the right
-directories or update the @code{ADASOCKETS}, @code{XMLADA},
-@code{v_XMLADA} and @code{INSTALL} variables in the top
-@file{makefile}. You should have a look at file @file{INSTALL} for
-installation instructions.
+directories or update the @code{ADASOCKETS}, @code{XMLADA} and
+@code{INSTALL} variables in the top @file{makefile}. You should have a
+look at file @file{INSTALL} for installation instructions.
 
 @noindent
-At this point you can build @code{AWS}. There is two ways to build @code{AWS}:
+At this point you can build @code{AWS} with:
 
-@itemize @bullet
-@item with SSL support
+@smallexample
+@cartouche
+@group
+$ make build
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Note that by default @code{AWS} demos will be built without @code{SSL}
+support. If you want to build the demos with @code{SSL} (in this case
+you must have @file{libssl.a} and @file{libcrypto.a} available on your
+platform), just do:
+@cindex libssl.a
+@cindex libcrypto.a
 
 @smallexample
 @cartouche
@@ -279,22 +291,13 @@ $ make build
 @end cartouche
 @end smallexample
 
-@item without SSL support (no need for the OpenSSL libraries in this case).
-
-@smallexample
-@cartouche
-@group
-$ make set_std
-$ make build
-@end group
-@end cartouche
-@end smallexample
-
-@end itemize
+@noindent
+What is important to understand is that @code{AWS SSL} support is
+selected at @b{link time} and not at configure time.
 
 @noindent
-In both cases it is possible to build @code{AWS} in debug mode by setting
-DEBUG make's variable.
+It is is possible to build @code{AWS} in debug mode by setting
+DEBUG make's variable:
 
 @smallexample
 @cartouche
@@ -516,7 +519,7 @@ path into ADA_INCLUDE_PATH or put it on the command line
 
 @item components
 
-@code{AWS} uses some general components they are installed in
+@code{AWS} uses some components they are installed in
 @file{<awsroot>/components}. Add this path into ADA_INCLUDE_PATH or
 put it on the command line @code{-I<awsroot>/components}.
 
@@ -525,16 +528,19 @@ put it on the command line @code{-I<awsroot>/components}.
 The GNAT library files (@file{.ali}) and the @code{AWS} libraries
 (@file{libaws.a}) are installed into @file{<awsroot>/lib}. Add this
 path into ADA_OBJECT_PATH or put it on the command line
-@code{-aO<awsroot>/lib}. Further more for @code{gnatlink} to find the
+@code{-aO<awsroot>/lib}. Furthermore for @code{gnatlink} to find the
 libraries you must add the following library path option on the @code{gnatmake}
 command line @code{-largs -L<awsroot>/lib -laws}.
+
+Note that to build SSL applications you need to add @code{-lssl -lcrypto} on
+gnatmake's -largs section.
 
 @item external libraries
 
 You must do the same thing for all external libraries that you will
 be using. For example you'll have to point @code{GNAT} to the
-@code{AdaSockets} libraries and use the @code{-ladasockets gnatlink's}
-argument. The same apply if you have built @code{AWS} with
+@code{AdaSockets} libraries and pass @code{-ladasockets} on the gnatmake's
+-largs section. The same apply if you have built @code{AWS} with
 @code{POSIX} or with @code{SSL} support.
 
 @end table
@@ -553,8 +559,8 @@ applications, @xref{AWS.Client}.
 
 @noindent
 An application using @code{AWS} can open many HTTP channels. Each
-channel will use a specific port. So it is possible to embedded some
-HTTP and some HTTPS channels in the same application.
+channel will use a specific port. For example, it is possible to
+embedded many HTTP and/or many HTTPS channels in the same application.
 
 @menu
 * Building an AWS server::
@@ -688,6 +694,11 @@ If set to True the CGI name parameters will be handled without using the
 case.
 
 @end table
+
+@noindent
+Note that there is other @code{Start} routines which support other features.
+For example there is a @code{Start} routine which use a dispatcher routine
+instead of the simple callback procedure. @pxref{AWS.Server}.
 
 @item provides a callback procedure
 
