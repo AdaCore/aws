@@ -182,23 +182,27 @@ package AWS.Client is
       User       : in     String;
       Pwd        : in     String;
       Mode       : in     Authentication_Mode);
-   --  Sets the username password and authentication mode
-   --  for the www authentication
-   --  "Any" mean that user want to use Digest
-   --  of the server authentication mode but could use Basic
-   --  if the server does not suport Digest
-   --  Basic mean that client going to send basic authentication
-   --  in the first request, it is usable for speed.
-   --  (Digest authentication require first unauthorized request
-   --  to server to receive "nonce" before user can authenticate)
+   --  Sets the username password and authentication mode for the Web
+   --  authentication.
+   --
+   --  "Any" mean that user want to use Digest server authentication mode but
+   --  could use Basic if the server does not support Digest authentication.
+   --
+   --  "Basic" mean that client will send basic authentication. "Basic"
+   --  authentication is send with the first request and is a fast
+   --  authentication protocol.
+   --
+   --  "Digest" mean that the client ask for Digest authentication, it
+   --  requires that a first unauthorized request be sent to the server. The
+   --  server will answer "nonce" for the authentication protocol to continue.
 
    procedure Set_Proxy_Authentication
      (Connection : in out HTTP_Connection;
       User       : in     String;
       Pwd        : in     String;
       Mode       : in     Authentication_Mode);
-   --  Sets the username password and authentication mode
-   --  for the proxy authentication
+   --  Sets the username, password and authentication mode for the proxy
+   --  authentication.
 
    procedure Adjust_Cookie
      (Destination : in out HTTP_Connection;
@@ -207,8 +211,9 @@ package AWS.Client is
    --  Allow both connections to share the same user environment.
 
    function Read_Until
-     (Connection : in     HTTP_Connection;
-      Delimiter  : in     String) return String;
+     (Connection : in HTTP_Connection;
+      Delimiter  : in String)
+      return String;
    --  Read data on the Connection until the delimiter (including the
    --  delimiter). It can be used to retreive the next piece of data from a
    --  push server. If returned data is empty or does not termintate with the
@@ -263,7 +268,7 @@ package AWS.Client is
    function SOAP_Post
      (Connection  : access HTTP_Connection;
       Data        : in     String)
-     return Response.Data;
+      return Response.Data;
    --  Same as SOAP_Post above but using a Connection.
 
    procedure Close (Connection : in out HTTP_Connection);
@@ -303,14 +308,14 @@ private
    type Authentication_Type is record
       User      : Unbounded_String;
       Pwd       : Unbounded_String;
-      --  Mode the user is want to use.
+      --  Mode the user want to use
       Init_Mode : Authentication_Mode := Any;
 
-      --  "Any" mean without authentication.
+      --  "Any" mean without authentication
       Work_Mode : Authentication_Mode := Any;
       Requested : Boolean := False;
 
-      --  For digest authentication
+      --  Fields below are for digest authentication only
       Realm     : Unbounded_String;
       Nonce     : Unbounded_String;
       QOP       : Unbounded_String;
