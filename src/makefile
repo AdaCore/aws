@@ -14,7 +14,8 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-key_value.ads aws-log.adb aws-hotplug.adb aws-communication.adb \
 	aws-communication-server.adb aws-communication-client.adb \
 	aws-server-hotplug.adb aws-status-set.adb aws-parameters-set.adb \
-	aws-services.ads aws-services-directory.adb
+	aws-services.ads aws-services-directory.adb aws-default.ads \
+	aws-config.adb aws-config-ini.adb aws-config-set.adb
 
 all:
 	echo "Targets:"
