@@ -44,6 +44,8 @@ with AWS.Resources.Streams.Memory;
 with AWS.Translator;
 with AWS.Utils;
 
+with MD5;
+
 package body AWS.POP is
 
    use Ada.Exceptions;
@@ -652,7 +654,7 @@ package body AWS.POP is
       else
          Net.Buffered.Put_Line
            (Mailbox.Sock, "APOP " & User
-              & AWS.Utils.Get_MD5 (To_String (Timestamp) & Password));
+              & MD5.Digest (To_String (Timestamp) & Password));
 
          declare
             Response : constant String
