@@ -37,6 +37,15 @@ package body SSL.Wrappers is
    --  Raises program error with a clear message that no-SSL support has been
    --  configured.
 
+   ------------------------------
+   -- CRYPTO_set_mem_functions --
+   ------------------------------
+
+   procedure CRYPTO_set_mem_functions is
+   begin
+      null;
+   end CRYPTO_set_mem_functions;
+
    ------------------------
    -- ERR_error_string_n --
    ------------------------

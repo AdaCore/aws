@@ -34,6 +34,9 @@ package SSL.Wrappers is
    --  The routines below must not raise Program_Error as they are called
    --  during the SSL initialization.
 
+   procedure CRYPTO_set_mem_functions;
+   pragma Export (C, CRYPTO_set_mem_functions, "CRYPTO_set_mem_functions");
+
    procedure SSL_library_init;
    pragma Export (C, SSL_library_init, "SSL_library_init");
 
