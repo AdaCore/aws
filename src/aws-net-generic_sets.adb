@@ -93,6 +93,8 @@ package body AWS.Net.Generic_Sets is
       Socket : in     Socket_Access;
       Mode   : in     Waiting_Mode)
    is
+      package OSD renames OS_Lib.Definitions;
+
       use type Thin.Events_Type;
    begin
       if Set.Poll = null then
@@ -139,17 +141,16 @@ package body AWS.Net.Generic_Sets is
       Set.Set (Set.Last).Socket := Socket;
       Set.Poll (Set.Last).FD := Thin.FD_Type (Get_FD (Socket.all));
 
-      case Mode is
-         when None   =>
-            Set.Poll (Set.Last).Events := 0;
-         when Input  =>
-            Set.Poll (Set.Last).Events := OS_Lib.Definitions.POLLIN;
-         when Output =>
-            Set.Poll (Set.Last).Events := OS_Lib.Definitions.POLLOUT;
-         when Both   =>
-            Set.Poll (Set.Last).Events
-              := OS_Lib.Definitions.POLLIN + OS_Lib.Definitions.POLLOUT;
-      end case;
+      Set.Poll (Set.Last).Events := 0;
+
+      if Mode (Net.Input) then
+         Set.Poll (Set.Last).Events := OSD.POLLIN or OSD.POLLPRI;
+      end if;
+
+      if Mode (Net.Output) then
+         Set.Poll (Set.Last).Events
+           := Set.Poll (Set.Last).Events or OSD.POLLOUT;
+      end if;
    end Add_Private;
 
    -----------------
