@@ -126,6 +126,8 @@ package body AWS.Parameters.Set is
       S : Positive := P'First;
       E : Natural;
    begin
+      Parameter_List.Parameters := To_Unbounded_String ('?' & Parameters);
+
       loop
          I := Fixed.Index (P (C .. P'Last), "=");
 
@@ -190,7 +192,8 @@ package body AWS.Parameters.Set is
          Key_Value.Destroy (Parameter_List.Data.all);
       end if;
 
-      Parameter_List.Count := 0;
+      Parameter_List.Count      := 0;
+      Parameter_List.Parameters := Null_Unbounded_String;
    end Reset;
 
 end AWS.Parameters.Set;
