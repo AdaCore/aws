@@ -1,3 +1,21 @@
+2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-main.adb:
+	(Parse_Command_Line): Add support for -I options.
+	(Usage): Add -I option.
+	Call now Parser.Start instead of Parser.Create_Sample (renamed).
+
+	* ada2wsdl-parser.adb:
+	(Arg_Index): New variable.
+	(Max_Argument): New constant.
+	(Create_Sample): Renamed Start.
+	(Add_Option): New procedure.
+	(Create_Tree): Pass Arg_List to A4G.GNAT_Int.Compile.
+
+	* ada2wsdl-parser.ads:
+	(Create_Sample): Renamed Start.
+	(Add_Option): New routine.
+
 2003-11-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-parser.adb:
