@@ -301,32 +301,36 @@ package body AWS.Net.Std is
    ----------
 
    procedure Send
-     (Socket : in Socket_Type;
-      Data   : in Stream_Element_Array)
+     (Socket : in     Socket_Type;
+      Data   : in     Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
    is
       use Sockets;
       use type C.int;
 
-      Index : Stream_Element_Offset  := Data'First;
-      Rest  : C.int := Data'Length;
-      FD    : C.int := Sockets.Get_FD (Socket.S.FD);
-      Count : C.int;
-
+      Errno : Integer;
+      RC    : C.int;
    begin
-      loop
-         Wait_For (Output, Socket);
+      RC := Thin.C_Send
+              (C.int (Get_FD (Socket)),
+               Data'Address,
+               Data'Length,
+               0);
 
-         Count := Thin.C_Send (FD, Data (Index)'Address, Rest, 0);
+      if RC = Thin.Failure then
+         Errno := Thin.Errno;
 
-         if Count < 0 then
-            Raise_Exception (Thin.Errno, "Send");
+         if Errno = Constants.Ewouldblock then
+            Last := Data'First - 1;
+
+            return;
+
+         else
+            Raise_Exception (Errno, "Send");
          end if;
+      end if;
 
-         Rest  := Rest  - Count;
-         exit when Rest <= 0;
-
-         Index := Index + Stream_Element_Offset (Count);
-      end loop;
+      Last := Data'First - 1 + Stream_Element_Offset (RC);
    end Send;
 
    ---------------------------
