@@ -1,3 +1,12 @@
+2003-01-29  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* tres2.adb:
+	Change filename file to file.tmp to avoid conflict with
+	 executable name of file.adb.
+
+	* makefile:
+	Change file to file.tmp in the clean section.
+
 2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* upload3.adb:
