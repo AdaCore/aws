@@ -141,7 +141,7 @@ package body AWS.Net.Std is
          exception
             when E : Sockets.Socket_Error =>
                Free (Socket.S);
-               Thin.FreeAddrInfo (Info.all);
+               Thin.FreeAddrInfo (Info);
                Raise_Exception (E, "Bind.Create_Socket");
          end;
 
@@ -157,11 +157,11 @@ package body AWS.Net.Std is
          Errno := Std.Errno;
          Sockets.Close_Socket (Socket.S.FD);
          Free (Socket.S);
-         Thin.FreeAddrInfo (Info.all);
+         Thin.FreeAddrInfo (Info);
          Raise_Socket_Error (Errno);
       end if;
 
-      Thin.FreeAddrInfo (Info.all);
+      Thin.FreeAddrInfo (Info);
    end Bind;
 
    -------------
@@ -189,7 +189,7 @@ package body AWS.Net.Std is
          exception
             when E : Sockets.Socket_Error =>
                Free (Socket.S);
-               Thin.FreeAddrInfo (Info.all);
+               Thin.FreeAddrInfo (Info);
                Raise_Exception (E, "Connect.Create_Socket");
          end;
       end if;
@@ -203,11 +203,11 @@ package body AWS.Net.Std is
          Errno := Std.Errno;
          Sockets.Close_Socket (Socket.S.FD);
          Free (Socket.S);
-         Thin.FreeAddrInfo (Info.all);
+         Thin.FreeAddrInfo (Info);
          Raise_Socket_Error (Errno);
       end if;
 
-      Thin.FreeAddrInfo (Info.all);
+      Thin.FreeAddrInfo (Info);
 
       --  ??? Make non-blocking connect later.
 
@@ -552,4 +552,10 @@ package body AWS.Net.Std is
 
 begin
    Sockets.Initialize;
+
+   --  Dummy call for initialize static pointers inside of libwspiapi.a
+   --  We should remove this call after remove libwspiapi.a usage.
+   --  libwspiapi.a need for support Windows 2000.
+
+   Thin.FreeAddrInfo (null);
 end AWS.Net.Std;
