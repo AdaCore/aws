@@ -84,9 +84,10 @@ look for the Florist package at
 
 @item a socket binding ;
 
-Under Windows you must use the one on my homepage as the original
-Sockets port to Win32 was not conformant with the original
-binding. Under UNIX you must use the socket binding from ENST 
+Under Windows you must use the one on my homepage which is a port (done 
+by Dmitriy Anisimkov) to Win32 of the 0.1.6 version from ENST.
+
+Under UNIX you must use the socket binding from ENST 
 @url{http://www.infres.enst.fr/ANC/}.
 
 @end itemize
@@ -112,7 +113,8 @@ I'd like to thanks contributors and peoples who send me feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 @noindent
-So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
+So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau and
+Dmitriy Anisimkov.
 
 @noindent
 As always, I hope I did not forget somebody.
