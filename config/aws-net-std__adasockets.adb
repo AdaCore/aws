@@ -69,6 +69,9 @@ package body AWS.Net.Std is
    --  Raise exception Socket_Error with E's message and a reference to the
    --  routine name.
 
+   function Errno (Socket : in Socket_Type) return Integer;
+   --  Returns and clears error state in socket.
+
    function Get_Addr_Info
      (Host  : in String;
       Port  : in Positive;
@@ -191,26 +194,33 @@ package body AWS.Net.Std is
          Info.ai_addr,
          C.int (Info.ai_addrlen));
 
+      OSD.FreeAddrInfo (Info);
+
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
 
-         if Errno /= Sockets.Constants.Ewouldblock
-           and Errno /= Sockets.Constants.Einprogress
+         if Errno = Sockets.Constants.Ewouldblock
+           or else Errno = Sockets.Constants.Einprogress
          then
+            Errno := 0;
+
+            declare
+               Events : constant Event_Set
+                 := Wait (Socket, (Output => True, Input => False));
+            begin
+               if Events (Error) then
+                  Errno := Std.Errno (Socket);
+               elsif not Events (Output) then
+                  Errno := OSD.ETIMEDOUT;
+               end if;
+            end;
+         end if;
+
+         if Errno /= 0 then
             Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
             Free (Socket.S);
-            OSD.FreeAddrInfo (Info);
             Raise_Exception (Errno, "Connect");
          end if;
-      end if;
-
-      OSD.FreeAddrInfo (Info);
-
-      if not Wait (Socket, (Output => True, Input => False)) (Output) then
-         Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
-         Free (Socket.S);
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, "Connect timeout.");
       end if;
 
       Set_Cache (Socket);
@@ -223,6 +233,28 @@ package body AWS.Net.Std is
    function Errno return Integer is
    begin
       return Sockets.Thin.Errno;
+   end Errno;
+
+   function Errno (Socket : in Socket_Type) return Integer is
+      use Interfaces;
+      use type Interfaces.C.int;
+      use Sockets;
+      RC  : C.int;
+      Res : aliased C.int := 0;
+      Len : aliased C.int := Res'Size / System.Storage_Unit;
+   begin
+      RC := Thin.C_Getsockopt
+              (S       => Interfaces.C.int (Get_FD (Socket)),
+               Level   => Constants.Sol_Socket,
+               Optname => OSD.SO_ERROR,
+               Optval  => Res'Address,
+               Optlen  => Len'Access);
+
+      if RC = Thin.Failure then
+         Raise_Exception (Errno, "Socket errno");
+      end if;
+
+      return Integer (Res);
    end Errno;
 
    ----------
@@ -275,8 +307,12 @@ package body AWS.Net.Std is
                 hints   => Hints,
                 res     => Result'Access);
 
-      if Res /= 0 then
+      if Res = OSD.EAI_SYSTEM then
          Raise_Exception (Errno, "Get_Addr_Info");
+
+      elsif Res /= 0 then
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity, Strings.Value (OSD.GAI_StrError (Res)));
       end if;
 
       return Result;
