@@ -1,3 +1,10 @@
+2002-12-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GARGS): Is not independent of the mode used (SSL or non-SSL).
+	(BARGS): Idem.
+	(LARGS): Add ssl-wrappers.o in non-SSL mode.
+
 2002-12-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
