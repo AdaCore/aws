@@ -37,9 +37,15 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
+with AWS.Log;
+with AWS.Messages;
+with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
+with AWS.OS_Lib;
 with AWS.Session.Control;
+with AWS.Status;
+with AWS.Templates;
 
 package body AWS.Server is
 
@@ -165,27 +171,44 @@ package body AWS.Server is
    ------------------------------------------
 
    procedure Default_Unexpected_Exception_Handler
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
-      Termination : in     Boolean;
-      Answer      : in out Response.Data)
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     Exceptions.Data;
+      Answer : in out Response.Data)
    is
-      pragma Unreferenced (Answer);
+      Fatal_Error_Template : constant String := "500.tmplt";
    begin
-      if Termination then
+      if Error.Fatal then
          Text_IO.Put_Line
            (Text_IO.Current_Error, "Slot problem has been detected!");
+         Text_IO.Put_Line
+           (Text_IO.Current_Error, "This is a fatal error, slot"
+              & Positive'Image (Error.Slot) & " is now dead");
+         Text_IO.Put_Line
+           (Text_IO.Current_Error, "Consider reporting this problem");
+
+         Text_IO.New_Line (Text_IO.Current_Error);
+         Text_IO.Put_Line
+           (Text_IO.Current_Error,
+            Ada.Exceptions.Exception_Information (E));
 
       else
-         Text_IO.Put_Line
-           (Text_IO.Current_Error, "A problem has been detected!");
-         Text_IO.Put_Line
-           (Text_IO.Current_Error, "Connection will be closed...");
-         Text_IO.New_Line (Text_IO.Current_Error);
-      end if;
+         AWS.Log.Write
+           (Log, Error.Request, "(default unexpected exception handler)");
 
-      Text_IO.Put_Line
-        (Text_IO.Current_Error,
-         Ada.Exceptions.Exception_Information (E));
+         if AWS.OS_Lib.Is_Regular_File (Fatal_Error_Template) then
+            Answer := Response.Build
+              (MIME.Text_HTML,
+               String'(Templates.Parse (Fatal_Error_Template)),
+               Messages.S500);
+         else
+            Answer := Response.Build
+              (MIME.Text_HTML,
+               "The server can't handle the request at the moment,"
+                 & " please try later",
+               Messages.S500);
+         end if;
+      end if;
    end Default_Unexpected_Exception_Handler;
 
    ---------------------
@@ -289,9 +312,11 @@ package body AWS.Server is
       when E : others =>
          if not HTTP_Server.Shutdown then
             declare
+               S      : Status.Data;
                Answer : Response.Data;
             begin
-               HTTP_Server.Exception_Handler (E, True, Answer);
+               HTTP_Server.Exception_Handler
+                 (E, HTTP_Server.Error_Log, (True, Slot_Index, S), Answer);
             end;
          end if;
    end Line;
@@ -373,7 +398,7 @@ package body AWS.Server is
 
    procedure Set_Unexpected_Exception_Handler
      (Web_Server : in out HTTP;
-      Handler    : in     Unexpected_Exception_Handler) is
+      Handler    : in     Exceptions.Unexpected_Exception_Handler) is
    begin
       if Web_Server.Shutdown then
          Web_Server.Exception_Handler := Handler;
@@ -709,14 +734,15 @@ package body AWS.Server is
      (Web_Server                : in out HTTP;
       Name                      : in     String;
       Callback                  : in     Response.Callback;
-      Max_Connection            : in     Positive    := Def_Max_Connect;
-      Admin_URI                 : in     String      := Def_Admin_URI;
-      Port                      : in     Positive    := Def_Port;
-      Security                  : in     Boolean     := False;
-      Session                   : in     Boolean     := False;
-      Case_Sensitive_Parameters : in     Boolean     := True;
-      Upload_Directory          : in     String      := Def_Upload_Dir;
-      Line_Stack_Size           : in     Positive    := Def_Line_Stack_Size) is
+      Max_Connection            : in     Positive  := Default.Max_Connection;
+      Admin_URI                 : in     String    := Default.Admin_URI;
+      Port                      : in     Positive  := Default.Server_Port;
+      Security                  : in     Boolean   := False;
+      Session                   : in     Boolean   := False;
+      Case_Sensitive_Parameters : in     Boolean   := True;
+      Upload_Directory          : in     String    := Default.Upload_Directory;
+      Line_Stack_Size           : in     Positive  := Default.Line_Stack_Size)
+   is
    begin
       CNF.Set.Server_Name      (Web_Server.Properties, Name);
       CNF.Set.Admin_URI        (Web_Server.Properties, Admin_URI);
@@ -859,6 +885,35 @@ package body AWS.Server is
       Counter.Add;
    end Start;
 
+   ---------------------
+   -- Start_Error_Log --
+   ---------------------
+
+   procedure Start_Error_Log
+     (Web_Server        : in out HTTP;
+      Split_Mode        : in     Log.Split_Mode := Log.None;
+      Filename_Prefix   : in     String         := "")
+   is
+      use type AWS.Log.Split_Mode;
+   begin
+      if Split_Mode /= Log.None then
+         CNF.Set.Error_Log_Split_Mode
+           (Web_Server.Properties, Log.Split_Mode'Image (Split_Mode));
+      end if;
+
+      if Filename_Prefix /= "" then
+         CNF.Set.Error_Log_Filename_Prefix
+           (Web_Server.Properties, Filename_Prefix);
+      end if;
+
+      Log.Start
+        (Web_Server.Error_Log,
+         Log.Split_Mode'Value
+           (CNF.Error_Log_Split_Mode (Web_Server.Properties)),
+         CNF.Log_File_Directory (Web_Server.Properties),
+         CNF.Error_Log_Filename_Prefix (Web_Server.Properties));
+   end Start_Error_Log;
+
    ---------------
    -- Start_Log --
    ---------------
@@ -886,6 +941,15 @@ package body AWS.Server is
          CNF.Log_File_Directory (Web_Server.Properties),
          CNF.Log_Filename_Prefix (Web_Server.Properties));
    end Start_Log;
+
+   --------------------
+   -- Stop_Error_Log --
+   --------------------
+
+   procedure Stop_Error_Log (Web_Server : in out HTTP) is
+   begin
+      Log.Stop (Web_Server.Error_Log);
+   end Stop_Error_Log;
 
    --------------
    -- Stop_Log --
