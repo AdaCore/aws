@@ -1,3 +1,11 @@
+2003-01-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(UNITS): New variable used to rebuild all units.
+	(build): Do not use a loop for the build process. It depends on
+	 UNITS and units are built by this rule. Now the build process
+	 stop at the first error. Cleaner build process.
+
 2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

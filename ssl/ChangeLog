@@ -1,3 +1,12 @@
+2003-01-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(ssl-thin): New target.
+	(ssl-wrappers): New target.
+	(libnosslaws.a): New target.
+	Only rebuild libnosslaws.a if necessary, it avoids rebuilding all
+	 the demos.
+
 2002-12-25  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* makefile:
