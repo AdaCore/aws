@@ -1,3 +1,14 @@
+2004-11-27  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	($(WSDL2AWS_TESTS)): Do not fail even if we have an error when
+	 calling $(WSDL2AWS) as this is expected for those tests. Do not
+	 grep the output, this is not needed with new wsdl2aws error handling.
+
+	* wsdl_parse_1.out, wsdl_parse_2.out, wsdl_parse_3.out,
+	  wsdl_parse_4.out:
+	Update to new output.
+
 2004-11-05  Pascal Obry  <pascal@obry.org>
 
 	* makefile:

@@ -1,3 +1,15 @@
+2004-11-27  Pascal Obry  <pascal@obry.org>
+
+	* soap-wsdl-parser.adb:
+	(Exclude): New procedure.
+	(Parse_Binding): Check if the operation has been excluded from the
+	 code generation or not.
+	
+	* soap-wsdl-parser.ads:
+	(Exclude): New procedure.
+	(Exclude_Set): A new Infinite_Ordered_Sets.
+	(Object): Add exclude field (Infinite_Ordered_Sets).
+
 2004-11-26  Pascal Obry  <pascal@obry.org>
 
 	* soap-wsdl-parser.adb:
