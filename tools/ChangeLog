@@ -1,3 +1,10 @@
+2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* awsres.adb:
+	(Version): Set to 1.1.
+	Add support for -u and -z option to register uncompressed or
+	 compressed resources.
+
 2003-11-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-parser.adb:

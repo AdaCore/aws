@@ -175,6 +175,8 @@ b~zbig.adb
 b~zbig.ads
 b~zfile.adb
 b~zfile.ads
+b~zres.adb
+b~zres.ads
 b~zstrm.adb
 b~zstrm.ads
 b~zstrm2.adb
@@ -207,7 +209,9 @@ file.res
 file.tmp
 file.tmplt
 file1.html
+file1.txt
 file2.html
+file2.txt
 file3.html
 get_post
 get_post.res
@@ -518,6 +522,11 @@ zbig
 zbig.res
 zfile
 zfile.res
+zres.res
+zresres-file1_txt.ads
+zresres-file2_txt.ads
+zresres.adb
+zresres.ads
 zstrm
 zstrm.res
 zstrm2

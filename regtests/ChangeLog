@@ -1,7 +1,18 @@
 2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* zstrm3.adb:
+	Removed.
+
 	* makefile:
-	(RT_SOAP): Add zstrm3.
+	(RT_STD): Remove zstrm3 add zres.
+
+	* zres.adb, zres.out:
+	Initial revision.
+
+2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add zstrm3.
 
 	* zstrm3.adb, zstrm3.out:
 	Initial revision.
