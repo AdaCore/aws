@@ -203,8 +203,7 @@ package body AWS.Status.Set is
 
    procedure Keep_Alive
      (D    : in out Data;
-      Flag : in     Boolean)
-   is
+      Flag : in     Boolean) is
    begin
       D.Keep_Alive := Flag;
    end Keep_Alive;
