@@ -1,3 +1,11 @@
+2004-09-07  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(RT_SOAP_ASIS): Add wsdl_8.
+
+	* wsdl_8_main.adb, wsdl_8.ads, wsdl_8.adb, wsdl_8.out:
+	Initial revision.
+
 2004-09-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait_pack.ads, wait_pack.adb, wait2.adb, wait2.out, wait2_sec.adb,

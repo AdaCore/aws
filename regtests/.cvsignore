@@ -200,6 +200,8 @@ b~wsdl_5_main.adb
 b~wsdl_5_main.ads
 b~wsdl_6_main.adb
 b~wsdl_6_main.ads
+b~wsdl_8_main.adb
+b~wsdl_8_main.ads
 b~xmlt.adb
 b~xmlt.ads
 b~xmlt_sec.adb
@@ -441,6 +443,7 @@ test_soap4
 test_soap4.res
 test_soap5
 test_soap5.res
+test_soap5_sec.res
 test_speed
 test_speed.res
 test_speed.tmp
@@ -517,8 +520,11 @@ upload2.tmp
 upload3
 upload3.res
 upload3.tmp
+upload4.res
 wait
 wait.res
+wait2.res
+wait2_sec.res
 wait_sec.res
 workorder
 workorder.res
@@ -620,6 +626,17 @@ wsdl_7_service-server.ads
 wsdl_7_service-types.adb
 wsdl_7_service-types.ads
 wsdl_7_service.ads
+wsdl_8.wsdl
+wsdl_8_main.res
+wsdl_8_service-cb.adb
+wsdl_8_service-cb.ads
+wsdl_8_service-client.adb
+wsdl_8_service-client.ads
+wsdl_8_service-server.adb
+wsdl_8_service-server.ads
+wsdl_8_service-types.adb
+wsdl_8_service-types.ads
+wsdl_8_service.ads
 wsdl_a.res
 wsdl_a.wsdl
 wsdl_b.res
