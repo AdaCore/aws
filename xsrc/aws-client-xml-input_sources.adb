@@ -58,12 +58,24 @@ package body AWS.Client.XML.Input_Sources is
       use Unicode.CES;
       Length : Integer;
       BOM    : Bom_Type;
+
+      First : Stream_Element_Offset          := Input.Buffer'First;
+      Last  : constant Stream_Element_Offset := Input.Buffer'Last;
    begin
       Input.HTTP := Connection.Self;
 
-      Read_Some (Input.HTTP.all, Input.Buffer, Input.Last);
+      loop
+         Read_Some (Input.HTTP.all, Input.Buffer (First .. Last), Input.Last);
 
-      Read_Bom (+Input.Buffer, Length, BOM);
+         --  We have to read 4 or more bytes before be able to read BOM
+         --  from byte sequence.
+
+         exit when Input.Last >= 4 or else First > Input.Last;
+
+         First := Input.Last + 1;
+      end loop;
+
+      Read_Bom (+Input.Buffer (1 .. Input.Last), Length, BOM);
 
       case BOM is
          when Utf32_LE =>
