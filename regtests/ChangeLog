@@ -1,6 +1,15 @@
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
+	Refine previous check-in. This version should behave correctly with
+	 or without SOAP support.
+
+	* unexph2.out:
+	Update output.
+	
+2004-10-06  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
 	(clean): Add filez.tmplt.
 	
 2004-10-06  Pascal Obry  <pascal@obry.org>
