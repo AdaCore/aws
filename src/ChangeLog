@@ -1,9 +1,8 @@
 2003-05-08  Anisimkov Dmitriy <anisimkov@yahoo.com>
 
 	* aws-ldap-client.adb:
-	(Free): Change pragma Unreferenced to Warnings Off for Res
-	 becouse of GNAT 3.15p bug with pragma Unreferenced (left side
-	 of assignment).
+	(Free): Change pragma Unreferenced to Warnings Off for Tmp
+	 because GNAT 3.15p handle a left side assignment as a reference.
 	(Unbind): Idem.
 
 	* aws-server.ads:
