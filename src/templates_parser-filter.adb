@@ -405,6 +405,10 @@ package body Filter is
    begin
       Check_Null_Parameter (P);
 
+      if S = "" then
+         return "";
+      end if;
+
       loop
          if S (J) = '<'
            and then J + 3 <= S'Last
