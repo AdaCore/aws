@@ -33,6 +33,8 @@
 with Ada.Strings;
 
 with AWS.Digest;
+with AWS.Headers.Values;
+with AWS.Messages;
 
 package body AWS.Status is
 
@@ -177,7 +179,7 @@ package body AWS.Status is
 
    function Connection (D : in Data) return String is
    begin
-      return To_String (D.Connection);
+      return AWS.Headers.Get (D.Header, Messages.Connection_Token);
    end Connection;
 
    --------------------
@@ -195,7 +197,7 @@ package body AWS.Status is
 
    function Content_Type (D : in Data) return String is
    begin
-      return To_String (D.Content_Type);
+      return AWS.Headers.Get (D.Header, Messages.Content_Type_Token);
    end Content_Type;
 
    -----------------
@@ -214,7 +216,7 @@ package body AWS.Status is
 
    function Host (D : in Data) return String is
    begin
-      return To_String (D.Host);
+      return AWS.Headers.Get (D.Header, Messages.Host_Token);
    end Host;
 
    ------------------
@@ -232,7 +234,7 @@ package body AWS.Status is
 
    function If_Modified_Since (D : in Data) return String is
    begin
-      return To_String (D.If_Modified_Since);
+      return AWS.Headers.Get (D.Header, Messages.If_Modified_Since_Token);
    end If_Modified_Since;
 
    -------------
@@ -241,7 +243,7 @@ package body AWS.Status is
 
    function Is_SOAP (D : in Data) return Boolean is
    begin
-      return D.SOAPAction /= Null_Unbounded_String;
+      return D.SOAP_Action;
    end Is_SOAP;
 
    ----------------
@@ -267,8 +269,15 @@ package body AWS.Status is
    ------------------------
 
    function Multipart_Boundary (D : in Data) return String is
+      use AWS.Headers;
    begin
-      return To_String (D.Boundary);
+      --  Get the Boundary value from the Contant_Type header value.
+      --  We do not need to have the boundary in the Status.Data preparsed,
+      --  becouse the AWS is not using function Multipart_Boundary internally.
+
+      return Values.Search
+        (Get (D.Header, Messages.Content_Type_Token),
+         "Boundary", Case_Sensitive => False);
    end Multipart_Boundary;
 
    ----------------
@@ -304,7 +313,7 @@ package body AWS.Status is
 
    function Referer (D : in Data) return String is
    begin
-      return To_String (D.Referer);
+      return AWS.Headers.Get (D.Header, Messages.Referer_Token);
    end Referer;
 
    -------------
@@ -330,8 +339,17 @@ package body AWS.Status is
    ----------------
 
    function SOAPAction (D : in Data) return String is
+      Result : String :=
+         AWS.Headers.Get (D.Header, Messages.SOAPAction_Token);
    begin
-      return To_String (D.SOAPAction);
+      if Result (Result'First) = '"'
+        and then Result (Result'Last) = '"'
+        and then Result'First < Result'Last
+      then
+         return Result (Result'First + 1 .. Result'Last - 1);
+      else
+         return Result;
+      end if;
    end SOAPAction;
 
    ------------
@@ -364,7 +382,7 @@ package body AWS.Status is
 
    function User_Agent (D : in Data) return String is
    begin
-      return To_String (D.User_Agent);
+      return AWS.Headers.Get (D.Header, Messages.User_Agent_Token);
    end User_Agent;
 
 end AWS.Status;
