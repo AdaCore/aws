@@ -1,3 +1,47 @@
+2002-12-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Do not remove aws-net.adb.
+
+	* aws-server.adb:
+	(Security_Initilaized): Remove pragma Atomic as it is not needed.
+
+	* aws-net-buffered.adb:
+	Fix all references to the socket cache due to structure changes.
+
+	* aws-net-ssl.adb:
+	(TS_SSL): New protected object to guarranty concurrent access to
+	 global SSL state. Move Private_Key and Context into this object.
+	(Finalise): Move into TS_SSL.
+	(Initialize): Idem.
+	(Set_FD): Idem.
+	(Free): Call Release_Cache.
+
+	* aws-net-ssl.ads:
+	(Socket_Type): Properly initialize SSL to Null_Ptr. Fix crash on
+	 SSL socket.
+
+	* aws-net-std.adb:
+	(Free): Call Release_Cache.
+	(Receive): Remove debugging code.
+
+	* aws-net.adb:
+	(Free): Call Release_Cache. Call Free on the socket only if access
+	 not null.
+	(Set_Cache): New routine.
+	(Release_Cache): New routine.
+	(Socket): Call Set_Cache.
+	
+	* aws-net.ads:
+	(RW_Cache): New record type.
+	(RW_Cache_Access): New access type.
+	(Set_Cache): New routine.
+	(Release_Cache): New routine.
+	(Socket_Type): Self, W_Cache, R_Cache fields removed. Add field C.
+	 This is a lighter implementation, SSL socket structure had two
+	 cache buffer (6kb each), only one was needed.
+	Minor reformatting.
+
 2002-12-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-containers-tables.ads, aws-containers-tables.adb:
