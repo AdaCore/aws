@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                            Copyright (C) 2003                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,7 +30,7 @@
 
 --  $Id$
 
---  Dispatch of the SOAP request.
+--  Dispatcher for SOAP requests.
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -40,28 +40,37 @@ with SOAP.Message.Payload;
 package SOAP.Dispatchers is
 
    type Handler is abstract new AWS.Dispatchers.Handler with private;
-   --  This is a wrapper for translate standard AWS dispatcher
-   --  to the AWS SOAP dispatcher
+   --  This dispatcher will send SOAP and HTTP requests to different routines
+
+   type SOAP_Callback is
+     access function (SOAPAction : in String;
+                      Payload    : in Message.Payload.Object;
+                      Request    : in AWS.Status.Data)
+                      return AWS.Response.Data;
+   --  This is the SOAP Server callback type. SOAPAction is the HTTP header
+   --  SOAPAction value, Payload is the parsed XML payload, request is the
+   --  HTTP request status.
 
    function Dispatch_SOAP
      (Dispatcher : in Handler;
-      Action     : in String;
-      Request    : in Message.Payload.Object)
-      return     AWS.Response.Data is abstract;
-   --  This dispatch function would be called for SOAP calls.
+      SOAPAction : in String;
+      Payload    : in Message.Payload.Object;
+      Request    : in AWS.Status.Data)
+      return AWS.Response.Data is abstract;
+   --  This dispatch function is called for SOAP requests
 
-   function Dispatch_Base
+   function Dispatch_HTTP
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data)
-      return     AWS.Response.Data is abstract;
-   --  This dispatch function would be called for non SOAP calls.
+      return AWS.Response.Data is abstract;
+   --  This dispatch function is called for standard HTTP requests
 
 private
 
    function Dispatch
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data)
-      return     AWS.Response.Data;
+      return AWS.Response.Data;
 
    type Handler is abstract new AWS.Dispatchers.Handler with null record;
 
