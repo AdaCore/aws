@@ -274,7 +274,7 @@ package body AWS.Client is
       else
 
          if CT_Len = 0 and then CT = "text/html" then
-            --  here we do not know the message body length, but this it is a
+            --  here we do not know the message body length, but this is a
             --  textual data, read it as a string.
 
             return Response.Build (To_String (CT), Read_Message, Status);

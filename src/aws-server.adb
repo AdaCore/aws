@@ -34,8 +34,8 @@ with Ada.Text_IO;
 
 with Sockets;
 
---  withed units there are there to work around a bug in GNAT 3.12. These with
---  can be removed with GNAT 3.13.
+--  withed units here are to work around a bug in GNAT 3.12. These withed
+--  units can be removed with GNAT 3.13.
 
 with AWS.Messages;
 with AWS.Status;
