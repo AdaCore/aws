@@ -1,5 +1,8 @@
 2003-12-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-services-dispatchers-timer.ads:
+	Initial revision.
+
 	* aws-services-split_pages.ads:
 	Fix comments (V is a suffix) and add comment for OFFSET and
 	 NUMBER_PAGES.
