@@ -33,16 +33,23 @@
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
-with Interfaces.C;
+with AWS.OS_Lib.Definitions;
+with AWS.Utils;
+
+with Interfaces.C.Strings;
 
 with Sockets.Constants;
 with Sockets.Naming;
 with Sockets.Thin;
 
+with System;
+
 package body AWS.Net.Std is
 
    use Ada;
    use Interfaces;
+
+   package OSD renames AWS.OS_Lib.Definitions;
 
    type Socket_Hidden is record
       FD : Sockets.Socket_FD;
@@ -61,6 +68,14 @@ package body AWS.Net.Std is
    pragma No_Return (Raise_Exception);
    --  Raise exception Socket_Error with E's message and a reference to the
    --  routine name.
+
+   function Get_Addr_Info
+     (Host  : in String;
+      Port  : in Positive;
+      Flags : in Interfaces.C.int := 0)
+      return OSD.Addr_Info_Access;
+   --  Returns the inet address information for the given host and port.
+   --  Flags should be used from getaddrinfo C routine.
 
    procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
    --  Set the socket to the non-blocking mode.
@@ -101,18 +116,44 @@ package body AWS.Net.Std is
    procedure Bind
      (Socket : in out Socket_Type;
       Port   : in     Natural;
-      Host   : in     String := "") is
+      Host   : in     String := "")
+   is
+      use type C.int;
+
+      Res   : C.int;
+      Errno : Integer;
+      Info  : constant OSD.Addr_Info_Access
+        := Get_Addr_Info (Host, Port, OSD.AI_PASSIVE);
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
-         Sockets.Socket (Socket.S.FD);
+
+         begin
+            Sockets.Socket (Socket.S.FD);
+         exception
+            when E : Sockets.Socket_Error =>
+               Free (Socket.S);
+               OSD.FreeAddrInfo (Info);
+               Raise_Exception (E, "Bind.Create_Socket");
+         end;
+
          Set_Non_Blocking_Mode (Socket);
       end if;
 
-      Sockets.Bind (Socket.S.FD, Port, Host);
-   exception
-      when E : Sockets.Socket_Error | Sockets.Naming.Naming_Error =>
-         Raise_Exception (E, "Bind");
+      Res := Sockets.Thin.C_Bind
+        (C.int (Get_FD (Socket)),
+         Info.ai_addr,
+         C.int (Info.ai_addrlen));
+
+      if Res = Sockets.Thin.Failure then
+         Errno := Std.Errno;
+         Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
+         Free (Socket.S);
+         OSD.FreeAddrInfo (Info);
+         Raise_Exception (Errno, "Bind.Create_Socket");
+      end if;
+
+      OSD.FreeAddrInfo (Info);
    end Bind;
 
    -------------
@@ -124,35 +165,43 @@ package body AWS.Net.Std is
       Host     : in     String;
       Port     : in     Positive)
    is
-      Close_On_Exception : Boolean := True;
+      use type C.int;
+
+      Res   : C.int;
+      Errno : Integer;
+      Info  : constant OSD.Addr_Info_Access := Get_Addr_Info (Host, Port);
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
 
-         Close_On_Exception := False;
-         Sockets.Socket (Socket.S.FD);
-         Close_On_Exception := True;
+         begin
+            Sockets.Socket (Socket.S.FD);
+         exception
+            when E : Sockets.Socket_Error =>
+               Free (Socket.S);
+               OSD.FreeAddrInfo (Info);
+               Raise_Exception (E, "Connect.Create_Socket");
+         end;
       end if;
 
-      Sockets.Connect (Socket.S.FD, Host, Port);
+      Res := Sockets.Thin.C_Connect
+        (C.int (Get_FD (Socket)),
+         Info.ai_addr,
+         C.int (Info.ai_addrlen));
 
-      --  AdaSockets does not support non blocking connect
-      --  so we are making socket non-blocking after connect.
+      if Res = Sockets.Thin.Failure then
+         Errno := Std.Errno;
+         Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
+         Free (Socket.S);
+         OSD.FreeAddrInfo (Info);
+         Raise_Exception (Errno, "Bind.Create_Socket");
+      end if;
+
+      OSD.FreeAddrInfo (Info);
 
       Set_Non_Blocking_Mode (Socket);
 
       Set_Cache (Socket);
-   exception
-      when E : Sockets.Connection_Refused
-             | Sockets.Socket_Error
-             | Sockets.Naming.Naming_Error
-      =>
-         if Close_On_Exception then
-            Sockets.Shutdown (Socket.S.FD);
-         end if;
-
-         Free (Socket);
-         Raise_Exception (E, "Connect");
    end Connect;
 
    -----------
@@ -173,6 +222,53 @@ package body AWS.Net.Std is
       Free (Socket.S);
       Release_Cache (Socket);
    end Free;
+
+   -------------------
+   -- Get_Addr_Info --
+   -------------------
+
+   function Get_Addr_Info
+     (Host  : in String;
+      Port  : in Positive;
+      Flags : in Interfaces.C.int := 0)
+      return OSD.Addr_Info_Access
+   is
+      use Interfaces.C;
+      use type OSD.Addr_Info_Access;
+
+      C_Node : aliased char_array := To_C (Host);
+      P_Node : Strings.chars_ptr;
+      C_Serv : aliased char_array := To_C (AWS.Utils.Image (Port));
+      Res    : int;
+      Result : aliased OSD.Addr_Info_Access;
+      Hints  : constant OSD.Addr_Info
+        := (ai_family    => Sockets.Constants.Af_Inet,
+            ai_socktype  => Sockets.Constants.Sock_Stream,
+            ai_protocol  => OSD.IPPROTO_TCP,
+            ai_flags     => Flags,
+            ai_addrlen   => 0,
+            ai_canonname => Strings.Null_Ptr,
+            ai_addr      => System.Null_Address,
+            ai_next      => null);
+   begin
+      if Host = "" then
+         P_Node := Strings.Null_Ptr;
+      else
+         P_Node := Strings.To_Chars_Ptr (C_Node'Unchecked_Access);
+      end if;
+
+      Res := OSD.GetAddrInfo
+               (node    => P_Node,
+                service => Strings.To_Chars_Ptr (C_Serv'Unchecked_Access),
+                hints   => Hints,
+                res     => Result'Access);
+
+      if Res /= 0 then
+         Raise_Exception (Errno, "Get_Addr_Info");
+      end if;
+
+      return Result;
+   end Get_Addr_Info;
 
    ------------
    -- Get_FD --
@@ -415,4 +511,10 @@ package body AWS.Net.Std is
          Raise_Exception (E, "Shutdown");
    end Shutdown;
 
+begin
+   --  Dummy call for initialize static pointers inside of libwspiapi.a
+   --  We should remove this call after remove libwspiapi.a usage.
+   --  libwspiapi.a need for support Windows 2000.
+
+   OSD.FreeAddrInfo (null);
 end AWS.Net.Std;
