@@ -90,17 +90,23 @@ project Demos is
 
    package Ide renames Shared.Ide;
 
-   --------------
-   -- Compiler --
-   --------------
+   ------------
+   -- Binder --
+   ------------
 
-   package Compiler renames Demos_Shared.Compiler;
+   package Binder renames Demos_Shared.Binder;
 
    -------------
    -- Builder --
    -------------
 
    package Builder renames Shared.Builder;
+
+   --------------
+   -- Compiler --
+   --------------
+
+   package Compiler renames Demos_Shared.Compiler;
 
    ------------
    -- Linker --
