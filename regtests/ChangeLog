@@ -1,6 +1,17 @@
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tres2.adb:
+	Fix cut&past error.
+
+	* makefile:
+	(build): Add $(ALL_TESTS), do not use loop.
+	(checks_out): Do not use loop.
+	(ALL_TESTS): New targets, does all the job here.
+	
+
+2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* tres2.adb:
 	Delete file after use.
 
 	* tlog.out:
