@@ -47,6 +47,6 @@ package AWS.Server.Status is
    --  Returns the server's start time
 
    function Socket (Server : in HTTP) return Net.Std.Socket_Type;
-   --  Retruns the server's socket
+   --  Returns the server's socket
 
 end AWS.Server.Status;
