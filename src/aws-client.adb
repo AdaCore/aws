@@ -512,8 +512,13 @@ package body AWS.Client is
       begin
          loop
             --  Read the chunk size that is an hex number
-            Size := Stream_Element_Offset'Value
-              ("16#" & Sockets.Get_Line (Sock) & '#');
+            declare
+               L : constant String := Sockets.Get_Line (Sock);
+               V : constant String
+                 := "16#" & Strings.Fixed.Trim (L, Strings.Both) & '#';
+            begin
+               Size := Stream_Element_Offset'Value (V);
+            end;
 
             if Size = 0 then
                Skip_Line;
