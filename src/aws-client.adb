@@ -469,10 +469,26 @@ package body AWS.Client is
         (Len : in Positive)
         return Streams.Stream_Element_Array
       is
-         Elements : Streams.Stream_Element_Array
-           (1 .. Streams.Stream_Element_Offset (Len));
+         use Streams;
+
+         Elements : Stream_Element_Array (1 .. Stream_Element_Offset (Len));
+         S, E     : Stream_Element_Offset;
       begin
-         Sockets.Receive (Sock, Elements);
+         S := 1;
+
+         --  Read the message, 10k at a time
+
+         loop
+            E := Stream_Element_Offset'Min
+              (Stream_Element_Offset (Len), S + 10_239);
+
+            Sockets.Receive (Sock, Elements (S .. E));
+
+            S := E + 1;
+
+            exit when S > Stream_Element_Offset (Len);
+         end loop;
+
          return Elements;
       end Read_Binary_Message;
 
