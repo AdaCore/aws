@@ -58,6 +58,31 @@ package Templates_Parser is
      return Vector_Tag;
    --  add Value at the end of the vector tag set.
 
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in Character)
+     return Vector_Tag;
+   --  add Value at the end of the vector tag set.
+
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in Boolean)
+     return Vector_Tag;
+   --  add Value (either string TRUE or FALSE) at the end of the vector tag
+   --  set.
+
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in Ada.Strings.Unbounded.Unbounded_String)
+     return Vector_Tag;
+   --  add Value at the end of the vector tag set.
+
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in Integer)
+     return Vector_Tag;
+   --  add Value (converted to a String) at the end of the vector tag set.
+
    --
    --  Association table
    --
@@ -76,6 +101,26 @@ package Templates_Parser is
      return Association;
    --  build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is a string.
+
+   function Assoc
+     (Variable  : in String;
+      Value     : in Ada.Strings.Unbounded.Unbounded_String;
+      Begin_Tag : in String    := Default_Begin_Tag;
+      End_Tag   : in String    := Default_End_Tag)
+     return Association;
+   --  build an Association (Variable = Value) to be added to a
+   --  Translate_Table. This is a standard association, value is an
+   --  Unbounded_String.
+
+   function Assoc
+     (Variable  : in String;
+      Value     : in Integer;
+      Begin_Tag : in String    := Default_Begin_Tag;
+      End_Tag   : in String    := Default_End_Tag)
+     return Association;
+   --  build an Association (Variable = Value) to be added to a
+   --  Translate_Table. This is a standard association, value is an Integer.
+   --  It will be displayed without leading space if positive.
 
    function Assoc
      (Variable  : in String;
