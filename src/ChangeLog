@@ -1,5 +1,10 @@
 2003-12-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-resources-streams-zlib.ads, aws-resources-streams-zlib.adb:
+	(Inflate_Create): New routine.
+
+2003-12-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-services-files.adb:
 	(Open) Fix Content-Type and Accept-Encoding.
 
