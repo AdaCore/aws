@@ -133,16 +133,6 @@ procedure Tlog is
       return GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
    end Today;
 
-   --------
-   -- IP --
-   --------
-
-   function IP (Str : in String) return String is
-      K : constant Natural := Strings.Fixed.Index (Str, ":");
-   begin
-      return Str (Str'First .. K);
-   end IP;
-
    ---------------
    -- Hide_Date --
    ---------------
@@ -182,7 +172,7 @@ procedure Tlog is
             AWK.Get_Line;
          end if;
 
-         Text_IO.Put (IP (AWK.Field (1)));
+         Text_IO.Put (AWK.Field (1));
          Text_IO.Put (" | ");
 
          Text_IO.Put (AWK.Field (2));
