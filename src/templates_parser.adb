@@ -2647,11 +2647,17 @@ package body Templates_Parser is
          end if;
       end if;
 
-      Input.Open (File, Filename, Form => "shared=no");
+      begin
+         Input.Open (File, Filename, Form => "shared=no");
 
-      New_T := Parse (Parse_Std);
+         New_T := Parse (Parse_Std);
 
-      Input.Close (File);
+         Input.Close (File);
+      exception
+         when others =>
+            Input.Close (File);
+            raise;
+      end;
 
       --  T is the tree file, add two nodes (Info and C_Info) in front of the
       --  tree.
