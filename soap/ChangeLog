@@ -1,3 +1,11 @@
+2004-05-17  Pascal Obry  <pascal@obry.org>
+
+	* soap-wsdl-parser.adb:
+	(Build_Enumeration): New_Node set to constant.
+
+	* soap-message-xml.adb:
+	(Parse_String): L set to constant.
+
 2004-04-27  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator.adb:
