@@ -1,3 +1,23 @@
+2002-03-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Build_Cleaner): Removed.
+	(Cleaner_Task): Accept Start at the start of the task to
+	 initialize the timeouts state.
+	(Create): Dynamically create the cleaner task here.
+	(Disconnect): Set status before calling shutdown.
+	(Read_Until): Non recursive version.
+	In many places remove HTTP_Connection timeouts discriminant.
+
+	* aws-client.ads:
+	(Phase_Access): New type.
+	(Boolean_Access): New type.
+	(Cleaner_Task): Remove Connection as discriminant. Add Start entry
+	 to initialize the timeouts.
+	(Build_Cleaner): Removed.
+	(HTTP_Connection): Opened, Current_Phase are now aliased to be
+	 able to pass a pointer to Cleaner_Task.
+
 2002-03-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
