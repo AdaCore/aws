@@ -43,20 +43,20 @@ package AWS.Digest is
    --  see [RFC-2617 - 3.2.1]
 
    function Check_Nonce (Value : in String) return Boolean;
-   --  Check Nonce for validity and expiration.
+   --  Check Nonce for validity and expiration
 
    function Create_Digest
      (Username, Realm, Password : in String;
       Nonce                     : in String;
       Method, URI               : in String)
       return Digest_String;
-   --  Returns a simple MD5 Digest.
+   --  Returns a simple MD5 Digest
 
    function Create_Digest
      (Username, Realm, Password : in String;
       Nonce, NC, CNonce, QOP    : in String;
       Method, URI               : in String)
       return Digest_String;
-   --  Returns a more complex MD5 Digest.
+   --  Returns a more complex MD5 Digest
 
 end AWS.Digest;

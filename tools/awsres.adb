@@ -59,22 +59,22 @@ procedure AwsRes is
    Quiet    : Boolean := False;
 
    RT_File   : Text_IO.File_Type;
-   --  Root temp file.
+   --  Root temp file
 
    R_File   : Text_IO.File_Type;
-   --  Root spec/body file.
+   --  Root spec/body file
 
    procedure Create (Filename : in String);
-   --  Create resource package for Filename.
+   --  Create resource package for Filename
 
    function Package_Name (Filename : in String) return String;
-   --  Returns package name for Filename.
+   --  Returns package name for Filename
 
    procedure Parse_Command_Line;
-   --  Parse command line.
+   --  Parse command line
 
    function Header return String;
-   --  Returns file header (AWSRes version, date, time).
+   --  Returns file header (AWSRes version, date, time)
 
    ------------
    -- Create --
@@ -84,7 +84,7 @@ procedure AwsRes is
       use Streams;
 
       Max_Data  : constant := 14;
-      --  Maximum number of data in a single line.
+      --  Maximum number of data in a single line
 
       Unit_Name : constant String := Package_Name (Filename);
       Pck_Name  : constant String
@@ -150,7 +150,7 @@ procedure AwsRes is
             end if;
 
             if First then
-               --  No space after the open parentesis (style check).
+               --  No space after the open parentesis (style check)
                declare
                   V : constant Integer := Integer (Buffer (K));
                begin
