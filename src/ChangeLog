@@ -1,5 +1,17 @@
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	Change again the exception handling circuitry. We now handle
+	 Net.Socket_Error and other exception differently as we want in
+	 the later case to log an error message in the log file.
+
+	* aws-server.adb:
+	(Exception_String): New routine.
+	(Default_Unexpected_Exception_Handler): Use it.
+	
+	* aws-server.ads:
+	(Exception_String): New routine.
+	
 	* aws-log.adb:
 	Remove withed unit AWS.Default (not used anymore).
 
