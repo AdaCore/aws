@@ -79,3 +79,63 @@ Error on ./../toto - Wrong URL: (/../) Reference Web root parent directory.
    URI        : ..
 Error on /../ - Wrong URL: (/../) Reference Web root parent directory.
 Error on /.. - Wrong URL: (/..) Reference Web root parent directory.
+/..filename
+/..filename
+   Server     : 
+   Port       : 80
+   Path       : /
+   File       : ..filename
+   Parameters : 
+   URI        : /..filename
+   *
+   Server     : 
+   Port       : 80
+   Path       : /
+   File       : ..filename
+   Parameters : 
+   URI        : /..filename
+/.filename
+/.filename
+   Server     : 
+   Port       : 80
+   Path       : /
+   File       : .filename
+   Parameters : 
+   URI        : /.filename
+   *
+   Server     : 
+   Port       : 80
+   Path       : /
+   File       : .filename
+   Parameters : 
+   URI        : /.filename
+..filename
+..filename
+   Server     : 
+   Port       : 80
+   Path       : 
+   File       : ..filename
+   Parameters : 
+   URI        : ..filename
+   *
+   Server     : 
+   Port       : 80
+   Path       : 
+   File       : ..filename
+   Parameters : 
+   URI        : ..filename
+.filename
+.filename
+   Server     : 
+   Port       : 80
+   Path       : 
+   File       : .filename
+   Parameters : 
+   URI        : .filename
+   *
+   Server     : 
+   Port       : 80
+   Path       : 
+   File       : .filename
+   Parameters : 
+   URI        : .filename
