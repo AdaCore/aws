@@ -32,10 +32,13 @@
 
 with Ada.Strings.Fixed;
 
+with AWS.Resources.Streams.ZLib;
 with AWS.Translator;
 with AWS.Headers.Set;
 with AWS.Digest;
-with AWS.Resources.Streams.Memory;
+with AWS.Resources.Streams.Memory.ZLib;
+
+with ZLib;
 
 package body AWS.Response.Set is
 
@@ -88,6 +91,52 @@ package body AWS.Response.Set is
    begin
       Append_Body (D, Translator.To_Stream_Element_Array (Item));
    end Append_Body;
+
+   -------------------
+   -- Append_Encode --
+   -------------------
+
+   procedure Append_Encode
+     (D         : in out Data;
+      Encoding  : in     Content_Encoding;
+      Direction : in     Encode_Direction := Encode)
+   is
+      use type Resources.Streams.Stream_Access;
+      Header : RSM.ZLib.Header_Type;
+   begin
+      if D.Stream /= null then
+         return;
+      end if;
+
+      D.Mode   := Message;
+
+      case Encoding is
+         when Identity => D.Stream := new RSM.Stream_Type;
+         when GZip     => Header   := ZLib.GZip;
+         when Deflate  => Header   := ZLib.Default;
+      end case;
+
+      if D.Stream = null then
+         --  ZLib encoding/decoding is necessary.
+
+         D.Stream := new RSM.ZLib.Stream_Type;
+
+         if Direction = Encode then
+            RSM.ZLib.Deflate_Initialize
+              (RSM.ZLib.Stream_Type (D.Stream.all), Header => Header);
+
+            --  Set the Content-Encoding header value for server responce.
+
+            Update_Header
+              (D,
+               Messages.Content_Encoding_Token,
+               Content_Encoding'Image (Encoding));
+         else
+            RSM.ZLib.Inflate_Initialize
+              (RSM.ZLib.Stream_Type (D.Stream.all), Header => Header);
+         end if;
+      end if;
+   end Append_Encode;
 
    --------------------
    -- Authentication --
@@ -358,9 +407,28 @@ package body AWS.Response.Set is
 
    procedure Stream
      (D        : in out Data;
-      Handle   : access Resources.Streams.Stream_Type'Class) is
+      Handle   : access Resources.Streams.Stream_Type'Class;
+      Encoding : in     Content_Encoding := Identity) is
    begin
-      D.Stream := Resources.Streams.Stream_Access (Handle);
+
+      case Encoding is
+         when GZip     =>
+            D.Stream := Resources.Streams.ZLib.Deflate_Create
+                          (Resources.Streams.Stream_Access (Handle),
+                           Header => ZLib.GZip);
+         when Deflate  =>
+            D.Stream := Resources.Streams.ZLib.Deflate_Create
+                          (Resources.Streams.Stream_Access (Handle),
+                           Header => ZLib.Default);
+         when Identity =>
+            D.Stream := Resources.Streams.Stream_Access (Handle);
+      end case;
+
+      Update_Header
+        (D,
+         Messages.Content_Encoding_Token,
+         Content_Encoding'Image (Encoding));
+
       D.Mode   := Stream;
    end Stream;
 
