@@ -232,3 +232,4 @@ clean:
 	-rm -f stockquoteservice* stock_quote_service*
 	-rm -f interoplab-* interoplab.ad* googlesearchservice*
 	-rm -f wsdl_?_service*
+	-rm -fr WSDL_6 wsdl_6.class
