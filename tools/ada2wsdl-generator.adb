@@ -557,14 +557,12 @@ package body Ada2WSDL.Generator is
          Put_Line ("<definitions name=""" & WS_Name  & """");
          Put_Line ("   targetNamespace=""urn:aws:" & WS_Name & """");
          Put_Line ("   xmlns:tns=""urn:aws:" & WS_Name & """");
-         Put_Line ("   xmlns=""http://schemas.xmlsoap.org/wsdl/""");
-         Put_Line ("   xmlns:soap=""http://schemas.xmlsoap.org/wsdl/soap/""");
-         Put_Line
-           ("   xmlns:soap-enc=""http://schemas.xmlsoap.org/soap/encoding/""");
-         Put_Line ("   xmlns:wsdl=""http://schemas.xmlsoap.org/wsdl/""");
-         Put_Line
-           ("   xmlns:xsi=""http://www.w3.org/1999/XMLSchema-instance""");
-         Put_Line ("   xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">");
+         Put_Line ("   xmlns=""" & WSDL.NS_WSDL & '"');
+         Put_Line ("   xmlns:soap=""" & WSDL.NS_SOAP & '"');
+         Put_Line ("   xmlns:soap-enc=""" & WSDL.NS_SOAPENC & '"');
+         Put_Line ("   xmlns:wsdl=""" & WSDL.NS_WSDL & '"');
+         Put_Line ("   xmlns:xsi=""" & WSDL.NS_XSI & '"');
+         Put_Line ("   xmlns:xsd=""" & WSDL.NS_XSD & """>");
       end Write_Header;
 
       --------------------
