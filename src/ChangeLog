@@ -1,3 +1,14 @@
+2002-11-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-containers.ads, aws-containers-key_value.ads
+	  aws-containers-tables.ads, aws-containers-tables.adb
+	  aws-containers-tables-set.ads, aws-containers-tables-set.adb:
+	New AWS common containers hierarchy.
+
+	* aws-headers.ads, aws-headers.adb,
+	  aws-headers-set.ads, aws-headers-set.adb:
+	Inherited from AWS.Containers.Tables.Table_Type now.
+
 2002-11-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-headers-set.adb:
