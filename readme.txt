@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             January 29th, 2003
+   Pascal Obry                                             Febuary 1st, 2003
 
 
 
@@ -171,7 +171,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least version 3.15 to use AWS 1.3.
+   You need at least version 3.15 to build and use AWS 1.3.
 
    ftp://cs.nyu.edu/pub/gnat/
 
