@@ -221,6 +221,8 @@ zres: force
 	./zres > zres.res
 	-diff -c -w zres.out zres.res >> alldifs
 
+file2: zres
+
 # We change 2 values in aws-containers-tables.ads because its implementation
 # is based on GNAT.Dynamic_Tables which uses a low-level realloc. This
 # construct is not correctly handled by gnatmem. As this check is really
