@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Exceptions;
 with Ada.Strings;
 
 with AWS.Digest;
@@ -335,8 +336,17 @@ package body AWS.Status is
    -------------
 
    function Session (D : in Data) return AWS.Session.ID is
+      use Ada.Exceptions;
    begin
-      return D.Session_ID;
+      if Has_Session (D) then
+         return D.Session_ID;
+
+      else
+         Raise_Exception
+           (Constraint_Error'Identity,
+            Message => "Can't use AWS session feature "
+              & "if session support not activated.");
+      end if;
    end Session;
 
    ---------------------
