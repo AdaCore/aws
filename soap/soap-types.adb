@@ -989,7 +989,7 @@ package body SOAP.Types is
             end;
          end if;
 
-         --  An heterogenous array
+         --  An heterogeneous array
 
          if T = XSD_Any_Type'Tag then
             return XML_Any_Type;
