@@ -66,7 +66,7 @@ aws.txt: aws.texi
 
 aws.texi: aws.texi.tmplt build.adb
 	gnatmake build -I../src -I../soap -I../include
-	./build > aws.texi
+	./build | tr -d '\r' > aws.texi
 
 clean:
 	-rm aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
