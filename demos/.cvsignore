@@ -6,6 +6,8 @@ b~com_1.adb
 b~com_1.ads
 b~com_2.adb
 b~com_2.ads
+b~dispatch.adb
+b~dispatch.ads
 b~hello_world.adb
 b~hello_world.ads
 b~hotplug.adb
@@ -22,5 +24,11 @@ b~soap_server.adb
 b~soap_server.ads
 b~soap_svs.adb
 b~soap_svs.ads
+b~text_input.adb
+b~text_input.ads
+b~vh_demo.adb
+b~vh_demo.ads
+b~wps.adb
+b~wps.ads
 b~ws.adb
 b~ws.ads
