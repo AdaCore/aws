@@ -1,5 +1,16 @@
 2001-10-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-client.adb:
+	(Get): Correctly set the timeouts in the Connection.
+	(Head): idem.
+	(Put): idem.
+	(Post): idem.
+	(Get_Response): handler 404 message. Correctly set the phase for
+	 message 404, 301 and when no body is returned.
+
+	* aws-server.adb:
+	(Line): Send output in exception handler to Current_Error.
+
 	* aws-url.adb:
 	(Parse): Fix another bug with parsing non-rooted URL. Found while
 	 working on the regression test suite.
