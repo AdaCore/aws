@@ -197,6 +197,14 @@ package Templates_Parser is
       Variable : in String) return Boolean;
    --  Returns True if an association for Variable exists into the Set
 
+   generic
+      with procedure Action
+        (Item : in     Association;
+         Quit : in out Boolean);
+   procedure For_Every_Association (Set : in Translate_Set);
+   --  Iterates through all associations in the set, call Action for each one.
+   --  Set Quite to True to stop the iteration.
+
    function To_Set (Table : in Translate_Table) return Translate_Set;
    --  Convert a Translate_Table into a Translate_Set
 
