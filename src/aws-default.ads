@@ -38,14 +38,15 @@ package AWS.Default is
 
    pragma Pure;
 
-   Server_Name               : constant String := "AWS Module";
-   WWW_Root                  : constant String := "./";
-   Admin_URI                 : constant String := "";
-   Server_Port               : constant        := 8080;
-   Hotplug_Port              : constant        := 8888;
-   Max_Connection            : constant        := 5;
-   Accept_Queue_Size         : constant        := 64;
-   Upload_Directory          : constant String := "./";
+   Server_Name                 : constant String := "AWS Module";
+   WWW_Root                    : constant String := "./";
+   Admin_URI                   : constant String := "";
+   Server_Port                 : constant        := 8080;
+   Hotplug_Port                : constant        := 8888;
+   Max_Connection              : constant        := 5;
+   Free_Slots_Keep_Alive_Limit : constant        := 1;
+   Accept_Queue_Size           : constant        := 64;
+   Upload_Directory            : constant String := "./";
 
    --  Log values. The character '@' in the error log filename prefix is
    --  replaced by the running program name.
