@@ -1,16 +1,12 @@
 
-$Id$
+How to use OpenSSL dynamic link libraries for Win32.
 
-AWS - OpenSSL libraries for Win32
----------------------------------
+1. Copy libeay32.dll and libssl32.dll to the directory referred in the
+   PATH environment variable.
 
-The libraries distributed here are for GNAT 3.13 for Windows 95/98/NT/2000.
+2. gnatmake should be called with a 
+   -largs -L{AWS Directory}/win32/ -lssl -lcrypto
+   parameters
 
-These libraries are not compatible with GNAT 3.12 (or older version), if you
-must use GNAT 3.12 you'll have to build the OpenSSL libraries from source. Or
-you can download them directly from Dmitriy Anisimkov (anisimkov@yahoo.com)
-Web site at:
-
-http://vagul.tripod.com/libssl.zip
-
-AWS team.
+Note that the libssl.a and libcrypto.a import libraries will be created during
+AWS build procedure. See makefile for the build procedure.
