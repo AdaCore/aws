@@ -14,9 +14,11 @@ AWS_COFF	= ../lib/aws.coff
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
    IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBWIN32) $(LIBLDAP)
+   SUPPORT    = build_c_support
 else
    RES        =
    IMPORT_LIB =
+   SUPPORT    =
 endif
 
 force:
@@ -56,4 +58,4 @@ setup_dir:
 	-$(MKDIR) -p ../.build/release/win32/obj
 	-$(MKDIR) -p ../.build/release/win32/lib
 
-setup: setup_dir $(RES) $(IMPORT_LIB) build_c_support
+setup: setup_dir $(RES) $(IMPORT_LIB) $(SUPPORT)
