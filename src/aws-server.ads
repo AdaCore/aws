@@ -181,6 +181,9 @@ private
       Answer : in out Response.Data);
    --  Default unexpected exception handler.
 
+   procedure Socket_Taken (Flag : in Boolean);
+   --  Mark socket of the cureent line of the current server taken.
+
    ------------
    -- Phases --
    ------------
@@ -273,7 +276,7 @@ private
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
 
-      procedure Socket_Taken (Index : in Positive);
+      procedure Socket_Taken (Index : in Positive; Flag : in Boolean);
       --  Used to mark slot associated socket has "taken" by some foreign code.
       --  The server must not close this socket on releasing the slot. It is
       --  used when passing socket to the server push part for example. In the
