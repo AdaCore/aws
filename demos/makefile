@@ -14,22 +14,22 @@ GARGS = -m -q $(GFLAGSY) -i -I../src -I../xsrc -I../ssl -I../include \
 	-I../soap $(INCLUDES)
 BARGS = -E
 
+LARGS = $(LFLAGS) $(LIBS) -L../lib -lz
+
 ifeq ($(MODE),ssl)
 # With SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) -L../lib -lssl -lcrypto ../lib/aws.coff
+LARGS := $(LARGS) -lssl -lcrypto ../lib/aws.coff
 else
-LARGS = $(LFLAGS) $(LIBS) -L../lib -lssl -lcrypto
+LARGS := $(LARGS) -lssl -lcrypto
 endif
 
 else
 # Without SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) -L../lib ../lib/aws.coff
-else
-LARGS = $(LFLAGS) $(LIBS) -L../lib
+LARGS := $(LARGS) ../lib/aws.coff
 endif
 endif
 
