@@ -1,3 +1,28 @@
+2001-10-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): add aws-net.adb and aws-net-stream_io.adb
+
+	* aws-server-push.ads:
+	Add some comments about MSIE and Server Push.
+	(Socket_Type): use Aws.Net.Stream_IO.Socket_Type.
+	Many changes to fix Server Push and SSL. Use AWS.Net.Stream_IO
+	 which should be more efficient.
+	(Object.Count): new procedure.
+	(Object.Destroy): new procedure.
+
+	* aws-server-push.adb:
+	Many changes to fix Server Push and SSL. Use AWS.Net.Stream_IO
+	 which should be more efficient.
+	(Boundary): smaller boundary prefix.
+	(Object.Count): new procedure.
+	(Object.Destroy): new procedure.
+	(Send_Data): flush stream.
+	(Register): flush stream.
+
+	* aws-net-stream_io.ads, aws-net-stream_io.adb:
+	Initial revision.
+
 2001-10-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-push.adb:
