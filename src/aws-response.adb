@@ -31,7 +31,6 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
-with Ada.Unchecked_Deallocation;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -302,9 +301,6 @@ package body AWS.Response is
 
       procedure Free is new Ada.Unchecked_Deallocation
         (Release_Controller, Release_Controller_Access);
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Stream_Type'Class, Stream_Access);
 
    begin
       Object.Ref_Counter.Counter := Object.Ref_Counter.Counter - 1;
