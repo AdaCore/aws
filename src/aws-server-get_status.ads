@@ -32,4 +32,4 @@
 
 private function AWS.Server.Get_Status (Server : in HTTP) return String;
 --  Returns Server status information. Data returned by this function will
---  be displayed when in the administrative server page.
+--  be displayed in the administrative server page.
