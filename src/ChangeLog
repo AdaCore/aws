@@ -1,3 +1,8 @@
+2003-02-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-protocol_handler.adb:
+	(Send): Raise exception if answer not properly initialized (No_Data).
+
 2003-02-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:
