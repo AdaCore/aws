@@ -1,6 +1,14 @@
 2004-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:
+	(IPPROTO_IP): New constant.
+	(PF_UNSPEC): Idem.
+	(PF_INET): Idem.
+	(PF_INET6): Idem.
+
+2004-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* src/check_config.c:
 	Generate size of types explicitly.
 	Fix comment near Win32 linking pragma.
 
