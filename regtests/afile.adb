@@ -126,11 +126,10 @@ procedure Afile is
       when E : others =>
          Text_IO.Put_Line
            ("CB error: " & Exceptions.Exception_Information (E));
-
          return Response.Build
-                  (MIME.Text_Plain,
-                   Exceptions.Exception_Message (E),
-                   Messages.S500);
+           (MIME.Text_Plain,
+            Exceptions.Exception_Message (E),
+            Messages.S500);
    end CB;
 
    procedure Call_It (Res : in String) is
