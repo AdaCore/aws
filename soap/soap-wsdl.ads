@@ -49,7 +49,7 @@ package SOAP.WSDL is
 
    type Parameter_Type is
      (P_Integer, P_Short, P_Long, P_Float, P_Double, P_String, P_Character,
-      P_Boolean, P_Time, P_B64);
+      P_Boolean, P_Time, P_B64, P_Any_Type);
    --  These are the types supported by the WSDL parser
 
    type Context_Type is (Parameter, Component);
