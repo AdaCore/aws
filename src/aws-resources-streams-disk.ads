@@ -50,6 +50,8 @@ package AWS.Resources.Streams.Disk is
 
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
 
+   function Name (Resource : in Stream_Type) return String;
+
    procedure Reset (Resource : in out Stream_Type);
 
    procedure Close (Resource : in out Stream_Type);

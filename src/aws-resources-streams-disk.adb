@@ -52,6 +52,15 @@ package body AWS.Resources.Streams.Disk is
    end End_Of_File;
 
    ----------
+   -- Name --
+   ----------
+
+   function Name (Resource : in Stream_Type) return String is
+   begin
+      return Stream_IO.Name (Resource.File);
+   end Name;
+
+   ----------
    -- Open --
    ----------
 
