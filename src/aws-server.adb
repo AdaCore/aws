@@ -273,7 +273,7 @@ package body AWS.Server is
                   end select;
                end if;
 
-               HTTP_Server.Slots.Get (Sock, Slot_Index);
+               HTTP_Server.Slots.Set (Sock, Slot_Index);
 
                HTTP_Server.Slots.Set_Peer_Addr
                  (Slot_Index, Net.Peer_Addr (Sock.all));
@@ -511,7 +511,7 @@ package body AWS.Server is
       begin
          Done := False;
 
-         for S in Set'Range loop
+         for S in Table'Range loop
             if Is_Abortable (S, Mode) then
                Shutdown (S);
                Done := True;
@@ -532,25 +532,9 @@ package body AWS.Server is
       -- Get --
       ---------
 
-      procedure Get (FD : in Socket_Access; Index : in Positive) is
-      begin
-         pragma Assert (Count > 0);
-
-         Set (Index).Sock := FD;
-         Mark_Phase (Index, Wait_For_Client);
-         Set (Index).Alive_Counter := 0;
-         Set (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
-         Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
-         Count := Count - 1;
-      end Get;
-
-      ---------
-      -- Get --
-      ---------
-
       function Get (Index : in Positive) return Slot is
       begin
-         return Set (Index);
+         return Table (Index);
       end Get;
 
       ------------------
@@ -559,7 +543,7 @@ package body AWS.Server is
 
       function Get_Peername (Index : in Positive) return String is
       begin
-         return To_String (Set (Index).Peer_Addr);
+         return To_String (Table (Index).Peer_Addr);
       end Get_Peername;
 
       -------------------------------------
@@ -568,10 +552,10 @@ package body AWS.Server is
 
       procedure Increment_Slot_Activity_Counter (Index : in Positive) is
       begin
-         Set (Index).Slot_Activity_Counter
-           := Set (Index).Slot_Activity_Counter + 1;
-         Set (Index).Alive_Counter
-           := Set (Index).Alive_Counter + 1;
+         Table (Index).Slot_Activity_Counter
+           := Table (Index).Slot_Activity_Counter + 1;
+         Table (Index).Alive_Counter
+           := Table (Index).Alive_Counter + 1;
       end Increment_Slot_Activity_Counter;
 
       ------------------
@@ -581,22 +565,22 @@ package body AWS.Server is
       function Is_Abortable
         (Index : in Positive;
          Mode  : in Timeout_Mode)
-        return Boolean
+         return Boolean
       is
          use type Calendar.Time;
-         Phase : constant Slot_Phase    := Set (Index).Phase;
+         Phase : constant Slot_Phase    := Table (Index).Phase;
          Now   : constant Calendar.Time := Calendar.Clock;
       begin
          return
            (Phase in Abortable_Phase
             and then
-            Now - Set (Index).Phase_Time_Stamp > Timeouts (Mode, Phase))
+            Now - Table (Index).Phase_Time_Stamp > Timeouts (Mode, Phase))
 
            or else
 
            (Phase in Data_Phase
             and then
-            Now - Set (Index).Data_Time_Stamp > Data_Timeouts (Phase));
+            Now - Table (Index).Data_Time_Stamp > Data_Timeouts (Phase));
       end Is_Abortable;
 
       --------------------------
@@ -605,7 +589,7 @@ package body AWS.Server is
 
       procedure Mark_Data_Time_Stamp (Index : in Positive) is
       begin
-         Set (Index).Data_Time_Stamp := Ada.Calendar.Clock;
+         Table (Index).Data_Time_Stamp := Ada.Calendar.Clock;
       end Mark_Data_Time_Stamp;
 
       ----------------
@@ -614,14 +598,14 @@ package body AWS.Server is
 
       procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
       begin
-         if Set (Index).Phase = Aborted
+         if Table (Index).Phase = Aborted
            and then Phase /= Closed
          then
             raise Net.Socket_Error;
          end if;
 
-         Set (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
-         Set (Index).Phase := Phase;
+         Table (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
+         Table (Index).Phase := Phase;
 
          if Phase in Data_Phase then
             Mark_Data_Time_Stamp (Index);
@@ -638,32 +622,48 @@ package body AWS.Server is
          pragma Assert (Count < N);
          --  No more release than it is possible
          pragma Assert
-           ((Set (Index).Phase = Closed
+           ((Table (Index).Phase = Closed
                and then -- If phase is closed, then Sock must be null
-               (Set (Index).Sock = null))
+               (Table (Index).Sock = null))
             or else -- or phase is not closed
-              (Set (Index).Phase /= Closed));
+              (Table (Index).Phase /= Closed));
 
          Count := Count + 1;
 
-         if Set (Index).Phase /= Closed then
+         if Table (Index).Phase /= Closed then
 
-            if not Set (Index).Socket_Taken then
+            if not Table (Index).Socket_Taken then
 
-               if Set (Index).Phase /= Aborted then
-                  Net.Buffered.Shutdown (Set (Index).Sock.all);
+               if Table (Index).Phase /= Aborted then
+                  Net.Buffered.Shutdown (Table (Index).Sock.all);
                end if;
 
-               Net.Free (Set (Index).Sock);
+               Net.Free (Table (Index).Sock);
             else
 
-               Set (Index).Socket_Taken := False;
+               Table (Index).Socket_Taken := False;
             end if;
 
             Mark_Phase (Index, Closed);
-            Set (Index).Sock := null;
+            Table (Index).Sock := null;
          end if;
       end Release;
+
+      ---------
+      -- Set --
+      ---------
+
+      procedure Set (Socket : in Socket_Access; Index : in Positive) is
+      begin
+         pragma Assert (Count > 0);
+
+         Table (Index).Sock := Socket;
+         Mark_Phase (Index, Wait_For_Client);
+         Table (Index).Alive_Counter := 0;
+         Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
+         Table (Index).Activity_Counter := Table (Index).Activity_Counter + 1;
+         Count := Count - 1;
+      end Set;
 
       -------------------
       -- Set_Peer_Addr --
@@ -673,7 +673,7 @@ package body AWS.Server is
         (Index     : in Positive;
          Peer_Addr : in String) is
       begin
-         Set (Index).Peer_Addr := To_Unbounded_String (Peer_Addr);
+         Table (Index).Peer_Addr := To_Unbounded_String (Peer_Addr);
       end Set_Peer_Addr;
 
       ------------------
@@ -694,10 +694,10 @@ package body AWS.Server is
 
       procedure Shutdown (Index : in Positive) is
       begin
-         if Set (Index).Phase not in Closed .. Aborted then
+         if Table (Index).Phase not in Closed .. Aborted then
             Mark_Phase (Index, Aborted);
-            Net.Buffered.Shutdown (Set (Index).Sock.all);
-            Net.Free (Set (Index).Sock);
+            Net.Buffered.Shutdown (Table (Index).Sock.all);
+            Net.Free (Table (Index).Sock);
          end if;
       end Shutdown;
 
@@ -707,7 +707,7 @@ package body AWS.Server is
 
       procedure Socket_Taken (Index : in Positive) is
       begin
-         Set (Index).Socket_Taken := True;
+         Table (Index).Socket_Taken := True;
       end Socket_Taken;
 
    end Slots;
