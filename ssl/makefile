@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build clean
+.SILENT:
 
 GARGS = -u $(INCLUDES) $(GFLAGS)
 
