@@ -1,3 +1,22 @@
+2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Move test_wsdl from RT_SOAP to OTH_TESTS.
+	
+2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP): Add test_wsdl.
+	(test_wsdl): New target.
+	(clean): Remove files generated from WSDL document.
+	Minor comment fix.
+
+	* test_wsdl.adb, test_wsdl.out, hello.wsdl:
+	Initial revision.
+
+	* check_mem.adb:
+	Add check for non existent template file.
+
 2003-03-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
