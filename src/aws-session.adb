@@ -784,7 +784,6 @@ package body AWS.Session is
         (SID   : in ID;
          Key   : in String;
          Value : in Data) is
-
       begin
          Set (SID, Key, To_Data_Img (Value));
       end Set;
