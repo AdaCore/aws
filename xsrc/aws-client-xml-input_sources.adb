@@ -175,7 +175,7 @@ package body AWS.Client.XML.Input_Sources is
             when Unicode.CES.Invalid_Encoding =>
                if From.Last - From.First < 5 then
                   --  It can be the case where we have only a part of the
-                  --  UTF8 or UTF16 character. Set From.First to the last
+                  --  UTF8 or UTF16 character. Set From.First after the last
                   --  buffer position to force reading more bytes in the next
                   --  section.
                   --  ??? Note, we could not distinguish character portion from
