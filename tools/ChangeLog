@@ -1,3 +1,9 @@
+2003-12-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* awsres.adb:
+	(Create): Fix memory damage. There was a deallocation of static disk
+	 stream inside of Close compression stream.
+
 2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tools.gpr:
