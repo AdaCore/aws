@@ -1,3 +1,15 @@
+2003-08-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* table_of_dynamic_keys_and_static_values_g.ads,
+	  table_of_dynamic_keys_and_static_values_g.adb,
+	  table_of_static_keys_and_dynamic_values_g.ads,
+	  table_of_static_keys_and_dynamic_values_g.adb,
+	  table_of_static_keys_and_static_values_g.ads,
+	  table_of_static_keys_and_static_values_g.adb,
+	  table_of_strings_and_static_values_g.ads,
+	  table_of_strings_and_static_values_g.adb:
+	(Get_Value): New routine with Found flag.
+
 2003-08-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:

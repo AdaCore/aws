@@ -709,6 +709,20 @@ package body Table_Of_Dynamic_Keys_And_Static_Values_G is
       Assign (Value, Ptr.Value);
    end Get_Value;
 
+   procedure Get_Value (Table : in     Table_Type;
+                        Key   : in     Key_Type;
+                        Value :    out Value_Type;
+                        Found :    out Boolean)
+   is
+      Ptr : constant Link_Type := Search_A_Key (Table.Root, Key);
+   begin --  GET_VALUE
+      Found := Ptr /= null;
+
+      if Found then
+         Assign (Value, Ptr.Value);
+      end if;
+   end Get_Value;
+
    procedure Get_Min_Item (Table : in Table_Type;
                            Key : in out Key_Type;
                            Value : out Value_Type) is

@@ -276,6 +276,20 @@ package body Table_Of_Strings_And_Static_Values_G is
          raise Missing_Item_Error;
    end Get_Value;
 
+   procedure Get_Value (Table : in     Table_Type;
+                        Key   : in     String_Type;
+                        Value :    out Value_Type;
+                        Found :    out Boolean)
+   is
+      Access_String : Access_String_Type := Create (Key);
+   begin
+      Local_Package.Get_Value (Local_Package.Table_Type (Table),
+                               Access_String,
+                               Value,
+                               Found);
+      Destroy (Access_String);
+   end Get_Value;
+
    --/ LOCAL SUBPROGRAM:
    procedure Copy (To : out String_Type;
                    Last : out Natural;
