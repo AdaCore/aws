@@ -1,5 +1,36 @@
 2003-10-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-response-set.ads:
+	(Clear): New routine.
+
+	* aws-response-set.adb:
+	(Append_Body): Dispatching call to RSM.Append.
+
+	* aws-response.ads:
+	(Free): Arrived from Response.Finalize for Responce.Set.Clear.
+
+	* aws-response.adb:
+	(Finalize): Free for Stream_Access moved to the private part of package
+	 specification. Need for Set.Clear routine too.
+
+	* aws-client.adb:
+	(Get_Response): Call Response.Set.Clear before parse header.
+
+	* aws-resources-streams-memory-zlib.ads,
+	  aws-resources-streams-memory-zlib.adb:
+	(Stream_Type): New fields Flushed and Self.
+	(Flush): Moved to the package body. Flush automatically now.
+	 set Flush flag.
+	(Read): Redefined for auto flush purpose.
+	(Size): Redefined for auto flush purpose.
+	(Deflate_Initialize): Reset Flushed flag.
+	(Inflate_Initialize): Reset Flushed flag.
+
+	* aws-translator.adb:
+	(Compress_Decompress): Do not call Streams.Memory.ZLib.Flush.
+
+2003-10-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-client.adb:
 	(Get_Response): Do not use dynamically allocated buffers to avoid
 	 memory leak. Clear the data in the Response before Append_Body calls
