@@ -95,6 +95,8 @@ package body Templates_Parser is
 
    Table_Token              : constant String := "@@TABLE@@";
    Terminate_Sections_Token : constant String := "@@TERMINATE_SECTIONS@@";
+   Begin_Token              : constant String := "@@BEGIN@@";
+   End_Token                : constant String := "@@END@@";
    Section_Token            : constant String := "@@SECTION@@";
    End_Table_Token          : constant String := "@@END_TABLE@@";
    If_Token                 : constant String := "@@IF@@";
@@ -1171,6 +1173,7 @@ package body Templates_Parser is
                   Text,          --  this is a text line
                   If_Stmt,       --  an IF tag statement
                   Table_Stmt,    --  a TABLE tag statement
+                  Section_Block, --  a TABLE block (common, section)
                   Section_Stmt,  --  a TABLE section
                   Include_Stmt); --  an INCLUDE tag statement
 
@@ -1213,13 +1216,13 @@ package body Templates_Parser is
 
       case Kind is
          when Info =>
-            Filename  : Unbounded_String;    --  Name of the file
-            Timestamp : Ada.Calendar.Time;   --  Date and Time of last change
-            I_File    : Tree;                --  Included file references
+            Filename  : Unbounded_String;    -- Name of the file
+            Timestamp : Ada.Calendar.Time;   -- Date and Time of last change
+            I_File    : Tree;                -- Included file references
 
          when C_Info =>
-            Obsolete  : Boolean := False;    --  True if newer version in cache
-            Used      : Natural := 0;        --  >0 if currently used
+            Obsolete  : Boolean := False;    -- True if newer version in cache
+            Used      : Natural := 0;        -- >0 if currently used
 
          when Text =>
             Text      : Data.Tree;
@@ -1231,14 +1234,20 @@ package body Templates_Parser is
 
          when Table_Stmt =>
             Terminate_Sections : Boolean;
-            Sections           : Tree;
+            Blocks             : Tree;
+            Blocks_Count       : Natural;     -- Number if blocks
+
+         when Section_Block =>
+            Common         : Tree;
+            Sections       : Tree;
+            Sections_Count : Natural;         -- Number of sections
 
          when Section_Stmt =>
             N_Section : Tree;
 
          when Include_Stmt =>
-            File      : Static_Tree;
-            I_Params  : Include_Parameters;
+            File     : Static_Tree;
+            I_Params : Include_Parameters;
       end case;
    end record;
 
@@ -2070,6 +2079,7 @@ package body Templates_Parser is
          Parse_Elsif,            --  in elsif part of a if statement
          Parse_Else,             --  in else part of a if statement
          Parse_Table,            --  in a table statement
+         Parse_Block,            --  in a table block statement
          Parse_Section,          --  in new section
          Parse_Section_Content   --  in section content
         );
@@ -2327,10 +2337,51 @@ package body Templates_Parser is
          No_Read : in Boolean := False)
          return Tree
       is
+         function Count_Sections (T : in Tree) return Natural;
+         pragma Inline (Count_Sections);
+         --  Returns the number of sections in T (Section_Stmt)
+
+         function Count_Blocks (T : in Tree) return Natural;
+         pragma Inline (Count_Blocks);
+         --  Returns the number of sections in T (Table_Stmt)
+
+         ------------------
+         -- Count_Blocks --
+         ------------------
+
+         function Count_Blocks (T : in Tree) return Natural is
+            C : Natural := 0;
+            S : Tree    := T;
+         begin
+            while S /= null loop
+               C := C + 1;
+               S := S.Next;
+            end loop;
+            return C;
+         end Count_Blocks;
+
+         --------------------
+         -- Count_Sections --
+         --------------------
+
+         function Count_Sections (T : in Tree) return Natural is
+            C : Natural := 0;
+            S : Tree    := T;
+         begin
+            while S /= null loop
+               C := C + 1;
+               S := S.N_Section;
+            end loop;
+            return C;
+         end Count_Sections;
+
          T : Tree;
+
       begin
          if not No_Read
-           and then (Mode /= Parse_Section and then Mode /= Parse_Elsif)
+           and then (Mode /= Parse_Section
+                     and then Mode /= Parse_Elsif
+                     and then Mode /= Parse_Block)
          then
             if Get_Next_Line then
                return null;
@@ -2385,6 +2436,61 @@ package body Templates_Parser is
                   Fatal_Error ("@@ELSIF@@ found after @@ELSE@@");
                end if;
 
+            when Parse_Block =>
+               if Is_Stmt (End_Table_Token) then
+                  return null;
+               end if;
+
+               T := new Node (Section_Block);
+
+               T.Line := Line;
+
+               declare
+                  Tmp : Tree;
+               begin
+                  Tmp := Parse (Parse_Section);
+
+                  if Tmp = null then
+                     --  This section is empty
+                     return null;
+                  end if;
+
+                  if Is_Stmt (Begin_Token) then
+                     --  It means that the section parsed above was common
+                     T.Common   := Tmp.Next;
+
+                     --  Now free the Section_Stmt container
+
+                     Free (Tmp);
+
+                     T.Sections := Parse (Parse_Section);
+
+                  else
+                     T.Common   := null;
+                     T.Sections := Tmp;
+                  end if;
+               end;
+
+               --  Count the number of section
+
+               T.Sections_Count := Count_Sections (T.Sections);
+
+               if T.Sections_Count = 1 and then T.Common = null then
+                  --  A single section and no common section, rewrite it as a
+                  --  simple common section.
+                  T.Common := T.Sections.Next;
+                  Free (T.Sections);
+                  T.Sections_Count := 0;
+               end if;
+
+               if Is_Stmt (End_Table_Token) then
+                  T.Next := null;
+               else
+                  T.Next := Parse (Parse_Block);
+               end if;
+
+               return T;
+
             when Parse_Section =>
                if Is_Stmt (End_If_Token) then
                   Fatal_Error ("@@END_IF@@ found, @@END_TABLE@@ expected");
@@ -2396,7 +2502,18 @@ package body Templates_Parser is
 
                T.Next := Parse (Parse_Section_Content);
 
-               if Is_Stmt (End_Table_Token) then
+               if Is_Stmt (End_Table_Token) and then T.Next = null then
+                  --  Check if this section was empty, this happen when
+                  --  we parse a section after @@END@@ followed by the end
+                  --  of the table.
+                  Free (T);
+                  return null;
+               end if;
+
+               if Is_Stmt (End_Table_Token)
+                 or else Is_Stmt (Begin_Token)
+                 or else Is_Stmt (End_Token)
+               then
                   T.N_Section := null;
 
                elsif EOF then
@@ -2411,6 +2528,8 @@ package body Templates_Parser is
             when Parse_Section_Content =>
                if Is_Stmt (Section_Token)
                  or else Is_Stmt (End_Table_Token)
+                 or else Is_Stmt (Begin_Token)
+                 or else Is_Stmt (End_Token)
                then
                   return null;
                end if;
@@ -2427,7 +2546,6 @@ package body Templates_Parser is
                if Is_Stmt (End_If_Token) then
                   Fatal_Error ("@@END_IF@@ found, @@END_TABLE@@ expected");
                end if;
-
          end case;
 
          if Is_Stmt (If_Token) or else Is_Stmt (Elsif_Token) then
@@ -2448,7 +2566,6 @@ package body Templates_Parser is
                Fatal_Error ("EOF found, @@END_IF@@ expected");
 
             else
-
                T.N_False := Parse (Parse_Else);
             end if;
 
@@ -2461,11 +2578,43 @@ package body Templates_Parser is
 
             T.Line := Line;
 
-            T.Terminate_Sections
-              := Get_First_Parameter = Terminate_Sections_Token;
+            declare
+               Param : constant Unbounded_String := Get_First_Parameter;
+            begin
+               if Param = Null_Unbounded_String then
+                  T.Terminate_Sections := False;
+               elsif Param = Terminate_Sections_Token then
+                  T.Terminate_Sections := True;
+               else
+                  Fatal_Error ("Unknown table parameter " & To_String (Param));
+               end if;
+            end;
 
-            T.Sections := Parse (Parse_Section);
-            T.Next     := Parse (Mode);
+            T.Blocks       := Parse (Parse_Block);
+            T.Next         := Parse (Mode);
+            T.Blocks_Count := Count_Blocks (T.Blocks);
+
+            --  Check now that if we have TERMINATE_SECTIONS option set and
+            --  that there is more than one block, all blocks have the same
+            --  number of section.
+
+            if T.Terminate_Sections and then T.Blocks_Count > 1 then
+               declare
+                  Size : constant Positive := T.Blocks.Sections_Count;
+                  B    : Tree              := T.Blocks.Next;
+               begin
+                  while B /= null loop
+                     if B.Sections_Count /= Size
+                       and then B.Sections_Count /= 0
+                     then
+                        Fatal_Error
+                          ("All sections must have the same size "
+                           & "when using TERMINATE_SECTIONS option");
+                     end if;
+                     B := B.Next;
+                  end loop;
+               end;
+            end if;
 
             return T;
 
@@ -2545,6 +2694,8 @@ package body Templates_Parser is
                     or else Is_Stmt (Table_Token)
                     or else Is_Stmt (Section_Token)
                     or else Is_Stmt (End_Table_Token)
+                    or else Is_Stmt (Begin_Token)
+                    or else Is_Stmt (End_Token)
                   then
                      T.Next := Parse (Mode, No_Read => True);
                      return Root;
@@ -2680,17 +2831,25 @@ package body Templates_Parser is
       return Unbounded_String
    is
 
+      type Block_State is record
+         Section_Number : Positive;
+         Section        : Tree;
+      end record;
+
+      Empty_Block_State : constant Block_State := (1, null);
+
       type Parse_State is record
          Cursor         : Indices (1 .. 10);
          Max_Lines      : Natural;
          Max_Expand     : Natural;
          Table_Level    : Natural;
-         Section_Number : Natural;
+         Blocks_Count   : Natural;
          I_Params       : Include_Parameters;
+         Block          : Block_State;
       end record;
 
       Empty_State : constant Parse_State
-        := ((1 .. 10 => 0), 0, 0, 0, 0, No_Parameter);
+        := ((1 .. 10 => 0), 0, 0, 0, 0, No_Parameter, Empty_Block_State);
 
       Results : Unbounded_String := Null_Unbounded_String;
 
@@ -3306,31 +3465,12 @@ package body Templates_Parser is
 
             function Get_Max_Lines
               (T : in Tree;
-               N : in Positive)
-               return Natural;
-            --  Recursivelly descend the tree and compute the max lines that
+               N : in Positive) return Natural;
+            --  Recursivelly descends the tree and compute the max lines that
             --  will be displayed into the table. N is the variable embedded
             --  level regarding the table statement. N=1 means that the
             --  variable is just under the analysed table. N=2 means that the
             --  variable is found inside a nested table statement. And so on.
-
-            function Count_Section return Natural;
-            --  Returns the number of section into table T;
-
-            -------------------
-            -- Count_Section --
-            -------------------
-
-            function Count_Section return Natural is
-               C : Natural := 0;
-               S : Tree    := T.Sections;
-            begin
-               while S /= null loop
-                  C := C + 1;
-                  S := S.N_Section;
-               end loop;
-               return C;
-            end Count_Section;
 
             -------------------
             -- Get_Max_Lines --
@@ -3505,8 +3645,15 @@ package body Templates_Parser is
 
                   when Table_Stmt =>
                      return Natural'Max
-                       (Get_Max_Lines (T.Sections, N + 1),
+                       (Get_Max_Lines (T.Blocks, N + 1),
                         Get_Max_Lines (T.Next, N));
+
+                  when Section_Block =>
+                     return Natural'Max
+                       (Get_Max_Lines (T.Next, N),
+                        Natural'Max
+                          (Get_Max_Lines (T.Common, N),
+                           Get_Max_Lines (T.Sections, N)));
 
                   when Section_Stmt =>
                      return Natural'Max
@@ -3520,7 +3667,7 @@ package body Templates_Parser is
                end case;
             end Get_Max_Lines;
 
-            Result : Natural := Get_Max_Lines (T.Sections, 1);
+            Result : Natural := Get_Max_Lines (T.Blocks, 1);
 
          begin
             pragma Assert (T.Kind = Table_Stmt);
@@ -3529,8 +3676,12 @@ package body Templates_Parser is
 
             if T.Terminate_Sections then
 
+               --  ??? This part of code handle properly only table with a
+               --  single block. What should be done if there is multiple
+               --  blocks ? Should all blocks of the same size ?
+
                declare
-                  N_Section : constant Positive := Count_Section;
+                  N_Section : constant Natural := T.Blocks.Sections_Count;
                begin
                   if Result mod N_Section /= 0 then
                      Result := Result + N_Section - (Result mod N_Section);
@@ -3600,52 +3751,82 @@ package body Templates_Parser is
                begin
                   Get_Max (T, Max_Lines, Max_Expand);
 
-                  Analyze (T.Sections,
+                  Analyze (T.Blocks,
                            Parse_State'(State.Cursor,
                                         Max_Lines, Max_Expand,
                                         State.Table_Level + 1,
-                                        State.Section_Number + 1,
-                                        State.I_Params));
+                                        T.Blocks_Count,
+                                        State.I_Params,
+                                        Empty_Block_State));
                end;
 
                Analyze (T.Next, State);
 
-            when Section_Stmt =>
+            when Section_Block =>
                declare
-                  First_Section : Tree := T;
-                  Current       : Tree := T;
-                  Section       : Positive := 1;
+                  B_State : array (1 .. State.Blocks_Count) of Block_State;
+                  B       : Positive;
                begin
-
                   for K in 1 .. State.Max_Expand loop
                      declare
                         New_Cursor : Indices := State.Cursor;
+                        Block      : Tree    := T;
                      begin
                         New_Cursor (State.Table_Level) := K;
-                        Analyze
-                          (Current.Next,
-                           Parse_State'(New_Cursor,
-                                        State.Max_Lines, State.Max_Expand,
-                                        State.Table_Level, Section,
-                                        State.I_Params));
+
+                        B := 1;
+
+                        while Block /= null loop
+                           --  For all blocks in this table
+
+                           if B_State (B).Section = null
+                             or else B_State (B).Section.N_Section = null
+                           then
+                              B_State (B) := (1, Block.Sections);
+                           else
+                              B_State (B)
+                                := (B_State (B).Section_Number + 1,
+                                    B_State (B).Section.N_Section);
+                           end if;
+
+                           Analyze
+                             (Block.Common,
+                              Parse_State'(New_Cursor,
+                                           State.Max_Lines, State.Max_Expand,
+                                           State.Table_Level,
+                                           State.Blocks_Count,
+                                           State.I_Params, Empty_Block_State));
+
+                           Analyze
+                             (Block.Sections,
+                              Parse_State'(New_Cursor,
+                                           State.Max_Lines, State.Max_Expand,
+                                           State.Table_Level,
+                                           State.Blocks_Count,
+                                           State.I_Params, B_State (B)));
+                           Block := Block.Next;
+                           B := B + 1;
+                        end loop;
                      end;
-
-                     Current := Current.N_Section;
-                     Section := Section + 1;
-
-                     if Current = null then
-                        Current := First_Section;
-                        Section := 1;
-                     end if;
                   end loop;
                end;
+
+            when Section_Stmt =>
+               Analyze
+                 (State.Block.Section.Next,
+                  Parse_State'(State.Cursor,
+                               State.Max_Lines, State.Max_Expand,
+                               State.Table_Level,
+                               State.Blocks_Count,
+                               State.I_Params,
+                               State.Block));
 
             when Include_Stmt =>
                Analyze (T.File.Info,
                         Parse_State'(State.Cursor,
                                      State.Max_Lines, State.Max_Expand,
-                                     State.Table_Level, State.Section_Number,
-                                     T.I_Params));
+                                     State.Table_Level, State.Blocks_Count,
+                                     T.I_Params, State.Block));
                Analyze (T.Next, State);
 
          end case;
@@ -3728,7 +3909,12 @@ package body Templates_Parser is
             Release (T.Next, Include);
 
          when Table_Stmt =>
+            Release (T.Blocks, Include);
+            Release (T.Next, Include);
+
+         when Section_Block =>
             Release (T.Sections, Include);
+            Release (T.Common, Include);
             Release (T.Next, Include);
 
          when Section_Stmt =>
