@@ -190,3 +190,6 @@ implemented:
 
 - Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
   We should be able to remove the tools/makefile kludge (-largs -laws).
+
+- Add a filter to test is a file exists:
+  @_FILE_EXISTS:TAG_@
