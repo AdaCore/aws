@@ -49,6 +49,10 @@ package body AWS.URL is
    pragma Inline (Code);
    --  Returns hexadecimal code for character C.
 
+   function Normalize (Path : in Unbounded_String) return Unbounded_String;
+   --  Returns Path with all possible occurences of parent and current
+   --  directories removed. Does not raise exception.
+
    ----------
    -- Code --
    ----------
@@ -167,36 +171,52 @@ package body AWS.URL is
    -- Normalize --
    ---------------
 
-   procedure Normalize (URL : in out Object) is
+   function Normalize (Path : in Unbounded_String) return Unbounded_String is
+      URL_Path : Unbounded_String := Path;
+
       K : Natural;
       P : Natural;
    begin
       --  Checks for parent directory
 
       loop
-         K := Index (URL.Path, "/../");
+         K := Index (URL_Path, "/../");
 
          exit when K = 0;
 
          --  Look for previous directory, which should be removed.
 
          P := Strings.Fixed.Index
-           (Slice (URL.Path, 1, K - 1), "/", Strings.Backward);
+           (Slice (URL_Path, 1, K - 1), "/", Strings.Backward);
 
          exit when P = 0;
 
-         Delete (URL.Path, P, K + 2);
+         Delete (URL_Path, P, K + 2);
       end loop;
 
       --  Checks for current directory and removes all occurences
 
       loop
-         K := Index (URL.Path, "/./");
+         K := Index (URL_Path, "/./");
 
          exit when K = 0;
 
-         Delete (URL.Path, K, K + 1);
+         Delete (URL_Path, K, K + 1);
       end loop;
+
+      return URL_Path;
+   end Normalize;
+
+   procedure Normalize (URL : in out Object) is
+   begin
+      URL.Path := Normalize (URL.Path);
+
+      if Length (URL.Path) >= 4 and then Slice (URL.Path, 1, 4) = "/../" then
+         Exceptions.Raise_Exception
+           (URL_Error'Identity,
+            "Wrong URL: (" & To_String (URL.Path)
+              & ")Reference Web root parent directory.");
+      end if;
    end Normalize;
 
    ----------------
@@ -219,8 +239,11 @@ package body AWS.URL is
    -- Parse --
    -----------
 
-   function Parse (URL : in String) return Object is
-
+   function Parse
+      (URL            : in String;
+       Check_Validity : in Boolean := True)
+       return Object
+   is
       HTTP_Token  : constant String := "http://";
       HTTPS_Token : constant String := "https://";
 
@@ -332,12 +355,17 @@ package body AWS.URL is
             O.Security := False;
       end if;
 
-      if O.Host /= Null_Unbounded_String
-        and then Length (O.Path) > 3
-        and then Slice (O.Path, 1, 4) = "/../"
-      then
-         Exceptions.Raise_Exception
-           (URL_Error'Identity, "URI can't start with /..");
+      if Check_Validity and then O.Path /= Null_Unbounded_String then
+         declare
+            N_Path : Unbounded_String := Normalize (O.Path);
+         begin
+            if Length (N_Path) >= 4 and then Slice (N_Path, 1, 4) = "/../" then
+               Exceptions.Raise_Exception
+                 (URL_Error'Identity,
+                  "Wrong URL: (" & To_String (N_Path)
+                    & ") Reference Web root parent directory.");
+            end if;
+         end;
       end if;
 
       return O;
