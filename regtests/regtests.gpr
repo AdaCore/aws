@@ -30,9 +30,8 @@
 
 --  $Id$
 
-with "../ssl/ssl";
-with "../win32/win32";
 with "../shared";
+with "../win32/win32";
 with "../src/src";
 
 with "regtests_lst";
