@@ -83,22 +83,22 @@ $(STD_TESTS): force
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
-	gdb --exec=./$@ --command=cmd.gdb --batch > $@.res
-	cp $@.out out.tmp
-	echo "" >> out.tmp
-	echo "Program exited normally." >> out.tmp
-	-diff -c -w out.tmp $@.res >> alldifs
+	tgdb $@ > $@.res
 else
 	./$@ > $@.res
-	-diff -c -w $@.out $@.res >> alldifs
 endif
+	-diff -c -w $@.out $@.res >> alldifs
 
 dirop: force
 	echo -n Building dirop
 	gnatmake -g dirop $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
+ifdef GDB_REGTESTS
+	tgdb $@ | grep -v "CVS/" > $@.res
+else
 	./$@ | grep -v "CVS/" > $@.res
+endif
 	-diff -c -w $@.out $@.res >> alldifs
 
 $(WSDL_TESTS): force
@@ -107,7 +107,11 @@ $(WSDL_TESTS): force
 	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
+ifdef GDB_REGTESTS
+	tgdb $@ > $@.res
+else
 	./$@ > $@.res
+endif
 	-diff -c -w $@.out $@.res >> alldifs
 
 $(WSDL_ATESTS): force
@@ -116,7 +120,11 @@ $(WSDL_ATESTS): force
 	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
+ifdef GDB_REGTESTS
+	tgdb $@ > $@.res
+else
 	./$@ > $@.res
+endif
 	-diff -c -w $@.out $@.res >> alldifs
 
 tres: force
@@ -182,5 +190,5 @@ clean:
 	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
-	-rm -f alldifs *.log run? check_mem.run? hello_demo* out.tmp
+	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
 	-rm -f stockquoteservice* stock_quote_service*
