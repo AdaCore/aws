@@ -71,7 +71,7 @@ package body AWS.Config is
       procedure Error_Message (Message : in String);
       --  Output error message with filename and line number.
 
-      Regexp  : constant String := "^ *([#a-zA-z]+) +([0-9a-zA-z/\-:.]+)";
+      Regexp  : constant String := "^ *([#a-zA-Z]+) +([0-9a-zA-Z/\-:.]+)";
       Matcher : constant Regpat.Pattern_Matcher := Regpat.Compile (Regexp);
       Matches : Regpat.Match_Array (1 .. 2);
 
