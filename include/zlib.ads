@@ -149,8 +149,8 @@ package ZLib is
    --  input compressed stream.
    --  Auto header type mean that header type (GZip or Native) would be
    --  detected automatically in the input stream.
-   --  Note that header types parameter values None, GZip and Auto is
-   --  supporting for inflate routine only in ZLib versions 1.2.0.2 and later.
+   --  Note that header types parameter values None, GZip and Auto are
+   --  supported for inflate routine only in ZLib versions 1.2.0.2 and later.
    --  Deflate_Init is supporting all header types.
 
    procedure Close
