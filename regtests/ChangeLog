@@ -1,3 +1,9 @@
+2004-08-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* disp_soap_proc.adb, file2.adb, sessions.adb, sessions2.adb,
+	  sessions3.adb, sessions4.adb:
+	Close client connection after use.
+
 2004-08-24  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -8,10 +14,10 @@
 
 	* upload4.adb:
 	Use Get_Free_Port.
-	
+
 2004-08-24  Pascal Obry  <pascal@obry.org>
 
-	* upload4.adb, upload4.out: 
+	* upload4.adb, upload4.out:
 	Initial revision.
 
 2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
