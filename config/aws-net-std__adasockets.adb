@@ -53,6 +53,7 @@ package body AWS.Net.Std is
    procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type);
 
    function Get_Send_Buffer (Socket : in Socket_Type) return Natural;
+   --  Returns size of internal send buffer.
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
