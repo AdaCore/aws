@@ -155,6 +155,7 @@ private
       Session        : Boolean           := False) is
    limited record
       Self        : HTTP_Access := HTTP'Unchecked_Access;
+      Shutdown    : Boolean     := False;
       Name        : Unbounded_String;
       Upload_Path : Unbounded_String;
       Sock        : Sockets.Socket_FD;
