@@ -1,6 +1,11 @@
 2004-05-21  Pascal Obry  <pascal@obry.org>
 
 	* aws-response.adb:
+	(File): Remove debug code checked-in by error in revision 1.689.
+	
+2004-05-21  Pascal Obry  <pascal@obry.org>
+
+	* aws-response.adb:
 	(File): Only set the Content-Disposition header if Attachment is set.
 
 	* aws-response.ads:
