@@ -73,7 +73,7 @@ procedure Generate is
 
       U.Append
         (Source,
-         "   Put_Line (Standard_Output, """ & Name & """);" & Lf
+         "   Put_Line (Standard_Output, ""Running   " & Name & """);" & Lf
        & "   Create (Std_Out, Out_File, """ & Name & Res_Ext & """);" & Lf
        & "   Set_Output (Std_Out);" & Lf
        & "   " & Name & ';' & Lf
