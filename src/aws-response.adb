@@ -320,6 +320,11 @@ package body AWS.Response is
            (Result,
             Messages.Content_Disposition_Token,
             "attachment; filename=""" & Filename & '"');
+      else
+         Set.Add_Header
+           (Result,
+            Messages.Content_Disposition_Token,
+            "inline; filename=""" & Filename & '"');
       end if;
 
       if Once then
