@@ -1832,16 +1832,22 @@ the number of available sockets per process is limited by the OS.
 @cindex Stop_Log
 @cindex Start_Error_Log
 @cindex Stop_Error_Log
+@cindex Flush_Log
 
 @noindent
 It is possible to have the server activity logged into the file
 @file{<progname>-Y-M-D.log}. To activate the logging you must call the
 @code{AWS.Server.Start_Log}, and it is possible to stop logging by calling
-@code{AWS.Server.Stop_Log}. @xref{AWS.Log}, for more information
-especially about the way rotating logs can be setup. Using this
-feature it is possible to have automatic split of the log file each
-day, each month or at every run. See @code{AWS.Log} spec. This is
-very useful to avoid having very big log files.
+@code{AWS.Server.Stop_Log}. Note that @code{AWS.Server.Start_Log} have
+a parameter named Auto_Flush to control output buffering. This
+parameter is False by default. If set to True, the log file will be
+automatically flushed after each data. If the server logging is not
+buffered, i.e. Auto_Flush is False, the log can still be flushed by
+calling the @code{AWS.Server.Flush_Log} routine. @xref{AWS.Log}, for
+more information especially about the way rotating logs can be
+setup. Using this feature it is possible to have automatic split of
+the log file each day, each month or at every run. See @code{AWS.Log}
+spec. This is very useful to avoid having very big log files.
 
 @noindent
 The log format is using the same format than the Apache Web server.
