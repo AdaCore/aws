@@ -40,6 +40,7 @@ with DOM.Core.Nodes;
 
 with SOAP.Types;
 with SOAP.Utils;
+with SOAP.XML;
 
 package body SOAP.WSDL.Parser is
 
@@ -67,15 +68,6 @@ package body SOAP.WSDL.Parser is
 
    function Length (NL : in DOM.Core.Node_List) return Natural;
    --  Returns the number of nodes in NT, ship #text nodes
-
-   function Get_Attr_Value
-     (N    : in DOM.Core.Node;
-      Name : in String;
-      NS   : in Boolean := True)
-      return String;
-   pragma Inline (Get_Attr_Value);
-   --  Returns attribute value for attribute Name in node N. Return the empty
-   --  string if the attribute does not exist.
 
    function "+" (Str : in String) return Unbounded_String
      renames To_Unbounded_String;
@@ -269,7 +261,7 @@ package body SOAP.WSDL.Parser is
       --  Or <minLength value="1"> and <maxLength value="1">
 
       declare
-         Name : constant String := Get_Attr_Value (R, "name", False);
+         Name : constant String := XML.Get_Attr_Value (R, "name", False);
       begin
 
          --  Get restriction node
@@ -277,7 +269,7 @@ package body SOAP.WSDL.Parser is
          N := First_Child (N);
 
          declare
-            Base : constant String := Get_Attr_Value (N, "base", False);
+            Base : constant String := XML.Get_Attr_Value (N, "base", False);
          begin
             if Characters.Handling.To_Lower (Name) /= "character"
               or else Base /= "string"
@@ -294,7 +286,7 @@ package body SOAP.WSDL.Parser is
             then
                --  Check length
 
-               if Get_Attr_Value (N, "value", False) /= "1" then
+               if XML.Get_Attr_Value (N, "value", False) /= "1" then
                   Raise_Exception
                     (WSDL_Error'Identity,
                      "Schema does not correspond"
@@ -305,7 +297,7 @@ package body SOAP.WSDL.Parser is
               and then DOM.Core.Nodes.Local_Name (N) = "minLength"
             then
 
-               if Get_Attr_Value (N, "value", False) /= "1" then
+               if XML.Get_Attr_Value (N, "value", False) /= "1" then
                   Raise_Exception
                     (WSDL_Error'Identity,
                      "Schema does not correspond"
@@ -316,7 +308,7 @@ package body SOAP.WSDL.Parser is
 
                if N = null
                  or else DOM.Core.Nodes.Local_Name (N) /= "maxLength"
-                 or else Get_Attr_Value (N, "value", False) /= "1"
+                 or else XML.Get_Attr_Value (N, "value", False) /= "1"
                then
                   if N = null then
                      Text_IO.Put_Line ("N=null");
@@ -332,7 +324,7 @@ package body SOAP.WSDL.Parser is
               and then DOM.Core.Nodes.Local_Name (N) = "maxLength"
             then
 
-               if Get_Attr_Value (N, "value", False) /= "1" then
+               if XML.Get_Attr_Value (N, "value", False) /= "1" then
                   Raise_Exception
                     (WSDL_Error'Identity,
                      "Schema does not correspond"
@@ -343,7 +335,7 @@ package body SOAP.WSDL.Parser is
 
                if N = null
                  or else DOM.Core.Nodes.Local_Name (N) /= "minLength"
-                 or else Get_Attr_Value (N, "value", False) /= "1"
+                 or else XML.Get_Attr_Value (N, "value", False) /= "1"
                then
                   Raise_Exception
                     (WSDL_Error'Identity,
@@ -402,38 +394,6 @@ package body SOAP.WSDL.Parser is
       return N;
    end First_Child;
 
-   --------------------
-   -- Get_Attr_Value --
-   --------------------
-
-   function Get_Attr_Value
-     (N    : in DOM.Core.Node;
-      Name : in String;
-      NS   : in Boolean := True)
-      return String
-   is
-      A : DOM.Core.Node;
-   begin
-      Trace ("(Get_Attr_Value) - " & Name, N);
-
-      A := DOM.Core.Nodes.Get_Named_Item (DOM.Core.Nodes.Attributes (N), Name);
-
-      if A = null then
-         return "";
-      else
-
-         declare
-            V : constant String := DOM.Core.Nodes.Node_Value (A);
-         begin
-            if NS then
-               return V;
-            else
-               return Utils.No_NS (V);
-            end if;
-         end;
-      end if;
-   end Get_Attr_Value;
-
    --------------
    -- Get_Node --
    --------------
@@ -475,7 +435,8 @@ package body SOAP.WSDL.Parser is
             exit when
               ((not NS and then DOM.Core.Nodes.Local_Name (N) = Element)
                or else (NS and then DOM.Core.Nodes.Node_Name (N) = Element))
-              and then (Name = "" or else Get_Attr_Value (N, "name") = Name);
+              and then (Name = ""
+                        or else XML.Get_Attr_Value (N, "name") = Name);
             N := Next_Sibling (N);
          end loop;
 
@@ -683,7 +644,7 @@ package body SOAP.WSDL.Parser is
          and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
 
       declare
-         Name : constant String := Get_Attr_Value (R, "name", False);
+         Name : constant String := XML.Get_Attr_Value (R, "name", False);
       begin
          --  Set array name, R is a complexType node
 
@@ -734,7 +695,7 @@ package body SOAP.WSDL.Parser is
       --  Check for style (only Document is supported)
 
       if not O.Accept_Document
-        and then Get_Attr_Value (N, "style") = "document"
+        and then XML.Get_Attr_Value (N, "style") = "document"
       then
          Raise_Exception
            (WSDL_Error'Identity, "Document Web Service style not supported.");
@@ -743,7 +704,7 @@ package body SOAP.WSDL.Parser is
       --  Check for transport (only HTTP is supported)
 
       declare
-         T : constant String := Get_Attr_Value (N, "transport");
+         T : constant String := XML.Get_Attr_Value (N, "transport");
       begin
          if T (T'Last - 4 .. T'Last) /= "/http" then
             Raise_Exception
@@ -770,14 +731,14 @@ package body SOAP.WSDL.Parser is
                         if Skip_Error then
                            Text_IO.Put_Line
                              ("     "
-                                & Get_Attr_Value (S, "name")
+                                & XML.Get_Attr_Value (S, "name")
                                 & " skipped : "
                                 & Exceptions.Exception_Message (E));
                         else
                            Text_IO.New_Line;
                            Text_IO.Put_Line
                              ("Error in operation "
-                                & Get_Attr_Value (S, "name")
+                                & XML.Get_Attr_Value (S, "name")
                                 & " : " & Exceptions.Exception_Message (E));
                            raise;
                         end if;
@@ -898,7 +859,7 @@ package body SOAP.WSDL.Parser is
    begin
       Trace ("(Parse_Operation)", Operation);
 
-      O.Proc := +Get_Attr_Value (Operation, "name");
+      O.Proc := +XML.Get_Attr_Value (Operation, "name");
 
       N := Get_Node (Operation, "soap:operation", NS => True);
 
@@ -907,12 +868,12 @@ package body SOAP.WSDL.Parser is
            (WSDL_Error'Identity, "soap:operation not found.");
       end if;
 
-      O.SOAPAction := +Get_Attr_Value (N, "soapAction");
+      O.SOAPAction := +XML.Get_Attr_Value (N, "soapAction");
 
       N := Next_Sibling (N);
       N := First_Child (N);
 
-      O.Namespace  := +Get_Attr_Value (N, "namespace");
+      O.Namespace  := +XML.Get_Attr_Value (N, "namespace");
 
       --  Check that input/output/fault is literal
       --  ???
@@ -940,12 +901,12 @@ package body SOAP.WSDL.Parser is
       Document : in WSDL.Object)
       return Parameters.Parameter
    is
-      P_Type : constant String := Get_Attr_Value (N, "type", False);
+      P_Type : constant String := XML.Get_Attr_Value (N, "type", False);
    begin
       Trace ("(Parse_Parameter)", N);
 
       if WSDL.Is_Standard (P_Type) then
-         return (Parameters.K_Simple, +Get_Attr_Value (N, "name"),
+         return (Parameters.K_Simple, +XML.Get_Attr_Value (N, "name"),
                  null, To_Type (P_Type));
 
       elsif P_Type = "anyType" then
@@ -969,7 +930,7 @@ package body SOAP.WSDL.Parser is
                      "types.schema definition for " & P_Type & " not found.");
 
                else
-                  O.Self.Current_Name := +Get_Attr_Value (N, "name");
+                  O.Self.Current_Name := +XML.Get_Attr_Value (N, "name");
                   return Parse_Simple (O, R, Document);
                end if;
             end if;
@@ -978,12 +939,12 @@ package body SOAP.WSDL.Parser is
                declare
                   P : Parameters.Parameter := Parse_Array (O, R, Document);
                begin
-                  P.Name := +Get_Attr_Value (N, "name");
+                  P.Name := +XML.Get_Attr_Value (N, "name");
                   return P;
                end;
 
             else
-               O.Self.Current_Name := +Get_Attr_Value (N, "name");
+               O.Self.Current_Name := +XML.Get_Attr_Value (N, "name");
                return Parse_Record (O, R, Document);
             end if;
          end;
@@ -1004,10 +965,10 @@ package body SOAP.WSDL.Parser is
    begin
       Trace ("(Parse_Part)", Part);
 
-      ET := +Get_Attr_Value (Part, "element");
+      ET := +XML.Get_Attr_Value (Part, "element");
 
       if ET = Null_Unbounded_String then
-         ET := +Get_Attr_Value (Part, "type");
+         ET := +XML.Get_Attr_Value (Part, "type");
       end if;
 
       if ET = Null_Unbounded_String then
@@ -1016,7 +977,7 @@ package body SOAP.WSDL.Parser is
             "No type or element attribute found for part element.");
       end if;
 
-      O.Current_Name := +Get_Attr_Value (Part, "name");
+      O.Current_Name := +XML.Get_Attr_Value (Part, "name");
 
       declare
          T       : constant String := -ET;
@@ -1085,7 +1046,7 @@ package body SOAP.WSDL.Parser is
          N       : DOM.Core.Node;
          Message : Unbounded_String;
       begin
-         Message := +Get_Attr_Value (M, "message", False);
+         Message := +XML.Get_Attr_Value (M, "message", False);
 
          N := Get_Node
            (First_Child (DOM.Core.Node (Document)),
@@ -1183,7 +1144,7 @@ package body SOAP.WSDL.Parser is
          and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
 
       declare
-         Name : constant String := Get_Attr_Value (R, "name", False);
+         Name : constant String := XML.Get_Attr_Value (R, "name", False);
       begin
          --  Set record name, R is a complexType node
 
@@ -1224,7 +1185,7 @@ package body SOAP.WSDL.Parser is
    begin
       Trace ("(Parse_Service)", Service);
 
-      Name := +Get_Attr_Value (Service, "name");
+      Name := +XML.Get_Attr_Value (Service, "name");
 
       N := Get_Node (Service, "documentation");
 
@@ -1237,7 +1198,7 @@ package body SOAP.WSDL.Parser is
       N := Get_Node (Service, "port.soap:address", NS => True);
 
       if N /= null then
-         Location := +Get_Attr_Value (N, "location");
+         Location := +XML.Get_Attr_Value (N, "location");
       end if;
 
       Start_Service (O, -Name, -Documentation, -Location);
@@ -1247,7 +1208,7 @@ package body SOAP.WSDL.Parser is
       N := Get_Node (Service, "port");
 
       if N /= null then
-         Binding := +Get_Attr_Value (N, "binding", False);
+         Binding := +XML.Get_Attr_Value (N, "binding", False);
       end if;
 
       N := Get_Node
@@ -1341,7 +1302,8 @@ package body SOAP.WSDL.Parser is
            and then DOM.Core.Nodes.Node_Name (E) = "enumeration"
          loop
             declare
-               Value : constant String := Get_Attr_Value (N, "value", False);
+               Value : constant String
+                 := XML.Get_Attr_Value (N, "value", False);
             begin
                if P.E_Def = Null_Unbounded_String then
                   P.E_Def := +("(" & Value);
@@ -1370,13 +1332,13 @@ package body SOAP.WSDL.Parser is
         (R /= null
          and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "simpleType");
 
-      Name := +Get_Attr_Value (R, "name", False);
+      Name := +XML.Get_Attr_Value (R, "name", False);
 
       --  Enter simpleType restriction
 
       N := First_Child (R);
 
-      Base := +Get_Attr_Value (N, "base", False);
+      Base := +XML.Get_Attr_Value (N, "base", False);
 
       --  Check if this is an enumeration
 
