@@ -1,3 +1,14 @@
+2002-05-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Read_Chunk): Trim the size string as some Web server add a
+	 terminating space.
+
+2002-05-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	Set version to 1.3w.
+
 2002-04-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
