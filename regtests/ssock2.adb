@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                            Copyright (C) 2004                            --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -29,14 +29,16 @@
 ------------------------------------------------------------------------------
 --  $Id$
 
---  Test for big data send/receive over security socket.
+--  Test for big data send/receive over secure socket
 
-with AWS.Net;
 with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
 
+with AWS.Net;
+
 procedure SSock2 is
+
    use AWS;
    use Ada;
    use Ada.Streams;
@@ -45,7 +47,7 @@ procedure SSock2 is
 
    Sample : Stream_Element_Array (1 .. 100_000);
 
-   Server : Net.Socket_Type'Class := Net.Socket (False);
+   Server       : Net.Socket_Type'Class := Net.Socket (False);
    Peer, Client : Net.Socket_Type'Class := Net.Socket (True);
 
    task Client_Side is
@@ -58,7 +60,7 @@ procedure SSock2 is
    -----------------
 
    task body Client_Side is
-      First  : Stream_Element_Offset := Sample'First;
+      First : Stream_Element_Offset := Sample'First;
    begin
       accept Start;
 
