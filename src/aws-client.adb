@@ -108,7 +108,7 @@ package body AWS.Client is
       -- Connect to server
 
       if Proxy = No_Data then
-         Sock := Sockets.Socket (Sockets.AF_INET, Sockets.SOCK_STREAM);
+         Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
 
          Sockets.Connect (Sock,
                           AWS.URL.Server_Name (URL_Data),
@@ -120,7 +120,7 @@ package body AWS.Client is
          Sockets.Put_Line (Sock, "Connection: Keep-Alive");
 
       else
-         Sock := Sockets.Socket (Sockets.AF_INET, Sockets.SOCK_STREAM);
+         Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
 
          Sockets.Connect (Sock,
                           AWS.URL.Server_Name (Proxy_Data),
