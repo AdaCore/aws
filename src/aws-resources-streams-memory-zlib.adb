@@ -82,6 +82,24 @@ package body AWS.Resources.Streams.Memory.ZLib is
       ZL.Close (Resource.Filter);
    end Close;
 
+   ------------------------
+   -- Deflate_Initialize --
+   ------------------------
+
+   procedure Deflate_Initialize
+     (Resource     : in out Stream_Type;
+      Level        : in     Compression_Level  := ZL.Default_Compression;
+      Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
+      Method       : in     Compression_Method := ZL.Deflated;
+      Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
+      Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
+      Header       : in     Header_Type        := ZL.Default) is
+   begin
+      ZL.Deflate_Init
+        (Resource.Filter, Level, Strategy, Method,
+         Window_Bits, Memory_Level, Header);
+   end Deflate_Initialize;
+
    -----------
    -- Flush --
    -----------
@@ -98,5 +116,18 @@ package body AWS.Resources.Streams.Memory.ZLib is
          exit when Last < Flush_Buffer'Last;
       end loop;
    end Flush;
+
+   ------------------------
+   -- Inflate_Initialize --
+   ------------------------
+
+   procedure Inflate_Initialize
+     (Resource    : in out Stream_Type;
+      Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
+      Header      : in     Header_Type      := ZL.Default) is
+   begin
+      ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
+   end Inflate_Initialize;
+
 
 end AWS.Resources.Streams.Memory.ZLib;
