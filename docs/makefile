@@ -16,6 +16,7 @@ ada.sed: makefile
 	echo "s/-- \(.*\)$$/-- @i{\1}/" > ada.sed
 	echo "s/\([^-][^-][^\"]*\)\"\([^\"]*\)\"/\1\"@i{\2}\"/g" >> ada.sed
 	echo "s/@@/@@@@/g" >> ada.sed
+	echo "s/_@_/_@@_/g" >> ada.sed
 	for kw in $(ADA_KW); do \
 		echo "s/^\([^-][^-].* \)$$kw/\1@b{$$kw}/g" >> ada.sed; \
 		echo "s/^$$kw /@b{$$kw} /g" >> ada.sed; \
