@@ -842,28 +842,29 @@ Here are the tag variables recognized by AWS:
 
 @table @b
 
-@item ABORTABLE_L
+@item ABORTABLE_L (vector tag)
 
 A list of boolean. One for each connection. True means that this
 connection can be aborted if none is available. This is to be inserted
 in a template table.
 
-@item ACTIVITY_COUNTER_L
+@item ACTIVITY_COUNTER_L (vector tag)
 
 A list of natural. One for each connection. This is the number of
-request the connection has answered.
+request the connection has answered. This counter is reset each time the
+connection is closed. In other word this is the number of request a
+keep-alive connection has processed.
 
-@item ACTIVITY_TIME_STAMP_L
+@item ACTIVITY_TIME_STAMP_L (vector tag)
 
 A list of date. One for each connection. This is the time of the latest
 request answered.
 
-@item KEYS_L
+@item KEYS_L (vector tag)
 
 A list of set of keys (for each key correspond a value in the tag
-below). Set of keys are separated by '|' (standard template parser list
-separator). Each key (in a set) is separated by an HTML "<td>" tag. This
-key is to be inserted in a table.
+VALUES_L, see below). Each key in the vector tag start with an HTML
+"<td>" tag. This is to be able to display the key/value in column.
 
 @item LOGO
 
@@ -874,12 +875,12 @@ logo image.
 
 Maximum number of simultaneous connections.
 
-@item OPENED_L
+@item OPENED_L (vector tag)
 
 A list of boolean. One for each connection. True means that the socket
 is open. This is to be inserted in a template table.
 
-@item QUIT_L
+@item QUIT_L (vector tag)
 
 A list of boolean. One for each connection. True means that the
 connection will terminate as soon as possible. This is to be inserted
@@ -902,21 +903,24 @@ The server HTTP port.
 
 Server socket ID.
 
-@item SESSIONS_L
+@item SESSIONS_L (vector tag)
 
 A list of session ID.
 
-@item SOCK_L
+@item SLOT_ACTIVITY_COUNTER_L (vector tag)
 
-A list of sockets ID. One for each connection. This is to be inserted in
-a template table.
+A list of natural. One for each connection. This is the total number of
+requests the slot has answered. This counter is never reseted.
 
-@item VALUES_L
+@item SOCK_L (vector tag)
 
-A list of set of values (for each value correspond a key in the tag
-above). Set of keys are separated by '|' (standard template parser list
-separator). Each key (in a set) is separated by an HTML "<td>" tag. This
-key is to be inserted in a table.
+A list of sockets ID. One for each connection.
+
+@item VALUES_L (vector tag)
+
+A list of set of values (for each value correspond a key in the vector tag
+KEYS_L, see above). Each key in the vector tag start with an HTML "<td>"
+tag. This is to be able to display the key/value in column.
 
 @item VERSION
 
