@@ -59,8 +59,8 @@ package body AWS.Status.Set is
 
    procedure Authorization (D : in out Data) is
 
-      Header_Value : constant String :=
-         AWS.Headers.Get (D.Header, Messages.Authorization_Token);
+      Header_Value : constant String
+        := AWS.Headers.Get (D.Header, Messages.Authorization_Token);
 
       procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
 
@@ -75,9 +75,9 @@ package body AWS.Status.Set is
          Quit        : in out Boolean)
       is
 
-         type Digest_Attribute is
-           (Username, Realm, Nonce, NC, CNonce,
-            QOP, URI, Response, Algorithm);
+         type Digest_Attribute
+            is (Username, Realm, Nonce, NC, CNonce,
+                QOP, URI, Response, Algorithm);
          --  The enumeration type is using to be able to
          --  use the name in the case statement.
          --  The case statement has usially faster implementation.
@@ -129,7 +129,8 @@ package body AWS.Status.Set is
       -----------
 
       procedure Value (Item : in String; Quit : in out Boolean) is
-         Upper_Item : String := Ada.Characters.Handling.To_Upper (Item);
+         Upper_Item : constant String
+           := Ada.Characters.Handling.To_Upper (Item);
       begin
          if Upper_Item = "BASIC" then
 
@@ -149,17 +150,17 @@ package body AWS.Status.Set is
                  := Translator.To_String (Translator.Base64_Decode
                    (Header_Value (Item'Length + 2 .. Header_Value'Last)));
 
-               Delimit  : Natural := Fixed.Index (Auth_Str, ":");
+               Delimit  : constant Natural := Fixed.Index (Auth_Str, ":");
             begin
-
                if Delimit = 0 then
                   D.Auth_Name := To_Unbounded_String (Auth_Str);
+
                else
                   D.Auth_Name
                     := To_Unbounded_String (Auth_Str (1 .. Delimit - 1));
                   D.Auth_Password
-                    := To_Unbounded_String (Auth_Str
-                                              (Delimit + 1 .. Auth_Str'Last));
+                    := To_Unbounded_String
+                         (Auth_Str (Delimit + 1 .. Auth_Str'Last));
                end if;
             end;
 
@@ -199,7 +200,6 @@ package body AWS.Status.Set is
 
       AWS.Parameters.Set.Free (D.Parameters);
       AWS.Headers.Set.Free (D.Header);
-
    end Free;
 
    ----------------
@@ -249,8 +249,8 @@ package body AWS.Status.Set is
    -----------------
 
    procedure Read_Header
-     (Socket : in Net.Socket_Type'Class;
-      D : in out Data) is
+     (Socket : in     Net.Socket_Type'Class;
+      D      : in out Data) is
    begin
       Headers.Set.Read (Socket, D.Header);
       Update_Data_From_Header (D);
@@ -327,6 +327,7 @@ package body AWS.Status.Set is
    procedure Update_Data_From_Header (D : in out Data) is
    begin
       Authorization (D);
+
       declare
          Content_Length : String := AWS.Headers.Get
            (D.Header, Messages.Content_Length_Token);
@@ -336,19 +337,18 @@ package body AWS.Status.Set is
          end if;
       end;
 
-      D.SOAP_Action := AWS.Headers.Exist
-         (D.Header, Messages.SOAPAction_Token);
+      D.SOAP_Action := AWS.Headers.Exist (D.Header, Messages.SOAPAction_Token);
 
       declare
          use AWS.Headers;
-         Cookies_Set : VString_Array := Get_Values
-            (D.Header,
-             Messages.Cookie_Token);
+
+         Cookies_Set : constant VString_Array
+           := Get_Values (D.Header, Messages.Cookie_Token);
 
       begin
          for Idx in Cookies_Set'Range loop
-            declare
 
+            declare
                --  The expected Cookie line is:
                --  Cookie: ... AWS=<cookieID>[,;] ...
 
@@ -374,8 +374,8 @@ package body AWS.Status.Set is
                   Value : in     String;
                   Quit  : in out Boolean) is
                begin
-
                   --  Check if it is AWS Cookie.
+
                   if Name /= "AWS" then
                      return;
                   end if;
@@ -383,15 +383,16 @@ package body AWS.Status.Set is
                   D.Session_ID := AWS.Session.Value (Value);
 
                   --  Check if the cookie value was correct.
+
                   if D.Session_ID = AWS.Session.No_Session then
                      return;
                   end if;
 
                   --  Check if cookie exists in the server.
-                  if not AWS.Session.Exist (D.Session_ID) then
 
-                     --  reset to empty cookie if not exists.
-                     --  We don't interesting in not existing values.
+                  if not AWS.Session.Exist (D.Session_ID) then
+                     --  Reset to empty cookie if session does not exists.
+                     --  We are not interested by non existing values.
 
                      D.Session_ID := AWS.Session.No_Session;
 
@@ -422,8 +423,8 @@ package body AWS.Status.Set is
                -- Parse --
                -----------
 
-               procedure Parse is new AWS.Headers.Values.Parse
-                                        (Value, Named_Value);
+               procedure Parse is
+                  new AWS.Headers.Values.Parse (Value, Named_Value);
 
             begin
                Parse (To_String (Cookies_Set (Idx)));
