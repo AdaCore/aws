@@ -70,14 +70,33 @@ package body AWS.Utils is
    -- Hex --
    ---------
 
-   function Hex (V : in Natural) return String is
+   function Hex (V : in Natural; Width : in Natural := 0) return String is
       use Strings;
 
       Hex_V : String (1 .. Integer'Size / 4 + 4);
    begin
       Ada.Integer_Text_IO.Put (Hex_V, V, 16);
-      return Hex_V (Fixed.Index (Hex_V, "#") + 1 ..
-                    Fixed.Index (Hex_V, "#", Backward) - 1);
+
+      declare
+         Result : constant String
+           := Hex_V (Fixed.Index (Hex_V, "#") + 1
+                       .. Fixed.Index (Hex_V, "#", Backward) - 1);
+      begin
+         if Width = 0 then
+            return Result;
+
+         elsif Result'Length < Width then
+            declare
+               use Ada.Strings.Fixed;
+               Zero : constant String := (Width - Result'Length) * '0';
+            begin
+               return Zero & Result;
+            end;
+
+         else
+            return Result (Result'Last - Width + 1 .. Result'Last);
+         end if;
+      end;
    end Hex;
 
    -----------
