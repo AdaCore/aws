@@ -179,20 +179,15 @@ package body Stub is
       is
          use type WSDL.Parameter_Type;
       begin
-         if Prefix /= "" then
-            --  Inside a record
-            Text_IO.Put
-              (Stub_Adb,
-               WSDL.Set_Routine (WSDL.P_String, Context => WSDL.Component));
-         else
-            Text_IO.Put (Stub_Adb, WSDL.Set_Routine (WSDL.P_String));
-         end if;
+         Text_IO.Put (Stub_Adb, "SOAP.Types.E");
 
          Text_IO.Put
            (Stub_Adb,
-            " (" & To_String (N.E_Name) & "_Type'Image ("
+            " (Types.Image ("
               & Prefix & Format_Name (O, To_String (N.Name))
-              & "), """ & To_String (N.Name) & """)");
+              & "), """
+              & To_String (N.E_Name)
+              & """, """ & To_String (N.Name) & """)");
 
          if Prefix /= "" and then N.Next /= null then
             Text_IO.Put (Stub_Adb, ",");
@@ -545,9 +540,10 @@ package body Stub is
                     (Stub_Adb,
                      "                   ("
                        & To_String (Output.E_Name) & "_Type'Value"
-                       & " (SOAP.Parameters.Get (R_Param, """
+                       & " (SOAP.Utils.Get"
+                       & " (SOAP.Parameters.Argument (R_Param, """
                        & To_String (Output.Name)
-                       & """)));");
+                       & """))));");
 
                when WSDL.Parameters.K_Array =>
                   Text_IO.Put_Line
