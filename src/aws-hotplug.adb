@@ -154,13 +154,20 @@ package body AWS.Hotplug is
       Regexp  : in     String;
       URL     : in     String)
    is
-      Item   : constant Filter_Data
-        := (To_Unbounded_String (Regexp),
-            GNAT.Regexp.Compile (Regexp),
-            To_Unbounded_String (URL));
-      Cursor : constant Filter_Table.Cursor
-        := Filter_Table.Find (Filters.Set, Item);
+      Item   : Filter_Data;
+      Cursor : Filter_Table.Cursor;
+      U      : Unbounded_String;
    begin
+      --  Add / at the end of the URL is needed
+      if URL'Length > 0 and then URL (URL'Last) /= '/' then
+         U := To_Unbounded_String (URL & '/');
+      else
+         U := To_Unbounded_String (URL);
+      end if;
+
+      Item := (To_Unbounded_String (Regexp), GNAT.Regexp.Compile (Regexp), U);
+      Cursor := Filter_Table.Find (Filters.Set, Item);
+
       case Filters.Mode is
          when Add =>
             if Filter_Table.Has_Element (Cursor) then
