@@ -1,3 +1,8 @@
+2005-02-12  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-xml.ads, templates_parser-xml.adb:
+	Moved to templates_parser directory.
+
 2004-11-24  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-xml.adb:
