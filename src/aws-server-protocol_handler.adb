@@ -211,10 +211,18 @@ is
             <= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat)));
 
          if AWS.Status.File_Up_To_Date (C_Stat) then
-            Sockets.Put_Line (Sock,
-                              Messages.Status_Line (Messages.S304));
+            --  [RFC 2616 - 10.3.5]
+
+            Sockets.Put_Line
+              (Sock,
+               Messages.Status_Line (Messages.S304));
+            Sockets.Put_Line
+              (Sock,
+               "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
             Sockets.New_Line (Sock);
+
             return;
+
          else
             Sockets.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
