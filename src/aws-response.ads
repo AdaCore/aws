@@ -36,7 +36,6 @@
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Finalization;
-with Ada.Unchecked_Deallocation;
 
 with AWS.Headers;
 with AWS.Status;
@@ -44,6 +43,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Resources.Streams;
+with AWS.Utils;
 
 package AWS.Response is
 
@@ -262,11 +262,6 @@ private
 
    Undefined_Length : constant Content_Length_Type := -1;
 
-   type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
-
-   procedure Free is new Ada.Unchecked_Deallocation
-     (Streams.Stream_Element_Array, Stream_Element_Array_Access);
-
    type Natural_Access is access Natural;
 
    type Data is new Ada.Finalization.Controlled with record
@@ -276,7 +271,7 @@ private
       Content_Length : Content_Length_Type  := 0;
       Filename       : Unbounded_String;
       Stream         : Resources.Streams.Stream_Access;
-      Message_Body   : Stream_Element_Array_Access;
+      Message_Body   : Utils.Stream_Element_Array_Access;
       Header         : AWS.Headers.List;
    end record;
 
