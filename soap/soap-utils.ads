@@ -54,8 +54,11 @@ package SOAP.Utils is
    function Array_Type (Name : in String) return String;
    --  Returns the type of the array element given the array Name
 
+   function NS (Name : in String) return String;
+   --  Returns the namespace for Name, string prefix separated with a ':'
+
    function No_NS (Name : in String) return String;
-   --  Returns Str without leading name space if present
+   --  Returns Name without leading name space if present
 
    ------------------------------------
    -- SOAP Generator Runtime Support --
