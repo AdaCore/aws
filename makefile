@@ -283,6 +283,7 @@ install: force
 	$(CP) icons/*.gif $(INSTALL)/AWS/icons
 	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
 	-$(CP) include/*.ad? $(INSTALL)/AWS/components
+	-rm $(INSTALL)/AWS/components/aws-*.adb
 	-$(CP) include/*.o include/*.ali $(INSTALL)/AWS/components
 	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-chmod -R og+r $(INSTALL)/AWS
