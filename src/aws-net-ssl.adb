@@ -87,7 +87,15 @@ package body AWS.Net is
             Sock : SSL.Handle;
          begin
             SSL.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
-            SSL.Connect (Sock, Host, Port);
+            begin
+               SSL.Connect (Sock, Host, Port);
+            exception
+               when Sockets.Socket_Error | Sockets.Connection_Refused
+               | SSL.Lib_Error =>
+                  Sockets.Shutdown (Sockets.Socket_FD (Sock));
+                  Free (Sock);
+                  raise;
+            end;
             return Sock;
          end;
       else
@@ -95,7 +103,13 @@ package body AWS.Net is
             Sock : Sockets.Socket_FD;
          begin
             Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
-            Sockets.Connect (Sock, Host, Port);
+            begin
+               Sockets.Connect (Sock, Host, Port);
+            exception
+               when Sockets.Socket_Error | Sockets.Connection_Refused =>
+                  Sockets.Shutdown (Sock);
+                  raise;
+            end;
             return Sock;
          end;
       end if;
