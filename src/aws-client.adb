@@ -326,6 +326,8 @@ package body AWS.Client is
       Transfer_Encoding :    out Unbounded_String;
       Location          :    out Unbounded_String) is
    begin
+      Content_Length := 0;
+
       loop
          declare
             Line : constant String := Sockets.Get_Line (Sock);
