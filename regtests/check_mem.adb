@@ -351,14 +351,8 @@ procedure Check_Mem is
    begin
       Response.Set.Data_Encoding (Answer, Encoding);
 
-      --  ??? Dynamically allocated data would be deallocated only when
-      --  Encoding = Identity inside of Answer finalization.
-      --  We should fix it untill 1.4.
-      --  I propose to remove Set.Message_Body with access parameter from API.
-      --  or deallocate pointer inside of ZLib.Append inside of Message_Body.
-
       Response.Set.Message_Body
-        (Answer, new Streams.Stream_Element_Array (1 .. 64));
+        (Answer, Streams.Stream_Element_Array'(1 .. 64 => 10));
    end Check_Dynamic_Message;
 
    --------------------------
@@ -373,11 +367,12 @@ procedure Check_Mem is
       Sample : aliased Streams.Stream_Element_Array := (1 .. 64 => 20);
 
       Plain  : Stream_Type;
-      Packed : ZLib.Stream_Type;
+      Unpack : ZLib.Stream_Type;
+      Packed : Utils.Stream_Element_Array_Access;
 
       procedure Test
         (Stream : in out Stream_Type'Class;
-         Data   : in     Utils.Stream_Element_Array_Access);
+         Data   : in     Streams.Stream_Element_Array);
       --  Append dynamically allocated data, test content and close the stream.
 
       ----------
@@ -386,7 +381,7 @@ procedure Check_Mem is
 
       procedure Test
         (Stream : in out Stream_Type'Class;
-         Data   : in     Utils.Stream_Element_Array_Access)
+         Data   : in     Streams.Stream_Element_Array)
       is
          Test   : Streams.Stream_Element_Array (Sample'Range);
          Last   : Streams.Stream_Element_Offset;
@@ -398,19 +393,18 @@ procedure Check_Mem is
             raise Program_Error;
          end if;
 
-         --  ??? We could not free dynamically allocated data here,
-         --  because plain memory stream would free it in the Close call,
-         --  But ZLib stream would not free it, because it is keeping only
-         --  compressed copy of the data, not the original one.
-
          Close (Stream);
       end Test;
 
    begin
-      ZLib.Inflate_Initialize (Packed);
-      Test (Packed, Translator.Compress (Sample'Access));
+      ZLib.Inflate_Initialize (Unpack);
 
-      Test (Plain, new Streams.Stream_Element_Array'(Sample));
+      Packed := Translator.Compress (Sample'Access);
+
+      Test (Unpack, Packed.all);
+      Utils.Free (Packed);
+
+      Test (Plain, Sample);
    end Check_Memory_Streams;
 
    ----------------
