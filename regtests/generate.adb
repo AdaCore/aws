@@ -30,7 +30,7 @@
 --
 --  $Id$
 --
---  Generator for the fast regression test executor.
+--  Generator for fast regression test execution.
 
 with Ada.Command_Line;
 with Ada.Strings.Unbounded;
@@ -68,10 +68,16 @@ procedure Generate is
       U.Append
         (Source,
          "   Put_Line (Standard_Output, ""Running   " & Name & """);" & Lf
-       & "   Create (Std_Out, Out_File, """ & Name & Res_Ext & """);" & Lf
-       & "   Set_Output (Std_Out);" & Lf
-       & "   " & Name & ';' & Lf
-       & "   Close (Std_Out);" & Lf & Lf);
+           & "   Create (Std_Out, Out_File, """ & Name & Res_Ext & """);" & Lf
+           & "   Set_Output (Std_Out);" & Lf
+           & "   begin" & Lf
+           & "      " & Name & ';' & Lf
+           & "   exception" & Lf
+           & "      when E : others =>" & Lf
+           & "         Put_Line (""Test " & Name & " failed."");" & Lf
+           & "         Put_Line (Exceptions.Exception_Information (E));" & Lf
+           & "   end;" & Lf
+           & "   Close (Std_Out);" & Lf & Lf);
    end Test;
 
 begin
