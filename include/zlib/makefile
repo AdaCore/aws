@@ -24,7 +24,7 @@ $(LIBZ): $(OBJS)
 	$(AR) rc $@ $(OBJS)
 
 clean:
-	rm -f *.o *~
+	rm -f $(LIBZ) *.o *~
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
