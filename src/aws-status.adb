@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -179,7 +179,7 @@ package body AWS.Status is
 
    function Connection (D : in Data) return String is
    begin
-      return AWS.Headers.Get (D.Header, Messages.Connection_Token);
+      return Headers.Get (D.Header, Messages.Connection_Token);
    end Connection;
 
    --------------------
@@ -197,7 +197,7 @@ package body AWS.Status is
 
    function Content_Type (D : in Data) return String is
    begin
-      return AWS.Headers.Get (D.Header, Messages.Content_Type_Token);
+      return Headers.Get (D.Header, Messages.Content_Type_Token);
    end Content_Type;
 
    -----------------
@@ -225,7 +225,7 @@ package body AWS.Status is
 
    function Host (D : in Data) return String is
    begin
-      return AWS.Headers.Get (D.Header, Messages.Host_Token);
+      return Headers.Get (D.Header, Messages.Host_Token);
    end Host;
 
    ------------------
@@ -243,7 +243,7 @@ package body AWS.Status is
 
    function If_Modified_Since (D : in Data) return String is
    begin
-      return AWS.Headers.Get (D.Header, Messages.If_Modified_Since_Token);
+      return Headers.Get (D.Header, Messages.If_Modified_Since_Token);
    end If_Modified_Since;
 
    -------------
@@ -278,7 +278,7 @@ package body AWS.Status is
    ------------------------
 
    function Multipart_Boundary (D : in Data) return String is
-      use AWS.Headers;
+      use Headers;
    begin
       --  Get the Boundary value from the Contant_Type header value.
       --  We do not need to have the boundary in the Status.Data preparsed,
@@ -322,7 +322,7 @@ package body AWS.Status is
 
    function Referer (D : in Data) return String is
    begin
-      return AWS.Headers.Get (D.Header, Messages.Referer_Token);
+      return Headers.Get (D.Header, Messages.Referer_Token);
    end Referer;
 
    -------------
@@ -349,7 +349,7 @@ package body AWS.Status is
 
    function SOAPAction (D : in Data) return String is
       Result : constant String :=
-         AWS.Headers.Get (D.Header, Messages.SOAPAction_Token);
+         Headers.Get (D.Header, Messages.SOAPAction_Token);
    begin
       if Result'First < Result'Last
         and then Result (Result'First) = '"'
@@ -391,7 +391,7 @@ package body AWS.Status is
 
    function User_Agent (D : in Data) return String is
    begin
-      return AWS.Headers.Get (D.Header, Messages.User_Agent_Token);
+      return Headers.Get (D.Header, Messages.User_Agent_Token);
    end User_Agent;
 
 end AWS.Status;
