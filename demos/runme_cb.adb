@@ -132,7 +132,9 @@ package body Runme_CB is
             & ", I'm glad you ask for " & URI & '.'
             & "<p>I'm the runme demo. Note that this"
             & " message could have been"
-            & " fetched on my file system... See Templates_Parser :)"
+            & " fetched on my file system..."
+            & "See <a href=""http://perso.wanadoo.fr/pascal.obry/"
+            & "templates_parser.html"">Templates_Parser</a> :)"
             & "<p>counter = " & Natural'Image (C)
             & "<p><img src=""/first_img"">"
             & "<p>Enter your name <form method=get action=/get-form>"
