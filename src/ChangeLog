@@ -1,3 +1,10 @@
+2004-11-18  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Get_Next_Line): Properly increment the line number when skiping
+         comments.
+        Fixes for DB18-014.
+
 2004-11-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
@@ -17,7 +24,7 @@
 2004-11-15  Pascal Obry  <pascal@obry.org>
 
 	Update to new version of Templates_Parser.
-	
+
 	* templates_parser-filter.adb:
 	(File_Exists_Token): New constant.
 	(Table): Add File_Exists filter.
