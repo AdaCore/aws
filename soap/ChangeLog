@@ -1,3 +1,11 @@
+2001-09-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-reader.ads:
+	Minor casing fix.
+
+	* soap-message-xml.adb:
+	Minor casing fix.
+
 2001-09-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-payload.ads, soap-message-payload.adb:
