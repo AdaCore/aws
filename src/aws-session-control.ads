@@ -37,7 +37,9 @@
 
 package AWS.Session.Control is
 
-   procedure Start;
+   procedure Start
+     (Session_Check_Interval : in Duration;
+      Session_Lifetime       : in Duration);
    --  Start session cleaner task.
 
    procedure Shutdown;
