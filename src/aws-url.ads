@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,9 +30,12 @@
 
 --  $Id$
 
+with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 
 package AWS.URL is
+
+   use Ada;
 
    --  The general URL form as described in RFC2616 is:
    --
@@ -160,7 +163,12 @@ package AWS.URL is
    --  URL Encoding and Decoding
    --
 
-   function Encode (Str : in String) return String;
+   Default_Encoding_Set : constant Strings.Maps.Character_Set;
+
+   function Encode
+     (Str          : in String;
+      Encoding_Set : in Strings.Maps.Character_Set := Default_Encoding_Set)
+      return String;
    --  Encode Str into a URL-safe form. Many characters are forbiden into an
    --  URL and needs to be encoded. A character is encoded by %XY where XY is
    --  the character's ASCII hexadecimal code. For example a space is encoded
@@ -172,6 +180,7 @@ package AWS.URL is
 private
 
    use Ada.Strings.Unbounded;
+   use type Ada.Strings.Maps.Character_Set;
 
    type Path_Status is (Valid, Wrong);
 
@@ -187,5 +196,12 @@ private
       Params   : Unbounded_String;
       Status   : Path_Status       := Wrong;
    end record;
+
+   Default_Encoding_Set : constant Strings.Maps.Character_Set
+     := Strings.Maps.To_Set
+         (Span => (Low  => Character'Val (128),
+                   High => Character'Val (Character'Pos (Character'Last))))
+     or
+       Strings.Maps.To_Set (";/?:@&=+$,<>#%""{}|\^[]` ");
 
 end AWS.URL;
