@@ -2,28 +2,51 @@
 --  $Id$
 --  TCP monitor, display all exchanged data
 
-with Ada.Text_IO;      use Ada.Text_IO;
-with Ada.Command_Line; use Ada.Command_Line;
-with Ada.Exceptions;   use Ada.Exceptions;
-with Ada.Streams;      use Ada.Streams;
-with GNAT.Sockets;     use GNAT.Sockets;
+with Ada.Text_IO;         use Ada.Text_IO;
+with Ada.Integer_Text_IO;
+with Ada.Command_Line;    use Ada.Command_Line;
+with Ada.Exceptions;      use Ada.Exceptions;
+with Ada.Streams;         use Ada.Streams;
+with GNAT.Sockets;        use GNAT.Sockets;
 
 procedure Tcpipmon is
+
+   use Ada;
 
    task type Transport is
       entry Start (Incoming : Socket_Type);
    end Transport;
+
    type Transporter is access Transport;
 
+   K  : Natural := 0;
+
+   procedure Put (Item : in Streams.Stream_Element) is
+   begin
+      K := K + 1;
+
+      if K = 1 then
+         Integer_Text_IO.Put (K, Width => 5);
+         Text_IO.Put ("> ");
+      end if;
+
+      Put (Character'Val (Item));
+
+      if Item = 10 then
+         Integer_Text_IO.Put (K + 1, Width => 5);
+         Text_IO.Put ("> ");
+      end if;
+   end Put;
+
    procedure Move (A, B : Socket_Type) is
-      Data      : Ada.Streams.Stream_Element_Array (1 .. 1000);
-      Data_Last : Ada.Streams.Stream_Element_Offset;
-      Send_Last : Ada.Streams.Stream_Element_Offset;
+      Data      : Streams.Stream_Element_Array (1 .. 1000);
+      Data_Last : Streams.Stream_Element_Offset;
+      Send_Last : Streams.Stream_Element_Offset;
    begin
       loop
          Receive_Socket (A, Data, Data_Last);
          for I in Data'First .. Data_Last loop
-            Put (Character'Val (Data (I)));
+            Put (Data (I));
          end loop;
          Send_Last := Data'First - 1;
          loop
@@ -50,21 +73,28 @@ procedure Tcpipmon is
       New_Line;
       Put_Line ("------- Link opened ---------------------------------------");
       New_Line;
+
       accept Start (Incoming : Socket_Type) do
          Socket_In := Incoming;
       end Start;
+
       Address.Addr := Addresses (Get_Host_By_Name (Argument (2)), 1);
       Address.Port := Port_Type'Value (Argument (3));
+
       Create_Socket (Socket_Out);
+
       Set_Socket_Option
         (Socket_Out,
          Socket_Level,
          (Reuse_Address, True));
+
       Set_Socket_Option
         (Socket_Out,
          Socket_Level,
          (No_Delay, True));
+
       Connect_Socket (Socket_Out, Address);
+
       declare
          task Move_In_To_Out;
          task body Move_In_To_Out is
@@ -74,6 +104,7 @@ procedure Tcpipmon is
       begin
          Move (Socket_Out, Socket_In);
       end;
+
       New_Line;
       Put_Line ("------- Link close ----------------------------------------");
       New_Line;
@@ -87,19 +118,25 @@ procedure Tcpipmon is
 begin
    if Argument_Count = 3 then
       Initialize;
+
       Address.Addr := Addresses (Get_Host_By_Name ("localhost"), 1);
       Address.Port := Port_Type'Value (Argument (1));
+
       Create_Socket (Server);
+
       Set_Socket_Option
         (Server,
          Socket_Level,
          (Reuse_Address, True));
+
       Set_Socket_Option
         (Server,
          Socket_Level,
          (No_Delay, True));
+
       Bind_Socket (Server, Address);
       Listen_Socket (Server);
+
       loop
          Accept_Socket (Server, Socket, Address);
          declare
@@ -108,6 +145,7 @@ begin
             Tsk.Start (Socket);
          end;
       end loop;
+
    else
       Put_Line ("tcpipmon needs 3 arguments:");
       Put_Line ("    tcpipmon inport oname oport");
