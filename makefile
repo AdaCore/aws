@@ -127,19 +127,19 @@ build_soaplib: build_include build_lib
 build_soap: build_soaplib
 
 gnatsockets:
-	${MAKE} -C src gnatsockets
+	${MAKE} -C src gnatsockets $(ALL_OPTIONS)
 
 adasockets:
-	${MAKE} -C src adasockets
+	${MAKE} -C src adasockets $(ALL_OPTIONS)
 
 gnat_oslib:
-	${MAKE} -C src gnat_oslib
+	${MAKE} -C src gnat_oslib $(ALL_OPTIONS)
 
 posix_oslib:
-	${MAKE} -C src posix_oslib
+	${MAKE} -C src posix_oslib $(ALL_OPTIONS)
 
 win32_oslib:
-	${MAKE} -C src win32_oslib
+	${MAKE} -C src win32_oslib $(ALL_OPTIONS)
 
 build_doc:
 	echo ""
@@ -159,7 +159,7 @@ build_win32:
 build_apiref:
 	echo ""
 	echo "=== Build API References"
-	${MAKE} -s -C docs apiref
+	${MAKE} -s -C docs apiref $(ALL_OPTIONS)
 
 run_regtests: build_tools
 	echo ""
