@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -67,7 +67,8 @@ package body Auth_CB is
                     or Auth_Mode = AWS.Response.Digest)
       then
          if
-           AWS.Digest.Check_Nonce (AWS.Status.Authorization_Nonce (Request))
+           AWS.Digest.Check_Nonce
+             (AWS.Digest.Nonce (AWS.Status.Authorization_Nonce (Request)))
          then
             return AWS.Response.Build
               ("text/html",
