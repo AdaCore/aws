@@ -62,7 +62,7 @@ package body Runme_CB is
 
       if URI = "/first_img" then
          return Response.File (Content_Type => "image/png",
-                                   Filename     => "adains.png");
+                               Filename     => "adains.png");
 
       elsif URI = "/last" then
          return Response.Build
