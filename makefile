@@ -20,7 +20,7 @@ clean:
 
 distrib:
 	-rm -f aws.tar*
-	tar cf aws.tar makefile src/makefile demos/makefile \
+	tar cf aws.tar makefile src/makefile demos/makefile src/ChangeLog \
 		src/*.ad[sb] demos/r*.ads demos/[ar]*.adb demos/*.gif \
 		docs/aws.texi docs/aws.html docs/aws.txt docs/aws.info \
 		docs/aws.ps
