@@ -174,6 +174,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_CTX_set_verify;
 
+   ----------------------------------------
+   -- SSL_CTX_use_certificate_chain_file --
+   ----------------------------------------
+
+   procedure SSL_CTX_use_certificate_chain_file is
+   begin
+      Raise_Error;
+   end SSL_CTX_use_certificate_chain_file;
+
    ----------------------------------
    -- SSL_CTX_use_certificate_file --
    ----------------------------------
