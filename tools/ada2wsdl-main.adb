@@ -62,7 +62,7 @@ procedure Ada2WSDL.Main is
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f q v a: o: s: I:") is
+         case GNAT.Command_Line.Getopt ("f q v a: o: s: I: noenum") is
 
             when ASCII.NUL =>
                exit;
@@ -84,6 +84,14 @@ procedure Ada2WSDL.Main is
 
             when 'q' =>
                Options.Quiet := True;
+
+            when 'n' =>
+               if GNAT.Command_Line.Full_Switch = "noenum" then
+                  Options.Enum_To_String := True;
+               else
+                  Usage;
+                  raise Parameter_Error;
+               end if;
 
             when 'v' =>
                Options.Verbose := True;
@@ -167,6 +175,7 @@ procedure Ada2WSDL.Main is
       Put_Line ("  -o file  WSDL file, <filename>.wsdl by default");
       Put_Line ("  -a url   Web Service server address (URL)");
       Put_Line ("  -s name  Web Service name (default package name)");
+      Put_Line ("  -noenum  Map Ada enumeration to xsd:string");
 
       Set_Output (Current_Output.all);
    end Usage;
