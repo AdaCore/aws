@@ -416,6 +416,29 @@ procedure Interoplab_Main is
       Text_IO.New_Line;
    end T_echoStructArray;
 
+   -------------------
+   -- T_echoVoid_CB --
+   -------------------
+
+   procedure T_echoVoid_CB is
+   begin
+      null;
+   end T_echoVoid_CB;
+
+   function echoVoid_CB is
+      new Interoplab.Server.echoVoid_CB (T_echoVoid_CB);
+
+   ----------------
+   -- T_echoVoid --
+   ----------------
+
+   procedure T_echoVoid is
+   begin
+      Text_IO.Put_Line ("Echo Void");
+      Interoplab.Client.echoVoid;
+      Text_IO.New_Line;
+   end T_echoVoid;
+
    --------
    -- CB --
    --------
@@ -425,7 +448,12 @@ procedure Interoplab_Main is
    begin
       if SOAPAction = "http://soapinterop.org/#echoString" then
          return echoString_CB (Request);
+
+      elsif SOAPAction = "http://soapinterop.org/#echoVoid" then
+         return echoVoid_CB (Request);
+
       elsif SOAPAction = "http://soapinterop.org/" then
+
          declare
             PL : constant SOAP.Message.Payload.Object
               := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
@@ -466,11 +494,14 @@ procedure Interoplab_Main is
                return echoStructArray_CB (Request);
 
             else
-               return Response.Build (MIME.Text_HTML, "Not a SOAP request");
+               return Response.Build
+                 (MIME.Text_HTML, "Not a SOAP request, Proc=" & Proc);
             end if;
          end;
+
       else
-           return Response.Build (MIME.Text_HTML, "Not a SOAP request");
+         return Response.Build
+           (MIME.Text_HTML, "Not a SOAP request, SOAPAction=" & SOAPAction);
       end if;
    end CB;
 
@@ -480,6 +511,7 @@ begin
       CB'Unrestricted_Access,
       Port => Interoplab.Server.Port);
 
+   T_echoVoid;
    T_echoString;
    T_echoStringArray;
    T_echoBoolean;
