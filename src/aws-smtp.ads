@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -49,6 +49,14 @@ package AWS.SMTP is
 
    Default_SMTP_Port : constant := 25;
 
+   type Receiver is private;
+   --  The receiver part (i.e. a server) of SMTP messages as defined in
+   --  RFC 821. This is the SMTP server
+
+   ----------------
+   -- Reply_Code --
+   ----------------
+
    type Reply_Code is range 200 .. 554;
 
    Service_Ready       : constant Reply_Code := 220;
@@ -68,9 +76,9 @@ package AWS.SMTP is
    function Message (R : in Reply_Code) return String;
    --  This returns the value: Image (R) & ' ' & Name (R)
 
-   type Receiver is private;
-   --  The receiver part (i.e. a server) of SMTP messages as defined in
-   --  RFC 821. This is the SMTP server
+   ------------
+   -- Status --
+   ------------
 
    type Status is private;
 
@@ -92,6 +100,10 @@ package AWS.SMTP is
    pragma Inline (Clear);
    --  Clear Status value. Code is set to Requested_Action_Ok and message
    --  string to null.
+
+   -----------------
+   -- E_Mail_Data --
+   -----------------
 
    type E_Mail_Data is private;
 
