@@ -517,6 +517,9 @@ is
             HTTP_Server.Slots.Socket_Taken (Index);
             Socket_Taken := True;
 
+         when Response.No_Data =>
+            null;
+
       end case;
 
       AWS.Log.Write (HTTP_Server.Log, C_Stat, Answer);
