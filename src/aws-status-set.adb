@@ -178,6 +178,17 @@ package body AWS.Status.Set is
       D.Parameters := Set;
    end Parameters;
 
+   -------------
+   -- Payload --
+   -------------
+
+   procedure Payload
+     (D       : in out Data;
+      Payload : in     String) is
+   begin
+      D.Payload := To_Unbounded_String (Payload);
+   end Payload;
+
    --------------
    -- Peername --
    --------------
@@ -243,15 +254,26 @@ package body AWS.Status.Set is
       D.Session_ID := To_Unbounded_String (ID);
    end Session;
 
+   ----------------
+   -- SOAPAction --
+   ----------------
+
+   procedure SOAPAction
+     (D          : in out Data;
+      SOAPAction : in     String) is
+   begin
+      D.SOAPAction := To_Unbounded_String (SOAPAction);
+   end SOAPAction;
+
    ------------
    -- Socket --
    ------------
 
    procedure Socket
-     (D     : in out Data;
-      Value : in Socket_Access) is
+     (D    : in out Data;
+      Sock : in     Socket_Access) is
    begin
-      D.Socket := Value;
+      D.Socket := Sock;
    end Socket;
 
 end AWS.Status.Set;
