@@ -44,4 +44,14 @@ package Strings_Maps is
      new AI302.Containers.Indefinite_Hashed_Maps
        (String, Element_Type, AI302.Strings.Hash, "=", "=");
 
+   type Map is new Containers.Map;
+
+   subtype Cursor is Containers.Cursor;
+   No_Element : Cursor renames Containers.No_Element;
+
+   function Has_Element
+     (C : in Cursor)
+      return Boolean
+      renames Containers.Has_Element;
+
 end Strings_Maps;
