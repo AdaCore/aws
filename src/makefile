@@ -29,7 +29,7 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-smtp-client.adb aws-smtp.adb aws-status-set.adb aws-status.adb \
 	aws-templates.ads aws-translator.adb aws-url-raise_url_error.adb \
 	aws-url.adb aws-utils.adb aws.ads aws-exceptions.ads \
-	aws-status-translate_table.adb
+	aws-status-translate_table.adb aws-server-status.adb
 
 ifdef XMLADA
 SOURCES := $(SOURCES) aws-jabber.adb
