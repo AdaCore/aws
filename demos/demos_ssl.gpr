@@ -68,7 +68,7 @@ project Demos_SSL is
    -- Binder --
    ------------
 
-   package Binder renames Demos_Shared.Binder;
+   package Binder renames Shared.Binder;
 
    --------------
    -- Compiler --

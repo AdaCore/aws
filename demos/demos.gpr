@@ -94,7 +94,7 @@ project Demos is
    -- Binder --
    ------------
 
-   package Binder renames Demos_Shared.Binder;
+   package Binder renames Shared.Binder;
 
    -------------
    -- Builder --
