@@ -1,5 +1,11 @@
 2003-03-09  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* dirop.out:
+	Update to new output.
+
+	* dirop.adb:
+	Change all times with xx:xx:xx, test is now time-zone independant.
+
 	* strm2.adb:
 	Use port 1259 (1245 already used in tres.adb).	
 
