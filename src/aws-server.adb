@@ -34,9 +34,10 @@ with Ada.Text_IO;
 
 with Sockets;
 
---  withed units here are to work around a bug in GNAT 3.12. These withed
---  units can be removed with GNAT 3.13.
+--  withed units there are there to work around a bug in GNAT 3.12. These
+--  withed can be removed with GNAT 3.13.
 
+with AWS.Net;
 with AWS.Messages;
 with AWS.Status;
 with AWS.Translater;
@@ -45,10 +46,11 @@ package body AWS.Server is
 
    use Ada;
 
-   procedure Protocol_Handler (Sock    : in Sockets.Socket_FD;
-                               Handler : in Response.Callback;
-                               Slots   : in Slots_Access;
-                               Index   : in Positive);
+   procedure Protocol_Handler
+     (Sock    : in Sockets.Socket_FD'Class;
+      Handler : in Response.Callback;
+      Slots   : in Slots_Access;
+      Index   : in Positive);
    --  handle the line, this is where the HTTP protocol is defined.
 
    -----------
@@ -135,7 +137,8 @@ package body AWS.Server is
          for S in Set'Range loop
             Activity_Time_Stamp := Set (S).Activity_Time_Stamp;
 
-            if Set (S).Abortable and then Activity_Time_Stamp < Time_Stamp then
+            if Set (S).Abortable
+            and then Activity_Time_Stamp < Time_Stamp then
                To_Be_Closed := S;
                Time_Stamp   := Activity_Time_Stamp;
             end if;
@@ -158,7 +161,7 @@ package body AWS.Server is
       -- Get --
       ---------
 
-      procedure Get (FD : in Sockets.Socket_FD; Index : in Positive) is
+      procedure Get (FD    : in Sockets.Socket_FD; Index : in Positive) is
       begin
          Set (Index).Sock   := FD;
          Set (Index).Opened := True;
@@ -218,10 +221,11 @@ package body AWS.Server is
    -- Protocol_Handler --
    ----------------------
 
-   procedure Protocol_Handler (Sock    : in Sockets.Socket_FD;
-                               Handler : in Response.Callback;
-                               Slots   : in Slots_Access;
-                               Index   : in Positive) is separate;
+   procedure Protocol_Handler
+     (Sock    : in Sockets.Socket_FD'Class;
+      Handler : in Response.Callback;
+      Slots   : in Slots_Access;
+      Index   : in Positive) is separate;
 
    ----------
    -- Line --
@@ -230,7 +234,7 @@ package body AWS.Server is
    task body Line is
 
       Server_Sock : Sockets.Socket_FD;
-      Sock        : Sockets.Socket_FD;
+      Security    : Boolean;
       CB          : Response.Callback;
       Slots       : Slots_Access;
       Slot_Index  : Positive;
@@ -243,6 +247,7 @@ package body AWS.Server is
          do
             Slots       := Server.Slots;
             Server_Sock := Server.Sock;
+            Security    := Server.Security;
             Slot_Index  := Index;
             CB          := Server.CB;
          end Start;
@@ -251,37 +256,40 @@ package body AWS.Server is
       end select;
 
       loop
+         declare
+            --  Wait for an incoming connection.
 
-         --  Wait for an incoming connection.
-
-         Sockets.Accept_Socket (Server_Sock, Sock);
+            Sock : aliased Sockets.Socket_FD'Class :=
+              AWS.Net.Accept_Socket (Server_Sock, Security);
 
          begin
-            Slots.Get (Sock, Slot_Index);
-            Slots.Set_Abortable (Slot_Index, True);
+            begin
+               Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
+               Slots.Set_Abortable (Slot_Index, True);
 
-            Protocol_Handler (Sock, CB, Slots, Slot_Index);
+               Protocol_Handler (Sock, Cb, Slots, Slot_Index);
 
-         exception
+            exception
 
-            --  we must never exit from the outer loop as a Line task is
-            --  supposed to live forever. We have here a pool of Line and each
-            --  line is recycled when needed.
+               --  we must never exit from the outer loop as a Line task is
+               --  supposed to live forever.
+               --  We have here a pool of Line and each line is recycled when
+               --  needed.
 
-            when Sockets.Connection_Closed =>
-               Text_IO.Put_Line ("Connection time-out, close it.");
+               when Sockets.Connection_Closed =>
+                  Text_IO.Put_Line ("Connection time-out, close it.");
 
-            when E : others =>
-               Text_IO.Put_Line ("A problem has been detected!");
-               Text_IO.Put_Line ("Connection will be closed...");
-               Text_IO.New_Line;
-               Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+               when E : others =>
+                  Text_IO.Put_Line ("A problem has been detected!");
+                  Text_IO.Put_Line ("Connection will be closed...");
+                  Text_IO.New_Line;
+                  Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+            end;
 
+            Slots.Set_Abortable (Slot_Index, False);
+            Slots.Release (Slot_Index);
+            Sockets.Shutdown (Sock);
          end;
-
-         Slots.Set_Abortable (Slot_Index, False);
-         Slots.Release (Slot_Index);
-
       end loop;
 
    exception
