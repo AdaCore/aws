@@ -1,3 +1,13 @@
+2003-09-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.adb:
+	(Options): New procedure.
+	(Put_File_Header): Add wsdl2aws command line in comment.
+
+	* soap-generator.ads:
+	(Options): New procedure.
+	(Object): Add field Options.
+
 2003-08-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-types.adb:
