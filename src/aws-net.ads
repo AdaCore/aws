@@ -53,14 +53,10 @@ package AWS.Net is
    ----------------
 
    function Socket (Security : in Boolean) return Socket_Type'Class;
-   --  Create an unitialized socket.
-   --  This socket could be used as is in the New_Socket parameter
-   --  in the Accept_Socket routine.
-   --  For the use this socket in the Connect it is necessary to call Create
-   --  first.
+   --  Create an uninitialized socket.
 
    function Socket (Security : in Boolean) return Socket_Access;
-   --  Create a dynamically allocated unitialized socket.
+   --  Create a dynamically allocated uninitialized socket.
 
    procedure Bind
      (Socket : in out Socket_Type;
@@ -80,8 +76,8 @@ package AWS.Net is
      (Socket     : in     Socket_Type'Class;
       New_Socket :    out Socket_Type)
       is abstract;
-   --  Accept a connection on a socket. If it raises Socket_Error,
-   --  all resources used by new_Socket have been released.
+   --  Accept a connection on a socket. If it raises Socket_Error, all
+   --  resources used by new_Socket have been released.
    --  There is not need to call Free or Shutdown.
 
    procedure Connect
