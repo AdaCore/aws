@@ -170,14 +170,12 @@ OpenSSL library (optional) :
 
    Sources for UNIX or Win32:
       http://www.openssl.org
-      (we have used and we distribute OpenSSL version 0.9.5a with this AWS
-      release, we have also tested AWS with OpenSSL 0.9.6a without trouble)
-
    binaries for Win32 with GNAT 3.13 (and later):
       Included with the main AWS distribution.
 
-   binaries for Win32 with GNAT 3.12:
-      http://vagul.tripod.com/libssl.zip
+   Note that we have used and we distribute (for Win32 platform) OpenSSL
+   version 0.9.6b with this AWS release. OpenSSL have been built with GCC
+   version 2.95.2 with optimization (-O3) on.
 
    See OpenSSL license (docs/openssl.license).
 
