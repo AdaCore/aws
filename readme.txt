@@ -78,7 +78,7 @@ Here are the main changes since AWS 2.0 :
 
    - Support for streaming response in the HTTP client interface.
 
-   - Properly support header node in SOAP envelope.
+   - Properly support SOAP envelope nodes containing an optional header node.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
