@@ -173,7 +173,7 @@ procedure WSDL2AWS is
       loop
          case Command_Line.Getopt
            ("d q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
-              & "cb types: spec: main:")
+            & "x: cb types: spec: main:")
          is
             when ASCII.NUL => exit;
 
@@ -278,6 +278,9 @@ procedure WSDL2AWS is
                   raise Syntax_Error;
                end if;
 
+            when 'x' =>
+               SOAP.Generator.Exclude (Gen, GNAT.Command_Line.Parameter);
+
             when others =>
                raise Program_Error;
          end case;
@@ -348,6 +351,8 @@ begin
 
    SOAP.WSDL.Parser.Parse (Gen, Def);
 
+   Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Success);
+
 exception
    when Syntax_Error | Command_Line.Invalid_Switch =>
       New_Line;
@@ -369,6 +374,7 @@ exception
       Put_Line ("   -nostub      Do not create stub units");
       Put_Line ("   -noskel      Do not create skeleton units");
       Put_Line ("   -cb          Generate SOAP callback routine");
+      Put_Line ("   -x operation Exclude operation from code generation");
       Put_Line ("   -spec  spec  Use procs/types from Ada spec");
       Put_Line ("   -types spec  Use types from Ada spec");
       Put_Line ("   -main file   Generate SOAP main server's procedure");
@@ -376,6 +382,7 @@ exception
       Put_Line ("   -pu name     The proxy user name");
       Put_Line ("   -pp pwd      The proxy password");
       New_Line;
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
    when Name_Error =>
       New_Line;
@@ -383,9 +390,10 @@ exception
       New_Line;
       Put_Line ("WSDL file not found : " & To_String (Filename));
       New_Line;
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
    when SOAP.WSDL.WSDL_Error =>
-      null;
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
    when E : others =>
       New_Line;
@@ -393,4 +401,5 @@ exception
       New_Line;
       Put_Line ("Error: " & Exception_Information (E));
       New_Line;
+      Ada.Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 end WSDL2AWS;
