@@ -1,3 +1,14 @@
+2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* interoplab_main.out:
+	Update output.
+	
+	* interoplab_main.wsdl:
+	Activate the echoVoid routine.
+
+	* interoplab_main.adb:
+	Add test for the echoVoid SOAP/WSDL test.
+
 2003-03-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
