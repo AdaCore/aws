@@ -220,6 +220,7 @@ endif
 	-$(CP) -p $(BDIR)/ssl/obj/* $(INSTALL)/AWS/lib
 	$(CP) lib/libz.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
+	-$(CP) docs/aws_api.xml $(INSTALL)/AWS/docs
 	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
 	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
 	-$(CP) docs/*.info* $(INSTALL)/AWS/docs
