@@ -33,6 +33,8 @@
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 
+with AWS.Utils;
+
 package body AWS.Messages is
 
    type String_Access is access constant String;
@@ -192,7 +194,7 @@ package body AWS.Messages is
 
    function Content_Length (Size : in Natural) return String is
    begin
-      return Content_Length_Token & Natural'Image (Size);
+      return Content_Length_Token & Utils.Image (Size);
    end Content_Length;
 
    ------------------
