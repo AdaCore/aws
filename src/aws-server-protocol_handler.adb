@@ -155,7 +155,7 @@ is
          end if;
 
          Sockets.Put_Line (Sock,
-                           "Date: " & Messages.To_HTTP_Date (Calendar.Clock));
+                           "Date: " & Messages.To_HTTP_Date (OS_Lib.OS_Clock));
 
          Sockets.Put_Line (Sock,
                            "Server: AWS (Ada Web Server) v" & Version);
