@@ -6,6 +6,15 @@
 	* generate.adb:
 	Call for Print_Tasks.
 
+	* wait_proc.adb:
+	Move security independent code here from wait.adb.
+
+	* wait.adb:
+	Just call wait_proc.adb.
+
+	* wait_sec.adb, wait_sec.out:
+	New regtest. Not working. Have to be fixed before place to makefile.
+
 2004-06-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* tgetparam_proc.adb:
