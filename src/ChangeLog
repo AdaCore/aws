@@ -1,3 +1,10 @@
+2002-04-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Start): Initialize socket before any other data. If the socket is
+	 alreday used the problem will be detected before record
+	 initialization.
+
 2002-04-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-dispatchers-uri.adb:
