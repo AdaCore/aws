@@ -1,3 +1,8 @@
+2005-02-16  Pascal Obry  <pascal@obry.org>
+
+	* awsres.adb:
+	(Create): Fix call to OS_Lib.File_Time_Stamp.
+
 2004-12-04  Pascal Obry  <pascal@obry.org>
 
 	* tools.gpr:

@@ -1,3 +1,15 @@
+2005-02-16  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-configuration__aws.ads:
+	Initial revision.
+
+	* templates_parser-input__aws.adb:
+	Initial revision.
+
+	* aws-os_lib__gnat.adb, aws-os_lib__posix.adb, aws-os_lib__win32.adb:
+	(File_Timestamp): Renamed to File_Time_Stamp to be consistent with
+	 the routine in GNAT.OS_Lib.
+
 2005-02-15  Pascal Obry  <pascal@obry.org>
 
 	* src/check_config.c:

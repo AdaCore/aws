@@ -1,3 +1,19 @@
+2005-02-16  Pascal Obry  <pascal@obry.org>
+
+	* src.gpr:
+	(Source_Dirs): Add ../config.
+	(Naming): New package.
+
+	* aws-services-directory.adb:
+	(Insert): Fix call to OS_Lib.File_Time_Stamp.
+
+	* aws-resources-files.adb:
+	(File_Timestamp): Fix call to OS_Lib.File_Time_Stamp.
+
+	* aws-os_lib.ads:
+	(File_Timestamp): Renamed to File_Time_Stamp to be consistent with
+	 the routine in GNAT.OS_Lib.
+
 2005-02-12  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
