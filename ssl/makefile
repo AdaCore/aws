@@ -10,7 +10,7 @@ build:
 	gnatmake -q $(GARGS) ssl-thin.ads
 	echo Building ssl-wrappers.adb
 	gnatmake -q $(GARGS) ssl-wrappers.adb
-	ar cr libsslaws.a ssl-wrappers.o
+	ar cr libnosslaws.a ssl-wrappers.o
 	rm ssl-wrappers.o
 
 clean:
