@@ -629,6 +629,7 @@ src/templates_parser-cached_files.adb
 src/templates_parser-data.adb
 src/templates_parser-debug.adb
 src/templates_parser-debug.ads
+src/templates_parser-definitions.adb
 src/templates_parser-expr.adb
 src/templates_parser-filter.adb
 src/templates_parser-input.adb
