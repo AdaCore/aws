@@ -32,28 +32,22 @@
 
 with Ada.Streams;
 
-with ZLib;
-
-with AWS.Utils;
-
 package AWS.Resources.Embedded is
 
    use Ada;
 
    type Buffer_Access is access constant Streams.Stream_Element_Array;
 
-   type Data_Mode is (Compressed, Uncompressed);
-
    procedure Open
      (File :    out File_Type;
       Name : in     String;
-      Form : in     String    := "");
+      Form : in     String    := "";
+      GZip : in out Boolean);
    --  Open resource from registered data
 
    procedure Create
      (File   :    out File_Type;
-      Buffer : in     Buffer_Access;
-      Mode   : in     Data_Mode     := Uncompressed);
+      Buffer : in     Buffer_Access);
    --  Create the resource directly from memory data
 
    function Is_Regular_File (Name : in String) return Boolean;
@@ -75,49 +69,5 @@ package AWS.Resources.Embedded is
    --  content is pointed to by Content, the File_Time must be the last
    --  modification time stamp for the file. If Name ends with ".gz" the
    --  embedded resource registered as compressed.
-
-private
-
-   --  Uncompressed embedded resources
-
-   type File_Tagged is new Resources.File_Tagged with record
-      Buffer : Buffer_Access;
-      K      : Streams.Stream_Element_Offset;
-   end record;
-
-   function End_Of_File (Resource : in File_Tagged) return Boolean;
-
-   procedure Read
-     (Resource : in out File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
-
-   function Size (Resource : in File_Tagged) return Stream_Element_Offset;
-
-   procedure Close (Resource : in out File_Tagged);
-
-   procedure Reset (Resource : in out File_Tagged);
-
-   --  Compressed embedded resources
-
-   type Z_File_Tagged is new File_Tagged with record
-      --  Buffer to uncompress on the fly compressed data if the client does
-      --  not support compressed data.
-      U_Buffer           : Utils.Stream_Element_Array_Access;
-      R_First, R_Last    : Stream_Element_Offset;
-      --  Filter used to uncompress data
-      U_Filter           : ZLib.Filter_Type;
-   end record;
-
-   procedure Read
-     (Resource : in out Z_File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
-
-   procedure Close (Resource : in out Z_File_Tagged);
-
-   procedure Support_Compressed
-     (Resource : in out Z_File_Tagged;
-      State    : in     Boolean);
 
 end AWS.Resources.Embedded;
