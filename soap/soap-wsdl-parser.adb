@@ -670,13 +670,6 @@ package body SOAP.WSDL.Parser is
       begin
          --  Set array name, R is a complexType node
 
-         if Name = "ArrayOfanyType" then
-            --  ??? This is only a convention, we should check the array
-            --  defintion in the schema.
-            Raise_Exception
-              (WSDL_Error'Identity, "ArrayOfanyType not supported.");
-         end if;
-
          P.Name   := O.Current_Name;
          P.T_Name := +Name;
          P.E_Type := O.Array_Elements;
