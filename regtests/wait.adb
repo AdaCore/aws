@@ -96,10 +96,11 @@ procedure Wait is
               (Socket,
                (1 .. Sample_Size => Ada.Streams.Stream_Element
                                       (Net.Sets.Count (Set) rem 256)));
-   
+
             accept Next;
             delay A_Bit;
             Net.Shutdown (Socket);
+            Net.Free (Socket);
          end;
       end loop;
 
@@ -172,6 +173,7 @@ begin
                   Put_Line ("Close socket.");
 
                   Net.Shutdown (Socket);
+                  Net.Free (Socket);
                   Net.Sets.Remove_Socket (Set);
 
                   Socket_Removed := True;

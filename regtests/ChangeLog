@@ -1,3 +1,19 @@
+2004-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait.adb:
+	Call Net.Free routine after Net.Shutdown.
+
+2004-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait.adb, wait.out:
+	Ready to use.
+
+2004-03-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait.adb:
+	Test for wait on group of sockets. Still under development,
+	because of problem shutdown detection under Win32.
+
 2004-02-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* auth2.out, cert.out, compress.out, dirop.out, get_post.out,
