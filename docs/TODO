@@ -19,7 +19,8 @@ implemented:
   the chuncked encoding.
 
 - digest authentication (only basic authentication is supported right
-  now, which is to say no authentication at all :)
+  now, which is to say no authentication at all :) Not sure it is supported by
+  Web browser...
 
 - implement multi-server with a dispatcher of request to build server which
   must support a lot of requests. Could be using GLADE or a standard
@@ -71,7 +72,7 @@ implemented:
 - Support socket timeout options (send and receive timeout) at the OS
   level. Right now a task is doing the job.
 
-- Support compress/gzip encoding if client sypport it.
+- Support compress/gzip encoding if client support it.
 
 - Sort out problem with client socket that are not closed and can't be
   reused. This happen if a lot of requests are done to the server.
@@ -79,7 +80,8 @@ implemented:
 - Cookie for the session is set for the whole site (path=/), would be nice to
   have a way to configure that.
 
-- Support Session ID encoded into the URL to avoid use of cookie.
+- Support Session ID encoded into the URL to avoid use of cookie. Such a
+  session ID will only be valid for the current session of course.
 
 - Support session parameter of any types (only Boolean, Float, Integer and
   String are supported currently).
@@ -91,8 +93,3 @@ implemented:
   transparent to users.
 
 - Should we be able to associate a new Dispatcher object to the server ?
-
-- Implement client file upload.
-
-- Implement AWS resource files to be able to embedded all images/templates
-  into a single execuatble to distribute.
