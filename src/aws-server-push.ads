@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -37,7 +37,7 @@
 
 with AWS.Net.Stream_IO;
 
-with Table_Of_Strings_And_Static_Values_G;
+with Strings_Maps;
 
 generic
 
@@ -200,12 +200,7 @@ private
       Environment : Client_Environment;
    end record;
 
-   package Table is new Table_Of_Strings_And_Static_Values_G
-     (Character_Type => Character,
-      String_Type    => String,
-      Less           => "<",
-      Equals         => "=",
-      Value_Type     => Client_Holder);
+   package Table is new Strings_Maps (Client_Holder, "=");
 
    protected type Object is
 
@@ -256,7 +251,7 @@ private
       procedure Send
         (Data         : in     Client_Output_Type;
          Content_Type : in     String;
-         Unregistered : in out Table.Table_Type);
+         Unregistered : in out Table.Map);
       --  Send Data to all clients registered. Unregistered will contain a
       --  list of clients that have not responded to the request. These
       --  clients have been removed from the list of registered client.
@@ -270,7 +265,7 @@ private
       --  See above.
 
    private
-      Container : Table.Table_Type;
+      Container : Table.Map;
       Open      : Boolean := True;
    end Object;
 

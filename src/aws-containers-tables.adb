@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,19 +30,17 @@
 
 --  $Id$
 
---  Parameters name/value are put into the GNAT.Dynamic_Tables.Table_Type
---  (Data field). The name as a key and the numeric index as a value is
---  placing to the AVL Tree for the fast find all Name/Value pairs with the
---  same name. Each value of the AVL Tree is a table of numeric indexes
---  in the Data field. The parameters must be accessible
---  through their string index by name and also using an numeric index in
---  the place order. So given a set of parameters (K1=V1, K2=V2...),
---  one must be able to ask for the value for K1 but also the name of the
---  second key or the value of the third key.
+--  Parameters name/value are put into the GNAT.Dynamic_Tables.Table_Type (Data
+--  field). The name as a key and the numeric index as a value is placed into a
+--  map for fast retrieval of all Name/Value pairs having the same name. Each
+--  value in the map is a table of numeric indexes pointing into the Data
+--  field. The parameters must be accessible using their name (string index)
+--  but also using an numeric index. So given a set of parameters (K1=V1,
+--  K2=V2...), one must be able to ask for the value for K1 but also the name
+--  of the second key or the value of the third key.
 --
 --  Each K/V pair is then inserted into the Data table for access by numeric
---  index. And its numeric index is placing to the AVL tree indexed by name.
---  The AVL Tree values is a tables of numeric indexes in the Data table.
+--  index. And its numeric index is placed into the map indexed by name.
 
 with Ada.Characters.Handling;
 
@@ -103,9 +101,8 @@ package body AWS.Containers.Tables is
    begin
       pragma Assert (Table.Index /= null);
 
-      return Is_Present
-        (Table.Index.all,
-         Normalize_Name (Name, not Table.Case_Sensitive));
+      return Index_Table.Is_In
+        (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index.all);
    end Exist;
 
    ---------
@@ -155,13 +152,19 @@ package body AWS.Containers.Tables is
      (Table   : in     Table_Type;
       Name    : in     String;
       Indexes :    out Name_Index_Table;
-      Found   :    out Boolean) is
+      Found   :    out Boolean)
+   is
+      Cursor : Index_Table.Cursor;
    begin
-      Index_Table.Get_Value
-        (Table => Index_Table.Table_Type (Table.Index.all),
-         Key   => Normalize_Name (Name, not Table.Case_Sensitive),
-         Value => Indexes,
-         Found => Found);
+      Cursor := Index_Table.Find
+        (Table.Index.all, Normalize_Name (Name, not Table.Case_Sensitive));
+
+      if not Index_Table.Has_Element (Cursor) then
+         Found := False;
+      else
+         Found   := True;
+         Indexes := Index_Table.Element (Cursor);
+      end if;
    end Get_Indexes;
 
    --------------
@@ -191,52 +194,33 @@ package body AWS.Containers.Tables is
       Sort  : in Boolean := False)
       return VString_Array
    is
-
-      procedure Process
-        (Key      : in     String;
-         Value    : in     Name_Index_Table;
-         Order    : in     Positive;
-         Continue : in out Boolean);
-
       Result : VString_Array (1 .. Name_Count (Table));
-
-      -------------
-      -- Process --
-      -------------
-
-      procedure Process
-        (Key      : in     String;
-         Value    : in     Name_Index_Table;
-         Order    : in     Positive;
-         Continue : in out Boolean)
-      is
-         pragma Unreferenced (Value);
-         pragma Unreferenced (Continue);
-      begin
-         Result (Order) := To_Unbounded_String (Key);
-      end Process;
-
-      -----------------------
-      -- Disorder_Traverse --
-      -----------------------
-
-      procedure Disorder_Traverse is
-         new Index_Table.Disorder_Traverse_G (Process);
-
-      ------------------
-      -- Traverse_Asc --
-      ------------------
-
-      procedure Traverse_Asc is
-         new Index_Table.Traverse_Asc_G (Process);
-
+      Cursor : Index_Table.Cursor;
+      Index  : Natural := Result'First - 1;
    begin
-      if Table.Index /= null then
-         if Sort then
-            Traverse_Asc (Index_Table.Table_Type (Table.Index.all));
-         else
-            Disorder_Traverse (Index_Table.Table_Type (Table.Index.all));
-         end if;
+      Cursor := Index_Table.First (Table.Index.all);
+
+      while Index_Table.Has_Element (Cursor) loop
+         Index := Index + 1;
+         Result (Index) :=
+           To_Unbounded_String (Index_Table.Key (Cursor));
+         Index_Table.Next (Cursor);
+      end loop;
+
+      if Sort then
+         --  ??? should use a sort from AI302
+         for K in Result'Range loop
+            for J in K .. Result'Last loop
+               if Result (K) > Result (J) then
+                  declare
+                     Tmp : Unbounded_String := Result (K);
+                  begin
+                     Result (K) := Result (J);
+                     Result (J) := Tmp;
+                  end;
+               end if;
+            end loop;
+         end loop;
       end if;
 
       return Result;
@@ -278,7 +262,7 @@ package body AWS.Containers.Tables is
 
       if Found then
          declare
-            Last   : Key_Positive := Name_Indexes.Last (Value);
+            Last   : constant Key_Positive := Name_Indexes.Last (Value);
             Result : VString_Array (1 .. Natural (Last));
          begin
             for I in Name_Indexes.First .. Last loop
@@ -302,7 +286,7 @@ package body AWS.Containers.Tables is
       if Table.Index = null then
          return 0;
       else
-         return Size (Table.Index.all);
+         return Natural (Index_Table.Length (Table.Index.all));
       end if;
    end Name_Count;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,15 +32,23 @@
 
 with Ada.Strings.Unbounded;
 
-with Table_Of_Strings_And_Static_Values_G;
+with Strings_Maps;
 
 package AWS.Containers.Key_Value is
 
-   package Table is new Table_Of_Strings_And_Static_Values_G
-     (Character, String, "<", "=", Ada.Strings.Unbounded.Unbounded_String);
+   use Ada.Strings.Unbounded;
 
-   type Set is new Table.Table_Type;
+   package Table is new Strings_Maps (Unbounded_String, "=");
 
+   type Set is new Table.Containers.Map;
    type Set_Access is access Set;
+
+   subtype Cursor is Table.Containers.Cursor;
+   No_Element : Cursor renames Table.Containers.No_Element;
+
+   function Has_Element
+     (C : in Cursor)
+      return Boolean
+      renames Table.Containers.Has_Element;
 
 end AWS.Containers.Key_Value;

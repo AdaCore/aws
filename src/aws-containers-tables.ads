@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,7 +34,8 @@ with Ada.Strings.Unbounded;
 
 with GNAT.Dynamic_Tables;
 
-with Table_Of_Strings_And_Static_Values_G;
+with AI302.Containers.Indefinite_Hashed_Maps;
+with AI302.Strings.Hash;
 
 package AWS.Containers.Tables is
 
@@ -52,17 +53,17 @@ package AWS.Containers.Tables is
      of Ada.Strings.Unbounded.Unbounded_String;
 
    function Count (Table : in Table_Type) return Natural;
-   --  Returns the number of item in Table.
+   --  Returns the number of item in Table
 
    function Name_Count (Table : in Table_Type) return Natural;
-   --  Returns the number of unique key name in Table.
+   --  Returns the number of unique key name in Table
 
    function Count (Table : in Table_Type; Name : in String) return Natural;
    --  Returns the number of value for Key Name in Table. It returns
    --  0 if Key does not exist.
 
    function Exist (Table : in Table_Type; Name : in String) return Boolean;
-   --  Returns True if Key exist in Table.
+   --  Returns True if Key exist in Table
 
    function Get
      (Table : in Table_Type;
@@ -137,11 +138,12 @@ private
       Table_Initial        => 8,
       Table_Increment      => 30);
 
-   package Index_Table is new Table_Of_Strings_And_Static_Values_G
-     (Character, String, "<", "=", Name_Index_Table);
+   package Index_Table is
+     new AI302.Containers.Indefinite_Hashed_Maps
+       (String, Name_Index_Table, AI302.Strings.Hash, "=", Name_Indexes."=");
    --  Index of the Element_Array.
 
-   type Index_Table_Type is new Index_Table.Table_Type;
+   subtype Index_Table_Type is Index_Table.Map;
 
    type Index_Access is access Index_Table_Type;
 

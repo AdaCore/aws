@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -384,13 +384,16 @@ package body AWS.MIME is
       -------------------
 
       procedure Add_Extension (Ext : in String; MIME_Type : in String) is
+         Cursor  : Containers.Key_Value.Cursor;
+         Success : Boolean;
       begin
          Containers.Key_Value.Insert
-           (Ext_Set, Ext, To_Unbounded_String (MIME_Type));
-      exception
-         when Containers.Key_Value.Table.Duplicate_Item_Error =>
-            Containers.Key_Value.Replace_Value
-              (Ext_Set, Ext, To_Unbounded_String (MIME_Type));
+           (Ext_Set, Ext, To_Unbounded_String (MIME_Type), Cursor, Success);
+
+         if not Success then
+            Containers.Key_Value.Table.Containers.Replace_Element
+              (Cursor, To_Unbounded_String (MIME_Type));
+         end if;
       end Add_Extension;
 
       ----------------
@@ -418,10 +421,14 @@ package body AWS.MIME is
       ---------
 
       function Get (Filename : in String) return String is
-         Ext : constant String := File_Extension (Filename);
+         Ext    : constant String := File_Extension (Filename);
+         Cursor : Containers.Key_Value.Cursor;
       begin
-         if Containers.Key_Value.Is_Present (Ext_Set, Ext) then
-            return To_String (Containers.Key_Value.Value (Ext_Set, Ext));
+         Cursor := Containers.Key_Value.Find (Ext_Set, Ext);
+
+         if Containers.Key_Value.Has_Element (Cursor) then
+            return To_String
+              (Containers.Key_Value.Table.Containers.Element (Cursor));
 
          else
             --  Check now in regexp list

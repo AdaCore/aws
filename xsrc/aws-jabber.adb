@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
+--                         Copyright (C) 2002-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -322,7 +322,7 @@ package body AWS.Jabber is
       Server.MB.Get (Message);
       Check_Message (Message);
 
-      if Containers.Key_Value.Is_Present (Message.all, "digest") then
+      if Containers.Key_Value.Is_In ("digest", Message.all) then
          --  Digest authentication supported, this is the prefered method if
          --  supported to avoid sending the password in plain ASCII over the
          --  Internet.
@@ -339,7 +339,7 @@ package body AWS.Jabber is
               & "</query>"
               & "</iq>");
 
-      elsif Containers.Key_Value.Is_Present (Message.all, "password") then
+      elsif Containers.Key_Value.Is_In ("password", Message.all) then
          --  Plain authentication supported, use this one if digest is not
          --  supported by the server.
 
@@ -411,10 +411,17 @@ package body AWS.Jabber is
       pragma Unreferenced (Namespace_URI);
       pragma Unreferenced (Local_Name);
       pragma Unreferenced (Qname);
+      Cursor : Containers.Key_Value.Cursor;
+      Found  : Boolean;
    begin
       if Handler.Key /= Null_Unbounded_String then
-         Containers.Key_Value.Insert
-           (Handler.R.all, To_String (Handler.Key), Handler.Value);
+         if not Containers.Key_Value.Is_In
+           (To_String (Handler.Key), Handler.R.all)
+         then
+            Containers.Key_Value.Insert
+              (Handler.R.all, To_String (Handler.Key),
+               Handler.Value, Cursor, Found);
+         end if;
       end if;
 
       Handler.Key   := Null_Unbounded_String;
@@ -646,7 +653,7 @@ package body AWS.Jabber is
          new Ada.Unchecked_Deallocation (Jabber.Message, Message_Access);
    begin
       if Message /= null then
-         Containers.Key_Value.Destroy (Message.all);
+         Containers.Key_Value.Clear (Message.all);
          Free (Message);
       end if;
    end Release;
@@ -696,6 +703,9 @@ package body AWS.Jabber is
       pragma Unreferenced (Qname);
 
       use Sax.Attributes;
+
+      Cursor : Containers.Key_Value.Cursor;
+      Found  : Boolean;
    begin
       Handler.Key := To_Unbounded_String (Local_Name);
 
@@ -704,14 +714,16 @@ package body AWS.Jabber is
       --  name)
 
       for J in 0 .. Get_Length (Atts) - 1 loop
+         declare
+            Key : constant String := Local_Name & '.' & Get_Qname (Atts, J);
          begin
-            Containers.Key_Value.Insert
-              (Handler.R.all,
-               Local_Name & '.' & Get_Qname (Atts, J),
-               To_Unbounded_String (Get_Value (Atts, J)));
-         exception
-            when Containers.Key_Value.Table.Duplicate_Item_Error =>
-               null;
+            if not Containers.Key_Value.Is_In (Key, Handler.R.all) then
+               Containers.Key_Value.Insert
+                 (Handler.R.all,
+                  Key,
+                  To_Unbounded_String (Get_Value (Atts, J)),
+                  Cursor, Found);
+            end if;
          end;
       end loop;
    end Start_Element;
@@ -760,9 +772,12 @@ package body AWS.Jabber is
    -----------
 
    function Value (M : in Message_Access; Key : in String) return String is
+      Cursor : Containers.Key_Value.Cursor;
    begin
-      if Containers.Key_Value.Is_Present (M.all, Key) then
-         return To_String (Containers.Key_Value.Value (M.all, Key));
+      Cursor := Containers.Key_Value.Find (M.all, Key);
+
+      if Containers.Key_Value.Has_Element (Cursor) then
+         return To_String (Containers.Key_Value.Element (M.all, Key));
       else
          return "";
       end if;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,6 +35,7 @@ with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with AI302.Containers.Indefinite_Ordered_Sets;
 
 with AWS.OS_Lib;
 with AWS.Parameters;
@@ -42,11 +43,202 @@ with AWS.MIME;
 
 with GNAT.Calendar.Time_IO;
 
-with Table_Of_Static_Keys_And_Static_Values_G;
-
 package body AWS.Services.Directory is
 
    use Ada;
+   use Ada.Strings.Unbounded;
+
+   type File_Record is record
+      Name      : Unbounded_String;
+      Size      : Integer;
+      Directory : Boolean;
+      Time      : Calendar.Time;
+      UID       : Natural;
+      Order_Set : Unbounded_String;
+   end record;
+
+   function "<" (Left, Right : in File_Record) return Boolean;
+
+   function "=" (Left, Right : in File_Record) return Boolean;
+   pragma Inline ("=");
+
+   package File_Tree is
+     new AI302.Containers.Indefinite_Ordered_Sets (File_Record, "<", "=");
+
+   type Order_Mode is
+     (O,  -- original order, as read on the file system
+      D,  -- order by Directory flag
+      M,  -- order by MIME content type
+      E,  -- order by file extention case insensitive
+      X,  -- order by file extention case sensitive
+      N,  -- order by file/directory name case insensitive
+      A,  -- order by file/directory name case sensitive
+      T,  -- order by file time
+      S); -- order by file size
+
+   Dir   : constant Order_Mode := D;
+   MIME  : constant Order_Mode := M;
+   Ext   : constant Order_Mode := E;
+   SExt  : constant Order_Mode := X;
+   Name  : constant Order_Mode := N;
+   SName : constant Order_Mode := A;
+   Size  : constant Order_Mode := S;
+   Time  : constant Order_Mode := T;
+   Orig  : constant Order_Mode := O;
+
+   subtype Order_Char is Character;
+
+   function To_Order_Mode (C : in Order_Char) return Order_Mode;
+   --  Returns the Order_Mode value for the Order_Char. See Order_Set
+   --  comments for the data equivalence table.
+
+   function To_Order_Char (O : in Order_Mode) return Order_Char;
+   --  Returns the Order_Char for the Order_Mode. This routine is the
+   --  above reverse function.
+
+   function Get_Ext (File_Name : in String) return String;
+   --  Returns file extension for File_Name and the empty string if there
+   --  is not extension.
+
+   ---------
+   -- "<" --
+   ---------
+
+   function "<" (Left, Right : in File_Record) return Boolean is
+      use type Ada.Calendar.Time;
+      use AWS.MIME;
+
+      Order_Item : Order_Mode;
+      Ascending  : Boolean;
+      O_C        : Order_Char;
+
+   begin
+      for I in 1 .. Length (Left.Order_Set) loop
+
+         O_C        := Element (Left.Order_Set, I);
+         Order_Item := To_Order_Mode (O_C);
+         Ascending  := Characters.Handling.Is_Upper (O_C);
+
+         case Order_Item is
+
+            when Dir =>
+
+               if Left.Directory /= Right.Directory then
+                  return Left.Directory < Right.Directory xor Ascending;
+               end if;
+
+            when MIME =>
+
+               if Left.Directory /= Right.Directory then
+                  return Left.Directory < Right.Directory xor Ascending;
+
+               elsif not Left.Directory and not Right.Directory then
+                  declare
+                     Mime_Left  : constant String
+                       := Content_Type (To_String (Left.Name));
+                     Mime_Right : constant String
+                       := Content_Type (To_String (Right.Name));
+                  begin
+                     if Mime_Left /= Mime_Right then
+                        return Mime_Left < Mime_Right xor not Ascending;
+                     end if;
+                  end;
+               end if;
+
+            when Ext  =>
+
+               if Left.Directory /= Right.Directory then
+                  return Left.Directory < Right.Directory xor Ascending;
+
+               elsif not Left.Directory and not Right.Directory then
+                  declare
+                     use Ada.Characters.Handling;
+                     Ext_Left  : constant String
+                       := To_Upper (Get_Ext (To_String (Left.Name)));
+                     Ext_Right : constant String
+                       := To_Upper (Get_Ext (To_String (Right.Name)));
+                  begin
+                     if Ext_Left /= Ext_Right then
+                        return Ext_Left < Ext_Right xor not Ascending;
+                     end if;
+                  end;
+               end if;
+
+            when SExt  =>
+
+               if Left.Directory /= Right.Directory then
+                  return Left.Directory < Right.Directory xor Ascending;
+
+               elsif not Left.Directory and not Right.Directory then
+                  declare
+                     Ext_Left  : constant String
+                       := Get_Ext (To_String (Left.Name));
+                     Ext_Right : constant String
+                       := Get_Ext (To_String (Right.Name));
+                  begin
+                     if Ext_Left /= Ext_Right then
+                        return Ext_Left < Ext_Right xor not Ascending;
+                     end if;
+                  end;
+               end if;
+
+            when Name =>
+
+               declare
+                  use Ada.Characters.Handling;
+                  Left_Name  : constant  String
+                    := To_Upper (To_String (Left.Name));
+                  Right_Name : constant String :=
+                                 To_Upper (To_String (Right.Name));
+               begin
+                  if Left_Name /= Right_Name then
+                     return Left_Name < Right_Name xor not Ascending;
+                  end if;
+               end;
+
+            when SName =>
+
+               declare
+                  Left_Name  : constant String := To_String (Left.Name);
+                  Right_Name : constant String := To_String (Right.Name);
+               begin
+                  if Left_Name /= Right_Name then
+                     return Left_Name < Right_Name xor not Ascending;
+                  end if;
+               end;
+
+            when Size =>
+
+               if Left.Size /= Right.Size then
+                  return Left.Size < Right.Size xor not Ascending;
+               end if;
+
+            when Time =>
+
+               if Left.Time /= Right.Time then
+                  return Left.Time < Right.Time xor not Ascending;
+               end if;
+
+            when Orig =>
+
+               return Left.UID < Right.UID xor not Ascending;
+
+         end case;
+      end loop;
+
+      return Left.UID < Right.UID;
+   end "<";
+
+   ---------
+   -- "=" --
+   ---------
+
+   function "=" (Left, Right : in File_Record) return Boolean is
+   begin
+      --  can't be equal as all File_Record ID are uniq.
+      pragma Assert (Left.UID /= Right.UID);
+      return False;
+   end "=";
 
    ------------
    -- Browse --
@@ -57,97 +249,35 @@ package body AWS.Services.Directory is
       Request        : in AWS.Status.Data)
       return Translate_Table
    is
-      use Ada.Strings.Unbounded;
       use Templates_Parser;
 
-      type Order_Mode is
-        (O,  -- original order, as read on the file system
-         D,  -- order by Directory flag
-         M,  -- order by MIME content type
-         E,  -- order by file extention case insensitive
-         X,  -- order by file extention case sensitive
-         N,  -- order by file/directory name case insensitive
-         A,  -- order by file/directory name case sensitive
-         T,  -- order by file time
-         S); -- order by file size
-
-      Dir   : constant Order_Mode := D;
-      MIME  : constant Order_Mode := M;
-      Ext   : constant Order_Mode := E;
-      SExt  : constant Order_Mode := X;
-      Name  : constant Order_Mode := N;
-      SName : constant Order_Mode := A;
-      Size  : constant Order_Mode := S;
-      Time  : constant Order_Mode := T;
-      Orig  : constant Order_Mode := O;
-
       Max_Order_Length : constant := 8;
-
-      subtype Order_Char is Character;
 
       Default_Order : constant String := "DN";
 
       --  File Tree
-
-      type File_Record is record
-         Name      : Unbounded_String;
-         Size      : Integer;
-         Directory : Boolean;
-         Time      : Calendar.Time;
-         UID       : Natural;
-      end record;
-
-      type Empty_Type is (Nothing);
-      --  File_Tree generic instanciation need a data, but we do not.
-
-      function "<" (Left, Right : in File_Record) return Boolean;
-
-      function "=" (Left, Right : in File_Record) return Boolean;
-      pragma Inline ("=");
-
-      package File_Tree is new Table_Of_Static_Keys_And_Static_Values_G
-        (Key_Type   => File_Record,
-         Value_Type => Empty_Type,
-         Less       => "<",
-         Equals     => "=");
 
       function Invert (C : in Order_Char) return Order_Char;
       --  Return the reverse order for C. It means that the upper case letter
       --  is change to a lower case and a lower case letter to an upper case
       --  one.
 
-      procedure Each_Entry
-        (Item         : in     File_Record;
-         Value        : in     Empty_Type;
-         Order_Number : in     Positive;
-         Continue     : in out Boolean);
+      procedure Each_Entry (Cursor : in File_Tree.Cursor);
       --  Iterator callback procedure.
 
       function End_Slash (Name : in String) return String;
       --  Return Name terminated with a directory separator.
 
-      function Get_Ext (File_Name : in String) return String;
-      --  Returns file extension for File_Name and the empty string if there
-      --  is not extension.
-
-      function To_Order_Mode (C : in Order_Char) return Order_Mode;
-      --  Returns the Order_Mode value for the Order_Char. See Order_Set
-      --  comments for the data equivalence table.
-
-      function To_Order_Char (O : in Order_Mode) return Order_Char;
-      --  Returns the Order_Char for the Order_Mode. This routine is the
-      --  above reverse function.
-
       procedure For_Each_File is
-         new File_Tree.Traverse_Asc_G (Action => Each_Entry);
+         new File_Tree.Generic_Iteration (Process => Each_Entry);
 
       procedure Read_Directory (Directory_Name : in String);
       --  Read Dir_Name entries and insert them into the Order_Tree table
 
-      Names   : Vector_Tag;
-      Sizes   : Vector_Tag;
-      Times   : Vector_Tag;
-      Is_Dir  : Vector_Tag;
+      Names  : Vector_Tag;
+      Sizes  : Vector_Tag;
+      Times  : Vector_Tag;
+      Is_Dir : Vector_Tag;
 
       Direct_Ordr : Unbounded_String;
       --  Direct ordering rules.
@@ -198,160 +328,14 @@ package body AWS.Services.Directory is
 
       use File_Tree;
 
-      Order_Tree   : Table_Type;
-
-      ---------
-      -- "<" --
-      ---------
-
-      function "<" (Left, Right : in File_Record) return Boolean is
-         use type Ada.Calendar.Time;
-         use AWS.MIME;
-
-         Order_Item : Order_Mode;
-         Ascending  : Boolean;
-         O_C        : Order_Char;
-
-      begin
-         for I in 1 .. Length (Order_Set) loop
-
-            O_C        := Element (Order_Set, I);
-            Order_Item := To_Order_Mode (O_C);
-            Ascending  := Characters.Handling.Is_Upper (O_C);
-
-            case Order_Item is
-
-               when Dir =>
-
-                  if Left.Directory /= Right.Directory then
-                     return Left.Directory < Right.Directory xor Ascending;
-                  end if;
-
-               when MIME =>
-
-                  if Left.Directory /= Right.Directory then
-                     return Left.Directory < Right.Directory xor Ascending;
-
-                  elsif not Left.Directory and not Right.Directory then
-                     declare
-                        Mime_Left  : constant String
-                          := Content_Type (To_String (Left.Name));
-                        Mime_Right : constant String
-                          := Content_Type (To_String (Right.Name));
-                     begin
-                        if Mime_Left /= Mime_Right then
-                           return Mime_Left < Mime_Right xor not Ascending;
-                        end if;
-                     end;
-                  end if;
-
-               when Ext  =>
-
-                  if Left.Directory /= Right.Directory then
-                     return Left.Directory < Right.Directory xor Ascending;
-
-                  elsif not Left.Directory and not Right.Directory then
-                     declare
-                        use Ada.Characters.Handling;
-                        Ext_Left  : constant String
-                          := To_Upper (Get_Ext (To_String (Left.Name)));
-                        Ext_Right : constant String
-                          := To_Upper (Get_Ext (To_String (Right.Name)));
-                     begin
-                        if Ext_Left /= Ext_Right then
-                           return Ext_Left < Ext_Right xor not Ascending;
-                        end if;
-                     end;
-                  end if;
-
-               when SExt  =>
-
-                  if Left.Directory /= Right.Directory then
-                     return Left.Directory < Right.Directory xor Ascending;
-
-                  elsif not Left.Directory and not Right.Directory then
-                     declare
-                        Ext_Left  : constant String
-                          := Get_Ext (To_String (Left.Name));
-                        Ext_Right : constant String
-                          := Get_Ext (To_String (Right.Name));
-                     begin
-                        if Ext_Left /= Ext_Right then
-                           return Ext_Left < Ext_Right xor not Ascending;
-                        end if;
-                     end;
-                  end if;
-
-               when Name =>
-
-                  declare
-                     use Ada.Characters.Handling;
-                     Left_Name  : constant  String
-                       := To_Upper (To_String (Left.Name));
-                     Right_Name : constant String :=
-                       To_Upper (To_String (Right.Name));
-                  begin
-                     if Left_Name /= Right_Name then
-                        return Left_Name < Right_Name xor not Ascending;
-                     end if;
-                  end;
-
-               when SName =>
-
-                  declare
-                     Left_Name  : constant String := To_String (Left.Name);
-                     Right_Name : constant String := To_String (Right.Name);
-                  begin
-                     if Left_Name /= Right_Name then
-                        return Left_Name < Right_Name xor not Ascending;
-                     end if;
-                  end;
-
-               when Size =>
-
-                  if Left.Size /= Right.Size then
-                     return Left.Size < Right.Size xor not Ascending;
-                  end if;
-
-               when Time =>
-
-                  if Left.Time /= Right.Time then
-                     return Left.Time < Right.Time xor not Ascending;
-                  end if;
-
-               when Orig =>
-
-                  return Left.UID < Right.UID xor not Ascending;
-
-            end case;
-         end loop;
-
-         return Left.UID < Right.UID;
-      end "<";
-
-      ---------
-      -- "=" --
-      ---------
-
-      function "=" (Left, Right : in File_Record) return Boolean is
-      begin
-         --  can't be equal as all File_Record ID are uniq.
-         pragma Assert (Left.UID /= Right.UID);
-         return False;
-      end "=";
+      Order_Tree   : File_Tree.Set;
 
       ----------------
       -- Each_Entry --
       ----------------
 
-      procedure Each_Entry
-        (Item         : in     File_Record;
-         Value        : in     Empty_Type;
-         Order_Number : in     Positive;
-         Continue     : in out Boolean)
-      is
-         pragma Unreferenced (Value);
-         pragma Unreferenced (Order_Number);
+      procedure Each_Entry (Cursor : in File_Tree.Cursor) is
+         Item : constant File_Record := File_Tree.Element (Cursor);
       begin
          if Item.Directory then
             Sizes := Sizes & '-';
@@ -362,11 +346,10 @@ package body AWS.Services.Directory is
             Names := Names & Item.Name;
          end if;
 
-         Times := Times &
+         Times  := Times &
            GNAT.Calendar.Time_IO.Image (Item.Time, "%Y/%m/%d %T");
 
-         Is_Dir   := Is_Dir & Item.Directory;
-         Continue := True;
+         Is_Dir := Is_Dir & Item.Directory;
       end Each_Entry;
 
       ---------------
@@ -383,24 +366,6 @@ package body AWS.Services.Directory is
             return Name & '/';
          end if;
       end End_Slash;
-
-      -------------
-      -- Get_Ext --
-      -------------
-
-      function Get_Ext (File_Name : in String) return String is
-         use Ada.Strings;
-
-         Pos : constant Natural
-           := Fixed.Index (File_Name, Maps.To_Set ("."), Going => Backward);
-
-      begin
-         if Pos = 0 then
-            return "";
-         else
-            return File_Name (Pos .. File_Name'Last);
-         end if;
-      end Get_Ext;
 
       ------------
       -- Invert --
@@ -446,23 +411,26 @@ package body AWS.Services.Directory is
          is
             Full_Pathname : constant String := Dir_Str & Filename;
             File_Entry    : File_Record;
+            Cursor        : File_Tree.Cursor;
+            Success       : Boolean;
          begin
             File_Entry.Directory := Is_Directory;
 
             if Is_Directory then
                File_Entry.Size := -1;
             else
-
                File_Entry.Size
                  := Integer (AWS.OS_Lib.File_Size (Full_Pathname));
             end if;
 
-            File_Entry.Name := To_Unbounded_String (Filename);
-            File_Entry.Time := AWS.OS_Lib.File_Timestamp (Full_Pathname);
-            File_Entry.UID  := UID_Sq;
-            UID_Sq          := UID_Sq + 1;
+            File_Entry.Name      := To_Unbounded_String (Filename);
+            File_Entry.Time      := AWS.OS_Lib.File_Timestamp (Full_Pathname);
+            File_Entry.UID       := UID_Sq;
+            File_Entry.Order_Set := Order_Set;
 
-            File_Tree.Insert (Order_Tree, File_Entry, Nothing);
+            UID_Sq := UID_Sq + 1;
+
+            File_Tree.Insert (Order_Tree, File_Entry, Cursor, Success);
 
             Quit := False;
          end Insert;
@@ -470,24 +438,6 @@ package body AWS.Services.Directory is
       begin
          Insert_Directory_Entries (Directory_Name);
       end Read_Directory;
-
-      -------------------
-      -- To_Order_Char --
-      -------------------
-
-      function To_Order_Char (O : in Order_Mode) return Order_Char is
-      begin
-         return Order_Mode'Image (O)(1);
-      end To_Order_Char;
-
-      -------------------
-      -- To_Order_Mode --
-      -------------------
-
-      function To_Order_Mode (C : in Order_Char) return Order_Mode is
-      begin
-         return Order_Mode'Value (String'(1 => C));
-      end To_Order_Mode;
 
    begin
       --  Read ordering rules from the Web page and build the direct and
@@ -573,7 +523,7 @@ package body AWS.Services.Directory is
 
       For_Each_File (Order_Tree);
 
-      Destroy (Order_Tree);
+      Clear (Order_Tree);
 
       return (Assoc ("URI",           End_Slash (AWS.Status.URI (Request))),
               Assoc ("VERSION",       AWS.Version),
@@ -612,5 +562,41 @@ package body AWS.Services.Directory is
          Translations => Translations & Browse (Directory_Name, Request),
          Cached       => True);
    end Browse;
+
+   -------------
+   -- Get_Ext --
+   -------------
+
+   function Get_Ext (File_Name : in String) return String is
+      use Ada.Strings;
+
+      Pos : constant Natural
+        := Fixed.Index (File_Name, Maps.To_Set ("."), Going => Backward);
+
+   begin
+      if Pos = 0 then
+         return "";
+      else
+         return File_Name (Pos .. File_Name'Last);
+      end if;
+   end Get_Ext;
+
+   -------------------
+   -- To_Order_Char --
+   -------------------
+
+   function To_Order_Char (O : in Order_Mode) return Order_Char is
+   begin
+      return Order_Mode'Image (O) (1);
+   end To_Order_Char;
+
+   -------------------
+   -- To_Order_Mode --
+   -------------------
+
+   function To_Order_Mode (C : in Order_Char) return Order_Mode is
+   begin
+      return Order_Mode'Value (String'(1 => C));
+   end To_Order_Mode;
 
 end AWS.Services.Directory;
