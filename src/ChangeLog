@@ -1,5 +1,11 @@
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-net-ssl-certificate.adb:
+	(NAME_oneline): New routine.
+	(Get): Use NAME_oneline, free certificate before returning.
+	
+2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(SOURCES): Add aws-net-ssl-certificate.adb.
 
