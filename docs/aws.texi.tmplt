@@ -718,6 +718,23 @@ Project file, nothing else to set.
 @end smallexample
 
 @noindent
+If your application must support SSL, you have to link against the
+@file{-lcrypto} and @file{-lssl} libraries. Add a package
+@code{Linker} in your project file, something like:
+
+@smallexample
+@cartouche
+@group
+@b{package} Linker @b{is}
+
+   @b{for} Default_Switches ("Ada") @b{use} ("-lcrypto", "-lssl");
+
+@b{end} Linker;
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
 See the @i{GNAT User's Guide} for more information about GNAT Project Files.
 
 @c ----------------------------------------------------------------------
