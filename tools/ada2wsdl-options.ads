@@ -65,4 +65,7 @@ package Ada2WSDL.Options is
    Enum_To_String : Boolean := False;
    --  If True all enumeration types will be mapped to strings
 
+   procedure Set_Default;
+   --  Set default path options for the Asis compile step
+
 end Ada2WSDL.Options;
