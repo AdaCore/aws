@@ -224,13 +224,15 @@ package body AWS.POP is
    --------------------------
 
    procedure For_Every_Attachment (Message : in POP.Message) is
-      P : Attachment_Access := Message.Attachments;
-      Quit : Boolean := False;
+      P     : Attachment_Access := Message.Attachments;
+      Index : Positive := 1;
+      Quit  : Boolean := False;
    begin
       while P /= null loop
-         Action (P.all, Quit);
+         Action (P.all, Index, Quit);
          exit when Quit;
          P := P.Next;
+         Index := Index + 1;
       end loop;
    end For_Every_Attachment;
 
