@@ -163,3 +163,5 @@ implemented:
   recipients.
 
 - Add more certificate information in AWS.Net.SSL.Certificate
+
+- Add AWS.Net.SSL.Supported Boolean constant.
