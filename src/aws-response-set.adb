@@ -98,12 +98,16 @@ package body AWS.Response.Set is
 
    procedure Cache_Control
      (D     : in out Data;
-      Value : in     Messages.Cache_Option) is
+      Value : in     Messages.Cache_Option)
+   is
+      use type Messages.Cache_Option;
    begin
-      Headers.Set.Update
-        (D.Header,
-         Name  => Messages.Cache_Control_Token,
-         Value => String (Value));
+      if Value /= Messages.Unspecified then
+         Headers.Set.Update
+           (D.Header,
+            Name  => Messages.Cache_Control_Token,
+            Value => String (Value));
+      end if;
    end Cache_Control;
 
    ------------------
