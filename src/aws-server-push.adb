@@ -252,7 +252,7 @@ package body AWS.Server.Push is
 
          String'Write (Holder.Stream,
                        "HTTP/1.1 200 OK" & New_Line
-                       & "Server: AWS (Ada Web Server) v" & Version & New_line
+                       & "Server: AWS (Ada Web Server) v" & Version & New_Line
                        & "Connection: Close" & New_Line);
 
          if Holder.Kind = Chunked then
