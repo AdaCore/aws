@@ -62,38 +62,20 @@ package AWS.OS_Lib is
    -- Directory Operations --
    --------------------------
 
-   type Dir_Type is limited private;
-
-   Directory_Error : exception;
-
-   procedure Open (Dir : out Dir_Type; Dir_Name : in String);
-   --  Opens the directory named by Dir_Name and returns a Dir_Type value
-   --  that refers to this directory, and is positioned at the first entry.
-   --  Raises Directory_Error if Dir_Name cannot be accessed. In that case
-   --  Dir will be set to Null_Dir.
-
-   procedure Read
-     (Dir  : in out Dir_Type;
-      Str  :    out String;
-      Last :    out Natural);
-   --  Reads the next entry from the directory and sets Str to the name
-   --  of that entry. Last is the index in Str such that Str (Last) is the
-   --  last character written. Last is 0 when there are no more files in the
-   --  directory. If Str is too small for the file name, the file name will
-   --  be truncated before being copied to Str. The list of files returned
-   --  includes directories in systems providing a hierarchical directory
-   --  structure, including . (the current directory) and .. (the parent
-   --  directory) in systems providing these entries. Raises Directory_Error
-   --  if Dir has not be opened.
-
-   procedure Close (Dir : in out Dir_Type);
-   --  Closes the directory stream refered to by Dir. After calling Close
-   --  Is_Open will return False. Dir will be set to Null_Dir.
-   --  Raises Directory_Error if Dir has not be opened (Dir = Null_Dir).
+   generic
+      with procedure Action
+        (Filename     : in     String;
+         Is_Directory : in     Boolean;
+         Quit         : in out Boolean);
+   procedure For_Every_Directory_Entry (Directory_Name : in String);
+   --  Reads all entries in Directory_Name and calls Action for each
+   --  one. Is_Directory is set to True if Filename is a directory. Quit can
+   --  be set to True to stop the iterator. Raises No_Such_File if
+   --  Directory_Name does not exists.
 
    function Base_Name
      (Path   : in String;
-      Suffix : in String    := "")
+      Suffix : in String := "")
       return String;
    --  Any directory prefix is removed. If Suffix is non-empty and is a
    --  suffix of Path, it is removed.
@@ -108,10 +90,5 @@ package AWS.OS_Lib is
    --  Returns the file name and the file extension if present. It removes all
    --  path information. This is equivalent to Base_Name with default Extension
    --  value.
-
-private
-
-   type Dir_Type_Hidden;
-   type Dir_Type is access Dir_Type_Hidden;
 
 end AWS.OS_Lib;
