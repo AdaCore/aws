@@ -77,7 +77,7 @@ build_soap: $(SOAP_DEMOS)
 
 clean:
 	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.* *.~*.*.~ rdemo*
-	-$(RM) -f runme-*.log hello_demo*
+	-$(RM) -f runme-*.log hello_demo* interoplab-*
 
 #############################################################################
 # Configuration for GNAT Projet Files
