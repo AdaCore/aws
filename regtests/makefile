@@ -20,7 +20,7 @@
 ifeq ($(MODE),ssl)
 # With SSL support
 
-GARGS = -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
+GARGS = -i -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
@@ -35,7 +35,7 @@ RT_STD_SEC = tsgetparam
 else
 # Without SSL support
 
-GARGS = -i -I../src -I../include -I../soap $(INCLUDES)
+GARGS = -i -q -I../src -I../include -I../soap $(INCLUDES)
 BARGS = -E
 LARGS = $(LFLAGS) $(LIBS)
 
@@ -63,7 +63,7 @@ force:
 build: tres
 	for file in $(ALL_TESTS); do \
 	   echo -n Building $$file; \
-	   gnatmake -q -g $$file $(GARGS) -largs $(LARGS) -bargs -E; \
+	   gnatmake -g $$file $(GARGS) -largs $(LARGS) -bargs -E; \
 	   echo ",  run it"; \
 	   ./$$file > $$file.res; \
 	done
@@ -74,6 +74,7 @@ checks_out: checks_tres
 	done
 
 tres: force
+	echo -n Building tres;
 	echo "line 1, file 1" > file1.html
 	echo "line 2, file 1" >> file1.html
 	echo "line 1, file 2" > file2.html
@@ -94,11 +95,13 @@ tres: force
 	echo "   nok" >> file.tmplt
 	echo "@@END_IF@@" >> file.tmplt
 	../tools/awsres -q -r tresres file1.html file2.html file.tmplt
-	gnatmake -q -g tres $(GARGS) -largs $(LARGS) -bargs -E
+	gnatmake -g tres $(GARGS) -largs $(LARGS) -bargs -E
+	echo -n ",  run it"
 	./tres > tres-1.res
 	echo "line 3, file 1" >> file1.html
 	echo "line 4, file 2" >> file2.html
 	echo "line 3, file 3" >> file3.html
+	echo ",  run it again"
 	./tres > tres-2.res
 	cat tres-1.res tres-2.res > tres.res
 
