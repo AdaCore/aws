@@ -30,7 +30,7 @@
 
 --  $Id$
 
---  Test for auto extend output socket size.
+--  Test for detect output buffer overflow.
 
 with Ada.Text_IO;
 with Ada.Exceptions;
