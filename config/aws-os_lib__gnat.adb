@@ -122,13 +122,39 @@ package body AWS.OS_Lib is
       Str  : String (1 .. 2_048);
       Last : Natural;
       Quit : Boolean := False;
+
+      function End_Slash return String;
+
+      ---------------
+      -- End_Slash --
+      ---------------
+
+      function End_Slash return String is
+      begin
+         if Directory_Name /= ""
+           and then Directory_Name (Directory_Name'Last) = '/'
+         then
+            return Directory_Name;
+         else
+            return Directory_Name & '/';
+         end if;
+      end End_Slash;
+
+      Dir_Name : constant String := End_Slash;
+
    begin
       GNAT.Directory_Operations.Open (Dir, Directory_Name);
 
       loop
          GNAT.Directory_Operations.Read (Dir, Str, Last);
+
          exit when Last = 0;
-         Action (Str (1 .. Last), Is_Directory (Str (1 .. Last)), Quit);
+
+         Action
+           (Str (1 .. Last),
+            Is_Directory (Dir_Name & Str (1 .. Last)),
+            Quit => Quit);
+
          exit when Quit;
       end loop;
 
