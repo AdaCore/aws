@@ -9,7 +9,8 @@ GFLAGS	= -g -O2 -gnatwu -gnaty -I../ssl -I../include
 SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-parameters.adb aws-response.adb aws-server-config.adb \
 	aws-server-get_status.adb aws-server.adb aws-session.adb \
-	aws-status.adb aws-translater.adb aws-url.adb
+	aws-status.adb aws-translater.adb aws-url.adb aws-utils.adb \
+	aws-key_value.adb aws-log.adb
 
 all:
 	echo "Targets:"
@@ -20,8 +21,8 @@ all:
 
 build: build_$(MODE)
 	gcc -c -O2 -g -I../include aws-session.adb
+	gcc -c -O2 -g -I../include aws-key_value.adb
 	gcc -c -O2 -g -I../include aws-server-get_status.adb
-	gcc -c -O2 -g -I../include aws-parameters.adb
 	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
 
 build_ssl:
