@@ -387,7 +387,6 @@ package body AWS.Client is
 
          if Connection.Socket /= null then
             Net.Buffered.Shutdown (Connection.Socket.all);
-            Net.Free (Connection.Socket);
          end if;
       end if;
    end Disconnect;
@@ -423,8 +422,7 @@ package body AWS.Client is
       Close (Connection);
 
       if Follow_Redirection
-        and then
-        Response.Status_Code (Result) = Messages.S305
+        and then Response.Status_Code (Result) = Messages.S305
       then
          --  This is "Use Proxy" message, Location point to the proxy to use.
          --  We do not have the login/password for the proxy.
@@ -433,9 +431,9 @@ package body AWS.Client is
             Timeouts => Timeouts, Follow_Redirection => Follow_Redirection);
 
       elsif Follow_Redirection
-        and then
+          and then
         Response.Status_Code (Result) in Messages.S301 .. Messages.S307
-        and then
+          and then
         Response.Status_Code (Result) /= Messages.S304
       then
          --  All other redirections, 304 is not one of them.
@@ -520,7 +518,7 @@ package body AWS.Client is
 
       function Read_Binary_Message
         (Len : in Positive)
-        return Stream_Element_Array_Access;
+         return Stream_Element_Array_Access;
       pragma Inline (Read_Binary_Message);
       --  Read a binary message of Len bytes from the socket.
 
@@ -893,7 +891,7 @@ package body AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data
+      return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -1668,7 +1666,7 @@ package body AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data
+      return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -1770,7 +1768,7 @@ package body AWS.Client is
    function Read_Until
      (Connection : in HTTP_Connection;
       Delimiter  : in String)
-     return String
+      return String
    is
       Result     : Unbounded_String;
    begin
@@ -1839,8 +1837,7 @@ package body AWS.Client is
      (Auth       :    out Authentication_Type;
       User       : in     String;
       Pwd        : in     String;
-      Mode       : in     Authentication_Mode)
-   is
+      Mode       : in     Authentication_Mode) is
    begin
       Auth.User      := To_Unbounded_String (User);
       Auth.Pwd       := To_Unbounded_String (Pwd);
@@ -1883,8 +1880,7 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       User       : in     String;
       Pwd        : in     String;
-      Mode       : in     Authentication_Mode)
-   is
+      Mode       : in     Authentication_Mode) is
    begin
       Set_Authentication
         (Auth => Connection.Auth (Proxy),
@@ -1901,8 +1897,7 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       User       : in     String;
       Pwd        : in     String;
-      Mode       : in     Authentication_Mode)
-   is
+      Mode       : in     Authentication_Mode) is
    begin
       Set_Authentication
         (Auth => Connection.Auth (WWW),
