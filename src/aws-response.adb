@@ -56,28 +56,28 @@ package body AWS.Response is
                       Header,
                       Status_Code,
                       0,
-                      Content_Type => Null_Unbounded_String,
-                      Filename     => Null_Unbounded_String,
-                      Location     => Null_Unbounded_String,
-                      Realm        => Null_Unbounded_String,
+                      Content_Type   => Null_Unbounded_String,
+                      Filename       => Null_Unbounded_String,
+                      Location       => Null_Unbounded_String,
+                      Realm          => Null_Unbounded_String,
                       Authentication => Any,
-                      Auth_Stale    => False,
-                      Stream       => null,
-                      Message_Body => null);
+                      Auth_Stale     => False,
+                      Stream         => null,
+                      Message_Body   => null);
       else
          return Data'(Finalization.Controlled with
                       new Natural'(1),
                       Message,
                       Status_Code,
                       Message_Body'Length,
-                      Content_Type => To_Unbounded_String (Content_Type),
-                      Filename     => Null_Unbounded_String,
-                      Location     => Null_Unbounded_String,
-                      Realm        => Null_Unbounded_String,
+                      Content_Type   => To_Unbounded_String (Content_Type),
+                      Filename       => Null_Unbounded_String,
+                      Location       => Null_Unbounded_String,
+                      Realm          => Null_Unbounded_String,
                       Authentication => Any,
-                      Auth_Stale    => False,
-                      Stream       => null,
-                      Message_Body => new Stream_Element_Array'
+                      Auth_Stale     => False,
+                      Stream         => null,
+                      Message_Body   => new Stream_Element_Array'
                         (Translator.To_Stream_Element_Array (Message_Body)));
       end if;
    end Acknowledge;
@@ -121,14 +121,14 @@ package body AWS.Response is
                    Message,
                    Messages.S401,
                    Auth_Mess'Length,
-                   Content_Type => To_Unbounded_String (AWS.MIME.Text_HTML),
-                   Filename     => Null_Unbounded_String,
-                   Location     => Null_Unbounded_String,
-                   Realm        => To_Unbounded_String (Realm),
+                   Content_Type   => To_Unbounded_String (AWS.MIME.Text_HTML),
+                   Filename       => Null_Unbounded_String,
+                   Location       => Null_Unbounded_String,
+                   Realm          => To_Unbounded_String (Realm),
                    Authentication => Mode,
-                   Auth_Stale    => Stale,
-                   Stream       => null,
-                   Message_Body => new Stream_Element_Array'
+                   Auth_Stale     => Stale,
+                   Stream         => null,
+                   Message_Body   => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Auth_Mess)));
    end Authenticate;
 
@@ -165,14 +165,14 @@ package body AWS.Response is
                    Message,
                    Status_Code,
                    Message_Body'Length,
-                   Content_Type => To_Unbounded_String (Content_Type),
-                   Filename     => Null_Unbounded_String,
-                   Location     => Null_Unbounded_String,
-                   Realm        => Null_Unbounded_String,
+                   Content_Type   => To_Unbounded_String (Content_Type),
+                   Filename       => Null_Unbounded_String,
+                   Location       => Null_Unbounded_String,
+                   Realm          => Null_Unbounded_String,
                    Authentication => Any,
-                   Auth_Stale    => False,
-                   Stream       => null,
-                   Message_Body => new Stream_Element_Array'
+                   Auth_Stale     => False,
+                   Stream         => null,
+                   Message_Body   => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Build;
 
@@ -189,14 +189,14 @@ package body AWS.Response is
                    Message,
                    Status_Code,
                    Length (UString_Message),
-                   Content_Type => To_Unbounded_String (Content_Type),
-                   Filename     => Null_Unbounded_String,
-                   Location     => Null_Unbounded_String,
-                   Realm        => Null_Unbounded_String,
+                   Content_Type   => To_Unbounded_String (Content_Type),
+                   Filename       => Null_Unbounded_String,
+                   Location       => Null_Unbounded_String,
+                   Realm          => Null_Unbounded_String,
                    Authentication => Any,
-                   Auth_Stale    => False,
-                   Stream       => null,
-                   Message_Body => new Stream_Element_Array'
+                   Auth_Stale     => False,
+                   Stream         => null,
+                   Message_Body   => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Build;
 
@@ -211,14 +211,14 @@ package body AWS.Response is
                    Message,
                    Status_Code,
                    Message_Body'Length,
-                   Content_Type => To_Unbounded_String (Content_Type),
-                   Filename     => Null_Unbounded_String,
-                   Location     => Null_Unbounded_String,
-                   Realm        => Null_Unbounded_String,
+                   Content_Type   => To_Unbounded_String (Content_Type),
+                   Filename       => Null_Unbounded_String,
+                   Location       => Null_Unbounded_String,
+                   Realm          => Null_Unbounded_String,
                    Authentication => Any,
-                   Auth_Stale    => False,
-                   Stream        => null,
-                   Message_Body =>
+                   Auth_Stale     => False,
+                   Stream         => null,
+                   Message_Body   =>
                      new Streams.Stream_Element_Array'(Message_Body));
    end Build;
 
@@ -251,13 +251,18 @@ package body AWS.Response is
       use AWS.Resources;
    begin
       case D.Mode is
-      when Response.File    => Open (File, Filename (D), "shared=no");
-      when Response.Stream  => Resources.Streams.Create (File, D.Stream);
-      when Response.Message =>
-         Embedded.Create (File, Embedded.Buffer_Access (D.Message_Body));
-      when others =>
-         --  Should not be called for others response modes.
-         raise Constraint_Error;
+         when Response.File =>
+            Open (File, Filename (D), "shared=no");
+
+         when Response.Stream =>
+            Resources.Streams.Create (File, D.Stream);
+
+         when Response.Message =>
+            Embedded.Create (File, Embedded.Buffer_Access (D.Message_Body));
+
+         when others =>
+            --  Should not be called for others response modes.
+            raise Constraint_Error;
       end case;
    end Create_Resource;
 
@@ -297,14 +302,14 @@ package body AWS.Response is
                    File,
                    Status_Code,
                    Integer (Resources.File_Size (Filename)),
-                   Content_Type => To_Unbounded_String (Content_Type),
-                   Filename     => To_Unbounded_String (Filename),
-                   Location     => Null_Unbounded_String,
-                   Realm        => Null_Unbounded_String,
+                   Content_Type   => To_Unbounded_String (Content_Type),
+                   Filename       => To_Unbounded_String (Filename),
+                   Location       => Null_Unbounded_String,
+                   Realm          => Null_Unbounded_String,
                    Authentication => Any,
-                   Auth_Stale    => False,
-                   Stream        => null,
-                   Message_Body => null);
+                   Auth_Stale     => False,
+                   Stream         => null,
+                   Message_Body   => null);
    exception
       when Resources.Resource_Error =>
          return Acknowledge (Messages.S404, "<p> " & Filename & " not found");
@@ -437,14 +442,14 @@ package body AWS.Response is
                    Response.Message,
                    Messages.S301,
                    Message_Body'Length,
-                   Content_Type => To_Unbounded_String (AWS.MIME.Text_HTML),
-                   Filename     => Null_Unbounded_String,
-                   Location     => To_Unbounded_String (Location),
-                   Realm        => Null_Unbounded_String,
+                   Content_Type   => To_Unbounded_String (AWS.MIME.Text_HTML),
+                   Filename       => Null_Unbounded_String,
+                   Location       => To_Unbounded_String (Location),
+                   Realm          => Null_Unbounded_String,
                    Authentication => Any,
-                   Auth_Stale    => False,
-                   Stream        => null,
-                   Message_Body => new Stream_Element_Array'
+                   Auth_Stale     => False,
+                   Stream         => null,
+                   Message_Body   => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Moved;
 
@@ -496,22 +501,21 @@ package body AWS.Response is
       Stream_Handle : in Resources.Streams.Stream_Access;
       Stream_Size   : in Content_Length_Type;
       Status_Code   : in Messages.Status_Code := Messages.S200)
-      return Data
-   is
+      return Data is
    begin
       return Data'(Finalization.Controlled with
                    new Natural'(1),
                    Stream,
                    Status_Code,
                    Stream_Size,
-                   Content_Type => To_Unbounded_String (Content_Type),
-                   Filename     => Null_Unbounded_String,
-                   Location     => Null_Unbounded_String,
-                   Realm        => Null_Unbounded_String,
+                   Content_Type   => To_Unbounded_String (Content_Type),
+                   Filename       => Null_Unbounded_String,
+                   Location       => Null_Unbounded_String,
+                   Realm          => Null_Unbounded_String,
                    Authentication => Any,
-                   Auth_Stale    => False,
-                   Stream        => Stream_Handle,
-                   Message_Body => null);
+                   Auth_Stale     => False,
+                   Stream         => Stream_Handle,
+                   Message_Body   => null);
    end Stream;
 
    ---------
@@ -521,18 +525,18 @@ package body AWS.Response is
    function URL (Location : in String) return Data is
    begin
       return Data'(Finalization.Controlled with
-                     new Natural'(1),
+                   new Natural'(1),
                    Response.Message,
                    Messages.S301,
                    0,
-                   Content_Type => Null_Unbounded_String,
-                   Filename     => Null_Unbounded_String,
-                   Location     => To_Unbounded_String (Location),
-                   Realm        => Null_Unbounded_String,
+                   Content_Type   => Null_Unbounded_String,
+                   Filename       => Null_Unbounded_String,
+                   Location       => To_Unbounded_String (Location),
+                   Realm          => Null_Unbounded_String,
                    Authentication => Any,
-                   Auth_Stale    => False,
-                   Stream       => null,
-                   Message_Body => null);
+                   Auth_Stale     => False,
+                   Stream         => null,
+                   Message_Body   => null);
    end URL;
 
 end AWS.Response;
