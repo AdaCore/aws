@@ -62,7 +62,10 @@ Here are the main changes since AWS 1.3 :
 
    - It is now possible to retrieve the running server from a callback
      procedure. From there it is also possible to get the server
-     configuration. See AWS.Server.Get_Current.
+     configuration. See AWS.Server.Get_Current routine.
+
+   - It is now possible to have access to the server internal status. See
+     AWS.Server.Status package.
 
    - Plus many small fixes, enhancements and documentation work.
 
