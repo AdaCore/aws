@@ -645,9 +645,6 @@ package body SOAP.Generator is
       function Type_Name (N : in WSDL.Parameters.P_Set) return String;
       --  Returns the name of the type for parameter on node N
 
-      function Array_Type (Name : in String) return String;
-      --  Returns the type of the array element given the array Name.
-
       procedure Generate_Array
         (Name : in String;
          P    : in WSDL.Parameters.P_Set);
@@ -685,24 +682,6 @@ package body SOAP.Generator is
       function Is_Inside_Record (Name : in String) return Boolean;
       --  Returns True if Name is defined inside a record in the Input
       --  or Output parameter list.
-
-      ----------------
-      -- Array_Type --
-      ----------------
-
-      function Array_Type (Name : in String) return String is
-         K : Natural := Strings.Fixed.Index (Name, "_");
-      begin
-         --  Skip trailing _xyz
-
-         if K = 0 then
-            K := Name'Last;
-         else
-            K := K - 1;
-         end if;
-
-         return Name (Name'First .. K);
-      end Array_Type;
 
       --------------------
       -- Generate_Array --
@@ -1401,8 +1380,7 @@ package body SOAP.Generator is
 
             when WSDL.Parameters.K_Array =>
                declare
-                  T_Name : constant String
-                    := Array_Type (To_String (P.E_Type));
+                  T_Name : constant String := To_String (P.E_Type);
                begin
                   if WSDL.Is_Standard (T_Name) then
                      return WSDL.Get_Routine
@@ -1579,8 +1557,7 @@ package body SOAP.Generator is
 
             when WSDL.Parameters.K_Array =>
                declare
-                  T_Name : constant String
-                    := Array_Type (To_String (P.E_Type));
+                  T_Name : constant String := To_String (P.E_Type);
                begin
                   if WSDL.Is_Standard (T_Name) then
                      return WSDL.Set_Routine
