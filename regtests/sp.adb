@@ -32,28 +32,15 @@
 
 --  Server push regression test.
 
-with AWS.Server;
-with AWS.Utils;
-
 with Get_Free_Port;
 with Sp_Pck;
 
 procedure Sp is
    use Sp_Pck;
 
-   HTTP : AWS.Server.HTTP;
    Port : Natural := 1249;
 
 begin
    Get_Free_Port (Port);
-   AWS.Server.Start
-     (HTTP,
-      "Testing server push.",
-      CB'Access,
-      Port => Port,
-      Max_Connection => 3);
-
-   Client_Process ("http://localhost:" & AWS.Utils.Image (Port));
-
-   AWS.Server.Shutdown (HTTP);
+   Client_Process ("http", Port);
 end Sp;

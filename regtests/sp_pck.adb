@@ -39,6 +39,8 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.OS_Lib;
 with AWS.Parameters;
+with AWS.Server;
+with AWS.Utils;
 
 package body Sp_Pck is
 
@@ -69,8 +71,18 @@ package body Sp_Pck is
    -- Client_Process --
    --------------------
 
-   procedure Client_Process (URL : in String) is
+   procedure Client_Process (Protocol : in String; Port : in Positive) is
+      HTTP : AWS.Server.HTTP;
+      URL  : constant String
+        := Protocol & "://localhost:" & AWS.Utils.Image (Port);
    begin
+      AWS.Server.Start
+        (HTTP,
+         "Testing server push.",
+         CB'Access,
+         Port => Port,
+         Max_Connection => 3);
+
       Data := 1000.0;
 
       --  Init the all modes server push transfers.

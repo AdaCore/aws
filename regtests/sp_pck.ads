@@ -84,6 +84,6 @@ package Sp_Pck is
    --  the Ada.Text_IO.Put_Line add the ASCII.CR before ASCII.LF even so
    --  the ASCII.CR already exists before ASCII.LF.
 
-   procedure Client_Process (URL : String);
+   procedure Client_Process (Protocol : in String; Port : in Positive);
 
 end Sp_Pck;

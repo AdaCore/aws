@@ -32,21 +32,13 @@
 
 --  Server push regression test.
 
-with AWS.Server;
 with Sp_Pck;
+with Get_Free_Port;
 
 procedure SSp is
    use Sp_Pck;
-
-   HTTP : AWS.Server.HTTP;
-
+   Port  : Positive := 4412;
 begin
-   AWS.Server.Start
-     (HTTP, "Testing server push.",
-      CB'Access,
-      Port           => 4412,
-      Security       => True,
-      Max_Connection => 3);
-
-   Client_Process ("https://localhost:4412");
+   Get_Free_Port (Port);
+   Client_Process ("https", Port);
 end SSp;
