@@ -30,14 +30,14 @@
 
 --  $Id$
 
---  Parameters name/value are put into the GNAT.Dynamic_Tables.Table_Type (Data
---  field). The name as a key and the numeric index as a value is placed into a
---  map for fast retrieval of all Name/Value pairs having the same name. Each
---  value in the map is a table of numeric indexes pointing into the Data
---  field. The parameters must be accessible using their name (string index)
---  but also using an numeric index. So given a set of parameters (K1=V1,
---  K2=V2...), one must be able to ask for the value for K1 but also the name
---  of the second key or the value of the third key.
+--  Parameters name/value are put into the Table_Type.Data field (vector). The
+--  name as a key and the numeric index as a value is placed into map for fast
+--  retrieval of all Name/Value pairs having the same name. Each value in the
+--  map is a table of numeric indexes pointing into the Data field. The
+--  parameters must be accessible using their name (string index) but also
+--  using an numeric index. So given a set of parameters (K1=V1, K2=V2...), one
+--  must be able to ask for the value for K1 but also the name of the second
+--  key or the value of the third key.
 --
 --  Each K/V pair is then inserted into the Data table for access by numeric
 --  index. And its numeric index is placed into the map indexed by name.
@@ -99,7 +99,7 @@ package body AWS.Containers.Tables is
       return Boolean is
    begin
       return Index_Table.Is_In
-        (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index.all);
+        (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index);
    end Exist;
 
    ---------
@@ -150,10 +150,8 @@ package body AWS.Containers.Tables is
    is
       Cursor : Index_Table.Cursor;
    begin
-      if Table.Index /= null then
-         Cursor := Index_Table.Find
-           (Table.Index.all, Normalize_Name (Name, not Table.Case_Sensitive));
-      end if;
+      Cursor := Index_Table.Find
+        (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
 
       if not Index_Table.Has_Element (Cursor) then
          Found := False;
@@ -172,8 +170,6 @@ package body AWS.Containers.Tables is
       N     : in Positive := 1)
       return String is
    begin
-      pragma Assert (Table.Index /= null);
-
       if N <= Natural (Data_Table.Length (Table.Data)) then
          return Data_Table.Element (Table.Data, N).Name;
       else
@@ -198,19 +194,16 @@ package body AWS.Containers.Tables is
       Cursor : Index_Table.Cursor;
       Index  : Natural := Result'First - 1;
    begin
-      if Table.Index /= null then
-         Cursor := Index_Table.First (Table.Index.all);
+      Cursor := Index_Table.First (Table.Index);
 
-         while Index_Table.Has_Element (Cursor) loop
-            Index := Index + 1;
-            Result (Index) :=
-              To_Unbounded_String (Index_Table.Key (Cursor));
-            Index_Table.Next (Cursor);
-         end loop;
+      while Index_Table.Has_Element (Cursor) loop
+         Index := Index + 1;
+         Result (Index) := To_Unbounded_String (Index_Table.Key (Cursor));
+         Index_Table.Next (Cursor);
+      end loop;
 
-         if Sort then
-            Sort_Names (Result);
-         end if;
+      if Sort then
+         Sort_Names (Result);
       end if;
 
       return Result;
@@ -225,8 +218,6 @@ package body AWS.Containers.Tables is
       N     : in Positive := 1)
       return String is
    begin
-      pragma Assert (Table.Index /= null);
-
       if N <= Natural (Data_Table.Length (Table.Data)) then
          return Data_Table.Element (Table.Data, N).Value;
       else
@@ -246,8 +237,6 @@ package body AWS.Containers.Tables is
       Value : Name_Index_Table;
       Found : Boolean;
    begin
-      pragma Assert (Table.Index /= null);
-
       Get_Indexes (Table, Name, Value, Found);
 
       if Found then
@@ -265,6 +254,7 @@ package body AWS.Containers.Tables is
             end loop;
             return Result;
          end;
+
       else
          return (1 .. 0 => Null_Unbounded_String);
       end if;
@@ -276,11 +266,7 @@ package body AWS.Containers.Tables is
 
    function Name_Count (Table : in Table_Type) return Natural is
    begin
-      if Table.Index = null then
-         return 0;
-      else
-         return Natural (Index_Table.Length (Table.Index.all));
-      end if;
+      return Natural (Index_Table.Length (Table.Index));
    end Name_Count;
 
    --------------------
