@@ -13,6 +13,7 @@ on server @_WM_POP_SERVER_@
 <a href="/wm_summary">summary</a>
 - <a href="/wm_delete?NO_MESSAGE=@_WM_MESSAGE_@">delete</a>
 - <a href="/wm_reply?NO_MESSAGE=@_WM_MESSAGE_@">reply</a>
+- <a href="/wm_reply_all?NO_MESSAGE=@_WM_MESSAGE_@">reply to all</a>
 
 <br>
 <br>

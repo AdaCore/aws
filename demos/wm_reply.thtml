@@ -14,12 +14,22 @@ on server @_WM_POP_SERVER_@
 <br>
 
 <table>
-<tr><td><b>To:</b><td>@_WEB_ESCAPE:WM_FROM_@</tr>
+<tr><td><b>To:</b><td>@_WEB_ESCAPE:WM_FROM_@
+@@IF@@ @_WM_TO_ALL_@ and @_EXIST:WM_CC_@
+, @_WEB_ESCAPE:WM_CC_@
+@@END_IF@@
+</tr>
 <tr><td><b>Subject:</b><td>Re: @_WM_SUBJECT_@</tr>
 </table>
 
 <form action="/wm_send" method="POST">
-<input type="hidden" name="WM_TO" value="@_WEB_ESCAPE:WM_FROM_@">
+<input type="hidden" name="WM_TO" 
+@@IF@@ @_WM_TO_ALL_@ and @_EXIST:WM_CC_@
+value="@_WEB_ESCAPE:WM_FROM_@, @_WEB_ESCAPE:WM_CC_@"
+@@ELSE
+value="@_WEB_ESCAPE:WM_FROM_@"
+@@END_IF@@
+>
 <input type="hidden" name="WM_SUBJECT" value="Re: @_WM_SUBJECT_@">
 
 <textarea name="WM_CONTENT" rows="20" cols="70">
