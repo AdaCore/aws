@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -63,9 +63,9 @@ package body AWS.Headers is
       Name    : in String)
       return String
    is
-      Values : VString_Array := Get_Values (Headers, Name);
+      Values : constant VString_Array := Get_Values (Headers, Name);
 
-      function Get_Values (Start_From : Positive) return String;
+      function Get_Values (Start_From : in Positive) return String;
       --  Return string of header values comma separated
       --  concateneted starting from Start_From index.
 
@@ -73,7 +73,7 @@ package body AWS.Headers is
       -- Get_Values --
       ----------------
 
-      function Get_Values (Start_From : Positive) return String is
+      function Get_Values (Start_From : in Positive) return String is
          Value : constant String
             := Ada.Strings.Unbounded.To_String (Values (Start_From));
       begin
