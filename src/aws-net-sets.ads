@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -27,9 +27,9 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
+
 --  $Id$
---
+
 --  Waiting on group of sockets for input/output availability.
 
 with Ada.Finalization;
@@ -39,6 +39,11 @@ package AWS.Net.Sets is
    type Socket_Set_Type is limited private;
 
    type Socket_State is (None, Error, Input, Output, Both);
+   --  None    no socket currently selected
+   --  Error   selected socket is in error state
+   --  Input   selected socket ready for input
+   --  Output  selected socket ready for output
+   --  Both    selected socket ready for input/output
 
    subtype Waiting_Mode is Socket_State range Input .. Both;
 
@@ -46,49 +51,45 @@ package AWS.Net.Sets is
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Type'Class;
       Mode   : in     Waiting_Mode);
-   --  Add socket to the set.
-   --  Note that this call make internal allocation of the socket.
+   --  Add socket to the set. Sockets can be retreived from the set using
+   --  Get_Sockets.
 
    procedure Add
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Access;
       Mode   : in     Waiting_Mode);
-   --  Add socket to the set.
+   --  Add socket to the set
+
+   function Count (Set : Socket_Set_Type) return Natural;
+   --  Returns the number of sockets in the Set
 
    procedure Wait
      (Set     : in out Socket_Set_Type;
       Timeout : in     Duration);
-   --  Wait in a set of sockets when some of them would be ready for
-   --  input/output or error occured. And select first ready socket in set
-   --  inernally for following operations.
-
-   procedure Take_Socket
-     (Set    : in out Socket_Set_Type;
-      Socket :    out Socket_Access;
-      State  :    out Socket_State);
-   --  Return currently selected ready for input/output socket and delete it
-   --  from set. It is recommended to use Take_Socket together with Add with
-   --  Socket_Access parameter. Otherwise, if you used Ada with
-   --  Socket_Type'Class parameter, and take a socket by Take_Socket, it would
-   --  be necessary to deallocate taken Socket_Access later.
-
-   -----------------------------------------------------
-   -- Step by step operations for take ready sockets. --
-   -----------------------------------------------------
+   --  Wait for a socket in the set to be ready for input or output operation.
+   --  Raises Socket_Error if an error occurs. It selects the first socket
+   --  Ready for input/output. This socket can be retreived with Get_Socket
+   --  below.
 
    function Get_Socket_State (Set : in Socket_Set_Type) return Socket_State;
-   --  Return the state of the currently  selected ready for input/output
-   --  socket or None if there is no more sockets available for input/output.
+   --  Return the state of the currently selected socket ready for
+   --  input/output or None if there is no more sockets available for
+   --  input/output.
 
    function Get_Socket (Set : in Socket_Set_Type) return Socket_Type'Class;
-   --  Return currently selected ready for input/output socket.
+   --  Return currently selected ready for input/output socket
 
    procedure Remove_Socket (Set : in out Socket_Set_Type);
-   --  Delete currently selected socket from set
-   --  and select the next one.
+   --  Delete currently selected socket from set and select the next one.
+   --  Raises Constraint_Error if there is no selected socket, if
+   --  Get_Socket_State returns None for example.
 
    procedure Next (Set : in out Socket_Set_Type);
-   --  Go to the next active socket in the set.
+   --  Go to the next active socket in the set. Set current state to None if
+   --  there is no active socket available.
+
+   procedure Reset (Set : in out Socket_Set_Type);
+   --  Clear the set for another use
 
 private
 
@@ -100,8 +101,9 @@ private
       Socket    : Socket_Access;
 
       Allocated : Boolean;
-      --  Is socket was allocated internally in the set.
-      --  Need to control free on delete.
+      --  Set to True if socket was allocated internally in the set (it is the
+      --  case when using the Add with Socket_Type'Class parameter).
+      --  Needed to control free on delete.
    end record;
 
    type Socket_Array is array (Positive range <>) of Socket_Record;
