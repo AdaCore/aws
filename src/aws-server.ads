@@ -41,8 +41,8 @@ with AWS.Config;
 
 package AWS.Server is
 
-   Def_Admin_URI  : String   renames Config.Default_Admin_URI;
-   Def_Upload_Dir : String   renames Config.Default_Upload_Directory;
+   Def_Admin_URI  : String renames Config.Default_Admin_URI;
+   Def_Upload_Dir : String renames Config.Default_Upload_Directory;
    Def_Port       : constant := Config.Default_Server_Port;
 
    type HTTP
