@@ -224,8 +224,7 @@ private
 
    type Client_Phase is (Not_Monitored, Send, Receive, Stopped);
 
-   type Phase_Access is access all Client_Phase;
-   type Boolean_Access is access all Boolean;
+   type HTTP_Connection_Access is access all HTTP_Connection;
 
    --  ??? Cleaner_Task is used to monitor the timeouts during the Send and
    --  Receive phase. This is the current implementation and should be fixed
@@ -233,12 +232,8 @@ private
    --  a Socket timeout.
 
    task type Cleaner_Task is
-      entry Start
-        (Socket_Ptr    : in Socket_Access;
-         Open_Flag_Ptr : in Boolean_Access;
-         Phase_Ptr     : in Phase_Access;
-         Timeouts      : in Timeouts_Values);
-      --  Task initialization.
+      entry Start (Connection : in HTTP_Connection_Access);
+      --  Task initialization, pass the HTTP_Connection to monitor.
 
       entry Send;
       --  Activate the send timeout if defined.
@@ -257,6 +252,8 @@ private
    type Cleaner_Access is access Cleaner_Task;
 
    type HTTP_Connection is limited record
+      Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
+
       Connect_URL   : AWS.URL.Object;
       Host          : Unbounded_String;
       Host_URL      : AWS.URL.Object;
@@ -266,14 +263,14 @@ private
       Proxy_URL     : AWS.URL.Object;
       Proxy_User    : Unbounded_String;
       Proxy_Pwd     : Unbounded_String;
-      Opened        : aliased Boolean;
+      Opened        : Boolean;
       Persistent    : Boolean;
       Server_Push   : Boolean;
       SOAPAction    : Unbounded_String;
       Cookie        : Unbounded_String;
       Socket        : Socket_Access;
       Retry         : Natural;
-      Current_Phase : aliased Client_Phase;
+      Current_Phase : Client_Phase;
       Timeouts      : Timeouts_Values;
       Cleaner       : Cleaner_Access;
    end record;
