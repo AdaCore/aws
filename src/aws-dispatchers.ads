@@ -53,7 +53,7 @@ package AWS.Dispatchers is
    function Dispatch
      (Dispatcher : in Handler;
       Request    : in Status.Data)
-     return Response.Data is abstract;
+      return Response.Data is abstract;
    --  Call the appropriate inherited dispatcher
 
    function Ref_Counter (Dispatcher : in Handler) return Natural;
