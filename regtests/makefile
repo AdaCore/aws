@@ -100,7 +100,7 @@ init:
 
 $(STD_TESTS): force
 	echo -n Building $@
-	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
+	gnatmake -m -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
@@ -113,7 +113,7 @@ endif
 $(WSDL_TESTS): force
 	echo -n Building $@
 	../tools/wsdl2aws -q -f -doc $@.wsdl
-	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
+	gnatmake -m -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
@@ -126,7 +126,7 @@ endif
 $(WSDL_ATESTS): force
 	echo -n Building $@
 	../tools/wsdl2aws -q -f -a -doc $@.wsdl
-	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
+	gnatmake -m -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
@@ -148,7 +148,7 @@ $(ASIS_TESTS): force
 	../tools/ada2wsdl -q -f \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
 	../tools/wsdl2aws -q -f -cb -types $@ $@.wsdl
-	gnatmake -g $@_main $(GARGS) -largs $(LARGS) -bargs -E
+	gnatmake -m -g $@_main $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
