@@ -1,5 +1,8 @@
 2001-03-10  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws.ads:
+	(Version): set to 0.9.10
+
 	* aws-server.adb:
 	(Geet_Peername): Fix C_Getpeername call prototype to match latest
 	 version of Adasocket.
