@@ -30,10 +30,11 @@
 
 --  $Id$
 
-with AWS.Resources.Streams.Memory.ZLib;
-with AWS.Utils;
 with Ada.Streams;
 with Ada.Text_IO;
+
+with AWS.Resources.Streams.Memory.ZLib;
+with AWS.Utils;
 
 procedure ZBig is
 
@@ -41,6 +42,7 @@ procedure ZBig is
    use Ada.Streams;
 
    Stream : Stream_Type;
+
    Buffer : AWS.Utils.Stream_Element_Array_Access
      := new Ada.Streams.Stream_Element_Array (1 .. 20_000_000);
 
@@ -55,6 +57,9 @@ begin
 
    Clear (Stream);
    Deflate_Initialize (Stream);
-   Append (Stream, Buffer); -- Note we could not use Buffer after this call
+   Append (Stream, Buffer);
+
+   AWS.Utils.Free (Buffer);
+
    Ada.Text_IO.Put_Line (Stream_Element_Offset'Image (Size (Stream)));
 end ZBig;
