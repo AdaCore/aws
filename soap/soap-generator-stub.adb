@@ -453,7 +453,9 @@ package body Stub is
             --  A single parameter is returned
 
             case Output.Mode is
-               when WSDL.Parameters.K_Simple | WSDL.Parameters.K_Derived =>
+
+               when WSDL.Parameters.K_Simple =>
+
                   if Output.P_Type = WSDL.P_B64 then
                      Text_IO.Put_Line
                        (Stub_Adb,
@@ -467,6 +469,29 @@ package body Stub is
                         "                 := SOAP.Parameters.Get (R_Param, """
                           & To_String (Output.Name)
                           & """);");
+                  end if;
+
+               when WSDL.Parameters.K_Derived =>
+
+                  if  Output.Parent_Type = WSDL.P_B64 then
+                     Text_IO.Put_Line
+                       (Stub_Adb,
+                        "                 "
+                          & ":= V (SOAP_Base64'(SOAP.Parameters.Get "
+                          & "(R_Param, """
+                          & To_String (Output.Name) & """)));");
+                  else
+                     Text_IO.Put_Line
+                       (Stub_Adb,
+                        "                 := "
+                          & Result_Type (O, Proc, Output));
+                     Text_IO.Put_Line
+                       (Stub_Adb,
+                        "                   ("
+                          & WSDL.To_Ada (Output.Parent_Type)
+                          & "'(SOAP.Parameters.Get (R_Param, """
+                          & To_String (Output.Name)
+                          & """)));");
                   end if;
 
                when WSDL.Parameters.K_Array =>

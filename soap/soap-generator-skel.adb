@@ -419,7 +419,9 @@ package body Skel is
             end if;
 
             case N.Mode is
-               when WSDL.Parameters.K_Simple | WSDL.Parameters.K_Derived =>
+
+               when WSDL.Parameters.K_Simple =>
+
                   if Output.Next = null then
                      --  A single simple parameter as return
 
@@ -435,6 +437,31 @@ package body Skel is
                        (Skel_Adb,
                         WSDL.Set_Routine
                           (N.P_Type, Context => WSDL.Component));
+
+                     Text_IO.Put
+                       (Skel_Adb, " (Result."
+                          & Format_Name (O, To_String (N.Name))
+                          & ", """ & To_String (N.Name) & """)");
+                  end if;
+
+               when WSDL.Parameters.K_Derived =>
+
+                  if Output.Next = null then
+                     --  A single simple parameter as return
+
+                     Text_IO.Put (Skel_Adb, WSDL.Set_Routine (N.Parent_Type));
+
+                     Text_IO.Put
+                       (Skel_Adb, " (" & WSDL.To_Ada (N.Parent_Type)
+                        & " (Result), """ & To_String (N.Name) & """)");
+
+                  else
+                     --  Multiple value returned, this is a record
+
+                     Text_IO.Put
+                       (Skel_Adb,
+                        WSDL.Set_Routine
+                          (N.Parent_Type, Context => WSDL.Component));
 
                      Text_IO.Put
                        (Skel_Adb, " (Result."
