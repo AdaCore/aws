@@ -533,9 +533,6 @@ package body AWS.Server is
 
    procedure Shutdown (Web_Server : in out HTTP) is
 
-      Slot_State : Slot_Phase;
-      Slot_Index : Positive;
-
       procedure Free is
          new Ada.Unchecked_Deallocation (Line_Cleaner, Line_Cleaner_Access);
 
@@ -549,8 +546,10 @@ package body AWS.Server is
          new Ada.Unchecked_Deallocation (Line, Line_Access);
 
       All_Lines_Terminated : Boolean := False;
+      Slot_State           : Slot_Phase;
+      Slot_Index           : Positive;
+      Wait_Counter         : Natural := 0;
 
-      Wait_Counter : Natural := 0;
    begin
       if Web_Server.Shutdown then
          return;
@@ -607,9 +606,8 @@ package body AWS.Server is
             Ada.Text_IO.Put_Line
               (Text_IO.Current_Error,
                "Can't terminate all lines. Slot" & Positive'Image (Slot_Index)
-               & " in "
-               & Slot_State'Img & " state.");
-            --  exit;
+               & " in " & Slot_State'Img & " state.");
+            exit;
          end if;
       end loop;
 
@@ -692,7 +690,6 @@ package body AWS.Server is
 
                if Socket /= null then
                   Index := S;
-
                   return;
                end if;
             end if;
@@ -870,7 +867,7 @@ package body AWS.Server is
          if Table (Index).Phase /= Closed then
             if not Table (Index).Socket_Taken  then
                if Table (Index).Phase = Aborted then
-                  --  If it was aborted, we can free it here.
+                  --  If it was aborted, we can free it here
 
                   Net.Free (Table (Index).Sock.all);
 
@@ -884,9 +881,8 @@ package body AWS.Server is
                   return;
 
                else
-                  --  We have to shutdown socket only if
-                  --  it is not in shutdown state and was not aborted
-                  --  and was not closed.
+                  --  We have to shutdown socket only if it is not in state:
+                  --  In_Shutdow, Aborted or Closed.
 
                   Shutdown := True;
                end if;
