@@ -1,3 +1,29 @@
+2001-01-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Get_Response): Use MIME type declaration instead of strings.
+
+	* aws-server-protocol_handler.adb:
+	(Protocol_Handler): Use MIME type declaration instead of strings.
+
+	* aws-response.ads:
+	(Acknowledge): Use MIME type declaration instead of strings.
+	Fix typo.
+
+	* aws-response.adb:
+	(Acknowledge): Use MIME type declaration instead of strings.
+	(Authenticate): idem
+	(Moved): idem
+
+	* aws-os_lib.adb:
+	(GMT_Clock): Fix month number.
+
+	* aws-mime.adb:
+	MIME type declarations moved to the spec. Fix casing.
+
+	* aws-mime.ads:
+	Move MIME type declaration here from the body.
+
 2000-11-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-os_lib.adb:
