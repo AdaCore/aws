@@ -93,7 +93,7 @@ package AWS.Status is
 
    function Authorization_Response (D : in Data) return String;
    pragma Inline (Authorization_Response);
-   --  Get the value for the "responce" in the "Authorization:" parameter
+   --  Get the value for the "response" in the "Authorization:" parameter
 
    function Connection             (D : in Data) return String;
    pragma Inline (Connection);
@@ -147,7 +147,7 @@ package AWS.Status is
    pragma Inline (Peername);
    --  Returns the name of the peer (the name of the client computer)
 
-   function Session                (D : in Data) return AWS.Session.ID;
+   function Session                (D : in Data) return Session.ID;
    pragma Inline (Session);
    --  Returns the Session ID for the request.
 
@@ -207,9 +207,9 @@ private
    type Data is record
       Peername          : Unbounded_String;
       Method            : Request_Method     := GET;
-      URI               : AWS.URL.Object;
+      URI               : URL.Object;
       Parameters        : AWS.Parameters.List;
-      Header            : AWS.Headers.List;
+      Header            : Headers.List;
       Binary_Data       : Utils.Stream_Element_Array_Access := null;
       HTTP_Version      : Unbounded_String;
       Content_Length    : Natural            := 0;
