@@ -1,3 +1,23 @@
+2004-03-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	Minor reformatting.
+
+	* templates_parser-expr.adb:
+	Complete rewrite to be a LL(0) parser.
+        Patch contributed by Jean-Pierre Rosen.
+        Updated to version 7.4.
+
+2004-03-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser-filter.adb:
+	Update to version 7.3. Fix implementation of REPLACE and REPLACE_ALL
+         filters.
+        Patch from Audran Le Baron and Jérome Roussel.
+
+	* templates_parser.adb, templates_parser-cached_files.adb:
+        Update to version 7.3. Fix bug in the cache handling.
+
 2004-03-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
