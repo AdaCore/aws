@@ -192,6 +192,13 @@ private
      (Closed,
       --  Socket has been closed by one of the peer
 
+      In_Shutdown,
+      --  Phase when socket got from protected object for shutdown.
+
+      Loose_Release,
+      --  Phase when socket did not relased because of socket had
+      --  In_Shutdown state.
+
       Aborted,
       --  After socket shutdown
 
@@ -294,7 +301,8 @@ private
 
       procedure Abort_On_Timeout
         (Mode   : in     Timeout_Mode;
-         Socket :    out Socket_Access);
+         Socket :    out Socket_Access;
+         Index  :    out Positive);
       --  Get the socket pointer from slot where timeout exceeded.
       --  Return null if no such sockets.
 
@@ -315,6 +323,10 @@ private
         (Index  : in     Positive;
          Socket :    out Socket_Access);
       --  Get socket from the slot for shutdown.
+      --  Slot phase is set to In_Shutdown.
+
+      procedure Shutdown_Done (Index : in Positive);
+      --  We have to call it after shutdown complete.
       --  Slot phase is set to Aborted.
 
       procedure Release
