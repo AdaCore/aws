@@ -302,7 +302,7 @@ build_tarball:
 	$(CP) demos/*.ads demos/*.adb $${AWS}/demos;\
 	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
-	$(CP) demos/*.wsdl $${AWS}/demos;\
+	$(CP) demos/wm_*.*html demos/*.wsdl $${AWS}/demos;\
 	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
 	$(CP) regtests/*.wsdl $${AWS}/regtests;\
 	$(CP) regtests/ChangeLog regtests/*.tmplt $${AWS}/regtests;\
@@ -366,7 +366,7 @@ build_http_tarball:
 	$(CP) demos/*.ads demos/*.adb $${AWS}/demos;\
 	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
-	$(CP) demos/*.wsdl $${AWS}/demos;\
+	$(CP) demos/wm_*.*html demos/*.wsdl $${AWS}/demos;\
 	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
 	$(CP) regtests/*.wsdl $${AWS}/regtests;\
 	$(CP) regtests/ChangeLog regtests/*.tmplt $${AWS}/regtests;\
