@@ -49,8 +49,7 @@ package SOAP.Client is
 
    function Call
      (Connection : access AWS.Client.HTTP_Connection;
-      P          : in     Message.Payload.Object;
-      SOAPAction : in     String                     := Not_Specified)
+      P          : in     Message.Payload.Object)
      return Message.Response.Object'Class;
    --  Idem as above, but use an already opened connection.
 
