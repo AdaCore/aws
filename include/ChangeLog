@@ -1,3 +1,8 @@
+2003-10-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* readme.txt:
+	Minor fixes.
+
 2003-10-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zlib/*.c, zlib/*.h zlib/makefile:
