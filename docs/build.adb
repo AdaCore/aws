@@ -4,6 +4,7 @@ with Ada.Strings.Fixed;
 
 with AWS.Utils;
 with AWS.Default;
+with SOAP;
 
 with Templates_Parser;
 
@@ -23,7 +24,8 @@ procedure Build is
 
 
    T : Translate_Table
-     := (Assoc ("VERSION", AWS.Version),
+     := (Assoc ("AWS_VERSION", AWS.Version),
+         Assoc ("SOAP_VERSION", SOAP.Version),
          Assoc ("MAX_CONNECT", Image (Default.Max_Connection)),
          Assoc ("QUEUE_SIZE", Default.Accept_Queue_Size),
          Assoc ("SERVER_NAME", Default.Server_Name),
