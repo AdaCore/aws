@@ -218,6 +218,14 @@ package body Skel is
 
       --  First check the SOAPAction
 
+      if O.Debug then
+         Text_IO.Put_Line
+           (Skel_Adb,
+            "      Put_Line (""[SERVER/" & L_Proc & "_CB] SOAPAction : """
+            & " & SOAPAction);");
+         Text_IO.New_Line (Skel_Adb);
+      end if;
+
       Text_IO.Put_Line
         (Skel_Adb, "      if SOAPAction /= """ & SOAPAction & """ then");
       Text_IO.Put_Line
@@ -238,6 +246,14 @@ package body Skel is
 
       --  Then check the procedure name
 
+      if O.Debug then
+         Text_IO.Put_Line
+           (Skel_Adb,
+            "      Put_Line (""[SERVER/" & L_Proc & "_CB] Proc_Name : """
+            & " & Proc_Name);");
+         Text_IO.New_Line (Skel_Adb);
+      end if;
+
       Text_IO.Put_Line
         (Skel_Adb, "      if Proc_Name /= """ & Proc & """ then");
       Text_IO.Put_Line
@@ -255,6 +271,16 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "      end if;");
       Text_IO.New_Line (Skel_Adb);
+
+      if O.Debug then
+         Text_IO.Put_Line
+           (Skel_Adb,
+            "      Put_Line (""[SERVER/" & L_Proc & "_CB] Payload : """);
+         Text_IO.Put_Line
+           (Skel_Adb,
+            "                & SOAP.Message.XML.Image (Payload));");
+         Text_IO.New_Line (Skel_Adb);
+      end if;
 
       --  Initialize the Response structure
 
@@ -531,18 +557,29 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "      SOAP.Message.Set_Parameters (Response, R_Params);");
 
+      if O.Debug then
+         Text_IO.Put_Line
+           (Skel_Adb,
+            "      Put_Line (""[SERVER/" & L_Proc & "_CB] Response : """);
+         Text_IO.Put_Line
+           (Skel_Adb,
+            "                & SOAP.Message.XML.Image (Response));");
+      end if;
+
       Text_IO.Put_Line
         (Skel_Adb, "      return SOAP.Message.Response.Build (Response);");
 
       Text_IO.Put_Line
         (Skel_Adb, "   exception");
 
+      --  Types.Data_Error
+
       Text_IO.Put_Line
         (Skel_Adb, "      when E : SOAP.Types.Data_Error =>");
 
       Text_IO.Put_Line
         (Skel_Adb, "         --  Here we have a problem with some"
-           & " parameters, return a SOAP error.");
+           & " parameters, return a SOAP error");
 
       Text_IO.Put_Line
         (Skel_Adb, "         return SOAP.Message.Response.Build");
@@ -556,6 +593,26 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "                 & Exception_Message (E) & "")""));");
 
+      --  All other errors
+
+      Text_IO.Put_Line
+        (Skel_Adb, "      when O : others =>");
+
+      Text_IO.Put_Line
+        (Skel_Adb, "         --  Here we have a problem with user's"
+           & " callback, return a SOAP error");
+
+      Text_IO.Put_Line
+        (Skel_Adb, "         return SOAP.Message.Response.Build");
+      Text_IO.Put_Line
+        (Skel_Adb, "           (SOAP.Message.Response.Error.Build");
+      Text_IO.Put_Line
+        (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
+      Text_IO.Put_Line
+        (Skel_Adb, "               """
+           & "Error in " & L_Proc & " (""");
+      Text_IO.Put_Line
+        (Skel_Adb, "                 & Exception_Message (O) & "")""));");
       Text_IO.Put_Line (Skel_Adb, "   end " & L_Proc & "_CB;");
    end New_Procedure;
 
@@ -600,6 +657,11 @@ package body Skel is
 
       --  Body
 
+      if O.Debug then
+         Text_IO.Put_Line (Skel_Adb, "with Ada.Text_IO;");
+         Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.XML;");
+      end if;
+
       Text_IO.Put_Line (Skel_Adb, "with Ada.Exceptions;");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Response.Error;");
@@ -608,6 +670,11 @@ package body Skel is
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "package body " & U_Name & ".Server is");
       Text_IO.New_Line (Skel_Adb);
+
+      if O.Debug then
+         Text_IO.Put_Line (Skel_Adb, "   use Ada.Text_IO;");
+      end if;
+
       Text_IO.Put_Line (Skel_Adb, "   use Ada.Exceptions;");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "   use SOAP.Types;");
