@@ -30,8 +30,6 @@ implemented:
   session data across the network. Something needed to do load balancing into
   a Web Farm.
 
-- We need to add the directory browser template into the config file.
-
 - Replace OpenSSL by GNUTLS library when this library will become stable.
 
 - Would be nice to detect if users try to use the session feature when there
