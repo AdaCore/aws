@@ -1,0 +1,113 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                            Copyright (C) 2003                            --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $RCSfile$
+--  $Revision$
+--  $Date$
+--  $Author$
+
+package body AWS.Resources.Streams.ZLib is
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close (Resource : in out Stream_Type) is
+   begin
+      ZL.Close (Resource.Filter);
+      Close (Streams.Stream_Type'Class (Resource));
+   end Close;
+
+   ------------------------
+   -- Deflate_Initialize --
+   ------------------------
+
+   procedure Deflate_Initialize
+     (Resource     : in out Stream_Type;
+      Level        : in     Compression_Level  := ZL.Default_Compression;
+      Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
+      Method       : in     Compression_Method := ZL.Deflated;
+      Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
+      Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
+      Header       : in     Header_Type        := ZL.Default) is
+   begin
+      ZL.Deflate_Init
+        (Resource.Filter, Level, Strategy, Method,
+         Window_Bits, Memory_Level, Header);
+   end Deflate_Initialize;
+
+   ------------------------
+   -- Inflate_Initialize --
+   ------------------------
+
+   procedure Inflate_Initialize
+     (Resource    : in out Stream_Type;
+      Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
+      Header      : in     Header_Type      := ZL.Default) is
+   begin
+      ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
+   end Inflate_Initialize;
+
+   ----------
+   -- Read --
+   ----------
+
+   procedure Read
+     (Resource : in out Stream_Type;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset)
+   is
+      procedure Get
+        (Buffer : out Stream_Element_Array;
+         Last   : out Stream_Element_Offset);
+      --  Generic parameter for read source data.
+
+      ---------
+      -- Get --
+      ---------
+
+      procedure Get
+        (Buffer : out Stream_Element_Array;
+         Last   : out Stream_Element_Offset) is
+      begin
+         Read_Source (Stream_Type'Class (Resource), Buffer, Last);
+      end Get;
+
+      procedure Read_Encoded is new ZL.Read
+        (Read       => Get,
+         Buffer     => Resource.Buffer,
+         Rest_First => Resource.Rest_First,
+         Rest_Last  => Resource.Rest_Last);
+
+   begin
+      Read_Encoded (Resource.Filter, Buffer, Last);
+   end Read;
+
+end AWS.Resources.Streams.ZLib;
