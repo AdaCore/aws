@@ -1,3 +1,8 @@
+2005-02-17  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-input__aws.adb:
+	(Open): Add exception message to help tracing missing files.
+
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-configuration__aws.ads:
