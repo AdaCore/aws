@@ -4,11 +4,11 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 Marsh 8th, 2003
+   Pascal Obry                                                 Marsh 12th, 2003
 
 
 
-We are happy to announce the availability of the AWS 1.3 release. The API
+We are happy to announce the availability of the AWS 1.4 release. The API
 could change slightly at this stage but should be fairly stable now.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
@@ -28,9 +28,12 @@ The SOAP implementation has been validated on http://validator.soapware.org/.
 
 Here are the main changes since AWS 1.3 :
 
+   - Add WSDL parser and SOAP stub/skeleton generator. This implementation has 
+     passed many tests on http://www.whitemesa.com/interop/proposal2.html
+
    - wsdl2aws, new tool. Generate SOAP/AWS stub/skeleton from a WSDL
      document. With this tool it is very easy to build or to connect to Web
-     Services.
+     Services. This tool use the WSDL parser and SOAP generator API. See above.
 
    - Fix memory leak in templates parser when using a non existent template
      file.
@@ -62,7 +65,7 @@ See documentation for build information.
 Validation:
 -----------
 
-AWS 1.3 has been compiled and has passed all tests on:
+AWS 1.4 has been compiled and has passed all tests on:
 
    Windows XP, GNAT 3.15a1, 3.16a, 3.17w and 5.01w
 
@@ -108,7 +111,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least version 3.15 to build and use AWS 1.3.
+   You need at least version 3.15 to build and use AWS 1.4.
 
    ftp://cs.nyu.edu/pub/gnat/
 
