@@ -1139,6 +1139,8 @@ package body SOAP.Generator is
          -----------
 
          function Image (E : in WSDL.Parameters.E_Node_Access) return String is
+            Col    : constant Natural := 13 + F_Name'Length;
+            Sep    : constant String := ASCII.LF & "     ";
             Result : Unbounded_String;
             N      : WSDL.Parameters.E_Node_Access := E;
          begin
@@ -1157,6 +1159,27 @@ package body SOAP.Generator is
 
             Append (Result, ")");
 
+            if Col + Length (Result) > 80 then
+               --  Split the result in multiple line
+               Result := Sep & Result;
+
+               declare
+                  Line_Size : constant := 70;
+                  K         : Natural := Line_Size;
+               begin
+                  while K < Length (Result) loop
+                     for I in reverse 1 .. K loop
+                        if Element (Result, I) = ',' then
+                           Insert (Result, I + 1, Sep);
+                           exit;
+                        end if;
+                     end loop;
+
+                     K := K + Line_Size;
+                  end loop;
+               end;
+            end if;
+
             return To_String (Result);
          end Image;
 
@@ -1169,7 +1192,7 @@ package body SOAP.Generator is
       begin
          Initialize_Types_Package (P, F_Name, False, Prefix, Enu_Ads, Enu_Adb);
 
-         Text_IO.New_Line (Tmp_Ads);
+         Text_IO.New_Line (Enu_Ads);
 
          --  Is types are to be reused from an Ada  spec ?
 
@@ -1181,6 +1204,8 @@ package body SOAP.Generator is
               (Enu_Ads, "   subtype " & F_Name & " is "
                & Types_Spec (O) & "." & To_String (P.E_Name) & ";");
          end if;
+
+         Text_IO.New_Line (Tmp_Ads);
 
          Text_IO.Put_Line
            (Tmp_Ads, "   subtype " & F_Name & " is "
@@ -1195,7 +1220,7 @@ package body SOAP.Generator is
 
          Text_IO.New_Line (Tmp_Ads);
          Text_IO.Put_Line
-           (Tmp_Ads, "   function Image (E  : in " & F_Name & ")");
+           (Tmp_Ads, "   function Image (E : in " & F_Name & ")");
          Text_IO.Put_Line
            (Tmp_Ads, "      return String ");
          Text_IO.Put_Line
