@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -74,6 +74,7 @@ package body AWS.Digest is
    begin
       --  Our nonces length is length of Digest plus 5 symbols for
       --  Day durations.
+
       if Value'Length /= Digest_String'Length + 5 then
          return False;
       end if;
@@ -84,7 +85,7 @@ package body AWS.Digest is
          use Ada.Strings.Maps;
       begin
          if not Is_Subset (To_Set (Value (1 .. 5)),
-           Constants.Hexadecimal_Digit_Set)
+                           Constants.Hexadecimal_Digit_Set)
          then
             return False;
          end if;
@@ -130,8 +131,7 @@ package body AWS.Digest is
      (Username, Realm, Password : in String;
       Nonce, NC, CNonce, QOP    : in String;
       Method, URI               : in String)
-      return Digest_String
-   is
+      return Digest_String is
    begin
       return Create_Digest
         (Username => Username,
@@ -146,8 +146,7 @@ package body AWS.Digest is
      (Username, Realm, Password : in String;
       Nonce                     : in String;
       Method, URI               : in String)
-      return Digest_String
-   is
+      return Digest_String is
    begin
       return Utils.Get_MD5
         (Utils.Get_MD5 (Username & ':' & Realm & ':' & Password)
