@@ -141,11 +141,14 @@ package body AWS.Net.SSL is
 
       TSSL.SSL_set_connect_state (Socket.SSL);
 
-      Error_If (TSSL.SSL_connect (Socket.SSL) = -1);
-   exception
-      when others =>
-         Free (Socket);
-         raise;
+      if TSSL.SSL_connect (Socket.SSL) = -1 then
+         Net.Std.Shutdown (NSST (Socket));
+         Free     (Socket);
+
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity, "Error on SSL connect initation.");
+      end if;
+
    end Connect;
 
    --------------
