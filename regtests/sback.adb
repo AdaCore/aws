@@ -30,9 +30,9 @@
 
 --  $Id$
 
-with Back_Proc;
+with Back_Pack;
 
 procedure SBack is
 begin
-   Back_Proc (4570, False);
+   Back_Pack.Run ("http", 4570);
 end SBack;
