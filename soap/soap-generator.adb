@@ -246,8 +246,12 @@ package body SOAP.Generator is
                Append (Result, Characters.Handling.To_Upper (Name (K)));
 
             elsif Characters.Handling.Is_Upper (Name (K))
-              and then K > Name'First and then Name (K - 1) /= '_'
-              and then K < Name'Last and then Name (K + 1) /= '_'
+              and then K > Name'First
+              and then Name (K - 1) /= '_'
+              and then Name (K - 1) /= '.'
+              and then K < Name'Last
+              and then Name (K + 1) /= '_'
+              and then Name (K + 1) /= '.'
             then
                Append (Result, "_" & Name (K));
 
@@ -582,6 +586,8 @@ package body SOAP.Generator is
          function V_Routine (Name : in String) return String;
          --  Returns the Ada corresponding type
 
+         F_Name : constant String := Format_Name (O, Name);
+
          ---------------
          -- V_Routine --
          ---------------
@@ -608,13 +614,13 @@ package body SOAP.Generator is
          --  Generate record type
 
          Text_IO.New_Line (Type_Ads);
-         Header_Box (O, Type_Ads, "Record " & Name);
+         Header_Box (O, Type_Ads, "Record " & F_Name);
 
          N := R;
 
          Text_IO.New_Line (Type_Ads);
          Text_IO.Put_Line
-           (Type_Ads, "   type " & Name & " is record");
+           (Type_Ads, "   type " & F_Name & " is record");
 
          while N /= null loop
             Text_IO.Put
@@ -634,28 +640,28 @@ package body SOAP.Generator is
          --  Generate convertion spec
 
          Text_IO.New_Line (Type_Ads);
-         Text_IO.Put_Line (Type_Ads, "   function To_" & Name);
+         Text_IO.Put_Line (Type_Ads, "   function To_" & F_Name);
 
          Text_IO.Put_Line (Type_Ads, "     (O : in SOAP.Types.Object'Class)");
-         Text_IO.Put_Line (Type_Ads, "      return " & Name & ';');
+         Text_IO.Put_Line (Type_Ads, "      return " & F_Name & ';');
 
          Text_IO.New_Line (Type_Ads);
          Text_IO.Put_Line (Type_Ads, "   function To_SOAP_Object");
 
-         Text_IO.Put_Line (Type_Ads, "     (R    : in " & Name & ';');
+         Text_IO.Put_Line (Type_Ads, "     (R    : in " & F_Name & ';');
          Text_IO.Put_Line (Type_Ads, "      Name : in String := ""item"")");
          Text_IO.Put_Line (Type_Ads, "      return SOAP.Types.SOAP_Record;");
 
          --  Generate convertion body
 
          Text_IO.New_Line (Type_Adb);
-         Header_Box (O, Type_Adb, "Record " & Name);
+         Header_Box (O, Type_Adb, "Record " & F_Name);
 
          Text_IO.New_Line (Type_Adb);
-         Text_IO.Put_Line (Type_Adb, "   function To_" & Name);
+         Text_IO.Put_Line (Type_Adb, "   function To_" & F_Name);
 
          Text_IO.Put_Line (Type_Adb, "     (O : in SOAP.Types.Object'Class)");
-         Text_IO.Put_Line (Type_Adb, "      return " & Name);
+         Text_IO.Put_Line (Type_Adb, "      return " & F_Name);
          Text_IO.Put_Line (Type_Adb, "   is");
          Text_IO.Put_Line
            (Type_Adb,
@@ -672,7 +678,8 @@ package body SOAP.Generator is
                begin
                   Text_IO.Put_Line
                     (Type_Adb,
-                     "      " & To_String (N.Name) & " : constant " & I_Type);
+                     "      " & Format_Name (O, To_String (N.Name))
+                       & " : constant " & I_Type);
                   Text_IO.Put_Line
                     (Type_Adb,
                      "         := " & I_Type & " (SOAP.Types.V (R, """
@@ -683,7 +690,7 @@ package body SOAP.Generator is
                if Utils.Is_Array (To_String (N.C_Name)) then
                   Text_IO.Put_Line
                     (Type_Adb,
-                     "      " & To_String (N.Name)
+                     "      " & Format_Name (O, To_String (N.Name))
                        & " : constant SOAP.Types.SOAP_Array");
                   Text_IO.Put_Line
                     (Type_Adb,
@@ -692,7 +699,7 @@ package body SOAP.Generator is
                else
                   Text_IO.Put_Line
                     (Type_Adb,
-                     "      " & To_String (N.Name)
+                     "      " & Format_Name (O, To_String (N.Name))
                        & " : constant SOAP.Types.SOAP_Record");
                   Text_IO.Put_Line
                     (Type_Adb,
@@ -717,19 +724,21 @@ package body SOAP.Generator is
             if N.Mode = WSDL.Parameters.K_Simple then
                Text_IO.Put
                  (Type_Adb, V_Routine (WSDL.To_Ada (N.P_Type))
-                    & " (" & To_String (N.Name) & ')');
+                    & " (" & Format_Name (O, To_String (N.Name)) & ')');
 
             else
                if Utils.Is_Array (To_String (N.C_Name)) then
                   Text_IO.Put
-                    (Type_Adb, "To_" & To_String (N.C_Name)
-                       & " (SOAP.Types.V (" & To_String (N.Name) & "))");
+                    (Type_Adb, "To_" & Format_Name (O, To_String (N.C_Name))
+                       & " (SOAP.Types.V ("
+                       & Format_Name (O, To_String (N.Name)) & "))");
 
                else
                   Text_IO.Put (Type_Adb, Get_Routine (N));
 
                   Text_IO.Put
-                    (Type_Adb, "(SOAP.Types.V (" & To_String (N.Name) & "))");
+                    (Type_Adb, "(SOAP.Types.V ("
+                       & Format_Name (O, To_String (N.Name)) & "))");
                end if;
             end if;
 
@@ -742,12 +751,12 @@ package body SOAP.Generator is
             N := N.Next;
          end loop;
 
-         Text_IO.Put_Line (Type_Adb, "   end To_" & Name & ';');
+         Text_IO.Put_Line (Type_Adb, "   end To_" & F_Name & ';');
 
          Text_IO.New_Line (Type_Adb);
          Text_IO.Put_Line (Type_Adb, "   function To_SOAP_Object");
 
-         Text_IO.Put_Line (Type_Adb, "     (R : in " & Name & ';');
+         Text_IO.Put_Line (Type_Adb, "     (R : in " & F_Name & ';');
          Text_IO.Put_Line (Type_Adb, "      Name : in String := ""item"")");
          Text_IO.Put_Line (Type_Adb, "      return SOAP.Types.SOAP_Record");
          Text_IO.Put_Line (Type_Adb, "   is");
@@ -779,7 +788,7 @@ package body SOAP.Generator is
                     (Type_Adb,
                      "SOAP.Types.A (To_Object_Set (R."
                        & Format_Name (O, To_String (N.Name)) & ".all), """
-                       & Format_Name (O, To_String (N.Name)) & """)");
+                       & To_String (N.Name) & """)");
                else
                   Text_IO.Put (Type_Adb, Set_Routine (N));
 
