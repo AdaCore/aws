@@ -8,7 +8,7 @@
    <State xsi:type="xsd:string">idle</State>
    <Package xsi:type="xsd:string">sot23</Package>
    <Recipe xsi:type="xsd:string">bc847</Recipe>
-   <Orderline SOAP-ENC:arrayType="xsd:ur-type[2]" xsi:type="SOAP-ENC:Array">
+   <Orderline SOAP-ENC:arrayType="awsns:Orderline[2]" xsi:type="SOAP-ENC:Array">
       <Orderline>
          <State xsi:type="xsd:string">idle</State>
          <Woid xsi:type="xsd:string">Wo1</Woid>
