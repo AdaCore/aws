@@ -1,3 +1,46 @@
+2001-09-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-response-error.adb:
+	(Tag): moved to SOAP.Utils.
+	(XML_Image): uses SOAP.Utils.Tag.
+
+	* soap-message-response-error.ads:
+	Minor reformating.
+
+	* soap-message-xml.ads, soap-message-xml.adb:
+	Complete rewrite using DOM instead of SAX. This implementation
+	 support all SOAP 1.1 types and has been validated.
+
+	* soap-message.adb:
+	(XML_Image): uses Utils.Tag to build the Message_Body.
+
+	* soap-parameters.adb:
+	(Get): add implementation returning Boolean, Record, Array.
+	(Exist): new function.
+
+	* soap-parameters.ads:
+	(Get): add implementation returning Boolean, Record, Array.
+	(Exist): new function.
+	(Set): is now based on Types.Object_Set.
+
+	* soap.ads:
+	(Version): set to 0.8 (this version has been validated through
+	 http://validator.soapware.org/)
+	(SOAP_Error): new exception.
+
+	* soap-types.ads, soap-types.adb:
+	A lot of changes. Renames all SOAP object to SOAP_* to avoid
+	 conflict with standards types.	Add implementation for Boolean,
+	 Timeinstant, Base64, Array, Record and Null data. Object added to
+	 an Object_Set are now controlled since here we need to use an
+	 access type. This should avoid memory leaks.
+
+	* soap-utils.ads, soap-utils.adb:
+	Initial revision.
+
+	* soap-message-reader.ads, soap-message-reader.adb:
+	Initial revision.
+
 2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
