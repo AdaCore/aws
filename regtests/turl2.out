@@ -1,0 +1,31 @@
+http://www.myserver.com:89/app/request?p1=9&p2=toto
+http://www.myserver.com:89/app/request?p1=9&p2=toto
+   Server     : www.myserver.com
+   Port       : 89
+   Path       : /app/
+   File       : request
+   Parameters : ?p1=9&p2=toto
+   URI        : /app/request?p1=9&p2=toto
+   *
+   Server     : www.myserver.com
+   Port       : 89
+   Path       : /app/
+   File       : request
+   Parameters : ?p1=9&p2=toto
+   URI        : /app/request?p1=9&p2=toto
+Error on http://www.myserver.com:89/app/..\..\toto?url=http://titi - Wrong URL: (/../) Reference Web root parent directory.
+http://www.myserver.com:89/app/.\..\toto?url=http://titi&a=2
+http://www.myserver.com:89/app/./../toto?url=http://titi&a=2
+   Server     : www.myserver.com
+   Port       : 89
+   Path       : /app/./../
+   File       : toto
+   Parameters : ?url=http://titi&a=2
+   URI        : /app/./../toto?url=http://titi&a=2
+   *
+   Server     : www.myserver.com
+   Port       : 89
+   Path       : /
+   File       : toto
+   Parameters : ?url=http://titi&a=2
+   URI        : /toto?url=http://titi&a=2
