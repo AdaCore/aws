@@ -25,6 +25,16 @@
 
 2003-03-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-config-set.ads, aws-config-set.adb:
+	(Free_Slots_Keep_Alive_Limit): New configuration parameter.
+	Minor reformatting.
+
+	* aws-server.adb:
+	(Line): Move Keep_Alive_Limit declaration to the upper declare block,
+	 just a bit more readable.
+
+2003-03-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-default.adb:
 	(Free_Slots_Keep_Alive_Limit): New default value.
 
