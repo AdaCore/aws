@@ -294,10 +294,6 @@ package body AWS.Client is
            (Connection.SSL_Config, Certificate, Net.SSL.SSLv23_Client);
       end if;
 
-      --  Establish the connection now
-
-      Connect (Connection);
-
       if Persistent and then Connection.Retry = 0 then
          --  In this case the connection termination can be initiated by the
          --  server or the client after a period. So the connection could be
@@ -1121,13 +1117,101 @@ package body AWS.Client is
       if not Connection.Opened then
          Connect (Connection);
          Sock := Connection.Socket;
+
+         if AWS.URL.Security (Connection.Host_URL)
+           and then Connection.Proxy /= No_Data
+         then
+            --  We want to connect to the host using HTTPS, this can only be
+            --  done by opening a tunnel through the proxy.
+            --
+            --  CONNECT <host> HTTP/1.1
+            --  Host: <host>
+            --  [Proxy-Authorization: xxxx]
+            --  <other headers>
+            --  <empty line>
+
+            Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
+
+            Send_Header
+              (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
+            Send_Header
+              (Sock.all, Messages.Host (Host_Address));
+
+            --  Proxy Authentication
+
+            Send_Authentication_Header
+              (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
+
+            Send_Header
+              (Sock.all,
+               Messages.User_Agent (To_String (Connection.User_Agent)));
+
+            Send_Header
+              (Sock.all, Messages.Proxy_Connection (Persistence));
+
+            --  Empty line to terminate the connect
+
+            Net.Buffered.New_Line (Sock.all);
+
+            --  Wait for reply from the proxy, and check status
+
+            Net.Set_Timeout (Sock.all, Connection.Read_Timeout);
+
+            declare
+               use type Messages.Status_Code;
+               Line   : constant String := Net.Buffered.Get_Line (Sock.all);
+               Status : Messages.Status_Code;
+            begin
+               Debug_Message ("< ", Line);
+
+               Status := Messages.Status_Code'Value
+                 ('S' & Line (Messages.HTTP_Token'Length + 5
+                              .. Messages.HTTP_Token'Length + 7));
+
+               if Status >= Messages.S400 then
+                  Exceptions.Raise_Exception
+                    (Connection_Error'Identity,
+                     Message => "Can't connect to proxy, status "
+                     & Messages.Image (Status));
+               end if;
+            end;
+
+            --  Ignore all remainings lines
+
+            loop
+               declare
+                  Line : constant String := Net.Buffered.Get_Line (Sock.all);
+               begin
+                  Debug_Message ("< ", Line);
+                  exit when Line = "";
+               end;
+            end loop;
+
+            --  Now the tunnel is open, we need to create an SSL connection
+            --  around this tunnel.
+
+            declare
+               procedure Free is new Ada.Unchecked_Deallocation
+                 (Net.Socket_Type'Class, Net.Socket_Access);
+
+               S : constant Net.Std.Socket_Type
+                 := Net.Std.Socket_Type (Sock.all);
+            begin
+               Free (Sock);
+               Sock := new Net.SSL.Socket_Type'(Net.SSL.Secure_Client (S));
+               Connection.Socket := Sock;
+            end;
+         end if;
       end if;
 
       Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
 
       --  Header command
 
-      if Connection.Proxy = No_Data then
+      if Connection.Proxy = No_Data
+        or else AWS.URL.Security (Connection.Host_URL)
+      then
+         --  Without proxy or over proxy tunneling
 
          if URI = "" then
             Send_Header
@@ -1157,86 +1241,7 @@ package body AWS.Client is
 
       else
          --  We have a proxy configured
-
-         if AWS.URL.Security (Connection.Host_URL)
-           and then not Connection.Tunneling
-         then
-            --  We want to connect to the host using HTTPS, this can only be
-            --  done by opening a tunnel through the proxy.
-            --
-            --  CONNECT <host> HTTP/1.1
-            --  Host: <host>
-            --  [Proxy-Authorization: xxxx]
-            --  <other headers>
-            --  <empty line>
-
-            Connection.Tunneling := True;
-
-            Send_Header
-              (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
-            Send_Header
-              (Sock.all, Messages.Host (Host_Address));
-
-            --  Proxy Authentication
-
-            Send_Authentication_Header
-              (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
-
-            Send_Header
-              (Sock.all,
-               Messages.User_Agent (To_String (Connection.User_Agent)));
-
-            Send_Header
-              (Sock.all, Messages.Proxy_Connection (Persistence));
-
-            --  Empty line to terminate the connect
-
-            Net.Buffered.New_Line (Sock.all);
-
-            --  Wait for reply from the proxy, and check status
-
-            declare
-               use type Messages.Status_Code;
-               Line   : constant String := Net.Buffered.Get_Line (Sock.all);
-               Status : Messages.Status_Code;
-            begin
-               Status := Messages.Status_Code'Value
-                 ('S' & Line (Messages.HTTP_Token'Length + 5
-                              .. Messages.HTTP_Token'Length + 7));
-
-               if Status >= Messages.S400 then
-                  Exceptions.Raise_Exception
-                    (Connection_Error'Identity,
-                     Message => "Can't connect to proxy, status "
-                     & Messages.Image (Status));
-               end if;
-            end;
-
-            --  Ignore all remainings lines
-
-            loop
-               declare
-                  Line : constant String := Net.Buffered.Get_Line (Sock.all);
-               begin
-                  exit when Line = "";
-               end;
-            end loop;
-
-            --  Now the tunnel is open, we need to create an SSL connection
-            --  around this tunnel.
-
-            declare
-               procedure Free is new Ada.Unchecked_Deallocation
-                 (Net.Socket_Type'Class, Net.Socket_Access);
-
-               S : constant Net.Std.Socket_Type
-                 := Net.Std.Socket_Type (Sock.all);
-            begin
-               Free (Sock);
-               Sock := new Net.SSL.Socket_Type'(Net.SSL.Secure_Client (S));
-               Connection.Socket := Sock;
-            end;
-         end if;
+         --- ?????
 
          if URI = "" then
             Send_Header
@@ -1252,10 +1257,13 @@ package body AWS.Client is
                  & Host_Address & URI & ' ' & HTTP_Version);
          end if;
 
-         if not Connection.Tunneling then
-            Send_Header
-              (Sock.all, Messages.Proxy_Connection (Persistence));
-         end if;
+         Send_Header
+           (Sock.all, Messages.Proxy_Connection (Persistence));
+
+         --  Proxy Authentication
+
+         Send_Authentication_Header
+           (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
       end if;
 
       --  Cookie
@@ -1285,12 +1293,6 @@ package body AWS.Client is
       Send_Authentication_Header
         (Messages.Authorization_Token, Connection.Auth (WWW));
 
-      if not Connection.Tunneling then
-         --  Proxy Authentication
-
-         Send_Authentication_Header
-           (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
-      end if;
    end Open_Send_Common_Header;
 
    ------------------
