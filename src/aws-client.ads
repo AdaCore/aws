@@ -352,7 +352,7 @@ private
       Proxy         : Unbounded_String;
       Proxy_URL     : AWS.URL.Object;
       Auth          : Authentication_Set;
-      Opened        : Boolean;
+      Opened        : Boolean            := False;
       Persistent    : Boolean;
       Server_Push   : Boolean;
       SOAPAction    : Unbounded_String;
