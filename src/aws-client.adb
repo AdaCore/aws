@@ -422,13 +422,14 @@ package body AWS.Client is
       Result     :    out Response.Data;
       Get_Body   : in     Boolean         := True)
    is
+      type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
       function Read_Chunk return Streams.Stream_Element_Array;
       --  Read a chunk object from the stream
 
       function Read_Binary_Message
         (Len : in Positive)
-        return Streams.Stream_Element_Array;
+        return Stream_Element_Array_Access;
       pragma Inline (Read_Binary_Message);
       --  Read a binary message of Len bytes from the socket.
 
@@ -438,6 +439,9 @@ package body AWS.Client is
 
       procedure Disconnect;
       --  close connection socket.
+
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
       Sock : Sockets.Socket_FD'Class := Connection.Socket.all;
 
@@ -467,11 +471,12 @@ package body AWS.Client is
 
       function Read_Binary_Message
         (Len : in Positive)
-        return Streams.Stream_Element_Array
+        return Stream_Element_Array_Access
       is
          use Streams;
 
-         Elements : Stream_Element_Array (1 .. Stream_Element_Offset (Len));
+         Elements : Stream_Element_Array_Access
+           := new Stream_Element_Array (1 .. Stream_Element_Offset (Len));
          S, E     : Stream_Element_Offset;
       begin
          S := 1;
@@ -502,11 +507,6 @@ package body AWS.Client is
 
          use type Stream_Element_Array;
          use type Stream_Element_Offset;
-
-         type Stream_Element_Array_Access is access Stream_Element_Array;
-
-         procedure Free is new Ada.Unchecked_Deallocation
-           (Stream_Element_Array, Stream_Element_Array_Access);
 
          Data : Stream_Element_Array_Access :=
            new Streams.Stream_Element_Array (1 .. 10_000);
@@ -631,7 +631,7 @@ package body AWS.Client is
          else
             Result := Response.Build
               (MIME.Text_HTML,
-               Translator.To_String (Read_Binary_Message (CT_Len)),
+               Translator.To_String (Read_Binary_Message (CT_Len).all),
                Status);
          end if;
 
@@ -748,18 +748,23 @@ package body AWS.Client is
          else
 
             declare
-               Elements : Streams.Stream_Element_Array
+               Elements : Stream_Element_Array_Access
                  := Read_Binary_Message (CT_Len);
             begin
                if MIME.Is_Text (To_String (CT)) then
-                  Result := Response.Build
-                    (To_String (CT), Translator.To_String (Elements), Status);
+                  Result :=  Response.Build
+                    (To_String (CT),
+                     Translator.To_String (Elements.all),
+                     Status);
 
                else
                   --  This is some kind of binary data.
 
-                  Result := Response.Build (To_String (CT), Elements, Status);
+                  Result := Response.Build
+                    (To_String (CT), Elements.all, Status);
                end if;
+
+               Free (Elements);
             end;
          end if;
       end if;
