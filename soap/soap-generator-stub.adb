@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -549,7 +549,8 @@ package body Stub is
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
-                       & ":= To_" & To_String (Output.T_Name) & "_Type");
+                       & ":= To_"
+                       & Format_Name (O, To_String (Output.T_Name)) & "_Type");
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
@@ -561,7 +562,8 @@ package body Stub is
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
-                       & ":= To_" & To_String (Output.T_Name) & "_Type");
+                       & ":= To_"
+                       & Format_Name (O, To_String (Output.T_Name)) & "_Type");
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
