@@ -12,7 +12,7 @@ include makefile.conf
 
 # External packages to be configured
 
-# Either set ADASOCKETS, XMLADA here or you can  update ADA_INCLUDE_PATH and
+# Either set ADASOCKETS, XMLADA here or you can update ADA_INCLUDE_PATH and
 # ADA_OBJECTS_PATH environments variables.
 
 # Adasockets, required.
