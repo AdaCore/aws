@@ -31,7 +31,6 @@
 --  $Id$
 
 with Ada.Streams.Stream_IO;
-with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Interfaces.C;
@@ -73,7 +72,8 @@ is
    C_Stat         : AWS.Status.Data;     -- Connection status
    P_List         : AWS.Parameters.List; -- Form data
 
-   Socket_Taken : Boolean := False;
+   Socket_Taken   : Boolean := False;
+   --  Set to True if a socket has been reserved for a push session.
 
    Will_Close     : Boolean;
    --  Will_Close is set to true when the connection will be closed by the
@@ -392,9 +392,10 @@ is
       --  AWS Internal status page handling.
 
       if Admin_URI'Length > 0
-        and then URI'Length >= Admin_URI'Length
-        and then URI (URI'First .. URI'First + Admin_URI'Length - 1)
-          = Admin_URI
+           and then
+        URI'Length >= Admin_URI'Length
+           and then
+        URI (URI'First .. URI'First + Admin_URI'Length - 1) = Admin_URI
       then
 
          if URI = Admin_URI then
