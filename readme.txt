@@ -18,7 +18,7 @@ This is a maintenance release:
   - hotplug_cb.ads was missing from the distribution. Reported by Sune Falck.
 
   - can be used with latest version of Adasocket 0.1.12 and 0.1.13. With this
-    release you should use the updated Win32 port (see link below). Reported
+    release you must use the updated Win32 port (see link below). Reported
     by Sune Falck.
 
   - In the administrative page, if the socket is not opened a dummy value was
