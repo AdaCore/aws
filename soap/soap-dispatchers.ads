@@ -47,13 +47,13 @@ package SOAP.Dispatchers is
      (Dispatcher : in Handler;
       Request    : in Message.Payload.Object)
       return     AWS.Response.Data is abstract;
-   --  This dispatch procedure would be called for SOAP calls.
+   --  This dispatch function would be called for SOAP calls.
 
    function Dispatch_Base
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data)
       return     AWS.Response.Data is abstract;
-   --  This dispatch procedure would be called for non SOAP calls.
+   --  This dispatch function would be called for non SOAP calls.
 
 private
 
