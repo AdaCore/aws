@@ -1,3 +1,8 @@
+2001-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-url.adb:
+	(Normalize): handle properly the "/./" case.
+
 2001-10-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
