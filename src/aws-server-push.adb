@@ -125,7 +125,6 @@ package body AWS.Server.Push is
          Cursor  : Table.Cursor;
          Success : Boolean;
       begin
-
          if not Open then
             Net.Stream_IO.Free (Holder.Stream, False);
             raise Closed;
@@ -136,7 +135,7 @@ package body AWS.Server.Push is
          if not Success then
             if Close_Duplicate then
                Unregister (Client_ID, True);
-               Table.Containers.Replace_Element (Cursor, Holder);
+               Table.Replace_Element (Cursor, Holder);
             else
                Net.Stream_IO.Free (Holder.Stream, False);
                raise Duplicate_Client_ID;
@@ -219,28 +218,26 @@ package body AWS.Server.Push is
 
          while Table.Has_Element (Cursor) loop
             declare
-               Holder : constant Client_Holder
-                 := Table.Containers.Element (Cursor);
+               Holder : constant Client_Holder := Table.Element (Cursor);
             begin
                declare
                   Success : Boolean;
                begin
                   Send_Data (Holder, Data, Content_Type);
 
-                  Table.Containers.Next (Cursor);
+                  Table.Next (Cursor);
                exception
                   when Net.Socket_Error =>
                      declare
                         C   : Table.Cursor;
-                        Key : constant Client_Key
-                          := Table.Containers.Key (Cursor);
+                        Key : constant Client_Key := Table.Key (Cursor);
                      begin
                         Table.Insert (Unregistered, Key, Holder, C, Success);
 
                         --  We have to move cursor to the next position before
                         --  delete element from current position.
 
-                        Table.Containers.Next (Cursor);
+                        Table.Next (Cursor);
 
                         Unregister (Key, True);
                      end;
@@ -300,7 +297,7 @@ package body AWS.Server.Push is
          Cursor := Table.Find (Container, Client_ID);
 
          if Table.Has_Element (Cursor) then
-            Send_Data (Table.Containers.Element (Cursor), Data, Content_Type);
+            Send_Data (Table.Element (Cursor), Data, Content_Type);
          else
             raise Client_Gone;
          end if;
@@ -338,7 +335,7 @@ package body AWS.Server.Push is
       -----------------------
 
       procedure Shutdown_If_Empty (Open : out Boolean) is
-         use type AI302.Containers.Size_Type;
+         use type AI302.Containers.Count_Type;
       begin
          if Table.Length (Container) = 0 then
             Object.Open := False;
@@ -360,7 +357,7 @@ package body AWS.Server.Push is
          Cursor := Table.Find (Container, Client_ID);
 
          if Table.Has_Element (Cursor) then
-            Value := Table.Containers.Element (Cursor);
+            Value := Table.Element (Cursor);
 
             if Close_Socket then
                Net.Stream_IO.Shutdown (Value.Stream);
@@ -384,7 +381,7 @@ package body AWS.Server.Push is
 
             exit when not Table.Has_Element (Cursor);
 
-            Unregister (Table.Containers.Key (Cursor), Close_Sockets);
+            Unregister (Table.Key (Cursor), Close_Sockets);
          end loop;
       end Unregister_Clients;
 
@@ -468,8 +465,8 @@ package body AWS.Server.Push is
       Cursor := Table.First (Gone);
 
       while Table.Has_Element (Cursor) loop
-         Client_Gone (Table.Containers.Key (Cursor));
-         Table.Containers.Next (Cursor);
+         Client_Gone (Table.Key (Cursor));
+         Table.Next (Cursor);
       end loop;
 
       Table.Clear (Gone);

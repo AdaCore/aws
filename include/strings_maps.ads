@@ -44,7 +44,7 @@ package Strings_Maps is
      new AI302.Containers.Indefinite_Hashed_Maps
        (String, Element_Type, AI302.Strings.Hash, "=", "=");
 
-   type Map is new Containers.Map;
+   subtype Map is Containers.Map;
 
    subtype Cursor is Containers.Cursor;
    No_Element : Cursor renames Containers.No_Element;

@@ -110,7 +110,7 @@ package body Templates_Parser.XML is
          procedure Add_Description (Var : in String) is
             Var_Description : constant String := Var & Description_Suffix;
          begin
-            if Containers.Is_In (Var_Description, Translations.Set.all) then
+            if Containers.Is_In (Translations.Set.all, Var_Description) then
                --  There is probably a label encoded into this set
                declare
                   Description : constant Association
@@ -138,8 +138,8 @@ package body Templates_Parser.XML is
                 Var (Var'Last - Description_Suffix'Length + 1 .. Var'Last)
                   = Description_Suffix
               and then Containers.Is_In
-               (Var (Var'First .. Var'Last - Description_Suffix'Length),
-                Translations.Set.all)
+                (Translations.Set.all,
+                 Var (Var'First .. Var'Last - Description_Suffix'Length))
             then
                return True;
             end if;
@@ -167,7 +167,7 @@ package body Templates_Parser.XML is
 
                return Var (N .. Var'Last) = Description_Suffix
                  and then Containers.Is_In
-                   (Var (Var'First .. L), Translations.Set.all);
+                   (Translations.Set.all, Var (Var'First .. L));
             end if;
          end Is_Description;
 
@@ -199,7 +199,7 @@ package body Templates_Parser.XML is
 
                return Var (N .. Var'Last) = Labels_Suffix
                  and then Containers.Is_In
-                   (Var (Var'First .. L), Translations.Set.all);
+                   (Translations.Set.all, Var (Var'First .. L));
             end if;
          end Is_Labels;
 
@@ -306,7 +306,7 @@ package body Templates_Parser.XML is
                   Label_Var : constant String
                     := Var & "_DIM" & Image (K) & Labels_Suffix;
                begin
-                  if Containers.Is_In (Label_Var, Translations.Set.all) then
+                  if Containers.Is_In (Translations.Set.all, Label_Var) then
                      declare
                         Item : constant Association
                           := Containers.Element
@@ -370,7 +370,7 @@ package body Templates_Parser.XML is
       -- Iterate --
       -------------
 
-      procedure Iterate is new Containers.Generic_Iteration;
+      procedure Iterate is new Containers.Generic_Iteration (Process);
 
    begin
       --  XML header

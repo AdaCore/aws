@@ -51,7 +51,8 @@ package body AWS.Services.Transient_Pages is
       Delete_Time : Calendar.Time;
    end record;
 
-   package Table is new Strings_Maps (Item, "=");
+   package Table_Container is new Strings_Maps (Item, "=");
+   package Table renames Table_Container.Containers;
 
    subtype ID is String (1 .. 25);
    --  Random ID generated as transient page identity, the five first
@@ -164,13 +165,13 @@ package body AWS.Services.Transient_Pages is
 
          while Table.Has_Element (Cursor) loop
             declare
-               Value : constant Item := Table.Containers.Element (Cursor);
+               Value : constant Item := Table.Element (Cursor);
             begin
                if Now > Value.Delete_Time then
                   declare
                      Current : Table.Cursor := Cursor;
                   begin
-                     Table.Containers.Next (Cursor);
+                     Table.Next (Cursor);
                      Table.Delete (Resources, Current);
 
                      declare
@@ -182,7 +183,7 @@ package body AWS.Services.Transient_Pages is
                   end;
 
                else
-                  Table.Containers.Next (Cursor);
+                  Table.Next (Cursor);
                end if;
             end;
          end loop;
@@ -255,7 +256,7 @@ package body AWS.Services.Transient_Pages is
 
          if Table.Has_Element (Cursor) then
             Found  := True;
-            Result := Table.Containers.Element (Cursor);
+            Result := Table.Element (Cursor);
          else
             Found  := False;
          end if;

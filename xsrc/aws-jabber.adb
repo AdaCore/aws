@@ -120,6 +120,8 @@ package body AWS.Jabber is
    pragma Inline (User_JID);
    --  Returns the JID of the connected user.
 
+   package Key_Value renames Containers.Key_Value.Table.Containers;
+
    ----------------
    -- Characters --
    ----------------
@@ -322,7 +324,7 @@ package body AWS.Jabber is
       Server.MB.Get (Message);
       Check_Message (Message);
 
-      if Containers.Key_Value.Is_In ("digest", Message.all) then
+      if Key_Value.Is_In (Message.all, "digest") then
          --  Digest authentication supported, this is the prefered method if
          --  supported to avoid sending the password in plain ASCII over the
          --  Internet.
@@ -339,7 +341,7 @@ package body AWS.Jabber is
               & "</query>"
               & "</iq>");
 
-      elsif Containers.Key_Value.Is_In ("password", Message.all) then
+      elsif Key_Value.Is_In (Message.all, "password") then
          --  Plain authentication supported, use this one if digest is not
          --  supported by the server.
 
@@ -415,10 +417,8 @@ package body AWS.Jabber is
       Found  : Boolean;
    begin
       if Handler.Key /= Null_Unbounded_String then
-         if not Containers.Key_Value.Is_In
-           (To_String (Handler.Key), Handler.R.all)
-         then
-            Containers.Key_Value.Insert
+         if not Key_Value.Is_In (Handler.R.all, To_String (Handler.Key)) then
+            Key_Value.Insert
               (Handler.R.all, To_String (Handler.Key),
                Handler.Value, Cursor, Found);
          end if;
@@ -653,7 +653,7 @@ package body AWS.Jabber is
          new Ada.Unchecked_Deallocation (Jabber.Message, Message_Access);
    begin
       if Message /= null then
-         Containers.Key_Value.Clear (Message.all);
+         Key_Value.Clear (Message.all);
          Free (Message);
       end if;
    end Release;
@@ -717,8 +717,8 @@ package body AWS.Jabber is
          declare
             Key : constant String := Local_Name & '.' & Get_Qname (Atts, J);
          begin
-            if not Containers.Key_Value.Is_In (Key, Handler.R.all) then
-               Containers.Key_Value.Insert
+            if not Key_Value.Is_In (Handler.R.all, Key) then
+               Key_Value.Insert
                  (Handler.R.all,
                   Key,
                   To_Unbounded_String (Get_Value (Atts, J)),
@@ -750,7 +750,7 @@ package body AWS.Jabber is
          return Chat;
 
       else
-         --  If the presence/show tag is not recongnized, pretend that it is
+         --  If the presence/show tag is not recognized, pretend that it is
          --  Offline. This should happen only if there is some Jabber protocol
          --  error.
 
@@ -774,10 +774,10 @@ package body AWS.Jabber is
    function Value (M : in Message_Access; Key : in String) return String is
       Cursor : Containers.Key_Value.Cursor;
    begin
-      Cursor := Containers.Key_Value.Find (M.all, Key);
+      Cursor := Key_Value.Find (M.all, Key);
 
-      if Containers.Key_Value.Has_Element (Cursor) then
-         return To_String (Containers.Key_Value.Element (M.all, Key));
+      if Key_Value.Has_Element (Cursor) then
+         return To_String (Key_Value.Element (M.all, Key));
       else
          return "";
       end if;

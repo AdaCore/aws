@@ -48,7 +48,6 @@ package body AWS.Session is
 
    use Ada;
    use Ada.Strings.Unbounded;
-   use Containers;
 
    SID_Prefix             : constant String := "SID-";
 
@@ -59,7 +58,8 @@ package body AWS.Session is
    Session_Lifetime       : Duration := Default.Session_Lifetime;
    --  A session is obsolete if not used after Session_Lifetime seconds.
 
-   type Key_Value_Set_Access is access Key_Value.Set;
+   package Key_Value renames Containers.Key_Value.Table.Containers;
+   type Key_Value_Set_Access is access Containers.Key_Value.Set;
 
    --  table of session ID
 
@@ -68,7 +68,8 @@ package body AWS.Session is
       Root       : Key_Value_Set_Access;
    end record;
 
-   package Session_Set is new Strings_Maps (Session_Node, "=");
+   package Session_Set_Container is new Strings_Maps (Session_Node, "=");
+   package Session_Set renames Session_Set_Container.Containers;
 
    procedure Get_Node
      (Sessions : in    Session_Set.Map;
@@ -327,11 +328,11 @@ package body AWS.Session is
 
       entry Add_Session (SID : in ID) when Lock_Counter = 0 is
          New_Node : Session_Node;
-         Cursor   : Session_Set.Containers.Cursor;
+         Cursor   : Session_Set.Cursor;
          Success  : Boolean;
       begin
          New_Node := (Time_Stamp => Calendar.Clock,
-                      Root       => new Key_Value.Set);
+                      Root       => new Containers.Key_Value.Set);
 
          Session_Set.Insert
            (Sessions, String (SID), New_Node, Cursor, Success);
@@ -360,9 +361,9 @@ package body AWS.Session is
 
          procedure Destroy (Cursor : in Session_Set.Cursor) is
             procedure Free is new Ada.Unchecked_Deallocation
-              (Key_Value.Set, Key_Value_Set_Access);
+              (Containers.Key_Value.Set, Key_Value_Set_Access);
 
-            Item : Session_Node := Session_Set.Containers.Element (Cursor);
+            Item : Session_Node := Session_Set.Element (Cursor);
          begin
             Key_Value.Clear (Item.Root.all);
             Free (Item.Root);
@@ -373,10 +374,10 @@ package body AWS.Session is
          -------------------
 
          procedure For_All_Items is
-           new Session_Set.Containers.Generic_Iteration (Destroy);
+           new Session_Set.Generic_Iteration (Destroy);
 
       begin
-         For_All_Items (Session_Set.Containers.Map (Sessions));
+         For_All_Items (Sessions);
          Session_Set.Clear (Sessions);
       end Destroy;
 
@@ -431,8 +432,8 @@ package body AWS.Session is
             begin
                Cursor := Key_Value.Find (Node.Root.all, Key);
 
-               if Key_Value.Table.Has_Element (Cursor) then
-                  Value := Key_Value.Table.Containers.Element (Cursor);
+               if Key_Value.Has_Element (Cursor) then
+                  Value := Key_Value.Element (Cursor);
                end if;
             end;
          end if;
@@ -453,7 +454,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Cursor, Result);
 
          if Result then
-            Result := Key_Value.Is_In (Key, Node.Root.all);
+            Result := Key_Value.Is_In (Node.Root.all, Key);
          end if;
       end Key_Exist;
 
@@ -477,18 +478,18 @@ package body AWS.Session is
          Cursor := Session_Set.First (Sessions);
 
          while Session_Set.Has_Element (Cursor) loop
-            Node := Session_Set.Containers.Element (Cursor);
+            Node := Session_Set.Element (Cursor);
 
             if Node.Time_Stamp + Session_Lifetime < Now then
                E_Index := E_Index + 1;
                Expired_SID (E_Index)
-                 := ID (Session_Set.Containers.Key (Cursor));
+                 := ID (Session_Set.Key (Cursor));
 
                exit when E_Index = Max_Expired;
                --  No more space in the expired mailbox, quit now.
             end if;
 
-            Session_Set.Containers.Next (Cursor);
+            Session_Set.Next (Cursor);
          end loop;
       end Lock_And_Clean;
 
@@ -516,9 +517,9 @@ package body AWS.Session is
             SID := Generate_ID;
 
             New_Node := (Time_Stamp => Calendar.Clock,
-                         Root       => new Key_Value.Set);
+                         Root       => new Containers.Key_Value.Set);
 
-            if not Session_Set.Is_In (String (SID), Sessions) then
+            if not Session_Set.Is_In (Sessions, String (SID)) then
                Session_Set.Insert
                  (Sessions, String (SID), New_Node, Cursor, Found);
                exit Generate_UID;
@@ -545,7 +546,7 @@ package body AWS.Session is
                Key_Value.Delete (Node.Root.all, Key);
             end if;
 
-            Session_Set.Containers.Replace_Element (Cursor, Node);
+            Session_Set.Replace_Element (Cursor, Node);
          end if;
       end Remove_Key;
 
@@ -555,7 +556,7 @@ package body AWS.Session is
 
       function Session_Exist (SID : in ID) return Boolean is
       begin
-         return Session_Set.Is_In (String (SID), Sessions);
+         return Session_Set.Is_In (Sessions, String (SID));
       end Session_Exist;
 
       ---------------
@@ -580,7 +581,7 @@ package body AWS.Session is
                Cursor := Key_Value.Find (Node.Root.all, Key);
 
                if Key_Value.Has_Element (Cursor) then
-                  Key_Value.Table.Containers.Replace_Element
+                  Key_Value.Replace_Element
                     (Cursor, To_Unbounded_String (Value));
 
                else
@@ -590,7 +591,7 @@ package body AWS.Session is
                end if;
             end;
 
-            Session_Set.Containers.Replace_Element (Cursor, Node);
+            Session_Set.Replace_Element (Cursor, Node);
          end if;
       end Set_Value;
 
@@ -676,13 +677,13 @@ package body AWS.Session is
       while Session_Set.Has_Element (Cursor) loop
          Action
            (Order,
-            ID (Session_Set.Containers.Key (Cursor)),
-            Session_Set.Containers.Element (Cursor).Time_Stamp,
+            ID (Session_Set.Key (Cursor)),
+            Session_Set.Element (Cursor).Time_Stamp,
             Quit);
          exit when Quit;
 
          Order := Order + 1;
-         Session_Set.Containers.Next (Cursor);
+         Session_Set.Next (Cursor);
       end loop;
 
       Database.Unlock;
@@ -720,13 +721,13 @@ package body AWS.Session is
          while Key_Value.Has_Element (Cursor) loop
             Action
               (Order,
-               Key_Value.Table.Containers.Key (Cursor),
-               To_String (Key_Value.Table.Containers.Element (Cursor)),
+               Key_Value.Key (Cursor),
+               To_String (Key_Value.Element (Cursor)),
                Quit);
             exit when Quit;
 
             Order := Order + 1;
-            Key_Value.Table.Containers.Next (Cursor);
+            Key_Value.Next (Cursor);
          end loop;
       end For_Every_Data;
 
@@ -848,12 +849,12 @@ package body AWS.Session is
 
       if Session_Set.Has_Element (Cursor) then
          Found := True;
-         Node  := Session_Set.Containers.Element (Cursor);
+         Node  := Session_Set.Element (Cursor);
 
          --  Update time stamp, and replace this item into the map
          Node.Time_Stamp := Calendar.Clock;
 
-         Session_Set.Containers.Replace_Element (Cursor, Node);
+         Session_Set.Replace_Element (Cursor, Node);
 
       else
          Found := False;
