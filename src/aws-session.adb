@@ -35,6 +35,7 @@ with Ada.Exceptions;
 with Ada.Numerics.Discrete_Random;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+with System;
 
 with AWS.Config;
 with AWS.Key_Value;
@@ -43,13 +44,14 @@ with Table_Of_Static_Keys_And_Dynamic_Values_G;
 
 package body AWS.Session is
 
-   package SID_Random is new Ada.Numerics.Discrete_Random (ID);
+   type NID is range 0 .. System.Max_Int;
 
-   use SID_Random;
+   package SID_Random is new Ada.Numerics.Discrete_Random (NID);
+
    use Ada;
    use Ada.Strings.Unbounded;
 
-   SID_Generator          : Generator;
+   SID_Generator          : SID_Random.Generator;
    SID_Prefix             : constant String := "SID-";
 
    Session_Check_Interval : constant Duration
@@ -83,6 +85,7 @@ package body AWS.Session is
    procedure Destroy (Value : in out Session_Node) is
    begin
       null;
+--      Key_Value.Destroy (Value.Root);
    end Destroy;
 
    package Session_Set is new Table_Of_Static_Keys_And_Dynamic_Values_G
@@ -143,6 +146,11 @@ package body AWS.Session is
       Lock     : Natural := 0;
 
       Sessions : Session_Set.Table_Type;
+
+      function Generate_ID return ID;
+      --  Retruns a session ID. This ID is not certified to be uniq in the
+      --  system. It is required that the caller check for uniqness if
+      --  necessary.
 
    end Database;
 
@@ -271,6 +279,32 @@ package body AWS.Session is
             raise Internal_Error;
       end Delete_Session;
 
+      ------------------
+      -- Generate_UID --
+      ------------------
+
+      function Generate_ID return ID is
+         use SID_Random;
+
+         Chars : constant String := "0123456789"
+            & "abcdefghijklmnopqrstuvwxyz"
+            & "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+         Rand   : NID := 0;
+         Result : ID;
+
+      begin
+         for I in ID'Range loop
+            if Rand = 0 then
+               Rand := Random (SID_Generator);
+            end if;
+
+            Result (I) := Chars (Integer (Rand rem Chars'Length) + 1);
+            Rand := Rand / Chars'Length;
+         end loop;
+
+         return Result;
+      end Generate_ID;
+
       ---------------
       -- Get_Value --
       ---------------
@@ -305,13 +339,18 @@ package body AWS.Session is
       is
          N  : Session_Node;
       begin
-         Session_Set.Get_Value (Sessions, SID, N);
+         if Session_Set.Is_Present (Sessions, SID) then
+            Session_Set.Get_Value (Sessions, SID, N);
 
-         N.Time_Stamp := Calendar.Clock;
+            N.Time_Stamp := Calendar.Clock;
 
-         Session_Set.Replace_Value (Sessions, SID, N);
+            Session_Set.Replace_Value (Sessions, SID, N);
 
-         Result := Key_Value.Is_Present (N.Root, Key);
+            Result := Key_Value.Is_Present (N.Root, Key);
+
+         else
+            Result := False;
+         end if;
       end Key_Exist;
 
       -----------------
@@ -319,27 +358,25 @@ package body AWS.Session is
       -----------------
 
       entry New_Session (SID : out ID) when Lock = 0 is
-
          New_Node : Session_Node;
 
       begin
+         Generate_UID: loop
+            SID := Generate_ID;
 
-         New_Node.Time_Stamp := Calendar.Clock;
-
-         loop
-            New_Node.SID := Random (SID_Generator);
-            SID := New_Node.SID;
+            New_Node.Time_Stamp := Calendar.Clock;
+            New_Node.SID        := SID;
 
             begin
                Session_Set.Insert (Sessions, SID, New_Node);
-               exit;
+               exit Generate_UID;
             exception
                when Session_Set.Duplicate_Item_Error =>
                   --  very low probability but we should catch it
                   --  and try to generate unique key again.
                   null;
             end;
-         end loop;
+         end loop Generate_UID;
       end New_Session;
 
       ------------
@@ -619,9 +656,8 @@ package body AWS.Session is
    -----------
 
    function Image (SID : in ID) return String is
-      IID : constant String := ID'Image (SID);
    begin
-      return SID_Prefix & IID (2 .. IID'Last);
+      return SID_Prefix & String (SID);
    end Image;
 
    ------------
@@ -707,9 +743,9 @@ package body AWS.Session is
 
    function Value (SID : in String) return ID is
    begin
-      return ID'Value (SID (SID'First + SID_Prefix'Length .. SID'Last));
+      return ID (SID (SID'First + SID_Prefix'Length .. SID'Last));
    end Value;
 
 begin
-   Reset (SID_Generator);
+   SID_Random.Reset (SID_Generator);
 end AWS.Session;
