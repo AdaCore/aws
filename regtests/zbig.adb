@@ -55,11 +55,14 @@ begin
    Append (Stream, Buffer.all);
    Ada.Text_IO.Put_Line (Stream_Element_Offset'Image (Size (Stream)));
 
-   Clear (Stream);
+   Close (Stream);
+
    Deflate_Initialize (Stream);
    Append (Stream, Buffer.all);
 
    AWS.Utils.Free (Buffer);
 
    Ada.Text_IO.Put_Line (Stream_Element_Offset'Image (Size (Stream)));
+
+   Close (Stream);
 end ZBig;
