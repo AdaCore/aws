@@ -760,7 +760,7 @@ package body SOAP.Message.XML is
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
 
-      L : DOM.Core.Node_List := Child_Nodes (N);
+      L : constant DOM.Core.Node_List := Child_Nodes (N);
       S : Unbounded_String;
       P : DOM.Core.Node;
    begin
