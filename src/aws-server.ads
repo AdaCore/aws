@@ -87,7 +87,10 @@ package AWS.Server is
    --  uploaded files will be stored.
 
    procedure Shutdown (Web_Server : in out HTTP);
-   --  Stop the server and release all associated memory.
+   --  Stop the server and release all associated memory. This routine can
+   --  take some time to terminate because it waits for all tasks to terminate
+   --  properly before releasing the memory. The log facilities will be
+   --  automatically stopped by calling Stop_Log below.
 
    function Config (Web_Server : in HTTP) return AWS.Config.Object;
    --  Returns configuration object for Web_Server.
@@ -203,7 +206,7 @@ private
       --  with the socket FD. Phase set to Client_Header.
 
       procedure Release  (Index : in Positive);
-      --  Release slot number Index. Opened status us set to False.
+      --  Release slot number Index. Opened status is set to False.
 
       function Free return Boolean;
       --  Returns True if there is some free slots available.
