@@ -1,5 +1,11 @@
 2002-11-21  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-utils.ads, aws-utils.adb:
+	(Quote): New function.
+
+	* aws-jabber.ads, aws-jabber.adb:
+	Initial revision.
+
 	* aws-parameters.adb:
 	Rename Cutted_String to Cut_String.
 
