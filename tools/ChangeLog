@@ -2,6 +2,7 @@
 
 	* makefile:
 	Add Win32 poll support.
+	Use libpoll.a instead of poll.o for optional linking.
 
 2004-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 

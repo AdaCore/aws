@@ -45,7 +45,7 @@ LARGS := $(LARGS) -lnosslaws
 endif
 
 ifeq (${OS}, Windows_NT)
-LARGS := $(LARGS) ../lib/poll.o
+LARGS := $(LARGS) -lpoll
 endif
 
 # SOAP regression tests

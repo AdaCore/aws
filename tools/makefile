@@ -18,7 +18,7 @@ GEN   = ada2wsdl-options.adb
 endif
 
 ifeq (${OS}, Windows_NT)
-POLL = ../lib/poll.o -lwsock32
+POLL = -lpoll
 endif
 
 EXECS    = $(patsubst  ada2wsdl-main,ada2wsdl,$(TOOLS))
