@@ -28,12 +28,12 @@
 
 --  $Id$
 
-with AWS.Ressources;
+with AWS.Response;
 
 package AWS.Server is
 
-   task type HTTP (Port : Positive            := 8080;
-                   CB   : Ressources.Callback := Ressources.Default_Handler);
+   task type HTTP (Port : Positive          := 8080;
+                   CB   : Response.Callback := Response.Default_Handler);
 
    --  Declare a new Web_Server listening at the specified port.
 

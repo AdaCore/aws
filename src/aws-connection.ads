@@ -30,13 +30,13 @@
 
 with Sockets;
 
-with AWS.Ressources;
+with AWS.Response;
 
 package AWS.Connection is
 
    task type Line is
       entry Start (FD : in Sockets.Socket_FD;
-                   CB : in Ressources.Callback);
+                   CB : in Response.Callback);
    end Line;
 
    type Line_Access is access Line;

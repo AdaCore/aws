@@ -30,9 +30,32 @@
 
 package AWS.Messages is
 
-   type Status_Code is (S100, S101, S200, S201);
+   type Status_Code is
+     (S100, S101,
+      --  1xx : Informational - Request received, continuing process
+
+      S200, S201, S202, S203, S204, S205, S206,
+      --  2xx : Success - The action was successfully receivedn understood and
+      --  accepted
+
+      S300, S301, S302, S303, S304, S305, S307,
+      --  3xx : Redirection - Further action must be taken in order to
+      --  complete the request
+
+      S400, S401, S402, S403, S404, S405, S406, S407, S408, S409,
+      S410, S411, S412, S413, S414, S415, S416, S417,
+      --  4xx : Client Error - The request contains bad syntax or cannot be
+      --  fulfilled
+
+      S500, S501, S502, S503, S504, S505
+      --  5xx : Server Error - The server failed to fulfill an apparently
+      --  valid request
+      );
 
    function Status_Line (Code : in Status_Code) return String;
 
-end AWS.Messages;
+   function Content_Length (Size : in Positive) return String;
 
+   function Content_Type (Format : in String) return String;
+
+end AWS.Messages;

@@ -34,24 +34,44 @@ package AWS.Status is
 
    type Data is private;
 
+   type Request_Method is (GET);
+
    procedure Set_Host (D : in out Data; Host : in String);
    function Host (D : in Data) return String;
 
-   procedure Set_Get (D : in out Data; Ressource : in String);
-   function Get (D : in Data) return String;
+   procedure Set_Connection (D : in out Data; Connection : in String);
+   function Connection (D : in Data) return String;
+
+   procedure Set_Request (D            : in out Data;
+                          Method       : in     Request_Method;
+                          URI          : in     String;
+                          HTTP_Version : in     String;
+                          Parameters   : in     String := "");
+
+   function Method       (D : in Data) return Request_Method;
+   function URI          (D : in Data) return String;
+   function HTTP_Version (D : in Data) return String;
+   function Parameter    (D : in Data; N    : in Positive) return String;
+   function Parameter    (D : in Data; Name : in String)   return String;
 
 private
 
    pragma Inline (Set_Host);
    pragma Inline (Host);
-   pragma Inline (Set_Get);
-   pragma Inline (Get);
+   pragma Inline (Set_Request);
+   pragma Inline (Method);
+   pragma Inline (URI);
+   pragma Inline (HTTP_Version);
 
    use Ada.Strings.Unbounded;
 
    type Data is record
-      Host : Unbounded_String;
-      Get  : Unbounded_String;
+      Connection   : Unbounded_String;
+      Host         : Unbounded_String;
+      Method       : Request_Method;
+      URI          : Unbounded_String;
+      Parameters   : Unbounded_String;
+      HTTP_Version : Unbounded_String;
    end record;
 
 end AWS.Status;

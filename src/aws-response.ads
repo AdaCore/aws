@@ -30,6 +30,8 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Status;
+
 package AWS.Response is
 
    type Data is private;
@@ -42,7 +44,7 @@ package AWS.Response is
    function Content_Type   (D : in Data) return String;
    function Message_Body   (D : in Data) return String;
 
-   type Callback is access function (Name : in String) return Data;
+   type Callback is access function (Request : in Status.Data) return Data;
 
    Default_Handler : constant Callback := null;
 

@@ -28,16 +28,20 @@
 
 --  $Id$
 
+with Ada.Strings.Fixed;
+
 package body AWS.Status is
 
-   ---------
-   -- Get --
-   ---------
+   use Ada.Strings;
 
-   function Get (D : in Data) return String is
+   ----------------
+   -- Connection --
+   ----------------
+
+   function Connection (D : in Data) return String is
    begin
-      return To_String (D.Get);
-   end Get;
+      return To_String (D.Connection);
+   end Connection;
 
    ----------
    -- Host --
@@ -48,14 +52,91 @@ package body AWS.Status is
       return To_String (D.Host);
    end Host;
 
-   -------------
-   -- Set_Get --
-   -------------
+   ------------------
+   -- HTTP_Version --
+   ------------------
 
-   procedure Set_Get (D : in out Data; Ressource : in String) is
+   function HTTP_Version (D : in Data) return String is
    begin
-      D.Get := To_Unbounded_String (Ressource);
-   end Set_Get;
+      return To_String (D.HTTP_Version);
+   end HTTP_Version;
+
+   ------------
+   -- Method --
+   ------------
+
+   function Method (D : in Data) return Request_Method is
+   begin
+      return D.Method;
+   end Method;
+
+   ---------------
+   -- Parameter --
+   ---------------
+
+   function Parameter (D : in Data; N : in Positive) return String is
+      P : constant String := To_String (D.Parameters);
+      I : Natural;
+      S : Positive := 1;
+      E : Natural;
+
+   begin
+      for K in 1 .. N loop
+         I := Fixed.Index (P (S .. P'Last), "=");
+         if I = 0 then
+            return "";
+         else
+            S := I + 1;
+         end if;
+      end loop;
+
+      E := Fixed.Index (P (S .. P'Last), "&");
+
+      if E = 0 then
+         --  last parameter
+         return P (S .. P'Last);
+      else
+         return P (S .. E - 1);
+      end if;
+   end Parameter;
+
+   function Parameter (D : in Data; Name : in String) return String is
+      P : constant String := To_String (D.Parameters);
+      I : Natural;
+      S : Positive := 1;
+      E : Natural;
+
+   begin
+      loop
+         I := Fixed.Index (P (S .. P'Last), "=");
+         if I = 0 then
+            return "";
+         else
+            S := I + 1;
+            if I - Name'Length > 0
+              and then P (I - Name'Length .. I - 1) = Name
+            then
+               E := Fixed.Index (P (S .. P'Last), "&");
+
+               if E = 0 then
+                  --  last parameter
+                  return P (S .. P'Last);
+               else
+                  return P (S .. E - 1);
+               end if;
+            end if;
+         end if;
+      end loop;
+   end Parameter;
+
+   --------------------
+   -- Set_Connection --
+   --------------------
+
+   procedure Set_Connection (D : in out Data; Connection : in String) is
+   begin
+      D.Connection := To_Unbounded_String (Connection);
+   end Set_Connection;
 
    --------------
    -- Set_Host --
@@ -65,6 +146,31 @@ package body AWS.Status is
    begin
       D.Host := To_Unbounded_String (Host);
    end Set_Host;
+
+   -----------------
+   -- Set_Request --
+   -----------------
+
+   procedure Set_Request (D            : in out Data;
+                          Method       : in     Request_Method;
+                          URI          : in     String;
+                          HTTP_Version : in     String;
+                          Parameters   : in     String := "") is
+   begin
+      D.Method       := Method;
+      D.URI          := To_Unbounded_String (URI);
+      D.HTTP_Version := To_Unbounded_String (HTTP_Version);
+      D.Parameters   := To_Unbounded_String (Parameters);
+   end Set_Request;
+
+   ---------
+   -- URI --
+   ---------
+
+   function URI (D : in Data) return String is
+   begin
+      return To_String (D.URI);
+   end URI;
 
 end AWS.Status;
 
