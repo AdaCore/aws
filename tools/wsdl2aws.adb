@@ -76,6 +76,7 @@ procedure WSDL2AWS is
 
    Gen_CB       : Boolean := False;
    Types        : Boolean := False;
+   Spec         : Boolean := False;
    Main         : Boolean := False;
 
    ------------------
@@ -172,7 +173,7 @@ procedure WSDL2AWS is
       loop
          case Command_Line.Getopt
            ("d q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
-              & "cb types: main:")
+              & "cb types: spec: main:")
          is
             when ASCII.NUL => exit;
 
@@ -200,7 +201,16 @@ procedure WSDL2AWS is
                end if;
 
             when 's' =>
-               SOAP.WSDL.Parser.Continue_On_Error;
+               if Command_Line.Full_Switch = "spec" then
+                  SOAP.Generator.Specs_From (Gen, GNAT.Command_Line.Parameter);
+                  Spec := True;
+
+               elsif Command_Line.Full_Switch = "s" then
+                  SOAP.WSDL.Parser.Continue_On_Error;
+
+               else
+                  raise Syntax_Error;
+               end if;
 
             when 'v' =>
                Verbose := Verbose + 1;
@@ -297,7 +307,7 @@ begin
 
    end if;
 
-   if Gen_CB and then not Types then
+   if Gen_CB and then not Types and then not Spec then
       Raise_Exception
         (Constraint_Error'Identity,
          "Callback can't be generated if no Ada spec specified");
@@ -359,6 +369,7 @@ exception
       Put_Line ("   -nostub      Do not create stub units");
       Put_Line ("   -noskel      Do not create skeleton units");
       Put_Line ("   -cb          Generate SOAP callback routine");
+      Put_Line ("   -spec  spec  Use procs/types from Ada spec");
       Put_Line ("   -types spec  Use types from Ada spec");
       Put_Line ("   -main file   Generate SOAP main server's procedure");
       Put_Line ("   -proxy addr  Name or IP of the proxy");
