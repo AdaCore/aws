@@ -1,5 +1,12 @@
 2004-11-07  Pascal Obry  <pascal@obry.org>
 
+	* split.thtml:
+	Add code for the alpha index demo.
+
+	* split.adb:
+	Add code for the alpha index demo.
+	Update copyright notice.
+
 	* sliding_s_index.thtml, sliding_index.thtml, simple_s_index.thtml,
 	  bounded_s_index.thtml, bounded_index.thtml:
 	Initial revision. A templates that can be used to create indexes
