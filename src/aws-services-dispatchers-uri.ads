@@ -52,7 +52,9 @@ package AWS.Services.Dispatchers.URI is
    --  Dispatch will return the value returned by the first callback matching
    --  the request. Note that if a callback returns the Response.Empty
    --  message, Dispatch will just continue to the next matching callback. In
-   --  any cases, if no handler matches it will call the default callback.
+   --  any cases, if no handler matches it will call the default callback. If
+   --  no default callback is registered an error HTML message will be
+   --  returned.
 
    procedure Register
      (Dispatcher : in out Handler;
