@@ -95,7 +95,8 @@ procedure Test_SOAP is
 
       declare
          Response     : constant SOAP.Message.Response.Object'Class :=
-           SOAP.Client.Call ("http://localhost:6543/soap_demo", Payload);
+           SOAP.Client.Call
+           ("http://localhost:6543/soap_demo", Payload, "/soap_demo");
 
          R_Parameters : constant SOAP.Parameters.List
            := SOAP.Message.Parameters (Response);
