@@ -17,7 +17,7 @@
         Full_Name : Unbounded_String (xsd:string)
         Description : Unbounded_String (xsd:string)
    - array (<>)      Files_Table of Unbounded_String (xsd:string)
-   - array (15)      Ranks_Table of Rank_Data (tns:Rank_Data)
+   - array (15)      Ranks_Table of Framework.Rank_Data (tns:Framework.Rank_Data)
    - record          Rank_Data
         R_Name : Unbounded_String (xsd:string)
         Count : integer (xsd:int)
