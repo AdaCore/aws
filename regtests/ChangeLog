@@ -1,3 +1,8 @@
+2003-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* hval.adb, hval.out:
+	Add tests for parse Accept-XXXX header values.
+
 2003-09-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* sback.adb: 
