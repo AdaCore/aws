@@ -65,6 +65,7 @@ with AWS.Response;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Status;
+with AWS.Translator;
 
 procedure Agent is
 
@@ -294,24 +295,40 @@ begin
             --  this is not a text/html body, but output it anyway
 
             declare
-               Message_Body : constant Streams.Stream_Element_Array
+               Message_Body : constant Unbounded_String
                  := Response.Message_Body (Data);
+               Len          : constant Natural := Length (Message_Body);
             begin
                if File then
                   declare
                      use Streams;
-                     F : Streams.Stream_IO.File_Type;
+                     Chunk_Size : constant := 4_096;
+                     F          : Streams.Stream_IO.File_Type;
+                     K          : Natural;
+                     Last       : Positive;
                   begin
                      Stream_IO.Create
                        (F, Stream_IO.Out_File, "agent.out");
-                     Stream_IO.Write (F, Message_Body);
+
+                     K := 1;
+
+                     while K <= Len loop
+                        Last := Positive'Min (Len, K + Chunk_Size);
+
+                        Stream_IO.Write
+                          (F,
+                           Translator.To_Stream_Element_Array
+                             (Slice (Message_Body, K, Last)));
+                        K := Last + 1;
+                     end loop;
+
                      Stream_IO.Close (F);
                   end;
 
                else
-                  for K in Message_Body'Range loop
+                  for K in 1 .. Len loop
                      declare
-                        C : Character := Character'Val (Message_Body (K));
+                        C : constant Character := Element (Message_Body, K);
                      begin
                         if C = ASCII.CR
                           or else C = ASCII.LF
