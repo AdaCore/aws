@@ -93,6 +93,10 @@ package SOAP.Generator is
    procedure Ada_Style (O : in out Object);
    --  Use Ada style identifier, by default the WSDL casing is used
 
+   procedure Endpoint (O : in out Object; URL : in String);
+   --  Set default endpoint to use instead of the one specified in the WSDL
+   --  document.
+
    procedure Specs_From (O : in out Object; Spec : in String);
    --  Use type definitions for Array and Record and SOAP services procedure
    --  from this Ada spec. This requires that all record definitions are
@@ -153,6 +157,7 @@ private
       P_User     : Unbounded_String;
       P_Pwd      : Unbounded_String;
       Options    : Unbounded_String;
+      Endpoint   : Unbounded_String;
    end record;
 
 end SOAP.Generator;
