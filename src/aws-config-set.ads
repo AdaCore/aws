@@ -194,7 +194,15 @@ package AWS.Config.Set is
 
    procedure Session_Lifetime (Value : in Duration);
    --  Number of seconds to keep a session if not used. After this period the
-   --  session data is obsoleted and will be removed during new cleanup.
+   --  session data is obsoleted and will be removed during next cleanup.
+
+   procedure Transient_Cleanup_Interval (Value : in Duration);
+   --  Number of seconds between each run of the cleaner task to remove
+   --  transient pages.
+
+   procedure Transient_Lifetime (Value : in Duration);
+   --  Number of seconds to keep a transient page. After this period the
+   --  transient page is obsoleted and will be removed during next cleanup.
 
    procedure Parameter
      (Config        : in out Object;
