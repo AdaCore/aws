@@ -38,7 +38,7 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-services-split_pages.adb aws-services-transient_pages.adb \
 	aws-services-transient_pages-control.adb \
 	aws-services-files.adb aws-services-web_mail.adb \
-	aws-services-dispatchers-timer.adb
+	aws-services-dispatchers-timer.adb aws-net-ssl-certificate.adb
 
 ifdef XMLADA
 SOURCES := $(SOURCES) ../xsrc/aws-jabber.adb
