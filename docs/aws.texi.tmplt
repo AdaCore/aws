@@ -4455,9 +4455,7 @@ supported with the current version.
 
 @item Multi-dimension arrays are not supported.
 
-@item anyType is not supported
-
-@item abstract types are not supported
+@item abstract types are not supported.
 
 @end itemize
 
