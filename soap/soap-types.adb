@@ -545,16 +545,18 @@ package body SOAP.Types is
      (V      : in String;
       Name   : in String  := "item";
       Encode : in Boolean := True)
-      return XSD_String is
+      return XSD_String
+   is
+      L_V : constant String := Utils.To_Utf8 (V);
    begin
       if Encode then
          return (Finalization.Controlled
                    with To_Unbounded_String (Name),
-                        To_Unbounded_String (Utils.Encode (V)));
+                        To_Unbounded_String (Utils.Encode (L_V)));
       else
          return (Finalization.Controlled
                    with To_Unbounded_String (Name),
-                        To_Unbounded_String (V));
+                        To_Unbounded_String (L_V));
       end if;
    end S;
 
@@ -612,7 +614,7 @@ package body SOAP.Types is
 
    function V (O : in XSD_String) return String is
    begin
-      return To_String (O.V);
+      return Utils.From_Utf8 (To_String (O.V));
    end V;
 
    function V (O : in XSD_Boolean) return Boolean is
