@@ -48,30 +48,30 @@ package AWS.Status is
    type Request_Method is (GET, HEAD, POST, PUT);
 
    procedure Reset (D : in out Data);
-   --  reset the status data for a new use.
+   --  Reset the status data for a new use.
 
    procedure Set_Authorization (D             : in out Data;
                                 Authorization : in     String);
-   --  set value for "Authorization:" parameter
+   --  Set value for "Authorization:" parameter
 
    procedure Set_Connection (D : in out Data; Connection : in String);
-   --  set value for "Connection:" parameter
+   --  Set value for "Connection:" parameter
 
    procedure Set_Content_Length (D              : in out Data;
                                  Content_Length : in     Natural);
-   --  set value for "Content-Length:" parameter
+   --  Set value for "Content-Length:" parameter
 
    procedure Set_Content_Type (D            : in out Data;
                                Content_Type : in     String);
-   --  set value for "Content-Type:" parameter
+   --  Set value for "Content-Type:" parameter
 
    procedure Set_Multipart_Boundary (D        : in out Data;
                                      Boundary : in     String);
-   --  set value for "Content-Type: ...; boundary=..." parameter
+   --  Set value for "Content-Type: ...; boundary=..." parameter
 
    procedure Set_Session (D  : in out Data;
                           ID : in     String);
-   --  set Session to ID.
+   --  Set Session to ID.
 
    procedure Set_File_Up_To_Date (D               : in out Data;
                                   File_Up_To_Date : in     Boolean);
@@ -79,18 +79,18 @@ package AWS.Status is
    --  up-to-date on the client side.
 
    procedure Set_Host (D : in out Data; Host : in String);
-   --  set value for "Host:" parameter
+   --  Set value for "Host:" parameter
 
    procedure Set_If_Modified_Since (D                 : in out Data;
                                     If_Modified_Since : in     String);
-   --  set value for "If-Modified-Since:" parameter
+   --  Set value for "If-Modified-Since:" parameter
 
    procedure Set_Request (D            : in out Data;
                           Method       : in     Request_Method;
                           URI          : in     String;
                           HTTP_Version : in     String;
                           Parameters   : in     String := "");
-   --  set values for the request line:
+   --  Set values for the request line:
    --
    --  GET URI[?parametrers] [HTTP/1.0 or HTTP/1.1]
    --  POST URI [HTTP/1.0 or HTTP/1.1]
@@ -98,15 +98,18 @@ package AWS.Status is
    --  the parameters for a POST method are passed in the message body. See
    --  procedure below to set them afterward.
 
+   procedure Set_Parameters (D : in out Data; Name, Value : in String);
+   --  Add one parameter into D. Value is associated to key Name.
+
    procedure Set_Parameters (D : in out Data; Parameters : in String);
-   --  set parameters for the current request. This is used for a POST method
+   --  Set parameters for the current request. This is used for a POST method
    --  because the parameters are found in the message body and are not known
    --  when we parse the request line. The Parameters string has the form
    --  "name1=value1&name2=value2...". The paramaters are added to the list.
 
    procedure Set_Parameters (D         : in out Data;
                              Parameter : in     Stream_Element_Array);
-   --  this procedure is used to store any binary data sent with the
+   --  This procedure is used to store any binary data sent with the
    --  request. For example this will be used by the PUT method if a binary
    --  file is sent to the server.
 
@@ -128,17 +131,17 @@ package AWS.Status is
    function URI                    (D : in Data) return String;
 
    function Parameter_Name    (D : in Data; N : in Positive) return String;
-   --  returns Nth parameter name or the empty string if there is no such
+   --  Returns Nth parameter name or the empty string if there is no such
    --  data.
 
    function Parameter         (D : in Data; N : in Positive) return String;
-   --  returns Nth parameter value or the empty string if there is no such
+   --  Returns Nth parameter value or the empty string if there is no such
    --  data.
 
    function Parameter         (D : in Data; Name : in String;
                                Case_Sensitive : in Boolean := True)
                               return String;
-   --  returns parameter value associated with parameter named Name.
+   --  Returns parameter value associated with parameter named Name.
    --  Case_Sensitive case be set to True or False to control the way the
    --  parameter name is looked for.
 
