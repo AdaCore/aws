@@ -946,10 +946,8 @@ package body AWS.Server is
       begin
          if Table (Index).Phase = Loose_Release then
             Mark_Phase (Index, Closed);
-
          elsif Table (Index).Phase = In_Shutdown then
             Mark_Phase (Index, Aborted);
-
          end if;
       end Shutdown_Done;
 
