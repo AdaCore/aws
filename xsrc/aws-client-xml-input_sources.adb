@@ -205,7 +205,7 @@ package body AWS.Client.XML.Input_Sources is
 
          if From.First > From.Last + 1 then
             --  We have a buffer overrun, the read procedure has read bytes
-            --  past the last valid character. So we definitely had only part
+            --  past the last valid character. So we probably had only part
             --  of the character in the buffer. We have to read some more
             --  bytes from the HTTP connection.
 
