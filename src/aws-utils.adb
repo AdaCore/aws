@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -274,6 +274,76 @@ package body AWS.Utils is
    begin
       return Integer_Random.Random (Random_Generator);
    end Random;
+
+   ------------------
+   -- RW_Semaphore --
+   ------------------
+
+   protected body RW_Semaphore is
+
+      ----------
+      -- Read --
+      ----------
+
+      entry Read when W = 0 and then Write'Count = 0 is
+      begin
+         R := R + 1;
+      end Read;
+
+      ------------------
+      -- Release_Read --
+      ------------------
+
+      procedure Release_Read is
+      begin
+         R := R - 1;
+      end Release_Read;
+
+      -------------------
+      -- Release_Write --
+      -------------------
+
+      procedure Release_Write is
+      begin
+         W := 0;
+      end Release_Write;
+
+      -----------
+      -- Write --
+      -----------
+
+      entry Write when R = 0 and then W = 0 is
+      begin
+         W := 1;
+      end Write;
+
+   end RW_Semaphore;
+
+   ---------------
+   -- Semaphore --
+   ---------------
+
+   protected body Semaphore is
+
+      -------------
+      -- Release --
+      -------------
+
+      procedure Release is
+      begin
+         Seized := False;
+      end Release;
+
+      -----------
+      -- Seize --
+      -----------
+
+      entry Seize when not Seized is
+      begin
+         Seized := True;
+      end Seize;
+
+   end Semaphore;
 
 begin
    Integer_Random.Reset (Random_Generator);
