@@ -31,7 +31,7 @@ else
 EXEEXT =
 endif
 
-STYLE_FLAGS	= -gnatwcfipru -gnatwe -gnaty3abcefhiklmnoprst
+STYLE_FLAGS	= -gnatwcfijmpruv -gnatwe -gnaty3abcefhiklmnoprst
 # -gnatwk (constant) should be added but in GNAT 3.16a it reports problems on
 # withed packages.
 
