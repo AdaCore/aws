@@ -981,16 +981,39 @@ package body AWS.Server is
      (Web_Server : in out HTTP;
       Dispatcher : in     Dispatchers.Handler'Class)
    is
+      use type Net.SSL.Config;
+
       Max_Connection : constant Positive
         := CNF.Max_Connection (Web_Server.Properties);
+
+      function Security_Mode return Net.SSL.Method;
+      --  Returns the server security mode, returns the default method if the
+      --  current one is not recognized.
+
+      -------------------
+      -- Security_Mode --
+      -------------------
+
+      function Security_Mode return Net.SSL.Method is
+      begin
+         return Net.SSL.Method'Value
+           (CNF.Security_Mode (Web_Server.Properties));
+      exception
+         when Constraint_Error =>
+            return Net.SSL.Method'Value (Default.Security_Mode);
+      end Security_Mode;
 
    begin
       --  If it is an SSL connection, initialize the SSL library
 
-      if CNF.Security (Web_Server.Properties) then
+      if CNF.Security (Web_Server.Properties)
+        and then Web_Server.SSL_Config = Net.SSL.Null_Config
+      then
          Net.SSL.Initialize
            (Web_Server.SSL_Config,
             CNF.Certificate (Web_Server.Properties),
+            Security_Mode,
+            CNF.Key (Web_Server.Properties),
             Exchange_Certificate =>
               CNF.Exchange_Certificate ((Web_Server.Properties)));
       end if;
