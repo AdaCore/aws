@@ -1,3 +1,31 @@
+2004-10-26  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Max_Include_Parameters): Moved to main body as it is shared by
+         two different sub-packages.
+        (I_Kind): New type.
+        (Parameters_Data): New record.
+        (Include_Parameters): New array.
+        (No_Include_Parameters): New constant.
+        (Callback): Add I parameter (flat include parameters).
+        Idem for all filters prototypes.
+        (Is_Number): New routine, moved here from filter body.
+        (Translate): Add new parameter I_Params.
+        (Analyse.Flatten_Parameters): New routine.
+        (Parse_State): Add new field F_Params.
+        (Empty_State): Update accordingly.
+        (Analyse): In Translate and Analyse calls properly pass the F_Params
+         state.
+        This changes are made to support $<n> in filter parameters.
+        Minor reformatting.
+
+	* templates_parser-filter.adb:
+	(Replace_One_Or_All): Add I parameters (include parameters).
+        (Value): Idem. Properly detect $<n> filter name and check in this
+         case the include parameter table.
+        Add I parameters to all filter routines. In filter having a filter
+         call Value with the include parameters.
+
 2004-10-25  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
