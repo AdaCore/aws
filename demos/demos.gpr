@@ -53,17 +53,21 @@ project Demos is
 
    for Source_Files use
      Mains & Mains_XMLAda
-     & ("dispatch_cb.adb", "auth_cb.adb", "hello_demo-client.adb",
-        "hello_demo-server.adb", "hello_demo-types.adb", "soap_server_cb.adb",
-        "soap_server_disp_cb.adb", "soap_svs_cb.adb", "soap_svs_cb.adb",
-        "text_input_cb.adb", "vh_demo_cb.adb", "ws_cb.adb",
-        "wsdl_demo_server_cb.adb", "zdemo_cb.adb");
+     & ("dispatch_cb.adb", "auth_cb.adb", "text_input_cb.adb",
+        "vh_demo_cb.adb", "ws_cb.adb", "zdemo_cb.adb");
 
    for Main use Mains;
 
    case Shared.XMLAda is
       when "Installed" =>
          for Main use project'Main & Mains_XMLAda;
+         for Source_Files use
+           project'Source_Files
+             & ("hello_demo-client.adb",
+                "hello_demo-server.adb", "hello_demo-types.adb",
+                "soap_server_cb.adb", "soap_server_disp_cb.adb",
+                "soap_svs_cb.adb", "soap_svs_cb.adb",
+                "wsdl_demo_server_cb.adb");
       when "Disabled" =>
          --  Should be replaced by null as supported by GNAT 5.03
          for Main use project'Main;
