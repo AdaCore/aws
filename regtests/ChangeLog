@@ -1,3 +1,11 @@
+2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* turl.adb:
+	Fix typo in header.
+
+	* tgetparam.adb:
+	Fix typo in header.
+
 2001-09-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* turl.out:
