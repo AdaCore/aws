@@ -1,6 +1,12 @@
 2004-08-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-buffered.adb:
+	(Read): Reset First after Receive. It guarantee empty buffer after
+	 timeout.
+
+2004-08-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-buffered.adb:
 	(Read): Set Last to First - 1. If timeout would be occured in the next
 	 call, buffer remain empty.
 
