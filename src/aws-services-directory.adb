@@ -447,6 +447,10 @@ package body AWS.Services.Directory is
          --  Get current ordering string, if no ordering retrieve we set a
          --  default ordering.
 
+         ---------------
+         -- Get_Order --
+         ---------------
+
          function Get_Order return String is
             P_Order : constant String
               := AWS.Parameters.Get (Param_List, "ORDER");
