@@ -1,3 +1,13 @@
+2004-06-01  Pascal Obry  <pascal@obry.org>
+
+	* soap-client.adb:
+	Minor reformatting.
+	Update copyright notice.
+
+	* soap-message-xml.ads, soap-message-xml.adb:
+	(Load_Response) [HTTP_Connection]: Rename parameter to Connection.
+	Update copyright notice.
+
 2004-05-31  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:

@@ -1,5 +1,11 @@
 2004-06-01  Pascal Obry  <pascal@obry.org>
 
+	* aws-client.adb:
+	(Read_Internal): Add ???.
+	Minor reformatting.
+
+2004-06-01  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	(SOURCES): Add aws-client-hotplug.adb
 
