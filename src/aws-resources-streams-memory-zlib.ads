@@ -33,6 +33,9 @@
 --  $Date$
 --  $Author$
 
+--  This API is used as for standard memory stream (see parent package), the
+--  only difference is that the stream is compressed.
+
 with ZLib;
 
 package AWS.Resources.Streams.Memory.ZLib is
