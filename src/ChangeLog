@@ -1,5 +1,8 @@
 2004-10-07  Pascal Obry  <pascal@obry.org>
 
+	* aws-services-dispatchers.ads:
+	Minor comment fix.
+
 	* src.gpr:
 	Import project nossl.
 
