@@ -329,6 +329,8 @@ is
 
          Sockets.Put_Line (Sock, Messages.Status_Line (Status));
 
+         --  Handle redirection
+
          if Status = Messages.S301 then
             Sockets.Put_Line
               (Sock,
@@ -348,6 +350,8 @@ is
          Sockets.Put_Line
            (Sock,
             Messages.Content_Type (Response.Content_Type (Answer)));
+
+         --  Handle authentication message
 
          if Status = Messages.S401 then
             Sockets.Put_Line
@@ -1272,6 +1276,7 @@ is
          loop
             Streams.Stream_IO.Read (File, Buffer, Last);
             exit when Last <= 0;
+
             Sockets.Send (Sock, Buffer (1 .. Last));
 
             HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
