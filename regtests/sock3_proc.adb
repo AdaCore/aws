@@ -64,37 +64,53 @@ procedure Sock3_Proc (Security : Boolean; Port : Positive) is
    task body Client_Side is
       First  : Stream_Element_Offset := Sample'First;
       Client : Net.Socket_Type'Class := Net.Socket (Security);
+      Size   : Natural := 0;
+
+      function NVL (Item : Stream_Element_Count) return Stream_Element_Count is
+      begin
+         if Item = 0 then
+            return 1;
+         else
+            return Item;
+         end if;
+      end NVL;
+
    begin
       accept Start;
 
       delay 0.125;
 
       Net.Connect (Client, "localhost", Free_Port);
-      Net.Set_Receive_Buffer_Size (Client, 16 * 1024);
-      Net.Set_Timeout (Client, 0.25);
+
+      Net.Set_Timeout (Client, 0.5);
 
       loop
          delay 0.01;
 
          declare
-            Buffer : Stream_Element_Array := Net.Receive (Client, 1);
+            Buffer : Stream_Element_Array (1 .. NVL (Net.Pending (Client)));
+            Last   : Stream_Element_Offset;
          begin
-            Text_IO.Put_Line
-              (Stream_Element_Count'Image (Net.Pending (Client)));
-         end;
+            --  Want see.
+            --  Text_IO.Put_Line (Buffer'Length'Img);
 
-         delay 0.01;
+            Net.Receive (Client, Buffer, Last);
 
-         declare
-            Buffer : Stream_Element_Array := Net.Receive (Client);
-         begin
-            Text_IO.Put_Line
-              (Stream_Element_Count'Image (Net.Pending (Client)));
+            if Last < Buffer'Last then
+               Text_IO.Put_Line ("Last < Buffer'Last");
+            end if;
+
+            Size := Size + Buffer'Length;
          end;
       end loop;
 
    exception
       when E : Net.Socket_Error =>
+
+         if Size /= Sample'Length then
+            Text_IO.Put_Line ("Size /= Sample'Length");
+         end if;
+
          Net.Shutdown (Client);
 
          Text_IO.Put_Line

@@ -1,5 +1,10 @@
 2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* sock3.out, sock3_proc.adb, sock3_sec.out:
+	Fix for pending data linux behavior.
+
+2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* sock3.adb, sock3.out, sock3_proc.adb, sock3_sec.adb, sock3_sec.out,
 	  makefile:
 	New regression tests pair, plain and secure.
