@@ -38,6 +38,7 @@
 --         -r                      follow redirection.
 --         -n                      non stop for stress test.
 --         -d                      debug mode, view HTTP headers.
+--         -c                      display server certificate.
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
@@ -65,6 +66,7 @@ with AWS.Resources;
 with AWS.Response;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.SSL.Certificate;
 with AWS.Status;
 with AWS.URL;
 
@@ -93,6 +95,7 @@ procedure Agent is
    Server_Push        : Boolean := False;
    Follow_Redirection : Boolean := False;
    Wait_Key           : Boolean := True;
+   Show_Cert          : Boolean := False;
    Connect            : AWS.Client.HTTP_Connection;
 
    procedure Parse_Command_Line;
@@ -101,6 +104,8 @@ procedure Agent is
    function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode;
    --  Return the authentication value from the string representation.
    --  raises the human readable exception on error.
+
+   procedure Show_Certificate (Cert : in Net.SSL.Certificate.Object);
 
    -------------------
    -- Get_Auth_Mode --
@@ -124,7 +129,7 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d u: p: a: pu: pp: pa: proxy: k n s r")
+           ("f o d u: p: a: pu: pp: pa: proxy: k n s r c")
          is
             when ASCII.NUL =>
                exit;
@@ -149,6 +154,9 @@ procedure Agent is
 
             when 's' =>
                Server_Push := True;
+
+            when 'c' =>
+               Show_Cert := True;
 
             when 'u' =>
                User := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -193,6 +201,22 @@ procedure Agent is
       URL    := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
    end Parse_Command_Line;
 
+   ----------------------
+   -- Show_Certificate --
+   ----------------------
+
+   procedure Show_Certificate (Cert : in Net.SSL.Certificate.Object) is
+      use Ada.Text_IO;
+      use type Net.SSL.Certificate.Object;
+   begin
+      if Cert = Net.SSL.Certificate.Undefined then
+         Put_Line ("No certificate.");
+      else
+         Put_Line ("Subject : " & Net.SSL.Certificate.Subject (Cert));
+         Put_Line ("Issuer  : " & Net.SSL.Certificate.Issuer (Cert));
+      end if;
+   end Show_Certificate;
+
    Data       : Response.Data;
    URL_Object : AWS.URL.Object;
 
@@ -206,6 +230,7 @@ begin
       Text_IO.Put_Line ("       -n           non stop for stress test.");
       Text_IO.Put_Line ("       -r           follow redirection.");
       Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
+      Text_IO.Put_Line ("       -c           display server certificate.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
@@ -241,6 +266,10 @@ begin
          User       => To_String (Proxy_User),
          Pwd        => To_String (Proxy_Pwd),
          Mode       => Proxy_Auth);
+
+      if Show_Cert then
+         Show_Certificate (Client.Get_Certificate (Connect));
+      end if;
    end if;
 
    loop

@@ -3,6 +3,7 @@
 	* agent.adb:
 	Allow back output the headers and the message body with an HTTPS URL.
 	Do not make HTTP_Connection for method GET and Follow_Redirection.
+	Add option to display server certificate.
 
 2004-09-25  Pascal Obry  <pascal@obry.org>
 
