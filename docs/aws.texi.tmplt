@@ -569,7 +569,7 @@ user's browser.
 
 @noindent
 Indeed in a standard Web development a resource is either a static
-object - an HTML page, an XML or SSL document - or a CGI script. With
+object - an HTML page, an XML or XSL document - or a CGI script. With
 AWS a resource is @i{just a string} to identify the resource, it
 does not represent the name of a static object or CGI script.
 
