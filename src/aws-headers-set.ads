@@ -30,8 +30,6 @@
 
 --  $Id$
 
-with AWS.Parameters.Set;
-
 package AWS.Headers.Set is
 
    procedure Parse (Headers : in out List; Line : in String);

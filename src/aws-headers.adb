@@ -32,16 +32,7 @@
 
 package body AWS.Headers is
 
-   subtype P_List is Parameters.List;
-
-   -----------
-   -- Count --
-   -----------
-
-   function Count (Headers : in List) return Natural is
-   begin
-      return AWS.Parameters.Count (P_List (Headers));
-   end Count;
+   subtype P_List is Containers.Tables.Table_Type;
 
    --------------
    -- Get_Line --

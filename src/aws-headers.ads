@@ -30,22 +30,20 @@
 
 --  $Id$
 
-with AWS.Parameters;
+with AWS.Containers.Tables;
 
 package AWS.Headers is
 
-   type List is private;
+   type List is new AWS.Containers.Tables.Table_Type with private;
    --  Header container. This set handles a set of HTTP header line, each new
    --  header line is inserted at the end of the list (see AWS.Headers.Set API)
    --  and can be retrieved by the following services. Header lines are
    --  numbered from 1 to N.
 
+   subtype VString_Array is AWS.Containers.Tables.VString_Array;
+
    Format_Error : exception;
    --  Raised when header line format is wrong.
-
-   function Count (Headers : in List) return Natural;
-   pragma Inline (Count);
-   --  Returns the number of item in Headers.
 
    function Get_Line
      (Headers : in List;
@@ -65,8 +63,56 @@ package AWS.Headers is
    --
    --  For a file upload content type header style.
 
+   ------------------------
+   -- Inherited routines --
+   ------------------------
+
+   --  function Count (Table : in Table_Type) return Natural;
+   --  Returns the number of item in Table.
+
+   --  function Name_Count (Table : in Table_Type) return Natural;
+   --  Returns the number of unique key name in Table.
+
+   --  function Count (Table : in Table_Type; Name : in String) return Natural;
+   --  Returns the number of value for Key Name in Table. It returns
+   --  0 if Key does not exist.
+
+   --  function Exist (Table : in Table_Type; Name : in String) return Boolean;
+   --  Returns True if Key exist in Table.
+
+   --  function Get
+   --    (Table : in Table_Type;
+   --     Name  : in String;
+   --     N     : in Positive := 1)
+   --     return String;
+   --  Returns the Nth value associated with Key into Table. Returns
+   --  the emptry string if key does not exist.
+
+   --  function Get_Name
+   --    (Table : in Table_Type;
+   --     N     : in Positive := 1)
+   --     return String;
+   --  Returns the Nth Name in Table or the empty string if there is
+   --  no parameter with this number.
+
+   --  function Get_Value
+   --    (Table : in Table_Type;
+   --     N     : in Positive := 1)
+   --     return String;
+   --  Returns the Nth Value in Table or the empty string if there is
+   --  no parameter with this number.
+
+   --  function Get_Names (Table : in Table_Type) return VString_Array;
+   --  Returns array of unique key names.
+
+   --  function Get_Values
+   --    (Table : in Table_Type;
+   --     Name  : in String)
+   --     return VString_Array;
+   --  Returns all values for the specified parameter key name.
+
 private
 
-   type List is new AWS.Parameters.List;
+   type List is new AWS.Containers.Tables.Table_Type with null record;
 
 end AWS.Headers;
