@@ -14,9 +14,9 @@ GARGS = $(GFLAGSY) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LIBS) -L../ssl -lssl -lcrypto
+LARGS = $(LFLAGS) $(LIBS) -L../ssl -lssl -lcrypto
 else
-LARGS = $(LIBS) -lssl -lcrypto
+LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto
 endif
 
 else
@@ -24,7 +24,7 @@ else
 
 GARGS = $(GFLAGSY) -i -I../src -I../include -I../soap $(INCLUDES)
 BARGS = -E
-LARGS = $(LIBS)
+LARGS = $(LFLAGS) $(LIBS)
 endif
 
 # Include Win32 resource file
