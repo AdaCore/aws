@@ -1,3 +1,9 @@
+2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
+	(Mark_Phase): Count new phases in shutdown control.
+	(Shutdown_Done): Do not Abort closed socket.
+
 2004-08-23  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.adb:
