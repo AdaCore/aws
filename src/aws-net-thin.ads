@@ -33,7 +33,7 @@
 --  Package with declarations for the Poll operation. This API is used to
 --  implement AWS.Net.Sets.
 
-with Interfaces.C;
+with Interfaces.C.Strings;
 with System;
 
 with AWS.OS_Lib.Definitions;
@@ -46,6 +46,11 @@ package AWS.Net.Thin is
    subtype nfds_t is OS_Lib.Definitions.nfds_t;
    subtype Timeout_Type is C.int;
    subtype Events_Type is OS_Lib.Definitions.Events_Type;
+
+   subtype Addr_Info is OS_Lib.Definitions.Addr_Info;
+   subtype Addr_Info_Access is OS_Lib.Definitions.Addr_Info_Access;
+
+   subtype chars_ptr is C.Strings.chars_ptr;
 
    type Pollfd is record
       FD      : FD_Type;
@@ -60,5 +65,27 @@ package AWS.Net.Thin is
       Timeout : in Timeout_Type)
       return C.int;
    pragma Import (C, Poll, "poll");
+
+   function GetAddrInfo
+     (node    : in     chars_ptr;
+      service : in     chars_ptr;
+      hints   : in     Addr_Info;
+      res     : access Addr_Info_Access)
+      return C.int;
+
+   procedure FreeAddrInfo (res : in out Addr_Info);
+
+   function GAI_StrError (errcode : in C.int) return chars_ptr;
+
+private
+
+   --  Use Win32 convention for Win32 platform
+   --  all other platforms would treat it as C convention with warning.
+
+   pragma Warnings (Off);
+
+   pragma Import (Win32, GetAddrInfo, "getaddrinfo");
+   pragma Import (Win32, FreeAddrInfo, "freeaddrinfo");
+   pragma Import (Win32, GAI_StrError, "gai_strerror");
 
 end AWS.Net.Thin;
