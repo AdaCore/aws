@@ -1,5 +1,16 @@
 2003-12-10  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources.ads:
+	Minor reformatting.
+
+	* aws-services-dispatchers.ads:
+	Add comments about the Transient_Pages and Timer children.
+
+	* aws-response.ads:
+	Minor reformatting.
+
+2003-12-10  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(SOURCES): Add aws-services-dispatchers-timer.adb.
 
