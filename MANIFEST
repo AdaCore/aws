@@ -301,6 +301,7 @@ regtests/no_param.adb
 regtests/no_param.out
 regtests/nonce.adb
 regtests/nonce.out
+regtests/nvect.ads
 regtests/once.adb
 regtests/once.out
 regtests/param.adb
