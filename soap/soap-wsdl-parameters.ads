@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -30,6 +30,8 @@
 
 with Ada.Strings.Unbounded;
 
+with SOAP.Name_Space;
+
 package SOAP.WSDL.Parameters is
 
    use Ada.Strings.Unbounded;
@@ -53,6 +55,7 @@ package SOAP.WSDL.Parameters is
 
    type Parameter (Mode : Kind) is record
       Name : Unbounded_String;
+      NS   : Name_Space.Object;
       Next : P_Set;
 
       case Mode is
