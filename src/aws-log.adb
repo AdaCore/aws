@@ -39,18 +39,34 @@ package body AWS.Log is
 
    Log_Activated : Boolean := False;
    Log_File      : Text_IO.File_Type;
+   Split         : Split_Mode;
+   Current_Tag   : Positive;
 
    -----------
    -- Start --
    -----------
 
-   procedure Start is
+   procedure Start (Split : in Split_Mode := None) is
+      Now      : constant Calendar.Time := Calendar.Clock;
+      Filename : constant String := "aws-"
+        & GNAT.Calendar.Time_IO.Image (Now, "%a-%d-%b-%Y") & ".log";
    begin
       Log_Activated := True;
-      Text_IO.Open (Log_File, Text_IO.Append_File, "aws.log");
+      Log.Split     := Split;
+
+      case Split is
+         when None =>
+            null;
+         when Daily =>
+            Current_Tag := Calendar.Day (Now);
+         when Monthly =>
+            Current_Tag := Calendar.Month (Now);
+      end case;
+
+      Text_IO.Open (Log_File, Text_IO.Append_File, Filename);
    exception
       when Text_IO.Name_Error =>
-         Text_IO.Create (Log_File, Text_IO.Out_File, "aws.log");
+         Text_IO.Create (Log_File, Text_IO.Out_File, Filename);
    end Start;
 
    ----------
@@ -72,14 +88,25 @@ package body AWS.Log is
    procedure Write
      (Connect_Stat : in Status.Data;
       Answer_Stat  : in Messages.Status_Code;
-      Peername     : in String) is
+      Peername     : in String)
+   is
+      Now : constant Calendar.Time := Calendar.Clock;
    begin
       if Log_Activated then
+
+         if (Split = Daily and then Current_Tag /= Calendar.Day (Now))
+           or else
+           (Split = Monthly and then Current_Tag /= Calendar.Month (Now))
+         then
+            Stop;
+            Start (Split);
+         end if;
+
          Text_IO.Put_Line
            (Log_File,
             Peername & " - "
             & Status.Authorization_Name (Connect_Stat) & " - ["
-            & GNAT.Calendar.Time_IO.Image (Calendar.Clock, "%d/%b/%Y:%T")
+            & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
             & "] """
             & Status.Request_Method'Image (Status.Method (Connect_Stat))
             & ' '
