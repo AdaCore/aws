@@ -213,11 +213,6 @@ private
       --  While in the User's Callback procedure.
      );
 
-   type Socket_Data (Peername_Length : Natural) is record
-      Peername : String (1 .. Peername_Length);
-      FD       : Integer;
-   end record;
-
    subtype Abortable_Phase is Slot_Phase
      range Wait_For_Client .. Server_Response;
 
@@ -262,6 +257,13 @@ private
    type Slot_Set is array (Positive range <>) of Slot;
 
    package CNF renames AWS.Config;
+
+   --  Socket Data used to retrieve safely socket information
+
+   type Socket_Data (Peername_Length : Natural) is record
+      Peername : String (1 .. Peername_Length);
+      FD       : Integer;
+   end record;
 
    -----------
    -- Slots --
@@ -311,8 +313,9 @@ private
       --  Returns Slot data.
 
       function Get_Socket_Info (Index : in Positive) return Socket_Data;
-      --  return the information about the currently using socket.
-      --  FD and Peername
+      --  Returns information about socket (FD and Peername) associated with
+      --  slot Index. If the socket is not opened returns
+      --  (FD => 0, Peername => "-")
 
       function Get_Peername (Index : in Positive) return String;
       --  Returns the peername for socket at position Index.
