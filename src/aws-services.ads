@@ -29,5 +29,10 @@
 ------------------------------------------------------------------------------
 
 package AWS.Services is
+
    pragma Pure;
+
+   --  You'll find here some high level ready to use callback routines.
+   --  Be sure to check the whole hierarchy.
+
 end AWS.Services;
