@@ -44,7 +44,7 @@ package SOAP.Client is
      return Message.Response.Object'Class;
    --  Send a SOAP HTTP request to URL address. The P is the Payload and
    --  SOAPAction is the required HTTP field. If it is not specified then the
-   --  URI (URL ressource) will be used for the SOAP action field.
+   --  URI (URL resource) will be used for the SOAP action field.
 
 private
 

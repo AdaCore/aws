@@ -77,7 +77,7 @@ package AWS.Server is
    --  lines. Name is just a string used to identify the server. This is used
    --  for example in the administrative page. Admin_URI must be set to enable
    --  the administrative status page. Callback is the procedure to call for
-   --  each ressource requested. Port is the Web server port. If Security is
+   --  each resource requested. Port is the Web server port. If Security is
    --  set to True the server will use an HTTPS/SSL connection. If Session is
    --  set to True the server will be able to get a status for each client
    --  connected. A session ID is used for that, on the client side it is a
