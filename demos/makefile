@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all runme agent
+.SILENT: all auth runme agent ws clean
 
 # just comment or uncomment the right lines below.
 
