@@ -45,6 +45,7 @@ with AWS.Response.Set;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Session;
+with AWS.Services.Split_Pages;
 with AWS.Status;
 with AWS.Templates;
 with AWS.Translator;
@@ -451,6 +452,26 @@ procedure Check_Mem is
               & "one on which we will display real size.");
    end Check_Zlib;
 
+   ---------------------
+   -- Check_Transient --
+   ---------------------
+
+   procedure Check_Transient is
+
+      use Templates;
+
+      T1 : Translate_Table
+        := (Assoc ("ONE", "one"), Assoc ("TWO", "2"), Assoc ("THREE", "3"));
+
+      T2 : Translate_Table
+        := (Assoc ("V1", Vector_Tag'(+"t11" & "t12" & "t13")),
+            Assoc ("V2", Vector_Tag'(+"t21" & "t22" & "t23")));
+
+      R : Response.Data;
+   begin
+      R := Services.Split_Pages.Parse ("split.tmplt", T1, T2, 2);
+   end Check_Transient;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
@@ -466,7 +487,10 @@ begin
       Check_Memory_Streams;
       Check_Dynamic_Message (Messages.Identity);
       Check_Dynamic_Message (Messages.Deflate);
+      Check_Transient;
    end loop;
+
+   delay 4.0;
 
    Server.Stopped;
 
