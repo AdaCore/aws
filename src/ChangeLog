@@ -1,3 +1,15 @@
+2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Adjust_Cookie): Rename to Copy_Cookie, swap also the parameters.
+
+	* aws-client.ads:
+	(No_Data): Is now a defered constant, implementation is not useful
+	 for the spec.
+	(No_Timeout): Idem. 
+	(Adjust_Cookie): Rename to Copy_Cookie, swap also the parameters.
+	Minor reformatting.
+
 2002-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-ssl.adb:
