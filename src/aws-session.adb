@@ -311,7 +311,6 @@ package body AWS.Session is
 
                end if;
             end if;
-
          end Process;
 
          procedure In_Order is
