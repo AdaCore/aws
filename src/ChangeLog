@@ -1,3 +1,15 @@
+2002-03-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Disconnect): Close if connection is opened.
+	(Cleaner_Task): Start entry take an HTTP_Connection_Access. Use it.
+	Minor reformatting.
+	
+	* aws-client.ads:
+	(HTTP_Connection_Access): New access type.
+	(HTTP_Connection): Add self field (auto-reference).
+	(Cleaner_Task): Start entry take an HTTP_Connection_Access.
+
 2002-03-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.ads, aws-session.adb:
