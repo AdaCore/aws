@@ -36,7 +36,7 @@ with Ada.Strings.Unbounded;
 
 with AWS.Headers;
 with AWS.Net.Std;
-with AWS.Resources.Streams.Memory;
+with AWS.Resources.Streams;
 
 package AWS.POP is
 
@@ -91,6 +91,11 @@ package AWS.POP is
    --  Retrieve Nth message from the mailbox, let the message on the mailbox
    --  if Remove is False.
 
+   procedure Delete
+     (Mailbox : in POP.Mailbox;
+      N       : in Positive);
+   --  Detele message number N from the mailbox
+
    function Get_Header
      (Mailbox : in POP.Mailbox;
       N       : in Positive)
@@ -119,6 +124,9 @@ package AWS.POP is
    --  Calls Action for each message read on the mailbox. Only the headers are
    --  read from the mailbox. Set Quit to True to stop the iterator. Index is
    --  the mailbox's message index.
+
+   function Size (Message : in POP.Message) return Natural;
+   --  Returns the message size in bytes
 
    function Content (Message : in POP.Message) return Unbounded_String;
    --  Returns message's content as an Unbounded_String. Each line are
@@ -165,9 +173,9 @@ package AWS.POP is
    --  Calls action for every Attachment in Message. Stop iterator if Quit is
    --  set to True, Quit is set to False by default.
 
-   subtype Stream_Type is AWS.Resources.Streams.Memory.Stream_Type;
-
-   function Content (Attachment : in POP.Attachment) return Stream_Type;
+   function Content
+     (Attachment : in POP.Attachment)
+      return AWS.Resources.Streams.Stream_Access;
    --  Returns Attachment's content as a memory stream. Note that the stream
    --  has already been decoded. Most attachments are MIME Base64 encoded.
 
@@ -205,6 +213,7 @@ private
 
    type Message is new Finalization.Controlled with record
       Ref_Count   : Count_Access;
+      Size        : Natural;
       Headers     : AWS.Headers.List;
       Content     : Unbounded_String;
       Attachments : Attachment_Access;
