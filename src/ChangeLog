@@ -1,3 +1,16 @@
+2004-09-27  Pascal Obry  <pascal@obry.org>
+
+	* aws-client.adb:
+	(Open_Send_Common_Header): Complete implementation of HTTPS tunnel
+	 through proxies. After opening the tunnel (using a non secure
+	 socket with the proxy) we must create an SSL socket and associate
+	 the tunnel's socket with it. Properly send the proxy
+	 authentication into the tunnel.
+ 	(Post) [All versions]: Add parameter Content_Type.
+
+	* aws-client.ads:
+	(Post) [All versions]: Add parameter Content_Type.
+
 2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.ads:
