@@ -65,11 +65,13 @@ package body Skel is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
+      Namespace  : in     String;
       Input      : in     WSDL.Parameters.P_Set;
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set)
    is
       pragma Unreferenced (SOAPAction);
+      pragma Unreferenced (Namespace);
       pragma Unreferenced (Fault);
 
       use Ada.Strings.Fixed;
@@ -200,7 +202,15 @@ package body Skel is
          if N.Mode = WSDL.Parameters.K_Composite then
 
             if Utils.Is_Array (To_String (N.C_Name)) then
-               raise Constraint_Error;
+               Text_IO.Put_Line
+                 (Skel_Adb,
+                  Format_Name (O, To_String (N.C_Name)) & "_Array : "
+                    & "constant SOAP.Types.SOAP_Array");
+               Text_IO.Put_Line
+                 (Skel_Adb,
+                  "            := SOAP.Parameters.Get (Params, """
+                    & To_String (N.Name) & """);");
+               Text_IO.Put      (Skel_Adb, "         ");
 
             else
                Text_IO.Put_Line
@@ -229,12 +239,23 @@ package body Skel is
             Text_IO.Put_Line (Skel_Adb, WSDL.To_Ada (N.P_Type));
             Output_Parameters (N);
          else
-            Text_IO.Put_Line
-              (Skel_Adb, Format_Name (O, To_String (N.C_Name)) & "_Type");
-            Text_IO.Put_Line
-              (Skel_Adb, "            := To_"
-                 & Format_Name (O, To_String (N.C_Name)) & "_Type ("
-                 & Format_Name (O, To_String (N.C_Name)) & "_Record);");
+
+            if Utils.Is_Array (To_String (N.C_Name)) then
+               Text_IO.Put_Line
+                 (Skel_Adb, Format_Name (O, To_String (N.C_Name)));
+               Text_IO.Put_Line
+                 (Skel_Adb, "            := To_"
+                    & Format_Name (O, To_String (N.C_Name)) & " (V ("
+                    & Format_Name (O, To_String (N.C_Name)) & "_Array));");
+
+            else
+               Text_IO.Put_Line
+                 (Skel_Adb, Format_Name (O, To_String (N.C_Name)) & "_Type");
+               Text_IO.Put_Line
+                 (Skel_Adb, "            := To_"
+                    & Format_Name (O, To_String (N.C_Name)) & "_Type ("
+                    & Format_Name (O, To_String (N.C_Name)) & "_Record);");
+            end if;
          end if;
 
 
@@ -319,10 +340,21 @@ package body Skel is
 
          else
             if Utils.Is_Array (To_String (N.C_Name)) then
-               Text_IO.Put
-                 (Skel_Adb, " SOAP.Types.A (To_Object_Set (Result."
-                    & To_String (N.Name) & ".Item.all), """
-                    &  To_String (N.Name) & """)");
+
+               if Output.Next = null then
+                  --  A single array as returned parameter
+                  Text_IO.Put
+                    (Skel_Adb, " SOAP.Types.A (To_Object_Set (Result)"
+                       &  ", """ & To_String (N.Name) & """)");
+
+               else
+                  --  Array here is part of an array
+                  Text_IO.Put
+                    (Skel_Adb, " SOAP.Types.A (To_Object_Set (Result."
+                       & To_String (N.Name) & ".Item.all), """
+                       & To_String (N.Name) & """)");
+               end if;
+
             else
                Text_IO.Put
                  (Skel_Adb, " To_SOAP_Object (Result, """
