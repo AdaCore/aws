@@ -6,6 +6,8 @@ b~check_mem.adb
 b~check_mem.ads
 b~ctab.adb
 b~ctab.ads
+b~dirop.adb
+b~dirop.ads
 b~dummy.adb
 b~dummy.ads
 b~file.adb
@@ -34,6 +36,10 @@ b~soap3.adb
 b~soap3.ads
 b~sock1.adb
 b~sock1.ads
+b~sp.adb
+b~sp.ads
+b~ssp.adb
+b~ssp.ads
 b~strm.adb
 b~strm.ads
 b~strm2.adb
@@ -104,6 +110,8 @@ soap1.res
 soap2.res
 soap3.res
 sock1.res
+sp.res
+ssp.res
 strm.res
 strm2.res
 tclientto.res
