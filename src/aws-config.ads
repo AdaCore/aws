@@ -345,7 +345,7 @@ private
 
    type Object is record
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;
-   end Record;
+   end record;
 
    Default_Config : constant Object
      := (P => Default_Parameters);
