@@ -104,7 +104,7 @@ package body AWS.Client.XML.Input_Sources is
 
       --  Move First index past the BOM
 
-      Input.First := Input.First + Stream_Element_Offset (Length);
+      Input.First := Input.Buffer'First + Stream_Element_Offset (Length);
    end Create;
 
    ---------
