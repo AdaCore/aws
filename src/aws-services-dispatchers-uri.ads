@@ -109,7 +109,7 @@ private
    type URI_Class_Access is access all Std_URI'Class;
 
    package URI_Table is
-      new GNAT.Dynamic_Tables (URI_Class_Access, Positive, 1, 20, 10);
+      new GNAT.Dynamic_Tables (URI_Class_Access, Natural, 1, 20, 10);
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;
