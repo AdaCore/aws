@@ -60,7 +60,7 @@ package body SOAP.Client is
    is
 
       procedure RPC_Call;
-      --  Does the actual RPC over HTTP call.
+      --  Does the actual RPC over HTTP call
 
       Message_Body : Unbounded_String;
       Response     : AWS.Response.Data;
