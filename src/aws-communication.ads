@@ -30,15 +30,16 @@
 
 --  $Id$
 
+--  The communication protocol uses a light encoding scheme based on the HTTP
+--  GET method. For standard, XML based, communication you can use the SOAP
+--  protocol. This API can be convenient if you do not plan to build AWS with
+--  SOAP support.
+
 with Ada.Strings.Unbounded;
 
 package AWS.Communication is
 
    use Ada.Strings.Unbounded;
-
-   --  The communication protocol use a light encoding scheme based on
-   --  the HTTP GET protocol. For standard communication you can use the
-   --  SOAP protocol.
 
    type Parameter_Set is array (Positive range <>) of Unbounded_String;
 
