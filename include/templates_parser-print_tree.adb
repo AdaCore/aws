@@ -54,10 +54,17 @@ begin
          begin
             while I /= null loop
                Text_IO.Put (" -> ");
-               Text_IO.Put_Line (To_String (I.File.Filename));
+               Text_IO.Put_Line (To_String (I.File.Info.Filename));
                I := I.Next;
             end loop;
          end;
+
+         Print_Tree (T.Next, Level);
+
+      when C_Info =>
+         Text_IO.Put_Line ("[C_INFO] "
+                           & Natural'Image (T.Used)
+                           & ' ' & Boolean'Image (T.Obsolete));
 
          Print_Tree (T.Next, Level);
 
@@ -93,8 +100,9 @@ begin
          Print_Tree (T.N_Section, Level);
 
       when Include_Stmt =>
-         Text_IO.Put_Line ("[INCLUDE_STMT] " & To_String (T.File.Filename));
-         Print_Tree (T.File, Level + 1);
+         Text_IO.Put_Line ("[INCLUDE_STMT] "
+                           & To_String (T.File.Info.Filename));
+         Print_Tree (T.File.Info, Level + 1);
          Print_Tree (T.Next, Level);
    end case;
 
