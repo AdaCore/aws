@@ -45,6 +45,9 @@ with AWS.Response;
 with AWS.Server;
 with AWS.Services.Dispatchers.Timer;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Timer is
 
@@ -63,6 +66,7 @@ procedure Timer is
    Sub_Second : GNAT.Calendar.Second_Duration;
 
    WS   : Server.HTTP;
+   Port : Natural := 1272;
    Disp : Services.Dispatchers.Timer.Handler;
    Conf : Config.Object;
 
@@ -98,9 +102,11 @@ begin
       Now := Calendar.Clock;
    end loop;
 
+   Get_Free_Port (Port);
+
    --  Config
 
-   Config.Set.Server_Port (Conf, 1272);
+   Config.Set.Server_Port (Conf, Port);
 
    --  Dispatcher
 
@@ -117,12 +123,12 @@ begin
 
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
-   R := Client.Get ("http://localhost:1272");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port));
    Text_IO.Put_Line ("> " & Response.Message_Body (R));
 
    delay 2.0;
 
-   R := Client.Get ("http://localhost:1272");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port));
    Text_IO.Put_Line ("> " & Response.Message_Body (R));
 
    Server.Shutdown (WS);
