@@ -1,3 +1,80 @@
+2000-10-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): add aws-utils.adb, aws-key_value.adb and aws-log.adb
+	
+	* aws.ads:
+	(Version): set to 0.9.2.
+
+	* aws-session.adb:
+	(Get_Value): Use new Update_Node prototype.
+	(Key_Exist): Use new Update_Node prototype.
+	(Set_Exist): Use new Update_Node prototype.
+	Remove comment out code.
+
+	* aws-log.ads, aws-log.adb:
+	Initial revision.
+
+	* aws-parameters.adb:
+	(Image): removed use Utils.Image instead.
+	(Add): Use new Update_Node prototype.
+	
+	* aws-server.adb:
+	(File_Upload_UID): new protected object.
+	(Set_Peername): new procedure.
+	(Get_Peername): new procedure.
+	(Get_Peername): new procedure.
+	Removes unused with (not used anymore with GNAT 3.13)
+
+	* aws-server.ads:
+	(Slot): add Peername field.
+	(Set_Peername): new procedure.
+	(Get_Peername): new procedure.
+
+	* aws-utils.ads, aws-utils.adb:
+	Initial revision.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): write log.
+	(Target_Filename): add a UID to the name to avoid name clash.
+	Use Utils.Image instead of a local version.
+
+2000-10-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads:
+	(HTTP): move up Self field.
+
+	* aws-parameters.ads, aws-parameters.adb, aws-session.adb:
+	Remove use of Avl_Tree_Generic, implementation now use
+	 AWS.Key_Value package shared by two units right now. It reduces
+	 the overall size of AWS executables.
+
+	* aws-key_value.ads, aws-key_value.adb:
+	Initial revision.
+
+2000-10-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status.ads:
+	(Count): new function.
+	(Parameter): add parameter N.
+
+	* aws-parameters.adb:
+	Add some documentation about the underlying implementation.
+	(Internal_Get): new function.
+	(Add): support Key with multiple values.
+	(Count): new function.
+	(Get): add parameter N, use Internal_Get.
+
+	* aws-parameters.ads:
+	(Count): new function.
+	(Get): add parameter N.
+
+	* aws-status.adb:
+	(Set_Parameters): fix bug when parsing an empty parameter at the
+	 end of the list.
+	(Count): new function.
+	(Parameter): add parameter N, implement returning the Nth value.
+
 2000-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:

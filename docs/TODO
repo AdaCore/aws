@@ -12,28 +12,35 @@ implemented:
   Sunday, 06-Nov-94 08:49:37 GMT  ; RFC 850, obsoleted by RFC 1036
   Sun Nov  6 08:49:37 1994        ; ANSI C's asctime() format
 
-  (Nice to see that when designing an RFC there are considering the C way of
+  (Nice to see that when designing an RFC they are considering the C way of
    doing things, seems completly awkward to me :)
 
   Actually only the first format is supported.
-
-- integrate Template_Parser with AWS. A callback which knows how to parse
-  .tmplt files ???
 
 - support standard method encoding under HTTP/1.1 for small files instead of
   the chuncked encoding.
 
 - add support for multi-callbacks (calling a callback depending on a regular
   expression). A default callback procedure which act as a file server could
-  be provided. Could be a way to integrate templates (see above) ?
+  be provided. Could be a way to integrate templates (see above) ? Not sure it
+  is a good idea, better to implement multi-server each one would handle a set
+  of URL for example... see below.
 
 - digest authentification (only basic authentification is supported right
-  now).
+  now, which is to say no authetification at all :)
 
 - implement multi-server with a dispatcher of request to build server which
   must support a lot of requests. Could be using GLADE or a standard
-  redirector of request.
+  redirector of request (using HTTP redirection).
 
 - implement a Proxy server.
 
-- better implementation for file upload stream reading.
+- better implementation for stream reading on file upload.
+
+- implement server push
+
+- change server parameters via the admin page (like the maximum number of
+  connections, server name, active session, upload path...).
+
+- integrate Template_Parser with AWS. A callback which knows how to parse
+  .tmplt files ???
