@@ -1,3 +1,8 @@
+2004-12-23  Pascal Obry  <pascal@obry.net>
+
+	* we_test_notebook.html:
+	Update test to use some optional parameters.
+
 2004-12-23  Pascal Obry  <pascal@obry.org>
 
 	* web_elements.adb:

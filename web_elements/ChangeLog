@@ -1,3 +1,10 @@
+2004-12-23  Pascal Obry  <pascal@obry.net>
+
+	* menu_css/menu.tcss, notebook/notebook.thtml, 
+	  rounded_boxes/rounded_boxes.tcss:
+	Add @@SET@@ commands with default value and use them in the template.
+	It makes those templates easier to reuse.
+	
 2004-12-22  Pascal Obry  <pascal@obry.net>
 
 	* makefile:
