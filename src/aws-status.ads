@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -37,11 +37,10 @@
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 
+with AWS.Net;
 with AWS.Session;
 with AWS.Parameters;
 with AWS.URL;
-
-with Sockets;
 
 package AWS.Status is
 
@@ -50,10 +49,6 @@ package AWS.Status is
    type Request_Method is (GET, HEAD, POST, PUT);
 
    type Authorization_Type is (None, Basic, Digest);
-
-   subtype Socket_Type is Sockets.Socket_FD'Class;
-
-   type Socket_Access is access all Socket_Type;
 
    function Check_Digest (D : in Data; Password : in String) return Boolean;
    --  This function is used by the digest authentication to check if the
@@ -158,7 +153,7 @@ package AWS.Status is
    --  Returns True if session was just created and is going to be sent to
    --  client.
 
-   function Socket                 (D : in Data) return Socket_Type;
+   function Socket                 (D : in Data) return Net.Socket_Type'Class;
    pragma Inline (Socket);
    --  Returns the socket used to transfert data between the client and
    --  server.
@@ -220,7 +215,7 @@ private
       Keep_Alive        : Boolean;
       If_Modified_Since : Unbounded_String;
       File_Up_To_Date   : Boolean            := False;
-      Socket            : Socket_Access;
+      Socket            : Net.Socket_Access;
       Auth_Mode         : Authorization_Type := None;
       Auth_Name         : Unbounded_String; -- for Basic and Digest
       Auth_Password     : Unbounded_String; -- for Basic
