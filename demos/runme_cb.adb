@@ -101,6 +101,12 @@ package body Runme_CB is
            (Content_Type => "text/html",
             Message_Body => "<p>Hello again "
             & AWS.Status.Parameter (Request, "name") & " !"
+            & "<p>You have selected "
+            & Natural'Image (AWS.Status.Count (Request, "OS"))
+            & " OS."
+            & "<p>Your first two OS are "
+            & AWS.Status.Parameter (Request, "OS")
+            & ", " & AWS.Status.Parameter (Request, "OS", 2)
             & "<p>I'll now check for the POST form, counter="
             & Natural'Image (C)
             & "<p>Enter your name <form method=post action=/upload>"
@@ -119,6 +125,14 @@ package body Runme_CB is
             & "<p><img src=""/first_img"">"
             & "<p>Enter your name <form method=get action=/get-form>"
             & "<input type=text name=name value=""<default>"" size=15>"
+            & "<br>"
+            & "<select name=OS multiple size=5>"
+            & "<option value=BeOS>BeOS"
+            & "<option value=Linux>Linux"
+            & "<option value=MacOS10>MacOS 10"
+            & "<option value=Solaris>Solaris"
+            & "<option value=Windows>Windows"
+            & "</select>"
             & "<input type=submit name=go value=""This is a GET Form"">"
             & "</form>");
       end if;
