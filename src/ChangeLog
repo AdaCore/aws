@@ -1,3 +1,10 @@
+2002-12-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* ChangeLog, aws-containers-tables-set.ads, aws-containers-tables.adb,
+	  aws-headers.ads, aws-response-set.adb, aws-status-set.adb,
+	  aws-translator-conversion-f.adb, aws-translator-conversion-p.adb:
+	Remove DOS style CR from end of line.
+
 2002-12-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-status-set.ads:
