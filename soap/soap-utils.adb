@@ -50,9 +50,9 @@ package body SOAP.Utils is
    function C
      (V      : in Character;
       Name   : in String  := "item")
-      return Types.XSD_String is
+      return Types.SOAP_Enumeration is
    begin
-      return SOAP.Types.S (String'(1 => V), Name);
+      return SOAP.Types.E (String'(1 => V), "Character", Name);
    end C;
 
    ------------
@@ -99,6 +99,13 @@ package body SOAP.Utils is
       Str : constant String := String'(Types.Get (Item));
    begin
       return Str (1);
+   end Get;
+
+   function Get (Item : in Types.Object'Class) return String is
+      Enum : constant Types.SOAP_Enumeration
+        := Types.SOAP_Enumeration (Item);
+   begin
+      return Types.Image (Enum);
    end Get;
 
    --------------------------
@@ -295,7 +302,7 @@ package body SOAP.Utils is
       return To_Unbounded_String (Types.V (O));
    end V;
 
-   function V (O : in Types.XSD_String) return Character is
+   function V (O : in Types.SOAP_Enumeration) return Character is
    begin
       return Types.V (O) (1);
    end V;
