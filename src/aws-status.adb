@@ -28,8 +28,6 @@
 
 --  $Id$
 
-with Ada.Text_IO;
-
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 
@@ -147,9 +145,6 @@ package body AWS.Status is
    ---------------
    -- Parameter --
    ---------------
-
-   --  ??? this implementation is far from being efficent and should be
-   --  reimplemented a some point.
 
    function Parameter (D : in Data; N : in Positive) return String is
    begin
@@ -279,6 +274,11 @@ package body AWS.Status is
    -- Set_Parameters --
    --------------------
 
+   procedure Set_Parameters (D : in out Data; Name, Value : in String) is
+   begin
+      AWS.Parameters.Add (D.Parameters, Name, Translater.Decode_URL (Value));
+   end Set_Parameters;
+
    procedure Set_Parameters (D : in out Data; Parameters : in String) is
       P : String renames Parameters;
       C : Positive := P'First;
@@ -298,22 +298,14 @@ package body AWS.Status is
          if E = 0 then
             --  last parameter
 
-            AWS.Parameters.Add
-              (D.Parameters,
-               Key   => P (C .. I - 1),
-               Value => Translater.Decode_URL (P (S .. P'Last)));
+            Set_Parameters (D, P (C .. I - 1), P (S .. P'Last));
             C := P'Last;
+
          else
-            AWS.Parameters.Add
-              (D.Parameters,
-               Key   => P (C .. I - 1),
-               Value => Translater.Decode_URL (P (S .. E - 1)));
+            Set_Parameters (D, P (C .. I - 1), P (S .. E - 1));
             C := E + 1;
          end if;
       end loop;
-   exception
-      when others =>
-         Ada.Text_IO.Put_Line ("bug here !");
    end Set_Parameters;
 
    procedure Set_Parameters (D         : in out Data;
