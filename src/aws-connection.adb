@@ -28,6 +28,7 @@
 
 --  $Id$
 
+with Ada.Characters.Handling;
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
@@ -46,20 +47,8 @@ package body AWS.Connection is
 
    End_Of_Message : constant String := "";
 
-   Host_Token : constant String := "Host: ";
-   subtype Host_Range is Positive range Host_Token'Range;
-
-   Get_Token : constant String := "GET ";
-   subtype Get_Range is Positive range Get_Token'Range;
-
-   Post_Token : constant String := "POST ";
-   subtype Post_Range is Positive range Post_Token'Range;
-
-   Connection_Token : constant String := "Connection: ";
-   subtype Connection_Range is Positive range Connection_Token'Range;
-
-   Content_Length_Token : constant String := "Content-Length: ";
-   subtype Content_Length_Range is Positive range Content_Length_Token'Range;
+   HTTP_10 : constant String := "HTTP/1.0";
+   HTTP_11 : constant String := "HTTP/1.1";
 
    ----------
    -- Line --
@@ -74,7 +63,8 @@ package body AWS.Connection is
       procedure Parse (Command : in String);
       --  parse a line sent by the client and do what is needed
 
-      procedure Send_File (Filename : in String);
+      procedure Send_File (Filename     : in String;
+                           HTTP_Version : in String);
       --  send content of filename as chunk data
 
       -----------
@@ -108,10 +98,6 @@ package body AWS.Connection is
          --  parse the request line:
          --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
-         function Is_Match (Str, Pattern : in String) return Boolean;
-         pragma Inline (Is_Match);
-         --  returns True if Pattern matches the begining of Str.
-
          -----------------
          -- Cut_Command --
          -----------------
@@ -122,16 +108,6 @@ package body AWS.Connection is
             I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ");
             I3 := Fixed.Index (Command (I1 + 1 .. I2), "?");
          end Cut_Command;
-
-         --------------
-         -- Is_Match --
-         --------------
-
-         function Is_Match (Str, Pattern : in String) return Boolean is
-         begin
-            return Pattern'Length <= Str'Length
-              and then Str (1 .. Pattern'Length) = Pattern;
-         end Is_Match;
 
          ---------
          -- URI --
@@ -176,12 +152,12 @@ package body AWS.Connection is
          begin
             Cut_Command;
 
-            if Is_Match (Command, Get_Token) then
+            if Messages.Is_Match (Command, Messages.Get_Token) then
                Status.Set_Request (C_Stat, Status.GET,
                                    URI, HTTP_Version, Parameters);
                return True;
 
-            elsif Is_Match (Command, Post_Token) then
+            elsif Messages.Is_Match (Command, Messages.Post_Token) then
                Status.Set_Request (C_Stat, Status.POST,
                                    URI, HTTP_Version, "");
                return True;
@@ -195,20 +171,22 @@ package body AWS.Connection is
          if Parse_Request_Line (Command) then
             null;
 
-         elsif Is_Match (Command, Host_Token) then
-            Status.Set_Host (C_Stat,
-                             Command (Host_Token'Length + 1 .. Command'Last));
+         elsif Messages.Is_Match (Command, Messages.Host_Token) then
+            Status.Set_Host
+              (C_Stat,
+               Command (Messages.Host_Token'Length + 1 .. Command'Last));
 
-         elsif Is_Match (Command, Connection_Token) then
+         elsif Messages.Is_Match (Command, Messages.Connection_Token) then
             Status.Set_Connection
               (C_Stat,
-               Command (Connection_Token'Length + 1 .. Command'Last));
+               Command (Messages.Connection_Token'Length + 1 .. Command'Last));
 
-         elsif Is_Match (Command, Content_Length_Token) then
+         elsif Messages.Is_Match (Command, Messages.Content_Length_Token) then
             Status.Set_Content_Length
               (C_Stat,
                Natural'Value
-               (Command (Content_Length_Token'Length + 1 .. Command'Last)));
+               (Command (Messages.Content_Length_Token'Length + 1
+                         .. Command'Last)));
 
          end if;
       end Parse;
@@ -217,42 +195,98 @@ package body AWS.Connection is
       -- Send_File --
       ---------------
 
-      procedure Send_File (Filename : in String) is
+      procedure Send_File (Filename     : in String;
+                           HTTP_Version : in String)
+      is
 
-         function Hex (V : in Natural) return String;
-         --  returns the hexadecimal string representation of the decimal
-         --  number V.
+         procedure Send_File;
+         --  send file in one part
 
-         File   : Streams.Stream_IO.File_Type;
-         Buffer : Streams.Stream_Element_Array (1 .. 256);
-         Last   : Streams.Stream_Element_Offset;
+         procedure Send_File_Chunked;
+         --  send file in chunk (HTTP/1.1 only)
 
-         function Hex (V : in Natural) return String is
-            Hex_V : String (1 .. 8);
+         File : Streams.Stream_IO.File_Type;
+         Last : Streams.Stream_Element_Offset;
+
+         ---------------
+         -- Send_File --
+         ---------------
+
+         procedure Send_File is
+
+            Buffer : Streams.Stream_Element_Array (1 .. 10_000);
+
          begin
-            Integer_Text_IO.Put (Hex_V, V, 16);
-            return Hex_V (Fixed.Index (Hex_V, "#") + 1 ..
-                          Fixed.Index (Hex_V, "#", Strings.Backward) - 1);
-         end Hex;
+
+            Streams.Stream_IO.Read (File, Buffer, Last);
+
+            --  terminate header
+
+            Sockets.Put_Line (Sock, "Content-Length:"
+                              & Natural'Image (Natural (Last)));
+            Sockets.New_Line (Sock);
+
+            --  send file content
+
+            Sockets.Send (Sock, Buffer (1 .. Last));
+            Sockets.New_Line (Sock);
+         end Send_File;
+
+         ---------------------
+         -- Send_File_Chunk --
+         ---------------------
+
+         procedure Send_File_Chunked is
+
+            function Hex (V : in Natural) return String;
+            --  returns the hexadecimal string representation of the decimal
+            --  number V.
+
+            Buffer : Streams.Stream_Element_Array (1 .. 1_024);
+
+            function Hex (V : in Natural) return String is
+               Hex_V : String (1 .. 8);
+            begin
+               Integer_Text_IO.Put (Hex_V, V, 16);
+               return Hex_V (Fixed.Index (Hex_V, "#") + 1 ..
+                             Fixed.Index (Hex_V, "#", Strings.Backward) - 1);
+            end Hex;
+
+         begin
+            --  terminate header
+
+            Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
+            Sockets.Put_Line (Sock, "Last-Modified: Sun, 16 Jan 2000 10:41:32 GMT");
+            Sockets.New_Line (Sock);
+
+            loop
+               Streams.Stream_IO.Read (File, Buffer, Last);
+
+               exit when Integer (Last) = 0;
+
+               Sockets.Put_Line (Sock, Hex (Natural (Last)));
+
+               Sockets.Send (Sock, Buffer (1 .. Last));
+               Sockets.New_Line (Sock);
+            end loop;
+
+            --  last chunk
+            Sockets.Put_Line (Sock, "0");
+            Sockets.New_Line (Sock);
+         end Send_File_Chunked;
 
       begin
          Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File, Filename);
 
-         loop
-            Streams.Stream_IO.Read (File, Buffer, Last);
+         if HTTP_Version = HTTP_10 then
+            Send_File;
+         else
+            Send_File_Chunked;
+         end if;
 
-            exit when Integer (Last) = 0;
-
-            Sockets.Put_Line (Sock, Hex (Natural (Last)));
-
-            Sockets.Send (Sock, Buffer (1 .. Last));
-            Sockets.New_Line (Sock);
-         end loop;
-
-         --  last chunk
-         Sockets.Put_Line (Sock, "0");
-         Sockets.New_Line (Sock);
+         Streams.Stream_IO.Close (File);
       end Send_File;
+
 
       use type Status.Request_Method;
 
@@ -330,7 +364,7 @@ package body AWS.Connection is
             Sockets.Put_Line (Sock, Messages.Status_Line (Status));
 
             Sockets.Put_Line (Sock,
-                              "Date: Sun, 15 Jan 2000 22:00:00 GMT");
+                              "Date: Mon, 16 Jan 2000 22:00:00 GMT");
 
             Sockets.Put_Line (Sock,
                               "Server: AWS (Ada Web Server) v"
@@ -365,17 +399,12 @@ package body AWS.Connection is
 
             elsif Response.Mode (Answer) = Response.File then
 
-               --  we are sending binary data as chunk
-
-               Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
-
                Sockets.Put_Line (Sock,
                                  Messages.Content_Type
                                  (Response.Content_Type (Answer)));
 
-               Sockets.New_Line (Sock);
-
-               Send_File (Response.Message_Body (Answer));
+               Send_File (Response.Message_Body (Answer),
+                          AWS.Status.HTTP_Version (C_Stat));
 
             else
                raise Constraint_Error;
@@ -389,13 +418,18 @@ package body AWS.Connection is
 
       Sockets.Shutdown (Sock);
 
+      Text_IO.Put_Line ("End connection.");
+
    exception
+
       when Sockets.Connection_Closed =>
-         Text_IO.Put_Line ("Connection closed");
+         Text_IO.Put_Line ("Connection closed.");
          Sockets.Shutdown (Sock, Sockets.Both);
+
       when E : others =>
          Text_IO.Put_Line ("Connection error...");
          Sockets.Shutdown (Sock, Sockets.Both);
+
    end Line;
 
 end AWS.Connection;
