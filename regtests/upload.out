@@ -1,0 +1,9 @@
+Start main, wait for server to start...
+Server started
+
+Filename = ./0.upload.ali
+=> call ok
+
+Filename = ./1.upload.adb
+=> call ok
+
