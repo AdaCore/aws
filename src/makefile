@@ -5,14 +5,14 @@
 
 GARGS	= $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 
-GY_tmp  = $(patsubst -gnatwe,,$(GFLAGS))
+GY_tmp  = $(patsubst -gnatwe,,$(GFLAGS)) -I../include
 TGARGS = $(patsubst -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnprt,$(GY_tmp))
 # We do not want to check for separate spec for the demos (s option).
 
 TMPLT_GARGS = $(GFLAGSY) -I. -I../ssl -I../include $(INCLUDES)
 
 TMPLT_SOURCES	= templates_parser.adb templates_parser-input.adb \
-	templates_parser-query.adb 
+	templates_parser-query.adb templates_parser-xml.adb
 
 SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-communication-server.adb aws-communication.adb \
