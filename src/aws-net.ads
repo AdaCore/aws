@@ -42,7 +42,7 @@ package AWS.Net is
    function Accept_Socket
      (Socket   : in Sockets.Socket_FD;
       Security : in Boolean)
-     return Sockets.Socket_FD'Class;
+      return Sockets.Socket_FD'Class;
    --  Accept a connection on a socket. If Security is true an secure socket
    --  will be used.
 
@@ -50,7 +50,7 @@ package AWS.Net is
      (Host     : in String;
       Port     : in Positive;
       Security : in Boolean)
-     return Sockets.Socket_FD'Class;
+      return Sockets.Socket_FD'Class;
    --  Connect a socket on a given host/port. Raise Connection_Refused if
    --  the connection has not been accepted by the other end. If Security is
    --  true an secure socket will be used.

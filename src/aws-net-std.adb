@@ -37,7 +37,7 @@ with Ada.Exceptions;
 
 package body AWS.Net is
 
-   procedure Check_SSL (Security : Boolean);
+   procedure Check_SSL (Security : in Boolean);
    --  Check that Security is False as there is no support for SSL provied by
    --  this implementation.
 
@@ -47,8 +47,8 @@ package body AWS.Net is
 
    function Accept_Socket
      (Socket     : in Sockets.Socket_FD;
-      Security   : Boolean)
-     return Sockets.Socket_FD'Class
+      Security   : in Boolean)
+      return Sockets.Socket_FD'Class
    is
       New_Socket : Sockets.Socket_FD;
    begin
@@ -61,7 +61,7 @@ package body AWS.Net is
    -- Check_SSL --
    ---------------
 
-   procedure Check_SSL (Security : Boolean) is
+   procedure Check_SSL (Security : in Boolean) is
    begin
       if Security then
          Ada.Exceptions.Raise_Exception
@@ -75,15 +75,16 @@ package body AWS.Net is
    -------------
 
    function Connect
-     (Host     : String;
-      Port     : Positive;
-      Security : Boolean)
-     return Sockets.Socket_FD'Class
+     (Host     : in String;
+      Port     : in Positive;
+      Security : in Boolean)
+      return Sockets.Socket_FD'Class
    is
       Sock : Sockets.Socket_FD;
    begin
       Check_SSL (Security);
       Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
+
       begin
          Sockets.Connect (Sock, Host, Port);
       exception
