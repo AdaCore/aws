@@ -84,9 +84,9 @@ package AWS.Client is
    --  If User/Pwd are given then it uses it to access the URL.
    --
    --  Eventually it connect through a PROXY using if necessary the Proxy
-   --  authentification Proxy_User:Proxy_Pwd.
+   --  authentication Proxy_User:Proxy_Pwd.
    --
-   --  Only Basic authetification is supported (i.e. Digest is not). Digest
+   --  Only Basic authentication is supported (i.e. Digest is not). Digest
    --  authentication is supported with the keep-alive client API, see below.
    --
    --  If Follow_Redirection is set to True, Get will follow the redirection
@@ -327,15 +327,11 @@ package AWS.Client is
       Data       : in     String;
       Streaming  : in     Boolean := False);
    --  Same as SOAP_Post above but using a Connection
-   --  Streaming is for be able to parse response XML on the fly,
+   --  Streaming is to be able to parse response XML on the fly,
    --  without intermediate buffer.
 
    procedure Close (Connection : in out HTTP_Connection);
    --  Close connection, it releases all associated resources
-
-   procedure Set_Debug (On : in Boolean);
-   --  Set debug mode on/off. If debug is activated the request header and the
-   --  server response header will be displayed.
 
    procedure Set_Streaming_Output
      (Connection : in out HTTP_Connection;
@@ -345,6 +341,10 @@ package AWS.Client is
    --  stream by using Read and/or Read_Some routines above. Note that
    --  Connection is already in Streaming mode if it has been created
    --  with Server_Push => True.
+
+   procedure Set_Debug (On : in Boolean);
+   --  Set debug mode on/off. If debug is activated the request header and the
+   --  server response header will be displayed.
 
 private
 
