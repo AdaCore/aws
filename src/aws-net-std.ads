@@ -80,8 +80,9 @@ package AWS.Net.Std is
    --------
 
    procedure Send
-     (Socket : in Socket_Type;
-      Data   : in Stream_Element_Array);
+     (Socket : in     Socket_Type;
+      Data   : in     Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
 
    procedure Receive
      (Socket : in     Socket_Type;
