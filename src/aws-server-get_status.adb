@@ -125,13 +125,15 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
    function Slot_Table return Translate_Table is
 
-      Sock                : Vector_Tag;
-      Opened              : Vector_Tag;
-      Abortable           : Vector_Tag;
-      Activity_Counter    : Vector_Tag;
-      Activity_Time_Stamp : Vector_Tag;
+      Sock                  : Vector_Tag;
+      Opened                : Vector_Tag;
+      Abortable             : Vector_Tag;
+      Activity_Counter      : Vector_Tag;
+      Slot_Activity_Counter : Vector_Tag;
+      Activity_Time_Stamp   : Vector_Tag;
 
-      Slot_Data           : Slot;
+      Slot_Data             : Slot;
+
    begin
       for K in 1 .. Server.Max_Connection loop
          Slot_Data := Server.Slots.Get (Index => K);
@@ -148,17 +150,21 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
          Activity_Counter := Activity_Counter & Slot_Data.Activity_Counter;
 
+         Slot_Activity_Counter := Slot_Activity_Counter
+           & Slot_Data.Slot_Activity_Counter;
+
          Activity_Time_Stamp := Activity_Time_Stamp &
            GNAT.Calendar.Time_IO.Image (Slot_Data.Activity_Time_Stamp,
                                         "%a %D %T");
       end loop;
 
       return Translate_Table'
-        (Assoc ("SOCK_L",                Sock),
-         Assoc ("OPENED_L",              Opened),
-         Assoc ("ABORTABLE_L",           Abortable),
-         Assoc ("ACTIVITY_COUNTER_L",    Activity_Counter),
-         Assoc ("ACTIVITY_TIME_STAMP_L", Activity_Time_Stamp));
+        (Assoc ("SOCK_L",                  Sock),
+         Assoc ("OPENED_L",                Opened),
+         Assoc ("ABORTABLE_L",             Abortable),
+         Assoc ("SLOT_ACTIVITY_COUNTER_L", Slot_Activity_Counter),
+         Assoc ("ACTIVITY_COUNTER_L",      Activity_Counter),
+         Assoc ("ACTIVITY_TIME_STAMP_L",   Activity_Time_Stamp));
    end Slot_Table;
 
    use type Templates_Parser.Translate_Table;
