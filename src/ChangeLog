@@ -1,3 +1,10 @@
+2003-02-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads, aws-net-std.ads:
+	(Set_Send_Buffer): New routine.
+	(Set_Receive_Buffer): New routine.
+	(Set_Blocking_Mode): New routine.
+
 2003-02-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:

@@ -1,3 +1,17 @@
+2003-02-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std-gnat.adb:
+	(Peer_Addr): Do not looking for ':' in the Image of Sock_Addr_Type,
+	 use just IP address Image.
+	(Set_Send_Buffer): New routine.
+	(Set_Receive_Buffer): New routine.
+	(Set_Blocking_Mode): New routine.
+
+	* aws-net-std-adasockets.adb:
+	(Set_Send_Buffer): New routine.
+	(Set_Receive_Buffer): New routine.
+	(Set_Blocking_Mode): New routine.
+
 2003-02-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-std-gnat.adb:
