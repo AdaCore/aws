@@ -376,8 +376,12 @@ package body Skel is
               (Skel_Adb, L_Proc & "_Result");
          end if;
 
-         Text_IO.Put_Line
+         Text_IO.Put
            (Skel_Adb, "           := " & L_Proc);
+
+         if Input /= null then
+            Text_IO.New_Line (Skel_Adb);
+         end if;
       end if;
 
       --  Input parameters
