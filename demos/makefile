@@ -3,7 +3,7 @@
 
 .SILENT: all runme agent
 
-GARGS = -I../src -I/usr/tools/sockets -i -gnatwu -g
+GARGS = -I../src -I/usr/Ada.Libraries/sockets -i -gnatwu -g
 BARGS = -E
 
 build: runme agent auth
