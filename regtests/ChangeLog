@@ -1,3 +1,8 @@
+2003-03-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* check_mem.adb:
+	Add checks for Templates.Clear.
+
 2003-03-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* check_mem.tmplt:
