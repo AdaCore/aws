@@ -1,3 +1,8 @@
+2002-12-24  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* auth.adb, auth.out:
+	Add test for the strongest AWS authentication.
+
 2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
