@@ -253,6 +253,11 @@ package SSL.Thin is
       C_Type : in int)
       return int;
 
+   function SSL_CTX_use_certificate_chain_file
+     (Ctx    : in SSL_CTX;
+      File   : in char_array)
+      return int;
+
    function SSL_use_certificate_file
      (SSL    : in SSL_Handle;
       File   : in char_array;
@@ -298,6 +303,10 @@ private
 
    pragma Import (C, SSL_CTX_use_certificate_file,
                     "SSL_CTX_use_certificate_file");
+
+   pragma Import (C, SSL_CTX_use_certificate_chain_file,
+                    "SSL_CTX_use_certificate_chain_file");
+
    pragma Import (C, SSL_CTX_use_PrivateKey_file,
                     "SSL_CTX_use_PrivateKey_file");
    pragma Import (C, SSL_use_certificate_file, "SSL_use_certificate_file");
