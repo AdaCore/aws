@@ -147,6 +147,10 @@ package Templates_Parser is
 
    type Association is private;
 
+   type Association_Kind is (Std, Vect, Matrix);
+   --  The kind of association which is either Std (a simple value), a vector
+   --  tag or a Matrix tag.
+
    type Translate_Table is array (Positive range <>) of Association;
 
    No_Translation : constant Translate_Table;
@@ -313,9 +317,7 @@ private
    --  Association --
    ------------------
 
-   type Var_Kind is (Std, Vect, Matrix);
-
-   type Association (Kind : Var_Kind := Std) is record
+   type Association (Kind : Association_Kind := Std) is record
       Variable  : Unbounded_String;
 
       case Kind is
