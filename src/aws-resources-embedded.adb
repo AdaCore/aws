@@ -44,6 +44,8 @@ package body AWS.Resources.Embedded is
 
    Files_Table : Res_Files.Table_Type;
 
+   Empty_Buffer : aliased Ada.Streams.Stream_Element_Array := (1 .. 0 => 0);
+
    -----------
    -- Close --
    -----------
@@ -53,6 +55,25 @@ package body AWS.Resources.Embedded is
    begin
       null;
    end Close;
+
+   ------------
+   -- Create --
+   ------------
+
+   procedure Create
+     (File   :    out File_Type;
+      Buffer : in     Buffer_Access) is
+   begin
+      File := new File_Tagged;
+
+      if Buffer = null then
+         File_Tagged (File.all).Buffer := Empty_Buffer'Access;
+      else
+         File_Tagged (File.all).Buffer := Buffer;
+      end if;
+
+      File_Tagged (File.all).K := Buffer'First;
+   end Create;
 
    -----------------
    -- End_Of_File --

@@ -42,6 +42,12 @@ package AWS.Resources.Embedded is
      (File :    out File_Type;
       Name : in     String;
       Form : in     String    := "");
+   --  Open resource from registered data.
+
+   procedure Create
+     (File   :    out File_Type;
+      Buffer : in     Buffer_Access);
+   --  Create the resource directly from memory data.
 
    function Is_Regular_File (Name : in String) return Boolean;
 
