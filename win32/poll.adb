@@ -30,15 +30,15 @@
 --
 --  $Id$
 --
---  emulates unix "poll" call in Win32.
---
+--  emulates unix "poll" call under Win32.
+
 with AWS.Net.Sets.Thin;
 with System.Address_To_Access_Conversions;
 
 function Poll
-  (Fds     : System.Address;
-   Nfds    : C.unsigned_long;
-   Timeout : C.int)
+  (Fds     : in System.Address;
+   Nfds    : in C.unsigned_long;
+   Timeout : in C.int)
    return C.int
 is
    use AWS.Net.Sets;
@@ -72,6 +72,7 @@ is
    pragma Convention (C, FD_Set_Type);
 
    procedure FD_SET (FD : C.int; Set : in out FD_Set_Type);
+   pragma Inline (FD_SET);
 
    function FD_ISSET (FD : C.int; Set : System.Address)
      return C.int;

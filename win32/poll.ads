@@ -30,14 +30,14 @@
 --
 --  $Id$
 --
---  emulates unix "poll" call in Win32.
---
+--  emulates unix "poll" call under Win32.
+
 with Interfaces.C; use Interfaces;
 with System;
 
 function Poll
-  (Fds     : System.Address;
-   Nfds    : C.unsigned_long;
-   Timeout : C.int)
+  (Fds     : in System.Address;
+   Nfds    : in C.unsigned_long;
+   Timeout : in C.int)
    return C.int;
 pragma Export (C, Poll, "poll");
