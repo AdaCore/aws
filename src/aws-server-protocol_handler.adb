@@ -305,9 +305,6 @@ is
          Sockets.Put_Line (Sock,
                            "Server: AWS (Ada Web Server) v" & Version);
 
-         --  Connection, check connection string with Match to skip connection
-         --  options [RFC 2616 - 14.10].
-
          if Will_Close then
             --  We have decided to close connection after answering the client
             Sockets.Put_Line (Sock, Messages.Connection ("close"));
@@ -1403,6 +1400,8 @@ begin
       declare
          Connection : constant String := To_String (Status_Connection);
       begin
+         --  Connection, check connection string with Match to skip connection
+         --  options [RFC 2616 - 14.10].
          Will_Close := AWS.Messages.Match (Connection, "close")
            or else HTTP_Server.Slots.N = 1
            or else (Status.HTTP_Version (C_Stat) = HTTP_10
