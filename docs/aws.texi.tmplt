@@ -1225,7 +1225,7 @@ A complete example can be found in the demos directory. Look for
 
 @noindent
 It is possible to have the server activitly logged into the file
-@file{aws-<date>.log}. To activate the logging you must call the
+@file{<progname>-Y-M-D.log}. To activate the logging you must call the
 @code{AWS.Log.Start}, and it is possible to stop logging by calling
 @code{AWS.Log.Stop}. @xref{AWS.Log}. Log file can be changed
 automatically each day or month, see @code{AWS.Log.Start} parameter.
@@ -1243,7 +1243,12 @@ For example:
 
 @noindent
 The only missing part is the length of the data sent to the client that
-is found at the end of the log data line.
+is found at the end of the log data line in the Apache log file.
+
+@noindent
+Note that it is possible to have automatic split of the log file each
+day, each month at every run. See @code{AWS.Log.Start} spec. This is
+very useful to avoid having very big log files.
 
 @node Status page
 @chapter Status page
