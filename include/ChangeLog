@@ -5,6 +5,9 @@
 
 	* zlib.ads, zlib.adb:
 	(Is_Open): New routine.
+	(Read): Add Allow_Read_Some parameter. Rest_Last have to be initialized
+	 now.
+	(Filter_Type): Remove Opened flag, use access /= null instead.
 
 2004-05-28  Pascal Obry  <pascal@obry.org>
 

@@ -122,7 +122,7 @@ package ZLib is
 
    Default_Buffer_Size : constant := 4096;
 
-   type Filter_Type is limited private;
+   type Filter_Type is tagged limited private;
    --  The filter is for compression and for decompression.
    --  The usage of the type is depend of its initialization.
 
@@ -250,7 +250,7 @@ package ZLib is
    procedure Write
      (Filter  : in out Filter_Type;
       Item    : in     Ada.Streams.Stream_Element_Array;
-      Flush   : in     Flush_Mode);
+      Flush   : in     Flush_Mode := No_Flush);
    --  Compress/Decompress data from Item to the generic parameter procedure
    --  Write. Output buffer size could be set in Buffer_Size generic parameter.
 
@@ -267,16 +267,21 @@ package ZLib is
 
       Rest_First, Rest_Last : in out Ada.Streams.Stream_Element_Offset;
       --  Rest_First have to be initialized to Buffer'Last + 1
+      --  Rest_Last have to be initialized to Buffer'Last
       --  before usage.
+
+      Allow_Read_Some : in Boolean := False;
+      --  Is it allowed to return Last < Item'Last before end of data.
 
    procedure Read
      (Filter : in out Filter_Type;
       Item   :    out Ada.Streams.Stream_Element_Array;
-      Last   :    out Ada.Streams.Stream_Element_Offset);
+      Last   :    out Ada.Streams.Stream_Element_Offset;
+      Flush  : in     Flush_Mode := No_Flush);
    --  Compress/Decompress data from generic parameter procedure Read to the
-   --  Item. User should provide Buffer for the operation and Rest_First
-   --  variable first time initialized to the Buffer'Last + 1.
-   --  Read routines could return Last < Item'Last only at end of stream.
+   --  Item. User should provide Buffer and initialized Rest_First, Rest_Last
+   --  indicators. If Allow_Read_Some is True, Read routines could return
+   --  Last < Item'Last only at end of stream.
 
 private
 
@@ -306,7 +311,7 @@ private
 
    type Z_Stream_Access is access all Z_Stream;
 
-   type Filter_Type is record
+   type Filter_Type is tagged limited record
       Strm        : Z_Stream_Access;
       Compression : Boolean;
       Stream_End  : Boolean;
@@ -314,8 +319,6 @@ private
       CRC         : Unsigned_32;
       Offset      : Stream_Element_Offset;
       --  Offset for gzip header/footer output.
-
-      Opened      : Boolean := False;
    end record;
 
 end ZLib;
