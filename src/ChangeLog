@@ -1,5 +1,19 @@
 2003-04-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-containers-tables.ads, aws-containers-tables.adb:
+	(Internal_Get): Removed, code moved just to Get routine,
+	 Internal_Get was not used in other places.
+	(Get_Indexes): New routine.
+	(Count): Use Get_Indexes instead of exception handling.
+	(Get): The same.
+	(Get_Values): The same.
+	Usage Found flag for detect Key absence is better than
+	 exception handling for performanse and for debugging applications.
+	Minor reformatting.
+	Update copiright years.
+
+2003-04-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-mime.adb:
 	(Initialize): Remove duplicated Mime type registrations for .gz and
 	 .tar file extensions.
