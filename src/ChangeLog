@@ -1,3 +1,39 @@
+2004-05-13  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(GY_tmp): Add -I../include.
+	(TMPLT_SOURCES): Add templates_parser-xml.adb.
+
+	* src.gpr:
+	(Full_Debug_Switches): Remove -m option, this is not a compiler
+	 switch.
+	(Limited_Debug_Switches): Idem.
+
+	* aws-services-split_pages.adb:
+	Update code to use new Templates_Parser engine. Handle tags with
+	 any nested level.
+
+	* templates_parser.ads, templates_parser.adb:
+	New version taken from Templates_Parser 8.0. This new
+	 implementation has a new structure for the translations
+	 (Translate_Set) which is more efficient. It also provides a new
+	 unified definition for the tags, such object can be nested at any
+	 level (not only vector or matrix). Note that even if lot of
+	 changes have been made this new implementation should be 99%
+	 upward compatible.
+
+	* templates_parser-query.ads, templates_parser-query.adb:
+	New version taken from Templates_Parser 8.0.
+
+	* templates_parser-filter.adb:
+	New version taken from Templates_Parser 8.0.
+
+	* templates_parser-debug.ads, templates_parser-debug.adb:
+	Initial revision taken from Templates_Parser 8.0.
+
+	* templates_parser-xml.ads, templates_parser-xml.adb:
+	Initial revision taken from Templates_Parser 8.0.
+
 2004-04-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	*  aws-headers-set.adb:
