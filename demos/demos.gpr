@@ -69,7 +69,15 @@ project Demos is
                 "wsdl_demo_server_cb.adb", "interoplab.ads",
                 "interoplab-client.adb", "interoplab-types.ads",
                 "soap_server_cb.adb", "soap_server_disp_cb.adb",
-                "soap_svs_cb.adb", "soap_svs_cb.adb");
+                "soap_svs_cb.adb", "soap_svs_cb.adb",
+                "soapinterop-org-xsd-arrayoffloat_type_pkg.ads",
+                "soapinterop-org-xsd-arrayofint_type_pkg.ads",
+                "soapinterop-org-xsd-arrayofsoapstruct_type_pkg.ads",
+                "soapinterop-org-xsd-arrayofstring_type_pkg.ads",
+                "soapinterop-org-xsd-soapstruct_type_pkg.adb",
+                "soapinterop-org-xsd-soapstruct_type_pkg.ads",
+                "soapinterop-org-xsd.ads",
+                "soapinterop-org.ads", "soapinterop.ads");
       when "Disabled" =>
          --  Should be replaced by null as supported by GNAT 5.03
          for Main use project'Main;
