@@ -22,18 +22,18 @@ http=aws-http-$version.tar.gz
 root=`pwd`
 
 echo Test $std
-mkdir std
-cd std
+mkdir std-$version
+cd std-$version
 tar xfz ../$std
 cd aws*
 make XMLADA=$XMLADA ASIS=$ASIS build
-make XMLADA=$XMLADA ASIS=$ASIS INSTALL=$root/std install
+make XMLADA=$XMLADA ASIS=$ASIS INSTALL=$root/std-$version install
 cd ../..
 
 echo Test $http
-mkdir http
-cd http
+mkdir http-$version
+cd http-$version
 tar xfz ../$http
 cd aws*
 make build
-make INSTALL=$root/http install
+make INSTALL=$root/http-$version install
