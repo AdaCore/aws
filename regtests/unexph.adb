@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
@@ -33,11 +33,13 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
 with AWS.Client;
-with AWS.Status;
+with AWS.Exceptions;
 with AWS.MIME;
 with AWS.Response;
+with AWS.Server;
+with AWS.Status;
+with AWS.Log;
 
 procedure Unexph is
 
@@ -48,9 +50,10 @@ procedure Unexph is
    function CB (Request : in Status.Data) return Response.Data;
 
    procedure UEH
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
-      Termination : in     Boolean;
-      Answer      : in out Response.Data);
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data);
 
    task Server is
       entry Wait_Start;
@@ -89,7 +92,7 @@ procedure Unexph is
 
    exception
       when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
+         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
    end Server;
 
    ---------
@@ -97,12 +100,14 @@ procedure Unexph is
    ---------
 
    procedure UEH
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
-      Termination : in     Boolean;
-      Answer      : in out Response.Data) is
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data) is
    begin
       Ada.Text_IO.Put_Line
-        (Exceptions.Exception_Name (E) & ' ' & Boolean'Image (Termination));
+        (Ada.Exceptions.Exception_Name (E) & ' '
+           & Boolean'Image (Error.Fatal));
    end;
 
 begin
@@ -115,5 +120,5 @@ begin
 exception
    when E : others =>
       Server.Stop;
-      Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
 end Unexph;
