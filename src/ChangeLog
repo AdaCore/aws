@@ -1,3 +1,15 @@
+2004-10-25  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(adasockets): Fix path to object file to remove.
+	(gnatsockets): Idem.
+	(gnat_oslib): Idem.
+	(posix_oslib): Idem.
+	(win32_oslib): Idem.
+	(aws-os_lib.adb): New target.
+	(setup): Fix dependencies to avoid copying the GNAT implementation
+	 of the socket and os_lib API.
+
 2004-10-16  Pascal Obry  <pascal@obry.org>
 
 	* aws-net-ssl.ads:
