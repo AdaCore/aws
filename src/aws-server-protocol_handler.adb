@@ -484,8 +484,21 @@ is
             if not Found then
                AWS.Status.Set.Socket (C_Stat, Sock_Ptr);
 
-               Answer := Dispatchers.Dispatch
-                 (HTTP_Server.Dispatcher.all, C_Stat);
+               HTTP_Server.Dispatcher_Sem.Read;
+
+               --  Be sure to always release the read semaphore
+
+               begin
+                  Answer := Dispatchers.Dispatch
+                    (HTTP_Server.Dispatcher.all, C_Stat);
+
+                  HTTP_Server.Dispatcher_Sem.Release_Read;
+               exception
+                  when others =>
+                     HTTP_Server.Dispatcher_Sem.Release_Read;
+                     raise;
+               end;
+
             end if;
 
             HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
@@ -1392,13 +1405,11 @@ begin
       declare
          Connection : constant String := To_String (Status_Connection);
       begin
-         Will_Close :=
-           AWS.Messages.Match (Connection, "close")
+         Will_Close := AWS.Messages.Match (Connection, "close")
            or else HTTP_Server.Slots.N = 1
            or else (Status.HTTP_Version (C_Stat) = HTTP_10
                       and then
-                    AWS.Messages.Does_Not_Match
-                      (Connection, "keep-alive"));
+                      AWS.Messages.Does_Not_Match (Connection, "keep-alive"));
       end;
 
       Status.Set.Keep_Alive (C_Stat, not Will_Close);
