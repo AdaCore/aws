@@ -100,11 +100,11 @@ package body AWS.Services.Transient_Pages is
 
       procedure Register
         (Transient_Check_Interval : in     Duration;
-         Need_Start_Cleaner       :    out Boolean) is
+         Need_Start               :    out Boolean) is
       begin
-         Need_Start_Cleaner := Server_Count = 0 and then Cleaner_Task = null;
-         Server_Count       := Server_Count + 1;
-         Clean_Interval     := Transient_Check_Interval;
+         Need_Start     := Server_Count = 0 and then Cleaner_Task = null;
+         Server_Count   := Server_Count + 1;
+         Clean_Interval := Transient_Check_Interval;
       end Register;
 
       ----------
