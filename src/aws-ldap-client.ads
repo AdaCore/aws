@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                            Copyright (C) 2003                            --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -181,7 +181,8 @@ package AWS.LDAP.Client is
    --  Bind to the server by providing a login and password
 
    procedure Unbind (Dir : in out Directory);
-   --  Must be called to release resources asociated with the Directory.
+   --  Must be called to release resources associated with the Directory. Does
+   --  nothing if Dir is Null_Directory.
 
    function Is_Open (Dir : in Directory) return Boolean;
    --  Returns True if the directory has correctly been initialized and binded
