@@ -167,5 +167,4 @@ implemented:
 
 - Add reply-all support to the Web_Mail service.
 
-- Add some ready-to-use write procedure callback in AWS.Net.Log. One for plain
-  text and one for binary data (ala Emacs hexl-mode).
+- Document AWS.Net.Log feature.
