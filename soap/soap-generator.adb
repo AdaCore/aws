@@ -33,8 +33,9 @@
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Exceptions;
-with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
@@ -93,6 +94,12 @@ package body SOAP.Generator is
       File : in Text_IO.File_Type;
       Name : in String);
    --  Generate header box
+
+   function To_Unit_Name
+     (Filename : in String)
+      return String;
+   --  Returns the unit name given a filename following the GNAT
+   --  naming scheme.
 
    Root     : Text_IO.File_Type; -- Parent packages
    Type_Ads : Text_IO.File_Type; -- Child with all type definitions
@@ -224,24 +231,24 @@ package body SOAP.Generator is
      (O    : in out Object;
       Name : in     String)
    is
-      L_Name  : constant String := Format_Name (O, Name);
+      U_Name  : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
       --  Root
 
       Text_IO.New_Line (Root);
-      Text_IO.Put_Line (Root, "end " & L_Name & ";");
+      Text_IO.Put_Line (Root, "end " & U_Name & ";");
 
       Text_IO.Close (Root);
 
       --  Types
 
       Text_IO.New_Line (Type_Ads);
-      Text_IO.Put_Line (Type_Ads, "end " & L_Name & ".Types;");
+      Text_IO.Put_Line (Type_Ads, "end " & U_Name & ".Types;");
 
       Text_IO.Close (Type_Ads);
 
       Text_IO.New_Line (Type_Adb);
-      Text_IO.Put_Line (Type_Adb, "end " & L_Name & ".Types;");
+      Text_IO.Put_Line (Type_Adb, "end " & U_Name & ".Types;");
 
       Text_IO.Close (Type_Adb);
 
@@ -1682,7 +1689,7 @@ package body SOAP.Generator is
       Documentation : in     String;
       Location      : in     String)
    is
-      L_Name : constant String := Format_Name (O, Name);
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
 
       procedure Create (File : in out Text_IO.File_Type; Filename : in String);
       --  Create Filename, raise execption Generator_Error if the file already
@@ -1718,16 +1725,27 @@ package body SOAP.Generator is
          use Text_IO;
          use AWS;
 
-         Template_Filename : constant String := Filename & ".amt";
-         File              : Text_IO.File_Type;
+         L_Filename        : constant String
+           := Characters.Handling.To_Lower (Filename);
+
+         Template_Filename : constant String := L_Filename & ".amt";
+
+         File : Text_IO.File_Type;
+
       begin
-         Create (File, Filename & ".adb");
+         Create (File, L_Filename & ".adb");
+
+         Put_File_Header (O, File);
 
          if AWS.OS_Lib.Is_Regular_File (Template_Filename) then
             --  Use template file
             declare
                Translations : Templates.Translate_Table
-                 := (1 => Templates.Assoc ("SOAP_SERVICE", L_Name));
+                 := (1 => Templates.Assoc ("SOAP_SERVICE", U_Name),
+                     2 => Templates.Assoc ("SOAP_VERSION", SOAP.Version),
+                     3 => Templates.Assoc ("AWS_VERSION",  AWS.Version),
+                     4 => Templates.Assoc ("UNIT_NAME",
+                                           To_Unit_Name (Filename)));
             begin
                Put (File,
                     Templates.Parse (Template_Filename, Translations));
@@ -1741,10 +1759,10 @@ package body SOAP.Generator is
             Put_Line (File, "with AWS.Response;");
             Put_Line (File, "with SOAP.Dispatchers.Callback;");
             New_Line (File);
-            Put_Line (File, "with " & L_Name & ".CB;");
-            Put_Line (File, "with " & L_Name& ".Server;");
+            Put_Line (File, "with " & U_Name & ".CB;");
+            Put_Line (File, "with " & U_Name& ".Server;");
             New_Line (File);
-            Put_Line (File, "procedure " & Filename & " is");
+            Put_Line (File, "procedure " & To_Unit_Name (Filename) & " is");
             New_Line (File);
             Put_Line (File, "   use AWS;");
             New_Line (File);
@@ -1759,25 +1777,26 @@ package body SOAP.Generator is
             New_Line (File);
             Put_Line (File, "   WS   : AWS.Server.HTTP;");
             Put_Line (File, "   Conf : Config.Object;");
-            Put_Line (File, "   Disp : " & L_Name & ".CB.Handler;");
+            Put_Line (File, "   Disp : " & U_Name & ".CB.Handler;");
             New_Line (File);
             Put_Line (File, "begin");
             Put_Line (File, "   Config.Set.Server_Port");
-            Put_Line (File, "      (Conf, " & L_Name & ".Server.Port);");
+            Put_Line (File, "      (Conf, " & U_Name & ".Server.Port);");
             Put_Line (File, "   Disp := SOAP.Dispatchers.Callback.Create");
             Put_Line (File, "     (CB'Unrestricted_Access,");
-            Put_Line (File, "      " & L_Name & ".CB.SOAP_CB'Access);");
+            Put_Line (File, "      " & U_Name & ".CB.SOAP_CB'Access);");
             New_Line (File);
             Put_Line (File, "   AWS.Server.Start (WS, Disp, Conf);");
             New_Line (File);
             Put_Line (File, "   AWS.Server.Wait (AWS.Server.Forever);");
-            Put_Line (File, "end Server;");
+            Put_Line (File, "end " & To_Unit_Name (Filename) & ";");
          end if;
 
          Text_IO.Close (File);
       end Generate_Main;
 
-      LL_Name : constant String := Characters.Handling.To_Lower (L_Name);
+      LL_Name : constant String
+        := Characters.Handling.To_Lower (Format_Name (O, Name));
 
    begin
       O.Location := To_Unbounded_String (Location);
@@ -1825,7 +1844,8 @@ package body SOAP.Generator is
          Text_IO.New_Line (Type_Ads);
       end if;
 
-      Text_IO.Put_Line (Type_Ads, "package " & L_Name & ".Types is");
+      Text_IO.Put_Line
+        (Type_Ads, "package " & U_Name & ".Types is");
       Text_IO.New_Line (Type_Ads);
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, Ada.Calendar);");
       Text_IO.Put_Line
@@ -1847,7 +1867,8 @@ package body SOAP.Generator is
 
       Put_File_Header (O, Type_Adb);
 
-      Text_IO.Put_Line (Type_Adb, "package body " & L_Name & ".Types is");
+      Text_IO.Put_Line
+        (Type_Adb, "package body " & U_Name & ".Types is");
       Text_IO.New_Line (Type_Adb);
       Text_IO.Put_Line (Type_Adb, "   use SOAP.Types;");
 
@@ -1855,16 +1876,16 @@ package body SOAP.Generator is
 
       Put_File_Header (O, Root);
 
-      if Documentation = "" then
-         Text_IO.Put_Line (Root, "--");
-      else
+      if Documentation /= "" then
          Text_IO.Put_Line (Root, "--  " & Documentation);
+         Text_IO.New_Line (Root);
       end if;
 
-      Text_IO.Put_Line (Root, "--  Service at : " & Location);
-      Text_IO.New_Line (Root);
+      Text_IO.Put_Line (Root, "package " & U_Name & " is");
 
-      Text_IO.Put_Line (Root, "package " & L_Name & " is");
+      Text_IO.New_Line (Root);
+      Text_IO.Put_Line (Root,
+                        "   URL : constant String := """ & Location & """;");
 
       if O.WSDL_File /= Null_Unbounded_String then
          Text_IO.New_Line (Root);
@@ -1889,7 +1910,7 @@ package body SOAP.Generator is
          Text_IO.New_Line (Root);
       end if;
 
-      O.Unit := To_Unbounded_String (Name);
+      O.Unit := To_Unbounded_String (U_Name);
 
       --  Stubs
 
@@ -1939,13 +1960,25 @@ package body SOAP.Generator is
             (Ada.Calendar.Clock, "%A %d %B %Y at %T");
    end Time_Stamp;
 
+   ------------------
+   -- To_Unit_Name --
+   ------------------
+
+   function To_Unit_Name
+     (Filename : in String)
+      return String is
+   begin
+      return Strings.Fixed.Translate
+        (Filename, Strings.Maps.To_Mapping ("-", "."));
+   end To_Unit_Name;
+
    ----------------
    -- Types_From --
    ----------------
 
    procedure Types_From (O : in out Object; Spec : in String) is
    begin
-      O.Types_Spec := To_Unbounded_String (Spec);
+      O.Types_Spec := To_Unbounded_String (To_Unit_Name (Spec));
    end Types_From;
 
    --------------------
