@@ -261,9 +261,7 @@ private
 
    type Parameter_Set is array (Parameter_Name range <>) of Values;
 
-   type Object is new Parameter_Set (Server_Parameter_Name);
-
-   Default_Config : constant Object
+   Default_Parameters : constant Parameter_Set (Server_Parameter_Name)
      := (Cleaner_Wait_For_Client_Timeout =>
            (Dur, Default.Cleaner_Wait_For_Client_Timeout),
 
@@ -345,7 +343,14 @@ private
          Case_Sensitive_Parameters =>
            (Bool, Default.Case_Sensitive_Parameters));
 
-   Server_Config : Object := Default_Config;
+   type Object is record
+      P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;
+   end Record;
+
+   Default_Config : constant Object
+     := (P => Default_Parameters);
+
+   Server_Config : Object;
    --  This variable will be updated with options found in 'aws.ini' and
    --  'progname.ini'.
 
