@@ -52,6 +52,37 @@
 	Remove use of GNAT.Dynamic_Table and use AI302.Containers instead.
         (Get_Names): Use AI302 sorting routine instead of simple bubble sort.
 
+2004-05-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-buffered.ads, aws-net-buffered.adb:
+	(Read): Routine publised.
+
+	* aws-client.ads:
+	(Transfer_Type): New type.
+	(HTTP_Connection): New fields Length and Transfer for support streaming
+	 read.
+	(Read): New streaming routine.
+	(Read_Some): New streaming routine.
+
+	* aws-client.adb:
+	(Read): New streaming routine.
+	(Read_Some): New streaming routine.
+	(Get_Responce): Use Read_Some for read response.
+
+2004-05-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads:
+	(W_Cache_Chunk): Remove not used private constant.
+	(Read_Cache): Remove Size field.
+
+	* aws-net-buffered.adb:
+	(Read): New procedure.
+	(Is_Empty): New procedure.
+	(Pop): Removed.
+	(Push): Removed.
+	(Get_Byte): Removed.
+	(Read): Optimised with new procedure Net.Receive.
+
 2004-05-26  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.ads:
