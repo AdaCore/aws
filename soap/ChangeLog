@@ -1,3 +1,12 @@
+2004-09-07  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator.adb:
+	(Array_Type): Removed. This is not needed anymore as the array's
+         element type is now properly handled by the WSDL parser and
+         furthermore it fix a bug for element name having an underscore.
+        (Get_Routine): Remove call to Array_Type.
+        (Set_Routine): Remove call to Array_Type.
+
 2004-09-04  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator-skel.adb:
@@ -76,7 +85,7 @@
 	(Parse_Param): Use the proper namespaces when calling Parse_Record
 	 and Parse_Array.
 	Fix regression with the Java/AXIS test.
-	
+
 2004-07-10  Pascal Obry  <pascal@obry.org>
 
 	* soap-message-xml.adb:
