@@ -1,3 +1,29 @@
+2003-11-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.adb:
+	(Generate_Record): Generate record type name.
+
+	* soap-message-xml.adb:
+	(Max_Object_Size): Change from 250 to 2_048. Add some comments.
+	(Parse_*): All basic type parse routines have a new Name
+	 parameter.
+	(Parse_Enumeration): Do not check for href here, this is done in
+	 Parse_Param for all routines.
+	(Parse_Param): Check href here. This is to support href for all
+	 tags. Pass Name to all parse routines.
+	Minor reformatting.
+
+	* soap-types.adb:
+	(R): Add Type_Name parameter. Properly set corresponding field.
+	(Array_Type): Properly use XML_Type for records instead of
+	 Name. Fix array element type detection.
+	(XML_Image): Output xsi:type if Name and Type_Name are differents.
+	(XML_Type): Returns Type_Name instead of the empty string.
+
+	* soap-types.ads:
+	(R): Add Type_Name parameter. Add some comments.
+	(SOAP_Record): Add Type_Nam field.
+
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
