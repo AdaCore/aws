@@ -1,3 +1,15 @@
+2003-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-memory.ads,
+	  aws-resources-streams-memory.adb,
+	  aws-resources-streams-memory-zlib.ads,
+	  aws-resources-streams-memory-zlib.adb:
+	(Append): With access buffer parameter removed.
+
+	* aws-response-set.ads, aws-response-set.adb:
+	(Append_Body): With access buffer parameter removed.
+	(Message_Body): With access buffer parameter removed.
+
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-mime.ads:
