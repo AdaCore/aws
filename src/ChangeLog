@@ -1,3 +1,20 @@
+2002-12-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-ldap-client.adb:
+	(Is_Open): Use /= instead of "not =" as per new coding style.
+
+	* aws-server-protocol_handler.adb:
+	(Get_File_Data): Use /= instead of "not =" as per new coding style.
+
+	* aws-jabber.adb:
+	(Destroy): Use /= instead of "not =" as per new coding style.
+
+	* aws-client.adb:
+	(Close): Use /= instead of "not =" as per new coding style.
+
+	* aws-net.adb:
+	Back-out previous change.
+
 2002-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
