@@ -181,8 +181,6 @@ clean_noapiref:
 	${MAKE} -C win32 clean
 	${MAKE} -C tools clean
 	-rm *.~*.*~
-	rm makefile.conf
-	echo MODE=std > makefile.conf
 
 display:
 	echo ""
