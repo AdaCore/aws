@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -41,7 +41,7 @@ package SOAP.Client is
    function Call
      (URL        : in String;
       P          : in Message.Payload.Object;
-      SOAPAction : in String                     := Not_Specified;
+      SOAPAction : in String                     := No_SOAPAction;
       User       : in String                     := Not_Specified;
       Pwd        : in String                     := Not_Specified;
       Proxy      : in String                     := Not_Specified;
