@@ -1,3 +1,26 @@
+2002-10-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.adb:
+	Reformat code.
+
+	* aws-response.ads:
+	(Stream): Fix comment.
+
+	* aws-resources-streams.adb:
+	Minor reformatting.
+
+	* aws-resources-streams.ads:
+	Minor style fix (pragma Inline should be next to the spec).
+
+	* aws-log.ads:
+	Fix comment.
+
+	* aws-log.adb:
+	Minor reformatting.
+
+	* aws-log.ads:
+	Fix spelling error.
+
 2002-10-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources-streams.ads, aws-resources-streams.adb:
