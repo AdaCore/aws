@@ -38,6 +38,10 @@ package AWS.Utils is
    type Random_Integer is range 0 .. Integer'Last;
    --  Integer type for random number generation
 
+   type Null_Record is null record;
+   --  Type could be used for instantiate generic packages when we need not
+   --  some of the type parameters.
+
    -------------------------------
    --  General helper functions --
    -------------------------------
