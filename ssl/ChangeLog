@@ -1,3 +1,8 @@
+2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* ssl-wrappers.ads, ssl-wrappers.adb:
+	(SSL_pending): New routine stub.
+
 2004-08-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* ssl-thin.ads:

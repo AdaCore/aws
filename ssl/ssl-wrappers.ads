@@ -114,6 +114,9 @@ package SSL.Wrappers is
    procedure SSL_connect;
    pragma Export (C, SSL_connect, "SSL_connect");
 
+   procedure SSL_pending;
+   pragma Export (C, SSL_pending, "SSL_pending");
+
    procedure SSL_set_connect_state;
    pragma Export (C, SSL_set_connect_state, "SSL_set_connect_state");
 

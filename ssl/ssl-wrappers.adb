@@ -255,6 +255,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_new;
 
+   -----------------
+   -- SSL_pending --
+   -----------------
+
+   procedure SSL_pending is
+   begin
+      Raise_Error;
+   end SSL_pending;
+
    --------------
    -- SSL_read --
    --------------
