@@ -168,8 +168,3 @@ implemented:
 - Add reply-all support to the Web_Mail service.
 
 - Add support for SOAP hotplug modules
-
-- Remove the build based on makefile rules and only support GNAT Project files.
-  Having both to support is a pain.
-  Also remove the use of dll2def. We will provides the win32 definition files
-  for the OpenSSL libraries.
