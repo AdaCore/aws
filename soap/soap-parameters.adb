@@ -271,6 +271,11 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
+   function Get (P : in List; Name : in String) return Long_Long_Float is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
    function Get (P : in List; Name : in String) return String is
    begin
       return Types.Get (Argument (P, Name));
