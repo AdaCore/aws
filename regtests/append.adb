@@ -92,7 +92,7 @@ procedure Append is
 
 begin
    Server.Start
-     (WS, "huge_message",
+     (WS, "append message",
       CB'Unrestricted_Access,
       Port           => 1261,
       Max_Connection => 5);
