@@ -1,5 +1,10 @@
 2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* tmem.adb:
+	Close memory stream after use.
+
+2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* plain2ssl.adb, plain2ssl.out, makefile:
 	New regression test.
 
