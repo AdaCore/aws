@@ -1,5 +1,9 @@
 2002-12-16  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-client.adb:
+	Back out previous change. Was wrong.
+	Minor reformatting.
+
 	* aws-net-ssl.adb:
 	Fix casing.
 
