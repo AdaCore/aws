@@ -282,7 +282,7 @@ package AWS.Client is
    procedure SOAP_Post
      (Connection : in     HTTP_Connection;
       Result     :    out Response.Data;
-      SOAPAction : in     String          := No_Data;
+      SOAPAction : in     String;
       Data       : in     String);
    --  Same as SOAP_Post above but using a Connection.
 
@@ -355,7 +355,6 @@ private
       Opened        : Boolean            := False;
       Persistent    : Boolean;
       Server_Push   : Boolean;
-      SOAPAction    : Unbounded_String;
       Cookie        : Unbounded_String;
       Socket        : Net.Socket_Access;
       Retry         : Natural;
