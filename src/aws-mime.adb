@@ -112,7 +112,7 @@ package body AWS.MIME is
    -- Content --
    -------------
 
-   function Content (Filename : in String) return String
+   function Content_Type (Filename : in String) return String
    is
       Default_Content_Type : constant String := "application/octet-stream";
       Pos                  : Natural :=
@@ -132,6 +132,6 @@ package body AWS.MIME is
          end;
       end if;
       return Default_Content_Type;
-   end Content;
+   end Content_Type;
 
 end AWS.MIME;
