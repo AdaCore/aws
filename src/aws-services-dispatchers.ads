@@ -51,5 +51,13 @@ package AWS.Services.Dispatchers is
    --     to dispatch to a callback depending on the host name. This is known
    --     as virtual hosting and permit to have multiple servers on the same
    --     machine using the same port.
+   --
+   --  Transient_Pages (AWS.Services.Dispatchers.Transient_Pages)
+   --     to handle transient pages, if the default user's callback returns
+   --     404 this dispatcher checks if the requested resource is a transient
+   --     page.
+   --
+   --  Timer (AWS.Services.Dispatchers.Timer)
+   --     to dispatch to a specific callback depending on the current time.
 
 end AWS.Services.Dispatchers;
