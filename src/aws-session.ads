@@ -31,7 +31,6 @@
 --  $Id$
 
 with Ada.Calendar;
-with System;
 
 package AWS.Session is
 
@@ -41,7 +40,7 @@ package AWS.Session is
    --  Create a new uniq Session ID.
 
    procedure Delete (SID : in ID);
-   -- Delete session
+   --  Delete session
 
    function Image (SID : in ID) return String;
    --  Return ID image
@@ -123,6 +122,8 @@ package AWS.Session is
 
 private
 
-   type ID is range 0 .. System.Max_Int;
-
+   pragma Inline (Image, Value);
+   
+   type ID is new String (1 .. 11);
+   
 end AWS.Session;
