@@ -1,6 +1,4 @@
 
-[ANNOUNCE] - New AWS (Ada Web Server) version (0.10)
-
 			    A W S - Ada Web Sever
                                   0 . 10
 				       
