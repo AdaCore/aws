@@ -47,6 +47,7 @@ with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with AWS.OS_Lib;
 with AWS.Server.Log;
+with AWS.Services.Transient_Pages.Control;
 with AWS.Session.Control;
 with AWS.Status.Translate_Table;
 with AWS.Templates;
@@ -578,6 +579,8 @@ package body AWS.Server is
          Session.Control.Shutdown;
       end if;
 
+      Services.Transient_Pages.Control.Shutdown;
+
       --  Close logs, this ensure that all data will be written to the file.
 
       Log.Stop (Web_Server);
@@ -1051,6 +1054,11 @@ package body AWS.Server is
            (Session_Check_Interval => CNF.Session_Cleanup_Interval,
             Session_Lifetime       => CNF.Session_Lifetime);
       end if;
+
+      --  Initialize transient service
+
+      Services.Transient_Pages.Control.Register (1.0);
+      --  ??? Add the config object
 
       Counter.Add;
    end Start;
