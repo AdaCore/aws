@@ -52,6 +52,13 @@ package body AWS.Services.Page_Server is
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
 
+      --  What Spaces is for you asked ? Well it is to work around an IE
+      --  "feature". Microsoft decided that a 404 message whose length is less
+      --  than 512 bytes is junk and in this case the IE internal 404 message
+      --  will be used. So we just add 512 bytes to the 404 messages...
+
+      Spaces   : constant String := (1 .. 512 => ' ');
+
    begin
       if OS_Lib.Is_Regular_File (Filename) then
          return AWS.Response.File
@@ -69,11 +76,12 @@ package body AWS.Services.Page_Server is
          if OS_Lib.Is_Regular_File (WWW_Root & "404.html") then
             return AWS.Response.File
               (Content_Type => AWS.MIME.Content_Type (Filename),
-               Filename     => "404.html");
+               Filename     => "404.html",
+               Status_Code  => Messages.S404);
          else
             return AWS.Response.Acknowledge
               (Messages.S404,
-               "<p>Page '" & URI & "' Not found.");
+               "<p>Page '" & URI & "' Not found." & Spaces);
          end if;
       end if;
    end Callback;
