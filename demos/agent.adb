@@ -113,7 +113,7 @@ procedure Agent is
 begin
 
    if Ada.Command_Line.Argument_Count = 0 then
-      Text_IO.Put_Line ("Usage: agent [options] [GET/PUT) <URL>");
+      Text_IO.Put_Line ("Usage: agent [options] [HEAD/GET/PUT) <URL>");
       Text_IO.Put_Line ("       -f           force display of message body.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
@@ -125,7 +125,14 @@ begin
 
    Parse_Command_Line;
 
-   if Method = Status.GET then
+   if Method = Status.HEAD then
+      Data := Client.Head (URL        => To_String (URL),
+                           User       => To_String (User),
+                           Pwd        => To_String (Pwd),
+                           Proxy      => To_String (Proxy),
+                           Proxy_User => To_String (Proxy_User),
+                           Proxy_Pwd  => To_String (Proxy_Pwd));
+   elsif Method = Status.GET then
       Data := Client.Get (URL        => To_String (URL),
                           User       => To_String (User),
                           Pwd        => To_String (Pwd),
