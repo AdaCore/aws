@@ -49,8 +49,8 @@ with Asis.Definitions;
 with Asis.Elements;
 with Asis.Errors;
 with Asis.Exceptions;
-with Asis.Extensions.Flat_Kinds;
 with Asis.Expressions;
+with Asis.Extensions.Flat_Kinds;
 with Asis.Implementation;
 with Asis.Iterator;
 with Asis.Text;
@@ -65,6 +65,7 @@ package body Ada2WSDL.Parser is
    use Ada;
    use Ada.Exceptions;
    use Ada.Strings.Unbounded;
+   use Asis;
    use GNAT;
 
    --  The Compile routine is defined in Asis.Extensions in recent ASIS
@@ -1196,7 +1197,7 @@ package body Ada2WSDL.Parser is
          First, Last : Natural;
 
       begin
-         Slash_Index := Strings.Fixed.Index (F_Name, "/");
+         Slash_Index := Strings.Fixed.Index (F_Name, "/", Strings.Backward);
          Dot_Index   := Strings.Fixed.Index (F_Name, ".", Strings.Backward);
 
          First := Natural'Max (F_Name'First, Slash_Index + 1);
