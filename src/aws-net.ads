@@ -42,8 +42,8 @@ package AWS.Net is
    use Ada.Streams;
 
    Socket_Error : exception;
-   --  Raised by all routines below, a message will indicate the nature of the
-   --  error.
+   --  Raised by all routines below, a message will indicate the nature of
+   --  the error.
 
    type Socket_Type is abstract tagged limited private;
    type Socket_Access is access all Socket_Type'Class;
@@ -72,7 +72,7 @@ package AWS.Net is
 
    procedure Accept_Socket
      (Socket     : in     Socket_Type;
-      New_Socket :    out Socket_Type'Class)
+      New_Socket :    out Socket_Access)
       is abstract;
    --  Accept a connection on a socket. If Security is true a secure socket
    --  will be used.
