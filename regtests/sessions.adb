@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Client;
