@@ -62,13 +62,39 @@ package body Runme_CB is
            (Content_Type => "text/html",
             Message_Body =>
               "<p>Ok, that's the end of it for now!"
+            & "<p>filename = "
+            &  AWS.Status.Parameter (Request, "filename")
+            & "<p>filename_opt = "
+            &  AWS.Status.Parameter (Request, "filename_opt")
+            & "<p>color = "
+            &  AWS.Status.Parameter (Request, "color")
+            & "<p>size = "
+            &  AWS.Status.Parameter (Request, "size")
+            & "<p>go = "
+            &  AWS.Status.Parameter (Request, "go")
+            & "<p>length = "
+            &  Positive'Image (AWS.Status.Content_Length (Request)));
+
+      elsif URI = "/upload" then
+         return AWS.Response.Build
+           (Content_Type => "text/html",
+            Message_Body =>
+              "<p>Let look at the form data:"
             & "<p>Your name is " & AWS.Status.Parameter (Request, "name")
             & "<p>parameter name (1) = "
             & AWS.Status.Parameter_Name (Request, 1)
             & "<p>parameter name (2) = "
             & AWS.Status.Parameter_Name (Request, 2)
             & "<p>There was " & Natural'Image (C)
-            & " requests to the server.");
+            & " requests to the server."
+            & "<form enctype=""multipart/form-data"" action=/last"
+            & " method=post>"
+            & "<input type=text name=color value=Color> <br>"
+            & "<input type=text name=size value=10> <br>"
+            & "<br>File to process: <input name=filename type=file>"
+            & "<br><input type=submit name=go value=""Send File"">"
+            & "<br>File to process: <input name=filename_opt type=file>"
+            & "</form>");
 
       elsif URI = "/get-form" then
          return AWS.Response.Build
@@ -77,9 +103,10 @@ package body Runme_CB is
             & AWS.Status.Parameter (Request, "name") & " !"
             & "<p>I'll now check for the POST form, counter="
             & Natural'Image (C)
-            & "<p>Enter your name <form method=post action=/last>"
+            & "<p>Enter your name <form method=post action=/upload>"
             & "<input type=text name=name value=""<default>"" size=15>"
-            & "<input type=submit name=go value=""This is a POST Form"">");
+            & "<input type=submit name=go value=""This is a POST Form"">"
+            & "</form>");
 
       else
          return AWS.Response.Build
@@ -92,7 +119,8 @@ package body Runme_CB is
             & "<p><img src=""/first_img"">"
             & "<p>Enter your name <form method=get action=/get-form>"
             & "<input type=text name=name value=""<default>"" size=15>"
-            & "<input type=submit name=go value=""This is a GET Form"">");
+            & "<input type=submit name=go value=""This is a GET Form"">"
+            & "</form>");
       end if;
    end Get;
 
@@ -129,7 +157,8 @@ package body Runme_CB is
             & "<p>I'll now check for the POST form"
             & "<p>Enter your name <form method=post action=/last>"
             & "<input type=text name=name value=""<default>"" size=15>"
-            & "<input type=submit name=go value=""This is a POST Form"">");
+            & "<input type=submit name=go value=""This is a POST Form"">"
+            & "</form>");
 
       else
          return AWS.Response.Build
@@ -142,7 +171,8 @@ package body Runme_CB is
             & "<p><img src=""/first_img"">"
             & "<p>Enter your name <form method=get action=/get-form>"
             & "<input type=text name=name value=""<default>"" size=15>"
-            & "<input type=submit name=go value=""This is a GET Form"">");
+            & "<input type=submit name=go value=""This is a GET Form"">"
+            & "</form>");
       end if;
    end Get_No_Session;
 
@@ -159,7 +189,8 @@ package body Runme_CB is
    -- Service --
    -------------
 
-   function Service (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Service (Request : in AWS.Status.Data)
+     return AWS.Response.Data is
       use type AWS.Status.Request_Method;
    begin
       if AWS.Status.Method (Request) = AWS.Status.GET
@@ -172,11 +203,12 @@ package body Runme_CB is
       end if;
    end Service;
 
-   --------------
-   -- Service2 --
-   --------------
+   -----------------
+   -- Service_Sec --
+   -----------------
 
-   function Service2 (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Service_Sec (Request : in AWS.Status.Data)
+     return AWS.Response.Data is
       use type AWS.Status.Request_Method;
    begin
       if AWS.Status.Method (Request) = AWS.Status.GET
@@ -187,6 +219,6 @@ package body Runme_CB is
       elsif AWS.Status.Method (Request) = AWS.Status.PUT then
          return Put (Request);
       end if;
-   end Service2;
+   end Service_Sec;
 
 end Runme_CB;
