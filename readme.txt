@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            November 28th, 2004
+   Pascal Obry                                            November 29th, 2004
 
 
 
@@ -170,6 +170,8 @@ Here are the main changes since AWS 2.0 :
    - Add support for WSDL/SOAP anyType objects. It is now possible to
      exchange array of heterogeneous objects. wsdl2aws tool will generate the
      appropriate code.
+
+   - Better support namespaces in schemas.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 

@@ -1,3 +1,9 @@
+2004-11-29  Pascal Obry  <pascal@obry.org>
+
+	* soap1.out, soap2.out, soap3.out, soap4.out, soap5.out, soap6.out,
+	  soap7.out, workorder.out, testxml.out:
+	Rename SOAP-ENC to soapenc and SOAP-ENV to soap.
+
 2004-11-28  Pascal Obry  <pascal@obry.org>
 
 	* wsdl_6.java, anytype.java: 
