@@ -117,4 +117,8 @@ begin
    Net.Shutdown (Peer);
 
    Text_IO.Put_Line ("done.");
+
+exception
+   when E : others =>
+      Text_IO.Put_Line (Exceptions.Exception_Information (E));
 end SSock2;
