@@ -90,23 +90,23 @@ aws-net-std.adb: ../config/aws-net-std__gnat.adb
 endif
 
 adasockets:
-	-$(RM) -f *.o *.ali
+	-$(RM) -f aws-net-std.o
 	$(CP) ../config/aws-net-std__adasockets.adb aws-net-std.adb
 
 gnatsockets:
-	-$(RM) -f *.o *.ali
+	-$(RM) -f aws-net-std.o
 	$(CP) ../config/aws-net-std__gnat.adb aws-net-std.adb
 
 gnat_oslib:
-	-$(RM) -f *.o *.ali
+	-$(RM) -f aws-os_lib.o
 	$(CP) ../config/aws-os_lib__gnat.adb aws-os_lib.adb
 
 posix_oslib:
-	-$(RM) -f *.o *.ali
+	-$(RM) -f aws-os_lib.o
 	$(CP) ../config/aws-os_lib__posix.adb aws-os_lib.adb
 
 win32_oslib:
-	-$(RM) -f *.o *.ali
+	-$(RM) -f aws-os_lib.o
 	$(CP) ../config/aws-os_lib__win32.adb aws-os_lib.adb
 
 clean:
@@ -125,7 +125,7 @@ gsetup: gnatsockets gnat_oslib
 	-$(MKDIR) -p ../.build/release/obj
 	-$(MKDIR) -p ../.build/release/lib
 
-gbuild: 
+gbuild:
 	$(GNATMAKE) -Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 gclean: clean
