@@ -93,7 +93,7 @@ package AWS.Resources is
    --  Returns True if Filename is a regular file and is readable. Checks
    --  first for in memory file then for disk file.
 
-   function File_Size (Name   : in String) return Stream_Element_Offset;
+   function File_Size (Name : in String) return Stream_Element_Offset;
    --  Returns Filename's size in bytes. Checks first for in memory file
    --  then for disk file.
 
