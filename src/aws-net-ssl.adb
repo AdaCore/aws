@@ -63,7 +63,7 @@ package body AWS.Net.SSL is
 
    subtype NSST is Net.Std.Socket_Type;
 
-   Default_Config : Config := new TS_SSL;
+   Default_Config : constant Config := new TS_SSL;
 
    procedure Error_If (Error : in Boolean);
    pragma Inline (Error_If);
