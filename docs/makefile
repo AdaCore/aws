@@ -4,7 +4,8 @@
 .SILENT: clean build
 
 ADA_KW    = use package is in out exception function with type constant \
-		private of return range procedure begin end array record
+		private of return range procedure begin end array record \
+		subtype generic limited access all
 
 APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-server.ads.texi ../src/aws-config.ads.texi \
@@ -22,8 +23,8 @@ ada.sed: makefile
 	echo "s/@@/@@@@/g" >> ada.sed
 	echo "s/_@_/_@@_/g" >> ada.sed
 	for kw in $(ADA_KW); do \
-		echo "s/^\([^-][^-].* \)$$kw/\1@b{$$kw}/g" >> ada.sed; \
-		echo "s/^$$kw /@b{$$kw} /g" >> ada.sed; \
+		echo "s/^\([^-]* \)$$kw/\1@b{$$kw}/g" >> ada.sed; \
+		echo "s/^\( *\)$$kw /\1@b{$$kw} /g" >> ada.sed; \
 		echo "s/^$$kw$$/@b{$$kw}/g" >> ada.sed; \
 	done
 
