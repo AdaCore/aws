@@ -142,6 +142,7 @@ to build AWS:
 @menu
 * Basic notion::
 * Session handling::
+* Client side::
 @end menu
 @end ifinfo
 
@@ -319,6 +320,50 @@ key is "@code{counter}", increment this counter and then set back it to
 the new value.
 
 @end itemize
+
+@node Client side
+@section Client side
+
+@noindent
+@code{AWS} is not only a server it also implement the HTTP protocol from
+the client side. For example with @code{AWS} it is possible to get a Web
+page content using the @code{AWS.Client} API, @xref{AWS.Client}.
+
+@noindent
+@code{AWS} also support proxy, proxy authentification and Web server
+authentification. Only basic (and not digest) authentification is
+supported at this time.
+
+@noindent
+Let's say that you want to retreive the @code{contrib.html} page from
+Pascal Obry homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
+code to do so is:
+
+@smallexample
+Data := Client.Get
+  (URL => "http://perso.wanadoo.fr/pascal.obry/contrib.html");
+@end smallexample
+
+@noindent
+From there you can know what is the result's content type:
+
+@smallexample
+@b{if} Response.Content_Type (Data) = "text/html" @b{then}
+   ...
+@b{end if};
+@end smallexample
+
+@noindent
+And display the content if it is some kind of text data:
+
+@smallexample
+Text_IO.Put_Line (Response.Message_Body (Data));
+@end smallexample
+
+@noindent
+If the content is some kind of binary data (executable, gif image, Zip
+archive...), then it is possible to write the result to a file for
+example. Look at the @code{agent} program in the @code{demos} directory.
 
 @node Status page
 @chapter Status page
