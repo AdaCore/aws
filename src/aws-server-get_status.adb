@@ -160,7 +160,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       Slot_Data             : Slot;
 
    begin
-      for K in 1 .. Server.Max_Connection loop
+      for K in 1 .. CNF.Max_Connection (Server.Properties) loop
          Slot_Data := Server.Slots.Get (Index => K);
 
          if Slot_Data.Phase /= Closed then
@@ -209,7 +209,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
                 (Server.Start_Time, "%A %-d %B %Y, %T")),
 
          Assoc ("MAX_CONNECTION",
-                Server.Max_Connection),
+                CNF.Max_Connection (Server.Properties)),
 
          Assoc ("SERVER_PORT",
                 CNF.Server_Port (Server.Properties)),
