@@ -32,7 +32,9 @@ with Ada.Calendar;
 with Ada.Strings.Unbounded;
 
 with Sockets;
+
 with AWS.Response;
+with AWS.Hotplug;
 
 package AWS.Server is
 
@@ -61,12 +63,13 @@ package AWS.Server is
    --  Admin_URI must be set to enable the admin status page.
 
    procedure Shutdown (Web_Server : in out HTTP);
+   --  Stop the server and release all associated memory.
+
+   type HTTP_Access is access all HTTP;
 
 private
 
    Keep_Open_Duration : constant Duration := 30.0;
-
-   type HTTP_Access is access all HTTP;
 
    type Slot is record
       Sock                : Sockets.Socket_FD;
@@ -165,6 +168,7 @@ private
       Slots       : Server.Slots (Max_Connection);
       Cleaner     : Line_Cleaner (HTTP'Unchecked_Access);
       Admin_URI   : Unbounded_String;
+      Filters     : Hotplug.Filter_Set;
    end record;
 
 end AWS.Server;
