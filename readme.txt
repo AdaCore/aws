@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             October 14th, 2003
+   Pascal Obry                                             November 7th, 2003
 
 
 
@@ -128,7 +128,7 @@ Non upward compatible changes
 Note that the changes listed below can introduce non upward compatibility.
 In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
-but we really prefer to have a clean API instead of keeping awkwards
+but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
    - Properly handle SOAPAction in SOAP persistent connections. It was not
@@ -143,7 +143,7 @@ implementations.
      connection cases. 
 
      => This is not upward compatible but easier to use. The calls were
-        passing the persitent connection using an access mode. Just remove
+        passing the persistent connection using an access mode. Just remove
         the 'Access attribute to pass the connection object.
 
    - Change the way Size of resources are computed. The size is now part of
@@ -159,7 +159,7 @@ implementations.
 
    - AWS.Response.Set.Message_Body (with an access to a Stream_Element_Array)
      has been removed. There was not clean way to integrate this with the ZLib
-     memory stream supprot.
+     memory stream support.
 
      => This is not upward compatible. Add ".all" to the parameter to use the
         version with a Stream_Element_Array formal parameter.
@@ -216,13 +216,11 @@ Validation:
 
 AWS 1.4 has been compiled and has passed all tests on:
 
-   Windows XP, GNAT 3.15a1, 3.16a, 3.17w and 5.01w
+   Windows XP, GNAT 3.16a1 and 5.01a
 
-   Windows NT 4.0, GNAT 3.15a1
+   GNU/Linux x66, GNAT 3.16a1 and 5.01a
 
-   GNU/Linux x66, GNAT 3.16a and 3.17w
-
-   SPARC Solaris 8, GNAT 3.17w
+   SPARC Solaris 8, GNAT 3.16a1
 
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
