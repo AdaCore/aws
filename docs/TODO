@@ -151,18 +151,13 @@ implemented:
   partially. It is better for big compressed data, but worse for relatively
   small compressed data, when user want to read it at once.
 
-- Support compress/gzip encoding if client support it.
-  All the compress/decompress features are implemented as memory compressed
-  streams. Should we have a direct implementation in AWS response circuitry ?
+  Make a streaming interface on the client and server side to do not buffer
+  data in memory, but get it just from socket. It would be faster and reduce
+  memory usage.
 
 - Add client's compress/decompress support.
 
-- Improve the Web_Mail high level service to be able to reply and to
-  handle CC recipients.
-
 - Add more certificate information in AWS.Net.SSL.Certificate
-
-- Let SSL sockets to be used without explicitly set SSL config.
 
 =============== Point to fix/implement/review before next release (2.0)
 
@@ -171,3 +166,8 @@ implemented:
 - Check the documentation before the release
 
 - Add a non regression test for the Message_Body stream oriented response
+
+- Let SSL sockets to be used without explicitly set SSL config.
+
+- Improve the Web_Mail high level service to be able to reply and to
+  handle CC recipients.
