@@ -1,3 +1,10 @@
+2004-11-24  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-xml.adb:
+	(Add_Descriptions): Do not output empty value.
+	(B_Tag): Fix code to properly handle vectors with different size.
+	Patch contributed by Henrik Sundberg.
+
 2004-11-12  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-xml.ads, templates_parser-xml.adb:
