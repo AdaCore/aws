@@ -22,4 +22,4 @@ libnosslaws.a:
 build: ssl-thin ssl-wrappers libnosslaws.a
 
 clean:
-	-rm *.ali *.o *.a
+	-rm -f *.ali *.o *.a

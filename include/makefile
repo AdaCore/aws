@@ -35,4 +35,4 @@ check_oslib:
 build: check_oslib $(UNITS)
 
 clean:
-	-rm *.o *.ali
+	-rm -f *.o *.ali

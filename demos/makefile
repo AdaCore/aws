@@ -75,4 +75,4 @@ build_soap: $(SOAP_DEMOS)
 
 clean:
 	-rm -f *.o *.ali *.exe b~*.* *.~*.*.~ rdemo*
-	-rm runme-*.log
+	-rm -f runme-*.log

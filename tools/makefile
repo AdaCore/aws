@@ -13,4 +13,4 @@ awsres: force
 	gnatmake $(GARGS) awsres -largs -s
 
 clean:
-	-rm *.o *.ali *.exe b~*.ad[sb]
+	-rm -f *.o *.ali *.exe b~*.ad[sb]

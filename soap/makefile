@@ -21,4 +21,4 @@ $(UNITS): force
 build: $(UNITS)
 
 clean:
-	-rm *.o *.ali b~*.ad* *.~*.*.~
+	-rm -f *.o *.ali b~*.ad* *.~*.*.~
