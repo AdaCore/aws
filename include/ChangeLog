@@ -1,3 +1,11 @@
+2003-10-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* zlib/makefile:
+	Output libz.a to the ../../lib directory.
+
+	* makefile:
+	Add ZLib-Ada sources to source list.
+
 2003-10-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* readme.txt:
