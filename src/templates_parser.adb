@@ -229,6 +229,10 @@ package body Templates_Parser is
          Exist,
          --  Returns "TRUE" if var is not empty and "FALSE" otherwise.
 
+         File_Exists,
+         --  Returns "TRUE" if var is the name of an existing file and "FALSE"
+         --  otherwise.
+
          Format_Date,
          --  Returns the date formatted using the format parameter. This
          --  format is following the GNU/date as implemented in
@@ -471,6 +475,13 @@ package body Templates_Parser is
          return String;
 
       function Exist
+        (S : in String;
+         P : in Parameter_Data     := No_Parameter;
+         T : in Translate_Set      := Null_Set;
+         I : in Include_Parameters := No_Include_Parameters)
+         return String;
+
+      function File_Exists
         (S : in String;
          P : in Parameter_Data     := No_Parameter;
          T : in Translate_Set      := Null_Set;
@@ -2019,9 +2030,10 @@ package body Templates_Parser is
          return Result;
       end Image;
 
-      C : Natural;
-      P : Natural;
-      R : Tag_Node_Access;
+      C       : Natural;
+      P       : Natural;
+      R       : Tag_Node_Access;
+      Inlined : Boolean := False;
    begin
       Found := True;
 
@@ -2029,12 +2041,15 @@ package body Templates_Parser is
          C := Cursor'Last - T.Data.Nested_Level + 1 - Up_Value;
          P := Cursor (C);
 
+      elsif T.Data.Nested_Level < Up_Value then
+         Inlined := True;
+
       elsif Cursor'Length /= 0 then
          C := Cursor'First;
          P := Cursor (C);
       end if;
 
-      if Cursor'Length = 0 then
+      if Cursor'Length = 0 or else Inlined then
          --  No cursor, we just want the streamed T image
          Result := Image (T);
 
@@ -2994,12 +3009,15 @@ package body Templates_Parser is
             --  that there is more than one block, all blocks have the same
             --  number of section.
 
-            if T.Terminate_Sections and then T.Blocks_Count > 1 then
+            if T.Terminate_Sections and then T.Blocks_Count >= 1 then
                declare
-                  Size : constant Positive := T.Blocks.Sections_Count;
-                  B    : Tree              := T.Blocks.Next;
+                  Size : Natural := T.Blocks.Sections_Count;
+                  Max  : Natural := Size;
+                  B    : Tree    := T.Blocks.Next;
                begin
                   while B /= null loop
+                     Max := Natural'Max (Max, B.Sections_Count);
+
                      if B.Sections_Count /= Size
                        and then B.Sections_Count /= 0
                      then
@@ -3009,6 +3027,15 @@ package body Templates_Parser is
                      end if;
                      B := B.Next;
                   end loop;
+
+                  --  Check wether we have sections with the TERMINATE_SECTION
+                  --  attribute.
+
+                  if Max = 0 then
+                     Fatal_Error
+                       ("TERMINATE_SECTIONS attribute given, but no section"
+                        & " defined");
+                  end if;
                end;
             end if;
 
@@ -4129,10 +4156,9 @@ package body Templates_Parser is
             Max_Lines := Result;
 
             if T.Terminate_Sections then
-
                --  ??? This part of code handle properly only table with a
                --  single block. What should be done if there is multiple
-               --  blocks ? Should all blocks of the same size ?
+               --  blocks ? Should all blocks be of the same size ?
 
                declare
                   N_Section : constant Natural := T.Blocks.Sections_Count;
