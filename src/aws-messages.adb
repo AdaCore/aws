@@ -28,6 +28,8 @@
 
 --  $Id$
 
+with Ada.Characters.Handling;
+
 package body AWS.Messages is
 
    type String_Access is access constant String;
@@ -178,7 +180,7 @@ package body AWS.Messages is
 
    function Content_Length (Size : in Positive) return String is
    begin
-      return "Content-Length:" & Positive'Image (Size);
+      return Content_Length_Token & Positive'Image (Size);
    end Content_Length;
 
    ------------------
@@ -187,7 +189,133 @@ package body AWS.Messages is
 
    function Content_Type (Format : in String) return String is
    begin
-      return "Content-Type: " & Format;
+      return Content_Type_Token & Format;
    end Content_Type;
+
+   --------------
+   -- Is_Match --
+   --------------
+
+   function Is_Match (Str, Pattern : in String) return Boolean is
+      use Ada.Characters;
+      U_Str     : constant String := Handling.To_Upper (Str);
+      U_Pattern : constant String := Handling.To_Upper (Pattern);
+   begin
+      return Pattern'Length <= Str'Length
+        and then U_Str (1 .. Pattern'Length) = U_Pattern;
+   end Is_Match;
+
+   ------------------
+   -- To_HTTP_Date --
+   ------------------
+
+   function To_HTTP_Date (Time : in Calendar.Time) return String is
+
+      function Image (V : in Positive) return String;
+      --  returns V image without the leading space
+
+      function Month_Name (M : in Calendar.Month_Number) return String;
+      --  returns the month name given a Month number
+
+      -----------
+      -- Image --
+      -----------
+
+      function Image (V : in Positive) return String is
+         V_Image : constant String := Positive'Image (V);
+      begin
+         return V_Image (2 .. V_Image'Last);
+      end Image;
+
+      ----------------
+      -- Month_Name --
+      ----------------
+
+      function Month_Name (M : in Calendar.Month_Number) return String is
+      begin
+         case M is
+            when  1 => return "Jan";
+            when  2 => return "Feb";
+            when  3 => return "Mar";
+            when  4 => return "Apr";
+            when  5 => return "May";
+            when  6 => return "Jun";
+            when  7 => return "Jul";
+            when  8 => return "Aug";
+            when  9 => return "Sep";
+            when 10 => return "Oct";
+            when 11 => return "Nov";
+            when 12 => return "Dec";
+         end case;
+      end Month_Name;
+
+      Day  : constant String := Image (Calendar.Day (Time));
+      Mon  : constant String := Month_Name (Calendar.Month (Time));
+      Year : constant String := Image (Calendar.Year (Time));
+
+      Secs : constant Natural := Natural (Calendar.Seconds (Time) - 0.5);
+
+      Tmp  : constant Natural := Secs mod 3600;
+
+      H    : constant String := Image (Secs / 3600);
+      M    : constant String := Image (Tmp / 60);
+      S    : constant String := Image (Tmp mod 60);
+   begin
+      return "Sun, " & Day & ' ' & Mon & ' ' & Year & ' '
+        & H & ':' & M & ':' & S & " GMT";
+   end To_HTTP_Date;
+
+   -------------
+   -- To_Time --
+   -------------
+
+   function To_Time (HTTP_Date : in String) return Calendar.Time is
+
+      function Month_Number (Month_Name : in String)
+                            return Calendar.Month_Number;
+      --  returns the month number given a 3 letter month name.
+
+      F : constant Positive := HTTP_Date'First;
+
+      function Month_Number (Month_Name : in String)
+                            return Calendar.Month_Number is
+      begin
+         if Month_Name = "Jan" then
+            return 1;
+         elsif Month_Name = "Feb" then
+            return 2;
+         elsif Month_Name = "Mar" then
+            return 3;
+         elsif Month_Name = "Apr" then
+            return 4;
+         elsif Month_Name = "May" then
+            return 5;
+         elsif Month_Name = "Jun" then
+            return 6;
+         elsif Month_Name = "Jul" then
+            return 7;
+         elsif Month_Name = "Aug" then
+            return 8;
+         elsif Month_Name = "Sep" then
+            return 9;
+         elsif Month_Name = "Oct" then
+            return 10;
+         elsif Month_Name = "Nov" then
+            return 11;
+         else
+            return 12;
+         end if;
+      end Month_Number;
+
+   begin
+      return Calendar.Time_Of
+        (Year    => Calendar.Year_Number'Value (HTTP_Date (F + 12 .. F + 15)),
+         Month   => Month_Number (HTTP_Date (F + 8 .. F + 10)),
+         Day     => Calendar.Day_Number'Value (HTTP_Date (F + 5 .. F + 6)),
+         Seconds => Calendar.Day_Duration
+         (Natural'Value (HTTP_Date (F + 17 .. F + 18)) * 3600
+          + Natural'Value (HTTP_Date (F + 20 .. F + 21)) * 60
+          + Natural'Value (HTTP_Date (F + 23 .. F + 24))));
+   end To_Time;
 
 end AWS.Messages;
