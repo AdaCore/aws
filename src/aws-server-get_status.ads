@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,5 +31,5 @@
 --  $Id$
 
 private function AWS.Server.Get_Status (Server : in HTTP) return String;
---  returns Server status information. Data returned by this function will
+--  Returns Server status information. Data returned by this function will
 --  be displayed when in the administrative server page.
