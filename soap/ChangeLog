@@ -1,3 +1,24 @@
+2003-11-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-cb.adb:
+	(End_Service): Properly generate unit name.
+	(Start_Service): Idem. Removes with for AWS.Server in spec
+	 generation and AWS.Client in body generation. Not needed was a
+	 copy&past problem. Add pragmas Warnings off and Style_Check off.
+
+	* soap-generator-stub.adb, soap-generator-skel.adb:
+	(End_Service): Properly generate unit name.
+	(Start_Service): Idem.
+
+	* soap-generator.adb:
+	(To_Unit_Name): New routine, convert dash to dot.
+	(End_Service): Properly generate unit name.
+	(Generate_Main): Properly generate unit name. Add file header
+	 generation. Add version string to the translation table for the
+	 main template. Properly detect main template file (all lower case).
+	(Start_Service): Properly generate unit name.
+	(Types_From): Idem.
+
 2003-11-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-utils.adb:
