@@ -28,8 +28,9 @@
 
 --  $Id$
 
---  This package is used when parsing the HTTP protocol from the client. It is
---  used to keep the values for the currently handled HTTP parameters.
+--  This package is used to keep the HTTP protocol status. Client can then
+--  request the status for various value like the requested URI and the
+--  Content_Length.
 
 with Ada.Strings.Unbounded;
 with Ada.Streams;
@@ -39,81 +40,11 @@ with AWS.Parameters;
 
 package AWS.Status is
 
-   subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
-
    type Data is private;
 
    No_Data : constant Data;
 
    type Request_Method is (GET, HEAD, POST, PUT);
-
-   procedure Reset (D : in out Data);
-   --  Reset the status data for a new use.
-
-   procedure Set_Authorization (D             : in out Data;
-                                Authorization : in     String);
-   --  Set value for "Authorization:" parameter
-
-   procedure Set_Connection (D : in out Data; Connection : in String);
-   --  Set value for "Connection:" parameter
-
-   procedure Set_Content_Length (D              : in out Data;
-                                 Content_Length : in     Natural);
-   --  Set value for "Content-Length:" parameter
-
-   procedure Set_Content_Type (D            : in out Data;
-                               Content_Type : in     String);
-   --  Set value for "Content-Type:" parameter
-
-   procedure Set_Multipart_Boundary (D        : in out Data;
-                                     Boundary : in     String);
-   --  Set value for "Content-Type: ...; boundary=..." parameter
-
-   procedure Set_Session (D  : in out Data;
-                          ID : in     String);
-   --  Set Session to ID.
-
-   procedure Set_File_Up_To_Date (D               : in out Data;
-                                  File_Up_To_Date : in     Boolean);
-   --  File_Up_To_Date is true if the file to be transfered is already
-   --  up-to-date on the client side.
-
-   procedure Set_Host (D : in out Data; Host : in String);
-   --  Set value for "Host:" parameter
-
-   procedure Set_If_Modified_Since (D                 : in out Data;
-                                    If_Modified_Since : in     String);
-   --  Set value for "If-Modified-Since:" parameter
-
-   procedure Set_Request (D            : in out Data;
-                          Method       : in     Request_Method;
-                          URI          : in     String;
-                          HTTP_Version : in     String;
-                          Parameters   : in     String := "");
-   --  Set values for the request line:
-   --
-   --  GET URI[?parametrers] [HTTP/1.0 or HTTP/1.1]
-   --  POST URI [HTTP/1.0 or HTTP/1.1]
-   --
-   --  the parameters for a POST method are passed in the message body. See
-   --  procedure below to set them afterward.
-
-   procedure Set_Parameters (D : in out Data; Name, Value : in String);
-   --  Add one parameter into D. Value is associated to key Name.
-
-   procedure Set_Parameters (D : in out Data; Parameters : in String);
-   --  Set parameters for the current request. This is used for a POST method
-   --  because the parameters are found in the message body and are not known
-   --  when we parse the request line. The Parameters string has the form
-   --  "name1=value1&name2=value2...". The paramaters are added to the list.
-
-   procedure Set_Parameters (D         : in out Data;
-                             Parameter : in     Stream_Element_Array);
-   --  This procedure is used to store any binary data sent with the
-   --  request. For example this will be used by the PUT method if a binary
-   --  file is sent to the server.
-
-   --  All the following function are used to access the status settings.
 
    function Authorization_Name     (D : in Data) return String;
    function Authorization_Password (D : in Data) return String;
@@ -150,15 +81,15 @@ package AWS.Status is
    --  Case_Sensitive case be set to True or False to control the way the
    --  parameter name is looked for.
 
+   subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
+
    function Binary_Data       (D : in Data) return Stream_Element_Array;
 
 private
 
    pragma Inline (Authorization_Name);
    pragma Inline (Authorization_Password);
-   pragma Inline (Set_Host);
    pragma Inline (Host);
-   pragma Inline (Set_Request);
    pragma Inline (Method);
    pragma Inline (URI);
    pragma Inline (HTTP_Version);
