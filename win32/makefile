@@ -1,6 +1,6 @@
 # $Id$
 
-.SILENT: all build clean
+.SILENT: all build build_lib clean libssl.a libcrypto.a
 
 ifeq (${OS}, Windows_NT)
 IMPORT_LIB = build_lib
