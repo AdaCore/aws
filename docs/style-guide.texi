@@ -165,7 +165,7 @@ use entirely blank lines for separating comment paragraphs).
 The comment start at same level of indentation as code they are commenting.
 
 @smallexample
-       z : integer;
+       z : Integer;
        --  Integer value for storing value of z
        --
        --  The previous line was a blank line
