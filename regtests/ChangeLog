@@ -1,5 +1,17 @@
 2004-05-17  Pascal Obry  <pascal@obry.org>
 
+	* ctab.adb:
+	Minor reformatting.
+	Update copyright notice.
+
+	* sessions2.adb:
+	Clear session data before leaving and set session callback to null.
+	Minor reformatting.
+
+	* sessions.adb, sessions3.adb:
+	Clear session data before leaving.
+	Update copyright notice.
+
 	* makefile:
 	(RT_STD): Add ctable.
 
@@ -7,6 +19,11 @@
 	Factorize code in Sp_Pck.
 
 	* sp_pck.ads, sp_pck.adb:
+	Initial revision.
+
+2004-05-16  Pascal Obry  <pascal@obry.org>
+
+	* ctable.adb, ctable.out:
 	Initial revision.
 
 2004-04-27  Pascal Obry  <pascal@obry.org>

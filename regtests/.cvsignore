@@ -211,6 +211,7 @@ compress.res
 ctab
 ctab.res
 ctab.tmp
+ctable.res
 dirop
 dirop.res
 dirop.tmp
@@ -348,11 +349,14 @@ split
 split.res
 ssback
 ssback.res
+sslcfg.res
 ssock2
 ssock2.res
+ssockto.res
 ssp
 ssp.res
 ssp.tmp
+ssto.res
 sto.res
 stock_quote_service-client.adb
 stock_quote_service-client.ads

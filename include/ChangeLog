@@ -1,5 +1,11 @@
 2004-05-17  Pascal Obry  <pascal@obry.org>
 
+	* include.gpr:
+	(Compiler): Remove -m option, this is a builder option not a
+	 compiler one.
+
+2004-05-17  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	(SOURCES): Remove Table_Of...G add AI302 and Charles components.
 
