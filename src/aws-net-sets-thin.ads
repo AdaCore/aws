@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                                ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -30,8 +30,8 @@
 
 --  $Id$
 
---  Package with constant and type declarations for the Poll operation. This
---  API is used to implement AWS.Net.Sets.
+--  Package with declarations for the Poll operation. This API is used to
+--  implement AWS.Net.Sets.
 
 with Interfaces.C;
 with System;
