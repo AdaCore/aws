@@ -1570,9 +1570,8 @@ package body Templates_Parser is
 
       I_File : Tree;               --  list of includes
 
-      Error_Include_Filename : Unbounded_String;
-      --  This variable will be set with the name of the include file that was
-      --  not possible to load.
+      Error_Include_Message  : Unbounded_String;
+      --  Message as reported while parsing the include file
 
       --  Line handling
 
@@ -1682,10 +1681,17 @@ package body Templates_Parser is
 
       procedure Fatal_Error (Message : in String) is
       begin
-         Exceptions.Raise_Exception
-           (Template_Error'Identity,
-            "In " & Filename
-            & " at line" & Natural'Image (Line) & ' ' & Message & '.');
+         if Message (Message'Last) /= '.' then
+            Exceptions.Raise_Exception
+              (Template_Error'Identity,
+               "In " & Filename
+                 & " at line" & Natural'Image (Line) & ' ' & Message & '.');
+         else
+            Exceptions.Raise_Exception
+              (Template_Error'Identity,
+               "Included from " & Filename
+                 & " at line" & Natural'Image (Line) & ", " & Message);
+         end if;
       end Fatal_Error;
 
       ------------------------
@@ -1958,13 +1964,15 @@ package body Templates_Parser is
                  := Load (Build_Include_Pathname (Get_First_Parameter),
                           Cached, True);
             exception
-               when others =>
+               when E : others =>
                   --  Error while parsing the include file, record this
                   --  error. Let the parser exit properly from the recursion
                   --  to be able to release properly the memory before
                   --  raising an exception.
 
-                  Error_Include_Filename := Get_First_Parameter;
+                  Error_Include_Message
+                    := To_Unbounded_String (Exception_Message (E));
+
                   Free (T);
                   return null;
             end;
@@ -2351,13 +2359,13 @@ package body Templates_Parser is
                          I_File,
                          1);
 
-      if Error_Include_Filename /= Null_Unbounded_String then
+      if Error_Include_Message /= Null_Unbounded_String then
          --  An include filename was not found, release the memory now and
          --  raise a fatal error.
 
          Release (New_T);
-         Fatal_Error
-           (To_String (Error_Include_Filename) & " include file missing");
+
+         Fatal_Error (To_String (Error_Include_Message));
       end if;
 
       if Cached then
