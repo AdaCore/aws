@@ -293,11 +293,12 @@ You need to start the server before using it. This is done by calling
   (Web_Server                : @b{in out} HTTP;
    Name                      : @b{in}     String;
    Callback                  : @b{in}     Response.Callback;
-   Admin_URI                 : @b{in}     String            := No_Admin;
-   Port                      : @b{in}     Positive          := Default_Port;
+   Admin_URI                 : @b{in}     String            := Def_Admin_URI;
+   Port                      : @b{in}     Positive          := Def_Port;
    Security                  : @b{in}     Boolean           := False;
    Session                   : @b{in}     Boolean           := False;
-   Case_Sensitive_Parameters : @b{in}     Boolean           := True);
+   Case_Sensitive_Parameters : @b{in}     Boolean           := True;
+   Upload_Directory          : @b{in}     String            := Def_Upload_Dir);
 @i{--  Start the Web server. It initialize the connections lines.}
 @i{--  Name is just a string used to identify the server. This is used for}
 @i{--  example in the administrative page. Admin_URI must be set to enable the}
@@ -308,7 +309,8 @@ You need to start the server before using it. This is done by calling
 @i{--  be able to get a status for each client connected. A session ID is used}
 @i{--  for that, on the client side it is a cookie. Case_Sensitive_Parameters}
 @i{--  if set to False it means that the CGI parameters name will be handled}
-@i{--  without case sensitivity.}
+@i{--  without case sensitivity.Upload directory point to a directory where}
+@i{--  uploaded files will be stored.}
 @end group
 @end cartouche
 @end smallexample
