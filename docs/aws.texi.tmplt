@@ -2331,9 +2331,102 @@ type system as strings. It is up to the programer to convert such
 strings to the desired type.
 
 @menu
-* SOAP Server::
 * SOAP Client::
+* SOAP Server::
 @end menu
+
+@node SOAP Client
+@section SOAP Client
+@cindex SOAP Client
+
+@noindent
+The SOAP client interface is quite simple. Here are the step-by-step
+instructions to call a SOAP Web Service:
+
+@enumerate
+
+@item Build the SOAP parameters
+@sp 1
+
+@noindent
+As for the SOAP servers, the SOAP parameters are built using a
+@code{SOAP.Parameters.List} object.
+
+@smallexample
+@cartouche
+@group
+Params : @b{constant} Parameters.List 
+  := +I (10, "v1") & I (32, "v2");
+@end group
+@end cartouche
+@end smallexample
+
+@sp 1
+@item Build the SOAP Payload
+@sp 1
+
+@noindent
+The Payload object is the procedure name and the associated parameters.
+
+@smallexample
+@cartouche
+@group
+@b{declare}
+   Payload : Message.Payload.Object;
+@b{begin}
+   Payload := Message.Payload.Build ("Add", Params);
+@end group
+@end cartouche
+@end smallexample
+
+@sp 1
+@item Call the SOAP Web Service
+@sp 1
+
+@noindent
+Here we send the above Payload to the Web Server which handles the Web
+Service. Let's say that this server is named @code{myserver}, it is
+listening on port @code{8082} and the @code{SOAPAction} is @code{soapdemo}.
+
+@smallexample
+@cartouche
+@group
+Resp : @b{constant} Message.Response.Object'Class :=
+   SOAP.Client.Call ("http://myserver:8082/soapdemo", Payload);
+@end group
+@end cartouche
+@end smallexample
+
+@sp 1
+@item Retrieve the result
+@sp 1
+
+@noindent
+Let's say that the answer is sent back into the parameter named
+"myres", to get it:
+
+@smallexample
+@cartouche
+@group
+My_Res : @b{constant} Integer := SOAP.Parameters.Get (Params, "myres");
+@end group
+@end cartouche
+@end smallexample
+
+@end enumerate
+
+@noindent
+In the above example we have called a Web Service whose spec could be
+described in Ada as follow:
+
+@smallexample
+@cartouche
+@group
+@b{function} Add (V1, V2 : @b{in} Integer) @b{return} Integer;
+@i{--  Add V1 and V2 and returns the result. In SOAP the result is named "myres"}
+@end group
+@end cartouche
+@end smallexample
 
 @node SOAP Server
 @section SOAP Server
@@ -2436,7 +2529,7 @@ needed to compute the result.
 
 @noindent
 This is the procedure answer. A SOAP answer is built from the SOAP
-Payload and by setting the parameters returned.
+Payload and by setting the returned parameters.
 
 @smallexample
 @cartouche
@@ -2475,98 +2568,131 @@ it as the body of an HTTP message.
 
 @end enumerate
 
-@node SOAP Client
-@section SOAP Client
-@cindex SOAP Client
+@noindent
+These are the step-by-step instructions, there is two other ways to help
+building the SOAP callbacks. AWS provides a SOAP specific callback,
+the spec is :
+
+@smallexample
+@cartouche
+@group
+@b{function} SOAP_Callback 
+  (SOAPAction : @b{in} String;
+   Payload    : @b{in} Message.Payload.Object;
+   Request    : @b{in} AWS.Status.Data)
+   @b{return} AWS.Response.Data;
+@end group
+@end cartouche
+@end smallexample
 
 @noindent
-The SOAP client interface is quite simple. Here are the step-by-step
-instructions to call a SOAP Web Service:
+With both solutions exposed below, AWS retrieve the SOAPAction and the
+Payload from the SOAP request. This is transparent to the user.
 
 @enumerate
+@cindex Utils.SOAP_Wrapper
 
-@item Build the SOAP parameters
-@sp 1
+@item Using Utils.SOAP_Wrapper
 
 @noindent
-As for the SOAP servers, the SOAP parameters are built using a
-@code{SOAP.Parameters.List} object.
+It is possible to dispatch to such callback by using the
+@code{SOAP.Utils.SOAP_Wrapper} generic routine.
 
 @smallexample
 @cartouche
 @group
-Params : @b{constant} Parameters.List 
-  := +I (10, "v1") & I (32, "v2");
+@b{generic}
+   @b{with function} SOAP_CB
+     (SOAPAction : @b{in} String;
+      Payload    : @b{in} Message.Payload.Object;
+      Request    : @b{in} AWS.Status.Data)
+      @b{return} AWS.Response.Data;
+@b{function} SOAP_Wrapper
+  (Request : @b{in} AWS.Status.Data)
+   @b{return} AWS.Response.Data;
+@i{--  From a standard HTTP callback call the SOAP callback passed as generic}
+@i{--  formal procedure. Raise Constraint_Error if Request is not a SOAP}
+@i{--  request.}
 @end group
 @end cartouche
 @end smallexample
 
-@sp 1
-@item Build the SOAP Payload
-@sp 1
-
-@noindent
-The Payload object is the procedure name and the associated parameters.
+For example, from the standard HTTP callback @code{CB} we want to call
+@code{SOAP_CB} for all @code{SOAP} requests:
 
 @smallexample
 @cartouche
 @group
-@b{declare}
-   Payload : Message.Payload.Object;
+@b{function} SOAP_CB 
+  (SOAPAction : @b{in} String;
+   Payload    : @b{in} Message.Payload.Object;
+   Request    : @b{in} AWS.Status.Data)
+   @b{return} AWS.Response.Data 
+@b{is}
 @b{begin}
-   Payload := Message.Payload.Build ("Add", Params);
+   @i{--  Code here}
+@b{end} SOAP_CB;
+
+@b{procedure} SOAP_Wrapper @b{is new} SOAP.Utils.SOAP_Wrapper (SOAP_CB);
+
+@b{function} CB (Request : @b{in} AWS.Status.Data) 
+  @b{return} AWS.Response.Data 
+@b{is}
+   SOAPAction : @b{constant} String := Status.SOAPAction (Request);
+@b{begin}
+   @b{if} SOAPAction /= "" @b{then}
+      SOAP_Wrapper (Request);
+   @b{else}
+      ...
 @end group
 @end cartouche
 @end smallexample
 
-@sp 1
-@item Call the SOAP Web Service
-@sp 1
+@item Using a SOAP Dispatcher
 
 @noindent
-Here we send the above Payload to the Web Server which handles the Web
-Service. Let's say that this server is named @code{myserver}, it is
-listening on port @code{8082} and the @code{SOAPAction} is @code{soapdemo}.
+AWS provides also a SOAP specific dispatcher. This dispatcher will
+automatically calls a standard HTTP or SOAP callback depending on the
+request. If SOAPAction is specified (i.e. it is a SOAP request), the
+dispatcher will call the SOAP callback otherwise it will call the
+standard HTTP callback. This is by far the easiest integration
+procedure. Using dispatcher the above code will be written: 
 
 @smallexample
 @cartouche
 @group
-Resp : @b{constant} Message.Response.Object'Class :=
-   SOAP.Client.Call ("http://myserver:8082/soapdemo", Payload);
-@end group
-@end cartouche
-@end smallexample
+@b{function} SOAP_CB 
+  (SOAPAction : @b{in} String;
+   Payload    : @b{in} Message.Payload.Object;
+   Request    : @b{in} AWS.Status.Data)
+   @b{return} AWS.Response.Data 
+@b{is}
+@b{begin}
+   @i{--  Code here}
+@b{end} SOAP_CB;
 
-@sp 1
-@item Retrieve the result
-@sp 1
+@b{function} CB (Request : @b{in} AWS.Status.Data) 
+  @b{return} AWS.Response.Data 
+@b{is}
+   SOAPAction : @b{constant} String := Status.SOAPAction (Request);
+@b{begin}
+   @i{--  Code here}
+@b{end} CB;
 
-@noindent
-Let's say that the answer is sent back into the parameter named
-"myres", to get it:
+@i{--  In the main procedure}
 
-@smallexample
-@cartouche
-@group
-My_Res : @b{constant} Integer := SOAP.Parameters.Get (Params, "myres");
+@b{begin}
+   AWS.Server.Start
+     (WS,
+      Dispatcher => 
+        SOAP.Dispatchers.Callback.Create (CB'Access, SOAP_CB'_Access),
+      Config     => 
+        AWS.Config.Default_Config);
 @end group
 @end cartouche
 @end smallexample
 
 @end enumerate
-
-@noindent
-In the above example we have called a Web Service whose spec could be
-described in Ada as follow:
-
-@smallexample
-@cartouche
-@group
-@b{function} Add (V1, V2 : @b{in} Integer) @b{return} Integer;
-@i{--  Add V1 and V2 and returns the result. In SOAP the result is named "myres"}
-@end group
-@end cartouche
-@end smallexample
 
 @c ----------------------------------------------------------------------
 
