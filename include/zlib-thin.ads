@@ -37,8 +37,8 @@ private package ZLib.Thin is
                                                 --  zconf.h:216
    type Int is new Interfaces.C.int;
 
-   type ULong is new Interfaces.C.unsigned;     --  32 bits or more
-                                                --  zconf.h:217
+   type ULong is new Interfaces.C.unsigned_long;     --  32 bits or more
+                                                     --  zconf.h:217
    subtype Chars_Ptr is Interfaces.C.Strings.chars_ptr;
 
    type ULong_Access is access ULong;
