@@ -30,40 +30,73 @@
 
 --  $Id$
 
-with "../src/src";
+with "../ssl/ssl";
+with "../win32/win32";
 with "../shared";
+with "../src/src";
 
 project Regtests is
 
-   for Source_Dirs use (".");
    for Object_Dir use ".";
 
    for Languages use ("Ada", "ChangeLog", "Project file");
 
-   for Main use ("sessions4.adb");
+   type Build_Mode is ("Separated", "Generator", "Grouped");
+   Mode : Build_Mode := external ("TEST_MODE", "Separated");
 
-   ---------
-   -- Ide --
-   ---------
+   Common := ("dispatch1.adb", "dispatch_method.adb",
+              "dispatch_vh.adb", "upload2.adb", "upload3.adb",
+              "server_config.adb", "tres.adb", "check_mem.adb",
+              "tlog.adb", "test_speed.adb");
 
-   package Ide renames Shared.Ide;
+   case Mode is
+      when "Generator" =>
+         for Main use ("generate.adb");
+
+      when "Separated" =>
+         for Main use
+           ("test_sec_soap.adb", "xmlt_sec.adb", "disp_soap_sec.adb",
+            "test_soap5_sec.adb", "tsgetparam.adb", "ssp.adb", "ssback.adb",
+            "cert.adb", "ssock2.adb", "ssto.adb", "ssockto.adb", "sslcfg.adb",
+            "huge_response_sec.adb", "wait_sec.adb", "afile_sec.adb",
+            "append_sec.adb", "sockext_sec.adb", "hload_sec.adb",
+            "wait2_sec.adb", "sock3_sec.adb", "plain2ssl.adb", "soap1.adb",
+            "soap2.adb", "soap3.adb", "soap4.adb", "soap5.adb", "soap6.adb",
+            "soap7.adb", "workorder.adb", "testxml.adb", "test_soap.adb",
+            "xmlt.adb", "test_soap2.adb", "test_soap3.adb", "test_soap4.adb",
+            "test_soap5.adb", "disp_soap.adb", "turl.adb", "tgetparam.adb",
+            "param.adb", "dummy.adb", "simple.adb", "tclientto.adb",
+            "shutdown.adb", "strm.adb", "strm2.adb", "upload.adb",
+            "unexph.adb", "auth1.adb", "auth2.adb", "moved.adb", "turl2.adb",
+            "turl3.adb", "test_templates_if.adb", "head.adb", "hval.adb",
+            "turl4.adb", "ctab.adb", "file.adb", "redirect.adb", "hostip.adb",
+            "unexph2.adb", "sp.adb", "sessions.adb", "zres.adb", "dirop.adb",
+            "multiple.adb", "tcom.adb", "tmime.adb", "sessions2.adb",
+            "sessions3.adb", "huge_response.adb", "sback.adb",
+            "server_info.adb", "append.adb", "compress.adb", "zapp.adb",
+            "zbig.adb", "zfile.adb", "zstrm.adb", "split.adb", "zstrm2.adb",
+            "once.adb", "get_post.adb", "zopen.adb", "timer.adb", "tmem.adb",
+            "file2.adb", "eres.adb", "sock1.adb", "sock2.adb", "sock3.adb",
+            "sessions4.adb", "wait.adb", "stream_response.adb", "smtp.adb",
+            "sto.adb", "sockto.adb", "ctable.adb", "tpc.adb", "afile.adb",
+            "no_param.adb", "nonce.adb", "sockext.adb", "hload.adb",
+            "upload4.adb", "upload5.adb", "wait2.adb", "attachment.adb",
+            "test_wsdl.adb", "test_wsdl2.adb", "test_wsdl4.adb",
+            "interoplab_main.adb", "googlesearch.adb", "Datafeed_Service.adb",
+            "test_wsdl3.adb", "test_wsdl5.adb", "wsdl_parse_1.adb",
+            "wsdl_parse_2.adb", "wsdl_parse_3.adb", "wsdl_parse_4.adb",
+            "wsdl_1.adb", "wsdl_2.adb", "wsdl_3.adb", "wsdl_4.adb",
+            "wsdl_5.adb", "wsdl_6.adb", "wsdl_7.adb", "wsdl_8.adb",
+            "wsdl_a.adb", "wsdl_b.adb", "hload_sec.adb") & Common;
+
+      when "Grouped" => for Main use ("test_all.adb") & Common; end case;
 
    --------------
    -- Compiler --
    --------------
 
    package Compiler is
-
-      case Shared.Build is
-         when "Debug" =>
-            for Default_Switches ("Ada")
-              use ("-m", "-g", "-gnaty3abcefhiklmnoprt");
-
-         when "Release" =>
-            for Default_Switches ("Ada")
-              use ("-O2", "-gnatws", "-gnatn");
-      end case;
-
+      for Default_Switches ("Ada") use ("-g");
    end Compiler;
 
    -------------
@@ -71,5 +104,28 @@ project Regtests is
    -------------
 
    package Builder renames Shared.Builder;
+
+   ------------
+   -- Binder --
+   ------------
+
+   package Binder is
+      for Default_Switches ("Ada") use ("-E");
+   end Binder;
+
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker is
+      for Default_Switches ("Ada") use ("-L../lib");
+      for Switches ("check_mem.adb") use ("-L../lib", "-lgmem");
+   end Linker;
+
+   ---------
+   -- Ide --
+   ---------
+
+   package Ide renames Shared.Ide;
 
 end Regtests;
