@@ -1,10 +1,10 @@
 Pimg : <?xml version='1.0' encoding='UTF-8'?>
-<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<SOAP-ENV:Body>
+<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<soap:Body>
 <awsns:Test xmlns:awsns="http://mns.org/">
 <Workorder>
    <Woid xsi:type="xsd:string">Wo1</Woid>
-   <Orderline SOAP-ENC:arrayType="awsns:Orderline[1]" xsi:type="SOAP-ENC:Array">
+   <Orderline soapenc:arrayType="awsns:Orderline[1]" xsi:type="soapenc:Array">
       <Orderline>
          <Woid xsi:type="xsd:string"></Woid>
          <Produced xsi:type="xsd:int">0</Produced>
@@ -12,6 +12,6 @@ Pimg : <?xml version='1.0' encoding='UTF-8'?>
    </Orderline>
 </Workorder>
 </awsns:Test>
-</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+</soap:Body>
+</soap:Envelope>
 

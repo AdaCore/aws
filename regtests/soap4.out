@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<SOAP-ENV:Body>
+<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<soap:Body>
 <awsns:Arr_Rec xmlns:awsns="http://mns.org/">
-<arr SOAP-ENC:arrayType="awsns:rec[3]" xsi:type="SOAP-ENC:Array">
+<arr soapenc:arrayType="awsns:rec[3]" xsi:type="soapenc:Array">
    <rec>
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
@@ -17,15 +17,15 @@
    </rec>
 </arr>
 </awsns:Arr_Rec>
-</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+</soap:Body>
+</soap:Envelope>
 
 
 <?xml version='1.0' encoding='UTF-8'?>
-<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<SOAP-ENV:Body>
+<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<soap:Body>
 <awsns:Arr_Rec2 xmlns:awsns="http://mns.org/">
-<arr2 SOAP-ENC:arrayType="xsd:ur-type[4]" xsi:type="SOAP-ENC:Array">
+<arr2 soapenc:arrayType="xsd:ur-type[4]" xsi:type="soapenc:Array">
    <rec>
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
@@ -44,15 +44,15 @@
    </rec>
 </arr2>
 </awsns:Arr_Rec2>
-</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+</soap:Body>
+</soap:Envelope>
 
 
 <?xml version='1.0' encoding='UTF-8'?>
-<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<SOAP-ENV:Body>
+<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<soap:Body>
 <awsns:Arr_Rec3 xmlns:awsns="http://mns.org/">
-<arr3 SOAP-ENC:arrayType="xsd:ur-type[4]" xsi:type="SOAP-ENC:Array">
+<arr3 soapenc:arrayType="xsd:ur-type[4]" xsi:type="soapenc:Array">
    <rec>
       <name1 xsi:type="xsd:string">val1</name1>
       <name2 xsi:type="xsd:string">val2</name2>
@@ -68,7 +68,7 @@
    </rec>
 </arr3>
 </awsns:Arr_Rec3>
-</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+</soap:Body>
+</soap:Envelope>
 
 

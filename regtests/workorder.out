@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-<SOAP-ENV:Body>
+<soap:Envelope soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<soap:Body>
 <awsns:Workorder xmlns:awsns="http://mns.org/">
 <Workorder>
    <Woid xsi:type="xsd:string">Wo1</Woid>
@@ -8,7 +8,7 @@
    <State xsi:type="xsd:string">idle</State>
    <Package xsi:type="xsd:string">sot23</Package>
    <Recipe xsi:type="xsd:string">bc847</Recipe>
-   <Orderline SOAP-ENC:arrayType="awsns:Orderline[2]" xsi:type="SOAP-ENC:Array">
+   <Orderline soapenc:arrayType="awsns:Orderline[2]" xsi:type="soapenc:Array">
       <Orderline>
          <State xsi:type="xsd:string">idle</State>
          <Woid xsi:type="xsd:string">Wo1</Woid>
@@ -38,8 +38,8 @@
    </Orderline>
 </Workorder>
 </awsns:Workorder>
-</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
+</soap:Body>
+</soap:Envelope>
 
 
 Payload coding/decoding is ok
