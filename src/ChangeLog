@@ -1,3 +1,18 @@
+2004-04-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.adb:
+	Delete 'with SSL.Thin;', it is already in specification.
+	(Accept_Socket): Properly handle non-blocking mode and timeout.
+	(Connect): Idem.
+	(Send): Idem.
+	(Receive): Idem.
+
+	* aws-net-std.ads:
+	(Set_Blocking_Mode): Removed.
+
+	* aws-net.ads, aws-net.adb:
+	(Set_Blocking_Mode): Not abstract, obsolete, just set timeout value.
+
 2004-04-14  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-filter.adb:

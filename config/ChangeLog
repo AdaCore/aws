@@ -1,3 +1,12 @@
+2004-04-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
+	(Set_Non_Blocking_Mode): New routine.
+	(Set_Blocking_Mode): Removed.
+	(Accept_Socket): Check for timeout. Make New_Socket non-blocking.
+	(Bind): Make just created socket non-blocking.
+	(Connect): Make connected socket non-blocking.
+
 2004-04-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-std__gnat.adb:

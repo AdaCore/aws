@@ -1,3 +1,16 @@
+2004-04-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* ssto.adb, sto.adb:
+	(Client_Side): Don't receive more than sent.
+
+2004-04-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* ssock2.adb:
+	Add main exception handler.
+
+	* ssto.adb, sto.adb, ssto.out, sto.out:
+	New regression tests for socket timeout.
+
 2004-04-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* generate.adb:
