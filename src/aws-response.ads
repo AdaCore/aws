@@ -260,7 +260,7 @@ package AWS.Response is
      (D      : in Data)
       return Strings.Unbounded.Unbounded_String;
    pragma Inline (Message_Body);
-   --  Returns the message body content as a unbounded_string.
+   --  Returns message body content as an unbounded_string.
 
    function Message_Body (D : in Data) return Streams.Stream_Element_Array;
    pragma Inline (Message_Body);
@@ -312,12 +312,12 @@ private
      := Content_Length_Type (Resources.Undefined_Length);
 
    type Release_Controller is record
-      Counter        : Natural := 1;
-      --  Counter of the reference to Data object.
+      Counter      : Natural := 1;
+      --  Data object's Reference counter.
 
-      Stream_Taken : Boolean   := False;
-      --  Flag would be set to true after Create_Resource routine call
-      --  to do not free stream on finalize.
+      Stream_Taken : Boolean := False;
+      --  Set to True after Create_Resource routine call to not free stream
+      --  on finalization.
    end record;
 
    type Release_Controller_Access is access all Release_Controller;
