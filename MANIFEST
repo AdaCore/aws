@@ -206,7 +206,6 @@ regtests/auth.out
 regtests/auth2.adb
 regtests/auth2.out
 regtests/aws.ini
-regtests/ccert.adb
 regtests/cert.adb
 regtests/cert.out
 regtests/ChangeLog
@@ -453,13 +452,6 @@ regtests/wsdl_b.ads
 regtests/wsdl_b.out
 regtests/wsdl_b.wsdl
 regtests/wsdl_b_pck.ads
-regtests/wsdl_parse_1-client.adb
-regtests/wsdl_parse_1-client.ads
-regtests/wsdl_parse_1-server.adb
-regtests/wsdl_parse_1-server.ads
-regtests/wsdl_parse_1-types.adb
-regtests/wsdl_parse_1-types.ads
-regtests/wsdl_parse_1.ads
 regtests/wsdl_parse_1.out
 regtests/wsdl_parse_1.wsdl
 regtests/wsdl_parse_2.out
