@@ -115,6 +115,6 @@ package AWS.Session is
 
 private
 
-   type ID is new Integer;
+   type ID is range 0 .. 2 ** 40;
 
 end AWS.Session;
