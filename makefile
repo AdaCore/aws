@@ -2,11 +2,13 @@
 # $Id$
 
 .SILENT: all build build clean distrib install set_std set_ssl build_tarball
-.SILENT: display build_lib build_doc build_tools build_soap
+.SILENT: display build_aws build_lib build_doc build_tools build_soap
+.SILENT: build_soap_demos build_ssllib build_soaplib build_win32 build_include
+.SILENT: build_demos
 
 include makefile.conf
 
-###########################################################################
+#############################################################################
 # update INCLUDES to point to the libraries directories for POSIX and Sockets
 # or use GNAT ADA_INCLUDE_PATH or ADA_OBJECTS_PATH
 
@@ -21,7 +23,7 @@ ADASOCKETS = /usr/Ada.Libraries/adasockets
 # XMLADA package, needed if you want to build SOAP's AWS support.
 # comment out XMLADA if you don't want to build with SOAP support.
 
-#XMLADA	 = /usr/Ada.Libraries/XMLada
+XMLADA	 = /usr/Ada.Libraries/XMLada
 
 # AWS will be installed under $(INSTALL)/AWS
 INSTALL	 = $(HOME)
@@ -59,13 +61,16 @@ DEBUG_LFLAGS	=
 ifdef DEBUG
 GFLAGS		= $(DEBUG_GFLAGS) $(STYLE_FLAGS)
 LFLAGS		= $(DEBUG_LFLAGS)
+MAKE_OPT	=
 else
 GFLAGS		= $(RELEASE_GFLAGS) $(STYLE_FLAGS)
 LFLAGS		= $(RELEASE_LFLAGS)
+MAKE_OPT	= -s
 endif
 
+#############################################################################
 # NO NEED TO CHANGE ANYTHING PAST THIS POINT
-###########################################################################
+#############################################################################
 
 all:
 	echo ""
@@ -97,7 +102,7 @@ all:
 	echo "    install:      install AWS library"
 	echo "    run_regtests: run tests"
 
-ALL_OPTIONS	= GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)"
+ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)"
 
 set_ssl:
 	echo "MODE=ssl" > makefile.conf
@@ -110,21 +115,25 @@ set_std:
 build_lib: build_ssllib build_include build_aws build_win32
 
 ifdef XMLADA
-build: build_lib build_soaplib build_demos build_soap_demo
+build: build_lib build_soaplib build_demos build_soap_demos
 else
 build: build_lib build_demos
 endif
 
 build_aws:
+	echo === Build library
 	${MAKE} -C src build $(ALL_OPTIONS)
 
 build_tools:
+	echo === Build tools
 	${MAKE} -C tools build $(ALL_OPTIONS)
 
 build_demos: build_lib build_tools
+	echo === Build demos
 	${MAKE} -C demos build $(ALL_OPTIONS)
 
-build_soap_demo:
+build_soap_demos:
+	echo === Build SOAP demos
 	${MAKE} -C demos build_soap $(ALL_OPTIONS)
 
 build_ssllib:
@@ -147,16 +156,20 @@ win32_oslib:
 	${MAKE} -C src win32_oslib
 
 build_doc:
+	echo === Build doc
 	${MAKE} -C docs build $(ALL_OPTIONS)
 
 build_include:
+	echo === Build components
 	${MAKE} -C include build $(ALL_OPTIONS)
 
 build_win32:
+	echo === Build win32 specific packages
 	${MAKE} -C win32 build $(ALL_OPTIONS)
 
 build_apiref:
-	${MAKE} -C docs apiref
+	echo === Build API References
+	${MAKE} -s -C docs apiref
 
 run_regtests: build_tools
 	${MAKE} -C regtests run $(ALL_OPTIONS)
@@ -262,9 +275,9 @@ install:
 	ar cr libaws.a src/*.o
 	-ar cr libaws.a ssl/*.o
 	-ar cr libaws.a soap/*.o
-	cp src/*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
+	cp src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
 	-cp soap/*.ad[sb] $(INSTALL)/AWS/include
-	cp src/*.ali $(INSTALL)/AWS/lib
+	cp src/a*.ali $(INSTALL)/AWS/lib
 	-cp ssl/*.ali $(INSTALL)/AWS/lib
 	-cp soap/*.ali $(INSTALL)/AWS/lib
 	chmod uog-w $(INSTALL)/AWS/lib/*.ali
