@@ -17,6 +17,7 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-parameters.ads.texi
 
 build: aws.ps aws.html aws.txt aws.info
+	rm aws.texi
 	echo done
 
 ada.sed: makefile
