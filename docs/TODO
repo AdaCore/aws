@@ -155,5 +155,3 @@ implemented:
 - Add reply all support to the Web_Mail service.
 
 - Add support for SOAP hotplug modules
-
-- Remove use of GNAT.Dynamic_Table to use AI302.Containers.Vector.
