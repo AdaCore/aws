@@ -1,3 +1,18 @@
+2002-01-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Add some comments, minor reformating.
+
+	* aws-services-page_server.ads:
+	Add comment about IE and 404 message.
+
+	* aws-services-page_server.adb:
+	(Callback): Set status code to 404 when returning the 404.html page.
+	 Spaces new constant, use it for 404 message.
+
+	* aws-response.ads, aws-response.adb:
+	(File): Add Status_Code parameter.
+
 2002-01-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
