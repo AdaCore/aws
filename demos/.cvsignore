@@ -85,11 +85,17 @@ soap_server
 soap_server_disp
 soap_svs
 soapinterop-org-xsd-arrayoffloat_pkg.ads
+soapinterop-org-xsd-arrayoffloat_type_pkg.ads
 soapinterop-org-xsd-arrayofint_pkg.ads
+soapinterop-org-xsd-arrayofint_type_pkg.ads
 soapinterop-org-xsd-arrayofsoapstruct_pkg.ads
+soapinterop-org-xsd-arrayofsoapstruct_type_pkg.ads
 soapinterop-org-xsd-arrayofstring_pkg.ads
+soapinterop-org-xsd-arrayofstring_type_pkg.ads
 soapinterop-org-xsd-soapstruct_pkg.adb
 soapinterop-org-xsd-soapstruct_pkg.ads
+soapinterop-org-xsd-soapstruct_type_pkg.adb
+soapinterop-org-xsd-soapstruct_type_pkg.ads
 soapinterop-org-xsd.ads
 soapinterop-org.ads
 soapinterop.ads

@@ -1,3 +1,20 @@
+2004-12-02  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator-name_set.adb:
+	(Set): Use a bigger table.
+	Update copyright notice.
+
+	* soap-generator.adb:
+	Lot of changes to support code generation that reuse an existing
+	 spec. This feature has been broken by the previous changes.
+
+	* soap-message.adb:
+	(Add_Namespaces): Fix to avoid generating duplicate name spaces.
+	Minor reformatting.
+
+	* soap-name_space.ads:
+	(AWS): Use "http://soapaws/" for base name space.
+
 2004-12-01  Pascal Obry  <pascal@obry.org>
 
 	* soap-wsdl-parameters.adb:
