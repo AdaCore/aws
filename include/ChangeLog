@@ -1,3 +1,8 @@
+2003-07-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* zlib.adb:
+	Minor reformat.
+
 2004-07-16  Pascal Obry  <pascal@obry.org>
 
 	* zlib.adb:
@@ -13,26 +18,26 @@
 	Sync with main repository.
 
 	* ai302-containers-indefinite_hashed_maps.ads,
-	  ai302-containers-indefinite_hashed_maps.adb: 
+	  ai302-containers-indefinite_hashed_maps.adb:
 	Sync with main repository.
 
 	* ai302-containers-indefinite_ordered_sets.ads,
-	  ai302-containers-indefinite_ordered_sets.adb: 
+	  ai302-containers-indefinite_ordered_sets.adb:
 	Sync with main repository.
 
 	* ai302-containers-indefinite_vectors.ads,
-	  ai302-containers-indefinite_vectors.adb: 
+	  ai302-containers-indefinite_vectors.adb:
 	Sync with main repository.
 
-	* ai302-containers-prime_numbers.ads, 
-	  ai302-containers-prime_numbers.adb: 
+	* ai302-containers-prime_numbers.ads,
+	  ai302-containers-prime_numbers.adb:
 	Sync with main repository.
 
-	* ai302-containers-red_black_trees.ads, 
-	  ai302-containers-red_black_trees.adb: 
+	* ai302-containers-red_black_trees.ads,
+	  ai302-containers-red_black_trees.adb:
 	Sync with main repository.
 
-	* ai302-containers-vectors.ads, ai302-containers-vectors.adb: 
+	* ai302-containers-vectors.ads, ai302-containers-vectors.adb:
 	Sync with main repository.
 
 	* ai302-containers.ads:
@@ -68,7 +73,7 @@
 	* ai302-containers-generic_array_sort.ads,
 	  ai302-containers-generic_array_sort.adb:
 	Initial revision.
-	
+
 	* ai302-containers-generic_constrained_array_sort.ads,
 	  ai302-containers-generic_constrained_array_sort.adb:
 	Initial revision.

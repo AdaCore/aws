@@ -34,7 +34,7 @@ package body ZLib is
        VERSION_ERROR);
 
    type Flate_Step_Function is access
-     function (Strm : Thin.Z_Streamp; flush : Thin.Int) return Thin.Int;
+     function (Strm : in Thin.Z_Streamp; Flush : in Thin.Int) return Thin.Int;
    pragma Convention (C, Flate_Step_Function);
 
    type Flate_End_Function is access
@@ -250,14 +250,14 @@ package body ZLib is
    -----------------------
 
    procedure Generic_Translate
-     (Filter : in out ZLib.Filter_Type;
-      In_Buffer_Size  : Integer := Default_Buffer_Size;
-      Out_Buffer_Size : Integer := Default_Buffer_Size)
+     (Filter          : in out ZLib.Filter_Type;
+      In_Buffer_Size  : in     Integer := Default_Buffer_Size;
+      Out_Buffer_Size : in     Integer := Default_Buffer_Size)
    is
       In_Buffer  : Stream_Element_Array
-         (1 .. Stream_Element_Offset (In_Buffer_Size));
+                     (1 .. Stream_Element_Offset (In_Buffer_Size));
       Out_Buffer : Stream_Element_Array
-        (1 .. Stream_Element_Offset (Out_Buffer_Size));
+                     (1 .. Stream_Element_Offset (Out_Buffer_Size));
       Last       : Stream_Element_Offset;
       In_Last    : Stream_Element_Offset;
       In_First   : Stream_Element_Offset;
@@ -282,6 +282,7 @@ package body ZLib is
             exit Main when Stream_End (Filter);
 
             --  The end of in buffer.
+
             exit when In_Last = Last;
 
             In_First := In_Last + 1;
