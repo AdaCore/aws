@@ -32,7 +32,6 @@
 
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Ada.Characters.Handling;
 with Ada.Unchecked_Deallocation;
 
 with AWS.URL;
@@ -52,27 +51,6 @@ package body AWS.Parameters.Set is
      (Parameter_List : in out List;
       Name, Value    : in     String)
    is
-
-      function Normalize_Name
-        (Name : in String; To_Upper : in Boolean)
-        return String;
-      --  Returns Name in upper case if To_Upper is set to True and it returns
-      --  Name unchanged otherwise.
-
-      --------------------
-      -- Normalize_Name --
-      --------------------
-
-      function Normalize_Name
-        (Name : in String; To_Upper : in Boolean)
-        return String is
-      begin
-         if To_Upper then
-            return Ada.Characters.Handling.To_Upper (Name);
-         else
-            return Name;
-         end if;
-      end Normalize_Name;
 
       C       : constant Positive := Count (Parameter_List) + 1;
 
