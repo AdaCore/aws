@@ -39,6 +39,11 @@ hello_demo-server.ads
 hello_demo-types.adb
 hello_demo-types.ads
 hello_demo.ads
+interoplab-client.adb
+interoplab-client.ads
+interoplab-types.adb
+interoplab-types.ads
+interoplab.ads
 rdemo-adains_png.ads
 rdemo-page3_html.ads
 rdemo.adb

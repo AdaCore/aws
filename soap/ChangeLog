@@ -1,6 +1,28 @@
 2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
+	(New_Procedure): Remove space in some case. Fix style of
+	 generated sources.
+
+	* soap-generator-stub.adb:
+	(Output_Parameter): Remove space in some case. Fix style of
+	 generated sources.
+	(Output_Simple): Fix casing of generated SOAP.Utils.US reference.
+	(Start_Service): Add pragma Style_Checks off for stub body.
+
+	* soap-generator.adb:
+	(Array_Type): Do not lower case the first character. This cause
+	 too many problems later.
+	(Generate_Record): Generate a pragma unreferenced.
+	(Start_Service): Add pragma Style_Checks off for spec .Types child.
+
+	* soap-wsdl.adb:
+	(Is_Standard): Check for type starting with an upper-case.
+	(To_Type): Idem.
+
+2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
 	(Start_Service): Generate with clause for Ada.Calendar.
 
 	* soap-generator-stub.adb:
