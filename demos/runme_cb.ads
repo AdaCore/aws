@@ -35,4 +35,6 @@ package Runme_CB is
 
    function Service (Request : in AWS.Status.Data) return AWS.Response.Data;
 
+   function Service2 (Request : in AWS.Status.Data) return AWS.Response.Data;
+
 end Runme_CB;
