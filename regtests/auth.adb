@@ -33,8 +33,9 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
 with AWS.Client;
+with AWS.Digest;
+with AWS.Server;
 with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
@@ -71,7 +72,8 @@ procedure Auth is
    --------
 
    function CB (Request : in Status.Data) return Response.Data is
-      Username : String := AWS.Status.Authorization_Name (Request);
+      Username    : String := AWS.Status.Authorization_Name (Request);
+      Valid_Nonce : Boolean;
    begin
       if Status.URI (Request) = Basic_Protected_URI then
 
@@ -86,23 +88,31 @@ procedure Auth is
          end if;
 
       elsif Status.URI (Request) = Digest_Protected_URI then
+         Valid_Nonce
+           := Digest.Check_Nonce (Status.Authorization_Nonce (Request));
 
-         if AWS.Status.Check_Digest (Request, Auth_Password) then
+         if AWS.Status.Check_Digest (Request, Auth_Password)
+           and then Valid_Nonce
+         then
             return AWS.Response.Build
               ("text/plain", "Digest authorization OK!");
          else
             return AWS.Response.Authenticate
-              ("AWS regtest", AWS.Response.Digest);
+              ("AWS regtest", AWS.Response.Digest, Stale => not Valid_Nonce);
          end if;
 
       elsif Status.URI (Request) = Any_Protected_URI then
+         Valid_Nonce
+           := Digest.Check_Nonce (Status.Authorization_Nonce (Request));
 
-         if AWS.Status.Check_Digest (Request, Auth_Password) then
+         if AWS.Status.Check_Digest (Request, Auth_Password)
+           and then Valid_Nonce
+         then
             return AWS.Response.Build
               ("text/plain", "AWS strongest authorization OK!");
          else
             return AWS.Response.Authenticate
-              ("AWS regtest", AWS.Response.Any);
+              ("AWS regtest", AWS.Response.Any, Stale => not Valid_Nonce);
          end if;
 
       else
