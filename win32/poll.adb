@@ -32,7 +32,7 @@
 
 with System.Address_To_Access_Conversions;
 
-with AWS.Net.Sets.Thin;
+with AWS.Net.Thin;
 
 function Poll
   (Fds     : in System.Address;
@@ -40,7 +40,7 @@ function Poll
    Timeout : in C.int)
    return C.int
 is
-   use AWS.Net.Sets;
+   use AWS.Net;
    use AWS.OS_Lib;
 
    use type Thin.Events_Type;

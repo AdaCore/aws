@@ -33,7 +33,7 @@
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Net.Sets.Thin;
+with AWS.Net.Thin;
 with AWS.OS_Lib.Definitions;
 
 package body AWS.Net.Sets is
