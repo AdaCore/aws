@@ -47,6 +47,14 @@ package AWS.URL is
    --  being optional and the protocol could be a secure HTTP (https://
    --  prefix).
 
+   procedure Normalize (URL : in out Object);
+   --  Removes all occurences to parent directory ".." and current
+   --  directory '.'
+
+   function URL (URL : in Object) return String;
+   --  Returns full URL string, this can be different to the URL pased if it
+   --  has been normalized.
+
    function Server_Name (URL : in Object) return String;
    --  Returns the server name.
 
