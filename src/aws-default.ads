@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,7 +30,9 @@
 
 --  $Id$
 
---  This is the default AWS configuration values.
+--  This package contains the default AWS configuration values. These values
+--  are used to initialize the configuration objects. Users should not modify
+--  the values here, see AWS.Config.* API.
 
 package AWS.Default is
 
@@ -92,6 +94,6 @@ package AWS.Default is
    Session                   : constant Boolean := False;
    Case_Sensitive_Parameters : constant Boolean := True;
    Check_URL_Validity        : constant Boolean := True;
-   Line_Stack_Size           : constant         := 200_000;
+   Line_Stack_Size           : constant         := 16#150_000#;
 
 end AWS.Default;
