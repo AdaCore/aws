@@ -4,7 +4,7 @@ $Id$
 Components in this directory are copied from other sources. They are 
 distributed with AWS as a convenience but are not part of AWS.
 
-Note that all of them are compatible with the AWS license.
+Note that all of them have a license compatible with AWS.
 
 * All Table_Of_..._Keys_And_..._Values_G are from Swiss Federal Institute of 
   Technology (EPFL). 
