@@ -203,6 +203,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 * Session handling::
 * File upload::
 * Client side::
+* Communication::
 @end menu
 @end ifinfo
 
@@ -543,6 +544,12 @@ If the content is some kind of binary data (executable, gif image, Zip
 archive...), then it is possible to write the result to a file for
 example. Look at the @code{agent} program in the @code{demos} directory.
 
+@node Communication
+@section Communication
+
+@noindent
+This section is left blank for now.
+
 @node Status page
 @chapter Status page
 
@@ -666,6 +673,9 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @ifinfo
 @menu
 * AWS.Client::
+* AWS.Communication::
+* AWS.Communication.Client::
+* AWS.Communication.Server::
 * AWS.MIME::
 * AWS.Response::
 * AWS.Server::
@@ -679,6 +689,21 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @section AWS.Client
 
 @include ../src/aws-client.ads.texi
+
+@node AWS.Communication
+@section AWS.Communication
+
+@include ../src/aws-communication.ads.texi
+
+@node AWS.Communication.Client
+@section AWS.Communication.Client
+
+@include ../src/aws-communication-client.ads.texi
+
+@node AWS.Communication.Server
+@section AWS.Communication.Server
+
+@include ../src/aws-communication-server.ads.texi
 
 @node AWS.MIME
 @section AWS.MIME
