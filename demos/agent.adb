@@ -72,21 +72,21 @@ procedure Agent is
    use Ada.Strings.Unbounded;
    use type Status.Request_Method;
 
-   Method     : Status.Request_Method;
-   User       : Unbounded_String;
-   Pwd        : Unbounded_String;
-   WWW_Auth   : Client.Authentication_Mode := Client.Basic;
-   URL        : Unbounded_String;
-   Proxy      : Unbounded_String;
-   Proxy_User : Unbounded_String;
-   Proxy_Pwd  : Unbounded_String;
-   Proxy_Auth : Client.Authentication_Mode := Client.Basic;
-   Force      : Boolean := False;
-   File       : Boolean := False;
-   Keep_Alive : Boolean := False;
+   Method      : Status.Request_Method;
+   User        : Unbounded_String;
+   Pwd         : Unbounded_String;
+   WWW_Auth    : Client.Authentication_Mode := Client.Basic;
+   URL         : Unbounded_String;
+   Proxy       : Unbounded_String;
+   Proxy_User  : Unbounded_String;
+   Proxy_Pwd   : Unbounded_String;
+   Proxy_Auth  : Client.Authentication_Mode := Client.Basic;
+   Force       : Boolean := False;
+   File        : Boolean := False;
+   Keep_Alive  : Boolean := False;
    Server_Push : Boolean := False;
-   Wait_Key   : Boolean := True;
-   Connect    : AWS.Client.HTTP_Connection;
+   Wait_Key    : Boolean := True;
+   Connect     : AWS.Client.HTTP_Connection;
 
    procedure Parse_Command_Line;
    --  parse Agent command line.
@@ -95,8 +95,7 @@ procedure Agent is
    --  Return the authentication value from the string representation.
    --  raises the human readable exception on error.
 
-   function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode
-   is
+   function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode is
    begin
       return Client.Authentication_Mode'Value (Mode);
    exception
@@ -149,20 +148,20 @@ procedure Agent is
                   Pwd := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
                elsif GNAT.Command_Line.Full_Switch = "pu" then
-                  Proxy_User :=
-                    To_Unbounded_String (GNAT.Command_Line.Parameter);
+                  Proxy_User
+                    := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
                elsif GNAT.Command_Line.Full_Switch = "pp" then
-                  Proxy_Pwd :=
-                    To_Unbounded_String (GNAT.Command_Line.Parameter);
+                  Proxy_Pwd
+                    := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
                elsif GNAT.Command_Line.Full_Switch = "proxy" then
-                  Proxy :=
-                    To_Unbounded_String (GNAT.Command_Line.Parameter);
+                  Proxy
+                    := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
                elsif GNAT.Command_Line.Full_Switch = "pa" then
-                  Proxy_Auth :=
-                    Get_Auth_Mode (GNAT.Command_Line.Parameter);
+                  Proxy_Auth
+                    := Get_Auth_Mode (GNAT.Command_Line.Parameter);
                end if;
 
             when others =>
@@ -190,11 +189,11 @@ begin
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
       Text_IO.Put_Line ("       -a <www_authentication_mode"
-                      & " (Any, Basic or Digest)>");
+                          & " (Any, Basic or Digest)>");
       Text_IO.Put_Line ("       -pu <proxy_user_name>");
       Text_IO.Put_Line ("       -pp <proxy_password>");
       Text_IO.Put_Line ("       -pa <proxy_authentication_mode"
-                      & " (Any, Basic or Digest)>");
+                          & " (Any, Basic or Digest)>");
       return;
    end if;
 
@@ -227,8 +226,8 @@ begin
       else
          --  ??? PUT just send a simple piece of Data.
          Client.Put (Connection => Connect,
-                     Result => Data,
-                     Data   => "Un essai");
+                     Result     => Data,
+                     Data       => "Un essai");
       end if;
 
       Text_IO.Put_Line
