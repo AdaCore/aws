@@ -11,7 +11,7 @@ include makefile.conf
 
 # External packages to be configured
 
-XMLADA	= /usr/Ada.Libraries/XMLada
+#XMLADA	= /usr/Ada.Libraries/XMLada
 
 ifdef XMLADA
 INCLUDES = -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib
