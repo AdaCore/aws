@@ -336,13 +336,15 @@ install: force
 	-$(CP) soap/*.ali $(INSTALL)/AWS/lib
 	$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
 	$(CP) lib/libaws.a $(INSTALL)/AWS/lib
-	-$(CP) lib/libnosslaws.a $(INSTALL)/AWS/lib
+	$(CP) lib/libnosslaws.a $(INSTALL)/AWS/lib
+	$(CP) lib/libz.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
 	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
 	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
 	-$(CP) docs/*.info* $(INSTALL)/AWS/docs
 	-$(CP) -r docs/html/* $(INSTALL)/AWS/docs/html
 	$(CP) demos/*.thtml $(INSTALL)/AWS/templates
+	$(CP) demos/wm_login.html $(INSTALL)/AWS/templates
 	$(CP) icons/*.gif $(INSTALL)/AWS/icons
 	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
 	-$(CP) include/*.ad? $(INSTALL)/AWS/components
