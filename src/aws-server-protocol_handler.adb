@@ -129,7 +129,7 @@ is
    --  client's browser, otherwise the answer will be retrieved from user's
    --  callback.
 
-   procedure Send (Answer : in Response.Data);
+   procedure Send (Answer : in out Response.Data);
    --  Send Answer to the client's browser
 
    procedure Get_Message_Header;
@@ -805,7 +805,7 @@ is
 
       Status_Connection := To_Unbounded_String (Status.Connection (C_Stat));
 
-      Support_Compressed := Status.Is_Supported (C_Stat, Messages.Deflate);
+      Support_Compressed := Status.Is_Supported (C_Stat, Messages.GZip);
 
       --  Get necessary data from header for reading HTTP body
 
@@ -1010,7 +1010,7 @@ is
    -- Send --
    ----------
 
-   procedure Send (Answer : in Response.Data) is
+   procedure Send (Answer : in out Response.Data) is
 
       use type Response.Data_Mode;
 
@@ -1067,15 +1067,19 @@ is
             Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
 
-         --  Checking if we have to close connection because of undefined
-         --  message length comming from a user's stream.
+         --  Note. We have to call Create_Resource before send header fields
+         --  defined in the Answer to the client, because this call could
+         --  setup Content-Encoding header field to Answer. Answer header
+         --  lines would be send below in the Send_General_Header.
 
-         Response.Create_Resource (Answer, File);
-         Resources.Support_Compressed (File, Support_Compressed);
+         Response.Create_Resource (Answer, File, Support_Compressed);
 
          --  Length is the real resource/file size
 
          Length := Resources.Size (File);
+
+         --  Checking if we have to close connection because of undefined
+         --  message length comming from a user's stream.
 
          if Length = Resources.Undefined_Length
             and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
