@@ -36,6 +36,14 @@ project Demos_Shared is
 
    for Source_Dirs use ();
 
+   ------------
+   -- Binder --
+   ------------
+
+   package Binder is
+      for Default_Switches ("Ada") use ("-E");
+   end Binder;
+
    --------------
    -- Compiler --
    --------------
