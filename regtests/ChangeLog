@@ -1,5 +1,8 @@
 2004-06-19  Pascal Obry  <pascal@obry.org>
 
+	* tlog.out, unexph2.out:
+	Update output.
+
 	* makefile:
 	(RT_SOAP): Add soap5.adb.
 
