@@ -143,6 +143,10 @@ b~zapp.adb
 b~zapp.ads
 b~zbig.adb
 b~zbig.ads
+b~zfile.adb
+b~zfile.ads
+b~zstrm.adb
+b~zstrm.ads
 check_mem.res
 check_mem.run1
 check_mem.run2
@@ -304,3 +308,5 @@ workorder.res
 workorder.tmp
 zapp.res
 zbig.res
+zfile.res
+zstrm.res
