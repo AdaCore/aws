@@ -1,3 +1,8 @@
+2002-03-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-xml.adb:
+	Put all routines in alphabetical order.
+
 2002-02-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-client.adb:
