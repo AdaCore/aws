@@ -64,13 +64,13 @@ package body AWS.Server.Push is
    ---------------
 
    function To_Holder
-     (Socket : in Socket_Type;
+     (Socket      : in Socket_Type;
       Environment : in Client_Environment;
-      Kind : in Mode)
+      Kind        : in Mode)
      return Client_Holder
    is
       use Sockets.Stream_IO;
-      Stream : Stream_Access := new Socket_Stream_Type;
+      Stream : constant Stream_Access := new Socket_Stream_Type;
    begin
       Initialize (Socket_Stream_Type'Class (Stream.all),
                   Sockets.Socket_FD (Socket));
@@ -167,7 +167,7 @@ package body AWS.Server.Push is
       ---------------
 
       procedure Broadcast
-        (Data : in Client_Output_Type;
+        (Data         : in Client_Output_Type;
          Content_Type : in String)
       is
 
