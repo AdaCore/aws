@@ -190,6 +190,10 @@ b~wsdl_5_main.adb
 b~wsdl_5_main.ads
 b~wsdl_6_main.adb
 b~wsdl_6_main.ads
+b~xmlt.adb
+b~xmlt.ads
+b~xmlt_sec.adb
+b~xmlt_sec.ads
 b~zapp.adb
 b~zapp.ads
 b~zbig.adb
@@ -601,6 +605,8 @@ wsdl_parse_1.res
 wsdl_parse_2.res
 wsdl_parse_3.res
 wsdl_parse_4.res
+xmlt.res
+xmlt_sec.res
 zapp
 zapp.res
 zbig

@@ -1,3 +1,11 @@
+2004-06-01  Pascal Obry  <pascal@obry.org>
+
+	* xmlt_proc.adb:
+	Add header.
+
+	* xmlt_sec.adb, xmlt.adb:
+	Add header and CVS tag.
+
 2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* xmlt_proc.adb, xmlt.adb, xmlt.out, xmlt_sec.adb, xmlt_sec.out,

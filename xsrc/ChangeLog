@@ -1,3 +1,13 @@
+2004-06-01  Pascal Obry  <pascal@obry.org>
+
+	* aws-client-xml-input_sources.adb:
+	(Create): Remove Input.EOF initialization.
+	Rewrite some comments.
+	Minor reformatting.
+
+	* aws-client-xml-input_sources.ads:
+	(HTTP_Input): Remove EOF as it is not used.
+
 2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client-xml-input_sources.adb:
