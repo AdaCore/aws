@@ -190,7 +190,3 @@ implemented:
 
 - Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
   We should be able to remove the tools/makefile kludge (-largs -laws).
-
-- Fix bug in REPLACE filer containing a ':'
-  @_REPLACE(([a-z]+)_([a-z]+)/\2:\1):VAR_@
-  raised TEMPLATES_PARSER.TEMPLATE_ERROR : unbalanced parenthesis "\1)"
