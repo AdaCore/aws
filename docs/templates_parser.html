@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 14 December 2004
+<p>Date: 15 December 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -1125,7 +1125,7 @@ complex Web pages.
 <p>Syntax:
 
 <br><pre>
-@@TABLE@@ [@@TERMINATE_SECTIONS@@]
+@@TABLE['TERMINATE_SECTIONS]['REVERSE]@@
       ...
    [@@BEGIN@@]
       ...
@@ -1222,11 +1222,22 @@ will use different data on even and odd lines. This is useful when you
 want to alternate the line background color for a better readability
 when working on HTML pages.
 
-<p>A table with sections can have the modifier
-<code>@@TERMINATE_SECTIONS@@</code>. This ensure that the table output will end
+<p>A table with sections can have attribute:
+
+<dl>
+
+<br><dt><code>TERMINATE_SECTIONS</code>
+<dd>
+This ensure that the table output will end
 with the last section. If the number of data in the vector variable tag
 is not a multiple of the number of sections then the remaining section
 will be complete with empty tag value.
+
+<br><dt><code>REVERSE</code>
+<dd>
+The items will be displayed in the reverse order.
+
+</dl>
 
 <br><pre>
 
@@ -1713,6 +1724,11 @@ if the Nth include parameter is not specified.
 
 @@SET@@ COLOR = $4 | green
 </pre>
+
+<p>It is important to note that a variable is set global to a template
+file. It means that constants set into an include file are visible
+into the parent template. This is an important feature to be able to
+have a "theme" like include template file for example.
 
 <p><hr>
 Node:<a name="Other%20services">Other services</a>,
