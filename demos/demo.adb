@@ -4,7 +4,7 @@
 --  http://www-config.der.edf.fr/proxy-HN0060A.pac
 
 with Ada.Text_IO;
-with AWS.Translater;
+-- with AWS.Translater;
 with Sockets;
 
 procedure Demo is
@@ -81,7 +81,8 @@ procedure Demo is
       Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
       Sockets.Put_Line
         (Sock, "Proxy-Authorization: Basic " &
-         AWS.Translater.Base64_Encode ("pascal.obry:turboada"));
+         "");
+--           AWS.Translater.Base64_Encode ("pascal.obry:turboada"));
 
       Sockets.New_Line (Sock);
 
@@ -97,10 +98,72 @@ procedure Demo is
 
    end Client;
 
+   task S;
+   task C;
+
+   task body S is
+      Accepting_Socket : Sockets.Socket_FD;
+      Incoming_Socket  : Sockets.Socket_FD;
+   begin
+      Sockets.Socket (Accepting_Socket,
+                      Sockets.AF_INET,
+                      Sockets.SOCK_STREAM);
+
+      Sockets.Setsockopt (Accepting_Socket,
+                          Sockets.SOL_SOCKET,
+                          Sockets.SO_REUSEADDR,
+                          1);
+
+      Sockets.Bind (Accepting_Socket, 1234);
+
+      Sockets.Listen (Accepting_Socket);
+
+      Sockets.Accept_Socket (Accepting_Socket, Incoming_Socket);
+
+      Text_IO.Put_Line ("S = " & Sockets.Get_FD (Incoming_Socket)'Img);
+      Text_IO.Flush;
+
+      loop
+         declare
+            Line : constant String := Sockets.Get_Line (Incoming_Socket);
+         begin
+            exit when Line = "";
+            Text_IO.Put_Line (">" & Line);
+            delay 1.0;
+         end;
+      end loop;
+   exception
+      when E : others =>
+         Text_IO.Put_Line ("Error !!!" & Exceptions.Exception_Message (E));
+   end;
+
+   task body C is
+      Sock : Sockets.Socket_FD;
+   begin
+      delay 3.0;
+      Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
+      Sockets.Connect (Sock, "pascal", 1234);
+
+      Text_IO.Put_Line ("C = " & Sockets.Get_FD (Sock)'Img);
+      Text_IO.Flush;
+
+      Sockets.Put_Line (Sock, "HEAD /last HTTP/1.1");
+      Sockets.Put_Line (Sock, "ligne 2 ------------------------");
+      Sockets.Put_Line (Sock, "ligne 3 ------------------------");
+      Sockets.Put_Line (Sock, "ligne 4 ------------------------");
+      Sockets.Put_Line (Sock, "ligne 5 ------------------------");
+      Sockets.Put_Line (Sock, "ligne 6 ------------------------");
+      Sockets.Put_Line (Sock, "ligne 7 ------------------------");
+      Sockets.Put_Line (Sock, "ligne 8 ------------------------");
+      Sockets.Put_Line (Sock, "ligne 9 ------------------------");
+      Sockets.New_Line (Sock);
+      Sockets.Shutdown (Sock);
+   end C;
+
 begin
 
-   Client;
-
+--   Client;
+   null;
 end Demo;
 
 
