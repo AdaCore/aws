@@ -63,6 +63,10 @@ package body SOAP.Types is
    package XML_Indent is new Ada.Task_Attributes (Natural, 0);
    --  Thread safe Indentation counter.
 
+   procedure Get_Error (Expected : in String; O : in Object'Class);
+   pragma No_Return (Get_Error);
+   --  Raise Data_Error, used by all Get routines
+
    ---------
    -- "+" --
    ---------
@@ -231,10 +235,13 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Integer'Tag then
          return V (XSD_Integer (O));
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Integer'Tag
+      then
+         return V (XSD_Integer (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "Integer expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("Integer", O);
       end if;
    end Get;
 
@@ -244,10 +251,13 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Short'Tag then
          return V (XSD_Short (O));
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Short'Tag
+      then
+         return V (XSD_Short (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "Short expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("Short", O);
       end if;
    end Get;
 
@@ -257,10 +267,13 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Long'Tag then
          return V (XSD_Long (O));
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Long'Tag
+      then
+         return V (XSD_Long (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "Long expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("Long", O);
       end if;
    end Get;
 
@@ -270,10 +283,13 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Float'Tag then
          return V (XSD_Float (O));
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Float'Tag
+      then
+         return V (XSD_Float (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "Float expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("Float", O);
       end if;
    end Get;
 
@@ -283,10 +299,13 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Double'Tag then
          return V (XSD_Double (O));
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Double'Tag
+      then
+         return V (XSD_Double (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "Double expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("Double", O);
       end if;
    end Get;
 
@@ -296,10 +315,13 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_String'Tag then
          return V (XSD_String (O));
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_String'Tag
+      then
+         return V (XSD_String (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "String expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("String", O);
       end if;
    end Get;
 
@@ -308,10 +330,14 @@ package body SOAP.Types is
    begin
       if O'Tag = Types.XSD_String'Tag then
          return V (XSD_String (O));
+
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_String'Tag
+      then
+         return V (XSD_String (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "String expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("String", O);
       end if;
    end Get;
 
@@ -321,10 +347,13 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Boolean'Tag then
          return V (XSD_Boolean (O));
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Boolean'Tag
+      then
+         return V (XSD_Boolean (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "Boolean expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("Boolean", O);
       end if;
    end Get;
 
@@ -334,10 +363,13 @@ package body SOAP.Types is
       if O'Tag = Types.XSD_Time_Instant'Tag then
          return V (XSD_Time_Instant (O));
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.XSD_Time_Instant'Tag
+      then
+         return V (XSD_Time_Instant (XSD_Any_Type (O).O.O.all));
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "timeInstant expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("timeInstant", O);
       end if;
    end Get;
 
@@ -347,10 +379,13 @@ package body SOAP.Types is
       if O'Tag = Types.SOAP_Base64'Tag then
          return SOAP_Base64 (O);
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.SOAP_Base64'Tag
+      then
+         return SOAP_Base64 (XSD_Any_Type (O).O.O.all);
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "SOAP Base64 expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("SOAP Base64", O);
       end if;
    end Get;
 
@@ -360,10 +395,13 @@ package body SOAP.Types is
       if O'Tag = Types.SOAP_Record'Tag then
          return SOAP_Record (O);
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.SOAP_Record'Tag
+      then
+         return SOAP_Record (XSD_Any_Type (O).O.O.all);
+
       else
-         Exceptions.Raise_Exception
-           (Data_Error'Identity,
-            "SOAP Struct expected, found " & Tags.Expanded_Name (O'Tag));
+         Get_Error ("SOAP Struct", O);
       end if;
    end Get;
 
@@ -373,12 +411,35 @@ package body SOAP.Types is
       if O'Tag = Types.SOAP_Array'Tag then
          return SOAP_Array (O);
 
+      elsif O'Tag = Types.XSD_Any_Type'Tag
+        and then XSD_Any_Type (O).O.O'Tag = Types.SOAP_Array'Tag
+      then
+         return SOAP_Array (XSD_Any_Type (O).O.O.all);
+
+      else
+         Get_Error ("SOAP Array", O);
+      end if;
+   end Get;
+
+   ---------------
+   -- Get_Error --
+   ---------------
+
+   procedure Get_Error (Expected : in String; O : in Object'Class) is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Any_Type'Tag then
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            Expected & " expected, found "
+            & Tags.Expanded_Name (XSD_Any_Type (O).O.O'Tag)
+            & " in an XSD_Any_Type object.");
       else
          Exceptions.Raise_Exception
            (Data_Error'Identity,
-            "SOAP Array expected, found " & Tags.Expanded_Name (O'Tag));
+            Expected & " expected, found " & Tags.Expanded_Name (O'Tag));
       end if;
-   end Get;
+   end Get_Error;
 
    -------
    -- I --
@@ -928,6 +989,12 @@ package body SOAP.Types is
             end;
          end if;
 
+         --  An heterogenous array
+
+         if T = XSD_Any_Type'Tag then
+            return XML_Any_Type;
+         end if;
+
          --  All other cases
 
          for K in O.O'First + 1 .. O.O'Last loop
@@ -937,7 +1004,7 @@ package body SOAP.Types is
             if T /= O.O (K).O'Tag
               or else O.O (K).O.all in SOAP.Types.Composite'Class
             then
-               return XML_Undefined;
+               return XML_Any_Type;
             end if;
 
          end loop;
