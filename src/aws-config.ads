@@ -47,6 +47,14 @@ package AWS.Config is
 
    Default_Config : constant Object;
 
+   function Get_Current return Object;
+   --  Returns a configuration record. This is the properties as read in files
+   --  'aws.ini' and 'progname.ini' and contains all per-server options.
+
+   ------------------------
+   -- Per Server options --
+   ------------------------
+
    function Server_Name (O : in Object) return String;
    --  This is the name of the server as set by AWS.Server.Start.
 
@@ -74,20 +82,19 @@ package AWS.Config is
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
 
+   function Log_File_Prefix (O : in Object) return String;
+   --  This is the prefix to use for the log filename.
+
+   function Log_Split_Mode (O : in Object) return String;
+   --  This is split mode for the log file. Possible values are : Each_Run,
+   --  Daily, Monthly and None. Any other values will raise an exception.
+
    function Upload_Directory (O : in Object) return String;
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
 
    function Session (O : in Object) return Boolean;
    --  Returns True if the server session is activated.
-
-   function Session_Cleanup_Interval (O : in Object) return Duration;
-   --  Number of seconds between each run of the cleaner task to remove
-   --  obsolete session data.
-
-   function Session_Lifetime (O : in Object) return Duration;
-   --  Number of seconds to keep a session if not used. After this period the
-   --  session data is obsoleted and will be removed during new cleanup.
 
    function Cleaner_Wait_For_Client_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for a client request.
@@ -145,6 +152,18 @@ package AWS.Config is
    function Case_Sensitive_Parameters (O : in Object) return Boolean;
    --  Http parameters are case sensitive.
 
+   -------------------------
+   -- Per Process options --
+   -------------------------
+
+   function Session_Cleanup_Interval return Duration;
+   --  Number of seconds between each run of the cleaner task to remove
+   --  obsolete session data.
+
+   function Session_Lifetime return Duration;
+   --  Number of seconds to keep a session if not used. After this period the
+   --  session data is obsoleted and will be removed during new cleanup.
+
 private
 
    pragma Inline
@@ -188,10 +207,10 @@ private
       Hotplug_Port,
       Max_Connection,
       Log_File_Directory,
+      Log_File_Prefix,
+      Log_Split_Mode,
       Upload_Directory,
       Session,
-      Session_Cleanup_Interval,
-      Session_Lifetime,
       Cleaner_Wait_For_Client_Timeout,
       Cleaner_Client_Header_Timeout,
       Cleaner_Client_Data_Timeout,
@@ -206,7 +225,15 @@ private
       Up_Image,
       Down_Image,
       Logo_Image,
-      Case_Sensitive_Parameters);
+      Case_Sensitive_Parameters,
+      Session_Cleanup_Interval,
+      Session_Lifetime);
+
+   subtype Server_Parameter_Name is Parameter_Name
+     range Server_Name .. Case_Sensitive_Parameters;
+
+   subtype Process_Parameter_Name is Parameter_Name
+     range Session_Cleanup_Interval .. Session_Lifetime;
 
    type Value_Type  is (Str, Dir, Pos, Dur, Bool);
 
@@ -231,16 +258,12 @@ private
       end case;
    end record;
 
-   type Object is array (Parameter_Name) of Values;
+   type Parameter_Set is array (Parameter_Name range <>) of Values;
+
+   type Object is new Parameter_Set (Server_Parameter_Name);
 
    Default_Config : constant Object
-     := (Session_Cleanup_Interval =>
-           (Dur, Default.Session_Cleanup_Interval),
-
-         Session_Lifetime =>
-           (Dur, Default.Session_Lifetime),
-
-         Cleaner_Wait_For_Client_Timeout =>
+     := (Cleaner_Wait_For_Client_Timeout =>
            (Dur, Default.Cleaner_Wait_For_Client_Timeout),
 
          Cleaner_Client_Header_Timeout =>
@@ -294,6 +317,12 @@ private
          Log_File_Directory =>
            (Dir, To_Unbounded_String (Default.Log_File_Directory)),
 
+         Log_File_Prefix =>
+           (Str, To_Unbounded_String (Default.Log_File_Prefix)),
+
+         Log_Split_Mode =>
+           (Str, To_Unbounded_String (Default.Log_Split_Mode)),
+
          Upload_Directory =>
            (Dir, To_Unbounded_String (Default.Upload_Directory)),
 
@@ -314,5 +343,16 @@ private
 
          Case_Sensitive_Parameters =>
            (Bool, Default.Case_Sensitive_Parameters));
+
+   Server_Config : Object := Default_Config;
+   --  This variable will be updated with options found in 'aws.ini' and
+   --  'progname.ini'.
+
+   Process_Options : Parameter_Set (Process_Parameter_Name)
+     := (Session_Cleanup_Interval =>
+           (Dur, Default.Session_Cleanup_Interval),
+
+         Session_Lifetime =>
+           (Dur, Default.Session_Lifetime));
 
 end AWS.Config;
