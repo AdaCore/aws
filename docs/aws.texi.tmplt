@@ -39,10 +39,11 @@
 
 @menu
 * Introduction::
-* How to build it ?::
-* How to use it ?::
+* Building AWS::
+* Using AWS::
 * High level services::
 * SOAP::
+* Resources::
 * Status page::
 * Last notes::
 * AWS API Reference::
@@ -92,13 +93,14 @@ a very good and Open Source SSL implementation.
 
 @c ----------------------------------------------------------------------
 
-@node How to build it ?
-@chapter How to build it ?
+@node Building AWS
+@chapter Building AWS
 
 @menu
 * Requirements::
 * AWS.OS_Lib::
 * Building::
+* Demos::
 * Installing::
 @end menu
 
@@ -214,15 +216,15 @@ At this point you can build AWS. There is two ways to build AWS:
 @item with SSL support
 
 @smallexample
-   $ make set_ssl
-   $ make build
+$ make set_ssl
+$ make build
 @end smallexample
 
 @item without SSL support (no need for the OpenSSL libraries in this case).
 
 @smallexample
-   $ make set_std
-   $ make build
+$ make set_std
+$ make build
 @end smallexample
 
 @end itemize
@@ -232,12 +234,19 @@ In both cases it is possible to build AWS in debug mode by setting
 DEBUG make variable.
 
 @smallexample
-   $ make build DEBUG=1
+$ make build DEBUG=1
 @end smallexample
 
+@node Demos
+@section Demos
+
 @noindent
-During the build the AWS library and demos will be compiled. 
-The demos are:
+During the build, the @code{AWS} library and demos will be compiled. The
+demos are a good way to learn how to use @code{AWS}. Yet to learn all
+features in @code{AWS} you'll need to read the documentation.
+
+@noindent
+Here are a short description of the demos:
 
 @table @file
 
@@ -256,6 +265,10 @@ A simple program to test the Web Basic authentication feature.
 
 Two simples program that uses the AWS communication service.
 
+@item dispatch
+
+A simple demo using the dispatcher facility. @pxref{URI dispatcher}.
+
 @item hello_world
 
 The famous Hello World program. This is a server that will always
@@ -266,14 +279,24 @@ return a Web page saying ``Hello World!''.
 
 A simple test for the hotplug feature.
 
+@item res_demo
+
+A demo using the resource feature. This Web Server embedded a @code{PNG}
+image and an @code{HTML} page. The executable is self contained.
+
 @item runme
 
-A complete example that test many AWS features. If this test runs fine
-on your platform, AWS is certainly ok.
+A complete example that test many @code{AWS} features. If this test runs fine
+on your platform, @code{AWS} is certainly ok.
+
+@item text_input
+
+A simple demo which handle textarea and display the content.
 
 @item vh_demo
 
 Two servers on the same machine... virtual hosting demo.
+@pxref{Virtual host dispatcher}.
 
 @item ws
 
@@ -282,7 +305,7 @@ A static Web page server and push enabled server.
 @item wps
 
 A very simple static Web page server based on @code{AWS.Services.Page_Server}. 
-@xref{AWS.Services.Page_Server}.
+@pxref{Static Page server}.
 
 @end table
 
@@ -291,7 +314,7 @@ If @code{XMLAda} is installed it is possible to build the SOAP binding
 and the SOAP demos, for this just type:
 
 @smallexample
-   $ make build_soap
+$ make build_soap
 @end smallexample
 
 @noindent
@@ -327,13 +350,21 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL},
 @cindex Installing
 
 @noindent
-When the build is done it is possible to install AWS at a specific
+When the build is done you must install @code{AWS} at a specific
 location. The target directory is defined with the @var{INSTALL}
-@file{makefile} variable. Update this variable to point to the right
-location, then:
+@file{makefile} variable. The default value is your home directory. To
+install:
 
 @smallexample
-   $ make install
+$ make install
+@end smallexample
+
+@noindent
+To install @code{AWS} into another directory just force the make
+INSTALL variable:
+
+@smallexample
+$ make install INSTALL=/opt
 @end smallexample
 
 @noindent
@@ -341,10 +372,11 @@ Now you are ready to use AWS !
 
 @c ----------------------------------------------------------------------
 
-@node How to use it ?
-@chapter How to use it ?
+@node Using AWS
+@chapter Using AWS
 
 @menu
+* Setting up environment::
 * Basic notion::
 * Configuration files::
 * Session handling::
@@ -356,15 +388,50 @@ Now you are ready to use AWS !
 * Server Log::
 @end menu
 
+@node Setting up environment
+@section Setting up environment
+
+@noindent
+After installing @code{AWS} you must set the build environment to
+point the compiler to the right location. Here is how to do with
+@code{GNAT}. First let's say that @code{AWS} has been installed in
+@file{awsroot} directory.
+
+@table @b
+
+@item spec files
+
+The spec files are installed in @file{<awsroot>/include}. Add this
+path into ADA_INCLUDE_PATH or put it on the command line
+@code{-aI<awsroot>/include}.
+
+@item components
+
+@code{AWS} uses some general components they are installed in
+@file{<awsroot>/components}. Add this path into ADA_INCLUDE_PATH or
+put it on the command line @code{-I<awsroot>/components}.
+
+@item libraries
+
+The GNAT library files (@file{.ali}) and the @code{AWS} libraries
+(@file{libaws.a}) are installed into @file{<awsroot>/lib}. Add this
+path into ADA_OBJECT_PATH or put it on the command line
+@code{-aO<awsroot>/lib}. Further more for @code{gnatlink} to find the
+libraries you must add the following library path option on the @code{gnatmake}
+command line @code{-largs -L<awsroot>/lib -laws}.
+
+@item external libraries
+
+You must do the same thing for all external libraries that you will
+be using. For example you'll have to point @code{GNAT} to the
+@code{AdaSockets} libraries and use the @code{-ladasockets gnatlink's}
+argument. The same apply if you have built @code{AWS} with
+@code{POSIX} or with @code{SSL} support.
+
+@end table
+
 @node Basic notion
 @section Basic notion
-
-@menu
-* Building an AWS server::
-* Callback procedure::
-* Form parameters::
-* Distribution of an AWS server::
-@end menu
 
 @noindent
 @code{AWS} is not a Web Server like @i{IIS} or @i{Apache}, it is a component to
@@ -379,6 +446,13 @@ applications, @xref{AWS.Client}.
 An application using @code{AWS} can open many HTTP channels. Each
 channel will use a specific port. So it is possible to embedded some
 HTTP and some HTTPS channels in the same application.
+
+@menu
+* Building an AWS server::
+* Callback procedure::
+* Form parameters::
+* Distribution of an AWS server::
+@end menu
 
 @node Building an AWS server
 @subsection Building an AWS server
@@ -1088,6 +1162,7 @@ keeping the complete Web server context.
 @node File upload
 @section File upload
 @cindex File upload
+@cindex upload, server
 
 @noindent
 File upload is the way to send a file from the client to the server. To
@@ -1188,15 +1263,15 @@ If the content is some kind of binary data (executable, PNG image, Zip
 archive...), then it is possible to write the result to a file for
 example. Look at the @code{agent} program in the @code{demos} directory.
 
+@noindent
+@cindex upload, client
+The client upload protocol is implemented. Using @code{AWS.Client.Upload} it
+is possible to send a file to a server which support the file upload protocol.
+
 @node Communication
 @section Communication
 @cindex Communication
 @cindex Sending message
-
-@menu
-* Communication - client side::
-* Communication - server side::
-@end menu
 
 @noindent
 This API is used to do communication between programs using the HTTP
@@ -1209,6 +1284,11 @@ good idea to have a look at the @code{AWS/SOAP} support, @pxref{SOAP}.
 @noindent
 In a communication there is a Client and a Server. Here is what is to be
 done on both sides to have programs talking together.
+
+@menu
+* Communication - client side::
+* Communication - server side::
+@end menu
 
 @node Communication - client side
 @subsection Communication - client side
@@ -1289,11 +1369,6 @@ Note that this communication API is used by the Hotplug module facility
 @section Hotplug module
 @cindex hotplug
 
-@menu
-* Hotplug module - creation::
-* Hotplug module - server activation::
-@end menu
-
 @noindent
 An @b{Hotplug module} is a module that can by dynamically binded to a
 running server. It is a Web server and the development process is very
@@ -1306,6 +1381,11 @@ redirect all URL matching the regular expression to the Hotplug module.
 @noindent
 Note that the main server will redirect the URL to the first matching regular
 expression.
+
+@menu
+* Hotplug module - creation::
+* Hotplug module - server activation::
+@end menu
 
 @node Hotplug module - creation
 @subsection Hotplug module - creation
@@ -1666,11 +1746,6 @@ is based on the directory browsing service @pxref{Directory browser}.
 @cindex SOAP
 @cindex Simple Object Access Protocol
 
-@menu
-* SOAP Server::
-* SOAP Client::
-@end menu
-
 @noindent
 SOAP can be used to implements Web Services. The SOAP implementation
 uses AWS HTTP as the transport layer. SOAP is platforms and
@@ -1697,6 +1772,11 @@ from the WSDL (Web Services Description Language). AWS/SOAP is not
 WSDL compliant at this stage, all such types are binded into the Ada
 type system as strings. It is up to the programer to convert such
 strings to the required type.
+
+@menu
+* SOAP Server::
+* SOAP Client::
+@end menu
 
 @node SOAP Server
 @section SOAP Server
@@ -1889,6 +1969,94 @@ described in Ada as follow:
 
 @c ----------------------------------------------------------------------
 
+@node Resources
+@chapter Resources
+@cindex Resources
+@cindex Self dependant
+
+@noindent
+AWS support embedded resources. It means that it is possible to build
+a fully self dependent executable. This is useful when distributing a
+server. The server program contains the code but also the images (PNG,
+JPEG, GIF), the templates, the HTML pages... more generally any file the
+Web Server must serve to clients.
+
+@menu
+* Building resources::
+* Using resources::
+* awsres tool::
+@end menu
+
+@node Building resources
+@section Building resources
+@cindex Building resources
+
+@noindent
+To embbed the files into the executable you must build a resource
+tree. This task is greatly simplified using @file{AWSRes} tool. For
+example let's say that you want to build a simple server with a single
+page containing some text and one PNG image. The text is handled
+directly in the callback procedure and contain a reference to the
+image @file{logo.png}. To build the resource tree:
+
+@smallexample
+$ awsres logo.png
+@end smallexample
+
+@noindent
+This will create a set of packages whose root is the unit @code{res} by
+default. The resource tree is created. @pxref{awsres tool} for the
+complete AWS's usage description.
+
+@node Using resources
+@section Using resources
+@cindex Using resources
+
+@noindent
+This is really the simplest step. The resource tree must be linked
+with your executable, to do so you just have to ``with'' the
+resource tree root into one of your program unit. This will ensure
+that the resource tree will be compiled and linked into the
+executable. @code{AWS} and @code{Templates_Parser know} about resource
+files and will pick them up if available.
+
+@noindent
+Note that this is transparent to users. It is possible to build the
+very same server based on standard files or resources files. The only
+change in the code is to ``with'' or not the resource tree.
+
+@noindent
+Note that @code{AWS} supports only a single resource tree. If more
+than one resource tree is included into a program only one will be
+seen.
+
+@node awsres tool
+@section awsres tool
+@cindex awsres
+
+@noindent
+AWSRes is a tool to build resource files. It creates a root package
+named @file{res} by default and a child package for each resource
+file.
+
+@noindent
+Usage: awsres [-hrq] file1 [file2...]
+
+@table @code
+
+@item -h
+Display help message.
+
+@item -r name
+Set the root unit name. Default is @code{res}.
+
+@item -q
+Quiet mode.
+
+@end table
+
+@c ----------------------------------------------------------------------
+
 @node Status page
 @chapter Status page
 @cindex Status
@@ -1906,7 +2074,7 @@ about how does the template parser works, please look for the template
 parser distribution at @url{http://perso.wanadoo.fr/} in the Ada section.
 
 @noindent
-Here are the tag variables recognized by AWS status page:
+Here are the tag variables recognized by @code{AWS} status page:
 
 @table @b
 
@@ -2099,6 +2267,7 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 * AWS.Config::
 * AWS.Config.Ini::
 * AWS.Config.Set::
+* AWS.Default::
 * AWS.Dispatchers::
 * AWS.Dispatchers.Callback::
 * AWS.Log::
@@ -2118,6 +2287,9 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 * AWS.Status::
 * AWS.Templates::
 * AWS.URL::
+@end menu
+
+@menu
 * SOAP.Client::
 * SOAP.Message::
 * SOAP.Message.XML::
@@ -2166,6 +2338,12 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 @cindex AWS.Config.Set
 
 @include ../src/aws-config-set.ads.texi
+
+@node AWS.Default
+@section AWS.Default
+@cindex AWS.Default
+
+@include ../src/aws-default.ads.texi
 
 @node AWS.Dispatchers
 @section AWS.Dispatchers
