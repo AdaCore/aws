@@ -55,6 +55,8 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       Sessions : Vector_Tag;
       Keys     : Vector_Tag;
       Values   : Vector_Tag;
+      M_Keys   : Matrix_Tag;
+      M_Values : Matrix_Tag;
 
       procedure For_Each_Key_Value
         (N          : in     Positive;
@@ -78,8 +80,8 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Key, Value : in     String;
          Quit       : in out Boolean) is
       begin
-         Keys   := Keys & ("<td>" & Key);
-         Values := Values & ("<td>" & Value);
+         Keys   := Keys & Key;
+         Values := Values & Value;
       end For_Each_Key_Value;
 
       --------------------------
@@ -102,6 +104,12 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Sessions := Sessions & Session.Image (SID);
 
          Build_Key_Value_List (SID);
+
+         M_Keys   := M_Keys & Keys;
+         M_Values := M_Values & Values;
+
+         Clear (Keys);
+         Clear (Values);
       end For_Each_Session;
 
       ------------------------
@@ -114,9 +122,9 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
    begin
       Build_Session_List;
 
-      return Translate_Table'(Assoc ("SESSIONS_L", Sessions),
-                              Assoc ("KEYS_L",     Keys),
-                              Assoc ("VALUES_L",   Values));
+      return Translate_Table'(Assoc ("SESSIONS_V", Sessions),
+                              Assoc ("KEYS_M",     M_Keys),
+                              Assoc ("VALUES_M",   M_Values));
    end Session_Table;
 
    ----------------
@@ -166,13 +174,13 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       end loop;
 
       return Translate_Table'
-        (Assoc ("SOCK_L",                  Sock),
-         Assoc ("PEER_NAME_L",             Peer_Name),
-         Assoc ("OPENED_L",                Opened),
-         Assoc ("ABORTABLE_L",             Abortable),
-         Assoc ("SLOT_ACTIVITY_COUNTER_L", Slot_Activity_Counter),
-         Assoc ("ACTIVITY_COUNTER_L",      Activity_Counter),
-         Assoc ("ACTIVITY_TIME_STAMP_L",   Activity_Time_Stamp));
+        (Assoc ("SOCK_V",                  Sock),
+         Assoc ("PEER_NAME_V",             Peer_Name),
+         Assoc ("OPENED_V",                Opened),
+         Assoc ("ABORTABLE_V",             Abortable),
+         Assoc ("SLOT_ACTIVITY_COUNTER_V", Slot_Activity_Counter),
+         Assoc ("ACTIVITY_COUNTER_V",      Activity_Counter),
+         Assoc ("ACTIVITY_TIME_STAMP_V",   Activity_Time_Stamp));
    end Slot_Table;
 
    use type Templates_Parser.Translate_Table;
