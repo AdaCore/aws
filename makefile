@@ -111,13 +111,14 @@ clean:
 	make -C soap clean
 	rm *.~*.*~
 
-distrib: build_doc
+distrib: clean build_doc
 	-rm -f aws-*.tar*
 	(VERSION=`grep " Version" src/aws.ads | cut -c 43-45`; \
 	AWS=aws-$${VERSION}; \
 	mkdir $${AWS}; \
 	mkdir $${AWS}/src; \
 	mkdir $${AWS}/demos; \
+	mkdir $${AWS}/regtests; \
 	mkdir $${AWS}/docs; \
 	mkdir $${AWS}/icons; \
 	mkdir $${AWS}/include; \
@@ -129,6 +130,7 @@ distrib: build_doc
 	cp demos/makefile demos/[shrw]*.ads demos/[ahmrsw]*.adb $${AWS}/demos;\
 	cp demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	cp demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
+	cp regtests/*.out regtests/*.adb regtests/makefile $${AWS}/regtests;\
 	cp docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
 	cp docs/aws.info* docs/aws.ps docs/makefile $${AWS}/docs;\
 	cp docs/TODO docs/openssl.license $${AWS}/docs;\
