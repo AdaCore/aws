@@ -1,3 +1,9 @@
+2004-07-22  Pascal Obry  <pascal@obry.org>
+
+	* zlib-thin.ads:
+	(ULong): Fix definition (changed to unsigned_long), fix regression on
+	 64 bits computers.
+	
 2003-07-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zlib.ads, zlib.adb:
