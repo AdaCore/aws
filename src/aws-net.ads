@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -51,8 +51,7 @@ package AWS.Net is
    type Socket_Set is array (Positive range <>) of Socket_Access;
 
    Forever : constant Duration;
-   --  Very very long timeout. So long that nobody would wait it.
-   --  More than 24 days.
+   --  The longest delay possible on the implementation
 
    ----------------
    -- Initialize --
@@ -112,7 +111,6 @@ package AWS.Net is
      (Socket : in Socket_Type;
       Data   : in Stream_Element_Array)
       is abstract;
-   pragma Inline (Send);
    --  Send Data chunk to the socket
 
    function Receive
@@ -120,7 +118,6 @@ package AWS.Net is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array
       is abstract;
-   pragma Inline (Receive);
    --  Read a chunk of data from the socket and returns it. It always return
    --  something and then must wait for available data on the socket.
 
@@ -180,7 +177,7 @@ private
    --  into a read cache, this makes reading char-by-char the socket more
    --  efficient. Before reading data, the write cache  is flushed.
 
-   Forever : constant Duration := Duration (Integer'Last / 1000);
+   Forever : constant Duration := Duration'Last;
 
    type Cache (Max_Size : Stream_Element_Count) is record
       Buffer : Stream_Element_Array (1 .. Max_Size);
