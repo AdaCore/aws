@@ -41,7 +41,7 @@ with AWS.Client;
 with AWS.MIME;
 with AWS.Messages;
 with AWS.Parameters;
-with AWS.Response;
+with AWS.Response.Set;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Session;
@@ -76,6 +76,8 @@ procedure Check_Mem is
    procedure Check_Zlib;
 
    procedure Check_Memory_Streams;
+
+   procedure Check_Dynamic_Message (Encoding : Response.Content_Encoding);
 
    task Server is
       entry Started;
@@ -340,6 +342,25 @@ procedure Check_Mem is
       Request ("addProc", 5, 9);
    end Client;
 
+   ---------------------------
+   -- Check_Dynamic_Message --
+   ---------------------------
+
+   procedure Check_Dynamic_Message (Encoding : Response.Content_Encoding) is
+      Answer : Response.Data;
+   begin
+      Response.Set.Data_Encoding (Answer, Encoding);
+
+      --  ??? Dynamically allocated data would be deallocated only when
+      --  Encoding = Identity inside of Answer finalization.
+      --  We should fix it untill 1.4.
+      --  I propose to remove Set.Message_Body with access parameter from API.
+      --  or deallocate pointer inside of ZLib.Append inside of Message_Body.
+
+      Response.Set.Message_Body
+        (Answer, new Streams.Stream_Element_Array (1 .. 64));
+   end Check_Dynamic_Message;
+
    --------------------------
    -- Check_Memory_Streams --
    --------------------------
@@ -373,7 +394,7 @@ procedure Check_Mem is
          Append (Stream, Data);
          Read (Stream, Test, Last);
 
-         if Test (1 .. Last) /= Sample then
+         if Test (1 .. Last) /= Sample or else not End_Of_File (Stream) then
             raise Program_Error;
          end if;
 
@@ -387,8 +408,8 @@ procedure Check_Mem is
 
    begin
       ZLib.Inflate_Initialize (Packed);
-
       Test (Packed, Translator.Compress (Sample'Access));
+
       Test (Plain, new Streams.Stream_Element_Array'(Sample));
    end Check_Memory_Streams;
 
@@ -449,6 +470,8 @@ begin
       Client;
       Check_Zlib;
       Check_Memory_Streams;
+      Check_Dynamic_Message (Response.Identity);
+      Check_Dynamic_Message (Response.Deflate);
    end loop;
 
    Server.Stopped;
