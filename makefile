@@ -121,6 +121,9 @@ build_lib: build_scripts build_stdlib build_soap_internal
 ifdef XMLADA
 	-$(AR) cr lib/libaws.a soap/*.o
 endif
+ifeq (${OS}, Windows_NT)
+	-$(AR) cr lib/libaws.a lib/poll.o
+endif
 
 build_scripts:
 	echo ""
@@ -406,11 +409,11 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/docs/html
 	$(MKDIR) $(INSTALL)/AWS/components
 	$(MKDIR) $(INSTALL)/AWS/tools
-	$(CP) src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
-	-$(CP) soap/*.ad[sb] $(INSTALL)/AWS/include
-	$(CP) src/[at]*.ali $(INSTALL)/AWS/lib
-	-$(CP) ssl/*.ali $(INSTALL)/AWS/lib
-	-$(CP) soap/*.ali $(INSTALL)/AWS/lib
+	$(CP) -p src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
+	-$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) -p src/[at]*.ali $(INSTALL)/AWS/lib
+	-$(CP) -p ssl/*.ali $(INSTALL)/AWS/lib
+	-$(CP) -p soap/*.ali $(INSTALL)/AWS/lib
 	$(CP) lib/libaws.a $(INSTALL)/AWS/lib
 	$(CP) lib/libnosslaws.a $(INSTALL)/AWS/lib
 	$(CP) lib/libz.a $(INSTALL)/AWS/lib
@@ -423,8 +426,8 @@ install: force
 	$(CP) demos/wm_login.html $(INSTALL)/AWS/templates
 	$(CP) icons/*.gif $(INSTALL)/AWS/icons
 	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
-	-$(CP) include/*.ad? $(INSTALL)/AWS/components
-	-$(CP) include/*.o include/*.ali $(INSTALL)/AWS/components
+	-$(CP) -p include/*.ad? $(INSTALL)/AWS/components
+	-$(CP) -p include/*.o include/*.ali $(INSTALL)/AWS/components
 	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) tools/ada2wsdl${EXEEXT} $(INSTALL)/AWS/tools
