@@ -371,7 +371,7 @@ package body Ada2WSDL.Parser is
                   Elem  : constant Asis.Element
                     := Declarations.Declaration_Subtype_Mark (Parameters (I));
 
-                  Mode : constant Asis.Mode_Kinds
+                  Mode  : constant Asis.Mode_Kinds
                     := Elements.Mode_Kind (Parameters (I));
 
                   Names : constant Defining_Name_List
@@ -516,26 +516,23 @@ package body Ada2WSDL.Parser is
       function Type_Name (Elem : in Asis.Element) return String is
          use Extensions.Flat_Kinds;
 
-         function Check_Float (Type_Name : in String) return String;
-         --  Returns Type_Name, issue a warning if Type_Name is a Float
+         procedure Check_Float (E : in Asis.Element);
+         --  Issue a warning if E has not the right digits
 
          -----------------
          -- Check_Float --
          -----------------
 
-         function Check_Float (Type_Name : in String) return String is
-            L_Name : constant String
-              := Characters.Handling.To_Lower (Type_Name);
+         procedure Check_Float (E : in Asis.Element) is
+            D : constant Asis.Expression := Definitions.Digits_Expression (E);
          begin
-            if L_Name = "float" then
+            if Positive'Wide_Value (Expressions.Value_Image (D)) <= 6 then
                Text_IO.Put_Line
                  (Text_IO.Standard_Error,
-                  "ada2wsdl:" & Location (Elem)
+                  Location (Elem)
                     & ": use Long_Float instead of Float for SOAP/WSDL"
                     & " items.");
             end if;
-
-            return Type_Name;
          end Check_Float;
 
          E   : Asis.Element := Elem;
@@ -571,6 +568,10 @@ package body Ada2WSDL.Parser is
          else
             --  A simple type
 
+            if Flat_Element_Kind (E) = A_Floating_Point_Definition then
+               Check_Float (E);
+            end if;
+
             E := Declarations.Names (CFS) (1);
 
             declare
@@ -578,9 +579,9 @@ package body Ada2WSDL.Parser is
             begin
                --  ??? There is probably a better way to achieve this
                if E_Str = "" then
-                  return Check_Float (Image (Text.Element_Image (Elem)));
+                  return Image (Text.Element_Image (Elem));
                else
-                  return Check_Float (E_Str);
+                  return E_Str;
                end if;
             end;
          end if;
