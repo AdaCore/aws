@@ -1,3 +1,19 @@
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(BUILD_OPT): Removed, not used now.
+	(test_ldap): Idem.
+	(build): Add rule to build the SSL based demos.
+
+	* demos.gpr:
+	Rewrite a good part, this project file is now only used for non
+	 SSL based demos. Part of the code as been moved to demos_shared
+	 to be shared with demos_ssl project which handles SSL basesd
+	 demos.
+	
+	* demos_shared.gpr, demos_ssl.gpr:
+	Initial revision.
+
 2004-09-30  Pascal Obry  <pascal@obry.org>
 
 	* demos.gpr:

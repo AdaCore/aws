@@ -1,3 +1,15 @@
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
+	* aws.gpr:
+	Change path to other projects due to new directory structure.
+	All project files are put into AWS/projects (follows XML/Ada
+	convention).
+
+	* aws_ssl.gpr, crypto_lib.gpr, ssl_lib.gpr, nossl_lib.gpr:
+	Initial revision.
+	New project files to properly handle SSL and non SSL based
+	 applications.
+
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.gpr, components.gpr:
