@@ -1,3 +1,10 @@
+2001-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-default.ads:
+	(One_Hour): new constant.
+	(One_Minute): idem.
+	Use above constants to define the timeouts.
+
 2001-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb:
