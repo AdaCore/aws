@@ -47,7 +47,7 @@ procedure Hotplug is
    use Ada;
 
    procedure Wait_Terminate;
-   --  Wait for module to terminate and unregister it.
+   --  Wait for module to terminate and unregister it
 
    Response : AWS.Response.Data;
 
