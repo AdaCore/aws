@@ -53,7 +53,7 @@ check_env:
 	(if ! [ -e ../src/aws-os_lib.adb ]; then \
 	   cp ../include/aws-os_lib-gnat.adb ../src/aws-os_lib.adb; fi)
 
-build: check_env aws.ps aws.html aws.txt aws.info
+build: check_env aws.ps aws.pdf aws.html aws.txt aws.info
 	echo done
 
 ada.sed: makefile
@@ -79,6 +79,9 @@ aws.dvi: aws.texi $(APIFILES)
 
 aws.ps: aws.dvi
 	-dvips aws.dvi -o aws.ps
+
+aws.pdf: aws.ps
+	-ps2pdf aws.ps aws.pdf
 
 aws.info: aws.texi
 	-makeinfo aws.texi
