@@ -1,6 +1,16 @@
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml-input_sources.adb:
+	Revert part of the previous check-in.
+	(Next_Char): Rename Temp to Pos. Add some more comments. This
+	 algorithm is quite complex, makes sure that all case are properly
+	 documented. It should probably be possible to remove the
+	 Clean_Buffer routine, but right now there is still regressions
+	 without it. It needs some more work.
+
+2004-06-02  Pascal Obry  <pascal@obry.org>
+
+	* aws-client-xml-input_sources.adb:
 	(Eof): Add call to Clean_Buffer removed in previous check-in.
 	(Next_Char): Idem. Rewrite part of the algorithm to make it
 	 cleaner. Add some comments. Remove not needed used of Temp variable.
