@@ -29,3 +29,53 @@ http://www.myserver.com:89/app/./../toto?url=http://titi&a=2
    File       : toto
    Parameters : ?url=http://titi&a=2
    URI        : /toto?url=http://titi&a=2
+Error on http://www.myserver.com:89/..?url=http://titi&a=2 - Wrong URL: (/..) Reference Web root parent directory.
+Error on http://www.myserver.com:89/./..?a=2 - Wrong URL: (/..) Reference Web root parent directory.
+.
+.
+   Server     : 
+   Port       : 80
+   Path       : .
+   File       : 
+   Parameters : 
+   URI        : .
+   *
+   Server     : 
+   Port       : 80
+   Path       : .
+   File       : 
+   Parameters : 
+   URI        : .
+./toto
+./toto
+   Server     : 
+   Port       : 80
+   Path       : ./
+   File       : toto
+   Parameters : 
+   URI        : ./toto
+   *
+   Server     : 
+   Port       : 80
+   Path       : /
+   File       : toto
+   Parameters : 
+   URI        : /toto
+Error on ./../toto - Wrong URL: (/../) Reference Web root parent directory.
+..
+..
+   Server     : 
+   Port       : 80
+   Path       : ..
+   File       : 
+   Parameters : 
+   URI        : ..
+   *
+   Server     : 
+   Port       : 80
+   Path       : ..
+   File       : 
+   Parameters : 
+   URI        : ..
+Error on /../ - Wrong URL: (/../) Reference Web root parent directory.
+Error on /.. - Wrong URL: (/..) Reference Web root parent directory.
