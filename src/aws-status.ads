@@ -155,7 +155,7 @@ package AWS.Status is
 
    function Binary_Data (D : in Data) return Stream_Element_Array;
    pragma Inline (Binary_Data);
-   --  Returns the binary data message content.
+   --  Returns the binary data message content
 
    function Parameters             (D : in Data) return Parameters.List;
    pragma Inline (Parameters);
