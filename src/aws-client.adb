@@ -767,15 +767,20 @@ package body AWS.Client is
                end;
 
             else
+               if CT_Len = 0 then
+                  Response.Set.Message_Body
+                    (Result, Streams.Stream_Element_Array'(1 .. 0 => 0));
 
-               declare
-                  Elements : Stream_Element_Array_Access
-                    := Read_Binary_Message (CT_Len);
-               begin
-                  Response.Set.Message_Body (Result, Elements.all);
+               else
+                  declare
+                     Elements : Stream_Element_Array_Access
+                       := Read_Binary_Message (CT_Len);
+                  begin
+                     Response.Set.Message_Body (Result, Elements.all);
 
-                  Free (Elements);
-               end;
+                     Free (Elements);
+                  end;
+               end if;
             end if;
          end if;
 
