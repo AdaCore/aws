@@ -30,9 +30,9 @@
 
 include makefile.lst
 
-ADA2WSDL = .$(BDIR)/tools/ada2wsdl-main
-WSDL2AWS = .$(BDIR)/tools/wsdl2aws
-AWSRES   = .$(BDIR)/tools/awsres
+ADA2WSDL = ../$(BDIR)/tools/ada2wsdl-main
+WSDL2AWS = ../$(BDIR)/tools/wsdl2aws
+AWSRES   = ../$(BDIR)/tools/awsres
 
 # Standard regression tests that needs to be run in a separate executable
 
