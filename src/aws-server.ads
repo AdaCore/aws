@@ -367,6 +367,8 @@ private
 
       Exception_Handler : Unexpected_Exception_Handler :=
          Default_Unexpected_Exception_Handler'Access;
+      --  Exception handle used for unexpected errors found on the server
+      --  implementation.
 
       Slots           : Slots_Access;
       --  Information about each tasks above. This is a protected object to
