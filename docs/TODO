@@ -87,3 +87,9 @@ implemented:
 - Have a way to set the certificate to use with an HTTPS server.
 
 - Have a way to retrieve server configuration from a callback procedure.
+
+- Merge the message handling on the server and client side. Right now both are
+  using different implementations.
+
+- Use AWS.Net and AWS.Net.Stream_IO for all socket IO operations. Then move
+  this interface to GNAT.Sockets.
