@@ -383,8 +383,7 @@ where it begins or ends a sequence_of_statements.
 @itemize @bullet
 
 @item
-Layout is as below. For long case statements, the extra indentation
-can be saved by aligning the when clauses with the opening case.
+Layout is as below.
 
 @smallexample
        case <expression> is
@@ -394,6 +393,19 @@ can be saved by aligning the when clauses with the opening case.
              ...
        end case;
 @end smallexample
+
+@noindent
+If the condition and the code for the case section is small, it is
+possible to put the code for each when section right after the
+condition without a new-line.
+
+@smallexample
+       case <expression> is
+          when <condition> => ...
+          when <condition> => ...
+       end case;
+@end smallexample
+
 @end itemize
 
 @subsection Loop statements
