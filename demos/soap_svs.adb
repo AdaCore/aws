@@ -37,6 +37,7 @@
 --     Never at this point.
 
 with Ada.Text_IO;
+with Ada.Command_Line;
 
 with AWS.Response;
 with AWS.Server;
@@ -52,7 +53,10 @@ procedure SOAP_SVS is
 
    use Ada;
 
-   WS  : AWS.Server.HTTP;
+   Quiet : Boolean := True;
+   --  Set to False with -t option (trace mode).
+
+   WS    : AWS.Server.HTTP;
 
    function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data;
    --  Callback used when SOAPAction is /validator1
@@ -130,11 +134,13 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request");
 
-      Text_IO.Put_Line ("Payload : " & AWS.Status.Payload (Request));
+         Text_IO.Put_Line ("Payload : " & AWS.Status.Payload (Request));
 
-      Text_IO.Put_Line ("   Procedure : " & Proc_Name);
+         Text_IO.Put_Line ("   Procedure : " & Proc_Name);
+      end if;
 
       --  Test the procedure to call
 
@@ -194,16 +200,18 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request countTheEntities");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request countTheEntities");
 
-      Text_IO.Put_Line ("  "
-                        & Natural'Image (SOAP.Parameters.Argument_Count (P))
-                        & " parameter(s)");
+         Text_IO.Put_Line ("  "
+                           & Natural'Image (SOAP.Parameters.Argument_Count (P))
+                           & " parameter(s)");
 
-      Text_IO.Put_Line
-        ("   s = " & SOAP.Types.Image (SOAP.Parameters.Argument (P, "s")));
+         Text_IO.Put_Line
+           ("   s = " & SOAP.Types.Image (SOAP.Parameters.Argument (P, "s")));
 
-      Text_IO.New_Line;
+         Text_IO.New_Line;
+      end if;
 
       --  Real job start here
 
@@ -264,11 +272,13 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request easyStructTest");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request easyStructTest");
 
-      Text_IO.Put_Line ("  "
-                        & Natural'Image (SOAP.Parameters.Argument_Count (P))
-                        & " parameter(s)");
+         Text_IO.Put_Line ("  "
+                           & Natural'Image (SOAP.Parameters.Argument_Count (P))
+                           & " parameter(s)");
+      end if;
 
       --  Real job start here
 
@@ -312,11 +322,13 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request echoStructTest");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request echoStructTest");
 
-      Text_IO.Put_Line ("  "
-                        & Natural'Image (SOAP.Parameters.Argument_Count (P))
-                        & " parameter(s)");
+         Text_IO.Put_Line ("  "
+                           & Natural'Image (SOAP.Parameters.Argument_Count (P))
+                           & " parameter(s)");
+      end if;
 
       --  Real job start here
 
@@ -353,11 +365,13 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request manyTypesTest");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request manyTypesTest");
 
-      Text_IO.Put_Line ("  "
-                        & Natural'Image (SOAP.Parameters.Argument_Count (P))
-                        & " parameter(s)");
+         Text_IO.Put_Line ("  "
+                           & Natural'Image (SOAP.Parameters.Argument_Count (P))
+                           & " parameter(s)");
+      end if;
 
       --  Real job start here
 
@@ -398,11 +412,13 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request moderateSizeArrayCheck");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request moderateSizeArrayCheck");
 
-      Text_IO.Put_Line ("  "
-                        & Natural'Image (SOAP.Parameters.Argument_Count (P))
-                        & " parameter(s)");
+         Text_IO.Put_Line ("  "
+                           & Natural'Image (SOAP.Parameters.Argument_Count (P))
+                           & " parameter(s)");
+      end if;
 
       --  Real job start here
 
@@ -442,11 +458,13 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request nestedStructTest");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request nestedStructTest");
 
-      Text_IO.Put_Line ("  "
-                        & Natural'Image (SOAP.Parameters.Argument_Count (P))
-                        & " parameter(s)");
+         Text_IO.Put_Line ("  "
+                           & Natural'Image (SOAP.Parameters.Argument_Count (P))
+                           & " parameter(s)");
+      end if;
 
       --  Real job start here
 
@@ -491,11 +509,13 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request simpleStructReturnTest");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request simpleStructReturnTest");
 
-      Text_IO.Put_Line ("  "
-                        & Natural'Image (SOAP.Parameters.Argument_Count (P))
-                        & " parameter(s)");
+         Text_IO.Put_Line ("  "
+                           & Natural'Image (SOAP.Parameters.Argument_Count (P))
+                           & " parameter(s)");
+      end if;
 
       --  Real job start here
 
@@ -539,11 +559,13 @@ procedure SOAP_SVS is
    begin
       --  Print SOAP request for the demo
 
-      Text_IO.Put_Line ("SOAP Request withToolkit");
+      if not Quiet then
+         Text_IO.Put_Line ("SOAP Request withToolkit");
 
-      Text_IO.Put_Line ("  "
-                        & Natural'Image (SOAP.Parameters.Argument_Count (P))
-                        & " parameter(s)");
+         Text_IO.Put_Line ("  "
+                           & Natural'Image (SOAP.Parameters.Argument_Count (P))
+                           & " parameter(s)");
+      end if;
 
       --  Real job start here
 
@@ -562,6 +584,12 @@ procedure SOAP_SVS is
    end SOAP_Which_Toolkit;
 
 begin
+   if Command_Line.Argument_Count = 1
+     and then Command_Line.Argument (1) = "-t"
+   then
+      Quiet := False;
+   end if;
+
    AWS.Server.Start (WS, "SOAP Validation Suite",
                      Max_Connection => 5,
                      Callback       => CB'Unrestricted_Access);
