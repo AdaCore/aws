@@ -1,111 +1,64 @@
+------------------------------------------------------------------------------
+--                             Strings  Cutter                              --
+--                                                                          --
+--                        Copyright (C) 1995 - 2004                         --
+--                               Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
 
---  -----------------------------------------------------------------------  --
---
---  Author  : Pascal Obry
---  E-Mail  : pascal_obry@csi.com
---
---  -----------------------------------------------------------------------  --
---
 --  $Id$
---
---  -----------------------------------------------------------------------  --
---
---       Module Name : Strings_Cutter
---         File name : strings_cutter.ads
---
---       Created by  : Pascal Obry
---               on  : Tue Oct  3 16:51:51 1995
---
---  Last modified by : $Author$
---                     $Date$
---                     $Revision$
---
---         Locked by : $Locker$
---
---  ======================================== I D E N T I F I C A T I O N ==  --
---
---  Description
---     Ce package permet de decouper un chaine en sous-chaines. Les
---     sous-chaines sont separees par des separateurs.
---
---  Mots-cles
---     String, cutter, chaine
---
---  Caracterisation
---     Unite    : Paquetage
---     Genre    : Type de donnee abstrait
---     Liaisons : Independant
---
---  Disponibilite
---     Systemes de compilation
---        GNAT, SPARC Solaris 2.4
---     Access
---        Sources
---
---  Historique
---
---  ======================================== S P E C I F I C A T I O N S ==  --
---
---  Elements generiques et ajustement de comportement
---     (Unite non generique)
---
---  Elements principaux
---     Create
---        permet de creer un objet Cutted_String.
---     Field
---        permet d'extraire ensuite le champ numero Index.
---        Si Index depasse le nombre de champ de la chaine Field retourne une
---        chaine vide (i.e. "")
---
---  Elements annexes
---
---  ====================================== I M P L E M E N T A T I O N S ==  --
---
---  Elaboration
---     (neant - pas de pragma d'elaboration necessaire)
---
---  Algorithme
---     (neant)
---
---  Elements sensibles utilises
---     (neant)
---
---  Performances
---     (neant)
---
---  Autres informations
---     (neant)
---
---  =======================================================================  --
---
 
 package Strings_Cutter is
 
    type Cut_String is private;
 
-   --  constructors
-   procedure Create (S          :    out Cut_String;
-                     From       : in     String;
-                     Separators : in     String);
+   procedure Create
+     (S          :    out Cut_String;
+      From       : in     String;
+      Separators : in     String);
+   --  Create a Cut_String object from the String and using the set of
+   --  separators specified.
 
    procedure Destroy (S : in out Cut_String);
+   --  Release all memory associated with a S
 
+   procedure Set
+     (S          : in out Cut_String;
+      Separators : in     String);
+   --  Change the set of separators and recreate the Cut_String object based
+   --  on this new set of separators.
 
-   --  modifier
-   procedure Set (S          : in out Cut_String;
-                  Separators : in     String);
-
-
-   --  actions
    subtype Index_Values is Natural range 0 .. 1_000;
 
-   function Field_Count (S : in Cut_String)
-      return  Index_Values;
+   function Field_Count (S : in Cut_String) return  Index_Values;
+   --  Returns the number of fields in S
 
-   function Field (S     : in Cut_String;
-                   Index : in Index_Values)
+   function Field
+     (S     : in Cut_String;
+      Index : in Index_Values)
       return String;
-   --  Index = 0 => all the line.
+   --  Returns the Nth field in S. Returns the original string if Index is
+   --  set to 0.
 
 private
 
