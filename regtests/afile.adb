@@ -57,7 +57,8 @@ procedure Afile is
    begin
       if URI = "/first" then
          return Response.File
-           (MIME.Application_Octet_Stream, "afile.o");
+           (MIME.Application_Octet_Stream, "afile.o",
+            Disposition => Response.Inline);
 
       elsif URI = "/second" then
          return Response.File
@@ -67,7 +68,8 @@ procedure Afile is
       elsif URI = "/third" then
          return Response.File
            (MIME.Application_Octet_Stream, "afile.o",
-            User_Filename => "you_got_this.o");
+            User_Filename => "you_got_this.o",
+            Disposition => Response.Inline);
 
       elsif URI = "/fourth" then
          return Response.File
@@ -79,7 +81,9 @@ procedure Afile is
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
            (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
-         return Response.Stream (MIME.Application_Octet_Stream, Strm);
+         return Response.Stream
+           (MIME.Application_Octet_Stream, Strm,
+            Disposition => Response.Inline);
 
       elsif URI = "/sixth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
@@ -95,7 +99,7 @@ procedure Afile is
            (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
-            User_Filename => "a_stream.o");
+            User_Filename => "a_stream.o", Disposition => Response.Inline);
 
       elsif URI = "/eighth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
@@ -107,17 +111,13 @@ procedure Afile is
             User_Filename => "a_stream.o");
 
       elsif URI = "/nineth" then
-         return Response.File
-           (MIME.Application_Octet_Stream, "afile.o",
-            Disposition => Response.None);
+         return Response.File (MIME.Application_Octet_Stream, "afile.o");
 
       elsif URI = "/tenth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
            (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
-         return Response.Stream
-           (MIME.Application_Octet_Stream, Strm,
-            Disposition => Response.None);
+         return Response.Stream (MIME.Application_Octet_Stream, Strm);
       else
          return Response.Build (MIME.Text_HTML, "URI not supported");
       end if;
