@@ -194,10 +194,3 @@ implemented:
 - Fix bug in REPLACE filer containing a ':'
   @_REPLACE(([a-z]+)_([a-z]+)/\2:\1):VAR_@
   raised TEMPLATES_PARSER.TEMPLATE_ERROR : unbalanced parenthesis "\1)"
-
-- Fix bug in directory browser.
-  Using the wps demo, if a user type an URL pointing to a directory but does
-  not add the ending '/' it is not possible to access the files.
-
-  http://localhost:1234/CVS/    Ok.
-  http://localhost:1234/CVS     Nok.
