@@ -55,6 +55,7 @@ package body AWS.Containers.Tables is
       Name    : in     String;
       Indexes :    out Name_Index_Table;
       Found   :    out Boolean);
+   pragma Inline (Get_Indexes);
    --  Returns all Name/Value indexes for the specified name.
    --  Found is set to False if Name was not found in Table and True otherwise.
 
@@ -158,36 +159,12 @@ package body AWS.Containers.Tables is
      (Table   : in     Table_Type;
       Name    : in     String;
       Indexes :    out Name_Index_Table;
-      Found   :    out Boolean)
-   is
-      procedure Action
-        (Key   : in     String;
-         Value : in out Name_Index_Table);
-
-      ------------
-      -- Action --
-      ------------
-
-      procedure Action
-        (Key   : in     String;
-         Value : in out Name_Index_Table)
-      is
-         pragma Unreferenced (Key);
-      begin
-         Indexes := Value;
-      end Action;
-
-      ------------------
-      -- Dummy_Update --
-      ------------------
-
-      procedure Dummy_Update is
-        new Index_Table.Update_Value_Or_Status_G (Action);
-
+      Found   :    out Boolean) is
    begin
-      Dummy_Update
+      Index_Table.Get_Value
         (Table => Index_Table.Table_Type (Table.Index.all),
          Key   => Normalize_Name (Name, not Table.Case_Sensitive),
+         Value => Indexes,
          Found => Found);
    end Get_Indexes;
 
