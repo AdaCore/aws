@@ -23,14 +23,11 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 
 build:
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
-	(if ! [ -e aws-os_lib.adb ]; then cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb; fi)
-	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-session.adb
-	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-key_value.ads
-	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-server-get_status.adb
-	$(GCC) -c -O0 -g -I../include $(INCLUDES) aws-server-push.adb
-	$(GCC) -c -O0 -g -I../include $(INCLUDES) aws-services-directory.adb
-# no optimization because a bug in GNAT 3.13 (no problem with 3.14 though).
-	for file in $(SOURCES); do gnatmake $(GARGS) $$file -largs $(LFLAGS); done
+	(if ! [ -e aws-os_lib.adb ]; then \
+	   cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb; fi)
+	for file in $(SOURCES); do \
+	   gnatmake $(GARGS) $$file -largs $(LFLAGS); \
+	done
 
 ssl_mode:
 	-rm *.o *.ali
