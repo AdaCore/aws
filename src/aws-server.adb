@@ -53,6 +53,7 @@ with AWS.Templates;
 package body AWS.Server is
 
    use Ada;
+   use type Net.Socket_Access;
 
    Security_Initialized : Boolean := False;
 
@@ -116,12 +117,23 @@ package body AWS.Server is
    is
       New_Socket : Net.Socket_Type'Class
         := Net.Socket (CNF.Security (Server.Properties));
+
+      Back_Socket : Net.Socket_Access;
+
+      procedure Free is new Ada.Unchecked_Deallocation
+                              (Net.Socket_Type'Class, Net.Socket_Access);
    begin
-      Server.Sock_Sem.Seize;
+      Server.Sock_Sem.Seize_Or_Socket (Back_Socket);
 
-      Net.Accept_Socket (Server.Sock, New_Socket);
+      if Back_Socket = null then
+         Net.Accept_Socket (Server.Sock, New_Socket);
 
-      Server.Sock_Sem.Release;
+         Server.Sock_Sem.Release;
+      else
+         New_Socket := Back_Socket.all;
+
+         Free (Back_Socket);
+      end if;
 
       return New_Socket;
 
@@ -267,6 +279,17 @@ package body AWS.Server is
    begin
       return Line_Attribute.Value;
    end Get_Current;
+
+   ----------------------
+   -- Give_Back_Socket --
+   ----------------------
+
+   procedure Give_Back_Socket
+     (Web_Server : in out HTTP;
+      Socket     : in     Net.Socket_Type'Class) is
+   begin
+      Web_Server.Sock_Sem.Put_Socket (new Net.Socket_Type'Class'(Socket));
+   end Give_Back_Socket;
 
    ----------------
    -- Initialize --
@@ -802,6 +825,49 @@ package body AWS.Server is
       end Socket_Taken;
 
    end Slots;
+
+   ----------------------
+   -- Socket_Semaphore --
+   ----------------------
+
+   protected body Socket_Semaphore is
+
+      ----------------
+      -- Put_Socket --
+      ----------------
+
+      entry Put_Socket (Socket : in Net.Socket_Access)
+      when Socket_Semaphore.Socket = null is
+      begin
+         Socket_Semaphore.Socket := Put_Socket.Socket;
+      end Put_Socket;
+
+      -------------
+      -- Release --
+      -------------
+
+      procedure Release is
+      begin
+         Seized := False;
+      end Release;
+
+      ---------------------
+      -- Seize_Or_Socket --
+      ---------------------
+
+      entry Seize_Or_Socket (Socket : out Net.Socket_Access)
+      when not Seized or else Socket_Semaphore.Socket /= null is
+      begin
+         if not Seized then
+            Seized := True;
+            Seize_Or_Socket.Socket := null;
+         else
+            Seize_Or_Socket.Socket  := Socket_Semaphore.Socket;
+            Socket_Semaphore.Socket := null;
+         end if;
+      end Seize_Or_Socket;
+
+   end Socket_Semaphore;
 
    -----------
    -- Start --
