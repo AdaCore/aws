@@ -360,7 +360,9 @@ package body AWS.Client is
 
       if URL.Security (Host_URL) then
          --  This is a secure connection, initialize the SSL layer
-         Net.SSL.Initialize (Connection.SSL_Config, Certificate);
+
+         Net.SSL.Initialize
+           (Connection.SSL_Config, Certificate, Net.SSL.SSLv23_Client);
       end if;
 
       --  Establish the connection now
