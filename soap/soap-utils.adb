@@ -417,11 +417,22 @@ package body SOAP.Utils is
    -------------
 
    function With_NS (NS, Name : in String) return String is
+      use Ada;
+      K : Natural;
    begin
       if NS = "" then
          return Name;
+
       else
-         return NS & ':' & Name;
+         K := Strings.Fixed.Index (Name, ":");
+
+         if K = 0 then
+            K := Name'First;
+         else
+            K := K + 1;
+         end if;
+
+         return NS & ':' & Name (K .. Name'Last);
       end if;
    end With_NS;
 
