@@ -106,7 +106,9 @@ package body AWS.Server is
          Web_Server.Lines (I).Start (Web_Server, I);
       end loop;
 
-      Session.Start;
+      if Web_Server.Session then
+         Session.Start;
+      end if;
    end Start;
 
    --------------
@@ -115,12 +117,18 @@ package body AWS.Server is
 
    procedure Shutdown (Web_Server : in out HTTP) is
    begin
+      Web_Server.Shutdown := True;
+
       Sockets.Shutdown (Web_Server.Sock);
       abort Web_Server.Cleaner;
 
       for S in 1 .. Web_Server.Max_Connection loop
          Web_Server.Slots.Release (S);
       end loop;
+
+      if Web_Server.Session then
+         Session.Shutdown;
+      end if;
    end Shutdown;
 
    -----------
@@ -378,8 +386,11 @@ package body AWS.Server is
    exception
 
       when E : others =>
-         Text_IO.Put_Line ("Slot problem has been detected!");
-         Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+
+         if not HTTP_Server.Shutdown then
+            Text_IO.Put_Line ("Slot problem has been detected!");
+            Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+         end if;
 
    end Line;
 
