@@ -69,12 +69,12 @@ procedure Auth2 is
 begin
    AWS.Server.Start
      (HTTP, "Test authentication.",
-      CB'Unrestricted_Access, Port => 1236, Max_Connection => 3);
+      CB'Unrestricted_Access, Port => 1255, Max_Connection => 3);
 
-   R := Client.Get ("http://localhost:1236", "toto", "toto_pwd");
+   R := Client.Get ("http://localhost:1255", "toto", "toto_pwd");
    Text_IO.Put_Line (Response.Message_Body (R));
 
-   R := Client.Get ("http://localhost:1236", "xyz", "_123_");
+   R := Client.Get ("http://localhost:1255", "xyz", "_123_");
    Text_IO.Put_Line (Response.Message_Body (R));
 
    AWS.Server.Shutdown (HTTP);
