@@ -1,4 +1,9 @@
-2004-05-28  Pascal Obry  <pascal.obry@edf.fr>
+2004-05-28  Pascal Obry  <pascal@obry.org>
+
+	* afile.adb:
+	Revert previous check-in.
+
+2004-05-28  Pascal Obry  <pascal@obry.org>
 
 	* check_mem.adb:
 	Revert previous check-in. It is not equivalent as it has removed
