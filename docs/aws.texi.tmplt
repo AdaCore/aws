@@ -15,6 +15,7 @@
 @title AWS - version @_AWS_VERSION_@
 @subtitle Ada Web Server User's Guide
 @subtitle Support for SOAP 1.1 - version @_SOAP_VERSION_@
+@subtitle Also support SMTP and LDAP protocols
 @subtitle $Revision$
 @subtitle $Date$
 @author Dmitriy Anisimkov (anisimkov@@yahoo.com)
@@ -44,6 +45,7 @@
 * High level services::
 * Using SOAP::
 * Sending e-mail::
+* LDAP::
 * Resources::
 * Status page::
 * Last notes::
@@ -111,7 +113,9 @@ Major supported features are:
 
 @item Server push
 
-@item SMTP mail
+@item SMTP mail (client API)
+
+@item LDAP (client API)
 
 @item Embedded resources (full self dependant Web server)
 
@@ -175,10 +179,23 @@ Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 @item OpenSSL (@b{optional}) ;
 @cindex OpenSSL
 
-OpenSSL is an Open Source toolkit implementing the Secure Sockets Layer
+OpenSSL is an Open Source toolkit implementing the @i{Secure Sockets Layer}
 (SSL v2 and v3) and much more. You'll find libraries for Win32 into this
 distribution. For other platforms just download the OpenSSL source
 distribution from @url{http://www.openssl.org} and build it.
+
+@item OpenLDAP (@b{optional}) ;
+@cindex OpenLDAP
+
+OpenLDAP is an Open Source toolkit implementing the 
+@i{Lightweight Directory Access Protocol}.
+If you want to use the @code{AWS/LDAP} API
+on UNIX based systems, you need to install properly the @code{OpenLDAP}
+package. On Windows you don't need to install it as the
+@file{libldap.a} library will be built by @code{AWS} and will use the
+standard Windows @code{LDAP} DLL @file{wldap32.dll}.
+
+You can download OpenLDAP from @url{http://www.openldap.org}.
 
 @end itemize
 
@@ -241,10 +258,13 @@ $ make win32_oslib
 @noindent
 When you have built and configured all libraries you must either set
 ADA_INCLUDE_PATH and ADA_OBJECTS_PATH (for GNAT) to point to the right
-directories or update the @code{INCLUDES} variable in top @file{makefile}.
+directories or update the @code{ADASOCKETS}, @code{XMLADA},
+@code{v_XMLADA} and @code{INSTALL} variables in the top
+@file{makefile}. You should have a look at file @file{INSTALL} for
+installation instructions.
 
 @noindent
-At this point you can build AWS. There is two ways to build AWS:
+At this point you can build @code{AWS}. There is two ways to build @code{AWS}:
 
 @itemize @bullet
 @item with SSL support
@@ -272,8 +292,8 @@ $ make build
 @end itemize
 
 @noindent
-In both cases it is possible to build AWS in debug mode by setting
-DEBUG make variable.
+In both cases it is possible to build @code{AWS} in debug mode by setting
+DEBUG make's variable.
 
 @smallexample
 @cartouche
@@ -353,6 +373,11 @@ image and an @code{HTML} page. The executable is self contained.
 
 A complete example that test many @code{AWS} features. If this test runs fine
 on your platform, @code{AWS} is certainly ok.
+
+@item test_ldap
+
+A simple LDAP demo which access a public LDAP server and display some
+information.
 
 @item text_input
 
@@ -434,7 +459,7 @@ $ make install
 
 @noindent
 To install @code{AWS} into another directory just force the make
-INSTALL variable:
+@code{INSTALL} variable:
 
 @smallexample
 @cartouche
@@ -445,7 +470,7 @@ $ make install INSTALL=/opt
 @end smallexample
 
 @noindent
-Now you are ready to use AWS !
+Now you are ready to use @code{AWS} !
 
 @c ----------------------------------------------------------------------
 
@@ -2162,9 +2187,9 @@ described in Ada as follow:
 @cindex Simple Mail Transfer Protocol
 
 @noindent
-AWS provides a complete API to send e-mail using SMTP protocol. You
+@code{AWS} provides a complete API to send e-mail using SMTP protocol. You
 need to have access to an SMTP server to use this feature. The API
-covers sending simple mail with text message and/or with MIME
+covers sending simple mail with text message and/or with @code{MIME}
 attachments (base64 encoded). Here are the steps to send a simple e-mail:
 
 @itemize
@@ -2180,7 +2205,7 @@ SMTP_Server : SMTP.Receiver
 @end cartouche
 @end smallexample
 
-Here AWS uses the default SMTP port to create an SMTP mail server but
+Here @code{AWS} uses the default SMTP port to create an SMTP mail server but
 it is possible to specify a different one. The hostname specified
 must be a valid SMTP server.
 
@@ -2232,12 +2257,184 @@ successful with @code{SMTP.Is_Ok} routine.
 
 @noindent
 In the above example, the message content was given as a string but it
-is possible to specify a disk file. AWS can also send MIME messages
+is possible to specify a disk file. @code{AWS} can also send MIME messages
 either from disk files or with in memory base64 encoded binary
 data. The API provides also a way to send messages to multiple
 recipients at the same time. These features are not described here,
 complete documentation can be found on the spec @pxref{AWS.SMTP} and
 @pxref{AWS.SMTP.Client}.
+
+@c ----------------------------------------------------------------------
+
+@node LDAP
+@chapter LDAP
+@cindex LDAP
+@cindex LDAP Directory
+@cindex Lightweight Directory Access Protocol
+
+@noindent
+@code{AWS} provides a complete API to retrieve information from LDAP servers.
+Note that there is no support for updating, modifying or deleting
+information only to read information from the server.
+
+@sp 1
+@noindent
+The @code{AWS/LDAP} implementation is based on @code{OpenLDAP}. To
+build an LDAP application you need to link with the @file{libldap.a}
+library. This library is built by @code{AWS} on Windows based system
+and will use the @file{wldap32.dll} as provided with Windows
+NT/2000/XP. On UNIX based systems, you must install properly the
+@code{OpenLDAP} package.
+
+@noindent
+The steps required to read information from an LDAP server are:
+
+@table @b
+
+@item Initialize the LDAP directory
+
+@smallexample
+@cartouche
+@group
+@b{declare}
+   Directory : LDAP.Client.Directory;
+@b{begin}
+   Directory := LDAP.Client.Init (Host);
+@end group
+@end cartouche
+@end smallexample
+
+Host is the hostname where the LDAP directory is running. It is
+possible to specify the port if the LDAP server does not use the
+default one.
+
+@item Bind to the LDAP server
+
+This step is the way to pass a login/password if the LDAP server
+required an authentication. If not, the login/password must be empty strings.
+
+@smallexample
+@cartouche
+@group
+   LDAP.Client.Bind (Directory, "", "");
+@end group
+@end cartouche
+@end smallexample
+
+@item Do the search
+
+@noindent
+For the search you must specify the base name, a filter, the scope and
+a set of attributes to retrieve.
+
+@smallexample
+@cartouche
+@group
+   Response_Set := LDAP.Client.Search
+     (Directory, Base_DN, Filter, LDAP.Client.LDAP_Scope_Subtree,
+      LDAP.Client.Attributes
+        ("cn", "sn", "telephonenumber"));
+@end group
+@end cartouche
+@end smallexample
+
+@table @b
+@item Attributes
+The set of attributes to retrieve from the directory.
+@item Filter
+A set of values for some attributes. A filter is <attribute_name>=<value>
+where value can contain '*' at the end. For example "(cn=DUPON*)" will
+look for all entries where the common name is starting by the string "DUPON".
+@item Scope
+Define how far in the hierarchical directory the search will
+operate. It is either one level, all subtrees or on the base of the tree.
+@end table
+
+@noindent
+For more information @pxref{AWS.LDAP.Client}.
+
+@item Iterate through the response set
+
+@noindent
+For this there is two iterators. @code{First_Entry}/@code{Next_Entry} or the
+generic high level iterator @code{For_Every_Entry}.
+
+@smallexample
+@cartouche
+@group
+@b{declare}
+   Message : LDAP.Client.LDAP_Message;
+@b{begin}
+   Message := LDAP.Client.First_Entry (Directory, Response_Set);
+
+   @b{while} Message /= LDAP.Client.Null_LDAP_Message @b{loop}
+
+      Do_Job (Message);
+
+      Message := LDAP.Client.Next_Entry (Directory, Message);
+   @b{end loop};
+@b{end};
+@end group
+@end cartouche
+@end smallexample
+
+@item Read attributes for each entry
+
+@noindent
+Each entry has an associated set of attributes. To retrieve attributes
+values there is two iterators. @code{First_Attribute} / @code{Next_Attribute}
+or the generic high level iterator @code{For_Every_Attribute}.
+
+@smallexample
+@cartouche
+@group
+@b{declare}
+   BER : @b{aliased} LDAP.Client.BER_Element;
+
+   Attr : @b{constant} String := LDAP.Client.First_Attribute
+     (Directory, Message, BER'Unchecked_Access);
+@b{begin}
+   Do_Job (Attr);
+
+   @b{loop}
+      @b{declare}
+         Attr : @b{constant} String := LDAP.Client.Next_Attribute
+          (Directory, Message, BER);
+      @b{begin}
+         @b{exit when} Attr = "";
+         Do_Job (Attr);
+      @b{end};
+  @b{end loop};
+@b{end};
+@end group
+@end cartouche
+@end smallexample
+
+@item Cleanup
+
+@noindent
+At the end of the processing it is important to release memory
+associated with LDAP objects.
+
+@smallexample
+@cartouche
+@group
+   LDAP.Client.Free (Message);
+   LDAP.Client.Unbind (Directory);
+@end group
+@end cartouche
+@end smallexample
+
+@end table
+
+@sp 1
+@noindent
+@pxref{AWS.LDAP.Client} for all high level supported API and documentation.
+
+@noindent
+Note that for complete information about @code{AWS/LDAP} you you should read
+an LDAP API description. @code{AWS/LDAP} is only a binding and follow the
+LDAP API closely.
 
 @c ----------------------------------------------------------------------
 
@@ -2635,6 +2832,7 @@ AWS User API:
 * AWS.Default::
 * AWS.Dispatchers::
 * AWS.Dispatchers.Callback::
+* AWS.LDAP.Client::
 * AWS.Log::
 * AWS.MIME::
 * AWS.Parameters::
@@ -2735,6 +2933,12 @@ SOAP User API:
 @cindex Callback, dispatcher API
 
 @include ../src/aws-dispatchers-callback.ads.texi
+
+@node AWS.LDAP.Client
+@section AWS.LDAP.Client
+@cindex AWS.LDAP.Client
+
+@include ../src/aws-ldap-client.ads.texi
 
 @node AWS.Log
 @section AWS.Log
