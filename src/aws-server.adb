@@ -180,6 +180,7 @@ package body AWS.Server is
    is
       use Ada.Exceptions;
       use type Templates.Translate_Table;
+      pragma Unreferenced (Log);
 
       Fatal_Error_Template  : constant String := "500.tmplt";
    begin
