@@ -1857,9 +1857,9 @@ RFC 2616                        HTTP/1.1                       June 1999
      the latter MUST be ignored.
 
    4.If the message uses the media type "multipart/byteranges", and the
-     ransfer-length is not otherwise specified, then this self-
+     transfer-length is not otherwise specified, then this self-
      elimiting media type defines the transfer-length. This media type
-     UST NOT be used unless the sender knows that the recipient can arse
+     MUST NOT be used unless the sender knows that the recipient can arse
      it; the presence in a request of a Range header with ultiple byte-
      range specifiers from a 1.1 client implies that the lient can parse
      multipart/byteranges responses.
