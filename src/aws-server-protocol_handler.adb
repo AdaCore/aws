@@ -985,23 +985,22 @@ is
       --  GET and HEAD can have a set of parameters (query) attached. This is
       --  not really standard see [RFC 2616 - 13.9] but is widely used now.
       --
-      --  POST parameters are passed into the message body, we do not allow
-      --  parameters here even is this could be possible but as of today this
-      --  feature is not used and it is not clear if it is permitted or
-      --  prohibited by reading RFC 2616.
+      --  POST parameters are passed into the message body, but we allow
+      --  parameters also in this case. It is not clear if it is permitted or
+      --  prohibited by reading RFC 2616. Other technologies do offer this
+      --  feature so AWS do this as well.
 
       if Messages.Match (Command, Messages.Get_Token) then
          Status.Set.Request (C_Stat, Status.GET, Resource, HTTP_Version);
-         AWS.Parameters.Set.Add (P_List, Parameters);
 
       elsif Messages.Match (Command, Messages.Head_Token) then
          Status.Set.Request (C_Stat, Status.HEAD, Resource, HTTP_Version);
-         AWS.Parameters.Set.Add (P_List, Parameters);
 
       elsif Messages.Match (Command, Messages.Post_Token) then
          Status.Set.Request (C_Stat, Status.POST, Resource, HTTP_Version);
-
       end if;
+
+      AWS.Parameters.Set.Add (P_List, Parameters);
    end Parse_Request_Line;
 
    ----------
