@@ -7,6 +7,9 @@
 	* strm.adb, strm.out:
 	Add compression mode for user defined stream test.
 
+	* zbig.out:
+	Update output. Previous one was without flush.
+
 2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
