@@ -78,12 +78,12 @@ package AWS.Services.Dispatchers.Virtual_Host is
    --  Register the default callback. This will be used if no Virtual_Hostname
    --  match the request.
 
-   procedure Initialize (Dispatcher : in out Handler);
-   procedure Finalize   (Dispatcher : in out Handler);
-
 private
 
    use Ada.Strings.Unbounded;
+
+   procedure Initialize (Dispatcher : in out Handler);
+   procedure Finalize   (Dispatcher : in out Handler);
 
    type VH_Mode is (Host, Callback);
 
