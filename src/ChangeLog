@@ -1,3 +1,15 @@
+2002-11-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-ssl.adb:
+	(SSL_Initialized): Add pragma Atomic.
+
+2002-11-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-protocol_handler.adb:
+	(Send_File_Chunked): Arrange the routine to send the chunk size
+	 and the chunk data with the same Sockets.Send call. This is very
+	 important to work around a bug in Opera.
+
 2002-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-url.adb:
