@@ -29,7 +29,7 @@ The SOAP implementation has been validated on http://validator.soapware.org/.
 
 Here are the main changes:
 
-   - You need GNAT 3.14 to build AWS 1.2 (GNAT 3.13 is not anymore supported).
+   - You need GNAT 3.14 to build AWS 1.2 (GNAT 3.13 is not supported anymore).
 
    - Add a main procedure termination controller (AWS.Server.Wait)
 
