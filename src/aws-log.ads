@@ -91,7 +91,7 @@ private
       File            : Text_IO.File_Type;
       File_Directory  : Unbounded_String;
       Filename_Prefix : Unbounded_String;
-      Split           : Split_Mode;
+      Split           : Split_Mode := None;
       Current_Tag     : Positive;
    end record;
 
