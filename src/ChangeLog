@@ -1,3 +1,20 @@
+2001-09-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.ads:
+	Fix typos in comment.
+
+	* aws-config-set.ads:
+	Fix typos in comment.
+
+	* aws-config.ads:
+	Fix typos in comment.
+
+	* aws-server.ads:
+	Fix typo in comment.
+
+	* aws-status.ads:
+	Fix typo in comment.
+
 2001-09-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.ads:

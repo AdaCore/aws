@@ -1,5 +1,8 @@
 2001-09-21  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-client.ads:
+	Fix typo in comment.
+
 	* soap-message-reader.ads:
 	Minor casing fix.
 
