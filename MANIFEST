@@ -25,6 +25,8 @@ config/projects/nossl_lib.gpr
 config/projects/ssl_lib.gpr
 config/src/check_config.c
 config/src/test_uconv.adb
+config/templates_parser-configuration__aws.ads
+config/templates_parser-input__aws.adb
 demos/404.thtml
 demos/ChangeLog
 demos/adains.png
