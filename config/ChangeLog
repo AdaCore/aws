@@ -3,6 +3,7 @@
 	* aws-net-std__adasockets.adb:
 	(Wait_Mode): Moved to aws-net.adb.
 	(Wait_For): Moved to aws-net.adb.
+	(Wait_Mode): Read/Write -> Input/Output.
 
 2004-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 

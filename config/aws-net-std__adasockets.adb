@@ -271,7 +271,7 @@ package body AWS.Net.Std is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array is
    begin
-      Wait_For (Read, Socket);
+      Wait_For (Input, Socket);
 
       return Sockets.Receive (Socket.S.FD, Max);
    exception
@@ -317,7 +317,7 @@ package body AWS.Net.Std is
 
    begin
       loop
-         Wait_For (Write, Socket);
+         Wait_For (Output, Socket);
 
          if Rest <= Block_Size then
             Send (Rest);
