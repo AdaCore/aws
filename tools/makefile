@@ -16,8 +16,7 @@ ada2wsdl-options.adb: force
 	echo "package body Ada2WSDL.Options is" >> ada2wsdl-options.adb
 	echo "   procedure Set_Default is" >> ada2wsdl-options.adb
 	echo "   begin" >> ada2wsdl-options.adb
-	echo "      Parser.Add_Option (\"-I"$(XMLADA)"/include/xmlada\");" \
-		>> ada2wsdl-options.adb
+	echo "      pragma Style_Checks (Off);" >> ada2wsdl-options.adb
 	echo "      Parser.Add_Option (\"-I"$(INSTALL)"/AWS/components\");" \
 		>> ada2wsdl-options.adb
 	echo "      Parser.Add_Option (\"-I"$(INSTALL)"/AWS/include\");" \
