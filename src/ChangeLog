@@ -1,3 +1,32 @@
+2004-11-06  Pascal Obry  <pascal@obry.org>
+
+	* aws-services-split_pages-alpha.ads,
+          aws-services-split_pages-alpha.adb,
+          aws-services-split_pages-shared.ads,
+          aws-services-split_pages-shared.adb,
+          aws-services-split_pages-alpha-bounded.ads,
+          aws-services-split_pages-alpha-bounded.adb,
+          aws-services-split_pages-uniform.ads,
+          aws-services-split_pages-uniform.adb,
+          aws-services-split_pages-uniform-overlapping.ads,
+          aws-services-split_pages-uniform-overlapping.adb,
+          aws-services-split_pages-uniform-alpha.ads,
+          aws-services-split_pages-uniform-alpha.adb:
+	Initial revision.
+
+	* aws-services-split_pages.ads, aws-services-split_pages.adb:
+        (Page_Range): New type.
+        (Ranges_Table): New type.
+        (URI_Table): New type.
+        (Splitter): New abstract taggeg type, root of all splitters.
+        (Get_Page_Ranges): New abstract routine.
+        (Get_Translations): Idem.
+        (Parse) [Translate_Table]: New routine.
+        (Parse) [Translate_Set]: New routine.
+        This new version implements an abstract interface for all splitters
+         found in child packages. Note that the previous parse routine is
+         now implemented using the uniform splitter.
+
 2004-11-03  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.adb:
