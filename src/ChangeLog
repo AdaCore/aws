@@ -1,3 +1,9 @@
+2004-10-30  Pascal Obry  <pascal@obry.org>
+
+	* aws-hotplug.adb:
+	(Register): Add '/' at the end of the URL if needed. Fix hotplug
+         support.
+
 2004-10-29  Pascal Obry  <pascal@obry.org>
 
 	* aws-net.ads:

@@ -330,6 +330,8 @@ moved.tmp
 multiple
 multiple.res
 my_file_upload
+nbconn.res
+nbconn_sec.res
 no_param.res
 nonce
 nonce.res
@@ -446,6 +448,7 @@ tcom
 tcom.res
 test_all
 test_all.adb
+test_net_log.res
 test_sec_soap
 test_sec_soap.res
 test_sec_soap.tmp

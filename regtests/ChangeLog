@@ -1,5 +1,11 @@
 2004-10-30  Pascal Obry  <pascal@obry.org>
 
+	* test_hotplug.adb, test_hotplug.out:
+	Initial revision.
+	
+	* hotplug_pack.ads, hotplug_pack.adb:
+	Initial revision.
+
 	* timer.adb:
 	Use Get_Free_Port to find a free port.
 
