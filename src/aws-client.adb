@@ -1563,7 +1563,7 @@ package body AWS.Client is
       procedure Read_Internal
         (Data       :    out Ada.Streams.Stream_Element_Array;
          Last       :    out Ada.Streams.Stream_Element_Offset);
-      --  ???
+      --  Read the encoded data as is from HTTP connection.
 
       -------------------
       -- Read_Internal --
@@ -1667,6 +1667,8 @@ package body AWS.Client is
               (Read_Internal, Connection.Decode_Buffer.all,
                Connection.Decode_First, Connection.Decode_Last,
                Allow_Read_Some => True);
+            --  Decompress gzip or deflate encoded data.
+
          begin
             Read (Connection.Decode_Filter, Data, Last);
          end;
