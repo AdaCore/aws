@@ -98,22 +98,23 @@ package body AWS.Net.SSL is
 
    procedure Accept_Socket
      (Socket     : in     Socket_Type;
-      New_Socket :    out Net.Socket_Type'Class) is
+      New_Socket :    out Socket_Access) is
    begin
+      New_Socket := new Socket_Type;
+
       loop
-         Net.Std.Accept_Socket
-           (NSST (Socket), NSST (Socket_Type (New_Socket)));
+         Net.Std.Accept_Socket (NSST (Socket), New_Socket);
 
-         TS_SSL.Set_FD (Socket_Type (New_Socket));
+         TS_SSL.Set_FD (Socket_Type (New_Socket.all));
 
-         TSSL.SSL_set_accept_state (Socket_Type (New_Socket).SSL);
+         TSSL.SSL_set_accept_state (Socket_Type (New_Socket.all).SSL);
 
-         exit when TSSL.SSL_accept (Socket_Type (New_Socket).SSL) > 0;
+         exit when TSSL.SSL_accept (Socket_Type (New_Socket.all).SSL) > 0;
 
-         Shutdown (New_Socket);
+         Shutdown (New_Socket.all);
       end loop;
 
-      Set_Read_Ahead (Socket_Type (New_Socket), True);
+      Set_Read_Ahead (Socket_Type (New_Socket.all), True);
    end Accept_Socket;
 
    ------------
