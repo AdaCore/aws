@@ -18,8 +18,8 @@ tgetparam:
 
 checks:
 	echo "### Every output after this line means there is a regression ###"
-	diff -c turl.out turl.res
-	diff -c tgetparam.out tgetparam.res
+	-diff -c turl.out turl.res
+	-diff -c tgetparam.out tgetparam.res
 
 clean:
 	-rm *.o *.ali *.~*.*.~ *.res
