@@ -49,10 +49,6 @@ package body Templates_Parser.Query is
    -- Variable --
    --------------
 
-   --------------
-   -- Variable --
-   --------------
-
    function Variable
      (Association : in Templates_Parser.Association)
       return String is

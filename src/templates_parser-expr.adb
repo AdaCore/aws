@@ -190,7 +190,7 @@ package body Expr is
             Look_For_String : for I in Index + 1 .. Expression'Last loop
                if Expression (I) = '"' then
                   K := I;
-                  exit;
+                  exit Look_For_String;
                end if;
             end loop Look_For_String;
 
