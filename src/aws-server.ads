@@ -73,7 +73,7 @@ private
       Abortable           : Boolean := False;
       Quit                : Boolean := False;
       Activity_Counter    : Natural := 0;
-      Activity_Time_Stamp : Ada.Calendar.Time;
+      Activity_Time_Stamp : Ada.Calendar.Time := Ada.Calendar.Clock;
    end record;
 
    --  Abortable is set to true when the line can be aborted by closing the
@@ -82,6 +82,10 @@ private
    --  Also a line is closed after Keep_Open_Duration seconds of inactivity.
 
    type Slot_Set is array (Positive range <>) of Slot;
+
+   -----------
+   -- Slots --
+   -----------
 
    protected type Slots (N : Positive) is
 
@@ -115,13 +119,19 @@ private
       Count : Natural := N;
    end Slots;
 
-   type Slots_Access is access all Slots;
+   ----------
+   -- Line --
+   ----------
 
    task type Line is
       entry Start (Server : in HTTP; Index : in Positive);
    end Line;
 
    type Line_Set is array (Positive range <>) of Line;
+
+   ------------------
+   -- Line_Cleaner --
+   ------------------
 
    task type Line_Cleaner (Server : HTTP_Access) is
      entry Force;
@@ -143,7 +153,7 @@ private
       --  this is the server socket for incoming connection.
 
       Lines     : Line_Set (1 .. Max_Connection);
-      Slots     : Slots_Access := new Server.Slots (Max_Connection);
+      Slots     : Server.Slots (Max_Connection);
       Cleaner   : Line_Cleaner (HTTP'Unchecked_Access);
       Admin_URI : Unbounded_String;
    end record;
