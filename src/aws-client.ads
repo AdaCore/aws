@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
+--                         Copyright (C) 2000-2001                          --
 --                     Dmitriy Anisimkov - Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,13 +28,21 @@
 
 --  $Id$
 
+with Ada.Strings.Unbounded;
+with Sockets;
+
 with AWS.Response;
+with AWS.URL;
 
 package AWS.Client is
 
    URL_Error : exception;
 
-   No_Data : constant String := "";
+   No_Data       : constant String := "";
+
+   Retry_Default : constant := 1;
+   --  Number of time a data is requested from the Server if the connection
+   --  fails.
 
    function Get (URL        : in String;
                  User       : in String := No_Data;
@@ -51,6 +59,8 @@ package AWS.Client is
    --  authentification Proxy_User:Proxy_Pwd.
    --
    --  Only Basic authetification is supported (i.e. Digest is not).
+   --
+   --  Get will retry one time if it fails.
 
    function Head (URL        : in String;
                   User       : in String := No_Data;
@@ -59,6 +69,7 @@ package AWS.Client is
                   Proxy_User : in String := No_Data;
                   Proxy_Pwd  : in String := No_Data) return Response.Data;
    --  Idem as above but we do not get the message body.
+   --  Head will retry one time if it fails.
 
    function Put (URL        : in String;
                  Data       : in String;
@@ -68,6 +79,7 @@ package AWS.Client is
                  Proxy_User : in String := No_Data;
                  Proxy_Pwd  : in String := No_Data) return Response.Data;
    --  Send to the server URL a PUT request with Data
+   --  Put will retry one time if it fails.
 
    function Post (URL        : in String;
                   Data       : in String;
@@ -77,5 +89,68 @@ package AWS.Client is
                   Proxy_User : in String := No_Data;
                   Proxy_Pwd  : in String := No_Data) return Response.Data;
    --  Send to the server URL a POST request with Data
+   --  Post will retry one time if it fails.
+
+   --  Keep-Alive client implementation.
+
+   type HTTP_Connection is private;
+
+   function Create
+     (Host       : in String;
+      User       : in String   := No_Data;
+      Pwd        : in String   := No_Data;
+      Proxy      : in String   := No_Data;
+      Proxy_User : in String   := No_Data;
+      Proxy_Pwd  : in String   := No_Data;
+      Retry      : in Positive := Retry_Default)
+     return HTTP_Connection;
+   --  Create a new connection. This is to be used with Keep-Alive client API
+   --  below. The request will be tried Retry time if it fails.
+
+   procedure Get (Connection : in out HTTP_Connection;
+                  Result     :    out Response.Data;
+                  URI        : in     String          := No_Data);
+   --  Same as Get above but using a Connection.
+
+   procedure Head (Connection : in out HTTP_Connection;
+                   Result     :    out Response.Data;
+                   URI        : in     String          := No_Data);
+   --  Same as Head above but using a Connection.
+
+   procedure Put (Connection : in out HTTP_Connection;
+                  Result     :    out Response.Data;
+                  Data       : in     String;
+                  URI       : in     String          := No_Data);
+   --  Same as Put above but using a Connection.
+
+   procedure Post (Connection : in out HTTP_Connection;
+                   Result     :    out Response.Data;
+                   Data       : in     String;
+                   URI        : in     String          := No_Data);
+   --  Same as Post above but using a Connection.
+
+   procedure Close (Connection : in out HTTP_Connection);
+   --  Close connection, it releases all associated ressources.
+
+private
+
+   use Ada.Strings.Unbounded;
+
+   type Socket_Access is access Sockets.Socket_FD'Class;
+
+   type HTTP_Connection is record
+      Connect_URL : AWS.URL.Object;
+      Host        : Unbounded_String;
+      Host_URL    : AWS.URL.Object;
+      User        : Unbounded_String;
+      Pwd         : Unbounded_String;
+      Proxy       : Unbounded_String;
+      Proxy_URL   : AWS.URL.Object;
+      Proxy_User  : Unbounded_String;
+      Proxy_Pwd   : Unbounded_String;
+      Opened      : Boolean;
+      Socket      : Socket_Access;
+      Retry       : Positive;
+   end record;
 
 end AWS.Client;
