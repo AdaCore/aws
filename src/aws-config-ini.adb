@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -47,6 +47,25 @@ package body AWS.Config.Ini is
    --  Returns initialization filename for current server (using the
    --  executable name and adding .ini)
 
+   procedure Optional_Read
+     (Config   : in out Object;
+      Filename : in     String);
+   --  In case or file with Filename does not exists returns without errors.
+
+   -------------------
+   -- Optional_Read --
+   -------------------
+
+   procedure Optional_Read
+     (Config   : in out Object;
+      Filename : in     String) is
+   begin
+      Read (Config, Filename);
+   exception
+      when Text_IO.Name_Error =>
+         null;
+   end Optional_Read;
+
    ----------------------
    -- Program_Ini_File --
    ----------------------
@@ -79,7 +98,7 @@ package body AWS.Config.Ini is
 
    procedure Read
      (Config   : in out Object;
-      Filename : in     String := "")
+      Filename : in     String)
    is
 
       procedure Error_Message (Filename : in String; Message : in String);
@@ -279,13 +298,9 @@ package body AWS.Config.Ini is
       end loop;
 
       Text_IO.Close (File);
-
-   exception
-      when Text_IO.Name_Error =>
-         null;
    end Read;
 
 begin
-   Read (Server_Config, "aws.ini");
-   Read (Server_Config, Program_Ini_File);
+   Optional_Read (Server_Config, "aws.ini");
+   Optional_Read (Server_Config, Program_Ini_File);
 end AWS.Config.Ini;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,8 +38,9 @@ package AWS.Config.Ini is
 
    procedure Read
      (Config   : in out Object;
-      Filename : in     String := "");
+      Filename : in     String);
    --  Read 'File_Name.ini' and update the configuration object with the
    --  options read from it.
+   --  Raises Ada.Text_IO.Name_Error in case of file does not exist.
 
 end AWS.Config.Ini;
