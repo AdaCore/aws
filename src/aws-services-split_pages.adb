@@ -34,8 +34,9 @@ with Ada.Strings.Unbounded;
 
 with Templates_Parser.Query;
 
+with AWS.Config;
 with AWS.MIME;
-with AWS.Resources.Streams;
+with AWS.Resources.Streams.Memory;
 with AWS.Services.Transient_Pages;
 with AWS.Translator;
 
@@ -292,14 +293,14 @@ package body AWS.Services.Split_Pages is
 
             Stream : AWS.Resources.Streams.Stream_Access;
          begin
-            Stream := new AWS.Services.Transient_Pages.Stream_Type;
+            Stream := new AWS.Resources.Streams.Memory.Stream_Type;
 
             declare
                Page : constant Unbounded_String
                  := Templates.Parse (Template, Table, Cached);
             begin
-               AWS.Services.Transient_Pages.Append
-                 (AWS.Services.Transient_Pages.Stream_Type (Stream.all),
+               AWS.Resources.Streams.Memory.Append
+                 (AWS.Resources.Streams.Memory.Stream_Type (Stream.all),
                   Translator.To_Stream_Element_Array (To_String (Page)));
 
                if Result = Null_Unbounded_String then
@@ -307,7 +308,8 @@ package body AWS.Services.Split_Pages is
                end if;
             end;
 
-            Services.Transient_Pages.Register (Current (I), Stream);
+            Services.Transient_Pages.Register
+              (Current (I), Stream, Config.Transient_Lifetime);
          end;
 
          Last := Last + Max_Per_Page;
