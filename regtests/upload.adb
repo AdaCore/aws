@@ -40,6 +40,9 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Upload is
 
@@ -55,6 +58,8 @@ procedure Upload is
    end Server;
 
    HTTP : AWS.Server.HTTP;
+
+   Port : Natural := 7642;
 
    --------
    -- CB --
@@ -85,10 +90,12 @@ procedure Upload is
 
    task body Server is
    begin
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (HTTP, "upload",
          CB'Unrestricted_Access,
-         Port             => 7642,
+         Port             => Port,
          Max_Connection   => 5,
          Upload_Directory => "./");
 
@@ -127,8 +134,10 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:7642/upload", "upload.ali");
-   Request ("http://localhost:7642/upload", "upload.adb");
+   Request
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.ali");
+   Request
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.adb");
 
    Server.Stopped;
 
