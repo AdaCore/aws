@@ -2647,9 +2647,9 @@ package body Templates_Parser is
          end if;
       end if;
 
-      begin
-         Input.Open (File, Filename, Form => "shared=no");
+      Input.Open (File, Filename, Form => "shared=no");
 
+      begin
          New_T := Parse (Parse_Std);
 
          Input.Close (File);
