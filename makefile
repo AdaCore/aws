@@ -124,7 +124,7 @@ distrib: build_doc
 	mkdir $${AWS}/soap; \
 	mkdir $${AWS}/ssl; \
 	mkdir $${AWS}/win32; \
-	cp AUTHORS makefile readme.txt $${AWS};\
+	cp AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	cp src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
 	cp demos/makefile demos/[shrw]*.ads demos/[ahmrsw]*.adb $${AWS}/demos;\
 	cp demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
