@@ -122,7 +122,7 @@ Major supported features are:
 
 @item Template Web pages (separate the code and the design)
 
-@item Complete client API
+@item Complete client API, including HTTPS
 
 @item Web server activity log
 
@@ -2852,6 +2852,7 @@ AWS User API:
 * AWS.Config::
 * AWS.Config.Ini::
 * AWS.Config.Set::
+* AWS.Containers.Tables::
 * AWS.Default::
 * AWS.Dispatchers::
 * AWS.Dispatchers.Callback::
@@ -2940,6 +2941,12 @@ SOAP User API:
 @cindex AWS.Config.Set
 
 @include ../src/aws-config-set.ads.texi
+
+@node AWS.Containers.Tables
+@section AWS.Containers.Tables
+@cindex AWS.Containers.Tables
+
+@include ../src/aws-containers-tables.ads.texi
 
 @node AWS.Default
 @section AWS.Default
