@@ -483,28 +483,14 @@ package body Skel is
 
                when WSDL.Parameters.K_Enumeration =>
 
-                  if Output.Next = null then
                      --  A single simple parameter as return
 
-                     Text_IO.Put (Skel_Adb, WSDL.Set_Routine (WSDL.P_String));
+                     Text_IO.Put (Skel_Adb, "SOAP.Types.E");
 
                      Text_IO.Put
-                       (Skel_Adb, " (" & To_String (N.E_Name) & "_Type'Image"
-                        & " (Result), """ & To_String (N.Name) & """)");
-
-                  else
-                     --  Multiple value returned, this is a record
-
-                     Text_IO.Put
-                       (Skel_Adb,
-                        WSDL.Set_Routine
-                          (WSDL.P_String, Context => WSDL.Component));
-
-                     Text_IO.Put
-                       (Skel_Adb, " (Result."
-                          & Format_Name (O, To_String (N.Name))
-                          & ", """ & To_String (N.Name) & """)");
-                  end if;
+                       (Skel_Adb, " (Types.Image (Result), """
+                          & To_String (N.E_Name) & """, "
+                          & """" & To_String (N.Name) & """)");
 
                when WSDL.Parameters.K_Array =>
                   if Output.Next = null then
