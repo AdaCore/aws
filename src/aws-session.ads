@@ -47,9 +47,11 @@ package AWS.Session is
    --  Delete session, does nothing if SID does not exists.
 
    function Image (SID : in ID) return String;
+   pragma Inline (Image);
    --  Return ID image
 
    function Value (SID : in String) return ID;
+   pragma Inline (Value);
    --  Build an ID from a String, returns No_Session if SID is not recongnized
    --  as an AWS session ID.
 
@@ -158,8 +160,6 @@ package AWS.Session is
    --  Restore all sessions data from File_Name.
 
 private
-
-   pragma Inline (Image, Value);
 
    type ID is new String (1 .. 11);
 
