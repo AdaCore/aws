@@ -274,6 +274,12 @@ regtests/get_post.adb
 regtests/get_post.out
 regtests/head.adb
 regtests/head.out
+regtests/hload.adb
+regtests/hload.out
+regtests/hload_pack.ads
+regtests/hload_pack.adb
+regtests/hload_sec.adb
+regtests/hload_sec.out
 regtests/hostip.adb
 regtests/hostip.out
 regtests/huge_response.adb
