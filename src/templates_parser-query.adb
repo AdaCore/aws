@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -68,7 +68,7 @@ package body Templates_Parser.Query is
 
    function Nested_Level (T : in Tag) return Positive is
    begin
-      return T.Nested_Level;
+      return T.Data.Nested_Level;
    end Nested_Level;
 
    --------------
