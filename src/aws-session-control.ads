@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,10 +40,10 @@ package AWS.Session.Control is
    procedure Start
      (Session_Check_Interval : in Duration;
       Session_Lifetime       : in Duration);
-   --  Start session cleaner task.
+   --  Start session cleaner task
 
    procedure Shutdown;
-   --  Stop session cleaner task.
+   --  Stop session cleaner task
 
 end AWS.Session.Control;
 
