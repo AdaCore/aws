@@ -33,6 +33,7 @@ with GNAT.Calendar.Time_IO;
 
 with AWS.Session;
 with AWS.Hotplug.Get_Status;
+with AWS.Status;
 
 function AWS.Server.Get_Status (Server : in HTTP) return String is
 
@@ -196,5 +197,5 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
      & Hotplug.Get_Status (Server.Filters);
 
 begin
-   return Templates_Parser.Parse ("status.tmplt", Translations);
+   return Templates_Parser.Parse (Config.Status_Page, Translations);
 end AWS.Server.Get_Status;
