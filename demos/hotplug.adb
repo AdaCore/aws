@@ -35,7 +35,7 @@ with Ada.Text_IO;
 
 with AWS.Communication.Client;
 with AWS.Response;
-with AWS.Server;
+with AWS.Server.Hotplug;
 with AWS.Utils;
 
 with Hotplug_CB;
@@ -62,8 +62,8 @@ procedure Hotplug is
       end loop;
 
       Response := AWS.Communication.Client.Send_Message
-        (AWS.Utils.Gethostname, 2222,
-         "UNREGISTER",
+        (Command_Line.Argument (1), 2222,
+         AWS.Server.Hotplug.Unregister_Message,
          AWS.Communication.Parameters (".*AZERTY.*"));
    end Wait_Terminate;
 
@@ -72,7 +72,7 @@ procedure Hotplug is
 
 begin
    if Command_Line.Argument_Count /= 1 then
-      Text_IO.Put_Line ("Syntax: hotplug <main_server>");
+      Text_IO.Put_Line ("Syntax: hotplug <main_server_hostname>");
       Text_IO.New_Line;
       return;
    end if;
@@ -86,9 +86,9 @@ begin
 
    Response := AWS.Communication.Client.Send_Message
      (Command_Line.Argument (1), 2222,
-      "REGISTER",
+      AWS.Server.Hotplug.Register_Message,
       AWS.Communication.Parameters
-      (".*AZERTY.*",
+      (".*QWERTY.*",
        "http://" & AWS.Utils.Gethostname & ":1235/"));
 
    Wait_Terminate;
