@@ -128,18 +128,18 @@ begin
    end loop;
 
    if Timeout < 0 then
-      Rs := C_Select (0, rfds'Address, wfds'Address, efds'Address,
+      Rs := C_Select (0, Rfds'Address, Wfds'Address, Efds'Address,
                       System.Null_Address);
    else
-      Rs := C_Select (0, rfds'Address, wfds'Address, efds'Address,
-                      timeout_v'Address);
+      Rs := C_Select (0, Rfds'Address, Wfds'Address, Efds'Address,
+                      Timeout_V'Address);
    end if;
 
    if Rs > 0 then
       Rs := 0;
 
       for J in 1 .. Nfds loop
-         Good   := False;
+         Good := False;
          Poll_Ptr (J).REvents := 0;
 
          if FD_ISSET (Poll_Ptr (J).FD, Rfds'Address) /= 0 then
