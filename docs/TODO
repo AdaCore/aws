@@ -4,9 +4,6 @@ $Id$
 Here a some notes about things to fix, ideas and potential features to be
 implemented:
 
-- better handling of the forms parameters (look for ??? in AWS.Status package)
-  The current implementation is far from beeing efficient.
-
 - look at the GMT/UTC vs Local time issue.
 
 - correctly handle all Date/Time format, there is 3 of them:
