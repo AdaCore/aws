@@ -278,6 +278,7 @@ build_tarball:
 	$(MKDIR) $${AWS}/tools; \
 	$(MKDIR) $${AWS}/config; \
 	$(MKDIR) $${AWS}/config/src; \
+	$(MKDIR) $${AWS}/config/projects; \
 	$(MKDIR) $${AWS}/support; \
 	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
@@ -313,6 +314,7 @@ build_tarball:
 	$(CP) config/*.ad[sb] config/ChangeLog $${AWS}/config;\
 	$(CP) config/makefile $${AWS}/config;\
 	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
+	$(CP) config/projects/* $${AWS}/config/projects;\
 	$(CP) xsrc/*.ad[sb] xsrc/README xsrc/ChangeLog $${AWS}/xsrc;\
 	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
 	$(TAR) cf $${AWS}.tar $${AWS};\
@@ -339,6 +341,7 @@ build_http_tarball:
 	$(MKDIR) $${AWS}/tools; \
 	$(MKDIR) $${AWS}/config; \
 	$(MKDIR) $${AWS}/config/src; \
+	$(MKDIR) $${AWS}/config/projects; \
 	$(MKDIR) $${AWS}/support; \
 	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
@@ -373,6 +376,7 @@ build_http_tarball:
 	$(CP) config/*.ad[sb] config/ChangeLog $${AWS}/config;\
 	$(CP) config/makefile $${AWS}/config;\
 	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
+	$(CP) config/projects/* $${AWS}/config/projects;\
 	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
 	$(RM) $${AWS}/include/sha*;\
 	$(SED) 's/$$(LIBSSL) $$(LIBCRYPTO)//' \
@@ -390,6 +394,7 @@ force:
 install: force
 	-rm -fr $(INSTALL)/AWS
 	$(MKDIR) $(INSTALL)/AWS
+	$(MKDIR) $(INSTALL)/AWS/obj
 	$(MKDIR) $(INSTALL)/AWS/lib
 	$(MKDIR) $(INSTALL)/AWS/include
 	$(MKDIR) $(INSTALL)/AWS/icons
@@ -422,6 +427,7 @@ install: force
 	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) tools/ada2wsdl${EXEEXT} $(INSTALL)/AWS/tools
+	$(CP) -p $(INSTALL)/AWS/lib/*.ali $(INSTALL)/AWS/obj
 	$(CP) set-aws.* $(INSTALL)/AWS
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
@@ -442,7 +448,6 @@ MODULES_CLEAN = ${MODULES:%=%_clean}
 
 ifdef XMLADA
 PRJ_XMLADA=Installed
-GEXT_MODULE := $(GEXT_MODULE) gxmlada
 else
 PRJ_XMLADA=Disabled
 endif
@@ -478,15 +483,6 @@ gbuild: $(MODULES_BUILD)
 
 gclean: $(MODULES_CLEAN)
 	-rm -fr .build asis.gpr xmlada.gpr
-
-gxmlada:
-	echo "project XMLAda is" > xmlada.gpr
-	echo " Path := \"$(XMLADA)\";" >> xmlada.gpr
-	echo " for Source_Dirs use (Path & \"/include/xmlada\");" >> xmlada.gpr
-	echo " for Object_Dir use Path & \"/include/xmlada\";" >> xmlada.gpr
-	echo " for Library_Dir use Path & \"/lib\";" >> xmlada.gpr
-	echo " LIB_Path := \"-L\" & Path & \"/lib\";" >> xmlada.gpr
-	echo "end XMLAda;" >> xmlada.gpr
 
 gasis:
 	echo "project ASIS is" > asis.gpr
