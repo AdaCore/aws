@@ -69,6 +69,7 @@ status.</H3>
 <td>Opened
 <td>Abortable
 <td>Activity Counter
+<td>Slot Activity Counter
 <td>Activity Time Stamp
 </tr>
 
@@ -79,6 +80,7 @@ status.</H3>
 <td align=center>@@YES_NO@@_OPENED_L_@@
 <td align=center>@@YES_NO@@_ABORTABLE_L_@@
 <td align=center>@@_ACTIVITY_COUNTER_L_@@
+<td align=center>@@_SLOT_ACTIVITY_COUNTER_L_@@
 <td>@@_ACTIVITY_TIME_STAMP_L_@@
 </tr>
 @@SECTION@@
@@ -88,6 +90,7 @@ status.</H3>
 <td align=center>@@YES_NO@@_OPENED_L_@@
 <td align=center>@@YES_NO@@_ABORTABLE_L_@@
 <td align=center>@@_ACTIVITY_COUNTER_L_@@
+<td align=center>@@_SLOT_ACTIVITY_COUNTER_L_@@
 <td>@@_ACTIVITY_TIME_STAMP_L_@@
 </tr>
 @@END_TABLE@@
