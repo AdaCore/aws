@@ -194,7 +194,7 @@ package body AWS.Log is
          & ' '
          & Utils.Image (Response.Content_Length (Answer)));
    end Write;
-            
+
    procedure Write
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
