@@ -47,6 +47,10 @@ with Table_Of_Static_Keys_And_Static_Values_G;
 
 package body AWS.Services.Directory is
 
+   pragma Optimize (Off);
+   --  Do not compile this unit with optimisation on. Level 1 and 2 will
+   --  trigger a bug. This happen with GNAT 3.14 and 3.15.
+
    use Ada;
 
    ------------
