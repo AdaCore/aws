@@ -160,14 +160,12 @@ package body AWS.Server is
    ------------------------------------------
 
    procedure Default_Unexpected_Exception_Handler
-     (E : Ada.Exceptions.Exception_Occurrence;
-      Termination : Boolean)
-   is
+     (E           : in Ada.Exceptions.Exception_Occurrence;
+      Termination : in Boolean) is
    begin
       if Termination then
          Text_IO.Put_Line
-           (Text_IO.Current_Error,
-            "Slot problem has been detected!");
+           (Text_IO.Current_Error, "Slot problem has been detected!");
 
       else
          Text_IO.Put_Line
@@ -177,9 +175,9 @@ package body AWS.Server is
          Text_IO.New_Line (Text_IO.Current_Error);
       end if;
 
-      Text_IO.Put_Line (Text_IO.Current_Error,
-           Ada.Exceptions.Exception_Information (E));
-
+      Text_IO.Put_Line
+        (Text_IO.Current_Error,
+         Ada.Exceptions.Exception_Information (E));
    end Default_Unexpected_Exception_Handler;
 
    ---------------------
