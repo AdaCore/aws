@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -53,6 +53,25 @@ package body AWS.URL is
    function Normalize (Path : in Unbounded_String) return Unbounded_String;
    --  Returns Path with all possible occurences of parent and current
    --  directories removed. Does not raise exception.
+
+   --------------
+   -- Abs_Path --
+   --------------
+
+   function Abs_Path
+     (URL    : in Object;
+      Encode : in Boolean := False)
+      return String
+   is
+      Result : constant String
+        := To_String (URL.Path & URL.File);
+   begin
+      if Encode then
+         return AWS.URL.Encode (Result);
+      else
+         return Result;
+      end if;
+   end Abs_Path;
 
    ----------
    -- Code --
@@ -285,7 +304,8 @@ package body AWS.URL is
          procedure Parse_Path_File;
          --  Parse Path and File URL information
 
-         I1, I2 : Natural;
+         I1, I2, I3 : Natural;
+         F          : Positive;
 
          ---------------------
          -- Parse_Path_File --
@@ -333,23 +353,44 @@ package body AWS.URL is
       begin
          I1 := Strings.Fixed.Index (URL, ":");
          I2 := Strings.Fixed.Index (URL, "/");
+         I3 := Strings.Fixed.Index (URL, "@");
+
+         --  Check for "user:pawwsord@"
+
+         if I1 < I3 and then I1 /= 0 then
+            O.User     := US (URL (URL'First .. I1 - 1));
+            O.Password := US (URL (I1 + 1 .. I3 - 1));
+
+            I1 := Strings.Fixed.Index (URL (I3 + 1 .. URL'Last), ":");
+            F  := I3 + 1;
+
+         else
+            F := URL'First;
+         end if;
 
          if I1 = 0 then
+            --  No ':', there is no port specified
+
             if I2 = 0 then
-               O.Host := US (URL);
+               --  No '/', we have just [host/]
+               O.Host := US (URL (F .. URL'Last));
                O.Path := US ("/");
             else
-               O.Host := US (URL (URL'First .. I2 - 1));
+               --  We have [host/path]
+               O.Host := US (URL (F .. I2 - 1));
                Parse_Path_File;
             end if;
 
          else
-            O.Host := US (URL (URL'First .. I1 - 1));
+            --  Here we have a port specified [host:port]
+            O.Host := US (URL (F .. I1 - 1));
 
             if I2 = 0 then
+               --  No path, we have [host:port/]
                O.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
                O.Path := US ("/");
             else
+               --  Here we have a complete URL [host:port/path]
                O.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
                Parse_Path_File;
             end if;
@@ -442,6 +483,15 @@ package body AWS.URL is
          raise URL_Error;
    end Parse;
 
+   --------------
+   -- Password --
+   --------------
+
+   function Password (URL : in Object) return String is
+   begin
+      return To_String (URL.Password);
+   end Password;
+
    ----------
    -- Path --
    ----------
@@ -458,24 +508,17 @@ package body AWS.URL is
       end if;
    end Path;
 
-   --------------
-   -- Pathname --
-   --------------
+   -----------------------------
+   -- Pathname_And_Parameters --
+   -----------------------------
 
-   function Pathname
+   function Pathname_And_Parameters
      (URL    : in Object;
       Encode : in Boolean := False)
-      return String
-   is
-      Result : constant String
-        := To_String (URL.Path & URL.File & URL.Params);
+      return String is
    begin
-      if Encode then
-         return AWS.URL.Encode (Result);
-      else
-         return Result;
-      end if;
-   end Pathname;
+      return Pathname (URL, Encode) & Parameters (URL, Encode);
+   end Pathname_And_Parameters;
 
    ----------
    -- Port --
@@ -505,6 +548,20 @@ package body AWS.URL is
       end if;
    end Protocol_Name;
 
+   -----------
+   -- Query --
+   -----------
+
+   function Query
+     (URL    : in Object;
+      Encode : in Boolean := False)
+      return String
+   is
+      P : constant String := Parameters (URL, Encode);
+   begin
+      return P (P'First + 1 .. P'Last);
+   end Query;
+
    --------------
    -- Security --
    --------------
@@ -524,6 +581,10 @@ package body AWS.URL is
       pragma Inline (Port);
       --  Returns the port number if not the standard HTTP or HTTPS Port and
       --  the empty string otherwise.
+
+      function User_Password return String;
+      pragma Inline (User_Password);
+      --  Returns the user:password@ if present and the empty string otherwise
 
       ----------
       -- Port --
@@ -547,13 +608,47 @@ package body AWS.URL is
          end if;
       end Port;
 
+      -------------------
+      -- User_Password --
+      -------------------
+
+      function User_Password return String is
+         User     : constant String := To_String (URL.User);
+         Password : constant String := To_String (URL.Password);
+      begin
+         if User = "" then
+            if Password = "" then
+               return "";
+            else
+               return ':' & Password & '@';
+            end if;
+
+         else
+            if Password = "" then
+               return User & ":@";
+            else
+               return User & ':' & Password & '@';
+            end if;
+         end if;
+      end User_Password;
+
    begin
       if Host (URL) = "" then
-         return Pathname (URL);
+         return Pathname_And_Parameters (URL);
       else
          return Protocol_Name (URL) & "://"
-           & Host (URL) & Port & Pathname (URL);
+           & User_Password
+           & Host (URL) & Port & Pathname (URL) & Parameters (URL);
       end if;
    end URL;
+
+   ----------
+   -- User --
+   ----------
+
+   function User (URL : in Object) return String is
+   begin
+      return To_String (URL.User);
+   end User;
 
 end AWS.URL;
