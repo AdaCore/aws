@@ -296,7 +296,7 @@ install: force
 	-cp soap/*.ali $(INSTALL)/AWS/lib
 	chmod uog-w $(INSTALL)/AWS/lib/*.ali
 	mv libaws.a $(INSTALL)/AWS/lib
-	mv ssl/libsslaws.a $(INSTALL)/AWS/lib
+	mv ssl/libnosslaws.a $(INSTALL)/AWS/lib
 	-cp docs/aws.html $(INSTALL)/AWS/docs
 	cp docs/templates_parser.html $(INSTALL)/AWS/docs
 	-cp docs/aws.txt $(INSTALL)/AWS/docs
