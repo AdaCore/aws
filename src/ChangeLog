@@ -1,5 +1,11 @@
 2004-11-01  Pascal Obry  <pascal@obry.org>
 
+	* aws-client.adb:
+	(Open_Send_Common_Header): Fix generation of the Request-URI. We need
+         the absoluteURI only when the request is made through a proxy (not
+         counting https tunneling where the request itself is being sent
+         directly to the host).
+
 	* aws-net-log.ads:
         Remove Ada.Streams with clause (already in parent package).
         Remove all Ada.Streams prefix, a use clause is in parent package.
