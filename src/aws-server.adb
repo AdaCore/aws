@@ -277,7 +277,8 @@ package body AWS.Server is
                --  needed.
 
                when Sockets.Connection_Closed | Connection_Error =>
-                  Text_IO.Put_Line ("Connection time-out, close it.");
+                  Text_IO.Put_Line
+                    ("Connection closed (time-out or not enough slots).");
 
                when E : others =>
                   Text_IO.Put_Line ("A problem has been detected!");
