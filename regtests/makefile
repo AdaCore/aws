@@ -78,7 +78,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	server_info append compress zapp zbig zfile zstrm split zstrm2 once \
 	get_post zopen timer tmem file2 eres sock1 sock2 sessions4 wait \
 	stream_response smtp sto sockto ctable tpc afile no_param \
-	nonce sockext hload upload4 wait2 $(RT_STD_SEC)
+	nonce sockext hload upload4 wait2 attachment $(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
 ALONE_TESTS  = $(RT_STD_ALONE)
