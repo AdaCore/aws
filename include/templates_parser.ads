@@ -41,9 +41,9 @@ package Templates_Parser is
    Default_End_Tag   : constant String := "_@@";
    Default_Separator : constant String := ", ";
 
-   --
-   --  Vector Tag
-   --
+   ----------------
+   -- Vector Tag --
+   ----------------
 
    type Vector_Tag is private;
    --  A vector tag is a set of string.
@@ -94,12 +94,36 @@ package Templates_Parser is
      return Vector_Tag;
    --  Add Value (converted to a String) at the end of the vector tag set.
 
+   procedure Clear (Vect : in out Vector_Tag);
+   --  Removes all values in the vector tag.
+
    function Size (Vect : in Vector_Tag) return Natural;
    --  Returns the number of value into Vect.
 
-   --
-   --  Association table
-   --
+   ----------------
+   -- Matrix Tag --
+   ----------------
+
+   type Matrix_Tag is private;
+
+   function "+" (Vect : in Vector_Tag) return Matrix_Tag;
+   --  Matrix_Tag constructor.
+
+   function "&"
+     (Matrix : in Matrix_Tag;
+      Vect   : in Vector_Tag)
+     return Matrix_Tag;
+   --  Returns Matrix with Vect added to the end.
+
+   function Size (Matrix : in Matrix_Tag) return Natural;
+   --  Returns the number of Vector_Tag inside the Matrix.
+
+   function Vector (Matrix : in Matrix_Tag; N : in Positive) return Vector_Tag;
+   --  Returns Nth Vector_Tag in the Matrix.
+
+   -----------------------
+   -- Association table --
+   -----------------------
 
    type Association is private;
 
@@ -138,6 +162,16 @@ package Templates_Parser is
 
    function Assoc
      (Variable  : in String;
+      Value     : in Boolean;
+      Begin_Tag : in String    := Default_Begin_Tag;
+      End_Tag   : in String    := Default_End_Tag)
+     return Association;
+   --  Build an Association (Variable = Value) to be added to a
+   --  Translate_Table. It set the variable to TRUE or FALSE depending on
+   --  value.
+
+   function Assoc
+     (Variable  : in String;
       Value     : in Vector_Tag;
       Separator : in String     := Default_Separator;
       Begin_Tag : in String     := Default_Begin_Tag;
@@ -151,17 +185,15 @@ package Templates_Parser is
 
    function Assoc
      (Variable  : in String;
-      Value     : in Boolean;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in Matrix_Tag;
+      Separator : in String     := Default_Separator;
+      Begin_Tag : in String     := Default_Begin_Tag;
+      End_Tag   : in String     := Default_End_Tag)
      return Association;
-   --  Build an Association (Variable = Value) to be added to a
-   --  Translate_Table. It set the variable to TRUE or FALSE depending on
-   --  value.
 
-   --
-   --  Parsing and Translating
-   --
+   -----------------------------
+   -- Parsing and Translating --
+   -----------------------------
 
    function Parse
      (Filename     : in String;
@@ -207,15 +239,45 @@ private
       Last      : Vector_Tag_Node_Access;
    end record;
 
+   type Vector_Tag_Access is access Vector_Tag;
+
    procedure Initialize (V : in out Vector_Tag);
    procedure Finalize   (V : in out Vector_Tag);
    procedure Adjust     (V : in out Vector_Tag);
 
    ------------------
+   --  Matrix Tags --
+   ------------------
+
+   type Matrix_Tag_Node;
+
+   type Matrix_Tag_Node_Access is access Matrix_Tag_Node;
+
+   type Matrix_Tag_Node is record
+      Vect : Vector_Tag;
+      Next : Matrix_Tag_Node_Access;
+   end record;
+
+   type Matrix_Tag_Int is new Ada.Finalization.Controlled with record
+      Ref_Count : Integer_Access;
+      Count     : Natural;
+      Head      : Matrix_Tag_Node_Access;
+      Last      : Matrix_Tag_Node_Access;
+   end record;
+
+   type Matrix_Tag is record
+      M : Matrix_Tag_Int;
+   end record;
+
+   procedure Initialize (M : in out Matrix_Tag_Int);
+   procedure Finalize   (M : in out Matrix_Tag_Int);
+   procedure Adjust     (M : in out Matrix_Tag_Int);
+
+   ------------------
    --  Association --
    ------------------
 
-   type Var_Kind is (Std, Vect);
+   type Var_Kind is (Std, Vect, Matrix);
 
    type Association (Kind : Var_Kind := Std) is record
       Variable  : Unbounded_String;
@@ -223,9 +285,14 @@ private
       case Kind is
          when Std =>
             Value : Unbounded_String;
+
          when Vect =>
             Vect_Value : Vector_Tag;
             Separator  : Unbounded_String;
+
+         when Matrix =>
+            Mat_Value        : Matrix_Tag;
+            Column_Separator : Unbounded_String;
       end case;
    end record;
 
