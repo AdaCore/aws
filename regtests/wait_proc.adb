@@ -32,6 +32,7 @@ with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
 with AWS.Net.Sets;
+with AWS.Net.SSL;
 with Get_Free_Port;
 
 procedure Wait_Proc (Security : Boolean; Port : Positive) is
@@ -84,6 +85,11 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
             begin
                if Sets.Is_Write_Ready (Set, Index) then
                   Sets.Set_Mode (Set, Index, Sets.Input);
+
+                  if Security then
+                     SSL.Do_Handshake (SSL.Socket_Type (Socket));
+                  end if;
+
                   Index := Index + 1;
 
                elsif Sets.Is_Read_Ready (Set, Index) then
