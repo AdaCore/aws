@@ -339,6 +339,7 @@ split.res
 ssback
 ssback.res
 ssock2
+ssock2.res
 ssp
 ssp.res
 ssp.tmp
@@ -357,6 +358,7 @@ stockquoteservice-types.adb
 stockquoteservice-types.ads
 stockquoteservice.ads
 stream_response
+stream_response.res
 strm
 strm.res
 strm.tmp
