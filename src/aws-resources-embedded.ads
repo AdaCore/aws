@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
+--                         Copyright (C) 2002-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -76,6 +76,7 @@ package AWS.Resources.Embedded is
    --  Register a new file named Name into the embedded resources. The file
    --  content is pointed to by Content, the File_Time must be the last
    --  modification time stamp for the file. If Name ends with ".gz" the
-   --  embedded resource registered as compressed.
+   --  embedded resource registered as compressed. If a file is already
+   --  registered for this name, Content replace the previous one.
 
 end AWS.Resources.Embedded;
