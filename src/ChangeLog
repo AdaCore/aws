@@ -1,3 +1,16 @@
+2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-digest.ads:
+	(Nonce): Is constrained subtype now.
+	(Check_Nonce): Receive unconstrained parameter, because we have to
+	 check nonce for the length too. 
+
+	* aws-digest.adb:
+	(Word): 16 bit now, for 4 character length in hex representation.
+	(Check_Nonce): Check the Index_Nonce substring in the digest.
+	(Create_Nonce): Add Nonce_Index to digest as string. Add Nonce_Index
+	 representation to Nonce for checking.
+
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-digest.adb:
