@@ -29,6 +29,7 @@ aws-resources-streams.ads.texi
 aws-resources.ads.texi
 aws-response.ads.texi
 aws-server-hotplug.ads.texi
+aws-server-log.ads.texi
 aws-server-push.ads.texi
 aws-server-status.ads.texi
 aws-server.ads.texi
