@@ -119,6 +119,8 @@ package AWS.Messages is
 
    function Www_Authenticate (Realm : in String) return String;
 
+   function Location (URL : in String) return String;
+
    --  helper functions
 
    function Is_Match (Str, Pattern : in String) return Boolean;

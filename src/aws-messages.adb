@@ -334,4 +334,13 @@ package body AWS.Messages is
       return "Www-Authenticate: Basic realm=""" & Realm & """";
    end Www_Authenticate;
 
+   --------------
+   -- Location --
+   --------------
+
+   function Location (URL : in String) return String is
+   begin
+      return "Location: " & URL;
+   end Location;
+
 end AWS.Messages;
