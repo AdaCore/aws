@@ -173,7 +173,7 @@ Just copy @file{include/aws-os_lib-win32.adb} over @file{src/aws-os_lib.adb}.
 @noindent
 When you have built and configured all libraries you must either set
 ADA_INCLUDE_PATH and ADA_OBJECTS_PATH (for GNAT) to point to the right
-directories or update the @code{LIBS} variable in @file{src/makefile}.
+directories or update the @code{INCLUDES} variable in top @file{makefile}.
 
 @noindent
 At this point you can build AWS. There is two ways to build AWS:
