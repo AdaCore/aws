@@ -31,9 +31,9 @@ implemented:
   a Web Farm.
 
 - More transparent SOAP support. It would be nice to be able to generate
-  stub/squeleton from a spec file (this work could reuse the gnatstub ASIS
+  stub/skeleton from a spec file (this work could reuse the gnatstub ASIS
   appication). Another path is to implement WSDL support and generate SOAP
-  stub/squeleton from it.
+  stub/skeleton from it.
 
 - We need to add the directory browser template into the config file.
 
