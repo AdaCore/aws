@@ -1,3 +1,14 @@
+2004-03-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Close): Update comments.
+        Update copyright notice.
+
+	* aws-net-ssl.ads:
+	(Supported): Renamed to Is_Supported.
+        (Is_Supported): Renaming of Supported.
+        Update copyright notice.
+
 2004-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:
