@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -27,13 +27,12 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
+
 --  $Id$
---
---  Waiting on group of sockets for input/output availability.
 
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
+
 with AWS.Net.Sets.Thin;
 
 package body AWS.Net.Sets is
@@ -41,23 +40,23 @@ package body AWS.Net.Sets is
    type Poll_Set_Type is array (Positive range <>) of Thin.Pollfd;
    pragma Pack (Poll_Set_Type);
 
-   procedure Free is new Ada.Unchecked_Deallocation
-                           (Poll_Set_Type, Poll_Set_Access);
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Poll_Set_Type, Poll_Set_Access);
 
-   procedure Free is new Ada.Unchecked_Deallocation
-                           (Socket_Array, Socket_Array_Access);
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Socket_Array, Socket_Array_Access);
 
-   function To_State (Item : in Thin.Events_Type) return Socket_State;
-
-   procedure Delete_Current (Set : in out Socket_Set_Type);
+   function To_State (Event : in Thin.Events_Type) return Socket_State;
+   --  Convert Event to the proper Socket_State
 
    procedure Add_Private
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Access;
       Mode   : in     Waiting_Mode);
+   --  Add Socket into Set
 
    procedure Next_Private (Set : in out Socket_Set_Type);
-   --  Looking for next active sockets beginning from current.
+   --  Looking for next active sockets beginning from current
 
    ---------
    -- Add --
@@ -137,26 +136,23 @@ package body AWS.Net.Sets is
       Set.Poll (Set.Last).FD := Thin.FD_Type (Get_FD (Socket.all));
 
       case Mode is
-         when Input  => Set.Poll (Set.Last).Events := Thin.Pollin;
-         when Output => Set.Poll (Set.Last).Events := Thin.Pollout;
+         when Input  =>
+            Set.Poll (Set.Last).Events := Thin.Pollin;
+         when Output =>
+            Set.Poll (Set.Last).Events := Thin.Pollout;
          when Both   =>
             Set.Poll (Set.Last).Events := Thin.Pollin + Thin.Pollout;
       end case;
    end Add_Private;
 
-   --------------------
-   -- Delete_Current --
-   --------------------
+   -----------
+   -- Count --
+   -----------
 
-   procedure Delete_Current (Set : in out Socket_Set_Type) is
+   function Count (Set : Socket_Set_Type) return Natural is
    begin
-      Set.Set (Set.Current)  := Set.Set (Set.Last);
-      Set.Poll (Set.Current) := Set.Poll (Set.Last);
-
-      Set.Last := Set.Last - 1;
-
-      Next_Private (Set);
-   end Delete_Current;
+      return Set.Last;
+   end Count;
 
    --------------
    -- Finalize --
@@ -228,7 +224,29 @@ package body AWS.Net.Sets is
    -------------------
 
    procedure Remove_Socket (Set : in out Socket_Set_Type) is
+
+      procedure Delete_Current (Set : in out Socket_Set_Type);
+      --  Delete current selected socket in Set
+
+      --------------------
+      -- Delete_Current --
+      --------------------
+
+      procedure Delete_Current (Set : in out Socket_Set_Type) is
+      begin
+         Set.Set (Set.Current)  := Set.Set (Set.Last);
+         Set.Poll (Set.Current) := Set.Poll (Set.Last);
+
+         Set.Last := Set.Last - 1;
+
+         Next_Private (Set);
+      end Delete_Current;
+
    begin
+      if Set.Current > Set.Last then
+         raise Constraint_Error;
+      end if;
+
       if Set.Set (Set.Current).Allocated then
          Free (Set.Set (Set.Current).Socket);
       end if;
@@ -236,34 +254,27 @@ package body AWS.Net.Sets is
       Delete_Current (Set);
    end Remove_Socket;
 
-   -----------------
-   -- Take_Socket --
-   -----------------
+   -----------
+   -- Reset --
+   -----------
 
-   procedure Take_Socket
-     (Set    : in out Socket_Set_Type;
-      Socket :    out Socket_Access;
-      State  :    out Socket_State) is
+   procedure Reset (Set : in out Socket_Set_Type) is
    begin
-      if Set.Current > Set.Last then
-         State := None;
-
-         return;
-      end if;
-
-      Socket := Set.Set (Set.Current).Socket;
-
-      Delete_Current (Set);
-   end Take_Socket;
+      for K in 1 .. Set.Last loop
+         if Set.Set (K).Allocated then
+            Free (Set.Set (K).Socket);
+         end if;
+      end loop;
+   end Reset;
 
    --------------
    -- To_State --
    --------------
 
-   function To_State (Item : in Thin.Events_Type) return Socket_State is
+   function To_State (Event : in Thin.Events_Type) return Socket_State is
       use type Thin.Events_Type;
    begin
-      if (Item and (Thin.Pollerr
+      if (Event and (Thin.Pollerr
                     or Thin.Pollhup
                     or Thin.Pollnval
                     or Thin.Pollin
@@ -273,12 +284,12 @@ package body AWS.Net.Sets is
          return None;
       end if;
 
-      if (Item and (Thin.Pollerr or Thin.Pollhup or Thin.Pollnval)) /= 0 then
+      if (Event and (Thin.Pollerr or Thin.Pollhup or Thin.Pollnval)) /= 0 then
          return Error;
       end if;
 
-      if (Item and (Thin.Pollin or Thin.Pollpri)) /= 0 then
-         if (Item and Thin.Pollout) /= 0 then
+      if (Event and (Thin.Pollin or Thin.Pollpri)) /= 0 then
+         if (Event and Thin.Pollout) /= 0 then
             return Both;
          else
             return Input;
@@ -295,7 +306,7 @@ package body AWS.Net.Sets is
    procedure Wait (Set : in out Socket_Set_Type; Timeout : in  Duration) is
       use type Thin.Timeout_Type;
 
-      Result : Integer;
+      Result       : Integer;
       Poll_Timeout : Thin.Timeout_Type;
    begin
       if Timeout >= Duration (Thin.Timeout_Type'Last / 1000) then
@@ -304,14 +315,16 @@ package body AWS.Net.Sets is
          Poll_Timeout := Thin.Timeout_Type (Timeout * 1000);
       end if;
 
-      Result := Integer (Thin.Poll
-                           (FDS   => Set.Poll (1)'Address,
-                            Nfds => Thin.Length_Type (Set.Last),
-                            Timeout => Poll_Timeout));
+      Result := Integer
+        (Thin.Poll
+           (FDS     => Set.Poll (1)'Address,
+            Nfds    => Thin.Length_Type (Set.Last),
+            Timeout => Poll_Timeout));
 
       if Result < 0 then
-         --  We could not determine what exactly the error is.
-         --  because AWS.Net API does not have Errno routine for now.
+         --  We cannot determine what exactly the error is because AWS.Net
+         --  API does not have Errno routine for now.
+         --  ??? Is that still the case ?
 
          Ada.Exceptions.Raise_Exception
            (Socket_Error'Identity, "Poll error code" & Integer'Image (Errno));
@@ -319,7 +332,6 @@ package body AWS.Net.Sets is
       elsif Result > 0 then
          Set.Current := 1;
          Next_Private (Set);
-
       end if;
    end Wait;
 
