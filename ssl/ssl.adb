@@ -31,18 +31,21 @@
 
 --  $Id$
 
-with Interfaces.C.Strings;
+with Interfaces.C;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
+with Ada.Calendar;
 
 with SSL.Thin;
+with System.Storage_Elements;
 
 package body SSL is
 
-   use type Interfaces.C.int;
+   use Interfaces;
+   use type C.int;
 
-   Context              : Thin.SSL_Ctx := Null_Ptr;
    Private_Key_Internal : Thin.RSA := Null_Ptr;
+   Context              : Thin.SSL_Ctx := Null_Ptr;
 
    function Error_Str (Code : in Thin.Error_Code) return String;
    --  return error message for Code
@@ -64,100 +67,24 @@ package body SSL is
    function Private_Key return Thin.RSA;
    --  returns the private key that will be used for the certificate.
 
-   ---------------
-   -- Error_Str --
-   ---------------
-
-   function Error_Str (Code : in Thin.Error_Code) return String is
-      use Interfaces.C.Strings;
-      Buffer_Ptr : chars_ptr :=
-        Thin.Err_Error_String
-        (Code, New_Char_Array ((0 .. 511 => Interfaces.C.nul)));
-      Result : String := Value (Buffer_Ptr);
-   begin
-      Free (Buffer_Ptr);
-      return Result;
-   end Error_Str;
-
-   --------------
-   -- Error_If --
-   --------------
-
-   procedure Error_If
-     (Error  : in Boolean;
-      Except : in Ada.Exceptions.Exception_Id)
-   is
-      use Interfaces.C.Strings, Ada;
-   begin
-      if Error then
-         Exceptions.Raise_Exception (Except, Error_Str (Thin.Err_Get_Error));
-      end if;
-   end Error_If;
-
-   -----------------
-   -- Private_Key --
-   -----------------
-
-   function Private_Key return Thin.RSA is
-   begin
-      if Private_Key_Internal = Null_Ptr then
-         Private_Key_Internal :=
-           Thin.Rsa_Generate_Key (Bits     => 512,
-                                  E        => Thin.Rsa_F4,
-                                  Callback => null,
-                                  Cb_Arg   => Null_Ptr);
-         Error_If (Private_Key_Internal = Null_Ptr, Lib_Error'Identity);
-      end if;
-
-      return Private_Key_Internal;
-   end Private_Key;
-
-   ------------
-   -- Set_Fd --
-   ------------
-
-   procedure Set_Fd (Socket : in out Handle) is
-   begin
-      if Socket.H = Null_Ptr then
-         Socket.H := Thin.SSL_New (Context);
-         Error_If (Socket.H = Null_Ptr, Lib_Error'Identity);
-      end if;
-
-      Error_If
-        (Thin.SSL_Set_Fd (Socket.H,
-                          Sockets.Get_FD (Sockets.Socket_FD (Socket))) = -1,
-         Lib_Error'Identity);
-   end Set_Fd;
-
    -------------------
    -- Accept_Socket --
    -------------------
 
    procedure Accept_Socket
      (Socket     : in     Sockets.Socket_FD;
-      New_Socket :    out Handle) is
+      New_Socket :    out Handle)
+   is
    begin
       loop
          Sockets.Accept_Socket (Socket, Sockets.Socket_FD (New_Socket));
          Set_Fd (New_Socket);
-         Set_Read_Ahead (New_Socket, True);
+         Thin.SSL_Set_Accept_State (New_Socket.H);
          exit when Thin.SSL_Accept (New_Socket.H) > 0;
          Shutdown (New_Socket);
       end loop;
+      Set_Read_Ahead (New_Socket, True);
    end Accept_Socket;
-
-   ------------
-   -- Socket --
-   ------------
-
-   procedure Socket
-     (Sock   :    out Handle;
-      Domain : in     Sockets.Socket_Domain := Sockets.AF_INET;
-      Typ    : in     Sockets.Socket_Type   := Sockets.SOCK_STREAM) is
-   begin
-      Sockets.Socket (Sockets.Socket_FD (Sock), Domain, Typ);
-      Set_Fd (Sock);
-   end Socket;
 
    -------------
    -- Connect --
@@ -169,52 +96,69 @@ package body SSL is
       Port   : in Positive) is
    begin
       Sockets.Connect (Sockets.Socket_FD (Socket), Host, Port);
+      Thin.SSL_Set_Connect_State (Socket.H);
       Error_If (Thin.SSL_Connect (Socket.H) = -1, Lib_Error'Identity);
    end Connect;
 
-   ------------------------
-   -- Set_Quiet_Shutdown --
-   ------------------------
+   ------------------
+   -- Do_Handshake --
+   ------------------
 
-   procedure Set_Quiet_Shutdown (Value : in Boolean := True) is
+   procedure Do_Handshake (Socket : in Handle) is
    begin
-      Thin.SSL_Ctx_Set_Quiet_Shutdown (Ctx  => Context,
-                                       Mode => Boolean'Pos (Value));
-   end Set_Quiet_Shutdown;
+      if Socket.H /= Null_Ptr then
+         Error_If (Thin.SSL_Do_Handshake (Socket.H) = -1, Lib_Error'Identity);
+      end if;
+   end Do_Handshake;
 
-   -------------------------
-   -- Set_Sess_Cache_Size --
-   -------------------------
+   ---------------
+   -- Error_Str --
+   ---------------
 
-   procedure Set_Sess_Cache_Size (Value : in Natural) is
+   function Error_Str (Code : in Thin.Error_Code) return String is
+      Buffer : C.char_array := (0 .. 511 => Interfaces.C.nul);
    begin
-      Error_If (Thin.SSL_Ctx_Ctrl (Ctx  => Context,
-                                   Cmd  => Thin.SSL_Ctrl_Set_Sess_Cache_Size,
-                                   Larg => Interfaces.C.int (Value),
-                                   Parg => Null_Ptr) = -1,
-                Lib_Error'Identity);
-   end Set_Sess_Cache_Size;
+      Thin.Err_Error_String_N (Code, Buffer, Buffer'Length);
+      return C.To_Ada (Buffer);
+   end Error_Str;
 
-   -------------
-   -- Pending --
-   -------------
+   --------------
+   -- Error_If --
+   --------------
 
-   function Pending (Socket : in Handle) return Boolean is
-      Rc : Interfaces.C.int := Thin.SSL_Pending (Socket.H);
+   procedure Error_If
+     (Error  : in Boolean;
+      Except : in Ada.Exceptions.Exception_Id)
+   is
+      use Ada;
    begin
-      return Rc /= 0;
-   end Pending;
+      if Error then
+         Exceptions.Raise_Exception (Except, Error_Str (Thin.Err_Get_Error));
+      end if;
+   end Error_If;
 
-   -----------------
-   -- Init_Random --
-   -----------------
+   -----------
+   -- Final --
+   -----------
 
-   procedure Init_Random is
-      Buf : String := "asdfasdfasdfrewtafdsa zxcSxcasd";
-      --  Should be more complex buffer
+   procedure Final is
    begin
-      Thin.Rand_Seed (Buf'Address, Buf'Length);
-   end Init_Random;
+      Thin.SSL_Ctx_Free (Context);
+      Context := Null_Ptr;
+   end Final;
+
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Socket : in out Handle)
+   is
+   begin
+      if Socket.H /= Null_Ptr then
+         Thin.SSL_Free (Socket.H);
+         Socket.H := Null_Ptr;
+      end if;
+   end Free;
 
    ----------
    -- Init --
@@ -249,53 +193,80 @@ package body SSL is
       Error_If (Context = Null_Ptr, Lib_Error'Identity);
    end Init;
 
-   -----------
-   -- Final --
-   -----------
-
-   procedure Final is
-   begin
-      Thin.SSL_Ctx_Free (Context);
-      Context := Null_Ptr;
-   end Final;
-
-   --------------
-   -- Shutdown --
-   --------------
-
-   procedure Shutdown
-     (Socket : in out Handle;
-      How    : in     Sockets.Shutdown_Type := Sockets.Both) is
-   begin
-      if Socket.H /= Null_Ptr then
-         Error_If (Thin.SSL_Shutdown (Socket.H) = -1, Lib_Error'Identity);
-         Thin.SSL_Free (Socket.H);
-         Socket.H := Null_Ptr;
-      end if;
-      Sockets.Shutdown (Sockets.Socket_FD (Socket), How);
-   end Shutdown;
-
    -----------------
-   -- Renegotiate --
+   -- Init_Random --
    -----------------
 
-   procedure Renegotiate (Socket : in Handle) is
+   procedure Init_Random is
+      use Ada.Calendar;
+      use System.Storage_Elements;
+      Buf : String := Duration'Image (Clock - Time_Of (
+            Year => Year_Number'First,
+            Month => Month_Number'First,
+            Day => Day_Number'First)) &
+         Integer_Address'Image (To_Integer (Init_Random'Address));
    begin
-      if Socket.H /= Null_Ptr then
-         Error_If (Thin.SSL_Renegotiate (Socket.H) = -1, Lib_Error'Identity);
-      end if;
-   end Renegotiate;
+      Thin.Rand_Seed (Buf'Address, Buf'Length);
+   end Init_Random;
 
-   ------------------
-   -- Do_Handshake --
-   ------------------
+   --------------
+   -- New_Line --
+   --------------
 
-   procedure Do_Handshake (Socket : in Handle) is
+   procedure New_Line (Socket : in Handle;
+                       Count  : in Natural := 1)
+   is
+      use Ada.Strings.Fixed;
    begin
-      if Socket.H /= Null_Ptr then
-         Error_If (Thin.SSL_Do_Handshake (Socket.H) = -1, Lib_Error'Identity);
+      Put (Socket, Count * (ASCII.CR & ASCII.LF));
+   end New_Line;
+
+   -------------
+   -- Pending --
+   -------------
+
+   function Pending (Socket : in Handle) return Boolean is
+      Rc : Interfaces.C.int := Thin.SSL_Pending (Socket.H);
+   begin
+      return Rc /= 0;
+   end Pending;
+
+   -----------------
+   -- Private_Key --
+   -----------------
+
+   function Private_Key return Thin.RSA is
+   begin
+      if Private_Key_Internal = Null_Ptr then
+         Private_Key_Internal :=
+           Thin.Rsa_Generate_Key (Bits     => 512,
+                                  E        => Thin.Rsa_F4,
+                                  Callback => null,
+                                  Cb_Arg   => Null_Ptr);
+         Error_If (Private_Key_Internal = Null_Ptr, Lib_Error'Identity);
       end if;
-   end Do_Handshake;
+
+      return Private_Key_Internal;
+   end Private_Key;
+
+   --------------
+   -- Put_Line --
+   --------------
+
+   procedure Put_Line (Socket : in Handle; Item : in String) is
+   begin
+      Put (Socket, Item & ASCII.CR & ASCII.LF);
+   end Put_Line;
+
+   ---------
+   -- Put --
+   ---------
+
+   procedure Put (Socket : in Handle; Item : in String) is
+   begin
+      Error_If (Thin.SSL_Write (Socket.H, Item'Address, Item'Length) = -1,
+                Lib_Error'Identity);
+   end Put;
 
    ----------
    -- Read --
@@ -313,37 +284,6 @@ package body SSL is
       Last := Item'First - 1 + Integer (Len);
    end Read;
 
-   ---------
-   -- Put --
-   ---------
-
-   procedure Put (Socket : in Handle; Item : in String) is
-   begin
-      Error_If (Thin.SSL_Write (Socket.H, Item'Address, Item'Length) = -1,
-                Lib_Error'Identity);
-   end Put;
-
-   --------------
-   -- New_Line --
-   --------------
-
-   procedure New_Line (Socket : in Handle;
-                       Count  : in Natural := 1)
-   is
-      use Ada.Strings.Fixed;
-   begin
-      Put (Socket, Count * (ASCII.CR & ASCII.LF));
-   end New_Line;
-
-   --------------
-   -- Put_Line --
-   --------------
-
-   procedure Put_Line (Socket : in Handle; Item : in String) is
-   begin
-      Put (Socket, Item & ASCII.CR & ASCII.LF);
-   end Put_Line;
-
    -------------
    -- Receive --
    -------------
@@ -359,35 +299,23 @@ package body SSL is
       Len    : Interfaces.C.int;
    begin
       Len := Thin.SSL_Read (Socket.H, Buffer'Address, Buffer'Length);
-      Error_If (Len < 0, Connection_Error'Identity);
-      Error_If (Len = 0, Sockets.Connection_Closed'Identity);
+      Error_If (Len <= 0, Sockets.Connection_Closed'Identity);
 
       return Buffer
         (Buffer'First
          .. Buffer'First - 1 + Ada.Streams.Stream_Element_Count (Len));
    end Receive;
 
-   ----------
-   -- Send --
-   ----------
+   -----------------
+   -- Renegotiate --
+   -----------------
 
-   procedure Send
-     (Socket : in Handle;
-      Data   : in Ada.Streams.Stream_Element_Array) is
+   procedure Renegotiate (Socket : in Handle) is
    begin
-      Error_If (Thin.SSL_Write (Socket.H, Data'Address, Data'Length) = -1,
-                Lib_Error'Identity);
-   end Send;
-
-   --------------------
-   -- Set_Read_Ahead --
-   --------------------
-
-   procedure Set_Read_Ahead (Socket : in Handle; Value : in Boolean)  is
-   begin
-      Thin.SSL_Set_Read_Ahead (S   => Socket.H,
-                               Yes => Boolean'Pos (Value));
-   end Set_Read_Ahead;
+      if Socket.H /= Null_Ptr then
+         Error_If (Thin.SSL_Renegotiate (Socket.H) = -1, Lib_Error'Identity);
+      end if;
+   end Renegotiate;
 
    ---------------------
    -- Set_Certificate --
@@ -448,10 +376,103 @@ package body SSL is
       end if;
    end Set_Certificate;
 
-begin
-   --  OpenSSL initialization
+   ------------
+   -- Set_Fd --
+   ------------
 
-   Thin.OpenSSL_Add_All_Algorithms;
+   procedure Set_Fd (Socket : in out Handle) is
+   begin
+      if Socket.H = Null_Ptr then
+         Socket.H := Thin.SSL_New (Context);
+         Error_If (Socket.H = Null_Ptr, Lib_Error'Identity);
+      end if;
+
+      Error_If
+        (Thin.SSL_Set_Fd (Socket.H,
+                          Sockets.Get_FD (Sockets.Socket_FD (Socket))) = -1,
+         Lib_Error'Identity);
+   end Set_Fd;
+
+   --------------------
+   -- Set_Read_Ahead --
+   --------------------
+
+   procedure Set_Read_Ahead (Socket : in Handle; Value : in Boolean)  is
+   begin
+      Thin.SSL_Set_Read_Ahead (S   => Socket.H,
+                               Yes => Boolean'Pos (Value));
+   end Set_Read_Ahead;
+
+   ------------------------
+   -- Set_Quiet_Shutdown --
+   ------------------------
+
+   procedure Set_Quiet_Shutdown (Value : in Boolean := True) is
+   begin
+      Thin.SSL_Ctx_Set_Quiet_Shutdown (Ctx  => Context,
+                                       Mode => Boolean'Pos (Value));
+   end Set_Quiet_Shutdown;
+
+   -------------------------
+   -- Set_Sess_Cache_Size --
+   -------------------------
+
+   procedure Set_Sess_Cache_Size (Value : in Natural) is
+   begin
+      Error_If (Thin.SSL_Ctx_Ctrl (Ctx  => Context,
+                                   Cmd  => Thin.SSL_Ctrl_Set_Sess_Cache_Size,
+                                   Larg => Interfaces.C.int (Value),
+                                   Parg => Null_Ptr) = -1,
+                Lib_Error'Identity);
+   end Set_Sess_Cache_Size;
+
+   ----------
+   -- Send --
+   ----------
+
+   procedure Send
+     (Socket : in Handle;
+      Data   : in Ada.Streams.Stream_Element_Array) is
+   begin
+      Error_If (Thin.SSL_Write (Socket.H, Data'Address, Data'Length) = -1,
+                Lib_Error'Identity);
+   end Send;
+
+   --------------
+   -- Shutdown --
+   --------------
+
+   procedure Shutdown
+     (Socket : in out Handle;
+      How    : in     Sockets.Shutdown_Type := Sockets.Both)
+   is
+      use type C.int;
+
+      Shutdown_SSL : constant array (Sockets.Shutdown_Type) of C.int :=
+        (Sockets.Receive => Thin.SSL_RECEIVED_SHUTDOWN,
+         Sockets.Send    => Thin.SSL_SENT_SHUTDOWN,
+         Sockets.Both    => Thin.SSL_SENT_SHUTDOWN
+                              + Thin.SSL_RECEIVED_SHUTDOWN);
+   begin
+      Thin.SSL_Set_Shutdown (Socket.H, Shutdown_SSL (How));
+      Sockets.Shutdown (Sockets.Socket_FD (Socket), How);
+   end Shutdown;
+
+   ------------
+   -- Socket --
+   ------------
+
+   procedure Socket
+     (Sock   :    out Handle;
+      Domain : in     Sockets.Socket_Domain := Sockets.AF_INET;
+      Typ    : in     Sockets.Socket_Type   := Sockets.SOCK_STREAM) is
+   begin
+      Sockets.Socket (Sockets.Socket_FD (Sock), Domain, Typ);
+      Set_Fd (Sock);
+   end Socket;
+
+begin
    Thin.SSL_Load_Error_Strings;
+   Thin.SSL_Library_Init;
    Init_Random;
 end SSL;
