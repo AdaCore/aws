@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -58,21 +58,21 @@ package AWS.Parameters is
      (Parameter_List : in List;
       Name           : in String;
       N              : in Positive := 1)
-     return String;
+      return String;
    --  Returns the Nth value associated with Key into Parameter_List. Returns
    --  the emptry string if key does not exist.
 
    function Get_Name
      (Parameter_List : in List;
       N              : in Positive := 1)
-     return String;
+      return String;
    --  Returns the Nth Name in Parameter_List or the empty string if there is
    --  no parameter with this Name.
 
    function Get_Value
      (Parameter_List : in List;
       N              : in Positive := 1)
-     return String;
+      return String;
    --  Returns the Nth Value in Parameter_List or the empty string if there is
    --  no such Value.
 
@@ -87,11 +87,10 @@ package AWS.Parameters is
    function Get_Values
      (Parameter_List : in List;
       Name           : in String)
-     return VString_Array;
+      return VString_Array;
    --  Returns all values for the specified parameter key name.
 
 private
-
    --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
    --  is responsible for doing that.
 
@@ -108,7 +107,7 @@ private
      (Parameter_List : in List;
       Name           : in String;
       N              : in Natural)
-     return String;
+      return String;
    pragma Inline (Internal_Get);
    --  Returns the Nth value associated with Key into Parameter_List. Returns
    --  the emptry string if key does not exist. If N = 0 it returns as-is all
