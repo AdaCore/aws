@@ -1695,7 +1695,9 @@ begin
       --  Exit if connection has not the Keep-Alive status or we are working
       --  on HTTP/1.0 protocol or we have a single slot.
 
-      exit For_Every_Request when Will_Close or else Socket_Taken;
+      exit For_Every_Request when Will_Close
+        or else Socket_Taken
+        or else HTTP_Server.Shutdown;
 
    end loop For_Every_Request;
 
