@@ -95,8 +95,6 @@ implemented:
 
 - Add SMTP authentication support
 
-- Add POP3 support
-
 - Add a time period dispatcher. This will be a new AWS.Services.Dispatcher
   child, the idea is to have a set of time period associated with a callback,
   the same URI will be dispatched to the right callback depending on the
@@ -130,3 +128,9 @@ implemented:
 
 - Properly support WSDL One-way Operations
   (see Web Services Description Language (WSDL) 1.1 section 2.4.1)
+
+- Add a simple Web Mail service (AWS.Services.Web_Mail) using the AWS.POP and
+  AWS.SMTP API.
+
+- Finalize POP support, review API, is there a better name for the APOP
+  authentication protocol. Document AWS.POP.
