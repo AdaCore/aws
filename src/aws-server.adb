@@ -34,6 +34,13 @@ with Ada.Text_IO;
 
 with Sockets;
 
+--  withed units there are there to work around a bug in GNAT 3.12. These with
+--  can be removed with GNAT 3.13.
+
+with AWS.Messages;
+with AWS.Status;
+with AWS.Translater;
+
 package body AWS.Server is
 
    use Ada;
@@ -73,6 +80,20 @@ package body AWS.Server is
       end loop;
 
    end Start;
+
+   --------------
+   -- Shutdown --
+   --------------
+
+   procedure Shutdown (Web_Server : in out HTTP) is
+   begin
+      Sockets.Shutdown (Web_Server.Sock);
+      abort Web_Server.Cleaner;
+
+      for S in 1 .. Web_Server.Max_Connection loop
+         Web_Server.Slots.Release (S);
+      end loop;
+   end Shutdown;
 
    -----------
    -- Slots --
@@ -142,7 +163,7 @@ package body AWS.Server is
          Set (Index).Sock   := FD;
          Set (Index).Opened := True;
          Count := Count - 1;
-         if Count = 0 then
+         if Count = 0 and then Set'Length > 1 then
             Abort_Oldest (True);
          end if;
       end Get;
@@ -231,7 +252,7 @@ package body AWS.Server is
 
       loop
 
-         --  wait for an incoming connection.
+         --  Wait for an incoming connection.
 
          Sockets.Accept_Socket (Server_Sock, Sock);
 
