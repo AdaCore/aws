@@ -38,7 +38,6 @@ with Ada.Strings.Maps;
 with GNAT.Calendar.Time_IO;
 
 with AWS.OS_Lib;
-with AWS.Utils;
 
 package body AWS.Log is
 
@@ -279,6 +278,8 @@ package body AWS.Log is
       Now  : in     Calendar.Time;
       Data : in     String) is
    begin
+      Log.Semaphore.Seize;
+
       if Text_IO.Is_Open (Log.File) then
 
          if (Log.Split = Daily
@@ -295,9 +296,14 @@ package body AWS.Log is
          end if;
 
          Text_IO.Put_Line (Log.File, Data);
-
-         Text_IO.Flush (Log.File);
       end if;
+
+      Log.Semaphore.Release;
+
+   exception
+      when others =>
+         Log.Semaphore.Release;
+         raise;
    end Write_Log;
 
 end AWS.Log;
