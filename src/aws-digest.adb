@@ -155,13 +155,9 @@ package body AWS.Digest is
       Method, URI               : in String)
       return Digest_String is
    begin
-      return Create
-        (Username => Username,
-         Realm    => Realm,
-         Password => Password,
-         Nonce    => Nonce & ':' & NC & ':' & CNonce & ':' & QOP,
-         Method   => Method,
-         URI      => URI);
+      return MD5.Digest
+        (MD5.Digest (Username & ':' & Realm & ':' & Password)
+           & Tail (Nonce, NC, CNonce, QOP, Method, URI));
    end Create;
 
    function Create
@@ -170,10 +166,8 @@ package body AWS.Digest is
       Method, URI               : in String)
       return Digest_String is
    begin
-      return MD5.Digest
-        (MD5.Digest (Username & ':' & Realm & ':' & Password)
-           & ':' & Nonce & ':'
-           & MD5.Digest (Method & ':' & URI));
+      return Create
+               (Username, Realm, Password, Nonce, "", "", "", Method, URI);
    end Create;
 
    ------------------
@@ -222,6 +216,24 @@ package body AWS.Digest is
 
       return Nonce (Timestamp_Str & Index_Str & Result);
    end Create_Nonce;
+
+   ----------
+   -- Tail --
+   ----------
+
+   function Tail
+     (Nonce, NC, CNonce, QOP : in String;
+      Method, URI            : in String)
+      return String
+   is
+      MUD : constant Digest_String := MD5.Digest (Method & ':' & URI);
+   begin
+      if QOP = "" then
+         return ':' & Nonce & ':' & MUD;
+      else
+         return ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':' & MUD;
+      end if;
+   end Tail;
 
 begin
    MD5.Update (Private_Key, Utils.Random_Integer'Image (Utils.Random));
