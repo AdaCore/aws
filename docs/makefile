@@ -1,9 +1,7 @@
 
 # $Id$
 
-.SILENT: clean build ada.sed aws.ps aws.info aws.dvi aws.txt aws.html aws.texi
-.SILENT: prog check_env aws.pdf
-.SILENT: check_api apiref clean_apiref adabrowse_apiref gnathtml_apiref
+.SILENT:
 
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
@@ -71,16 +69,12 @@ APIFILES = ../src/aws.ads.texi \
 	../soap/soap-parameters.ads.texi \
 	../soap/soap-types.ads.texi
 
-check_env:
-	(if ! [ -e ../src/aws-os_lib.adb ]; then \
-	   cp ../config/aws-os_lib__gnat.adb ../src/aws-os_lib.adb; fi)
-
 aws_docs: aws.ps aws.pdf aws.html aws.txt aws.info
 
 sg_docs: style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
 	style-guide.info
 
-build: check_env aws_docs sg_docs
+build: aws_docs sg_docs
 	echo ""
 	echo Documentation built with success.
 
@@ -126,9 +120,8 @@ ada.sed: makefile
 aws.dvi: aws.texi $(APIFILES)
 	-texi2dvi --clean --quiet aws.texi
 
-prog: build.adb
-	$(GNATMAKE) -m -q build -I../src -I../soap -I../include \
-		$(INCLUDES) -largs $(LIBS) -L../lib -lz
+prog:
+	$(GNATMAKE) -Pdocs -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 aws.texi: prog aws.texi.tmplt
 	./build | tr -d '\r' > aws.texi
