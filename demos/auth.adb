@@ -46,8 +46,11 @@ procedure Auth is
          Is_First := False;
          return AWS.Response.Authenticate ("AWS restricted usage");
       else
-         return AWS.Response.Build ("text/html",
-                                    "<p>Very good !");
+         return AWS.Response.Build
+           ("text/html",
+            "<p>Very good !<br>"
+            & AWS.Status.Authorization_Name (Request) & "<br>"
+            & AWS.Status.Authorization_Password (Request));
       end if;
    end Get;
 
