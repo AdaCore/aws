@@ -70,7 +70,7 @@ all:
 	echo "    distrib:     to build a tarball distribution"
 	echo "    install:     install AWS library"
 
-ALL_OPTIONS	= GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)"
+ALL_OPTIONS	= GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)"
 
 set_ssl:
 	echo "MODE=ssl" > makefile.conf
@@ -120,7 +120,7 @@ build_win32:
 	${MAKE} -C win32 build $(ALL_OPTIONS)
 
 run_regtests:
-	${MAKE} -C regtests $(ALL_OPTIONS)
+	${MAKE} -C regtests run $(ALL_OPTIONS)
 
 clean:
 	${MAKE} -C include clean
