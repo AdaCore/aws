@@ -1,3 +1,9 @@
+2003-12-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GARGS): Add -m to avoid recompilation of ada2wsdl because of
+	 ada2wsdl-options.adb regeneration.
+
 2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* awsres.adb:
