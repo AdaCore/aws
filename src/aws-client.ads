@@ -40,7 +40,10 @@ with AWS.URL;
 package AWS.Client is
 
    Connection_Error : exception;
-   --  Raised is the connection with the server cannot be established.
+   --  Raised if the connection with the server cannot be established.
+
+   Protocol_Error : exception;
+   --  Raises if the client received wrong HTTP header.
 
    No_Data       : constant String := "";
 
