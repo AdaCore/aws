@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -39,7 +39,7 @@ package AWS.Resources.Streams.Disk is
    procedure Open
      (File :    out Stream_Type;
       Name : in     String;
-      Form : in     String    := "");
+      Form : in     String    := "shared=no");
 
    function End_Of_File (Resource : in Stream_Type) return Boolean;
 
