@@ -987,7 +987,9 @@ package body AWS.Client is
       Transfer_Encoding :    out Unbounded_String;
       Location          :    out Unbounded_String;
       Connection        :    out Unbounded_String;
-      Cookie            :    out Unbounded_String) is
+      Cookie            :    out Unbounded_String)
+   is
+      use Messages;
    begin
       Content_Length := 0;
 
@@ -997,7 +999,9 @@ package body AWS.Client is
          begin
             Debug_Message ("< ", Line);
 
-            if Line = End_Section then
+            if Line = End_Section and then Status /= Messages.S100 then
+               --  exit if we got and End_Section (empty line) and the status
+               --  is not 100 (continue).
                exit;
 
             elsif Messages.Is_Match (Line, Messages.HTTP_Token) then
