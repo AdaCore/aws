@@ -64,6 +64,11 @@ package AWS.Config.Set is
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
+   procedure Accept_Queue_Size (O : in out Object; Value : in Positive);
+   --  This is the size of the queue for the incoming requests. Higher this
+   --  value will be and less "connection refused" will be reported to the
+   --  client.
+
    procedure Log_File_Directory (O : in out Object; Value : in String);
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
