@@ -201,6 +201,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_CTX_use_PrivateKey_file;
 
+   ----------------------
+   -- SSL_do_handshake --
+   ----------------------
+
+   procedure SSL_do_handshake is
+   begin
+      Raise_Error;
+   end SSL_do_handshake;
+
    --------------
    -- SSL_free --
    --------------
