@@ -158,6 +158,8 @@ b~wsdl_2_main.adb
 b~wsdl_2_main.ads
 b~wsdl_3_main.adb
 b~wsdl_3_main.ads
+b~wsdl_4_main.adb
+b~wsdl_4_main.ads
 b~zapp.adb
 b~zapp.ads
 b~zbig.adb
@@ -430,6 +432,15 @@ wsdl_3_service-server.ads
 wsdl_3_service-types.adb
 wsdl_3_service-types.ads
 wsdl_3_service.ads
+wsdl_4.res
+wsdl_4.wsdl
+wsdl_4_service-client.adb
+wsdl_4_service-client.ads
+wsdl_4_service-server.adb
+wsdl_4_service-server.ads
+wsdl_4_service-types.adb
+wsdl_4_service-types.ads
+wsdl_4_service.ads
 wsdl_a.res
 wsdl_a.wsdl
 zapp
