@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,6 +35,7 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Translator;
 with AWS.Resources.Embedded;
+with AWS.Response.Set;
 
 package body AWS.Response is
 
@@ -49,37 +50,18 @@ package body AWS.Response is
       Message_Body : in String := "";
       Content_Type : in String := MIME.Text_HTML)
       return Data is
+      Result : Data;
    begin
+      Set.Status_Code (Result, Status_Code);
+
       if Message_Body = "" then
-         return Data'(Finalization.Controlled with
-                      new Natural'(1),
-                      Header,
-                      Status_Code,
-                      0,
-                      Content_Type   => Null_Unbounded_String,
-                      Filename       => Null_Unbounded_String,
-                      Location       => Null_Unbounded_String,
-                      Realm          => Null_Unbounded_String,
-                      Authentication => Any,
-                      Auth_Stale     => False,
-                      Stream         => null,
-                      Message_Body   => null);
+         Set.Mode (Result, Header);
       else
-         return Data'(Finalization.Controlled with
-                      new Natural'(1),
-                      Message,
-                      Status_Code,
-                      Message_Body'Length,
-                      Content_Type   => To_Unbounded_String (Content_Type),
-                      Filename       => Null_Unbounded_String,
-                      Location       => Null_Unbounded_String,
-                      Realm          => Null_Unbounded_String,
-                      Authentication => Any,
-                      Auth_Stale     => False,
-                      Stream         => null,
-                      Message_Body   => new Stream_Element_Array'
-                        (Translator.To_Stream_Element_Array (Message_Body)));
+         Set.Message_Body (Result, Message_Body);
+         Set.Content_Type (Result, Content_Type);
       end if;
+
+      return Result;
    end Acknowledge;
 
    ------------
@@ -101,6 +83,7 @@ package body AWS.Response is
       Stale : in Boolean             := False)
       return Data
    is
+      Result : Data;
       CRLF : constant String := ASCII.CR & ASCII.LF;
 
       Auth_Mess : constant String
@@ -116,20 +99,10 @@ package body AWS.Response is
         & "the credentials required.<P>" & CRLF
         & "</BODY></HTML>" & CRLF;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Message,
-                   Messages.S401,
-                   Auth_Mess'Length,
-                   Content_Type   => To_Unbounded_String (AWS.MIME.Text_HTML),
-                   Filename       => Null_Unbounded_String,
-                   Location       => Null_Unbounded_String,
-                   Realm          => To_Unbounded_String (Realm),
-                   Authentication => Mode,
-                   Auth_Stale     => Stale,
-                   Stream         => null,
-                   Message_Body   => new Stream_Element_Array'
-                     (Translator.To_Stream_Element_Array (Auth_Mess)));
+      Set.Authentication (Result, Realm, Mode, Stale);
+      Set.Content_Type   (Result, AWS.MIME.Text_HTML);
+      Set.Message_Body   (Result, Auth_Mess);
+      return Result;
    end Authenticate;
 
    --------------------
@@ -159,21 +132,12 @@ package body AWS.Response is
       Message_Body : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
       return Data is
+      Result : Data;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Message,
-                   Status_Code,
-                   Message_Body'Length,
-                   Content_Type   => To_Unbounded_String (Content_Type),
-                   Filename       => Null_Unbounded_String,
-                   Location       => Null_Unbounded_String,
-                   Realm          => Null_Unbounded_String,
-                   Authentication => Any,
-                   Auth_Stale     => False,
-                   Stream         => null,
-                   Message_Body   => new Stream_Element_Array'
-                     (Translator.To_Stream_Element_Array (Message_Body)));
+      Set.Status_Code  (Result, Status_Code);
+      Set.Content_Type (Result, Content_Type);
+      Set.Message_Body (Result, Message_Body);
+      return Result;
    end Build;
 
    function Build
@@ -182,22 +146,12 @@ package body AWS.Response is
       Status_Code     : in Messages.Status_Code := Messages.S200)
       return Data
    is
-      Message_Body : constant String := To_String (UString_Message);
+      Result : Data;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Message,
-                   Status_Code,
-                   Length (UString_Message),
-                   Content_Type   => To_Unbounded_String (Content_Type),
-                   Filename       => Null_Unbounded_String,
-                   Location       => Null_Unbounded_String,
-                   Realm          => Null_Unbounded_String,
-                   Authentication => Any,
-                   Auth_Stale     => False,
-                   Stream         => null,
-                   Message_Body   => new Stream_Element_Array'
-                     (Translator.To_Stream_Element_Array (Message_Body)));
+      Set.Status_Code  (Result, Status_Code);
+      Set.Content_Type (Result, Content_Type);
+      Set.Message_Body (Result, UString_Message);
+      return Result;
    end Build;
 
    function Build
@@ -205,21 +159,12 @@ package body AWS.Response is
       Message_Body : in Streams.Stream_Element_Array;
       Status_Code  : in Messages.Status_Code := Messages.S200)
       return Data is
+      Result : Data;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Message,
-                   Status_Code,
-                   Message_Body'Length,
-                   Content_Type   => To_Unbounded_String (Content_Type),
-                   Filename       => Null_Unbounded_String,
-                   Location       => Null_Unbounded_String,
-                   Realm          => Null_Unbounded_String,
-                   Authentication => Any,
-                   Auth_Stale     => False,
-                   Stream         => null,
-                   Message_Body   =>
-                     new Streams.Stream_Element_Array'(Message_Body));
+      Set.Status_Code  (Result, Status_Code);
+      Set.Content_Type (Result, Content_Type);
+      Set.Message_Body (Result, Message_Body);
+      return Result;
    end Build;
 
    --------------------
@@ -271,20 +216,10 @@ package body AWS.Response is
    -----------
 
    function Empty return Data is
+      Result : Data;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Response.No_Data,
-                   Messages.S204,
-                   0,
-                   Null_Unbounded_String,
-                   Null_Unbounded_String,
-                   Null_Unbounded_String,
-                   Null_Unbounded_String,
-                   Any,
-                   False,
-                   null,
-                   null);
+      Set.Status_Code  (Result, Messages.S204);
+      return Result;
    end Empty;
 
    ----------
@@ -296,20 +231,12 @@ package body AWS.Response is
       Filename     : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
       return Data is
+      Result : Data;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   File,
-                   Status_Code,
-                   Integer (Resources.File_Size (Filename)),
-                   Content_Type   => To_Unbounded_String (Content_Type),
-                   Filename       => To_Unbounded_String (Filename),
-                   Location       => Null_Unbounded_String,
-                   Realm          => Null_Unbounded_String,
-                   Authentication => Any,
-                   Auth_Stale     => False,
-                   Stream         => null,
-                   Message_Body   => null);
+      Set.Status_Code  (Result, Status_Code);
+      Set.Content_Type (Result, Content_Type);
+      Set.Filename     (Result, Filename);
+      return Result;
    exception
       when Resources.Resource_Error =>
          return Acknowledge (Messages.S404, "<p> " & Filename & " not found");
@@ -416,6 +343,8 @@ package body AWS.Response is
    is
       use Ada.Strings;
 
+      Result : Data;
+
       function Build_Message_Body return String;
       --  Returns proper message body using Message template. It replaces _@_
       --  in Message by Location.
@@ -437,20 +366,11 @@ package body AWS.Response is
       Message_Body : constant String := Build_Message_Body;
 
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Response.Message,
-                   Messages.S301,
-                   Message_Body'Length,
-                   Content_Type   => To_Unbounded_String (AWS.MIME.Text_HTML),
-                   Filename       => Null_Unbounded_String,
-                   Location       => To_Unbounded_String (Location),
-                   Realm          => Null_Unbounded_String,
-                   Authentication => Any,
-                   Auth_Stale     => False,
-                   Stream         => null,
-                   Message_Body   => new Stream_Element_Array'
-                     (Translator.To_Stream_Element_Array (Message_Body)));
+      Set.Location     (Result, Location);
+      Set.Status_Code  (Result, Messages.S301);
+      Set.Message_Body (Result, Message_Body);
+      Set.Content_Type (Result, AWS.MIME.Text_HTML);
+      return Result;
    end Moved;
 
    -----------
@@ -467,20 +387,10 @@ package body AWS.Response is
    ------------------
 
    function Socket_Taken return Data is
+      Result : Data;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Response.Socket_Taken,
-                   Messages.S200,
-                   0,
-                   Null_Unbounded_String,
-                   Null_Unbounded_String,
-                   Null_Unbounded_String,
-                   Null_Unbounded_String,
-                   Any,
-                   False,
-                   null,
-                   null);
+      Set.Mode (Result, Socket_Taken);
+      return Result;
    end Socket_Taken;
 
    -----------------
@@ -502,20 +412,12 @@ package body AWS.Response is
       Stream_Size   : in Content_Length_Type;
       Status_Code   : in Messages.Status_Code := Messages.S200)
       return Data is
+      Result : Data;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Stream,
-                   Status_Code,
-                   Stream_Size,
-                   Content_Type   => To_Unbounded_String (Content_Type),
-                   Filename       => Null_Unbounded_String,
-                   Location       => Null_Unbounded_String,
-                   Realm          => Null_Unbounded_String,
-                   Authentication => Any,
-                   Auth_Stale     => False,
-                   Stream         => Stream_Handle,
-                   Message_Body   => null);
+      Set.Stream       (Result, Stream_Handle, Stream_Size);
+      Set.Status_Code  (Result, Status_Code);
+      Set.Content_Type (Result, Content_Type);
+      return Result;
    end Stream;
 
    ---------
@@ -523,20 +425,11 @@ package body AWS.Response is
    ---------
 
    function URL (Location : in String) return Data is
+      Result : Data;
    begin
-      return Data'(Finalization.Controlled with
-                   new Natural'(1),
-                   Response.Message,
-                   Messages.S301,
-                   0,
-                   Content_Type   => Null_Unbounded_String,
-                   Filename       => Null_Unbounded_String,
-                   Location       => To_Unbounded_String (Location),
-                   Realm          => Null_Unbounded_String,
-                   Authentication => Any,
-                   Auth_Stale     => False,
-                   Stream         => null,
-                   Message_Body   => null);
+      Set.Status_Code (Result, Messages.S301);
+      Set.Location    (Result, Location);
+      return Result;
    end URL;
 
 end AWS.Response;
