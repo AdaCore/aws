@@ -47,7 +47,7 @@ package body SOAP.Parameters is
       NP : Set := P;
    begin
       NP.N := NP.N + 1;
-      NP.V (NP.N) := new Types.Object'Class'(O);
+      NP.V (NP.N) := Types."+" (O);
       return NP;
    end "&";
 
@@ -58,7 +58,7 @@ package body SOAP.Parameters is
    function "+" (O : in Types.Object'Class) return Set is
       P : Set;
    begin
-      P.V (1) := new Types.Object'Class'(O);
+      P.V (1) := Types."+" (O);
       P.N := 1;
       return P;
    end "+";
@@ -73,8 +73,8 @@ package body SOAP.Parameters is
       return Types.Object'Class is
    begin
       for K in 1 .. P.N loop
-         if Types.Name (P.V (K).all) = Name then
-            return P.V (K).all;
+         if Types.Name (P.V (K).O.all) = Name then
+            return P.V (K).O.all;
          end if;
       end loop;
 
@@ -92,7 +92,7 @@ package body SOAP.Parameters is
       N : in Positive)
       return Types.Object'Class is
    begin
-      return P.V (N).all;
+      return P.V (N).O.all;
    end Argument;
 
    --------------------
@@ -120,7 +120,7 @@ package body SOAP.Parameters is
    procedure Check_Int (P : in Set; Name : in String) is
       O : Types.Object'Class := Argument (P, Name);
    begin
-      if O not in Types.Integer then
+      if O not in Types.XSD_Integer then
          Exceptions.Raise_Exception
            (Types.Data_Error'Identity,
             "(check) Integer expected, found object "
@@ -131,13 +131,28 @@ package body SOAP.Parameters is
    procedure Check_Float (P : in Set; Name : in String) is
       O : Types.Object'Class := Argument (P, Name);
    begin
-      if O not in Types.Float then
+      if O not in Types.XSD_Float then
          Exceptions.Raise_Exception
            (Types.Data_Error'Identity,
             "(check) Float expected, found object "
             & Ada.Tags.Expanded_Name (O'Tag));
       end if;
    end Check_Float;
+
+   -----------
+   -- Exist --
+   -----------
+
+   function Exist (P : in Set; Name : in String) return Boolean is
+   begin
+      for K in 1 .. P.N loop
+         if Types.Name (P.V (K).O.all) = Name then
+            return True;
+         end if;
+      end loop;
+
+      return False;
+   end Exist;
 
    ---------
    -- Get --
@@ -148,7 +163,7 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
-   function Get (P : in Set; Name : in String) return Float is
+   function Get (P : in Set; Name : in String) return Long_Float is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
@@ -158,5 +173,19 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
-end SOAP.Parameters;
+   function Get (P : in Set; Name : in String) return Boolean is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
 
+   function Get (P : in Set; Name : in String) return Types.SOAP_Record is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : in Set; Name : in String) return Types.SOAP_Array is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+end SOAP.Parameters;
