@@ -144,7 +144,7 @@ package body SOAP.Types is
 
    function D
      (V    : in Long_Long_Float;
-      Name : in String := "item")
+      Name : in String          := "item")
       return XSD_Double is
    begin
       return (Finalization.Controlled with To_Unbounded_String (Name), V);
@@ -587,8 +587,8 @@ package body SOAP.Types is
    -------
 
    function S
-     (V      : in String;
-      Name   : in String  := "item")
+     (V    : in String;
+      Name : in String := "item")
       return XSD_String
    is
       L_V : constant String := Utils.To_Utf8 (V);
