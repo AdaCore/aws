@@ -172,6 +172,9 @@ package body SOAP.WSDL.Parser is
    --  Returns True if N is an array description node. Set the array element
    --  name into the object.
 
+   procedure Check_Character (R : in DOM.Core.Node);
+   --  Checks that N is a valid schema definition for a Character Ada type
+
    -----------
    -- Debug --
    -----------
@@ -206,6 +209,147 @@ package body SOAP.WSDL.Parser is
    begin
       Parameters.Append (O.Params (O.Mode), Param);
    end Add_Parameter;
+
+   ---------------------
+   -- Check_Character --
+   ---------------------
+
+   procedure Check_Character (R : in DOM.Core.Node) is
+
+      function Character_Facet
+        (Parent : in DOM.Core.Node;
+         Child  : in Boolean := False)
+         return DOM.Core.Node;
+      --  Returns the first node corresponding to a character type definition.
+      --  It skips annotation tag for example.
+
+      ---------------------
+      -- Character_Facet --
+      ---------------------
+
+      function Character_Facet
+        (Parent : in DOM.Core.Node;
+         Child  : in Boolean := False)
+         return DOM.Core.Node
+      is
+         N : DOM.Core.Node := Parent;
+      begin
+         if Child then
+            N := First_Child (N);
+         else
+            N := Next_Sibling (N);
+         end if;
+
+         while N /= null
+           and then DOM.Core.Nodes.Local_Name (N) /= "length"
+           and then DOM.Core.Nodes.Local_Name (N) /= "minLength"
+           and then DOM.Core.Nodes.Local_Name (N) /= "maxLength"
+         loop
+            N := Next_Sibling (N);
+         end loop;
+
+         return N;
+      end Character_Facet;
+
+      N : DOM.Core.Node := R;
+   begin
+      Trace ("(Check_Character)", R);
+
+      pragma Assert
+        (R /= null
+         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "simpleType");
+
+      --  Now check that if Name is Character and base is xsd:string
+      --  that this is really an Ada Character type. For this the
+      --  type must be constrained to a single character.
+      --
+      --  Either we have the facet <length value="1">
+      --  Or <minLength value="1"> and <maxLength value="1">
+
+      declare
+         Name : constant String := Get_Attr_Value (R, "name", False);
+      begin
+
+         --  Get restriction node
+
+         N := First_Child (N);
+
+         declare
+            Base : constant String := Get_Attr_Value (N, "base", False);
+         begin
+            N := Character_Facet (N, Child => True);
+
+            if N /= null
+              and then DOM.Core.Nodes.Local_Name (N) = "length"
+            then
+               --  Check length
+
+               if Get_Attr_Value (N, "value", False) /= "1" then
+                  Raise_Exception
+                    (WSDL_Error'Identity,
+                     "Schema does not correspond"
+                       & " to Ada Character type (length /= 1).");
+               end if;
+
+            elsif N /= null
+              and then DOM.Core.Nodes.Local_Name (N) = "minLength"
+            then
+
+               if Get_Attr_Value (N, "value", False) /= "1" then
+                  Raise_Exception
+                    (WSDL_Error'Identity,
+                     "Schema does not correspond"
+                       & " to Ada Character type (minLength /= 1).");
+               end if;
+
+               N := Character_Facet (N);
+
+               if N = null
+                 or else DOM.Core.Nodes.Local_Name (N) /= "maxLength"
+                 or else Get_Attr_Value (N, "value", False) /= "1"
+               then
+                  if N = null then
+                     Text_IO.Put_Line ("N=null");
+                  end if;
+
+                  Raise_Exception
+                    (WSDL_Error'Identity,
+                     "Schema does not correspond"
+                       & " to Ada Character type (maxLength /= 1).");
+               end if;
+
+            elsif N /= null
+              and then DOM.Core.Nodes.Local_Name (N) = "maxLength"
+            then
+
+               if Get_Attr_Value (N, "value", False) /= "1" then
+                  Raise_Exception
+                    (WSDL_Error'Identity,
+                     "Schema does not correspond"
+                       & " to Ada Character type (maxLength /= 1).");
+               end if;
+
+               N := Character_Facet (N);
+
+               if N = null
+                 or else DOM.Core.Nodes.Local_Name (N) /= "minLength"
+                 or else Get_Attr_Value (N, "value", False) /= "1"
+               then
+                  Raise_Exception
+                    (WSDL_Error'Identity,
+                     "Schema does not correspond"
+                       & " to Ada Character type (minLength /= 1).");
+               end if;
+
+            else
+               Raise_Exception
+                 (WSDL_Error'Identity,
+                  "Schema does not correspond"
+                    & " to Ada Character type (no facet).");
+            end if;
+         end;
+      end;
+   end Check_Character;
 
    -----------------------
    -- Continue_On_Error --
@@ -534,6 +678,8 @@ package body SOAP.WSDL.Parser is
          --  Set array name, R is a complexType node
 
          if Name = "ArrayOfanyType" then
+            --  ??? This is only a convention, we should check the array
+            --  defintion in the schema.
             Raise_Exception
               (WSDL_Error'Identity, "ArrayOfanyType not supported.");
          end if;
@@ -646,6 +792,7 @@ package body SOAP.WSDL.Parser is
 
       P : Parameters.Parameter (Parameters.K_Derived);
       N : DOM.Core.Node;
+
    begin
       Trace ("(Parse_Derived)", R);
 
@@ -671,7 +818,14 @@ package body SOAP.WSDL.Parser is
             if WSDL.Is_Standard (Base) then
                P.Parent_Type := To_Type (Base);
 
+               if P.Parent_Type = WSDL.P_Character then
+                  Check_Character (R);
+               end if;
+
             else
+               --  We do not support derived type at more than one level for
+               --  now.
+
                Raise_Exception
                  (WSDL_Error'Identity,
                   "Parent type must be a standard type.");
@@ -917,6 +1071,13 @@ package body SOAP.WSDL.Parser is
          T_No_NS : constant String := Utils.No_NS (T);
       begin
          if WSDL.Is_Standard (T_No_NS) then
+
+            if WSDL.To_Type (T_No_NS) = WSDL.P_Character then
+               Check_Character
+                 (Get_Node (DOM.Core.Node (Document),
+                            "definitions.types.schema.simpleType", T_No_NS));
+            end if;
+
             Add_Parameter (O, -O.Current_Name, WSDL.To_Type (T_No_NS));
 
          elsif T = Types.XML_Any_Type then
