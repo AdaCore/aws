@@ -115,6 +115,11 @@ package body AWS.Net.SSL is
       end loop;
 
       Set_Read_Ahead (Socket_Type (New_Socket.all), True);
+
+   exception
+      when others =>
+         Free (New_Socket);
+         raise;
    end Accept_Socket;
 
    ------------
