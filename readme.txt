@@ -112,7 +112,7 @@ implementations.
    - A new abstract routine named Reset has been added to the Stream
      interface.
 
-     => Add such routine in tagged types derived from
+     => Add a Reset routine in tagged types derived from
      AWS.Resources.Streams.Stream_Type.
 
 
