@@ -25,6 +25,7 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-server-hotplug.adb aws-server-push.adb aws-server.adb \
 	aws-services-directory.adb aws-services-dispatchers-method.adb \
 	aws-services-dispatchers-uri.adb \
+	aws-services-dispatchers-transient_pages.adb \
 	aws-services-dispatchers-virtual_host.adb \
 	aws-services-dispatchers.ads aws-services-page_server.adb \
 	aws-services.ads aws-session-control.adb aws-session.adb \
@@ -32,7 +33,8 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-templates.ads aws-translator.adb aws-url-raise_url_error.adb \
 	aws-url.adb aws-utils.adb aws.ads aws-exceptions.ads \
 	aws-status-translate_table.adb aws-server-status.adb \
-	aws-server-log.adb aws-pop.adb
+	aws-server-log.adb aws-pop.adb \
+	aws-services-split_pages.adb aws-services-transient_pages.adb
 
 ifdef XMLADA
 SOURCES := $(SOURCES) ../xsrc/aws-jabber.adb
