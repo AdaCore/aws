@@ -274,8 +274,7 @@ is
          --  Connection
 
          if Will_Close then
-            --  If there is no connection received we assume a non Keep-Alive
-            --  connection.
+            --  We was deciding to close connection after answer to client.
 
             Sockets.Put_Line (Sock, Messages.Connection ("close"));
          else
@@ -1396,6 +1395,8 @@ begin
                    and then
                  AWS.Messages.Does_Not_Match
                    (Status.Connection (C_Stat), "keep-alive"));
+
+      Status.Set.Keep_Alive (C_Stat, not Will_Close);
 
       Status.Set.Parameters (C_Stat, P_List);
 
