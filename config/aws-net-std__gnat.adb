@@ -67,6 +67,10 @@ package body AWS.Net.Std is
    pragma Inline (Get_Inet_Addr);
    --  Returns the inet address for the given host.
 
+   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
+   --  Set the socket to the non-blocking mode.
+   --  AWS is not using blocking sockets internally.
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -81,9 +85,15 @@ package body AWS.Net.Std is
          New_Socket.S := new Socket_Hidden;
       end if;
 
+      --  Check for Accept_Socket timeout.
+
+      Wait_For (Input, Socket);
+
       Sockets.Accept_Socket
         (Socket_Type (Socket).S.FD,
          New_Socket.S.FD, Sock_Addr);
+
+      Set_Non_Blocking_Mode (New_Socket);
 
       Set_Cache (New_Socket);
    exception
@@ -112,6 +122,7 @@ package body AWS.Net.Std is
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
          Sockets.Create_Socket (Socket.S.FD);
+         Set_Non_Blocking_Mode (Socket);
       end if;
 
       Sockets.Bind_Socket
@@ -137,6 +148,7 @@ package body AWS.Net.Std is
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
+
          Close_On_Exception := False;
          Sockets.Create_Socket (Socket.S.FD);
          Close_On_Exception := True;
@@ -145,7 +157,13 @@ package body AWS.Net.Std is
       Sock_Addr := (Sockets.Family_Inet,
                     Get_Inet_Addr (Host),
                     Sockets.Port_Type (Port));
+
       Sockets.Connect_Socket (Socket.S.FD, Sock_Addr);
+
+      --  GNAT.Sockets does not support non blocking connect,
+      --  so we are making socket non-blocking after connect.
+
+      Set_Non_Blocking_Mode (Socket);
 
       Set_Cache (Socket);
    exception
@@ -291,6 +309,8 @@ package body AWS.Net.Std is
       Buffer : Stream_Element_Array (1 .. Max);
       Last   : Stream_Element_Count := 0;
    begin
+      Wait_For (Input, Socket);
+
       Sockets.Receive_Socket (Socket.S.FD, Buffer, Last);
 
       --  Check if socket closed by peer.
@@ -319,6 +339,8 @@ package body AWS.Net.Std is
       Last   : Stream_Element_Offset;
    begin
       while First <= Data'Last loop
+         Wait_For (Output, Socket);
+
          Sockets.Send_Socket (Socket.S.FD, Data (First .. Data'Last), Last);
 
          if Last < First then
@@ -333,24 +355,21 @@ package body AWS.Net.Std is
          Raise_Exception (E, "Send");
    end Send;
 
-   -----------------------
-   -- Set_Blocking_Mode --
-   -----------------------
+   ---------------------------
+   -- Set_Non_Blocking_Mode --
+   ---------------------------
 
-   procedure Set_Blocking_Mode
-     (Socket   : in Socket_Type;
-      Blocking : in Boolean)
-   is
+   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
       use Sockets;
       Mode : Request_Type (Non_Blocking_IO);
    begin
-      Mode.Enabled := not Blocking;
+      Mode.Enabled := True;
 
       Control_Socket (Socket.S.FD, Mode);
    exception
       when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Set_Blocking_Mode");
-   end Set_Blocking_Mode;
+         Raise_Exception (E, "Set_Non_Blocking_Mode");
+   end Set_Non_Blocking_Mode;
 
    -----------------------------
    -- Set_Receive_Buffer_Size --

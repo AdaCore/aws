@@ -62,6 +62,10 @@ package body AWS.Net.Std is
    --  Raise exception Socket_Error with E's message and a reference to the
    --  routine name.
 
+   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
+   --  Set the socket to the non-blocking mode.
+   --  AWS is not using blocking sockets internally.
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -74,8 +78,14 @@ package body AWS.Net.Std is
          New_Socket.S := new Socket_Hidden;
       end if;
 
+      --  Check for Accept_Socket timeout.
+
+      Wait_For (Input, Socket);
+
       Sockets.Accept_Socket
         (Socket_Type (Socket).S.FD, New_Socket.S.FD);
+
+      Set_Non_Blocking_Mode (New_Socket);
 
       Set_Cache (New_Socket);
    exception
@@ -96,6 +106,7 @@ package body AWS.Net.Std is
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
          Sockets.Socket (Socket.S.FD);
+         Set_Non_Blocking_Mode (Socket);
       end if;
 
       Sockets.Bind (Socket.S.FD, Port, Host);
@@ -124,6 +135,11 @@ package body AWS.Net.Std is
       end if;
 
       Sockets.Connect (Socket.S.FD, Host, Port);
+
+      --  AdaSockets does not support non blocking connect
+      --  so we are making socket non-blocking after connect.
+
+      Set_Non_Blocking_Mode (Socket);
 
       Set_Cache (Socket);
    exception
@@ -294,55 +310,33 @@ package body AWS.Net.Std is
       Index : Stream_Element_Offset  := Data'First;
       Rest  : C.int := Data'Length;
       FD    : C.int := Sockets.Get_FD (Socket.S.FD);
-
-      Block_Size : constant C.int := C.int (Get_Send_Buffer_Size (Socket));
-
-      procedure Send (Size : C.int);
-
-      ----------
-      -- Send --
-      ----------
-
-      procedure Send (Size : C.int) is
-         Count : C.int;
-      begin
-         Count := Thin.C_Send (FD, Data (Index)'Address, Size, 0);
-
-         if Count < 0 then
-            Raise_Exception (Thin.Errno, "Send");
-         elsif Count < Size then
-            raise Socket_Error;
-         end if;
-      end Send;
+      Count : C.int;
 
    begin
       loop
          Wait_For (Output, Socket);
 
-         if Rest <= Block_Size then
-            Send (Rest);
+         Count := Thin.C_Send (FD, Data (Index)'Address, Rest, 0);
 
-            exit;
-         else
-            Send (Block_Size);
+         if Count < 0 then
+            Raise_Exception (Thin.Errno, "Send");
          end if;
 
-         Rest  := Rest  - Block_Size;
-         Index := Index + Stream_Element_Offset (Block_Size);
+         Rest  := Rest  - Count;
+         exit when Rest <= 0;
+
+         Index := Index + Stream_Element_Offset (Count);
       end loop;
    end Send;
 
-   -----------------------
-   -- Set_Blocking_Mode --
-   -----------------------
+   ---------------------------
+   -- Set_Non_Blocking_Mode --
+   ---------------------------
 
-   procedure Set_Blocking_Mode
-     (Socket   : in Socket_Type;
-      Blocking : in Boolean)
-   is
+   procedure Set_Non_Blocking_Mode (Socket : in Socket_Type) is
       use Sockets;
       use Interfaces.C;
-      Enabled : aliased int := Boolean'Pos (not Blocking);
+      Enabled : aliased int := 1;
    begin
       if Thin.C_Ioctl
            (Get_FD (Socket.S.FD),
@@ -350,9 +344,9 @@ package body AWS.Net.Std is
             Enabled'Access) /= 0
       then
          Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, "Set_Blocking_Mode");
+           (Socket_Error'Identity, "Set_Non_Blocking_Mode");
       end if;
-   end Set_Blocking_Mode;
+   end Set_Non_Blocking_Mode;
 
    -----------------------------
    -- Set_Receive_Buffer_Size --
