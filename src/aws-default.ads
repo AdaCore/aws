@@ -43,6 +43,8 @@ package AWS.Default is
    Hotplug_Port       : constant        := 8888;
    Max_Connection     : constant        := 5;
    Log_File_Directory : constant String := "./";
+   Log_File_Prefix    : constant String := "";
+   Log_Split_Mode     : constant String := "NONE";
    Upload_Directory   : constant String := "./";
 
    Eight_Hours  : constant := 28_800.0;
