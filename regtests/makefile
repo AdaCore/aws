@@ -3,7 +3,7 @@
 
 .SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
 .SILENT: checks checks_header checks_soap shutdown testxml
-.SILENT: soap1 soap2 workorder tres tres2 upload unexph test_speed
+.SILENT: soap1 soap2 soap3 workorder tres tres2 upload unexph test_speed
 .SILENT: test_soap
 
 #INCLUDES = -I../src -I../ssl -I../include
@@ -30,7 +30,7 @@ LARGS = $(LFLAGS) $(LIBS)
 endif
 
 # SOAP regression tests
-rt_soap: soap1 soap2 workorder testxml test_speed test_soap
+rt_soap: soap1 soap2 soap3 workorder testxml test_speed test_soap
 
 # Standard regression tests
 rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2 \
@@ -71,6 +71,10 @@ soap1: force
 soap2: force
 	gnatmake -g soap2 $(GARGS) -largs $(LARGS) -bargs -E
 	./soap2 > soap2.res
+
+soap3: force
+	gnatmake -g soap3 $(GARGS) -largs $(LARGS) -bargs -E
+	./soap3 > soap3.res
 
 workorder: force
 	gnatmake -g workorder $(GARGS) -largs $(LARGS) -bargs -E
@@ -139,6 +143,7 @@ unexph: force
 checks_soap:
 	-diff -c -w soap1.out soap1.res
 	-diff -c -w soap2.out soap2.res
+	-diff -c -w soap3.out soap3.res
 	-diff -c -w workorder.out workorder.res
 	-diff -c -w testxml.out testxml.res
 	-diff -c -w test_speed.out test_speed.res
