@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
+--                          Copyright (C) 2000-2001                         --
 --                      Dmitriy Anisimkov & Pascal Obry                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -202,32 +202,29 @@ is
       procedure Send_File is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
+
+         Is_Up_To_Date : Boolean;
+
       begin
-         AWS.Status.Set.File_Up_To_Date
-           (C_Stat,
-            Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
+         Is_Up_To_Date :=
+           Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
             and then
            OS_Lib.File_Timestamp (Response.Message_Body (Answer))
-            <= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat)));
+            <= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
 
-         if AWS.Status.File_Up_To_Date (C_Stat) then
+         AWS.Status.Set.File_Up_To_Date (C_Stat, Is_Up_To_Date);
+
+         Send_General_Header;
+
+         if Is_Up_To_Date then
             --  [RFC 2616 - 10.3.5]
-
-            Sockets.Put_Line
-              (Sock,
-               Messages.Status_Line (Messages.S304));
-            Sockets.Put_Line
-              (Sock,
-               "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
+            Sockets.Put_Line (Sock,
+                              Messages.Status_Line (Messages.S304));
             Sockets.New_Line (Sock);
-
             return;
-
          else
             Sockets.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
-
-         Send_General_Header;
 
          Sockets.Put_Line
            (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
