@@ -1,5 +1,10 @@
 2004-12-14  Pascal Obry  <pascal@obry.net>
 
+	* templates_parser.adb:
+	Fix style error.
+
+2004-12-14  Pascal Obry  <pascal@obry.net>
+
 	* templates_parser-definitions.adb:
 	Initial revision.
 
