@@ -74,6 +74,12 @@ project Tools is
 
    package Compiler renames Shared.Compiler;
 
+   ------------
+   -- Binder --
+   ------------
+
+   package Binder renames Shared.Binder;
+
    -------------
    -- Builder --
    -------------
