@@ -1,3 +1,11 @@
+2004-06-27  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(WSDL_TESTS): Add datafeed_service.
+
+	* datafeed_service.adb, datafeed_service.out, datafeed_service.wsdl:
+	Initial revision.
+
 2004-06-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* auth.adb, head.adb, moved.adb, strm.adb, strm2.adb, tclientto.adb,

@@ -1,3 +1,70 @@
+2004-06-27  Pascal Obry  <pascal@obry.org>
+
+	* soap-client.adb:
+	(Call): Set SOAPAction parameter to No_SOAPAction by default. Properly
+         handle No_SOAPAction case and empty SOAPAction.
+        Minor reformatting.
+
+	* soap-client.ads:
+	(Call): Set SOAPAction parameter to No_SOAPAction by default.
+        Update copyright notice.
+
+	* soap-wsdl.adb:
+	Add support for P_Long (support for SOAP long).
+        Update copyright notice.
+
+	* soap-wsdl.ads:
+	(Parameter_Type): Add P_Long.
+        (NS_SOAP): New constant.
+        (NS_SOAPENC): Idem.
+        (NS_XSD): Idem.
+        (NS_WSDL): Idem.
+        Update copyright notice.
+
+	* soap-generator-stub.adb, soap-generator-skel.adb:
+	Move SOAP.Types with clause generation from body to spec.
+
+	* soap-types.ads:
+        Add support for xsd:long type.
+        Update comments about adding new SOAP types.
+        Update copyright notice.
+
+	* soap-types.adb:
+	(Get) [Long]: New function.
+        Add support for xsd:long type.
+        Minor reformatting.
+        Update copyright notice.
+
+	* soap-wsdl-parser.adb:
+	(NS_SOAP): New variable.
+        (Parse_Definitions): New procedure.
+        (Is_Record): Handle <sequence> in record check.
+        (Parse): Call Parse_Definitions to analyse the SOAP definitions.
+         This is used to properly set the namespaces. Use Local_Name to
+         parse the service node.
+        (Parse_Binding): Use proper namespace to look for binding node. Fix
+         operation check.
+        (Parse_Operation): Use proper namespace to look for operation node.
+        (Parse_Service): Use proper namespace to look for port address node.
+        (Build_Enumeration): Fix enumetation check.
+        (Parse_Simple): Idem.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	(Get) [Long]: New routine.
+        Update copyright notice.
+
+	* soap-utils.ads:
+        (With_NS): New routine.
+
+	* soap-utils.adb:
+	(Is_Reserved_Word): Complete implementation.
+        (With_NS): New routine.
+
+	* soap.ads:
+	(Version): Update to 1.3.
+        (NO_SOAPAction): New constant.
+        Update copyright notice.
+
 2004-06-19  Pascal Obry  <pascal@obry.org>
 
 	* soap-message-xml.adb:
