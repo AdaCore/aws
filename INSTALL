@@ -5,7 +5,9 @@ To build AWS you need to change some settings in the top level
 makefile.conf file.
 
 Look for ADASOCKETS, XMLADA, ASIS, POSIX, and INSTALL make's
-variables. Then doing a "make build" and "make install" should be ok.
+variables. Then building AWS is as simple as:
+
+	$ make setup build install
 
 Note that you can find more information about the build procedure into
 the AWS User's Guide.
