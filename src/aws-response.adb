@@ -102,7 +102,7 @@ package body AWS.Response is
 
    function Authentication (D : in Data) return Authentication_Mode is
       use AWS.Headers;
-      Auth_Values : VString_Array
+      Auth_Values : constant VString_Array
         := Get_Values (D.Header, Messages.WWW_Authenticate_Token);
    begin
       if Auth_Values'Length = 1 then
@@ -119,7 +119,7 @@ package body AWS.Response is
 
    function Authentication_Stale (D : in Data) return Boolean is
       use AWS.Headers;
-      Auth_Values : VString_Array
+      Auth_Values : constant VString_Array
         := Get_Values (D.Header, Messages.WWW_Authenticate_Token);
    begin
       for J in Auth_Values'Range loop
@@ -142,10 +142,10 @@ package body AWS.Response is
    function Build
      (Content_Type  : in String;
       Message_Body  : in String;
-      Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
-      Encoding      : in Content_Encoding      := Identity)
-      return        Data
+      Status_Code   : in Messages.Status_Code      := Messages.S200;
+      Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
+      Encoding      : in Messages.Content_Encoding := Messages.Identity)
+      return Data
    is
       Result : Data;
    begin
@@ -160,10 +160,10 @@ package body AWS.Response is
    function Build
      (Content_Type    : in String;
       UString_Message : in Strings.Unbounded.Unbounded_String;
-      Status_Code     : in Messages.Status_Code  := Messages.S200;
-      Cache_Control   : in Messages.Cache_Option := Messages.Unspecified;
-      Encoding        : in Content_Encoding      := Identity)
-      return          Data
+      Status_Code     : in Messages.Status_Code      := Messages.S200;
+      Cache_Control   : in Messages.Cache_Option     := Messages.Unspecified;
+      Encoding        : in Messages.Content_Encoding := Messages.Identity)
+      return Data
    is
       Result : Data;
    begin
@@ -178,10 +178,10 @@ package body AWS.Response is
    function Build
      (Content_Type  : in String;
       Message_Body  : in Streams.Stream_Element_Array;
-      Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
-      Encoding      : in Content_Encoding      := Identity)
-      return        Data
+      Status_Code   : in Messages.Status_Code      := Messages.S200;
+      Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
+      Encoding      : in Messages.Content_Encoding := Messages.Identity)
+      return Data
    is
       Result : Data;
    begin
@@ -269,9 +269,10 @@ package body AWS.Response is
    function File
      (Content_Type  : in String;
       Filename      : in String;
-      Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return        Data
+      Status_Code   : in Messages.Status_Code      := Messages.S200;
+      Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
+      Encoding      : in Messages.Content_Encoding := Messages.Identity)
+      return Data
    is
       Result : Data;
    begin
@@ -279,6 +280,20 @@ package body AWS.Response is
       Set.Content_Type  (Result, Content_Type);
       Set.Filename      (Result, Filename);
       Set.Cache_Control (Result, Cache_Control);
+
+      case Encoding is
+         when Messages.GZip     =>
+            Response.Set.Add_Header
+              (Result, Messages.Content_Encoding_Token, "gzip");
+
+         when Messages.Deflate  =>
+            Response.Set.Add_Header
+              (Result, Messages.Content_Encoding_Token, "deflate");
+
+         when Messages.Identity =>
+            null;
+      end case;
+
       return Result;
    end File;
 
@@ -528,10 +543,10 @@ package body AWS.Response is
    function Stream
      (Content_Type  : in     String;
       Handle        : access Resources.Streams.Stream_Type'Class;
-      Status_Code   : in     Messages.Status_Code  := Messages.S200;
-      Cache_Control : in     Messages.Cache_Option := Messages.No_Cache;
-      Encoding      : in     Content_Encoding      := Identity)
-      return        Data
+      Status_Code   : in     Messages.Status_Code      := Messages.S200;
+      Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
+      Encoding      : in     Messages.Content_Encoding := Messages.Identity)
+      return Data
    is
       Result : Data;
    begin
