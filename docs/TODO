@@ -156,12 +156,5 @@ implemented:
 
 - Add support for SOAP hotplug modules
 
-- Add name/password support to hotplug modules
-
-- Add support for a static list of servers that can connect as hotplug
-  modules. On each server a set of module names with associated passwords 
-  can be registered. Only those modules will be able to connect.
-
-- Add register mode support (Add or Replace) for hotplug module
-  (mode Add fails if an hotplug module is already registered with the same
-  key)
+- Move regtests/demos depending on XML/Ada out of the aws-http tarball in
+  the MANIFEST file.
