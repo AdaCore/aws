@@ -1191,7 +1191,7 @@ with an @b{INPUT} tag of type @b{FILE}.
 @smallexample
 @cartouche
 @group
-<FORM ACTION=/whatever METHOD=POST>
+<FORM enctype="multipart/form-data" ACTION=/whatever METHOD=POST>
 File to process: <INPUT NAME=filename TYPE=FILE>
 <INPUT TYPE=SUBMIT NAME=go VALUE="Send File">
 </FORM>
