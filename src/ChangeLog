@@ -1,16 +1,34 @@
+2004-08-23  Pascal Obry  <pascal@obry.org>
+
+	* aws-client.adb:
+	Minor reformatting and comment fixes.
+
+	* aws-server.adb:
+	(Shutdown): Add commented out exit statement.
+	Minor reformatting and comment fixes.
+
+	* aws-server.ads:
+	Minor reformatting and comment fixes.
+
+	* aws-status.ads:
+	Minor reformatting.
+
 2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.ads:
-	Don't allow posibility to Free socket until other task is shutdowning it.
+	Don't allow posibility to Free socket until other task is
+	 shutdowning it. 
 	(Slot_Phase): New phases In_Shutdown and Loose_Release.
 	(Slots.Abort_On_Timeout): Add Index out parameter.
 	(Slots.Shutdown_Done): New routine.
 
 	* aws-server.adb:
-	Don't allow posibility to Free socket until other task is shutdowning it.
-	(Line_Cleaner): Get Slot index from Abort_On_Timeout for call Shutdown_Done.
-	(Shutdown): Add Slot_State and Slot_Index local variables for better error
-	 messages when we could not terminate slots.
+	Don't allow posibility to Free socket until other task is
+	 shutdowning it. 
+	(Line_Cleaner): Get Slot index from Abort_On_Timeout for call
+	 Shutdown_Done.
+	(Shutdown): Add Slot_State and Slot_Index local variables for
+	 better error messages when we could not terminate slots.
 	 Call Web_Server.Slots.Shutdown_Done after slot socket Shutdown.
 	(Slots.Abort_On_Timeout): Give slot index.
 	(Slots.Get_For_Shutdown): Put to In_Shutdown Phase.
