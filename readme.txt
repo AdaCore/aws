@@ -39,10 +39,10 @@ Changes
 
 Here are the main changes since AWS 1.4 :
 
-   - ada2wsdl a new tool to generate WSDL document from an Ada spec. This tool
-     will help further to build Web Services with GNAT. ada2wsdl is based on
-     ASIS for GNAT. You have GNAT and ASIS installed. ada2wsdl handles
-     standard Ada types, Calendar.Time, records and arrays.
+   - ada2wsdl a new tool to generate WSDL document from an Ada spec. This
+     tool will help further to build Web Services with GNAT. ada2wsdl is
+     based on ASIS for GNAT. You have GNAT and ASIS installed. ada2wsdl
+     handles standard Ada types, Calendar.Time, records and arrays.
 
    - Add -types wsdl2aws option to generate code compatible with an already
      present Ada spec. This is to be used with ada2wsdl tool. With -types
@@ -61,6 +61,11 @@ Here are the main changes since AWS 1.4 :
      transparent SOAP support from Ada.
 
    - Better support for Notification and Request-response WSDL operations.
+
+   - Many changes in the way SOAP and WSDL documents are generated for better
+     interoperability (tested with Tomcat/Axis with some complex data
+     structures). See for example wsdl_6 non-regression test (wsdl_6.java
+     for the Java Axis part).
 
    - Add support for transient pages. These are stream objects that
      are not released by the server. Transient pages are released by a
@@ -103,6 +108,12 @@ implementations.
      with Ada which is not case-sensitive.
 
      => Just add "_Type" suffix to array types and constructors references.
+
+   - A new abstract routine named Reset has been added to the Stream
+     interface.
+
+     => Add such routine in tagged types derived from
+     AWS.Resources.Streams.Stream_Type.
 
 
 Obsolescent features:
