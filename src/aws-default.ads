@@ -42,6 +42,7 @@ package AWS.Default is
    Server_Port         : constant        := 8080;
    Hotplug_Port        : constant        := 8888;
    Max_Connection      : constant        := 5;
+   Accept_Queue_Size   : constant        := 64;
    Log_File_Directory  : constant String := "./";
    Log_Filename_Prefix : constant String := "";
    Log_Split_Mode      : constant String := "NONE";
