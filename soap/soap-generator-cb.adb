@@ -64,14 +64,27 @@ package body CB is
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "      else");
       Text_IO.Put_Line (CB_Adb, "         return Message.Response.Build");
-      Text_IO.Put_Line (CB_Adb, "            (Message.Response.Error.Build");
-      Text_IO.Put_Line (CB_Adb,
-                        "               (Message.Response.Error.Client,");
+      Text_IO.Put_Line (CB_Adb, "           (Message.Response.Error.Build");
       Text_IO.Put_Line
-        (CB_Adb,
-         "                  ""Wrong SOAP action "" & SOAPAction));");
+        (CB_Adb, "             (Message.Response.Error.Client,");
+      Text_IO.Put_Line
+        (CB_Adb, "              ""Wrong SOAP action "" & SOAPAction));");
       Text_IO.Put_Line (CB_Adb, "      end if;");
 
+      --  Exception handler
+
+      Text_IO.Put_Line (CB_Adb, "   exception");
+      Text_IO.Put_Line (CB_Adb, "      when E : others =>");
+      Text_IO.Put_Line (CB_Adb, "         return Message.Response.Build");
+      Text_IO.Put_Line (CB_Adb, "           (Message.Response.Error.Build");
+      Text_IO.Put_Line
+        (CB_Adb, "             (Message.Response.Error.Client,");
+      Text_IO.Put_Line
+        (CB_Adb,
+         "              ""Error in SOAP_CB for SOAPAction "" & SOAPAction");
+      Text_IO.Put_Line
+        (CB_Adb,
+         "                & "" ("" & Exception_Information (E) & "")""));");
       Text_IO.Put_Line (CB_Adb, "   end SOAP_CB;");
 
       --  Body
@@ -165,6 +178,8 @@ package body CB is
 
       --  Body
 
+      Text_IO.Put_Line (CB_Adb, "with Ada.Exceptions;");
+      Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "with SOAP.Message.Response.Error;");
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "with " & To_String (O.Types_Spec) & ";");
@@ -174,6 +189,7 @@ package body CB is
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "package body " & U_Name & ".CB is");
       Text_IO.New_Line (CB_Adb);
+      Text_IO.Put_Line (CB_Adb, "   use Ada.Exceptions;");
       Text_IO.Put_Line (CB_Adb, "   use SOAP;");
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb,
@@ -182,7 +198,6 @@ package body CB is
                         "   pragma Warnings (Off, " & U_Name & ".Types);");
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "   pragma Style_Checks (Off);");
-      Text_IO.New_Line (CB_Adb);
 
       --  Tmp body
 
