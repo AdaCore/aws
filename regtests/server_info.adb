@@ -86,7 +86,7 @@ procedure Server_Info is
 
       for K in 1 .. 4 loop
          Client.Get (C, R, "/");
-     end loop;
+      end loop;
 
       accept Stopped;
 
@@ -107,7 +107,7 @@ procedure Server_Info is
         (WS, "Server Info",
          CB'Unrestricted_Access,
          Port           => 1258,
-         Max_Connection => 5);
+         Max_Connection => 6);
 
       Text_IO.Put_Line ("started");
 
