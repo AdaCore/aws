@@ -32,6 +32,7 @@ with Ada.Strings.Unbounded;
 with GNAT.Regexp;
 
 with AWS.Response;
+with AWS.Status;
 
 package AWS.Hotplug is
 
@@ -49,7 +50,7 @@ package AWS.Hotplug is
    --  regular expression. Does nothing if regexp is not found.
 
    procedure Apply (Filters : in     Filter_Set;
-                    URI     : in     String;
+                    Status  : in     AWS.Status.Data;
                     Found   :    out Boolean;
                     Data    :    out Response.Data);
    --  Run through the filters and apply the first one for which the regular
