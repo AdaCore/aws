@@ -1,0 +1,14 @@
+Starting main server...
+Response: 10
+Response: 21
+Response: 11
+Response: 18
+Register OK
+Response: 21
+Response: 10
+Response: 18
+Response: 11
+Stop hotplug server
+Unregister OK
+Shutdown hotplug server support
+Shutdown main server
