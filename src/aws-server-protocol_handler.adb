@@ -967,33 +967,50 @@ is
    ------------------------
 
    procedure Get_Message_Header is
-      First_Line : Boolean := True;
-   begin
-      loop
-         begin
+
+      procedure Parse_Header_Lines (Line : String);
+
+      ------------------------
+      -- Parse_Header_Lines --
+      ------------------------
+
+      procedure Parse_Header_Lines (Line : String)
+      is
+      begin
+         if Line = End_Of_Message then
+            return;
+         else
             declare
-               Data : constant String := Sockets.Get_Line (Sock);
+               Next_Line : constant String := Sockets.Get_Line (Sock);
             begin
-               --  A request by the client has been received, do not abort
-               --  until this request is handled.
-
-               exit when Data = End_Of_Message;
-
-               if First_Line then
-
-                  HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
-
-                  Parse_Request_Line (Data);
-
-                  First_Line := False;
-
+               if Next_Line /= ""
+                  and then (Next_Line (1) = ' ' or Next_Line (1) = ASCII.HT)
+               then
+                  --  Continuing value on the next line
+                  --  see RFC 2616 4.2
+                  --  Header fields can be extended over multiple lines
+                  --  by preceding each extra line with at least one SP or HT.
+                  Parse_Header_Lines (Line & Next_Line);
                else
-                  Parse (Data);
+                  Parse (Line);
+                  Parse_Header_Lines (Next_Line);
                end if;
-
             end;
-         end;
-      end loop;
+         end if;
+
+      end Parse_Header_Lines;
+
+   begin
+
+      declare
+         Data : constant String := Sockets.Get_Line (Sock);
+      begin
+         HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
+         Parse_Request_Line (Data);
+      end;
+
+      Parse_Header_Lines (Sockets.Get_Line (Sock));
+
    end Get_Message_Header;
 
    ------------------------
