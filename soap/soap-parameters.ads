@@ -60,6 +60,10 @@ package SOAP.Parameters is
    --  Returns parameter named Name in P as an Integer value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Integer.
 
+   function Get (P : in List; Name : in String) return Types.Short;
+   --  Returns parameter named Name in P as a Short value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not an Short.
+
    function Get (P : in List; Name : in String) return Types.Long;
    --  Returns parameter named Name in P as a Long value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Long.
