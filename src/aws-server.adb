@@ -38,6 +38,7 @@ with Interfaces.C;
 
 with Sockets.Thin;
 with Sockets.Naming;
+with AWS.Config.Set;
 
 with AWS.Net;
 with AWS.Session.Control;
@@ -53,6 +54,11 @@ package body AWS.Server is
    private
       UID : Natural := 0;
    end File_Upload_UID;
+
+   procedure Start
+     (Web_Server : in out HTTP;
+      Callback   : in     Response.Callback);
+   --  Start web server with current configuration
 
    procedure Protocol_Handler
      (Sock        : in     Sockets.Socket_FD'Class;
@@ -89,17 +95,62 @@ package body AWS.Server is
       Case_Sensitive_Parameters : in     Boolean           := True;
       Upload_Directory          : in     String            := Def_Upload_Dir)
    is
+   begin
+      Config.Set.Server_Name (Web_Server.Properties, Name);
+      Config.Set.Admin_URI (Web_Server.Properties, Admin_URI);
+      Config.Set.Server_Port (Web_Server.Properties, Port);
+      Config.Set.Security (Web_Server.Properties, Security);
+      Config.Set.Session (Web_Server.Properties, Session);
+      Config.Set.Case_Sensitive_Parameters (Web_Server.Properties,
+         Case_Sensitive_Parameters);
+      Config.Set.Upload_Directory (Web_Server.Properties, Upload_Directory);
+      Start (Web_Server, Callback);
+   end Start;
+
+   procedure Start
+     (Web_Server : in out HTTP;
+      Callback   : in     Response.Callback;
+      Config     : in     AWS.Config.Object) is
+   begin
+      Web_Server.Properties := Config;
+      Start (Web_Server, Callback);
+   end Start;
+
+   procedure Start
+     (Web_Server : in out HTTP;
+      Callback   : in     Response.Callback)
+   is
       Accepting_Socket : Sockets.Socket_FD;
    begin
-      Web_Server.Name        := To_Unbounded_String (Name);
-      Web_Server.Admin_URI   := To_Unbounded_String (Admin_URI);
-      Web_Server.Upload_Path := To_Unbounded_String (Upload_Directory);
 
-      Web_Server.Port                      := Port;
-      Web_Server.Security                  := Security;
-      Web_Server.CB                        := Callback;
-      Web_Server.Session                   := Session;
-      Web_Server.Case_Sensitive_Parameters := Case_Sensitive_Parameters;
+      Web_Server.CB := Callback;
+
+      Web_Server.Slots.Set_Timeouts
+        ((Cleaner => -- Timeouts for Line_Cleaner
+            (Wait_For_Client  =>
+               Config.Cleaner_Wait_For_Client_Timeout (Web_Server.Properties),
+             Client_Header    =>
+               Config.Cleaner_Client_Header_Timeout (Web_Server.Properties),
+             Client_Data      =>
+               Config.Cleaner_Client_Data_Timeout (Web_Server.Properties),
+             Server_Response  =>
+               Config.Cleaner_Server_Response_Timeout (Web_Server.Properties)),
+
+          Force   => -- Force timeouts used when there is no free slot
+            (Wait_For_Client  =>
+               Config.Force_Wait_For_Client_Timeout (Web_Server.Properties),
+             Client_Header    =>
+               Config.Force_Client_Header_Timeout (Web_Server.Properties),
+             Client_Data      =>
+               Config.Force_Client_Data_Timeout (Web_Server.Properties),
+             Server_Response  =>
+               Config.Cleaner_Server_Response_Timeout
+                 (Web_Server.Properties))),
+
+         (Client_Data     =>
+            Config.Receive_Timeout (Web_Server.Properties),
+          Server_Response =>
+            Config.Send_Timeout (Web_Server.Properties)));
 
       Sockets.Socket
         (Accepting_Socket,
@@ -112,7 +163,7 @@ package body AWS.Server is
          Sockets.SO_REUSEADDR,
          1);
 
-      Sockets.Bind (Accepting_Socket, Port);
+      Sockets.Bind (Accepting_Socket, Server_Port (Web_Server.Properties));
 
       Sockets.Listen (Accepting_Socket);
 
@@ -124,8 +175,12 @@ package body AWS.Server is
          Web_Server.Lines (I).Start (Web_Server, I);
       end loop;
 
-      if Session then
-         AWS.Session.Control.Start;
+      if AWS.Config.Session (Web_Server.Properties) then
+         AWS.Session.Control.Start
+           (Session_Check_Interval =>
+              Config.Session_Cleanup_Interval (Web_Server.Properties),
+            Session_Lifetime =>
+              Config.Session_Lifetime (Web_Server.Properties));
       end if;
    end Start;
 
@@ -144,7 +199,7 @@ package body AWS.Server is
          Web_Server.Slots.Release (S);
       end loop;
 
-      if Web_Server.Session then
+      if AWS.Config.Session (Web_Server.Properties) then
          Session.Control.Shutdown;
       end if;
    end Shutdown;
@@ -302,6 +357,18 @@ package body AWS.Server is
          return To_String (Set (Index).Peername);
       end Get_Peername;
 
+      ------------------
+      -- Set_Timeouts --
+      ------------------
+
+      procedure Set_Timeouts
+        (Phase_Timeouts : Timeouts_Array;
+         Data_Timeouts  : Data_Timeouts_Array) is
+      begin
+         Timeouts := Phase_Timeouts;
+         Slots.Data_Timeouts := Set_Timeouts.Data_Timeouts;
+      end Set_Timeouts;
+
    end Slots;
 
    ------------------
@@ -396,7 +463,7 @@ package body AWS.Server is
 
             Sock : aliased Sockets.Socket_FD'Class :=
               AWS.Net.Accept_Socket (HTTP_Server.Sock,
-                                     HTTP_Server.Security);
+                                     Config.Security (HTTP_Server.Properties));
 
          begin
             begin
@@ -435,6 +502,7 @@ package body AWS.Server is
             end;
 
             HTTP_Server.Slots.Release (Slot_Index);
+
          end;
       end loop;
 
