@@ -43,9 +43,9 @@ package body AWS.Net.Std is
 
    use Ada;
 
-   subtype SFD is Sockets.Socket_FD;
-
-   type Socket_Hidden is new Sockets.Socket_FD with null record;
+   type Socket_Hidden is record
+      FD : Sockets.Socket_FD;
+   end record;
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
@@ -72,7 +72,7 @@ package body AWS.Net.Std is
       end if;
 
       Sockets.Accept_Socket
-        (SFD (Socket_Type (Socket).S.all), SFD (New_Socket.S.all));
+        (Socket_Type (Socket).S.FD, New_Socket.S.FD);
 
       Set_Cache (New_Socket);
    exception
@@ -92,10 +92,10 @@ package body AWS.Net.Std is
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
-         Std.Socket (Socket.S.all);
+         Sockets.Socket (Socket.S.FD);
       end if;
 
-      Std.Bind (Socket.S.all, Port, Host);
+      Sockets.Bind (Socket.S.FD, Port, Host);
    exception
       when E : others =>
          Raise_Exception (E, "Bind");
@@ -112,15 +112,15 @@ package body AWS.Net.Std is
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
-         Std.Socket (Socket.S.all);
+         Sockets.Socket (Socket.S.FD);
       end if;
 
-      Std.Connect (Socket.S.all, Host, Port);
+      Sockets.Connect (Socket.S.FD, Host, Port);
 
       Set_Cache (Socket);
    exception
       when E : others =>
-         Std.Shutdown (Socket.S.all);
+         Sockets.Shutdown (Socket.S.FD);
          Free (Socket);
          Raise_Exception (E, "Connect");
    end Connect;
@@ -141,7 +141,7 @@ package body AWS.Net.Std is
 
    function Get_FD (Socket : in Socket_Type) return Integer is
    begin
-      return Integer (Sockets.Get_FD (SFD (Socket.S.all)));
+      return Integer (Sockets.Get_FD (Socket.S.FD));
    end Get_FD;
 
    ---------------
@@ -161,7 +161,7 @@ package body AWS.Net.Std is
      (Socket     : in Socket_Type;
       Queue_Size : in Positive := 5) is
    begin
-      Sockets.Listen (SFD (Socket.S.all), Queue_Size);
+      Sockets.Listen (Socket.S.FD, Queue_Size);
    exception
       when E : others =>
          Raise_Exception (E, "Listen");
@@ -175,7 +175,7 @@ package body AWS.Net.Std is
    begin
       return Sockets.Naming.Image
         (Sockets.Naming.Address'
-           (Sockets.Naming.Get_Peer_Addr (SFD (Socket.S.all))));
+           (Sockets.Naming.Get_Peer_Addr (Socket.S.FD)));
    exception
       when E : others =>
          Raise_Exception (E, "Peer_Addr");
@@ -205,7 +205,7 @@ package body AWS.Net.Std is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array is
    begin
-      return Sockets.Receive (SFD (Socket.S.all), Max);
+      return Sockets.Receive (Socket.S.FD, Max);
    exception
       when E : others =>
          Raise_Exception (E, "Receive");
@@ -219,7 +219,7 @@ package body AWS.Net.Std is
      (Socket : in Socket_Type;
       Data   : in Stream_Element_Array) is
    begin
-      Sockets.Send (SFD (Socket.S.all), Data);
+      Sockets.Send (Socket.S.FD, Data);
    exception
       when E : others =>
          Raise_Exception (E, "Send");
@@ -238,7 +238,7 @@ package body AWS.Net.Std is
       Enabled : aliased int := Boolean'Pos (not Blocking);
    begin
       if Thin.C_Ioctl
-           (Get_FD (Socket.S.all),
+           (Get_FD (Socket.S.FD),
             Constants.Fionbio,
             Enabled'Access) /= 0
       then
@@ -257,7 +257,7 @@ package body AWS.Net.Std is
    is
       use Sockets;
    begin
-      Setsockopt (Socket.S.all, Optname => SO_RCVBUF, Optval => Size);
+      Setsockopt (Socket.S.FD, Optname => SO_RCVBUF, Optval => Size);
    exception
       when E : others =>
          Raise_Exception (E, "Set_Receive_Buffer");
@@ -273,7 +273,7 @@ package body AWS.Net.Std is
    is
       use Sockets;
    begin
-      Setsockopt (Socket.S.all, Optname => SO_SNDBUF, Optval => Size);
+      Setsockopt (Socket.S.FD, Optname => SO_SNDBUF, Optval => Size);
    exception
       when E : others =>
          Raise_Exception (E, "Set_Send_Buffer");
@@ -285,7 +285,7 @@ package body AWS.Net.Std is
 
    procedure Shutdown (Socket : in Socket_Type) is
    begin
-      Sockets.Shutdown (SFD (Socket.S.all));
+      Sockets.Shutdown (Socket.S.FD);
    exception
       when E : others =>
          Raise_Exception (E, "Shutdown");
