@@ -263,9 +263,9 @@ package body AWS.Services.Split_Pages is
                        Last .. Natural'Min (Last + Max_Per_Page - 1, Size)
                      loop
                         if Nested > 1 then
-                           V := V & Templates.Tag'(Templates.Item (T, K));
+                           V := V & Templates.Composite (T, K);
                         else
-                           V := V & String'(Templates.Item (T, K));
+                           V := V & Templates.Item (T, K);
                         end if;
                      end loop;
 
