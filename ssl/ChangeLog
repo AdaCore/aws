@@ -1,3 +1,9 @@
+2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(LIBNOSSLAWS): New variable.
+	Use it anywhere reference to this lib is made.
+
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
