@@ -196,6 +196,10 @@ package AWS.Client is
    procedure Close (Connection : in out HTTP_Connection);
    --  Close connection, it releases all associated resources.
 
+   procedure Set_Debug (On : in Boolean);
+   --  Set debug mode on/off. If debug is activated the request header and the
+   --  server response header will be displayed.
+
 private
 
    use Ada.Strings.Unbounded;
