@@ -1,3 +1,38 @@
+2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap.ads:
+	Fix typo in header.
+
+	* soap-utils.ads, soap-utils.adb:
+	Fix typo in header.
+
+	* soap-types.ads, soap-types.adb:
+	Fix typo in header.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	Fix typo in header.
+
+	* soap-message.ads, soap-message.adb:
+	Fix typo in header.
+
+	* soap-message-xml.ads, soap-message-xml.adb:
+	Fix typo in header.
+
+	* soap-message-response.ads, soap-message-response.adb:
+	Fix typo in header.
+
+	* soap-message-response-error.ads, soap-message-response-error.adb:
+	Fix typo in header.
+
+	* soap-message-reader.ads, soap-message-reader.adb:
+	Fix typo in header.
+
+	* soap-message-payload.ads, soap-message-payload.adb:
+	Fix typo in header.
+
+	* soap-client.ads, soap-client.adb:
+	Fix typo in header.
+
 2001-09-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-reader.adb:
