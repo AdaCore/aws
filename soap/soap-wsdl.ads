@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,13 +38,18 @@ package SOAP.WSDL is
 
    WSDL_Error : exception;
 
+   NS_SOAP    : constant String := "http://schemas.xmlsoap.org/wsdl/soap/";
+   NS_SOAPENC : constant String := "http://schemas.xmlsoap.org/soap/encoding/";
+   NS_XSD     : constant String := "http://www.w3.org/2001/XMLSchema";
+   NS_WSDL    : constant String := "http://schemas.xmlsoap.org/wsdl/";
+
    type Object is private;
 
    function Load (Filename : in String) return Object;
    --  Load and parse a WSDL document and return the XML tree representation
 
    type Parameter_Type is
-     (P_Integer, P_Float, P_Double, P_String, P_Character,
+     (P_Integer, P_Long, P_Float, P_Double, P_String, P_Character,
       P_Boolean, P_Time, P_B64);
    --  These are the types supported by the WSDL parser
 
