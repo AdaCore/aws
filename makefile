@@ -217,6 +217,7 @@ build_tarball:
 	AWS=aws-$${VERSION}; \
 	mkdir $${AWS}; \
 	mkdir $${AWS}/src; \
+	mkdir $${AWS}/xsrc; \
 	mkdir $${AWS}/demos; \
 	mkdir $${AWS}/regtests; \
 	mkdir $${AWS}/docs; \
@@ -227,12 +228,15 @@ build_tarball:
 	mkdir $${AWS}/ssl; \
 	mkdir $${AWS}/win32; \
 	mkdir $${AWS}/tools; \
+	mkdir $${AWS}/config; \
+	mkdir $${AWS}/config/src; \
 	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
 	$(CP) demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
-	$(CP) demos/[shrw]*.ads demos/[ahmrstvw]*.adb $${AWS}/demos;\
+	$(CP) demos/[hirsw]*.ads demos/[ahimrstvw]*.adb $${AWS}/demos;\
 	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
+	$(CP) demos/*.wsdl $${AWS}/demos;\
 	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
 	$(CP) regtests/ChangeLog regtests/check_mem.tmplt $${AWS}/regtests;\
 	$(CP) regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
@@ -250,6 +254,9 @@ build_tarball:
 	$(CP) icons/*.gif $${AWS}/icons;\
 	$(CP) soap/*.ad[sb] soap/makefile soap/ChangeLog $${AWS}/soap;\
 	$(CP) tools/*.ad[sb] tools/makefile $${AWS}/tools;\
+	$(CP) config/*.ad[sb] config/ChangeLog config/makefile $${AWS}/config;\
+	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
+	$(CP) xsrc/*.ad[sb] xsrc/README xsrc/ChangeLog $${AWS}/xsrc;\
 	tar cf $${AWS}.tar $${AWS};\
 	gzip -9 $${AWS}.tar;\
 	rm -fr $${AWS})
@@ -290,9 +297,9 @@ install: force
 	$(CP) icons/*.gif $(INSTALL)/AWS/icons
 	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
 	-$(CP) include/*.ad? $(INSTALL)/AWS/components
-	-rm $(INSTALL)/AWS/components/aws-*.adb
 	-$(CP) include/*.o include/*.ali $(INSTALL)/AWS/components
 	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
+	-$(CP) tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
 	-chmod -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
 	$(CP) win32/lib*.a $(INSTALL)/AWS/lib
