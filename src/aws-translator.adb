@@ -299,7 +299,7 @@ package body AWS.Translator is
    function To_Stream_Element_Array
      (Data : in String)
       return Stream_Element_Array
-      renames Convertion.To_Stream_Element_Array;
+      renames Conversion.To_Stream_Element_Array;
 
    ---------------
    -- To_String --
