@@ -1,5 +1,23 @@
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
+	* makefile:
+	(adasockets): Target removed.
+	(gnatsockets): Idem.
+	(gnat_oslib): Idem.
+	(posix_oslib): Idem.
+	(win32_oslib): Idem.
+	(build): Pass variable SOCKLIB and OSLIB.
+	(setup): Do not depend on aws-net-std.adb aws-os_lib.adb, these
+	 files never exist.
+	(clean): Do not remove aws-os_lib.adb aws-net-std.adb, these files
+	 never exist now.
+	Clean-up of the build procedure.
+
+	* src.gpr:
+	(Naming): Add support of OSLIB and SOCKLIB variable.
+	
+2005-02-16  Pascal Obry  <pascal@obry.org>
+
 	* src.gpr:
 	(Source_Dirs): Add ../config.
 	(Naming): New package.
