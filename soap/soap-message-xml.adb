@@ -43,6 +43,7 @@ with Sax.Readers;
 
 with SOAP.Message.Reader;
 with SOAP.Message.Response.Error;
+with SOAP.Name_Space;
 with SOAP.Types;
 with SOAP.Utils;
 with SOAP.XML;
@@ -68,19 +69,37 @@ package body SOAP.Message.XML is
    URL_xsi    : constant String := "http://www.w3.org/1999/XMLSchema-instance";
    URL_xsi_01 : constant String := "http://www.w3.org/2001/XMLSchema-instance";
 
-   Start_Env  : constant String := "<SOAP-ENV:Envelope";
-   End_Env    : constant String := "</SOAP-ENV:Envelope>";
+   --  Name spaces
+
+   NS_SOAP_Env : constant SOAP.Name_Space.Object
+     := SOAP.Name_Space.Create ("soap", URL_Env);
+
+   NS_SOAP_Enc : constant SOAP.Name_Space.Object
+     := SOAP.Name_Space.Create ("soapenc", URL_Enc);
+
+   NS_XSD      : constant SOAP.Name_Space.Object
+     := SOAP.Name_Space.Create ("xsd", URL_xsd);
+
+   NS_XSI      : constant SOAP.Name_Space.Object
+     := SOAP.Name_Space.Create ("xsi", URL_xsi);
+
+   NS_Enc      : constant SOAP.Name_Space.Object
+     := SOAP.Name_Space.Create ("encodingStyle", URL_Enc, Prefix => "soap");
+
+   Start_Env   : constant String := "<soap:Envelope";
+   End_Env     : constant String := "</soap:Envelope>";
 
    Header     : constant String
-     := Start_Env & ' '
-     & "SOAP-ENV:encodingStyle=""" & URL_Enc & """ "
-     & "xmlns:SOAP-ENC=""" & URL_Enc & """ "
-     & "xmlns:SOAP-ENV=""" & URL_Env & """ "
-     & "xmlns:xsd=""" & URL_xsd & """ "
-     & "xmlns:xsi=""" & URL_xsi & """>";
+     := Start_Env
+     & ' ' & SOAP.Name_Space.Image (NS_Enc)
+     & ' ' & SOAP.Name_Space.Image (NS_SOAP_Enc)
+     & ' ' & SOAP.Name_Space.Image (NS_SOAP_Env)
+     & ' ' & SOAP.Name_Space.Image (NS_XSD)
+     & ' ' & SOAP.Name_Space.Image (NS_XSI)
+     & '>';
 
-   Start_Body : constant String := "<SOAP-ENV:Body>";
-   End_Body   : constant String := "</SOAP-ENV:Body>";
+   Start_Body : constant String := "<soap:Body>";
+   End_Body   : constant String := "</soap:Body>";
 
    type Type_State is
      (Void, T_Undefined, T_Any_Type,
@@ -96,6 +115,7 @@ package body SOAP.Message.XML is
 
    type State is record
       Name_Space   : Unbounded_String; -- Wrapper routine namespace
+      --  ??? we can probably use a SOAP.Name_Space object
       Wrapper_Name : Unbounded_String;
       Parameters   : SOAP.Parameters.List;
       A_State      : Type_State := Void;
