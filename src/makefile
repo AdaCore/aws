@@ -20,26 +20,28 @@ aws-net-std.adb: ../config/aws-net-std__gnat.adb
 endif
 
 adasockets:
-	-$(RM) -f aws-net-std.o
+	-$(RM) -f ../$(BDIR)/obj/aws-net-std.o
 	$(CP) ../config/aws-net-std__adasockets.adb aws-net-std.adb
 
 gnatsockets:
-	-$(RM) -f aws-net-std.o
+	-$(RM) -f ../$(BDIR)/obj/aws-net-std.o
 	$(CP) ../config/aws-net-std__gnat.adb aws-net-std.adb
 
 gnat_oslib:
-	-$(RM) -f aws-os_lib.o
+	-$(RM) -f ../$(BDIR)/obj/aws-os_lib.o
 	$(CP) ../config/aws-os_lib__gnat.adb aws-os_lib.adb
 
 posix_oslib:
-	-$(RM) -f aws-os_lib.o
+	-$(RM) -f ../$(BDIR)/obj/aws-os_lib.o
 	$(CP) ../config/aws-os_lib__posix.adb aws-os_lib.adb
 
 win32_oslib:
-	-$(RM) -f aws-os_lib.o
+	-$(RM) -f ../$(BDIR)/obj/aws-os_lib.o
 	$(CP) ../config/aws-os_lib__win32.adb aws-os_lib.adb
 
-setup: gnatsockets gnat_oslib
+aws-os_lib.adb: gnat_oslib
+
+setup: aws-net-std.adb aws-os_lib.adb
 	-$(MKDIR) -p ../$(BDIR)/obj
 	-$(MKDIR) -p ../$(BDIR)/lib
 
