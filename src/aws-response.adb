@@ -242,15 +242,21 @@ package body AWS.Response is
    ----------------------
 
    procedure Create_Resource
-     (D    : in     Data;
-      File :    out AWS.Resources.File_Type)
+     (D    : in out Data;
+      File :    out AWS.Resources.File_Type;
+      GZip : in     Boolean)
    is
       use AWS.Resources;
+
+      GZip_Out : Boolean := GZip;
    begin
       case D.Mode is
          when Response.File =>
-            Open (File, Filename (D), "shared=no");
+            Open (File, Filename (D), "shared=no", GZip_Out);
 
+            if GZip_Out then
+               Set.Update_Header (D, Messages.Content_Encoding_Token, "gzip");
+            end if;
          when Response.File_Once =>
             declare
                Stream : AWS.Resources.Streams.Stream_Access;
