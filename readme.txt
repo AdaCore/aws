@@ -1,10 +1,10 @@
 
 			    A W S - Ada Web Server
-                                1.1 release
-
+				 1.1 release
+				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               August 31st, 2001,
+   Pascal Obry                                            October 12th, 2001,
 
 
 
@@ -20,19 +20,78 @@ GNAT.
 
 Here are the main changes:
 
-  - Server push implementation. Works only with Netscape Navigator.
+  - Server push implementation. Tested only with Netscape Navigator.
 
-  - SOAP - alpha implementation of SOAP. Support only Integer, Float and
-    String. There is no guarantee that it is inter-operable with other SOAP
-    implementation at this point.
+  - SOAP - beta implementation of SOAP. Support all SOAP types. This
+    implementation has been validated through http://validator.soapware.org/
+    and therefore should be quite inter-operable with other SOAP
+    implementation. This implementation covers the SOAP client interface and
+    as all supports to build SOAP servers.
+
+    Versions that validate on http://validator.soapware.org/ are the AWS 
+    version string (AWS.Version) catenated with the SOAP version string
+    (SOAP.Version).
 
   - Add accept queue size parameter to help building heavy loaded servers.
 
   - Fix the Runme NT service demo.
 
-  - improve the documentation.
+  - Web Servers is started only if needed (during Server.Start) call and not
+    when declaring the HTTP objects.
 
-  - As always some minor bugs have been fixed but are not listed here.
+  - Max Connection is not anymore a discriminant. This parameter is set with
+    the Start routine. This change is not upward-compatible, but it is worth 
+    it since now, it is possible to change the server configuration
+    dynamically. What need to be changed:
+
+    1) Removes the discriminant on each HTTP objects
+
+    2) Pass the number of maximum connections (was the discriminant) in the
+       Server.Start call. 
+
+    This will make the server configured the very same way.    
+
+  - Handle User_Agent and Referer HTTP headers.
+
+  - Add message size in the log files (last field). Now the log format is 100%
+    compatible with the standard ones (Apache and Internet Information Server).
+
+  - Add server start time in the status page.
+
+  - Add support for user's log.
+
+  - Properly terminate task Session.Cleaner and release associated memory. Fix
+    a memory leak.
+
+  - Properly wait for tasks termination before releasing memory. Fix memory
+    leak.
+
+  - Improves the documentation.
+
+  - Install AWS as a library (libaws.a)
+
+  - As always some minor bugs have been fixed but are not listed here. See
+    src/ChangeLog and SOAP/ChangeLog.
+
+  - Change the build procedure, should be easier and it is cleaner. See
+    documentation.
+
+  - First version of the regression tests suite. This will help keeping AWS
+    more stable.
+
+  - Add timeouts support for the AWS client interface. Because of this the
+    AWS.Client.Create routine has its spec changed (it was a function it is
+    now a procedure).
+
+  - In AWS.Client, default retry count is set to 0 (was 1 before). Now the
+    AWS.Client routines wont try more than once to get the data by
+    default.
+
+  - Properly handle textual (text/html, text/xml...) data that is chunked
+    encoded.
+
+  - Fix SSL support in AWS. The SSL layer should now be as reliable as the
+    standard socket one.
 
 NOTE: Since we have switched to the .PNG file format we have found that
 Netscape Navigator is not able to display the PNG transparent layer properly!
@@ -46,7 +105,7 @@ pointers below.
 
 The OpenSSL libraries (optional) distributed are for Windows and GNAT
 3.13. GNAT 3.12 users must build the libraries from sources or obtain another
-set of binaries see pointers below.
+set of pre-build libraries see pointers below.
 
 Under UNIX you'll have to build the libraries from sources, it is quite easy 
 to do so. This has been tested under Linux without trouble.
@@ -73,14 +132,23 @@ Templates_Parser sources:
 
    Temlates_Parser is a very useful add-on for AWS. You should have a look at
    it if you plan to develop a Web service. Templates_Parser permits to
-   completly separate the HTML design from the Ada code.
+   completely separate the HTML design from the Ada code.
 
    Some other Templates engine are WebMacro, FreeMarker, PHP, ASP, JSP and
-   Velocity. All of them are based on explicite iterators (#foreach with a
+   Velocity. All of them are based on explicit iterators (#foreach with a
    variable) where Templates_Parser is based on implicit ones (you use a more
    intuitive table iterator). Be sure to check the documentation. Only
    the Velocity project has the goal to support complete separation of HTML
    design and code.
+
+XMLada (optional):
+   You need this library only if you want to use AWS SOAP feature. You need
+   at least XMLada 0.6.
+
+   http://libre.act-europe.fr/
+
+   XMLAda 0.6 has some memory leaks. This has been fixed now, so with future
+   version of XMLAda it will be possible to build long-lived servers.
 
 Socket binding:
 
@@ -115,8 +183,9 @@ OpenSSL library (optional) :
 
 Windows Services API (optional):
 
-   To build runme demo as a Windows NT/2000 services you must download
+   To build the runme demo as a Windows NT/2000 services you must download
    the services API made by Ted Dennison for his SETI@Home project.
+
       http://www.telepath.com/dennison/Ted/SETI/SETI_Service.html
 
 
@@ -146,7 +215,7 @@ AWS uses
 --------
 
 - SETI@Home from Ted Dennison. AWS is used as a "plugable" GUI to retrieve
-  differents program status.
+  different program status.
 
 - DOCWEBSERVER from Wiljan Derks
 
@@ -171,7 +240,7 @@ AWS uses
 - OESM Server (OESM=Overall Equipment Status Monitoring) from Wiljan Derks
 
   I am working on a project now for our factories. ITEC mainly delivers
-  equipment for discrete semiconductor assembly. Allmost all of that equipment
+  equipment for discrete semiconductor assembly. Almost all of that equipment
   is now controlled by a similar Ada 95 based code with having a lot of code in
   common. One of the common things, is the way we log errors and state changes
   of our equipment.
