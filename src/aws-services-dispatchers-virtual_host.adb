@@ -28,11 +28,13 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$ $Date$ $Author$
 
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
+with AWS.Dispatchers.Callback;
 with AWS.MIME;
 with AWS.Status;
 with AWS.Parameters;
@@ -99,6 +101,21 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    begin
       Virtual_Host_Table.Insert_Or_Replace_Value
         (Dispatcher.Table.all, Virtual_Hostname, Node);
+   end Register;
+
+   --------------
+   -- Register --
+   --------------
+
+   procedure Register
+     (Dispatcher       : in out Handler;
+      Virtual_Hostname : in     String;
+      Action           : in     Response.Callback) is
+   begin
+      Register
+        (Dispatcher,
+         Virtual_Hostname,
+         AWS.Dispatchers.Callback.Create (Action));
    end Register;
 
    -------------------------------
