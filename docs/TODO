@@ -158,5 +158,3 @@ implemented:
 
 - Move regtests/demos depending on XML/Ada out of the aws-http tarball in
   the MANIFEST file.
-
-- Document the new hotplug implementation
