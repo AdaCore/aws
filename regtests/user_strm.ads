@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
@@ -32,8 +32,9 @@
 
 --  Test for user defined stream.
 
-with AWS.Resources.Streams;
 with Ada.Streams;
+
+with AWS.Resources.Streams;
 
 package User_Strm is
 
