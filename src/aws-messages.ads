@@ -75,7 +75,10 @@ package AWS.Messages is
    subtype Cookie_Range is
      Positive range Cookie_Token'Range;
 
-   Form_Data : constant String := "application/x-www-form-urlencoded";
+   Form_Data
+     : constant String := "application/x-www-form-urlencoded";
+   Multipart_Form_Data
+     : constant String := "multipart/form-data";
 
    type Status_Code is
      (S100, S101,
