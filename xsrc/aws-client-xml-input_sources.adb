@@ -96,10 +96,16 @@ package body AWS.Client.XML.Input_Sources is
 
    function Eof (From : in HTTP_Input) return Boolean is
    begin
-      if From.First > From.Last then
-         Read_Some (From.Self.HTTP.all, From.Self.Buffer, From.Self.Last);
-         From.Self.First := From.Buffer'First;
+      if From.First <= From.Last then
+         return False;
       end if;
+
+      Read_Some (From.Self.HTTP.all, From.Self.Buffer, From.Self.Last);
+      From.Self.First := From.Buffer'First;
+
+      --  Do not change comparision below to From.First > From.Last.
+      --  This is workaround of the GNAT optimization bug
+      --  (at least in version 5.02a).
 
       return From.Self.First > From.Self.Last;
    end Eof;
