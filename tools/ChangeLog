@@ -1,5 +1,9 @@
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* ada2wsdl-generator.adb:
+	(Write_Header): Add soap-enc, wsdl and xsi schema namespaces.
+	(Write_Array): Properly use the wsdl namespace for arrayType.
+
 	* ada2wsdl-parser.adb:
 	(Type_Name): Fix regression introduced in previous check-in. Check
 	 for subtype of float to avoid introducing a schema definition.

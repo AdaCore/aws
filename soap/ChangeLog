@@ -1,5 +1,22 @@
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-generator.adb:
+	(Generate_Record): Use named notation for aggregate with a single
+	 value.
+
+	* soap-wsdl-parser.adb:
+	(Length): Removed.
+	(Is_Record): New routine.
+	(Parse_Element): Use Is_Record for better detection of SOAP record.
+
+	* soap-utils.ads:
+	Minor reformatting.
+
+	* soap-types.ads:
+	(Object_Set): Add some comments.
+
+2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* soap-wsdl-parser.adb:
 	Minor reformatting.
 
