@@ -1201,8 +1201,9 @@ File to process: <INPUT NAME=filename TYPE=FILE>
 
 @noindent
 On the server side, AWS will retrieve the file and put it into the
-upload directory. This directory can be changed using the configuration files.
-@xref{Configuration files}.
+upload directory. AWS add a prefix to the file to ensure that the
+filename will be uniq on the server side. The upload directory can be
+changed using the configuration files. @xref{Configuration files}.
 
 @noindent
 AWS will also setup the form parameters as usual. In the above example
@@ -1210,8 +1211,19 @@ there is two parameters (@xref{Form parameters}.)
 
 @table @b
 @item filename
+This variable contains two values, one with the client side name and
+one with the server side name.
+
+@table @i
+@item First value : Parameters.Get (P, "filename")
+
 The value is the full pathname of the file on the server. (i.e. the
-upload directory concatenated with the filename).
+upload directory catenated with the prefix and filename).
+
+@item Second value : Parameters.Get (P, "filename", 2)
+
+The value is the full pathname of the file on the client side.
+@end table
 
 @item go
 The value is "Send File"
