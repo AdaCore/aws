@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             September 4th, 2004
+   Pascal Obry                                             September 7th, 2004
 
 
 
@@ -86,6 +86,8 @@ Here are the main changes since AWS 2.0 :
 
    - Better support for name-spaces in SOAP requests.
 
+   - Fix a wsdl2aws bug for array's element whose name contains an underscore.
+
    - Add possibility to select the endpoint URL when using generated client
      stubs (only the default URL defined in the WSDL document was handled
      before).
@@ -96,6 +98,9 @@ Here are the main changes since AWS 2.0 :
 
    - Add exception handler in generated SOAP code for callback and server
      skeleton.
+
+   - Add a new package AWS.Net.Generic_Sets which support user's data
+     associated with each sockets.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
