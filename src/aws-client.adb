@@ -62,7 +62,8 @@ package body AWS.Client is
       Content_Type      :    out Unbounded_String;
       Transfer_Encoding :    out Unbounded_String;
       Location          :    out Unbounded_String;
-      Connection        :    out Unbounded_String);
+      Connection        :    out Unbounded_String;
+      Cookie            :    out Unbounded_String);
    --  Read server answer and set corresponding variable with the value
    --  read. Most of the fields are ignored right now.
 
@@ -235,7 +236,8 @@ package body AWS.Client is
 
 
    begin
-      Parse_Header (Sock, Status, CT_Len, CT, TE, Location, Connect);
+      Parse_Header
+        (Sock, Status, CT_Len, CT, TE, Location, Connect, Connection.Cookie);
 
       --  check for special status
 
@@ -308,6 +310,7 @@ package body AWS.Client is
             end;
          end if;
       end if;
+
       Disconnect;
    end Get_Response;
 
@@ -373,7 +376,8 @@ package body AWS.Client is
       Content_Type      :    out Unbounded_String;
       Transfer_Encoding :    out Unbounded_String;
       Location          :    out Unbounded_String;
-      Connection        :    out Unbounded_String) is
+      Connection        :    out Unbounded_String;
+      Cookie            :    out Unbounded_String) is
    begin
       Content_Length := 0;
 
@@ -419,6 +423,10 @@ package body AWS.Client is
                Connection := To_Unbounded_String
                   (Line (Messages.Proxy_Connection_Token'Last + 1 .. Line'
                      Last));
+
+            elsif Messages.Is_Match (Line, Messages.Set_Cookie_Token) then
+               Cookie := To_Unbounded_String
+                  (Line (Messages.Set_Cookie_Token'Last + 1 .. Line'Last));
 
             else
                --  everything else is ignore right now
@@ -630,6 +638,11 @@ package body AWS.Client is
 
       end if;
 
+      if Connection.Cookie /= Null_Unbounded_String then
+         Sockets.Put_Line
+           (Sock, Messages.Cookie_Token & To_String (Connection.Cookie));
+      end if;
+
       --  Sockets.Put_Line (Sock, "Pragma: no-cache");
       Sockets.Put_Line (Sock, Messages.Host (Host_Address));
       Sockets.Put_Line (Sock, Messages.Accept_Type ("text/html, */*"));
@@ -703,6 +716,7 @@ package body AWS.Client is
                                   AWS.URL.Port (Connect_URL),
                                   AWS.URL.Security (Connect_URL))),
               Retry       => Create.Retry,
+              Cookie      => Null_Unbounded_String,
               Persistent  => Persistent);
    end Create;
 
@@ -883,7 +897,8 @@ package body AWS.Client is
 
             --  get answer from server
 
-            Parse_Header (Sock, Status, CT_Len, CT, TE, Location, Connect);
+            Parse_Header (Sock, Status, CT_Len, CT, TE,
+                          Location, Connect, Connection.Cookie);
 
             if Messages.Is_Match (To_String (Connect), "close") then
                Disconnect (Connection);
