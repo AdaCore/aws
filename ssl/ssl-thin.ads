@@ -146,6 +146,8 @@ package SSL.Thin is
 
    procedure SSL_free (SSL : in SSL_Handle);
 
+   function SSL_clear (SSL : in SSL_Handle) return int;
+
    function SSL_set_fd
      (S  : in SSL_Handle;
       Fd : in int)
@@ -291,5 +293,6 @@ private
 
    pragma Import (C, SSL_new, "SSL_new");
    pragma Import (C, SSL_free, "SSL_free");
+   pragma Import (C, SSL_clear, "SSL_clear");
 
 end SSL.Thin;
