@@ -270,6 +270,17 @@ package AWS.Status is
    pragma Inline (Authorization_Response);
    --  Returns "response" value in the "Authorization:" parameter
 
+   function Authorization_Tail     (D : in Data) return String;
+   pragma Inline (Authorization_Tail);
+   --  Returns precalculated part of digest composed of
+   --  Nonce, NC, CNonce, QOP, Method, URI authorization fields.
+   --  To complete calculation of the authorization response the you need
+   --
+   --  MD5.Digest
+   --    (MD5.Digest (Username & ':' & Realm & ':' & Password) & Tail);
+   --
+   --  This method allows to do not send a password to the AWS code.
+
 private
 
    use Ada.Strings.Unbounded;
