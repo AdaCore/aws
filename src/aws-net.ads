@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,27 +35,132 @@
 --  socket too, this is controlled with the Security boolean on rountine
 --  below. The corresponding implementation will be selected at build time.
 
-with Sockets;
+with Ada.Streams;
 
 package AWS.Net is
 
-   function Accept_Socket
-     (Socket   : in Sockets.Socket_FD;
-      Security : in Boolean)
-      return Sockets.Socket_FD'Class;
-   --  Accept a connection on a socket. If Security is true an secure socket
+   use Ada.Streams;
+
+   Socket_Error : exception;
+   --  Raised by all routines below, a message will indicate the nature of the
+   --  error.
+
+   type Socket_Type is abstract tagged limited private;
+   type Socket_Access is access all Socket_Type'Class;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   function Socket
+     (Security : in Boolean)
+      return Socket_Access;
+   --  Create a socket INET/SOCK_STREAM
+
+   procedure Bind
+     (Socket : in Socket_Type;
+      Port   : in Natural;
+      Host   : in String := "")
+      is abstract;
+   --  Bind a socket on a given port.
+
+   procedure Listen
+     (Socket     : in Socket_Type;
+      Queue_Size : in Positive := 5)
+      is abstract;
+   --  Set the queue size of the socket
+
+   procedure Accept_Socket
+     (Socket     : in     Socket_Type;
+      New_Socket :    out Socket_Type'Class)
+      is abstract;
+   --  Accept a connection on a socket. If Security is true a secure socket
    --  will be used.
 
-   function Connect
-     (Host     : in String;
-      Port     : in Positive;
-      Security : in Boolean)
-      return Sockets.Socket_FD'Class;
-   --  Connect a socket on a given host/port. Raise Connection_Refused if
-   --  the connection has not been accepted by the other end. If Security is
-   --  true an secure socket will be used.
+   procedure Connect
+     (Socket   : in Socket_Type;
+      Host     : in String;
+      Port     : in Positive)
+      is abstract;
+   --  Connect a socket on a given host/port. If Security is true an secure
+   --  socket will be used.
 
-   procedure Free (Socket : in out Sockets.Socket_FD'Class);
-   --  Release SSL wrapper memory.
+   procedure Shutdown (Socket : in Socket_Type) is abstract;
+   --  Shutdown both side of the socket and close it.
+
+   procedure Free (Socket : in out Socket_Type) is abstract;
+   --  Release memory associated with the socket object
+
+   procedure Free (Socket : in out Socket_Access);
+   --  Release memory associated with the socket access and socket object
+   --  implemntation.
+
+   --------
+   -- IO --
+   --------
+
+   procedure Send
+     (Socket : in Socket_Type;
+      Data   : in Stream_Element_Array)
+      is abstract;
+   pragma Inline (Send);
+   --  Send Data chunk to the socket
+
+   function Receive
+     (Socket : in Socket_Type;
+      Max    : in Stream_Element_Count := 4096)
+      return Stream_Element_Array
+      is abstract;
+   pragma Inline (Receive);
+   --  Read a chunk of data from the socket and returns it
+
+   ------------
+   -- Others --
+   ------------
+
+   function Get_FD (Socket : in Socket_Type) return Integer
+     is abstract;
+   --  Returns the file descriptor associated with the socket
+
+   function Peer_Addr (Socket : in Socket_Type) return String
+     is abstract;
+   --  Returns the peer name/address
+
+   function Host_Name return String;
+   --  Returns the running host name
+
+   procedure Assign
+     (Left  : in out Socket_Type;
+      Right : in     Socket_Type'Class)
+      is abstract;
+
+private
+
+   --  This object is to cache data writed to the stream. It is more efficient
+   --  than to write byte by byte on the stream.
+
+   W_Cache_Size  : constant := 2_048;
+   W_Cache_Chunk : constant := W_Cache_Size / 2;
+   --  This is write the cache size, when the cache is full W_Cache_Chunk
+   --  bytes will be sent to the socket. This way we avoid flushing a single
+   --  byte as this is not efficient at all with SSL sockets.
+
+   R_Cache_Size : constant := 4_096;
+   --  This is the read cache size, all data read on the socket are first put
+   --  into a read cache, this makes reading char-by-char the socket more
+   --  efficient. Before reading data, the write cache  is flushed.
+
+   type Cache (Max_Size : Stream_Element_Count) is record
+      Buffer : Stream_Element_Array (1 .. Max_Size);
+      First  : Stream_Element_Offset := 1;
+      Last   : Stream_Element_Offset := 0;
+      Size   : Stream_Element_Count  := 0;
+   end record;
+
+   type Socket_Type is abstract tagged limited record
+      Self     : Socket_Access := Socket_Type'Unchecked_Access;
+      W_Cache  : Cache (W_Cache_Size);
+      R_Cache  : Cache (R_Cache_Size);
+   end record;
 
 end AWS.Net;
