@@ -73,7 +73,7 @@ procedure Runme is
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
-   Text_IO.Put_Line ("Enter any key to exit...");
+   Text_IO.Put_Line ("Enter 'q' key to exit...");
 
    AWS.Server.Start (WSS, "Runme Secure",
                      Max_Connection => 3,
@@ -91,17 +91,12 @@ begin
    AWS.Server.Start_Log (WS, Split_Mode => AWS.Log.Daily);
    AWS.Server.Start_Log (WSS, Filename_Prefix => "runme-secure");
 
-   --  Do not exit from this procedure
+   --  Wait for 'q' key pressed...
 
-   declare
-      C : Character;
-   begin
-      Text_IO.Get_Immediate (C);
-   end;
+   AWS.Server.Wait (AWS.Server.Q_Key_Pressed);
 
    --  Close servers.
 
    AWS.Server.Shutdown (WS);
    AWS.Server.Shutdown (WSS);
-
 end Runme;
