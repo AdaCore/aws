@@ -193,10 +193,10 @@ package AWS.Response is
    procedure Create_Resource
      (File :    out AWS.Resources.File_Type;
       D    : in     Data);
+   pragma Inline (Create_Resource);
    --  Creates the resource object (either a file or in-memory object) for
    --  the data to be sent to the client. The resource should be closed after
    --  use.
-   pragma Inline (Create_Resource);
 
    function Realm (D : in Data) return String;
    pragma Inline (Realm);
