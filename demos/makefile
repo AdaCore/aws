@@ -21,7 +21,7 @@ ifeq ($(MODE),ssl)
 # With SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS := $(LARGS) -lssl -lcrypto ../lib/aws.coff -lpoll
+LARGS := $(LARGS) -lssl -lcrypto ../lib/aws.coff
 else
 LARGS := $(LARGS) -lssl -lcrypto
 endif
