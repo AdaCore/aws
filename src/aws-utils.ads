@@ -32,17 +32,18 @@
 
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
-with System;
 
 with MD5;
 with ZLib;
 
 package AWS.Utils is
 
-   type Random_Integer is range 0 .. System.Max_Int;
-   --  Integer type for random number generation.
+   type Random_Integer is range 0 .. Integer'Last;
+   --  Integer type for random number generation
 
-   --  General helper functions are to be found here.
+   -------------------------------
+   --  General helper functions --
+   -------------------------------
 
    function Random return Random_Integer;
    --  Returns a random integer number.
