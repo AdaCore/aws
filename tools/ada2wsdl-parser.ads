@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,14 +30,12 @@
 
 --  $Id$
 
-with Asis; use Asis;
-
 package Ada2WSDL.Parser is
 
    procedure Initialize;
    --  Reads and checks the command line parameters and initializes the
-   --  Gnatstub options. Checks the existence of the files to be processed
-   --  by Gnatstub and applicability of the gnatstub options with these files.
+   --  Ada2WSDL options. Checks the existence of the files to be processed
+   --  by Ada2WSDL and applicability of the Ada2WSDL options with these files.
    --  Tries to create the tree file, if necessary.
    --  If everything is OK, sets the global Is_Initialized variable True.
    --  This procedure does not use anything from ASIS
