@@ -151,6 +151,13 @@ common_tarball:
 	$(MKDIR) $${AWS}/config/src; \
 	$(MKDIR) $${AWS}/config/projects; \
 	$(MKDIR) $${AWS}/support; \
+	$(MKDIR) $${AWS}/templates_parser; \
+	$(MKDIR) $${AWS}/templates_parser/docs; \
+	$(MKDIR) $${AWS}/templates_parser/src; \
+	$(MKDIR) $${AWS}/templates_parser/xsrc; \
+	$(MKDIR) $${AWS}/templates_parser/regtests; \
+	$(MKDIR) $${AWS}/templates_parser/regtests/dir; \
+	$(MKDIR) $${AWS}/templates_parser/regtests/dir/subdir; \
 	$(MKDIR) $${AWS}/web_elements; \
 	$(MKDIR) $${AWS}/web_elements/icons; \
 	$(MKDIR) $${AWS}/web_elements/javascripts; \
