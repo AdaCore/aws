@@ -42,6 +42,10 @@ project AWS is
 
    for Source_Dirs use ();
 
+   package Ide is
+      for Vcs_Kind use "CVS";
+   end Ide;
+
    package Compiler renames Shared.Compiler;
 
    package Builder renames Shared.Builder;
