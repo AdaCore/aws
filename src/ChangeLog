@@ -1,3 +1,18 @@
+2001-10-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Create): Retry is now a Natural.
+	(Close): be sure to not call the task if already terminated.
+	(Cleaner_Task): add some comments.
+
+	* aws-client.ads:
+	(Retry_Default): set to 0.
+	(Create): Retry is now a Natural.
+	(HTTP_Connection): idem.
+
+	* aws-url.adb:
+	(Normalize): Fix layout.
+
 2001-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
