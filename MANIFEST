@@ -58,6 +58,7 @@ demos/runme_server.adb
 demos/runme_service.adb
 demos/runme_service.ads
 demos/split.adb
+demos/split.thtml
 demos/test_jabber.adb
 demos/test_ldap.adb
 demos/text_input.adb
