@@ -1,5 +1,8 @@
 2003-12-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* templates_parser.adb, templates_parser-filter.adb:
+	Update to new version. Support for filters Add_Param and Del_Param.
+
 	* include.gpr:
 	(Ide): New package.
 
