@@ -53,5 +53,7 @@ begin
    delay 5 * 60.0;
 
    Text_IO.Put_Line ("ok, let's shutdown...");
+
    AWS.Server.Shutdown (WS_CB.WS);
+   WS_CB.Stop_Server_Push;
 end WS;

@@ -41,6 +41,7 @@ with Ada.Calendar;
 with Ada.Strings.Unbounded;
 with Ada.Integer_Text_IO;
 with Ada.Exceptions;
+with Ada.Text_IO;
 
 package body WS_CB is
 
@@ -221,5 +222,14 @@ package body WS_CB is
             Status_Code => AWS.Messages.S500,
             Message_Body => Ada.Exceptions.Exception_Information (E));
    end Service;
+
+   ----------------------
+   -- Stop_Push_Server --
+   ----------------------
+
+   procedure Stop_Push_Server is
+   begin
+      abort Server_Push_Task;
+   end Stop_Push_Server;
 
 end WS_CB;
