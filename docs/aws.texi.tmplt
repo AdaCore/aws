@@ -204,6 +204,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 * File upload::
 * Client side::
 * Communication::
+* Hotplug module::
 @end menu
 @end ifinfo
 
@@ -393,6 +394,14 @@ The template HTML file for the @code{AWS} status page.
 
 The @code{AWS} logo displayed on the status page.
 
+@item up.gif
+
+The @code{AWS} hotplug table up arrow.
+
+@item down.gif
+
+The @code{AWS} hotplug table down arrow.
+
 @end table
 
 @smallexample
@@ -547,8 +556,179 @@ example. Look at the @code{agent} program in the @code{demos} directory.
 @node Communication
 @section Communication
 
+@ifinfo
+@menu
+* Communication - client side::
+* Communication - server side::
+@end menu
+@end ifinfo
+
 @noindent
-This section is left blank for now.
+This API is used to do communication between programs using the HTTP
+protocol. It is a very simple API not to be compared with GLADE.
+
+@noindent
+In a communication there is a Client and a Server. Here is what is to be
+done on both sides.
+
+@node Communication - client side
+@subsection Communication - client side
+
+@noindent
+On the client side it is quite simple. You just have to send a message
+using @code{AWS.Communication.Client.Send_Message}.
+
+@smallexample
+@b{function} Send_Message (Server     : @b{in} String;
+                       Port       : @b{in} Positive;
+                       Name       : @b{in} String;
+                       Parameters : @b{in} Parameter_Set := Null_Parameter_Set)
+  @b{return} Response.Data;
+@end smallexample
+
+@noindent
+The message is sent to the specified server using the given port. A
+message is composed of a name which is a string and a set of
+parameters. There is a parameter set constructor in
+@code{AWS.Communication}. This function return a response as for any
+callback procedure.
+
+@node Communication - server side
+@subsection Communication - server side
+
+@noindent
+On the server side things are a bit more complex but not that
+difficult. You must instanciate the @code{AWS.Communication.Server}
+generic package by providing a callback procedure. This callback
+procedure will must handle all kind of message that a client will send.
+
+@noindent
+During instanciation you must also pass a context for the communication
+server. This context will be passed back to the callback procedure.
+
+@smallexample
+@b{generic}
+
+   @b{type} T (<>) @b{is limited private};
+   @b{type} T_Access @b{is access} T;
+
+   @b{with function} Callback
+     (Server     : @b{in} String;
+      Name       : @b{in} String;
+      Context    : @b{in} T_Access;
+      Parameters : @b{in} Parameter_Set := Null_Parameter_Set)
+     @b{return} Response.Data;
+
+@b{package} AWS.Communication.Server @b{is}
+   ...
+@end smallexample
+
+@smallexample
+@cartouche
+@group
+A complete example can be found in the demos directory. Look for 
+@file{com_1.adb} and @file{com_2.adb}.
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Note that this communication API is used by the Hotplug module facility
+@xref{Hotplug module}.
+
+@node Hotplug module
+@section Hotplug module
+
+@ifinfo
+@menu
+* Hotplug module - creation::
+* Hotplug module - server activation::
+@end menu
+@end ifinfo
+
+@noindent
+An @b{Hotplug module} is a module that can by dynamically bind to a
+running server. It is a Web server and the development process is very
+similar to what we have seen until now @xref{Building an AWS server}. 
+The Hotplug module will register itself to a Web server by
+sending a message using the communication API. The Hotplug module send
+to the server a regular expression and an URL. The main server will
+redirect all URL matching the regular expression to the Hotplug module.
+
+@noindent
+Note that the main server will redirect the URL to the first matching regular
+expression.
+
+@node Hotplug module - creation
+@subsection Hotplug module - creation
+
+@noindent
+Here is how to create an Hotplug module:
+
+@enumerate 1
+
+@item First you create a standard Web server @xref{Building an AWS server}.
+
+@smallexample
+WS  : AWS.Server.HTTP
+  (3, 1235, False, Hotplug_CB.Hotplug'Access, False);
+@end smallexample
+
+Here we have a server listening to the port 1235. This server can be
+used alone if needed as any Server developed with AWS.
+
+@item Then you register the Hotplug module to the main server
+@xref{Communication - client side}.
+
+@smallexample
+Response := AWS.Communication.Client.Send_Message
+  ("dieppe", 2222,
+   AWS.Server.Hotplug.Register_Message,
+   AWS.Communication.Parameters
+   (".*AWS.*",
+    "http://" & AWS.Utils.Gethostname & ":1235/"));
+@end smallexample
+
+We ask for every @code{URI} containing the string "AWS" to call the
+server running on the Hotplug hostname using port @code{1235}. This
+message is sent to the communication server running on @code{dieppe} at
+port @code{2222}.
+
+@item When the Hotplug module is stopped, you must unregister it
+
+@smallexample
+Response := AWS.Communication.Client.Send_Message
+  ("dieppe", 2222,
+   AWS.Server.Hotplug.Unregister_Message,
+   AWS.Communication.Parameters (".*AWS.*"));
+@end smallexample
+
+Here we ask to unregister the Hotplug module. The regular expression
+served as a key.
+
+@end enumerate
+
+@node Hotplug module - server activation
+@subsection Hotplug module - server activation
+
+@noindent
+On the server side you must activate the Hotplug feature:
+
+@smallexample
+AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
+@end smallexample
+
+@noindent
+Here WS is a standard Web Server.
+
+@smallexample
+@cartouche
+@group
+A complete example can be found in the demos directory. Look for 
+@file{main.adb} and @file{hotplug.adb}.
+@end group
+@end cartouche
+@end smallexample
 
 @node Status page
 @chapter Status page
@@ -680,6 +860,7 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Config::
+* AWS.Server.Hotplug::
 * AWS.Session::
 * AWS.Status::
 @end menu
@@ -724,6 +905,11 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @section AWS.Server.Config
 
 @include ../src/aws-server-config.ads.texi
+
+@node AWS.Server.Hotplug
+@section AWS.Server.Hotplug
+
+@include ../src/aws-server-hotplug.ads.texi
 
 @node AWS.Session
 @section AWS.Session
