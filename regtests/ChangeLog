@@ -1,3 +1,8 @@
+2003-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Remove Windows_NT checking for same command regarding SSL linking mode.
+
 2003-10-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* strm.adb, tlog.adb:
@@ -22,7 +27,7 @@
 
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* compress.adb, check_mem.adb: 
+	* compress.adb, check_mem.adb:
 	(Test): Fix test due to change of routine's interface in
 	 AWS.Translator.
 
