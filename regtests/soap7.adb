@@ -41,15 +41,15 @@ procedure SOAP7 is
 
    Mess : constant String :=
      "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""no"" ?>"
-     & "<SOAP-ENV:Envelope "
-     & "xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"""
+     & "<soap:Envelope "
+     & "xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"""
      & " xmlns:xsi=""http://www.w3.org/1999/XMLSchema-instance"">"
-     & "<SOAP-ENV:Body>"
+     & "<soap:Body>"
      & "<m:MultiplyResponse xmlns:m=""http://tempuri.org/message/"">"
      & "<Result xsi:null=""1""/>"
      & "</m:MultiplyResponse>"
-     & "</SOAP-ENV:Body>"
-     & "</SOAP-ENV:Envelope>";
+     & "</soap:Body>"
+     & "</soap:Envelope>";
 
    Resp : constant SOAP.Message.Response.Object'Class
      := SOAP.Message.XML.Load_Response (Mess);
