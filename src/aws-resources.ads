@@ -55,8 +55,8 @@ package AWS.Resources is
       Name : in     String;
       Form : in     String    := "");
    --  Open file in mode In_File. Only reading from the file is supported.
-   --  This procedure open the in-memory file if present, otherwise the file
-   --  on disk is opened.
+   --  This procedure open the in-memory (embedded) file if present, otherwise
+   --  the file on disk is opened.
 
    procedure Reset (Resource : in out File_Type);
    --  Reset the file, reading will restart at the beginning
