@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                            Copyright (C) 2003                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -37,24 +37,24 @@ package body SOAP.Dispatchers.Callback is
    ------------
 
    function Create
-     (Base_Callback : in AWS.Response.Callback;
-      SOAP_Callback : in Callback_Routine)
+     (HTTP_Callback : in AWS.Response.Callback;
+      SOAP_Callback : in Dispatchers.SOAP_Callback)
       return Handler is
    begin
-      return (Dispatchers.Handler with Base_Callback, SOAP_Callback);
+      return (Dispatchers.Handler with HTTP_Callback, SOAP_Callback);
    end Create;
 
    -------------------
-   -- Dispatch_Base --
+   -- Dispatch_HTTP --
    -------------------
 
-   function Dispatch_Base
+   function Dispatch_HTTP
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data)
       return AWS.Response.Data is
    begin
-      return Dispatcher.Base_Callback (Request);
-   end Dispatch_Base;
+      return Dispatcher.HTTP_Callback (Request);
+   end Dispatch_HTTP;
 
    -------------------
    -- Dispatch_SOAP --
@@ -62,12 +62,12 @@ package body SOAP.Dispatchers.Callback is
 
    function Dispatch_SOAP
      (Dispatcher : in Handler;
-      Action     : in String;
-      Request    : in Message.Payload.Object)
+      SOAPAction : in String;
+      Payload    : in Message.Payload.Object;
+      Request    : in AWS.Status.Data)
       return AWS.Response.Data is
    begin
-      return Dispatcher.SOAP_Callback (Action, Request);
+      return Dispatcher.SOAP_Callback (SOAPAction, Payload, Request);
    end Dispatch_SOAP;
 
 end SOAP.Dispatchers.Callback;
-
