@@ -118,31 +118,38 @@ package body AWS.Server is
       New_Socket : Net.Socket_Type'Class
         := Net.Socket (CNF.Security (Server.Properties));
 
-      Back_Socket : Net.Socket_Access;
-      Give_Socket : Boolean;
+      Released_Socket : Net.Socket_Access;
 
-      procedure Free is new Ada.Unchecked_Deallocation
-                              (Net.Socket_Type'Class, Net.Socket_Access);
+      procedure Free is new
+        Ada.Unchecked_Deallocation (Net.Socket_Type'Class, Net.Socket_Access);
+
    begin
-      Server.Sock_Sem.Seize_Or_Socket (Back_Socket);
+      Server.Sock_Sem.Seize_Or_Socket (Released_Socket);
 
-      Give_Socket := Back_Socket /= null;
+      if Released_Socket = null then
+         --  No socket was given back to the server, just accept a socket from
+         --  the server socket.
 
-      if Give_Socket then
-         New_Socket := Back_Socket.all;
-
-         Free (Back_Socket);
-      else
          Net.Accept_Socket (Server.Sock, New_Socket);
 
          Server.Sock_Sem.Release;
+
+      else
+         --  A socket was given back to the server, return it
+
+         New_Socket := Released_Socket.all;
+
+         --  We do not call AWS.Net.Free as we do not want to destroy the
+         --  socket buffers.
+
+         Free (Released_Socket);
       end if;
 
       return New_Socket;
 
    exception
       when others =>
-         if not Give_Socket then
+         if Released_Socket = null then
             Server.Sock_Sem.Release;
          end if;
 
@@ -843,7 +850,7 @@ package body AWS.Server is
       ----------------
 
       entry Put_Socket (Socket : in Net.Socket_Access)
-      when Socket_Semaphore.Socket = null is
+        when Socket_Semaphore.Socket = null is
       begin
          Socket_Semaphore.Socket := Put_Socket.Socket;
       end Put_Socket;
@@ -862,7 +869,7 @@ package body AWS.Server is
       ---------------------
 
       entry Seize_Or_Socket (Socket : out Net.Socket_Access)
-      when not Seized or else Socket_Semaphore.Socket /= null is
+        when not Seized or else Socket_Semaphore.Socket /= null is
       begin
          if not Seized then
             Seized := True;
