@@ -175,7 +175,7 @@ package body AWS.Digest is
       MD5.Update (Ctx, To_Byte_Array (Year_Now));
       MD5.Update (Ctx, To_Byte_Array (Month_Now));
       MD5.Update (Ctx, To_Byte_Array (Day_Now));
-      MD5.Update (Ctx, To_Byte_Array (Natural (Seconds_Int)));
+      MD5.Update (Ctx, To_Byte_Array (Seconds_Int));
       MD5.Update (Ctx, To_Byte_Array (Integer (Nonce_Idx)));
 
       --  Place the digest string representation into the result variable
