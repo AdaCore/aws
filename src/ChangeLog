@@ -67,7 +67,7 @@
 
 	* aws-server.ads, aws-server.adb, aws-server-protocol_handler.adb:
 	(Socket_Access): now it is subtype from AWS.Status.Socket_Access to
-	be able to easier put it to the AWS.Status.Data.
+	 be able to easier put it to the AWS.Status.Data.
 
 2002-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
@@ -101,11 +101,11 @@
 
 	* aws-translator-binary-f.adb, aws-translator-binary-p.adb:
 	New separate implementations of String <-> Stram_Element_Array
-	convertions.
+	 convertions.
 
 	* test_uconv.adb:
 	New program to test availability to use fast convertions between
-	String and Stram_Element_Array.
+	 String and Stram_Element_Array.
 
 	* aws-translator.adb:
 	(To_String): Moved to the separate package.
@@ -113,7 +113,7 @@
 
 	* makefile
 	Make "build" section depend from aws-translator-binary.adb file
-	existence.
+	 existence.
 
 2002-10-05  Pascal Obry  <p.obry@wanadoo.fr>
 
