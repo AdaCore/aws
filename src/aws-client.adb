@@ -115,7 +115,6 @@ package body AWS.Client is
       Location : Unbounded_String;
       Connect  : Unbounded_String;
       Status   : Messages.Status_Code;
-      Message  : Unbounded_String;
 
       ----------------
       -- Read_Chunk --
@@ -294,13 +293,18 @@ package body AWS.Client is
 
                   --  if the content is textual info put it in a string
 
-                  for K in Elements'Range loop
-                     Append (Message, Character'Val (Natural (Elements (K))));
-                  end loop;
+                  declare
+                     Message : String (1 .. Elements'Length);
+                  begin
+                     for K in Elements'Range loop
+                        Message (Positive (K))
+                          := Character'Val (Natural (Elements (K)));
+                     end loop;
 
-                  Result := Response.Build (To_String (CT),
-                                            To_String (Message),
-                                            Status);
+                     Result := Response.Build
+                       (To_String (CT), Message, Status);
+                  end;
+
                else
 
                   --  this is some kind of binary data.
