@@ -34,29 +34,40 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
 with GNAT.OS_Lib;
 
-with AWS.Config;
 with AWS.Utils;
 
 package body AWS.Log is
-
-   use Ada;
-   use Ada.Strings.Unbounded;
-
-   Log_Activated : Boolean := False;
-   Log_File      : Text_IO.File_Type;
-   Split         : Split_Mode;
-   Current_Tag   : Positive;
 
    function Log_Prefix (Prefix : in String) return String;
    --  Returns the prefix to be added before the log filename. The returned
    --  value is the executable name without directory and filetype if Prefix
    --  is No_Prefix otherwise Prefix is returned.
+
+   --------------
+   -- Filename --
+   --------------
+
+   function Filename (Log : in Object) return String is
+   begin
+      if Text_IO.Is_Open (Log.File) then
+         return Text_IO.Name (Log.File);
+      else
+         return "";
+      end if;
+   end Filename;
+
+   ---------------
+   -- Is_Active --
+   ---------------
+
+   function Is_Active (Log : in Object) return Boolean is
+   begin
+      return Text_IO.Is_Open (Log.File);
+   end Is_Active;
 
    ----------------
    -- Log_Prefix --
@@ -67,7 +78,7 @@ package body AWS.Log is
       First : Natural;
       Last  : Natural;
    begin
-      if Prefix = No_Prefix then
+      if Prefix = Not_Specified then
          First := Strings.Fixed.Index
            (Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
 
@@ -86,30 +97,43 @@ package body AWS.Log is
             Last := Last - 1;
          end if;
 
-         return AWS.Config.Log_File_Directory & Name (First .. Last);
+         return Name (First .. Last);
 
       else
          return Prefix;
       end if;
    end Log_Prefix;
 
+   ----------
+   -- Mode --
+   ----------
+
+   function Mode (Log : in Object) return Split_Mode is
+   begin
+      return Log.Split;
+   end Mode;
+
    -----------
    -- Start --
    -----------
 
    procedure Start
-     (Split           : in Split_Mode := None;
-      Log_File_Prefix : in String     := No_Prefix)
+     (Log             : in out Object;
+      Split           : in     Split_Mode := None;
+      File_Directory  : in     String     := Not_Specified;
+      Filename_Prefix : in     String     := Not_Specified)
    is
       Now      : constant Calendar.Time := Calendar.Clock;
       Filename : Unbounded_String;
       use GNAT;
    begin
-      Log_Activated := True;
-      Log.Split     := Split;
+      Log.Filename_Prefix := To_Unbounded_String (Filename_Prefix);
+      Log.File_Directory  := To_Unbounded_String (File_Directory);
+      Log.Split           := Split;
 
       Filename := To_Unbounded_String
-        (Log_Prefix (Log_File_Prefix)
+        (File_Directory
+         & Log_Prefix (Filename_Prefix)
          & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d.log"));
 
       case Split is
@@ -123,33 +147,33 @@ package body AWS.Log is
                exit when not OS_Lib.Is_Regular_File (To_String (Filename));
 
                Filename := To_Unbounded_String
-                 (Log_Prefix (Log_File_Prefix)
+                 (File_Directory
+                  & Log_Prefix (Filename_Prefix)
                   & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d-")
                   & Utils.Image (K) & ".log");
             end loop;
 
          when Daily =>
-            Current_Tag := Ada.Calendar.Day (Now);
+            Log.Current_Tag := Ada.Calendar.Day (Now);
 
          when Monthly =>
-            Current_Tag := Ada.Calendar.Month (Now);
+            Log.Current_Tag := Ada.Calendar.Month (Now);
       end case;
 
-      Text_IO.Open (Log_File, Text_IO.Append_File, To_String (Filename));
+      Text_IO.Open (Log.File, Text_IO.Append_File, To_String (Filename));
 
    exception
       when Text_IO.Name_Error =>
-         Text_IO.Create (Log_File, Text_IO.Out_File, To_String (Filename));
+         Text_IO.Create (Log.File, Text_IO.Out_File, To_String (Filename));
    end Start;
 
    ----------
    -- Stop --
    ----------
 
-   procedure Stop is
+   procedure Stop (Log : in out Object) is
    begin
-      Log_Activated := False;
-      Text_IO.Close (Log_File);
+      Text_IO.Close (Log.File);
    end Stop;
 
    -----------
@@ -159,24 +183,30 @@ package body AWS.Log is
    --  127.0.0.1 - - [25/Apr/1998:15:37:29 +0200] "GET / HTTP/1.0" 200 1363
 
    procedure Write
-     (Connect_Stat : in Status.Data;
-      Answer_Stat  : in Messages.Status_Code;
-      Peername     : in String)
+     (Log          : in out Object;
+      Connect_Stat : in     Status.Data;
+      Answer_Stat  : in     Messages.Status_Code;
+      Peername     : in     String)
    is
       Now : constant Calendar.Time := Calendar.Clock;
    begin
-      if Log_Activated then
+      if Text_IO.Is_Open (Log.File) then
 
-         if (Split = Daily and then Current_Tag /= Calendar.Day (Now))
+         if (Log.Split = Daily
+             and then Log.Current_Tag /= Calendar.Day (Now))
            or else
-           (Split = Monthly and then Current_Tag /= Calendar.Month (Now))
+            (Log.Split = Monthly
+             and then Log.Current_Tag /= Calendar.Month (Now))
          then
-            Stop;
-            Start (Split);
+            Stop (Log);
+            Start (Log,
+                   Log.Split,
+                   To_String (Log.File_Directory),
+                   To_String (Log.Filename_Prefix));
          end if;
 
          Text_IO.Put_Line
-           (Log_File,
+           (Log.File,
             Peername & " - "
             & Status.Authorization_Name (Connect_Stat) & " - ["
             & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
@@ -186,7 +216,8 @@ package body AWS.Log is
             & Status.URI (Connect_Stat) & " "
             & Status.HTTP_Version (Connect_Stat) & """ "
             & Messages.Image (Answer_Stat));
-         Text_IO.Flush (Log_File);
+
+         Text_IO.Flush (Log.File);
       end if;
    end Write;
 

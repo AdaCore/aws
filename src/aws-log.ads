@@ -34,10 +34,15 @@
 --  '<progname>-Y-M-D.log' and is written by default in the directory where
 --  the server is launched, see configuration file.
 
-with AWS.Status;
+with Ada.Text_IO;
+with Ada.Strings.Unbounded;
+
 with AWS.Messages;
+with AWS.Status;
 
 package AWS.Log is
+
+   type Object is limited private;
 
    type Split_Mode is (None, Each_Run, Daily, Monthly);
    --  It specifies when to create a new log file.
@@ -46,22 +51,48 @@ package AWS.Log is
    --  Daily    : a new log file is created each day.
    --  Monthly  : a new log file is created each month.
 
-   No_Prefix : constant String := "";
+   Not_Specified : constant String := "";
 
    procedure Start
-     (Split           : in Split_Mode := None;
-      Log_File_Prefix : in String     := No_Prefix);
+     (Log             : in out Object;
+      Split           : in     Split_Mode := None;
+      File_Directory  : in     String     := Not_Specified;
+      Filename_Prefix : in     String     := Not_Specified);
    --  Activate server's activity logging. Split indicate the way the log file
    --  should be created. Log_File_Prefix is the log filename prefix. If it is
    --  not specified the default prefix is the program name.
 
    procedure Write
-     (Connect_Stat : in Status.Data;
-      Answer_Stat  : in Messages.Status_Code;
-      Peername     : in String);
+     (Log          : in out Object;
+      Connect_Stat : in     Status.Data;
+      Answer_Stat  : in     Messages.Status_Code;
+      Peername     : in     String);
    --  Write log info if activated (i.e. Start routine above as been called).
 
-   procedure Stop;
+   procedure Stop (Log : in out Object);
    --  Stop logging activity.
+
+   function Is_Active (Log : in Object) return Boolean;
+   --  Returns True if Log is activated.
+
+   function Filename (Log : in Object) return String;
+   --  Returns current log filename or the empty string if the log is not
+   --  activated.
+
+   function Mode (Log : in Object) return Split_Mode;
+   --  Returns the split mode. None will be returned if log is not activated.
+
+private
+
+   use Ada;
+   use Ada.Strings.Unbounded;
+
+   type Object is limited record
+      File            : Text_IO.File_Type;
+      File_Directory  : Unbounded_String;
+      Filename_Prefix : Unbounded_String;
+      Split           : Split_Mode;
+      Current_Tag     : Positive;
+   end record;
 
 end AWS.Log;
