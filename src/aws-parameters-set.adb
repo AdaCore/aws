@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -47,8 +47,7 @@ package body AWS.Parameters.Set is
 
    procedure Add
      (Parameter_List : in out List;
-      Name, Value    : in     String)
-   is
+      Name, Value    : in     String) is
    begin
       Tables.Set.Add
         (Tables.Table_Type (Parameter_List),
@@ -62,6 +61,7 @@ package body AWS.Parameters.Set is
 
    procedure Add (Parameter_List : in out List; Parameters : in String) is
       use Ada.Strings;
+
       P : String renames Parameters;
       C : Positive := P'First;
       I : Natural;
