@@ -170,5 +170,7 @@ begin
       end if;
    end;
 
+   Close (Stream);
+
    Put_Line ("Done.");
 end TMem;
