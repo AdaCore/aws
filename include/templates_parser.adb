@@ -3314,18 +3314,28 @@ package body Templates_Parser is
                Analyze (T.Next, State);
 
             when Text =>
+               declare
+                  N : Tree := T;
                begin
-                  Analyze (T.Text);
-               exception
-                  when E : others =>
-                     Exceptions.Raise_Exception
-                       (Template_Error'Identity,
-                        "In " & Filename
-                        & " at line" & Natural'Image (T.Line) & ", "
-                        & Exceptions.Exception_Message (E) & '.');
-               end;
+                  begin
+                     --  Handles all consecutive Text nodes
 
-               Analyze (T.Next, State);
+                     while N /= null and then N.Kind = Text loop
+                        Analyze (N.Text);
+                        N := N.Next;
+                     end loop;
+
+                  exception
+                     when E : others =>
+                        Exceptions.Raise_Exception
+                          (Template_Error'Identity,
+                           "In " & Filename
+                             & " at line" & Natural'Image (N.Line) & ", "
+                             & Exceptions.Exception_Message (E) & '.');
+                  end;
+
+                  Analyze (N, State);
+               end;
 
             when If_Stmt  =>
                if Analyze (T.Cond) = "TRUE" then
