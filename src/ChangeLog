@@ -1,3 +1,15 @@
+2003-03-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-log.adb:
+	(Write_Log): Make this routine thread safe by using the semaphore.
+	 Do not flush the log as it is really bad for the server performance.
+	
+	* aws-log.ads:
+	(Object): Add Semaphore field.
+
+	* aws-client.adb:
+	(Create): Setup proxy authentication only if Proxy_User is set.
+
 2003-03-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:

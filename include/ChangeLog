@@ -1,3 +1,11 @@
+2003-03-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std-gnat.adb:
+	(Get_Inet_Addr): New routine.
+	(Bind): Use it.
+	(Connect): Use it.
+	Fixes a problem to connect to some servers using the IP address.
+	
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
