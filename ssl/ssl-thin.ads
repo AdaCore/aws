@@ -257,7 +257,13 @@ package SSL.Thin is
 
    function SSL_get_peer_certificate (SSL : in SSL_Handle) return X509;
 
-   function X509_NAME_oneline (Name : in X509_Name) return Cstr.chars_ptr;
+   procedure X509_free (X509 : in Thin.X509);
+
+   function X509_NAME_oneline
+     (Name : in X509_Name;
+      Buf  : in Pointer;
+      Size : in int)
+      return Cstr.chars_ptr;
 
    function X509_get_subject_name (X509 : in Thin.X509) return X509_Name;
    function X509_get_issuer_name (X509 : in Thin.X509) return X509_Name;
@@ -333,10 +339,12 @@ private
    pragma Import (C, SSL_clear, "SSL_clear");
 
    pragma Import (C, SSL_get_peer_certificate, "SSL_get_peer_certificate");
+   pragma Import (C, X509_free, "X509_free");
    pragma Import (C, X509_get_subject_name, "X509_get_subject_name");
    pragma Import (C, X509_get_issuer_name, "X509_get_issuer_name");
    pragma Import (C, X509_NAME_oneline, "X509_NAME_oneline");
    pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
    pragma Import (C, SSL_CTX_set_default_verify_paths,
                   "SSL_CTX_set_default_verify_paths");
+
 end SSL.Thin;
