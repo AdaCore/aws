@@ -1,6 +1,18 @@
 2004-12-13  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
+	(clean): Update to new namespace.
+ 
+	* interoplab_main1.adb:
+	Update namespaces checks.
+
+	* interoplab_main1.wsdl:
+	Change the name of the namespace to avoid conflics with files
+	 generated in the demos directory.
+
+2004-12-13  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
 	(init): Copy icons directory here for the dirop test.
 	(clean): Update accordingly.
 
