@@ -480,7 +480,7 @@ is
 
             Hotplug.Apply (HTTP_Server.Filters, C_Stat, Found, Answer);
 
-            --  If no one applied, run the default callback
+            --  If no one applied, run the user callback
 
             if not Found then
                AWS.Status.Set.Peername
