@@ -64,6 +64,12 @@ project Demos_SSL is
 
    package Ide renames Shared.Ide;
 
+   ------------
+   -- Binder --
+   ------------
+
+   package Binder renames Demos_Shared.Binder;
+
    --------------
    -- Compiler --
    --------------
