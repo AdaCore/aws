@@ -212,7 +212,7 @@ is
             --  If there is no connection received we assume a non Keep-Alive
             --  connection.
 
-            Sockets.Put_Line (Sock, Messages.Connection_Token & "close");
+            Sockets.Put_Line (Sock, Messages.Connection ("close"));
          else
             Sockets.Put_Line
               (Sock,
