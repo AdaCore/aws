@@ -800,7 +800,8 @@ package body AWS.Server is
          Sockets.SOCK_STREAM);
 
       Sockets.Bind (Accepting_Socket,
-                    CNF.Server_Port (Web_Server.Properties));
+                    CNF.Server_Port (Web_Server.Properties),
+                    CNF.Server_Host (Web_Server.Properties));
 
       Sockets.Listen
         (Accepting_Socket,
