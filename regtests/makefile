@@ -246,6 +246,6 @@ clean:
 	-rm -f wsdl_?_service* wsdl4*
 	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
 	-rm -f test_all.adb
-	-rm ../icons/test-dir1
-	-rm ../icons/test-dir2
-	-rm ../icons/test-dir3
+	-rm -fr ../icons/test-dir1
+	-rm -fr ../icons/test-dir2
+	-rm -fr ../icons/test-dir3
