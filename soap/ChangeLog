@@ -1,3 +1,22 @@
+2003-02-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-response-error.ads:
+	Minor reformatting.
+	Update copyright notice.
+
+	* soap-message-response-error.adb:
+	Replace pragma Warnings by Unreferenced.
+	Minor reformatting.
+	Update copyright notice.
+
+	* soap-message-reader.adb:
+	Replace pragma Warnings by Unreferenced.
+	Update copyright notice.
+
+	* soap-client.adb:
+	Minor reformatting.
+	Update copyright notice.
+
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

@@ -1,3 +1,63 @@
+2003-02-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): Set to 1.3-rc4.
+
+	* aws-status.adb:
+	Remove "AWS." prefix when it is not needed.
+	Update copyright notice.
+	
+	* aws-status.ads:
+	Minor reformatting.
+	Remove "AWS." prefix when it is not needed.
+
+	* aws-session.ads:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-session.adb:
+	(Max_Remove): Set to 50.
+	Minor reformatting.
+	Replace pragma Warnings by Unreferenced.
+	Update copyright notice.	
+
+	* aws-server-push.ads:
+	Minor reformatting.
+	Update copyright notice.
+	
+	* aws-server-push.adb:
+	Minor reformatting.
+	
+	* aws-os_lib.ads:
+	Put pragma inline next to the routines.
+	Update copyright notice.
+
+	* aws-net-stream_io.ads:
+	(Free): Fix comments.
+	Update copyright notice.
+
+	* aws-net-stream_io.adb:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-net-ssl.adb:
+	(Error_Str): If code = 0 do not call ERR_error_string_n as it will
+	 raise a SIGSEV signal. Fix Program_Error in SSL handling.
+	Fix casing of some constants.
+	Update copyright notice.
+
+	* aws-digest.adb:
+	(Check_Nonce): Minor reformatting.
+
+	* aws-default.ads:
+	Add comments.
+	(Line_Stack_Size): Set to 16#150_000#. The previous default was
+	 ridiculously too small for real projects.
+	Update copyright notice.
+
+	* aws-config.ads:
+	(Check_URL_Validity): Fix comment.
+
 2003-02-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.ads, aws-status.adb:
