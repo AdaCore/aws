@@ -51,8 +51,7 @@ package body AWS.Status is
    -- Authorization_Mode --
    ------------------------
 
-   function Authorization_Mode (D : in Data) return Authorization_Type
-   is
+   function Authorization_Mode (D : in Data) return Authorization_Type is
    begin
       return D.Auth_Mode;
    end Authorization_Mode;
@@ -133,39 +132,40 @@ package body AWS.Status is
    -- Check_Digest --
    ------------------
 
-   function Check_Digest (D : in Data; Password : String) return Boolean
-   is
+   function Check_Digest (D : in Data; Password : in String) return Boolean is
 
       function Get_Nonce return String;
+      --  ??? needs some comments
 
       ---------------
       -- Get_Nonce --
       ---------------
 
-      function Get_Nonce return String
-      is
-         Nonce    : String := Authorization_Nonce (D);
-         QOP      : String := Authorization_QOP (D);
+      function Get_Nonce return String is
+         Nonce : constant String := Authorization_Nonce (D);
+         QOP   : constant String := Authorization_QOP (D);
       begin
          if QOP = "" then
             return Nonce;
          else
             return Nonce
-               & ':' & Authorization_NC (D)
-               & ':' & Authorization_CNonce (D)
-               & ':' & QOP;
+              & ':' & Authorization_NC (D)
+              & ':' & Authorization_CNonce (D)
+              & ':' & QOP;
          end if;
       end Get_Nonce;
 
    begin
-      return Authorization_Response (D) =
-         AWS.Digest.Create_Digest
-             (Username => Authorization_Name (D),
-              Realm    => Authorization_Realm (D),
-              Password => Password,
-              Nonce    => Get_Nonce,
-              Method   => Request_Method'Image (D.Method),
-              URI      => URI (D));
+      return
+        Authorization_Response (D)
+        =
+        AWS.Digest.Create_Digest
+          (Username => Authorization_Name (D),
+           Realm    => Authorization_Realm (D),
+           Password => Password,
+           Nonce    => Get_Nonce,
+           Method   => Request_Method'Image (D.Method),
+           URI      => URI (D));
    end Check_Digest;
 
    ----------------
