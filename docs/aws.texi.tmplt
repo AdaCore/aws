@@ -17,7 +17,7 @@
 @subtitle $Date$
 @author Dmitriy Anisimkov (anisimkov@@yahoo.com)
 @author Pascal Obry (p.obry@@wanadoo.fr)
-@url {http://perso.wanadoo.fr/pascal.obry}
+@url{http://perso.wanadoo.fr/pascal.obry}
 
 @vskip 0pt plus 1filll
 
@@ -26,22 +26,22 @@
 @finalout
 
 @ifinfo
-@node Top, Introduction, (dir), (dir)
-@top Templates Parser
+@node Top
+@top Ada Web Server
 
 @menu
 * Introduction::
 * How to build it ?::
 * How to use it ?::
-* The AWS packages::
+* Status page::
 * Last notes::
-* AWS APIs::
+* AWS API::
 @end menu
 @end ifinfo
 
 @contents
 
-@node Introduction, How to build it ?, Top, Top
+@node Introduction
 @chapter Introduction
 
 @noindent
@@ -71,7 +71,7 @@ AWS project grows as days goes...
 AWS support also HTTPS (secure HTTP) using SSL. This is based on OpenSSL
 a very good and Open Source SSL implementation.
 
-@node How to build it ?, How to use it ?, Introduction, Top
+@node How to build it ?
 @chapter How to build it ?
 
 @noindent
@@ -82,15 +82,19 @@ portable. To build AWS you need:
 
 @item an Ada95 compiler
 
+There is many of them. AWS has been developped with GNAT but should use
+only Ada95 features. So any Ada95 compiler should be usable.
+
 @item a POSIX binding (Interface to the underlying OS services) ;
 
-Under Windows you can use the one distributed on my homepage. Under UNIX
-look for the Florist package at 
-@url{http://www.cs.fsu.edu/~baker/florist.html}.
+Under Windows you can use the one distributed on my homepage: 
+@url{http://perso.wanadoo.fr/pascal.obry}. Under UNIX look for the 
+Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
 @item a socket binding ;
 
-Under Windows you must use the one on my homepage which is a port (done 
+Under Windows you must use the one on my homepage: 
+@url{http://perso.wanadoo.fr/pascal.obry} which is a port (done 
 by Dmitriy Anisimkov) to Win32 of the 0.1.9 version from ENST.
 
 Under UNIX you must use the socket binding from ENST 
@@ -124,13 +128,23 @@ to build AWS:
 
 @end itemize
 
-@node How to use it ?, The AWS packages, How to build it ?, Top
+@node How to use it ?
 @chapter How to use it ?
 
+@ifinfo
+@menu
+* Basic notion::
+* Session handling::
+@end menu
+@end ifinfo
+
+@node Basic notion
+@section Basic notion
+
 @noindent
-AWS is not a Web Server like IIS or Apache, it is a component to embedded
-HTTP protocol in an application. It means that it is possible to build
-an application which can also answer to a standard browser like
+AWS is not a Web Server like @i{IIS} or @i{Apache}, it is a component to
+embedded HTTP protocol in an application. It means that it is possible
+to build an application which can also answer to a standard browser like
 @i{Internet Explorer} or @i{Netscape Navigator}. Since AWS provides
 support client and server HTTP protocol applications can communicate
 through the HTTP channel. This give a way to build distributed applications.
@@ -151,7 +165,8 @@ To build a server you must:
 WS  : AWS.Server.HTTP (Max_Connection => 3, 
                        Port           => 1234,
                        Security       => False,
-                       CB             => Service'Access);
+                       CB             => Service'Access,
+                       Session        => False);
 @end smallexample
 
 @noindent
@@ -159,10 +174,29 @@ Here we have declared an HTTP channel with a maximum of 3 simultaneous
 connections using the port 1234. This channel is not secure (False) and
 answer will be given by the procedure Service.
 
+@item Start the server
+
+@noindent
+You need to start the server before using it. This is done by calling
+@code{AWS.Server.Start} (@xref{AWS.Server}.)
+
+@smallexample
+   procedure Start (Web_Server : @b{in out} HTTP;
+                    Admin_URI  : @b{in}     String := No_Admin);
+   --  @i{Start the Web server. It initialize the connections lines.}
+   --  @i{Admin_URI must be set to enable the admin status page.}
+@end smallexample
+
+@noindent
+@code{Start} takes two parameters, the first one if the HTTP server to
+start and the second one is the name of the administrative page if
+needed. By default the value if the null string. The administrative page
+returns many information about the server.
+
 @item provides a callback procedure
 
 @noindent
-The callback procedure have the following prototype:
+The callback procedure has the following prototype:
 
 @smallexample
 @b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;
@@ -170,13 +204,14 @@ The callback procedure have the following prototype:
 
 @noindent
 This procedure receive the request status. It is possible to retrieve
-many data from request through the @code{AWS.Status} API.
+information about the request through the @code{AWS.Status} API 
+(@xref{AWS.Status}.).
 
 @noindent
 For example, to know what URI has been asked:
 
 @smallexample
-URI : @b{constant} string := AWS.Status.URI (Request);
+URI : @b{constant} String := AWS.Status.URI (Request);
 
 @b{if} URI = "/whatever" @b{then}
    ...
@@ -185,7 +220,8 @@ URI : @b{constant} string := AWS.Status.URI (Request);
 
 @noindent
 Then this function should return an answer using one of the constructors
-in @code{AWS.Response}. For example, to return an HTML message:
+in @code{AWS.Response} (@xref{AWS.Response}.). For example, to return an
+HTML message:
 
 @smallexample
 AWS.Response.Build (Content_Type => "text/html",
@@ -193,7 +229,8 @@ AWS.Response.Build (Content_Type => "text/html",
 @end smallexample
 
 @noindent
-It is also possible to return a file. This is the way to return a GIF:
+It is also possible to return a file. For example, here is the way to
+return a GIF image:
 
 @smallexample
 AWS.Response.File (Content_Type => "image/gif",
@@ -211,31 +248,216 @@ Almost every features are used by the samples there.
 @end cartouche
 @end smallexample
 
-@node The AWS packages, Last notes, How to use it ?, Top
-@chapter The AWS packages
+@node Session handling
+@section Session handling
 
 @noindent
-This section is left empty for now.
+@code{AWS} provides a way to keep session data while users are
+browsing. There is no need to mess with the Cookies, @code{AWS} will do
+that for you. The idea is simple. A session ID will be transparently
+created and then you'll be able to insert and retreive session data
+using a standard Ada API (@xref{AWS.Session}.). Session data
+are key/value pair each of them beeing strings. How to deal with that ?
 
-@node Last notes, AWS APIs, The AWS packages, Top
+@itemize
+
+@item First you declare an HTTP chanel with session.
+
+@smallexample
+WS  : AWS.Server.HTTP (Max_Connection => 3, 
+                       Port           => 1234,
+                       Security       => False,
+                       CB             => Service'Access,
+                       Session        => True);
+@end smallexample
+
+@noindent
+Here we have declared an HTTP channel with a maximum of 3 simultaneous
+connections using the port 1234. This channel is not secure (False) and
+answer will be given by the procedure Service. A session ID will be created.
+
+@item Next, in the Service callback procedure that you have provided you
+must retreive the Session ID. As we have seen, the callback procedure
+has the following prototype:
+
+@smallexample
+@b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;
+@end smallexample
+
+@noindent
+The Session ID is keept in the Request object:
+
+@smallexample
+Session_ID  : @b{constant} AWS.Session.ID := AWS.Status.Session (Request);
+@end smallexample
+
+@item From there it is quite easy to get or set some session data using
+the provided API. For example:
+
+@smallexample
+@b{declare}
+   C : Integer;
+@b{begin}
+   C := AWS.Session.Get (Session_ID, "counter");
+   C := C + 1;
+   AWS.Session.Set (Session_ID, "counter", C);
+@b{end};
+@end smallexample
+
+@noindent
+This example first get the value (as an Integer) for session data whose
+key is "@code{counter}", increment this counter and then set back it to
+the new value.
+
+@end itemize
+
+@node Status page
+@chapter Status page
+
+@noindent
+The status page gives information about the AWS internal status. For
+example it returns the server socket ID, the number of simultaneous
+connection, the number of time a connection has been used...
+
+@noindent
+To display the information AWS use a template file. The template file is
+an HTML file with some specific file recongnized by the parser. For more
+information about how does the template parser works, please look for
+the template parser distribution at @url{http://perso.wanadoo.fr/} in
+the Ada section.
+
+@noindent
+Here are the tag variables recognized by AWS:
+
+@table @b
+
+@item ABORTABLE_L
+
+A list of boolean. One for each connection. True means that this
+connection can be aborted if none is available. This is to be inserted
+in a template table.
+
+@item ACTIVITY_COUNTER_L
+
+A list of natural. One for each connection. This is the number of
+request the connection has answered.
+
+@item ACTIVITY_TIME_STAMP_L
+
+A list of date. One for each connection. This is the time of the latest
+request answered.
+
+@item KEYS_L
+
+A list of set of keys (for each key correspond a value in the tag
+below). Set of keys are separated by '|' (standard template parser list
+separator). Each key (in a set) is separated by an HTML "<td>" tag. This
+key is to be inserted in a table.
+
+@item LOGO
+
+A string to be placed in an img HTML tag. This is the name of the AWS
+logo image.
+
+@item MAX_CONNECTION
+
+Maximum number of simultaneous connections.
+
+@item OPENED_L
+
+A list of boolean. One for each connection. True means that the socket
+is open. This is to be inserted in a template table.
+
+@item QUIT_L
+
+A list of boolean. One for each connection. True means that the
+connection will terminate as soon as possible. This is to be inserted
+in a template table.
+
+@item SECURITY
+
+A boolean set to True if this is a secure socket (HTTPS/SSL).
+
+@item SERVER_NAME
+
+Name of the server. This is set when starting the server with
+@code{AWS.Server.Start}.
+
+@item SERVER_PORT
+
+The server HTTP port.
+
+@item SERVER_SOCK
+
+Server socket ID.
+
+@item SESSIONS_L
+
+A list of session ID.
+
+@item SOCK_L
+
+A list of sockets ID. One for each connection. This is to be inserted in
+a template table.
+
+@item VALUES_L
+
+A list of set of values (for each value correspond a key in the tag
+above). Set of keys are separated by '|' (standard template parser list
+separator). Each key (in a set) is separated by an HTML "<td>" tag. This
+key is to be inserted in a table.
+
+@item VERSION
+
+AWS version number.
+
+@end table
+
+@node Last notes
 @chapter Last notes
 
 @noindent
-Thanks to the contributors and peoples who send me feedbacks, ideas
+Note that this is an ongoing project at its early stage. The goal is not
+to do a full Web Server, for that @i{Apache} is unbeatable. If you have an
+idea or need a feature not yet implemented, send us a mail.
+
+@noindent
+Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 @noindent
 So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 
-@node AWS APIs, , Last notes, Top
-@chapter AWS APIs
+@node AWS API
+@chapter AWS API
 
-@section AWS.Status
+@ifinfo
+@menu
+* AWS.Response::
+* AWS.Server::
+* AWS.Session::
+* AWS.Status::
+@end menu
+@end ifinfo
 
-@include ../src/aws-status.ads.texi
-
+@node AWS.Response
 @section AWS.Response
 
 @include ../src/aws-response.ads.texi
+
+@node AWS.Server
+@section AWS.Server
+
+@include ../src/aws-server.ads.texi
+
+@node AWS.Session
+@section AWS.Session
+
+@include ../src/aws-session.ads.texi
+
+@node AWS.Status
+@section AWS.Status
+
+@include ../src/aws-status.ads.texi
 
 @bye
