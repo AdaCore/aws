@@ -49,4 +49,4 @@ aws.txt: aws.texi
 	makeinfo --no-headers aws.texi > aws.txt
 
 clean:
-	-rm aws.dvi aws.html aws.info aws.log aws.ps aws.txt $(APIFILES)
+	-rm aws.dvi aws.html aws.info* aws.log aws.ps aws.txt $(APIFILES)
