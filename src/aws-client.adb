@@ -1540,18 +1540,21 @@ package body AWS.Client is
       Sock  : Net.Socket_Type'Class renames Connection.Socket.all;
 
       procedure Skip_Line;
+      --  Skip a line in the sock stream
+
       procedure Read_Limited;
+      --  Read Connection.Length characters if it can be contained in Data
+      --  buffer otherwise just fill the remaining space in Data.
 
       ------------------
       -- Read_Limited --
       ------------------
 
       procedure Read_Limited is
-         Limit : Stream_Element_Offset
+         Limit : constant Stream_Element_Offset
            := Stream_Element_Offset'Min
-                       (Data'Last,
-                        Data'First + Stream_Element_Offset (Connection.Length)
-                          - 1);
+             (Data'Last,
+              Data'First + Stream_Element_Offset (Connection.Length) - 1);
       begin
          Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
 
@@ -1572,7 +1575,9 @@ package body AWS.Client is
 
    begin
       case Connection.Transfer is
-         when End_Response => Last := Data'First - 1;
+         when End_Response =>
+            Last := Data'First - 1;
+
          when Until_Close  =>
             begin
                Net.Buffered.Read (Sock, Data, Last);
