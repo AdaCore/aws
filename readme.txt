@@ -141,6 +141,9 @@ Here are the main changes since AWS 1.4 :
    - The security options are now per server, it means that HTTPS servers
      running on the same AWS process can have different settings.
 
+   - A a simple Web Mail service (AWS.Services.Web_Mail) using the SMTP/POP
+     AWS support.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -165,6 +168,9 @@ implementations.
 
      => Add a Reset routine in tagged types derived from
      AWS.Resources.Streams.Stream_Type.
+
+   - AWS.Server.Set_Security is now a per server procedure. Add the Web Server
+     as parameter.
 
 
 Obsolescent features:
