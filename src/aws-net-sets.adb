@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                                ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -156,7 +156,7 @@ package body AWS.Net.Sets is
    -- Count --
    -----------
 
-   function Count (Set : Socket_Set_Type) return Natural is
+   function Count (Set : in Socket_Set_Type) return Natural is
    begin
       return Set.Last;
    end Count;

@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                                ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -60,7 +60,7 @@ package AWS.Net.Sets is
       Mode   : in     Waiting_Mode);
    --  Add socket to the set
 
-   function Count (Set : Socket_Set_Type) return Natural;
+   function Count (Set : in Socket_Set_Type) return Natural;
    --  Returns the number of sockets in the Set
 
    procedure Wait
