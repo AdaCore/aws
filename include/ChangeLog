@@ -1,3 +1,8 @@
+2003-11-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb, templates_parser-cached_files.adb:
+	Use AWS.OS_Lib services instead of GNAT.OS_Lib.
+
 2003-10-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
