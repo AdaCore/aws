@@ -882,6 +882,17 @@ package body AWS.Server is
 
                   --  We have to make a copy, because task could terminate
                   --  when we would call Socket_Done.
+                  --  This copy could be deallocated in the Mark_Phase, when
+                  --  Phase changed from Loose_Release to the Closed or
+                  --  Wait_For_Client. Note that
+                  --  Net.Free (Table (Index).Sock.all)
+                  --  (see in the prevous if section) deallocates only
+                  --  internal socket structures.
+                  --  But Net.Free (Table (Index).Sock)
+                  --  (See in the Mark_Phase) deallocates the memory
+                  --  where socket is allocated and internal structures too.
+                  --  Below we are allocating only place for Socket_Type'Class
+                  --  record.
 
                   Table (Index).Sock
                      := new Net.Socket_Type'Class'(Table (Index).Sock.all);
