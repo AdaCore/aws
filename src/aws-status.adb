@@ -29,7 +29,6 @@
 --  $Id$
 
 with Ada.Strings;
-with Ada.Characters.Handling;
 
 package body AWS.Status is
 
@@ -161,48 +160,14 @@ package body AWS.Status is
       return To_String (D.Boundary);
    end Multipart_Boundary;
 
-   --------------------
-   -- Normalize_Name --
-   --------------------
+   ----------------
+   -- Parameters --
+   ----------------
 
-   function Normalize_Name (Name : String; To_Upper : Boolean) return String is
+   function Parameters (D : in Data) return AWS.Parameters.List is
    begin
-      if To_Upper then
-         return Ada.Characters.Handling.To_Upper (Name);
-      else
-         return Name;
-      end if;
-   end Normalize_Name;
-
-   ---------------
-   -- Parameter --
-   ---------------
-
-   function Parameter (D : in Data; N : in Positive) return String is
-   begin
-      return Parameters.Get_Value (D.Parameters, N);
-   end Parameter;
-
-   function Parameter
-     (D    : in Data;
-      Name : in String;
-      N    : in Positive := 1) return String
-   is
-
-   begin
-      return Parameters.Get
-        (D.Parameters,
-         Normalize_Name (Name, not D.Parameters_Case_Sensitive), N);
-   end Parameter;
-
-   --------------------
-   -- Parameter_Name --
-   --------------------
-
-   function Parameter_Name (D : in Data; N : in Positive) return String is
-   begin
-      return Parameters.Get_Key (D.Parameters, N);
-   end Parameter_Name;
+      return D.Parameters;
+   end Parameters;
 
    --------------
    -- Peername --
