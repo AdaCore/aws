@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2001-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,8 +31,8 @@
 --  $Id$
 
 with Ada.Calendar;
-with Ada.Strings.Unbounded;
 with Ada.Finalization;
+with Ada.Strings.Unbounded;
 
 package SOAP.Types is
 
@@ -143,6 +143,7 @@ package SOAP.Types is
    -----------------
 
    XML_Time_Instant : constant String := "xsd:timeInstant";
+   XML_Date_Time    : constant String := "xsd:dateTime";
 
    type XSD_Time_Instant is new Scalar with private;
 
@@ -179,7 +180,8 @@ package SOAP.Types is
    -- Base64 --
    ------------
 
-   XML_Base64 : constant String := "SOAP-ENC:base64";
+   XML_Base64        : constant String := "SOAP-ENC:base64";
+   XML_Base64_Binary : constant String := "xsd:base64Binary";
 
    type SOAP_Base64 is new Scalar with private;
 
@@ -259,6 +261,10 @@ package SOAP.Types is
    function Get (O : in Object'Class) return Boolean;
    --  Returns O value as a Boolean. Raises Data_Error if O is not a SOAP
    --  Boolean.
+
+   function Get (O : in Object'Class) return Ada.Calendar.Time;
+   --  Returns O value as a Time. Raises Data_Error if O is not a SOAP
+   --  Time.
 
    function Get (O : in Object'Class) return SOAP_Base64;
    --  Returns O value as a SOAP Base64. Raises Data_Error if O is not a SOAP
