@@ -89,13 +89,13 @@ package AWS.URL is
    --  Returns "http" or "https" depending on the protocol used by URL.
 
    function Host (URL : in Object) return String;
-   --  Returns the hostname.
+   --  Returns the hostname
 
    function Port (URL : in Object) return Positive;
-   --  Returns the port as a positive.
+   --  Returns the port as a positive
 
    function Port (URL : in Object) return String;
-   --  Returns the port as a string.
+   --  Returns the port as a string
 
    function Abs_Path
      (URL    : in Object;
@@ -113,7 +113,7 @@ package AWS.URL is
    --  therefore not returned.
 
    --
-   --  Below are extended API not part of the RFC 2616 URL specification.
+   --  Below are extended API not part of the RFC 2616 URL specification
    --
 
    function User (URL : in Object) return String;
@@ -127,7 +127,7 @@ package AWS.URL is
    function Server_Name (URL : in Object) return String renames Host;
 
    function Security (URL : in Object) return Boolean;
-   --  Returns True if it is a Secure HTTP (HTTPS) URL.
+   --  Returns True if it is a Secure HTTP (HTTPS) URL
 
    function Path (URL : in Object; Encode : in Boolean := False) return String;
    --  Returns the Path (including the leading slash). If Encode is True then
@@ -175,7 +175,7 @@ package AWS.URL is
    --  as %20.
 
    function Decode (Str : in String) return String;
-   --  This is the oposite of Encode above.
+   --  This is the oposite of Encode above
 
 private
 
