@@ -355,6 +355,7 @@ test_wsdl2.tmp
 test_wsdl3
 test_wsdl3.res
 test_wsdl3.tmp
+test_wsdl4.res
 testxml
 testxml.res
 testxml.tmp
