@@ -55,6 +55,7 @@ package Templates_Parser is
    -----------------
 
    type Tag is private;
+   --  A tag is using a by reference semantic
 
    function "+" (Value : in String)           return Tag;
    function "+" (Value : in Character)        return Tag;
@@ -153,6 +154,10 @@ package Templates_Parser is
    --  Build an Association (Variable = Value) to be added to Translate_Table.
    --  This is a tag association. Separator will be used when outputting the
    --  a flat representation of the Tag (outside a table statement).
+
+   function Get (Assoc : in Association) return Tag;
+   --  Returns the Tag in Assoc, raise Constraint_Error if Assoc is not
+   --  containing a Tag (Association_Kind is Std).
 
    ---------------------------
    -- Association table/set --
@@ -306,8 +311,7 @@ private
       Pos     : Integer_Access;         -- cache information
    end record;
 
-   type Tag is new Ada.Finalization.Controlled with record
-      Ref_Count    : Integer_Access;
+   type Tag_Data is record
       Count        : Natural;  -- Number of items
       Min, Max     : Natural;  -- Min/Max item's sizes, equal to 1 if leaf
       Nested_Level : Positive; -- Number of composite structures
@@ -315,6 +319,13 @@ private
       Head         : Tag_Node_Access;
       Last         : Tag_Node_Access;
       Position     : Cursor;
+   end record;
+
+   type Tag_Data_Access is access Tag_Data;
+
+   type Tag is new Ada.Finalization.Controlled with record
+      Ref_Count : Integer_Access;
+      Data      : Tag_Data_Access;
    end record;
 
    procedure Initialize (T : in out Tag);
