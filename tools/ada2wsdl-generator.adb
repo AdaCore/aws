@@ -836,7 +836,7 @@ package body Ada2WSDL.Generator is
             Put_Line ("         <simpleType name=""Character""");
             Put_Line ("                 targetNamespace="""
                       & Name_Space.Value (Name_Space.AWS)
-                      & "Standard/" & """>");
+                      & "Standard_pkg/" & """>");
             Put_Line ("            <restriction base=""xsd:string"">");
             Put_Line ("               <length value=""1""/>");
             Put_Line ("            </restriction>");
