@@ -29,6 +29,7 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
+with AWS.OS_Lib;
 
 separate (Templates_Parser)
 package body Filter is
@@ -50,6 +51,7 @@ package body Filter is
    Del_Param_Token     : aliased constant String := "DEL_PARAM";
    Div_Token           : aliased constant String := "DIV";
    Exist_Token         : aliased constant String := "EXIST";
+   File_Exists_Token   : aliased constant String := "FILE_EXISTS";
    Format_Date_Token   : aliased constant String := "FORMAT_DATE";
    Format_Number_Token : aliased constant String := "FORMAT_NUMBER";
    Is_Empty_Token      : aliased constant String := "IS_EMPTY";
@@ -129,7 +131,10 @@ package body Filter is
          Exist          =>
            (Exist_Token'Access,          Exist'Access),
 
-         Format_Date  =>
+         File_Exists    =>
+           (File_Exists_Token'Access,    File_Exists'Access),
+
+         Format_Date    =>
            (Format_Date_Token'Access,    Format_Date'Access),
 
          Format_Number  =>
@@ -680,6 +685,28 @@ package body Filter is
          return "FALSE";
       end if;
    end Exist;
+
+   -----------------
+   -- File_Exists --
+   -----------------
+
+   function File_Exists
+     (S : in String;
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
+      return String
+   is
+      pragma Unreferenced (T, I);
+   begin
+      Check_Null_Parameter (P);
+
+      if AWS.OS_Lib.Is_Regular_File (S) then
+         return "TRUE";
+      else
+         return "FALSE";
+      end if;
+   end File_Exists;
 
    -----------------
    -- Format_Date --
