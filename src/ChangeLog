@@ -1,3 +1,12 @@
+2001-07-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-key_value.ads, aws-parameters-set.adb, aws-parameters.ads,
+	  aws-parameters.adb, aws-session.adb:
+	Remove use of AVL_Tree_Generic (it was quite buggy) and now use a new
+	 component. This was a serious error causing session data to stay
+	 forever or even to have strange value added. The AVL tree was
+	 corrupt after some adding/removing operations.
+
 2001-06-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb:
