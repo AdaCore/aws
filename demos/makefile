@@ -2,7 +2,7 @@
 # $Id$
 
 .SILENT: all auth runme agent ws wps clean soap hotplug com_1 com_2 hello_world
-.SILENT: main build_soap
+.SILENT: main build_soap vh_demo
 
 #GFLAGSY = $(patsubst -gnaty,-gnaty3abcefhiklmnoprt,$(GFLAGS))
 # above declaration is ok for GNAT 3.14 but GNAT 3.13 does not support
@@ -29,7 +29,8 @@ BARGS = -E
 LARGS = $(LIBS)
 endif
 
-build: runme agent auth ws wps com_1 com_2 main hotplug hello_world text_input
+build: runme agent auth ws wps com_1 com_2 main hotplug hello_world \
+	text_input vh_demo
 
 force:
 
@@ -65,6 +66,9 @@ hello_world: force
 
 text_input: force
 	gnatmake $(GARGS) text_input -bargs $(BARGS) -largs $(LARGS)
+
+vh_demo: force
+	gnatmake $(GARGS) vh_demo -bargs $(BARGS) -largs $(LARGS)
 
 build_soap: force
 	(if [ -e ../soap/soap.o ] ; then \
