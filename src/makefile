@@ -49,6 +49,7 @@ aws-translator-conversion.adb:
 	echo Setup conversion support
 	gnatmake -q test_uconv
 	./test_uconv
+	-rm test_uconv.exe test_uconv.o test_uconv.ali
 
 gnat_oslib:
 	-rm -f *.o *.ali
