@@ -28,9 +28,7 @@
 
 --  $Id$
 
-with Ada.Strings.Unbounded;
-
-with Avl_Tree_Generic;
+with AWS.Key_Value;
 
 package AWS.Parameters is
 
@@ -72,18 +70,8 @@ package AWS.Parameters is
 
 private
 
-   use Ada.Strings.Unbounded;
-
-   type KV is record
-      Key, Value : Unbounded_String;
-   end record;
-
-   function Key_For (Item : in KV) return String;
-
-   package Parameter_Set is new Avl_Tree_Generic (String, KV, Key_For);
-
    type Set is record
-      Data  : Parameter_Set.Avl_Tree;
+      Data  : Key_Value.Set;
       Count : Natural := 0;
    end record;
 

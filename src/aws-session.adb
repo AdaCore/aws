@@ -30,6 +30,8 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Key_Value;
+
 with Avl_Tree_Generic;
 
 package body AWS.Session is
@@ -41,26 +43,26 @@ package body AWS.Session is
 
    --  key/value datastructure
 
-   type KV_Data is record
-      Key, Value : Unbounded_String;
-   end record;
+--     type KV_Data is record
+--        Key, Value : Unbounded_String;
+--     end record;
 
-   function Key_For (Item : in KV_Data) return String;
-   --  returns the Key for KV_Data
+--     function Key_For (Item : in KV_Data) return String;
+--     --  returns the Key for KV_Data
 
-   function Key_For (Item : in KV_Data) return String is
-   begin
-      return To_String (Item.Key);
-   end Key_For;
+--     function Key_For (Item : in KV_Data) return String is
+--     begin
+--        return To_String (Item.Key);
+--     end Key_For;
 
-   package Key_Value is new Avl_Tree_Generic (String, KV_Data, Key_For);
+--     package Key_Value is new Avl_Tree_Generic (String, KV_Data, Key_For);
 
    --  table of session ID
 
    type Session_Node is record
       SID        : Unbounded_String;
       Time_Stamp : Calendar.Time;
-      Root       : Key_Value.Avl_Tree;
+      Root       : AWS.Key_Value.Set;
    end record;
 
    function Key_For (Item : in Session_Node) return String;
@@ -210,7 +212,7 @@ package body AWS.Session is
         when Lock = 0
       is
          N  : Session_Node;
-         KV : KV_Data;
+         KV : Key_Value.Data;
       begin
          Session_Set.Inquire (Session_Name, Sessions, N);
 
@@ -234,7 +236,7 @@ package body AWS.Session is
         when Lock = 0
       is
          N  : Session_Node;
-         KV : KV_Data;
+         KV : Key_Value.Data;
       begin
          Session_Set.Inquire (Session_Name, Sessions, N);
 
@@ -246,7 +248,7 @@ package body AWS.Session is
          Result := True;
 
       exception
-         when Key_Value.Node_Not_Found =>
+         when Key_Value.Tree.Node_Not_Found =>
             Result := False;
       end Key_Exist;
 
@@ -286,8 +288,8 @@ package body AWS.Session is
 
       entry Set_Value (Session_Name, Key, Value : in String) when Lock = 0 is
          N  : Session_Node;
-         KV : KV_Data := (To_Unbounded_String (Key),
-                          To_Unbounded_String (Value));
+         KV : Key_Value.Data := (To_Unbounded_String (Key),
+                                 To_Unbounded_String (Value));
       begin
          Session_Set.Inquire (Session_Name, Sessions, N);
          N.Time_Stamp := Calendar.Clock;
@@ -295,7 +297,7 @@ package body AWS.Session is
          begin
             Key_Value.Insert_Node (KV, N.Root);
          exception
-            when Key_Value.Duplicate_Key =>
+            when Key_Value.Tree.Duplicate_Key =>
                Key_Value.Update_Node (Key, KV, N.Root);
          end;
 
@@ -404,7 +406,7 @@ package body AWS.Session is
 
    procedure For_Every_Session_Data (SID : in ID) is
 
-      procedure Process (KV       : in out KV_Data;
+      procedure Process (KV       : in out Key_Value.Data;
                          Continue :    out Boolean);
       --  iterator callback
 
@@ -414,7 +416,7 @@ package body AWS.Session is
       -- Process --
       -------------
 
-      procedure Process (KV       : in out KV_Data;
+      procedure Process (KV       : in out Key_Value.Data;
                          Continue :    out Boolean)
       is
          Quit : Boolean := False;
@@ -433,7 +435,7 @@ package body AWS.Session is
       --------------
 
       procedure In_Order is
-         new Key_Value.In_Order_Tree_Traversal (Process);
+         new Key_Value.Tree.In_Order_Tree_Traversal (Process);
 
       N        : Session_Node;
       Sessions : Session_Set.Avl_Tree;
@@ -443,7 +445,7 @@ package body AWS.Session is
 
       Session_Set.Inquire (Image (SID), Sessions, N);
 
-      In_Order (N.Root);
+      In_Order (Key_Value.Tree.Avl_Tree (N.Root));
 
       Database.Unlock;
    exception

@@ -47,9 +47,13 @@
 --  associated with the key K are concatenated together with a specific
 --  separator.
 
+with Ada.Strings.Unbounded;
+
 with Strings_Cutter;
 
 package body AWS.Parameters is
+
+   use Ada.Strings.Unbounded;
 
    Val_Separator : constant Character := ASCII.VT;
 
@@ -81,19 +85,19 @@ package body AWS.Parameters is
       Parameter_Set.Count := Parameter_Set.Count + 1;
 
       begin
-         Parameters.Parameter_Set.Insert_Node
+         Key_Value.Insert_Node
            ((To_Unbounded_String (Key), To_Unbounded_String (Value)),
             Parameter_Set.Data);
       exception
          --  This key already exist, catenate the new value to the old one
          --  separated with Val_Separator.
 
-         when Parameters.Parameter_Set.Duplicate_Key =>
+         when Key_Value.Tree.Duplicate_Key =>
             declare
                Current_Value : constant String :=
                  Internal_Get (Parameter_Set, Key, 0);
             begin
-               Parameters.Parameter_Set.Update_Node
+               Key_Value.Update_Node
                  (Key,
                   (To_Unbounded_String (Key),
                    To_Unbounded_String (Current_Value
@@ -103,11 +107,11 @@ package body AWS.Parameters is
             end;
       end;
 
-      Parameters.Parameter_Set.Insert_Node
+      Key_Value.Insert_Node
         ((To_Unbounded_String (K_Key), To_Unbounded_String (Key)),
          Parameter_Set.Data);
 
-      Parameters.Parameter_Set.Insert_Node
+      Key_Value.Insert_Node
         ((To_Unbounded_String (K_Value), To_Unbounded_String (Value)),
          Parameter_Set.Data);
    end Add;
@@ -118,14 +122,14 @@ package body AWS.Parameters is
 
    function Count (Parameter_Set : in Set) return Natural is
    begin
-      return Parameters.Parameter_Set.Number_Of_Nodes (Parameter_Set.Data);
+      return Key_Value.Number_Of_Nodes (Parameter_Set.Data);
    end Count;
 
    function Count (Parameter_Set : in Set; Key : in String) return Natural is
-      Item : KV;
+      Item : Key_Value.Data;
       CS   : Strings_Cutter.Cutted_String;
    begin
-      Parameters.Parameter_Set.Inquire (Key, Parameter_Set.Data, Item);
+      Key_Value.Inquire (Key, Parameter_Set.Data, Item);
 
       Strings_Cutter.Create (CS,
                              To_String (Item.Value),
@@ -147,9 +151,9 @@ package body AWS.Parameters is
    -----------
 
    function Exist (Parameter_Set : in Set; Key : in String) return Boolean is
-      Item : KV;
+      Item : Key_Value.Data;
    begin
-      Parameters.Parameter_Set.Inquire (Key, Parameter_Set.Data, Item);
+      Key_Value.Inquire (Key, Parameter_Set.Data, Item);
       return True;
    exception
       when others =>
@@ -214,10 +218,10 @@ package body AWS.Parameters is
                           Key           : in String;
                           N             : in Natural)
    return String is
-      Item : KV;
+      Item : Key_Value.Data;
       CS   : Strings_Cutter.Cutted_String;
    begin
-      Parameters.Parameter_Set.Inquire (Key, Parameter_Set.Data, Item);
+      Key_Value.Inquire (Key, Parameter_Set.Data, Item);
 
       Strings_Cutter.Create (CS,
                              To_String (Item.Value),
@@ -235,22 +239,12 @@ package body AWS.Parameters is
    end Internal_Get;
 
    -------------
-   -- Key_For --
-   -------------
-
-   function Key_For (Item : in KV) return String is
-   begin
-      return To_String (Item.Key);
-   end Key_For;
-
-   -------------
    -- Release --
    -------------
 
    procedure Release (Parameter_Set : in out Set) is
    begin
-      Parameters.Parameter_Set.Delete_Tree (Parameter_Set.Data);
+      Key_Value.Delete_Tree (Parameter_Set.Data);
    end Release;
 
 end AWS.Parameters;
-
