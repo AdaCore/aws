@@ -170,6 +170,8 @@ begin
    AWS.Server.Shutdown (WS);
    Ada.Text_IO.Put_Line ("shutdown");
 
+   Client.Close (C);
+
 exception
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));
