@@ -1,5 +1,35 @@
 2003-07-03  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-embedded.adb:
+	(File_Size): Remove N variable, not really needed.
+	(File_Timestamp): Idem.
+	(Size): Minor reformatting.
+	Update copyright notice.
+
+	* aws-resources-embedded.ads:
+	(Size): Minor reformatting.
+	Update copyright notice.
+
+	* aws-resources-files.ads, aws-resources-files.adb:
+	(Size): Minor reformatting.
+	Update copyright notice.	
+
+	* aws-resources-streams.ads, aws-resources-streams.adb:
+	(Size): Minor reformatting.
+
+	* aws-resources.ads:
+	(Size): Minor reformatting.
+	Update copyright notice.
+
+2003-07-03  Pascal Obry  <p.obry@wanadoo.fr>
+	
+	* aws-resources-streams.adb:
+	Minor reformatting.
+
+	* aws-resources-streams.ads:
+	(Size): Change comments.
+	Minor reformatting.
+
 	* aws-response.adb:
 	(Content_Length): Image renamed CL_Image and set as constant.
 	Minor reformatting.

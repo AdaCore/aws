@@ -1,3 +1,8 @@
+2003-07-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* strm.adb:
+	Update copyright header.
+
 2003-07-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* strm.adb, strm2.adb:
