@@ -661,25 +661,23 @@ package body AWS.Response is
       Set.Close_Resource (Result, Server_Close);
 
       --  Set the Content_Disposition to properly pass the filename to
-      --  the browser. This will also force the browser to propose to save
-      --  this file instead of displaying it if Attachment is set.
+      --  the browser.
 
-      case Disposition is
-         when Attachment =>
-            Set.Add_Header
-              (Result,
-               Messages.Content_Disposition_Token,
-               "attachment; filename=""" & CD_Filename & '"');
+      if Disposition = None or else CD_Filename = "" then
+         null;
 
-         when Inline =>
-            Set.Add_Header
-              (Result,
-               Messages.Content_Disposition_Token,
-               "inline; filename=""" & CD_Filename & '"');
+      elsif Disposition = Attachment then
+         Set.Add_Header
+           (Result,
+            Messages.Content_Disposition_Token,
+            "attachment; filename=""" & CD_Filename & '"');
 
-         when None =>
-            null;
-      end case;
+      elsif Disposition = Inline then
+         Set.Add_Header
+           (Result,
+            Messages.Content_Disposition_Token,
+            "inline; filename=""" & CD_Filename & '"');
+      end if;
 
       return Result;
    end Stream;
