@@ -59,7 +59,7 @@ package AWS.POP is
      (Server_Name  : in String;
       User         : in String;
       Password     : in String;
-      Authenticate : in Authenticate_Mode := APOP;
+      Authenticate : in Authenticate_Mode := Clear_Text;
       Port         : in Positive          := Default_POP_Port)
       return Server;
    --  Create a Server composed of the Name and the Port (default POP3 port
