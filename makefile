@@ -11,7 +11,7 @@ include makefile.conf
 
 # External packages to be configured
 
-# XMLADA	= /usr/Ada.Libraries/XMLada
+XMLADA	= /usr/Ada.Libraries/XMLada
 
 ifdef XMLADA
 INCLUDES = -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib
@@ -26,8 +26,8 @@ DEBUG_GFLAGS	= -O0 -g -m -gnatwu -gnaty
 GFLAGS		= $(DEBUG_GFLAGS)
 
 # linker
-RELEASE_GFLAGS	= -s
-DEBUG_GFLAGS	=
+RELEASE_LFLAGS	= -s
+DEBUG_LFLAGS	=
 LFLAGS		= $(DEBUG_LFLAGS)
 
 # NO NEED TO CHANGE ANYTHING PAST THIS POINT
@@ -68,7 +68,7 @@ set_std:
 	echo "MODE=std" > makefile.conf
 	make -C src std_mode
 
-build: build_ssllib build_include build_aws build_demo
+build: build_ssllib build_include build_aws build_win32 build_demo
 
 build_aws:
 	make -C src build $(ALL_OPTIONS)
@@ -104,6 +104,9 @@ build_doc:
 build_include:
 	make -C include build $(ALL_OPTIONS)
 
+build_win32:
+	make -C win32 build $(ALL_OPTIONS)
+
 clean:
 	make -C include clean
 	make -C src clean
@@ -111,7 +114,9 @@ clean:
 	make -C ssl clean
 	make -C docs clean
 	make -C soap clean
-	rm *.~*.*~
+	-rm *.~*.*~
+	rm makefile.conf
+	cvs update makefile.conf
 
 distrib: clean build_doc
 	-rm -f aws-*.tar*
@@ -155,11 +160,13 @@ install:
 	mkdir $(INSTALL)/images
 	mkdir $(INSTALL)/templates
 	mkdir $(INSTALL)/docs
-	ar cr libaws.a src/*.o ssl/*.o
+	ar cr libaws.a src/*.o
+	-ar cr libaws.a ssl/*.o
 	-ar cr libaws.a soap/*.o
 	cp src/*.ad[sb] ssl/*.ad[sb] $(INSTALL)/include
 	-cp soap/*.ad[sb] $(INSTALL)/include
-	cp src/*.ali ssl/*.ali $(INSTALL)/lib
+	cp src/*.ali $(INSTALL)/lib
+	-cp ssl/*.ali $(INSTALL)/lib
 	-cp soap/*.ali $(INSTALL)/lib
 	chmod uog-w $(INSTALL)/lib/*.ali
 	mv libaws.a $(INSTALL)/lib
