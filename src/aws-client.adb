@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -1139,10 +1139,11 @@ package body AWS.Client is
       if Connection.Proxy = No_Data then
 
          if URI = "" then
-            Send_Header (Sock,
-                         Method & ' '
-                           & AWS.URL.Pathname (Connection.Host_URL, False)
-                           & ' ' & HTTP_Version);
+            Send_Header
+              (Sock,
+               Method & ' '
+                 & AWS.URL.Pathname_And_Parameters (Connection.Host_URL, False)
+                 & ' ' & HTTP_Version);
          else
             --  URI should already be encoded, but to help a bit Windows
             --  systems who tend to have spaces into URL we encode them here.
