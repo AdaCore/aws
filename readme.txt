@@ -181,6 +181,9 @@ Here are the main changes since AWS 2.0 :
    - Add new wsdl2aws option to force the use of a specified endpoint instead
      of the one found in the WSDL document.
 
+   - AWS.Services.Dispatchers.URI.Register add a way to match using the URI
+     prefix instead of the full URI.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
