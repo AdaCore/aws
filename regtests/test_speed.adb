@@ -1,14 +1,22 @@
 
 --  $Id$
 
-with Ada.Text_IO;      use Ada.Text_IO;
-with Ada.Calendar;     use Ada.Calendar;
-with SOAP.Types;       use SOAP.Types;
-with SOAP.Parameters;  use SOAP.Parameters;
+with Ada.Text_IO;
+with Ada.Calendar;
+with Ada.Unchecked_Deallocation;
+
+with SOAP.Types;
+with SOAP.Parameters;
 with SOAP.Message;
 with SOAP.Message.Payload;
 
 procedure Test_Speed is
+
+   use Ada.Text_IO;
+   use Ada.Calendar;
+
+   use SOAP.Types;
+   use SOAP.Parameters;
 
    N_Test : constant := 1_000;
 
@@ -40,9 +48,18 @@ procedure Test_Speed is
    --------------------------
 
    procedure Check_Computer_Speed is
+
       Start   : Time;
       Finish  : Time;
       Elapsed : Duration;
+
+      subtype String_80 is String (1 .. 80);
+
+      type A_Str is access String_80;
+
+      procedure Free is new Ada.Unchecked_Deallocation (String_80, A_Str);
+
+      S : A_Str;
 
       procedure Call (K : in Positive) is
          I : Integer := K;
@@ -60,13 +77,18 @@ procedure Test_Speed is
          Call (K);
       end loop;
 
+      for K in 1 .. 40_000 loop
+         S := new String_80;
+         Free (S);
+      end loop;
+
       Finish := Clock;
 
       Elapsed := Finish - Start;
 
-      --  55 found empirically
+      --  40 found empirically
 
-      Max_Time := Elapsed * 55;
+      Max_Time := Elapsed * 40;
    end Check_Computer_Speed;
 
    --------
