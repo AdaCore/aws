@@ -1,3 +1,8 @@
+2001-10-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-push.ads, aws-server-push.adb:
+	(Object.Send): rename Not_Responding parameter to Unregistered.
+
 2001-10-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-push.adb:
