@@ -45,15 +45,18 @@ with GNAT.Command_Line;
 with GNAT.Calendar.Time_IO;
 
 with AWS.OS_Lib;
+with AWS.Translator;
+with AWS.Utils;
 
 procedure AwsRes is
 
    use Ada;
    use Ada.Strings.Unbounded;
+   use AWS;
 
    Syntax_Error : exception;
 
-   Version  : constant String := "1.0";
+   Version  : constant String := "1.1";
 
    Root_Pck : Unbounded_String := To_Unbounded_String ("res");
    Quiet    : Boolean := False;
@@ -63,6 +66,9 @@ procedure AwsRes is
 
    R_File   : Text_IO.File_Type;
    --  Root spec/body file
+
+   Compress : Boolean := False;
+   --  By default resources are not compressed
 
    procedure Create (Filename : in String);
    --  Create resource package for Filename
@@ -90,7 +96,11 @@ procedure AwsRes is
       Pck_Name  : constant String
         := To_String (Root_Pck) & '-' & Unit_Name & ".ads";
 
-      Buffer    : Stream_Element_Array (1 .. 4_096);
+      Buffer    : Stream_Element_Array (1 .. 1_024 * 200);
+      --  We need a buffer large enough to contain as much data as
+      --  possible. This is more efficient for the compression, 200kb is
+      --  certainly large enough for an embedded resource.
+
       Last      : Stream_Element_Offset;
       I         : Natural;
 
@@ -100,6 +110,10 @@ procedure AwsRes is
       I_File    : Stream_IO.File_Type;
 
       First     : Boolean := True;
+
+      P_Buffer  : Utils.Stream_Element_Array_Access;
+      --  This buffer contains the prepared data
+
    begin
       if not Quiet then
          Text_IO.Put ("creating " & Filename);
@@ -138,7 +152,15 @@ procedure AwsRes is
 
          exit when Last < Buffer'First;
 
-         for K in Buffer'First .. Last loop
+         Utils.Free (P_Buffer);
+
+         if Compress then
+            P_Buffer := Translator.Compress (Buffer (1 .. Last));
+         else
+            P_Buffer := new Stream_Element_Array'(Buffer (1 .. Last));
+         end if;
+
+         for K in P_Buffer'Range loop
             if I /= 0 then
                Text_IO.Put (O_File, ",");
 
@@ -152,7 +174,7 @@ procedure AwsRes is
             if First then
                --  No space after the open parentesis (style check)
                declare
-                  V : constant Integer := Integer (Buffer (K));
+                  V : constant Integer := Integer (P_Buffer (K));
                begin
                   if V < 10 then
                      Text_IO.Put
@@ -171,7 +193,8 @@ procedure AwsRes is
                First := False;
 
             else
-               Integer_Text_IO.Put (O_File, Integer (Buffer (K)), Width => 4);
+               Integer_Text_IO.Put
+                 (O_File, Integer (P_Buffer (K)), Width => 4);
             end if;
 
             I := I + 1;
@@ -210,7 +233,13 @@ procedure AwsRes is
       Text_IO.Put_Line
         (RT_File, "             GNAT.Calendar.Time_Of ("
            & GNAT.Calendar.Time_IO.Image
-           (File_Time, "%Y, %m, %d, %H, %M, %S, 0.0));"));
+           (File_Time, "%Y, %m, %d, %H, %M, %S, 0.0),"));
+
+      if Compress then
+         Text_IO.Put_Line (RT_File, "             Compressed);");
+      else
+         Text_IO.Put_Line (RT_File, "             Uncompressed);");
+      end if;
 
       if not Quiet then
          Text_IO.Put_Line ("  -> registered");
@@ -253,8 +282,11 @@ procedure AwsRes is
 
    procedure Parse_Command_Line is
    begin
+      GNAT.Command_Line.Initialize_Option_Scan
+        (Stop_At_First_Non_Switch => True);
+
       loop
-         case GNAT.Command_Line.Getopt ("r: h q") is
+         case GNAT.Command_Line.Getopt ("r: h q z u") is
             when ASCII.NUL =>
                exit;
 
@@ -263,6 +295,12 @@ procedure AwsRes is
 
             when 'q' =>
                Quiet := True;
+
+            when 'z' =>
+               Compress := True;
+
+            when 'u' =>
+               Compress := False;
 
             when 'h' =>
                raise Syntax_Error;
@@ -307,13 +345,21 @@ begin
    Text_IO.Put_Line (RT_File, "         Initialized := True;");
 
    --  Parse all files
+
    loop
       declare
          S : constant String
            := GNAT.Command_Line.Get_Argument (Do_Expansion => True);
       begin
          exit when S'Length = 0;
-         Create (S);
+
+         if S = "-z" then
+            Compress := True;
+         elsif S = "-u" then
+            Compress := False;
+         else
+            Create (S);
+         end if;
       end;
    end loop;
 
@@ -358,12 +404,16 @@ exception
    when Syntax_Error =>
       Text_IO.Put_Line ("AWSRes - Resource Creator v" & Version);
       Text_IO.New_Line;
-      Text_IO.Put_Line ("Usage : awsres [-hrq] file1 [file2...]");
+      Text_IO.Put_Line ("Usage : awsres [-hrqzu] file1 [-zu] [file2...]");
       Text_IO.New_Line;
       Text_IO.Put_Line
         ("        -h      : display help");
       Text_IO.Put_Line
         ("        -r name : name of the root package (default res)");
+      Text_IO.Put_Line
+        ("        -z      : enable compression of following resources");
+      Text_IO.Put_Line
+        ("        -u      : disable compression of following resources");
       Text_IO.Put_Line
         ("        -q      : quiet mode");
 end AwsRes;
