@@ -191,22 +191,6 @@ package body AWS.Client is
       Security    : constant Boolean := AWS.URL.Security (Connect_URL);
       Sock        : Net.Socket_Access;
 
-      function Persistence return String;
-      pragma Inline (Persistence);
-
-      -----------------
-      -- Persistence --
-      -----------------
-
-      function Persistence return String is
-      begin
-         if Connection.Persistent then
-            return "Keep-Alive";
-         else
-            return "Close";
-         end if;
-      end Persistence;
-
    begin
       pragma Assert (not Connection.Opened);
       --  This should never be called with an open connection.
@@ -271,9 +255,6 @@ package body AWS.Client is
          Send_Header
            (Sock.all,
             Messages.User_Agent (To_String (Connection.User_Agent)));
-
-         Send_Header
-           (Sock.all, Messages.Proxy_Connection (Persistence));
 
          --  Empty line to terminate the connect
 
