@@ -467,6 +467,7 @@ wsdl4.ads
 wsdl_1.res
 wsdl_1.wsdl
 wsdl_1_main
+wsdl_1_main.res
 wsdl_1_service-cb.adb
 wsdl_1_service-cb.ads
 wsdl_1_service-client.adb
@@ -479,6 +480,7 @@ wsdl_1_service.ads
 wsdl_2.res
 wsdl_2.wsdl
 wsdl_2_main
+wsdl_2_main.res
 wsdl_2_service-cb.adb
 wsdl_2_service-cb.ads
 wsdl_2_service-client.adb
@@ -491,6 +493,7 @@ wsdl_2_service.ads
 wsdl_3.res
 wsdl_3.wsdl
 wsdl_3_main
+wsdl_3_main.res
 wsdl_3_service-cb.adb
 wsdl_3_service-cb.ads
 wsdl_3_service-client.adb
@@ -503,6 +506,7 @@ wsdl_3_service.ads
 wsdl_4.res
 wsdl_4.wsdl
 wsdl_4_main
+wsdl_4_main.res
 wsdl_4_service-cb.adb
 wsdl_4_service-cb.ads
 wsdl_4_service-client.adb
@@ -515,6 +519,7 @@ wsdl_4_service.ads
 wsdl_5.res
 wsdl_5.wsdl
 wsdl_5_main
+wsdl_5_main.res
 wsdl_5_service-cb.adb
 wsdl_5_service-cb.ads
 wsdl_5_service-client.adb
@@ -528,6 +533,7 @@ wsdl_6.class
 wsdl_6.res
 wsdl_6.wsdl
 wsdl_6_main
+wsdl_6_main.res
 wsdl_6_service-cb.adb
 wsdl_6_service-cb.ads
 wsdl_6_service-client.adb
