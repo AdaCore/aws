@@ -250,14 +250,15 @@ package body AWS.Translator is
    --------------
 
    function Compress
-     (Data  : in Ada.Streams.Stream_Element_Array;
-      Level : in Compression_Level                := Default_Compression)
+     (Data   : in Ada.Streams.Stream_Element_Array;
+      Level  : in Compression_Level                := Default_Compression;
+      Header : in ZL.Header_Type                   := ZL.Default_Header)
       return Utils.Stream_Element_Array_Access
    is
       Stream : ZL.Stream_Type;
       Result : Utils.Stream_Element_Array_Access;
    begin
-      ZL.Deflate_Initialize (Stream, Level => Level);
+      ZL.Deflate_Initialize (Stream, Level => Level, Header => Header);
 
       Compress_Decompress (Stream, Data, Result);
       return Result;
@@ -324,13 +325,15 @@ package body AWS.Translator is
    -- Decompress --
    ----------------
 
-   function Decompress (Data : in Ada.Streams.Stream_Element_Array)
-     return Utils.Stream_Element_Array_Access
+   function Decompress
+     (Data   : in Ada.Streams.Stream_Element_Array;
+      Header : in ZL.Header_Type                   := ZL.Default_Header)
+      return Utils.Stream_Element_Array_Access
    is
       Stream : ZL.Stream_Type;
       Result : Utils.Stream_Element_Array_Access;
    begin
-      ZL.Inflate_Initialize (Stream);
+      ZL.Inflate_Initialize (Stream, Header => Header);
 
       Compress_Decompress (Stream, Data, Result);
       return Result;
