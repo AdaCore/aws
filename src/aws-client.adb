@@ -886,12 +886,23 @@ package body AWS.Client is
 
          if URI = "" then
             Send_Header (Sock, Method & ' '
-                         & AWS.URL.Pathname (Connection.Host_URL, True)
+                         & AWS.URL.Pathname (Connection.Host_URL, False)
                          & ' ' & HTTP_Version);
          else
-            Send_Header (Sock, Method & ' '
-                         & AWS.URL.Encode (URI)
-                         & ' ' & HTTP_Version);
+            --  URI should already be encoded, but to help a bit Windows
+            --  systems who tend to have spaces into URL we encode them here.
+
+            declare
+               E_URI : String := URI;
+            begin
+               for K in E_URI'Range loop
+                  if E_URI (K) = ' ' then
+                     E_URI (K) := '+';
+                  end if;
+               end loop;
+
+               Send_Header (Sock, Method & ' ' & E_URI & ' ' & HTTP_Version);
+            end;
          end if;
 
          Send_Header (Sock, Messages.Connection (Persistence));
