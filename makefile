@@ -280,7 +280,9 @@ build_tarball:
 
 distrib: build_apiref clean_noapiref build_doc build_tarball clean
 
-install:
+force:
+
+install: force
 	-rm -fr $(INSTALL)/AWS
 	mkdir $(INSTALL)/AWS
 	mkdir $(INSTALL)/AWS/lib
