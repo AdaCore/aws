@@ -436,17 +436,13 @@ package body AWS.Server is
       Security                  : in     Boolean         := False;
       Session                   : in     Boolean         := False;
       Case_Sensitive_Parameters : in     Boolean         := True;
-      Upload_Directory          : in     String          := Def_Upload_Dir;
-      Log_Split_Mode            : in     Log.Split_Mode  := Log.None) is
+      Upload_Directory          : in     String          := Def_Upload_Dir) is
    begin
       CNF.Set.Server_Name (Web_Server.Properties, Name);
       CNF.Set.Admin_URI   (Web_Server.Properties, Admin_URI);
       CNF.Set.Server_Port (Web_Server.Properties, Port);
       CNF.Set.Security    (Web_Server.Properties, Security);
       CNF.Set.Session     (Web_Server.Properties, Session);
-
-      CNF.Set.Log_Split_Mode
-        (Web_Server.Properties, Log.Split_Mode'Image (Log_Split_Mode));
 
       CNF.Set.Case_Sensitive_Parameters
         (Web_Server.Properties, Case_Sensitive_Parameters);
@@ -513,12 +509,6 @@ package body AWS.Server is
          Sockets.AF_INET,
          Sockets.SOCK_STREAM);
 
-      Sockets.Setsockopt
-        (Accepting_Socket,
-         Sockets.SOL_SOCKET,
-         Sockets.SO_REUSEADDR,
-         1);
-
       Sockets.Bind (Accepting_Socket,
                     CNF.Server_Port (Web_Server.Properties));
 
@@ -545,13 +535,28 @@ package body AWS.Server is
    -- Start_Log --
    ---------------
 
-   procedure Start_Log (Web_Server : in out HTTP) is
+   procedure Start_Log
+     (Web_Server        : in out HTTP;
+      Split_Mode        : in     Log.Split_Mode := Log.None;
+      Filename_Prefix   : in     String         := "")
+   is
+      use type AWS.Log.Split_Mode;
    begin
+      if Split_Mode /= Log.None then
+         CNF.Set.Log_Split_Mode
+           (Web_Server.Properties, Log.Split_Mode'Image (Split_Mode));
+      end if;
+
+      if Filename_Prefix /= "" then
+         CNF.Set.Log_Filename_Prefix
+           (Web_Server.Properties, Filename_Prefix);
+      end if;
+
       Log.Start
         (Web_Server.Log,
          Log.Split_Mode'Value (CNF.Log_Split_Mode (Web_Server.Properties)),
          CNF.Log_File_Directory (Web_Server.Properties),
-         CNF.Log_File_Prefix (Web_Server.Properties));
+         CNF.Log_Filename_Prefix (Web_Server.Properties));
    end Start_Log;
 
    --------------
