@@ -71,11 +71,7 @@ main (void)
 
 #ifdef _WIN32
   // libpoll.a need for poll call emulation.
-  printf ("   pragma Linker_Options (\"-lpoll\");\n");
-#ifdef WIN2000SUPPORT
-  // libwspiapi.a need for getaddrinfo freeaddrinfo routines in Windows 2000.
-  printf ("   pragma Linker_Options (\"-lwspiapi\");\n");
-#endif
+  printf ("   pragma Linker_Options (\"-laws-win32\");\n");
   // libws2_32.a need for getaddrinfo freeaddrinfo routines in Windows XP/2003.
   printf ("   pragma Linker_Options (\"-lws2_32\");\n\n");
 #endif
@@ -94,6 +90,16 @@ main (void)
   printf ("   AI_PASSIVE     : constant := %d;\n",   AI_PASSIVE);
   printf ("   AI_CANONNAME   : constant := %d;\n",   AI_CANONNAME);
   printf ("   AI_NUMERICHOST : constant := %d;\n\n", AI_NUMERICHOST);
+
+  /* getaddrinfo error code does not supported by Win32, but need for correct
+     error handling, we could use any Win32 socket error code instead,
+     because Win32 use the same error codes in Errno report. */
+
+#ifdef _WIN32
+  printf ("   EAI_SYSTEM : constant := %d;\n\n", EAI_AGAIN);
+#else
+  printf ("   EAI_SYSTEM : constant := %d;\n\n", EAI_SYSTEM);
+#endif
 
   /* constants needed for AWS and not defined in AdaSockets */
 
@@ -176,6 +182,8 @@ main (void)
 
   printf ("   procedure FreeAddrInfo (res : in Addr_Info_Access);\n\n");
 
+  printf ("   function GAI_StrError (ecode : in C.int) return C.Strings.chars_ptr;\n\n");
+
   printf ("private\n\n");
 
 #ifdef WIN2000SUPPORT
@@ -189,6 +197,16 @@ main (void)
   printf ("   pragma Import (%s, GetAddrInfo, \"getaddrinfo\");\n", i_conv);
   printf ("   pragma Import (%s, FreeAddrInfo, \"freeaddrinfo\");\n\n", i_conv);
 #endif
+
+  // gai_strerror for Win32 inlined in WS2TCPIP.H and is not thread safe.
+  // We are using simple replacement in win32/gai_strerror.c
+
+#ifdef _WIN32
+  printf ("   pragma Import (C, GAI_StrError, \"AWS_gai_strerror\");\n\n");
+#else
+  printf ("   pragma Import (C, GAI_StrError, \"gai_strerror\");\n\n");
+#endif
+
 
   printf ("end AWS.OS_Lib.Definitions;\n");
 
