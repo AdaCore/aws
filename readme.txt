@@ -123,6 +123,9 @@ Here are the main changes since AWS 1.3 :
 
    - Slots activity counters are updated only if an answer as been handled.
 
+   - The directory browser's template file can now be configured using the
+     AWS.Config module.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
