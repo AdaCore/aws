@@ -1,3 +1,11 @@
+2002-07-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add test_speed test.
+
+	* test_speed.adb, test_speed.out:
+	Initial revision.
+
 2002-07-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* turl.out:
