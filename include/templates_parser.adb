@@ -272,8 +272,10 @@ package body Templates_Parser is
       pragma Inline (Release);
       --  Release all memory allocated P
 
-      type Callback is
-        access function (S : in String; P : in Parameter_Data := No_Parameter)
+      type Callback is access function
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
         return String;
       --  P is the filter parameter, no parameter by default. Parameter are
       --  untyped and will be parsed by the filter function if needed.
@@ -302,97 +304,190 @@ package body Templates_Parser is
       --  Raises Template_Error if P is not equal to Null_Parameter.
 
       function BR_2_LF
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Capitalize
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Clean_Text
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Coma_2_Point
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Contract
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Exist
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Format_Number
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Is_Empty
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function LF_2_BR
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Lower
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Match
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function No_Digit
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function No_Letter
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function No_Space
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Oui_Non
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Point_2_Coma
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Repeat
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Replace
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Reverse_Data
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Size
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Slice
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Trim
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Upper
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Web_Escape
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Web_NBSP
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Yes_No
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Plus
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Minus
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Divide
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Multiply
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Modulo
-        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
 
       function Handle (Name : in String) return Callback;
       --  Returns the filter function for the given filter name.
@@ -428,7 +523,11 @@ package body Templates_Parser is
    function Image (T : in Tag) return String;
    --  Returns string representation for the Tag variable.
 
-   function Translate (T : in Tag; Value : in String) return String;
+   function Translate
+     (T            : in Tag;
+      Value        : in String;
+      Translations : in Translate_Table := No_Translation)
+      return String;
    --  Returns the result of Value after applying all filters for tag T.
 
    procedure Release (T : in out Tag);
@@ -784,7 +883,12 @@ package body Templates_Parser is
    -- Translate --
    ---------------
 
-   function Translate (T : in Tag; Value : in String) return String is
+   function Translate
+     (T            : in Tag;
+      Value        : in String;
+      Translations : in Translate_Table := No_Translation)
+      return String
+   is
       use type Filter.Set_Access;
    begin
       if T.Filters /= null then
@@ -794,7 +898,8 @@ package body Templates_Parser is
             for K in T.Filters'Range loop
                R := To_Unbounded_String
                  (T.Filters (K).Handle (To_String (R),
-                                        T.Filters (K).Parameters));
+                                        T.Filters (K).Parameters,
+                                        Translations));
             end loop;
 
             return To_String (R);
@@ -2787,7 +2892,8 @@ package body Templates_Parser is
 
                         when Std =>
                            if Var.Attr = Nil then
-                              return Translate (Var, To_String (Tk.Value));
+                              return Translate
+                                (Var, To_String (Tk.Value), Translations);
                            else
                               Exceptions.Raise_Exception
                                 (Template_Error'Identity,
@@ -2797,7 +2903,8 @@ package body Templates_Parser is
                         when Vect =>
                            if Var.Attr = Length then
                               --  'Length on a vector
-                              return Translate (Var, Vect_Size (Tk));
+                              return Translate
+                                (Var, Vect_Size (Tk), Translations);
 
                            elsif Var.Attr /= Nil then
                               Exceptions.Raise_Exception
@@ -2810,7 +2917,8 @@ package body Templates_Parser is
                               --  table tag statement), we display it as
                               --  a list separated by the specified
                               --  separator.
-                              return Translate (Var, Vect_List (Tk));
+                              return Translate
+                                (Var, Vect_List (Tk), Translations);
 
                            else
                               declare
@@ -2818,22 +2926,26 @@ package body Templates_Parser is
                                  Found  : Boolean;
                               begin
                                  Field (Tk.Vect_Value, State.J, Result, Found);
-                                 return Translate (Var, To_String (Result));
+                                 return Translate
+                                   (Var, To_String (Result), Translations);
                               end;
                            end if;
 
                         when Matrix =>
                            if Var.Attr = Line then
                               --  'Line on a matrix
-                              return Translate (Var, Mat_Line (Tk));
+                              return Translate
+                                (Var, Mat_Line (Tk), Translations);
 
                            elsif Var.Attr = Min_Column then
                               --  'Min_Column on a matrix
-                              return Translate (Var, Mat_Min_Column (Tk));
+                              return Translate
+                                (Var, Mat_Min_Column (Tk), Translations);
 
                            elsif Var.Attr = Max_Column then
                               --  'Max_Column on a matrix
-                              return Translate (Var, Mat_Max_Column (Tk));
+                              return Translate
+                                (Var, Mat_Max_Column (Tk), Translations);
 
                            elsif Var.Attr /= Nil then
                               Exceptions.Raise_Exception
@@ -2845,7 +2957,8 @@ package body Templates_Parser is
                               --  This is a matrix tag (outside of a
                               --  level 2 table tag statement), convert
                               --  it using Mat_List.
-                              return Translate (Var, Mat_List (Tk));
+                              return Translate
+                                (Var, Mat_List (Tk), Translations);
 
                            else
                               declare
@@ -2854,7 +2967,8 @@ package body Templates_Parser is
                               begin
                                  Field (Tk.Mat_Value, State.I, State.J,
                                         Result, Found);
-                                 return Translate (Var, To_String (Result));
+                                 return Translate
+                                   (Var, To_String (Result), Translations);
                               end;
                            end if;
                      end case;
@@ -2871,56 +2985,76 @@ package body Templates_Parser is
                if T_Name = "UP_TABLE_LINE" then
                   return Translate
                     (Var,
-                     Fixed.Trim (Positive'Image (State.I), Strings.Left));
+                     Fixed.Trim (Positive'Image (State.I), Strings.Left),
+                     Translations);
 
                elsif T_Name = "TABLE_LINE" then
                   return Translate
                     (Var,
-                     Fixed.Trim (Positive'Image (State.J), Strings.Left));
+                     Fixed.Trim (Positive'Image (State.J), Strings.Left),
+                     Translations);
 
                elsif T_Name = "NUMBER_LINE" then
                   return Translate
                     (Var,
                      Fixed.Trim (Positive'Image (State.Max_Lines),
-                                 Strings.Left));
+                                 Strings.Left),
+                     Translations);
 
                elsif T_Name = "TABLE_LEVEL" then
                   return Translate
                     (Var,
                      Fixed.Trim (Positive'Image (State.Table_Level),
-                                 Strings.Left));
+                                 Strings.Left),
+                     Translations);
 
                elsif T_Name = "YEAR" then
                   return Translate
-                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%Y"));
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%Y"),
+                     Translations);
 
                elsif T_Name = "MONTH" then
                   return Translate
-                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%m"));
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%m"),
+                     Translations);
 
                elsif T_Name = "DAY" then
                   return Translate
-                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%d"));
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%d"),
+                     Translations);
 
                elsif T_Name = "HOUR" then
                   return Translate
-                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%H"));
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%H"),
+                     Translations);
 
                elsif T_Name = "MINUTE" then
                   return Translate
-                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%M"));
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%M"),
+                     Translations);
 
                elsif T_Name = "SECOND" then
                   return Translate
-                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%S"));
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%S"),
+                     Translations);
 
                elsif T_Name = "MONTH_NAME" then
                   return Translate
-                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%B"));
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%B"),
+                     Translations);
 
                elsif T_Name = "DAY_NAME" then
                   return Translate
-                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%A"));
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%A"),
+                     Translations);
                end if;
             end;
 
