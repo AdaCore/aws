@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004                               --
---                               ACT-Europe                                 --
+--                            Copyright (C) 2004                            --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -30,7 +30,7 @@
 --
 --  $Id$
 --
---  Test for not found certificate file.
+--  Test for not found certificate file
 
 with AWS.Net.SSL;
 with Ada.Text_IO;
