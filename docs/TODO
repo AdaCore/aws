@@ -218,3 +218,5 @@ implemented:
 
 - Enhanced GPS integration by providing an XML file for the AWS runtime
   packages.
+
+- Fix/update the web_elements template comments.
