@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -377,7 +377,7 @@ package body AWS.Messages is
          C         : Integer;
          Y         : Integer := Calendar.Year (Date);
          M         : Integer := Calendar.Month (Date);
-         D         : Integer := Calendar.Day (Date);
+         D         : constant Integer := Calendar.Day (Date);
 
       begin
          --  Calculate day of week by using Zeller's congruence
