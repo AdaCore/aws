@@ -306,10 +306,10 @@ package body SOAP.Message.XML is
 
          elsif T = Types.XML_Undefined then
             return A_Undefined;
-         end if;
 
-         Error (Parse_Array.N,
-                "Wrong type or unsupported type in an array : " & A_Type);
+         else
+            return A_Undefined;
+         end if;
       end A_State;
 
       Name   : constant String := Local_Name (N);
