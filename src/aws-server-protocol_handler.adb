@@ -653,6 +653,13 @@ is
             --  Set Server_Filename, the name of the file in the local file
             --  sytstem.
 
+            if CNF.Upload_Directory (HTTP_Server.Properties) = "" then
+               Ada.Exceptions.Raise_Exception
+                 (Constraint_Error'Identity,
+                  "File upload not supported by server "
+                  & CNF.Server_Name (HTTP_Server.Properties));
+            end if;
+
             Server_Filename := To_Unbounded_String
               (Target_Filename (To_String (Filename)));
 
@@ -693,7 +700,7 @@ is
             end if;
 
          else
-            --  This part of the multipart message contains field value
+            --  This part of the multipart message contains field values
 
             declare
                Value : Unbounded_String;
