@@ -1,3 +1,8 @@
+2004-10-25  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-std__adasockets.adb:
+	(Connect): Minor code fix to be able to compile it.
+
 2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__gnat.adb, aws-net-std__adasockets.adb:
