@@ -411,6 +411,13 @@ upload3.tmp
 workorder
 workorder.res
 workorder.tmp
+wsdl4-client.adb
+wsdl4-client.ads
+wsdl4-server.adb
+wsdl4-server.ads
+wsdl4-types.adb
+wsdl4-types.ads
+wsdl4.ads
 wsdl_1.res
 wsdl_1.wsdl
 wsdl_1_main
