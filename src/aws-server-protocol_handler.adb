@@ -1358,25 +1358,21 @@ is
         or else (Length /= Response.Undefined_Length
                    and then Length < Small_File_Size)
       then
+         --  If content length is undefined and we handle an HTTP/1.0 protocol
+         --  then the end of the stream will be determined by closing the
+         --  connection. [RFC 1945 7.2.2] See the Will_Close local variable.
+
+         if Length /= Response.Undefined_Length then
+            Sockets.Put_Line (Sock, Messages.Content_Length (Length));
+         end if;
+
          --  Terminate header
 
-         if Length = Response.Undefined_Length then
-            --  This happen in case of user's defined stream for example.
-            --  Since the size can't be know in advance it is not possible to
-            --  support stream oriented data in HTTP/1.0. In such case we send
-            --  nothing.
+         Sockets.New_Line (Sock);
 
-            Sockets.Put_Line (Sock, Messages.Content_Length (0));
-            Sockets.New_Line (Sock);
-
-         else
-            Sockets.Put_Line (Sock, Messages.Content_Length (Length));
-            Sockets.New_Line (Sock);
-
-            if Method /= Status.HEAD then
-               Length := 0;
-               Send_File;
-            end if;
+         if Method /= Status.HEAD then
+            Length := 0;
+            Send_File;
          end if;
 
       else
