@@ -1,5 +1,8 @@
 2001-08-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-config.ads:
+	Style fix.
+
 	* makefile:
 	(clean): removes Emacs VC *~ files.
 	
