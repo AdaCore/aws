@@ -165,6 +165,9 @@ begin
       Put_Line ("Ok");
 
    else
-      Put_Line ("Nok - took " & Duration'Image (Elapsed));
+      Put_Line
+        ("Nok - Allowed "
+           & Duration'Image (Max_Time)
+           & "; took " & Duration'Image (Elapsed));
    end if;
 end Test_Speed;
