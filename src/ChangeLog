@@ -1,3 +1,32 @@
+2003-10-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	Change Set.Append_Encode by Set.Data_Encoding.
+	Minor reformatting.
+	
+	* aws-resources-streams-memory-zlib.adb:
+	(Append): Do not free the memory here. We do not want to create
+	 dangling pointers.
+
+	* aws-response-set.adb:
+	(Append_Encode): Renamed Data_Encoding.
+	(Data_Encoding): Was Append_Encode.
+	Minor reformatting.
+
+	* aws-response-set.ads:
+	(Encode_Direction): Renamed Encoding_Direction.
+	(Append_Encode): Renamed Data_Encoding.
+	(Data_Encoding): Was Append_Encode. Add lot of comments.
+
+	* aws-response.adb:
+	Change Set.Append_Encode by Set.Data_Encoding.
+
+	* aws-response.ads:
+	(Content_Encoding): Add comments.
+	(Message_Body): Remove pragma inline for version with
+	 Unbounded_String and Stream_Element_Array.
+	Reformat code.
+
 2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-response.ads:
