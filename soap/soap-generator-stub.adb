@@ -505,6 +505,8 @@ package body Stub is
 
       --  Spec
 
+      Text_IO.Put_Line (Stub_Ads, "pragma Warnings (Off);");
+      Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "with Ada.Calendar;");
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "with " & L_Name & ".Types;");
@@ -515,6 +517,8 @@ package body Stub is
 
       --  Body
 
+      Text_IO.Put_Line (Stub_Adb, "pragma Warnings (Off);");
+      Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "with Ada.Exceptions;");
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Client;");
