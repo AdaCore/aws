@@ -34,6 +34,8 @@
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 
+with AWS.Session;
+
 package AWS.Status is
 
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
@@ -58,6 +60,10 @@ package AWS.Status is
    procedure Set_Content_Type (D            : in out Data;
                                Content_Type : in     String);
    --  set value for "Content-Type:" parameter
+
+   procedure Set_Session (D  : in out Data;
+                          ID : in     String);
+   --  set Session to ID.
 
    procedure Set_File_Up_To_Date (D               : in out Data;
                                   File_Up_To_Date : in     Boolean);
@@ -107,6 +113,8 @@ package AWS.Status is
    function HTTP_Version           (D : in Data) return String;
    function If_Modified_Since      (D : in Data) return String;
    function Method                 (D : in Data) return Request_Method;
+   function Session                (D : in Data) return String;
+   function Session                (D : in Data) return AWS.Session.ID;
    function URI                    (D : in Data) return String;
 
    function Parameter_Name    (D : in Data; N : in Positive) return String;
@@ -153,6 +161,7 @@ private
       File_Up_To_Date   : Boolean := False;
       Auth_Name         : Unbounded_String;
       Auth_Password     : Unbounded_String;
+      Session_ID        : Unbounded_String;
    end record;
 
    No_Data : constant Data :=
@@ -167,6 +176,7 @@ private
       0,
       Null_Unbounded_String,
       False,
+      Null_Unbounded_String,
       Null_Unbounded_String,
       Null_Unbounded_String);
 
