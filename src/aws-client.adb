@@ -251,14 +251,15 @@ package body AWS.Client is
                   end loop;
 
                   Result := Response.Build (To_String (CT),
-                     To_String (Message),
-                     Status);
+                                            To_String (Message),
+                                            Status);
                else
 
                   --  this is some kind of binary data.
 
-                  Result := Response.Build (To_String (CT), Elements,
-                     Status);
+                  Result := Response.Build (To_String (CT),
+                                            Elements,
+                                            Status);
                end if;
             end;
          end if;
