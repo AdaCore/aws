@@ -238,4 +238,3 @@ package body AWS.Log is
    end Write;
 
 end AWS.Log;
-
