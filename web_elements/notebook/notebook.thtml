@@ -110,6 +110,7 @@
 div.@_$3_@        { border: 1px solid #ccc;
                     border-top: none;
                     display: none;
+                    background-color: @_$5_@;
                     padding: 1px 5px 10px 5px;
                     margin: 0px 10px 30px 0px; }
 div#@_$4_@        { display: block; }
