@@ -1136,8 +1136,8 @@ package body Templates_Parser is
       end case;
    end record;
 
-   procedure Release (T : in out Tree);
-   --  Release all memory associated with the tree.
+   procedure Release (T : in out Tree; Include : in Boolean := True);
+   --  Release all memory associated with the tree
 
    procedure Free is new Ada.Unchecked_Deallocation (Node, Tree);
 
@@ -3736,11 +3736,10 @@ package body Templates_Parser is
 
       Analyze (T.C_Info, Empty_State);
 
-      if not Cached then
-         Release (T.Info);
-
-      else
+      if Cached then
          Cached_Files.Prot.Release (T);
+      else
+         Release (T.Info);
       end if;
 
       --  Flush buffer and return result
@@ -3754,7 +3753,7 @@ package body Templates_Parser is
    -- Release --
    -------------
 
-   procedure Release (T : in out Tree) is
+   procedure Release (T : in out Tree; Include : in Boolean := True) is
    begin
       if T = null then
          return;
@@ -3773,46 +3772,44 @@ package body Templates_Parser is
                end loop;
             end;
 
-            Release (T.Next);
-            Free (T);
+            Release (T.Next, Include);
 
          when C_Info =>
-            Release (T.Next);
-            Free (T);
+            Release (T.Next, Include);
 
          when Text =>
             Data.Release (T.Text);
-            Release (T.Next);
-            Free (T);
+            Release (T.Next, Include);
 
          when If_Stmt  =>
             Expr.Release (T.Cond);
-            Release (T.N_True);
-            Release (T.N_False);
-            Release (T.Next);
-            Free (T);
+            Release (T.N_True, Include);
+            Release (T.N_False, Include);
+            Release (T.Next, Include);
 
          when Table_Stmt =>
-            Release (T.Sections);
-            Release (T.Next);
-            Free (T);
+            Release (T.Sections, Include);
+            Release (T.Next, Include);
 
          when Section_Stmt =>
-            Release (T.Next);
-            Release (T.N_Section);
-            Free (T);
+            Release (T.Next, Include);
+            Release (T.N_Section, Include);
 
          when Include_Stmt =>
-            T.File.Info.Ref := T.File.Info.Ref - 1;
 
-            if T.File.Info.Ref = 0 then
-               --  No more reference to this include file we release it.
-               Release (T.File.Info);
+            if Include then
+               T.File.Info.Ref := T.File.Info.Ref - 1;
+
+               if T.File.Info.Ref = 0 then
+                  --  No more reference to this include file we release it
+                  Release (T.File.Info, Include);
+               end if;
             end if;
 
-            Release (T.Next);
-            Free (T);
+            Release (T.Next, Include);
       end case;
+
+      Free (T);
    end Release;
 
    ------------------------
