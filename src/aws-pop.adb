@@ -1,0 +1,671 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                       P O P - Post Office Protocol                       --
+--                                                                          --
+--                            Copyright (C) 2003                            --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $Id$
+
+with Ada.Exceptions;
+with AWS.Headers.Set;
+with Ada.Streams.Stream_IO;
+with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
+
+with AWS.Messages;
+with AWS.Net.Buffered;
+with AWS.Translator;
+with AWS.Utils;
+
+package body AWS.POP is
+
+   use Ada.Exceptions;
+
+   --  MIME Headers
+
+   Content_Transfer_Encoding : constant String := "Content-Transfer-Encoding";
+   Content_Disposition       : constant String := "Content-Disposition";
+
+   procedure Check_Response (Response : in String);
+   --  Checks server's response, raise POP_Error with server's message
+
+   ------------
+   -- Adjust --
+   ------------
+
+   procedure Adjust (Attachment : in out POP.Attachment) is
+   begin
+      Attachment.Ref_Count.all := Attachment.Ref_Count.all + 1;
+   end Adjust;
+
+   procedure Adjust (Message : in out POP.Message) is
+   begin
+      Message.Ref_Count.all := Message.Ref_Count.all + 1;
+   end Adjust;
+
+   ----------------------
+   -- Attachment_Count --
+   ----------------------
+
+   function Attachment_Count (Message : in POP.Message) return Natural is
+      Count : Natural := 0;
+      Ptr   : Attachment_Access := Message.Attachments;
+   begin
+      while Ptr /= null loop
+         Count := Count + 1;
+         Ptr := Ptr.Next;
+      end loop;
+
+      return Count;
+   end Attachment_Count;
+
+   --------------------
+   -- Check_Response --
+   --------------------
+
+   procedure Check_Response (Response : in String) is
+   begin
+      if Response'Length > 3
+        and then Response (Response'First .. Response'First + 3) = "-ERR"
+      then
+         Raise_Exception
+           (POP_Error'Identity,
+            Response (Response'First + 5 .. Response'Last));
+      end if;
+   end Check_Response;
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close (Server : in POP.Server) is
+   begin
+      --  Send command
+
+      Net.Buffered.Put_Line (Server.Sock, "QUIT");
+
+      declare
+         Response : constant String
+           := Net.Buffered.Get_Line (Server.Sock);
+      begin
+         Check_Response (Response);
+      end;
+
+      Net.Std.Shutdown (Server.Sock);
+
+   exception
+      when POP_Error =>
+         Net.Std.Shutdown (Server.Sock);
+         raise;
+   end Close;
+
+   -------------
+   -- Content --
+   -------------
+
+   function Content (Message : in POP.Message) return Unbounded_String is
+   begin
+      return Message.Content;
+   end Content;
+
+   function Content
+     (Attachment : in POP.Attachment)
+      return AWS.Resources.Streams.Memory.Stream_Type is
+   begin
+      return AWS.Resources.Streams.Memory.Stream_Type (Attachment.Content.all);
+   end Content;
+
+   function Content (Attachment : in POP.Attachment) return Unbounded_String is
+      use AWS.Resources.Streams;
+
+      Stream : Stream_Type renames Stream_Type (Attachment.Content.all);
+
+      Result : Unbounded_String;
+      Buffer : Streams.Stream_Element_Array (1 .. 4_096);
+      Last   : Streams.Stream_Element_Offset;
+
+   begin
+      if Is_File (Attachment) then
+         Raise_Exception
+           (Constraint_Error'Identity,
+            "This is a file attachment, can't return unbounded_string");
+      end if;
+
+      Memory.Reset (Stream);
+
+      while not Memory.End_Of_File (Stream) loop
+         Memory.Read (Stream, Buffer, Last);
+         Append (Result, Translator.To_Unbounded_String (Buffer (1 .. Last)));
+      end loop;
+
+      return Result;
+   end Content;
+
+   ----------
+   -- Date --
+   ----------
+
+   function Date (Message : in POP.Message) return String is
+   begin
+      return Header (Message, "Date");
+   end Date;
+
+   --------------
+   -- Filename --
+   --------------
+
+   function Filename (Attachment : in POP.Attachment) return String is
+   begin
+      return To_String (Attachment.Filename);
+   end Filename;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Attachment : in out POP.Attachment) is
+      procedure Free is new Unchecked_Deallocation
+        (AWS.Resources.Streams.Stream_Type'Class,
+         AWS.Resources.Streams.Stream_Access);
+   begin
+      Attachment.Ref_Count.all := Attachment.Ref_Count.all + 1;
+
+      if Attachment.Ref_Count.all = 0 then
+         Headers.Set.Free (Attachment.Headers);
+         AWS.Resources.Streams.Memory.Close
+           (Stream_Type (Attachment.Content.all));
+         Free (Attachment.Content);
+      end if;
+   end Finalize;
+
+   procedure Finalize (Message : in out POP.Message) is
+      A : Attachment_Access := Message.Attachments;
+   begin
+      Message.Ref_Count.all := Message.Ref_Count.all + 1;
+
+      if Message.Ref_Count.all = 0 then
+         Headers.Set.Free (Message.Headers);
+      end if;
+
+      while A /= null loop
+         Finalize (A.all);
+         A := A.Next;
+      end loop;
+   end Finalize;
+
+   --------------------------
+   -- For_Every_Attachment --
+   --------------------------
+
+   procedure For_Every_Attachment (Message : in POP.Message) is
+      P : Attachment_Access := Message.Attachments;
+      Quit : Boolean := False;
+   begin
+      while P /= null loop
+         Action (P.all, Quit);
+         exit when Quit;
+         P := P.Next;
+      end loop;
+   end For_Every_Attachment;
+
+   -----------------------
+   -- For_Every_Message --
+   -----------------------
+
+   procedure For_Every_Message
+     (Server : in POP.Server;
+      Remove : in Boolean := False)
+   is
+      Mess : Message;
+      Quit : Boolean := False;
+   begin
+      for K in 1 .. Server.Message_Count loop
+         Mess := Get (Server, K, Remove);
+         Action (Mess, Quit);
+
+         exit when Quit = True;
+      end loop;
+   end For_Every_Message;
+
+   ----------
+   -- From --
+   ----------
+
+   function From (Message : in POP.Message) return String is
+   begin
+      return Header (Message, "From");
+   end From;
+
+   ---------
+   -- Get --
+   ---------
+
+   function Get
+     (Server : in POP.Server;
+      N      : in Positive;
+      Remove : in Boolean    := False)
+      return Message
+   is
+
+      procedure Get
+        (Server     : in     POP.Server;
+         Boundary   : in     String;
+         Attachment :    out POP.Attachment;
+         Last       :    out Boolean);
+
+      ---------
+      -- Get --
+      ---------
+
+      procedure Get
+        (Server     : in     POP.Server;
+         Boundary   : in     String;
+         Attachment :    out POP.Attachment;
+         Last       :    out Boolean)
+      is
+         End_Boundary : constant String := Boundary & "--";
+         Base64       : Boolean := False;
+      begin
+         Attachment.Content := new Stream_Type;
+
+         --  Read headers
+
+         AWS.Headers.Set.Read (Server.Sock, Attachment.Headers);
+
+         --  Check Base64 encoding
+
+         Base64 := Headers.Get
+           (Attachment.Headers,
+            Content_Transfer_Encoding) = "base64";
+
+         --  Check for filename
+
+         declare
+            Filename : constant String
+              := Headers.Get_Field_Value
+                   (Attachment.Headers, Content_Disposition, "filename");
+         begin
+            if Filename /= "" then
+               Attachment.Filename := To_Unbounded_String (Filename);
+            end if;
+         end;
+
+         --  Read content
+
+         loop
+            declare
+               Response : constant String
+                 := Net.Buffered.Get_Line (Server.Sock);
+            begin
+               Last := Response = End_Boundary;
+
+               exit when Response = Boundary or else Last;
+
+               if Base64 then
+                  AWS.Resources.Streams.Memory.Append
+                    (Stream_Type (Attachment.Content.all),
+                     Translator.Base64_Decode (Response));
+               else
+                  AWS.Resources.Streams.Memory.Append
+                    (Stream_Type (Attachment.Content.all),
+                     Translator.To_Stream_Element_Array (Response));
+               end if;
+            end;
+         end loop;
+      end Get;
+
+      Mess     : Message;
+      Boundary : Unbounded_String;
+
+   begin
+      --  Send command
+
+      Net.Buffered.Put_Line (Server.Sock, "RETR " & Utils.Image (N));
+
+      declare
+         Response : constant String
+           := Net.Buffered.Get_Line (Server.Sock);
+      begin
+         Check_Response (Response);
+      end;
+
+      --  Read headers
+
+      AWS.Headers.Set.Read (Server.Sock, Mess.Headers);
+
+      --  Check for MIME message
+
+      declare
+         Boundary_Field : constant String
+           := Headers.Get_Field_Value
+                (Mess.Headers, Messages.Content_Type_Token, "boundary");
+      begin
+         if Boundary_Field /= "" then
+            Boundary := To_Unbounded_String ("--" & Boundary_Field);
+         end if;
+      end;
+
+      if Boundary = Null_Unbounded_String then
+         --  Read content
+
+         loop
+            declare
+               Response : constant String
+                 := Net.Buffered.Get_Line (Server.Sock);
+            begin
+               exit when Response = ".";
+               Append (Mess.Content, Response & ASCII.CR & ASCII.LF);
+            end;
+         end loop;
+
+      else
+         --  Skip first boundary
+
+         loop
+            declare
+               Response : constant String
+                 := Net.Buffered.Get_Line (Server.Sock);
+            begin
+               exit when Response = To_String (Boundary);
+            end;
+         end loop;
+
+         --  Read all attachments
+
+         loop
+            declare
+               A    : Attachment;
+               Last : Boolean;
+            begin
+               Get (Server, To_String (Boundary), A, Last);
+
+               if Mess.Last = null then
+                  Mess.Attachments := new Attachment'(A);
+                  Mess.Last        := Mess.Attachments;
+               else
+                  Mess.Last.Next   := new Attachment'(A);
+                  Mess.Last        := Mess.Last.Next;
+               end if;
+
+               exit when Last;
+            end;
+         end loop;
+      end if;
+
+      --  Remove message from server
+
+      if Remove then
+         Net.Buffered.Put_Line (Server.Sock, "DELE " & Utils.Image (N));
+
+         declare
+            Response : constant String
+              := Net.Buffered.Get_Line (Server.Sock);
+         begin
+            Check_Response (Response);
+         end;
+      end if;
+
+      return Mess;
+   end Get;
+
+   function Get
+     (Message    : in POP.Message'Class;
+      Attachment : in Positive)
+      return Attachment
+   is
+      P : Attachment_Access := Message.Attachments;
+   begin
+      for K in 2 .. Attachment loop
+
+         if P = null then
+            Raise_Exception
+              (Constraint_Error'Identity, "No such attachment");
+         end if;
+
+         P := P.Next;
+      end loop;
+
+      return P.all;
+   end Get;
+
+   ------------
+   -- Header --
+   ------------
+
+   function Header
+     (Message : in POP.Message;
+      Header  : in String)
+      return String is
+   begin
+      return Headers.Get (Message.Headers, Header);
+   end Header;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (Message : in out POP.Message) is
+   begin
+      Message.Ref_Count := new Natural'(0);
+   end Initialize;
+
+   procedure Initialize (Attachment : in out POP.Attachment) is
+   begin
+      Attachment.Ref_Count := new Natural'(0);
+   end Initialize;
+
+   function Initialize
+     (Server_Name  : in String;
+      User         : in String;
+      Password     : in String;
+      Authenticate : in Authenticate_Mode := APOP;
+      Port         : in Positive          := Default_POP_Port)
+      return Server
+   is
+      Timestamp  : Unbounded_String;
+      POP_Server : Server;
+   begin
+      POP_Server.Name := To_Unbounded_String (Server_Name);
+      POP_Server.Sock := Net.Std.Socket_Type (Net.Socket (False).all);
+
+      --  Connect to the server
+
+      Net.Std.Connect (POP_Server.Sock, Server_Name, Port);
+
+      declare
+         Response : constant String
+           := Net.Buffered.Get_Line (POP_Server.Sock);
+      begin
+         Check_Response (Response);
+
+         --  Everything ok, let's retreive the timestamp if present
+
+         if Authenticate = APOP then
+            declare
+               First, Last : Natural;
+            begin
+               First := Strings.Fixed.Index (Response, "<", Strings.Backward);
+               Last  := Strings.Fixed.Index (Response, ">", Strings.Backward);
+
+               if First /= 0 and then Last /= 0 then
+                  Timestamp := To_Unbounded_String (Response (First .. Last));
+               else
+                  Raise_Exception
+                    (POP_Error'Identity,
+                     "APOP authentication not supported by server.");
+               end if;
+            end;
+         end if;
+      end;
+
+      --  Authenticate
+
+      if Authenticate = Clear_Text then
+
+         Net.Buffered.Put_Line (POP_Server.Sock, "USER " & User);
+
+         declare
+            Response : constant String
+              := Net.Buffered.Get_Line (POP_Server.Sock);
+         begin
+            Check_Response (Response);
+         end;
+
+         Net.Buffered.Put_Line (POP_Server.Sock, "PASS " & Password);
+
+         declare
+            Response : constant String
+              := Net.Buffered.Get_Line (POP_Server.Sock);
+         begin
+            Check_Response (Response);
+         end;
+
+      else
+         Net.Buffered.Put_Line
+           (POP_Server.Sock, "APOP " & User
+              & AWS.Utils.Get_MD5 (To_String (Timestamp) & Password));
+
+         declare
+            Response : constant String
+              := Net.Buffered.Get_Line (POP_Server.Sock);
+         begin
+            Check_Response (Response);
+         end;
+      end if;
+
+      --  Checks for mailbox's content
+
+      Net.Buffered.Put_Line (POP_Server.Sock, "STAT");
+
+      declare
+         Response : constant String
+           := Net.Buffered.Get_Line (POP_Server.Sock);
+      begin
+         Check_Response (Response);
+
+         declare
+            K : Natural;
+         begin
+            K := Strings.Fixed.Index (Response, " ", Strings.Backward);
+
+            POP_Server.Message_Count
+              := Natural'Value (Response (Response'First + 4 .. K - 1));
+            POP_Server.Mailbox_Size
+              := Natural'Value (Response (K + 1 .. Response'Last));
+         end;
+      end;
+
+      return POP_Server;
+
+   exception
+      when POP_Error =>
+         Net.Std.Shutdown (POP_Server.Sock);
+         raise;
+   end Initialize;
+
+   -------------
+   -- Is_File --
+   -------------
+
+   function Is_File (Attachment : in POP.Attachment) return Boolean is
+   begin
+      return Attachment.Filename /= Null_Unbounded_String;
+   end Is_File;
+
+   ------------------
+   -- Mailbox_Size --
+   ------------------
+
+   function Mailbox_Size (Server : in POP.Server) return Natural is
+   begin
+      return Server.Mailbox_Size;
+   end Mailbox_Size;
+
+   -------------------
+   -- Message_Count --
+   -------------------
+
+   function Message_Count (Server : in POP.Server) return Natural is
+   begin
+      return Server.Message_Count;
+   end Message_Count;
+
+   -------------
+   -- Subject --
+   -------------
+
+   function Subject (Message : in POP.Message) return String is
+   begin
+      return Header (Message, "Subject");
+   end Subject;
+
+   ---------------
+   -- User_Name --
+   ---------------
+
+   function User_Name (Server : in POP.Server) return String is
+   begin
+      return To_String (Server.User_Name);
+   end User_Name;
+
+   -----------
+   -- Write --
+   -----------
+
+   procedure Write (Attachment : in POP.Attachment; Directory : in String) is
+      use Streams;
+      use AWS.Resources.Streams;
+
+      Stream : Stream_Type renames Stream_Type (Attachment.Content.all);
+
+      File   : Stream_IO.File_Type;
+      Buffer : Streams.Stream_Element_Array (1 .. 4_096);
+      Last   : Streams.Stream_Element_Offset;
+
+   begin
+      if not Is_File (Attachment) then
+         Raise_Exception
+           (Constraint_Error'Identity,
+            "This is not a file attachment, can't write content to a file.");
+      end if;
+
+      Stream_IO.Create
+        (File, Stream_IO.Out_File,
+         Directory & "/" & To_String (Attachment.Filename));
+
+      Memory.Reset (Stream);
+
+      while not Memory.End_Of_File (Stream) loop
+         Memory.Read (Stream, Buffer, Last);
+         Stream_IO.Write (File, Buffer (1 .. Last));
+      end loop;
+
+      Stream_IO.Close (File);
+   end Write;
+
+end AWS.POP;
