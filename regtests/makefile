@@ -132,13 +132,11 @@ endif
 
 init:
 	cp ../demos/cert.pem .
-	touch -t `date --date='Feb 3 04:05:00 GMT 2001' +%Y%m%d%H%M` \
-	   ../icons/*.gif
+	touch -t 200102030505 ../icons/*.gif
 	-mkdir ../icons/test-dir1 2> /dev/null
 	-mkdir ../icons/test-dir2 2> /dev/null
 	-mkdir ../icons/test-dir3 2> /dev/null
-	touch -t `date --date='Jan 2 03:04:00 GMT 2004' +%Y%m%d%H%M` \
-	   ../icons/test-dir?
+	touch -t 200401020404 ../icons/test-dir?
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
 	-rm file[abc].txt* > /dev/null 2>&1
