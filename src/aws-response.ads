@@ -28,6 +28,9 @@
 
 --  $Id$
 
+--  This package is to be used to build answer to be sent to the client
+--  browser.
+
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 
@@ -38,7 +41,7 @@ package AWS.Response is
 
    use Ada;
 
-   --  ??? this package should certainly be rewritten using an OO design using
+   --  ??? This package should certainly be rewritten using an OO design using
    --  a set of tagged objects
 
    type Data is private;
@@ -50,40 +53,83 @@ package AWS.Response is
    --  This is a template message, _@_ will be replaced by the Location (see
    --  function Build with Location below).
 
+   --
+   --  Constructors
+   --
+
    function Build (Content_Type : in String;
                    Message_Body : in String;
                    Status_Code  : in Messages.Status_Code := Messages.S200)
                   return Data;
+   --  Return a message whose body is passed into Message_Body. The
+   --  Content_Type parameter is the MIME type for the message
+   --  body. Status_Code is the response status (see Messages.Status_Code
+   --  definition).
 
    function Build (Content_Type : in String;
                    Message_Body : in Streams.Stream_Element_Array;
                    Status_Code  : in Messages.Status_Code := Messages.S200)
                   return Data;
+   --  Idem above, but the message body is a stream element array.
 
    function Moved (Location     : in String;
                    Message      : in String := Default_Moved_Message)
                   return Data;
+   --  This send back a moved message (Messages.S301) whithe the specified
+   --  message body.
 
    function Acknowledge (Status_Code  : in Messages.Status_Code;
                          Message_Body : in String := "";
                          Content_Type : in String := "text/html")
      return Data;
+   --  Returns a message to the Web browser. This routine must be used to
+   --  send back an error message to the Web browser. For example if a
+   --  requested resource cannot be served a message with status code S404
+   --  must be sent.
 
    function Authenticate (Realm : in String) return Data;
+   --  Returns an authentification message (Messages.S401), the Web browser
+   --  will then ask for an authentification. Realm string will be displayed
+   --  by the Web Browser in the authentification dialog box.
 
    function File (Content_Type : in String;
                   Filename     : in String) return Data;
+   --  Returns a message whose message body is the content of the file. The
+   --  Content_Type must indicate the MIME type for the file.
+
+   --
+   --  Other API
+   --
 
    function Mode           (D : in Data) return Data_Mode;
+   --  Returns the data mode, either Header, Message or File.
+
    function Status_Code    (D : in Data) return Messages.Status_Code;
+   --  Returns the status code.
+
    function Content_Length (D : in Data) return Natural;
+   --  Returns the content length (i.e. the message body length). A value of 0
+   --  indicate that there is no message body.
+
    function Content_Type   (D : in Data) return String;
+   --  Returns the MIME type for the message body.
+
    function Location       (D : in Data) return String;
+   --  Returns the location for the new page in the case of a moved
+   --  message. See Moved constructor above.
+
    function Message_Body   (D : in Data) return String;
+   --  Returns the message body content as a string.
+
    function Realm          (D : in Data) return String;
+   --  Returns the Realm for the current authentification request.
+
    function Binary         (D : in Data) return Streams.Stream_Element_Array;
+   --  Returns the binary message body content.
 
    type Callback is access function (Request : in Status.Data) return Data;
+   --  This is the Web Server Callback procedure. A client must declare and
+   --  pass such procedure to the HTTP record.
 
    Default_Handler : constant Callback := null;
 
