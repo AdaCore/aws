@@ -451,31 +451,11 @@ package body AWS.Server is
       --  furthermore this will help terminate all lines (see below).
 
       Net.Std.Shutdown (Web_Server.Sock);
-      Net.Std.Free (Web_Server.Sock);
-
-      --  Release the cleaner task
-
-      abort Web_Server.Cleaner.all;
-
-      --  Wait for Cleaner task to terminate to be able to release associated
-      --  memory.
-
-      while not Web_Server.Cleaner'Terminated loop
-         delay 0.5;
-      end loop;
-
-      Free (Web_Server.Cleaner);
 
       --  Release the slots
 
       for S in 1 .. Web_Server.Slots.N loop
          Web_Server.Slots.Shutdown (S);
-      end loop;
-
-      --  Terminate all the lines.
-
-      for K in Web_Server.Lines'Range loop
-         abort Web_Server.Lines (K).all;
       end loop;
 
       --  Wait for all lines to be terminated to be able to release associated
@@ -493,13 +473,28 @@ package body AWS.Server is
          delay 0.5;
       end loop;
 
+      --  Release the cleaner task
+
+      abort Web_Server.Cleaner.all;
+
+      --  Wait for Cleaner task to terminate to be able to release associated
+      --  memory.
+
+      while not Web_Server.Cleaner'Terminated loop
+         delay 0.5;
+      end loop;
+
       --  Release lines and slots memory
 
       for K in Web_Server.Lines'Range loop
          Free (Web_Server.Lines (K));
       end loop;
 
+      Net.Std.Free (Web_Server.Sock);
+
       Free (Web_Server.Lines);
+
+      Free (Web_Server.Cleaner);
 
       Free (Web_Server.Slots);
 
