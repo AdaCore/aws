@@ -34,12 +34,8 @@
 
 with Ada.Strings.Fixed;
 with Ada.Text_IO.Editing;
-with Ada.Exceptions;
 
 with AWS.Client;
-with AWS.Messages;
-with AWS.MIME;
-with AWS.OS_Lib;
 with AWS.Parameters;
 with AWS.Response;
 with AWS.Server.Push;
@@ -54,6 +50,9 @@ package body Sp_Pck is
 
    type Push_Data_Type is delta 0.01 digits 7;
 
+   CRLF        : constant String := ASCII.CR & ASCII.LF;
+   End_Of_Part : constant String := '.' & CRLF;
+
    function Image
      (Data : in Push_Data_Type;
       Env  : in Text_IO.Editing.Picture)
@@ -65,29 +64,9 @@ package body Sp_Pck is
       Client_Environment => Text_IO.Editing.Picture,
       To_Stream_Output   => Image);
 
-   package Format is new Text_IO.Editing.Decimal_Output (Push_Data_Type);
-
-   CRLF        : constant String := ASCII.CR & ASCII.LF;
-   End_Of_Part : constant String := '.' & CRLF;
-
    function CB (Request : in Status.Data) return Response.Data;
 
-   Connect     : array (Server_Push.Mode'Range) of Client.HTTP_Connection;
    Push        : Server_Push.Object;
-   Answer      : AWS.Response.Data;
-
-   Data        : Push_Data_Type;
-
-   Picture : array (Server_Push.Mode) of Editing.Picture
-     := (Server_Push.Plain     => Editing.To_Picture ("999999.99"),
-         Server_Push.Chunked   => Editing.To_Picture ("##_##9.99"),
-         Server_Push.Multipart => Editing.To_Picture ("zzzzz9.99"));
-
-   procedure Output (Data : String);
-   --  Ignore random string --AWS.Push.Boundary_1044468257,
-   --  and by the way ignore ASCII.CR becouse on the Win32 platform
-   --  the Ada.Text_IO.Put_Line add the ASCII.CR before ASCII.LF even so
-   --  the ASCII.CR already exists before ASCII.LF.
 
    --------
    -- CB --
@@ -98,6 +77,11 @@ package body Sp_Pck is
       P_List     : constant List := AWS.Status.Parameters (Request);
       Mode_Image : String := Get (P_List, "mode");
       Mode_Value : Server_Push.Mode := Server_Push.Mode'Value (Mode_Image);
+
+      Picture : array (Server_Push.Mode) of Editing.Picture
+        := (Server_Push.Plain     => Editing.To_Picture ("999999.99"),
+            Server_Push.Chunked   => Editing.To_Picture ("##_##9.99"),
+            Server_Push.Multipart => Editing.To_Picture ("zzzzz9.99"));
    begin
       Server_Push.Register
         (Server      => Push,
@@ -113,9 +97,48 @@ package body Sp_Pck is
    ---------
 
    procedure Run (Protocol : in String; Port : in Positive) is
+      Connect : array (Server_Push.Mode'Range) of Client.HTTP_Connection;
+      Answer  : AWS.Response.Data;
+      Data    : Push_Data_Type;
+
       HTTP : AWS.Server.HTTP;
       URL  : constant String
         := Protocol & "://localhost:" & AWS.Utils.Image (Port);
+
+      procedure Output (Data : String);
+      --  Ignore random string --AWS.Push.Boundary_1044468257,
+      --  and by the way ignore ASCII.CR becouse on the Win32 platform
+      --  the Ada.Text_IO.Put_Line add the ASCII.CR before ASCII.LF even so
+      --  the ASCII.CR already exists before ASCII.LF.
+
+      ------------
+      -- Output --
+      ------------
+
+      procedure Output (Data : in String) is
+         Ignore_Sample : constant String := "--AWS.Push.Boundary_";
+         use Ada.Strings;
+         First : Positive := Data'First;
+         Index : Natural;
+      begin
+         loop
+            Index := Fixed.Index (Data (First .. Data'Last), CRLF);
+            if Index = 0 then
+               Put (Data (First .. Data'Last));
+               exit;
+            else
+               if Index - First < Ignore_Sample'Length
+                 or else Data (First .. First + Ignore_Sample'Length - 1)
+                          /= Ignore_Sample
+               then
+                  Put_Line (Data (First .. Index - 1));
+               end if;
+               First := Index + CRLF'Length;
+            end if;
+            exit when First > Data'Last;
+         end loop;
+      end Output;
+
    begin
       AWS.Server.Start
         (HTTP,
@@ -187,37 +210,11 @@ package body Sp_Pck is
    function Image
      (Data : in Push_Data_Type;
       Env  : in Text_IO.Editing.Picture)
-      return String is
+      return String
+   is
+      package Format is new Text_IO.Editing.Decimal_Output (Push_Data_Type);
    begin
       return Format.Image (Data, Env) & End_Of_Part;
    end Image;
-
-   ------------
-   -- Output --
-   ------------
-
-   procedure Output (Data : in String) is
-      Ignore_Sample : constant String := "--AWS.Push.Boundary_";
-      use Ada.Strings;
-      First : Positive := Data'First;
-      Index : Natural;
-   begin
-      loop
-         Index := Fixed.Index (Data (First .. Data'Last), CRLF);
-         if Index = 0 then
-            Put (Data (First .. Data'Last));
-            exit;
-         else
-            if Index - First < Ignore_Sample'Length
-              or else Data (First .. First + Ignore_Sample'Length - 1)
-                       /= Ignore_Sample
-            then
-               Put_Line (Data (First .. Index - 1));
-            end if;
-            First := Index + CRLF'Length;
-         end if;
-         exit when First > Data'Last;
-      end loop;
-   end Output;
 
 end Sp_Pck;
