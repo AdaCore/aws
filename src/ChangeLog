@@ -1,3 +1,46 @@
+2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads:
+	Minor layout fix.
+	Update copyright notice.
+
+	* aws-server-status.ads, aws-server-status.adb:
+	(Resources_Served): New routine.
+	(Current_Connections): Idem.
+	(Is_Session_Activated): Idem.
+	(Is_Security_Activated): Idem.
+	(Is_Shutdown): Idem.
+
+	* aws-status-set.adb:
+	Minor reformatting.
+	Minor comment fix.
+	
+	* aws-status-set.ads:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-server-protocol_handler.adb:
+	Use Has_Session instead of direct test of the session
+	 data. Code Clean-up. Call Increment_Slot_Activity_Counter after
+	 getting some data from the client (after Get_Message_Header) to
+	 ensure that the counters will be updated only if a request has
+	 been received.
+	Minor reformatting.
+
+2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-status.ads:
+	Fix typos.
+
+	* aws-services-directory.adb, aws-status-set.ads, aws-session.adb:
+	Fix typos.
+
+	* aws-server.ads, aws-server-protocol_handler.adb, aws-ldap-client.ads:
+	Fix typos.
+
+	* aws-client.ads, aws-config-set.ads, aws-config-set.ads:
+	Fix typos.
+
 2003-09-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response-set.adb:
