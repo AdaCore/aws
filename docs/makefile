@@ -1,6 +1,8 @@
 
 # $Id$
 
+.SILENT: clean build
+
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record
 
