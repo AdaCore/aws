@@ -90,6 +90,10 @@ Here are the main changes since AWS 1.3 :
    - Properly handle SOAPAction in SOAP persistent connections. It was not
      possible to change the SOAPAction value for each request.
 
+   - Change AWS.Client.SOAP_Post and SOAP.Client.Call spec for the persistent
+     connection cases. This is not upward compatible but easier to use. The
+     calls were passing the persitent connection using an access mode.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
