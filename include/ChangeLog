@@ -3,6 +3,7 @@
 	* memory_streams.ads,  memory_streams.adb:
 	(Append): New parameter Allow_Free for be able to append pointer to
 	 static data.
+	(Append): Do nothing in case of null data length.
 
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
