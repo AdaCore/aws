@@ -123,16 +123,6 @@ package body AWS.Resources.Streams.ZLib is
       ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
    end Inflate_Initialize;
 
-   -------------------
-   -- Is_Compressed --
-   -------------------
-
-   function Is_Compressed (Resource : in Stream_Type) return Boolean is
-      pragma Unreferenced (Resource);
-   begin
-      return True;
-   end Is_Compressed;
-
    ----------
    -- Read --
    ----------
