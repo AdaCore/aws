@@ -131,13 +131,13 @@ procedure Tclientto is
    -------------------
 
    procedure Alive_Request is
-      R : Response.Data;
+      R       : Response.Data;
       Connect : Client.HTTP_Connection;
    begin
       Client.Create
         (Connection => Connect,
          Host       => "http://localhost:7645",
-         Timeouts => (0, 5));
+         Timeouts   => (0, 5));
 
       Client.Get (Connect, R, "/3sec");
       Put_Line ("-> " & Response.Message_Body (R));
