@@ -195,5 +195,3 @@ implemented:
 
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
-
-- Document ada2wsdl main template feature
