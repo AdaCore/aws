@@ -1,8 +1,10 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2001                            --
---                      Dmitriy Anisimov - Pascal Obry                      --
+--                         Copyright (C) 2000-2001                          --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimov - Pascal Obry                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
