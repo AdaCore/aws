@@ -114,6 +114,19 @@ package body SOAP.Types is
       O.Ref_Counter.all := O.Ref_Counter.all + 1;
    end Adjust;
 
+   ---------
+   -- Any --
+   ---------
+
+   function Any
+     (V    : in Object'Class;
+      Name : in String := "item") return XSD_Any_Type is
+   begin
+      return
+        (Finalization.Controlled
+         with To_Unbounded_String (Name), +V);
+   end Any;
+
    -------
    -- B --
    -------
@@ -185,7 +198,7 @@ package body SOAP.Types is
 
    procedure Finalize (O : in out Object_Safe_Pointer) is
       procedure Free is
-         new Ada.Unchecked_Deallocation (Object'Class, Object_Access);
+        new Ada.Unchecked_Deallocation (Object'Class, Object_Access);
    begin
       if O.O /= null then
          Free (O.O);
@@ -205,6 +218,12 @@ package body SOAP.Types is
    ---------
    -- Get --
    ---------
+
+   function Get (O : in Object'Class) return XSD_Any_Type is
+      use type Ada.Tags.Tag;
+   begin
+      return Any (O, Name (O));
+   end Get;
 
    function Get (O : in Object'Class) return Integer is
       use type Ada.Tags.Tag;
@@ -381,6 +400,11 @@ package body SOAP.Types is
       pragma Warnings (Off, O);
    begin
       return "";
+   end Image;
+
+   function Image (O : in XSD_Any_Type) return String is
+   begin
+      return Image (O.O.O.all);
    end Image;
 
    function Image (O : in XSD_Integer) return String is
@@ -679,6 +703,11 @@ package body SOAP.Types is
    -- V --
    -------
 
+   function V (O : in XSD_Any_Type) return Object_Access is
+   begin
+      return O.O.O;
+   end V;
+
    function V (O : in XSD_Integer) return Integer is
    begin
       return O.V;
@@ -781,6 +810,11 @@ package body SOAP.Types is
            & Image (OC)
            & "</" & Name (OC) & '>';
       end if;
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Any_Type) return String is
+   begin
+      return XML_Image (Object (O.O.O.all));
    end XML_Image;
 
    function XML_Image (O : in XSD_Integer) return String is
@@ -997,6 +1031,12 @@ package body SOAP.Types is
       pragma Warnings (Off, O);
    begin
       return "";
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Any_Type) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Type (O.O.O.all);
    end XML_Type;
 
    function XML_Type (O : in XSD_Integer) return String is
