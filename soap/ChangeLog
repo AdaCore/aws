@@ -1,3 +1,31 @@
+2004-08-08  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Call Put_Header with the proper mode. Do not
+	 generate spec/body endings (";" or "is") now done in
+	 Put_Header. Fix code generation style/layout.
+
+	* soap-generator-stub.adb:
+	(New_Procedure): Call Put_Header with the proper mode. Do not
+	 generate spec/body endings (";" or "is") now done in
+	 Put_Header. In body use Endpoint parameter to call the Web Service.
+
+	* soap-generator.adb:
+	(Header_Mode): New type.
+	(Stub_Header): New subtype.
+	(Put_Header): Add parameter Mode to controle the code generation:
+	 stub, skel for a spec or a body. Change client (Stub) code
+	 generation to include the new parameter Endpoint to control the
+	 server URL. Endpoint has a default value compatible to previous
+	 implementation. Fix skeleton code generation style and
+	 layout. This procedure also now generates the ending ";" or "is".
+	(Put_Indent): New procedure.
+	Minor reformatting.
+
+	* soap-generator.ads:
+	(Version): Set to 1.4.
+	Update copyright notice.
+
 2004-07-27  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator-skel.adb:
