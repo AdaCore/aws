@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 26 May 2004
+<p>Date: 7 July 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -1747,6 +1747,7 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
    -----------------
 
    <b>type</b> Tag <b>is</b> <b>private</b>;
+   -- <i> A tag is using a by reference semantic</i>
 
    <b>function</b> "<i>+</i>" (Value : <b>in</b> String)           <b>return</b> Tag;
    <b>function</b> "<i>+</i>" (Value : <b>in</b> Character)        <b>return</b> Tag;
@@ -1845,6 +1846,10 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
    -- <i> Build an Association (Variable = Value) to be added to Translate_Table.</i>
    -- <i> This is a tag association. Separator will be used when outputting the</i>
    -- <i> a flat representation of the Tag (outside a table statement).</i>
+
+   <b>function</b> Get (Assoc : <b>in</b> Association) <b>return</b> Tag;
+   -- <i> Returns the Tag in Assoc, raise Constraint_Error if Assoc is not</i>
+   -- <i> containing a Tag (Association_Kind is Std).</i>
 
    ---------------------------
    -- <i>Association table/set --</i>
