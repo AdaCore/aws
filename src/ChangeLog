@@ -1,3 +1,11 @@
+2004-09-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.adb:
+	(Do_Handshake): New procedure with Success out parameter.
+	(Do_Handshake): Use new routine with same name.
+	(Accept_Socket): Use Do_Handshake.
+	(Connect): Use Do_Handshake.
+
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* src.gpr:
