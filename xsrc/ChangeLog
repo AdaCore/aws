@@ -3,6 +3,12 @@
 	* aws-client-xml-input_sources.adb:
 	(Eof): Update comments.
 
+2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client-xml-input_sources.adb:
+	(EOF): Do not compare 2 times, when not necessary.
+	 Add comment about GNAT optimization bug workaround.
+
 2004-06-03  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml-input_sources.adb:
