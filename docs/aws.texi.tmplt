@@ -51,8 +51,8 @@
 * Resources::
 * Status page::
 * Last notes::
-* AWS API Reference::
 * References::
+* AWS API Reference::
 * Index::
 @end menu
 @end ifinfo
@@ -106,6 +106,8 @@ Major supported features are:
 @item HTTPS (Secure HTTP) implementation based on SSLv3
 
 @item Web Services - SOAP based
+
+@item WSDL support (generate stub/skeleton from WSDL documents)
 
 @item Basic and Digest authentication
 
@@ -1320,7 +1322,7 @@ created and then you'll be able to insert and retrieve session data
 using a standard Ada API (@xref{AWS.Session}.). Session data
 are key/value pair each of them being strings. How to deal with that ?
 
-@itemize
+@itemize @bullet
 
 @item First you declare and start an HTTP channel with session enabled:
 
@@ -2298,7 +2300,7 @@ has been binded as much as possible to the Ada type system.
 
 @noindent
 @cindex WSDL
-@cindex Web Services Description Language
+@cindex Web Service Definition Language
 The SOAP type system has been relaxed to be compatible with WSDL based SOAP
 implementation. In these implementations, types are generally (as in the
 Microsoft implementation) not part of the payload and should be taken
@@ -2553,7 +2555,278 @@ described in Ada as follow:
 @cindex Web Service Definition Language
 
 @noindent
-To be filed.
+WSDL (Web Service Definition Language) is an XML based document which
+described a set of Web Services either based on SOAP or XML/RPC. By
+using a WSDL document it is possible to describe, in a formal way, the
+interface to any Web Services. The WSDL document contains the
+end-point (URL to the server offering the service), the SOAPAction
+(needed to call the right routine), the procedure names and a
+description of the input and output parameters.
+
+@noindent
+AWS provides a tool called @file{wsdl2aws} which create the interfaces
+to use a Web Service or to implement Web Services. With this tool the
+SOAP interface is completely abstracted out, users will deal only
+with @code{Ada} API. All the SOAP marshaling will be created
+automatically.
+
+@menu
+* Client side (stub)::
+* Server side (skeleton)::
+* wsdl2aws::
+* wsdl2aws behind the scene::
+* current limitations::
+@end menu
+
+@node Client side (stub)
+@section Client side (stub)
+@cindex WSDL, Client
+
+@noindent
+This section describe how to use a Web Service. Let's say that we want
+to use the Barnes & Noble Price Quote service. The WSDL document for
+this service can be found at 
+@url{http://www.xmethods.net/sd/2001/BNQuoteService.wsdl}. In summary
+this document says that there is a service named @code{getPrice}
+taking as input a string representing the ISBN number and returning
+the price as floating point.
+
+The first step is to generate the client interface (stub):
+
+@smallexample
+@cartouche
+@group
+$ wsdl2aws -noskel http://www.xmethods.net/sd/2001/BNQuoteService.wsdl
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+This will create many files, the interesting one at this point is
+@file{bnquoteservice-client.ads}, inside we have:
+
+@smallexample
+@cartouche
+@group
+@b{function} getPrice
+  (isbn : @b{in} String)
+   @b{return} Long_Float;
+--  @i{Raises SOAP.SOAP_Error if the procedure fails}
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Let's call this service to find out the price for
+@i{The Sword of Shannara Trilogy} book.
+
+@smallexample
+@cartouche
+@group
+@b{with} Ada.Text_IO;
+@b{with} BNQuoteService.Client;
+
+@b{procedure} Price @b{is}
+   @b{use} Ada;
+
+   ISBN : @b{constant} String := "0345453751";
+   --  @i{The Sword of Shannara Trilogy ISBN}
+
+   @b{package} LFIO @b{is new} Text_IO.Float_IO (Long_Float);
+
+@b{begin}
+   Text_IO.Put_Line ("B&N Price for The Sword of Shannara Trilogy");
+   LFIO.Put (BNQuoteService.Client.getPrice (ISBN), Aft => 2, Exp => 0);
+@b{end} Price;
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+That's all is needed to use this Web Service. This program is fully
+functional, It is possible to build it and to run it to get the answer.
+
+@node Server side (skeleton)
+@section Server side (skeleton)
+@cindex WSDL, Server
+
+@noindent
+Building a Web Service can also be done from a WSDL document. Let's
+say that you are Barnes & Noble and that you want to build Web Service
+@code{getPrice} as described in the previous section. 
+
+@noindent
+You have created the WSDL document to specify the service spec. From
+there you can create the skeleton:
+
+@smallexample
+@cartouche
+@group
+$ wsdl2aws -nostub http://www.xmethods.net/sd/2001/BNQuoteService.wsdl
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+This will create many files, the interesting one here is 
+@file{bnquoteservice-server.ads}, inside we have:
+
+@smallexample
+@cartouche
+@group
+Port : @b{constant} := 80;
+
+@b{generic}
+  @b{with function} getPrice
+  (isbn : @b{in} String)
+   @b{return} Long_Float;
+@b{function} getPrice_CB
+  (Request : @b{in} AWS.Status.Data)
+   @b{return} AWS.Response.Data;
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+This is an AWS's callback routine that can be instantiated with the right
+routine to retrieve the price of a book given its ISBN number. A
+possible implementation of such routine could be:
+
+@smallexample
+@cartouche
+@group
+@b{function} getPrice
+  (isbn : @b{in} String)
+   @b{return} Long_Float @b{is}
+@b{begin}
+   @b{if} isbn = "0987654321" @b{then}
+      return 45.0;
+   @b{elsif} ...
+@b{end} getPrice;
+
+@b{function} SOAP_getPrice @b{is new} BNQuoteService.Server.getPrice_CB (getPrice);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+The routine @code{SOAP_getPrice} can be used as any other AWS's
+callback routines. Note that the port to be used by the AWS server is
+described into the server spec.
+
+@node wsdl2aws
+@section wsdl2aws
+@cindex wsdl2aws
+
+@noindent
+@code{wsdl2aws} options are:
+
+@table @b
+@item -q
+Quiet mode (no output)
+
+@item -a
+Generate using Ada style names. For example @code{getPrice} will be converted
+to @code{Get_Price}. This formatting is done for packages, routines and formal
+parameters.
+
+@item -f
+Force creation of the file. Overwrite any exiting files with the same
+name.
+
+@item -s
+Skip non supported SOAP routines. If -s is not used, @code{wsdl2aws} will
+exit with an error when a problem is found while parsing the WSDL
+document. This option is useful to skip routines using non supported
+types and still be able to compile the generated files.
+
+@item -o name
+Specify the name of the local WSDL document. This option can be used
+only when using a Web WSDL document (i.e. passing an URL to @code{wsdl2aws}).
+
+@item -doc
+Handle document style binding as RPC ones. This is sometimes needed
+because some WSDL document specify a document style binding even
+though it is really an RPC one.
+
+@item -v
+Verbose mode, display the parsed spec.
+
+@item -v -v
+Verbose mode, display the parsed spec and lot of information while
+parsing the WSDL document tree.
+
+@item -wsdl
+Add WSDL document as comment into the generated root unit.
+
+@item -cvs
+Add CVS Îd tag in every generated file.
+
+@item -nostub
+Do not generated stubs, only skeletons are generated.
+
+@item -noskel
+Do not generated skeletons, only stubs are generated.
+
+@item -proxy name|IP
+Use this proxy to access the WSDL document and generate code to access
+to these Web Services via this proxy. The proxy can be specified by
+its DNS name or IP address.
+
+@item -pu name
+User name for the proxy if proxy authentication required.
+
+@item -pp password
+User password for the proxy if proxy authentication required.
+@end table
+
+@node wsdl2aws behind the scene
+@section wsdl2aws behind the scene
+
+@noindent
+The @code{wsdl2aws} tool read a WSDL document and create a root
+package and a set of child packages as described below:
+
+@table @b
+@item <root>
+This is the main package, it contains eventually the full WSDL in
+comment and the description of the services as read from the WSDL
+document.
+
+@item <root>.Types
+This package contains the definitions of the types which are not SOAP
+base types. We find here the definitions of the SOAP structs and arrays
+with routines to convert them between the Ada and SOAP type model. A
+subtype definition is also created for every routine's returned type.
+
+@item <root>.Client
+All spec to call Web Services.
+
+@item <root>.Server
+All spec to build Web Services. These specs are all generic and must
+be instantiated with the right routine to create the web services.
+@end table
+
+@node current limitations
+@section current limitations
+@cindex WSDL limitations
+
+@noindent
+It is hard to know all current limitations as the WSDL and SOAP world
+is quite complex. We list there all known limitations:
+
+@itemize @bullet
+
+@item Many SOAP base types are not supported : @i{byte, unsignedByte,
+short, unsignedShort, unsignedInt, long, unsignedLong, double, date,
+time, xsd:hexBinary, decimal}. All these are easy to add (except
+decimal), it is just not supported with the current version.
+
+@item Multi-dimension arrays are not supported.
+
+@item anyType is not supported
+
+@end itemize
 
 @c ----------------------------------------------------------------------
 
@@ -2569,7 +2842,7 @@ need to have access to an SMTP server to use this feature. The API
 covers sending simple mail with text message and/or with @code{MIME}
 attachments (base64 encoded). Here are the steps to send a simple e-mail:
 
-@itemize
+@itemize @bullet
 
 @item Initialize the SMTP server
 
@@ -2855,7 +3128,7 @@ To check for the presence of another JID you must first have the right
 to do so. The jabber server won't let you see presence of another JID
 unless the JID have permitted you to see its presence.
 
-@itemize
+@itemize @bullet
 
 @item First declare the server and status objects
 
@@ -3308,342 +3581,8 @@ Jean-Pierre Rosen, Ariane Sinibardy.
 
 @c ----------------------------------------------------------------------
 
-@node AWS API Reference
-@chapter AWS API Reference
-
-AWS User API:
-
-@menu
-* AWS::
-* AWS.Client::
-* AWS.Communication::
-* AWS.Communication.Client::
-* AWS.Communication.Server::
-* AWS.Config::
-* AWS.Config.Ini::
-* AWS.Config.Set::
-* AWS.Containers.Tables::
-* AWS.Default::
-* AWS.Dispatchers::
-* AWS.Dispatchers.Callback::
-* AWS.Exceptions::
-* AWS.Headers::
-* AWS.Headers.Values::
-* AWS.Jabber::
-* AWS.LDAP.Client::
-* AWS.Log::
-* AWS.MIME::
-* AWS.Parameters::
-* AWS.Resources::
-* AWS.Resources.Streams::
-* AWS.Response::
-* AWS.Server::
-* AWS.Server.Hotplug::
-* AWS.Server.Push::
-* AWS.Server.Status::
-* AWS.Services.Directory::
-* AWS.Services.Dispatchers::
-* AWS.Services.Dispatchers.Method::
-* AWS.Services.Dispatchers.URI::
-* AWS.Services.Dispatchers.Virtual_Host::
-* AWS.Services.Page_Server::
-* AWS.Session::
-* AWS.SMTP::
-* AWS.SMTP.Client::
-* AWS.Status::
-* AWS.Templates::
-* AWS.URL::
-@end menu
-
-SOAP User API:
-
-@menu
-* SOAP::
-* SOAP.Client::
-* SOAP.Message::
-* SOAP.Message.XML::
-* SOAP.Parameters::
-* SOAP.Types::
-@end menu
-
-@node AWS
-@section AWS
-@cindex AWS
-
-@include ../src/aws.ads.texi
-
-@node AWS.Client
-@section AWS.Client
-@cindex AWS.Client
-
-@include ../src/aws-client.ads.texi
-
-@node AWS.Communication
-@section AWS.Communication
-@cindex AWS.Communication
-
-@include ../src/aws-communication.ads.texi
-
-@node AWS.Communication.Client
-@section AWS.Communication.Client
-@cindex AWS.Communication.Client
-
-@include ../src/aws-communication-client.ads.texi
-
-@node AWS.Communication.Server
-@section AWS.Communication.Server
-@cindex AWS.Communication.Server
-
-@include ../src/aws-communication-server.ads.texi
-
-@node AWS.Config
-@section AWS.Config
-@cindex AWS.Config
-
-@include ../src/aws-config.ads.texi
-
-@node AWS.Config.Ini
-@section AWS.Config.Ini
-@cindex AWS.Config.Ini
-
-@include ../src/aws-config-ini.ads.texi
-
-@node AWS.Config.Set
-@section AWS.Config.Set
-@cindex AWS.Config.Set
-
-@include ../src/aws-config-set.ads.texi
-
-@node AWS.Containers.Tables
-@section AWS.Containers.Tables
-@cindex AWS.Containers.Tables
-
-@include ../src/aws-containers-tables.ads.texi
-
-@node AWS.Default
-@section AWS.Default
-@cindex AWS.Default
-
-@include ../src/aws-default.ads.texi
-
-@node AWS.Dispatchers
-@section AWS.Dispatchers
-@cindex AWS.Dispatchers
-
-@include ../src/aws-dispatchers.ads.texi
-
-@node AWS.Dispatchers.Callback
-@section AWS.Dispatchers.Callback
-@cindex AWS.Dispatchers.Callback
-@cindex Callback, dispatcher API
-
-@include ../src/aws-dispatchers-callback.ads.texi
-
-@node AWS.Exceptions
-@section AWS.Exceptions
-@cindex AWS.Exceptions
-@cindex Exceptions, Unexpected exceptions, Exceptions handler
-
-@include ../src/aws-exceptions.ads.texi
-
-@node AWS.Headers
-@section AWS.Headers
-@cindex AWS.Headers
-
-@include ../src/aws-headers.ads.texi
-
-@node AWS.Headers.Values
-@section AWS.Headers.Values
-@cindex AWS.Headers.Values
-
-@include ../src/aws-headers-values.ads.texi
-
-@node AWS.Jabber
-@section AWS.Jabber
-@cindex AWS.Jabber
-@cindex Jabber Binding
-
-@include ../src/aws-jabber.ads.texi
-
-@node AWS.LDAP.Client
-@section AWS.LDAP.Client
-@cindex AWS.LDAP.Client
-@cindex LDAP Binding
-
-@include ../src/aws-ldap-client.ads.texi
-
-@node AWS.Log
-@section AWS.Log
-@cindex AWS.Log
-
-@include ../src/aws-log.ads.texi
-
-@node AWS.MIME
-@section AWS.MIME
-@cindex AWS.MIME
-
-@include ../src/aws-mime.ads.texi
-
-@node AWS.Parameters
-@section AWS.Parameters
-@cindex AWS.Parameters
-
-@include ../src/aws-parameters.ads.texi
-
-@node AWS.Resources
-@section AWS.Resources
-@cindex AWS.Resources
-
-@include ../src/aws-resources.ads.texi
-
-@node AWS.Resources.Streams
-@section AWS.Resources.Streams
-@cindex AWS.Resources.Streams
-
-@include ../src/aws-resources-streams.ads.texi
-
-@node AWS.Response
-@section AWS.Response
-@cindex AWS.Response
-
-@include ../src/aws-response.ads.texi
-
-@node AWS.Server
-@section AWS.Server
-@cindex AWS.Server
-
-@include ../src/aws-server.ads.texi
-
-@node AWS.Server.Hotplug
-@section AWS.Server.Hotplug
-@cindex AWS.Server.Hotplug
-
-@include ../src/aws-server-hotplug.ads.texi
-
-@node AWS.Server.Push
-@section AWS.Server.Push
-@cindex AWS.Server.Push
-
-@include ../src/aws-server-push.ads.texi
-
-@node AWS.Server.Status
-@section AWS.Server.Status
-@cindex AWS.Server.Status
-
-@include ../src/aws-server-status.ads.texi
-
-@node AWS.Services.Directory
-@section AWS.Services.Directory
-@cindex AWS.Services.Directory
-
-@include ../src/aws-services-directory.ads.texi
-
-@node AWS.Services.Dispatchers
-@section AWS.Services.Dispatchers
-@cindex AWS.Services.Dispatchers
-
-@include ../src/aws-services-dispatchers.ads.texi
-
-@node AWS.Services.Dispatchers.Method
-@section AWS.Services.Dispatchers.Method
-@cindex AWS.Services.Dispatchers.Method
-
-@include ../src/aws-services-dispatchers-method.ads.texi
-
-@node AWS.Services.Dispatchers.URI
-@section AWS.Services.Dispatchers.URI
-@cindex AWS.Services.Dispatchers.URI
-
-@include ../src/aws-services-dispatchers-uri.ads.texi
-
-@node AWS.Services.Dispatchers.Virtual_Host
-@section AWS.Services.Dispatchers.Virtual_Host
-@cindex AWS.Services.Dispatchers.Virtual_Host
-
-@include ../src/aws-services-dispatchers-virtual_host.ads.texi
-
-@node AWS.Services.Page_Server
-@section AWS.Services.Page_Server
-@cindex AWS.Services.Page_Server
-
-@include ../src/aws-services-page_server.ads.texi
-
-@node AWS.Session
-@section AWS.Session
-@cindex AWS.Session
-
-@include ../src/aws-session.ads.texi
-
-@node AWS.SMTP
-@section AWS.SMTP
-@cindex AWS.SMTP
-
-@include ../src/aws-smtp.ads.texi
-
-@node AWS.SMTP.Client
-@section AWS.SMTP.Client
-@cindex AWS.SMTP.Client
-
-@include ../src/aws-smtp-client.ads.texi
-
-@node AWS.Status
-@section AWS.Status
-@cindex AWS.Status
-
-@include ../src/aws-status.ads.texi
-
-@node AWS.Templates
-@section AWS.Templates
-@cindex AWS.Templates
-
-@include ../src/aws-templates.ads.texi
-
-@node AWS.URL
-@section AWS.URL
-@cindex AWS.URL
-
-@include ../src/aws-url.ads.texi
-
-@node SOAP
-@section SOAP
-@cindex SOAP (API)
-
-@include ../soap/soap.ads.texi
-
-@node SOAP.Client
-@section SOAP.Client
-@cindex SOAP.Client
-
-@include ../soap/soap-client.ads.texi
-
-@node SOAP.Message
-@section SOAP.Message
-@cindex SOAP.Message
-
-@include ../soap/soap-message.ads.texi
-
-@node SOAP.Message.XML
-@section SOAP.Message.XML
-@cindex SOAP.Message.XML
-
-@include ../soap/soap-message-xml.ads.texi
-
-@node SOAP.Parameters
-@section SOAP.Parameters
-@cindex SOAP.Parameters
-
-@include ../soap/soap-parameters.ads.texi
-
-@node SOAP.Types
-@section SOAP.Types
-@cindex SOAP.Types
-
-@include ../soap/soap-types.ads.texi
-
-@c ----------------------------------------------------------------------
-
 @node References
-@chapter References
+@appendix References
 @cindex References
 
 @noindent
@@ -3807,6 +3746,386 @@ By Dave Winer, Jake Savin, UserLand Software, 4/2/01.
 @url{http://www.soapware.org/bdg}
 
 @end enumerate
+
+@c ----------------------------------------------------------------------
+
+@node AWS API Reference
+@appendix AWS API Reference
+
+@menu
+AWS User API:
+
+* AWS::
+* AWS.Client::
+* AWS.Communication::
+* AWS.Communication.Client::
+* AWS.Communication.Server::
+* AWS.Config::
+* AWS.Config.Ini::
+* AWS.Config.Set::
+* AWS.Containers.Tables::
+* AWS.Default::
+* AWS.Dispatchers::
+* AWS.Dispatchers.Callback::
+* AWS.Exceptions::
+* AWS.Headers::
+* AWS.Headers.Values::
+* AWS.Jabber::
+* AWS.LDAP.Client::
+* AWS.Log::
+* AWS.MIME::
+* AWS.Parameters::
+* AWS.Resources::
+* AWS.Resources.Streams::
+* AWS.Response::
+* AWS.Server::
+* AWS.Server.Hotplug::
+* AWS.Server.Push::
+* AWS.Server.Status::
+* AWS.Services.Directory::
+* AWS.Services.Dispatchers::
+* AWS.Services.Dispatchers.Method::
+* AWS.Services.Dispatchers.URI::
+* AWS.Services.Dispatchers.Virtual_Host::
+* AWS.Services.Page_Server::
+* AWS.Session::
+* AWS.SMTP::
+* AWS.SMTP.Client::
+* AWS.Status::
+* AWS.Templates::
+* AWS.URL::
+@end menu
+
+@menu
+SOAP User API:
+
+* SOAP::
+* SOAP.Client::
+* SOAP.Message::
+* SOAP.Message.XML::
+* SOAP.Parameters::
+* SOAP.Types::
+@end menu
+
+@node AWS
+@appendixsec AWS
+@cindex AWS
+
+@include ../src/aws.ads.texi
+
+@page
+@node AWS.Client
+@appendixsec AWS.Client
+@cindex AWS.Client
+
+@include ../src/aws-client.ads.texi
+
+@page
+@node AWS.Communication
+@appendixsec AWS.Communication
+@cindex AWS.Communication
+
+@include ../src/aws-communication.ads.texi
+
+@page
+@node AWS.Communication.Client
+@appendixsec AWS.Communication.Client
+@cindex AWS.Communication.Client
+
+@include ../src/aws-communication-client.ads.texi
+
+@page
+@node AWS.Communication.Server
+@appendixsec AWS.Communication.Server
+@cindex AWS.Communication.Server
+
+@include ../src/aws-communication-server.ads.texi
+
+@page
+@node AWS.Config
+@appendixsec AWS.Config
+@cindex AWS.Config
+
+@include ../src/aws-config.ads.texi
+
+@page
+@node AWS.Config.Ini
+@appendixsec AWS.Config.Ini
+@cindex AWS.Config.Ini
+
+@include ../src/aws-config-ini.ads.texi
+
+@page
+@node AWS.Config.Set
+@appendixsec AWS.Config.Set
+@cindex AWS.Config.Set
+
+@include ../src/aws-config-set.ads.texi
+
+@page
+@node AWS.Containers.Tables
+@appendixsec AWS.Containers.Tables
+@cindex AWS.Containers.Tables
+
+@include ../src/aws-containers-tables.ads.texi
+
+@page
+@node AWS.Default
+@appendixsec AWS.Default
+@cindex AWS.Default
+
+@include ../src/aws-default.ads.texi
+
+@page
+@node AWS.Dispatchers
+@appendixsec AWS.Dispatchers
+@cindex AWS.Dispatchers
+
+@include ../src/aws-dispatchers.ads.texi
+
+@page
+@node AWS.Dispatchers.Callback
+@appendixsec AWS.Dispatchers.Callback
+@cindex AWS.Dispatchers.Callback
+@cindex Callback, dispatcher API
+
+@include ../src/aws-dispatchers-callback.ads.texi
+
+@page
+@node AWS.Exceptions
+@appendixsec AWS.Exceptions
+@cindex AWS.Exceptions
+@cindex Exceptions, Unexpected exceptions, Exceptions handler
+
+@include ../src/aws-exceptions.ads.texi
+
+@page
+@node AWS.Headers
+@appendixsec AWS.Headers
+@cindex AWS.Headers
+
+@include ../src/aws-headers.ads.texi
+
+@page
+@node AWS.Headers.Values
+@appendixsec AWS.Headers.Values
+@cindex AWS.Headers.Values
+
+@include ../src/aws-headers-values.ads.texi
+
+@page
+@node AWS.Jabber
+@appendixsec AWS.Jabber
+@cindex AWS.Jabber
+@cindex Jabber Binding
+
+@include ../src/aws-jabber.ads.texi
+
+@page
+@node AWS.LDAP.Client
+@appendixsec AWS.LDAP.Client
+@cindex AWS.LDAP.Client
+@cindex LDAP Binding
+
+@include ../src/aws-ldap-client.ads.texi
+
+@page
+@node AWS.Log
+@appendixsec AWS.Log
+@cindex AWS.Log
+
+@include ../src/aws-log.ads.texi
+
+@page
+@node AWS.MIME
+@appendixsec AWS.MIME
+@cindex AWS.MIME
+
+@include ../src/aws-mime.ads.texi
+
+@page
+@node AWS.Parameters
+@appendixsec AWS.Parameters
+@cindex AWS.Parameters
+
+@include ../src/aws-parameters.ads.texi
+
+@page
+@node AWS.Resources
+@appendixsec AWS.Resources
+@cindex AWS.Resources
+
+@include ../src/aws-resources.ads.texi
+
+@page
+@node AWS.Resources.Streams
+@appendixsec AWS.Resources.Streams
+@cindex AWS.Resources.Streams
+
+@include ../src/aws-resources-streams.ads.texi
+
+@page
+@node AWS.Response
+@appendixsec AWS.Response
+@cindex AWS.Response
+
+@include ../src/aws-response.ads.texi
+
+@page
+@node AWS.Server
+@appendixsec AWS.Server
+@cindex AWS.Server
+
+@include ../src/aws-server.ads.texi
+
+@page
+@node AWS.Server.Hotplug
+@appendixsec AWS.Server.Hotplug
+@cindex AWS.Server.Hotplug
+
+@include ../src/aws-server-hotplug.ads.texi
+
+@page
+@node AWS.Server.Push
+@appendixsec AWS.Server.Push
+@cindex AWS.Server.Push
+
+@include ../src/aws-server-push.ads.texi
+
+@page
+@node AWS.Server.Status
+@appendixsec AWS.Server.Status
+@cindex AWS.Server.Status
+
+@include ../src/aws-server-status.ads.texi
+
+@page
+@node AWS.Services.Directory
+@appendixsec AWS.Services.Directory
+@cindex AWS.Services.Directory
+
+@include ../src/aws-services-directory.ads.texi
+
+@page
+@node AWS.Services.Dispatchers
+@appendixsec AWS.Services.Dispatchers
+@cindex AWS.Services.Dispatchers
+
+@include ../src/aws-services-dispatchers.ads.texi
+
+@page
+@node AWS.Services.Dispatchers.Method
+@appendixsec AWS.Services.Dispatchers.Method
+@cindex AWS.Services.Dispatchers.Method
+
+@include ../src/aws-services-dispatchers-method.ads.texi
+
+@page
+@node AWS.Services.Dispatchers.URI
+@appendixsec AWS.Services.Dispatchers.URI
+@cindex AWS.Services.Dispatchers.URI
+
+@include ../src/aws-services-dispatchers-uri.ads.texi
+
+@page
+@node AWS.Services.Dispatchers.Virtual_Host
+@appendixsec AWS.Services.Dispatchers.Virtual_Host
+@cindex AWS.Services.Dispatchers.Virtual_Host
+
+@include ../src/aws-services-dispatchers-virtual_host.ads.texi
+
+@page
+@node AWS.Services.Page_Server
+@appendixsec AWS.Services.Page_Server
+@cindex AWS.Services.Page_Server
+
+@include ../src/aws-services-page_server.ads.texi
+
+@page
+@node AWS.Session
+@appendixsec AWS.Session
+@cindex AWS.Session
+
+@include ../src/aws-session.ads.texi
+
+@page
+@node AWS.SMTP
+@appendixsec AWS.SMTP
+@cindex AWS.SMTP
+
+@include ../src/aws-smtp.ads.texi
+
+@page
+@node AWS.SMTP.Client
+@appendixsec AWS.SMTP.Client
+@cindex AWS.SMTP.Client
+
+@include ../src/aws-smtp-client.ads.texi
+
+@page
+@node AWS.Status
+@appendixsec AWS.Status
+@cindex AWS.Status
+
+@include ../src/aws-status.ads.texi
+
+@page
+@node AWS.Templates
+@appendixsec AWS.Templates
+@cindex AWS.Templates
+
+@include ../src/aws-templates.ads.texi
+
+@page
+@node AWS.URL
+@appendixsec AWS.URL
+@cindex AWS.URL
+
+@include ../src/aws-url.ads.texi
+
+@page
+@node SOAP
+@appendixsec SOAP
+@cindex SOAP (API)
+
+@include ../soap/soap.ads.texi
+
+@page
+@node SOAP.Client
+@appendixsec SOAP.Client
+@cindex SOAP.Client
+
+@include ../soap/soap-client.ads.texi
+
+@page
+@node SOAP.Message
+@appendixsec SOAP.Message
+@cindex SOAP.Message
+
+@include ../soap/soap-message.ads.texi
+
+@page
+@node SOAP.Message.XML
+@appendixsec SOAP.Message.XML
+@cindex SOAP.Message.XML
+
+@include ../soap/soap-message-xml.ads.texi
+
+@page
+@node SOAP.Parameters
+@appendixsec SOAP.Parameters
+@cindex SOAP.Parameters
+
+@include ../soap/soap-parameters.ads.texi
+
+@page
+@node SOAP.Types
+@appendixsec SOAP.Types
+@cindex SOAP.Types
+
+@include ../soap/soap-types.ads.texi
+
+@c ----------------------------------------------------------------------
 
 @node Index
 @unnumbered Index
