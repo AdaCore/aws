@@ -55,8 +55,8 @@ package AWS.Resources.Streams is
    procedure Create
      (File   :    out File_Type;
       Buffer : in     Stream_Access);
-   --  Create the resource from user defined resource.
    pragma Inline (Create);
+   --  Create the resource from user defined resource.
 
 private
 
