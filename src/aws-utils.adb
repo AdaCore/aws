@@ -34,7 +34,6 @@ with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Numerics.Discrete_Random;
-with Ada.Exceptions;
 
 package body AWS.Utils is
 
@@ -176,90 +175,6 @@ package body AWS.Utils is
 
       return True;
    end Is_Number;
-
-   ----------------------------
-   -- Parse_HTTP_Header_Line --
-   ----------------------------
-
-   procedure Parse_HTTP_Header_Line
-     (Data   : in     String;
-      Result :    out Result_Set)
-   is
-      use Strings.Unbounded;
-
-      EDel  : constant String := ",";
-      --  Delimiter between entities in the http header line
-
-      NVDel : constant String := "=";
-      --  Delimiter between name and value
-
-      Attribute               : Enum;
-      Name_First              : Natural := Data'First;
-      Name_Last               : Natural;
-      Value_First, Value_Last : Natural;
-      Recognized              : Boolean;
-      Value                   : Unbounded_String;
-
-   begin
-      loop
-         Name_Last
-           := Strings.Fixed.Index (Data (Name_First .. Data'Last), NVDel);
-
-         exit when Name_Last = 0;
-
-         begin
-            Attribute  := Enum'Value (Data (Name_First .. Name_Last - 1));
-            Recognized := True;
-         exception
-            when Constraint_Error =>
-               --  Ignoring unrecognized value
-               Recognized := False;
-         end;
-
-         Value_First := Name_Last + NVDel'Length;
-
-         --  Quoted value
-
-         if Data (Value_First) = '"' then
-            Value_Last := Strings.Fixed.Index
-              (Data (Value_First + 1 .. Data'Last), """");
-
-            --  If format error
-
-            if Value_Last = 0 then
-               Ada.Exceptions.Raise_Exception
-                 (Constraint_Error'Identity,
-                  "HTTP header line format error: " & Data);
-            end if;
-
-            Value := To_Unbounded_String
-              (Data (Value_First + 1 .. Value_Last - 1));
-
-            Name_First := Value_Last + EDel'Length + 1;
-
-         else
-            --  Unquoted value
-
-            Value_Last := Ada.Strings.Fixed.Index
-              (Data (Value_First .. Data'Last), EDel);
-
-            if Value_Last = 0 then
-               Value_Last := Data'Last + 1;
-            end if;
-
-            Value := To_Unbounded_String
-              (Data (Value_First .. Value_Last - 1));
-
-            Name_First := Value_Last + EDel'Length;
-         end if;
-
-         if Recognized then
-            Result (Attribute) := Value;
-         end if;
-
-         exit when Name_First >= Data'Last;
-      end loop;
-   end Parse_HTTP_Header_Line;
 
    -----------
    -- Quote --
