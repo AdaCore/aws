@@ -84,7 +84,7 @@ package body AWS.Net.SSL is
    private
       Initialized : Boolean      := False;
       Private_Key : TSSL.RSA     := Null_Ptr;
-      Context     : TSSL.SSL_Ctx := Null_Ptr;
+      Context     : TSSL.SSL_CTX := Null_Ptr;
    end TS_SSL;
 
    -------------------
@@ -101,9 +101,9 @@ package body AWS.Net.SSL is
 
          TS_SSL.Set_FD (Socket_Type (New_Socket));
 
-         TSSL.SSL_Set_Accept_State (Socket_Type (New_Socket).SSL);
+         TSSL.SSL_set_accept_state (Socket_Type (New_Socket).SSL);
 
-         exit when TSSL.SSL_Accept (Socket_Type (New_Socket).SSL) > 0;
+         exit when TSSL.SSL_accept (Socket_Type (New_Socket).SSL) > 0;
 
          Shutdown (New_Socket);
       end loop;
@@ -134,9 +134,9 @@ package body AWS.Net.SSL is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port);
 
-      TSSL.SSL_Set_Connect_State (Socket.SSL);
+      TSSL.SSL_set_connect_state (Socket.SSL);
 
-      Error_If (TSSL.SSL_Connect (Socket.SSL) = -1);
+      Error_If (TSSL.SSL_connect (Socket.SSL) = -1);
    end Connect;
 
    --------------
@@ -148,7 +148,7 @@ package body AWS.Net.SSL is
    begin
       if Error then
          Exceptions.Raise_Exception
-           (Socket_Error'Identity, Error_Str (TSSL.Err_Get_Error));
+           (Socket_Error'Identity, Error_Str (TSSL.ERR_get_error));
       end if;
    end Error_If;
 
@@ -160,7 +160,7 @@ package body AWS.Net.SSL is
       use Interfaces;
       Buffer : C.char_array := (0 .. 511 => Interfaces.C.nul);
    begin
-      TSSL.Err_Error_String_N (Code, Buffer, Buffer'Length);
+      TSSL.ERR_error_string_n (Code, Buffer, Buffer'Length);
       return C.To_Ada (Buffer);
    end Error_Str;
 
@@ -171,7 +171,7 @@ package body AWS.Net.SSL is
    procedure Free (Socket : in out Socket_Type) is
    begin
       if Socket.SSL /= Null_Ptr then
-         TSSL.SSL_Free (Socket.SSL);
+         TSSL.SSL_free (Socket.SSL);
          Socket.SSL := Null_Ptr;
       end if;
 
@@ -194,7 +194,7 @@ package body AWS.Net.SSL is
                           Day   => Day_Number'First))
         & Integer_Address'Image (To_Integer (Init_Random'Address));
    begin
-      TSSL.Rand_Seed (Buf'Address, Buf'Length);
+      TSSL.RAND_seed (Buf'Address, Buf'Length);
    end Init_Random;
 
    ----------------
@@ -221,7 +221,7 @@ package body AWS.Net.SSL is
       Buffer : Stream_Element_Array (0 .. Max - 1);
       Len    : Interfaces.C.int;
    begin
-      Len := TSSL.SSL_Read (Socket.SSL, Buffer'Address, Buffer'Length);
+      Len := TSSL.SSL_read (Socket.SSL, Buffer'Address, Buffer'Length);
       Error_If (Len <= 0);
 
       return Buffer
@@ -237,7 +237,7 @@ package body AWS.Net.SSL is
      (Socket : in Socket_Type;
       Data   : in Ada.Streams.Stream_Element_Array) is
    begin
-      Error_If (TSSL.SSL_Write (Socket.SSL, Data'Address, Data'Length) = -1);
+      Error_If (TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length) = -1);
    end Send;
 
    --------------------
@@ -246,7 +246,7 @@ package body AWS.Net.SSL is
 
    procedure Set_Read_Ahead (Socket : in Socket_Type; Value : in Boolean)  is
    begin
-      TSSL.SSL_Set_Read_Ahead (S => Socket.SSL, Yes => Boolean'Pos (Value));
+      TSSL.SSL_set_read_ahead (S => Socket.SSL, Yes => Boolean'Pos (Value));
    end Set_Read_Ahead;
 
    --------------
@@ -255,7 +255,7 @@ package body AWS.Net.SSL is
 
    procedure Shutdown (Socket : in Socket_Type) is
    begin
-      TSSL.SSL_Set_Shutdown
+      TSSL.SSL_set_shutdown
         (Socket.SSL, TSSL.SSL_SENT_SHUTDOWN + TSSL.SSL_RECEIVED_SHUTDOWN);
       Net.Std.Shutdown (NSST (Socket));
    end Shutdown;
@@ -290,7 +290,7 @@ package body AWS.Net.SSL is
 
       procedure Finalize is
       begin
-         TSSL.SSL_Ctx_Free (Context);
+         TSSL.SSL_CTX_free (Context);
          Context := Null_Ptr;
       end Finalize;
 
@@ -316,18 +316,18 @@ package body AWS.Net.SSL is
             Key_Filename  : in String := "");
 
          Methods : constant array (Method) of Meth_Func
-           := (SSLv2          => TSSL.SSLv2_Method'Access,
-               SSLv2_Server   => TSSL.SSLv2_Server_Method'Access,
-               SSLv2_Client   => TSSL.SSLv2_Client_Method'Access,
-               SSLv23         => TSSL.SSLv23_Method'Access,
-               SSLv23_Server  => TSSL.SSLv23_Server_Method'Access,
-               SSLv23_Client  => TSSL.SSLv23_Client_Method'Access,
-               Tlsv1          => TSSL.Tlsv1_Method'Access,
-               Tlsv1_Server   => TSSL.Tlsv1_Server_Method'Access,
-               Tlsv1_Client   => TSSL.Tlsv1_Client_Method'Access,
-               SSLv3          => TSSL.SSLv3_Method'Access,
-               SSLv3_Server   => TSSL.SSLv3_Server_Method'Access,
-               SSLv3_Client   => TSSL.SSLv3_Client_Method'Access);
+           := (SSLv2          => TSSL.SSLv2_method'Access,
+               SSLv2_Server   => TSSL.SSLv2_server_method'Access,
+               SSLv2_Client   => TSSL.SSLv2_client_method'Access,
+               SSLv23         => TSSL.SSLv23_method'Access,
+               SSLv23_Server  => TSSL.SSLv23_server_method'Access,
+               SSLv23_Client  => TSSL.SSLv23_client_method'Access,
+               Tlsv1          => TSSL.Tlsv1_method'Access,
+               Tlsv1_Server   => TSSL.Tlsv1_server_method'Access,
+               Tlsv1_Client   => TSSL.Tlsv1_client_method'Access,
+               SSLv3          => TSSL.SSLv3_method'Access,
+               SSLv3_Server   => TSSL.SSLv3_server_method'Access,
+               SSLv3_Client   => TSSL.SSLv3_client_method'Access);
 
          ---------------------
          -- Set_Certificate --
@@ -359,30 +359,30 @@ package body AWS.Net.SSL is
 
          begin
             Error_If
-              (TSSL.SSL_Ctx_Use_Privatekey_File
+              (TSSL.SSL_CTX_use_PrivateKey_file
                  (Ctx    => Context,
                   File   => To_C (Key_File_Name),
                   C_Type => TSSL.SSL_Filetype_Pem) = -1);
 
             Error_If
-              (TSSL.SSL_Ctx_Use_Certificate_File
+              (TSSL.SSL_CTX_use_certificate_file
                  (Ctx    => Context,
                   File   => To_C (Cert_Filename),
                   C_Type => TSSL.SSL_Filetype_Pem) = -1);
 
             Error_If
-              (TSSL.SSL_Ctx_Check_Private_Key (Ctx => Context) = -1);
+              (TSSL.SSL_CTX_check_private_key (Ctx => Context) = -1);
 
-            if TSSL.SSL_Ctx_Ctrl
+            if TSSL.SSL_CTX_ctrl
               (Ctx  => Context,
-               Cmd  => TSSL.SSL_Ctrl_Need_Tmp_Rsa,
+               Cmd  => TSSL.SSL_Ctrl_Need_Tmp_RSA,
                Larg => 0,
                Parg => Null_Ptr) /= 0
             then
                Error_If
-                 (TSSL.SSL_Ctx_Ctrl
+                 (TSSL.SSL_CTX_ctrl
                     (Ctx  => Context,
-                     Cmd  => TSSL.SSL_Ctrl_Set_Tmp_Rsa,
+                     Cmd  => TSSL.SSL_Ctrl_Set_Tmp_RSA,
                      Larg => 0,
                      Parg => Private_Key) = -1);
             end if;
@@ -394,7 +394,7 @@ package body AWS.Net.SSL is
 
          procedure Set_Quiet_Shutdown (Value : in Boolean := True) is
          begin
-            TSSL.SSL_Ctx_Set_Quiet_Shutdown
+            TSSL.SSL_CTX_set_quiet_shutdown
               (Ctx  => Context,
                Mode => Boolean'Pos (Value));
          end Set_Quiet_Shutdown;
@@ -406,7 +406,7 @@ package body AWS.Net.SSL is
          procedure Set_Sess_Cache_Size (Value : in Natural) is
          begin
             Error_If
-              (TSSL.SSL_Ctx_Ctrl
+              (TSSL.SSL_CTX_ctrl
                  (Ctx  => Context,
                   Cmd  => TSSL.SSL_Ctrl_Set_Sess_Cache_Size,
                   Larg => Interfaces.C.int (Value),
@@ -421,13 +421,13 @@ package body AWS.Net.SSL is
 
             --  Initialize context
 
-            Context := TSSL.SSL_Ctx_New (Methods (Security_Mode).all);
+            Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
             Error_If (Context = Null_Ptr);
 
             --  Initialize private key
 
             Private_Key :=
-              TSSL.Rsa_Generate_Key (Bits     => 512,
+              TSSL.RSA_generate_key (Bits     => 512,
                                      E        => TSSL.Rsa_F4,
                                      Callback => null,
                                      Cb_Arg   => Null_Ptr);
@@ -449,12 +449,12 @@ package body AWS.Net.SSL is
       procedure Set_FD (Socket : in out Socket_Type) is
       begin
          if Socket.SSL = Null_Ptr then
-            Socket.SSL := TSSL.SSL_New (Context);
+            Socket.SSL := TSSL.SSL_new (Context);
             Error_If (Socket.SSL = Null_Ptr);
          end if;
 
          Error_If
-           (TSSL.SSL_Set_Fd
+           (TSSL.SSL_set_fd
               (Socket.SSL,
                Interfaces.C.int (Get_FD (Socket))) = -1);
       end Set_FD;
@@ -462,7 +462,7 @@ package body AWS.Net.SSL is
    end TS_SSL;
 
 begin
-   TSSL.SSL_Load_Error_Strings;
-   TSSL.SSL_Library_Init;
+   TSSL.SSL_load_error_strings;
+   TSSL.SSL_library_init;
    Init_Random;
 end AWS.Net.SSL;
