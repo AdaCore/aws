@@ -1,3 +1,21 @@
+2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-resources-streams-memory.ads:
+	(Close): Rename parameter File to Resource for consistency.
+	Minor reformatting.
+	
+	* aws-resources-streams-memory.adb:
+	(Close): Rename parameter File to Resource for consistency.
+	Minor reformatting.
+	Put file in UNIX format.
+	
+	* aws-resources-streams.adb:
+	(Create): Rename parameter File to Resource for consistency.
+	
+	* aws-resources-streams.ads:
+	(Close): Rename parameter File to Resource for consistency.
+	(Create): Idem.
+
 2003-09-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-files.adb:
