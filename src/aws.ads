@@ -34,7 +34,7 @@ package AWS is
 
    pragma Pure;
 
-   Version      : constant String := "1.3-rc1";
+   Version      : constant String := "1.3-rc2";
 
    HTTP_Version : constant String := "HTTP/1.1";
 
