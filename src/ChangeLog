@@ -1,5 +1,9 @@
 2001-04-28  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(clean): remove build_std file. Was preventing to build a non SSL
+	 AWS version after a SSL one.
+
 	* aws.ads:
 	(Version): set to 0.9.11.
 
