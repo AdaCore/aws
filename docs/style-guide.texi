@@ -132,12 +132,12 @@ readability.
 Reserved words use all lower case.
 
 @smallexample
-       return else
+       return else procedure
 @end smallexample
 
 @item
-The words "Access", "Delta" and "Digits" are capitalized when used
-as attribute_designator.
+The words "@b{Access}", "@b{Delta}" and "@b{Digits}" are capitalized
+when used as attribute_designator.
 @end itemize
 
 @subsection Comments
@@ -166,9 +166,9 @@ The comment start at same level of indentation as code they are commenting.
 
 @smallexample
        Z : Integer;
-       --  Integer value for storing value of Z
+       --  @i{Integer value for storing value of Z}
        --
-       --  The previous line was a blank line
+       --  @i{The previous line was a blank line}
 @end smallexample
 
 @item
@@ -177,15 +177,15 @@ wrong or incomplete code should be preceded or followed by ???
 
 @item
 Comments in a subprogram body must generally be surrounded by blank lines,
-except after a "begin":
+except after a "@b{begin}":
 
 @smallexample
-       begin
-          --  Comment for the next statement
+       @b{begin}
+          --  @i{Comment for the next statement}
 
           A := 5;
 
-          --  Comment for the B statement
+          --  @i{Comment for the B statement}
 
           B := 6;
 @end smallexample
@@ -195,8 +195,8 @@ In sequences of statements, comments at the end of the lines should be
 aligned.
 
 @smallexample
-        My_Identifier := 5;      --  First comment
-        Other_Id := 6;           --  Second comment
+        My_Identifier := 5;      --  @i{First comment}
+        Other_Id := 6;           --  @i{Second comment}
 @end smallexample
 
 @item
@@ -313,71 +313,72 @@ whose the reverse must be checked.
 @c  -------------------------------------------------------------------------
 @itemize @bullet
 @item
-When the "if", "elsif" or "else" keywords fit on the same line with the
-condition and the "then" keyword, then the statement is formatted as follows:
+When the "@b{if}", "@b{elsif}" or "@b{else}" keywords fit on the same
+line with the condition and the "@b{then}" keyword, then the statement is
+formatted as follows:
 
 @smallexample
-        if <condition> then
+        @b{if} <condition> @b{then}
            ...
-        elsif <condition> then
+        @b{elsif} <condition> @b{then}
            ...
-        else
+        @b{else}
            ...
-        end if;
+        @b{end if};
 @end smallexample
 
 @noindent
-When the above layout is not possible, "then" should be aligned with "if",
-and conditions should preferably be split before an "and" or "or" keyword
-a follows:
+When the above layout is not possible, "@b{then}" should be aligned
+with "@b{if}", and conditions should preferably be split before an
+"@b{and}" or "@b{or}" keyword a follows:
 
 @smallexample
-        if <long_condition_that_has_to_be_split>
-          and then <continued_on_the_next_line>
-        then
+        @b{if} <long_condition_that_has_to_be_split>
+          @b{and then} <continued_on_the_next_line>
+        @b{then}
            ...
-        end if;
+        @b{end if};
 @end smallexample
 
 @noindent
-The "elsif", "else" and "end if" always line up with the "if" keyword. The
-preferred location for splitting the line is before "and" or "or". The
-continuation of a condition is indented with two spaces or as many as needed
-to make nesting clear.
+The "@b{elsif}", "@b{else}" and "@b{end if}" always line up with the
+"@b{if}" keyword. The preferred location for splitting the line is
+before "@b{and}" or "@b{or}". The continuation of a condition is
+indented with two spaces or as many as needed to make nesting clear.
 
 @smallexample
-     if x = lakdsjfhlkashfdlkflkdsalkhfsalkdhflkjdsahf
-          or else
+     @b{if} x = lakdsjfhlkashfdlkflkdsalkhfsalkdhflkjdsahf
+          @b{or else}
         x = asldkjhalkdsjfhhfd
-          or else
+          @b{or else}
         x = asdfadsfadsf
-     then
+     @b{then}
 @end smallexample
 
 @item
-Conditions should use short-circuit forms ("and then", "or else").
+Conditions should use short-circuit forms ("@b{and then}", "@b{or else}").
 
 @item
 Complex conditions in if-statements are indented two characters:
 
 @smallexample
-      if this_complex_condition
-        and then that_other_one
-        and then one_last_one
-      then
+      @b{if} this_complex_condition
+        @b{and then} that_other_one
+        @b{and then} one_last_one
+      @b{then}
          ...
 @end smallexample
 
 @item
-Every "if" block is preceded and followed by a blank line, except
+Every "@b{if}" block is preceded and followed by a blank line, except
 where it begins or ends a sequence_of_statements.
 
 @smallexample
         A := 5;
 
-        if A = 5 then
+        @b{if} A = 5 @b{then}
            null;
-        end if;
+        @b{end if};
 
         A := 6;
 @end smallexample
@@ -390,12 +391,12 @@ where it begins or ends a sequence_of_statements.
 Layout is as below.
 
 @smallexample
-       case <expression> is
-          when <condition> =>
+       @b{case} <expression> @b{is}
+          @b{when} <condition> @b{=>}
              ...
-          when <condition> =>
+          @b{when} <condition> @b{=>}
              ...
-       end case;
+       @b{end case};
 @end smallexample
 
 @noindent
@@ -404,10 +405,10 @@ possible to put the code for each when section right after the
 condition without a new-line.
 
 @smallexample
-       case <expression> is
-          when <condition> => ...
-          when <condition> => ...
-       end case;
+       @b{case} <expression> @b{is}
+          @b{when} <condition> @b{=>} ...
+          @b{when} <condition> @b{=>} ...
+       @b{end case};
 @end smallexample
 
 @end itemize
@@ -416,34 +417,34 @@ condition without a new-line.
 @itemize @bullet
 
 @noindent
-When possible, have "for" or "while" on one line with the condition
-and the "loop" keyword.
+When possible, have "@b{for}" or "@b{while}" on one line with the condition
+and the "@b{loop}" keyword.
 
 @smallexample
-       for J in S'Range loop
+       @b{for} J @b{in} S'@b{Range} @b{loop}
           ...
-       end loop;
+       @b{end loop};
 @end smallexample
 
 @noindent
 If the condition is too long, split the condition (see if_statement)
-and align "loop" with the "for" or "while" keyword.
+and align "@b{loop}" with the "@b{for}" or "@b{while}" keyword.
 
 @smallexample
-      while <long_condition_that_has_to_be_split>
-        and then <continued_on_the_next_line>
-      loop
+      @b{while} <long_condition_that_has_to_be_split>
+        @b{and then} <continued_on_the_next_line>
+      @b{loop}
          ...
-      end loop;
+      @b{end loop};
 @end smallexample
 
 @noindent
 If the loop_statement has an identifier, it is layout as follows:
 
 @smallexample
-      Outer : while not <condition> loop
+      Outer : @b{while not} <condition> @b{loop}
          ...
-      end Outer;
+      @b{end} Outer;
 @end smallexample
 @end itemize
 
@@ -451,15 +452,15 @@ If the loop_statement has an identifier, it is layout as follows:
 @itemize @bullet
 
 @item
-The (optional) "declare", "begin" and "end" statements are aligned,
+The (optional) "@b{declare}", "@b{begin}" and "@b{end}" statements are aligned,
 except when the block_statement is named:
 
 @smallexample
-      Some_Block : declare
+      Some_Block : @b{declare}
          ...
-      begin
+      @b{begin}
          ...
-      end Some_Block;
+      @b{end} Some_Block;
 @end smallexample
 
 @end itemize
@@ -475,38 +476,38 @@ except when the block_statement is named:
 @itemize @bullet
 
 @item
-Always write the "in" for parameters, even in functions:
+Always write the "@b{in}" for parameters, even in functions:
 
 @smallexample
-      function Length (S : in String) return Integer;
+      @b{function} Length (S : @b{in} String) @b{return} Integer;
 @end smallexample
 
 @item The mode should be indented as follow
 
 @smallexample
-      procedure My_Proc
-        (First  : in     Integer;
-         Second :    out Character;
-         Third  : access String;
-         Fourth : in out Float);
+      @b{procedure} My_Proc
+        (First  : @b{in}     Integer;
+         Second :    @b{out} Character;
+         Third  : @b{access} String;
+         Fourth : @b{in out} Float);
 @end smallexample
 
 @item
 When the declaration line for a procedure or a function is too long, fold it.
 
 @smallexample
-      function Head
-        (Source : in String;
-         Count  : in Natural;
-         Pad    : in Character := Space)
-         return String;
+      @b{function} Head
+        (Source : @b{in} String;
+         Count  : @b{in} Natural;
+         Pad    : @b{in} Character := Space)
+         @b{return} String;
 @end smallexample
 
 @item
 The parameter list for a subprogram is preceded by a space:
 
 @smallexample
-        procedure Func (A : in out Integer);
+        @b{procedure} Func (A : @b{in out} Integer);
 @end smallexample
 
 @end itemize
@@ -528,27 +529,27 @@ format:
       -- My_Function --
       -----------------
 
-      procedure My_Function is
-      begin
+      @b{procedure} My_Function @b{is}
+      @b{begin}
 @end smallexample
 
 Note that the name in the header is preceded by a single space, 
 not two spaces as for other comments.
 
 @item If the subprogram parameters are on multiple lines and there is
-some declaration the "is" must be on a separate line.
+some declaration the "@b{is}" must be on a separate line.
 
 @smallexample
-      procedure My_Function (X : in Integer) is
+      @b{procedure} My_Function (X : @b{in} Integer) @b{is}
          X : Float;
-      begin
+      @b{begin}
 
-      procedure My_Function 
-        (X : in Integer;
-         Y : in Float)
-      is
+      @b{procedure} My_Function 
+        (X : @b{in} Integer;
+         Y : @b{in} Float)
+      @b{is}
          A : Character;
-      begin
+      @b{begin}
 @end smallexample
 
 @item
@@ -559,9 +560,9 @@ If declarations of a subprogram contain at least one nested subprogram
 body, then just before the begin is a line:
 
 @smallexample
-        --  Start of processing for bla bla
+        --  @i{Start of processing for bla bla}
 
-	begin
+	@b{begin}
 @end smallexample
 
 @end itemize
@@ -577,9 +578,9 @@ body, then just before the begin is a line:
 All program units and subprograms have their name at the end:
 
 @smallexample
-      package P is
+      @b{package} P @b{is}
          ...
-      end P;
+      @b{end} P;
 @end smallexample
 
 @item
@@ -591,14 +592,14 @@ solution is to use renaming. Do not with two times the same unit,
 always use the deepest child unit to with. For example do not write:
 
 @smallexample
-      with Ada.Strings;
-      with Ada.Strings.Unbounded;
+      @b{with} Ada.Strings;
+      @b{with} Ada.Strings.Unbounded;
 @end smallexample
 
 but the equivalent form:
 
 @smallexample
-      with Ada.Strings.Unbounded;
+      @b{with} Ada.Strings.Unbounded;
 @end smallexample
 
 @item
@@ -606,10 +607,10 @@ Names declared in the visible part of packages should be
 unique, to prevent name clashes when the packages are "use"d.
 
 @smallexample
-      package Entity is
-         type Entity_Kind is ...;
+      @b{package} Entity @b{is}
+         @b{type} Entity_Kind @b{is} ...;
 	 ...
-      end Entity;
+      @b{end} Entity;
 @end smallexample
 
 @item
@@ -624,14 +625,14 @@ clauses. In each group it is required to sort the clauses by
 alphabetical order.
 
 @smallexample
-      with Ada.Exceptions;
-      with Ada.Strings;
+      @b{with} Ada.Exceptions;
+      @b{with} Ada.Strings;
 
-      with Lists;
-      with Ordered_Set;
+      @b{with} Lists;
+      @b{with} Ordered_Set;
 
-      with AWS.Server;
-      with AWS.URL;
+      @b{with} AWS.Server;
+      @b{with} AWS.URL;
 @end smallexample
 
 @end itemize
@@ -643,8 +644,9 @@ alphabetical order.
 
 @itemize @bullet
 @item
-Every AWS source file must be compiled with the "-gnatwcfipru -gnatwe
--gnaty3abcefhiklmnoprst" switches to check the coding style.
+Every AWS source file must be compiled with the 
+"@b{-gnatwcfijmpruv -gnatwe -gnaty3abcefhiklmnoprst}" switches to
+check the coding style.
 
 @item
 Each source file should contain only one compilation unit.
