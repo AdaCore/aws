@@ -427,16 +427,28 @@ package body AWS.Client is
       if Status = Messages.S301 then
          --  moved permanently
 
-         Result := Response.Build (To_String (CT),
-                                   To_String (Location),
-                                   Status);
+         Result := Response.Build
+           (To_String (CT), To_String (Location), Status);
+
          Disconnect;
+         Set_Phase (Connection, Not_Monitored);
          return;
+
+      elsif Status = Messages.S404 then
+
+         Result := Response.Build
+           (MIME.Text_HTML, "(404) not found", Status);
+
+         Disconnect;
+         Set_Phase (Connection, Not_Monitored);
+         return;
+
       end if;
 
       if not Get_Body then
          Result := Response.Build (To_String (CT), "", Status);
          Disconnect;
+         Set_Phase (Connection, Not_Monitored);
          return;
       end if;
 
@@ -524,7 +536,8 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False);
+              Persistent => False,
+              Timeouts   => Timeouts);
 
       Get (Connection, Result);
 
@@ -592,7 +605,8 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False);
+              Persistent => False,
+              Timeouts   => Timeouts);
 
       Head (Connection, Result);
       Close (Connection);
@@ -928,7 +942,8 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False);
+              Persistent => False,
+              Timeouts   => Timeouts);
 
       Post (Connection, Result, Data);
       Close (Connection);
@@ -1040,7 +1055,8 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False);
+              Persistent => False,
+              Timeouts   => Timeouts);
 
       Put (Connection, Result, Data);
       Close (Connection);
@@ -1161,7 +1177,8 @@ package body AWS.Client is
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
               SOAPAction => SOAPAction,
-              Persistent => False);
+              Persistent => False,
+              Timeouts   => Timeouts);
 
       Post (Connection, Result, Data);
       Close (Connection);
