@@ -398,6 +398,11 @@ is
       URI : constant String := AWS.Status.URI (C_Stat);
 
    begin
+      --  Set status peername
+
+      AWS.Status.Set.Peername
+        (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
+
       --  Check if the status page, status page logo or status page images are
       --  requested. These are AWS internal data that should not be handled by
       --  AWS users.
@@ -482,9 +487,6 @@ is
             --  If no one applied, run the user callback
 
             if not Found then
-               AWS.Status.Set.Peername
-                 (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
-
                declare
                   Socket : aliased Sockets.Socket_FD'Class := Sock;
                begin
