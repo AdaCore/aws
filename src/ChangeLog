@@ -1,5 +1,8 @@
 2001-09-24  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Header): Optimize parsing of header line.
+
 	* aws-client.adb:
 	(Get_Response): Use a string to build the response. Previous
 	 algorithm using Unbounded_String was very very slow for big page.
