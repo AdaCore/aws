@@ -1,3 +1,12 @@
+2002-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.ads, aws-utils.adb:
+	(Is_Number): New routine.
+
+	* aws-url.adb:
+	(Parse): Rewrite most of the code. Handle better wrong URL. Code
+	 is clearer. Add lot of comments as this is a tricky part.
+
 2002-11-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers-values.adb:

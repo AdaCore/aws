@@ -1,3 +1,11 @@
+2002-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add support for turl4.
+
+	* turl4.adb, turl4.out:
+	Initial revision.
+
 2002-11-22  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* makefile:
