@@ -57,6 +57,7 @@ package AWS.Status is
    function If_Modified_Since      (D : in Data) return String;
    function Method                 (D : in Data) return Request_Method;
    function Multipart_Boundary     (D : in Data) return String;
+   function Peername               (D : in Data) return String;
    function Session                (D : in Data) return String;
    function Session                (D : in Data) return AWS.Session.ID;
    function URI                    (D : in Data) return String;
@@ -102,6 +103,7 @@ private
    type Data (Parameters_Case_Sensitive : Boolean := True) is record
       Connection        : Unbounded_String;
       Host              : Unbounded_String;
+      Peername          : Unbounded_String;
       Method            : Request_Method     := GET;
       URI               : Unbounded_String;
       Parameters        : AWS.Parameters.Set := AWS.Parameters.Empty_Set;
