@@ -1,3 +1,8 @@
+2003-12-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+        Update to new version. Fix attribute detection.
+
 2003-12-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb, templates_parser-filter.adb:
@@ -46,7 +51,7 @@
 	* templates_parser.adb, templates_parser-filter.adb:
 	Update to new version, MATCH filter support a regpat (uniform with
 	 REPLACE and REPLACE_ALL filters).
-	
+
 2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb, templates_parser-filter.adb:
@@ -116,7 +121,7 @@
 
 	* makefile:
 	(SOURCES): Add templates_parser-query.adb.
-	
+
 	* memory_streams.adb:
 	Minor reformatting.
 
@@ -141,7 +146,7 @@
 
 	* zlib.adb:
 	Revert back previous change.
-	
+
 2003-10-23  Pascal Obry  <pascal.obry@edf.fr>
 
 	* zlib.adb:
@@ -177,7 +182,7 @@
 	(End_Of_File): Correctly detect end of stream data. Fix an access
 	 violation.
 	Reformat code.
-	
+
 	* zlib.ads:
 	More comment fixes.
 
@@ -272,8 +277,8 @@
 	* memory_streams.ads:
 	Add comments. Put many ??? where more comments are needed.
 	Minor reformatting.
-	
-	* memory_streams.adb: 
+
+	* memory_streams.adb:
 	(File): Rename parameter Resource to File for consistency.
 	Add comments. Put many ??? where more comments are needed.
 	Minor reformatting.
@@ -333,14 +338,14 @@
 
 	* src_include.gpr:
 	Initial revision.
-	
+
 	* makefile:
 	Add section to build AWS based on project files.
 	(gbuild): New target.
 	(gclean): Idem.
 	(gsetup): Idem.
 
-	* include.gpr: 
+	* include.gpr:
 	New version, this version make it possible to develop AWS using
 	 the project files from GPS.
 
@@ -376,7 +381,7 @@
 	(Bind): Use it.
 	(Connect): Use it.
 	Fixes a problem to connect to some servers using the IP address.
-	
+
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
@@ -401,7 +406,7 @@
 
 2003-02-27  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* templates_parser.adb: 
+	* templates_parser.adb:
 	Update to version 4.7. Bug fix.
 
 2003-02-25  Pascal Obry  <p.obry@wanadoo.fr>
@@ -474,7 +479,7 @@
 	 handles both IP and hostname.
 	(Shutdown): Check if the socket is null. This can be the case if
 	 the Connect routine failed.
-	
+
 	* templates_parser.adb:
 	New version based on Templates_Parser 4.5.
 	Filters LF_2_BR and BR_2_LF added.
