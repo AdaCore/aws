@@ -1,5 +1,45 @@
 2001-09-13  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Create_Session): check using No_Session constant.
+	(Send_General_Header): convert the session ID using Session.Image
+	 routine.
+
+	* aws-session.adb:
+	(Value): returns No_Session if SID is not a recognized AWS session ID.
+
+	* aws-session.ads:
+	(No_Session): new constant.
+	(Value): add some comment.
+	Reformating.
+
+	* aws-status-set.adb:
+	(Reset): D.Sesison_ID is now set to AWS.Session.No_Session.
+	(Session): uses AWS.Session.Value to set D.Session_ID.
+
+	* aws-status-set.ads:
+	Minor reformating.
+
+	* aws-status.adb: 
+	(Has_Session): check using AWS.Session.No_Session which is cleaner.
+	(Session): remove version returning a string (it is always
+	 possible to use AWS.Session.Image to do so).
+
+	* aws-status.ads:
+	Add lot of comments.
+	(Session): remove version returning a string (it is always
+	 possible to use AWS.Session.Image to do so).
+	(Data): Session_ID is not a Session.ID type.
+
+	* aws-translator.ads: 
+	Minor comment fix.
+
+	* aws-url.adb:
+	Reformating.
+
+	* aws-session.ads: 
+	Reformating.
+
 	* aws-log.adb: 
 	(Write): Fix log format. Minor reformating.
 
