@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -222,8 +222,7 @@ package body AWS.Digest is
    ----------
 
    function Tail
-     (Nonce, NC, CNonce, QOP : in String;
-      Method, URI            : in String)
+     (Nonce, NC, CNonce, QOP, Method, URI : in String)
       return String
    is
       MUD : constant Digest_String := MD5.Digest (Method & ':' & URI);
