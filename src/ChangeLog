@@ -1,3 +1,18 @@
+2003-11-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-os_lib.ads:
+	(Open): New procedure.
+	(Read): Idem.
+	(Close): Idem.
+	(Base_Name): Idem.
+	(File_Extension): Idem.
+	(File_Name): Idem.
+	Part of work for ObjectAda compatibility.
+
+	* aws-utils.adb, aws-smtp-client.adb, aws-mime.adb:
+	Use AWS.OS_Lib services instead of GNAT.Directory_Operations.
+	Part of work for ObjectAda compatibility.
+
 2003-11-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-streams-disk-once.ads,

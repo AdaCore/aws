@@ -1,3 +1,14 @@
+2003-11-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-os_lib__gnat.adb:
+	(Open): New procedure.
+	(Read): Idem.
+	(Close): Idem.
+	(Base_Name): Idem.
+	(File_Extension): Idem.
+	(File_Name): Idem.
+	Part of work for ObjectAda compatibility.
+
 2003-11-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-os_lib__gnat.adb:
