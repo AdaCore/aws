@@ -217,7 +217,7 @@ package body SOAP.WSDL.Parser is
 
       N := DOM.Core.Nodes.First_Child (Parent);
 
-      while DOM.Core.Nodes.Node_Name (N) = "#text" loop
+      while N /= null and then DOM.Core.Nodes.Node_Name (N) = "#text" loop
          N := DOM.Core.Nodes.Next_Sibling (N);
       end loop;
 
@@ -568,6 +568,8 @@ package body SOAP.WSDL.Parser is
    is
       N : DOM.Core.Node := Message;
    begin
+      Trace ("(Parse_Message)", Message);
+
       N := First_Child (N);
 
       while N /= null loop
