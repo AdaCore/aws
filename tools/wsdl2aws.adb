@@ -167,7 +167,7 @@ procedure WSDL2AWS is
 
       loop
          case Command_Line.Getopt
-           ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel")
+           ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel types:")
          is
             when ASCII.NUL => exit;
 
@@ -238,6 +238,14 @@ procedure WSDL2AWS is
                   raise Syntax_Error;
                end if;
 
+            when 't' =>
+               if Command_Line.Full_Switch = "types" then
+                  SOAP.Generator.Types_From (Gen, GNAT.Command_Line.Parameter);
+
+               else
+                  raise Syntax_Error;
+               end if;
+
             when others =>
                raise Program_Error;
          end case;
@@ -302,21 +310,23 @@ exception
       Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
       New_Line;
       Put_Line ("Usage: wsdl2aws [options] <file|URL>");
-      Put_Line ("   -q        Quiet mode");
-      Put_Line ("   -a        Ada style identifier");
-      Put_Line ("   -f        Force files creation stub/skeleton/WSDL");
-      Put_Line ("   -s        Skip non supported SOAP routines");
-      Put_Line ("   -o        Output filename for Web Document (URL mode)");
-      Put_Line ("   -doc      Accept Document style binding (parsed as RPC)");
-      Put_Line ("   -v        Verbose mode");
-      Put_Line ("   -v -v     Very verbose mode");
-      Put_Line ("   -wsdl     Add WSDL file in unit comment");
-      Put_Line ("   -cvs      Add CVS tag in unit's headers");
-      Put_Line ("   -nostub   Do not create stub units");
-      Put_Line ("   -noskel   Do not create skeleton units");
-      Put_Line ("   -proxy n  Name or IP of the proxy");
-      Put_Line ("   -pu n     The proxy user name");
-      Put_Line ("   -pp n     The proxy password");
+      Put_Line ("   -q           Quiet mode");
+      Put_Line ("   -a           Ada style identifier");
+      Put_Line ("   -f           Force files creation stub/skeleton/WSDL");
+      Put_Line ("   -s           Skip non supported SOAP routines");
+      Put_Line ("   -o           Output filename for Web Document (URL mode)");
+      Put_Line
+        ("   -doc         Accept Document style binding (parsed as RPC)");
+      Put_Line ("   -v           Verbose mode");
+      Put_Line ("   -v -v        Very verbose mode");
+      Put_Line ("   -wsdl        Add WSDL file in unit comment");
+      Put_Line ("   -cvs         Add CVS tag in unit's headers");
+      Put_Line ("   -nostub      Do not create stub units");
+      Put_Line ("   -noskel      Do not create skeleton units");
+      Put_Line ("   -types spec  Use types (array/record) from Ada spec");
+      Put_Line ("   -proxy addr  Name or IP of the proxy");
+      Put_Line ("   -pu name     The proxy user name");
+      Put_Line ("   -pp pwd      The proxy password");
       New_Line;
 
    when Name_Error =>
