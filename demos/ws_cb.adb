@@ -48,7 +48,7 @@ package body WS_CB is
    begin
       if URI = "/ref" then
          return AWS.Response.Moved
-           (Location => "http://dieppe:1234/page1.html");
+           (Location => "http://localhost:1234/page1.html");
 
       elsif OS_Lib.Is_Regular_File (Filename) then
          return AWS.Response.File
