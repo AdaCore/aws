@@ -30,10 +30,10 @@
 
 --  $Id$
 
+with Ada.Calendar;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Exceptions;
-with Ada.Calendar;
 
 with Input_Sources.Strings;
 with Unicode.CES.Utf8;
@@ -44,6 +44,7 @@ with SOAP.Message.Reader;
 with SOAP.Message.Response.Error;
 with SOAP.Types;
 with SOAP.Utils;
+with SOAP.XML;
 
 package body SOAP.Message.XML is
 
@@ -495,13 +496,15 @@ package body SOAP.Message.XML is
                       (Atts, Utils.NS (xsd) & ":arrayType") /= null;
       end Is_Array;
 
+      XSI_Type : constant DOM.Core.Node := Get_Named_Item (Atts, "xsi:type");
+
    begin
       if To_String (S.Wrapper_Name) = "Fault" then
          return Parse_String (N);
 
       else
-         if Length (Atts) = 0 and then S.A_State in Void .. A_Undefined then
-            --  No attribute found.
+         if XSI_Type = null and then S.A_State in Void .. A_Undefined then
+            --  No xsi:type attribute found
 
             if First_Child (N) /= null
               and then First_Child (N).Node_Type = DOM.Core.Text_Node
@@ -523,10 +526,12 @@ package body SOAP.Message.XML is
                return Parse_String (N);
 
             else
-               --  This is a SOAP record, we have no attribute and no type
-               --  defined. We have a single tag "<name>" which can only be
-               --  the start or a record.
-
+               --  This is a type defined in a schema, either a SOAP record
+               --  or an enumeration, enumerations will be checked into
+               --  Parse record.
+               --  This is a SOAP record, we have no attribute and no
+               --  type defined. We have a single tag "<name>" which can
+               --  only be the start or a record.
                return Parse_Record (N, S);
             end if;
 
@@ -555,63 +560,58 @@ package body SOAP.Message.XML is
 
                when Void | A_Undefined =>
 
-                  declare
-                     XSI_Type : constant DOM.Core.Node
-                       := Get_Named_Item (Atts, "xsi:type");
-                  begin
-                     if XSI_Type = null then
-                        declare
-                           N : constant DOM.Core.Node
-                             := Get_Named_Item (Atts, "xsi:null");
-                        begin
-                           if N = null then
-                              Error (Parse_Param.N,
-                                     "Wrong or unsupported type");
-                           else
-                              return Types.N (Name);
-                           end if;
-                        end;
+                  if XSI_Type = null then
+                     declare
+                        N : constant DOM.Core.Node
+                          := Get_Named_Item (Atts, "xsi:null");
+                     begin
+                        if N = null then
+                           Error (Parse_Param.N,
+                                  "Wrong or unsupported type");
+                        else
+                           return Types.N (Name);
+                        end if;
+                     end;
 
-                     else
+                  else
 
-                        declare
-                           xsd : constant String := Node_Value (XSI_Type);
-                        begin
-                           if xsd = Types.XML_Int then
-                              return Parse_Int (N);
+                     declare
+                        xsd : constant String := Node_Value (XSI_Type);
+                     begin
+                        if xsd = Types.XML_Int then
+                           return Parse_Int (N);
 
-                           elsif xsd = Types.XML_Float then
-                              return Parse_Float (N);
+                        elsif xsd = Types.XML_Float then
+                           return Parse_Float (N);
 
-                           elsif xsd = Types.XML_Double then
-                              return Parse_Double (N);
+                        elsif xsd = Types.XML_Double then
+                           return Parse_Double (N);
 
-                           elsif xsd = Types.XML_String then
-                              return Parse_String (N);
+                        elsif xsd = Types.XML_String then
+                           return Parse_String (N);
 
-                           elsif xsd = Types.XML_Boolean then
-                              return Parse_Boolean (N);
+                        elsif xsd = Types.XML_Boolean then
+                           return Parse_Boolean (N);
 
-                           elsif xsd = Types.XML_Time_Instant then
-                              return Parse_Time_Instant (N);
+                        elsif xsd = Types.XML_Time_Instant then
+                           return Parse_Time_Instant (N);
 
-                           elsif xsd = Types.XML_Base64 then
-                              return Parse_Base64 (N);
+                        elsif xsd = Types.XML_Base64 then
+                           return Parse_Base64 (N);
 
-                           elsif Is_Array then
-                              return Parse_Array (N, S);
+                        elsif Is_Array then
+                           return Parse_Array (N, S);
 
-                           else
-                              --  Not a known basic type, let's try to parse a
-                              --  record object. This implemtation does not
-                              --  support schema so there is no way to check
-                              --  for the real type here.
+                        else
+                           --  Not a known basic type, let's try to parse a
+                           --  record object. This implemtation does not
+                           --  support schema so there is no way to check
+                           --  for the real type here.
 
-                              return Parse_Record (N, S);
-                           end if;
-                        end;
-                     end if;
-                  end;
+                           return Parse_Record (N, S);
+                        end if;
+                     end;
+                  end if;
             end case;
          end if;
       end if;
@@ -627,24 +627,34 @@ package body SOAP.Message.XML is
       return Types.Object'Class
    is
       use type DOM.Core.Node;
+      use type DOM.Core.Node_Types;
       use SOAP.Types;
 
       Name  : constant String := Local_Name (N);
       OS    : Types.Object_Set (1 .. Max_Object_Size);
       K     : Natural := 0;
 
-      Field : DOM.Core.Node;
+      Field : DOM.Core.Node := SOAP.XML.Get_Ref (N);
    begin
-      Field := First_Child (N);
+      if N /= Field
+        and then First_Child (Field).Node_Type = DOM.Core.Text_Node
+      then
+         --  This is not a record after all, it is an enumeration with an href
+         --  A record can't have a text child node..
+         return Types.S (Node_Value (First_Child (Field)), Name);
 
-      while Field /= null loop
-         K := K + 1;
-         OS (K) := +Parse_Param (Field, S);
+      else
+         Field := First_Child (Field);
 
-         Field := Next_Sibling (Field);
-      end loop;
+         while Field /= null loop
+            K := K + 1;
+            OS (K) := +Parse_Param (Field, S);
 
-      return Types.R (OS (1 .. K), Name);
+            Field := Next_Sibling (Field);
+         end loop;
+
+         return Types.R (OS (1 .. K), Name);
+      end if;
    end Parse_Record;
 
    ------------------
