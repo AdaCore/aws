@@ -106,11 +106,13 @@ ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS
 
 set_ssl:
 	echo "MODE=ssl" > makefile.conf
-	${MAKE} -C src ssl_mode
+	make -C demos clean $(ALL_OPTIONS)
+	make -C ssl clean $(ALL_OPTIONS)
 
 set_std:
 	echo "MODE=std" > makefile.conf
-	${MAKE} -C src std_mode
+	make -C demos clean $(ALL_OPTIONS)
+	make -C ssl clean $(ALL_OPTIONS)
 
 build_lib: build_ssllib build_include build_aws build_win32
 
@@ -142,10 +144,18 @@ build_soap_demos:
 
 build_ssllib:
 ifeq ($(MODE),ssl)
+	echo ""
+	echo === Build SSL support
 	${MAKE} -C ssl build $(ALL_OPTIONS)
+else
+	echo ""
+	echo === Build SSL wrappers
+	${MAKE} -C ssl wrappers $(ALL_OPTIONS)
 endif
 
 build_soaplib: build_include
+	echo ""
+	echo === Build SOAP library
 	${MAKE} -C soap build $(ALL_OPTIONS)
 
 build_soap: build_lib build_soaplib build_soap_demo
