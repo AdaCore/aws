@@ -1,5 +1,10 @@
 2004-06-27  Pascal Obry  <pascal@obry.org>
 
+	* datafeed_service.adb:
+	Remove error server logs.
+	
+2004-06-27  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	(WSDL_TESTS): Add datafeed_service.
 
