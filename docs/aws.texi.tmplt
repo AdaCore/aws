@@ -1207,6 +1207,16 @@ This is the maximum number of simultaneous connections for the
 server. This can be used when calling the @code{AWS.Server.Start}. The
 default is @_MAX_CONNECT_@.
 
+@item Free_Slots_Keep_Alive_Limit (positive)
+@cindex Free_Slots_Keep_Alive_Limit
+This is the minimum number of remain free slots to enable keep-alive http
+connection. For the hard loaded HTTP servers the Max_Connection parameter
+should be big enought, and Free_Slots_Keep_Alive_Limit should be about 1-10%
+from the Max_Connection parameter, depend on duration of the average server
+response. If the HTTP server is longer generating HTTP pages, so the
+Free_Slots_Keep_Alive_Limit should be more.
+The default is @_KEEP_ALIVE_LIMIT_@.
+
 @item Receive_Timeout (duration)
 @cindex Receive_Timeout
 Number of seconds to timeout when receiving chunk of data. The
