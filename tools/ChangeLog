@@ -1,3 +1,10 @@
+2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* awsres.adb:
+	(Version): Set to 1.2.
+	(Create): If resource is compressed, register it with .gz
+	 extension. Change code to register resource.
+
 2003-12-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
