@@ -10,11 +10,15 @@ SOURCES	= soap.ads soap-types.adb soap-parameters.adb soap-message.adb \
 	soap-message-response-error.adb soap-message-payload.adb \
 	soap-client.adb soap-utils.adb soap-message-reader.adb
 
-build:
-	for file in $(SOURCES); do \
-	   echo Building $$file; \
-	   gnatmake $(GARGS) $$file; \
-	done
+UNITS = $(sort $(basename $(SOURCES)))
+
+force:
+
+$(UNITS): force
+	echo Building $@;
+	gnatmake -u $(GARGS) $@;
+
+build: $(UNITS)
 
 clean:
 	-rm *.o *.ali b~*.ad* *.~*.*.~
