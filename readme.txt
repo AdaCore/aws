@@ -72,7 +72,7 @@ Here are the main changes since AWS 2.0 :
 
    - Support for certificates chain.
 
-   - Streaming response read in the HTTP client interface.
+   - Support for streaming response in the HTTP client interface.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
