@@ -3,7 +3,7 @@
 
 .SILENT: all build clean
 
-GFLAGS	= -g -O2
+GARGS	= -g -O2
 
 SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
 	table_of_static_keys_and_dynamic_values_g \
@@ -19,7 +19,7 @@ all:
 	echo ""
 
 build: 
-	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
+	for file in $(SOURCES); do gnatmake $(GARGS) $$file; done
 
 clean:
 	-rm *.o *.ali
