@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -80,6 +80,7 @@ package AWS.Default is
    Logo_Image      : constant String := "aws_logo.png";
 
    Security                  : constant Boolean := False;
+   Certificate               : constant String  := "cert.pem";
    Session                   : constant Boolean := False;
    Case_Sensitive_Parameters : constant Boolean := True;
    Check_URL_Validity        : constant Boolean := True;
