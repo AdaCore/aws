@@ -5620,6 +5620,7 @@ By Dave Winer, Jake Savin, UserLand Software, 4/2/01.
 AWS User's API:
 
 * AWS::
+* AWS.Attachments::
 * AWS.Client::
 * AWS.Client.Hotplug::
 * AWS.Communication::
@@ -5691,6 +5692,13 @@ SOAP User's API:
 @cindex AWS
 
 @include aws.ads.texi
+
+@page
+@node AWS.Attachments
+@appendixsec AWS.Attachments
+@cindex AWS.Attachments
+
+@include aws-attachments.ads.texi
 
 @page
 @node AWS.Client
