@@ -780,22 +780,6 @@ is
                          "--" & Multipart_Boundary & "--",
                          True);
 
-         elsif Status.Method (C_Stat) = Status.POST
-           and then Status.Is_SOAP (C_Stat)
-         then
-            --  This is a SOAP request, read and set the Payload XML message
-
-            declare
-               use Streams;
-
-               Data : Stream_Element_Array
-                 (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
-            begin
-               Net.Buffered.Read (Sock, Data);
-
-               AWS.Status.Set.Payload (C_Stat, Translator.To_String (Data));
-            end;
-
          else
             --  Let's suppose for now that all others content type data are
             --  binary data.
