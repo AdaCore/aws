@@ -1,6 +1,9 @@
 2001-10-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-push.adb:
+	(Register): in Plain mode send a new line.
+	
+	* aws-server-push.adb:
 	(Register): new version that does not raise exception but return a
 	 boolean if duplicate item found.
 	(Object): put routines in alphabetical order.
