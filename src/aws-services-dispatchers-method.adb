@@ -34,6 +34,8 @@ with AWS.MIME;
 
 package body AWS.Services.Dispatchers.Method is
 
+   use AWS.Dispatchers;
+
    --------------
    -- Dispatch --
    --------------
@@ -64,13 +66,13 @@ package body AWS.Services.Dispatchers.Method is
    procedure Register
      (Dispatcher : in out Handler;
       Method     : in     Status.Request_Method;
-      Action     : in     Dispatchers.Handler'Class) is
+      Action     : in     AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Table (Method) /= null then
          Free (Dispatcher.Table (Method));
       end if;
 
-      Dispatcher.Table (Method) := new Dispatchers.Handler'Class'(Action);
+      Dispatcher.Table (Method) := new AWS.Dispatchers.Handler'Class'(Action);
    end Register;
 
    -------------------------------
@@ -79,13 +81,13 @@ package body AWS.Services.Dispatchers.Method is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     Dispatchers.Handler'Class) is
+      Action     : in     AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Action /= null then
          Free (Dispatcher.Action);
       end if;
 
-      Dispatcher.Action := new Dispatchers.Handler'Class'(Action);
+      Dispatcher.Action := new AWS.Dispatchers.Handler'Class'(Action);
    end Register_Default_Callback;
 
    ----------------

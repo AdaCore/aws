@@ -34,11 +34,13 @@ with Ada.Strings.Unbounded;
 
 with Table_Of_Strings_And_Static_Values_G;
 
+with AWS.Dispatchers;
 with AWS.Response;
+with AWS.Status;
 
 package AWS.Services.Dispatchers.Virtual_Host is
 
-   type Handler is new Dispatchers.Handler with private;
+   type Handler is new AWS.Dispatchers.Handler with private;
 
    function Dispatch
      (Dispatcher : in Handler;
@@ -55,7 +57,7 @@ package AWS.Services.Dispatchers.Virtual_Host is
    procedure Register
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String;
-      Action           : in     Dispatchers.Handler'Class);
+      Action           : in     AWS.Dispatchers.Handler'Class);
    --  Register Virtual_Hostname to use the specified callback.
 
    procedure Unregister
@@ -65,7 +67,7 @@ package AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     Dispatchers.Handler'Class);
+      Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register the default callback. This will be used if no Virtual_Hostname
    --  match the request.
 
@@ -83,7 +85,7 @@ private
          when Host =>
             Hostname : Unbounded_String;
          when Callback =>
-            Action   : Handler_Class_Access;
+            Action   : AWS.Dispatchers.Handler_Class_Access;
       end case;
    end record;
 
@@ -92,8 +94,8 @@ private
 
    type VH_Table_Access is access Virtual_Host_Table.Table_Type;
 
-   type Handler is new Dispatchers.Handler with record
-      Action : Handler_Class_Access;
+   type Handler is new AWS.Dispatchers.Handler with record
+      Action : AWS.Dispatchers.Handler_Class_Access;
       Table  : VH_Table_Access;
    end record;
 

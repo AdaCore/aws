@@ -32,11 +32,13 @@
 
 --  Dispatch on a Callback procedure.
 
+with AWS.Dispatchers;
 with AWS.Response;
+with AWS.Status;
 
 package AWS.Services.Dispatchers.Callback is
 
-   type Handler is new Dispatchers.Handler with private;
+   type Handler is new AWS.Dispatchers.Handler with private;
 
    function Create
      (Callback : in Response.Callback)
@@ -51,7 +53,7 @@ package AWS.Services.Dispatchers.Callback is
 
 private
 
-   type Handler is new Dispatchers.Handler with record
+   type Handler is new AWS.Dispatchers.Handler with record
       Callback : Response.Callback;
    end record;
 

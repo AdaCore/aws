@@ -36,11 +36,13 @@ with Ada.Strings.Unbounded;
 
 with GNAT.Dynamic_Tables;
 
+with AWS.Dispatchers;
 with AWS.Response;
+with AWS.Status;
 
 package AWS.Services.Dispatchers.URI is
 
-   type Handler is new Dispatchers.Handler with private;
+   type Handler is new AWS.Dispatchers.Handler with private;
 
    function Dispatch
      (Dispatcher : in Handler;
@@ -50,14 +52,14 @@ package AWS.Services.Dispatchers.URI is
    procedure Register
      (Dispatcher : in out Handler;
       URI        : in     String;
-      Action     : in     Dispatchers.Handler'Class);
+      Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register URI to use the specified dispatcher. URI is the full string
    --  that must match the ressource requested (with the leading /).
 
    procedure Register_Regexp
      (Dispatcher : in out Handler;
       URI        : in     String;
-      Action     : in     Dispatchers.Handler'Class);
+      Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register URI to use the specified dispatcher. URI is a regular
    --  expression that must math the ressource requested (with the leading /).
 
@@ -69,7 +71,7 @@ package AWS.Services.Dispatchers.URI is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     Dispatchers.Handler'Class);
+      Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register the default callback. This will be used if no URI match
    --  the request.
 
@@ -81,7 +83,7 @@ private
    use Ada.Strings.Unbounded;
 
    type Std_URI is tagged record
-      Action : Handler_Class_Access;
+      Action : AWS.Dispatchers.Handler_Class_Access;
       URI    : Unbounded_String;
    end record;
 
@@ -92,8 +94,8 @@ private
    package URI_Table is
       new GNAT.Dynamic_Tables (URI_Class_Access, Positive, 1, 20, 10);
 
-   type Handler is new Dispatchers.Handler with record
-      Action : Handler_Class_Access;
+   type Handler is new AWS.Dispatchers.Handler with record
+      Action : AWS.Dispatchers.Handler_Class_Access;
       Table  : URI_Table.Instance;
    end record;
 

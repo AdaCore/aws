@@ -40,7 +40,7 @@ with AWS.Hotplug;
 with AWS.Config;
 with AWS.Default;
 with AWS.Log;
-with AWS.Services.Dispatchers;
+with AWS.Dispatchers;
 
 package AWS.Server is
 
@@ -65,10 +65,10 @@ package AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Dispatcher : in     Services.Dispatchers.Handler'Class;
+      Dispatcher : in     Dispatchers.Handler'Class;
       Config     : in     AWS.Config.Object);
    --  The same, but using the dispatcher tagged type instead of callback. See
-   --  AWS.Services.Dispatchers hierarchy.
+   --  AWS.Services.Dispatchers hierarchy for built-in services.
 
    procedure Start
      (Web_Server                : in out HTTP;
@@ -330,7 +330,7 @@ private
       Log             : AWS.Log.Object;
       --  Loggin support.
 
-      Dispatcher      : Services.Dispatchers.Handler_Class_Access;
+      Dispatcher      : Dispatchers.Handler_Class_Access;
       --  Dispatcher for the user actions.
 
       Filters         : Hotplug.Filter_Set;

@@ -40,7 +40,7 @@ package body AWS.Services.Dispatchers.Callback is
      (Callback : in Response.Callback)
      return Handler is
    begin
-      return (Dispatchers.Handler with Callback => Callback);
+      return (AWS.Dispatchers.Handler with Callback => Callback);
    end Create;
 
    --------------
