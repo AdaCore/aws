@@ -14,8 +14,14 @@ include makefile.conf
 #XMLADA	= /usr/Ada.Libraries/XMLada
 
 ifdef XMLADA
+# This configuration is for XmlAda 0.7
+v_XMLADA = 0.7
 INCLUDES = -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib
-LIBS	 = -L$(XMLADA)/lib -lxmlada
+LIB_DOM  = -lxmlada_dom-$(v_XMLADA)
+LIB_UNIC = -lxmlada_unicode-$(v_XMLADA)
+LIB_SAX  = -lxmlada_sax-$(v_XMLADA)
+LIB_IS   =  -lxmlada_input_sources-$(v_XMLADA)
+LIBS	 = -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX)
 endif
 
 INSTALL	 = /usr/Ada.Libraries/AWS
