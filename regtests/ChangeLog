@@ -11,6 +11,8 @@
 
 	* makefile:
 	Include tmem and file2 tests.
+	Add file2 from zres dependence, file2 use the same embedded
+	 resources.
 
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
