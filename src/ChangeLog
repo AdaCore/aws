@@ -1,20 +1,20 @@
 2004-11-03  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.ads:
-        (For_Every_Association): New routine.
+	(For_Every_Association): New routine.
 
 	* templates_parser.adb:
-        (Absolute): New filter.
-        (Neg): New filter.
-        (For_Every_Association): New routine.
-        (Assoc): Handle properly the separator if specified.
+	(Absolute): New filter.
+	(Neg): New filter.
+	(For_Every_Association): New routine.
+	(Assoc): Handle properly the separator if specified.
 
 	* templates_parser-filter.adb:
 	(Abs_Token): New constant.
-        (Table): Add Absolute abd Neg filters.
-        (Is_Number): Add '-' as possible character.
-        (Absolute): New filter.
-        (Neg): New filter.
+	(Table): Add Absolute abd Neg filters.
+	(Is_Number): Add '-' as possible character.
+	(Absolute): New filter.
+	(Neg): New filter.
 
 2004-11-02  Pascal Obry  <pascal@obry.org>
 
@@ -25,17 +25,17 @@
 
 	* aws-client.adb:
 	(Open_Send_Common_Header): Fix generation of the Request-URI. We need
-         the absoluteURI only when the request is made through a proxy (not
-         counting https tunneling where the request itself is being sent
-         directly to the host).
+	 the absoluteURI only when the request is made through a proxy (not
+	 counting https tunneling where the request itself is being sent
+	 directly to the host).
 
 	* aws-net-log.ads:
-        Remove Ada.Streams with clause (already in parent package).
-        Remove all Ada.Streams prefix, a use clause is in parent package.
+	Remove Ada.Streams with clause (already in parent package).
+	Remove all Ada.Streams prefix, a use clause is in parent package.
 
 	* aws-net-log.adb:
-        Minor reformatting.
-        Remove all Ada.Streams prefix, a use clause is in parent package.
+	Minor reformatting.
+	Remove all Ada.Streams prefix, a use clause is in parent package.
 
 	* aws-net-log-callbacks.ads, aws-net-log-callbacks.adb:
 	Initial revision.
@@ -47,9 +47,9 @@
 
 	* aws-server-hotplug.adb:
 	(Client_Handler.Delete_All): New procedure to delete all entry in
-         the clients table.
-        (Shutdown): Call Delete_All to remove all client information from
-         the table.
+	 the clients table.
+	(Shutdown): Call Delete_All to remove all client information from
+	 the table.
 
 	* aws-hotplug.adb:
 	(Apply): Add circuitry to handle SOAP hotplug module.
@@ -90,29 +90,29 @@
 
 	* templates_parser.adb:
 	(Max_Include_Parameters): Moved to main body as it is shared by
-         two different sub-packages.
-        (I_Kind): New type.
-        (Parameters_Data): New record.
-        (Include_Parameters): New array.
-        (No_Include_Parameters): New constant.
-        (Callback): Add I parameter (flat include parameters).
-        Idem for all filters prototypes.
-        (Is_Number): New routine, moved here from filter body.
-        (Translate): Add new parameter I_Params.
-        (Analyse.Flatten_Parameters): New routine.
-        (Parse_State): Add new field F_Params.
-        (Empty_State): Update accordingly.
-        (Analyse): In Translate and Analyse calls properly pass the F_Params
-         state.
-        This changes are made to support $<n> in filter parameters.
-        Minor reformatting.
+	two different sub-packages.
+	(I_Kind): New type.
+	(Parameters_Data): New record.
+	(Include_Parameters): New array.
+	(No_Include_Parameters): New constant.
+	(Callback): Add I parameter (flat include parameters).
+	Idem for all filters prototypes.
+	(Is_Number): New routine, moved here from filter body.
+	(Translate): Add new parameter I_Params.
+	(Analyse.Flatten_Parameters): New routine.
+	(Parse_State): Add new field F_Params.
+	(Empty_State): Update accordingly.
+	(Analyse): In Translate and Analyse calls properly pass the F_Params
+	 state.
+	This changes are made to support $<n> in filter parameters.
+	Minor reformatting.
 
 	* templates_parser-filter.adb:
 	(Replace_One_Or_All): Add I parameters (include parameters).
-        (Value): Idem. Properly detect $<n> filter name and check in this
-         case the include parameter table.
-        Add I parameters to all filter routines. In filter having a filter
-         call Value with the include parameters.
+	(Value): Idem. Properly detect $<n> filter name and check in this
+	 case the include parameter table.
+	Add I parameters to all filter routines. In filter having a filter
+	 call Value with the include parameters.
 
 2004-10-25  Pascal Obry  <pascal@obry.org>
 
