@@ -1,3 +1,15 @@
+2002-04-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-dispatchers-uri.adb:
+	Minor reformmating.
+
+	* aws-services-dispatchers-uri.ads:
+	(URI_Table): Use Natural as index type to avoid exception when
+	 table is empty (some function returns 0).
+
+	* aws-server.ads:
+	Minor reformmating.
+
 2002-04-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response.adb:
