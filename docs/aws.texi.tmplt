@@ -103,7 +103,7 @@ a very good and Open Source SSL implementation.
 @section Requirements
 
 @noindent
-@code{AWS} has been developed with GNAT under Windows NT but should be fairly
+@code{AWS} has been developed with GNAT on Windows NT but should be fairly
 portable. To build @code{AWS} you need:
 
 @itemize @bullet
@@ -116,18 +116,18 @@ only Ada95 features. So any Ada95 compiler should be usable.
 @item a socket binding ;
 @cindex socket binding
 
-Under Windows you must use the one distributed at:
-@url{http://perso.wanadoo.fr/pascal.obry} which is a port (done 
-by Dmitriy Anisimkov) to Win32 of the 0.1.9 version from ENST.
+On Windows you must use the one distributed at:
+@url{http://perso.wanadoo.fr/pascal.obry/contrib.html} which is a
+Win32 port (done by Dmitriy Anisimkov) of the ENST version.
 
-Under UNIX you must use the socket binding from ENST 
+On UNIX you must use the socket binding from ENST 
 @url{http://www.infres.enst.fr/ANC/}.
 
 @item a POSIX binding - Interface to the underlying OS services (@b{optional}) ;
 @cindex POSIX
 
-Under Windows you can use the one distributed at: 
-@url{http://perso.wanadoo.fr/pascal.obry}. Under UNIX look for the 
+On Windows you can use the one distributed at: 
+@url{http://perso.wanadoo.fr/pascal.obry}. On UNIX look for the 
 Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
 @item OpenSSL (@b{optional}) ;
@@ -167,7 +167,7 @@ $ make gnat_oslib
 
 Version with POSIX is compiler and OS independent (well if you have a POSIX
 implementation for your OS). Check out Florist which is available on many
-UNIX and the version for Win32 available under my homepage.
+UNIX and the version for Win32 available on my homepage.
 
 @smallexample
 Just copy @file{include/aws-os_lib-posix.adb} over @file{src/aws-os_lib.adb}.
@@ -255,7 +255,7 @@ A simple test for the hotplug feature.
 @item runme.exe
 
 A complete example that test many AWS features. If this test runs fine
-under your platform, AWS is certainly ok.
+on your platform, AWS is certainly ok.
 
 @item ws.exe
 
@@ -456,8 +456,8 @@ possible to configure the server via two configuration files
 @cindex Port
 
 This is the port to use for the Web server. You can use any free port on
-your computer. Note that under some OS specific range could be reserved
-or needs specials privileges (port 80 under Linux for example).
+your computer. Note that on some OS specific range could be reserved
+or needs specials privileges (port 80 on Linux for example).
 
 @item Security
 @cindex Security
