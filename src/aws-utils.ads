@@ -32,6 +32,7 @@
 
 with System;
 with Ada.Strings.Unbounded;
+with MD5;
 
 package AWS.Utils is
 
@@ -65,5 +66,10 @@ package AWS.Utils is
    procedure Parse_HTTP_Header_Line
      (Data   : in     String;
       Result :    out Result_Set);
+   --  Parse the HTTP header line. Set Result_Set (Name) with the value
+   --  corresponding to variable Name.
+
+   function Get_MD5 (Data : in String) return MD5.Digest_String;
+   --  Returns the MD5 digest value for the Data string.
 
 end AWS.Utils;
