@@ -289,11 +289,18 @@ package body AWS.Server is
             Socket : aliased Net.Socket_Type'Class
               := Accept_Socket_Serialized (HTTP_Server);
 
+            Free_Slots  : Natural;
+
          begin
-            --  If there is only one more slot available and we have many
+            HTTP_Server.Slots.Set
+              (Socket'Unchecked_Access,
+               Slot_Index,
+               Free_Slots);
+
+            --  If there is no more slot available and we have many
             --  of them, try to abort one of them.
 
-            if HTTP_Server.Slots.Free_Slots = 1
+            if Free_Slots = 0
               and then CNF.Max_Connection (HTTP_Server.Properties) > 1
             then
                select
@@ -304,8 +311,6 @@ package body AWS.Server is
                     (Text_IO.Current_Error, "Server too busy.");
                end select;
             end if;
-
-            HTTP_Server.Slots.Set (Socket'Unchecked_Access, Slot_Index);
 
             Protocol_Handler (HTTP_Server.all, Slot_Index);
 
@@ -715,7 +720,10 @@ package body AWS.Server is
       -- Set --
       ---------
 
-      procedure Set (Socket : in Socket_Access; Index : in Positive) is
+      procedure Set
+        (Socket     : in     Socket_Access;
+         Index      : in     Positive;
+         Free_Slots :    out Natural) is
       begin
          pragma Assert (Count > 0);
 
@@ -725,6 +733,7 @@ package body AWS.Server is
          Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
          Table (Index).Activity_Counter := Table (Index).Activity_Counter + 1;
          Count := Count - 1;
+         Free_Slots := Count;
       end Set;
 
       ------------------
