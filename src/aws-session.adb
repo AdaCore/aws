@@ -111,6 +111,10 @@ package body AWS.Session is
       function Session_Exist (SID : in ID) return Boolean;
       --  Return True if session SID exist in the database.
 
+      procedure Touch_Session (SID : in ID);
+      --  Updates the session Time_Stamp to current time. Does nothing if SID
+      --  does not exist.
+
       entry Key_Exist
         (SID    : in     ID;
          Key    : in     String;
@@ -361,6 +365,16 @@ package body AWS.Session is
          return Result;
       end Generate_ID;
 
+      ---------------------------
+      -- Get_Sessions_And_Lock --
+      ---------------------------
+
+      procedure Get_Sessions_And_Lock (Sessions : out Session_Set_Access) is
+      begin
+         Lock     := Lock + 1;
+         Sessions := Database.Sessions'Access;
+      end Get_Sessions_And_Lock;
+
       ---------------
       -- Get_Value --
       ---------------
@@ -536,15 +550,30 @@ package body AWS.Session is
          Update_Value (Sessions, SID, Found);
       end Set_Value;
 
-      ---------------------------
-      -- Get_Sessions_And_Lock --
-      ---------------------------
+      -------------------
+      -- Touch_Session --
+      -------------------
 
-      procedure Get_Sessions_And_Lock (Sessions : out Session_Set_Access) is
+      procedure Touch_Session (SID : in ID) is
+
+         procedure Modify
+           (Key  : in     ID;
+            Node : in out Session_Node);
+
+         Found : Boolean;
+
+         procedure Modify
+           (Key  : in     ID;
+            Node : in out Session_Node) is
+         begin
+            Node.Time_Stamp := Calendar.Clock;
+         end Modify;
+
+         procedure Update is new Session_Set.Update_Value_Or_Status_G (Modify);
+
       begin
-         Lock     := Lock + 1;
-         Sessions := Database.Sessions'Access;
-      end Get_Sessions_And_Lock;
+         Update (Sessions, SID, Found);
+      end Touch_Session;
 
       ------------
       -- Unlock --
@@ -966,6 +995,15 @@ package body AWS.Session is
    begin
       Session_Lifetime := Seconds;
    end Set_Lifetime;
+
+   -----------
+   -- Touch --
+   -----------
+
+   procedure Touch (SID : in ID) is
+   begin
+      Database.Touch_Session (SID);
+   end Touch;
 
    -----------
    -- Value --
