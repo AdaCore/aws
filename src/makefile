@@ -49,5 +49,5 @@ build:
 	$(GNATMAKE) -Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 clean:
-	-$(RM) aws-os_lib.adb aws-net-std.adb aws-translator-conversion.adb
-	-$(RM) aws-os_lib-definitions.ads
+	-$(RM) -f aws-os_lib.adb aws-net-std.adb aws-translator-conversion.adb
+	-$(RM) -f aws-os_lib-definitions.ads
