@@ -22,7 +22,8 @@
 #   3) If the test needs to be executed in it's own executable add it to:
 #      ASIS_TESTS     : test using ada2wsdl tool to create test case
 #      ASIS2_TESTS    : test using ada2wsdl tool only
-#      ALONE_TESTS    : if a standard test
+#      ALONE_TESTS    : if a standard test but needs to be run separately
+#      OTH_TESTS      : if a test that has a specific target in makefile
 #      WSDL_TESTS     : for WSDL tests
 #      WSDL_ATESTS    : for WSDL tests using Ada name style
 #      WSDL2AWS_TESTS : test using only wsdl2aws tool
@@ -42,10 +43,12 @@ AWSRES   = $(BDIR)/tools/awsres
 # Standard regression tests that needs to be run in a separate executable
 
 ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
-	upload3 server_config test
+	upload3 server_config
+
+OTH_TESTS      = tres
 
 ifdef XMLADA
-ALONE_TESTS   := $(ALONE_TESTS) check_mem
+OTH_TESTS     := $(OTH_TESTS) check_mem
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 \
 	interoplab_main1 googlesearch datafeed_service
 WSDL_ATESTS    = test_wsdl3 test_wsdl5
@@ -61,15 +64,17 @@ ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8
 ASIS2_TESTS  = wsdl_a wsdl_b
 endif
 
-ALL_EXEC = $(addsuffix $(EXEEXT), $(ALONE_TESTS) generate test_all)
+SPEC_TESTS   = $(ALONE_TESTS) $(OTH_TESTS)
+
+ALL_EXEC = $(addsuffix $(EXEEXT), $(SPEC_TESTS) generate test_all)
 
 SRC_WSDL_TESTS     = ${addsuffix .adb, $(WSDL_TESTS)}
 SRC_WSDL_ATESTS    = ${addsuffix .adb, $(WSDL_ATESTS)}
 SRC_WSDL2AWS_TESTS = ${addsuffix .adb, $(WSDL2AWS_TESTS)}
-SRC_ALONE_TESTS	   = ${addsuffix .adb, $(ALONE_TESTS)}
+SRC_SPEC_TESTS	   = ${addsuffix .adb, $(SPEC_TESTS)}
 
 S_TOGETHER	= $(sort $(TESTS) $(SRC_WSDL_TESTS) $(SRC_WSDL_ATESTS))
-F_TOGETHER 	= $(filter-out $(SRC_ALONE_TESTS), $(S_TOGETHER))
+F_TOGETHER 	= $(filter-out $(SRC_SPEC_TESTS), $(S_TOGETHER))
 TOGETHER 	= $(basename $(F_TOGETHER))
 
 force:
@@ -91,11 +96,11 @@ build_drivers: gen_main
 empty:=
 space:= $(empty) $(empty)
 
-REGEXP = $(subst $(space),"\\|",$(addsuffix .adb,$(ALONE_TESTS)))
+REGEXP = $(subst $(space),"\\|",$(SRC_SPEC_TESTS))
 
 build:
 
-run: init build_drivers $(ALONE_TESTS)
+run: init build_drivers $(SPEC_TESTS)
 ifdef GDB_REGTESTS
 	gdb --exec=test_all --command=cmd.gdb --batch
 else
