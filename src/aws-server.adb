@@ -170,10 +170,13 @@ package body AWS.Server is
 
       procedure Get (FD    : in Sockets.Socket_FD; Index : in Positive) is
       begin
-         Set (Index).Sock   := FD;
-         Set (Index).Opened := True;
+         Set (Index).Sock      := FD;
+         Set (Index).Opened    := True;
+         Set (Index).Abortable := False;
          Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
+
          Count := Count - 1;
+
          if Count = 0 and then Set'Length > 1 then
             Abort_Oldest (True);
          end if;
@@ -276,7 +279,6 @@ package body AWS.Server is
          begin
             begin
                HTTP_Server.Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
-               HTTP_Server.Slots.Set_Abortable (Slot_Index, True);
 
                Protocol_Handler (Sock, HTTP_Server.all, Slot_Index);
 
