@@ -266,7 +266,7 @@ package AWS.Response is
    --  be used.
 
    function Message_Body
-     (D      : in Data)
+     (D : in Data)
       return Strings.Unbounded.Unbounded_String;
    --  Returns message body content as an unbounded_string
 
