@@ -107,13 +107,16 @@ begin
    Set.Update (Table, "Name_5", "Value (5, 2)", 2);
    Set.Update (Table, "NAME_5", "Value (5, 3)", 3);
    Set.Update (Table, "NAme_5", "Value (5, 4)", 4);
+
    Print_Table;
+
    begin
       Set.Update (Table, "NAme_5", "Value", 6);
       Put_Line ("Error.");
    exception
       when Constraint_Error => null;
    end;
+
    begin
       Set.Update (Table, "NAme_6", "Value", 2);
       Put_Line ("Error.");
@@ -121,4 +124,6 @@ begin
       when Constraint_Error =>
          Put_Line ("Ok.");
    end;
+
+   Set.Free (Table);
 end CTab;
