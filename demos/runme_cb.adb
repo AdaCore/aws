@@ -79,12 +79,16 @@ package body Runme_CB is
          return AWS.Response.Build
            (Content_Type => "text/html",
             Message_Body =>
-              "<p>Let look at the form data:"
+              "<p>Let's look at the form data:"
             & "<p>Your name is " & AWS.Status.Parameter (Request, "name")
             & "<p>parameter name (1) = "
             & AWS.Status.Parameter_Name (Request, 1)
+            & "<p>parameter value (1) = "
+            & AWS.Status.Parameter (Request, 1)
             & "<p>parameter name (2) = "
             & AWS.Status.Parameter_Name (Request, 2)
+            & "<p>parameter value (2) = "
+            & AWS.Status.Parameter (Request, 2)
             & "<p>There was " & Natural'Image (C)
             & " requests to the server."
             & "<form enctype=""multipart/form-data"" action=/last"
@@ -110,7 +114,7 @@ package body Runme_CB is
             & "<p>I'll now check for the POST form, counter="
             & Natural'Image (C)
             & "<p>Enter your name <form method=post action=/upload>"
-            & "<input type=text name=name value=""<default>"" size=15>"
+            & "<input type=text name=name value=""[default]"" size=15>"
             & "<input type=submit name=go value=""This is a POST Form"">"
             & "</form>");
 
