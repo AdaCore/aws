@@ -82,6 +82,6 @@ private
    AWS : constant Object
      := (To_Unbounded_String (Default_Prefix),
          To_Unbounded_String ("awsns"),
-         To_Unbounded_String ("aws_ns"));
+         To_Unbounded_String ("http://soapaws/"));
 
 end SOAP.Name_Space;
