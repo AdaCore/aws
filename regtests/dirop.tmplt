@@ -1,0 +1,8 @@
+@_URI_@
+@@TABLE@@
+   @@IF@@ @_IS_DIR_V_@
+      @_NAME_V_@
+   @@ELSE@@
+      @_NAME_V_@	@_SIZE_V_@	@_TIME_V_@
+   @@END_IF@@
+@@END_TABLE@@
