@@ -69,8 +69,11 @@ private
 
    protected Cleaner_Control is
 
-      procedure Register (Transient_Check_Interval : in Duration);
-      --  ???
+      procedure Register
+        (Transient_Check_Interval : in     Duration;
+         Need_Start_Cleaner       :    out Boolean);
+      --  Increment number of registerd servers. Set Need_Start flag to True
+      --  if it is necessary to start cleaner task.
 
       procedure Stop (Need_Release : out Boolean);
       --  Stop the cleaner task when there is no more server using it.
