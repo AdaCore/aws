@@ -278,10 +278,16 @@ package body AWS.Client is
    is
 
       function Read_Chunk return Streams.Stream_Element_Array;
-      --  read a chunk object from the stream
+      --  Read a chunk object from the stream
+
+      function Read_Binary_Message
+        (Len : in Positive)
+        return Streams.Stream_Element_Array;
+      pragma Inline (Read_Binary_Message);
+      --  Read a binary message of Len bytes from the socket.
 
       function Read_Message return String;
-      --  read a textual message from the socket for which there is no known
+      --  Read a textual message from the socket for which there is no known
       --  length.
 
       procedure Disconnect;
@@ -295,6 +301,21 @@ package body AWS.Client is
       Location : Unbounded_String;
       Connect  : Unbounded_String;
       Status   : Messages.Status_Code;
+
+      -------------------------
+      -- Read_Binary_Message --
+      -------------------------
+
+      function Read_Binary_Message
+        (Len : in Positive)
+        return Streams.Stream_Element_Array
+      is
+         Elements : Streams.Stream_Element_Array
+           (1 .. Streams.Stream_Element_Offset (Len));
+      begin
+         Sockets.Receive (Sock, Elements);
+         return Elements;
+      end Read_Binary_Message;
 
       ----------------
       -- Read_Chunk --
@@ -383,9 +404,9 @@ package body AWS.Client is
       function Read_Message return String is
          Results : Unbounded_String;
       begin
-         --  we don't know the message body length, so read the socket until
+         --  We don't know the message body length, so read the socket until
          --  it is closed by the server. At this time an exception will be
-         --  raised as are trying to read the socket.
+         --  raised as we are trying to read the socket.
 
          while True loop
             declare
@@ -436,8 +457,15 @@ package body AWS.Client is
 
       elsif Status = Messages.S404 then
 
-         Result := Response.Build
-           (MIME.Text_HTML, "(404) not found", Status);
+         if CT_Len = 0 then
+            Result := Response.Build
+              (MIME.Text_HTML, "(404) not found", Status);
+         else
+            Result := Response.Build
+              (MIME.Text_HTML,
+               Translator.To_String (Read_Binary_Message (CT_Len)),
+               Status);
+         end if;
 
          Disconnect;
          Set_Phase (Connection, Not_Monitored);
@@ -474,37 +502,23 @@ package body AWS.Client is
          if CT_Len = 0 and then CT = MIME.Text_HTML then
             --  Here we do not know the message body length, but this is a
             --  textual data, read it as a string.
+
             Result := Response.Build (To_String (CT), Read_Message, Status);
          else
 
             declare
                Elements : Streams.Stream_Element_Array
-                  (1 .. Streams.Stream_Element_Offset (CT_Len));
+                 := Read_Binary_Message (CT_Len);
             begin
-               Sockets.Receive (Sock, Elements);
-
                if CT = MIME.Text_HTML or else CT = MIME.Text_XML then
 
-                  --  If the content is textual info put it in a string
-
-                  declare
-                     Message : String (1 .. Elements'Length);
-                  begin
-                     for K in Elements'Range loop
-                        Message (Positive (K))
-                          := Character'Val (Natural (Elements (K)));
-                     end loop;
-
-                     Result := Response.Build
-                       (To_String (CT), Message, Status);
-                  end;
+                  Result := Response.Build
+                    (To_String (CT), Translator.To_String (Elements), Status);
 
                else
-
                   --  This is some kind of binary data.
 
-                  Result := Response.Build
-                    (To_String (CT), Elements, Status);
+                  Result := Response.Build (To_String (CT), Elements, Status);
                end if;
             end;
          end if;
