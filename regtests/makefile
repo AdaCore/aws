@@ -30,20 +30,14 @@
 
 include makefile.lst
 
-ifdef DEBUG
-BDIR		= ../.build/debug
-else
-BDIR		= ../.build/release
-endif
-
-ADA2WSDL = $(BDIR)/tools/ada2wsdl-main
-WSDL2AWS = $(BDIR)/tools/wsdl2aws
-AWSRES   = $(BDIR)/tools/awsres
+ADA2WSDL = .$(BDIR)/tools/ada2wsdl-main
+WSDL2AWS = .$(BDIR)/tools/wsdl2aws
+AWSRES   = .$(BDIR)/tools/awsres
 
 # Standard regression tests that needs to be run in a separate executable
 
 ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
-	upload3 server_config
+	upload3 server_config tlog
 
 OTH_TESTS      = tres
 
@@ -91,7 +85,8 @@ gen_sources: $(sort $(WSDL_TESTS) $(WSDL_ATESTS) $(ASIS_TESTS) \
 build_drivers: gen_main
 	echo "Building drivers (takes some time)"
 	$(GNATMAKE) -q -Pregtests -XTest_Mode=Grouped \
-		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} -largs -laws
+# ??? "-largs -laws" for workaround GCC 3.4.2 project link sequence bug.
 
 empty:=
 space:= $(empty) $(empty)
@@ -340,5 +335,5 @@ clean:
 	-rm -fr ../icons/test-dir1
 	-rm -fr ../icons/test-dir2
 	-rm -fr ../icons/test-dir3
-	-rm -f s_mains.lst all_mains.lst 
+	-rm -f s_mains.lst all_mains.lst
 	-rm -f s_tsecsoap.lst s_tsec.lst s_tstd.lst s_tsoap.lst
