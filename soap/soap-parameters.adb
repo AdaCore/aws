@@ -117,16 +117,54 @@ package body SOAP.Parameters is
       end if;
    end Check;
 
-   procedure Check_Int (P : in List; Name : in String) is
+   -----------------
+   -- Check_Array --
+   -----------------
+
+   procedure Check_Array (P : in List; Name : in String) is
       O : Types.Object'Class := Argument (P, Name);
    begin
-      if O not in Types.XSD_Integer then
+      if O not in Types.SOAP_Array then
          Exceptions.Raise_Exception
            (Types.Data_Error'Identity,
-            "(check) Integer expected, found object "
+            "(check) SOAP_Array expected, found object "
             & Ada.Tags.Expanded_Name (O'Tag));
       end if;
-   end Check_Int;
+   end Check_Array;
+
+   ------------------
+   -- Check_Base64 --
+   ------------------
+
+   procedure Check_Base64 (P : in List; Name : in String) is
+      O : Types.Object'Class := Argument (P, Name);
+   begin
+      if O not in Types.SOAP_Base64 then
+         Exceptions.Raise_Exception
+           (Types.Data_Error'Identity,
+            "(check) SOAP_Base64 expected, found object "
+            & Ada.Tags.Expanded_Name (O'Tag));
+      end if;
+   end Check_Base64;
+
+   -------------------
+   -- Check_Boolean --
+   -------------------
+
+   procedure Check_Boolean (P : in List; Name : in String) is
+      O : Types.Object'Class := Argument (P, Name);
+   begin
+      if O not in Types.XSD_Boolean then
+         Exceptions.Raise_Exception
+           (Types.Data_Error'Identity,
+            "(check) XSD_Boolean expected, found object "
+            & Ada.Tags.Expanded_Name (O'Tag));
+      end if;
+   end Check_Boolean;
+
+   -----------------
+   -- Check_Float --
+   -----------------
 
    procedure Check_Float (P : in List; Name : in String) is
       O : Types.Object'Class := Argument (P, Name);
@@ -134,10 +172,70 @@ package body SOAP.Parameters is
       if O not in Types.XSD_Float then
          Exceptions.Raise_Exception
            (Types.Data_Error'Identity,
-            "(check) Float expected, found object "
+            "(check) XSD_Float expected, found object "
             & Ada.Tags.Expanded_Name (O'Tag));
       end if;
    end Check_Float;
+
+   -------------------
+   -- Check_Integer --
+   -------------------
+
+   procedure Check_Integer (P : in List; Name : in String) is
+      O : Types.Object'Class := Argument (P, Name);
+   begin
+      if O not in Types.XSD_Integer then
+         Exceptions.Raise_Exception
+           (Types.Data_Error'Identity,
+            "(check) XSD_Integer expected, found object "
+            & Ada.Tags.Expanded_Name (O'Tag));
+      end if;
+   end Check_Integer;
+
+   ----------------
+   -- Check_Null --
+   ----------------
+
+   procedure Check_Null (P : in List; Name : in String) is
+      O : Types.Object'Class := Argument (P, Name);
+   begin
+      if O not in Types.XSD_Null then
+         Exceptions.Raise_Exception
+           (Types.Data_Error'Identity,
+            "(check) XSD_Null expected, found object "
+            & Ada.Tags.Expanded_Name (O'Tag));
+      end if;
+   end Check_Null;
+
+   ------------------
+   -- Check_Record --
+   ------------------
+
+   procedure Check_Record (P : in List; Name : in String) is
+      O : Types.Object'Class := Argument (P, Name);
+   begin
+      if O not in Types.SOAP_Record then
+         Exceptions.Raise_Exception
+           (Types.Data_Error'Identity,
+            "(check) SOAP_Record expected, found object "
+            & Ada.Tags.Expanded_Name (O'Tag));
+      end if;
+   end Check_Record;
+
+   ------------------------
+   -- Check_Time_Instant --
+   ------------------------
+
+   procedure Check_Time_Instant (P : in List; Name : in String) is
+      O : Types.Object'Class := Argument (P, Name);
+   begin
+      if O not in Types.XSD_Time_Instant then
+         Exceptions.Raise_Exception
+           (Types.Data_Error'Identity,
+            "(check) XSD_Time_Instant expected, found object "
+            & Ada.Tags.Expanded_Name (O'Tag));
+      end if;
+   end Check_Time_Instant;
 
    -----------
    -- Exist --
