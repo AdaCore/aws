@@ -1,6 +1,11 @@
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
+	(clean): Remove ssl_shared.gpr.
+
+2004-10-06  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
 	(SSL_PATH1): New variable. Set only for non Windows OS.
 	(SSL_PATH2): Idem.
 	(setup): If SOCKET is std set LIB_Path to "" to disable library
