@@ -1,90 +1,113 @@
+------------------------------------------------------------------------------
+--                                                                          --
+--                         GNAT LIBRARY COMPONENTS                          --
+--                                                                          --
+--                             G N A T . M D 5                              --
+--                                                                          --
+--                                 S p e c                                  --
+--                                                                          --
+--           Copyright (C) 2002-2004 Ada Core Technologies, Inc.            --
+--                                                                          --
+-- GNAT is free software;  you can  redistribute it  and/or modify it under --
+-- terms of the  GNU General Public License as published  by the Free Soft- --
+-- ware  Foundation;  either version 2,  or (at your option) any later ver- --
+-- sion.  GNAT is distributed in the hope that it will be useful, but WITH- --
+-- OUT ANY WARRANTY;  without even the  implied warranty of MERCHANTABILITY --
+-- or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License --
+-- for  more details.  You should have  received  a copy of the GNU General --
+-- Public License  distributed with GNAT;  see file COPYING.  If not, write --
+-- to  the Free Software Foundation,  59 Temple Place - Suite 330,  Boston, --
+-- MA 02111-1307, USA.                                                      --
+--                                                                          --
+-- As a special exception,  if other files  instantiate  generics from this --
+-- unit, or you link  this unit with other files  to produce an executable, --
+-- this  unit  does not  by itself cause  the resulting  executable  to  be --
+-- covered  by the  GNU  General  Public  License.  This exception does not --
+-- however invalidate  any other reasons why  the executable file  might be --
+-- covered by the  GNU Public License.                                      --
+--                                                                          --
+-- GNAT was originally developed  by the GNAT team at  New York University. --
+-- Extensive contributions were provided by Ada Core Technologies Inc.      --
+--                                                                          --
+------------------------------------------------------------------------------
+
+--  This package implements the MD5 Message-Digest Algorithm as described in
+--  RFC 1321. The complete text of RFC 1321 can be found at:
+--
+--          http://www.ietf.org/rfc/rfc1321.txt
+--
+--  The implementation is derived from the RSA Data Secutity, Inc. MD5
+--  Message-Digest Algorithm, as described in RFC 1321.
+
+--  This version (which handles multiple update) is directly taken from the
+--  GNAT runtime.
+
+with Ada.Streams;
+with Interfaces;
+
 package MD5 is
 
-  --====================================================================
-  -- Authors   Rolf Ebert (no known address),
-  --           Christoph Grein <Christ-Usch.Grein@T-Online.de>
-  -- Version   1.1
-  -- Date      16 January 1999
-  --====================================================================
-  -- The Message-Digest MD5 Algorithm of RSA Data Security, Inc.
-  --
-  -- The official description of this algorithm can be found on the
-  -- site of the RSA Data Security, Inc. The following is a quote from
-  -- this description.
-  --
-  --   The algorithm takes as input a message of arbitrary length and
-  --   produces as output a 128-bit "fingerprint" or "message digest"
-  --   of the input. It is conjectured that it is computationally
-  --   infeasible to produce two messages having the same message
-  --   digest, or to produce any message having a given prespecified
-  --   target message digest. The MD5 algorithm is intended for digital
-  --   signature applications, where a large file must be "compressed"
-  --   in a secure manner before being encrypted with a private
-  --   (secret) key under a public-key cryptosystem such as RSA.
-  --
-  -- The official description of the MD5 algorithm can be found at
-  --   <ftp://ftp.rsa.com/pub/md5.txt>
-  -- License is granted by RSA Data Security, Inc. <http://www.rsa.com>
-  -- to make and use derivative works provided that such works are
-  -- identified as "derived from the RSA Data Security, Inc. MD5
-  -- Message-Digest Algorithm" in all material mentioning or referencing
-  -- the derived work. (See the copyright notice in the official
-  -- description.)
-  --
-  -- Usage:
-  -- - First call Init.
-  -- - Call Update (repeatedly) until all input has been digested.
-  --   Long messages may be digested in chunks of any length (the
-  --   reference implementation uses chunks of 1024 bits).
-  -- - Call Final.
-  -- For text output, the fingerprint may be converted to a hexadecimal
-  -- string.
-  --====================================================================
-  -- History
-  -- Author Version   Date    Reason for change
-  --  R.E.    1.0  04.06.1997 Original as found in internet
-  --  C.G.    1.1  16.01.1999 Minor code changes; commented to make
-  --                          publication legal
-  --====================================================================
+   type Context is private;
+   --  This type is the four-word (16 byte) MD buffer, as described in
+   --  RFC 1321 (3.3). It initial value is Initial_Context below.
 
-  type Byte is mod 2**8;
-  type Byte_Array is array (Long_Integer range <>) of Byte;
-  pragma Pack (Byte_Array);
+   Initial_Context : constant Context;
+   --  Initial value of a Context object. May be used to reinitialize
+   --  a Context value by simple assignment of this value to the object.
 
-  subtype Fingerprint   is Byte_Array (1 .. 16);  -- 128 bits
-  subtype Digest_String is String     (1 .. 32);  -- Fingerprint in hex
+   procedure Update
+     (C     : in out Context;
+      Input : String);
+   procedure Wide_Update
+     (C     : in out Context;
+      Input : Wide_String);
+   procedure Update
+     (C     : in out Context;
+      Input : Ada.Streams.Stream_Element_Array);
+   --  Modify the Context C. If C has the initial value Initial_Context,
+   --  then, after a call to one of these procedures, Digest (C) will return
+   --  the Message-Digest of Input.
+   --
+   --  These procedures may be called successively with the same context and
+   --  different inputs, and these several successive calls will produce
+   --  the same final context as a call with the concatenation of the inputs.
 
-  -- Create a fingerprint
+   subtype Message_Digest is String (1 .. 32);
+   --  The string type returned by function Digest.
 
-  type Context is private;
+   function Digest (C : Context) return Message_Digest;
+   --  Extracts the Message-Digest from a context. This function should be
+   --  used after one or several calls to Update.
 
-  procedure Init   (Ctx:    out Context);
-  procedure Update (Ctx: in out Context; Data  : in     Byte_Array);
-  procedure Update (Ctx: in out Context; Data  : in     String);
-  procedure Final  (Ctx: in out Context; Digest:    out Fingerprint);
-
-  -- Conversions
-
-  Malformed: exception;  -- may be raised in Digest_From_Text
-
-  function Digest_From_Text (S: Digest_String) return Fingerprint;
-  function Digest_To_Text   (A: Fingerprint)   return Digest_String;
+   function Digest      (S : String)      return Message_Digest;
+   function Wide_Digest (W : Wide_String) return Message_Digest;
+   function Digest
+     (A    : Ada.Streams.Stream_Element_Array)
+      return Message_Digest;
+   --  These functions are equivalent to the corresponding Update (or
+   --  Wide_Update) on a default initialized Context, followed by Digest
+   --  on the resulting Context.
 
 private
 
-  type Word is mod 2**32;
-  type Word_Array is array (Long_Integer range <>) of Word;
-  pragma Pack (Word_Array);
+   --  Magic numbers
+   Initial_A : constant := 16#67452301#;
+   Initial_B : constant := 16#EFCDAB89#;
+   Initial_C : constant := 16#98BADCFE#;
+   Initial_D : constant := 16#10325476#;
 
-  subtype ABCD_State is Word_Array (1 .. 4);
-  subtype Count_T    is Word_Array (1 .. 2);
+   type Context is record
+      A : Interfaces.Unsigned_32 := Initial_A;
+      B : Interfaces.Unsigned_32 := Initial_B;
+      C : Interfaces.Unsigned_32 := Initial_C;
+      D : Interfaces.Unsigned_32 := Initial_D;
+      Buffer : String (1 .. 64)  := (others => ASCII.NUL);
+      Last   : Natural := 0;
+      Length : Natural := 0;
+   end record;
 
-  subtype Buffer_T   is Byte_Array (1 .. 64);
-
-  type Context is record
-    State : ABCD_State;
-    Count : Count_T;
-    Buffer: Buffer_T;
-  end record;
+   Initial_Context : constant Context :=
+     (A => Initial_A, B => Initial_B, C => Initial_C, D => Initial_D,
+      Buffer => (others => ASCII.NUL), Last => 0, Length => 0);
 
 end MD5;
