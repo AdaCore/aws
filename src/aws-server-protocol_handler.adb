@@ -318,11 +318,17 @@ is
             --  let's suppose for now that all others content type data are
             --  binary data.
 
-            declare
-               Data : constant Streams.Stream_Element_Array
-                 := Sockets.Receive (Sock);
             begin
-               Status.Set_Parameters (C_Stat, Data);
+               declare
+                  Data : constant Streams.Stream_Element_Array
+                    := Sockets.Receive (Sock);
+               begin
+                  Status.Set_Parameters (C_Stat, Data);
+               end;
+
+            exception
+               when others =>
+                  raise Connection_Error;
             end;
 
          end if;
@@ -353,7 +359,7 @@ is
             Slots.Mark_Activity_Time (Index);
 
          exception
-            when Constraint_Error =>
+            when others =>
                --  here we time-out on Sockets.Get_Line
                raise Sockets.Connection_Closed;
          end;
