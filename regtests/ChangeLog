@@ -1,5 +1,12 @@
 2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(GARGS): Removes -i, this was the cause of the recompilation of
+	 all AWS components after a non-regression test run.
+	(check_mem): Removes all AWS components recompiled for this test.
+
+2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* wsdl_6.out:
 	Update to new output.
 
