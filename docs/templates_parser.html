@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 18 September 2004
+<p>Date: 20 September 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -1076,9 +1076,13 @@ complex Web pages.
 
 <br><pre>
 @@TABLE@@ [@@TERMINATE_SECTIONS@@]
-   ...
-[@@SECTION@@]
-   ...
+      ...
+   [@@BEGIN@@]
+      ...
+   [@@SECTION@@]
+      ...
+   [@@END@@]
+      ...
 @@END_TABLE@@
 </pre>
 
@@ -1154,9 +1158,9 @@ space ", ".
 
 <br><pre>
 <p><b>function</b> Assoc (Variable  : <b>in</b> String;
-                   Value     : <b>in</b> Tag;
-                   Separator : <b>in</b> String    := Default_Separator;
-                   <b>return</b> Association;
+                Value     : <b>in</b> Tag;
+                Separator : <b>in</b> String    := Default_Separator;
+                <b>return</b> Association;
 <i>--  Build an Association (Variable = Value) to be added to Translate_Table.</i>
 <i>--  This is a tag association. Separator will be used when outputting the</i>
 <i>--  a flat representation of the Tag (outside a table statement).</i>
@@ -1181,11 +1185,11 @@ will be complete with empty tag value.
 
 &lt;TABLE&gt;
 @@TABLE@@
-   &lt;TR BGCOLOR=#F00&gt;
+   &lt;TR BGCOLOR=#FF0000&gt;
    &lt;TD&gt;@_DEVICES_@
    &lt;TD&gt;@_PRICES_@
 @@SECTION@@
-   &lt;TR BGCOLOR=#00F&gt;
+   &lt;TR BGCOLOR=#00000F&gt;
    &lt;TD&gt;@_DEVICES_@
    &lt;TD&gt;@_PRICES_@
 @@END_TABLE@@
@@ -1194,13 +1198,13 @@ will be complete with empty tag value.
 &lt;TABLE&gt;
 @@TABLE@@ @@TERMINATE_SECTIONS@@
    &lt;TR&gt;
-   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD BGCOLOR=#00000F WIDTH=10&gt;
    &lt;TD WIDTH=150&gt;@_DEVICES_@
 @@SECTION@@
    &lt;TD WIDTH=150&gt;@_DEVICES_@
 @@SECTION@@
    &lt;TD WIDTH=150&gt;@_DEVICES_@
-   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD BGCOLOR=#00000F WIDTH=10&gt;
 @@END_TABLE@@
 &lt;/TABLE&gt;
 </pre>
@@ -1239,33 +1243,61 @@ will be complete with empty tag value.
 &lt;P&gt;Here are some available computer devices:
 
 &lt;TABLE&gt;
-   &lt;TR BGCOLOR=#F00&gt;
+   &lt;TR BGCOLOR=#FF0000&gt;
    &lt;TD&gt;Screen
    &lt;TD&gt;$500
-   &lt;TR BGCOLOR=#00F&gt;
+   &lt;TR BGCOLOR=#00000F&gt;
    &lt;TD&gt;Keyboard
    &lt;TD&gt;$20
-   &lt;TR BGCOLOR=#F00&gt;
+   &lt;TR BGCOLOR=#FF0000&gt;
    &lt;TD&gt;Mouse
    &lt;TD&gt;$15
-   &lt;TR BGCOLOR=#00F&gt;
+   &lt;TR BGCOLOR=#00000F&gt;
    &lt;TD&gt;Hard Drive
    &lt;TD&gt;$140
 &lt;/TABLE&gt;
 
 &lt;TABLE&gt;
    &lt;TR&gt;
-   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD BGCOLOR=#00000F WIDTH=10&gt;
    &lt;TD WIDTH=150&gt;Screen
    &lt;TD WIDTH=150&gt;Keyboard
    &lt;TD WIDTH=150&gt;Mouse
-   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD BGCOLOR=#00000F WIDTH=10&gt;
    &lt;TR&gt;
-   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD BGCOLOR=#00000F WIDTH=10&gt;
    &lt;TD WIDTH=150&gt;Hard Drive
    &lt;TD WIDTH=150&gt;
    &lt;TD WIDTH=150&gt;
-   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD BGCOLOR=#00000F WIDTH=10&gt;
+&lt;/TABLE&gt;
+</pre>
+
+<p>It is important to note that is is possible to avoid code
+duplication by using the <code>@@BEGIN@@</code> and <code>@@END@@</code>
+block statements. In this case only the code inside the block is part
+of the section, code outside is common text to all sections. Here is
+an example to generate an HTML table with different colors for each line:
+
+<p>The template file above can be written this way:
+
+<br><pre>
+
+
+&lt;P&gt;Here are some available computer devices:
+
+&lt;TABLE&gt;
+@@TABLE@@
+   &lt;TR BGCOLOR=
+   @@BEGIN@@
+      "<i>#FF0000</i>"
+   @@SECTION@@
+      "<i>#000000F</i>"
+   @@END@@
+   &gt;
+   &lt;TD&gt;@_DEVICES_@
+   &lt;TD&gt;@_PRICES_@
+@@END_TABLE@@
 &lt;/TABLE&gt;
 </pre>
 
