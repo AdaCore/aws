@@ -67,7 +67,8 @@ package body SOAP.Types is
       Name : in String)
      return SOAP_Array is
    begin
-      return (To_Unbounded_String (Name), new Object_Set'(V));
+      return (To_Unbounded_String (Name),
+              (Finalization.Controlled with new Object_Set'(V)));
    end A;
 
    ------------
@@ -78,6 +79,13 @@ package body SOAP.Types is
    begin
       if O.O /= null then
          O.O := new Object'Class'(O.O.all);
+      end if;
+   end Adjust;
+
+   procedure Adjust (O : in out Object_Set_Controlled) is
+   begin
+      if O.O /= null then
+         O.O := new Object_Set'(O.O.all);
       end if;
    end Adjust;
 
@@ -125,7 +133,18 @@ package body SOAP.Types is
       procedure Free is
          new Ada.Unchecked_Deallocation (Object'Class, Object_Access);
    begin
-      Free (O.O);
+      if O.O /= null then
+         Free (O.O);
+      end if;
+   end Finalize;
+
+   procedure Finalize (O : in out Object_Set_Controlled) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Object_Set, Object_Set_Access);
+   begin
+      if O.O /= null then
+         Free (O.O);
+      end if;
    end Finalize;
 
    ---------
@@ -308,12 +327,12 @@ package body SOAP.Types is
    begin
       Append (Result, '(');
 
-      for K in O.Items'Range loop
+      for K in O.Items.O'Range loop
          Append (Result, Integer'Image (K));
          Append (Result, " => ");
-         Append (Result, Image (O.Items (K).O.all));
+         Append (Result, Image (O.Items.O (K).O.all));
 
-         if K /= O.Items'Last then
+         if K /= O.Items.O'Last then
             Append (Result, ", ");
          end if;
       end loop;
@@ -328,12 +347,12 @@ package body SOAP.Types is
    begin
       Append (Result, '(');
 
-      for K in O.Items'Range loop
+      for K in O.Items.O'Range loop
          Append (Result, Name (O));
          Append (Result, " => ");
-         Append (Result, Image (O.Items (K).O.all));
+         Append (Result, Image (O.Items.O (K).O.all));
 
-         if K /= O.Items'Last then
+         if K /= O.Items.O'Last then
             Append (Result, ", ");
          end if;
       end loop;
@@ -370,7 +389,8 @@ package body SOAP.Types is
       Name : in String)
      return SOAP_Record is
    begin
-      return (To_Unbounded_String (Name), new Object_Set'(V));
+      return (To_Unbounded_String (Name),
+              (Finalization.Controlled with new Object_Set'(V)));
    end R;
 
    -------
@@ -441,14 +461,14 @@ package body SOAP.Types is
 
    function V (O : in SOAP_Array) return Object_Set is
    begin
-      return O.Items.all;
+      return O.Items.O.all;
    end V;
 
    function V (O : in SOAP_Record; Name : in String) return Object'Class is
    begin
-      for K in O.Items'Range loop
-         if Types.Name (O.Items (K).O.all) = Name then
-            return O.Items (K).O.all;
+      for K in O.Items.O'Range loop
+         if Types.Name (O.Items.O (K).O.all) = Name then
+            return O.Items.O (K).O.all;
          end if;
       end loop;
 
@@ -518,17 +538,17 @@ package body SOAP.Types is
          T         : Ada.Tags.Tag;
          Same_Type : Boolean := True;
       begin
-         T := O.Items (O.Items'First).O'Tag;
+         T := O.Items.O (O.Items.O'First).O'Tag;
 
-         for K in O.Items'First + 1 .. O.Items'Last loop
-            if T /= O.Items (K).O'Tag then
+         for K in O.Items.O'First + 1 .. O.Items.O'Last loop
+            if T /= O.Items.O (K).O'Tag then
                Same_Type := False;
                exit;
             end if;
          end loop;
 
          if Same_Type then
-            return XML_Type (O.Items (O.Items'First).O.all);
+            return XML_Type (O.Items.O (O.Items.O'First).O.all);
 
          else
             return XML_Undefined;
@@ -544,7 +564,7 @@ package body SOAP.Types is
       Append (Result, " SOAP-ENC:arrayType=""");
       Append (Result, Array_Type);
       Append (Result, '[');
-      Append (Result, AWS.Utils.Image (O.Items'Length));
+      Append (Result, AWS.Utils.Image (O.Items.O'Length));
       Append (Result, "]"" ");
       Append (Result, xsi_type (XML_Array));
       Append (Result, '>');
@@ -552,8 +572,8 @@ package body SOAP.Types is
 
       --  Add all elements
 
-      for K in O.Items'Range loop
-         Append (Result, XML_Image (O.Items (K).O.all));
+      for K in O.Items.O'Range loop
+         Append (Result, XML_Image (O.Items.O (K).O.all));
          Append (Result, New_Line);
       end loop;
 
@@ -570,8 +590,8 @@ package body SOAP.Types is
       Append (Result, Utils.Tag (Name (O), Start => True));
       Append (Result, New_Line);
 
-      for K in O.Items'Range loop
-         Append (Result, XML_Image (O.Items (K).O.all));
+      for K in O.Items.O'Range loop
+         Append (Result, XML_Image (O.Items.O (K).O.all));
          Append (Result, New_Line);
       end loop;
 
