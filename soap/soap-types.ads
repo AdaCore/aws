@@ -295,12 +295,19 @@ private
 
    type Object_Set_Access is access Object_Set;
 
+   type Object_Set_Controlled is new Ada.Finalization.Controlled with record
+      O : Object_Set_Access;
+   end record;
+
+   procedure Adjust   (O : in out Object_Set_Controlled);
+   procedure Finalize (O : in out Object_Set_Controlled);
+
    type SOAP_Array is new Composite with record
-      Items : Object_Set_Access;
+      Items : Object_Set_Controlled;
    end record;
 
    type SOAP_Record is new Composite with record
-      Items : Object_Set_Access;
+      Items : Object_Set_Controlled;
    end record;
 
 end SOAP.Types;
