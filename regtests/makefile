@@ -70,7 +70,7 @@ run : build checks
 
 force:
 
-build: init $(STD_TESTS) $(OTH_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS)
+build: init $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) $(OTH_TESTS)
 
 init:
 	cp ../demos/cert.pem .
