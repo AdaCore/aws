@@ -37,6 +37,7 @@ with Strings_Maps;
 with DOM.Core.Nodes;
 with DOM.Readers;
 with Input_Sources.File;
+with Input_Sources.Strings;
 with Sax.Readers;
 with Unicode.CES.Basic_8bit;
 with Unicode.CES.Utf8;
@@ -49,6 +50,9 @@ package body Templates_Parser.XML is
    Description_Suffix : constant String := "_DESCRIPTION";
 
    package Str_Maps is new Strings_Maps (Unbounded_String, "=");
+
+   function Parse_Document (Doc : in DOM.Core.Node) return Translate_Set;
+   --  Parse a document node and return the corresponding Translate_Set
 
    -----------
    -- Image --
@@ -398,6 +402,42 @@ package body Templates_Parser.XML is
       use Input_Sources;
       use Sax.Readers;
 
+      Reader : Tree_Reader;
+      Input  : File.File_Input;
+      Doc    : DOM.Core.Document;
+      Result : Translate_Set;
+
+   begin
+      File.Open (Filename, Input);
+
+      Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
+      Parse (Reader, Input);
+
+      File.Close (Input);
+
+      Doc := Get_Tree (Reader);
+
+      Result := Parse_Document (Doc);
+
+      Free (Doc);
+
+      return Result;
+   end Load;
+
+   --------------------
+   -- Parse_Document --
+   --------------------
+
+   function Parse_Document
+     (Doc : in DOM.Core.Node)
+      return Translate_Set is
+
+      use DOM.Core;
+      use DOM.Core.Nodes;
+      use DOM.Readers;
+      use Input_Sources;
+      use Sax.Readers;
+
       procedure Error (Node : in DOM.Core.Node; Message : in String);
       pragma No_Return (Error);
       --  Raises Constraint_Error with the Message as exception message
@@ -407,9 +447,6 @@ package body Templates_Parser.XML is
 
       function Next_Sibling (N : in DOM.Core.Node) return DOM.Core.Node;
       --  Returns next sibling, skip #text nodes
-
-      function Parse_Document (Doc : in DOM.Core.Node) return Translate_Set;
-      --  Parse a document node and return the corresponding Translate_Set
 
       function Parse_Tagged (N : in DOM.Core.Node) return Translate_Set;
       --  Parse tagged entity
@@ -917,24 +954,6 @@ package body Templates_Parser.XML is
          return Result;
       end Parse_CompositeTag;
 
-      --------------------
-      -- Parse_Document --
-      --------------------
-
-      function Parse_Document
-        (Doc : in DOM.Core.Node)
-         return Translate_Set
-      is
-         NL : constant DOM.Core.Node_List := Child_Nodes (Doc);
-      begin
-         if Length (NL) = 1 then
-            return Parse_Tagged (First_Child (Doc));
-         else
-            Error (Doc, "Document must have a single node, found "
-                   & Natural'Image (Length (NL)));
-         end if;
-      end Parse_Document;
-
       ---------------------
       -- Parse_SimpleTag --
       ---------------------
@@ -1041,27 +1060,15 @@ package body Templates_Parser.XML is
          return T;
       end Parse_Tagged;
 
-      Reader : Tree_Reader;
-      Input  : File.File_Input;
-      Doc    : DOM.Core.Document;
-      Result : Translate_Set;
-
+      NL : constant DOM.Core.Node_List := Child_Nodes (Doc);
    begin
-      File.Open (Filename, Input);
-
-      Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
-      Parse (Reader, Input);
-
-      File.Close (Input);
-
-      Doc := Get_Tree (Reader);
-
-      Result := Parse_Document (Doc);
-
-      Free (Doc);
-
-      return Result;
-   end Load;
+      if Length (NL) = 1 then
+         return Parse_Tagged (First_Child (Doc));
+      else
+         Error (Doc, "Document must have a single node, found "
+                & Natural'Image (Length (NL)));
+      end if;
+   end Parse_Document;
 
    ----------
    -- Save --
@@ -1074,5 +1081,58 @@ package body Templates_Parser.XML is
       Text_IO.Put (File, To_String (Image (Translations)));
       Text_IO.Close (File);
    end Save;
+
+   -----------
+   -- Value --
+   -----------
+
+   function Value (Translations : in String) return Translate_Set is
+      use DOM.Core.Nodes;
+      use DOM.Readers;
+
+      Reader : Tree_Reader;
+      Input  : Input_Sources.Strings.String_Input;
+      Doc    : DOM.Core.Document;
+      Result : Translate_Set;
+
+   begin
+      Input_Sources.Strings.Open
+        (Translations'Unrestricted_Access,
+         Unicode.CES.Utf8.Utf8_Encoding,
+         Input);
+
+      Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
+      Parse (Reader, Input);
+
+      Input_Sources.Strings.Close (Input);
+
+      Doc := Get_Tree (Reader);
+
+      Result := Parse_Document (Doc);
+
+      Free (Doc);
+
+      return Result;
+   end Value;
+
+   function Value (Translations : in Unbounded_String) return Translate_Set is
+      use DOM.Core.Nodes;
+      use DOM.Readers;
+
+      S : String_Access := new String (1 .. Length (Translations));
+
+   begin
+      --  Copy XML content to local S string
+      for I in 1 .. Length (Translations) loop
+         S (I) := Element (Translations, I);
+      end loop;
+
+      declare
+         Result : constant Translate_Set := Value (S.all);
+      begin
+         Free (S);
+         return Result;
+      end;
+   end Value;
 
 end Templates_Parser.XML;

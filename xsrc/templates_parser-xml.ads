@@ -86,6 +86,12 @@ package Templates_Parser.XML is
    --  Returns a string representation encoded in XML for this
    --  translate table.
 
+   function Value (Translations : in String) return Translate_Set;
+   --  Returns a translate set for this string representation
+
+   function Value (Translations : in Unbounded_String) return Translate_Set;
+   --  Save as above but based on an Ubounded_String
+
    function Load (Filename : in String) return Translate_Set;
    --  Read XML document Filename and create the corresponding Translate_set
 
