@@ -2,6 +2,7 @@
 # $Id$
 
 .SILENT: all build build clean distrib install set_std set_ssl build_tarball
+.SILENT: display build_lib build_doc build_tools build_soap
 
 include makefile.conf
 
@@ -11,21 +12,31 @@ include makefile.conf
 
 # External packages to be configured
 
-# Add to INCLUDES all paths to libraries needed to build AWS (like adasockets)
-# alternatively you can update ADA_INCLUDE_PATH and ADA_OBJECTS_PATH.
-INCLUDES =
+# Either set ADASOCKETS, XMLADA here or you can  update ADA_INCLUDE_PATH and
+# ADA_OBJECTS_PATH environments variables.
 
-#XMLADA	= /usr/Ada.Libraries/XMLada
+# Adasockets, required.
+ADASOCKETS = /usr/Ada.Libraries/adasockets
+
+# XMLADA package, needed if you want to build SOAP's AWS support.
+#XMLADA	 = /usr/Ada.Libraries/XMLada
+v_XMLADA = -0.7
+
+# AWS will be installed under $(INSTALL)/AWS
+INSTALL	 = $(HOME)
+
+ifdef ADASOCKETS
+INCLUDES = -I$(ADASOCKETS)/lib/adasockets
+LIBS     = -L$(ADASOCKETS)/lib -ladasockets
+endif
 
 ifdef XMLADA
-# This configuration is for XmlAda 0.7
-v_XMLADA = 0.7
-INCLUDES = -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib $(INCLUDES)
-LIB_DOM  = -lxmlada_dom-$(v_XMLADA)
-LIB_UNIC = -lxmlada_unicode-$(v_XMLADA)
-LIB_SAX  = -lxmlada_sax-$(v_XMLADA)
-LIB_IS   = -lxmlada_input_sources-$(v_XMLADA)
-LIBS	 = -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX)
+INCLUDES := -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib $(INCLUDES)
+LIB_DOM  = -lxmlada_dom$(v_XMLADA)
+LIB_UNIC = -lxmlada_unicode$(v_XMLADA)
+LIB_SAX  = -lxmlada_sax$(v_XMLADA)
+LIB_IS   = -lxmlada_input_sources$(v_XMLADA)
+LIBS	 := -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX) $(LIBS)
 endif
 
 ifeq (${OS}, Windows_NT)
@@ -33,9 +44,6 @@ EXEEXT = .exe
 else
 EXEEXT =
 endif
-
-INSTALL	 = $(HOME)
-# AWS will be installed under $(INSTALL)/AWS
 
 # compiler
 RELEASE_GFLAGS	= -O2 -gnatn
@@ -68,6 +76,8 @@ all:
 	echo "    gnat_oslib:   OS_Lib implementation for GNAT only [default]"
 	echo "    posix_oslib:  OS_Lib implementation based on POSIX"
 	echo "    win32_oslib:  OS_Lib implementation for Win32 only"
+	echo ""
+	echo "    display       Display current configuration"
 	echo ""
 	echo "  Build :"
 	echo ""
@@ -130,7 +140,7 @@ win32_oslib:
 	${MAKE} -C src win32_oslib
 
 build_doc:
-	${MAKE} -C docs build
+	${MAKE} -C docs build $(ALL_OPTIONS)
 
 build_include:
 	${MAKE} -C include build $(ALL_OPTIONS)
@@ -160,6 +170,32 @@ clean_noapiref:
 	-rm *.~*.*~
 	rm makefile.conf
 	echo MODE=std > makefile.conf
+
+display:
+	echo ""
+	echo AWS current configuration
+	echo ""
+ifeq (${OS}, Windows_NT)
+	echo "Windows OS detected"
+	echo "   To build AWS on this OS you need to have a set of UNIX like"
+	echo "   tools (cp, mv, mkdir, chmod...) You should install"
+	echo "   Cygwin or Msys toolset"
+	echo ""
+else
+	echo "UNIX like OS detected"
+endif
+	echo "Install directory     : " $(INSTALL)
+ifdef XMLADA
+	echo "XMLada activated      : " $(XMLADA) - XMLada$(v_XMLADA)
+else
+	echo "XMLada not activate, SOAP will not be built"
+endif
+ifdef ADASOCKETS
+	echo "AdaSockets package in : " $(ADASOCKETS)
+else
+	echo "AdaSockets not set in makefile, be sure to update "
+	echo "ADA_INCLUDE_PATH and ADA_OBJECTS_PATH"
+endif
 
 build_tarball:
 	-rm -f aws-*.tar*
