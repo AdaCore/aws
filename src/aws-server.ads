@@ -36,9 +36,10 @@ with AWS.Response;
 
 package AWS.Server is
 
-   Default_Connection : constant := 10;
-   Default_Port       : constant := 8080;
-   No_Admin           : constant String := "";
+   Default_Connection  : constant := 10;
+   Default_Port        : constant := 8080;
+   Default_Upload_Path : constant String := ".";
+   No_Admin            : constant String := "";
 
    type HTTP
      (Max_Connection : Positive          := Default_Connection;
@@ -146,15 +147,16 @@ private
       CB             : Response.Callback := Response.Default_Handler;
       Session        : Boolean           := False) is
    limited record
-      Name      : Unbounded_String;
-      Self      : HTTP_Access := HTTP'Unchecked_Access;
-      Sock      : Sockets.Socket_FD;
+      Name        : Unbounded_String;
+      Upload_Path : Unbounded_String;
+      Self        : HTTP_Access := HTTP'Unchecked_Access;
+      Sock        : Sockets.Socket_FD;
       --  this is the server socket for incoming connection.
 
-      Lines     : Line_Set (1 .. Max_Connection);
-      Slots     : Server.Slots (Max_Connection);
-      Cleaner   : Line_Cleaner (HTTP'Unchecked_Access);
-      Admin_URI : Unbounded_String;
+      Lines       : Line_Set (1 .. Max_Connection);
+      Slots       : Server.Slots (Max_Connection);
+      Cleaner     : Line_Cleaner (HTTP'Unchecked_Access);
+      Admin_URI   : Unbounded_String;
    end record;
 
 end AWS.Server;
