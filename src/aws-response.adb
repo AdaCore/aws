@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -307,7 +308,7 @@ package body AWS.Response is
 
       if Object.Ref_Counter.all = 0 then
          Free (Object.Ref_Counter);
-         Free (Object.Message_Body);
+         Utils.Free (Object.Message_Body);
 
          AWS.Headers.Set.Free (Object.Header);
       end if;
@@ -358,6 +359,7 @@ package body AWS.Response is
    ------------------
 
    function Message_Body (D : in Data) return String is
+      use type Utils.Stream_Element_Array_Access;
    begin
       if D.Message_Body = null then
          return "";
@@ -367,16 +369,17 @@ package body AWS.Response is
    end Message_Body;
 
    function Message_Body (D : in Data) return Unbounded_String is
+      use type Utils.Stream_Element_Array_Access;
    begin
       if D.Message_Body = null then
          return Null_Unbounded_String;
       else
-         return To_Unbounded_String
-           (Translator.To_String (D.Message_Body.all));
+         return Translator.To_Unbounded_String (D.Message_Body.all);
       end if;
    end Message_Body;
 
    function Message_Body (D : in Data) return Streams.Stream_Element_Array is
+      use type Utils.Stream_Element_Array_Access;
       No_Data : constant Streams.Stream_Element_Array := (1 .. 0 => 0);
    begin
       if D.Message_Body = null then
