@@ -83,7 +83,7 @@ package AWS.Config is
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
 
-   function Log_File_Prefix (O : in Object) return String;
+   function Log_Filename_Prefix (O : in Object) return String;
    --  This is the prefix to use for the log filename.
 
    function Log_Split_Mode (O : in Object) return String;
@@ -208,7 +208,7 @@ private
       Hotplug_Port,
       Max_Connection,
       Log_File_Directory,
-      Log_File_Prefix,
+      Log_Filename_Prefix,
       Log_Split_Mode,
       Upload_Directory,
       Session,
@@ -316,8 +316,8 @@ private
          Log_File_Directory =>
            (Dir, To_Unbounded_String (Default.Log_File_Directory)),
 
-         Log_File_Prefix =>
-           (Str, To_Unbounded_String (Default.Log_File_Prefix)),
+         Log_Filename_Prefix =>
+           (Str, To_Unbounded_String (Default.Log_Filename_Prefix)),
 
          Log_Split_Mode =>
            (Str, To_Unbounded_String (Default.Log_Split_Mode)),
