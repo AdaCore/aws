@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                          Copyright (C) 2002-2003                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,17 +40,23 @@ package AWS.Net.Buffered is
    ------------
 
    procedure Put (Socket : in Socket_Type'Class; Item : in String);
+   --  Write Item into Socket's buffer. Send the buffer to the socket if full.
 
    procedure Put_Line (Socket : in Socket_Type'Class; Item : in String);
+   --  Write Item & CRLF into Socket's buffer. Send the buffer to the socket
+   --  if full.
 
    procedure New_Line (Socket : in Socket_Type'Class);
    pragma Inline (New_Line);
+   --  Write CRLF into Socket's buffer. Send the buffer to the socket if full.
 
    procedure Write
      (Socket : in Socket_Type'Class;
       Item   : in Stream_Element_Array);
+   --  Write Item into Socket's buffer. Send the buffer to the socket if full.
 
    procedure Flush (Socket : in Socket_Type'Class);
+   --  Send the buffer to the socket.
 
    -----------
    -- Input --
@@ -60,22 +66,35 @@ package AWS.Net.Buffered is
      (Socket : in     Socket_Type'Class;
       Data   :    out Stream_Element_Array);
    pragma Inline (Read);
+   --  Returns Data array read from the socket.
 
    function Read
      (Socket : in Socket_Type'Class;
       Max    : in Stream_Element_Count := 4096)
       return Ada.Streams.Stream_Element_Array;
    pragma Inline (Read);
+   --  Returns an array of bytes read from the socket.
 
    function Get_Line (Socket : in Socket_Type'Class) return String;
+   --  Returns a line read from Socket. A line is a set of character
+   --  terminated by CRLF.
 
    function Get_Char (Socket : in Socket_Type'Class) return Character;
    pragma Inline (Get_Char);
+   --  Returns a single character read from socket
+
+   function Peek_Char (Socket : in Socket_Type'Class) return Character;
+   pragma Inline (Peek_Char);
+   --  Returns next character that will be read from Socket. It does not
+   --  actually consume the character, this character will be returned by
+   --  the next read operation on the socket.
 
    -------------
    -- Control --
    -------------
 
    procedure Shutdown (Socket : in Socket_Type'Class);
+   --  Shutdown and close the socket. Release all memory and resources
+   --  associated with it.
 
 end AWS.Net.Buffered;
