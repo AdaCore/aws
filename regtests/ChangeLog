@@ -1,3 +1,15 @@
+2004-03-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS): Add wsdl_7.
+	(init): Redirect some output to /dev/null.
+
+	* wsdl_b.out:
+	Update output.
+
+	* wsdl_7.ads, wsdl_7.adb, wsdl_7.out, wsdl_7_main.adb:
+	Initial revision.
+
 2004-03-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* upload2.adb:

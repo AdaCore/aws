@@ -545,6 +545,17 @@ wsdl_6_service-server.ads
 wsdl_6_service-types.adb
 wsdl_6_service-types.ads
 wsdl_6_service.ads
+wsdl_7.wsdl
+wsdl_7_main.res
+wsdl_7_service-cb.adb
+wsdl_7_service-cb.ads
+wsdl_7_service-client.adb
+wsdl_7_service-client.ads
+wsdl_7_service-server.adb
+wsdl_7_service-server.ads
+wsdl_7_service-types.adb
+wsdl_7_service-types.ads
+wsdl_7_service.ads
 wsdl_a.res
 wsdl_a.wsdl
 wsdl_b.res
