@@ -1551,7 +1551,7 @@ package body AWS.Client is
                if Connection.SOAPAction = No_Data then
                   Send_Header
                     (Sock,
-                     Messages.Content_Type (MIME.Appl_Form_Data));
+                     Messages.Content_Type (MIME.Application_Form_Data));
 
                else
                   Send_Header
