@@ -92,5 +92,5 @@ begin
       exit when Last < Buffer'Last;
    end loop;
 
-   Ada.Text_IO.Put_Line (Integer'Image (Last));
+   Ada.Text_IO.Put_Line (Stream_Element_Offset'Image (Last));
 end ZStrm;
