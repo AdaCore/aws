@@ -175,7 +175,8 @@ package body AWS.Net.Std is
    procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
-      Port     : in     Positive)
+      Port     : in     Positive;
+      Wait     : in     Boolean := True)
    is
       use Interfaces;
       use type C.int;
@@ -215,16 +216,18 @@ package body AWS.Net.Std is
          then
             Errno := 0;
 
-            declare
-               Events : constant Event_Set
-                 := Wait (Socket, (Output => True, Input => False));
-            begin
-               if Events (Error) then
-                  Errno := Std.Errno (Socket);
-               elsif not Events (Output) then
-                  Errno := Sockets.Constants.ETIMEDOUT;
-               end if;
-            end;
+            if Wait then
+               declare
+                  Events : constant Event_Set
+                    := Net.Wait (Socket, (Output => True, Input => False));
+               begin
+                  if Events (Error) then
+                     Errno := Std.Errno (Socket);
+                  elsif not Events (Output) then
+                     Errno := Sockets.Constants.ETIMEDOUT;
+                  end if;
+               end;
+            end if;
          end if;
 
          if Errno /= 0 then
