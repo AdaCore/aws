@@ -1,6 +1,6 @@
 2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
-	* aws-net.ads, aws-net-std.ads, aws-net-ssl.ads:
+	* aws-net.ads, aws-net-std.ads, aws-net-ssl.ads, aws-net-ssl.adb:
 	(Pending): New routine.
 
 2004-09-16  Pascal Obry  <pascal@obry.org>

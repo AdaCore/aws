@@ -300,6 +300,17 @@ package body AWS.Net.SSL is
          Exchange_Certificate => CNF.Exchange_Certificate (Default));
    end Initialize_Default_Config;
 
+   -------------
+   -- Pending --
+   -------------
+
+   function Pending (Socket : in Socket_Type) return Stream_Element_Count is
+      Res : constant Interfaces.C.int := TSSL.SSL_pending (Socket.SSL);
+   begin
+      Error_If (Res < 0);
+      return Stream_Element_Count (Res);
+   end Pending;
+
    ------------------------
    -- Private_Key_Holder --
    ------------------------
