@@ -1,3 +1,20 @@
+2003-09-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-status.ads:
+	(Check_Digest): New routine with some check of the digest
+	 authentication request format.
+	(Auth_URI): New field in Data type for keep URI value from digest
+	 authentication request.
+
+	* aws-status.adb:
+	(Check_Digest): New routine.
+	(Check_Digest): Old style routine use the new style call.
+
+	* aws-status-set.adb:
+	(Authorization): Do not touch Data.URI field now. Mozilla could keep
+	 http query parameters in the uri field of the digest authentication
+	 response. It is allowed by RFC.
+
 2003-09-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
