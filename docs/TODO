@@ -36,5 +36,3 @@ implemented:
 
 - integrate Templates_Parser with AWS. A callback which knows how to parse
   .tmplt files ???
-
-- add a way to select the certificate to use for SSL implementation.
