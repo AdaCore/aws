@@ -4,7 +4,7 @@
 .SILENT: all build build clean clean_noapiref distrib install build_tarball
 .SILENT: display build_aws build_lib build_doc build_tools build_soap
 .SILENT: build_soap_demos build_ssllib build_soaplib build_win32 build_include
-.SILENT: build_demos run_regtests setup build_apiref
+.SILENT: build_demos run_regtests setup build_apiref build_scripts
 
 # NOTE: You should not have to change this makefile. Configuration options can
 # be changed in makefile.conf
@@ -104,13 +104,28 @@ all:
 
 ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)" GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)"
 
-build_lib: build_ssllib build_include build_aws build_win32
+build_lib: build_scripts build_ssllib build_include build_aws build_win32
 
 ifdef XMLADA
 build: build_lib build_soaplib build_demos
 else
 build: build_lib build_demos
 endif
+
+build_scripts:
+	echo ""
+	echo "=== Build AWS support scripts"
+	echo "  for UNIX"
+	echo "export ADA_INCLUDE_PATH=\$$ADA_INCLUDE_PATH:"$(XMLADA)/include/xmlada > set-aws.sh
+	echo "export ADA_INCLUDE_PATH=\$$ADA_INCLUDE_PATH:"$(INSTALL)/AWS/components >> set-aws.sh
+	echo "export ADA_INCLUDE_PATH=\$$ADA_INCLUDE_PATH:"$(INSTALL)/AWS/include >> set-aws.sh
+	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(INSTALL)/AWS/lib >> set-aws.sh
+	echo "  for Windows"
+	echo "@echo off" > set-aws.cmd
+	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(XMLADA)/include/xmlada >> set-aws.cmd
+	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(INSTALL)/AWS/components >> set-aws.cmd
+	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(INSTALL)/AWS/include >> set-aws.cmd
+	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(INSTALL)/AWS/lib >> set-aws.cmd
 
 build_aws:
 	echo ""
@@ -316,6 +331,7 @@ install: force
 	-$(CP) include/*.o include/*.ali $(INSTALL)/AWS/components
 	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
+	$(CP) set-aws.* $(INSTALL)/AWS
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
 	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
