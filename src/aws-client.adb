@@ -535,8 +535,8 @@ package body AWS.Client is
 
       subtype Stream_Element_Array_Access is Utils.Stream_Element_Array_Access;
 
-      function Read_Chunk return Stream_Element_Array_Access;
-      --  Read a chunk object from the stream
+      procedure Read_Chunked;
+      --  Read a chunked object from the stream
 
       function Read_Binary_Message
         (Len : in Positive)
@@ -567,7 +567,7 @@ package body AWS.Client is
       -------------------------
 
       function Read_Binary_Message
-        (Len : in Positive)
+        (Len    : in Positive)
          return Stream_Element_Array_Access
       is
          use Streams;
@@ -600,11 +600,11 @@ package body AWS.Client is
             raise;
       end Read_Binary_Message;
 
-      ----------------
-      -- Read_Chunk --
-      ----------------
+      ------------------
+      -- Read_Chunked --
+      ------------------
 
-      function Read_Chunk return Stream_Element_Array_Access is
+      procedure Read_Chunked is
 
          use Streams;
 
@@ -613,11 +613,6 @@ package body AWS.Client is
 
          procedure Skip_Line;
          --  skip a line on the socket
-
-         Data      : Stream_Element_Array_Access
-           := new Streams.Stream_Element_Array (1 .. 10_000);
-
-         Data_Last : Streams.Stream_Element_Offset := 0;
 
          ---------------
          -- Skip_Line --
@@ -631,7 +626,6 @@ package body AWS.Client is
          end Skip_Line;
 
          Size : Stream_Element_Offset;
-         Tmp  : Stream_Element_Array_Access;
 
       begin
          loop
@@ -648,44 +642,25 @@ package body AWS.Client is
                exit;
 
             else
-               if Data_Last + Size > Data'Last then
+               declare
+                  Chunk : Stream_Element_Array_Access
+                     := new Stream_Element_Array (1 .. Size);
+               begin
+                  Net.Buffered.Read (Sock, Chunk.all);
 
-                  Tmp := new Stream_Element_Array
-                    (1 ..
-                       Stream_Element_Offset'Max
-                         (Data_Last + Size, 2 * Data'Length));
+                  Response.Set.Append_Body (Result, Chunk);
+               exception
+                  when Net.Socket_Error =>
+                     --  Could have been killed by a timeout.
 
-                  Tmp (1 .. Data_Last) := Data (1 .. Data_Last);
-                  Utils.Free (Data);
-                  Data := Tmp;
-               end if;
-
-               Net.Buffered.Read
-                 (Sock, Data (Data_Last + 1 .. Data_Last + Size));
+                     Utils.Free (Chunk);
+                     raise;
+               end;
 
                Skip_Line;
-               Data_Last := Data_Last + Size;
             end if;
-
          end loop;
-
-         --  Strip the unused bytes
-
-         declare
-            Copy : constant Stream_Element_Array_Access
-              := new Stream_Element_Array (1 .. Data_Last);
-         begin
-            Copy.all := Data (1 .. Data_Last);
-            Utils.Free (Data);
-            return Copy;
-         end;
-
-      exception
-         when others =>
-            --  Could have been killed by a timeout.
-            Utils.Free (Data);
-            raise;
-      end Read_Chunk;
+      end Read_Chunked;
 
    begin
       Set_Phase (Connection, Receive);
@@ -720,66 +695,23 @@ package body AWS.Client is
             --  CRLF
             --
 
-            Response.Set.Message_Body (Result, Read_Chunk);
+            Read_Chunked;
 
          else
             if CT_Len = Response.Undefined_Length then
-
-               declare
-
-                  package Stream_Element_Table is new GNAT.Table
-                    (Streams.Stream_Element,
-                     Natural,
-                     Table_Low_Bound => 1,
-                     Table_Initial   => 30_000,
-                     Table_Increment => 25);
-
-                  procedure Add (B : in Streams.Stream_Element_Array);
-                  --  Add B to Data
-
-                  procedure Read_Until_Close;
-                  --  Read data on socket, stop when the socket is closed.
-
-                  ---------
-                  -- Add --
-                  ---------
-
-                  procedure Add (B : in Streams.Stream_Element_Array) is
-                  begin
-                     for K in B'Range loop
-                        Stream_Element_Table.Append (B (K));
-                     end loop;
-                  end Add;
-
-                  ----------------------
-                  -- Read_Until_Close --
-                  ----------------------
-
-                  procedure Read_Until_Close is
-                  begin
-                     loop
-                        declare
-                           Data : constant Streams.Stream_Element_Array
-                             := Net.Buffered.Read (Sock);
-                        begin
-                           Add (Data);
-                        end;
-                     end loop;
-                  exception
-                     when Net.Socket_Error =>
-                        null;
-                  end Read_Until_Close;
-
-               begin
-                  Read_Until_Close;
-
-                  Response.Set.Message_Body (Result,
-                    (Streams.Stream_Element_Array
-                       (Stream_Element_Table.Table
-                          (1 .. Stream_Element_Table.Last))));
-
-                  Stream_Element_Table.Free;
-               end;
+               Read_Until_Close : begin
+                  loop
+                     declare
+                        Data : constant Streams.Stream_Element_Array
+                          := Net.Buffered.Read (Sock);
+                     begin
+                        Response.Set.Append_Body (Result, Data);
+                     end;
+                  end loop;
+               exception
+                  when Net.Socket_Error =>
+                     null;
+               end Read_Until_Close;
 
             else
                if CT_Len = 0 then
