@@ -86,7 +86,7 @@ ALL_API = $(sort $(shell ls ../src/*.ads ../xsrc/*.ads ../soap/*.ads))
 force:
 
 aws_api.xml: prog force
-	gen_gps_ref $(ALL_API)
+	./gen_gps_ref $(ALL_API)
 
 aws_docs: aws_api.xml aws.ps aws.pdf aws.html aws.txt aws.info
 
