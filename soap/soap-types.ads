@@ -112,7 +112,7 @@ package SOAP.Types is
    -----------
 
    XML_Array     : constant String := "SOAP-ENC:Array";
-   XML_Undefined : constant String := "xsd:ur-type";
+   XML_Undefined : aliased constant String := "xsd:ur-type";
 
    type SOAP_Array is new Composite with private;
 
@@ -140,7 +140,7 @@ package SOAP.Types is
    -- Base64 --
    ------------
 
-   XML_Base64        : constant String := "SOAP-ENC:base64";
+   XML_Base64        : aliased constant String := "SOAP-ENC:base64";
    XML_Base64_Binary : constant String := "xsd:base64Binary";
 
    type SOAP_Base64 is new Scalar with private;
@@ -160,7 +160,7 @@ package SOAP.Types is
    -- Boolean --
    -------------
 
-   XML_Boolean : constant String := "xsd:boolean";
+   XML_Boolean : aliased constant String := "xsd:boolean";
 
    type XSD_Boolean is new Scalar with private;
 
@@ -175,7 +175,7 @@ package SOAP.Types is
    -- Double --
    ------------
 
-   XML_Double : constant String := "xsd:double";
+   XML_Double : aliased constant String := "xsd:double";
 
    type XSD_Double is new Scalar with private;
 
@@ -194,7 +194,7 @@ package SOAP.Types is
    -- Float --
    -----------
 
-   XML_Float : constant String := "xsd:float";
+   XML_Float : aliased constant String := "xsd:float";
 
    type XSD_Float is new Scalar with private;
 
@@ -209,7 +209,7 @@ package SOAP.Types is
    -- Integer --
    -------------
 
-   XML_Int : constant String := "xsd:int";
+   XML_Int : aliased constant String := "xsd:int";
 
    type XSD_Integer is new Scalar with private;
 
@@ -226,7 +226,7 @@ package SOAP.Types is
 
    type Long is range -2**63 .. 2**63 - 1;
 
-   XML_Long : constant String := "xsd:long";
+   XML_Long : aliased constant String := "xsd:long";
 
    type XSD_Long is new Scalar with private;
 
@@ -277,7 +277,7 @@ package SOAP.Types is
    -- String --
    ------------
 
-   XML_String : constant String := "xsd:string";
+   XML_String : aliased constant String := "xsd:string";
 
    type XSD_String is new Scalar with private;
 
@@ -303,7 +303,7 @@ package SOAP.Types is
    -- TimeInstant --
    -----------------
 
-   XML_Time_Instant : constant String := "xsd:timeInstant";
+   XML_Time_Instant : aliased constant String := "xsd:timeInstant";
    XML_Date_Time    : constant String := "xsd:dateTime";
 
    type XSD_Time_Instant is new Scalar with private;
