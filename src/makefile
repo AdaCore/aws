@@ -6,7 +6,9 @@
 
 GARGS	= $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 
-SOURCES	= aws-client.adb aws-communication-client.adb \
+SOURCES	= templates_parser.adb templates_parser-input.adb \
+	templates_parser-query.adb \
+        aws-client.adb aws-communication-client.adb \
 	aws-communication-server.adb aws-communication.adb \
 	aws-config-ini.adb aws-config-set.adb aws-config.adb \
 	aws-containers-key_value.ads aws-containers-tables-set.adb \
