@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -33,18 +33,24 @@
 with Ada.Text_IO;
 
 with AWS.Client;
-with AWS.Config;
+with AWS.Config.Set;
 with AWS.Dispatchers.Callback;
 with AWS.Server;
 with AWS.Services.Dispatchers.Virtual_Host;
 with AWS.Status;
 with AWS.Response;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Dispatch_VH is
 
    use Ada;
    use AWS;
    use AWS.Services;
+
+   Cfg       : Config.Object;
+   Free_Port : Positive;
 
    function CB1
      (Request : in AWS.Status.Data)
@@ -67,7 +73,7 @@ procedure Dispatch_VH is
    procedure Test (URL : in String) is
       R : Response.Data;
    begin
-      Text_IO.Put_Line (URL);
+      Text_IO.Put_Line (URL (1 .. 16));
       R := Client.Get (URL);
       Text_IO.Put_Line ("> " & Response.Message_Body (R));
    end Test;
@@ -83,13 +89,19 @@ begin
    Services.Dispatchers.Virtual_Host.Register
      (H, "127.0.0.1", CB2'Unrestricted_Access);
 
+   Cfg := AWS.Config.Get_Current;
+
+   Free_Port := AWS.Config.Server_Port (Cfg);
+   Get_Free_Port (Free_Port);
+   AWS.Config.Set.Server_Port (Cfg, Free_Port);
+
    AWS.Server.Start
      (WS,
       Dispatcher => H,
       Config     => AWS.Config.Get_Current);
 
-   Test ("http://localhost:1266/thisone");
-   Test ("http://127.0.0.1:1266/thisone");
+   Test ("http://localhost:" & Utils.Image (Free_Port) & "/thisone");
+   Test ("http://127.0.0.1:" & Utils.Image (Free_Port) & "/thisone");
 
    --  Close servers.
 
