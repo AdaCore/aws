@@ -36,6 +36,7 @@ package AWS.Default is
 
    pragma Pure;
 
+   Server_Name        : constant String := "AWS Module";
    WWW_Root           : constant String := "./";
    Admin_URI          : constant String := "";
    Server_Port        : constant        := 8080;
