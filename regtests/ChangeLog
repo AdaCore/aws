@@ -1,3 +1,9 @@
+2005-04-02  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* wait_proc.adb:
+	Start client side task after start listening on server socket.
+	 Fix regression on Linux.
+
 2005-03-09  Pascal Obry  <pascal@obry.org>
 
 	* makefile:

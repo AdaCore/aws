@@ -47,7 +47,9 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
    Free_Port : Positive := Port;
 
-   task Client_Side;
+   task Client_Side is
+      entry Start;
+   end Client_Side;
 
    -----------------
    -- Client_Side --
@@ -60,6 +62,8 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
       Data   : Ada.Streams.Stream_Element_Array (1 .. Sample_Size);
       Sum    : Ada.Streams.Stream_Element := 0;
    begin
+      accept Start;
+
       for J in 1 .. Set_Size loop
          declare
             Socket : Net.Socket_Type'Class := Net.Socket (Security);
@@ -142,6 +146,8 @@ begin
    Net.Listen (Server, Set_Size);
 
    Net.Set_Timeout (Server, 1.0);
+
+   Client_Side.Start;
 
    for J in 1 .. Set_Size loop
       declare
