@@ -32,7 +32,6 @@
 
 with Ada.Calendar;
 with Ada.Streams;
-with Ada.Unchecked_Deallocation;
 
 package AWS.Resources is
 
@@ -143,8 +142,5 @@ private
    --  This procedure must release memory associated with File_Access if
    --  necessary. For transient pages for example this is not needed as the
    --  release of the memory must not controlled by the server.
-
-   procedure Free is
-      new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
 
 end AWS.Resources;
