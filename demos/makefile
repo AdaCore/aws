@@ -35,7 +35,7 @@ endif
 endif
 
 DEMOS = runme agent auth ws wps com_1 com_2 main hotplug hello_world \
-	text_input vh_demo dispatch res_demo zdemo split
+	text_input vh_demo dispatch res_demo zdemo split web_mail
 
 BUILD_SPECIFIC = build_res
 
