@@ -4,7 +4,10 @@
 .SILENT: all auth runme agent ws clean soap hotplug com_1 com_2 hello_world
 .SILENT: main build_soap
 
-GFLAGSY = $(patsubst -gnaty,-gnaty3abcefhiklmnoprt,$(GFLAGS))
+#GFLAGSY = $(patsubst -gnaty,-gnaty3abcefhiklmnoprt,$(GFLAGS))
+# above declaration is ok for GNAT 3.14 but GNAT 3.13 does not support
+# selective style check options.
+GFLAGSY = $(patsubst -gnaty,,$(GFLAGS))
 
 ifeq ($(MODE),ssl)
 # With SSL support
@@ -13,7 +16,7 @@ GARGS = $(GFLAGSY) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LIBS) -L../win32 -lssl -lcrypto
+LARGS = $(LIBS) -L../ssl -lssl -lcrypto
 else
 LARGS = $(LIBS) -lssl -lcrypto
 endif
