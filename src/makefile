@@ -20,7 +20,8 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-services-dispatchers.ads aws-services-dispatchers-uri.adb \
 	aws-services-dispatchers-method.adb \
 	aws-services-dispatchers-virtual_host.adb \
-	aws-server-push.adb
+	aws-server-push.adb \
+	aws-smtp.adb aws-smtp-client.adb
 
 build: aws-translator-conversion.adb
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
