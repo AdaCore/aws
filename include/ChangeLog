@@ -1,3 +1,8 @@
+2003-01-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std-gnat.adb:
+	(Bind): Use Any_Inet_Addr if the Host string is empty.
+
 2003-01-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std-gnat.adb:
