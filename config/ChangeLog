@@ -1,3 +1,9 @@
+2004-09-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* src/check_config.c:
+	Move here GetAddrInfo and FreeAddrInfo routines from AWS.Net.Thin.
+	Add Windows 2000 support.
+
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
 	* aws-net-std__gnat.adb:
