@@ -268,6 +268,12 @@ is
 
          Sockets.Put_Line (Sock, Messages.Status_Line (Status));
 
+         if Status = Messages.S301 then
+            Sockets.Put_Line
+              (Sock,
+               Messages.Location (Response.Location (Answer)));
+         end if;
+
          Header_Date_Serv;
 
          --  Now we output the message body length
@@ -344,6 +350,7 @@ is
    ----------------------
 
    procedure Get_Message_Data is
+
       use type Status.Request_Method;
 
       procedure File_Upload (Start_Boundary, End_Boundary : in String;
