@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            November 6th, 2004
+   Pascal Obry                                            November 11th, 2004
 
 
 
@@ -144,6 +144,15 @@ Here are the main changes since AWS 2.0 :
      automatically an alphabetical index. Check the AWS.Services.Split_Pages
      hierarchy for more information.
      This feature has been contributed by Jean-Pierre Rosen.
+
+   - Fix bug in the directory browser when the URL given did not end with a
+     slash. In this case it was not possible to access the files under this
+     directory.
+
+   - Fix bug in template engine preventing the use of some characters as
+     filter parameters.
+
+   - Add support for non standard SMTP/POP ports in the Web_Mail service.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
