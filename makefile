@@ -252,6 +252,13 @@ install: force
 	$(CP) -p include/*.ad? $(INSTALL)/AWS/components
 ifeq (${AI302},Internal)
 	$(CP) -p include/ai302/*.ad? $(INSTALL)/AWS/components
+	$(SED) -e 's/with "ai302";//' \
+		< config/projects/aws.gpr > aws_tmp.gpr
+	$(SED) -e 's/with "ai302";//' \
+		< config/projects/aws_ssl.gpr > aws_ssl_tmp.gpr
+else
+	$(CP) config/projects/aws.gpr aws_tmp.gpr
+	$(CP) config/projects/aws_ssl.gpr aws_ssl_tmp.gpr
 endif
 	-$(CP) -p $(BDIR)/include/* $(INSTALL)/AWS/components
 	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
@@ -261,15 +268,13 @@ endif
 		$(INSTALL)/AWS/tools/ada2wsdl${EXEEXT}
 	$(CP) set-aws.* $(INSTALL)/AWS
 ifdef XMLADA
-	$(CP) config/projects/aws.gpr $(INSTALL)/AWS/projects
-	$(CP) config/projects/aws_ssl.gpr $(INSTALL)/AWS/projects
+	$(MV) aws_tmp.gpr $(INSTALL)/AWS/projects/aws.gpr
+	$(MV) aws_ssl_tmp.gpr $(INSTALL)/AWS/projects/aws_ssl.gpr
 else
 	$(SED) -e 's/with "xmlada";//' \
-		< config/projects/aws.gpr \
-		> $(INSTALL)/AWS/projects/aws.gpr
+		< aws_tmp.gpr > $(INSTALL)/AWS/projects/aws.gpr
 	$(SED) -e 's/with "xmlada";//' \
-		< config/projects/aws_ssl.gpr \
-		> $(INSTALL)/AWS/projects/aws_ssl.gpr
+		< aws_ssl_tmp.gpr > $(INSTALL)/AWS/projects/aws_ssl.gpr
 endif
 ifeq (${OS}, Windows_NT)
 	-$(CP) -p $(BDIR)/win32/lib/* $(INSTALL)/AWS/lib
