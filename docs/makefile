@@ -2,7 +2,7 @@
 # $Id$
 
 .SILENT: clean build ada.sed aws.ps aws.info aws.dvi aws.txt aws.html aws.texi
-.SILENT: prog check_env
+.SILENT: prog check_env aws.pdf
 .SILENT: check_api apiref clean_apiref adabrowse_apiref gnathtml_apiref
 
 
@@ -21,6 +21,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-default.ads.texi \
 	../src/aws-dispatchers-callback.ads.texi \
 	../src/aws-dispatchers.ads.texi \
+	../src/aws-ldap-client.ads.texi \
 	../src/aws-log.ads.texi \
 	../src/aws-mime.ads.texi \
 	../src/aws-parameters.ads.texi \
