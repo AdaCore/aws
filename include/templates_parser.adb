@@ -159,7 +159,7 @@ package body Templates_Parser is
    -----------
 
    function Image (T : in Tag) return String is
-      R     : Unbounded_String;
+      R : Unbounded_String;
    begin
       R := Begin_Tag;
 
@@ -787,7 +787,8 @@ package body Templates_Parser is
         (Filename : in String;
          T        : in Tree)
       is
-         L_Filename : Unbounded_String := To_Unbounded_String (Filename);
+         L_Filename : constant Unbounded_String
+           := To_Unbounded_String (Filename);
          Place      : Positive;
       begin
          if Files = null or else Index = Files'Last then
@@ -850,7 +851,6 @@ package body Templates_Parser is
 
          procedure Free is
             new Ada.Unchecked_Deallocation (File_Array, File_Array_Access);
-
 
       begin
          if Files = null then
@@ -1018,10 +1018,7 @@ package body Templates_Parser is
 
       function Parse (Expression : in String) return Tree is
 
-         Open_Par  : constant String := String'(1 => '(');
-         Close_Par : constant String := String'(1 => ')');
-
-         Index     : Natural := Expression'First;
+         Index : Natural := Expression'First;
 
          function Get_Token return String;
          --  Returns next token. Set Index to the last analysed position in
@@ -1250,7 +1247,7 @@ package body Templates_Parser is
 
       Result : String (S'Range);
 
-      Clean_Set : Strings.Maps.Character_Set
+      Clean_Set : constant Strings.Maps.Character_Set
         := Strings.Maps.Constants.Letter_Set
         or Strings.Maps.Constants.Decimal_Digit_Set
         or Strings.Maps.To_Set (" йикопафз");
@@ -1400,7 +1397,7 @@ package body Templates_Parser is
 
    --  Filter Table
 
-   Filter_Table : array (Filters_Mode) of Filter_Record
+   Filter_Table : constant array (Filters_Mode) of Filter_Record
      := (Lower      =>
            (Filter_Lower_Token'Access,      Lower_Filter'Access),
          Upper      =>
@@ -1584,8 +1581,7 @@ package body Templates_Parser is
      return Tree
    is
 
-      File : Text_IO.File_Type;
-      --  File beeing parsed.
+      File   : Text_IO.File_Type;  --  File beeing parsed.
 
       Buffer : String (1 .. 2048); --  current line content
       Last   : Natural;            --  index of last characters read in buffer
