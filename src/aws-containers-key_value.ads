@@ -40,7 +40,7 @@ package AWS.Containers.Key_Value is
 
    package Table is new Strings_Maps (Unbounded_String, "=");
 
-   type Set is new Table.Containers.Map;
+   subtype Set is Table.Containers.Map;
    type Set_Access is access Set;
 
    subtype Cursor is Table.Containers.Cursor;

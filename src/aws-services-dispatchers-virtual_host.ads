@@ -97,6 +97,7 @@ private
    end record;
 
    package Virtual_Host_Table is new Strings_Maps (VH_Node, "=");
+   package VH_Table renames Virtual_Host_Table.Containers;
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;

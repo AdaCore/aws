@@ -72,11 +72,11 @@ package body AWS.Services.Dispatchers.Virtual_Host is
          K := K - 1;
       end if;
 
-      Cursor := Virtual_Host_Table.Find
+      Cursor := VH_Table.Find
         (Dispatcher.Table, Hostname (Hostname'First .. K));
 
       if Virtual_Host_Table.Has_Element (Cursor) then
-         Node := Virtual_Host_Table.Containers.Element (Cursor);
+         Node := VH_Table.Element (Cursor);
 
          case Node.Mode is
             when Host     =>
@@ -118,7 +118,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter (Dispatcher) = 0 then
-         Cursor := Virtual_Host_Table.First (Dispatcher.Table);
+         Cursor := VH_Table.First (Dispatcher.Table);
 
          while Virtual_Host_Table.Has_Element (Cursor) loop
             declare
@@ -132,7 +132,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
             Virtual_Host_Table.Containers.Next (Cursor);
          end loop;
 
-         Virtual_Host_Table.Clear (Dispatcher.Table);
+         VH_Table.Clear (Dispatcher.Table);
          Free (Dispatcher.Action);
       end if;
    end Finalize;
@@ -158,7 +158,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
       Cursor  : Virtual_Host_Table.Cursor;
       Success : Boolean;
    begin
-      Virtual_Host_Table.Insert
+      VH_Table.Insert
         (Dispatcher.Table, Virtual_Hostname, Node, Cursor, Success);
 
       if not Success then
@@ -216,7 +216,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String) is
    begin
-      Virtual_Host_Table.Delete (Dispatcher.Table, Virtual_Hostname);
+      VH_Table.Delete (Dispatcher.Table, Virtual_Hostname);
    end Unregister;
 
 end AWS.Services.Dispatchers.Virtual_Host;

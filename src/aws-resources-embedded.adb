@@ -43,9 +43,10 @@ package body AWS.Resources.Embedded is
       File_Time   : Calendar.Time;
    end record;
 
-   package Res_Files is new Strings_Maps (Node, "=");
+   package Res_Files_Container is new Strings_Maps (Node, "=");
+   package Res_Files renames Res_Files_Container.Containers;
 
-   Files_Table : Res_Files.Map;
+   Files_Table : Res_Files_Container.Map;
 
    procedure Append
      (Stream : in Streams.Stream_Access;
@@ -88,15 +89,15 @@ package body AWS.Resources.Embedded is
    function Exist (Name : in String) return File_Instance is
    begin
       if not Is_GZip (Name)
-        and then Res_Files.Is_In (Name & GZip_Ext, Files_Table)
+        and then Res_Files.Is_In (Files_Table, Name & GZip_Ext)
       then
-         if Res_Files.Is_In (Name, Files_Table) then
+         if Res_Files.Is_In (Files_Table, Name) then
             return Both;
          else
             return GZip;
          end if;
 
-      elsif Res_Files.Is_In (Name, Files_Table) then
+      elsif Res_Files.Is_In (Files_Table, Name) then
          return Plain;
 
       else
@@ -117,7 +118,7 @@ package body AWS.Resources.Embedded is
       Cursor := Res_Files.Find (Files_Table, Name);
 
       if Res_Files.Has_Element (Cursor) then
-         return Res_Files.Containers.Element (Cursor).File_Buffer'Length;
+         return Res_Files.Element (Cursor).File_Buffer'Length;
 
       elsif Is_GZip (Name) then
          --  Don't look for resource Name & ".gz.gz"
@@ -128,7 +129,7 @@ package body AWS.Resources.Embedded is
       Cursor := Res_Files.Find (Files_Table, Name & GZip_Ext);
 
       if Res_Files.Has_Element (Cursor) then
-         return Res_Files.Containers.Element (Cursor).File_Buffer'Length;
+         return Res_Files.Element (Cursor).File_Buffer'Length;
       else
          raise Resource_Error;
       end if;
@@ -144,7 +145,7 @@ package body AWS.Resources.Embedded is
       Cursor := Res_Files.Find (Files_Table, Name);
 
       if Res_Files.Has_Element (Cursor) then
-         return Res_Files.Containers.Element (Cursor).File_Time;
+         return Res_Files.Element (Cursor).File_Time;
 
       elsif Is_GZip (Name) then
          --  Don't look for resource Name & ".gz.gz";
@@ -155,7 +156,7 @@ package body AWS.Resources.Embedded is
       Cursor := Res_Files.Find (Files_Table, Name & GZip_Ext);
 
       if Res_Files.Has_Element (Cursor) then
-         return Res_Files.Containers.Element (Cursor).File_Time;
+         return Res_Files.Element (Cursor).File_Time;
       else
          raise Resource_Error;
       end if;
@@ -167,9 +168,9 @@ package body AWS.Resources.Embedded is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return Res_Files.Is_In (Name, Files_Table)
+      return Res_Files.Is_In (Files_Table, Name)
         or else (not Is_GZip (Name)
-                 and then Res_Files.Is_In (Name & GZip_Ext, Files_Table));
+                 and then Res_Files.Is_In (Files_Table, Name & GZip_Ext));
    end Is_Regular_File;
 
    ----------
@@ -202,7 +203,7 @@ package body AWS.Resources.Embedded is
             Found := True;
             Stream := new Streams.Memory.Stream_Type;
 
-            Append (Stream, Res_Files.Containers.Element (Cursor).File_Buffer);
+            Append (Stream, Res_Files.Element (Cursor).File_Buffer);
 
          else
             Found := False;
@@ -260,7 +261,7 @@ package body AWS.Resources.Embedded is
       Res_Files.Insert (Files_Table, Name, N, Cursor, Success);
 
       if not Success then
-         Res_Files.Containers.Replace_Element (Cursor, By => N);
+         Res_Files.Replace_Element (Cursor, By => N);
       end if;
    end Register;
 

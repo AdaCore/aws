@@ -200,7 +200,8 @@ private
       Environment : Client_Environment;
    end record;
 
-   package Table is new Strings_Maps (Client_Holder, "=");
+   package Table_Container is new Strings_Maps (Client_Holder, "=");
+   package Table renames Table_Container.Containers;
 
    protected type Object is
 

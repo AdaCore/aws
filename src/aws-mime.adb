@@ -66,6 +66,8 @@ package body AWS.MIME is
       Next : Node_Access;
    end record;
 
+   package Key_Value renames Containers.Key_Value.Table.Containers;
+
    --  Protected Set to access tables handling MIME types
 
    protected Set is
@@ -387,11 +389,11 @@ package body AWS.MIME is
          Cursor  : Containers.Key_Value.Cursor;
          Success : Boolean;
       begin
-         Containers.Key_Value.Insert
+         Key_Value.Insert
            (Ext_Set, Ext, To_Unbounded_String (MIME_Type), Cursor, Success);
 
          if not Success then
-            Containers.Key_Value.Table.Containers.Replace_Element
+            Key_Value.Replace_Element
               (Cursor, To_Unbounded_String (MIME_Type));
          end if;
       end Add_Extension;
@@ -412,7 +414,7 @@ package body AWS.MIME is
             Last    := R_Table;
          else
             Last.Next := new Node'(Item, null);
-            Last := Last.Next;
+            Last      := Last.Next;
          end if;
       end Add_Regexp;
 
@@ -424,11 +426,10 @@ package body AWS.MIME is
          Ext    : constant String := File_Extension (Filename);
          Cursor : Containers.Key_Value.Cursor;
       begin
-         Cursor := Containers.Key_Value.Find (Ext_Set, Ext);
+         Cursor := Key_Value.Find (Ext_Set, Ext);
 
-         if Containers.Key_Value.Has_Element (Cursor) then
-            return To_String
-              (Containers.Key_Value.Table.Containers.Element (Cursor));
+         if Key_Value.Has_Element (Cursor) then
+            return To_String (Key_Value.Element (Cursor));
 
          else
             --  Check now in regexp list
