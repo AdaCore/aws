@@ -1,6 +1,6 @@
 
    - array (12)      Toto of Integer (xsd:int)
-   - array ()        Set_Of_Int of Integer (xsd:int)
+   - array (<>)      Set_Of_Int of Integer (xsd:int)
    - derived         XYZ is new Set_Of_Int (tns:Set_Of_Int)
    - array (2)       ABC of Integer (xsd:int)
    - array (10)      Set_Of_Int_10 of Integer (xsd:int)
