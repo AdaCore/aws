@@ -361,6 +361,24 @@ package body AWS.Config is
       return To_String (O.P (Status_Page).Str_Value);
    end Status_Page;
 
+   --------------------------------
+   -- Transient_Cleanup_Interval --
+   --------------------------------
+
+   function Transient_Cleanup_Interval return Duration is
+   begin
+      return Process_Options (Transient_Cleanup_Interval).Dur_Value;
+   end Transient_Cleanup_Interval;
+
+   ------------------------
+   -- Transient_Lifetime --
+   ------------------------
+
+   function Transient_Lifetime return Duration is
+   begin
+      return Process_Options (Transient_Lifetime).Dur_Value;
+   end Transient_Lifetime;
+
    --------------
    -- Up_Image --
    --------------
