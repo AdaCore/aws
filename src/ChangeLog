@@ -1,3 +1,15 @@
+2003-11-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-pop.adb:
+	(Get): Use AWS.Headers.Values.Search instead of
+	 AWS.Headers.Get_Field_Value.
+	(Get.Get): Idem. Properly read until the end of the message after
+	 MIME attachments.
+
+	* aws-headers.ads, aws-headers.adb:
+	(Get_Field_Value): Removed. This is not needed as we already have
+	 a similar routine in AWS.Headers.Values.
+
 2003-11-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-pop.ads, aws-pop.adb:
