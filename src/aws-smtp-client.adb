@@ -39,9 +39,8 @@ with Ada.Streams.Stream_IO;
 with GNAT.Calendar.Time_IO;
 with GNAT.Directory_Operations;
 
+with AWS.Net.Buffered;
 with AWS.Translator;
-with Sockets;
-with Sockets.Naming;
 
 package body AWS.SMTP.Client is
 
@@ -60,7 +59,7 @@ package body AWS.SMTP.Client is
    --  Returns the string representation for Answer.
 
    procedure Check_Answer
-     (Sock  : in     Sockets.Socket_FD;
+     (Sock  : in     Net.Socket_Type'Class;
       Reply :    out Server_Reply);
    --  Read a reply from the SMTP server (listening on Sock) and fill the Reply
    --  structure.
@@ -78,17 +77,17 @@ package body AWS.SMTP.Client is
 
    procedure Open
      (Server : in     Receiver;
-      Sock   :    out Sockets.Socket_FD;
+      Sock   :    out Net.Socket_Access;
       Status :    out SMTP.Status);
    --  Open session with a SMTP server
 
    procedure Close
-     (Sock   : in out Sockets.Socket_FD;
+     (Sock   : in out Net.Socket_Access;
       Status : in out SMTP.Status);
    --  Close session with the SMTP server.
 
    procedure Output_Header
-     (Sock     : in     Sockets.Socket_FD;
+     (Sock     : in     Net.Socket_Type'Class;
       From     : in     E_Mail_Data;
       To       : in     Recipients;
       Subject  : in     String;
@@ -97,25 +96,25 @@ package body AWS.SMTP.Client is
    --  Output SMTP headers (MAIL, RCPT, DATA, From, To, Subject, Date)
 
    procedure Output_MIME_Header
-     (Sock     : in     Sockets.Socket_FD;
+     (Sock     : in     Net.Socket_Type'Class;
       Boundary :    out Unbounded_String);
    --  Output MIME SMTP headers, return the MIME boundary
 
    procedure Put_Translated_Line
-     (Sock : in Sockets.Socket_FD;
+     (Sock : in Net.Socket_Type'Class;
       Text : in String);
    --  Translate a leading dot to two dots
 
-   procedure Terminate_Mail_Data (Sock : in out Sockets.Socket_FD);
+   procedure Terminate_Mail_Data (Sock : in out Net.Socket_Type'Class);
    --  Send string CRLF & '.' & CRLF
 
    procedure Send_MIME_Attachment
-     (Sock : in Sockets.Socket_FD; File : in Attachment);
+     (Sock : in Net.Socket_Type'Class; File : in Attachment);
    --  Send file Filename as a MIME attachment. This procedure send the MIME
    --  attachment headers but does not send the MIME boundary.
 
    procedure Send_MIME_Message
-     (Sock : in Sockets.Socket_FD; Message : in String);
+     (Sock : in Net.Socket_Type'Class; Message : in String);
    --  Send textual message as a MIME content. This procedure send the
    --  MIME headers but does not send the MIME boundary.
 
@@ -149,10 +148,10 @@ package body AWS.SMTP.Client is
    ------------------
 
    procedure Check_Answer
-     (Sock  : in     Sockets.Socket_FD;
+     (Sock  : in     Net.Socket_Type'Class;
       Reply :    out Server_Reply)
    is
-      Buffer : constant String := Sockets.Get_Line (Sock);
+      Buffer : constant String := Net.Buffered.Get_Line (Sock);
    begin
       Reply :=
         (Reply_Code'Value (Buffer (Buffer'First .. Buffer'First + 2)),
@@ -164,20 +163,21 @@ package body AWS.SMTP.Client is
    -----------
 
    procedure Close
-     (Sock   : in out Sockets.Socket_FD;
+     (Sock   : in out Net.Socket_Access;
       Status : in out SMTP.Status)
    is
       Answer : Server_Reply;
    begin
-      Sockets.Put_Line (Sock, "QUIT");
+      Net.Buffered.Put_Line (Sock.all, "QUIT");
 
-      Check_Answer (Sock, Answer);
+      Check_Answer (Sock.all, Answer);
 
       if Answer.Code /= Service_Closing then
          Add (Answer, Status);
       end if;
 
-      Sockets.Shutdown (Sock);
+      Net.Buffered.Shutdown (Sock.all);
+      Net.Free (Sock);
    end Close;
 
    ------------
@@ -229,10 +229,8 @@ package body AWS.SMTP.Client is
       Port        : in Positive := Default_SMTP_Port)
       return Receiver
    is
-      Dummy : Sockets.Socket_FD;
-      pragma Warnings (Off, Dummy);
    begin
-      return (To_Unbounded_String (Server_Name), Port, Dummy);
+      return (To_Unbounded_String (Server_Name), Port, null);
    end Initialize;
 
    ----------
@@ -241,7 +239,7 @@ package body AWS.SMTP.Client is
 
    procedure Open
      (Server : in     Receiver;
-      Sock   :    out Sockets.Socket_FD;
+      Sock   :    out Net.Socket_Access;
       Status :    out SMTP.Status)
    is
       Answer : Server_Reply;
@@ -250,27 +248,29 @@ package body AWS.SMTP.Client is
       Clear (Status);
 
       --  Open server
-      Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
-      Sockets.Connect (Sock, To_String (Server.Name), Server.Port);
+      Sock := Net.Socket (Security => False);
+
+      Net.Connect (Sock.all, To_String (Server.Name), Server.Port);
 
       --  Check connect message
-      Check_Answer (Sock, Answer);
+      Check_Answer (Sock.all, Answer);
 
       if Answer.Code = Service_Ready then
 
          --  Open session
-         Sockets.Put_Line (Sock, "HELO " & Sockets.Naming.Host_Name);
-         Check_Answer (Sock, Answer);
+         Net.Buffered.Put_Line
+           (Sock.all, "HELO " & Net.Host_Name);
+         Check_Answer (Sock.all, Answer);
 
          --  If no succes close the connection
          if Answer.Code /= Requested_Action_Ok then
             Add (Answer, Status);
-            Sockets.Shutdown (Sock);
+            Net.Buffered.Shutdown (Sock.all);
          end if;
 
       else
          Add (Answer, Status);
-         Sockets.Shutdown (Sock);
+         Net.Buffered.Shutdown (Sock.all);
       end if;
    end Open;
 
@@ -279,7 +279,7 @@ package body AWS.SMTP.Client is
    -------------------
 
    procedure Output_Header
-     (Sock     : in     Sockets.Socket_FD;
+     (Sock     : in     Net.Socket_Type'Class;
       From     : in     E_Mail_Data;
       To       : in     Recipients;
       Subject  : in     String;
@@ -304,15 +304,19 @@ package body AWS.SMTP.Client is
 
    begin
       --  MAIL
-      Sockets.Put_Line (Sock, "MAIL FROM:<" & E_Mail (From, Address) & '>');
+      Net.Buffered.Put_Line
+        (Sock, "MAIL FROM:<" & E_Mail (From, Address) & '>');
+
       Check_Answer (Sock, Answer);
 
       if Answer.Code = Requested_Action_Ok then
 
          --  RCPT
          for K in To'Range loop
-            Sockets.Put_Line (Sock,
-                              "RCPT TO:<" & E_Mail (To (K), Address) & '>');
+            Net.Buffered.Put_Line
+              (Sock,
+               "RCPT TO:<" & E_Mail (To (K), Address) & '>');
+
             Check_Answer (Sock, Answer);
 
             if Answer.Code /= Requested_Action_Ok then
@@ -323,31 +327,31 @@ package body AWS.SMTP.Client is
          if Is_Ok (Status) then
 
             --  DATA
-            Sockets.Put_Line (Sock, "DATA");
+            Net.Buffered.Put_Line (Sock, "DATA");
             Check_Answer (Sock, Answer);
 
             if Answer.Code = Start_Mail_Input then
 
                --  Time Stamp
-               Sockets.Put_Line (Sock, "Date: " & Current_Date);
+               Net.Buffered.Put_Line (Sock, "Date: " & Current_Date);
 
                --  From
-               Sockets.Put_Line (Sock, "From: " & E_Mail (From));
+               Net.Buffered.Put_Line (Sock, "From: " & E_Mail (From));
 
                --  Subject
-               Sockets.Put_Line (Sock, "Subject: " & Subject);
+               Net.Buffered.Put_Line (Sock, "Subject: " & Subject);
 
                --  To
-               Sockets.Put (Sock, "To: " & E_Mail (To (To'First)));
+               Net.Buffered.Put (Sock, "To: " & E_Mail (To (To'First)));
 
                for K in To'First + 1 .. To'Last loop
-                  Sockets.Put (Sock, ", " & E_Mail (To (K)));
+                  Net.Buffered.Put (Sock, ", " & E_Mail (To (K)));
                end loop;
 
-               Sockets.New_Line (Sock);
+               Net.Buffered.New_Line (Sock);
 
                if Complete then
-                  Sockets.New_Line (Sock);
+                  Net.Buffered.New_Line (Sock);
                end if;
 
             else
@@ -367,7 +371,7 @@ package body AWS.SMTP.Client is
    --------------------------
 
    procedure Output_MIME_Header
-     (Sock     : in     Sockets.Socket_FD;
+     (Sock     : in     Net.Socket_Type'Class;
       Boundary :    out Unbounded_String)
    is
       L_Boundary : constant String
@@ -375,10 +379,10 @@ package body AWS.SMTP.Client is
    begin
       Boundary := To_Unbounded_String (L_Boundary);
 
-      Sockets.Put_Line (Sock, "MIME-Version: 1.0 (produced by AWS/SMTP)");
-      Sockets.Put_Line (Sock, "Content-Type: multipart/mixed;");
-      Sockets.Put_Line (Sock, "    boundary =""" & L_Boundary & '"');
-      Sockets.New_Line (Sock);
+      Net.Buffered.Put_Line (Sock, "MIME-Version: 1.0 (produced by AWS/SMTP)");
+      Net.Buffered.Put_Line (Sock, "Content-Type: multipart/mixed;");
+      Net.Buffered.Put_Line (Sock, "    boundary =""" & L_Boundary & '"');
+      Net.Buffered.New_Line (Sock);
    end Output_MIME_Header;
 
    -------------------------
@@ -386,14 +390,14 @@ package body AWS.SMTP.Client is
    -------------------------
 
    procedure Put_Translated_Line
-     (Sock : in Sockets.Socket_FD;
+     (Sock : in Net.Socket_Type'Class;
       Text : in String) is
    begin
       if Text'Length > 0 and then Text (Text'First) = '.' then
-         Sockets.Put (Sock, ".");
+         Net.Buffered.Put (Sock, ".");
       end if;
 
-      Sockets.Put_Line (Sock, Text);
+      Net.Buffered.Put_Line (Sock, Text);
    end Put_Translated_Line;
 
    ----------
@@ -445,7 +449,7 @@ package body AWS.SMTP.Client is
       Last   : Natural;
       File   : Text_IO.File_Type;
 
-      Sock   : Sockets.Socket_FD;
+      Sock   : Net.Socket_Access;
       Answer : Server_Reply;
    begin
       --  Open server
@@ -453,7 +457,7 @@ package body AWS.SMTP.Client is
 
       if Is_Ok (Status) then
 
-         Output_Header (Sock, From, Recipients'(1 => To), Subject, Status);
+         Output_Header (Sock.all, From, Recipients'(1 => To), Subject, Status);
 
          if Is_Ok (Status) then
             --  Message body
@@ -461,14 +465,14 @@ package body AWS.SMTP.Client is
 
             while not Text_IO.End_Of_File (File) loop
                Text_IO.Get_Line (File, Buffer, Last);
-               Put_Translated_Line (Sock, Buffer (1 .. Last));
+               Put_Translated_Line (Sock.all, Buffer (1 .. Last));
             end loop;
 
             Text_IO.Close (File);
 
-            Terminate_Mail_Data (Sock);
+            Terminate_Mail_Data (Sock.all);
 
-            Check_Answer (Sock, Answer);
+            Check_Answer (Sock.all, Answer);
 
             if Answer.Code /= Requested_Action_Ok then
                Add (Answer, Status);
@@ -482,7 +486,8 @@ package body AWS.SMTP.Client is
       --  Raise Server_Error for all problems encountered
 
       when E : others =>
-         Sockets.Shutdown (Sock);
+         Net.Buffered.Shutdown (Sock.all);
+         Net.Free (Sock);
 
          if Text_IO.Is_Open (File) then
             Text_IO.Close (File);
@@ -505,22 +510,22 @@ package body AWS.SMTP.Client is
       Message : in     String;
       Status  :    out SMTP.Status)
    is
-      Sock   : Sockets.Socket_FD;
+      Sock   : Net.Socket_Access;
       Answer : Server_Reply;
    begin
       Open (Server, Sock, Status);
 
       if Is_Ok (Status) then
 
-         Output_Header (Sock, From, To, Subject, Status);
+         Output_Header (Sock.all, From, To, Subject, Status);
 
          if Is_Ok (Status) then
             --  Message body
-            Put_Translated_Line (Sock, Message);
+            Put_Translated_Line (Sock.all, Message);
 
-            Terminate_Mail_Data (Sock);
+            Terminate_Mail_Data (Sock.all);
 
-            Check_Answer (Sock, Answer);
+            Check_Answer (Sock.all, Answer);
 
             if Answer.Code /= Requested_Action_Ok then
                Add (Answer, Status);
@@ -535,7 +540,8 @@ package body AWS.SMTP.Client is
       --  Raise Server_Error for all problems encountered
 
       when E : others =>
-         Sockets.Shutdown (Sock);
+         Net.Buffered.Shutdown (Sock.all);
+         Net.Free (Sock);
 
          Ada.Exceptions.Raise_Exception
            (Server_Error'Identity, Ada.Exceptions.Exception_Information (E));
@@ -555,7 +561,7 @@ package body AWS.SMTP.Client is
       Attachments : in     Attachment_Set;
       Status      :    out SMTP.Status)
    is
-      Sock     : Sockets.Socket_FD;
+      Sock     : Net.Socket_Access;
       Answer   : Server_Reply;
       Boundary : Unbounded_String;
    begin
@@ -563,43 +569,47 @@ package body AWS.SMTP.Client is
 
       if Is_Ok (Status) then
 
-         Output_Header (Sock, From, To, Subject, Status, Complete => False);
+         Output_Header
+           (Sock.all, From, To, Subject, Status, Complete => False);
 
          if Is_Ok (Status) then
             --  Send MIME header
 
-            Output_MIME_Header (Sock, Boundary);
+            Output_MIME_Header (Sock.all, Boundary);
 
             --  Message for non-MIME compliant Mail reader
 
-            Sockets.Put_Line (Sock, "This is multipart MIME message");
-            Sockets.Put_Line
-              (Sock, "If you read this, your mailer does not support MIME");
-            Sockets.New_Line (Sock);
+            Net.Buffered.Put_Line
+              (Sock.all, "This is multipart MIME message");
+            Net.Buffered.Put_Line
+              (Sock.all,
+               "If you read this, your mailer does not support MIME");
+            Net.Buffered.New_Line (Sock.all);
 
             --  Message body as the first MIME content
 
-            Sockets.Put_Line (Sock, "--" & To_String (Boundary));
+            Net.Buffered.Put_Line (Sock.all, "--" & To_String (Boundary));
 
-            Send_MIME_Message (Sock, Message);
+            Send_MIME_Message (Sock.all, Message);
 
             --  Send attachments
 
-            Sockets.New_Line (Sock);
+            Net.Buffered.New_Line (Sock.all);
 
             for K in Attachments'Range loop
-               Sockets.Put_Line (Sock, "--" & To_String (Boundary));
+               Net.Buffered.Put_Line (Sock.all, "--" & To_String (Boundary));
 
-               Send_MIME_Attachment (Sock, Attachments (K));
+               Send_MIME_Attachment (Sock.all, Attachments (K));
             end loop;
 
             --  Send termination boundary
-            Sockets.New_Line (Sock);
-            Sockets.Put_Line (Sock, "--" & To_String (Boundary) & "--");
+            Net.Buffered.New_Line (Sock.all);
+            Net.Buffered.Put_Line
+              (Sock.all, "--" & To_String (Boundary) & "--");
 
-            Terminate_Mail_Data (Sock);
+            Terminate_Mail_Data (Sock.all);
 
-            Check_Answer (Sock, Answer);
+            Check_Answer (Sock.all, Answer);
 
             if Answer.Code /= Requested_Action_Ok then
                Add (Answer, Status);
@@ -614,7 +624,8 @@ package body AWS.SMTP.Client is
       --  Raise Server_Error for all problem encountered
 
       when E : others =>
-         Sockets.Shutdown (Sock);
+         Net.Buffered.Shutdown (Sock.all);
+         Net.Free (Sock);
 
          Ada.Exceptions.Raise_Exception
            (Server_Error'Identity, Ada.Exceptions.Exception_Information (E));
@@ -625,7 +636,7 @@ package body AWS.SMTP.Client is
    --------------------------
 
    procedure Send_MIME_Attachment
-     (Sock : in Sockets.Socket_FD; File : in Attachment)
+     (Sock : in Net.Socket_Type'Class; File : in Attachment)
    is
       procedure Send_File;
       --  Send File attachment
@@ -648,16 +659,16 @@ package body AWS.SMTP.Client is
       begin
          while K <= Content_Len loop
             if K + Chunk_Size - 1 > Content_Len then
-               Sockets.Put_Line (Sock, Slice (File.Data, K, Content_Len));
+               Net.Buffered.Put_Line (Sock, Slice (File.Data, K, Content_Len));
                K := Content_Len + 1;
             else
-               Sockets.Put_Line
+               Net.Buffered.Put_Line
                  (Sock, Slice (File.Data, K, K + Chunk_Size - 1));
                K := K + Chunk_Size;
             end if;
          end loop;
 
-         Sockets.New_Line (Sock);
+         Net.Buffered.New_Line (Sock);
       end Send_Base64;
 
       ---------------
@@ -680,11 +691,11 @@ package body AWS.SMTP.Client is
          while not Stream_IO.End_Of_File (File) loop
             Stream_IO.Read (File, Buffer, Last);
 
-            Sockets.Put_Line
+            Net.Buffered.Put_Line
               (Sock, AWS.Translator.Base64_Encode (Buffer (1 .. Last)));
          end loop;
 
-         Sockets.New_Line (Sock);
+         Net.Buffered.New_Line (Sock);
 
          Stream_IO.Close (File);
       end Send_File;
@@ -692,12 +703,12 @@ package body AWS.SMTP.Client is
    begin
       --  MIME attachment headers
 
-      Sockets.Put_Line (Sock, "Content-Type: application/octet-stream;");
-      Sockets.Put_Line (Sock, "    name =""" & Base_Filename & '"');
-      Sockets.Put_Line (Sock, "Content-Transfer-Encoding: base64");
-      Sockets.Put_Line (Sock, "Content-Disposition: attachment;");
-      Sockets.Put_Line (Sock, "    filename=""" & Base_Filename & '"');
-      Sockets.New_Line (Sock);
+      Net.Buffered.Put_Line (Sock, "Content-Type: application/octet-stream;");
+      Net.Buffered.Put_Line (Sock, "    name =""" & Base_Filename & '"');
+      Net.Buffered.Put_Line (Sock, "Content-Transfer-Encoding: base64");
+      Net.Buffered.Put_Line (Sock, "Content-Disposition: attachment;");
+      Net.Buffered.Put_Line (Sock, "    filename=""" & Base_Filename & '"');
+      Net.Buffered.New_Line (Sock);
 
       --  MIME content
 
@@ -712,12 +723,12 @@ package body AWS.SMTP.Client is
    -----------------------
 
    procedure Send_MIME_Message
-     (Sock : in Sockets.Socket_FD; Message : in String) is
+     (Sock : in Net.Socket_Type'Class; Message : in String) is
    begin
       --  MIME message headers
 
-      Sockets.Put_Line (Sock, "Content-Type: text/plain");
-      Sockets.New_Line (Sock);
+      Net.Buffered.Put_Line (Sock, "Content-Type: text/plain");
+      Net.Buffered.New_Line (Sock);
 
       Put_Translated_Line (Sock, Message);
    end Send_MIME_Message;
@@ -726,11 +737,11 @@ package body AWS.SMTP.Client is
    -- Terminate_Mail_Data --
    -------------------------
 
-   procedure Terminate_Mail_Data (Sock : in out Sockets.Socket_FD) is
+   procedure Terminate_Mail_Data (Sock : in out Net.Socket_Type'Class) is
    begin
-      Sockets.New_Line (Sock);
-      Sockets.Put (Sock, ".");
-      Sockets.New_Line (Sock);
+      Net.Buffered.New_Line (Sock);
+      Net.Buffered.Put (Sock, ".");
+      Net.Buffered.New_Line (Sock);
    end Terminate_Mail_Data;
 
 end AWS.SMTP.Client;

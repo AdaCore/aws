@@ -177,7 +177,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Slot_Data := Server.Slots.Get (Index => K);
 
          if Slot_Data.Phase /= Closed then
-            Sock := Sock & Integer (Sockets.Get_FD (Slot_Data.Sock.all));
+            Sock := Sock & Net.Get_FD (Slot_Data.Sock.all);
          else
             Sock := Sock & '-';
          end if;
@@ -189,7 +189,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
          Activity_Counter := Activity_Counter & Slot_Data.Activity_Counter;
 
-         Peer_Name := Peer_Name & Sockets.Naming.Image (Slot_Data.Peer_Addr);
+         Peer_Name := Peer_Name & To_String (Slot_Data.Peer_Addr);
 
          Slot_Activity_Counter := Slot_Activity_Counter
            & Slot_Data.Slot_Activity_Counter;
@@ -231,7 +231,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
                 CNF.Security (Server.Properties)),
 
          Assoc ("SERVER_SOCK",
-                Integer (Sockets.Get_FD (Server.Sock))),
+                Integer (Net.Get_FD (Server.Sock.all))),
 
          Assoc ("VERSION",
                 Version),

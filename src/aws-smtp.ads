@@ -37,7 +37,7 @@
 
 with Ada.Strings.Unbounded;
 
-with Sockets;
+with AWS.Net;
 
 package AWS.SMTP is
 
@@ -108,7 +108,7 @@ private
    type Receiver is record
       Name : Unbounded_String;
       Port : Positive;
-      Sock : Sockets.Socket_FD;
+      Sock : Net.Socket_Access;
    end record;
 
    type Status is record

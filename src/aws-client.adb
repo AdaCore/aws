@@ -40,12 +40,11 @@ with Ada.Unchecked_Deallocation;
 
 with GNAT.Table;
 with GNAT.Calendar.Time_IO;
-with Sockets;
 
 with AWS.Digest;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.Net;
+with AWS.Net.Buffered;
 with AWS.OS_Lib;
 with AWS.Response.Set;
 with AWS.Translator;
@@ -118,13 +117,13 @@ package body AWS.Client is
    --  Receive timeouts of the cleaner task if needed.
 
    procedure Send_Header
-     (Sock : in Sockets.Socket_FD'Class;
+     (Sock : in Net.Socket_Type'Class;
       Data : in String);
    pragma Inline (Send_Header);
    --  Send header Data to socket and call Debug_Message.
 
    procedure Free is new Ada.Unchecked_Deallocation
-     (Sockets.Socket_FD'Class, Socket_Access);
+     (Net.Socket_Type'Class, Net.Socket_Access);
 
    ------------------
    -- Cleaner_Task --
@@ -289,28 +288,30 @@ package body AWS.Client is
          Connect_URL := Proxy_URL;
       end if;
 
-      Connection.Host            := To_Unbounded_String (Host);
-      Connection.Host_URL        := Host_URL;
-      Connection.Connect_URL     := Connect_URL;
-      Connection.Auth (WWW).User := Set (User);
-      Connection.Auth (WWW).Pwd  := Set (Pwd);
-      Connection.Proxy           := Set (Proxy);
-      Connection.Proxy_URL       := Proxy_URL;
+      Connection.Host                     := To_Unbounded_String (Host);
+      Connection.Host_URL                 := Host_URL;
+      Connection.Connect_URL              := Connect_URL;
+      Connection.Auth (WWW).User          := Set (User);
+      Connection.Auth (WWW).Pwd           := Set (Pwd);
+      Connection.Proxy                    := Set (Proxy);
+      Connection.Proxy_URL                := Proxy_URL;
       Connection.Auth (Client.Proxy).User := Set (Proxy_User);
       Connection.Auth (Client.Proxy).Pwd  := Set (Proxy_Pwd);
 
       begin
-         Connection.Socket := new Sockets.Socket_FD'Class'
-           (AWS.Net.Connect (AWS.URL.Host (Connect_URL),
-                             AWS.URL.Port (Connect_URL),
-                             AWS.URL.Security (Connect_URL)));
+         Connection.Socket := Net.Socket (AWS.URL.Security (Connect_URL));
+
+         Net.Connect (Connection.Socket.all,
+                      AWS.URL.Host (Connect_URL),
+                      AWS.URL.Port (Connect_URL));
       exception
-         when others =>
+         when E : others =>
             Connection.Opened := False;
 
             Exceptions.Raise_Exception
               (Connection_Error'Identity,
-               "can't connect to " & AWS.URL.URL (Connect_URL));
+               "can't connect to " & AWS.URL.URL (Connect_URL)
+                 & " -> " & Exceptions.Exception_Information (E));
       end;
 
       Connection.Opened          := True;
@@ -379,12 +380,13 @@ package body AWS.Client is
    ----------------
 
    procedure Disconnect (Connection : in out HTTP_Connection) is
+      use type Net.Socket_Access;
    begin
       if Connection.Opened then
          Connection.Opened := False;
 
          if Connection.Socket /= null then
-            Sockets.Shutdown (Connection.Socket.all);
+            Net.Buffered.Shutdown (Connection.Socket.all);
          end if;
       end if;
    end Disconnect;
@@ -467,10 +469,9 @@ package body AWS.Client is
 
       loop
          begin
-
             Open_Send_Common_Header (Connection, "GET", URI);
 
-            Sockets.New_Line (Connection.Socket.all);
+            Net.Buffered.New_Line (Connection.Socket.all);
 
             Get_Response (Connection, Result, not Connection.Server_Push);
 
@@ -482,13 +483,14 @@ package body AWS.Client is
             end if;
 
          exception
-            when Sockets.Connection_Closed | Sockets.Socket_Error =>
+            when Net.Socket_Error =>
 
                Disconnect (Connection);
 
                if Try_Count = 0 then
                   Result := Response.Build
                     (MIME.Text_HTML, "Get Timeout", Messages.S408);
+
                   Set_Phase (Connection, Not_Monitored);
                   exit;
                end if;
@@ -531,7 +533,7 @@ package body AWS.Client is
       procedure Free is new Ada.Unchecked_Deallocation
         (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
-      Sock       : constant Sockets.Socket_FD'Class := Connection.Socket.all;
+      Sock       : Net.Socket_Type'Class renames Connection.Socket.all;
 
       CT         : Unbounded_String;
       CT_Len     : Natural              := 0;
@@ -603,7 +605,7 @@ package body AWS.Client is
             E := Stream_Element_Offset'Min
               (Stream_Element_Offset (Len), S + 10_239);
 
-            Sockets.Receive (Sock, Elements (S .. E));
+            Net.Buffered.Read (Sock, Elements (S .. E));
 
             S := E + 1;
 
@@ -613,7 +615,7 @@ package body AWS.Client is
          return Elements;
 
       exception
-         when Sockets.Connection_Closed =>
+         when Net.Socket_Error =>
             --  Could have been killed by a timeout.
             Free (Elements);
             raise;
@@ -630,16 +632,20 @@ package body AWS.Client is
          use type Stream_Element_Array;
          use type Stream_Element_Offset;
 
+         procedure Skip_Line;
+         --  skip a line on the socket
+
          Data      : Stream_Element_Array_Access
            := new Streams.Stream_Element_Array (1 .. 10_000);
 
          Data_Last : Streams.Stream_Element_Offset := 0;
 
-         procedure Skip_Line;
-         --  skip a line on the socket
+         ---------------
+         -- Skip_Line --
+         ---------------
 
          procedure Skip_Line is
-            D : constant String := Sockets.Get_Line (Sock);
+            D : constant String := Net.Buffered.Get_Line (Sock);
             pragma Warnings (Off, D);
          begin
             null;
@@ -652,7 +658,7 @@ package body AWS.Client is
          loop
             --  Read the chunk size that is an hex number
             declare
-               L : constant String := Sockets.Get_Line (Sock);
+               L : constant String := Net.Buffered.Get_Line (Sock);
             begin
                Size := Stream_Element_Offset
                  (Utils.Hex_Value (Strings.Fixed.Trim (L, Strings.Both)));
@@ -675,7 +681,7 @@ package body AWS.Client is
                   Data := Tmp;
                end if;
 
-               Sockets.Receive
+               Net.Buffered.Read
                  (Sock, Data (Data_Last + 1 .. Data_Last + Size));
 
                Skip_Line;
@@ -712,16 +718,17 @@ package body AWS.Client is
 
          loop
             declare
-               Part : constant String := Sockets.Get (Sock);
+               Part : constant Streams.Stream_Element_Array
+                 := Net.Buffered.Read (Sock);
             begin
-               Append (Results, Part);
+               Append (Results, Translator.To_String (Part));
             end;
          end loop;
 
          return To_String (Results);
 
       exception
-         when Sockets.Connection_Closed | Sockets.Socket_Error =>
+         when Net.Socket_Error =>
             return To_String (Results);
       end Read_Message;
 
@@ -819,13 +826,13 @@ package body AWS.Client is
                      loop
                         declare
                            Data : constant Streams.Stream_Element_Array
-                             := Sockets.Receive (Sock);
+                             := Net.Buffered.Read (Sock);
                         begin
                            Add (Data);
                         end;
                      end loop;
                   exception
-                     when Sockets.Connection_Closed | Sockets.Socket_Error =>
+                     when Net.Socket_Error =>
                         null;
                   end Read_Until_Close;
 
@@ -926,7 +933,7 @@ package body AWS.Client is
 
             Open_Send_Common_Header (Connection, "HEAD", URI);
 
-            Sockets.New_Line (Connection.Socket.all);
+            Net.Buffered.New_Line (Connection.Socket.all);
 
             Get_Response (Connection, Result, Get_Body => False);
 
@@ -938,7 +945,7 @@ package body AWS.Client is
             end if;
 
          exception
-            when Sockets.Connection_Closed | Sockets.Socket_Error =>
+            when Net.Socket_Error =>
 
                Disconnect (Connection);
 
@@ -963,8 +970,6 @@ package body AWS.Client is
       Method     : in     String;
       URI        : in     String)
    is
-      Sock    : Sockets.Socket_FD'Class := Connection.Socket.all;
-
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
       procedure Send_Authentication_Header
@@ -1043,7 +1048,7 @@ package body AWS.Client is
          then
             if Data.Work_Mode = Basic then
                Send_Header
-                 (Sock,
+                 (Connection.Socket.all,
                   Token & "Basic "
                     & AWS.Translator.Base64_Encode
                     (Username
@@ -1139,7 +1144,7 @@ package body AWS.Client is
 
                begin
                   Send_Header
-                    (Sock,
+                    (Connection.Socket.all,
                      Token & "Digest "
                        & QOP_Data
                        & "nonce=""" & Nonce
@@ -1162,13 +1167,15 @@ package body AWS.Client is
       --  Open socket if needed.
 
       if not Connection.Opened then
-         Sock := AWS.Net.Connect
-           (AWS.URL.Host (Connection.Connect_URL),
-            AWS.URL.Port (Connection.Connect_URL),
-            AWS.URL.Security (Connection.Connect_URL));
+         Connection.Socket
+           := Net.Socket (AWS.URL.Security (Connection.Connect_URL));
 
-         Connection.Socket.all := Sock;
-         Connection.Opened     := True;
+         Net.Connect
+           (Connection.Socket.all,
+            AWS.URL.Host (Connection.Connect_URL),
+            AWS.URL.Port (Connection.Connect_URL));
+
+         Connection.Opened := True;
       end if;
 
       Set_Phase (Connection, Send);
@@ -1179,7 +1186,7 @@ package body AWS.Client is
 
          if URI = "" then
             Send_Header
-              (Sock,
+              (Connection.Socket.all,
                Method & ' '
                  & AWS.URL.Pathname_And_Parameters (Connection.Host_URL, False)
                  & ' ' & HTTP_Version);
@@ -1196,28 +1203,32 @@ package body AWS.Client is
                   end if;
                end loop;
 
-               Send_Header (Sock, Method & ' ' & E_URI & ' ' & HTTP_Version);
+               Send_Header
+                 (Connection.Socket.all,
+                  Method & ' ' & E_URI & ' ' & HTTP_Version);
             end;
          end if;
 
-         Send_Header (Sock, Messages.Connection (Persistence));
+         Send_Header
+           (Connection.Socket.all, Messages.Connection (Persistence));
 
       else
          if URI = "" then
-            Send_Header (Sock,
+            Send_Header (Connection.Socket.all,
                          Method & ' '
                            & To_String (Connection.Host)
                            & ' ' & HTTP_Version);
          else
             Send_Header
-              (Sock,
+              (Connection.Socket.all,
                Method & ' '
                  & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
                  & Host_Address & URI
                  & ' ' & HTTP_Version);
          end if;
 
-         Send_Header (Sock, Messages.Proxy_Connection (Persistence));
+         Send_Header
+           (Connection.Socket.all, Messages.Proxy_Connection (Persistence));
 
       end if;
 
@@ -1225,14 +1236,21 @@ package body AWS.Client is
 
       if Connection.Cookie /= No_Data then
          Send_Header
-           (Sock, Messages.Cookie_Token & To_String (Connection.Cookie));
+           (Connection.Socket.all,
+            Messages.Cookie_Token & To_String (Connection.Cookie));
       end if;
 
-      Send_Header (Sock, Messages.Host (Host_Address));
-      Send_Header (Sock, Messages.Accept_Type ("text/html, */*"));
-      Send_Header (Sock, Messages.Accept_Language ("fr, us"));
-      Send_Header
-        (Sock, Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
+      Send_Header (Connection.Socket.all,
+                   Messages.Host (Host_Address));
+
+      Send_Header (Connection.Socket.all,
+                   Messages.Accept_Type ("text/html, */*"));
+
+      Send_Header (Connection.Socket.all,
+                   Messages.Accept_Language ("fr, us"));
+
+      Send_Header (Connection.Socket.all,
+                   Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
 
       --  User Authentification
 
@@ -1248,7 +1266,8 @@ package body AWS.Client is
 
       if Connection.SOAPAction /= No_Data then
          Send_Header
-           (Sock, Messages.SOAPAction (To_String (Connection.SOAPAction)));
+           (Connection.Socket.all,
+            Messages.SOAPAction (To_String (Connection.SOAPAction)));
       end if;
 
       Set_Phase (Connection, Not_Monitored);
@@ -1268,7 +1287,7 @@ package body AWS.Client is
       Keep_Alive        :    out Boolean)
    is
 
-      Sock : constant Sockets.Socket_FD'Class := Connection.Socket.all;
+      Sock : Net.Socket_Type'Class renames Connection.Socket.all;
 
       Request_Auth_Mode : array (Authentication_Level) of Authentication_Mode
         := (others => Any);
@@ -1392,7 +1411,7 @@ package body AWS.Client is
       --  We should check the Messages.HTTP_Token only in the first line
       --  and raise an exception if the first line does not match HTTP_Token.
       declare
-         Line : constant String := Sockets.Get_Line (Sock);
+         Line : constant String := Net.Buffered.Get_Line (Sock);
       begin
          Debug_Message ("< ", Line);
 
@@ -1419,7 +1438,7 @@ package body AWS.Client is
       loop
          declare
             use type Messages.Status_Code;
-            Line : constant String := Sockets.Get_Line (Sock);
+            Line : constant String := Net.Buffered.Get_Line (Sock);
          begin
             Debug_Message ("< ", Line);
 
@@ -1487,7 +1506,6 @@ package body AWS.Client is
             end if;
          end;
       end loop;
-
    end Parse_Header;
 
    ----------
@@ -1568,8 +1586,7 @@ package body AWS.Client is
             Open_Send_Common_Header (Connection, "POST", URI);
 
             declare
-               Sock : constant Sockets.Socket_FD'Class
-                 := Connection.Socket.all;
+               Sock : Net.Socket_Type'Class renames Connection.Socket.all;
             begin
 
                if Connection.SOAPAction = No_Data then
@@ -1587,11 +1604,11 @@ package body AWS.Client is
 
                Send_Header (Sock, Messages.Content_Length (Data'Length));
 
-               Sockets.New_Line (Sock);
+               Net.Buffered.New_Line (Sock);
 
                --  Send message body
 
-               Sockets.Send (Sock, Data);
+               Net.Buffered.Write (Sock, Data);
             end;
 
             --  Get answer from server
@@ -1607,7 +1624,7 @@ package body AWS.Client is
 
          exception
 
-            when Sockets.Connection_Closed | Sockets.Socket_Error =>
+            when Net.Socket_Error =>
 
                Disconnect (Connection);
 
@@ -1705,11 +1722,11 @@ package body AWS.Client is
             Send_Header
               (Connection.Socket.all, Messages.Content_Length (Data'Length));
 
-            Sockets.New_Line (Connection.Socket.all);
+            Net.Buffered.New_Line (Connection.Socket.all);
 
             --  Send message body
 
-            Sockets.Put_Line (Connection.Socket.all, Data);
+            Net.Buffered.Put_Line (Connection.Socket.all, Data);
 
             --  Get answer from server
 
@@ -1729,7 +1746,7 @@ package body AWS.Client is
             end if;
 
          exception
-            when Sockets.Connection_Closed | Sockets.Socket_Error =>
+            when Net.Socket_Error =>
 
                Disconnect (Connection);
 
@@ -1774,9 +1791,9 @@ package body AWS.Client is
       Main : loop
          for I in Buffer'Range loop
             begin
-               Buffer (I) := Sockets.Get_Char (Connection.Socket.all);
+               Buffer (I) := Net.Buffered.Get_Char (Connection.Socket.all);
             exception
-               when Sockets.Connection_Closed | Sockets.Socket_Error =>
+               when Net.Socket_Error =>
                   Append (Result, Buffer (Buffer'First .. I - 1));
                   exit Main;
             end;
@@ -1806,10 +1823,10 @@ package body AWS.Client is
    -----------------
 
    procedure Send_Header
-     (Sock : in Sockets.Socket_FD'Class;
+     (Sock : in Net.Socket_Type'Class;
       Data : in String) is
    begin
-      Sockets.Put_Line (Sock, Data);
+      Net.Buffered.Put_Line (Sock, Data);
       Debug_Message ("> ", Data);
    end Send_Header;
 
@@ -1987,24 +2004,24 @@ package body AWS.Client is
       ---------------
 
       procedure Send_File is
-         Sock     : constant Sockets.Socket_FD'Class := Connection.Socket.all;
+         Sock     : Net.Socket_Type'Class renames Connection.Socket.all;
          Buffer   : Streams.Stream_Element_Array (1 .. 4_096);
          Last     : Streams.Stream_Element_Offset;
          File     : Streams.Stream_IO.File_Type;
       begin
          --  Send multipart message start boundary
 
-         Sockets.Put_Line (Sock, Pref_Suf & Boundary);
+         Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary);
 
          --  Send Content-Disposition header
 
-         Sockets.Put_Line (Sock, CD);
+         Net.Buffered.Put_Line (Sock, CD);
 
          --  Send Content-Type: header
 
-         Sockets.Put_Line (Sock, CT);
+         Net.Buffered.Put_Line (Sock, CT);
 
-         Sockets.New_Line (Sock);
+         Net.Buffered.New_Line (Sock);
 
          --  Send file content
 
@@ -2012,16 +2029,16 @@ package body AWS.Client is
 
          while not Streams.Stream_IO.End_Of_File (File) loop
             Streams.Stream_IO.Read (File, Buffer, Last);
-            Sockets.Send (Sock, Buffer (1 .. Last));
+            Net.Buffered.Write (Sock, Buffer (1 .. Last));
          end loop;
 
          Streams.Stream_IO.Close (File);
 
-         Sockets.New_Line (Sock);
+         Net.Buffered.New_Line (Sock);
 
          --  Send multipart message end boundary
 
-         Sockets.Put_Line (Sock, Pref_Suf & Boundary & Pref_Suf);
+         Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary & Pref_Suf);
       end Send_File;
 
    begin
@@ -2030,8 +2047,7 @@ package body AWS.Client is
             Open_Send_Common_Header (Connection, "POST", URI);
 
             declare
-               Sock : constant Sockets.Socket_FD'Class
-                 := Connection.Socket.all;
+               Sock : Net.Socket_Type'Class renames Connection.Socket.all;
             begin
                --  Send message Content-Type (Multipart/form-data)
 
@@ -2043,7 +2059,7 @@ package body AWS.Client is
 
                Send_Header (Sock, Messages.Content_Length (Content_Length));
 
-               Sockets.New_Line (Sock);
+               Net.Buffered.New_Line (Sock);
 
                --  Send message body
 
@@ -2063,7 +2079,7 @@ package body AWS.Client is
 
          exception
 
-            when Sockets.Connection_Closed | Sockets.Socket_Error =>
+            when Net.Socket_Error =>
 
                Disconnect (Connection);
 

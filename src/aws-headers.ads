@@ -31,7 +31,7 @@
 --  $Id$
 
 with AWS.Containers.Tables;
-with Sockets;
+with AWS.Net;
 
 package AWS.Headers is
 
@@ -50,7 +50,7 @@ package AWS.Headers is
 
    procedure Send_Header
      (Headers : in List;
-      Socket  : in Sockets.Socket_FD'Class);
+      Socket  : in Net.Socket_Type'Class);
    --  Send all header lines in Headers list to the socket
 
    function Get_Line

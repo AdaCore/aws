@@ -31,6 +31,8 @@
 --  $Id$
 
 with Ada.Streams;
+
+with AWS.Net.Buffered;
 with AWS.Translator;
 
 package body AWS.Headers is
@@ -59,7 +61,7 @@ package body AWS.Headers is
 
    procedure Send_Header
      (Headers : in List;
-      Socket  : in Sockets.Socket_FD'Class)
+      Socket  : in Net.Socket_Type'Class)
    is
       use Ada.Streams;
 
@@ -88,7 +90,7 @@ package body AWS.Headers is
             Last := First + Line'Length - 1;
 
             if Last > Buffer'Last then
-               Sockets.Send
+               Net.Buffered.Write
                  (Socket,
                   Buffer (Buffer'First .. First - 1) & Line);
                First := Buffer'First;
@@ -101,7 +103,7 @@ package body AWS.Headers is
       end loop;
 
       if First > Buffer'First then
-         Sockets.Send
+         Net.Buffered.Write
            (Socket,
             Buffer (Buffer'First .. First - 1));
       end if;
