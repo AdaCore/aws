@@ -575,11 +575,9 @@ package body AWS.Server is
             end if;
 
             Web_Server.Slots.Shutdown_Done (S);
-
          exception
             when others =>
                Web_Server.Slots.Shutdown_Done (S);
-
                raise;
          end;
       end loop;
@@ -827,7 +825,7 @@ package body AWS.Server is
          --  Check if the Aborted phase happen between after socket operation
          --  and before Mark_Phase call.
 
-         if Table (Index).Phase = Loose_Release then
+         if Table (Index).Phase = Release_Deferred then
             Net.Free (Table (Index).Sock);
 
          elsif Table (Index).Phase in In_Shutdown .. Aborted
@@ -881,24 +879,15 @@ package body AWS.Server is
                   --  shutdowning socket now.
 
                   --  We have to make a copy, because task could terminate
-                  --  when we would call Socket_Done.
-                  --  This copy could be deallocated in the Mark_Phase, when
-                  --  Phase changed from Loose_Release to the Closed or
-                  --  Wait_For_Client. Note that
-                  --  Net.Free (Table (Index).Sock.all)
-                  --  (see in the prevous if section) deallocates only
-                  --  internal socket structures.
-                  --  But Net.Free (Table (Index).Sock)
-                  --  (See in the Mark_Phase) deallocates the memory
-                  --  where socket is allocated and internal structures too.
-                  --  Below we are allocating only place for Socket_Type'Class
-                  --  record.
+                  --  when we would call Socket_Done. The socket access is
+                  --  pointing to a stack object in the line, we make sure
+                  --  that we have a copy of this object in the heap to be
+                  --  able to properly free it later.
 
                   Table (Index).Sock
                      := new Net.Socket_Type'Class'(Table (Index).Sock.all);
 
-                  Mark_Phase (Index, Loose_Release);
-
+                  Mark_Phase (Index, Release_Deferred);
                   return;
 
                else
@@ -955,7 +944,7 @@ package body AWS.Server is
 
       procedure Shutdown_Done (Index : in Positive) is
       begin
-         if Table (Index).Phase = Loose_Release then
+         if Table (Index).Phase = Release_Deferred then
             Mark_Phase (Index, Closed);
          elsif Table (Index).Phase = In_Shutdown then
             Mark_Phase (Index, Aborted);
