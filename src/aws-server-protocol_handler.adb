@@ -79,6 +79,13 @@ is
    HTTP_10        : constant String := "HTTP/1.0";
 
    C_Stat         : AWS.Status.Data;     -- Connection status
+
+   --  Duplication of some status fields for fast access
+   --  to the status data.
+   Status_Connection         : Unbounded_String;
+   Status_Multipart_Boundary : Unbounded_String;
+   Status_Content_Type       : Unbounded_String;
+
    P_List         : AWS.Parameters.List; -- Form data
 
    Sock_Ptr       : Socket_Access :=
@@ -310,7 +317,7 @@ is
          else
             Sockets.Put_Line
               (Sock,
-               Messages.Connection (AWS.Status.Connection (C_Stat)));
+               Messages.Connection (To_String (Status_Connection)));
          end if;
 
          --  Handle authentication message
@@ -544,6 +551,9 @@ is
          Content_Type    : Unbounded_String;
          File            : Streams.Stream_IO.File_Type;
          Is_File_Upload  : Boolean;
+
+         Multipart_Boundary : String :=
+            To_String (Status_Multipart_Boundary);
 
          procedure Get_File_Data;
          --  Read file data from the stream.
@@ -808,15 +818,15 @@ is
 
                Get_File_Data;
 
-               File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
-                            "--" & Status.Multipart_Boundary (C_Stat) & "--",
+               File_Upload ("--" & Multipart_Boundary,
+                            "--" & Multipart_Boundary & "--",
                             False);
             else
                --  There is no file for this multipart, user did not enter
                --  something in the field.
 
-               File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
-                            "--" & Status.Multipart_Boundary (C_Stat) & "--",
+               File_Upload ("--" & Multipart_Boundary,
+                            "--" & Multipart_Boundary & "--",
                             True);
             end if;
 
@@ -829,8 +839,8 @@ is
                AWS.Parameters.Set.Add (P_List, To_String (Name), Value);
             end;
 
-            File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
-                         "--" & Status.Multipart_Boundary (C_Stat) & "--",
+            File_Upload ("--" & Multipart_Boundary,
+                         "--" & Multipart_Boundary & "--",
                          True);
          end if;
 
@@ -858,7 +868,7 @@ is
       if Status.Content_Length (C_Stat) /= 0 then
 
          if Status.Method (C_Stat) = Status.POST
-           and then Status.Content_Type (C_Stat) = MIME.Appl_Form_Data
+           and then Status_Content_Type = MIME.Appl_Form_Data
 
          then
             --  Read data from the stream and convert it to a string as
@@ -892,12 +902,12 @@ is
             end;
 
          elsif Status.Method (C_Stat) = Status.POST
-           and then Status.Content_Type (C_Stat) = MIME.Multipart_Form_Data
+           and then Status_Content_Type = MIME.Multipart_Form_Data
          then
             --  This is a file upload.
 
-            File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
-                         "--" & Status.Multipart_Boundary (C_Stat) & "--",
+            File_Upload ("--" & To_String (Status_Multipart_Boundary),
+                         "--" & To_String (Status_Multipart_Boundary) & "--",
                          True);
 
          elsif Status.Method (C_Stat) = Status.POST
@@ -1031,9 +1041,13 @@ is
             Command (Messages.Host_Token'Length + 1 .. Command'Last));
 
       elsif Messages.Match (Command, Messages.Connection_Token) then
-         Status.Set.Connection
-           (C_Stat,
-            Command (Messages.Connection_Token'Length + 1 .. Command'Last));
+         declare
+            Token : String := Command
+               (Messages.Connection_Token'Length + 1 .. Command'Last);
+         begin
+            Status.Set.Connection (C_Stat, Token);
+            Status_Connection := To_Unbounded_String (Token);
+         end;
 
       elsif Messages.Match (Command, Messages.Content_Length_Token) then
          Status.Set.Content_Length
@@ -1044,21 +1058,29 @@ is
 
       elsif Messages.Match (Command, Messages.Content_Type_Token) then
          declare
-            Pos : constant Natural := Fixed.Index (Command, ";");
+            Pos   : constant Natural := Fixed.Index (Command, ";");
+            Token : String := Command
+               (Messages.Content_Type_Token'Length + 1 .. Command'Last);
+            Type_Last      : Natural;
+            Boundary_First : Natural;
          begin
             if Pos = 0 then
-               Status.Set.Content_Type
-                 (C_Stat,
-                  Command
-                  (Messages.Content_Type_Token'Length + 1 .. Command'Last));
+               Status.Set.Content_Type (C_Stat, Token);
+               Status_Content_Type := To_Unbounded_String (Token);
             else
+               Type_Last := Pos - 1;
                Status.Set.Content_Type
                  (C_Stat,
-                  Command
-                  (Messages.Content_Type_Token'Length + 1 .. Pos - 1));
+                  Token (Token'First .. Type_Last));
+               Status_Content_Type := To_Unbounded_String
+                 (Token (Token'First .. Type_Last));
+
+               Boundary_First := Pos + 11;
                Status.Set.Multipart_Boundary
                  (C_Stat,
-                  Command (Pos + 11 .. Command'Last));
+                  Command (Boundary_First .. Command'Last));
+               Status_Multipart_Boundary := To_Unbounded_String
+                 (Command (Boundary_First .. Command'Last));
             end if;
          end;
 
@@ -1370,13 +1392,17 @@ begin
 
       Get_Message_Data;
 
-      Will_Close :=
-        AWS.Messages.Match (Status.Connection (C_Stat), "close")
-        or else HTTP_Server.Slots.N = 1
-        or else (Status.HTTP_Version (C_Stat) = HTTP_10
-                   and then
-                 AWS.Messages.Does_Not_Match
-                   (Status.Connection (C_Stat), "keep-alive"));
+      declare
+         Connection : constant String := To_String (Status_Connection);
+      begin
+         Will_Close :=
+           AWS.Messages.Match (Connection, "close")
+           or else HTTP_Server.Slots.N = 1
+           or else (Status.HTTP_Version (C_Stat) = HTTP_10
+                      and then
+                    AWS.Messages.Does_Not_Match
+                      (Connection, "keep-alive"));
+      end;
 
       Status.Set.Keep_Alive (C_Stat, not Will_Close);
 
