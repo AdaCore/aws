@@ -1,3 +1,10 @@
+2004-12-04  Pascal Obry  <pascal@obry.org>
+
+	* demos.gpr:
+	(Source_Files): Add all soapinterop (generated from WSDL document)
+	 files.
+	Fix build failure with GNAT 5.03.
+
 2004-12-01  Pascal Obry  <pascal@obry.org>
 
 	* demos.gpr:

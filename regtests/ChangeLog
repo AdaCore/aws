@@ -1,3 +1,8 @@
+2004-12-04  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(build_driver): Add gnatmake's -m option to build the driver.
+
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
 	* wsdl_b.out:
