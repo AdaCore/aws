@@ -40,8 +40,10 @@
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
+--         -a <www_authentication_mode (Any, Basic or Digest)>
 --         -pu <proxy_user_name>
 --         -pp <proxy_password>
+--         -pa <proxy_authentication_mode (Any, Basic or Digest)>
 --
 --  for example:
 --
@@ -73,10 +75,12 @@ procedure Agent is
    Method     : Status.Request_Method;
    User       : Unbounded_String;
    Pwd        : Unbounded_String;
+   WWW_Auth   : Client.Authentication_Mode := Client.Basic;
    URL        : Unbounded_String;
    Proxy      : Unbounded_String;
    Proxy_User : Unbounded_String;
    Proxy_Pwd  : Unbounded_String;
+   Proxy_Auth : Client.Authentication_Mode := Client.Basic;
    Force      : Boolean := False;
    File       : Boolean := False;
    Keep_Alive : Boolean := False;
@@ -87,6 +91,21 @@ procedure Agent is
    procedure Parse_Command_Line;
    --  parse Agent command line.
 
+   function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode;
+   --  Return the authentication value from the string representation.
+   --  raises the human readable exception on error.
+
+   function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode
+   is
+   begin
+      return Client.Authentication_Mode'Value (Mode);
+   exception
+      when Constraint_Error =>
+         Ada.Exceptions.Raise_Exception
+           (Constraint_Error'Identity,
+            "Authentication mode should be ""Basic"", ""Digest"" or ""Any"".");
+   end Get_Auth_Mode;
+
    ------------------------
    -- Parse_Command_Line --
    ------------------------
@@ -94,7 +113,8 @@ procedure Agent is
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f o d u: p: pu: pp: proxy: k n s") is
+         case GNAT.Command_Line.Getopt
+           ("f o d u: p: a: pu: pp: pa: proxy: k n s") is
 
             when ASCII.NUL =>
                exit;
@@ -120,6 +140,10 @@ procedure Agent is
             when 'u' =>
                User := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
+            when 'a' =>
+               WWW_Auth :=
+                  Get_Auth_Mode (GNAT.Command_Line.Parameter);
+
             when 'p' =>
                if GNAT.Command_Line.Full_Switch = "p" then
                   Pwd := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -135,6 +159,10 @@ procedure Agent is
                elsif GNAT.Command_Line.Full_Switch = "proxy" then
                   Proxy :=
                     To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+               elsif GNAT.Command_Line.Full_Switch = "pa" then
+                  Proxy_Auth :=
+                    Get_Auth_Mode (GNAT.Command_Line.Parameter);
                end if;
 
             when others =>
@@ -161,8 +189,12 @@ begin
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
+      Text_IO.Put_Line ("       -a <www_authentication_mode"
+                      & " (Any, Basic or Digest)>");
       Text_IO.Put_Line ("       -pu <proxy_user_name>");
       Text_IO.Put_Line ("       -pp <proxy_password>");
+      Text_IO.Put_Line ("       -pa <proxy_authentication_mode"
+                      & " (Any, Basic or Digest)>");
       return;
    end if;
 
@@ -171,13 +203,21 @@ begin
    Client.Create
      (Connection  => Connect,
       Host        => To_String (URL),
-      User        => To_String (User),
-      Pwd         => To_String (Pwd),
       Proxy       => To_String (Proxy),
-      Proxy_User  => To_String (Proxy_User),
-      Proxy_Pwd   => To_String (Proxy_Pwd),
       Persistent  => Keep_Alive,
       Server_Push => Server_Push);
+
+   Client.Set_WWW_Authentication
+     (Connection => Connect,
+      User       => To_String (User),
+      Pwd        => To_String (Pwd),
+      Mode       => WWW_Auth);
+
+   Client.Set_Proxy_Authentication
+     (Connection => Connect,
+      User       => To_String (Proxy_User),
+      Pwd        => To_String (Proxy_Pwd),
+      Mode       => Proxy_Auth);
 
    loop
 

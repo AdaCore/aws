@@ -35,28 +35,65 @@ with Ada.Text_IO;
 with AWS.Server;
 with AWS.Response;
 with AWS.Status;
+with AWS.Digest;
 
 procedure Auth is
 
    use Ada;
 
-   Is_First : Boolean := True;
+   Auth_Username       : constant String := "AWS";
+   Auth_Password       : constant String := "letmein";
+   Auth_Mode : constant AWS.Response.Authentication_Mode
+      := AWS.Response.Digest;
+
+   function Get (Request : in AWS.Status.Data) return AWS.Response.Data;
 
    ---------
    -- Get --
    ---------
 
-   function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Get (Request : in AWS.Status.Data) return AWS.Response.Data
+   is
+      Username        : String := AWS.Status.Authorization_Name (Request);
+      Client_Mode       : AWS.Status.Authorization_Type
+         := AWS.Status.Authorization_Mode (Request);
+      use type AWS.Response.Authentication_Mode;
+      use type AWS.Status.Authorization_Type;
    begin
-      if Is_First then
-         Is_First := False;
-         return AWS.Response.Authenticate ("AWS restricted usage");
-      else
+
+      if Client_Mode = AWS.Status.Basic
+      --  It is Basic authentication.
+      and then Username = Auth_Username
+      and then AWS.Status.Authorization_Password (Request) = Auth_Password
+      and then (Auth_Mode = AWS.Response.Any
+         or Auth_Mode = AWS.Response.Basic)
+      then
          return AWS.Response.Build
            ("text/html",
-            "<p>Very good !<br>"
-            & AWS.Status.Authorization_Name (Request) & "<br>"
-            & AWS.Status.Authorization_Password (Request));
+            "<p>Basic authorization OK!");
+      elsif Client_Mode = AWS.Status.Digest
+      --  It is Digest authentication.
+      and then Username = Auth_Username
+      and then AWS.Status.Check_Digest (Request, Auth_Password)
+      and then (Auth_Mode = AWS.Response.Any
+         or Auth_Mode = AWS.Response.Digest)
+      then
+         if AWS.Digest.Check_Nonce (
+            AWS.Status.Authorization_Nonce (Request))
+         then
+            return AWS.Response.Build
+              ("text/html",
+               "<p>Digest authorization OK!<br>"
+                & AWS.Status.Authorization_NC (Request));
+         else
+            --  Nonce is stale
+            return AWS.Response.Authenticate ("AWS restricted usage",
+               Auth_Mode,
+               Stale => True);
+         end if;
+      else
+         --  Unauthorized
+         return AWS.Response.Authenticate ("AWS restricted usage", Auth_Mode);
       end if;
    end Get;
 
