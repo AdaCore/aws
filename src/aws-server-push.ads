@@ -67,7 +67,7 @@ package AWS.Server.Push is
    Closed : exception;
    --  Raised when trying to register to a closed push server.
 
-   Duplicate_Client_ID : exception;
+   Duplicate_Client_Id : exception;
    --  Raised in trying to register an already registered client.
 
    type Object is limited private;
@@ -89,23 +89,23 @@ package AWS.Server.Push is
 
    procedure Register
      (Server            : in out Object;
-      Client_ID         : in     Client_Key;
+      Client_Id         : in     Client_Key;
       Socket            : in     Net.Socket_Type'Class;
       Environment       : in     Client_Environment;
       Init_Data         : in     Client_Output_Type;
       Init_Content_Type : in     String             := "";
       Kind              : in     Mode               := Plain;
       Close_Duplicate   : in     Boolean            := False);
-   --  Add client identified by Client_ID to the server subscription
+   --  Add client identified by Client_Id to the server subscription
    --  list and send the Init_Data (as a Data_Content_Type mime content) to
    --  him. After registering this client will be able to receive pushed data
    --  from the server in brodcasting mode. If Close_Duplicate is True and
-   --  Client_ID is already registered into the list then old one will be
+   --  Client_Id is already registered into the list then old one will be
    --  unregistered first (no exception will be raised).
 
    procedure Register
      (Server          : in out Object;
-      Client_ID       : in     Client_Key;
+      Client_Id       : in     Client_Key;
       Socket          : in     Net.Socket_Type'Class;
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
@@ -114,11 +114,11 @@ package AWS.Server.Push is
 
    procedure Unregister
      (Server       : in out Object;
-      Client_ID    : in     Client_Key;
+      Client_Id    : in     Client_Key;
       Close_Socket : in     Boolean    := True);
-   --  Removes client Client_ID from server subscription list. The associated
+   --  Removes client Client_Id from server subscription list. The associated
    --  client's socket will be closed if Close_Socket is True. No exception is
-   --  raised if Client_ID was not registered.
+   --  raised if Client_Id was not registered.
 
    procedure Unregister_Clients
      (Server        : in out Object;
@@ -130,10 +130,10 @@ package AWS.Server.Push is
 
    procedure Send_To
      (Server       : in out Object;
-      Client_ID    : in     Client_Key;
+      Client_Id    : in     Client_Key;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "");
-   --  Push data to a specified client identified by Client_ID.
+   --  Push data to a specified client identified by Client_Id.
 
    procedure Send
      (Server       : in out Object;
@@ -142,7 +142,7 @@ package AWS.Server.Push is
    --  Push data to every client (broadcast) subscribed to the server.
 
    generic
-      with procedure Client_Gone (Client_ID : in String);
+      with procedure Client_Gone (Client_Id : in String);
    procedure Send_G
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
@@ -209,7 +209,7 @@ private
       --  Returns the number of registered client.
 
       procedure Unregister_Clients (Close_Sockets : in Boolean);
-      --  Unregister al clients, close associated socket if Close_Socket is
+      --  Unregister all clients, close associated sockets if Close_Socket is
       --  set to True.
 
       procedure Shutdown_If_Empty (Open : out Boolean);
@@ -228,14 +228,14 @@ private
       --  See above.
 
       procedure Register
-        (Client_ID       : in     Client_Key;
+        (Client_Id       : in     Client_Key;
          Holder          : in out Client_Holder;
          Close_Duplicate : in     Boolean);
       --  See above.
       --  Holder would be released in case of registration failure.
 
       procedure Register
-        (Client_ID         : in     Client_Key;
+        (Client_Id         : in     Client_Key;
          Holder            : in out Client_Holder;
          Init_Data         : in     Client_Output_Type;
          Init_Content_Type : in     String;
@@ -244,7 +244,7 @@ private
       --  Holder would be released in case of registration failure.
 
       procedure Send_To
-        (Client_ID    : in Client_Key;
+        (Client_Id    : in Client_Key;
          Data         : in Client_Output_Type;
          Content_Type : in String);
       --  See above.
@@ -258,7 +258,7 @@ private
       --  clients have been removed from the list of registered client.
 
       procedure Unregister
-        (Client_ID    : in Client_Key;
+        (Client_Id    : in Client_Key;
          Close_Socket : in Boolean);
       --  See above.
 
