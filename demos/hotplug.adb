@@ -39,7 +39,6 @@ with AWS.Communication.Client;
 with AWS.Response;
 with AWS.Server.Hotplug;
 with AWS.Utils;
-with AWS.Sockets;
 
 with Hotplug_CB;
 
@@ -96,7 +95,7 @@ begin
      (Command_Line.Argument (1), 2222,
       AWS.Server.Hotplug.Register_Message,
       AWS.Communication.Parameters
-       (Filter, "http://" & AWS.Sockets.Host_Name & ":1235/"));
+       (Filter, "http://" & AWS.Utils.Gethostname & ":1235/"));
 
    Wait_Terminate;
 
