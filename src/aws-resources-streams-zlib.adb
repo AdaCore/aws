@@ -86,6 +86,7 @@ package body AWS.Resources.Streams.ZLib is
 
       Resource.End_Of_File := False;
       Resource.Rest_First  := Resource.Buffer'Last + 1;
+      Resource.Rest_Last   := Resource.Buffer'Last;
 
       ZL.Deflate_Init
         (Resource.Filter, Level, Strategy, Method,
@@ -137,6 +138,7 @@ package body AWS.Resources.Streams.ZLib is
 
       Resource.End_Of_File := False;
       Resource.Rest_First  := Resource.Buffer'Last + 1;
+      Resource.Rest_Last   := Resource.Buffer'Last;
 
       ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
    end Inflate_Initialize;
