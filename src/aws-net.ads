@@ -113,11 +113,19 @@ package AWS.Net is
       is abstract;
    --  Send Data chunk to the socket
 
-   function Receive
-     (Socket : in Socket_Type;
-      Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array
+   procedure Receive
+     (Socket : in     Socket_Type;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
       is abstract;
+   --  Read a chunk of data from the socket and set appropriate Last value.
+   --  It always return something and then must wait for available data on the
+   --  socket.
+
+   function Receive
+     (Socket : in Socket_Type'Class;
+      Max    : in Stream_Element_Count := 4096)
+      return Stream_Element_Array;
    --  Read a chunk of data from the socket and returns it. It always return
    --  something and then must wait for available data on the socket.
 
