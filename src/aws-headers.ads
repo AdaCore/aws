@@ -43,7 +43,7 @@ package AWS.Headers is
 
    subtype VString_Array is AWS.Containers.Tables.VString_Array;
 
-   subtype Name_Value_Type is AWS.Containers.Tables.Name_Value_Type;
+   subtype Element is AWS.Containers.Tables.Element;
 
    Format_Error : exception;
    --  Raised when header line format is wrong
