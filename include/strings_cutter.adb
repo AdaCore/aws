@@ -124,7 +124,7 @@ package body Strings_Cutter is
 
    type Slices_Index is array (Index_Values) of Natural;
 
-   type Cutted_String_Record is record
+   type Cut_String_Record is record
       Value       : Unbounded_String;
       Separators  : Unbounded_String;
       Field_Count : Index_Values      := 0;
@@ -135,14 +135,14 @@ package body Strings_Cutter is
    -- Free --
    ----------
 
-   procedure Free is new Ada.Unchecked_Deallocation (Cutted_String_Record,
-                                                     Cutted_String);
+   procedure Free is new Ada.Unchecked_Deallocation (Cut_String_Record,
+                                                     Cut_String);
 
    ----------------
-   -- Cut_String --
+   -- String_Cut --
    ----------------
 
-   procedure Cut_String (S : in out Cutted_String) is
+   procedure String_Cut (S : in out Cut_String) is
       use Ada.Strings;
       Value          : constant String := To_String (S.Value);
       Separators_Set : Maps.Character_Set;
@@ -164,42 +164,42 @@ package body Strings_Cutter is
          S.Index (K) := Value'Last;
          S.Field_Count := K;
       end if;
-   end Cut_String;
+   end String_Cut;
 
    ------------
    -- Create --
    ------------
 
-   procedure Create (S          :    out Cutted_String;
+   procedure Create (S          :    out Cut_String;
                      From       : in     String;
                      Separators : in     String)
    is
    begin -- Create
 
-      S := new Cutted_String_Record;
+      S := new Cut_String_Record;
 
       S.Value      := To_Unbounded_String (From);
       S.Separators := To_Unbounded_String (Separators);
 
-      Cut_String (S);
+      String_Cut (S);
    end Create;
 
    ---------
    -- Set --
    ---------
 
-   procedure Set (S          : in out Cutted_String;
+   procedure Set (S          : in out Cut_String;
                   Separators : in     String) is
    begin
       S.Separators := To_Unbounded_String (Separators);
-      Cut_String (S);
+      String_Cut (S);
    end Set;
 
    -------------
    -- Destroy --
    -------------
 
-   procedure Destroy (S : in out Cutted_String)
+   procedure Destroy (S : in out Cut_String)
    is
    begin -- Destroy
       if S /= null then
@@ -211,7 +211,7 @@ package body Strings_Cutter is
    -- Field_Count --
    -----------------
 
-   function Field_Count (S : in Cutted_String)
+   function Field_Count (S : in Cut_String)
       return  Index_Values is
    begin
       return S.Field_Count;
@@ -221,7 +221,7 @@ package body Strings_Cutter is
    -- Field --
    -----------
 
-   function Field (S     : in Cutted_String;
+   function Field (S     : in Cut_String;
                    Index : in Index_Values)
       return String
    is
