@@ -69,8 +69,7 @@ procedure Hotplug is
          AWS.Communication.Parameters (Filter));
    end Wait_Terminate;
 
-   WS  : AWS.Server.HTTP
-     (3, 1235, False, Hotplug_CB.Hotplug'Access, False);
+   WS : AWS.Server.HTTP (3);
 
 begin
    if Command_Line.Argument_Count /= 1 then
@@ -84,14 +83,16 @@ begin
    Text_IO.Put_Line ("Hotplug module linked to server " &
                      Command_Line.Argument (1));
 
-   AWS.Server.Start (WS, "Hotplug", "/Admin-Page");
+   AWS.Server.Start (WS, "Hotplug",
+                     Admin_URI => "/Admin-Page",
+                     Port      => 1235,
+                     Callback  => Hotplug_CB.Hotplug'Access);
 
    Response := AWS.Communication.Client.Send_Message
      (Command_Line.Argument (1), 2222,
       AWS.Server.Hotplug.Register_Message,
       AWS.Communication.Parameters
-      (Filter,
-       "http://" & AWS.Utils.Gethostname & ":1235/"));
+       (Filter, "http://" & AWS.Utils.Gethostname & ":1235/"));
 
    Wait_Terminate;
 
