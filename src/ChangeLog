@@ -1,3 +1,15 @@
+2003-01-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-ssl.adb:
+	(Socket): Properly free socket access. Fix memory leak.
+
+	* aws-client.adb:
+	(Connect): New routine.
+	(Create): Use it.
+	(Open_Send_Common_Header): Use it.
+	Fix resource leak. We AWS.Net.Connect was failing, the socket was
+	 not properly closed.
+
 2002-01-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile
