@@ -120,8 +120,6 @@ package body AWS.Net.SSL is
 
          New_Socket.Config.Set_FD (New_Socket);
 
-         TSSL.SSL_set_accept_state (New_Socket.SSL);
-
          Handshake : loop
             case TSSL.SSL_accept (New_Socket.SSL) is
                when  1 => exit SSL_Accept;
@@ -174,8 +172,6 @@ package body AWS.Net.SSL is
 
       Socket.Config.Set_FD (Socket);
 
-      TSSL.SSL_set_connect_state (Socket.SSL);
-
       while TSSL.SSL_connect (Socket.SSL) = -1 loop
          declare
             Error_Code : constant Integer
@@ -207,6 +203,28 @@ package body AWS.Net.SSL is
          end;
       end loop;
    end Connect;
+
+   ------------------
+   -- Do_Handshake --
+   ------------------
+
+   procedure Do_Handshake (Socket : in out Socket_Type) is
+      Res : Interfaces.C.int;
+   begin
+      loop
+         Res := TSSL.SSL_do_handshake (Socket.SSL);
+
+         exit when Res = 1;
+
+         case TSSL.SSL_get_error (Socket.SSL, Res) is
+            when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
+            when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
+            when others =>
+               Ada.Exceptions.Raise_Exception
+                 (Socket_Error'Identity, Error_Stack);
+         end case;
+      end loop;
+   end Do_Handshake;
 
    --------------
    -- Error_If --
