@@ -143,6 +143,7 @@ package body AWS.Session is
       loop
          delay until Next_Run;
          Database.Clean;
+         Next_Run := Next_Run + Session_Lifetime;
       end loop;
    end Cleaner;
 
