@@ -1,3 +1,9 @@
+2004-01-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads, aws-net-std.ads:
+	(Get_Send_Buffer): New routine.
+	(Get_Receive_Buffer): New routine.
+
 2004-01-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net.ads:
