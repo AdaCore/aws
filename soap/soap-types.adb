@@ -630,7 +630,7 @@ package body SOAP.Types is
 
          end loop;
 
-         --  We have the same type, and it is not a record.
+         --  We have the same type.
          return XML_Type (O.Items.O (O.Items.O'First).O.all);
       end Array_Type;
 
