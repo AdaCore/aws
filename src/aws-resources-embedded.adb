@@ -30,9 +30,6 @@
 
 --  $Id$
 
-with Ada.Unchecked_Conversion;
-
-with AWS.Resources.Streams.Memory;
 with AWS.Resources.Streams.ZLib;
 
 with Table_Of_Strings_And_Static_Values_G;
@@ -61,14 +58,10 @@ package body AWS.Resources.Embedded is
 
    procedure Append
      (Stream : in Streams.Stream_Access;
-      Data   : in Buffer_Access)
-   is
-      function To_Buffer is
-        new Ada.Unchecked_Conversion
-              (Buffer_Access, Streams.Memory.Stream_Element_Access);
+      Data   : in Buffer_Access) is
    begin
       Streams.Memory.Append
-        (Streams.Memory.Stream_Type (Stream.all), To_Buffer (Data));
+        (Streams.Memory.Stream_Type (Stream.all), Data);
    end Append;
 
    ------------
