@@ -16,7 +16,7 @@
 <H2 align=center>Ada Web Server Status</H2>
 
 <td width=50%>
-<img align=center src="@@_LOGO_@@"> Version @@_VERSION_@@
+<img align=center src="@_LOGO_@"> Version @_VERSION_@
 </table>
 
 <br>
@@ -25,34 +25,34 @@
 
 <br>
 
-<H3>The following data describe server "<i>@@_SERVER_NAME_@@</i>" current
+<H3>The following data describe server "<i>@_SERVER_NAME_@</i>" current
 status.</H3>
 
 <table>
 
 <tr>
 <td width=250>Maximum connections
-<td><b>@@_MAX_CONNECTION_@@</b>
+<td><b>@_MAX_CONNECTION_@</b>
 </tr>
 
 <tr>
 <td>Server Port
-<td><b>@@_SERVER_PORT_@@</b>
+<td><b>@_SERVER_PORT_@</b>
 </tr>
 
 <tr>
 <td>Server Socket
-<td><b>@@_SERVER_SOCK_@@</b>
+<td><b>@_SERVER_SOCK_@</b>
 </tr>
 
 <tr>
 <td>Server Security (HTTPS/SSL)
-<td><b>@@YES_NO@@_SECURITY_@@</b>
+<td><b>@_YES_NO@_SECURITY_@</b>
 </tr>
 
 <tr>
 <td>Server has session
-<td><b>@@YES_NO@@_SESSION_@@</b>
+<td><b>@_YES_NO@_SESSION_@</b>
 </tr>
 
 </table>
@@ -67,7 +67,7 @@ status.</H3>
 <td>Slot number
 <td>Socket
 <td>Last Client IP
-<td>Opened
+<td>Phase
 <td>Abortable
 <td>Activity Counter
 <td>Slot Activity Counter
@@ -76,25 +76,25 @@ status.</H3>
 
 @@TABLE@@
 <tr bgcolor=white>
-<td align=center>@@_TABLE_LINE_@@
-<td align=center>@@_SOCK_V_@@
-<td align=center>@@_PEER_NAME_V_@@
-<td align=center>@@YES_NO@@_OPENED_V_@@
-<td align=center>@@YES_NO@@_ABORTABLE_V_@@
-<td align=center>@@_ACTIVITY_COUNTER_V_@@
-<td align=center>@@_SLOT_ACTIVITY_COUNTER_V_@@
-<td>@@_ACTIVITY_TIME_STAMP_V_@@
+<td align=center>@_TABLE_LINE_@
+<td align=center>@_SOCK_V_@
+<td align=center>@_PEER_NAME_V_@
+<td align=center>@_CAPITALIZE@_PHASE_V_@
+<td align=center>@_YES_NO@_ABORTABLE_V_@
+<td align=center>@_ACTIVITY_COUNTER_V_@
+<td align=center>@_SLOT_ACTIVITY_COUNTER_V_@
+<td>@_ACTIVITY_TIME_STAMP_V_@
 </tr>
 @@SECTION@@
 <tr bgcolor=turquoise>
-<td align=center>@@_TABLE_LINE_@@
-<td align=center>@@_SOCK_V_@@
-<td align=center>@@_PEER_NAME_V_@@
-<td align=center>@@YES_NO@@_OPENED_V_@@
-<td align=center>@@YES_NO@@_ABORTABLE_V_@@
-<td align=center>@@_ACTIVITY_COUNTER_V_@@
-<td align=center>@@_SLOT_ACTIVITY_COUNTER_V_@@
-<td>@@_ACTIVITY_TIME_STAMP_V_@@
+<td align=center>@_TABLE_LINE_@
+<td align=center>@_SOCK_V_@
+<td align=center>@_PEER_NAME_V_@
+<td align=center>@_CAPITALIZE@_PHASE_V_@
+<td align=center>@_YES_NO@_ABORTABLE_V_@
+<td align=center>@_ACTIVITY_COUNTER_V_@
+<td align=center>@_SLOT_ACTIVITY_COUNTER_V_@
+<td>@_ACTIVITY_TIME_STAMP_V_@
 </tr>
 @@END_TABLE@@
 
@@ -107,15 +107,28 @@ status.</H3>
 <ol>
 @@TABLE@@
 
-<li>Session ID: <b>@@_SESSIONS_V_@@</b>
+<li>Session ID: <b>@_SESSIONS_V_@</b>
 
 <table>
+<tr>
 @@TABLE@@
-<tr bgcolor=yellow>
-@@_KEYS_M_@@
-<tr bgcolor=turquoise>
-@@_VALUES_M_@@
+@@IF@@ @_EXIST@_KEYS_M_@
+<td bgcolor=yellow>
+@_KEYS_M_@
+</td>
+@@END_IF@@
 @@END_TABLE@@
+</tr>
+
+<tr>
+@@TABLE@@
+@@IF@@ @_EXIST@_VALUES_M_@
+<td bgcolor=turquoise>
+@_VALUES_M_@
+</td>
+@@END_IF@@
+@@END_TABLE@@
+</tr>
 </table>
 
 </table>
@@ -137,23 +150,23 @@ status.</H3>
 
 @@TABLE@@
 <tr bgcolor=white>
-<td>@@_TABLE_LINE_@@
-<td align=center>@@_HP_REGEXP_V_@@
-<td>@@_HP_URL_V_@@
-<td><a href="@@_ADMIN_@@-HPup?N=@@_TABLE_LINE_@@">
-<img src="@@_ADMIN_@@-uparr" border=0></a>
-<a href="@@_ADMIN_@@-HPdown?N=@@_TABLE_LINE_@@">
-<img src="@@_ADMIN_@@-downarr" border=0></a>
+<td>@_TABLE_LINE_@
+<td align=center>@_HP_REGEXP_V_@
+<td>@_HP_URL_V_@
+<td><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">
+<img src="@_ADMIN_@-uparr" border=0></a>
+<a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">
+<img src="@_ADMIN_@-downarr" border=0></a>
 </tr>
 @@SECTION@@
 <tr bgcolor=turquoise>
-<td>@@_TABLE_LINE_@@
-<td align=center>@@_HP_REGEXP_V_@@
-<td>@@_HP_URL_V_@@
-<td><a href="@@_ADMIN_@@-HPup?N=@@_TABLE_LINE_@@">
-<img src="@@_ADMIN_@@-uparr" border=0></a>
-<a href="@@_ADMIN_@@-HPdown?N=@@_TABLE_LINE_@@">
-<img src="@@_ADMIN_@@-downarr" border=0></a>
+<td>@_TABLE_LINE_@
+<td align=center>@_HP_REGEXP_V_@
+<td>@_HP_URL_V_@
+<td><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">
+<img src="@_ADMIN_@-uparr" border=0></a>
+<a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">
+<img src="@_ADMIN_@-downarr" border=0></a>
 </tr>
 @@END_TABLE@@
 </table>
