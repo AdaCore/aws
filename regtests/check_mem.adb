@@ -86,10 +86,12 @@ procedure Check_Mem is
       entry Stopped;
    end Server;
 
-   HTTP : AWS.Server.HTTP;
+   HTTP      : AWS.Server.HTTP;
 
-   S_Port : constant String   := Command_Line.Argument (2);
-   Port   : constant Positive := Positive'Value (S_Port);
+   S_Port    : constant String   := Command_Line.Argument (2);
+   Port      : constant Positive := Positive'Value (S_Port);
+
+   Iteration : Positive;
 
    -----------
    -- Check --
@@ -236,7 +238,7 @@ procedure Check_Mem is
       select
          accept Stopped;
       or
-         delay 10.0;
+         delay 4.0 * Iteration;
          Put_Line ("Too much time to do the job !");
       end select;
 
@@ -506,13 +508,15 @@ procedure Check_Mem is
 begin
    Put_Line ("Start main, wait for server to start...");
 
+   Iteration := Integer'Value (Command_Line.Argument (1));
+
    Server.Started;
 
    --  This is the main loop. Be sure to run everything inside this
    --  loop. Check_Mem is checked between 2 runs with a different number of
    --  iterations.
 
-   for K in 1 .. Integer'Value (Command_Line.Argument (1)) loop
+   for K in 1 ..  Iteration loop
       Client;
       Check_Zlib;
       Check_Memory_Streams;
