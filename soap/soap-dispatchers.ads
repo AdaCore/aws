@@ -45,6 +45,7 @@ package SOAP.Dispatchers is
 
    function Dispatch_SOAP
      (Dispatcher : in Handler;
+      Action     : in String;
       Request    : in Message.Payload.Object)
       return     AWS.Response.Data is abstract;
    --  This dispatch function would be called for SOAP calls.

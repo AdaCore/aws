@@ -46,6 +46,7 @@ package body SOAP.Dispatchers is
       if AWS.Status.Is_SOAP (Request) then
          return Dispatch_SOAP
                   (Handler'Class (Dispatcher),
+                   AWS.Status.SOAPAction (Request),
                    SOAP.Message.XML.Load_Payload
                      (AWS.Status.Payload (Request)));
       else

@@ -40,7 +40,8 @@ package SOAP.Dispatchers.Callback is
    --  main server callback.
 
    type Callback_Routine is
-      access function (Request : in Message.Payload.Object)
+      access function (Action  : in String;
+                       Request : in Message.Payload.Object)
                        return  AWS.Response.Data;
    --  This is the SOAP Server Callback procedure.
    --  ??? We should move this type declaration somewhere upper,
@@ -57,6 +58,7 @@ private
 
    function Dispatch_SOAP
      (Dispatcher : in Handler;
+      Action     : in String;
       Request    : in Message.Payload.Object)
       return     AWS.Response.Data;
    --  This dispatch function would call SOAP callback.
