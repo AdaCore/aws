@@ -34,5 +34,10 @@ implemented:
 - change server parameters via the admin page (like the maximum number of
   connections, server name, active session, upload path...).
 
-- integrate Templates_Parser with AWS. A callback which knows how to parse
-  .tmplt files ???
+- Thread Pool management (dynamically adding lines if needed...)
+
+- Make the Session management a separate partition to be able to share the
+  session data across the network. Something needed to do load balancing into
+  a Web Farm.
+
+- Support SOAP and Web-Service framework.
