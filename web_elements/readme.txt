@@ -15,5 +15,5 @@ To ease integration we have used the following design:
   ("/we_icons/") in the  Web server.
 
 - Each javascripts code is referenced into the templates with the
-  alias /js/<script>. So users must provide the right alias 
-  ("/js/") in the  Web server.
+  alias /we_js/<script>. So users must provide the right alias 
+  ("/we_js/") in the  Web server.
