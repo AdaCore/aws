@@ -111,6 +111,8 @@ main (void)
   printf ("   PF_UNSPEC   : constant := %d;\n", PF_UNSPEC);
   printf ("   PF_INET     : constant := %d;\n", PF_INET);
   printf ("   PF_INET6    : constant := %d;\n", PF_INET6);
+  printf ("   AF_INET     : constant := %d;\n", AF_INET);
+  printf ("   AF_INET6    : constant := %d;\n", AF_INET6);
   printf ("   SO_ERROR    : constant := %d;\n", SO_ERROR);
   printf ("   SO_SNDBUF   : constant := %d;\n", SO_SNDBUF);
   printf ("   SO_RCVBUF   : constant := %d;\n", SO_RCVBUF);
