@@ -1,3 +1,8 @@
+2003-09-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wsdl2aws.adb:
+	(Parse_Command_Line): Remove trailing space from the option string.
+
 2003-09-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:
