@@ -118,72 +118,89 @@ status.</H3>
 
 <H3>Sessions information are given below:</H3>
 
-<ol>
-@@TABLE@@
+@@IF@@ @_IS_EMPTY:SESSIONS_V_@
 
-<li>Session ID: <b>@_SESSIONS_V_@</b>
+  <i>No active session.</i>
 
-<table>
-<tr>
-@@TABLE@@
-@@IF@@ @_EXIST:KEYS_M_@
-<td bgcolor=yellow>
-@_KEYS_M_@
-</td>
+@@ELSE@@
+
+  <ol>
+  @@TABLE@@
+
+  <li>Session ID: <b>@_SESSIONS_V_@</b>
+
+  <table>
+  <tr>
+  @@TABLE@@
+    @@IF@@ @_EXIST:KEYS_M_@
+      <td bgcolor=yellow>
+      @_KEYS_M_@
+      </td>
+    @@END_IF@@
+  @@END_TABLE@@
+  </tr>
+
+  <tr>
+  @@TABLE@@
+    @@IF@@ @_EXIST:VALUES_M_@
+      <td bgcolor=turquoise>
+      @_VALUES_M_@
+      </td>
+    @@END_IF@@
+  @@END_TABLE@@
+  </tr>
+  </table>
+
+  </table>
+  @@END_TABLE@@
+
+  </ol>
+
 @@END_IF@@
-@@END_TABLE@@
-</tr>
-
-<tr>
-@@TABLE@@
-@@IF@@ @_EXIST:VALUES_M_@
-<td bgcolor=turquoise>
-@_VALUES_M_@
-</td>
-@@END_IF@@
-@@END_TABLE@@
-</tr>
-</table>
-
-</table>
-@@END_TABLE@@
-</ol>
 
 <br>
 
 <H3>Hotplug modules are listed below:</H3>
 
-<table>
+@@IF@@ @_IS_EMPTY:HP_REGEXP_V_@
 
-<tr bgcolor=yellow>
-<td width=20>Order
-<td width=150>Module Regexp
-<td width=300>Server address
-<td>
-</tr>
+  <i>No Hotplug module loaded.</i>
 
-@@TABLE@@
-<tr bgcolor=white>
-<td>@_TABLE_LINE_@
-<td align=center>@_HP_REGEXP_V_@
-<td>@_HP_URL_V_@
-<td><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">
-<img src="@_ADMIN_@-uparr" border=0></a>
-<a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">
-<img src="@_ADMIN_@-downarr" border=0></a>
-</tr>
-@@SECTION@@
-<tr bgcolor=turquoise>
-<td>@_TABLE_LINE_@
-<td align=center>@_HP_REGEXP_V_@
-<td>@_HP_URL_V_@
-<td><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">
-<img src="@_ADMIN_@-uparr" border=0></a>
-<a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">
-<img src="@_ADMIN_@-downarr" border=0></a>
-</tr>
-@@END_TABLE@@
-</table>
+@@ELSE@@
+
+  <table>
+
+  <tr bgcolor=yellow>
+  <td width=20>Order
+  <td width=150>Module Regexp
+  <td width=300>Server address
+  <td>
+  </tr>
+
+  @@TABLE@@
+    <tr bgcolor=white>
+    <td>@_TABLE_LINE_@
+    <td align=center>@_HP_REGEXP_V_@
+    <td>@_HP_URL_V_@
+    <td><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">
+    <img src="@_ADMIN_@-uparr" border=0></a>
+    <a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">
+    <img src="@_ADMIN_@-downarr" border=0></a>
+    </tr>
+  @@SECTION@@
+    <tr bgcolor=turquoise>
+    <td>@_TABLE_LINE_@
+    <td align=center>@_HP_REGEXP_V_@
+    <td>@_HP_URL_V_@
+    <td><a href="@_ADMIN_@-HPup?N=@_TABLE_LINE_@">
+    <img src="@_ADMIN_@-uparr" border=0></a>
+    <a href="@_ADMIN_@-HPdown?N=@_TABLE_LINE_@">
+    <img src="@_ADMIN_@-downarr" border=0></a>
+    </tr>
+  @@END_TABLE@@
+  </table>
+
+@@END_IF@@
 
 <br>
 <hr>
