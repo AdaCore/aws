@@ -1,5 +1,18 @@
 2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): Add aws-server-status.adb.
+
+	* aws-server-get_status.adb:
+	Move most part of the code into AWS.Server.Status. This private
+	 routine now just build the final status page from the template.
+
+	* aws-server-get_status.ads:
+	Minor comment fix.
+
+	* aws-server-status.ads, aws-server-status.adb:
+	Initial revision.
+
 	* aws-communication-server.adb: 
 	(Com_Server): Not anymore a pointer to the server. This is not
 	 needed anymore.
