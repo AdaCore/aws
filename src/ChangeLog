@@ -1,3 +1,13 @@
+2004-08-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
+	(Slots.Mark_Phase): Deallocate the socket in case of old phase was
+	 Loose_Release.
+	(Slots.Set): Remove pragma Assert for null socket. Call Mark_Phase
+	 before set socket, because Line task could reach Slots.Set call
+	 before Line_Cleaner would call Slots.Shutdown_Done.
+	(Shutdown_Done): Socket deallocation moved to Mark_Phase.
+
 2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
@@ -31,14 +41,14 @@
 
 	* aws-server.ads:
 	Don't allow posibility to Free socket until other task is
-	 shutdowning it. 
+	 shutdowning it.
 	(Slot_Phase): New phases In_Shutdown and Loose_Release.
 	(Slots.Abort_On_Timeout): Add Index out parameter.
 	(Slots.Shutdown_Done): New routine.
 
 	* aws-server.adb:
 	Don't allow posibility to Free socket until other task is
-	 shutdowning it. 
+	 shutdowning it.
 	(Line_Cleaner): Get Slot index from Abort_On_Timeout for call
 	 Shutdown_Done.
 	(Shutdown): Add Slot_State and Slot_Index local variables for
