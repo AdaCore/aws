@@ -60,6 +60,9 @@ package body Templates_Parser is
    --  are quotes return Str (Str'First + 1 ..  Str'Last - 1) otherwise
    --  return Str as-is.
 
+   function Quote (Str : in String) return String;
+   --  Returns Str quoted if it contains spaces, otherwise just returns Str
+
    function Is_Number (S : in String) return Boolean;
    pragma Inline (Is_Number);
    --  Returns True if S is a decimal number
@@ -93,6 +96,20 @@ package body Templates_Parser is
       end if;
    end No_Quote;
 
+   -----------
+   -- Quote --
+   -----------
+
+   function Quote (Str : in String) return String is
+      K : Natural := Strings.Fixed.Index (Str, " ");
+   begin
+      if K = 0 then
+         return Str;
+      else
+         return '"' & Str & '"';
+      end if;
+   end Quote;
+
    ---------------
    -- Is_Number --
    ---------------
@@ -113,6 +130,7 @@ package body Templates_Parser is
    Begin_Tag : Unbounded_String := To_Unbounded_String (Default_Begin_Tag);
    End_Tag   : Unbounded_String := To_Unbounded_String (Default_End_Tag);
 
+   Set_Token                : constant String := "@@SET@@";
    Table_Token              : constant String := "@@TABLE@@";
    Terminate_Sections_Token : constant String := "@@TERMINATE_SECTIONS@@";
    Begin_Token              : constant String := "@@BEGIN@@";
@@ -1328,15 +1346,49 @@ package body Templates_Parser is
       end record;
 
       function Parse (Line : in String) return Tree;
-      --  Parse text line and returns the corresponding tree representation.
+      --  Parse text line and returns the corresponding tree representation
 
       procedure Print_Tree (D : in Tree);
-      --  Decend the text tree and print it to the standard output.
+      --  Decend the text tree and print it to the standard output
 
       procedure Release (D : in out Tree);
-      --  Release all memory used by the tree.
+      --  Release all memory used by the tree
 
    end Data;
+
+   -----------------
+   -- Definitions --
+   -----------------
+
+   package Definitions is
+
+      type NKind is (Const, Ref, Ref_Default);
+
+      type Node (Kind : NKind := Const) is record
+         Value : Unbounded_String;
+         Ref   : Positive;
+      end record;
+
+      type Def is record
+         Name : Unbounded_String;
+         N    : Node;
+      end record;
+
+      type Tree is access Def;
+
+      function Parse (Line : in String) return Tree;
+      --  Returns a defintion data
+
+      package Def_Map is new Strings_Maps (Node);
+      subtype Map is Def_Map.Containers.Map;
+
+      procedure Print_Tree (D : in Tree);
+      --  Decend the text tree and print it to the standard output
+
+      procedure Release (D : in out Tree);
+      --  Release all memory used by the tree
+
+   end Definitions;
 
    ------------------
    --  Expressions --
@@ -1408,6 +1460,7 @@ package body Templates_Parser is
    type Nkind is (Info,          --  first node is tree infos
                   C_Info,        --  second node is cache tree info
                   Text,          --  this is a text line
+                  Set_Stmt,      --  a definition statement
                   If_Stmt,       --  an IF tag statement
                   Table_Stmt,    --  a TABLE tag statement
                   Section_Block, --  a TABLE block (common, section)
@@ -1461,6 +1514,9 @@ package body Templates_Parser is
 
          when Text =>
             Text      : Data.Tree;
+
+         when Set_Stmt =>
+            Def       : Definitions.Tree;
 
          when If_Stmt =>
             Cond      : Expr.Tree;
@@ -1914,6 +1970,12 @@ package body Templates_Parser is
 
    package body Data is separate;
 
+   -----------------
+   -- Definitions --
+   -----------------
+
+   package body Definitions is separate;
+
    ----------
    -- Expr --
    ----------
@@ -2283,7 +2345,7 @@ package body Templates_Parser is
       return Static_Tree
    is
 
-      File   : Input.File_Type;    --  file beeing parsed.
+      File   : Input.File_Type;    --  file beeing parsed
 
       Buffer : String (1 .. 2048); --  current line content
       Last   : Natural;            --  index of last characters read in buffer
@@ -3074,6 +3136,16 @@ package body Templates_Parser is
 
             return T;
 
+         elsif Is_Stmt (Set_Token) then
+            T := new Node (Set_Stmt);
+
+            T.Line := Line;
+            T.Def  := Definitions.Parse (Get_All_Parameters);
+
+            T.Next := Parse (Mode);
+
+            return T;
+
          else
             declare
                Root, N : Tree;
@@ -3120,6 +3192,7 @@ package body Templates_Parser is
                     or else Is_Stmt (End_Table_Token)
                     or else Is_Stmt (Begin_Token)
                     or else Is_Stmt (End_Token)
+                    or else Is_Stmt (Set_Token)
                   then
                      T.Next := Parse (Mode, No_Read => True);
                      return Root;
@@ -3284,6 +3357,7 @@ package body Templates_Parser is
       --  Cache to avoid too many reallocation using Append on Results above
 
       Now     : Calendar.Time;
+      D_Map   : Definitions.Map;
 
       procedure Analyze
         (T     : in Tree;
@@ -3442,9 +3516,48 @@ package body Templates_Parser is
          ---------------
 
          function Translate (Var : in Tag_Var) return String is
+            use type Data.Tree;
+            D_Pos    : Definitions.Def_Map.Containers.Cursor;
             Pos      : Containers.Cursor;
             Up_Value : Natural := 0;
          begin
+            D_Pos := Definitions.Def_Map.Containers.Find
+              (D_Map, To_String (Var.Name));
+
+            if Definitions.Def_Map.Containers.Has_Element (D_Pos) then
+               --  We have a definition for this variable in the template
+               declare
+                  N : Definitions.Node
+                    := Definitions.Def_Map.Containers.Element (D_Pos);
+                  V : Tag_Var := Var;
+               begin
+                  case N.Kind is
+                     when Definitions.Const =>
+                        return Translate
+                          (Var, To_String (N.Value),
+                           Translations, State.F_Params);
+
+                     when Definitions.Ref =>
+                        V.N := N.Ref;
+                        return I_Translate (V);
+
+                     when Definitions.Ref_Default =>
+                        if N.Ref > Max_Include_Parameters
+                          or else State.I_Params (N.Ref) = null
+                        then
+                           --  This include parameter does not exists, use
+                           --  default value.
+                           return Translate
+                             (Var, To_String (N.Value),
+                              Translations, State.F_Params);
+                        else
+                           V.N := N.Ref;
+                           return I_Translate (V);
+                        end if;
+                  end case;
+               end;
+            end if;
+
             Pos := Containers.Find
               (Translations.Set.all, To_String (Var.Name));
 
@@ -4109,7 +4222,7 @@ package body Templates_Parser is
                end if;
 
                case T.Kind is
-                  when Info | C_Info =>
+                  when Info | C_Info | Set_Stmt =>
                      return Get_Max_Lines (T.Next, N);
 
                   when Text =>
@@ -4216,6 +4329,25 @@ package body Templates_Parser is
 
                   Analyze (N, State);
                end;
+
+            when Set_Stmt =>
+               declare
+                  Name    : constant String := To_String (T.Def.Name);
+                  Pos     : Definitions.Def_Map.Containers.Cursor;
+                  Success : Boolean;
+               begin
+                  Pos := Definitions.Def_Map.Containers.Find (D_Map, Name);
+
+                  if Definitions.Def_Map.Containers.Has_Element (Pos) then
+                     Definitions.Def_Map.Containers.Replace_Element
+                       (Pos, By => T.Def.N);
+                  else
+                     Definitions.Def_Map.Containers.Insert
+                       (D_Map, Name, T.Def.N, Pos, Success);
+                  end if;
+               end;
+
+               Analyze (T.Next, State);
 
             when If_Stmt  =>
                if Analyze (T.Cond) = "TRUE" then
@@ -4389,6 +4521,10 @@ package body Templates_Parser is
          when Text =>
             Data.Release (T.Text);
             Release (T.Next, Include);
+
+         when Set_Stmt =>
+            Definitions.Release (T.Def);
+            Release (T.Next);
 
          when If_Stmt  =>
             Expr.Release (T.Cond);
