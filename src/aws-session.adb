@@ -179,6 +179,8 @@ package body AWS.Session is
    -- Database --
    --------------
 
+   type Session_Node_Array is array (Integer range <>) of Session_Node;
+
    protected body Database is
 
       -----------
@@ -191,8 +193,11 @@ package body AWS.Session is
          --  Maximum number of items that will get removed at a time. Other
          --  items will be check for removal during next run.
 
-         Remove : array (1 .. Max_Remove) of Session_Node;
-         Index  : Natural := 0;
+         Remove : Session_Node_Array (1 .. Max_Remove);
+         --  ??? can't use anonymous array here, GNAT bug TN 9023-002
+         --  Fixed in GNAT 3.15w (20010625).
+
+         Index : Natural := 0;
 
          Now : constant Calendar.Time := Calendar.Clock;
 
