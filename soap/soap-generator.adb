@@ -811,6 +811,8 @@ package body SOAP.Generator is
                N := N.Next;
             end loop;
 
+            Append (Result, ")");
+
             return To_String (Result);
          end Image;
 
