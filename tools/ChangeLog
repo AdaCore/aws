@@ -1,3 +1,8 @@
+2004-04-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Add Win32 poll support.
+
 2004-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-parser.adb:
