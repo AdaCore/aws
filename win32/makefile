@@ -11,13 +11,12 @@ GARGS = -m -q $(GFLAGS) -I../src $(INCLUDES)
 LIBSSL		= ../lib/libssl.a
 LIBCRYPTO	= ../lib/libcrypto.a
 LIBLDAP		= ../lib/libldap.a
-LIBPOLL         = ../lib/libpoll.a
-LIBWSPIAPI      = ../lib/libwspiapi.a
+LIBWIN32	= ../lib/libaws-win32.a
 AWS_COFF	= ../lib/aws.coff
 
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
-   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBPOLL) $(LIBLDAP) $(LIBWSPIAPI)
+   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBWIN32) $(LIBLDAP)
 else
    RES        =
    IMPORT_LIB =
@@ -48,18 +47,16 @@ $(AWS_COFF): aws.rc
 	echo Building aws.coff
 	$(WINDRES) -i aws.rc -o $(AWS_COFF)
 
-$(LIBPOLL): poll.ads poll.adb
+poll.o : poll.ads poll.adb
 	echo Building Win32 poll support
 	$(GNATMAKE) -u $(GARGS) poll.adb
-	$(AR) r $(LIBPOLL) poll.o
 
-$(LIBWSPIAPI): wspiapi.h wspiapi.c
-	echo Building protocol independent API support
-	$(GCC) -c wspiapi.c
-	$(AR) r $(LIBWSPIAPI) wspiapi.o
+$(LIBWIN32): wspiapi.o poll.o gai_strerror.o
+	echo Building AWS Win32 support
+	$(AR) r $(LIBWIN32) poll.o wspiapi.o gai_strerror.o
 
 clean:
-	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBPOLL) $(LIBLDAP) *~ aws.coff
+	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBWIN32) $(LIBLDAP) *~ aws.coff
 	-$(RM) -f *.o
 
 #############################################################################
