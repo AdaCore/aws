@@ -813,25 +813,25 @@ is
    ------------------------
 
    procedure Get_Message_Header is
+      First_Line : Boolean := True;
    begin
       loop
          begin
-            HTTP_Server.Slots.Set_Abortable (Index, True);
-
             declare
                Data : constant String := Sockets.Get_Line (Sock);
             begin
                --  A request by the client has been received, do not abort
                --  until this request is handled.
 
-               HTTP_Server.Slots.Set_Abortable (Index, False);
+               if First_Line then
+                  HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
+                  First_Line := False;
+               end if;
 
                exit when Data = End_Of_Message;
 
                Parse (Data);
             end;
-
-            HTTP_Server.Slots.Mark_Activity_Time (Index);
 
          exception
             when others =>
@@ -1220,6 +1220,8 @@ begin
 
       Get_Message_Header;
 
+      HTTP_Server.Slots.Mark_Phase (Index, Client_Data);
+
       Get_Message_Data;
 
       Will_Close :=
@@ -1231,12 +1233,16 @@ begin
          AWS.Messages.Does_Not_Match
            (Status.Connection (C_Stat), "keep-alive"));
 
+      HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+
       Answer_To_Client;
 
       --  Exit if connection has not the Keep-Alive status or we are working
       --  on HTTP/1.0 protocol or we have a single slot.
 
       exit For_Every_Request when Will_Close;
+
+      HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
 
    end loop For_Every_Request;
 
