@@ -1,3 +1,9 @@
+2004-09-04  Pascal Obry  <pascal@obry.org>
+
+	* wsdl2aws.adb:
+	(Parse_Command_Line): Add support for -d option (debug mode).
+	Add "-d" into the usage output.
+
 2004-08-11  Pascal Obry  <pascal@obry.org>
 
 	* tools.gpr:

@@ -1,3 +1,23 @@
+2004-09-04  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Add debug code generation if debug mode activated.
+	 Add generation of an exception handle for all exceptions to catch
+	 problem coming from a user's callback.
+	(Start_Service): Idem.
+
+	* soap-generator-stub.adb:
+	(New_Procedure): Add debug code generation if debug mode activated.
+	(Start_Service): Idem.
+
+	* soap-generator.adb:
+	(Debug): New procedure.
+
+	* soap-generator.ads:
+	(Debug): New procedure.
+	(Object): Add Debug field.
+	This is to support the debug code generator.
+
 2004-09-03  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator-skel.adb:
