@@ -133,11 +133,11 @@ package body AWS.Net.Std is
       use Interfaces;
       use type C.int;
 
+      Info  : constant OSD.Addr_Info_Access
+        := Get_Addr_Info (Host, Port, OSD.AI_PASSIVE);
       Res   : C.int;
       Errno : Integer;
 
-      Info : constant OSD.Addr_Info_Access
-        := Get_Addr_Info (Host, Port, OSD.AI_PASSIVE);
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
@@ -174,16 +174,16 @@ package body AWS.Net.Std is
    -------------
 
    procedure Connect
-     (Socket   : in out Socket_Type;
-      Host     : in     String;
-      Port     : in     Positive;
-      Wait     : in     Boolean := True)
+     (Socket : in out Socket_Type;
+      Host   : in     String;
+      Port   : in     Positive;
+      Wait   : in     Boolean := True)
    is
       use Interfaces;
       use type C.int;
-      Info : constant OSD.Addr_Info_Access := Get_Addr_Info (Host, Port);
-      Res  : C.int;
 
+      Info  : constant OSD.Addr_Info_Access := Get_Addr_Info (Host, Port);
+      Res   : C.int;
       Errno : Integer;
 
    begin
