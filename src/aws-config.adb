@@ -37,6 +37,15 @@ pragma Warnings (Off, AWS.Config.Ini);
 
 package body AWS.Config is
 
+   -----------------------
+   -- Accept_Queue_Size --
+   -----------------------
+
+   function Accept_Queue_Size (O : in Object) return Positive is
+   begin
+      return O.P (Accept_Queue_Size).Pos_Value;
+   end Accept_Queue_Size;
+
    ---------------
    -- Admin_URI --
    ---------------
