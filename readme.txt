@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             March 26th, 2004
+   Pascal Obry                                               April 6th, 2004
 
 
 
@@ -239,13 +239,13 @@ Validation:
 
 AWS 2.0 has been compiled and has passed all tests on:
 
-   Windows XP, GNAT 3.15a1, 3.16a1, 3.17w and 5.01a
+   Windows XP, GNAT 3.15a1, 3.16a1, 5.01a and 5.02a
 
-   Windows NT 4.0, GNAT 3.15a1
-
-   GNU/Linux x66, GNAT 3.16a1 and 3.17w
+   GNU/Linux x66, GNAT 3.16a1 and 5.02a
 
    SPARC Solaris 8, GNAT 5.01a
+
+   HP-UX 11, GNAT 5.03w
 
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
