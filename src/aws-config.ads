@@ -47,6 +47,7 @@ package AWS.Config is
 
 
    Default_Server_Name        : constant String := "[no name]";
+   Default_WWW_Root           : constant String := "./";
    Default_Admin_URI          : constant String := "";
    Default_Server_Port        : constant        := 8080;
    Default_Hotplug_Port       : constant        := 8888;
@@ -67,22 +68,29 @@ package AWS.Config is
    Default_Cleaner_Client_Data_Timeout     : constant Duration := Eight_Hours;
    Default_Cleaner_Server_Response_Timeout : constant Duration := Eight_Hours;
 
-   Default_Force_Wait_For_Client_Timeout   : constant Duration :=  2.0;
-   Default_Force_Client_Header_Timeout     : constant Duration :=  3.0;
-   Default_Force_Client_Data_Timeout       : constant Duration :=  Three_Hours;
-   Default_Force_Server_Response_Timeout   : constant Duration :=  Three_Hours;
+   Default_Force_Wait_For_Client_Timeout   : constant Duration := 2.0;
+   Default_Force_Client_Header_Timeout     : constant Duration := 3.0;
+   Default_Force_Client_Data_Timeout       : constant Duration := Three_Hours;
+   Default_Force_Server_Response_Timeout   : constant Duration := Three_Hours;
 
-   Default_Send_Timeout      : constant Duration :=  40.0;
-   Default_Receive_Timeout   : constant Duration :=  30.0;
+   Default_Send_Timeout    : constant Duration := 40.0;
+   Default_Receive_Timeout : constant Duration := 30.0;
 
-   Default_Status_Page       : constant String := "aws_status.thtml";
-   Default_Up_Image          : constant String := "aws_up.png";
-   Default_Down_Image        : constant String := "aws_down.png";
-   Default_Logo_Image        : constant String := "aws_logo.png";
+   Default_Status_Page     : constant String := "aws_status.thtml";
+   Default_Up_Image        : constant String := "aws_up.png";
+   Default_Down_Image      : constant String := "aws_down.png";
+   Default_Logo_Image      : constant String := "aws_logo.png";
 
    function Server_Name return String;
    --  Format: Server_Name <string>
    --  This is the name of the server as set by AWS.Server.Start.
+
+   function WWW_Root return String;
+   --  Format: WWW_Root <string>
+   --  This is the root directory name for the server. This variable is not
+   --  used internally by AWS. It is supposed to be used by the callback
+   --  procedures who want to retreive physical objects (images, Web
+   --  pages...). The default value is the current working directory.
 
    function Admin_URI return String;
    --  Format: Admin_URI <string>
