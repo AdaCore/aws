@@ -37,7 +37,4 @@ implemented:
 - integrate Templates_Parser with AWS. A callback which knows how to parse
   .tmplt files ???
 
-- document the logging facility (needed for the release).
-
-- bug under some version of Linux. The Accept_Socket fails with ERRNO 11
-  (try again) because the socket is not in blocking mode!
+- add a way to select the certificate to use for SSL implementation.
