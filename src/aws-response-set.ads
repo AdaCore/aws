@@ -43,19 +43,25 @@ package AWS.Response.Set is
      (D     : in out Data;
       Value : in     Messages.Status_Code);
    pragma Inline (Status_Code);
-   --  Set the status code.
+   --  Set the status code
 
    procedure Content_Type
      (D     : in out Data;
       Value : in     String);
    pragma Inline (Content_Type);
-   --  Set the MIME type for the message body.
+   --  Set the MIME type for the message body
+
+   procedure Cache_Control
+     (D     : in out Data;
+      Value : in     Messages.Cache_Option);
+   pragma Inline (Content_Type);
+   --  Set the Cache_Control mode for the message
 
    procedure Content_Length
      (D     : in out Data;
       Value : in     Natural);
    pragma Inline (Content_Length);
-   --  Set the MIME content length for the message body.
+   --  Set the MIME content length for the message body
 
    procedure Filename
      (D     : in out Data;
@@ -110,6 +116,6 @@ package AWS.Response.Set is
    --  set the Mode field to Message.
 
    function Is_Valid (D : in Data) return Boolean;
-   --  Checking validity of the HTTP response.
+   --  Checking validity of the HTTP response
 
 end AWS.Response.Set;
