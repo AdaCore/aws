@@ -1,3 +1,18 @@
+2004-04-06  Pascal Obry  <pascal.obry@edf.fr>
+
+	* wm_summary.thtml:
+	Add summary link.
+	Fix some tag names.
+
+	* wm_reply.thtml, wm_error.thtml:
+	Initial revision.
+
+	* wm_message.thtml:
+	Add summary, delete, reply links.
+
+	* wm_login.html:
+	Add WM_SMTP_SERVER.
+
 2004-04-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:

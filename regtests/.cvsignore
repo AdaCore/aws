@@ -316,6 +316,7 @@ shutdown.tmp
 simple
 simple.res
 simple.tmp
+smtp
 smtp.res
 soap1
 soap1.res
