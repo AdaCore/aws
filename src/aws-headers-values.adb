@@ -53,6 +53,50 @@ package body AWS.Headers.Values is
    --  from First index. Returns First = 0 if it has reached the end of
    --  Data. Returns Name_Last = 0 if an un-named value has been found.
 
+   -----------------------
+   -- Get_Unnamed_Value --
+   -----------------------
+
+   function Get_Unnamed_Value
+     (Header_Value : in String;
+      N            : in Positive := 1) return String
+   is
+      First       : Natural;
+      Name_First  : Positive;
+      Name_Last   : Natural;
+      Value_First : Positive;
+      Value_Last  : Natural;
+
+      Count       : Natural := 0;
+
+   begin
+      First := Fixed.Index
+            (Source => Header_Value,
+             Set    => Spaces,
+             Test   => Outside);
+      loop
+
+         Next_Value (Header_Value, First,
+            Name_First,  Name_Last,
+            Value_First, Value_Last);
+
+         if Name_Last = 0 then
+            Count := Count + 1;
+
+            if Count = N then
+               return Header_Value (Value_First .. Value_Last);
+            end if;
+
+         end if;
+
+         exit when First = 0;
+
+      end loop;
+
+      return "";
+
+   end Get_Unnamed_Value;
+
    ------------
    --  Index --
    ------------
@@ -243,6 +287,59 @@ package body AWS.Headers.Values is
       end loop;
    end Parse;
 
+   ------------
+   -- Search --
+   ------------
+
+   function Search
+     (Header_Value   : in String;
+      Name           : in String;
+      Case_Sensitive : in Boolean := True) return String
+   is
+      First       : Natural;
+      Name_First  : Positive;
+      Name_Last   : Natural;
+      Value_First : Positive;
+      Value_Last  : Natural;
+
+      Map    : Maps.Character_Mapping;
+
+      Sample : String (Name'Range);
+
+   begin
+      First := Fixed.Index
+            (Source => Header_Value,
+             Set    => Spaces,
+             Test   => Outside);
+
+      if Case_Sensitive then
+         Map := Maps.Identity;
+      else
+         Map := Maps.Constants.Upper_Case_Map;
+      end if;
+
+      Sample := Fixed.Translate (Name, Map);
+
+      loop
+
+         Next_Value (Header_Value, First,
+            Name_First,  Name_Last,
+            Value_First, Value_Last);
+
+         if Name_Last > 0 and then Sample = Fixed.Translate
+                (Header_Value (Name_First .. Name_Last), Map)
+         then
+            return Header_Value (Value_First .. Value_Last);
+         end if;
+
+         exit when First = 0;
+
+      end loop;
+
+      return "";
+
+   end Search;
+
    -----------
    -- Split --
    -----------
@@ -297,7 +394,7 @@ package body AWS.Headers.Values is
 
       begin
          if First = 0 then
-            -- This is
+            --  This is the end of recursion.
             return Null_Set;
          end if;
 
