@@ -49,10 +49,6 @@ package body Memory_Streams is
         := File.Last_Length + Value'Length;
 
    begin
-      if File.Pointer /= null then
-         raise Constraint_Error;
-      end if;
-
       if File.First = null then
          File.First      := new Buffer_Type;
 
@@ -100,54 +96,39 @@ package body Memory_Streams is
       File.Length := File.Length + Value'Length;
    end Append;
 
-   ------------------
-   -- Back_Pointer --
-   ------------------
+   ------------
+   -- Append --
+   ------------
 
-   procedure Back_Pointer
-     (File   : in out Stream_Type;
-      Length : in     Element_Offset) is
+   procedure Append
+     (File : in out Stream_Type;
+      Data : in     Element_Access) is
    begin
-      if File.Pointer = null then
-         raise Constraint_Error;
-      end if;
-
-      if Length = 0 then
-         Free (File.Pointer);
-
-         return;
-      end if;
-
       if File.First = null then
          File.First       := new Buffer_Type;
-         File.First.Data  := File.Pointer;
+         File.First.Data  := Data;
          File.Current     := File.First;
          File.Last        := File.First;
-         File.Last_Length := Length;
+         File.Last_Length := Data'Length;
+      else 
+         if File.Last.Data'Length > File.Last_Length then
+            declare
+               Ptr : constant Element_Access
+                := new Element_Array' (File.Last.Data (1 .. File.Last_Length));
+            begin
+               Free (File.Last.Data);
+               File.Last.Data := Ptr;
+            end;
+         end if;
 
-      elsif File.Last.Data'Length = File.Last_Length then
          File.Last.Next   := new Buffer_Type;
          File.Last        := File.Last.Next;
-         File.Last.Data   := File.Pointer;
-         File.Last_Length := Length;
-
-      else
-         declare
-            Ptr : constant Element_Access
-              := new Element_Array'
-                       (File.Last.Data (1 .. File.Last_Length)
-                        & File.Pointer (1 .. Length));
-         begin
-            Free (File.Last.Data);
-            Free (File.Pointer);
-            File.Last.Data := Ptr;
-            File.Last_Length := Ptr'Length;
-         end;
+         File.Last.Data   := Data;
+         File.Last_Length := Data'Length;
       end if;
 
-      File.Pointer := null;
-      File.Length  := File.Length + Length;
-   end Back_Pointer;
+      File.Length  := File.Length + Data'Length;
+   end Append;
 
    -----------
    -- Close --
@@ -203,27 +184,6 @@ package body Memory_Streams is
       Free (Item.Data);
       Deallocate (Item);
    end Free;
-
-   -----------------
-   -- Get_Pointer --
-   -----------------
-
-   procedure Get_Pointer
-     (File    : in out Stream_Type;
-      Pointer :    out Element_Access) is
-   begin
-      if File.Pointer /= null then
-         raise Constraint_Error;
-      end if;
-
-      if File.First = null then
-         Pointer := new Element_Array (1 .. First_Block_Length);
-      else
-         Pointer := new Element_Array (1 .. Next_Block_Length);
-      end if;
-
-      File.Pointer := Pointer;
-   end Get_Pointer;
 
    ----------
    -- Read --
@@ -281,10 +241,6 @@ package body Memory_Streams is
       end Append;
 
    begin
-      if File.Pointer /= null then
-         raise Constraint_Error;
-      end if;
-
       Last := Buffer'First - 1;
 
       if File.Current = null then
@@ -323,10 +279,6 @@ package body Memory_Streams is
 
    procedure Reset (File : in out Stream_Type) is
    begin
-      if File.Pointer /= null then
-         raise Constraint_Error;
-      end if;
-
       File.Current        := File.First;
       File.Current_Offset := 1;
    end Reset;
