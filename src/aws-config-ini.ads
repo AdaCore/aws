@@ -40,7 +40,7 @@ package AWS.Config.Ini is
      (Config   : in out Object;
       Filename : in     String);
    --  Read 'File_Name.ini' and update the configuration object with the
-   --  options read from it.
-   --  Raises Ada.Text_IO.Name_Error in case of file does not exist.
+   --  options read from it. Raises Ada.Text_IO.Name_Error if Filename does
+   --  not exist.
 
 end AWS.Config.Ini;
