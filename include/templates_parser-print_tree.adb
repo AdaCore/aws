@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2001                         --
+--                        Copyright (C) 1999 - 2002                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -73,7 +73,6 @@ begin
       when Text =>
          Text_IO.Put ("[TEXT] ");
          Data.Print_Tree (T.Text);
-         Text_IO.New_Line;
          Print_Tree (T.Next, Level);
 
       when If_Stmt  =>

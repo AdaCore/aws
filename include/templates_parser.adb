@@ -1967,8 +1967,9 @@ package body Templates_Parser is
    ----------
 
    function Load
-     (Filename : in String;
-      Cached   : in Boolean := False)
+     (Filename     : in String;
+      Cached       : in Boolean := False;
+      Include_File : in Boolean := False)
       return Static_Tree
    is
 
@@ -2142,6 +2143,7 @@ package body Templates_Parser is
          if Input.End_Of_File (File) then
             Last := 0;
             return True;
+
          else
             Line := Line + 1;
 
@@ -2323,7 +2325,8 @@ package body Templates_Parser is
             T.Line := Line;
 
             T.File :=
-              Load (Build_Include_Pathname (Get_First_Parameter), Cached);
+              Load (Build_Include_Pathname (Get_First_Parameter),
+                    Cached, True);
 
             I_File := new Node'(Include_Stmt, I_File, Line, T.File);
 
@@ -2336,7 +2339,17 @@ package body Templates_Parser is
 
             T.Line := Line;
 
-            T.Text := Data.Parse (Buffer (1 .. Last));
+            if Input.LF_Terminated (File)
+              and then (not Input.End_Of_File (File)
+                          or else Include_File)
+            then
+               --  Add a LF is the read line with terminated by a LF. Do not
+               --  add this LF if we reach the end of file except for included
+               --  files.
+               T.Text := Data.Parse (Buffer (1 .. Last) & ASCII.LF);
+            else
+               T.Text := Data.Parse (Buffer (1 .. Last));
+            end if;
 
             T.Next := Parse (Mode);
             return T;
@@ -3162,8 +3175,6 @@ package body Templates_Parser is
                         & " at line" & Natural'Image (T.Line) & ' '
                         & Exceptions.Exception_Information (E) & '.');
                end;
-
-               Append (Results, ASCII.LF);
 
                Analyze (T.Next, State);
 
