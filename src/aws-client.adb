@@ -619,10 +619,9 @@ package body AWS.Client is
             --  Read the chunk size that is an hex number
             declare
                L : constant String := Sockets.Get_Line (Sock);
-               V : constant String
-                 := "16#" & Strings.Fixed.Trim (L, Strings.Both) & '#';
             begin
-               Size := Stream_Element_Offset'Value (V);
+               Size := Stream_Element_Offset
+                 (Utils.Hex_Value (Strings.Fixed.Trim (L, Strings.Both)));
             end;
 
             if Size = 0 then
