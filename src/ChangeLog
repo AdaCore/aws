@@ -1,3 +1,22 @@
+2003-12-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-split_pages.ads:
+	Fix comments (V is a suffix) and add comment for OFFSET and
+	 NUMBER_PAGES.
+
+	* aws-services-split_pages.adb:
+	(Indexes): Put V at then end of the vector tag. This is the common
+	 convention used for AWS/Templates tags.
+	(Parse): Add NUMBER_PAGES and OFFSET tag variables.
+
+	* aws-services-dispatchers-virtual_host.ads:
+	(Initialize): Moved to private section.
+	(Finalize): Idem.
+
+	* aws-services-dispatchers-uri.ads:
+	(Initialize): Moved to private section.
+	(Finalize): Idem.
+
 2003-12-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
