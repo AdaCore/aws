@@ -37,26 +37,40 @@ package body Memory_Streams is
    procedure Free is
       new Ada.Unchecked_Deallocation (Element_Array, Element_Access);
 
+   procedure Trim_Last_Block (Stream : in out Stream_Type);
+   --  Remove unused space from last buffer.
+
+   function First (Item : in Buffer_Access) return Element_Index;
+   pragma Inline (First);
+
+   function Last (Item : in Buffer_Access) return Element_Index;
+   pragma Inline (Last);
+
    ------------
    -- Append --
    ------------
 
    procedure Append
      (Stream : in out Stream_Type;
-      Value  : in     Element_Array)
+      Value  : in     Element_Array;
+      Trim   : in     Boolean := False)
    is
       Block_Length : constant Element_Offset
         := Stream.Last_Length + Value'Length;
 
    begin
       if Value'Length = 0 then
+         if Trim then
+            Trim_Last_Block (Stream);
+         end if;
+
          return;
       end if;
 
       if Stream.First = null then
-         Stream.First := new Buffer_Type;
+         Stream.First := new Buffer_Type (False);
 
-         if Value'Length >= First_Block_Length then
+         if Value'Length >= First_Block_Length or else Trim then
             Stream.First.Data := new Element_Array (1 .. Value'Length);
          else
             Stream.First.Data := new Element_Array (1 .. First_Block_Length);
@@ -70,8 +84,12 @@ package body Memory_Streams is
 
       elsif Block_Length <= Stream.Last.Data'Length then
          Stream.Last.Data (Stream.Last_Length + 1
-                         .. Block_Length) := Value;
+                           .. Block_Length) := Value;
          Stream.Last_Length := Block_Length;
+
+         if Trim then
+            Trim_Last_Block (Stream);
+         end if;
       elsif Stream.Last_Length < Stream.Last.Data'Length then
          declare
             Split_Value : constant Element_Index
@@ -82,10 +100,10 @@ package body Memory_Streams is
             Stream.Last.Data (Stream.Last_Length + 1 .. Stream.Last.Data'Last)
               := Value (Value'First .. Split_Value - 1);
 
-            Stream.Last.Next := new Buffer_Type;
+            Stream.Last.Next := new Buffer_Type (False);
             Stream.Last      := Stream.Last.Next;
 
-            if Next_Length >= Next_Block_Length then
+            if Next_Length >= Next_Block_Length or else Trim then
                Stream.Last.Data := new Element_Array (1 .. Next_Length);
             else
                Stream.Last.Data := new Element_Array (1 .. Next_Block_Length);
@@ -97,10 +115,10 @@ package body Memory_Streams is
             Stream.Last_Length := Next_Length;
          end;
       else
-         Stream.Last.Next := new Buffer_Type;
+         Stream.Last.Next := new Buffer_Type (False);
          Stream.Last      := Stream.Last.Next;
 
-         if Value'Length >= Next_Block_Length then
+         if Value'Length >= Next_Block_Length or else Trim then
             Stream.Last.Data := new Element_Array (1 .. Value'Length);
          else
             Stream.Last.Data := new Element_Array (1 .. Next_Block_Length);
@@ -120,15 +138,42 @@ package body Memory_Streams is
 
    procedure Append
      (Stream     : in out Stream_Type;
-      Data       : in     Element_Access;
-      Allow_Free : in     Boolean := True) is
+      Data       : in     Constant_Access) is
    begin
       if Data'Length = 0 then
          return;
       end if;
 
       if Stream.First = null then
-         Stream.First          := new Buffer_Type;
+         Stream.First          := new Buffer_Type (True);
+         Stream.First.Const    := Data;
+         Stream.Current        := Stream.First;
+         Stream.Last           := Stream.First;
+         Stream.Last_Length    := Data'Length;
+         Stream.Current_Offset := Data'First;
+
+      else
+         Trim_Last_Block (Stream);
+
+         Stream.Last.Next       := new Buffer_Type (True);
+         Stream.Last            := Stream.Last.Next;
+         Stream.Last.Const      := Data;
+         Stream.Last_Length     := Data'Length;
+      end if;
+
+      Stream.Length  := Stream.Length + Data'Length;
+   end Append;
+
+   procedure Append
+     (Stream     : in out Stream_Type;
+      Data       : in     Element_Access) is
+   begin
+      if Data'Length = 0 then
+         return;
+      end if;
+
+      if Stream.First = null then
+         Stream.First          := new Buffer_Type (False);
          Stream.First.Data     := Data;
          Stream.Current        := Stream.First;
          Stream.Last           := Stream.First;
@@ -136,28 +181,12 @@ package body Memory_Streams is
          Stream.Current_Offset := Data'First;
 
       else
-         if Stream.Last.Data'Length > Stream.Last_Length then
-            --  Last.Allow_Free could be false only after call this routine.
+         Trim_Last_Block (Stream);
 
-            if not Stream.Last.Allow_Free then
-               raise Program_Error;
-            end if;
-
-            declare
-               Ptr : constant Element_Access
-                  := new Element_Array'(Stream.Last.Data
-                                          (1 .. Stream.Last_Length));
-            begin
-               Free (Stream.Last.Data);
-               Stream.Last.Data := Ptr;
-            end;
-         end if;
-
-         Stream.Last.Next       := new Buffer_Type;
+         Stream.Last.Next       := new Buffer_Type (False);
          Stream.Last            := Stream.Last.Next;
          Stream.Last.Data       := Data;
          Stream.Last_Length     := Data'Length;
-         Stream.Last.Allow_Free := Allow_Free;
       end if;
 
       Stream.Length  := Stream.Length + Data'Length;
@@ -177,7 +206,11 @@ package body Memory_Streams is
          if First.Next = null then
             Length := Length + Stream.Last_Length;
          else
-            Length := Length + First.Data'Length;
+            if First.Steady then
+               Length := Length + First.Const'Length;
+            else
+               Length := Length + First.Data'Length;
+            end if;
          end if;
 
          Stream.First := First.Next;
@@ -204,8 +237,21 @@ package body Memory_Streams is
    begin
       return Stream.Current = null
         or else (Stream.Current.Next = null
-                   and then Stream.Current_Offset > Stream.Current.Data'Last);
+                   and then Stream.Current_Offset > Last (Stream.Current));
    end End_Of_File;
+
+   -----------
+   -- First --
+   -----------
+
+   function First (Item : in Buffer_Access) return Element_Index is
+   begin
+      if Item.Steady then
+         return Item.Const'First;
+      else
+         return Item.Data'First;
+      end if;
+   end First;
 
    ----------
    -- Free --
@@ -215,12 +261,25 @@ package body Memory_Streams is
       procedure Deallocate is
          new Ada.Unchecked_Deallocation (Buffer_Type, Buffer_Access);
    begin
-      if Item.Allow_Free then
+      if not Item.Steady then
          Free (Item.Data);
       end if;
 
       Deallocate (Item);
    end Free;
+
+   ----------
+   -- Last --
+   ----------
+
+   function Last (Item : in Buffer_Access) return Element_Index is
+   begin
+      if Item.Steady then
+         return Item.Const'Last;
+      else
+         return Item.Data'Last;
+      end if;
+   end Last;
 
    ----------
    -- Read --
@@ -288,10 +347,14 @@ package body Memory_Streams is
          if Stream.Current.Next = null then
             --  Last block.
 
-            Append (Stream.Current.Data
-                      (Stream.Current.Data'First
-                       .. Stream.Last_Length + Stream.Current.Data'First
-                          - 1));
+            if Stream.Current.Steady then
+               Append (Stream.Current.Const.all);
+            else
+               Append (Stream.Current.Data
+                         (Stream.Current.Data'First
+                          .. Stream.Last_Length + Stream.Current.Data'First
+                             - 1));
+            end if;
 
             if Block_Over then
                Stream.Current := null;
@@ -299,12 +362,16 @@ package body Memory_Streams is
             end if;
 
          else
-            Append (Stream.Current.Data.all);
+            if Stream.Current.Steady then
+               Append (Stream.Current.Const.all);
+            else
+               Append (Stream.Current.Data.all);
+            end if;
 
             if Block_Over then
                Stream.Current := Stream.Current.Next;
 
-               Stream.Current_Offset := Stream.Current.Data'First;
+               Stream.Current_Offset := First (Stream.Current);
             end if;
          end if;
 
@@ -330,5 +397,28 @@ package body Memory_Streams is
    begin
       return Stream.Length;
    end Size;
+
+   ----------------------
+   -- Trim_Last_Buffer --
+   ----------------------
+
+   procedure Trim_Last_Block (Stream : in out Stream_Type) is
+   begin
+      if Stream.Last.Steady
+        or else Stream.Last.Data'Length = Stream.Last_Length
+      then
+         return;
+      end if;
+
+      declare
+         Ptr : constant Element_Access
+            := new Element_Array'(Stream.Last.Data
+                                    (1 .. Stream.Last_Length));
+      begin
+         Free (Stream.Last.Data);
+         Stream.Last.Data   := Ptr;
+         Stream.Last_Length := Ptr'Length;
+      end;
+   end Trim_Last_Block;
 
 end Memory_Streams;
