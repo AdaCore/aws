@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -56,8 +56,8 @@ package body SOAP.XML is
 
       if A = null then
          return "";
-      else
 
+      else
          declare
             V : constant String := DOM.Core.Nodes.Node_Value (A);
          begin
