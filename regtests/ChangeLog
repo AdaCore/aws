@@ -2,6 +2,7 @@
 
 	* makefile:
 	Concatenate most regression tests into single executable file.
+	Add note about test restriction for some test sections.
 
 2004-01-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
