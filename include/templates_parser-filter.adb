@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -1070,7 +1070,7 @@ package body Filter is
    begin
 
       loop
-         GNAT.Regpat.Match (P.Regpat.all, S, Matches, Current);
+         GNAT.Regpat.Match (P.Regpat.all, S (Current .. S'Last), Matches);
          exit when Matches (0) = GNAT.Regpat.No_Match;
 
          Matched := True;
