@@ -62,7 +62,7 @@ procedure Redirect is
    procedure Call_It is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:4567/first");
+      R := Client.Get ("http://localhost:1239/first");
 
       if Response.Status_Code (R) = Messages.S301 then
          Text_IO.Put_Line ("OK, status is good");
@@ -76,7 +76,7 @@ procedure Redirect is
 
 begin
    Server.Start
-     (WS, "file", CB'Unrestricted_Access, Port => 4567, Max_Connection => 5);
+     (WS, "file", CB'Unrestricted_Access, Port => 1239, Max_Connection => 5);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Call_It;

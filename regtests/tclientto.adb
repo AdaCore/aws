@@ -87,7 +87,7 @@ procedure Tclientto is
    begin
       AWS.Server.Start
         (HTTP, "Test Client Timeouts",
-         CB'Unrestricted_Access, Port => 7645, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => 1235, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -109,19 +109,19 @@ procedure Tclientto is
    procedure Request is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:7645/3sec", Timeouts => (1, 1));
+      R := Client.Get ("http://localhost:1235/3sec", Timeouts => (1, 1));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:7645/3sec", Timeouts => (10, 10));
+      R := Client.Get ("http://localhost:1235/3sec", Timeouts => (10, 10));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:7645/10sec", Timeouts => (1, 20));
+      R := Client.Get ("http://localhost:1235/10sec", Timeouts => (1, 20));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:7645/10sec", Timeouts => (10, 7));
+      R := Client.Get ("http://localhost:1235/10sec", Timeouts => (10, 7));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
    end Request;
@@ -136,7 +136,7 @@ procedure Tclientto is
    begin
       Client.Create
         (Connection => Connect,
-         Host       => "http://localhost:7645",
+         Host       => "http://localhost:1235",
          Timeouts   => (0, 5));
 
       Client.Get (Connect, R, "/3sec");

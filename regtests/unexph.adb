@@ -85,7 +85,7 @@ procedure Unexph is
 
       AWS.Server.Start
         (HTTP, "Test unexpected exception handler",
-         CB'Unrestricted_Access, Port => 7645, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 1240, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -113,7 +113,7 @@ procedure Unexph is
 begin
    Server.Wait_Start;
 
-   R := Client.Get ("http://localhost:7645/test", Timeouts => (2, 2));
+   R := Client.Get ("http://localhost:1240/test", Timeouts => (2, 2));
 
    Server.Stop;
 

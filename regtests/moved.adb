@@ -83,7 +83,7 @@ procedure Moved is
    begin
       AWS.Server.Start
         (HTTP, "Testing ""moved"" answer.",
-         CB'Unrestricted_Access, Port => 7645, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 1237, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -98,7 +98,7 @@ begin
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:7645",
+      Host       => "http://localhost:1237",
       Timeouts   => (5, 5));
 
    Client.Get (Connect, R, "/do_you_have_it");
