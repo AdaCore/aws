@@ -30,11 +30,41 @@
 
 --  $Id$
 
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
 with AWS.Net.Buffered;
 
 package body AWS.Headers is
+
+   use Ada;
+
+   ---------------------
+   -- Get_Field_Value --
+   ---------------------
+
+   function Get_Field_Value
+     (Headers : in List;
+      Name    : in String;
+      Field   : in String)
+      return String
+   is
+      Header       : constant String := Get (Headers, Name);
+      Start, Last  : Natural;
+   begin
+      Start := Strings.Fixed.Index (Header, Field & "=");
+
+      if Start /= 0 then
+         Last := Strings.Fixed.Index
+           (Header (Start + Field'Length + 2 .. Header'Last), """");
+
+         if Last /= 0 then
+            return Header (Start + Field'Length + 2 .. Last - 1);
+         end if;
+      end if;
+
+      return "";
+   end Get_Field_Value;
 
    --------------
    -- Get_Line --
@@ -75,7 +105,7 @@ package body AWS.Headers is
 
       function Get_Values (Start_From : in Positive) return String is
          Value : constant String
-            := Ada.Strings.Unbounded.To_String (Values (Start_From));
+            := Strings.Unbounded.To_String (Values (Start_From));
       begin
          if Start_From = Values'Last then
             return Value;
