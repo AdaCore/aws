@@ -106,7 +106,7 @@ package body AWS.Config is
 
    Max_Connection_Value     : aliased Positive := Default_Max_Connection;
    Server_Port_Value        : aliased Positive := Default_Server_Port;
-   Hotplug_Port_value       : aliased Positive := Default_Hotplug_Port;
+   Hotplug_Port_Value       : aliased Positive := Default_Hotplug_Port;
 
    Session_Cleanup_Interval_Value : aliased Duration
      := Default_Session_Cleanup_Interval;
