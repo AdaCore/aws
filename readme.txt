@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                May 22th, 2004
+   Pascal Obry                                                June 3rd, 2004
 
 
 
@@ -18,9 +18,7 @@ Server. AWS is fully developed in Ada with GNAT.
 
 AWS support SOAP/WSDL, Server Push, HTTPS/SSL, client HTTP, hotplug
 modules... We have worked very hard to make this release as stable as
-possible. Note that Hotplug modules are very nice but have a potentially
-security hole as it is implemented today. A new secure implementation will be
-proposed in a future version.
+possible.
 
 AWS comes with SOAP/WSDL support, two tools are proposed:
 
@@ -39,6 +37,12 @@ Changes
 
 Here are the main changes since AWS 2.0 :
 
+   - Improve Nonce value generation. It is far less probable to generate
+     the same Nonce value twice.
+
+   - Completely new hotplug implementation. This is the first secure version
+     and can now be used as all other AWS features.
+
    - Support for Content-Disposition for file and stream. This make it
      possible to properly pass the filename to be used by the client browser
      to save the file locally. See Disposition and User_Filename parameters of
@@ -47,12 +51,13 @@ Here are the main changes since AWS 2.0 :
    - Uses the Ada.Containers reference implementation (known as AI302). These
      containers are based on an hash table and is therefore faster than the
      previous containers based on an AVL tree. A two times speedup has been
-     experienced.
+     experienced. Also the GNAT specific dynamic tables have been replaced
+     by an Ada.Containers.Vectors.
 
    - A new templates engine child package provides a way to save/load a
      Translate_Table to/from an XML document. See Templates_Parser.XML.
 
-   - A new templates engine child package provides a way to store/retreive a
+   - A new templates engine child package provides a way to store/retrieve a
      Tag to/from a string. This can be useful to store a complete template tag
      into a session variable. See Templates_Parser.Utils.
 
@@ -64,7 +69,7 @@ Here are the main changes since AWS 2.0 :
 
    - Templates Engine is again faster, it provides a new way to store
      translations (see Translate_Set) which is not a fixed structure like
-     Transtate_Table.
+     Translate_Table.
 
    - New templates engine with unified tags which can be nested at any
      level. Vector_Tag and Matrix_Tag are now just subtype of the new type
@@ -104,7 +109,7 @@ have tagged all obsolescent features with a pragma.
 Note that pragma Obsolescent and -gnatwj option is only supported
 since GNAT 3.16.
 
-   - AWS.Net.Set_Blocking_Mode should not be used anyore. Use
+   - AWS.Net.Set_Blocking_Mode should not be used anymore. Use
      AWS.Net.Set_Timeout instead.
 
 
