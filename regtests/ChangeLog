@@ -1,3 +1,9 @@
+2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* timer.adb:
+	Properly update the current time variable in the loop to avoid
+	 infinite loop.
+
 2003-12-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
