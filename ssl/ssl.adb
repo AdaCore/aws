@@ -2,8 +2,10 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to OpenSSL library                       --
 --                                                                          --
---                             Copyright (C) 2000                           --
---                             Dmitriy Anisimkov                            --
+--                         Copyright (C) 2000-2001                          --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimov - Pascal Obry                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -81,8 +83,10 @@ package body SSL is
    -- Error_If --
    --------------
 
-   procedure Error_If (Error  : in Boolean;
-                       Except : in Ada.Exceptions.Exception_Id) is
+   procedure Error_If
+     (Error  : in Boolean;
+      Except : in Ada.Exceptions.Exception_Id)
+   is
       use Interfaces.C.Strings, Ada;
    begin
       if Error then
@@ -129,9 +133,9 @@ package body SSL is
    -- Accept_Socket --
    -------------------
 
-   procedure Accept_Socket (Socket     : in     Sockets.Socket_FD;
-                            New_Socket :    out Handle) is
-      --  Accept a connection on a socket
+   procedure Accept_Socket
+     (Socket     : in     Sockets.Socket_FD;
+      New_Socket :    out Handle) is
    begin
       loop
          Sockets.Accept_Socket (Socket, Sockets.Socket_FD (New_Socket));
@@ -159,9 +163,10 @@ package body SSL is
    -- Connect --
    -------------
 
-   procedure Connect (Socket : in Handle;
-                      Host   : in String;
-                      Port   : in Positive) is
+   procedure Connect
+     (Socket : in Handle;
+      Host   : in String;
+      Port   : in Positive) is
    begin
       Sockets.Connect (Sockets.Socket_FD (Socket), Host, Port);
       Error_If (Thin.SSL_Connect (Socket.H) = -1, Lib_Error'Identity);
@@ -295,13 +300,13 @@ package body SSL is
    -- Read --
    ----------
 
-   procedure Read (Socket : in     Handle;
-                   Item   :    out String;
-                   Last   :    out Natural)
+   procedure Read
+     (Socket : in     Handle;
+      Item   :    out String;
+      Last   :    out Natural)
    is
-      Len : Interfaces.C.int := Thin.SSL_Read (Socket.H,
-                                               Item'Address,
-                                               Item'Length);
+      Len : Interfaces.C.int
+        := Thin.SSL_Read (Socket.H, Item'Address, Item'Length);
    begin
       Error_If (Len = -1, Lib_Error'Identity);
       Last := Item'First - 1 + Integer (Len);
@@ -342,9 +347,10 @@ package body SSL is
    -- Receive --
    -------------
 
-   function Receive (Socket : in Handle;
-                     Max    : in Ada.Streams.Stream_Element_Count := 4096)
-                    return Ada.Streams.Stream_Element_Array
+   function Receive
+     (Socket : in Handle;
+      Max    : in Ada.Streams.Stream_Element_Count := 4096)
+     return Ada.Streams.Stream_Element_Array
    is
       use Ada.Streams; --  Stream_Element_Count;
 
@@ -364,8 +370,9 @@ package body SSL is
    -- Send --
    ----------
 
-   procedure Send (Socket : in Handle;
-                   Data   : in Ada.Streams.Stream_Element_Array) is
+   procedure Send
+     (Socket : in Handle;
+      Data   : in Ada.Streams.Stream_Element_Array) is
    begin
       Error_If (Thin.SSL_Write (Socket.H, Data'Address, Data'Length) = -1,
                 Lib_Error'Identity);
@@ -385,8 +392,9 @@ package body SSL is
    -- Set_Certificate --
    ---------------------
 
-   procedure Set_Certificate (Cert_Filename : in String;
-                              Key_Filename  : in String := "")
+   procedure Set_Certificate
+     (Cert_Filename : in String;
+      Key_Filename  : in String := "")
    is
 
       function Key_File_Name return String;
