@@ -143,11 +143,14 @@ Validation:
 
 AWS 1.3 has been compiled and has passed all tests on:
 
-   Windows XP, GNAT 3.15a1, 3.17w and 5.01w
+   Windows XP, GNAT 3.15a1, 3.16a, 3.17w and 5.01w
 
    GNU/Linux x66, GNAT 3.16a and 3.17w
 
    SPARC Solaris 8, GNAT 3.17w
+
+Others platforms / compiler version combinations have not been tested, it
+does not mean that it's not working.
 
 Previous version of AWS have been build on FreeBSD 4.1 and MacOSX.
 
