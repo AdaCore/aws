@@ -1,3 +1,25 @@
+2004-03-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-wsdl-parser.adb:
+	(Get_Node): Exit from the loop when we reach the end of the WSDL
+         document. Node is not found.
+        (Parse_Part): If no node with the given name has been found raise
+         an exception with the proper error message.
+        Update copyright notice.
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Change generated variable name from Proc to
+         Proc_Name to avoid name clash.
+        (Start_Service): Minor output reformatting.
+        Update copyright notice.
+
+	* soap-xml.adb:
+	Minor reformatting.
+        Update copyright notice.
+
+	* soap-utils.ads:
+	(SOAP_Base64): New runtime support type.
+
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
