@@ -1,3 +1,8 @@
+2002-11-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-messages.adb:
+	(Content_Length): Remove one of two spaces before header value.
+
 2002-10-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-ldap-client.ads, aws-ldap-client.adb:
