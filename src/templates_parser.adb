@@ -1765,6 +1765,37 @@ package body Templates_Parser is
    -------------------
 
    ------------
+   -- Exists --
+   ------------
+
+   function Exists
+     (Set      : in Translate_Set;
+      Variable : in String)
+      return Boolean is
+   begin
+      return Association_Set.Containers.Is_In (Variable, Set.Set.all);
+   end Exists;
+
+   ---------
+   -- Get --
+   ---------
+
+   function Get
+     (Set  : in Translate_Set;
+      Name : in String) return Association
+   is
+      Pos : Containers.Cursor;
+   begin
+      Pos := Containers.Find (Set.Set.all, Name);
+
+      if Containers.Has_Element (Pos) then
+         return Containers.Element (Pos);
+      else
+         return Null_Association;
+      end if;
+   end Get;
+
+   ------------
    -- Insert --
    ------------
 
@@ -1786,16 +1817,15 @@ package body Templates_Parser is
    end Insert;
 
    ------------
-   -- Exists --
+   -- Remove --
    ------------
 
-   function Exists
-     (Set      : in Translate_Set;
-      Variable : in String)
-      return Boolean is
+   procedure Remove (Set : in out Translate_Set; Name : in String) is
    begin
-      return Association_Set.Containers.Is_In (Variable, Set.Set.all);
-   end Exists;
+      if Containers.Is_In (Name, Set.Set.all) then
+         Containers.Delete (Set.Set.all, Name);
+      end if;
+   end Remove;
 
    ------------
    -- To_Set --
@@ -2729,11 +2759,11 @@ package body Templates_Parser is
    -----------
 
    function Parse
-     (Filename          : in     String;
-      Translations      : in     Translate_Table  := No_Translation;
-      Cached            : in     Boolean          := False;
-      Keep_Unknown_Tags : in     Boolean          := False;
-      Context           : access TP_Context'Class := Null_Context)
+     (Filename          : in String;
+      Translations      : in Translate_Table := No_Translation;
+      Cached            : in Boolean         := False;
+      Keep_Unknown_Tags : in Boolean         := False;
+      Context           : in Context_Access  := Null_Context)
       return String is
    begin
       return To_String
@@ -2741,11 +2771,11 @@ package body Templates_Parser is
    end Parse;
 
    function Parse
-     (Filename          : in     String;
-      Translations      : in     Translate_Table  := No_Translation;
-      Cached            : in     Boolean          := False;
-      Keep_Unknown_Tags : in     Boolean          := False;
-      Context           : access TP_Context'Class := Null_Context)
+     (Filename          : in String;
+      Translations      : in Translate_Table := No_Translation;
+      Cached            : in Boolean         := False;
+      Keep_Unknown_Tags : in Boolean         := False;
+      Context           : in Context_Access  := Null_Context)
       return Unbounded_String is
    begin
       return Parse
@@ -2753,11 +2783,11 @@ package body Templates_Parser is
    end Parse;
 
    function Parse
-     (Filename          : in     String;
-      Translations      : in     Translate_Set;
-      Cached            : in     Boolean          := False;
-      Keep_Unknown_Tags : in     Boolean          := False;
-      Context           : access TP_Context'Class := Null_Context)
+     (Filename          : in String;
+      Translations      : in Translate_Set;
+      Cached            : in Boolean        := False;
+      Keep_Unknown_Tags : in Boolean        := False;
+      Context           : in Context_Access := Null_Context)
       return String is
    begin
       return To_String
@@ -2765,11 +2795,11 @@ package body Templates_Parser is
    end Parse;
 
    function Parse
-     (Filename          : in     String;
-      Translations      : in     Translate_Set;
-      Cached            : in     Boolean          := False;
-      Keep_Unknown_Tags : in     Boolean          := False;
-      Context           : access TP_Context'Class := Null_Context)
+     (Filename          : in String;
+      Translations      : in Translate_Set;
+      Cached            : in Boolean        := False;
+      Keep_Unknown_Tags : in Boolean        := False;
+      Context           : in Context_Access := Null_Context)
       return Unbounded_String
    is
 
@@ -2936,7 +2966,7 @@ package body Templates_Parser is
                --  Check now if the variable is known in the current user's
                --  context.
 
-               if Context_Access (Context) = Null_Context then
+               if Context = Null_Context then
                   Found := False;
                else
                   Callback (Context, T_Name, Result, Found);
