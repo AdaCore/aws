@@ -272,6 +272,13 @@ package Table_Of_Strings_And_Static_Values_G is
    --+ ERROR:
    --+   Raises MISSING_ITEM_ERROR if KEY is not found in TABLE.
 
+   procedure Get_Value (Table : in     Table_Type;
+                        Key   : in     String_Type;
+                        Value :    out Value_Type;
+                        Found :    out Boolean);
+   --    FOUND is set to TRUE or FALSE depending on success of search KEY.
+   --    The VALUE is left unchanged if FOUND is set to FALSE.
+
    procedure Get_Min_Item (Table : in Table_Type;
                            Key : out String_Type;
                            Last : out Natural;

@@ -284,6 +284,13 @@ package Table_Of_Static_Keys_And_Dynamic_Values_G is
    --    Raises MISSING_ITEM_ERROR if KEY is not found in TABLE. In this case
    --  the value of the actual parameter VALUE is left unchanged.
 
+   procedure Get_Value (Table : in     Table_Type;
+                        Key   : in     Key_Type;
+                        Value :    out Value_Type;
+                        Found :    out Boolean);
+   --    FOUND is set to TRUE or FALSE depending on success of search KEY.
+   --    The VALUE is left unchanged if FOUND is set to FALSE.
+
    procedure Get_Min_Item (Table : in Table_Type;
                            Key : out Key_Type;
                            Value : in out Value_Type);
