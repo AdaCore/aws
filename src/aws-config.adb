@@ -163,6 +163,15 @@ package body AWS.Config is
       return O.P (Hotplug_Port).Pos_Value;
    end Hotplug_Port;
 
+   ---------------------
+   -- Line_Stack_Size --
+   ---------------------
+
+   function Line_Stack_Size (O : in Object) return Positive is
+   begin
+      return O.P (Line_Stack_Size).Pos_Value;
+   end Line_Stack_Size;
+
    ------------------------
    -- Log_File_Directory --
    ------------------------

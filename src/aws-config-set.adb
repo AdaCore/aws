@@ -175,6 +175,15 @@ package body AWS.Config.Set is
       O.P (Hotplug_Port).Pos_Value := Value;
    end Hotplug_Port;
 
+   ---------------------
+   -- Line_Stack_Size --
+   ---------------------
+
+   procedure Line_Stack_Size (O : in out Object; Value : in Positive) is
+   begin
+      O.P (Line_Stack_Size).Pos_Value := Value;
+   end Line_Stack_Size;
+
    ------------------------
    -- Log_File_Directory --
    ------------------------
