@@ -1,5 +1,11 @@
 2003-01-24  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-net-std-gnat.adb:
+	(Bind): Use Get_Host_By_Name instead of Inet_Addr as the former
+	 handles both IP and hostname.
+	(Shutdown): Check if the socket is null. This can be the case if
+	 the Connect routine failed.
+	
 	* templates_parser.adb:
 	New version based on Templates_Parser 4.5.
 	Filters LF_2_BR and BR_2_LF added.

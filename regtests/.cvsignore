@@ -9,6 +9,8 @@ b~file.adb
 b~file.ads
 b~head.adb
 b~head.ads
+b~hostip.adb
+b~hostip.ads
 b~hval.adb
 b~hval.ads
 b~moved.adb
@@ -73,6 +75,7 @@ file1.html
 file2.html
 file3.html
 head.res
+hostip.res
 hval.res
 moved.res
 param.res
