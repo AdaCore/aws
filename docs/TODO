@@ -142,6 +142,7 @@ implemented:
         </complexType> 
     </element>  
 
+
 =============== Point to fix/implement/review before next release (1.5)
 
 - Add SMTP authentication support
@@ -197,3 +198,7 @@ implemented:
 
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
+
+- AWS.OS_Lib for Win32 and POSIX based are not anymore working. We should
+  either update the documentation or implement the missing routines for both
+  versions.
