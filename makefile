@@ -78,8 +78,8 @@ all:
 	echo ""
 	echo "  Configurations :"
 	echo ""
-	echo "    set_ssl:      build with SSL support (Secure Socket Layer)"
-	echo "    set_std:      build without SSL support [default]"
+	echo "    set_ssl:      build demos with SSL support (Secure Socket Layer)"
+	echo "    set_std:      build demos without SSL support [default]"
 	echo ""
 	echo "    gnat_oslib:   OS_Lib implementation for GNAT only [default]"
 	echo "    posix_oslib:  OS_Lib implementation based on POSIX"
@@ -107,12 +107,10 @@ ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS
 set_ssl:
 	echo "MODE=ssl" > makefile.conf
 	make -C demos clean $(ALL_OPTIONS)
-	make -C ssl clean $(ALL_OPTIONS)
 
 set_std:
 	echo "MODE=std" > makefile.conf
 	make -C demos clean $(ALL_OPTIONS)
-	make -C ssl clean $(ALL_OPTIONS)
 
 build_lib: build_ssllib build_include build_aws build_win32
 
@@ -213,7 +211,7 @@ ifeq (${OS}, Windows_NT)
 	echo "Windows OS detected"
 	echo "   To build AWS on this OS you need to have a set of UNIX like"
 	echo "   tools (cp, mv, mkdir, chmod...) You should install"
-	echo "   Cygwin or Msys toolset"
+	echo "   Cygwin or Msys toolset."
 	echo ""
 else
 	echo "UNIX like OS detected"
@@ -222,7 +220,7 @@ endif
 ifdef XMLADA
 	echo "XMLada activated      : " $(XMLADA)
 else
-	echo "XMLada not activate, SOAP will not be built"
+	echo "XMLada not activated, SOAP will not be built"
 endif
 ifdef ADASOCKETS
 	echo "AdaSockets package in : " $(ADASOCKETS)
