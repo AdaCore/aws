@@ -1,3 +1,17 @@
+2003-06-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(aws-soap.ads): Target removed.
+	(aws-soap.adb): Target removed.
+	(GARGS): Remove -I../soap.
+	(CONF_UNITS): Removed aws-soap.ad[sb]
+	
+	* aws-status-translate_table.adb:
+	Undo previous check-in.
+
+	* aws-status.ads, aws-status.adb, aws-status-set.adb:
+	Undo previous check-in.
+
 2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:

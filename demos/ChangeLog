@@ -1,3 +1,15 @@
+2003-06-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(DEMOS): Add soap_server_disp.adb.
+
+	* soap_server_disp.adb:
+	Initial revision.
+
+	* wsdl_demo_server.adb:
+	(SOAP_Wrapper): New function used to call the new WSDL generated
+	 callbacks.
+
 2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
