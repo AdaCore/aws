@@ -51,6 +51,12 @@ package AWS.Response.Set is
    pragma Inline (Content_Type);
    --  Set the MIME type for the message body.
 
+   procedure Content_Length
+     (D     : in out Data;
+      Value : in     Natural);
+   pragma Inline (Content_Length);
+   --  Set the MIME content length for the message body.
+
    procedure Filename
      (D     : in out Data;
       Value : in     String);
