@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,80 +30,9 @@
 
 --  $Id$
 
-with Ada.Strings.Unbounded;
-with Ada.Text_IO;
-
-with AWS.Client;
-with AWS.MIME;
-with AWS.Response.Set;
-with AWS.Server;
-with AWS.Status;
+with Append_Pack;
 
 procedure Append is
-
-   use Ada;
-   use AWS;
-
-   WS : Server.HTTP;
-
-   function CB (Request : in Status.Data) return Response.Data;
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : in Status.Data) return Response.Data is
-      Answer : Response.Data;
-
-      procedure Append (Item : String);
-
-      ------------
-      -- Append --
-      ------------
-
-      procedure Append (Item : String) is
-      begin
-         if Item'Length > 0 then
-            Response.Set.Append_Body (Answer, Item & ASCII.LF);
-
-            Append (Item (Item'First .. Item'Last - 1));
-
-            declare
-               Inverse : String (Item'Range);
-            begin
-               for J in Item'Range loop
-                  Inverse (Item'Last - J + 1) := Item (J);
-               end loop;
-
-               Response.Set.Append_Body (Answer, Inverse & ASCII.LF);
-            end;
-         end if;
-      end Append;
-
-   begin
-      Append
-        ("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-         & "!""#$%&'()*+,-./:;<=>?@[\]^_`{|}~");
-
-      return Answer;
-   end CB;
-
-   R : Response.Data;
-
 begin
-   Server.Start
-     (WS, "append message",
-      CB'Unrestricted_Access,
-      Port           => 1261,
-      Max_Connection => 5);
-
-   Ada.Text_IO.Put_Line ("started");
-
-   R := Client.Get ("http://localhost:1261");
-
-   Ada.Text_IO.Put (Response.Message_Body (R));
-
-   Server.Shutdown (WS);
-
-   Ada.Text_IO.Put_Line ("shutdown");
+   Append_Pack.Run ("http");
 end Append;
