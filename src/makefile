@@ -46,17 +46,17 @@ std_mode:
 	cp aws-net-std.adb aws-net.adb
 
 gnat_oslib:
-	-rm *.o *.ali
+	-rm -f *.o *.ali
 	cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb
 
 posix_oslib:
-	-rm *.o *.ali
+	-rm -f *.o *.ali
 	cp ../include/aws-os_lib-posix.adb aws-os_lib.adb
 
 win32_oslib:
-	-rm *.o *.ali
+	-rm -f *.o *.ali
 	cp ../include/aws-os_lib-win32.adb aws-os_lib.adb
 
 clean:
-	-rm *.o *.ali aws-net.adb aws-os_lib.adb *.~*.*~
+	-rm -f *.o *.ali aws-net.adb aws-os_lib.adb *.~*.*~
 	-rm aws-translator-conversion.adb
