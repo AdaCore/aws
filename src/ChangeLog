@@ -1,5 +1,11 @@
 2004-12-23  Pascal Obry  <pascal@obry.net>
 
+	* aws-server.adb, aws-server-protocol_handler.adb:
+	(Protocol_Handler): Revert previous change. It is not needed to
+	 have an access type here as the HTTP record as an auto-pointer.
+	
+2004-12-23  Pascal Obry  <pascal@obry.net>
+
 	* aws-server-protocol_handler.adb:
 	(C_Stat): Now aliased.
 	Call Line_Attribute.Set_Value here.
