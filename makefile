@@ -113,9 +113,9 @@ else
 build_soap_internal:
 endif
 
-build: build_scripts build_stdlib build_soap_internal build_lib build_demos
+build: build_stdlib build_soap_internal build_lib build_demos
 
-build_lib: build_stdlib build_soap_internal
+build_lib: build_scripts build_stdlib build_soap_internal
 	$(AR) cr lib/libaws.a src/*.o
 	$(AR) cr lib/libaws.a ssl/*.o
 ifdef XMLADA
