@@ -173,12 +173,18 @@ package body Stub is
       is
          use Ada.Strings.Fixed;
       begin
-         Text_IO.Put (Stub_Adb, "R ((");
+         Text_IO.Put (Stub_Adb, "To_SOAP_Object (");
 
-         Output_Parameter
-           (1, Format_Name (O, To_String (N.Name)) & '.', N.P);
-
-         Text_IO.Put (Stub_Adb, "), """ & To_String (N.Name) & """)");
+         if Prefix = "" then
+            Text_IO.Put
+              (Stub_Adb,
+               Format_Name (O, To_String (N.Name))
+                 & ", """ & To_String (N.Name) & """)");
+         else
+            Text_IO.Put
+              (Stub_Adb, Prefix & "." & Format_Name (O, To_String (N.Name))
+                 & ", """ & To_String (N.Name) & """)");
+         end if;
 
          Output_Parameter (K + 1, Prefix, N.Next);
       end Output_Record;
