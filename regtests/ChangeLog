@@ -1,3 +1,10 @@
+2002-10-03  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* param.adb, tclientto.adb, test_soap.adb,
+	  tgetparam.adb, tres.adb, upload.adb:
+	Task synchronization instead of delay for waiting to start
+	and stop the HTTP server.
+
 2002-09-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* turl.out:

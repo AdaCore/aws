@@ -55,9 +55,10 @@ procedure Tres is
 
    function CB (Request : in Status.Data) return Response.Data;
 
-   task Server;
-
-   Stopped : Boolean := False;
+   task Server is
+      entry Started;
+      entry Stopped;
+   end Server;
 
    HTTP : AWS.Server.HTTP;
 
@@ -108,11 +109,13 @@ procedure Tres is
       Put_Line ("Server started");
       New_Line;
 
-      delay 5.0;
+      accept Started;
 
-      if Stopped = False then
+      select
+         accept Stopped;
+      or delay 5.0;
          Put_Line ("Too much time to do the job !");
-      end if;
+      end select;
 
       AWS.Server.Shutdown (HTTP);
    exception
@@ -135,7 +138,7 @@ procedure Tres is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   delay 2.0;
+   Server.Started;
 
    Request ("http://localhost:7645/file1");
    Request ("http://localhost:7645/file2");
@@ -143,7 +146,7 @@ begin
    Request ("http://localhost:7645/tmplt");
    Request ("http://localhost:7645/file4");
 
-   Stopped := True;
+   Server.Stopped;
 
 exception
    when E : others =>
