@@ -87,7 +87,7 @@ procedure Com_2 is
 
       N := N + 1;
 
-      Text_IO.Put_Line ("================== " & N'Img);
+      Text_IO.Put_Line ("================== " & Natural'Image (N));
 
       if N = 10 then
          Last_Message_Received := True;

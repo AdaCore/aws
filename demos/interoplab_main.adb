@@ -166,7 +166,7 @@ procedure interopLab_Main is
    begin
       Text_IO.Put_Line ("Echo ArrayOfint");
       for K in Res'Range loop
-         Text_IO.Put (K'Img & " = ");
+         Text_IO.Put (Natural'Image (K) & " = ");
          Integer_Text_IO.Put (Res (K));
          Text_IO.New_Line;
       end loop;
@@ -199,7 +199,7 @@ procedure interopLab_Main is
    begin
       Text_IO.Put_Line ("Echo ArrayOfstring");
       for K in Res'Range loop
-         Text_IO.Put_Line (K'Img & " = " & To_String (Res (K)));
+         Text_IO.Put_Line (Natural'Image (K) & " = " & To_String (Res (K)));
       end loop;
       Text_IO.New_Line;
    end T_echoStringArray;
