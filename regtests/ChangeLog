@@ -1,3 +1,8 @@
+2003-12-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* *.ads, *.adb:
+	Fix typo in Anisimkov surname.
+
 2003-12-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
