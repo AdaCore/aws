@@ -42,6 +42,9 @@ package AWS.Session is
    function Create return ID;
    --  Create a new uniq Session ID.
 
+   procedure Delete (SID : in ID);
+   -- Delete session
+
    function Image (SID : in ID) return String;
    --  Return ID image
 
@@ -115,6 +118,6 @@ package AWS.Session is
 
 private
 
-   type ID is range 0 .. 2 ** 40;
+   type ID is range 0 .. 2 ** 62;
 
 end AWS.Session;
