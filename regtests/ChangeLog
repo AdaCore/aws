@@ -1,5 +1,8 @@
 2004-05-22  Pascal Obry  <pascal@obry.org>
 
+	* afile.out:
+	Initial revision.
+
 	* makefile:
 	(RT_STD): Add afile.
 
