@@ -192,8 +192,10 @@ package body Skel is
         (Skel_Adb, "      Response := SOAP.Message.Response.From (Payload);");
       Text_IO.New_Line (Skel_Adb);
 
-      Text_IO.Put_Line
-        (Skel_Adb, "      declare");
+      if Input /= null or else Output /= null then
+         Text_IO.Put_Line
+           (Skel_Adb, "      declare");
+      end if;
 
       --  Find maximum parameter name length to align them
 
@@ -277,21 +279,32 @@ package body Skel is
 
       --  Output parameters
 
-      Text_IO.Put
-        (Skel_Adb, "         Result : constant ");
+      if Output = null then
 
-      if Output.Next = null
-        and then Output.Mode = WSDL.Parameters.K_Simple
-      then
          Text_IO.Put_Line
-           (Skel_Adb, WSDL.To_Ada (Output.P_Type));
+           (Skel_Adb, "      begin");
+         Text_IO.Put
+           (Skel_Adb, "         " & L_Proc);
+
       else
+         Text_IO.Put
+           (Skel_Adb, "         Result : constant ");
+
+         if Output.Next = null
+           and then Output.Mode = WSDL.Parameters.K_Simple
+         then
+            Text_IO.Put_Line
+              (Skel_Adb, WSDL.To_Ada (Output.P_Type));
+         else
+            Text_IO.Put_Line
+              (Skel_Adb, L_Proc & "_Result");
+         end if;
+
          Text_IO.Put_Line
-           (Skel_Adb, L_Proc & "_Result");
+           (Skel_Adb, "                := " & L_Proc);
       end if;
 
-      Text_IO.Put_Line
-        (Skel_Adb, "                := " & L_Proc);
+      --  Input parameters
 
       N := Input;
 
@@ -307,7 +320,7 @@ package body Skel is
          Text_IO.Put (Skel_Adb, Format_Name (O, To_String (N.Name)));
 
          if N.Next = null then
-            Text_IO.Put_Line (Skel_Adb, ");");
+            Text_IO.Put (Skel_Adb, ")");
          else
             Text_IO.Put_Line (Skel_Adb, ",");
          end if;
@@ -315,74 +328,79 @@ package body Skel is
          N := N.Next;
       end loop;
 
+      Text_IO.Put_Line (Skel_Adb, ";");
+
       --  Set SOAP results
 
-      Text_IO.Put_Line
-        (Skel_Adb, "      begin");
+      if Output /= null then
 
-      Text_IO.Put_Line
-        (Skel_Adb, "         R_Params :=");
-      Text_IO.Put
-        (Skel_Adb, "            +");
+         Text_IO.Put_Line
+           (Skel_Adb, "      begin");
 
-      N := Output;
+         Text_IO.Put_Line
+           (Skel_Adb, "         R_Params :=");
+         Text_IO.Put
+           (Skel_Adb, "            +");
 
-      while N /= null loop
-         if N /= Output then
-            Text_IO.Put
-              (Skel_Adb, "            & ");
-         end if;
+         N := Output;
 
-         if N.Mode = WSDL.Parameters.K_Simple then
-            Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
-
-            if Output.Next = null then
-               --  A single simple parameter as return
-
+         while N /= null loop
+            if N /= Output then
                Text_IO.Put
-                 (Skel_Adb, " (Result, """ & To_String (N.Name) & """)");
-
-            else
-               --  Multiple value returned, this is a record
-
-               Text_IO.Put
-                 (Skel_Adb, " (Result."
-                    & Format_Name (O, To_String (N.Name))
-                    & ", """ & To_String (N.Name) & """)");
+                 (Skel_Adb, "            & ");
             end if;
 
-         else
-            if Utils.Is_Array (To_String (N.C_Name)) then
+            if N.Mode = WSDL.Parameters.K_Simple then
+               Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
 
                if Output.Next = null then
-                  --  A single array as returned parameter
+                  --  A single simple parameter as return
+
                   Text_IO.Put
-                    (Skel_Adb, "SOAP.Types.A (To_Object_Set (Result)"
-                       &  ", """ & To_String (N.Name) & """)");
+                    (Skel_Adb, " (Result, """ & To_String (N.Name) & """)");
 
                else
-                  --  Array here is part of an array
+                  --  Multiple value returned, this is a record
+
                   Text_IO.Put
-                    (Skel_Adb, "SOAP.Types.A (To_Object_Set (Result."
-                       & To_String (N.Name) & ".Item.all), """
-                       & To_String (N.Name) & """)");
+                    (Skel_Adb, " (Result."
+                       & Format_Name (O, To_String (N.Name))
+                       & ", """ & To_String (N.Name) & """)");
                end if;
 
             else
-               Text_IO.Put
-                 (Skel_Adb, "To_SOAP_Object (Result, """
-                    &  To_String (N.Name) & """)");
+               if Utils.Is_Array (To_String (N.C_Name)) then
+
+                  if Output.Next = null then
+                     --  A single array as returned parameter
+                     Text_IO.Put
+                       (Skel_Adb, "SOAP.Types.A (To_Object_Set (Result)"
+                          &  ", """ & To_String (N.Name) & """)");
+
+                  else
+                     --  Array here is part of an array
+                     Text_IO.Put
+                       (Skel_Adb, "SOAP.Types.A (To_Object_Set (Result."
+                          & To_String (N.Name) & ".Item.all), """
+                          & To_String (N.Name) & """)");
+                  end if;
+
+               else
+                  Text_IO.Put
+                    (Skel_Adb, "To_SOAP_Object (Result, """
+                       &  To_String (N.Name) & """)");
+               end if;
             end if;
-         end if;
 
-         if N.Next = null then
-            Text_IO.Put_Line (Skel_Adb, ";");
-         else
-            Text_IO.New_Line (Skel_Adb);
-         end if;
+            if N.Next = null then
+               Text_IO.Put_Line (Skel_Adb, ";");
+            else
+               Text_IO.New_Line (Skel_Adb);
+            end if;
 
-         N := N.Next;
-      end loop;
+            N := N.Next;
+         end loop;
+      end if;
 
       Text_IO.Put_Line
         (Skel_Adb, "      end;");

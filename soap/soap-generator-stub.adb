@@ -265,8 +265,12 @@ package body Stub is
       Text_IO.Put (Stub_Adb, "   ");
       Put_Header (Stub_Adb, O, Proc, Input, Output);
 
-      Text_IO.New_Line (Stub_Adb);
-      Text_IO.Put_Line (Stub_Adb, "   is");
+      if Input /= null then
+         Text_IO.New_Line (Stub_Adb);
+         Text_IO.Put (Stub_Adb, "  ");
+      end if;
+
+      Text_IO.Put_Line (Stub_Adb, " is");
       Text_IO.Put_Line
         (Stub_Adb, "      P_Set   : SOAP.Parameters.List;");
       Text_IO.Put_Line
@@ -276,10 +280,12 @@ package body Stub is
 
       --  Set parameters
 
-      Text_IO.Put (Stub_Adb, "      P_Set := ");
+      if Input /= null then
+         Text_IO.Put (Stub_Adb, "      P_Set := ");
 
-      Output_Parameter (1, "", Input);
-      Text_IO.Put_Line (Stub_Adb, ";");
+         Output_Parameter (1, "", Input);
+         Text_IO.Put_Line (Stub_Adb, ";");
+      end if;
 
       Text_IO.Put_Line
         (Stub_Adb, "      Payload := SOAP.Message.Payload.Build");
@@ -341,96 +347,99 @@ package body Stub is
               & """faultstring""));");
       end if;
 
-      Text_IO.Put_Line
-        (Stub_Adb,
-         "         else");
-      Text_IO.Put_Line
-        (Stub_Adb,
-         "            declare");
+      if Output /= null then
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "         else");
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "            declare");
 
-      Text_IO.Put
-        (Stub_Adb,
-         "               Result : constant ");
+         Text_IO.Put
+           (Stub_Adb,
+            "               Result : constant ");
 
 
-      Text_IO.Put_Line (Stub_Adb, Result_Type (O, Proc, Output));
+         Text_IO.Put_Line (Stub_Adb, Result_Type (O, Proc, Output));
 
-      if WSDL.Parameters.Length (Output) = 1 then
-         --  A single parameter is returned
+         if WSDL.Parameters.Length (Output) = 1 then
+            --  A single parameter is returned
 
-         if Output.Mode = WSDL.Parameters.K_Simple then
+            if Output.Mode = WSDL.Parameters.K_Simple then
 
-            if Output.P_Type = WSDL.P_B64 then
-               Text_IO.Put_Line
-                 (Stub_Adb,
-                  "                  "
-                    & ":= V (SOAP_Base64'(SOAP.Parameters.Get (R_Param, """
-                    & To_String (Output.Name)
-                    & """)));");
+               if Output.P_Type = WSDL.P_B64 then
+                  Text_IO.Put_Line
+                    (Stub_Adb,
+                     "                  "
+                       & ":= V (SOAP_Base64'(SOAP.Parameters.Get (R_Param, """
+                       & To_String (Output.Name)
+                       & """)));");
+               else
+                  Text_IO.Put_Line
+                    (Stub_Adb,
+                     "                  := SOAP.Parameters.Get (R_Param, """
+                       & To_String (Output.Name)
+                       & """);");
+               end if;
+
             else
-               Text_IO.Put_Line
-                 (Stub_Adb,
-                  "                  := SOAP.Parameters.Get (R_Param, """
-                    & To_String (Output.Name)
-                    & """);");
+
+               if Utils.Is_Array (To_String (Output.C_Name)) then
+                  Text_IO.Put_Line
+                    (Stub_Adb,
+                     "                  "
+                       & ":= To_" & To_String (Output.C_Name));
+                  Text_IO.Put_Line
+                    (Stub_Adb,
+                     "                  "
+                       & "(V (SOAP_Array'(SOAP.Parameters.Get (R_Param, """
+                       & To_String (Output.Name)
+                       & """))));");
+
+               else
+                  Text_IO.Put_Line
+                    (Stub_Adb,
+                     "                  "
+                       & ":= To_" & To_String (Output.C_Name) & "_Type");
+                  Text_IO.Put_Line
+                    (Stub_Adb,
+                     "                  "
+                       & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
+                       & To_String (Output.Name)
+                       & """)));");
+               end if;
+
             end if;
 
          else
+            Text_IO.Put
+              (Stub_Adb,
+               "                  := (");
 
-            if Utils.Is_Array (To_String (Output.C_Name)) then
-               Text_IO.Put_Line
-                 (Stub_Adb,
-                  "                  "
-                    & ":= To_" & To_String (Output.C_Name));
-               Text_IO.Put_Line
-                 (Stub_Adb,
-                  "                  "
-                    & "(V (SOAP_Array'(SOAP.Parameters.Get (R_Param, """
-                    & To_String (Output.Name)
-                    & """))));");
+            declare
+               N : WSDL.Parameters.P_Set := Output;
+            begin
+               while N /= null loop
+                  if N /= Output then
+                     Text_IO.Put (Stub_Adb, ",");
+                     Text_IO.New_Line (Stub_Adb);
+                     Text_IO.Put (Stub_Adb, "                      ");
+                  end if;
 
-            else
-               Text_IO.Put_Line
-                 (Stub_Adb,
-                  "                  "
-                    & ":= To_" & To_String (Output.C_Name) & "_Type");
-               Text_IO.Put_Line
-                 (Stub_Adb,
-                  "                  "
-                    & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
-                    & To_String (Output.Name)
-                    & """)));");
-            end if;
+                  Output_Result (N);
 
+                  N := N.Next;
+               end loop;
+            end;
+
+            Text_IO.Put_Line (Stub_Adb, ");");
          end if;
 
-      else
-         Text_IO.Put
-           (Stub_Adb,
-            "                  := (");
-
-         declare
-            N : WSDL.Parameters.P_Set := Output;
-         begin
-            while N /= null loop
-               if N /= Output then
-                  Text_IO.Put (Stub_Adb, ",");
-                  Text_IO.New_Line (Stub_Adb);
-                  Text_IO.Put (Stub_Adb, "                      ");
-               end if;
-
-               Output_Result (N);
-
-               N := N.Next;
-            end loop;
-         end;
-
-         Text_IO.Put_Line (Stub_Adb, ");");
+         Text_IO.Put_Line (Stub_Adb, "            begin");
+         Text_IO.Put_Line (Stub_Adb, "               return Result;");
+         Text_IO.Put_Line (Stub_Adb, "            end;");
       end if;
 
-      Text_IO.Put_Line (Stub_Adb, "            begin");
-      Text_IO.Put_Line (Stub_Adb, "               return Result;");
-      Text_IO.Put_Line (Stub_Adb, "            end;");
       Text_IO.Put_Line (Stub_Adb, "         end if;");
       Text_IO.Put_Line (Stub_Adb, "      end;");
 
