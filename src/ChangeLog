@@ -1,3 +1,48 @@
+2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-translator.adb:
+	(Compress_Decompress): Add missing spec.
+	Put routines in alphabetical order.
+
+2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): add aws-resources-streams-memory.ads,
+	 aws-resources-streams-memory-zlib.adb,
+	 aws-resources-streams-memory-zlib-deflate.adb,
+	 aws-resources-streams-memory-zlib-inflate.adb
+
+	* aws-resources-streams-memory-zlib-inflate.ads,
+	  aws-resources-streams-memory-zlib-inflate.adb:
+	Initial revision.
+
+	* aws-resources-streams-memory-zlib-deflate.adb:
+	(Append): Moved to parent package.
+	(Flush): Idem.
+	Fix file format (was DOS format).
+
+	* aws-resources-streams-memory-zlib-deflate.ads:
+	(Append): Moved to parent package.
+	(Flush): Idem.
+	Fix some lines ending (DOS format).
+	
+	* aws-resources-streams-memory-zlib.ads:
+	(Append): Moved here from deflate child package. This routine is
+	 now shared with the inflate child.
+	(Flush): Idem.
+
+	* aws-resources-streams-memory-zlib.adb:
+	Initial revision.
+
+	* aws-translator.adb:
+	(Compress): New routine.
+	(Decompress): New routine.
+
+	* aws-translator.ads:
+	Group API.
+	(Compress): New routine.
+	(Decompress): New routine.
+
 2003-10-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources-streams-memory-zlib.ads,
