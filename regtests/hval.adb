@@ -113,10 +113,12 @@ begin
    Put_Line (Search (Test_7, "name_3"));
    Put_Line (Search (Test_7, "NAME_4", False));
    Put_Line (Search (Test_7, "NAME_4")); -- should be empty line.
+   Put_Line (Search ("", "nothing")); -- test for empty input string.
    Put_Line (Get_Unnamed_Value (Test_7, 1));
    Put_Line (Get_Unnamed_Value (Test_7, 2));
    Put_Line (Get_Unnamed_Value (Test_7, 3));
    Put_Line (Get_Unnamed_Value (Test_7, 4)); -- should be empty line
+   Put_Line (Get_Unnamed_Value ("", 2)); -- test for empty input string.
    Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_1")));
    Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_2")));
    Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_5")));
@@ -133,5 +135,7 @@ begin
    Put_Line (Boolean'Image (Unnamed_Value_Exists
                               ("First_Token, " & Test_7,
                                "first_token")));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists
+                       ("", "nothing")));
    Put_Line ("Done.");
 end HVal;
