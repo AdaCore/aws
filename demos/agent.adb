@@ -176,7 +176,7 @@ begin
            (Messages.Content_Type (Response.Content_Type (Data)));
 
          Text_IO.Put_Line
-           (Messages.Content-Length (Response.Content_Length (Data)));
+           (Messages.Content_Length (Response.Content_Length (Data)));
 
          if Force = True then
             --  this is not a text/html body, but output it anyway
