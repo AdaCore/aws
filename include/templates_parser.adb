@@ -31,6 +31,7 @@
 with Ada.Exceptions;
 with Ada.Characters.Handling;
 with Ada.Calendar;
+with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
@@ -838,6 +839,8 @@ package body Templates_Parser is
 
    procedure Release (T : in out Tree);
    --  Release all memory associated with the tree.
+
+   procedure Free is new Ada.Unchecked_Deallocation (Node, Tree);
 
    -------------------
    --  Cached Files --
@@ -2351,6 +2354,10 @@ package body Templates_Parser is
 
       I_File : Tree;               --  list of includes
 
+      Error_Include_Filename : Unbounded_String;
+      --  This variable will be set with the name of the include file that was
+      --  not possible to load.
+
       --  Line handling
 
       procedure Fatal_Error (Message : in String);
@@ -2709,9 +2716,21 @@ package body Templates_Parser is
 
             T.Line := Line;
 
-            T.File :=
-              Load (Build_Include_Pathname (Get_First_Parameter),
-                    Cached, True);
+            begin
+               T.File
+                 := Load (Build_Include_Pathname (Get_First_Parameter),
+                          Cached, True);
+            exception
+               when others =>
+                  --  Error while parsing the include file, record this
+                  --  error. Let the parser exit properly from the recursion
+                  --  to be able to release properly the memory before raising
+                  --  an exception.
+
+                  Error_Include_Filename := Get_First_Parameter;
+                  Free (T);
+                  return null;
+            end;
 
             --  Now we must replace the include parameters (if present) into
             --  the included file tree.
@@ -3058,6 +3077,15 @@ package body Templates_Parser is
                          GNAT.OS_Lib.File_Time_Stamp (Filename),
                          I_File,
                          1);
+
+      if Error_Include_Filename /= Null_Unbounded_String then
+         --  An include filename was not found, release the memory now and
+         --  raise a fatal error.
+
+         Release (New_T);
+         Fatal_Error
+           (To_String (Error_Include_Filename) & " include file missing.");
+      end if;
 
       if Cached then
          Cached_Files.Prot.Add (Filename, New_T, Old);
@@ -4008,7 +4036,6 @@ package body Templates_Parser is
    -------------
 
    procedure Release (T : in out Tree) is
-      procedure Free is new Ada.Unchecked_Deallocation (Node, Tree);
    begin
       if T = null then
          return;
