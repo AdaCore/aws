@@ -1,5 +1,9 @@
 2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-headers-values.ads, aws-headers-values.adb:
+	Change back Data_Set to Set.
+	Prefix Set when needed to raise ambiguity.
+
 	* aws-headers-values.adb:
 	Reformat code.
 	Change Set to Data_Date.
