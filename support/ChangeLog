@@ -1,3 +1,12 @@
+2004-05-27  Pascal Obry  <pascal@obry.org>
+
+	* README.TXT:
+	Remove reference to GNAT.Dynamic_Tables.
+
+	* g-dyntab.ads, g-dyntab.adb:
+	Removed, not needed anymore. AWS uses the AI302.Containers.Vector
+	 component.
+
 2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* README.TXT:
