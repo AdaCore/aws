@@ -1,3 +1,10 @@
+2003-10-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GY_tmp): New variable (remove -gnatwe).
+	(GFLAGSY): Use GY_tmp, only change style options.
+	This handles different sets of options.
+
 2003-10-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* main.adb, runme.adb:
