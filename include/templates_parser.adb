@@ -3032,6 +3032,12 @@ package body Templates_Parser is
                                  Strings.Left),
                      Translations);
 
+               elsif T_Name = "NOW" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d %H:%M:%S"),
+                     Translations);
+
                elsif T_Name = "YEAR" then
                   return Translate
                     (Var,
