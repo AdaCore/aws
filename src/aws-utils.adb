@@ -34,7 +34,6 @@ with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Numerics.Discrete_Random;
 with Ada.Exceptions;
-
 with Interfaces.C.Strings;
 
 with Sockets.Thin;
@@ -70,9 +69,9 @@ package body AWS.Utils is
       use Interfaces;
 
       Buffer : aliased C.char_array := (1 .. 100 => ' ');
-      Name   : C.Strings.chars_ptr
+      Name   : constant C.Strings.chars_ptr
         := C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access);
-      Len    : C.int := Buffer'Length;
+      Len    : constant C.int := Buffer'Length;
       Res    : C.int;
 
    begin
