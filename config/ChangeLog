@@ -1,3 +1,9 @@
+2004-12-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb,
+	  aws-net-std__ipv6.adb:
+	(Errno): Move function spec to package spec.
+
 2004-11-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__ipv6.adb:

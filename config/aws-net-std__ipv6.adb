@@ -64,9 +64,6 @@ package body AWS.Net.Std is
    procedure Raise_Socket_Error (Error : in Integer);
    pragma No_Return (Raise_Socket_Error);
 
-   function Errno (Socket : in Socket_Type) return Integer;
-   --  Returns and clears error state in socket.
-
    function Get_Addr_Info
      (Host  : in String;
       Port  : in Positive;
