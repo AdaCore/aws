@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 --  Test for partial socket send.
 
 with SockExt_Proc;

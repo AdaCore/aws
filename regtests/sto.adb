@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 --  Test for socket timeouts
 
 with STO_Proc;

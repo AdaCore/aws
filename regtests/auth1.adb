@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 with Ada.Text_IO;
 with Ada.Exceptions;
 

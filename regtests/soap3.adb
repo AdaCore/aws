@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [SOAP]
+
 with Ada.Text_IO;      use Ada.Text_IO;
 with Ada.Calendar;     use Ada.Calendar;
 with SOAP.Types;       use SOAP.Types;

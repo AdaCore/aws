@@ -31,6 +31,8 @@
 --  $Id$
 --  Simple table test, see ctab for a more complete one
 
+--  ~ MAIN [STD]
+
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 

@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 with TGetParam_Proc;
 
 procedure TGetParam is

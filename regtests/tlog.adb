@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Exceptions;

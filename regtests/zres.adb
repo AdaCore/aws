@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -31,6 +31,8 @@
 --  $Id$
 
 --  Test for the embedded compressed resource feature
+
+--  ~ MAIN [STD]
 
 with Ada.Exceptions;
 with Ada.Streams;
@@ -95,7 +97,7 @@ begin
 
    Text_IO.Put_Line
      (Templates.Parse
-        ("file.tmplt",
+        ("filez.tmplt",
          Templates.Translate_Table'
            (Templates.Assoc ("ONE", "1"),
             Templates.Assoc ("TWO", "2"))));

@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 --  Server push regression test.
 
 with Get_Free_Port;
