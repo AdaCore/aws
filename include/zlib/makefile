@@ -2,7 +2,7 @@
 # Copyright (C) 1995-2003 Jean-loup Gailly.
 # For conditions of distribution and use, see copyright notice in zlib.h
 
-# Modified for AWS (Ada Web Server) by Dmitriy Anisimkov
+# Modified for AWS (Ada Web Server) by Dmitriy Anisimkov and Pascal Obry
 
 .PHONY: all
 
