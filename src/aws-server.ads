@@ -143,6 +143,7 @@ private
 
    type Slot is record
       Sock                  : Sockets.Socket_FD;
+      Socket_Taken          : Boolean := False;
       Peername              : Ada.Strings.Unbounded.Unbounded_String;
       Phase                 : Slot_Phase := Closed;
       Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
@@ -173,6 +174,13 @@ private
       procedure Mark_Phase (Index : in Positive; Phase : Slot_Phase);
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
+
+      procedure Socket_Taken (Index : in Positive);
+      --  Used to mark slot associated socket has "taken" by some foreign code.
+      --  The server must not close this socket on releasing the slot. It is
+      --  used when passing socket to the server push part for example. In the
+      --  future it could be used for other functionality over the same
+      --  socket, changing HTTP to other protocol for example.
 
       procedure Mark_Data_Time_Stamp (Index : in Positive);
       --  Mark timestamp for receive or send chunk of data.
