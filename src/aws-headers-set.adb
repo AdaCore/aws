@@ -31,64 +31,74 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
-with AWS.Parameters.Set;
 with Ada.Text_IO;
+
+with AWS.Parameters.Set;
 
 package body AWS.Headers.Set is
 
-   subtype List is Parameters.List;
+   subtype P_List is Parameters.List;
+
+   Debug_Flag : Boolean := False;
+   --  Set to True to output debug information to the standard output.
 
    ---------
    -- Add --
    ---------
 
-   procedure Add (C : in out Container; Name, Value : in String)
-   is
+   procedure Add (Headers : in out List; Name, Value : in String) is
    begin
-      Parameters.Set.Add (List (C), Name, Value);
+      Parameters.Set.Add (P_List (Headers), Name, Value);
    end Add;
 
    -----------
-   -- Free --
+   -- Debug --
    -----------
 
-   procedure Free (C : in out Container) is
+   procedure Debug (Activate : in Boolean) is
    begin
-      Parameters.Set.Free (List (C));
+      Debug_Flag := Activate;
+   end Debug;
+
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Headers : in out List) is
+   begin
+      Parameters.Set.Free (P_List (Headers));
    end Free;
 
    -----------
    -- Parse --
    -----------
 
-   procedure Parse (C : in out Container; Line : in String) is
+   procedure Parse (Headers : in out List; Line : in String) is
       use Ada.Strings;
-      Delimiter : Natural := Fixed.Index (Line, ":");
+      Delimiter_Index : constant Natural := Fixed.Index (Line, ":");
    begin
-
       if Debug_Flag then
          Ada.Text_IO.Put_Line ('>' & Line);
       end if;
 
-      if Delimiter = 0 then
-         --  just ignore for now.
-         raise Header_Format_Error;
+      if Delimiter_Index = 0 then
+         --  No delimiter, this is not a valid Header Line
+         raise Format_Error;
       end if;
 
-      Parameters.Set.Add (List (C), Line (Line'First .. Delimiter - 1),
-         Fixed.Trim (Line (Delimiter + 1 .. Line'Last), Both));
-
+      Add (Headers,
+           Line (Line'First .. Delimiter_Index - 1),
+           Fixed.Trim (Line (Delimiter_Index + 1 .. Line'Last), Both));
    end Parse;
 
    -----------
    -- Reset --
    -----------
 
-   procedure Reset (C : in out Container) is
+   procedure Reset (Headers : in out List) is
    begin
-      Parameters.Set.Reset (List (C));
-      Parameters.Set.Case_Sensitive (List (C), False);
+      Parameters.Set.Reset (P_List (Headers));
+      Parameters.Set.Case_Sensitive (P_List (Headers), False);
    end Reset;
 
 end AWS.Headers.Set;
-
