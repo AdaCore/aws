@@ -93,7 +93,7 @@ ifdef XMLADA
 STD_TESTS   := $(STD_TESTS) $(RT_SOAP)
 OTH_TESTS   := $(OTH_TESTS) check_mem
 WSDL_TESTS  = test_wsdl test_wsdl2 test_wsdl4 interoplab_main googlesearch
-WSDL_ATESTS = test_wsdl3
+WSDL_ATESTS = test_wsdl3 test_wsdl5
 WSDL2AWS    = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
 endif
 
