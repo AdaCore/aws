@@ -36,11 +36,25 @@ package AWS.Messages is
 
    HTTP_Token : constant String := "HTTP/";
 
+   Accept_Token : constant String := "Accept: ";
+   subtype Accept_Range is Positive range Accept_Token'Range;
+
+   Accept_Language_Token : constant String := "Accept-Language: ";
+   subtype Accept_Language_Range is Positive range Accept_Language_Token'Range;
+
    Authorization_Token : constant String := "Authorization: ";
    subtype Authorization_Range is Positive range Authorization_Token'Range;
 
+   Proxy_Authorization_Token : constant String := "Proxy-Authorization: ";
+   subtype Proxy_Authorization_Range is
+     Positive range Proxy_Authorization_Token'Range;
+
    Connection_Token : constant String := "Connection: ";
    subtype Connection_Range is Positive range Connection_Token'Range;
+
+   Proxy_Connection_Token : constant String := "Proxy-Connection: ";
+   subtype Proxy_Connection_Range is
+     Positive range Proxy_Connection_Token'Range;
 
    Content_Length_Token : constant String := "Content-Length: ";
    subtype Content_Length_Range is Positive range Content_Length_Token'Range;
@@ -72,8 +86,10 @@ package AWS.Messages is
      Positive range Transfer_Encoding_Token'Range;
 
    Cookie_Token : constant String := "Cookie: ";
-   subtype Cookie_Range is
-     Positive range Cookie_Token'Range;
+   subtype Cookie_Range is Positive range Cookie_Token'Range;
+
+   User_Agent_Token : constant String := "User-Agent: ";
+   subtype User_Agent_Range is Positive range User_Agent_Token'Range;
 
    Form_Data
      : constant String := "application/x-www-form-urlencoded";
@@ -109,17 +125,31 @@ package AWS.Messages is
 
    --  HTTP message constructors
 
-   function Status_Line (Code : in Status_Code) return String;
+   function Accept_Type (Mode : in String) return String;
+
+   function Accept_Language (Mode : in String) return String;
+
+   function Authorization (Mode, Password : in String) return String;
+
+   function Connection (Mode : in String) return String;
 
    function Content_Length (Size : in Natural) return String;
 
    function Content_Type (Format : in String) return String;
 
-   function Connection (Mode : in String) return String;
-
-   function Www_Authenticate (Realm : in String) return String;
+   function Host (Name : in String) return String;
 
    function Location (URL : in String) return String;
+
+   function Proxy_Authorization (Mode, Password : in String) return String;
+
+   function Proxy_Connection (Mode : in String) return String;
+
+   function Status_Line (Code : in Status_Code) return String;
+
+   function User_Agent (Name : in String) return String;
+
+   function Www_Authenticate (Realm : in String) return String;
 
    --  helper functions
 
