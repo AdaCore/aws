@@ -161,4 +161,7 @@ implemented:
 
 - Add reply all support to the Web_Mail service.
 
-=============== Point to fix/implement/review before next release (2.0)
+=============== Point to fix/implement/review before next release (2.1)
+
+- Use a MANIFEST file to create the distrib tarball. It is too painfull to
+  have this in the main makefile.
