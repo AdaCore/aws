@@ -138,6 +138,10 @@ package body ZLib is
    is
       Code : Thin.Int;
    begin
+      if not Ignore_Error and then not Is_Open (Filter) then
+         raise Status_Error;
+      end if;
+
       Code := Flate (Filter.Compression).Done (To_Thin_Access (Filter.Strm));
 
       if Ignore_Error or else Code = Thin.Z_OK then
@@ -195,6 +199,10 @@ package body ZLib is
       use type Thin.Int;
       Win_Bits : Thin.Int := Thin.Int (Window_Bits);
    begin
+      if Is_Open (Filter) then
+         raise Status_Error;
+      end if;
+
       --  We allow ZLib to make header only in case of default header type.
       --  Otherwise we would either do header by ourselfs, or do not do
       --  header at all.
@@ -270,12 +278,12 @@ package body ZLib is
 
          loop
             Translate
-              (Filter,
-               In_Buffer (In_First .. Last),
-               In_Last,
-               Out_Buffer,
-               Out_Last,
-               Flush_Finish (Last < In_Buffer'First));
+              (Filter   => Filter,
+               In_Data  => In_Buffer (In_First .. Last),
+               In_Last  => In_Last,
+               Out_Data => Out_Buffer,
+               Out_Last => Out_Last,
+               Flush    => Flush_Finish (Last < In_Buffer'First));
 
             if Out_Buffer'First <= Out_Last then
                Data_Out (Out_Buffer (Out_Buffer'First .. Out_Last));
@@ -318,6 +326,10 @@ package body ZLib is
       end Check_Version;
 
    begin
+      if Is_Open (Filter) then
+         raise Status_Error;
+      end if;
+
       case Header is
          when None =>
             Check_Version;
@@ -505,11 +517,11 @@ package body ZLib is
       Code : Thin.Int;
 
    begin
-      if Filter.Strm = null then
-         raise ZLib_Error;
+      if not Is_Open (Filter) then
+         raise Status_Error;
       end if;
 
-      if Out_Data'Length = 0 then
+      if Out_Data'Length = 0 and then In_Data'Length = 0 then
          raise Constraint_Error;
       end if;
 
