@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,33 +40,38 @@ package AWS.Hotplug is
 
    type Filter_Set is private;
 
-   procedure Register (Filters : in out Filter_Set;
-                       Regexp  : in     String;
-                       URL     : in     String);
+   procedure Register
+     (Filters : in out Filter_Set;
+      Regexp  : in     String;
+      URL     : in     String);
    --  Add a Filter in the Filter_Set, the URL will be called if the URI match
    --  the regexp. If Regexp already exist it just replace the current entry.
 
-   procedure Unregister (Filters : in out Filter_Set;
-                         Regexp  : in String);
+   procedure Unregister
+     (Filters : in out Filter_Set;
+      Regexp  : in     String);
    --  Removes a Filter from the Filter_Set. The filter name is defined by the
    --  regular expression. Does nothing if regexp is not found.
 
-   procedure Apply (Filters : in     Filter_Set;
-                    Status  : in     AWS.Status.Data;
-                    Found   :    out Boolean;
-                    Data    :    out Response.Data);
+   procedure Apply
+     (Filters : in     Filter_Set;
+      Status  : in     AWS.Status.Data;
+      Found   :    out Boolean;
+      Data    :    out Response.Data);
    --  Run through the filters and apply the first one for which the regular
    --  expression match the URI. Set Found to True if one filter has been
    --  called and in that case Data contain the answer, otherwise Found is set
    --  to False.
 
-   procedure Move_Up (Filters : in Filter_Set;
-                      N       : in Positive);
+   procedure Move_Up
+     (Filters : in Filter_Set;
+      N       : in Positive);
    --  Move filters number N up one position, it gives filter number N a
    --  better priority.
 
-   procedure Move_Down (Filters : in Filter_Set;
-                        N       : in Positive);
+   procedure Move_Down
+     (Filters : in Filter_Set;
+      N       : in Positive);
    --  Move filters number N down one position, it gives filter number N less
    --  priority.
 

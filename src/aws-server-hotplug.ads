@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,8 +35,9 @@ package AWS.Server.Hotplug is
    Register_Message   : constant String := "REGISTER";
    Unregister_Message : constant String := "UNREGISTER";
 
-   procedure Activate (Web_Server : in HTTP_Access;
-                       Port       : in Positive);
-   --  Start hotplug server listening at the specified Port for the Web_Server.
+   procedure Activate
+     (Web_Server : in HTTP_Access;
+      Port       : in Positive);
+   --  Start hotplug server listening at the specified Port for the Web_Server
 
 end AWS.Server.Hotplug;
