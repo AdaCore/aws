@@ -1,3 +1,8 @@
+2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.ads:
+	Sort all types in alphabetical order.
+
 2003-09-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
