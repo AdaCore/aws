@@ -52,7 +52,7 @@ package AWS.Resources.Streams.Memory is
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
 
-   procedure Close (File : in out Stream_Type);
+   procedure Close (Resource : in out Stream_Type);
 
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
 
@@ -60,11 +60,11 @@ private
 
    type Stream_Element_Access is access all Stream_Element_Array;
 
-   package Containers is new Memory_Streams
-                               (Element        => Stream_Element,
-                                Element_Index  => Stream_Element_Offset,
-                                Element_Array  => Stream_Element_Array,
-                                Element_Access => Stream_Element_Access);
+   package Containers is
+      new Memory_Streams (Element        => Stream_Element,
+                          Element_Index  => Stream_Element_Offset,
+                          Element_Array  => Stream_Element_Array,
+                          Element_Access => Stream_Element_Access);
 
    type Stream_Type is new Streams.Stream_Type with record
       Data : Containers.Stream_Type;
