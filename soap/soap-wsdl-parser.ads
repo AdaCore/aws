@@ -30,6 +30,8 @@
 
 with Ada.Strings.Unbounded;
 
+with AI302.Containers.Indefinite_Ordered_Sets;
+
 with SOAP.WSDL.Parameters;
 
 package SOAP.WSDL.Parser is
@@ -87,9 +89,15 @@ package SOAP.WSDL.Parser is
    --  generate stub/skeleton for the part of the WSDL document using
    --  supported types for example.
 
+   procedure Exclude (O : in out Object; Operation : in String);
+   --  Register operation to be excluded from the code generation
+
 private
 
    use Ada.Strings.Unbounded;
+
+   package Exclude_Set is
+     new AI302.Containers.Indefinite_Ordered_Sets (String);
 
    type Parameter_Mode is (Input, Output, Fault);
    --  Current parameter parsing mode
@@ -109,6 +117,7 @@ private
       Array_Elements  : Unbounded_String; -- Type of the array's elements
       Array_Length    : Natural;          -- Number of items (0 = unbounded)
       Accept_Document : Boolean := False;
+      Exclude         : Exclude_Set.Set;  -- Operation to exclude from gen
    end record;
 
 end SOAP.WSDL.Parser;
