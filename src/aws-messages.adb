@@ -129,6 +129,69 @@ package body AWS.Messages is
      of String (1 .. 3) := ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
                             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
+   ---------------------
+   -- Accept_Language --
+   ---------------------
+
+   function Accept_Language (Mode : in String) return String is
+   begin
+      return Accept_Language_Token & Mode;
+   end Accept_Language;
+
+   -----------------
+   -- Accept_Type --
+   -----------------
+
+   function Accept_Type (Mode : in String) return String is
+   begin
+      return Accept_Token & Mode;
+   end Accept_Type;
+
+   -------------------
+   -- Authorization --
+   -------------------
+
+   function Authorization (Mode, Password : in String) return String is
+   begin
+      return Authorization_Token & Mode & ' ' & Password;
+   end Authorization;
+
+   ----------------
+   -- Connection --
+   ----------------
+
+   function Connection (Mode : in String) return String is
+   begin
+      return Connection_Token & Mode;
+   end Connection;
+
+   --------------------
+   -- Content_Length --
+   --------------------
+
+   function Content_Length (Size : in Natural) return String is
+   begin
+      return Content_Length_Token & Natural'Image (Size);
+   end Content_Length;
+
+   ------------------
+   -- Content_Type --
+   ------------------
+
+   function Content_Type (Format : in String) return String is
+   begin
+      return Content_Type_Token & Format;
+   end Content_Type;
+
+   ----------
+   -- Host --
+   ----------
+
+   function Host (Name : in String) return String is
+   begin
+      return Host_Token & Name;
+   end Host;
+
    -----------
    -- Image --
    -----------
@@ -137,6 +200,46 @@ package body AWS.Messages is
    begin
       return Status_Messages (S).Code;
    end Image;
+
+   --------------
+   -- Is_Match --
+   --------------
+
+   function Is_Match (Str, Pattern : in String) return Boolean is
+      use Ada.Characters;
+      U_Str     : constant String := Handling.To_Upper (Str);
+      U_Pattern : constant String := Handling.To_Upper (Pattern);
+   begin
+      return Pattern'Length <= Str'Length
+        and then U_Str (1 .. Pattern'Length) = U_Pattern;
+   end Is_Match;
+
+   --------------
+   -- Location --
+   --------------
+
+   function Location (URL : in String) return String is
+   begin
+      return "Location: " & URL;
+   end Location;
+
+   -------------------------
+   -- Proxy_Authorization --
+   -------------------------
+
+   function Proxy_Authorization (Mode, Password : in String) return String is
+   begin
+      return Proxy_Authorization_Token & Mode & ' ' & Password;
+   end Proxy_Authorization;
+
+   ----------------------
+   -- Proxy_Connection --
+   ----------------------
+
+   function Proxy_Connection (Mode : in String) return String is
+   begin
+      return Proxy_Connection_Token & Mode;
+   end Proxy_Connection;
 
    -------------------
    -- Reason_Phrase --
@@ -157,46 +260,6 @@ package body AWS.Messages is
         & Status_Messages (Code).Code & ' '
         & Status_Messages (Code).Reason_Phrase.all;
    end Status_Line;
-
-   --------------------
-   -- Content_Length --
-   --------------------
-
-   function Content_Length (Size : in Natural) return String is
-   begin
-      return Content_Length_Token & Natural'Image (Size);
-   end Content_Length;
-
-   ------------------
-   -- Content_Type --
-   ------------------
-
-   function Content_Type (Format : in String) return String is
-   begin
-      return Content_Type_Token & Format;
-   end Content_Type;
-
-   ----------------
-   -- Connection --
-   ----------------
-
-   function Connection (Mode : in String) return String is
-   begin
-      return Connection_Token & Mode;
-   end Connection;
-
-   --------------
-   -- Is_Match --
-   --------------
-
-   function Is_Match (Str, Pattern : in String) return Boolean is
-      use Ada.Characters;
-      U_Str     : constant String := Handling.To_Upper (Str);
-      U_Pattern : constant String := Handling.To_Upper (Pattern);
-   begin
-      return Pattern'Length <= Str'Length
-        and then U_Str (1 .. Pattern'Length) = U_Pattern;
-   end Is_Match;
 
    ------------------
    -- To_HTTP_Date --
@@ -325,6 +388,15 @@ package body AWS.Messages is
           + Natural'Value (HTTP_Date (F + 23 .. F + 24))));
    end To_Time;
 
+   ----------------
+   -- User_Agent --
+   ----------------
+
+   function User_Agent (Name : in String) return String is
+   begin
+      return User_Agent_Token & Name;
+   end User_Agent;
+
    ----------------------
    -- Www_Authenticate --
    ----------------------
@@ -333,14 +405,5 @@ package body AWS.Messages is
    begin
       return "Www-Authenticate: Basic realm=""" & Realm & """";
    end Www_Authenticate;
-
-   --------------
-   -- Location --
-   --------------
-
-   function Location (URL : in String) return String is
-   begin
-      return "Location: " & URL;
-   end Location;
 
 end AWS.Messages;
