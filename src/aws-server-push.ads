@@ -49,7 +49,7 @@ generic
 
    type Client_Environment is private;
    --  Data type to keep client context. This context will be passed to the
-   --  convertion routine below.
+   --  conversion routine below.
 
    with function To_Stream_Output
      (Output : in Client_Output_Type;

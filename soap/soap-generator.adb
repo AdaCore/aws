@@ -513,7 +513,7 @@ package body SOAP.Generator is
       --  Generate array definitions (type and routine conversion)
 
       procedure Output_Types (P : in WSDL.Parameters.P_Set);
-      --  Output types convertion routines
+      --  Output types conversion routines
 
       function Get_Routine (P : in WSDL.Parameters.P_Set) return String;
       --  Returns the Get routine for the given type
@@ -713,7 +713,7 @@ package body SOAP.Generator is
          Text_IO.Put_Line
            (Type_Ads, "   end record;");
 
-         --  Generate convertion spec
+         --  Generate conversion spec
 
          Text_IO.New_Line (Type_Ads);
          Text_IO.Put_Line (Type_Ads, "   function To_" & F_Name);
@@ -728,7 +728,7 @@ package body SOAP.Generator is
          Text_IO.Put_Line (Type_Ads, "      Name : in String := ""item"")");
          Text_IO.Put_Line (Type_Ads, "      return SOAP.Types.SOAP_Record;");
 
-         --  Generate convertion body
+         --  Generate conversion body
 
          Text_IO.New_Line (Type_Adb);
          Header_Box (O, Type_Adb, "Record " & F_Name);
