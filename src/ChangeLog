@@ -1,5 +1,18 @@
 2001-09-10  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Removes Peername parameter in Log.Write call
+	 since it is not needed anymore.
+
+	* aws-log.adb:
+	(Write): new procedure. For user's log.
+	Use AWS.OS_Lib instead of GNAT.OS_Lib.
+	
+	* aws-log.ads:
+	(Write): remove Peername which is now into the connection status.
+	(Write): new procedure. For user's log.
+	Add some comments.
+
 	* aws-server-get_status.adb:
 	(Translations): Add START_TIME tag.
 
