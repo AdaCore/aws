@@ -152,4 +152,19 @@ package SSL.Wrappers is
    procedure SSL_clear;
    pragma Export (C, SSL_clear, "SSL_clear");
 
+   procedure SSL_get_peer_certificate;
+   pragma Export (C, SSL_get_peer_certificate, "SSL_get_peer_certificate");
+
+   procedure X509_get_subject_name;
+   pragma Export (C, X509_get_subject_name, "X509_get_subject_name");
+
+   procedure X509_NAME_oneline;
+   pragma Export (C, X509_NAME_oneline, "X509_NAME_oneline");
+
+   procedure X509_get_issuer_name;
+   pragma Export (C, X509_get_issuer_name, "X509_get_issuer_name");
+
+   procedure SSL_CTX_set_verify;
+   pragma Export (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
+
 end SSL.Wrappers;
