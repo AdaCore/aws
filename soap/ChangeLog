@@ -1,3 +1,29 @@
+2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-client.adb:
+	(Call): Add parameters User, Pwd, Proxy, Proxy_User and Proxy_Pwd.
+	 Pass these variables to the AWS.Client.SOAP_Post call.
+
+	* soap-client.ads:
+	(Call): Add parameters User, Pwd, Proxy, Proxy_User and Proxy_Pwd.
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Fix layout of some generated code. Generate code
+	 to check for SOAPAction, return a SOAP error message if the
+	 SOAPAction is not ok.
+
+	* soap-generator-stub.adb:
+	(New_Procedure): Fix layout of some generated code. Generate code
+	 for proxy authentication if needed.
+
+	* soap-generator.adb:
+	(Set_Proxy): New procedure.
+	(Put_Header): Fix layout of some generated code.
+
+	* soap-generator.ads:
+	(Set_Proxy): New procedure.
+	(Object): Add fields Proxy, P_User And P_Pwd.
+
 2003-03-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-reader.adb:
