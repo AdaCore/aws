@@ -84,7 +84,13 @@ package body AWS.Net is
    begin
       Check_SSL (Security);
       Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
-      Sockets.Connect (Sock, Host, Port);
+      begin
+         Sockets.Connect (Sock, Host, Port);
+      exception
+         when Sockets.Socket_Error | Sockets.Connection_Refused =>
+            Sockets.Shutdown (Sock);
+            raise;
+      end;
       return Sock;
    end Connect;
 
