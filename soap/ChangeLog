@@ -1,5 +1,11 @@
 2003-11-27  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-utils.adb:
+	(To_T_Array_C): Fix constraint error if the Object_Set is too big
+	 for the constrained array.
+
+2003-11-27  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* soap-generator.adb:
 	(Generate_Array): Handles constrained arrays.
 
