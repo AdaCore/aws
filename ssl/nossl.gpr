@@ -34,7 +34,7 @@ with "../shared.gpr";
 
 project NOSSL is
 
-   for Source_Files use ("ssl-wrappers.adb");
+   for Source_Files use ("ssl_wrappers.ads", "ssl_wrappers.adb");
 
    case Shared.Build is
       when "Debug" =>
