@@ -40,41 +40,86 @@ package body AWS.Translator is
    use Ada;
    use Ada.Strings.Unbounded;
 
-   ----------------
-   -- Decode_URL --
-   ----------------
+   -------------------
+   -- Base64_Decode --
+   -------------------
 
-   function Decode_URL (Str : in String) return String is
-      I, K   : Positive := Str'First;
-      Result : String (Str'Range);
+   function Base64_Decode (B64_Data : in String)
+                          return Streams.Stream_Element_Array
+   is
+      use Streams;
+      use type Interfaces.Unsigned_32;
+      use type Streams.Stream_Element_Offset;
+
+      function Base64 (C : in Character) return Interfaces.Unsigned_32;
+      --  returns the base64 stream element given a character
+
+      function Shift_Left (Value  : in Interfaces.Unsigned_32;
+                           Amount : in Natural) return Interfaces.Unsigned_32;
+      pragma Import (Intrinsic, Shift_Left);
+
+      function Shift_Right (Value  : in Interfaces.Unsigned_32;
+                            Amount : in Natural) return Interfaces.Unsigned_32;
+      pragma Import (Intrinsic, Shift_Right);
+
+      Result : Stream_Element_Array
+        (Stream_Element_Offset range 1 .. B64_Data'Length);
+      R      : Stream_Element_Offset := 1;
+
+      Group  : Interfaces.Unsigned_32 := 0;
+      J      : Integer := 18;
+
+      Pad    : Stream_Element_Offset := 0;
+
+      function Base64 (C : in Character) return Interfaces.Unsigned_32 is
+      begin
+         if C in 'A' .. 'Z' then
+            return Character'Pos (C) - Character'Pos ('A');
+         elsif C in 'a' .. 'z' then
+            return Character'Pos (C) - Character'Pos ('a') + 26;
+         elsif C in '0' .. '9' then
+            return Character'Pos (C) - Character'Pos ('0') + 52;
+         elsif C = '+' then
+            return 62;
+         else
+            return 63;
+         end if;
+      end Base64;
+
    begin
-      while I <= Str'Last loop
-         if Str (I) = '+' then
-            Result (K) := ' ';
-            I := I + 1;
+      for C in B64_Data'Range loop
 
-         elsif Str (I) = '%'
-           and then I + 2 <= Str'Last
-           and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 1))
-           and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 2))
-         then
-            declare
-               Hex_Num : constant String := "16#" & Str (I + 1 .. I + 2) & '#';
-            begin
-               Result (K) := Character'Val (Natural'Value (Hex_Num));
-               I := I + 3;
-            end;
+         if B64_Data (C) = ASCII.LF or else B64_Data (C) = ASCII.CR then
+            null;
 
          else
-            Result (K) := Str (I);
-            I := I + 1;
-         end if;
+            case B64_Data (C) is
+               when '=' =>
+                  Pad := Pad + 1;
 
-         K := K + 1;
+               when others =>
+                  Group := Group or Shift_Left (Base64 (B64_Data (C)), J);
+            end case;
+
+            J := J - 6;
+
+            if J < 0 then
+               Result (R .. R + 2) :=
+                 (Stream_Element (Shift_Right (Group and 16#FF0000#, 16)),
+                  Stream_Element (Shift_Right (Group and 16#00FF00#, 8)),
+                  Stream_Element (Group and 16#0000FF#));
+
+               R := R + 3;
+
+               Group := 0;
+               J     := 18;
+            end if;
+
+         end if;
       end loop;
 
-      return Result (Result'First .. K - 1);
-   end Decode_URL;
+      return Result (1 .. R - 1 - Pad);
+   end Base64_Decode;
 
    -------------------
    -- Base64_Encode --
@@ -173,86 +218,41 @@ package body AWS.Translator is
       return Base64_Encode (Stream_Data);
    end Base64_Encode;
 
-   -------------------
-   -- Base64_Decode --
-   -------------------
+   ----------------
+   -- Decode_URL --
+   ----------------
 
-   function Base64_Decode (B64_Data : in String)
-                          return Streams.Stream_Element_Array
-   is
-      use Streams;
-      use type Interfaces.Unsigned_32;
-      use type Streams.Stream_Element_Offset;
-
-      function Base64 (C : in Character) return Interfaces.Unsigned_32;
-      --  returns the base64 stream element given a character
-
-      function Shift_Left (Value  : in Interfaces.Unsigned_32;
-                           Amount : in Natural) return Interfaces.Unsigned_32;
-      pragma Import (Intrinsic, Shift_Left);
-
-      function Shift_Right (Value  : in Interfaces.Unsigned_32;
-                            Amount : in Natural) return Interfaces.Unsigned_32;
-      pragma Import (Intrinsic, Shift_Right);
-
-      Result : Stream_Element_Array
-        (Stream_Element_Offset range 1 .. B64_Data'Length);
-      R      : Stream_Element_Offset := 1;
-
-      Group  : Interfaces.Unsigned_32 := 0;
-      J      : Integer := 18;
-
-      Pad    : Stream_Element_Offset := 0;
-
-      function Base64 (C : in Character) return Interfaces.Unsigned_32 is
-      begin
-         if C in 'A' .. 'Z' then
-            return Character'Pos (C) - Character'Pos ('A');
-         elsif C in 'a' .. 'z' then
-            return Character'Pos (C) - Character'Pos ('a') + 26;
-         elsif C in '0' .. '9' then
-            return Character'Pos (C) - Character'Pos ('0') + 52;
-         elsif C = '+' then
-            return 62;
-         else
-            return 63;
-         end if;
-      end Base64;
-
+   function Decode_URL (Str : in String) return String is
+      I, K   : Positive := Str'First;
+      Result : String (Str'Range);
    begin
-      for C in B64_Data'Range loop
+      while I <= Str'Last loop
+         if Str (I) = '+' then
+            Result (K) := ' ';
+            I := I + 1;
 
-         if B64_Data (C) = ASCII.LF or else B64_Data (C) = ASCII.CR then
-            null;
+         elsif Str (I) = '%'
+           and then I + 2 <= Str'Last
+           and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 1))
+           and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 2))
+         then
+            declare
+               Hex_Num : constant String := "16#" & Str (I + 1 .. I + 2) & '#';
+            begin
+               Result (K) := Character'Val (Natural'Value (Hex_Num));
+               I := I + 3;
+            end;
 
          else
-            case B64_Data (C) is
-               when '=' =>
-                  Pad := Pad + 1;
-
-               when others =>
-                  Group := Group or Shift_Left (Base64 (B64_Data (C)), J);
-            end case;
-
-            J := J - 6;
-
-            if J < 0 then
-               Result (R .. R + 2) :=
-                 (Stream_Element (Shift_Right (Group and 16#FF0000#, 16)),
-                  Stream_Element (Shift_Right (Group and 16#00FF00#, 8)),
-                  Stream_Element (Group and 16#0000FF#));
-
-               R := R + 3;
-
-               Group := 0;
-               J     := 18;
-            end if;
-
+            Result (K) := Str (I);
+            I := I + 1;
          end if;
+
+         K := K + 1;
       end loop;
 
-      return Result (1 .. R - 1 - Pad);
-   end Base64_Decode;
+      return Result (Result'First .. K - 1);
+   end Decode_URL;
 
    -----------------------------
    -- To_Stream_Element_Array --

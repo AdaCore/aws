@@ -69,22 +69,6 @@ package body AWS.OS_Lib is
          return False;
    end Is_Directory;
 
-   --------------------
-   -- File_Timestamp --
-   --------------------
-
-   function File_Timestamp (Filename : in String)
-                           return Ada.Calendar.Time is
-   begin
-      return POSIX.Calendar.To_Time
-        (POSIX.File_Status.Last_Modification_Time_Of
-         (POSIX.File_Status.Get_File_Status
-          (POSIX.To_POSIX_String (Filename))));
-   exception
-      when POSIX.POSIX_Error =>
-         raise No_Such_File;
-   end File_Timestamp;
-
    ---------------
    -- File_Size --
    ---------------
@@ -100,6 +84,22 @@ package body AWS.OS_Lib is
       when POSIX.POSIX_Error =>
          raise No_Such_File;
    end File_Size;
+
+   --------------------
+   -- File_Timestamp --
+   --------------------
+
+   function File_Timestamp (Filename : in String)
+                           return Ada.Calendar.Time is
+   begin
+      return POSIX.Calendar.To_Time
+        (POSIX.File_Status.Last_Modification_Time_Of
+         (POSIX.File_Status.Get_File_Status
+          (POSIX.To_POSIX_String (Filename))));
+   exception
+      when POSIX.POSIX_Error =>
+         raise No_Such_File;
+   end File_Timestamp;
 
    ---------------
    -- GMT_Clock --

@@ -130,6 +130,89 @@ package body AWS.OS_Lib is
 
    function Systime_To_Time (UTC : System_Time) return Ada.Calendar.Time;
 
+   ------------------
+   -- Is_Directory --
+   ------------------
+
+   function Is_Directory (Filename : in String) return Boolean
+   is
+      Attributes : File_Attribute;
+   begin
+      Attributes := GetFileAttributes (Interfaces.C.To_C (Filename));
+      return Attributes /= FILE_ATTRIBUTE_NO_FILE and then
+            (Attributes and FILE_ATTRIBUTE_DIRECTORY) /= 0;
+   end Is_Directory;
+
+   ---------------------
+   -- Is_Regular_File --
+   ---------------------
+
+   function Is_Regular_File (Filename : in String) return Boolean
+   is
+      Attributes : File_Attribute;
+   begin
+      Attributes := GetFileAttributes (Interfaces.C.To_C (Filename));
+      return Attributes /= FILE_ATTRIBUTE_NO_FILE and then
+         ((Attributes and (FILE_ATTRIBUTE_HIDDEN or
+                          FILE_ATTRIBUTE_SYSTEM or
+                          FILE_ATTRIBUTE_DIRECTORY or
+                          FILE_ATTRIBUTE_OFFLINE)) = 0);
+   end Is_Regular_File;
+
+   ---------------
+   -- File_Size --
+   ---------------
+
+   function File_Size (Filename : in String)
+     return Ada.Streams.Stream_Element_Offset
+   is
+      File_Handle : Handle;
+      Low         : Interfaces.Unsigned_32;
+   begin
+      File_Handle := Open (Filename);
+      if File_Handle /= INVALID_HANDLE_VALUE then
+         Low := GetFileSize (File_Handle, null);
+         Close (File_Handle);
+      else
+         raise No_Such_File;
+      end if;
+      return Ada.Streams.Stream_Element_Offset (Low);
+   end File_Size;
+
+   --------------------
+   -- File_Timestamp --
+   --------------------
+
+   function File_Timestamp (Filename : in String) return Ada.Calendar.Time
+   is
+      File_Handle : Handle;
+      Modified    : aliased File_Time;
+      UTC         : System_Time;
+      Status      : Interfaces.Unsigned_32;
+   begin
+      File_Handle := Open (Filename);
+      if File_Handle /= INVALID_HANDLE_VALUE then
+         Status := GetFileTime (File_Handle, null, null,
+                                Modified'Unchecked_Access);
+         Close (File_Handle);
+         FileTimeToSystemTime (Modified, UTC);
+      else
+         raise No_Such_File;
+      end if;
+      return Systime_To_Time (UTC);
+   end File_Timestamp;
+
+   ---------------
+   -- GMT_Clock --
+   ---------------
+
+   function GMT_Clock return Ada.Calendar.Time is
+      UTC : System_Time;
+   begin
+      GetSystemTime (UTC);
+      return Systime_To_Time (UTC);
+   end GMT_Clock;
+
    ----------
    -- Open --
    ----------
@@ -157,88 +240,5 @@ package body AWS.OS_Lib is
                                              Integer (UTC.Second)) +
                                    Duration (UTC.Milli_Second) / 1000);
    end Systime_To_Time;
-
-   ---------------------
-   -- Is_Regular_File --
-   ---------------------
-
-   function Is_Regular_File (Filename : in String) return Boolean
-   is
-      Attributes : File_Attribute;
-   begin
-      Attributes := GetFileAttributes (Interfaces.C.To_C (Filename));
-      return Attributes /= FILE_ATTRIBUTE_NO_FILE and then
-         ((Attributes and (FILE_ATTRIBUTE_HIDDEN or
-                          FILE_ATTRIBUTE_SYSTEM or
-                          FILE_ATTRIBUTE_DIRECTORY or
-                          FILE_ATTRIBUTE_OFFLINE)) = 0);
-   end Is_Regular_File;
-
-   ------------------
-   -- Is_Directory --
-   ------------------
-
-   function Is_Directory (Filename : in String) return Boolean
-   is
-      Attributes : File_Attribute;
-   begin
-      Attributes := GetFileAttributes (Interfaces.C.To_C (Filename));
-      return Attributes /= FILE_ATTRIBUTE_NO_FILE and then
-            (Attributes and FILE_ATTRIBUTE_DIRECTORY) /= 0;
-   end Is_Directory;
-
-   --------------------
-   -- File_Timestamp --
-   --------------------
-
-   function File_Timestamp (Filename : in String) return Ada.Calendar.Time
-   is
-      File_Handle : Handle;
-      Modified    : aliased File_Time;
-      UTC         : System_Time;
-      Status      : Interfaces.Unsigned_32;
-   begin
-      File_Handle := Open (Filename);
-      if File_Handle /= INVALID_HANDLE_VALUE then
-         Status := GetFileTime (File_Handle, null, null,
-                                Modified'Unchecked_Access);
-         Close (File_Handle);
-         FileTimeToSystemTime (Modified, UTC);
-      else
-         raise No_Such_File;
-      end if;
-      return Systime_To_Time (UTC);
-   end File_Timestamp;
-
-   ---------------
-   -- File_Size --
-   ---------------
-
-   function File_Size (Filename : in String)
-     return Ada.Streams.Stream_Element_Offset
-   is
-      File_Handle : Handle;
-      Low         : Interfaces.Unsigned_32;
-   begin
-      File_Handle := Open (Filename);
-      if File_Handle /= INVALID_HANDLE_VALUE then
-         Low := GetFileSize (File_Handle, null);
-         Close (File_Handle);
-      else
-         raise No_Such_File;
-      end if;
-      return Ada.Streams.Stream_Element_Offset (Low);
-   end File_Size;
-
-   ---------------
-   -- GMT_Clock --
-   ---------------
-
-   function GMT_Clock return Ada.Calendar.Time is
-      UTC : System_Time;
-   begin
-      GetSystemTime (UTC);
-      return Systime_To_Time (UTC);
-   end GMT_Clock;
 
 end AWS.OS_Lib;

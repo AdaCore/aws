@@ -47,29 +47,6 @@ package body AWS.Net is
    procedure Init;
    --  Initializa OpenSSL library
 
-   ----------
-   -- Init --
-   ----------
-
-   procedure Init is
-   begin
-      if not SSL_Initialized then
-         SSL.Init (SSL.SSLv23);
-
-         begin
-            SSL.Set_Certificate ("cert.pem");
-         exception
-            when SSL.Lib_Error =>
-               --  cert.pem has not been found.
-               null;
-         end;
-
-         SSL.Set_Quiet_Shutdown;
-         SSL.Set_Sess_Cache_Size (16);
-         SSL_Initialized := True;
-      end if;
-   end Init;
-
    -------------------
    -- Accept_Socket --
    -------------------
@@ -133,6 +110,29 @@ package body AWS.Net is
          SSL.Free (SSL.Handle (Socket));
       end if;
    end Free;
+
+   ----------
+   -- Init --
+   ----------
+
+   procedure Init is
+   begin
+      if not SSL_Initialized then
+         SSL.Init (SSL.SSLv23);
+
+         begin
+            SSL.Set_Certificate ("cert.pem");
+         exception
+            when SSL.Lib_Error =>
+               --  cert.pem has not been found.
+               null;
+         end;
+
+         SSL.Set_Quiet_Shutdown;
+         SSL.Set_Sess_Cache_Size (16);
+         SSL_Initialized := True;
+      end if;
+   end Init;
 
 begin
    Init;

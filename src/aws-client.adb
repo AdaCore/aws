@@ -309,6 +309,80 @@ package body AWS.Client is
       Connection.Opened := False;
    end Disconnect;
 
+   ---------
+   -- Get --
+   ---------
+
+   function Get
+     (URL        : in String;
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
+     return Response.Data
+   is
+
+      Connection : HTTP_Connection (Timeouts /= No_Timeout);
+      Result     : Response.Data;
+
+   begin
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              Persistent => False,
+              Timeouts   => Timeouts);
+
+      Get (Connection, Result);
+
+      Close (Connection);
+      return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
+   end Get;
+
+   ---------
+   -- Get --
+   ---------
+
+   procedure Get
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      URI        : in     String          := No_Data)
+   is
+      Try_Count : Natural := Connection.Retry;
+   begin
+
+      loop
+         begin
+
+            Open_Send_Common_Header (Connection, "GET", URI);
+
+            Sockets.New_Line (Connection.Socket.all);
+
+            Get_Response (Connection, Result);
+
+            return;
+
+         exception
+            when Sockets.Connection_Closed | Constraint_Error =>
+
+               if Try_Count = 0 then
+                  Close (Connection);
+                  Result := Response.Build
+                    (MIME.Text_HTML, "Get Timeout", Messages.S408);
+                  exit;
+               end if;
+
+               Try_Count := Try_Count - 1;
+               Disconnect (Connection);
+         end;
+      end loop;
+   end Get;
+
    ------------------
    -- Get_Response --
    ------------------
@@ -343,6 +417,17 @@ package body AWS.Client is
       Location : Unbounded_String;
       Connect  : Unbounded_String;
       Status   : Messages.Status_Code;
+
+      ----------------
+      -- Disconnect --
+      ----------------
+
+      procedure Disconnect is
+      begin
+         if Messages.Is_Match (To_String (Connect), "close") then
+            Disconnect (Connection);
+         end if;
+      end Disconnect;
 
       -------------------------
       -- Read_Binary_Message --
@@ -467,18 +552,6 @@ package body AWS.Client is
 
       use type Messages.Status_Code;
 
-      ----------------
-      -- Disconnect --
-      ----------------
-
-      procedure Disconnect is
-      begin
-         if Messages.Is_Match (To_String (Connect), "close") then
-            Disconnect (Connection);
-         end if;
-      end Disconnect;
-
-
    begin
       Set_Phase (Connection, Receive);
 
@@ -585,80 +658,6 @@ package body AWS.Client is
       Set_Phase (Connection, Not_Monitored);
    end Get_Response;
 
-   ---------
-   -- Get --
-   ---------
-
-   function Get
-     (URL        : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data
-   is
-
-      Connection : HTTP_Connection (Timeouts /= No_Timeout);
-      Result     : Response.Data;
-
-   begin
-      Create (Connection,
-              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts);
-
-      Get (Connection, Result);
-
-      Close (Connection);
-      return Result;
-
-   exception
-      when others =>
-         Close (Connection);
-         raise;
-   end Get;
-
-   ---------
-   -- Get --
-   ---------
-
-   procedure Get
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      URI        : in     String          := No_Data)
-   is
-      Try_Count : Natural := Connection.Retry;
-   begin
-
-      loop
-         begin
-
-            Open_Send_Common_Header (Connection, "GET", URI);
-
-            Sockets.New_Line (Connection.Socket.all);
-
-            Get_Response (Connection, Result);
-
-            return;
-
-         exception
-            when Sockets.Connection_Closed | Constraint_Error =>
-
-               if Try_Count = 0 then
-                  Close (Connection);
-                  Result := Response.Build
-                    (MIME.Text_HTML, "Get Timeout", Messages.S408);
-                  exit;
-               end if;
-
-               Try_Count := Try_Count - 1;
-               Disconnect (Connection);
-         end;
-      end loop;
-   end Get;
-
    ----------
    -- Head --
    ----------
@@ -758,25 +757,6 @@ package body AWS.Client is
       --  Returns the port image (preceded by character ':') if it is not the
       --  default port.
 
-      ----------------------
-      -- Port_Not_Default --
-      ----------------------
-
-      function Port_Not_Default
-        (Port : in Positive)
-        return String is
-      begin
-         if Port = 80 then
-            return "";
-         else
-            declare
-               Port_Image : constant String := Positive'Image (Port);
-            begin
-               return ':' & Port_Image (2 .. Port_Image'Last);
-            end;
-         end if;
-      end Port_Not_Default;
-
       -----------------
       -- HTTP_Prefix --
       -----------------
@@ -802,6 +782,25 @@ package body AWS.Client is
             return "Close";
          end if;
       end Persistence;
+
+      ----------------------
+      -- Port_Not_Default --
+      ----------------------
+
+      function Port_Not_Default
+        (Port : in Positive)
+        return String is
+      begin
+         if Port = 80 then
+            return "";
+         else
+            declare
+               Port_Image : constant String := Positive'Image (Port);
+            begin
+               return ':' & Port_Image (2 .. Port_Image'Last);
+            end;
+         end if;
+      end Port_Not_Default;
 
       Host_Address : constant String :=
         AWS.URL.Server_Name (Connection.Host_URL)

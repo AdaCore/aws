@@ -41,19 +41,6 @@ package body AWS.Net is
    --  Check that Security is False as there is no support for SSL provied by
    --  this implementation.
 
-   ---------------
-   -- Check_SSL --
-   ---------------
-
-   procedure Check_SSL (Security : Boolean) is
-   begin
-      if Security then
-         Ada.Exceptions.Raise_Exception
-           (Program_Error'Identity,
-            "You should compile AWS with SSL support.");
-      end if;
-   end Check_SSL;
-
    -------------------
    -- Accept_Socket --
    -------------------
@@ -68,6 +55,19 @@ package body AWS.Net is
       Sockets.Accept_Socket (Socket, New_Socket);
       return New_Socket;
    end Accept_Socket;
+
+   ---------------
+   -- Check_SSL --
+   ---------------
+
+   procedure Check_SSL (Security : Boolean) is
+   begin
+      if Security then
+         Ada.Exceptions.Raise_Exception
+           (Program_Error'Identity,
+            "You should compile AWS with SSL support.");
+      end if;
+   end Check_SSL;
 
    -------------
    -- Connect --

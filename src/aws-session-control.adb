@@ -34,17 +34,6 @@ with Ada.Unchecked_Deallocation;
 
 package body AWS.Session.Control is
 
-   -----------
-   -- Start --
-   -----------
-
-   procedure Start
-     (Session_Check_Interval : Duration;
-      Session_Lifetime       : Duration) is
-   begin
-      Cleaner_Control.Start (Session_Check_Interval, Session_Lifetime);
-   end Start;
-
    --------------
    -- Shutdown --
    --------------
@@ -75,5 +64,16 @@ package body AWS.Session.Control is
          Free (Cleaner_Task);
       end if;
    end Shutdown;
+
+   -----------
+   -- Start --
+   -----------
+
+   procedure Start
+     (Session_Check_Interval : Duration;
+      Session_Lifetime       : Duration) is
+   begin
+      Cleaner_Control.Start (Session_Check_Interval, Session_Lifetime);
+   end Start;
 
 end AWS.Session.Control;
