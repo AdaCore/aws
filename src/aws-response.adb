@@ -49,7 +49,7 @@ package body AWS.Response is
    begin
       if Message_Body = "" then
          return Data'(Finalization.Controlled with
-                      1,
+                      new Natural'(1),
                       Header,
                       Status_Code,
                       0,
@@ -60,7 +60,7 @@ package body AWS.Response is
                       null);
       else
          return Data'(Finalization.Controlled with
-                      1,
+                      new Natural'(1),
                       Message,
                       Status_Code,
                       Message_Body'Length,
@@ -78,7 +78,7 @@ package body AWS.Response is
 
    procedure Adjust (Object : in out Data) is
    begin
-      Object.Ref_Counter := Object.Ref_Counter + 1;
+      Object.Ref_Counter.all := Object.Ref_Counter.all + 1;
    end Adjust;
 
    ------------------
@@ -103,7 +103,7 @@ package body AWS.Response is
         & "</BODY></HTML>" & CRLF;
    begin
       return Data'(Finalization.Controlled with
-                   1,
+                   new Natural'(1),
                    Message,
                    Messages.S401,
                    Auth_Mess'Length,
@@ -139,7 +139,7 @@ package body AWS.Response is
      return Data is
    begin
       return Data'(Finalization.Controlled with
-                   1,
+                   new Natural'(1),
                    Message,
                    Status_Code,
                    Message_Body'Length,
@@ -157,7 +157,7 @@ package body AWS.Response is
      return Data is
    begin
       return Data'(Finalization.Controlled with
-                   1,
+                   new Natural'(1),
                    Message,
                    Status_Code,
                    Length (UString_Message),
@@ -175,7 +175,7 @@ package body AWS.Response is
      return Data is
    begin
       return Data'(Finalization.Controlled with
-                   1,
+                   new Natural'(1),
                    Message,
                    Status_Code,
                    Message_Body'Length,
@@ -213,7 +213,7 @@ package body AWS.Response is
       Filename     : in String) return Data is
    begin
       return Data'(Finalization.Controlled with
-                   1,
+                   new Natural'(1),
                    File,
                    Messages.S200,
                    Integer (OS_Lib.File_Size (Filename)),
@@ -229,12 +229,18 @@ package body AWS.Response is
    --------------
 
    procedure Finalize (Object : in out Data) is
+
       procedure Free is new Ada.Unchecked_Deallocation
         (Streams.Stream_Element_Array, Stream_Element_Array_Access);
-   begin
-      Object.Ref_Counter := Object.Ref_Counter - 1;
 
-      if Object.Ref_Counter = 0 then
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Natural, Natural_Access);
+
+   begin
+      Object.Ref_Counter.all := Object.Ref_Counter.all - 1;
+
+      if Object.Ref_Counter.all = 0 then
+         Free (Object.Ref_Counter);
          Free (Object.Elements);
       end if;
    end Finalize;
@@ -300,7 +306,7 @@ package body AWS.Response is
 
    begin
       return Data'(Finalization.Controlled with
-                   1,
+                   new Natural'(1),
                    Response.Message,
                    Messages.S301,
                    Message_Body'Length,
@@ -327,7 +333,7 @@ package body AWS.Response is
    function Socket_Taken return Data is
    begin
       return Data'(Finalization.Controlled with
-                   1,
+                   new Natural'(1),
                    Response.Socket_Taken,
                    Messages.S200,
                    0,
@@ -355,7 +361,7 @@ package body AWS.Response is
      return Data is
    begin
       return Data'(Finalization.Controlled with
-                   1,
+                   new Natural'(1),
                    Response.Message,
                    Messages.S301,
                    0,
