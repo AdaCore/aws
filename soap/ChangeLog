@@ -1,3 +1,26 @@
+2003-05-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-xml.adb:
+	Add support for SOAP Double type.
+	(Parse_Array): Fix the way array types are cheched, we now
+	 properly use the namespace.
+	(Is_Array): New routine.
+
+	* soap-wsdl-parser.adb:
+	(Parse_Parameter): Properly set the Current_Name field before
+	 parsing the record.
+	Minor comment fix.
+
+	* soap-wsdl-parser.ads:
+	(Object): Set to limited private. Add field Self (auto-pointer).
+
+	* soap-utils.adb:
+	(NS): New routine.
+
+	* soap-utils.ads:
+	(NS): New routine.
+	Minor comment fix.
+
 2003-05-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.ads:
