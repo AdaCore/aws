@@ -309,7 +309,7 @@ clean:
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
 	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
 	-rm -f anytype_service* r_hello_demo* example-com*
-	-rm -f soapinterop* urn*
+	-rm -f t_soapinterop* urn*
 	-rm -f stockquoteservice* stock_quote_service* datafeedservice*
 	-rm -f tinteroplab* googlesearchservice*
 	-rm -f google_search_service*
