@@ -48,6 +48,7 @@ package body SOAP.WSDL.Parser is
    use type DOM.Core.Node;
 
    Verbose_Mode : Verbose_Level := 0;
+   Skip_Error   : Boolean       := False;
 
    function Get_Node
      (Parent  : in DOM.Core.Node;
@@ -191,6 +192,15 @@ package body SOAP.WSDL.Parser is
    begin
       Parameters.Append (O.Params (O.Mode), Param);
    end Add_Parameter;
+
+   -----------------------
+   -- Continue_On_Error --
+   -----------------------
+
+   procedure Continue_On_Error is
+   begin
+      Skip_Error := True;
+   end Continue_On_Error;
 
    -----------------
    -- End_Service --
@@ -388,8 +398,9 @@ package body SOAP.WSDL.Parser is
      (O        : in out Object'Class;
       Document : in     WSDL.Object)
    is
-      N  : constant DOM.Core.Node := First_Child (DOM.Core.Node (Document));
-      NL : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
+      N     : constant DOM.Core.Node := First_Child (DOM.Core.Node (Document));
+      NL    : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
+      Found : Boolean := False;
    begin
       for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
          declare
@@ -397,9 +408,15 @@ package body SOAP.WSDL.Parser is
          begin
             if DOM.Core.Nodes.Node_Name (S) = "service" then
                Parse_Service (O, DOM.Core.Nodes.Item (NL, K), Document);
+               Found := True;
             end if;
          end;
       end loop;
+
+      if Verbose_Mode > 0 and then not Found then
+         Text_IO.New_Line;
+         Text_IO.Put_Line ("No service found in this document.");
+      end if;
    end Parse;
 
    -----------------
@@ -426,6 +443,11 @@ package body SOAP.WSDL.Parser is
          Name : constant String := Get_Attr_Value (R, "name", False);
       begin
          --  Set array name, R is a complexType node
+
+         if Name = "ArrayOfanyType" then
+            Raise_Exception
+              (WSDL_Error'Identity, "ArrayOfanyType not supported.");
+         end if;
 
          P.Name   := O.Current_Name;
          P.C_Name := +Name;
@@ -480,7 +502,26 @@ package body SOAP.WSDL.Parser is
                S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
             begin
                if DOM.Core.Nodes.Node_Name (S) = "operation" then
-                  Parse_Operation (O, DOM.Core.Nodes.Item (NL, K), Document);
+                  begin
+                     Parse_Operation
+                       (O, DOM.Core.Nodes.Item (NL, K), Document);
+                  exception
+                     when E : WSDL_Error =>
+                        if Skip_Error then
+                           Text_IO.Put_Line
+                             ("     "
+                                & Get_Attr_Value (S, "name")
+                                & " skipped : "
+                                & Exceptions.Exception_Message (E));
+                        else
+                           Text_IO.New_Line;
+                           Text_IO.Put_Line
+                             ("Error in operation "
+                                & Get_Attr_Value (S, "name")
+                                & " : " & Exceptions.Exception_Message (E));
+                           raise;
+                        end if;
+                  end;
                end if;
             end;
          end loop;
@@ -639,6 +680,11 @@ package body SOAP.WSDL.Parser is
       if Is_Standard (P_Type) then
          return (Parameters.K_Simple, +Get_Attr_Value (N, "name"),
                  null, To_Type (P_Type));
+
+      elsif P_Type = "anyType" then
+         Raise_Exception
+           (WSDL_Error'Identity, "Type anyType is not supported.");
+
       else
          declare
             R : constant DOM.Core.Node
@@ -648,7 +694,7 @@ package body SOAP.WSDL.Parser is
             if R = null then
                Raise_Exception
                  (WSDL_Error'Identity,
-                  "types.schema.complexType for " & P_Type & " not found.");
+                  "types.schema.complexType for !!" & P_Type & " not found.");
             end if;
 
             if Utils.Is_Array (P_Type) then
@@ -717,6 +763,11 @@ package body SOAP.WSDL.Parser is
 
          elsif T = Types.XML_Base64_Binary then
             Add_Parameter (O, -O.Current_Name, P_B64);
+
+         elsif T = Types.XML_Any_Type then
+            Raise_Exception
+              (WSDL_Error'Identity,
+               "Type anyType is not supported.");
 
          else
             --  First search for element in the schema
