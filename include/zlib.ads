@@ -33,7 +33,8 @@ with Interfaces;
 
 package ZLib is
 
-   ZLib_Error : exception;
+   ZLib_Error   : exception;
+   Status_Error : exception;
 
    type Compression_Level is new Integer range -1 .. 9;
 

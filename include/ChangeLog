@@ -1,9 +1,15 @@
+2003-07-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* zlib.ads, zlib.adb:
+	Synchronize with ZLib-Ada CVS repository
+	 (add Status_Error exception).
+
 2004-07-22  Pascal Obry  <pascal@obry.org>
 
 	* zlib-thin.ads:
 	(ULong): Fix definition (changed to unsigned_long), fix regression on
 	 64 bits computers.
-	
+
 2003-07-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zlib.ads, zlib.adb:
