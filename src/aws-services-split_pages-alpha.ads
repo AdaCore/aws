@@ -78,7 +78,8 @@ package AWS.Services.Split_Pages.Alpha is
    --  translate_set that will be used to create the index.
 
    procedure Set_Default_Href (This : in out Splitter; Href : in String);
-   --  ???
+   --  Href to use for letter having no entry in the key, if not specified the
+   --  empty string is used.
 
 private
 
