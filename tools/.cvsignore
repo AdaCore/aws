@@ -1,5 +1,7 @@
 ada2wsdl
 awsres
+b~ada2wsdl-main.adb
+b~ada2wsdl-main.ads
 b~awsres.adb
 b~awsres.ads
 b~wsdl2aws.adb

@@ -160,6 +160,8 @@ b~wsdl_3_main.adb
 b~wsdl_3_main.ads
 b~wsdl_4_main.adb
 b~wsdl_4_main.ads
+b~wsdl_5_main.adb
+b~wsdl_5_main.ads
 b~zapp.adb
 b~zapp.ads
 b~zbig.adb
@@ -406,6 +408,8 @@ workorder.tmp
 wsdl_1.res
 wsdl_1.wsdl
 wsdl_1_main
+wsdl_1_service-cb.adb
+wsdl_1_service-cb.ads
 wsdl_1_service-client.adb
 wsdl_1_service-client.ads
 wsdl_1_service-server.adb
@@ -416,6 +420,8 @@ wsdl_1_service.ads
 wsdl_2.res
 wsdl_2.wsdl
 wsdl_2_main
+wsdl_2_service-cb.adb
+wsdl_2_service-cb.ads
 wsdl_2_service-client.adb
 wsdl_2_service-client.ads
 wsdl_2_service-server.adb
@@ -426,6 +432,8 @@ wsdl_2_service.ads
 wsdl_3.res
 wsdl_3.wsdl
 wsdl_3_main
+wsdl_3_service-cb.adb
+wsdl_3_service-cb.ads
 wsdl_3_service-client.adb
 wsdl_3_service-client.ads
 wsdl_3_service-server.adb
@@ -436,6 +444,8 @@ wsdl_3_service.ads
 wsdl_4.res
 wsdl_4.wsdl
 wsdl_4_main
+wsdl_4_service-cb.adb
+wsdl_4_service-cb.ads
 wsdl_4_service-client.adb
 wsdl_4_service-client.ads
 wsdl_4_service-server.adb
@@ -443,6 +453,17 @@ wsdl_4_service-server.ads
 wsdl_4_service-types.adb
 wsdl_4_service-types.ads
 wsdl_4_service.ads
+wsdl_5.res
+wsdl_5.wsdl
+wsdl_5_service-cb.adb
+wsdl_5_service-cb.ads
+wsdl_5_service-client.adb
+wsdl_5_service-client.ads
+wsdl_5_service-server.adb
+wsdl_5_service-server.ads
+wsdl_5_service-types.adb
+wsdl_5_service-types.ads
+wsdl_5_service.ads
 wsdl_a.res
 wsdl_a.wsdl
 wsdl_parse_1-client.adb
@@ -453,6 +474,9 @@ wsdl_parse_1-types.adb
 wsdl_parse_1-types.ads
 wsdl_parse_1.ads
 wsdl_parse_1.res
+wsdl_parse_2.res
+wsdl_parse_3.res
+wsdl_parse_4.res
 zapp
 zapp.res
 zbig

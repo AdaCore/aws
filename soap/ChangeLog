@@ -1,3 +1,56 @@
+2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
+	(Output_Parameters): Handle enumerations.
+	(New_Procedure): Idem.
+	
+	* soap-generator-cb.adb:
+	Initial revision.
+
+	* soap-generator-stub.adb:
+	(Output_Enumeration): New routine.
+	(Output_Parameter): Handle enumerations.
+	(New_Procedure): Idem.
+	(Start_Service): Remove Location initialization from here, moved
+	 to parent package. Set pragma Unreferenced accordingly.
+
+	* soap-generator.adb:
+	(CB_Ads): New variable.
+	(CB_Adb): New variable.
+	(Tmp_Adb): New variable.
+	(CB): New package.
+	(End_Service): Call CB.End_Service if needed.
+	(Gen_CB): New routine.
+	(New_Procedure): Call CB.End_Service if needed.
+	(Put_Header): Handles enumerations.
+	(Generate_Enumeration): New procedure.
+	(Generate_Record): Handle enumerations.
+	(Get_Routine): Idem.
+	(Output_Types): Idem.
+	(Set_Routine): Idem.
+	(Type_Name): Idem.
+	(Put_Types): Idem.
+	(Start_Service): Initialize Location here. Call CB.Start_Service
+	 if needed. Set Unit name.
+	
+	* soap-generator.ads:
+	(Gen_CB): New routine.
+	(Object): Add First_Proc and Unit fields.
+
+	* soap-wsdl-parameters.adb:
+	(Output): Handle K_Enumeration case.
+	(Release): Idem.
+
+	* soap-wsdl-parameters.ads:
+	(Kind): Add K_Enumeration.
+	(Parameter): Handle K_Enumeration variant. Add some comments.
+
+	* soap-wsdl-parser.adb:
+	(Parse_Derived): Renamed Parse_Simple.
+	(Parse_Simple): New routine used to parse WSDL simpleType schema
+	 definitions.
+	(Check_Character): Properly check for character name and base type.
+
 2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-wsdl-parser.adb:

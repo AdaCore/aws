@@ -1,3 +1,18 @@
+2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS): Add wsdl_5.
+	($(ASIS_TESTS)): Add wsdl2aws's -cb option.
+
+	* wsdl_5.ads, wsdl_5.adb, wsdl_5.out:
+	Initial revision.
+
+	* wsdl_5_main.adb:
+	Initial revision.
+
+	* wsdl_5_server.ads, wsdl_5_server.adb:
+	Initial revision.
+
 2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
