@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 May 21st, 2003
+   Pascal Obry                                                 July 3rd, 2003
 
 
 
@@ -25,6 +25,11 @@ version.
 
 The SOAP implementation has been validated on http://validator.soapware.org/.
 
+Note that some of the changes listed below can introduce non upward
+compatibility. In such a case we try to give proper advice on how to change
+the code to work properly. Of course we try to avoid this as much as possible
+but we really prefer to have a clean API instead of keeping awkwards
+implementations.
 
 Here are the main changes since AWS 1.3 :
 
@@ -91,13 +96,27 @@ Here are the main changes since AWS 1.3 :
      possible to change the SOAPAction value for each request. The same
      SOAPAction was used for all requests over the same connection.
 
-     This change is not upward compatible. The SOAPAction value must be
-     removed from the persistent connection creation (AWS.Client.Create)
-     and passed to the SOAP.Client.Call.
+     => This change is not upward compatible. The SOAPAction value must be
+        removed from the persistent connection creation (AWS.Client.Create)
+        and passed to the SOAP.Client.Call.
 
    - Change AWS.Client.SOAP_Post and SOAP.Client.Call spec for the persistent
-     connection cases. This is not upward compatible but easier to use. The
-     calls were passing the persitent connection using an access mode.
+     connection cases. 
+
+     => This is not upward compatible but easier to use. The calls were
+        passing the persitent connection using an access mode. Just remove
+        the 'Access attribute to pass the connection object.
+
+   - Change the way Size of resources are computed. The size is now part of
+     the objects (File, Embedded or Stream resources). This is a better design.
+     AWS.Response.Stream and AWS.Response.Set.Stream does not have the stream
+     size as parameter. Furthermore the AWS.Response.Set.Content_Length
+     routine has been removed. The stream size is now given by overloading the
+     Size stream's method (see routine AWS.Resources.Streams.Size).
+
+     => This is not upward compatible. Remove calls to
+        AWS.Response.Set.Content_Length and implement the
+        AWS.Resources.Streams.Size method for the stream object.
 
    - Plus many small fixes, enhancements and documentation work.
 
@@ -332,7 +351,6 @@ AWS uses:
 - http://www.ada-ru.org (Ada in Russian)
 
   This Web Site is powered by AWS.
-
 
 Thanks to all who have reported bugs and have sent us patches.
 
