@@ -50,14 +50,14 @@ package body AWS.Resources.Streams.ZLib is
    --------------------
 
    function Deflate_Create
-     (Source       : in     Streams.Stream_Access;
-      Level        : in     Compression_Level  := ZL.Default_Compression;
-      Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
-      Method       : in     Compression_Method := ZL.Deflated;
-      Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
-      Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
-      Header       : in     Header_Type        := ZL.Default)
-      return       Stream_Access
+     (Source       : in Streams.Stream_Access;
+      Level        : in Compression_Level     := ZL.Default_Compression;
+      Strategy     : in Strategy_Type         := ZL.Default_Strategy;
+      Method       : in Compression_Method    := ZL.Deflated;
+      Window_Bits  : in Window_Bits_Type      := ZL.Default_Window_Bits;
+      Memory_Level : in Memory_Level_Type     := ZL.Default_Memory_Level;
+      Header       : in Header_Type           := ZL.Default)
+      return Stream_Access
    is
       Result : Streams.Stream_Access := new Stream_Type;
    begin
@@ -98,7 +98,7 @@ package body AWS.Resources.Streams.ZLib is
    function End_Of_File (Resource : in Stream_Type) return Boolean is
    begin
       --  We could not use return End_Of_File (Resource.Source);
-      --  becouse end of source file would be reached earlier then
+      --  because end of source file would be reached earlier then
       --  end of file of the encoded stream.
 
       return Resource.End_Of_File;
