@@ -608,7 +608,7 @@ package body SOAP.Types is
          Same_Type : Boolean := True;
       begin
          if O.Items.O'Length = 0 then
-            -- This is a zero length array, type is undefined.
+            --  This is a zero length array, type is undefined.
             return XML_Undefined;
          end if;
 
