@@ -1,7 +1,21 @@
 2004-12-17  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
-	Minor optimization.
+	(Parse_State_Access): New type.
+	(Parse_State): New field Parent which reference the parent state.
+	 This is used for include parameter referencing an alias or a
+	 parent include parameter.
+	(Empty_State): Update accordingly.
+	(Translate) [Tag_Var]: Add parameter State.
+	(I_Translate): Idem and properly handle reference to parent
+	 include parameters.
+	(Analyse): Update all calls to Translate and I_Translate to pass
+	 the state. Also update recursive call to Analyse.
+	
+2004-12-17  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Field): Minor optimization.
 
 2004-12-15  Pascal Obry  <pascal@obry.net>
 
