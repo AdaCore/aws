@@ -1,3 +1,8 @@
+2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Initial revision.
+
 2001-08-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-xml.ads, soap-message-xml.adb:
