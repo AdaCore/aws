@@ -45,16 +45,16 @@ with AWS.Translator;
 with SOAP.Message.XML;
 with SOAP.Message.Payload;
 
-with Interoplab.Client;
-with Interoplab.Server;
-with Interoplab.Types;
+with Tinteroplab.Client;
+with Tinteroplab.Server;
+with Tinteroplab.Types;
 
 procedure Interoplab_Main1 is
 
    use Ada;
    use AWS;
 
-   use Interoplab.Types;
+   use Tinteroplab.Types;
    use Ada.Strings.Unbounded;
 
    H_Server : AWS.Server.HTTP;
@@ -87,14 +87,14 @@ procedure Interoplab_Main1 is
    end T_echoString_CB;
 
    function echoString_CB is
-      new Interoplab.Server.echoString_CB (T_echoString_CB);
+      new Tinteroplab.Server.echoString_CB (T_echoString_CB);
 
    ------------------
    -- T_echoString --
    ------------------
 
    procedure T_echoString is
-      Res : constant String := interopLab.Client.echoString
+      Res : constant String := TinteropLab.Client.echoString
         ("This is the real value for the string!");
    begin
       Text_IO.Put_Line ("Echo String");
@@ -115,7 +115,7 @@ procedure Interoplab_Main1 is
    end T_echoStringArray_CB;
 
    function echoStringArray_CB is
-      new Interoplab.Server.echoStringArray_CB (T_echoStringArray_CB);
+      new Tinteroplab.Server.echoStringArray_CB (T_echoStringArray_CB);
 
    -----------------------
    -- T_echoStringArray --
@@ -125,7 +125,7 @@ procedure Interoplab_Main1 is
       Arr : constant ArrayOfstring_Type := (+"first", +"second", +"third");
 
       Res : constant ArrayOfstring_Type
-        := interopLab.Client.echoStringArray (Arr);
+        := TinteropLab.Client.echoStringArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfstring");
       for K in Res'Range loop
@@ -146,7 +146,7 @@ procedure Interoplab_Main1 is
    end T_echoBoolean_CB;
 
    function echoBoolean_CB is
-      new Interoplab.Server.echoBoolean_CB (T_echoBoolean_CB);
+      new Tinteroplab.Server.echoBoolean_CB (T_echoBoolean_CB);
 
    -------------------
    -- T_echoBoolean --
@@ -157,10 +157,10 @@ procedure Interoplab_Main1 is
    begin
       Text_IO.Put_Line ("Echo Boolean");
 
-      Res := interopLab.Client.echoBoolean (True);
+      Res := TinteropLab.Client.echoBoolean (True);
       Text_IO.Put_Line (Boolean'Image (Res));
 
-      Res := interopLab.Client.echoBoolean (False);
+      Res := TinteropLab.Client.echoBoolean (False);
       Text_IO.Put_Line (Boolean'Image (Res));
       Text_IO.New_Line;
    end T_echoBoolean;
@@ -177,7 +177,7 @@ procedure Interoplab_Main1 is
    end T_echoBase64_CB;
 
    function echoBase64_CB is
-      new Interoplab.Server.echoBase64_CB (T_echoBase64_CB);
+      new Tinteroplab.Server.echoBase64_CB (T_echoBase64_CB);
 
    ------------------
    -- T_echoBase64 --
@@ -186,7 +186,7 @@ procedure Interoplab_Main1 is
    procedure T_echoBase64 is
       V   : constant String
         := AWS.Translator.Base64_Encode ("AWS SOAP WSDL implementation");
-      Res : constant String := interopLab.Client.echoBase64 (V);
+      Res : constant String := TinteropLab.Client.echoBase64 (V);
    begin
       Text_IO.Put_Line ("Echo Base64");
 
@@ -207,7 +207,7 @@ procedure Interoplab_Main1 is
    end T_echoInteger_CB;
 
    function echoInteger_CB is
-      new Interoplab.Server.echoInteger_CB (T_echoInteger_CB);
+      new Tinteroplab.Server.echoInteger_CB (T_echoInteger_CB);
 
    -------------------
    -- T_echoInteger --
@@ -216,9 +216,9 @@ procedure Interoplab_Main1 is
    procedure T_echoInteger is
    begin
       Text_IO.Put_Line ("Echo Integer");
-      Integer_Text_IO.Put (interopLab.Client.echoInteger (12));
+      Integer_Text_IO.Put (TinteropLab.Client.echoInteger (12));
       Text_IO.New_Line;
-      Integer_Text_IO.Put (interopLab.Client.echoInteger (9876543));
+      Integer_Text_IO.Put (TinteropLab.Client.echoInteger (9876543));
       Text_IO.New_Line;
       Text_IO.New_Line;
    end T_echoInteger;
@@ -235,7 +235,7 @@ procedure Interoplab_Main1 is
    end T_echoIntegerArray_CB;
 
    function echoIntegerArray_CB is
-      new Interoplab.Server.echoIntegerArray_CB (T_echoIntegerArray_CB);
+      new Tinteroplab.Server.echoIntegerArray_CB (T_echoIntegerArray_CB);
 
    ------------------------
    -- T_echoIntegerArray --
@@ -245,7 +245,7 @@ procedure Interoplab_Main1 is
       Arr : constant ArrayOfint_Type := (34, 67, 98, 54, 78, 65, 1);
 
       Res : constant ArrayOfint_Type
-        := interopLab.Client.echoIntegerArray (Arr);
+        := TinteropLab.Client.echoIntegerArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfint");
       for K in Res'Range loop
@@ -268,7 +268,7 @@ procedure Interoplab_Main1 is
    end T_echoFloat_CB;
 
    function echoFloat_CB is
-      new Interoplab.Server.echoFloat_CB (T_echoFloat_CB);
+      new Tinteroplab.Server.echoFloat_CB (T_echoFloat_CB);
 
    -----------------
    -- T_echoFloat --
@@ -277,9 +277,9 @@ procedure Interoplab_Main1 is
    procedure T_echoFloat is
    begin
       Text_IO.Put_Line ("Echo Float");
-      LFIO.Put (interopLab.Client.echoFloat (2.345), Aft => 5, Exp => 0);
+      LFIO.Put (TinteropLab.Client.echoFloat (2.345), Aft => 5, Exp => 0);
       Text_IO.New_Line;
-      LFIO.Put (interopLab.Client.echoFloat (456.8765), Aft => 5, Exp => 0);
+      LFIO.Put (TinteropLab.Client.echoFloat (456.8765), Aft => 5, Exp => 0);
       Text_IO.New_Line;
       Text_IO.New_Line;
    end T_echoFloat;
@@ -296,7 +296,7 @@ procedure Interoplab_Main1 is
    end T_echoStruct_CB;
 
    function echoStruct_CB is
-      new Interoplab.Server.echoStruct_CB (T_echoStruct_CB);
+      new Tinteroplab.Server.echoStruct_CB (T_echoStruct_CB);
 
    ------------------
    -- T_echoStruct --
@@ -310,7 +310,7 @@ procedure Interoplab_Main1 is
       --  Suppress a wrong warnings issued by GNAT, this is fixed in
       --  GNAT 3.17
       Res : constant echoStruct_Result
-        := interopLab.Client.echoStruct (Struct);
+        := TinteropLab.Client.echoStruct (Struct);
    begin
       Text_IO.Put_Line ("Echo Struct");
       Output (Res);
@@ -329,7 +329,7 @@ procedure Interoplab_Main1 is
    end T_echoDate_CB;
 
    function echoDate_CB is
-      new Interoplab.Server.echoDate_CB (T_echoDate_CB);
+      new Tinteroplab.Server.echoDate_CB (T_echoDate_CB);
 
    ----------------
    -- T_echoDate --
@@ -343,7 +343,7 @@ procedure Interoplab_Main1 is
       Res : Ada.Calendar.Time;
    begin
       Text_IO.Put_Line ("Echo Date");
-      Res := interopLab.Client.echoDate (T);
+      Res := TinteropLab.Client.echoDate (T);
 
       if Res = T then
          Text_IO.Put_Line ("ok");
@@ -365,7 +365,7 @@ procedure Interoplab_Main1 is
    end T_echoFloatArray_CB;
 
    function echoFloatArray_CB is
-      new Interoplab.Server.echoFloatArray_CB (T_echoFloatArray_CB);
+      new Tinteroplab.Server.echoFloatArray_CB (T_echoFloatArray_CB);
 
    ----------------------
    -- T_echoFloatArray --
@@ -376,7 +376,7 @@ procedure Interoplab_Main1 is
         := (34.1, 67.2, 98.3, 54.4, 78.5, 65.6, 1.7);
 
       Res : constant ArrayOfFloat_Type
-        := interopLab.Client.echoFloatArray (Arr);
+        := TinteropLab.Client.echoFloatArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfFloat");
 
@@ -400,7 +400,7 @@ procedure Interoplab_Main1 is
    end T_echoStructArray_CB;
 
    function echoStructArray_CB is
-      new Interoplab.Server.echoStructArray_CB (T_echoStructArray_CB);
+      new Tinteroplab.Server.echoStructArray_CB (T_echoStructArray_CB);
 
    -----------------------
    -- T_echoStructArray --
@@ -411,7 +411,7 @@ procedure Interoplab_Main1 is
         := ((1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three"));
 
       Res : constant ArrayOfSOAPStruct_Type
-        := interopLab.Client.echoStructArray (A_Struct);
+        := TinteropLab.Client.echoStructArray (A_Struct);
    begin
       Text_IO.Put_Line ("Echo ArrayOfStruct");
 
@@ -432,7 +432,7 @@ procedure Interoplab_Main1 is
    end T_echoVoid_CB;
 
    function echoVoid_CB is
-      new Interoplab.Server.echoVoid_CB (T_echoVoid_CB);
+      new Tinteroplab.Server.echoVoid_CB (T_echoVoid_CB);
 
    ----------------
    -- T_echoVoid --
@@ -441,7 +441,7 @@ procedure Interoplab_Main1 is
    procedure T_echoVoid is
    begin
       Text_IO.Put_Line ("Echo Void");
-      Interoplab.Client.echoVoid;
+      Tinteroplab.Client.echoVoid;
       Text_IO.New_Line;
    end T_echoVoid;
 
@@ -514,7 +514,7 @@ begin
    AWS.Server.Start
      (H_Server, "WSDL interopLab Server",
       CB'Unrestricted_Access,
-      Port => Interoplab.Server.Port);
+      Port => Tinteroplab.Server.Port);
 
    T_echoVoid;
    T_echoString;
