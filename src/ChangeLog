@@ -13,7 +13,7 @@
 	* aws-client.adb:
 	(SOAP_Post): Add exception handler to free the Connection.
 
-2003-03-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
+2003-03-11  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* aws-client.adb:
 	(Parse_Header): Set Connection.Cookie only if the server sent
@@ -31,7 +31,7 @@
 	(Unbind): Add comments.
 	Update copyright header.
 
-2003-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+2003-03-09  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* aws-session.adb:
 	Fix comment about Get_Sessions_And_Lock usage. It is not using in
@@ -62,7 +62,7 @@
 	* aws-server.adb:
 	(Line): Fix previous code which does not compile.
 
-2003-03-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+2003-03-08  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* aws-config-set.ads, aws-config-set.adb:
 	(Free_Slots_Keep_Alive_Limit): New configuration parameter.
