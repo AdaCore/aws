@@ -1,3 +1,8 @@
+2003-11-14  Pascal Obry  <pascal.obry@edf.fr>
+
+	* soap-generator.ads:
+	(Version): Set to 1.2.
+
 2003-11-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
