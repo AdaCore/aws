@@ -137,10 +137,10 @@ package body AWS.Status.Set is
             Quit := True;
 
             --  We could not continue to parse Basic authentication
-            --  by the regular way, becouse next value is Base64
-            --  encoded username:password, it is possibe to be
-            --  symbol '=' there, our parser could
-            --  think that it is name/value delimiter.
+            --  by the regular way, because next value is Base64 encoded
+            --  "username:password", it is possibe to have symbol '=' there,
+            --  our parser could think that it is name/value delimiter.
+
             declare
                use Ada.Streams;
 
