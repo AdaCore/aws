@@ -56,6 +56,22 @@ package body AWS.Resources is
       return End_Of_File (Resource.all);
    end End_Of_File;
 
+   -----------
+   -- Exist --
+   -----------
+
+   function Exist (Name : in String) return File_Instance is
+      Result : File_Instance;
+   begin
+      Result := Embedded.Exist (Name);
+
+      if Result = None then
+         return Files.Exist (Name);
+      else
+         return Result;
+      end if;
+   end Exist;
+
    ---------------
    -- File_Size --
    ---------------
