@@ -28,7 +28,7 @@
 
 --  $Id$
 
---  routines here are wrappers around standard sockets when building with no
+--  Routines here are wrappers around standard sockets when building with no
 --  SSL support.
 
 with Ada.Exceptions;
@@ -36,7 +36,7 @@ with Ada.Exceptions;
 package body AWS.Net is
 
    procedure Check_SSL (Security : Boolean);
-   --  check that Security is False as there is no support for SSL provied by
+   --  Check that Security is False as there is no support for SSL provied by
    --  this implementation.
 
    ---------------
