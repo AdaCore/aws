@@ -137,10 +137,25 @@ package body SOAP.WSDL.Parameters is
 
       procedure Free is new Ada.Unchecked_Deallocation (Parameter, P_Set);
 
+      procedure Free is new Ada.Unchecked_Deallocation (E_Node, E_Node_Access);
+
    begin
       if P /= null then
          if P.Mode = K_Array or else P.Mode = K_Record then
             Release (P.P);
+
+         elsif P.Mode = K_Enumeration then
+            declare
+               C, N : E_Node_Access;
+            begin
+               C := P.E_Def;
+
+               while C /= null loop
+                  N := C.Next;
+                  Free (C);
+                  C := N;
+               end loop;
+            end;
          end if;
 
          Release (P.Next);
