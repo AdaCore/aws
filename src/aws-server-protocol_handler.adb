@@ -318,7 +318,7 @@ is
          use type Session.ID;
       begin
          if CNF.Session (HTTP_Server.Properties)
-           and then (AWS.Status.Session (C_Stat) = Session.No_Session
+           and then (not AWS.Status.Has_Session (C_Stat)
                      or else not Session.Exist (AWS.Status.Session (C_Stat)))
          then
             --  Generate the session ID
@@ -1425,12 +1425,11 @@ begin
 
          P_List := Status.Parameters (C_Stat);
 
-         Parameters.Set.Case_Sensitive
-           (P_List, Case_Sensitive_Parameters);
-
-         HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
+         Parameters.Set.Case_Sensitive (P_List, Case_Sensitive_Parameters);
 
          Get_Message_Header;
+
+         HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
 
          Set_Close_Status;
 
