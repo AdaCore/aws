@@ -113,7 +113,22 @@ package AWS.Client is
      return Response.Data;
    --  Idem as above but with binary data.
 
-   --  Keep-Alive client implementation.
+   function SOAP_Post
+     (URL        : in String;
+      Data       : in String;
+      SOAPAction : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
+     return Response.Data;
+   --  Send to the server URL a POST request with Data
+   --  Post will retry one time if it fails.
+
+   ---------------------------------------
+   --  Keep-Alive client implementation --
+   ---------------------------------------
 
    type HTTP_Connection is private;
 
@@ -125,6 +140,7 @@ package AWS.Client is
       Proxy_User : in String   := No_Data;
       Proxy_Pwd  : in String   := No_Data;
       Retry      : in Positive := Retry_Default;
+      SOAPAction : in String   := No_Data;
       Persistent : in Boolean  := True)
      return HTTP_Connection;
    --  Create a new connection. This is to be used with Keep-Alive client API
@@ -184,6 +200,7 @@ private
       Proxy_Pwd   : Unbounded_String;
       Opened      : Boolean;
       Persistent  : Boolean;
+      SOAPAction  : Unbounded_String;
       Cookie      : Unbounded_String;
       Socket      : Socket_Access;
       Retry       : Positive;
