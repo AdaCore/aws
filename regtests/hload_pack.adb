@@ -233,6 +233,8 @@ package body HLoad_Pack is
             end;
          end loop;
 
+         AWS.Client.Close (Connect);
+
          accept Stop;
       end Client;
 
