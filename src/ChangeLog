@@ -1,5 +1,10 @@
 2003-02-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-config-ini.adb:
+	Renames Optional_Read to the Read_If_Present.
+
+2003-02-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-config-ini.ads, aws-config-ini.adb:
 	(Read): Do not hide Ada.Text_IO.Name_Error exception, add comment.
 	(Optional_Read): New routine hiding Ada.Text_IO.Name_Error exception.
