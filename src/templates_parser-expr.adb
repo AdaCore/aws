@@ -423,16 +423,7 @@ package body Expr is
    begin
       case E.Kind is
          when Value =>
-            declare
-               Val : constant String := To_String (E.V);
-               K   : constant Natural := Fixed.Index (Val, " ");
-            begin
-               if K = 0 then
-                  Text_IO.Put (Val);
-               else
-                  Text_IO.Put ('"' & Val & '"');
-               end if;
-            end;
+            Text_IO.Put (Quote (To_String (E.V)));
 
          when Var =>
             Text_IO.Put (Image (E.Var));
