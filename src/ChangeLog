@@ -1,3 +1,35 @@
+2004-12-15  Pascal Obry  <pascal@obry.net>
+
+	* templates_parser-print_tree.adb:
+	Output the table attributes only if set.
+
+	* templates_parser.adb:
+	(A_Terminate_Sections_Token): New constant.
+	(A_Reverse_Token): New constant.
+	(Node) [Table_Stmt]: Add field Reverse_Index.
+	(Clear): Remove code for Position.
+	(Initialize): Idem.
+	(Finalize): Idem and initialize the new Tag_Nodes field.
+	("+") [String]: Remove code for Position and add support for new
+	 Tag_Nodes field.
+	("&") [*]: Idem.
+	(Field): Create the fast access array to nodes if needed. Use it
+	 to return the proper element.
+	(Count_Tag_Attributes): New routine to support attributes on tag
+	 commands.
+	(Get_Tag_Attribute): Idem.
+	(Is_Stmt): Update to handle tag attributes.
+	(Parse): Add support for table TERMINATE_SECTIONS and REVERSE
+	 attributes.
+	(Parse_State): Add Reverse_Index field.
+	(Empty_State): Update accordingly.
+
+	* templates_parser.ads:
+	(Cursor): Removed.
+	(Tag_Node_Arr): New type.
+	(Tag_Node_Arr_Access): New type.
+	(Tag_Data): Remove Position, add Tag_Nodes.
+
 2004-12-14  Pascal Obry  <pascal@obry.net>
 
 	* templates_parser.adb:
