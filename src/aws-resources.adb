@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,7 +32,6 @@
 
 with AWS.Resources.Files;
 with AWS.Resources.Embedded;
-with AWS.Resources.Release;
 
 package body AWS.Resources is
 
@@ -45,7 +44,7 @@ package body AWS.Resources is
    procedure Close (Resource : in out File_Type) is
    begin
       Close (Resource.all);
-      Release (Resource.all, Resource);
+      Free (Resource);
    end Close;
 
    -----------------
@@ -183,18 +182,14 @@ package body AWS.Resources is
       Read (Resource.all, Buffer, Last);
    end Read;
 
-   -------------
-   -- Release --
-   -------------
+   -----------
+   -- Reset --
+   -----------
 
-   procedure Release
-     (File        : in     File_Tagged;
-      File_Access : in out File_Type)
-   is
-      pragma Unreferenced (File);
+   procedure Reset (Resource : in out File_Type) is
    begin
-      AWS.Resources.Release (File_Access);
-   end Release;
+      Reset (Resource.all);
+   end Reset;
 
    ----------
    -- Size --
