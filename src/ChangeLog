@@ -1,3 +1,28 @@
+2003-04-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(File_Upload): Do not decode multipart/form-data name/value. Fix a
+	 bug when handling filename with accents for example. Patch from
+	 Nicolas Lesbats.
+
+	* aws-messages.ads:
+	(Cache_Option): Add some comments.
+	(No_Cache): Specify also max-age=0, s-maxage=0. This properly
+	 avoid browser's and proxy's caches.
+
+	* aws-parameters-set.ads:
+	(Add): Add Decode parameter. Patch from Nicolas Lesbats.
+
+	* aws-parameters-set.adb:
+	(Add): Decode name and value only if Decode is set to true. Patch from
+	 Nicolas Lesbats.
+
+	* aws-url.adb:
+	(ASCII_7): New subtype.
+	(HEx_Escape): Handle space.
+	(Encode): Space is converted to %20. This fix a bug in IE where +
+	 character is not properly encoded. Patch from Nicolas Lesbats.
+
 2003-04-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-session.adb:
