@@ -1015,6 +1015,10 @@ package body AWS.Client is
 
                declare
 
+                  Nonce    : constant String := To_String (Data.Nonce);
+                  Realm    : constant String := To_String (Data.Realm);
+                  QOP      : constant String := To_String (Data.QOP);
+
                   function Get_URI return String;
                   --  Returns the real URI where the request is going to be
                   --  sent. It is either Open_Send_Common_Header.URI parameter
@@ -1028,10 +1032,6 @@ package body AWS.Client is
 
                   Response : AWS.Digest.Digest_String;
 
-                  Nonce    : constant String := To_String (Data.Nonce);
-                  Realm    : constant String := To_String (Data.Realm);
-                  QOP      : constant String := To_String (Data.QOP);
-
                   -------------
                   -- Get_URI --
                   -------------
@@ -1040,8 +1040,8 @@ package body AWS.Client is
                      URI_Last : Natural;
                   begin
                      if URI = "" then
-                        return AWS.URL.Path (Connection.Connect_URL)
-                          & AWS.URL.File (Connection.Connect_URL);
+                        return URL.Path (Connection.Connect_URL)
+                          & URL.File (Connection.Connect_URL);
                      else
                         URI_Last := Strings.Fixed.Index (URI, "?");
 
