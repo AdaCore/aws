@@ -52,12 +52,13 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
    function Session_Table return Translate_Table is
 
-      Sessions    : Vector_Tag;
-      Sessions_TS : Vector_Tag;
-      Keys        : Vector_Tag;
-      Values      : Vector_Tag;
-      M_Keys      : Matrix_Tag;
-      M_Values    : Matrix_Tag;
+      Sessions           : Vector_Tag;
+      Sessions_TS        : Vector_Tag;
+      Sessions_Terminate : Vector_Tag;
+      Keys               : Vector_Tag;
+      Values             : Vector_Tag;
+      M_Keys             : Matrix_Tag;
+      M_Values           : Matrix_Tag;
 
       procedure For_Each_Key_Value
         (N          : in     Positive;
@@ -100,12 +101,18 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
         (N          : in Positive;
          SID        : in     Session.ID;
          Time_Stamp : in     Calendar.Time;
-         Quit       : in out Boolean) is
+         Quit       : in out Boolean)
+      is
+         use type Calendar.Time;
       begin
          Sessions    := Sessions & Session.Image (SID);
 
          Sessions_TS := Sessions_TS
            & GNAT.Calendar.Time_IO.Image (Time_Stamp, "%a %D %T");
+
+         Sessions_Terminate := Sessions_Terminate
+           & GNAT.Calendar.Time_IO.Image
+           (Time_Stamp + Session.Get_Lifetime, "%a %D %T");
 
          Build_Key_Value_List (SID);
 
@@ -126,10 +133,12 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
    begin
       Build_Session_List;
 
-      return Translate_Table'(Assoc ("SESSIONS_V",    Sessions),
-                              Assoc ("SESSIONS_TS_V", Sessions_TS),
-                              Assoc ("KEYS_M",        M_Keys),
-                              Assoc ("VALUES_M",      M_Values));
+      return Translate_Table'
+        (Assoc ("SESSIONS_V",           Sessions),
+         Assoc ("SESSIONS_TS_V",        Sessions_TS),
+         Assoc ("SESSIONS_TERMINATE_V", Sessions_Terminate),
+         Assoc ("KEYS_M",               M_Keys),
+         Assoc ("VALUES_M",             M_Values));
    end Session_Table;
 
    ----------------
@@ -196,6 +205,8 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Assoc ("VERSION",          Version),
          Assoc ("SESSION",          Server.Session),
          Assoc ("SESSION_LIFETIME", Utils.Image (Session.Get_Lifetime)),
+         Assoc ("SESSION_CLEANUP_INTERVAL",
+                Utils.Image (Config.Session_Cleanup_Interval)),
          Assoc ("LOGO",             Server.Admin_URI & "-logo"),
          Assoc ("ADMIN",            Server.Admin_URI))
      & Slot_Table
