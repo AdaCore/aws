@@ -32,10 +32,100 @@ with Interfaces.C;
 with Templates_Parser;
 with GNAT.Calendar.Time_IO;
 
+with AWS.Session;
+
 function AWS.Server.Get_Status (Server : in HTTP) return String is
+
+   use Ada;
 
    function Slot_Table return Templates_Parser.Translate_Table;
    --  returns the information for each slot
+
+   function Session_Table return Templates_Parser.Translate_Table;
+   --  returns session information
+
+   -------------------
+   -- Session_Table --
+   -------------------
+
+   function Session_Table return Templates_Parser.Translate_Table is
+      Sessions : Unbounded_String;
+      Keys     : Unbounded_String;
+      Values   : Unbounded_String;
+
+      procedure For_Each_Key_Value (N          : in     Positive;
+                                    Key, Value : in     String;
+                                    Quit       : in out Boolean);
+      --  add key/value pair to the list
+
+      procedure For_Each_Session (N          : in Positive;
+                                  SID        : in     Session.ID;
+                                  Time_Stamp : in     Calendar.Time;
+                                  Quit       : in out Boolean);
+      --  add session SID to the list
+
+      ------------------------
+      -- For_Each_Key_Value --
+      ------------------------
+
+      procedure For_Each_Key_Value (N          : in     Positive;
+                                    Key, Value : in     String;
+                                    Quit       : in out Boolean) is
+      begin
+         if N = 1 then
+            if Keys /= Null_Unbounded_String then
+               Keys   := Keys & '|';
+               Values := Values & '|';
+            end if;
+         end if;
+
+         Keys   := Keys & "<td>" & Key;
+         Values := Values & "<td>" & Value;
+      end For_Each_Key_Value;
+
+      --------------------------
+      -- Build_Key_Value_List --
+      --------------------------
+
+      procedure Build_Key_Value_List is
+         new Session.For_Every_Session_Data (For_Each_Key_Value);
+
+      ----------------------
+      -- For_Each_Session --
+      ----------------------
+
+      procedure For_Each_Session (N          : in Positive;
+                                  SID        : in     Session.ID;
+                                  Time_Stamp : in     Calendar.Time;
+                                  Quit       : in out Boolean) is
+      begin
+         if N /= 1 then
+            Sessions := Sessions & '|';
+         end if;
+
+         Sessions := Sessions & Session.Image (SID);
+
+         Build_Key_Value_List (SID);
+      end For_Each_Session;
+
+      ------------------------
+      -- Build_Session_List --
+      ------------------------
+
+      procedure Build_Session_List is
+         new Session.For_Every_Session (For_Each_Session);
+
+   begin
+      Build_Session_List;
+
+      return Templates_Parser.Translate_Table'
+        (Templates_Parser.Assoc ("SESSIONS_L",
+                                 To_String (Sessions), True),
+         Templates_Parser.Assoc ("KEYS_L",
+                                 To_String (Keys), True),
+         Templates_Parser.Assoc ("VALUES_L",
+                                 To_String (Values), True));
+   end Session_Table;
 
    ----------------
    -- Slot_Table --
@@ -84,17 +174,17 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       end loop;
 
       return Templates_Parser.Translate_Table'
-        (Templates_Parser.Assoc ("SOCK_T",
+        (Templates_Parser.Assoc ("SOCK_L",
                                  To_String (Sock), True),
-         Templates_Parser.Assoc ("OPENED_T",
+         Templates_Parser.Assoc ("OPENED_L",
                                  To_String (Opened), True),
-         Templates_Parser.Assoc ("ABORTABLE_T",
+         Templates_Parser.Assoc ("ABORTABLE_L",
                                  To_String (Abortable), True),
-         Templates_Parser.Assoc ("QUIT_T",
+         Templates_Parser.Assoc ("QUIT_L",
                                  To_String (Quit), True),
-         Templates_Parser.Assoc ("ACTIVITY_COUNTER_T",
+         Templates_Parser.Assoc ("ACTIVITY_COUNTER_L",
                                  To_String (Activity_Counter), True),
-         Templates_Parser.Assoc ("ACTIVITY_TIME_STAMP_T",
+         Templates_Parser.Assoc ("ACTIVITY_TIME_STAMP_L",
                                  To_String (Activity_Time_Stamp), True));
    end Slot_Table;
 
@@ -111,9 +201,12 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Templates_Parser.Assoc ("SERVER_SOCK",
                                  Interfaces.C.int'Image
                                  (Sockets.Get_FD (Server.Sock))),
-         Templates_Parser.Assoc ("VERSION", Version)
-         ) &
-     Slot_Table;
+         Templates_Parser.Assoc ("VERSION", Version),
+         Templates_Parser.Assoc ("SESSION", Server.Session),
+         Templates_Parser.Assoc ("LOGO",
+                                 To_String (Server.Admin_URI) & "-logo"))
+     & Slot_Table
+     & Session_Table;
 
 begin
    return Templates_Parser.Parse ("status.tmplt", Translations);
