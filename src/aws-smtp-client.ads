@@ -35,7 +35,6 @@
 --  This unit implement API to send mail message. It is possible to send
 --  simple mail [RFC 821] and mail with MIME attachments [RFC 2045 & 2049].
 --
---
 --  How to send a mail:
 --
 --  1) Initialize a Server to send the messages.
@@ -54,8 +53,6 @@
 --         Subject => "Latest Ada news",
 --         Message => "now Ada can send SMTP mail!",
 --         Status  => Result);
---
---  That's all!
 
 with Ada.Strings.Unbounded;
 
