@@ -58,7 +58,12 @@ package body Hotplug_CB is
         (Content_Type => "text/html",
          Message_Body =>
            "<p>Ok, I'm the main server, you have asked for " & URI
-           & To_String (Parameters));
+           & "<p>Here are the parameters"
+           & To_String (Parameters)
+           & "<form action=""/AWS"" method=POST>"
+           & "<input type=submit value=""Go POST request"">"
+           & "<input type=hidden name=myvar1 value=myvalue1>"
+           & "<input type=hidden name=myvar2 value=myvalue2></form>");
    end Main;
 
    -------------
@@ -82,7 +87,10 @@ package body Hotplug_CB is
       return AWS.Response.Build
         (Content_Type => "text/html",
          Message_Body =>
-           "<p>Ok, I'm the Hotplug server, you have asked for " & URI
+           "<p>This request is using method "
+           & AWS.Status.Request_Method'Image (AWS.Status.Method (Request))
+           & "<p>Ok, I'm the Hotplug server, you have asked for " & URI
+           & "<p>Here are the parameters"
            & To_String (Parameters));
    end Hotplug;
 
