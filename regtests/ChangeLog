@@ -1,3 +1,35 @@
+2004-06-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* tgetparam_proc.adb:
+	Common code for tgetparam and tsgetparam tests.
+
+	* tgetparam.adb, tsgetparam.adb:
+	Just call tgetparam_proc.adb.
+
+	* sock2_proc.adb:
+	Common code for sock2 and ssock2 tests.
+
+	* sock2.adb, ssock2.adb:
+	Just call sock2_proc.adb.
+
+	* sto_proc.adb:
+	Common code for sto and ssto tests.
+
+	* sto.adb, ssto.adb:
+	Just call sto_proc.adb.
+
+	* sockto_proc.adb:
+	Common code for sockto and ssockto tests.
+
+	* sockto.adb, ssockto.adb:
+	Just call sockto_proc.adb.
+
+	* test_soap_proc.adb:
+	Common code for test_soap and test_sec_soap tests.
+
+	* test_soap.adb, test_sec_soap.adb:
+	Just call test_soap_proc.adb.
+
 2004-06-07  Pascal Obry  <pascal@obry.org>
 
 	* huge_response_proc.adb:
@@ -120,9 +152,9 @@
 
 2004-05-26  Pascal Obry  <pascal@obry.org>
 
-	* afile.adb: 
+	* afile.adb:
 	Update test due to new default value for the Disposition parameter.
-	
+
 2004-05-26  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -280,13 +312,13 @@
 
 	* generate.adb:
 	Fix previous check-in which was premature.
-	
+
 2004-04-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* generate.adb:
 	Enclose all tests inside an exception handler. Ensure that even if
 	 a test fails the test suite continue to run.
-	
+
 2004-04-06  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -373,12 +405,12 @@
 	 is defined.
 	(RT_STD_ALONE): Removes tlog by default, add only if EXTRA_TESTS
 	 is defined.
-	
+
 2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* alldifs.out:
 	Initial revision.
-	
+
 	* makefile:
 	(run): Check that alldiffs is fine to ensure we return an error
 	 otherwise.
