@@ -1563,6 +1563,7 @@ package body AWS.Client is
       procedure Read_Internal
         (Data       :    out Ada.Streams.Stream_Element_Array;
          Last       :    out Ada.Streams.Stream_Element_Offset);
+      --  ???
 
       -------------------
       -- Read_Internal --
@@ -1654,7 +1655,8 @@ package body AWS.Client is
                   Skip_Line;
                end if;
 
-            when None => raise Constraint_Error;
+            when None =>
+               raise Constraint_Error;
          end case;
       end Read_Internal;
 
@@ -1662,11 +1664,9 @@ package body AWS.Client is
       if ZLib.Is_Open (Connection.Decode_Filter) then
          declare
             procedure Read is new ZLib.Read
-                                    (Read_Internal,
-                                     Connection.Decode_Buffer.all,
-                                     Connection.Decode_First,
-                                     Connection.Decode_Last,
-                                     Allow_Read_Some => True);
+              (Read_Internal, Connection.Decode_Buffer.all,
+               Connection.Decode_First, Connection.Decode_Last,
+               Allow_Read_Some => True);
          begin
             Read (Connection.Decode_Filter, Data, Last);
          end;
