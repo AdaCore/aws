@@ -1,3 +1,8 @@
+2004-01-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(Clean): Fix remove for test-dir?.
+
 2004-01-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* tlog.adb:
