@@ -6,6 +6,9 @@
 	(Set_Send_Buffer): Renamed to Set_Send_Buffer_Size.
 	(Set_Receive_Buffer): Renamed to Set_Receive_Buffer_Size.
 
+	* aws-net-std__adasockets.adb:
+	(Send): Use Get_Send_Buffer_Size.
+
 2004-01-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb:
