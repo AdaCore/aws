@@ -354,7 +354,7 @@ is
       procedure File_Upload
         (Start_Boundary, End_Boundary : in String;
          Parse_Boundary               : in Boolean);
-      --  Handle file upload data coming from the client browser.
+      --  Handle file upload data coming from the client browser
 
       -----------------
       -- File_Upload --
@@ -372,7 +372,7 @@ is
          Is_File_Upload  : Boolean;
 
          End_Found       : Boolean := False;
-         --  Set to true when the end-boundary has been found.
+         --  Set to true when the end-boundary has been found
 
          type Error_State is (No_Error, Name_Error, Device_Error);
          --  This state is to monitor the file upload process. If we receice
