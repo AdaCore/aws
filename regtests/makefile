@@ -34,7 +34,8 @@ rt_soap: soap1 soap2 soap3 workorder testxml test_speed test_soap
 
 # Standard regression tests
 rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2 \
-	upload unexph auth moved turl2 turl3 strm test_templates_if head hval
+	upload unexph auth moved turl2 turl3 strm test_templates_if head \
+	hval turl4
 
 ifeq ($(XMLADA),)
 run : rt_std checks
@@ -55,6 +56,10 @@ turl2: force
 turl3: force
 	gnatmake -g turl3 $(GARGS) -largs $(LARGS) -bargs -E
 	./turl3 > turl3.res
+
+turl4: force
+	gnatmake -g turl4 $(GARGS) -largs $(LARGS) -bargs -E
+	./turl4 > turl4.res
 
 tgetparam: force
 	gnatmake -g tgetparam  $(GARGS) -largs $(LARGS) -bargs -E
@@ -193,6 +198,7 @@ endif
 	-diff -c -w turl.out turl.res
 	-diff -c -w turl2.out turl2.res
 	-diff -c -w turl3.out turl3.res
+	-diff -c -w turl4.out turl4.res
 	-diff -c -w tgetparam.out tgetparam.res
 	-diff -c -w param.out param.res
 	-diff -c -w dummy.out dummy.res
