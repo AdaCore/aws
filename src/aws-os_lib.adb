@@ -33,6 +33,7 @@
 
 with Ada.Calendar;
 with Ada.Streams;
+with Interfaces.C;
 
 with POSIX;
 with POSIX.Calendar;
@@ -92,13 +93,53 @@ package body AWS.OS_Lib is
          raise No_Such_File;
    end File_Size;
 
-   --------------
-   -- OS_Clock --
-   --------------
+   ---------------
+   -- GMT_Clock --
+   ---------------
 
-   function OS_Clock return Ada.Calendar.Time is
+   function GMT_Clock return Ada.Calendar.Time is
+
+      use Interfaces;
+
+      type tm is record
+         tm_sec   : C.int;
+         tm_min   : C.int;
+         tm_hour  : C.int;
+         tm_mday  : C.int;
+         tm_mon   : C.int;
+         tm_year  : C.int;
+         tm_wday  : C.int;
+         tm_yday  : C.int;
+         tm_isdst : C.int;
+      end record;
+      pragma Convention (C, tm);
+      --  This tm structure is ok for Windows, Linux and Solaris.
+
+      type tm_access is access tm;
+      pragma Convention (C, tm_access);
+
+      procedure time (ltime : access C.long);
+      pragma Import (C, time);
+
+      function gmtime (ltime : access C.long) return tm_access;
+      pragma Import (C, gmtime);
+
+      ltime : aliased C.long;
+      gmt   : tm;
+
+      use Ada.Calendar;
+      use type Interfaces.C.int;
+
    begin
-      return Ada.Calendar.Clock;
-   end OS_Clock;
+      time (ltime'Unchecked_Access);
+      gmt := gmtime (ltime'Unchecked_Access).all;
+
+      return Time_Of (Year_Number (1900 + gmt.tm_year),
+                      Month_Number (gmt.tm_mon),
+                      Day_Number (gmt.tm_mday),
+                      Day_Duration (gmt.tm_hour * 3600
+                                    + gmt.tm_min * 60
+                                    + gmt.tm_sec));
+   end GMT_Clock;
 
 end AWS.OS_Lib;
