@@ -129,11 +129,6 @@ package body Expr is
       --  Returns next token. Set Index to the last analysed position in
       --  Expression.
 
-      function No_Quote (Str : in String) return String;
-      --  Removes quotes around Str. If Str (Str'First) and Str (Str'Last)
-      --  are quotes return Str (Str'First + 1 ..  Str'Last - 1) otherwise
-      --  return Str as-is.
-
       ---------------
       -- Get_Token --
       ---------------
@@ -229,19 +224,6 @@ package body Expr is
             end if;
          end if;
       end Get_Token;
-
-      --------------
-      -- No_Quote --
-      --------------
-
-      function No_Quote (Str : in String) return String is
-      begin
-         if Str (Str'First) = '"' and then Str (Str'Last) = '"' then
-            return Str (Str'First + 1 .. Str'Last - 1);
-         else
-            return Str;
-         end if;
-      end No_Quote;
 
       L_Tok : constant String := Get_Token;  -- left operand
       O_Tok : constant String := Get_Token;  -- operator
