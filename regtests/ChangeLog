@@ -6,6 +6,12 @@
 	* ctab.adb:
 	Free table at the end.
 
+	* back_proc.adb:
+	Base procedure for sback and ssback regression tests.
+
+	* sback.adb, ssback.adb:
+	Move all code to back_proc.adb
+
 2004-05-17  Pascal Obry  <pascal@obry.org>
 
 	* ctab.adb:
