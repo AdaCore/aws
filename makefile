@@ -120,12 +120,22 @@ build_scripts:
 	echo "export ADA_INCLUDE_PATH=\$$ADA_INCLUDE_PATH:"$(INSTALL)/AWS/components >> set-aws.sh
 	echo "export ADA_INCLUDE_PATH=\$$ADA_INCLUDE_PATH:"$(INSTALL)/AWS/include >> set-aws.sh
 	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(INSTALL)/AWS/lib >> set-aws.sh
+	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(XMLADA)/lib >> set-aws.sh
+	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(XMLADA)/include/xmlada >> set-aws.sh
+	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(INSTALL)/AWS/components >> set-aws.sh
+	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(INSTALL)/AWS/include >> set-aws.sh
+	echo "export PATH=\$$PATH:"$(INSTALL)/AWS/tools  >> set-aws.sh
 	echo "  for Windows"
 	echo "@echo off" > set-aws.cmd
 	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(XMLADA)/include/xmlada >> set-aws.cmd
 	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(INSTALL)/AWS/components >> set-aws.cmd
 	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(INSTALL)/AWS/include >> set-aws.cmd
 	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(INSTALL)/AWS/lib >> set-aws.cmd
+	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(XMLADA)/lib >> set-aws.cmd
+	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(XMLADA)/include/xmlada >> set-aws.cmd
+	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(INSTALL)/AWS/components >> set-aws.cmd
+	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(INSTALL)/AWS/include >> set-aws.cmd
+	echo "set PATH=%PATH%;"$(INSTALL)/AWS/tools  >> set-aws.cmd
 
 build_aws:
 	echo ""
@@ -331,6 +341,7 @@ install: force
 	-$(CP) include/*.o include/*.ali $(INSTALL)/AWS/components
 	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
+	-$(CP) tools/ada2wsdl${EXEEXT} $(INSTALL)/AWS/tools
 	$(CP) set-aws.* $(INSTALL)/AWS
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
