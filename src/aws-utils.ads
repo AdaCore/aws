@@ -44,4 +44,8 @@ package AWS.Utils is
    function Gethostname return String;
    --  Return hostname.
 
+   function Hex (V : in Natural) return String;
+   --  Returns the hexadecimal string representation of the decimal
+   --  number V.
+
 end AWS.Utils;
