@@ -52,11 +52,11 @@ package AWS.Net.SSL is
 
    procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
-      New_Socket :    out Socket_Type);
+      New_Socket : in out Socket_Type);
    --  Accept a connection on a socket.
 
    procedure Connect
-     (Socket   :    out Socket_Type;
+     (Socket   : in out Socket_Type;
       Host     : in     String;
       Port     : in     Positive);
    --  Connect a socket on a given host/port. If Security is true an secure

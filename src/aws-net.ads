@@ -74,14 +74,14 @@ package AWS.Net is
 
    procedure Accept_Socket
      (Socket     : in     Socket_Type'Class;
-      New_Socket :    out Socket_Type)
+      New_Socket : in out Socket_Type)
       is abstract;
    --  Accept a connection on a socket. If it raises Socket_Error, all
    --  resources used by new_Socket have been released.
    --  There is not need to call Free or Shutdown.
 
    procedure Connect
-     (Socket   :    out Socket_Type;
+     (Socket   : in out Socket_Type;
       Host     : in     String;
       Port     : in     Positive)
       is abstract;

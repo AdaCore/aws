@@ -63,7 +63,7 @@ package body AWS.Net.Std is
 
    procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
-      New_Socket :    out Socket_Type)
+      New_Socket : in out Socket_Type)
    is
       pragma Warnings (Off, New_Socket);
    begin
@@ -106,7 +106,7 @@ package body AWS.Net.Std is
    -------------
 
    procedure Connect
-     (Socket   :    out Socket_Type;
+     (Socket   : in out Socket_Type;
       Host     : in     String;
       Port     : in     Positive) is
    begin
