@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,8 +31,11 @@
 --  $Id$
 
 with Huge_Response_Pack;
+with Get_Free_Port;
 
 procedure Huge_Response_Sec is
+   Port : Natural := 4457;
 begin
-   Huge_Response_Pack.Run (4457, True);
+   Get_Free_Port (Port);
+   Huge_Response_Pack.Run (Port, True);
 end Huge_Response_Sec;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,6 +40,9 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Messages;
 with AWS.OS_Lib;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Head is
 
@@ -51,6 +54,7 @@ procedure Head is
 
    My_Name : constant String := "head.adb";
    HTTP    : AWS.Server.HTTP;
+   Port    : Natural := 1244;
    Connect : Client.HTTP_Connection;
    R_Get   : Response.Data;
    R_Head  : Response.Data;
@@ -65,13 +69,15 @@ procedure Head is
    end CB;
 
 begin
+   Get_Free_Port (Port);
+
    AWS.Server.Start
      (HTTP, "Testing head request.",
-      CB'Unrestricted_Access, Port => 1244, Max_Connection => 3);
+      CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:1244",
+      Host       => "http://localhost:" & Utils.Image (Port),
       Timeouts   => (5, 5));
 
    Client.Get (Connect, R_Get,  '/' & My_Name);

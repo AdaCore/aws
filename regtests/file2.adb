@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -44,13 +44,15 @@ with AWS.Utils;
 with zresres;
 
 with ZLib;
+with Get_Free_Port;
 
 procedure File2 is
 
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
+   Port : Natural := 4569;
 
    procedure Call_It;
 
@@ -66,7 +68,7 @@ procedure File2 is
       Ptr     : Utils.Stream_Element_Array_Access;
 
    begin
-      Client.Create (Connect, "http://localhost:4569");
+      Client.Create (Connect, "http://localhost:" & Utils.Image (Port));
 
       Client.Get (Connect, R, "file1.txt");
 
@@ -103,8 +105,10 @@ procedure File2 is
    end CB;
 
 begin
+   Get_Free_Port (Port);
+
    Server.Start
-     (WS, "file", CB'Unrestricted_Access, Port => 4569, Max_Connection => 5);
+     (WS, "file", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
 
    Server.Log.Start_Error (WS);
 

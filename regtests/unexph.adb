@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,6 +40,9 @@ with AWS.Response;
 with AWS.Server;
 with AWS.Status;
 with AWS.Log;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Unexph is
 
@@ -61,6 +64,7 @@ procedure Unexph is
    end Server;
 
    HTTP : AWS.Server.HTTP;
+   Port : Natural := 1240;
 
    R : Response.Data;
 
@@ -83,9 +87,11 @@ procedure Unexph is
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, UEH'Unrestricted_Access);
 
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (HTTP, "Test unexpected exception handler",
-         CB'Unrestricted_Access, Port => 1240, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -113,7 +119,8 @@ procedure Unexph is
 begin
    Server.Wait_Start;
 
-   R := Client.Get ("http://localhost:1240/test", Timeouts => (2, 2));
+   R := Client.Get
+     ("http://localhost:" & Utils.Image (Port) & "/test", Timeouts => (2, 2));
 
    Server.Stop;
 

@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                          Copyright (C) 2003-2004                         --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -32,7 +32,11 @@
 
 with Disp_SOAP_Proc;
 
+with Get_Free_Port;
+
 procedure Disp_SOAP_Sec is
+   Port : Natural := 4447;
 begin
-   Disp_SOAP_Proc ("https", 4447);
+   Get_Free_Port (Port);
+   Disp_SOAP_Proc ("https", Port);
 end Disp_SOAP_Sec;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -39,6 +39,9 @@ with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Messages;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Moved is
 
@@ -56,6 +59,7 @@ procedure Moved is
    Valid_URI : constant String := "/I_know_you_have_it";
 
    HTTP    : AWS.Server.HTTP;
+   Port    : Natural := 1237;
    Connect : Client.HTTP_Connection;
    R       : Response.Data;
 
@@ -81,9 +85,10 @@ procedure Moved is
 
    task body Server is
    begin
+      Get_Free_Port (Port);
       AWS.Server.Start
         (HTTP, "Testing ""moved"" answer.",
-         CB'Unrestricted_Access, Port => 1237, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -98,7 +103,7 @@ begin
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:1237",
+      Host       => "http://localhost:" & Utils.Image (Port),
       Timeouts   => (5, 5));
 
    Client.Get (Connect, R, "/do_you_have_it");

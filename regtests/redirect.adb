@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,6 +38,9 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Redirect is
 
@@ -46,6 +49,7 @@ procedure Redirect is
    use type AWS.Messages.Status_Code;
 
    WS : Server.HTTP;
+   Port : Natural := 1239;
 
    function CB (Request : in Status.Data) return Response.Data is
       URI : constant String := Status.URI (Request);
@@ -62,7 +66,7 @@ procedure Redirect is
    procedure Call_It is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:1239/first");
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/first");
 
       if Response.Status_Code (R) = Messages.S301 then
          Text_IO.Put_Line ("OK, status is good");
@@ -75,8 +79,10 @@ procedure Redirect is
    end Call_It;
 
 begin
+   Get_Free_Port (Port);
+
    Server.Start
-     (WS, "file", CB'Unrestricted_Access, Port => 1239, Max_Connection => 5);
+     (WS, "file", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    Call_It;

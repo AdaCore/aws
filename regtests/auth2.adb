@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -39,6 +39,9 @@ with AWS.Status;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Messages;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Auth2 is
 
@@ -50,7 +53,8 @@ procedure Auth2 is
 
    HTTP : AWS.Server.HTTP;
 
-   R : Response.Data;
+   R    : Response.Data;
+   Port : Natural := 1255;
 
    --------
    -- CB --
@@ -67,14 +71,17 @@ procedure Auth2 is
    end CB;
 
 begin
+   Get_Free_Port (Port);
+
    AWS.Server.Start
      (HTTP, "Test authentication.",
-      CB'Unrestricted_Access, Port => 1255, Max_Connection => 3);
+      CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
 
-   R := Client.Get ("http://localhost:1255", "toto", "toto_pwd");
+   R := Client.Get
+     ("http://localhost:" & Utils.Image (Port), "toto", "toto_pwd");
    Text_IO.Put_Line (Response.Message_Body (R));
 
-   R := Client.Get ("http://localhost:1255", "xyz", "_123_");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port), "xyz", "_123_");
    Text_IO.Put_Line (Response.Message_Body (R));
 
    AWS.Server.Shutdown (HTTP);

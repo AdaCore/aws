@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -44,6 +44,9 @@ with AWS.Services.Split_Pages;
 with AWS.Services.Dispatchers.Transient_Pages;
 with AWS.Status;
 with AWS.Templates;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Split is
 
@@ -51,7 +54,8 @@ procedure Split is
    use Ada.Strings.Unbounded;
    use AWS;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
+   Port : Natural := 1268;
 
    M_Body : Unbounded_String;
 
@@ -115,7 +119,7 @@ procedure Split is
    procedure Get_First is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:1268/main");
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/main");
       M_Body := Response.Message_Body (R);
 
       Text_IO.Put_Line ("First: " & Clean_Body);
@@ -132,8 +136,8 @@ procedure Split is
       First := Index (M_Body, "next=[");
       Last  := Index (M_Body, "]", Strings.Backward);
 
-      R := Client.Get ("http://localhost:1268" &
-                       Slice (M_Body, First + 6, Last - 1));
+      R := Client.Get ("http://localhost:" & Utils.Image (Port)
+                         & Slice (M_Body, First + 6, Last - 1));
 
       M_Body := Response.Message_Body (R);
 
@@ -151,8 +155,8 @@ procedure Split is
       First := Index (M_Body, "previous=[");
       Last  := Index (M_Body, "]");
 
-      R := Client.Get ("http://localhost:1268" &
-                       Slice (M_Body, First + 10, Last - 1));
+      R := Client.Get ("http://localhost:" & Utils.Image (Port)
+                         & Slice (M_Body, First + 10, Last - 1));
 
       M_Body := Response.Message_Body (R);
 
@@ -160,7 +164,9 @@ procedure Split is
    end Get_Previous;
 
 begin
-   Config.Set.Server_Port (Conf, 1268);
+   Get_Free_Port (Port);
+
+   Config.Set.Server_Port (Conf, Port);
    Config.Set.Max_Connection (Conf, 5);
 
    Services.Dispatchers.Transient_Pages.Register

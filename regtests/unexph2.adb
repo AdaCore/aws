@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                          Copyright (C) 2003-2004                         --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -43,6 +43,9 @@ with AWS.Response;
 with AWS.Server;
 with AWS.Status;
 with AWS.Log;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Unexph2 is
 
@@ -52,6 +55,7 @@ procedure Unexph2 is
    use GNAT;
 
    HTTP : AWS.Server.HTTP;
+   Port : Natural := 1247;
 
    R : Response.Data;
 
@@ -113,9 +117,11 @@ procedure Unexph2 is
 
    task body Server is
    begin
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (HTTP, "Test default unexpected exception handler",
-         CB'Unrestricted_Access, Port => 1247, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => Port, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -128,14 +134,16 @@ procedure Unexph2 is
 begin
    Server.Wait_Start;
 
-   R := Client.Get ("http://localhost:1247/test", Timeouts => (2, 2));
+   R := Client.Get
+     ("http://localhost:" & Utils.Image (Port) & "/test", Timeouts => (2, 2));
 
    Text_IO.Put_Line ("----------------------");
    Text_IO.Put_Line (No_Traceback (Response.Message_Body (R)));
 
    Create_500_Tmplt;
 
-   R := Client.Get ("http://localhost:1247/test", Timeouts => (2, 2));
+   R := Client.Get
+     ("http://localhost:" & Utils.Image (Port) & "/test", Timeouts => (2, 2));
 
    Text_IO.Put_Line ("----------------------");
    Text_IO.Put_Line (Response.Message_Body (R));
