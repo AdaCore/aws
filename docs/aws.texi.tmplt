@@ -1152,6 +1152,7 @@ compressed memory stream response.
 * Response from a stream::
 * Response from a memory stream::
 * Response from a compressed memory stream::
+* Split page::
 @end menu
 
 @node Redirection
@@ -1407,6 +1408,12 @@ compressed stream object is used exactly as a standard stream.
 Note that there is the reverse implementation to decompress a
 stream. @pxref{AWS.Resources.Streams.Memory.ZLib}. It's usage
 is identical.
+
+@node Split page
+@subsection Split page
+
+@code{AWS} has a specific high level service to split a large response
+into a set of pages. For more information @pxref{Split pages}.
 
 @c ----------------------------------------------------------------------
 
@@ -2619,6 +2626,8 @@ Refer to the Ada spec for a complete API and usage description.
 * Directory browser::
 * Dispatchers::
 * Static Page server::
+* Transient Pages::
+* Split pages::
 @end menu
 
 @c ----------------------------------------------------------------------
@@ -2663,6 +2672,8 @@ expressions depending on the service)
 * Method dispatcher::
 * URI dispatcher::
 * Virtual host dispatcher::
+* Transient pages dispatcher::
+* Timer dispatcher::
 * SOAP dispatcher::
 @end menu
 
@@ -2724,6 +2735,69 @@ procedures or redirect to some @b{machine/port} based on the host name
 in the client's request.
 
 @pxref{AWS.Services.Dispatchers.Virtual_Host} for complete spec description.
+
+@node Transient pages dispatcher
+@subsection Transient pages dispatcher
+@cindex Dispatchers Transient pages
+@cindex transient pages, dispatcher
+
+@noindent
+This is a dispatcher that calls a user's callback and if the resource
+requested is not found (i.e. the user's callback returns status code
+404) it checks if this resource is known as a transient
+page. @pxref{Transient Pages}.
+
+@node Timer dispatcher
+@subsection Timer dispatcher
+@cindex Dispatchers Timer
+@cindex timer, dispatcher
+
+@noindent
+A timer dispatcher can be used to call different callback routines
+depending on the current date and time. Such dispatcher is composed of
+a set of @code{Period} activated. When the current date and time is
+inside a @code{Period} the corresponding callback is called. A
+@code{Period} can eventually be repeated. Here are the different kind
+of @code{Period} supported by @code{AWS}:
+
+@table @b
+
+@item Once
+
+A unique period in time. The boundaries are fully described using a
+year, month, day, hour, minute and second.
+
+@item Yearly
+
+A period that repeats each year. The boundaries are described using a
+month, day, hour, minute and second.
+
+@item Monthly
+
+A period that repeats each month. The boundaries are described using a
+day, hour, minute and second.
+
+@item Weekly
+
+A period that repeats each week. The boundaries are described using a
+day name, hour, minute and second.
+
+@item Daily
+
+A period that repeats each day. The boundaries are described using an
+hour, minute and second.
+
+@item Hourly
+
+A period that repeats each hour. The boundaries are described using a
+minute and second.
+
+@item Minutely
+
+A period that repeats each minute. The boundaries are described using
+a second.
+
+@end table
 
 @node SOAP dispatcher
 @subsection @code{SOAP} dispatcher
@@ -2804,6 +2878,55 @@ total page size is bigger than 512 bytes or it includes at least one image.}
 @end table
 
 @pxref{AWS.Services.Page_Server} for a complete spec description.
+
+@c ----------------------------------------------------------------------
+
+@node Transient Pages
+@section Transient Pages
+@cindex transient pages
+@cindex pages, transient
+
+@noindent
+A transient page is a resource that has a certain life time on the
+server. After this time the resource will be released and will not be
+accessible anymore.
+
+@noindent
+Sometimes you want to reference, in a Web page, a resource that is built
+in memory by the server. This resource can be requested by the client (by
+clicking on the corresponding link) or not, in both cases the page must
+be released after a certain amount of time to free the associated memory.
+
+@noindent
+This is exactly what the transient pages high level service do
+automatically. Each transient page must be registered into the
+service, a specific routine named @code{Get_URI} can be used to create
+a unique @code{URI} on this server. @pxref{AWS.Services.Transient_Pages}.
+
+@noindent
+A transient pages dispatcher can be used to build a transient pages
+aware server. @pxref{Transient pages dispatcher}.
+
+@c ----------------------------------------------------------------------
+
+@node Split pages
+@section Split pages
+@cindex split pages
+@cindex pages, split
+
+@noindent
+It not not very convenient to send back a Web page with a large
+table. In such a case it is better to split the table in chunks (20
+lines or so) and to send only the first page. This page reference the
+next pages and can also contains an index of the pages.
+
+@noindent
+The @code{AWS}'s split page feature can automatically do that for
+you. Given template @code{Translate_Table} and the max line per page
+it returns the first page and create a set of transient pages for all
+other pages. A set of template tags are used to reference the previous
+and next page and also to build the page index.
+@pxref{AWS.Services.Split_Pages}.
 
 @c ======================================================================
 
@@ -5269,6 +5392,8 @@ AWS User's API:
 * AWS.Services.Dispatchers.URI::
 * AWS.Services.Dispatchers.Virtual_Host::
 * AWS.Services.Page_Server::
+* AWS.Services.Split_Pages::
+* AWS.Services.Transient_Pages::
 * AWS.Session::
 * AWS.SMTP::
 * AWS.SMTP.Client::
@@ -5573,6 +5698,20 @@ SOAP User's API:
 @cindex AWS.Services.Page_Server
 
 @include aws-services-page_server.ads.texi
+
+@page
+@node AWS.Services.Split_Pages
+@appendixsec AWS.Services.Split_Pages
+@cindex AWS.Services.Split_Pages
+
+@include aws-services-split_pages.ads.texi
+
+@page
+@node AWS.Services.Transient_Pages
+@appendixsec AWS.Services.Transient_Pages
+@cindex AWS.Services.Transient_Pages
+
+@include aws-services-transient_pages.ads.texi
 
 @page
 @node AWS.Session
