@@ -1,6 +1,6 @@
 
 			    A W S - Ada Web Sever
-                               1.0 prerelease
+                                1.0 release
 
 Authors:
    Dmitriy Anisimkov
@@ -9,7 +9,7 @@ Authors:
 
 
 Dmitriy Anisimkov and I are very happy to announce the availability of the 
-AWS 1.0pre release. This version is close to the 1.0 version. Note that the API
+AWS 1.0 release. This version is close to the 1.0 version. Note that the API
 has been changed a lot. This is part of a redesign to have a cleaner API. We
 plan to change slightly the API at this stage but it should be mostly stable.
 
@@ -22,40 +22,15 @@ without the need for a Web Server. AWS is fully developed in Ada with GNAT.
 
 Here are the main changes:
 
-  - The status page to use (and associated images) can be changed via the
-    configuration file.
+  - finer control of the log filename (see AWS.Server.Start_Log and 
+    AWS.Log.Start).
 
-  - Improved status page. A message is displayed if there is no session active
-    and if there is no hotplug module loaded.
+  - Add log information in the status page.
 
-  - There is now 2 initialization files: aws.ini (parsed first) then
-    <program_name>.ini. So it is possible to have general initializations for
-    AWS servers in the same directory and specific initializations for each AWS
-    server.
+  - New log split mode policy: Each_Run
 
-  - Now option name (in initialization files) are not case sensitive.
-
-  - Log filename is now prefixed by the name of the program (instead of
-    "aws"). It is now possible to have many AWS program using the log facility
-    running into the same directory.
-
-  - Forms or CGI parameters are now passed to the hotplug modules.
-
-  - Hotplug modules now support GET and POST methods.
-
-  - Client POST request fixed.
-
-  - Handle properly file name with spaces both with Netscape and IE.
-
-  - Correctly use Upload_Path to store uploaded files.
-
-  - A Web directory browsing services has been implemented.
-
-  - A set of icons is provided, this is used by the directory browser template.
-
-  - Remove use of AVL tree generic for session data and use a new component.
-    The AVL tree was quite buggy. This was a serious problem, please consider 
-    upgrading to AWS 1.0pre as soon as possible.
+  - Configuration options are now on a per server basis instead of per
+    process. See AWS.Config, AWS.Config.Set and AWS.Config.Ini.
 
   - improve the documentation.
 
