@@ -80,4 +80,4 @@ distrib:
 		docs/openssl.license
 	rm readme.txt
 	gzip -9 aws.tar
-	mv aws.tar.gz aws-`grep " Version" src/aws.ads | cut -c 41-44`.tar.gz
+	mv aws.tar.gz aws-`grep " Version" src/aws.ads | cut -c 43-48`.tar.gz
