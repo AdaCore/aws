@@ -1,3 +1,13 @@
+2003-07-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* strm.adb, strm2.adb:
+	Use modified user defined stream interface.
+
+	* user_strm.ads, user_strm.adb:
+	(Size): New routine.
+	(Create): New parameter Undefined_Size for emulate
+	 undefined length stream.
+
 2003-06-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* disp_soap.adb:
