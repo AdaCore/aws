@@ -1,5 +1,8 @@
 2003-01-16  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-client.adb:
+	Minor reformatting.
+
 	* aws-net-ssl.adb:
 	(Socket): Properly free socket access. Fix memory leak.
 

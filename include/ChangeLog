@@ -1,3 +1,15 @@
+2003-01-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb, templates_parser-expr.adb:
+	Update to version 4.4.
+	Handle tabulation as separators in all cases.
+
+	* templates_parser-data.adb:
+	Set to UNIX format.
+
+	* templates_parser-print_tree.adb:
+	Set to UNIX format.
+
 2003-01-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-std-gnat.adb:
