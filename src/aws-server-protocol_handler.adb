@@ -397,6 +397,8 @@ is
 
             --  If no one applied, run the default callback
             if not Found then
+               AWS.Status.Set.Peername
+                 (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
                Answer := HTTP_Server.CB (C_Stat);
             end if;
          end;
