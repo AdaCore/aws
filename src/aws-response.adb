@@ -34,7 +34,7 @@ with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Translator;
-with AWS.Resources;
+with AWS.Resources.Embedded;
 
 package body AWS.Response is
 
@@ -233,6 +233,23 @@ package body AWS.Response is
    begin
       return To_String (D.Content_Type);
    end Content_Type;
+
+   ----------------------
+   -- Create_Resource --
+   ----------------------
+
+   procedure Create_Resource
+     (File :    out AWS.Resources.File_Type;
+      D    : in     Data)
+   is
+      use AWS.Resources;
+   begin
+      if D.Mode = Response.File then
+         Open (File, Filename (D), "shared=no");
+      else
+         Embedded.Create (File, Embedded.Buffer_Access (D.Message_Body));
+      end if;
+   end Create_Resource;
 
    -----------
    -- Empty --

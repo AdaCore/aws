@@ -40,6 +40,7 @@ with Ada.Finalization;
 with AWS.Status;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Resources;
 
 package AWS.Response is
 
@@ -188,6 +189,14 @@ package AWS.Response is
    function Message_Body (D : in Data) return Streams.Stream_Element_Array;
    pragma Inline (Message_Body);
    --  Returns message body as a binary content.
+
+   procedure Create_Resource
+     (File :    out AWS.Resources.File_Type;
+      D    : in     Data);
+   --  Creates the resource object (either a file or in-memory object) for
+   --  the data to be sent to the client. The resource should be closed after
+   --  use.
+   pragma Inline (Create_Resource);
 
    function Realm (D : in Data) return String;
    pragma Inline (Realm);
