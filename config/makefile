@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all setup ../src/aws-translator-conversion.adb
+.SILENT:
 
 ifeq (${OS}, Windows_NT)
 EXEEXT = .exe
@@ -23,14 +23,7 @@ setup: ../src/aws-translator-conversion.adb ../src/aws-os_lib-definitions.ads
 	$(GCC_FOR_HOST) -o check_config src/check_config.c
 	./check_config > ../src/aws-os_lib-definitions.ads
 
+build:
+
 clean:
 	-$(RM) -f *.o *.ali *.~*.*~ *.exe test_uconv check_config
-
-#############################################################################
-# Configuration for GNAT Projet Files
-
-gsetup: setup
-
-gclean: clean
-
-gbuild:
