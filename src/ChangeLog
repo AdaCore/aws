@@ -1,4 +1,39 @@
+2001-11-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Parse_Request_Line): correctly decode resource and parameters. Use
+	 AWS.URL.Decode instead of AWS.Translator.Decode_URL.
+
+	* aws-url.adb:
+	(Decode): add check for 2 numbers after '%' character.
+
+	* aws-parameters-set.adb:
+	(Add): Use AWS.URL.Decode instead of AWS.Translator.Decode_URL. 
+
+	* aws-translator.ads, aws-translator.adb:
+	(Decode_URL): removed.
+
+	* aws-client.adb:
+	Use AWS.URL.Host instead of Server_Name.
+
 2001-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-url.adb:
+	(Host): new procedure (same proc than Server_Name).
+	(Path): new procedure.
+	(File): new procedure.
+	(Pathname): was URI.
+	(Decode): new function.
+	(Parse): Use Path and File instead of URI.
+	(URL): use Pathname.
+
+	* aws-url.ads:
+	(Host): new procedure (same proc than Server_Name).
+	(Path): new procedure.
+	(File): new procedure.
+	(Pathname): was URI.
+	(Decode): new function.
+	(Object): remove URI, add Path and File.
 
 	* aws-response.ads:
 	(Data): Add comment about type not being threda safe.
