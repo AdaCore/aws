@@ -1,3 +1,8 @@
+2002-10-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-url.adb:
+	(Parse): Simplify test for wrong URL.
+
 2002-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-url.adb:
