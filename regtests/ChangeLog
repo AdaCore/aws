@@ -1,3 +1,8 @@
+2003-12-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(init): Redirect output of gzip to /dev/null.
+
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* check_mem.adb:
