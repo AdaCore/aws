@@ -53,7 +53,8 @@ project Demos is
               "soap_cvs.adb", "wsdl_demo_client.adb", "wsdl_demo_server.adb",
               "interoplab_main.adb", "soap_server_disp.adb");
       when "Disabled" =>
-         null;
+         --  Should be replaced by null as supported by GNAT 5.03
+         for Main use project'Main;
    end case;
 
    case Shared.Build is
