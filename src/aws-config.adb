@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -126,6 +126,24 @@ package body AWS.Config is
    begin
       return To_String (O.P (Down_Image).Str_Value);
    end Down_Image;
+
+   -------------------------------
+   -- Error_Log_Filename_Prefix --
+   -------------------------------
+
+   function Error_Log_Filename_Prefix (O : in Object) return String is
+   begin
+      return To_String (O.P (Error_Log_Filename_Prefix).Str_Value);
+   end Error_Log_Filename_Prefix;
+
+   --------------------------
+   -- Error_Log_Split_Mode --
+   --------------------------
+
+   function Error_Log_Split_Mode (O : in Object) return String is
+   begin
+      return To_String (O.P (Error_Log_Split_Mode).Str_Value);
+   end Error_Log_Split_Mode;
 
    -------------------------------
    -- Force_Client_Data_Timeout --

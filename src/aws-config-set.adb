@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Exceptions;
+
 package body AWS.Config.Set is
 
    procedure Parameter
@@ -131,6 +132,25 @@ package body AWS.Config.Set is
    begin
       O.P (Down_Image).Str_Value := To_Unbounded_String (Value);
    end Down_Image;
+
+   -------------------------------
+   -- Error_Log_Filename_Prefix --
+   -------------------------------
+
+   procedure Error_Log_Filename_Prefix
+     (O : in out Object; Value : in String) is
+   begin
+      O.P (Error_Log_Filename_Prefix).Str_Value := To_Unbounded_String (Value);
+   end Error_Log_Filename_Prefix;
+
+   --------------------------
+   -- Error_Log_Split_Mode --
+   --------------------------
+
+   procedure Error_Log_Split_Mode (O : in out Object; Value : in String) is
+   begin
+      O.P (Error_Log_Split_Mode).Str_Value := To_Unbounded_String (Value);
+   end Error_Log_Split_Mode;
 
    -------------------------------
    -- Force_Client_Data_Timeout --
