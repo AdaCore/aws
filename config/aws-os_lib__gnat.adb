@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -43,8 +43,8 @@ package body AWS.OS_Lib is
 
    Max_Path : constant Integer;
    pragma Import (C, Max_Path, "max_path_len");
-   --  Maximum length of an allowable full path name on the system,
-   --  including a terminating NUL character.
+   --  Maximum full pathname supported by the OS including a terminating NUL
+   --  character.
    --  ??? We have to check length of path for avoid GNAT bug with too long
    --  path in versions older than 3.17 and 5.02.
 
@@ -57,9 +57,9 @@ package body AWS.OS_Lib is
    is
       use GNAT.OS_Lib;
 
-      Name    : String := Filename & ASCII.NUL;
-      FD      : File_Descriptor;
-      Length  : Ada.Streams.Stream_Element_Offset := 0;
+      Name   : String := Filename & ASCII.NUL;
+      FD     : File_Descriptor;
+      Length : Ada.Streams.Stream_Element_Offset := 0;
    begin
       FD := Open_Read (Name'Address, Binary);
       if FD /= Invalid_FD then
@@ -140,10 +140,9 @@ package body AWS.OS_Lib is
       Second : Integer;
    begin
       GNAT.OS_Lib.GM_Split (UTC, Year, Month, Day, Hour, Minute, Second);
-      return Ada.Calendar.Time_Of (Year, Month, Day,
-                                   Duration (Hour   * 3600 +
-                                             Minute * 60 +
-                                             Second));
+      return Ada.Calendar.Time_Of
+        (Year, Month, Day,
+         Duration (Hour   * 3600 + Minute * 60 + Second));
    end OS_Time_To_Calendar_Time;
 
 end AWS.OS_Lib;
