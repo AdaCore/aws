@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              October 8th, 2003
+   Pascal Obry                                             October 10th, 2003
 
 
 
@@ -151,6 +151,9 @@ Here are the main changes since AWS 1.3 :
      => This is not upward compatible. Add ".all" to the parameter to use the
      version with a Stream_Element_Array formal parameter.
 
+   - Add new routines to retrieve the log filenames and the status of
+     the log files. See AWS.Server.Log.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
@@ -167,6 +170,30 @@ The LDAP binding will use the LDAP dynamic library on Windows. On UNIX you
 need to build and install OpenLDAP.
 
 See documentation for build information.
+
+
+Obsolescent features:
+---------------------
+
+In each new version we try to be upward compatible with previous
+version. This is really important, but in some cases it seems that a
+"redesign" of the API would be good in the long term. All obsolescent
+features will be listed in this section. Those features will be
+removed in the next version. Note that you can check usage of those
+features in your application by using the GNAT's -gnatwj option as we
+have tagged all obsolescent features with a pragma.
+
+   AWS.Server.Start_Log
+      use AWS.Server.Log.Start instead.
+
+   AWS.Server.Stop_Log
+      use AWS.Server.Log.Stop instead.
+
+   AWS.Server.Start_Error_Log
+      use AWS.Server.Start_Error instead.
+
+   AWS.Server.Stop_Error_Log
+      use AWS.Server.Stop_Error instead.
 
 
 Validation:
