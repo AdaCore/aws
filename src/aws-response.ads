@@ -51,16 +51,14 @@ package AWS.Response is
    type Data_Mode is (Header, Message, File, Socket_Taken, No_Data);
 
    type Authentication_Mode is (Any, Basic, Digest);
-   --  Do not change the order of element,
-   --  becouse it is using to define authentication power
-   --  in the the AWS.Client.
    --  The authentication mode.
-   --  Basic and Digest mean that server could accept only
-   --  one authentication mode. "Any" mean that server could
-   --  accept any authentication from client.
+   --  "Basic" and "Digest" mean that server must accept the requested
+   --  authentication mode. "Any" mean that server could accept any
+   --  authentication from client.
+   --  Note the order here should not be changed as it is used in AWS.Client.
 
-   Default_Moved_Message : constant String :=
-     "Page moved<br><a href=""_@_"">Click here</a>";
+   Default_Moved_Message : constant String
+     := "Page moved<br><a href=""_@_"">Click here</a>";
    --  This is a template message, _@_ will be replaced by the Location (see
    --  function Build with Location below).
 
@@ -72,13 +70,13 @@ package AWS.Response is
      (Content_Type : in String;
       Message_Body : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-     return Data;
+      return Data;
 
    function Build
      (Content_Type    : in String;
       UString_Message : in Strings.Unbounded.Unbounded_String;
       Status_Code     : in Messages.Status_Code := Messages.S200)
-     return Data;
+      return Data;
    --  Return a message whose body is passed into Message_Body. The
    --  Content_Type parameter is the MIME type for the message
    --  body. Status_Code is the response status (see Messages.Status_Code
@@ -88,17 +86,16 @@ package AWS.Response is
      (Content_Type : in String;
       Message_Body : in Streams.Stream_Element_Array;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-     return Data;
+      return Data;
    --  Idem above, but the message body is a stream element array.
 
-   function URL (Location : in String)
-     return Data;
+   function URL (Location : in String) return Data;
    --  This ask the server for a redirection to the specified URL.
 
    function Moved
      (Location : in String;
       Message  : in String := Default_Moved_Message)
-     return Data;
+      return Data;
    --  This send back a moved message (Messages.S301) with the specified
    --  message body.
 
@@ -106,7 +103,7 @@ package AWS.Response is
      (Status_Code  : in Messages.Status_Code;
       Message_Body : in String := "";
       Content_Type : in String := MIME.Text_HTML)
-     return Data;
+      return Data;
    --  Returns a message to the Web browser. This routine must be used to
    --  send back an error message to the Web browser. For example if a
    --  requested resource cannot be served a message with status code S404
@@ -115,8 +112,8 @@ package AWS.Response is
    function Authenticate
      (Realm : in String;
       Mode  : in Authentication_Mode := Basic;
-      Stale : in Boolean := False)
-     return Data;
+      Stale : in Boolean             := False)
+      return Data;
    --  Returns an authentification message (Messages.S401), the Web browser
    --  will then ask for an authentification. Realm string will be displayed
    --  by the Web Browser in the authentification dialog box.
@@ -125,7 +122,7 @@ package AWS.Response is
      (Content_Type : in String;
       Filename     : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-     return Data;
+      return Data;
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file.
 
@@ -144,19 +141,19 @@ package AWS.Response is
    -- Other API --
    ---------------
 
-   function Mode           (D : in Data) return Data_Mode;
+   function Mode (D : in Data) return Data_Mode;
    pragma Inline (Mode);
    --  Returns the data mode, either Header, Message or File.
 
-   function Authentication  (D : in Data) return Authentication_Mode;
+   function Authentication (D : in Data) return Authentication_Mode;
    pragma Inline (Authentication);
    --  Returns the authentication mode requested by server.
 
-   function Authentication_Stale  (D : in Data) return Boolean;
+   function Authentication_Stale (D : in Data) return Boolean;
    pragma Inline (Authentication_Stale);
    --  Returns the stale parameter for authentication.
 
-   function Status_Code    (D : in Data) return Messages.Status_Code;
+   function Status_Code (D : in Data) return Messages.Status_Code;
    pragma Inline (Status_Code);
    --  Returns the status code.
 
@@ -165,33 +162,34 @@ package AWS.Response is
    --  Returns the content length (i.e. the message body length). A value of 0
    --  indicate that there is no message body.
 
-   function Content_Type   (D : in Data) return String;
+   function Content_Type (D : in Data) return String;
    pragma Inline (Content_Type);
    --  Returns the MIME type for the message body.
 
-   function Filename       (D : in Data) return String;
+   function Filename (D : in Data) return String;
    pragma Inline (Filename);
    --  Returns the filename which should be sent back.
 
-   function Location       (D : in Data) return String;
+   function Location (D : in Data) return String;
    pragma Inline (Location);
    --  Returns the location for the new page in the case of a moved
    --  message. See Moved constructor above.
 
-   function Message_Body   (D : in Data) return String;
+   function Message_Body (D : in Data) return String;
    pragma Inline (Message_Body);
    --  Returns the message body content as a string.
 
-   function Message_Body   (D : in Data)
-       return Strings.Unbounded.Unbounded_String;
+   function Message_Body
+     (D : in Data)
+      return Strings.Unbounded.Unbounded_String;
    pragma Inline (Message_Body);
    --  Returns the message body content as a unbounded_string.
 
-   function Message_Body   (D : in Data) return Streams.Stream_Element_Array;
+   function Message_Body (D : in Data) return Streams.Stream_Element_Array;
    pragma Inline (Message_Body);
    --  Returns message body as a binary content.
 
-   function Realm          (D : in Data) return String;
+   function Realm (D : in Data) return String;
    pragma Inline (Realm);
    --  Returns the Realm for the current authentification request.
 
