@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 Marsh 27th, 2003
+   Pascal Obry                                                 April 21st, 2003
 
 
 
@@ -77,6 +77,10 @@ Here are the main changes since AWS 1.3 :
      at this point.
 
    - Handle properly file upload for filenames with accents and spaces.
+
+   - Add session cleanup callback (called when a session ID has expired).
+
+   - Fix memory leak in the sessions container.
 
    - Plus many small fixes, enhancements and documentation work.
 
