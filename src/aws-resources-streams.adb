@@ -30,8 +30,6 @@
 
 --  $Id$
 
-with AWS.Resources.Release;
-
 package body AWS.Resources.Streams is
 
    ------------
@@ -44,19 +42,6 @@ package body AWS.Resources.Streams is
    begin
       Resource := File_Type (Stream);
    end Create;
-
-   -------------
-   -- Release --
-   -------------
-
-   procedure Release
-     (Resource : in     Stream_Type;
-      File     : in out File_Type)
-   is
-      pragma Unreferenced (Resource);
-   begin
-      AWS.Resources.Release (File);
-   end Release;
 
    ----------
    -- Size --
