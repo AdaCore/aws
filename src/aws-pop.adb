@@ -40,6 +40,7 @@ with Ada.Unchecked_Deallocation;
 with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.Net.Buffered;
+with AWS.Resources.Streams.Memory;
 with AWS.Translator;
 with AWS.Utils;
 
@@ -48,6 +49,10 @@ package body AWS.POP is
    use Ada.Exceptions;
 
    --  MIME Headers
+
+   subtype Stream_Type is AWS.Resources.Streams.Memory.Stream_Type;
+
+   CRLF : constant String := ASCII.CR & ASCII.LF;
 
    Content_Transfer_Encoding : constant String := "Content-Transfer-Encoding";
    Content_Disposition       : constant String := "Content-Disposition";
@@ -136,9 +141,9 @@ package body AWS.POP is
 
    function Content
      (Attachment : in POP.Attachment)
-      return AWS.Resources.Streams.Memory.Stream_Type is
+      return AWS.Resources.Streams.Stream_Access is
    begin
-      return AWS.Resources.Streams.Memory.Stream_Type (Attachment.Content.all);
+      return Attachment.Content;
    end Content;
 
    function Content (Attachment : in POP.Attachment) return Unbounded_String is
@@ -175,6 +180,24 @@ package body AWS.POP is
    begin
       return Header (Message, "Date");
    end Date;
+
+   ------------
+   -- Delete --
+   ------------
+
+   procedure Delete
+     (Mailbox : in POP.Mailbox;
+      N       : in Positive) is
+   begin
+      Net.Buffered.Put_Line (Mailbox.Sock, "DELE " & Utils.Image (N));
+
+      declare
+         Response : constant String
+           := Net.Buffered.Get_Line (Mailbox.Sock);
+      begin
+         Check_Response (Response);
+      end;
+   end Delete;
 
    --------------
    -- Filename --
@@ -353,7 +376,7 @@ package body AWS.POP is
                else
                   AWS.Resources.Streams.Memory.Append
                     (Stream_Type (Attachment.Content.all),
-                     Translator.To_Stream_Element_Array (Response));
+                     Translator.To_Stream_Element_Array (Response & CRLF));
                end if;
             end;
          end loop;
@@ -400,7 +423,7 @@ package body AWS.POP is
                  := Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                exit when Response = ".";
-               Append (Mess.Content, Response & ASCII.CR & ASCII.LF);
+               Append (Mess.Content, Response & CRLF);
             end;
          end loop;
 
@@ -413,7 +436,7 @@ package body AWS.POP is
                  := Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                exit when Response = To_String (Boundary);
-               Append (Mess.Content, Response & ASCII.CR & ASCII.LF);
+               Append (Mess.Content, Response & CRLF);
             end;
          end loop;
 
@@ -453,14 +476,7 @@ package body AWS.POP is
       --  Remove message from server
 
       if Remove then
-         Net.Buffered.Put_Line (Mailbox.Sock, "DELE " & Utils.Image (N));
-
-         declare
-            Response : constant String
-              := Net.Buffered.Get_Line (Mailbox.Sock);
-         begin
-            Check_Response (Response);
-         end;
+         Delete (Mailbox, N);
       end if;
 
       return Mess;
@@ -497,7 +513,21 @@ package body AWS.POP is
    is
       Mess : Message;
    begin
-      --  Send command
+      --  Send command to get the message size
+
+      Net.Buffered.Put_Line (Mailbox.Sock, "LIST " & Utils.Image (N));
+
+      declare
+         Response : constant String
+           := Net.Buffered.Get_Line (Mailbox.Sock);
+         K : Natural;
+      begin
+         Check_Response (Response);
+         K := Strings.Fixed.Index (Response, " ", Strings.Backward);
+         Mess.Size := Natural'Value (Response (K + 1 .. Response'Last));
+      end;
+
+      --  Send command to get the message header
 
       Net.Buffered.Put_Line (Mailbox.Sock, "TOP " & Utils.Image (N) & " 0");
       --  Read 0 line from the body
@@ -513,7 +543,8 @@ package body AWS.POP is
 
       AWS.Headers.Set.Read (Mailbox.Sock, Mess.Headers);
 
-      --  Now read until the end of the message body
+      --  Now read until the end of the message body, should read a single
+      --  line with a dot.
 
       loop
          declare
@@ -687,6 +718,11 @@ package body AWS.POP is
    function Size (Mailbox : in POP.Mailbox) return Natural is
    begin
       return Mailbox.Size;
+   end Size;
+
+   function Size (Message : in POP.Message) return Natural is
+   begin
+      return Message.Size;
    end Size;
 
    -------------
