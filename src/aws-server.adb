@@ -46,6 +46,7 @@ with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with AWS.OS_Lib;
+with AWS.Server.Log;
 with AWS.Session.Control;
 with AWS.Status.Translate_Table;
 with AWS.Templates;
@@ -255,15 +256,6 @@ package body AWS.Server is
       end if;
    end Default_Unexpected_Exception_Handler;
 
-   --------------------
-   -- Error_Log_Name --
-   --------------------
-
-   function Error_Log_Name (Web_Server : in HTTP) return String is
-   begin
-      return Log.Filename (Web_Server.Error_Log);
-   end Error_Log_Name;
-
    ---------------------
    -- File_Upload_UID --
    ---------------------
@@ -290,15 +282,6 @@ package body AWS.Server is
    begin
       Shutdown (Web_Server);
    end Finalize;
-
-   ---------------
-   -- Flush_Log --
-   ---------------
-
-   procedure Flush_Log (Web_Server : in out HTTP) is
-   begin
-      Log.Flush (Web_Server.Log);
-   end Flush_Log;
 
    -----------------
    -- Get_Current --
@@ -329,24 +312,6 @@ package body AWS.Server is
    begin
       null;
    end Initialize;
-
-   -------------------------
-   -- Is_Error_Log_Active --
-   -------------------------
-
-   function Is_Error_Log_Active (Web_Server : in HTTP) return Boolean is
-   begin
-      return Log.Is_Active (Web_Server.Error_Log);
-   end Is_Error_Log_Active;
-
-   -------------------
-   -- Is_Log_Active --
-   -------------------
-
-   function Is_Log_Active (Web_Server : in HTTP) return Boolean is
-   begin
-      return Log.Is_Active (Web_Server.Log);
-   end Is_Log_Active;
 
    ----------
    -- Line --
@@ -427,7 +392,7 @@ package body AWS.Server is
                pragma Warnings (Off, S);
                Answer : Response.Data;
             begin
-               Log.Write
+               AWS.Log.Write
                  (HTTP_Server.Error_Log,
                   "Dead slot " & Utils.Image (Slot_Index) & ' '
                     & Utils.CRLF_2_Spaces
@@ -471,15 +436,6 @@ package body AWS.Server is
 
       end loop;
    end Line_Cleaner;
-
-   --------------
-   -- Log_Name --
-   --------------
-
-   function Log_Name (Web_Server : in HTTP) return String is
-   begin
-      return Log.Filename (Web_Server.Log);
-   end Log_Name;
 
    ----------------------
    -- Protocol_Handler --
@@ -624,9 +580,9 @@ package body AWS.Server is
 
       --  Close logs, this ensure that all data will be written to the file.
 
-      Stop_Log (Web_Server);
+      Log.Stop (Web_Server);
 
-      Stop_Error_Log (Web_Server);
+      Log.Stop_Error (Web_Server);
 
       --  Server removed
 
@@ -1105,29 +1061,9 @@ package body AWS.Server is
 
    procedure Start_Error_Log
      (Web_Server        : in out HTTP;
-      Split_Mode        : in     Log.Split_Mode := Log.None;
-      Filename_Prefix   : in     String         := "")
-   is
-      use type AWS.Log.Split_Mode;
-   begin
-      if Split_Mode /= Log.None then
-         CNF.Set.Error_Log_Split_Mode
-           (Web_Server.Properties, Log.Split_Mode'Image (Split_Mode));
-      end if;
-
-      if Filename_Prefix /= "" then
-         CNF.Set.Error_Log_Filename_Prefix
-           (Web_Server.Properties, Filename_Prefix);
-      end if;
-
-      Log.Start
-        (Web_Server.Error_Log,
-         Log.Split_Mode'Value
-           (CNF.Error_Log_Split_Mode (Web_Server.Properties)),
-         CNF.Log_File_Directory (Web_Server.Properties),
-         CNF.Error_Log_Filename_Prefix (Web_Server.Properties),
-         Auto_Flush => True);
-   end Start_Error_Log;
+      Split_Mode        : in     AWS.Log.Split_Mode := AWS.Log.None;
+      Filename_Prefix   : in     String             := "")
+      renames AWS.Server.Log.Start_Error;
 
    ---------------
    -- Start_Log --
@@ -1135,47 +1071,24 @@ package body AWS.Server is
 
    procedure Start_Log
      (Web_Server      : in out HTTP;
-      Split_Mode      : in     Log.Split_Mode := Log.None;
-      Filename_Prefix : in     String         := "";
-      Auto_Flush      : in     Boolean        := False)
-   is
-      use type AWS.Log.Split_Mode;
-   begin
-      if Split_Mode /= Log.None then
-         CNF.Set.Log_Split_Mode
-           (Web_Server.Properties, Log.Split_Mode'Image (Split_Mode));
-      end if;
-
-      if Filename_Prefix /= "" then
-         CNF.Set.Log_Filename_Prefix
-           (Web_Server.Properties, Filename_Prefix);
-      end if;
-
-      Log.Start
-        (Web_Server.Log,
-         Log.Split_Mode'Value (CNF.Log_Split_Mode (Web_Server.Properties)),
-         CNF.Log_File_Directory (Web_Server.Properties),
-         CNF.Log_Filename_Prefix (Web_Server.Properties),
-         Auto_Flush => Auto_Flush);
-   end Start_Log;
+      Split_Mode      : in     AWS.Log.Split_Mode := AWS.Log.None;
+      Filename_Prefix : in     String             := "";
+      Auto_Flush      : in     Boolean            := False)
+      renames AWS.Server.Log.Start;
 
    --------------------
    -- Stop_Error_Log --
    --------------------
 
-   procedure Stop_Error_Log (Web_Server : in out HTTP) is
-   begin
-      Log.Stop (Web_Server.Error_Log);
-   end Stop_Error_Log;
+   procedure Stop_Error_Log (Web_Server : in out HTTP)
+     renames AWS.Server.Log.Stop_Error;
 
    --------------
    -- Stop_Log --
    --------------
 
-   procedure Stop_Log (Web_Server : in out HTTP) is
-   begin
-      Log.Stop (Web_Server.Log);
-   end Stop_Log;
+   procedure Stop_Log (Web_Server : in out HTTP)
+     renames AWS.Server.Log.Stop;
 
    ----------
    -- Wait --
