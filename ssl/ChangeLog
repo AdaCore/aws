@@ -1,3 +1,8 @@
+2002-12-25  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* makefile:
+	Remove wrappers from .SILENT list.
+
 2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
