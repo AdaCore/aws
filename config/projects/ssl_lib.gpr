@@ -32,10 +32,12 @@
 
 --  Project for libssl.a external library
 
+with "ssl_shared";
+
 project SSL_Lib is
 
   for Source_Files use ();
-  for Library_Dir use "../lib";
+  for Library_Dir use SSL_Shared.LIB_Path;
   for Library_Name use "ssl";
   for Library_Kind use "static";
 
