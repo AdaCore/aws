@@ -35,7 +35,7 @@ all:
 	echo ""
 
 ../src/aws-os_lib.adb:
-	cp aws-os_lib-gnat.adb ../src/aws-os_lib.adb
+	cp ../config/aws-os_lib__gnat.adb ../src/aws-os_lib.adb
 
 build: ../src/aws-os_lib.adb $(UNITS)
 
