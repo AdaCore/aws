@@ -410,8 +410,8 @@ package body AWS.URL is
          if (Path_Len >= 4
                and then Slice (O.N_Path, 1, 4) = "/../")
            or else
-           (Path_Len >= 3
-              and then Slice (O.N_Path, Path_Len - 2, Path_Len) = "/..")
+           (Path_Len = 3
+              and then Slice (O.N_Path, 1, 3) = "/..")
          then
             O.Status := Wrong;
          else
