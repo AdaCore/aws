@@ -29,6 +29,7 @@
 --  $Id$
 
 --  Usage: agent [options] [GET/PUT] <URL>
+--         -f                      for display of message body.
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
@@ -38,6 +39,8 @@
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Command_Line;
+with Ada.Characters.Handling;
+with Ada.Streams;
 with GNAT.Command_Line;
 
 with AWS.Client;
@@ -59,6 +62,7 @@ procedure Agent is
    Proxy      : Unbounded_String;
    Proxy_User : Unbounded_String;
    Proxy_Pwd  : Unbounded_String;
+   Force      : Boolean := False;
 
    procedure Parse_Command_Line;
    --  parse Agent command line:
@@ -67,10 +71,13 @@ procedure Agent is
    procedure Parse_Command_Line is
    begin
      loop
-        case GNAT.Command_Line.Getopt ("u: p: pu: pp: proxy:") is
+        case GNAT.Command_Line.Getopt ("f u: p: pu: pp: proxy:") is
 
            when ASCII.NUL =>
               exit;
+
+           when 'f' =>
+              Force := True;
 
            when 'u' =>
               User := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -93,7 +100,7 @@ procedure Agent is
               end if;
 
            when others =>
-              raise Program_Error;         -- cannot occur!
+              raise Program_Error;         -- cannot occurs!
         end case;
      end loop;
 
@@ -107,6 +114,7 @@ begin
 
    if Ada.Command_Line.Argument_Count = 0 then
       Text_IO.Put_Line ("Usage: agent [options] [GET/PUT) <URL>");
+      Text_IO.Put_Line ("       -f           force display of message body.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
@@ -142,10 +150,38 @@ begin
 
    if Response.Content_Type (Data) = "text/html" then
       Text_IO.Put_Line (Response.Message_Body (Data));
+
    else
       Text_IO.Put_Line ("Content-Type: "
                         & Response.Content_Type (Data));
       Text_IO.Put_Line ("Content-Length: "
                         & Natural'Image (Response.Content_Length (Data)));
+
+      if Force = True then
+         --  this is not a text/html body, but output it anyway
+
+         declare
+            Message_Body : constant Streams.Stream_Element_Array
+              := Response.Binary (Data);
+         begin
+            for K in Message_Body'Range loop
+               declare
+                  C : Character := Character'Val (Message_Body (K));
+               begin
+                  if C = ASCII.CR
+                    or else C = ASCII.LF
+                    or else not Characters.Handling.Is_Control (C)
+                  then
+                     Text_IO.Put (C);
+                  else
+                     Text_IO.Put ('.');
+                  end if;
+               end;
+            end loop;
+         end;
+
+      end if;
    end if;
 end Agent;
+
+
