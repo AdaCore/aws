@@ -51,8 +51,7 @@ clean:
 # Configuration for GNAT Projet Files
 
 gbuild:
-	$(GNATMAKE) -Pinclude -XAWS_BUILD=${PRJ_BUILD} \
-		-XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Pinclude -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 gsetup:
 	-$(MKDIR) -p ../.build/debug/include
