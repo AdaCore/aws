@@ -84,6 +84,8 @@ b~tgetparam.adb
 b~tgetparam.ads
 b~tlog.adb
 b~tlog.ads
+b~tmime.adb
+b~tmime.ads
 b~tres.adb
 b~tres.ads
 b~tres2.adb
@@ -217,6 +219,7 @@ tgetparam.res
 tgetparam.tmp
 tlog.res
 tlog.tmp
+tmime.res
 tres-1.res
 tres-2.res
 tres.res
