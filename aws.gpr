@@ -37,6 +37,7 @@ with "ssl/ssl";
 with "ssl/nossl";
 with "demos/demos";
 with "tools/tools";
+with "docs/docs.gpr";
 
 project AWS is
 
