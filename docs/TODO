@@ -184,6 +184,11 @@ implemented:
   @@END_TABLE@@         2,2
                         2,3
 
+- Add a way to have structured (as record) templates varibles. It will be
+  easier and cleaner than to have multiple variables that must be
+  synchronized. This needs some more design as it is a tricky issue.
+
+
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply-all support to the Web_Mail service.
@@ -192,3 +197,24 @@ implemented:
   We should be able to remove the tools/makefile kludge (-largs -laws).
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
+
+- As we are going to have a general architecture for reusable Web elements it
+  would be nice to have an enhanced way to "configure" a template file.
+  One idea is to entroduce constants set during parsing.
+
+  @@SET@@ <name> = <value>
+
+  Then <name> becomes a standard () templates variable.
+
+  <value> can be either a string or an include templates parameter $n.
+  It is also possible to combine the 2 with a '|'.
+
+  @@SET@@ <name> = $n|<str>
+
+  This means use $n include parameter value if specified or <str> if not.
+
+- Check if it is possible to pass some more information into the template
+  parsers context when using callbacks.
+
+- Enhanced GPS integration by providing an XML file for the AWS runtime
+  packages.
