@@ -32,6 +32,7 @@
 
 with Ada.Calendar;
 with Ada.Streams;
+with Ada.Unchecked_Deallocation;
 
 package AWS.Resources is
 
@@ -115,5 +116,8 @@ private
 
    procedure Close (File : in out File_Tagged)
       is abstract;
+
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
 
 end AWS.Resources;
