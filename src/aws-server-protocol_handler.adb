@@ -368,7 +368,7 @@ is
                   I_Next := I + Portion_Size;
 
                   if I_Next > Message_Length then
-                     Sockets.Put_Line
+                     Sockets.Put
                        (Sock,
                         Slice (Message_Body, I, Message_Length));
                      exit;
@@ -846,7 +846,7 @@ is
       if Status.Content_Length (C_Stat) /= 0 then
 
          if Status.Method (C_Stat) = Status.POST
-           and then Status.Content_Type (C_Stat) = Messages.Form_Data
+           and then Status.Content_Type (C_Stat) = MIME.Appl_Form_Data
 
          then
             --  Read data from the stream and convert it to a string as
@@ -881,13 +881,36 @@ is
             end;
 
          elsif Status.Method (C_Stat) = Status.POST
-           and then Status.Content_Type (C_Stat) = Messages.Multipart_Form_Data
+           and then Status.Content_Type (C_Stat) = MIME.Multipart_Form_Data
          then
             --  This is a file upload.
 
             File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
                          "--" & Status.Multipart_Boundary (C_Stat) & "--",
                          True);
+
+         elsif Status.Method (C_Stat) = Status.POST
+           and then Status.Is_SOAP (C_Stat)
+         then
+            --  This is a SOAP request, read and set the Payload XML message.
+            begin
+               declare
+                  use Streams;
+
+                  Data : Stream_Element_Array
+                    (1
+                     ..
+                     Stream_Element_Offset (Status.Content_Length (C_Stat)));
+               begin
+                  Sockets.Receive (Sock, Data);
+
+                  AWS.Status.Set.Payload (C_Stat, Translator.To_String (Data));
+               end;
+
+            exception
+               when others =>
+                  raise Connection_Error;
+            end;
 
          else
             --  Let's suppose for now that all others content type data are
@@ -1167,6 +1190,13 @@ is
                Status.Set.Session (C_Stat, Cookies (AWS_Idx + 4 .. Last));
             end if;
          end;
+
+      elsif Messages.Is_Match (Command, Messages.SOAPAction_Token) then
+         Status.Set.SOAPAction
+           (C_Stat,
+            Command
+              (Messages.SOAPAction_Token'Length + 2 .. Command'Last - 1));
+
       end if;
 
    exception
