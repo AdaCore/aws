@@ -1,3 +1,33 @@
+2000-08-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb: 
+	(Get_Message_Data): do not decode URL parameters here.
+	(Parameters): do not decode URL parameters here.
+
+	* aws-server.adb: 
+	remove withed unit Translater (not used anymore).
+
+	* aws-status.adb: 
+	(Parameter): decode URL parameter.
+
+	* aws-status.ads:
+	(Set_Authorization): new procedure
+	(Authorization_Name): new function
+	(Authorization_Password): new function
+	(Data): new field Auth_Name and Auth_Password.
+	
+	* aws-status.adb:
+	(Set_Authorization): new procedure
+	(Authorization_Name): new function
+	(Authorization_Password): new function
+	
+	* aws-server-protocol_handler.adb: 
+	Handle authorization protocol.
+
+	* aws-messages.ads: 
+	Add Authorization_Token
+	Sort constants in alphabetical order.
+
 2000-08-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
