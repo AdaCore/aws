@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2003                         --
+--                        Copyright (C) 1999 - 2004                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -31,6 +31,8 @@
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
+with Strings_Maps;
+
 package Templates_Parser is
 
    use Ada.Strings.Unbounded;
@@ -48,169 +50,94 @@ package Templates_Parser is
    --  Set the tag separators for the whole session. This should be changed as
    --  the very first API call and should not be changed after.
 
-   ----------------
-   -- Vector Tag --
-   ----------------
+   -----------------
+   -- Generic Tag --
+   -----------------
 
-   type Vector_Tag is private;
-   --  A vector tag is a set of strings. Note that this object is using a
-   --  by-reference semantic. A reference counter is associated to it and
-   --  the memory is realeased when there is no more reference to it.
+   type Tag is private;
 
-   function "+" (Value : in String) return Vector_Tag;
-   --  Vector_Tag constructor.
+   function "+" (Value : in String)           return Tag;
+   function "+" (Value : in Character)        return Tag;
+   function "+" (Value : in Boolean)          return Tag;
+   function "+" (Value : in Unbounded_String) return Tag;
+   function "+" (Value : in Integer)          return Tag;
+   function "+" (Value : in Tag)              return Tag;
+   --  Tag constructors
 
-   function "+" (Value : in Character) return Vector_Tag;
-   --  Vector_Tag constructor.
+   function "&" (T : in Tag; Value : in String)           return Tag;
+   function "&" (T : in Tag; Value : in Character)        return Tag;
+   function "&" (T : in Tag; Value : in Boolean)          return Tag;
+   function "&" (T : in Tag; Value : in Unbounded_String) return Tag;
+   function "&" (T : in Tag; Value : in Integer)          return Tag;
+   function "&" (T : in Tag; Value : in Tag)              return Tag;
+   --  Add Value at the end of the tag
 
-   function "+" (Value : in Boolean) return Vector_Tag;
-   --  Vector_Tag constructor.
+   function "&" (Value : in String;           T : in Tag) return Tag;
+   function "&" (Value : in Character;        T : in Tag) return Tag;
+   function "&" (Value : in Boolean;          T : in Tag) return Tag;
+   function "&" (Value : in Unbounded_String; T : in Tag) return Tag;
+   function "&" (Value : in Integer;          T : in Tag) return Tag;
+   --  Add Value at the front of the tag
 
-   function "+" (Value : in Unbounded_String) return Vector_Tag;
-   --  Vector_Tag constructor.
+   procedure Set_Separator (T : in out Tag; Separator : in String);
+   --  Set separator to be used when building a flat representation of
+   --  a composite tag.
 
-   function "+" (Value : in Integer) return Vector_Tag;
-   --  Vector_Tag constructor.
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in String)
-      return Vector_Tag;
-   --  Add Value at the end of the vector tag set.
-
-   function "&"
-     (Value : in String;
-      Vect  : in Vector_Tag)
-      return Vector_Tag;
-   --  Same as above but add Value in front of the vector tag
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in Character)
-      return Vector_Tag;
-   --  Add Value at the end of the vector tag set.
-
-   function "&"
-     (Value : in Character;
-      Vect  : in Vector_Tag)
-      return Vector_Tag;
-   --  Same as above but add Value in front of the vector tag
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in Boolean)
-      return Vector_Tag;
-   --  Add Value (either string TRUE or FALSE) at the end of the vector tag
-   --  set.
-
-   function "&"
-     (Value : in Boolean;
-      Vect  : in Vector_Tag)
-      return Vector_Tag;
-   --  Same as above but add Value in front of the vector tag
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in Unbounded_String)
-      return Vector_Tag;
-   --  Add Value at the end of the vector tag set.
-
-   function "&"
-     (Value : in Unbounded_String;
-      Vect  : in Vector_Tag)
-      return Vector_Tag;
-   --  Same as above but add Value in front of the vector tag
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in Integer)
-      return Vector_Tag;
-   --  Add Value (converted to a String) at the end of the vector tag set.
-
-   function "&"
-     (Value : in Integer;
-      Vect  : in Vector_Tag)
-      return Vector_Tag;
-   --  Same as above but add Value in front of the vector tag
-
-   procedure Clear (Vect : in out Vector_Tag);
-   --  Removes all values in the vector tag. Current Vect is not released but
-   --  the returned object is separated (not using the same reference) from
+   procedure Clear (T : in out Tag);
+   --  Removes all values in the tag. Current tag T is not released but
+   --  the returned object is separated (not using the same reference) than
    --  the original one.
 
-   function Size (Vect : in Vector_Tag) return Natural;
-   --  Returns the number of value into Vect.
+   function Size (T : in Tag) return Natural;
+   --  Returns the number of value into T
 
-   function Item (Vect : in Vector_Tag; N : in Positive) return String;
-   --  Returns the Nth Vector Tag's item. Raises Constraint_Error if there is
-   --  no such Item in the vector (i.e. vector length < N).
+   function Item (T : in Tag; N : in Positive) return String;
+   --  Returns the Nth Tag's item. Raises Constraint_Error if there is
+   --  no such Item in T (i.e. T length < N).
 
-   ----------------
-   -- Matrix Tag --
-   ----------------
+   function Item (T : in Tag; N : in Positive) return Tag;
+   --  Returns the Nth Tag's item. Raises Constraint_Error if there is
+   --  no such Item in T (i.e. T length < N).
 
-   type Matrix_Tag is private;
-   --  A matrix tag is a set of vectors. Note that this object is using a
-   --  by-reference semantic. A reference counter is associated to it and
-   --  the memory is realeased when there is no more reference to it.
+   subtype Vector_Tag is Tag;
+   subtype Matrix_Tag is Tag;
 
-   function "+" (Vect : in Vector_Tag) return Matrix_Tag;
-   --  Matrix_Tag constructor. It returns a matrix with a single row whose
-   --  value is Vect.
-
-   function "&"
-     (Matrix : in Matrix_Tag;
-      Vect   : in Vector_Tag)
-      return Matrix_Tag;
-   --  Returns Matrix with Vect added to the end.
-
-   function Size (Matrix : in Matrix_Tag) return Natural;
-   --  Returns the number of Vector_Tag (rows) inside the Matrix.
-
-   function Vector (Matrix : in Matrix_Tag; N : in Positive) return Vector_Tag;
-   --  Returns Nth Vector_Tag in the Matrix. Raises Constraint_Error if there
-   --  is no such vector in the matrix.
-
-   -----------------------
-   -- Association table --
-   -----------------------
+   ------------------
+   -- Associations --
+   ------------------
 
    type Association is private;
 
-   type Association_Kind is (Std, Vect, Matrix);
+   type Association_Kind is (Std, Composite);
    --  The kind of association which is either Std (a simple value), a vector
    --  tag or a Matrix tag.
 
-   type Translate_Table is array (Positive range <>) of Association;
-
-   No_Translation : constant Translate_Table;
-
    function Assoc
-     (Variable  : in String;
-      Value     : in String)
+     (Variable : in String;
+      Value    : in String)
       return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is a string.
 
    function Assoc
-     (Variable  : in String;
-      Value     : in Unbounded_String)
+     (Variable : in String;
+      Value    : in Unbounded_String)
       return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is an
    --  Unbounded_String.
 
    function Assoc
-     (Variable  : in String;
-      Value     : in Integer)
+     (Variable : in String;
+      Value    : in Integer)
       return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is an Integer.
    --  It will be displayed without leading space if positive.
 
    function Assoc
-     (Variable  : in String;
-      Value     : in Boolean)
+     (Variable : in String;
+      Value    : in Boolean)
       return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. It set the variable to TRUE or FALSE depending on
@@ -218,25 +145,41 @@ package Templates_Parser is
 
    function Assoc
      (Variable  : in String;
-      Value     : in Vector_Tag;
-      Separator : in String     := Default_Separator)
+      Value     : in Tag;
+      Separator : in String := Default_Separator)
       return Association;
-   --  Build an Association (Variable = Value) to be added to a
-   --  Translate_Table. This is a vector tag association, value is a
-   --  Vector_Tag. If the vector tag is found outside a table tag statement
-   --  it is returned as a single string, each value being separated by the
-   --  specified separator.
+   --  Build an Association (Variable = Value) to be added to Translate_Table.
+   --  This is a tag association. Separator will be used when outputting the
+   --  a flat representation of the Tag (outside a table statement).
 
-   function Assoc
-     (Variable  : in String;
-      Value     : in Matrix_Tag;
-      Separator : in String     := Default_Separator)
-      return Association;
-   --  Build an Association (Variable = Value) to be added to a
-   --  Translate_Table. This is a matrix tag association, value is a
-   --  Matrix_Tag. If the matrix tag is found outside of a 2nd level table tag
-   --  statement, Separator is used to build string representation of the
-   --  matrix tag's vectors.
+   ---------------------------
+   -- Association table/set --
+   ---------------------------
+
+   type Translate_Table is array (Positive range <>) of Association;
+   --  A table with a set of associations, note that it is better to use
+   --  Translate_Set below as it is more efficient.
+
+   No_Translation : constant Translate_Table;
+
+   type Translate_Set is private;
+   --  This is a set of association like Translate_Table but it is possible to
+   --  insert item into this set more easily, furthermore there is no need to
+   --  know the number of item before hand. This is the object used internally
+   --  by the templates engine as it is far more efficient to retrieve a
+   --  specific item from it.
+
+   procedure Insert (Set : in out Translate_Set; Item : in Association);
+   --  Add Item into the translate set. If an association for this variable
+   --  already exist it just replaces it by the new item.
+
+   function Exists
+     (Set      : in Translate_Set;
+      Variable : in String) return Boolean;
+   --  Returns True if an association for Variable exists into the Set
+
+   function To_Set (Table : in Translate_Table) return Translate_Set;
+   --  Convert a Translate_Table into a Translate_Set
 
    -----------------------------
    -- Parsing and Translating --
@@ -262,86 +205,94 @@ package Templates_Parser is
       Cached            : in Boolean         := False;
       Keep_Unknown_Tags : in Boolean         := False)
       return Unbounded_String;
-   --  Idem as above but returns an Unbounded_String.
+   --  Idem but returns an Unbounded_String
+
+   function Parse
+     (Filename          : in String;
+      Translations      : in Translate_Set;
+      Cached            : in Boolean       := False;
+      Keep_Unknown_Tags : in Boolean       := False)
+      return String;
+   --  Idem with a Translation_Set
+
+   function Parse
+     (Filename          : in String;
+      Translations      : in Translate_Set;
+      Cached            : in Boolean       := False;
+      Keep_Unknown_Tags : in Boolean       := False)
+      return Unbounded_String;
+   --  Idem with a Translation_Set
 
    function Translate
      (Template     : in String;
       Translations : in Translate_Table := No_Translation)
       return String;
    --  Just translate the discrete variables in the Template string using the
-   --  Translations table. This function does not parse the command tag
-   --  (TABLE, IF, INCLUDE). All Vector and Matrix tag are replaced by the
-   --  empty string.
+   --  Translations table. This function does not parse the command tag (TABLE,
+   --  IF, INCLUDE). All composite tags are replaced by the empty string.
 
-   procedure Print_Tree (Filename : in String);
-   --  Use for debugging purpose only, it will output the internal tree
-   --  representation.
+   function Translate
+     (Template     : in String;
+      Translations : in Translate_Set)
+      return String;
+   --  Idem with a Translation_Set
 
 private
 
-   ------------------
-   --  Vector Tags --
-   ------------------
-
-   type Vector_Tag_Node;
-   type Vector_Tag_Node_Access is access Vector_Tag_Node;
-
-   type Vector_Tag_Node is record
-      Value : Unbounded_String;
-      Next  : Vector_Tag_Node_Access;
-   end record;
-
    type Integer_Access is access Integer;
 
-   type Access_Vector_Tag_Node_Access is access Vector_Tag_Node_Access;
-
-   type Vector_Tag is new Ada.Finalization.Controlled with record
-      Ref_Count : Integer_Access;
-      Count     : Natural;
-      Head      : Vector_Tag_Node_Access;
-      Last      : Vector_Tag_Node_Access;
-      Current   : Access_Vector_Tag_Node_Access; -- Current/Pos are Iterator
-      Pos       : Integer_Access;                -- cache information.
-   end record;
-
-   type Vector_Tag_Access is access Vector_Tag;
-
-   procedure Initialize (V : in out Vector_Tag);
-   procedure Finalize   (V : in out Vector_Tag);
-   procedure Adjust     (V : in out Vector_Tag);
-
    ------------------
-   --  Matrix Tags --
+   -- Generic Tags --
    ------------------
 
-   type Matrix_Tag_Node;
+   type Node_Kind is (Value, Value_Set);
 
-   type Matrix_Tag_Node_Access is access Matrix_Tag_Node;
+   type Tag_Access is access Tag;
 
-   type Matrix_Tag_Node is record
-      Vect : Vector_Tag;
-      Next : Matrix_Tag_Node_Access;
+   type Tag_Node (Kind : Node_Kind);
+   type Tag_Node_Access is access Tag_Node;
+
+   type Tag_Node (Kind : Node_Kind) is record
+      Next : Tag_Node_Access;
+      case Kind is
+         when Value     => V  : Unbounded_String;
+         when Value_Set => VS : Tag_Access;
+      end case;
    end record;
 
-   type Access_Matrix_Tag_Node_Access is access Matrix_Tag_Node_Access;
+   type Access_Tag_Node_Access is access Tag_Node_Access;
 
-   type Matrix_Tag_Int is new Ada.Finalization.Controlled with record
-      Ref_Count : Integer_Access;
-      Count     : Natural; -- Number of vector
-      Min, Max  : Natural; -- Min/Max vector's sizes
-      Head      : Matrix_Tag_Node_Access;
-      Last      : Matrix_Tag_Node_Access;
-      Current   : Access_Matrix_Tag_Node_Access; -- Current/Pos are Iterator
-      Pos       : Integer_Access;                -- cahce information.
+   type Cursor is record
+      Current : Access_Tag_Node_Access; -- Current/Pos are Iterator
+      Pos     : Integer_Access;         -- cache information
    end record;
 
-   type Matrix_Tag is record
-      M : Matrix_Tag_Int;
+   type Tag is new Ada.Finalization.Controlled with record
+      Ref_Count    : Integer_Access;
+      Count        : Natural;  -- Number of items
+      Min, Max     : Natural;  -- Min/Max item's sizes, equal to 1 if leaf
+      Nested_Level : Positive; -- Number of composite structures
+      Separator    : Unbounded_String;
+      Head         : Tag_Node_Access;
+      Last         : Tag_Node_Access;
+      Position     : Cursor;
    end record;
 
-   procedure Initialize (M : in out Matrix_Tag_Int);
-   procedure Finalize   (M : in out Matrix_Tag_Int);
-   procedure Adjust     (M : in out Matrix_Tag_Int);
+   procedure Initialize (T : in out Tag);
+   procedure Finalize   (T : in out Tag);
+   procedure Adjust     (T : in out Tag);
+
+   type Indices is array (Positive range <>) of Natural;
+   --  Set of indices that reference a specific item into a composite tag.
+   --  Used by the parser.
+
+   procedure Field
+     (T      : in     Tag;
+      N      : in     Positive;
+      Result :    out Tag;
+      Found  :    out Boolean);
+   --  Returns the N'th item in Tag. Found is set to False is there is no
+   --  such item.
 
    ------------------
    --  Association --
@@ -354,13 +305,8 @@ private
          when Std =>
             Value : Unbounded_String;
 
-         when Vect =>
-            Vect_Value : Vector_Tag;
-            Separator  : Unbounded_String;
-
-         when Matrix =>
-            Mat_Value        : Matrix_Tag;
-            Column_Separator : Unbounded_String;
+         when Composite =>
+            Comp_Value : Tag;
       end case;
    end record;
 
@@ -368,5 +314,31 @@ private
      := (2 .. 1 => Association'(Std,
                                 Null_Unbounded_String,
                                 Null_Unbounded_String));
+
+   procedure Print_Tree (Filename : in String);
+   --  Use for debugging purpose only, it will output the internal tree
+   --  representation.
+
+   --------------------
+   --  Translate_Set --
+   --------------------
+
+   package Association_Set is new Strings_Maps (Association, "=");
+   use Association_Set;
+
+   type Map_Type_Access is access Containers.Map_Type;
+
+   type Translate_Set is new Ada.Finalization.Controlled with record
+      Ref_Count : Integer_Access;
+      Set       : Map_Type_Access;
+   end record;
+
+   procedure Initialize (Set : in out Translate_Set);
+   procedure Finalize   (Set : in out Translate_Set);
+   procedure Adjust     (Set : in out Translate_Set);
+
+   function Image (N : in Integer) return String;
+   pragma Inline (Image);
+   --  Returns N image without leading blank
 
 end Templates_Parser;
