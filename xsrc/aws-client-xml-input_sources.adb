@@ -117,8 +117,11 @@ package body AWS.Client.XML.Input_Sources is
       Temp : Stream_Element_Offset;
    begin
       if From.First > From.Last then
-         Read_Some (From.HTTP.all, From.Buffer, From.Last);
-         From.First := From.Buffer'First;
+         --  Unexpected end of stream. Data have to be taken from
+         --  HTTP connection in the EOF routine or after partial symbol
+         --  detected.
+
+         raise Unicode.CES.Invalid_Encoding;
       end if;
 
       ES := Get_Encoding (From);
@@ -129,7 +132,7 @@ package body AWS.Client.XML.Input_Sources is
          --  UTF16 could be 2 or 4 bytes.
          --  Unicode.CES.Read routine is in danger to violate byte sequence
          --  range if last character in buffer only portion. We have to move
-         --  remain data in buffer to the begin, to have a place for parce
+         --  remain data in buffer to the begin, to have a place for parse
          --  encoding.
 
          Temp := From.Buffer'First + From.Last - From.First;
@@ -172,11 +175,18 @@ package body AWS.Client.XML.Input_Sources is
 
             From.First := Temp;
 
+            Temp := From.Last;
+
             Read_Some
               (From.HTTP.all,
-               Data => From.Buffer (From.Last + 1 .. From.Buffer'Last),
+               Data => From.Buffer (Temp + 1 .. From.Buffer'Last),
                Last => From.Last);
 
+            if From.Last = Temp then
+               --  End of stream with last broken character.
+
+               raise Unicode.CES.Invalid_Encoding;
+            end if;
          else
             C := CS.To_Unicode (C);
             exit;
