@@ -1,7 +1,10 @@
 
 AWS - Ada Web Server - Authors
+------------------------------
 
-Work on this project has started on January 2000.
+Work on this project has started on January 2000. This project has been
+improving from release to release to become a viable embedded Web server. AWS
+is the work of two developers over this period.
 
 Dmitriy Anisimkov	anisimkov@yahoo.com
 
