@@ -135,6 +135,10 @@ procedure SBack is
       end if;
    end CB;
 
+   --------
+   -- IO --
+   --------
+
    task body IO is
 
       procedure Write_Line (Str : in String) is
@@ -165,6 +169,10 @@ procedure SBack is
          end select;
       end loop;
    end IO;
+
+   ---------------
+   -- Wait_Call --
+   ---------------
 
    task body Wait_Call is
       R          : Response.Data;
