@@ -147,11 +147,12 @@ package body AWS.Net.SSL is
    procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
-      Port     : in     Positive)
+      Port     : in     Positive;
+      Wait     : in     Boolean := True)
    is
       Success : Boolean;
    begin
-      Net.Std.Connect (NSST (Socket), Host, Port);
+      Net.Std.Connect (NSST (Socket), Host, Port, Wait);
 
       if Socket.Config = null then
          Initialize_Default_Config;
@@ -162,12 +163,17 @@ package body AWS.Net.SSL is
 
       TSSL.SSL_set_connect_state (Socket.SSL);
 
-      Do_Handshake (Socket, Success);
+      if Wait then
+         --  Do handshake only in case of wait connection completion.
 
-      if not Success then
-         Net.Std.Shutdown (NSST (Socket));
-         Free (Socket);
-         Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error_Stack);
+         Do_Handshake (Socket, Success);
+
+         if not Success then
+            Net.Std.Shutdown (NSST (Socket));
+            Free (Socket);
+            Ada.Exceptions.Raise_Exception
+              (Socket_Error'Identity, Error_Stack);
+         end if;
       end if;
    end Connect;
 
