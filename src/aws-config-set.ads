@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -83,6 +83,13 @@ package AWS.Config.Set is
    --  This is the prefix to use for the log filename.
 
    procedure Log_Split_Mode (O : in out Object; Value : in String);
+   --  This is split mode for the log file. Possible values are : Each_Run,
+   --  Daily, Monthly and None. Any other values will raise an exception.
+
+   procedure Error_Log_Filename_Prefix (O : in out Object; Value : in String);
+   --  This is the prefix to use for the log filename.
+
+   procedure Error_Log_Split_Mode (O : in out Object; Value : in String);
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
@@ -200,37 +207,5 @@ package AWS.Config.Set is
       Value         : in String;
       Error_Context : in String := "");
    --  Set one of the AWS HTTP per process parameters. See description above.
-
-private
-
-   pragma Inline
-     (Server_Name,
-      WWW_Root,
-      Admin_URI,
-      Server_Port,
-      Security,
-      Hotplug_Port,
-      Max_Connection,
-      Log_File_Directory,
-      Upload_Directory,
-      Session,
-      Session_Cleanup_Interval,
-      Session_Lifetime,
-      Cleaner_Wait_For_Client_Timeout,
-      Cleaner_Client_Header_Timeout,
-      Cleaner_Client_Data_Timeout,
-      Cleaner_Server_Response_Timeout,
-      Force_Wait_For_Client_Timeout,
-      Force_Client_Header_Timeout,
-      Force_Client_Data_Timeout,
-      Force_Server_Response_Timeout,
-      Send_Timeout,
-      Receive_Timeout,
-      Status_Page,
-      Up_Image,
-      Down_Image,
-      Logo_Image,
-      Case_Sensitive_Parameters,
-      Line_Stack_Size);
 
 end AWS.Config.Set;
