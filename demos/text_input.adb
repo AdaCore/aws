@@ -48,7 +48,7 @@ procedure Text_Input is
 
    function Text_CB
      (Request : in AWS.Status.Data)
-     return AWS.Response.Data
+      return AWS.Response.Data
    is
       Text : constant String
         := AWS.Parameters.Get (AWS.Status.Parameters (Request), "text");
@@ -56,28 +56,28 @@ procedure Text_Input is
       if Text = "" then
          return AWS.Response.Build
            ("text/html", "<html><body>"
-            & "<form>"
-            & "<textarea rows=""7"" name=""text"" cols=""48""></textarea>"
-            & "<br><input type=""Submit"">"
-            & "</form></body></html>");
+              & "<form>"
+              & "<textarea rows=""7"" name=""text"" cols=""48""></textarea>"
+              & "<br><input type=""Submit"">"
+              & "</form></body></html>");
       end if;
 
       AWS.Log.Write (Text_Log, Request, Text);
 
       return AWS.Response.Build
         ("text/html", "<html><body>"
-         & "<p>Thanks for you comment <br><pre>"
-         & Text & "</pre>"
-         & "<form>"
-         & "<input type=""Submit"" value=""Back"">"
-         & "</form></body></html>");
+           & "<p>Thanks for you comment <br><pre>"
+           & Text & "</pre>"
+           & "<form>"
+           & "<input type=""Submit"" value=""Back"">"
+           & "</form></body></html>");
    end Text_CB;
 
 begin
    Ada.Text_IO.Put_Line
      ("I'm on the port"
-      & Positive'Image (AWS.Default.Server_Port) & ASCII.LF &
-      "press Q key if you want me to stop.");
+        & Positive'Image (AWS.Default.Server_Port) & ASCII.LF
+        & "press Q key if you want me to stop.");
 
    AWS.Log.Start
      (Text_Log,
