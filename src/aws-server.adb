@@ -649,10 +649,13 @@ package body AWS.Server is
 
       procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
       begin
+         --  Check if the Aborted phase happen between after socket operation
+         --  and before Mark_Phase call.
+
          if Table (Index).Phase = Aborted
            and then Phase /= Closed
          then
-            raise Program_Error;
+            raise Net.Socket_Error;
          end if;
 
          Table (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
