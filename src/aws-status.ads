@@ -102,11 +102,19 @@ package AWS.Status is
    function Method            (D : in Data) return Request_Method;
    function URI               (D : in Data) return String;
    function HTTP_Version      (D : in Data) return String;
-   function Parameter         (D : in Data; N    : in Positive) return String;
+
+   function Parameter_Name    (D : in Data; N : in Positive) return String;
+   --  returns Nth parameter name.
+
+   function Parameter         (D : in Data; N : in Positive) return String;
+   --  returns Nth parameter value.
 
    function Parameter         (D : in Data; Name : in String;
-                               Case_Sensitive : in Boolean := False)
-                               return String;
+                               Case_Sensitive : in Boolean := True)
+                              return String;
+   --  returns parameter value associated with parameter named Name.
+   --  Case_Sensitive case be set to True or False to control the way the
+   --  parameter name is looked for.
 
    function Binary_Data       (D : in Data) return Stream_Element_Array;
 
