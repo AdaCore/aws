@@ -23,12 +23,6 @@
 	(Next_Char): Idem. Rewrite part of the algorithm to make it
 	 cleaner. Add some comments. Remove not needed used of Temp variable.
 
-2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
-
-	* aws-client-xml-input_sources.adb:
-	(Next_Char): Properly set the From.Last on Invalid_Encoding
-	 for handling buffer overrun. Do not use Clean_Buffer.
-
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml-input_sources.adb:
@@ -36,6 +30,12 @@
 	(Eof): Call Clean_Buffer after reading data.
 	(Next_Char): Call Clean_Buffer after moving or reading data. Ensure
 	 that ES.Read won't read garbadge at the end of the buffer.
+
+2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client-xml-input_sources.adb:
+	(Next_Char): Properly set the From.Last on Invalid_Encoding
+	 for handling buffer overrun. Do not use Clean_Buffer.
 
 2004-06-01  Pascal Obry  <pascal@obry.org>
 	
