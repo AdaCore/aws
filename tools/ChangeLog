@@ -1,6 +1,11 @@
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
 	* ada2wsdl-generator.adb:
+        (Write_Characters): Fix name space for Character types (simpleType).
+
+2004-12-02  Pascal Obry  <pascal@obry.org>
+
+	* ada2wsdl-generator.adb:
 	(Type_Exists): Add NS parameter to check using the object's name space.
 	(Write_Header): Generates a version/data tag into an XML comment.
 
@@ -14,7 +19,7 @@
 	(Register_Deferred): Do not check against duplicate object
 	 here. This was wrong it is now done by the generator and properly
 	 check against the name space.
-	
+
 	* ada2wsdl.ads:
 	(Version): Bump to 1.1.
 	Update copyright notice.
@@ -31,8 +36,8 @@
 	Lot of changes to support for name spaces. Now all WSDL	definitions
 	 for records, arrays, derived types are generated with the package
 	 name as part of the name space.
-	
-	* ada2wsdl-generator.ads, ada2wsdl-generator.adb: 
+
+	* ada2wsdl-generator.ads, ada2wsdl-generator.adb:
 	Idem.
 	Update copyright notice.
 
@@ -73,7 +78,7 @@
 	* wsdl2aws.adb:
 	Add support for new option "-spec", used if the SOAP procedure
 	 specs are not in the same packages as the type definitions.
-	
+
 
 2004-11-03  Pascal Obry  <pascal@obry.org>
 
