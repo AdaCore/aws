@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004                               --
---                               ACT-Europe                                 --
+--                            Copyright (C) 2004                            --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -31,4 +31,7 @@
 --  $Id$
 
 package AWS.Client.XML is
+
+   pragma Pure;
+
 end AWS.Client.XML;

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004                               --
---                               ACT-Europe                                 --
+--                            Copyright (C) 2004                            --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -68,13 +68,23 @@ package body AWS.Client.XML.Input_Sources is
       Input.First := Input.First + Stream_Element_Offset (Length);
 
       case BOM is
-         when Utf32_LE => Set_Encoding (Input, Utf32.Utf32_LE_Encoding);
-         when Utf32_BE => Set_Encoding (Input, Utf32.Utf32_BE_Encoding);
-         when Utf16_LE => Set_Encoding (Input, Utf16.Utf16_LE_Encoding);
-         when Utf16_BE => Set_Encoding (Input, Utf16.Utf16_BE_Encoding);
+         when Utf32_LE =>
+            Set_Encoding (Input, Utf32.Utf32_LE_Encoding);
+
+         when Utf32_BE =>
+            Set_Encoding (Input, Utf32.Utf32_BE_Encoding);
+
+         when Utf16_LE =>
+            Set_Encoding (Input, Utf16.Utf16_LE_Encoding);
+
+         when Utf16_BE =>
+            Set_Encoding (Input, Utf16.Utf16_BE_Encoding);
+
          when Ucs4_BE | Ucs4_LE | Ucs4_2143 | Ucs4_3412 =>
             raise Invalid_Encoding;
-         when Utf8_All | Unknown => Set_Encoding (Input, Utf8.Utf8_Encoding);
+
+         when Utf8_All | Unknown =>
+            Set_Encoding (Input, Utf8.Utf8_Encoding);
       end case;
 
       Input.EOF := False;
@@ -88,7 +98,6 @@ package body AWS.Client.XML.Input_Sources is
    begin
       if From.First > From.Last then
          Read_Some (From.Self.HTTP.all, From.Self.Buffer, From.Self.Last);
-
          From.Self.First := From.Buffer'First;
       end if;
 
@@ -103,14 +112,12 @@ package body AWS.Client.XML.Input_Sources is
      (From : in out HTTP_Input;
       C    :    out Unicode.Unicode_Char)
    is
-      ES : Unicode.CES.Encoding_Scheme;
-      CS : Unicode.CCS.Character_Set;
-
+      ES   : Unicode.CES.Encoding_Scheme;
+      CS   : Unicode.CCS.Character_Set;
       Temp : Stream_Element_Offset;
    begin
       if From.First > From.Last then
          Read_Some (From.HTTP.all, From.Buffer, From.Last);
-
          From.First := From.Buffer'First;
       end if;
 
@@ -126,7 +133,7 @@ package body AWS.Client.XML.Input_Sources is
          --  bytes in the buffer.
 
          if From.First > From.Buffer'First then
-            --  Move remain bytes to the begin of buffer.
+            --  Move remain bytes to the begin of buffer
 
             Temp := From.Buffer'First + From.Last - From.First;
 
@@ -153,7 +160,6 @@ package body AWS.Client.XML.Input_Sources is
 
          else
             C := CS.To_Unicode (C);
-
             return;
          end if;
       end loop;
