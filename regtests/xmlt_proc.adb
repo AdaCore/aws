@@ -48,12 +48,11 @@ with Sax.Readers;    use Sax.Readers;
 
 with Unicode.CES;
 
-procedure XMLT_Proc (Port : Positive; Security : Boolean) is
+procedure XMLT_Proc (Port : in Positive; Security : in Boolean) is
 
    use AWS;
    use AWS.Client.XML.Input_Sources;
 
-   With_URI : Boolean := False;
    HTTP     : Client.HTTP_Connection;
    Web      : Server.HTTP;
 
