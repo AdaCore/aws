@@ -90,15 +90,6 @@ package body AWS.Status is
       return To_String (D.Content_Type);
    end Content_Type;
 
-   ---------------------
-   -- File_Up_To_Date --
-   ---------------------
-
-   function File_Up_To_Date (D : in Data) return Boolean is
-   begin
-      return D.File_Up_To_Date;
-   end File_Up_To_Date;
-
    -----------------
    -- Has_Session --
    -----------------
