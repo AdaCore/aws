@@ -1315,7 +1315,6 @@ begin
    For_Every_Request : loop
 
       Status.Set.Reset (C_Stat);
-      Parameters.Set.Reset (P_List);
 
       Parameters.Set.Case_Sensitive
         (P_List, Case_Sensitive_Parameters);
