@@ -83,10 +83,10 @@ package AWS.Net.Std is
      (Socket : in Socket_Type;
       Data   : in Stream_Element_Array);
 
-   function Receive
-     (Socket : in Socket_Type;
-      Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array;
+   procedure Receive
+     (Socket : in     Socket_Type;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
    pragma Inline (Receive);
 
    ------------

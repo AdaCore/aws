@@ -338,18 +338,17 @@ package body AWS.Net.SSL is
    -- Receive --
    -------------
 
-   function Receive
-     (Socket : in Socket_Type;
-      Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array
+   procedure Receive
+     (Socket : in     Socket_Type;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
    is
       use Interfaces;
 
-      Buffer : Stream_Element_Array (0 .. Max - 1);
       Len    : C.int;
    begin
       loop
-         Len := TSSL.SSL_read (Socket.SSL, Buffer'Address, Buffer'Length);
+         Len := TSSL.SSL_read (Socket.SSL, Data'Address, Data'Length);
 
          exit when Len > 0;
 
@@ -365,8 +364,7 @@ package body AWS.Net.SSL is
          end;
       end loop;
 
-      return Buffer
-        (Buffer'First .. Buffer'First - 1 + Stream_Element_Count (Len));
+      Last := Stream_Element_Offset (Len);
    end Receive;
 
    -------------
