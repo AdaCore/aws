@@ -1,3 +1,8 @@
+2004-03-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-response.adb:
+	(Message_Body): New routine returning message stream.
+
 2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response.adb:

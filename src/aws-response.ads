@@ -273,6 +273,11 @@ package AWS.Response is
    function Message_Body (D : in Data) return Streams.Stream_Element_Array;
    --  Returns message body as a binary content
 
+   procedure Message_Body
+     (D    : in     Data;
+      File :    out AWS.Resources.File_Type);
+   --  Returns the message body as a stream
+
    function Filename (D : in Data) return String;
    pragma Inline (Filename);
    --  Returns the filename which should be sent back
