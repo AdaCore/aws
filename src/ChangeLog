@@ -1,5 +1,19 @@
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-session.adb:
+	(Key_Exist): Is now a procedure and not an entry. Do not lock if
+	 an iterator is running.
+	(Get_Value): Idem.
+	(Get_Sessions_And_Lock): Update comment.
+	
+	* aws-session.ads:
+	(For_Every_Session): Update comments.
+	(For_Every_Session_Data): Update comments.
+
+	* aws-client.adb:
+	(Parse_Header): Set Connection.Cookie only if not already set. Add
+	 note about cookie limitation on the client side.
+
 	* aws-config-set.ads:
 	(Free_Slots_Keep_Alive_Limit): Fix comments.
 
