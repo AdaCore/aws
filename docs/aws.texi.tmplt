@@ -4337,6 +4337,11 @@ server. This dispatcher routine contains the code to handle all the
 operations as described in the @code{WSDL} document. You need also to
 specify the @code{-spec} and/or @code{-types} options, see below.
 
+@item -x operation
+Add @code{operation} to the list of @code{SOAP} operations to skip during the
+code generation. It is possible to specify multiple @code{-x} options on the
+command line.
+
 @item -spec spec
 Specify the name of the spec containing the Ada implementation of the
 @code{SOAP} routines. This is used for example by the @code{-cb} option above
@@ -4444,13 +4449,15 @@ It is hard to know all current limitations as the @code{WSDL} and
 @itemize @bullet
 
 @item Many @code{SOAP} base types are not supported : @i{byte, unsignedByte,
-short, unsignedShort, unsignedInt, long, unsignedLong, double, date,
-time, xsd:hexBinary, decimal}. All these are easy to add (except
-decimal), it is just not supported with the current version.
+unsignedShort, unsignedInt, unsignedLong, date, time, xsd:hexBinary,
+decimal}. All these are easy to add (except decimal), it is just not
+supported with the current version.
 
 @item Multi-dimension arrays are not supported.
 
 @item anyType is not supported
+
+@item abstract types are not supported
 
 @end itemize
 
