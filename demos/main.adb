@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -67,15 +67,24 @@ begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
 
-   AWS.Server.Start (WS, "Main",
-                     Admin_URI      => "/Admin-Page",
-                     Port           => 1234,
-                     Max_Connection => 3,
-                     Callback       => Hotplug_CB.Main'Access);
-
-   AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
+   AWS.Server.Start
+     (WS, "Main",
+      Admin_URI      => "/Admin-Page",
+      Port           => 1234,
+      Max_Connection => 3,
+      Callback       => Hotplug_CB.Main'Access);
 
    AWS.Server.Log.Start (WS);
+   AWS.Server.Log.Start_Error (WS);
+
+   AWS.Server.Hotplug.Activate
+     (WS'Unchecked_Access, 2222, "hotplug_module.ini");
 
    AWS.Server.Wait;
+
+exception
+   when others =>
+      Text_IO.Put_Line ("Main error...");
+      AWS.Server.Hotplug.Shutdown;
+      AWS.Server.Shutdown (WS);
 end Main;
