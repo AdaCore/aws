@@ -48,6 +48,11 @@
 --     fixing it first. For obvious reasons, only SOAP.WSDL.To_Type and
 --     SOAP.WSDL.From_Ada are not using a case statement, be sure to do the
 --     right Change There.
+--
+--  5. Finaly add support for this type in SOAP.Message.XML. Add this type
+--     into Type_State, write the corresponding parse procedure and fill entry
+--     into Handlers. Again after adding the proper type into Type_State the
+--     compiler will issue errors where fix is needed.
 
 with Ada.Calendar;
 with Ada.Finalization;
