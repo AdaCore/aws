@@ -155,10 +155,10 @@ package body AWS.Status is
       Data_URL : URL.Object := D.URI;
 
       function Get_Nonce return String;
-      --  returns Nonce for the Digest authentication without "qop"
+      --  Returns Nonce for the Digest authentication without "qop"
       --  parameter, or [nonce]:[nc]:[cnonce]:[qop] for the Digest
       --  authentication with qop parameter.
-      --  It is just for convinience to implement RFC 2617 3.2.2.1.
+      --  It is just for convenience to implement RFC 2617 3.2.2.1.
 
       ---------------
       -- Get_Nonce --
@@ -186,6 +186,7 @@ package body AWS.Status is
          --  Bad request.
 
          return Messages.S400;
+
       elsif Authorization_Response (D)
             /=
             AWS.Digest.Create_Digest
@@ -199,6 +200,7 @@ package body AWS.Status is
          --  Unauthorized.
 
          return Messages.S401;
+
       else
          --  Successful.
 
