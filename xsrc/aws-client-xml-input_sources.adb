@@ -140,7 +140,8 @@ package body AWS.Client.XML.Input_Sources is
             From.Buffer (From.Buffer'First .. Temp)
               := From.Buffer (From.First .. From.Last);
 
-            From.Last := Temp;
+            From.First := From.Buffer'First;
+            From.Last  := Temp;
          end if;
 
          Temp := From.First;
