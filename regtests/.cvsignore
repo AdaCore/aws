@@ -102,6 +102,8 @@ b~soap5.adb
 b~soap5.ads
 b~soap6.adb
 b~soap6.ads
+b~soap7.adb
+b~soap7.ads
 b~sock1.adb
 b~sock1.ads
 b~sp.adb
@@ -368,6 +370,7 @@ soap4
 soap4.res
 soap5.res
 soap6.res
+soap7.res
 sock1
 sock1.res
 sock1.tmp

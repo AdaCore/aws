@@ -1,6 +1,14 @@
 2004-07-10  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
+	(RT_SOAP): Add soap7.
+	
+	* soap7.adb, soap7.out: 
+	Initial revision.
+
+2004-07-10  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
 	(RT_SOAP): Add soap6.
 
 	* soap6.adb, soap6.out: 
