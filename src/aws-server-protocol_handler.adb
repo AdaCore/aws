@@ -1462,13 +1462,10 @@ begin
 
    --  Release memory for local objects
 
-   Status.Set.Reset (C_Stat);
-
-   Parameters.Set.Free (P_List);
+   Status.Set.Free (C_Stat);
 
 exception
    when others =>
-      Status.Set.Reset (C_Stat);
-      Parameters.Set.Free (P_List);
+      Status.Set.Free (C_Stat);
       raise;
 end Protocol_Handler;
