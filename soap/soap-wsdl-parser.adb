@@ -1319,9 +1319,9 @@ package body SOAP.WSDL.Parser is
            and then DOM.Core.Nodes.Node_Name (E) = "enumeration"
          loop
             declare
-               Value : constant String
+               Value    : constant String
                  := XML.Get_Attr_Value (N, "value", False);
-               New_Node : Parameters.E_Node_Access
+               New_Node : constant Parameters.E_Node_Access
                  := new Parameters.E_Node'(To_Unbounded_String (Value), null);
             begin
                if D = null then
