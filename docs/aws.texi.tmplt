@@ -687,6 +687,13 @@ using the @code{AWS.Config.Ini.Read} routine. @pxref{AWS.Config.Ini}.
 Current supported options are:
 
 @table @code
+
+@item Accept_Queue_Size (positive)
+@cindex Accept_Queue_Size
+This is the size of the queue for the incoming requests. Higher this
+value will be and less "@i{connection refused}" will be reported to the
+client. The default value is @_QUEUE_SIZE_@.
+
 @item Admin_URI (string)
 @cindex Admin_URI
 This is the URI to call the administrative page. This must be used when
