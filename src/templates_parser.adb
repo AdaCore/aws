@@ -2274,7 +2274,7 @@ package body Templates_Parser is
       begin
          First := Parameters'First;
 
-         while First < Parameters'Last loop
+         while First <= Parameters'Last loop
             --  Skip blanks
 
             while First < Parameters'Last
