@@ -74,6 +74,9 @@ procedure WSDL2AWS is
 
    Verbose      : SOAP.WSDL.Parser.Verbose_Level := 0;
 
+   Gen_Cb       : Boolean := False;
+   Types        : Boolean := False;
+
    ------------------
    -- Get_Document --
    ------------------
@@ -167,7 +170,7 @@ procedure WSDL2AWS is
 
       loop
          case Command_Line.Getopt
-           ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel types:")
+           ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel cb types:")
          is
             when ASCII.NUL => exit;
 
@@ -209,6 +212,11 @@ procedure WSDL2AWS is
             when 'c' =>
                if Command_Line.Full_Switch = "cvs" then
                   SOAP.Generator.CVS_Tag (Gen);
+
+               elsif Command_Line.Full_Switch = "cb" then
+                  SOAP.Generator.Gen_Cb (Gen);
+                  Gen_Cb := True;
+
                else
                   raise Syntax_Error;
                end if;
@@ -241,6 +249,7 @@ procedure WSDL2AWS is
             when 't' =>
                if Command_Line.Full_Switch = "types" then
                   SOAP.Generator.Types_From (Gen, GNAT.Command_Line.Parameter);
+                  Types := True;
 
                else
                   raise Syntax_Error;
@@ -273,6 +282,12 @@ begin
       SOAP.Generator.Set_Proxy
         (Gen, To_String (Proxy), To_String (Pu), To_String (Pp));
 
+   end if;
+
+   if Gen_Cb and then not Types then
+      Raise_Exception
+        (Constraint_Error'Identity,
+         "Callback can't be generated if no Ada spec specified");
    end if;
 
    if Filename = Null_Unbounded_String then
@@ -323,7 +338,8 @@ exception
       Put_Line ("   -cvs         Add CVS tag in unit's headers");
       Put_Line ("   -nostub      Do not create stub units");
       Put_Line ("   -noskel      Do not create skeleton units");
-      Put_Line ("   -types spec  Use types (array/record) from Ada spec");
+      Put_Line ("   -cb          Generate SOAP callback routine");
+      Put_Line ("   -types spec  Use types from Ada spec");
       Put_Line ("   -proxy addr  Name or IP of the proxy");
       Put_Line ("   -pu name     The proxy user name");
       Put_Line ("   -pp pwd      The proxy password");
