@@ -53,9 +53,9 @@ package AWS.Response is
    --  This is a template message, _@_ will be replaced by the Location (see
    --  function Build with Location below).
 
-   --
-   --  Constructors
-   --
+   ------------------
+   -- Constructors --
+   ------------------
 
    function Build
      (Content_Type : in String;
@@ -116,9 +116,9 @@ package AWS.Response is
    --  inside of user callback. No operations should be performed on this
    --  socket, and associated slot should be released for further operations.
 
-   --
-   --  Other API
-   --
+   ---------------
+   -- Other API --
+   ---------------
 
    function Mode           (D : in Data) return Data_Mode;
    --  Returns the data mode, either Header, Message or File.
