@@ -566,7 +566,7 @@ is
 
                Signature : constant Streams.Stream_Element_Array
                  := (1 => 13, 2 => 10)
-                 & Translator.To_Stream_Element_Array (Start_Boundary);
+                    & Translator.To_Stream_Element_Array (Start_Boundary);
 
                Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
                Index  : Streams.Stream_Element_Offset := Buffer'First;
@@ -929,8 +929,7 @@ is
 
       Status.Set.Read_Header (Socket => Sock, D => C_Stat);
 
-      Status_Connection := To_Unbounded_String
-        (Status.Connection (C_Stat));
+      Status_Connection := To_Unbounded_String (Status.Connection (C_Stat));
 
       --  Get necessary data from header for the reading HTTP body.
 
@@ -954,7 +953,7 @@ is
            (Name, Value : in String;
             Quit        : in out Boolean) is
          begin
-            if Ada.Characters.Handling.To_Upper (Name) = "BOUNDARY" then
+            if Ada.Characters.Handling.To_Lower (Name) = "boundary" then
                Status_Multipart_Boundary := To_Unbounded_String (Value);
                Quit := True;
             end if;
@@ -971,17 +970,8 @@ is
 
                Quit := True;
 
-            elsif Item'Length > 0 and then Item (Item'Last) = ';' then
-               Status_Content_Type := To_Unbounded_String
-                  (Item (Item'First .. Item'Last - 1));
-
-            else
+            elsif Item'Length > 0 then
                Status_Content_Type := To_Unbounded_String (Item);
-
-               --  Do not wait for Boundary if the first unnamed value
-               --  without ';' and the end.
-
-               Quit := True;
             end if;
          end Value;
 
