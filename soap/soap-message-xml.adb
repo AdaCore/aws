@@ -305,7 +305,8 @@ package body SOAP.Message.XML is
             return A_Undefined;
          end if;
 
-         Error (Parse_Array.N, "Wrong type or not supported type in an array");
+         Error (Parse_Array.N,
+                "Wrong type or unsupported type in an array : " & A_Type);
       end A_State;
 
       Name   : constant String := Local_Name (N);
@@ -324,8 +325,8 @@ package body SOAP.Message.XML is
 
       while Field /= null loop
          K := K + 1;
-         OS (K) := +Parse_Param (Field,
-                                 (S.Wrapper_Name, S.Parameters, A_Type));
+         OS (K) := +Parse_Param
+           (Field, (S.Wrapper_Name, S.Parameters, A_Type));
 
          Field := Next_Sibling (Field);
       end loop;
@@ -360,7 +361,7 @@ package body SOAP.Message.XML is
    -------------------
 
    function Parse_Boolean (N : in DOM.Core.Node) return Types.Object'Class is
-      Name  : constant String := Local_Name (N);
+      Name  : constant String        := Local_Name (N);
       Value : constant DOM.Core.Node := First_Child (N);
    begin
       if Node_Value (Value) = "1" then
@@ -405,7 +406,7 @@ package body SOAP.Message.XML is
    -----------------
 
    function Parse_Float (N : in DOM.Core.Node) return Types.Object'Class is
-      Name  : constant String := Local_Name (N);
+      Name  : constant String        := Local_Name (N);
       Value : constant DOM.Core.Node := First_Child (N);
    begin
       return Types.F (Long_Float'Value (Node_Value (Value)), Name);
@@ -416,7 +417,7 @@ package body SOAP.Message.XML is
    ---------------
 
    function Parse_Int (N : in DOM.Core.Node) return Types.Object'Class is
-      Name  : constant String := Local_Name (N);
+      Name  : constant String        := Local_Name (N);
       Value : constant DOM.Core.Node := First_Child (N);
    begin
       return Types.I (Integer'Value (Node_Value (Value)), Name);
@@ -432,19 +433,44 @@ package body SOAP.Message.XML is
      return Types.Object'Class
    is
       use type DOM.Core.Node;
+      use type DOM.Core.Node_Types;
 
-      Name : constant String := Local_Name (N);
+      Name : constant String                  := Local_Name (N);
       Atts : constant DOM.Core.Named_Node_Map := Attributes (N);
    begin
       if To_String (S.Wrapper_Name) = "Fault" then
          return Parse_String (N);
 
       else
-         if Length (Atts) = 0 and then S.A_State = Void then
-            --  No attributes, this is a SOAP record since we are not parsing
-            --  arrays entries.
+         if Length (Atts) = 0 and then S.A_State in Void .. A_Undefined then
+            --  No attribute found.
 
-            return Parse_Record (N, S);
+            if First_Child (N) /= null
+              and then First_Child (N).Node_Type = DOM.Core.Text_Node
+            then
+               --  Children are some kind of text data, so this is a data node
+               --  with no type information. Note that this code is to
+               --  workaround an interoperability problem with Microsoft SOAP
+               --  implementation based on WSDL were the type information is
+               --  not provided into the payload but only on the WSDL file. As
+               --  AWS/SOAP is not WSDL compliant at this point we treat
+               --  undefined type as string values, it is up to the developper
+               --  to convert the string to the right type. Note that this
+               --  code is only there to parse data received from a SOAP
+               --  server. AWS/SOAP always send type information into the
+               --  payload.
+               --  ??? If payload xsi:type information becomes mandatory this
+               --  conditional section should be removed.
+
+               return Parse_String (N);
+
+            else
+               --  This is a SOAP record, we have no attribute and no type
+               --  defined. We have a single tag "<name>" which can only be
+               --  the start or a record.
+
+               return Parse_Record (N, S);
+            end if;
 
          else
             case S.A_State is
@@ -478,7 +504,8 @@ package body SOAP.Message.XML is
                              := Get_Named_Item (Atts, "xsi:null");
                         begin
                            if N = null then
-                              Error (N, "Wrong or not supported type");
+                              Error (Parse_Param.N,
+                                     "Wrong or unsupported type");
                            else
                               return Types.N (Name);
                            end if;
@@ -511,7 +538,7 @@ package body SOAP.Message.XML is
                               return Parse_Array (N, S);
 
                            else
-                              Error (N, "Wrong or not supported type");
+                              Error (N, "Wrong or unsupported type " & xsd);
                            end if;
                         end;
                      end if;
@@ -574,9 +601,9 @@ package body SOAP.Message.XML is
    is
       use Ada.Calendar;
 
-      Name  : constant String := Local_Name (N);
+      Name  : constant String        := Local_Name (N);
       Value : constant DOM.Core.Node := First_Child (N);
-      TI    : constant String := Node_Value (Value);
+      TI    : constant String        := Node_Value (Value);
    begin
       return Types.T
         (Time_Of (Year    => Year_Number'Value (TI (1 .. 4)),
@@ -597,7 +624,7 @@ package body SOAP.Message.XML is
       use type SOAP.Parameters.List;
 
       NL   : constant DOM.Core.Node_List := Child_Nodes (N);
-      Name : constant String := Local_Name (N);
+      Name : constant String             := Local_Name (N);
    begin
       S.Wrapper_Name := To_Unbounded_String (Name);
 
