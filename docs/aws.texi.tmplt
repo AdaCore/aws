@@ -1532,7 +1532,7 @@ new log file each day or month. The default is @_ERROR_LOG_SPLIT_MODE_@.
 @item Exchange_Certificate (boolean)
 @cindex Exchange_Certificate
 If set to True it means that the client will be asked to send its
-certificate to the server.
+certificate to the server. The default value is @_EXCHANGE_CERTIFICATE_@.
 
 @item Force_Wait_For_Client_Timeout (duration)
 @cindex Force_Wait_For_Client_Timeout
