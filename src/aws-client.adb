@@ -290,7 +290,7 @@ package body AWS.Client is
             begin
                Sockets.Receive (Sock, Elements);
 
-               if CT = MIME.Text_HTML or else CT = MIME.Text_XML Then
+               if CT = MIME.Text_HTML or else CT = MIME.Text_XML then
 
                   --  if the content is textual info put it in a string
 
