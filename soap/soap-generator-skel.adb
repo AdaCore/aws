@@ -269,7 +269,8 @@ package body Skel is
             if N.Mode = WSDL.Parameters.K_Array then
                Text_IO.Put_Line
                  (Skel_Adb,
-                  Format_Name (O, To_String (N.T_Name)) & "_Array : "
+                  To_String (N.Name) & "_"
+                    & Format_Name (O, To_String (N.T_Name)) & "_Array : "
                     & "constant SOAP.Types.SOAP_Array");
                Text_IO.Put_Line
                  (Skel_Adb,
@@ -280,7 +281,8 @@ package body Skel is
             else
                Text_IO.Put_Line
                  (Skel_Adb,
-                  Format_Name (O, To_String (N.T_Name)) & "_Record : "
+                  To_String (N.Name) & "_"
+                    & Format_Name (O, To_String (N.T_Name)) & "_Record : "
                     & "constant SOAP.Types.SOAP_Record");
                Text_IO.Put_Line
                  (Skel_Adb,
@@ -311,6 +313,7 @@ package body Skel is
                Text_IO.Put_Line
                  (Skel_Adb, "           := To_"
                     & Format_Name (O, To_String (N.T_Name)) & " (V ("
+                    & To_String (N.Name) & "_"
                     & Format_Name (O, To_String (N.T_Name)) & "_Array));");
 
             when WSDL.Parameters.K_Record =>
@@ -319,6 +322,7 @@ package body Skel is
                Text_IO.Put_Line
                  (Skel_Adb, "           := To_"
                     & Format_Name (O, To_String (N.T_Name)) & "_Type ("
+                    & To_String (N.Name) & "_"
                     & Format_Name (O, To_String (N.T_Name)) & "_Record);");
          end case;
 
