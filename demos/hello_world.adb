@@ -30,9 +30,12 @@
 
 --  The famous Hello Word demo, using AWS framework.
 
+with Ada.Text_IO;
+
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Default;
 
 procedure Hello_World is
 
@@ -45,5 +48,14 @@ procedure Hello_World is
    end HW_CB;
 
 begin
+   Ada.Text_IO.Put_Line
+     ("Call me on port"
+      & Positive'Image (AWS.Default.Server_Port)
+      & ", I will stop in 60 seconds...");
+
    AWS.Server.Start (WS, "Hello World", Callback => HW_CB'Unrestricted_Access);
+
+   delay 60.0;
+
+   AWS.Server.Shutdown (WS);
 end Hello_World;
