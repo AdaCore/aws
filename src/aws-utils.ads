@@ -100,8 +100,10 @@ package AWS.Utils is
    --  (Write) excluding all readers (Read). The task must release the
    --  corresponding resource by calling either Release_Read or Release_Write.
    --  As soon as a writer arrive all readers will wait for it to complete.
+   --  Writers discriminant is the maximum number of writers accepted into the
+   --  critical section.
 
-   protected type RW_Semaphore is
+   protected type RW_Semaphore (Writers : Positive) is
 
       --  Readers must call Read to enter the critical section and call
       --  Release_Read at the end.
