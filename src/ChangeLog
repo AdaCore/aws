@@ -1,5 +1,9 @@
 2001-09-27  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-url.ads, aws-url.adb:
+	(Normalize): new procedure.
+	(URL): new function.
+
 	* aws-server.adb:
 	(Shutdown): reorder again the termination phases. safer and should
 	 avoid lock.
