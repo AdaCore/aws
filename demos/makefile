@@ -38,7 +38,7 @@ BUILD_SPECIFIC = build_res
 
 ifdef XMLADA
 DEMOS := $(DEMOS) test_jabber soap_client soap_server soap_svs soap_cvs \
-	wsdl_demo_client wsdl_demo_server interoplab_main
+	wsdl_demo_client wsdl_demo_server interoplab_main soap_server_disp
 BUILD_SPECIFIC := $(BUILD_SPECIFIC) build_wsdl
 endif
 
