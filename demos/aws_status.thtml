@@ -61,13 +61,6 @@ status.</H3>
 <td><b>@_YES_NO:SESSION_@</b>
 </tr>
 
-@@IF@@ @_SESSION_@
-<tr>
-<td>Session Life Time
-<td><b>@_SESSION_LIFETIME_@ secs</b>
-</tr>
-@@END_IF@@
-
 </table>
 
 <br>
@@ -125,6 +118,24 @@ status.</H3>
 
 <H3>Sessions information are given below:</H3>
 
+@@IF@@ @_SESSION_@
+<table>
+
+<tr>
+<td width=200>Session Lifetime
+<td><b>@_SESSION_LIFETIME_@ secs</b>
+</tr>
+
+<tr>
+<td width=200>Session cleanup interval
+<td><b>@_SESSION_CLEANUP_INTERVAL_@ secs</b>
+</tr>
+</table>
+
+<br>
+
+@@END_IF@@
+
 @@IF@@ @_IS_EMPTY:SESSIONS_V_@
 
   <i>No active session.</i>
@@ -134,7 +145,8 @@ status.</H3>
   <ol>
   @@TABLE@@
 
-  <li>Session ID: <b>@_SESSIONS_V_@</b> (<i>@_SESSIONS_TS_V_@</i>)
+  <li>Session ID: <b>@_SESSIONS_V_@</b> 
+     (<i>@_SESSIONS_TS_V_@</i> ... <i>@_SESSIONS_TERMINATE_V_@</i>)
 
   <table>
   <tr>
