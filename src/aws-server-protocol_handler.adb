@@ -1431,8 +1431,6 @@ begin
 
          Get_Message_Data;
 
-         Set_Close_Status;
-
          Status.Set.Keep_Alive (C_Stat, not Will_Close);
 
          Status.Set.Parameters (C_Stat, P_List);
