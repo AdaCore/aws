@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                         Copyright (C) 2000-2001                          --
+--                     Dmitriy Anisimkov & Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -34,7 +34,7 @@
 --  one must be able to ask for the value for K1 but also the name of the
 --  second key or the value of the third key.
 --
---  Each K/V pair is then insert into the tree three times:
+--  Each K/V pair is then inserted into the tree three times:
 --
 --  1) key=K with value=V
 --  2) key=__AWS_K<n> with value=K     (n beeing an indice representing the
