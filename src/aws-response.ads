@@ -35,6 +35,7 @@
 
 with Ada.Strings.Unbounded;
 with Ada.Streams;
+with Ada.Finalization;
 
 with AWS.Status;
 with AWS.Messages;
@@ -160,7 +161,8 @@ private
 
    type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
-   type Data is record
+   type Data is new Ada.Finalization.Controlled with record
+      Ref_Counter    : Natural := 1;
       Mode           : Data_Mode;
       Status_Code    : Messages.Status_Code;
       Content_Length : Natural;
@@ -170,5 +172,8 @@ private
       Realm          : Unbounded_String;
       Elements       : Stream_Element_Array_Access;
    end record;
+
+   procedure Adjust   (Object : in out Data);
+   procedure Finalize (Object : in out Data);
 
 end AWS.Response;
