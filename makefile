@@ -273,3 +273,4 @@ install:
 	-cp ssl/*.a $(INSTALL)/AWS/lib
 	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/AWS/components
 	cp tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
+	-chmod -R og+r $(INSTALL)/AWS
