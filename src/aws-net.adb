@@ -187,27 +187,36 @@ package body AWS.Net is
       return new Socket_Type'Class'(Socket (Security));
    end Socket;
 
-   --------------
-   -- Wait_For --
-   --------------
+   ----------
+   -- Wait --
+   ----------
 
-   procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type'Class) is
+   function Wait
+     (Socket : in Socket_Type'Class;
+      Events : in Wait_Event_Set)
+      return Event_Set
+   is
       use Interfaces;
-      use OS_Lib;
+      use OS_Lib.Definitions;
 
       use type C.int;
       use type Thin.Events_Type;
 
-      To_Poll_Mode : constant array (Wait_Mode) of Thin.Events_Type
-        := (Input => Definitions.POLLIN, Output => Definitions.POLLOUT);
-
       PFD : aliased Thin.Pollfd
         := (Fd      => Thin.FD_Type (Get_FD (Socket)),
-            Events  => To_Poll_Mode (Mode),
+            Events  => 0,
             REvents => 0);
       RC      : C.int;
       Timeout : C.int;
    begin
+      if Events (Input) then
+         PFD.Events := POLLIN or POLLPRI;
+      end if;
+
+      if Events (Output) then
+         PFD.Events := PFD.Events or POLLOUT;
+      end if;
+
       if Socket.Timeout >= Duration (C.int'Last / 1_000) then
          Timeout := C.int'Last;
       else
@@ -220,26 +229,47 @@ package body AWS.Net is
          when -1 =>
             Ada.Exceptions.Raise_Exception
               (Socket_Error'Identity,
-               "Wait_For_" & Wait_Mode'Image (Mode)
-                 & " error code" & Integer'Image (Std.Errno));
+               "Wait error code" & Integer'Image (Std.Errno));
 
-         when 0 =>
-            Ada.Exceptions.Raise_Exception
-              (Socket_Error'Identity,
-               Wait_Mode'Image (Mode) & " timeout.");
-
-         when 1 =>
-            if PFD.REvents = To_Poll_Mode (Mode) then
-               return;
-            else
-               Ada.Exceptions.Raise_Exception
-                 (Socket_Error'Identity,
-                  Wait_Mode'Image (Mode) & "_Wait error.");
-            end if;
-
+         when 0  => return (others => False);
+         when 1  =>
+            return (Input  => (PFD.REvents and (POLLIN or POLLPRI)) /= 0,
+                    Output => (PFD.REvents and POLLOUT) /= 0,
+                    Error  => (PFD.REvents
+                               and (POLLERR or POLLHUP or POLLNVAL)) /= 0);
          when others =>
             raise Program_Error;
       end case;
+   end Wait;
+
+   --------------
+   -- Wait_For --
+   --------------
+
+   procedure Wait_For
+     (Mode   : in Wait_Event_Type;
+      Socket : in Socket_Type'Class)
+   is
+      Events : Wait_Event_Set := (others => False);
+      Result : Event_Set;
+   begin
+      Events (Mode) := True;
+
+      Result := Wait (Socket, Events);
+
+      if Result = Event_Set'(others => False) then
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity,
+            Wait_Event_Type'Image (Mode) & " timeout.");
+
+      elsif Result = Event_Set'(Error => True, others => False) then
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity,
+            Wait_Event_Type'Image (Mode) & "_Wait error.");
+
+      elsif not Result (Mode) then
+         raise Program_Error;
+      end if;
    end Wait_For;
 
 end AWS.Net;
