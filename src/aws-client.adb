@@ -1891,18 +1891,22 @@ package body AWS.Client is
          raise;
    end SOAP_Post;
 
-   function SOAP_Post
-     (Connection : access HTTP_Connection;
+   procedure SOAP_Post
+     (Connection : in     HTTP_Connection;
+      Result     :    out Response.Data;
       SOAPAction : in     String          := No_Data;
-      Data       : in     String)
-      return Response.Data
-   is
-      Result : Response.Data;
+      Data       : in     String) is
    begin
-      Connection.SOAPAction := Value (SOAPAction);
+      Connection.Self.SOAPAction := Value (SOAPAction);
 
-      Post (Connection.all, Result, Data);
-      return Result;
+      Post (Connection.Self.all, Result, Data);
+
+      Connection.Self.SOAPAction := Null_Unbounded_String;
+
+   exception
+      when others =>
+         Connection.Self.SOAPAction := Null_Unbounded_String;
+         raise;
    end SOAP_Post;
 
    ------------
