@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -228,6 +228,19 @@ package body SOAP.Types is
       end if;
    end Get;
 
+   function Get (O : in Object'Class) return Ada.Calendar.Time is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Time_Instant'Tag then
+         return V (XSD_Time_Instant (O));
+
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "timeInstant expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
    function Get (O : in Object'Class) return SOAP_Base64 is
       use type Ada.Tags.Tag;
    begin
@@ -289,6 +302,10 @@ package body SOAP.Types is
       return "";
    end Image;
 
+   -----------
+   -- Image --
+   -----------
+
    function Image (O : in XSD_Integer) return String is
       V : constant String := Integer'Image (O.V);
    begin
@@ -299,6 +316,10 @@ package body SOAP.Types is
       end if;
    end Image;
 
+   -----------
+   -- Image --
+   -----------
+
    function Image (O : in XSD_Float) return String is
       use Ada;
 
@@ -308,10 +329,18 @@ package body SOAP.Types is
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
 
+   -----------
+   -- Image --
+   -----------
+
    function Image (O : in XSD_String) return String is
    begin
       return To_String (O.V);
    end Image;
+
+   -----------
+   -- Image --
+   -----------
 
    function Image (O : in XSD_Boolean) return String is
    begin
@@ -322,16 +351,29 @@ package body SOAP.Types is
       end if;
    end Image;
 
+   -----------
+   -- Image --
+   -----------
+
    function Image (O : in XSD_Time_Instant) return String is
 
       function Image (Timezone : in TZ) return String;
       --  Returns Image for the TZ
 
+      -----------
+      -- Image --
+      -----------
+
       function Image (Timezone : in TZ) return String is
 
          subtype Str2 is String (1 .. 2);
 
-         function I2D (N : Natural) return Str2;
+         function I2D (N : in Natural) return Str2;
+         --  Returns N image with 2 characters padding with 0 is needed
+
+         ---------
+         -- I2D --
+         ---------
 
          function I2D (N : Natural) return Str2 is
             V : constant String := Natural'Image (N);
@@ -344,7 +386,9 @@ package body SOAP.Types is
          end I2D;
 
       begin
-         if Timezone >= 0 then
+         if Timezone = 0 then
+            return "Z";
+         elsif Timezone >= 0 then
             return '+' & I2D (Timezone) & ":00";
          else
             return '-' & I2D (abs Timezone) & ":00";
@@ -356,10 +400,18 @@ package body SOAP.Types is
         & Image (O.Timezone);
    end Image;
 
+   -----------
+   -- Image --
+   -----------
+
    function Image (O : in SOAP_Base64) return String is
    begin
       return To_String (O.V);
    end Image;
+
+   -----------
+   -- Image --
+   -----------
 
    function Image (O : in SOAP_Array) return String is
       Result : Unbounded_String;
@@ -380,6 +432,10 @@ package body SOAP.Types is
 
       return To_String (Result);
    end Image;
+
+   -----------
+   -- Image --
+   -----------
 
    function Image (O : in SOAP_Record) return String is
       Result : Unbounded_String;
