@@ -243,6 +243,8 @@ private
 
    type Line_Set is array (Positive range <>) of Line;
 
+   type Line_Set_Access is access Line_Set;
+
    ------------------
    -- Line_Cleaner --
    ------------------
@@ -250,6 +252,8 @@ private
    task type Line_Cleaner (Server : HTTP_Access) is
      entry Force;
    end Line_Cleaner;
+
+   type Line_Cleaner_Access is access Line_Cleaner;
    --  run through the slots and see if some of them could be closed.
 
    use Ada.Strings.Unbounded;
@@ -266,7 +270,7 @@ private
       Sock            : Sockets.Socket_FD;
       --  This is the server socket for incoming connection.
 
-      Cleaner         : Line_Cleaner (HTTP'Unchecked_Access);
+      Cleaner         : Line_Cleaner_Access;
       --  Task in charge of cleaning slots status. It checks from time to time
       --  is the slots is still in used and closed it if possible.
 
@@ -282,7 +286,7 @@ private
       Filters         : Hotplug.Filter_Set;
       --  Hotplug filters are recorded here.
 
-      Lines           : Line_Set (1 .. Max_Connection);
+      Lines           : Line_Set_Access;
       --  The tasks doing the job.
 
       Slots           : Server.Slots (Max_Connection);
