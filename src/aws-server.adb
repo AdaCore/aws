@@ -121,7 +121,7 @@ package body AWS.Server is
       Released_Socket : Net.Socket_Access;
 
       Accepting : Boolean := False;
-      --  Determain either "accept socket" mode or "give back" mode.
+      --  Determine either "accept socket" mode or "give back" mode.
       --  Init to False to do not Release semaphore in case of exception
       --  in Seize_Or_Socket call.
 
