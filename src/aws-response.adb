@@ -32,9 +32,11 @@
 
 with Ada.Strings.Fixed;
 
-with AWS.Translator;
+with AWS.Headers.Set;
+with AWS.Headers.Values;
 with AWS.Resources.Embedded;
 with AWS.Response.Set;
+with AWS.Translator;
 
 package body AWS.Response is
 
@@ -110,8 +112,16 @@ package body AWS.Response is
    --------------------
 
    function Authentication (D : in Data) return Authentication_Mode is
+      use AWS.Headers;
+      Auth_Values : VString_Array
+        := Get_Values (D.Header, Messages.WWW_Authenticate_Token);
    begin
-      return D.Authentication;
+      if Auth_Values'Length = 1 then
+         return Authentication_Mode'Value
+            (Values.Get_Unnamed_Value (To_String (Auth_Values (1)), 1));
+      else
+         return Any;
+      end if;
    end Authentication;
 
    --------------------------
@@ -119,8 +129,21 @@ package body AWS.Response is
    --------------------------
 
    function Authentication_Stale (D : in Data) return Boolean is
+      use AWS.Headers;
+      Auth_Values : VString_Array
+        := Get_Values (D.Header, Messages.WWW_Authenticate_Token);
    begin
-      return D.Auth_Stale;
+      for J in Auth_Values'Range loop
+         declare
+            Stale_Image : constant String :=
+               Values.Search (To_String (Auth_Values (J)), "stale", False);
+         begin
+            if Stale_Image /= "" then
+               return Boolean'Value (Stale_Image);
+            end if;
+         end;
+      end loop;
+      return False;
    end Authentication_Stale;
 
    -----------
@@ -181,7 +204,8 @@ package body AWS.Response is
 
    function Cache_Control (D : in Data) return Messages.Cache_Option is
    begin
-      return Messages.Cache_Option (To_String (D.Cache_Control));
+      return Messages.Cache_Option
+        (Headers.Get (D.Header, Messages.Cache_Control_Token));
    end Cache_Control;
 
    --------------------
@@ -199,7 +223,7 @@ package body AWS.Response is
 
    function Content_Type (D : in Data) return String is
    begin
-      return To_String (D.Content_Type);
+      return Headers.Get (D.Header, Messages.Content_Type_Token);
    end Content_Type;
 
    ----------------------
@@ -284,8 +308,31 @@ package body AWS.Response is
       if Object.Ref_Counter.all = 0 then
          Free (Object.Ref_Counter);
          Free (Object.Message_Body);
+
+         AWS.Headers.Set.Free (Object.Header);
       end if;
    end Finalize;
+
+   ------------
+   -- Header --
+   ------------
+
+   function Header
+     (D    : in Data;
+      Name : in String;
+      N    : in Positive)
+      return String is
+   begin
+      return Headers.Get (D.Header, Name, N);
+   end Header;
+
+   function Header
+     (D    : in Data;
+      Name : in String)
+      return String is
+   begin
+      return Headers.Get_Values (D.Header, Name);
+   end Header;
 
    ----------------
    -- Initialize --
@@ -294,6 +341,7 @@ package body AWS.Response is
    procedure Initialize (Object : in out Data) is
    begin
       Object.Ref_Counter := new Natural'(1);
+      AWS.Headers.Set.Reset (Object.Header);
    end Initialize;
 
    --------------
@@ -302,7 +350,7 @@ package body AWS.Response is
 
    function Location (D : in Data) return String is
    begin
-      return To_String (D.Location);
+      return Headers.Get (D.Header, Messages.Location_Token);
    end Location;
 
    ------------------
@@ -393,9 +441,22 @@ package body AWS.Response is
    -----------
 
    function Realm (D : in Data) return String is
+      use Headers;
    begin
-      return To_String (D.Realm);
+      return Values.Search
+        (Header_Value   => Get (D.Header, Messages.WWW_Authenticate_Token),
+         Name           => "realm",
+         Case_Sensitive => False);
    end Realm;
+
+   -----------------
+   -- Send_Header --
+   -----------------
+
+   procedure Send_Header (Socket : in Net.Socket_Type'Class; D : in Data) is
+   begin
+      Headers.Send_Header (Socket, D.Header);
+   end Send_Header;
 
    ------------------
    -- Socket_Taken --
