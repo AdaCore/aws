@@ -50,16 +50,16 @@ aws-translator-conversion.adb:
 	./test_uconv
 	-rm test_uconv$(EXEEXT) test_uconv.o test_uconv.ali
 
-adasockets:
-	-rm -f *.o *.ali
-	cp ../include/aws-net-std-adasockets.adb aws-net-std.adb
-
 aws-net-std.adb:
 ifdef ADASOCKETS
 	cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb
 else
 	cp ../include/aws-net-std-gnat.adb aws-net-std.adb
 endif
+
+adasockets:
+	-rm -f *.o *.ali
+	cp ../include/aws-net-std-adasockets.adb aws-net-std.adb
 
 gnatsockets:
 	-rm -f *.o *.ali
