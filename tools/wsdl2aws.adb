@@ -238,38 +238,42 @@ procedure WSDL2AWS is
 begin
    Parse_Command_Line;
 
-   if Proxy = Null_Unbounded_String
-     and then Pu = Null_Unbounded_String
-     and then Pp = Null_Unbounded_String
-   then
-      null;
+   --  Checks parameters
 
-   elsif Proxy /= Null_Unbounded_String
-     and then Pu /= Null_Unbounded_String
-     and then Pp /= Null_Unbounded_String
-   then
+   if Proxy = Null_Unbounded_String then
+
+      if Pu /= Null_Unbounded_String or else Pp /= Null_Unbounded_String then
+         Raise_Exception
+           (Constraint_Error'Identity,
+            "Proxy user/password specified, but no proxy set.");
+      end if;
+
+   elsif Proxy /= Null_Unbounded_String then
       SOAP.Generator.Set_Proxy
         (Gen, To_String (Proxy), To_String (Pu), To_String (Pp));
 
-   else
-      Raise_Exception
-        (Constraint_Error'Identity,
-         "You must set all values for Proxy, Pu and Pp.");
    end if;
 
    if Filename = Null_Unbounded_String then
+      --  No file specified
       raise Syntax_Error;
 
    elsif Length (Filename) > 7 and then Slice (Filename, 1, 7) = "http://" then
+      --  This is an URL, retrieve the WSDL document
       Filename := Get_Document (Filename);
 
    elsif Out_Filename /= Null_Unbounded_String then
+      --  Not an URL, file specified, this option is not valid
       Raise_Exception
         (Constraint_Error'Identity,
          "Option -o must be used when parsing a Web document (URL).");
    end if;
 
+   --  Load WSDL document, return it
+
    Def := SOAP.WSDL.Load (To_String (Filename));
+
+   --  Parse the document and generate the code
 
    SOAP.WSDL.Parser.Parse (Gen, Def);
 
@@ -284,7 +288,7 @@ exception
       Put_Line ("   -f        Force files creation stub/skeleton/WSDL");
       Put_Line ("   -s        Skip non supported SOAP routines");
       Put_Line ("   -o        Output filename for Web Document (URL mode)");
-      Put_Line ("   -doc      Accept Document style binding (parse as RPC)");
+      Put_Line ("   -doc      Accept Document style binding (parsed as RPC)");
       Put_Line ("   -v        Verbose mode");
       Put_Line ("   -v -v     Very verbose mode");
       Put_Line ("   -wsdl     Add WSDL file in unit comment");
