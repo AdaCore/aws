@@ -1,5 +1,18 @@
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* tres2.adb:
+	Delete file after use.
+
+	* tlog.out:
+	Update output to new stable format.
+	
+	* tlog.adb:
+	(Create_File): New routine.
+	Update again this regtest to be OS independant. The filename was
+	 not having the same size on GNU/Linux.
+
+2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* tlog.out:
 	Update output to new stable format.
 
