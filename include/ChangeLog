@@ -1,3 +1,36 @@
+2004-01-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* include.gpr:
+	Update copyright notice.
+
+	* makefile:
+	(SOURCES): Remove templates_parser*
+	(gbuild): Use include project file. src_include has been removed.
+
+	* src_include.gpr:
+	Removed.
+
+	* templates_parser-cached_files.adb:
+	Moved to the src directory.
+
+	* templates_parser-data.adb:
+	Moved to the src directory.
+
+	* templates_parser-filter.adb:
+	Moved to the src directory.
+
+	* templates_parser-input.ads, templates_parser-input.adb:
+	Moved to the src directory.
+
+	* templates_parser-print_tree.adb:
+	Moved to the src directory.
+
+	* templates_parser-query.ads, templates_parser-query.ads: 
+	Moved to the src directory.
+
+	* templates_parser.ads, templates_parser.ads:
+	Moved to the src directory.
+
 2004-01-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* include.gpr:
