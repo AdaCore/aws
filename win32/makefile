@@ -11,11 +11,12 @@ GARGS = -m -q $(GFLAGS) -I../src $(INCLUDES)
 LIBSSL		= ../lib/libssl.a
 LIBCRYPTO	= ../lib/libcrypto.a
 LIBLDAP		= ../lib/libldap.a
+LIBPOLL         = ../lib/libpoll.a
 AWS_COFF	= ../lib/aws.coff
 
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
-   IMPORT_LIB = build_lib build_poll $(LIBLDAP)
+   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBPOLL) $(LIBLDAP)
 else
    RES        =
    IMPORT_LIB =
@@ -42,19 +43,18 @@ $(LIBLDAP): wldap32.def
 	$(DLLTOOL) --def wldap32.def --dllname wldap32.dll \
 		--output-lib $(LIBLDAP)
 
-build_lib: $(LIBSSL) $(LIBCRYPTO)
-
 $(AWS_COFF): aws.rc
 	echo Building aws.coff
 	$(WINDRES) -i aws.rc -o $(AWS_COFF)
 
-build_poll:
+$(LIBPOLL): poll.ads poll.adb
 	echo Building Win32 poll support
 	$(GNATMAKE) -u $(GARGS) poll.adb
-	$(AR) r ../lib/libpoll.a poll.o
+	$(AR) r $(LIBPOLL) poll.o
 
 clean:
-	-$(RM) -f *.a *~ aws.coff
+	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBPOLL) $(LIBLDAP) *~ aws.coff
+	-$(RM) -f *.o
 
 #############################################################################
 # Configuration for GNAT Projet Files
