@@ -53,49 +53,62 @@ procedure Test_Net_Log is
    Port   : Natural := 4789;
    Result : Response.Data;
 
+   DS, DR : File_Type;
+
    procedure HTTP_Log
      (Direction : in Net.Log.Data_Direction;
       FD        : in Integer;
       Data      : in Streams.Stream_Element_Array;
       Last      : in Streams.Stream_Element_Offset)
    is
-      Buffer : String (1 .. 1024);
-      K      : Natural := 0;
-      Output : Boolean := False;
-   begin
-      New_Line (2);
-      Put_Line ("@@@ " & Net.Log.Data_Direction'Image (Direction)
-                & " (" &
-                Streams.Stream_Element_Offset'Image (Last) & "/" &
-                Streams.Stream_Element_Offset'Image (Data'Last) &
-                " buffer usage) @@@");
+      procedure Write (F : in File_Type);
+      --  Write info into file F
 
-      for I in Data'First .. Last loop
-         K := K + 1;
-         Buffer (K) := Character'Val (Data (I));
+      procedure Write (F : in File_Type) is
+         Buffer : String (1 .. 1024);
+         K      : Natural := 0;
+         Output : Boolean := False;
+      begin
+         New_Line (F, 2);
+         Put_Line (F, "@@@ " & Net.Log.Data_Direction'Image (Direction)
+                   & " (" &
+                   Streams.Stream_Element_Offset'Image (Last) & "/" &
+                   Streams.Stream_Element_Offset'Image (Data'Last) &
+                   " buffer usage) @@@");
 
-         if Buffer (K) = ASCII.CR or else Buffer (K) = ASCII.LF then
-            Output := True;
-         end if;
+         for I in Data'First .. Last loop
+            K := K + 1;
+            Buffer (K) := Character'Val (Data (I));
 
-         if Output then
-            Put (Buffer (K));
-         end if;
-
-         if Buffer (K) = ASCII.LF then
-            K := 0;
-         elsif Buffer (K) = ':' then
-            if Buffer (1 .. K) = "Date:"
-              or else Buffer (1 .. K) = "Host:"
-              or else Buffer (1 .. K) = "User-Agent:"
-              or else Buffer (1 .. K) = "Server:"
-            then
-               Output := False;
+            if Buffer (K) = ASCII.CR or else Buffer (K) = ASCII.LF then
+               Output := True;
             end if;
-         end if;
-      end loop;
 
-      New_Line;
+            if Output then
+               Put (F, Buffer (K));
+            end if;
+
+            if Buffer (K) = ASCII.LF then
+               K := 0;
+            elsif Buffer (K) = ':' then
+               if Buffer (1 .. K) = "Date:"
+                 or else Buffer (1 .. K) = "Host:"
+                 or else Buffer (1 .. K) = "User-Agent:"
+                 or else Buffer (1 .. K) = "Server:"
+               then
+                  Output := False;
+               end if;
+            end if;
+         end loop;
+
+         New_Line (F);
+      end Write;
+
+   begin
+      case Direction is
+         when Net.Log.Sent     => Write (DS);
+         when Net.Log.Received => Write (DR);
+      end case;
    end HTTP_Log;
 
    function HW_CB
@@ -111,6 +124,16 @@ procedure Test_Net_Log is
       end if;
    end HW_CB;
 
+   procedure Output (F : in File_Type) is
+      Buffer : String (1 .. 1024);
+      Last   : Natural;
+   begin
+      while not End_Of_File (F) loop
+         Get_Line (F, Buffer, Last);
+         Put_Line (Buffer (1 .. Last));
+      end loop;
+   end Output;
+
 begin
    Get_Free_Port (Port);
 
@@ -119,8 +142,19 @@ begin
    Server.Start
      (WS, "Hello World", Callback => HW_CB'Unrestricted_Access, Port => Port);
 
+   Create (DS, Out_File, "net_log_sent");
+   Create (DR, Out_File, "net_log_received");
+
    Result := Client.Get ("http://localhost:" & Utils.Image (Port) & "/hello");
 
    Server.Shutdown (WS);
    Net.Log.Stop;
+
+   Reset (DS, In_File);
+   Output (DS);
+   Reset (DR, In_File);
+   Output (DR);
+
+   Delete (DS);
+   Delete (DR);
 end Test_Net_Log;
