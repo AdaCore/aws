@@ -180,13 +180,8 @@ clean_noapiref:
 	${MAKE} -C regtests clean $(ALL_OPTIONS)
 	${MAKE} -C win32 clean $(ALL_OPTIONS)
 	${MAKE} -C tools clean $(ALL_OPTIONS)
+	${MAKE} -C lib clean $(ALL_OPTIONS)
 	-rm -f *.~*.*~
-
-setup:
-	${MAKE} -C config setup
-	${MAKE} -C win32 build
-	-$(MKDIR) obj
-	-$(MKDIR) lib
 
 display:
 	echo ""
@@ -226,6 +221,8 @@ build_tarball:
 	$(MKDIR) $${AWS}/docs/html; \
 	$(MKDIR) $${AWS}/icons; \
 	$(MKDIR) $${AWS}/include; \
+	$(MKDIR) $${AWS}/include/zlib; \
+	$(MKDIR) $${AWS}/lib; \
 	$(MKDIR) $${AWS}/soap; \
 	$(MKDIR) $${AWS}/ssl; \
 	$(MKDIR) $${AWS}/win32; \
@@ -252,7 +249,9 @@ build_tarball:
 	$(CP) win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
 	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
 	$(CP) include/*.ad[sb] include/makefile $${AWS}/include;\
+	$(CP) include/zlib/*.[ch] include/zlib/makefile $${AWS}/include/zlib;\
 	$(CP) include/readme.txt $${AWS}/include;\
+	$(CP) lib/makefile $${AWS}/lib;\
 	$(CP) icons/*.gif $${AWS}/icons;\
 	$(CP) soap/*.ad[sb] soap/makefile soap/ChangeLog $${AWS}/soap;\
 	$(CP) tools/*.ad[sb] tools/makefile $${AWS}/tools;\
@@ -289,7 +288,7 @@ install: force
 	-$(CP) soap/*.ali $(INSTALL)/AWS/lib
 	$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
 	$(MV) libaws.a $(INSTALL)/AWS/lib
-	-$(MV) ssl/libnosslaws.a $(INSTALL)/AWS/lib
+	-$(MV) lib/libnosslaws.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
 	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
 	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
@@ -304,8 +303,8 @@ install: force
 	-$(CP) tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
-	$(CP) win32/lib*.a $(INSTALL)/AWS/lib
-	$(CP) win32/*.dll $(INSTALL)/AWS/lib
+	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
+	$(CP) lib/*.dll $(INSTALL)/AWS/lib
 endif
 
 #############################################################################
