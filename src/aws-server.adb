@@ -228,7 +228,6 @@ package body AWS.Server is
          Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
 
          Count := Count - 1;
-
       end Get;
 
       ---------
