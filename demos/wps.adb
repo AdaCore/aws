@@ -47,8 +47,8 @@ begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop or press Q...");
 
---   AWS.Services.Page_Server.Directory_Browsing (True);
-   --  Uncomment this to activate the directory browsing facility.
+   AWS.Services.Page_Server.Directory_Browsing (True);
+   --  Comment this to disable the directory browsing facility.
 
    AWS.Server.Start
      (WS, "Simple Page Server demo",
