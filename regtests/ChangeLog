@@ -1,3 +1,21 @@
+2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	($(ASIS_TESTS)): Add -types option to wsdl2aws.
+
+	* interoplab_main.adb, test_wsdl2.adb, test_wsdl3.adb:
+	Add suffix _Type to array type and constructor.
+
+	* wsdl_2.ads:
+	(Complex): X and Y are not Long_Float. This is what an xsd:float
+	 should be on the Ada side.
+
+	* wsdl_2_server.adb:
+	(Add_Wrapper): Removed.
+	(Sum_Wrapper): Removed.
+	These routines are not needed anymore as wsdl2aws can now directly
+	 use types from an Ada spec.
+
 2003-11-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
