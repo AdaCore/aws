@@ -49,6 +49,8 @@ procedure Hotplug is
 
    Response : AWS.Response.Data;
 
+   Filter   : constant String := ".*AWS.*";
+
    --------------------
    -- Wait_Terminate --
    --------------------
@@ -64,7 +66,7 @@ procedure Hotplug is
       Response := AWS.Communication.Client.Send_Message
         (Command_Line.Argument (1), 2222,
          AWS.Server.Hotplug.Unregister_Message,
-         AWS.Communication.Parameters (".*AZERTY.*"));
+         AWS.Communication.Parameters (Filter));
    end Wait_Terminate;
 
    WS  : AWS.Server.HTTP
@@ -88,7 +90,7 @@ begin
      (Command_Line.Argument (1), 2222,
       AWS.Server.Hotplug.Register_Message,
       AWS.Communication.Parameters
-      (".*QWERTY.*",
+      (Filter,
        "http://" & AWS.Utils.Gethostname & ":1235/"));
 
    Wait_Terminate;
