@@ -1122,7 +1122,6 @@ package body AWS.Server is
       --  If it is an SSL connection, initialize the SSL library
 
       if CNF.Security (Web_Server.Properties)
-        and then AWS.Net.SSL.Is_Supported
         and then Web_Server.SSL_Config = Net.SSL.Null_Config
       then
          Net.SSL.Initialize
