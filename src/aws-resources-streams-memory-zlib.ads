@@ -44,6 +44,20 @@ package AWS.Resources.Streams.Memory.ZLib is
    subtype Window_Bits_Type is ZL.Window_Bits_Type;
    subtype Header_Type      is ZL.Header_Type;
 
+   procedure Append
+     (Resource : in out Stream_Type;
+      Buffer   : in     Stream_Element_Array);
+   --  Compress and Append Buffer into the memory stream
+
+   procedure Append
+     (Resource : in out Stream_Type;
+      Buffer   : in     Stream_Element_Access);
+   --  Compress and Append Buffer into the memory stream
+
+   procedure Flush (Resource : in out Stream_Type'Class);
+   --  Complete compression, flush internal compression buffer to the
+   --  memory stream.
+
 private
 
    type Stream_Type is new Memory.Stream_Type with record
