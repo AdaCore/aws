@@ -1,3 +1,8 @@
+2003-10-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* zlib/*:
+	Synchronize with zlib 1.2.2 releaze.
+
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* include.gpr:
