@@ -1,0 +1,33 @@
+started
+First: one
+2
+<table>
+t11
+t21
+t12
+t22
+</table>
+3
+previous=() next=(uri-removed)
+
+Next: one
+2
+<table>
+t13
+t23
+</table>
+3
+previous=(uri-removed) next=()
+
+Previous: one
+2
+<table>
+t11
+t21
+t12
+t22
+</table>
+3
+previous=() next=(uri-removed)
+
+shutdown
