@@ -38,7 +38,8 @@ package AWS.URL is
 
    URL_Error : exception;
 
-   Default_Port : constant := 80;
+   Default_HTTP_Port  : constant := 80;
+   Default_HTTPS_Port : constant := 443;
 
    function Parse (URL : in String) return Object;
    --  Parse an URL and return an Object representing this URL. It is then
@@ -82,7 +83,7 @@ private
 
    type Object is record
       Server_Name : Unbounded_String;
-      Port        : Positive := Default_Port;
+      Port        : Positive := Default_HTTP_Port;
       Security    : Boolean := False;
       URI         : Unbounded_String;
    end record;
