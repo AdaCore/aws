@@ -190,40 +190,38 @@ package body AWS.Server is
             (Now - Set (Index).Phase_Time_Stamp) > Timeouts (Mode, Phase);
       end Is_Abortable;
 
-      --------------------
-      -- Check_Timeouts --
-      --------------------
+      ----------------------
+      -- Abort_On_Timeout --
+      ----------------------
 
-      function Check_Timeouts return Boolean is
+      procedure Abort_On_Timeout (Mode : in Timeout_Mode; Done : out Boolean)
+      is
       begin
-         for S in Set'Range loop
-            if Is_Abortable (S, Force) then
-               return True;
-            end if;
-         end loop;
-         return False;
-      end Check_Timeouts;
-
-      ------------------
-      -- Abort_Oldest --
-      ------------------
-
-      procedure Abort_On_Timeout (Mode : in Timeout_Mode) is
-      begin
+         Done := False;
          for S in Set'Range loop
             if Is_Abortable (S, Mode) then
                Sockets.Shutdown (Set (S).Sock);
                Mark_Phase (S, Closed);
+               Done := True;
             end if;
          end loop;
       end Abort_On_Timeout;
+
+      ----------------
+      -- Free_Slots --
+      ----------------
+
+      function Free_Slots return Natural is
+      begin
+         return Count;
+      end Free_Slots;
 
       ---------
       -- Get --
       ---------
 
       entry Get (FD : in Sockets.Socket_FD; Index : in Positive)
-         when Count > 1 or else Set'Length = 1 or else Check_Timeouts is
+         when Count > 1 or else Set'Length = 1 is
       begin
          Set (Index).Sock := FD;
          Mark_Phase (Index, Client_Header);
@@ -231,9 +229,6 @@ package body AWS.Server is
 
          Count := Count - 1;
 
-         if Count = 0 and then Set'Length > 1 then
-            Abort_On_Timeout (Force);
-         end if;
       end Get;
 
       ---------
@@ -295,6 +290,7 @@ package body AWS.Server is
 
    task body Line_Cleaner is
       Mode : Timeout_Mode;
+      Done : Boolean := False;
    begin
       loop
          select
@@ -306,7 +302,11 @@ package body AWS.Server is
             Mode := Cleaner;
          end select;
 
-         Server.Slots.Abort_On_Timeout (Mode);
+         loop
+            Server.Slots.Abort_On_Timeout (Mode, Done);
+            exit when Mode /= Force or else Done;
+            delay 1.0;
+         end loop;
 
       end loop;
    end Line_Cleaner;
@@ -380,6 +380,15 @@ package body AWS.Server is
 
          begin
             begin
+               --  If there is only one more slot available and we have many
+               --  of them, try to abort one of them.
+
+               if HTTP_Server.Slots.Free_Slots = 1
+                 and then HTTP_Server.Max_Connection > 1
+               then
+                  HTTP_Server.Cleaner.Force;
+               end if;
+
                HTTP_Server.Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
 
                HTTP_Server.Slots.Set_Peername
