@@ -39,6 +39,10 @@ Changes
 
 Here are the main changes since AWS 2.0 :
 
+   - Use socket timeout based on poll(), this is cleaner as it is not
+     needed anymore to have a cleaner task on the client side to watch
+     and close connections after the timeout.
+
    - Better support for project files for developpers.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
@@ -67,6 +71,9 @@ have tagged all obsolescent features with a pragma.
 
 Note that pragma Obsolescent and -gnatwj option is only supported
 since GNAT 3.16.
+
+   - AWS.Net.Set_Blocking_Mode should not be used anyore. Use
+     AWS.Net.Set_Timeout instead.
 
 
 Notes
