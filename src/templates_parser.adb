@@ -605,24 +605,28 @@ package body Templates_Parser is
       Name    : Unbounded_String;
       Filters : Filter.Set_Access;
       Attr    : Attribute := Nil;
+      N       : Integer;
    end record;
+
+   function Is_Include_Variable (T : in Tag_Var) return Boolean;
+   --  Returns True if T is an include variable (Name is $<n>)
 
    function Build (Str : in String) return Tag_Var;
    --  Create a Tag from Str. A tag is composed of a name and a set of
    --  filters.
 
    function Image (T : in Tag_Var) return String;
-   --  Returns string representation for the Tag variable.
+   --  Returns string representation for the Tag variable
 
    function Translate
      (T            : in Tag_Var;
       Value        : in String;
       Translations : in Translate_Set := Null_Set)
       return String;
-   --  Returns the result of Value after applying all filters for tag T.
+   --  Returns the result of Value after applying all filters for tag T
 
    procedure Release (T : in out Tag_Var);
-   --  Release all memory associated with Tag.
+   --  Release all memory associated with Tag
 
    -----------
    -- Image --
@@ -662,6 +666,15 @@ package body Templates_Parser is
 
       return To_String (R);
    end Image;
+
+   -------------------------
+   -- Is_Include_Variable --
+   -------------------------
+
+   function Is_Include_Variable (T : in Tag_Var) return Boolean is
+   begin
+      return T.N /= -1;
+   end Is_Include_Variable;
 
    -----------
    -- Build --
@@ -952,13 +965,33 @@ package body Templates_Parser is
          return To_Unbounded_String (Tag (Start .. Stop));
       end Get_Var_Name;
 
+      Result : Tag_Var;
+
    begin
       if A_Sep <= F_Sep then
          --  This is not an attribute in fact, but something like:
          --  Filter(that's it):VAR
          A_Sep := 0;
       end if;
-      return (Get_Var_Name (Str), Get_Filter_Set (Str), Get_Attribute (Str));
+
+      Result.Name    := Get_Var_Name (Str);
+      Result.Filters := Get_Filter_Set (Str);
+      Result.Attr    := Get_Attribute (Str);
+
+      declare
+         Name : constant String := To_String (Result.Name);
+      begin
+         if Name (Name'First) = '$'
+           and then Strings.Fixed.Count
+             (Name, Strings.Maps.Constants.Decimal_Digit_Set) = Name'Length - 1
+         then
+            Result.N := Natural'Value (Name (Name'First + 1 .. Name'Last));
+         else
+            Result.N := -1;
+         end if;
+      end;
+
+      return Result;
    end Build;
 
    -------------
@@ -1140,6 +1173,12 @@ package body Templates_Parser is
 
    Null_Static_Tree : constant Static_Tree := (null, null);
 
+   Max_Include_Parameters : constant := 20;
+
+   type Include_Parameters is array (0 .. Max_Include_Parameters) of Data.Tree;
+
+   No_Parameter : constant Include_Parameters := (others => null);
+
    type Node (Kind : Nkind) is record
       Next : Tree;
       Line : Natural;
@@ -1170,7 +1209,8 @@ package body Templates_Parser is
             N_Section : Tree;
 
          when Include_Stmt =>
-            File : Static_Tree;
+            File      : Static_Tree;
+            I_Params  : Include_Parameters;
       end case;
    end record;
 
@@ -1960,13 +2000,10 @@ package body Templates_Parser is
       --  pathname of the main template file as a prefix of the include
       --  filename.
 
-      procedure Replace_Include_Variables
-        (File      : in out Static_Tree;
-         Variables : in     String);
-      --  Parse the include tree and replace all include variables (numeric
-      --  name) with the corresponding value in Variables (a set of space
-      --  separated words). The first word in Variables is the include file
-      --  name (variable 0), other words are the parameters (variable 1 .. N).
+      function Load_Include_Parameters
+        (Parameters : in String)
+         return Include_Parameters;
+      --  Returns the include parameters found by parsing Parameters
 
       type Parse_Mode is
         (Parse_Std,              --  in standard line
@@ -2154,6 +2191,74 @@ package body Templates_Parser is
            and then Buffer (First .. First + Stmt'Length - 1) = Stmt;
       end Is_Stmt;
 
+      -----------------------------
+      -- Load_Include_Parameters --
+      -----------------------------
+
+      function Load_Include_Parameters
+        (Parameters : in String)
+         return Include_Parameters
+      is
+         First, Last : Natural := 0;
+         K           : Natural := 0;
+         Result      : Include_Parameters;
+      begin
+         First := Parameters'First;
+
+         while First < Parameters'Last loop
+            --  Skip blanks
+
+            while First < Parameters'Last
+              and then (Parameters (First) = ' '
+                        or else Parameters (First) = ASCII.HT)
+            loop
+               First := First + 1;
+            end loop;
+
+            --  Look for end of parameter
+
+            Last := First + 1;
+
+            if Parameters (First) = '"' then
+               --  Look for closing quote
+               while Last < Parameters'Last
+                 and then Parameters (Last) /= '"'
+               loop
+                  Last := Last + 1;
+               end loop;
+
+               if Parameters (Last) /= '"' then
+                  Fatal_Error ("Missing closing quote in include parameters");
+               end if;
+
+               Result (K) := Data.Parse (Parameters (First + 1 .. Last - 1));
+               K := K + 1;
+
+            else
+               --  Look for end of word
+
+               while Last < Parameters'Last
+                 and then Parameters (Last) /= ' '
+                 and then Parameters (Last) /= ASCII.HT
+               loop
+                  Last := Last + 1;
+               end loop;
+
+               if Last = Parameters'Last then
+                  Result (K) := Data.Parse (Parameters (First .. Last));
+               else
+                  Result (K) := Data.Parse (Parameters (First .. Last - 1));
+               end if;
+
+               K := K + 1;
+            end if;
+
+            First := Last + 1;
+         end loop;
+
+         return Result;
+      end Load_Include_Parameters;
+
       -----------
       -- Parse --
       -----------
@@ -2328,12 +2433,10 @@ package body Templates_Parser is
                   return null;
             end;
 
-            --  Now we must replace the include parameters (if present) into
-            --  the included file tree.
+            T.I_Params := Load_Include_Parameters (Get_All_Parameters);
 
-            Replace_Include_Variables (T.File, Get_All_Parameters);
-
-            I_File := new Node'(Include_Stmt, I_File, Line, T.File);
+            I_File
+              := new Node'(Include_Stmt, I_File, Line, T.File, T.I_Params);
 
             T.Next := Parse (Mode);
 
@@ -2391,293 +2494,6 @@ package body Templates_Parser is
             end;
          end if;
       end Parse;
-
-      -------------------------------
-      -- Replace_Include_Variables --
-      -------------------------------
-
-      procedure Replace_Include_Variables
-        (File      : in out Static_Tree;
-         Variables : in     String)
-      is
-         procedure Replace (T : in out Tree);
-         --  Recursive routine to parse the tree for all Data.Tree node
-
-         procedure Replace (T : in out Data.Tree);
-         --  Recursive routine that replace all numeric variables by the
-         --  corresponding parameter in Variables.
-
-         function Get_Variable (Tag : in String) return String;
-         --  Returns the variable name for the include tag Tag. Tag is a
-         --  numeric value and represent the Nth include parameter.
-
-         function Is_Number (Name : in String) return Boolean;
-         --  Returns True if Name is an include tag variable ($<n>)
-
-         ------------------
-         -- Get_Variable --
-         ------------------
-
-         function Get_Variable (Tag : in String) return String is
-            T : constant Natural
-              := Natural'Value (Tag (Tag'First + 1 .. Tag'Last));
-            S : Natural := Variables'First;
-            E : Natural;
-            K : Natural := 0;
-         begin
-            loop
-               if Variables (S) = '"' then
-                  --  Search for the ending quote
-
-                  E := Strings.Fixed.Index
-                    (Variables (S + 1 .. Variables'Last), """");
-
-                  if E = 0 then
-                     Fatal_Error ("Missing quote");
-                  else
-                     E := E + 1;
-                  end if;
-
-               else
-                  --  Search for the next separator
-
-                  E := Strings.Fixed.Index
-                    (Variables (S .. Variables'Last), Blank);
-               end if;
-
-               if E = 0 and then K /= T then
-                  --  Not found, return the original tag name
-                  return To_String (Begin_Tag) & Tag & To_String (End_Tag);
-
-               elsif K = T then
-                  --  We have found the right variable
-
-                  if E = 0 then
-                     E := Variables'Last;
-                  else
-                     E := E - 1;
-                  end if;
-
-                  --  Always return the variable or value unquoted
-
-                  if Variables (S) = '"' then
-                     return Variables (S + 1  .. E - 1);
-                  else
-                     return Variables (S .. E);
-                  end if;
-
-               else
-                  --  Set the new start
-
-                  S := E;
-
-                  S := Strings.Fixed.Index
-                    (Variables (S .. Variables'Last), Blank, Strings.Outside);
-
-                  if S = 0 then
-                     --  No more values, return the original tag name
-                     return To_String (Begin_Tag) & Tag & To_String (End_Tag);
-                  end if;
-               end if;
-
-               K := K + 1;
-            end loop;
-         end Get_Variable;
-
-         ---------------
-         -- Is_Number --
-         ---------------
-
-         function Is_Number (Name : in String) return Boolean is
-         begin
-            return Name'Length > 1
-              and then Name (Name'First) = '$'
-              and then Strings.Fixed.Count
-                         (Name, Strings.Maps.Constants.Decimal_Digit_Set)
-                       = Name'Length - 1;
-         end Is_Number;
-
-         -------------
-         -- Replace --
-         -------------
-
-         procedure Replace (T : in out Data.Tree) is
-
-            use type Data.NKind;
-            use type Data.Tree;
-            use type Filter.Set_Access;
-
-            procedure Free is
-               new Ada.Unchecked_Deallocation (Data.Node, Data.Tree);
-
-            Old : Data.Tree := T;
-
-         begin
-            if T /= null then
-               if T.Kind = Data.Var then
-                  if Is_Number (To_String (T.Var.Name)) then
-                     --  Here we have an include variable name, replace it
-
-                     T := Data.Parse (Get_Variable (To_String (T.Var.Name)));
-
-                     if T = null then
-                        --  The result was the empty string, just remove this
-                        --  node from the tree.
-                        T := Old.Next;
-
-                     else
-                        T.Next := Old.Next;
-
-                        case T.Kind is
-                           when Data.Var =>
-                              --  The new node is also a variable, inherit all
-                              --  the filters and attribute
-                              T.Var.Filters := Old.Var.Filters;
-                              T.Var.Attr    := Old.Var.Attr;
-
-                           when Data.Text =>
-                              --  The new node is a value, apply filters if the
-                              --  previous node had some.
-
-                              if Old.Var.Filters /= null then
-                                 T.Value := To_Unbounded_String
-                                   (Translate (Old.Var, To_String (T.Value)));
-                              end if;
-
-                              --  Free filters
-                              Release (Old.Var);
-                        end case;
-                     end if;
-
-                     --  Free only node
-                     Free (Old);
-                  end if;
-               end if;
-
-               Replace (T.Next);
-            end if;
-         end Replace;
-
-         -------------
-         -- Replace --
-         -------------
-
-         procedure Replace (T : in out Expr.Tree) is
-
-            use type Expr.NKind;
-            use type Expr.Tree;
-            use type Filter.Set_Access;
-
-            procedure Free is
-               new Ada.Unchecked_Deallocation (Expr.Node, Expr.Tree);
-
-            Old : Expr.Tree := T;
-
-         begin
-            if T /= null then
-
-               case T.Kind is
-                  when Expr.Var =>
-                     if Is_Number (To_String (T.Var.Name)) then
-                        --  Here we have an include variable name, replace it
-
-                        declare
-                           New_Value : constant String
-                             := Get_Variable (To_String (T.Var.Name));
-                        begin
-                           if Strings.Fixed.Index (New_Value, " ") = 0 then
-                              T := Expr.Parse (New_Value);
-
-                           else
-                              --  There is some spaces in the new value,
-                              --  this can't be a variable so it is a value
-                              --  with multiple word, quote it to ensure a
-                              --  correct parsing.
-
-                              T := Expr.Parse ('"' & New_Value & '"');
-                           end if;
-                        end;
-
-                        case T.Kind is
-                           when Expr.Var =>
-                              --  The new node is also a variable, inherit all
-                              --  the filters.
-                              T.Var.Filters := Old.Var.Filters;
-                              T.Var.Attr    := Old.Var.Attr;
-
-                           when Expr.Value =>
-                              --  The new node is a value, apply filters if the
-                              --  previous node had some.
-
-                              if Old.Var.Filters /= null then
-                                 T.V := To_Unbounded_String
-                                   (Translate (Old.Var, To_String (T.V)));
-                              end if;
-
-                              --  Free filters
-                              Release (Old.Var);
-
-                           when Expr.Op | Expr.U_Op =>
-                              --  Should never happen
-                              Fatal_Error
-                                ("Var or Value node kind expected,"
-                                   & " Op or U_Op found ");
-                        end case;
-
-                        Free (Old);
-                     end if;
-
-                  when Expr.Op =>
-                     Replace (T.Left);
-                     Replace (T.Right);
-
-                  when Expr.U_Op =>
-                     Replace (T.Next);
-
-                  when Expr.Value =>
-                     null;
-
-               end case;
-            end if;
-         end Replace;
-
-         -------------
-         -- Replace --
-         -------------
-
-         procedure Replace (T : in out Tree) is
-            use type Tree;
-         begin
-            if T /= null then
-               case T.Kind is
-                  when Text =>
-                     Replace (T.Text);
-
-                  when If_Stmt =>
-                     Replace (T.Cond);
-                     Replace (T.N_True);
-                     Replace (T.N_False);
-
-                  when Table_Stmt =>
-                     Replace (T.Sections);
-
-                  when Include_Stmt =>
-                     Replace (T.File.C_Info);
-
-                  when Section_Stmt =>
-                     Replace (T.N_Section);
-
-                  when Info | C_Info =>
-                     null;
-               end case;
-
-               Replace (T.Next);
-            end if;
-         end Replace;
-
-      begin
-         Replace (File.C_Info);
-      end Replace_Include_Variables;
 
       T     : Static_Tree;
       New_T : Tree;
@@ -2805,15 +2621,17 @@ package body Templates_Parser is
       return Unbounded_String
    is
 
-      type Table_State is record
+      type Parse_State is record
          Cursor         : Indices (1 .. 10);
          Max_Lines      : Natural;
          Max_Expand     : Natural;
          Table_Level    : Natural;
          Section_Number : Natural;
+         I_Params       : Include_Parameters;
       end record;
 
-      Empty_State : constant Table_State := ((1 .. 10 => 0), 0, 0, 0, 0);
+      Empty_State : constant Parse_State
+        := ((1 .. 10 => 0), 0, 0, 0, 0, No_Parameter);
 
       Results : Unbounded_String := Null_Unbounded_String;
 
@@ -2825,7 +2643,7 @@ package body Templates_Parser is
 
       procedure Analyze
         (T     : in Tree;
-         State : in Table_State);
+         State : in Parse_State);
       --  Parse T and build results file. State is needed for Vector_Tag and
       --  Matrix_Tag expansion.
 
@@ -2835,7 +2653,7 @@ package body Templates_Parser is
 
       procedure Analyze
         (T     : in Tree;
-         State : in Table_State)
+         State : in Parse_State)
       is
          use type Containers.Cursor;
 
@@ -2870,6 +2688,70 @@ package body Templates_Parser is
          function Translate (Var : in Tag_Var) return String;
          --  Translate Tag variable using Translation table and apply all
          --  Filters and Atribute recorded for this variable.
+
+         function I_Translate (Var : in Tag_Var) return String;
+         --  As above but for an include variable
+
+         procedure Flush;
+         pragma Inline (Flush);
+         --  Flush buffer to Results
+
+         -----------------
+         -- I_Translate --
+         -----------------
+
+         function I_Translate (Var : in Tag_Var) return String is
+            use type Data.Tree;
+            use type Data.NKind;
+         begin
+            pragma Assert (Var.N /= -1);
+
+            if Var.N <= Max_Include_Parameters
+              and then State.I_Params (Var.N) /= null
+            then
+               declare
+                  T : constant Data.Tree := State.I_Params (Var.N);
+                  --  T is the data tree that should be evaluated in place
+                  --  of the include variable.
+               begin
+                  if T.Next = null and then T.Kind = Data.Var then
+                     --  Here we have a special case where the include
+                     --  variable is replaced by a single variable.
+
+                     declare
+                        V : Tag_Var := T.Var;
+                     begin
+                        --  First thing we want to do is to inherit attributes
+                        --  from the include variable.
+                        V.Attr := Var.Attr;
+                        return Translate (Var, Translate (V), Translations);
+                     end;
+
+
+                  else
+                     --  Here we flush the buffer and then we analyse the
+                     --  include parameter. The result is contained into
+                     --  the buffer which is large enough for an include
+                     --  variable.
+                     Flush;
+                     Analyze (State.I_Params (Var.N));
+
+                     declare
+                        L : constant Natural := Last;
+                     begin
+                        Last := 0;
+                        return Translate
+                          (Var,
+                           Buffer (Buffer'First .. L),
+                           Translations);
+                     end;
+                  end if;
+               end;
+
+            else
+               return "";
+            end if;
+         end I_Translate;
 
          ---------------
          -- Translate --
@@ -3094,8 +2976,7 @@ package body Templates_Parser is
             begin
                if Last + S'Length > Buffer'Last then
                   --  Not enough cache space, flush buffer
-                  Append (Results, Buffer (1 .. Last));
-                  Last := 0;
+                  Flush;
                end if;
 
                if S'Length >= Buffer'Length then
@@ -3117,8 +2998,11 @@ package body Templates_Parser is
                      Add (To_String (T.Value));
 
                   when Data.Var =>
-                     Add (Translate (T.Var));
-
+                     if Is_Include_Variable (T.Var) then
+                        Add (I_Translate (T.Var));
+                     else
+                        Add (Translate (T.Var));
+                     end if;
                end case;
 
                T := T.Next;
@@ -3326,7 +3210,11 @@ package body Templates_Parser is
                   return To_String (E.V);
 
                when Expr.Var =>
-                  return Translate (E.Var);
+                  if Is_Include_Variable (E.Var) then
+                     return I_Translate (E.Var);
+                  else
+                     return Translate (E.Var);
+                  end if;
 
                when Expr.Op =>
                   return Op_Table (E.O) (Analyze (E.Left), Analyze (E.Right));
@@ -3335,6 +3223,16 @@ package body Templates_Parser is
                   return U_Op_Table (E.U_O) (Analyze (E.Next));
             end case;
          end Analyze;
+
+         -----------
+         -- Flush --
+         -----------
+
+         procedure Flush is
+         begin
+            Append (Results, Buffer (1 .. Last));
+            Last := 0;
+         end Flush;
 
          -------------
          -- Get_Max --
@@ -3643,10 +3541,11 @@ package body Templates_Parser is
                   Get_Max (T, Max_Lines, Max_Expand);
 
                   Analyze (T.Sections,
-                           Table_State'(State.Cursor,
+                           Parse_State'(State.Cursor,
                                         Max_Lines, Max_Expand,
                                         State.Table_Level + 1,
-                                        State.Section_Number + 1));
+                                        State.Section_Number + 1,
+                                        State.I_Params));
                end;
 
                Analyze (T.Next, State);
@@ -3665,9 +3564,10 @@ package body Templates_Parser is
                         New_Cursor (State.Table_Level) := K;
                         Analyze
                           (Current.Next,
-                           Table_State'(New_Cursor,
+                           Parse_State'(New_Cursor,
                                         State.Max_Lines, State.Max_Expand,
-                                        State.Table_Level, Section));
+                                        State.Table_Level, Section,
+                                        State.I_Params));
                      end;
 
                      Current := Current.N_Section;
@@ -3681,7 +3581,11 @@ package body Templates_Parser is
                end;
 
             when Include_Stmt =>
-               Analyze (T.File.Info, State);
+               Analyze (T.File.Info,
+                        Parse_State'(State.Cursor,
+                                     State.Max_Lines, State.Max_Expand,
+                                     State.Table_Level, State.Section_Number,
+                                     T.I_Params));
                Analyze (T.Next, State);
 
          end case;
@@ -3729,6 +3633,7 @@ package body Templates_Parser is
    -------------
 
    procedure Release (T : in out Tree; Include : in Boolean := True) is
+      use type Data.Tree;
    begin
       if T = null then
          return;
@@ -3773,6 +3678,12 @@ package body Templates_Parser is
          when Include_Stmt =>
             if Include then
                Release (T.File.Info, Include);
+
+               for K in T.I_Params'Range loop
+                  exit when T.I_Params (K) = null;
+                  Data.Release (T.I_Params (K));
+               end loop;
+
             end if;
             Release (T.Next, Include);
       end case;
