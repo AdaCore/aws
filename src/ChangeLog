@@ -1,3 +1,28 @@
+2002-03-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Cleaner_Task): Call Disconnect (do not free).
+	(Close): Disconnect and Free.
+	(Create): Set Connection.Retry to 1 if Create.Retry is 0 and
+	 Persistent is true.
+	(Disconnect): Shutdown if connection is not Opened.
+	(Get): Fix Get_Response call. Handle Sockets.Socket_Error.
+	(Get_Response.Disconnect): Do not close if Server_Push mode is on.
+	(Get_Response.Read_Message): Handle Sockets.Socket_Error.
+	(Post): Correctly pass the Timeouts.
+	(Post): Fix Get_Response call.
+	(Put): Always use Connection.Socket.all as the socket could have
+	 been closed and reopened in Open_Send_Common_Header.
+	(Read_Until): New function.
+	(SOAP_Post): Remove exception handler, not exception can be
+	 propagated here.
+	
+	* aws-client.ads:
+	(Create): Add parameter Server_Push.
+	(Read_Until): New function.
+	(HTTP_Connection): Add Server_Push field.
+	Implement client Server_Push support.
+
 2002-03-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
