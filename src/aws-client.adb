@@ -859,10 +859,11 @@ package body AWS.Client is
                   --------------
 
                   function QOP_Data return String is
-                     CNonce : constant String := AWS.Digest.Create_Nonce;
+                     CNonce : constant AWS.Digest.Nonce
+                       := AWS.Digest.Create_Nonce;
                   begin
                      if QOP = No_Data then
-                        Response := AWS.Digest.Create_Digest
+                        Response := AWS.Digest.Create
                           (Username => User,
                            Realm    => Realm,
                            Password => Pwd,
@@ -877,19 +878,19 @@ package body AWS.Client is
                         declare
                            NC : constant String := Utils.Hex (Data.NC, 8);
                         begin
-                           Response := AWS.Digest.Create_Digest
+                           Response := AWS.Digest.Create
                              (Username => User,
                               Realm    => Realm,
                               Password => Pwd,
                               Nonce    => Nonce,
-                              CNonce   => CNonce,
+                              CNonce   => String (CNonce),
                               NC       => NC,
                               QOP      => QOP,
                               Method   => Method,
                               URI      => URI);
 
                            return "qop=""" & QOP
-                             & """, cnonce=""" & CNonce
+                             & """, cnonce=""" & String (CNonce)
                              & """, nc=" & NC
                              & ", ";
                         end;
@@ -1865,7 +1866,7 @@ package body AWS.Client is
       Data       : in     String;
       Streaming  : in     Boolean := False)
    is
-      Save_Streaming : Boolean := Connection.Streaming;
+      Save_Streaming : constant Boolean := Connection.Streaming;
    begin
       Connection.Self.Streaming := Streaming;
 
