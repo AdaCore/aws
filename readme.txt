@@ -103,8 +103,16 @@ Here are the main changes since AWS 1.4 :
 
    - New package AWS.POP which implements the POP client protocol.
 
-   - New template engine filter REPLACE. Pattern matching with replacement
-     facility.
+   - New template engine filters:
+
+       REPLACE       Pattern matching with replacement facility.
+       REPLACE_ALL   As above but replace all occurences not the first one.
+       FORMAT_DATE   To format a date using GNU/Date pattern format.
+
+   - Templates engine should be a bit faster as it uses less recursivity.
+
+   - New version of the "&" operator to prepend data into the
+     templates engine's vector tags.
 
    - New awsres options -u/-z to add uncompressed or compressed items into the
      resources. Compressed resources are decompressed on-the-fly if needed
@@ -123,6 +131,8 @@ Here are the main changes since AWS 1.4 :
      period in time, there is a Once period (this is unique in time) and
      Yearly, Monthly, Daily, Weekly, Hourly and Minutely periods to build
      events that repeats periodically.
+
+   - ZLib library updated to version 1.2.1.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
