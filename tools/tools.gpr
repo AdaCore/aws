@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,7 +34,6 @@ with "../shared.gpr";
 with "../include/include";
 with "../src/src";
 with "../ssl/nossl";
-with "../xmlada";
 with "../asis";
 
 project Tools is
@@ -86,8 +85,8 @@ project Tools is
 
    package Linker is
       for Switches ("awsres.adb")   use Shared.ZLib;
-      for Switches ("wsdl2aws.adb") use Shared.ZLib & Shared.LIB_XMLAda;
-      for Switches ("ada2wsdl.adb") use Shared.ZLib & Shared.LIB_XMLAda;
+      for Switches ("wsdl2aws.adb") use Shared.ZLib;
+      for Switches ("ada2wsdl.adb") use Shared.ZLib;
    end Linker;
 
 end Tools;
