@@ -46,8 +46,18 @@ package AWS.Net.Stream_IO is
    procedure Shutdown (Stream : in Socket_Stream_Access);
    --  Terminate the Stream and Flush the stream if needed.
 
-   procedure Free (Stream : in out Socket_Stream_Access);
+   procedure Free
+     (Stream : in out Socket_Stream_Access;
+      Socket : in     Boolean);
    --  Release memory associated with the Stream.
+   --  If the Socket parameter is True, the internal Socket memory
+   --  would be released too.
+   --  We need 2 mode for free Stream, becouse sometimes we need
+   --  to free memory completely, after Shutdown routine for example,
+   --  when we already do not need to use the socket, but sometimes
+   --  the socket could be used after using in the stream interface,
+   --  for example after the failure of registering for server-push for
+   --  send answer to client by regular HTTP answer.
 
    procedure Flush (Stream : in Socket_Stream_Access);
    pragma Inline (Flush);
