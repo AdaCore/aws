@@ -4439,9 +4439,15 @@ document.
 
 @item <root>.Types
 This package contains the definitions of the types which are not @code{SOAP}
-base types. We find here the definitions of the @code{SOAP} structs and arrays
-with routines to convert them between the Ada and @code{SOAP} type model. A
-subtype definition is also created for every routine's returned type.
+base types. We find here the definitions of the @code{SOAP} structs
+and arrays with routines to convert them between the Ada and @code{SOAP} type
+model. A subtype definition is also created for every routine's returned type.
+In fact, all definitions here are only alias or renaming of types
+and/or routines generated in other packages. The real definitions for
+structs, arrays, enumerations and derived types are generated into a
+package whose name depends on the name space use for these
+entities. This package act as a container for all definitions and it
+is the only one used in the other generated packages.
 
 @item <root>.Client
 All spec to call Web Services.
