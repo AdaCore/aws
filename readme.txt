@@ -37,6 +37,11 @@ Here are the main changes:
    - Fix bug in Client module when reading empty file (file whose size
      Content-Length is 0).
 
+   - Add support for embedded resources. An AWS server can now be easily
+     built as a stand-alone executable. All resources (images, templates,
+     HTML pages...) can be embedded into the executable. See AWS.Resources
+     tree and the AWSRes tools to help building the embedded resources.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
