@@ -1,3 +1,34 @@
+2001-08-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Start): Fix typo.
+
+	* aws-server.ads:
+	(Def_Port): fix typo in constant declaration.
+
+	* aws-default.ads:
+	(Server_Name): new constant.
+
+	* aws-server-protocol_handler.adb:
+	Lot of changes to use new configuration API.
+	(Answer_File): new procedure.
+
+	* aws-server.ads, aws-server.adb:
+	Lot of changes to use new configuration API.
+	(Start): new routine using a configuration object to initialize
+	 the server properties.
+	(Set_Timeouts): new Slots protected procedure to set all server
+	 timeouts.
+
+	* aws-server-get_status.adb:
+	(Translations): change table to use new configuration API.
+
+	* aws-session-control.ads, aws-session-control.adb:
+	(Start): add two parameters to control the session server.
+	
+	* aws-session.ads, aws-session.adb:
+	(Start): add two parameters to control the session server.
+
 2001-08-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
