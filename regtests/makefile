@@ -46,11 +46,13 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tlog unexph2 sp $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
-STD_TESTS = $(RT_STD)
-OTH_TESTS= tres dirop
+STD_TESTS  = $(RT_STD)
+OTH_TESTS  = tres dirop
+WSDL_TESTS =
 else
-STD_TESTS = $(RT_STD) $(RT_SOAP)
-OTH_TESTS= tres dirop test_wsdl check_mem
+STD_TESTS  = $(RT_STD) $(RT_SOAP)
+OTH_TESTS  = tres dirop check_mem
+WSDL_TESTS = test_wsdl test_wsdl2 
 endif
 
 ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
@@ -60,7 +62,7 @@ run : build checks
 
 force:
 
-build: init $(STD_TESTS) $(OTH_TESTS)
+build: init $(STD_TESTS) $(OTH_TESTS) $(WSDL_TESTS)
 
 init:
 	cp ../demos/cert.pem .
@@ -84,10 +86,10 @@ dirop: force
 	./$@ | grep -v "CVS/" > $@.res
 	-diff -c -w $@.out $@.res >> alldifs
 
-test_wsdl: force
-	echo -n Building test_wsdl
-	../tools/wsdl2aws -q -f hello.wsdl
-	gnatmake -g test_wsdl $(GARGS) -largs $(LARGS) -bargs -E
+$(WSDL_TESTS): force
+	echo -n Building $@
+	../tools/wsdl2aws -q -f $@.wsdl
+	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
 	./$@ > $@.res
