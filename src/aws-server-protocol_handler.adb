@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -80,11 +80,6 @@ is
 
    C_Stat         : AWS.Status.Data;     -- Connection status
 
-   --  Duplication of some status fields for fast access to the status data.
-   Status_Connection         : Unbounded_String;
-   Status_Multipart_Boundary : Unbounded_String;
-   Status_Content_Type       : Unbounded_String;
-
    P_List         : AWS.Parameters.List; -- Form data
 
    Sock_Ptr       : constant Socket_Access
@@ -99,6 +94,12 @@ is
    --  Will_Close is set to true when the connection will be closed by the
    --  server. It means that the server is about to send the lastest message
    --  to the client using this sockets.
+
+   --  Duplication of some status fields for faster access
+
+   Status_Connection         : Unbounded_String;
+   Status_Multipart_Boundary : Unbounded_String;
+   Status_Content_Type       : Unbounded_String;
 
    procedure Send_Resource
      (Method : in     Status.Request_Method;
@@ -528,8 +529,12 @@ is
          File            : Streams.Stream_IO.File_Type;
          Is_File_Upload  : Boolean;
 
+         End_Found       : Boolean := False;
+         --  Set to true when the end-boundary has been found.
+
          procedure Get_File_Data;
-         --  Read file data from the stream
+         --  Read file data from the stream, set End_Found if the end-boundary
+         --  signature has been read.
 
          function Target_Filename (Filename : in String) return String;
          --  Returns the full path name for the file as stored on the
@@ -548,10 +553,6 @@ is
             function Check_EOF return Boolean;
             --  Returns True if we have reach the end of file data
 
-            function End_Boundary_Signature
-              return Streams.Stream_Element_Array;
-            --  Returns the end signature string as an element array
-
             Buffer : Streams.Stream_Element_Array (1 .. 4096);
             Index  : Streams.Stream_Element_Offset := Buffer'First;
 
@@ -562,8 +563,10 @@ is
             ---------------
 
             function Check_EOF return Boolean is
+
                Signature : constant Streams.Stream_Element_Array
-                 := (1 => 13, 2 => 10) & End_Boundary_Signature;
+                 := (1 => 13, 2 => 10)
+                 & Translator.To_Stream_Element_Array (Start_Boundary);
 
                Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
                Index  : Streams.Stream_Element_Offset := Buffer'First;
@@ -625,16 +628,6 @@ is
                end loop;
             end Check_EOF;
 
-            ----------------------------
-            -- End_Boundary_Signature --
-            ----------------------------
-
-            function End_Boundary_Signature
-              return Streams.Stream_Element_Array is
-            begin
-               return Translator.To_Stream_Element_Array (Start_Boundary);
-            end End_Boundary_Signature;
-
          begin
             Streams.Stream_IO.Create
               (File,
@@ -666,6 +659,25 @@ is
             end if;
 
             Streams.Stream_IO.Close (File);
+
+            --  Check for end-boundary, at this point we have at least two
+            --  chars. Either the terminating "--" or CR+LF.
+
+            Net.Buffered.Read (Sock, Data);
+            Net.Buffered.Read (Sock, Data);
+
+            if Data (1) = 10 then
+               --  We have CR+LF, it is a start-boundary
+               End_Found := False;
+
+            else
+               --  We have read the "--", read line terminator. This is the
+               --  end-boundary.
+
+               End_Found := True;
+               Net.Buffered.Read (Sock, Data);
+               Net.Buffered.Read (Sock, Data);
+            end if;
          end Get_File_Data;
 
          ---------------------
@@ -673,12 +685,13 @@ is
          ---------------------
 
          function Target_Filename (Filename : in String) return String is
-            I   : constant Natural
+            I           : constant Natural
               := Fixed.Index (Filename, Maps.To_Set ("/\"),
                               Going => Strings.Backward);
-            UID : Natural;
-            Upload_Path : constant String :=
-               CNF.Upload_Directory (HTTP_Server.Properties);
+            Upload_Path : constant String
+              := CNF.Upload_Directory (HTTP_Server.Properties);
+
+            UID         : Natural;
          begin
             File_Upload_UID.Get (UID);
 
@@ -694,7 +707,7 @@ is
          end Target_Filename;
 
       begin
-         --  reach the boundary
+         --  Reach the boundary
 
          if Parse_Boundary then
             loop
@@ -704,7 +717,7 @@ is
                   exit when Data = Start_Boundary;
 
                   if Data = End_Boundary then
-                     --  this is the end of the multipart data
+                     --  This is the end of the multipart data
                      return;
                   end if;
                end;
@@ -716,32 +729,10 @@ is
          declare
             Data : constant String := Net.Buffered.Get_Line (Sock);
          begin
-            if not Parse_Boundary then
+            Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
 
-               if Data = "--" then
-                  --  Check if this is the end of the finish boundary string.
-                  return;
-
-               else
-                  --  Data should be CR+LF here
-                  declare
-                     Data : constant String := Net.Buffered.Get_Line (Sock);
-                  begin
-                     Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
-
-                     Name
-                       := To_Unbounded_String (Value_For ("name", Data));
-                     Filename
-                       := To_Unbounded_String (Value_For ("filename", Data));
-                  end;
-               end if;
-
-            else
-               Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
-
-               Name     := To_Unbounded_String (Value_For ("name", Data));
-               Filename := To_Unbounded_String (Value_For ("filename", Data));
-            end if;
+            Name     := To_Unbounded_String (Value_For ("name", Data));
+            Filename := To_Unbounded_String (Value_For ("filename", Data));
          end;
 
          --  Reach the data
@@ -773,42 +764,63 @@ is
 
             if To_String (Filename) /= "" then
                --  First value is the uniq name on the server side
+
                AWS.Parameters.Set.Add
                  (P_List, To_String (Name), To_String (Server_Filename));
 
                --  Second value is the original name as found on the client
                --  side.
+
                AWS.Parameters.Set.Add
                  (P_List, To_String (Name), To_String (Filename));
 
+               --  Read file data, set End_Found if the end-boundary signature
+               --  has been read.
+
                Get_File_Data;
 
-               File_Upload ("--" & Multipart_Boundary,
-                            "--" & Multipart_Boundary & "--",
-                            False);
+               if not End_Found then
+                  File_Upload (Start_Boundary, End_Boundary, False);
+               end if;
+
             else
                --  There is no file for this multipart, user did not enter
                --  something in the field.
 
-               File_Upload ("--" & Multipart_Boundary,
-                            "--" & Multipart_Boundary & "--",
-                            True);
+               File_Upload (Start_Boundary, End_Boundary, True);
             end if;
 
          else
-            --  This part of the multipart message contains field value.
+            --  This part of the multipart message contains field value
 
             declare
-               Value : constant String := Net.Buffered.Get_Line (Sock);
+               Value : Unbounded_String;
             begin
-               AWS.Parameters.Set.Add (P_List, To_String (Name), Value);
+               loop
+                  declare
+                     L : constant String := Net.Buffered.Get_Line (Sock);
+                  begin
+                     End_Found := (L = End_Boundary);
+
+                     exit when End_Found or else L = Start_Boundary;
+
+                     --  Append this line to the value
+
+                     if Value /= Null_Unbounded_String then
+                        Append (Value, ASCII.CR & ASCII.LF);
+                     end if;
+                     Append (Value, L);
+                  end;
+               end loop;
+
+               AWS.Parameters.Set.Add
+                 (P_List, To_String (Name), To_String (Value));
             end;
 
-            File_Upload ("--" & Multipart_Boundary,
-                         "--" & Multipart_Boundary & "--",
-                         True);
+            if not End_Found then
+               File_Upload (Start_Boundary, End_Boundary, False);
+            end if;
          end if;
-
       end File_Upload;
 
       ---------------
@@ -822,8 +834,8 @@ is
          if Pos = 0 then
             return "";
          else
-            return Into (Start
-                         .. Fixed.Index (Into (Start .. Into'Last), """") - 1);
+            return Into
+              (Start .. Fixed.Index (Into (Start .. Into'Last), """") - 1);
          end if;
       end Value_For;
 
@@ -905,8 +917,9 @@ is
    ------------------------
 
    procedure Get_Message_Header is
-
    begin
+      --  Get and parse request line
+
       declare
          Data : constant String := Net.Buffered.Get_Line (Sock);
       begin
@@ -944,7 +957,6 @@ is
             if Ada.Characters.Handling.To_Upper (Name) = "BOUNDARY" then
                Status_Multipart_Boundary := To_Unbounded_String (Value);
                Quit := True;
-
             end if;
          end Named_Value;
 
@@ -955,7 +967,6 @@ is
          procedure Value (Item : in String; Quit : in out Boolean) is
          begin
             if Status_Content_Type /= Null_Unbounded_String then
-
                --  Only first unnamed value is the Content_Type.
 
                Quit := True;
@@ -971,16 +982,18 @@ is
                --  without ';' and the end.
 
                Quit := True;
-
             end if;
          end Value;
 
          procedure Parse is new Headers.Values.Parse (Value, Named_Value);
 
       begin
+         --  Clear Content-Type status as this could have already been set in
+         --  previous request.
+         Status_Content_Type := Null_Unbounded_String;
+
          Parse (Status.Content_Type (C_Stat));
       end;
-
    end Get_Message_Header;
 
    ------------------------
