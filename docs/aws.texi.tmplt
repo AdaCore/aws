@@ -106,14 +106,17 @@ a very good and Open Source SSL implementation.
 
 @noindent
 @code{AWS} has been developed with GNAT on Windows NT but should be fairly
-portable. To build @code{AWS} you need:
+portable across platforms. To build @code{AWS} you need:
 
 @itemize @bullet
 
-@item an Ada95 compiler ;
+@item GNU/Ada (GNAT compiler) ;
 
-There is many of them. @code{AWS} has been developed with GNAT but uses
-only Ada95 features. So any Ada95 compiler should be usable.
+@code{AWS} uses some @code{GNAT} specific packages and we have no plan
+to support another compiler at this point. It is too much work for us
+to check if @code{AWS} compiles to other compilers anyway. To build
+this version you need at least @code{GNAT 3.14}. On Windows you must also
+install @code{GNATWin} (Windows specific package).
 
 @item a socket binding ;
 @cindex socket binding
