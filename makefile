@@ -162,7 +162,7 @@ build_apiref:
 run_regtests: build_tools
 	echo ""
 	echo === Run regression tests
-	${MAKE} -C regtests run $(ALL_OPTIONS)
+	${MAKE} -C regtests run $(ALL_OPTIONS) GDB_REGTESTS=$(GDB_REGTESTS)
 
 clean: clean_noapiref
 	${MAKE} -C docs clean_apiref $(ALL_OPTIONS)
