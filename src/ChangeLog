@@ -1,5 +1,11 @@
 2000-04-01    Pascal Obry <p.obry@wanadoo.fr>
 
+	* aws-client.adb, aws-connection.adb, aws-messages.adb,
+	  aws-translater.adb, aws-url.adb:
+	Minor reformatting to conform to -gnaty switch.
+	
+2000-04-01    Pascal Obry <p.obry@wanadoo.fr>
+	
 	* aws.ads
 	(Version): changed to 0.4
 	
