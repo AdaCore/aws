@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                      Dmitriy Anisimov - Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -52,7 +52,7 @@
 --
 --  On the client side:
 --  * launch your Web Browser (this should work with any browser)
---  * enter the URL : http://<servername>:1234/
+--  * enter the URL : http://<servername>:1234/ or https://<servername>:4433/
 --
 --  You can ask for whatever URI
 --  http://<servername>:1234/give_me_that
@@ -75,9 +75,11 @@ procedure Runme is
 
    use Ada;
 
-   WS : AWS.Server.HTTP (10, 1234, Runme_CB.Service'Access);
+   WSS : AWS.Server.HTTP (3, 4433, True, Runme_CB.Service'Access);
+   WS  : AWS.Server.HTTP (3, 1234, False, Runme_CB.Service'Access);
 
 begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");
+   AWS.Server.Start (WSS);
    AWS.Server.Start (WS);
 end Runme;
