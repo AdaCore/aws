@@ -34,8 +34,6 @@ with Ada.Calendar;
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
 
-with ZLib;
-
 package AWS.Resources is
 
    use Ada.Streams;
@@ -103,32 +101,22 @@ package AWS.Resources is
    --  Get the time for last modification to a file in UTC/GMT. Checks first
    --  for in memory file then for disk file.
 
-   function Is_Compressed (Resource : in File_Type) return Boolean;
-   --  Returns True if the Resource is compressed
-
    procedure Support_Compressed
      (Resource : in out File_Type;
       State    : in     Boolean);
    --  By the default data read from a resource are returned as-is. This means
-   --  that for compressed resources the data are returned compressed. It
-   --  can be changed by calling this routine with State set to False. It
-   --  tells the underlying resource implementation that the data must always
-   --  be returned uncompressed. This option must be used for clients not
-   --  supporting compressed data.
+   --  that for compressed embedded resources the data are returned
+   --  compressed. It can be changed by calling this routine with State set to
+   --  False. It tells the underlying resource implementation that the data
+   --  must always be returned uncompressed. This routine must be called on
+   --  an open Resource.
 
 private
 
    Undefined_Length : constant Content_Length_Type := -1;
 
    type File_Tagged is abstract tagged limited record
-      LFT                : Boolean;         -- LF terminated state
-      Support_Compressed : Boolean := True; -- False if uncompressed data only
-      --  Buffer to uncompress on the fly compressed data if the client does
-      --  not support compressed data.
-      U_Buffer           : Stream_Element_Array (1 .. 1_024);
-      R_First, R_Last    : Stream_Element_Offset;
-      --  Filter used to uncompress data
-      U_Filter           : ZLib.Filter_Type;
+      LFT : Boolean; -- LF terminated state
    end record;
 
    --  Abstract file, operations below must be implemented. The goal here is
@@ -159,9 +147,9 @@ private
    procedure Reset (File : in out File_Tagged)
       is abstract;
 
-   function Is_Compressed (File : in File_Tagged) return Boolean;
-   --  This default implementation returns False, must be overwrited for
-   --  compressed resources implementation.
+   procedure Support_Compressed
+     (Resource : in out File_Tagged;
+      State    : in     Boolean);
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
