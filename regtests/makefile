@@ -146,7 +146,7 @@ $(WSDL2AWS): force
 
 $(ASIS_TESTS): force
 	echo -n Building $@
-	../tools/ada2wsdl -q -f \
+	../tools/ada2wsdl -q -f $(INCLUDES) -I../include -I../SOAP -I../src \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
 	../tools/wsdl2aws -q -f -cb -types $@ $@.wsdl
 	gnatmake -m -g $@_main $(GARGS) -largs $(LARGS) -bargs -E
