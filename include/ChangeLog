@@ -1,5 +1,15 @@
 2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* memory_streams.adb:
+	(End_Of_File): Correctly detect end of stream data. Fix an access
+	 violation.
+	Reformat code.
+	
+	* zlib.ads:
+	More comment fixes.
+
+2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* zlib.ads:
 	Fix comment, fix some line ending (DOS style).
 
