@@ -34,7 +34,7 @@ package AWS.Server.Config is
                                    Pathname    : in     String);
    --  Set the directory where file uploaded will be stored.
 
-   function Upload_Directory (HTTP_Server : in HTTP) Return String;
+   function Upload_Directory (HTTP_Server : in HTTP) return String;
    --  Retunrs the directory where uploaded file are stored.
 
 end AWS.Server.Config;
