@@ -1,3 +1,9 @@
+2003-02-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std-gnat.adb:
+	(connect): Do not free the socket here otherwise the shutdown routine
+	 will not close properly the socket and will create a resource leak.
+
 2003-02-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-std-adasockets.adb:
