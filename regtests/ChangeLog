@@ -1,3 +1,9 @@
+2003-12-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Move embedded resources build for zres, file2 and eres to the init
+	 section.
+
 2003-12-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* dummy.adb, dummy.out, zstrm2.adb, zstrm2.out:
