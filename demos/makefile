@@ -29,7 +29,7 @@ BARGS = -E
 LARGS = $(LIBS)
 endif
 
-build: runme agent auth ws com_1 com_2 main hotplug hello_world
+build: runme agent auth ws com_1 com_2 main hotplug hello_world text_input
 
 force:
 
@@ -59,6 +59,9 @@ hotplug: force
 
 hello_world: force
 	gnatmake $(GARGS) hello_world -bargs $(BARGS) -largs $(LARGS)
+
+text_input: force
+	gnatmake $(GARGS) text_input -bargs $(BARGS) -largs $(LARGS)
 
 build_soap: force
 	(if [ -e ../soap/soap.o ] ; then \
