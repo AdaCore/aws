@@ -18,7 +18,7 @@
 #      RT_SOAP_ASIS : ada2wsdl tests using a server
 #      RT_SOAP_ASIS_PARSE : ada2wsdl tests using only the parser
 
-GARGS = -i -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
+GARGS = -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 LARGS = $(LFLAGS) $(LIBS) -L../lib -lz
@@ -211,7 +211,7 @@ check_mem: force
 	sed 's/4,/1000,/;s/8,/1000,/' ../src/aws-containers-tables.ads \
 		> aws-containers-tables.ads
 	gnatmake -g check_mem $(GARGS) -largs $(LARGS) -bargs -E -largs -lgmem
-	rm -f aws-containers-tables.*
+	rm -f aws-containers-tables.* aws*.ali aws*.o soap*.o soap*.ali
 	echo -n ",  run it"
 	./check_mem 2 1248 > check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) 2 1248 > check_mem.run1
