@@ -8,28 +8,26 @@
 GFLAGSY = $(patsubst -gnatwe -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GFLAGS))
 # We do not want to check for separate spec for the demos (s option).
 
+GARGS = -m -q $(GFLAGSY) -i -I../src -I../ssl -I../include \
+	-I../soap $(INCLUDES)
+BARGS = -E
+
 ifeq ($(MODE),ssl)
 # With SSL support
-
-GARGS = -m -q $(GFLAGSY) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
-BARGS = -E
 
 ifeq (${OS}, Windows_NT)
 LARGS = $(LFLAGS) $(LIBS) -L../win32 -L../ssl -lssl -lcrypto ../win32/aws.coff
 else
-LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto -ladasockets
+LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto
 endif
 
 else
 # Without SSL support
 
-GARGS = -m -q $(GFLAGSY) -i -I../src -I../include -I../soap $(INCLUDES)
-BARGS = -E
-
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) -L../win32 ../win32/aws.coff
+LARGS = $(LFLAGS) $(LIBS) ../ssl/ssl-wrappers.o -L../win32 ../win32/aws.coff
 else
-LARGS = $(LFLAGS) $(LIBS) -ladasockets
+LARGS = $(LFLAGS) $(LIBS) ../ssl/ssl-wrappers.o
 endif
 endif
 
