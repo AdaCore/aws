@@ -42,6 +42,18 @@ package body SOAP.Utils is
 
    use Ada.Strings.Unbounded;
 
+   ---------
+   -- Any --
+   ---------
+
+   function Any
+     (V    : in Types.XSD_Any_Type;
+      Name : in String  := "item")
+      return Types.XSD_Any_Type is
+   begin
+      return SOAP.Types.Any (Types.Object'Class (V), Name);
+   end Any;
+
    -------
    -- C --
    -------
