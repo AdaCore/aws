@@ -33,7 +33,11 @@
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
+with Interfaces.C;
+
+with Sockets.Constants;
 with Sockets.Naming;
+with Sockets.Thin;
 
 package body AWS.Net.Std is
 
@@ -218,6 +222,60 @@ package body AWS.Net.Std is
       when E : others =>
          Raise_Exception (E, "Send");
    end Send;
+
+   -----------------------
+   -- Set_Blocking_Mode --
+   -----------------------
+
+   procedure Set_Blocking_Mode
+     (Socket   : in Socket_Type;
+      Blocking : in Boolean)
+   is
+      use Sockets;
+      use Interfaces.C;
+      Enabled : aliased int := Boolean'Pos (not Blocking);
+   begin
+      if Thin.C_Ioctl
+           (Get_FD (Socket.S.all),
+            Constants.Fionbio,
+            Enabled'Access) /= 0
+      then
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity, "Set_Blocking_Mode");
+      end if;
+   end Set_Blocking_Mode;
+
+   ------------------------
+   -- Set_Receive_Buffer --
+   ------------------------
+
+   procedure Set_Receive_Buffer
+     (Socket : in Socket_Type;
+      Size   : in Natural)
+   is
+      use Sockets;
+   begin
+      Setsockopt (Socket.S.all, Optname => SO_RCVBUF, Optval => Size);
+   exception
+      when E : others =>
+         Raise_Exception (E, "Set_Receive_Buffer");
+   end Set_Receive_Buffer;
+
+   ---------------------
+   -- Set_Send_Buffer --
+   ---------------------
+
+   procedure Set_Send_Buffer
+     (Socket : in Socket_Type;
+      Size   : in Natural)
+   is
+      use Sockets;
+   begin
+      Setsockopt (Socket.S.all, Optname => SO_SNDBUF, Optval => Size);
+   exception
+      when E : others =>
+         Raise_Exception (E, "Set_Send_Buffer");
+   end Set_Send_Buffer;
 
    --------------
    -- Shutdown --

@@ -100,6 +100,23 @@ package AWS.Net.Std is
 
    function Host_Name return String;
 
+   procedure Set_Send_Buffer
+     (Socket : in Socket_Type;
+      Size   : in Natural);
+   --  Set the internal socket send buffer size.
+   --  Do not confuse with buffers for the AWS.Net.Buffered operations.
+
+   procedure Set_Receive_Buffer
+     (Socket : in Socket_Type;
+      Size   : in Natural);
+   --  Set the internal socket receive buffer size.
+   --  Do not confuse with buffers for the AWS.Net.Buffered operations.
+
+   procedure Set_Blocking_Mode
+     (Socket   : in Socket_Type;
+      Blocking : in Boolean);
+   --  Set the blocking mode for the socket.
+
 private
 
    type Socket_Hidden;

@@ -133,6 +133,26 @@ package AWS.Net is
    function Host_Name return String;
    --  Returns the running host name
 
+   procedure Set_Send_Buffer
+     (Socket : in Socket_Type;
+      Size   : in Natural)
+      is abstract;
+   --  Set the internal socket send buffer size.
+   --  Do not confuse with buffers for the AWS.Net.Buffered operations.
+
+   procedure Set_Receive_Buffer
+     (Socket : in Socket_Type;
+      Size   : in Natural)
+      is abstract;
+   --  Set the internal socket receive buffer size.
+   --  Do not confuse with buffers for the AWS.Net.Buffered operations.
+
+   procedure Set_Blocking_Mode
+     (Socket   : in Socket_Type;
+      Blocking : in Boolean)
+      is abstract;
+   --  Set the blocking mode for the socket.
+
 private
    --  This object is to cache data writed to the stream. It is more efficient
    --  than to write byte by byte on the stream.
