@@ -5,7 +5,7 @@
 -- Date Of This Delta:  10/13/92 21:41:24
 -- Retrieved On:        10/14/92 08:53:26
 
--- END SCCS INFORMATION 
+-- END SCCS INFORMATION
 
 -- ++++++++++++++++++++++++ START PACKAGE SPEC PROLOGUE +++++++++++++++++++++++
 --
@@ -74,7 +74,7 @@ package Avl_Tree_Generic is
 
 -- Raises Node_Not_Found if the key doesn't exist in tree
   procedure Update_Node
-               (Update_Key : in Key; Update_Item : in Item; Tree : in Avl_Tree);
+               (Update_Item : in Item; Tree : in Avl_Tree);
 
 -- Raises AVL_Tree_Minimum_Exceeded when you try to delete a node that
 -- is already deleted
