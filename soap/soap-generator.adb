@@ -1274,7 +1274,12 @@ package body SOAP.Generator is
 
       Put_File_Header (O, Root);
 
-      Text_IO.Put_Line (Root, "--  " & Documentation);
+      if Documentation = "" then
+         Text_IO.Put_Line (Root, "--");
+      else
+         Text_IO.Put_Line (Root, "--  " & Documentation);
+      end if;
+
       Text_IO.Put_Line (Root, "--  Service at : " & Location);
       Text_IO.New_Line (Root);
       Text_IO.Put_Line (Root, "package " & L_Name & " is");
