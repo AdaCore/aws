@@ -30,40 +30,113 @@
 
 --  $Id$
 
-with Ada.Float_Text_IO;
+with Ada.Long_Float_Text_IO;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Tags;
+with Ada.Unchecked_Deallocation;
+
+with AWS.Utils;
+with GNAT.Calendar.Time_IO;
+
+with SOAP.Utils;
 
 package body SOAP.Types is
 
    use Ada;
 
-   function xsi_type (Name : in Standard.String) return Standard.String;
+   function xsi_type (Name : in String) return String;
    --  Returns the xsi:type field for the XML type representation whose name
    --  is passed as argument.
+
+   ---------
+   -- "+" --
+   ---------
+
+   function "+" (O : in Object'Class) return Object_Controlled is
+   begin
+      return (Finalization.Controlled with new Object'Class'(O));
+   end "+";
+
+   -------
+   -- A --
+   -------
+
+   function A
+     (V    : in Object_Set;
+      Name : in String)
+     return SOAP_Array is
+   begin
+      return (To_Unbounded_String (Name), new Object_Set'(V));
+   end A;
+
+   ------------
+   -- Adjust --
+   ------------
+
+   procedure Adjust (O : in out Object_Controlled) is
+   begin
+      if O.O /= null then
+         O.O := new Object'Class'(O.O.all);
+      end if;
+   end Adjust;
+
+   -------
+   -- B --
+   -------
+
+   function B
+     (V    : in Boolean;
+      Name : in String  := "item")
+     return XSD_Boolean is
+   begin
+      return (To_Unbounded_String (Name), V);
+   end B;
+
+   ---------
+   -- B64 --
+   ---------
+
+   function B64
+     (V      : in String;
+      Name   : in String  := "item")
+     return SOAP_BAse64 is
+   begin
+      return (To_Unbounded_String (Name), To_Unbounded_String (V));
+   end B64;
 
    -------
    -- F --
    -------
 
    function F
-     (Name : in Standard.String;
-      V    : in Standard.Float)
-     return Float is
+     (V    : in Long_Float;
+      Name : in String := "item")
+     return XSD_Float is
    begin
       return (To_Unbounded_String (Name), V);
    end F;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (O : in out Object_Controlled) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Object'Class, Object_Access);
+   begin
+      Free (O.O);
+   end Finalize;
 
    ---------
    -- Get --
    ---------
 
-   function Get (O : in Object'Class) return Standard.Integer is
+   function Get (O : in Object'Class) return Integer is
       use type Ada.Tags.Tag;
    begin
-      if O'Tag = Types.Integer'Tag then
-         return V (Integer (O));
+      if O'Tag = Types.XSD_Integer'Tag then
+         return V (XSD_Integer (O));
 
       else
          Exceptions.Raise_Exception
@@ -72,11 +145,11 @@ package body SOAP.Types is
       end if;
    end Get;
 
-   function Get (O : in Object'Class) return Standard.Float is
+   function Get (O : in Object'Class) return Long_Float is
       use type Ada.Tags.Tag;
    begin
-      if O'Tag = Types.Float'Tag then
-         return V (Float (O));
+      if O'Tag = Types.XSD_Float'Tag then
+         return V (XSD_Float (O));
 
       else
          Exceptions.Raise_Exception
@@ -85,11 +158,11 @@ package body SOAP.Types is
       end if;
    end Get;
 
-   function Get (O : in Object'Class) return Standard.String is
+   function Get (O : in Object'Class) return String is
       use type Ada.Tags.Tag;
    begin
-      if O'Tag = Types.String'Tag then
-         return V (String (O));
+      if O'Tag = Types.XSD_String'Tag then
+         return V (XSD_String (O));
 
       else
          Exceptions.Raise_Exception
@@ -98,14 +171,53 @@ package body SOAP.Types is
       end if;
    end Get;
 
+   function Get (O : in Object'Class) return Boolean is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Boolean'Tag then
+         return V (XSD_Boolean (O));
+
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "Boolean expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
+   function Get (O : in Object'Class) return SOAP_Record is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.SOAP_Record'Tag then
+         return SOAP_Record (O);
+
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "SOAP Struct expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
+   function Get (O : in Object'Class) return SOAP_Array is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.SOAP_Array'Tag then
+         return SOAP_Array (O);
+
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "SOAP Array expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
    -------
    -- I --
    -------
 
    function I
-     (Name : in Standard.String;
-      V    : in Standard.Integer)
-     return Integer is
+     (V    : in Integer;
+      Name : in String := "item")
+     return XSD_Integer is
    begin
       return (To_Unbounded_String (Name), V);
    end I;
@@ -114,106 +226,419 @@ package body SOAP.Types is
    -- Image --
    -----------
 
-   function Image (O : in Object) return Standard.String is
+   function Image (O : in Object) return String is
    begin
       return "";
    end Image;
 
-   function Image (O : in Integer) return Standard.String is
-      V : constant Standard.String := Standard.Integer'Image (O.V);
+   function Image (O : in XSD_Integer) return String is
+      V : constant String := Integer'Image (O.V);
    begin
-      return V (V'First + 1 .. V'Last);
+      if O.V >= 0 then
+         return V (V'First + 1 .. V'Last);
+      else
+         return V;
+      end if;
    end Image;
 
-   function Image (O : in Float) return Standard.String is
+   function Image (O : in XSD_Float) return String is
       use Ada;
 
-      Result : Standard.String (1 .. Standard.Float'Width);
+      Result : String (1 .. Long_Float'Width);
    begin
-      Float_Text_IO.Put (Result, O.V, Exp => 0);
+      Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
 
-   function Image (O : in String) return Standard.String is
+   function Image (O : in XSD_String) return String is
    begin
       return To_String (O.V);
    end Image;
+
+   function Image (O : in XSD_Boolean) return String is
+   begin
+      if O.V then
+         return "1";
+      else
+         return "0";
+      end if;
+   end Image;
+
+   function Image (O : in XSD_Time_Instant) return String is
+
+      function Image (Timezone : in TZ) return String;
+      --  Returns Image for the TZ
+
+      function Image (Timezone : in TZ) return String is
+
+         subtype Str2 is String (1 .. 2);
+
+         function I2D (N : Natural) return Str2;
+
+         function I2D (N : Natural) return Str2 is
+            V : constant String := Natural'Image (N);
+         begin
+            if N > 9 then
+               return V (V'First + 1 .. V'Last);
+            else
+               return '0' & V (V'First + 1 .. V'Last);
+            end if;
+         end I2D;
+
+      begin
+         if Timezone >= 0 then
+            return '+' & I2D (Timezone) & ":00";
+         else
+            return '-' & I2D (abs Timezone) & ":00";
+         end if;
+      end Image;
+
+   begin
+      return GNAT.Calendar.Time_IO.Image (O.T, "%Y-%m-%dT%H:%M:%S")
+        & Image (O.Timezone);
+   end Image;
+
+   function Image (O : in SOAP_Base64) return String is
+   begin
+      return To_String (O.V);
+   end Image;
+
+   function Image (O : in SOAP_Array) return String is
+      Result : Unbounded_String;
+   begin
+      Append (Result, '(');
+
+      for K in O.Items'Range loop
+         Append (Result, Integer'Image (K));
+         Append (Result, " => ");
+         Append (Result, Image (O.Items (K).O.all));
+
+         if K /= O.Items'Last then
+            Append (Result, ", ");
+         end if;
+      end loop;
+
+      Append (Result, ')');
+
+      return To_String (Result);
+   end Image;
+
+   function Image (O : in SOAP_Record) return String is
+      Result : Unbounded_String;
+   begin
+      Append (Result, '(');
+
+      for K in O.Items'Range loop
+         Append (Result, Name (O));
+         Append (Result, " => ");
+         Append (Result, Image (O.Items (K).O.all));
+
+         if K /= O.Items'Last then
+            Append (Result, ", ");
+         end if;
+      end loop;
+
+      Append (Result, ')');
+
+      return To_String (Result);
+   end Image;
+
+   -------
+   -- N --
+   -------
+
+   function N (Name : in String  := "item") return XSD_Null is
+   begin
+      return (Name => To_Unbounded_String (Name));
+   end N;
 
    ----------
    -- Name --
    ----------
 
-   function Name (O : in Object) return Standard.String is
+   function Name (O : in Object'Class) return String is
    begin
       return To_String (O.Name);
    end Name;
+
+   -------
+   -- R --
+   -------
+
+   function R
+     (V    : in Object_Set;
+      Name : in String)
+     return SOAP_Record is
+   begin
+      return (To_Unbounded_String (Name), new Object_Set'(V));
+   end R;
 
    -------
    -- S --
    -------
 
    function S
-     (Name : in Standard.String;
-      V    : in Standard.String)
-     return String is
+     (V      : in String;
+      Name   : in String  := "item";
+      Encode : in Boolean := True)
+     return XSD_String is
    begin
-      return (To_Unbounded_String (Name), To_Unbounded_String (V));
+      if Encode then
+         return (To_Unbounded_String (Name),
+                 To_Unbounded_String (Utils.Encode (V)));
+      else
+         return (To_Unbounded_String (Name),
+                 To_Unbounded_String (V));
+      end if;
    end S;
+
+   -------
+   -- T --
+   -------
+
+   function T
+     (V        : in Calendar.Time;
+      Name     : in String        := "item";
+      Timezone : in TZ            := GMT)
+     return XSD_Time_Instant is
+   begin
+      return (To_Unbounded_String (Name), V, Timezone);
+   end T;
 
    -------
    -- V --
    -------
 
-   function V (O : in Integer) return Standard.Integer is
+   function V (O : in XSD_Integer) return Integer is
    begin
       return O.V;
    end V;
 
-   function V (O : in Float) return Standard.Float is
+   function V (O : in XSD_Float) return Long_Float is
    begin
       return O.V;
    end V;
 
-   function V (O : in String) return Standard.String is
+   function V (O : in XSD_String) return String is
    begin
       return To_String (O.V);
+   end V;
+
+   function V (O : in XSD_Boolean) return Boolean is
+   begin
+      return O.V;
+   end V;
+
+   function V (O : in XSD_Time_Instant) return Calendar.Time is
+   begin
+      return O.T;
+   end V;
+
+   function V (O : in SOAP_BAse64) return String is
+   begin
+      return To_String (O.V);
+   end V;
+
+   function V (O : in SOAP_Array) return Object_Set is
+   begin
+      return O.Items.all;
+   end V;
+
+   function V (O : in SOAP_Record; Name : in String) return Object'Class is
+   begin
+      for K in O.Items'Range loop
+         if Types.Name (O.Items (K).O.all) = Name then
+            return O.Items (K).O.all;
+         end if;
+      end loop;
+
+      Exceptions.Raise_Exception
+        (Types.Data_Error'Identity,
+         "(V) Struct object " & Name & " not found");
    end V;
 
    ---------------
    -- XML_Image --
    ---------------
 
-   function XML_Image (O : in Object) return Standard.String is
+   function XML_Image (O : in Object) return String is
+      OC : constant Object'Class := Object'Class (O);
+   begin
+      return "<" & Name (OC) & xsi_type (XML_Type (OC)) & '>'
+        & Image (OC)
+        & "</" & Name (OC) & '>';
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Integer) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Float) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_String) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Boolean) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_Time_Instant) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   function XML_Image (O : in XSD_NUll) return String is
+      OC : constant Object'Class := Object'Class (O);
+   begin
+      return "<" & Name (OC) & " xsi_null=""1""/>";
+   end XML_Image;
+
+   function XML_Image (O : in SOAP_Base64) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   New_Line : constant String := ASCII.CR & ASCII.LF;
+
+   function XML_Image (O : in SOAP_Array) return String is
+
+      function Array_Type return String;
+      --  Returns the right SOAP array type.
+
+      function Array_Type return String is
+         use type Ada.Tags.Tag;
+
+         T         : Ada.Tags.Tag;
+         Same_Type : Boolean := True;
+      begin
+         T := O.Items (O.Items'First).O'Tag;
+
+         for K in O.Items'First + 1 .. O.Items'Last loop
+            if T /= O.Items (K).O'Tag then
+               Same_Type := False;
+               exit;
+            end if;
+         end loop;
+
+         if Same_Type then
+            return XML_Type (O.Items (O.Items'First).O.all);
+
+         else
+            return XML_Undefined;
+         end if;
+      end Array_Type;
+
+      Result : Unbounded_String;
+   begin
+      --  Open array element
+
+      Append (Result, '<');
+      Append (Result, O.Name);
+      Append (Result, " SOAP-ENC:arrayType=""");
+      Append (Result, Array_Type);
+      Append (Result, '[');
+      Append (Result, AWS.Utils.Image (O.Items'Length));
+      Append (Result, "]"" ");
+      Append (Result, xsi_type (XML_Array));
+      Append (Result, '>');
+      Append (Result, New_Line);
+
+      --  Add all elements
+
+      for K in O.Items'Range loop
+         Append (Result, XML_Image (O.Items (K).O.all));
+         Append (Result, New_Line);
+      end loop;
+
+      --  End array element
+
+      Append (Result, Utils.Tag (To_String (O.Name), Start => False));
+
+      return To_String (Result);
+   end XML_Image;
+
+   function XML_Image (O : in SOAP_Record) return String is
+      Result : Unbounded_String;
+   begin
+      Append (Result, Utils.Tag (Name (O), Start => True));
+      Append (Result, New_Line);
+
+      for K in O.Items'Range loop
+         Append (Result, XML_Image (O.Items (K).O.all));
+         Append (Result, New_Line);
+      end loop;
+
+      Append (Result, Utils.Tag (Name (O), Start => False));
+
+      return To_String (Result);
+   end XML_Image;
+
+   --------------
+   -- XML_Type --
+   --------------
+
+   function XML_Type (O : in Object) return String is
    begin
       return "";
-   end XML_Image;
+   end XML_Type;
 
-   function XML_Image (O : in Integer) return Standard.String is
+   function XML_Type (O : in XSD_Integer) return String is
    begin
-      return "<" & Name (O) & xsi_type (XML_Int) & '>'
-        & Image (O)
-        & "</" & Name (O) & '>';
-   end XML_Image;
+      return XML_Int;
+   end XML_Type;
 
-   function XML_Image (O : in Float) return Standard.String is
+   function XML_Type (O : in XSD_Float) return String is
    begin
-      return "<" & Name (O) & xsi_type (XML_Float) & '>'
-        & Image (O)
-        & "</" & Name (O) & '>';
-   end XML_Image;
+      return XML_Float;
+   end XML_Type;
 
-   function XML_Image (O : in String) return Standard.String is
+   function XML_Type (O : in XSD_String) return String is
    begin
-      return "<" & Name (O) & xsi_type (XML_String) & '>'
-        & Image (O)
-        & "</" & Name (O) & '>';
-   end XML_Image;
+      return XML_String;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Boolean) return String is
+   begin
+      return XML_Boolean;
+   end XML_Type;
+
+   function XML_Type  (O : in XSD_Time_Instant) return String is
+   begin
+      return XML_Time_Instant;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Null) return String is
+   begin
+      return XML_Null;
+   end XML_Type;
+
+   function XML_Type (O : in SOAP_Base64) return String is
+   begin
+      return XML_Base64;
+   end XML_Type;
+
+   function XML_Type (O : in SOAP_Array) return String is
+   begin
+      return XML_Array;
+   end XML_Type;
+
+   function XML_Type  (O : in SOAP_Record) return String is
+   begin
+      return "";
+   end XML_Type;
 
    --------------
    -- xsi_type --
    --------------
 
-   function xsi_type (Name : in Standard.String) return Standard.String is
+   function xsi_type (Name : in String) return String is
    begin
       return " xsi:type=""" & Name & '"';
    end xsi_type;
