@@ -298,12 +298,16 @@ package AWS.Response is
    ---------------
 
    procedure Create_Resource
-     (D    : in     Data;
-      File :    out AWS.Resources.File_Type);
+     (D    : in out Data;
+      File :    out AWS.Resources.File_Type;
+      GZip : in     Boolean);
    pragma Inline (Create_Resource);
    --  Creates the resource object (either a file or in-memory object) for
    --  the data to be sent to the client. The resource should be closed after
    --  use.
+   --  GZip is true when the http client support GZip decoding,
+   --  if file or embedded resource is in the GZip format this routine would
+   --  define Content-Encoding header field value.
 
    function Close_Resource (D : in Data) return Boolean;
    --  Returns True if the resource stream must be close
