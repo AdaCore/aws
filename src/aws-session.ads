@@ -107,6 +107,9 @@ package AWS.Session is
    procedure Set_Session_Lifetime (Seconds : in Duration);
    --  Set the lifetime for session data.
 
+   procedure Start;
+   --  Start session cleaner task.
+
 private
 
    type ID is new Integer;
