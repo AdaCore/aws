@@ -41,13 +41,14 @@ project Demos is
    for Main use ("hello_world.adb", "runme.adb", "com_1.adb", "com_2.adb",
                  "main.adb", "hotplug.adb", "dispatch.adb", "wps.adb",
                  "ws.adb", "auth.adb", "agent.adb", "text_input.adb",
-                 "vh_demo.adb", "res_demo.adb");
+                 "vh_demo.adb", "res_demo.adb", "zdemo.adb");
 
    case Shared.XMLAda is
       when "Installed" =>
          for Main use project'Main
-           & ("soap_client.adb", "soap_server.adb",
-              "wsdl_demo_client.adb", "wsdl_demo_server.adb");
+           & ("soap_client.adb", "soap_server.adb", "soap_svs.adb", 
+	      "soap_cvs.adb", "wsdl_demo_client.adb", "wsdl_demo_server.adb",
+	      "interoplab_main.adb", "soap_server_disp.adb");
    end case;
 
    case Shared.Build is
@@ -93,32 +94,33 @@ project Demos is
       LIB_Crypt  := ("-lcrypto", "-lssl");
       LIB_Z      := ("-lz");
 
+      WIN_OPT    := ("-L../win32") & COFF_Res & LIB_Z & Shared.LIB_XMLAda;
+      UNX_OPT    := LIB_Z & Shared.LIB_XMLAda;
+
       case Shared.OS is
          when "Windows_NT" =>
-            for Default_Switches ("Ada") use COFF_Res & ("-lz");
-            for Switches ("soap_client.adb")
-              use COFF_Res & Shared.LIB_XMLAda;
-            for Switches ("soap_server.adb")
-              use COFF_Res & Shared.LIB_XMLAda;
-            for Switches ("wsdl_demo_client.adb")
-              use COFF_Res & Shared.LIB_XMLAda;
-            for Switches ("wsdl_demo_server.adb")
-              use COFF_Res & Shared.LIB_XMLAda;
-            for Switches ("runme.adb")
-              use COFF_Res & LIB_Crypt;
+            for Default_Switches ("Ada")          use COFF_Res & ("-lz");
+            for Switches ("soap_cvs.adb")         use WIN_OPT;
+            for Switches ("soap_svs.adb")         use WIN_OPT;
+            for Switches ("soap_client.adb")      use WIN_OPT;
+            for Switches ("soap_server.adb")      use WIN_OPT;
+            for Switches ("wsdl_demo_client.adb") use WIN_OPT;
+            for Switches ("wsdl_demo_server.adb") use WIN_OPT;
+            for Switches ("interoplab_main.adb")  use WIN_OPT;
+            for Switches ("soap_server_disp.adb") use WIN_OPT;
+            for Switches ("runme.adb")            use WIN_OPT & LIB_Crypt;
 
          when others =>
-            for Default_Switches ("Ada") use LIB_Z;
-            for Switches ("soap_client.adb")
-              use LIB_Z & Shared.LIB_XMLAda;
-            for Switches ("soap_server.adb")
-              use LIB_Z & Shared.LIB_XMLAda;
-            for Switches ("wsdl_demo_client.adb")
-              use LIB_Z & Shared.LIB_XMLAda;
-            for Switches ("wsdl_demo_server.adb")
-              use LIB_Z & Shared.LIB_XMLAda;
-            for Switches ("runme.adb")
-              use LIB_Z & LIB_Crypt;
+            for Default_Switches ("Ada")          use LIB_Z;
+            for Switches ("soap_cvs.adb")         use UNX_OPT;
+            for Switches ("soap_svs.adb")         use UNX_OPT;
+            for Switches ("soap_client.adb")      use UNX_OPT;
+            for Switches ("soap_server.adb")      use UNX_OPT;
+            for Switches ("wsdl_demo_client.adb") use UNX_OPT;
+            for Switches ("wsdl_demo_server.adb") use UNX_OPT;
+            for Switches ("interoplab_main.adb")  use UNX_OPT;
+            for Switches ("soap_server_disp.adb") use UNX_OPT;
+            for Switches ("runme.adb")            use UNX_OPT & LIB_Crypt;
       end case;
 
    end Linker;
