@@ -74,7 +74,7 @@ package body AWS.Resources.Streams.Memory.ZLib is
    procedure Close (Resource : in out Stream_Type) is
    begin
       Close (Memory.Stream_Type (Resource));
-      ZL.Close (Resource.Filter);
+      ZL.Close (Resource.Filter, Ignore_Error => True);
    end Close;
 
    ------------------------
