@@ -241,15 +241,15 @@ package body AWS.OS_Lib is
       return Ada.Streams.Stream_Element_Offset (Low);
    end File_Size;
 
-   --------------
-   -- OS_Clock --
-   --------------
+   ---------------
+   -- GMT_Clock --
+   ---------------
 
-   function OS_Clock return Ada.Calendar.Time is
+   function GMT_Clock return Ada.Calendar.Time is
       UTC : System_Time;
    begin
       GetSystemTime (UTC);
       return Systime_To_Time (UTC);
-   end OS_Clock;
+   end GMT_Clock;
 
 end AWS.OS_Lib;

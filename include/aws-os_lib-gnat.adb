@@ -87,13 +87,11 @@ package body AWS.OS_Lib is
       raise No_Such_File;
    end File_Size;
 
-   --------------
-   -- OS_Clock --
-   --------------
+   ---------------
+   -- GMT_Clock --
+   ---------------
 
-   --  Fetch time from the C library
-
-   function OS_Clock return Ada.Calendar.Time is
+   function GMT_Clock return Ada.Calendar.Time is
       type OS_Time_A is access all GNAT.OS_Lib.OS_Time;
 
       function C_Time (Time : OS_Time_A) return GNAT.OS_Lib.OS_Time;
@@ -101,7 +99,7 @@ package body AWS.OS_Lib is
 
    begin
       return OS_Time_To_Calendar_Time (C_Time (null));
-   end OS_Clock;
+   end GMT_Clock;
 
    ------------------------------
    -- OS_Time_To_Calendar_Time --
