@@ -482,7 +482,6 @@ src/aws-mime.adb
 src/aws-mime.ads
 src/aws-net-buffered.adb
 src/aws-net-buffered.ads
-src/aws-net-sets-thin.ads
 src/aws-net-sets.adb
 src/aws-net-sets.ads
 src/aws-net-ssl-certificate.adb
@@ -492,6 +491,7 @@ src/aws-net-ssl.ads
 src/aws-net-std.ads
 src/aws-net-stream_io.adb
 src/aws-net-stream_io.ads
+src/aws-net-thin.ads
 src/aws-net.adb
 src/aws-net.ads
 src/aws-os_lib.adb
