@@ -39,13 +39,14 @@ with "../ssl/ssl";
 
 project Src is
 
-   for Source_Dirs use (".");
+   for Source_Dirs use (".", "../templates_parser/src");
 
    --  XMLAda Installed, add xsrc and soap directories
 
    case Shared.XMLAda is
       when "Installed" =>
-         for Source_Dirs use project'Source_Dirs & ("../xsrc", "../soap");
+         for Source_Dirs use project'Source_Dirs &
+           ("../xsrc", "../templates_parser/xsrc", "../soap");
       when "Disabled" =>
          --  Should be replaced by null as supported by GNAT 5.03
          for Source_Dirs use project'Source_Dirs;
