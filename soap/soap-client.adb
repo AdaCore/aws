@@ -46,7 +46,7 @@ package body SOAP.Client is
    function Call
      (URL        : in String;
       P          : in Message.Payload.Object;
-      SOAPAction : in String                     := Not_Specified;
+      SOAPAction : in String                     := No_SOAPAction;
       User       : in String                     := Not_Specified;
       Pwd        : in String                     := Not_Specified;
       Proxy      : in String                     := Not_Specified;
@@ -67,13 +67,17 @@ package body SOAP.Client is
 
       function SOAP_Action return String is
       begin
-         if SOAPAction = Not_Specified then
+         if SOAPAction = No_SOAPAction then
             declare
                URL_Object : constant AWS.URL.Object := AWS.URL.Parse (URL);
             begin
                return AWS.URL.URL (URL_Object) & '#'
                       & SOAP.Message.Payload.Procedure_Name (P);
             end;
+
+         elsif SOAPAction = "" then
+            --  Empty SOAP Action
+            return """""";
 
          else
             return SOAPAction;
@@ -110,11 +114,10 @@ package body SOAP.Client is
       P          : in Message.Payload.Object)
       return Message.Response.Object'Class
    is
-      Response     : AWS.Response.Data;
+      Response : AWS.Response.Data;
    begin
       AWS.Client.SOAP_Post
         (Connection, Response, SOAPAction, SOAP.Message.XML.Image (P), True);
-
       return Message.XML.Load_Response (Connection);
    end Call;
 
