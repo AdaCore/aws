@@ -1,3 +1,9 @@
+2002-07-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Correctly set the peername in all cases.
+	Checked-in for Dmitriy Anisimkov.
+
 2002-07-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-messages.ads:
