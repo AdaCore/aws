@@ -1,3 +1,14 @@
+2003-03-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Remove a call to Format_Name, we do not want to
+	 change the name of the SOAP entities as they are part of the spec.
+	
+	* soap-generator.adb:
+	(Format_Name): Do not add an underscore before or after a dot.
+	(Generate_Record): Add missing calls to Format_Name. This allow
+	 -a wsdl2aws option to work properly.
+
 2003-03-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
