@@ -1256,11 +1256,12 @@ package body Templates_Parser is
 
       Finalize (T);
 
-      T.Ref_Count := new Integer'(1);
-      T.Count     := 0;
-      T.Head      := null;
-      T.Last      := null;
-      T.Position  := (null, new Integer'(1));
+      T.Ref_Count    := new Integer'(1);
+      T.Count        := 0;
+      T.Head         := null;
+      T.Last         := null;
+      T.Position     := (null, new Integer'(1));
+      T.Nested_Level := 1;
    end Clear;
 
    ----------
@@ -1312,11 +1313,12 @@ package body Templates_Parser is
 
    procedure Initialize (T : in out Tag) is
    begin
-      T.Ref_Count := new Integer'(1);
-      T.Count     := 0;
-      T.Min       := Natural'Last;
-      T.Max       := 0;
-      T.Position  := (null, new Integer'(1));
+      T.Ref_Count    := new Integer'(1);
+      T.Count        := 0;
+      T.Min          := Natural'Last;
+      T.Max          := 0;
+      T.Position     := (null, new Integer'(1));
+      T.Nested_Level := 1;
    end Initialize;
 
    --------------
@@ -1521,7 +1523,7 @@ package body Templates_Parser is
                  Min          => Natural'Min (T.Min, T_Size),
                  Max          => Natural'Max (T.Max, T_Size),
                  Nested_Level =>
-                   Positive'Max (T.Nested_Level, Value.Nested_Level),
+                   Positive'Max (T.Nested_Level, Value.Nested_Level + 1),
                  Separator    => T.Separator,
                  Head         => T.Head,
                  Last         => Item,
@@ -2892,7 +2894,8 @@ package body Templates_Parser is
                         else
                            Exceptions.Raise_Exception
                              (Template_Error'Identity,
-                              "Attribute not valid on a discrete tag");
+                              "Attribute not valid on a discrete tag ("
+                              & Image (Var) & ')');
                         end if;
 
                      when Composite =>
@@ -2909,7 +2912,7 @@ package body Templates_Parser is
                               Exceptions.Raise_Exception
                                 (Template_Error'Identity,
                                  "This attribute is not valid for a "
-                                 & "vector tag");
+                                 & "vector tag (" & Image (Var) & ')');
                            end if;
 
                         elsif Tk.Comp_Value.Nested_Level = 2 then
@@ -2938,7 +2941,7 @@ package body Templates_Parser is
                               Exceptions.Raise_Exception
                                 (Template_Error'Identity,
                                  "This attribute is not valid for a "
-                                 & "matrix tag");
+                                 & "matrix tag (" & Image (Var) & ')');
                            end if;
                         end if;
 
