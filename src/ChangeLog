@@ -1,3 +1,39 @@
+2004-06-14  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Tag_Var): Add N field (include parameter index).
+	(Is_Include_Variable): New function.
+	(Build) [Tag_Var]: Detect include variable and set index N.
+	(Max_Include_Parameters): New constant.
+	(Include_Parameters): New type.
+	(No_Parameter): New constant.
+	(Node): Add I_Params field.
+	(Replace_Include_Variables): Removed. We do not want to expand the
+	 include parameters at load time as, in the case of cached files,
+	 the include tree can be shared by multiple templates. This will
+	 be handled at parsing time.
+	(Load_Include_Parameters): New procedure that create a Data.Tree
+	 for each include parameter in I_Params field.
+	(Parse): Use it instead of Replace_Include_Variables.
+	(Table_State): Renamed Parse_State.
+	(Parse) [Unbounded_String]: Add I_Params field in Parse_State.
+	(I_Translate): New procedure.
+	(Flush); New procedure.
+	(Add): Use Flush.
+	(Analyse) [Data.Tree]: Handle include variables.
+	(Analyse) [Expr.Tree]: Idem.
+	(Analyse) []: Adjust state aggregates with new field.
+	(Release) [Tree]: Free memory associated with include parameters.
+
+	* templates_parser-print_tree.adb:
+	(Print_Tree): Output the include file parameters.
+
+	* templates_parser-data.adb:
+	(Parse): Minor reformatting. Add some comments.
+
+	* aws-server.adb:
+	Minor reformating.
+
 2004-06-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.ads:
