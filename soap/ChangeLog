@@ -1,5 +1,8 @@
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-wsdl-parser.adb:
+	Minor reformatting.
+
 	* soap-generator.adb, soap-generator-stub.adb, soap-generator-skel.adb:
 	Many fixes in generated code to have proper support for
 	 enumeration objects.
