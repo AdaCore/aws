@@ -41,6 +41,8 @@ with GNAT.Directory_Operations.Iteration;
 with GNAT.OS_Lib;
 
 with AWS.Client;
+with AWS.Exceptions;
+with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
@@ -54,6 +56,23 @@ procedure Tlog is
    use AWS;
 
    WS   : Server.HTTP;
+
+   ---------
+   -- UEH --
+   ---------
+
+   procedure UEH
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data) is
+   begin
+      Answer := Response.Build
+        (MIME.Text_HTML,
+         "012345678901234567890123456789012345678901234567890123456789"
+           & "0123456",
+        Messages.S500);
+   end;
 
    ---------
    -- Del --
@@ -104,7 +123,7 @@ procedure Tlog is
 
    procedure Parse_Logs is
       use type AWK.Count;
-      I : AWK.Count;
+      I    : AWK.Count;
    begin
       AWK.Add_File ("tlog-" & Today & ".log");
       AWK.Add_File ("tlog_error-" & Today & ".log");
@@ -187,6 +206,9 @@ procedure Tlog is
 begin
    Delete_Logs;
 
+   AWS.Server.Set_Unexpected_Exception_Handler
+     (WS, UEH'Unrestricted_Access);
+
    Server.Start
      (WS, "tlog", CB'Unrestricted_Access, Port => 1246, Max_Connection => 5);
 
@@ -234,5 +256,6 @@ begin
 
 exception
    when E : others =>
-      Text_IO.Put_Line ("Main error: " & Exceptions.Exception_Information (E));
+      Text_IO.Put_Line
+        ("Main error: " & Ada.Exceptions.Exception_Information (E));
 end Tlog;
