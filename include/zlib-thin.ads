@@ -9,7 +9,8 @@
 --  $Id$
 
 with Interfaces.C.Strings;
-with System.Address_To_Access_Conversions;
+
+with System;
 
 private package ZLib.Thin is
 
@@ -42,12 +43,12 @@ private package ZLib.Thin is
 
    type ULong_Access is access ULong;
    type Int_Access is access Int;
+
    subtype Voidp is System.Address;            --  zconf.h:232
 
-   package Bytes is new System.Address_To_Access_Conversions (Byte);
+   subtype Byte_Access is Voidp;
 
-   subtype Byte_Access is Bytes.Object_Pointer;
-
+   Nul : constant Voidp := System.Null_Address;
    --  end from zconf
 
    Z_NO_FLUSH : constant := 8#0000#;   --  zlib.h:125
@@ -251,12 +252,6 @@ private package ZLib.Thin is
       stream_size : Int)
       return        Int;
 
-   function Deflate_Init
-     (strm  : in Z_Streamp;
-      level : in Int := Z_DEFAULT_COMPRESSION)
-      return  Int;
-   pragma Inline (Deflate_Init);
-
    function deflateInit2
      (strm        : Z_Streamp;
       level       : Int;
@@ -283,9 +278,6 @@ private package ZLib.Thin is
       version     : Chars_Ptr;
       stream_size : Int)
       return        Int;
-
-   function Inflate_Init (strm : Z_Streamp) return Int;
-   pragma Inline (Inflate_Init);
 
    function inflateInit2
      (strm        : in Z_Streamp;
@@ -318,31 +310,11 @@ private package ZLib.Thin is
    --  has dropped to zero. The application must initialize zalloc, zfree and
    --  opaque before calling the init function.
 
-   function Need_In (strm : in Z_Stream) return Boolean;
-   --  return true when we do not need to setup Next_In and Avail_In fields.
-   pragma Inline (Need_In);
-
-   function Need_Out (strm : in Z_Stream) return Boolean;
-   --  return true when we do not need to setup Next_Out and Avail_Out field.
-   pragma Inline (Need_Out);
-
-   procedure Set_In
-     (Strm   : in out Z_Stream;
-      Buffer : in Byte_Access;
-      Size   : in UInt);
-   pragma Inline (Set_In);
-
    procedure Set_In
      (Strm   : in out Z_Stream;
       Buffer : in Voidp;
       Size   : in UInt);
    pragma Inline (Set_In);
-
-   procedure Set_Out
-     (Strm   : in out Z_Stream;
-      Buffer : in Byte_Access;
-      Size   : in UInt);
-   pragma Inline (Set_Out);
 
    procedure Set_Out
      (Strm   : in out Z_Stream;
@@ -391,10 +363,10 @@ private package ZLib.Thin is
 private
 
    type Z_Stream is record            -- zlib.h:68
-      Next_In   : Byte_Access;        -- next input byte
+      Next_In   : Voidp      := Nul;  -- next input byte
       Avail_In  : UInt       := 0;    -- number of bytes available at next_in
       Total_In  : ULong      := 0;    -- total nb of input bytes read so far
-      Next_Out  : Byte_Access;        -- next output byte should be put there
+      Next_Out  : Voidp      := Nul;  -- next output byte should be put there
       Avail_Out : UInt       := 0;    -- remaining free space at next_out
       Total_Out : ULong      := 0;    -- total nb of bytes output so far
       msg       : Chars_Ptr;          -- last error message, NULL if no error
