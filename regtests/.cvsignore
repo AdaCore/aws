@@ -309,6 +309,7 @@ sessions2
 sessions2.res
 sessions3
 sessions3.res
+sessions4.res
 shutdown
 shutdown.res
 shutdown.tmp
@@ -329,6 +330,7 @@ soap4.res
 sock1
 sock1.res
 sock1.tmp
+sock2.res
 sp
 sp.res
 sp.tmp
