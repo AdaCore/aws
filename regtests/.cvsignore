@@ -353,6 +353,8 @@ r_hello_demo.ads
 redirect
 redirect.res
 redirect.tmp
+register.res
+register.wsdl
 regtests_lst.gpr
 run1
 run2
