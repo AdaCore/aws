@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                         Binding to OpenSSL library                       --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
