@@ -7,7 +7,7 @@
 <title>AWS - Status page</title>
 </head>
 
-<body>
+<body bgcolor="lightgrey">
 
 <table width=100%>
 
@@ -47,12 +47,12 @@ status.</H3>
 
 <tr>
 <td>Server Security (HTTPS/SSL)
-<td><b>@@_SECURITY_@@</b>
+<td><b>@@YES_NO@@_SECURITY_@@</b>
 </tr>
 
 <tr>
 <td>Server has session
-<td><b>@@_SESSION_@@</b>
+<td><b>@@YES_NO@@_SESSION_@@</b>
 </tr>
 
 </table>
@@ -121,7 +121,7 @@ status.</H3>
 <hr>
 <br>
 
-<p>AWS - has been developped in Ada with GNAT (http://www.gnat.com)
+<p>AWS has been developped in Ada with GNAT (http://www.gnat.com).
 <p><a href="mailto:anisimkov@yahoo.com">Dmitriy Anisimkov</a>, 
 <a href="mailto:p.obry@wanadoo.fr">Pascal Obry</a>
 
