@@ -974,7 +974,12 @@ package body Ada2WSDL.Parser is
             when A_Signed_Integer_Type_Definition
               | A_Modular_Type_Definition
               =>
-               return "integer";
+               if Flat_Element_Kind (CND) = A_Subtype_Declaration then
+                  --  ??? What about a subtype of Long_Long_Integer
+                  return "integer";
+               else
+                  return Image (Text.Element_Image (Elem));
+               end if;
 
             when A_Derived_Type_Definition =>
                --  This is a derived type definition, analyse the name after
