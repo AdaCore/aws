@@ -1,3 +1,9 @@
+2004-09-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.adb:
+	(Set_Read_Ahead): Removed.
+	(Set_FD): Call TSSL.SSL_set_read_ahead on the SSL object creation.
+
 2004-09-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:

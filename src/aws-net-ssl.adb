@@ -69,9 +69,6 @@ package body AWS.Net.SSL is
    pragma Inline (Error_If);
    --  Raises Socket_Error if Error is true. Attach the SSL error message
 
-   procedure Set_Read_Ahead (Socket : in Socket_Type; Value : in Boolean);
-   --  ???
-
    function Error_Str (Code : in TSSL.Error_Code) return String;
    --  Returns the SSL error message for error Code
 
@@ -143,8 +140,6 @@ package body AWS.Net.SSL is
          TSSL.SSL_free (New_Socket.SSL);
          New_Socket.SSL := TSSL.Null_Pointer;
       end loop SSL_Accept;
-
-      Set_Read_Ahead (New_Socket, True);
 
    exception
       when others =>
@@ -447,15 +442,6 @@ package body AWS.Net.SSL is
       Socket.Config := Config;
    end Set_Config;
 
-   --------------------
-   -- Set_Read_Ahead --
-   --------------------
-
-   procedure Set_Read_Ahead (Socket : in Socket_Type; Value : in Boolean)  is
-   begin
-      TSSL.SSL_set_read_ahead (S => Socket.SSL, Yes => Boolean'Pos (Value));
-   end Set_Read_Ahead;
-
    --------------
    -- Shutdown --
    --------------
@@ -649,6 +635,9 @@ package body AWS.Net.SSL is
          if Socket.SSL = TSSL.Null_Pointer then
             Socket.SSL := TSSL.SSL_new (Context);
             Error_If (Socket.SSL = TSSL.Null_Pointer);
+
+            TSSL.SSL_set_read_ahead (S => Socket.SSL, Yes => 1);
+
          else
             Error_If (TSSL.SSL_clear (Socket.SSL) /= 1);
          end if;
