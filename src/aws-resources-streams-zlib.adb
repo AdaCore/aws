@@ -42,7 +42,7 @@ package body AWS.Resources.Streams.ZLib is
    procedure Close (Resource : in out Stream_Type) is
    begin
       ZL.Close (Resource.Filter);
-      Close (Streams.Stream_Type'Class (Resource));
+      Close (Resource.Source);
    end Close;
 
    ------------------------
@@ -51,6 +51,7 @@ package body AWS.Resources.Streams.ZLib is
 
    procedure Deflate_Initialize
      (Resource     : in out Stream_Type;
+      Source       : in     Streams.Stream_Access;
       Level        : in     Compression_Level  := ZL.Default_Compression;
       Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
       Method       : in     Compression_Method := ZL.Deflated;
@@ -58,10 +59,27 @@ package body AWS.Resources.Streams.ZLib is
       Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
       Header       : in     Header_Type        := ZL.Default) is
    begin
+      Create (Resource.Source, Source);
+
+      Resource.End_Of_File := False;
+
       ZL.Deflate_Init
         (Resource.Filter, Level, Strategy, Method,
          Window_Bits, Memory_Level, Header);
    end Deflate_Initialize;
+
+   -----------------
+   -- End_Of_File --
+   -----------------
+
+   function End_Of_File (Resource : in Stream_Type) return Boolean is
+   begin
+      --  We could not use return End_Of_File (Resource.Source);
+      --  becouse end of source file would be reached earlier then
+      --  end of file of the encoded stream.
+
+      return Resource.End_Of_File;
+   end End_Of_File;
 
    ------------------------
    -- Inflate_Initialize --
@@ -69,9 +87,14 @@ package body AWS.Resources.Streams.ZLib is
 
    procedure Inflate_Initialize
      (Resource    : in out Stream_Type;
+      Source      : in     Streams.Stream_Access;
       Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
       Header      : in     Header_Type      := ZL.Default) is
    begin
+      Create (Resource.Source, Source);
+
+      Resource.End_Of_File := False;
+
       ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
    end Inflate_Initialize;
 
@@ -87,6 +110,7 @@ package body AWS.Resources.Streams.ZLib is
       procedure Get
         (Buffer : out Stream_Element_Array;
          Last   : out Stream_Element_Offset);
+      pragma Inline (Get);
       --  Generic parameter for read source data.
 
       ---------
@@ -97,7 +121,7 @@ package body AWS.Resources.Streams.ZLib is
         (Buffer : out Stream_Element_Array;
          Last   : out Stream_Element_Offset) is
       begin
-         Read_Source (Stream_Type'Class (Resource), Buffer, Last);
+         Read (Resource.Source, Buffer, Last);
       end Get;
 
       procedure Read_Encoded is new ZL.Read
@@ -108,6 +132,8 @@ package body AWS.Resources.Streams.ZLib is
 
    begin
       Read_Encoded (Resource.Filter, Buffer, Last);
+
+      Resource.End_Of_File := Last < Buffer'Last;
    end Read;
 
 end AWS.Resources.Streams.ZLib;
