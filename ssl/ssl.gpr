@@ -34,7 +34,9 @@ with "../shared";
 
 project SSL is
 
-   for Source_Files use ("ssl.ads", "ssl-thin.ads");
+   for Languages use ("Ada", "ChangeLog", "Project file");
+
+   for Source_Files use ("ssl.ads", "ssl-thin.ads", "ChangeLog", "ssl.gpr");
 
    case Shared.Build is
       when "Debug" =>
