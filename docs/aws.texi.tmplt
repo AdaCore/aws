@@ -2557,7 +2557,7 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 @node AWS API Reference
 @chapter AWS API Reference
 
-AWS User's API:
+AWS User API:
 
 @menu
 * AWS::
@@ -2594,7 +2594,7 @@ AWS User's API:
 * AWS.URL::
 @end menu
 
-SOAP User's API:
+SOAP User API:
 
 @menu
 * SOAP::
