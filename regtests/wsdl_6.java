@@ -132,5 +132,31 @@ public class wsdl_6 {
 
 	for (int k=0; k<7; k++) System.out.println (ares[k]);
 
-   }
+	// Set_Of_Rec
+
+	Rec[] rarr = new Rec[12];
+	Rec[] rres;
+
+	WSDL_6.aws.Character cc;
+
+	for (int k=0; k<12; k++) {
+	    rarr[k] = new Rec();
+	    rarr[k].setA (k);
+	    rarr[k].setB ((float)k);
+	    rarr[k].setC ((double)k);
+	    cc = new WSDL_6.aws.Character();
+	    cc.setValue (new String ("" + (char)(k + 'a')));
+	    rarr[k].setD (cc);
+	    rarr[k].setE ("This is number " + k);
+	    rarr[k].setF (false);
+	}
+
+	rres = port.echo_Set_Rec (rarr);
+
+	System.out.println ("array of rec");
+
+	for (int k=0; k<12; k++) {
+	    printlnRec (rres[k]);
+	}
+    }
 }
