@@ -37,16 +37,17 @@ with Interfaces.C;
 
 with Templates_Parser;
 
+with AWS.Config;
 with AWS.Log;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.OS_Lib;
 with AWS.Parameters.Set;
 with AWS.Session;
-with AWS.Status.Set;
-with AWS.Config;
 with AWS.Server.Get_Status;
+with AWS.Status.Set;
+with AWS.Translator;
 with AWS.Utils;
-with AWS.MIME;
 
 separate (AWS.Server)
 
@@ -427,8 +428,7 @@ is
             HTTP_Server.Slots.Mark_Phase (Index, Server_Processing);
 
             --  Check the hotplug filters
-            Hotplug.Apply (HTTP_Server.Filters,
-                           AWS.Status.URI (C_Stat), Found, Answer);
+            Hotplug.Apply (HTTP_Server.Filters, C_Stat, Found, Answer);
 
             --  If no one applied, run the default callback
             if not Found then
@@ -969,11 +969,12 @@ is
       ---------
 
       function URI return String is
+         use AWS.Translator;
       begin
          if I3 = 0 then
-            return Command (I1 + 1 .. I2 - 1);
+            return Decode_URL (Command (I1 + 1 .. I2 - 1));
          else
-            return Command (I1 + 1 .. I3 - 1);
+            return Decode_URL (Command (I1 + 1 .. I3 - 1));
          end if;
       end URI;
 
