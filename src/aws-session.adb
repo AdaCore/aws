@@ -84,8 +84,7 @@ package body AWS.Session is
 
    procedure Destroy (Value : in out Session_Node) is
    begin
-      null;
---      Key_Value.Destroy (Value.Root);
+      Key_Value.Destroy (Value.Root);
    end Destroy;
 
    package Session_Set is new Table_Of_Static_Keys_And_Dynamic_Values_G
