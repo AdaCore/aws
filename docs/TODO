@@ -4,8 +4,6 @@ $Id$
 Here a some notes about things to fix, ideas and potential features to be
 implemented:
 
-- look at the GMT/UTC vs Local time issue.
-
 - correctly handle all Date/Time format, there is 3 of them:
 
   Sun, 06 Nov 1994 08:49:37 GMT   ; RFC 822, updated by RFC 1123
@@ -21,7 +19,7 @@ implemented:
   the chuncked encoding.
 
 - digest authentification (only basic authentification is supported right
-  now, which is to say no authetification at all :)
+  now, which is to say no authentification at all :)
 
 - implement multi-server with a dispatcher of request to build server which
   must support a lot of requests. Could be using GLADE or a standard
@@ -36,7 +34,10 @@ implemented:
 - change server parameters via the admin page (like the maximum number of
   connections, server name, active session, upload path...).
 
-- integrate Template_Parser with AWS. A callback which knows how to parse
+- integrate Templates_Parser with AWS. A callback which knows how to parse
   .tmplt files ???
 
-- document the logging facility
+- document the logging facility (needed for the release).
+
+- bug under some version of Linux. The Accept_Socket fails with ERRNO 11
+  (try again) because the socket is not in blocking mode!
