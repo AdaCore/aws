@@ -51,7 +51,7 @@
 --  http://<servername>:1234/Admin-Page
 --
 --  To test the HTTPS/SSL server:
---  http://<servername>:4433/give_me_this
+--  https://<servername>:4433/give_me_this
 --
 --  That's all for now. Enjoy !
 
