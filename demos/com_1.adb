@@ -61,6 +61,8 @@ procedure Com_1 is
    N    : Natural := 0;
    Wait : Boolean := True;
 
+   Last_Message_Received : Boolean := False;
+
    -------------
    -- Receive --
    -------------
@@ -86,6 +88,11 @@ procedure Com_1 is
       Text_IO.New_Line;
 
       N := N + 1;
+
+      if N = 10 then
+         Last_Message_Received := True;
+      end if;
+
       return Response.Build ("text/html", "Ans [" & Utils.Image (N) & ']');
    end Receive;
 
@@ -97,26 +104,36 @@ procedure Com_1 is
    Answer : Response.Data;
 
 begin
-   Local_Server.Start (1234, Name'Access);
-
    if Command_Line.Argument_Count = 0 then
       Text_IO.Put_Line ("Usage: com_1 <computer>");
       return;
    end if;
+
+   Local_Server.Start (1234, Name'Access);
 
    --  Wait for com_2 to become active
    while Wait loop
       delay 1.0;
    end loop;
 
-   --  send some messages
+   --  Send some messages
 
    for K in 1 .. 10 loop
       Answer := Communication.Client.Send_Message
-        (Command_Line.Argument (1), 3456, "mes1." & Utils.Image (K),
+        (Command_Line.Argument (1), 3456, "mes_1." & Utils.Image (K),
          Communication.Parameters ("param1." & Utils.Image (K),
                                    "param2." & Utils.Image (K)));
 
       Text_IO.Put_Line ("< reply " & Response.Message_Body (Answer));
    end loop;
+
+   --  Exit when last message received
+
+   loop
+      exit when Last_Message_Received;
+      delay 1.0;
+   end loop;
+
+   Local_Server.Shutdown;
+
 end Com_1;
