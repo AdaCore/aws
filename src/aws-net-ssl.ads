@@ -37,14 +37,14 @@
 with Ada.Streams;
 with System;
 
-with AWS.Net;
+with AWS.Net.Std;
 with SSL.Thin;
 
 package AWS.Net.SSL is
 
    use Ada.Streams;
 
-   type Socket_Type is new Net.Socket_Type with private;
+   type Socket_Type is new Net.Std.Socket_Type with private;
 
    ----------------
    -- Initialize --
@@ -52,17 +52,6 @@ package AWS.Net.SSL is
 
    function Socket return Socket_Access;
    --  Create a socket INET/SOCK_STREAM
-
-   procedure Bind
-     (Socket : in Socket_Type;
-      Port   : in Natural;
-      Host   : in String := "");
-   --  Bind a socket on a given port.
-
-   procedure Listen
-     (Socket     : in Socket_Type;
-      Queue_Size : in Positive := 5);
-   --  Set the queue size of the socket
 
    procedure Accept_Socket
      (Socket     : in     Socket_Type;
@@ -102,12 +91,6 @@ package AWS.Net.SSL is
    -- Others --
    ------------
 
-   function Get_FD (Socket : in Socket_Type) return Integer;
-
-   function Peer_Addr (Socket : in Socket_Type) return String;
-
-   function Host_Name return String;
-
    procedure Assign
      (Left  : in out Socket_Type;
       Right : in     Net.Socket_Type'Class);
@@ -140,9 +123,8 @@ private
 
    Null_Ptr : constant SSL_Handle := System.Null_Address;
 
-   type Socket_Type is new Net.Socket_Type with record
-      SSL : SSL_Handle         := Null_Ptr;
-      S   : Net.Socket_Access;
+   type Socket_Type is new Net.Std.Socket_Type with record
+      SSL : SSL_Handle := Null_Ptr;
    end record;
 
 end AWS.Net.SSL;
