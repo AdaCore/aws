@@ -103,7 +103,14 @@ main (void)
 
   /* constants needed for AWS and not defined in AdaSockets */
 
-  printf ("   IPPROTO_TCP : constant := %d;\n\n", IPPROTO_TCP);
+  printf ("   IPPROTO_TCP : constant := %d;\n",   IPPROTO_TCP);
+  printf ("   SO_ERROR    : constant := %d;\n",   SO_ERROR);
+
+#ifdef _WIN32
+  printf ("   ETIMEDOUT   : constant := %d;\n\n", WSAETIMEDOUT);
+#else
+  printf ("   ETIMEDOUT   : constant := %d;\n\n", ETIMEDOUT);
+#endif
 
   /* nfds_t */
 
