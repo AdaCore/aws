@@ -62,12 +62,10 @@ package AWS.Net.Sets.Thin is
    pragma Convention (C, Pollfd);
 
    function Poll
-     (Fds     : System.Address;
-      Nfds    : Length_Type;
-      Timeout : Timeout_Type)
-      return C.Int;
+     (Fds     : in System.Address;
+      Nfds    : in Length_Type;
+      Timeout : in Timeout_Type)
+      return C.int;
    pragma Import (C, Poll, "poll");
-   --  Don't forget to link application with win32/poll.adb under the windows
-   --  ??? This must be fixed, poll.o should be part of libaws.a on Windows.
 
 end AWS.Net.Sets.Thin;
