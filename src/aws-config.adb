@@ -39,12 +39,44 @@ package body AWS.Config is
 
    use Ada.Strings.Unbounded;
 
-   Admin_URI_Value          : Unbounded_String := To_Unbounded_String ("");
-   Server_Name_Value        : Unbounded_String := To_Unbounded_String ("");
-   Log_File_Directory_Value : Unbounded_String := To_Unbounded_String ("./");
-   Upload_Directory_Value   : Unbounded_String := To_Unbounded_String ("./");
-   Max_Connection_Value     : Positive := 3;
-   Server_Port_Value        : Positive := 8080;
+   Admin_URI_Value          : Unbounded_String
+     := To_Unbounded_String (Default_Admin_URI);
+
+   Server_Name_Value        : Unbounded_String
+     := To_Unbounded_String (Default_Server_Name);
+
+   Log_File_Directory_Value : Unbounded_String
+     := To_Unbounded_String (Default_Log_File_Directory);
+
+   Upload_Directory_Value   : Unbounded_String
+     := To_Unbounded_String (Default_Upload_Directory);
+
+   Max_Connection_Value     : Positive := Default_Max_Connection;
+   Server_Port_Value        : Positive := Default_Server_Port;
+
+   Cleaner_Wait_For_Client_Timeout_Value : Duration
+     := Default_Cleaner_Wait_For_Client_Timeout;
+
+   Cleaner_Client_Header_Timeout_Value : Duration
+     := Default_Cleaner_Client_Header_Timeout;
+
+   Cleaner_Client_Data_Timeout_Value : Duration
+     := Default_Cleaner_Client_Data_Timeout;
+
+   Cleaner_Server_Response_Timeout_Value : Duration
+     := Default_Cleaner_Server_Response_Timeout;
+
+   Force_Wait_For_Client_Timeout_Value : Duration
+     := Default_Force_Wait_For_Client_Timeout;
+
+   Force_Client_Header_Timeout_Value : Duration
+     := Default_Force_Client_Header_Timeout;
+
+   Force_Client_Data_Timeout_Value : Duration
+     := Default_Force_Client_Data_Timeout;
+
+   Force_Server_Response_Timeout_Value : Duration
+     := Default_Force_Server_Response_Timeout;
 
    procedure Initialize;
    --  read aws.ini file if present and initialize this package accordingly.
@@ -57,6 +89,80 @@ package body AWS.Config is
    begin
       return To_String (Admin_URI_Value);
    end Admin_URI;
+
+   -------------------------------------
+   -- Cleaner_Wait_For_Client_Timeout --
+   -------------------------------------
+
+   function Cleaner_Wait_For_Client_Timeout return Duration is
+   begin
+      return Cleaner_Wait_For_Client_Timeout_Value;
+   end Cleaner_Wait_For_Client_Timeout;
+
+   -----------------------------------
+   -- Cleaner_Client_Header_Timeout --
+   -----------------------------------
+
+   function Cleaner_Client_Header_Timeout return Duration is
+   begin
+      return Cleaner_Client_Header_Timeout_value;
+   end Cleaner_Client_Header_Timeout;
+
+   -------------------------
+   -- Cleaner_Client_Data --
+   -------------------------
+
+   function Cleaner_Client_Data_Timeout return Duration is
+   begin
+      return Cleaner_Client_Data_Timeout_Value;
+   end Cleaner_Client_Data_Timeout;
+
+   -------------------------------------
+   -- Cleaner_Server_Response_Timeout --
+   -------------------------------------
+
+   function Cleaner_Server_Response_Timeout return Duration is
+   begin
+      return Cleaner_Server_Response_Timeout_Value;
+   end Cleaner_Server_Response_Timeout;
+
+
+   -----------------------------------
+   -- Force_Wait_For_Client_Timeout --
+   -----------------------------------
+
+   function Force_Wait_For_Client_Timeout return Duration is
+   begin
+      return Force_Wait_For_Client_Timeout_value;
+   end Force_Wait_For_Client_Timeout;
+
+   ---------------------------------
+   -- Force_Client_Header_Timeout --
+   ---------------------------------
+
+   function Force_Client_Header_Timeout return Duration is
+   begin
+      return Force_Client_Header_Timeout_value;
+   end Force_Client_Header_Timeout;
+
+   -----------------------
+   -- Force_Client_Data --
+   -----------------------
+
+   function Force_Client_Data_Timeout return Duration is
+   begin
+      return Force_Client_Data_Timeout_Value;
+   end Force_Client_Data_Timeout;
+
+   -----------------------------------
+   -- Force_Server_Response_Timeout --
+   -----------------------------------
+
+   function Force_Server_Response_Timeout return Duration is
+   begin
+      return Force_Server_Response_Timeout_value;
+   end Force_Server_Response_Timeout;
+
 
    ----------------
    -- Initialize --
@@ -146,6 +252,87 @@ package body AWS.Config is
                      elsif Key = "Server_Port" then
                         begin
                            Server_Port_Value := Positive'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Cleaner_Wait_For_Client_Timeout" then
+                        begin
+                           Cleaner_Wait_For_Client_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Cleaner_Wait_For_Client_Timeout" then
+                        begin
+                           Cleaner_Wait_For_Client_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Cleaner_Client_Header_Timeout" then
+                        begin
+                           Cleaner_Client_Header_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Cleaner_Client_Data_Timeout" then
+                        begin
+                           Cleaner_Client_Data_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Cleaner_Server_Response_Timeout" then
+                        begin
+                           Cleaner_Server_Response_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Force_Wait_For_Client_Timeout" then
+                        begin
+                           Force_Wait_For_Client_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Force_Client_Header_Timeout" then
+                        begin
+                           Force_Client_Header_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Force_Client_Data_Timeout" then
+                        begin
+                           Force_Client_Data_Timeout_Value
+                             := Duration'Value (Value);
+                        exception
+                           when others =>
+                              Error_Message ("wrong value for " & Key);
+                        end;
+
+                     elsif Key = "Force_Server_Response_Timeout" then
+                        begin
+                           Force_Server_Response_Timeout_Value
+                             := Duration'Value (Value);
                         exception
                            when others =>
                               Error_Message ("wrong value for " & Key);
