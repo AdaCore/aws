@@ -1,3 +1,20 @@
+2005-03-09  Pascal Obry  <pascal@obry.org>
+
+	* aws-server.ads:
+	(Line_Cleaner): Add Shutdown entry which can be called to exit
+         the task. Add some comments.
+        Minor reformatting.
+        Update copyright notice.
+        Work for E215-008.
+
+	* aws-server.adb:
+	(Line_Cleaner): Handle the new Shutdown entry which can be called
+         to exit the task.
+        (Shutdown): Not not call abort on the task cleaner but the new
+         Shutdown routine. Cleaner and safer this way.
+        Update copyright notice.
+        Work for E215-008.
+
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -15,7 +32,7 @@
 
 	* src.gpr:
 	(Naming): Add support of OSLIB and SOCKLIB variable.
-	
+
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
 	* src.gpr:
@@ -83,7 +100,7 @@
 
 	* aws.ads:
 	(Version): Set to 2.1a.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-server.adb:
 	Update copyright notice.
