@@ -1,36 +1,34 @@
 
-			    A W S - Ada Web Sever
-                                1.0 release
+			    A W S - Ada Web Server
+                                1.1 release
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                July 22th, 2001,
+   Pascal Obry                                               August 31st, 2001,
 
 
 
 Dmitriy Anisimkov and I are very happy to announce the availability of the 
-AWS 1.0 release. This version is close to the 1.0 version. Note that the API
-has been changed a lot. This is part of a redesign to have a cleaner API. We
-plan to change slightly the API at this stage but it should be mostly stable.
-
-Note that this is definitly a major version.
+AWS 1.1 release. The API could change slightly at this stage but should be
+fairly stable now.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
-an HTTP component to embedded in any applications. It means that you can
-communicate with your application using a standard Web browser and this
-without the need for a Web Server. AWS is fully developed in Ada with GNAT.
+a small yet powerful HTTP component to embedded in any applications. It means
+that you can communicate with your application using a standard Web browser
+and this without the need for a Web Server. AWS is fully developed in Ada with
+GNAT.
 
 Here are the main changes:
 
-  - finer control of the log filename (see AWS.Server.Start_Log and 
-    AWS.Log.Start).
+  - Server push implementation. Works only with Netscape Navigator.
 
-  - Add log information in the status page.
+  - SOAP - alpha implementation of SOAP. Support only Integer, Float and
+    String. There is no guarantee that it is inter-operable with other SOAP
+    implementation at this point.
 
-  - New log split mode policy: Each_Run
+  - Add accept queue size parameter to help building heavy loaded servers.
 
-  - Configuration options are now on a per server basis instead of per
-    process. See AWS.Config, AWS.Config.Set and AWS.Config.Ini.
+  - Fix the Runme NT service demo.
 
   - improve the documentation.
 
@@ -43,17 +41,12 @@ At this stage we feel that AWS is ready to build small to medium Web
 server. AWS has been reported to work under Windows NT, Linux and FreeBSD 4.1.
 
 With this new version you'll need at least version 0.1.11 of the Socket binding
-from ENST. It has been tested and works fine with version 0.1.13 too.
+from ENST. It has been tested and works fine with version 0.1.13 too. See
+pointers below.
 
-You can download AWS and the Sockets binding for Win32 directly from:
-http://perso.wanadoo.fr/pascal.obry/contrib.html
-
-An online version of the documentation can be found at
-http://perso.wanadoo.fr/pascal.obry/aws.html.
-
-The OpenSSL libraries (optional) distributed are for Windows GNAT 3.13. GNAT
-3.12 users must build the libraries from sources or obtain Win32 binaries from 
-http://vagul.tripod.com/libssl.zip.
+The OpenSSL libraries (optional) distributed are for Windows and GNAT
+3.13. GNAT 3.12 users must build the libraries from sources or obtain another
+set of binaries see pointers below.
 
 Under UNIX you'll have to build the libraries from sources, it is quite easy 
 to do so. This has been tested under Linux without trouble.
@@ -64,22 +57,23 @@ See documentation for build information.
 Pointers:
 ---------
 
-AWS documentation: 
-   http://perso.wanadoo.fr/pascal.obry/aws.html
+AWS User's Mailing List:
+   http://lists.act-europe.fr/mailman/listinfo/aws
 
-AWS sources: 
-   http://perso.wanadoo.fr/pascal.obry/contrib.html
+AWS Home Page (sources and documentation): 
+   http://libre.act-europe.fr/
 
 Templates_Parser sources: 
-   Templates_Parser module is provided with AWS distribution. Latest version
-   of this module and the documentation can be found at:
+   Templates_Parser module (sources and documentation) is provided with AWS
+   distribution. Latest version of this module and the documentation can be
+   found at:
 
    http://perso.wanadoo.fr/pascal.obry/contrib.html
    http://perso.wanadoo.fr/pascal.obry/templates_parser.html
 
    Temlates_Parser is a very useful add-on for AWS. You should have a look at
    it if you plan to develop a Web service. Templates_Parser permits to
-   completly (yes 100%) separate the HTML design from the Ada code.
+   completly separate the HTML design from the Ada code.
 
    Some other Templates engine are WebMacro, FreeMarker, PHP, ASP, JSP and
    Velocity. All of them are based on explicite iterators (#foreach with a
@@ -137,6 +131,15 @@ You can report bugs to:
 It would be nice if you could also sent us a note if you are using AWS just
 to know if it is used at all or not :) And if you are ok, we'll add an entry
 for your project in the next section.
+
+
+AWS User's Mailing List:
+------------------------
+
+A good way to keep informed of AWS news and to share experience with other AWS
+users is to register to the AWS dedicated mailing list. See:
+
+   http://lists.act-europe.fr/mailman/listinfo/aws
 
 
 AWS uses
@@ -202,6 +205,10 @@ AWS uses
   This is a server is used to keep historical data about currency trading to
   build charts of currency prices. The charts viewer part is written in Java
   and loaded through AWS. This server can be reach on the Internet.
+
+  Ongoing work is done to based this development on AWS framework only and
+  to remove all the Java layers. It is also interesting to note that this is
+  an heavy loaded server, it has something like 40 to 50 requests per seconds.
 
 
 Thanks to all who have reported bugs and have sent us patches.
