@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -403,18 +403,25 @@ package body AWS.Client is
    is
       use type Messages.Status_Code;
 
-      Connection : HTTP_Connection;
-      Result     : Response.Data;
+      Result : Response.Data;
 
    begin
-      Create (Connection,
-              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              Persistent => False,
-              Timeouts   => Timeouts);
+      declare
+         Connection : HTTP_Connection;
+      begin
+         Create (Connection,
+                 URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+                 Persistent => False,
+                 Timeouts   => Timeouts);
 
-      Get (Connection, Result);
+         Get (Connection, Result);
 
-      Close (Connection);
+         Close (Connection);
+      exception
+         when others =>
+            Close (Connection);
+            raise;
+      end;
 
       if Follow_Redirection
         and then Response.Status_Code (Result) = Messages.S305
@@ -438,11 +445,6 @@ package body AWS.Client is
       else
          return Result;
       end if;
-
-   exception
-      when others =>
-         Close (Connection);
-         raise;
    end Get;
 
    ---------
@@ -794,6 +796,7 @@ package body AWS.Client is
 
       Head (Connection, Result);
       Close (Connection);
+
       return Result;
 
    exception
