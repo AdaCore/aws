@@ -1,4 +1,5 @@
 \input texinfo   @c -*-texinfo-*-
+
 @c %**start of header
 @setfilename aws.info
 @settitle Ada Web Server
@@ -227,8 +228,16 @@ At this point you can build AWS. There is two ways to build AWS:
 @end itemize
 
 @noindent
-During the build the AWS library and demos will be compiled. The demos
-are:
+In both cases it is possible to build AWS in debug mode by setting
+DEBUG make variable.
+
+@smallexample
+   $ make build DEBUG=1
+@end smallexample
+
+@noindent
+During the build the AWS library and demos will be compiled. 
+The demos are:
 
 @table @file
 
