@@ -36,7 +36,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Numerics.Discrete_Random;
 
-with GNAT.Directory_Operations;
+with AWS.OS_Lib;
 
 package body AWS.Utils is
 
@@ -162,15 +162,13 @@ package body AWS.Utils is
    ----------------
 
    procedure Decompress (Filename : in String) is
-      use GNAT;
-
       Filter : ZLib.Filter_Type;
 
    begin
       ZLib.Inflate_Init (Filter, Header => ZLib.GZip);
 
       Compress_Decompress
-        (Filter, Filename, Directory_Operations.Base_Name (Filename, ".gz"));
+        (Filter, Filename, OS_Lib.Base_Name (Filename, ".gz"));
 
       ZLib.Close (Filter);
    exception

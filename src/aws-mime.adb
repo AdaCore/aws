@@ -36,7 +36,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 
-with GNAT.Directory_Operations;
 with GNAT.Regexp;
 
 with AWS.Containers.Key_Value;
@@ -146,7 +145,7 @@ package body AWS.MIME is
    --------------------
 
    function File_Extension (Filename : in String) return String is
-      Ext : constant String := Directory_Operations.File_Extension (Filename);
+      Ext : constant String := OS_Lib.File_Extension (Filename);
    begin
       if Ext'Length > 0 then
          return Ext (Ext'First + 1 .. Ext'Last);
