@@ -117,7 +117,7 @@ gsetup: gnatsockets gnat_oslib
 	-$(MKDIR) -p ../.build/release/lib
 
 gbuild: 
-	$(GNATMAKE) -Psrc -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 gclean: clean
 	$(RM) -fr ../.build/debug/lib ../.build/debug/obj
