@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -50,8 +50,14 @@ package body AWS.Containers.Tables is
 
    use Ada.Strings.Unbounded;
 
-   Missing_Item_Error : exception
-      renames Index_Table.Missing_Item_Error;
+   procedure Get_Indexes
+     (Table   : in     Table_Type;
+      Name    : in     String;
+      Indexes :    out Name_Index_Table;
+      Found   :    out Boolean);
+   --  Return all Name/Value indexes for the spetsified name.
+   --  Parameter Found would be False in case of Name is not exists in
+   --  the table.
 
    -----------
    -- Count --
@@ -68,23 +74,22 @@ package body AWS.Containers.Tables is
    -----------
 
    function Count
-     (Table : in Table_Type;
-      Name           : in String)
+     (Table  : in Table_Type;
+      Name   : in String)
       return Natural
    is
       Value : Name_Index_Table;
+      Found : Boolean;
    begin
       pragma Assert (Table.Index /= null);
-      Get_Value
-        (Table.Index.all,
-         Normalize_Name (Name, not Table.Case_Sensitive),
-         Value);
 
-      return Natural (Name_Indexes.Last (Value));
+      Get_Indexes (Table, Name, Value, Found);
 
-   exception
-      when Missing_Item_Error =>
+      if Found then
+         return Natural (Name_Indexes.Last (Value));
+      else
          return 0;
+      end if;
    end Count;
 
    -----------
@@ -92,8 +97,8 @@ package body AWS.Containers.Tables is
    -----------
 
    function Exist
-     (Table : in Table_Type;
-      Name  : in String)
+     (Table  : in Table_Type;
+      Name   : in String)
       return Boolean is
    begin
       pragma Assert (Table.Index /= null);
@@ -107,17 +112,29 @@ package body AWS.Containers.Tables is
    ---------
 
    function Get
-     (Table : in Table_Type;
-      Name  : in String;
-      N     : in Positive := 1)
-      return String is
+     (Table  : in Table_Type;
+      Name   : in String;
+      N      : in Positive := 1)
+      return String
+   is
+      Value : Name_Index_Table;
+      Found : Boolean;
+
    begin
-      return Internal_Get (Table, Name, N);
+      pragma Assert (Table.Index /= null);
+
+      Get_Indexes (Table, Name, Value, Found);
+
+      if Found and then Key_Positive (N) <= Name_Indexes.Last (Value) then
+         return Table.Data.Table (Value.Table (Key_Positive (N))).Value;
+      else
+         return "";
+      end if;
    end Get;
 
    function Get
-     (Table : in Table_Type;
-      N     : in Positive)
+     (Table  : in Table_Type;
+      N      : in Positive)
       return Element
    is
    begin
@@ -134,13 +151,50 @@ package body AWS.Containers.Tables is
       end if;
    end Get;
 
+   -----------------
+   -- Get_Indexes --
+   -----------------
+
+   procedure Get_Indexes
+     (Table   : in     Table_Type;
+      Name    : in     String;
+      Indexes :    out Name_Index_Table;
+      Found   :    out Boolean)
+   is
+      procedure Action
+        (Key   : in     String;
+         Value : in out Name_Index_Table);
+
+      ------------
+      -- Action --
+      ------------
+
+      procedure Action
+        (Key   : in     String;
+         Value : in out Name_Index_Table)
+      is
+         pragma Warnings (Off, Key);
+      begin
+         Indexes := Value;
+      end Action;
+
+      procedure Dummy_Update is
+        new Index_Table.Update_Value_Or_Status_G (Action);
+
+   begin
+      Dummy_Update
+        (Table => Index_Table.Table_Type (Table.Index.all),
+         Key   => Normalize_Name (Name, not Table.Case_Sensitive),
+         Found => Found);
+   end Get_Indexes;
+
    --------------
    -- Get_Name --
    --------------
 
    function Get_Name
-     (Table : in Table_Type;
-      N     : in Positive := 1)
+     (Table  : in Table_Type;
+      N      : in Positive := 1)
       return String is
    begin
       pragma Assert (Table.Index /= null);
@@ -156,8 +210,8 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Names
-     (Table : in Table_Type;
-      Sort  : in Boolean := False)
+     (Table  : in Table_Type;
+      Sort   : in Boolean := False)
       return VString_Array
    is
 
@@ -216,8 +270,8 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Value
-     (Table : in Table_Type;
-      N              : in Positive := 1)
+     (Table  : in Table_Type;
+      N      : in Positive := 1)
       return String is
    begin
       pragma Assert (Table.Index /= null);
@@ -234,64 +288,33 @@ package body AWS.Containers.Tables is
    ----------------
 
    function Get_Values
-     (Table : in Table_Type;
-      Name  : in String)
+     (Table  : in Table_Type;
+      Name   : in String)
       return VString_Array
    is
       Value : Name_Index_Table;
+      Found : Boolean;
    begin
       pragma Assert (Table.Index /= null);
 
-      Get_Value
-        (Table.Index.all,
-         Normalize_Name (Name, not Table.Case_Sensitive),
-         Value);
+      Get_Indexes (Table, Name, Value, Found);
 
-      declare
-         Last :  Key_Positive := Name_Indexes.Last (Value);
-         Result : VString_Array (1 .. Natural (Last));
-      begin
-         for I in 1 .. Last loop
-            Result (Natural (I)) := To_Unbounded_String (Table.Data.Table
-               (Value.Table (I)).Value);
-         end loop;
-         return Result;
-      end;
-
-   exception
-      when Missing_Item_Error =>
-         return (1 .. 0 => Null_Unbounded_String);
-   end Get_Values;
-
-   ------------------
-   -- Internal_Get --
-   ------------------
-
-   function Internal_Get
-     (Table : in Table_Type;
-      Name  : in String;
-      N     : in Natural)
-      return String
-   is
-      Value : Name_Index_Table;
-   begin
-      pragma Assert (Table.Index /= null);
-
-      Get_Value
-        (Table.Index.all,
-         Normalize_Name (Name, not Table.Case_Sensitive),
-         Value);
-
-      if Key_Positive (N) <= Name_Indexes.Last (Value) then
-         return Table.Data.Table (Value.Table (Key_Positive (N))).Value;
+      if Found then
+         declare
+            Last   :  Key_Positive := Name_Indexes.Last (Value);
+            Result : VString_Array (1 .. Natural (Last));
+         begin
+            for I in 1 .. Last loop
+               Result (Natural (I))
+                  := To_Unbounded_String
+                        (Table.Data.Table (Value.Table (I)).Value);
+            end loop;
+            return Result;
+         end;
       else
-         return "";
+         return (1 .. 0 => Null_Unbounded_String);
       end if;
-
-   exception
-      when Missing_Item_Error =>
-         return "";
-   end Internal_Get;
+   end Get_Values;
 
    ----------------
    -- Name_Count --
@@ -311,8 +334,9 @@ package body AWS.Containers.Tables is
    --------------------
 
    function Normalize_Name
-     (Name : in String; To_Upper : in Boolean)
-      return String is
+     (Name     : in String;
+      To_Upper : in Boolean)
+      return   String is
    begin
       if To_Upper then
          return Ada.Characters.Handling.To_Upper (Name);
