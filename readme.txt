@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 July 3rd, 2003
+   Pascal Obry                                              Septembre 6th, 2003
 
 
 
@@ -117,6 +117,11 @@ Here are the main changes since AWS 1.3 :
      => This is not upward compatible. Remove calls to
         AWS.Response.Set.Content_Length and implement the
         AWS.Resources.Streams.Size method for the stream object.
+
+   - Templates_Parser use lot less stack space than before while parsing a
+     template file. It is now possible to parse very large template file.
+
+   - Slots activity counters are updated only if an answer as been handled.
 
    - Plus many small fixes, enhancements and documentation work.
 
@@ -276,7 +281,7 @@ about AWS. In the early stage of the project this is very valuable.
 
 So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
 Thierry Lelegard, Nicolas Lesbats, Jean-François Rameau, Maxim Reznik,
-Jean-Pierre Rosen, Ariane Sinibardy.
+Jean-Pierre Rosen, Jerôme Roussel, Ariane Sinibardy.
 
 AWS uses:
 ---------
