@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                   S M T P - Simple Mail Transfer Protocol                --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -63,14 +63,6 @@ package body AWS.SMTP.Client is
       Reply :    out Server_Reply);
    --  Read a reply from the SMTP server (listening on Sock) and fill the Reply
    --  structure.
-
-   type Address_Mode is (Full, Name, Address);
-
-   function E_Mail
-     (E_Mail : in E_Mail_Data;
-      Mode   : in Address_Mode := Full) return String;
-   --  Returns E_Mail only (Mode = Address), recipient name only (Mode = Name)
-   --  or Name and e-mail (Mode = Full).
 
    procedure Add (Answer : in out Server_Reply; Status : in out SMTP.Status);
    --  Add status code and reason to the list of server's reply.
@@ -184,25 +176,6 @@ package body AWS.SMTP.Client is
       Net.Free (Sock);
    end Close;
 
-   ------------
-   -- E_Mail --
-   ------------
-
-   function E_Mail
-     (E_Mail : in E_Mail_Data;
-      Mode   : in Address_Mode := Full) return String is
-   begin
-      case Mode is
-         when Full =>
-            return To_String (E_Mail.Name)
-              & " <" & To_String (E_Mail.Address) & '>';
-         when Name =>
-            return To_String (E_Mail.Name);
-         when Address =>
-            return To_String (E_Mail.Address);
-      end case;
-   end E_Mail;
-
    ----------
    -- File --
    ----------
@@ -309,7 +282,7 @@ package body AWS.SMTP.Client is
    begin
       --  MAIL
       Net.Buffered.Put_Line
-        (Sock, "MAIL FROM:<" & E_Mail (From, Address) & '>');
+        (Sock, "MAIL FROM:<" & Image (From, Address) & '>');
 
       Check_Answer (Sock, Answer);
 
@@ -319,7 +292,7 @@ package body AWS.SMTP.Client is
          for K in To'Range loop
             Net.Buffered.Put_Line
               (Sock,
-               "RCPT TO:<" & E_Mail (To (K), Address) & '>');
+               "RCPT TO:<" & Image (To (K), Address) & '>');
 
             Check_Answer (Sock, Answer);
 
@@ -340,16 +313,16 @@ package body AWS.SMTP.Client is
                Net.Buffered.Put_Line (Sock, "Date: " & Current_Date);
 
                --  From
-               Net.Buffered.Put_Line (Sock, "From: " & E_Mail (From));
+               Net.Buffered.Put_Line (Sock, "From: " & Image (From));
 
                --  Subject
                Net.Buffered.Put_Line (Sock, "Subject: " & Subject);
 
                --  To
-               Net.Buffered.Put (Sock, "To: " & E_Mail (To (To'First)));
+               Net.Buffered.Put (Sock, "To: " & Image (To (To'First)));
 
                for K in To'First + 1 .. To'Last loop
-                  Net.Buffered.Put (Sock, ", " & E_Mail (To (K)));
+                  Net.Buffered.Put (Sock, ", " & Image (To (K)));
                end loop;
 
                Net.Buffered.New_Line (Sock);
