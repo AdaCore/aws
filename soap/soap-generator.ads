@@ -37,7 +37,7 @@ with SOAP.WSDL.Parameters;
 
 package SOAP.Generator is
 
-   Version : constant String := "1.0";
+   Version : constant String := "1.1";
 
    Generator_Error : exception;
 
@@ -82,6 +82,14 @@ package SOAP.Generator is
    procedure Ada_Style (O : in out Object);
    --  Use Ada style identifier, by default the WSDL casing is used
 
+   procedure Types_From (O : in out Object; Spec : in String);
+   --  Use types definition for Array and Record from this Ada spec. This
+   --  requires that all record definitions are insided this spec. This
+   --  options is useful when generating stub/skeleton from a WSDL document
+   --  generated with ada2wsdl. In this case the types definition are already
+   --  coded in Ada, it is preferable to reuse them to not have to convert
+   --  to/from both definitions.
+
    procedure CVS_Tag (O : in out Object);
    --  Add CVS tag Id in the unit header (no CVS by default)
 
@@ -103,18 +111,19 @@ private
    use Ada.Strings.Unbounded;
 
    type Object is new SOAP.WSDL.Parser.Object with record
-      Quiet     : Boolean := False;
-      Gen_Stub  : Boolean := True;
-      Gen_Skel  : Boolean := True;
-      Ada_Style : Boolean := False;
-      CVS_Tag   : Boolean := False;
-      Force     : Boolean := False;
-      Location  : Unbounded_String;
-      WSDL_File : Unbounded_String;
-      Proxy     : Unbounded_String;
-      P_User    : Unbounded_String;
-      P_Pwd     : Unbounded_String;
-      Options   : Unbounded_String;
+      Quiet      : Boolean := False;
+      Gen_Stub   : Boolean := True;
+      Gen_Skel   : Boolean := True;
+      Ada_Style  : Boolean := False;
+      CVS_Tag    : Boolean := False;
+      Force      : Boolean := False;
+      Types_Spec : Unbounded_String;
+      Location   : Unbounded_String;
+      WSDL_File  : Unbounded_String;
+      Proxy      : Unbounded_String;
+      P_User     : Unbounded_String;
+      P_Pwd      : Unbounded_String;
+      Options    : Unbounded_String;
    end record;
 
 end SOAP.Generator;
