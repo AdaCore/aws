@@ -8,7 +8,15 @@ with Ada.Text_IO;
 
 procedure Uconv is
 
-   Sample : constant String := "$Header$";
+   Sample : constant String :=
+      "$Author$" & ASCII.LF &
+      "$Date$" & ASCII.LF &
+      "$Name$" & ASCII.LF &
+      "$Locker$" & ASCII.LF & 
+      "$RCSfile$" & ASCII.LF &
+      "$Revision$" & ASCII.LF &
+      "$Source$" & ASCII.LF &
+      "$State$" & ASCII.LF;
 
    subtype Fixed_String is String (Sample'First .. Sample'Last);
 
