@@ -1,3 +1,20 @@
+2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add dispatch, dispatch_method, dispatch_vh
+
+	* dispatch.adb, dispatch.out, dispatch.ini:
+	Initial revision.
+
+	* dispatch_method.adb, dispatch_method.out, dispatch_method.ini:
+	Initial revision.
+
+	* dispatch_vh.adb, dispatch_vh.out, dispatch_vh.ini:
+	Initial revision.
+
+	* zapp.adb:
+	Use another port.
+
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* compress.adb, check_mem.adb: 

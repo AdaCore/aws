@@ -1,3 +1,9 @@
+2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-client.ads:
+	Fix comment.
+	Update copyright notice.
+
 2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-utils.ads:

@@ -1,3 +1,11 @@
+2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* tools.gpr:
+	(Linker): New package to support -lz and XMLAda libraries.
+
+	* awsres.adb:
+	Minor reformatting.
+
 2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

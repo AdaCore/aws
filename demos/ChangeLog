@@ -1,3 +1,9 @@
+2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* demos.gpr:
+	(Linker): Add -lz library when needed, properly support Windows
+	 and GNU/Linux.
+
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* zdemo.adb:
