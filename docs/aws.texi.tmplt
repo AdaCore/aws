@@ -33,6 +33,7 @@
 @end titlepage
 
 @ifhtml
+@c title page for the HTML documentation
 @html
 <font size="+2">
 <p>AWS - version @_AWS_VERSION_@
@@ -1327,13 +1328,13 @@ memory, the default @code{Close} routine will do just that.
 
 @noindent
 This is a slight variant of the standard memory stream described
-above. In this case the object must be declared as a
+above. In this case the stream object must be declared as a
 @code{AWS.Resources.Streams.Memory.ZLib.Stream_Type}.
 
 @noindent
 The ZLib stream object must be initialized to enable the
 compression and select the right parameters. This is done using the
-@code{AWS.Resources.Streams.Memory.ZLib.Deflate.Initialize} which
+@code{AWS.Resources.Streams.Memory.ZLib.Deflate_Initialize} routine which
 takes many parameters to select the right options for the compression
 algorithm, all of them have good default values. When initialized the
 compressed stream object is used exactly as a standard stream.
@@ -1341,9 +1342,9 @@ compressed stream object is used exactly as a standard stream.
 @smallexample
 @cartouche
 @group
-   Data : AWS.Resources.Streams.Memory.Stream_Type;
+   Data : AWS.Resources.Streams.Memory.ZLib.Stream_Type;
 
-   Deflate.Initialize (Data);
+   Deflate_Initialize (Data);
 
    Append (Data, Translator.To_Stream_Element_Array ("First chunk"));
    Append (Data, Translator.To_Stream_Element_Array ("Second chunk..."));
@@ -1357,7 +1358,7 @@ compressed stream object is used exactly as a standard stream.
 
 @noindent
 Note that there is the reverse implementation to decompress a
-stream. @pxref{AWS.Resources.Streams.Memory.ZLib.Inflate}. It's usage
+stream. @pxref{AWS.Resources.Streams.Memory.ZLib}. It's usage
 is identical.
 
 @node Configuration options
@@ -4160,7 +4161,8 @@ distributed with @code{AWS}.
 @cindex References
 
 @noindent
-Here is a list of documents used to implement @code{AWS} and @code{SOAP}:
+Here is a list of documents used to implement @code{AWS} and the
+@code{SOAP} support:
 
 @enumerate 1
 
@@ -4327,7 +4329,7 @@ By Dave Winer, Jake Savin, UserLand Software, 4/2/01.
 @appendix AWS API Reference
 
 @menu
-AWS User API:
+AWS User's API:
 
 * AWS::
 * AWS.Client::
@@ -4356,8 +4358,6 @@ AWS User API:
 * AWS.Resources.Streams::
 * AWS.Resources.Streams.Memory::
 * AWS.Resources.Streams.Memory.ZLib::
-* AWS.Resources.Streams.Memory.ZLib.Inflate::
-* AWS.Resources.Streams.Memory.ZLib.Deflate::
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Hotplug::
@@ -4379,7 +4379,7 @@ AWS User API:
 @end menu
 
 @menu
-SOAP User API:
+SOAP User's API:
 
 * SOAP::
 * SOAP.Client::
@@ -4582,20 +4582,6 @@ SOAP User API:
 @cindex AWS.Resources.Streams.Memory.ZLib
 
 @include aws-resources-streams-memory-zlib.ads.texi
-
-@page
-@node AWS.Resources.Streams.Memory.ZLib.Deflate
-@appendixsec AWS.Resources.Streams.Memory.ZLib.Deflate
-@cindex AWS.Resources.Streams.Memory.ZLib.Deflate
-
-@include aws-resources-streams-memory-zlib-deflate.ads.texi
-
-@page
-@node AWS.Resources.Streams.Memory.ZLib.Inflate
-@appendixsec AWS.Resources.Streams.Memory.ZLib.Inflate
-@cindex AWS.Resources.Streams.Memory.ZLib.Inflate
-
-@include aws-resources-streams-memory-zlib-inflate.ads.texi
 
 @page
 @node AWS.Response
