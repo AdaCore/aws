@@ -1,3 +1,22 @@
+2002-12-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-containers-tables-set.adb:
+	Add some comment.
+	Reformat and rename some routines.
+
+	* aws-containers-tables.adb:
+	Set in UNIX format, some lines were having a CRLF ending.
+
+	* aws-headers.adb:
+	(Send_Header): Fix comment. Add ??? note about buffered output.
+	Minor reformatting.
+
+	* aws-headers.ads:
+	Fix comment.
+
+	* aws-status-set.ads:
+	Fix comment.
+
 2002-12-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-messages.ads:
@@ -7,8 +26,8 @@
 
 	* aws-containers-tables.ads, aws-containers-tables.adb
 	  aws-containers-tables-set.adb:
-	(Name_Value_Type): New type for receive data from container.
-	 Used internally too for keep data in the container.
+	(Name_Value_Type): New type to receive data from container.
+	 Used internally too for keeping data in the container.
 	(Get_Name_Value): New routine.
 
 	* aws-headers.ads, aws-headers.adb:
