@@ -2,7 +2,11 @@
 @@TABLE@@
    @@IF@@ @_IS_DIR_V_@
       @@IF@@ @_NAME_V_@ /= "CVS/"
+         @@IF@@ @_NAME_V_@ = "./" or @_NAME_V_@ = "../"
       @_NAME_V_@
+         @@ELSE@@
+      @_NAME_V_@	---	@_TIME_V_@
+         @@END_IF@@
       @@END_IF@@
    @@ELSE@@
       @_NAME_V_@	@_SIZE_V_@	@_TIME_V_@
