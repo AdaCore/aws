@@ -31,6 +31,7 @@
 with GNAT.OS_Lib;
 
 with AWS.Messages;
+with AWS.MIME;
 
 package body WS_CB is
 
@@ -42,36 +43,13 @@ package body WS_CB is
    ---------
 
    function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
-
-      function Is_Gif (Filename : in String) return Boolean;
-      --  Returns True if Filename is a GIF file.
-
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := URI (2 .. URI'Last);
-
-      function Is_Gif (Filename : in String) return Boolean is
-      begin
-         if Filename'Length > 4
-           and then Filename (Filename'Last - 3 .. Filename'Last) = ".gif"
-         then
-            return True;
-         else
-            return False;
-         end if;
-      end Is_Gif;
-
    begin
       if OS_Lib.Is_Regular_File (Filename) then
-         if Is_Gif (Filename) then
-
-            return AWS.Response.File (Content_Type => "image/gif",
-                                      Filename     => Filename);
-         else
-            --  just pretends that if it is not a GIF file it is an HTML file.
-
-            return AWS.Response.File (Content_Type => "text/html",
-                                      Filename     => Filename);
-         end if;
+         return AWS.Response.File
+           (Content_Type => AWS.MIME.Content_Type (Filename),
+            Filename     => Filename);
       else
 
          return AWS.Response.Acknowledge
