@@ -281,10 +281,10 @@ package body AWS.Containers.Tables is
 
       if Found then
          declare
-            Last   :  Key_Positive := Name_Indexes.Last (Value);
+            Last   : Key_Positive := Name_Indexes.Last (Value);
             Result : VString_Array (1 .. Natural (Last));
          begin
-            for I in 1 .. Last loop
+            for I in Name_Indexes.First .. Last loop
                Result (Natural (I))
                   := To_Unbounded_String
                         (Table.Data.Table (Value.Table (I)).Value);
