@@ -31,34 +31,36 @@ endif
 
 build: runme agent auth ws com_1 com_2 main hotplug hello_world
 
-runme:
+force:
+
+runme: force
 	gnatmake $(GARGS) runme -bargs $(BARGS) -largs $(LARGS)
 
-ws:
+ws: force
 	gnatmake $(GARGS) ws -bargs $(BARGS) -largs $(LARGS)
 
-agent:
+agent: force
 	gnatmake $(GARGS) agent -bargs $(BARGS) -largs $(LARGS)
 
-auth:
+auth: force
 	gnatmake $(GARGS) auth -bargs $(BARGS) -largs $(LARGS)
 
-com_1:
+com_1: force
 	gnatmake $(GARGS) com_1 -bargs $(BARGS) -largs $(LARGS)
 
-com_2:
+com_2: force
 	gnatmake $(GARGS) com_2 -bargs $(BARGS) -largs $(LARGS)
 
-main:
+main: force
 	gnatmake $(GARGS) main -bargs $(BARGS) -largs $(LARGS)
 
-hotplug:
+hotplug: force
 	gnatmake $(GARGS) hotplug -bargs $(BARGS) -largs $(LARGS)
 
-hello_world:
+hello_world: force
 	gnatmake $(GARGS) hello_world -bargs $(BARGS) -largs $(LARGS)
 
-build_soap:
+build_soap: force
 	(if [ -e ../soap/soap.o ] ; then \
 	gnatmake $(GARGS) soap_client -bargs $(BARGS) -largs $(LARGS); \
 	gnatmake $(GARGS) soap_server -bargs $(BARGS) -largs $(LARGS); \
