@@ -176,7 +176,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
          Activity_Counter := Activity_Counter & Slot_Data.Activity_Counter;
 
-         Peer_Name := Peer_Name & Slot_Data.Peername;
+         Peer_Name := Peer_Name & Sockets.Naming.Image (Slot_Data.Peer_Addr);
 
          Slot_Activity_Counter := Slot_Activity_Counter
            & Slot_Data.Slot_Activity_Counter;
