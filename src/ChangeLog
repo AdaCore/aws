@@ -1,3 +1,23 @@
+2005-01-24  Pascal Obry  <pascal@obry.org>
+
+	* aws-digest.ads:
+        (Authorization_Tail): Improve comments.
+        Minor reformatting.
+        Update copyright notice.
+
+	* aws-digest.adb:
+        Minor reformatting.
+        Update copyright notice.
+
+	* aws-status.ads:
+        (Authorization_Tail): Improve comments.
+        Minor reformatting.
+        Update copyright notice.
+
+	* aws-status.adb:
+        (Authorization_Tail): Minor reformatting.
+        Update copyright notice.
+
 2005-01-24  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-digest.ads:
