@@ -93,8 +93,17 @@ begin
          Print_Tree (T.Next, Level);
 
       when Table_Stmt =>
-         Text_IO.Put_Line ("[TABLE_STMT] TERMINATE_SECTIONS="
-                           & Boolean'Image (T.Terminate_Sections));
+         Text_IO.Put ("[TABLE_STMT]");
+
+         if T.Terminate_Sections then
+            Text_IO.Put (" TERMINATE_SECTIONS");
+         end if;
+
+         if T.Reverse_Index then
+            Text_IO.Put (" REVERSE");
+         end if;
+
+         Text_IO.New_Line;
          Print_Tree (T.Blocks, Level + 1);
          Print_Indent (Level);
          Text_IO.Put_Line ("[END_TABLE_STMT]");
