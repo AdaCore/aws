@@ -66,8 +66,7 @@ begin
    Server.Start (WS, H, Conf);
 
    R1 := (-4, 2, 89);
---   R2 := (R1, 'c', To_Unbounded_String ("toto"), 1.45);
-   R2 := (R1, To_Unbounded_String ("toto"), 1.45);
+   R2 := (R1, 'c', To_Unbounded_String ("toto"), 1.45);
 
    Text_IO.Put_Line ("R1 = " & WSDL_3_Service.Client.Image_Rec1 (R1));
    Text_IO.Put_Line ("R2 = " & WSDL_3_Service.Client.Image_Rec2 (R2));
