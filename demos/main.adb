@@ -65,6 +65,7 @@ procedure Main is
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
+
    AWS.Server.Start (WS, "Main", "/Admin-Page");
    AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
    AWS.Log.Start;
