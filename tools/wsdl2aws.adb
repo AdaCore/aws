@@ -227,10 +227,6 @@ procedure WSDL2AWS is
       end loop;
 
       Filename := To_Unbounded_String (Command_Line.Get_Argument);
-
-      if WSDL_Des then
-         SOAP.Generator.WSDL_File (Gen, To_String (Filename));
-      end if;
    end Parse_Command_Line;
 
    use Text_IO;
@@ -267,6 +263,12 @@ begin
       Raise_Exception
         (Constraint_Error'Identity,
          "Option -o must be used when parsing a Web document (URL).");
+   end if;
+
+   --  Set WSDL file
+
+   if WSDL_Des then
+      SOAP.Generator.WSDL_File (Gen, To_String (Filename));
    end if;
 
    --  Load WSDL document, return it
