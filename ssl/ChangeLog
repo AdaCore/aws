@@ -1,3 +1,12 @@
+2004-02-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(ssl-wrappers): Renamed to ssl-wrappers.o.
+	($(LIBNOSSLAWS)): Add dependance to ssl-wrappers.o.
+	(build): Remove dependance from ssl-wrappers.
+	Fix libnosslaws.a build, properly remove ssl-wrappers.o as this
+	 must not be included in the standard AWS library.
+
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
