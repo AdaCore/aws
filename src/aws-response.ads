@@ -45,6 +45,11 @@ package AWS.Response is
 
    type Data_Mode is (Header, Message, File);
 
+   Default_Moved_Message : constant String :=
+     "Page moved<br><a href=""_@_"">Click here</a>";
+   --  This is a template message, _@_ will be replaced by the Location (see
+   --  function Build with Location below).
+
    function Build (Content_Type : in String;
                    Message_Body : in String;
                    Status_Code  : in Messages.Status_Code := Messages.S200)
@@ -53,6 +58,10 @@ package AWS.Response is
    function Build (Content_Type : in String;
                    Message_Body : in Streams.Stream_Element_Array;
                    Status_Code  : in Messages.Status_Code := Messages.S200)
+                  return Data;
+
+   function Moved (Location     : in String;
+                   Message      : in String := Default_Moved_Message)
                   return Data;
 
    function Acknowledge (Status_Code  : in Messages.Status_Code;
@@ -90,6 +99,7 @@ private
       Content_Length : Natural;
       Content_Type   : Unbounded_String;
       Message_Body   : Unbounded_String;
+      Location       : Unbounded_String;
       Realm          : Unbounded_String;
       Elements       : Stream_Element_Array_Access;
    end record;
