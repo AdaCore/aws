@@ -77,12 +77,6 @@ ASIS_TESTS   = $(RT_SOAP_ASIS)
 ASIS2_TESTS  = $(RT_SOAP_ASIS_PARSE)
 endif
 
-STD_TESTS    =
-OTH_TESTS    =
-WSDL_TESTS   =
-WSDL_ATESTS  =
-ASIS_TESTS   =
-
 ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
 	$(addsuffix $(EXEEXT), $(OTH_TESTS)) \
 	$(addsuffix $(EXEEXT), $(WSDL_TESTS)) \
