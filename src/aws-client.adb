@@ -200,7 +200,7 @@ package body AWS.Client is
    begin
       Connection.Current_Phase := Stopped;
 
-      if not (Connection.Cleaner = null) then
+      if Connection.Cleaner /= null then
 
          begin
             --  We don't want to fail here, we really want to free the cleaner
