@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -59,7 +59,7 @@ package body AWS.Resources.Streams.ZLib is
       Header       : in Header_Type           := ZL.Default)
       return Stream_Access
    is
-      Result : Streams.Stream_Access := new Stream_Type;
+      Result : constant Streams.Stream_Access := new Stream_Type;
    begin
       Deflate_Initialize
         (Stream_Type (Result.all), Source, Level, Strategy, Method,
@@ -110,12 +110,12 @@ package body AWS.Resources.Streams.ZLib is
    --------------------
 
    function Inflate_Create
-     (Source       : in Streams.Stream_Access;
-      Window_Bits  : in Window_Bits_Type      := ZL.Default_Window_Bits;
-      Header       : in Header_Type           := ZL.Default)
+     (Source      : in Streams.Stream_Access;
+      Window_Bits : in Window_Bits_Type      := ZL.Default_Window_Bits;
+      Header      : in Header_Type           := ZL.Default)
       return Stream_Access
    is
-      Result : Streams.Stream_Access := new Stream_Type;
+      Result : constant Streams.Stream_Access := new Stream_Type;
    begin
       Inflate_Initialize
         (Stream_Type (Result.all), Source, Window_Bits, Header);
@@ -154,7 +154,7 @@ package body AWS.Resources.Streams.ZLib is
         (Buffer : out Stream_Element_Array;
          Last   : out Stream_Element_Offset);
       pragma Inline (Get);
-      --  Generic parameter for read source data.
+      --  Generic parameter for read source data
 
       ---------
       -- Get --
