@@ -138,10 +138,15 @@ package AWS.Status is
    --  Returns Nth parameter value or the empty string if there is no such
    --  data.
 
-   function Parameter         (D : in Data; Name : in String;
-                               Case_Sensitive : in Boolean := True)
-                              return String;
-   --  Returns parameter value associated with parameter named Name.
+   function Count             (D : in Data; Name : in String) return Natural;
+   --  Returns the number of values associated with parameter Name.
+
+   function Parameter (D              : in Data;
+                       Name           : in String;
+                       N              : in Positive := 1;
+                       Case_Sensitive : in Boolean  := True)
+                      return String;
+   --  Returns the Nth parameter value associated with parameter named Name.
    --  Case_Sensitive case be set to True or False to control the way the
    --  parameter name is looked for.
 
