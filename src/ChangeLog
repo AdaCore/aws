@@ -3,6 +3,12 @@
 	* aws-net.ads, aws-net-std.ads, aws-net-ssl.ads, aws-net-ssl.adb:
 	(Pending): New routine.
 
+	* makefile:
+	Remove only one object file on change configuration.
+
+	* aws-net-buffered.adb:
+	(Read): Look at the socket pending data.
+
 2004-09-16  Pascal Obry  <pascal@obry.org>
 
 	* aws-server-protocol_handler.adb:
