@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 19 May 2004
+<p>Date: 20 May 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -1863,7 +1863,11 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
 
    <b>procedure</b> Insert (Set : <b>in</b> <b>out</b> Translate_Set; Item : <b>in</b> Association);
    -- <i> Add Item into the translate set. If an association for this variable</i>
-   -- <i> already exist it just replaces it by the new item.</i>
+   -- <i> already exists it just replaces it by the new item.</i>
+
+   <b>procedure</b> Insert (Set : <b>in</b> <b>out</b> Translate_Set; Items : <b>in</b> Translate_Set);
+   -- <i> Add Items into the translate set. If an association for variables in</i>
+   -- <i> Items already exists it just replaces it by the new one.</i>
 
    <b>function</b> Exists
      (Set      : <b>in</b> Translate_Set;
@@ -2114,15 +2118,16 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
 --
 -- <i> Composite tags :</i>
 --
--- <i>    If a tag named TAG exists, then the name TAG_LABEL is used as a label</i>
--- <i>    for this specific tag. This label is meant to be used as label for this</i>
--- <i>    set of values (vector, matrix or deeper).</i>
+-- <i>    If a tag named TAG exists, then the name TAG_DESCRIPTION is used as a</i>
+-- <i>    description for this specific tag.</i>
 --
 -- <i> Composite tags (more than one nested level)</i>
 --
--- <i>    If a tag named TAG exists, then the names TAG_DIM[n]_LABEL is used as a</i>
--- <i>    label for the tag's nth axis. In this case TAG_DIM[n]_LABEL must be a</i>
--- <i>    vector tag, each entry corresponds to a label on this axis.</i>
+-- <i>    If a tag named TAG exists, then the names TAG_DIM[n]_LABELS is used as</i>
+-- <i>    a set of labels for the tag's nth axis. In this case TAG_DIM[n]_LABELS</i>
+-- <i>    must be a vector tag, each entry corresponds to a label on this</i>
+-- <i>    axis. Also TAG_DIM[n]_DESCRIPTION is used as a description for this</i>
+-- <i>    axis.</i>
 --
 -- <i> Here is the DTD :</i>
 --
@@ -2132,14 +2137,14 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
 -- <i> &lt;!--a dimension--&gt;</i>
 -- <i> &lt;!ELEMENT Dim (Description, Labels)&gt;</i>
 -- <i> &lt;!ATTLIST Dim</i>
--- <i> 	n CDATA #REQUIRED</i>
+-- <i>     n CDATA #REQUIRED</i>
 -- <i> &gt;</i>
 -- <i> &lt;!--entry of a CompositeTag--&gt;</i>
 -- <i> &lt;!ELEMENT Entry (ind+, V)&gt;</i>
 -- <i> &lt;!--label of an indice of a dimension (ex: 2000)--&gt;</i>
 -- <i> &lt;!ELEMENT Label (#PCDATA)&gt;</i>
 -- <i> &lt;!ATTLIST Label</i>
--- <i> 	ind CDATA #REQUIRED</i>
+-- <i>     ind CDATA #REQUIRED</i>
 -- <i> &gt;</i>
 -- <i> &lt;!--list of labels of one dimension (ex: 1999, 2000, 2001)--&gt;</i>
 -- <i> &lt;!ELEMENT Labels (Label+)&gt;</i>
@@ -2151,7 +2156,7 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
 -- <i> &lt;!ELEMENT V (#PCDATA)&gt;</i>
 -- <i> &lt;!ELEMENT ind (#PCDATA)&gt;</i>
 -- <i> &lt;!ATTLIST ind</i>
--- <i> 	n CDATA #REQUIRED</i>
+-- <i>     n CDATA #REQUIRED</i>
 -- <i> &gt;</i>
 -- <i> &lt;!--identification name for this tag--&gt;</i>
 -- <i> &lt;!ELEMENT Name (#PCDATA)&gt;</i>
@@ -2165,6 +2170,9 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
    <b>function</b> Image (Translations : <b>in</b> Translate_Set) <b>return</b> Unbounded_String;
    -- <i> Returns a string representation encoded in XML for this</i>
    -- <i> translate table.</i>
+
+   <b>function</b> Load (Filename : <b>in</b> String) <b>return</b> Translate_Set;
+   -- <i> Read XML document Filename and create the corresponding Translate_set</i>
 
    <b>procedure</b> Save (Filename : <b>in</b> String; Translations : <b>in</b> Translate_Set);
    -- <i> Write the translate table into filename</i>

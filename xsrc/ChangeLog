@@ -1,3 +1,9 @@
+2004-05-20  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-xml.ads, templates_parser-xml.adb:
+	New version, moved here from src.
+	(Load): New routine.
+
 2004-05-17  Pascal Obry  <pascal@obry.org>
 	
 	* aws-jabber.adb:
