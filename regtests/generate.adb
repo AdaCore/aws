@@ -77,13 +77,15 @@ procedure Generate is
            & "         Put_Line (""Test " & Name & " failed."");" & Lf
            & "         Put_Line (Exception_Information (E));" & Lf
            & "   end;" & Lf
-           & "   Close (Std_Out);" & Lf & Lf);
+           & "   Close (Std_Out);" & Lf
+           & "   Print_Tasks;" & Lf & Lf);
    end Test;
 
 begin
    Create (Main, Out_File, "test_all.adb");
    Put_Line (Main, "with Ada.Text_IO; use Ada.Text_IO;");
    Put_Line (Main, "with Ada.Exceptions; use Ada.Exceptions;");
+   Put_Line (Main, "with Print_Tasks;");
 
    for J in 1 .. Argument_Count loop
       Test (Argument (J));
