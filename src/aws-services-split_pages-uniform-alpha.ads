@@ -33,8 +33,8 @@
 
 package AWS.Services.Split_Pages.Uniform.Alpha is
 
-   --  Same as the uniform splitter, but builds in addition an
-   --  alphabetical secondary index from a key field.
+   --  Same as the uniform splitter, but builds in addition an alphabetical
+   --  secondary index from a key field.
    --  For the references from the index to work, each line of the @@TABLE@@
    --  statement must include the following:
    --    <a name="@_TABLE_LINE_@>
