@@ -1,5 +1,10 @@
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
+	* makefile:
+	Removes last -lpoll occurence. Not needed now as the -lpoll is
+	 automatically added with a pragma Linker_Options in
+	 AWS.Os_Lib.Definitions.
+
 	* demos.gpr:
 	Do not use "null;" as it is not support on GNAT 5.02.
 	
