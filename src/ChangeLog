@@ -1,6 +1,14 @@
 2003-02-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:
+	(Disconnect): Do not use Net.Buffered.Shutdown, becouse the socket
+	 would be already closed by the oppsite side of connection, and we really
+	 do not need the flush before shutdown.
+	(Connect): Free previous socket before connect.
+
+2003-02-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.adb:
 	(Open_Send_Common_Header): Replace remaining Connection.Socket.all
 	 to the Sock.
 
