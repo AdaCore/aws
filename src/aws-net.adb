@@ -89,6 +89,17 @@ package body AWS.Net is
       Socket.C := new RW_Cache;
    end Set_Cache;
 
+   -----------------
+   -- Set_Timeout --
+   -----------------
+
+   procedure Set_Timeout
+     (Socket   : in out Socket_Type;
+      Timeout  : in     Duration) is
+   begin
+      Socket.Timeout := Timeout;
+   end Set_Timeout;
+
    ------------
    -- Socket --
    ------------

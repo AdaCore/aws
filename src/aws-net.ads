@@ -50,6 +50,10 @@ package AWS.Net is
 
    type Socket_Set is array (Positive range <>) of Socket_Access;
 
+   Forever : constant Duration;
+   --  Very very long timeout. So long that nobody would wait it.
+   --  More than 24 days.
+
    ----------------
    -- Initialize --
    ----------------
@@ -155,6 +159,12 @@ package AWS.Net is
       is abstract;
    --  Set the blocking mode for the socket.
 
+   procedure Set_Timeout
+     (Socket   : in out Socket_Type;
+      Timeout  : in     Duration);
+   pragma Inline (Set_Timeout);
+   --  Sets the timeout for following socket read/write operations.
+
 private
    --  This object is to cache data writed to the stream. It is more efficient
    --  than to write byte by byte on the stream.
@@ -169,6 +179,8 @@ private
    --  This is the read cache size, all data read on the socket are first put
    --  into a read cache, this makes reading char-by-char the socket more
    --  efficient. Before reading data, the write cache  is flushed.
+
+   Forever : constant Duration := Duration (Integer'Last / 1000);
 
    type Cache (Max_Size : Stream_Element_Count) is record
       Buffer : Stream_Element_Array (1 .. Max_Size);
@@ -185,7 +197,8 @@ private
    type RW_Cache_Access is access RW_Cache;
 
    type Socket_Type is abstract tagged record
-      C : RW_Cache_Access;
+      C       : RW_Cache_Access;
+      Timeout : Duration := Forever;
    end record;
 
    procedure Set_Cache (Socket : in out Socket_Type'Class);
