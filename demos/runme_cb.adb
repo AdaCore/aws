@@ -36,6 +36,16 @@ package body Runme_CB is
 
    use AWS;
 
+   function Get (Request : in Status.Data) return Response.Data;
+   --  Handle the Get requests.
+
+   function Get_No_Session
+     (Request : in Status.Data) return Response.Data;
+   --  Handle the Get requests with no session.
+
+   function Put (Request : in Status.Data) return Response.Data;
+   --  Handle the Put requests.
+
    ---------
    -- Get --
    ---------

@@ -63,6 +63,15 @@ procedure Com_1 is
 
    Last_Message_Received : Boolean := False;
 
+   function Receive
+     (Server     : in String;
+      Message    : in String;
+      State      : in String_Access;
+      Parameters : in Communication.Parameter_Set
+        := Communication.Null_Parameter_Set)
+     return Response.Data;
+   --  Communication callback.
+
    -------------
    -- Receive --
    -------------
