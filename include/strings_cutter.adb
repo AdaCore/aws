@@ -1,117 +1,32 @@
+------------------------------------------------------------------------------
+--                             Strings  Cutter                              --
+--                                                                          --
+--                        Copyright (C) 1995 - 2004                         --
+--                               Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
 
---  --------------------------------------------------------------------  --
---
---                Copyright (C) 1998 Pascal Obry
---
---  Author  : Pascal Obry
---  E-Mail  : 101465.2502@compuserve.com
---
---  --------------------------------------------------------------------  --
---
 --  $Id$
---
---  --------------------------------------------------------------------  --
---
---       Module Name : Strings_Cutter
---         File name : strings_cutter.adb
---      Update Count : 1
---
---       Created by  : Pascal Obry
---               on  : Wed Dec 30 20:32:48 1998
---
---  Last modified by : $Author$
---                     $Date$
---                     $Revision$
---
---         Locked by : $Locker$
---
---  ===================================== I D E N T I F I C A T I O N ==  --
---
---  Description
---
---  Mots-cles
---
---  Caracterisation
---     Unite    : Paquetage, Procedure, Fonction Generique
---     Genre    : Machine abstraite, Type de donnee abstrait
---     Liaisons : Independant, Surcouche, Encapsulation
---
---  Disponibilite
---     Systemes de compilation
---        compilateur, systeme, OS
---     Access
---        Sources, Binaire, Bibliotheque
---
---  Historique
---
---  ===================================== S P E C I F I C A T I O N S ==  --
---
---  Elements generiques et ajustement de comportement
---     Description des elements apparaissant en parametres generiques.
---     Condition de bon fonctionnement.
---     (Unite non generique)
---
---  Elements principaux
---     Specification abstraite du role de chacun des elements.
---     Invariants.
---     Verification effectuees.
---     Exception susceptibles d'etre levees.
---
---     Classement en : constructors, modifiers, accessors, iterators
---
---  Elements annexes
---
---  =================================== I M P L E M E N T A T I O N S ==  --
---
---  Elaboration
---     pragma Elaborate_All (ou Elaborate) necessaires au bon fonctionnement
---     du composant. Toutes dependances a Finalisation.
---     (neant - pas de pragma d'elaboration necessaire)
---
---  Algorithme
---     Precision sur l'algorithme utilise, s'il est important pour
---     l'utilisateur.
---     (neant)
---
---  Elements sensibles utilises
---     Points flottants (co-processeur), taches, allocation dynamique.
---     (neant)
---
---  Performances
---     (neant)
---
---  Autres informations
---     (neant)
---
---  ====================================================================  --
---
-
-
---  -----------------------------------------------------------------------  --
---
---  Author  : Pascal Obry
---  E-Mail  : pascal_obry@csi.com
---
---  -----------------------------------------------------------------------  --
---
---  $Id$
---
---  -----------------------------------------------------------------------  --
---
---       Module Name : Strings_Cutter
---         File name : strings_cutter.ads
---
---       Created by  : Pascal Obry
---               on  : Tue Oct  3 16:51:51 1995
---
---  Last modified by :
---                     $Date$
---                     $Revision$
---
---         Locked by : $Locker$
---
---  =======================================================================  --
---
 
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
@@ -135,8 +50,8 @@ package body Strings_Cutter is
    -- Free --
    ----------
 
-   procedure Free is new Ada.Unchecked_Deallocation (Cut_String_Record,
-                                                     Cut_String);
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Cut_String_Record, Cut_String);
 
    ----------------
    -- String_Cut --
@@ -153,14 +68,17 @@ package body Strings_Cutter is
 
       if Value'Length = 0 then
          S.Field_Count := 0;
+
       else
          Separators_Set := Maps.To_Set (To_String (S.Separators));
+
          loop
             I := Fixed.Index (Value (I + 1 .. Value'Last), Separators_Set);
             exit when I = 0;
             S.Index (K) := I - 1;
             K := K + 1;
          end loop;
+
          S.Index (K) := Value'Last;
          S.Field_Count := K;
       end if;
@@ -170,11 +88,11 @@ package body Strings_Cutter is
    -- Create --
    ------------
 
-   procedure Create (S          :    out Cut_String;
-                     From       : in     String;
-                     Separators : in     String)
-   is
-   begin -- Create
+   procedure Create
+     (S          :    out Cut_String;
+      From       : in     String;
+      Separators : in     String) is
+   begin
 
       S := new Cut_String_Record;
 
@@ -188,8 +106,9 @@ package body Strings_Cutter is
    -- Set --
    ---------
 
-   procedure Set (S          : in out Cut_String;
-                  Separators : in     String) is
+   procedure Set
+     (S          : in out Cut_String;
+      Separators : in     String) is
    begin
       S.Separators := To_Unbounded_String (Separators);
       String_Cut (S);
@@ -199,9 +118,8 @@ package body Strings_Cutter is
    -- Destroy --
    -------------
 
-   procedure Destroy (S : in out Cut_String)
-   is
-   begin -- Destroy
+   procedure Destroy (S : in out Cut_String) is
+   begin
       if S /= null then
          Free (S);
       end if;
@@ -211,8 +129,7 @@ package body Strings_Cutter is
    -- Field_Count --
    -----------------
 
-   function Field_Count (S : in Cut_String)
-      return  Index_Values is
+   function Field_Count (S : in Cut_String) return Index_Values is
    begin
       return S.Field_Count;
    end Field_Count;
@@ -221,11 +138,11 @@ package body Strings_Cutter is
    -- Field --
    -----------
 
-   function Field (S     : in Cut_String;
-                   Index : in Index_Values)
-      return String
-   is
-   begin -- Field
+   function Field
+     (S     : in Cut_String;
+      Index : in Index_Values)
+      return String is
+   begin
       case Index is
          when 0 =>
             return To_String (S.Value);
