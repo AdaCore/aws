@@ -72,7 +72,7 @@ main (void)
 
 #ifdef _WIN32
   // libpoll.a need for poll call emulation.
-  printf ("   pragma Linker_Options (\"-laws-win32\");\n");
+  printf ("   pragma Linker_Options (\"-laws_win32\");\n");
   // libws2_32.a need for getaddrinfo freeaddrinfo routines in Windows XP/2003.
   printf ("   pragma Linker_Options (\"-lws2_32\");\n\n");
 #endif
