@@ -71,8 +71,7 @@ package body SSL is
 
    procedure Accept_Socket
      (Socket     : in     Sockets.Socket_FD;
-      New_Socket :    out Handle)
-   is
+      New_Socket :    out Handle) is
    begin
       loop
          Sockets.Accept_Socket (Socket, Sockets.Socket_FD (New_Socket));
