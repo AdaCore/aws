@@ -319,26 +319,7 @@ private
    No_Timeout : constant Timeouts_Values := (0, 0);
    No_Data    : constant String := "";
 
-   type Client_Phase is (Not_Monitored, Send, Receive, Stopped);
-
    type HTTP_Connection_Access is access all HTTP_Connection;
-
-   --  ??? Cleaner_Task is used to monitor the timeouts during the Send and
-   --  Receive phase. This is the current implementation and should be fixed
-   --  at some point. Right now there is no cross-platforms implementation of
-   --  a Socket timeout.
-
-   task type Cleaner_Task is
-
-      entry Start (Connection : in HTTP_Connection_Access);
-      --  Task initialization, pass the HTTP_Connection to monitor.
-
-      entry Next_Phase;
-      --  Change the client phase.
-
-   end Cleaner_Task;
-
-   type Cleaner_Access is access Cleaner_Task;
 
    type Authentication_Level is (WWW, Proxy);
 
@@ -377,9 +358,8 @@ private
       Cookie        : Unbounded_String;
       Socket        : AWS.Net.Socket_Access;
       Retry         : Natural;
-      Current_Phase : Client_Phase;
-      Timeouts      : Timeouts_Values;
-      Cleaner       : Cleaner_Access;
+      Read_Timeout  : Duration;
+      Write_Timeout : Duration;
       Certificate   : Unbounded_String;
       User_Agent    : Unbounded_String;
       SSL_Config    : AWS.Net.SSL.Config;
