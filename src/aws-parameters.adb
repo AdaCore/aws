@@ -176,7 +176,7 @@ package body AWS.Parameters is
          Order    : in     Positive;
          Continue : in out Boolean) is
       begin
-         Result (Order) := Value;
+         Result (Order) := To_Unbounded_String (Key);
       end Process;
 
       --------------------
