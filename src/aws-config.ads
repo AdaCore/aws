@@ -79,6 +79,11 @@ package AWS.Config is
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
+   function Accept_Queue_Size (O : in Object) return Positive;
+   --  This is the size of the queue for the incoming requests. Higher this
+   --  value will be and less "connection refused" will be reported to the
+   --  client.
+
    function Log_File_Directory (O : in Object) return String;
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
@@ -175,6 +180,7 @@ private
       Security,
       Hotplug_Port,
       Max_Connection,
+      Accept_Queue_Size,
       Log_File_Directory,
       Upload_Directory,
       Session,
@@ -207,6 +213,7 @@ private
       Security,
       Hotplug_Port,
       Max_Connection,
+      Accept_Queue_Size,
       Log_File_Directory,
       Log_Filename_Prefix,
       Log_Split_Mode,
@@ -327,6 +334,9 @@ private
 
          Max_Connection =>
            (Pos, Default.Max_Connection),
+
+         Accept_Queue_Size =>
+           (Pos, Default.Accept_Queue_Size),
 
          Server_Port =>
            (Pos, Default.Server_Port),
