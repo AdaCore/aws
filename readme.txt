@@ -266,12 +266,15 @@ Socket binding (Optional) :
 
    http://www.rfc1149.net/devel/adasockets
 
-XMLada (optional):
+XML/Ada (optional):
 
    You need this library only if you want to use AWS SOAP feature. You need
-   at least XMLada 1.0.
+   at least XML/Ada 1.1.
 
    http://libre.act-europe.fr/
+
+   Note that it should be possible to use XML/Ada 1.0 but in this case you'll
+   have to create the set of project files yourself.
 
 POSIX Binding (optional) :
 

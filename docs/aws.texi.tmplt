@@ -347,9 +347,13 @@ important to run @code{make setup} each time you edit this file.
 @noindent
 When you have built and configured all external libraries you must set the
 @var{ADA_PROJECT_PATH} variable to point to the GNAT Project files for
-the different packages. At this point only @code{XML/Ada} is based on
+the different packages. At this point only @code{XML/Ada} 1.1 is based on
 GNAT Project files. For @code{XML/Ada} support, you also need to set
-@var{XMLADA} in @file{makefile.conf}.
+@var{XMLADA} to true in @file{makefile.conf}.
+
+@noindent
+Note that it should be possible to use @code{XML/Ada} 1.0 but in this
+case you'll have to create the set of project files yourself.
 
 @noindent
 The last step is to to add directory @file{<prefix>/AWS/.build/projects} at
