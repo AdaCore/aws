@@ -111,11 +111,6 @@ package AWS.Net.Std is
    --  Set the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
-   procedure Set_Blocking_Mode
-     (Socket   : in Socket_Type;
-      Blocking : in Boolean);
-   --  Set the blocking mode for the socket.
-
    function Get_Send_Buffer_Size (Socket : in Socket_Type) return Natural;
    --  Returns the internal socket send buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
