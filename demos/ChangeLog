@@ -2,6 +2,7 @@
 
 	* agent.adb:
 	Use message stream to support large responses.
+	Fix copyright years.
 
 2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
