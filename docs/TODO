@@ -29,8 +29,6 @@ implemented:
 
 - better implementation for stream reading on file upload.
 
-- implement server push
-
 - change server parameters via the admin page (like the maximum number of
   connections, server name, active session, upload path...).
 
@@ -50,3 +48,10 @@ implemented:
 - Will be nice to have AWS.Client.Get follow the redirection if requested.
 
 - We need to add the directory browser template into the config file.
+
+- Replace OpenSSL by GNUTLS library when this library will become stable.
+
+- Would be nice to handle the logging of errors.
+
+- Would be nice to detect if users try to use the session feature when there
+  is no session active in the server.
