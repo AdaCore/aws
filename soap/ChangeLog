@@ -1,3 +1,12 @@
+2002-03-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.adb:
+	Minor comment fix.
+	
+	* soap-types.adb:
+	(Array_Type): Fix implementation. Handle properly Array with a
+	 single record.
+
 2002-03-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-types.adb:
