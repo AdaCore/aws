@@ -31,6 +31,7 @@
 --  $Id$
 
 with SOAP.Types;
+with SOAP.Utils;
 
 package body SOAP.Message.Response.Error is
 
@@ -50,10 +51,6 @@ package body SOAP.Message.Response.Error is
    function Fault_Code (Name, Subname : in String) return Faultcode;
    --  Returns the Faultcode for Name and Subname. If Subname is empty it
    --  returns Name otherwise it returns Name & '.' & Subname.
-
-   function Tag (Name : in String; Start : in Boolean) return String;
-   --  Returns XML tag named Name. If Start is True then an XML start element
-   --  is returned otherwise an XML end element is returned.
 
    -----------
    -- Build --
@@ -77,8 +74,8 @@ package body SOAP.Message.Response.Error is
       --  Set Faultcode and Faultstring
 
       P := P
-        & S ("faultcode", String (Faultcode))
-        & S ("faultstring", Faultstring);
+        & S (String (Faultcode), "faultcode")
+        & S (Faultstring, "faultstring");
 
       --  Set parameters for this error object
 
@@ -147,19 +144,6 @@ package body SOAP.Message.Response.Error is
       return Fault_Code (Server_Faultcode, Subname);
    end Server;
 
-   ---------
-   -- Tag --
-   ---------
-
-   function Tag (Name : in String; Start : in Boolean) return String is
-   begin
-      if Start then
-         return '<' & Name & '>';
-      else
-         return "</" & Name & '>';
-      end if;
-   end Tag;
-
    ----------------------
    -- Version_Mismatch --
    ----------------------
@@ -196,9 +180,9 @@ package body SOAP.Message.Response.Error is
                Append
                  (Message_Body,
                   "   "
-                  & Tag (P_Name, Start => True)
+                  & Utils.Tag (P_Name, Start => True)
                   & Types.Image (P_K)
-                  & Tag (P_Name, Start => False)
+                  & Utils.Tag (P_Name, Start => False)
                   & NL);
             end;
          end loop;
