@@ -31,7 +31,6 @@
 --  $Id$
 
 with Ada.Streams.Stream_IO;
-with Ada.Integer_Text_IO;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
@@ -73,6 +72,8 @@ is
 
    C_Stat         : AWS.Status.Data;     -- Connection status
    P_List         : AWS.Parameters.List; -- Form data
+
+   Socket_Taken : Boolean := False;
 
    Will_Close     : Boolean;
    --  Will_Close is set to true when the connection will be closed by the
@@ -462,13 +463,21 @@ is
             HTTP_Server.Slots.Mark_Phase (Index, Server_Processing);
 
             --  Check the hotplug filters
+
             Hotplug.Apply (HTTP_Server.Filters, C_Stat, Found, Answer);
 
             --  If no one applied, run the default callback
+
             if not Found then
                AWS.Status.Set.Peername
                  (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
-               Answer := HTTP_Server.CB (C_Stat);
+
+               declare
+                  Socket : aliased Sockets.Socket_FD'Class := Sock;
+               begin
+                  AWS.Status.Set.Socket (C_Stat, Socket'Unchecked_Access);
+                  Answer := HTTP_Server.CB (C_Stat);
+               end;
             end if;
 
             HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
@@ -480,18 +489,22 @@ is
       AWS.Log.Write (HTTP_Server.Log,
                      C_Stat, Status, HTTP_Server.Slots.Get_Peername (Index));
 
-      if Response.Mode (Answer) = Response.Message then
-         Send_Message;
+      case Response.Mode (Answer) is
 
-      elsif Response.Mode (Answer) = Response.File then
-         Send_File;
+         when Response.Message =>
+            Send_Message;
 
-      elsif Response.Mode (Answer) = Response.Header then
-         Send_Header_Only;
+         when Response.File =>
+            Send_File;
 
-      else
-         raise Constraint_Error;
-      end if;
+         when Response.Header =>
+            Send_Header_Only;
+
+         when Response.Socket_Taken =>
+            HTTP_Server.Slots.Socket_Taken (Index);
+            Socket_Taken := True;
+
+      end case;
    end Answer_To_Client;
 
    ----------------------
@@ -1213,19 +1226,7 @@ is
 
       procedure Send_File_Chunked is
 
-         function Hex (V : in Natural) return String;
-         --  Returns the hexadecimal string representation of the decimal
-         --  number V.
-
          Buffer : Streams.Stream_Element_Array (1 .. 1_024);
-
-         function Hex (V : in Natural) return String is
-            Hex_V : String (1 .. 8);
-         begin
-            Integer_Text_IO.Put (Hex_V, V, 16);
-            return Hex_V (Fixed.Index (Hex_V, "#") + 1 ..
-                          Fixed.Index (Hex_V, "#", Strings.Backward) - 1);
-         end Hex;
 
       begin
          --  Terminate header
@@ -1238,7 +1239,7 @@ is
 
             exit when Integer (Last) = 0;
 
-            Sockets.Put_Line (Sock, Hex (Natural (Last)));
+            Sockets.Put_Line (Sock, Utils.Hex (Natural (Last)));
 
             Sockets.Send (Sock, Buffer (1 .. Last));
             Sockets.New_Line (Sock);
@@ -1345,10 +1346,16 @@ begin
       --  Exit if connection has not the Keep-Alive status or we are working
       --  on HTTP/1.0 protocol or we have a single slot.
 
-      exit For_Every_Request when Will_Close;
+      exit For_Every_Request when Will_Close or else Socket_Taken;
 
       HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
 
    end loop For_Every_Request;
 
+   Parameters.Set.Free (P_List);
+
+exception
+   when others =>
+      Parameters.Set.Free (P_List);
+      raise;
 end Protocol_Handler;
