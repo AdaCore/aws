@@ -24,6 +24,8 @@ b~head.adb
 b~head.ads
 b~hostip.adb
 b~hostip.ads
+b~huge_response.adb
+b~huge_response.ads
 b~hval.adb
 b~hval.ads
 b~interoplab_main.adb
@@ -158,6 +160,7 @@ hello_demo-types.ads
 hello_demo.ads
 hostip.res
 hostip.tmp
+huge_response.res
 hval.res
 hval.tmp
 interoplab-client.adb

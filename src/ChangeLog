@@ -1,3 +1,12 @@
+2003-09-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response-set.adb:
+	(Message_Body): New implementation for the version of this routine
+	 taking an Unbounded_String as argument. Use lot less stack space
+	 (only a fixed size buffer) to avoid stack overflow.
+	(Message_Body): The version taking a String as agument call
+	 directly the version above.
+
 2003-09-01  Jerome Roussel <roussel@act-europe.fr>
 
 	* aws-response.ads:
