@@ -25,8 +25,3 @@ GNAT.Calendar
 
 GNAT.Calendar.Time_IO
 	Unmodified.
-
-GNAT.Dynamic_Tables
-	Sort_Table routine removed.
-	Big_Table_Type type removed.
-	Table_Ptr is now an access of Table_Type.
