@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -145,7 +145,6 @@ package body Ada2WSDL.Parser is
       Current_List    : Link;
       --  Declaration list in which a currently processed spec
       --  should be inserted;
-
 
       Last_Top        : Link;
       --  An element which represents a declaration from which the currently
@@ -953,13 +952,26 @@ package body Ada2WSDL.Parser is
                --  If this array definition is the standard Ada String,
                --  returns it, no need to analyse this further.
 
-               if Characters.Handling.To_Lower
-                 (Image (Text.Element_Image (Elem))) = "string"
-               then
-                  return "string";
-               else
-                  return Register_Deferred (CFS);
-               end if;
+               declare
+                  T_Name : constant String
+                    := Characters.Handling.To_Lower
+                        (Image (Text.Element_Image (Elem)));
+               begin
+                  --  Check for specific array name like String and Base64
+
+                  if  T_Name = "string" then
+                     return "string";
+
+                  elsif T_Name = "soap_base64"
+                    or else T_Name = "utils.soap_base64"
+                    or else T_Name = "soap.utils.soap_base64"
+                  then
+                     --  This is the SOAP Base64 runtime type support
+                     return "SOAP_Base64";
+                  else
+                     return Register_Deferred (CFS);
+                  end if;
+               end;
 
             when others =>
                E := Declarations.Names (CFS) (1);
