@@ -792,8 +792,7 @@ package body SOAP.Generator is
             Text_IO.Put (Type_Ads, F_Name & "_Index, " & F_Name);
          end if;
 
-         Text_IO.Put_Line
-           (Type_Ads, ", " & Format_Name (O, Get_Routine (P)) & ");");
+         Text_IO.Put_Line (Type_Ads, ", " & Get_Routine (P) & ");");
 
          Text_IO.New_Line (Type_Ads);
 
@@ -966,11 +965,11 @@ package body SOAP.Generator is
          Text_IO.New_Line (Type_Ads);
          Header_Box (O, Type_Ads, "Record " & F_Name);
 
-         --  Is types are to be reused from an Ada  spec ?
+         --  Is types are to be reused from an Ada spec ?
 
          if O.Types_Spec = Null_Unbounded_String then
 
-            --  Compute max filed width
+            --  Compute max field width
 
             N := R;
 
