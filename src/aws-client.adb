@@ -249,6 +249,12 @@ package body AWS.Client is
       Connection.SOAPAction      := Set (SOAPAction);
       Connection.Persistent      := Persistent;
       Connection.Current_Phase   := Not_Monitored;
+
+      if Connection.With_Timeouts then
+         Connection.Timeouts     := Timeouts;
+      else
+         Connection.Timeouts     := No_Timeout;
+      end if;
    end Create;
 
    ----------------
