@@ -1,3 +1,18 @@
+2001-10-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-push.adb:
+	(Register): new version that does not raise exception but return a
+	 boolean if duplicate item found.
+	(Object): put routines in alphabetical order.
+	(Object.Unregister): catch exception since it should not be propagated.
+
+	* aws-server-push.ads:
+	(Duplicate_Client_ID): new exception.
+	(Register): new version that does not raise exception but return a
+	 boolean if duplicate item found.
+	(Object): add comments for protected routines and put them in
+	 alphabetical order.
+
 2001-10-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-stream_io.adb:
