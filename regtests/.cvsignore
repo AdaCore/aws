@@ -40,6 +40,8 @@ b~file.adb
 b~file.ads
 b~file2.adb
 b~file2.ads
+b~generate.adb
+b~generate.ads
 b~get_post.adb
 b~get_post.ads
 b~googlesearch.adb
@@ -106,6 +108,8 @@ b~tclientto.adb
 b~tclientto.ads
 b~tcom.adb
 b~tcom.ads
+b~test_all.adb
+b~test_all.ads
 b~test_sec_soap.adb
 b~test_sec_soap.ads
 b~test_soap.adb
