@@ -251,6 +251,15 @@ package body AWS.Net.Std is
 
    procedure Shutdown (Socket : in Socket_Type) is
    begin
+      begin
+         --  We catch all exceptions here as we do not want this call to
+         --  fail. A shutdown will fail on non connected sockets.
+         Sockets.Shutdown_Socket (SFD (Socket.S.all));
+      exception
+         when others =>
+            null;
+      end;
+
       Sockets.Close_Socket (SFD (Socket.S.all));
    exception
       when E : others =>
