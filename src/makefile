@@ -10,7 +10,9 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-parameters.adb aws-response.adb aws-server-config.adb \
 	aws-server-get_status.adb aws-server.adb aws-session.adb \
 	aws-status.adb aws-translater.adb aws-url.adb aws-utils.adb \
-	aws-key_value.adb aws-log.adb
+	aws-key_value.adb aws-log.adb aws-hotplug.adb aws-communication.adb \
+	aws-communication-server.adb aws-communication-client.adb \
+	aws-server-hotplug.adb
 
 all:
 	echo "Targets:"
