@@ -1,3 +1,128 @@
+2002-12-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(ssl_mode): Removed.
+	(std_mode): Removed.
+	(build): Do not check for aws-net.adb presence.
+
+	* aws-default.ads:
+	(Certificate): New constant.
+	Update copyright notice.	
+
+	* aws-jabber.adb:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+	(Send_Message): Server mode set to in.
+	(Check_Presence): Server mode set to in.
+	(Start): Create the stream task.
+	(Close): Stop and release the stream task.
+	(Incoming_Stream): Remove the select statement.
+
+	* aws-jabber.ads:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+	(Send_Message): Server mode set to in.
+	(Check_Presence): Server mode set to in.
+	(Server): New field Self. Stream is now an access to the task
+	 type.
+	
+	* aws-utils.ads, aws-utils.adb:
+	(Gethostname): Removed. See AWS.Net.Host_Name.
+
+	* aws-status.adb:
+	(Socket): Change code to use AWS.Net instead of the AdaSocket binding.
+
+	* aws-status.ads:
+	(Socket): Change code to use AWS.Net instead of the AdaSocket binding.
+	(Socket_Type): Removed.
+	(Socket_Access): Removed.
+	Update copyright notice.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	(Socket): Sock parameter based on AWS.Net.
+	Update copyright notice.
+	
+	* aws-smtp-client.adb:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+
+	* aws-smtp.ads:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+
+	* aws-server.adb:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+	Fix order of the with clauses.
+	(Start): Initialize the SSL layer if needed.
+
+	* aws-server.ads:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+	Fix order of the with clauses.
+
+	* aws-server-push.ads, aws-server-push.adb:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+	Update copyright notice.
+
+	* aws-server-protocol_handler.adb:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+	Note that all IO are now buffered, this should increase AWS
+	 performances.
+
+	* aws-server-get_status.adb:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+
+	* aws-headers.ads, aws-headers.adb:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+	
+	* aws-client.adb:
+	Change code to use AWS.Net instead of the AdaSocket binding.
+
+	* aws-client.ads:
+	Use AWS.Net instead of Sockets (AdaSocket binding).
+	(Socket_Access): Removed.
+
+	* aws-communication-client.adb:
+	(Send_Message): Use Net.Host_Name instead of Utils.Gethostname.
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-config-set.ads, aws-config-set.adb:
+	(Certificate): New procedure.
+	Update copyright notice.
+
+	* aws-config.adb:
+	(Certificate): New function.
+	Update copyright notice.
+
+	* aws-config.ads:
+	(Certificate): New function.
+	(Parameter_Name): Add Certificate.
+	(Process_Options): Handle Certificate.
+	Update copyright notice.
+
+	* aws-net-buffered.ads, aws-net-buffered.adb:
+	Initial revision.
+
+	* aws-net-std.adb:
+	Complete rewrite. Part of the code is from SSL package.
+	Update copyright notice.
+
+	* aws-net-ssl.adb:
+	Complete rewrite. Part of the code is from SSL package.
+	Update copyright notice.
+
+	* aws-net-ssl.ads:
+	Initial revision.
+
+	* aws-net-std.ads:
+	Initial revision.
+
+	* aws-net-stream_io.ads, aws-net-stream_io.adb:
+	Complete rewrite to use only AWS.Net.Buffered services. Cache
+	 handling has been moved into AWS.Net.Buffered.
+	Update copyright notice.
+
+	* aws-net.ads, aws-net.adb:
+	Complete rewrite. Socket_Type is an abstract type. Concrete
+	 implementations are found in child package.
+	Update copyright notice.
+
 2002-12-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers.ads:
