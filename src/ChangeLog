@@ -1,5 +1,16 @@
 2002-12-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-containers-tables.ads, aws-containers-tables.adb
+	  aws-containers-tables-set.adb:
+	(Name_Value_Type): New type for receive data from container.
+	 Used internally too for keep data in the container.
+	(Get_Name_Value): New routine.
+
+	* aws-headers.ads, aws-headers.adb:
+	(Send_Header): New routine.
+
+2002-12-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-status-set.ads, aws-status-set.adb:
 	(Free): New routine.
 
