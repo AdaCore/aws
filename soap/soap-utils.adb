@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -72,7 +72,7 @@ package body SOAP.Utils is
             when '"'    => Append (Result, "&quot;");
             when Character'Val (0) .. Character'Val (31) =>
                Append (Result, "&#");
-               Append (Result, AWS.Utils.Dec (Character'Pos (Str (K))));
+               Append (Result, AWS.Utils.Image (Character'Pos (Str (K))));
                Append (Result, ';');
             when others => Append (Result, Str (K));
          end case;
