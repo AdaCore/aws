@@ -38,8 +38,8 @@ package AWS.Digest is
 
    subtype Digest_String is MD5.Message_Digest;
 
-   subtype Nonce is String (1 .. 41);
-   --  5 bytes hex seconds, 4 bytes hex global counter, 32 bytes digest
+   subtype Nonce is String (1 .. 45);
+   --  5 bytes hex seconds, 8 bytes hex global counter, 32 bytes digest
    --  of the creation date, seconds and global index.
 
    function Create_Nonce return Nonce;
