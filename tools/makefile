@@ -30,7 +30,8 @@ setup: $(GEN)
 
 build:
 	$(GNATMAKE) -Ptools -XBuild=${PRJ_BUILD} \
-		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS}
+		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS} -largs -laws
+# ??? "-largs -laws" for workaround GCC 3.4.2 project link sequence bug.
 
 clean:
 	$(RM) -fr ../$(BDIR)/tools

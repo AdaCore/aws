@@ -1,3 +1,8 @@
+2004-10-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Workaround GCC 3.4.2 project link sequence bug.
+
 2004-10-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
@@ -16,7 +21,7 @@
 
 	* tools.gpr:
 	Do not use "null;" as it is not support on GNAT 5.02.
-	
+
 2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
