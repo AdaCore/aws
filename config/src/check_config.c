@@ -9,6 +9,8 @@
 
 #ifdef _WIN32
 #define WIN2000SUPPORT
+/* We define WIN2000SUPPORT to ensure that executables built with this version
+   will run ok on both Win2000 and WinXP.  */
 #include <ws2tcpip.h>
 #else
 #include <sys/poll.h>
