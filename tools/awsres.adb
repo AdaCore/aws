@@ -123,7 +123,7 @@ procedure AwsRes is
          Text_IO.Put ("creating " & Filename);
       end if;
 
-      File_Time := AWS.OS_Lib.File_Timestamp (Filename);
+      File_Time := AWS.OS_Lib.File_Time_Stamp (Filename);
 
       Text_IO.Create (O_File, Text_IO.Out_File, Pck_Name);
 
