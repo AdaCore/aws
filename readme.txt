@@ -1,15 +1,15 @@
 
 			    A W S - Ada Web Server
-			    1.2 release / SOAP 0.9
+			    1.3 release / SOAP 0.9
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               April 29th, 2002,
+   Pascal Obry                                               June 14rd, 2002,
 
 
 
 Dmitriy Anisimkov and I are very happy to announce the availability of the 
-AWS 1.2 release. The API could change slightly at this stage but should be
+AWS 1.3 release. The API could change slightly at this stage but should be
 fairly stable now.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
@@ -29,65 +29,13 @@ The SOAP implementation has been validated on http://validator.soapware.org/.
 
 Here are the main changes:
 
-   - You need GNAT 3.14 to build AWS 1.2 (GNAT 3.13 is not supported anymore).
+   - Fix bug in Client module in reading chunck size returned by some 
+     Web servers.
 
-   - Add a main procedure termination controller (AWS.Server.Wait)
+   - Fix bug in Client module when reading large binary data.
 
-   - Fix some memory leak in AWS.Response.Data and AWS.Server.Protocol_Handler
-     for binary data.
-
-   - In AWS.URL, function URI was not correctly named. It has been renamed
-     Pathname. This is a backward compatibility problem. Path and File
-     function has been added into AWS.URL.
-
-   - Fix bug to close a connection when server is heavy loaded.
-
-   - Add AWS.Services.Page_Server service. This service is a straight forward
-     implementation of a simple static web page server. See WPS demo. It
-     supports two template files: 404.thtml and aws_directory.thtml.
-
-   - Fix race condition in AWS.Server implementation. This was a very nasty
-     bug, sockets could be handled in two different slots. If you are
-     experiencing bug with heavy loaded servers you should plan to upgrade as
-     soon as possible.
-
-   - Add dispatchers facilities which is more general than the callback
-     procedure (access to procedure) for example it can transport user's
-     data. This is the base of a general framework for high level services.
-
-   - Add three high level Dispatcher facilities (AWS.Services.Dispatchers):
-     1) on URI
-     2) on request method
-     3) on Host name (also called virtual hosting)
-
-   - Add AWS.Templates (renaming of Templates_Parser) as this component is a
-     very important one for Web development.
-
-   - AWS can now have servers binded to different IP addresses if the 
-     computer has more than on IP addresses. See AWS.Config.Server_Host.
-
-   - New version of libssl32.dll and libeay32.dll based on OpenSSL 0.9.6c.
-
-   - Client handle properly the HTTP continue response message.
-
-   - Templates_Parser now integrated into AWS.Templates package. This version
-     has a cache fully is thread safe.
-
-   - Session cookie was set for first path (and sub path) used, it means that
-     it was possible to have multiple session for a Web site. This behavior
-     was the result of a bug. Now a single session is created for the whole
-     site (starting at /).
-
-   - Fix timeouts for client keep-alive connection.
-
-   - SOAP handle properly zero length array.
-
-   - SOAP handle properly Array of Record.
-
-   - Boolean types are now directly handled on sessions.
-
-   - Now always install AWS under directory AWS, INSTALL make variable must
-     point to the AWS parent directory.
+   - Fix bug in Client module when reading empty file (file whose size
+     Content-Length is 0).
 
    - Plus many small fixes, enhancements and documentation work.
 
@@ -139,7 +87,7 @@ Templates_Parser sources:
    design and code.
 
 GNU/Ada - GNAT
-   You need at least version 3.14 to use AWS 1.2.
+   You need at least version 3.14 to use AWS 1.3.
 
    ftp://cs.nyu.edu/pub/gnat/
 
