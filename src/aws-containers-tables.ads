@@ -93,7 +93,7 @@ private
       Case_Sensitive : Boolean := True;
       Data           : Key_Value.Set_Access;
       --  Main data tree.
-      HTTP_Data      : Key_Value.Set_Access;
+      Ordered_Data   : Key_Value.Set_Access;
       --  Tree to record key and value by order.
    end record;
 
@@ -111,7 +111,7 @@ private
 
    function Normalize_Name
      (Name : in String; To_Upper : in Boolean)
-     return String;
+      return String;
    --  Returns Name in upper case if To_Upper is set to True and it returns
    --  Name unchanged otherwise.
 
