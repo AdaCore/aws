@@ -60,13 +60,16 @@ package body AWS.Headers is
 
    procedure Send_Header
      (Headers : in List;
-      Socket : Sockets.Socket_FD'Class)
+      Socket  : in Sockets.Socket_FD'Class)
    is
       use Ada.Streams;
 
       Buffer : Stream_Element_Array (1 .. 1024);
-      --  The buffer is for more data portion sending at once.
-      --  The SSL implementation working better with bigger data portions.
+      pragma Warnings (Off, Buffer);
+      --  The buffer is to send bigger data chunk at once.
+      --  The SSL implementation is working better with bigger chunk.
+      --  ??? This buffering should not be done there but in the socket
+      --  implementation.
 
       CRLF   : Stream_Element_Array :=
          (1 => Character'Pos (ASCII.CR),
@@ -79,12 +82,9 @@ package body AWS.Headers is
    begin
       for J in 1 .. Count (Headers) loop
          declare
-            Line :  Stream_Element_Array :=
-               AWS.Translator.To_Stream_Element_Array
-                  (Get_Line (Headers, J)) & CRLF;
-
-            pragma Warnings (Off, Buffer);
-
+            Line : constant Stream_Element_Array
+              := AWS.Translator.To_Stream_Element_Array
+              (Get_Line (Headers, J)) & CRLF;
          begin
             Last := First + Line'Length - 1;
 
