@@ -61,8 +61,8 @@ build_res:
 
 build_wsdl:
 	echo Generate stub/skel from WSDL document
-	../tools/wsdl2aws -q -f hello.wsdl
-	../tools/wsdl2aws -q -f -rpc -noskel interoplab_main.wsdl
+	../tools/wsdl2aws -q -f -doc hello.wsdl
+	../tools/wsdl2aws -q -f -doc -noskel interoplab_main.wsdl
 
 force:
 
