@@ -133,6 +133,12 @@ Here are the main changes since AWS 2.0 :
    - Fix bug in ada2wsdl generator which generated duplicate definitions for
      record components in some cases.
 
+   - New filters ABS and NEG in the templates engive.
+
+   - Add association iterator for a Template_Set in the templates engine.
+
+   - Include template parameters can now be used as filter parameters.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
