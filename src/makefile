@@ -7,27 +7,29 @@
 GCC	= gcc
 GARGS	= -q $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 
-SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
-	aws-parameters.adb aws-response.adb aws-server-get_status.adb \
-	aws-server.adb aws-session.adb aws-session-control.adb \
-	aws-status.adb aws-translator.adb aws-url.adb aws-utils.adb \
-	aws-log.adb aws-hotplug.adb aws-communication.adb \
-	aws-communication-server.adb aws-communication-client.adb \
-	aws-server-hotplug.adb aws-status-set.adb aws-parameters-set.adb \
-	aws-services.ads aws-services-directory.adb aws-default.ads \
-	aws-config.adb aws-config-ini.adb aws-config-set.adb \
-	aws-net.adb aws-net-stream_io.adb aws-net-std.adb aws-net-ssl.adb \
-	aws-net-buffered.adb aws-services-page_server.adb \
-	aws-templates.ads aws-dispatchers.adb aws-dispatchers-callback.adb \
-	aws-services-dispatchers.ads aws-services-dispatchers-uri.adb \
-	aws-services-dispatchers-method.adb \
+SOURCES	= aws-client.adb aws-communication-client.adb \
+	aws-communication-server.adb aws-communication.adb \
+	aws-config-ini.adb aws-config-set.adb aws-config.adb \
+	aws-containers-key_value.ads aws-containers-tables-set.adb \
+	aws-containers-tables.adb aws-containers.ads aws-default.ads \
+	aws-digest.adb aws-dispatchers-callback.adb aws-dispatchers.adb \
+	aws-headers-set.adb aws-headers-values.adb aws-headers.adb \
+	aws-hotplug-get_status.adb aws-hotplug.adb aws-ldap-client.adb \
+	aws-ldap-thin.adb aws-ldap.ads aws-log.adb aws-messages.adb \
+	aws-mime.adb aws-net-buffered.adb aws-net-ssl.adb aws-net-std.adb \
+	aws-net-stream_io.adb aws-net.adb aws-os_lib.adb \
+	aws-parameters-set.adb aws-parameters.adb aws-resources-embedded.adb \
+	aws-resources-files.adb aws-resources-streams.adb aws-resources.adb \
+	aws-response-set.adb aws-response.adb aws-server-get_status.adb \
+	aws-server-hotplug.adb aws-server-push.adb aws-server.adb \
+	aws-services-directory.adb aws-services-dispatchers-method.adb \
+	aws-services-dispatchers-uri.adb \
 	aws-services-dispatchers-virtual_host.adb \
-	aws-server-push.adb \
-	aws-smtp.adb aws-smtp-client.adb \
-	aws-ldap.ads aws-ldap-thin.adb aws-ldap-client.adb \
-	aws-headers.adb aws-headers-values.adb \
-	aws-containers.ads aws-containers-key_value.ads \
-	aws-containers-tables.adb aws-containers-tables-set.adb
+	aws-services-dispatchers.ads aws-services-page_server.adb \
+	aws-services.ads aws-session-control.adb aws-session.adb \
+	aws-smtp-client.adb aws-smtp.adb aws-status-set.adb aws-status.adb \
+	aws-templates.ads aws-translator.adb aws-url-raise_url_error.adb \
+	aws-url.adb aws-utils.adb aws.ads
 
 ifdef XMLADA
 SOURCES := $(SOURCES) aws-jabber.adb
