@@ -73,7 +73,7 @@ package body AI302.Containers.Hash_Tables is
 
       Src_Buckets : constant Buckets_Access := HT.Buckets;
 
-      N : constant Size_Type := HT.Length;
+      N : constant Count_Type := HT.Length;
 
       Src_Node, Dst_Prev : Node_Access;
 
@@ -187,10 +187,10 @@ package body AI302.Containers.Hash_Tables is
    function Generic_Equal
      (L, R : Hash_Table_Type) return Boolean is
 
-      L_Index, R_Index : Hash_Type;
-      L_Node, R_Node   : Node_Access;
+      L_Index : Hash_Type;
+      L_Node, R_Node : Node_Access;
 
-      I : Size_Type;
+      I : Count_Type;
 
    begin
 
@@ -210,19 +210,17 @@ package body AI302.Containers.Hash_Tables is
          L_Index := L_Index + 1;
       end loop;
 
-      R_Index := 0;
-
-      loop
-         R_Node := R.Buckets (R_Index);
-         exit when R_Node /= Null_Node;
-         R_Index := R_Index + 1;
-      end loop;
-
       I := L.Length;
 
       loop
 
-         if not Is_Equal (L_Node, R_Node) then
+         R_Node := Find_Equal_Key (HT => R, K => L_Node);
+
+         if R_Node = Null_Node then
+            return False;
+         end if;
+
+         if not Is_Equal_Element (L_Node, R_Node) then
             return False;
          end if;
 
@@ -233,16 +231,10 @@ package body AI302.Containers.Hash_Tables is
          end if;
 
          L_Node := Next (L_Node);
-         R_Node := Next (R_Node);
 
          while L_Node = Null_Node loop
             L_Index := L_Index + 1;
             L_Node := L.Buckets (L_Index);
-         end loop;
-
-         while R_Node = Null_Node loop
-            R_Index := R_Index + 1;
-            R_Node := R.Buckets (R_Index);
          end loop;
 
       end loop;
@@ -319,8 +311,8 @@ package body AI302.Containers.Hash_Tables is
 
       Src_Buckets : Buckets_Access := HT.Buckets;
 
-      L : Size_Type renames HT.Length;
-      LL : constant Size_Type := L;
+      L : Count_Type renames HT.Length;
+      LL : constant Count_Type := L;
 
    begin
 
@@ -411,29 +403,74 @@ package body AI302.Containers.Hash_Tables is
 
    procedure Resize
      (HT : in out Hash_Table_Type;
-      N  : in     Size_Type) is
+      N  : in     Count_Type) is
 
       NN : Hash_Type;
 
    begin
 
       if N = 0 then
+
+         if HT.Length = 0 then
+
+            Free (HT.Buckets);
+
+         elsif HT.Length < HT.Buckets'Length then
+
+            NN := Prime_Numbers.To_Prime (HT.Length);
+            --ASSERT: NN >= HT.Length
+
+            if NN < HT.Buckets'Length then
+               Rehash (HT, Size => NN);
+            end if;
+
+         end if;
+
          return;
+
       end if;
 
-      if HT.Buckets /= null
-        and then HT.Buckets'Length >= N
-      then
+      if HT.Buckets = null then
+
+         NN := Prime_Numbers.To_Prime (N);
+         --ASSERT: NN >= N
+
+         Rehash (HT, Size => NN);
+
+         return;
+
+      end if;
+
+      if N <= HT.Length then
+
+         if HT.Length >= HT.Buckets'Length then
+            return;
+         end if;
+
+         NN := Prime_Numbers.To_Prime (HT.Length);
+         --ASSERT: NN >= HT.Length
+
+         if NN < HT.Buckets'Length then
+            Rehash (HT, Size => NN);
+         end if;
+
+         return;
+
+      end if;
+
+      --ASSERT: N > HT.Length
+
+      if N = HT.Buckets'Length then
          return;
       end if;
 
       NN := Prime_Numbers.To_Prime (N);
+      --ASSERT: NN >= N
+      --ASSERT: NN > HT.Length
 
-      if NN <= Hash_Type (N) then  --?
-         return;
+      if NN /= HT.Buckets'Length then
+         Rehash (HT, Size => NN);
       end if;
-
-      Rehash (HT, NN);
 
    end Resize;
 
@@ -448,8 +485,8 @@ package body AI302.Containers.Hash_Tables is
 
       B : Node_Access renames HT.Buckets (I);
 
-      subtype Length_Subtype is Size_Type
-        range 0 .. Size_Type'Last - 1;
+      subtype Length_Subtype is Count_Type
+        range 0 .. Count_Type'Last - 1;
 
    begin
 
@@ -501,7 +538,7 @@ package body AI302.Containers.Hash_Tables is
      (HT  : in out Hash_Table_Type;
       Key : in     Key_Type) is
 
-      L : Size_Type renames HT.Length;
+      L : Count_Type renames HT.Length;
       pragma Assert (L > 0); --NOTE: precondition for caller
 
       I : constant Hash_Type := Index (HT, Key);
@@ -567,7 +604,7 @@ package body AI302.Containers.Hash_Tables is
 
       pragma Assert (X /= Null_Node);
 
-      L : Size_Type renames HT.Length;
+      L : Count_Type renames HT.Length;
       pragma Assert (L > 0);
 
       I : constant Hash_Type := Index (HT, X);
@@ -723,7 +760,7 @@ package body AI302.Containers.Hash_Tables is
      (Stream : access Ada.Streams.Root_Stream_Type'Class;
       HT     : in     Hash_Table_Type) is
 
-      M : Size_Type'Base;
+      M : Count_Type'Base;
       X : Node_Access;
 
    begin
@@ -734,7 +771,7 @@ package body AI302.Containers.Hash_Tables is
          Hash_Type'Write (Stream, HT.Buckets'Last);
       end if;
 
-      Size_Type'Base'Write (Stream, HT.Length);
+      Count_Type'Base'Write (Stream, HT.Length);
 
       if HT.Length = 0 then
          return;
@@ -759,11 +796,11 @@ package body AI302.Containers.Hash_Tables is
             end loop;
 
             Hash_Type'Write (Stream, I);
-            Size_Type'Base'Write (Stream, M);
+            Count_Type'Base'Write (Stream, M);
 
             X := HT.Buckets (I);
 
-            for J in Size_Type range 1 .. M loop
+            for J in Count_Type range 1 .. M loop
 
                Write (Stream, X);
                X := Next (X);
@@ -787,7 +824,7 @@ package body AI302.Containers.Hash_Tables is
       X, Y : Node_Access;
 
       Last, I : Hash_Type;
-      N, M    : Size_Type'Base;
+      N, M    : Count_Type'Base;
 
    begin
 
@@ -815,7 +852,7 @@ package body AI302.Containers.Hash_Tables is
          HT.Buckets := new Buckets_Type (0 .. Last);
       end if;
 
-      Size_Type'Base'Read (Stream, N);
+      Count_Type'Base'Read (Stream, N);
       pragma Assert (N >= 0);
 
       while N > 0 loop
@@ -824,7 +861,7 @@ package body AI302.Containers.Hash_Tables is
          pragma Assert (I in HT.Buckets'Range);
          pragma Assert (HT.Buckets (I) = Null_Node);
 
-         Size_Type'Base'Read (Stream, M);
+         Count_Type'Base'Read (Stream, M);
          pragma Assert (M >= 1);
          pragma Assert (M <= N);
 
@@ -836,7 +873,7 @@ package body AI302.Containers.Hash_Tables is
 
          HT.Length := HT.Length + 1;
 
-         for J in Size_Type range 2 .. M loop
+         for J in Count_Type range 2 .. M loop
 
             X := New_Node (Stream);
             pragma Assert (X /= Null_Node);

@@ -75,7 +75,7 @@ package AI302.Containers.Red_Black_Trees is
    type Tree_Type is
       record
          Back   : Node_Access;
-         Length : Size_Type;
+         Length : Count_Type;
       end record;
 
    function "=" (L, R : Tree_Type) return Boolean is abstract;
@@ -211,22 +211,18 @@ package AI302.Containers.Red_Black_Trees is
         (Tree : Tree_Type;
          Key  : Key_Type) return Node_Access;
 
-      function Lower_Bound
+      function Ceiling
         (Tree : Tree_Type;
          Key  : Key_Type) return Node_Access;
 
-      function Upper_Bound
+--      function Upper_Bound
+--        (Tree : Tree_Type;
+--         Key  : Key_Type) return Node_Access;
+
+      function Floor
         (Tree : Tree_Type;
          Key  : Key_Type) return Node_Access;
 
---        procedure Equal_Range
---          (Tree        : in     Tree_Type;
---           Key         : in     Key_Type;
---           First, Back :    out Node_Access);
-
---        function Count
---          (Tree : Tree_Type;
---           Key  : Key_Type) return Natural;
 
    end Generic_Keys;
 
@@ -246,6 +242,6 @@ package AI302.Containers.Red_Black_Trees is
 
    procedure Generic_Read
      (Tree : in out Tree_Type;
-      N    : in     Size_Type);
+      N    : in     Count_Type);
 
 end AI302.Containers.Red_Black_Trees;

@@ -73,7 +73,7 @@ package AI302.Containers.Hash_Tables is
    type Hash_Table_Type is
       record
          Buckets : Buckets_Access;
-         Length  : Size_Type := 0;
+         Length  : Count_Type := 0;
       end record;
 
    pragma Volatile (Hash_Table_Type);  -- want by-ref: pragma ok?
@@ -87,7 +87,11 @@ package AI302.Containers.Hash_Tables is
 
    generic
 
-      with function Is_Equal
+      with function Find_Equal_Key
+        (HT : Hash_Table_Type;
+         K  : Node_Access) return Node_Access is <>;
+
+      with function Is_Equal_Element
         (L, R : Node_Access) return Boolean is <>;
 
    function Generic_Equal
@@ -102,7 +106,7 @@ package AI302.Containers.Hash_Tables is
 
    procedure Resize
      (HT : in out Hash_Table_Type;
-      N  : in     Size_Type);
+      N  : in     Count_Type);
 
 
    generic

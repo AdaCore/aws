@@ -48,7 +48,7 @@ generic
 package AI302.Containers.Indefinite_Ordered_Sets is
    pragma Preelaborate (Indefinite_Ordered_Sets);
 
-   type Set is private;
+   type Set is tagged private;
 
    type Cursor is private;
 
@@ -60,7 +60,7 @@ package AI302.Containers.Indefinite_Ordered_Sets is
 
    function "=" (Left, Right : Set) return Boolean;
 
-   function Length (Container : Set) return Size_Type;
+   function Length (Container : Set) return Count_Type;
 
    function Is_Empty (Container : Set) return Boolean;
 
@@ -69,8 +69,8 @@ package AI302.Containers.Indefinite_Ordered_Sets is
    function Element (Position : Cursor) return Element_Type;
 
    generic
-      with procedure Process (Element : in out Element_Type) is <>;
-   procedure Generic_Update (Position : in Cursor);
+      with procedure Process (Element : in out Element_Type);
+   procedure Generic_Update_Element (Position : in Cursor);
 
    procedure Move (Target : in out Set;
                    Source : in out Set);
@@ -127,27 +127,28 @@ package AI302.Containers.Indefinite_Ordered_Sets is
 
    function "xor" (Left, Right : Set) return Set renames Symmetric_Difference;
 
-   function Is_Subset (Item      : Set;
-                       Container : Set)
+   function Is_Subset (Container : Set;
+                       Item      : Set)
       return Boolean;
 
-   function Is_Disjoint (Item      : Set;
-                         Container : Set)
+   function Is_Disjoint (Container : Set;
+                         Item      : Set)
       return Boolean;
 
-   function Is_In (Item      : Element_Type;
-                   Container : Set) return Boolean;
+   function Is_In (Container : Set;
+                   Item      : Element_Type) return Boolean;
 
    function Find (Container : Set;
                   Item      : Element_Type)
       return Cursor;
 
---     function Lower_Bound (Container  : Set;
---                           Item : Element_Type)
---        return Cursor;
+   function Ceiling (Container : Set;
+                     Item      : Element_Type)
+      return Cursor;
 
---     function Upper_Bound (Container  : Set;
---                           Item : Element_Type) return Cursor;
+   function Floor (Container : Set;
+                   Item      : Element_Type)
+      return Cursor;
 
    function First (Container : Set) return Cursor;
 
@@ -184,11 +185,11 @@ package AI302.Containers.Indefinite_Ordered_Sets is
       return Boolean;
 
    generic
-      with procedure Process (Position : in Cursor) is <>;
+      with procedure Process (Position : in Cursor);
    procedure Generic_Iteration (Container : in Set);
 
    generic
-      with procedure Process (Position : in Cursor) is <>;
+      with procedure Process (Position : in Cursor);
    procedure Generic_Reverse_Iteration (Container : in Set);
 
 
@@ -204,8 +205,8 @@ package AI302.Containers.Indefinite_Ordered_Sets is
 
    package Generic_Keys is
 
-      function Is_In (Key       : Key_Type;
-                      Container : Set)
+      function Is_In (Container : Set;
+                      Key       : Key_Type)
          return Boolean;
 
       function Find (Container : Set;
@@ -216,13 +217,13 @@ package AI302.Containers.Indefinite_Ordered_Sets is
                         Key       : Key_Type)
         return Element_Type;
 
---        function Lower_Bound (Container : Set;
---                              Key : Key_Type)
---          return Cursor;
+      function Ceiling (Container : Set;
+                        Key       : Key_Type)
+        return Cursor;
 
---        function Upper_Bound (Container : Set;
---                              Key : Key_Type)
---          return Cursor;
+      function Floor (Container : Set;
+                      Key       : Key_Type)
+        return Cursor;
 
       procedure Delete (Container : in out Set;
                         Key       : in     Key_Type);
@@ -238,16 +239,6 @@ package AI302.Containers.Indefinite_Ordered_Sets is
 
       function ">" (Left : Key_Type; Right : Cursor)
         return Boolean;
-
-      generic
-
-         with function New_Element (Key : Key_Type)
-            return Element_Type is <>;
-
-      procedure Generic_Insertion (Container : in out Set;
-                                   Key       : in     Key_Type;
-                                   Position  :    out Cursor;
-                                   Success   :    out Boolean);
 
    end Generic_Keys;
 

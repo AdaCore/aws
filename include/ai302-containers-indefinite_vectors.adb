@@ -115,11 +115,11 @@ package body AI302.Containers.Indefinite_Vectors is
      (Stream    : access Root_Stream_Type'Class;
       Container : in     Vector) is
 
-      N : constant Size_Type := Length (Container);
+      N : constant Count_Type := Length (Container);
 
    begin
 
-      Size_Type'Base'Write (Stream, N);
+      Count_Type'Base'Write (Stream, N);
 
       if N = 0 then
          return;
@@ -154,7 +154,7 @@ package body AI302.Containers.Indefinite_Vectors is
      (Stream    : access Root_Stream_Type'Class;
       Container :    out Vector) is
 
-      Length : Size_Type'Base;
+      Length : Count_Type'Base;
       Last   : Index_Type'Base := Index_Type'Pred (Index_Type'First);
 
       B : Boolean;
@@ -163,11 +163,13 @@ package body AI302.Containers.Indefinite_Vectors is
 
       Clear (Container);
 
-      Size_Type'Base'Read (Stream, Length);
+      Count_Type'Base'Read (Stream, Length);
 
-      Resize (Container, Size => Length);
+      if Length > Capacity (Container) then
+         Set_Capacity (Container, Capacity => Length);
+      end if;
 
-      for I in Size_Type range 1 .. Length loop
+      for I in Count_Type range 1 .. Length loop
 
          Last := Index_Type'Succ (Last);
 
@@ -191,7 +193,7 @@ package body AI302.Containers.Indefinite_Vectors is
    end;
 
 
-   function To_Vector (Count : Size_Type) return Vector is
+   function To_Vector (Count : Count_Type) return Vector is
    begin
 
       if Count = 0 then
@@ -223,7 +225,7 @@ package body AI302.Containers.Indefinite_Vectors is
 
    function To_Vector
      (New_Item : Element_Type;
-      Count    : Size_Type) return Vector is
+      Count    : Count_Type) return Vector is
 
    begin
 
@@ -316,14 +318,14 @@ package body AI302.Containers.Indefinite_Vectors is
    end "=";
 
 
-   function Length (Container : Vector) return Size_Type is
+   function Length (Container : Vector) return Count_Type is
 
       L : constant Int := Int (Container.Last);
       F : constant Int := Int (Index_Type'First);
 
       N : constant Int'Base := L - F + 1;
    begin
-      return Size_Type (N);
+      return Count_Type (N);
    end;
 
 
@@ -335,9 +337,9 @@ package body AI302.Containers.Indefinite_Vectors is
 
    procedure Set_Length
      (Container : in out Vector;
-      Length    : in     Size_Type) is
+      Length    : in     Count_Type) is
 
-      N : constant Size_Type := Indefinite_Vectors.Length (Container);
+      N : constant Count_Type := Indefinite_Vectors.Length (Container);
 
    begin
 
@@ -357,13 +359,21 @@ package body AI302.Containers.Indefinite_Vectors is
          Last : constant Index_Type :=
            Index_Type (Last_As_Int);
       begin
+
          if Length > N then
-            Resize (Container, Size => Length);
+
+            if Length > Capacity (Container) then
+               Set_Capacity (Container, Capacity => Length);
+            end if;
+
             Container.Last := Last;
+
             return;
+
          end if;
 
          for I in reverse Index_Type'Succ (Last) .. Container.Last loop
+
             declare
                X : Element_Access := Container.Elements (I);
             begin
@@ -371,7 +381,9 @@ package body AI302.Containers.Indefinite_Vectors is
                Container.Last := Index_Type'Pred (Container.Last);
                Free (X);
             end;
+
          end loop;
+
       end;
 
    end Set_Length;
@@ -397,7 +409,7 @@ package body AI302.Containers.Indefinite_Vectors is
 
    procedure Append (Container : in out Vector;
                      New_Item  : in     Element_Type;
-                     Count     : in     Size_Type := 1) is
+                     Count     : in     Count_Type := 1) is
    begin
       if Count = 0 then
          return;
@@ -573,7 +585,7 @@ package body AI302.Containers.Indefinite_Vectors is
    procedure Insert (Container : in out Vector;
                      Before    : in     Index_Type'Base;
                      New_Item  : in     Element_Type;
-                     Count     : in     Size_Type := 1) is
+                     Count     : in     Count_Type := 1) is
    begin
 
       if Count = 0 then
@@ -700,7 +712,7 @@ package body AI302.Containers.Indefinite_Vectors is
 
    procedure Insert_Space (Container : in out Vector;
                            Before    : in     Index_Type'Base;
-                           Count     : in     Size_Type := 1) is
+                           Count     : in     Count_Type := 1) is
    begin
 
       if Count = 0 then
@@ -759,7 +771,7 @@ package body AI302.Containers.Indefinite_Vectors is
 
 
    procedure Delete_First (Container : in out Vector;
-                           Count     : in     Size_Type := 1) is
+                           Count     : in     Count_Type := 1) is
    begin
 
       if Count = 0 then
@@ -777,7 +789,7 @@ package body AI302.Containers.Indefinite_Vectors is
 
 
    procedure Delete_Last (Container : in out Vector;
-                          Count     : in     Size_Type := 1) is
+                          Count     : in     Count_Type := 1) is
 
       Index : Int'Base;
 
@@ -842,7 +854,7 @@ package body AI302.Containers.Indefinite_Vectors is
 
    procedure Delete (Container : in out Vector;
                      Index     : in     Index_Type'Base;
-                     Count     : in     Size_Type := 1) is
+                     Count     : in     Count_Type := 1) is
    begin
 
       if Count = 0 then
@@ -859,7 +871,7 @@ package body AI302.Containers.Indefinite_Vectors is
    end Delete;
 
 
-   function Size (Container : Vector) return Size_Type is
+   function Capacity (Container : Vector) return Count_Type is
    begin
       if Container.Elements = null then
          return 0;
@@ -869,49 +881,125 @@ package body AI302.Containers.Indefinite_Vectors is
    end;
 
 
-   procedure Resize (Container : in out Vector;
-                     Size      : in     Size_Type) is
+   procedure Set_Capacity (Container : in out Vector;
+                           Capacity  : in     Count_Type) is
 
-      E : Elements_Access;
+      N : constant Count_Type := Length (Container);
 
    begin
 
-      if Size = 0 then
+      if Capacity = 0 then
+
+         if N = 0 then
+
+            declare
+               X : Elements_Access := Container.Elements;
+            begin
+               Container.Elements := null;
+               Free (X);
+            end;
+
+         elsif N < Container.Elements'Length then
+
+            declare
+               subtype Array_Index_Subtype is Index_Type'Base range
+                 Index_Type'First .. Container.Last;
+
+               Src : Elements_Type renames
+                 Container.Elements (Array_Index_Subtype);
+
+               subtype Array_Subtype is
+                 Elements_Type (Array_Index_Subtype);
+
+               X : Elements_Access := Container.Elements;
+            begin
+               Container.Elements := new Array_Subtype'(Src);
+               Free (X);
+            end;
+
+         end if;
+
          return;
+
       end if;
 
-      if Container.Elements /= null
-        and then Container.Elements'Length >= Size
-      then
+      if Container.Elements = null then
+
+         declare
+            Last_As_Int : constant Int'Base :=
+              Int (Index_Type'First) + Int (Capacity) - 1;
+
+            Last : constant Index_Type :=
+              Index_Type (Last_As_Int);
+
+            subtype Array_Subtype is
+              Elements_Type (Index_Type'First .. Last);
+         begin
+            Container.Elements := new Array_Subtype;
+         end;
+
+         return;
+
+      end if;
+
+      if Capacity <= N then
+
+         if N < Container.Elements'Length then
+
+            declare
+               subtype Array_Index_Subtype is Index_Type'Base range
+                 Index_Type'First .. Container.Last;
+
+               Src : Elements_Type renames
+                 Container.Elements (Array_Index_Subtype);
+
+               subtype Array_Subtype is
+                 Elements_Type (Array_Index_Subtype);
+
+               X : Elements_Access := Container.Elements;
+            begin
+               Container.Elements := new Array_Subtype'(Src);
+               Free (X);
+            end;
+
+         end if;
+
+         return;
+
+      end if;
+
+      if Capacity = Container.Elements'Length then
          return;
       end if;
 
       declare
          Last_As_Int : constant Int'Base :=
-           Int (Index_Type'First) + Int (Size) - 1;
+           Int (Index_Type'First) + Int (Capacity) - 1;
 
          Last : constant Index_Type :=
            Index_Type (Last_As_Int);
-      begin
-         E := new Elements_Type (Index_Type'First .. Last);
-      end;
 
-      if Container.Elements = null then
-         Container.Elements := E;
-         return;
-      end if;
+         subtype Array_Subtype is
+           Elements_Type (Index_Type'First .. Last);
 
-      E (Index_Type'First .. Container.Last) :=
-         Container.Elements (Index_Type'First .. Container.Last);
-
-      declare
          X : Elements_Access := Container.Elements;
       begin
-         Container.Elements := E;
+         Container.Elements := new Array_Subtype;
+
+         declare
+            Src : Elements_Type renames
+              X (Index_Type'First .. Container.Last);
+
+            Tgt : Elements_Type renames
+              Container.Elements (Index_Type'First .. Container.Last);
+         begin
+            Tgt := Src;
+         end;
+
          Free (X);
       end;
 
-   end Resize;
+   end Set_Capacity;
 
 
    function First_Index (Container : Vector) return Index_Type is
@@ -1048,8 +1136,8 @@ package body AI302.Containers.Indefinite_Vectors is
    end;
 
 
-   function Is_In (Item      : Element_Type;
-                   Container : Vector) return Boolean is
+   function Is_In (Container : Vector;
+                   Item      : Element_Type) return Boolean is
    begin
       return Find (Container, Item) /= Index_Type'Succ (Container.Last);
    end;
@@ -1060,6 +1148,8 @@ package body AI302.Containers.Indefinite_Vectors is
      (Target : in out Vector;
       Source : in     Vector) is
 
+      N : constant Count_Type := Length (Source);
+
    begin
 
       if Target'Address = Source'Address then
@@ -1068,11 +1158,13 @@ package body AI302.Containers.Indefinite_Vectors is
 
       Clear (Target);
 
-      if Is_Empty (Source) then
+      if N = 0 then
          return;
       end if;
 
-      Resize (Target, Size => Length (Source));
+      if N > Capacity (Target) then
+         Set_Capacity (Target, Capacity => N);
+      end if;
 
       for I in Index_Type'First .. Source.Last loop
 
@@ -1119,7 +1211,7 @@ package body AI302.Containers.Indefinite_Vectors is
    end Move;
 
 
-   procedure Generic_Update_By_Index
+   procedure Generic_Update_Element_By_Index
      (Container : in Vector;
       Index     : in Index_Type'Base) is
 
@@ -1132,7 +1224,7 @@ package body AI302.Containers.Indefinite_Vectors is
 
    procedure Prepend (Container : in out Vector;
                       New_Item  : in     Element_Type;
-                      Count     : in     Size_Type := 1) is
+                      Count     : in     Count_Type := 1) is
    begin
       Insert (Container,
               Index_Type'First,
@@ -1160,8 +1252,8 @@ package body AI302.Containers.Indefinite_Vectors is
 
    function "&" (Left, Right : Vector) return Vector is
 
-      LN : constant Size_Type := Length (Left);
-      RN : constant Size_Type := Length (Right);
+      LN : constant Count_Type := Length (Left);
+      RN : constant Count_Type := Length (Right);
 
    begin
 
@@ -1298,7 +1390,7 @@ package body AI302.Containers.Indefinite_Vectors is
    function "&" (Left  : Vector;
                  Right : Element_Type) return Vector is
 
-      LN : constant Size_Type := Length (Left);
+      LN : constant Count_Type := Length (Left);
 
    begin
 
@@ -1378,7 +1470,7 @@ package body AI302.Containers.Indefinite_Vectors is
    function "&" (Left  : Element_Type;
                  Right : Vector) return Vector is
 
-      RN : constant Size_Type := Length (Right);
+      RN : constant Count_Type := Length (Right);
 
    begin
 
@@ -1613,7 +1705,7 @@ package body AI302.Containers.Indefinite_Vectors is
    end Generic_Reverse_Iteration;
 
 
-   procedure Generic_Update (Position : in Cursor) is
+   procedure Generic_Update_Element (Position : in Cursor) is
 
       C : Vector renames Position.Container.all;
       E : Elements_Type renames C.Elements.all;
@@ -1645,7 +1737,7 @@ package body AI302.Containers.Indefinite_Vectors is
                      Before    : in     Index_Type'Base;
                      New_Item  : in     Vector) is
 
-      N : constant Size_Type := Length (New_Item);
+      N : constant Count_Type := Length (New_Item);
 
    begin
 
@@ -1803,7 +1895,7 @@ package body AI302.Containers.Indefinite_Vectors is
    procedure Insert (Container : in out Vector;
                      Before    : in     Cursor;
                      New_Item  : in     Element_Type;
-                     Count     : in     Size_Type := 1) is
+                     Count     : in     Count_Type := 1) is
 
       Index : Index_Type'Base;
 
@@ -1833,7 +1925,7 @@ package body AI302.Containers.Indefinite_Vectors is
                      Before    : in     Cursor;
                      New_Item  : in     Element_Type;
                      Position  :    out Cursor;
-                     Count     : in     Size_Type := 1) is
+                     Count     : in     Count_Type := 1) is
 
       Index : Index_Type'Base;
 
@@ -1900,7 +1992,7 @@ package body AI302.Containers.Indefinite_Vectors is
    procedure Insert_Space (Container : in out Vector;
                            Before    : in     Cursor;
                            Position  :    out Cursor;
-                           Count     : in     Size_Type := 1) is
+                           Count     : in     Count_Type := 1) is
 
       Index : Index_Type'Base;
 
@@ -1943,7 +2035,7 @@ package body AI302.Containers.Indefinite_Vectors is
 
    procedure Delete (Container : in out Vector;
                      Position  : in out Cursor;
-                     Count     : in     Size_Type := 1) is
+                     Count     : in     Count_Type := 1) is
    begin
 
       if Count = 0 then
@@ -1997,8 +2089,8 @@ package body AI302.Containers.Indefinite_Vectors is
    end;
 
 
-   procedure Swap (Container : in out Vector;
-                   I, J      : in     Cursor) is
+   procedure Swap (Container : in Vector;
+                   I, J      : in Cursor) is
    begin
       Swap (Container, I => I.Index, J => J.Index);
    end;

@@ -994,8 +994,8 @@ package body AI302.Containers.Red_Black_Trees is
          Key  : in     Key_Type;
          Z    :    out Node_Access) is
 
-         subtype Length_Subtype is Size_Type
-           range 0 .. Size_Type'Last - 1;
+         subtype Length_Subtype is Count_Type
+           range 0 .. Count_Type'Last - 1;
 
          Length : constant Length_Subtype := Tree.Length;
 
@@ -1337,7 +1337,7 @@ package body AI302.Containers.Red_Black_Trees is
       end Find;
 
 
-      function Lower_Bound
+      function Ceiling  --AKA Lower_Bound
         (Tree : Tree_Type;
          Key  : Key_Type) return Node_Access is
 
@@ -1353,49 +1353,62 @@ package body AI302.Containers.Red_Black_Trees is
             end if;
          end loop;
 
+         if Y = Tree.Back then
+            return Null_Node;
+         end if;
+
          return Y;
-      end Lower_Bound;
+      end Ceiling;
 
 
-      function Upper_Bound
+--        function Upper_Bound
+--          (Tree : Tree_Type;
+--           Key  : Key_Type) return Node_Access is
+--
+--           Y : Node_Access := Tree.Back;
+--           X : Node_Access := Root (Tree);
+--        begin
+--           while X /= Null_Node loop
+--              if Is_Less_Key_Node (Key, X) then
+--                 Y := X;
+--                 X := Left (X);
+--              else
+--                 X := Right (X);
+--              end if;
+--           end loop;
+--
+--           return Y;  --MUST CORRECT FOR BACK
+--        end Upper_Bound;
+
+
+
+      function Floor
         (Tree : Tree_Type;
          Key  : Key_Type) return Node_Access is
 
          Y : Node_Access := Tree.Back;
          X : Node_Access := Root (Tree);
+
       begin
+
          while X /= Null_Node loop
+
             if Is_Less_Key_Node (Key, X) then
-               Y := X;
                X := Left (X);
             else
+               Y := X;
                X := Right (X);
             end if;
+
          end loop;
 
+         if Y = Tree.Back then
+            return Null_Node;
+         end if;
+
          return Y;
-      end Upper_Bound;
 
-
---        procedure Equal_Range
---          (Tree        : in     Tree_Type;
---           Key         : in     Key_Type;
---           First, Back :    out Node_Access) is
---        begin
---           First := Lower_Bound (Tree, Key);
---           Back := Upper_Bound (Tree, Key);
---        end;
-
-
---        function Count
---          (Tree : Tree_Type;
---           Key  : Key_Type) return Natural is
-
---           First, Back : Node_Access;
---        begin
---           Equal_Range (Tree, Key, First, Back);
---           return Offset (First, Back);
---        end;
+      end Floor;
 
 
    end Generic_Keys;
@@ -1458,7 +1471,7 @@ package body AI302.Containers.Red_Black_Trees is
 
    procedure Generic_Read
      (Tree : in out Tree_Type;
-      N    : in     Size_Type) is
+      N    : in     Count_Type) is
 
       pragma Assert (Tree.Length = 0);
       --clear and back node reinit was done by caller
@@ -1484,7 +1497,7 @@ package body AI302.Containers.Red_Black_Trees is
 
       Tree.Length := 1;
 
-      for I in Size_Type range 2 .. N loop
+      for I in Count_Type range 2 .. N loop
 
          Last_Node := Node;
          pragma Assert (Last_Node = Last (Tree));

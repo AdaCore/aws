@@ -48,7 +48,7 @@ package AI302.Containers.Vectors is
 
    subtype Index_Subtype is Index_Type;
 
-   type Vector is private;
+   type Vector is tagged private;
 
    type Cursor is private;
 
@@ -61,11 +61,11 @@ package AI302.Containers.Vectors is
 
    No_Element : constant Cursor;
 
-   function To_Vector (Count : Size_Type) return Vector;
+   function To_Vector (Count : Count_Type) return Vector;
 
-   function To_Vector
-     (New_Item : Element_Type;
-      Count    : Size_Type) return Vector;
+   function To_Vector (New_Item : Element_Type;
+                       Count    : Count_Type)
+      return Vector;
 
    function "&" (Left, Right : Vector) return Vector;
 
@@ -79,12 +79,12 @@ package AI302.Containers.Vectors is
 
    function "=" (Left, Right : Vector) return Boolean;
 
-   function Size (Container : Vector) return Size_Type;
+   function Capacity (Container : Vector) return Count_Type;
 
-   procedure Resize (Container : in out Vector;
-                     Size      : in     Size_Type);
+   procedure Set_Capacity (Container : in out Vector;
+                           Capacity  : in     Count_Type);
 
-   function Length (Container : Vector) return Size_Type;
+   function Length (Container : Vector) return Count_Type;
 
    function Is_Empty (Container : Vector) return Boolean;
 
@@ -103,13 +103,13 @@ package AI302.Containers.Vectors is
    function Element (Position : Cursor) return Element_Type;
 
    generic
-      with procedure Process (Element : in out Element_Type) is <>;
-   procedure Generic_Update_By_Index (Container : in Vector;
-                                      Index     : in Index_Type'Base);
+      with procedure Process (Element : in out Element_Type);
+   procedure Generic_Update_Element_By_Index (Container : in Vector;
+                                              Index     : in Index_Type'Base);
 
    generic
-      with procedure Process (Element : in out Element_Type) is <>;
-   procedure Generic_Update (Position : in Cursor);
+      with procedure Process (Element : in out Element_Type);
+   procedure Generic_Update_Element (Position : in Cursor);
 
    procedure Replace_Element (Container : in Vector;
                               Index     : in Index_Type'Base;
@@ -140,58 +140,58 @@ package AI302.Containers.Vectors is
    procedure Insert (Container : in out Vector;
                      Before    : in     Index_Type'Base;
                      New_Item  : in     Element_Type;
-                     Count     : in     Size_Type := 1);
+                     Count     : in     Count_Type := 1);
 
    procedure Insert (Container : in out Vector;
                      Before    : in     Cursor;
                      New_Item  : in     Element_Type;
-                     Count     : in     Size_Type := 1);
+                     Count     : in     Count_Type := 1);
 
    procedure Insert (Container : in out Vector;
                      Before    : in     Cursor;
                      New_Item  : in     Element_Type;
                      Position  :    out Cursor;
-                     Count     : in     Size_Type := 1);
+                     Count     : in     Count_Type := 1);
 
    procedure Prepend (Container : in out Vector;
                       New_Item  : in     Vector);
 
    procedure Prepend (Container : in out Vector;
                       New_Item  : in     Element_Type;
-                      Count     : in     Size_Type := 1);
+                      Count     : in     Count_Type := 1);
 
    procedure Append (Container : in out Vector;
                      New_Item  : in     Vector);
 
    procedure Append (Container : in out Vector;
                      New_Item  : in     Element_Type;
-                     Count     : in     Size_Type := 1);
+                     Count     : in     Count_Type := 1);
 
    procedure Insert_Space (Container : in out Vector;
                            Before    : in     Index_Type'Base;
-                           Count     : in     Size_Type := 1);
+                           Count     : in     Count_Type := 1);
 
    procedure Insert_Space (Container : in out Vector;
                            Before    : in     Cursor;
                            Position  :    out Cursor;
-                           Count     : in     Size_Type := 1);
+                           Count     : in     Count_Type := 1);
 
    procedure Set_Length (Container : in out Vector;
-                         Length    : in     Size_Type);
+                         Length    : in     Count_Type);
 
    procedure Delete (Container : in out Vector;
                      Index     : in     Index_Type'Base;
-                     Count     : in     Size_Type := 1);
+                     Count     : in     Count_Type := 1);
 
    procedure Delete (Container : in out Vector;
                      Position  : in out Cursor;
-                     Count     : in     Size_Type := 1);
+                     Count     : in     Count_Type := 1);
 
    procedure Delete_First (Container : in out Vector;
-                           Count     : in     Size_Type := 1);
+                           Count     : in     Count_Type := 1);
 
    procedure Delete_Last (Container : in out Vector;
-                          Count     : in     Size_Type := 1);
+                          Count     : in     Count_Type := 1);
 
    function First_Index (Container : Vector) return Index_Type;
 
@@ -208,12 +208,11 @@ package AI302.Containers.Vectors is
    procedure Swap (Container : in Vector;
                    I, J      : in Index_Type'Base);
 
-   procedure Swap (Container : in out Vector;
-                   I, J      : in     Cursor);
+   procedure Swap (Container : in Vector;
+                   I, J      : in Cursor);
 
    generic
-      with function "<" (Left, Right : Element_Type)
-         return Boolean is <>;
+      with function "<" (Left, Right : Element_Type) return Boolean is <>;
    procedure Generic_Sort (Container : in Vector);
 
    function Find (Container : Vector;
@@ -236,8 +235,8 @@ package AI302.Containers.Vectors is
                           Position  : Cursor := No_Element)
       return Cursor;
 
-   function Is_In (Item      : Element_Type;
-                   Container : Vector)
+   function Is_In (Container : Vector;
+                   Item      : Element_Type)
       return Boolean;
 
    function Next (Position : Cursor) return Cursor;
@@ -251,11 +250,11 @@ package AI302.Containers.Vectors is
    function Has_Element (Position : Cursor) return Boolean;
 
    generic
-      with procedure Process (Position : in Cursor) is <>;
+      with procedure Process (Position : in Cursor);
    procedure Generic_Iteration (Container : in Vector);
 
    generic
-      with procedure Process (Position : in Cursor) is <>;
+      with procedure Process (Position : in Cursor);
    procedure Generic_Reverse_Iteration (Container : in Vector);
 
 private

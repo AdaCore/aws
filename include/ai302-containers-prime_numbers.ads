@@ -49,6 +49,6 @@ package AI302.Containers.Prime_Numbers is
       50331653,   100663319,  201326611, 402653189, 805306457,
       1610612741, 3221225473, 4294967291);
 
-   function To_Prime (Length : Size_Type) return Hash_Type;
+   function To_Prime (Length : Count_Type) return Hash_Type;
 
 end AI302.Containers.Prime_Numbers;
