@@ -60,6 +60,17 @@ procedure interopLab_Main is
 
    package LFIO is new Text_IO.Float_IO (Long_Float);
 
+   ------------
+   -- Output --
+   ------------
+
+   procedure Output (S : in SOAPStruct_Type) is
+   begin
+      Integer_Text_IO.Put (S.varInt); Text_IO.New_Line;
+      LFIO.Put (S.varFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
+      Text_IO.Put_Line (To_String (S.varString));
+   end Output;
+
    ------------------
    -- T_echoBase64 --
    ------------------
@@ -193,17 +204,6 @@ procedure interopLab_Main is
       Text_IO.New_Line;
    end T_echoStringArray;
 
-   ------------
-   -- Output --
-   ------------
-
-   procedure Output (S : in SOAPStruct_Type) is
-   begin
-      Integer_Text_IO.Put (S.varInt); Text_IO.New_Line;
-      LFIO.Put (S.VarFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
-      Text_IO.Put_Line (To_String (S.varString));
-   end Output;
-
    ------------------
    -- T_echoStruct --
    ------------------
@@ -240,7 +240,18 @@ procedure interopLab_Main is
       Text_IO.New_Line;
    end T_echoStructArray;
 
+   ----------------
+   -- T_echoVoid --
+   ----------------
+
+   procedure T_echoVoid is
+   begin
+      Text_IO.Put_Line ("Echo Void");
+      interopLab.Client.echoVoid;
+   end T_echoVoid;
+
 begin
+   T_echoVoid;
    T_echoStringArray;
    T_echoInteger;
    T_echoFloat;
