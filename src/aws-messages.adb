@@ -133,13 +133,16 @@ package body AWS.Messages is
      := ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
+   HD : constant String := ": ";
+   --  Header delimiter with space for well formatting.
+
    ---------------------
    -- Accept_Language --
    ---------------------
 
    function Accept_Language (Mode : in String) return String is
    begin
-      return Accept_Language_Token & Mode;
+      return Accept_Language_Token & HD & Mode;
    end Accept_Language;
 
    -----------------
@@ -148,7 +151,7 @@ package body AWS.Messages is
 
    function Accept_Type (Mode : in String) return String is
    begin
-      return Accept_Token & Mode;
+      return Accept_Token & HD & Mode;
    end Accept_Type;
 
    -------------------
@@ -157,7 +160,7 @@ package body AWS.Messages is
 
    function Authorization (Mode, Password : in String) return String is
    begin
-      return Authorization_Token & Mode & ' ' & Password;
+      return Authorization_Token & HD & Mode & ' ' & Password;
    end Authorization;
 
    -------------------
@@ -166,7 +169,7 @@ package body AWS.Messages is
 
    function Cache_Control (Option : in Cache_Option) return String is
    begin
-      return Cache_Control_Token & ' ' & String (Option);
+      return Cache_Control_Token & HD & String (Option);
    end Cache_Control;
 
    ----------------
@@ -175,7 +178,7 @@ package body AWS.Messages is
 
    function Connection (Mode : in String) return String is
    begin
-      return Connection_Token & Mode;
+      return Connection_Token & HD & Mode;
    end Connection;
 
    -------------------------
@@ -189,10 +192,10 @@ package body AWS.Messages is
       return String is
    begin
       if Filename = "" then
-         return Content_Disposition_Token & Format
+         return Content_Disposition_Token & HD & Format
            & "; name=""" & Name & '"';
       else
-         return Content_Disposition_Token & Format
+         return Content_Disposition_Token & HD & Format
            & "; name=""" & Name & """; filename=""" & Filename & '"';
       end if;
    end Content_Disposition;
@@ -203,7 +206,7 @@ package body AWS.Messages is
 
    function Content_Length (Size : in Natural) return String is
    begin
-      return Content_Length_Token & Utils.Image (Size);
+      return Content_Length_Token & HD & Utils.Image (Size);
    end Content_Length;
 
    ------------------
@@ -216,12 +219,21 @@ package body AWS.Messages is
       return String is
    begin
       if Boundary = "" then
-         return Content_Type_Token & Format;
+         return Content_Type_Token & HD & Format;
 
       else
-         return Content_Type_Token & Format & "; boundary=" & Boundary;
+         return Content_Type_Token & HD & Format & "; boundary=" & Boundary;
       end if;
    end Content_Type;
+
+   ------------
+   -- Cookie --
+   ------------
+
+   function Cookie (Value : in String) return String is
+   begin
+      return Cookie_Token & HD & Value;
+   end Cookie;
 
    --------------------
    -- Does_Not_Match --
@@ -242,7 +254,7 @@ package body AWS.Messages is
 
    function Host (Name : in String) return String is
    begin
-      return Host_Token & Name;
+      return Host_Token & HD & Name;
    end Host;
 
    -----------
@@ -260,7 +272,7 @@ package body AWS.Messages is
 
    function Last_Modified (Date : in Calendar.Time) return String is
    begin
-      return Last_Modified_Token & To_HTTP_Date (Date);
+      return Last_Modified_Token & HD & To_HTTP_Date (Date);
    end Last_Modified;
 
    --------------
@@ -269,7 +281,7 @@ package body AWS.Messages is
 
    function Location (URL : in String) return String is
    begin
-      return Location_Token & URL;
+      return Location_Token & HD & URL;
    end Location;
 
    -----------
@@ -291,7 +303,7 @@ package body AWS.Messages is
 
    function Proxy_Authorization (Mode, Password : in String) return String is
    begin
-      return Proxy_Authorization_Token & Mode & ' ' & Password;
+      return Proxy_Authorization_Token & HD & Mode & ' ' & Password;
    end Proxy_Authorization;
 
    ----------------------
@@ -300,7 +312,7 @@ package body AWS.Messages is
 
    function Proxy_Connection (Mode : in String) return String is
    begin
-      return Proxy_Connection_Token & Mode;
+      return Proxy_Connection_Token & HD & Mode;
    end Proxy_Connection;
 
    -------------------
@@ -318,7 +330,7 @@ package body AWS.Messages is
 
    function SOAPAction (URI : in String) return String is
    begin
-      return SOAPAction_Token & '"' & URI & '"';
+      return SOAPAction_Token & HD & '"' & URI & '"';
    end SOAPAction;
 
    -----------------
@@ -475,7 +487,7 @@ package body AWS.Messages is
 
    function Transfer_Encoding (Encoding : in String) return String is
    begin
-      return Transfer_Encoding_Token & Encoding;
+      return Transfer_Encoding_Token & HD & Encoding;
    end Transfer_Encoding;
 
    ----------------
@@ -484,28 +496,28 @@ package body AWS.Messages is
 
    function User_Agent (Name : in String) return String is
    begin
-      return User_Agent_Token & Name;
+      return User_Agent_Token & HD & Name;
    end User_Agent;
 
    ----------------------
    -- Www_Authenticate --
    ----------------------
 
-   function Www_Authenticate (Realm : in String) return String is
+   function WWW_Authenticate (Realm : in String) return String is
    begin
-      return WWW_Authenticate_Token & "Basic realm=""" & Realm & """";
-   end Www_Authenticate;
+      return WWW_Authenticate_Token & HD & "Basic realm=""" & Realm & """";
+   end WWW_Authenticate;
 
-   function Www_Authenticate
+   function WWW_Authenticate
      (Realm : in String;
       Nonce : in String;
       Stale : in Boolean)
       return String is
    begin
-      return WWW_Authenticate_Token
+      return WWW_Authenticate_Token & HD
         & "Digest qop=""auth"", realm=""" & Realm
         & """, stale=""" & Boolean'Image (Stale)
         & """, nonce=""" & Nonce & """";
-   end Www_Authenticate;
+   end WWW_Authenticate;
 
 end AWS.Messages;
