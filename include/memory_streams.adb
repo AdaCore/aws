@@ -110,11 +110,11 @@ package body Memory_Streams is
          File.Current     := File.First;
          File.Last        := File.First;
          File.Last_Length := Data'Length;
-      else 
+      else
          if File.Last.Data'Length > File.Last_Length then
             declare
                Ptr : constant Element_Access
-                := new Element_Array' (File.Last.Data (1 .. File.Last_Length));
+                := new Element_Array'(File.Last.Data (1 .. File.Last_Length));
             begin
                Free (File.Last.Data);
                File.Last.Data := Ptr;
