@@ -57,6 +57,16 @@ package AWS.Hotplug is
    --  called and in that case Data contain the answer, otherwise Found is set
    --  to False.
 
+   procedure Move_Up (Filters : in Filter_Set;
+                      N       : in Positive);
+   --  Move filters number N up one position, it gives filter number N a
+   --  better priority.
+
+   procedure Move_Down (Filters : in Filter_Set;
+                        N       : in Positive);
+   --  Move filters number N down one position, it gives filter number N less
+   --  priority.
+
 private
 
    use Ada.Strings.Unbounded;
