@@ -2,6 +2,7 @@
 
 	* poll.adb:
 	Use Definitions.nfds_t for poll array index.
+	Remove Authors from header.
 
 2004-10-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
