@@ -47,6 +47,8 @@ package AWS.Server is
    procedure Start (Web_Server : in out HTTP);
    --  Start the Web server. It initialize the connections lines.
 
+   procedure Shutdown (Web_Server : in out HTTP);
+
 private
 
    Keep_Open_Duration : constant Duration := 120.0;
