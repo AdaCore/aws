@@ -113,6 +113,9 @@ package SOAP.Generator is
    --  Set proxy user and password, needed if behind a firewall with
    --  authentication.
 
+   procedure Debug (O : in out Object);
+   --  Activate the debug code generator
+
 private
 
    use Ada.Strings.Unbounded;
@@ -126,6 +129,7 @@ private
       CVS_Tag    : Boolean := False;
       Force      : Boolean := False;
       First_Proc : Boolean := True;
+      Debug      : Boolean := False;
       Unit       : Unbounded_String;
       Types_Spec : Unbounded_String;
       Main       : Unbounded_String;
