@@ -543,6 +543,11 @@ package body SOAP.Types is
          T         : Ada.Tags.Tag;
          Same_Type : Boolean := True;
       begin
+         if O.Items.O'Length = 0 then
+            -- This is a zero length array, type is undefined.
+            return XML_Undefined;
+         end if;
+
          T := O.Items.O (O.Items.O'First).O'Tag;
 
          for K in O.Items.O'First + 1 .. O.Items.O'Last loop
