@@ -1,3 +1,8 @@
+2004-02-01  Pascal Obry  <obry@act-europe.fr>
+
+	* makefile:
+	Change check_mem ports.
+
 2004-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
