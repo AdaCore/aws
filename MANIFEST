@@ -426,6 +426,8 @@ regtests/upload3.adb
 regtests/upload3.out
 regtests/upload4.adb
 regtests/upload4.out
+regtests/upload5.adb
+regtests/upload5.out
 regtests/user_strm.adb
 regtests/user_strm.ads
 regtests/wait.adb
