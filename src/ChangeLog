@@ -1,3 +1,65 @@
+2002-12-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.adb:
+	(End_Section): Constant removed.
+	(Parse_Header): Responce.Data parameter instead of Status,
+	 Content_Length, Content_Type, Transfer_Encoding, Location
+	(Check_Status): Removed, becouse we are not changing message body
+	 and using Response.Set routines instead of construct entire
+	 Response.Data object.
+	(Read_Message): Removed, becouse we are using only binary reading
+	 now (internal data is binary anyway).
+	Header reading and parsing algorithm changed.
+
+	* aws-messages.ads, aws-messages.adb:
+	HTTP header name tokens do not contain ending colon now.
+	Support for all RFC 2616 HTTP header names.
+	Removed subtype Name_Range is Positive Name_Token'Range declarations,
+	 becouse it is not necessary for parsing now.
+
+	* aws-response.ads, aws-response.adb:
+	(Header): New field in the Data type.
+        Content_Type, Location, Realm, Authentication, Auth_Stale, Cache_Control
+         fields removed from Data type. This information is in the Header now.
+	Authentication,	Authentication_Stale, Cache_Control, Content_Type
+	 Location, Realm routines provide data from the header container.
+	(Header): New routines.
+	(Send_Header): New routine.
+
+	* aws-response-set.ads, aws-response-set.adb:
+	(Add_Header): New routine.
+	(Update_Header): New routine.
+	(Read_Header): New routine.
+	(Update_Data_From_Header): New routine.
+	(Authentication): Put authentication data to the header container.
+	(Cache_Control): Put data to the header container.
+	(Content_Type): Put data to the header container.
+	(Location): Put data to the header container.
+	(Is_Valid): Reading some data for validation from header container.
+
+	* aws-server-protocol_handler.adb:
+	Remove code for sending Content-Type, Cache-Control, Location,
+	 WWW-Authenticate header lines. Now it is sending just from header
+	 container.
+	Parsing header lines code moved to the AWS.Headers.Set.Read routine.
+
+	* aws-status.ads, aws-status.adb:
+	Data type has a new internal field Header.
+	Connection, Host, Content_Type, Boundary, If_Modified_Since field
+	 removed from Data type. This information is in the Header now.
+	SOAP_Action field of Data type is a boolean now, for fast Is_Soap
+	 call. SOAP_Action string is in the Header now.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	Authorization, Connection, Content_Length, Content_Type,
+	 Multipart_Boundary, Session, Host, If_Modified_Since, User_Agent,
+	 Referer routines removed.
+	(Read_Header): New routine.
+
+	* aws-utils.ads, aws-utils.adb:
+	(Parse_HTTP_Header_Line): Removed. Use package AWS.Headers.Values
+	 instead.
+
 2002-12-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers-set.adb:
