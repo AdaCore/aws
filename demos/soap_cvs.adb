@@ -39,7 +39,7 @@ with SOAP.Types;
 with SOAP.Parameters;
 with SOAP.Client;
 with SOAP.Message.Payload;
-with SOAP.Message.Response.Error;
+with SOAP.Message.Response;
 
 procedure SOAP_CVS is
 
