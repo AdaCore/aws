@@ -242,6 +242,9 @@ package body AWS.Response is
                    Null_Unbounded_String,
                    Null_Unbounded_String,
                    null);
+   exception
+      when OS_Lib.No_Such_File =>
+         return Acknowledge (Messages.S404, "<p> " & Filename & " not found");
    end File;
 
    --------------
