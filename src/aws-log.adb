@@ -38,7 +38,6 @@ with Ada.Strings.Maps;
 with GNAT.Calendar.Time_IO;
 with AWS.OS_Lib;
 
-with AWS.Messages;
 with AWS.Utils;
 
 package body AWS.Log is
@@ -194,9 +193,21 @@ package body AWS.Log is
       Answer       : in     Response.Data) is
    begin
       Write (Log, Connect_Stat,
-         Messages.Image (Response.Status_Code (Answer))
+         Response.Status_Code (Answer),
+         Response.Content_Length (Answer));
+   end Write;
+
+   procedure Write
+     (Log            : in out Object;
+      Connect_Stat   : in     Status.Data;
+      Status_Code    : in     Messages.Status_Code;
+      Content_Length : in     Natural)
+   is
+   begin
+      Write (Log, Connect_Stat,
+         Messages.Image (Status_Code)
          & ' '
-         & Utils.Image (Response.Content_Length (Answer)));
+         & Utils.Image (Content_Length));
    end Write;
 
    procedure Write
