@@ -113,12 +113,14 @@ is
 
    procedure Send_Resource
      (Method : in     Status.Request_Method;
+      Close  : in     Boolean;
       File   : in out Resources.File_Type;
       Length : in out Resources.Content_Length_Type);
    --  Send the last header line Transfer-Encoding and Content_Length if
    --  necessary and send the file content. Length is the size of the
    --  resource/file as known before the call, Length returned value is the
-   --  actual number of bytes sent.
+   --  actual number of bytes sent. Close the resource only if Close is set to
+   --  True.
 
    procedure Answer_To_Client;
    --  This procedure use the C_Stat status data to build the correct answer
@@ -1103,7 +1105,9 @@ is
 
          --  Send message body
 
-         Send_Resource (AWS.Status.Method (C_Stat), File, Length);
+         Send_Resource
+           (AWS.Status.Method (C_Stat),
+            Response.Close_Resource (Answer), File, Length);
       end Send_Data;
 
       -------------------------
@@ -1183,7 +1187,9 @@ is
 
       case Response.Mode (Answer) is
 
-         when Response.File | Response.Stream | Response.Message =>
+         when Response.File | Response.File_Once
+           | Response.Stream | Response.Message
+           =>
             Send_Data;
 
          when Response.Header =>
@@ -1210,6 +1216,7 @@ is
 
    procedure Send_Resource
      (Method : in     Status.Request_Method;
+      Close  : in     Boolean;
       File   : in out Resources.File_Type;
       Length : in out Resources.Content_Length_Type)
    is
@@ -1361,14 +1368,18 @@ is
          end if;
       end if;
 
-      Resources.Close (File);
+      if Close then
+         Resources.Close (File);
+      end if;
 
    exception
       when Text_IO.Name_Error =>
          raise;
 
       when others =>
-         Resources.Close (File);
+         if Close then
+            Resources.Close (File);
+         end if;
          raise;
    end Send_Resource;
 
