@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -248,7 +248,7 @@ package body SOAP.Message.XML is
    -------------------
 
    function Load_Response
-     (XML : in AWS.Client.HTTP_Connection)
+     (Connection : in AWS.Client.HTTP_Connection)
       return Message.Response.Object'Class
    is
       use AWS.Client.XML.Input_Sources;
@@ -259,7 +259,7 @@ package body SOAP.Message.XML is
       Doc     : DOM.Core.Document;
 
    begin
-      Create (XML, Source);
+      Create (Connection, Source);
 
       --  If True, xmlns:* attributes will be reported in Start_Element
       Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
