@@ -31,6 +31,9 @@
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 
+with AWS.Messages;
+with AWS.Translater;
+
 package body AWS.Status is
 
    use Ada.Strings;
@@ -143,9 +146,9 @@ package body AWS.Status is
 
       if E = 0 then
          --  last parameter
-         return P (S .. P'Last);
+         return Translater.Decode_URL (P (S .. P'Last));
       else
-         return P (S .. E - 1);
+         return Translater.Decode_URL (P (S .. E - 1));
       end if;
    end Parameter;
 
@@ -189,9 +192,9 @@ package body AWS.Status is
 
                if E = 0 then
                   --  last parameter
-                  return P (S .. P'Last);
+                  return Translater.Decode_URL (P (S .. P'Last));
                else
-                  return P (S .. E - 1);
+                  return Translater.Decode_URL (P (S .. E - 1));
                end if;
             end if;
          end if;
