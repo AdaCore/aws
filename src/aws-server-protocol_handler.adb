@@ -290,32 +290,35 @@ is
          if Status = Messages.S401 then
             declare
                use Response;
-               Authenticate : Authentication_Mode
-                  := Authentication (Answer);
+               Authenticate : constant Authentication_Mode
+                 := Authentication (Answer);
             begin
                --  In case of Authenticate = Any
                --  We should create both header lines
                --  WWW-Authenticate: Basic
                --  and
                --  WWW-Authenticate: Digest
+
                if Authenticate = Response.Digest
-               or Authenticate = Any then
+                 or Authenticate = Any
+               then
                   Sockets.Put_Line
                     (Sock,
-                     Messages.Www_Authenticate (Realm (Answer),
-                       Digest.Create_Nonce,
-                       Response.Authentication_Stale (Answer)
-                       ));
+                     Messages.Www_Authenticate
+                       (Realm (Answer),
+                        Digest.Create_Nonce,
+                        Response.Authentication_Stale (Answer)));
                end if;
+
                if Authenticate = Basic
-               or Authenticate = Any then
+                 or Authenticate = Any
+               then
                   Sockets.Put_Line
                     (Sock,
                      Messages.Www_Authenticate (Realm (Answer)));
                end if;
             end;
          end if;
-
       end Send_General_Header;
 
       ----------------------
