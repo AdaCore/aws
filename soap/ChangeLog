@@ -1,3 +1,11 @@
+2004-07-11  Pascal Obry  <pascal@obry.org>
+
+	* soap-message-xml.adb:
+	(Parse_Namespaces): Handle only xmlns prefix.
+	(Parse_Param): Use the proper namespaces when calling Parse_Record
+	 and Parse_Array.
+	Fix regression with the Java/AXIS test.
+	
 2004-07-10  Pascal Obry  <pascal@obry.org>
 
 	* soap-message-xml.adb:
