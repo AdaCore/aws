@@ -4,8 +4,6 @@
 //                         Copyright (C) 2003-2004
 //                                ACT-Europe
 //                                                                          
-//  Authors: Dmitriy Anisimokv - Pascal Obry
-//
 //  This library is free software; you can redistribute it and/or modify    
 //  it under the terms of the GNU General Public License as published by    
 //  the Free Software Foundation; either version 2 of the License, or (at   
@@ -55,7 +53,7 @@
 //
 // Check the resutls:
 //
-//   $ diff -c jwsdl_6.res wsdl_6.out
+//   $ diff -wc jwsdl_6.res wsdl_6_main.out
 //
 // No difference should be reported.
 
@@ -90,6 +88,8 @@ public class wsdl_6 {
 
 	System.out.println (port.echo_Int (8));
 	System.out.println (port.echo_Int (3));
+	System.out.println (port.echo_Short ((short)987));
+	System.out.println (port.echo_Long ((long)-543876));
 	System.out.println (port.echo_Float ((float)89.12));
 	System.out.println (port.echo_Double (998877.123456));
 	System.out.println (port.echo_Boolean (true));
