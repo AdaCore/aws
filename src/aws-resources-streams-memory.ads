@@ -47,17 +47,25 @@ package AWS.Resources.Streams.Memory is
    type Stream_Type is new Streams.Stream_Type with private;
 
    subtype Stream_Element_Access is Utils.Stream_Element_Array_Access;
+   type Buffer_Access is access constant Ada.Streams.Stream_Element_Array;
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array);
+      Buffer   : in     Stream_Element_Array;
+      Trim     : in     Boolean := False);
    --  Append Buffer into the memory stream
 
    procedure Append
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Access);
    --  Append static data pointed to Buffer into the memory stream as is.
-   --  The stream will not free the memory on close.
+   --  The stream will free the memory on close.
+
+   procedure Append
+     (Resource : in out Stream_Type;
+      Buffer   : in     Buffer_Access);
+   --  Append static data pointed to Buffer into the memory stream as is.
+   --  The stream would not try to free the memory on close.
 
    procedure Read
      (Resource : in out Stream_Type;
@@ -85,10 +93,11 @@ package AWS.Resources.Streams.Memory is
 private
 
    package Containers is
-      new Memory_Streams (Element        => Stream_Element,
-                          Element_Index  => Stream_Element_Offset,
-                          Element_Array  => Stream_Element_Array,
-                          Element_Access => Stream_Element_Access);
+      new Memory_Streams (Element         => Stream_Element,
+                          Element_Index   => Stream_Element_Offset,
+                          Element_Array   => Stream_Element_Array,
+                          Element_Access  => Stream_Element_Access,
+                          Constant_Access => Buffer_Access);
 
    type Stream_Type is new Streams.Stream_Type with record
       Data : Containers.Stream_Type;

@@ -41,16 +41,24 @@ package body AWS.Resources.Streams.Memory is
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array) is
+      Buffer   : in     Stream_Element_Array;
+      Trim     : in     Boolean := False) is
    begin
-      Containers.Append (Resource.Data, Buffer);
+      Containers.Append (Resource.Data, Buffer, Trim);
    end Append;
 
    procedure Append
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Access) is
    begin
-      Containers.Append (Resource.Data, Buffer, Allow_Free => False);
+      Containers.Append (Resource.Data, Buffer);
+   end Append;
+
+   procedure Append
+     (Resource : in out Stream_Type;
+      Buffer   : in     Buffer_Access) is
+   begin
+      Containers.Append (Resource.Data, Buffer);
    end Append;
 
    -----------
