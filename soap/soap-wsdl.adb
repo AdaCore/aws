@@ -64,10 +64,16 @@ package body SOAP.WSDL is
    begin
       Standard := True;
 
-      if L_Type = "string" or else L_Type = "character" then
+      if L_Type = "string"
+        or else L_Type = "character"
+        or else L_Type = "unbounded_string"
+      then
          Result := P_String;
 
-      elsif L_Type = "integer" then
+      elsif L_Type = "integer"
+        or else L_Type = "natural"
+        or else L_Type = "positive"
+      then
          Result := P_Integer;
 
       elsif L_Type = "float" or else L_Type = "long_float" then
