@@ -255,10 +255,12 @@ is
          end if;
 
          --  Note that we cannot send the Content_Length header at this
-         --  point. A server must not send Content_Length if the
-         --  transfer-coding used is not identity. Here the file can be sent
-         --  using either identity or chunked transfer-coding. The proper
-         --  header will be sent in Send_Resource see [RFC 2616 - 4.4].
+         --  point. A server should not send Content_Length if the
+         --  transfer-coding used is not identity. This is allowed by the
+         --  RFC but it seems that some implementation does not handle this
+         --  right. The file can be sent using either identity or chunked
+         --  transfer-coding. The proper header will be sent in Send_Resource
+         --  see [RFC 2616 - 4.4].
 
          --  Send message body
 
@@ -1144,59 +1146,21 @@ is
       use type Status.Request_Method;
       use type Streams.Stream_Element_Offset;
 
-      Small_File_Size : constant := 4 * 1_024;
-      --  This is what AWS understand as being a small file. AWS will try to
-      --  not send such file with the chunked method.
-
-      Buffer_Size     : constant := 4 * 1_024;
+      Buffer_Size : constant := 4 * 1_024;
       --  Size of the buffer used to send the file.
 
-      Chunk_Size      : constant := 1_024;
-      --  Size of the buffer used to send the file with the chunk encoding.
-      --  This is the maximum size of the chunks.
+      Chunk_Size  : constant := 1_024;
+      --  Size of the buffer used to send the file with the chunked encoding.
+      --  This is the maximum size of each chunk.
 
       procedure Send_File;
       --  Send file in one part
 
       procedure Send_File_Chunked;
-      --  Send file in chunk (HTTP/1.1 only)
-
-      function Chunked_Message_Size return Positive;
-      --  Returns the total number of bytes that is sent by the
-      --  Senfd_File_Chunked. This is the length of the file plus all the
-      --  encoding data.
+      --  Send file in chunks, used in HTTP/1.1 and when the message length
+      --  is not known)
 
       Last : Streams.Stream_Element_Offset;
-
-      --------------------------
-      -- Chunked_Message_Size --
-      --------------------------
-
-      function Chunked_Message_Size return Positive is
-         Size_Chunk_Size      : constant Natural
-           := Utils.Hex (Chunk_Size)'Length;
-
-         Size_Last_Chunk_Size : Natural;
-         N_Chunk              : Natural;
-         Last_Chunk           : Natural;
-         Size_Last_Chunk      : Natural;
-      begin
-         N_Chunk := Length / Chunk_Size;
-
-         Size_Last_Chunk := Length - (N_Chunk * Chunk_Size);
-
-         if Size_Last_Chunk = 0 then
-            Last_Chunk := 0;
-         else
-            Last_Chunk := 1;
-            Size_Last_Chunk_Size := Utils.Hex (Size_Last_Chunk)'Length;
-         end if;
-
-         return Length                               -- The size of the file
-           + N_Chunk * (4 + Size_Chunk_Size)         -- Size of full chunks
-           + Last_Chunk * (4 + Size_Last_Chunk_Size) -- Size of last chunk
-           + 3;                                      -- Terminating chunk
-      end Chunked_Message_Size;
 
       ---------------
       -- Send_File --
@@ -1228,6 +1192,8 @@ is
 
       procedure Send_File_Chunked is
          use type Streams.Stream_Element_Array;
+         --  Note that we do not use a buffered socket here. Opera on SSL
+         --  sockets does not like chunk that are not sent in a whole.
 
          Buffer : Streams.Stream_Element_Array (1 .. Chunk_Size);
          --  Each chunk will have a maximum length of Buffer'Length
@@ -1246,7 +1212,7 @@ is
             if Last = 0 then
                --  There is not more data to read, the previous chunk was the
                --  last one, just terminate the chunk message here.
-               Net.Buffered.Write (Sock, Last_Chunk);
+               Net.Send (Sock, Last_Chunk);
                exit Send_Chunks;
             end if;
 
@@ -1273,10 +1239,10 @@ is
 
                if Last < Buffer'Last then
                   --  No more data, add the terminating chunk
-                  Net.Buffered.Write (Sock, Chunk & Last_Chunk);
+                  Net.Send (Sock, Chunk & Last_Chunk);
                   exit Send_Chunks;
                else
-                  Net.Buffered.Write (Sock, Chunk);
+                  Net.Send (Sock, Chunk);
                end if;
             end;
          end loop Send_Chunks;
@@ -1284,8 +1250,7 @@ is
 
    begin
       if Status.HTTP_Version (C_Stat) = HTTP_10
-        or else (Length /= Response.Undefined_Length
-                   and then Length < Small_File_Size)
+        or else Length /= Response.Undefined_Length
       then
          --  If content length is undefined and we handle an HTTP/1.0 protocol
          --  then the end of the stream will be determined by closing the
@@ -1305,16 +1270,19 @@ is
          end if;
 
       else
-         --  Terminate header, send the Content_Length see [RFC 2616 - 4.4]
-         --  This is the number of bytes in the chunked encoding message.
+         --  HTTP/1.1 case and we do not know the message lenght.
+         --
+         --  Terminate header, do not send the Content_Length see
+         --  [RFC 2616 - 4.4]. It could be possible to send the Content_Length
+         --  as this is cleary a permission but it does not work in some
+         --  obsucre cases.
 
-         if Length /= Response.Undefined_Length then
-            Net.Buffered.Put_Line
-              (Sock, Messages.Content_Length (Chunked_Message_Size));
-         end if;
-
-         Net.Buffered.Put_Line (Sock, "Transfer-Encoding: chunked");
+         Net.Buffered.Put_Line (Sock, Messages.Transfer_Encoding ("chunked"));
          Net.Buffered.New_Line (Sock);
+         Net.Buffered.Flush (Sock);
+
+         --  Past this point we will not use the buffered mode. Opera on SSL
+         --  sockets does not like chunk that are not sent in a whole.
 
          if Method /= Status.HEAD then
             Length := 0;
