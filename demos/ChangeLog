@@ -1,3 +1,10 @@
+2004-12-01  Pascal Obry  <pascal@obry.org>
+
+	* demos.gpr:
+	(Source_Files): Rename hello_demo-types.adb to hello_demo-types.ads
+	 and interoplab-types.adb to interoplab-types.ads. There body are
+	 not anymore generated.
+
 2004-11-26  Pascal Obry  <pascal@obry.org>
 
 	* demos_shared.gpr:

@@ -1,9 +1,9 @@
-2004-12-01  Pascal Obry  <obry@adacore.com>
+2004-12-01  Pascal Obry  <pascal@obry.org>
 
 	* soap-wsdl-parameters.adb:
 	Update copyright notice.
 
-2004-12-01  Pascal Obry  <obry@adacore.com>
+2004-12-01  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator.adb:
 	Rewrite a good part of the code generator to comply with the
