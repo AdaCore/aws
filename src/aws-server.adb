@@ -564,8 +564,7 @@ package body AWS.Server is
 
          if Wait_Counter > 30 then
             Ada.Text_IO.Put_Line
-              (Text_IO.Current_Error,
-               "Terminating lines takes too much time.");
+              (Text_IO.Current_Error, "Can't terminate all lines.");
 
             exit;
          end if;
@@ -587,8 +586,7 @@ package body AWS.Server is
 
          if Wait_Counter > 10 then
             Text_IO.Put_Line
-              (Text_IO.Current_Error,
-               "Terminating clearing task takes too much time.");
+              (Text_IO.Current_Error, "Can't terminate task cleaner.");
 
             exit;
          end if;
