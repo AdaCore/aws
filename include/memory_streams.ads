@@ -49,11 +49,13 @@ package Memory_Streams is
    --  Append the data to the resource.
 
    procedure Append
-     (Stream : in out Stream_Type;
-      Data   : in     Element_Access);
-   --  Append dynamically allocated data to the stream.
-   --  Application could not use Data after send it to the stream,
-   --  Stream would care about it, and free when necessary.
+     (Stream     : in out Stream_Type;
+      Data       : in     Element_Access;
+      Allow_Free : in     Boolean := True);
+   --  Append dynamically allocated data or access to the static data
+   --  to the stream. Application could not use Data after send it to the
+   --  stream if Allow_Free is True, Stream would care about it, and free
+   --  when necessary.
 
    function Size (Stream : in Stream_Type) return Element_Offset;
    --  Returns the size of the stream in bytes
@@ -83,8 +85,9 @@ private
    type Buffer_Access is access all Buffer_Type;
 
    type Buffer_Type is record
-      Data : Element_Access;
-      Next : Buffer_Access;
+      Data       : Element_Access;
+      Next       : Buffer_Access;
+      Allow_Free : Boolean := True;
    end record;
 
    type Stream_Type is limited record

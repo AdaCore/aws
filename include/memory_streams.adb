@@ -103,8 +103,9 @@ package body Memory_Streams is
    ------------
 
    procedure Append
-     (Stream : in out Stream_Type;
-      Data   : in     Element_Access) is
+     (Stream     : in out Stream_Type;
+      Data       : in     Element_Access;
+      Allow_Free : in     Boolean := True) is
    begin
       if Stream.First = null then
          Stream.First       := new Buffer_Type;
@@ -115,6 +116,12 @@ package body Memory_Streams is
 
       else
          if Stream.Last.Data'Length > Stream.Last_Length then
+            --  Last.Allow_Free could be false only after call this routine.
+
+            if not Stream.Last.Allow_Free then
+               raise Program_Error;
+            end if;
+
             declare
                Ptr : constant Element_Access
                   := new Element_Array'(Stream.Last.Data
@@ -125,10 +132,11 @@ package body Memory_Streams is
             end;
          end if;
 
-         Stream.Last.Next   := new Buffer_Type;
-         Stream.Last        := Stream.Last.Next;
-         Stream.Last.Data   := Data;
-         Stream.Last_Length := Data'Length;
+         Stream.Last.Next       := new Buffer_Type;
+         Stream.Last            := Stream.Last.Next;
+         Stream.Last.Data       := Data;
+         Stream.Last_Length     := Data'Length;
+         Stream.Last.Allow_Free := Allow_Free;
       end if;
 
       Stream.Length  := Stream.Length + Data'Length;
@@ -186,7 +194,10 @@ package body Memory_Streams is
       procedure Deallocate is
          new Ada.Unchecked_Deallocation (Buffer_Type, Buffer_Access);
    begin
-      Free (Item.Data);
+      if Item.Allow_Free then
+         Free (Item.Data);
+      end if;
+
       Deallocate (Item);
    end Free;
 
