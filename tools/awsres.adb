@@ -40,6 +40,7 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
 with GNAT.Command_Line;
 with GNAT.Calendar.Time_IO;
@@ -111,13 +112,12 @@ procedure AwsRes is
       File_Time : Calendar.Time;
 
       O_File    : Text_IO.File_Type;
-
-      D_File    : aliased RS.Disk.Stream_Type;
-      Z_File    : aliased RS.ZLib.Stream_Type;
-      I_File    : RS.Stream_Access;
+      I_File    : RS.Stream_Access := new RS.Disk.Stream_Type;
 
       First     : Boolean := True;
 
+      procedure Free is new Ada.Unchecked_Deallocation
+                              (RS.Stream_Type'Class, RS.Stream_Access);
    begin
       if not Quiet then
          Text_IO.Put ("creating " & Filename);
@@ -127,15 +127,10 @@ procedure AwsRes is
 
       Text_IO.Create (O_File, Text_IO.Out_File, Pck_Name);
 
-      RS.Disk.Open (D_File, Filename);
+      RS.Disk.Open (RS.Disk.Stream_Type (I_File.all), Filename);
 
       if Compress then
-         RS.ZLib.Deflate_Initialize
-           (Z_File, D_File'Unchecked_Access, Header => ZLib.GZip);
-         I_File := Z_File'Unchecked_Access;
-
-      else
-         I_File := D_File'Unchecked_Access;
+         I_File := RS.ZLib.Deflate_Create (I_File, Header => ZLib.GZip);
       end if;
 
       --  Output package declaration
@@ -220,6 +215,8 @@ procedure AwsRes is
         (O_File, "end " & To_String (Root_Pck) & '.' & Unit_Name & ';');
 
       RS.Close (I_File.all);
+      Free     (I_File);
+
       Text_IO.Close (O_File);
 
       if not Quiet then
