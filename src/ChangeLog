@@ -1,5 +1,11 @@
 2000-11-12  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
+	* aws-response.adb:
+	Put routine in alpha order.
+
+	* aws-response.ads:
+	Comment API.
+
 	* aws-server-protocol_handler.adb:
 	Lot of change to use AWS.Status.Set instead of AWS.Status.
 
