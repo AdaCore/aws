@@ -1089,7 +1089,7 @@ package body AWS.Client is
 
          if URI = "" then
             Send_Header
-              (Connection.Socket.all,
+              (Sock,
                Method & ' '
                  & AWS.URL.Pathname_And_Parameters (Connection.Host_URL, False)
                  & ' ' & HTTP_Version);
@@ -1107,7 +1107,7 @@ package body AWS.Client is
                end loop;
 
                Send_Header
-                 (Connection.Socket.all,
+                 (Sock,
                   Method & ' ' & E_URI & ' ' & HTTP_Version);
             end;
          end if;
@@ -1168,7 +1168,7 @@ package body AWS.Client is
 
       if Connection.SOAPAction /= No_Data then
          Send_Header
-           (Connection.Socket.all,
+           (Sock,
             Messages.SOAPAction (To_String (Connection.SOAPAction)));
       end if;
 
