@@ -32,11 +32,11 @@ build:
 	done
 
 ssl_mode:
-	-rm *.o *.ali
+	-rm -f *.o *.ali
 	cp aws-net-ssl.adb aws-net.adb
 
 std_mode:
-	-rm *.o *.ali
+	-rm -f *.o *.ali
 	cp aws-net-std.adb aws-net.adb
 
 gnat_oslib:
