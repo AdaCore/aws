@@ -199,5 +199,5 @@ implemented:
 - Check if it is possible to pass some more information into the template
   parsers context when using callbacks.
 
-- Fix/update the web_elements template comments.
-  Would be nice to use the new template engine @@SET@@ command tag.
+- Would be nice to use the new template engine @@SET@@ command tag
+  in the Web Elements.
