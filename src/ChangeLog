@@ -8,6 +8,8 @@
 	 connect creation.
 	New implementation could get server certificate even thru proxy just
 	 after connect creation.
+	(Connect): send CONNECT command to proxy if necessary. Do not send
+	 Proxy-Connection header line.
 
 2004-09-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
