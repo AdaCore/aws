@@ -1,6 +1,11 @@
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:
+	Add with for xmlada project.
+	
+2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* src.gpr:
 	Add support for AWS library.
 	Update copyright notice.
 	(Limited_Debug_Switches): Add comment.

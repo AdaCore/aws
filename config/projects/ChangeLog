@@ -1,0 +1,4 @@
+2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.gpr, components.gpr:
+	Initial revision.

@@ -1,3 +1,9 @@
+2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* demos.gpr:
+	Remove LIB_XMLADA reference.
+	Update copyright notice.
+
 2004-01-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* runme_service.adb:
