@@ -43,6 +43,7 @@
 * Using AWS::
 * High level services::
 * SOAP::
+* Sending e-mail::
 * Resources::
 * Status page::
 * Last notes::
@@ -61,6 +62,7 @@
 @code{AWS} stand for @i{Ada Web Server}. It is an Ada implementation of the
 HTTP/1.1 protocol as defined in the RFC 2616 from June 1999.
 
+@sp 1
 @noindent
 The goal is not to build a full Web server but more to make it possible
 to use a Web browser (like Internet Explorer, or Netscape Navigator) to
@@ -68,6 +70,7 @@ control an Ada application. As we'll see later it is also possible to
 have two Ada programs exchange informations via the HTTP protocol. This
 is possible as @code{AWS} also implement the client side of the HTTP protocol.
 
+@sp 1
 @noindent
 Moreover with this library it is possible to have more than one server
 in a single application. It is then possible to export different kind
@@ -75,6 +78,7 @@ of services by using different HTTP ports, or two have different port
 for different services priority. Client which must be served with a
 very high priority can be assigned a specific port for example.
 
+@sp 1
 @noindent
 As designed, @code{AWS} big difference with a standard @code{CGI} server
 is that there is only one executable. A @code{CGI} server has one
@@ -82,14 +86,42 @@ executable for each request or so, this becomes a pain to build and
 to distribute when the project gets bigger. We will also see that it is
 easier with @code{AWS} to deal with session data.
 
-@noindent
-You must keep in mind that this is work in progress and only a small
-part of the HTTP/1.1 protocol is implemented. Nevertheless the
-@code{AWS} project grows as days goes...
-
+@sp 1
 @noindent
 @code{AWS} support also HTTPS (secure HTTP) using SSL. This is based on OpenSSL
 a very good and Open Source SSL implementation.
+
+@sp 1
+@noindent
+Major supported features are:
+
+@itemize @bullet
+
+@item HTTP implementation
+
+@item HTTPS (Secure HTTP) implementation based on SSLv3
+
+@item Web Services - SOAP based
+
+@item Basic and Digest authentication
+
+@item Transparent session handling
+
+@item File upload
+
+@item Server push
+
+@item SMTP mail
+
+@item Embedded resources (full self dependant Web server)
+
+@item Template Web pages (separate the code and the design)
+
+@item Complete client API
+
+@item Web server activity log
+
+@end itemize
 
 @c ----------------------------------------------------------------------
 
@@ -114,6 +146,8 @@ portable across platforms. To build @code{AWS} you need:
 @itemize @bullet
 
 @item GNU/Ada (GNAT compiler) ;
+@cindex GNAT
+@cindex GNU/Ada
 
 @code{AWS} uses some @code{GNAT} specific packages and we have no plan
 to support another compiler at this point. It is too much work for us
@@ -124,11 +158,11 @@ install @code{GNATWin} (Windows specific package).
 @item a socket binding ;
 @cindex socket binding
 
-On Windows you must use the one distributed at:
+On Windows you must use the one distributed at @*
 @url{http://perso.wanadoo.fr/pascal.obry/contrib.html} which is a
 Win32 port (done by Dmitriy Anisimkov) of the ENST version.
 
-On UNIX you must use the socket binding from ENST 
+On UNIX you must use the socket binding from ENST @*
 @url{http://www.rfc1149.net/devel/adasockets}.
 
 @item a POSIX binding - Interface to the underlying OS services (@b{optional}) ;
@@ -216,15 +250,23 @@ At this point you can build AWS. There is two ways to build AWS:
 @item with SSL support
 
 @smallexample
+@cartouche
+@group
 $ make set_ssl
 $ make build
+@end group
+@end cartouche
 @end smallexample
 
 @item without SSL support (no need for the OpenSSL libraries in this case).
 
 @smallexample
+@cartouche
+@group
 $ make set_std
 $ make build
+@end group
+@end cartouche
 @end smallexample
 
 @end itemize
@@ -234,7 +276,11 @@ In both cases it is possible to build AWS in debug mode by setting
 DEBUG make variable.
 
 @smallexample
+@cartouche
+@group
 $ make build DEBUG=1
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -277,7 +323,7 @@ authentication and basic authentication on the Web site.
 
 @item auth
 
-A simple program to test the Web Basic authentication feature.
+A simple program to test the Web Basic and Digest authentication feature.
 
 @item com_1
 @item com_2
@@ -333,7 +379,11 @@ If @code{XMLAda} is installed it is possible to build the SOAP binding
 and the SOAP demos, for this just type:
 
 @smallexample
+@cartouche
+@group
 $ make build_soap
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -375,7 +425,11 @@ location. The target directory is defined with the @var{INSTALL}
 install:
 
 @smallexample
+@cartouche
+@group
 $ make install
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -383,7 +437,11 @@ To install @code{AWS} into another directory just force the make
 INSTALL variable:
 
 @smallexample
+@cartouche
+@group
 $ make install INSTALL=/opt
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -485,7 +543,11 @@ To build a server you must:
 @cindex HTTP declaration
 
 @smallexample
+@cartouche
+@group
 WS  : AWS.Server.HTTP;
+@end group
+@end cartouche
 @end smallexample
 
 @item Start the server
@@ -502,13 +564,13 @@ You need to start the server before using it. This is done by calling
   (Web_Server                : @b{in out} HTTP;
    Name                      : @b{in}     String;
    Callback                  : @b{in}     Response.Callback;
-   Max_Connection            : @b{in}     Positive          := Def_Max_Connect;
-   Admin_URI                 : @b{in}     String            := Def_Admin_URI;
-   Port                      : @b{in}     Positive          := Def_Port;
-   Security                  : @b{in}     Boolean           := False;
-   Session                   : @b{in}     Boolean           := False;
-   Case_Sensitive_Parameters : @b{in}     Boolean           := True;
-   Upload_Directory          : @b{in}     String            := Def_Upload_Dir);
+   Max_Connection            : @b{in}     Positive     := Def_Max_Connect;
+   Admin_URI                 : @b{in}     String       := Def_Admin_URI;
+   Port                      : @b{in}     Positive     := Def_Port;
+   Security                  : @b{in}     Boolean      := False;
+   Session                   : @b{in}     Boolean      := False;
+   Case_Sensitive_Parameters : @b{in}     Boolean      := True;
+   Upload_Directory          : @b{in}     String       := Def_Upload_Dir);
 @i{--  Start the Web server. It initialize the Max_Connection connections}
 @i{--  lines. Name is just a string used to identify the server. This is used}
 @i{--  for example in the administrative page. Admin_URI must be set to enable}
@@ -727,7 +789,8 @@ that will answer ``Hello World'' if we ask for the internal resource
    @b{end} HW_CB;
 
 @b{begin}
-   AWS.Server.Start (WS, "Hello World", Callback => HW_CB'Unrestricted_Access);
+   AWS.Server.Start
+      (WS, "Hello World", Callback => HW_CB'Unrestricted_Access);
    @b{delay} 30.0;
 @b{end} Hello_World;
 @end group
@@ -1268,25 +1331,37 @@ Data := Client.Get
 From there you can ask for the result's content type:
 
 @smallexample
+@cartouche
+@group
 @b{if} Response.Content_Type (Data) = "text/html" @b{then}
    ...
 @b{end if};
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
 Or using the MIME types defined in @code{AWS.MIME} unit:
 
 @smallexample
+@cartouche
+@group
 @b{if} Response.Content_Type (Data) = MIME.Text_HTML @b{then}
    ...
 @b{end if};
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
 And display the content if it is some kind of text data:
 
 @smallexample
+@cartouche
+@group
 Text_IO.Put_Line (Response.Message_Body (Data));
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -1430,8 +1505,12 @@ Here is how to create an Hotplug module:
 @sp 1
 
 @smallexample
+@cartouche
+@group
 WS  : AWS.Server.HTTP
   (3, 1235, False, Hotplug_CB.Hotplug'Access, False);
+@end group
+@end cartouche
 @end smallexample
 
 Here we have a server listening to the port 1235. This server can be
@@ -1487,7 +1566,11 @@ served as a key.
 On the server side you must activate the Hotplug feature:
 
 @smallexample
+@cartouche
+@group
 AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -1610,7 +1693,11 @@ The log format is using the same format than the Apache Web server.
 
 For example:
 
+@cartouche
+@group
 100.99.12.1 -  - [22/Nov/2000:11:44:14] "GET /whatever HTTP/1.1" 200 1789
+@end group
+@end cartouche
 @end smallexample
 
 @c ----------------------------------------------------------------------
@@ -1741,6 +1828,8 @@ This service is a ready to use static page server callback. Using it
 is possible to build a simple static page server, as simple as:
 
 @smallexample
+@cartouche
+@group
 @b{with} AWS.Server;
 @b{with} AWS.Services.Page_Server;
 
@@ -1757,6 +1846,8 @@ is possible to build a simple static page server, as simple as:
 
    AWS.Server.Shutdown (WS);
 @b{end} WPS;
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -1856,6 +1947,8 @@ The SOAP Payload is the XML message, it contains the procedure name to
 be called and the associated parameters.
 
 @smallexample
+@cartouche
+@group
 @b{function} SOAP_CB (Request : @b{in} AWS.Status.Data) 
   @b{return} AWS.Response.Data 
 @b{is}
@@ -1864,6 +1957,8 @@ be called and the associated parameters.
 
    Payload : @b{constant} SOAP.Message.Payload.Object
      := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -1879,8 +1974,12 @@ Client. This XML Payload is then parsed using
 The SOAP procedure parameters.
 
 @smallexample
+@cartouche
+@group
 Params  : @b{constant} SOAP.Parameters.List
   := SOAP.Message.Parameters (Payload);
+@end group
+@end cartouche
 @end smallexample
 
 @code{SOAP.Parameters.List} is a structure which holds the SOAP parameters.
@@ -1889,15 +1988,23 @@ Each parameter can be retrieved using a @code{SOAP.Parameters} API,
 @code{myStruc} which is a SOAP struct:
 
 @smallexample
+@cartouche
+@group
 My_Struct : @b{constant} SOAP_Record 
   := SOAP.Parameters.Get (Params, "myStruct");
+@end group
+@end cartouche
 @end smallexample
 
 Another example, to get the parameter named @code{myInt} which is a
 SOAP integer:
 
 @smallexample
+@cartouche
+@group
 My_Int : @b{constant} Integer := SOAP.Parameters.Get (Params, "myInt");
+@end group
+@end cartouche
 @end smallexample
 
 @sp 1
@@ -1917,6 +2024,8 @@ This is the procedure answer. A SOAP answer is built from the SOAP
 Payload and by setting the parameters returned.
 
 @smallexample
+@cartouche
+@group
 @b{declare}
    Resp        : SOAP.Message.Response.Object;
    Resp_Params : SOAP.Parameters.List;
@@ -1926,6 +2035,8 @@ Payload and by setting the parameters returned.
    Resp_Params := +I (My_Int * 2, "answer");
 
    SOAP.Message.Set_Parameters (Resp, Resp_Params);
+@end group
+@end cartouche
 @end smallexample
 
 This build a response which is a single integer value named
@@ -1940,7 +2051,11 @@ This last step will encode the response object in XML and will returns
 it as the body of an HTTP message.
 
 @smallexample
+@cartouche
+@group
 @b{return} SOAP.Message.Response.Build (Resp);
+@end group
+@end cartouche
 @end smallexample
 
 @end enumerate
@@ -1963,8 +2078,12 @@ As for the SOAP servers, the SOAP parameters are built using a
 @code{SOAP.Parameters.List} object.
 
 @smallexample
+@cartouche
+@group
 Params : @b{constant} Parameters.List 
   := +I (10, "v1") & I (32, "v2");
+@end group
+@end cartouche
 @end smallexample
 
 @sp 1
@@ -1975,10 +2094,14 @@ Params : @b{constant} Parameters.List
 The Payload object is the procedure name and the associated parameters.
 
 @smallexample
+@cartouche
+@group
 @b{declare}
    Payload : Message.Payload.Object;
 @b{begin}
    Payload := Message.Payload.Build ("Add", Params);
+@end group
+@end cartouche
 @end smallexample
 
 @sp 1
@@ -1991,8 +2114,12 @@ Service. Let's say that this server is named @code{myserver}, it is
 listening on port @code{8082} and the @code{SOAPAction} is @code{soapdemo}.
 
 @smallexample
+@cartouche
+@group
 Resp : @b{constant} Message.Response.Object'Class :=
    SOAP.Client.Call ("http://myserver:8082/soapdemo", Payload);
+@end group
+@end cartouche
 @end smallexample
 
 @sp 1
@@ -2004,7 +2131,11 @@ Let's say that the answer is sent back into the parameter named
 "myres", to get it:
 
 @smallexample
+@cartouche
+@group
 My_Res : @b{constant} Integer := SOAP.Parameters.Get (Params, "myres");
+@end group
+@end cartouche
 @end smallexample
 
 @end enumerate
@@ -2014,9 +2145,99 @@ In the above example we have called a Web Service whose spec could be
 described in Ada as follow:
 
 @smallexample
+@cartouche
+@group
 @b{function} Add (V1, V2 : @b{in} Integer) @b{return} Integer;
 @i{--  Add V1 and V2 and returns the result. In SOAP the result is named "myres"}
+@end group
+@end cartouche
 @end smallexample
+
+@c ----------------------------------------------------------------------
+
+@node Sending e-mail
+@chapter Sending e-mail
+@cindex Sending e-mail
+@cindex SMTP
+@cindex Simple Mail Transfer Protocol
+
+@noindent
+AWS provides a complete API to send e-mail using SMTP protocol. You
+need to have access to an SMTP server to use this feature. The API
+covers sending simple mail with text message and/or with MIME
+attachments (base64 encoded). Here are the steps to send a simple e-mail:
+
+@itemize
+
+@item Initialize the SMTP server
+
+@smallexample
+@cartouche
+@group
+SMTP_Server : SMTP.Receiver 
+   := SMTP.Client.Initialize ("smtp.hostname");
+@end group
+@end cartouche
+@end smallexample
+
+Here AWS uses the default SMTP port to create an SMTP mail server but
+it is possible to specify a different one. The hostname specified
+must be a valid SMTP server.
+
+@item Send the e-mail
+
+@sp 1
+To send an e-mail there is many different API. Let's send a simple text mail.
+
+@smallexample
+@cartouche
+@group
+Status : SMTP.Status;
+
+SMTP.Client.Send 
+  (SMTP_Server,
+   From    => SMTP.E_Mail ("Pascal Obry", "p.obry@@wanadoo.fr"),
+   To      => SMTP.E_Mail ("John Doe", "john.doe@@here.com"),
+   Subject => "About AWS SMTP protocol",
+   Message => "AWS can now send SMTP mails",
+   Status  => Status);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Here Status will contain the SMTP returned status.
+
+@item Check that everything is ok
+
+@sp 1
+@noindent
+Using above status data it is possible to check that the message was
+sent or not by the server. The status contain a code and an error
+message, both of them can be retrieved using specific routines,
+@xref{AWS.SMTP}. It is also possible to check that the call was
+successful with @code{SMTP.Is_Ok} routine.
+
+@smallexample
+@cartouche
+@group
+@b{if not} SMTP.Is_Ok (Status) @b{then}
+   Put_Line ("Can't send message: " & SMTP.Status_Message (Status));
+@b{end if};
+@end group
+@end cartouche
+@end smallexample
+
+@end itemize
+
+@noindent
+In the above example, the message content was given as a string but it
+is possible to specify a disk file. AWS can also send MIME messages
+either from disk files or with in memory base64 encoded binary
+data. The API provides also a way to send messages to multiple
+recipients at the same time. These features are not described here,
+complete documentation can be found on the spec @pxref{AWS.SMTP} and
+@pxref{AWS.SMTP.Client}.
 
 @c ----------------------------------------------------------------------
 
@@ -2051,7 +2272,11 @@ directly in the callback procedure and contain a reference to the
 image @file{logo.png}. To build the resource tree:
 
 @smallexample
+@cartouche
+@group
 $ awsres logo.png
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -2293,14 +2518,17 @@ unbeatable. AWS is and will stay an embedded HTTP component with a nice
 framework to build Web applications. If you have an idea or need a
 feature not yet implemented, send us a mail.
 
+@sp 1
 @noindent
 Note that AWS has some built-in features that Apache does not
 have. And of course Apache has some features that AWS does not have.
 
+@sp 1
 @noindent
 Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
+@sp 1
 @noindent
 So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
 Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
@@ -2335,6 +2563,8 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 * AWS.Services.Dispatchers.Virtual_Host::
 * AWS.Services.Page_Server::
 * AWS.Session::
+* AWS.SMTP::
+* AWS.SMTP.Client::
 * AWS.Status::
 * AWS.Templates::
 * AWS.URL::
@@ -2492,6 +2722,18 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 @cindex AWS.Session
 
 @include ../src/aws-session.ads.texi
+
+@node AWS.SMTP
+@section AWS.SMTP
+@cindex AWS.SMTP
+
+@include ../src/aws-smtp.ads.texi
+
+@node AWS.SMTP.Client
+@section AWS.SMTP.Client
+@cindex AWS.SMTP.Client
+
+@include ../src/aws-smtp-client.ads.texi
 
 @node AWS.Status
 @section AWS.Status
