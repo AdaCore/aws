@@ -67,11 +67,11 @@ procedure Head is
 begin
    AWS.Server.Start
      (HTTP, "Testing head request.",
-      CB'Unrestricted_Access, Port => 7645, Max_Connection => 3);
+      CB'Unrestricted_Access, Port => 1244, Max_Connection => 3);
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:7645",
+      Host       => "http://localhost:1244",
       Timeouts   => (5, 5));
 
    Client.Get (Connect, R_Get,  '/' & My_Name);

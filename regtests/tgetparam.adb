@@ -107,7 +107,7 @@ procedure Tgetparam is
    begin
       AWS.Server.Start
         (HTTP, "Tgetparam",
-         CB'Unrestricted_Access, Port => 7645, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => 1242, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -144,19 +144,19 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:7645/simple");
-   Request ("http://localhost:7645/simple?p1=8&p2=azerty%20qwerty");
-   Request ("http://localhost:7645/simple?p2=8&p1=azerty%20qwerty");
-   Request ("http://localhost:7645/doesnotexist?p=8");
+   Request ("http://localhost:1242/simple");
+   Request ("http://localhost:1242/simple?p1=8&p2=azerty%20qwerty");
+   Request ("http://localhost:1242/simple?p2=8&p1=azerty%20qwerty");
+   Request ("http://localhost:1242/doesnotexist?p=8");
 
-   Request ("http://localhost:7645/complex?p1=1&p2=2&p3=3&p4=4&p5=5&p6=6"
+   Request ("http://localhost:1242/complex?p1=1&p2=2&p3=3&p4=4&p5=5&p6=6"
             & "&p7=7&p8=8&p9=9&p10=10&p11=11&p12=12&p13=13&p14=14&p15=15"
             & "&very_long_name_in_a_get_form=alongvalueforthistest");
 
-   Request ("http://localhost:7645/multiple?" &
+   Request ("http://localhost:1242/multiple?" &
             "par=1&par=2&par=3&par=4&par=whatever");
 
-   Request ("http://localhost:7645/simple?p1=8&p2=azerty%20qwerty");
+   Request ("http://localhost:1242/simple?p1=8&p2=azerty%20qwerty");
 
    Server.Stopped;
 

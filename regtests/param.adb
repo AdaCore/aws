@@ -100,7 +100,7 @@ procedure Param is
    begin
       AWS.Server.Start
         (HTTP, "param",
-         CB'Unrestricted_Access, Port => 7645, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => 1243, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -137,12 +137,12 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:7645/call");
-   Request ("http://localhost:7645/call call");
-   Request ("http://localhost:7645/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
-   Request ("http://localhost:7645/call call?p1=8&p2=azerty%3e%20qwerty");
-   Request ("http://localhost:7645/call%20call%3fp1=a%20a%3f");
-   Request ("http://localhost:7645/spec?p%261=1%3d1&p%3D2=2%262");
+   Request ("http://localhost:1243/call");
+   Request ("http://localhost:1243/call call");
+   Request ("http://localhost:1243/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
+   Request ("http://localhost:1243/call call?p1=8&p2=azerty%3e%20qwerty");
+   Request ("http://localhost:1243/call%20call%3fp1=a%20a%3f");
+   Request ("http://localhost:1243/spec?p%261=1%3d1&p%3D2=2%262");
 
    Server.Stopped;
 

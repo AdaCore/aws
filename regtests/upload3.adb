@@ -116,7 +116,7 @@ procedure Upload3 is
       Web_Config : Config.Object;
    begin
       Config.Set.Server_Name (Web_Config, "upload2");
-      Config.Set.Server_Port (Web_Config, 7643);
+      Config.Set.Server_Port (Web_Config, 1241);
       Config.Set.Max_Connection (Web_Config, 5);
       Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists");
 
@@ -166,7 +166,7 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:7643/upload", "upload2.ali");
+   Request ("http://localhost:1241/upload", "upload2.ali");
 
    Server.Stopped;
 
