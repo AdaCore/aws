@@ -217,9 +217,17 @@ makefile.conf
 readme.txt
 regtests/afile.adb
 regtests/afile.out
+regtests/afile_sec.adb
+regtests/afile_sec.out
+regtests/afile_pack.ads
+regtests/afile_pack.adb
 regtests/alldifs.out
 regtests/append.adb
 regtests/append.out
+regtests/append_sec.adb
+regtests/append_sec.out
+regtests/append_pack.ads
+regtests/append_pack.adb
 regtests/auth.adb
 regtests/auth.out
 regtests/auth2.adb
