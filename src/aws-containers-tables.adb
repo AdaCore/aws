@@ -316,7 +316,7 @@ package body AWS.Containers.Tables is
    function Normalize_Name
      (Name     : in String;
       To_Upper : in Boolean)
-      return   String is
+      return String is
    begin
       if To_Upper then
          return Ada.Characters.Handling.To_Upper (Name);
