@@ -61,7 +61,7 @@ package AWS.Utils is
    --  Constraint_Error is Hex is not an hexadecimal number.
 
    function Is_Number (S : in String) return Boolean;
-   --  Returns True is S contains only decimal digits.
+   --  Returns True is S contains only decimal digits and is not empty.
 
    function Get_MD5 (Data : in String) return MD5.Digest_String;
    --  Returns the MD5 digest value for the Data string.
