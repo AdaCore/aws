@@ -11,8 +11,8 @@
 
 @titlepage
 
-@title AWS
-@subtitle Ada Web Server
+@title AWS - version @_VERSION_@
+@subtitle Ada Web Server User's Guide
 @subtitle $Revision$
 @subtitle $Date$
 @author Dmitriy Anisimkov (anisimkov@@yahoo.com)
