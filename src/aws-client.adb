@@ -679,7 +679,7 @@ package body AWS.Client is
          --  Strip the unused bytes
 
          declare
-            Copy : Stream_Element_Array_Access
+            Copy : constant Stream_Element_Array_Access
               := new Stream_Element_Array (1 .. Data_Last);
          begin
             Copy.all := Data (1 .. Data_Last);
@@ -795,7 +795,7 @@ package body AWS.Client is
 
                else
                   declare
-                     Elements : Stream_Element_Array_Access
+                     Elements : constant Stream_Element_Array_Access
                        := Read_Binary_Message (CT_Len);
                   begin
                      Response.Set.Message_Body (Result, Elements);
