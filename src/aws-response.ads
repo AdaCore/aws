@@ -132,12 +132,12 @@ package AWS.Response is
    --
    --     Inline      : The file can be displayed inside the browser if
    --                   MIME type is supported. If not the browser will
-   --                   propose to save this file. This is the default setting.
+   --                   propose to save this file.
    --
    --     None        : No specific setting is sent to the browser. The
    --                   browser default setting will be used. Note that in
    --                   this case the browser determine the filename using
-   --                   the URI.
+   --                   the URI. This is the default setting.
 
    function File
      (Content_Type  : in String;
