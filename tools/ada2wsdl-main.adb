@@ -167,9 +167,9 @@ procedure Ada2WSDL.Main is
       New_Line;
       Put_Line ("ada2wsdl options:");
       New_Line;
-      Put_Line ("  -f       replace an existing WSDL document");
-      Put_Line ("  -q       quiet mode");
-      Put_Line ("  -v       verbose mode - output the version");
+      Put_Line ("  -f       Replace an existing WSDL document");
+      Put_Line ("  -q       Quiet mode");
+      Put_Line ("  -v       Verbose mode - output the version");
       Put_Line
         ("  -I path  A path to a directory containing a set of sources");
       Put_Line ("  -o file  WSDL file, <filename>.wsdl by default");
