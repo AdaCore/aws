@@ -1,5 +1,10 @@
 2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-utils.ads:
+	Minor reformatting.
+	
+2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-client.adb:
 	Update comment, fix one typo.
 	Minor reformatting.
@@ -27,6 +32,12 @@
 
 	* aws-status.ads, aws-status.adb:
 	(Preferred_Coding): New routine.
+
+2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.ads:
+	(Random_Integer): Restrict to 48 bits to avoid GNAT 5.x warnings.
+
 
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
