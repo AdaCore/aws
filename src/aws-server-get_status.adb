@@ -119,7 +119,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
          Sessions_Terminate := Sessions_Terminate
            & GNAT.Calendar.Time_IO.Image
-           (Time_Stamp + Session.Get_Lifetime, "%a %D %T");
+               (Time_Stamp + Session.Get_Lifetime, "%a %D %T");
 
          Build_Key_Value_List (SID);
 
