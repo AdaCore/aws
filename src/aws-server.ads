@@ -205,7 +205,7 @@ private
       --  with the socket FD. Phase set to Client_Header.
 
       procedure Release  (Index : in Positive);
-      --  Release slot number Index. Opened status is set to False.
+      --  Release slot number Index. Slot phase is set to Closed.
 
       function Free return Boolean;
       --  Returns True if there is some free slots available.
