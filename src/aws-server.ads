@@ -38,18 +38,25 @@ with Sockets;
 with AWS.Response;
 with AWS.Hotplug;
 with AWS.Config;
+with AWS.Default;
 
 package AWS.Server is
 
-   Def_Admin_URI  : String renames Config.Default_Admin_URI;
-   Def_Upload_Dir : String renames Config.Default_Upload_Directory;
+   Def_Admin_URI  : String renames Default.Admin_URI;
+   Def_Upload_Dir : String renames Default.Upload_Directory;
    Def_Port       : constant := Config.Default_Server_Port;
 
    type HTTP
-     (Max_Connection : Positive := Config.Default_Max_Connection)
+     (Max_Connection : Positive := Default.Max_Connection)
    is limited private;
    --  Max_Connection is the maximum number of simultaneous connection
    --  handled by the server.
+
+   procedure Start
+     (Web_Server                : in out HTTP;
+      Callback                  : in     Response.Callback;
+      Config                    : in     AWS.Config.Object);
+   --  Start server using a full configuration object.
 
    procedure Start
      (Web_Server                : in out HTTP;
@@ -113,23 +120,9 @@ private
 
    type Timeout_Mode is (Cleaner, Force);
 
-   --  maybe this timeouts should be in the server configuration
-   Timeouts : constant array (Timeout_Mode, Abortable_Phase) of Duration
-     := (Cleaner => -- Timeouts for Line_Cleaner
-           (Wait_For_Client  => Config.Cleaner_Wait_For_Client_Timeout,
-            Client_Header    => Config.Cleaner_Client_Header_Timeout,
-            Client_Data      => Config.Cleaner_Client_Data_Timeout,
-            Server_Response  => Config.Cleaner_Server_Response_Timeout),
+   type Timeouts_Array is array (Timeout_Mode, Abortable_Phase) of Duration;
 
-         Force   => -- Force timeouts used when there is no free slot
-           (Wait_For_Client  => Config.Force_Wait_For_Client_Timeout,
-            Client_Header    => Config.Force_Client_Header_Timeout,
-            Client_Data      => Config.Force_Client_Data_Timeout,
-            Server_Response  => Config.Cleaner_Server_Response_Timeout));
-
-   Data_Timeouts : constant array (Data_Phase) of Duration
-     := (Client_Data     => Config.Receive_Timeout,
-         Server_Response => Config.Send_Timeout);
+   type Data_Timeouts_Array is array (Data_Phase) of Duration;
 
    type Slot is record
       Sock                  : Sockets.Socket_FD;
@@ -198,7 +191,16 @@ private
       --  Add 1 to the slot activity. This is the total number of request
       --  handled by the slot.
 
+      procedure Set_Timeouts
+        (Phase_Timeouts : in Timeouts_Array;
+         Data_Timeouts  : in Data_Timeouts_Array);
+      --  Setup timeouts for slots before starting
+
    private
+
+      Timeouts      : Timeouts_Array;
+      Data_Timeouts : Data_Timeouts_Array;
+
       Set   : Slot_Set (1 .. N);
       Count : Natural := N;
    end Slots;
@@ -225,31 +227,21 @@ private
    use Ada.Strings.Unbounded;
 
    type HTTP
-     (Max_Connection : Positive := Config.Default_Max_Connection) is
+     (Max_Connection : Positive := Default.Max_Connection) is
    limited record
       Self                      : HTTP_Access := HTTP'Unchecked_Access;
       --  Point to the record.
       Shutdown                  : Boolean     := False;
       --  True when shutdown has been requested.
-      Name                      : Unbounded_String;
-      --  The server's name.
-      Upload_Path               : Unbounded_String;
-      --  Path where uploaded file will be stored.
       Sock                      : Sockets.Socket_FD;
       --  This is the server socket for incoming connection.
-      Port                      : Positive;
-      --  The Web server port.
       Cleaner                   : Line_Cleaner (HTTP'Unchecked_Access);
       --  Task in charge of cleaning slots status. It checks from time to time
       --  is the slots is still in used and closed it if possible.
-      Admin_URI                 : Unbounded_String;
-      --  URI to get the administrative page.
-      Security                  : Boolean;
-      --  Is set to true if this is an SSL server.
-      Session                   : Boolean;
-      --  Is set to true if server must support session data.
-      Case_Sensitive_Parameters : Boolean;
-      --  Is set to true if forms parameters name are case sensitive.
+
+      Properties                : Config.Object := AWS.Config.Default_Config;
+      --  All server properties controled by the configuration file.
+
       CB                        : Response.Callback;
       --  User's callback procedure.
       Filters                   : Hotplug.Filter_Set;
