@@ -60,7 +60,7 @@ package AWS.Default is
    Max_Connection                  : constant         := 5;
    Free_Slots_Keep_Alive_Limit     : constant         := 1;
    Accept_Queue_Size               : constant         := 64;
-   Upload_Directory                : constant String  := "./";
+   Upload_Directory                : constant String  := "";
    Line_Stack_Size                 : constant         := 16#150_000#;
    Case_Sensitive_Parameters       : constant Boolean := True;
 
