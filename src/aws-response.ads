@@ -40,7 +40,7 @@ with Ada.Finalization;
 with AWS.Status;
 with AWS.Messages;
 with AWS.MIME;
-with AWS.Resources;
+with AWS.Resources.Streams;
 
 package AWS.Response is
 
@@ -49,7 +49,8 @@ package AWS.Response is
    type Data is private;
    --  Note that this type use a reference counter which is not thread safe.
 
-   type Data_Mode is (Header, Message, File, Socket_Taken, No_Data);
+   type Data_Mode is (Header, Message, File, Stream, Socket_Taken,
+      No_Data);
 
    type Authentication_Mode is (Any, Basic, Digest);
    --  The authentication mode.
@@ -57,6 +58,14 @@ package AWS.Response is
    --  authentication mode. "Any" mean that server could accept any
    --  authentication from client.
    --  Note the order here should not be changed as it is used in AWS.Client.
+
+   subtype Content_Length_Type is Integer range -1 .. Integer'Last;
+
+   Undefined_Length : constant := -1;
+   --  Undefined length could be used when we do not know the message length
+   --  on the start of transfer. The end of message could be
+   --  determined by the chunked transfer-encoding in the HTTP/1.1,
+   --  or by the closing connection in the HTTP/1.0.
 
    Default_Moved_Message : constant String
      := "Page moved<br><a href=""_@_"">Click here</a>";
@@ -127,6 +136,16 @@ package AWS.Response is
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file.
 
+   function Stream
+     (Content_Type  : in String;
+      Stream_Handle : in Resources.Streams.Stream_Access;
+      Stream_Size   : in Content_Length_Type;
+      Status_Code   : in Messages.Status_Code := Messages.S200)
+      return Data;
+   --  Returns a message whose message body is the content of the user
+   --  defined file. The Content_Type must indicate the MIME type for
+   --  the file.
+
    function Socket_Taken return Data;
    --  Must be used to say that the connection socket has been taken by user
    --  inside of user callback. No operations should be performed on this
@@ -158,7 +177,7 @@ package AWS.Response is
    pragma Inline (Status_Code);
    --  Returns the status code.
 
-   function Content_Length (D : in Data) return Natural;
+   function Content_Length (D : in Data) return Content_Length_Type;
    pragma Inline (Content_Length);
    --  Returns the content length (i.e. the message body length). A value of 0
    --  indicate that there is no message body.
@@ -218,13 +237,14 @@ private
       Ref_Counter    : Natural_Access;
       Mode           : Data_Mode := No_Data;
       Status_Code    : Messages.Status_Code;
-      Content_Length : Natural;
+      Content_Length : Content_Length_Type;
       Content_Type   : Unbounded_String;
       Filename       : Unbounded_String;
       Location       : Unbounded_String;
       Realm          : Unbounded_String;
       Authentication : Authentication_Mode;
       Auth_Stale     : Boolean;
+      Stream         : AWS.Resources.Streams.Stream_Access;
       Message_Body   : Stream_Element_Array_Access;
    end record;
 

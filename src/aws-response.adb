@@ -62,6 +62,7 @@ package body AWS.Response is
                       Realm        => Null_Unbounded_String,
                       Authentication => Any,
                       Auth_Stale    => False,
+                      Stream       => null,
                       Message_Body => null);
       else
          return Data'(Finalization.Controlled with
@@ -75,6 +76,7 @@ package body AWS.Response is
                       Realm        => Null_Unbounded_String,
                       Authentication => Any,
                       Auth_Stale    => False,
+                      Stream       => null,
                       Message_Body => new Stream_Element_Array'
                         (Translator.To_Stream_Element_Array (Message_Body)));
       end if;
@@ -125,6 +127,7 @@ package body AWS.Response is
                    Realm        => To_Unbounded_String (Realm),
                    Authentication => Mode,
                    Auth_Stale    => Stale,
+                   Stream       => null,
                    Message_Body => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Auth_Mess)));
    end Authenticate;
@@ -168,6 +171,7 @@ package body AWS.Response is
                    Realm        => Null_Unbounded_String,
                    Authentication => Any,
                    Auth_Stale    => False,
+                   Stream       => null,
                    Message_Body => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Build;
@@ -191,6 +195,7 @@ package body AWS.Response is
                    Realm        => Null_Unbounded_String,
                    Authentication => Any,
                    Auth_Stale    => False,
+                   Stream       => null,
                    Message_Body => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Build;
@@ -212,6 +217,7 @@ package body AWS.Response is
                    Realm        => Null_Unbounded_String,
                    Authentication => Any,
                    Auth_Stale    => False,
+                   Stream        => null,
                    Message_Body =>
                      new Streams.Stream_Element_Array'(Message_Body));
    end Build;
@@ -220,7 +226,7 @@ package body AWS.Response is
    -- Content_Length --
    --------------------
 
-   function Content_Length (D : in Data) return Natural is
+   function Content_Length (D : in Data) return Content_Length_Type is
    begin
       return D.Content_Length;
    end Content_Length;
@@ -244,11 +250,15 @@ package body AWS.Response is
    is
       use AWS.Resources;
    begin
-      if D.Mode = Response.File then
-         Open (File, Filename (D), "shared=no");
-      else
+      case D.Mode is
+      when Response.File    => Open (File, Filename (D), "shared=no");
+      when Response.Stream  => Resources.Streams.Create (File, D.Stream);
+      when Response.Message =>
          Embedded.Create (File, Embedded.Buffer_Access (D.Message_Body));
-      end if;
+      when others =>
+         --  Should not be called for others response modes.
+         raise Constraint_Error;
+      end case;
    end Create_Resource;
 
    -----------
@@ -268,6 +278,7 @@ package body AWS.Response is
                    Null_Unbounded_String,
                    Any,
                    False,
+                   null,
                    null);
    end Empty;
 
@@ -292,6 +303,7 @@ package body AWS.Response is
                    Realm        => Null_Unbounded_String,
                    Authentication => Any,
                    Auth_Stale    => False,
+                   Stream        => null,
                    Message_Body => null);
    exception
       when Resources.Resource_Error =>
@@ -431,6 +443,7 @@ package body AWS.Response is
                    Realm        => Null_Unbounded_String,
                    Authentication => Any,
                    Auth_Stale    => False,
+                   Stream        => null,
                    Message_Body => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Moved;
@@ -461,6 +474,7 @@ package body AWS.Response is
                    Null_Unbounded_String,
                    Any,
                    False,
+                   null,
                    null);
    end Socket_Taken;
 
@@ -472,6 +486,33 @@ package body AWS.Response is
    begin
       return D.Status_Code;
    end Status_Code;
+
+   ------------
+   -- Stream --
+   ------------
+
+   function Stream
+     (Content_Type  : in String;
+      Stream_Handle : in Resources.Streams.Stream_Access;
+      Stream_Size   : in Content_Length_Type;
+      Status_Code   : in Messages.Status_Code := Messages.S200)
+      return Data
+   is
+   begin
+      return Data'(Finalization.Controlled with
+                   new Natural'(1),
+                   Stream,
+                   Status_Code,
+                   Stream_Size,
+                   Content_Type => To_Unbounded_String (Content_Type),
+                   Filename     => Null_Unbounded_String,
+                   Location     => Null_Unbounded_String,
+                   Realm        => Null_Unbounded_String,
+                   Authentication => Any,
+                   Auth_Stale    => False,
+                   Stream        => Stream_Handle,
+                   Message_Body => null);
+   end Stream;
 
    ---------
    -- URL --
@@ -490,6 +531,7 @@ package body AWS.Response is
                    Realm        => Null_Unbounded_String,
                    Authentication => Any,
                    Auth_Stale    => False,
+                   Stream       => null,
                    Message_Body => null);
    end URL;
 
