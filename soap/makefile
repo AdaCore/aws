@@ -3,7 +3,7 @@
 
 .SILENT:
 
-GARGS	= -q -u $(GFLAGS) -I../ssl -I../include -I../src $(INCLUDES)
+GARGS	= -q -u $(GFLAGS) -I../ssl -I../include -I../src -I../xsrc $(INCLUDES)
 
 SOURCES	= soap.ads soap-types.adb soap-parameters.adb soap-message.adb \
 	soap-message-xml.adb soap-message-response.adb \
