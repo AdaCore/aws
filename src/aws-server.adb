@@ -827,7 +827,10 @@ package body AWS.Server is
          --  Check if the Aborted phase happen between after socket operation
          --  and before Mark_Phase call.
 
-         if Table (Index).Phase in In_Shutdown .. Aborted
+         if Table (Index).Phase = Loose_Release then
+            Net.Free (Table (Index).Sock);
+
+         elsif Table (Index).Phase in In_Shutdown .. Aborted
            and then Phase in Wait_For_Client .. Server_Processing
          then
             raise Net.Socket_Error;
@@ -913,10 +916,9 @@ package body AWS.Server is
          Free_Slots :    out Natural) is
       begin
          pragma Assert (Count > 0);
-         pragma Assert (Table (Index).Sock = null);
 
-         Table (Index).Sock := Socket;
          Mark_Phase (Index, Wait_For_Client);
+         Table (Index).Sock := Socket;
          Table (Index).Alive_Counter := 0;
          Table (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
          Table (Index).Activity_Counter := Table (Index).Activity_Counter + 1;
@@ -943,13 +945,9 @@ package body AWS.Server is
       procedure Shutdown_Done (Index : in Positive) is
       begin
          if Table (Index).Phase = Loose_Release then
-            --  Socket was dynamically allocated for
-            --  Loose_Release state.
-
-            Net.Free (Table (Index).Sock);
             Mark_Phase (Index, Closed);
 
-         elsif Table (Index).Phase /= Closed then
+         elsif Table (Index).Phase = In_Shutdown then
             Mark_Phase (Index, Aborted);
 
          end if;
