@@ -158,6 +158,13 @@ package body SOAP.WSDL.Parser is
       return Parameters.Parameter;
    --  Returns array in node N
 
+   function Parse_Derived
+     (O        : in Object'Class;
+      R        : in DOM.Core.Node;
+      Document : in WSDL.Object)
+      return Parameters.Parameter;
+   --  Returns derived type in node N
+
    function Is_Array
      (O : in Object'Class;
       N : in DOM.Core.Node)
@@ -626,6 +633,56 @@ package body SOAP.WSDL.Parser is
    end Parse_Binding;
 
    -------------------
+   -- Parse_Derived --
+   -------------------
+
+   function Parse_Derived
+     (O        : in Object'Class;
+      R        : in DOM.Core.Node;
+      Document : in WSDL.Object)
+      return Parameters.Parameter
+   is
+      pragma Unreferenced (Document);
+
+      P : Parameters.Parameter (Parameters.K_Derived);
+      N : DOM.Core.Node;
+   begin
+      Trace ("(Parse_Derived)", R);
+
+      pragma Assert
+        (R /= null
+         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "simpleType");
+
+      declare
+         Name : constant String := Get_Attr_Value (R, "name", False);
+      begin
+         --  Set record name, R is a complexType node
+
+         P.Name   := O.Current_Name;
+         P.D_Name := +Name;
+
+         --  Enter simpleType restriction
+
+         N := First_Child (R);
+
+         declare
+            Base : constant String := Get_Attr_Value (N, "base", False);
+         begin
+            if WSDL.Is_Standard (Base) then
+               P.Parent_Type := To_Type (Base);
+
+            else
+               Raise_Exception
+                 (WSDL_Error'Identity,
+                  "Parent type must be a standard type.");
+            end if;
+         end;
+
+         return P;
+      end;
+   end Parse_Derived;
+
+   -------------------
    -- Parse_Element --
    -------------------
 
@@ -642,6 +699,7 @@ package body SOAP.WSDL.Parser is
 
       while N /= null
         and then DOM.Core.Nodes.Local_Name (N) /= "complexType"
+        and then DOM.Core.Nodes.Local_Name (N) /= "simpleType"
       loop
          N := First_Child (N);
       end loop;
@@ -653,44 +711,51 @@ package body SOAP.WSDL.Parser is
          CT_Node := N;
       end if;
 
-      N := First_Child (N);
-
-      if N = null then
-         Raise_Exception
-           (WSDL_Error'Identity, "No element found in schema.");
-
-      elsif DOM.Core.Nodes.Local_Name (N) = "sequence" then
-         Sequence := True;
+      if DOM.Core.Nodes.Local_Name (N) = "simpleType" then
+         Add_Parameter (O, Parse_Derived (O, CT_Node, Document));
 
       else
-         Sequence := False;
-      end if;
+         --  This is a complexType, continue analyse
 
-      declare
-         NL   : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
-      begin
-         if (Length (NL) > 1 and then not Sequence) then
-            --  This is a record or composite type
+         N := First_Child (N);
 
-            Add_Parameter (O, Parse_Record (O, CT_Node, Document));
+         if N = null then
+            Raise_Exception
+              (WSDL_Error'Identity, "No element found in schema.");
 
-         elsif Is_Array (O, CT_Node) then
-
-            Add_Parameter (O, Parse_Array (O, CT_Node, Document));
+         elsif DOM.Core.Nodes.Local_Name (N) = "sequence" then
+            Sequence := True;
 
          else
-
-            for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
-               declare
-                  N : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
-               begin
-                  if DOM.Core.Nodes.Node_Name (N) /= "#text" then
-                     Add_Parameter (O, Parse_Parameter (O, N, Document));
-                  end if;
-               end;
-            end loop;
+            Sequence := False;
          end if;
-      end;
+
+         declare
+            NL : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
+         begin
+            if (Length (NL) > 1 and then not Sequence) then
+               --  This is a record or composite type
+
+               Add_Parameter (O, Parse_Record (O, CT_Node, Document));
+
+            elsif Is_Array (O, CT_Node) then
+
+               Add_Parameter (O, Parse_Array (O, CT_Node, Document));
+
+            else
+
+               for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
+                  declare
+                     N : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
+                  begin
+                     if DOM.Core.Nodes.Node_Name (N) /= "#text" then
+                        Add_Parameter (O, Parse_Parameter (O, N, Document));
+                     end if;
+                  end;
+               end loop;
+            end if;
+         end;
+      end if;
    end Parse_Element;
 
    -------------------
@@ -773,7 +838,7 @@ package body SOAP.WSDL.Parser is
    begin
       Trace ("(Parse_Parameter)", N);
 
-      if Is_Standard (P_Type) then
+      if WSDL.Is_Standard (P_Type) then
          return (Parameters.K_Simple, +Get_Attr_Value (N, "name"),
                  null, To_Type (P_Type));
 
@@ -783,14 +848,24 @@ package body SOAP.WSDL.Parser is
 
       else
          declare
-            R : constant DOM.Core.Node
+            R : DOM.Core.Node
               := Get_Node (DOM.Core.Node (Document),
                            "definitions.types.schema.complexType", P_Type);
          begin
             if R = null then
-               Raise_Exception
-                 (WSDL_Error'Identity,
-                  "types.schema.complexType for " & P_Type & " not found.");
+               --  Now check for a simpleType
+               R := Get_Node (DOM.Core.Node (Document),
+                              "definitions.types.schema.simpleType", P_Type);
+
+               if R = null then
+                  Raise_Exception
+                    (WSDL_Error'Identity,
+                     "types.schema definition for " & P_Type & " not found.");
+
+               else
+                  O.Self.Current_Name := +Get_Attr_Value (N, "name");
+                  return Parse_Derived (O, R, Document);
+               end if;
             end if;
 
             if Is_Array (O, R) then
@@ -855,6 +930,14 @@ package body SOAP.WSDL.Parser is
             N := Get_Node
               (First_Child (DOM.Core.Node (Document)),
                "types.schema.element", T_No_NS);
+
+            --  If not present look for a simpleType
+
+            if N = null then
+               N := Get_Node
+                 (First_Child (DOM.Core.Node (Document)),
+                  "types.schema.simpleType", T_No_NS);
+            end if;
 
             --  If not present look for a complexType
 
