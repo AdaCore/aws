@@ -108,6 +108,7 @@ private
       Mode            : Parameter_Mode;   -- Current parameter parsing mode
       Params          : All_Parameters;   -- All parameters
       Current_Name    : Unbounded_String; -- Current parameter name
+      Array_Elements  : Unbounded_String; -- Type of the array's elements
       Accept_Document : Boolean := False;
    end record;
 
