@@ -5,6 +5,7 @@ aws-communication.ads.texi
 aws-config-ini.ads.texi
 aws-config-set.ads.texi
 aws-config.ads.texi
+aws-containers-tables.ads.texi
 aws-default.ads.texi
 aws-dispatchers-callback.ads.texi
 aws-dispatchers.ads.texi
