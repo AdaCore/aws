@@ -48,7 +48,7 @@ package body AWS.Response is
      (Status_Code  : in Messages.Status_Code;
       Message_Body : in String := "";
       Content_Type : in String := MIME.Text_HTML)
-     return Data is
+      return Data is
    begin
       if Message_Body = "" then
          return Data'(Finalization.Controlled with
@@ -96,13 +96,13 @@ package body AWS.Response is
    function Authenticate
      (Realm : in String;
       Mode  : in Authentication_Mode := Basic;
-      Stale : in Boolean := False)
-     return Data is
-
+      Stale : in Boolean             := False)
+      return Data
+   is
       CRLF : constant String := ASCII.CR & ASCII.LF;
 
-      Auth_Mess : constant String :=
-        "<HTML><HEAD>" & CRLF
+      Auth_Mess : constant String
+        := "<HTML><HEAD>" & CRLF
         & "<TITLE>401 Authorization Required</TITLE>" & CRLF
         & "</HEAD><BODY>" & CRLF
         & "<H1>Authorization Required</H1>" & CRLF
@@ -133,8 +133,7 @@ package body AWS.Response is
    -- Authentication --
    --------------------
 
-   function Authentication (D : in Data) return Authentication_Mode
-   is
+   function Authentication (D : in Data) return Authentication_Mode is
    begin
       return D.Authentication;
    end Authentication;
@@ -143,8 +142,7 @@ package body AWS.Response is
    -- Authentication_Stale --
    --------------------------
 
-   function Authentication_Stale  (D : in Data) return Boolean
-   is
+   function Authentication_Stale  (D : in Data) return Boolean is
    begin
       return D.Auth_Stale;
    end Authentication_Stale;
@@ -157,7 +155,7 @@ package body AWS.Response is
      (Content_Type : in String;
       Message_Body : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-     return Data is
+      return Data is
    begin
       return Data'(Finalization.Controlled with
                    new Natural'(1),
@@ -201,7 +199,7 @@ package body AWS.Response is
      (Content_Type : in String;
       Message_Body : in Streams.Stream_Element_Array;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-     return Data is
+      return Data is
    begin
       return Data'(Finalization.Controlled with
                    new Natural'(1),
@@ -264,7 +262,7 @@ package body AWS.Response is
      (Content_Type : in String;
       Filename     : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-     return Data is
+      return Data is
    begin
       return Data'(Finalization.Controlled with
                    new Natural'(1),
@@ -378,15 +376,19 @@ package body AWS.Response is
    -----------
 
    function Moved
-     (Location     : in String;
-      Message      : in String := Default_Moved_Message)
-     return Data
+     (Location : in String;
+      Message  : in String := Default_Moved_Message)
+      return Data
    is
       use Ada.Strings;
 
       function Build_Message_Body return String;
-      --  Return proper message body using Message template. It replaces _@_
+      --  Returns proper message body using Message template. It replaces _@_
       --  in Message by Location.
+
+      ------------------------
+      -- Build_Message_Body --
+      ------------------------
 
       function Build_Message_Body return String is
          Start : constant Natural := Fixed.Index (Message, "_@_");
@@ -458,11 +460,10 @@ package body AWS.Response is
    -- URL --
    ---------
 
-   function URL (Location : in String)
-     return Data is
+   function URL (Location : in String) return Data is
    begin
       return Data'(Finalization.Controlled with
-                   new Natural'(1),
+                     new Natural'(1),
                    Response.Message,
                    Messages.S301,
                    0,
