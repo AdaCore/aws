@@ -143,7 +143,7 @@ package AWS.Client is
    --  Keep-Alive client implementation --
    ---------------------------------------
 
-   type HTTP_Connection (With_Timeouts : Boolean := False) is limited private;
+   type HTTP_Connection is limited private;
 
    procedure Create
      (Connection  : in out HTTP_Connection;
@@ -224,30 +224,39 @@ private
 
    type Client_Phase is (Not_Monitored, Send, Receive, Stopped);
 
-   task type Cleaner_Task (Connection : access HTTP_Connection) is
+   type Phase_Access is access all Client_Phase;
+   type Boolean_Access is access all Boolean;
+
+   --  ??? Cleaner_Task is used to monitor the timeouts during the Send and
+   --  Receive phase. This is the current implementation and should be fixed
+   --  at some point. Right now there is no cross-platforms implementation of
+   --  a Socket timeout.
+
+   task type Cleaner_Task is
+      entry Start
+        (Socket_Ptr    : in Socket_Access;
+         Open_Flag_Ptr : in Boolean_Access;
+         Phase_Ptr     : in Phase_Access;
+         Timeouts      : in Timeouts_Values);
+      --  Task initialization.
+
       entry Send;
       --  Activate the send timeout if defined.
+
       entry Receive;
       --  Activate the receive timeout if defined.
+
       entry Next_Phase;
       --  Change phase, stop the current Send timeout and be prepare for the
-      --  Receive timeout. If not on a Send timeout terminate the tasK
+      --  Receive timeout. If not on a Send timeout terminate the tasK.
+
       entry Stop;
       --  Stop cleaner task, this task will exit.
    end Cleaner_Task;
-   --  ??? Cleaner_Task is used to monitor the timeouts during the Send and
-   --  Receive phase. This is the current implementation and should be fixed
-   --  at some point. Right now there is no cross implementation of a Socket
-   --  timeout.
 
    type Cleaner_Access is access Cleaner_Task;
 
-   function Build_Cleaner
-     (Connection : access HTTP_Connection)
-     return Cleaner_Access;
-   --  Returns a Cleaner_Task if timeouts is activated and null otherwise.
-
-   type HTTP_Connection (With_Timeouts : Boolean := False) is limited record
+   type HTTP_Connection is limited record
       Connect_URL   : AWS.URL.Object;
       Host          : Unbounded_String;
       Host_URL      : AWS.URL.Object;
@@ -257,16 +266,16 @@ private
       Proxy_URL     : AWS.URL.Object;
       Proxy_User    : Unbounded_String;
       Proxy_Pwd     : Unbounded_String;
-      Opened        : Boolean;
+      Opened        : aliased Boolean;
       Persistent    : Boolean;
       Server_Push   : Boolean;
       SOAPAction    : Unbounded_String;
       Cookie        : Unbounded_String;
       Socket        : Socket_Access;
       Retry         : Natural;
-      Current_Phase : Client_Phase;
+      Current_Phase : aliased Client_Phase;
       Timeouts      : Timeouts_Values;
-      Cleaner       : Cleaner_Access := Build_Cleaner (HTTP_Connection'Access);
+      Cleaner       : Cleaner_Access;
    end record;
 
 end AWS.Client;
