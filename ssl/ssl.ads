@@ -40,7 +40,7 @@ with Sockets;
 
 package SSL is
 
-   Lib_Error        : exception;
+   Lib_Error : exception;
 
    type Method is (SSLv2,
                    SSLv2_Server,
