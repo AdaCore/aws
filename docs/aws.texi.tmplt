@@ -2171,6 +2171,7 @@ expressions depending on the service)
 * Method dispatcher::
 * URI dispatcher::
 * Virtual host dispatcher::
+* SOAP dispatcher::
 @end menu
 
 @node Callback dispatcher
@@ -2231,6 +2232,20 @@ procedures or redirect to some @b{machine/port} based on the host name
 in the client's request.
 
 @pxref{AWS.Services.Dispatchers.Virtual_Host} for complete spec description.
+
+@node SOAP dispatcher
+@subsection SOAP dispatcher
+@cindex Dispatchers SOAP
+@cindex SOAP, dispatcher
+
+@noindent
+AWS provides also a SOAP specific dispatcher. This is a way to
+automatically route HTTP requests or SOAP requests to different
+callback routines.
+
+@pxref{SOAP helpers} for more information.
+
+@pxref{SOAP.Dispatchers.Callback} for complete spec description.
 
 @node Static Page server
 @section Static Page server
@@ -2440,6 +2455,14 @@ checks for the SOAP Action URI to handle both standard Web requests
 and SOAP ones. The @code{SOAPAction} is sent with the HTTP headers and
 can be retrieved using @code{AWS.Status.SOAPAction}.
 
+@menu
+* Step by step instructions::
+* SOAP helpers::
+@end menu
+
+@node Step by step instructions
+@subsection Step by step instructions
+
 @noindent
 Here are the step-by-step instructions to be followed in the SOAP
 callback procedure:
@@ -2568,10 +2591,12 @@ it as the body of an HTTP message.
 
 @end enumerate
 
+@node SOAP helpers
+@subsection SOAP helpers
+
 @noindent
-These are the step-by-step instructions, there is two other ways to help
-building the SOAP callbacks. AWS provides a SOAP specific callback,
-the spec is :
+There is two ways to help building the SOAP callbacks. AWS provides a
+SOAP specific callback, the spec is :
 
 @smallexample
 @cartouche
@@ -2590,9 +2615,9 @@ With both solutions exposed below, AWS retrieve the SOAPAction and the
 Payload from the SOAP request. This is transparent to the user.
 
 @enumerate
-@cindex Utils.SOAP_Wrapper
 
 @item Using Utils.SOAP_Wrapper
+@cindex Utils.SOAP_Wrapper
 
 @noindent
 It is possible to dispatch to such callback by using the
@@ -2649,6 +2674,7 @@ For example, from the standard HTTP callback @code{CB} we want to call
 @end smallexample
 
 @item Using a SOAP Dispatcher
+@cindex SOAP Dispatcher
 
 @noindent
 AWS provides also a SOAP specific dispatcher. This dispatcher will
@@ -2692,6 +2718,11 @@ procedure. Using dispatcher the above code will be written:
 @end cartouche
 @end smallexample
 
+@noindent
+@cindex SOAP.Dispatchers.Callback
+The dispacther is created using @code{SOAP.Dispatchers.Callback.Create}. 
+This routine takes two parameters, one is the standard HTTP
+callback procedure and the other is the SOAP callback procedure.
 @end enumerate
 
 @c ----------------------------------------------------------------------
