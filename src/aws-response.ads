@@ -38,6 +38,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Finalization;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Headers;
 with AWS.Messages;
@@ -340,5 +341,9 @@ private
    procedure Initialize (Object : in out Data);
    procedure Adjust     (Object : in out Data);
    procedure Finalize   (Object : in out Data);
+
+   procedure Free is new Ada.Unchecked_Deallocation
+                           (Resources.Streams.Stream_Type'Class,
+                            Resources.Streams.Stream_Access);
 
 end AWS.Response;
