@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2002                         --
+--                        Copyright (C) 1999 - 2004                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -34,11 +34,21 @@ separate (Templates_Parser)
 
 package body Expr is
 
-   function Is_Op (O : in String) return Boolean;
-   --  Returns True is O is a binary operator.
+   use Ada.Strings.Maps;
 
-   function Is_U_Op (O : in String) return Boolean;
-   --  Returns True is O is an unary operator.
+   --  BNF definition of the expression language:
+   --
+   --  <expr>     ::= <relation> {<Logic_Op> <relation>}
+   --  <relation> ::= <term> {<comp_op> <term>}
+   --  <term>     ::= ["not"] <primary>
+   --  <primary>  ::= <value> | <var> | "(" <expr> ")"
+   --  <logic_op> ::= "and" | "or" | "xor"
+   --  <comp_op>  ::= "<" | "<=" | "=" | ">=" | ">" | "/="
+
+   subtype Comp_Op  is Ops range O_Sup .. O_Diff;
+   subtype Logic_Op is Ops range O_And .. O_Xor;
+
+   Separator : constant Character_Set := Blank or To_Set ("<>=/()");
 
    -----------
    -- Image --
@@ -62,60 +72,9 @@ package body Expr is
    function Image (O : in U_Ops) return String is
    begin
       case O is
-         when O_Not   => return "not";
+         when O_Not => return "not";
       end case;
    end Image;
-
-   -----------
-   -- Is_Op --
-   -----------
-
-   function Is_Op (O : in String) return Boolean is
-   begin
-      if O = "and" then
-         return True;
-
-      elsif O = "or" then
-         return True;
-
-      elsif O = "xor" then
-         return True;
-
-      elsif O = ">" then
-         return True;
-
-      elsif O = "<" then
-         return True;
-
-      elsif O = ">=" then
-         return True;
-
-      elsif O = "<=" then
-         return True;
-
-      elsif O = "=" then
-         return True;
-
-      elsif O = "/=" then
-         return True;
-
-      else
-         return False;
-      end if;
-   end Is_Op;
-
-   -------------
-   -- Is_U_Op --
-   -------------
-
-   function Is_U_Op (O : in String) return Boolean is
-   begin
-      if O = "not" then
-         return True;
-      else
-         return False;
-      end if;
-   end Is_U_Op;
 
    -----------
    -- Parse --
@@ -123,172 +82,304 @@ package body Expr is
 
    function Parse (Expression : in String) return Tree is
 
-      Index : Natural := Expression'First;
+      Start_Index  : Natural := Expression'First;
+      Index        : Natural := Expression'First;
 
-      function Get_Token return String;
-      --  Returns next token. Set Index to the last analysed position in
-      --  Expression.
+      type Token_Kind
+        is (Open_Par, Close_Par, Binary_Op, Unary_Op, Value, Var, End_Expr);
 
-      ---------------
-      -- Get_Token --
-      ---------------
+      type Token (Kind : Token_Kind := Var) is record
+         case Kind is
+            when Open_Par | Close_Par | End_Expr =>
+               null;
+            when Binary_Op =>
+               Bin_Op : Ops;
+            when Unary_Op =>
+               Un_Op  : U_Ops;
+            when Value | Var =>
+               Start  : Positive; -- range of the token
+               Stop   : Positive; -- in Expression string
+         end case;
+      end record;
 
-      function Get_Token return String is
-         use Strings;
-         K, I  : Natural;
+      Current_Token : Token;
+
+      procedure Error (Mess : String);
+      pragma No_Return (Error);
+      --  Raises Internal_Error with the column of the condition
+
+      function Expr return Tree;
+      --  Parse a logical operator
+
+      function Term return Tree;
+      --  Parse a term (unary operator)
+
+      function Relation return Tree;
+      --  Parse a relational operator
+
+      -----------
+      -- Error --
+      -----------
+
+      procedure Error (Mess : String) is
       begin
+         Exceptions.Raise_Exception
+           (Internal_Error'Identity,
+            "col" & Integer'Image (Start_Index) & " condition, " & Mess);
+      end Error;
+
+      procedure Next_Token;
+      --  Moves Current_Token to next token. Set Index after the last analysed
+      --  consumed from expression.
+
+      ----------------
+      -- Next_Token --
+      ----------------
+
+      procedure Next_Token is
+         use Ada.Strings, Ada.Characters.Handling;
+         I : Natural;
+      begin
+         --  Skip blanks
+
+         while Index <= Expression'Last
+           and then Is_In (Expression (Index), Blank)
+         loop
+            Index := Index + 1;
+         end loop;
+
+         Start_Index := Index;
+
          if Index > Expression'Last then
             --  No more data to read.
-            return "";
-         end if;
+            Current_Token := (Kind => End_Expr);
 
-         Index := Fixed.Index
-           (Expression (Index .. Expression'Last), Blank, Outside);
-
-         if Index = 0 then
-            --  There is only one token, return the whole string.
-            Index := Expression'Last + 1;
-            return Expression (Index .. Expression'Last);
-
+         --  Check symbolic operators
          elsif Expression (Index) = '(' then
-            --  This is a sub-expression, returns it.
-            K := 0;
+            Current_Token := (Kind => Open_Par);
+            Index := Index + 1;
 
-            declare
-               L : Natural := 1;
-            begin
-               Look_For_Sub_Exp : for I in Index + 1 .. Expression'Last loop
-                  if Expression (I) = '(' then
-                     L := L + 1;
-                  elsif Expression (I) = ')' then
-                     K := I;
-                     L := L - 1;
-                  end if;
+         elsif Expression (Index) = ')' then
+            Current_Token := (Kind => Close_Par);
+            Index := Index + 1;
 
-                  exit Look_For_Sub_Exp when L = 0;
-               end loop Look_For_Sub_Exp;
-            end;
+         elsif Expression (Index) = '=' then
+            Current_Token := (Kind => Binary_Op, Bin_Op => O_Equal);
+            Index := Index + 1;
 
-            if K = 0 then
-               --  No matching closing parenthesis.
-
-               Exceptions.Raise_Exception
-                 (Internal_Error'Identity,
-                  "condition, no matching parenthesis for parent at pos "
-                  & Natural'Image (Index));
-
+         elsif Expression (Index) = '/' then
+            Index := Index + 1;
+            if Expression (Index) = '=' then
+               Current_Token := (Kind => Binary_Op, Bin_Op => O_Diff);
+               Index := Index + 1;
             else
-               I := Index;
-               Index := K + 1;
-               return Expression (I .. K);
+               Error ("Illegal comparison operator");
+            end if;
+
+         elsif Expression (Index) = '<' then
+            Index := Index + 1;
+            if Expression (Index) = '=' then
+               Current_Token := (Kind => Binary_Op, Bin_Op => O_Einf);
+               Index := Index + 1;
+            else
+               Current_Token := (Kind => Binary_Op, Bin_Op => O_Inf);
+            end if;
+
+         elsif Expression (Index) = '>' then
+            Index := Index + 1;
+            if Expression (Index) = '=' then
+               Current_Token := (Kind => Binary_Op, Bin_Op => O_Esup);
+               Index := Index + 1;
+            else
+               Current_Token := (Kind => Binary_Op, Bin_Op => O_Sup);
             end if;
 
          elsif Expression (Index) = '"' then
-            --  This is a string, returns it.
-            K := 0;
+            --  This is a string, return it
+            Current_Token
+              := (Kind => Value, Start => Index + 1, Stop => Index);
 
-            Look_For_String : for I in Index + 1 .. Expression'Last loop
-               if Expression (I) = '"' then
-                  K := I;
-                  exit Look_For_String;
+            loop
+               if Current_Token.Stop = Expression'Last then
+                  Error ("condition, no matching closing quote string");
+               elsif Expression (Current_Token.Stop + 1) = '"' then
+                  exit;
+               else
+                  Current_Token.Stop := Current_Token.Stop + 1;
                end if;
-            end loop Look_For_String;
-
-            if K = 0 then
-               --  No matching closing quote
-
-               Exceptions.Raise_Exception
-                 (Internal_Error'Identity,
-                  "condition, no matching closing quote string at pos "
-                  & Natural'Image (Index));
-
-            else
-               I := Index;
-               Index := K + 1;
-               return Expression (I .. K);
-            end if;
+            end loop;
+            Index := Current_Token.Stop + 2;
 
          else
-            --  We have found the start of a token, look for end of it.
-            K := Fixed.Index (Expression (Index .. Expression'Last), Blank);
+            --  We have found the start of a string token, look for end of it.
+            I := Index;
+            Index := Fixed.Index
+              (Expression (Index .. Expression'Last), Separator);
 
-            if K = 0 then
+            if Index = 0 then
                --  Token end is the end of Expression.
-               I := Index;
                Index := Expression'Last + 1;
-               return Expression (I .. Expression'Last);
-            else
-               I := Index;
-               Index := K + 1;
-               return Expression (I .. K - 1);
             end if;
-         end if;
-      end Get_Token;
 
-      L_Tok : constant String := Get_Token;  -- left operand
-      O_Tok : constant String := Get_Token;  -- operator
-      R_Tok : constant String := Get_Token;  -- right operand
-
-   begin
-      if Is_U_Op (L_Tok) then
-
-         if R_Tok = "" then
-            --  This is "not expr"
-            return new Node'
-              (U_Op, Value (L_Tok),
-               Parse (O_Tok & ' ' & R_Tok & ' '
-                        & Expression (Index .. Expression'Last)));
-         else
-            --  This is "not expr op expr", parse again with
-            --  "(not expr) op expr"
-            return Parse ('(' & L_Tok & ' ' & O_Tok & ") "
-                            & R_Tok & ' '
-                            & Expression (Index .. Expression'Last));
-         end if;
-
-      elsif Is_Op (O_Tok) and then Is_U_Op (R_Tok) then
-         --  We have "expr op u_op expr", parse again with
-         --  "expr op (u_op expr)"
-         return Parse (L_Tok & ' ' & O_Tok
-                         & " (" & R_Tok & ' '
-                         & Expression (Index .. Expression'Last) & ')');
-
-      elsif O_Tok = "" then
-         --  No more operator, this is a leaf. It is either a variable or a
-         --  value.
-
-         if L_Tok (L_Tok'First) = '(' then
-            --  an expression
-            return Parse (L_Tok (L_Tok'First + 1 .. L_Tok'Last - 1));
-
-         elsif Strings.Fixed.Index (L_Tok, To_String (Begin_Tag)) = 0 then
-            --  a value
-            return new Node'(Value, To_Unbounded_String (No_Quote (L_Tok)));
-
-         else
-            --  a variable
-            return new Node'(Var, Build (No_Quote (L_Tok)));
-         end if;
-
-
-      else
-         if Index > Expression'Last then
-            --  This is the latest token
-
-            return new Node'(Op, Value (O_Tok),
-                             Parse (L_Tok), Parse (R_Tok));
-
-         else
             declare
-               NO_Tok : constant String := Get_Token;
+               Token_Image : constant String
+                 := To_Lower (Expression (I .. Index - 1));
             begin
-               return new Node'
-                 (Op, Value (NO_Tok),
-                  Parse (L_Tok & ' ' & O_Tok & ' ' & R_Tok),
-                  Parse (Expression (Index .. Expression'Last)));
+               if Token_Image = "not" then
+                  Current_Token := (Kind => Unary_Op, Un_Op => O_Not);
+
+               elsif Token_Image = "and" then
+                  Current_Token := (Kind => Binary_Op, Bin_Op => O_And);
+
+               elsif Token_Image = "or" then
+                  Current_Token := (Kind => Binary_Op, Bin_Op => O_Or);
+
+               elsif Token_Image = "xor" then
+                  Current_Token := (Kind => Binary_Op, Bin_Op => O_Xor);
+
+               elsif Token_Image'Length > Length (Begin_Tag)
+                 and then
+                   Token_Image (Token_Image'First
+                                .. Token_Image'First + Length (Begin_Tag) - 1)
+                   = Begin_Tag
+               then
+                  Current_Token
+                    := (Kind => Var, Start => I, Stop => Index - 1);
+               else
+                  Current_Token
+                    := (Kind => Value, Start => I, Stop => Index - 1);
+               end if;
             end;
          end if;
-      end if;
+      end Next_Token;
+
+      -------------
+      -- Primary --
+      -------------
+
+      function Primary return Tree is
+         Result      : Tree;
+         Start, Stop : Natural;
+      begin
+         case Current_Token.Kind is
+            --  Normal cases
+            when Open_Par =>
+               Next_Token;
+               Result := Expr;
+               if Current_Token.Kind = Close_Par then
+                  Next_Token;
+                  return Result;
+               else
+                  Error ("missing closing parenthesis");
+               end if;
+
+            when Value =>
+               Start := Current_Token.Start;
+               Stop  := Current_Token.Stop;
+               Next_Token;
+               return new Node'
+                 (Value, To_Unbounded_String (Expression (Start .. Stop)));
+
+            when Var =>
+               Start := Current_Token.Start;
+               Stop  := Current_Token.Stop;
+               Next_Token;
+               return new Node'(Var, Build (Expression (Start .. Stop)));
+
+            --  Errors
+
+            when Unary_Op =>
+               Error ("misplaced operator """
+                      & Image (Current_Token.Un_Op) & '"');
+
+            when Binary_Op =>
+               Error ("misplaced operator """
+                      & Image (Current_Token.Bin_Op) & '"');
+
+            when Close_Par =>
+               Error ("unexpected right parenthesis");
+
+            when End_Expr =>
+               Error ("missing operand");
+         end case;
+      end Primary;
+
+      ----------
+      -- Term --
+      ----------
+
+      function Term return Tree is
+         O : U_Ops;
+      begin
+         if Current_Token.Kind = Unary_Op then
+            O := Current_Token.Un_Op;
+            Next_Token;
+            return new Node'(U_Op, O, Primary);
+         else
+            return Primary;
+         end if;
+      end Term;
+
+      --------------
+      -- Relation --
+      --------------
+
+      function Relation return Tree is
+         N : Tree;
+         O : Ops;
+      begin
+         N := Term;
+
+         while Current_Token.Kind = Binary_Op
+           and then Current_Token.Bin_Op in Comp_Op
+         loop
+            O := Current_Token.Bin_Op;
+            Next_Token;
+            N := new Node'(Op, O, N, Term);
+         end loop;
+
+         return N;
+      end Relation;
+
+      ----------
+      -- Expr --
+      ----------
+
+      function Expr return Tree is
+         N : Tree;
+         O : Ops;
+      begin
+         N := Relation;
+
+         while Current_Token.Kind = Binary_Op
+           and then Current_Token.Bin_Op in Logic_Op
+         loop
+            O := Current_Token.Bin_Op;
+            Next_Token;
+            N := new Node'(Op, O, N, Relation);
+         end loop;
+
+         return N;
+      end Expr;
+
+      Result : Tree;
+
+   begin
+      Next_Token;
+      Result := Expr;
+
+      case Current_Token.Kind is
+         when End_Expr =>
+            null;
+
+         when Open_Par | Close_Par | Value | Var =>
+            Error ("Missing operator");
+
+         when Binary_Op | Unary_Op =>
+            Error ("Missing operand");
+      end case;
+
+      return Result;
    end Parse;
 
    ----------------
@@ -388,7 +479,7 @@ package body Expr is
 
       else
          Exceptions.Raise_Exception
-           (Internal_Error'Identity, "condition, unknown operator " & O);
+           (Template_Error'Identity, "unknown operator " & O);
       end if;
    end Value;
 
@@ -399,7 +490,7 @@ package body Expr is
 
       else
          Exceptions.Raise_Exception
-           (Internal_Error'Identity, "condition, unknown operator " & O);
+           (Template_Error'Identity, "unknown operator " & O);
       end if;
    end Value;
 
