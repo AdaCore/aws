@@ -1,5 +1,23 @@
 2001-08-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(build): add aws-server-push.adb in the list of file to not
+	 compile with style check.
+
+	* aws-server-push.adb:
+	Fix casing error.
+
+	* aws-client.adb: 
+	(Parse_Header): add Cookie parameter which is set when parsing
+ 	 header. This part of the header was just ignored before.
+	(Send_Command): output Set-Cookie: HTTP header if needed.
+
+	* aws-client.ads: 
+	(HTTP_Connection): add Cookie field to support HTTP client cookies.
+
+	* aws-messages.ads:
+	(Set_Cookie_Token): new constant.
+
 	* aws-server-push.ads, aws-server-push.adb:
 	Fix copyright notice.
 
