@@ -1,14 +1,14 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 17 December 2003 -->
+     from templates_parser.texi on 20 December 2003 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
 <BODY>
 <H1>Templates Parser</H1>
 <H2>$Revision$</H2>
-<H2>Date: 17 December 2003</H2>
+<H2>Date: 20 December 2003</H2>
 <ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
 <P>
 <P><HR><P>
@@ -319,6 +319,11 @@ Divide variable by N and return the result. If the current variable value
 is not a number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
 
+<DT><CODE>ADD_PARAM(<I>NAME[=VALUE]</I>)</CODE>
+<DD>
+Add a parameter into an URL. This routine adds the '?' and '&#38;'
+character if needed.
+
 <DT><CODE>BR_2_LF</CODE>
 <DD>
 Replaces all occurrences of the <CODE>&#60;br&#62;</CODE> HTML tag by a LF
@@ -342,12 +347,18 @@ Replaces all comas by points.
 <DD>
 Converts any suite of spaces by a single space character.
 
+<DT><CODE>DEL_PARAM(<I>NAME</I>)</CODE>
+<DD>
+Delete parameter NAME from the URL. This routine removes the '?' and '&#38;'
+character if needed. Returns the input string as-is if the parameter
+is not found.
+
 <DT><CODE>EXIST</CODE>
 <DD>
 Returns <B>True</B> if variable is set and has a value different that the null
 string and <B>False</B> otherwise.
 
-<DT><CODE>FORMAT_DATE</CODE>
+<DT><CODE>FORMAT_DATE(<B>FORMAT</B>)</CODE>
 <DD>
 Returns the date with the given format. The date must be in the ISO
 format (YYYY-MM-DD) eventually followed by a space and the time with
@@ -1982,7 +1993,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 </PRE>
 
 <P><HR><P>
-This document was generated on 17 December 2003 using the
+This document was generated on 20 December 2003 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
