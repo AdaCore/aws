@@ -732,6 +732,23 @@ package body AWS.Server is
         := CNF.Max_Connection (Web_Server.Properties);
 
    begin
+      --  Initialize the server socket
+
+      Sockets.Socket
+        (Accepting_Socket,
+         Sockets.AF_INET,
+         Sockets.SOCK_STREAM);
+
+      Sockets.Bind (Accepting_Socket,
+                    CNF.Server_Port (Web_Server.Properties),
+                    CNF.Server_Host (Web_Server.Properties));
+
+      Sockets.Listen
+        (Accepting_Socket,
+         Queue_Size => CNF.Accept_Queue_Size (Web_Server.Properties));
+
+      Web_Server.Sock := Accepting_Socket;
+
       Web_Server.Dispatcher :=
          new Dispatchers.Handler'Class'(Dispatcher);
 
@@ -780,23 +797,6 @@ package body AWS.Server is
       --  Initialize the cleaner task
 
       Web_Server.Cleaner := new Line_Cleaner (Web_Server.Self);
-
-      --  Initialize the server socket
-
-      Sockets.Socket
-        (Accepting_Socket,
-         Sockets.AF_INET,
-         Sockets.SOCK_STREAM);
-
-      Sockets.Bind (Accepting_Socket,
-                    CNF.Server_Port (Web_Server.Properties),
-                    CNF.Server_Host (Web_Server.Properties));
-
-      Sockets.Listen
-        (Accepting_Socket,
-         Queue_Size => CNF.Accept_Queue_Size (Web_Server.Properties));
-
-      Web_Server.Sock := Accepting_Socket;
 
       --  Set Shutdown to False here since it must be done before starting the
       --  lines.
