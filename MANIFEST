@@ -397,6 +397,9 @@ regtests/user_strm.adb
 regtests/user_strm.ads
 regtests/wait.adb
 regtests/wait.out
+regtests/wait_proc.adb
+regtests/wait_sec.adb
+regtests/wait_sec.out
 regtests/workorder.adb
 regtests/workorder.out
 regtests/zapp.adb
