@@ -21,7 +21,7 @@ GNAT.
 AWS support SOAP, Server Push, HTTPS/SSL, client HTTP, hotplug modules... We
 have worked very hard to make this release as stable as possible. Note that
 Hotplug modules are very nice but have a potentially security hole as it is
-implemented today. A new secure implementation will be proposed in a futur
+implemented today. A new secure implementation will be proposed in a future
 version.
 
 The SOAP implementation has been validated on http://validator.soapware.org/.
