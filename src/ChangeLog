@@ -1,3 +1,14 @@
+2001-11-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb:
+	(Database.Touch_Session): new protected procedure?
+	(Touch): new procedure.
+	Put routines in alphabetical order.
+
+	* aws-session.ads:
+	(Touch): new procedure.
+	Add comments to iterators.
+
 2001-10-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-push.ads, aws-server-push.adb:
