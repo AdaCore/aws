@@ -308,11 +308,8 @@ is
          --  Connection, check connection string with Match to skip connection
          --  options [RFC 2616 - 14.10].
 
-         if Will_Close
-           or else Messages.Match (To_String (Status_Connection), "close")
-         then
+         if Will_Close then
             --  We have decided to close connection after answering the client
-
             Sockets.Put_Line (Sock, Messages.Connection ("close"));
          else
             Sockets.Put_Line (Sock, Messages.Connection ("keep-alive"));
