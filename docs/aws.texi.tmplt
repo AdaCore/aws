@@ -493,6 +493,10 @@ A static Web page server and push enabled server.
 A very simple static Web page server based on @code{AWS.Services.Page_Server}. 
 @pxref{Static Page server}.
 
+@item zdemo
+
+A simple demo of the Gzip content encoding feature.
+
 @end table
 
 @noindent
