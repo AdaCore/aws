@@ -428,8 +428,6 @@ regtests/wait2.adb
 regtests/wait2.out
 regtests/wait2_sec.adb
 regtests/wait2_sec.out
-regtests/workorder.adb
-regtests/workorder.out
 regtests/zapp.adb
 regtests/zapp.out
 regtests/zbig.adb
@@ -737,6 +735,8 @@ regtests/test_wsdl5.out
 regtests/test_wsdl5.wsdl
 regtests/testxml.adb
 regtests/testxml.out
+regtests/workorder.adb
+regtests/workorder.out
 regtests/wsdl_1.adb
 regtests/wsdl_1.ads
 regtests/wsdl_1.out
