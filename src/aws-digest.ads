@@ -49,20 +49,14 @@ package AWS.Digest is
      (Username, Realm, Password : in String;
       Nonce                     : in String;
       Method, URI               : in String)
-      return String;
+      return Digest_String;
    --  Returns a simple MD5 Digest.
 
    function Create_Digest
      (Username, Realm, Password : in String;
       Nonce, NC, CNonce, QOP    : in String;
       Method, URI               : in String)
-      return String;
+      return Digest_String;
    --  Returns a more complex MD5 Digest.
-
-   function Get_MD5 (Data : String) return Digest_String;
-   --  Simplified MD5 calculation function just for convenience.
-   --  It is necessary when the client callback need to
-   --  precalculate digest partionally,
-   --  and then send it to the authentication module.
 
 end AWS.Digest;
