@@ -35,7 +35,6 @@
 with Ada.Strings.Unbounded;
 
 with GNAT.Dynamic_Tables;
-with GNAT.Regexp;
 
 with AWS.Response;
 
