@@ -112,8 +112,7 @@ package body AWS.Status.Set is
             when QOP       => D.Auth_QOP      := +Value;
             when Nonce     => D.Auth_Nonce    := +Value;
             when Response  => D.Auth_Response := +Value;
-            when URI       => D.URI
-              := URL.Parse (Value, False, False);
+            when URI       => D.Auth_URI      := +Value;
             when Algorithm =>
                if Value /= "MD5" then
                   Ada.Exceptions.Raise_Exception
@@ -275,6 +274,7 @@ package body AWS.Status.Set is
       D.Auth_NC           := Null_Unbounded_String;
       D.Auth_CNonce       := Null_Unbounded_String;
       D.Auth_QOP          := Null_Unbounded_String;
+      D.Auth_URI          := Null_Unbounded_String;
       D.Auth_Response     := Null_Unbounded_String;
       D.Session_ID        := AWS.Session.No_Session;
       D.Session_Created   := False;
