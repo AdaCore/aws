@@ -19,6 +19,10 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-net-stream_io.adb aws-net.adb aws-os_lib.adb \
 	aws-parameters-set.adb aws-parameters.adb aws-resources-embedded.adb \
 	aws-resources-files.adb aws-resources-streams.adb aws-resources.adb \
+	aws-resources-streams-memory.ads \
+	aws-resources-streams-memory-zlib.adb \
+	aws-resources-streams-memory-zlib-deflate.adb \
+	aws-resources-streams-memory-zlib-inflate.adb \
 	aws-response-set.adb aws-response.adb aws-server-get_status.adb \
 	aws-server-hotplug.adb aws-server-push.adb aws-server.adb \
 	aws-services-directory.adb aws-services-dispatchers-method.adb \
