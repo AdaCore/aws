@@ -35,5 +35,11 @@ agent:
 auth:
 	gnatmake $(GARGS) auth -bargs $(BARGS) -largs $(LARGS)
 
+com_1:
+	gnatmake $(GARGS) com_1 -bargs $(BARGS) -largs $(LARGS)
+
+com_2:
+	gnatmake $(GARGS) com_2 -bargs $(BARGS) -largs $(LARGS)
+
 clean:
 	-rm -f .o *.ali *.exe b~runme.* b~agent.*
