@@ -343,7 +343,7 @@ package body AWS.Response.Set is
    begin
       Clear_Memory_Stream (D);
 
-      RSM.Append (RSM.Stream_Type (D.Stream.all), Value);
+      RSM.Append (RSM.Stream_Type'Class (D.Stream.all), Value);
    end Message_Body;
 
    procedure Message_Body
@@ -352,7 +352,7 @@ package body AWS.Response.Set is
    begin
       Clear_Memory_Stream (D);
 
-      Append_Body (D, Value);
+      RSM.Append (RSM.Stream_Type'Class (D.Stream.all), Value);
    end Message_Body;
 
    procedure Message_Body
@@ -383,7 +383,7 @@ package body AWS.Response.Set is
          Last := Integer'Min (First + Chunk_Size - 1, Len);
 
          RSM.Append
-           (RSM.Stream_Type (D.Stream.all),
+           (RSM.Stream_Type'Class (D.Stream.all),
             Translator.To_Stream_Element_Array (Slice (Value, First, Last)));
 
          First := Last + 1;
