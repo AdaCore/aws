@@ -140,6 +140,15 @@ package body AWS.Status is
       return To_String (D.Auth_Response);
    end Authorization_Response;
 
+   -----------------------
+   -- Authorization_URI --
+   -----------------------
+
+   function Authorization_URI (D : in Data) return String is
+   begin
+      return To_String (D.Auth_URI);
+   end Authorization_URI;
+
    -----------------
    -- Binary_Data --
    -----------------
