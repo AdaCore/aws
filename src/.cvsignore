@@ -16,4 +16,5 @@ aws-server-push.ads.texi
 aws-server.ads.texi
 aws-session.ads.texi
 aws-status.ads.texi
+aws-url.ads.texi
 build_ssl
