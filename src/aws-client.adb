@@ -232,8 +232,16 @@ package body AWS.Client is
    -------------
 
    procedure Connect (Connection : in out HTTP_Connection) is
+      use type Net.Socket_Access;
       Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
    begin
+      --  Keep-alive reconnect going to be with old socket,
+      --  We could not reuse it, and have to free it.
+
+      if Connection.Socket /= null then
+         Net.Free (Connection.Socket);
+      end if;
+
       Connection.Socket := Net.Socket (AWS.URL.Security (Connect_URL));
 
       Net.Connect (Connection.Socket.all,
@@ -396,7 +404,7 @@ package body AWS.Client is
          Connection.Opened := False;
 
          if Connection.Socket /= null then
-            Net.Buffered.Shutdown (Connection.Socket.all);
+            Net.Shutdown (Connection.Socket.all);
          end if;
       end if;
    end Disconnect;
