@@ -32,9 +32,10 @@
 
 --  Package to support Server Push feature. This is only supported by Netscape
 --  browsers. It will not work with Microsoft Internet Explorer.
+--  For Microsoft Internet Explorer complementary active components
+--  should be used like java applets or ActiveX controls.
 
-with Sockets;
-with Ada.Streams;
+with AWS.Net.Stream_IO;
 with Table_Of_Strings_And_Static_Values_G;
 
 generic
@@ -68,7 +69,7 @@ package AWS.Server.Push is
 
    type Client_Holder is tagged private;
 
-   subtype Socket_Type is Sockets.Socket_FD'Class;
+   subtype Socket_Type is AWS.Net.Stream_IO.Socket_Type;
 
    subtype Client_Key is String;
 
@@ -100,14 +101,16 @@ package AWS.Server.Push is
       Content_Type : in     String             := "");
    --  Push data to the every client (broadcast) subscribed to the server.
 
+   function Count (Server : in Object) return Natural;
+   --  Number of server push clients
+
+   procedure Destroy (Server : in out Object);
+   --  Close all clients connections.
+
 private
 
-   type Stream_Access is access all Ada.Streams.Root_Stream_Type'Class;
-   type Socket_Access is access all Socket_Type;
-
    type Client_Holder is tagged record
-      Stream      : Stream_Access;
-      Socket      : Socket_Access;
+      Stream      : AWS.Net.Stream_IO.Socket_Stream_Access;
       Kind        : Mode;
       Environment : Client_Environment;
    end record;
@@ -135,6 +138,10 @@ private
          Content_Type : in String);
 
       procedure Unregister (Client_ID : in Client_Key);
+
+      procedure Destroy;
+
+      function Count return Natural;
 
    private
       Container : Table.Table_Type;
