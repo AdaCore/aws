@@ -589,20 +589,20 @@ put it on the command line @code{-I<awsroot>/components}.
 
 The GNAT library files (@file{.ali}) and the @code{AWS} libraries
 (@file{libaws.a}) are installed into @file{<awsroot>/lib}. Add this
-path into ADA_OBJECT_PATH or put it on the command line
+path into @var{ADA_OBJECT_PATH} or put it on the command line
 @code{-aO<awsroot>/lib}. Furthermore for @code{gnatlink} to find the
 libraries you must add the following library path option on the @code{gnatmake}
 command line @code{-largs -L<awsroot>/lib -laws}.
 
 Note that to build SSL applications you need to add @code{-lssl -lcrypto} on
-gnatmake's -largs section.
+gnatmake's @code{-largs} section.
 
 @item external libraries
 
 You must do the same thing for all external libraries that you will
 be using. For example you'll have to point @code{GNAT} to the
 @code{AdaSockets} libraries and pass @code{-ladasockets} on the gnatmake's
--largs section. The same apply if you have built @code{AWS} with
+@code{-largs} section. The same apply if you have built @code{AWS} with
 @code{POSIX} or with @code{SSL} support.
 
 @end table
