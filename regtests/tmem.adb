@@ -10,12 +10,14 @@ procedure TMem is
    use Ada.Calendar;
 
    type String_Access is access all String;
+   type Constant_Access is access constant String;
 
    package Strings is new Memory_Streams
-     (Element        => Character,
-      Element_Index  => Positive,
-      Element_Array  => String,
-      Element_Access => String_Access,
+     (Element         => Character,
+      Element_Index   => Positive,
+      Element_Array   => String,
+      Element_Access  => String_Access,
+      Constant_Access => Constant_Access,
       Next_Block_Length => 80);
 
    use Strings;
@@ -26,12 +28,16 @@ procedure TMem is
    Stamp  : Time;
 
    Buffer : String (1 .. 20);
+   Sample : aliased constant String := "987654321" & ASCII.Lf;
+
+   Ptr    : String_Access;
+   CPtr   : Constant_Access := Sample'Access;
+
    Last   : Natural;
 
 begin
-   Append
-     (Stream,
-      new String'((1010 .. 1070 => '=', 1071 => ASCII.LF)));
+   Ptr := new String'((1010 .. 1070 => '=', 1071 => ASCII.LF));
+   Append (Stream, Ptr);
 
    for J in 1 .. 99 loop
       Append
@@ -45,21 +51,25 @@ begin
 
    Append (Stream, "123456789" & ASCII.Lf);
 
-   Append (Stream, "987654321" & ASCII.Lf);
+   Append (Stream, Sample);
 
-   Append (Stream, new String'("987654321" & ASCII.Lf));
+   Append (Stream, CPtr);
 
-   Append
-     (Stream,
-      new String'((1010 .. 1070 => '=', 1071 => ASCII.LF)));
+   Ptr := new String'((1010 .. 1070 => '=', 1071 => ASCII.LF));
+   Append (Stream, Ptr);
 
-   Put_Line (Size (Stream)'Img);
+   Put_Line (Integer'Image (Size (Stream)));
 
    loop
       Read (Stream, Buffer, Last);
       Put (Buffer (1 .. Last));
       exit when Last < Buffer'Last;
    end loop;
+
+   if not End_Of_File (Stream) then
+      Put_Line ("End of file error.");
+      raise Constraint_Error;
+   end if;
 
    Clear (Stream);
 
@@ -68,7 +78,11 @@ begin
    Stamp := Clock;
 
    for J in 1 .. 10000 loop
-      Append (Stream, "absdefghijkl-ABSDEFGHIJKL-1234578" & J'Img & ASCII.Lf);
+      Append
+        (Stream,
+         "absdefghijkl-ABSDEFGHIJKL-1234578"
+           & Integer'Image (J) & ASCII.Lf,
+         Trim => J = 10000);
    end loop;
 
    --  Not for regression test.
@@ -77,7 +91,8 @@ begin
    Stamp := Clock;
 
    for J in 1 .. 10000 loop
-      Append (UStr, "absdefghijkl-ABSDEFGHIJKL-1234578" & J'Img & ASCII.Lf);
+      Append (UStr, "absdefghijkl-ABSDEFGHIJKL-1234578"
+                    & Integer'Image (J) & ASCII.Lf);
    end loop;
 
    --  Not for regression test.
@@ -103,7 +118,7 @@ begin
          Read (Stream, Str, Last);
 
          if Str (1 .. Last) /= Slice (UStr, Index, Index + Last - 1) then
-            Put_Line ("Content error " & Last'Img);
+            Put_Line ("Content error " & Integer'Image (Last));
             raise Constraint_Error;
          end if;
 
@@ -114,6 +129,11 @@ begin
 
       if Index /= Size (Stream) + 1 then
          Put_Line ("Read length error.");
+         raise Constraint_Error;
+      end if;
+
+      if not End_Of_File (Stream) then
+         Put_Line ("End of file error.");
          raise Constraint_Error;
       end if;
    end;
