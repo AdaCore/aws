@@ -28,55 +28,21 @@
 
 --  $Id$
 
---  Here is the first documentation.
---
---  To build you need to have the Ada socket implementation. Either the one
---  for Windows or the one for UNIX.
---
---  This has been tested with the Windows version, GNAT and Internet Explorer
---  4.01. Please let me know if it does not work with other tools.
---
---  Some pointers:
---
---  Ada Windows sockets : http://stad.dsl.nl/~jvandyk/w32sock2.zip
---  Ada UNIX socket     : http://www.infres.enst.fr/ANC/
---
---  How to build this demo ?
---
---  $ gnatmake runme -I/whatever/path/to/sockets
---
---  How to run this demo ?
---
---  On the server side:
---  $ runme
---
---  On the client side:
---  * launch your browser
---  * enter the URL : http://<servername>:1234/
---
---  You can ask for whatever URI
---  http://<servername>:1234/give_me_that
---
---  And the server should reply with the following message (which should be
---  displayed in your browser window):
---
---     Hello, I'am glad you ask for /give_me_that.
---     I'am the runme demo. Note that this message could have been fetched
---     on my file system...
---
---  That's all for now. Enjoy !
+--  usage : agent URL
 
 with Ada.Text_IO;
+with Ada.Command_Line;
 
-with AWS.Server;
-with Runme_CB;
+with AWS.Client;
+with AWS.Response;
 
-procedure Runme is
+procedure Agent is
 
+   use AWS;
    use Ada;
 
-   WS : AWS.Server.HTTP (1234, Runme_CB.Get'Access);
+   Data : constant Response.Data := Client.Get (Command_Line.Argument (1));
 
 begin
-   Text_IO.Put_Line ("Kill me when you want me to stop...");
-end Runme;
+   Text_IO.Put_Line (Response.Message_Body (Data));
+end Agent;
