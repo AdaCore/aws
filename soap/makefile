@@ -14,4 +14,4 @@ build:
 	for file in $(SOURCES); do gnatmake $(GARGS) $$file; done
 
 clean:
-	-rm *.o *.ali *.~*.*.~
+	-rm *.o *.ali b~*.ad* *.~*.*.~

@@ -22,4 +22,4 @@ checks:
 	-diff -c tgetparam.out tgetparam.res
 
 clean:
-	-rm *.o *.ali *.~*.*.~ *.res
+	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res
