@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             December 17th, 2003
+   Pascal Obry                                             December 20th, 2003
 
 
 
@@ -108,6 +108,8 @@ Here are the main changes since AWS 1.4 :
        REPLACE       Pattern matching with replacement facility.
        REPLACE_ALL   As above but replace all occurences not the first one.
        FORMAT_DATE   To format a date using GNU/Date pattern format.
+       ADD_PARAM     Add a parameter to an URL.
+       DEL_PARAM     Delete a parameter from an URL.
 
    - New template engine NOW variable tag.
 
