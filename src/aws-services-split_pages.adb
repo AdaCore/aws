@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -104,7 +104,7 @@ package body AWS.Services.Split_Pages is
       -- Current --
       -------------
 
-      function Current  (P : in Positive) return String is
+      function Current (P : in Positive) return String is
       begin
          return To_String (URIs (P));
       end Current;
@@ -203,7 +203,7 @@ package body AWS.Services.Split_Pages is
       -- Next --
       ----------
 
-      function Next     (P : in Positive) return String is
+      function Next (P : in Positive) return String is
       begin
          if P < URIs'Last then
             return To_String (URIs (P + 1));
