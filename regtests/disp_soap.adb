@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                            Copyright (C) 2003                            --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
@@ -57,11 +57,13 @@ procedure Disp_SOAP is
    use Ada.Text_IO;
    use AWS;
 
-   function CB      (Request : in Status.Data) return Response.Data;
-   function SOAP_CB (SOAPAction : in String;
-                     Payload    : in SOAP.Message.Payload.Object;
-                     Request    : in AWS.Status.Data)
-                     return     AWS.Response.Data;
+   function CB (Request : in Status.Data) return Response.Data;
+
+   function SOAP_CB
+     (SOAPAction : in String;
+      Payload    : in SOAP.Message.Payload.Object;
+      Request    : in AWS.Status.Data)
+      return AWS.Response.Data;
 
    procedure Request
      (Proc       : in String;
@@ -132,10 +134,11 @@ procedure Disp_SOAP is
    -- SOAP_CB --
    -------------
 
-   function SOAP_CB (SOAPAction : in String;
-                     Payload    : in SOAP.Message.Payload.Object;
-                     Request    : in AWS.Status.Data)
-                     return     AWS.Response.Data
+   function SOAP_CB
+     (SOAPAction : in String;
+      Payload    : in SOAP.Message.Payload.Object;
+      Request    : in AWS.Status.Data)
+      return AWS.Response.Data
    is
       use SOAP.Types;
       use SOAP.Parameters;
@@ -151,7 +154,6 @@ procedure Disp_SOAP is
 
    begin
       if SOAPAction /= "soap_demo" then
-
          return SOAP.Message.Response.Build
            (SOAP.Message.Response.Error.Build
               (SOAP.Message.Response.Error.Client,
@@ -181,7 +183,7 @@ procedure Disp_SOAP is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   AWS.Config.Set.Server_Port (Config, 6544);
+   AWS.Config.Set.Server_Port (Config, 6547);
 
    AWS.Server.Start
      (HTTP,
@@ -195,7 +197,7 @@ begin
 
    AWS.Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:6544");
+      Host       => "http://localhost:6547");
 
    Request ("multProc", 2, 3);
    Request ("multProc", 9, 9);
