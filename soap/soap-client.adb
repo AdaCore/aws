@@ -105,18 +105,17 @@ package body SOAP.Client is
    ----------
 
    function Call
-     (Connection : access AWS.Client.HTTP_Connection;
-      SOAPAction : in     String;
-      P          : in     Message.Payload.Object)
+     (Connection : in AWS.Client.HTTP_Connection;
+      SOAPAction : in String;
+      P          : in Message.Payload.Object)
       return Message.Response.Object'Class
    is
       Message_Body : Unbounded_String;
       Response     : AWS.Response.Data;
    begin
       Message_Body := SOAP.Message.XML.Image (P);
-      Response
-        := AWS.Client.SOAP_Post
-             (Connection, SOAPAction, To_String (Message_Body));
+      AWS.Client.SOAP_Post
+        (Connection, Response, SOAPAction, To_String (Message_Body));
       return Message.XML.Load_Response (AWS.Response.Message_Body (Response));
    end Call;
 
