@@ -50,6 +50,9 @@ package AWS.Config.Set is
    procedure Admin_URI (O : in out Object; Value : in String);
    --  This is the name of the admin server page as set by AWS.Server.Start.
 
+   procedure Server_Host (O : in out Object; Value : in String);
+   --  This is the server host as set by the HTTP object declaration.
+
    procedure Server_Port (O : in out Object; Value : in Positive);
    --  This is the server port as set by the HTTP object declaration.
 

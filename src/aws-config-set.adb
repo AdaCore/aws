@@ -378,6 +378,15 @@ package body AWS.Config.Set is
    end Send_Timeout;
 
    -----------------
+   -- Server_Host --
+   -----------------
+
+   procedure Server_Host (O : in out Object; Value : in String) is
+   begin
+      O.P (Server_Host).Str_Value := To_Unbounded_String (Value);
+   end Server_Host;
+
+   -----------------
    -- Server_Name --
    -----------------
 
