@@ -159,7 +159,7 @@ package SSL.Thin is
 
    procedure ERR_error_string_n
      (Code   : in Error_Code;
-      Buffer : in char_array;
+      Buffer : in Cstr.chars_ptr;
       Len    : in size_t);
 
    procedure ERR_Remove_State (pid : in int := 0);

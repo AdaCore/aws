@@ -1,3 +1,8 @@
+2004-04-22  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* ssl-thin.ads:
+	(ERR_error_string_n): Out parameter have to be pointer.
+
 2004-03-23  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* ssl-thin.ads:
