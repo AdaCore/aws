@@ -40,12 +40,6 @@ implemented:
   sub-system. A LAWS would have only one task, no file-upload, not all the
   mechanisms to handle the concurrency...
 
-- Support socket timeout options (send and receive timeout) at the OS
-  level. Right now a task is doing the job.
-
-- Sort out problem with client socket that are not closed and can't be
-  reused. This happen if a lot of requests are done to the server.
-
 - Cookie for the session is set for the whole site (path=/), would be nice to
   have a way to configure that.
 
@@ -89,9 +83,6 @@ implemented:
        </restriction>
      </complexContent>
    </complexType>
-
-- Ada 2005 should support all sort of containers, use them instead of the
-  include/Table_Of_* components.
 
 - Add support for all kind of WSDL array definition, current supported form
   is:
@@ -162,3 +153,6 @@ implemented:
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply all support to the Web_Mail service.
+
+- Add name to stream. This is needed to be able to set the Content-Disposition
+  for streams as done for files.
