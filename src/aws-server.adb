@@ -32,6 +32,8 @@
 
 with Ada.Calendar;
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
@@ -176,32 +178,39 @@ package body AWS.Server is
       Error  : in     Exceptions.Data;
       Answer : in out Response.Data)
    is
-      Fatal_Error_Template : constant String := "500.tmplt";
+      use Ada.Exceptions;
+      use type Templates.Translate_Table;
+
+      Fatal_Error_Template  : constant String := "500.tmplt";
    begin
       if Error.Fatal then
          Text_IO.Put_Line
-           (Text_IO.Current_Error, "Slot problem has been detected!");
-         Text_IO.Put_Line
-           (Text_IO.Current_Error, "This is a fatal error, slot"
-              & Positive'Image (Error.Slot) & " is now dead");
-         Text_IO.Put_Line
-           (Text_IO.Current_Error, "Consider reporting this problem");
-
+           (Text_IO.Current_Error, "Fatal error, slot"
+              & Positive'Image (Error.Slot) & " is dead now.");
          Text_IO.New_Line (Text_IO.Current_Error);
+
          Text_IO.Put_Line
            (Text_IO.Current_Error,
-            Ada.Exceptions.Exception_Information (E));
+            Exception_Information (E));
 
       else
          AWS.Log.Write
-           (Log, Error.Request, "(default unexpected exception handler)");
+           (Log,
+            Error.Request,
+            Strings.Fixed.Translate
+              (Exception_Information (E),
+               Strings.Maps.To_Mapping
+                 (From => ASCII.CR & ASCII.LF,
+                  To   => "  ")));
 
          if AWS.OS_Lib.Is_Regular_File (Fatal_Error_Template) then
             Answer := Response.Build
               (MIME.Text_HTML,
                String'(Templates.Parse
                          (Fatal_Error_Template,
-                          Status.Translate_Table (Error.Request))),
+                          Status.Translate_Table (Error.Request)
+                            & Templates.Assoc
+                                ("EXCEPTION", Exception_Information (E)))),
                Messages.S500);
          else
             Answer := Response.Build
