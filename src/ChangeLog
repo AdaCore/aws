@@ -1,3 +1,13 @@
+2002-10-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.ads:
+	(Undefined_Length): Minor comment fix.
+
+	* aws-server-protocol_handler.adb:
+	(Send_Resource_Body): Renamed to Send_Resource.
+	Add some comment.
+	Minor reformatting.
+
 2002-10-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
