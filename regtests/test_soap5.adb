@@ -33,16 +33,19 @@
 --  Same as Test_SOAP but with a persistent connection. Check also that SOAP
 --  and non-SOAP request are handled properly in this case.
 
-with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.Text_IO;
 
-with AWS.Server;
 with AWS.Client;
-with AWS.Status;
-with AWS.MIME;
-with AWS.Response;
-with AWS.Parameters;
 with AWS.Messages;
+with AWS.MIME;
+with AWS.Parameters;
+with AWS.Response;
+with AWS.Server;
+with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 with SOAP.Client;
 with SOAP.Message.Payload;
@@ -65,6 +68,7 @@ procedure Test_SOAP5 is
       entry Stopped;
    end Server;
 
+   Port       : Positive := 6548;
    HTTP       : AWS.Server.HTTP;
 
    Connection : Client.HTTP_Connection;
@@ -130,9 +134,11 @@ procedure Test_SOAP5 is
 
    task body Server is
    begin
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (HTTP, "soap_demo",
-         CB'Unrestricted_Access, Port => 6548, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -198,7 +204,9 @@ begin
 
    Server.Started;
 
-   AWS.Client.Create (Connection, "http://localhost:6548/soap_demo");
+   AWS.Client.Create
+     (Connection,
+      "http://localhost:" & Utils.Image (Port) & "/soap_demo");
 
    Request ("multProc", 2, 3, "/mul");
    Request ("multProc", 9, 9, "/mul");
