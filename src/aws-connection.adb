@@ -96,8 +96,6 @@ package body AWS.Connection is
 
    End_Of_Message : constant String := "";
 
-   Internal_Error : exception;
-
    HTTP_10 : constant String := "HTTP/1.0";
    HTTP_11 : constant String := "HTTP/1.1";
 
