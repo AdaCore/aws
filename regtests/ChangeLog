@@ -1,5 +1,10 @@
 2004-10-09  Pascal Obry  <pascal@obry.org>
 
+	* makefile:
+	(AWSRES): Fix PATH based on BDIR.
+	(WSDL2AWS): Idem.
+	(ADA2WSDL): Idem.
+
 	* soap5.out, soap6.out, soap7.out:
 	Add missing ending empty line removed with last check-in.
 

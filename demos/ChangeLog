@@ -1,3 +1,9 @@
+2004-10-09  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(AWSRES): Fix PATH based on BDIR.
+	(WSDL2AWS): Idem.
+
 2004-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
