@@ -37,7 +37,7 @@ with Ada.Streams;
 
 with AWS.Net;
 
-procedure SSTO is
+procedure STO is
 
    use AWS;
    use Ada;
@@ -85,8 +85,12 @@ procedure SSTO is
 
       loop
          declare
-            Buffer : Stream_Element_Array := Net.Receive (Client);
-            Next   : Stream_Element_Offset := First + Buffer'Length;
+            Buffer : constant Stream_Element_Array
+              := Net.Receive
+                   (Client,
+                    Stream_Element_Count'Max (4096, Sample'Last - First + 1));
+
+            Next : constant Stream_Element_Offset := First + Buffer'Length;
          begin
             if Buffer'Length = 0 then
                Text_IO.Put_Line ("short data");
@@ -161,4 +165,4 @@ begin
 exception
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));
-end SSTO;
+end STO;
