@@ -143,6 +143,12 @@ common_tarball:
 	$(MKDIR) $${AWS}/config/src; \
 	$(MKDIR) $${AWS}/config/projects; \
 	$(MKDIR) $${AWS}/support; \
+	$(MKDIR) $${AWS}/web_elements; \
+	$(MKDIR) $${AWS}/web_elements/icons; \
+	$(MKDIR) $${AWS}/web_elements/javascripts; \
+	$(MKDIR) $${AWS}/web_elements/menu_css; \
+	$(MKDIR) $${AWS}/web_elements/notebook; \
+	$(MKDIR) $${AWS}/web_elements/rounded_boxes; \
 	\
 	for file in \
            `$(AWK) '$$1!="--" && $$1!="" {print $$0} \
