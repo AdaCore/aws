@@ -1,7 +1,8 @@
-2003-03-07  Pascal Obry  <p.obry@wanadoo.fr>
+2003-03-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
 	Handle new configuration parameter GDB_REGTESTS.
+	Clean for out.gdb and out.tmp
 
 2003-03-06  Pascal Obry  <p.obry@wanadoo.fr>
 
