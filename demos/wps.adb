@@ -45,8 +45,7 @@ procedure WPS is
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
-   Text_IO.Put_Line ("Kill me when you want me to stop...");
-   Text_IO.Put_Line ("I will stop in 5 minutes anyway !");
+   Text_IO.Put_Line ("Kill me when you want me to stop or press Q...");
 
    AWS.Server.Start
      (WS, "Simple Page Server demo",
@@ -54,9 +53,9 @@ begin
       Callback       => AWS.Services.Page_Server.Callback'Access,
       Max_Connection => 5);
 
-   delay 5 * 60.0;
+   AWS.Server.Wait (AWS.Server.Q_Key_Pressed);
 
-   Text_IO.Put_Line ("ok, let's shutdown...");
+   Text_IO.Put_Line ("AWS server shutdown in progress...");
 
    AWS.Server.Shutdown (WS);
 end WPS;
