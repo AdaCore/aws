@@ -72,6 +72,8 @@ b~test_soap3.adb
 b~test_soap3.ads
 b~test_soap4.adb
 b~test_soap4.ads
+b~test_soap5.adb
+b~test_soap5.ads
 b~test_speed.adb
 b~test_speed.ads
 b~test_templates_if.adb
@@ -216,6 +218,7 @@ test_soap.tmp
 test_soap2.res
 test_soap3.res
 test_soap4.res
+test_soap5.res
 test_speed.res
 test_speed.tmp
 test_templates_if.res
