@@ -1,3 +1,9 @@
+2004-07-14  Pascal Obry  <pascal@obry.org>
+
+	* aws-server.adb:
+	Minor reformatting.
+	Update copyright notice.
+
 2004-07-12  Pascal Obry  <pascal@obry.org>
 
 	* aws-server-log.ads, aws-server-log.adb:
