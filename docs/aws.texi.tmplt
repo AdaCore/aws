@@ -1904,6 +1904,8 @@ Jean-Fran@,cois Rameau.
 * AWS.Server::
 * AWS.Server.Hotplug::
 * AWS.Server.Push::
+* AWS.Services.Directory::
+* AWS.Services.Page_Server::
 * AWS.Session::
 * AWS.Status::
 * AWS.URL::
@@ -1997,6 +1999,18 @@ Jean-Fran@,cois Rameau.
 @cindex AWS.Server.Push
 
 @include ../src/aws-server-push.ads.texi
+
+@node AWS.Services.Directory
+@section AWS.Services.Directory
+@cindex AWS.Services.Directory
+
+@include ../src/aws-services-directory.ads.texi
+
+@node AWS.Services.Page_Server
+@section AWS.Services.Page_Server
+@cindex AWS.Services.Page_Server
+
+@include ../src/aws-services-page_server.ads.texi
 
 @node AWS.Session
 @section AWS.Session
