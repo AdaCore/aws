@@ -96,8 +96,6 @@ begin
       CB'Unrestricted_Access,
       Port => DatafeedService.Server.Port);
 
-   Server.Log.Start_Error (H_Server);
-
    WSDL_Demo_Client;
 
    Server.Shutdown (H_Server);
