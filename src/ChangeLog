@@ -1,3 +1,21 @@
+2002-10-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-translator-binary-f.adb, aws-translator-binary-p.adb:
+	New separate implementations of String <-> Stram_Element_Array
+	convertions.
+
+	* test_uconv.adb:
+	New program to test availability to use fast convertions between
+	String and Stram_Element_Array.
+
+	* aws-translator.adb:
+	(To_String): Moved to the separate package.
+	(To_Stream_Element_Array): Moved to the separate package.
+
+	* makefile
+	Make "build" section depend from aws-translator-binary.adb file
+	existence.
+
 2002-10-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-url.adb:
