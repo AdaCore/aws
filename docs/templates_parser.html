@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 28 November 2002 -->
+     from templates_parser.texi on 29 November 2002 -->
 
 <TITLE>Templates Parser
 </TITLE>
@@ -11,7 +11,7 @@
 </H1>
 <H2>$Revision$
 </H2>
-<H2>Date: 28 November 2002
+<H2>Date: 29 November 2002
 </H2>
 <ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)
 </ADDRESS>
@@ -279,9 +279,8 @@ Filters are evaluated from right to left.
 Vector and Matrix tag can also have attributes. Attributes are placed
 after the tag name and preceded with a simple quote.
 <CODE>@_SOME_VAR['ATTRIBUTE_NAME]_@</CODE>. It is possible to use filters
-and attributes together even if nothing very interesting can be
-done at this point. In that case the attribute is first evaluated and
-the result passed-through the filters.
+and attributes together. In that case the attribute is first evaluated and
+the result is passed-through the filters.
 
 
 <UL>
@@ -299,6 +298,30 @@ The current supported filters are:
 
 <DL COMPACT>
 
+
+<DT><CODE>"+"(<I>N</I>) or ADD(<I>N</I>)</CODE>
+<DD>
+
+Add N to variable and return the result. If the current variable value
+is not a number it returns the empty string. N must be a number.
+
+<DT><CODE>"-"(<I>N</I>) or SUB(<I>N</I>)</CODE>
+<DD>
+
+Substract N to variable and return the result. If the current variable value
+is not a number it returns the empty string. N must be a number.
+
+<DT><CODE>"*"(<I>N</I>) or MULT(<I>N</I>)</CODE>
+<DD>
+
+Multiply N with variable and return the result. If the current variable value
+is not a number it returns the empty string. N must be a number.
+
+<DT><CODE>"/"(<I>N</I>) or DIV(<I>N</I>)</CODE>
+<DD>
+
+Divide variable by N and return the result. If the current variable value
+is not a number it returns the empty string. N must be a number.
 
 <DT><CODE>CAPITALIZE</CODE>
 <DD>
@@ -350,6 +373,12 @@ Put all characters in the variable in lower-case.
 
 Returns <B>True</B> if variable match the regular expression passed as
 filter's parameter.
+
+<DT><CODE>MOD(<I>N</I>)</CODE>
+<DD>
+
+Returns variable modulo N. If the current variable value is not a
+number it returns the empty string. N must be a number.
 
 <DT><CODE>NO_DIGIT</CODE>
 <DD>
@@ -483,6 +512,7 @@ If VEC is set to "<I>&#60;1 , 2&#62;</I>" and MAT to "<I>&#60;a, b, c&#62; ; &#6
 
 
 @_VEC'Length_@              -&#62;  2
+@_ADD(3):VEC'Length_@       -&#62;  5
 @_MAT'Line_@                -&#62;  2
 @_MAT'Min_Column_@          -&#62;  3
 @_MAT'Max_Column_@          -&#62;  4
@@ -1721,7 +1751,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 <P>
 
 <P><HR><P>
-This document was generated on 28 November 2002 using the
+This document was generated on 29 November 2002 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
