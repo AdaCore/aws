@@ -34,8 +34,13 @@ with "../shared";
 
 project SSL is
 
-  for Object_Dir use "../obj";
+   for Source_Files use ("ssl.ads", "ssl-thin.ads");
 
-  for Source_Files use ("ssl.ads", "ssl-thin.ads");
+   case Shared.Build is
+      when "Debug" =>
+         for Object_Dir use "../.build/debug/ssl/obj";
+      when "Release" =>
+         for Object_Dir use "../.build/release/ssl/obj";
+   end case;
 
 end SSL;

@@ -34,9 +34,18 @@ with "../shared.gpr";
 
 project NOSSL is
 
-   for Library_Dir use "../lib";
-   for Library_Name use "nosslaws";
-
    for Source_Files use ("ssl-wrappers.adb");
+
+   case Shared.Build is
+      when "Debug" =>
+         for Object_Dir use "../.build/debug/ssl/lobj";
+         for Library_Dir use "../.build/debug/ssl/lib";
+      when "Release" =>
+         for Object_Dir use "../.build/release/ssl/lobj";
+         for Library_Dir use "../.build/release/ssl/lib";
+   end case;
+
+   for Library_Name use "nosslaws";
+   for Library_Kind use "static";
 
 end NOSSL;
