@@ -28,6 +28,8 @@
 
 --  $Id$
 
+with Ada.Text_IO;
+
 separate (Templates_Parser)
 
 package body Data is
