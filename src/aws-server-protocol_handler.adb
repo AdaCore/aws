@@ -81,8 +81,9 @@ is
    C_Stat         : AWS.Status.Data;     -- Connection status
    P_List         : AWS.Parameters.List; -- Form data
 
-   Sock           : Sockets.Socket_FD'Class
-     renames HTTP_Server.Slots.Get (Index => Index).Sock.all;
+   Sock_Ptr       : Socket_Access :=
+      HTTP_Server.Slots.Get (Index => Index).Sock;
+   Sock           : Sockets.Socket_FD'Class renames Sock_Ptr.all;
 
    Socket_Taken   : Boolean := False;
    --  Set to True if a socket has been reserved for a push session.
@@ -505,14 +506,10 @@ is
             --  If no one applied, run the user callback
 
             if not Found then
-               declare
-                  Socket : aliased Sockets.Socket_FD'Class := Sock;
-               begin
-                  AWS.Status.Set.Socket (C_Stat, Socket'Unchecked_Access);
+               AWS.Status.Set.Socket (C_Stat, Sock_Ptr);
 
-                  Answer := Dispatchers.Dispatch
-                    (HTTP_Server.Dispatcher.all, C_Stat);
-               end;
+               Answer := Dispatchers.Dispatch
+                 (HTTP_Server.Dispatcher.all, C_Stat);
             end if;
 
             HTTP_Server.Slots.Mark_Phase (Index, Server_Response);

@@ -36,6 +36,7 @@ with Ada.Finalization;
 with Sockets.Naming;
 
 with AWS.Response;
+with AWS.Status;
 with AWS.Hotplug;
 with AWS.Config;
 with AWS.Default;
@@ -189,7 +190,7 @@ private
 
    type Data_Timeouts_Array is array (Data_Phase) of Duration;
 
-   type Socket_Access is access all Sockets.Socket_FD'Class;
+   subtype Socket_Access is AWS.Status.Socket_Access;
 
    type Slot is record
       Sock                  : Socket_Access := null;
