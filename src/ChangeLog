@@ -38,7 +38,6 @@
 	* aws-status.ads:
 	Rename section Socket to Connection.
 
->>>>>>> 1.509
 2003-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers-values.adb:
