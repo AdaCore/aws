@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,14 +30,40 @@
 
 --  $Id$
 
+with AWS.Hotplug;
+
 package AWS.Server.Hotplug is
 
-   Register_Message   : constant String := "REGISTER";
-   Unregister_Message : constant String := "UNREGISTER";
+   --  Messages used to register/unregister hotplug modules
+
+   Register_Message      : constant String := "REGISTER";
+   Unregister_Message    : constant String := "UNREGISTER";
+   Request_Nonce_Message : constant String := "REQUEST_NONCE";
+
+   --  The Authorization_File below is a file that contains authorizations
+   --  for the hotplug modules. Only modules that have an entry into this
+   --  file will be able to register to server. Each line on this fille must
+   --  have the following format:
+   --
+   --  <module_name>:<md5_password>:<host>:<port>
+   --
+   --  module_name  : The name of the module that will register
+   --  md5_password : The corresponding password, use hotplug_password
+   --                  tool to generate such password
+   --  host         : The host name where requests will be redirected
+   --  port         : and the corresponding port
 
    procedure Activate
-     (Web_Server : in HTTP_Access;
-      Port       : in Positive);
-   --  Start hotplug server listening at the specified Port for the Web_Server
+     (Web_Server         : in HTTP_Access;
+      Port               : in Positive;
+      Authorization_File : in String;
+      Register_Mode      : in AWS.Hotplug.Register_Mode := AWS.Hotplug.Add);
+   --  Start hotplug server listening at the specified Port for the Web_Server.
+   --  Only client modules listed in the authorization file will be able to
+   --  connect to this server. For better securite the host of redictection
+   --  must also be specified.
+
+   procedure Shutdown;
+   --  Shutdown hotplug server
 
 end AWS.Server.Hotplug;
