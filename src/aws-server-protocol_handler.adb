@@ -90,10 +90,11 @@ is
    Socket_Taken   : Boolean := False;
    --  Set to True if a socket has been reserved for a push session.
 
-   Will_Close     : Boolean;
+   Will_Close     : Boolean := True;
    --  Will_Close is set to true when the connection will be closed by the
-   --  server. It means that the server is about to send the lastest message
-   --  to the client using this sockets.
+   --  server. It means that the server is about to send the latest message
+   --  to the client using this socket. The value will be changed by
+   --  Set_Close_Status.
 
    --  Duplication of some status fields for faster access
 
@@ -135,6 +136,11 @@ is
    function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean;
    --  Check the date format as some Web brower seems to return invalid date
    --  field.
+
+   procedure Set_Close_Status;
+   --  Set Will_Close properly depending on the HTTP version and current
+   --  request status. This routine must be called after Get_Message_header as
+   --  the request header must have been parsed.
 
    ----------------------
    -- Answer_To_Client --
@@ -543,14 +549,14 @@ is
 
             if Error = Name_Error then
                --  We can't create the file, add a clear exception message
-               Exceptions.Raise_Exception
+               Ada.Exceptions.Raise_Exception
                  (Text_IO.Name_Error'Identity,
                   "Cannot create file " & To_String (Server_Filename));
 
             elsif Error = Device_Error then
                --  We can't write to the file, there is probably no space left
                --  on devide.
-               Exceptions.Raise_Exception
+               Ada.Exceptions.Raise_Exception
                  (Text_IO.Device_Error'Identity,
                   "No space left on device while writting "
                     & To_String (Server_Filename));
@@ -1379,6 +1385,24 @@ is
          raise;
    end Send_Resource;
 
+   ----------------------
+   -- Set_Close_Status --
+   ----------------------
+
+   procedure Set_Close_Status is
+      Connection : constant String := To_String (Status_Connection);
+   begin
+      --  Connection, check connection string with Match to skip connection
+      --  options [RFC 2616 - 14.10].
+
+      Will_Close := AWS.Messages.Match (Connection, "close")
+        or else HTTP_Server.Slots.N = 1
+        or else (Status.HTTP_Version (C_Stat) = HTTP_10
+                   and then
+                 AWS.Messages.Does_Not_Match (Connection, "keep-alive"));
+   end Set_Close_Status;
+
+
 begin
    --  This new connection has been initialized because some data are
    --  beeing sent. We are by default using HTTP/1.1 persistent
@@ -1387,42 +1411,69 @@ begin
 
    For_Every_Request : loop
 
-      HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
-
-      Status.Set.Reset (C_Stat);
-
-      P_List := Status.Parameters (C_Stat);
-
-      Parameters.Set.Case_Sensitive
-        (P_List, Case_Sensitive_Parameters);
-
-      HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
-
-      Get_Message_Header;
-
-      HTTP_Server.Slots.Mark_Phase (Index, Client_Data);
-
-      Get_Message_Data;
-
-      declare
-         Connection : constant String := To_String (Status_Connection);
       begin
-         --  Connection, check connection string with Match to skip connection
-         --  options [RFC 2616 - 14.10].
-         Will_Close := AWS.Messages.Match (Connection, "close")
-           or else HTTP_Server.Slots.N = 1
-           or else (Status.HTTP_Version (C_Stat) = HTTP_10
-                      and then
-                      AWS.Messages.Does_Not_Match (Connection, "keep-alive"));
+         HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
+
+         Status.Set.Reset (C_Stat);
+
+         P_List := Status.Parameters (C_Stat);
+
+         Parameters.Set.Case_Sensitive
+           (P_List, Case_Sensitive_Parameters);
+
+         HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
+
+         Get_Message_Header;
+
+         Set_Close_Status;
+
+         HTTP_Server.Slots.Mark_Phase (Index, Client_Data);
+
+         Get_Message_Data;
+
+         Set_Close_Status;
+
+         Status.Set.Keep_Alive (C_Stat, not Will_Close);
+
+         Status.Set.Parameters (C_Stat, P_List);
+
+         HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+
+         Answer_To_Client;
+
+      exception
+         --  We must never exit the loop with an exception. This loop is
+         --  supposed to be used for the keep-alive connection. We must exit
+         --  properly and the slot will be closed. An exception propagated
+         --  outside of this loop will kill definitely one of the server's
+         --  slot.
+
+         when Net.Socket_Error =>
+            --  Exit from keep-alive loop in case of socket error
+            exit For_Every_Request;
+
+         when E : others =>
+
+            declare
+               use type Response.Data_Mode;
+
+               Answer : Response.Data := Response.Empty;
+            begin
+               HTTP_Server.Exception_Handler
+                 (E,
+                  HTTP_Server.Error_Log,
+                  AWS.Exceptions.Data'(False, Index, C_Stat),
+                  Answer);
+
+               if Response.Mode (Answer) /= Response.No_Data then
+                  HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+                  Send (Answer);
+               end if;
+            exception
+               when Net.Socket_Error =>
+                  exit For_Every_Request;
+            end;
       end;
-
-      Status.Set.Keep_Alive (C_Stat, not Will_Close);
-
-      Status.Set.Parameters (C_Stat, P_List);
-
-      HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
-
-      Answer_To_Client;
 
       --  Exit if connection has not the Keep-Alive status or we are working
       --  on HTTP/1.0 protocol or we have a single slot.
@@ -1434,33 +1485,4 @@ begin
    --  Release memory for local objects
 
    Status.Set.Free (C_Stat);
-
-exception
-   --  We must never exit from the outer loop as a Line task is
-   --  supposed to live forever.
-   --  We have here a pool of Line and each line is recycled when
-   --  needed.
-
-   when Net.Socket_Error =>
-      null;
-
-   when E : others =>
-
-      declare
-         use type Response.Data_Mode;
-
-         Answer : Response.Data := Response.Empty;
-      begin
-         HTTP_Server.Exception_Handler (E, False, Answer);
-
-         if Response.Mode (Answer) /= Response.No_Data then
-            HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
-            Send (Answer);
-         end if;
-      exception
-         when others =>
-            null;
-      end;
-
-      Status.Set.Free (C_Stat);
 end Protocol_Handler;
