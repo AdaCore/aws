@@ -93,7 +93,7 @@ gnathtml_apiref: check_api
 	(cd ..; fileset=; \
 	for file in src/*.ad[sb] include/templates*.ad[sb] \
 	   	include/strings_cutter.ad[sb] \
-		soap/soap-*.ad[sb]; \
+		soap/soap*.ad[sb]; \
 	do \
 		echo -n $$file; \
 		if [ -f `echo $$file | sed -e 's/\.ad[sb]/.ali/'` ]; then \
@@ -111,7 +111,7 @@ adabrowse_apiref: check_api
 	(cd ..; \
 	for file in src/*.ad[sb] include/templates*.ad[sb] \
 	   	include/strings_cutter.ad[sb] \
-		soap/soap-*.ad[sb]; \
+		soap/soap*.ad[sb]; \
 	do \
 		echo -n $$file; \
 		if [ -f `echo $$file | sed -e 's/\.ad[sb]/.ali/'` ]; then \
