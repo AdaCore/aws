@@ -1,5 +1,9 @@
 2002-10-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-ldap-client.ads, aws-ldap-client.adb:
+	(For_Every_Entries): Renamed For_Every_Entry.
+	(For_Every_Attributes): Renamed For_Every_Attribute.
+
 	* aws-server.ads:
 	(Dispatcher_Sem): Set Writers discriminant to 1.
 
