@@ -1,6 +1,12 @@
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
+	(Shutdown): Release memory associated with the server's SSL_Config
+	 object.
+	
+2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
 	(Start): Initialize the SSL layer only if not already done by
 	 Set_Security. Properly pass the key and security mode to the SSL
 	 initialize routine.
