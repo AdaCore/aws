@@ -1,3 +1,8 @@
+2002-09-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-digest.adb:
+	(Check_Nonce): Check that nonce has a correct length first.
+
 2002-09-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
