@@ -8,8 +8,8 @@
 
 include makefile.conf
 
-INCLUDES=$(EXTRA_INCLUDES)
-LIBS=$(EXTRA_LIBS)
+INCLUDES = $(EXTRA_INCLUDES)
+LIBS     = $(EXTRA_LIBS)
 
 ifdef ADASOCKETS
 INCLUDES = -I$(ADASOCKETS)/lib/adasockets $(INCLUDES)
