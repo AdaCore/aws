@@ -30,57 +30,37 @@
 
 --  $Id$
 
---  Parameters are put into an AVL Tree. Each entry in the tree is composed of
---  a Key and a Value. The parameters must be accessible through their name
---  and also using an index. So given a set of parameters (K1=V1, K2=V2...),
+--  Parameters name/value are put into the GNAT.Dynamic_Tables.Table_Type
+--  (Data field). The name as a key and the numeric index as a value is
+--  placing to the AVL Tree for the fast find all Name/Value pairs with the
+--  same name. Each value of the AVL Tree is a table of numeric indexes
+--  in the Data field. The parameters must be accessible
+--  through their string index by name and also using an numeric index in
+--  the place order. So given a set of parameters (K1=V1, K2=V2...),
 --  one must be able to ask for the value for K1 but also the name of the
 --  second key or the value of the third key.
 --
---  Each K/V pair is then inserted into the Data tree and two times into the
---  Ordered_Data tree:
---
---  Into Data:
---
---  1) key=K with value=V
---
---  Into Ordered_Data:
---
---  1) key=__AWS_K<n> with value=K     (n beeing an indice representing the
---  2) key=__AWS_V<n> with value=V      entry number in the tree)
---
---  So to get the third key name we ask for the entry indexed under __AWS_K3
---  into Ordered_Data tree.
---
---  Another important point is that a key can have many values. For example
---  with an HTML multiple select entry in a form. In such a case all values
---  associated with the key K are concatenated together with a specific
---  separator.
+--  Each K/V pair is then inserted into the Data table for access by numeric
+--  index. And its numeric index is placing to the AVL tree indexed by name.
+--  The AVL Tree values is a tables of numeric indexes in the Data table.
 
 with Ada.Characters.Handling;
-
-with AWS.Utils;
-
-with Strings_Cutter;
 
 package body AWS.Containers.Tables is
 
    use Ada.Strings.Unbounded;
 
    Missing_Item_Error : exception
-      renames Key_Value.Table.Missing_Item_Error;
+      renames Index_Table.Missing_Item_Error;
 
    -----------
    -- Count --
    -----------
 
    function Count (Table : in Table_Type) return Natural is
-      use type Key_Value.Set_Access;
    begin
-      if Table.Ordered_Data = null then
-         return 0;
-      else
-         return Key_Value.Size (Table.Ordered_Data.all) / 2;
-      end if;
+      pragma Assert (Table.Index /= null);
+      return Data_Table.Last (Table.Data);
    end Count;
 
    -----------
@@ -92,22 +72,15 @@ package body AWS.Containers.Tables is
       Name           : in String)
       return Natural
    is
-      Value : Unbounded_String;
-      CS    : Strings_Cutter.Cut_String;
+      Value : Name_Index_Table;
    begin
-      Key_Value.Get_Value (Table.Data.all, Name, Value);
+      pragma Assert (Table.Index /= null);
+      Get_Value
+        (Table.Index.all,
+         Normalize_Name (Name, not Table.Case_Sensitive),
+         Value);
 
-      Strings_Cutter.Create
-        (CS,
-         To_String (Value),
-         String'(1 => Val_Separator));
-
-      declare
-         Result : constant Natural := Strings_Cutter.Field_Count (CS);
-      begin
-         Strings_Cutter.Destroy (CS);
-         return Result;
-      end;
+      return Natural (Name_Indexes.Last (Value));
 
    exception
       when Missing_Item_Error =>
@@ -120,11 +93,12 @@ package body AWS.Containers.Tables is
 
    function Exist
      (Table : in Table_Type;
-      Name           : in String)
+      Name  : in String)
       return Boolean is
    begin
-      return Key_Value.Is_Present
-        (Table.Data.all,
+      pragma Assert (Table.Index /= null);
+      return Is_Present
+        (Table.Index.all,
          Normalize_Name (Name, not Table.Case_Sensitive));
    end Exist;
 
@@ -134,8 +108,8 @@ package body AWS.Containers.Tables is
 
    function Get
      (Table : in Table_Type;
-      Name           : in String;
-      N              : in Positive := 1)
+      Name  : in String;
+      N     : in Positive := 1)
       return String is
    begin
       return Internal_Get (Table, Name, N);
@@ -147,15 +121,15 @@ package body AWS.Containers.Tables is
 
    function Get_Name
      (Table : in Table_Type;
-      N              : in Positive := 1)
-      return String
-   is
-      Key : constant String := "__AWS_K" & Utils.Image (N);
+      N     : in Positive := 1)
+      return String is
    begin
-      return To_String (Key_Value.Value (Table.Ordered_Data.all, Key));
-   exception
-      when Missing_Item_Error =>
+      pragma Assert (Table.Index /= null);
+      if N <= Data_Table.Last (Table.Data) then
+         return Table.Data.Table (N).Name.all;
+      else
          return "";
+      end if;
    end Get_Name;
 
    ---------------
@@ -163,11 +137,10 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Names (Table : in Table_Type) return VString_Array is
-      use type Key_Value.Set_Access;
 
       procedure Process
         (Key      : in     String;
-         Value    : in     Unbounded_String;
+         Value    : in     Name_Index_Table;
          Order    : in     Positive;
          Continue : in out Boolean);
 
@@ -179,7 +152,7 @@ package body AWS.Containers.Tables is
 
       procedure Process
         (Key      : in     String;
-         Value    : in     Unbounded_String;
+         Value    : in     Name_Index_Table;
          Order    : in     Positive;
          Continue : in out Boolean)
       is
@@ -194,11 +167,11 @@ package body AWS.Containers.Tables is
       --------------------
 
       procedure Each_Key_Value is
-         new Key_Value.Table.Disorder_Traverse_G (Process);
+         new Index_Table.Disorder_Traverse_G (Process);
 
    begin
-      if Table.Data /= null then
-         Each_Key_Value (Key_Value.Table.Table_Type (Table.Data.all));
+      if Table.Index /= null then
+         Each_Key_Value (Index_Table.Table_Type (Table.Index.all));
       end if;
 
       return Result;
@@ -211,14 +184,15 @@ package body AWS.Containers.Tables is
    function Get_Value
      (Table : in Table_Type;
       N              : in Positive := 1)
-      return String
-   is
-      Key : constant String := "__AWS_V" & Utils.Image (N);
+      return String is
    begin
-      return To_String (Key_Value.Value (Table.Ordered_Data.all, Key));
-   exception
-      when Missing_Item_Error =>
+      pragma Assert (Table.Index /= null);
+
+      if N <= Data_Table.Last (Table.Data) then
+         return Table.Data.Table (N).Value.all;
+      else
          return "";
+      end if;
    end Get_Value;
 
    ----------------
@@ -227,29 +201,26 @@ package body AWS.Containers.Tables is
 
    function Get_Values
      (Table : in Table_Type;
-      Name           : in String)
+      Name  : in String)
       return VString_Array
    is
-      Value : Unbounded_String;
-      CS    : Strings_Cutter.Cut_String;
+      Value : Name_Index_Table;
    begin
-      Key_Value.Get_Value
-        (Table.Data.all,
+      pragma Assert (Table.Index /= null);
+
+      Get_Value
+        (Table.Index.all,
          Normalize_Name (Name, not Table.Case_Sensitive),
          Value);
 
-      Strings_Cutter.Create
-        (CS,
-         To_String (Value),
-         String'(1 => Val_Separator));
-
       declare
-         Result : VString_Array (1 .. Strings_Cutter.Field_Count (CS));
+         Last :  Key_Positive := Name_Indexes.Last (Value);
+         Result : VString_Array (1 .. Natural (Last));
       begin
-         for I in Result'Range loop
-            Result (I) := To_Unbounded_String (Strings_Cutter.Field (CS, I));
+         for I in 1 .. Last loop
+            Result (Natural (I)) := To_Unbounded_String (Table.Data.Table
+               (Value.Table (I)).Value.all);
          end loop;
-         Strings_Cutter.Destroy (CS);
          return Result;
       end;
 
@@ -264,32 +235,27 @@ package body AWS.Containers.Tables is
 
    function Internal_Get
      (Table : in Table_Type;
-      Name           : in String;
-      N              : in Natural)
+      Name  : in String;
+      N     : in Natural)
       return String
    is
-      Value : Unbounded_String;
-      CS    : Strings_Cutter.Cut_String;
+      Value : Name_Index_Table;
    begin
-      Key_Value.Get_Value
-        (Table.Data.all,
+      pragma Assert (Table.Index /= null);
+
+      Get_Value
+        (Table.Index.all,
          Normalize_Name (Name, not Table.Case_Sensitive),
          Value);
 
-      Strings_Cutter.Create
-        (CS,
-         To_String (Value),
-         String'(1 => Val_Separator));
-
-      declare
-         Result : constant String := Strings_Cutter.Field (CS, N);
-      begin
-         Strings_Cutter.Destroy (CS);
-         return Result;
-      end;
+      if Key_Positive (N) <= Name_Indexes.Last (Value) then
+         return Table.Data.Table (Value.Table (Key_Positive (N))).Value.all;
+      else
+         return "";
+      end if;
 
    exception
-      when Missing_Item_Error | Ada.Strings.Index_Error =>
+      when Missing_Item_Error =>
          return "";
    end Internal_Get;
 
@@ -298,12 +264,11 @@ package body AWS.Containers.Tables is
    ----------------
 
    function Name_Count (Table : in Table_Type) return Natural is
-      use type Key_Value.Set_Access;
    begin
-      if Table.Data = null then
+      if Table.Index = null then
          return 0;
       else
-         return Key_Value.Size (Table.Data.all);
+         return Size (Table.Index.all);
       end if;
    end Name_Count;
 

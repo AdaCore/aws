@@ -30,39 +30,17 @@
 
 --  $Id$
 
---  Parameters are put into an AVL Tree. Each entry in the tree is composed of
---  a Key and a Value. The parameters must be accessible through their name
---  and also using an index. So given a set of parameters (K1=V1, K2=V2...),
---  one must be able to ask for the value for K1 but also the name of the
---  second key or the value of the third key.
---
---  Each K/V pair is then inserted into the Data tree and two times into the
---  HTTP_Data tree:
---
---  Into Data:
---
---  1) key=K with value=V
---
---  Into HTTP_Data:
---
---  1) key=__AWS_K<n> with value=K     (n beeing an indice representing the
---  2) key=__AWS_V<n> with value=V      entry number in the tree)
---
---  So to get the third key name we ask for the entry indexed under __AWS_K3
---  into HTTP_Data tree.
---
---  Another important point is that a key can have many values. For example
---  with an HTML multiple select entry in a form. In such a case all values
---  associated with the key K are concatenated together with a specific
---  separator.
-
 with Ada.Unchecked_Deallocation;
-
-with AWS.Utils;
 
 package body AWS.Containers.Tables.Set is
 
-   use Ada.Strings.Unbounded;
+   procedure Reset (Table : in out Index_Table_Type);
+   --  Free all elements and destroy his entries.
+
+   procedure Free is new Ada.Unchecked_Deallocation (String, String_Access);
+
+   procedure Free_Elements (Data : in out Data_Table.Instance);
+   --  Free all dynamically allocated strings in the data table.
 
    ---------
    -- Add --
@@ -73,43 +51,53 @@ package body AWS.Containers.Tables.Set is
       Name, Value : in     String)
    is
 
-      C       : constant Positive := Count (Table) + 1;
-
-      K_Key   : constant String   := "__AWS_K" & Utils.Image (C);
-      K_Value : constant String   := "__AWS_V" & Utils.Image (C);
-
       L_Key   : constant String   := Normalize_Name
         (Name, not Table.Case_Sensitive);
 
+      Found   : Boolean;
+
+      Item    : Element :=
+        (Name => new String'(Name),
+         Value => new String'(Value));
+
+      procedure Modify
+        (Key   : in     String;
+         Value : in out Name_Index_Table);
+
+      ------------
+      -- Modify --
+      ------------
+
+      procedure Modify
+        (Key   : in     String;
+         Value : in out Name_Index_Table)
+      is
+         pragma Warnings (Off, Key);
+      begin
+         Name_Indexes.Append (Value, Data_Table.Last (Table.Data));
+      end Modify;
+
+      procedure Update is new Index_Table.Update_Value_Or_Status_G (Modify);
+
    begin
 
-      begin
-         Key_Value.Insert
-           (Table.Data.all,
-            L_Key,
-            To_Unbounded_String (Value));
-      exception
-         --  This key already exist, catenate the new value to the old one
-         --  separated with Val_Separator.
+      Data_Table.Append (Table.Data, Item);
 
-         when Key_Value.Table.Duplicate_Item_Error =>
-            declare
-               Current_Value : constant String :=
-                 Internal_Get (Table, L_Key, 0);
-            begin
-               Key_Value.Replace_Value
-                 (Table.Data.all,
-                  L_Key,
-                  To_Unbounded_String
-                  (Current_Value & Val_Separator & Value));
-            end;
-      end;
+      Update
+        (Table => Index_Table.Table_Type (Table.Index.all),
+         Key   => L_Key,
+         Found => Found);
 
-      Key_Value.Insert
-        (Table.Ordered_Data.all, K_Key, To_Unbounded_String (Name));
+      if not Found then
+         declare
+            Value : Name_Index_Table;
+         begin
+            Name_Indexes.Init (Value);
+            Name_Indexes.Append (Value, Data_Table.Last (Table.Data));
+            Insert (Table.Index.all, L_Key, Value);
+         end;
+      end if;
 
-      Key_Value.Insert
-        (Table.Ordered_Data.all, K_Value, To_Unbounded_String (Value));
    end Add;
 
    --------------------
@@ -118,7 +106,7 @@ package body AWS.Containers.Tables.Set is
 
    procedure Case_Sensitive
      (Table : in out Table_Type;
-      Mode           : in     Boolean) is
+      Mode  : in     Boolean) is
    begin
       Table.Case_Sensitive := Mode;
    end Case_Sensitive;
@@ -130,34 +118,77 @@ package body AWS.Containers.Tables.Set is
    procedure Free (Table : in out Table_Type) is
 
       procedure Free is
-         new Ada.Unchecked_Deallocation (Key_Value.Set, Key_Value.Set_Access);
-
-      use type Key_Value.Set_Access;
+         new Ada.Unchecked_Deallocation (Index_Table_Type, Index_Access);
 
    begin
-      if not (Table.Data = null) then
-         Key_Value.Destroy (Table.Data.all);
-         Key_Value.Destroy (Table.Ordered_Data.all);
-         Free (Table.Data);
-         Free (Table.Ordered_Data);
+      if Table.Index /= null then
+         Reset (Table.Index.all);
+         Free (Table.Index);
+
+         Free_Elements (Table.Data);
+         Data_Table.Free (Table.Data);
       end if;
    end Free;
+
+   -------------------
+   -- Free_Elements --
+   -------------------
+
+   procedure Free_Elements (Data : in out Data_Table.Instance) is
+   begin
+      for I in Data_Table.First .. Data_Table.Last (Data) loop
+         Free (Data.Table (I).Name);
+         Free (Data.Table (I).Value);
+      end loop;
+   end Free_Elements;
 
    -----------
    -- Reset --
    -----------
 
-   procedure Reset (Table : in out Table_Type) is
-      use type Key_Value.Set_Access;
-   begin
-      if Table.Data = null then
-         Table.Data := new Key_Value.Set;
-         Table.Ordered_Data := new Key_Value.Set;
-      else
-         Key_Value.Destroy (Table.Data.all);
-         Key_Value.Destroy (Table.Ordered_Data.all);
-      end if;
+   procedure Reset (Table : in out Index_Table_Type)
+   is
 
+      procedure Modify
+        (Key          : in     String;
+         Value        : in out Name_Index_Table;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean);
+
+      ------------
+      -- Modify --
+      ------------
+
+      procedure Modify
+        (Key          : in     String;
+         Value        : in out Name_Index_Table;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean)
+      is
+         pragma Warnings (Off, Key);
+         pragma Warnings (Off, Order_Number);
+         pragma Warnings (Off, Continue);
+      begin
+         Name_Indexes.Free (Value);
+      end Modify;
+
+      procedure Traverse is new
+         Index_Table.Disorder_Traverse_And_Update_Value_G (Modify);
+
+   begin
+      Traverse (Index_Table.Table_Type (Table));
+      Destroy (Table);
+   end Reset;
+
+   procedure Reset (Table : in out Table_Type) is
+   begin
+      if Table.Index = null then
+         Table.Index := new Index_Table_Type;
+      else
+         Reset (Table.Index.all);
+         Free_Elements (Table.Data);
+      end if;
+      Data_Table.Init (Table.Data);
    end Reset;
 
 end AWS.Containers.Tables.Set;
