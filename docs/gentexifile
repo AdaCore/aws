@@ -1,0 +1,22 @@
+#!/bin/sh
+if [ $# = 0 ]; then
+  echo "Usage: $0 <file to translate>"
+  exit 0
+fi
+
+SOURCE=$1
+TARGET=${SOURCE}.texi
+
+echo "@smallexample"      >${TARGET}
+if [ $# = 1 ]; then
+echo "@cartouche"        >>${TARGET}
+echo "@group"            >>${TARGET}
+fi
+echo ""                  >>${TARGET}
+sed -f ada.sed ${SOURCE} >>${TARGET}
+echo ""                  >>${TARGET}
+if [ $# = 1 ]; then
+echo "@end group"        >>${TARGET}
+echo "@end cartouche"    >>${TARGET}
+fi
+echo "@end smallexample" >>${TARGET}
