@@ -1,5 +1,16 @@
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-log.adb:
+	(Log_Prefix): Handle the program name position specificed with
+	 character '@'.
+	(Start): Do not add the '-' separator here, added now in
+	 Log_Prefix.
+	
+	* aws-default.ads:
+	(Log_Filename_Prefix): Use '@' as character to specify where the
+	 filename will be inserted.
+	(Error_Log_Filename_Prefix): Idem.
+
 	* aws-status-set.adb: 
 	Reformat code. Fix some comments.
 
