@@ -161,14 +161,25 @@ package AWS.Client is
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The request will be tried Retry time if it fails.
 
+   procedure Adjust_Cookie
+     (Destination : in out HTTP_Connection;
+      Source      : in     HTTP_Connection);
+   --  Copies session ID from connection Source to connection Destination.
+   --  Allow both connections to share the same user environment.
+
    function Read_Until
-     (Connection : in HTTP_Connection;
-      Delimiter  : in String)
-     return String;
-   --  Read data on the Connection until the MIME Delimiter (including the
+     (Connection : in     HTTP_Connection;
+      Delimiter  : in     String) return String;
+   --  Read data on the Connection until the delimiter (including the
    --  delimiter). It can be used to retreive the next piece of data from a
    --  push server. If returned data is empty or does not termintate with the
    --  delimiter the server push connection is closed.
+
+   procedure Read_Until
+     (Connection : in out HTTP_Connection;
+      Delimiter  : in     String;
+      Result     : in out Ada.Strings.Unbounded.Unbounded_String);
+   --  Idem as above but returns the result as an Unbounded_String.
 
    procedure Get
      (Connection : in out HTTP_Connection;
@@ -235,18 +246,8 @@ private
       entry Start (Connection : in HTTP_Connection_Access);
       --  Task initialization, pass the HTTP_Connection to monitor.
 
-      entry Send;
-      --  Activate the send timeout if defined.
-
-      entry Receive;
-      --  Activate the receive timeout if defined.
-
       entry Next_Phase;
-      --  Change phase, stop the current Send timeout and be prepare for the
-      --  Receive timeout. If not on a Send timeout terminate the tasK.
-
-      entry Stop;
-      --  Stop cleaner task, this task will exit.
+      --  Change the client phase.
    end Cleaner_Task;
 
    type Cleaner_Access is access Cleaner_Task;
