@@ -87,7 +87,7 @@ is
 
    P_List         : AWS.Parameters.List; -- Form data
 
-   Sock_Ptr       : Socket_Access :=
+   Sock_Ptr       : constant Socket_Access :=
       HTTP_Server.Slots.Get (Index => Index).Sock;
    Sock           : Sockets.Socket_FD'Class renames Sock_Ptr.all;
 
@@ -198,7 +198,8 @@ is
          Filename      : constant String := Response.Filename (Answer);
          Is_Up_To_Date : Boolean;
 
-         File_Mode     : Boolean := Response.Mode (Answer) = Response.File;
+         File_Mode     : constant Boolean
+           := Response.Mode (Answer) = Response.File;
          File          : Resources.File_Type;
 
       begin
@@ -548,8 +549,8 @@ is
          File            : Streams.Stream_IO.File_Type;
          Is_File_Upload  : Boolean;
 
-         Multipart_Boundary : String :=
-            To_String (Status_Multipart_Boundary);
+         Multipart_Boundary : constant String
+           := To_String (Status_Multipart_Boundary);
 
          procedure Get_File_Data;
          --  Read file data from the stream.
@@ -585,8 +586,8 @@ is
             ---------------
 
             function Check_EOF return Boolean is
-               Signature : Streams.Stream_Element_Array :=
-                 (1 => 13, 2 => 10) & End_Boundary_Signature;
+               Signature : constant Streams.Stream_Element_Array
+                 := (1 => 13, 2 => 10) & End_Boundary_Signature;
 
                Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
                Index  : Streams.Stream_Element_Offset := Buffer'First;
@@ -1038,7 +1039,7 @@ is
 
       elsif Messages.Match (Command, Messages.Connection_Token) then
          declare
-            Token : String := Command
+            Token : constant String := Command
                (Messages.Connection_Token'Length + 1 .. Command'Last);
          begin
             Status.Set.Connection (C_Stat, Token);
@@ -1055,8 +1056,8 @@ is
       elsif Messages.Match (Command, Messages.Content_Type_Token) then
          declare
             Pos   : constant Natural := Fixed.Index (Command, ";");
-            Token : String := Command
-               (Messages.Content_Type_Token'Length + 1 .. Command'Last);
+            Token : constant String  := Command
+              (Messages.Content_Type_Token'Length + 1 .. Command'Last);
             Type_Last      : Natural;
             Boundary_First : Natural;
          begin
