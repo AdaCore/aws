@@ -110,7 +110,6 @@ package body AWS.Server is
       return New_Socket;
    exception
       when others =>
-         Net.Free (New_Socket);
          Server.Sock_Sem.Release;
          raise;
    end Accept_Socket_Serialized;
