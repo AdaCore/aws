@@ -1,5 +1,8 @@
 2003-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* ChangeLog.zlib:
+	Initial revision, was in ChangeLog.
+
 	* makefile:
 	(clean): Do not remove LIBZ here, it is needed to build the
 	 documentation.
