@@ -80,12 +80,12 @@ package AWS.Status.Set is
    --  Set value for "If-Modified-Since:" parameter
 
    procedure User_Agent
-     (D                 : in out Data;
+     (D          : in out Data;
       User_Agent : in     String);
    --  Set value for "User-Agent:" parameter
 
    procedure Referer
-     (D                 : in out Data;
+     (D       : in out Data;
       Referer : in     String);
    --  Set value for "Referer:" parameter
 
