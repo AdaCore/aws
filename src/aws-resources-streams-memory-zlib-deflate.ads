@@ -54,20 +54,6 @@ package AWS.Resources.Streams.Memory.ZLib.Deflate is
       Header       : in     Header_Type        := ZL.Default);
    --  Initialize
 
-   procedure Append
-     (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array);
-   --  Compress and Append Buffer into the memory stream
-
-   procedure Append
-     (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access);
-   --  Compress and Append Buffer into the memory stream
-
-   procedure Flush (Resource : in out Stream_Type);
-   --  Complete compression, flush internal compress buffer to the memory
-   --  stream.
-
 private
 
    type Stream_Type is new ZLib.Stream_Type with null record;
