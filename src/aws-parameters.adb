@@ -175,6 +175,8 @@ package body AWS.Parameters is
          Value    : in     Unbounded_String;
          Order    : in     Positive;
          Continue : in out Boolean) is
+         pragma Warnings (Off, Value);
+         pragma Warnings (Off, Continue);
       begin
          Result (Order) := To_Unbounded_String (Key);
       end Process;
