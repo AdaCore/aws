@@ -38,7 +38,7 @@ package body WS_CB is
 
    use AWS;
 
-   WWW_Root : String renames AWS.Config.WWW_Root;
+   WWW_Root : String renames AWS.Config.WWW_Root (Server.Config (WS));
 
    ---------
    -- Get --

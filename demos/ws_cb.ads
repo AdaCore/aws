@@ -30,8 +30,11 @@
 
 with AWS.Status;
 with AWS.Response;
+with AWS.Server;
 
 package WS_CB is
+
+   WS : AWS.Server.HTTP (5);
 
    function Service (Request : in AWS.Status.Data) return AWS.Response.Data;
 
