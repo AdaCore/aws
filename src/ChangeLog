@@ -1,3 +1,8 @@
+2001-07-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-config.ads: 
+	Minor reformating.
+
 2001-07-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile: 
