@@ -41,6 +41,7 @@ package AWS.Server is
    type HTTP
      (Max_Connection : Positive          := Default_Connection;
       Port           : Positive          := Default_Port;
+      Security       : Boolean           := False;
       CB             : Response.Callback := Response.Default_Handler) is
    limited private;
 
@@ -85,7 +86,8 @@ private
       --  force is True. Otherwise the Line must be in an abortable state.
 
       procedure Get (FD : in Sockets.Socket_FD; Index : in Positive);
-      --  get the slot number Index. Opened status is set to True.
+      --  Mark slot at position Index to be used. This slot will be associated
+      --  with the socket FD. Opened status is set to True.
 
       procedure Release  (Index : in Positive);
       --  release slot number Index. Opened status us set to False.
@@ -114,6 +116,7 @@ private
    type HTTP
      (Max_Connection : Positive          := Default_Connection;
       Port           : Positive          := Default_Port;
+      Security       : Boolean           := False;
       CB             : Response.Callback := Response.Default_Handler) is
    limited record
       Sock    : Sockets.Socket_FD;
