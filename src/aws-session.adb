@@ -442,6 +442,7 @@ package body AWS.Session is
          Key    : in     String;
          Result :    out Boolean)
       is
+         Found : Boolean;
 
          procedure Modify
            (SID  : in     ID;
@@ -467,15 +468,14 @@ package body AWS.Session is
          ------------------
 
          procedure Update_Value is
-            new Session_Set.Update_Value_Or_Exception_G (Modify);
+            new Session_Set.Update_Value_Or_Status_G (Modify);
 
       begin
          Result := False;
-         Update_Value (Sessions, SID);
+         Update_Value (Sessions, SID, Found);
 
-      exception
-         when Key_Value.Table.Missing_Item_Error =>
-            Result := False;
+         --  Found does not matter, becouse the Result was False and would
+         --  set to True only if Found.
       end Key_Exist;
 
       --------------------
