@@ -144,7 +144,7 @@ package body AWS.URL is
    function File
      (URL    : in Object;
       Encode : in Boolean := False)
-     return String is
+      return String is
    begin
       if Encode then
          return AWS.URL.Encode (To_String (URL.File));
@@ -198,6 +198,22 @@ package body AWS.URL is
       end loop;
    end Normalize;
 
+   ----------------
+   -- Parameters --
+   ----------------
+
+   function Parameters
+     (URL    : in Object;
+      Encode : in Boolean := False)
+      return String is
+   begin
+      if Encode then
+         return AWS.URL.Encode (To_String (URL.Params));
+      else
+         return To_String (URL.Params);
+      end if;
+   end Parameters;
+
    -----------
    -- Parse --
    -----------
@@ -206,6 +222,8 @@ package body AWS.URL is
 
       HTTP_Token  : constant String := "http://";
       HTTPS_Token : constant String := "https://";
+
+      P : Natural;
 
       O : Object;
 
@@ -270,13 +288,26 @@ package body AWS.URL is
    begin
       O.Security := False;
 
+      --  Checks for parameters
+
+      P := Strings.Fixed.Index (URL, "?");
+
+      if P = 0 then
+         P := URL'Last;
+      else
+         O.Params := To_Unbounded_String (URL (P .. URL'Last));
+         P := P - 1;
+      end if;
+
+      --  Checks for prefix
+
       if Messages.Is_Match (URL, HTTP_Token) then
          O.Port := Default_HTTP_Port;
-         Parse (URL (URL'First + HTTP_Token'Length .. URL'Last));
+         Parse (URL (URL'First + HTTP_Token'Length .. P));
 
       elsif Messages.Is_Match (URL, HTTPS_Token) then
          O.Port := Default_HTTPS_Port;
-         Parse (URL (URL'First + HTTPS_Token'Length .. URL'Last));
+         Parse (URL (URL'First + HTTPS_Token'Length .. P));
          O.Security := True;
 
       elsif URL /= "" then
@@ -322,7 +353,7 @@ package body AWS.URL is
    function Path
      (URL    : in Object;
       Encode : in Boolean := False)
-     return String is
+      return String is
    begin
       if Encode then
          return AWS.URL.Encode (To_String (URL.Path));
@@ -338,9 +369,10 @@ package body AWS.URL is
    function Pathname
      (URL    : in Object;
       Encode : in Boolean := False)
-     return String
+      return String
    is
-      Result : constant String := To_String (URL.Path & URL.File);
+      Result : constant String
+        := To_String (URL.Path & URL.File & URL.Params);
    begin
       if Encode then
          return AWS.URL.Encode (Result);
