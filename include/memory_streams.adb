@@ -50,7 +50,7 @@ package body Memory_Streams is
 
    begin
       if File.First = null then
-         File.First      := new Buffer_Type;
+         File.First := new Buffer_Type;
 
          if Value'Length >= First_Block_Length then
             File.First.Data := new Element_Array (1 .. Value'Length);
@@ -63,10 +63,12 @@ package body Memory_Streams is
          File.Current     := File.First;
          File.Last        := File.First;
          File.Last_Length := Value'Length;
+
       elsif Block_Length <= File.Last.Data'Length then
          File.Last.Data (File.Last_Length + 1
                          .. Block_Length) := Value;
          File.Last_Length := Block_Length;
+
       else
          declare
             Split_Value : constant Element_Index
@@ -110,6 +112,7 @@ package body Memory_Streams is
          File.Current     := File.First;
          File.Last        := File.First;
          File.Last_Length := Data'Length;
+
       else
          if File.Last.Data'Length > File.Last_Length then
             declare
@@ -169,8 +172,9 @@ package body Memory_Streams is
 
    function End_Of_File (File : in Stream_Type) return Boolean is
    begin
-      return File.Current.Next = null
-        and then File.Current_Offset > File.Current.Data'Last;
+      return File.Current = null
+        or else (File.Current.Next = null
+                   and then File.Current_Offset > File.Current.Data'Last);
    end End_Of_File;
 
    ----------
@@ -194,8 +198,8 @@ package body Memory_Streams is
       Buffer :    out Element_Array;
       Last   :    out Element_Offset)
    is
-      Buffer_Offset    : Element_Offset := Buffer'First;
-      Block_Over       : Boolean;
+      Buffer_Offset : Element_Offset := Buffer'First;
+      Block_Over    : Boolean;
 
       procedure Append (Data : in Element_Array);
       --  Add the Data to the Buffer till necessary from the
@@ -255,7 +259,6 @@ package body Memory_Streams is
 
             if Block_Over then
                File.Current := null;
-
                exit;
             end if;
 
