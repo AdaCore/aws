@@ -1,7 +1,7 @@
 2004-10-04  Pascal Obry  <pascal@obry.org>
 
 	* test_soap3.adb:
-	Serialize test output.
+	Serialize text output.
 
 2004-10-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
