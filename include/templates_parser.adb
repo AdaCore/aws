@@ -182,6 +182,44 @@ package body Templates_Parser is
       end if;
    end "&";
 
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in Character)
+     return Vector_Tag is
+   begin
+      return Vect & String'(1 => Value);
+   end "&";
+
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in Boolean)
+     return Vector_Tag is
+   begin
+      return Vect & Boolean'Image (Value);
+   end "&";
+
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in Ada.Strings.Unbounded.Unbounded_String)
+     return Vector_Tag is
+   begin
+      return Vect & To_String (Value);
+   end "&";
+
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in Integer)
+     return Vector_Tag
+   is
+      S_Value : constant String := Integer'Image (Value);
+   begin
+      if Value in Natural then
+         return Vect & S_Value (S_Value'First + 1 .. S_Value'Last);
+      else
+         return Vect & S_Value;
+      end if;
+   end "&";
+
    ------------
    -- Adjust --
    ------------
@@ -472,13 +510,17 @@ package body Templates_Parser is
       Result : Unbounded_String;
       P      : Vector_Tag_Node_Access := A.Vect_Value.Head;
    begin
-      Result := P.Value;
-      for K in 2 .. A.Vect_Value.Count loop
-         P := P.Next;
-         Result := Result & A.Separator & P.Value;
-      end loop;
+      if P = null then
+         return "";
+      else
+         Result := P.Value;
+         for K in 2 .. A.Vect_Value.Count loop
+            P := P.Next;
+            Result := Result & A.Separator & P.Value;
+         end loop;
 
-      return To_String (Result);
+         return To_String (Result);
+      end if;
    end List;
 
    -----------
@@ -498,9 +540,34 @@ package body Templates_Parser is
          To_Unbounded_String (Value));
    end Assoc;
 
-   -----------
-   -- Assoc --
-   -----------
+   function Assoc
+     (Variable  : in String;
+      Value     : in Ada.Strings.Unbounded.Unbounded_String;
+      Begin_Tag : in String    := Default_Begin_Tag;
+      End_Tag   : in String    := Default_End_Tag)
+     return Association is
+   begin
+      return Assoc (Variable, To_String (Value), Begin_Tag, End_Tag);
+   end Assoc;
+
+   function Assoc
+     (Variable  : in String;
+      Value     : in Integer;
+      Begin_Tag : in String    := Default_Begin_Tag;
+      End_Tag   : in String    := Default_End_Tag)
+     return Association
+   is
+      S_Value : constant String := Integer'Image (Value);
+   begin
+      if Value in Natural then
+         return Assoc (Variable,
+                       S_Value (S_Value'First + 1 .. S_Value'Last),
+                       Begin_Tag,
+                       End_Tag);
+      else
+         return Assoc (Variable, S_Value, Begin_Tag, End_Tag);
+      end if;
+   end Assoc;
 
    function Assoc
      (Variable  : in String;
@@ -515,10 +582,6 @@ package body Templates_Parser is
          return Assoc (Variable, "FALSE", Begin_Tag, End_Tag);
       end if;
    end Assoc;
-
-   -----------
-   -- Assoc --
-   -----------
 
    function Assoc
      (Variable  : in String;
