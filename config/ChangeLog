@@ -1,3 +1,10 @@
+2004-04-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std__gnat.adb:
+	(Send): Properly handle the case where all data are not sent
+	 in one chunk.
+	Fix from Thomas Quinot.
+
 2004-04-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb:
