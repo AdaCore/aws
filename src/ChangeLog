@@ -1,4 +1,9 @@
-2003-12-18  Pascal Obry  <obry@act-europe.fr>
+2003-12-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-translator.ads:
+	Fix typo.
+
+2003-12-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-embedded.adb:
 	Minor reformatting.
