@@ -1,6 +1,11 @@
 2004-06-03  Pascal Obry  <pascal@obry.org>
 
 	* aws-digest.adb:
+        Minor clean-up.
+
+2004-06-03  Pascal Obry  <pascal@obry.org>
+
+	* aws-digest.adb:
         (Word): Set back to 32 bits. This is needed to avoid duplicate
          Nonce value on fast computer.
         (Timestamp_String): New substring.
