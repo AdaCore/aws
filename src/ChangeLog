@@ -1,3 +1,13 @@
+2002-11-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.ads:
+	Minor reformatting.
+	Update copyright header.
+
+	* aws-url.adb:
+	(Parse): Remove exception handler. This was there for historical
+	 reasons to catch implementation errors.
+
 2002-11-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-protocol_handler.adb:
