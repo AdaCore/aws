@@ -29,7 +29,7 @@ LARGS = $(LFLAGS) $(LIBS)
 endif
 
 # SOAP regression tests
-rt_soap: soap1 soap2 workorder
+rt_soap: soap1 soap2 workorder testxml
 
 # Standard regression tests
 rt_std: turl tgetparam param dummy simple tclientto shutdown
@@ -74,6 +74,10 @@ workorder: force
 	gnatmake -g workorder $(GARGS) -largs $(LARGS) -bargs -E
 	./workorder > workorder.res
 
+testxml: force
+	gnatmake -g testxml $(GARGS) -largs $(LARGS) -bargs -E
+	./testxml > testxml.res
+
 tclientto: force
 	gnatmake -g tclientto $(GARGS) -largs $(LARGS) -bargs -E
 	./tclientto > tclientto.res
@@ -86,6 +90,7 @@ checks_soap:
 	-diff -c -w soap1.out soap1.res
 	-diff -c -w soap2.out soap2.res
 	-diff -c -w workorder.out workorder.res
+	-diff -c -w testxml.out testxml.res
 
 checks_header:
 	echo "### Every output after this line means there is a regression ###"
