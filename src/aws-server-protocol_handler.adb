@@ -42,7 +42,7 @@ with AWS.Translater;
 
 separate (AWS.Server)
 
-procedure Protocol_Handler (Sock    : in Sockets.Socket_FD;
+procedure Protocol_Handler (Sock    : in Sockets.Socket_FD'Class;
                             Handler : in Response.Callback;
                             Slots   : in Slots_Access;
                             Index   : in Positive)
