@@ -189,8 +189,6 @@ implemented:
 
 =============== Point to fix/implement/review before next release (2.1)
 
-- Add reply-all support to the Web_Mail service.
-
 - Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
   We should be able to remove the tools/makefile kludge (-largs -laws).
 
