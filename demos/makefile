@@ -26,6 +26,9 @@ build: runme agent auth
 runme:
 	gnatmake $(GARGS) runme -bargs $(BARGS) -largs $(LARGS)
 
+ws:
+	gnatmake $(GARGS) ws -bargs $(BARGS) -largs $(LARGS)
+
 agent:
 	gnatmake $(GARGS) agent -bargs $(BARGS) -largs $(LARGS)
 
