@@ -1,10 +1,10 @@
 
 			    A W S - Ada Web Server
-			    2.1 release / SOAP 1.2
+			    2.1 release / SOAP 1.3
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                June 19th, 2004
+   Pascal Obry                                                June 27th, 2004
 
 
 
@@ -79,6 +79,12 @@ Here are the main changes since AWS 2.0 :
    - Support for streaming response in the HTTP client interface.
 
    - Properly support SOAP envelope nodes containing an optional header node.
+
+   - Add support for SOAP long (xsd:long).
+
+   - Properly handle empty SOAPAction in SOAP requests.
+
+   - Better support for namespaces in SOAP requests.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
