@@ -32,7 +32,7 @@ with AWS.Response;
 
 generic
 
-   type T (<>) is limited private;
+   type T (<>) is limited private;  --  data type received by this server
    type T_Access is access T;
 
    with function Callback
@@ -45,7 +45,7 @@ generic
 package AWS.Communication.Server is
 
    --  Each instantiation of this package will create an HTTP server waiting
-   --  for incoming request at the Port specified by the generic formal
+   --  for incoming request at the Port specified by the Start formal
    --  parameter. This communication server must be started with the Start
    --  procedure and can be stopped with the procedure Shutdown below.
 
