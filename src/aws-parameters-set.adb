@@ -35,7 +35,7 @@ with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Translator;
+with AWS.URL;
 with AWS.Utils;
 with AWS.Key_Value;
 
@@ -80,9 +80,9 @@ package body AWS.Parameters.Set is
       K_Value : constant String   := "__AWS_V" & Utils.Image (C);
 
       L_Key   : constant String   := Normalize_Name
-        (Translator.Decode_URL (Name), not Parameter_List.Case_Sensitive);
+        (URL.Decode (Name), not Parameter_List.Case_Sensitive);
 
-      L_Value : constant String   := Translator.Decode_URL (Value);
+      L_Value : constant String   := URL.Decode (Value);
    begin
       Parameter_List.Count := Parameter_List.Count + 1;
 
