@@ -74,12 +74,12 @@ package body AWS.Server.Hotplug is
       --  REGISTER <regexp> <URL>
       --  UNREGISTER <regexp>
 
-      if Name = "REGISTER" then
+      if Name = Register_Message then
          AWS.Hotplug.Register (Web_Server.Filters,
                                To_String (Parameters (1)),
                                To_String (Parameters (2)));
 
-      elsif Name = "UNREGISTER" then
+      elsif Name = Unregister_Message then
          AWS.Hotplug.Unregister (Web_Server.Filters,
                                  To_String (Parameters (1)));
 
