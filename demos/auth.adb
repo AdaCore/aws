@@ -40,6 +40,10 @@ procedure Auth is
 
    Is_First : Boolean := True;
 
+   ---------
+   -- Get --
+   ---------
+
    function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
    begin
       if Is_First then
@@ -54,7 +58,7 @@ procedure Auth is
       end if;
    end Get;
 
-   WS : AWS.Server.HTTP (10, 1234, False, Get'Unrestricted_Access);
+   WS : AWS.Server.HTTP (10, 1234, False, Get'Unrestricted_Access, False);
 
 begin
    AWS.Server.Start (WS, "Auth demo");

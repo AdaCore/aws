@@ -64,9 +64,9 @@ procedure Runme is
 
    use Ada;
 
-   WSS : AWS.Server.HTTP (3, 4433, True, Runme_CB.Service'Access);
+   WSS : AWS.Server.HTTP (3, 4433, True, Runme_CB.Service2'Access, False);
 
-   WS  : AWS.Server.HTTP (3, 1234, False, Runme_CB.Service'Access);
+   WS  : AWS.Server.HTTP (3, 1234, False, Runme_CB.Service'Access, True);
 
 begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");
