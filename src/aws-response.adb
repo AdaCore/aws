@@ -35,13 +35,15 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
-with AWS.Resources.Embedded;
+with AWS.Resources.Streams.Memory;
 with AWS.Response.Set;
 with AWS.Translator;
 
 package body AWS.Response is
 
    use Streams;
+
+   package RSM renames AWS.Resources.Streams.Memory;
 
    -----------------
    -- Acknowledge --
@@ -73,7 +75,7 @@ package body AWS.Response is
 
    procedure Adjust (Object : in out Data) is
    begin
-      Object.Ref_Counter.all := Object.Ref_Counter.all + 1;
+      Object.Ref_Counter.Counter := Object.Ref_Counter.Counter + 1;
    end Adjust;
 
    ------------------
@@ -143,7 +145,7 @@ package body AWS.Response is
       Message_Body  : in String;
       Status_Code   : in Messages.Status_Code  := Messages.S200;
       Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return Data
+      return        Data
    is
       Result : Data;
    begin
@@ -234,12 +236,10 @@ package body AWS.Response is
          when Response.File =>
             Open (File, Filename (D), "shared=no");
 
-         when Response.Stream =>
+         when Response.Stream | Response.Message =>
             Resources.Streams.Create (File, D.Stream);
 
-         when Response.Message =>
-            Embedded.Create (File, Embedded.Buffer_Access (D.Message_Body));
-
+            D.Ref_Counter.Stream_Taken := True;
          when others =>
             --  Should not be called for others response modes.
             raise Constraint_Error;
@@ -295,15 +295,26 @@ package body AWS.Response is
 
    procedure Finalize (Object : in out Data) is
 
+      use Resources.Streams;
+
       procedure Free is new Ada.Unchecked_Deallocation
-        (Natural, Natural_Access);
+        (Release_Controller, Release_Controller_Access);
+
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Stream_Type'Class, Stream_Access);
 
    begin
-      Object.Ref_Counter.all := Object.Ref_Counter.all - 1;
+      Object.Ref_Counter.Counter := Object.Ref_Counter.Counter - 1;
 
-      if Object.Ref_Counter.all = 0 then
+      if Object.Ref_Counter.Counter = 0 then
+         if not Object.Ref_Counter.Stream_Taken
+           and then Object.Stream /= null
+         then
+            Close (Object.Stream.all);
+            Free (Object.Stream);
+         end if;
+
          Free (Object.Ref_Counter);
-         Utils.Free (Object.Message_Body);
 
          AWS.Headers.Set.Free (Object.Header);
       end if;
@@ -336,7 +347,7 @@ package body AWS.Response is
 
    procedure Initialize (Object : in out Data) is
    begin
-      Object.Ref_Counter := new Natural'(1);
+      Object.Ref_Counter := new Release_Controller;
       AWS.Headers.Set.Reset (Object.Header);
    end Initialize;
 
@@ -354,33 +365,65 @@ package body AWS.Response is
    ------------------
 
    function Message_Body (D : in Data) return String is
-      use type Utils.Stream_Element_Array_Access;
    begin
-      if D.Message_Body = null then
-         return "";
-      else
-         return Translator.To_String (D.Message_Body.all);
-      end if;
+      return Translator.To_String (Message_Body (D));
    end Message_Body;
 
    function Message_Body (D : in Data) return Unbounded_String is
-      use type Utils.Stream_Element_Array_Access;
+      use type Resources.Streams.Stream_Access;
+
+      Result : Unbounded_String;
+      Buffer : Stream_Element_Array (1 .. 4_096);
+      Last   : Stream_Element_Offset;
    begin
-      if D.Message_Body = null then
+      if D.Stream = null then
          return Null_Unbounded_String;
-      else
-         return Translator.To_Unbounded_String (D.Message_Body.all);
       end if;
+
+      loop
+         Resources.Streams.Read (D.Stream.all, Buffer, Last);
+
+         Append (Result, Translator.To_String (Buffer (1 .. Last)));
+
+         exit when Last < Buffer'Last;
+      end loop;
+
+      RSM.Reset (RSM.Stream_Type (D.Stream.all));
+
+      return Result;
    end Message_Body;
 
    function Message_Body (D : in Data) return Streams.Stream_Element_Array is
-      use type Utils.Stream_Element_Array_Access;
+      use type Resources.Streams.Stream_Access;
+
       No_Data : constant Streams.Stream_Element_Array := (1 .. 0 => 0);
+      Size    : Stream_Element_Offset;
    begin
-      if D.Message_Body = null then
+      if D.Stream = null then
          return No_Data;
+      end if;
+
+      Size := Resources.Streams.Size (D.Stream.all);
+
+      if Size = Resources.Undefined_Length then
+         --  Undefined_Length could have only user defined streams.
+         --  We do not have memory stream here.
+
+         raise Constraint_Error;
       else
-         return D.Message_Body.all;
+         declare
+            Result : Stream_Element_Array (1 .. Size);
+            Last   : Stream_Element_Offset;
+         begin
+            Resources.Streams.Read (D.Stream.all, Result, Last);
+
+            --  Raise Contraint_Error on try to get Message_Body
+            --  not from memory stream;
+
+            RSM.Reset (RSM.Stream_Type (D.Stream.all));
+
+            return Result;
+         end;
       end if;
    end Message_Body;
 
@@ -485,7 +528,7 @@ package body AWS.Response is
       Handle        : access Resources.Streams.Stream_Type'Class;
       Status_Code   : in     Messages.Status_Code    := Messages.S200;
       Cache_Control : in     Messages.Cache_Option   := Messages.No_Cache)
-      return Data
+      return        Data
    is
       Result : Data;
    begin
