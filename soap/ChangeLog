@@ -1,5 +1,14 @@
 2004-07-10  Pascal Obry  <pascal@obry.org>
 
+	* soap-message-xml.adb:
+	(Is_A): Function moved into To_Type.
+
+	* soap-types.ads:
+        Add some more comments about work to be done for supporting new
+         SOAP type.
+
+2004-07-10  Pascal Obry  <pascal@obry.org>
+
 	* soap-types.ads:
 	(XML_Undefined): Set aliased.
         (XML_Base64): Idem.
