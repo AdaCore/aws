@@ -34,6 +34,7 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Client;
+with AWS.Messages;
 with AWS.MIME;
 with AWS.Response.Set;
 with AWS.Server;
@@ -82,7 +83,7 @@ procedure ZApp is
       end Append;
 
    begin
-      Response.Set.Data_Encoding (Answer, Response.Deflate);
+      Response.Set.Data_Encoding (Answer, Messages.Deflate);
 
       Append
         ("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
