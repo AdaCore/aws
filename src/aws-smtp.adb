@@ -72,7 +72,7 @@ package body AWS.SMTP is
       Name : Code_Name;
    end record;
 
-   Code_Table : array (1 .. 21) of Reply_Code_Data :=
+   Code_Table : constant array (1 .. 21) of Reply_Code_Data :=
      ((211, C_211'Access), (214, C_214'Access), (220, C_220'Access),
       (221, C_221'Access), (250, C_250'Access), (251, C_251'Access),
       (354, C_354'Access), (421, C_421'Access), (450, C_450'Access),
