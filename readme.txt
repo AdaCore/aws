@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              February 15th, 2005
+   Pascal Obry                                                 April 1st, 2005
 
 
 
@@ -42,6 +42,17 @@ Here are the main changes since AWS 2.1 :
 
    - Remove dependence on IPv6. By default AWS can now built on IPv4 machine
      as before.
+
+   - Improve again the build procedure by using the GNAT Naming project
+     support. This avoids copying file around and messing with the makefile.
+
+   - Remove the use of abort statement. One abort was used for the shutdown of
+     the line cleaner.
+
+   - Add templates engine new @@INLINE@@ command tag. This make it possible to
+     control more finely the output.
+
+   - Add a templates engine routine to release the template cache.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
