@@ -1,3 +1,10 @@
+2002-03-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.ads, aws-session.adb:
+	(Set): New version with a boolean.
+	(Get): Idem.
+	Update comment.
+
 2002-03-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
