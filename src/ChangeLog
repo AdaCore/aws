@@ -1,4 +1,68 @@
+2001-05-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-translator.ads, aws-translator.adb:
+	(To_String): new function.
+	(To_Stream_Element_Array): new function.
+	Minor reformating.
+
+	* aws-server-protocol_handler.adb:
+	(Cut_Command): handle filename with spaces. This fix is needed for
+	 Netscape which does not code space by %20 in the HTTP header.
+	(URI): decode URL to handle filenames with spaces.
+	(Target_Filename): Use Upload_Path as set in the HTTP object.
+
+	* aws-client.adb:
+	(Post): new function with Stream_Element_Array data type.
+	(Post): idem with Keep-Alive connection.
+	(Post): fix a bug when sending body, was using Put_Line so CRLF
+	 was added making the body length 2 characters too long.
+
+	* aws-client.ads:
+	(Post): new function with Stream_Element_Array data type.
+	(Post): idem with Keep-Alive connection.
+
+	* aws-server.adb:
+	Minor reformating.
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Data): set message body (binary data) when reading
+	 POST paramters. This will be needed for the hotplug module.
+
+	* aws-hotplug.adb:
+	(Apply): handle GET and POST hotplug request.
+
+2001-05-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-config.adb:
+	Add some comments, minor reformating.
+
+	* aws-parameters.adb:
+	(Count): correctly returns the number of parameters in the list
+	 and not the total number of node in the tree.
+
+	* aws-hotplug.adb: 
+	(Apply): Removes URI parameter and add Status. Call hotplug module
+	 with parameters.
+	(Apply.Parameters): new function.
+
+	* aws-hotplug.ads:
+	(Apply): Removes URI parameter and add Status. 
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): when calling Hotplug.Apply pass full status
+	 information and not just URI to be able to pass parameters to
+	 hotplug module.
+	(URI): call Decode_URL to be sure to decode encoded characters
+	 into the URL. Fix problem with space in a filename.
+
 2001-05-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-config.adb:
+	Complete reimplementation. This unit is now based on a table. The
+	 table filed are: the key name, a pointer to the variable which
+	 hold the value and the type of the variable. It will be quite
+	 easier to add new options with this implementation.
+	This implementation is based on a patch supplied by Sune Falck.
 
 	* aws-utils.ads, aws-utils.adb:
 	Update copyright notice.
