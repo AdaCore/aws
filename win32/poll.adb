@@ -4,8 +4,6 @@
 --                            Copyright (C) 2004                            --
 --                                ACT-Europe                                --
 --                                                                          --
---  Authors: Dmitriy Anisimkov - Pascal Obry                                --
---                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
 --  the Free Software Foundation; either version 2 of the License, or (at   --
@@ -56,7 +54,7 @@ is
    end record;
    pragma Convention (C, Timeval);
 
-   subtype Nfds_Range is C.unsigned_long range 1 .. C.unsigned_long (Nfds);
+   subtype Nfds_Range is Definitions.nfds_t range 1 .. Nfds;
 
    type FD_Array is array (Nfds_Range) of C.int;
    pragma Convention (C, FD_Array);
@@ -107,7 +105,7 @@ is
    procedure FD_SET (FD : in C.int; Set : in out FD_Set_Type) is
    begin
       Set.Count := Set.Count + 1;
-      Set.Set (C.unsigned_long (Set.Count)) := FD;
+      Set.Set (Definitions.nfds_t (Set.Count)) := FD;
    end FD_SET;
 
 begin
