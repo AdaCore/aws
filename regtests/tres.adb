@@ -32,6 +32,7 @@
 
 --  Test for the embedded resource files.
 
+with Ada.Command_Line;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
@@ -67,6 +68,9 @@ procedure Tres is
          AWS.Templates.Assoc ("TAG2", "VAL2"),
          AWS.Templates.Assoc ("TAG_V", +"v1" & "v2" & "v3"),
          AWS.Templates.Assoc ("COND", True));
+
+   Port_I : constant String   := Command_Line.Argument (1);
+   Port   : constant Positive := Positive'Value (Port_I);
 
    --------
    -- CB --
@@ -104,7 +108,7 @@ procedure Tres is
    begin
       AWS.Server.Start
         (HTTP, "tres",
-         CB'Unrestricted_Access, Port => 7645, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -141,11 +145,11 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:7645/file1");
-   Request ("http://localhost:7645/file2");
-   Request ("http://localhost:7645/file3");
-   Request ("http://localhost:7645/tmplt");
-   Request ("http://localhost:7645/file4");
+   Request ("http://localhost:" & Port_I & "/file1");
+   Request ("http://localhost:" & Port_I & "/file2");
+   Request ("http://localhost:" & Port_I & "/file3");
+   Request ("http://localhost:" & Port_I & "/tmplt");
+   Request ("http://localhost:" & Port_I & "/file4");
 
    Server.Stopped;
 
