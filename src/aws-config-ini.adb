@@ -46,7 +46,10 @@ package body AWS.Config.Ini is
    -- Read --
    ----------
 
-   function Read (File_Name : in String := "") return Object is
+   procedure Read
+     (Config    : in out Object;
+      File_Name : in     String := "")
+   is
 
       use Ada;
 
@@ -68,7 +71,9 @@ package body AWS.Config.Ini is
       Line : Natural;
       --  current line number parsed
 
-      Params : Object := Default_Config;
+      Process_Mode : Boolean := True;
+      --  Set to True when parsing a file that can support per process
+      --  options.
 
       -------------------
       -- Error_Message --
@@ -98,47 +103,90 @@ package body AWS.Config.Ini is
 
          Expected_Type : Unbounded_String;
 
-         I : Parameter_Name;
+         P : Parameter_Name;
 
       begin
 
          begin
-            I := Parameter_Name'Value (Key);
+            P := Parameter_Name'Value (Key);
          exception
             when others =>
                Error_Message (Filename, "unrecognized option " & Key);
                return;
          end;
 
-         case Params (I).Kind is
-            when Str =>
-               Expected_Type := +"string";
-               Params (I).Str_Value := +Value;
+         if P in Server_Parameter_Name then
 
-            when Dir =>
-               Expected_Type := +"string";
+            case Config (P).Kind is
+               when Str =>
+                  Expected_Type := +"string";
+                  Config (P).Str_Value := +Value;
 
-               if Value (Value'Last) = '/'
-                 or else Value (Value'Last) = '\'
-               then
-                  Params (I).Dir_Value := +Value;
-               else
-                  Params (I).Dir_Value := +(Value & '/');
-               end if;
+               when Dir =>
+                  Expected_Type := +"string";
 
-            when Pos =>
-               Expected_Type := +"positive";
-               Params (I).Pos_Value := Positive'Value (Value);
+                  if Value (Value'Last) = '/'
+                    or else Value (Value'Last) = '\'
+                  then
+                     Config (P).Dir_Value := +Value;
+                  else
+                     Config (P).Dir_Value := +(Value & '/');
+                  end if;
 
-            when Dur =>
-               Expected_Type := +"duration";
-               Params (I).Dur_Value := Duration'Value (Value);
+               when Pos =>
+                  Expected_Type := +"positive";
+                  Config (P).Pos_Value := Positive'Value (Value);
 
-            when Bool =>
-               Expected_Type := +"boolean";
-               Params (I).Bool_Value := Boolean'Value (Value);
+               when Dur =>
+                  Expected_Type := +"duration";
+                  Config (P).Dur_Value := Duration'Value (Value);
 
-         end case;
+               when Bool =>
+                  Expected_Type := +"boolean";
+                  Config (P).Bool_Value := Boolean'Value (Value);
+
+            end case;
+
+         else
+
+            if not Process_Mode then
+               Error_Message
+                 (Filename,
+                  "Per process option (" & Key
+                  & ") not supported for this file");
+            end if;
+
+            case Process_Options (P).Kind is
+
+               when Str =>
+                  Expected_Type := +"string";
+                  Process_Options (P).Str_Value := +Value;
+
+               when Dir =>
+                  Expected_Type := +"string";
+
+                  if Value (Value'Last) = '/'
+                    or else Value (Value'Last) = '\'
+                  then
+                     Process_Options (P).Dir_Value := +Value;
+                  else
+                     Process_Options (P).Dir_Value := +(Value & '/');
+                  end if;
+
+               when Pos =>
+                  Expected_Type := +"positive";
+                  Process_Options (P).Pos_Value := Positive'Value (Value);
+
+               when Dur =>
+                  Expected_Type := +"duration";
+                  Process_Options (P).Dur_Value := Duration'Value (Value);
+
+               when Bool =>
+                  Expected_Type := +"boolean";
+                  Process_Options (P).Bool_Value := Boolean'Value (Value);
+            end case;
+
+         end if;
 
       exception
          when others =>
@@ -251,14 +299,18 @@ package body AWS.Config.Ini is
       end Program_Ini_File;
 
    begin
+      Process_Mode := True;
+
       Process_Ini ("aws.ini");
       Process_Ini (Program_Ini_File);
+
+      Process_Mode := False;
 
       if File_Name /= "" then
          Process_Ini (File_Name);
       end if;
-
-      return Params;
    end Read;
 
+begin
+   Read (Server_Config);
 end AWS.Config.Ini;
