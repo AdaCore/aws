@@ -1188,6 +1188,7 @@ is
          use type Streams.Stream_Element_Array;
 
          Buffer : Streams.Stream_Element_Array (1 .. 1_024);
+         --  Each chunk will have a maximum length of Buffer'Length
 
          CRLF : constant Streams.Stream_Element_Array
            := (1 => Character'Pos (ASCII.CR), 2 => Character'Pos (ASCII.LF));
@@ -1197,8 +1198,15 @@ is
          --  Last chunk for a chunked encoding stream. See [RFC 2616 - 3.6.1]
 
       begin
-         loop
+         Send_Chunks : loop
             Resources.Read (File, Buffer, Last);
+
+            if Last = 0 then
+               --  There is not more data to read, the previous chunk was the
+               --  last one, just terminate the chunk message here.
+               Net.Buffered.Write (Sock, Last_Chunk);
+               exit Send_Chunks;
+            end if;
 
             Length := Length + Positive (Last);
 
@@ -1224,12 +1232,12 @@ is
                if Last < Buffer'Last then
                   --  No more data, add the terminating chunk
                   Net.Buffered.Write (Sock, Chunk & Last_Chunk);
-                  exit;
+                  exit Send_Chunks;
                else
                   Net.Buffered.Write (Sock, Chunk);
                end if;
             end;
-         end loop;
+         end loop Send_Chunks;
       end Send_File_Chunked;
 
    begin
