@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              February 7th, 2005
+   Pascal Obry                                              February 15th, 2005
 
 
 
@@ -39,6 +39,9 @@ Changes
 -------
 
 Here are the main changes since AWS 2.1 :
+
+   - Remove dependence on IPv6. By default AWS can now built on IPv4 machine
+     as before.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
