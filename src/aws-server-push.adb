@@ -354,8 +354,6 @@ package body AWS.Server.Push is
          Cursor := Table.Find (Container, Client_ID);
 
          if Table.Has_Element (Cursor) then
-            Table.Delete (Container, Cursor);
-
             Value := Table.Containers.Element (Cursor);
 
             if Close_Socket then
@@ -363,6 +361,8 @@ package body AWS.Server.Push is
             end if;
 
             Net.Stream_IO.Free (Value.Stream, Close_Socket);
+
+            Table.Delete (Container, Cursor);
          end if;
       end Unregister;
 
@@ -373,11 +373,12 @@ package body AWS.Server.Push is
       procedure Unregister_Clients (Close_Sockets : in Boolean) is
          Cursor : Table.Cursor;
       begin
-         Cursor := Table.First (Container);
+         loop
+            Cursor := Table.First (Container);
 
-         while Table.Has_Element (Cursor) loop
+            exit when not Table.Has_Element (Cursor);
+
             Unregister (Table.Containers.Key (Cursor), Close_Sockets);
-            Table.Containers.Next (Cursor);
          end loop;
       end Unregister_Clients;
 
