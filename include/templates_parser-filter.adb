@@ -679,7 +679,7 @@ package body Filter is
       end Is_Number;
 
       Result : String (1 .. TS'Length * 2);
-      K      : Positive := Result'Last;
+      K      : Natural := Result'Last;
 
       I      : Natural;
       Count  : Natural := 0;
