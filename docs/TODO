@@ -88,30 +88,10 @@ implemented:
      </complexContent>
    </complexType>
 
-- Add GNAT project files to use AWS. Only support for developpers has been
-  implemented.
-
-- Support compress/gzip encoding if client support it.
-  All the compress/decompress features are implemented as memory compressed
-  streams. Should we have a direct implementation in AWS response circuitry ?
-
-- Add client's compress/decompress support.
-
 - Ada 2005 should support all sort of containers, use them instead of the
   include/Table_Of_* components.
 
-- Add option to awsres tool to support compressed embedded resources.
-
-- Add support for embedded resources in AWS. Have a way to either send
-  compressed or decompressed data to the browser depending on it's support for
-  compressed message body.
-
-- Add support for compressed data in the memory stream on the client side.
-  User should be able to choose uncompressing data at the read stage.
-  This enhancement will reduce the memory used by the data.
-  This feature should be used when user reads data from memory stream
-  partially. It is better for big compressed data, but worse for relatively
-  small compressed data, when user want to read it at once.
+=============== Point to fix/implement/review before next release (1.5)
 
 - Add SMTP authentication support
 
@@ -124,4 +104,26 @@ implemented:
   of the TV channel in France), they have a set of links to the first page,
   late in the evening the links tends to point to adult contents :)
 
-=============== Point to fix before next release
+- Add support for compressed data in the memory stream on the client side.
+  User should be able to choose uncompressing data at the read stage.
+  This enhancement will reduce the memory used by the data.
+  This feature should be used when user reads data from memory stream
+  partially. It is better for big compressed data, but worse for relatively
+  small compressed data, when user want to read it at once.
+
+- Add option to awsres tool to support compressed embedded resources.
+
+- Add support for embedded resources in AWS. Have a way to either send
+  compressed or decompressed data to the browser depending on it's support for
+  compressed message body.
+
+- Support compress/gzip encoding if client support it.
+  All the compress/decompress features are implemented as memory compressed
+  streams. Should we have a direct implementation in AWS response circuitry ?
+
+- Add client's compress/decompress support.
+
+- Add GNAT project files to use AWS. Only support for developpers has been
+  implemented.
+
+- Document ada2wsdl and new wsdl2aws -types option.
