@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 6 November 2004
+<p>Date: 11 November 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -608,7 +608,10 @@ occurences by the corresponding match from <i>REGEXP</i>. The first match
 in <i>REGEXP</i> will replace <b>\1</b>, the second match <b>\2</b> and so
 on. Each match in <i>REGEXP</i> must be parenthesized. It replaces only
 the first match. <i>STR</i> is an optional parameter, its default value
-is <b>\1</b>. <i>STR</i> can be a tag variable name.
+is <b>\1</b>. It is possible to espace characters in <i>STR</i> to avoid
+parsing confusions. This is required if you need to have <b>@_</b> or
+<b>_@</b> or a parenthesis in <i>STR</i> for example. <i>STR</i> can be a tag
+variable name.
 
 <br><dt><code>REPLACE_ALL(<i>REGEXP</i>[/<i>STR</i>])</code>
 <dd>

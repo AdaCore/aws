@@ -1,5 +1,12 @@
 2004-11-11  Pascal Obry  <pascal@obry.org>
 
+	* templates_parser.adb:
+	(Find): New routine used to find filter separator.
+	(Unescape): New routine, removes \ for escaped characters in
+	 regpat replacement pattern.
+	(Name_Parameter): Use it.
+	(Get_Filter_Set): Returns the proper filter set slice.
+
 	* aws-services-directory.adb:
 	(Get_Order): Add missing header box.
 
