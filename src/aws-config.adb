@@ -57,6 +57,12 @@ package body AWS.Config is
    Down_Image_Token         : aliased constant String := "down_image";
    Logo_Image_Token         : aliased constant String := "logo_image";
 
+   Session_Lifetime_Token                : aliased constant String
+     := "session_lifetime";
+
+   Session_Cleanup_Interval_Token        : aliased constant String
+     := "session_cleanup_interval";
+
    Cleaner_Wait_For_Client_Timeout_Token : aliased constant String
      := "cleaner_wait_for_client_timeout";
 
@@ -97,6 +103,12 @@ package body AWS.Config is
 
    Max_Connection_Value     : aliased Positive := Default_Max_Connection;
    Server_Port_Value        : aliased Positive := Default_Server_Port;
+
+   Session_Cleanup_Interval_Value : aliased Duration
+     := Default_Session_Cleanup_Interval;
+
+   Session_Lifetime_Value : aliased Duration
+     := Default_Session_Lifetime;
 
    Cleaner_Wait_For_Client_Timeout_Value : aliased Duration
      := Default_Cleaner_Wait_For_Client_Timeout;
@@ -190,6 +202,12 @@ package body AWS.Config is
 
       (Pos, Server_Port_Token'Access,
        Server_Port_Value'Access),
+
+      (Dur, Session_Cleanup_Interval_Token'Access,
+       Session_Cleanup_Interval_Value'Access),
+
+      (Dur, Session_Lifetime_Token'Access,
+       Session_Lifetime_Value'Access),
 
       (Dur, Cleaner_Wait_For_Client_Timeout_Token'Access,
        Cleaner_Wait_For_Client_Timeout_Value'Access),
@@ -587,6 +605,24 @@ package body AWS.Config is
    begin
       return Server_Port_Value;
    end Server_Port;
+
+   ------------------------------
+   -- Session_Cleanup_Interval --
+   ------------------------------
+
+   function Session_Cleanup_Interval return Duration is
+   begin
+      return Session_Cleanup_Interval_Value;
+   end Session_Cleanup_Interval;
+
+   ----------------------
+   -- Session_Lifetime --
+   ----------------------
+
+   function Session_Lifetime return Duration is
+   begin
+      return Session_Lifetime_Value;
+   end Session_Lifetime;
 
    -----------------
    -- Status_Page --
