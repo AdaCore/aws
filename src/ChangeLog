@@ -1,5 +1,14 @@
 2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Send_Resource): Do not call Send_File if the length of the file
+	 is 0. Optimization found while reading code (does not fix a bug).
+
+	* aws-client.adb:
+	(Get_Response): Correctly handle file whose size is 0.
+	
+2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-client.adb:
 	(Get_Full_Line): Add clear notes about the fact that this is non
 	 standard but implemented because some servers use a continuation
