@@ -123,17 +123,26 @@ status.</H3>
 <tr bgcolor=yellow>
 <td width=150>Module Regexp
 <td width=300>Server address
+<td>
 </tr>
 
 @@TABLE@@
 <tr bgcolor=white>
 <td align=center>@@_HP_REGEXP_L_@@
 <td>@@_HP_URL_L_@@
+<td><a href="@@_ADMIN_@@-HPup?N=@@_TABLE_LINE_@@">
+<img src="@@_ADMIN_@@-uparr" border=0></a>
+<a href="@@_ADMIN_@@-HPdown?N=@@_TABLE_LINE_@@">
+<img src="@@_ADMIN_@@-downarr" border=0></a>
 </tr>
 @@SECTION@@
 <tr bgcolor=turquoise>
 <td align=center>@@_HP_REGEXP_L_@@
 <td>@@_HP_URL_L_@@
+<td><a href="@@_ADMIN_@@-HPup?N=@@_TABLE_LINE_@@">
+<img src="@@_ADMIN_@@-uparr" border=0></a>
+<a href="@@_ADMIN_@@-HPdown?N=@@_TABLE_LINE_@@">
+<img src="@@_ADMIN_@@-downarr" border=0></a>
 </tr>
 @@END_TABLE@@
 </table>
