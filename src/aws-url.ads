@@ -36,11 +36,11 @@ package AWS.URL is
 
    --  The general URL form is:
    --
-   --  http://usernam@password:www.here.com:80/dir1/dir2/xyz.html?p=8&x=doh
-   --   |                           |       | |          |       |
-   --   protocol                    host port path       file    parameters
+   --  http://username:password@www.here.com:80/dir1/dir2/xyz.html?p=8&x=doh
+   --   |                            |       | |          |       |
+   --   protocol                     host port path       file    parameters
    --
-   --                                         <--       pathname        -->
+   --                                          <--       pathname        -->
 
    type Object is private;
 
@@ -51,7 +51,8 @@ package AWS.URL is
 
    function Parse
       (URL            : in String;
-       Check_Validity : in Boolean := True)
+       Check_Validity : in Boolean := True;
+       Normalize      : in Boolean := False)
        return Object;
    --  Parse an URL and return an Object representing this URL. It is then
    --  possible to extract each part of the URL with the services bellow.
@@ -62,6 +63,10 @@ package AWS.URL is
    --  Removes all occurrences to parent directory ".." and current directory
    --  ".". Raises URL_Error if the URL reference a resource above the Web
    --  root directory.
+
+   function Is_Valid (URL : in Object) return Boolean;
+   --  Returns True if the URL is valid (does not reference directory above
+   --  the Web root).
 
    function URL (URL : in Object) return String;
    --  Returns full URL string, this can be different to the URL passed if it
@@ -118,13 +123,17 @@ private
 
    use Ada.Strings.Unbounded;
 
+   type Path_Status is (Valid, Wrong);
+
    type Object is record
       Host     : Unbounded_String;
       Port     : Positive          := Default_HTTP_Port;
       Security : Boolean           := False;
-      Path     : Unbounded_String;
+      Path     : Unbounded_String; -- Original path
+      N_Path   : Unbounded_String; -- Normalized path
       File     : Unbounded_String;
       Params   : Unbounded_String;
+      Status   : Path_Status       := Wrong;
    end record;
 
 end AWS.URL;
