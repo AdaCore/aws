@@ -121,9 +121,12 @@ package SOAP.Types is
    function XML_Type  (O : in SOAP_Array) return String;
 
    function A
-     (V    : in Object_Set;
-      Name : in String)
+     (V         : in Object_Set;
+      Name      : in String;
+      Type_Name : in String := "")
       return SOAP_Array;
+   --  Type_Name of the array's elements, if not specified it will be computed
+   --  based on element's name.
 
    function Size (O : in SOAP_Array) return Natural;
    --  Returns the number of item into the array
@@ -476,7 +479,9 @@ private
 
    --  Composite SOAP types
 
-   type SOAP_Array is new Composite with null record;
+   type SOAP_Array is new Composite with record
+      Type_Name : Unbounded_String;
+   end record;
 
    type SOAP_Record is new Composite with record
       Type_Name : Unbounded_String;
