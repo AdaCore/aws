@@ -1,4 +1,5 @@
 ada.sed
+aws-client-hotplug.ads.texi
 aws-client.ads.texi
 aws-communication-client.ads.texi
 aws-communication-server.ads.texi
