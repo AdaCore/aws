@@ -1,6 +1,11 @@
 2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	Complete previous check-in.
+
+2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	(LARGS): Change -L../win32 to -L../lib
 
 	* sessions3.adb:
