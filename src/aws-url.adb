@@ -171,8 +171,21 @@ package body AWS.URL is
          O.Security := True;
 
       else
-         Parse (URL);
-         O.Security := False;
+         --  No server and port, just an URL.
+
+         if URL (URL'First) = '/' then
+            --  This is a rooted URL, no problem to parse as-is
+            Parse (URL);
+
+         else
+            --  This is not rooted. Parse with a '/' slash added, then remove
+            --  it after parsing.
+            Parse ('/' & URL);
+            O.URI := To_Unbounded_String
+              (Slice (O.URI, 2, Length (O.URI) - 1));
+         end if;
+
+            O.Security := False;
       end if;
 
       return O;
@@ -269,7 +282,11 @@ package body AWS.URL is
       end Port;
 
    begin
-      return HTTP & Server_Name (URL) & Port & URI (URL);
+      if Server_Name (URL) = "" then
+         return URI (URL);
+      else
+         return HTTP & Server_Name (URL) & Port & URI (URL);
+      end if;
    end URL;
 
 end AWS.URL;
