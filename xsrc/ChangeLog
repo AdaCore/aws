@@ -1,3 +1,9 @@
+2004-07-07  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-xml.adb:
+	Some changes due to new Tag record structure to fix reference
+	 semantic implementation.
+
 2004-06-25  Pascal Obry  <pascal@obry.org>
 
 	* aws-jabber.adb, templates_parser-xml.adb: 
