@@ -31,6 +31,7 @@
 --  $Id$
 
 with AWS.Net;
+with AWS.Utils;
 
 package AWS.Response.Set is
 
@@ -110,6 +111,19 @@ package AWS.Response.Set is
       Handle  : access Resources.Streams.Stream_Type'Class);
    pragma Inline (Stream);
    --  Set the user defined data stream. Set the Mode field to Stream.
+
+   procedure Append_Body
+     (D    : in out Data;
+      Item : in     Streams.Stream_Element_Array);
+   --  Add the data to the message.
+
+   procedure Append_Body
+     (D    : in out Data;
+      Item : in     Utils.Stream_Element_Array_Access);
+   --  Add dynamically allocated data to the message.
+
+   procedure Append_Body (D : in out Data; Item : in String);
+   --  Add the data to the message.
 
    procedure Message_Body
      (D     : in out Data;
