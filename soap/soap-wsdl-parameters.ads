@@ -38,6 +38,18 @@ package SOAP.WSDL.Parameters is
 
    type Kind is (K_Record, K_Array, K_Derived, K_Simple, K_Enumeration);
 
+   --  Enumeration values
+
+   type E_Node;
+   type E_Node_Access is access E_Node;
+
+   type E_Node is record
+      Value : Unbounded_String;
+      Next  : E_Node_Access;
+   end record;
+
+   --  Parameter
+
    type Parameter;
    type P_Set is access Parameter;
 
@@ -60,7 +72,7 @@ package SOAP.WSDL.Parameters is
 
          when K_Enumeration =>
             E_Name : Unbounded_String; -- Enumeration type name
-            E_Def  : Unbounded_String; -- The enum definition "(red, greed)"
+            E_Def  : E_Node_Access;
       end case;
    end record;
 
