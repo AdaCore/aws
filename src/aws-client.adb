@@ -339,6 +339,17 @@ package body AWS.Client is
       Connection.Server_Push              := Server_Push;
       Connection.Timeouts                 := Timeouts;
 
+      --  If we have set the proxy or standard authentication we must set the
+      --  authentication mode to Basic.
+
+      if Proxy /= No_Data then
+         Connection.Auth (Client.Proxy).Work_Mode := Basic;
+      end if;
+
+      if User /= No_Data then
+         Connection.Auth (WWW).Work_Mode := Basic;
+      end if;
+
       --  Establish the connection now
 
       Connect (Connection);
@@ -959,25 +970,21 @@ package body AWS.Client is
         (Token : in     String;
          Data  : in out Authentication_Type)
       is
-
-         Username : constant String := To_String (Data.User);
+         User : constant String := To_String (Data.User);
+         Pwd  : constant String := To_String (Data.Pwd);
 
       begin
-         if Data.User /= No_Data
-           and then Data.Pwd /= No_Data
-         then
+         if User /= No_Data and then Pwd /= No_Data then
+
             if Data.Work_Mode = Basic then
                Send_Header
                  (Sock.all,
                   Token & ": Basic "
-                    & AWS.Translator.Base64_Encode
-                    (Username
-                       & ':' & To_String (Data.Pwd)));
+                    & AWS.Translator.Base64_Encode (User & ':' & Pwd));
 
             elsif Data.Work_Mode = Digest then
 
                declare
-
                   Nonce    : constant String := To_String (Data.Nonce);
                   Realm    : constant String := To_String (Data.Realm);
                   QOP      : constant String := To_String (Data.QOP);
@@ -1029,9 +1036,9 @@ package body AWS.Client is
                   begin
                      if QOP = No_Data then
                         Response := AWS.Digest.Create_Digest
-                          (Username => Username,
+                          (Username => User,
                            Realm    => Realm,
-                           Password => To_String (Data.Pwd),
+                           Password => Pwd,
                            Nonce    => Nonce,
                            Method   => Method,
                            URI      => URI);
@@ -1044,9 +1051,9 @@ package body AWS.Client is
                            NC : constant String := Utils.Hex (Data.NC, 8);
                         begin
                            Response := AWS.Digest.Create_Digest
-                             (Username => Username,
+                             (Username => User,
                               Realm    => Realm,
-                              Password => To_String (Data.Pwd),
+                              Password => Pwd,
                               Nonce    => Nonce,
                               CNonce   => CNonce,
                               NC       => NC,
@@ -1068,7 +1075,7 @@ package body AWS.Client is
                      Token & ": Digest "
                        & QOP_Data
                        & "nonce=""" & Nonce
-                       & """, username=""" & Username
+                       & """, username=""" & User
                        & """, realm=""" & Realm
                        & """, uri=""" & URI
                        & """, response=""" & Response
@@ -1790,11 +1797,11 @@ package body AWS.Client is
       Auth.Init_Mode := Mode;
 
       --  The Digest authentication could not be send without
-      --  server authentication request, becouse client have to have nonce
+      --  server authentication request, because client have to have nonce
       --  value, so in the Digest and Any authentication modes we are not
       --  setting up Work_Mode to the exact value.
       --  But for Basic authentication we are sending just username/password,
-      --  and do not need any information from server for do it.
+      --  and do not need any information from server to do it.
       --  So if the client want to authenticate "Basic", we are setting up
       --  Work_Mode right now.
 
