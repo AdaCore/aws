@@ -1,3 +1,9 @@
+2003-09-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wsdl2aws.adb:
+	(Parse_Command_Line): Retrieve the command line and set it into
+	 the SOAP Generator.
+
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 	
 	* makefile:
