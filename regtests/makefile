@@ -37,7 +37,7 @@ LARGS := $(LARGS) -lssl -lcrypto
 RT_SOAP_SEC = test_sec_soap xmlt_sec disp_soap_sec test_soap5_sec
 RT_STD_SEC = tsgetparam ssp ssback cert ssock2 ssto ssockto sslcfg \
 	huge_response_sec wait_sec afile_sec append_sec sockext_sec \
-	hload_sec
+	hload_sec wait2_sec
 
 else
 # Without SSL support
@@ -82,7 +82,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	server_info append compress zapp zbig zfile zstrm split zstrm2 once \
 	get_post zopen timer tmem file2 eres sock1 sock2 sessions4 wait \
 	stream_response smtp sto sockto ctable tpc afile no_param \
-	nonce sockext hload upload4 $(RT_STD_SEC)
+	nonce sockext hload upload4 wait2 $(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
 ALONE_TESTS  = $(RT_STD_ALONE)
