@@ -1,3 +1,9 @@
+2004-05-28  Pascal Obry  <pascal.obry@edf.fr>
+
+	* check_mem.adb:
+	Revert previous check-in. It is not equivalent as it has removed
+	 the time limit allowed to complete the jobs.
+
 2004-05-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* check_mem.adb:
