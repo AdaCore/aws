@@ -84,7 +84,7 @@ $(STD_TESTS): force
 	rm -f $@.res
 ifdef GDB_REGTESTS
 	gdb --exec=./$@ --command=cmd.gdb --batch > $@.res
-	cat $@.out > out.tmp
+	cp $@.out out.tmp
 	echo "" >> out.tmp
 	echo "Program exited normally." >> out.tmp
 	-diff -c -w out.tmp $@.res >> alldifs
