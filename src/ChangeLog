@@ -1,3 +1,21 @@
+2003-12-18  Pascal Obry  <obry@act-europe.fr>
+
+	* aws-resources-embedded.adb:
+	Minor reformatting.
+
+	* aws-resources-files.adb:
+	Minor reformatting.
+
+	* aws-resources.adb:
+	(Is_GZip): Add in parameter mode. Minor reformatting.
+
+	* aws-resources.ads:
+	(Open): Fix comments.
+	(Is_GZip): Add in parameter mode.
+
+	* aws-response.adb:
+	Minor reformatting.
+
 2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources.ads, aws-resources.adb:
