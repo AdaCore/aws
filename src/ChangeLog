@@ -1,5 +1,8 @@
 2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-client.adb:
+	Minor style fix.
+
 	* aws-server.adb:
 	(Start): Use Accept_Queue_Size configuration parameter in the call
 	 to Listen.
