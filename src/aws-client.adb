@@ -273,7 +273,7 @@ package body AWS.Client is
       Connection.Proxy_Pwd       := Set (Proxy_Pwd);
       Connection.Opened          := True;
       Connection.Socket          := new Sockets.Socket_FD'Class'
-        (AWS.Net.Connect (AWS.URL.Server_Name (Connect_URL),
+        (AWS.Net.Connect (AWS.URL.Host (Connect_URL),
                           AWS.URL.Port (Connect_URL),
                           AWS.URL.Security (Connect_URL)));
       Connection.Retry           := Create.Retry;
@@ -861,7 +861,7 @@ package body AWS.Client is
       end Port_Not_Default;
 
       Host_Address : constant String :=
-        AWS.URL.Server_Name (Connection.Host_URL)
+        AWS.URL.Host (Connection.Host_URL)
         & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
 
    begin
@@ -870,7 +870,7 @@ package body AWS.Client is
 
       if not Connection.Opened then
          Sock := AWS.Net.Connect
-           (AWS.URL.Server_Name (Connection.Connect_URL),
+           (AWS.URL.Host (Connection.Connect_URL),
             AWS.URL.Port (Connection.Connect_URL),
             AWS.URL.Security (Connection.Connect_URL));
 
@@ -886,7 +886,7 @@ package body AWS.Client is
 
          if URI = "" then
             Send_Header (Sock, Method & ' '
-                         & AWS.URL.URI (Connection.Host_URL, True)
+                         & AWS.URL.Pathname (Connection.Host_URL, True)
                          & ' ' & HTTP_Version);
          else
             Send_Header (Sock, Method & ' '
