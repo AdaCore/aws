@@ -51,6 +51,9 @@ with AWS.Response;
 with AWS.Status;
 with AWS.Server.Log;
 with AWS.Translator;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Tlog is
 
