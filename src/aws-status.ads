@@ -280,7 +280,7 @@ package AWS.Status is
    --    (MD5.Digest (Username & ':' & Realm & ':' & Password)
    --      & Authorization_Tail);
    --
-   --  This method avoids sending a password to the AWS code.
+   --  This method can be used to avoid sending a password over the network.
 
 private
 
