@@ -407,4 +407,4 @@ gai302_external:
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
 
-setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP)
+setup: setup_dir build_scripts $(GEXT_MODULE) $(MODULES_SETUP)
