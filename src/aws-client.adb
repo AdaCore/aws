@@ -1169,7 +1169,10 @@ package body AWS.Client is
                    Messages.Accept_Type ("text/html, */*"));
 
       Send_Header (Sock.all,
-                   Messages.Accept_Language ("fr, us"));
+                   Messages.Accept_Encoding_Token & ": deflate, gzip");
+
+      Send_Header (Sock.all,
+                   Messages.Accept_Language ("fr, ru, us"));
 
       Send_Header (Sock.all,
                    Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
@@ -1420,6 +1423,20 @@ package body AWS.Client is
 
       Read_Status_Line;
       Response.Set.Read_Header (Sock, Answer);
+
+      declare
+         use AWS.Response;
+
+         Content_Encoding : constant String
+           := Ada.Characters.Handling.To_Lower
+                (Header (Answer, Messages.Content_Encoding_Token));
+      begin
+         if Content_Encoding = "gzip" then
+            Set.Append_Encode (Answer, GZip, Set.Decode);
+         elsif Content_Encoding = "deflate" then
+            Set.Append_Encode (Answer, Deflate, Set.Decode);
+         end if;
+      end;
 
       --  ??? we should not expect 100 response message after the body sent.
       --  This code needs to be fixed.
