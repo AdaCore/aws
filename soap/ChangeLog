@@ -1,3 +1,9 @@
+2003-08-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.adb:
+	(Array_Type): Handle specific case of array containing records
+	 having all the same name.
+
 2003-08-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* soap-wsdl.adb:

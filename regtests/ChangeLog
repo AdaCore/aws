@@ -1,3 +1,14 @@
+2003-08-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP): Add soap4.
+
+	* soap4.adb, soap4.out:
+	Initial revision.
+
+	* soap2.out, testxml.out, workorder.out:
+	Update to match latest implementation for array component type.
+
 2003-07-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
