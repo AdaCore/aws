@@ -35,6 +35,7 @@ with Ada.Unchecked_Deallocation;
 with System;
 
 with MD5;
+with ZLib;
 
 package AWS.Utils is
 
@@ -163,5 +164,21 @@ package AWS.Utils is
       end Mailbox;
 
    end Mailbox_G;
+
+   -----------------------
+   -- File compresssion --
+   -----------------------
+
+   procedure Compress
+     (Filename : in String;
+      Level    : in ZLib.Compression_Level := ZLib.Default_Compression);
+   --  Compress Filename, the compressed file is named filename & ".gz".
+   --  If the compression is ok, original file is removed. Raises
+   --  Name_Error if Filename does not exist.
+
+   procedure Decompress (Filename : in String);
+   --  Decompress Filename, the ".gz" extenssion is removed from the
+   --  decompressed file. If the decompression is ok, original file is
+   --  removed. Raises Name_Error if Filename does not exist.
 
 end AWS.Utils;
