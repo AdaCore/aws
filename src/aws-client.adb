@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -38,10 +39,12 @@ with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
 with Ada.Unchecked_Deallocation;
 
-with GNAT.Table;
 with GNAT.Calendar.Time_IO;
+with GNAT.Table;
 
 with AWS.Digest;
+with AWS.Headers.Set;
+with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
@@ -59,8 +62,6 @@ package body AWS.Client is
      array (Authentication_Level) of Natural range 0 .. 2;
 
    Debug_On    : Boolean := False;
-
-   End_Section : constant String := "";
 
    procedure Debug_Message (Prefix, Message : in String);
    pragma Inline (Debug_Message);
@@ -90,11 +91,7 @@ package body AWS.Client is
 
    procedure Parse_Header
      (Connection        : in out HTTP_Connection;
-      Status            :    out Messages.Status_Code;
-      Content_Length    :    out Natural;
-      Content_Type      :    out Unbounded_String;
-      Transfer_Encoding :    out Unbounded_String;
-      Location          :    out Unbounded_String;
+      Answer            :    out Response.Data;
       Keep_Alive        :    out Boolean);
    --  Read server answer and set corresponding variable with the value
    --  read. Most of the fields are ignored right now.
@@ -508,9 +505,6 @@ package body AWS.Client is
    is
       type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
-      procedure Check_Status;
-      --  check for special status
-
       function Read_Chunk return Streams.Stream_Element_Array;
       --  Read a chunk object from the stream
 
@@ -520,10 +514,6 @@ package body AWS.Client is
       pragma Inline (Read_Binary_Message);
       --  Read a binary message of Len bytes from the socket.
 
-      function Read_Message return String;
-      --  Read a textual message from the socket for which there is no known
-      --  length.
-
       procedure Disconnect;
       --  close connection socket.
 
@@ -532,40 +522,7 @@ package body AWS.Client is
 
       Sock       : Net.Socket_Type'Class renames Connection.Socket.all;
 
-      CT         : Unbounded_String;
-      CT_Len     : Natural              := 0;
-      TE         : Unbounded_String;
-      Location   : Unbounded_String;
-      Status     : Messages.Status_Code;
-
       Keep_Alive : Boolean;
-
-      ------------------
-      -- Check_Status --
-      ------------------
-
-      procedure Check_Status is
-         use type Messages.Status_Code;
-      begin
-         if Status in Messages.S301 .. Messages.S307
-           and then
-           Status /= Messages.S304
-         then
-            --  Page Moved, Location pointing to new location
-
-            Result := Response.Moved
-              (Location => To_String (Location),
-               Message  => Response.Message_Body (Result));
-
-         elsif Status = Messages.S404 then
-
-            if String'(Response.Message_Body (Result)) = "" then
-               Result := Response.Build
-                 (MIME.Text_HTML, "(404) not found", Status);
-            end if;
-
-         end if;
-      end Check_Status;
 
       ----------------
       -- Disconnect --
@@ -702,92 +659,44 @@ package body AWS.Client is
             raise;
       end Read_Chunk;
 
-      ------------------
-      -- Read_Message --
-      ------------------
-
-      function Read_Message return String is
-         Results : Unbounded_String;
-      begin
-         --  We don't know the message body length, so read the socket until
-         --  it is closed by the server. At this time an exception will be
-         --  raised as we are trying to read the socket.
-
-         loop
-            declare
-               Part : constant Streams.Stream_Element_Array
-                 := Net.Buffered.Read (Sock);
-            begin
-               Append (Results, Translator.To_String (Part));
-            end;
-         end loop;
-
-         return To_String (Results);
-
-      exception
-         when Net.Socket_Error =>
-            return To_String (Results);
-      end Read_Message;
-
    begin
       Set_Phase (Connection, Receive);
 
       Parse_Header
-        (Connection, Status, CT_Len, CT, TE, Location, Keep_Alive);
+        (Connection, Result, Keep_Alive);
 
       if not Get_Body then
-         Result := Response.Build (To_String (CT), "", Status);
-
-         --  Force Response Data content length
-
-         Response.Set.Content_Length (Result, CT_Len);
 
          Disconnect;
          Set_Phase (Connection, Not_Monitored);
-         Check_Status;
          return;
       end if;
 
       --  Read the message body
 
-      if To_String (TE) = "chunked" then
+      declare
+         TE : constant String := Response.Header
+               (Result, Messages.Transfer_Encoding_Token);
+         CT_Len : constant Integer := Response.Content_Length (Result);
+      begin
+         if TE = "chunked" then
 
-         --  A chuncked message is written on the stream as list of data
-         --  chunk. Each chunk has the following format:
-         --
-         --  <N : the chunk size in hexadecimal> CRLF
-         --  <N * BYTES : the data> CRLF
-         --
-         --  The termination chunk is:
-         --
-         --  0 CRLF
-         --  CRLF
-         --
+            --  A chuncked message is written on the stream as list of data
+            --  chunk. Each chunk has the following format:
+            --
+            --  <N : the chunk size in hexadecimal> CRLF
+            --  <N * BYTES : the data> CRLF
+            --
+            --  The termination chunk is:
+            --
+            --  0 CRLF
+            --  CRLF
+            --
 
-         declare
-            CT  : constant String := To_String (Get_Response.CT);
-         begin
-            if MIME.Is_Text (CT) then
-               --  This is a textual chunked encoded body
-               Result := Response.Build
-                 (CT, Translator.To_String (Read_Chunk), Status);
+            Response.Set.Message_Body (Result, Read_Chunk);
+         else
+            if CT_Len = Response.Undefined_Length then
 
-            else
-               --  This is really some kind of binary data
-               Result := Response.Build (CT, Read_Chunk, Status);
-            end if;
-         end;
-
-      else
-         if CT_Len = 0 then
-            if MIME.Is_Text (To_String (CT)) then
-               --  Here we do not know the message body length, but this is a
-               --  textual data, read it as a string.
-
-               Result := Response.Build
-                 (To_String (CT), Read_Message, Status);
-
-            else
                declare
 
                   package Stream_Element_Table is new GNAT.Table
@@ -806,11 +715,7 @@ package body AWS.Client is
                   procedure Add (B : in Streams.Stream_Element_Array) is
                   begin
                      for K in B'Range loop
-                        Stream_Element_Table.Increment_Last;
-                        Stream_Element_Table.Table
-                          (Stream_Element_Table.Last) := B (K);
-                        --  ??? in GNAT 3.15 we will use:
-                        --  Stream_Element_Table.Append (B (K));
+                        Stream_Element_Table.Append (B (K));
                      end loop;
                   end Add;
 
@@ -836,42 +741,29 @@ package body AWS.Client is
                begin
                   Read_Until_Close;
 
-                  Result := Response.Build
-                    (To_String (CT),
-                     Streams.Stream_Element_Array
+                  Response.Set.Message_Body (Result,
+                    (Streams.Stream_Element_Array
                        (Stream_Element_Table.Table
-                          (1 .. Stream_Element_Table.Last)),
-                     Status);
+                          (1 .. Stream_Element_Table.Last))));
 
                   Stream_Element_Table.Free;
                end;
+
+            else
+
+               declare
+                  Elements : Stream_Element_Array_Access
+                    := Read_Binary_Message (CT_Len);
+               begin
+                  Response.Set.Message_Body (Result, Elements.all);
+
+                  Free (Elements);
+               end;
             end if;
-
-         else
-
-            declare
-               Elements : Stream_Element_Array_Access
-                 := Read_Binary_Message (CT_Len);
-            begin
-               if MIME.Is_Text (To_String (CT)) then
-                  Result :=  Response.Build
-                    (To_String (CT),
-                     Translator.To_String (Elements.all),
-                     Status);
-
-               else
-                  --  This is some kind of binary data.
-
-                  Result := Response.Build
-                    (To_String (CT), Elements.all, Status);
-               end if;
-
-               Free (Elements);
-            end;
          end if;
-      end if;
 
-      Check_Status;
+      end;
+
       Disconnect;
 
       Set_Phase (Connection, Not_Monitored);
@@ -967,6 +859,7 @@ package body AWS.Client is
       Method     : in     String;
       URI        : in     String)
    is
+      Sock    : Net.Socket_Type'Class renames Connection.Socket.all;
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
       procedure Send_Authentication_Header
@@ -1045,8 +938,8 @@ package body AWS.Client is
          then
             if Data.Work_Mode = Basic then
                Send_Header
-                 (Connection.Socket.all,
-                  Token & "Basic "
+                 (Sock,
+                  Token & ": Basic "
                     & AWS.Translator.Base64_Encode
                     (Username
                        & ':' & To_String (Data.Pwd)));
@@ -1141,8 +1034,8 @@ package body AWS.Client is
 
                begin
                   Send_Header
-                    (Connection.Socket.all,
-                     Token & "Digest "
+                    (Sock,
+                     Token & ": Digest "
                        & QOP_Data
                        & "nonce=""" & Nonce
                        & """, username=""" & Username
@@ -1207,17 +1100,17 @@ package body AWS.Client is
          end if;
 
          Send_Header
-           (Connection.Socket.all, Messages.Connection (Persistence));
+           (Sock, Messages.Connection (Persistence));
 
       else
          if URI = "" then
-            Send_Header (Connection.Socket.all,
+            Send_Header (Sock,
                          Method & ' '
                            & To_String (Connection.Host)
                            & ' ' & HTTP_Version);
          else
             Send_Header
-              (Connection.Socket.all,
+              (Sock,
                Method & ' '
                  & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
                  & Host_Address & URI
@@ -1225,7 +1118,7 @@ package body AWS.Client is
          end if;
 
          Send_Header
-           (Connection.Socket.all, Messages.Proxy_Connection (Persistence));
+           (Sock, Messages.Proxy_Connection (Persistence));
 
       end if;
 
@@ -1233,20 +1126,19 @@ package body AWS.Client is
 
       if Connection.Cookie /= No_Data then
          Send_Header
-           (Connection.Socket.all,
-            Messages.Cookie_Token & To_String (Connection.Cookie));
+           (Sock, Messages.Cookie (To_String (Connection.Cookie)));
       end if;
 
-      Send_Header (Connection.Socket.all,
+      Send_Header (Sock,
                    Messages.Host (Host_Address));
 
-      Send_Header (Connection.Socket.all,
+      Send_Header (Sock,
                    Messages.Accept_Type ("text/html, */*"));
 
-      Send_Header (Connection.Socket.all,
+      Send_Header (Sock,
                    Messages.Accept_Language ("fr, us"));
 
-      Send_Header (Connection.Socket.all,
+      Send_Header (Sock,
                    Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
 
       --  User Authentification
@@ -1276,15 +1168,12 @@ package body AWS.Client is
 
    procedure Parse_Header
      (Connection        : in out HTTP_Connection;
-      Status            :    out Messages.Status_Code;
-      Content_Length    :    out Natural;
-      Content_Type      :    out Unbounded_String;
-      Transfer_Encoding :    out Unbounded_String;
-      Location          :    out Unbounded_String;
+      Answer            :    out Response.Data;
       Keep_Alive        :    out Boolean)
    is
-
       Sock : Net.Socket_Type'Class renames Connection.Socket.all;
+
+      Status : Messages.Status_Code;
 
       Request_Auth_Mode : array (Authentication_Level) of Authentication_Mode
         := (others => Any);
@@ -1296,9 +1185,15 @@ package body AWS.Client is
       --  field with the information read on the line. Handle WWW and Proxy
       --  authentication.
 
+      procedure Read_Status_Line;
+      --  Read the status line.
+
       procedure Set_Keep_Alive (Data : in String);
       --  Set the Parse_Header.Keep_Alive depending on data from the
       --  Proxy-Connection or Connection header line.
+
+      function "+" (S : in String) return Unbounded_String
+             renames To_Unbounded_String;
 
       -----------------------------
       -- Parse_Authenticate_Line --
@@ -1308,62 +1203,60 @@ package body AWS.Client is
         (Level     : in Authentication_Level;
          Auth_Line : in     String)
       is
-         Basic_Token  : constant String := "Basic ";
-         Digest_Token : constant String := "Digest ";
+         use Ada.Characters.Handling;
 
-         type Auth_Attribute is (Realm, Nonce, QOP, Algorithm);
-
-         type Result_Set is array (Auth_Attribute) of Unbounded_String;
+         Basic_Token  : constant String := "BASIC";
+         Digest_Token : constant String := "DIGEST";
 
          Auth         : Authentication_Type renames Connection.Auth (Level);
 
-         Result       : Result_Set;
          Request_Mode : Authentication_Mode;
 
-         procedure Parse_Line is
-            new AWS.Utils.Parse_HTTP_Header_Line (Auth_Attribute, Result_Set);
+         Read_Params  : Boolean := False;
+         --  Set it to true when the authentication
+         --  mode is stronger then before.
 
-      begin
-         if Messages.Match (Auth_Line, Basic_Token) then
-            Request_Mode := Basic;
+         procedure Value
+           (Item : in     String;
+            Quit : in out Boolean);
+         --  Routine receiving unnamed value during parsing of
+         --  authentication line.
 
-            Parse_Line
-              (Auth_Line
-                 (Auth_Line'First + Basic_Token'Length .. Auth_Line'Last),
-               Result);
+         procedure Named_Value
+           (Name  : in     String;
+            Value : in     String;
+            Quit  : in out Boolean);
+         --  Routine receiving name/value pairs during parsing of
+         --  authentication line.
 
-         elsif Messages.Match (Auth_Line, Digest_Token) then
-            Request_Mode := Digest;
+         -----------------
+         -- Named_Value --
+         -----------------
 
-            Parse_Line
-              (Auth_Line
-                 (Auth_Line'First + Digest_Token'Length .. Auth_Line'Last),
-               Result);
-
-         else
-            --  Ignore unrecognized authentication mode
-            return;
-         end if;
-
-         if Request_Mode > Request_Auth_Mode (Level) then
-
-            Auth.Requested := True;
-
-            Request_Auth_Mode (Level) := Request_Mode;
-            Auth.Work_Mode := Request_Mode;
-
-            Auth.Realm := Result (Realm);
-            Auth.Nonce := Result (Nonce);
-            Auth.QOP   := Result (QOP);
-            Auth.NC    := 0;
-
-            if Result (Algorithm) /= Null_Unbounded_String
-              and then To_String (Result (Algorithm)) /= "MD5"
-            then
-               Ada.Exceptions.Raise_Exception
-                 (Constraint_Error'Identity,
-                  "Only MD5 algorithm is supported.");
+         procedure Named_Value
+           (Name  : in     String;
+            Value : in     String;
+            Quit  : in out Boolean)
+         is
+            pragma Warnings (Off, Quit);
+            U_Name : constant String := To_Upper (Name);
+         begin
+            if not Read_Params then
+               return;
             end if;
+
+            if U_Name = "REALM" then
+               Auth.Realm := +Value;
+            elsif U_Name = "NONCE" then
+               Auth.Nonce := +Value;
+            elsif U_Name = "QOP" then
+               Auth.QOP   := +Value;
+            elsif U_Name = "ALGORITHM" then
+               if Value /= "MD5" then
+                  Ada.Exceptions.Raise_Exception
+                    (Constraint_Error'Identity,
+                     "Only MD5 algorithm is supported.");
+               end if;
 
             --  The parameter Stale is true when the Digest value is correct
             --  but the nonce value is too old or incorrect.
@@ -1378,11 +1271,80 @@ package body AWS.Client is
             --  behavior to AWS.Client or interface to the interactive
             --  programs by callback to the AWS.Client.
             --
-            --  if Messages.Match ("true", To_String (Result (Stale))) then
+            --  elsif U_Name = "STALE" then
             --     null;
-            --  end if;
-         end if;
+            end if;
+         end Named_Value;
+
+         -----------
+         -- Value --
+         -----------
+
+         procedure Value
+           (Item : in     String;
+            Quit : in out Boolean)
+         is
+            pragma Warnings (Off, Quit);
+            Mode_Image : constant String := To_Upper (Item);
+         begin
+
+            if Mode_Image = Digest_Token then
+               Request_Mode := Digest;
+            elsif Mode_Image = Basic_Token then
+               Request_Mode := Basic;
+            end if;
+
+            Read_Params := Request_Mode > Request_Auth_Mode (Level);
+
+            if Read_Params then
+               Request_Auth_Mode (Level) := Request_Mode;
+               Auth.Requested := True;
+               Auth.Work_Mode := Request_Mode;
+               Auth.NC        := 0;
+            end if;
+
+         end Value;
+
+         -----------
+         -- Parse --
+         -----------
+
+         procedure Parse is new Headers.Values.Parse (Value, Named_Value);
+
+      begin
+         Parse (Auth_Line);
       end Parse_Authenticate_Line;
+
+      -----------------------
+      --  Read_Status_Line --
+      -----------------------
+
+      procedure Read_Status_Line is
+         Line : constant String := Net.Buffered.Get_Line (Sock);
+      begin
+         Debug_Message ("< ", Line);
+
+         --  Checking the first line in the HTTP header.
+         --  It must match Messages.HTTP_Token.
+
+         if Messages.Match (Line, Messages.HTTP_Token) then
+            Status := Messages.Status_Code'Value
+                 ('S' & Line (Messages.HTTP_Token'Last + 5
+                                .. Messages.HTTP_Token'Last + 7));
+            Response.Set.Status_Code (Answer, Status);
+
+            --  By default HTTP/1.0 connection is not keep-alive but
+            --  HTTP/1.1 is keep-alive
+
+            Keep_Alive
+              := Line (Messages.HTTP_Token'Last + 1
+                         .. Messages.HTTP_Token'Last + 3) >= "1.1";
+         else
+            --  or else it is wrong answer from server.
+            Ada.Exceptions.Raise_Exception
+               (Protocol_Error'Identity, Line);
+         end if;
+      end Read_Status_Line;
 
       --------------------
       -- Set_Keep_Alive --
@@ -1398,111 +1360,45 @@ package body AWS.Client is
          end if;
       end Set_Keep_Alive;
 
+      use type Messages.Status_Code;
+
    begin
-      Content_Length := 0;
 
       for Level in Authentication_Level'Range loop
          Connection.Auth (Level).Requested := False;
       end loop;
 
-      --  We should check the Messages.HTTP_Token only in the first line
-      --  and raise an exception if the first line does not match HTTP_Token.
-      declare
-         Line : constant String := Net.Buffered.Get_Line (Sock);
-      begin
-         Debug_Message ("< ", Line);
+      Read_Status_Line;
+      Response.Set.Read_Header (Sock, Answer);
 
-         --  Checking the first line in the HTTP header.
-         --  It must match Messages.HTTP_Token.
+      --  ??? we should not expect 100 response message after the body sent.
+      --  this code should be changed later.
+      --  We should expect 100 status line only before sending the message
+      --  body to server.
+      --  And we should send Expect: header line in the header if we could
+      --  deal with 100 status code.
+      --  See RFC 2616 8.2.3 Use of the 100 (Continue) Status.
 
-         if Messages.Match (Line, Messages.HTTP_Token) then
-            Status := Messages.Status_Code'Value
-              ('S' & Line (Messages.HTTP_Token'Last + 5
-                             .. Messages.HTTP_Token'Last + 7));
+      if Status = Messages.S100 then
+         Read_Status_Line;
+         Response.Set.Read_Header (Sock, Answer);
+      end if;
 
-            --  By default HTTP/1.0 connection is not keep-alive but
-            --  HTTP/1.1 is keep-alive
+      Set_Keep_Alive (Response.Header (Answer, Messages.Connection_Token));
 
-            Keep_Alive
-              := Line (Messages.HTTP_Token'Last + 1
-                         .. Messages.HTTP_Token'Last + 3) >= "1.1";
-         else
-            --  or else it is wrong answer from server.
-            raise Protocol_Error;
-         end if;
-      end;
+      Set_Keep_Alive (Response.Header
+        (Answer, Messages.Proxy_Connection_Token));
 
-      loop
-         declare
-            use type Messages.Status_Code;
-            Line : constant String := Net.Buffered.Get_Line (Sock);
-         begin
-            Debug_Message ("< ", Line);
+      Connection.Cookie := +Response.Header
+        (Answer, Messages.Set_Cookie_Token);
 
-            if Line = End_Section and then Status /= Messages.S100 then
-               --  Exit if we got and End_Section (empty line) and the status
-               --  is not 100 (continue).
-               exit;
+      Parse_Authenticate_Line
+        (WWW,
+         Response.Header (Answer, Messages.WWW_Authenticate_Token));
 
-            elsif Messages.Match (Line, Messages.Content_Type_Token) then
-               Content_Type := To_Unbounded_String
-                 (Line (Messages.Content_Type_Token'Last + 1
-                          .. Line'Last));
-
-            elsif Messages.Match (Line, Messages.Content_Length_Token) then
-               Content_Length := Natural'Value
-                 (Line (Messages.Content_Length_Range'Last + 1
-                          .. Line'Last));
-
-            elsif Messages.Match (Line, Messages.Location_Token) then
-               Location := To_Unbounded_String
-                 (Line (Messages.Location_Token'Last + 1 .. Line'Last));
-
-            elsif Messages.Match
-              (Line, Messages.Transfer_Encoding_Token)
-            then
-
-               Transfer_Encoding := To_Unbounded_String
-                 (Line (Messages.Transfer_Encoding_Range'Last + 1
-                          .. Line'Last));
-
-            elsif Messages.Match (Line, Messages.Connection_Token) then
-               Set_Keep_Alive
-                 (Line (Messages.Connection_Token'Last + 1 .. Line'Last));
-
-            elsif
-              Messages.Match (Line, Messages.Proxy_Connection_Token)
-            then
-               Set_Keep_Alive
-                 (Line
-                    (Messages.Proxy_Connection_Token'Last + 1 .. Line'Last));
-
-            elsif Messages.Match (Line, Messages.Set_Cookie_Token) then
-               Connection.Cookie := To_Unbounded_String
-                 (Line (Messages.Set_Cookie_Token'Last + 1 .. Line'Last));
-
-            elsif Messages.Match
-              (Line, Messages.WWW_Authenticate_Token)
-            then
-               Parse_Authenticate_Line
-                 (WWW,
-                  Line (Messages.WWW_Authenticate_Token'Last + 1
-                          .. Line'Last));
-
-            elsif Messages.Match
-              (Line, Messages.Proxy_Authenticate_Token)
-            then
-               Parse_Authenticate_Line
-                 (Proxy,
-                  Line (Messages.Proxy_Authenticate_Token'Last + 1
-                          .. Line'Last));
-
-            else
-               --  Everything else is ignored right now
-               null;
-            end if;
-         end;
-      end loop;
+      Parse_Authenticate_Line
+        (Proxy,
+         Response.Header (Answer, Messages.Proxy_Authenticate_Token));
    end Parse_Header;
 
    ----------
@@ -1695,11 +1591,6 @@ package body AWS.Client is
       Data       : in     String;
       URI        : in     String          := No_Data)
    is
-      CT         : Unbounded_String;
-      CT_Len     : Natural;
-      TE         : Unbounded_String;
-      Status     : Messages.Status_Code;
-      Location   : Unbounded_String;
       Keep_Alive : Boolean;
 
       Try_Count  : Natural := Connection.Retry;
@@ -1728,7 +1619,7 @@ package body AWS.Client is
             --  Get answer from server
 
             Parse_Header
-              (Connection, Status, CT_Len, CT, TE, Location, Keep_Alive);
+              (Connection, Result, Keep_Alive);
 
             if not Keep_Alive then
                Disconnect (Connection);
@@ -1738,7 +1629,6 @@ package body AWS.Client is
               (Connection, Auth_Attempts, Auth_Is_Over);
 
             if Auth_Is_Over then
-               Result := Response.Acknowledge (Status);
                return;
             end if;
 
@@ -1841,6 +1731,15 @@ package body AWS.Client is
       Auth.Pwd       := To_Unbounded_String (Pwd);
       Auth.Init_Mode := Mode;
 
+      --  The Digest authentication could not be send without
+      --  server authentication request, becouse client have to have nonce
+      --  value, so in the Digest and Any authentication modes we are not
+      --  setting up Work_Mode to the exact value.
+      --  But for Basic authentication we are sending just username/password,
+      --  and do not need any information from server for do it.
+      --  So if the client want to authenticate "Basic", we are setting up
+      --  Work_Mode right now.
+
       if Mode = Basic then
          Auth.Work_Mode := Basic;
       end if;
@@ -1853,6 +1752,7 @@ package body AWS.Client is
    procedure Set_Debug (On : in Boolean) is
    begin
       Debug_On := On;
+      AWS.Headers.Set.Debug (On);
    end Set_Debug;
 
    ---------------
