@@ -1,3 +1,16 @@
+2001-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.ads:
+	(Data): Add comment about type not being threda safe.
+
+	* aws-client.adb:
+	(Get_Response): New implementation for case Content-Length = 0 and
+	 binary data.
+
+	* aws-server-protocol_handler.adb:
+	Release memory for binary data at the end of the loop.
+	Minor reformatting.
+
 2001-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-url.adb:
