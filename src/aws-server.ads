@@ -212,7 +212,7 @@ private
       procedure Shutdown (Index : in Positive);
       --  Break all communications over the slot.
       --  Slot phase is set to Aborted.
-      
+
       procedure Release  (Index : in Positive);
       --  Release slot number Index. Slot phase is set to Closed.
 
