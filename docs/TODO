@@ -85,13 +85,6 @@ implemented:
   fixed. It must also handle properly the case where a cookie value is
   updated.
 
-- In a SOAP callback it is needed to parse the payload (XML parser) to be able
-  to retrieve the procedure name to dispatch to the right routine. This was
-  not a problem with hand-written SOAP interface as the XML object (parsed
-  payload) can be passed to other SOAP callbacks to avoid re-parsing it. With
-  the SOAP/WSDL generator this is not possible, we end up parsing two times the
-  same payload. Not efficient.
-
 - Add support for more XML Schema types
   byte, unsignedByte, short, unsignedShort, unsignedInt, long, unsignedLong
   double, date, time, xsd:hexBinary, decimal
@@ -109,4 +102,5 @@ implemented:
      </complexContent>
    </complexType>
 
-- Add GNAT project files to build/use AWS
+- Add GNAT project files to build/use AWS (partly done, projects are there but
+  not used).
