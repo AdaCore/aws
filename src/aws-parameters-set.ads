@@ -42,6 +42,8 @@ package AWS.Parameters.Set is
    --  because the parameters are found in the message body and are not known
    --  when we parse the request line. The Parameters string has the form
    --  "name1=value1&name2=value2...". The paramaters are added to the list.
+   --  The parameters can start with a '?' (standard Web character separator)
+   --  which is just ignored.
 
    procedure Case_Sensitive
      (Parameter_List : in out List;
