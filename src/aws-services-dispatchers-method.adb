@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,8 +31,8 @@
 --  $RCSfile$
 --  $Revision$ $Date$ $Author$
 
-with AWS.MIME;
 with AWS.Dispatchers.Callback;
+with AWS.MIME;
 
 package body AWS.Services.Dispatchers.Method is
 
