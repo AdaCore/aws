@@ -112,6 +112,20 @@ package body SOAP.Utils is
       end if;
    end No_NS;
 
+   --------
+   -- NS --
+   --------
+
+   function NS (Name : in String) return String is
+      K : constant Natural := Ada.Strings.Fixed.Index (Name, ":");
+   begin
+      if K = 0 then
+         return "";
+      else
+         return Name (Name'First .. K - 1);
+      end if;
+   end NS;
+
    -------------------
    -- Safe_Pointers --
    -------------------
