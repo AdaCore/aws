@@ -1,3 +1,26 @@
+2003-12-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-embedded.ads:
+	(Append): New routine for constant buffer access.
+	(Buffer_Access): Is subtype from Streams.Memory, constant too.
+
+	* aws-resources-embedded.adb:
+	(Empty_Buffer): Remove.
+	Do not use Unchecked_Conversion now.
+
+	* aws-resources-streams-memory-zlib.ads:
+	(Append): Add Trim parameter for catch changed inherited routine.
+
+	* aws-resources-streams-memory-zlib.adb:
+	(Append): Do not use Trim parameter.
+	(Flush): Automatically trim unused memory space at the end of flush,
+	 reduce memory usage.
+
+	* aws-resources-streams-memory.ads, aws-resources-streams-memory.adb:
+	(Append): New routine.
+	(Append): Add parameter Trim.
+	(Buffer_Access): New type.
+
 2003-12-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-translator.ads:
