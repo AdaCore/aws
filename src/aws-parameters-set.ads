@@ -32,8 +32,9 @@
 
 package AWS.Parameters.Set is
 
-   procedure Add (Parameter_List : in out List;
-                  Name, Value    : in     String);
+   procedure Add
+     (Parameter_List : in out List;
+      Name, Value    : in     String);
    --  Add a new Key/Value pair into the parameter set.
 
    procedure Add (Parameter_List : in out List; Parameters : in String);
