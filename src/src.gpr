@@ -50,16 +50,6 @@ project Src is
          for Source_Dirs use project'Source_Dirs;
    end case;
 
-   --  Under Win32 add sources from win32 directory
-
-   case Shared.OS is
-      when "Windows_NT" =>
-         for Source_Dirs use project'Source_Dirs & ("../win32");
-      when "GNU/Linux" =>
-         --  Should be replaced by null as supported by GNAT 5.03
-         for Source_Dirs use project'Source_Dirs;
-   end case;
-
    for Languages use ("Ada", "Changelog", "Project file", "makefile");
 
    case Shared.Build is
