@@ -165,7 +165,7 @@ package body AWS.Status is
       S : Positive := 1;
       E : Natural;
 
-      function Compare (S1, S2 : in String) return boolean is
+      function Compare (S1, S2 : in String) return Boolean is
       begin
          if Case_Sensitive then
             return S1 = S2;
