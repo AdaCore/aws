@@ -1,3 +1,8 @@
+2003-03-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-status.ads:
+	(Socket): Fix typo in comment.
+
 2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
