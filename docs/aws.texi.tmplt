@@ -35,6 +35,7 @@
 * How to use it ?::
 * The AWS packages::
 * Last notes::
+* AWS APIs::
 @end menu
 @end ifinfo
 
@@ -127,8 +128,82 @@ to build AWS:
 @chapter How to use it ?
 
 @noindent
-Right now there is no documentation. Have a look at the demos
-directory. Almost every features are used by the samples there.
+AWS is not a Web Server like IIS or Apache, it is a component to support
+HTTP protocol. It means that it is possible to build an application
+which can also answer to a standard browser like @i{Internet Explorer} or
+@i{Netscape Navigator}. Since AWS provides support client and server
+HTTP protocol applications can communicate through the HTTP chanel.
+
+@noindent
+An application using AWS can open many HTTP chanel. Each chanel will use
+a specific port. So it is possible to embeded an HTTP and an HTTPS
+chanel in the same application.
+
+@noindent
+To build a server you must:
+
+@itemize @bullet
+
+@item declare the HTTP chanels
+
+@smallexample
+WS  : AWS.Server.HTTP (Max_Connection => 3, 
+                       Port           => 1234,
+                       Security       => False,
+                       CB             => Service'Access);
+@end smallexample
+
+@noindent
+Here we have declared an HTTP chanel with a maximum of 3 simultaneous
+connections using the port 1234. This chanel is not secure (False) and
+answer will be given by the procedure Service.
+
+@item provides a callback procedure
+
+@noindent
+The callback procedure have the following prototype:
+
+@smallexample
+@b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;
+@end smallexample
+
+@noindent
+This procedure receive the request status. It is possible to retreive
+many data from request through the @code{AWS.Status} API.
+
+@noindent
+For example, to know what URI has been asked:
+
+@smallexample
+URI : @b{constant} string := AWS.Status.URI (Request);
+
+@b{if} URI = "/whatever" @b{then}
+   ...
+@b{end if};
+@end smallexample
+
+@noindent
+Then this function should return an answer using one of the constructors
+in @code{AWS.Response}. For example, to return an HTML message:
+
+@smallexample
+AWS.Response.Build (Content_Type => "text/html",
+                    Message_Body => "<p>just a demo");
+@end smallexample
+
+@noindent
+It is also possible to return a file. This is the way to return a GIF:
+
+@smallexample
+AWS.Response.File (Content_Type => "image/gif",
+                   Filename     => "adains.gif");
+@end smallexample
+
+@end itemize
+
+@noindent
+This documentation is not complete. Have a look at the demos directory. 
+Almost every features are used by the samples there.
 
 @node The AWS packages, Last notes, How to use it ?, Top
 @chapter The AWS packages
@@ -136,7 +211,7 @@ directory. Almost every features are used by the samples there.
 @noindent
 This section is left empty for now.
 
-@node Last notes,  , The AWS packages, Top
+@node Last notes, AWS APIs, The AWS packages, Top
 @chapter Last notes
 
 @noindent
@@ -148,5 +223,16 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 
 @noindent
 As always, I hope I did not forget somebody.
+
+@node AWS APIs, , Last notes, Top
+@chapter AWS APIs
+
+@section AWS.Status
+
+@include ../src/aws-status.ads.texi
+
+@section AWS.Response
+
+@include ../src/aws-response.ads.texi
 
 @bye
