@@ -1,3 +1,14 @@
+2002-10-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* test_uconv.adb:
+	Fix comment.
+
+	* aws-server-protocol_handler.adb
+	(Status_Connection): New local variable.
+	(Status_Multipart_Boundary): New local variable.
+	(Status_Content_Type): New local variable.
+	 Local variables filled from request header for faster access.
+
 2002-10-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-status.ads:
