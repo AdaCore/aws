@@ -1,11 +1,16 @@
+2004-11-01  Pascal Obry  <pascal@obry.org>
+
+	* test_net_log.adb:
+	(HW_CB): Add small delay to have more chance to get proper output.
+
 2004-10-31  Pascal Obry  <pascal@obry.org>
 
 	* test_net_log.adb:
 	(HTTP_Log): Change to ensure constant output.
-	
+
 	* test_net_log.out:
 	Update due to new output.
-	
+
 2004-10-31  Pascal Obry  <pascal@obry.org>
 
 	* interoplab_main1.wsdl:
@@ -26,9 +31,9 @@
 	(setup_init): Idem.
 	(setup): Fix check for ASIS+SOAP tests which prevented those tests
 	 to be properly added into the generated files.
-	
-	* test_soap_hotplug.adb, test_soap_hotplug.out: 
-	Initial revision.	
+
+	* test_soap_hotplug.adb, test_soap_hotplug.out:
+	Initial revision.
 
 	* soap_hotplug_pack_service.ads,
 	  soap_hotplug_pack_service-types.ads,
@@ -39,11 +44,11 @@
 	  soap_hotplug_pack_service-cb.adb,
 	  soap_hotplug_pack_service-server.ads,
 	  soap_hotplug_pack_service-server.adb:
-	Initial revision.	
+	Initial revision.
 
 	* wsdl_?.out:
 	Renamed to wsdl_?_main.out.
-	
+
 	* wsdl_?_main.out:
 	Renamed from wsdl_?.out.
 
@@ -54,7 +59,7 @@
 
 	* test_hotplug.adb, test_hotplug.out:
 	Initial revision.
-	
+
 	* hotplug_pack.ads, hotplug_pack.adb:
 	Initial revision.
 
