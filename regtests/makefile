@@ -124,12 +124,12 @@ check_mem: force
 	rm -f aws-containers-tables.*
 	echo -n ",  run it"
 	./check_mem 2 1248 > check_mem.res
-	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 2 1248 \
-		| grep "   Final" > run1
+	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 2 1248 > check_mem.run1
+	grep "   Final" check_mem.run1 > run1
 	echo ",  run it again"
 	./check_mem 30 1249 >> check_mem.res
-	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 30 1249 \
-		| grep "   Final" > run2
+	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 30 1249 > check_mem.run2
+	grep "   Final" check_mem.run2 > run2
 	-diff -c -w run1 run2 >> alldifs
 
 checks:
@@ -139,4 +139,4 @@ clean:
 	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
-	-rm -f alldifs *.log
+	-rm -f alldifs *.log run? check_mem.run?
