@@ -62,7 +62,7 @@ package body AWS.Resources is
 
    function File_Size (Name   : in String) return Stream_Element_Offset is
    begin
-      if Resources.Embedded.Exists (Name) then
+      if Resources.Embedded.Is_Regular_File (Name) then
          return Resources.Embedded.File_Size (Name);
       else
          return Resources.Files.File_Size (Name);
@@ -75,7 +75,7 @@ package body AWS.Resources is
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time is
    begin
-      if Resources.Embedded.Exists (Name) then
+      if Resources.Embedded.Is_Regular_File (Name) then
          return Resources.Embedded.File_Timestamp (Name);
       else
          return Resources.Files.File_Timestamp (Name);
@@ -130,11 +130,8 @@ package body AWS.Resources is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      if Resources.Embedded.Exists (Name) then
-         return Resources.Embedded.Is_Regular_File (Name);
-      else
-         return Resources.Files.Is_Regular_File (Name);
-      end if;
+      return Resources.Embedded.Is_Regular_File (Name)
+        or else Resources.Files.Is_Regular_File (Name);
    end Is_Regular_File;
 
    -------------------
