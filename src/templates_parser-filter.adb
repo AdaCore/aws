@@ -261,7 +261,7 @@ package body Filter is
          when Str    => return '(' & To_String (P.S) & ')';
          when Regexp => return '(' & To_String (P.R_Str) & ')';
          when Regpat =>
-            return '(' & To_String (P.P_Str) & '/' & To_String (P.Param)& ')';
+            return '(' & To_String (P.P_Str) & '/' & To_String (P.Param) & ')';
          when Slice  =>
             return '(' & Image (P.First) & " .. " & Image (P.Last) & ')';
       end case;
@@ -333,7 +333,7 @@ package body Filter is
    end Name;
 
    --
-   -- Filters definition start here
+   --  Filters definition start here
    --
 
    ---------------
@@ -371,7 +371,7 @@ package body Filter is
          --  No parameter yet
          return S & '?' & Param;
 
-      elsif S (S'Last) = '?' or else s (S'Last) = '&' then
+      elsif S (S'Last) = '?' or else S (S'Last) = '&' then
          return S & Param;
 
       else
@@ -389,6 +389,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Result : String (S'Range);
       K      : Positive := Result'First;
       J      : Positive := S'First;
@@ -425,6 +426,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Result : String (S'Range);
       Upper  : Boolean := True;
    begin
@@ -454,7 +456,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
-
+      pragma Unreferenced (T);
       use type Strings.Maps.Character_Set;
 
       Result : String (S'Range);
@@ -487,6 +489,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Result : String := S;
    begin
       Check_Null_Parameter (P);
@@ -510,7 +513,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
-
+      pragma Unreferenced (T);
       use type Strings.Maps.Character_Set;
 
       Result : String (S'Range);
@@ -557,6 +560,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Param : constant String  := To_String (P.S);
       E     : constant Natural := Strings.Fixed.Index (S, "?");
       Len   : constant Natural := Param'Length;
@@ -608,7 +612,9 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      pragma Unreferenced (T);
    begin
       Check_Null_Parameter (P);
 
@@ -682,6 +688,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       TS : constant String := Strings.Fixed.Trim (S, Both);
 
       function Is_Number return Boolean;
@@ -755,7 +762,9 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      pragma Unreferenced (T);
    begin
       Check_Null_Parameter (P);
 
@@ -776,6 +785,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       N      : constant Natural
         := Fixed.Count (S, Strings.Maps.To_Set (ASCII.LF));
    begin
@@ -812,7 +822,9 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      pragma Unreferenced (T);
    begin
       Check_Null_Parameter (P);
 
@@ -829,6 +841,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       use type GNAT.Regpat.Match_Location;
 
       Matches : GNAT.Regpat.Match_Array (0 .. 0);
@@ -857,6 +870,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Result : String := S;
    begin
       Check_Null_Parameter (P);
@@ -882,6 +896,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Result : String := S;
    begin
       Check_Null_Parameter (P);
@@ -905,6 +920,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Result : String (S'Range);
       L      : Natural := Result'First - 1;
    begin
@@ -928,7 +944,9 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      pragma Unreferenced (T);
    begin
       Check_Null_Parameter (P);
 
@@ -965,6 +983,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Result : String := S;
    begin
       Check_Null_Parameter (P);
@@ -1177,6 +1196,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Result : String (S'Range);
    begin
       Check_Null_Parameter (P);
@@ -1195,7 +1215,9 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      pragma Unreferenced (T);
    begin
       Check_Null_Parameter (P);
 
@@ -1212,6 +1234,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       First, Last : Natural;
    begin
       First := Natural'Min (P.First, S'Length + 1);
@@ -1228,7 +1251,9 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      pragma Unreferenced (T);
    begin
       Check_Null_Parameter (P);
 
@@ -1243,7 +1268,9 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      pragma Unreferenced (T);
    begin
       Check_Null_Parameter (P);
 
@@ -1260,6 +1287,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Max_Escape_Sequence : constant Positive := 5;
       Result              : String (1 .. S'Length * Max_Escape_Sequence);
       Last                : Natural := 0;
@@ -1305,6 +1333,7 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
+      pragma Unreferenced (T);
       Nbsp_Token          : constant String := "&nbsp;";
       Max_Escape_Sequence : constant Positive := Nbsp_Token'Length;
       Result              : String (1 .. S'Length * Max_Escape_Sequence);
@@ -1335,7 +1364,9 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      pragma Unreferenced (T);
    begin
       Check_Null_Parameter (P);
 

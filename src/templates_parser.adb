@@ -31,7 +31,6 @@
 with Ada.Exceptions;
 with Ada.Characters.Handling;
 with Ada.Calendar;
-with Ada.IO_Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
@@ -1505,7 +1504,7 @@ package body Templates_Parser is
    begin
       return Matrix_Tag'
         (M => (Ada.Finalization.Controlled with
-                 Ref_Count => New Integer'(1),
+                 Ref_Count => new Integer'(1),
                  Count     => 1,
                  Min       => V_Size,
                  Max       => V_Size,
@@ -2339,7 +2338,7 @@ package body Templates_Parser is
                   --  If this is a statement just call the parsing routine
 
                   if Is_Stmt (If_Token)
-                    or else Is_Stmt (ElsIf_Token)
+                    or else Is_Stmt (Elsif_Token)
                     or else Is_Stmt (Else_Token)
                     or else Is_Stmt (End_If_Token)
                     or else Is_Stmt (Include_Token)
@@ -2585,8 +2584,8 @@ package body Templates_Parser is
                      end if;
 
                   when Expr.Op =>
-                    Replace (T.Left);
-                    Replace (T.Right);
+                     Replace (T.Left);
+                     Replace (T.Right);
 
                   when Expr.U_Op =>
                      Replace (T.Next);

@@ -253,7 +253,7 @@ package body Cached_Files is
 
    function Up_To_Date (T : in Tree) return Boolean is
       use AWS;
-      use type Ada.Calendar.Time;  
+      use type Ada.Calendar.Time;
 
       P : Tree;
    begin
