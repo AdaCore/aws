@@ -1,3 +1,54 @@
+2003-07-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.ads:
+	Document the procedure to add SOAP and WSDL support for a new
+	 type. This is now far easier and less error prone with the
+	 changes made below.
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Use WSDL.Set_Routine instead of SOAP_Constructor.
+	
+	* soap-generator-stub.adb:
+	(Output_Simple): Use WSDL.Set_Routine instead of SOAP_Constructor.
+	
+	* soap-generator.adb:
+	(SOAP_Constructor): Removed. Not used anymore.
+	(To_Ada_Type): Implementation based on SOAP.WSDL.To_Ada.
+	(V_Routine): Removed.
+	(Generate_Record): Directly use the Parameter_Type instead of
+	 converting it to an Ada type.
+	(Get_Routine): Removed.
+	(Set_Routine): Directly use the Parameter_Type instead of
+	 converting it to an Ada type.
+	(Set_Routine.Set_Routine): Removed.
+	(Set_Type): Implementation based on SOAP.WSDL.Set_Type.
+	
+	* soap-utils.ads, soap-utils.adb:
+	(Is_Ada_Reserved_Word): Moved here from SOAP.WSDL.	
+
+	* soap-wsdl-parser.adb:
+	(Parse_Part): Do not check for type name here, use routine from
+	 SOAP.WSDL package.
+
+	* soap-wsdl.ads:
+	(Context_Type): New type to specify in which context a variable
+	 has been found.
+	(To_Ada): Add Context parameter.
+	(V_Routine): New routine.
+	(Get_Routine): New routine.
+	(Set_Routine): New routine.
+	(Set_Type): New routine.
+	(Is_Ada_Reserved_Word): Moved to SOAP.Utils.
+	
+	* soap-wsdl.adb:
+	(To_Ada): Add Context parameter.
+	(V_Routine): New routine.
+	(Get_Routine): New routine.
+	(Set_Routine): New routine.
+	(Set_Type): New routine.
+	(To_Type): Check for type name is done case-insensitive.
+	(Is_Ada_Reserved_Word): Moved to SOAP.Utils.
+
 2003-06-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-wsdl-parser.adb:
