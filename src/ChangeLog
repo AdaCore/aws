@@ -1,3 +1,9 @@
+2004-04-22  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-ssl.adb:
+	(Pivate_Key_Holder): Renamed to Private_Key_Holder.
+        Minor reformatting and comment update.
+
 2004-04-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.ads:
