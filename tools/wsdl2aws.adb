@@ -384,6 +384,9 @@ exception
       Put_Line ("WSDL file not found : " & To_String (Filename));
       New_Line;
 
+   when SOAP.WSDL.WSDL_Error =>
+      null;
+
    when E : others =>
       New_Line;
       Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
