@@ -139,7 +139,7 @@ AWS 2.1 has been compiled and has passed all tests on:
 
    Windows XP, GNAT 3.15a1, 3.16a1, 5.01a and 5.02a
 
-   GNU/Linux x66, GNAT 3.16a1 and 5.02a
+   GNU/Linux x86, GNAT 3.16a1 and 5.02a
 
    SPARC Solaris 8, GNAT 5.01a
 
