@@ -1,5 +1,11 @@
 2003-05-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-log.ads, aws-log.adb:
+	(Flush): New routine.
+	(Start): New parameter Auto_Flush for the rare written log files.
+
+2003-05-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-mime.ads, aws-mime.adb:
 	(Text_CSS): New MIME type. Web browser Mozilla does not recognize
 	 Cascade Style Sheet files without Content-Type: text/css
