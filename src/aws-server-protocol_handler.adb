@@ -48,6 +48,7 @@ with AWS.Digest;
 with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net.Buffered;
 with AWS.OS_Lib;
 with AWS.Parameters.Set;
 with AWS.Resources;
@@ -87,9 +88,10 @@ is
 
    P_List         : AWS.Parameters.List; -- Form data
 
-   Sock_Ptr       : constant Socket_Access :=
-      HTTP_Server.Slots.Get (Index => Index).Sock;
-   Sock           : Sockets.Socket_FD'Class renames Sock_Ptr.all;
+   Sock_Ptr       : constant Socket_Access
+     := HTTP_Server.Slots.Get (Index => Index).Sock;
+
+   Sock           : Net.Socket_Type'Class renames Sock_Ptr.all;
 
    Socket_Taken   : Boolean := False;
    --  Set to True if a socket has been reserved for a push session.
@@ -220,19 +222,21 @@ is
 
          if Is_Up_To_Date then
             --  [RFC 2616 - 10.3.5]
-            Sockets.Put_Line (Sock,
-                              Messages.Status_Line (Messages.S304));
+            Net.Buffered.Put_Line
+              (Sock,
+               Messages.Status_Line (Messages.S304));
+
             Send_General_Header;
-            Sockets.New_Line (Sock);
+            Net.Buffered.New_Line (Sock);
             return;
          else
-            Sockets.Put_Line (Sock, Messages.Status_Line (Status));
+            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
 
          --  Handle redirection
 
          if Status = Messages.S301 then
-            Sockets.Put_Line
+            Net.Buffered.Put_Line
               (Sock,
                Messages.Location (Response.Location (Answer)));
          end if;
@@ -256,12 +260,12 @@ is
          --  Send file last-modified timestamp info in case of a file
 
          if File_Mode then
-            Sockets.Put_Line
+            Net.Buffered.Put_Line
               (Sock,
                Messages.Last_Modified (Resources.File_Timestamp (Filename)));
          end if;
 
-         Sockets.Put_Line
+         Net.Buffered.Put_Line
            (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
 
          --  Note that we cannot send the Content_Length header at this
@@ -296,7 +300,7 @@ is
             --  This is an HTTP connection with session but there is no session
             --  ID set yet. So, send cookie to client browser.
 
-            Sockets.Put_Line
+            Net.Buffered.Put_Line
               (Sock,
                "Set-Cookie: AWS="
                & Session.Image (AWS.Status.Session (C_Stat)) & "; path=/");
@@ -304,27 +308,27 @@ is
 
          --  Date
 
-         Sockets.Put_Line
+         Net.Buffered.Put_Line
            (Sock,
             "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
 
          --  Server
 
-         Sockets.Put_Line
+         Net.Buffered.Put_Line
            (Sock,
             "Server: AWS (Ada Web Server) v" & Version);
 
          if Will_Close then
             --  We have decided to close connection after answering the client
-            Sockets.Put_Line (Sock, Messages.Connection ("close"));
+            Net.Buffered.Put_Line (Sock, Messages.Connection ("close"));
          else
-            Sockets.Put_Line (Sock, Messages.Connection ("keep-alive"));
+            Net.Buffered.Put_Line (Sock, Messages.Connection ("keep-alive"));
          end if;
 
          --  Cache control if specified
 
          if Response.Cache_Control (Answer) /= Messages.Unspecified then
-            Sockets.Put_Line
+            Net.Buffered.Put_Line
               (Sock,
                Messages.Cache_Control (Response.Cache_Control (Answer)));
          end if;
@@ -346,7 +350,7 @@ is
                if Authenticate = Response.Digest
                  or Authenticate = Any
                then
-                  Sockets.Put_Line
+                  Net.Buffered.Put_Line
                     (Sock,
                      Messages.Www_Authenticate
                        (Realm (Answer),
@@ -357,7 +361,7 @@ is
                if Authenticate = Basic
                  or Authenticate = Any
                then
-                  Sockets.Put_Line
+                  Net.Buffered.Put_Line
                     (Sock,
                      Messages.Www_Authenticate (Realm (Answer)));
                end if;
@@ -374,17 +378,17 @@ is
       begin
          --  First let's output the status line
 
-         Sockets.Put_Line (Sock, Messages.Status_Line (Status));
+         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
 
          Send_General_Header;
 
          --  There is no content
 
-         Sockets.Put_Line (Sock, Messages.Content_Length (0));
+         Net.Buffered.Put_Line (Sock, Messages.Content_Length (0));
 
          --  End of header
 
-         Sockets.New_Line (Sock);
+         Net.Buffered.New_Line (Sock);
       end Send_Header_Only;
 
       URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
@@ -536,6 +540,8 @@ is
 
       end case;
 
+      Net.Buffered.Flush (Sock);
+
       AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Length);
    end Answer_To_Client;
 
@@ -651,7 +657,7 @@ is
                Index := Index + 1;
 
                loop
-                  Sockets.Receive (Sock, Data);
+                  Net.Buffered.Read (Sock, Data);
 
                   if Data (1) = 13 then
                      Write_Data;
@@ -691,7 +697,7 @@ is
                To_String (Server_Filename));
 
             Read_File : loop
-               Sockets.Receive (Sock, Data);
+               Net.Buffered.Read (Sock, Data);
 
                while Data (1) = 13 loop
                   exit Read_File when Check_EOF;
@@ -748,7 +754,7 @@ is
          if Parse_Boundary then
             loop
                declare
-                  Data : constant String := Sockets.Get_Line (Sock);
+                  Data : constant String := Net.Buffered.Get_Line (Sock);
                begin
                   exit when Data = Start_Boundary;
 
@@ -763,7 +769,7 @@ is
          --  Read file upload parameters
 
          declare
-            Data : constant String := Sockets.Get_Line (Sock);
+            Data : constant String := Net.Buffered.Get_Line (Sock);
          begin
             if not Parse_Boundary then
 
@@ -774,7 +780,7 @@ is
                else
                   --  Data should be CR+LF here
                   declare
-                     Data : constant String := Sockets.Get_Line (Sock);
+                     Data : constant String := Net.Buffered.Get_Line (Sock);
                   begin
                      Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
 
@@ -797,7 +803,7 @@ is
 
          loop
             declare
-               Data : constant String := Sockets.Get_Line (Sock);
+               Data : constant String := Net.Buffered.Get_Line (Sock);
             begin
                if Data = "" then
                   exit;
@@ -848,7 +854,7 @@ is
             --  This part of the multipart message contains field value.
 
             declare
-               Value : constant String := Sockets.Get_Line (Sock);
+               Value : constant String := Net.Buffered.Get_Line (Sock);
             begin
                AWS.Parameters.Set.Add (P_List, To_String (Name), Value);
             end;
@@ -894,7 +900,7 @@ is
                Data : Stream_Element_Array
                  (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
             begin
-               Sockets.Receive (Sock, Data);
+               Net.Buffered.Read (Sock, Data);
 
                AWS.Status.Set.Binary (C_Stat, Data);
                --  We record the message body as-is to be able to send it back
@@ -926,7 +932,7 @@ is
                Data : Stream_Element_Array
                  (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
             begin
-               Sockets.Receive (Sock, Data);
+               Net.Buffered.Read (Sock, Data);
 
                AWS.Status.Set.Payload (C_Stat, Translator.To_String (Data));
             end;
@@ -941,7 +947,7 @@ is
                Data : Stream_Element_Array
                  (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
             begin
-               Sockets.Receive (Sock, Data);
+               Net.Buffered.Read (Sock, Data);
                AWS.Status.Set.Binary (C_Stat, Data);
             end;
 
@@ -969,7 +975,7 @@ is
             return;
          else
             declare
-               Next_Line : constant String := Sockets.Get_Line (Sock);
+               Next_Line : constant String := Net.Buffered.Get_Line (Sock);
             begin
                if Next_Line /= End_Of_Message
                     and then
@@ -990,13 +996,13 @@ is
 
    begin
       declare
-         Data : constant String := Sockets.Get_Line (Sock);
+         Data : constant String := Net.Buffered.Get_Line (Sock);
       begin
          HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
          Parse_Request_Line (Data);
       end;
 
-      Parse_Header_Lines (Sockets.Get_Line (Sock));
+      Parse_Header_Lines (Net.Buffered.Get_Line (Sock));
    end Get_Message_Header;
 
    ------------------------
@@ -1303,7 +1309,7 @@ is
 
             exit when Last < Buffer'First;
 
-            Sockets.Send (Sock, Buffer (1 .. Last));
+            Net.Buffered.Write (Sock, Buffer (1 .. Last));
 
             Length := Length + Positive (Last);
 
@@ -1354,10 +1360,10 @@ is
 
                if Last < Buffer'Last then
                   --  No more data, add the terminating chunk
-                  Sockets.Send (Sock, Chunk & Last_Chunk);
+                  Net.Buffered.Write (Sock, Chunk & Last_Chunk);
                   exit;
                else
-                  Sockets.Send (Sock, Chunk);
+                  Net.Buffered.Write (Sock, Chunk);
                end if;
             end;
          end loop;
@@ -1373,12 +1379,12 @@ is
          --  connection. [RFC 1945 7.2.2] See the Will_Close local variable.
 
          if Length /= Response.Undefined_Length then
-            Sockets.Put_Line (Sock, Messages.Content_Length (Length));
+            Net.Buffered.Put_Line (Sock, Messages.Content_Length (Length));
          end if;
 
          --  Terminate header
 
-         Sockets.New_Line (Sock);
+         Net.Buffered.New_Line (Sock);
 
          if Method /= Status.HEAD then
             Length := 0;
@@ -1388,8 +1394,8 @@ is
       else
          --  Terminate header, do not send Content_Length see [RFC 2616 - 4.4]
 
-         Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
-         Sockets.New_Line (Sock);
+         Net.Buffered.Put_Line (Sock, "Transfer-Encoding: chunked");
+         Net.Buffered.New_Line (Sock);
 
          if Method /= Status.HEAD then
             Length := 0;
