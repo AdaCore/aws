@@ -5,6 +5,9 @@
 
 	* sp_pck.ads, sp_pck.adb:
 	Rename Client_Process to Run. Move all except Run from spec to body.
+	Move all possible objects from library level to level of routines
+	 CB and Run.
+	Remove some withes.
 
 	* sp.adb, ssp.adb:
 	Call SP_Pack.Run instead of Client_Process.
