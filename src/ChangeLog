@@ -1,5 +1,19 @@
 2001-07-28  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb: 
+	(Start): call Start from AWS.Session.Control was in AWS.Session.
+	(Shutdown): call Shutdown from AWS.Session.Control was in AWS.Session.
+
+	* aws-session.ads, aws-session.adb:
+	(Start): moved to AWS.Session.Control.
+	(Shutdown): moved to AWS.Session.Control.
+	(Cleaner): moved from body to spec, needed for visibility from
+	 AWS.Session.Control.
+	(Cleaner_Control): idem.
+
+	* aws-session-control.ads, aws-session-control.adb:
+	Initial revision.
+
 	* aws-services-directory.adb:
 	Minor type fix.
 
