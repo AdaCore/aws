@@ -98,14 +98,16 @@ package body AWS.Server is
       Web_Server.Session                   := Session;
       Web_Server.Case_Sensitive_Parameters := Case_Sensitive_Parameters;
 
-      Sockets.Socket (Accepting_Socket,
-                      Sockets.AF_INET,
-                      Sockets.SOCK_STREAM);
+      Sockets.Socket
+        (Accepting_Socket,
+         Sockets.AF_INET,
+         Sockets.SOCK_STREAM);
 
-      Sockets.Setsockopt (Accepting_Socket,
-                          Sockets.SOL_SOCKET,
-                          Sockets.SO_REUSEADDR,
-                          1);
+      Sockets.Setsockopt
+        (Accepting_Socket,
+         Sockets.SOL_SOCKET,
+         Sockets.SO_REUSEADDR,
+         1);
 
       Sockets.Bind (Accepting_Socket, Port);
 
@@ -176,14 +178,34 @@ package body AWS.Server is
          Set (Index).Peername := To_Unbounded_String (Peername);
       end Set_Peername;
 
-      ------------------------
-      -- Mark_Activity_Time --
-      ------------------------
+      ----------------
+      -- Mark_Phase --
+      ----------------
 
-      procedure Mark_Activity_Time (Index : in Positive) is
+      procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
       begin
-         Set (Index).Activity_Time_Stamp := Ada.Calendar.Clock;
-      end Mark_Activity_Time;
+         Set (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
+         Set_Abortable (Index, Phase = Wait_For_Client);
+         Set (Index).Phase := Phase;
+      end Mark_Phase;
+
+      --------------------
+      -- Check_Timeouts --
+      --------------------
+
+      procedure Check_Timeouts is
+         use type Calendar.Time;
+      begin
+         for S in Set'Range loop
+            if Set (S).Phase = Client_Header
+              and then
+              (Calendar.Clock - Set (S).Phase_Time_Stamp)
+                > Client_Header_Timeout
+            then
+               Set_Abortable (S, True);
+            end if;
+         end loop;
+      end Check_Timeouts;
 
       ------------------
       -- Abort_Oldest --
@@ -199,7 +221,7 @@ package body AWS.Server is
          --  look for the oldest abortable slot
 
          for S in Set'Range loop
-            Activity_Time_Stamp := Set (S).Activity_Time_Stamp;
+            Activity_Time_Stamp := Set (S).Phase_Time_Stamp;
 
             if Set (S).Abortable
               and then Activity_Time_Stamp < Time_Stamp
@@ -218,7 +240,7 @@ package body AWS.Server is
            (Force or else (Calendar.Clock - Time_Stamp) > Keep_Open_Duration)
          then
             Sockets.Shutdown (Set (To_Be_Closed).Sock);
-            Set (To_Be_Closed).Opened := False;
+            Mark_Phase (To_Be_Closed, Closed);
 
          elsif To_Be_Closed = 0 and Force then
             --  ??? this case should never happen, code should be removed at
@@ -235,7 +257,7 @@ package body AWS.Server is
          when Count > 1 or else Abortable_Count > 0 or else Set'Length = 1 is
       begin
          Set (Index).Sock             := FD;
-         Set (Index).Opened           := True;
+         Set (Index).Phase            := Client_Header;
          Set (Index).Abortable        := False;
          Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
 
@@ -273,9 +295,9 @@ package body AWS.Server is
       begin
          Count := Count + 1;
 
-         if Set (Index).Opened then
+         if Set (Index).Phase /= Closed then
             Sockets.Shutdown (Set (Index).Sock);
-            Set (Index).Opened := False;
+            Mark_Phase (Index, Closed);
          end if;
       end Release;
 
@@ -299,13 +321,14 @@ package body AWS.Server is
 
    end Slots;
 
-
    ------------------
    -- Line_Cleaner --
    ------------------
 
    task body Line_Cleaner is
       Is_Force : Boolean;
+      type Counter_Type is mod 16;
+      Counter  :  Counter_Type := 1;
    begin
       loop
          select
@@ -313,11 +336,18 @@ package body AWS.Server is
                Is_Force := True;
             end Force;
          or
-            delay 30.0;
+            delay 3.0;
             Is_Force := False;
          end select;
 
-         Server.Slots.Abort_Oldest (Is_Force);
+         Server.Slots.Check_Timeouts;
+
+         if Is_Force or else Counter = 0 then
+            Server.Slots.Abort_Oldest (Is_Force);
+         end if;
+
+         Counter := Counter + 1;
+
       end loop;
    end Line_Cleaner;
 
@@ -415,9 +445,7 @@ package body AWS.Server is
                   Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
             end;
 
-            HTTP_Server.Slots.Set_Abortable (Slot_Index, False);
             HTTP_Server.Slots.Release (Slot_Index);
-            Sockets.Shutdown (Sock);
          end;
       end loop;
 
