@@ -826,8 +826,8 @@ package body AWS.Server is
          --  Check if the Aborted phase happen between after socket operation
          --  and before Mark_Phase call.
 
-         if Table (Index).Phase = Aborted
-           and then Phase /= Closed
+         if Table (Index).Phase in In_Shutdown .. Aborted
+           and then Phase in Wait_For_Client .. Server_Processing
          then
             raise Net.Socket_Error;
          end if;
@@ -937,8 +937,10 @@ package body AWS.Server is
          if Table (Index).Phase = Loose_Release then
             Net.Free (Table (Index).Sock.all);
             Mark_Phase (Index, Closed);
-         else
+
+         elsif Table (Index).Phase /= Closed then
             Mark_Phase (Index, Aborted);
+
          end if;
       end Shutdown_Done;
 
