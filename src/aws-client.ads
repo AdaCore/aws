@@ -258,6 +258,25 @@ package AWS.Client is
       Result     : in out Ada.Strings.Unbounded.Unbounded_String);
    --  Idem as above but returns the result as an Unbounded_String.
 
+   procedure Read_Some
+     (Connection : in out HTTP_Connection;
+      Data       :    out Ada.Streams.Stream_Element_Array;
+      Last       :    out Ada.Streams.Stream_Element_Offset);
+   --  Reads any available data from the client connection.
+   --  If no data available, we would wait for read timeout.
+   --  Last < Data'First after call mean that no more data available in the
+   --  http responce. Connection have to be created with parameter
+   --  Server_Push => True.
+
+   procedure Read
+     (Connection : in out HTTP_Connection;
+      Data       :    out Ada.Streams.Stream_Element_Array;
+      Last       :    out Ada.Streams.Stream_Element_Offset);
+   --  Reads data from the client connection until all Data buffer would be
+   --  filled, or responce data completed. Last < Data'Last after call mean
+   --  that no more data available in http responce. Connection have to be
+   --  created with parameter Server_Push => True.
+
    procedure Get
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
@@ -319,6 +338,9 @@ private
    No_Timeout : constant Timeouts_Values := (0, 0);
    No_Data    : constant String := "";
 
+   Undefined_Length : Response.Content_Length_Type
+     renames Response.Undefined_Length;
+
    type HTTP_Connection_Access is access all HTTP_Connection;
 
    type Authentication_Level is (WWW, Proxy);
@@ -343,6 +365,13 @@ private
    type Authentication_Set is
      array (Authentication_Level) of Authentication_Type;
 
+   type Transfer_Type is
+     (None,           -- Connection is not in transfer state.
+      Chunked,        -- Transfer-encoding chunked
+      Content_Length, -- Content-Length defined
+      Until_Close,    -- Document end on close socket.
+      End_Response);  -- Document is over.
+
    type HTTP_Connection is limited record
       Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
 
@@ -363,6 +392,8 @@ private
       Certificate   : Unbounded_String;
       User_Agent    : Unbounded_String;
       SSL_Config    : AWS.Net.SSL.Config;
+      Length        : Response.Content_Length_Type := Undefined_Length;
+      Transfer      : Transfer_Type                := None;
    end record;
 
 end AWS.Client;
