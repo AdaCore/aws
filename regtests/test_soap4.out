@@ -1,0 +1,35 @@
+Start main, wait for server to start...
+Server started
+
+Proc echo
+S: [A > B]
+Expexted =  5 ; Result =  5 [A > B]
+
+Proc echo
+S: [B < A]
+Expexted =  5 ; Result =  5 [B < A]
+
+Proc echo
+S: [A >= B and C <= A]
+Expexted =  17 ; Result =  17 [A >= B and C <= A]
+
+Proc echo
+S: [A & B ? C # E $ * % &#FF;]
+Expexted =  25 ; Result =  25 [A & B ? C # E $ * % &#FF;]
+
+Proc echo
+S: [<project>AWS</project>]
+Expexted =  22 ; Result =  22 [<project>AWS</project>]
+
+Proc echo
+S: [<tag1 att1="toto"><tag2 att2="titi" att22="tutu">X</tag2></tag1>]
+Expexted =  64 ; Result =  64 [<tag1 att1="toto"><tag2 att2="titi" att22="tutu">X</tag2></tag1>]
+
+Proc echo
+S: [<tag1><tag2>This is not XML</tag1></tag2>]
+Expexted =  41 ; Result =  41 [<tag1><tag2>This is not XML</tag1></tag2>]
+
+Proc echo
+S: [<empty_project/>]
+Expexted =  16 ; Result =  16 [<empty_project/>]
+
