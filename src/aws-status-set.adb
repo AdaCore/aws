@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -252,7 +252,7 @@ package body AWS.Status.Set is
      (Socket : in Net.Socket_Type'Class;
       D : in out Data) is
    begin
-      Headers.Set.Read (D.Header, Socket);
+      Headers.Set.Read (Socket, D.Header);
       Update_Data_From_Header (D);
    end Read_Header;
 
