@@ -38,6 +38,11 @@ main (void)
   #define ETIMEDOUT   WSAETIMEDOUT
   #define EWOULDBLOCK WSAEWOULDBLOCK
   #define EINPROGRESS WSAEINPROGRESS
+  #define SHUT_RDWR   SD_BOTH
+  #define EAI_SYSTEM  EAI_AGAIN
+  // EAI_SYSTEM getaddrinfo error code does not supported by Win32, but need
+  // for correct error handling, we could use any Win32 socket error code
+  // instead, because Win32 use the same error codes in Errno report.
 
   const char *i_conv      = "Stdcall";
   const int s_nfds_t      = sizeof (int) * 8;
@@ -90,19 +95,10 @@ main (void)
 
   printf ("   AI_PASSIVE     : constant := %d;\n",   AI_PASSIVE);
   printf ("   AI_CANONNAME   : constant := %d;\n",   AI_CANONNAME);
-  printf ("   AI_NUMERICHOST : constant := %d;\n\n", AI_NUMERICHOST);
+  printf ("   AI_NUMERICHOST : constant := %d;\n", AI_NUMERICHOST);
+  printf ("   EAI_SYSTEM     : constant := %d;\n\n", EAI_SYSTEM);
 
-  /* getaddrinfo error code does not supported by Win32, but need for correct
-     error handling, we could use any Win32 socket error code instead,
-     because Win32 use the same error codes in Errno report. */
-
-#ifdef _WIN32
-  printf ("   EAI_SYSTEM : constant := %d;\n\n", EAI_AGAIN);
-#else
-  printf ("   EAI_SYSTEM : constant := %d;\n\n", EAI_SYSTEM);
-#endif
-
-  /* constants needed for AWS and not defined in AdaSockets */
+  /* other constants */
 
   printf ("   IPPROTO_TCP : constant := %d;\n", IPPROTO_TCP);
   printf ("   IPPROTO_IP  : constant := %d;\n", IPPROTO_IP);
@@ -110,8 +106,11 @@ main (void)
   printf ("   PF_INET     : constant := %d;\n", PF_INET);
   printf ("   PF_INET6    : constant := %d;\n", PF_INET6);
   printf ("   SO_ERROR    : constant := %d;\n", SO_ERROR);
+  printf ("   SO_SNDBUF   : constant := %d;\n", SO_SNDBUF);
+  printf ("   SO_RCVBUF   : constant := %d;\n", SO_RCVBUF);
   printf ("   SOCK_STREAM : constant := %d;\n", SOCK_STREAM);
   printf ("   SOL_SOCKET  : constant := %d;\n", SOL_SOCKET);
+  printf ("   SHUT_RDWR   : constant := %d;\n", SHUT_RDWR);
   printf ("   ETIMEDOUT   : constant := %d;\n", ETIMEDOUT);
   printf ("   EWOULDBLOCK : constant := %d;\n", EWOULDBLOCK);
   printf ("   EINPROGRESS : constant := %d;\n", EINPROGRESS);
@@ -209,4 +208,3 @@ main (void)
 
   return 0;
 }
-
