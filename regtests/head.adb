@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
@@ -81,8 +81,8 @@ begin
      /= Response.Content_Length (R_Head)
    then
       Put_Line ("Length difference between GET and HEAD.");
-      Put_Line ("   GET  " & Response.Content_Length (R_Get)'Img);
-      Put_Line ("   HEAD " & Response.Content_Length (R_Head)'Img);
+      Put_Line ("   GET  " & Integer'Image (Response.Content_Length (R_Get)));
+      Put_Line ("   HEAD " & Integer'Image (Response.Content_Length (R_Head)));
 
    elsif Response.Content_Length (R_Get)
      /= Integer (OS_Lib.File_Size (My_Name))
