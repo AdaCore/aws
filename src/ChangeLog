@@ -1,5 +1,12 @@
 2001-09-10  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-communication-server.adb:
+	(Start): Initialize Com_Server without discriminant, and set the
+	 number of connection in Server.Start call.
+
+	* aws-log.adb:
+	Fix style.
+
 	* aws-server-get_status.adb:
 	Use Max_Connection from the server properties.
 
