@@ -1,5 +1,28 @@
 2001-09-21  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile: 
+	(GARGS): use GFLAGS passed from makefile in parent directory.
+	
+	* soap-message-reader.ads:
+	Removes unused with clause.
+
+	* soap-message-xml.adb:
+	Removes not used with clause.
+	Add with that was on the spec.
+	(Parse_Body): removes NL and Name (not used).
+
+	* soap-message-xml.ads:
+	Move with clause to body.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	(Check_Int): renamed to Check_Integer.
+	(Check_Boolean): new procedure.
+	(Check_Time_Instant): idem.
+	(Check_Base64): idem.
+	(Check_Null): idem.
+	(Check_Record): idem.
+	(Check_Array): idem.
+
 	* soap-client.ads:
 	Fix typo in comment.
 
