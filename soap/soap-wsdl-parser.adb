@@ -501,18 +501,27 @@ package body SOAP.WSDL.Parser is
                   declare
                      Value : constant String
                        := Utils.No_NS (DOM.Core.Nodes.Node_Value (N));
+                     First : Natural;
                      Last  : Natural;
                   begin
-                     Last := Strings.Fixed.Index (Value, "[");
+                     First := Strings.Fixed.Index (Value, "[");
+                     Last  := Strings.Fixed.Index (Value, "]");
 
-                     if Last = 0 then
+                     if First = 0 or else Last = 0 then
                         Raise_Exception
                           (WSDL_Error'Identity,
                            "missing [] in arrayType value.");
                      end if;
 
+                     if Last > First + 1 then
+                        O.Self.Array_Length
+                          := Natural'Value (Value (First + 1 .. Last - 1));
+                     else
+                        O.Self.Array_Length := 0;
+                     end if;
+
                      return To_Unbounded_String
-                       (Value (Value'First .. Last - 1));
+                       (Value (Value'First .. First - 1));
                   end;
                end if;
             end;
@@ -668,6 +677,7 @@ package body SOAP.WSDL.Parser is
          P.Name   := O.Current_Name;
          P.T_Name := +Name;
          P.E_Type := O.Array_Elements;
+         P.Length := O.Array_Length;
 
          if not WSDL.Is_Standard (To_String (O.Array_Elements)) then
             --  This is not a standard type, parse it
