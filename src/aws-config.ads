@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -160,6 +160,10 @@ package AWS.Config is
    function Security (O : in Object) return Boolean;
    --  Is the server working through th SSL
 
+   function Certificate return String;
+   --  Returns the certificate to be used with the secure server. Returns the
+   --  empty string if the server is not a secure one.
+
    function Case_Sensitive_Parameters (O : in Object) return Boolean;
    --  HTTP parameters are case sensitive.
 
@@ -220,6 +224,7 @@ private
    --  entry for every option name to be handled.
 
    type Parameter_Name is
+      --  Per server option
      (Server_Name,
       WWW_Root,
       Admin_URI,
@@ -251,7 +256,9 @@ private
       Line_Stack_Size,
       Check_URL_Validity,
       Case_Sensitive_Parameters,
+      --  Per process options
       Session_Cleanup_Interval,
+      Certificate,
       Session_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
@@ -393,6 +400,9 @@ private
    Process_Options : Parameter_Set (Process_Parameter_Name)
      := (Session_Cleanup_Interval =>
            (Dur, Default.Session_Cleanup_Interval),
+
+         Certificate =>
+           (Str, To_Unbounded_String (Default.Certificate)),
 
          Session_Lifetime =>
            (Dur, Default.Session_Lifetime));
