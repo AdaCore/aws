@@ -1,3 +1,8 @@
+2002-09-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.adb:
+	Put routines in alphabetical order.
+
 2002-09-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-parameters.ads, soap-parameters.adb:
