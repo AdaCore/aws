@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -43,13 +43,14 @@ project Src is
    case Shared.Build is
       when "Debug" =>
          for Object_Dir use "../.build/debug/obj";
+         for Library_Dir use "../.build/debug/lib";
       when "Release" =>
          for Object_Dir use "../.build/release/obj";
+         for Library_Dir use "../.build/release/lib";
    end case;
 
---     for Library_Dir use "../lib";
---     for Library_Name use "aws";
---     for Library_Kind use "static";
+   for Library_Name use "aws";
+   for Library_Kind use "static";
 
    ---------
    -- Ide --
@@ -64,6 +65,7 @@ project Src is
    Limited_Debug_Switches
      := ("-m", "-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfiru",
          "-gnatwe", "-gnaty3abcefhiklmnprt", "-gnatwjmeur", "-Wall");
+   --  Limited style check options (no spec, not alphabetical ordrer)
 
    --------------
    -- Compiler --
