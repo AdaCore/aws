@@ -225,8 +225,8 @@ package body AWS.Response is
    ----------------------
 
    procedure Create_Resource
-     (File :    out AWS.Resources.File_Type;
-      D    : in     Data)
+     (D    : in     Data;
+      File :    out AWS.Resources.File_Type)
    is
       use AWS.Resources;
    begin
