@@ -163,28 +163,6 @@ package body AWS.Session is
 
    end Database;
 
-   task type Cleaner;
-   --  Call Database.Clean every Session_Lifetime seconds.
-
-   type Cleaner_Access is access Cleaner;
-
-   ---------------------
-   -- Cleaner_Control --
-   ---------------------
-
-   protected Cleaner_Control is
-
-      procedure Start;
-      --  Launch the cleaner task the first time and does nothing after.
-
-      procedure Stop;
-      --  Stop the cleaner task when there is no more server using it.
-
-   private
-      Server_Count : Natural := 0;
-      Cleaner_Task : Cleaner_Access;
-   end Cleaner_Control;
-
    -------------
    -- Cleaner --
    -------------
@@ -971,24 +949,6 @@ package body AWS.Session is
    begin
       Session_Lifetime := Seconds;
    end Set_Lifetime;
-
-   -----------
-   -- Start --
-   -----------
-
-   procedure Start is
-   begin
-      Cleaner_Control.Start;
-   end Start;
-
-   --------------
-   -- Shutdown --
-   --------------
-
-   procedure Shutdown is
-   begin
-      Cleaner_Control.Stop;
-   end Shutdown;
 
    -----------
    -- Value --
