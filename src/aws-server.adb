@@ -80,17 +80,18 @@ package body AWS.Server is
      (Web_Server                : in out HTTP;
       Name                      : in     String;
       Callback                  : in     Response.Callback;
-      Admin_URI                 : in     String            := No_Admin;
-      Port                      : in     Positive          := Default_Port;
+      Admin_URI                 : in     String            := Def_Admin_URI;
+      Port                      : in     Positive          := Def_Port;
       Security                  : in     Boolean           := False;
       Session                   : in     Boolean           := False;
-      Case_Sensitive_Parameters : in     Boolean           := True)
+      Case_Sensitive_Parameters : in     Boolean           := True;
+      Upload_Directory          : in     String            := Def_Upload_Dir)
    is
       Accepting_Socket : Sockets.Socket_FD;
    begin
       Web_Server.Name        := To_Unbounded_String (Name);
       Web_Server.Admin_URI   := To_Unbounded_String (Admin_URI);
-      Web_Server.Upload_Path := To_Unbounded_String (Default_Upload_Path);
+      Web_Server.Upload_Path := To_Unbounded_String (Upload_Directory);
 
       Web_Server.Port                      := Port;
       Web_Server.Security                  := Security;
