@@ -1,3 +1,11 @@
+2004-06-01  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(TOOLS): Add hotplug_password.
+
+	* hotplug_password.adb:
+	Initial revision.
+
 2004-05-31  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:

@@ -1,3 +1,72 @@
+2004-06-01  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(SOURCES): Add aws-client-hotplug.adb
+
+	* aws-status.adb:
+	(Check_Digest): Rename Create_Digest to Create.
+	Minor reformatting.	
+	Update copyright notice.
+
+	* aws-server.ads:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-server-hotplug.ads:
+	(Activate): Add Authorization_File and Register_Mode parameters.
+	(Shutdown): New procedure.
+	Add comments.
+	Update copyright notice.
+
+	* aws-server-hotplug.adb:
+	Complete reimplementation. This version is now secure. All
+	 registration is done using a digest string following a specific
+	 protocol with the client. See AWS.Client.Hotplug.
+	Update copyright notice.
+
+	* aws-response-set.adb:
+	(Authentication): Convert Nonce to String.
+
+	* aws-messages.adb:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-hotplug.ads:
+	(Register_Error): New exception.
+	(Set_Mode): New routine.
+	Change structure to use AI302.Containers.Vectors.
+	Update copyright notice.
+
+	* aws-hotplug.adb:
+	(Adjust): Removed. Not needed, use now AI302.Containers.
+	(Set_Mode): New procedure.
+	Change most of the code to use structure based on the AI302.Containers.
+
+	* aws-hotplug-get_status.adb:
+	Change to use AI302.Containers.
+	Update copyright notice.
+
+	* aws-digest.ads:
+	(Nonce): New type.
+	(Create_Nonce): Use Nonce type.
+	(Check_Nonce): Idem.
+	(Create_Digest): Renamed to Create.
+
+	* aws-digest.adb:
+	(Create_Nonce): Use Nonce type.
+	(Check_Nonce): Idem and emove check for Value length. Not needed now.
+	
+	* aws-communication-server.ads:
+	Add some comments.
+	Update copyright notice.
+
+	* aws-client.adb:
+	(QOP_Data): Minor reformatting. Rename Create_Digest to Create.
+	(SOAP_Post) [HTTP_Connection]: Set Save_Streaming to constant.
+
+	* aws-client-hotplug.ads, aws-client-hotplug.adb:
+	Initial revision.
+
 2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:

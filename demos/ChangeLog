@@ -1,3 +1,20 @@
+2004-06-01  Pascal Obry  <pascal@obry.org>
+
+	* hotplug_module.ini:
+	Initial revision.
+
+	* main.adb:
+	New version based on new secure hotplug module.
+	Update copyright notice.
+
+	* hotplug.adb:
+	New version based on new secure hotplug module.
+	Update copyright notice.
+
+	* auth_cb.adb:
+	Convert Authorization_Nonce to Digest.Nonce.
+	Update copyright notice.
+
 2004-04-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -11,12 +28,12 @@
 	(WIN_OPT): Fix syntax.
 	Add -lpoll for all demos.
 
-2004-04-06  Pascal Obry  <pascal.obry@edf.fr>
+2004-04-06  Pascal Obry  <pascal@obry.org>
 
 	* demos.gpr:
 	(WIN_OPT): Add -lpoll.
 	
-2004-04-06  Pascal Obry  <pascal.obry@edf.fr>
+2004-04-06  Pascal Obry  <pascal@obry.org>
 
 	* demos.gpr:
 	(Main): Add web_mail.adb.
