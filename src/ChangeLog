@@ -1,3 +1,21 @@
+2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Change path for aws-jabber.ad* sources.
+	(aws-translator-conversion.adb): Use config/makefile.
+	Change name for aws-net-std* and aws-os_lib* files.
+
+	* aws-ldap-client.adb:
+	(Free): Add Unreferenced pragma for Res.
+	(Unbind): Idem.
+
+	* aws-config-ini.adb:
+	(Process_Mode): Set to constant.
+
+	* aws-client.adb:
+	(Read_Chunk): Set Copy to constant.
+	(Get_Response): Set Elements to constant.
+
 2003-04-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-containers-tables.ads, aws-utils.ads:
