@@ -1,5 +1,10 @@
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* wsdl2aws.adb:
+	Fix casing error.
+
+2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* ada2wsdl-generator.adb:
 	(Mode): Add Enumeration.
 	(Definition): Handle enumeration variant.
