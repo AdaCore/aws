@@ -46,7 +46,6 @@ package Ada2WSDL is
    --  Raised if ada2wsdl has found a problem while parsing the Ada spec
 
    function Location (E : in Asis.Element) return String;
-   pragma Inline (Location);
    --  Returns E's location in the form <line>:<column>
 
    procedure Raise_Spec_Error
