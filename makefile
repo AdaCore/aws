@@ -139,7 +139,7 @@ clean:
 
 distrib: clean build_doc
 	-rm -f aws-*.tar*
-	(VERSION=`grep " Version" src/aws.ads | cut -c 43-45`; \
+	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-$${VERSION}; \
 	mkdir $${AWS}; \
 	mkdir $${AWS}/src; \
