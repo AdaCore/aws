@@ -96,7 +96,7 @@ package body AWS.Net.Stream_IO is
    is
       Result : Socket_Stream_Access := new Socket_Stream_Type;
    begin
-      Assign (Result.Socket.all, Socket);
+      Result.Socket := new Socket_Type'Class'(Socket);
       return Result;
    end Stream;
 
