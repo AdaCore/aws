@@ -1,6 +1,21 @@
 2002-09-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
+	Change reference to Is_Match by Match.
+
+	* aws-server-protocol_handler.adb:
+	Change reference to Is_Match by Match.
+
+	* aws-status-set.adb:
+	Change reference to Is_Match by Match.
+
+	* aws-url.adb:
+	Change reference to Is_Match by Match.
+
+	* aws-messages.ads, aws-messages.adb:
+	(Is_Match): Renamed to Match.
+
+	* aws-client.adb:
 	(QOP_Data): Use AWS.Utils.Hex. Cleaner.
 	(Parse_Authenticate_Line): Rename parameter Data to Auth_Line.
 	Fix some comments.
