@@ -37,27 +37,6 @@ package body AWS.Hotplug is
 
    use Ada.Strings.Unbounded;
 
-   procedure Adjust (Filters : in out Filter_Set);
-   --  Check that the filter set is large enough to receive a new value. If it
-   --  is not, filter set will be ajusted.
-
-   ------------
-   -- Adjust --
-   ------------
-
-   procedure Adjust (Filters : in out Filter_Set) is
-      Old_Set : Filter_Array_Access;
-   begin
-      if Filters.Set = null then
-         Filters.Set := new Filter_Array (1 .. 10);
-
-      elsif Filters.Set'Length <= Filters.Count then
-         Old_Set := Filters.Set;
-         Filters.Set := new Filter_Array (1 .. Filters.Count + 5);
-         Filters.Set.all (Old_Set'Range) := Old_Set.all;
-      end if;
-   end Adjust;
-
    -----------
    -- Apply --
    -----------
@@ -68,7 +47,9 @@ package body AWS.Hotplug is
       Found   :    out Boolean;
       Data    :    out Response.Data)
    is
-      URI : constant String := AWS.Status.URI (Status);
+      use type AWS.Status.Request_Method;
+
+      URI : constant String              := AWS.Status.URI (Status);
       P   : constant AWS.Parameters.List := AWS.Status.Parameters (Status);
 
       function Parameters return String;
@@ -96,36 +77,45 @@ package body AWS.Hotplug is
          return To_String (Result);
       end Parameters;
 
-      use type AWS.Status.Request_Method;
-
    begin
       Found := False;
 
-      Look_For_Filters : for K in 1 .. Filters.Count loop
+      Look_For_Filters :
+      for K in 1 .. Natural (Filter_Table.Length (Filters.Set)) loop
+         declare
+            Item : constant Filter_Data
+              := Filter_Table.Element (Filters.Set, K);
+         begin
+            if GNAT.Regexp.Match (URI, Item.Regexp) then
+               Found := True;
 
-         if GNAT.Regexp.Match (URI, Filters.Set (K).Regexp) then
+               --  We must call the registered server to get the Data
 
-            Found := True;
+               if AWS.Status.Method (Status) = AWS.Status.GET then
+                  Data := Client.Get
+                    (To_String (Item.URL)
+                     & URI (URI'First + 1 .. URI'Last)
+                     & Parameters);
+               else
+                  Data := Client.Post
+                    (To_String (Item.URL) & URI (URI'First + 1 .. URI'Last),
+                     AWS.Status.Binary_Data (Status));
+               end if;
 
-            --  we must call the registered server to get the Data.
-
-            if AWS.Status.Method (Status) = AWS.Status.GET then
-               Data := Client.Get
-                 (To_String (Filters.Set (K).URL)
-                  & URI (URI'First + 1 .. URI'Last)
-                  & Parameters);
-            else
-               Data := Client.Post
-                 (To_String (Filters.Set (K).URL)
-                  & URI (URI'First + 1 .. URI'Last),
-                  AWS.Status.Binary_Data (Status));
+               exit Look_For_Filters;
             end if;
-
-            exit Look_For_Filters;
-         end if;
-
+         end;
       end loop Look_For_Filters;
    end Apply;
+
+   ----------------
+   -- Equal_Data --
+   ----------------
+
+   function Equal_Data (Left, Right : in Filter_Data) return Boolean is
+   begin
+      return Left.Regexp_Str = Right.Regexp_Str;
+   end Equal_Data;
 
    ---------------
    -- Move_Down --
@@ -133,14 +123,10 @@ package body AWS.Hotplug is
 
    procedure Move_Down
      (Filters : in Filter_Set;
-      N       : in Positive)
-   is
-      Tmp : Filter_Data;
+      N       : in Positive) is
    begin
-      if Filters.Count > N then
-         Tmp := Filters.Set (N);
-         Filters.Set (N) := Filters.Set (N + 1);
-         Filters.Set (N + 1) := Tmp;
+      if Positive (Filter_Table.Length (Filters.Set)) > N then
+         Filter_Table.Swap (Filters.Set, N, N + 1);
       end if;
    end Move_Down;
 
@@ -150,14 +136,12 @@ package body AWS.Hotplug is
 
    procedure Move_Up
      (Filters : in Filter_Set;
-      N       : in Positive)
-   is
-      Tmp : Filter_Data;
+      N       : in Positive) is
    begin
-      if Filters.Count >= N and then N > 1 then
-         Tmp := Filters.Set (N - 1);
-         Filters.Set (N - 1) := Filters.Set (N);
-         Filters.Set (N) := Tmp;
+      if Positive (Filter_Table.Length (Filters.Set)) >= N
+        and then N > 1
+      then
+         Filter_Table.Swap (Filters.Set, N, N - 1);
       end if;
    end Move_Up;
 
@@ -168,15 +152,40 @@ package body AWS.Hotplug is
    procedure Register
      (Filters : in out Filter_Set;
       Regexp  : in     String;
-      URL     : in     String) is
-   begin
-      Adjust (Filters);
-      Filters.Count := Filters.Count + 1;
-      Filters.Set (Filters.Count)
+      URL     : in     String)
+   is
+      Item   : constant Filter_Data
         := (To_Unbounded_String (Regexp),
             GNAT.Regexp.Compile (Regexp),
             To_Unbounded_String (URL));
+      Cursor : constant Filter_Table.Cursor
+        := Filter_Table.Find (Filters.Set, Item);
+   begin
+      case Filters.Mode is
+         when Add =>
+            if Filter_Table.Has_Element (Cursor) then
+               raise Register_Error;
+            else
+               Filter_Table.Append (Filters.Set, Item);
+            end if;
+
+         when Replace =>
+            if Filter_Table.Has_Element (Cursor) then
+               Filter_Table.Replace_Element (Cursor, Item);
+            else
+               Filter_Table.Append (Filters.Set, Item);
+            end if;
+      end case;
    end Register;
+
+   --------------
+   -- Set_Mode --
+   --------------
+
+   procedure Set_Mode (Filters : in out Filter_Set; Mode : in Register_Mode) is
+   begin
+      Filters.Mode := Mode;
+   end Set_Mode;
 
    ----------------
    -- Unregister --
@@ -184,13 +193,13 @@ package body AWS.Hotplug is
 
    procedure Unregister
      (Filters : in out Filter_Set;
-      Regexp  : in String) is
+      Regexp  : in     String) is
    begin
-      for K in 1 .. Filters.Count loop
-         if To_String (Filters.Set (K).Regexp_Str) = Regexp then
-            Filters.Set (K .. Filters.Count - 1)
-              := Filters.Set (K + 1 .. Filters.Count);
-            Filters.Count := Filters.Count - 1;
+      for K in 1 .. Natural (Filter_Table.Length (Filters.Set)) loop
+         if To_String (Filter_Table.Element (Filters.Set, K).Regexp_Str)
+           = Regexp
+         then
+            Filter_Table.Delete (Filters.Set, K);
             exit;
          end if;
       end loop;
