@@ -69,10 +69,13 @@ package AWS.Response is
    --  chunked transfer-encoding in the HTTP/1.1, or by the closing connection
    --  in the HTTP/1.0.
 
-   Default_Moved_Message : constant String
-     := "Page moved<br><a href=""_@_"">Click here</a>";
+   Default_Moved_Message : constant String;
    --  This is a template message, _@_ will be replaced by the Location (see
    --  function Build with Location below).
+
+   Default_Authenticate_Message : constant String;
+   --  This is the message that will be displayed on the Web Browser if the
+   --  authentication process fails or is cancelled.
 
    ------------------
    -- Constructors --
@@ -125,9 +128,10 @@ package AWS.Response is
    --  must be sent.
 
    function Authenticate
-     (Realm : in String;
-      Mode  : in Authentication_Mode := Basic;
-      Stale : in Boolean             := False)
+     (Realm   : in String;
+      Mode    : in Authentication_Mode := Basic;
+      Stale   : in Boolean             := False;
+      Message : in String              := Default_Authenticate_Message)
       return Data;
    --  Returns an authentification message (Messages.S401), the Web browser
    --  will then ask for an authentification. Realm string will be displayed
@@ -259,6 +263,24 @@ package AWS.Response is
 private
 
    use Ada.Strings.Unbounded;
+
+   Default_Moved_Message : constant String
+     := "Page moved<br><a href=""_@_"">Click here</a>";
+
+   CRLF : constant String := ASCII.CR & ASCII.LF;
+
+   Default_Authenticate_Message : constant String
+     := "<HTML><HEAD>" & CRLF
+     & "<TITLE>401 Authorization Required</TITLE>" & CRLF
+     & "</HEAD><BODY>" & CRLF
+     & "<H1>Authorization Required</H1>" & CRLF
+     & "This server could not verify that you" & CRLF
+     & "are authorized to access the document you" & CRLF
+     & "requested.  Either you supplied the wrong" & CRLF
+     & "credentials (e.g., bad password), or your" & CRLF
+     & "browser doesn't understand how to supply" & CRLF
+     & "the credentials required.<P>" & CRLF
+     & "</BODY></HTML>" & CRLF;
 
    Undefined_Length : constant Content_Length_Type := -1;
 
