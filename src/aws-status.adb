@@ -32,9 +32,30 @@
 
 with Ada.Strings;
 
+with AWS.Digest;
+
 package body AWS.Status is
 
    use Ada.Strings;
+
+   --------------------------
+   -- Authorization_CNonce --
+   --------------------------
+
+   function Authorization_CNonce (D : in Data) return String is
+   begin
+      return To_String (D.Auth_CNonce);
+   end Authorization_CNonce;
+
+   ------------------------
+   -- Authorization_Mode --
+   ------------------------
+
+   function Authorization_Mode (D : in Data) return Authorization_Type
+   is
+   begin
+      return D.Auth_Mode;
+   end Authorization_Mode;
 
    ------------------------
    -- Authorization_Name --
@@ -45,6 +66,24 @@ package body AWS.Status is
       return To_String (D.Auth_Name);
    end Authorization_Name;
 
+   ----------------------
+   -- Authorization_NC --
+   ----------------------
+
+   function Authorization_NC (D : in Data) return String is
+   begin
+      return To_String (D.Auth_NC);
+   end Authorization_NC;
+
+   -------------------------
+   -- Authorization_Nonce --
+   -------------------------
+
+   function Authorization_Nonce (D : in Data) return String is
+   begin
+      return To_String (D.Auth_Nonce);
+   end Authorization_Nonce;
+
    ----------------------------
    -- Authorization_Password --
    ----------------------------
@@ -54,6 +93,33 @@ package body AWS.Status is
       return To_String (D.Auth_Password);
    end Authorization_Password;
 
+   -----------------------
+   -- Authorization_QOP --
+   -----------------------
+
+   function Authorization_QOP (D : in Data) return String is
+   begin
+      return To_String (D.Auth_QOP);
+   end Authorization_QOP;
+
+   -------------------------
+   -- Authorization_Realm --
+   -------------------------
+
+   function Authorization_Realm (D : in Data) return String is
+   begin
+      return To_String (D.Auth_Realm);
+   end Authorization_Realm;
+
+   ----------------------------
+   -- Authorization_Response --
+   ----------------------------
+
+   function Authorization_Response (D : in Data) return String is
+   begin
+      return To_String (D.Auth_Response);
+   end Authorization_Response;
+
    -----------------
    -- Binary_Data --
    -----------------
@@ -62,6 +128,45 @@ package body AWS.Status is
    begin
       return D.Binary_Data.all;
    end Binary_Data;
+
+   ------------------
+   -- Check_Digest --
+   ------------------
+
+   function Check_Digest (D : in Data; Password : String) return Boolean
+   is
+
+      function Get_Nonce return String;
+
+      ---------------
+      -- Get_Nonce --
+      ---------------
+
+      function Get_Nonce return String
+      is
+         Nonce    : String := Authorization_Nonce (D);
+         QOP      : String := Authorization_QOP (D);
+      begin
+         if QOP = "" then
+            return Nonce;
+         else
+            return Nonce
+               & ':' & Authorization_NC (D)
+               & ':' & Authorization_CNonce (D)
+               & ':' & QOP;
+         end if;
+      end Get_Nonce;
+
+   begin
+      return Authorization_Response (D) =
+         AWS.Digest.Create_Digest
+             (Username => Authorization_Name (D),
+              Realm    => Authorization_Realm (D),
+              Password => Password,
+              Nonce    => Get_Nonce,
+              Method   => Request_Method'Image (D.Method),
+              URI      => URI (D));
+   end Check_Digest;
 
    ----------------
    -- Connection --
@@ -97,7 +202,7 @@ package body AWS.Status is
    function Has_Session (D : in Data) return Boolean is
       use type AWS.Session.ID;
    begin
-      return D.Session_ID /= AWS.Session.No_Session; -- Null_Unbounded_String;
+      return D.Session_ID /= AWS.Session.No_Session;
    end Has_Session;
 
    ----------

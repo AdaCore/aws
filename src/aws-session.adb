@@ -32,27 +32,21 @@
 
 with Ada.Calendar;
 with Ada.Exceptions;
-with Ada.Numerics.Discrete_Random;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
-with System;
 
 with Table_Of_Static_Keys_And_Dynamic_Values_G;
 
 with AWS.Default;
 with AWS.Key_Value;
+with AWS.Utils;
 
 package body AWS.Session is
-
-   type NID is range 0 .. System.Max_Int;
-
-   package SID_Random is new Ada.Numerics.Discrete_Random (NID);
 
    use Ada;
    use Ada.Strings.Unbounded;
 
-   SID_Generator          : SID_Random.Generator;
    SID_Prefix             : constant String := "SID-";
 
    Session_Check_Interval : Duration
@@ -343,7 +337,8 @@ package body AWS.Session is
       ------------------
 
       function Generate_ID return ID is
-         use SID_Random;
+
+         type NID is new AWS.Utils.Random_Integer;
 
          Chars : constant String := "0123456789"
             & "abcdefghijklmnopqrstuvwxyz"
@@ -354,7 +349,7 @@ package body AWS.Session is
       begin
          for I in ID'Range loop
             if Rand = 0 then
-               Rand := Random (SID_Generator);
+               Rand := Random;
             end if;
 
             Result (I) := Chars (Integer (Rand rem Chars'Length) + 1);
@@ -1076,6 +1071,4 @@ package body AWS.Session is
       end if;
    end Value;
 
-begin
-   SID_Random.Reset (SID_Generator);
 end AWS.Session;

@@ -33,6 +33,7 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
+with Ada.Integer_Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
@@ -47,11 +48,16 @@ with AWS.MIME;
 with AWS.OS_Lib;
 with AWS.Translator;
 with AWS.Net;
+with AWS.Digest;
+with AWS.Utils;
 
 package body AWS.Client is
 
    use Ada;
    use Ada.Strings.Unbounded;
+
+   type Auth_Attempts_Count is array (Authentication_Level)
+      of Natural range 0 .. 2;
 
    Debug_On    : Boolean := False;
 
@@ -69,15 +75,29 @@ package body AWS.Client is
    --  Receives response from server for GET and POST and HEAD commands.
    --  If Get_Body is set then the message body will be read.
 
+   procedure Decrement_Authentication_Attempt
+     (Connection : in out HTTP_Connection;
+      Counter    : in out Auth_Attempts_Count;
+      Over    :    out Boolean);
+   --  Counts the authentication attempts.
+   --  Over is true mean that
+   --  authentication attempts is over.
+
+   procedure Set_Authentication
+     (Auth       :    out Authentication_Type;
+      User       : in     String;
+      Pwd        : in     String;
+      Mode       : in     Authentication_Mode);
+   --  Internal procedure to set authentication parameters.
+
    procedure Parse_Header
-     (Sock              : in     Sockets.Socket_FD'Class;
+     (Connection        : in out HTTP_Connection;
       Status            :    out Messages.Status_Code;
       Content_Length    :    out Natural;
       Content_Type      :    out Unbounded_String;
       Transfer_Encoding :    out Unbounded_String;
       Location          :    out Unbounded_String;
-      Connection        :    out Unbounded_String;
-      Cookie            :    out Unbounded_String);
+      Keep_Alive        :    out Boolean);
    --  Read server answer and set corresponding variable with the value
    --  read. Most of the fields are ignored right now.
 
@@ -270,12 +290,12 @@ package body AWS.Client is
       Connection.Host            := To_Unbounded_String (Host);
       Connection.Host_URL        := Host_URL;
       Connection.Connect_URL     := Connect_URL;
-      Connection.User            := Set (User);
-      Connection.Pwd             := Set (Pwd);
+      Connection.Auth (WWW).User := Set (User);
+      Connection.Auth (WWW).Pwd  := Set (Pwd);
       Connection.Proxy           := Set (Proxy);
       Connection.Proxy_URL       := Proxy_URL;
-      Connection.Proxy_User      := Set (Proxy_User);
-      Connection.Proxy_Pwd       := Set (Proxy_Pwd);
+      Connection.Auth (Client.Proxy).User := Set (Proxy_User);
+      Connection.Auth (Client.Proxy).Pwd  := Set (Proxy_Pwd);
 
       begin
          Connection.Socket       := new Sockets.Socket_FD'Class'
@@ -326,6 +346,30 @@ package body AWS.Client is
          Text_IO.Put_Line (Prefix & Message);
       end if;
    end Debug_Message;
+
+   --------------------------------------
+   -- Decrement_Authentication_Attempt --
+   --------------------------------------
+
+   procedure Decrement_Authentication_Attempt
+     (Connection : in out HTTP_Connection;
+      Counter    : in out Auth_Attempts_Count;
+      Over       :    out Boolean)
+   is
+      Over_Level : array (Authentication_Level) of Boolean
+        := (others => True);
+   begin
+
+      for Level in Authentication_Level'Range loop
+         if Connection.Auth (Level).Requested then
+            Counter (Level) := Counter (Level) - 1;
+            Over_Level (Level) := Counter (Level) = 0;
+         end if;
+      end loop;
+
+      Over := Over_Level = (Authentication_Level'Range => True);
+
+   end Decrement_Authentication_Attempt;
 
    ----------------
    -- Disconnect --
@@ -386,6 +430,10 @@ package body AWS.Client is
       URI        : in     String          := No_Data)
    is
       Try_Count : Natural := Connection.Retry;
+
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+
    begin
 
       loop
@@ -397,7 +445,12 @@ package body AWS.Client is
 
             Get_Response (Connection, Result, not Connection.Server_Push);
 
-            return;
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+            end if;
 
          exception
             when Sockets.Connection_Closed | Sockets.Socket_Error =>
@@ -427,6 +480,9 @@ package body AWS.Client is
    is
       type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
+      procedure Check_Status;
+      --  check for special status
+
       function Read_Chunk return Streams.Stream_Element_Array;
       --  Read a chunk object from the stream
 
@@ -452,8 +508,33 @@ package body AWS.Client is
       CT_Len   : Natural              := 0;
       TE       : Unbounded_String;
       Location : Unbounded_String;
-      Connect  : Unbounded_String;
       Status   : Messages.Status_Code;
+
+      Keep_Alive : Boolean;
+
+      ------------------
+      -- Check_Status --
+      ------------------
+
+      procedure Check_Status is
+         use type Messages.Status_Code;
+      begin
+         if Status = Messages.S301 then
+            --  moved permanently
+
+            Result := Response.Moved
+              (Location => To_String (Location),
+               Message  => Response.Message_Body (Result));
+
+         elsif Status = Messages.S404 then
+
+            if String'(Response.Message_Body (Result)) = "" then
+               Result := Response.Build
+                 (MIME.Text_HTML, "(404) not found", Status);
+            end if;
+
+         end if;
+      end Check_Status;
 
       ----------------
       -- Disconnect --
@@ -461,7 +542,7 @@ package body AWS.Client is
 
       procedure Disconnect is
       begin
-         if Messages.Is_Match (To_String (Connect), "close")
+         if not Keep_Alive
            and not Connection.Server_Push
          then
             Disconnect (Connection);
@@ -613,48 +694,17 @@ package body AWS.Client is
             return To_String (Results);
       end Read_Message;
 
-      use type Messages.Status_Code;
-
    begin
       Set_Phase (Connection, Receive);
 
       Parse_Header
-        (Sock, Status, CT_Len, CT, TE, Location, Connect, Connection.Cookie);
-
-      --  check for special status
-
-      if Status = Messages.S301 then
-         --  moved permanently
-
-         Result := Response.Build
-           (To_String (CT), To_String (Location), Status);
-
-         Disconnect;
-         Set_Phase (Connection, Not_Monitored);
-         return;
-
-      elsif Status = Messages.S404 then
-
-         if CT_Len = 0 then
-            Result := Response.Build
-              (MIME.Text_HTML, "(404) not found", Status);
-         else
-            Result := Response.Build
-              (MIME.Text_HTML,
-               Translator.To_String (Read_Binary_Message (CT_Len).all),
-               Status);
-         end if;
-
-         Disconnect;
-         Set_Phase (Connection, Not_Monitored);
-         return;
-
-      end if;
+        (Connection, Status, CT_Len, CT, TE, Location, Keep_Alive);
 
       if not Get_Body then
          Result := Response.Build (To_String (CT), "", Status);
          Disconnect;
          Set_Phase (Connection, Not_Monitored);
+         Check_Status;
          return;
       end if;
 
@@ -781,6 +831,7 @@ package body AWS.Client is
          end if;
       end if;
 
+      Check_Status;
       Disconnect;
 
       Set_Phase (Connection, Not_Monitored);
@@ -829,6 +880,9 @@ package body AWS.Client is
       URI        : in     String := No_Data)
    is
       Try_Count : Natural := Connection.Retry;
+
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
    begin
 
       loop
@@ -840,7 +894,12 @@ package body AWS.Client is
 
             Get_Response (Connection, Result, Get_Body => False);
 
-            return;
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+            end if;
 
          exception
             when Sockets.Connection_Closed | Sockets.Socket_Error =>
@@ -871,6 +930,11 @@ package body AWS.Client is
       Sock    : Sockets.Socket_FD'Class := Connection.Socket.all;
 
       No_Data : Unbounded_String renames Null_Unbounded_String;
+
+      procedure Send_Authentication_Header
+        (Token       : in     String;
+         Data        : in out Authentication_Type);
+      --  Send the authentication header for proxy or for server.
 
       function HTTP_Prefix (Security : in Boolean) return String;
       --  Returns "http://" or "https://" if Security is set to True.
@@ -925,6 +989,118 @@ package body AWS.Client is
             end;
          end if;
       end Port_Not_Default;
+
+      --------------------------------
+      -- Send_Authentication_Header --
+      --------------------------------
+
+      procedure Send_Authentication_Header
+        (Token       : in     String;
+         Data        : in out Authentication_Type)
+      is
+
+         Username : String := To_String (Data.User);
+
+      begin
+         if Data.User /= No_Data
+           and then Data.Pwd /= No_Data
+         then
+            if Data.Work_Mode = Basic then
+               Send_Header
+                 (Sock, Token & "Basic " &
+                   AWS.Translator.Base64_Encode
+                   (Username
+                    & ':' & To_String (Data.Pwd)));
+            elsif Data.Work_Mode = Digest then
+
+               declare
+
+                  function Get_URI return String;
+
+                  -------------
+                  -- Get_URI --
+                  -------------
+
+                  function Get_URI return String is
+                     URI_Last : Natural;
+                  begin
+                     if URI = "" then
+                        return AWS.URL.Path (Connection.Connect_URL)
+                           & AWS.URL.File (Connection.Connect_URL);
+                     else
+                        URI_Last := Ada.Strings.Fixed.Index (URI, "?");
+                        if URI_Last = 0 then
+                           URI_Last := URI'Last;
+                        else
+                           URI_Last := URI_Last - 1;
+                        end if;
+                        return URI (URI'First .. URI_Last);
+                     end if;
+                  end Get_URI;
+
+                  Response : AWS.Digest.Digest_String;
+                  Nonce    : String := To_String (Data.Nonce);
+                  Realm    : String := To_String (Data.Realm);
+                  QOP      : String := To_String (Data.QOP);
+                  URI      : String := Get_URI;
+
+                  function QOP_Data return String;
+
+                  --------------
+                  -- QOP_Data --
+                  --------------
+
+                  function QOP_Data return String is
+                     CNonce : String := AWS.Digest.Create_Nonce;
+                     NC : String (1 .. 12);
+                  begin
+                     if QOP = No_Data then
+                        Response := AWS.Digest.Create_Digest
+                          (Username => Username,
+                           Realm    => Realm,
+                           Password => To_String (Data.Pwd),
+                           Nonce    => Nonce,
+                           Method   => Method,
+                           URI      => URI);
+                        return "";
+                     else
+                        Data.NC := Data.NC + 1;
+                        Ada.Integer_Text_IO.Put (NC, Data.NC, 16);
+                        NC (NC'Length - 8 .. Ada.Strings.Fixed.Index (NC, "#"))
+                          := (others => '0');
+                        Response := AWS.Digest.Create_Digest
+                          (Username => Username,
+                           Realm    => Realm,
+                           Password => To_String (Data.Pwd),
+                           Nonce    => Nonce,
+                           CNonce   => CNonce,
+                           NC       => NC (NC'Length - 8 .. NC'Length - 1),
+                           QOP      => QOP,
+                           Method   => Method,
+                           URI      => URI);
+                        return "qop=""" & QOP
+                          & """, cnonce=""" & CNonce
+                          & """, nc=" & NC (NC'Length - 8 .. NC'Length - 1)
+                          & ", ";
+                     end if;
+                  end QOP_Data;
+
+               begin
+
+                  Send_Header
+                    (Sock, Token & "Digest "
+                      & QOP_Data
+                      & "nonce=""" & Nonce
+                      & """, username=""" & Username
+                      & """, realm=""" & Realm
+                      & """, uri=""" & URI
+                      & """, response=""" & Response
+                      & """");
+               end;
+
+            end if;
+         end if;
+      end Send_Authentication_Header;
 
       Host_Address : constant String
         := AWS.URL.Host (Connection.Host_URL)
@@ -1004,31 +1180,13 @@ package body AWS.Client is
 
       --  User Authentification
 
-      if Connection.User /= No_Data
-        and then Connection.Pwd /= No_Data
-      then
-         Send_Header
-           (Sock,
-            Messages.Authorization
-            ("Basic",
-             AWS.Translator.Base64_Encode
-             (To_String (Connection.User)
-              & ':' & To_String (Connection.Pwd))));
-      end if;
+      Send_Authentication_Header (Messages.Authorization_Token,
+         Connection.Auth (WWW));
 
       --  Proxy Authentification
 
-      if Connection.Proxy_User /= No_Data
-        and then Connection.Proxy_Pwd /= No_Data
-      then
-         Send_Header
-           (Sock,
-            Messages.Proxy_Authorization
-            ("Basic",
-             AWS.Translator.Base64_Encode
-             (To_String (Connection.Proxy_User)
-              & ':' & To_String (Connection.Proxy_Pwd))));
-      end if;
+      Send_Authentication_Header (Messages.Proxy_Authorization_Token,
+         Connection.Auth (Proxy));
 
       --  SOAP header
 
@@ -1045,22 +1203,122 @@ package body AWS.Client is
    ------------------
 
    procedure Parse_Header
-     (Sock              : in     Sockets.Socket_FD'Class;
+     (Connection        : in out HTTP_Connection;
       Status            :    out Messages.Status_Code;
       Content_Length    :    out Natural;
       Content_Type      :    out Unbounded_String;
       Transfer_Encoding :    out Unbounded_String;
       Location          :    out Unbounded_String;
-      Connection        :    out Unbounded_String;
-      Cookie            :    out Unbounded_String)
+      Keep_Alive        :    out Boolean)
    is
-      use Messages;
+
+      Sock : Sockets.Socket_FD'Class := Connection.Socket.all;
+
+      Request_Auth_Mode : array (Authentication_Level)
+         of Authentication_Mode := (others => Any);
+
+      procedure Parse_Authenticate_Line
+        (Level : in Authentication_Level;
+         Data  : in String);
+
+      procedure Set_Keep_Alive (Data : String);
+
+      -----------------------------
+      -- Parse_Authenticate_Line --
+      -----------------------------
+
+      procedure Parse_Authenticate_Line
+        (Level : in Authentication_Level;
+         Data  : in     String)
+      is
+         Basic_Token : constant String := "Basic ";
+         Digest_Token : constant String := "Digest ";
+
+         type Auth_Attribute is (Realm, Nonce, QOP, Algorithm);
+
+         type Result_Set is array (Auth_Attribute) of Unbounded_String;
+
+         Auth : Authentication_Type renames Connection.Auth (Level);
+
+         Result : Result_Set;
+
+         Request_Mode : Authentication_Mode;
+
+         procedure Parse_Line is new AWS.Utils.Parse_HTTP_Header_Line
+           (Auth_Attribute, Result_Set);
+
+      begin
+         if Messages.Is_Match (Data, Basic_Token) then
+            Request_Mode := Basic;
+            Parse_Line (Data (Data'First + Basic_Token'Length .. Data'Last),
+               Result);
+         elsif Messages.Is_Match (Data, Digest_Token) then
+            Request_Mode := Digest;
+            Parse_Line (Data (Data'First + Digest_Token'Length .. Data'Last),
+               Result);
+         else
+            --  Ignore unrecognized authentication mode
+            return;
+         end if;
+
+         if Request_Mode > Request_Auth_Mode (Level) then
+
+            Auth.Requested := True;
+
+            Request_Auth_Mode (Level) := Request_Mode;
+            Auth.Work_Mode := Request_Mode;
+
+            Auth.Realm := Result (Realm);
+            Auth.Nonce := Result (Nonce);
+            Auth.QOP   := Result (QOP);
+            Auth.NC    := 0;
+
+            if Result (Algorithm) /= Null_Unbounded_String
+            and then To_String (Result (Algorithm)) /= "MD5" then
+               Ada.Exceptions.Raise_Exception
+                  (Constraint_Error'Identity,
+                   "Only MD5 algorithm is supported.");
+            end if;
+
+            --  Do not know what to do with it now.
+            --  until we do not support interactive logon.
+            --  if Messages.Is_Match ("true", To_String (Result (Stale))) then
+            --     null;
+            --  end if;
+
+         end if;
+
+      end Parse_Authenticate_Line;
+
+      --------------------
+      -- Set_Keep_Alive --
+      --------------------
+
+      procedure Set_Keep_Alive (Data : String) is
+      begin
+         if Messages.Is_Match (Data, "Close") then
+            Keep_Alive := False;
+         elsif Messages.Is_Match (Data, "Keep-Alive") then
+            Keep_Alive := True;
+         end if;
+      end Set_Keep_Alive;
+
    begin
       Content_Length := 0;
+
+      --  We should initialize Keep_Alive, becouse
+      --  it is possable to receive absolutely incorrect
+      --  answer from server.
+      Keep_Alive := False;
+
+      for Level in Authentication_Level'Range loop
+         Connection.Auth (Level).Requested := False;
+      end loop;
 
       loop
          declare
             Line : constant String := Sockets.Get_Line (Sock);
+            use type Messages.Status_Code;
          begin
             Debug_Message ("< ", Line);
 
@@ -1073,6 +1331,12 @@ package body AWS.Client is
                Status := Messages.Status_Code'Value
                   ('S' & Line (Messages.HTTP_Token'Last + 5
                      .. Messages.HTTP_Token'Last + 7));
+
+               --  By default
+               --  HTTP/1.0 connection is not keep-alive
+               --  but HTTP/1.1 is keep-alive
+               Keep_Alive := Line (Messages.HTTP_Token'Last + 1
+                 .. Messages.HTTP_Token'Last + 3) >= "1.1";
 
             elsif Messages.Is_Match (Line, Messages.Content_Type_Token) then
                Content_Type := To_Unbounded_String
@@ -1097,19 +1361,32 @@ package body AWS.Client is
                      .. Line'Last));
 
             elsif Messages.Is_Match (Line, Messages.Connection_Token) then
-               Connection := To_Unbounded_String
-                  (Line (Messages.Connection_Token'Last + 1 .. Line'Last));
+               Set_Keep_Alive (Line
+                 (Messages.Connection_Token'Last + 1 .. Line'Last));
 
             elsif Messages.Is_Match
               (Line, Messages.Proxy_Connection_Token)
             then
-               Connection := To_Unbounded_String
-                  (Line (Messages.Proxy_Connection_Token'Last + 1 .. Line'
-                     Last));
+               Set_Keep_Alive (Line
+                 (Messages.Proxy_Connection_Token'Last + 1 .. Line'Last));
 
             elsif Messages.Is_Match (Line, Messages.Set_Cookie_Token) then
-               Cookie := To_Unbounded_String
+               Connection.Cookie := To_Unbounded_String
                   (Line (Messages.Set_Cookie_Token'Last + 1 .. Line'Last));
+
+            elsif Messages.Is_Match
+              (Line, Messages.WWW_Authenticate_Token) then
+               Parse_Authenticate_Line
+                 (WWW,
+                  Line (Messages.WWW_Authenticate_Token'Last + 1
+                 .. Line'Last));
+
+            elsif Messages.Is_Match
+              (Line, Messages.Proxy_Authenticate_Token) then
+               Parse_Authenticate_Line
+                 (Proxy,
+                  Line (Messages.Proxy_Authenticate_Token'Last + 1
+                 .. Line'Last));
 
             else
                --  Everything else is ignore right now
@@ -1117,6 +1394,7 @@ package body AWS.Client is
             end if;
          end;
       end loop;
+
    end Parse_Header;
 
    ----------
@@ -1186,6 +1464,10 @@ package body AWS.Client is
    is
       No_Data   : Unbounded_String renames Null_Unbounded_String;
       Try_Count : Natural := Connection.Retry;
+
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
+
    begin
 
       loop
@@ -1223,7 +1505,12 @@ package body AWS.Client is
 
             Get_Response (Connection, Result, not Connection.Server_Push);
 
-            return;
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+            end if;
 
          exception
 
@@ -1301,14 +1588,17 @@ package body AWS.Client is
       Data       : in     String;
       URI        : in     String          := No_Data)
    is
-      CT        : Unbounded_String;
-      CT_Len    : Natural;
-      TE        : Unbounded_String;
-      Status    : Messages.Status_Code;
-      Location  : Unbounded_String;
-      Connect   : Unbounded_String;
+      CT         : Unbounded_String;
+      CT_Len     : Natural;
+      TE         : Unbounded_String;
+      Status     : Messages.Status_Code;
+      Location   : Unbounded_String;
+      Keep_Alive : Boolean;
 
-      Try_Count : Natural := Connection.Retry;
+      Try_Count  : Natural := Connection.Retry;
+
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
 
    begin
 
@@ -1330,16 +1620,22 @@ package body AWS.Client is
 
             --  Get answer from server
 
-            Parse_Header (Connection.Socket.all, Status, CT_Len, CT, TE,
-                          Location, Connect, Connection.Cookie);
+            Parse_Header (Connection, Status, CT_Len, CT, TE,
+                          Location, Keep_Alive);
 
-            if Messages.Is_Match (To_String (Connect), "close") then
+            if not Keep_Alive then
                Disconnect (Connection);
             end if;
 
-            Result := Response.Acknowledge (Status);
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
 
-            return;
+            if Auth_Is_Over then
+
+               Result := Response.Acknowledge (Status);
+               return;
+
+            end if;
 
          exception
             when Sockets.Connection_Closed | Sockets.Socket_Error =>
@@ -1426,6 +1722,25 @@ package body AWS.Client is
       Debug_Message ("> ", Data);
    end Send_Header;
 
+   ------------------------
+   -- Set_Authentication --
+   ------------------------
+
+   procedure Set_Authentication
+     (Auth       :    out Authentication_Type;
+      User       : in     String;
+      Pwd        : in     String;
+      Mode       : in     Authentication_Mode)
+   is
+   begin
+      Auth.User      := To_Unbounded_String (User);
+      Auth.Pwd       := To_Unbounded_String (Pwd);
+      Auth.Init_Mode := Mode;
+      if Mode = Basic then
+         Auth.Work_Mode := Basic;
+      end if;
+   end Set_Authentication;
+
    ---------------
    -- Set_Debug --
    ---------------
@@ -1449,6 +1764,42 @@ package body AWS.Client is
          Connection.Cleaner.Next_Phase;
       end if;
    end Set_Phase;
+
+   ------------------------------
+   -- Set_Proxy_Authentication --
+   ------------------------------
+
+   procedure Set_Proxy_Authentication
+     (Connection : in out HTTP_Connection;
+      User       : in     String;
+      Pwd        : in     String;
+      Mode       : in     Authentication_Mode)
+   is
+   begin
+      Set_Authentication
+        (Auth => Connection.Auth (Proxy),
+         User => User,
+         Pwd => Pwd,
+         Mode => Mode);
+   end Set_Proxy_Authentication;
+
+   ----------------------------
+   -- Set_WWW_Authentication --
+   ----------------------------
+
+   procedure Set_WWW_Authentication
+     (Connection : in out HTTP_Connection;
+      User       : in     String;
+      Pwd        : in     String;
+      Mode       : in     Authentication_Mode)
+   is
+   begin
+      Set_Authentication
+        (Auth => Connection.Auth (WWW),
+         User => User,
+         Pwd => Pwd,
+         Mode => Mode);
+   end Set_WWW_Authentication;
 
    ---------------
    -- SOAP_Post --
@@ -1512,8 +1863,10 @@ package body AWS.Client is
       CD        : constant String :=
         Messages.Content_Disposition ("form-data", "filename", Filename);
 
-      No_Data   : Unbounded_String renames Null_Unbounded_String;
       Try_Count : Natural := Connection.Retry;
+
+      Auth_Attempts : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over  : Boolean;
 
       function Content_Length return Integer;
       --  Returns the total message content length.
@@ -1608,7 +1961,12 @@ package body AWS.Client is
 
             Get_Response (Connection, Result, not Connection.Server_Push);
 
-            return;
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+            end if;
 
          exception
 

@@ -1,3 +1,76 @@
+2002-09-20  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* aws-client.adb:
+	(Decrement_Authentication_Attempt): New routine.
+	(Set_Authentication): New routine.
+	(Parse_Header): Support for parsing of WWW-Authenticate header line,
+	 Keep_Alive flag instead of return Connection header line for correctly
+	 support keep-alive connections on the HTTP/1.0 and HTTP/1.1 versions.
+	(Get_Response): Check status after the receiving body.
+	 Ignoring body is a dangerous, becouse we could receive correct
+	 HTTP header in the body.
+	(Get): Add authentication attempts counter.
+	(Head): Add authentication attempts counter.
+	(Post): Add authentication attempts counter.
+	(Put): Add authentication attempts counter.
+	(Upload): Add authentication attempts counter.
+	(Open_Send_Common_Header): Add local procedure Send_Authentication_Header
+	 for the WWW and for Proxy authentication.
+
+	* aws-client.ads:
+	(Auth_Mode): New type derived from AWS.Response.Authentication_Mode;
+	(Set_WWW_Authentication): New routine.
+	(Set_Proxy_Authentication): New routine.
+	(Authentication_Level): Private type for internal use.
+	(Authentication_Type): Private type for keep autherization data.
+	The fields User, Pwd, Proxy_User, Proxy_Pwd is moved into the
+	array (Authentication_Level) of Authentication_Type;
+
+	* aws-digest.ads, aws-digest.adb:
+	New package.
+
+	* aws-messages.adb:
+	(Www_Authenticate): use WWW_Authenticat_Token now.
+
+	* aws-messages.ads:
+	(WWW_Authenticate_Token): New token constant.
+	(Proxy_Authenticate_Token): New token constant.
+	(Www_Authenticate): New routine for Digest authentication.
+
+	* aws-response.ads, aws-response.adb:
+	(Authentication_Mode): New enumeration type.
+	(Authenticate): Changed to support Digest authentication.
+	Add pragma Inline for all functions returning one of the response
+	 parameters.
+	(Authentication): New routine.
+	(Authentication_Stale): New routine.
+
+	* aws-server-protocol_handler.adb:
+	The 401 message handler moved from Send_Header_Only and
+	 from Send_Message to the Send_General_Header.
+
+	* aws-session.adb:
+	Random number generator moved to the package AWS.Utils.
+
+	* aws-status-set.adb:
+	(Authorization): Added functionality to parse Digest authentication
+	 header line.
+	
+	* aws-status.ads, aws-status.adb:
+	(Authorization_Type): New enumeration type.
+	(Authorization_Mode): New routine returning Authorization_Type.
+	(Check_Digest): New routine.
+	(Authorization_Realm): New routine.
+	(Authorization_Nonce): New routine.
+	(Authorization_NC): New routine.
+	(Authorization_CNonce): New routine.
+	(Authorization_QOP): New routine.
+	(Authorization_Response): New routine.
+
+	* aws-utils.ads, aws-utils.adb:
+	(Random): New routine.
+	(Parse_HTTP_Header_Line): New routine.
+
 2002-09-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net.ads, aws-net-std.adb, aws-net-ssl.adb:

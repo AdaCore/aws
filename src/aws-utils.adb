@@ -32,12 +32,18 @@
 
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
+with Ada.Numerics.Discrete_Random;
+with Ada.Exceptions;
 
 with Interfaces.C.Strings;
 
 with Sockets.Thin;
 
 package body AWS.Utils is
+
+   package Integer_Random is new Ada.Numerics.Discrete_Random (Random_Integer);
+
+   Random_Generator : Integer_Random.Generator;
 
    -----------------
    -- Gethostname --
@@ -65,7 +71,7 @@ package body AWS.Utils is
    function Hex (V : in Natural) return String is
       use Ada.Strings;
 
-      Hex_V : String (1 .. 8);
+      Hex_V : String (1 .. Integer'Size / 4 + 4);
    begin
       Ada.Integer_Text_IO.Put (Hex_V, V, 16);
       return Hex_V (Fixed.Index (Hex_V, "#") + 1 ..
@@ -97,4 +103,94 @@ package body AWS.Utils is
       end if;
    end Image;
 
+   ----------------------------
+   -- Parse_HTTP_Header_Line --
+   ----------------------------
+
+   procedure Parse_HTTP_Header_Line
+     (Data   : in  String;
+      Result : out Result_Set)
+   is
+      use Ada.Strings.Unbounded;
+      Attribute  : Enum;
+      Name_First : Natural := Data'First;
+      Name_Last,
+      Value_First, Value_Last : Natural;
+      Recognized : Boolean;
+      Value : Unbounded_String;
+      EDel : constant String := ",";
+      --  Delimiter between entities in the http header line
+      NVDel : constant String := "=";
+      --  Delimiter between name and value
+   begin
+      loop
+
+         Name_Last := Ada.Strings.Fixed.Index
+            (Data (Name_First .. Data'Last), NVDel);
+         exit when Name_Last = 0;
+
+         begin
+            Attribute := Enum'Value
+              (Data (Name_First .. Name_Last - 1));
+            Recognized := True;
+         exception
+            when Constraint_Error =>
+               --  Ignoring unrecognized value.
+               Recognized := False;
+         end;
+
+         Value_First := Name_Last + NVDel'Length;
+
+         --  Quoted value
+         if Data (Value_First) = '"' then
+            Value_Last := Ada.Strings.Fixed.Index
+               (Data (Value_First + 1 .. Data'Last),
+                """");
+
+            --  If format error;
+            if Value_Last = 0 then
+               Ada.Exceptions.Raise_Exception
+                 (Constraint_Error'Identity,
+                  "HTTP header line format error: " & Data);
+            end if;
+
+            Value := To_Unbounded_String (
+                Data (Value_First + 1 .. Value_Last - 1));
+            Name_First := Value_Last + EDel'Length + 1;
+
+         --  Unquoted value
+         else
+
+            Value_Last := Ada.Strings.Fixed.Index
+               (Data (Value_First .. Data'Last), EDel);
+
+            if Value_Last = 0 then
+               Value_Last := Data'Last + 1;
+            end if;
+
+            Value := To_Unbounded_String (
+                Data (Value_First .. Value_Last - 1));
+            Name_First := Value_Last + EDel'Length;
+         end if;
+
+         if Recognized then
+            Result (Attribute) := Value;
+         end if;
+
+         exit when Name_First >= Data'Last;
+      end loop;
+   end Parse_HTTP_Header_Line;
+
+   ------------
+   -- Random --
+   ------------
+
+   function Random return Random_Integer
+   is
+   begin
+      return Integer_Random.Random (Random_Generator);
+   end Random;
+
+begin
+   Integer_Random.Reset (Random_Generator);
 end AWS.Utils;

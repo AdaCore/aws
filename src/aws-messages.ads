@@ -113,6 +113,14 @@ package AWS.Messages is
    Last_Modified_Token : constant String := "Last-Modified: ";
    subtype Last_Modified_Range is Positive range Last_Modified_Token'Range;
 
+   WWW_Authenticate_Token : constant String := "WWW-Authenticate: ";
+   subtype WWW_Authenticate_Range is
+     Positive range WWW_Authenticate_Token'Range;
+
+   Proxy_Authenticate_Token : constant String := "Proxy-Authenticate: ";
+   subtype Proxy_Authenticate_Range is
+     Positive range Proxy_Authenticate_Token'Range;
+
    -----------------
    -- Status Code --
    -----------------
@@ -207,6 +215,15 @@ package AWS.Messages is
 
    function Www_Authenticate (Realm : in String) return String;
    pragma Inline (Www_Authenticate);
+   --  Basic authentication request.
+
+   function Www_Authenticate
+     (Realm : in String;
+      Nonce : in String;
+      Stale : in Boolean)
+     return String;
+   pragma Inline (Www_Authenticate);
+   --  Digest authentication request.
 
    --  helper functions
 
