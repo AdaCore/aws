@@ -70,7 +70,6 @@ package body Skel is
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set)
    is
-      pragma Unreferenced (SOAPAction);
       pragma Unreferenced (Namespace);
       pragma Unreferenced (Fault);
 
@@ -97,7 +96,7 @@ package body Skel is
 
          R : WSDL.Parameters.P_Set;
       begin
-         Text_IO.Put      (Skel_Adb, "           ");
+         Text_IO.Put      (Skel_Adb, "          ");
 
          if N.Mode = WSDL.Parameters.K_Composite then
 
@@ -117,7 +116,7 @@ package body Skel is
 
                   if R.Next /= null then
                      Text_IO.Put_Line (Skel_Adb, ",");
-                     Text_IO.Put      (Skel_Adb, "                ");
+                     Text_IO.Put      (Skel_Adb, "               ");
                   else
                      Text_IO.Put_Line (Skel_Adb, ");");
                   end if;
@@ -175,20 +174,48 @@ package body Skel is
         (Skel_Adb, "       return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
       Text_IO.Put_Line
-        (Skel_Adb, "      Payload  : constant SOAP.Message.Payload.Object");
+        (Skel_Adb, "      SOAPAction : constant String := "
+           & "AWS.Status.SOAPAction (Request);");
+      Text_IO.Put_Line
+        (Skel_Adb, "      Payload    : constant SOAP.Message.Payload.Object");
       Text_IO.Put
-        (Skel_Adb, "               := SOAP.Message.XML.Load_Payload");
+        (Skel_Adb, "        := SOAP.Message.XML.Load_Payload");
       Text_IO.Put_Line
         (Skel_Adb, " (AWS.Status.Payload (Request));");
       Text_IO.Put_Line
-        (Skel_Adb, "      Params   : constant SOAP.Parameters.List");
+        (Skel_Adb, "      Params     : constant SOAP.Parameters.List");
       Text_IO.Put_Line
-        (Skel_Adb, "               := SOAP.Message.Parameters (Payload);");
+        (Skel_Adb, "        := SOAP.Message.Parameters (Payload);");
       Text_IO.Put_Line
-        (Skel_Adb, "      Response : SOAP.Message.Response.Object;");
+        (Skel_Adb, "      Response   : SOAP.Message.Response.Object;");
       Text_IO.Put_Line
-        (Skel_Adb, "      R_Params : SOAP.Parameters.List;");
+        (Skel_Adb, "      R_Params   : SOAP.Parameters.List;");
       Text_IO.Put_Line (Skel_Adb, "   begin");
+
+      --  Procedure body start here
+
+      --  First check the SOAPAction
+
+      Text_IO.Put_Line
+        (Skel_Adb, "      if SOAPAction /= """ & SOAPAction & """ then");
+      Text_IO.Put_Line
+        (Skel_Adb, "         return SOAP.Message.Response.Build");
+      Text_IO.Put_Line
+        (Skel_Adb, "           (SOAP.Message.Response.Error.Build");
+      Text_IO.Put_Line
+        (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
+      Text_IO.Put_Line
+        (Skel_Adb, "               """
+           & "SOAPAction "" & SOAPAction & "" in " & L_Proc & ",""");
+      Text_IO.Put_Line
+        (Skel_Adb, "               "
+           & "  & "" expected " & SOAPAction & ".""));");
+      Text_IO.Put_Line
+        (Skel_Adb, "      end if;");
+      Text_IO.New_Line (Skel_Adb);
+
+      --  Initialize the Response structure
+
       Text_IO.Put_Line
         (Skel_Adb, "      Response := SOAP.Message.Response.From (Payload);");
       Text_IO.New_Line (Skel_Adb);
@@ -224,7 +251,7 @@ package body Skel is
                     & "constant SOAP.Types.SOAP_Array");
                Text_IO.Put_Line
                  (Skel_Adb,
-                  "            := SOAP.Parameters.Get (Params, """
+                  "           := SOAP.Parameters.Get (Params, """
                     & To_String (N.Name) & """);");
                Text_IO.Put      (Skel_Adb, "         ");
 
@@ -235,7 +262,7 @@ package body Skel is
                     & "constant SOAP.Types.SOAP_Record");
                Text_IO.Put_Line
                  (Skel_Adb,
-                  "            := SOAP.Parameters.Get (Params, """
+                  "           := SOAP.Parameters.Get (Params, """
                     & To_String (N.Name) & """);");
                Text_IO.Put      (Skel_Adb, "         ");
             end if;
@@ -254,13 +281,13 @@ package body Skel is
          if N.Mode = WSDL.Parameters.K_Simple then
             Text_IO.Put_Line (Skel_Adb, WSDL.To_Ada (N.P_Type));
             Output_Parameters (N);
-         else
 
+         else
             if Utils.Is_Array (To_String (N.C_Name)) then
                Text_IO.Put_Line
                  (Skel_Adb, Format_Name (O, To_String (N.C_Name)));
                Text_IO.Put_Line
-                 (Skel_Adb, "            := To_"
+                 (Skel_Adb, "           := To_"
                     & Format_Name (O, To_String (N.C_Name)) & " (V ("
                     & Format_Name (O, To_String (N.C_Name)) & "_Array));");
 
@@ -268,7 +295,7 @@ package body Skel is
                Text_IO.Put_Line
                  (Skel_Adb, Format_Name (O, To_String (N.C_Name)) & "_Type");
                Text_IO.Put_Line
-                 (Skel_Adb, "            := To_"
+                 (Skel_Adb, "           := To_"
                     & Format_Name (O, To_String (N.C_Name)) & "_Type ("
                     & Format_Name (O, To_String (N.C_Name)) & "_Record);");
             end if;
@@ -302,7 +329,7 @@ package body Skel is
          end if;
 
          Text_IO.Put_Line
-           (Skel_Adb, "                := " & L_Proc);
+           (Skel_Adb, "           := " & L_Proc);
       end if;
 
       --  Input parameters
@@ -310,7 +337,7 @@ package body Skel is
       N := Input;
 
       while N /= null loop
-         Text_IO.Put (Skel_Adb, "                     ");
+         Text_IO.Put (Skel_Adb, "                ");
 
          if N = Input then
             Text_IO.Put (Skel_Adb, "(");
@@ -341,14 +368,14 @@ package body Skel is
          Text_IO.Put_Line
            (Skel_Adb, "         R_Params :=");
          Text_IO.Put
-           (Skel_Adb, "            +");
+           (Skel_Adb, "           +");
 
          N := Output;
 
          while N /= null loop
             if N /= Output then
                Text_IO.Put
-                 (Skel_Adb, "            & ");
+                 (Skel_Adb, "           & ");
             end if;
 
             if N.Mode = WSDL.Parameters.K_Simple then
@@ -433,14 +460,14 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "         return SOAP.Message.Response.Build");
       Text_IO.Put_Line
-        (Skel_Adb, "            (SOAP.Message.Response.Error.Build");
+        (Skel_Adb, "           (SOAP.Message.Response.Error.Build");
       Text_IO.Put_Line
-        (Skel_Adb, "               (SOAP.Message.Response.Error.Client,");
+        (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
       Text_IO.Put_Line
-        (Skel_Adb, "                """
+        (Skel_Adb, "               """
            & "Parameter error in " & L_Proc & " (""");
       Text_IO.Put_Line
-        (Skel_Adb, "                  & Exception_Message (E) & "")""));");
+        (Skel_Adb, "                 & Exception_Message (E) & "")""));");
 
       Text_IO.Put_Line (Skel_Adb, "   end " & L_Proc & "_CB;");
    end New_Procedure;
