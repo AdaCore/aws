@@ -128,11 +128,11 @@ package body AWS.Resources is
    -- Is_GZip --
    -------------
 
-   function Is_GZip (Name : String) return Boolean is
+   function Is_GZip (Name : in String) return Boolean is
    begin
       return Name'Length > GZip_Ext'Length
         and then Name (Name'Last - GZip_Ext'Length + 1 .. Name'Last)
-                 = GZip_Ext;
+                   = GZip_Ext;
    end Is_GZip;
 
    ---------------------
