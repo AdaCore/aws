@@ -1,6 +1,11 @@
 2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:
+	Add info about -main option.
+
+2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wsdl2aws.adb:
 	(Main): New variable.
 	(Parse_Command_Line): Add support for option -main.
 
