@@ -34,7 +34,7 @@ RT_STD_SEC = tsgetparam ssp ssback
 else
 # Without SSL support
 
-LARGS = $(LFLAGS) $(LIBS) -L../ssl -lnosslaws
+LARGS = $(LFLAGS) $(LIBS) -L../lib -lnosslaws
 
 endif
 
