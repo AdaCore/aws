@@ -1,3 +1,14 @@
+2004-07-23  Pascal Obry  <pascal@obry.org>
+
+	* poll.ads:
+	Use definitions from AWS.OS_Lib.Definitions.
+	Fix header.
+	
+	* poll.adb:
+	Use definitions from AWS.OS_Lib.Definitions.
+	Add comments.
+	Fix header.
+
 2004-07-07  Pascal Obry  <pascal@obry.org>
 
 	* poll.adb:
