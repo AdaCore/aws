@@ -52,7 +52,8 @@ project Demos is
          for Main use project'Main
            & ("soap_client.adb", "soap_server.adb", "soap_svs.adb",
               "soap_cvs.adb", "wsdl_demo_client.adb", "wsdl_demo_server.adb",
-              "interoplab_main.adb", "soap_server_disp.adb");
+              "interoplab_main.adb", "soap_server_disp.adb",
+              "test_jabber.adb");
       when "Disabled" =>
          --  Should be replaced by null as supported by GNAT 5.03
          for Main use project'Main;
