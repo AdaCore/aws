@@ -42,7 +42,7 @@ package body Hotplug_CB is
       return AWS.Response.Build
         (Content_Type => "text/html",
          Message_Body =>
-           "<p>Ok, I'am the main server, you have asked for " & URI);
+           "<p>Ok, I'm the main server, you have asked for " & URI);
    end Main;
 
    -------------
@@ -57,7 +57,7 @@ package body Hotplug_CB is
       return AWS.Response.Build
         (Content_Type => "text/html",
          Message_Body =>
-           "<p>Ok, I'am the Hotplug server, you have asked for " & URI);
+           "<p>Ok, I'm the Hotplug server, you have asked for " & URI);
    end Hotplug;
 
 end Hotplug_CB;

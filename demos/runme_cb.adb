@@ -117,8 +117,8 @@ package body Runme_CB is
       else
          return AWS.Response.Build
            (Content_Type => "text/html",
-            Message_Body => "<p>Hello, I'am glad you ask for " & URI & '.'
-            & "<p>I'am the runme demo. Note that this"
+            Message_Body => "<p>Hello, I'm glad you ask for " & URI & '.'
+            & "<p>I'm the runme demo. Note that this"
             & " message could have been"
             & " fetched on my file system..."
             & "<p>counter = " & Natural'Image (C)
@@ -177,8 +177,8 @@ package body Runme_CB is
       else
          return AWS.Response.Build
            (Content_Type => "text/html",
-            Message_Body => "<p>Hello, I'am glad you ask for " & URI & '.'
-            & "<p>I'am the runme demo. Note that this"
+            Message_Body => "<p>Hello, I'm glad you ask for " & URI & '.'
+            & "<p>I'm the runme demo. Note that this"
             & " message could have been"
             & " fetched on my file system..."
             & "<p>This is a secure connection as shown by your browser's icon"
