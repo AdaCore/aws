@@ -64,21 +64,9 @@ package body AWS.MIME is
    Dot_Tar  : aliased constant String := ".tar";
    Dot_Exe  : aliased constant String := ".exe";
 
-   --  Mime types
-
-   Text_Html         : aliased constant String := "text/html";
-   Text_Plain        : aliased constant String := "text/plain";
-   Image_Gif         : aliased constant String := "image/gif";
-   Image_Jpeg        : aliased constant String := "image/jpeg";
-   Image_Png         : aliased constant String := "image/png";
-   Appl_Postscript   : aliased constant String := "application/postscript";
-   Appl_Pdf          : aliased constant String := "application/pdf";
-   Appl_Zip          : aliased constant String := "application/zip";
-   Appl_Octet_Stream : aliased constant String := "application/octet-stream";
-
    Type_Table : constant array (Positive range <>) of Mapping :=
-     ((Dot_Html'Access, Text_Html'Access),
-      (Dot_Htm'Access,  Text_Html'Access),
+     ((Dot_Html'Access, Text_HTML'Access),
+      (Dot_Htm'Access,  Text_HTML'Access),
 
       (Dot_Txt'Access,  Text_Plain'Access),
       (Dot_Ada'Access,  Text_Plain'Access),
