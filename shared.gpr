@@ -77,7 +77,7 @@ project Shared is
       case Build is
          when "Debug" =>
             for Default_Switches ("Ada") use
-              ("-m", "-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfiru",
+              ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfiru",
                "-gnatwe", "-gnaty3abcefhiklmnoprst", "-gnatwjmeur", "-Wall");
 
          when "Release" =>
