@@ -37,7 +37,6 @@ with AWS.Server;
 
 with SOAP.Dispatchers.Callback;
 
-with WSDL_1;
 with WSDL_1_Server;
 with WSDL_1_Service.Client;
 
