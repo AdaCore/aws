@@ -46,6 +46,8 @@ package body SOAP.WSDL is
    -- Is_Ada_Reserved_Word --
    --------------------------
 
+   --  ??? This needs to be completed
+
    function Is_Ada_Reserved_Word (Name : in String) return Boolean is
    begin
       if Name = "return" then
