@@ -4,7 +4,7 @@
 .SILENT: all auth runme agent ws wps clean soap hotplug com_1 com_2 hello_world
 .SILENT: main build_soap vh_demo dispatch
 
-GFLAGSY = $(patsubst -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GFLAGS))
+GFLAGSY = $(patsubst -gnatwe -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GFLAGS))
 # We do not want to check for separate spec for the demos (s option).
 
 ifeq ($(MODE),ssl)
