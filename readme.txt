@@ -38,6 +38,9 @@ Here are the main changes since AWS 1.3 :
    - Disable keep-alive connection for the last free slot. It make AWS better
      for the hard loading servers.
 
+   - New configuration parameter Free_Slots_Keep_Alive_Limit to control
+     disabling keep-alive connections on the hard loaded server.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
