@@ -209,14 +209,37 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : in     String) is
    begin
-      Message_Body (D, Translator.To_Stream_Element_Array (Value));
+      Message_Body (D, To_Unbounded_String (Value));
    end Message_Body;
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     Strings.Unbounded.Unbounded_String) is
+      Value : in     Unbounded_String)
+   is
+      use Streams;
+
+      Chunk_Size  : constant := 8 * 1_024;
+      Len         : constant Stream_Element_Offset
+        := Stream_Element_Offset (Length (Value));
+
+      Message     : Utils.Stream_Element_Array_Access
+        := new Stream_Element_Array (1 .. Len);
+      First, Last : Stream_Element_Offset;
    begin
-      Message_Body (D, To_String (Value));
+      --  First convert the message to a Stream_Element_Array
+      First := 1;
+
+      loop
+         Last := Stream_Element_Offset'Min (First + Chunk_Size - 1, Len);
+
+         Message (First .. Last)
+           := Translator.To_Stream_Element_Array
+                (Slice (Value, Positive (First), Natural (Last)));
+         First := Last + 1;
+         exit when First > Len;
+      end loop;
+
+      Message_Body (D, Message);
    end Message_Body;
 
    ----------
