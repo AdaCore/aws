@@ -407,11 +407,18 @@ package body AWS.Session is
 
          procedure Modify
            (SID  : in     ID;
-            Node : in out Session_Node) is
-            pragma Warnings (Off, SID);
+            Node : in out Session_Node)
+         is
+            pragma Unreferenced (SID);
+            Found : Boolean;
          begin
             Node.Time_Stamp := Calendar.Clock;
-            Key_Value.Get_Value (Node.Root, Key, Value);
+
+            Key_Value.Get_Value (Node.Root, Key, Value, Found);
+
+            if not Found then
+               Value := Null_Unbounded_String;
+            end if;
          end Modify;
 
          ------------------
@@ -427,10 +434,6 @@ package body AWS.Session is
          if not Found then
             Value := Null_Unbounded_String;
          end if;
-
-      exception
-         when Key_Value.Table.Missing_Item_Error =>
-            Value := Null_Unbounded_String;
       end Get_Value;
 
       ---------------
@@ -694,11 +697,9 @@ package body AWS.Session is
       ---------------------------
 
       procedure Unsafe_Delete_Session (SID : in ID) is
+         Was_Present : Boolean;
       begin
-         Session_Set.Remove (Sessions, SID);
-      exception
-         when Key_Value.Table.Missing_Item_Error =>
-            null;
+         Session_Set.Remove (Sessions, SID, Was_Present);
       end Unsafe_Delete_Session;
 
    end Database;
