@@ -34,10 +34,37 @@ with Ada.Exceptions;
 with Ada.Strings.Fixed;
 
 with AWS.Messages;
+with AWS.Utils;
 
 package body AWS.URL is
 
    use Ada;
+
+   subtype Escape_Code is String (1 .. 2);
+
+   Not_Escaped : constant Escape_Code := "  ";
+
+   function Code (C : Character) return Escape_Code;
+   --  Returns hexadecimal code for character C.
+
+   ----------
+   -- Code --
+   ----------
+
+   function Code (C : Character) return Escape_Code is
+   begin
+      return Utils.Hex (Character'Pos (C));
+   end Code;
+
+   Hex_Escape : constant array (Character) of Escape_Code
+     := (';' => Code (';'), '/' => Code ('/'), '?' => Code ('?'),
+         ':' => Code (':'), '@' => Code ('@'), '&' => Code ('&'),
+         '=' => Code ('='), '+' => Code ('+'), '$' => Code ('$'),
+         ',' => Code (','), '<' => Code ('<'), '>' => Code ('>'),
+         '#' => Code ('#'), '%' => Code ('%'), '"' => Code ('"'),
+         '{' => Code ('{'), '}' => Code ('}'), '|' => Code ('|'),
+         '\' => Code ('\'), '^' => Code ('^'), '[' => Code ('['),
+         ']' => Code (']'), '`' => Code ('`'), others => Not_Escaped);
 
    ------------
    -- Encode --
@@ -48,17 +75,23 @@ package body AWS.URL is
       K   : Natural := 0;
    begin
       for I in URL'Range loop
+         if URL (I) = ' ' then
+            --  special case for the space that can be encoded as %20 or
+            --  '+'. The later being more readable we use this encoding here.
+            K := K + 1;
+            Res (K) := '+';
 
-         case URL (I) is
-            when ' ' =>
-               K := K + 1;
-               Res (K .. K + 2) := "%20";
-               K := K + 2;
+         elsif Hex_Escape (URL (I)) = Not_Escaped Then
+            K := K + 1;
+            Res (K) := URL (I);
 
-            when others =>
-               K := K + 1;
-               Res (K) := URL (I);
-         end case;
+         else
+            K := K + 1;
+            Res (K) := '%';
+            K := K + 1;
+            Res (K .. K + 1) := Hex_Escape (URL (I));
+            K := K + 1;
+         end if;
       end loop;
 
       return Res (1 .. K);
