@@ -104,7 +104,7 @@ procedure Test_Hotplug is
             "http://localhost:" & Utils.Image (Com_Port), Filter);
 
          if Response.Status_Code (R) = Messages.S200 then
-            Text_IO.Put_Line ("Register OK");
+            Text_IO.Put_Line ("Unregister OK");
          else
             Text_IO.Put_Line
               ("Unregister Error : " & Response.Message_Body (R));
