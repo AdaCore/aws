@@ -30,7 +30,7 @@
 
 package AWS.MIME is
 
-   function Content (Filename : in String) return String;
+   function Content_Type (Filename : in String) return String;
    --  Determine the MIME Content Type from the file's type extension.
    --  Returns "application/octet-stream" if the file type is unknown.
 
