@@ -16,10 +16,10 @@ endif
 
 ifdef DEBUG
 MAKE_OPT	=
-BDIR		= ./.build/debug
+BDIR		= .build/debug
 else
 MAKE_OPT	= -s
-BDIR		= ./.build/release
+BDIR		= .build/release
 endif
 
 #############################################################################
@@ -135,8 +135,8 @@ else
 	echo "UNIX like OS detected"
 endif
 	echo "Install directory     : " $(INSTALL)
-ifdef XMLADA
-	echo "XMLada activated      : " $(XMLADA)
+ifeq (${XMLADA}, true)
+	echo "XMLada activated.
 else
 	echo "XMLada not activated, no SOAP/WSDL support"
 endif
