@@ -30,16 +30,12 @@
 
 --  $Id$
 
-with Ada.Unchecked_Deallocation;
 with Ada.Calendar;
 with System;
 with GNAT.Calendar.Time_IO;
 
-with Sockets.Stream_IO;
-
 with AWS.Messages;
 with AWS.MIME;
-with AWS.Net;
 with AWS.Utils;
 
 package body AWS.Server.Push is
@@ -55,7 +51,7 @@ package body AWS.Server.Push is
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line.
 
-   Boundary : constant String := "--AWS.Server.Push.Boundary_"
+   Boundary : constant String := "--AWS.Push.Boundary_"
      & GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%s")
      & New_Line;
    --  This is the multi-part boundary string used by AWS push server.
@@ -68,18 +64,11 @@ package body AWS.Server.Push is
      (Socket      : in Socket_Type;
       Environment : in Client_Environment;
       Kind        : in Mode)
-     return Client_Holder
-   is
-      use Sockets.Stream_IO;
-      Stream : constant Stream_Access := new Socket_Stream_Type;
+     return Client_Holder is
    begin
-      Initialize (Socket_Stream_Type'Class (Stream.all),
-                  Sockets.Socket_FD (Socket));
-
       return (Kind        => Kind,
               Environment => Environment,
-              Socket      => new Socket_Type'(Socket),
-              Stream      => Stream);
+              Stream      => AWS.Net.Stream_IO.Stream (Socket));
    end To_Holder;
 
    -----------
@@ -87,19 +76,29 @@ package body AWS.Server.Push is
    -----------
 
    procedure Close (Socket : in out Client_Holder) is
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Ada.Streams.Root_Stream_Type'Class, Stream_Access);
-
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Socket_Type, Socket_Access);
-
+      use AWS.Net.Stream_IO;
    begin
-      Sockets.Shutdown (Socket.Socket.all);
-      AWS.Net.Free (Socket.Socket.all);
+      Shutdown (Socket.Stream);
       Free (Socket.Stream);
-      Free (Socket.Socket);
    end Close;
+
+   -----------
+   -- Count --
+   -----------
+
+   function Count (Server : in Object) return Natural is
+   begin
+      return Server.Count;
+   end Count;
+
+   -------------
+   -- Destroy --
+   -------------
+
+   procedure Destroy (Server : in out Object) is
+   begin
+      Server.Destroy;
+   end Destroy;
 
    ----------
    -- Send --
@@ -163,6 +162,26 @@ package body AWS.Server.Push is
          Data         : in Client_Output_Type;
          Content_Type : in String);
       --  Send Data to a client identified by Holder.
+
+      -----------
+      -- Count --
+      -----------
+
+      function Count return Natural is
+      begin
+         return Table.Size (Container);
+      end Count;
+
+      -------------
+      -- Destroy --
+      -------------
+
+      procedure Destroy is
+      begin
+         while Table.Size (Container) > 0 loop
+            Unregister (Table.Min_Key (Container));
+         end loop;
+      end Destroy;
 
       ----------
       -- Send --
@@ -270,6 +289,9 @@ package body AWS.Server.Push is
                Messages.Content_Type (MIME.Multipart_Mixed_Replace, Boundary)
                & New_Line);
          end if;
+
+         AWS.Net.Stream_IO.Flush (Holder.Stream);
+
       end Register;
 
       ---------------
@@ -306,6 +328,8 @@ package body AWS.Server.Push is
          elsif Holder.Kind = Chunked then
             String'Write (Holder.Stream, New_Line);
          end if;
+
+         AWS.Net.Stream_IO.Flush (Holder.Stream);
 
       end Send_Data;
 
