@@ -1,3 +1,11 @@
+2004-06-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client-xml-input_sources.ads:
+	(HTTP_Input): Do not initialize First and Last.
+
+	* aws-client-xml-input_sources.adb:
+	(Create): Set First related to Buffer'First.
+
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml-input_sources.adb:
