@@ -353,9 +353,8 @@ package body Stub is
       Text_IO.New_Line (Stub_Ads);
 
       Text_IO.Put (Stub_Ads, "   ");
-      Put_Header (Stub_Ads, O, Proc, Input, Output);
+      Put_Header (Stub_Ads, O, Proc, Input, Output, Mode => Stub_Spec);
 
-      Text_IO.Put_Line (Stub_Ads, ";");
       Text_IO.Put_Line
         (Stub_Ads, "   --  Raises SOAP.SOAP_Error if the procedure fails");
 
@@ -366,14 +365,8 @@ package body Stub is
       Text_IO.New_Line (Stub_Adb);
 
       Text_IO.Put (Stub_Adb, "   ");
-      Put_Header (Stub_Adb, O, Proc, Input, Output);
+      Put_Header (Stub_Adb, O, Proc, Input, Output, Mode => Stub_Body);
 
-      if Input /= null then
-         Text_IO.New_Line (Stub_Adb);
-         Text_IO.Put (Stub_Adb, "  ");
-      end if;
-
-      Text_IO.Put_Line (Stub_Adb, " is");
       Text_IO.Put_Line
         (Stub_Adb, "      P_Set   : SOAP.Parameters.List;");
       Text_IO.Put_Line
@@ -409,15 +402,9 @@ package body Stub is
       Text_IO.Put_Line
         (Stub_Adb,
          "           := SOAP.Client.Call");
-      Text_IO.Put_Line
-        (Stub_Adb,
-         "                (""" & To_String (O.Location) & """,");
-      Text_IO.Put_Line
-        (Stub_Adb,
-         "                 Payload,");
       Text_IO.Put
         (Stub_Adb,
-         "                 """ & SOAPAction & """");
+         "                (Endpoint, Payload, """ & SOAPAction & """");
 
       --  Check if we need to generate proxy authentication
 
