@@ -1,6 +1,20 @@
 2003-02-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	(check_mem): Keep run's output for debugging purpose.
+	(clean): Add run? and check_mem.run?
+
+2003-02-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* check_mem.adb:
+	(Check): Output all data to ease debugging if necessary.
+	(Server): Allow more time for the requests.
+	Add check for templates.
+
+	* check_mem.tmplt:
+	Initial revision.
+
+	* makefile:
 	(ALL_TESTS): Renamed to STD_TESTS.
 	(OTH_TESTS): New target.
 	(build): Remove specific test, add OTH_TESTS variable.
