@@ -38,6 +38,34 @@ package body Hotplug_CB is
 
    use Ada.Strings.Unbounded;
 
+   -------------
+   -- Hotplug --
+   -------------
+
+   function Hotplug (Request : in AWS.Status.Data)
+     return AWS.Response.Data
+   is
+      URI : constant String := AWS.Status.URI (Request);
+      P   : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
+
+      Parameters : Unbounded_String;
+   begin
+      for K in 1 .. AWS.Parameters.Count (P) loop
+         Append (Parameters, "<p>" & Positive'Image (K) & ") Name = "
+                 & AWS.Parameters.Get_Name (P, K));
+         Append (Parameters, " Value = " & AWS.Parameters.Get_Value (P, K));
+      end loop;
+
+      return AWS.Response.Build
+        (Content_Type => "text/html",
+         Message_Body =>
+           "<p>This request is using method "
+           & AWS.Status.Request_Method'Image (AWS.Status.Method (Request))
+           & "<p>Ok, I'm the Hotplug server, you have asked for " & URI
+           & "<p>Here are the parameters"
+           & To_String (Parameters));
+   end Hotplug;
+
    ----------
    -- Main --
    ----------
@@ -67,33 +95,5 @@ package body Hotplug_CB is
            & "<input type=hidden name=myvar1 value=myvalue1>"
            & "<input type=hidden name=myvar2 value=myvalue2></form>");
    end Main;
-
-   -------------
-   -- Hotplug --
-   -------------
-
-   function Hotplug (Request : in AWS.Status.Data)
-     return AWS.Response.Data
-   is
-      URI : constant String := AWS.Status.URI (Request);
-      P   : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
-
-      Parameters : Unbounded_String;
-   begin
-      for K in 1 .. AWS.Parameters.Count (P) loop
-         Append (Parameters, "<p>" & Positive'Image (K) & ") Name = "
-                 & AWS.Parameters.Get_Name (P, K));
-         Append (Parameters, " Value = " & AWS.Parameters.Get_Value (P, K));
-      end loop;
-
-      return AWS.Response.Build
-        (Content_Type => "text/html",
-         Message_Body =>
-           "<p>This request is using method "
-           & AWS.Status.Request_Method'Image (AWS.Status.Method (Request))
-           & "<p>Ok, I'm the Hotplug server, you have asked for " & URI
-           & "<p>Here are the parameters"
-           & To_String (Parameters));
-   end Hotplug;
 
 end Hotplug_CB;
