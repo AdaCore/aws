@@ -45,7 +45,7 @@ package AWS.Parameters is
    --  Returns the number of item in Parameter_List.
 
    function Name_Count (Parameter_List : in List) return Natural;
-   --  Returns the number of unique name in Parameter_List.
+   --  Returns the number of unique key name in Parameter_List.
 
    function Count (Parameter_List : in List; Name : in String) return Natural;
    --  Returns the number of value for Key Name in Parameter_List. It returns
@@ -82,13 +82,13 @@ package AWS.Parameters is
    --  "?name1=value1&name2=value2..."
 
    function Get_Names (Parameter_List : in List) return VString_Array;
-   --  Returns array of unique names.
+   --  Returns array of unique key names.
 
    function Get_Values
      (Parameter_List : in List;
       Name           : in String)
      return VString_Array;
-   --  Returns all values for the specified parameter name.
+   --  Returns all values for the specified parameter key name.
 
 private
 
