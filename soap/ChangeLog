@@ -1,3 +1,8 @@
+2003-05-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.ads:
+	(Version): Set to 0.9. After previous changes to the parser/generator.
+
 2003-05-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-types.ads, soap-types.adb:
