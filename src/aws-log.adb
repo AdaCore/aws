@@ -186,28 +186,26 @@ package body AWS.Log is
    --
    --  127.0.0.1 - - [25/Apr/1998:15:37:29 +0200] "GET / HTTP/1.0" 200 1363
 
-
    procedure Write
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
       Answer       : in     Response.Data) is
    begin
       Write (Log, Connect_Stat,
-         Response.Status_Code (Answer),
-         Response.Content_Length (Answer));
+             Response.Status_Code (Answer),
+             Response.Content_Length (Answer));
    end Write;
 
    procedure Write
      (Log            : in out Object;
       Connect_Stat   : in     Status.Data;
       Status_Code    : in     Messages.Status_Code;
-      Content_Length : in     Natural)
-   is
+      Content_Length : in     Natural) is
    begin
       Write (Log, Connect_Stat,
-         Messages.Image (Status_Code)
-         & ' '
-         & Utils.Image (Content_Length));
+             Messages.Image (Status_Code)
+               & ' '
+               & Utils.Image (Content_Length));
    end Write;
 
    procedure Write
