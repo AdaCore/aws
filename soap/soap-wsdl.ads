@@ -47,17 +47,42 @@ package SOAP.WSDL is
      (P_Integer, P_Float, P_Double, P_String, P_Boolean, P_Time, P_B64);
    --  These are the types supported by the WSDL parser
 
-   function To_Type (XSD_Type : in String) return Parameter_Type;
-   --  Returns the Ada parameter style for the XML type XSD_Type
+   type Context_Type is (Parameter, Component);
+   --  This is the context of the variable, either as a simple parameter or as
+   --  a record or array component.
 
    function Is_Standard (XSD_Type : in String) return Boolean;
    --  Returns true is XSD_Type is a standard type (not an array or a record)
 
-   function To_Ada (P : in Parameter_Type) return String;
+   function To_Type (XSD_Type : in String) return Parameter_Type;
+   --  Returns the Ada parameter style for the XML type XSD_Type
+
+   function To_Ada
+     (P       : in Parameter_Type;
+      Context : in Context_Type := Parameter)
+      return String;
    --  Returns P's Ada type string representation
 
-   function Is_Ada_Reserved_Word (Name : in String) return Boolean;
-   --  Returns True if Name is an Ada reserved word
+   function V_Routine
+     (P       : in Parameter_Type;
+      Context : in Context_Type := Parameter)
+      return String;
+   --  Returns the V routine to use to get value for a Parameter_Type.
+
+   function Get_Routine
+     (P       : in Parameter_Type;
+      Context : in Context_Type := Parameter)
+      return String;
+   --  Returns the Get routine to use to get value for a Parameter_Type.
+
+   function Set_Routine
+     (P       : in Parameter_Type;
+      Context : in Context_Type := Parameter)
+      return String;
+   --  Returns the constructor to use to create a Parameter_Type.
+
+   function Set_Type (P : in Parameter_Type) return String;
+   --  Returns SOAP type for P.
 
 private
 
