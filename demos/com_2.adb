@@ -28,6 +28,9 @@
 
 --  $Id$
 
+--  Com_1 and Com_2 are two demos programs which are using the AWS
+--  communication protocol. You must first launch Com_1 then Com_2.
+
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 
