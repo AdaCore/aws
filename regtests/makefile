@@ -130,11 +130,12 @@ tres: force
 	echo "@@END_IF@@" >> file.tmplt
 	../tools/awsres -q -r tresres file1.html file2.html file.tmplt
 	gnatmake -g tres $(GARGS) -largs $(LARGS) -bargs -E
-	./tres > tres.res
+	./tres > tres-1.res
 	echo "line 3, file 1" >> file1.html
 	echo "line 4, file 2" >> file2.html
 	echo "line 3, file 3" >> file3.html
-	./tres >> tres.res
+	./tres > tres-2.res
+	cat tres-1.res tres-2.res > tres.res
 
 tres2: force
 	gnatmake -g tres2 $(GARGS) -largs $(LARGS) -bargs -E
