@@ -84,4 +84,4 @@ implemented:
 - When removing the session (AWS.Session.Delete) it would be good to also
   remove the cookie on the client side.
 
-- Add support for HTTPS in AWS.Client.
+- Have a way to set the certificate to use with an HTTPS server.
