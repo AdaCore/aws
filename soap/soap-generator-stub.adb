@@ -104,13 +104,21 @@ package body Stub is
          Prefix : in String;
          N      : in WSDL.Parameters.P_Set)
       is
-         pragma Unreferenced (Prefix);
          pragma Unreferenced (K);
       begin
-         Text_IO.Put
-           (Stub_Adb, "A (To_Object_Set ("
-              & Format_Name (O, To_String (N.Name))
-              & "), """ & To_String (N.Name) & """)");
+         if Prefix = "" then
+            --  Not inside a record
+            Text_IO.Put
+              (Stub_Adb, "A (To_Object_Set ("
+                 & Format_Name (O, To_String (N.Name))
+                 & "), """ & To_String (N.Name) & """)");
+
+         else
+            Text_IO.Put
+              (Stub_Adb, "A (To_Object_Set ("
+                 & Prefix & Format_Name (O, To_String (N.Name))
+                 & ".Item.all" & "), """ & To_String (N.Name) & """)");
+         end if;
       end Output_Array;
 
       ----------------------
@@ -140,12 +148,12 @@ package body Stub is
             end if;
 
             if N.Mode = WSDL.Parameters.K_Simple then
-               Output_Simple (K + 1, Prefix, N);
+               Output_Simple (K, Prefix, N);
 
             else
 
                if Utils.Is_Array (To_String (N.C_Name)) then
-                  Output_Array (K + 1, Prefix, N);
+                  Output_Array (K, Prefix, N);
                else
                   Output_Record (K + 1, Prefix, N);
                end if;
@@ -181,6 +189,7 @@ package body Stub is
 
       procedure Output_Result (N : in WSDL.Parameters.P_Set) is
          use type WSDL.Parameters.Kind;
+         use type WSDL.Parameter_Type;
       begin
          if N.Mode = WSDL.Parameters.K_Composite
            and then Utils.Is_Array (To_String (N.C_Name))
@@ -202,6 +211,15 @@ package body Stub is
             end;
 
          else
+
+            if N.Mode = WSDL.Parameters.K_Simple
+              and then N.P_Type = WSDL.P_String
+            then
+               --  First call operator to convert the string to an unbounded
+               --  string.
+               Text_IO.Put (Stub_Adb, "+");
+            end if;
+
             Text_IO.Put
               (Stub_Adb,
                "SOAP.Parameters.Get (R_Param, """
