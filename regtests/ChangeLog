@@ -1,5 +1,11 @@
 2004-11-01  Pascal Obry  <pascal@obry.org>
 
+	* file2.adb:
+	Add binary data socket log.
+
+	* test_soap.adb:
+	Add text data socket log.
+
 	* test_net_log.adb:
 	(HW_CB): Add small delay to have more chance to get proper output.
 
