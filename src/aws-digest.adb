@@ -84,8 +84,8 @@ package body AWS.Digest is
       declare
          use Ada.Strings.Maps;
       begin
-         if not Is_Subset (To_Set (Value (1 .. 5)),
-                           Constants.Hexadecimal_Digit_Set)
+         if not Is_Subset
+           (To_Set (Value (1 .. 5)), Constants.Hexadecimal_Digit_Set)
          then
             return False;
          end if;
