@@ -28,13 +28,19 @@
 
 --  $Id$
 
+with Ada.Calendar;
+
 with Sockets;
 
 with AWS.Response;
 
 package AWS.Connection is
 
-   task type Line is
+   use Ada;
+
+   type Slot is limited private;
+
+   task type Line (Slot : access Connection.Slot) is
       entry Start (FD : in Sockets.Socket_FD;
                    CB : in Response.Callback);
    end Line;
@@ -45,5 +51,25 @@ package AWS.Connection is
 
    function Get_Free_Slot return Line;
    --  return a free line to answer to a client.
+
+private
+
+   Keep_Open_Duration : constant Duration := 120.0;
+
+   type Slot is record
+      L                   : Line (Slot'Unchecked_Access);
+      Sock                : Sockets.Socket_FD;
+      Free                : Boolean := True;
+      Abortable           : Boolean := False;
+      Activity_Time_Stamp : Calendar.Time;
+   end record;
+
+   --  Abortable is set to true when the line can be aborted by closing the
+   --  associated socket. Get_Free_Slot use this info to get a free line when
+   --  none are available. Activity_Time_Stamp is the last time the line has
+   --  been used. The line with the oldest activity is closed.
+   --  Also a line is closed after Keep_Open_Duration seconds of inactivity.
+
+   --  Note that Line discriminant is an auto-pointer to the line Slot record.
 
 end AWS.Connection;
