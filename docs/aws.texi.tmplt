@@ -2,7 +2,7 @@
 
 @c %**start of header
 @setfilename aws.info
-@settitle Ada Web Server
+@settitle Ada Web Server User's Guide
 @setchapternewpage odd
 @syncodeindex fn cp
 
@@ -12,8 +12,8 @@
 
 @titlepage
 
-@title AWS - version @_AWS_VERSION_@
-@subtitle Ada Web Server User's Guide
+@title Ada Web Server User's Guide
+@subtitle AWS - version @_AWS_VERSION_@
 @subtitle Support for SOAP 1.1 - version @_SOAP_VERSION_@
 @subtitle SMTP, LDAP and Jabber protocols.
 @subtitle $Revision$
@@ -31,6 +31,27 @@
 @page
 
 @end titlepage
+
+@ifhtml
+@html
+<font size="+2">
+<p>AWS - version @_AWS_VERSION_@
+<p>Support for SOAP 1.1 - version @_SOAP_VERSION_@
+<p>SMTP, LDAP and Jabber protocols.
+<p>$Revision$
+<p>Date: @today{}
+<p>Dmitriy Anisimkov (anisimkov@@yahoo.com)
+<p>Pascal Obry (p.obry@@wanadoo.fr)
+</font>
+
+<font size="+1">
+<p>@url{http://libre.act-europe.fr}
+<p>@url{http://perso.wanadoo.fr/pascal.obry}
+</font>
+
+@page
+@end html
+@end ifhtml
 
 @finalout
 
@@ -554,7 +575,7 @@ Now you are ready to use @code{AWS} !
 
 @menu
 * Setting up environment::
-* Basic notion::
+* Basic notions::
 * Configuration options::
 * Session handling::
 * Authentication::
@@ -562,6 +583,7 @@ Now you are ready to use @code{AWS} !
 * Communication::
 * Hotplug module::
 * Server Push::
+* Working with Server sockets::
 * Server Log::
 * Secure server::
 * Unexpected exception handler::
@@ -613,8 +635,8 @@ be using. For example you'll have to point @code{GNAT} to the
 
 @end table
 
-@node Basic notion
-@section Basic notion
+@node Basic notions
+@section Basic notions
 
 @noindent
 @code{AWS} is not a Web Server like @i{IIS} or @i{Apache}, it is a component to
@@ -1749,11 +1771,15 @@ A complete example can be found in the demos directory. Look for
 @noindent
 Server Push is a feature that let the Web Server send continuously
 data to client's  Web Browser or client applications. The client does
-not have to reload at periodic time to have the data updated, each
-time the server send a piece of data it gets displayed on the client.
+not have to reload at periodic time (which is what is called client
+pull) to have the data updated, each time the server send a piece of
+data it gets displayed on the client.
 
 @noindent
-Here are the step-by-step instructions to build a Push Server:
+To build a push server you need to build an instance of the
+@code{AWS.Server.Push} package. This package takes a set of formal
+parameters. Here are the step-by-step instructions to build a Push
+Server:
 
 @enumerate
 
@@ -1761,21 +1787,16 @@ Here are the step-by-step instructions to build a Push Server:
 @item The data to be sent
 @sp 1
 First you must create a type that will contains the data to be sent to
-client's browser.
+client's browser except if it is a standard Ada type. See
+@code{Client_Output_Type} formal parameter.
 
 @sp 1
 @item The data that will be streamed
 @sp 1
 This is the representation of the data that will be sent to client's
 browser. This will be either a @code{String} for Web pages or
-@code{Stream_Element_Array} for binary data like pictures.
-
-@sp 1
-@item Provides a function to convert from the data type to be sent to
-the data that will be streamed.
-@sp 1
-This is a function that will transform the data described on point 1
-above to the form described on point 2 above.
+@code{Stream_Element_Array} for binary data like pictures. See
+@code{Stream_Output_Type} formal parameter.
 
 @sp 1
 @item The context
@@ -1783,7 +1804,15 @@ above to the form described on point 2 above.
 It is often nice to be able to configure each client with different
 parameters if needed. This can be achieved with the Context data type
 that will be passed as parameter of the conversion function described
-above.
+below. See @code{Client_Environment} formal parameter.
+
+@sp 1
+@item Provides a function to convert from the data type to be sent to
+the data that will be streamed.
+@sp 1
+This is a function that will transform the data described on point 1
+above to the form described on point 2 above. See
+@code{To_Stream_Output} formal parameter.
 
 @sp 1
 @item Build the Push Server
@@ -1794,16 +1823,19 @@ above declarations.
 @sp 1
 @item Registering new clients
 @sp 1
-In the standard AWS procedure callback it is possible to register a
+In the standard @code{AWS} procedure callback it is possible to register a
 client if requested. This is done by calling
 @code{AWS.Server.Push.Register}. It is possible to unregister a
 client using @code{AWS.Server.Push.Unregister}. Each client must be
-identified with a unique client ID.
+identified with a unique client ID. After registering a new client
+from the callback procedure you must return the
+@code{AWS.Response.Socket_Taken} message. This is very important, it
+tells the server to not close this socket.
 
 @sp 1
 @item Sending the data
 @sp 1
-At this point it is possible to send data to clients. To do so it is
+At this point it is possible to send data to clients. To do so
 two routines are available.
 @sp 1
 
@@ -1824,6 +1856,57 @@ To send a piece of data to all clients registered on this server.
 Very large Internet applications should use this feature carefully. A
 push server keeps a socket reserved for each registered clients and
 the number of available sockets per process is limited by the OS.
+
+@node Working with Server sockets
+@section Working with Server sockets
+@cindex Working with Server sockets
+
+@noindent
+With @code{AWS} is is possible to take out a socket from the server and give
+it back later. This feature must be used carefully but it gives a lot
+of flexibility. As the socket is taken away, the connection line (or slot)
+is released, @code{AWS} can then use it to handle other requests.
+
+@noindent
+This can be used to better support heavy loaded servers when some
+requests need a long time to complete. Long time here means longer
+than most of the other requests which should be mostly interractives
+for a Web server. Of course in such a case a keep-alive connection is
+kept open.
+
+@noindent
+The usage in such a case is to take out the socket and put it in a
+waiting line. This releases the connection for the server. When the
+data to prepare the answer is ready you give back the socket to the
+server.
+
+@itemize @bullet
+
+@sp 1
+@item Take a socket from the server
+@sp 1
+
+This first step is done form the callback function. A user instead of
+replying immediatly decides to take away the socket from the
+server. The first step is to record the connection socket socket by
+calling @code{AWS.Status.Socket}. The second step is to tell the
+server to not release this socket by returning @code{AWS.Response.Socket_Taken}
+from the callback function. At this point the server will continue to
+serve other clients.
+
+@noindent
+Note that this feature is used by the server push implementation 
+@pxref{Server Push}.
+
+@sp 1
+@item Give back the socket to the server
+@sp 1
+
+Calling @code{AWS.Sever.Give_Back_Socket} will register the socket for
+reuse. This socket will be placed into a spool, next time the server
+will check for incoming requests it will be picked up.
+
+@end itemize
 
 @node Server Log
 @section Server Log
@@ -3993,7 +4076,10 @@ AWS User API:
 * AWS.MIME::
 * AWS.Parameters::
 * AWS.Resources::
+* AWS.Resources.Embedded::
+* AWS.Resources.Files::
 * AWS.Resources.Streams::
+* AWS.Resources.Streams.Memory::
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Hotplug::
@@ -4184,11 +4270,32 @@ SOAP User API:
 @include aws-resources.ads.texi
 
 @page
+@node AWS.Resources.Embedded
+@appendixsec AWS.Resources.Embedded
+@cindex AWS.Resources.Embedded
+
+@include aws-resources-embedded.ads.texi
+
+@page
+@node AWS.Resources.Files
+@appendixsec AWS.Resources.Files
+@cindex AWS.Resources.Files
+
+@include aws-resources-files.ads.texi
+
+@page
 @node AWS.Resources.Streams
 @appendixsec AWS.Resources.Streams
 @cindex AWS.Resources.Streams
 
 @include aws-resources-streams.ads.texi
+
+@page
+@node AWS.Resources.Streams.Memory
+@appendixsec AWS.Resources.Streams.Memory
+@cindex AWS.Resources.Streams.Memory
+
+@include aws-resources-streams-memory.ads.texi
 
 @page
 @node AWS.Response
