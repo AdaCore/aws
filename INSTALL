@@ -1,9 +1,11 @@
 
-To build AWS you need to change some settings in the top level makefile.conf
-file.
+$Id$
 
-Look for ADASOCKETS, XMLADA and INSTALL make's variables.
-Then doing a "make build" should be ok.
+To build AWS you need to change some settings in the top level 
+makefile.conf file.
 
-Note that you can find more information about the build procedure into AWS
-User's Guide.
+Look for ADASOCKETS, XMLADA, ASIS, POSIX, and INSTALL make's
+variables. Then doing a "make build" and "make install" should be ok.
+
+Note that you can find more information about the build procedure into
+the AWS User's Guide.
