@@ -176,6 +176,7 @@ run_regtests: build_tools
 
 clean: clean_noapiref
 	${MAKE} -C docs clean_apiref $(ALL_OPTIONS)
+	${MAKE} -C lib clean $(ALL_OPTIONS)
 
 clean_noapiref:
 	${MAKE} -C include clean $(ALL_OPTIONS)
@@ -188,7 +189,6 @@ clean_noapiref:
 	${MAKE} -C regtests clean $(ALL_OPTIONS)
 	${MAKE} -C win32 clean $(ALL_OPTIONS)
 	${MAKE} -C tools clean $(ALL_OPTIONS)
-	${MAKE} -C lib clean $(ALL_OPTIONS)
 	-rm -f *.~*.*~
 
 display:
@@ -258,6 +258,8 @@ build_tarball:
 	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
 	$(CP) include/*.ad[sb] include/makefile $${AWS}/include;\
 	$(CP) include/zlib/*.[ch] include/zlib/makefile $${AWS}/include/zlib;\
+	$(CP) include/zlib/FAQ include/zlib/README $${AWS}/include/zlib;\
+	$(CP) include/zlib/ChangeLog $${AWS}/include/zlib;\
 	$(CP) include/readme.txt $${AWS}/include;\
 	$(CP) lib/makefile $${AWS}/lib;\
 	$(CP) icons/*.gif $${AWS}/icons;\
