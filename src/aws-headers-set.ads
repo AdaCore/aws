@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -51,7 +51,7 @@ package AWS.Headers.Set is
    --     N  = M + 1  => the pair name=value is appended to the table
    --     N  > M + 1  => Constraint_Error raised
 
-   procedure Read (Headers : in out List; Socket : in Net.Socket_Type'Class);
+   procedure Read (Socket : in Net.Socket_Type'Class; Headers : in out List);
    --  Read and parse HTTP header from the socket.
 
    procedure Reset (Headers : in out List);
