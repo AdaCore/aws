@@ -35,6 +35,8 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Interfaces.C;
 
+with Templates_Parser;
+
 with AWS.Log;
 with AWS.Messages;
 with AWS.OS_Lib;
@@ -326,9 +328,17 @@ is
 
       if URI = Admin_URI then
          --  status page
-         Answer := Response.Build
-           (Content_Type => MIME.Text_HTML,
-            Message_Body => Get_Status (HTTP_Server));
+         begin
+            Answer := Response.Build
+              (Content_Type => MIME.Text_HTML,
+               Message_Body => Get_Status (HTTP_Server));
+         exception
+            when Templates_Parser.Template_Error =>
+               Answer := Response.Build
+                 (Content_Type => MIME.Text_HTML,
+                  Message_Body => "Status template error. Please check "
+                                  & "that 'status.tmplt' file is valid.");
+         end;
 
       elsif URI = Admin_URI & "-logo" then
          --  status page logo
