@@ -230,45 +230,45 @@ package AWS.Status is
 
    function Authorization_Mode     (D : in Data) return Authorization_Type;
    pragma Inline (Authorization_Mode);
-   --  Get the type of the "Authorization:" parameter
+   --  Returns the type of the "Authorization:" parameter
 
    function Authorization_Name     (D : in Data) return String;
    pragma Inline (Authorization_Name);
-   --  Get the value for the username in the "Authorization:" parameter
+   --  Returns "username" value in the "Authorization:" parameter
 
    function Authorization_URI      (D : in Data) return String;
    pragma Inline (Authorization_URI);
-   --  Get the value for the uri in the "Authorization:" parameter
+   --  Returns "uri" value in the "Authorization:" parameter
    --  Note, it could differ from HTTP URI field, for example Mozilla browser
    --  places http parameters to the authorization uri field.
 
    function Authorization_Password (D : in Data) return String;
    pragma Inline (Authorization_Password);
-   --  Get the value for the password in the "Authorization:" parameter
+   --  Returns the value for password in the "Authorization:" parameter
 
    function Authorization_Realm    (D : in Data) return String;
    pragma Inline (Authorization_Realm);
-   --  Get the value for the "realm" in the "Authorization:" parameter
+   --  Returns "realm" value in the "Authorization:" parameter
 
    function Authorization_Nonce    (D : in Data) return String;
    pragma Inline (Authorization_Nonce);
-   --  Get the value for the "nonce" in the "Authorization:" parameter
+   --  Returns "nonce" value in the "Authorization:" parameter
 
    function Authorization_NC       (D : in Data) return String;
    pragma Inline (Authorization_NC);
-   --  Get the value for the "nc" in the "Authorization:" parameter
+   --  Returns "nc" value in the "Authorization:" parameter
 
    function Authorization_CNonce   (D : in Data) return String;
    pragma Inline (Authorization_CNonce);
-   --  Get the value for the "cnonce" in the "Authorization:" parameter
+   --  Returns "cnonce" value in the "Authorization:" parameter
 
    function Authorization_QOP      (D : in Data) return String;
    pragma Inline (Authorization_QOP);
-   --  Get the value for the "qop" in the "Authorization:" parameter
+   --  Retruns "qop" value in the "Authorization:" parameter
 
    function Authorization_Response (D : in Data) return String;
    pragma Inline (Authorization_Response);
-   --  Get the value for the "response" in the "Authorization:" parameter
+   --  Returns "response" value in the "Authorization:" parameter
 
 private
 
