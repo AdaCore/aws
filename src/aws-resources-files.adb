@@ -108,6 +108,11 @@ package body AWS.Resources.Files is
 
       File_Tagged (File.all).Stream :=
         Stream_IO.Stream (File_Tagged (File.all).File);
+
+   exception
+      when Stream_IO.Name_Error =>
+         Free (File);
+         raise;
    end Open;
 
    ----------
