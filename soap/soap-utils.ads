@@ -33,7 +33,10 @@
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
+with AWS.Status;
+with AWS.Response;
 with SOAP.Types;
+with SOAP.Message.Payload;
 
 package SOAP.Utils is
 
@@ -63,6 +66,23 @@ package SOAP.Utils is
    function From_Utf8 (Str : in String) return String;
    pragma Inline (To_Utf8);
    --  Convert the Utf-8 encoded Str string to Basic_8bit
+
+   -------------------------------
+   --  SOAP Callback translator --
+   -------------------------------
+
+   generic
+      with function SOAP_CB
+        (SOAPAction : in String;
+         Payload    : in Message.Payload.Object;
+         Request    : in AWS.Status.Data)
+         return AWS.Response.Data;
+   function SOAP_Wrapper
+     (Request : in AWS.Status.Data)
+      return AWS.Response.Data;
+   --  From a standard HTTP callback call the SOAP callback passed as generic
+   --  formal procedure. Raise Constraint_Error if Request is not a SOAP
+   --  request.
 
    ------------------------------------
    -- SOAP Generator Runtime Support --
