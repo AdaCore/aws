@@ -54,9 +54,11 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
    -----------------
 
    task body Client_Side is
+      use type Ada.Streams.Stream_Element;
       Set    : Sets.Socket_Set_Type;
       Index  : Sets.Socket_Index;
       Data   : Ada.Streams.Stream_Element_Array (1 .. Sample_Size);
+      Sum    : Ada.Streams.Stream_Element := 0;
    begin
       for J in 1 .. Set_Size loop
          declare
@@ -95,8 +97,11 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
                elsif Sets.Is_Read_Ready (Set, Index) then
                   begin
                      Data  := Net.Receive (Socket);
-                     Put_Line ("Read"  & Ada.Streams.Stream_Element'Image
-                                           (Data (Data'First)));
+
+                     Sum := Sum + Data (Data'First);
+
+                     Put_Line ("Read");
+
                      Index := Index + 1;
 
                   exception when Net.Socket_Error =>
@@ -119,6 +124,9 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
             end;
          end loop;
       end loop Main;
+
+      Put_Line (Ada.Streams.Stream_Element'Image (Sum));
+
    exception
       when E : others =>
          Put_Line
