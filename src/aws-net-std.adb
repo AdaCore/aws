@@ -33,15 +33,16 @@
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
-with Sockets.Naming;
+with GNAT.Sockets;
 
 package body AWS.Net.Std is
 
    use Ada;
+   use GNAT;
 
-   subtype SFD is Sockets.Socket_FD;
+   subtype SFD is Sockets.Socket_Type;
 
-   type Socket_Hidden is new Sockets.Socket_FD with null record;
+   type Socket_Hidden is new Sockets.Socket_Type;
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
@@ -61,7 +62,7 @@ package body AWS.Net.Std is
      (Socket     : in     Socket_Type;
       New_Socket :    out Socket_Access)
    is
-      pragma Warnings (Off, New_Socket);
+      Sock_Addr : Sockets.Sock_Addr_Type;
    begin
       if New_Socket = null then
          New_Socket := new Socket_Type;
@@ -72,7 +73,8 @@ package body AWS.Net.Std is
       Set_Cache (New_Socket.all);
 
       Sockets.Accept_Socket
-        (SFD (Socket.S.all), SFD (Socket_Type (New_Socket.all).S.all));
+        (SFD (Socket.S.all),
+         SFD (Socket_Type (New_Socket.all).S.all), Sock_Addr);
    exception
       when E : others =>
          Free (New_Socket.all);
@@ -99,9 +101,13 @@ package body AWS.Net.Std is
    procedure Bind
      (Socket : in Socket_Type;
       Port   : in Natural;
-      Host   : in String := "") is
+      Host   : in String := "")
+   is
+      Sock_Addr : constant Sockets.Sock_Addr_Type
+        := (Sockets.Family_Inet,
+            Sockets.Inet_Addr (Host), Sockets.Port_Type (Port));
    begin
-      Sockets.Bind (SFD (Socket.S.all), Port, Host);
+      Sockets.Bind_Socket (SFD (Socket.S.all), Sock_Addr);
    exception
       when E : others =>
          Raise_Exception (E, "Bind");
@@ -114,9 +120,14 @@ package body AWS.Net.Std is
    procedure Connect
      (Socket   : in Socket_Type;
       Host     : in String;
-      Port     : in Positive) is
+      Port     : in Positive)
+   is
+      Sock_Addr : Sockets.Sock_Addr_Type;
    begin
-      Sockets.Connect (SFD (Socket.S.all), Host, Port);
+      Sock_Addr := (Sockets.Family_Inet,
+                    Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1),
+                    Sockets.Port_Type (Port));
+      Sockets.Connect_Socket (SFD (Socket.S.all), Sock_Addr);
    exception
       when E : others =>
          Raise_Exception (E, "Connect");
@@ -138,7 +149,7 @@ package body AWS.Net.Std is
 
    function Get_FD (Socket : in Socket_Type) return Integer is
    begin
-      return Integer (Sockets.Get_FD (SFD (Socket.S.all)));
+      return Sockets.To_C (SFD (Socket.S.all));
    end Get_FD;
 
    ---------------
@@ -147,7 +158,7 @@ package body AWS.Net.Std is
 
    function Host_Name return String is
    begin
-      return Sockets.Naming.Host_Name;
+      return Sockets.Host_Name;
    end Host_Name;
 
    ------------
@@ -158,7 +169,7 @@ package body AWS.Net.Std is
      (Socket     : in Socket_Type;
       Queue_Size : in Positive := 5) is
    begin
-      Sockets.Listen (SFD (Socket.S.all), Queue_Size);
+      Sockets.Listen_Socket (SFD (Socket.S.all), Queue_Size);
    exception
       when E : others =>
          Raise_Exception (E, "Listen");
@@ -170,9 +181,8 @@ package body AWS.Net.Std is
 
    function Peer_Addr (Socket : in Socket_Type) return String is
    begin
-      return Sockets.Naming.Image
-        (Sockets.Naming.Address'
-           (Sockets.Naming.Get_Peer_Addr (SFD (Socket.S.all))));
+      return Sockets.Image
+        (Sockets.Get_Peer_Name (SFD (Socket.S.all)));
    exception
       when E : others =>
          Raise_Exception (E, "Peer_Addr");
@@ -200,9 +210,16 @@ package body AWS.Net.Std is
    function Receive
      (Socket : in Socket_Type;
       Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array is
+      return Stream_Element_Array
+   is
+      Buffer : Stream_Element_Array (1 .. Max);
+      Last   : Stream_Element_Count := 0;
    begin
-      return Sockets.Receive (SFD (Socket.S.all), Max);
+      while Last = 0 loop
+         Sockets.Receive_Socket (SFD (Socket.S.all), Buffer, Last);
+      end loop;
+
+      return Buffer (1 .. Last);
    exception
       when E : others =>
          Raise_Exception (E, "Receive");
@@ -214,9 +231,15 @@ package body AWS.Net.Std is
 
    procedure Send
      (Socket : in Socket_Type;
-      Data   : in Stream_Element_Array) is
+      Data   : in Stream_Element_Array)
+   is
+      Last   : Stream_Element_Count;
    begin
-      Sockets.Send (SFD (Socket.S.all), Data);
+      Sockets.Send_Socket (SFD (Socket.S.all), Data, Last);
+
+      if Last = Data'First - 1 then
+         raise Socket_Error;
+      end if;
    exception
       when E : others =>
          Raise_Exception (E, "Send");
@@ -228,7 +251,7 @@ package body AWS.Net.Std is
 
    procedure Shutdown (Socket : in Socket_Type) is
    begin
-      Sockets.Shutdown (SFD (Socket.S.all));
+      Sockets.Close_Socket (SFD (Socket.S.all));
    exception
       when E : others =>
          Raise_Exception (E, "Shutdown");
@@ -243,7 +266,7 @@ package body AWS.Net.Std is
    begin
       Sock                     := new Socket_Type;
       Socket_Type (Sock.all).S := new Socket_Hidden;
-      Sockets.Socket (SFD (Socket_Type (Sock.all).S.all));
+      Sockets.Create_Socket (SFD (Socket_Type (Sock.all).S.all));
 
       return Sock;
    exception
@@ -251,4 +274,6 @@ package body AWS.Net.Std is
          Raise_Exception (E, "Socket");
    end Socket;
 
+begin
+   Sockets.Initialize;
 end AWS.Net.Std;
