@@ -69,6 +69,9 @@ package body Templates_Parser is
 
    procedure Free is new Ada.Unchecked_Deallocation (Integer, Integer_Access);
 
+   procedure Free is
+     new Unchecked_Deallocation (Tag_Node_Arr, Tag_Node_Arr_Access);
+
    -----------
    -- Image --
    -----------
@@ -130,18 +133,20 @@ package body Templates_Parser is
    Begin_Tag : Unbounded_String := To_Unbounded_String (Default_Begin_Tag);
    End_Tag   : Unbounded_String := To_Unbounded_String (Default_End_Tag);
 
-   Set_Token                : constant String := "@@SET@@";
-   Table_Token              : constant String := "@@TABLE@@";
-   Terminate_Sections_Token : constant String := "@@TERMINATE_SECTIONS@@";
-   Begin_Token              : constant String := "@@BEGIN@@";
-   End_Token                : constant String := "@@END@@";
-   Section_Token            : constant String := "@@SECTION@@";
-   End_Table_Token          : constant String := "@@END_TABLE@@";
-   If_Token                 : constant String := "@@IF@@";
-   Elsif_Token              : constant String := "@@ELSIF@@";
-   Else_Token               : constant String := "@@ELSE@@";
-   End_If_Token             : constant String := "@@END_IF@@";
-   Include_Token            : constant String := "@@INCLUDE@@";
+   Set_Token                  : constant String := "@@SET@@";
+   Table_Token                : constant String := "@@TABLE@@";
+   Terminate_Sections_Token   : constant String := "@@TERMINATE_SECTIONS@@";
+   Begin_Token                : constant String := "@@BEGIN@@";
+   End_Token                  : constant String := "@@END@@";
+   Section_Token              : constant String := "@@SECTION@@";
+   End_Table_Token            : constant String := "@@END_TABLE@@";
+   If_Token                   : constant String := "@@IF@@";
+   Elsif_Token                : constant String := "@@ELSIF@@";
+   Else_Token                 : constant String := "@@ELSE@@";
+   End_If_Token               : constant String := "@@END_IF@@";
+   Include_Token              : constant String := "@@INCLUDE@@";
+   A_Terminate_Sections_Token : constant String := "TERMINATE_SECTIONS";
+   A_Reverse_Token            : constant String := "REVERSE";
 
    -------------------
    -- Translate_Set --
@@ -1525,6 +1530,7 @@ package body Templates_Parser is
 
          when Table_Stmt =>
             Terminate_Sections : Boolean;
+            Reverse_Index      : Boolean;
             Blocks             : Tree;
             Blocks_Count       : Natural;     -- Number if blocks
 
@@ -1632,7 +1638,6 @@ package body Templates_Parser is
       T.Data.Max          := 0;
       T.Data.Head         := null;
       T.Data.Last         := null;
-      T.Data.Position     := (null, new Integer'(1));
       T.Data.Nested_Level := 1;
    end Clear;
 
@@ -1690,7 +1695,6 @@ package body Templates_Parser is
       T.Data.Count        := 0;
       T.Data.Min          := Natural'Last;
       T.Data.Max          := 0;
-      T.Data.Position     := (null, new Integer'(1));
       T.Data.Nested_Level := 1;
    end Initialize;
 
@@ -1736,8 +1740,7 @@ package body Templates_Parser is
             T.Data.Last := null;
 
             Free (T.Ref_Count);
-            Free (T.Data.Position.Pos);
-            Free (T.Data.Position.Current);
+            Free (T.Data.Tag_Nodes);
             Free (T.Data);
          end;
       end if;
@@ -1771,8 +1774,7 @@ package body Templates_Parser is
                  Separator    => To_Unbounded_String (Default_Separator),
                  Head         => Item,
                  Last         => Item,
-                 Position     =>
-                   (new Tag_Node_Access'(Item), new Integer'(1))));
+                 Tag_Nodes    => null));
    end "+";
 
    function "+" (Value : in Character) return Tag is
@@ -1815,6 +1817,8 @@ package body Templates_Parser is
    begin
       T.Ref_Count.all := T.Ref_Count.all + 1;
 
+      Free (T.Data.Tag_Nodes);
+
       if T.Data.Head = null then
          T.Data.all :=
            (T.Data.Count + 1,
@@ -1824,7 +1828,7 @@ package body Templates_Parser is
             Separator    => To_Unbounded_String (Default_Separator),
             Head         => Item,
             Last         => Item,
-            Position     => (new Tag_Node_Access'(Item), T.Data.Position.Pos));
+            Tag_Nodes    => null);
 
          return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
 
@@ -1838,7 +1842,7 @@ package body Templates_Parser is
             Separator    => T.Data.Separator,
             Head         => T.Data.Head,
             Last         => Item,
-            Position     => T.Data.Position);
+            Tag_Nodes    => null);
 
          return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
       end if;
@@ -1851,6 +1855,8 @@ package body Templates_Parser is
    begin
       T.Ref_Count.all := T.Ref_Count.all + 1;
 
+      Free (T.Data.Tag_Nodes);
+
       if T.Data.Head = null then
          T.Data.all :=
            (T.Data.Count + 1,
@@ -1860,7 +1866,7 @@ package body Templates_Parser is
             Separator    => To_Unbounded_String (Default_Separator),
             Head         => Item,
             Last         => Item,
-            Position     => (new Tag_Node_Access'(Item), T.Data.Position.Pos));
+            Tag_Nodes    => null);
 
          return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
 
@@ -1873,7 +1879,7 @@ package body Templates_Parser is
             Separator    => T.Data.Separator,
             Head         => Item,
             Last         => T.Data.Last,
-            Position     => T.Data.Position);
+            Tag_Nodes    => null);
 
          return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
       end if;
@@ -1886,6 +1892,8 @@ package body Templates_Parser is
    begin
       T.Ref_Count.all := T.Ref_Count.all + 1;
 
+      Free (T.Data.Tag_Nodes);
+
       if T.Data.Head = null then
          T.Data.all :=
            (T.Data.Count + 1,
@@ -1895,7 +1903,7 @@ package body Templates_Parser is
             Separator    => To_Unbounded_String ((1 => ASCII.LF)),
             Head         => Item,
             Last         => Item,
-            Position     => (new Tag_Node_Access'(Item), T.Data.Position.Pos));
+            Tag_Nodes    => null);
 
          return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
 
@@ -1912,7 +1920,7 @@ package body Templates_Parser is
             Separator    => T.Data.Separator,
             Head         => T.Data.Head,
             Last         => Item,
-            Position     => T.Data.Position);
+            Tag_Nodes    => null);
 
          return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
       end if;
@@ -1994,6 +2002,21 @@ package body Templates_Parser is
    begin
       Found := True;
 
+      --  First check that the array access is present
+
+      if T.Data.Tag_Nodes = null then
+         T.Data.Tag_Nodes := new Tag_Node_Arr (1 .. T.Data.Count);
+
+         declare
+            P : Tag_Node_Access := T.Data.Head;
+         begin
+            for K in T.Data.Tag_Nodes'Range loop
+               T.Data.Tag_Nodes (K) := P;
+               P := P.Next;
+            end loop;
+         end;
+      end if;
+
       if N = T.Data.Count then
          Result := T.Data.Last;
 
@@ -2002,29 +2025,8 @@ package body Templates_Parser is
          Result := null;
          Found  := False;
 
-      elsif N > T.Data.Position.Pos.all then
-         --  Use cursor to move to the right position
-
-         for K in 1 .. N - T.Data.Position.Pos.all loop
-            T.Data.Position.Pos.all     := T.Data.Position.Pos.all + 1;
-            T.Data.Position.Current.all := T.Data.Position.Current.all.Next;
-         end loop;
-
-         Result := T.Data.Position.Current.all;
       else
-
-         declare
-            P : Tag_Node_Access := T.Data.Head;
-         begin
-            for K in 1 .. N - 1 loop
-               P := P.Next;
-            end loop;
-
-            T.Data.Position.Pos.all     := N;
-            T.Data.Position.Current.all := P;
-
-            Result := P;
-         end;
+         Result := T.Data.Tag_Nodes (N);
       end if;
    end Field;
 
@@ -2362,7 +2364,7 @@ package body Templates_Parser is
 
       procedure Fatal_Error (Message : in String);
       pragma No_Return (Fatal_Error);
-      --  raise Template_Error exception with message.
+      --  raise Template_Error exception with message
 
       function Get_Next_Line return Boolean;
       --  Get new line in File and set Buffer, Last and First. Returns True if
@@ -2374,9 +2376,17 @@ package body Templates_Parser is
       --  tabulation).
 
       function Get_All_Parameters return String;
-      --  Get all parameters on the current line.
+      --  Get all parameters on the current line
 
-      function Is_Stmt (Stmt : in String) return Boolean;
+      function Count_Tag_Attributes return Natural;
+      --  Returns the number of tag attributes present
+
+      function Get_Tag_Attribute (K : in Positive) return String;
+      --  Returns the Nth tag attribute
+
+      function Is_Stmt
+        (Stmt : in String; With_Attributes : in Boolean := False)
+         return Boolean;
       pragma Inline (Is_Stmt);
       --  Returns True is Stmt is found at the begining of the current line
       --  ignoring leading blank characters.
@@ -2447,6 +2457,18 @@ package body Templates_Parser is
             end;
          end if;
       end Build_Include_Pathname;
+
+      --------------------------
+      -- Count_Tag_Attributes --
+      --------------------------
+
+      function Count_Tag_Attributes return Natural is
+         K : constant Natural :=
+               Strings.Fixed.Index
+                 (Buffer (First + 2 .. Buffer'Last), "@@");
+      begin
+         return Strings.Fixed.Count (Buffer (First + 2 .. K), "'");
+      end Count_Tag_Attributes;
 
       ---------
       -- EOF --
@@ -2575,14 +2597,48 @@ package body Templates_Parser is
          end if;
       end Get_Next_Line;
 
+      -----------------------
+      -- Get_Tag_Attribute --
+      -----------------------
+
+      function Get_Tag_Attribute (K : in Positive) return String is
+         S : Positive := First + 2;
+         L : constant Natural :=
+               Strings.Fixed.Index (Buffer (S .. Buffer'Last), "@@");
+         E : Natural;
+      begin
+         for I in 1 .. K loop
+            S := Strings.Fixed.Index (Buffer (S .. L), "'");
+         end loop;
+
+         --  Check for the end of this attribute
+
+         E := Strings.Fixed.Index (Buffer (S + 1 .. L), "'");
+
+         if E = 0 then
+            E := L;
+         end if;
+
+         return Buffer (S + 1 .. E - 1);
+      end Get_Tag_Attribute;
+
       -------------
       -- Is_Stmt --
       -------------
 
-      function Is_Stmt (Stmt : in String) return Boolean is
+      function Is_Stmt
+        (Stmt : in String; With_Attributes : in Boolean := False)
+         return Boolean
+      is
+         Offset : Natural := 0;
       begin
+         if With_Attributes then
+            Offset := 2;
+         end if;
+
          return Last /= 0
-           and then Buffer (First .. First + Stmt'Length - 1) = Stmt;
+           and then Buffer (First .. First + Stmt'Length - 1 - Offset) =
+                      Stmt (Stmt'First .. Stmt'Last - Offset);
       end Is_Stmt;
 
       -----------------------------
@@ -3047,10 +3103,17 @@ package body Templates_Parser is
 
             return T;
 
-         elsif Is_Stmt (Table_Token) then
+         elsif Is_Stmt (Table_Token, With_Attributes => True) then
             T := new Node (Table_Stmt);
 
             T.Line := Line;
+
+            T.Terminate_Sections := False;
+            T.Reverse_Index      := False;
+
+            --  Check if first parameter is @@TERMINATE_SECTION@@, note that
+            --  this is an obsolescent feature. It is better now to use the
+            --  tag command attributes.
 
             declare
                Param : constant Unbounded_String := Get_First_Parameter;
@@ -3063,6 +3126,22 @@ package body Templates_Parser is
                   Fatal_Error ("Unknown table parameter " & To_String (Param));
                end if;
             end;
+
+            --  Check attributes
+
+            for K in 1 .. Count_Tag_Attributes loop
+               declare
+                  Att : constant String := Get_Tag_Attribute (K);
+               begin
+                  if Att = A_Terminate_Sections_Token then
+                     T.Terminate_Sections := True;
+                  elsif Att = A_Reverse_Token then
+                     T.Reverse_Index := True;
+                  else
+                     Fatal_Error ("Unknown table attributes " & Att);
+                  end if;
+               end;
+            end loop;
 
             T.Blocks       := Parse (Parse_Block);
             T.Next         := Parse (Mode);
@@ -3187,7 +3266,7 @@ package body Templates_Parser is
                     or else Is_Stmt (Else_Token)
                     or else Is_Stmt (End_If_Token)
                     or else Is_Stmt (Include_Token)
-                    or else Is_Stmt (Table_Token)
+                    or else Is_Stmt (Table_Token, With_Attributes => True)
                     or else Is_Stmt (Section_Token)
                     or else Is_Stmt (End_Table_Token)
                     or else Is_Stmt (Begin_Token)
@@ -3339,6 +3418,7 @@ package body Templates_Parser is
          Cursor         : Indices (1 .. 10);
          Max_Lines      : Natural;
          Max_Expand     : Natural;
+         Reverse_Index  : Boolean;
          Table_Level    : Natural;
          Blocks_Count   : Natural;
          I_Params       : Include_Parameters;
@@ -3347,7 +3427,7 @@ package body Templates_Parser is
       end record;
 
       Empty_State : constant Parse_State
-        := ((1 .. 10 => 0), 0, 0, 0, 0,
+        := ((1 .. 10 => 0), 0, 0, False, 0, 0,
             No_Parameter, Filter.No_Include_Parameters, Empty_Block_State);
 
       Results : Unbounded_String := Null_Unbounded_String;
@@ -4367,6 +4447,7 @@ package body Templates_Parser is
                   Analyze (T.Blocks,
                            Parse_State'(State.Cursor,
                                         Max_Lines, Max_Expand,
+                                        T.Reverse_Index,
                                         State.Table_Level + 1,
                                         T.Blocks_Count,
                                         State.I_Params,
@@ -4386,7 +4467,12 @@ package body Templates_Parser is
                         New_Cursor : Indices := State.Cursor;
                         Block      : Tree    := T;
                      begin
-                        New_Cursor (State.Table_Level) := K;
+                        if State.Reverse_Index then
+                           New_Cursor (State.Table_Level) :=
+                             State.Max_Expand - K + 1;
+                        else
+                           New_Cursor (State.Table_Level) := K;
+                        end if;
 
                         B := 1;
 
@@ -4407,6 +4493,7 @@ package body Templates_Parser is
                              (Block.Common,
                               Parse_State'(New_Cursor,
                                            State.Max_Lines, State.Max_Expand,
+                                           State.Reverse_Index,
                                            State.Table_Level,
                                            State.Blocks_Count,
                                            State.I_Params,
@@ -4417,6 +4504,7 @@ package body Templates_Parser is
                              (Block.Sections,
                               Parse_State'(New_Cursor,
                                            State.Max_Lines, State.Max_Expand,
+                                           State.Reverse_Index,
                                            State.Table_Level,
                                            State.Blocks_Count,
                                            State.I_Params,
@@ -4434,6 +4522,7 @@ package body Templates_Parser is
                  (State.Block.Section.Next,
                   Parse_State'(State.Cursor,
                                State.Max_Lines, State.Max_Expand,
+                               State.Reverse_Index,
                                State.Table_Level,
                                State.Blocks_Count,
                                State.I_Params,
@@ -4444,6 +4533,7 @@ package body Templates_Parser is
                Analyze (T.File.Info,
                         Parse_State'(State.Cursor,
                                      State.Max_Lines, State.Max_Expand,
+                                     State.Reverse_Index,
                                      State.Table_Level, State.Blocks_Count,
                                      T.I_Params,
                                      Flatten_Parameters (T.I_Params),
