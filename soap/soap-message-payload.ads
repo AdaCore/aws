@@ -39,7 +39,7 @@ package SOAP.Message.Payload is
    function Procedure_Name (P : in Object'Class) return String;
    --  Retruns the Payload procedure name.
 
-   procedure Set_Procedure_Name (P : in out Object'Class; Name  : in String);
+   procedure Set_Procedure_Name (P : in out Object'Class; Name : in String);
    --  Set the payload procedure name.
 
    function Build
