@@ -28,7 +28,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$
+--  $Date$
+--  $Author$
 
 --  Fast convertion between String and Stream_Element_Array.
 --  Only for Ada compilers and platforms, where it is possible.
