@@ -1,0 +1,6 @@
+-> 401
+-> 200
+-> Basic authorization OK!
+-> 401
+-> 200
+-> Digest authorization OK!
