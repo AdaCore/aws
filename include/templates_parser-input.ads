@@ -34,8 +34,8 @@ package Templates_Parser.Input is
 
    procedure Open
      (File : in out File_Type;
-      Name : in String;
-      Form : in String := "");
+      Name : in     String;
+      Form : in     String    := "");
    pragma Inline (Open);
    --  Like Text_IO.Open and Mode = In_File.
 

@@ -57,6 +57,11 @@ package body Templates_Parser is
    pragma Inline (Image);
    --  Returns N image without leading blank
 
+   function No_Quote (Str : in String) return String;
+   --  Removes quotes around Str. If Str (Str'First) and Str (Str'Last)
+   --  are quotes return Str (Str'First + 1 ..  Str'Last - 1) otherwise
+   --  return Str as-is.
+
    -----------
    -- Image --
    -----------
@@ -70,6 +75,19 @@ package body Templates_Parser is
          return N_Img (N_Img'First + 1 .. N_Img'Last);
       end if;
    end Image;
+
+   --------------
+   -- No_Quote --
+   --------------
+
+   function No_Quote (Str : in String) return String is
+   begin
+      if Str (Str'First) = '"' and then Str (Str'Last) = '"' then
+         return Str (Str'First + 1 .. Str'Last - 1);
+      else
+         return Str;
+      end if;
+   end No_Quote;
 
    --------------
    -- Tag Info --
@@ -88,290 +106,285 @@ package body Templates_Parser is
    End_If_Token               : constant String := "@@END_IF@@";
    Include_Token              : constant String := "@@INCLUDE@@";
 
-   ----------------------
-   --  Filters setting --
-   ----------------------
-
-   Filter_Lower_Token         : aliased constant String := "LOWER";
-   Filter_Upper_Token         : aliased constant String := "UPPER";
-   Filter_Capitalize_Token    : aliased constant String := "CAPITALIZE";
-   Filter_Reverse_Token       : aliased constant String := "REVERSE";
-   Filter_Repeat_Token        : aliased constant String := "REPEAT";
-   Filter_Size_Token          : aliased constant String := "SIZE";
-   Filter_Clean_Text_Token    : aliased constant String := "CLEAN_TEXT";
-   Filter_Contract_Token      : aliased constant String := "CONTRACT";
-   Filter_No_Space_Token      : aliased constant String := "NO_SPACE";
-   Filter_No_Digit_Token      : aliased constant String := "NO_DIGIT";
-   Filter_No_Letter_Token     : aliased constant String := "NO_LETTER";
-   Filter_Format_Number_Token : aliased constant String := "FORMAT_NUMBER";
-   Filter_Yes_No_Token        : aliased constant String := "YES_NO";
-   Filter_Oui_Non_Token       : aliased constant String := "OUI_NON";
-   Filter_Exist_Token         : aliased constant String := "EXIST";
-   Filter_Is_Empty_Token      : aliased constant String := "IS_EMPTY";
-   Filter_Match_Token         : aliased constant String := "MATCH";
-   Filter_Trim_Token          : aliased constant String := "TRIM";
-   Filter_Web_Escape_Token    : aliased constant String := "WEB_ESCAPE";
-   Filter_Web_NBSP_Token      : aliased constant String := "WEB_NBSP";
-   Filter_Coma_2_Point_Token  : aliased constant String := "COMA_2_POINT";
-   Filter_Point_2_Coma_Token  : aliased constant String := "POINT_2_COMA";
-   Filter_LF_2_BR_Token       : aliased constant String := "LF_2_BR";
-   Filter_BR_2_LF_Token       : aliased constant String := "BR_2_LF";
-   Filter_Plus_Token          : aliased constant String := """+""";
-   Filter_Add_Token           : aliased constant String := "ADD";
-   Filter_Minus_Token         : aliased constant String := """-""";
-   Filter_Sub_Token           : aliased constant String := "SUB";
-   Filter_Multiply_Token      : aliased constant String := """*""";
-   Filter_Mult_Token          : aliased constant String := "MULT";
-   Filter_Divide_Token        : aliased constant String := """/""";
-   Filter_Div_Token           : aliased constant String := "DIV";
-   Filter_Modulo_Token        : aliased constant String := "MOD";
-
-   --  A filter appear just before a tag variable (e.g. @_LOWER:SOME_VAR_@
-   --  and means that the filter LOWER should be applied to SOME_VAR before
-   --  replacing it in the template file.
-
-   type Filters_Mode is
-     (BR_2_LF,
-      --  Replaces all <BR> HTML tag by a LF character.
-
-      Capitalize,
-      --  Lower case except char before spaces and underscores.
-
-      Clean_Text,
-      --  Only letter/digits all other chars are changed to spaces.
-
-      Coma_2_Point,
-      --  Replaces comas by points.
-
-      Contract,
-      --  Replaces a suite of spaces by a single space character.
-
-      Exist,
-      --  Returns "TRUE" if var is not empty and "FALSE" otherwise.
-
-      Format_Number,
-      --  Returns the number with a space added between each 3 digits
-      --  blocks. The decimal part is not transformed. If the data is not a
-      --  number nothing is done. The data is trimmed before processing it.
-
-      Invert,
-      --  Reverse string.
-
-      Is_Empty,
-      --  Returns "TRUE" if var is empty and "FALSE" otherwise.
-
-      LF_2_BR,
-      --  Replaces all LF character to <BR> HTML tag.
-
-      Lower,
-      --  Lower case.
-
-      Match,
-      --  Returns "TRUE" if var match the pattern passed as argument.
-
-      No_Digit,
-      --  Replace all digits by spaces.
-
-      No_Letter,
-      --  Removes all letters by spaces.
-
-      No_Space,
-      --  Removes all spaces found in the value.
-
-      Oui_Non,
-      --  If True return Oui, If False returns Non, else do nothing.
+   ------------
+   -- Filter --
+   ------------
 
-      Point_2_Coma,
-      --  Replaces points by comas.
+   package Filter is
 
-      Repeat,
-      --  Returns N copy of the original string. The number of copy is passed
-      --  as parameter.
+      ----------------------
+      --  Filters setting --
+      ----------------------
 
-      Size,
-      --  Returns the number of characters in the string value.
+      --  A filter appear just before a tag variable (e.g. @_LOWER:SOME_VAR_@
+      --  and means that the filter LOWER should be applied to SOME_VAR before
+      --  replacing it in the template file.
 
-      Trim,
-      --  Trim leading and trailing space.
+      type Mode is
+        (Multiply,
+         --  Multiply the given parameter to the string (operator "*")
 
-      Upper,
-      --  Upper case.
+         Plus,
+         --  Add the given parameter to the string (operator "+")
 
-      Web_Escape,
-      --  Convert characters "<>&" to HTML equivalents: &lt;, &gt; and &amp;
+         Minus,
+         --  Substract the given parameter to the string (operator "-")
 
-      Web_NBSP,
-      --  Convert spaces to HTML &nbsp; - non breaking spaces.
+         Divide,
+         --  Divide the given parameter to the string (operator "/")
 
-      Yes_No,
-      --  If True return Yes, If False returns No, else do nothing.
+         Add,
+         --  Add the given parameter to the string
 
-      Plus, Add,
-      --  Add the given parameter to the string
+         BR_2_LF,
+         --  Replaces all <BR> HTML tag by a LF character.
 
-      Minus, Sub,
-      --  Substract the given parameter to the string
+         Capitalize,
+         --  Lower case except char before spaces and underscores.
 
-      Multiply, Mult,
-      --  Multiply the given parameter to the string
+         Clean_Text,
+         --  Only letter/digits all other chars are changed to spaces.
 
-      Divide, Div,
-      --  Divide the given parameter to the string
+         Coma_2_Point,
+         --  Replaces comas by points.
 
-      Modulo
-      --  Returns current value modulo N (N is the filter parameter)
-      );
+         Contract,
+         --  Replaces a suite of spaces by a single space character.
 
-   function Expect_Regexp (Mode : in Filters_Mode) return Boolean;
-   --  Returns True is the filter named Filter_Name expect a regular
-   --  expression as parameter.
+         Div,
+         --  Divide the given parameter to the string
 
-   type Parameter_Mode is (Void, Str, Regexp);
+         Exist,
+         --  Returns "TRUE" if var is not empty and "FALSE" otherwise.
 
-   type Parameter_Data (Mode : Parameter_Mode := Void) is record
-      case Mode is
-         when Void =>
-            null;
+         Format_Number,
+         --  Returns the number with a space added between each 3 digits
+         --  blocks. The decimal part is not transformed. If the data is not a
+         --  number nothing is done. The data is trimmed before processing it.
 
-         when Str =>
-            S : Unbounded_String;
+         Is_Empty,
+         --  Returns "TRUE" if var is empty and "FALSE" otherwise.
 
-         when Regexp =>
-            R_Str  : Unbounded_String;
-            Regexp : GNAT.Regexp.Regexp;
-      end case;
-   end record;
+         LF_2_BR,
+         --  Replaces all LF character to <BR> HTML tag.
 
-   No_Parameter : constant Parameter_Data := Parameter_Data'(Mode => Void);
+         Lower,
+         --  Lower case.
 
-   function Image (P : in Parameter_Data) return String;
-   --  Returns parameter string representation.
+         Match,
+         --  Returns "TRUE" if var match the pattern passed as argument.
 
-   type Filter_Function is
-     access function (S : in String; P : in Parameter_Data := No_Parameter)
-     return String;
-   --  P is the filter parameter, no parameter by default. Parameter are
-   --  untyped and will be parsed by the filter function if needed.
+         Modulo,
+         --  Returns current value modulo N (N is the filter parameter)
 
-   type Filter_Routine is record
-      Handle     : Filter_Function;
-      Parameters : Parameter_Data;
-   end record;
+         Mult,
+         --  Multiply the given parameter to the string
 
-   type Filter_Set is array (Positive range <>) of Filter_Routine;
-   type Filter_Set_Access is access Filter_Set;
+         No_Digit,
+         --  Replace all digits by spaces.
 
-   type String_Access is access constant String;
+         No_Letter,
+         --  Removes all letters by spaces.
 
-   type Filter_Record is record
-      Name   : String_Access;
-      Handle : Filter_Function;
-   end record;
+         No_Space,
+         --  Removes all spaces found in the value.
 
-   --  filter functions, see above.
+         Oui_Non,
+         --  If True return Oui, If False returns Non, else do nothing.
 
-   procedure Check_Null_Parameter (P : in Parameter_Data);
-   --  Raises Template_Error if P is not equal to Null_Parameter.
+         Point_2_Coma,
+         --  Replaces points by comas.
 
-   function BR_2_LF_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Repeat,
+         --  Returns N copy of the original string. The number of copy is
+         --  passed as parameter.
 
-   function Capitalize_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Invert,
+         --  Reverse string.
 
-   function Clean_Text_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Size,
+         --  Returns the number of characters in the string value.
 
-   function Coma_2_Point_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Slice,
+         --  Returns a slice of the string.
 
-   function Contract_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Sub,
+         --  Substract the given parameter to the string
 
-   function Exist_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Trim,
+         --  Trim leading and trailing space.
 
-   function Format_Number_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Upper,
+         --  Upper case.
 
-   function Is_Empty_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Web_Escape,
+         --  Convert characters "<>&" to HTML equivalents: &lt;, &gt; and &amp;
 
-   function LF_2_BR_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Web_NBSP,
+         --  Convert spaces to HTML &nbsp; - non breaking spaces.
 
-   function Lower_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+         Yes_No
+         --  If True return Yes, If False returns No, else do nothing.
+        );
 
-   function Match_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      type Parameter_Mode is (Void, Str, Regexp, Slice);
 
-   function No_Digit_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      function Parameter (Mode : in Filter.Mode) return Parameter_Mode;
+      --  Returns the parameter mode for the given filter.
 
-   function No_Letter_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      type Parameter_Data (Mode : Parameter_Mode := Void) is record
+         case Mode is
+            when Void =>
+               null;
 
-   function No_Space_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+            when Str =>
+               S : Unbounded_String;
 
-   function Oui_Non_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+            when Regexp =>
+               R_Str  : Unbounded_String;
+               Regexp : GNAT.Regexp.Regexp;
 
-   function Point_2_Coma_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+            when Slice =>
+               First : Natural;
+               Last  : Natural;
+         end case;
+      end record;
 
-   function Repeat_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      No_Parameter : constant Parameter_Data := Parameter_Data'(Mode => Void);
 
-   function Reverse_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      function Image (P : in Parameter_Data) return String;
+      --  Returns parameter string representation.
 
-   function Size_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      type Callback is
+        access function (S : in String; P : in Parameter_Data := No_Parameter)
+        return String;
+      --  P is the filter parameter, no parameter by default. Parameter are
+      --  untyped and will be parsed by the filter function if needed.
 
-   function Trim_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      type Routine is record
+         Handle     : Callback;
+         Parameters : Parameter_Data;
+      end record;
 
-   function Upper_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      type Set is array (Positive range <>) of Routine;
+      type Set_Access is access Set;
 
-   function Web_Escape_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      type String_Access is access constant String;
 
-   function Web_NBSP_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      type Filter_Record is record
+         Name   : String_Access;
+         Handle : Callback;
+      end record;
 
-   function Yes_No_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      --  filter functions, see above.
 
-   function Plus_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      procedure Check_Null_Parameter (P : in Parameter_Data);
+      --  Raises Template_Error if P is not equal to Null_Parameter.
 
-   function Minus_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      function BR_2_LF
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
-   function Divide_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      function Capitalize
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
-   function Multiply_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      function Clean_Text
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
-   function Modulo_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+      function Coma_2_Point
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
-   function Filter_Handle (Name : in String) return Filter_Function;
-   --  Returns the filter function for the given filter name.
+      function Contract
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
-   function Filter_Handle (Mode : in Filters_Mode) return Filter_Function;
-   --  Returns the filter function for the given filter mode.
+      function Exist
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
-   function Filter_Mode (Name : in String) return Filters_Mode;
-   --  Returns the Filters_Mode for filter named Name. This is the internal
-   --  representation for this filter name.
+      function Format_Number
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
-   function Filter_Name (Handle : in Filter_Function) return String;
-   --  Returns the filter name for the given filter function.
+      function Is_Empty
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function LF_2_BR
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Lower
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Match
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function No_Digit
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function No_Letter
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function No_Space
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Oui_Non
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Point_2_Coma
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Repeat
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Reverse_Data
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Size
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Slice
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Trim
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Upper
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Web_Escape
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Web_NBSP
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Yes_No
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Plus
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Minus
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Divide
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Multiply
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Modulo
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Handle (Name : in String) return Callback;
+      --  Returns the filter function for the given filter name.
+
+      function Handle (Mode : in Filter.Mode) return Callback;
+      --  Returns the filter function for the given filter mode.
+
+      function Mode_Value (Name : in String) return Mode;
+      --  Returns the Mode for filter named Name. This is the internal
+      --  representation for this filter name.
+
+      function Name (Handle : in Callback) return String;
+      --  Returns the filter name for the given filter function.
+
+   end Filter;
 
    --------------------
    --  Tags variable --
@@ -381,7 +394,7 @@ package body Templates_Parser is
 
    type Tag is record
       Name    : Unbounded_String;
-      Filters : Filter_Set_Access;
+      Filters : Filter.Set_Access;
       Attr    : Attribute := Nil;
    end record;
 
@@ -402,20 +415,8 @@ package body Templates_Parser is
    -- Image --
    -----------
 
-   function Image (P : in Parameter_Data) return String is
-   begin
-      case P.Mode is
-         when Void   => return "";
-         when Str    => return '(' & To_String (P.S) & ')';
-         when Regexp => return '(' & To_String (P.R_Str) & ')';
-      end case;
-   end Image;
-
-   -----------
-   -- Image --
-   -----------
-
    function Image (T : in Tag) return String is
+      use type Filter.Set_Access;
       R : Unbounded_String;
    begin
       R := Begin_Tag;
@@ -424,8 +425,8 @@ package body Templates_Parser is
 
       if T.Filters /= null then
          for K in reverse T.Filters'Range loop
-            Append (R, Filter_Name (T.Filters (K).Handle));
-            Append (R, Image (T.Filters (K).Parameters));
+            Append (R, Filter.Name (T.Filters (K).Handle));
+            Append (R, Filter.Image (T.Filters (K).Parameters));
             Append (R, ":");
          end loop;
       end if;
@@ -459,7 +460,7 @@ package body Templates_Parser is
       --  Given a Tag name, it returns the variable name only. It removes
       --  the tag separator and the filters.
 
-      function Get_Filter_Set (Tag : in String) return Filter_Set_Access;
+      function Get_Filter_Set (Tag : in String) return Filter.Set_Access;
       --  Given a tag name, it retruns a set of filter to apply to this
       --  variable when translated.
 
@@ -516,21 +517,53 @@ package body Templates_Parser is
       -- Get_Filter_Set --
       --------------------
 
-      function Get_Filter_Set (Tag : in String) return Filter_Set_Access is
+      function Get_Filter_Set (Tag : in String) return Filter.Set_Access is
 
          Start : Natural;
          Stop  : Natural := Tag'Last;
-         FS    : Filter_Set (1 .. Strings.Fixed.Count (Tag, ":"));
+         FS    : Filter.Set (1 .. Strings.Fixed.Count (Tag, ":"));
          K     : Positive := FS'First;
 
-         function Name_Parameter (Filter : in String) return Filter_Routine;
+         function Name_Parameter (Filter : in String) return Filter.Routine;
          --  Given a Filter description, returns the filter handle and
          --  parameter.
 
-         function Name_Parameter (Filter : in String) return Filter_Routine is
-            P1 : constant Natural := Strings.Fixed.Index (Filter, "(");
-            P2 : constant Natural := Strings.Fixed.Index (Filter, ")",
-                                                          Strings.Backward);
+         procedure Get_Slice (Slice : in String; First, Last : out Natural);
+         --  Returns the First and Last slice index as parsed into the Slice
+         --  string. Retruns First and Last set to 0 if there is not valid
+         --  slice definition in Slice.
+
+         ---------------
+         -- Get_Slice --
+         ---------------
+
+         procedure Get_Slice (Slice : in String; First, Last : out Natural) is
+            P1 : constant Natural := Fixed.Index (Slice, "..");
+         begin
+            First := 0;
+            Last  := 0;
+
+            if P1 = 0 then
+               Exceptions.Raise_Exception
+                 (Template_Error'Identity, "slice expected """ & Slice & '"');
+
+            else
+               First := Natural'Value (Slice (Slice'First .. P1 - 1));
+               Last  := Natural'Value (Slice (P1 + 2 .. Slice'Last));
+            end if;
+         end Get_Slice;
+
+         --------------------
+         -- Name_Parameter --
+         --------------------
+
+         function Name_Parameter (Filter : in String) return Filter.Routine is
+            use Strings;
+
+            package F renames Templates_Parser.Filter;
+
+            P1 : constant Natural := Fixed.Index (Filter, "(");
+            P2 : constant Natural := Fixed.Index (Filter, ")", Backward);
          begin
             if (P1 = 0 and then P2 /= 0) or else (P1 /= 0 and then P2 = 0) then
                Exceptions.Raise_Exception
@@ -547,28 +580,48 @@ package body Templates_Parser is
             end if;
 
             if P1 = 0 then
-               return (Filter_Handle (Filter), Parameter_Data'(Mode => Void));
+               --  No parenthesis, so there is no parameter to parse
+               return (F.Handle (Filter),
+                       F.Parameter_Data'(Mode => F.Void));
 
             else
                declare
                   Name : constant String
                     := Filter (Filter'First .. P1 - 1);
 
-                  Mode : constant Filters_Mode := Filter_Mode (Name);
+                  Mode : constant F.Mode := F.Mode_Value (Name);
 
                   Parameter : constant String
-                    := Filter (P1 + 1 .. P2 - 1);
+                    := No_Quote (Filter (P1 + 1 .. P2 - 1));
                begin
-                  if Expect_Regexp (Mode) then
-                     return (Filter_Handle (Mode),
-                             Parameter_Data'(Regexp,
-                                             To_Unbounded_String (Parameter),
-                                             GNAT.Regexp.Compile (Parameter)));
-                  else
-                     return (Filter_Handle (Mode),
-                             Parameter_Data'(Templates_Parser.Str,
-                                             To_Unbounded_String (Parameter)));
-                  end if;
+                  case F.Parameter (Mode) is
+                     when F.Regexp =>
+                        return (F.Handle (Mode),
+                                F.Parameter_Data'
+                                  (F.Regexp,
+                                   To_Unbounded_String (Parameter),
+                                   GNAT.Regexp.Compile (Parameter)));
+
+                     when F.Slice =>
+                        declare
+                           First, Last : Natural;
+                        begin
+                           Get_Slice (Parameter, First, Last);
+
+                           return (F.Handle (Mode),
+                                   F.Parameter_Data'(F.Slice, First, Last));
+                        end;
+
+                     when F.Str =>
+                        return (F.Handle (Mode),
+                                F.Parameter_Data'
+                                  (F.Str,
+                                   To_Unbounded_String (Parameter)));
+
+                     when F.Void =>
+                        pragma Warnings (Off);
+                        null;
+                  end case;
                end;
             end if;
          end Name_Parameter;
@@ -602,7 +655,7 @@ package body Templates_Parser is
             Stop := Stop - 1;
          end loop;
 
-         return new Filter_Set'(FS);
+         return new Filter.Set'(FS);
       end Get_Filter_Set;
 
       ------------------
@@ -639,7 +692,7 @@ package body Templates_Parser is
 
    procedure Release (T : in out Tag) is
       procedure Free is
-         new Ada.Unchecked_Deallocation (Filter_Set, Filter_Set_Access);
+         new Ada.Unchecked_Deallocation (Filter.Set, Filter.Set_Access);
    begin
       Free (T.Filters);
    end Release;
@@ -649,6 +702,7 @@ package body Templates_Parser is
    ---------------
 
    function Translate (T : in Tag; Value : in String) return String is
+      use type Filter.Set_Access;
    begin
       if T.Filters /= null then
          declare
@@ -1334,973 +1388,6 @@ package body Templates_Parser is
 
    package body Expr is separate;
 
-   -------------
-   -- Filters --
-   -------------
-
-   function Expect_Regexp (Mode : in Filters_Mode) return Boolean is
-   begin
-      if Mode = Match then
-         return True;
-      else
-         return False;
-      end if;
-   end Expect_Regexp;
-
-   --------------------------
-   -- Check_Null_Parameter --
-   --------------------------
-
-   procedure Check_Null_Parameter (P : in Parameter_Data) is
-   begin
-      if P.Mode /= Void then
-         Exceptions.Raise_Exception
-           (Template_Error'Identity, "no parameter allowed in this filter");
-      end if;
-   end Check_Null_Parameter;
-
-   --------------------
-   -- BR_2_LF_Filter --
-   --------------------
-
-   function BR_2_LF_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
-   is
-      Result : String (S'Range);
-      K      : Positive := Result'First;
-      J      : Positive := S'First;
-   begin
-      Check_Null_Parameter (P);
-
-      loop
-         if S (J) = '<'
-           and then J + 3 <= S'Last
-           and then Characters.Handling.To_Lower (S (J .. J + 3)) = "<br>"
-         then
-            Result (K) := ASCII.LF;
-            K := K + 1;
-            J := J + 4;
-         else
-            Result (K) := S (J);
-            K := K + 1;
-            J := J + 1;
-         end if;
-
-         exit when J > S'Last;
-      end loop;
-
-      return Result (Result'First .. K - 1);
-   end BR_2_LF_Filter;
-
-   -----------------------
-   -- Capitalize_Filter --
-   -----------------------
-
-   function Capitalize_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Result : String (S'Range);
-      Upper  : Boolean := True;
-   begin
-      Check_Null_Parameter (P);
-
-      for K in Result'Range loop
-         if Upper then
-            Result (K) := Characters.Handling.To_Upper (S (K));
-            Upper := False;
-         else
-            Result (K) := Characters.Handling.To_Lower (S (K));
-            if Result (K) = ' ' or else Result (K) = '_' then
-               Upper := True;
-            end if;
-         end if;
-      end loop;
-      return Result;
-   end Capitalize_Filter;
-
-   -----------------------
-   -- Clean_Text_Filter --
-   -----------------------
-
-   function Clean_Text_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-
-      use type Strings.Maps.Character_Set;
-
-      Result : String (S'Range);
-
-      Clean_Set : constant Strings.Maps.Character_Set
-        := Strings.Maps.Constants.Letter_Set
-        or Strings.Maps.Constants.Decimal_Digit_Set
-        or Strings.Maps.To_Set (" йикопафз");
-
-   begin
-      Check_Null_Parameter (P);
-
-      for K in S'Range loop
-         if Strings.Maps.Is_In (S (K), Clean_Set) then
-            Result (K) := S (K);
-         else
-            Result (K) := ' ';
-         end if;
-      end loop;
-      return Result;
-   end Clean_Text_Filter;
-
-   -------------------------
-   -- Coma_2_Point_Filter --
-   -------------------------
-
-   function Coma_2_Point_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Result : String := S;
-   begin
-      Check_Null_Parameter (P);
-
-      for K in Result'Range loop
-         if Result (K) = ',' then
-            Result (K) := '.';
-         end if;
-      end loop;
-
-      return Result;
-   end Coma_2_Point_Filter;
-
-   ---------------------
-   -- Contract_Filter --
-   ---------------------
-
-   function Contract_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-
-      use type Strings.Maps.Character_Set;
-
-      Result : String (S'Range);
-      R      : Natural := 0;
-      Space  : Boolean := False;
-
-   begin
-      Check_Null_Parameter (P);
-
-      for K in S'Range loop
-
-         if S (K) = ' ' then
-
-            if Space = False then
-               Space := True;
-
-               R := R + 1;
-               Result (R) := ' ';
-            end if;
-
-         else
-            Space := False;
-
-            R := R + 1;
-            Result (R) := S (K);
-         end if;
-
-      end loop;
-
-      if R = 0 then
-         return "";
-      else
-         return Result (Result'First .. R);
-      end if;
-   end Contract_Filter;
-
-   ------------------
-   -- Exist_Filter --
-   ------------------
-
-   function Exist_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      Check_Null_Parameter (P);
-
-      if S /= "" then
-         return "TRUE";
-      else
-         return "FALSE";
-      end if;
-   end Exist_Filter;
-
-   --------------------------
-   -- Format_Number_Filter --
-   --------------------------
-
-   function Format_Number_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      TS : constant String := Strings.Fixed.Trim (S, Both);
-
-      function Is_Number return Boolean;
-      --  Returns true if S is a number.
-
-      Point : Natural := 0;
-
-      function Is_Number return Boolean is
-      begin
-         for K in TS'Range loop
-            if TS (K) = '.' then
-               Point := K;
-
-            elsif not Characters.Handling.Is_Digit (TS (K)) then
-               return False;
-            end if;
-         end loop;
-
-         return True;
-      end Is_Number;
-
-      Result : String (1 .. TS'Length * 2);
-      K      : Positive := Result'Last;
-
-      I      : Natural;
-      Count  : Natural := 0;
-
-   begin
-      Check_Null_Parameter (P);
-
-      if Is_Number then
-
-         if Point = 0 then
-            I := TS'Last;
-         else
-            I := Point - 1;
-         end if;
-
-         for P in reverse TS'First .. I loop
-            Result (K) := TS (P);
-            K := K - 1;
-            Count := Count + 1;
-
-            if Count mod 3 = 0 and then P /= TS'First then
-               Result (K) := ' ';
-               K := K - 1;
-            end if;
-         end loop;
-
-         if Point = 0 then
-            return Result (K + 1 .. Result'Last);
-
-         else
-            return Result (K + 1 .. Result'Last) & TS (Point .. TS'Last);
-         end if;
-
-      else
-         return S;
-      end if;
-   end Format_Number_Filter;
-
-   ---------------------
-   -- Is_Empty_Filter --
-   ---------------------
-
-   function Is_Empty_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      Check_Null_Parameter (P);
-
-      if S = "" then
-         return "TRUE";
-      else
-         return "FALSE";
-      end if;
-   end Is_Empty_Filter;
-
-   --------------------
-   -- LF_2_BR_Filter --
-   --------------------
-
-   function LF_2_BR_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
-   is
-      N      : constant Natural
-        := Fixed.Count (S, Strings.Maps.To_Set (ASCII.LF));
-   begin
-      Check_Null_Parameter (P);
-
-      if N = 0 then
-         --  No LF, return the original string
-         return S;
-      end if;
-
-      declare
-         Result : String (1 .. S'Length + N * 3);
-         K      : Positive := S'First;
-      begin
-         for J in S'Range loop
-            if S (J) = ASCII.LF then
-               Result (K .. K + 3) := "<br>";
-               K := K + 4;
-            else
-               Result (K) := S (J);
-               K := K + 1;
-            end if;
-         end loop;
-
-         return Result (1 .. K - 1);
-      end;
-   end LF_2_BR_Filter;
-
-   ------------------
-   -- Lower_Filter --
-   ------------------
-
-   function Lower_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      Check_Null_Parameter (P);
-
-      return Characters.Handling.To_Lower (S);
-   end Lower_Filter;
-
-   ------------------
-   -- Match_Filter --
-   -------------------
-
-   function Match_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      if P = No_Parameter then
-         Exceptions.Raise_Exception
-           (Template_Error'Identity, "missing parameter for MATCH filter");
-      end if;
-
-      if GNAT.Regexp.Match (S, P.Regexp) then
-         return "TRUE";
-      else
-         return "FALSE";
-      end if;
-   end Match_Filter;
-
-   ---------------------
-   -- No_Digit_Filter --
-   ---------------------
-
-   function No_Digit_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Result : String := S;
-   begin
-      Check_Null_Parameter (P);
-
-      for K in S'Range loop
-         if Strings.Maps.Is_In (S (K),
-                                Strings.Maps.Constants.Decimal_Digit_Set)
-         then
-            Result (K) := ' ';
-         end if;
-      end loop;
-
-      return Result;
-   end No_Digit_Filter;
-
-   ---------------------
-   -- No_Letter_Filter --
-   ----------------------
-
-   function No_Letter_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Result : String := S;
-   begin
-      Check_Null_Parameter (P);
-
-      for K in S'Range loop
-         if Strings.Maps.Is_In (S (K), Strings.Maps.Constants.Letter_Set) then
-            Result (K) := ' ';
-         end if;
-      end loop;
-
-      return Result;
-   end No_Letter_Filter;
-
-   ---------------------
-   -- No_Space_Filter --
-   ---------------------
-
-   function No_Space_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Result : String (S'Range);
-      L      : Natural := Result'First - 1;
-   begin
-      Check_Null_Parameter (P);
-
-      for K in S'Range loop
-         if not (S (K) = ' ') then
-            L := L + 1;
-            Result (L) := S (K);
-         end if;
-      end loop;
-
-      return Result (Result'First .. L);
-   end No_Space_Filter;
-
-   --------------------
-   -- Oui_Non_Filter --
-   --------------------
-
-   function Oui_Non_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      Check_Null_Parameter (P);
-
-      if S = "TRUE" then
-         return "OUI";
-
-      elsif S = "true" then
-         return "oui";
-
-      elsif S = "True" then
-         return "Oui";
-
-      elsif S = "FALSE" then
-         return "NON";
-
-      elsif S = "false" then
-         return "non";
-
-      elsif S = "False" then
-         return "Non";
-
-      else
-         return S;
-      end if;
-   end Oui_Non_Filter;
-
-   -------------------------
-   -- Point_2_Coma_Filter --
-   -------------------------
-
-   function Point_2_Coma_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Result : String := S;
-   begin
-      Check_Null_Parameter (P);
-
-      for K in Result'Range loop
-         if Result (K) = '.' then
-            Result (K) := ',';
-         end if;
-      end loop;
-
-      return Result;
-   end Point_2_Coma_Filter;
-
-   -------------------
-   -- Repeat_Filter --
-   -------------------
-
-   function Repeat_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      N : Natural;
-   begin
-      N := Natural'Value (To_String (P.S));
-
-      declare
-         R : String (1 .. N * S'Length);
-      begin
-         for K in 1 .. N loop
-            R (1 + (K - 1) * S'Length .. S'Length * K) := S;
-         end loop;
-
-         return R;
-      end;
-
-   exception
-      when Constraint_Error =>
-         Exceptions.Raise_Exception
-           (Template_Error'Identity, "repeat filter parameter error");
-   end Repeat_Filter;
-
-   --------------------
-   -- Reverse_Filter --
-   --------------------
-
-   function Reverse_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Result : String (S'Range);
-   begin
-      Check_Null_Parameter (P);
-
-      for K in S'Range loop
-         Result (Result'Last - K + Result'First) := S (K);
-      end loop;
-      return Result;
-   end Reverse_Filter;
-
-   -----------------
-   -- Size_Filter --
-   -----------------
-
-   function Size_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      Check_Null_Parameter (P);
-
-      return Image (S'Length);
-   end Size_Filter;
-
-   -----------------
-   -- Trim_Filter --
-   -----------------
-
-   function Trim_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      Check_Null_Parameter (P);
-
-      return Ada.Strings.Fixed.Trim (S, Ada.Strings.Both);
-   end Trim_Filter;
-
-   ------------------
-   -- Upper_Filter --
-   ------------------
-
-   function Upper_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      Check_Null_Parameter (P);
-
-      return Characters.Handling.To_Upper (S);
-   end Upper_Filter;
-
-   -------------------
-   -- Escape_Filter --
-   -------------------
-
-   function Web_Escape_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Max_Escape_Sequence : constant Positive := 5;
-      Result              : String (1 .. S'Length * Max_Escape_Sequence);
-      Last                : Natural := 0;
-   begin
-      Check_Null_Parameter (P);
-
-      for I in S'Range loop
-         Last := Last + 1;
-
-         case S (I) is
-            when '&' =>
-               Result (Last .. Last + 4) := "&amp;";
-               Last := Last + 4;
-
-            when '>' =>
-               Result (Last .. Last + 3) := "&gt;";
-               Last := Last + 3;
-
-            when '<' =>
-               Result (Last .. Last + 3) := "&lt;";
-               Last := Last + 3;
-
-            when '"' =>
-               Result (Last .. Last + 5) := "&quot;";
-               Last := Last + 5;
-
-            when others =>
-               Result (Last) := S (I);
-         end case;
-
-      end loop;
-
-      return Result (1 .. Last);
-   end Web_Escape_Filter;
-
-   ---------------------
-   -- Web_NBSP_Filter --
-   ---------------------
-
-   function Web_NBSP_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String
-   is
-      Nbsp_Token          : constant String := "&nbsp;";
-      Max_Escape_Sequence : constant Positive := Nbsp_Token'Length;
-      Result              : String (1 .. S'Length * Max_Escape_Sequence);
-      Last                : Natural := 0;
-   begin
-      Check_Null_Parameter (P);
-
-      for I in S'Range loop
-         Last := Last + 1;
-
-         if S (I) = ' ' then
-            Result (Last .. Last + Nbsp_Token'Length - 1) := Nbsp_Token;
-            Last := Last + Nbsp_Token'Length - 1;
-         else
-            Result (Last) := S (I);
-         end if;
-
-      end loop;
-
-      return Result (1 .. Last);
-   end Web_NBSP_Filter;
-
-   -------------------
-   -- Yes_No_Filter --
-   -------------------
-
-   function Yes_No_Filter
-     (S : in String;
-      P : in Parameter_Data := No_Parameter)
-      return String is
-   begin
-      Check_Null_Parameter (P);
-
-      if S = "TRUE" then
-         return "YES";
-
-      elsif S = "true" then
-         return "yes";
-
-      elsif S = "True" then
-         return "Yes";
-
-      elsif S = "FALSE" then
-         return "NO";
-
-      elsif S = "false" then
-         return "no";
-
-      elsif S = "False" then
-         return "No";
-
-      else
-         return S;
-      end if;
-   end Yes_No_Filter;
-
-   -----------------
-   -- Plus_Filter --
-   -----------------
-
-   function Plus_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
-   is
-      N, V : Natural;
-   begin
-      begin
-         N := Natural'Value (To_String (P.S));
-      exception
-         when Constraint_Error =>
-            Exceptions.Raise_Exception
-              (Template_Error'Identity, """+"" filter parameter error");
-      end;
-
-      begin
-         V := Natural'Value (S);
-         return Image (V + N);
-      exception
-         when others =>
-            return "";
-      end;
-   end Plus_Filter;
-
-   ------------------
-   -- Minus_Filter --
-   ------------------
-
-   function Minus_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
-   is
-      N, V : Natural;
-   begin
-      begin
-         N := Natural'Value (To_String (P.S));
-      exception
-         when Constraint_Error =>
-            Exceptions.Raise_Exception
-              (Template_Error'Identity, """-"" filter parameter error");
-      end;
-
-      begin
-         V := Natural'Value (S);
-         return Image (V - N);
-      exception
-         when others =>
-            return "";
-      end;
-   end Minus_Filter;
-
-   -------------------
-   -- Divide_Filter --
-   -------------------
-
-   function Divide_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
-   is
-      N, V : Natural;
-   begin
-      begin
-         N := Natural'Value (To_String (P.S));
-      exception
-         when Constraint_Error =>
-            Exceptions.Raise_Exception
-              (Template_Error'Identity, """/"" filter parameter error");
-      end;
-
-      begin
-         V := Natural'Value (S);
-         return Image (V / N);
-      exception
-         when others =>
-            return "";
-      end;
-   end Divide_Filter;
-
-   ---------------------
-   -- Multiply_Filter --
-   ---------------------
-
-   function Multiply_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
-   is
-      N, V : Natural;
-   begin
-      begin
-         N := Natural'Value (To_String (P.S));
-      exception
-         when Constraint_Error =>
-            Exceptions.Raise_Exception
-              (Template_Error'Identity, """*"" filter parameter error");
-      end;
-
-      begin
-         V := Natural'Value (S);
-         return Image (V * N);
-      exception
-         when others =>
-            return "";
-      end;
-   end Multiply_Filter;
-
-   -------------------
-   -- Modulo_Filter --
-   -------------------
-
-   function Modulo_Filter
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
-   is
-      N, V : Natural;
-   begin
-      begin
-         N := Natural'Value (To_String (P.S));
-      exception
-         when Constraint_Error =>
-            Exceptions.Raise_Exception
-              (Template_Error'Identity, "modulo filter parameter error");
-      end;
-
-      begin
-         V := Natural'Value (S);
-         return Image (V mod N);
-      exception
-         when others =>
-            return "";
-      end;
-   end Modulo_Filter;
-
-   --  Filter Table
-
-   Filter_Table : constant array (Filters_Mode) of Filter_Record
-     := (BR_2_LF        =>
-           (Filter_BR_2_LF_Token'Access,        BR_2_LF_Filter'Access),
-
-         Capitalize     =>
-           (Filter_Capitalize_Token'Access,     Capitalize_Filter'Access),
-
-         Clean_Text     =>
-           (Filter_Clean_Text_Token'Access,     Clean_Text_Filter'Access),
-
-         Coma_2_Point   =>
-           (Filter_Coma_2_Point_Token'Access,   Coma_2_Point_Filter'Access),
-
-         Contract       =>
-           (Filter_Contract_Token'Access,       Contract_Filter'Access),
-
-         Exist          =>
-           (Filter_Exist_Token'Access,          Exist_Filter'Access),
-
-         Format_Number  =>
-           (Filter_Format_Number_Token'Access,  Format_Number_Filter'Access),
-
-         Invert        =>
-           (Filter_Reverse_Token'Access,        Reverse_Filter'Access),
-
-         Is_Empty       =>
-           (Filter_Is_Empty_Token'Access,       Is_Empty_Filter'Access),
-
-         LF_2_BR        =>
-           (Filter_LF_2_BR_Token'Access,        LF_2_BR_Filter'Access),
-
-         Lower          =>
-           (Filter_Lower_Token'Access,          Lower_Filter'Access),
-
-         Match          =>
-           (Filter_Match_Token'Access,          Match_Filter'Access),
-
-         No_Digit       =>
-           (Filter_No_Digit_Token'Access,       No_Digit_Filter'Access),
-
-         No_Letter      =>
-           (Filter_No_Letter_Token'Access,      No_Letter_Filter'Access),
-
-         No_Space       =>
-           (Filter_No_Space_Token'Access,       No_Space_Filter'Access),
-
-         Oui_Non        =>
-           (Filter_Oui_Non_Token'Access,        Oui_Non_Filter'Access),
-
-         Point_2_Coma   =>
-           (Filter_Point_2_Coma_Token'Access,   Point_2_Coma_Filter'Access),
-
-         Repeat         =>
-           (Filter_Repeat_Token'Access,         Repeat_Filter'Access),
-
-         Size           =>
-           (Filter_Size_Token'Access,           Size_Filter'Access),
-
-         Trim           =>
-           (Filter_Trim_Token'Access,           Trim_Filter'Access),
-
-         Upper          =>
-           (Filter_Upper_Token'Access,          Upper_Filter'Access),
-
-         Web_Escape     =>
-           (Filter_Web_Escape_Token'Access,     Web_Escape_Filter'Access),
-
-         Web_NBSP =>
-           (Filter_Web_NBSP_Token'Access,       Web_NBSP_Filter'Access),
-
-         Yes_No         =>
-           (Filter_Yes_No_Token'Access,         Yes_No_Filter'Access),
-
-         Plus           =>
-           (Filter_Plus_Token'Access,           Plus_Filter'Access),
-
-         Add            =>
-           (Filter_Add_Token'Access,            Plus_Filter'Access),
-
-         Minus          =>
-           (Filter_Minus_Token'Access,          Minus_Filter'Access),
-
-         Sub            =>
-           (Filter_Sub_Token'Access,            Minus_Filter'Access),
-
-         Multiply       =>
-           (Filter_Multiply_Token'Access,       Multiply_Filter'Access),
-
-         Mult           =>
-           (Filter_Mult_Token'Access,           Multiply_Filter'Access),
-
-         Divide         =>
-           (Filter_Divide_Token'Access,         Divide_Filter'Access),
-
-         Div            =>
-           (Filter_Div_Token'Access,            Divide_Filter'Access),
-
-         Modulo         =>
-           (Filter_Modulo_Token'Access,         Modulo_Filter'Access)
-         );
-
-   -------------------
-   -- Filter_Handle --
-   -------------------
-
-   function Filter_Handle (Name : in String) return Filter_Function is
-      Mode : Filters_Mode := Filter_Mode (Name);
-   begin
-      return Filter_Table (Mode).Handle;
-   end Filter_Handle;
-
-   function Filter_Handle (Mode : in Filters_Mode) return Filter_Function is
-   begin
-      return Filter_Table (Mode).Handle;
-   end Filter_Handle;
-
-   -----------------
-   -- Filter_Mode --
-   -----------------
-
-   function Filter_Mode (Name : in String) return Filters_Mode is
-   begin
-      for K in Filter_Table'Range loop
-         if Filter_Table (K).Name.all = Name then
-            return K;
-         end if;
-      end loop;
-
-      Exceptions.Raise_Exception
-        (Internal_Error'Identity, "Unknown filter " & Name);
-   end Filter_Mode;
-
-   -----------------
-   -- Filter_Name --
-   -----------------
-
-   function Filter_Name (Handle : in Filter_Function) return String is
-   begin
-      for K in Filter_Table'Range loop
-         if Filter_Table (K).Handle = Handle then
-            return Filter_Table (K).Name.all;
-         end if;
-      end loop;
-
-      Exceptions.Raise_Exception
-        (Internal_Error'Identity, "Unknown filter handle");
-   end Filter_Name;
-
    -----------
    -- Field --
    -----------
@@ -2384,6 +1471,12 @@ package body Templates_Parser is
          end;
       end if;
    end Field;
+
+   ------------
+   -- Filter --
+   ------------
+
+   package body Filter is separate;
 
    -----------
    -- Assoc --
@@ -2666,6 +1759,12 @@ package body Templates_Parser is
             loop
                Input.Get_Line (File, Buffer, Last);
                exit when Buffer (Buffer'First .. Buffer'First + 3) /= "@@--";
+
+               if Input.End_Of_File (File) then
+                  --  We have reached the end of file, exit now.
+                  Last := 0;
+                  return True;
+               end if;
             end loop;
 
             First := Strings.Fixed.Index (Buffer (1 .. Last), Blank, Outside);
@@ -3045,6 +2144,7 @@ package body Templates_Parser is
 
             use type Data.NKind;
             use type Data.Tree;
+            use type Filter.Set_Access;
 
             procedure Free is
                new Ada.Unchecked_Deallocation (Data.Node, Data.Tree);
@@ -3097,6 +2197,7 @@ package body Templates_Parser is
 
             use type Expr.NKind;
             use type Expr.Tree;
+            use type Filter.Set_Access;
 
             procedure Free is
                new Ada.Unchecked_Deallocation (Expr.Node, Expr.Tree);
