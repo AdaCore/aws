@@ -715,7 +715,11 @@ package body AWS.Client is
                declare
 
                   package Stream_Element_Table is new GNAT.Table
-                    (Streams.Stream_Element, Natural, 1, 30_000, 10_000);
+                    (Streams.Stream_Element,
+                     Natural,
+                     Table_Low_Bound => 1,
+                     Table_Initial   => 30_000,
+                     Table_Increment => 25);
 
                   procedure Add (B : in Streams.Stream_Element_Array);
                   --  Add B to Data
@@ -774,9 +778,7 @@ package body AWS.Client is
                      Elements : Stream_Element_Array_Access
                        := Read_Binary_Message (CT_Len);
                   begin
-                     Response.Set.Message_Body (Result, Elements.all);
-
-                     Utils.Free (Elements);
+                     Response.Set.Message_Body (Result, Elements);
                   end;
                end if;
             end if;
