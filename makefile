@@ -285,3 +285,7 @@ install:
 	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/AWS/components
 	-cp tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-chmod -R og+r $(INSTALL)/AWS
+ifeq (${OS}, Windows_NT)
+	cp win32/libldap.a $(INSTALL)/AWS/lib
+	cp win32/*.dll $(INSTALL)/AWS/lib
+endif
