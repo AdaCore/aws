@@ -1,5 +1,26 @@
 2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	(Start): Use Accept_Queue_Size configuration parameter in the call
+	 to Listen.
+
+	* aws-config-set.ads, aws-config-set.adb:
+	(Accept_Queue_Size): new procedure to set the accepting queue
+	 size. This help support heavy loaded server.
+
+	* aws-config.adb:
+	(Accept_Queue_Size): new function to retrieve the accepting queue
+	 size. This help support heavy loaded server.
+
+	* aws-config.ads:
+	(Accept_Queue_Size): new function to retrieve the accepting queue
+	 size. This help support heavy loaded server.
+	(Parameter_Name): add Accept_Queue_Size.
+	(Default_Parameter): add Accept_Queue_Size.
+
+	* aws-default.ads:
+	(Accept_Queue_Size): new constant.
+
 	* aws-client.adb:
 	Removes unused with clause (Ada.Text_IO).
 
