@@ -79,10 +79,22 @@ package Templates_Parser is
    --  Add Value at the end of the vector tag set.
 
    function "&"
+     (Value : in String;
+      Vect  : in Vector_Tag)
+      return Vector_Tag;
+   --  Same as above but add Value in front of the vector tag
+
+   function "&"
      (Vect  : in Vector_Tag;
       Value : in Character)
       return Vector_Tag;
    --  Add Value at the end of the vector tag set.
+
+   function "&"
+     (Value : in Character;
+      Vect  : in Vector_Tag)
+      return Vector_Tag;
+   --  Same as above but add Value in front of the vector tag
 
    function "&"
      (Vect  : in Vector_Tag;
@@ -92,16 +104,34 @@ package Templates_Parser is
    --  set.
 
    function "&"
+     (Value : in Boolean;
+      Vect  : in Vector_Tag)
+      return Vector_Tag;
+   --  Same as above but add Value in front of the vector tag
+
+   function "&"
      (Vect  : in Vector_Tag;
       Value : in Unbounded_String)
       return Vector_Tag;
    --  Add Value at the end of the vector tag set.
 
    function "&"
+     (Value : in Unbounded_String;
+      Vect  : in Vector_Tag)
+      return Vector_Tag;
+   --  Same as above but add Value in front of the vector tag
+
+   function "&"
      (Vect  : in Vector_Tag;
       Value : in Integer)
       return Vector_Tag;
    --  Add Value (converted to a String) at the end of the vector tag set.
+
+   function "&"
+     (Value : in Integer;
+      Vect  : in Vector_Tag)
+      return Vector_Tag;
+   --  Same as above but add Value in front of the vector tag
 
    procedure Clear (Vect : in out Vector_Tag);
    --  Removes all values in the vector tag. Current Vect is not released but

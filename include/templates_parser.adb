@@ -1106,11 +1106,56 @@ package body Templates_Parser is
    end "&";
 
    function "&"
+     (Value : in String;
+      Vect  : in Vector_Tag)
+      return Vector_Tag
+   is
+      Item : constant Vector_Tag_Node_Access
+        := new Vector_Tag_Node'(To_Unbounded_String (Value), Vect.Head);
+
+      Current : Access_Vector_Tag_Node_Access;
+   begin
+      Vect.Ref_Count.all := Vect.Ref_Count.all + 1;
+
+      if Vect.Count = 0 then
+         return Vector_Tag'
+           (Ada.Finalization.Controlled with
+            Ref_Count => Vect.Ref_Count,
+            Count     => 1,
+            Head      => Item,
+            Last      => Item,
+            Current   => new Vector_Tag_Node_Access'(Item),
+            Pos       => Vect.Pos);
+      else
+         --  Link current iterator to Item
+         Current     := Vect.Current;
+         Current.all := Item;
+
+         return Vector_Tag'
+           (Ada.Finalization.Controlled with
+            Ref_Count => Vect.Ref_Count,
+            Count     => Vect.Count + 1,
+            Head      => Item,
+            Last      => Vect.Last,
+            Current   => Current,
+            Pos       => Vect.Pos);
+      end if;
+   end "&";
+
+   function "&"
      (Vect  : in Vector_Tag;
       Value : in Character)
       return Vector_Tag is
    begin
       return Vect & String'(1 => Value);
+   end "&";
+
+   function "&"
+     (Value : in Character;
+      Vect  : in Vector_Tag)
+      return Vector_Tag is
+   begin
+      return String'(1 => Value) & Vect;
    end "&";
 
    function "&"
@@ -1122,6 +1167,14 @@ package body Templates_Parser is
    end "&";
 
    function "&"
+     (Value : in Boolean;
+      Vect  : in Vector_Tag)
+      return Vector_Tag is
+   begin
+      return Boolean'Image (Value) & Vect;
+   end "&";
+
+   function "&"
      (Vect  : in Vector_Tag;
       Value : in Strings.Unbounded.Unbounded_String)
       return Vector_Tag is
@@ -1130,11 +1183,27 @@ package body Templates_Parser is
    end "&";
 
    function "&"
+     (Value : in Strings.Unbounded.Unbounded_String;
+      Vect  : in Vector_Tag)
+      return Vector_Tag is
+   begin
+      return To_String (Value) & Vect;
+   end "&";
+
+   function "&"
      (Vect  : in Vector_Tag;
       Value : in Integer)
       return Vector_Tag is
    begin
       return Vect & Image (Value);
+   end "&";
+
+   function "&"
+     (Value : in Integer;
+      Vect  : in Vector_Tag)
+      return Vector_Tag is
+   begin
+      return Image (Value) & Vect;
    end "&";
 
    -----------
