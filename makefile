@@ -1,8 +1,11 @@
 
 # $Id$
 
-.SILENT: all build_std build_ssl clean distrib install
+.SILENT: all build build clean distrib install set_std set_ssl
 
+include makefile.conf
+
+###########################################################################
 # update INCLUDES to point to the libraries directories for POSIX and Sockets
 # or use GNAT ADA_INCLUDE_PATH or ADA_OBJECTS_PATH
 
@@ -15,46 +18,74 @@ LIBS	 = -L$(XMLADA)/lib -lxmlada
 
 INSTALL	 = /usr/Ada.Libraries/AWS
 
+# compiler
+RELEASE_GFLAGS	= -O2 -gnatn
+DEBUG_GFLAGS	= -O0 -g -m -gnatwu -gnaty
+GFLAGS		= $(DEBUG_GFLAGS)
+
+# linker
+RELEASE_GFLAGS	= -s
+DEBUG_GFLAGS	=
+LFLAGS		= $(DEBUG_LFLAGS)
+
+# NO NEED TO CHANGE ANYTHING PAST THIS POINT
+###########################################################################
+
 all:
+	echo ""
 	echo "Targets :"
 	echo ""
-	echo "build_ssl:    build with SSL support (Secure Socket Layer)"
-	echo "build_std:    build without SSL support"
+	echo "  Configurations :"
 	echo ""
-	echo "gnat_oslib:   OS_Lib implementation for GNAT only [default]"
-	echo "posix_oslib:  OS_Lib implementation based on POSIX"
-	echo "win32_oslib:  OS_Lib implementation for Win32 only"
+	echo "    set_ssl:     build with SSL support (Secure Socket Layer)"
+	echo "    set_std:     build without SSL support [default]"
 	echo ""
-	echo "build_doc:    build documentation (needs texinfo support)"
-	echo "build_soap:   build SOAP library (needs XML-Ada package)"
+	echo "    gnat_oslib:  OS_Lib implementation for GNAT only [default]"
+	echo "    posix_oslib: OS_Lib implementation based on POSIX"
+	echo "    win32_oslib: OS_Lib implementation for Win32 only"
 	echo ""
-	echo "clean:        to clean directories"
-	echo "distrib:      to build a tarball distribution"
-	echo "install:      install AWS library"
+	echo "  Build :"
+	echo ""
+	echo "    build:       build AWS library and demos"
+	echo "    build_doc:    build documentation (needs texinfo support)"
+	echo "    build_soap:   build SOAP library (needs XML-Ada package)"
+	echo ""
+	echo "  Support :"
+	echo ""
+	echo "    clean:        to clean directories"
+	echo "    distrib:      to build a tarball distribution"
+	echo "    install:      install AWS library"
 
-build_aws_std:
-	make -C src std_mode
-	make -C src build MODE=std INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
+ALL_OPTIONS	= GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)"
 
-build_aws_ssl:
+set_ssl:
+	echo "MODE=ssl" > makefile.conf
 	make -C src ssl_mode
-	make -C src build MODE=ssl INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
 
-build_demo_std:
-	make -C demos build MODE=std INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
+set_std:
+	echo "MODE=std" > makefile.conf
+	make -C src std_mode
 
-build_demo_ssl:
-	make -C demos build MODE=ssl INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
+build: build_ssllib build_include build_aws build_demo
+
+build_aws:
+	make -C src build $(ALL_OPTIONS)
+
+build_demo:
+	make -C demos build $(ALL_OPTIONS)
+
+build_soap_demo:
+	make -C demos build_soap $(ALL_OPTIONS)
 
 build_ssllib:
-	make -C ssl build INCLUDES="$(INCLUDES)"
+ifeq ($(MODE),ssl)
+	make -C ssl build $(ALL_OPTIONS)
+endif
 
-build_soap: build_include
-	make -C soap build INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
+build_soaplib: build_include
+	make -C soap build $(ALL_OPTIONS)
 
-build_std: build_include build_aws_std build_demo_std
-
-build_ssl: build_ssllib build_include build_aws_ssl build_demo_ssl
+build_soap: build_soaplib build_soap_demo
 
 gnat_oslib:
 	make -C src gnat_oslib
@@ -69,7 +100,7 @@ build_doc:
 	make -C docs build
 
 build_include:
-	make -C include build
+	make -C include build $(ALL_OPTIONS)
 
 clean:
 	make -C include clean
@@ -77,6 +108,7 @@ clean:
 	make -C demos clean
 	make -C ssl clean
 	make -C docs clean
+	make -C soap clean
 	rm *.~*.*~
 
 distrib: build_doc
