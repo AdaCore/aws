@@ -155,6 +155,33 @@ package body AWS.Server is
 
    end Counter;
 
+   ------------------------------------------
+   -- Default_Unexpected_Exception_Handler --
+   ------------------------------------------
+
+   procedure Default_Unexpected_Exception_Handler
+     (E : Ada.Exceptions.Exception_Occurrence;
+      Termination : Boolean)
+   is
+   begin
+      if Termination then
+         Text_IO.Put_Line
+           (Text_IO.Current_Error,
+            "Slot problem has been detected!");
+
+      else
+         Text_IO.Put_Line
+           (Text_IO.Current_Error, "A problem has been detected!");
+         Text_IO.Put_Line
+           (Text_IO.Current_Error, "Connection will be closed...");
+         Text_IO.New_Line (Text_IO.Current_Error);
+      end if;
+
+      Text_IO.Put_Line (Text_IO.Current_Error,
+           Ada.Exceptions.Exception_Information (E));
+
+   end Default_Unexpected_Exception_Handler;
+
    ---------------------
    -- File_Upload_UID --
    ---------------------
@@ -256,13 +283,7 @@ package body AWS.Server is
                   null;
 
                when E : others =>
-                  Text_IO.Put_Line
-                    (Text_IO.Current_Error, "A problem has been detected!");
-                  Text_IO.Put_Line
-                    (Text_IO.Current_Error, "Connection will be closed...");
-                  Text_IO.New_Line (Text_IO.Current_Error);
-                  Text_IO.Put_Line (Text_IO.Current_Error,
-                                    Ada.Exceptions.Exception_Information (E));
+                  HTTP_Server.Exception_Handler (E, False);
             end;
 
             HTTP_Server.Slots.Release (Slot_Index);
@@ -275,13 +296,9 @@ package body AWS.Server is
       when E : others =>
 
          if not HTTP_Server.Shutdown then
-            Text_IO.Put_Line
-              (Text_IO.Current_Error,
-               "Slot problem has been detected!");
 
-            Text_IO.Put_Line
-              (Text_IO.Current_Error,
-               Ada.Exceptions.Exception_Information (E));
+            HTTP_Server.Exception_Handler (E, True);
+
          end if;
 
    end Line;
@@ -352,6 +369,23 @@ package body AWS.Server is
       end Seize;
 
    end Semaphore;
+
+   --------------------------------------
+   -- Set_Unexpected_Exception_Handler --
+   --------------------------------------
+
+   procedure Set_Unexpected_Exception_Handler
+     (Web_Server : in out HTTP;
+      Handler    : in     Unexpected_Exception_Handler)
+   is
+   begin
+      if Web_Server.Shutdown then
+         Web_Server.Exception_Handler := Handler;
+      else
+         Ada.Exceptions.Raise_Exception (Constraint_Error'Identity,
+            "Could not change exception handler on the active server.");
+      end if;
+   end Set_Unexpected_Exception_Handler;
 
    --------------
    -- Shutdown --

@@ -3,7 +3,7 @@
 
 .SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
 .SILENT: checks checks_header checks_soap shutdown
-.SILENT: soap1 soap2 workorder tres tres2 upload
+.SILENT: soap1 soap2 workorder tres tres2 upload unexph
 
 #INCLUDES = -I../src -I../ssl -I../include
 #LIBS     = -L../ssl -lssl -lcrypto
@@ -32,7 +32,7 @@ endif
 rt_soap: soap1 soap2 workorder testxml
 
 # Standard regression tests
-rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2 upload
+rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2 upload unexph
 
 ifeq ($(XMLADA),)
 run : rt_std checks
@@ -122,6 +122,10 @@ upload: force
 	gnatmake -g upload $(GARGS) -largs $(LARGS) -bargs -E
 	./upload > upload.res
 
+unexph: force
+	gnatmake -g unexph $(GARGS) -largs $(LARGS) -bargs -E
+	./unexph > unexph.res
+
 checks_soap:
 	-diff -c -w soap1.out soap1.res
 	-diff -c -w soap2.out soap2.res
@@ -146,6 +150,7 @@ endif
 	-diff -c -w tres.out tres.res
 	-diff -c -w tres2.out tres2.res
 	-diff -c -w upload.out upload.res
+	-diff -c -w unexph.out unexph.res
 	-diff -c upload.ali 0.upload.ali
 	-diff -c upload.adb 1.upload.adb
 

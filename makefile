@@ -41,6 +41,8 @@ DEBUG_GFLAGS	= -g -m -gnatwu -gnaty3abcefhiklmnoprst
 RELEASE_LFLAGS	= -s
 DEBUG_LFLAGS	=
 
+DEBUG=1
+
 ifdef DEBUG
 GFLAGS		= $(DEBUG_GFLAGS)
 LFLAGS		= $(DEBUG_LFLAGS)

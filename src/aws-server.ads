@@ -41,6 +41,7 @@ with AWS.Config;
 with AWS.Default;
 with AWS.Log;
 with AWS.Dispatchers;
+with Ada.Exceptions;
 
 package AWS.Server is
 
@@ -52,6 +53,13 @@ package AWS.Server is
 
    type HTTP is limited private;
    --  A Web server.
+
+   type Unexpected_Exception_Handler is access
+      procedure (E : in Ada.Exceptions.Exception_Occurrence;
+            Termination : in Boolean);
+   --  Unexpected exception handler can be set to monitor server errors.
+   --  Termination is set to true if the line has been terminated.
+
 
    procedure Start
      (Web_Server : in out HTTP;
@@ -98,6 +106,15 @@ package AWS.Server is
    --  parameters name will be handled without case sensitivity. Upload
    --  directory point to a directory where uploaded files will be stored.
 
+   procedure Set_Unexpected_Exception_Handler
+     (Web_Server : in out HTTP;
+      Handler   : in     Unexpected_Exception_Handler);
+   --  Set the unexpected exception handler. It is called whenever an
+   --  unrecoverable error has been detected. The default handler just display
+   --  (on standard output) an error message with the location of the
+   --  error. By changing this handler it is possible to log or display full
+   --  symbolic stack backtrace if needed.
+
    procedure Shutdown (Web_Server : in out HTTP);
    --  Stop the server and release all associated memory. This routine can
    --  take some time to terminate because it waits for all tasks to terminate
@@ -127,6 +144,11 @@ package AWS.Server is
    type HTTP_Access is access all HTTP;
 
 private
+
+   procedure Default_Unexpected_Exception_Handler
+     (E : Ada.Exceptions.Exception_Occurrence;
+      Termination : Boolean);
+   --  Default hander of the unexpected exception.
 
    type Slot_Phase is
      (Closed,
@@ -308,40 +330,43 @@ private
    --  run through the slots and see if some of them could be closed.
 
    type HTTP is new Ada.Finalization.Limited_Controlled with record
-      Self            : HTTP_Access := HTTP'Unchecked_Access;
+      Self              : HTTP_Access := HTTP'Unchecked_Access;
       --  Point to the record.
 
-      Start_Time      : Ada.Calendar.Time;
+      Start_Time        : Ada.Calendar.Time;
       --  Date and Time when server was started.
 
-      Shutdown        : Boolean     := True;
+      Shutdown          : Boolean     := True;
       --  True when server is shutdown. This will be set to False when server
       --  will be started.
 
-      Sock            : Sockets.Socket_FD;
+      Sock              : Sockets.Socket_FD;
       --  This is the server socket for incoming connection.
 
-      Sock_Sem        : Semaphore;
+      Sock_Sem          : Semaphore;
       --  Semaphore used to serialize the accepts call on the server socket.
 
-      Cleaner         : Line_Cleaner_Access;
+      Cleaner           : Line_Cleaner_Access;
       --  Task in charge of cleaning slots status. It checks from time to time
       --  is the slots is still in used and closed it if possible.
 
-      Properties      : CNF.Object := CNF.Get_Current;
+      Properties        : CNF.Object := CNF.Get_Current;
       --  All server properties controled by the configuration file.
 
-      Log             : AWS.Log.Object;
+      Log               : AWS.Log.Object;
       --  Loggin support.
 
-      Dispatcher      : Dispatchers.Handler_Class_Access;
+      Dispatcher        : Dispatchers.Handler_Class_Access;
       --  Dispatcher for the user actions.
 
-      Filters         : Hotplug.Filter_Set;
+      Filters           : Hotplug.Filter_Set;
       --  Hotplug filters are recorded here.
 
-      Lines           : Line_Set_Access;
+      Lines             : Line_Set_Access;
       --  The tasks doing the job.
+
+      Exception_Handler : Unexpected_Exception_Handler :=
+         Default_Unexpected_Exception_Handler'Access;
 
       Slots           : Slots_Access;
       --  Information about each tasks above. This is a protected object to
