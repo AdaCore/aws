@@ -41,6 +41,9 @@ package body AWS.Config is
 
    use Ada.Strings.Unbounded;
 
+   --  List of token (keyword) recognized by the parser. There must be one
+   --  entry for every option name to be handled.
+
    Admin_URI_Token          : aliased constant String := "admin_uri";
    Server_Name_Token        : aliased constant String := "server_name";
    Log_File_Directory_Token : aliased constant String := "log_file_directory";
@@ -77,6 +80,8 @@ package body AWS.Config is
 
    Force_Server_Response_Timeout_Token   : aliased constant String
      := "force_server_response_timeout";
+
+   --  List of values, one for each option declared above.
 
    Admin_URI_Value          : aliased Unbounded_String
      := To_Unbounded_String (Default_Admin_URI);
@@ -140,6 +145,7 @@ package body AWS.Config is
    -----------------------------
 
    type Value_Type        is (Str, Dir, Pos, Dur);
+
    type String_Pointer    is access constant String;
    type UString_Pointer   is access all Unbounded_String;
    type Positive_Pointer  is access all Positive;
