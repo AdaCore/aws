@@ -44,7 +44,7 @@ package body AWS.Resources is
    procedure Close (Resource : in out File_Type) is
    begin
       Close (Resource.all);
-      Free (Resource);
+      Release (Resource.all, Resource);
    end Close;
 
    -----------------
@@ -161,7 +161,8 @@ package body AWS.Resources is
       Name : in     String;
       Form : in     String    := "") is
    begin
-      --  Try to open the file in memory, if not found open the file on disk.
+      --  Try to open the file in memory, if not found open the file on disk
+
       Resources.Embedded.Open (File, Name, Form);
 
       if File = null then
@@ -180,6 +181,19 @@ package body AWS.Resources is
    begin
       Read (Resource.all, Buffer, Last);
    end Read;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release
+     (File        : in     File_Tagged;
+      File_Access : in out File_Type)
+   is
+      pragma Unreferenced (File);
+   begin
+      Free (File_Access);
+   end Release;
 
    ----------
    -- Size --
