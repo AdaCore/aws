@@ -52,7 +52,7 @@ demo.html
    Server    : 
    Port      : 80
    URI       : ../demo.html
-Error on http://myserver:8088/../demo.html - URI can't start with /..
+Error on http://myserver:8088/../demo.html - Wrong URL: (/../) Reference Web root parent directory.
 http://myserver.com
 http://myserver.com/
    Server    : myserver.com
