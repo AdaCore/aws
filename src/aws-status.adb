@@ -135,6 +135,15 @@ package body AWS.Status is
       return To_String (D.If_Modified_Since);
    end If_Modified_Since;
 
+   -------------
+   -- Is_SOAP --
+   -------------
+
+   function Is_SOAP (D : in Data) return Boolean is
+   begin
+      return D.SOAPAction /= Null_Unbounded_String;
+   end Is_SOAP;
+
    ------------
    -- Method --
    ------------
@@ -162,6 +171,15 @@ package body AWS.Status is
       return D.Parameters;
    end Parameters;
 
+   -------------
+   -- Payload --
+   -------------
+
+   function Payload (D : in Data) return String is
+   begin
+      return To_String (D.Payload);
+   end Payload;
+
    --------------
    -- Peername --
    --------------
@@ -184,6 +202,15 @@ package body AWS.Status is
    begin
       return AWS.Session.Value (Session (D));
    end Session;
+
+   ----------------
+   -- SOAPAction --
+   ----------------
+
+   function SOAPAction (D : in Data) return String is
+   begin
+      return To_String (D.SOAPAction);
+   end SOAPAction;
 
    ------------
    -- Socket --
