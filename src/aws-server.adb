@@ -144,6 +144,14 @@ package body AWS.Server is
          --  No socket was given back to the server, just accept a socket from
          --  the server socket.
 
+         if Server.Shutdown then
+            --  The server is beeing shutdown, raise an exception this will
+            --  terminate the line.
+            Net.Free (New_Socket);
+            Server.Sock_Sem.Release;
+            raise Net.Socket_Error;
+         end if;
+
          if Security then
             Net.SSL.Set_Config
               (Net.SSL.Socket_Type (New_Socket), Server.SSL_Config);
@@ -559,12 +567,41 @@ package body AWS.Server is
          return;
       end if;
 
+      --  Set the current server status to shutdown. This will ensure than no
+      --  request will be accepted anymore. All current lines on the
+      --  Accept_Socket_Serialized queue will return. This leaves a single
+      --  line to handle. See below.
+
       Web_Server.Shutdown := True;
 
-      --  First, close the sever socket, so no more request will be queued,
-      --  furthermore this will help terminate all lines (see below).
+      --  In the queue, waiting for a connection we have a single line waiting.
+      --  We need to unlock this line properly. Closing the server socket
+      --  directly is not possible as this line could be waiting on the routine
+      --  Accept_Socket or poll (see Wait_For implementation). On some OS (AIX
+      --  for example), trying to close a sockets waiting on a select/poll
+      --  will lock until the select/poll return or timeout. So the server
+      --  termination is a bit tricky and requires some attention.
 
-      Net.Std.Shutdown (Web_Server.Sock);
+      declare
+         Sock : Net.Std.Socket_Type;
+      begin
+         --  First we want to have the line waiting on the Wait_For for a
+         --  connection to exit from the poll and to continue its
+         --  execution. For this we connect to the server here.
+
+         Net.Std.Connect
+           (Sock, "127.0.0.1", CNF.Server_Port (Web_Server.Properties),
+            Wait => False);
+
+         --  At this point the line is waiting for some data. It is possible
+         --  to close the server socket, this won't lock anymore.
+
+         Net.Std.Shutdown (Web_Server.Sock);
+
+         --  Close the dummy socket to the server
+
+         Net.Std.Shutdown (Sock);
+      end;
 
       --  Release the slots
 
