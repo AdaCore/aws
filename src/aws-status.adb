@@ -28,6 +28,8 @@
 
 --  $Id$
 
+with Ada.Text_IO;
+
 with Ada.Strings.Fixed;
 with Ada.Characters.Handling;
 
@@ -119,6 +121,15 @@ package body AWS.Status is
       return D.Method;
    end Method;
 
+   ------------------------
+   -- Multipart_Boundary --
+   ------------------------
+
+   function Multipart_Boundary (D : in Data) return String is
+   begin
+      return To_String (D.Boundary);
+   end Multipart_Boundary;
+
    -------------
    -- Session --
    -------------
@@ -141,29 +152,8 @@ package body AWS.Status is
    --  reimplemented a some point.
 
    function Parameter (D : in Data; N : in Positive) return String is
-      P : constant String := To_String (D.Parameters);
-      I : Natural;
-      S : Positive := 1;
-      E : Natural;
-
    begin
-      for K in 1 .. N loop
-         I := Fixed.Index (P (S .. P'Last), "=");
-         if I = 0 then
-            return "";
-         else
-            S := I + 1;
-         end if;
-      end loop;
-
-      E := Fixed.Index (P (S .. P'Last), "&");
-
-      if E = 0 then
-         --  last parameter
-         return Translater.Decode_URL (P (S .. P'Last));
-      else
-         return Translater.Decode_URL (P (S .. E - 1));
-      end if;
+      return Parameters.Get_Value (D.Parameters, N);
    end Parameter;
 
    function Parameter (D              : in Data;
@@ -171,48 +161,31 @@ package body AWS.Status is
                        Case_Sensitive : in Boolean := True) return String
    is
 
-      use Ada;
+      function Equal (S1, S2 : in String) return Boolean;
+      --  Returns true if S1 and S2 are equal. The check is not
+      --  Case_Sensitive.
 
-      function Compare (S1, S2 : in String) return Boolean;
-      --  Returns true if S1 and S2 are equal. If Case_Sensitive is set to
-      --  False it will do a case insensitive checks.
-
-      P : constant String := To_String (D.Parameters);
-      I : Natural;
-      S : Positive := 1;
-      E : Natural;
-
-      function Compare (S1, S2 : in String) return Boolean is
+      function Equal (S1, S2 : in String) return Boolean is
+         use Ada;
       begin
-         if Case_Sensitive then
-            return S1 = S2;
-         else
-            return Characters.Handling.To_Upper (S1)
-              = Characters.Handling.To_Upper (S2);
-         end if;
-      end Compare;
+         return Characters.Handling.To_Upper (S1)
+           = Characters.Handling.To_Upper (S2);
+      end Equal;
 
    begin
-      loop
-         I := Fixed.Index (P (S .. P'Last), "=");
-         if I = 0 then
-            return "";
-         else
-            S := I + 1;
-            if I - Name'Length > 0
-              and then Compare (P (I - Name'Length .. I - 1), Name)
-            then
-               E := Fixed.Index (P (S .. P'Last), "&");
-
-               if E = 0 then
-                  --  last parameter
-                  return Translater.Decode_URL (P (S .. P'Last));
-               else
-                  return Translater.Decode_URL (P (S .. E - 1));
-               end if;
+      if Case_Sensitive then
+         return Parameters.Get (D.Parameters, Name);
+      else
+         for K in 1 .. Parameters.Count (D.Parameters) loop
+            if Equal (Parameters.Get_Key (D.Parameters, K), Name) then
+               return Parameters.Get_Value (D.Parameters, K);
             end if;
-         end if;
-      end loop;
+         end loop;
+
+         --  Key not found.
+
+         return "";
+      end if;
    end Parameter;
 
    --------------------
@@ -220,28 +193,19 @@ package body AWS.Status is
    --------------------
 
    function Parameter_Name (D : in Data; N : in Positive) return String is
-      P : constant String := To_String (D.Parameters);
-      I : Natural := 0;
-      S : Positive := 1;
-      E : Natural;
-
    begin
-      for K in 1 .. N loop
-         S := I + 1;
-         I := Fixed.Index (P (S .. P'Last), "=");
-
-         if I = 0 then
-            return "";
-         end if;
-      end loop;
-
-      if N = 1 then
-         return P (S .. I - 1);
-      else
-         E := Fixed.Index (P (S .. I), "&");
-         return P (E + 1 .. I - 1);
-      end if;
+      return Parameters.Get_Key (D.Parameters, N);
    end Parameter_Name;
+
+   -----------
+   -- Reset --
+   -----------
+
+   procedure Reset (D : in out Data) is
+   begin
+      Parameters.Release (D.Parameters);
+      D := No_Data;
+   end Reset;
 
    --------------------
    -- Set_Connection --
@@ -301,13 +265,55 @@ package body AWS.Status is
       D.If_Modified_Since := To_Unbounded_String (If_Modified_Since);
    end Set_If_Modified_Since;
 
+   ----------------------------
+   -- Set_Multipart_Boundary --
+   ----------------------------
+
+   procedure Set_Multipart_Boundary (D        : in out Data;
+                                     Boundary : in     String) is
+   begin
+      D.Boundary := To_Unbounded_String (Boundary);
+   end Set_Multipart_Boundary;
+
    --------------------
    -- Set_Parameters --
    --------------------
 
    procedure Set_Parameters (D : in out Data; Parameters : in String) is
+      P : String renames Parameters;
+      C : Positive := P'First;
+      I : Natural;
+      S : Positive := P'First;
+      E : Natural;
    begin
-      D.Parameters := To_Unbounded_String (Parameters);
+      loop
+         I := Fixed.Index (P (C .. P'Last), "=");
+
+         exit when I = 0;
+
+         S := I + 1;
+
+         E := Fixed.Index (P (S .. P'Last), "&");
+
+         if E = 0 then
+            --  last parameter
+
+            AWS.Parameters.Add
+              (D.Parameters,
+               Key   => P (C .. I - 1),
+               Value => Translater.Decode_URL (P (S .. P'Last)));
+            C := P'Last;
+         else
+            AWS.Parameters.Add
+              (D.Parameters,
+               Key   => P (C .. I - 1),
+               Value => Translater.Decode_URL (P (S .. E - 1)));
+            C := E + 1;
+         end if;
+      end loop;
+   exception
+      when others =>
+         Ada.Text_IO.Put_Line ("bug here !");
    end Set_Parameters;
 
    procedure Set_Parameters (D         : in out Data;
@@ -329,7 +335,8 @@ package body AWS.Status is
       D.Method       := Method;
       D.URI          := To_Unbounded_String (URI);
       D.HTTP_Version := To_Unbounded_String (HTTP_Version);
-      D.Parameters   := To_Unbounded_String (Parameters);
+
+      Set_Parameters (D, Parameters);
    end Set_Request;
 
    -----------------
