@@ -29,6 +29,9 @@ Both tools have mapping for standard Ada types but also supports Ada
 enumerations, character, records and arrays.
 
 The SOAP implementation has been validated on http://validator.soapware.org/.
+This on-line service is not anymore available but the current implementation
+is validated against the Apache/AXIS SOAP implementation to ensure the
+interoperability.
 
 
 Changes
@@ -134,7 +137,7 @@ Here are the main changes since AWS 2.0 :
    - Fix bug in ada2wsdl generator which generated duplicate definitions for
      record components in some cases.
 
-   - New filters ABS and NEG in the templates engive.
+   - New filters ABS and NEG in the templates engine.
 
    - Add association iterator for a Template_Set in the templates engine.
 
@@ -162,7 +165,7 @@ Here are the main changes since AWS 2.0 :
 
    - Add support for xsd:short SOAP type.
 
-   - Improve wsdl2aws to properly handle multiple schemas inside WSDL
+   - Improve wsdl2aws to properly handle multiple schema inside WSDL
      documents.
 
    - Add new wsdl2aws's option to exclude a set of operations from the code
@@ -172,9 +175,9 @@ Here are the main changes since AWS 2.0 :
      exchange array of heterogeneous objects. wsdl2aws tool will generate the
      appropriate code.
 
-   - Lot of rewrite to better support namespaces in schemas in both wsdl2aws
+   - Lot of rewrite to better support namespaces in schema in both wsdl2aws
      and ada2wsdl tools. For example, now wsdl2aws can generate code that is
-     shared by multiple WSDL documents. A type defined in schemas with the
+     shared by multiple WSDL documents. A type defined in schema with the
      same name and namespace in multiple WSDL documents will share the very
      same code.
 
