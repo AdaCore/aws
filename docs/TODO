@@ -199,7 +199,3 @@ implemented:
 
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
-
-- Add better support for constraint arrays in records. Actually all such
-  arrays is generated as unconstraint using the safe array pointer runtime
-  support.
