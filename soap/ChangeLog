@@ -1,3 +1,42 @@
+2004-07-10  Pascal Obry  <pascal@obry.org>
+
+	* soap-message-xml.adb:
+	(Parse_Array.Item_Type): New function.
+        (Parse_Array.A_State): New the proper array type is passed as
+         parameter, no need to parse it.
+        (Parse_Array): Cleaner implementation now that we have namespaces.
+        (Parse_Body): Use XML.First_Child to skip text node.
+        (Parse_Boolean): Add ???.
+        (Parse_Document): Use XML.First_Child to skip text node.
+        (Parse_Envelope): Use XML.First_Child to skip text node.
+        (Parse_Param): Properly use namespaces info to parse xsi:null.
+        (Parse_Record): Properly use namespaces info to parse enumerations.
+         Use XML.First_Child to skip text node.
+        (Parse_Wrapper): Use XML.First_Child to skip text node.
+
+	* soap-types.adb:
+	(A): Add parameter Type_Name.
+	(Array_Type): Use O.Type_Name if specified.
+
+	* soap-types.ads:
+	(A): Add parameter Type_Name.
+        (SOAP_Array): Add Type_Name field.
+
+	* soap-wsdl-parser.adb:
+	(First_Child): Moved to SOAP.XML.
+        (Next_Sibling): Idem.
+        Change code to use XML.First_Child and XML.Next_Sibling now.
+
+	* soap-xml.ads:
+	(First_Child): New procedure, moved here from SOAP.WSDL.Parser.
+        (Next_Sibling): Idem.
+        Update copyright notice.
+
+	* soap-xml.adb:
+	(First_Child): New procedure, moved here from SOAP.WSDL.Parser.
+        (Next_Sibling): Idem.
+        (Get_Ref): Use local First_Child now.
+
 2004-07-09  Pascal Obry  <pascal@obry.org>
 
 	* soap-message-xml.adb:
