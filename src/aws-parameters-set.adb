@@ -47,12 +47,18 @@ package body AWS.Parameters.Set is
 
    procedure Add
      (Parameter_List : in out List;
-      Name, Value    : in     String) is
+      Name, Value    : in     String;
+      Decode         : in     Boolean := True) is
    begin
-      Tables.Set.Add
-        (Tables.Table_Type (Parameter_List),
-         URL.Decode (Name),
-         URL.Decode (Value));
+      if Decode then
+         --  This is default behavior
+         Tables.Set.Add
+           (Tables.Table_Type (Parameter_List),
+            URL.Decode (Name),
+            URL.Decode (Value));
+      else
+         Tables.Set.Add (Tables.Table_Type (Parameter_List), Name, Value);
+      end if;
    end Add;
 
    ---------
