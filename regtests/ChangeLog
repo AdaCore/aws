@@ -1,5 +1,10 @@
 2004-05-26  Pascal Obry  <pascal@obry.org>
 
+	* afile.adb: 
+	Update test due to new default value for the Disposition parameter.
+	
+2004-05-26  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	(RT_STD): Add no_param.
 

@@ -1,10 +1,16 @@
 2004-05-26  Pascal Obry  <pascal@obry.org>
 
+	* aws-response.ads:
+        (Disposition_Mode): Update documentation.
+
+2004-05-26  Pascal Obry  <pascal@obry.org>
+
 	* aws-response.ads, aws-response.adb:
 	(File): Set Disposition default to None. There is some security
          issues with the Content-Disposition header which is not part of
          the HTTP standard. We want AWS to stay on the safe side.
         (Stream): Idem.
+
 
 	* aws-parameters.ads:
 	(List): Move documentation right after the List definition, was
