@@ -1,5 +1,8 @@
 2003-10-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	Use GNATMAKE_FOR_HOST to build test_uconv. Support for cross-compilers.
+
 	* aws-net-std__gnat.adb:
 	(Shutdown): Add handler for Constraint_Error. This is continued
 	 work for fix checked-in on 2003-07-15. Again this is really a
