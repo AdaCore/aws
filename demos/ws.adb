@@ -45,5 +45,10 @@ procedure WS is
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
+   Text_IO.Put_Line ("I will stop in 60 seconds anyway !");
    AWS.Server.Start (WS, "WS Demo");
+
+   delay 60.0;
+   Text_IO.Put_Line ("ok, let's shutdown...");
+   AWS.Server.Shutdown (WS);
 end WS;
