@@ -136,8 +136,6 @@ package AWS.Response is
    --  This is the Web Server Callback procedure. A client must declare and
    --  pass such procedure to the HTTP record.
 
-   Default_Handler : constant Callback := null;
-
 private
 
    use Ada.Strings.Unbounded;
