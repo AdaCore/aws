@@ -62,9 +62,6 @@ package Ada2WSDL.Generator is
    --  will be added into the current record definition created by
    --  Start_Record.
 
-   function Record_Exists (Name : in String) return Boolean;
-   --  Returns True if Name exists in the record list
-
    -----------
    -- Array --
    -----------
@@ -78,5 +75,15 @@ package Ada2WSDL.Generator is
 
    procedure Write (Filename : in String);
    --  Write out the WSDL document into Filename
+
+   -----------
+   -- Types --
+   -----------
+
+   procedure Register_Derived (Name, Parent_Name : in String);
+   --  Register a derived type
+
+   function Type_Exists (Name : in String) return Boolean;
+   --  Returns True if Name exists in the type list
 
 end Ada2WSDL.Generator;
