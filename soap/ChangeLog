@@ -1,3 +1,8 @@
+2004-05-20  Pascal Obry  <pascal@obry.org>
+
+	* soap-wsdl-parser.adb:
+	Fix some typos in comments.
+
 2004-05-17  Pascal Obry  <pascal@obry.org>
 
 	* soap-wsdl-parser.adb:
