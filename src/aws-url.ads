@@ -49,13 +49,19 @@ package AWS.URL is
    Default_HTTP_Port  : constant := 80;
    Default_HTTPS_Port : constant := 443;
 
-   function Parse (URL : in String) return Object;
+   function Parse
+      (URL            : in String;
+       Check_Validity : in Boolean := True)
+       return Object;
    --  Parse an URL and return an Object representing this URL. It is then
    --  possible to extract each part of the URL with the services bellow.
+   --  Raises URL_Error if Check_Validity is true and the URL reference a
+   --  resource above the web root directory.
 
    procedure Normalize (URL : in out Object);
-   --  Removes all occurences to parent directory ".." and current
-   --  directory '.'
+   --  Removes all occurrences to parent directory ".." and current directory
+   --  ".". Raises URL_Error if the URL reference a resource above the Web
+   --  root directory.
 
    function URL (URL : in Object) return String;
    --  Returns full URL string, this can be different to the URL passed if it
