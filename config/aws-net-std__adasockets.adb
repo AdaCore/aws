@@ -279,7 +279,7 @@ package body AWS.Net.Std is
       Rest  : C.int := Data'Length;
       FD    : C.int := Sockets.Get_FD (Socket.S.FD);
 
-      Block_Size : constant C.int := C.int (Get_Send_Buffer (Socket));
+      Block_Size : constant C.int := C.int (Get_Send_Buffer_Size (Socket));
 
       procedure Send (Size : C.int);
 
