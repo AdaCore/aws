@@ -146,11 +146,11 @@ package AWS.Response is
    --  Content_Type must indicate the MIME type for the file.
 
    function Stream
-     (Content_Type  : in String;
-      Stream_Handle : in Resources.Streams.Stream_Access;
-      Stream_Size   : in Content_Length_Type   := Undefined_Length;
-      Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.No_Cache)
+     (Content_Type  : in     String;
+      Handle        : access Resources.Streams.Stream_Type'Class;
+      Size          : in     Content_Length_Type    := Undefined_Length;
+      Status_Code   : in     Messages.Status_Code   := Messages.S200;
+      Cache_Control : in     Messages.Cache_Option  := Messages.No_Cache)
       return Data;
    --  Returns a message whose message body is the content of the user
    --  defined stream. The Content_Type must indicate the MIME type for
