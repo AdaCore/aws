@@ -1,6 +1,27 @@
 2001-09-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-log.adb:
+	Removes empty line at end of file.
+
+	* aws-messages.adb: 
+	(Content_Type): add boundary data.
+	(Transfer_Encoding): new function.
+
+	* aws-messages.ads:
+	Inline all constructor functions.
+	(Content_Type): add boundary data.
+	(Transfer_Encoding): new function.
+
+	* aws-mime.ads:
+	(Multipart_Mixed_Replace): new constant.
+
+	* aws-server-push.adb:
+	(Register): Use AWS.Messages constructors and AWS.MIME type to
+	 build the response message.
+	(Send_Date): Use AWS.Messages constructors to build the response
+	 message.
+
+	* aws-log.adb:
 	Minor reformating.
 	Add some comments.
 	(Write): Undo previous change about log time format. This was
