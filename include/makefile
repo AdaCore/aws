@@ -3,7 +3,13 @@
 
 .SILENT: all build clean
 
-GARGS	= -q -u -g -O2 -I../src
+ifeq ($(DEBUG),1)
+OFLAGS	= -g
+else
+OFLAGS	= -O2
+endif
+
+GARGS	= -q -u -I../src $(OFLAGS)
 
 SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
 	table_of_static_keys_and_dynamic_values_g \
