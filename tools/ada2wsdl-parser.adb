@@ -76,9 +76,13 @@ package body Ada2WSDL.Parser is
    Tree_Name : String_Access;
    --  We need it in more, then one routine, so we define it here
 
-   Arg_List : OS_Lib.Argument_List_Access;
+   Max_Argument : constant := 1_000;
+
+   Arg_List  : OS_Lib.Argument_List (1 .. Max_Argument);
    --  -I options from the Ada2WSDL command line transformed into the
    --  form appropriate for calling gcc to create the tree file.
+
+   Arg_Index : Natural := 0;
 
    ----------------------
    -- Status variables --
@@ -204,6 +208,16 @@ package body Ada2WSDL.Parser is
 
    Index          : Natural := 0;
    --  Current Index in the Deferred_Types array
+
+   ----------------
+   -- Add_Option --
+   ----------------
+
+   procedure Add_Option (Option : in String) is
+   begin
+      Arg_Index := Arg_Index + 1;
+      Arg_List (Arg_Index) := new String'(Option);
+   end Add_Option;
 
    -----------------------
    -- Analyse_Structure --
@@ -716,94 +730,6 @@ package body Ada2WSDL.Parser is
 
    end Create_Element_Node;
 
-   -------------------
-   -- Create_Sample --
-   -------------------
-
-   procedure Create_Sample is
-
-      use Text_IO;
-
-      CU         : Asis.Compilation_Unit;
-      CU_Kind    : Unit_Kinds;
-
-      My_Control : Traverse_Control := Continue;
-      My_State   : Body_State;
-
-   begin
-      Asis.Implementation.Initialize;
-
-      Ada_Environments.Associate
-        (My_Context,
-        "My_Context",
-        "-C1 " & Characters.Handling.To_Wide_String (Tree_Name.all));
-
-      Ada_Environments.Open (My_Context);
-
-      CU := Extensions.Main_Unit_In_Current_Tree (My_Context);
-
-      CU_Kind := Compilation_Units.Unit_Kind (CU);
-
-      if Compilation_Units.Is_Nil (CU) then
-         Put_Line
-           (Standard_Error,
-            "Nothing to be done for " & To_String (Options.File_Name));
-         return;
-
-      else
-         --  And here we have to do the job:
-
-         Create_Structure
-           (Element => Elements.Unit_Declaration (CU),
-            Control => My_Control,
-            State   => My_State);
-
-         Analyse_Structure;
-
-         if not Options.Quiet then
-            New_Line;
-            Put_Line
-              ("WSDL document " & To_String (Options.WSDL_File_Name)
-                 & " is created for " & To_String (Options.File_Name) & '.');
-         end if;
-      end if;
-
-      Ada_Environments.Close (My_Context);
-
-      Ada_Environments.Dissociate (My_Context);
-
-      Implementation.Finalize;
-
-   exception
-
-      when Ex : Asis.Exceptions.ASIS_Inappropriate_Context
-             |  Asis.Exceptions.ASIS_Inappropriate_Container
-             |  Asis.Exceptions.ASIS_Inappropriate_Compilation_Unit
-             |  Asis.Exceptions.ASIS_Inappropriate_Element
-             |  Asis.Exceptions.ASIS_Inappropriate_Line
-             |  Asis.Exceptions.ASIS_Inappropriate_Line_Number
-             |  Asis.Exceptions.ASIS_Failed
-        =>
-         New_Line (Standard_Error);
-
-         Put_Line (Standard_Error, "Unexpected bug in Ada2WSDL v" & Version);
-         Put      (Standard_Error, Exception_Name (Ex));
-         Put_Line (Standard_Error, " raised");
-         Put
-           (Standard_Error, "ada2wsdl: ASIS Diagnosis is "
-              & Characters.Handling.To_String (Asis.Implementation.Diagnosis));
-         New_Line (Standard_Error);
-         Put      (Standard_Error, "ada3wsdl: Status Value   is ");
-         Put_Line (Standard_Error, Asis.Errors.Error_Kinds'Image
-                   (Asis.Implementation.Status));
-         Emergency_Clean_Up;
-         raise Fatal_Error;
-
-      when others =>
-         Emergency_Clean_Up;
-         raise;
-   end Create_Sample;
-
    -----------------
    -- Create_Tree --
    -----------------
@@ -846,9 +772,8 @@ package body Ada2WSDL.Parser is
       File_Name := new String'(To_String (Options.File_Name));
       --  ??? free
 
-      Arg_List := new OS_Lib.Argument_List'(1 .. 0 => null);
-
-      A4G.GNAT_Int.Compile (File_Name, Arg_List.all, Success);
+      A4G.GNAT_Int.Compile
+        (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success);
 
       Tree_Name := new String'(Get_Tree_Name);
 
@@ -945,5 +870,97 @@ package body Ada2WSDL.Parser is
       return Characters.Handling.To_String
         (Declarations.Defining_Name_Image (Def_Name));
    end Name;
+
+   -----------
+   -- Start --
+   -----------
+
+   procedure Start is
+
+      use Text_IO;
+
+      CU         : Asis.Compilation_Unit;
+      CU_Kind    : Unit_Kinds;
+
+      My_Control : Traverse_Control := Continue;
+      My_State   : Body_State;
+
+   begin
+      Asis.Implementation.Initialize;
+
+      Ada_Environments.Associate
+        (My_Context,
+        "My_Context",
+        "-C1 " & Characters.Handling.To_Wide_String (Tree_Name.all));
+
+      Ada_Environments.Open (My_Context);
+
+      CU := Extensions.Main_Unit_In_Current_Tree (My_Context);
+
+      CU_Kind := Compilation_Units.Unit_Kind (CU);
+
+      if Compilation_Units.Is_Nil (CU) then
+         Put_Line
+           (Standard_Error,
+            "Nothing to be done for " & To_String (Options.File_Name));
+         return;
+
+      else
+         --  And here we have to do the job
+
+         Create_Structure
+           (Element => Elements.Unit_Declaration (CU),
+            Control => My_Control,
+            State   => My_State);
+
+         if not Options.Quiet then
+            New_Line;
+         end if;
+
+         Analyse_Structure;
+
+         if not Options.Quiet then
+            New_Line;
+            Put_Line
+              ("WSDL document " & To_String (Options.WSDL_File_Name)
+                 & " is created for " & To_String (Options.File_Name) & '.');
+         end if;
+      end if;
+
+      Ada_Environments.Close (My_Context);
+
+      Ada_Environments.Dissociate (My_Context);
+
+      Implementation.Finalize;
+
+   exception
+
+      when Ex : Asis.Exceptions.ASIS_Inappropriate_Context
+             |  Asis.Exceptions.ASIS_Inappropriate_Container
+             |  Asis.Exceptions.ASIS_Inappropriate_Compilation_Unit
+             |  Asis.Exceptions.ASIS_Inappropriate_Element
+             |  Asis.Exceptions.ASIS_Inappropriate_Line
+             |  Asis.Exceptions.ASIS_Inappropriate_Line_Number
+             |  Asis.Exceptions.ASIS_Failed
+        =>
+         New_Line (Standard_Error);
+
+         Put_Line (Standard_Error, "Unexpected bug in Ada2WSDL v" & Version);
+         Put      (Standard_Error, Exception_Name (Ex));
+         Put_Line (Standard_Error, " raised");
+         Put
+           (Standard_Error, "ada2wsdl: ASIS Diagnosis is "
+              & Characters.Handling.To_String (Asis.Implementation.Diagnosis));
+         New_Line (Standard_Error);
+         Put      (Standard_Error, "ada3wsdl: Status Value   is ");
+         Put_Line (Standard_Error, Asis.Errors.Error_Kinds'Image
+                   (Asis.Implementation.Status));
+         Emergency_Clean_Up;
+         raise Fatal_Error;
+
+      when others =>
+         Emergency_Clean_Up;
+         raise;
+   end Start;
 
 end Ada2WSDL.Parser;
