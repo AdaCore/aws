@@ -42,6 +42,19 @@ package AWS.Headers.Set is
    --  that there is no check about validity of this header. This service is
    --  provided to be able to create user-defined headers.
 
+   procedure Update
+     (Headers : in out List;
+      Name    : in     String;
+      Value   : in     String;
+      N       : in     Positive := 1);
+   --  Update the N-th HTTP header Value with the given Name.
+   --  The header could already have more than one value associated with
+   --  this name. If there is M values with this Name, then if:
+   --     N <= M      => update the value
+   --     N  = M + 1  => the pair name=value is appended to the table
+   --     N  > M + 1  => Constraint_Error raised
+   pragma Inline (Update);
+
    procedure Reset (Headers : in out List);
    pragma Inline (Reset);
    --  Removes all object from Headers. Headers will be reinitialized and will

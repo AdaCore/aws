@@ -102,4 +102,17 @@ package body AWS.Headers.Set is
       Tables.Set.Case_Sensitive (P_List (Headers), False);
    end Reset;
 
+   ------------
+   -- Update --
+   ------------
+
+   procedure Update
+     (Headers : in out List;
+      Name    : in     String;
+      Value   : in     String;
+      N       : in     Positive := 1) is
+   begin
+      Tables.Set.Update (P_List (Headers), Name, Value, N);
+   end Update;
+
 end AWS.Headers.Set;

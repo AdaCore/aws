@@ -1,3 +1,8 @@
+2002-12-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-headers-set.ads, aws-headers-set.adb:
+	(Update): New routine, derived from AWS.Containers.Tables.Update.
+
 2002-12-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-buffered.adb:
