@@ -1,15 +1,15 @@
 
 			    A W S - Ada Web Server
-				 1.1 release
+			    1.2 release / SOAP 0.9
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            October 29th, 2001,
+   Pascal Obry                                                April 3rd, 2002,
 
 
 
 Dmitriy Anisimkov and I are very happy to announce the availability of the 
-AWS 1.1 release. The API could change slightly at this stage but should be
+AWS 1.2 release. The API could change slightly at this stage but should be
 fairly stable now.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
@@ -18,100 +18,91 @@ that you can communicate with your application using a standard Web browser
 and this without the need for a Web Server. AWS is fully developed in Ada with
 GNAT.
 
+AWS support SOAP, Server Push, HTTPS/SSL, client HTTP, hotplug modules... We
+have worked very hard to make this release as stable as possible. Note that
+Hotplug modules are very nice but have a potentially security hole as it is
+implemented today. A new secure implementation will be proposed in a futur
+version.
+
+The SOAP implementation has been validated on http://validator.soapware.org/.
+
+
 Here are the main changes:
 
-  - Server push implementation. Tested only with Netscape Navigator.
+   - You need GNAT 3.14 to build AWS 1.2 (GNAT 3.13 is not anymore supported).
 
-  - SOAP - beta implementation of SOAP. Support all SOAP types. This
-    implementation has been validated through http://validator.soapware.org/
-    and therefore should be quite inter-operable with other SOAP
-    implementation. This implementation covers the SOAP client interface and
-    has all supports to build SOAP servers.
+   - Add a main procedure termination controller (AWS.Server.Wait)
 
-    Versions that validate on http://validator.soapware.org/ are the AWS 
-    version string (AWS.Version) catenated with the SOAP version string
-    (SOAP.Version).
+   - Fix some memory leak in AWS.Response.Data and AWS.Server.Protocol_Handler
+     for binary data.
 
-  - Add accept queue size parameter to help building heavy loaded servers.
+   - In AWS.URL, function URI was not correctly named. It has been renamed
+     Pathname. This is a backward compatibility problem. Path and File
+     function has been added into AWS.URL.
 
-  - Fix the Runme NT service demo.
+   - Fix bug to close a connection when server is heavy loaded.
 
-  - Web Servers is started only if needed (during Server.Start) call and not
-    when declaring the HTTP objects.
+   - Add AWS.Services.Page_Server service. This service is a straight forward
+     implementation of a simple static web page server. See WPS demo. It
+     supports two template files: 404.thtml and aws_directory.thtml.
 
-  - Max Connection is not anymore a discriminant. This parameter is set with
-    the Start routine. This change is not upward-compatible, but it is worth 
-    it since now, it is possible to change the server configuration
-    dynamically. What need to be changed:
+   - Fix race condition in AWS.Server implementation. This was a very nasty
+     bug, sockets could be handled in two different slots. If you are
+     experiencing bug with heavy loaded servers you should plan to upgrade as
+     soon as possible.
 
-    1) Removes the discriminant on each HTTP objects
+   - Add dispatchers facilities which is more general than the callback
+     procedure (access to procedure) for example it can transport user's
+     data. This is the base of a general framework for high level services.
 
-    2) Pass the number of maximum connections (was the discriminant) in the
-       Server.Start call. 
+   - Add three high level Dispatcher facilities (AWS.Services.Dispatchers):
+     1) on URI
+     2) on request method
+     3) on Host name (also called virtual hosting)
 
-    This will make the server configured the very same way.    
+   - Add AWS.Templates (renaming of Templates_Parser) as this component is a
+     very important one for Web development.
 
-  - Handle User_Agent and Referer HTTP headers.
+   - AWS can now have servers binded to different IP addresses if the 
+     computer has more than on IP addresses. See AWS.Config.Server_Host.
 
-  - Add message size in the log files (last field). Now the log format is 100%
-    compatible with the standard ones (Apache and Internet Information Server).
+   - New version of libssl32.dll and libeay32.dll based on OpenSSL 0.9.6c.
 
-  - Add server start time in the status page.
+   - Client handle properly the HTTP continue response message.
 
-  - Add support for user's log.
+   - Templates_Parser now integrated into AWS.Templates package. This version
+     has a cache fully is thread safe.
 
-  - Properly terminate task Session.Cleaner and release associated memory. Fix
-    a memory leak.
+   - Session cookie was set for first path (and sub path) used, it means that
+     it was possible to have multiple session for a Web site. This behavior
+     was the result of a bug. Now a single session is created for the whole
+     site (starting at /).
 
-  - Properly wait for tasks termination before releasing memory. Fix memory
-    leak.
+   - Fix timeouts for client keep-alive connection.
 
-  - Improves the documentation.
+   - SOAP handle properly zero length array.
 
-  - Install AWS as a library (libaws.a)
+   - SOAP handle properly Array of Record.
 
-  - As always some minor bugs have been fixed but are not listed here. See
-    src/ChangeLog and SOAP/ChangeLog.
+   - Boolean types are now directly handled on sessions.
 
-  - Change the build procedure, should be easier and it is cleaner. See
-    documentation.
+   - Plus many small fixes, enhancements and documentation work.
 
-  - First version of the regression tests suite. This will help keeping AWS
-    more stable.
-
-  - Add timeouts support for the AWS client interface. Because of this the
-    AWS.Client.Create routine has its spec changed (it was a function it is
-    now a procedure).
-
-  - In AWS.Client, default retry count is set to 0 (was 1 before). Now the
-    AWS.Client routines wont try more than once to get the data by
-    default.
-
-  - Properly handle textual (text/html, text/xml...) data that is chunked
-    encoded.
-
-  - Fix SSL support in AWS. The SSL layer should now be as reliable as the
-    standard socket one.
-
-  - Update distribued Win32 OpenSSL library to version 0.9.6b. Also now there
-    are built as DLL.
+You can have a look at docs/TODO file to see what are the topics that we will
+probably implement in future releases.
 
 NOTE: Since we have switched to the .PNG file format we have found that
 Netscape Navigator is not able to display the PNG transparent layer properly!
 
 At this stage we feel that AWS is ready to build small to medium Web
-server. AWS has been reported to work under Windows NT, Linux and FreeBSD 4.1.
+servers. AWS has been reported to work on Windows NT/XP, Linux and FreeBSD 4.1.
 
-With this new version you'll need at least version 0.1.11 of the Socket binding
-from ENST. It has been tested and works fine with version 0.1.13 too. See
-pointers below.
+With this new version you'll need at least version 1.0 of the Socket binding
+from ENST. See pointers below.
 
-The OpenSSL libraries (optional) distributed are for Windows and GNAT
-3.13. GNAT 3.12 users must build the libraries from sources or obtain another
-set of pre-build libraries see pointers below.
-
-Under UNIX you'll have to build the libraries from sources, it is quite easy 
-to do so. This has been tested under Linux without trouble.
+The OpenSSL libraries (optional) distributed are for Windows only. On UNIX
+you'll have to build the libraries from sources, it is quite easy to do
+so. This has been tested under Linux without trouble.
 
 See documentation for build information.
 
@@ -133,7 +124,7 @@ Templates_Parser sources:
    http://perso.wanadoo.fr/pascal.obry/contrib.html
    http://perso.wanadoo.fr/pascal.obry/templates_parser.html
 
-   Temlates_Parser is a very useful add-on for AWS. You should have a look at
+   Templates_Parser is a very useful add-on for AWS. You should have a look at
    it if you plan to develop a Web service. Templates_Parser permits to
    completely separate the HTML design from the Ada code.
 
@@ -144,19 +135,23 @@ Templates_Parser sources:
    the Velocity project has the goal to support complete separation of HTML
    design and code.
 
+GNU/Ada - GNAT
+   You need at least version 3.14 to use AWS 1.2.
+
+   ftp://cs.nyu.edu/pub/gnat/
+
 XMLada (optional):
    You need this library only if you want to use AWS SOAP feature. You need
-   at least XMLada 0.6.
+   at least XMLada 0.7.1.
 
    http://libre.act-europe.fr/
 
-   XMLAda 0.6 has some memory leaks. This has been fixed now, so with future
-   version of XMLAda it will be possible to build long-lived servers.
-
 Socket binding:
+   Since AWS 1.2 you need at least version 1.0 of the Socket binding.
 
    for Win32:
       http://perso.wanadoo.fr/pascal.obry/contrib.html
+      http://vagul.tripod.com/adasockets.tgz
 
    for UNIX:
       http://www.rfc1149.net/devel/adasockets
@@ -173,12 +168,13 @@ OpenSSL library (optional) :
 
    Sources for UNIX or Win32:
       http://www.openssl.org
-   binaries for Win32 with GNAT 3.13 (and later):
-      Included with the main AWS distribution.
+
+   binaries for Win32:
+      Included with the main AWS distribution (win32 directory).
 
    Note that we have used and we distribute (for Win32 platform) OpenSSL
-   version 0.9.6b with this AWS release. OpenSSL have been built with GCC
-   version 2.95.2 with optimization (-O3) on.
+   version 0.9.6c with this AWS release. OpenSSL have been built with GCC
+   version 2.95.3 with -O3 optimization level.
 
    See OpenSSL license (docs/openssl.license).
 
@@ -206,8 +202,8 @@ for your project in the next section.
 AWS User's Mailing List:
 ------------------------
 
-A good way to keep informed of AWS news and to share experience with other AWS
-users is to register to the AWS dedicated mailing list. See:
+A good way to keep informed of AWS news and to share experiences with other
+AWS users is to register to the AWS dedicated mailing list. See:
 
    http://lists.act-europe.fr/mailman/listinfo/aws
 
@@ -278,7 +274,8 @@ AWS uses
 
   Ongoing work is done to based this development on AWS framework only and
   to remove all the Java layers. It is also interesting to note that this is
-  an heavy loaded server, it has something like 40 to 50 requests per seconds.
+  an heavy loaded server, it handle something like 40 to 50 requests per
+  seconds on a Windows 2000 Server.
 
 
 Thanks to all who have reported bugs and have sent us patches.

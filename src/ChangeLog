@@ -1,3 +1,9 @@
+2002-04-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(build): Compile aws-services-directory.adb without optimisation.
+	 Work around a GNAT (3.14 and 3.15) bug.
+
 2002-04-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-parameters.adb:
