@@ -1,0 +1,39 @@
+server started.
+client 1 started.
+client 2 started.
+client 3 started.
+client 4 started.
+client 5 started.
+client 6 started.
+client 7 started.
+client 8 started.
+client 9 started.
+client 10 started.
+client 11 started.
+client 12 started.
+client 13 started.
+client 14 started.
+client 15 started.
+client 16 started.
+client 17 started.
+client 18 started.
+client 1 stopped.
+client 2 stopped.
+client 3 stopped.
+client 4 stopped.
+client 5 stopped.
+client 6 stopped.
+client 7 stopped.
+client 8 stopped.
+client 9 stopped.
+client 10 stopped.
+client 11 stopped.
+client 12 stopped.
+client 13 stopped.
+client 14 stopped.
+client 15 stopped.
+client 16 stopped.
+client 17 stopped.
+client 18 stopped.
+server stopped.
+Counter: 5400
