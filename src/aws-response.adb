@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with AWS.OS_Lib;
 
@@ -47,7 +48,9 @@ package body AWS.Response is
      return Data is
    begin
       if Message_Body = "" then
-         return Data'(Header,
+         return Data'(Finalization.Controlled with
+                      1,
+                      Header,
                       Status_Code,
                       0,
                       Null_Unbounded_String,
@@ -56,7 +59,9 @@ package body AWS.Response is
                       Null_Unbounded_String,
                       null);
       else
-         return Data'(Message,
+         return Data'(Finalization.Controlled with
+                      1,
+                      Message,
                       Status_Code,
                       Message_Body'Length,
                       To_Unbounded_String (Content_Type),
@@ -66,6 +71,15 @@ package body AWS.Response is
                       null);
       end if;
    end Acknowledge;
+
+   ------------
+   -- Adjust --
+   ------------
+
+   procedure Adjust (Object : in out Data) is
+   begin
+      Object.Ref_Counter := Object.Ref_Counter + 1;
+   end Adjust;
 
    ------------------
    -- Authenticate --
@@ -88,7 +102,9 @@ package body AWS.Response is
         & "the credentials required.<P>" & CRLF
         & "</BODY></HTML>" & CRLF;
    begin
-      return Data'(Message,
+      return Data'(Finalization.Controlled with
+                   1,
+                   Message,
                    Messages.S401,
                    Auth_Mess'Length,
                    To_Unbounded_String (AWS.MIME.Text_HTML),
@@ -122,7 +138,9 @@ package body AWS.Response is
       Status_Code  : in Messages.Status_Code := Messages.S200)
      return Data is
    begin
-      return Data'(Message,
+      return Data'(Finalization.Controlled with
+                   1,
+                   Message,
                    Status_Code,
                    Message_Body'Length,
                    To_Unbounded_String (Content_Type),
@@ -138,7 +156,9 @@ package body AWS.Response is
       Status_Code     : in Messages.Status_Code := Messages.S200)
      return Data is
    begin
-      return Data'(Message,
+      return Data'(Finalization.Controlled with
+                   1,
+                   Message,
                    Status_Code,
                    Length (UString_Message),
                    To_Unbounded_String (Content_Type),
@@ -154,7 +174,9 @@ package body AWS.Response is
       Status_Code  : in Messages.Status_Code := Messages.S200)
      return Data is
    begin
-      return Data'(Message,
+      return Data'(Finalization.Controlled with
+                   1,
+                   Message,
                    Status_Code,
                    Message_Body'Length,
                    To_Unbounded_String (Content_Type),
@@ -190,7 +212,9 @@ package body AWS.Response is
      (Content_Type : in String;
       Filename     : in String) return Data is
    begin
-      return Data'(File,
+      return Data'(Finalization.Controlled with
+                   1,
+                   File,
                    Messages.S200,
                    Integer (OS_Lib.File_Size (Filename)),
                    To_Unbounded_String (Content_Type),
@@ -199,6 +223,21 @@ package body AWS.Response is
                    Null_Unbounded_String,
                    null);
    end File;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Object : in out Data) is
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Streams.Stream_Element_Array, Stream_Element_Array_Access);
+   begin
+      Object.Ref_Counter := Object.Ref_Counter - 1;
+
+      if Object.Ref_Counter = 0 then
+         Free (Object.Elements);
+      end if;
+   end Finalize;
 
    --------------
    -- Location --
@@ -260,7 +299,9 @@ package body AWS.Response is
       Message_Body : constant String := Build_Message_Body;
 
    begin
-      return Data'(Response.Message,
+      return Data'(Finalization.Controlled with
+                   1,
+                   Response.Message,
                    Messages.S301,
                    Message_Body'Length,
                    To_Unbounded_String (AWS.MIME.Text_HTML),
@@ -285,7 +326,9 @@ package body AWS.Response is
 
    function Socket_Taken return Data is
    begin
-      return Data'(Response.Socket_Taken,
+      return Data'(Finalization.Controlled with
+                   1,
+                   Response.Socket_Taken,
                    Messages.S200,
                    0,
                    Null_Unbounded_String,
@@ -311,7 +354,9 @@ package body AWS.Response is
    function URL (Location : in String)
      return Data is
    begin
-      return Data'(Response.Message,
+      return Data'(Finalization.Controlled with
+                   1,
+                   Response.Message,
                    Messages.S301,
                    0,
                    Null_Unbounded_String,
