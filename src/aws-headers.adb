@@ -32,30 +32,32 @@
 
 package body AWS.Headers is
 
+   subtype P_List is Parameters.List;
+
    -----------
-   -- Debug --
+   -- Count --
    -----------
 
-   procedure Debug (Activate : in Boolean) is
+   function Count (Headers : in List) return Natural is
    begin
-      Debug_Flag := Activate;
-   end Debug;
+      return AWS.Parameters.Count (P_List (Headers));
+   end Count;
 
    --------------
    -- Get_Line --
    --------------
 
    function Get_Line
-     (C : in Container;
-      N : in Positive)
+     (Headers : in List;
+      N       : in Positive)
       return String
    is
-      Name : String := Get_Name (C, N);
+      Name : constant String := Get_Name (Headers, N);
    begin
       if Name = "" then
          return "";
       else
-         return Name & ": " & Get_Value (C, N);
+         return Name & ": " & Get_Value (Headers, N);
       end if;
    end Get_Line;
 
