@@ -1,5 +1,18 @@
 2002-10-15  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-files.adb:
+	(Read): Buf_Len is now a Stream_Element_Offset, cleaner code.
+	 Check that there is still some data to read on the file before
+	 filling the buffer.
+
+	* aws-resources.adb:
+	Fix minor formating error.
+
+2002-10-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-resources.adb:
+	Fix minor formating error.
+
 	* aws-server-protocol_handler.adb:
 	(Answer_To_Client): Fix comment/message for 403 case.
 	Minor reformatting.
