@@ -1,0 +1,640 @@
+\input texinfo   @c -*-texinfo-*-
+
+@c %**start of header
+
+@c
+@c AWS Coding Style Guide
+@c
+@c Note that this document is derived from the GNAT Style Guide from
+@c Ada Core Technologies, Inc. Some modifications have been made to
+@c meet AWS developement requirement.
+@c
+@c The "cut&past" from the GNAT Coding Style has been made with ACT
+@c permission.
+@c
+
+@setfilename style-guide.info
+@settitle AWS Coding Style
+@c %**end of header
+
+@ifinfo
+     @center AWS Coding Style
+
+     @center A guide for AWS developers
+@end ifinfo
+
+@titlepage
+@sp 10
+@title AWS Coding Style
+@subtitle A guide for AWS developers
+@subtitle Document revision level $Revision$
+@subtitle Date: @today{}
+@author Modified by Pascal Obry.
+@end titlepage
+@raisesections
+
+@node    Top,       General,         , (dir)
+@comment node-name, next,    previous, up
+
+@menu
+* General::
+* Lexical Elements::
+* Declarations and Types::
+* Expressions and Names::
+* Statements::
+* Subprograms::
+* Packages::
+* Program Structure::
+@end menu
+
+@c  -------------------------------------------------------------------------
+@node    General, Lexical Elements, Top, Top
+@section General
+@c  -------------------------------------------------------------------------
+
+@noindent
+This document described the style rules for the development of the AWS
+project. The goal is to have a consistent style used for all AWS
+codes.
+
+@c  -------------------------------------------------------------------------
+@node    Lexical Elements, Declarations and Types, General, Top
+@section Lexical Elements
+@c  -------------------------------------------------------------------------
+
+@subsection Character Set and Separators
+@c  -------------------------------------------------------------------------
+
+@itemize @bullet
+@item
+The character set used should be plain 7-bit ASCII.
+The only separators allowed are space and the end-of-line sequence. 
+No other control character or format effector (such as HT, VT, FF) 
+should be used.
+
+The end-of-line sequence used must be the standard UNIX end-of-line
+character, a single LF (16#0A#).
+
+@item
+A line should never be longer than 79 characters, not counting the line
+separator.
+
+@item
+Lines must not have trailing blanks.
+
+@item
+Indentation is 3 characters per level for if-statements, loops, case
+statements.
+
+@end itemize
+
+@subsection Identifiers
+@c  -------------------------------------------------------------------------
+@itemize @bullet
+@item
+Identifiers will start with an upper case letter, and each letter following
+an underscore will be upper case.  Short acronyms may be all upper case. 
+All other letters are lower case.  
+An exception is for identifiers matching a foreign language. In particular,
+we use all lower case where appropriate for C.
+
+@item
+Use underscores to separate words in an identifier.  
+
+@item Try to limit your use of abbreviations in identifiers. 
+It is ok to make a few abbreviations, explain what they mean, and then
+use them frequently, but don't use lots of obscure abbreviations.
+
+@item
+Don't use the variable I, use J instead, I is too easily mixed up with
+1 in some fonts. Similarly don't use the variable O, which is too easily
+mixed up with zero.
+@end itemize
+
+@subsection Numeric Literals
+@c  -------------------------------------------------------------------------
+@itemize @bullet
+@item
+Numeric literals should include underscores where helpful for
+readability.
+
+@smallexample
+      1_000_000
+      16#8000_000#
+      3.14159_26535_89793_23846
+@end smallexample
+@end itemize
+
+@subsection Reserved Words
+@c  -------------------------------------------------------------------------
+@itemize @bullet
+@item
+Reserved words use all lower case.
+
+@smallexample
+       return else
+@end smallexample
+
+@item
+The words "Access", "Delta" and "Digits" are capitalized when used
+as attribute_designator.
+@end itemize
+
+@subsection Comments
+@c  -------------------------------------------------------------------------
+
+@itemize @bullet
+@item
+Comment start with @code{--  } (ie @code{--} followed by two spaces).
+The only exception to this rule (i.e. one space is tolerated) is when the
+comment ends with @code{--}.
+It also accepted to have only one space between @code{--} and the start 
+of the comment when the comment is at the end of a line, 
+after an Ada statement.
+
+@item
+Every sentence in a comment should start with an upper-case letter (including
+the first letter of the comment).
+
+@item
+When declarations are commented with "hanging" comments, i.e. comments
+after the declaration, there is no blank line before the comment, and
+if it is absolutely necessary to have blank lines within the comments
+these blank lines *do* have a -- (unlike the normal rule, which is to
+use entirely blank lines for separating comment paragraphs).
+The comment start at same level of indentation as code they are commenting.
+
+@smallexample
+       z : integer;
+       --  Integer value for storing value of z
+       --
+       --  The previous line was a blank line
+@end smallexample
+
+@item
+Comments that are dubious or incomplete or comment on possibly
+wrong or incomplete code should be preceded or followed by ???
+
+@item
+Comments in a subprogram body must generally be surrounded by blank lines,
+except after a "begin":
+
+@smallexample
+       begin
+          --  Comment for the next statement
+
+          A := 5;
+
+          --  Comment for the B statement
+
+          B := 6;
+@end smallexample
+
+@item
+In sequences of statements, comments at the end of the lines should be
+aligned.
+
+@smallexample
+        My_Identifier := 5;      --  First comment
+        Other_Id := 6;           --  Second comment
+@end smallexample
+
+@item
+Short comments that fit on a single line are NOT ended with a period.
+Comments taking more than a line are punctuated in the normal manner.
+
+@item
+Comments should focus on why instead of what.
+Descriptions of what subprograms do go with the specification.
+
+@item
+Comments describing a subprogram spec should specifically mention the
+formal argument names. General rule: write a comment that does not
+depend on the names of things. The names are supplementary, not
+sufficient, as comments.
+
+@item
+Do NOT put two spaces after periods in comments.
+@end itemize
+
+@c  -------------------------------------------------------------------------
+@node    Declarations and Types, Expressions and Names, Lexical Elements,Top
+@section Declarations and Types
+@c  -------------------------------------------------------------------------
+
+@itemize @bullet
+@item
+In entity declarations, colons must be surrounded by spaces. Colons
+should be aligned.
+
+@smallexample
+        Entity1   : Integer;
+        My_Entity : Integer;
+@end smallexample
+
+@item
+Declarations should be grouped in a logical order. 
+Related groups of declarations may be preceded by a header comment.
+
+@item
+All local subprograms in a subprogram or package body should be declared
+before the first local subprogram body. 
+
+@item
+Do not declare discriminated record types where the discriminant is used
+for constraining an unconstrained array type. (Discriminated
+records for a variant part are allowed.)
+
+@item
+Avoid declaring local entities that hide global entities.
+
+@item
+Don't declare multiple variables in one declaration that spans lines. 
+Start a new declaration on each line, instead
+
+@item
+The defining_identifiers of global declarations serve as comments of a sort. 
+So don't choose terse names, but look for names that give useful information 
+instead.
+
+@item
+Local names can be shorter, because they are used only within 
+one context, where comments explain their purpose.
+
+@end itemize
+
+
+@c  -------------------------------------------------------------------------
+@node    Expressions and Names, Statements, Declarations and Types, Top
+@section Expressions and Names
+@c  -------------------------------------------------------------------------
+
+@itemize @bullet
+
+@item
+Every operator must be surrounded by spaces, except for the 
+exponentiation operator.
+
+@smallexample
+       E := A * B**2 + 3 * (C - D);
+@end smallexample
+
+@item
+When folding a long line, fold before an operator, not after.
+
+@item
+Use parentheses where they clarify the intended association of
+operands with operators:
+@smallexample
+       (A / B) * C
+@end smallexample
+@end itemize
+
+@c  -------------------------------------------------------------------------
+@node    Statements, Subprograms, Expressions and Names, Top
+@section Statements
+@c  -------------------------------------------------------------------------
+
+@subsection Simple and Compound Statements
+@c  -------------------------------------------------------------------------
+@itemize @bullet
+@item
+Use only one statement or label per line.
+@item
+A longer sequence_of_statements may be divided in logical groups
+or separated from surrounding code using a blank line.
+@end itemize
+
+@subsection If Statements
+@c  -------------------------------------------------------------------------
+@itemize @bullet
+@item
+When the "if", "elsif" or "else" keywords fit on the same line with the
+condition and the "then" keyword, then the statement is formatted as follows:
+
+@smallexample
+        if <condition> then
+           ...
+        elsif <condition> then
+           ...
+        else
+           ...
+        end if;
+@end smallexample
+
+@noindent
+When the above layout is not possible, "then" should be aligned with "if",
+and conditions should preferably be split before an "and" or "or" keyword
+a follows:
+
+@smallexample
+        if <long_condition_that_has_to_be_split>
+          and then <continued_on_the_next_line>
+        then
+           ...
+        end if;
+@end smallexample
+
+@noindent
+The "elsif", "else" and "end if" always line up with the "if" keyword. The
+preferred location for splitting the line is before "and" or "or". The
+continuation of a condition is indented with two spaces or as many as needed
+to make nesting clear.
+
+@smallexample
+     if x = lakdsjfhlkashfdlkflkdsalkhfsalkdhflkjdsahf
+          or else
+        x = asldkjhalkdsjfhhfd
+          or else
+        x = asdfadsfadsf
+     then
+@end smallexample
+
+@item
+Conditions should use short-circuit forms ("and then", "or else").
+
+@item
+Complex conditions in if-statements are indented two characters:
+
+@smallexample
+      if this_complex_condition
+        and then that_other_one
+        and then one_last_one
+      then
+         ...
+@end smallexample
+
+@item
+Every "if" block is preceded and followed by a blank line, except
+where it begins or ends a sequence_of_statements.
+
+@smallexample
+        A := 5;
+
+        if A = 5 then
+           null;
+        end if;
+
+        A := 6;
+@end smallexample
+@end itemize
+
+@subsection Case statements
+@itemize @bullet
+
+@item
+Layout is as below. For long case statements, the extra indentation
+can be saved by aligning the when clauses with the opening case.
+
+@smallexample
+       case <expression> is
+          when <condition> =>
+             ...
+          when <condition> =>
+             ...
+       end case;
+@end smallexample
+@end itemize
+
+@subsection Loop statements
+@itemize @bullet
+
+@noindent
+When possible, have "for" or "while" on one line with the condition
+and the "loop" keyword.
+
+@smallexample
+       for I in S'Range loop
+          ...
+       end loop;
+@end smallexample
+
+@noindent
+If the condition is too long, split the condition (see if_statement)
+and align "loop" with the "for" or "while" keyword.
+
+@smallexample
+      while <long_condition_that_has_to_be_split>
+        and then <continued_on_the_next_line>
+      loop
+         ...
+      end loop;
+@end smallexample
+
+@noindent
+If the loop_statement has an identifier, it is layout as follows:
+
+@smallexample
+      Outer : while not <condition> loop
+         ...
+      end Outer;
+@end smallexample
+@end itemize
+
+@subsection Block Statements
+@itemize @bullet
+
+@item
+The (optional) "declare", "begin" and "end" statements are aligned,
+except when the block_statement is named:
+
+@smallexample
+      Some_Block : declare
+         ...
+      begin
+         ...
+      end Some_Block;
+@end smallexample
+
+@end itemize
+
+@c  -------------------------------------------------------------------------
+@node    Subprograms, Packages, Statements, Top
+@section Subprograms
+@c  -------------------------------------------------------------------------
+
+
+@subsection Subprogram Declarations
+@c  -------------------------------------------------------------------------
+@itemize @bullet
+
+@item
+Always write the "in" for parameters, even in functions:
+
+@smallexample
+      function Length (S : in String) return Integer;
+@end smallexample
+
+@item The mode should be indented as follow
+
+@smallexample
+      procedure My_Proc
+        (First  : in     Integer;
+         Second :    out Character;
+         Third  : access String;
+         Fourth : in out Float);
+@end smallexample
+
+@item
+When the declaration line for a procedure or a function is too long, fold it.
+
+@smallexample
+      function Head
+        (Source : in String;
+         Count  : in Natural;
+         Pad    : in Character := Space)
+         return String;
+@end smallexample
+
+@item
+The parameter list for a subprogram is preceded by a space:
+
+@smallexample
+        procedure Func (A : in out Integer);
+@end smallexample
+
+@end itemize
+
+@subsection Subprogram Bodies
+@c  -------------------------------------------------------------------------
+@itemize @bullet
+
+@item
+The functions and procedures should always be sorted alphabetically in
+a compilation unit.
+
+@item
+All subprograms have a header giving the function name, with the following
+format:
+
+@smallexample
+      -----------------
+      -- My_Function --
+      -----------------
+
+      procedure My_Function is
+      begin
+@end smallexample
+Note that the name in the header is preceded by a single space, 
+not two spaces as for other comments.
+
+@item If the subprogram parameters are on multiple lines and there is
+some declaration the "is" must be on a separate line.
+
+@smallexample
+      procedure My_Function (X : in Integer) is
+         X : Float;
+      begin
+
+      procedure My_Function 
+        (X : in Integer;
+         Y : in Float)
+      is
+         A : Character;
+      begin
+@end smallexample
+
+@item
+Every subprogram body must have a preceding subprogram_declaration.
+
+@item
+If declarations of a subprogram contain at least one nested subprogram
+body, then just before the begin is a line:
+
+@smallexample
+        --  Start of processing for bla bla
+
+	begin
+@end smallexample
+
+@end itemize
+
+@c  -------------------------------------------------------------------------
+@node    Packages, Program Structure, Subprograms, Top
+@section Packages and Visibility Rules
+@c  -------------------------------------------------------------------------
+
+@itemize @bullet
+
+@item
+All program units and subprograms have their name at the end:
+
+@smallexample
+      package P is
+         ...
+      end P;
+@end smallexample
+
+@item
+Avoid "use-ing" the with-ed packages except when it has been designed
+for. A common example is Ada.Strings.Unbounded where the type is
+named Unbounded_String. This unit is clearly designed to be use-ed. To
+ease readability a use clause may be used in a small scope. Another
+solution is to use renaming. Do not with two times the same unit,
+always use the deepest child unit to with. For example do not write:
+
+@smallexample
+      with Ada.Strings;
+      with Ada.Strings.Unbounded;
+@end smallexample
+
+but the equivalent form:
+
+@smallexample
+      with Ada.Strings.Unbounded;
+@end smallexample
+
+@item
+Names declared in the visible part of packages should be
+unique, to prevent name clashes when the packages are "use"d.
+
+@smallexample
+      package Entity is
+         type Entity_Kind is ...;
+	 ...
+      end Entity;
+@end smallexample
+
+@item
+After the file header comment, the context clause and unit specification
+should be the first thing in a program_unit.
+
+@item try grouping the context clauses
+
+It is good to group the context clauses in 3 parts. The Ada standard
+clauses, the components from other projects and then the project's
+clauses. In each group it is required to sort the clauses by
+alphabetical order.
+
+@smallexample
+      with Ada.Exceptions;
+      with Ada.Strings;
+
+      with Lists;
+      with Ordered_Set;
+
+      with AWS.Server;
+      with AWS.URL;
+@end smallexample
+
+@end itemize
+
+@c  -------------------------------------------------------------------------
+@node    Program Structure,, Packages, Top
+@section Program Structure and Compilation Issues
+@c  -------------------------------------------------------------------------
+
+@itemize @bullet
+@item
+Every AWS source file must be compiled with the "-gnatwcfipru -gnatwe
+-gnaty3abcefhiklmnoprst" switches to check the coding style.
+
+@item
+Each source file should contain only one compilation unit.
+
+@item
+Body filename should end with ".adb" and spec with ".ads".
+
+@end itemize
+
+@bye
