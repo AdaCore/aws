@@ -33,7 +33,7 @@
 --  To build you need to have the Ada socket implementation. Either the one
 --  for Windows or the one for UNIX.
 --
---  This has been tested with the Windows version, GNAT and Internet Explorer
+--  This has been tested under Windows with GNAT 3.12 and Internet Explorer
 --  4.01. Please let me know if it does not work with other tools.
 --
 --  Some pointers:
@@ -51,7 +51,7 @@
 --  $ runme
 --
 --  On the client side:
---  * launch your browser
+--  * launch your Web Browser (this should work with any browser)
 --  * enter the URL : http://<servername>:1234/
 --
 --  You can ask for whatever URI
