@@ -48,8 +48,8 @@ package AWS.OS_Lib is
    pragma Inline (File_Size);
    --  Returns Filename's size in bytes
 
-   function File_Timestamp (Filename : in String) return Ada.Calendar.Time;
-   pragma Inline (File_Timestamp);
+   function File_Time_Stamp (Filename : in String) return Ada.Calendar.Time;
+   pragma Inline (File_Time_Stamp);
    --  Get the time for last modification to a file in UTC/GMT
 
    function GMT_Clock return Ada.Calendar.Time;

@@ -177,12 +177,11 @@ package body AWS.OS_Lib is
       return Ada.Streams.Stream_Element_Offset (Low);
    end File_Size;
 
-   --------------------
-   -- File_Timestamp --
-   --------------------
+   ---------------------
+   -- File_Time_Stamp --
+   ---------------------
 
-   function File_Timestamp (Filename : in String) return Ada.Calendar.Time
-   is
+   function File_Time_Stamp (Filename : in String) return Ada.Calendar.Time is
       File_Handle : Handle;
       Modified    : aliased File_Time;
       UTC         : System_Time;
@@ -198,7 +197,7 @@ package body AWS.OS_Lib is
          raise No_Such_File;
       end if;
       return Systime_To_Time (UTC);
-   end File_Timestamp;
+   end File_Time_Stamp;
 
    ---------------
    -- GMT_Clock --

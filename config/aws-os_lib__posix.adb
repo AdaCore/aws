@@ -114,11 +114,11 @@ package body AWS.OS_Lib is
          raise No_Such_File;
    end File_Size;
 
-   --------------------
-   -- File_Timestamp --
-   --------------------
+   ---------------------
+   -- File_Time_Stamp --
+   ---------------------
 
-   function File_Timestamp (Filename : in String) return Ada.Calendar.Time is
+   function File_Time_Stamp (Filename : in String) return Ada.Calendar.Time is
    begin
       return POSIX.Calendar.To_Time
         (File_Status.Last_Modification_Time_Of
@@ -127,7 +127,7 @@ package body AWS.OS_Lib is
    exception
       when POSIX.POSIX_Error =>
          raise No_Such_File;
-   end File_Timestamp;
+   end File_Time_Stamp;
 
    -------------------------------
    -- For_Every_Directory_Entry --

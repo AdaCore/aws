@@ -99,17 +99,17 @@ package body AWS.OS_Lib is
       raise No_Such_File;
    end File_Size;
 
-   --------------------
-   -- File_Timestamp --
-   --------------------
+   ---------------------
+   -- File_Time_Stamp --
+   ---------------------
 
-   function File_Timestamp (Filename : in String) return Ada.Calendar.Time is
+   function File_Time_Stamp (Filename : in String) return Ada.Calendar.Time is
    begin
       return OS_Time_To_Calendar_Time (GNAT.OS_Lib.File_Time_Stamp (Filename));
    exception
       when others =>
          raise No_Such_File;
-   end File_Timestamp;
+   end File_Time_Stamp;
 
    -------------------------------
    -- For_Every_Directory_Entry --
