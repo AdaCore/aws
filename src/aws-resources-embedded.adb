@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                          Copyright (C) 2002-2003                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -100,13 +100,10 @@ package body AWS.Resources.Embedded is
 
    function File_Size
      (Name : in String)
-      return Ada.Streams.Stream_Element_Offset
-   is
-      N : Node;
+      return Ada.Streams.Stream_Element_Offset is
    begin
       if Res_Files.Is_Present (Files_Table, Name) then
-         N := Res_Files.Value (Files_Table, Name);
-         return N.File_Buffer'Length;
+         return Res_Files.Value (Files_Table, Name).File_Buffer'Length;
       else
          raise Resource_Error;
       end if;
@@ -117,11 +114,9 @@ package body AWS.Resources.Embedded is
    --------------------
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time is
-      N : Node;
    begin
       if Res_Files.Is_Present (Files_Table, Name) then
-         N := Res_Files.Value (Files_Table, Name);
-         return N.File_Time;
+         return Res_Files.Value (Files_Table, Name).File_Time;
       else
          raise Resource_Error;
       end if;
@@ -207,9 +202,7 @@ package body AWS.Resources.Embedded is
    -- Size --
    ----------
 
-   function Size
-     (Resource : in File_Tagged)
-      return   Stream_Element_Offset is
+   function Size (Resource : in File_Tagged) return Stream_Element_Offset is
    begin
       return Resource.Buffer'Length;
    end Size;
