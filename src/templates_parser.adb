@@ -2699,48 +2699,66 @@ package body Templates_Parser is
          Fatal_Error (Exceptions.Exception_Message (E));
    end Load;
 
+   --------------
+   -- Callback --
+   --------------
+
+   procedure Callback
+     (Context  : access Templates_Parser.Context;
+      Variable : in     String;
+      Result   :    out Unbounded_String;
+      Found    :    out Boolean) is
+   begin
+      Result := Null_Unbounded_String;
+      Found  := False;
+   end Callback;
+
    -----------
    -- Parse --
    -----------
 
    function Parse
      (Filename          : in String;
-      Translations      : in Translate_Table := No_Translation;
-      Cached            : in Boolean         := False;
-      Keep_Unknown_Tags : in Boolean         := False)
+      Translations      : in Translate_Table                := No_Translation;
+      Cached            : in Boolean                        := False;
+      Keep_Unknown_Tags : in Boolean                        := False;
+      Context           : access TP_Context'Class := Null_Context)
       return String is
    begin
       return To_String
-        (Parse (Filename, Translations, Cached, Keep_Unknown_Tags));
+        (Parse (Filename, Translations, Cached, Keep_Unknown_Tags, Context));
    end Parse;
 
    function Parse
      (Filename          : in String;
-      Translations      : in Translate_Table := No_Translation;
-      Cached            : in Boolean         := False;
-      Keep_Unknown_Tags : in Boolean         := False)
+      Translations      : in Translate_Table                := No_Translation;
+      Cached            : in Boolean                        := False;
+      Keep_Unknown_Tags : in Boolean                        := False;
+      Context           : access TP_Context'Class := Null_Context)
       return Unbounded_String is
    begin
       return Parse
-        (Filename, To_Set (Translations), Cached, Keep_Unknown_Tags);
+        (Filename, To_Set (Translations), Cached, Keep_Unknown_Tags, Context);
    end Parse;
 
    function Parse
      (Filename          : in String;
       Translations      : in Translate_Set;
-      Cached            : in Boolean       := False;
-      Keep_Unknown_Tags : in Boolean       := False)
+      Cached            : in Boolean                        := False;
+      Keep_Unknown_Tags : in Boolean                        := False;
+      Context           : access TP_Context'Class := Null_Context)
       return String is
    begin
       return To_String
-        (Parse (Filename, Translations, Cached, Keep_Unknown_Tags));
+        (Parse (Filename, Translations, Cached, Keep_Unknown_Tags, Context));
    end Parse;
 
    function Parse
      (Filename          : in String;
       Translations      : in Translate_Set;
-      Cached            : in Boolean       := False;
-      Keep_Unknown_Tags : in Boolean       := False)
+      Cached            : in Boolean                        := False;
+      Keep_Unknown_Tags : in Boolean                        := False;
+      Context           : access TP_Context'Class := Null_Context)
       return Unbounded_String
    is
 
@@ -2802,6 +2820,7 @@ package body Templates_Parser is
          --  the sections.
 
          function Is_True (Str : in String) return Boolean;
+         pragma Inline (Is_True);
          --  Return True if Str is one of "TRUE", "OUI", the case beeing not
          --  case sensitive.
 
@@ -2898,92 +2917,104 @@ package body Templates_Parser is
                end;
             end if;
 
-            --  Check now for an internal tag
-
             declare
                T_Name : constant String := To_String (Var.Name);
+               Found  : Boolean;
+               Result : Unbounded_String;
             begin
-               if T_Name = "UP_TABLE_LINE" then
-                  if State.Table_Level < 2 then
-                     return Translate (Var, "0", Translations);
-                  else
+               --  Check now if the variable is known in the current user's
+               --  context.
+
+               Callback (Context, T_Name, Result, Found);
+
+               if Found then
+                  return Translate (Var, To_String (Result), Translations);
+
+               else
+                  --  Check now for an internal tag
+
+                  if T_Name = "UP_TABLE_LINE" then
+                     if State.Table_Level < 2 then
+                        return Translate (Var, "0", Translations);
+                     else
+                        return Translate
+                          (Var,
+                           Image (State.Cursor (State.Table_Level - 1)),
+                           Translations);
+                     end if;
+
+                  elsif T_Name = "TABLE_LINE" then
+                     if State.Table_Level = 0 then
+                        return Translate (Var, "0", Translations);
+                     else
+                        return Translate
+                          (Var,
+                           Image (State.Cursor (State.Table_Level)),
+                           Translations);
+                     end if;
+
+                  elsif T_Name = "NUMBER_LINE" then
+                     return Translate
+                       (Var, Image (State.Max_Lines), Translations);
+
+                  elsif T_Name = "TABLE_LEVEL" then
+                     return Translate
+                       (Var, Image (State.Table_Level), Translations);
+
+                  elsif T_Name = "NOW" then
                      return Translate
                        (Var,
-                        Image (State.Cursor (State.Table_Level - 1)),
+                        GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d %H:%M:%S"),
                         Translations);
-                  end if;
 
-               elsif T_Name = "TABLE_LINE" then
-                  if State.Table_Level = 0 then
-                     return Translate (Var, "0", Translations);
-                  else
+                  elsif T_Name = "YEAR" then
                      return Translate
                        (Var,
-                        Image (State.Cursor (State.Table_Level)),
+                        GNAT.Calendar.Time_IO.Image (Now, "%Y"),
+                        Translations);
+
+                  elsif T_Name = "MONTH" then
+                     return Translate
+                       (Var,
+                        GNAT.Calendar.Time_IO.Image (Now, "%m"),
+                        Translations);
+
+                  elsif T_Name = "DAY" then
+                     return Translate
+                       (Var,
+                        GNAT.Calendar.Time_IO.Image (Now, "%d"),
+                        Translations);
+
+                  elsif T_Name = "HOUR" then
+                     return Translate
+                       (Var,
+                        GNAT.Calendar.Time_IO.Image (Now, "%H"),
+                        Translations);
+
+                  elsif T_Name = "MINUTE" then
+                     return Translate
+                       (Var,
+                        GNAT.Calendar.Time_IO.Image (Now, "%M"),
+                        Translations);
+
+                  elsif T_Name = "SECOND" then
+                     return Translate
+                       (Var,
+                        GNAT.Calendar.Time_IO.Image (Now, "%S"),
+                        Translations);
+
+                  elsif T_Name = "MONTH_NAME" then
+                     return Translate
+                       (Var,
+                        GNAT.Calendar.Time_IO.Image (Now, "%B"),
+                        Translations);
+
+                  elsif T_Name = "DAY_NAME" then
+                     return Translate
+                       (Var,
+                        GNAT.Calendar.Time_IO.Image (Now, "%A"),
                         Translations);
                   end if;
-
-               elsif T_Name = "NUMBER_LINE" then
-                  return Translate
-                    (Var, Image (State.Max_Lines), Translations);
-
-               elsif T_Name = "TABLE_LEVEL" then
-                  return Translate
-                    (Var, Image (State.Table_Level), Translations);
-
-               elsif T_Name = "NOW" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d %H:%M:%S"),
-                     Translations);
-
-               elsif T_Name = "YEAR" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%Y"),
-                     Translations);
-
-               elsif T_Name = "MONTH" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%m"),
-                     Translations);
-
-               elsif T_Name = "DAY" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%d"),
-                     Translations);
-
-               elsif T_Name = "HOUR" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%H"),
-                     Translations);
-
-               elsif T_Name = "MINUTE" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%M"),
-                     Translations);
-
-               elsif T_Name = "SECOND" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%S"),
-                     Translations);
-
-               elsif T_Name = "MONTH_NAME" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%B"),
-                     Translations);
-
-               elsif T_Name = "DAY_NAME" then
-                  return Translate
-                    (Var,
-                     GNAT.Calendar.Time_IO.Image (Now, "%A"),
-                     Translations);
                end if;
             end;
 
