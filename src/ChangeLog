@@ -1,3 +1,8 @@
+2002-12-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-headers-set.ads:
+	(Update): Put pragma inline next to the spec.
+
 2002-12-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers.adb:

@@ -1,3 +1,8 @@
+2002-12-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(.SILENT): Removes all tests that have no specific target.
+
 2002-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
