@@ -62,13 +62,13 @@ generic
 package AWS.Server.Push is
 
    Client_Gone : exception;
-   --  Raised when a client is not responding.
+   --  Raised when a client is not responding
 
    Closed : exception;
-   --  Raised when trying to register to a closed push server.
+   --  Raised when trying to register to a closed push server
 
    Duplicate_Client_Id : exception;
-   --  Raised in trying to register an already registered client.
+   --  Raised in trying to register an already registered client
 
    type Object is limited private;
    --  This is the push server object. A push server has two modes, either it
@@ -110,7 +110,7 @@ package AWS.Server.Push is
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
       Close_Duplicate : in     Boolean            := False);
-   --  Same as above but without sending initial data.
+   --  Same as above but without sending initial data
 
    procedure Unregister
      (Server       : in out Object;
@@ -133,13 +133,13 @@ package AWS.Server.Push is
       Client_Id    : in     Client_Key;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "");
-   --  Push data to a specified client identified by Client_Id.
+   --  Push data to a specified client identified by Client_Id
 
    procedure Send
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "");
-   --  Push data to every client (broadcast) subscribed to the server.
+   --  Push data to every client (broadcast) subscribed to the server
 
    generic
       with procedure Client_Gone (Client_Id : in String);
@@ -151,7 +151,7 @@ package AWS.Server.Push is
    --  Call Client_Gone for each client with broken socket.
 
    function Count (Server : in Object) return Natural;
-   --  Returns the number of registered clients in the server.
+   --  Returns the number of registered clients in the server
 
    function Is_Open (Server : in Object) return Boolean;
    --  Return True if the server is open, meaning server is still running,
@@ -206,26 +206,26 @@ private
    protected type Object is
 
       function Count return Natural;
-      --  Returns the number of registered client.
+      --  Returns the number of registered client
 
       procedure Unregister_Clients (Close_Sockets : in Boolean);
       --  Unregister all clients, close associated sockets if Close_Socket is
       --  set to True.
 
       procedure Shutdown_If_Empty (Open : out Boolean);
-      --  See above.
+      --  See above
 
       procedure Restart;
-      --  See above.
+      --  See above
 
       procedure Shutdown
         (Close_Sockets : in Boolean);
-      --  See above.
+      --  See above
 
       procedure Shutdown
         (Final_Data         : in Client_Output_Type;
          Final_Content_Type : in String);
-      --  See above.
+      --  See above
 
       procedure Register
         (Client_Id       : in     Client_Key;
@@ -247,7 +247,7 @@ private
         (Client_Id    : in Client_Key;
          Data         : in Client_Output_Type;
          Content_Type : in String);
-      --  See above.
+      --  See above
 
       procedure Send
         (Data         : in     Client_Output_Type;
@@ -260,10 +260,10 @@ private
       procedure Unregister
         (Client_Id    : in Client_Key;
          Close_Socket : in Boolean);
-      --  See above.
+      --  See above
 
       function Is_Open return Boolean;
-      --  See above.
+      --  See above
 
    private
       Container : Table.Map;

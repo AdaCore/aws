@@ -192,7 +192,7 @@ package body AWS.Net.Buffered is
 
       else
          declare
-            C_Last  : constant Stream_Element_Offset
+            C_Last : constant Stream_Element_Offset
               := Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
          begin
             Last := Data'First + C_Last - C.First;
@@ -239,7 +239,7 @@ package body AWS.Net.Buffered is
          Flush (Socket);
       exception
          when Socket_Error =>
-            --  Ignore recent cache buffer send error.
+            --  Ignore recent cache buffer send error
             null;
       end;
 
