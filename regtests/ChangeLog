@@ -1,3 +1,9 @@
+2003-10-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* huge_response.adb:
+	Change creation of the huge unbouded string from Append in loop
+	 to multiplication. Append in loop was too long under GNAT 3.15.
+
 2003-09-30  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* append.adb, append.out, makefile:

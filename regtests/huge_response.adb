@@ -46,7 +46,8 @@ procedure Huge_Response is
    use AWS;
 
    Len_Message : constant := 20_000_000;
-   Message     : Unbounded_String;
+   Sample      : constant String  := "0123456789";
+   Message     : Unbounded_String := (Len_Message / Sample'Length) * Sample;
 
    WS : Server.HTTP;
 
@@ -63,12 +64,6 @@ begin
       CB'Unrestricted_Access,
       Port           => 1257,
       Max_Connection => 5);
-
-   --  Build message
-
-   for K in 1 .. Len_Message / 2 loop
-      Append (Message, "a.");
-   end loop;
 
    Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
