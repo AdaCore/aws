@@ -39,6 +39,9 @@ package body AWS.Communication.Server is
 
    Context : T_Access;
 
+   function Receive (Request : in Status.Data) return Response.Data;
+   --  Handle communication server message.
+
    -------------
    -- Receive --
    -------------
