@@ -49,7 +49,7 @@ project Tools is
 
    case Shared.ASIS is
       when "Installed" =>
-         for Main use project'Main & ("ada2wsdl.adb");
+         for Main use project'Main & ("ada2wsdl-main.adb");
    end case;
 
    case Shared.Build is
@@ -86,7 +86,7 @@ project Tools is
    package Linker is
       for Switches ("awsres.adb")   use Shared.ZLib;
       for Switches ("wsdl2aws.adb") use Shared.ZLib;
-      for Switches ("ada2wsdl.adb") use Shared.ZLib;
+      for Switches ("ada2wsdl-main.adb") use Shared.ZLib & ("-lasis");
    end Linker;
 
 end Tools;
