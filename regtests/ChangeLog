@@ -1,3 +1,15 @@
+2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS): Document.
+	(RT_SOAP_ASIS_PARSE): Document.
+	(RT_SOAP_ASIS_PARSE): New variable.
+	(ASIS2_TESTS): New variable.
+	($(ASIS2_TESTS)): New targets.
+
+	* wsdl_a.ads, wsdl_a_pck.ads, wsdl_a.out:
+	Initial revision.
+
 2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
