@@ -1,3 +1,23 @@
+2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.ads, templates_parser.adb:
+	Update to version 6.0 (large speed-up improvement for large
+	 template file).
+
+	* memory_streams.ads:
+	(File): Rename parameter Resource to File for consistency.
+
+2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* memory_streams.ads:
+	Add comments. Put many ??? where more comments are needed.
+	Minor reformatting.
+	
+	* memory_streams.adb: 
+	(File): Rename parameter Resource to File for consistency.
+	Add comments. Put many ??? where more comments are needed.
+	Minor reformatting.
+
 2003-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* memory_streams.ads, memory_streams.adb:
