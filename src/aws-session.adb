@@ -29,8 +29,10 @@
 --  $Id$
 
 with Ada.Calendar;
-with Ada.Strings.Unbounded;
+with Ada.Exceptions;
 with Ada.Numerics.Discrete_Random;
+with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.Key_Value;
 
@@ -44,10 +46,13 @@ package body AWS.Session is
    use Ada;
    use Ada.Strings.Unbounded;
 
-   SID_Generator    : Generator;
-   SID_Prefix       : constant String := "SID-";
+   SID_Generator          : Generator;
+   SID_Prefix             : constant String := "SID-";
 
-   Session_Lifetime : Duration := Default_Session_Lifetime;
+   Session_Check_Interval : constant Duration := 10.0 * 60.0;
+   --  Check for obsolete section every 10 minutes.
+
+   Session_Lifetime       : Duration := Default_Session_Lifetime;
 
    --  table of session ID
 
@@ -137,15 +142,21 @@ package body AWS.Session is
    -------------
 
    task body Cleaner is
+      use Ada;
       use type Calendar.Time;
 
-      Next_Run : Calendar.Time := Calendar.Clock + Session_Lifetime;
+      Next_Run : Calendar.Time := Calendar.Clock + Session_Check_Interval;
    begin
       loop
          delay until Next_Run;
          Database.Clean;
-         Next_Run := Next_Run + Session_Lifetime;
+         Next_Run := Next_Run + Session_Check_Interval;
       end loop;
+   exception
+      when E : others =>
+         Ada.Text_IO.Put_Line
+           ("Unrecoverable Error : Cleaner Task bug detected"
+            & Exceptions.Exception_Message (E));
    end Cleaner;
 
    ------------
@@ -171,6 +182,13 @@ package body AWS.Session is
 
       entry Clean when Lock = 0 is
 
+         Max_Remove : constant := 200;
+         --  Maximum number of items that will get removed at a time. Other
+         --  items will be check for removal during next run.
+
+         Remove : array (1 .. Max_Remove) of Session_Node;
+         Index  : Natural := 0;
+
          Now : constant Calendar.Time := Calendar.Clock;
 
          procedure Process (Session  : in out Session_Node;
@@ -183,13 +201,13 @@ package body AWS.Session is
             use type Calendar.Time;
          begin
             if Session.Time_Stamp + Session_Lifetime < Now then
+               Index := Index + 1;
+               Remove (Index) := Session;
 
-               Key_Value.Delete_Tree (Session.Root);
-               Session_Set.Delete_Node (Key_For (Session), Sessions);
-
-               --  after deleting a Session it is not safe to continue the
-               --  iterator.
-               Continue := False;
+               if Index = Max_Remove then
+                  --  No more space in the removal buffer, quit now.
+                  Continue := False;
+               end if;
             end if;
 
             Continue := True;
@@ -200,6 +218,13 @@ package body AWS.Session is
 
       begin
          In_Order (Sessions);
+
+         --  delete nodes
+
+         for K in 1 .. Index loop
+            Key_Value.Delete_Tree (Remove (K).Root);
+            Session_Set.Delete_Node (Key_For (Remove (K)), Sessions);
+         end loop;
       end Clean;
 
       --------------------
@@ -565,6 +590,15 @@ package body AWS.Session is
          return 0.0;
    end Get;
 
+   ------------------
+   -- Get_Lifetime --
+   ------------------
+
+   function Get_Lifetime return Duration is
+   begin
+      return Session_Lifetime;
+   end Get_Lifetime;
+
    -----------
    -- Image --
    -----------
@@ -625,14 +659,14 @@ package body AWS.Session is
       end if;
    end Set;
 
-   --------------------------
-   -- Set_Session_Lifetime --
-   --------------------------
+   ------------------
+   -- Set_Lifetime --
+   ------------------
 
-   procedure Set_Session_Lifetime (Seconds : in Duration) is
+   procedure Set_Lifetime (Seconds : in Duration) is
    begin
       Session_Lifetime := Seconds;
-   end Set_Session_Lifetime;
+   end Set_Lifetime;
 
    -----------
    -- Start --
