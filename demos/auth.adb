@@ -61,8 +61,7 @@ procedure Auth is
         := AWS.Status.Authorization_Mode (Request);
    begin
 
-      if Client_Mode = AWS.Status.Basic
-        --  It is Basic authentication.
+      if Client_Mode = AWS.Status.Basic -- It is Basic authentication.
         and then Username = Auth_Username
         and then AWS.Status.Authorization_Password (Request) = Auth_Password
         and then (Auth_Mode = AWS.Response.Any
@@ -72,8 +71,7 @@ procedure Auth is
            ("text/html",
             "<p>Basic authorization OK!");
 
-      elsif Client_Mode = AWS.Status.Digest
-        --  It is Digest authentication.
+      elsif Client_Mode = AWS.Status.Digest -- It is Digest authentication.
         and then Username = Auth_Username
         and then AWS.Status.Check_Digest (Request, Auth_Password)
         and then (Auth_Mode = AWS.Response.Any
