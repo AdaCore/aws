@@ -42,8 +42,8 @@ package body AWS.OS_Lib is
    type System_Time is record
       Year         : Interfaces.Unsigned_16;
       Month        : Interfaces.Unsigned_16;
-      Day          : Interfaces.Unsigned_16;
       Day_Of_Week  : Interfaces.Unsigned_16;
+      Day          : Interfaces.Unsigned_16;
       Hour         : Interfaces.Unsigned_16;
       Minute       : Interfaces.Unsigned_16;
       Second       : Interfaces.Unsigned_16;
@@ -133,7 +133,7 @@ package body AWS.OS_Lib is
 
    function GetFileAttributes (Filename : in Interfaces.C.char_array)
       return File_Attribute;
-   pragma Import (Stdcall, GetFileAttributes, "GetFileAttributes");
+   pragma Import (Stdcall, GetFileAttributes, "GetFileAttributesA");
 
    ------------------------------------------------------------
 
