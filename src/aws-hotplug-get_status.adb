@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,6 +38,10 @@ is
 
    Regexp : Vector_Tag;
    URL    : Vector_Tag;
+
+   --  Avoid : may be referenced before it has a value
+   pragma Warnings (Off, Regexp);
+   pragma Warnings (Off, URL);
 
 begin
    for K in 1 .. Filters.Count loop
