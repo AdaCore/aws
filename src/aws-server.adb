@@ -112,6 +112,7 @@ package body AWS.Server is
       return New_Socket;
    exception
       when others =>
+         Net.Free (New_Socket);
          Server.Sock_Sem.Release;
          raise;
    end Accept_Socket_Serialized;
@@ -293,7 +294,6 @@ package body AWS.Server is
             end;
 
             HTTP_Server.Slots.Release (Slot_Index);
-
          end;
       end loop;
 
@@ -697,6 +697,7 @@ package body AWS.Server is
          if Set (Index).Phase not in Closed .. Aborted then
             Mark_Phase (Index, Aborted);
             Net.Buffered.Shutdown (Set (Index).Sock.all);
+            Net.Free (Set (Index).Sock);
          end if;
       end Shutdown;
 
