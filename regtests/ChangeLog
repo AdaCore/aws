@@ -1,5 +1,8 @@
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(clean): Remove alldifs and log files.
+
 	* tlog.adb:
 	Use 2 simultaneous connection. Fix a regression on GNU/Linux. This
 	 should be certainly analysed at some point. The problem was that
