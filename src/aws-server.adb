@@ -57,6 +57,11 @@ package body AWS.Server is
    use Ada;
    use type Net.Socket_Access;
 
+   type Line_Attribute_Record is record
+      Server : HTTP_Access;
+      Line   : Positive;
+   end record;
+
    procedure Free is new Ada.Unchecked_Deallocation
      (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
 
@@ -104,7 +109,8 @@ package body AWS.Server is
 
    end Counter;
 
-   package Line_Attribute is new Task_Attributes (HTTP_Access, null);
+   package Line_Attribute is
+     new Task_Attributes (Line_Attribute_Record, (null, 1));
    --  A line specific attribute
 
    ------------------------------
@@ -293,7 +299,7 @@ package body AWS.Server is
 
    function Get_Current return HTTP_Access is
    begin
-      return Line_Attribute.Value;
+      return Line_Attribute.Value.Server;
    end Get_Current;
 
    ----------------------
@@ -340,7 +346,7 @@ package body AWS.Server is
          terminate;
       end select;
 
-      Line_Attribute.Set_Value (HTTP_Server);
+      Line_Attribute.Set_Value ((HTTP_Server, Slot_Index));
 
       --  Real job start here, we will exit only if there is an unrecoverable
       --  problem.
@@ -898,9 +904,9 @@ package body AWS.Server is
       -- Socket_Taken --
       ------------------
 
-      procedure Socket_Taken (Index : in Positive) is
+      procedure Socket_Taken (Index : in Positive; Flag : in Boolean) is
       begin
-         Table (Index).Socket_Taken := True;
+         Table (Index).Socket_Taken := Flag;
       end Socket_Taken;
 
    end Slots;
@@ -962,6 +968,17 @@ package body AWS.Server is
       end Seize_Or_Socket;
 
    end Socket_Semaphore;
+
+   ------------------
+   -- Socket_Taken --
+   ------------------
+
+   procedure Socket_Taken (Flag : in Boolean) is
+      TA : constant Line_Attribute.Attribute_Handle
+        := Line_Attribute.Reference;
+   begin
+      TA.Server.Slots.Socket_Taken (TA.Line, Flag);
+   end Socket_Taken;
 
    -----------
    -- Start --
