@@ -82,6 +82,13 @@ package SOAP.WSDL.Parser is
    procedure Accept_RPC (O : in out Object'Class);
    --  Accept RPC binding as document style binding
 
+   procedure Continue_On_Error;
+   --  Set continue on error. This means that the parser will not stop at the
+   --  first error encountered, it will skip the SOAP routines having problems
+   --  and it will try to parse the next one. This option is useful to
+   --  generate stub/skeleton for the part of the WSDL document using
+   --  supported types for example.
+
 private
 
    use Ada.Strings.Unbounded;
