@@ -43,13 +43,7 @@ $(UNITS): force
 	echo Building $@
 	gnatmake -u $(GARGS) $@
 
-build_specific:
-# compile aws-services-directory.adb without optimisation
-# work around a bug in GNAT 3.14, 3.15.
-	echo Building aws-services-directory
-	gnatmake -u $(GARGS) -O0 aws-services-directory.adb
-
-build: aws-translator-conversion.adb aws-net-std.adb build_specific $(UNITS)
+build: aws-translator-conversion.adb aws-net-std.adb $(UNITS)
 
 aws-translator-conversion.adb:
 	echo Setup conversion support
