@@ -265,19 +265,19 @@ package AWS.Client is
      (Connection : in out HTTP_Connection;
       Data       :    out Ada.Streams.Stream_Element_Array;
       Last       :    out Ada.Streams.Stream_Element_Offset);
-   --  Reads any available data from the client connection.
-   --  If no data available, we would wait for read timeout.
-   --  Last < Data'First after call means that no more data is available in
-   --  the http response. Connection have to be created with parameter
-   --  Server_Push => True.
+   --  Reads any available data from the client's connection.
+   --  If no data available, it will wait for some data to become available or
+   --  until it timeouts. Returns Last < Data'First when there is no data
+   --  available in the HTTP response. Connection have to be created with
+   --  parameter Server_Push => True.
 
    procedure Read
      (Connection : in out HTTP_Connection;
       Data       :    out Ada.Streams.Stream_Element_Array;
       Last       :    out Ada.Streams.Stream_Element_Offset);
-   --  Reads data from the client connection until Data buffer if filled
-   --  or we reached the end of the response. Last < Data'Last after call
-   --  means that no more data is available in http response. Connection have
+   --  Reads data from the client's connection until Data buffer if filled
+   --  or it reached the end of the response. Returns Last < Data'Last if
+   --  there is no more data available in HTTP response. Connection have
    --  to be created with parameter Server_Push => True.
 
    procedure Get
@@ -338,10 +338,10 @@ package AWS.Client is
      (Connection : in out HTTP_Connection;
       Value      : in     Boolean);
    pragma Inline (Set_Streaming_Output);
-   --  Call this routine with Value => True if you want to read response
-   --  data streaming, by the Read and/or Read_Some routines.
-   --  Note that Connection is already in Streaming mode if you created
-   --  Connection with Server_Push => True parameter.
+   --  Call this routine with Value => True to be able to read data as a
+   --  stream by using Read and/or Read_Some routines above. Note that
+   --  Connection is already in Streaming mode if it has been created
+   --  with Server_Push => True.
 
 private
 
