@@ -290,7 +290,7 @@
 			</output>
 		</operation>
 	</binding>
-	<service name="interopLab">
+	<service name="TinteropLab">
 		<port name="interopTestPort" binding="tns:interopTestBinding">
 			<soap:address location="http://localhost:9112"/>
 		</port>
