@@ -228,6 +228,12 @@ package SOAP.Types is
       Name : in String)
       return SOAP_Array;
 
+   function Size (O : in SOAP_Array) return Natural;
+   --  Returns the number of item into the array
+
+   function V (O : in SOAP_Array; N : in Positive) return Object'Class;
+   --  Returns SOAP_Array item at position N
+
    function V (O : in SOAP_Array) return Object_Set;
 
    ------------
@@ -246,6 +252,8 @@ package SOAP.Types is
       return SOAP_Record;
 
    function V (O : in SOAP_Record; Name : in String) return Object'Class;
+   -- Returns SOAP_Record field named Name
+
    function V (O : in SOAP_Record) return Object_Set;
 
    function Get (O : in Object'Class) return SOAP_Base64;
