@@ -153,7 +153,7 @@ procedure Strm is
            (Boolean'Image (Message = Same_Message)
             & ' ' & Boolean'Image (Last = Message'Last)
             & ' ' & Boolean'Image (User_Strm.End_Of_File (File))
-            & Message'Length'Img);
+            & Integer'Image (Message'Length));
 
          Put_Line ("Error.");
       end if;

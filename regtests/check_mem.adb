@@ -438,7 +438,8 @@ procedure Check_Mem is
          end if;
 
          Text_IO.Put_Line
-           (Data'Length'Img & " bytes compressed to" & Comp'Length'Img);
+           (Integer'Image (Data'Length) & " bytes compressed to"
+              & Integer'Image (Comp'Length));
 
          Utils.Free (Comp);
          Utils.Free (Decomp);
