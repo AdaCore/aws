@@ -176,7 +176,8 @@ private
       Elements       : Stream_Element_Array_Access;
    end record;
 
-   procedure Adjust   (Object : in out Data);
-   procedure Finalize (Object : in out Data);
+   procedure Initialize (Object : in out Data);
+   procedure Adjust     (Object : in out Data);
+   procedure Finalize   (Object : in out Data);
 
 end AWS.Response;
