@@ -15,6 +15,14 @@
 @@--
 @@--      @@INCLUDE@@ rounded_boxes.thtml 1=>menuClass 2=>contentsID
 @@--
+@@--   * Optional parameters:
+@@--
+@@--     $3 - The box color (frame, and header background)
+@@--     $4 - Box background color
+@@--     $5 - Header text color
+@@--     $6 - Title text color
+@@--     $7 - Item text color
+@@--
 @@--   * Add a list in your document, with the following format:
 @@--
 @@--     <div class="menuClass">
@@ -47,38 +55,44 @@
 @@--
 @@--  $Id$
 
+@@SET@@ BOX_COLOR         = $3 | #369
+@@SET@@ BG_COLOR          = $4 | #EEE
+@@SET@@ TEXT_HEADER_COLOR = $5 | white
+@@SET@@ TEXT_TITLE_COLOR  = $6 | #c60
+@@SET@@ TEXT_ITEM_COLOR   = $7 | #369
+
 <style>
 .@_$1_@    { width: 7em;
-             position: fixed;   /* Do not scroll with the rest of the doc*/
+             position: fixed;   /* Do not scroll with the rest of the doc */
              float: left;
              margin: 0px;
              margin-left: 3px;
              padding: 0px; }
 .@_$1_@ h2 { text-transform: uppercase;
-             background: #369 url('/we_icons/rcorner.gif') right top no-repeat;
-             color: white;
+             background: @_BOX_COLOR_@ url('/we_icons/rcorner.gif') right top no-repeat;
+             color: @_TEXT_HEADER_COLOR_@;
              margin: 1em 0 0 0;
              padding: 2px; 
              font-size: 1em; }
-.@_$1_@ h3 { color: #c60;
+.@_$1_@ h3 { color: @_TEXT_TITLE_COLOR_@;
              font-weight: 600;
              font-size: 1em;
              margin: 10px 0 0 0; }
-.@_$1_@ div { border: 1px solid #369;
+.@_$1_@ div { border: 1px solid @_BOX_COLOR_@;
               border-top-width: 0px;
               padding: 5px;
-              background: #EEE;
+              background: @_BG_COLOR_@;
               font-size: 1em;
               margin-bottom: 15px; }
-.@_$1_@ ul { color: #369;
+.@_$1_@ ul { color: @_BOX_COLOR_@;
              margin: 3px 0px 0px 20px;
              padding: 0px; }
 .@_$1_@ li { margin-top: 3px; }
-.@_$1_@ a:hover  { color: #369;
-                   border-bottom: 1px solid #369; }
+.@_$1_@ a:hover  { color: @_BOX_COLOR_@;
+                   border-bottom: 1px solid @_BOX_COLOR_@; }
 .@_$1_@ a:visited,
 .@_$1_@ a:link,
-.@_$1_@ a:active  { color: #369;
+.@_$1_@ a:active  { color: @_TEXT_ITEM_COLOR_@;
                     text-decoration: none; }
 .@_$2_@ { padding: 0px;
           position: relative;

@@ -28,8 +28,13 @@
 @@--
 @@--  * Optional parameters:
 @@--
-@@--    $7 - Height offset for the tab, 0 by default. It needs to be adjusted
-@@--         if the font used is too big.
+@@--    $5  - The active page color
+@@--    $6  - The standard page color
+@@--    $7  - The tab active text color
+@@--    $8  - The tab standard text color
+@@--    $9  - The tab selected text color
+@@--    $10 - Height offset for the tab, 0 by default. It needs to be adjusted
+@@--          if the font used is too big.
 @@--
 @@--  * Create a <ul> list that contains the text for the tabs. This
 @@--    should look like the following, where the id and class attributes
@@ -84,10 +89,15 @@
 @@--
 @@--  $Id$
 
-@@SET@@ TAB_HEIGHT = $7 | 0
+@@SET@@ ACTIVE_PAGE_COLOR       = $5  | white
+@@SET@@ PAGE_COLOR              = $6  | #ccc
+@@SET@@ TAB_ACTIVE_TEXT_COLOR   = $7  | black
+@@SET@@ TAB_TEXT_COLOR          = $8  | #666
+@@SET@@ TAB_SELECTED_TEXT_COLOR = $9  | #f00
+@@SET@@ TAB_HEIGHT              = $10 | 0
 
 <style type="text/css">
-#@_$1_@           { border-bottom: 1px solid @_$6_@;
+#@_$1_@           { border-bottom: 1px solid @_PAGE_COLOR_@;
                     margin: 15px 10px 0px 0px;
                     position: relative;
                     height: @_"+"(19):TAB_HEIGHT_@px;
@@ -98,9 +108,9 @@
                     margin: 0px 20px 0px 20px; }
 #@_$1_@ a:link,
 #@_$1_@ a:active,
-#@_$1_@ a:visited { background: @_$6_@;
-                    border: 1px solid @_$6_@;
-                    color:  #666;
+#@_$1_@ a:visited { background: @_PAGE_COLOR_@;
+                    border: 1px solid @_PAGE_COLOR_@;
+                    color:  @_TAB_TEXT_COLOR_@;
                     position: relative;    /* Required for IE6 */
                     float: left;
                     font-weight: normal;
@@ -108,17 +118,17 @@
                     margin-right: 8px;
                     padding: 2px 10px 2px 10px;
                     text-decoration: none; }
-#@_$1_@ a:hover   { color: #f00; }
+#@_$1_@ a:hover   { color: @_TAB_SELECTED_TEXT_COLOR_@; }
 #@_$1_@ li.@_$2_@ a:link,
 #@_$1_@ li.@_$2_@ a:active,
 #@_$1_@ li.@_$2_@ a:visited
-                  { background: @_$5_@;
-                    border-bottom: 1px solid @_$5_@;
-                    color: black; }
+                  { background: @_ACTIVE_PAGE_COLOR_@;
+                    border-bottom: 1px solid @_ACTIVE_PAGE_COLOR_@;
+                    color: @_TAB_ACTIVE_TEXT_COLOR_@; }
 div.@_$3_@        { border: 1px solid #ccc;
                     border-top: none;
                     display: none;
-                    background-color: @_$5_@;
+                    background-color: @_ACTIVE_PAGE_COLOR_@;
                     padding: 1px 5px 10px 5px;
                     margin: 0px 10px 30px 0px; }
 div#@_$4_@        { display: block; }

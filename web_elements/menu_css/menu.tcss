@@ -14,6 +14,14 @@
 @@--
 @@--      where the parameters are used below
 @@--
+@@--   * Optional parameters:
+@@--
+@@--     $3 - Main menu-bar background color
+@@--     $4 - Background color of the submenus
+@@--     $5 - Background color of the selected menu entry
+@@--     $6 - The menu text color
+@@--     $7 - The selected menu text color
+@@--
 @@--   * Create a <ul> list in the body of your document, that describes the
 @@--     menu. This list should be put in a <div> with the appropriate id
 @@--     attribute.
@@ -45,6 +53,12 @@
 @@--
 @@--  $Id$
 
+@@SET@@ MAIN_BG_COLOR       = $3 | #aaa
+@@SET@@ BG_COLOR            = $4 | #ccc
+@@SET@@ SELECTED_BG_COLOR   = $5 | #ddd
+@@SET@@ TEXT_COLOR          = $6 | black
+@@SET@@ SELECTED_TEXT_COLOR = $7 | black
+
 <style>
 .@_$1_@             { width:100%;
                       float:left; }
@@ -52,16 +66,18 @@
                         font:bold 0.7em/1.4em arial,helvetica,sans-serif;
                         border-width:0.1em;
                         border-style:solid;
-                        border-color:#ccc #888 #555 #bbb;
+                        border-color:@_BG_COLOR_@ #888 #555 #bbb;
                         white-space:nowrap;
                         text-indent:3px;
                         margin:0;
                         padding:1px 0px; }
-.@_$1_@ a           { background:#ccc; text-decoration:none; width:100%; }
+.@_$1_@ a           { background:@_BG_COLOR_@; 
+		      text-decoration:none; width:100%; }
 .@_$1_@ a,
-.@_$1_@ a:visited   { color:#000; }
-.@_$1_@ a:hover     { color:#000; background:#ddd; }
-.@_$1_@ a:active    { color:#060; background:#ccc; }
+.@_$1_@ a:visited   { color:@_TEXT_COLOR_@; }
+.@_$1_@ a:hover     { color:@_SELECTED_TEXT_COLOR_@; 
+                      background:@_SELECTED_BG_COLOR_@; }
+.@_$1_@ a:active    { color:@_SELECTED_BG_COLOR_@; background:@_BG_COLOR_@; }
 .@_$1_@ ul          { margin:0; padding:0;
                       position: relative;
                       list-style:none; float:left; width: 6.9em; }
@@ -77,12 +93,12 @@
 .@_$1_@ li li li:hover ul,
 .@_$1_@ li li li li:hover ul    {display:block;}
 .@_$1_@ h2           { color: black;
-                       background:#aaa url('/we_icons/arrow.png') 
+                       background:@_MAIN_BG_COLOR_@ url('/we_icons/arrow.png')
                        no-repeat bottom right;
                        text-transform:uppercase;
                        margin:0;
                        width:100%; }
-.@_$1_@ li          { background: #ccc; }
+.@_$1_@ li          { background: @_BG_COLOR_@; }
 .@_$1_@ .@_$2_@     { background: url('/we_icons/arrow.png') 
                       no-repeat bottom right;}
 </style>
