@@ -44,7 +44,7 @@ package AWS.Containers.Tables is
       Name  : String (1 .. Name_Length);
       Value : String (1 .. Value_Length);
    end record;
-   --  Data type for receive name/value pair at once.
+   --  Data type to store name/value pair retrieved from a Table_Type.
 
    type VString_Array is array (Positive range <>)
      of Ada.Strings.Unbounded.Unbounded_String;
