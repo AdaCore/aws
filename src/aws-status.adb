@@ -339,12 +339,12 @@ package body AWS.Status is
    ----------------
 
    function SOAPAction (D : in Data) return String is
-      Result : String :=
+      Result : constant String :=
          AWS.Headers.Get (D.Header, Messages.SOAPAction_Token);
    begin
-      if Result (Result'First) = '"'
+      if Result'First < Result'Last
+        and then Result (Result'First) = '"'
         and then Result (Result'Last) = '"'
-        and then Result'First < Result'Last
       then
          return Result (Result'First + 1 .. Result'Last - 1);
       else
