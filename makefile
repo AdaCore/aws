@@ -43,18 +43,16 @@ all:
 	echo ""
 	echo "  Build :"
 	echo ""
+	echo "    setup:        setup build, must be done before build"
 	echo "    build:        build AWS library, tools and demos"
-	echo "    build_lib:    build AWS library only"
-	echo "    build_tools:  build AWS library and tools"
 	echo "    build_doc:    build documentation (needs texinfo support)"
-	echo "    build_soap:   build SOAP library (needs XMLAda package)"
 	echo ""
 	echo "  Support :"
 	echo ""
 	echo "    clean:        to clean directories"
 	echo "    distrib:      to build a tarball distribution"
 	echo "    install:      install AWS library"
-	echo "    run_regtests: run tests"
+	echo "    run_regtests: run non regression tests"
 
 EXTRA_TESTS = 1
 
@@ -140,7 +138,7 @@ endif
 ifdef XMLADA
 	echo "XMLada activated      : " $(XMLADA)
 else
-	echo "XMLada not activated, SOAP will not be built"
+	echo "XMLada not activated, no SOAP/WSDL support"
 endif
 ifdef ADASOCKETS
 	echo "AdaSockets package in : " $(ADASOCKETS)
