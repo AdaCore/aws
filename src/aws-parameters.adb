@@ -85,7 +85,7 @@ package body AWS.Parameters is
    function Count
      (Parameter_List : in List;
       Name           : in String)
-     return Natural
+      return Natural
    is
       Value : Unbounded_String;
       CS    : Strings_Cutter.Cutted_String;
@@ -116,7 +116,7 @@ package body AWS.Parameters is
    function Exist
      (Parameter_List : in List;
       Name           : in String)
-     return Boolean is
+      return Boolean is
    begin
       return Key_Value.Is_Present (Parameter_List.Data.all, Name);
    end Exist;
@@ -129,7 +129,7 @@ package body AWS.Parameters is
      (Parameter_List : in List;
       Name           : in String;
       N              : in Positive := 1)
-     return String is
+      return String is
    begin
       return Internal_Get (Parameter_List, Name, N);
    end Get;
@@ -141,7 +141,7 @@ package body AWS.Parameters is
    function Get_Name
      (Parameter_List : in List;
       N              : in Positive := 1)
-     return String
+      return String
    is
       Key  : constant String := "__AWS_K" & Utils.Image (N);
    begin
@@ -203,9 +203,9 @@ package body AWS.Parameters is
    function Get_Value
      (Parameter_List : in List;
       N              : in Positive := 1)
-     return String
+      return String
    is
-      Key  : constant String := "__AWS_V" & Utils.Image (N);
+      Key : constant String := "__AWS_V" & Utils.Image (N);
    begin
       return To_String (Key_Value.Value (Parameter_List.HTTP_Data.all, Key));
    exception
@@ -217,7 +217,9 @@ package body AWS.Parameters is
    -- Get_Values --
    ----------------
 
-   function Get_Values (Parameter_List : in List; Name : String)
+   function Get_Values
+     (Parameter_List : in List;
+      Name           : in String)
       return VString_Array
    is
       Value : Unbounded_String;
@@ -253,7 +255,7 @@ package body AWS.Parameters is
      (Parameter_List : in List;
       Name           : in String;
       N              : in Natural)
-     return String
+      return String
    is
       Value : Unbounded_String;
       CS    : Strings_Cutter.Cutted_String;
