@@ -44,8 +44,7 @@ package body AWS.Headers is
       N       : in Positive)
       return String
    is
-      Pair : constant Name_Value_Type :=
-         Get_Name_Value (Headers, N);
+      Pair : constant Element := Get (Headers, N);
    begin
       if Pair.Name = "" then
          return "";
