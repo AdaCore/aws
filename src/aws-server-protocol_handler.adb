@@ -518,6 +518,15 @@ is
                   Headers,
                   End_Found);
 
+               --  Create an attachment entry, this will ensure that the
+               --  physical file will be removed. It will also be possible
+               --  to work with the attachment instead of the parameters set
+               --  above.
+               AWS.Attachments.Add
+                 (Attachments,
+                  To_String (Server_Filename), To_String (Name));
+               AWS.Status.Set.Attachments (C_Stat, Attachments);
+
                if not End_Found then
                   File_Upload (Start_Boundary, End_Boundary, False);
                end if;
@@ -601,9 +610,8 @@ is
          Content : AWS.Resources.Streams.Memory.Stream_Type;
          --  Used for root part
 
-         Data   : Streams.Stream_Element_Array (1 .. 1);
-
-         Error  : Error_State := No_Error;
+         Data    : Streams.Stream_Element_Array (1 .. 1);
+         Error   : Error_State := No_Error;
 
          ---------------
          -- Check_EOF --
@@ -804,7 +812,7 @@ is
          Root_Part_CID                : in String)
       is
          Server_Filename : Unbounded_String;
-         Content_ID      : Unbounded_String;
+         Content_Id      : Unbounded_String;
          Headers         : AWS.Headers.List;
 
          End_Found       : Boolean := False;
@@ -854,12 +862,12 @@ is
 
          AWS.Headers.Set.Read (Sock, Headers);
 
-         Content_ID := To_Unbounded_String
+         Content_Id := To_Unbounded_String
            (AWS.Headers.Get (Headers, Messages.Content_Id_Token));
 
          --  Read file/field data
 
-         if Content_ID = Status_Root_Part_CID then
+         if Content_Id = Status_Root_Part_CID then
             Get_File_Data
               ("", Start_Boundary, Root_Attachment, Headers, End_Found);
 
