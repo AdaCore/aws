@@ -1668,10 +1668,10 @@ package body AWS.Client is
                Connection.Decode_First, Connection.Decode_Last,
                Allow_Read_Some => True);
             --  Decompress gzip or deflate encoded data.
-
          begin
             Read (Connection.Decode_Filter, Data, Last);
          end;
+
       else
          Read_Internal (Data, Last);
       end if;
@@ -1686,7 +1686,7 @@ package body AWS.Client is
       Delimiter  : in String)
       return String
    is
-      Result     : Unbounded_String;
+      Result : Unbounded_String;
    begin
       Read_Until (Connection.Self.all, Delimiter, Result);
       return To_String (Result);
