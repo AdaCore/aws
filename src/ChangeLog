@@ -1,3 +1,8 @@
+2004-04-14  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-filter.adb:
+	(BR_2_LF): Fix Constraint_Error if S is empty.
+
 2004-04-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
