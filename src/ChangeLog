@@ -1,3 +1,25 @@
+2001-06-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.adb:
+	(Authenticate): coirrectly set the Realm string (was setting
+	 location string instead).
+
+	* aws-session.adb:
+	(remove): new procedure.
+	(Database.Remove_Key): new entry.
+	Fix comments.
+
+	* aws-session.ads:
+	(remove): new procedure.
+
+2001-06-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-directory.ads, aws-services-directory.adb:
+	Initial revision.
+	
+	* aws-services.ads:
+	Initial revision.
+
 2001-05-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-translator.ads, aws-translator.adb:
