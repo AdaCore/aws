@@ -89,9 +89,26 @@ begin
       when Table_Stmt =>
          Text_IO.Put_Line ("[TABLE_STMT] TERMINATE_SECTIONS="
                            & Boolean'Image (T.Terminate_Sections));
-         Print_Tree (T.Sections, Level + 1);
+         Print_Tree (T.Blocks, Level + 1);
          Print_Indent (Level);
          Text_IO.Put_Line ("[END_TABLE_STMT]");
+         Print_Tree (T.Next, Level);
+
+      when Section_Block =>
+         Text_IO.Put_Line ("[BLOCK]");
+
+         if T.Common /= null then
+            Print_Indent (Level + 1);
+            Text_IO.Put_Line ("[COMMON]");
+            Print_Tree (T.Common, Level + 2);
+         end if;
+
+         if T.Sections /= null then
+            Print_Tree (T.Sections, Level + 1);
+         end if;
+
+         Print_Indent (Level);
+         Text_IO.Put_Line ("[END_BLOCK]");
          Print_Tree (T.Next, Level);
 
       when Section_Stmt =>
