@@ -48,9 +48,9 @@ package AWS.Status is
    --  handled with case sensitivity or not. Default is True.
 
    type Request_Method is (GET, HEAD, POST, PUT);
-   
+
    subtype Socket_Type is Sockets.Socket_FD'Class;
-   
+
    type Socket_Access is access all Socket_Type;
 
    function Authorization_Name     (D : in Data) return String;

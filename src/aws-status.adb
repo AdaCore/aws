@@ -193,7 +193,7 @@ package body AWS.Status is
    begin
       return To_String (D.URI);
    end URI;
-   
+
    ------------
    -- Socket --
    ------------
