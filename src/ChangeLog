@@ -1,3 +1,21 @@
+2003-12-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* src.gpr:
+	(Ide): New package.
+
+	* aws-communication-server.adb:
+	Back out previous check-in as GNAT output a warning.
+
+	* aws-config-set.adb:
+	(Check_URL_Validity): New procedure.
+
+	* aws-config-set.ads:
+	(Check_URL_Validity): New procedure.
+	Reorder routines by category.
+
+	* aws-config.ads:
+	Reorder routines by category.
+
 2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-communication-server.adb:
