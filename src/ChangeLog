@@ -1,5 +1,10 @@
 2002-12-16  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-net-ssl.adb:
+	Fix casing.
+
+2002-12-16  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-containers-tables-set.adb:
 	Minor reformatting.
 	Add some comments.
