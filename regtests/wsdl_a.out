@@ -1,0 +1,3 @@
+wsdl_a.ads:38:11: use Long_Float instead of Float for SOAP/WSDL items.
+wsdl_a_pck.ads:37:14: use Long_Float instead of Float for SOAP/WSDL items.
+wsdl_a_pck.ads:37:14: use Long_Float instead of Float for SOAP/WSDL items.
