@@ -103,6 +103,8 @@ main (void)
     printf ("   for Events_Type'Size use C.short'Size;\n\n");
   }
 
+  /* Addr_Info */
+
   if (ai_flags_offset > 0
       || ai_family_offset    >= ai_socktype_offset
       || ai_socktype_offset  >= ai_protocol_offset
@@ -129,7 +131,7 @@ main (void)
     printf ("      ai_canonname : C.Strings.chars_ptr;\n");
     printf ("      ai_addr      : System.Address;\n");
   } else {
-    // Win32, FreeBSD, Solaris fielsd order.
+    // Win32, FreeBSD, Solaris fields order.
 
     printf ("      ai_addr      : System.Address;\n");
     printf ("      ai_canonname : C.Strings.chars_ptr;\n");
