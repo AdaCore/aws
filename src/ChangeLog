@@ -1,3 +1,9 @@
+2004-06-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.ads:
+	(Start): Remove comment about User_Config_Filename.
+	(Line_Cleaner): Fix entry indentation.
+
 2004-06-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-session.adb:
@@ -18,10 +24,10 @@
 
 	* templates_parser.adb:
 	(Clear): Initialize Nested_Level to 1.
-	(Initialize): Idem.	
+	(Initialize): Idem.
 	(Translate) [Tag_Var]: Improve error messages.
 	Patch contributed by Emmanuel Briot.
-	
+
 	* templates_parser.adb:
 	("&") [Tag]: Properly set the nested level if the left value already
 	 contains values.

@@ -64,8 +64,6 @@ package AWS.Server is
    --  Start server using a full configuration object. With this routine it is
    --  possible to control all features of the server. A simplified version of
    --  Start is also provided below with the most common options.
-   --  User_Config_Filename is a specific configuration file that will parsed
-   --  after 'aws.ini', 'prognam.ini', '<servername>.ini' files.
 
    procedure Start
      (Web_Server : in out HTTP;
@@ -367,7 +365,7 @@ private
    ------------------
 
    task type Line_Cleaner (Server : HTTP_Access) is
-     entry Force;
+      entry Force;
    end Line_Cleaner;
 
    type Line_Cleaner_Access is access Line_Cleaner;
