@@ -165,3 +165,5 @@ implemented:
 - Add more certificate information in AWS.Net.SSL.Certificate
 
 - Add AWS.Net.SSL.Supported Boolean constant.
+
+- Let SSL sockets to be used without explicitly set SSL config.
