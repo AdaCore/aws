@@ -73,18 +73,20 @@ package body Data is
                if Stop = 0 then
                   Exceptions.Raise_Exception
                     (Internal_Error'Identity,
-                     "Tag variable not terminated (missing "
-                     & End_Tag & ")");
+                     "Tag variable not terminated (missing " & End_Tag & ")");
 
                else
                   Stop := Stop + End_Tag'Length - 1;
 
                   if Start = Line'First then
+                     --  The first token in Line is a variable
                      return new Node'
                        (Var,
                         Build (Line (Stop + 1 .. Line'Last)),
                         Build (Line (Start .. Stop)));
+
                   else
+                     --  We have some text before the tag
                      return new Node'
                        (Text,
                         Build (Line (Start .. Line'Last)),
