@@ -1,3 +1,8 @@
+2003-05-29  Anisimkov Dmitriy <anisimkov@yahoo.com>
+
+	* src/test_uconv.adb:
+	Fix suffixes __p and __f.
+
 2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src/test_uconv.adb:

@@ -99,8 +99,8 @@ begin
      and then Fixed_Array'Alignment = Fixed_String'Alignment
      and then Sample = To_String (To_Stream_Elements (Sample))
    then
-      Copy_File (Prefix & "-f" & Suffix);
+      Copy_File (Prefix & "__f" & Suffix);
    else
-      Copy_File (Prefix & "-p" & Suffix);
+      Copy_File (Prefix & "__p" & Suffix);
    end if;
 end Test_UConv;
