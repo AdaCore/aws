@@ -1,3 +1,20 @@
+2004-07-23  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(CONF_UNITS): Add aws-os_lib-definitions.ads.
+	(aws-os_lib-definitions.ads): New target.
+	(clean): Add aws-os_lib-definitions.ads.
+
+	* aws-net.adb, aws-net-sets.adb:
+	Many changes to use type definitions from OS_Lib.Definitions.
+
+	* aws-net-sets-thin.ads:
+	(POLL*): Remove all constants from here.
+	(FD_Type): Taken from OS_Lib.Definitions.
+	(Length_Type): Renamed nfds_t.
+	(Events_Type): Taken from OS_Lib.Definitions.
+	(Poll): Use nfds_t.
+
 2004-07-14  Pascal Obry  <pascal@obry.org>
 
 	* aws-server.adb:
