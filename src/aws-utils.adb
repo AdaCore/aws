@@ -184,6 +184,59 @@ package body AWS.Utils is
         and then Is_Subset (To_Set (S), Constants.Decimal_Digit_Set);
    end Is_Number;
 
+   -------------
+   -- Mailbox --
+   -------------
+
+   package body Mailbox_G is
+
+      protected body Mailbox is
+
+         ---------
+         -- Add --
+         ---------
+
+         entry Add (M : in Message) when Current_Size < Max_Size is
+         begin
+            Current_Size := Current_Size + 1;
+            Current := Current + 1;
+
+            if Current > Max_Size then
+               Current := Buffer'First;
+            end if;
+
+            Buffer (Current) := M;
+         end Add;
+
+         ---------
+         -- Get --
+         ---------
+
+         entry Get (M : out Message) when Current_Size > 0 is
+         begin
+            Current_Size := Current_Size - 1;
+            Last := Last + 1;
+
+            if Last > Max_Size then
+               Last := Buffer'First;
+            end if;
+
+            M := Buffer (Last);
+         end Get;
+
+         ----------
+         -- Size --
+         ----------
+
+         function Size return Natural is
+         begin
+            return Current_Size;
+         end Size;
+
+      end Mailbox;
+
+   end Mailbox_G;
+
    -----------
    -- Quote --
    -----------
