@@ -30,11 +30,12 @@
 
 package AWS.Utils is
 
-   pragma Pure;
-
    --  general helper functions are to be found here.
 
    function Image (N : Natural) return String;
    --  return image of N without the leading blank.
+
+   function Gethostname return String;
+   --  Return hostname.
 
 end AWS.Utils;
