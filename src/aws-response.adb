@@ -123,8 +123,8 @@ package body AWS.Response is
    begin
       for J in Auth_Values'Range loop
          declare
-            Stale_Image : constant String :=
-               Values.Search (To_String (Auth_Values (J)), "stale", False);
+            Stale_Image : constant String
+              := Values.Search (To_String (Auth_Values (J)), "stale", False);
          begin
             if Stale_Image /= "" then
                return Boolean'Value (Stale_Image);
@@ -201,12 +201,13 @@ package body AWS.Response is
    --------------------
 
    function Content_Length (D : in Data) return Content_Length_Type is
-      Image : String := Headers.Get (D.Header, Messages.Content_Length_Token);
+      CL_Image : constant String
+        := Headers.Get (D.Header, Messages.Content_Length_Token);
    begin
-      if Image = "" then
+      if CL_Image = "" then
          return Undefined_Length;
       else
-         return Content_Length_Type'Value (Image);
+         return Content_Length_Type'Value (CL_Image);
       end if;
    end Content_Length;
 
@@ -252,7 +253,7 @@ package body AWS.Response is
    function Empty return Data is
       Result : Data;
    begin
-      Set.Status_Code  (Result, Messages.S204);
+      Set.Status_Code (Result, Messages.S204);
       return Result;
    end Empty;
 
