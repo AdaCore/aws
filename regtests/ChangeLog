@@ -1,3 +1,10 @@
+2004-09-29  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	Lot of changes to use new way to build AWS based on project files.
+	It is possible to improve this part as most regression test
+	 executable could be build using a project file too.
+	
 2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* tmem.adb:

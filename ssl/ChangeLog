@@ -1,3 +1,17 @@
+2004-09-29  Pascal Obry  <pascal@obry.org>
+
+	* ssl.gpr:
+	Minor casing fix.
+	Update copyright notice.
+
+	* nossl.gpr:
+	Rename library "nosslaws" to "aws_nossl" for consistency.
+	Update copyright notice.
+
+	* makefile:
+	Extensive changes to support build based on GNAT Project files.
+	The makefile based build has been removed.
+
 2004-09-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* ssl-wrappers.ads, ssl-wrappers.adb:

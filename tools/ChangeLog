@@ -1,3 +1,12 @@
+2004-09-29  Pascal Obry  <pascal@obry.org>
+
+	* tools.gpr:
+	Import "asis" project which is automatically generated.
+
+	* makefile:
+	Extensive changes to support build based on GNAT Project files.
+	The makefile based build has been removed.
+
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
 	* tools.gpr:
