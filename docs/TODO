@@ -85,3 +85,5 @@ implemented:
   remove the cookie on the client side.
 
 - Have a way to set the certificate to use with an HTTPS server.
+
+- Have a way to retrieve server configuration from a callback procedure.
