@@ -48,9 +48,10 @@ package body AWS.Net is
          new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
    begin
       if Socket /= null then
+         Release_Cache (Socket.all);
          Free (Socket.all);
+         Free (Socket);
       end if;
-      Free (Socket);
    end Free;
 
    ---------------
@@ -62,19 +63,46 @@ package body AWS.Net is
       return Net.Std.Host_Name;
    end Host_Name;
 
+   -------------------
+   -- Release_Cache --
+   -------------------
+
+   procedure Release_Cache (Socket : in out Socket_Type'Class) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (RW_Cache, RW_Cache_Access);
+   begin
+      Free (Socket.C);
+   end Release_Cache;
+
+   ---------------
+   -- Set_Cache --
+   ---------------
+
+   procedure Set_Cache (Socket : in out Socket_Type'Class) is
+   begin
+      Socket.C := new RW_Cache;
+   end Set_Cache;
+
    ------------
    -- Socket --
    ------------
 
    function Socket
      (Security : in Boolean)
-      return Socket_Access is
+      return Socket_Access
+   is
+      Sock : Socket_Access;
    begin
       if Security then
-         return SSL.Socket;
+         Sock := SSL.Socket;
       else
-         return Std.Socket;
+         Sock := Std.Socket;
       end if;
+
+      --  Create the cache structure
+      Set_Cache (Sock.all);
+
+      return Sock;
    end Socket;
 
 end AWS.Net;
