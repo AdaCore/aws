@@ -525,7 +525,9 @@ package body AWS.Server is
       Sockets.Bind (Accepting_Socket,
                     CNF.Server_Port (Web_Server.Properties));
 
-      Sockets.Listen (Accepting_Socket);
+      Sockets.Listen
+        (Accepting_Socket,
+         Queue_Size => CNF.Accept_Queue_Size (Web_Server.Properties));
 
       Web_Server.Sock := Accepting_Socket;
 
