@@ -1,3 +1,18 @@
+2002-09-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl-thin.ads:
+	Complete reformatting.
+
+	* ssl.adb:
+	(CRLF): New constant.
+	(Read): Removed as it was not used.
+	(Put_Line): Use CRLF.
+	(New_Line): USe CRLF.
+	Reformat code.
+
+	* ssl.ads:
+	Minor reformatting.
+
 2001-10-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
