@@ -180,6 +180,9 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/projects
 	$(CP) -p src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) -p templates_parser/src/t*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) -p config/aws-net-std__* $(INSTALL)/AWS/include
+	$(CP) -p config/aws-os_lib__* $(INSTALL)/AWS/include
+	$(CP) -p config/templates_parser-* $(INSTALL)/AWS/include
 ifeq ($(XMLADA),true)
 	$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) -p xsrc/*.ad[sb] $(INSTALL)/AWS/include
@@ -233,6 +236,8 @@ ifeq (${OS}, Windows_NT)
 endif
 	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
 	$(CP) config/projects/*_lib.gpr $(INSTALL)/AWS/projects
+	$(CP) config/projects/shared.gpr $(INSTALL)/AWS/projects
+	$(CP) $(BDIR)/config.gpr $(INSTALL)/AWS/projects
 # Regenerate the SSL project to properly point to the ssl/crypto libraries
 	$(MAKE) -C ssl SOCKET=ssl setup_ssl
 	$(CP) ssl/ssl_shared.gpr $(INSTALL)/AWS/projects
@@ -440,4 +445,27 @@ gai302_external:
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
 
-setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP)
+setup_config:
+	echo 'project Config is' > $(BDIR)/config.gpr
+	echo '   for Source_Dirs use ();' >> $(BDIR)/config.gpr
+	echo '   type SOCKLIB_Type is ("GNAT", "AdaSockets");' \
+		>> $(BDIR)/config.gpr
+ifdef ADASOCKETS
+	echo '   SOCKLIB : SOCKLIB_Type := "AdaSockets";' >> $(BDIR)/config.gpr
+else
+	echo '   SOCKLIB : SOCKLIB_Type := "GNAT";' >> $(BDIR)/config.gpr
+endif
+	echo '   type OSLIB_Type is ("GNAT", "Win32", "POSIX");' \
+		>> $(BDIR)/config.gpr
+ifeq (${OSLIB}, GNAT)
+	echo '   OSLIB : OSLIB_Type := "GNAT";' >> $(BDIR)/config.gpr
+endif
+ifeq (${OSLIB}, Win32)
+	echo '   OSLIB : OSLIB_Type := "Win32";' >> $(BDIR)/config.gpr
+endif
+ifeq (${OSLIB}, POSIX)
+	echo '   OSLIB : OSLIB_Type := "POSIX";' >> $(BDIR)/config.gpr
+endif
+	echo 'end Config;' >> $(BDIR)/config.gpr
+
+setup: setup_dir setup_config $(GEXT_MODULE) $(MODULES_SETUP)
