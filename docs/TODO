@@ -62,19 +62,10 @@ implemented:
 - Would be nice to have an ActiveX component to support Server Push on
   Internet Explorer.
 
-- The simple page Server callback demo should be put in the AWS.Services
-  hierarchy. procedure names AWS.Services.Page_Server.Callback.
-
 - Would be nice to have a very light version of the Web Server - LAWS for
   Light Ada Web Server - this will be a nice solution for the communication
   sub-system. A LAWS would have only one task, no file-upload, not all the
   mechanisms to handle the concurrency...
-
-- Add a service to handle the call of the right procedure for the requested
-  URI. This is a kind of dispatcher and will remove the needs for a big case
-  in the user's callback procedure. AWS.Services.Dispatcher.Callback. User
-  will be able to register/unregister a callback for URI starting with a
-  specific string or matching a regular expression.
 
 - Support socket timeout options (send and receive timeout) at the OS
   level. Right now a task is doing the job.
