@@ -141,7 +141,7 @@ private
    Null_Ptr : constant SSL_Handle := System.Null_Address;
 
    type Socket_Type is new Net.Socket_Type with record
-      SSL : SSL_Handle;
+      SSL : SSL_Handle         := Null_Ptr;
       S   : Net.Socket_Access;
    end record;
 
