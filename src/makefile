@@ -4,10 +4,10 @@
 .SILENT: all build build_ssl build_std distrib ssl_mode std_mode clean
 
 SSL	= ../ssl
-GFLAGS	= -g -O2 -gnatwu -gnaty -I../ssl -I../include
+GFLAGS	= -g -O2 -gnatwu -gnaty -I../ssl -I../include $(INCLUDES)
 
 SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
-	aws-parameters.adb aws-response.adb aws-server-config.adb \
+	aws-parameters.adb aws-response.adb \
 	aws-server-get_status.adb aws-server.adb aws-session.adb \
 	aws-status.adb aws-translater.adb aws-url.adb aws-utils.adb \
 	aws-key_value.adb aws-log.adb aws-hotplug.adb aws-communication.adb \
@@ -22,24 +22,20 @@ all:
 	echo ""
 
 build: build_$(MODE)
-	gcc -c -O2 -g -I../include aws-session.adb
-	gcc -c -O2 -g -I../include aws-key_value.adb
-	gcc -c -O2 -g -I../include aws-server-get_status.adb
+	gcc -c -O2 -g -I../include $(INCLUDES) aws-session.adb
+	gcc -c -O2 -g -I../include $(INCLUDES) aws-key_value.adb
+	gcc -c -O2 -g -I../include $(INCLUDES) aws-server-get_status.adb
 	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
 
 build_ssl:
 	-rm *.o *.ali build_std
 	echo > build_ssl
-	echo 'pragma Source_File_Name' > gnat.adc
-	echo '   (aws.net,' >> gnat.adc
-	echo '    Body_File_Name => "aws-net-ssl.adb");' >> gnat.adc
+	cp aws-net-ssl.adb aws-net.adb
 
 build_std:
 	-rm *.o *.ali build_ssl
 	echo > build_std
-	echo 'pragma Source_File_Name' > gnat.adc
-	echo '   (aws.net,' >> gnat.adc
-	echo '    Body_File_Name => "aws-net-std.adb");' >> gnat.adc
+	cp aws-net-std.adb aws-net.adb
 
 clean:
-	-rm *.o *.ali gnat.adc build_ssl
+	-rm *.o *.ali gnat.adc build_ssl aws-net.adb
