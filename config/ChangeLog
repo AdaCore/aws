@@ -1,3 +1,9 @@
+2004-01-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-os_lib__gnat.adb:
+	Fix typo in comment.
+        Update copyright notice.
+
 2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-os_lib__posix.adb:
