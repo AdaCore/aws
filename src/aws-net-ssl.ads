@@ -75,9 +75,9 @@ package AWS.Net.SSL is
    --------
 
    procedure Send
-     (Socket : in Socket_Type;
-      Data   : in Stream_Element_Array);
-   pragma Inline (Send);
+     (Socket : in     Socket_Type;
+      Data   : in     Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
 
    procedure Receive
      (Socket : in     Socket_Type;
