@@ -48,7 +48,10 @@ package AWS.Parameters.Set is
    --  If Mode is True it will use all parameters with case sensitivity.
 
    procedure Reset (Parameter_List : in out List);
-   --  Release all memory used by Set. Set will be reinitialized and will be
+   --  Removes all object from the Set. Set will be reinitialized and will be
    --  ready for new use.
+
+   procedure Free (Parameter_List : in out List);
+   --  Release all memory used by the list.
 
 end AWS.Parameters.Set;
