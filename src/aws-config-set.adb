@@ -79,6 +79,15 @@ package body AWS.Config.Set is
       O.P (Certificate).Str_Value := To_Unbounded_String (Filename);
    end Certificate;
 
+   ------------------------
+   -- Check_URL_Validity --
+   ------------------------
+
+   procedure Check_URL_Validity (O : in out Object; Value : in Boolean) is
+   begin
+      O.P (Check_URL_Validity).Bool_Value := Value;
+   end Check_URL_Validity;
+
    ---------------------------------
    -- Cleaner_Client_Data_Timeout --
    ---------------------------------
