@@ -207,3 +207,5 @@ implemented:
 - Revisite the AdaSockets support. Should we continue supporting this ?
   It would certainly be easier to support only GNAT.Sockets and use the
   selector facilities instead of the AWS's poll() support.
+
+- Add support for shared libraries.
