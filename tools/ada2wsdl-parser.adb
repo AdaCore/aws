@@ -303,7 +303,7 @@ package body Ada2WSDL.Parser is
                Analyse_Package_Instantiation (Node);
 
             when A_Subtype_Declaration =>
-               null;
+               Analyse_Type (Node.Spec);
 
             when An_Ordinary_Type_Declaration =>
                Analyse_Type (Node.Spec);
@@ -492,7 +492,7 @@ package body Ada2WSDL.Parser is
             Length          : Positive;
          end record;
 
-         Deferred_U_Arrays : array (1 .. 500) of U_Array_Def;
+         Deferred_U_Arrays : array (1 .. 100) of U_Array_Def;
          U_Array_Index : Natural := 0;
 
          procedure Analyse_Field (Component : in Asis.Element);
@@ -504,17 +504,19 @@ package body Ada2WSDL.Parser is
 
          procedure Analyse_Field (Component : in Asis.Element) is
 
+            ODV   : constant Asis.Element
+              := Declarations.Object_Declaration_View (Component);
+
             Elem  : constant Asis.Element
               := Definitions.Subtype_Mark
-                   (Definitions.Component_Subtype_Indication
-                      (Declarations.Object_Declaration_View (Component)));
+                   (Definitions.Component_Subtype_Indication (ODV));
 
             Names : constant Defining_Name_List
               := Declarations.Names (Component);
 
-            E : Asis.Element := Elem;
+            E         : Asis.Element := Elem;
 
-            CND : Asis.Element;
+            CND       : Asis.Element;
 
             Type_Name : Unbounded_String;
 
@@ -554,9 +556,7 @@ package body Ada2WSDL.Parser is
                   --  constrained.
 
                   E := Definitions.Subtype_Constraint
-                         (Definitions.Component_Subtype_Indication
-                            (Declarations.Object_Declaration_View
-                               (Component)));
+                         (Definitions.Component_Subtype_Indication (ODV));
 
                   declare
                      R : constant Asis.Discrete_Range_List
@@ -581,6 +581,24 @@ package body Ada2WSDL.Parser is
                   Type_Name := Deferred_U_Arrays (U_Array_Index).Name;
                end;
             end if;
+
+            declare
+               use Extensions.Flat_Kinds;
+
+               T : constant Flat_Element_Kinds
+                 := Flat_Element_Kind
+                      (Declarations.Type_Declaration_View
+                         (Declarations.Corresponding_First_Subtype (CND)));
+            begin
+               if Flat_Element_Kind (CND) = A_Subtype_Declaration
+                 and then T /= A_Signed_Integer_Type_Definition
+                 and then T /= A_Floating_Point_Definition
+               then
+                  --  This is a subtype field
+                  Type_Name := To_Unbounded_String
+                    (Image (Text.Element_Image (ODV)));
+               end if;
+            end;
 
             if Type_Name = Null_Unbounded_String then
                --  If type name not set, then compute it now
@@ -732,6 +750,50 @@ package body Ada2WSDL.Parser is
                       (Definitions.Parent_Subtype_Indication (E));
 
                Generator.Register_Derived (Name, Type_Name (E));
+
+            when A_Subtype_Indication =>
+
+               declare
+                  CFS : constant Asis.Declaration
+                    := Declarations.Corresponding_First_Subtype (Elem);
+                  TDV : constant Asis.Definition
+                    := Declarations.Type_Declaration_View (CFS);
+                  C    : Asis.Constraint;
+                  Comp : Asis.Element;
+               begin
+                  if Flat_Element_Kind (TDV)
+                    = An_Unconstrained_Array_Definition
+                  then
+                     --  This is a subtype of an unconstraint array, create
+                     --  the corresponding array definition.
+
+                     C    := Definitions.Subtype_Constraint (E);
+                     Comp := Definitions.Array_Component_Definition (TDV);
+
+                     declare
+                        R : constant Asis.Discrete_Range_List
+                          := Definitions.Discrete_Ranges (C);
+                        Type_Suffix : Unbounded_String;
+                        Array_Len   : Natural;
+                     begin
+                        if R'Length /= 1 then
+                           Raise_Spec_Error
+                             (C,
+                              Message => "Arrays with multiple dimensions"
+                                & " not supported.");
+                        end if;
+
+                        Array_Type_Suffix (R (1), Type_Suffix, Array_Len);
+
+                        if not Generator.Type_Exists (Name) then
+                           Generator.Start_Array
+                             (Name,
+                              Image (Text.Element_Image (Comp)),
+                              Array_Len);
+                        end if;
+                     end;
+                  end if;
+               end;
 
             when An_Enumeration_Type_Definition =>
 
