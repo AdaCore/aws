@@ -70,12 +70,16 @@ package AWS.Response is
    function Build (Content_Type : in String;
                    Message_Body : in Streams.Stream_Element_Array;
                    Status_Code  : in Messages.Status_Code := Messages.S200)
-                  return Data;
+     return Data;
    --  Idem above, but the message body is a stream element array.
+
+   function URL (Location : in String)
+     return Data;
+   --  This send an Ok message (Messages.S200) and jump to the specified URL.
 
    function Moved (Location     : in String;
                    Message      : in String := Default_Moved_Message)
-                  return Data;
+     return Data;
    --  This send back a moved message (Messages.S301) with the specified
    --  message body.
 
