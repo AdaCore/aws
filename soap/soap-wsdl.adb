@@ -48,6 +48,45 @@ package body SOAP.WSDL is
       Result   :    out Parameter_Type;
       Standard :    out Boolean);
 
+   --------------
+   -- From_Ada --
+   --------------
+
+   procedure From_Ada
+     (Ada_Type : in     String;
+      Result   :    out WSDL.Parameter_Type;
+      Standard :    out Boolean)
+   is
+      use SOAP.WSDL;
+
+      L_Type : constant String := Characters.Handling.To_Lower (Ada_Type);
+
+   begin
+      Standard := True;
+
+      if L_Type = "string" or else L_Type = "character" then
+         Result := P_String;
+
+      elsif L_Type = "integer" then
+         Result := P_Integer;
+
+      elsif L_Type = "float" or else L_Type = "long_float" then
+         Result := P_Float;
+
+      elsif L_Type = "long_long_float" then
+         Result := P_Double;
+
+      elsif L_Type = "boolean" then
+         Result := P_Boolean;
+
+      elsif L_Type = "time" then
+         Result := P_Time;
+
+      else
+         Standard := False;
+      end if;
+   end From_Ada;
+
    -----------------
    -- Get_Routine --
    -----------------
@@ -228,6 +267,24 @@ package body SOAP.WSDL is
 
       return Result;
    end To_Type;
+
+   ------------
+   -- To_XSD --
+   ------------
+
+   function To_XSD (P : in WSDL.Parameter_Type) return String is
+      use SOAP.WSDL;
+   begin
+      case P is
+         when P_Integer => return "xsd:integer";
+         when P_Float   => return "xsd:float";
+         when P_Double  => return "xsd:double";
+         when P_Boolean => return "xsd:boolean";
+         when P_Time    => return "xsd:timeInstant";
+         when P_B64     => return "xsd:base64";
+         when P_String  => return "xsd:string";
+      end case;
+   end To_XSD;
 
    ---------------
    -- V_Routine --
