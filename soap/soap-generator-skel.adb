@@ -75,8 +75,9 @@ package body Skel is
       pragma Unreferenced (Fault);
 
       use Ada.Strings.Fixed;
-      use type SOAP.WSDL.Parameters.P_Set;
-      use type SOAP.WSDL.Parameters.Kind;
+      use type WSDL.Parameters.P_Set;
+      use type WSDL.Parameters.Kind;
+      use type WSDL.Parameter_Type;
 
       procedure Output_Parameters (N : in WSDL.Parameters.P_Set);
       --  Output parameters
@@ -351,16 +352,23 @@ package body Skel is
             end if;
 
             if N.Mode = WSDL.Parameters.K_Simple then
-               Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
 
                if Output.Next = null then
                   --  A single simple parameter as return
+
+                  Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
 
                   Text_IO.Put
                     (Skel_Adb, " (Result, """ & To_String (N.Name) & """)");
 
                else
                   --  Multiple value returned, this is a record
+
+                  if N.P_Type = WSDL.P_String then
+                     Text_IO.Put (Skel_Adb, "SOAP.Utils.US");
+                  else
+                     Text_IO.Put (Skel_Adb, SOAP_Constructor (N.P_Type));
+                  end if;
 
                   Text_IO.Put
                     (Skel_Adb, " (Result."
@@ -480,6 +488,7 @@ package body Skel is
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.XML;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Parameters;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Types;");
+      Text_IO.Put_Line (Skel_Adb, "with SOAP.Utils;");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "package body " & L_Name & ".Server is");
       Text_IO.New_Line (Skel_Adb);
