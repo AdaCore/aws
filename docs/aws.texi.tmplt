@@ -666,6 +666,7 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @ifinfo
 @menu
 * AWS.Client::
+* AWS.MIME::
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Config::
@@ -678,6 +679,11 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @section AWS.Client
 
 @include ../src/aws-client.ads.texi
+
+@node AWS.MIME
+@section AWS.MIME
+
+@include ../src/aws-mime.ads.texi
 
 @node AWS.Response
 @section AWS.Response
