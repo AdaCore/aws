@@ -574,10 +574,4 @@ package body AWS.Net.Std is
 
 begin
    Sockets.Initialize;
-
-   --  Dummy call for initialize static pointers inside of libwspiapi.a
-   --  We should remove this call after remove libwspiapi.a usage.
-   --  libwspiapi.a need for support Windows 2000.
-
-   OSD.FreeAddrInfo (Get_Addr_Info ("", 88, OSD.AI_PASSIVE));
 end AWS.Net.Std;
