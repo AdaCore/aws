@@ -74,6 +74,8 @@ build: init $(STD_TESTS) $(OTH_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS)
 init:
 	cp ../demos/cert.pem .
 	rm -f alldifs
+	touch -t `date --date='Feb 3 04:05:00 GMT 2001' +%Y%m%d%H%M` \
+	   ../icons/*.gif
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
 
