@@ -919,6 +919,14 @@ the new value.
 
 @end itemize
 
+@noindent
+It is also possible to save and restore all session data. It means that the
+server can be shutdown and launched some time after and all client data are
+restored as they were at shutdown time. Client will just see nothing. With this
+feature it is possible to shutdown a server to update its look or because a
+bug has been fixed for example. It is then possible to restart it
+keeping the complete Web server context.
+
 @node File upload
 @section File upload
 @cindex File upload
