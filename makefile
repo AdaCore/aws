@@ -152,6 +152,7 @@ distrib: clean build_doc
 	cp docs/aws.info* docs/aws.ps docs/makefile $${AWS}/docs;\
 	cp docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
 	cp win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
+	cp win32/aws.ico win32/aws.rc $${AWS}/win32;\
 	cp ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
 	cp include/*.ad[sb] include/makefile $${AWS}/include;\
 	cp include/readme.txt $${AWS}/include;\
