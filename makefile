@@ -46,7 +46,7 @@ distrib:
 	-rm -f aws.tar*
 	tar cf aws.tar makefile src/makefile demos/makefile src/ChangeLog \
 		src/*.ad[sb] demos/[rw]*.ads demos/[ahmrw]*.adb demos/*.gif \
-		docs/aws.texi docs/aws.html docs/aws.txt docs/aws.info \
+		docs/aws.texi docs/aws.html docs/aws.txt docs/aws.info* \
 		docs/aws.ps docs/makefile win32/*.a win32/*.txt \
 		demos/cert.pem ssl/*.ad* ssl/ChangeLog ssl/makefile \
 		demos/page*.html demos/status.tmplt docs/TODO \
