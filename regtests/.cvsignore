@@ -198,6 +198,8 @@ b~zstrm.adb
 b~zstrm.ads
 b~zstrm2.adb
 b~zstrm2.ads
+cert
+cert
 cert.pem
 cert.res
 check_mem
@@ -240,6 +242,7 @@ fileb.txt
 fileb.txt.gz
 filec.txt
 filec.txt.gz
+generate
 get_post
 get_post.res
 gmem.out
@@ -361,6 +364,8 @@ tclientto.res
 tclientto.tmp
 tcom
 tcom.res
+test_all
+test_all.adb
 test_sec_soap
 test_sec_soap.res
 test_sec_soap.tmp
