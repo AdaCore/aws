@@ -46,6 +46,8 @@ b~sessions.adb
 b~sessions.ads
 b~sessions2.adb
 b~sessions2.ads
+b~sessions3.adb
+b~sessions3.ads
 b~shutdown.adb
 b~shutdown.ads
 b~simple.adb
@@ -188,6 +190,7 @@ server_config.res
 server_info.res
 sessions.res
 sessions2.res
+sessions3.res
 shutdown.res
 shutdown.tmp
 simple.res
