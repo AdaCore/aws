@@ -63,6 +63,15 @@ package SOAP.WSDL is
       return String;
    --  Returns P's Ada type string representation
 
+   procedure From_Ada
+     (Ada_Type : in     String;
+      Result   :    out WSDL.Parameter_Type;
+      Standard :    out Boolean);
+   --  Set Result with the type corresponding to the Ada type name
+
+   function To_XSD (P : in WSDL.Parameter_Type) return String;
+   --  Returns the XSD type corresponding to P
+
    function V_Routine
      (P       : in Parameter_Type;
       Context : in Context_Type := Parameter)
