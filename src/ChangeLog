@@ -1,3 +1,13 @@
+2004-05-24  Pascal Obry  <pascal@obry.org>
+
+	* aws-response-set.adb:
+	Minor reformatting.
+
+	* aws-response.adb:
+	(Stream): Do not send a Content-Disposition header if no filename found
+         for this stream. This is the case if the Stream is a memory stream
+         and if User_Filename is not speficied for example.
+
 2004-05-22  Pascal Obry  <pascal@obry.org>
 
 	* aws-response.adb:
