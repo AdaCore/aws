@@ -31,9 +31,10 @@
 --  $Id$
 --
 --  Waiting on group of sockets for input/output availability.
---
-with AWS.Net.Sets.Thin;
+
+with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
+with AWS.Net.Sets.Thin;
 
 package body AWS.Net.Sets is
 
@@ -48,9 +49,12 @@ package body AWS.Net.Sets is
 
    function To_State (Item : in Thin.Events_Type) return Socket_State;
 
-   procedure Next (Set : in out Socket_Set_Type);
-
    procedure Delete_Current (Set : in out Socket_Set_Type);
+
+   procedure Add_Private
+     (Set    : in out Socket_Set_Type;
+      Socket : in     Socket_Access;
+      Mode   : in     Waiting_Mode);
 
    ---------
    -- Add --
@@ -61,15 +65,24 @@ package body AWS.Net.Sets is
       Socket : in     Socket_Type'Class;
       Mode   : in     Waiting_Mode) is
    begin
-      Add (Set, new Socket_Type'Class'(Socket), Mode);
+      Add_Private (Set, new Socket_Type'Class'(Socket), Mode);
       Set.Set (Set.Last).Allocated := True;
    end Add;
 
-   ---------
-   -- Add --
-   ---------
-
    procedure Add
+     (Set    : in out Socket_Set_Type;
+      Socket : in     Socket_Access;
+      Mode   : in     Waiting_Mode) is
+   begin
+      Add_Private (Set, Socket, Mode);
+      Set.Set (Set.Last).Allocated := False;
+   end Add;
+
+   -----------------
+   -- Add_Private --
+   -----------------
+
+   procedure Add_Private
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Access;
       Mode   : in     Waiting_Mode)
@@ -128,7 +141,7 @@ package body AWS.Net.Sets is
          when Both   =>
             Set.Poll (Set.Last).Events := Thin.Pollin + Thin.Pollout;
       end case;
-   end Add;
+   end Add_Private;
 
    --------------------
    -- Delete_Current --
@@ -144,21 +157,26 @@ package body AWS.Net.Sets is
       Next (Set);
    end Delete_Current;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Set : in out Socket_Set_Type) is
+   begin
+      Free (Set.Set);
+      Free (Set.Poll);
+   end Finalize;
+
    ----------------
    -- Get_Socket --
    ----------------
 
    function Get_Socket (Set : in Socket_Set_Type) return Socket_Type'Class is
    begin
-      return Get_Socket (Set).all;
-   end Get_Socket;
-
-   function Get_Socket (Set : in Socket_Set_Type) return Socket_Access is
-   begin
       if Set.Current > Set.Last then
-         return null;
+         raise Constraint_Error;
       else
-         return Set.Set (Set.Current).Socket;
+         return Set.Set (Set.Current).Socket.all;
       end if;
    end Get_Socket;
 
@@ -229,20 +247,28 @@ package body AWS.Net.Sets is
    function To_State (Item : in Thin.Events_Type) return Socket_State is
       use type Thin.Events_Type;
    begin
+      if (Item and (Thin.Pollerr
+                    or Thin.Pollhup
+                    or Thin.Pollnval
+                    or Thin.Pollin
+                    or Thin.Pollpri
+                    or Thin.Pollout)) = 0
+      then
+         return None;
+      end if;
+
       if (Item and (Thin.Pollerr or Thin.Pollhup or Thin.Pollnval)) /= 0 then
          return Error;
+      end if;
 
-      elsif (Item and (Thin.Pollin or Thin.Pollpri or Thin.Pollout)) /= 0 then
-         return Both;
-
-      elsif (Item and (Thin.Pollin or Thin.Pollpri)) /= 0  then
-         return Input;
-
-      elsif (Item and Thin.Pollout) /= 0 then
-         return Output;
-
+      if (Item and (Thin.Pollin or Thin.Pollpri)) /= 0 then
+         if (Item and Thin.Pollout) /= 0 then
+            return Both;
+         else
+            return Input;
+         end if;
       else
-         return None;
+         return Output;
       end if;
    end To_State;
 
@@ -263,7 +289,7 @@ package body AWS.Net.Sets is
       end if;
 
       Result := Integer (Thin.Poll
-                           (FDS   => Set.Poll'Address,
+                           (FDS   => Set.Poll (1)'Address,
                             Nfds => Thin.Length_Type (Set.Last),
                             Timeout => Poll_Timeout));
 
@@ -271,7 +297,8 @@ package body AWS.Net.Sets is
          --  We could not determine what exactly the error is.
          --  because AWS.Net API does not have Errno routine for now.
 
-         raise Socket_Error;
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity, "Poll error code" & Integer'Image (Errno));
 
       elsif Result > 0 then
          Set.Current := 1;
