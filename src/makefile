@@ -39,9 +39,7 @@ build:
 	(if ! [ -e aws-os_lib.adb ]; then cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb; fi)
 	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-session.adb
 	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-key_value.adb
-# can't use -O here, GNAT bug TN 9023-002
-#	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-server-get_status.adb
-	$(GCC) -c -g -I../include $(INCLUDES) aws-server-get_status.adb
+	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-server-get_status.adb
 	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
 
 ssl_mode:
