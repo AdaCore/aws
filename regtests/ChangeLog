@@ -1,3 +1,11 @@
+2005-03-09  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(WSDL_TESTS): Add test_wsdl6.
+
+	* test_wsdl6.adb, test_wsdl6.out, test_wsdl6.wsdl:
+	Initial revision.
+
 2005-02-15  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* zapp.adb:

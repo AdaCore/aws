@@ -1,3 +1,9 @@
+2005-03-09  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator.adb:
+	(Generate_Enumeration): Generate cleaner output. Wrap enumeration
+         definition if needed.
+
 2005-03-07  Pascal Obry  <pascal@obry.org>
 
 	* soap-wsdl-parser.adb:
