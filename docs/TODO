@@ -96,6 +96,52 @@ implemented:
 - Ada 2005 should support all sort of containers, use them instead of the
   include/Table_Of_* components.
 
+- Add support for all kind of WSDL array definition, current supported form
+  is:
+
+    <complexType name="ArrayOfString"> 
+      <complexContent> 
+          <restriction base="soapenc:Array"> 
+            <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:string[]"/> 
+          </restriction> 
+      </complexContent> 
+    </complexType>
+
+  There is 4 other forms:
+
+    <complexType name='ArrayOfString'> 
+        <sequence> 
+            <element name='name' type='xsd:string' maxOccurs='unbounded'/> 
+        </sequence> 
+    </complexType>  
+
+
+    <complexType name='ArrayOfString'> 
+        <complexContent> 
+            <restriction base='SOAP-ENC:Array'> 
+              <sequence> 
+                <element name='name' type='xsd:String' maxOccurs='unbounded'/> 
+              </sequence> 
+            </restriction> 
+        </complexContent> 
+    </complexType>  
+
+
+    <element name='ArrayOfString'> 
+        <complexType> 
+            <element name='name' type='xsd:String' maxOccurs='unbounded'/> 
+        </complexType> 
+    </element>  
+
+
+    <element name='ArrayOfString'> 
+        <complexType> 
+            <sequence> 
+                <element name='name' type='xsd:String' maxOccurs='unbounded'/> 
+            </sequence> 
+        </complexType> 
+    </element>  
+
 =============== Point to fix/implement/review before next release (1.5)
 
 - Add SMTP authentication support
@@ -144,25 +190,24 @@ implemented:
 
 - Document ada2wsdl and new wsdl2aws -types option.
 
-- Properly support WSDL One-way Operations
-  (see Web Services Description Language (WSDL) 1.1 section 2.4.1)
-  PortType without <output> tag.
-
 - Add a simple Web Mail service (AWS.Services.Web_Mail) using the AWS.POP and
   AWS.SMTP API.
 
-- Finalize POP support, review API, is there a better name for the APOP
-  authentication protocol. Document AWS.POP.
-
-- See if it is possible to add support for characters in ada2wsdl/wsdl2aws to
-  have both compatible. It seems that this should be done by creating a new
-  schema entry like:
-
-     <simpleType name='character'>
-        <restriction base='string'>
-          <maxLength value='1'/> <minLength value='1'/>
-        </restriction>
-     </simpleType>
+- Document AWS.POP.
 
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
+
+- Add better support for enumeration types, the way to go is to generate a
+  WSDL enum as:
+
+     <simpleType name="Color">
+        <restriction base="xsd:string">
+           <enumeration value="Red"/>
+           <enumeration value="Green"/>
+           <enumeration value="Blue"/>
+        </restriction>
+     </simpleType>
+
+- wsdl2aws should be able to generate the SOAP callback routine. This should
+  be an option. See for example regtests wsdl_4_server.ad[sb].
