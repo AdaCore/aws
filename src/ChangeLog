@@ -1,5 +1,12 @@
 2001-07-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-session.adb:
+	Lot of changes to avoid memory leak and copy of the whole session
+	 table during iteration.
+	Fix layout.
+	
+2001-07-23  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-session.adb: 
 	(Destroy): Destroy the root tree.
 	(Generate_ID): new function.
