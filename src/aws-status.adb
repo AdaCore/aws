@@ -35,6 +35,7 @@ with Ada.Strings;
 with AWS.Digest;
 with AWS.Headers.Values;
 with AWS.Messages;
+with AWS.Translator;
 
 package body AWS.Status is
 
@@ -304,7 +305,11 @@ package body AWS.Status is
 
    function Payload (D : in Data) return String is
    begin
-      return To_String (D.Payload);
+      if D.SOAP_Action then
+         return Translator.To_String (D.Binary_Data.all);
+      else
+         return "";
+      end if;
    end Payload;
 
    --------------
