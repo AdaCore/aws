@@ -100,9 +100,9 @@ procedure Sessions3 is
          Max_Connection => 5,
          Session        => False);
 
-      accept Started;
-
       Ada.Text_IO.Put_Line ("started");
+
+      accept Started;
 
       accept Stop;
 
