@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               August 15th, 2004
+   Pascal Obry                                               August 24th, 2004
 
 
 
@@ -86,6 +86,10 @@ Here are the main changes since AWS 2.0 :
 
    - Better support for namespaces in SOAP requests.
 
+   - Add possibility to select the endpoint URL when using generated client
+     stubs (only the defaut URL defined in the WSDL document was handled
+     before).
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -106,6 +110,10 @@ implementations.
      values now. Just change all http client timeout constants to
      Duration type. If you do not want to make it more exact, just add ".0" to
      the constant at the end.
+
+   - By default an AWS server does not accept upload files. It is required to
+     activate this feature by properly setting the Upload_Directory either
+     with the Start routine procedure or a config object.
 
 Obsolescent features:
 ---------------------
