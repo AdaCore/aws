@@ -8,6 +8,9 @@ aws-config.ads.texi
 aws-default.ads.texi
 aws-dispatchers-callback.ads.texi
 aws-dispatchers.ads.texi
+aws-headers-values.ads.texi
+aws-headers.ads.texi
+aws-jabber.ads.texi
 aws-ldap-client.ads.texi
 aws-log.ads.texi
 aws-mime.ads.texi
