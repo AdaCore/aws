@@ -35,7 +35,6 @@ with Ada.Text_IO;
 with AWS.Config;
 with AWS.Server;
 with AWS.Services.Dispatchers.URI;
-with AWS.Services.Dispatchers.Callback;
 with AWS.Status;
 with AWS.Response;
 
@@ -59,7 +58,7 @@ begin
    Text_IO.Put_Line ("Enter 'q' key to exit...");
 
    Dispatchers.URI.Register
-     (H, "/disp", Dispatchers.Callback.Create (HW_CB'Unrestricted_Access));
+     (H, "/disp", HW_CB'Unrestricted_Access);
 
    AWS.Server.Start (WS, Dispatcher => H, Config => AWS.Config.Get_Current);
 

@@ -44,7 +44,6 @@ with AWS.Server;
 with AWS.Status;
 with AWS.Default;
 with AWS.Parameters;
-with AWS.Services.Dispatchers.Callback;
 with AWS.Services.Dispatchers.Virtual_Host;
 
 procedure VH_Demo is
@@ -91,11 +90,10 @@ begin
       & ", I will stop in 60 seconds...");
 
    AWS.Services.Dispatchers.Virtual_Host.Register
-     (VH, "localhost",
-      AWS.Services.Dispatchers.Callback.Create (H1_CB'Unrestricted_Access));
+     (VH, "localhost", H1_CB'Unrestricted_Access);
+
    AWS.Services.Dispatchers.Virtual_Host.Register
-     (VH, "pascal",
-      AWS.Services.Dispatchers.Callback.Create (H2_CB'Unrestricted_Access));
+     (VH, "pascal", H2_CB'Unrestricted_Access);
 
 --     AWS.Services.Dispatchers.Virtual_Host.Register
 --       (VH, "pascal", "localhost:8080");
