@@ -1,3 +1,36 @@
+2001-05-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-get_status.adb:
+	(Slot_Table): updated to use new Is_Abortable function. Remove
+	 specific handling for missing peername. This is now handled by
+	 the template page.
+
+	* aws-server-protocol_handler.adb:
+	(Send_File): correctly send Cookie: and Date: header when file is
+	 up-to-date.
+
+	* aws-server.adb:
+	(Check_Timeouts): is now a function (was a procedure).
+	(Abort_Oldest): removed.
+	(Abort_On_Timeout): new procedure.
+	(Is_Abortable): new function.
+	(Set_Abortable): removed.
+	(Abortable_Count): removed.
+	(Get): change implementation, use now the timeouts.
+	(Line_Cleaner): use the standard timeouts to check for abortion.
+	 This is a better implementation using less active checks.
+
+	* aws-server.ads:
+	(Slot): remove Abortable field.
+	(Timeout_Mode): new type.
+	(Timeouts): new array.
+	(Check_Timeouts): is now a function (was a procedure).
+	(Abort_Oldest): removed.
+	(Abort_On_Timeout): new procedure.
+	(Is_Abortable): new function.
+	(Set_Abortable): removed.
+	(Abortable_Count): removed.
+
 2001-05-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
