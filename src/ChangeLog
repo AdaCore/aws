@@ -1,6 +1,12 @@
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
+	(Get_Message_Header): Uses AWS.Status.Is_Supported service,
+	 cleaner implementation.
+	
+2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
 	(Support_Compressed): New variable.
 	(Get_Message_Header): Checks the Accept-Encoding header, set
 	 Support_Compressed accordingly.
