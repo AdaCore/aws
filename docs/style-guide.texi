@@ -29,7 +29,7 @@
 @subtitle A guide for AWS developers
 @subtitle Document revision level $Revision$
 @subtitle Date: @today{}
-@author Modified by Pascal Obry.
+@author Pascal Obry.
 @end titlepage
 @raisesections
 
