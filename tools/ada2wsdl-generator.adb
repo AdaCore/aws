@@ -56,7 +56,7 @@ package body Ada2WSDL.Generator is
       Next      : Parameter_Access;
    end record;
 
-   type Mode is (Routine, Structure, Table);
+   type Mode is (Routine, Structure, Table, Derived);
 
    type Definition (Def_Mode : Mode := Routine) is record
       Name        : Unbounded_String;
@@ -66,7 +66,7 @@ package body Ada2WSDL.Generator is
       case Def_Mode is
          when Routine =>
             Return_Type : Parameter_Access;
-         when Structure | Table =>
+         when Structure | Table | Derived =>
             null;
       end case;
    end record;
@@ -78,8 +78,11 @@ package body Ada2WSDL.Generator is
    API   : Profiles (1 .. Max_Definition);
    Index : Natural := 0;
 
-   Schema_Needed : Boolean := False;
+   Schema_Needed    : Boolean := False;
    --  Set to True if a WSDL schema is to be writed
+
+   Character_Schema : Boolean := False;
+   --  Set to Trus if a WSDL Character schema must be generated
 
    function "+" (S : in String) return Unbounded_String
       renames To_Unbounded_String;
@@ -157,22 +160,35 @@ package body Ada2WSDL.Generator is
       API (Index).Last := New_P;
    end New_Formal;
 
-   -------------------
-   -- Record_Exists --
-   -------------------
+   ----------------------
+   -- Register_Derived --
+   ----------------------
 
-   function Record_Exists (Name : in String) return Boolean is
+   procedure Register_Derived (Name, Parent_Name : in String) is
+      New_P : constant Parameter_Access
+        := new Parameter'(+Name, +Parent_Name, +To_XSD (Parent_Name), null);
+
+      D : Definition (Derived);
    begin
-      for I in 1 .. Index loop
-         if API (I).Def_Mode = Structure then
-            if -API (I).Name = Name then
-               return True;
-            end if;
-         end if;
-      end loop;
+      --  We need to write a schema for this derived type
+      Schema_Needed := True;
 
-      return False;
-   end Record_Exists;
+      D.Name       := +Name;
+      D.Parameters := New_P;
+
+      Index := Index + 1;
+      API (Index) := D;
+
+      if not Options.Quiet then
+         Text_IO.Put ("   - derived     " & Name & " is new " & Parent_Name);
+
+         if Options.Verbose then
+            Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
+         else
+            Text_IO.New_Line;
+         end if;
+      end if;
+   end Register_Derived;
 
    -----------------
    -- Return_Type --
@@ -263,6 +279,10 @@ package body Ada2WSDL.Generator is
       P        : WSDL.Parameter_Type;
       Standard : Boolean;
    begin
+      if Ada_Type = "character" then
+         Character_Schema := True;
+      end if;
+
       WSDL.From_Ada (Ada_Type, P, Standard);
 
       if Standard then
@@ -274,6 +294,25 @@ package body Ada2WSDL.Generator is
          return Ada_Type;
       end if;
    end To_XSD;
+
+   -----------------
+   -- Type_Exists --
+   -----------------
+
+   function Type_Exists (Name : in String) return Boolean is
+   begin
+      for I in 1 .. Index loop
+         if API (I).Def_Mode = Structure
+           or else API (I).Def_Mode = Derived
+         then
+            if -API (I).Name = Name then
+               return True;
+            end if;
+         end if;
+      end loop;
+
+      return False;
+   end Type_Exists;
 
    -----------
    -- Write --
@@ -502,11 +541,17 @@ package body Ada2WSDL.Generator is
 
       procedure Write_Schema is
 
+         procedure Write_Array (E : in Definition);
+         --  Write array element tags
+
          procedure Write_Record (E : in Definition);
          --  Write record element tags
 
-         procedure Write_Array (E : in Definition);
-         --  Write array element tags
+         procedure Write_Derived (E : in Definition);
+         --  Write a derived type (simpleType)
+
+         procedure Write_Character;
+         --  Write the Character schema
 
          -----------------
          -- Write_Array --
@@ -526,6 +571,35 @@ package body Ada2WSDL.Generator is
             Put_Line ("            </complexContent>");
             Put_Line ("         </complexType>");
          end Write_Array;
+
+         ---------------------
+         -- Write_Character --
+         ---------------------
+
+         procedure Write_Character is
+         begin
+            New_Line;
+            Put_Line ("         <simpleType name=""Character"">");
+            Put_Line ("            <restriction base=""xsd:string"">");
+            Put_Line ("               <minLength value=""1""/>");
+            Put_Line ("               <maxLength value=""1""/>");
+            Put_Line ("            </restriction>");
+            Put_Line ("         </simpleType>");
+         end Write_Character;
+
+         -------------------
+         -- Write_Derived --
+         -------------------
+
+         procedure Write_Derived (E : in Definition) is
+            P : constant Parameter_Access := E.Parameters;
+         begin
+            New_Line;
+            Put_Line ("         <simpleType name=""" & (-E.Name) & """>");
+            Put_Line ("            <restriction base="""
+                        & (-P.XSD_Name) & """/>");
+            Put_Line ("         </simpleType>");
+         end Write_Derived;
 
          ------------------
          -- Write_Record --
@@ -549,11 +623,15 @@ package body Ada2WSDL.Generator is
          end Write_Record;
 
       begin
-         if Schema_Needed then
+         if Schema_Needed or else Character_Schema then
             New_Line;
             Put_Line ("   <types>");
             Put_Line
               ("      <schema xmlns=""http://www.w3.org/2000/10/XMLSchema"">");
+
+            if Character_Schema then
+               Write_Character;
+            end if;
 
             --  Output all structures
 
@@ -563,6 +641,10 @@ package body Ada2WSDL.Generator is
 
                elsif API (I).Def_Mode = Table then
                   Write_Array (API (I));
+
+               elsif API (I).Def_Mode = Derived then
+                  Write_Derived (API (I));
+
                end if;
             end loop;
 
