@@ -53,10 +53,10 @@ package AI302.Containers.Indefinite_Vectors is
    type Cursor is private;
 
    function Empty_Vector return Vector;
-   --NOTE:
-   --The subcommittee report has this as a constant,
-   --but you can't do that without an Ada 0X compiler.
-   --For now I'll declare this as a function.
+   --  NOTE:
+   --  The subcommittee report has this as a constant,
+   --  but you can't do that without an Ada 0X compiler.
+   --  For now I'll declare this as a function.
 
    No_Element : constant Cursor;
 
@@ -234,8 +234,8 @@ package AI302.Containers.Indefinite_Vectors is
                           Position  : Cursor := No_Element)
       return Cursor;
 
-   function Is_In (Container : Vector;
-                   Item      : Element_Type)
+   function Is_In (Item      : Element_Type;
+                   Container : Vector)
       return Boolean;
 
    function Next (Position : Cursor) return Cursor;
@@ -268,9 +268,12 @@ private
 
    use Ada.Finalization;
 
+   subtype Last_Subtype is Index_Type'Base range
+     Index_Type'Pred (Index_Type'First) .. Index_Type'Last;
+
    type Vector is new Controlled with record
       Elements : Elements_Access;
-      Last     : Index_Type'Base := Index_Type'Pred (Index_Type'First);
+      Last     : Last_Subtype := Last_Subtype'First;
    end record;
 
    procedure Adjust (Container : in out Vector);

@@ -348,8 +348,8 @@ package body AI302.Containers.Indefinite_Hashed_Maps is
    end Find;
 
 
-   function Is_In (Container : Map;
-                   Key       : Key_Type) return Boolean is
+   function Is_In (Key       : Key_Type;
+                   Container : Map) return Boolean is
    begin
       return Find (Container, Key) /= No_Element;
    end;

@@ -479,8 +479,8 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
    end;
 
 
-   function Is_In (Container : Set;
-                   Item      : Element_Type) return Boolean is
+   function Is_In (Item      : Element_Type;
+                   Container : Set) return Boolean is
    begin
       return Find (Container, Item) /= null;
    end;
@@ -1314,8 +1314,8 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
 
    function Is_Subset
-     (Container : Set;
-      Item      : Set) return Boolean is
+     (Item      : Set;
+      Container : Set) return Boolean is
 
       function Is_Subset is
          new Charles.Algorithms.Generic_Includes
@@ -1339,8 +1339,8 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
 
    function Is_Disjoint
-     (Container : Set;
-      Item      : Set) return Boolean is
+     (Item      : Set;
+      Container : Set) return Boolean is
 
       L_Node : Node_Access := First (Item.Tree);
       R_Node : Node_Access := First (Container.Tree);
