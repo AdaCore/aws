@@ -80,6 +80,7 @@ soap_cvs
 soap_server
 soap_server_disp
 soap_svs
+split
 test_jabber
 test_ldap
 text_input

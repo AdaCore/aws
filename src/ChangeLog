@@ -1,3 +1,50 @@
+2003-11-10  Pascal Obry  <pascal.obry@edf.fr>
+
+	* makefile:
+	(SOURCES): Add aws-services-transient_pages-control.adb.
+
+	* aws-resources-streams-memory-zlib.adb:
+	(Close): Do not fail when calling ZL.Close. This is needed if the
+	 data has not been set, for example in a transient compressed page.
+
+	* aws-resources.adb, aws-resources-streams.adb, 
+	  aws-resources-files.adb:
+	(Release): Use AWS.Resources.Release child procedure.
+
+	* aws-resources.ads:
+	(Free): Moved to child procedure. Needed to be visible outside
+	 hierarchy.
+
+	* aws-server.adb:
+	(Start): Start transient task.
+	(Shutdown): Shutdown transient task.
+
+	* aws-services-dispatchers-transient_pages.adb:
+	(Dispatch): Pass the URI as-is, do not remove leading /.
+
+	* aws-resources-release.ads, aws-resources-release.adb:
+	Initial revision.
+
+	* aws-services-transient_pages-control.ads, 
+	  aws-services-transient_pages-control.adb:
+	Initial revision.
+
+	* aws-services-transient_pages.adb:
+	First real implementation. There is now a task that will release
+	 obsolete pages.
+	(Cleaner): New task.
+	(Cleaner_Control): New protected object.
+	(Database): New protected object to keep record of all transient
+	 pages.
+	
+	* aws-services-transient_pages.ads:
+	(Default_Life_Time): Renamed Default_Lifetime for consistency.
+	(Cleaner): New task.
+	(Cleaner_Control): New protected object.
+	
+	* aws-session-control.ads:
+	Fix typo.
+
 2003-11-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-communication.ads:
