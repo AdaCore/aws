@@ -19,7 +19,8 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-templates.ads aws-dispatchers.adb aws-dispatchers-callback.adb \
 	aws-services-dispatchers.ads aws-services-dispatchers-uri.adb \
 	aws-services-dispatchers-method.adb \
-	aws-services-dispatchers-virtual_host.adb
+	aws-services-dispatchers-virtual_host.adb \
+	aws-server-push.adb
 
 build:
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)

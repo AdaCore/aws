@@ -59,21 +59,6 @@ package body AWS.Server.Push is
      & New_Line;
    --  This is the multi-part boundary string used by AWS push server.
 
-   ---------------
-   -- To_Holder --
-   ---------------
-
-   function To_Holder
-     (Socket      : in Socket_Type;
-      Environment : in Client_Environment;
-      Kind        : in Mode)
-     return Client_Holder is
-   begin
-      return (Kind        => Kind,
-              Environment => Environment,
-              Stream      => To_Stream (Socket));
-   end To_Holder;
-
    -----------
    -- Count --
    -----------
@@ -92,182 +77,9 @@ package body AWS.Server.Push is
       return Server.Is_Open;
    end Is_Open;
 
-   -------------
-   -- Restart --
-   -------------
-
-   procedure Restart (Server : in out Object) is
-   begin
-      Server.Restart;
-   end Restart;
-
-   ----------
-   -- Send --
-   ----------
-
-   procedure Send
-     (Server       : in out Object;
-      Data         : in     Client_Output_Type;
-      Content_Type : in     String             := "")
-   is
-      Gone : Table.Table_Type;
-   begin
-      Server.Send (Data, Content_Type, Gone);
-      Table.Destroy (Gone);
-   end Send;
-
    ------------
-   -- Send_G --
-   ------------
-
-   procedure Send_G
-     (Server       : in out Object;
-      Data         : in     Client_Output_Type;
-      Content_Type : in     String             := "")
-   is
-      procedure Action
-        (Key          : in     Client_Key;
-         Value        : in     Client_Holder;
-         Order_Number : in     Positive;
-         Continue     : in out Boolean);
-
-      Gone : Table.Table_Type;
-
-      ------------
-      -- Action --
-      ------------
-
-      procedure Action
-        (Key          : in     Client_Key;
-         Value        : in     Client_Holder;
-         Order_Number : in     Positive;
-         Continue     : in out Boolean) is
-      begin
-         Client_Gone (Key);
-      end Action;
-
-      procedure For_Each is new Table.Disorder_Traverse_G (Action);
-
-   begin
-      Server.Send (Data, Content_Type, Gone);
-      For_Each (Gone);
-      Table.Destroy (Gone);
-   end Send_G;
-
-   --------------
-   -- Shutdown --
-   --------------
-
-   procedure Shutdown
-     (Server        : in out Object;
-      Close_Sockets : in     Boolean := True) is
-   begin
-      Server.Shutdown (Close_Sockets => Close_Sockets);
-   end Shutdown;
-
-   procedure Shutdown
-     (Server             : in out Object;
-      Final_Data         : in     Client_Output_Type;
-      Final_Content_Type : in     String             := "") is
-   begin
-      Server.Shutdown (Final_Data, Final_Content_Type);
-   end Shutdown;
-
-   -----------------------
-   -- Shutdown_If_Empty --
-   -----------------------
-
-   procedure Shutdown_If_Empty (Server : in out Object; Open : out Boolean) is
-   begin
-      Server.Shutdown_If_Empty (Open);
-   end Shutdown_If_Empty;
-
-   -------------
-   -- Send_To --
-   -------------
-
-   procedure Send_To
-     (Server       : in out Object;
-      Client_ID    : in     Client_Key;
-      Data         : in     Client_Output_Type;
-      Content_Type : in     String             := "") is
-   begin
-      Server.Send_To (Client_ID, Data, Content_Type);
-   end Send_To;
-
-   ----------------
-   -- Unregister --
-   ----------------
-
-   procedure Unregister
-     (Server       : in out Object;
-      Client_ID    : in     Client_Key;
-      Close_Socket : in     Boolean    := True) is
-   begin
-      Server.Unregister (Client_ID, Close_Socket);
-   end Unregister;
-
-   ------------------------
-   -- Unregister_Clients --
-   ------------------------
-
-   procedure Unregister_Clients
-     (Server        : in out Object;
-      Close_Sockets : in     Boolean := True) is
-   begin
-      Server.Unregister_Clients (Close_Sockets => Close_Sockets);
-   end Unregister_Clients;
-
-   --------------
-   -- Register --
-   --------------
-
-   procedure Register
-     (Server            : in out Object;
-      Client_ID         : in     Client_Key;
-      Socket            : in     Socket_Type;
-      Environment       : in     Client_Environment;
-      Init_Data         : in     Client_Output_Type;
-      Init_Content_Type : in     String := "";
-      Kind              : in     Mode := Plain;
-      Close_Duplicate   : in     Boolean := False)
-   is
-      Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
-   begin
-      Server.Register
-        (Client_ID,
-         Holder,
-         Init_Data,
-         Init_Content_Type,
-         Close_Duplicate);
-   exception
-   when Closed | Duplicate_Client_ID =>
-      Stream_IO.Free (Holder.Stream);
-      raise;
-   end Register;
-
-   procedure Register
-     (Server          : in out Object;
-      Client_ID       : in     Client_Key;
-      Socket          : in     Socket_Type;
-      Environment     : in     Client_Environment;
-      Kind            : in     Mode               := Plain;
-      Close_Duplicate : in     Boolean := False)
-   is
-      Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
-   begin
-      Server.Register
-        (Client_ID,
-         Holder, Close_Duplicate);
-   exception
-   when Closed | Duplicate_Client_ID =>
-      Stream_IO.Free (Holder.Stream);
-      raise;
-   end Register;
-
-   -----------------
    -- Object --
-   -----------------
+   ------------
 
    protected body Object is
 
@@ -382,41 +194,6 @@ package body AWS.Server.Push is
       begin
          Open := True;
       end Restart;
-
-      --------------
-      -- Shutdown --
-      --------------
-
-      procedure Shutdown (Close_Sockets : in Boolean) is
-      begin
-         Open := False;
-         Unregister_Clients (Close_Sockets => Close_Sockets);
-      end Shutdown;
-
-
-      procedure Shutdown
-        (Final_Data         : in Client_Output_Type;
-         Final_Content_Type : in String)
-      is
-         Gone : Table.Table_Type;
-      begin
-         Send (Final_Data, Final_Content_Type, Gone);
-         Table.Destroy (Gone);
-         Shutdown (Close_Sockets => True);
-      end Shutdown;
-
-      -----------------------
-      -- Shutdown_If_Empty --
-      -----------------------
-
-      procedure Shutdown_If_Empty (Open : out Boolean)
-      is
-      begin
-         if Table.Size (Container) = 0 then
-            Object.Open := False;
-         end if;
-         Shutdown_If_Empty.Open := Object.Open;
-      end Shutdown_If_Empty;
 
       ----------
       -- Send --
@@ -538,6 +315,40 @@ package body AWS.Server.Push is
             raise Client_Gone;
       end Send_To;
 
+      --------------
+      -- Shutdown --
+      --------------
+
+      procedure Shutdown (Close_Sockets : in Boolean) is
+      begin
+         Open := False;
+         Unregister_Clients (Close_Sockets => Close_Sockets);
+      end Shutdown;
+
+
+      procedure Shutdown
+        (Final_Data         : in Client_Output_Type;
+         Final_Content_Type : in String)
+      is
+         Gone : Table.Table_Type;
+      begin
+         Send (Final_Data, Final_Content_Type, Gone);
+         Table.Destroy (Gone);
+         Shutdown (Close_Sockets => True);
+      end Shutdown;
+
+      -----------------------
+      -- Shutdown_If_Empty --
+      -----------------------
+
+      procedure Shutdown_If_Empty (Open : out Boolean) is
+      begin
+         if Table.Size (Container) = 0 then
+            Object.Open := False;
+         end if;
+         Shutdown_If_Empty.Open := Object.Open;
+      end Shutdown_If_Empty;
+
       ----------------
       -- Unregister --
       ----------------
@@ -570,6 +381,194 @@ package body AWS.Server.Push is
       end Unregister_Clients;
 
    end Object;
+
+   --------------
+   -- Register --
+   --------------
+
+   procedure Register
+     (Server            : in out Object;
+      Client_ID         : in     Client_Key;
+      Socket            : in     Socket_Type;
+      Environment       : in     Client_Environment;
+      Init_Data         : in     Client_Output_Type;
+      Init_Content_Type : in     String := "";
+      Kind              : in     Mode := Plain;
+      Close_Duplicate   : in     Boolean := False)
+   is
+      Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
+   begin
+      Server.Register
+        (Client_ID,
+         Holder,
+         Init_Data,
+         Init_Content_Type,
+         Close_Duplicate);
+   exception
+   when Closed | Duplicate_Client_ID =>
+      Stream_IO.Free (Holder.Stream);
+      raise;
+   end Register;
+
+   procedure Register
+     (Server          : in out Object;
+      Client_ID       : in     Client_Key;
+      Socket          : in     Socket_Type;
+      Environment     : in     Client_Environment;
+      Kind            : in     Mode               := Plain;
+      Close_Duplicate : in     Boolean := False)
+   is
+      Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
+   begin
+      Server.Register
+        (Client_ID,
+         Holder, Close_Duplicate);
+   exception
+   when Closed | Duplicate_Client_ID =>
+      Stream_IO.Free (Holder.Stream);
+      raise;
+   end Register;
+
+   -------------
+   -- Restart --
+   -------------
+
+   procedure Restart (Server : in out Object) is
+   begin
+      Server.Restart;
+   end Restart;
+
+   ----------
+   -- Send --
+   ----------
+
+   procedure Send
+     (Server       : in out Object;
+      Data         : in     Client_Output_Type;
+      Content_Type : in     String             := "")
+   is
+      Gone : Table.Table_Type;
+   begin
+      Server.Send (Data, Content_Type, Gone);
+      Table.Destroy (Gone);
+   end Send;
+
+   ------------
+   -- Send_G --
+   ------------
+
+   procedure Send_G
+     (Server       : in out Object;
+      Data         : in     Client_Output_Type;
+      Content_Type : in     String             := "")
+   is
+      procedure Action
+        (Key          : in     Client_Key;
+         Value        : in     Client_Holder;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean);
+
+      Gone : Table.Table_Type;
+
+      ------------
+      -- Action --
+      ------------
+
+      procedure Action
+        (Key          : in     Client_Key;
+         Value        : in     Client_Holder;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean) is
+      begin
+         Client_Gone (Key);
+      end Action;
+
+      procedure For_Each is new Table.Disorder_Traverse_G (Action);
+
+   begin
+      Server.Send (Data, Content_Type, Gone);
+      For_Each (Gone);
+      Table.Destroy (Gone);
+   end Send_G;
+
+   -------------
+   -- Send_To --
+   -------------
+
+   procedure Send_To
+     (Server       : in out Object;
+      Client_ID    : in     Client_Key;
+      Data         : in     Client_Output_Type;
+      Content_Type : in     String             := "") is
+   begin
+      Server.Send_To (Client_ID, Data, Content_Type);
+   end Send_To;
+
+   --------------
+   -- Shutdown --
+   --------------
+
+   procedure Shutdown
+     (Server        : in out Object;
+      Close_Sockets : in     Boolean := True) is
+   begin
+      Server.Shutdown (Close_Sockets => Close_Sockets);
+   end Shutdown;
+
+   procedure Shutdown
+     (Server             : in out Object;
+      Final_Data         : in     Client_Output_Type;
+      Final_Content_Type : in     String             := "") is
+   begin
+      Server.Shutdown (Final_Data, Final_Content_Type);
+   end Shutdown;
+
+   -----------------------
+   -- Shutdown_If_Empty --
+   -----------------------
+
+   procedure Shutdown_If_Empty (Server : in out Object; Open : out Boolean) is
+   begin
+      Server.Shutdown_If_Empty (Open);
+   end Shutdown_If_Empty;
+
+   ---------------
+   -- To_Holder --
+   ---------------
+
+   function To_Holder
+     (Socket      : in Socket_Type;
+      Environment : in Client_Environment;
+      Kind        : in Mode)
+     return Client_Holder is
+   begin
+      return (Kind        => Kind,
+              Environment => Environment,
+              Stream      => To_Stream (Socket));
+   end To_Holder;
+
+   ----------------
+   -- Unregister --
+   ----------------
+
+   procedure Unregister
+     (Server       : in out Object;
+      Client_ID    : in     Client_Key;
+      Close_Socket : in     Boolean    := True) is
+   begin
+      Server.Unregister (Client_ID, Close_Socket);
+   end Unregister;
+
+   ------------------------
+   -- Unregister_Clients --
+   ------------------------
+
+   procedure Unregister_Clients
+     (Server        : in out Object;
+      Close_Sockets : in     Boolean := True) is
+   begin
+      Server.Unregister_Clients (Close_Sockets => Close_Sockets);
+   end Unregister_Clients;
 
 end AWS.Server.Push;
 
