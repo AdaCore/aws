@@ -59,7 +59,8 @@ package body AWS.Headers.Values is
 
    function Get_Unnamed_Value
      (Header_Value : in String;
-      N            : in Positive := 1) return String
+      N            : in Positive := 1)
+      return String
    is
       First       : Natural;
       Name_First  : Positive;
@@ -71,13 +72,14 @@ package body AWS.Headers.Values is
 
    begin
       First := Fixed.Index
-            (Source => Header_Value,
-             Set    => Spaces,
-             Test   => Outside);
-      loop
+        (Source => Header_Value,
+         Set    => Spaces,
+         Test   => Outside);
 
-         Next_Value (Header_Value, First,
-            Name_First,  Name_Last,
+      loop
+         Next_Value
+           (Header_Value, First,
+            Name_First, Name_Last,
             Value_First, Value_Last);
 
          if Name_Last = 0 then
@@ -86,15 +88,13 @@ package body AWS.Headers.Values is
             if Count = N then
                return Header_Value (Value_First .. Value_Last);
             end if;
-
          end if;
 
          exit when First = 0;
-
       end loop;
 
+      --  There is not such value, return the empty string
       return "";
-
    end Get_Unnamed_Value;
 
    ------------
@@ -294,7 +294,8 @@ package body AWS.Headers.Values is
    function Search
      (Header_Value   : in String;
       Name           : in String;
-      Case_Sensitive : in Boolean := True) return String
+      Case_Sensitive : in Boolean := True)
+      return String
    is
       First       : Natural;
       Name_First  : Positive;
@@ -302,42 +303,44 @@ package body AWS.Headers.Values is
       Value_First : Positive;
       Value_Last  : Natural;
 
-      Map    : Maps.Character_Mapping;
+      Map         : Maps.Character_Mapping;
 
-      Sample : String (Name'Range);
+      M_Name      : String (Name'Range);
+      --  Mapped name
 
    begin
       First := Fixed.Index
-            (Source => Header_Value,
-             Set    => Spaces,
-             Test   => Outside);
+        (Source => Header_Value,
+         Set    => Spaces,
+         Test   => Outside);
 
       if Case_Sensitive then
          Map := Maps.Identity;
+         M_Name := Name;
       else
          Map := Maps.Constants.Upper_Case_Map;
+         M_Name := Fixed.Translate (Name, Map);
       end if;
 
-      Sample := Fixed.Translate (Name, Map);
-
       loop
-
-         Next_Value (Header_Value, First,
-            Name_First,  Name_Last,
+         Next_Value
+           (Header_Value, First,
+            Name_First, Name_Last,
             Value_First, Value_Last);
 
-         if Name_Last > 0 and then Sample = Fixed.Translate
-                (Header_Value (Name_First .. Name_Last), Map)
+         if Name_Last > 0
+              and then
+           M_Name =
+             Fixed.Translate (Header_Value (Name_First .. Name_Last), Map)
          then
             return Header_Value (Value_First .. Value_Last);
          end if;
 
          exit when First = 0;
-
       end loop;
 
+      --  Name not found, returns the empty string
       return "";
-
    end Search;
 
    -----------
