@@ -1,3 +1,9 @@
+2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-containers-tables-set.ads:
+	Minor reformatting.
+	Update copyright notice.
+
 2004-01-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-digest.ads:
