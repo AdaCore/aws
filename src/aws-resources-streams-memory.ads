@@ -72,7 +72,7 @@ package AWS.Resources.Streams.Memory is
    --  Reset the streaming data to the first position
 
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
-   --  Retruns the number of bytes in the memory stream
+   --  Returns the number of bytes in the memory stream
 
    procedure Close (Resource : in out Stream_Type);
    --  Close the memory stream
