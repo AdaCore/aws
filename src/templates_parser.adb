@@ -2942,6 +2942,9 @@ package body Templates_Parser is
 
          begin
             for K in Translations'Range loop
+               --  ??? This loop should be removed when the translation table
+               --  will be in a map.
+
                if Var.Name = Translations (K).Variable then
 
                   declare
@@ -3441,9 +3444,84 @@ package body Templates_Parser is
                --  Returns the length of the largest vector tag found on the
                --  subtree.
 
+               function Check (T : in Expr.Tree) return Natural;
+               --  Idem for an expression subtree as found in a condition
+
+               function Check (T : in Tag) return Natural;
+               --  Returns the length of Tag T for the current context
+
                -----------
                -- Check --
                -----------
+
+               function Check (T : in Tag) return Natural is
+               begin
+                  for K in Translations'Range loop
+                     --  ??? Remove this loop when the translation table
+                     --  will be handled by a map.
+                     declare
+                        Tk : constant Association := Translations (K);
+                     begin
+                        if T.Name = Tk.Variable then
+                           if N = 1 then
+                              --  First block level analysed.
+
+                              if Tk.Kind = Vect then
+                                 --  This is a Vector tag into a top
+                                 --  level table statement. The number
+                                 --  of iterations for this table
+                                 --  statement correspond to the number
+                                 --  of item into the vector.
+                                 return Size (Tk.Vect_Value);
+
+                              elsif Tk.Kind = Matrix then
+
+                                 if State.Table_Level = 0 then
+                                    --  This is Matrix tag into a top
+                                    --  level table statement. The
+                                    --  number of iterations for this
+                                    --  table statement correspond to
+                                    --  the number of vector into the
+                                    --  table.
+                                    return Size (Tk.Mat_Value);
+                                 else
+                                    --  This is Matrix tag into an
+                                    --  embbeded table statement (table
+                                    --  statement into a table
+                                    --  statement). The number of
+                                    --  iterations for this table
+                                    --  statement correspond to the
+                                    --  largest number of items in the
+                                    --  Matrix tag's vectors.
+                                    return Tk.Mat_Value.M.Max;
+                                 end if;
+                              end if;
+
+                           elsif N = 2 then
+                              --  Second block level analysed.
+
+                              if Tk.Kind = Matrix then
+                                 --  This is a Matrix tag into an
+                                 --  embedded table statement (table
+                                 --  statement into a table statement)
+                                 --  analysed at the second block
+                                 --  level. This is to report the number
+                                 --  of iterations for upper level table
+                                 --  statement. This number of
+                                 --  iterations correspond to the
+                                 --  smallest number of vectors into the
+                                 --  table.
+                                 return Size (Tk.Mat_Value);
+                              end if;
+                           end if;
+                        end if;
+                     end;
+                  end loop;
+
+                  --  Tag not found
+
+                  return Natural'First;
+               end Check;
 
                function Check (T : in Data.Tree) return Natural is
                   use type Data.Tree;
@@ -3452,78 +3530,29 @@ package body Templates_Parser is
                   D         : Data.Tree := T;
                begin
                   while D /= null loop
-
                      if D.Kind = Data.Var and then D.Var.Attr = Nil then
-
-                        for K in Translations'Range loop
-                           declare
-                              Tk : constant Association := Translations (K);
-                           begin
-                              if D.Var.Name = Tk.Variable then
-                                 if N = 1 then
-                                    --  First block level analysed.
-
-                                    if Tk.Kind = Vect then
-                                       --  This is a Vector tag into a top
-                                       --  level table statement. The number
-                                       --  of iterations for this table
-                                       --  statement correspond to the number
-                                       --  of item into the vector.
-                                       Iteration :=
-                                         Natural'Max (Iteration,
-                                                      Size (Tk.Vect_Value));
-
-                                    elsif Tk.Kind = Matrix then
-
-                                       if State.Table_Level = 0 then
-                                          --  This is Matrix tag into a top
-                                          --  level table statement. The
-                                          --  number of iterations for this
-                                          --  table statement correspond to
-                                          --  the number of vector into the
-                                          --  table.
-                                          Iteration :=
-                                            Natural'Max (Iteration,
-                                                         Size (Tk.Mat_Value));
-                                       else
-                                          --  This is Matrix tag into an
-                                          --  embbeded table statement (table
-                                          --  statement into a table
-                                          --  statement). The number of
-                                          --  iterations for this table
-                                          --  statement correspond to the
-                                          --  largest number of items in the
-                                          --  Matrix tag's vectors.
-                                          Iteration := Tk.Mat_Value.M.Max;
-                                       end if;
-                                    end if;
-
-                                 elsif N = 2 then
-                                    --  Second block level analysed.
-
-                                    if Tk.Kind = Matrix then
-                                       --  This is a Matrix tag into an
-                                       --  embedded table statement (table
-                                       --  statement into a table statement)
-                                       --  analysed at the second block
-                                       --  level. This is to report the number
-                                       --  of iterations for upper level table
-                                       --  statement. This number of
-                                       --  iterations correspond to the
-                                       --  smallest number of vectors into the
-                                       --  table.
-                                       Iteration :=
-                                         Natural'Max (Iteration,
-                                                      Size (Tk.Mat_Value));
-                                    end if;
-                                 end if;
-                              end if;
-                           end;
-                        end loop;
+                        Iteration := Natural'Max (Iteration, Check (D.Var));
                      end if;
+
                      D := D.Next;
                   end loop;
 
+                  return Iteration;
+               end Check;
+
+               function Check (T : in Expr.Tree) return Natural is
+                  Iteration : Natural := Natural'First;
+               begin
+                  case T.Kind is
+                     when Expr.Var   =>
+                        Iteration := Natural'Max (Iteration, Check (T.Var));
+                     when Expr.Op    =>
+                        return Natural'Max (Check (T.Left), Check (T.Right));
+                     when Expr.U_Op  =>
+                        return Natural'Max (Iteration, Check (T.Next));
+                     when Expr.Value =>
+                        null;
+                  end case;
                   return Iteration;
                end Check;
 
@@ -3537,29 +3566,36 @@ package body Templates_Parser is
                      return Get_Max_Lines (T.Next, N);
 
                   when Text =>
-                     return Natural'Max (Check (T.Text),
-                                         Get_Max_Lines (T.Next, N));
+                     return Natural'Max
+                       (Check (T.Text), Get_Max_Lines (T.Next, N));
+
                   when If_Stmt =>
                      return Natural'Max
-                       (Natural'Max (Get_Max_Lines (T.N_True, N),
-                                     Get_Max_Lines (T.N_False, N)),
-                        Get_Max_Lines (T.Next, N));
+                       (Check (T.Cond),
+                        Natural'Max
+                          (Get_Max_Lines (T.Next, N),
+                           Natural'Max
+                             (Get_Max_Lines (T.N_True, N),
+                              Get_Max_Lines (T.N_False, N))));
 
                   when Table_Stmt =>
                      if N = 1 then
-                        return Natural'Max (Get_Max_Lines (T.Sections, N + 1),
-                                            Get_Max_Lines (T.Next, N));
+                        return Natural'Max
+                          (Get_Max_Lines (T.Sections, N + 1),
+                           Get_Max_Lines (T.Next, N));
                      else
                         return Natural'First;
                      end if;
 
                   when Section_Stmt =>
-                     return Natural'Max (Get_Max_Lines (T.Next, N),
-                                         Get_Max_Lines (T.N_Section, N));
+                     return Natural'Max
+                       (Get_Max_Lines (T.Next, N),
+                        Get_Max_Lines (T.N_Section, N));
 
                   when Include_Stmt =>
-                     return Natural'Max (Get_Max_Lines (T.File.Info, N),
-                                         Get_Max_Lines (T.Next, N));
+                     return Natural'Max
+                       (Get_Max_Lines (T.File.Info, N),
+                        Get_Max_Lines (T.Next, N));
                end case;
             end Get_Max_Lines;
 
