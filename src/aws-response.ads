@@ -60,10 +60,6 @@ package AWS.Response is
 
    type Data_Mode is (Header, Message, File, Stream, Socket_Taken, No_Data);
 
-   type Content_Encoding is (Identity, GZip, Deflate);
-   --  Encoding mode for the response, Identity means that no encoding is
-   --  done, Gzip/Deflate to select the Gzip or Deflate encoding algorithm.
-
    type Authentication_Mode is (Any, Basic, Digest);
    --  The authentication mode.
    --  "Basic" and "Digest" mean that server must accept the requested
@@ -94,17 +90,17 @@ package AWS.Response is
    function Build
      (Content_Type  : in String;
       Message_Body  : in String;
-      Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
-      Encoding      : in Content_Encoding      := Identity)
+      Status_Code   : in Messages.Status_Code      := Messages.S200;
+      Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
+      Encoding      : in Messages.Content_Encoding := Messages.Identity)
       return Data;
 
    function Build
      (Content_Type    : in String;
       UString_Message : in Strings.Unbounded.Unbounded_String;
-      Status_Code     : in Messages.Status_Code  := Messages.S200;
-      Cache_Control   : in Messages.Cache_Option := Messages.Unspecified;
-      Encoding        : in Content_Encoding      := Identity)
+      Status_Code     : in Messages.Status_Code      := Messages.S200;
+      Cache_Control   : in Messages.Cache_Option     := Messages.Unspecified;
+      Encoding        : in Messages.Content_Encoding := Messages.Identity)
       return Data;
    --  Return a message whose body is passed into Message_Body. The
    --  Content_Type parameter is the MIME type for the message
@@ -116,15 +112,16 @@ package AWS.Response is
       Message_Body  : in Streams.Stream_Element_Array;
       Status_Code   : in Messages.Status_Code         := Messages.S200;
       Cache_Control : in Messages.Cache_Option        := Messages.Unspecified;
-      Encoding      : in Content_Encoding             := Identity)
+      Encoding      : in Messages.Content_Encoding    := Messages.Identity)
       return Data;
    --  Idem above, but the message body is a stream element array.
 
    function File
      (Content_Type  : in String;
       Filename      : in String;
-      Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
+      Status_Code   : in Messages.Status_Code      := Messages.S200;
+      Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
+      Encoding      : in Messages.Content_Encoding := Messages.Identity)
       return Data;
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file.
@@ -132,9 +129,9 @@ package AWS.Response is
    function Stream
      (Content_Type  : in     String;
       Handle        : access Resources.Streams.Stream_Type'Class;
-      Status_Code   : in     Messages.Status_Code  := Messages.S200;
-      Cache_Control : in     Messages.Cache_Option := Messages.No_Cache;
-      Encoding      : in     Content_Encoding      := Identity)
+      Status_Code   : in     Messages.Status_Code      := Messages.S200;
+      Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
+      Encoding      : in     Messages.Content_Encoding := Messages.Identity)
       return Data;
    --  Returns a message whose message body is the content of the user
    --  defined stream. The Content_Type must indicate the MIME type for
