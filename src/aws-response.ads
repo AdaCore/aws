@@ -64,9 +64,9 @@ package AWS.Response is
      return Data;
 
    function Build
-     (Content_Type : in String;
-      Message_Body : in Strings.Unbounded.Unbounded_String;
-      Status_Code  : in Messages.Status_Code := Messages.S200)
+     (Content_Type    : in String;
+      UString_Message : in Strings.Unbounded.Unbounded_String;
+      Status_Code     : in Messages.Status_Code := Messages.S200)
      return Data;
    --  Return a message whose body is passed into Message_Body. The
    --  Content_Type parameter is the MIME type for the message
