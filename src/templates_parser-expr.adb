@@ -82,8 +82,8 @@ package body Expr is
 
    function Parse (Expression : in String) return Tree is
 
-      Start_Index  : Natural := Expression'First;
-      Index        : Natural := Expression'First;
+      Start_Index : Natural := Expression'First;
+      Index       : Natural := Expression'First;
 
       type Token_Kind
         is (Open_Par, Close_Par, Binary_Op, Unary_Op, Value, Var, End_Expr);
@@ -173,7 +173,7 @@ package body Expr is
                Current_Token := (Kind => Binary_Op, Bin_Op => O_Diff);
                Index := Index + 1;
             else
-               Error ("Illegal comparison operator");
+               Error ("illegal comparison operator");
             end if;
 
          elsif Expression (Index) = '<' then
@@ -243,8 +243,29 @@ package body Expr is
                                 .. Token_Image'First + Length (Begin_Tag) - 1)
                    = Begin_Tag
                then
-                  Current_Token
-                    := (Kind => Var, Start => I, Stop => Index - 1);
+                  --  This is a variable, we have the start of it, now look
+                  --  for the end of the variable.
+
+                  if Index <= Expression'Last
+                    and then Expression (Index) = '('
+                  then
+                     --  This is not the end of the tag variable but the
+                     --  start of the tag parameters. Look for tag variable
+                     --  end.
+                     Index := Fixed.Index
+                       (Expression (Index .. Expression'Last),
+                        To_String (End_Tag));
+                     Index := Index + Length (End_Tag);
+                  end if;
+
+                  if Index = 0 then
+                     Error ("variable end not found");
+
+                  else
+                     Current_Token
+                       := (Kind  => Var, Start => I, Stop  => Index - 1);
+                  end if;
+
                else
                   Current_Token
                     := (Kind => Value, Start => I, Stop => Index - 1);
