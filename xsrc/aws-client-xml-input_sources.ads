@@ -54,7 +54,7 @@ package AWS.Client.XML.Input_Sources is
    procedure Next_Char
      (From : in out HTTP_Input;
       C    :    out Unicode.Unicode_Char);
-   --  Return the next character in the file
+   --  Returns the next character in the file
 
    function Eof (From : in HTTP_Input) return Boolean;
    --  True if From is past the last character in the file
@@ -69,7 +69,6 @@ private
       Buffer : Stream_Element_Array (1 .. 4_096);
       First  : Stream_Element_Offset := 1;
       Last   : Stream_Element_Offset := 0;
-      EOF    : Boolean := True;
    end record;
 
 end AWS.Client.XML.Input_Sources;
