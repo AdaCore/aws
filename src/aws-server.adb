@@ -386,10 +386,23 @@ package body AWS.Server is
          Count := Count + 1;
 
          if Set (Index).Phase /= Closed then
-            Sockets.Shutdown (Set (Index).Sock);
+            if not Set (Index).Socket_Taken then
+               Sockets.Shutdown (Set (Index).Sock);
+            else
+               Set (Index).Socket_Taken := False;
+            end if;
             Mark_Phase (Index, Closed);
          end if;
       end Release;
+      
+      ------------------
+      -- Socket_Taken --
+      ------------------
+      
+      procedure Socket_Taken (Index : in Positive) is
+      begin
+         Set (Index).Socket_Taken := True;
+      end Socket_Taken;
 
       ----------
       -- Free --
