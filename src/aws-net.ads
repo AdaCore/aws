@@ -135,7 +135,6 @@ package AWS.Net is
       is abstract;
 
 private
-
    --  This object is to cache data writed to the stream. It is more efficient
    --  than to write byte by byte on the stream.
 
@@ -157,10 +156,21 @@ private
       Size   : Stream_Element_Count  := 0;
    end record;
 
-   type Socket_Type is abstract tagged limited record
-      Self     : Socket_Access := Socket_Type'Unchecked_Access;
-      W_Cache  : Cache (W_Cache_Size);
-      R_Cache  : Cache (R_Cache_Size);
+   type RW_Cache is record
+      W_Cache : Cache (W_Cache_Size);
+      R_Cache : Cache (R_Cache_Size);
    end record;
+
+   type RW_Cache_Access is access RW_Cache;
+
+   type Socket_Type is abstract tagged limited record
+      C : RW_Cache_Access;
+   end record;
+
+   procedure Set_Cache (Socket : in out Socket_Type'Class);
+   --  Allocate cache object
+
+   procedure Release_Cache (Socket : in out Socket_Type'Class);
+   --  Release cache object memory
 
 end AWS.Net;
