@@ -111,8 +111,13 @@ is
    --  actual number of bytes sent.
 
    procedure Answer_To_Client;
-   --  This procedure use the C_Stat status data to send the correct answer
-   --  to the client.
+   --  This procedure use the C_Stat status data to build the correct answer
+   --  to the client. If Force_Answer is not Empty it will be sent back to the
+   --  client's browser, otherwise the answer will be retreived from user's
+   --  callback.
+
+   procedure Send (Answer : in Response.Data);
+   --  Send Answer to the client's browser
 
    procedure Get_Message_Header;
    --  Parse HTTP message header. This procedure fill in the C_Stat status
@@ -136,30 +141,18 @@ is
    ----------------------
 
    procedure Answer_To_Client is
-
       use type Messages.Status_Code;
-      use type Response.Data_Mode;
 
       Answer : Response.Data;
 
-      Status : Messages.Status_Code;
-      Length : Response.Content_Length_Type := 0;
+      procedure Build_Answer;
+      --  Build the Answer that should be sent to the client's browser
 
       procedure Create_Session;
       --  Create a session if needed
 
-      procedure Send_General_Header;
-      --  Send the "Date:", "Server:", "Set-Cookie:" and "Connection:" header.
-
-      procedure Send_Header_Only;
-      --  Send HTTP message header only. This is used to implement the HEAD
-      --  request.
-
-      procedure Send_Data;
-      --  Send a text/binary data to the client.
-
       procedure Answer_File (File_Name : in String);
-      --  Assign File to Answer response data.
+      --  Assign File to Answer response data
 
       -----------------
       -- Answer_File --
@@ -171,6 +164,136 @@ is
            (Content_Type => MIME.Content_Type (File_Name),
             Filename     => File_Name);
       end Answer_File;
+
+      ------------------
+      -- Build_Answer --
+      ------------------
+
+      procedure Build_Answer is
+         URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
+         URI : constant String         := AWS.URL.URL (URL);
+      begin
+         --  Check if the status page, status page logo or status page images
+         --  are requested. These are AWS internal data that should not be
+         --  handled by AWS users.
+
+         --  AWS Internal status page handling.
+
+         if Admin_URI'Length > 0
+              and then
+           URI'Length >= Admin_URI'Length
+              and then
+           URI (URI'First .. URI'First + Admin_URI'Length - 1) = Admin_URI
+         then
+
+            if URI = Admin_URI then
+
+               --  Status page
+               begin
+                  Answer := Response.Build
+                    (Content_Type => MIME.Text_HTML,
+                     Message_Body => Get_Status (HTTP_Server));
+               exception
+                  when Templates.Template_Error =>
+                     Answer := Response.Build
+                       (Content_Type => MIME.Text_HTML,
+                        Message_Body =>
+                          "Status template error. Please check "
+                          & "that '" & CNF.Status_Page (HTTP_Server.Properties)
+                          & "' file is valid.");
+               end;
+
+            elsif URI = Admin_URI & "-logo" then
+               --  Status page logo
+               Answer_File (CNF.Logo_Image (HTTP_Server.Properties));
+
+            elsif URI = Admin_URI & "-uparr" then
+               --  Status page hotplug up-arrow
+               Answer_File (CNF.Up_Image (HTTP_Server.Properties));
+
+            elsif URI = Admin_URI & "-downarr" then
+               --  Status page hotplug down-arrow
+               Answer_File (CNF.Down_Image (HTTP_Server.Properties));
+
+            elsif URI = Admin_URI & "-HPup" then
+               --  Status page hotplug up message
+               Hotplug.Move_Up
+                 (HTTP_Server.Filters,
+                  Positive'Value (AWS.Parameters.Get (P_List, "N")));
+               Answer := Response.URL (Admin_URI);
+
+            elsif URI = Admin_URI & "-HPdown" then
+               --  Status page hotplug down message
+               Hotplug.Move_Down
+                 (HTTP_Server.Filters,
+                  Positive'Value (AWS.Parameters.Get (P_List, "N")));
+               Answer := Response.URL (Admin_URI);
+
+            else
+               Answer := Response.Build
+                 (Content_Type => MIME.Text_HTML,
+                  Message_Body =>
+                    "Invalid use of reserved status URI prefix: " & Admin_URI);
+            end if;
+
+            --  End of Internal status page handling.
+
+            --  Check if the URL is trying to reference resource above Web root
+            --  directory.
+
+         elsif CNF.Check_URL_Validity (HTTP_Server.Properties)
+           and then not AWS.URL.Is_Valid (URL)
+         then
+            --  403 status code "Forbidden".
+
+            Answer := Response.Build
+              (Status_Code   => Messages.S403,
+               Content_Type  => "text/plain",
+               Message_Body  => "Request " & URI & ASCII.LF
+                 & " trying to reach resource above the Web root directory.");
+
+         else
+            --  Otherwise, check if a session needs to be created
+
+            Create_Session;
+
+            --  and get answer from client callback
+
+            declare
+               Found : Boolean;
+            begin
+               HTTP_Server.Slots.Mark_Phase (Index, Server_Processing);
+
+               --  Check the hotplug filters
+
+               Hotplug.Apply (HTTP_Server.Filters, C_Stat, Found, Answer);
+
+               --  If no one applied, run the user callback
+
+               if not Found then
+                  AWS.Status.Set.Socket (C_Stat, Sock_Ptr);
+
+                  HTTP_Server.Dispatcher_Sem.Read;
+
+                  --  Be sure to always release the read semaphore
+
+                  begin
+                     Answer := Dispatchers.Dispatch
+                       (HTTP_Server.Dispatcher.all, C_Stat);
+
+                     HTTP_Server.Dispatcher_Sem.Release_Read;
+                  exception
+                     when others =>
+                        HTTP_Server.Dispatcher_Sem.Release_Read;
+                        raise;
+                  end;
+
+               end if;
+
+               HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+            end;
+         end if;
+      end Build_Answer;
 
       --------------------
       -- Create_Session --
@@ -188,312 +311,15 @@ is
          end if;
       end Create_Session;
 
-      ---------------
-      -- Send_Data --
-      ---------------
-
-      procedure Send_Data is
-         use type Calendar.Time;
-         use type AWS.Status.Request_Method;
-
-         Filename      : constant String
-           := Response.Filename (Answer);
-
-         File_Size     : constant Response.Content_Length_Type
-           := Response.Content_Length (Answer);
-
-         Is_Up_To_Date : Boolean;
-
-         File_Mode     : constant Boolean
-           := Response.Mode (Answer) = Response.File;
-
-         File          : Resources.File_Type;
-      begin
-         Is_Up_To_Date := File_Mode
-              and then
-           Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
-              and then
-           Resources.File_Timestamp (Filename)
-             = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
-         --  Equal used here see [RFC 2616 - 14.25]
-
-         if Is_Up_To_Date then
-            --  [RFC 2616 - 10.3.5]
-            Net.Buffered.Put_Line
-              (Sock,
-               Messages.Status_Line (Messages.S304));
-
-            Send_General_Header;
-            Net.Buffered.New_Line (Sock);
-            return;
-         else
-            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
-         end if;
-
-         --  Checking if we have to close connection because of undefined
-         --  message length comming from a user's stream.
-
-         if Response.Content_Length (Answer) = Response.Undefined_Length
-            and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
-            --  We cannot use transfer-encoding chunked in HTTP_10
-            and then AWS.Status.Method (C_Stat) /= AWS.Status.HEAD
-            --  We have to send message_body
-         then
-            --  In this case we need to close the connection explicitly at the
-            --  end of the transfer.
-            Will_Close := True;
-         end if;
-
-         Send_General_Header;
-
-         --  Send file last-modified timestamp info in case of a file
-
-         if File_Mode then
-            Net.Buffered.Put_Line
-              (Sock,
-               Messages.Last_Modified (Resources.File_Timestamp (Filename)));
-         end if;
-
-         --  Note that we cannot send the Content_Length header at this
-         --  point. A server should not send Content_Length if the
-         --  transfer-coding used is not identity. This is allowed by the
-         --  RFC but it seems that some implementation does not handle this
-         --  right. The file can be sent using either identity or chunked
-         --  transfer-coding. The proper header will be sent in Send_Resource
-         --  see [RFC 2616 - 4.4].
-
-         --  Send message body
-
-         Response.Create_Resource (File, Answer);
-
-         --  Length is the real resource/file size
-
-         Length := File_Size;
-
-         Send_Resource (AWS.Status.Method (C_Stat), File, Length);
-      end Send_Data;
-
-      -------------------------
-      -- Send_General_Header --
-      -------------------------
-
-      procedure Send_General_Header is
-         use type Messages.Cache_Option;
-      begin
-         --  Session
-
-         if CNF.Session (HTTP_Server.Properties)
-           and then AWS.Status.Session_Created (C_Stat)
-         then
-            --  This is an HTTP connection with session but there is no session
-            --  ID set yet. So, send cookie to client browser.
-
-            Net.Buffered.Put_Line
-              (Sock,
-               "Set-Cookie: AWS="
-               & Session.Image (AWS.Status.Session (C_Stat)) & "; path=/");
-         end if;
-
-         --  Date
-
-         Net.Buffered.Put_Line
-           (Sock,
-            "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
-
-         --  Server
-
-         Net.Buffered.Put_Line
-           (Sock,
-            "Server: AWS (Ada Web Server) v" & Version);
-
-         if Will_Close then
-            --  We have decided to close connection after answering the client
-            Net.Buffered.Put_Line (Sock, Messages.Connection ("close"));
-         else
-            Net.Buffered.Put_Line (Sock, Messages.Connection ("keep-alive"));
-         end if;
-
-         --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
-         --  and others user defined header lines.
-
-         Response.Send_Header (Socket => Sock, D => Answer);
-
-      end Send_General_Header;
-
-      ----------------------
-      -- Send_Header_Only --
-      ----------------------
-
-      procedure Send_Header_Only is
-         use type AWS.Status.Request_Method;
-      begin
-         --  First let's output the status line
-
-         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
-
-         Send_General_Header;
-
-         --  There is no content
-
-         Net.Buffered.Put_Line (Sock, Messages.Content_Length (0));
-
-         --  End of header
-
-         Net.Buffered.New_Line (Sock);
-      end Send_Header_Only;
-
-      URL : constant AWS.URL.Object := AWS.Status.URI (C_Stat);
-      URI : constant String         := AWS.URL.URL (URL);
-
    begin
       --  Set status peername
 
       AWS.Status.Set.Peername
         (C_Stat, HTTP_Server.Slots.Get_Peername (Index));
 
-      --  Check if the status page, status page logo or status page images are
-      --  requested. These are AWS internal data that should not be handled by
-      --  AWS users.
+      Build_Answer;
 
-      --  AWS Internal status page handling.
-
-      if Admin_URI'Length > 0
-           and then
-        URI'Length >= Admin_URI'Length
-           and then
-        URI (URI'First .. URI'First + Admin_URI'Length - 1) = Admin_URI
-      then
-
-         if URI = Admin_URI then
-
-            --  Status page
-            begin
-               Answer := Response.Build
-                 (Content_Type => MIME.Text_HTML,
-                  Message_Body => Get_Status (HTTP_Server));
-            exception
-               when Templates.Template_Error =>
-                  Answer := Response.Build
-                    (Content_Type => MIME.Text_HTML,
-                     Message_Body =>
-                       "Status template error. Please check "
-                       & "that '" & CNF.Status_Page (HTTP_Server.Properties)
-                       & "' file is valid.");
-            end;
-
-         elsif URI = Admin_URI & "-logo" then
-            --  Status page logo
-            Answer_File (CNF.Logo_Image (HTTP_Server.Properties));
-
-         elsif URI = Admin_URI & "-uparr" then
-            --  Status page hotplug up-arrow
-            Answer_File (CNF.Up_Image (HTTP_Server.Properties));
-
-         elsif URI = Admin_URI & "-downarr" then
-            --  Status page hotplug down-arrow
-            Answer_File (CNF.Down_Image (HTTP_Server.Properties));
-
-         elsif URI = Admin_URI & "-HPup" then
-            --  Status page hotplug up message
-            Hotplug.Move_Up
-              (HTTP_Server.Filters,
-               Positive'Value (AWS.Parameters.Get (P_List, "N")));
-            Answer := Response.URL (Admin_URI);
-
-         elsif URI = Admin_URI & "-HPdown" then
-            --  Status page hotplug down message
-            Hotplug.Move_Down
-              (HTTP_Server.Filters,
-               Positive'Value (AWS.Parameters.Get (P_List, "N")));
-            Answer := Response.URL (Admin_URI);
-
-         else
-            Answer := Response.Build
-              (Content_Type => MIME.Text_HTML,
-               Message_Body =>
-                 "Invalid use of reserved status URI prefix: " & Admin_URI);
-         end if;
-
-      --  End of Internal status page handling.
-
-      --  Check if the URL is trying to reference resource above Web root
-      --  directory.
-
-      elsif CNF.Check_URL_Validity (HTTP_Server.Properties)
-        and then not AWS.URL.Is_Valid (URL)
-      then
-         --  403 status code "Forbidden".
-
-         Answer := Response.Build
-           (Status_Code   => Messages.S403,
-            Content_Type  => "text/plain",
-            Message_Body  => "Request " & URI & ASCII.LF
-            & " trying to reach resource above the Web root directory.");
-
-      else
-         --  Otherwise, check if a session needs to be created
-
-         Create_Session;
-
-         --  and get answer from client callback
-
-         declare
-            Found : Boolean;
-         begin
-            HTTP_Server.Slots.Mark_Phase (Index, Server_Processing);
-
-            --  Check the hotplug filters
-
-            Hotplug.Apply (HTTP_Server.Filters, C_Stat, Found, Answer);
-
-            --  If no one applied, run the user callback
-
-            if not Found then
-               AWS.Status.Set.Socket (C_Stat, Sock_Ptr);
-
-               HTTP_Server.Dispatcher_Sem.Read;
-
-               --  Be sure to always release the read semaphore
-
-               begin
-                  Answer := Dispatchers.Dispatch
-                    (HTTP_Server.Dispatcher.all, C_Stat);
-
-                  HTTP_Server.Dispatcher_Sem.Release_Read;
-               exception
-                  when others =>
-                     HTTP_Server.Dispatcher_Sem.Release_Read;
-                     raise;
-               end;
-
-            end if;
-
-            HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
-         end;
-      end if;
-
-      Status := Response.Status_Code (Answer);
-
-      case Response.Mode (Answer) is
-
-         when Response.File | Response.Stream | Response.Message =>
-            Send_Data;
-
-         when Response.Header =>
-            Send_Header_Only;
-
-         when Response.Socket_Taken =>
-            HTTP_Server.Slots.Socket_Taken (Index);
-            Socket_Taken := True;
-
-         when Response.No_Data =>
-            null;
-
-      end case;
-
-      Net.Buffered.Flush (Sock);
-
-      AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Length);
+      Send (Answer);
    end Answer_To_Client;
 
    ----------------------
@@ -534,6 +360,14 @@ is
          End_Found       : Boolean := False;
          --  Set to true when the end-boundary has been found.
 
+         type Error_State is (No_Error, Name_Error, Device_Error);
+         --  This state is to monitor the file upload process. If we receice
+         --  Name_Error or Device_Error while writing data on disk we need to
+         --  continue reading all data from the socket if we want to be able
+         --  to send back an error message.
+
+         Error : Error_State := No_Error;
+
          procedure Get_File_Data;
          --  Read file data from the stream, set End_Found if the end-boundary
          --  signature has been read.
@@ -554,6 +388,10 @@ is
 
             function Check_EOF return Boolean;
             --  Returns True if we have reach the end of file data
+
+            procedure Write (Buffer : in Streams.Stream_Element_Array);
+            pragma Inline (Write);
+            --  Write buffer to the file, handle the Device_Error exception
 
             Buffer : Streams.Stream_Element_Array (1 .. 4096);
             Index  : Streams.Stream_Element_Offset := Buffer'First;
@@ -584,14 +422,16 @@ is
 
                procedure Write_Data is
                begin
+                  if Error /= No_Error then
+                     return;
+                  end if;
+
                   if Get_File_Data.Buffer'Last
                     < Get_File_Data.Index + Index - 1
                   then
-                     Streams.Stream_IO.Write
-                       (File,
-                        Get_File_Data.Buffer
-                          (Get_File_Data.Buffer'First
-                             .. Get_File_Data.Index - 1));
+                     Write (Get_File_Data.Buffer
+                              (Get_File_Data.Buffer'First
+                                 .. Get_File_Data.Index - 1));
                      Get_File_Data.Index := Get_File_Data.Buffer'First;
                   end if;
 
@@ -630,6 +470,20 @@ is
                end loop;
             end Check_EOF;
 
+            -----------
+            -- Write --
+            -----------
+
+            procedure Write (Buffer : in Streams.Stream_Element_Array) is
+            begin
+               if Error = No_Error then
+                  Streams.Stream_IO.Write (File, Buffer);
+               end if;
+            exception
+               when Text_IO.Device_Error =>
+                  Error := Device_Error;
+            end Write;
+
          begin
             begin
                Streams.Stream_IO.Create
@@ -638,10 +492,7 @@ is
                   To_String (Server_Filename));
             exception
                when Text_IO.Name_Error =>
-                  --  We can't create the file, add a clear exception message
-                  Exceptions.Raise_Exception
-                    (Text_IO.Name_Error'Identity,
-                     "Cannot create file " & To_String (Server_Filename));
+                  Error := Name_Error;
             end;
 
             Read_File : loop
@@ -655,7 +506,7 @@ is
                Index := Index + 1;
 
                if Index > Buffer'Last then
-                  Streams.Stream_IO.Write (File, Buffer);
+                  Write (Buffer);
                   Index := Buffer'First;
 
                   HTTP_Server.Slots.Mark_Data_Time_Stamp
@@ -664,11 +515,12 @@ is
             end loop Read_File;
 
             if Index /= Buffer'First then
-               Streams.Stream_IO.Write
-                 (File, Buffer (Buffer'First .. Index - 1));
+               Write (Buffer (Buffer'First .. Index - 1));
             end if;
 
-            Streams.Stream_IO.Close (File);
+            if Error = No_Error then
+               Streams.Stream_IO.Close (File);
+            end if;
 
             --  Check for end-boundary, at this point we have at least two
             --  chars. Either the terminating "--" or CR+LF.
@@ -689,14 +541,20 @@ is
                Net.Buffered.Read (Sock, Data);
             end if;
 
-         exception
-            when Text_IO.Device_Error =>
+            if Error = Name_Error then
+               --  We can't create the file, add a clear exception message
+               Exceptions.Raise_Exception
+                 (Text_IO.Name_Error'Identity,
+                  "Cannot create file " & To_String (Server_Filename));
+
+            elsif Error = Device_Error then
                --  We can't write to the file, there is probably no space left
                --  on devide.
                Exceptions.Raise_Exception
                  (Text_IO.Device_Error'Identity,
                   "No space left on device while writting "
                     & To_String (Server_Filename));
+            end if;
          end Get_File_Data;
 
          ---------------------
@@ -1151,6 +1009,209 @@ is
       end if;
    end Parse_Request_Line;
 
+   ----------
+   -- Send --
+   ----------
+
+   procedure Send (Answer : in Response.Data) is
+
+      use type Response.Data_Mode;
+
+      Status : Messages.Status_Code;
+
+      Length : Response.Content_Length_Type := 0;
+
+      procedure Send_General_Header;
+      --  Send the "Date:", "Server:", "Set-Cookie:" and "Connection:" header
+
+      procedure Send_Header_Only;
+      --  Send HTTP message header only. This is used to implement the HEAD
+      --  request.
+
+      procedure Send_Data;
+      --  Send a text/binary data to the client
+
+      ---------------
+      -- Send_Data --
+      ---------------
+
+      procedure Send_Data is
+         use type Calendar.Time;
+         use type AWS.Status.Request_Method;
+
+         Filename      : constant String
+           := Response.Filename (Answer);
+
+         File_Size     : constant Response.Content_Length_Type
+           := Response.Content_Length (Answer);
+
+         Is_Up_To_Date : Boolean;
+
+         File_Mode     : constant Boolean
+           := Response.Mode (Answer) = Response.File;
+
+         File          : Resources.File_Type;
+      begin
+         Is_Up_To_Date := File_Mode
+              and then
+           Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
+              and then
+           Resources.File_Timestamp (Filename)
+             = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
+         --  Equal used here see [RFC 2616 - 14.25]
+
+         if Is_Up_To_Date then
+            --  [RFC 2616 - 10.3.5]
+            Net.Buffered.Put_Line
+              (Sock,
+               Messages.Status_Line (Messages.S304));
+
+            Send_General_Header;
+            Net.Buffered.New_Line (Sock);
+            return;
+         else
+            Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
+         end if;
+
+         --  Checking if we have to close connection because of undefined
+         --  message length comming from a user's stream.
+
+         if Response.Content_Length (Answer) = Response.Undefined_Length
+            and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
+            --  We cannot use transfer-encoding chunked in HTTP_10
+            and then AWS.Status.Method (C_Stat) /= AWS.Status.HEAD
+            --  We have to send message_body
+         then
+            --  In this case we need to close the connection explicitly at the
+            --  end of the transfer.
+            Will_Close := True;
+         end if;
+
+         Send_General_Header;
+
+         --  Send file last-modified timestamp info in case of a file
+
+         if File_Mode then
+            Net.Buffered.Put_Line
+              (Sock,
+               Messages.Last_Modified (Resources.File_Timestamp (Filename)));
+         end if;
+
+         --  Note that we cannot send the Content_Length header at this
+         --  point. A server should not send Content_Length if the
+         --  transfer-coding used is not identity. This is allowed by the
+         --  RFC but it seems that some implementation does not handle this
+         --  right. The file can be sent using either identity or chunked
+         --  transfer-coding. The proper header will be sent in Send_Resource
+         --  see [RFC 2616 - 4.4].
+
+         --  Send message body
+
+         Response.Create_Resource (File, Answer);
+
+         --  Length is the real resource/file size
+
+         Length := File_Size;
+
+         Send_Resource (AWS.Status.Method (C_Stat), File, Length);
+      end Send_Data;
+
+      -------------------------
+      -- Send_General_Header --
+      -------------------------
+
+      procedure Send_General_Header is
+         use type Messages.Cache_Option;
+      begin
+         --  Session
+
+         if CNF.Session (HTTP_Server.Properties)
+           and then AWS.Status.Session_Created (C_Stat)
+         then
+            --  This is an HTTP connection with session but there is no session
+            --  ID set yet. So, send cookie to client browser.
+
+            Net.Buffered.Put_Line
+              (Sock,
+               "Set-Cookie: AWS="
+               & Session.Image (AWS.Status.Session (C_Stat)) & "; path=/");
+         end if;
+
+         --  Date
+
+         Net.Buffered.Put_Line
+           (Sock,
+            "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
+
+         --  Server
+
+         Net.Buffered.Put_Line
+           (Sock,
+            "Server: AWS (Ada Web Server) v" & Version);
+
+         if Will_Close then
+            --  We have decided to close connection after answering the client
+            Net.Buffered.Put_Line (Sock, Messages.Connection ("close"));
+         else
+            Net.Buffered.Put_Line (Sock, Messages.Connection ("keep-alive"));
+         end if;
+
+         --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
+         --  and others user defined header lines.
+
+         Response.Send_Header (Socket => Sock, D => Answer);
+
+      end Send_General_Header;
+
+      ----------------------
+      -- Send_Header_Only --
+      ----------------------
+
+      procedure Send_Header_Only is
+         use type AWS.Status.Request_Method;
+      begin
+         --  First let's output the status line
+
+         Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
+
+         Send_General_Header;
+
+         --  There is no content
+
+         Net.Buffered.Put_Line (Sock, Messages.Content_Length (0));
+
+         --  End of header
+
+         Net.Buffered.New_Line (Sock);
+      end Send_Header_Only;
+
+      use type Response.Data;
+
+   begin
+      Status := Response.Status_Code (Answer);
+
+      case Response.Mode (Answer) is
+
+         when Response.File | Response.Stream | Response.Message =>
+            Send_Data;
+
+         when Response.Header =>
+            Send_Header_Only;
+
+         when Response.Socket_Taken =>
+            HTTP_Server.Slots.Socket_Taken (Index);
+            Socket_Taken := True;
+
+         when Response.No_Data =>
+            null;
+
+      end case;
+
+      Net.Buffered.Flush (Sock);
+
+      AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Length);
+   end Send;
+
    -------------------
    -- Send_Resource --
    -------------------
@@ -1375,7 +1436,31 @@ begin
    Status.Set.Free (C_Stat);
 
 exception
-   when others =>
+   --  We must never exit from the outer loop as a Line task is
+   --  supposed to live forever.
+   --  We have here a pool of Line and each line is recycled when
+   --  needed.
+
+   when Net.Socket_Error =>
+      null;
+
+   when E : others =>
+
+      declare
+         use type Response.Data_Mode;
+
+         Answer : Response.Data := Response.Empty;
+      begin
+         HTTP_Server.Exception_Handler (E, False, Answer);
+
+         if Response.Mode (Answer) /= Response.No_Data then
+            HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+            Send (Answer);
+         end if;
+      exception
+         when others =>
+            null;
+      end;
+
       Status.Set.Free (C_Stat);
-      raise;
 end Protocol_Handler;
