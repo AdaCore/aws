@@ -1,0 +1,8 @@
+2000-08-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl.ads:
+	(Connection_Error): new exception.
+
+	* ssl.adb:
+	remove use of package AWS.
+	(receive): use SSL.Connection_Error.
