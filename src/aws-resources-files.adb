@@ -41,6 +41,27 @@ with ZLib;
 
 package body AWS.Resources.Files is
 
+   -----------
+   -- Exist --
+   -----------
+
+   function Exist (Name : in String) return File_Instance is
+   begin
+      if not Is_GZip (Name)
+        and then OS_Lib.Is_Regular_File (Name & GZip_Ext)
+      then
+         if OS_Lib.Is_Regular_File (Name) then
+            return Both;
+         else
+            return GZip;
+         end if;
+      elsif OS_Lib.Is_Regular_File (Name) then
+         return Plain;
+      else
+         return None;
+      end if;
+   end Exist;
+
    ---------------
    -- File_Size --
    ---------------

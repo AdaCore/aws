@@ -43,6 +43,12 @@ package AWS.Resources.Files is
       Name : in     String;
       Form : in     String    := "");
 
+   function Exist (Name : in String) return File_Instance;
+   --  Return GZip if only file Name & ".gz" exists.
+   --  Return Plain if only file Name exists.
+   --  Return Both if both file Name and Name & ".gz" exists.
+   --  Return None if files neither Name nor Name & ".gz" exist.
+
    function Is_Regular_File (Name : in String) return Boolean;
 
    function File_Size

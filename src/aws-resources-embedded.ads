@@ -52,6 +52,12 @@ package AWS.Resources.Embedded is
       Buffer : in     Buffer_Access);
    --  Create the resource directly from memory data
 
+   function Exist (Name : in String) return File_Instance;
+   --  Return GZip if only file Name & ".gz" exists.
+   --  Return Plain if only file Name exists.
+   --  Return Both if both file Name and Name & ".gz" exists.
+   --  Return None if files neither Name nor Name & ".gz" exist.
+
    function Is_Regular_File (Name : in String) return Boolean;
    pragma Inline (Is_Regular_File);
    --  Returns True if file named Name has been registered (i.e. it is an
