@@ -40,6 +40,7 @@ with AWS.Config.Set;
 
 with AWS.Net;
 with AWS.Session.Control;
+with AWS.Services.Dispatchers.Callback;
 
 package body AWS.Server is
 
@@ -55,13 +56,19 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Callback   : in     Response.Callback);
-   --  Start web server with current configuration
+      Dispatcher : in     Services.Dispatchers.Handler'Class);
+   --  Start web server with current configuration.
 
    procedure Protocol_Handler
      (HTTP_Server : in out HTTP;
       Index       : in     Positive);
    --  Handle the lines, this is where all the HTTP protocol is defined.
+
+   function Accept_Socket_Serialized
+     (Server   : in HTTP_Access)
+     return Sockets.Socket_FD'Class;
+   --  Do a protected accept on the HTTP socket. It is not safe to call
+   --  multiple accept on the same socket on some platforms.
 
    protected Counter is
 
@@ -80,6 +87,29 @@ package body AWS.Server is
 
    end Counter;
 
+   ------------------------------
+   -- Accept_Socket_Serialized --
+   ------------------------------
+
+   function Accept_Socket_Serialized
+     (Server : in HTTP_Access)
+     return Sockets.Socket_FD'Class is
+   begin
+      Server.Sock_Sem.Seize;
+
+      declare
+         Result : Sockets.Socket_FD'Class
+           := AWS.Net.Accept_Socket
+           (Server.Sock, CNF.Security (Server.Properties));
+      begin
+         Server.Sock_Sem.Release;
+         return Result;
+      end;
+   exception
+      when others =>
+         Server.Sock_Sem.Release;
+         raise;
+   end Accept_Socket_Serialized;
 
    ------------
    -- Config --
@@ -170,8 +200,9 @@ package body AWS.Server is
    begin
 
       select
-         accept Start (Server : HTTP;
-                       Index  : Positive)
+         accept Start
+           (Server : in HTTP;
+            Index  : in Positive)
          do
             HTTP_Server := Server.Self;
             Slot_Index  := Index;
@@ -183,12 +214,12 @@ package body AWS.Server is
       while not HTTP_Server.Shutdown loop
 
          declare
-            --  Wait for an incoming connection.
+            --  Wait for an incoming connection. Each call for the same server
+            --  is serialized as some platforms do not handle properly
+            --  multiple accepts on the same socket.
 
             Sock : aliased Sockets.Socket_FD'Class :=
-              AWS.Net.Accept_Socket
-              (HTTP_Server.Sock,
-               CNF.Security (HTTP_Server.Properties));
+              Accept_Socket_Serialized (HTTP_Server);
 
          begin
             begin
@@ -216,7 +247,6 @@ package body AWS.Server is
                Protocol_Handler (HTTP_Server.all, Slot_Index);
 
             exception
-
                --  We must never exit from the outer loop as a Line task is
                --  supposed to live forever.
                --  We have here a pool of Line and each line is recycled when
@@ -232,10 +262,10 @@ package body AWS.Server is
                   null;
 
                when E : others =>
-                  Text_IO.Put_Line (Text_IO.Current_Error,
-                                    "A problem has been detected!");
-                  Text_IO.Put_Line (Text_IO.Current_Error,
-                                    "Connection will be closed...");
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error, "A problem has been detected!");
+                  Text_IO.Put_Line
+                    (Text_IO.Current_Error, "Connection will be closed...");
                   Text_IO.New_Line (Text_IO.Current_Error);
                   Text_IO.Put_Line (Text_IO.Current_Error,
                                     Ada.Exceptions.Exception_Information (E));
@@ -282,6 +312,7 @@ package body AWS.Server is
 
          loop
             Server.Slots.Abort_On_Timeout (Mode, Done);
+
             exit when Mode /= Force or else Done;
 
             select
@@ -302,6 +333,32 @@ package body AWS.Server is
      (HTTP_Server : in out HTTP;
       Index       : in     Positive) is separate;
 
+   ---------------
+   -- Semaphore --
+   ---------------
+
+   protected body Semaphore is
+
+      -------------
+      -- Release --
+      -------------
+
+      procedure Release is
+      begin
+         Seized := False;
+      end Release;
+
+      -----------
+      -- Seize --
+      -----------
+
+      entry Seize when not Seized is
+      begin
+         Seized := True;
+      end Seize;
+
+   end Semaphore;
+
    --------------
    -- Shutdown --
    --------------
@@ -316,6 +373,9 @@ package body AWS.Server is
 
       procedure Free is
          new Ada.Unchecked_Deallocation (Slots, Slots_Access);
+
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Line, Line_Access);
 
       All_Lines_Terminated : Boolean := False;
 
@@ -353,7 +413,7 @@ package body AWS.Server is
       --  Terminate all the lines.
 
       for K in Web_Server.Lines'Range loop
-         abort Web_Server.Lines (K);
+         abort Web_Server.Lines (K).all;
       end loop;
 
       --  Wait for all lines to be terminated to be able to release associated
@@ -372,6 +432,10 @@ package body AWS.Server is
       end loop;
 
       --  Release lines and slots memory
+
+      for K in Web_Server.Lines'Range loop
+         Free (Web_Server.Lines (K));
+      end loop;
 
       Free (Web_Server.Lines);
 
@@ -426,6 +490,8 @@ package body AWS.Server is
 
       procedure Get (FD : in Socket_Access; Index : in Positive) is
       begin
+         pragma Assert (Count > 0);
+
          Set (Index).Sock := FD;
          Mark_Phase (Index, Wait_For_Client);
          Set (Index).Alive_Counter := 0;
@@ -524,6 +590,14 @@ package body AWS.Server is
 
       procedure Release (Index : in Positive) is
       begin
+         pragma Assert (Count < N);
+         --  No more release than it is possible
+         pragma Assert
+           ((Set (Index).Phase = Closed and then Set (Index).Sock = null)
+            --  If phase is closed, then Sock must be null
+            or else (Set (Index).Phase /= Closed));
+            --  or phase is not closed
+
          Count := Count + 1;
 
          if Set (Index).Phase /= Closed then
@@ -535,16 +609,19 @@ package body AWS.Server is
                end if;
 
                AWS.Net.Free (Set (Index).Sock.all);
-
             else
+
                Set (Index).Socket_Taken := False;
             end if;
 
             Mark_Phase (Index, Closed);
-
             Set (Index).Sock := null;
-
          end if;
+
+      exception
+         when others =>
+            Mark_Phase (Index, Closed);
+            Set (Index).Sock := null;
       end Release;
 
       -------------------
@@ -579,6 +656,7 @@ package body AWS.Server is
          if Set (Index).Phase not in Closed .. Aborted then
             Mark_Phase (Index, Aborted);
             Sockets.Shutdown (Set (Index).Sock.all);
+            Set (Index).Sock := null;
          end if;
       end Shutdown;
 
@@ -601,13 +679,14 @@ package body AWS.Server is
      (Web_Server                : in out HTTP;
       Name                      : in     String;
       Callback                  : in     Response.Callback;
-      Max_Connection            : in     Positive         := Def_Max_Connect;
-      Admin_URI                 : in     String           := Def_Admin_URI;
-      Port                      : in     Positive         := Def_Port;
-      Security                  : in     Boolean          := False;
-      Session                   : in     Boolean          := False;
-      Case_Sensitive_Parameters : in     Boolean          := True;
-      Upload_Directory          : in     String           := Def_Upload_Dir) is
+      Max_Connection            : in     Positive    := Def_Max_Connect;
+      Admin_URI                 : in     String      := Def_Admin_URI;
+      Port                      : in     Positive    := Def_Port;
+      Security                  : in     Boolean     := False;
+      Session                   : in     Boolean     := False;
+      Case_Sensitive_Parameters : in     Boolean     := True;
+      Upload_Directory          : in     String      := Def_Upload_Dir;
+      Line_Stack_Size           : in     Positive    := Def_Line_Stack_Size) is
    begin
       CNF.Set.Server_Name      (Web_Server.Properties, Name);
       CNF.Set.Admin_URI        (Web_Server.Properties, Admin_URI);
@@ -616,11 +695,12 @@ package body AWS.Server is
       CNF.Set.Session          (Web_Server.Properties, Session);
       CNF.Set.Upload_Directory (Web_Server.Properties, Upload_Directory);
       CNF.Set.Max_Connection   (Web_Server.Properties, Max_Connection);
+      CNF.Set.Line_Stack_Size  (Web_Server.Properties, Line_Stack_Size);
 
       CNF.Set.Case_Sensitive_Parameters
         (Web_Server.Properties, Case_Sensitive_Parameters);
 
-      Start (Web_Server, Callback);
+      Start (Web_Server, Services.Dispatchers.Callback.Create (Callback));
    end Start;
 
    -----------
@@ -633,7 +713,7 @@ package body AWS.Server is
       Config     : in     AWS.Config.Object) is
    begin
       Web_Server.Properties := Config;
-      Start (Web_Server, Callback);
+      Start (Web_Server, Services.Dispatchers.Callback.Create (Callback));
    end Start;
 
    -----------
@@ -642,7 +722,20 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Callback   : in     Response.Callback)
+      Dispatcher : in     Services.Dispatchers.Handler'Class;
+      Config     : in     AWS.Config.Object) is
+   begin
+      Web_Server.Properties := Config;
+      Start (Web_Server, Dispatcher);
+   end Start;
+
+   -----------
+   -- Start --
+   -----------
+
+   procedure Start
+     (Web_Server : in out HTTP;
+      Dispatcher : in     Services.Dispatchers.Handler'Class)
    is
       Accepting_Socket : Sockets.Socket_FD;
 
@@ -650,7 +743,8 @@ package body AWS.Server is
         := CNF.Max_Connection (Web_Server.Properties);
 
    begin
-      Web_Server.CB := Callback;
+      Web_Server.Dispatcher :=
+         new Services.Dispatchers.Handler'Class'(Dispatcher);
 
       --  Initialize slots
 
@@ -690,7 +784,9 @@ package body AWS.Server is
 
       --  Initialize the connection lines
 
-      Web_Server.Lines := new Line_Set (1 .. Max_Connection);
+      Web_Server.Lines := new Line_Set'
+        (1 .. Max_Connection
+         => new Line (CNF.Line_Stack_Size (Web_Server.Properties)));
 
       --  Initialize the cleaner task
 
