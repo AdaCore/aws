@@ -38,7 +38,7 @@ package body AWS.Config.Set is
 
    procedure Admin_URI (O : in out Object; Value : in String) is
    begin
-      O (Admin_URI).Str_Value := To_Unbounded_String (Value);
+      O.P (Admin_URI).Str_Value := To_Unbounded_String (Value);
    end Admin_URI;
 
    -------------------------------
@@ -49,7 +49,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Boolean) is
    begin
-      O (Case_Sensitive_Parameters).Bool_Value := Value;
+      O.P (Case_Sensitive_Parameters).Bool_Value := Value;
    end Case_Sensitive_Parameters;
 
    ---------------------------------
@@ -60,7 +60,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration) is
    begin
-      O (Cleaner_Client_Data_Timeout).Dur_Value := Value;
+      O.P (Cleaner_Client_Data_Timeout).Dur_Value := Value;
    end Cleaner_Client_Data_Timeout;
 
    -----------------------------------
@@ -71,7 +71,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration) is
    begin
-      O (Cleaner_Client_Header_Timeout).Dur_Value := Value;
+      O.P (Cleaner_Client_Header_Timeout).Dur_Value := Value;
    end Cleaner_Client_Header_Timeout;
 
    -------------------------------------
@@ -82,7 +82,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration) is
    begin
-      O (Cleaner_Server_Response_Timeout).Dur_Value := Value;
+      O.P (Cleaner_Server_Response_Timeout).Dur_Value := Value;
    end Cleaner_Server_Response_Timeout;
 
    -------------------------------------
@@ -93,7 +93,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration) is
    begin
-      O (Cleaner_Wait_For_Client_Timeout).Dur_Value := Value;
+      O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value := Value;
    end Cleaner_Wait_For_Client_Timeout;
 
    ----------------
@@ -102,7 +102,7 @@ package body AWS.Config.Set is
 
    procedure Down_Image (O : in out Object; Value : in String) is
    begin
-      O (Down_Image).Str_Value := To_Unbounded_String (Value);
+      O.P (Down_Image).Str_Value := To_Unbounded_String (Value);
    end Down_Image;
 
    -------------------------------
@@ -113,7 +113,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration) is
    begin
-      O (Force_Client_Data_Timeout).Dur_Value := Value;
+      O.P (Force_Client_Data_Timeout).Dur_Value := Value;
    end Force_Client_Data_Timeout;
 
    ---------------------------------
@@ -124,7 +124,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration) is
    begin
-      O (Force_Client_Header_Timeout).Dur_Value := Value;
+      O.P (Force_Client_Header_Timeout).Dur_Value := Value;
    end Force_Client_Header_Timeout;
 
    -----------------------------------
@@ -135,7 +135,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration) is
    begin
-      O (Force_Server_Response_Timeout).Dur_Value := Value;
+      O.P (Force_Server_Response_Timeout).Dur_Value := Value;
    end Force_Server_Response_Timeout;
 
    -----------------------------------
@@ -146,7 +146,7 @@ package body AWS.Config.Set is
      (O     : in out Object;
       Value : in     Duration) is
    begin
-      O (Force_Wait_For_Client_Timeout).Dur_Value := Value;
+      O.P (Force_Wait_For_Client_Timeout).Dur_Value := Value;
    end Force_Wait_For_Client_Timeout;
 
    ------------------
@@ -155,7 +155,7 @@ package body AWS.Config.Set is
 
    procedure Hotplug_Port (O : in out Object; Value : in Positive) is
    begin
-      O (Hotplug_Port).Pos_Value := Value;
+      O.P (Hotplug_Port).Pos_Value := Value;
    end Hotplug_Port;
 
    ------------------------
@@ -164,7 +164,7 @@ package body AWS.Config.Set is
 
    procedure Log_File_Directory (O : in out Object; Value : in String) is
    begin
-      O (Log_File_Directory).Dir_Value := To_Unbounded_String (Value);
+      O.P (Log_File_Directory).Dir_Value := To_Unbounded_String (Value);
    end Log_File_Directory;
 
    ---------------------
@@ -173,7 +173,7 @@ package body AWS.Config.Set is
 
    procedure Log_File_Prefix (O : in out Object; Value : in String) is
    begin
-      O (Log_File_Prefix).Str_Value := To_Unbounded_String (Value);
+      O.P (Log_File_Prefix).Str_Value := To_Unbounded_String (Value);
    end Log_File_Prefix;
 
    --------------------
@@ -182,7 +182,7 @@ package body AWS.Config.Set is
 
    procedure Log_Split_Mode (O : in out Object; Value : in String) is
    begin
-      O (Log_Split_Mode).Str_Value := To_Unbounded_String (Value);
+      O.P (Log_Split_Mode).Str_Value := To_Unbounded_String (Value);
    end Log_Split_Mode;
 
    ----------------
@@ -191,7 +191,7 @@ package body AWS.Config.Set is
 
    procedure Logo_Image (O : in out Object; Value : in String) is
    begin
-      O (Logo_Image).Str_Value := To_Unbounded_String (Value);
+      O.P (Logo_Image).Str_Value := To_Unbounded_String (Value);
    end Logo_Image;
 
    --------------------
@@ -200,7 +200,7 @@ package body AWS.Config.Set is
 
    procedure Max_Connection (O : in out Object; Value : in Positive) is
    begin
-      O (Max_Connection).Pos_Value := Value;
+      O.P (Max_Connection).Pos_Value := Value;
    end Max_Connection;
 
    ---------------------
@@ -209,7 +209,7 @@ package body AWS.Config.Set is
 
    procedure Receive_Timeout (O : in out Object; Value : in Duration) is
    begin
-      O (Receive_Timeout).Dur_Value := Value;
+      O.P (Receive_Timeout).Dur_Value := Value;
    end Receive_Timeout;
 
    --------------
@@ -218,7 +218,7 @@ package body AWS.Config.Set is
 
    procedure Security (O : in out Object; Value : in Boolean) is
    begin
-      O (Security).Bool_Value := Value;
+      O.P (Security).Bool_Value := Value;
    end Security;
 
    ------------------
@@ -227,7 +227,7 @@ package body AWS.Config.Set is
 
    procedure Send_Timeout (O : in out Object; Value : in Duration) is
    begin
-      O (Send_Timeout).Dur_Value := Value;
+      O.P (Send_Timeout).Dur_Value := Value;
    end Send_Timeout;
 
    -----------------
@@ -236,7 +236,7 @@ package body AWS.Config.Set is
 
    procedure Server_Name (O : in out Object; Value : in String) is
    begin
-      O (Server_Name).Str_Value := To_Unbounded_String (Value);
+      O.P (Server_Name).Str_Value := To_Unbounded_String (Value);
    end Server_Name;
 
    -----------------
@@ -245,7 +245,7 @@ package body AWS.Config.Set is
 
    procedure Server_Port (O : in out Object; Value : in Positive) is
    begin
-      O (Server_Port).Pos_Value := Value;
+      O.P (Server_Port).Pos_Value := Value;
    end Server_Port;
 
    -------------
@@ -254,7 +254,7 @@ package body AWS.Config.Set is
 
    procedure Session (O : in out Object; Value : in Boolean) is
    begin
-      O (Session).Bool_Value := Value;
+      O.P (Session).Bool_Value := Value;
    end Session;
 
    ------------------------------
@@ -282,7 +282,7 @@ package body AWS.Config.Set is
 
    procedure Status_Page (O : in out Object; Value : in String) is
    begin
-      O (Status_Page).Str_Value := To_Unbounded_String (Value);
+      O.P (Status_Page).Str_Value := To_Unbounded_String (Value);
    end Status_Page;
 
    --------------
@@ -291,7 +291,7 @@ package body AWS.Config.Set is
 
    procedure Up_Image (O : in out Object; Value : in String) is
    begin
-      O (Up_Image).Str_Value := To_Unbounded_String (Value);
+      O.P (Up_Image).Str_Value := To_Unbounded_String (Value);
    end Up_Image;
 
    ----------------------
@@ -300,7 +300,7 @@ package body AWS.Config.Set is
 
    procedure Upload_Directory (O : in out Object; Value : in String) is
    begin
-      O (Upload_Directory).Dir_Value := To_Unbounded_String (Value);
+      O.P (Upload_Directory).Dir_Value := To_Unbounded_String (Value);
    end Upload_Directory;
 
    --------------
@@ -309,7 +309,7 @@ package body AWS.Config.Set is
 
    procedure WWW_Root (O : in out Object; Value : in String) is
    begin
-      O (WWW_Root).Dir_Value := To_Unbounded_String (Value);
+      O.P (WWW_Root).Dir_Value := To_Unbounded_String (Value);
    end WWW_Root;
 
 end AWS.Config.Set;
