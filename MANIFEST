@@ -382,6 +382,7 @@ regtests/test_speed.adb
 regtests/test_speed.out
 regtests/test_templates_if.adb
 regtests/test_templates_if.out
+regtests/tgdb
 regtests/tgetparam.adb
 regtests/tgetparam.out
 regtests/tgetparam_proc.adb
