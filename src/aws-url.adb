@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                      Dmitriy Anisimov - Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -42,7 +42,8 @@ package body AWS.URL is
 
    function Parse (URL : in String) return Object is
 
-      HTTP_Token : constant String := "http://";
+      HTTP_Token  : constant String := "http://";
+      HTTPS_Token : constant String := "https://";
 
       O : Object;
 
@@ -93,8 +94,13 @@ package body AWS.URL is
    begin
       if Messages.Is_Match (URL, HTTP_Token) then
          Parse (URL (URL'First + HTTP_Token'Length .. URL'Last));
+         O.Security := False;
+      elsif Messages.Is_Match (URL, HTTPS_Token) then
+         Parse (URL (URL'First + HTTPS_Token'Length .. URL'Last));
+         O.Security := True;
       else
          Parse (URL);
+         O.Security := False;
       end if;
       return O;
    exception
@@ -125,6 +131,15 @@ package body AWS.URL is
    begin
       return P_Image (2 .. P_Image'Last);
    end Port;
+
+   --------------
+   -- Security --
+   --------------
+
+   function Security (URL : in Object) return Boolean is
+   begin
+      return URL.Security;
+   end Security;
 
    ---------
    -- URI --
