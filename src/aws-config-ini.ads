@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -37,7 +37,7 @@ package AWS.Config.Ini is
    procedure Read
      (Config   : in out Object;
       Filename : in     String);
-   --  Read 'File_Name.ini' and update the configuration object with the
+   --  Read Filename and update the configuration object with the
    --  options read from it. Raises Ada.Text_IO.Name_Error if Filename does
    --  not exist.
 
