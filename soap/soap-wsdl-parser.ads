@@ -79,8 +79,8 @@ package SOAP.WSDL.Parser is
    procedure Verbose (Level : in Verbose_Level := 1);
    --  Activate verbose mode
 
-   procedure Accept_RPC (O : in out Object'Class);
-   --  Accept RPC binding as document style binding
+   procedure Accept_Document (O : in out Object'Class);
+   --  Accept Document binding as RPC style binding
 
    procedure Continue_On_Error;
    --  Set continue on error. This means that the parser will not stop at the
@@ -99,13 +99,13 @@ private
    type All_Parameters is array (Parameter_Mode) of Parameters.P_Set;
 
    type Object is tagged record
-      Proc         : Unbounded_String; -- SOAP procedure name
-      SOAPAction   : Unbounded_String; -- SOAPAction string
-      Namespace    : Unbounded_String;
-      Mode         : Parameter_Mode;   -- Current parameter parsing mode
-      Params       : All_Parameters;   -- All parameters
-      Current_Name : Unbounded_String; -- Current parameter name
-      Accept_RPC   : Boolean := False;
+      Proc            : Unbounded_String; -- SOAP procedure name
+      SOAPAction      : Unbounded_String; -- SOAPAction string
+      Namespace       : Unbounded_String;
+      Mode            : Parameter_Mode;   -- Current parameter parsing mode
+      Params          : All_Parameters;   -- All parameters
+      Current_Name    : Unbounded_String; -- Current parameter name
+      Accept_Document : Boolean := False;
    end record;
 
 end SOAP.WSDL.Parser;
