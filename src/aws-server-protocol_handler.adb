@@ -715,7 +715,7 @@ is
                end if;
             end loop Read_File;
 
-            if not (Index = Buffer'First) then
+            if Index /= Buffer'First then
                Streams.Stream_IO.Write
                  (File, Buffer (Buffer'First .. Index - 1));
             end if;
