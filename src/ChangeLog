@@ -1,3 +1,13 @@
+2003-03-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-headers-values.adb:
+	(Exist_Unnamed_Value): Rename to Unnamed_Value_Exists.
+	Add missing routine header box.
+	
+	* aws-headers-values.ads:
+	(Exist_Unnamed_Value): Rename to Unnamed_Value_Exists.
+	Update copyright notice.
+
 2003-03-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers-values.ads, aws-headers-values.adb:
