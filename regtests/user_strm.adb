@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2003                          --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
 --                                                                          --
@@ -104,6 +104,15 @@ package body User_Strm is
 
       end loop;
    end Read;
+
+   -----------
+   -- Reset --
+   -----------
+
+   procedure Reset (File : in out File_Tagged) is
+   begin
+      null;
+   end Reset;
 
    ----------
    -- Size --

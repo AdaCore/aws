@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
 --                                                                          --
@@ -75,5 +75,14 @@ package body Error_Strm is
    begin
       raise Constraint_Error;
    end Read;
+
+   -----------
+   -- Reset --
+   -----------
+
+   procedure Reset (File : in out File_Tagged) is
+   begin
+      null;
+   end Reset;
 
 end Error_Strm;

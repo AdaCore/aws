@@ -198,6 +198,15 @@ package body AWS.Resources.Embedded is
       Res_Files.Insert (Files_Table, Name, (Content, File_Time));
    end Register;
 
+   -----------
+   -- Reset --
+   -----------
+
+   procedure Reset (Resource : in out File_Tagged) is
+   begin
+      Resource.K := Resource.Buffer'First;
+   end Reset;
+
    ----------
    -- Size --
    ----------
