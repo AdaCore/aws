@@ -1,3 +1,11 @@
+2004-10-16  Pascal Obry  <pascal@obry.org>
+
+	* soap-xml.adb:
+	(First_Child): Properly skip the comment nodes (as was done for text
+         nodes). This fix the SOAP/WSDL regressions with recent XML/Ada
+         version.
+        (Next_Sibling): Idem.
+
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
