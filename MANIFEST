@@ -899,6 +899,8 @@ soap/soap-message-xml.adb
 soap/soap-message-xml.ads
 soap/soap-message.adb
 soap/soap-message.ads
+soap/soap-name_space.adb
+soap/soap-name_space.ads
 soap/soap-parameters.adb
 soap/soap-parameters.ads
 soap/soap-types.adb
