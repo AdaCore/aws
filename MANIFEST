@@ -18,6 +18,7 @@ config/src/check_config.c
 config/src/test_uconv.adb
 demos/404.thtml
 demos/adains.png
+demos/adains.png.gz
 demos/agent.adb
 demos/auth.adb
 demos/auth_cb.adb
