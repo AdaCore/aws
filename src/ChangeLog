@@ -1,3 +1,79 @@
+2001-08-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_Message): change Put_Line by a simple Put. Fix a problem
+	 when sending big message.
+	(Get_Message_Data): Uses MIME.Appl_Form_Data instead of
+	 Messages.Form_Data. Idem for MIME.Multipart_Data. Check for SOAP
+	 message and correctly set the payload request in this case.
+	(Parse): parse the SOAPAction HTTP header.
+	This is work to support SOAP over HTTP.	
+
+	* aws-client.adb:
+	(Send_Command): rename to Open_Send_Common_Header.
+	(Get_Response): check for HTML and XML message to support SOAP
+	 message.
+	(SOAP_Post): new function. This is to support SOAP request over
+	 HTTP.
+	(Open_Send_Common_Header): Use No_Data to check for cookie. Add
+	 SOAPAction header if needed.
+	(Create.Set): New function.
+	(Create): correctly set to Null_Unbounded_String string that are
+	 not initialized.
+	Declare all Try_Count variables as Natural.
+	(Post): Add SOAPAction checks.
+	Fix layout.
+
+	* aws-client.ads:
+	(SOAP_Post): new function. This is to support SOAP request over
+	 HTTP.
+	(Create): add SOAPAction parameter.
+	(HTTP_Connection): Add field SOAPAction.
+
+	* aws-messages.adb:
+	(SOAPAction): new function.
+
+	* aws-messages.ads:
+	(SOAPAction): new function.
+	(SOAPAction_Token): new constant.
+	(SOAPAction_Range): new type.
+	(Form_Data): moved to AWS.MIME.
+	(Multipart_Form_Data): moved to AWS.MIME.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	(SOAPAction): new procedure.
+	(Payload): new procedure.
+	This is work to support SOAP over HTTP.
+	Fix layout.
+
+	* aws-status.adb:
+	(Is_SOAP): new function.
+	(SOAPAction): new function.
+	(Payload): new function.
+	This is work to support SOAP over HTTP.
+
+	* aws-status.ads:
+	Fix parameters.
+	(Is_SOAP): new function.
+	(SOAPAction): new function.
+	(Payload): new function.
+	This is work to support SOAP over HTTP.
+
+	* aws-mime.adb:
+	(Dot_XML): new constant.
+	(Type_Table): add Dot_XML to handle XML files.
+
+	* aws-mime.ads:
+	(Text_XML): new constant.
+	(Appl_Form_Data): idem.
+	(Multipart_Form_Data): idem.
+
+	* aws-url.adb:
+	Fix layout.
+
+	* aws-url.ads:
+	Add comments.
+
 2001-08-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
