@@ -51,8 +51,13 @@ package AWS.Config is
    Default_Log_File_Directory : constant String := "./";
    Default_Upload_Directory   : constant String := "./";
 
-   Eight_Hours : constant := 28_800.0;
-   Three_Hours : constant := 10_800.0;
+   Eight_Hours  : constant := 28_800.0;
+   Three_Hours  : constant := 10_800.0;
+   Five_Minutes : constant :=  5.0 * 60.0;
+   Ten_Minutes  : constant := 10.0 * 60.0;
+
+   Default_Session_Cleanup_Interval        : constant Duration := Five_Minutes;
+   Default_Session_Lifetime                : constant Duration := Ten_Minutes;
 
    Default_Cleaner_Wait_For_Client_Timeout : constant Duration := 80.0;
    Default_Cleaner_Client_Header_Timeout   : constant Duration := 20.0;
@@ -98,6 +103,16 @@ package AWS.Config is
    --  Format: Upload_Directory <string>
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
+
+   function Session_Cleanup_Interval return Duration;
+   --  Format: Session_Cleanup_Interval <duration>
+   --  Number of seconds between each run of the cleaner task to remove
+   --  obsolete session data.
+
+   function Session_Lifetime return Duration;
+   --  Format: Session_Lifetime <duration>
+   --  Number of seconds to keep a session if not used. After this period the
+   --  session data is obsoleted and will be removed during new cleanup.
 
    function Cleaner_Wait_For_Client_Timeout return Duration;
    --  Format: Cleaner_Wait_For_Client <duration>
