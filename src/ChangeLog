@@ -1,3 +1,12 @@
+2003-02-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.ads, aws-server.adb:
+	(Socket_Data): New type.
+	(Get_Socket_Info): New routine.
+
+	* aws-server-get_status.adb:
+	Using new Get_Socket_Info routine to retreave socket information.
+
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
