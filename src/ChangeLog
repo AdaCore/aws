@@ -1,3 +1,28 @@
+2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	Update comment, fix one typo.
+	Minor reformatting.
+
+	* aws-digest.adb:
+	Add comment.
+
+	* aws-digest.ads:
+	Minor reformatting.
+
+	* aws-dispatchers.ads:
+	Add comment.
+	Update copyright notice.
+
+	* aws-mime.ads:
+	Fix typo.
+
+	* aws-utils.adb:
+	Removes pragma Warnings Off. Not needed now.
+
+	* aws-utils.ads:
+	(Random_Integer): Use a maximum of 32 bits.
+
 2003-10-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.ads, aws-status.adb:
