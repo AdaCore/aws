@@ -304,12 +304,7 @@ package body AWS.Status is
 
    function Payload (D : in Data) return String is
    begin
-      return SOAP.Image (D.Payload);
-   end Payload;
-
-   function Payload (D : in Data) return SOAP.Payload is
-   begin
-      return D.Payload;
+      return To_String (D.Payload);
    end Payload;
 
    --------------

@@ -41,7 +41,6 @@ with AWS.Headers;
 with AWS.Net;
 with AWS.Parameters;
 with AWS.Session;
-with AWS.SOAP;
 with AWS.URL;
 with AWS.Utils;
 
@@ -193,9 +192,6 @@ package AWS.Status is
    --  request. This routine is obsoleted, it is better to use the pre-parsed
    --  payload (see routine below).
 
-   function Payload                (D : in Data) return SOAP.Payload;
-   pragma Inline (Payload);
-
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
 
    function Binary_Data (D : in Data) return Stream_Element_Array;
@@ -226,7 +222,7 @@ private
       File_Up_To_Date   : Boolean            := False;
       --  SOAP
       SOAP_Action       : Boolean            := False;
-      Payload           : SOAP.Payload;
+      Payload           : Unbounded_String;
       --  Authentication
       Auth_Mode         : Authorization_Type := None;
       Auth_Name         : Unbounded_String; -- for Basic and Digest
