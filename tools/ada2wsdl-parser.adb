@@ -505,6 +505,26 @@ package body Ada2WSDL.Parser is
                  (Image (Text.Element_Image (Declarations.Names (Elem) (1))),
                   Type_Name (E));
 
+            when An_Enumeration_Type_Definition =>
+
+               if not Options.Enum_To_String then
+                  Generator.Start_Enumeration
+                    (Image (Text.Element_Image
+                              (Declarations.Names (Elem)(1))));
+
+                  declare
+                     D : constant Asis.Declaration_List
+                       := Definitions.Enumeration_Literal_Declarations (E);
+                  begin
+                     for K in D'Range loop
+                        Generator.New_Literal
+                          (Image
+                             (Text.Element_Image
+                                (Declarations.Names (D (K))(1))));
+                     end loop;
+                  end;
+               end if;
+
             when others =>
                --  A type definition not handled by this version
                null;
@@ -531,6 +551,10 @@ package body Ada2WSDL.Parser is
          procedure Check_Float (E : in Asis.Element);
          --  Issue a warning if E has not the right digits
 
+         function Register_Deferred (E : in Asis.Declaration) return String;
+         --  Register a deferred type to be generated after first
+         --  pass. Returns the name of the type.
+
          -----------------
          -- Check_Float --
          -----------------
@@ -546,6 +570,22 @@ package body Ada2WSDL.Parser is
                     & " items.");
             end if;
          end Check_Float;
+
+         -----------------------
+         -- Register_Deferred --
+         -----------------------
+
+         function Register_Deferred (E : in Asis.Declaration) return String is
+            Name : constant String
+              := Image (Text.Element_Image (Declarations.Names (E) (1)));
+         begin
+            if not Generator.Type_Exists (Name) then
+               Index := Index + 1;
+               Deferred_Types (Index) := E;
+            end if;
+
+            return Name;
+         end Register_Deferred;
 
          E   : Asis.Element := Elem;
          CFS : Asis.Declaration;
@@ -567,26 +607,23 @@ package body Ada2WSDL.Parser is
                --  This is a record, checks if the record definition has
                --  been parsed.
 
-               declare
-                  Name : constant String
-                    := Image (Text.Element_Image
-                                (Declarations.Names (CFS) (1)));
-               begin
-                  if not Generator.Type_Exists (Name) then
-                     Index := Index + 1;
-                     Deferred_Types (Index) := CFS;
-                  end if;
-
-                  return Name;
-               end;
+               return Register_Deferred (CFS);
 
             when An_Enumeration_Type_Definition =>
                --  Enumerations are mapped to Ada strings except for the
                --  special type Character
-               if Image (Text.Element_Image (Elem)) = "Character" then
+               if Characters.Handling.To_Lower
+                    (Image (Text.Element_Image (Elem))) = "character"
+               then
                   return "character";
+
                else
-                  return "string";
+                  if Options.Enum_To_String then
+                     return "string";
+
+                  else
+                     return Register_Deferred (CFS);
+                  end if;
                end if;
 
             when A_Floating_Point_Definition =>
@@ -603,18 +640,7 @@ package body Ada2WSDL.Parser is
                --  the "is new".
                --  Record the type to generate the corresponding schema.
 
-               declare
-                  Name : constant String
-                    := Image (Text.Element_Image
-                                (Declarations.Names (CFS) (1)));
-               begin
-                  if not Generator.Type_Exists (Name) then
-                     Index := Index + 1;
-                     Deferred_Types (Index) := CFS;
-                  end if;
-
-                  return Name;
-               end;
+               return Register_Deferred (CFS);
 
             when others =>
                E := Declarations.Names (CFS) (1);
