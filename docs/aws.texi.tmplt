@@ -430,20 +430,20 @@ Almost all features are used by the samples there.
 
 @noindent
 The configuration file is a way to configure the server without
-recompiling it. The server file is named @file{aws.ini}, current
-supported option are:
+recompiling it. The configuration file is named @file{aws.ini}, current
+supported options are:
 
 @table @code
 @item Server_Name
 The name of the server. This must be used when calling @code{AWS.Server.Start}.
 
 @item Server_Port
-The port where server will wait for incomming connection. This must be
-used when declaring the @code{HTTP} object.
+The port where server will wait for incomming connections requests. This
+must be used when declaring the @code{HTTP} object.
 
 @item Max_Connection
-This is the maximum number of connection for the server. This must be
-used when declaring the @code{HTTP} object.
+This is the maximum number of simultaneous connections for the
+server. This must be used when declaring the @code{HTTP} object.
 
 @item Admin_URI
 This is the URI to call the administrative page. This must be used when
@@ -546,7 +546,7 @@ enable file upload on the client side the Web page must contain a @b{FORM}
 with an @b{INPUT} tag of type @b{FILE}.
 
 @smallexample
-<FORM ACION=/whatever METHOD=POST>
+<FORM ACTION=/whatever METHOD=POST>
 File to process: <INPUT NAME=filename TYPE=FILE>
 <INPUT TYPE=SUBMIT NAME=go VALUE="Send File">
 </FORM>
@@ -574,18 +574,24 @@ The value is "Send File"
 @section Client side
 
 @noindent
-@code{AWS} is not only a server it also implement the HTTP protocol from
-the client side. For example with @code{AWS} it is possible to get a Web
-page content using the @code{AWS.Client} API, @xref{AWS.Client}.
+@code{AWS} is not only a server it also implement the HTTP and HTTPS
+protocol from the client side. For example with @code{AWS} it is
+possible to get a Web page content using the @code{AWS.Client} API,
+@xref{AWS.Client}.
 
 @noindent
-@code{AWS} also support proxy, proxy authentification and Web server
+It also support client @b{Keep-Alive} connections. It is then possible to
+request many URI from the same server using the same connection
+(i.e. the same sockets).
+
+@noindent
+@code{AWS} client API also support proxy, proxy authentification and Web server
 authentification. Only basic (and not digest) authentification is
 supported at this time.
 
 @noindent
 Let's say that you want to retrieve the @code{contrib.html} Web page from
-Pascal Obry homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
+Pascal Obry's homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
 code to do so is:
 
 @smallexample
@@ -594,7 +600,7 @@ Data := Client.Get
 @end smallexample
 
 @noindent
-From there you can know what is the result's content type:
+From there you can ask for the result's content type:
 
 @smallexample
 @b{if} Response.Content_Type (Data) = "text/html" @b{then}
