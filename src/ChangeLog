@@ -1,3 +1,9 @@
+2003-03-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams.ads, aws-resources-streams.adb:
+	Minor reformatting.
+	Update copyright years.
+
 2003-03-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-log.adb:
