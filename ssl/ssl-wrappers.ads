@@ -155,6 +155,9 @@ package SSL.Wrappers is
    procedure SSL_get_peer_certificate;
    pragma Export (C, SSL_get_peer_certificate, "SSL_get_peer_certificate");
 
+   procedure X509_free;
+   pragma Export (C, X509_free, "X509_free");
+
    procedure X509_get_subject_name;
    pragma Export (C, X509_get_subject_name, "X509_get_subject_name");
 
