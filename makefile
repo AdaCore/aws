@@ -34,7 +34,7 @@ endif
 STYLE_FLAGS	= -gnatwcfipru -gnatwe -gnaty3abcefhiklmnoprst
 
 # compiler
-RELEASE_GFLAGS	= -O2 -gnatn
+RELEASE_GFLAGS	= -q -O2 -gnatn
 DEBUG_GFLAGS	= -g -m
 
 # linker
