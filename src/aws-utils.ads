@@ -33,7 +33,6 @@
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
 
-with MD5;
 with ZLib;
 
 package AWS.Utils is
@@ -66,9 +65,6 @@ package AWS.Utils is
 
    function Is_Number (S : in String) return Boolean;
    --  Returns True is S contains only decimal digits and is not empty
-
-   function Get_MD5 (Data : in String) return MD5.Digest_String;
-   --  Returns the MD5 digest value for the Data string
 
    function Quote (Str : in String) return String;
    pragma Inline (Quote);
