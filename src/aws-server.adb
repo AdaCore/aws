@@ -264,6 +264,8 @@ package body AWS.Server is
 
       HTTP_Server : HTTP_Access;
       Slot_Index  : Positive;
+      Free_Slots_Keep_Alive_Limit : constant Positive
+        := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
 
    begin
 
@@ -315,7 +317,10 @@ package body AWS.Server is
                end select;
             end if;
 
-            Protocol_Handler (HTTP_Server.all, Slot_Index, Free_Slots >= 1);
+            Protocol_Handler
+              (HTTP_Server.all,
+               Slot_Index,
+               Free_Slots >= Free_Slots_Keep_Alive_Limit);
 
             HTTP_Server.Slots.Release (Slot_Index);
          end;
