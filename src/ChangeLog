@@ -1,3 +1,8 @@
+2000-08-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.ads, aws-response.adb:
+	(Acknowledge): add Message_Body parameter.
+
 2000-08-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-translater.adb:
