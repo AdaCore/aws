@@ -144,7 +144,7 @@ distrib: clean build_doc
 	cp docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
 	cp docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
 	cp docs/aws.info* docs/aws.ps docs/makefile $${AWS}/docs;\
-	cp docs/TODO docs/openssl.license $${AWS}/docs;\
+	cp docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
 	cp win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
 	cp ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
 	cp include/*.ad[sb] include/makefile $${AWS}/include;\
