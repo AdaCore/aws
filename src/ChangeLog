@@ -1,3 +1,35 @@
+2001-09-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_File_Size): removed. Use directly the Messages.Content_Length
+	 constructor and the Answer message length which is now always
+	 correct (for message and file).
+	(Send_File): add File_Size parameter.
+	(Send_File_Time): use Messages.Last_Modified constructor.
+
+	* aws-response.adb:
+	(File): compute the file size and set the content length field
+	 properly (was always set to 0).
+	 (Module): 
+
+	* aws-messages.adb: 
+	(Last_Modified): new constructor.
+	(Location): use Location_Token constant instead of string.
+
+	* aws-messages.ads:
+	(Last_Modified_Token): new constant.
+	(Last_Modified_Range): new subtype.
+	(Last_Modified): new constructor.
+
+	* aws-log.adb: 
+	(Write): Add parameter Answer and removes Answer_Stat. Write the
+	 content length that has been transfered. Now the log format is
+	 the same than most standard Web servers.
+
+	* aws-log.ads:
+	(Write): Add parameter Answer and removes Answer_Stat. This is
+	 need to add the data size transfered in the log.
+
 2001-09-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb:
