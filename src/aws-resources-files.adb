@@ -31,9 +31,13 @@
 --  $Id$
 
 with Ada.IO_Exceptions;
+with Ada.Unchecked_Deallocation;
 
 with AWS.OS_Lib;
 with AWS.Resources.Streams.Disk;
+with AWS.Resources.Streams.ZLib;
+
+with ZLib;
 
 package body AWS.Resources.Files is
 
@@ -48,7 +52,11 @@ package body AWS.Resources.Files is
       return OS_Lib.File_Size (Name);
    exception
       when OS_Lib.No_Such_File =>
-         raise Resource_Error;
+         if Is_GZip (Name) then
+            raise Resource_Error;
+         else
+            return File_Size (Name & GZip_Ext);
+         end if;
    end File_Size;
 
    --------------------
@@ -60,7 +68,11 @@ package body AWS.Resources.Files is
       return OS_Lib.File_Timestamp (Name);
    exception
       when OS_Lib.No_Such_File =>
-         raise Resource_Error;
+         if Is_GZip (Name) then
+            raise Resource_Error;
+         else
+            return File_Timestamp (Name & GZip_Ext);
+         end if;
    end File_Timestamp;
 
    ---------------------
@@ -69,7 +81,9 @@ package body AWS.Resources.Files is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return OS_Lib.Is_Regular_File (Name);
+      return OS_Lib.Is_Regular_File (Name)
+        or else (not Is_GZip (Name)
+                 and then OS_Lib.Is_Regular_File (Name & GZip_Ext));
    end Is_Regular_File;
 
    ----------
@@ -79,19 +93,75 @@ package body AWS.Resources.Files is
    procedure Open
      (File :    out File_Type;
       Name : in     String;
+      Form : in     String    := "";
+      GZip : in out Boolean)
+   is
+      use type AWS.Resources.Streams.Stream_Access;
+
+      Stream : AWS.Resources.Streams.Stream_Access;
+
+      procedure Open_File (Name : String; Last : Boolean);
+
+      ---------------
+      -- Open_File --
+      ---------------
+
+      procedure Open_File (Name : String; Last : Boolean) is
+         procedure Free is
+           new Ada.Unchecked_Deallocation
+             (Streams.Stream_Type'Class, Streams.Stream_Access);
+      begin
+         Stream := new AWS.Resources.Streams.Disk.Stream_Type;
+
+         AWS.Resources.Streams.Disk.Open
+           (AWS.Resources.Streams.Disk.Stream_Type (Stream.all), Name, Form);
+      exception
+         when Ada.IO_Exceptions.Name_Error =>
+            Free (Stream);
+
+            if Last then
+               raise;
+            end if;
+      end Open_File;
+
+   begin
+      if Is_GZip (Name) then
+         --  Don't let to try get file Name & ".gz.gz".
+
+         GZip := False;
+
+         Open_File (Name, True);
+
+      elsif GZip then
+         Open_File (Name & ".gz", False);
+
+         if Stream = null then
+            Open_File (Name, True);
+
+            GZip := False;
+         end if;
+      else
+         Open_File (Name, False);
+
+         if Stream = null then
+            Open_File (Name & ".gz", True);
+
+            Stream := Streams.ZLib.Inflate_Create
+                        (Stream, Header => ZLib.GZip);
+         end if;
+      end if;
+
+      Streams.Create (File, Stream);
+   end Open;
+
+   procedure Open
+     (File :    out File_Type;
+      Name : in     String;
       Form : in     String    := "")
    is
-      Stream : AWS.Resources.Streams.Stream_Access;
+      GZip : Boolean := False;
    begin
-      Stream := new AWS.Resources.Streams.Disk.Stream_Type;
-      AWS.Resources.Streams.Create (File, Stream);
-
-      AWS.Resources.Streams.Disk.Open
-        (AWS.Resources.Streams.Disk.Stream_Type (Stream.all), Name, Form);
-   exception
-      when Ada.IO_Exceptions.Name_Error =>
-         Free (File);
-         raise;
+      Open (File, Name, Form, GZip);
    end Open;
 
 end AWS.Resources.Files;
