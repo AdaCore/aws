@@ -1,5 +1,8 @@
 2002-03-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap.ads:
+	(Version): Set to 0.9.
+
 	* soap-types.adb:
 	(Array_Type): Returns XML_Undefined for a zero length array.
 	Patch from Wiljan Derks.
