@@ -519,9 +519,10 @@ package body AWS.Client is
       Result     :    out Response.Data;
       Get_Body   : in     Boolean         := True)
    is
-      type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
-      function Read_Chunk return Streams.Stream_Element_Array;
+      subtype Stream_Element_Array_Access is Utils.Stream_Element_Array_Access;
+
+      function Read_Chunk return Stream_Element_Array_Access;
       --  Read a chunk object from the stream
 
       function Read_Binary_Message
@@ -532,9 +533,6 @@ package body AWS.Client is
 
       procedure Disconnect;
       --  close connection socket.
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
       Sock       : Net.Socket_Type'Class renames Connection.Socket.all;
 
@@ -585,7 +583,7 @@ package body AWS.Client is
       exception
          when Net.Socket_Error =>
             --  Could have been killed by a timeout.
-            Free (Elements);
+            Utils.Free (Elements);
             raise;
       end Read_Binary_Message;
 
@@ -593,7 +591,7 @@ package body AWS.Client is
       -- Read_Chunk --
       ----------------
 
-      function Read_Chunk return Streams.Stream_Element_Array is
+      function Read_Chunk return Stream_Element_Array_Access is
 
          use Streams;
 
@@ -645,7 +643,7 @@ package body AWS.Client is
                          (Data_Last + Size, 2 * Data'Length));
 
                   Tmp (1 .. Data_Last) := Data (1 .. Data_Last);
-                  Free (Data);
+                  Utils.Free (Data);
                   Data := Tmp;
                end if;
 
@@ -658,18 +656,21 @@ package body AWS.Client is
 
          end loop;
 
+         --  Strip the unused bytes
+
          declare
-            Copy : Stream_Element_Array (1 .. Data_Last);
+            Copy : Stream_Element_Array_Access
+              := new Stream_Element_Array (1 .. Data_Last);
          begin
-            Copy := Data (1 .. Data_Last);
-            Free (Data);
+            Copy.all := Data (1 .. Data_Last);
+            Utils.Free (Data);
             return Copy;
          end;
 
       exception
          when others =>
             --  Could have been killed by a timeout.
-            Free (Data);
+            Utils.Free (Data);
             raise;
       end Read_Chunk;
 
@@ -775,7 +776,7 @@ package body AWS.Client is
                   begin
                      Response.Set.Message_Body (Result, Elements.all);
 
-                     Free (Elements);
+                     Utils.Free (Elements);
                   end;
                end if;
             end if;
