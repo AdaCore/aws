@@ -303,6 +303,15 @@ package body SOAP.Generator is
       end if;
    end End_Service;
 
+   --------------
+   -- Endpoint --
+   --------------
+
+   procedure Endpoint (O : in out Object; URL : in String) is
+   begin
+      O.Endpoint := To_Unbounded_String (URL);
+   end Endpoint;
+
    -----------------
    -- Format_Name --
    -----------------
@@ -2446,8 +2455,16 @@ package body SOAP.Generator is
       Text_IO.Put_Line (Root, "package " & U_Name & " is");
 
       Text_IO.New_Line (Root);
-      Text_IO.Put_Line (Root,
-                        "   URL : constant String := """ & Location & """;");
+
+      if O.Endpoint = Null_Unbounded_String then
+         Text_IO.Put_Line
+           (Root,
+            "   URL : constant String := """ & Location & """;");
+      else
+         Text_IO.Put_Line
+           (Root,
+            "   URL : constant String := """ & To_String (O.Endpoint) & """;");
+      end if;
 
       if O.WSDL_File /= Null_Unbounded_String then
          Text_IO.New_Line (Root);
