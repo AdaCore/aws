@@ -30,7 +30,6 @@
 
 --  $Id$
 
-with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
