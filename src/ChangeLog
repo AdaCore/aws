@@ -1,3 +1,14 @@
+2004-08-08  Pascal Obry  <pascal@obry.org>
+
+	* aws-server-push.ads:
+	Minor reformatting.
+
+	* aws-net-stream_io.ads:
+	Minor reformatting.
+
+	* aws-net-buffered.adb:
+	Minor reformatting.
+
 2004-08-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-push.adb:
