@@ -173,6 +173,7 @@ package body AWS.Net.Buffered is
       C      : Read_Cache renames Socket.C.R_Cache;
    begin
       C.First := C.Buffer'First;
+      C.Last  := C.Buffer'First - 1; -- Be ready for timeout in the next call.
       Receive (Socket, C.Buffer, C.Last);
    end Read;
 
