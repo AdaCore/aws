@@ -287,7 +287,7 @@ package body Skel is
         (Skel_Adb, "      begin");
 
       Text_IO.Put_Line
-        (Skel_Adb, "         R_Params := ");
+        (Skel_Adb, "         R_Params :=");
       Text_IO.Put
         (Skel_Adb, "            +");
 

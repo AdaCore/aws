@@ -253,7 +253,7 @@ package body Stub is
          "         Response : constant SOAP.Message.Response.Object'Class");
       Text_IO.Put_Line
         (Stub_Adb,
-         "            := SOAP.Client.Call ");
+         "            := SOAP.Client.Call");
       Text_IO.Put_Line
         (Stub_Adb,
          "                 (""" & To_String (O.Location) & """,");
