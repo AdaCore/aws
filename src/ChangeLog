@@ -5,6 +5,7 @@
 
 	* templates_parser.adb:
 	(Clear): Initialize Min and Max fields.
+	Reorder "with" list.
 
 2004-07-25  Pascal Obry  <pascal@obry.org>
 
