@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -54,7 +54,7 @@ package body SOAP.Message.Response.Error is
    function Build
      (Faultcode   : in Error.Faultcode;
       Faultstring : in String)
-     return Object
+      return Object
    is
       use SOAP.Types;
       use type SOAP.Parameters.List;
@@ -107,7 +107,7 @@ package body SOAP.Message.Response.Error is
    ----------
 
    function From (P : in Message.Payload.Object) return Object is
-      pragma Warnings (Off, P);
+      pragma Unreferenced (P);
       N : Object;
    begin
       return N;
@@ -118,7 +118,7 @@ package body SOAP.Message.Response.Error is
    --------------
 
    function Is_Error (E : in Object) return Boolean is
-      pragma Warnings (Off, E);
+      pragma Unreferenced (E);
    begin
       return True;
    end Is_Error;
