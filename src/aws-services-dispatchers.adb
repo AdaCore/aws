@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Unchecked_Deallocation;
+
 package body AWS.Services.Dispatchers is
 
    procedure Release is
@@ -50,7 +52,7 @@ package body AWS.Services.Dispatchers is
 
    procedure Finalize (Dispatcher : in out Handler) is
    begin
-      null;
+      Dispatcher.Ref_Counter := 0;
    end Finalize;
 
    ----------
@@ -68,7 +70,7 @@ package body AWS.Services.Dispatchers is
 
    procedure Initialize (Dispatcher : in out Handler) is
    begin
-      null;
+      Dispatcher.Ref_Counter := 1;
    end Initialize;
 
 end AWS.Services.Dispatchers;
