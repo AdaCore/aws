@@ -1,3 +1,21 @@
+2003-07-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.adb:
+	(Content_Length): Image renamed CL_Image and set as constant.
+	Minor reformatting.
+
+	* aws-status-set.adb:
+	(Update_Data_From_Header): Set Content_Length as constant.
+
+	* aws-ldap-client.adb:
+	(C_Scope): Declare as constant.
+	(C_Bool): Idem.
+
+	* aws-net-ssl.adb:
+	(Error_Str): Suppress warnings for Buffer. GNAT detect it as being
+	 constant. This is not true as it is passed to a C routine that
+	 will modify it.
+
 2003-07-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources.ads:
