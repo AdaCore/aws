@@ -55,3 +55,7 @@ implemented:
 
 - Would be nice to detect if users try to use the session feature when there
   is no session active in the server.
+
+- Check that the socket layer support SSL when asking for SSL support. At the
+  moment we have an exception with a traceback, it would be good to have a
+  nice message explaining the problem.
