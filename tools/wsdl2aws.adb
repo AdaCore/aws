@@ -172,7 +172,7 @@ procedure WSDL2AWS is
 
       loop
          case Command_Line.Getopt
-           ("d q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
+           ("d q a e: f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
             & "x: cb types: spec: main:")
          is
             when ASCII.NUL => exit;
@@ -182,6 +182,9 @@ procedure WSDL2AWS is
 
             when 'a' =>
                SOAP.Generator.Ada_Style (Gen);
+
+            when 'e' =>
+               SOAP.Generator.Endpoint (Gen, GNAT.Command_Line.Parameter);
 
             when 'f' =>
                Force := True;
@@ -361,8 +364,9 @@ exception
       Put_Line ("Usage: wsdl2aws [options] <file|URL>");
       Put_Line ("   -q           Quiet mode");
       Put_Line ("   -d           Generate debug code");
-      Put_Line ("   -a           Ada style identifier");
-      Put_Line ("   -f           Force files creation stub/skeleton/WSDL");
+      Put_Line ("   -a           Ada style identifiers");
+      Put_Line ("   -f           Force files creation stub/skeleton/types");
+      Put_Line ("   -e           Endpoint to use");
       Put_Line ("   -s           Skip non supported SOAP routines");
       Put_Line ("   -o           Output filename for Web Document (URL mode)");
       Put_Line
