@@ -1,5 +1,14 @@
 2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* disp_soap_proc.adb:
+	New procedure with code taken from disp_soap.adb.
+
+	* disp_soap.adb:
+	Only call to disp_soap_proc.adb.
+
+	* makefile, disp_soap_sec.adb:
+	New regression test, the same like disp_soap, but over SSL.
+
 	* auth.adb:
 	Check for correct nonce.
 
