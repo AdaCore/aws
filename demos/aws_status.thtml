@@ -23,18 +23,23 @@
 <hr>
 <br>
 
-<br>
-
-<H3>The following data describe server "<i>@_SERVER_NAME_@</i>" current
-status.</H3>
-
 <p><i>@_DAY_NAME_@ @_DAY_@ @_MONTH_NAME_@ @_YEAR_@,
 @_HOUR_@:@_MINUTE_@:@_SECOND_@.</i>
 
 <br>
 <br>
 
+<br>
+
+<H3>The following data describe server "<i>@_SERVER_NAME_@</i>" current
+status.</H3>
+
 <table>
+
+<tr>
+<td width=250>Started on
+<td><b>@_START_TIME_@</b>
+</tr>
 
 <tr>
 <td width=250>Maximum connections
