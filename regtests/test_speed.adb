@@ -10,6 +10,8 @@ with SOAP.Message.Payload;
 
 procedure Test_Speed is
 
+   N_Test : constant := 1_000;
+
    Soap_Updated   : constant String := "Updated";
    Soap_Wo        : constant String := "Workorder";
    Soap_WoId      : constant String := "Woid";
@@ -61,7 +63,7 @@ procedure Test_Speed is
 begin
    Start := Clock;
 
-   for X in 1 .. 1_000 loop
+   for X in 1 .. N_Test loop
       declare
          Payload : SOAP.Message.Payload.Object'Class :=
             SOAP.Message.Payload.Build
