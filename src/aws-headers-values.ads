@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -112,7 +112,7 @@ package AWS.Headers.Values is
       return String;
    --  Returns N-th un-named value from Header_Value.
 
-   function Exist_Unnamed_Value
+   function Unnamed_Value_Exists
      (Header_Value   : in String;
       Value          : in String;
       Case_Sensitive : in Boolean := True)
