@@ -31,7 +31,9 @@
 --  $Id$
 --
 --  Waiting on group of sockets for input/output availability.
---
+
+with Ada.Finalization;
+
 package AWS.Net.Sets is
 
    type Socket_Set_Type is limited private;
@@ -45,6 +47,7 @@ package AWS.Net.Sets is
       Socket : in     Socket_Type'Class;
       Mode   : in     Waiting_Mode);
    --  Add socket to the set.
+   --  Note that this call make internal allocation of the socket.
 
    procedure Add
      (Set    : in out Socket_Set_Type;
@@ -64,7 +67,10 @@ package AWS.Net.Sets is
       Socket :    out Socket_Access;
       State  :    out Socket_State);
    --  Return currently selected ready for input/output socket and delete it
-   --  from set.
+   --  from set. It is recommended to use Take_Socket together with Add with
+   --  Socket_Access parameter. Otherwise, if you used Ada with
+   --  Socket_Type'Class parameter, and take a socket by Take_Socket, it would
+   --  be necessary to deallocate taken Socket_Access later.
 
    -----------------------------------------------------
    -- Step by step operations for take ready sockets. --
@@ -77,12 +83,12 @@ package AWS.Net.Sets is
    function Get_Socket (Set : in Socket_Set_Type) return Socket_Type'Class;
    --  Return currently selected ready for input/output socket.
 
-   function Get_Socket (Set : in Socket_Set_Type) return Socket_Access;
-   --  Return currently selected ready for input/output socket.
-
    procedure Remove_Socket (Set : in out Socket_Set_Type);
    --  Delete currently selected socket from set
    --  and select the next one.
+
+   procedure Next (Set : in out Socket_Set_Type);
+   --  Go to the next active socket in the set.
 
 private
 
@@ -93,7 +99,7 @@ private
    type Socket_Record is record
       Socket    : Socket_Access;
 
-      Allocated : Boolean := False;
+      Allocated : Boolean;
       --  Is socket was allocated internally in the set.
       --  Need to control free on delete.
    end record;
@@ -102,11 +108,13 @@ private
 
    type Socket_Array_Access is access all Socket_Array;
 
-   type Socket_Set_Type is limited record
+   type Socket_Set_Type is new Ada.Finalization.Limited_Controlled with record
       Poll    : Poll_Set_Access;
       Set     : Socket_Array_Access;
       Last    : Natural  := 0;
       Current : Positive := 1;
    end record;
+
+   procedure Finalize (Set : in out Socket_Set_Type);
 
 end AWS.Net.Sets;
