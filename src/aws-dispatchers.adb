@@ -36,7 +36,7 @@ package body AWS.Dispatchers is
 
    procedure Release is
       new Ada.Unchecked_Deallocation (Handler'Class, Handler_Class_Access);
-      
+
    procedure Free is
       new Ada.Unchecked_Deallocation (Natural, Natural_Access);
 
