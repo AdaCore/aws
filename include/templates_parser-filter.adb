@@ -40,11 +40,13 @@ package body Filter is
    Minus_Token         : aliased constant String := """-""";
    Divide_Token        : aliased constant String := """/""";
    Add_Token           : aliased constant String := "ADD";
+   Add_Param_Token     : aliased constant String := "ADD_PARAM";
    BR_2_LF_Token       : aliased constant String := "BR_2_LF";
    Capitalize_Token    : aliased constant String := "CAPITALIZE";
    Clean_Text_Token    : aliased constant String := "CLEAN_TEXT";
    Coma_2_Point_Token  : aliased constant String := "COMA_2_POINT";
    Contract_Token      : aliased constant String := "CONTRACT";
+   Del_Param_Token     : aliased constant String := "DEL_PARAM";
    Div_Token           : aliased constant String := "DIV";
    Exist_Token         : aliased constant String := "EXIST";
    Format_Date_Token   : aliased constant String := "FORMAT_DATE";
@@ -91,6 +93,9 @@ package body Filter is
          Add            =>
            (Add_Token'Access,            Plus'Access),
 
+         Add_Param      =>
+           (Add_Param_Token'Access,      Add_Param'Access),
+
          BR_2_LF        =>
            (BR_2_LF_Token'Access,        BR_2_LF'Access),
 
@@ -105,6 +110,9 @@ package body Filter is
 
          Contract       =>
            (Contract_Token'Access,       Contract'Access),
+
+         Del_Param      =>
+           (Del_Param_Token'Access,      Del_Param'Access),
 
          Div            =>
            (Div_Token'Access,            Divide'Access),
@@ -324,6 +332,30 @@ package body Filter is
    -- Filters definition start here
    --
 
+   ---------------
+   -- Add_Param --
+   ---------------
+
+   function Add_Param
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
+   is
+      Param : constant String := To_String (P.S);
+   begin
+      if Strings.Fixed.Index (S, "?") = 0 then
+         --  No parameter yet
+         return S & '?' & Param;
+
+      elsif S (S'Last) = '?' or else s (S'Last) = '&' then
+         return S & Param;
+
+      else
+         return S & '&' & Param;
+      end if;
+   end Add_Param;
+
    -------------
    -- BR_2_LF --
    -------------
@@ -491,6 +523,53 @@ package body Filter is
          return Result (Result'First .. R);
       end if;
    end Contract;
+
+   ---------------
+   -- Del_Param --
+   ---------------
+
+   function Del_Param
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
+   is
+      Param : constant String  := To_String (P.S);
+      E     : constant Natural := Strings.Fixed.Index (S, "?");
+
+   begin
+      if E = 0 then
+         --  No parameter, return original string
+         return S;
+
+      else
+         declare
+            Pos : constant Natural := Strings.Fixed.Index (S, Param);
+            First, Last : Natural;
+         begin
+            if Pos < E then
+               --  The parameter is not present, return original string
+               return S;
+
+            else
+               First := Pos;
+               Last  := Pos;
+
+               while Last < S'Last and then S (Last) /= '&' loop
+                  Last := Last + 1;
+               end loop;
+
+               if Last = S'Last then
+                  --  This is the last parameter, remove the parameter with
+                  --  leading parameter separator (? or &)
+                  First := Pos - 1;
+               end if;
+
+               return S (S'First .. First - 1) & S (Last + 1 .. S'Last);
+            end if;
+         end;
+      end if;
+   end Del_Param;
 
    -----------
    -- Exist --

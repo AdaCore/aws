@@ -136,6 +136,10 @@ package body Templates_Parser is
          Add,
          --  Add the given parameter to the string
 
+         Add_Param,
+         --  Add an HTTP parameter to the string, add the '&' parameter
+         --  separator if needed.
+
          BR_2_LF,
          --  Replaces all <BR> HTML tag by a LF character.
 
@@ -150,6 +154,10 @@ package body Templates_Parser is
 
          Contract,
          --  Replaces a suite of spaces by a single space character.
+
+         Del_Param,
+         --  Delete an HTTP parameter from the string, removes the '&'
+         --  Parameter separator if needed.
 
          Div,
          --  Divide the given parameter to the string
@@ -314,6 +322,12 @@ package body Templates_Parser is
       procedure Check_Null_Parameter (P : in Parameter_Data);
       --  Raises Template_Error if P is not equal to Null_Parameter.
 
+      function Add_Param
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
+
       function BR_2_LF
         (S : in String;
          P : in Parameter_Data  := No_Parameter;
@@ -339,6 +353,12 @@ package body Templates_Parser is
          return String;
 
       function Contract
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
+
+      function Del_Param
         (S : in String;
          P : in Parameter_Data  := No_Parameter;
          T : in Translate_Table := No_Translation)
