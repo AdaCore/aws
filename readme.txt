@@ -171,7 +171,14 @@ Here are the main changes since AWS 2.0 :
      exchange array of heterogeneous objects. wsdl2aws tool will generate the
      appropriate code.
 
-   - Better support namespaces in schemas.
+   - Lot of rewrite to better support namespaces in schemas in both wsdl2aws
+     and ada2wsdl tools. For example, now wsdl2aws can generate code that is
+     shared by multiple WSDL documents. A type defined in schemas with the
+     same name and namespace in multiple WSDL documents will share the very
+     same code.
+
+   - Add new wsdl2aws option to force the use of a specified endpoint instead
+     of the one found in the WSDL document.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
