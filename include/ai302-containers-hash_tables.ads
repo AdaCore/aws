@@ -96,7 +96,9 @@ package AI302.Containers.Hash_Tables is
 
    procedure Clear (HT : in out Hash_Table_Type);
 
-   procedure Swap (L, R : in out Hash_Table_Type);
+
+   procedure Move (Target, Source : in out Hash_Table_Type);
+
 
    procedure Resize
      (HT : in out Hash_Table_Type;
