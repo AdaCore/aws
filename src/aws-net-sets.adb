@@ -46,6 +46,11 @@ package body AWS.Net.Sets is
    procedure Free is
      new Ada.Unchecked_Deallocation (Socket_Array, Socket_Array_Access);
 
+   procedure Free is
+     new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
+      --  We could not use AWS.Net.Free because Socket_Set_Type did not
+      --  allocate internal socket data.
+
    function To_State (Event : in Thin.Events_Type) return Socket_State;
    --  Convert Event to the proper Socket_State
 
@@ -224,19 +229,13 @@ package body AWS.Net.Sets is
    -------------------
 
    procedure Remove_Socket (Set : in out Socket_Set_Type) is
-
-      procedure Free is
-        new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
-      --  We could not use AWS.Net.Free because Socket_Set_Type did not
-      --  allocate internal socket data.
-
    begin
       if Set.Current > Set.Last then
          raise Constraint_Error;
       end if;
 
       if Set.Set (Set.Current).Allocated then
-         Remove_Socket.Free (Set.Set (Set.Current).Socket);
+         Sets.Free (Set.Set (Set.Current).Socket);
       end if;
 
       Set.Set (Set.Current)  := Set.Set (Set.Last);
@@ -255,7 +254,7 @@ package body AWS.Net.Sets is
    begin
       for K in 1 .. Set.Last loop
          if Set.Set (K).Allocated then
-            Free (Set.Set (K).Socket);
+            Sets.Free (Set.Set (K).Socket);
          end if;
       end loop;
 
