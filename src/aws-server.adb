@@ -324,6 +324,7 @@ package body AWS.Server is
          if not HTTP_Server.Shutdown then
             declare
                S      : Status.Data;
+               pragma Warnings (Off, S);
                Answer : Response.Data;
             begin
                HTTP_Server.Exception_Handler
