@@ -3,6 +3,7 @@
 
 .SILENT: all build build_ssl build_std distrib ssl_mode std_mode clean
 
+GCC	= gcc
 SSL	= ../ssl
 GFLAGS	= -g -O2 -gnatwu -gnaty -I../ssl -I../include $(INCLUDES)
 
@@ -36,9 +37,9 @@ all:
 build:
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
 	(if ! [ -e aws-os_lib.adb ]; then cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb; fi)
-	gcc -c -O2 -g -I../include $(INCLUDES) aws-session.adb
-	gcc -c -O2 -g -I../include $(INCLUDES) aws-key_value.adb
-	gcc -c -O2 -g -I../include $(INCLUDES) aws-server-get_status.adb
+	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-session.adb
+	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-key_value.adb
+	$(GCC) -c -O2 -g -I../include $(INCLUDES) aws-server-get_status.adb
 	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
 
 ssl_mode:
