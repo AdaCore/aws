@@ -209,7 +209,7 @@ clean_noapiref:
 	${MAKE} -C regtests clean $(ALL_OPTIONS)
 	${MAKE} -C win32 clean $(ALL_OPTIONS)
 	${MAKE} -C tools clean $(ALL_OPTIONS)
-	-rm -f *.~*.*~
+	-rm -f *.~*.*~ set-aws.*
 
 display:
 	echo ""
