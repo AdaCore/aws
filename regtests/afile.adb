@@ -52,9 +52,8 @@ procedure Afile is
    Size : Natural := 0;
 
    function CB (Request : in Status.Data) return Response.Data is
-      Strm  : Resources.Streams.Stream_Access;
-      URI   : constant String := Status.URI (Request);
-      Share : constant String := "share=yes";
+      Strm : Resources.Streams.Stream_Access;
+      URI  : constant String := Status.URI (Request);
    begin
       if URI = "/first" then
          return Response.File
@@ -81,9 +80,7 @@ procedure Afile is
       elsif URI = "/fifth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all),
-            "afile.o",
-            Form => Share);
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
             Disposition => Response.Inline);
@@ -91,9 +88,7 @@ procedure Afile is
       elsif URI = "/sixth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all),
-            "afile.o",
-            Form => Share);
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
             Disposition => Response.Attachment);
@@ -101,9 +96,7 @@ procedure Afile is
       elsif URI = "/seventh" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all),
-            "afile.o",
-            Form => Share);
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
             User_Filename => "a_stream.o", Disposition => Response.Inline);
@@ -111,9 +104,7 @@ procedure Afile is
       elsif URI = "/eighth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all),
-            "afile.o",
-            Form => Share);
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
            (MIME.Application_Octet_Stream, Strm,
             Disposition   => Response.Attachment,
@@ -125,9 +116,7 @@ procedure Afile is
       elsif URI = "/tenth" then
          Strm :=  new Resources.Streams.Disk.Stream_Type;
          Resources.Streams.Disk.Open
-           (Resources.Streams.Disk.Stream_Type (Strm.all),
-            "afile.o",
-            Form => Share);
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream (MIME.Application_Octet_Stream, Strm);
       else
          return Response.Build (MIME.Text_HTML, "URI not supported");
