@@ -45,18 +45,15 @@ with AWS.Response;
 with AWS.Server.Push;
 with AWS.Status;
 
+with Sp_Pck;
+
 procedure SSp is
 
    use Ada;
    use Ada.Text_IO;
    use AWS;
 
-   type Push_Data_Type is delta 0.01 digits 7;
-
-   function Image
-     (Data : in Push_Data_Type;
-      Env  : in Editing.Picture)
-      return String;
+   use Sp_Pck;
 
    function CB (Request : in Status.Data) return Response.Data;
 
@@ -66,21 +63,10 @@ procedure SSp is
    --  the Ada.Text_IO.Put_Line add the ASCII.CR before ASCII.LF even so
    --  the ASCII.CR already exists before ASCII.LF.
 
-   package Server_Push is new AWS.Server.Push
-     (Client_Output_Type => Push_Data_Type,
-      Stream_Output_Type => String,
-      Client_Environment => Editing.Picture,
-      To_Stream_Output   => Image);
-
-   package Format is new Editing.Decimal_Output (Push_Data_Type);
-
    HTTP        : AWS.Server.HTTP;
    Connect     : array (Server_Push.Mode'Range) of Client.HTTP_Connection;
    Push        : Server_Push.Object;
    Answer      : AWS.Response.Data;
-
-   CRLF        : constant String := ASCII.CR & ASCII.LF;
-   End_Of_Part : constant String := '.' & CRLF;
 
    Data        : Push_Data_Type := 1000.0;
 
