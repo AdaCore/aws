@@ -59,8 +59,9 @@ procedure Upload2 is
    HTTP : AWS.Server.HTTP;
 
    procedure Problem
-     (E           : in Ada.Exceptions.Exception_Occurrence;
-      Termination : in Boolean);
+     (E           : in     Ada.Exceptions.Exception_Occurrence;
+      Termination : in     Boolean;
+      Answer      : in out Response.Data);
    --  Web exception handler
 
    --------
@@ -91,8 +92,9 @@ procedure Upload2 is
    -------------
 
    procedure Problem
-     (E           : in Ada.Exceptions.Exception_Occurrence;
-      Termination : in Boolean) is
+     (E           : in     Ada.Exceptions.Exception_Occurrence;
+      Termination : in     Boolean;
+      Answer      : in out Response.Data) is
    begin
       Put_Line ("Ok, exception received on the server side");
       Put_Line ("  => " & Exceptions.Exception_Name (E));
@@ -124,7 +126,7 @@ procedure Upload2 is
       select
          accept Stopped;
       or
-         delay 5.0;
+         delay 25.0;
          Put_Line ("Too much time to do the job !");
       end select;
 
@@ -146,7 +148,7 @@ procedure Upload2 is
       New_Line;
    exception
       when AWS.Net.Socket_Error =>
-         Put_Line ("Ok, exception Socket_Error on client side!");
+         Put_Line ("NOk, exception Socket_Error on client side!");
    end Request;
 
 begin
@@ -154,7 +156,7 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:7643/upload", "upload2.exe");
+   Request ("http://localhost:7643/upload", "upload2.ali");
 
    Server.Stopped;
 

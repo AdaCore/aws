@@ -48,8 +48,9 @@ procedure Unexph is
    function CB (Request : in Status.Data) return Response.Data;
 
    procedure UEH
-     (E           : in Ada.Exceptions.Exception_Occurrence;
-      Termination : in Boolean);
+     (E           : in     Ada.Exceptions.Exception_Occurrence;
+      Termination : in     Boolean;
+      Answer      : in out Response.Data);
 
    task Server is
       entry Wait_Start;
@@ -76,7 +77,6 @@ procedure Unexph is
 
    task body Server is
    begin
-
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, UEH'Unrestricted_Access);
 
@@ -97,8 +97,9 @@ procedure Unexph is
    ---------
 
    procedure UEH
-     (E       : in Ada.Exceptions.Exception_Occurrence;
-      Termination : in Boolean) is
+     (E           : in     Ada.Exceptions.Exception_Occurrence;
+      Termination : in     Boolean;
+      Answer      : in out Response.Data) is
    begin
       Ada.Text_IO.Put_Line
         (Exceptions.Exception_Name (E) & ' ' & Boolean'Image (Termination));
