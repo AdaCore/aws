@@ -59,4 +59,10 @@ package AWS.Digest is
       return String;
    --  Returns a more complex MD5 Digest.
 
+   function Get_MD5 (Data : String) return Digest_String;
+   --  Simplified MD5 calculation function just for convenience.
+   --  It is necessary when the client callback need to
+   --  precalculate digest partionally,
+   --  and then send it to the authentication module.
+
 end AWS.Digest;

@@ -140,25 +140,11 @@ package body AWS.Digest is
       Method, URI               : in String)
       return String
    is
-      Ctx      : MD5.Context;
-      HA1, HA2 : MD5.Fingerprint;
    begin
-      MD5.Init (Ctx);
-      MD5.Update (Ctx, Username & ':' & Realm & ':' & Password);
-      MD5.Final (Ctx, HA1);
-
-      MD5.Init (Ctx);
-      MD5.Update (Ctx, Method & ':' & URI);
-      MD5.Final (Ctx, HA2);
-
-      MD5.Init (Ctx);
-      MD5.Update (Ctx,
-                  MD5.Digest_To_Text (HA1) & ':' & Nonce
-                    & ':' & MD5.Digest_To_Text (HA2));
-
-      MD5.Final (Ctx, HA1);
-
-      return MD5.Digest_To_Text (HA1);
+      return Get_MD5 (
+         Get_MD5 (Username & ':' & Realm & ':' & Password)
+         & ':' & Nonce & ':'
+         & Get_MD5 (Method & ':' & URI));
    end Create_Digest;
 
    ------------------
@@ -204,6 +190,21 @@ package body AWS.Digest is
       return (4 .. Sharp_Index => '0')
         & Duration_Image (Sharp_Index + 1 .. 8) & Result;
    end Create_Nonce;
+
+   -------------
+   -- Get_MD5 --
+   -------------
+
+   function Get_MD5 (Data : String) return Digest_String
+   is
+      Ctx : MD5.Context;
+      HA  : MD5.Fingerprint;
+   begin
+      MD5.Init   (Ctx);
+      MD5.Update (Ctx, Data);
+      MD5.Final  (Ctx, HA);
+      return MD5.Digest_To_Text (HA);
+   end Get_MD5;
 
 begin
    MD5.Update (Private_Key,
