@@ -1,3 +1,16 @@
+2004-04-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.ads:
+	(TS_SSL): Initialized and Private_Key private fields removed.
+
+	* aws-net-ssl.adb:
+	(Pivate_Key_Holder): New protected object to keep private key.
+	(Set_Certificate): Use globaly created private key if necessary.
+	 Fix checking the return value of the OpenSSL routines according to
+	 documentation.
+	(Initialize): Do not create private key in each initialization.
+	 Use Context instead of Initialized flag.
+
 2004-04-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
