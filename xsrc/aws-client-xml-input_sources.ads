@@ -67,8 +67,8 @@ private
       Self   : HTTP_Input_Access := HTTP_Input'Unchecked_Access;
       HTTP   : HTTP_Connection_Access;
       Buffer : Stream_Element_Array (1 .. 4_096);
-      First  : Stream_Element_Offset := 1;
-      Last   : Stream_Element_Offset := 0;
+      First  : Stream_Element_Offset;
+      Last   : Stream_Element_Offset;
    end record;
 
 end AWS.Client.XML.Input_Sources;
