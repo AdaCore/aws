@@ -1,5 +1,11 @@
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-config-set.ads:
+	(Free_Slots_Keep_Alive_Limit): Fix comments.
+
+	* aws-config.ads:
+	(Free_Slots_Keep_Alive_Limit): Fix comments.
+
 	* aws-server.adb:
 	(Line): Fix previous code which does not compile.
 
