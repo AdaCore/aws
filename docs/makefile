@@ -59,12 +59,12 @@ APIFILES = ../src/aws.ads.texi \
 ifeq (${OS}, Windows_NT)
 TEXI2HTML = texi2html.pl
 else
-TEXI2HTML = texi2html.pl
+TEXI2HTML = texi2html
 endif
 
 check_env:
 	(if ! [ -e ../src/aws-os_lib.adb ]; then \
-	   cp ../include/aws-os_lib-gnat.adb ../src/aws-os_lib.adb; fi)
+	   cp ../config/aws-os_lib__gnat.adb ../src/aws-os_lib.adb; fi)
 
 aws_docs : aws.ps aws.pdf aws.html aws.txt aws.info
 
