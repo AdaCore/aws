@@ -477,13 +477,6 @@ package body AWS.Client is
       Result     :    out Response.Data;
       Get_Body   : in     Boolean         := True)
    is
-      procedure Read_Chunked;
-      --  Read a chunked object from the stream
-
-      procedure Read_Binary_Message (Len : in Positive);
-      pragma Inline (Read_Binary_Message);
-      --  Read a binary message of Len bytes from the socket.
-
       procedure Disconnect;
       --  close connection socket.
 
@@ -502,90 +495,6 @@ package body AWS.Client is
          end if;
       end Disconnect;
 
-      -------------------------
-      -- Read_Binary_Message --
-      -------------------------
-
-      procedure Read_Binary_Message (Len : in Positive) is
-         use Streams;
-
-         Elements : Stream_Element_Array (1 .. 10_240);
-
-         Remain   : Stream_Element_Offset := Stream_Element_Offset (Len);
-      begin
-         --  Read the message, 10k at a time
-
-         loop
-            if Elements'Length < Remain then
-               Net.Buffered.Read (Sock, Elements);
-               Response.Set.Append_Body (Result, Elements);
-
-            else
-               Net.Buffered.Read (Sock, Elements (1 .. Remain));
-               Response.Set.Append_Body (Result, Elements (1 .. Remain));
-
-               exit;
-            end if;
-
-            Remain := Remain - Elements'Length;
-         end loop;
-      end Read_Binary_Message;
-
-      ------------------
-      -- Read_Chunked --
-      ------------------
-
-      procedure Read_Chunked is
-
-         use Streams;
-
-         use type Stream_Element_Array;
-         use type Stream_Element_Offset;
-
-         procedure Skip_Line;
-         --  skip a line on the socket
-
-         ---------------
-         -- Skip_Line --
-         ---------------
-
-         procedure Skip_Line is
-            D : constant String := Net.Buffered.Get_Line (Sock);
-            pragma Warnings (Off, D);
-         begin
-            null;
-         end Skip_Line;
-
-         Size : Stream_Element_Offset;
-
-      begin
-         loop
-            --  Read the chunk size that is an hex number
-            declare
-               L : constant String := Net.Buffered.Get_Line (Sock);
-            begin
-               Size := Stream_Element_Offset
-                 (Utils.Hex_Value (Strings.Fixed.Trim (L, Strings.Both)));
-            end;
-
-            if Size = 0 then
-               Skip_Line;
-               exit;
-
-            else
-               declare
-                  Chunk : Stream_Element_Array (1 .. Size);
-               begin
-                  Net.Buffered.Read (Sock, Chunk);
-
-                  Response.Set.Append_Body (Result, Chunk);
-               end;
-
-               Skip_Line;
-            end if;
-         end loop;
-      end Read_Chunked;
-
    begin
       Net.Set_Timeout (Sock, Connection.Read_Timeout);
 
@@ -594,13 +503,6 @@ package body AWS.Client is
       Response.Set.Clear (Result);
 
       Parse_Header (Connection, Result, Keep_Alive);
-
-      if not Get_Body then
-         Disconnect;
-         return;
-      end if;
-
-      --  Read the message body
 
       declare
          TE     : constant String
@@ -621,31 +523,42 @@ package body AWS.Client is
             --  CRLF
             --
 
-            Read_Chunked;
+            Connection.Transfer := Chunked;
+            Connection.Length   := 0;
 
+         elsif CT_Len = Response.Undefined_Length then
+            Connection.Transfer := Until_Close;
          else
-            if CT_Len = Response.Undefined_Length then
-               Read_Until_Close : begin
-                  loop
-                     declare
-                        Data : constant Streams.Stream_Element_Array
-                          := Net.Buffered.Read (Sock);
-                     begin
-                        Response.Set.Append_Body (Result, Data);
-                     end;
-                  end loop;
-               exception
-                  when Net.Socket_Error =>
-                     null;
-               end Read_Until_Close;
-
-            else
-               if CT_Len > 0 then
-                  Read_Binary_Message (CT_Len);
-               end if;
+            if CT_Len = 0 then
+               Disconnect;
+               return;
             end if;
+
+            Connection.Transfer := Content_Length;
+            Connection.Length   := CT_Len;
          end if;
       end;
+
+      if not Get_Body then
+         Disconnect;
+         return;
+      end if;
+
+      --  Read the message body
+
+      loop
+         declare
+            use Ada.Streams;
+            Buffer : Stream_Element_Array (1 .. 8096);
+            Last   : Stream_Element_Offset;
+         begin
+            Read_Some (Connection, Buffer, Last);
+            exit when Last < Buffer'First;
+            Response.Set.Append_Body (Result, Buffer (Buffer'First .. Last));
+         end;
+      end loop;
+
+      Connection.Transfer := None;
 
       Disconnect;
    end Get_Response;
@@ -1594,6 +1507,113 @@ package body AWS.Client is
          end;
       end loop Retry;
    end Put;
+
+   ----------
+   -- Read --
+   ----------
+
+   procedure Read
+     (Connection : in out HTTP_Connection;
+      Data       :    out Ada.Streams.Stream_Element_Array;
+      Last       :    out Ada.Streams.Stream_Element_Offset)
+   is
+      use Ada.Streams;
+      First : Stream_Element_Offset := Data'First;
+   begin
+      loop
+         Read_Some (Connection, Data (First .. Data'Last), Last);
+         exit when Last = Data'Last or else Last < First;
+         First := Last + 1;
+      end loop;
+   end Read;
+
+   ---------------
+   -- Read_Some --
+   ---------------
+
+   procedure Read_Some
+     (Connection : in out HTTP_Connection;
+      Data       :    out Ada.Streams.Stream_Element_Array;
+      Last       :    out Ada.Streams.Stream_Element_Offset)
+   is
+      use Ada.Streams;
+      Sock  : Net.Socket_Type'Class renames Connection.Socket.all;
+
+      procedure Skip_Line;
+      procedure Read_Limited;
+
+      ------------------
+      -- Read_Limited --
+      ------------------
+
+      procedure Read_Limited is
+         Limit : Stream_Element_Offset
+           := Stream_Element_Offset'Min
+                       (Data'Last,
+                        Data'First + Stream_Element_Offset (Connection.Length)
+                          - 1);
+      begin
+         Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
+
+         Connection.Length
+           := Connection.Length - Integer (Last - Data'First + 1);
+      end Read_Limited;
+
+      ---------------
+      -- Skip_Line --
+      ---------------
+
+      procedure Skip_Line is
+         D : constant String := Net.Buffered.Get_Line (Sock);
+         pragma Warnings (Off, D);
+      begin
+         null;
+      end Skip_Line;
+
+   begin
+      case Connection.Transfer is
+         when End_Response => Last := Data'First - 1;
+         when Until_Close  =>
+            begin
+               Net.Buffered.Read (Sock, Data, Last);
+            exception
+               when Net.Socket_Error =>
+                  Connection.Transfer := End_Response;
+                  Last := Data'First - 1;
+            end;
+
+         when Content_Length =>
+            Read_Limited;
+
+            if Connection.Length = 0 then
+               Connection.Transfer := End_Response;
+            end if;
+
+         when Chunked =>
+            if Connection.Length = 0 then
+               Connection.Length
+                 := Utils.Hex_Value
+                      (Strings.Fixed.Trim
+                         (Net.Buffered.Get_Line (Sock), Strings.Both));
+
+               if Connection.Length = 0 then
+                  Skip_Line;
+                  Connection.Transfer := End_Response;
+
+                  Last := Data'First - 1;
+                  return;
+               end if;
+            end if;
+
+            Read_Limited;
+
+            if Connection.Length = 0 then
+               Skip_Line;
+            end if;
+
+         when None => raise Constraint_Error;
+      end case;
+   end Read_Some;
 
    ----------------
    -- Read_Until --
