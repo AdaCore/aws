@@ -64,6 +64,17 @@ procedure Interoplab_Main is
 
    package LFIO is new Text_IO.Float_IO (Long_Float);
 
+   ------------
+   -- Output --
+   ------------
+
+   procedure Output (S : in SOAPStruct_Type) is
+   begin
+      Integer_Text_IO.Put (S.varInt); Text_IO.New_Line;
+      LFIO.Put (S.VarFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
+      Text_IO.Put_Line (To_String (S.varString));
+   end Output;
+
    ---------------------
    -- T_echoString_CB --
    ---------------------
@@ -297,9 +308,7 @@ procedure Interoplab_Main is
         := interopLab.Client.echoStruct (Struct);
    begin
       Text_IO.Put_Line ("Echo Struct");
-      Integer_Text_IO.Put (Res.varInt); Text_IO.New_Line;
-      LFIO.Put (Res.VarFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
-      Text_IO.Put_Line (To_String (Res.varString));
+      Output (Res);
       Text_IO.New_Line;
    end T_echoStruct;
 
@@ -373,6 +382,40 @@ procedure Interoplab_Main is
       Text_IO.New_Line;
    end T_echoFloatArray;
 
+   ---------------------
+   -- echoStructArray --
+   ---------------------
+
+   function T_echoStructArray_CB
+      (inputStructArray : in ArrayOfSOAPStruct)
+       return echoStructArray_Result is
+   begin
+      return inputStructArray;
+   end T_echoStructArray_CB;
+
+   function echoStructArray_CB is
+      new Interoplab.Server.echoStructArray_CB (T_echoStructArray_CB);
+
+   -----------------------
+   -- T_echoStructArray --
+   -----------------------
+
+   procedure T_echoStructArray is
+      A_Struct : constant ArrayOfSOAPStruct
+        := ((1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three"));
+
+      Res : constant ArrayOfSOAPStruct
+        := interopLab.Client.echoStructArray (A_Struct);
+   begin
+      Text_IO.Put_Line ("Echo ArrayOfStruct");
+
+      for K in Res'Range loop
+         Output (Res (K));
+      end loop;
+
+      Text_IO.New_Line;
+   end T_echoStructArray;
+
    --------
    -- CB --
    --------
@@ -419,6 +462,9 @@ procedure Interoplab_Main is
             elsif Proc = "echoFloatArray" then
                return echoFloatArray_CB (Request);
 
+            elsif Proc = "echoStructArray" then
+               return echoStructArray_CB (Request);
+
             else
                return Response.Build (MIME.Text_HTML, "Not a SOAP request");
             end if;
@@ -444,6 +490,7 @@ begin
    T_echoStruct;
    T_echoDate;
    T_echoFloatArray;
+   T_echoStructArray;
 
    AWS.Server.Shutdown (H_Server);
 end Interoplab_Main;
