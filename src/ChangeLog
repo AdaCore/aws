@@ -1,3 +1,10 @@
+2002-05-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb, aws-server-get_status.adb, aws-parameters.adb:
+	Add pragma Warnings Off to avoid compilation warnings about unused
+	 entities.
+	Patch from Wiljan Derks.
+
 2002-05-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
