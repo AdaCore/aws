@@ -162,8 +162,9 @@ is
                "Set-Cookie: AWS=" & AWS.Status.Session (C_Stat));
          end if;
 
-         Sockets.Put_Line (Sock,
-                           "Date: " & Messages.To_HTTP_Date (OS_Lib.OS_Clock));
+         Sockets.Put_Line
+           (Sock,
+            "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
 
          Sockets.Put_Line (Sock,
                            "Server: AWS (Ada Web Server) v" & Version);
