@@ -5183,13 +5183,30 @@ distributed with @code{AWS}.
 @cindex References
 
 @noindent
-Here is a list of documents used to implement @code{AWS} and the
-@code{SOAP} support:
+Here is a list of documents used to implement @code{AWS}, the
+@code{SOAP} support and associated services:
 
-@enumerate 1
+@table @b
+
+@item RFC 0821
+@cindex RFC 0821
+@cindex SMTP
+
+@smallexample
+                     SIMPLE MAIL TRANSFER PROTOCOL
+                                    
+                           Jonathan B. Postel
+                              August 1982
+                                    
+                     Information Sciences Institute
+                   University of Southern California
+                           4676 Admiralty Way
+                   Marina del Rey, California  90291
+@end smallexample
 
 @item RFC 1867
 @cindex RFC 1867
+@cindex HTML File Upload
 
 @smallexample
 Network Working Group                                           E. Nebel
@@ -5201,8 +5218,24 @@ Category: Experimental                                 Xerox Corporation
                      Form-based File Upload in HTML
 @end smallexample
 
+@item RFC 1939
+@cindex RFC 1939
+@cindex POP
+
+@smallexample
+Network Working Group                                           J. Myers
+Request for Comments: 1939                               Carnegie Mellon
+STD: 53                                                          M. Rose
+Obsoletes: 1725                             Dover Beach Consulting, Inc.
+Category: Standards Track                                       May 1996
+
+
+                    Post Office Protocol - Version 3
+@end smallexample
+
 @item RFC 1945
 @cindex RFC 1945
+@cindex HTTP/1.0
 
 @smallexample
 Network Working Group                                     T. Berners-Lee
@@ -5215,6 +5248,23 @@ Category: Informational                                      R. Fielding
 
 
                 Hypertext Transfer Protocol -- HTTP/1.0
+@end smallexample
+
+@item RFC 2049
+@cindex RFC 2049
+@cindex MIME
+
+@smallexample
+Network Working Group                                          N. Freed
+Request for Comments: 2049                                     Innosoft
+Obsoletes: 1521, 1522, 1590                               N. Borenstein
+Category: Standards Track                                 First Virtual
+                                                          November 1996
+
+
+                 Multipurpose Internet Mail Extensions
+                           (MIME) Part Five:
+                   Conformance Criteria and Examples
 @end smallexample
 
 @item RFC 2109
@@ -5231,8 +5281,38 @@ Category: Standards Track                                    L. Montulli
                     HTTP State Management Mechanism
 @end smallexample
 
+@item RFC 2195
+@cindex RFC 2195
+@cindex IMAP/POP
+
+@smallexample
+Network Working Group                                       J. Klensin
+Request for Comments: 2195                                    R. Catoe
+Category: Standards Track                                 P. Krumviede
+Obsoletes: 2095                                                    MCI
+                                                        September 1997
+
+
+       IMAP/POP AUTHorize Extension for Simple Challenge/Response
+@end smallexample
+
+@item RFC 2554
+@cindex RFC 2554
+@cindex SMTP Authentication
+
+@smallexample
+Network Working Group                                           J. Myers
+Request for Comments: 2554                       Netscape Communications
+Category: Standards Track                                     March 1999
+
+
+                         SMTP Service Extension
+                           for Authentication
+@end smallexample
+
 @item RFC 2616
 @cindex RFC 2616
+@cindex HTTP/1.1
 
 @smallexample
 Network Working Group                                      R. Fielding
@@ -5257,6 +5337,7 @@ Category: Standards Track                                   Compaq/W3C
 
 @item RFC 2617
 @cindex RFC 2617
+@cindex HTTP Authentication
 
 @smallexample
 Network Working Group                                          J. Franks
@@ -5281,6 +5362,7 @@ Category: Standards Track                                 Verisign, Inc.
 
 @item draft 302
 @cindex draft 302
+@cindex SSL
 
 @smallexample
 Transport Layer Security Working Group                  Alan O. Freier
@@ -5290,14 +5372,6 @@ Expire in six months                                    Philip Karlton
                                                         Paul C. Kocher
                                                 Independent Consultant
                                                      November 18, 1996
-
-
-
-
-
-
-
-
 
 
                           The SSL Protocol
@@ -5333,6 +5407,7 @@ Lotus Development Corporation, Microsoft, UserLand Software
 @end smallexample
 
 @url{http://www.w3.org/TR/SOAP/}
+@sp 1
 
 @item A Busy Developer's Guide to SOAP 1.1
 @cindex SOAP 1.1
@@ -5343,7 +5418,7 @@ By Dave Winer, Jake Savin, UserLand Software, 4/2/01.
 
 @url{http://www.soapware.org/bdg}
 
-@end enumerate
+@end table
 
 @c ======================================================================
 
