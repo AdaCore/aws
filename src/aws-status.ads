@@ -189,8 +189,7 @@ package AWS.Status is
    function Payload                (D : in Data) return String;
    pragma Inline (Payload);
    --  Returns the XML Payload message. XML payload is the actual SOAP
-   --  request. This routine is obsoleted, it is better to use the pre-parsed
-   --  payload (see routine below).
+   --  request.
 
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
 
@@ -210,6 +209,7 @@ private
       --  Connection info
       Socket            : Net.Socket_Access;
       Peername          : Unbounded_String;
+
       --  Request
       Header            : Headers.List;
       Method            : Request_Method     := GET;
@@ -220,8 +220,11 @@ private
       Content_Length    : Natural            := 0;
       Keep_Alive        : Boolean;
       File_Up_To_Date   : Boolean            := False;
+
       --  SOAP
       SOAP_Action       : Boolean            := False;
+      --  True if SOAPAction is set in the header list
+
       --  Authentication
       Auth_Mode         : Authorization_Type := None;
       Auth_Name         : Unbounded_String; -- for Basic and Digest
@@ -232,6 +235,7 @@ private
       Auth_CNonce       : Unbounded_String; -- for Digest
       Auth_QOP          : Unbounded_String; -- for Digest
       Auth_Response     : Unbounded_String; -- for Digest
+
       --  Session
       Session_ID        : AWS.Session.ID     := AWS.Session.No_Session;
       Session_Created   : Boolean            := False;
