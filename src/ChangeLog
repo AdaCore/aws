@@ -1,3 +1,10 @@
+2004-09-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-thin.ads:
+	(GetAddrInfo): New routine.
+	(FreeAddrInfo): New routine.
+	(GAI_StrError): New routine.
+
 2004-09-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:
