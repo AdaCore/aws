@@ -197,6 +197,16 @@ package body AWS.Status.Set is
       D.Binary_Data := new Stream_Element_Array'(Parameter);
    end Parameters;
 
+   --------------
+   -- Peername --
+   --------------
+
+   procedure Peername (D        : in out Data;
+                       Peername : in     String) is
+   begin
+      D.Peername := To_Unbounded_String (Peername);
+   end Peername;
+
    -------------
    -- Request --
    -------------

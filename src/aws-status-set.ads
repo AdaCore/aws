@@ -71,6 +71,10 @@ package AWS.Status.Set is
                                 If_Modified_Since : in     String);
    --  Set value for "If-Modified-Since:" parameter
 
+   procedure Peername (D        : in out Data;
+                       Peername : in     String);
+   --  Set peername field.
+
    procedure Request (D            : in out Data;
                       Method       : in     Request_Method;
                       URI          : in     String;
