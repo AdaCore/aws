@@ -30,7 +30,6 @@
 
 --  $Id$
 
-with Ada.Strings.Unbounded;
 with System;
 
 with MD5;
@@ -63,16 +62,6 @@ package AWS.Utils is
 
    function Is_Number (S : in String) return Boolean;
    --  Returns True is S contains only decimal digits.
-
-   generic
-      type Enum is (<>);
-      type Result_Set is
-        array (Enum) of Ada.Strings.Unbounded.Unbounded_String;
-   procedure Parse_HTTP_Header_Line
-     (Data   : in     String;
-      Result :    out Result_Set);
-   --  Parse the HTTP header line. Set Result_Set (Name) with the value
-   --  corresponding to variable Name.
 
    function Get_MD5 (Data : in String) return MD5.Digest_String;
    --  Returns the MD5 digest value for the Data string.
