@@ -1,3 +1,17 @@
+2003-12-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.adb:
+	(Dec): Better implementation.
+
+2003-12-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-pop.adb:
+	(For_Every_Message): Fix code to avoid warning.
+	(For_Every_Message_Header): Fix code to avoid warning.
+
+	* aws-utils.ads, aws-utils.adb:
+	(Dec): New routine.
+
 2003-12-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:
@@ -21,7 +35,7 @@
 	* aws-communication-server.adb:
 	(Internal_Callback): Derived from AWS.Response.Callback. Cleaner
 	 implementation for previous check-in.
-	
+
 2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-communication-server.adb:
@@ -143,7 +157,7 @@
 	* aws-server.adb:
 	(Shutdown): Release memory associated with the server's SSL_Config
 	 object.
-	
+
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
@@ -157,7 +171,7 @@
 	* aws-net-ssl-certificate.adb:
 	(NAME_oneline): New routine.
 	(Get): Use NAME_oneline, free certificate before returning.
-	
+
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -172,7 +186,7 @@
 	 configuration.
 	(Set_Security): New version that operate on a single server.
 	(Start): If secure server, initialize the security object.
-	
+
 	* aws-server.ads:
 	(Set_Security): New version that operate on a single server.
 	(HTTP): Add SSL_Config field.
@@ -353,7 +367,7 @@
 	(Content) [Attachment]: Returns a Stream_Access.
 	(Get): Use CRLF, use new routine Delete to delete a message if needed.
 	(Get_Header): Retreive the message size.
-	
+
 	* aws-pop.ads:
 	(Stream_Type): Move to body.
 	(Delete): New routine.
@@ -392,7 +406,7 @@
 
 	* aws-mime.ads, aws-mime.adb:
 	Fix casing of GZip and GTar.
-	
+
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-pop.ads, aws-pop.adb:
@@ -408,7 +422,7 @@
 	* aws-server-hotplug.ads, aws-server-hotplug.adb:
 	Reformat code.
 	Update copyright header.
-	
+
 	* aws-hotplug.ads, aws-hotplug.adb:
 	Reformat code.
 	Update copyright header.
@@ -416,7 +430,7 @@
 	* aws-server-protocol_handler.adb:
 	(Get_Message_Header): Uses AWS.Status.Is_Supported service,
 	 cleaner implementation.
-	
+
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
@@ -449,13 +463,13 @@
 
 	* aws-resources-streams-zlib.ads, aws-resources-streams-zlib.adb:
 	Undo previous change.
-	
+
 	* aws-resources.ads, aws-resources.adb:
 	Undo previous changes.
 	Keep only Support_Compressed routine.
 	This implementation support only uncompress of embedded compressed
 	 resources.
-	
+
 2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources.adb:
@@ -583,7 +597,7 @@
 	(Get): Reset stream using the root class method.
 	(Release): Removed.
 	Minor reformatting.
-	
+
 	* aws-services-split_pages.adb:
 	(Parse): Use memory stream API directly as the Stream_Type has
 	 been removed from Transient_Pages. Use Config.Transient_Lifetime
@@ -612,7 +626,7 @@
 	(File): Add parameter once. Set Mode to File or File_Once
 	 depending on Once value.
 	(Stream): Set the close by server state.
-	
+
 	* aws-response-set.ads, aws-response-set.adb:
 	(Close_Resource): New routine.
 
@@ -637,7 +651,7 @@
 	* aws-resources-streams-zlib.ads, aws-resources-streams-zlib.adb:
 	(Reset): New routine.
 
-	* aws-resources-streams-disk-once.ads, 
+	* aws-resources-streams-disk-once.ads,
 	  aws-resources-streams-disk-once.adb:
 	Initial revision.
 
@@ -676,7 +690,7 @@
 	(Transient_Cleanup_Interval): New routine.
 	(Transient_Lifetime): Idem.
 	Fix typo in comment.
-	
+
 	* aws-config-set.adb:
 	(Transient_Cleanup_Interval): New routine.
 	(Transient_Lifetime): Idem.
@@ -702,7 +716,7 @@
 	(Close): Do not fail when calling ZL.Close. This is needed if the
 	 data has not been set, for example in a transient compressed page.
 
-	* aws-resources.adb, aws-resources-streams.adb, 
+	* aws-resources.adb, aws-resources-streams.adb,
 	  aws-resources-files.adb:
 	(Release): Use AWS.Resources.Release child procedure.
 
@@ -720,7 +734,7 @@
 	* aws-resources-release.ads, aws-resources-release.adb:
 	Initial revision.
 
-	* aws-services-transient_pages-control.ads, 
+	* aws-services-transient_pages-control.ads,
 	  aws-services-transient_pages-control.adb:
 	Initial revision.
 
@@ -731,12 +745,12 @@
 	(Cleaner_Control): New protected object.
 	(Database): New protected object to keep record of all transient
 	 pages.
-	
+
 	* aws-services-transient_pages.ads:
 	(Default_Life_Time): Renamed Default_Lifetime for consistency.
 	(Cleaner): New task.
 	(Cleaner_Control): New protected object.
-	
+
 	* aws-session-control.ads:
 	Fix typo.
 
@@ -772,7 +786,7 @@
 
 	* aws-services-transient_pages.ads:
 	Initial revision.
-	
+
 	* aws-services-transient_pages.adb:
 	Initial revision.
 	Note that this implementation is a proof of concept far from being
@@ -788,7 +802,7 @@
 	(Release): New routine.
 
 	* aws-resources.adb:
-	(Close): Do not call Free directly to release the memory associated 
+	(Close): Do not call Free directly to release the memory associated
 	 with the handle but call Release dispatching operation.
 	(Release): New routine.
 	Minor reformatting.
@@ -946,7 +960,7 @@
 	(Is_Log_Active): Idem.
 	(Is_Error_Log_Active): Idem.
 	Minor reformatting.
-	
+
 2003-10-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.adb:
@@ -958,7 +972,7 @@
 
 	* aws-utils.ads:
 	Minor reformatting.
-	
+
 2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
@@ -1089,7 +1103,7 @@
 	Add some genaral comments about this API.
 	(Close): Add some comment.
 
-	* aws-resources-streams.ads, aws-resources-streams.adb: 
+	* aws-resources-streams.ads, aws-resources-streams.adb:
 	(Create): Rename parameter Buffer to Stream.
 
 2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
@@ -1178,7 +1192,7 @@
 	(Socket_Semaphore): Implement a socket queue instead of a single
 	 socket space. This is better for performance.
 
-	* aws-net.ads: 
+	* aws-net.ads:
 	(Socket_Set): New type.
 
 2003-10-05  Pascal Obry  <p.obry@wanadoo.fr>
@@ -1186,7 +1200,7 @@
 	* aws-client.adb:
 	Change Set.Append_Encode by Set.Data_Encoding.
 	Minor reformatting.
-	
+
 	* aws-resources-streams-memory-zlib.adb:
 	(Append): Do not free the memory here. We do not want to create
 	 dangling pointers.
