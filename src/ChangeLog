@@ -1,3 +1,21 @@
+2001-09-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session-control.adb:
+	(Shutdown): Ask for termination of Cleaner_Control task. Release
+	 the memory for the task access. Fix a memory leak.
+
+	* aws-session.adb:
+	(Cleaner): wait for next run and eventually accept a Stop
+	 rendez-vous. In this case the task will exit from the loop.
+	(Cleaner_Control.Stop): Returns now a boolean to tell if the session
+	 cleaner task can be terminated or not.
+	
+	* aws-session.ads:
+	(Cleaner): add entry Stop.
+	(Cleaner_Control.Stop): Returns now a boolean to tell if the session
+	 cleaner task can be terminated or not.
+	(Cleaner_Task): put declaration outside the Cleaner_Control object.
+
 2001-09-11  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
