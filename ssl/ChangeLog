@@ -1,3 +1,11 @@
+2004-08-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* ssl-thin.ads:
+	(SSL_MODE_ENABLE_PARTIAL_WRITE): New constant.
+	(SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER): New constant.
+	(SSL_MODE_AUTO_RETRY): New constant.
+	(SSL_MODE_NO_AUTO_CHAIN): New constant.
+
 2004-05-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* ssl-thin.ads:
@@ -63,7 +71,7 @@
 	* ssl-thin.ads:
 	(X509_free): New routine.
 	(X509_NAME_oneline): Fix spec.
-	
+
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl-wrappers.ads, ssl-wrappers.adb:
@@ -106,7 +114,7 @@
 
 	* makefile:
 	Use variable instead of directly calling tools.
-	
+
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -270,11 +278,11 @@
 	(SSL_Set_Connect_State ): idem.
 	(SSL_Set_Accept_State): idem.
 	(SSL_Set_Shutdown): idem.
-	
-	* ssl.adb: 
+
+	* ssl.adb:
 	(Free): new procedure.
 	Many other fixes to fix a bug.
-	
+
 	* ssl.ads:
 	(Connection_Error): exception removed.
 	(Shutdown): add comments.
