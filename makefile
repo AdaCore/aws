@@ -314,6 +314,12 @@ PRJ_XMLADA=Disabled
 GEXT_MODULE := gxmlada_dummy
 endif
 
+ifdef ADASOCKETS
+GEXT_MODULE := $(GEXT_MODULE) gadasockets
+else
+GEXT_MODULE := $(GEXT_MODULE) gsockets_dummy
+endif
+
 ifdef ASIS
 PRJ_ASIS=Installed
 GEXT_MODULE := $(GEXT_MODULE) gasis
@@ -370,6 +376,19 @@ gasis_dummy:
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/asis.gpr
 	echo "   LIB_Path := \"\";" >> $(PRJDIR)/asis.gpr
 	echo "end ASIS;" >> $(PRJDIR)/asis.gpr
+
+gadasockets:
+	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
+	echo "   Path := \"$(ADASOCKETS)/lib/adasockets\";" \
+		>> $(PRJDIR)/sockets.gpr
+	echo "   for Source_Dirs use (Path);" >> $(PRJDIR)/sockets.gpr
+	echo "   for Object_Dir use Path;" >> $(PRJDIR)/sockets.gpr
+	echo "end Sockets;" >> $(PRJDIR)/sockets.gpr
+
+gsockets_dummy:
+	echo "project Sockets is" > $(PRJDIR)/sockets.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/sockets.gpr
+	echo "end Sockets;" >> $(PRJDIR)/sockets.gpr
 
 gposix:
 	echo "project POSIX is" > $(PRJDIR)/posix.gpr
