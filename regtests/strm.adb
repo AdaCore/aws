@@ -55,6 +55,8 @@ procedure Strm is
 
    function CB (Request : in Status.Data) return Response.Data;
 
+   procedure Compare_Message;
+
    task Server is
       entry Wait_Start;
       entry Stop;
@@ -67,6 +69,8 @@ procedure Strm is
    File_Size : constant := 100_000;
 
    Length_Defined_URI : constant String := "/length_defined";
+   Deflated_URI       : constant String := "/deflate-it";
+   GZip_URI           : constant String := "/gzip-it";
 
    --------
    -- CB --
@@ -79,12 +83,26 @@ procedure Strm is
 
       User_Strm.Create
         (Resource       => File.all,
-         Undefined_Size => Status.URI (Request) = Length_Defined_URI,
+         Undefined_Size => Status.URI (Request) /= Length_Defined_URI,
          Size           => File_Size);
 
-      return AWS.Response.Stream
-        ("text/plain",
-         File);
+      if Status.URI (Request) = Deflated_URI then
+         return AWS.Response.Stream
+           ("text/plain",
+            File,
+            Encoding => AWS.Response.Deflate);
+
+      elsif Status.URI (Request) = GZip_URI then
+         return AWS.Response.Stream
+           ("text/plain",
+            File,
+            Encoding => AWS.Response.GZip);
+
+      else
+         return AWS.Response.Stream
+           ("text/plain",
+            File);
+      end if;
    end CB;
 
    ------------
@@ -131,6 +149,12 @@ procedure Strm is
       then
          Put_Line ("Ok.");
       else
+         Put_Line
+           (Boolean'Image (Message = Same_Message)
+            & ' ' & Boolean'Image (Last = Message'Last)
+            & ' ' & Boolean'Image (User_Strm.End_Of_File (File))
+            & Message'Length'Img);
+
          Put_Line ("Error.");
       end if;
    end Compare_Message;
@@ -147,6 +171,12 @@ begin
    Compare_Message;
 
    Client.Get (Connect, R, "/length_undefined");
+   Compare_Message;
+
+   Client.Get (Connect, R, Deflated_URI);
+   Compare_Message;
+
+   Client.Get (Connect, R, GZip_URI);
    Compare_Message;
 
    Client.Close (Connect);
