@@ -77,4 +77,8 @@ begin
    Test ("..");
    Test ("/../");
    Test ("/..");
+   Test ("/..filename");
+   Test ("/.filename");
+   Test ("..filename");
+   Test (".filename");
 end Turl2;
