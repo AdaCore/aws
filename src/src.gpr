@@ -40,6 +40,20 @@ project Src is
 
    for Source_Dirs use (".");
 
+   --  XMLAda Installed, add xsrc and soap directories
+
+   case Shared.XMLAda is
+      when "Installed" =>
+         for Source_Dirs use project'Source_Dirs & ("../xsrc", "../soap");
+   end case;
+
+   --  Under Win32 add sources from win32 directory
+
+   case Shared.OS is
+      when "Windows_NT" =>
+         for Source_Dirs use project'Source_Dirs & ("../win32");
+   end case;
+
    for Languages use ("Ada", "Changelog", "Project file", "makefile");
 
    case Shared.Build is
@@ -107,10 +121,5 @@ project Src is
    -------------
 
    package Builder renames Shared.Builder;
-
-   case Shared.XMLAda is
-      when "Installed" =>
-         for Source_Dirs use project'Source_Dirs & ("../xsrc", "../soap");
-   end case;
 
 end Src;
