@@ -37,6 +37,8 @@ with GNAT.Calendar.Time_IO;
 
 with Sockets.Stream_IO;
 
+with AWS.Messages;
+with AWS.MIME;
 with AWS.Utils;
 
 package body AWS.Server.Push is
@@ -253,18 +255,18 @@ package body AWS.Server.Push is
          String'Write (Holder.Stream,
                        "HTTP/1.1 200 OK" & New_Line
                        & "Server: AWS (Ada Web Server) v" & Version & New_Line
-                       & "Connection: Close" & New_Line);
+                       & Messages.Connection ("Close") & New_Line);
 
          if Holder.Kind = Chunked then
             String'Write
               (Holder.Stream,
-               "Transfer-Encoding: chunked" & New_Line & New_Line);
+               Messages.Transfer_Encoding ("chunked") & New_Line & New_Line);
 
          elsif Holder.Kind = Multipart then
             String'Write
               (Holder.Stream,
-               "Content-type: multipart/x-mixed-replace; boundary="
-               & Boundary & New_Line);
+               Messages.Content_Type (MIME.Multipart_Mixed_Replace, Boundary)
+               & New_Line);
          end if;
       end Register;
 
@@ -286,7 +288,7 @@ package body AWS.Server.Push is
             String'Write
               (Holder.Stream,
                Boundary
-               & "Content-type: " & Content_Type & New_Line & New_Line);
+               & Messages.Content_Type (Content_Type) & New_Line & New_Line);
 
          elsif Holder.Kind = Chunked then
             String'Write
