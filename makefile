@@ -1,32 +1,15 @@
 
 # $Id$
 
-.SILENT: all build build clean distrib install set_std set_ssl build_tarball
+.SILENT: all build build clean distrib install build_tarball
 .SILENT: display build_aws build_lib build_doc build_tools build_soap
 .SILENT: build_soap_demos build_ssllib build_soaplib build_win32 build_include
 .SILENT: build_demos run_regtests
 
+# NOTE: You should not have to change this makefile. Configuration options can
+# be changed in makefile.conf
+
 include makefile.conf
-
-#############################################################################
-# update INCLUDES to point to the libraries directories for POSIX and Sockets
-# or use GNAT ADA_INCLUDE_PATH or ADA_OBJECTS_PATH
-
-# External packages to be configured
-
-# Either set ADASOCKETS, XMLADA here or you can update ADA_INCLUDE_PATH and
-# ADA_OBJECTS_PATH environments variables.
-
-# Adasockets, required.
-ADASOCKETS = /usr/Ada.Libraries/adasockets
-
-# XMLADA package, needed if you want to build SOAP's AWS support.
-# comment out XMLADA if you don't want to build with SOAP support.
-
-#XMLADA	 = /usr/Ada.Libraries/xmlada
-
-# AWS will be installed under $(INSTALL)/AWS
-INSTALL	 = $(HOME)
 
 ifdef ADASOCKETS
 INCLUDES = -I$(ADASOCKETS)/lib/adasockets
@@ -78,8 +61,8 @@ all:
 	echo ""
 	echo "  Configurations :"
 	echo ""
-	echo "    set_ssl:      build demos with SSL support (Secure Socket Layer)"
-	echo "    set_std:      build demos without SSL support [default]"
+	echo "    gnatsockets:  Use GNAT.Sockets [default]"
+	echo "    adasockets:   Use AdaSockets"
 	echo ""
 	echo "    gnat_oslib:   OS_Lib implementation for GNAT only [default]"
 	echo "    posix_oslib:  OS_Lib implementation based on POSIX"
@@ -103,14 +86,6 @@ all:
 	echo "    run_regtests: run tests"
 
 ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" EXEEXT="$(EXEEXT)"
-
-set_ssl:
-	echo "MODE=ssl" > makefile.conf
-	make -C demos clean $(ALL_OPTIONS)
-
-set_std:
-	echo "MODE=std" > makefile.conf
-	make -C demos clean $(ALL_OPTIONS)
 
 build_lib: build_ssllib build_include build_aws build_win32
 
@@ -151,6 +126,12 @@ build_soaplib: build_include
 	${MAKE} -C soap build $(ALL_OPTIONS)
 
 build_soap: build_lib build_soaplib build_soap_demos
+
+gnatsockets:
+	${MAKE} -C src gnatsockets
+
+adasockets:
+	${MAKE} -C src adasockets
 
 gnat_oslib:
 	${MAKE} -C src gnat_oslib
@@ -225,8 +206,7 @@ endif
 ifdef ADASOCKETS
 	echo "AdaSockets package in : " $(ADASOCKETS)
 else
-	echo "AdaSockets not set in makefile, be sure to update "
-	echo "ADA_INCLUDE_PATH and ADA_OBJECTS_PATH"
+	echo "Using GNAT.Sockets"
 endif
 
 build_tarball:
