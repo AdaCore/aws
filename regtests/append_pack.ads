@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2003-2004                         --
+--                             Copyright (C) 2004                           --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,6 +32,6 @@
 
 package Append_Pack is
 
-   procedure Run (Protocol : String);
+   procedure Run (Protocol : in String);
 
 end Append_Pack;
