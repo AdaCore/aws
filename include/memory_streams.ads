@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                        Copyright (C) 2003                                --
+--                       Copyright (C) 2003-2004                            --
 --                        Dmitriy Anisimkov                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -105,7 +105,7 @@ private
       First          : Buffer_Access;
       Current        : Buffer_Access;
       Last           : Buffer_Access;
-      Last_Length    : Element_Offset;
+      Last_Length    : Element_Offset := 0;
       Length         : Element_Offset := 0;
       Current_Offset : Element_Index  := 1;
    end record;
