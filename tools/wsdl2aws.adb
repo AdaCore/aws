@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -63,14 +64,15 @@ procedure WSDL2AWS is
    Gen : SOAP.Generator.Object;
    Def : SOAP.WSDL.Object;
 
-   Filename : Unbounded_String;
-   Proxy    : Unbounded_String;
-   Pu, Pp   : Unbounded_String;
-   Force    : Boolean := False;
+   Filename     : Unbounded_String;
+   Out_Filename : Unbounded_String;
+   Proxy        : Unbounded_String;
+   Pu, Pp       : Unbounded_String;
+   Force        : Boolean := False;
 
-   WSDL_Des : Boolean := False;
+   WSDL_Des     : Boolean := False;
 
-   Verbose  : SOAP.WSDL.Parser.Verbose_Level := 0;
+   Verbose      : SOAP.WSDL.Parser.Verbose_Level := 0;
 
    ------------------
    -- Get_Document --
@@ -78,30 +80,66 @@ procedure WSDL2AWS is
 
    function Get_Document (URL : in Unbounded_String) return Unbounded_String is
       L_URL    : constant String := To_String (URL);
-      Filename : constant String := Directory_Operations.File_Name (L_URL);
+      Filename : Unbounded_String
+        := To_Unbounded_String (Directory_Operations.File_Name (L_URL));
       Response : AWS.Response.Data;
       File     : Text_IO.File_Type;
    begin
+      if Out_Filename /= Null_Unbounded_String then
+         Filename := Out_Filename;
+      end if;
+
+      --  Check if filename exists and can be overwritten
+
+      if OS_Lib.Is_Regular_File (To_String (Filename)) and then not Force then
+         Exceptions.Raise_Exception
+           (Constraint_Error'Identity,
+            "WSDL file " & To_String (Filename)
+              & " already present, use -f option to overwrite");
+      end if;
+
+      --  Get document
+
       Response := AWS.Client.Get
         (L_URL,
          Proxy      => To_String (Proxy),
          Proxy_User => To_String (Pu),
          Proxy_Pwd  => To_String (Pp));
 
-      if OS_Lib.Is_Regular_File (Filename) and then not Force then
-         Exceptions.Raise_Exception
-           (Constraint_Error'Identity,
-            "WSDL file " & Filename & " already present, use -f option "
-              & "to overwrite");
-      end if;
+      declare
+         WSDL : constant String := AWS.Response.Message_Body (Response);
+         Last : Natural;
+      begin
+         --  Look for end of WSDL document, and cut it after the closing
+         --  definition tag. This is to work-around a problem with some
+         --  servers returning a script tag at the end of the file.
+         --
+         --  This is of course a bug in those servers but we don't want to
+         --  crash here.
 
-      Text_IO.Create (File, Text_IO.Out_File, Filename);
+         Last := Strings.Fixed.Index (WSDL, "</definitions>");
 
-      Text_IO.Put_Line (File, AWS.Response.Message_Body (Response));
+         if Last = 0 then
+            Exceptions.Raise_Exception
+              (Constraint_Error'Identity,
+               "This does not look like a WSDL document");
+         else
+            Text_IO.Create (File, Text_IO.Out_File, To_String (Filename));
 
-      Text_IO.Close (File);
+            Text_IO.Put_Line (File, WSDL (WSDL'First .. Last + 13));
 
-      return To_Unbounded_String (Filename);
+            Text_IO.Close (File);
+         end if;
+      end;
+
+      --  Returns the filename
+
+      return Filename;
+
+   exception
+      when Text_IO.Name_Error =>
+         Text_IO.Put_Line ("Can't create file " & To_String (Filename));
+         raise;
    end Get_Document;
 
    ------------------------
@@ -112,7 +150,7 @@ procedure WSDL2AWS is
    begin
       loop
          case Command_Line.Getopt
-           ("q a f v s proxy: pu: pp: rpc wsdl cvs nostub noskel")
+           ("q a f v s o: proxy: pu: pp: rpc wsdl cvs nostub noskel")
          is
             when ASCII.NUL => exit;
 
@@ -125,6 +163,10 @@ procedure WSDL2AWS is
             when 'f' =>
                Force := True;
                SOAP.Generator.Overwrite (Gen);
+
+            when 'o' =>
+               Out_Filename
+                 := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
             when 'r' =>
                if Command_Line.Full_Switch = "rpc" then
@@ -220,6 +262,11 @@ begin
 
    elsif Length (Filename) > 7 and then Slice (Filename, 1, 7) = "http://" then
       Filename := Get_Document (Filename);
+
+   elsif Out_Filename /= Null_Unbounded_String then
+      Raise_Exception
+        (Constraint_Error'Identity,
+         "Option -o must be used when parsing a Web document (URL).");
    end if;
 
    Def := SOAP.WSDL.Load (To_String (Filename));
@@ -236,6 +283,7 @@ exception
       Put_Line ("   -a        Ada style identifier");
       Put_Line ("   -f        Force files creation stub/skeleton/WSDL");
       Put_Line ("   -s        Skip non supported SOAP routines");
+      Put_Line ("   -o        Output filename for Web Document (URL mode)");
       Put_Line ("   -rpc      Accept RPC style binding");
       Put_Line ("   -v        Verbose mode");
       Put_Line ("   -v -v     Very verbose mode");
