@@ -25,11 +25,9 @@ version.
 
 The SOAP implementation has been validated on http://validator.soapware.org/.
 
-Note that some of the changes listed below can introduce non upward
-compatibility. In such a case we try to give proper advice on how to change
-the code to work properly. Of course we try to avoid this as much as possible
-but we really prefer to have a clean API instead of keeping awkwards
-implementations.
+
+Changes
+-------
 
 Here are the main changes since AWS 1.3 :
 
@@ -92,32 +90,6 @@ Here are the main changes since AWS 1.3 :
 
    - Fix memory leak in the sessions container.
 
-   - Properly handle SOAPAction in SOAP persistent connections. It was not
-     possible to change the SOAPAction value for each request. The same
-     SOAPAction was used for all requests over the same connection.
-
-     => This change is not upward compatible. The SOAPAction value must be
-        removed from the persistent connection creation (AWS.Client.Create)
-        and passed to the SOAP.Client.Call.
-
-   - Change AWS.Client.SOAP_Post and SOAP.Client.Call spec for the persistent
-     connection cases. 
-
-     => This is not upward compatible but easier to use. The calls were
-        passing the persitent connection using an access mode. Just remove
-        the 'Access attribute to pass the connection object.
-
-   - Change the way Size of resources are computed. The size is now part of
-     the objects (File, Embedded or Stream resources). This is a better design.
-     AWS.Response.Stream and AWS.Response.Set.Stream does not have the stream
-     size as parameter. Furthermore the AWS.Response.Set.Content_Length
-     routine has been removed. The stream size is now given by overloading the
-     Size stream's method (see routine AWS.Resources.Streams.Size).
-
-     => This is not upward compatible. Remove calls to
-        AWS.Response.Set.Content_Length and implement the
-        AWS.Resources.Streams.Size method for the stream object.
-
    - Templates_Parser use lot less stack space than before while parsing a
      template file. It is now possible to parse very large template file.
 
@@ -144,32 +116,53 @@ Here are the main changes since AWS 1.3 :
 
    - New routines to compress / decompress a file using the Gzip encoding.
 
-   - AWS.Response.Set.Message_Body (with an access to a Stream_Element_Array)
-     has been removed. There was not clean way to integrate this with the ZLib
-     memory stream supprot.
-
-     => This is not upward compatible. Add ".all" to the parameter to use the
-     version with a Stream_Element_Array formal parameter.
-
    - Add new routines to retrieve the log filenames and the status of
      the log files. See AWS.Server.Log.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
-You can have a look at docs/TODO file to see what are the topics that we will
-probably implement in future releases.
 
-NOTE: Since we have switched to the .PNG file format we have found that
-Netscape Navigator is not able to display the PNG transparent layer properly!
+Non upward compatible changes
+-----------------------------
 
-The OpenSSL libraries (optional) distributed are for Windows only. On UNIX
-you'll have to build the libraries from sources, it is quite easy to do
-so. This has been tested on GNU/Linux without trouble.
+Note that the changes listed below can introduce non upward compatibility.
+In such a case we try to give proper advice on how to change the code
+to work properly. Of course we try to avoid this as much as possible
+but we really prefer to have a clean API instead of keeping awkwards
+implementations.
 
-The LDAP binding will use the LDAP dynamic library on Windows. On UNIX you
-need to build and install OpenLDAP.
+   - Properly handle SOAPAction in SOAP persistent connections. It was not
+     possible to change the SOAPAction value for each request. The same
+     SOAPAction was used for all requests over the same connection.
 
-See documentation for build information.
+     => This change is not upward compatible. The SOAPAction value must be
+        removed from the persistent connection creation (AWS.Client.Create)
+        and passed to the SOAP.Client.Call.
+
+   - Change AWS.Client.SOAP_Post and SOAP.Client.Call spec for the persistent
+     connection cases. 
+
+     => This is not upward compatible but easier to use. The calls were
+        passing the persitent connection using an access mode. Just remove
+        the 'Access attribute to pass the connection object.
+
+   - Change the way Size of resources are computed. The size is now part of
+     the objects (File, Embedded or Stream resources). This is a better design.
+     AWS.Response.Stream and AWS.Response.Set.Stream does not have the stream
+     size as parameter. Furthermore the AWS.Response.Set.Content_Length
+     routine has been removed. The stream size is now given by overloading the
+     Size stream's method (see routine AWS.Resources.Streams.Size).
+
+     => This is not upward compatible. Remove calls to
+        AWS.Response.Set.Content_Length and implement the
+        AWS.Resources.Streams.Size method for the stream object.
+
+   - AWS.Response.Set.Message_Body (with an access to a Stream_Element_Array)
+     has been removed. There was not clean way to integrate this with the ZLib
+     memory stream supprot.
+
+     => This is not upward compatible. Add ".all" to the parameter to use the
+        version with a Stream_Element_Array formal parameter.
 
 
 Obsolescent features:
@@ -197,6 +190,25 @@ since GNAT 3.16.
 
    AWS.Server.Stop_Error_Log
       use AWS.Server.Stop_Error instead.
+
+
+Notes
+-----
+
+You can have a look at docs/TODO file to see what are the topics that we will
+probably implement in future releases.
+
+NOTE: Since we have switched to the .PNG file format we have found that
+Netscape Navigator is not able to display the PNG transparent layer properly!
+
+The OpenSSL libraries (optional) distributed are for Windows only. On UNIX
+you'll have to build the libraries from sources, it is quite easy to do
+so. This has been tested on GNU/Linux without trouble.
+
+The LDAP binding will use the LDAP dynamic library on Windows. On UNIX you
+need to build and install OpenLDAP.
+
+See documentation for build information.
 
 
 Validation:
