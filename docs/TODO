@@ -184,6 +184,10 @@ implemented:
   @@END_TABLE@@         2,2
                         2,3
 
+  This is quite tricky to handle while parsing, one idea would be to rewrite
+  the table content by adding a conditional for all tag variable inside the
+  table. This is a kind of an expander pass.
+
 - Add a way to have structured (as record) templates varibles. It will be
   easier and cleaner than to have multiple variables that must be
   synchronized. This needs some more design as it is a tricky issue.
@@ -201,7 +205,5 @@ implemented:
 - Check if it is possible to pass some more information into the template
   parsers context when using callbacks.
 
-- Enhanced GPS integration by providing an XML file for the AWS runtime
-  packages.
-
 - Fix/update the web_elements template comments.
+  Would be nice to use the new template engine @@SET@@ command tag.
