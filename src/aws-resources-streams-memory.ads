@@ -33,6 +33,10 @@
 --  $Date$
 --  $Author$
 
+--  API to handle a memory stream. A memory stream is first created
+--  empty. User can add chunk of data using the Append routines. The stream
+--  is then read using the Read procedure.
+
 with AWS.Utils;
 with Memory_Streams;
 
@@ -75,7 +79,7 @@ package AWS.Resources.Streams.Memory is
    --  Returns the number of bytes in the memory stream
 
    procedure Close (Resource : in out Stream_Type);
-   --  Close the memory stream
+   --  Close the memory stream. Release all memory associated with the stream.
 
 private
 
