@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Text_IO;
 
@@ -215,8 +216,9 @@ procedure Back_Proc (Port : Positive; Security : Boolean) is
 
       accept Stopped;
    exception
-      when others =>
-         IO.Put_Line ("Wait_Call error!");
+      when E : others =>
+         IO.Put_Line
+           ("Wait_Call error " & Ada.Exceptions.Exception_Information (E));
    end Wait_Call;
 
    -----------------
