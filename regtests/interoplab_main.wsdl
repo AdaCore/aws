@@ -283,7 +283,7 @@
 	</binding>
 	<service name="interopLab">
 		<port name="interopTestPort" binding="tns:interopTestBinding">
-			<soap:address location="http://soap.4s4c.com/ilab/soap.asp"/>
+			<soap:address location="http://localhost:9112"/>
 		</port>
 	</service>
 </definitions>
