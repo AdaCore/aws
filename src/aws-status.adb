@@ -174,9 +174,10 @@ package body AWS.Status is
       return Parameters.Get_Value (D.Parameters, N);
    end Parameter;
 
-   function Parameter (D              : in Data;
-                       Name           : in String;
-                       N              : in Positive := 1) return String
+   function Parameter
+     (D    : in Data;
+      Name : in String;
+      N    : in Positive := 1) return String
    is
 
    begin
