@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,10 +32,14 @@
 
 package SOAP is
 
+   --  This is the root package for the SOAP implementation. It supports
+   --  SOAP 1.1 specifications.
+
    SOAP_Error : exception;
    --  Will be raised when an error occurs in the SOAP implementation. The
    --  exception message will described the problem.
 
-   Version : constant String := "1.1";
+   Version : constant String := "1.2";
+   --  Version number for this implementation.
 
 end SOAP;
