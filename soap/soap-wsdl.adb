@@ -184,10 +184,7 @@ package body SOAP.WSDL is
       Result   :    out Parameter_Type;
       Standard :    out Boolean)
    is
-      use Exceptions;
-
       L_Type : constant String := Characters.Handling.To_Lower (XSD_Type);
-
    begin
       Standard := True;
 
@@ -224,7 +221,7 @@ package body SOAP.WSDL is
       To_Type (XSD_Type, Result, Standard);
 
       if not Standard then
-         Ada.Exceptions.Raise_Exception
+         Exceptions.Raise_Exception
            (WSDL_Error'Identity,
             "(To_Type) Type " & XSD_Type & " not supported.");
       end if;
