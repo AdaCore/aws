@@ -1,3 +1,14 @@
+2003-12-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add aws-services-dispatchers-timer.adb.
+
+	* aws-services-dispatchers-timer.ads:
+	Minor code reordering.
+
+	* aws-services-dispatchers-timer.adb:
+	Initial revision.
+
 2003-12-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-dispatchers-timer.ads:
