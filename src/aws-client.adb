@@ -1440,10 +1440,17 @@ package body AWS.Client is
       --  fixed. Every cookie received should be stored and sent back to the
       --  server.
 
-      if Connection.Cookie = No_Data then
-         Connection.Cookie := +Response.Header
-           (Answer, Messages.Set_Cookie_Token);
-      end if;
+      declare
+         Set_Cookie : constant String
+           := Response.Header (Answer, Messages.Set_Cookie_Token);
+      begin
+         --  Set the new cookie, only if the server sent Set-Cookie
+         --  header line.
+
+         if Set_Cookie /= "" then
+            Connection.Cookie := +Set_Cookie;
+         end if;
+      end;
 
       Parse_Authenticate_Line
         (WWW,
