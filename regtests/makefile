@@ -89,7 +89,8 @@ ASIS_TESTS   = $(RT_SOAP_ASIS)
 ASIS2_TESTS  = $(RT_SOAP_ASIS_PARSE)
 endif
 
-ALL_EXEC = $(addsuffix $(EXEEXT), $(ALONE_TESTS) $(OTH_TESTS) generate test_all)
+ALL_EXEC = $(addsuffix $(EXEEXT), $(ALONE_TESTS) $(OTH_TESTS) \
+	generate test_all)
 
 TOGETHER = $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS))
 
