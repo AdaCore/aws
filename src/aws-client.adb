@@ -389,15 +389,18 @@ package body AWS.Client is
    ---------
 
    function Get
-     (URL        : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
+     (URL                : in String;
+      User               : in String          := No_Data;
+      Pwd                : in String          := No_Data;
+      Proxy              : in String          := No_Data;
+      Proxy_User         : in String          := No_Data;
+      Proxy_Pwd          : in String          := No_Data;
+      Timeouts           : in Timeouts_Values := No_Timeout;
+      Follow_Redirection : in Boolean         := False)
       return Response.Data
    is
+      use type Messages.Status_Code;
+
       Connection : HTTP_Connection;
       Result     : Response.Data;
 
@@ -410,7 +413,16 @@ package body AWS.Client is
       Get (Connection, Result);
 
       Close (Connection);
-      return Result;
+
+      if Follow_Redirection
+        and then Response.Status_Code (Result) = Messages.S301
+      then
+         return Get
+           (Response.Location (Result), User, Pwd,
+            Proxy, Proxy_User, Proxy_Pwd, Timeouts);
+      else
+         return Result;
+      end if;
 
    exception
       when others =>
@@ -705,11 +717,11 @@ package body AWS.Client is
          return;
       end if;
 
-      --  read the message body
+      --  Read the message body
 
       if To_String (TE) = "chunked" then
 
-         --  a chuncked message is written on the stream as list of data
+         --  A chuncked message is written on the stream as list of data
          --  chunk. Each chunk has the following format:
          --
          --  <N : the chunk size in hexadecimal> CRLF
