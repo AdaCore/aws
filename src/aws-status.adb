@@ -137,6 +137,22 @@ package body AWS.Status is
    ------------------
 
    function Check_Digest (D : in Data; Password : in String) return Boolean is
+      use type Messages.Status_Code;
+   begin
+      return Check_Digest (D, Password) = Messages.S200;
+   end Check_Digest;
+
+   function Check_Digest
+     (D        : in Data;
+      Password : in String)
+      return   Messages.Status_Code
+   is
+      Nonce    : constant String := Authorization_Nonce (D);
+      Auth_URI : constant String := To_String (D.Auth_URI);
+      Auth_URL : constant URL.Object
+        := URL.Parse (Auth_URI, Check_Validity => False, Normalize => True);
+
+      Data_URL : URL.Object := D.URI;
 
       function Get_Nonce return String;
       --  returns Nonce for the Digest authentication without "qop"
@@ -149,7 +165,6 @@ package body AWS.Status is
       ---------------
 
       function Get_Nonce return String is
-         Nonce : constant String := Authorization_Nonce (D);
          QOP   : constant String := Authorization_QOP (D);
       begin
          if QOP = "" then
@@ -163,16 +178,32 @@ package body AWS.Status is
       end Get_Nonce;
 
    begin
-      return
-        Authorization_Response (D)
-        =
-        AWS.Digest.Create_Digest
-          (Username => Authorization_Name (D),
-           Realm    => Authorization_Realm (D),
-           Password => Password,
-           Nonce    => Get_Nonce,
-           Method   => Request_Method'Image (D.Method),
-           URI      => URI (D));
+      URL.Normalize (Data_URL);
+
+      if URL.Abs_Path (Data_URL) /= URL.Abs_Path (Auth_URL)
+        or else Nonce = ""
+      then
+         --  Bad request.
+
+         return Messages.S400;
+      elsif Authorization_Response (D)
+            /=
+            AWS.Digest.Create_Digest
+              (Username => Authorization_Name (D),
+               Realm    => Authorization_Realm (D),
+               Password => Password,
+               Nonce    => Get_Nonce,
+               Method   => Request_Method'Image (D.Method),
+               URI      => Auth_URI)
+      then
+         --  Unauthorized.
+
+         return Messages.S401;
+      else
+         --  Successful.
+
+         return Messages.S200;
+      end if;
    end Check_Digest;
 
    ----------------
