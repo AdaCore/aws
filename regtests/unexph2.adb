@@ -115,7 +115,7 @@ procedure Unexph2 is
    begin
       AWS.Server.Start
         (HTTP, "Test default unexpected exception handler",
-         CB'Unrestricted_Access, Port => 1240, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 1247, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -128,14 +128,14 @@ procedure Unexph2 is
 begin
    Server.Wait_Start;
 
-   R := Client.Get ("http://localhost:1240/test", Timeouts => (2, 2));
+   R := Client.Get ("http://localhost:1247/test", Timeouts => (2, 2));
 
    Text_IO.Put_Line ("----------------------");
    Text_IO.Put_Line (No_Traceback (Response.Message_Body (R)));
 
    Create_500_Tmplt;
 
-   R := Client.Get ("http://localhost:1240/test", Timeouts => (2, 2));
+   R := Client.Get ("http://localhost:1247/test", Timeouts => (2, 2));
 
    Text_IO.Put_Line ("----------------------");
    Text_IO.Put_Line (Response.Message_Body (R));
