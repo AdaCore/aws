@@ -37,7 +37,6 @@ with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
-with Ada.Unchecked_Deallocation;
 
 with GNAT.Calendar.Time_IO;
 
@@ -120,13 +119,6 @@ package body AWS.Client is
       Content_Type : in     String);
    --  Common base routine for Post and SOAP_Post routines.
 
-   procedure Set_Phase
-     (Connection : in out HTTP_Connection;
-      Phase      : in     Client_Phase);
-   pragma Inline (Set_Phase);
-   --  Set the phase for the connection. This will activate the Send and
-   --  Receive timeouts of the cleaner task if needed.
-
    procedure Send_Header
      (Sock : in Net.Socket_Type'Class;
       Data : in String);
@@ -137,106 +129,12 @@ package body AWS.Client is
    --  Returns V as an Unbounded_String if V is not the empty string
    --  otherwise it returns Null_Unbounded_String.
 
-   ------------------
-   -- Cleaner_Task --
-   ------------------
-
-   task body Cleaner_Task is
-      Connection : HTTP_Connection_Access;
-      Forever    : constant Duration := Duration'Last;
-      P          : Client_Phase      := Not_Monitored;
-      W          : Duration;
-      Timeout    : Boolean;
-   begin
-      accept Start (Connection : in HTTP_Connection_Access) do
-         Cleaner_Task.Connection := Connection;
-      end Start;
-
-      Phase_Loop : loop
-
-         --  Wait for the job to be done
-
-         case P is
-            when Stopped =>
-               exit Phase_Loop;
-
-            when Not_Monitored =>
-               W := Forever;
-
-            when Receive =>
-               W := Duration (Connection.Timeouts.Receive);
-
-            when Send =>
-               W := Duration (Connection.Timeouts.Send);
-         end case;
-
-         if W = 0.0 then
-            P := Not_Monitored;
-            W := Forever;
-         end if;
-
-         select
-            accept Next_Phase do
-               P       := Connection.Current_Phase;
-               Timeout := False;
-            end Next_Phase;
-         or
-            delay W;
-
-            Timeout := True;
-         end select;
-
-         --  Still in the same phase after the delay, just close the socket
-         --  now.
-
-         if Timeout
-           and then P /= Not_Monitored
-           and then Connection.Opened
-         then
-            Disconnect (Connection.all);
-         end if;
-
-      end loop Phase_Loop;
-
-   exception
-      when E : others =>
-         Text_IO.Put_Line (Exceptions.Exception_Information (E));
-   end Cleaner_Task;
-
    -----------
    -- Close --
    -----------
 
    procedure Close (Connection : in out HTTP_Connection) is
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Cleaner_Task, Cleaner_Access);
-
    begin
-      Connection.Current_Phase := Stopped;
-
-      if Connection.Cleaner /= null then
-         if not Connection.Cleaner'Terminated then
-            --  We don't want to fail here, we really want to free the
-            --  cleaner object.
-
-            begin
-               Connection.Cleaner.Next_Phase;
-            exception
-               when Tasking_Error =>
-                  --  Raised if the Cleaner task has completed
-                  null;
-            end;
-         end if;
-
-         while not Connection.Cleaner'Terminated loop
-            delay 0.01;
-         end loop;
-
-         Free (Connection.Cleaner);
-
-      end if;
-
       Net.SSL.Release (Connection.SSL_Config);
 
       Disconnect (Connection);
@@ -342,12 +240,22 @@ package body AWS.Client is
       Connection.Retry                    := Create.Retry;
       Connection.Cookie                   := Null_Unbounded_String;
       Connection.Persistent               := Persistent;
-      Connection.Current_Phase            := Not_Monitored;
       Connection.Server_Push              := Server_Push;
-      Connection.Timeouts                 := Timeouts;
       Connection.Certificate              := To_Unbounded_String (Certificate);
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
+
+      if Timeouts.Receive > 0 then
+         Connection.Read_Timeout := Duration (Timeouts.Receive);
+      else
+         Connection.Read_Timeout := Net.Forever;
+      end if;
+
+      if Timeouts.Send > 0 then
+         Connection.Write_Timeout := Duration (Timeouts.Send);
+      else
+         Connection.Write_Timeout := Net.Forever;
+      end if;
 
       --  If we have set the proxy or standard authentication we must set the
       --  authentication mode to Basic.
@@ -378,12 +286,6 @@ package body AWS.Client is
          --  from user's point of view just make sure we retry at least one
          --  time before reporting an error.
          Connection.Retry := 1;
-      end if;
-
-      if Connection.Timeouts /= No_Timeout then
-         --  If we have some timeouts, initialize the cleaner task.
-         Connection.Cleaner := new Cleaner_Task;
-         Connection.Cleaner.Start (Connection.Self);
       end if;
    end Create;
 
@@ -538,7 +440,6 @@ package body AWS.Client is
                   Result := Response.Build
                     (MIME.Text_HTML, "Get Timeout", Messages.S408);
 
-                  Set_Phase (Connection, Not_Monitored);
                   exit Retry;
                end if;
 
@@ -686,7 +587,7 @@ package body AWS.Client is
       end Read_Chunked;
 
    begin
-      Set_Phase (Connection, Receive);
+      Net.Set_Timeout (Sock, Connection.Read_Timeout);
 
       --  Clear the data in the response
 
@@ -696,7 +597,6 @@ package body AWS.Client is
 
       if not Get_Body then
          Disconnect;
-         Set_Phase (Connection, Not_Monitored);
          return;
       end if;
 
@@ -748,8 +648,6 @@ package body AWS.Client is
       end;
 
       Disconnect;
-
-      Set_Phase (Connection, Not_Monitored);
    end Get_Response;
 
    ----------
@@ -823,7 +721,6 @@ package body AWS.Client is
                if Try_Count = 0 then
                   Result := Response.Build
                     (MIME.Text_HTML, "Head Timeout", Messages.S408);
-                  Set_Phase (Connection, Not_Monitored);
                   exit Retry;
                end if;
 
@@ -899,7 +796,6 @@ package body AWS.Client is
                if Try_Count = 0 then
                   Result := Response.Build
                     (MIME.Text_HTML, "Post Timeout", Messages.S408);
-                  Set_Phase (Connection, Not_Monitored);
                   exit Retry;
                end if;
 
@@ -1114,7 +1010,7 @@ package body AWS.Client is
          Connect (Connection);
       end if;
 
-      Set_Phase (Connection, Send);
+      Net.Set_Timeout (Connection.Socket.all, Connection.Write_Timeout);
 
       --  Header command
 
@@ -1199,8 +1095,6 @@ package body AWS.Client is
 
       Send_Authentication_Header
         (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
-
-      Set_Phase (Connection, Not_Monitored);
    end Open_Send_Common_Header;
 
    ------------------
@@ -1693,7 +1587,6 @@ package body AWS.Client is
                if Try_Count = 0 then
                   Result := Response.Build
                     (MIME.Text_HTML, "Put Timeout", Messages.S408);
-                  Set_Phase (Connection, Not_Monitored);
                   exit Retry;
                end if;
 
@@ -1726,7 +1619,7 @@ package body AWS.Client is
       Buffer     : String (1 .. 1024);
 
    begin
-      Set_Phase (Connection, Receive);
+      Net.Set_Timeout (Connection.Socket.all, Connection.Read_Timeout);
 
       Main : loop
          for I in Buffer'Range loop
@@ -1754,8 +1647,6 @@ package body AWS.Client is
 
          Append (Result, Buffer);
       end loop Main;
-
-      Set_Phase (Connection, Not_Monitored);
    end Read_Until;
 
    -----------------
@@ -1807,21 +1698,6 @@ package body AWS.Client is
       Debug_On := On;
       AWS.Headers.Set.Debug (On);
    end Set_Debug;
-
-   ---------------
-   -- Set_Phase --
-   ---------------
-
-   procedure Set_Phase
-     (Connection : in out HTTP_Connection;
-      Phase      : in     Client_Phase) is
-   begin
-      Connection.Current_Phase := Phase;
-
-      if Connection.Cleaner /= null then
-         Connection.Cleaner.Next_Phase;
-      end if;
-   end Set_Phase;
 
    ------------------------------
    -- Set_Proxy_Authentication --
@@ -2049,7 +1925,6 @@ package body AWS.Client is
                if Try_Count = 0 then
                   Result := Response.Build
                     (MIME.Text_HTML, "Upload Timeout", Messages.S408);
-                  Set_Phase (Connection, Not_Monitored);
                   exit Retry;
                end if;
 
