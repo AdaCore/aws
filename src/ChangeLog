@@ -1,3 +1,28 @@
+2004-12-14  Pascal Obry  <pascal@obry.net>
+
+	* templates_parser-definitions.adb:
+	Initial revision.
+
+	* templates_parser-expr.adb:
+	(Print_Tree): Use new Quote procedure.
+
+	* templates_parser-print_tree.adb:
+	Handle Set_Stmt.
+	Fix handling of the include parameters now that we can have
+	 default values.
+
+	* templates_parser.adb:
+	(Quote): New routine.
+	(Set_Token): New constant.
+	(Definitions): New package.
+	(NKind): Add Set_Stmt.
+	(Node): Handle Set_Stmt case.
+	(Load.Parse): Idem.
+	(Translate) [Tag_Var]: Check the definition table before checking
+	 the translate table.
+	(Analyse): Handle Set_Stmt case.
+	(Release): Idem.
+
 2004-12-13  Pascal Obry  <pascal@obry.net>
 
 	* aws-services-dispatchers-uri.adb:
