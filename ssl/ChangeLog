@@ -1,3 +1,15 @@
+2002-12-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl-thin.ads:
+	A lot of casing fixes.
+
+	* ssl-wrappers.adb:
+	Put all routines in alphabetical order.
+	Fix casing.
+
+	* ssl-wrappers.ads:
+	Fix casing.
+
 2002-12-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
