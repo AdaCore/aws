@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
 --  ZLib for Ada thick binding.                               --
 --                                                            --
---  Copyright (C) 2002-2003 Dmitriy Anisimkov                 --
+--  Copyright (C) 2002-2004 Dmitriy Anisimkov                 --
 --                                                            --
 --  Open source license information is in the zlib.ads file.  --
 ----------------------------------------------------------------
@@ -169,10 +169,9 @@ package body ZLib is
    is
       use Thin;
    begin
-      return Unsigned_32 (crc32
-        (ULong (CRC),
-         Bytes.To_Pointer (Data'Address),
-         Data'Length));
+      return Unsigned_32 (crc32 (ULong (CRC),
+                                 Data'Address,
+                                 Data'Length));
    end CRC32;
 
    procedure CRC32
@@ -355,6 +354,15 @@ package body ZLib is
          Raise_Error (Filter.Strm.all);
       end if;
    end Inflate_Init;
+
+   -------------
+   -- Is_Open --
+   -------------
+
+   function Is_Open (Filter : in Filter_Type) return Boolean is
+   begin
+      return Filter.Opened;
+   end Is_Open;
 
    -----------------
    -- Raise_Error --
