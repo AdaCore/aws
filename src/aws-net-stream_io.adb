@@ -109,7 +109,6 @@ package body AWS.Net.Stream_IO is
         (Socket_Type, Socket_Access);
 
    begin
-      Flush (Stream);
       AWS.Net.Free (Stream.Socket.all);
       Free (Stream.Socket);
       Free (Stream);
