@@ -105,7 +105,7 @@
 	(Parse) [Translate_Set]: New routine.
 	This new version implements an abstract interface for all splitters
 	 found in child packages. Note that the previous parse routine is
-	  now implemented using the uniform splitter.
+	 now implemented using the uniform splitter.
 
 2004-11-03  Pascal Obry  <pascal@obry.org>
 
