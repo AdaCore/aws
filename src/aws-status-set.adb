@@ -54,7 +54,7 @@ package body AWS.Status.Set is
       Basic_Token  : constant String := "Basic ";
       Digest_Token : constant String := "Digest ";
    begin
-      if Messages.Is_Match (Authorization, Basic_Token) then
+      if Messages.Match (Authorization, Basic_Token) then
 
          D.Auth_Mode := Basic;
 
@@ -90,7 +90,7 @@ package body AWS.Status.Set is
                                            (Delimit + 1 .. Auth_Str'Last));
             end if;
          end;
-      elsif Messages.Is_Match (Authorization, Digest_Token) then
+      elsif Messages.Match (Authorization, Digest_Token) then
 
          D.Auth_Mode := Digest;
 

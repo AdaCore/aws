@@ -1269,7 +1269,7 @@ package body AWS.Client is
             new AWS.Utils.Parse_HTTP_Header_Line (Auth_Attribute, Result_Set);
 
       begin
-         if Messages.Is_Match (Auth_Line, Basic_Token) then
+         if Messages.Match (Auth_Line, Basic_Token) then
             Request_Mode := Basic;
 
             Parse_Line
@@ -1277,7 +1277,7 @@ package body AWS.Client is
                  (Auth_Line'First + Basic_Token'Length .. Auth_Line'Last),
                Result);
 
-         elsif Messages.Is_Match (Auth_Line, Digest_Token) then
+         elsif Messages.Match (Auth_Line, Digest_Token) then
             Request_Mode := Digest;
 
             Parse_Line
@@ -1323,7 +1323,7 @@ package body AWS.Client is
             --  behavior to AWS.Client or interface to the interactive
             --  programs by callback to the AWS.Client.
             --
-            --  if Messages.Is_Match ("true", To_String (Result (Stale))) then
+            --  if Messages.Match ("true", To_String (Result (Stale))) then
             --     null;
             --  end if;
          end if;
@@ -1335,10 +1335,10 @@ package body AWS.Client is
 
       procedure Set_Keep_Alive (Data : in String) is
       begin
-         if Messages.Is_Match (Data, "Close") then
+         if Messages.Match (Data, "Close") then
             Keep_Alive := False;
 
-         elsif Messages.Is_Match (Data, "Keep-Alive") then
+         elsif Messages.Match (Data, "Keep-Alive") then
             Keep_Alive := True;
          end if;
       end Set_Keep_Alive;
@@ -1370,7 +1370,7 @@ package body AWS.Client is
                --  is not 100 (continue).
                exit;
 
-            elsif Messages.Is_Match (Line, Messages.HTTP_Token) then
+            elsif Messages.Match (Line, Messages.HTTP_Token) then
                Status := Messages.Status_Code'Value
                  ('S' & Line (Messages.HTTP_Token'Last + 5
                                 .. Messages.HTTP_Token'Last + 7));
@@ -1382,21 +1382,21 @@ package body AWS.Client is
                  := Line (Messages.HTTP_Token'Last + 1
                             .. Messages.HTTP_Token'Last + 3) >= "1.1";
 
-            elsif Messages.Is_Match (Line, Messages.Content_Type_Token) then
+            elsif Messages.Match (Line, Messages.Content_Type_Token) then
                Content_Type := To_Unbounded_String
                  (Line (Messages.Content_Type_Token'Last + 1 .. Line'
                           Last));
 
-            elsif Messages.Is_Match (Line, Messages.Content_Length_Token) then
+            elsif Messages.Match (Line, Messages.Content_Length_Token) then
                Content_Length := Natural'Value
                  (Line (Messages.Content_Length_Range'Last + 1 .. Line'
                           Last));
 
-            elsif Messages.Is_Match (Line, Messages.Location_Token) then
+            elsif Messages.Match (Line, Messages.Location_Token) then
                Location := To_Unbounded_String
                  (Line (Messages.Location_Token'Last + 1 .. Line'Last));
 
-            elsif Messages.Is_Match
+            elsif Messages.Match
               (Line, Messages.Transfer_Encoding_Token)
             then
 
@@ -1404,22 +1404,22 @@ package body AWS.Client is
                  (Line (Messages.Transfer_Encoding_Range'Last + 1
                           .. Line'Last));
 
-            elsif Messages.Is_Match (Line, Messages.Connection_Token) then
+            elsif Messages.Match (Line, Messages.Connection_Token) then
                Set_Keep_Alive
                  (Line (Messages.Connection_Token'Last + 1 .. Line'Last));
 
             elsif
-              Messages.Is_Match (Line, Messages.Proxy_Connection_Token)
+              Messages.Match (Line, Messages.Proxy_Connection_Token)
             then
                Set_Keep_Alive
                  (Line
                     (Messages.Proxy_Connection_Token'Last + 1 .. Line'Last));
 
-            elsif Messages.Is_Match (Line, Messages.Set_Cookie_Token) then
+            elsif Messages.Match (Line, Messages.Set_Cookie_Token) then
                Connection.Cookie := To_Unbounded_String
                  (Line (Messages.Set_Cookie_Token'Last + 1 .. Line'Last));
 
-            elsif Messages.Is_Match
+            elsif Messages.Match
               (Line, Messages.WWW_Authenticate_Token)
             then
                Parse_Authenticate_Line
@@ -1427,7 +1427,7 @@ package body AWS.Client is
                   Line (Messages.WWW_Authenticate_Token'Last + 1
                           .. Line'Last));
 
-            elsif Messages.Is_Match
+            elsif Messages.Match
               (Line, Messages.Proxy_Authenticate_Token)
             then
                Parse_Authenticate_Line
