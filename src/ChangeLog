@@ -1,3 +1,13 @@
+2003-04-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-session.adb:
+	(For_Every_Session): Reraise in the exception handler.
+	(Get): Catch only Constraint_Error. For Boolean result Get function
+	 make it shorter and do not catch exceptions at all.
+
+	* aws-session.ads:
+	(Get): Add pragma Inline.
+
 2003-04-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-jabber.ads:
