@@ -183,7 +183,7 @@ package body AWS.Client is
 
       procedure Disconnect is
       begin
-         if Messages.Is_Match ("Close", To_String (Connect)) then
+         if Messages.Is_Match (To_String (Connect), "close") then
             Disconnect (Connection);
          end if;
       end Disconnect;
@@ -791,7 +791,7 @@ package body AWS.Client is
 
             Parse_Header (Sock, Status, CT_Len, CT, TE, Location, Connect);
 
-            if Messages.Is_Match ("Close", To_String (Connect)) then
+            if Messages.Is_Match (To_String (Connect), "close") then
                Disconnect (Connection);
             end if;
 
