@@ -46,6 +46,9 @@ ifeq ($(LDAP), 1)
 BUILD_OPT = test_ldap
 endif
 
+ALL_EXEC = $(addsuffix $(EXEEXT), $(DEMOS)) \
+	$(addsuffix $(EXEEXT), $(BUILD_OPT))
+
 build: $(BUILD_SPECIFIC) $(DEMOS) $(BUILD_OPT)
 
 $(DEMOS): force
@@ -70,5 +73,5 @@ test_ldap: force
 build_soap: $(SOAP_DEMOS)
 
 clean:
-	-rm -f *.o *.ali *.exe b~*.* *.~*.*.~ rdemo*
+	-rm -f *.o *.ali $(ALL_EXEC) b~*.* *.~*.*.~ rdemo*
 	-rm -f runme-*.log hello_demo*
