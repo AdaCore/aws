@@ -1,0 +1,72 @@
+http://toto.titi.tata/my_url/xyz
+http://toto.titi.tata/my_url/xyz
+   Server    : toto.titi.tata
+   Port      : 80
+   URI       : /my_url/xyz
+   *
+   Server    : toto.titi.tata
+   Port      : 80
+   URI       : /my_url/xyz
+http://a.b.c:1234/my_url/../xyz
+http://a.b.c:1234/my_url/../xyz
+   Server    : a.b.c
+   Port      : 1234
+   URI       : /my_url/../xyz
+   *
+   Server    : a.b.c
+   Port      : 1234
+   URI       : /xyz
+http://a/tata/my_url/xyz/../../b/c/d/../../z
+http://a/tata/my_url/xyz/../../b/c/d/../../z
+   Server    : a
+   Port      : 80
+   URI       : /tata/my_url/xyz/../../b/c/d/../../z
+   *
+   Server    : a
+   Port      : 80
+   URI       : /tata/b/z
+/azerty/me/too.html
+/azerty/me/too.html
+   Server    : 
+   Port      : 80
+   URI       : /azerty/me/too.html
+   *
+   Server    : 
+   Port      : 80
+   URI       : /azerty/me/too.html
+demo.html
+demo.htm
+   Server    : 
+   Port      : 80
+   URI       : demo.htm
+   *
+   Server    : 
+   Port      : 80
+   URI       : demo.htm
+kye/demo.html
+kye/demo.htm
+   Server    : 
+   Port      : 80
+   URI       : kye/demo.htm
+   *
+   Server    : 
+   Port      : 80
+   URI       : kye/demo.htm
+http://www.myserver.com:12/request?p1=9
+http://www.myserver.com:12/request?p1=9
+   Server    : www.myserver.com
+   Port      : 12
+   URI       : /request?p1=9
+   *
+   Server    : www.myserver.com
+   Port      : 12
+   URI       : /request?p1=9
+
+
+   Server    : 
+   Port      : 80
+   URI       : 
+   *
+   Server    : 
+   Port      : 80
+   URI       : 
