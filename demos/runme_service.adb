@@ -50,8 +50,8 @@ package body Runme_Service is
 
    Running        : Boolean := False;
 
-   WSS : AWS.Server.HTTP (3);
-   WS  : AWS.Server.HTTP (3);
+   WSS : AWS.Server.HTTP;
+   WS  : AWS.Server.HTTP;
 
    Output : Text_IO.File_Type;
 
@@ -119,10 +119,11 @@ package body Runme_Service is
 
       AWS.Server.Start (WSS, "Runme Secure",
                         Runme_CB.Service_Sec'Access,
+                        Max_Connection => 3,
                         Port => 4433, Security => True);
 
       AWS.Server.Start (WS, "Runme", Runme_CB.Service'Access,
-                        "/Admin-Page", 1234, False, True);
+                        3, "/Admin-Page", 1234, False, True);
 
       AWS.Server.Start_Log (WS, Split_Mode => AWS.Log.Daily);
 

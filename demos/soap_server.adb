@@ -46,7 +46,7 @@ procedure SOAP_Server is
 
    use Ada;
 
-   WS  : AWS.Server.HTTP (5);
+   WS  : AWS.Server.HTTP;
 
    -------------
    -- SOAP_CB --
@@ -133,5 +133,7 @@ procedure SOAP_Server is
    end CB;
 
 begin
-   AWS.Server.Start (WS, "SOAP demo", Callback => CB'Unrestricted_Access);
+   AWS.Server.Start (WS, "SOAP demo",
+                     Max_Connection => 5,
+                     Callback       => CB'Unrestricted_Access);
 end SOAP_Server;
