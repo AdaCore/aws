@@ -2,7 +2,7 @@
 To build AWS you need to change some settings in the main makefile (the 
 makefile found on this directory).
 
-Look for ADASOCKETS, XMLADA, v_XMLADA and INSTALL make's variables.
+Look for ADASOCKETS, XMLADA and INSTALL make's variables.
 Then doing a "make build" should be ok.
 
 Note that you can find more information about the build procedure into AWS
