@@ -46,9 +46,10 @@ procedure Unexph is
    use AWS;
 
    function CB (Request : in Status.Data) return Response.Data;
-   
-   procedure UEH (E : in Ada.Exceptions.Exception_Occurrence;
-            Termination : in Boolean);
+
+   procedure UEH
+     (E           : in Ada.Exceptions.Exception_Occurrence;
+      Termination : in Boolean);
 
    task Server is
       entry Wait_Start;
@@ -76,8 +77,8 @@ procedure Unexph is
    task body Server is
    begin
 
-      AWS.Server.Set_Unexpected_Exception_Handler (HTTP,
-         UEH'Unrestricted_Access);
+      AWS.Server.Set_Unexpected_Exception_Handler
+        (HTTP, UEH'Unrestricted_Access);
 
       AWS.Server.Start
         (HTTP, "Test unexpected exception handler",
@@ -91,12 +92,16 @@ procedure Unexph is
          Put_Line ("Server Error " & Exceptions.Exception_Information (E));
    end Server;
 
-   procedure UEH (E : in Ada.Exceptions.Exception_Occurrence;
-        Termination : in Boolean)
-   is
+   ---------
+   -- UEH --
+   ---------
+
+   procedure UEH
+     (E       : in Ada.Exceptions.Exception_Occurrence;
+      Termination : in Boolean) is
    begin
-      Ada.Text_IO.Put_Line (Exceptions.Exception_Name (E)
-         & ' ' & Boolean'Image (Termination));
+      Ada.Text_IO.Put_Line
+        (Exceptions.Exception_Name (E) & ' ' & Boolean'Image (Termination));
    end;
 
 begin
