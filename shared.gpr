@@ -68,6 +68,14 @@ project Shared is
 
    Z_Lib := ("-L../lib", "-lz");
 
+   ---------
+   -- Ide --
+   ---------
+
+   package Ide is
+      for Vcs_Kind use "CVS";
+   end Ide;
+
    --------------
    -- Compiler --
    --------------

@@ -43,6 +43,12 @@ project Include is
 
    for Source_Dirs use (".");
 
+   ---------
+   -- Ide --
+   ---------
+
+   package Ide renames Shared.IDE;
+
    --------------
    -- Compiler --
    --------------
