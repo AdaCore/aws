@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -115,7 +115,7 @@ package body AWS.Headers.Set is
                      Ada.Text_IO.Put_Line ('>' & Line);
                   end if;
 
-                  --  Put name and value to the container separately.
+                  --  Put name and value to the container separately
 
                   Delimiter_Index := Fixed.Index (Line, ":");
 
@@ -130,7 +130,7 @@ package body AWS.Headers.Set is
                                   (Line (Delimiter_Index + 1 .. Line'Last),
                                    Side => Both));
 
-                  --  Parse next header line.
+                  --  Parse next header line
 
                   Parse_Header_Lines (Next_Line);
                end if;
