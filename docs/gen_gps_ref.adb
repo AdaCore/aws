@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2004                            --
+--                          Copyright (C) 2004-2005                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -28,10 +28,9 @@
 
 --  $Id$
 
-with Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Text_IO;
-with Ada.Strings.Fixed;
+with Ada.Strings;
 with Ada.Strings.Unbounded;
 
 with GNAT.AWK;
@@ -40,15 +39,31 @@ with GNAT.Directory_Operations;
 procedure Gen_GPS_Ref is
 
    use Ada;
-   use Ada.Characters.Handling;
    use Ada.Text_IO;
    use Ada.Strings.Unbounded;
    use GNAT;
    use GNAT.Directory_Operations;
 
+   type Item is record
+      Filename : Unbounded_String;
+      API_Name : Unbounded_String;
+      Root     : Boolean;
+   end record;
+
+   API : array (1 .. 1_024) of Item;
+   A   : Natural := 0;
+
+   function "-" (Str : in Unbounded_String) return String
+     renames To_String;
+
+   function "+" (Str : in String) return Unbounded_String
+     renames To_Unbounded_String;
+
    procedure Gen_Header;
 
-   procedure Gen_Ref (File : in String);
+   procedure Get_Ref (File : in String);
+
+   procedure Gen_Refs;
 
    procedure Gen_Footer;
 
@@ -76,42 +91,116 @@ procedure Gen_GPS_Ref is
       Put_Line ("   </submenu>");
    end Gen_Header;
 
-   -------------
-   -- Gen_Ref --
-   -------------
+   --------------
+   -- Gen_Refs --
+   --------------
 
-   procedure Gen_Ref (File : in String) is
+   procedure Gen_Refs is
 
-      Filename : constant String := File_Name (File);
-      Prefix   : Unbounded_String;
+      function Get_Menu (A : in Positive) return String;
+      --  Returns the menu entry for API (K), this routine double the
+      --  underscores and handle the root menu. A root menu is generated for
+      --  every package having a child.
 
-      function Get_API_Name return String;
-      --  Returns the API name for File, this is done by parsing the file to
-      --  get the proper casing.
+      --------------
+      -- Get_Menu --
+      --------------
 
-      function Double_Underscore (Str : in String) return String;
-      --  Returns Str with all underscore doubled
-
-      -----------------------
-      -- Double_Underscore --
-      -----------------------
-
-      function Double_Underscore (Str : in String) return String is
-         R : String (1 .. Str'Length * 2);
-         K : Natural := 0;
+      function Get_Menu (A : in Positive) return String is
+         Str : constant String := -API (A).API_Name;
+         R   : String (1 .. Str'Length * 2);
+         K   : Natural := 0;
+         L   : Natural := 0; -- last dot
       begin
          for I in Str'Range loop
             K := K + 1;
             if Str (I) = '_' then
                R (K .. K + 1) := "__";
                K := K + 1;
+
+            elsif Str (I) = '.' then
+               R (K) := '/';
+               L := K;
+
             else
                R (K) := Str (I);
             end if;
          end loop;
 
-         return R (1 .. K);
-      end Double_Underscore;
+         if API (A).Root then
+            return R (1 .. K) & "/&lt;" & R (L + 1 .. K) & "&gt;";
+         else
+            return R (1 .. K);
+         end if;
+      end Get_Menu;
+
+   begin
+      --  Sort units
+
+      for K in 1 .. A loop
+         for L in K + 1 .. A loop
+            declare
+               A1 : constant String := -API (K).API_Name;
+               A2 : constant String := -API (L).API_Name;
+            begin
+               if A1 > A2
+                 or else (A1'Length > A2'Length
+                          and then A1 (A1'First .. A1'First + A2'Length - 1)
+                          = A2)
+               then
+                  declare
+                     T : constant Item := API (K);
+                  begin
+                     API (K) := API (L);
+                     API (L) := T;
+                  end;
+               end if;
+            end;
+         end loop;
+      end loop;
+
+      --  Check for root menu
+
+      for K in 1 .. A - 1 loop
+         declare
+            C : constant String := -API (K).API_Name;
+            N : constant String := -API (K + 1).API_Name;
+         begin
+            if C'Length < N'Length
+              and then C = N (N'First .. N'First + C'Length - 1)
+            then
+               API (K).Root := True;
+            else
+               API (K).Root := False;
+            end if;
+         end;
+      end loop;
+
+      --  Generate the references
+
+      for K in 1 .. A loop
+         Put_Line ("   <documentation_file>");
+         Put_Line
+           ("      <shell>Editor.edit """
+            & (-API (K).Filename) & """</shell>");
+         Put_Line ("      <descr>" & (-API (K).API_Name) & "</descr>");
+         Put_Line ("      <menu>/Help/AWS API/" & Get_Menu (K) & "</menu>");
+         Put_Line ("      <category>AWS API</category>");
+         Put_Line ("   </documentation_file>");
+      end loop;
+   end Gen_Refs;
+
+   -------------
+   -- Get_Ref --
+   -------------
+
+   procedure Get_Ref (File : in String) is
+
+      Filename : constant String := File_Name (File);
+
+      function Get_API_Name return String;
+      --  Returns the API name for File, this is done by parsing the file to
+      --  get the proper casing.
 
       ------------------
       -- Get_API_Name --
@@ -158,46 +247,16 @@ procedure Gen_GPS_Ref is
 
          procedure Look_For_Package_Name is new AWK.For_Every_Line (Action);
 
-         K : Natural;
-
       begin
          Look_For_Package_Name (Filename => File, Session => Session);
          AWK.Close (Session);
-
-         K := Strings.Fixed.Index (Filename, "-");
-
-         if K = 0 then
-            --  This is not a child package
-            K := Strings.Fixed.Index (Filename, ".");
-         end if;
-
-         K := K - 1;
-
-         declare
-            Base : constant String := Filename (Filename'First .. K);
-         begin
-            if Base = "templates_parser" then
-               Prefix := To_Unbounded_String ("Templates_Parser/");
-            else
-               Prefix := To_Unbounded_String (To_Upper (Base) & '/');
-            end if;
-         end;
-
          return To_String (Name);
       end Get_API_Name;
 
-      API_Name : constant String := Get_API_Name;
-
    begin
-      Put_Line ("   <documentation_file>");
-      Put_Line
-        ("      <shell>Editor.edit """ & Filename & """</shell>");
-      Put_Line ("      <descr>" & API_Name & "</descr>");
-      Put_Line ("      <menu>/Help/AWS API/" & To_String (Prefix)
-                & Double_Underscore (API_Name) & "</menu>");
-      Put_Line ("      <category>AWS API</category>");
-      Put_Line ("   </documentation_file>");
-   end Gen_Ref;
+      A := A + 1;
+      API (A) := (+Filename, +Get_API_Name, False);
+   end Get_Ref;
 
    File : File_Type;
 
@@ -208,8 +267,10 @@ begin
    Gen_Header;
 
    for K in 1 .. Command_Line.Argument_Count loop
-      Gen_Ref (Command_Line.Argument (K));
+      Get_Ref (Command_Line.Argument (K));
    end loop;
+
+   Gen_Refs;
 
    Gen_Footer;
 
