@@ -1,3 +1,15 @@
+2004-06-04  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Clear): Initialize Nested_Level to 1.
+	(Initialize): Idem.	
+	(Translate) [Tag_Var]: Improve error messages.
+	Patch contributed by Emmanuel Briot.
+	
+	* templates_parser.adb:
+	("&") [Tag]: Properly set the nested level if the left value already
+	 contains values.
+
 2004-06-03  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.adb:
