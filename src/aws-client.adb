@@ -650,11 +650,11 @@ package body AWS.Client is
 
          if URI = "" then
             Sockets.Put_Line (Sock, Method & ' '
-                              & AWS.URL.URI (Connection.Host_URL)
+                              & AWS.URL.URI (Connection.Host_URL, True)
                               & ' ' & HTTP_Version);
          else
             Sockets.Put_Line (Sock, Method & ' '
-                              & URI
+                              & AWS.URL.Encode (URI)
                               & ' ' & HTTP_Version);
          end if;
 
@@ -765,6 +765,7 @@ package body AWS.Client is
       Connect_URL : AWS.URL.Object;
       Host_URL    : AWS.URL.Object := AWS.URL.Parse (Host);
       Proxy_URL   : AWS.URL.Object := AWS.URL.Parse (Proxy);
+
    begin
       if Proxy = No_Data then
          Connect_URL := Host_URL;
