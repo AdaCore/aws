@@ -265,6 +265,8 @@ package body AWS.Net.Sets is
             Free (Set.Set (K).Socket);
          end if;
       end loop;
+
+      Set.Last := 0;
    end Reset;
 
    --------------
@@ -322,10 +324,6 @@ package body AWS.Net.Sets is
             Timeout => Poll_Timeout));
 
       if Result < 0 then
-         --  We cannot determine what exactly the error is because AWS.Net
-         --  API does not have Errno routine for now.
-         --  ??? Is that still the case ?
-
          Ada.Exceptions.Raise_Exception
            (Socket_Error'Identity, "Poll error code" & Integer'Image (Errno));
 
