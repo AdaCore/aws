@@ -84,7 +84,20 @@ procedure Web_Elements is
          Filename => WWW_Root & "/icons/" & URI (10 .. URI'Last));
    end CB_Icons;
 
-   Port   : constant Integer := 2400;
+   -----------
+   -- CB_JS --
+   -----------
+
+   function CB_JS (Request : in Status.Data) return Response.Data is
+      URI      : constant String := Status.URI (Request);
+      Filename : constant String := URI (URI'First + 1 .. URI'Last);
+   begin
+      return AWS.Response.File
+        (MIME.Content_Type (Filename),
+         Filename => WWW_Root & "/javascripts/" & URI (10 .. URI'Last));
+   end CB_JS;
+
+   Port : constant Integer := 2400;
 
    WS   : Server.HTTP;
    Conf : Config.Object := Config.Get_Current;
@@ -100,6 +113,9 @@ begin
 
    Services.Dispatchers.URI.Register
      (Disp, "/we_icons/", CB_Icons'Unrestricted_Access, Prefix => True);
+   Services.Dispatchers.URI.Register
+     (Disp, "/we_js/", CB_JS'Unrestricted_Access, Prefix => True);
+
    Services.Dispatchers.URI.Register_Default_Callback
      (Disp, Dispatchers.Callback.Create (CB'Unrestricted_Access));
 
