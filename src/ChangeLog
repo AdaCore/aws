@@ -1,5 +1,19 @@
 2004-05-31  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-client.ads:
+	(HTTP_Connection): New fields Decode_Filter, Decode_Buffer,
+	 Decode_First, Decode_Last for support HTTP client streaming
+	 decompress.
+
+	* aws-client.adb:
+	(Close): Free decompress streaming objects.
+	(Parse_Header): Initialize decompress streaming objects if necessary.
+	(Read_Some): Use decompress streaming objects if necessary.
+
+	* aws-services-page_server.adb:
+	(Callback): Use Resources.Is_Regular_File instead of
+	 OS_Lib.Is_Regular_File.
+
 	* aws-resources-streams-memory-zlib.ads:
 	Update comments and copyright years.
 
