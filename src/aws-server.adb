@@ -1057,8 +1057,8 @@ package body AWS.Server is
 
       --  Initialize transient service
 
-      Services.Transient_Pages.Control.Register (1.0);
-      --  ??? Add the config object
+      Services.Transient_Pages.Control.Register
+        (Transient_Check_Interval => CNF.Transient_Cleanup_Interval);
 
       Counter.Add;
    end Start;
