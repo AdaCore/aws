@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             Febuary 1st, 2003
+   Pascal Obry                                             Febuary 2nd, 2003
 
 
 
@@ -14,8 +14,8 @@ could change slightly at this stage but should be fairly stable now.
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
 a small yet powerful HTTP component to embed in any applications. It means
 that you can communicate with your application using a standard Web browser
-and this without the need for a Web Server. AWS is fully developed in Ada with
-GNAT.
+and this without the need for a Web Server. AWS is fully developed in Ada
+with GNAT.
 
 AWS support SOAP, Server Push, HTTPS/SSL, client HTTP, hotplug modules... We
 have worked very hard to make this release as stable as possible. Note that
@@ -26,7 +26,7 @@ version.
 The SOAP implementation has been validated on http://validator.soapware.org/.
 
 
-Here are the main changes:
+Here are the main changes since AWS 1.2:
 
    - Fix bug in Client module in reading chunk size returned by some
      Web servers.
@@ -128,17 +128,28 @@ probably implement in future releases.
 NOTE: Since we have switched to the .PNG file format we have found that
 Netscape Navigator is not able to display the PNG transparent layer properly!
 
-At this stage we feel that AWS is ready to build small to medium Web
-servers. AWS has been reported to work on Windows NT/XP, Linux and FreeBSD 4.1.
-
-With this new version you'll need at least version 1.0 of the Socket binding
-from ENST. See pointers below.
-
 The OpenSSL libraries (optional) distributed are for Windows only. On UNIX
 you'll have to build the libraries from sources, it is quite easy to do
-so. This has been tested under Linux without trouble.
+so. This has been tested on GNU/Linux without trouble.
+
+The LDAP binding will use the LDAP dynamic library on Windows. On UNIX you
+need to build and install OpenLDAP.
 
 See documentation for build information.
+
+
+Validation:
+-----------
+
+AWS 1.3 has been compiled and has passed all tests on:
+
+   Windows XP, GNAT 3.15a1, 3.17w and 5.01w
+
+   GNU/Linux x66, GNAT 3.16a and 3.17w
+
+   SPARC Solaris 8, GNAT 3.17w
+
+Previous version of AWS have been build on FreeBSD 4.1 and MacOSX.
 
 
 Pointers:
@@ -216,6 +227,15 @@ OpenSSL library (optional) :
 
    See OpenSSL license (docs/openssl.license).
 
+OpenLDAP library (optional) :
+
+   Sources for UNIX or Win32:
+      http://www.openldap.org/
+
+   binaries for Win32:
+      Included with the main AWS distribution (win32 directory). The import
+      library will bind to the Microsoft LDAP dynamic library.
+
 Windows Services API (optional):
 
    To build the runme demo as a Windows NT/2000 services you must download
@@ -246,8 +266,8 @@ AWS users is to register to the AWS dedicated mailing list. See:
    http://lists.act-europe.fr/mailman/listinfo/aws
 
 
-AWS uses
---------
+AWS uses:
+---------
 
 - SETI@Home from Ted Dennison. AWS is used as a "plugable" GUI to retrieve
   different program status.
