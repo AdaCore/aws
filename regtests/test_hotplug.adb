@@ -34,6 +34,7 @@
 
 --  Test hotplug feature
 
+with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Client.Hotplug;
@@ -62,7 +63,7 @@ procedure Test_Hotplug is
    --  Request URI resource to main server, output result
 
    Hotplug_Port : Natural := 1235;
-   Main_Port    : Natural := 1236;
+   Main_Port    : Natural := 8236;
    Com_Port     : Natural := 2222;
 
    --------------------
@@ -113,7 +114,9 @@ procedure Test_Hotplug is
          Server.Shutdown (WS);
       end Stop;
    exception
-      when others =>
+      when E : others =>
+         Text_IO.Put_Line
+           ("Hotplug task " & Ada.Exceptions.Exception_Information (E));
          Server.Shutdown (WS);
    end Hotplug_Server;
 
@@ -186,8 +189,9 @@ begin
    Server.Shutdown (Hotplug_Pack.Main_Server);
 
 exception
-   when others =>
-      Text_IO.Put_Line ("Exception raised");
+   when E : others =>
+      Text_IO.Put_Line
+        ("Main task " & Ada.Exceptions.Exception_Information (E));
       AWS.Server.Hotplug.Shutdown;
       Server.Shutdown (Hotplug_Pack.Main_Server);
 end Test_Hotplug;
