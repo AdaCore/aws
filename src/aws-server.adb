@@ -321,7 +321,7 @@ package body AWS.Server is
          Result   : C.int;
       begin
          Result := Sockets.Thin.C_Getpeername (Sockets.Get_FD (Sock),
-                                               Sockaddr'Unchecked_Access,
+                                               Sockaddr'Address,
                                                Len'Unchecked_Access);
 
          Sockaddr_In := To_Sockaddr_In (Sockaddr);
