@@ -375,8 +375,16 @@ MODULES_CLEAN = ${MODULES:%=%_clean}
 
 ifdef XMLADA
 PRJ_XMLADA=Installed
+GEXT_MODULE := $(GEXT_MODULE) gxmlada
 else
 PRJ_XMLADA=Disabled
+endif
+
+ifdef ASIS
+PRJ_ASIS=Installed
+GEXT_MODULE := $(GEXT_MODULE) gasis
+else
+PRJ_ASIS=Disabled
 endif
 
 ifdef DEBUG
@@ -386,7 +394,9 @@ PRJ_BUILD=Release
 endif
 
 GALL_OPTIONS := $(ALL_OPTIONS) \
-	PRJ_BUILD="$(PRJ_BUILD)" PRJ_XMLADA="$(PRJ_XMLADA)"
+	PRJ_BUILD="$(PRJ_BUILD)" \
+	PRJ_XMLADA="$(PRJ_XMLADA)" \
+	PRJ_ASIS="$(PRJ_ASIS)"
 
 ${MODULES_BUILD}: force
 	${MAKE} -C ${@:%_build=%} gbuild $(GALL_OPTIONS)
@@ -411,4 +421,12 @@ gxmlada:
 	echo " LIB_Path := \"-L\" & Path & \"/lib\";" >> xmlada.gpr
 	echo "end XMLAda;" >> xmlada.gpr
 
-gsetup: $(MODULES_SETUP)
+gasis:
+	echo "project ASIS is" > asis.gpr
+	echo " Path := \"$(ASIS)\";" >> asis.gpr
+	echo " for Source_Dirs use (Path);" >> asis.gpr
+	echo " for Object_Dir use Path;" >> asis.gpr
+	echo " LIB_Path := \"-L\" & Path;" >> asis.gpr
+	echo "end ASIS;" >> asis.gpr
+
+gsetup: $(GEXT_MODULE) $(MODULES_SETUP)
