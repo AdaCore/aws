@@ -1,3 +1,9 @@
+2003-11-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-pop.ads, aws-pop.adb:
+	(Initialize): Set default authentication to Clear_Text. The APOP
+	 method is almost never used.
+
 2003-11-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
