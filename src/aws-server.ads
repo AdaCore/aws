@@ -71,7 +71,6 @@ private
       Sock                : Sockets.Socket_FD;
       Opened              : Boolean := False;
       Abortable           : Boolean := False;
-      Quit                : Boolean := False;
       Activity_Counter    : Natural := 0;
       Activity_Time_Stamp : Ada.Calendar.Time := Ada.Calendar.Clock;
    end record;
