@@ -1,3 +1,8 @@
+2003-09-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* zlib/*:
+	Synchronize with zlib 1.2.1.2 prereleaze.
+
 2003-09-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zlib.ads, zlib.adb:
