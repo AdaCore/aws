@@ -1,3 +1,77 @@
+2001-05-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb: 
+	(Start): add Upload_Directory parameter. Use default from
+	 AWS.Config.
+
+	* aws-server.ads:
+	(Start): add Upload_Directory parameter. Use default from
+	 AWS.Config.
+	(HTTP): use default from AWS.Config.
+	(Def_Admin_URI): new constant.
+	(Def_Admin_Upload_Dir): new constant.
+	(Def_Port): new constant.
+	(Default_Connection): removed.
+	(Default_Port): removed.
+	(Default_Upload_Path): removed.
+	(No_Admin): removed.
+	
+	* aws-communication-server.adb:
+	(Receive): use new parameter interface.
+
+	* aws-translator.ads, aws-translator.adb, aws-status-set.adb,
+	  aws-parameters-set.adb, aws-client.adb:
+	Rename Translater to Translat
+
+	* aws-server-protocol_handler.adb:
+	Call Mark_Phase after setting parameters.
+
+	* aws-server.adb:
+	Minor reformating.
+
+	* aws-config.adb:
+	(Cleaner_Wait_For_Client_Timeout_value): new variable.
+	(Cleaner_Client_Header_Timeout_Value): new variable.
+	(Cleaner_Client_Data_Timeout_Value): new variable.
+	(Cleaner_Server_Response_Timeout_Value): new variable.
+	(Force_Wait_For_Client_Timeout_Value): new variable.
+	(Force_Client_Header_Timeout_Value): new variable.
+	(Force_Client_Data_Timeout_Value): new variable.
+	(Force_Server_Response_Timeout_Value): new variable.
+	(Cleaner_Wait_For_Client_Timeout): new function.
+	(Cleaner_Client_Header_Timeout): new function.
+	(Cleaner_Client_Data_Timeout): new function.
+	(Cleaner_Server_Response_Timeout): new function.
+	(Force_Wait_For_Client_Timeout): new function.
+	(Force_Client_Header_Timeout): new function.
+	(Force_Client_Data_Timeout): new function.
+	(Force_Server_Response_Timeout): new function.
+	(Initialize): add parsing for all timeouts string.
+
+	* aws-config.ads: 
+	(Default_Server_Name): new constant.
+	(Default_Admin_URI): new constant.
+	(Default_Server_Port): new constant.
+	(Default_Max_Connection): new constant.
+	(Default_Log_File_Directory): new constant.
+	(Default_Upload_Directory): new constant.
+	(Default_Cleaner_Wait_For_Client_Timeout): new constant.
+	(Default_Cleaner_Client_Header_Timeout): new constant.
+	(Default_Cleaner_Client_Data_Timeout): new constant.
+	(Default_Cleaner_Server_Response_Timeout): new constant.
+	(Default_Force_Wait_For_Client_Timeout): new constant.
+	(Default_Force_Client_Header_Timeout): new constant.
+	(Default_Force_Client_Data_Timeout): new constant.
+	(Default_Force_Server_Response_Timeout): new constant.
+	(Cleaner_Wait_For_Client_Timeout): new function.
+	(Cleaner_Client_Header_Timeout): new function.
+	(Cleaner_Client_Data_Timeout): new function.
+	(Cleaner_Server_Response_Timeout): new function.
+	(Force_Wait_For_Client_Timeout): new function.
+	(Force_Client_Header_Timeout): new function.
+	(Force_Client_Data_Timeout): new function.
+	(Force_Server_Response_Timeout): new function.
+
 2001-05-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
