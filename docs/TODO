@@ -113,3 +113,5 @@ implemented:
        </restriction>
      </complexContent>
    </complexType>
+
+- Add a GNAT project files to build/use AWS
