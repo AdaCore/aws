@@ -1,3 +1,26 @@
+2004-10-06  Pascal Obry  <pascal@obry.org>
+
+	* makefile.lst:
+	Empty version needed by main makefile. This file will be generated
+	 during the setup procedure.
+
+	* regtests.gpr:
+	Initialize GNAT Project Main attribute using the generated
+	 regtest_lst.gpr project. Avoid the need to manually sync with
+	 makefile.
+
+	* makefile:
+	Rewrite a good part of it again. It is now easier to add new tests
+	 and we do not need to manually sync the makefile and the GNAT
+	 Project file.
+
+	Add tag in all main routines to characterize them (ASIS, SOAP, SSL).
+	With this new setup it is possible to build properly the regtests
+	 drivers using a project file and it has simplified considerably
+	 the makefile. It will be quite easier to add a new non regression
+	 test. Note that it is still possible to simplify the process a
+	 bit, this will be done later.
+	
 2004-10-04  Pascal Obry  <pascal@obry.org>
 
 	* test_soap3.adb:
