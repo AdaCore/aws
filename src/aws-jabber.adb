@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -220,9 +220,16 @@ package body AWS.Jabber is
 
          delay 1.0;
 
-         --  Release all messages from the Mailbox
+         --  Release all remaining messages in the Mailbox
 
-         Server.MB.Destroy;
+         while Server.MB.Size /= 0 loop
+            declare
+               M : Message_Access;
+            begin
+               Server.MB.Get (M);
+               Release (M);
+            end;
+         end loop;
 
          --  Send closing stream element
 
@@ -619,73 +626,6 @@ package body AWS.Jabber is
          return ID (ID'First .. K - 1);
       end if;
    end Jabber_ID;
-
-   -------------
-   -- Mailbox --
-   -------------
-
-   protected body Mailbox is
-
-      ---------
-      -- Add --
-      ---------
-
-      entry Add (M : in Message_Access) when Current_Size < Max_Size is
-      begin
-         Current_Size := Current_Size + 1;
-         Current := Current + 1;
-
-         if Current > Max_Size then
-            Current := Buffer'First;
-         end if;
-
-         Buffer (Current) := M;
-      end Add;
-
-      -------------
-      -- Destroy --
-      -------------
-
-      procedure Destroy is
-      begin
-         while Last /= Current loop
-            Last := Last + 1;
-
-            if Last > Max_Size then
-               Last := Buffer'First;
-            end if;
-
-            Release (Buffer (Last));
-         end loop;
-      end Destroy;
-
-      ---------
-      -- Get --
-      ---------
-
-      entry Get (M : out Message_Access) when Current_Size > 0 is
-      begin
-         Current_Size := Current_Size - 1;
-         Last := Last + 1;
-
-         if Last > Max_Size then
-            Last := Buffer'First;
-         end if;
-
-         M := Buffer (Last);
-         Buffer (Last) := null;
-      end Get;
-
-      ----------
-      -- Size --
-      ----------
-
-      function Size return Natural is
-      begin
-         return Current_Size;
-      end Size;
-
-   end Mailbox;
 
    ---------------------
    -- Raise_Exception --
