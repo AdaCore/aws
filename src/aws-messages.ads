@@ -51,6 +51,9 @@ package AWS.Messages is
    Connection_Token : constant String := "Connection: ";
    subtype Connection_Range is Positive range Connection_Token'Range;
 
+   Location_Token : constant String := "Location: ";
+   subtype Location_Range is Positive range Location_Token'Range;
+
    Content_Type_Token : constant String := "Content-Type: ";
    subtype Content_Type_Range is Positive range Content_Type_Token'Range;
 
