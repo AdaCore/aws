@@ -93,6 +93,8 @@ package SOAP.Utils is
    -- SOAP Generator Runtime Support --
    ------------------------------------
 
+   subtype SOAP_Base64 is String;
+
    generic
       type T is private;
       type T_Array is array (Positive range <>) of T;
