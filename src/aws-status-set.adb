@@ -249,7 +249,7 @@ package body AWS.Status.Set is
       D.File_Up_To_Date   := False;
       D.Auth_Name         := Null_Unbounded_String;
       D.Auth_Password     := Null_Unbounded_String;
-      D.Session_ID        := Null_Unbounded_String;
+      D.Session_ID        := AWS.Session.No_Session;
 
       AWS.Parameters.Set.Reset (D.Parameters);
    end Reset;
@@ -262,7 +262,7 @@ package body AWS.Status.Set is
      (D  : in out Data;
       ID : in     String) is
    begin
-      D.Session_ID := To_Unbounded_String (ID);
+      D.Session_ID := AWS.Session.Value (ID);
    end Session;
 
    ----------------
