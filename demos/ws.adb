@@ -40,7 +40,7 @@ procedure WS is
 
    use Ada;
 
-   WS  : AWS.Server.HTTP (5, 1234, False, WS_CB.Service'Access);
+   WS  : AWS.Server.HTTP (5, 1234, False, WS_CB.Service'Access, False);
 
 begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");
