@@ -26,8 +26,9 @@ mkdir std-$version
 cd std-$version
 tar xfz ../$std
 cd aws*
-make XMLADA=$XMLADA ASIS=$ASIS build
-make XMLADA=$XMLADA ASIS=$ASIS INSTALL=$root/std-$version install
+export ADA_PROJECT_PATH=`pwd`/.build/projects\;$XMLADA/projects
+make XMLADA=true ASIS=$ASIS setup build
+make XMLADA=true ASIS=$ASIS INSTALL=$root/std-$version install
 cd ../..
 
 echo Test $http
@@ -35,5 +36,6 @@ mkdir http-$version
 cd http-$version
 tar xfz ../$http
 cd aws*
-make build
+export ADA_PROJECT_PATH=`pwd`/.build/projects
+make setup build
 make INSTALL=$root/http-$version install
