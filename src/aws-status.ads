@@ -35,6 +35,7 @@ with Ada.Strings.Unbounded;
 with Ada.Streams;
 
 with AWS.Session;
+with AWS.Parameters;
 
 package AWS.Status is
 
@@ -45,6 +46,9 @@ package AWS.Status is
    No_Data : constant Data;
 
    type Request_Method is (GET, HEAD, POST, PUT);
+
+   procedure Reset (D : in out Data);
+   --  reset the status data for a new use.
 
    procedure Set_Authorization (D             : in out Data;
                                 Authorization : in     String);
@@ -60,6 +64,10 @@ package AWS.Status is
    procedure Set_Content_Type (D            : in out Data;
                                Content_Type : in     String);
    --  set value for "Content-Type:" parameter
+
+   procedure Set_Multipart_Boundary (D        : in out Data;
+                                     Boundary : in     String);
+   --  set value for "Content-Type: ...; boundary=..." parameter
 
    procedure Set_Session (D  : in out Data;
                           ID : in     String);
@@ -93,7 +101,8 @@ package AWS.Status is
    procedure Set_Parameters (D : in out Data; Parameters : in String);
    --  set parameters for the current request. This is used for a POST method
    --  because the parameters are found in the message body and are not known
-   --  when we parse the request line.
+   --  when we parse the request line. The Parameters string has the form
+   --  "name1=value1&name2=value2...". The paramaters are added to the list.
 
    procedure Set_Parameters (D         : in out Data;
                              Parameter : in     Stream_Element_Array);
@@ -113,15 +122,18 @@ package AWS.Status is
    function HTTP_Version           (D : in Data) return String;
    function If_Modified_Since      (D : in Data) return String;
    function Method                 (D : in Data) return Request_Method;
+   function Multipart_Boundary     (D : in Data) return String;
    function Session                (D : in Data) return String;
    function Session                (D : in Data) return AWS.Session.ID;
    function URI                    (D : in Data) return String;
 
    function Parameter_Name    (D : in Data; N : in Positive) return String;
-   --  returns Nth parameter name.
+   --  returns Nth parameter name or the empty string if there is no such
+   --  data.
 
    function Parameter         (D : in Data; N : in Positive) return String;
-   --  returns Nth parameter value.
+   --  returns Nth parameter value or the empty string if there is no such
+   --  data.
 
    function Parameter         (D : in Data; Name : in String;
                                Case_Sensitive : in Boolean := True)
@@ -152,10 +164,11 @@ private
       Host              : Unbounded_String;
       Method            : Request_Method;
       URI               : Unbounded_String;
-      Parameters        : Unbounded_String;
+      Parameters        : AWS.Parameters.Set;
       Binary_Data       : Stream_Element_Array_Access;
       HTTP_Version      : Unbounded_String;
       Content_Type      : Unbounded_String;
+      Boundary          : Unbounded_String;
       Content_Length    : Natural;
       If_Modified_Since : Unbounded_String;
       File_Up_To_Date   : Boolean := False;
@@ -169,8 +182,9 @@ private
       Null_Unbounded_String,
       GET,
       Null_Unbounded_String,
-      Null_Unbounded_String,
+      Parameters.Empty_Set,
       null,
+      Null_Unbounded_String,
       Null_Unbounded_String,
       Null_Unbounded_String,
       0,
