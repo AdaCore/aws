@@ -53,6 +53,141 @@ package AWS.Status is
 
    type Authorization_Type is (None, Basic, Digest);
 
+   ------------------
+   -- Request-Line --
+   ------------------
+
+   function Method                 (D : in Data) return Request_Method;
+   pragma Inline (Method);
+   --  Returns the request method.
+
+   function URI                    (D : in Data) return String;
+   pragma Inline (URI);
+   --  Returns the requested resource.
+
+   function URI                    (D : in Data) return URL.Object;
+   pragma Inline (URI);
+   --  As above but return an URL object.
+
+   function HTTP_Version           (D : in Data) return String;
+   pragma Inline (HTTP_Version);
+   --  Returns the HTTP version used by the client.
+
+   ------------
+   -- Header --
+   ------------
+
+   function Header (D : in Data) return Headers.List;
+   pragma Inline (Header);
+   --  Returns the list of header lines for the request.
+
+   function Connection             (D : in Data) return String;
+   pragma Inline (Connection);
+   --  Get the value for "Connection:" parameter
+
+   function Content_Length         (D : in Data) return Natural;
+   pragma Inline (Content_Length);
+   --  Get the value for "Content-Length:" parameter, this is the number of
+   --  bytes in the message body.
+
+   function Content_Type           (D : in Data) return String;
+   pragma Inline (Content_Type);
+   --  Get value for "Content-Type:" parameter
+
+   function Host                   (D : in Data) return String;
+   pragma Inline (Host);
+   --  Get value for "Host:" parameter
+
+   function If_Modified_Since      (D : in Data) return String;
+   pragma Inline (If_Modified_Since);
+   --  Get value for "If-Modified-Since:" parameter
+
+   function Keep_Alive             (D : in Data) return Boolean;
+   pragma Inline (Keep_Alive);
+   --  Returns the flag if the current HTTP connection is keep-alive.
+
+   function User_Agent             (D : in Data) return String;
+   pragma Inline (User_Agent);
+   --  Get value for "User-Agent:" parameter
+
+   function Referer                (D : in Data) return String;
+   pragma Inline (Referer);
+   --  Get value for "Referer:" parameter
+
+   ------------
+   -- Socket --
+   ------------
+
+   function Peername               (D : in Data) return String;
+   pragma Inline (Peername);
+   --  Returns the name of the peer (the name of the client computer)
+
+   function Socket                 (D : in Data) return Net.Socket_Type'Class;
+   pragma Inline (Socket);
+   --  Returns the socket used to transfert data between the client and
+   --  server.
+
+   ----------
+   -- Data --
+   ----------
+
+   function Multipart_Boundary     (D : in Data) return String;
+   pragma Inline (Multipart_Boundary);
+   --  Get value for the boundary part in "Content-Type: ...; boundary=..."
+   --  parameter. This is a string that will be used to separate each chunk of
+   --  data in a multipart message.
+
+   subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
+
+   function Binary_Data (D : in Data) return Stream_Element_Array;
+   pragma Inline (Binary_Data);
+   --  Returns the binary data message content.
+
+   function Parameters             (D : in Data) return Parameters.List;
+   pragma Inline (Parameters);
+   --  Returns the list of parameters for the request. This list can be empty
+   --  if there was no form or URL parameters.
+
+   -------------
+   -- Session --
+   -------------
+
+   function Has_Session            (D : in Data) return Boolean;
+   pragma Inline (Has_Session);
+   --  Returns true if a session ID has been received.
+
+   function Session                (D : in Data) return Session.ID;
+   pragma Inline (Session);
+   --  Returns the Session ID for the request. Raises Constraint_Error if
+   --  server's session support not activated.
+
+   function Session_Created        (D : in Data) return Boolean;
+   --  Returns True if session was just created and is going to be sent to
+   --  client.
+
+   ----------
+   -- SOAP --
+   ----------
+
+   function Is_SOAP                (D : in Data) return Boolean;
+   pragma Inline (Is_SOAP);
+   --  Returns True if it is a SOAP request. In this case SOAPAction return
+   --  the SOAPAction header and Payload returns the XML SOAP Payload message.
+
+   function SOAPAction             (D : in Data) return String;
+   pragma Inline (SOAPAction);
+   --  Get value for "SOAPAction:" parameter. This is a standard header to
+   --  support SOAP over HTTP protocol.
+
+   function Payload                (D : in Data) return String;
+   pragma Inline (Payload);
+   --  Returns the XML Payload message. XML payload is the actual SOAP
+   --  request.
+
+   -----------
+   -- HTTPS --
+   -----------
+
    function Check_Digest
      (D        : in Data;
       Password : in String)
@@ -63,13 +198,13 @@ package AWS.Status is
    --  the server check that the client knows the right password using the
    --  MD5 checksum.
    --  Returns Messages.S200 in case of successful authentication,
-   --  Messages.S400 in case of bad authentication request
+   --  Messages.S400 in case of wrong authentication request
    --  (RFC 2617 3.2.2, 3.2.2.5),
-   --  Messages.S401 in case of authentication error.
+   --  and Messages.S401 in case of authentication error.
 
    function Check_Digest (D : in Data; Password : in String) return Boolean;
-   --  The same like above, but do not distinguish wrong request and
-   --  authentication error.
+   --  The same as above, but do not distinguish wrong requests and
+   --  authentication errors.
 
    function Authorization_Mode     (D : in Data) return Authorization_Type;
    pragma Inline (Authorization_Mode);
@@ -106,113 +241,6 @@ package AWS.Status is
    function Authorization_Response (D : in Data) return String;
    pragma Inline (Authorization_Response);
    --  Get the value for the "response" in the "Authorization:" parameter
-
-   function Connection             (D : in Data) return String;
-   pragma Inline (Connection);
-   --  Get the value for "Connection:" parameter
-
-   function Content_Length         (D : in Data) return Natural;
-   pragma Inline (Content_Length);
-   --  Get the value for "Content-Length:" parameter, this is the number of
-   --  bytes in the message body.
-
-   function Content_Type           (D : in Data) return String;
-   pragma Inline (Content_Type);
-   --  Get value for "Content-Type:" parameter
-
-   function Has_Session            (D : in Data) return Boolean;
-   pragma Inline (Has_Session);
-   --  Returns true if a session ID has been received.
-
-   function Host                   (D : in Data) return String;
-   pragma Inline (Host);
-   --  Get value for "Host:" parameter
-
-   function HTTP_Version           (D : in Data) return String;
-   pragma Inline (HTTP_Version);
-   --  Returns the HTTP version used by the client.
-
-   function If_Modified_Since      (D : in Data) return String;
-   pragma Inline (If_Modified_Since);
-   --  Get value for "If-Modified-Since:" parameter
-
-   function Keep_Alive             (D : in Data) return Boolean;
-   pragma Inline (Keep_Alive);
-   --  Returns the flag if the current HTTP connection is keep-alive.
-
-   function Method                 (D : in Data) return Request_Method;
-   pragma Inline (Method);
-   --  Returns the request method.
-
-   function Multipart_Boundary     (D : in Data) return String;
-   pragma Inline (Multipart_Boundary);
-   --  Get value for the boundary part in "Content-Type: ...; boundary=..."
-   --  parameter. This is a string that will be used to separate each chunk of
-   --  data in a multipart message.
-
-   function Parameters             (D : in Data) return Parameters.List;
-   pragma Inline (Parameters);
-   --  Returns the list of parameters for the request. This list can be empty
-   --  if there was no form or URL parameters.
-
-   function Peername               (D : in Data) return String;
-   pragma Inline (Peername);
-   --  Returns the name of the peer (the name of the client computer)
-
-   function Session                (D : in Data) return Session.ID;
-   pragma Inline (Session);
-   --  Returns the Session ID for the request. Raises Constraint_Error if
-   --  server's session support not activated.
-
-   function Session_Created        (D : in Data) return Boolean;
-   --  Returns True if session was just created and is going to be sent to
-   --  client.
-
-   function Socket                 (D : in Data) return Net.Socket_Type'Class;
-   pragma Inline (Socket);
-   --  Returns the socket used to transfert data between the client and
-   --  server.
-
-   function URI                    (D : in Data) return String;
-   pragma Inline (URI);
-   --  Returns the requested resource.
-
-   function URI                    (D : in Data) return URL.Object;
-   pragma Inline (URI);
-   --  As above but return an URL object.
-
-   function User_Agent             (D : in Data) return String;
-   pragma Inline (User_Agent);
-   --  Get value for "User-Agent:" parameter
-
-   function Referer                (D : in Data) return String;
-   pragma Inline (Referer);
-   --  Get value for "Referer:" parameter
-
-   function Is_SOAP                (D : in Data) return Boolean;
-   pragma Inline (Is_SOAP);
-   --  Returns True if it is a SOAP request. In this case SOAPAction return
-   --  the SOAPAction header and Payload returns the XML SOAP Payload message.
-
-   function SOAPAction             (D : in Data) return String;
-   pragma Inline (SOAPAction);
-   --  Get value for "SOAPAction:" parameter. This is a standard header to
-   --  support SOAP over HTTP protocol.
-
-   function Payload                (D : in Data) return String;
-   pragma Inline (Payload);
-   --  Returns the XML Payload message. XML payload is the actual SOAP
-   --  request.
-
-   subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
-
-   function Binary_Data (D : in Data) return Stream_Element_Array;
-   pragma Inline (Binary_Data);
-   --  Returns the binary data message content.
-
-   function Header (D : in Data) return Headers.List;
-   pragma Inline (Header);
-   --  Returns the list of header lines for the request.
 
 private
 
