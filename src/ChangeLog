@@ -1,4 +1,10 @@
 2000-10-22  Pascal Obry  <p.obry@wanadoo.fr>
+	
+	* aws-hotplug.adb:
+	(Apply): fix style error.
+
+	* aws-utils.adb:
+	(Gethostname): fix style error.
 
 	* aws-hotplug.ads, aws-hotplug.adb:
 	(Move_Up): new procedure.
@@ -17,6 +23,8 @@
 
 	* aws-server-protocol_handler.adb:
 	(Answer_To_Client): Handle hotplug status page items.
+
+2000-10-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
 	(Version): set to 0.9.9.
