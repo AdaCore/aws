@@ -56,7 +56,7 @@ procedure AwsRes is
 
    Syntax_Error : exception;
 
-   Version  : constant String := "1.1";
+   Version  : constant String := "1.2";
 
    Root_Pck : Unbounded_String := To_Unbounded_String ("res");
    Quiet    : Boolean := False;
@@ -225,21 +225,22 @@ procedure AwsRes is
 
       Text_IO.Put_Line
         (RT_File, "         Register");
-      Text_IO.Put_Line
-        (RT_File, "            (""" & Filename & """,");
+
+      if Compress then
+         Text_IO.Put_Line
+           (RT_File, "            (""" & Filename & ".gz"",");
+      else
+         Text_IO.Put_Line
+           (RT_File, "            (""" & Filename & """,");
+      end if;
+
       Text_IO.Put_Line
         (RT_File, "             "
            & To_String (Root_Pck) & '.' & Unit_Name & ".Content'Access,");
       Text_IO.Put_Line
         (RT_File, "             GNAT.Calendar.Time_Of ("
            & GNAT.Calendar.Time_IO.Image
-           (File_Time, "%Y, %m, %d, %H, %M, %S, 0.0),"));
-
-      if Compress then
-         Text_IO.Put_Line (RT_File, "             Compressed);");
-      else
-         Text_IO.Put_Line (RT_File, "             Uncompressed);");
-      end if;
+           (File_Time, "%Y, %m, %d, %H, %M, %S, 0.0));"));
 
       if not Quiet then
          Text_IO.Put_Line ("  -> registered");
