@@ -1,3 +1,15 @@
+2001-10-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-push.adb:
+	(Send_G): new procedure.
+	(Object.Send): add Not_Responding parameter.
+	(Send_To): fix bug to detect an invalid client ID.
+
+	* aws-server-push.ads:
+	(Send_G): new procedure.
+	(Object.Send): add Not_Responding parameter.
+	Minor typo fix.
+
 2001-10-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-push.adb:
