@@ -80,7 +80,7 @@ package body AWS.Server is
    --  Start web server with current configuration.
 
    procedure Protocol_Handler
-     (HTTP_Server : in out HTTP_Access;
+     (HTTP_Server : in out HTTP;
       Index       : in     Positive;
       Keep_Alive  : in     Boolean);
    --  Handle the lines, this is where all the HTTP protocol is defined.
@@ -366,21 +366,17 @@ package body AWS.Server is
             --  is serialized as some platforms do not handle properly
             --  multiple accepts on the same socket.
 
-            Socket : aliased Net.Socket_Type'Class
+            Keep_Alive_Limit : constant Positive
+              := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
+
+            Socket           : aliased Net.Socket_Type'Class
               := Accept_Socket_Serialized (HTTP_Server);
 
-            Free_Slots : Natural;
-
-            Need_Shutdown : Boolean;
-
-            Keep_Alive_Limit : constant Positive
-               := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
-
+            Free_Slots       : Natural;
+            Need_Shutdown    : Boolean;
          begin
             HTTP_Server.Slots.Set
-              (Socket'Unchecked_Access,
-               Slot_Index,
-               Free_Slots);
+              (Socket'Unchecked_Access, Slot_Index, Free_Slots);
 
             --  If there is no more slot available and we have many
             --  of them, try to abort one of them.
@@ -398,7 +394,7 @@ package body AWS.Server is
             end if;
 
             Protocol_Handler
-              (HTTP_Server, Slot_Index, Free_Slots >= Keep_Alive_Limit);
+              (HTTP_Server.all, Slot_Index, Free_Slots >= Keep_Alive_Limit);
 
             HTTP_Server.Slots.Release (Slot_Index, Need_Shutdown);
 
@@ -474,7 +470,7 @@ package body AWS.Server is
    ----------------------
 
    procedure Protocol_Handler
-     (HTTP_Server : in out HTTP_Access;
+     (HTTP_Server : in out HTTP;
       Index       : in     Positive;
       Keep_Alive  : in     Boolean) is separate;
 

@@ -63,7 +63,7 @@ with AWS.URL;
 separate (AWS.Server)
 
 procedure Protocol_Handler
-  (HTTP_Server : in out HTTP_Access;
+  (HTTP_Server : in out HTTP;
    Index       : in     Positive;
    Keep_Alive  : in     Boolean)
 is
@@ -212,7 +212,7 @@ is
                begin
                   Answer := Response.Build
                     (Content_Type => MIME.Text_HTML,
-                     Message_Body => Get_Status (HTTP_Server.all));
+                     Message_Body => Get_Status (HTTP_Server));
                exception
                   when Templates.Template_Error =>
                      Answer := Response.Build
@@ -1600,7 +1600,8 @@ begin
    --  connection. We will exit this loop only if the client request
    --  so or if we time-out on waiting for a request.
 
-   Line_Attribute.Set_Value ((HTTP_Server, Index, C_Stat'Unchecked_Access));
+   Line_Attribute.Set_Value
+     ((HTTP_Server.Self, Index, C_Stat'Unchecked_Access));
 
    For_Every_Request : loop
 
