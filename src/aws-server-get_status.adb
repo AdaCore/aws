@@ -245,6 +245,50 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Assoc ("SESSION_CLEANUP_INTERVAL",
                 Utils.Image (CNF.Session_Cleanup_Interval)),
 
+         Assoc ("CLEANER_WAIT_FOR_CLIENT_TIMEOUT",
+                Utils.Image
+                  (CNF.Cleaner_Wait_For_Client_Timeout (Server.Properties))),
+
+         Assoc ("CLEANER_CLIENT_HEADER_TIMEOUT",
+                Utils.Image
+                  (CNF.Cleaner_Client_Header_Timeout (Server.Properties))),
+
+         Assoc ("CLEANER_CLIENT_DATA_TIMEOUT",
+                Utils.Image
+                  (CNF.Cleaner_Client_Data_Timeout (Server.Properties))),
+
+         Assoc ("CLEANER_SERVER_RESPONSE_TIMEOUT",
+                Utils.Image
+                  (CNF.Cleaner_Server_Response_Timeout (Server.Properties))),
+
+         Assoc ("FORCE_WAIT_FOR_CLIENT_TIMEOUT",
+                Utils.Image
+                  (CNF.Force_Wait_For_Client_Timeout (Server.Properties))),
+
+         Assoc ("FORCE_CLIENT_HEADER_TIMEOUT",
+                Utils.Image
+                  (CNF.Force_Client_Header_Timeout (Server.Properties))),
+
+         Assoc ("FORCE_CLIENT_DATA_TIMEOUT",
+                Utils.Image
+                  (CNF.Force_Client_Data_Timeout (Server.Properties))),
+
+         Assoc ("FORCE_SERVER_RESPONSE_TIMEOUT",
+                Utils.Image
+                  (CNF.Force_Server_Response_Timeout (Server.Properties))),
+
+         Assoc ("SEND_TIMEOUT",
+                Utils.Image (CNF.Send_Timeout (Server.Properties))),
+
+         Assoc ("RECEIVE_TIMEOUT",
+                Utils.Image (CNF.Receive_Timeout (Server.Properties))),
+
+         Assoc ("ACCEPT_QUEUE_SIZE",
+                Utils.Image (CNF.Accept_Queue_Size (Server.Properties))),
+
+         Assoc ("STATUS_PAGE",
+                CNF.Status_Page (Server.Properties)),
+
          Assoc ("LOGO",
                 Admin_URI & "-logo"),
 
@@ -257,12 +301,14 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Assoc ("LOG_MODE",
                 Log.Split_Mode'Image (Log.Mode (Server.Log))),
 
-
          Assoc ("ADMIN",
-                Admin_URI))
-     & Slot_Table
-     & Session_Table
-     & Hotplug.Get_Status (Server.Filters);
+                Admin_URI),
+
+         Assoc ("UPLOAD_DIRECTORY",
+                CNF.Upload_Directory (Server.Properties)))
+   & Slot_Table
+   & Session_Table
+   & Hotplug.Get_Status (Server.Filters);
 
 begin
    return Templates_Parser.Parse
