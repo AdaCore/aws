@@ -30,6 +30,11 @@
 
 --  $Id$
 
+with AWS.Config.Ini;
+--  This package is not used, but it is loaded here to initialize the
+--  Server_Config variable.
+pragma Warnings (Off, AWS.Config.Ini);
+
 package body AWS.Config is
 
    ---------------
@@ -131,6 +136,15 @@ package body AWS.Config is
       return O (Force_Wait_For_Client_Timeout).Dur_Value;
    end Force_Wait_For_Client_Timeout;
 
+   -----------------
+   -- Get_Current --
+   -----------------
+
+   function Get_Current return Object is
+   begin
+      return Server_Config;
+   end Get_Current;
+
    ------------------
    -- Hotplug_Port --
    ------------------
@@ -148,6 +162,24 @@ package body AWS.Config is
    begin
       return To_String (O (Log_File_Directory).Dir_Value);
    end Log_File_Directory;
+
+   ---------------------
+   -- Log_File_Prefix --
+   ---------------------
+
+   function Log_File_Prefix (O : in Object) return String is
+   begin
+      return To_String (O (Log_File_Prefix).Str_Value);
+   end Log_File_Prefix;
+
+   --------------------
+   -- Log_Split_Mode --
+   --------------------
+
+   function Log_Split_Mode (O : in Object) return String is
+   begin
+      return To_String (O (Log_Split_Mode).Str_Value);
+   end Log_Split_Mode;
 
    ----------------
    -- Logo_Image --
@@ -225,18 +257,18 @@ package body AWS.Config is
    -- Session_Cleanup_Interval --
    ------------------------------
 
-   function Session_Cleanup_Interval (O : in Object) return Duration is
+   function Session_Cleanup_Interval return Duration is
    begin
-      return O (Session_Cleanup_Interval).Dur_Value;
+      return Process_Options (Session_Cleanup_Interval).Dur_Value;
    end Session_Cleanup_Interval;
 
    ----------------------
    -- Session_Lifetime --
    ----------------------
 
-   function Session_Lifetime (O : in Object) return Duration is
+   function Session_Lifetime return Duration is
    begin
-      return O (Session_Lifetime).Dur_Value;
+      return Process_Options (Session_Lifetime).Dur_Value;
    end Session_Lifetime;
 
    -----------------
@@ -276,4 +308,3 @@ package body AWS.Config is
    end WWW_Root;
 
 end AWS.Config;
-
