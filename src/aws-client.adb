@@ -96,6 +96,11 @@ package body AWS.Client is
    --  Read server answer and set corresponding variable with the value
    --  read. Most of the fields are ignored right now.
 
+   procedure Connect (Connection : in out HTTP_Connection);
+   --  Open the connection. Raises Connection_Error if it is not possible to
+   --  establish the connection. In this case all resources are released and
+   --  Connection.Opened is set to False.
+
    procedure Disconnect (Connection : in out HTTP_Connection);
    --  Close connection. Further use is not possible.
 
@@ -222,6 +227,32 @@ package body AWS.Client is
       Net.Free (Connection.Socket);
    end Close;
 
+   -------------
+   -- Connect --
+   -------------
+
+   procedure Connect (Connection : in out HTTP_Connection) is
+      Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
+   begin
+      Connection.Socket := Net.Socket (AWS.URL.Security (Connect_URL));
+
+      Net.Connect (Connection.Socket.all,
+                   AWS.URL.Host (Connect_URL),
+                   AWS.URL.Port (Connect_URL));
+
+      Connection.Opened := True;
+   exception
+      when E : Net.Socket_Error =>
+         Net.Shutdown (Connection.Socket.all);
+         Net.Free (Connection.Socket);
+         Connection.Opened := False;
+
+         Exceptions.Raise_Exception
+           (Connection_Error'Identity,
+            "can't connect to " & AWS.URL.URL (Connect_URL)
+            & " -> " & Exceptions.Exception_Information (E));
+   end Connect;
+
    -----------------
    -- Copy_Cookie --
    -----------------
@@ -291,31 +322,17 @@ package body AWS.Client is
       Connection.Proxy_URL                := Proxy_URL;
       Connection.Auth (Client.Proxy).User := Set (Proxy_User);
       Connection.Auth (Client.Proxy).Pwd  := Set (Proxy_Pwd);
+      Connection.Retry                    := Create.Retry;
+      Connection.Cookie                   := Null_Unbounded_String;
+      Connection.SOAPAction               := Set (SOAPAction);
+      Connection.Persistent               := Persistent;
+      Connection.Current_Phase            := Not_Monitored;
+      Connection.Server_Push              := Server_Push;
+      Connection.Timeouts                 := Timeouts;
 
-      begin
-         Connection.Socket := Net.Socket (AWS.URL.Security (Connect_URL));
+      --  Establish the connection now
 
-         Net.Connect (Connection.Socket.all,
-                      AWS.URL.Host (Connect_URL),
-                      AWS.URL.Port (Connect_URL));
-      exception
-         when E : others =>
-            Connection.Opened := False;
-            Net.Free (Connection.Socket);
-
-            Exceptions.Raise_Exception
-              (Connection_Error'Identity,
-               "can't connect to " & AWS.URL.URL (Connect_URL)
-                 & " -> " & Exceptions.Exception_Information (E));
-      end;
-
-      Connection.Opened          := True;
-      Connection.Retry           := Create.Retry;
-      Connection.Cookie          := Null_Unbounded_String;
-      Connection.SOAPAction      := Set (SOAPAction);
-      Connection.Persistent      := Persistent;
-      Connection.Current_Phase   := Not_Monitored;
-      Connection.Server_Push     := Server_Push;
+      Connect (Connection);
 
       if Persistent and then Connection.Retry = 0 then
          --  In this case the connection termination can be initiated by the
@@ -325,8 +342,6 @@ package body AWS.Client is
          --  time before reporting an error.
          Connection.Retry := 1;
       end if;
-
-      Connection.Timeouts := Timeouts;
 
       if Connection.Timeouts /= No_Timeout then
          --  If we have some timeouts, initialize the cleaner task.
@@ -822,7 +837,6 @@ package body AWS.Client is
 
       loop
          begin
-
             Open_Send_Common_Header (Connection, "HEAD", URI);
 
             Net.Buffered.New_Line (Connection.Socket.all);
@@ -1057,18 +1071,10 @@ package body AWS.Client is
         & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
 
    begin
-      --  Open socket if needed.
+      --  Open connection if needed.
 
       if not Connection.Opened then
-         Connection.Socket
-           := Net.Socket (AWS.URL.Security (Connection.Connect_URL));
-
-         Net.Connect
-           (Connection.Socket.all,
-            AWS.URL.Host (Connection.Connect_URL),
-            AWS.URL.Port (Connection.Connect_URL));
-
-         Connection.Opened := True;
+         Connect (Connection);
       end if;
 
       Set_Phase (Connection, Send);
