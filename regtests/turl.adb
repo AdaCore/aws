@@ -72,5 +72,6 @@ begin
    Test ("https://myserver.com");
    Test ("kye/demo.html");
    Test ("http://www.myserver.com:12/request?p1=9");
+   Test ("http://sinetics.der.edf.fr/./afficher_liste.php");
    Test ("");
 end Turl;
