@@ -35,7 +35,7 @@ STYLE_FLAGS	= -gnatwcfipru -gnatwe -gnaty3abcefhiklmnoprst
 
 # compiler
 RELEASE_GFLAGS	= -O2 -gnatn
-DEBUG_GFLAGS	= -g -m -fstack-check
+DEBUG_GFLAGS	= -g -m
 
 # linker
 RELEASE_LFLAGS	= -s
