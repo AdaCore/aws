@@ -11,7 +11,8 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-session.ads.texi ../src/aws-client.ads.texi \
 	../src/aws-mime.ads.texi ../src/aws-communication.ads.texi \
 	../src/aws-communication-client.ads.texi \
-	../src/aws-communication-server.ads.texi
+	../src/aws-communication-server.ads.texi \
+	../src/aws-server-hotplug.ads.texi
 
 build: aws.ps aws.html aws.txt aws.info
 
