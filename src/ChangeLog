@@ -22,6 +22,20 @@
 	(Answer_To_Client): Processing new response mode Stream.
 	 Write to log actual number of bytes sent.
 
+2002-10-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.ads:
+	Minor reformatting.
+
+	* aws-client.adb:
+	(Get): Add Follow_Redirection parameter. If Follow_Redirection is
+	 true and response is a 301 message, return the data pointed by
+	 the location HTTP parameter.
+	Minor reformatting.
+	
+	* aws-client.ads:
+	(Get): Add Follow_Redirection parameter.
+
 2002-10-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-embedded.adb:
