@@ -1,3 +1,14 @@
+2003-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* check_mem.adb:
+	(Check_Dynamic_Message): Use Message_Body with array instead of access
+	 parameter.
+	(Check_Memory_Streams): Use Append with array instead of access
+	 parameter.
+
+	* zbig.adb:
+	Use Append with array instead of access parameter.
+
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* strm.adb, zapp.adb, check_mem.adb:
