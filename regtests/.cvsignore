@@ -12,6 +12,8 @@ b~ctab.adb
 b~ctab.ads
 b~dirop.adb
 b~dirop.ads
+b~disp_soap.adb
+b~disp_soap.ads
 b~dummy.adb
 b~dummy.ads
 b~file.adb
@@ -125,6 +127,7 @@ ctab.res
 ctab.tmp
 dirop.res
 dirop.tmp
+disp_soap.res
 dummy.res
 dummy.tmp
 file.res
