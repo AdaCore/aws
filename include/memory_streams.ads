@@ -33,6 +33,7 @@ generic
    type Element_Index  is range <>;
    type Element_Array is array (Element_Index range <>) of Element;
    type Element_Access is access Element_Array;
+   type Constant_Access is access constant Element_Array;
 
    First_Block_Length : in Element_Index :=   256;
    Next_Block_Length  : in Element_Index := 1_024;
@@ -45,17 +46,23 @@ package Memory_Streams is
 
    procedure Append
      (Stream : in out Stream_Type;
-      Value  : in     Element_Array);
+      Value  : in     Element_Array;
+      Trim   : in     Boolean := False);
    --  Append the data to the resource.
 
    procedure Append
      (Stream     : in out Stream_Type;
-      Data       : in     Element_Access;
-      Allow_Free : in     Boolean := True);
+      Data       : in     Element_Access);
    --  Append dynamically allocated data or access to the static data
    --  to the stream. Application could not use Data after send it to the
-   --  stream if Allow_Free is True, Stream would care about it, and free
-   --  when necessary.
+   --  Stream. Stream would care about it, and free when necessary.
+
+   procedure Append
+     (Stream     : in out Stream_Type;
+      Data       : in     Constant_Access);
+   --  Append dynamically allocated data or access to the static data
+   --  to the stream. Application could use Data after send it to the
+   --  Stream.
 
    function Size (Stream : in Stream_Type) return Element_Offset;
    --  Returns the size of the stream in bytes
@@ -84,10 +91,12 @@ private
 
    type Buffer_Access is access all Buffer_Type;
 
-   type Buffer_Type is record
-      Data       : Element_Access;
+   type Buffer_Type (Steady : Boolean) is record
       Next       : Buffer_Access;
-      Allow_Free : Boolean := True;
+      case Steady is
+         when True  => Const : Constant_Access;
+         when False => Data  : Element_Access;
+      end case;
    end record;
 
    type Stream_Type is limited record
