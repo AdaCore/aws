@@ -67,6 +67,7 @@ tgetparam: force
 
 tsgetparam: force
 	gnatmake -g tsgetparam  $(GARGS) -largs $(LARGS) -bargs -E
+	cp ../demos/cert.pem .
 	./tsgetparam > tsgetparam.res
 
 param: force
@@ -226,4 +227,4 @@ endif
 clean:
 	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe res.ad[sb] res2.ad[sb]
 	-rm file file1.html file2.html file3.html file.tmplt tresres*
-	-rm ?.upload.* strm-*.log
+	-rm ?.upload.* strm-*.log cert.pem
