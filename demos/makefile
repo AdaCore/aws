@@ -4,10 +4,8 @@
 .SILENT: all auth runme agent ws wps clean soap hotplug com_1 com_2 hello_world
 .SILENT: main build_soap vh_demo dispatch
 
-#GFLAGSY = $(patsubst -gnaty,-gnaty3abcefhiklmnoprt,$(GFLAGS))
-# above declaration is ok for GNAT 3.14 but GNAT 3.13 does not support
-# selective style check options.
-GFLAGSY = $(patsubst -gnaty,,$(GFLAGS))
+GFLAGSY = $(patsubst -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GFLAGS))
+# We do not want to check for separate spec for the demos (s option).
 
 ifeq ($(MODE),ssl)
 # With SSL support
