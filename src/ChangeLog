@@ -1,5 +1,13 @@
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	(Start): Initialize the SSL layer only if not already done by
+	 Set_Security. Properly pass the key and security mode to the SSL
+	 initialize routine.
+
+	* aws-net-ssl.ads:
+	(Null_Config): New constant.
+
 	* aws-net-ssl-certificate.adb:
 	(NAME_oneline): New routine.
 	(Get): Use NAME_oneline, free certificate before returning.
