@@ -88,7 +88,7 @@ procedure Upload is
       Put_Line ("Server started");
       New_Line;
 
-      delay 18.0;
+      delay 5.0;
 
       if Stopped = False then
          Put_Line ("Too much time to do the job !");
