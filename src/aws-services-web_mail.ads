@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -57,6 +57,7 @@
 --                    WM_MESSAGE       message number
 --                    WM_DATE          date of the message
 --                    WM_FROM          sender address
+--                    WM_CC            carbon-copy recipients
 --                    WM_SUBJECT       message's subject
 --                    WM_CONTENT       message's content
 --                    WM_ATT_NAME_V    message attachment names (vector tag)
