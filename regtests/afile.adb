@@ -32,6 +32,7 @@
 
 --  Test file as attachment
 
+with Ada.Exceptions;
 with Ada.Text_IO;
 
 with AWS.Client;
@@ -42,19 +43,17 @@ with AWS.Resources.Streams.Disk;
 with AWS.Server;
 with AWS.Status;
 
-with Afile_Strm;
-
 procedure Afile is
 
    use Ada;
    use AWS;
-   use Afile_Strm;
 
    WS   : Server.HTTP;
    Size : Natural := 0;
 
    function CB (Request : in Status.Data) return Response.Data is
-      URI : constant String := Status.URI (Request);
+      Strm : Resources.Streams.Stream_Access;
+      URI  : constant String := Status.URI (Request);
    begin
       if URI = "/first" then
          return Response.File
@@ -77,25 +76,33 @@ procedure Afile is
             User_Filename => "you_got_this.o");
 
       elsif URI = "/fifth" then
-         Resources.Streams.Disk.Open (Strm, "afile.o");
-         return Response.Stream (MIME.Application_Octet_Stream, Strm'Access);
+         Strm :=  new Resources.Streams.Disk.Stream_Type;
+         Resources.Streams.Disk.Open
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
+         return Response.Stream (MIME.Application_Octet_Stream, Strm);
 
       elsif URI = "/sixth" then
-         Resources.Streams.Disk.Open (Strm, "afile.o");
+         Strm :=  new Resources.Streams.Disk.Stream_Type;
+         Resources.Streams.Disk.Open
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
-           (MIME.Application_Octet_Stream, Strm'Access,
+           (MIME.Application_Octet_Stream, Strm,
             Disposition => Response.Attachment);
 
       elsif URI = "/seventh" then
-         Resources.Streams.Disk.Open (Strm, "afile.o");
+         Strm :=  new Resources.Streams.Disk.Stream_Type;
+         Resources.Streams.Disk.Open
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
-           (MIME.Application_Octet_Stream, Strm'Access,
+           (MIME.Application_Octet_Stream, Strm,
             User_Filename => "a_stream.o");
 
       elsif URI = "/eighth" then
-         Resources.Streams.Disk.Open (Strm, "afile.o");
+         Strm :=  new Resources.Streams.Disk.Stream_Type;
+         Resources.Streams.Disk.Open
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
-           (MIME.Application_Octet_Stream, Strm'Access,
+           (MIME.Application_Octet_Stream, Strm,
             Disposition   => Response.Attachment,
             User_Filename => "a_stream.o");
 
@@ -105,13 +112,20 @@ procedure Afile is
             Disposition => Response.None);
 
       elsif URI = "/tenth" then
-         Resources.Streams.Disk.Open (Strm, "afile.o");
+         Strm :=  new Resources.Streams.Disk.Stream_Type;
+         Resources.Streams.Disk.Open
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "afile.o");
          return Response.Stream
-           (MIME.Application_Octet_Stream, Strm'Access,
+           (MIME.Application_Octet_Stream, Strm,
             Disposition => Response.None);
       else
          return Response.Build (MIME.Text_HTML, "URI not supported");
       end if;
+
+   exception
+      when E : others =>
+         Text_IO.Put_Line
+           ("CB error: " & Exceptions.Exception_Information (E));
    end CB;
 
    procedure Call_It (Res : in String) is
