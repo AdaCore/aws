@@ -40,35 +40,35 @@ package SOAP.Message.Response.Error is
    type Faultcode is new String;
 
    function From (P : in Message.Payload.Object) return Object;
-   --  Build an Error response from a Payload object.
+   --  Build an Error response from a Payload object
 
    function XML_Image (E : in Object) return Unbounded_String;
-   --  Returns the Fault env and associated data (faultcode, faultstring...).
+   --  Returns the Fault env and associated data (faultcode, faultstring...)
 
    function Build
      (Faultcode   : in Error.Faultcode;
       Faultstring : in String)
       return Object;
-   --  Returns an Error object built using Faultcode and Faultstring.
+   --  Returns an Error object built using Faultcode and Faultstring
 
    function Is_Error (E : in Object) return Boolean;
-   --  Always returns True. This overrides  Response.Object's method.
+   --  Always returns True. This overrides  Response.Object's method
 
    -----------------
    -- Fault Codes --
    -----------------
 
    function Version_Mismatch (Subname : in String := "") return Faultcode;
-   --  Returns the Version_Mismatch faultcode.
+   --  Returns the Version_Mismatch faultcode
 
    function Must_Understand (Subname : in String := "") return Faultcode;
-   --  Returns the Must_Understand faultcode.
+   --  Returns the Must_Understand faultcode
 
    function Client (Subname : in String := "") return Faultcode;
-   --  Returns the Client faultcode.
+   --  Returns the Client faultcode
 
    function Server (Subname : in String := "") return Faultcode;
-   --  Returns the Server faultcode.
+   --  Returns the Server faultcode
 
 private
 
