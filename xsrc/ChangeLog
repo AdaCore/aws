@@ -1,3 +1,10 @@
+2004-06-02  Pascal Obry  <pascal@obry.org>
+
+	* aws-client-xml-input_sources.adb:
+	(Eof): Add call to Clean_Buffer removed in previous check-in.
+	(Next_Char): Idem. Rewrite part of the algorithm to make it
+	 cleaner. Add some comments. Remove not needed used of Temp variable.
+
 2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client-xml-input_sources.adb:
