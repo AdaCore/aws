@@ -237,7 +237,7 @@ begin
    Server.Start
      (WS, "tlog", CB'Unrestricted_Access, Port => 1251, Max_Connection => 2);
 
-   Server.Log.Start (WS);
+   Server.Log.Start (WS, Auto_Flush => True);
    Server.Log.Start_Error (WS);
 
    Ada.Text_IO.Put_Line ("started");
