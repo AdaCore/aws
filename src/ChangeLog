@@ -1,3 +1,15 @@
+2003-10-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-log.ads:
+	Minor reformatting.
+
+	* aws-server.ads, aws-server.adb:
+	(Log_Name): New routine.
+	(Error_Log_Name): Idem.
+	(Is_Log_Active): Idem.
+	(Is_Error_Log_Active): Idem.
+	Minor reformatting.
+	
 2003-10-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.adb:
