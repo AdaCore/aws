@@ -192,10 +192,6 @@ implemented:
 - Add GNAT project files to use AWS. Only support for developpers has been
   implemented.
 
-- Document ada2wsdl
-
-- Document wsdl2aws -cb / -types / -main options.
-
 - Add a simple Web Mail service (AWS.Services.Web_Mail) using the AWS.POP and
   AWS.SMTP API.
 
