@@ -38,39 +38,55 @@ package AWS.Default is
 
    pragma Pure;
 
-   Server_Name                 : constant String := "AWS Module";
-   WWW_Root                    : constant String := "./";
-   Admin_URI                   : constant String := "";
-   Server_Port                 : constant        := 8080;
-   Hotplug_Port                : constant        := 8888;
-   Max_Connection              : constant        := 5;
-   Free_Slots_Keep_Alive_Limit : constant        := 1;
-   Accept_Queue_Size           : constant        := 64;
-   Upload_Directory            : constant String := "./";
+   --  All times are in seconds
+
+   One_Hour      : constant := 3_600.0;
+   One_Minute    : constant :=    60.0;
+
+   Eight_Hours   : constant :=  8.0 * One_Hour;
+   Three_Hours   : constant :=  3.0 * One_Hour;
+
+   Three_Minutes : constant :=  3.0 * One_Minute;
+   Five_Minutes  : constant :=  5.0 * One_Minute;
+   Ten_Minutes   : constant := 10.0 * One_Minute;
+
+   --  Server configuration
+
+   Server_Name                     : constant String  := "AWS Module";
+   WWW_Root                        : constant String  := "./";
+   Admin_URI                       : constant String  := "";
+   Server_Port                     : constant         := 8080;
+   Hotplug_Port                    : constant         := 8888;
+   Max_Connection                  : constant         := 5;
+   Free_Slots_Keep_Alive_Limit     : constant         := 1;
+   Accept_Queue_Size               : constant         := 64;
+   Upload_Directory                : constant String  := "./";
+   Line_Stack_Size                 : constant         := 16#150_000#;
+   Case_Sensitive_Parameters       : constant Boolean := True;
 
    --  Log values. The character '@' in the error log filename prefix is
    --  replaced by the running program name.
 
-   Log_File_Directory        : constant String := "./";
+   Log_File_Directory              : constant String := "./";
 
-   Log_Split_Mode            : constant String := "NONE";
-   Log_Filename_Prefix       : constant String := "@";
+   Log_Split_Mode                  : constant String := "NONE";
+   Log_Filename_Prefix             : constant String := "@";
 
-   Error_Log_Split_Mode      : constant String := "NONE";
-   Error_Log_Filename_Prefix : constant String := "@_error";
+   Error_Log_Split_Mode            : constant String := "NONE";
+   Error_Log_Filename_Prefix       : constant String := "@_error";
 
-   --  All times are in seconds
+   --  Session
 
-   One_Hour     : constant := 3_600.0;
-   One_Minute   : constant :=    60.0;
-
-   Eight_Hours  : constant :=  8.0 * One_Hour;
-   Three_Hours  : constant :=  3.0 * One_Hour;
-   Five_Minutes : constant :=  5.0 * One_Minute;
-   Ten_Minutes  : constant := 10.0 * One_Minute;
-
+   Session                         : constant Boolean  := False;
    Session_Cleanup_Interval        : constant Duration := Five_Minutes;
    Session_Lifetime                : constant Duration := Ten_Minutes;
+
+   --  Transient pages
+
+   Transient_Cleanup_Interval      : constant Duration := Three_Minutes;
+   Transient_Lifetime              : constant Duration := Five_Minutes;
+
+   --  Server's timeouts
 
    Cleaner_Wait_For_Client_Timeout : constant Duration := 80.0;
    Cleaner_Client_Header_Timeout   : constant Duration := 20.0;
@@ -82,20 +98,24 @@ package AWS.Default is
    Force_Client_Data_Timeout       : constant Duration := Three_Hours;
    Force_Server_Response_Timeout   : constant Duration := Three_Hours;
 
-   Send_Timeout    : constant Duration := 40.0;
-   Receive_Timeout : constant Duration := 30.0;
+   Send_Timeout                    : constant Duration := 40.0;
+   Receive_Timeout                 : constant Duration := 30.0;
 
-   Status_Page            : constant String := "aws_status.thtml";
-   Directory_Browser_Page : constant String := "aws_directory.thtml";
-   Up_Image               : constant String := "aws_up.png";
-   Down_Image             : constant String := "aws_down.png";
-   Logo_Image             : constant String := "aws_logo.png";
+   --  Directory template
 
-   Security                  : constant Boolean := False;
-   Certificate               : constant String  := "cert.pem";
-   Session                   : constant Boolean := False;
-   Case_Sensitive_Parameters : constant Boolean := True;
-   Check_URL_Validity        : constant Boolean := True;
-   Line_Stack_Size           : constant         := 16#150_000#;
+   Directory_Browser_Page          : constant String := "aws_directory.thtml";
+
+   --  Status page
+
+   Status_Page                     : constant String := "aws_status.thtml";
+   Up_Image                        : constant String := "aws_up.png";
+   Down_Image                      : constant String := "aws_down.png";
+   Logo_Image                      : constant String := "aws_logo.png";
+
+   --  Security
+
+   Security                        : constant Boolean := False;
+   Certificate                     : constant String  := "cert.pem";
+   Check_URL_Validity              : constant Boolean := True;
 
 end AWS.Default;
