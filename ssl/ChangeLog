@@ -1,3 +1,8 @@
+2001-10-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): removes *.a
+
 2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl-thin.ads, ssl.ads, ssl.adb:
