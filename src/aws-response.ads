@@ -148,7 +148,6 @@ package AWS.Response is
    function Stream
      (Content_Type  : in     String;
       Handle        : access Resources.Streams.Stream_Type'Class;
-      Size          : in     Content_Length_Type    := Undefined_Length;
       Status_Code   : in     Messages.Status_Code   := Messages.S200;
       Cache_Control : in     Messages.Cache_Option  := Messages.No_Cache)
       return Data;
@@ -282,7 +281,8 @@ private
      & "the credentials required.<P>" & CRLF
      & "</BODY></HTML>" & CRLF;
 
-   Undefined_Length : constant Content_Length_Type := -1;
+   Undefined_Length : constant Content_Length_Type
+     := Integer (Resources.Undefined_Length);
 
    type Natural_Access is access Natural;
 
@@ -290,7 +290,6 @@ private
       Ref_Counter    : Natural_Access;
       Mode           : Data_Mode            := No_Data;
       Status_Code    : Messages.Status_Code := Messages.S200;
-      Content_Length : Content_Length_Type  := 0;
       Filename       : Unbounded_String;
       Stream         : Resources.Streams.Stream_Access;
       Message_Body   : Utils.Stream_Element_Array_Access;
