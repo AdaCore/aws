@@ -1,5 +1,11 @@
 2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* nbconn_proc.adb:
+	(Server_Task): Add entry Done waiting for complete server task before close
+	 client connections. Fix regression on Linux.
+
+2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* nbconn.adb, nbconn_proc.adb, nbconn_sec.adb,
 	  nbconn_sec.out, nbconn.out:
 	Test for non blocking connection.
