@@ -34,6 +34,7 @@ with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
+with Ada.Unchecked_Deallocation;
 with Interfaces.C;
 
 with Sockets.Thin;
@@ -241,15 +242,34 @@ package body AWS.Server is
    --------------
 
    procedure Shutdown (Web_Server : in out HTTP) is
+
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Line_Cleaner, Line_Cleaner_Access);
+
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Line_Set, Line_Set_Access);
+
    begin
       Web_Server.Shutdown := True;
 
+      --  First, close the sever socket, so no more request will be queued
+
       Sockets.Shutdown (Web_Server.Sock);
-      abort Web_Server.Cleaner;
+
+      --  Release the cleaner task
+
+      abort Web_Server.Cleaner.all;
+      Free (Web_Server.Cleaner);
+
+      --  Release the slots
 
       for S in 1 .. Web_Server.Max_Connection loop
          Web_Server.Slots.Release (S);
       end loop;
+
+      Free (Web_Server.Lines);
+
+      --  Release the session server if needed
 
       if CNF.Session (Web_Server.Properties) then
          Session.Control.Shutdown;
@@ -386,11 +406,14 @@ package body AWS.Server is
          Count := Count + 1;
 
          if Set (Index).Phase /= Closed then
+
             if not Set (Index).Socket_Taken then
                Sockets.Shutdown (Set (Index).Sock);
+
             else
                Set (Index).Socket_Taken := False;
             end if;
+
             Mark_Phase (Index, Closed);
          end if;
       end Release;
@@ -451,17 +474,15 @@ package body AWS.Server is
       Case_Sensitive_Parameters : in     Boolean         := True;
       Upload_Directory          : in     String          := Def_Upload_Dir) is
    begin
-      CNF.Set.Server_Name (Web_Server.Properties, Name);
-      CNF.Set.Admin_URI   (Web_Server.Properties, Admin_URI);
-      CNF.Set.Server_Port (Web_Server.Properties, Port);
-      CNF.Set.Security    (Web_Server.Properties, Security);
-      CNF.Set.Session     (Web_Server.Properties, Session);
+      CNF.Set.Server_Name      (Web_Server.Properties, Name);
+      CNF.Set.Admin_URI        (Web_Server.Properties, Admin_URI);
+      CNF.Set.Server_Port      (Web_Server.Properties, Port);
+      CNF.Set.Security         (Web_Server.Properties, Security);
+      CNF.Set.Session          (Web_Server.Properties, Session);
+      CNF.Set.Upload_Directory (Web_Server.Properties, Upload_Directory);
 
       CNF.Set.Case_Sensitive_Parameters
         (Web_Server.Properties, Case_Sensitive_Parameters);
-
-      CNF.Set.Upload_Directory
-        (Web_Server.Properties, Upload_Directory);
 
       Start (Web_Server, Callback);
    end Start;
@@ -471,11 +492,11 @@ package body AWS.Server is
    -----------
 
    procedure Start
-     (Web_Server           : in out HTTP;
-      Callback             : in     Response.Callback;
-      Config               : in     AWS.Config.Object) is
+     (Web_Server : in out HTTP;
+      Callback   : in     Response.Callback;
+      Config     : in     AWS.Config.Object) is
    begin
-      Web_Server.Properties      := Config;
+      Web_Server.Properties := Config;
       Start (Web_Server, Callback);
    end Start;
 
@@ -517,6 +538,16 @@ package body AWS.Server is
           Server_Response =>
             CNF.Send_Timeout (Web_Server.Properties)));
 
+      --  Initialize the connection lines
+
+      Web_Server.Lines := new Line_Set (1 .. Web_Server.Max_Connection);
+
+      --  Initialize the cleaner task
+
+      Web_Server.Cleaner := new Line_Cleaner (Web_Server.Self);
+
+      --  Initialize the server socket
+
       Sockets.Socket
         (Accepting_Socket,
          Sockets.AF_INET,
@@ -531,19 +562,20 @@ package body AWS.Server is
 
       Web_Server.Sock := Accepting_Socket;
 
-      --  initialize each connection lines.
+      --  Start each connection lines.
 
       for I in 1 .. Web_Server.Max_Connection loop
          Web_Server.Lines (I).Start (Web_Server, I);
       end loop;
 
-      --  initialize session server.
+      --  Initialize session server.
 
       if AWS.Config.Session (Web_Server.Properties) then
          AWS.Session.Control.Start
            (Session_Check_Interval => CNF.Session_Cleanup_Interval,
             Session_Lifetime       => CNF.Session_Lifetime);
       end if;
+
    end Start;
 
    ---------------
