@@ -62,6 +62,8 @@ package AWS.Exceptions is
    --  browser. Note that this is possible only for non fatal error
    --  (i.e. Error.Fatal is False).
    --  Log is the error log object for the failing server, it can be used
-   --  to log information. The default unexpected exceptions handler use it.
+   --  to log user's information (if error log is activated for this
+   --  server). Note that the server will have already logged information
+   --  about the problem.
 
 end AWS.Exceptions;
