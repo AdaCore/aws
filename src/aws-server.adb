@@ -41,6 +41,7 @@ with AWS.Net;
 with AWS.Messages;
 with AWS.Status;
 with AWS.Server.Get_Status;
+with AWS.Session;
 
 package body AWS.Server is
 
@@ -86,6 +87,7 @@ package body AWS.Server is
          Web_Server.Lines (I).Start (Web_Server, I);
       end loop;
 
+      Session.Start;
    end Start;
 
    --------------
