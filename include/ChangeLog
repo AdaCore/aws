@@ -1,3 +1,9 @@
+2003-12-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb, templates_parser-filter.adb:
+	Update to version 7.0.
+	Handles discrete varible tag as filter's parameter.
+
 2003-12-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.ads:
