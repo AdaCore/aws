@@ -1,3 +1,11 @@
+2001-10-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std.adb:
+	Minor layout fix.
+
+	* aws-net-ssl.adb:
+	Minor layout fix.
+
 2001-10-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session-control.adb, aws-translator.adb: 
