@@ -71,6 +71,8 @@ is
    use Ada.Strings;
    use Ada.Strings.Unbounded;
 
+   use type Resources.Content_Length_Type;
+
    Case_Sensitive_Parameters : constant Boolean
      := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
 
@@ -112,7 +114,7 @@ is
    procedure Send_Resource
      (Method : in     Status.Request_Method;
       File   : in out Resources.File_Type;
-      Length : in out Response.Content_Length_Type);
+      Length : in out Resources.Content_Length_Type);
    --  Send the last header line Transfer-Encoding and Content_Length if
    --  necessary and send the file content. Length is the size of the
    --  resource/file as known before the call, Length returned value is the
@@ -1028,7 +1030,7 @@ is
 
       Status : Messages.Status_Code;
 
-      Length : Response.Content_Length_Type := 0;
+      Length : Resources.Content_Length_Type := 0;
 
       procedure Send_General_Header;
       --  Send the "Date:", "Server:", "Set-Cookie:" and "Connection:" header
@@ -1050,9 +1052,6 @@ is
 
          Filename      : constant String
            := Response.Filename (Answer);
-
-         File_Size     : constant Response.Content_Length_Type
-           := Response.Content_Length (Answer);
 
          Is_Up_To_Date : Boolean;
 
@@ -1085,7 +1084,13 @@ is
          --  Checking if we have to close connection because of undefined
          --  message length comming from a user's stream.
 
-         if Response.Content_Length (Answer) = Response.Undefined_Length
+         Response.Create_Resource (File, Answer);
+
+         --  Length is the real resource/file size
+
+         Length := Resources.Size (File);
+
+         if Length = Resources.Undefined_Length
             and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
             --  We cannot use transfer-encoding chunked in HTTP_10
             and then AWS.Status.Method (C_Stat) /= AWS.Status.HEAD
@@ -1115,12 +1120,6 @@ is
          --  see [RFC 2616 - 4.4].
 
          --  Send message body
-
-         Response.Create_Resource (File, Answer);
-
-         --  Length is the real resource/file size
-
-         Length := File_Size;
 
          Send_Resource (AWS.Status.Method (C_Stat), File, Length);
       end Send_Data;
@@ -1221,7 +1220,7 @@ is
 
       Net.Buffered.Flush (Sock);
 
-      AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Length);
+      AWS.Log.Write (HTTP_Server.Log, C_Stat, Status, Integer (Length));
    end Send;
 
    -------------------
@@ -1231,7 +1230,7 @@ is
    procedure Send_Resource
      (Method : in     Status.Request_Method;
       File   : in out Resources.File_Type;
-      Length : in out Response.Content_Length_Type)
+      Length : in out Resources.Content_Length_Type)
    is
       use type Status.Request_Method;
       use type Streams.Stream_Element_Offset;
@@ -1270,7 +1269,7 @@ is
 
             Net.Buffered.Write (Sock, Buffer (1 .. Last));
 
-            Length := Length + Positive (Last);
+            Length := Length + Last;
 
             HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
          end loop;
@@ -1306,7 +1305,7 @@ is
                exit Send_Chunks;
             end if;
 
-            Length := Length + Positive (Last);
+            Length := Length + Last;
 
             HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
 
@@ -1340,14 +1339,15 @@ is
 
    begin
       if Status.HTTP_Version (C_Stat) = HTTP_10
-        or else Length /= Response.Undefined_Length
+        or else Length /= Resources.Undefined_Length
       then
          --  If content length is undefined and we handle an HTTP/1.0 protocol
          --  then the end of the stream will be determined by closing the
          --  connection. [RFC 1945 - 7.2.2] See the Will_Close local variable.
 
-         if Length /= Response.Undefined_Length then
-            Net.Buffered.Put_Line (Sock, Messages.Content_Length (Length));
+         if Length /= Resources.Undefined_Length then
+            Net.Buffered.Put_Line
+              (Sock, Messages.Content_Length (Natural (Length)));
          end if;
 
          --  Terminate header
