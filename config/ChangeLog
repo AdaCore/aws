@@ -1,3 +1,14 @@
+2004-01-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb:
+	(Get_Send_Buffer): Moved to specification.
+	(Get_Receive_Buffer): New routine.
+
+	* aws-net-std__gnat.adb:
+	Update copyright years.
+	(Get_Send_Buffer): New routine.
+	(Get_Receive_Buffer): New routine.
+
 2004-01-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb:
