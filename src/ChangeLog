@@ -1,3 +1,27 @@
+2001-06-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.ads, aws-utils.adb:
+	(Image): on duration, new function.
+
+	* aws-session.adb: 
+	(Set_Session_Lifetime): renamed Set_Lifetime.
+	(Get_Lifetime): new function.
+	(Session_Check_Interval): new constant.
+	(Cleaner): check for obsoltete session data every
+	 Session_Check_Interval seconds instead of Session_Lifetime.
+	(Database.Clean): can now removes many sessions at once.
+
+	* aws-session.ads:
+	(Set_Session_Lifetime): renamed Set_Lifetime.
+	(Get_Lifetime): new function.
+
+	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+
+	* aws-server-get_status.adb:
+	(Session_Table): Add Sessions_TS (time stamp).
+	(Translations): idem.
+
 2001-06-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
