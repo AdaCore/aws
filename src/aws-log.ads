@@ -70,9 +70,9 @@ package AWS.Log is
    --  Activate server's activity logging. Split indicate the way the log file
    --  should be created. Log_File_Prefix is the log filename prefix. If it is
    --  not specified the default prefix is the program name.
-   --  Set Auto_Flush to True if you want every write to log flushed.
-   --  Auto_Flush is True is usable for rare written logs, for example
-   --  error log.
+   --  Set Auto_Flush to True if you want every write to the log to be flushed
+   --  (not buffered). Auto_Flush should be set to True only for logs with few
+   --  entries per second as the flush has a performance penalty.
 
    procedure Write
      (Log          : in out Object;
