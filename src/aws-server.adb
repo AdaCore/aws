@@ -417,7 +417,7 @@ package body AWS.Server is
 
             exception
 
-               --  we must never exit from the outer loop as a Line task is
+               --  We must never exit from the outer loop as a Line task is
                --  supposed to live forever.
                --  We have here a pool of Line and each line is recycled when
                --  needed.
