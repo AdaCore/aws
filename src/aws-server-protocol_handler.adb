@@ -721,6 +721,11 @@ is
       end if;
 
       Streams.Stream_IO.Close (File);
+
+   exception
+      when others =>
+         Streams.Stream_IO.Close (File);
+         raise;
    end Send_File;
 
    --------------------
