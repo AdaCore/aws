@@ -123,6 +123,7 @@ docs/gen_gps_ref.adb
 docs/gentexifile
 docs/makefile
 docs/openssl.license
+docs/style-guide.texi
 docs/templates_parser.html
 include/ChangeLog
 include/ai302/ai302-containers-generic_array_sort.adb
