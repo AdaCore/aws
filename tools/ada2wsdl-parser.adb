@@ -88,7 +88,7 @@ package body Ada2WSDL.Parser is
    Tree_Name : String_Access;
    --  We need it in more, then one routine, so we define it here
 
-   Max_Argument : constant := 1_000;
+   Max_Argument : constant := 1_024;
 
    Arg_List  : OS_Lib.Argument_List (1 .. Max_Argument);
    --  -I options from the Ada2WSDL command line transformed into the
@@ -213,12 +213,11 @@ package body Ada2WSDL.Parser is
 
    type Element_Set is array (Positive range <>) of Asis.Element;
 
-   Max_Deferred_Types : constant := 100;
+   Max_Deferred_Types : constant := 1_024;
 
    Deferred_Types : Element_Set (1 .. Max_Deferred_Types);
-   --  Records all types not yet analysed when parsing formal
-   --  parameters. This is needed as we can't parse a type while
-   --  parsing the spec.
+   --  Records all types tha can't be analysed at some point. For example we
+   --  can't parse a type while parsing the spec.
 
    Index          : Natural := 0;
    --  Current Index in the Deferred_Types array
@@ -279,7 +278,7 @@ package body Ada2WSDL.Parser is
 
       function Name_Space (E : in Asis.Element) return String;
       --  Returns the name space for element E. Name space is defined as
-      --  follow: http://soapaws/<unit_name>/
+      --  follow: http://soapaws/<unit_name>_pkg/
 
       ------------------
       -- Analyse_Node --
@@ -684,28 +683,30 @@ package body Ada2WSDL.Parser is
 
             when A_Record_Type_Definition =>
 
-               Generator.Start_Record (Name_Space (E), Name);
+               if not Generator.Type_Exists (Name_Space (E), Name) then
+                  Generator.Start_Record (Name_Space (E), Name);
 
-               E := Definitions.Record_Definition (E);
+                  E := Definitions.Record_Definition (E);
 
-               declare
-                  R : constant Asis.Record_Component_List
-                    := Definitions.Record_Components (E);
-               begin
-                  for K in R'Range loop
-                     Analyse_Field (R (K));
+                  declare
+                     R : constant Asis.Record_Component_List
+                       := Definitions.Record_Components (E);
+                  begin
+                     for K in R'Range loop
+                        Analyse_Field (R (K));
+                     end loop;
+                  end;
+
+                  --  Create now all deferred arrays
+
+                  for K in 1 .. U_Array_Index loop
+                     Generator.Start_Array
+                       (To_String (Deferred_U_Arrays (K).NS),
+                        To_String (Deferred_U_Arrays (K).Name),
+                        To_String (Deferred_U_Arrays (K).Comp_Type),
+                        Deferred_U_Arrays (K).Length);
                   end loop;
-               end;
-
-               --  Create now all deferred arrays
-
-               for K in 1 .. U_Array_Index loop
-                  Generator.Start_Array
-                    (To_String (Deferred_U_Arrays (K).NS),
-                     To_String (Deferred_U_Arrays (K).Name),
-                     To_String (Deferred_U_Arrays (K).Comp_Type),
-                     Deferred_U_Arrays (K).Length);
-               end loop;
+               end if;
 
             when A_Constrained_Array_Definition =>
 
@@ -739,23 +740,27 @@ package body Ada2WSDL.Parser is
 
                   E := Definitions.Array_Component_Definition (E);
 
-                  Generator.Start_Array
-                    (Name_Space (E), Name,
-                     Image (Text.Element_Image (E)),
-                     Array_Len);
+                  if not Generator.Type_Exists (Name_Space (E), Name) then
+                     Generator.Start_Array
+                       (Name_Space (E), Name,
+                        Image (Text.Element_Image (E)),
+                        Array_Len);
 
-                  Analyse_Array_Component (E);
+                     Analyse_Array_Component (E);
+                  end if;
                end;
 
             when An_Unconstrained_Array_Definition =>
 
                E := Definitions.Array_Component_Definition (E);
 
-               Generator.Start_Array
-                 (Name_Space (E), Name,
-                  Image (Text.Element_Image (E)));
+               if not Generator.Type_Exists (Name_Space (E), Name) then
+                  Generator.Start_Array
+                    (Name_Space (E), Name,
+                     Image (Text.Element_Image (E)));
 
-               Analyse_Array_Component (E);
+                  Analyse_Array_Component (E);
+               end if;
 
             when A_Derived_Type_Definition =>
 
@@ -796,7 +801,9 @@ package body Ada2WSDL.Parser is
 
                            Array_Type_Suffix (R (1), Type_Suffix, Array_Len);
 
-                           if not Generator.Type_Exists (Name) then
+                           if not Generator.Type_Exists
+                             (Name_Space (Comp), Name)
+                           then
                               Generator.Start_Array
                                 (Name_Space (Comp), Name,
                                  Image (Text.Element_Image (Comp)),
@@ -813,8 +820,10 @@ package body Ada2WSDL.Parser is
                E := Definitions.Subtype_Mark
                       (Definitions.Parent_Subtype_Indication (E));
 
-               Generator.Register_Derived
-                 (Name_Space (E), Name, Type_Name (E));
+               if not Generator.Type_Exists (Name_Space (E), Name) then
+                  Generator.Register_Derived
+                    (Name_Space (E), Name, Type_Name (E));
+               end if;
 
             when A_Subtype_Indication =>
 
@@ -850,7 +859,9 @@ package body Ada2WSDL.Parser is
 
                         Array_Type_Suffix (R (1), Type_Suffix, Array_Len);
 
-                        if not Generator.Type_Exists (Name) then
+                        if not Generator.Type_Exists
+                          (Name_Space (Comp), Name)
+                        then
                            Generator.Start_Array
                              (Name_Space (Comp), Name,
                               Image (Text.Element_Image (Comp)),
@@ -864,19 +875,21 @@ package body Ada2WSDL.Parser is
             when An_Enumeration_Type_Definition =>
 
                if not Options.Enum_To_String then
-                  Generator.Start_Enumeration (Name_Space (E), Name);
+                  if not Generator.Type_Exists (Name_Space (E), Name) then
+                     Generator.Start_Enumeration (Name_Space (E), Name);
 
-                  declare
-                     D : constant Asis.Declaration_List
-                       := Definitions.Enumeration_Literal_Declarations (E);
-                  begin
-                     for K in D'Range loop
-                        Generator.New_Literal
-                          (Image
-                             (Text.Element_Image
-                                (Declarations.Names (D (K))(1))));
-                     end loop;
-                  end;
+                     declare
+                        D : constant Asis.Declaration_List
+                          := Definitions.Enumeration_Literal_Declarations (E);
+                     begin
+                        for K in D'Range loop
+                           Generator.New_Literal
+                             (Image
+                                (Text.Element_Image
+                                   (Declarations.Names (D (K)) (1))));
+                        end loop;
+                     end;
+                  end if;
                end if;
 
             when others =>
@@ -923,7 +936,7 @@ package body Ada2WSDL.Parser is
                        (Elements.Enclosing_Compilation_Unit (E)));
       begin
          Strings.Fixed.Translate (NS, Strings.Maps.To_Mapping (".", "/"));
-         return SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & NS & '/';
+         return SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & NS & "_pkg/";
       end Name_Space;
 
       ---------------
@@ -1403,34 +1416,12 @@ package body Ada2WSDL.Parser is
 
    function Register_Deferred (E : in Asis.Declaration) return String is
 
-      function Deferred_Registered return Boolean;
-      --  Returns True if the deferred type E has already been registered
-
       Name : constant String
         := Image (Text.Element_Image (Declarations.Names (E) (1)));
 
-      -------------------------
-      -- Deferred_Registered --
-      -------------------------
-
-      function Deferred_Registered return Boolean is
-      begin
-         for K in 1 .. Index loop
-            if Name = Image (Text.Element_Image
-                               (Declarations.Names (Deferred_Types (K)) (1)))
-            then
-               return True;
-            end if;
-         end loop;
-         return False;
-      end Deferred_Registered;
-
    begin
-      if not Deferred_Registered and then not Generator.Type_Exists (Name) then
-         Index := Index + 1;
-         Deferred_Types (Index) := E;
-      end if;
-
+      Index := Index + 1;
+      Deferred_Types (Index) := E;
       return Name;
    end Register_Deferred;
 
