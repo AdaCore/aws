@@ -38,6 +38,9 @@ with Sockets;
 
 package SSL is
 
+   Lib_Error        : exception;
+   Connection_Error : exception;
+
    type Method is (SSLv2,
                    SSLv2_Server,
                    SSLv2_Client,
@@ -103,8 +106,6 @@ package SSL is
    procedure Renegotiate (Socket : in Handle);
 
    procedure Do_Handshake (Socket : in Handle);
-
-   Lib_Error : exception;
 
 private
 
