@@ -133,14 +133,14 @@ package body AWS.Server is
 
       Accepting := Released_Socket = null;
 
-      if Security then
-         Net.SSL.Set_Config
-           (Net.SSL.Socket_Type (New_Socket), Server.SSL_Config);
-      end if;
-
       if Accepting then
          --  No socket was given back to the server, just accept a socket from
          --  the server socket.
+
+         if Security then
+            Net.SSL.Set_Config
+              (Net.SSL.Socket_Type (New_Socket), Server.SSL_Config);
+         end if;
 
          Net.Accept_Socket (Server.Sock, New_Socket);
 

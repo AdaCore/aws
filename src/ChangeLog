@@ -1,3 +1,8 @@
+2004-06-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
+	(Accept_Socket_Serialized): Set SSL_Config only for new sockets.
+
 2004-06-04  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
@@ -681,7 +686,7 @@
 
 	* templates_parser-filter.adb:
 	(BR_2_LF): Fix Constraint_Error if S is empty.
-	Patch from Jérôme Roussel.
+	Patch from Jï¿½me Roussel.
 
 2004-04-14  Pascal Obry  <p.obry@wanadoo.fr>
 
@@ -837,7 +842,7 @@
 	* templates_parser-filter.adb:
 	Update to version 7.3. Fix implementation of REPLACE and REPLACE_ALL
          filters.
-        Patch from Audran Le Baron and Jérome Roussel.
+        Patch from Audran Le Baron and Jï¿½ome Roussel.
 
 	* templates_parser.adb, templates_parser-cached_files.adb:
         Update to version 7.3. Fix bug in the cache handling.
