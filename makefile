@@ -28,7 +28,7 @@ INSTALL	 = /usr/Ada.Libraries/AWS
 
 # compiler
 RELEASE_GFLAGS	= -O2 -gnatn
-DEBUG_GFLAGS	= -O0 -g -m -gnatwu -gnaty3abcefhiklmnoprst
+DEBUG_GFLAGS	= -g -m -gnatwu -gnaty3abcefhiklmnoprst
 GFLAGS		= $(RELEASE_GFLAGS)
 
 # linker
