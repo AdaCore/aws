@@ -9,20 +9,20 @@ CC=gcc
 CFLAGS=-O3
 #CFLAGS=-g -DDEBUG
 
-LIBS=libz.a
+LIBS=../../lib/libz.a
 
 AR=ar rc
 
 OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
        zutil.o inflate.o infback.o inftrees.o inffast.o
 
-all: libz.a
+all: $(LIBS)
 
-libz.a: $(OBJS)
-	$(AR) $@ $(OBJS) $(OBJA)
+$(LIBS): $(OBJS)
+	$(AR) $@ $(OBJS)
 
 clean:
-	rm -f *.o *~ libz.*
+	rm -f *.o *~ $(LIBS)
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
