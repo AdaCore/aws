@@ -1,6 +1,14 @@
 2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
+	(Shutdown): A bit reformat.
+	(Release): Make a copy of socket in case of Loose_Release.
+	(Set): Add one more pragma Assert.
+	(Shutdown_Done): Free socket completely.
+
+2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
 	(Mark_Phase): Count new phases in shutdown control.
 	(Shutdown_Done): Do not Abort closed socket.
 
