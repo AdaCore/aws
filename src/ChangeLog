@@ -1,3 +1,17 @@
+2002-12-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Remove AWS.Key_Value.
+
+	* aws-jabber.ads:
+	Use Containers.Key_Value instead of AWS.Key_Value.
+	
+	* aws-jabber.adb:
+	Many changes to use Containers.Key_Value instead of AWS.Key_Value.
+
+	* aws-key_value.ads:
+	Removed.
+
 2002-12-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers-set.ads, aws-headers-set.adb:
