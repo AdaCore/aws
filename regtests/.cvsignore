@@ -114,6 +114,8 @@ b~split.adb
 b~split.ads
 b~ssback.adb
 b~ssback.ads
+b~sslcfg.adb
+b~sslcfg.ads
 b~ssp.adb
 b~ssp.ads
 b~strm.adb

@@ -1,3 +1,11 @@
+2004-09-25  Pascal Obry  <pascal@obry.org>
+
+	* sslcfg.out:
+	Update output.
+
+	* sslcfg.adb:
+	Set to UNIX format.
+
 2004-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sslcfg.adb, sslcfg.out:
