@@ -167,6 +167,8 @@ Here are the main changes since AWS 1.4 :
    - Improve demos/agent implementation to support large responses
      based on AWS.Response.Message_Body (see above).
 
+   - Add support for GNAT Project (.gpr), easier to develop using GPS.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
