@@ -32,13 +32,12 @@
 
 --  Server push regression test.
 
-with Sp_Pck;
 with Get_Free_Port;
+with Sp_Pck;
 
 procedure SSp is
-   use Sp_Pck;
    Port  : Positive := 4412;
 begin
    Get_Free_Port (Port);
-   Client_Process ("https", Port);
+   Sp_Pck.Run ("https", Port);
 end SSp;
