@@ -34,6 +34,8 @@
 --  that it uses HTTPS protocol. We test that output is the same as the non
 --  secure version.
 
+--  ~ MAIN [SSL]
+
 with Ada.Text_IO;
 with Ada.Exceptions;
 

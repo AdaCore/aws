@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [SOAP]
+
 --  SOAP/WSDL test
 
 with Ada.Text_IO;

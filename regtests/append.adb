@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 with Append_Pack;
 
 procedure Append is

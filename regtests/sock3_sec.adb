@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -27,7 +27,10 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
 --  $Id$
+
+--  ~ MAIN [SSL]
 
 --  Test for big data pending in secure socket.
 

@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 with Ada.Streams.Stream_IO;
 with Ada.Text_IO;
 

@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [SSL]
+
 --  Test for partial SSL socket send.
 
 with SockExt_Proc;

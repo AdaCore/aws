@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 --  Test for heavy loading.
 
 with HLoad_Pack;

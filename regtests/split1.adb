@@ -30,6 +30,7 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
 
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;

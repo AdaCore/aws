@@ -27,9 +27,11 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
+
 --  $Id$
---
+
+--  ~ MAIN [SSL]
+
 --  Test for certificate or keyfile absence and wrong format.
 
 with Ada.Exceptions;

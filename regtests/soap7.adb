@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [SOAP]
+
 with Ada.Text_IO;
 
 with SOAP.Message.Response;

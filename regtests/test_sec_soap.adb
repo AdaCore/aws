@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2002-2004                          --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -29,6 +29,8 @@
 ------------------------------------------------------------------------------
 
 --  $Id$
+
+--  ~ MAIN [SOAP+SSL]
 
 --  This must be the exact same test than test_soap. The only difference is
 --  that it uses HTTPS protocol. We test that output is the same as the non

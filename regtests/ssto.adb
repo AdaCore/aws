@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [SSL]
+
 --  Test for secure socket timeouts
 
 with STO_Proc;

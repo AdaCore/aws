@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 --  Test the upload directory config
 
 with Ada.Text_IO;

@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [STD]
+
 with AWS.Containers.Tables.Set;
 
 with Ada.Text_IO;

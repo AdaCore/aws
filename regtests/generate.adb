@@ -29,7 +29,9 @@
 ------------------------------------------------------------------------------
 --
 --  $Id$
---
+
+--  ~ MAIN [STD]
+
 --  Generator for fast regression test execution.
 
 with Ada.Command_Line;

@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  ~ MAIN [ASIS+SOAP]
+
 with Ada.Text_IO;
 
 with AWS.Config.Set;

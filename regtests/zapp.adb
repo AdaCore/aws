@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -29,6 +29,8 @@
 ------------------------------------------------------------------------------
 
 --  $Id$
+
+--  ~ MAIN [STD]
 
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;

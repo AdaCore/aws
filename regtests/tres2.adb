@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -29,6 +29,8 @@
 ------------------------------------------------------------------------------
 
 --  $Id$
+
+--  ~ MAIN [STD]
 
 --  Test for the embedded resource files.
 
