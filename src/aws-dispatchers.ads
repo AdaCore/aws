@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -64,6 +64,7 @@ package AWS.Dispatchers is
 
    procedure Free (Dispatcher : in out Handler_Class_Access);
    pragma Inline (Free);
+   --  Release memory associated with the dispatcher
 
 private
 
