@@ -1,5 +1,9 @@
 2005-02-05  Pascal Obry  <pascal@obry.org>
 
+	* aws.ads:
+	(Version): Set to 2.1a.
+	Update copyright notice.	
+
 	* aws-server.adb:
 	Update copyright notice.
 
