@@ -41,22 +41,6 @@ package body AWS.Session is
 
    Session_Lifetime : Duration := Default_Session_Lifetime;
 
-   --  key/value datastructure
-
---     type KV_Data is record
---        Key, Value : Unbounded_String;
---     end record;
-
---     function Key_For (Item : in KV_Data) return String;
---     --  returns the Key for KV_Data
-
---     function Key_For (Item : in KV_Data) return String is
---     begin
---        return To_String (Item.Key);
---     end Key_For;
-
---     package Key_Value is new Avl_Tree_Generic (String, KV_Data, Key_For);
-
    --  table of session ID
 
    type Session_Node is record
@@ -218,7 +202,7 @@ package body AWS.Session is
 
          N.Time_Stamp := Calendar.Clock;
 
-         Session_Set.Update_Node (Session_Name, N, Sessions);
+         Session_Set.Update_Node (N, Sessions);
 
          Key_Value.Inquire (Key, N.Root, KV);
          Value := KV.Value;
@@ -242,7 +226,7 @@ package body AWS.Session is
 
          N.Time_Stamp := Calendar.Clock;
 
-         Session_Set.Update_Node (Session_Name, N, Sessions);
+         Session_Set.Update_Node (N, Sessions);
 
          Key_Value.Inquire (Key, N.Root, KV);
          Result := True;
@@ -298,12 +282,12 @@ package body AWS.Session is
             Key_Value.Insert_Node (KV, N.Root);
          exception
             when Key_Value.Tree.Duplicate_Key =>
-               Key_Value.Update_Node (Key, KV, N.Root);
+               Key_Value.Update_Node (KV, N.Root);
          end;
 
          --  set back the node
 
-         Session_Set.Update_Node (Session_Name, N, Sessions);
+         Session_Set.Update_Node (N, Sessions);
       exception
          when others =>
             null;
