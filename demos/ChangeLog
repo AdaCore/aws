@@ -1,3 +1,8 @@
+2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Removes interoplab-*.
+
 2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* zdemo_cb.ads, zdemo_cb.adb:
