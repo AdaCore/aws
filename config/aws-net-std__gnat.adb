@@ -41,8 +41,11 @@ pragma Warnings (Off);
 --  platforms Unix, Windows and VMS.
 
 with GNAT.Sockets.Thin;
+with GNAT.Sockets.Constants;
 
 pragma Warnings (On);
+
+with Interfaces.C;
 
 package body AWS.Net.Std is
 
@@ -328,27 +331,39 @@ package body AWS.Net.Std is
    ----------
 
    procedure Send
-     (Socket : in Socket_Type;
-      Data   : in Stream_Element_Array)
+     (Socket : in     Socket_Type;
+      Data   : in     Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
    is
-      First  : Stream_Element_Offset := Data'First;
-      Last   : Stream_Element_Offset;
+      use Interfaces;
+      use Sockets;
+      use type C.int;
+
+      Errno : Integer;
+      RC    : C.int;
    begin
-      while First <= Data'Last loop
-         Wait_For (Output, Socket);
+      RC := Thin.C_Send
+              (C.int (Get_FD (Socket)),
+               Data'Address,
+               Data'Length,
+               0);
 
-         Sockets.Send_Socket (Socket.S.FD, Data (First .. Data'Last), Last);
+      if RC = Thin.Failure then
+         Errno := Thin.Socket_Errno;
 
-         if Last < First then
-            --  Connection has been closed by peer
-            raise Socket_Error;
+         if Errno = Constants.EWOULDBLOCK then
+            Last := Data'First - 1;
+
+            return;
+
+         else
+            Ada.Exceptions.Raise_Exception
+              (Socket_Error'Identity,
+               Message => "Send error code:" & Integer'Image (Errno));
          end if;
+      end if;
 
-         First := Last + 1;
-      end loop;
-   exception
-      when E : Sockets.Socket_Error =>
-         Raise_Exception (E, "Send");
+      Last := Data'First - 1 + Stream_Element_Offset (RC);
    end Send;
 
    ---------------------------
