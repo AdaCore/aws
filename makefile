@@ -259,7 +259,7 @@ build_tarball:
 	$(CP) include/*.ad[sb] include/makefile $${AWS}/include;\
 	$(CP) include/zlib/*.[ch] include/zlib/makefile $${AWS}/include/zlib;\
 	$(CP) include/zlib/FAQ include/zlib/README $${AWS}/include/zlib;\
-	$(CP) include/zlib/ChangeLog $${AWS}/include/zlib;\
+	$(CP) include/zlib/ChangeLog* $${AWS}/include/zlib;\
 	$(CP) include/readme.txt $${AWS}/include;\
 	$(CP) lib/makefile $${AWS}/lib;\
 	$(CP) icons/*.gif $${AWS}/icons;\
