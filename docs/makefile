@@ -33,6 +33,9 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-resources-embedded.ads.texi \
 	../src/aws-resources-streams.ads.texi \
 	../src/aws-resources-streams-memory.ads.texi \
+	../src/aws-resources-streams-memory-zlib.ads.texi \
+	../src/aws-resources-streams-memory-zlib-deflate.ads.texi \
+	../src/aws-resources-streams-memory-zlib-inflate.ads.texi \
 	../src/aws-resources.ads.texi \
 	../src/aws-response.ads.texi \
 	../src/aws-server-hotplug.ads.texi \
@@ -50,6 +53,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-smtp.ads.texi \
 	../src/aws-status.ads.texi \
 	../src/aws-templates.ads.texi \
+	../src/aws-translator.ads.texi \
 	../src/aws-url.ads.texi \
 	../xsrc/aws-jabber.ads.texi \
 	../soap/soap.ads.texi \
