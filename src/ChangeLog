@@ -5,6 +5,14 @@
 
 2003-02-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-client.adb:
+	(Get_Response): GNAT.Table instance parameter Table_Increment was
+	 too big, 10_000. We should remember that it is not direct value,
+	 but a percentage. Use new Response.Set.Message_Body routine with
+	 Stream_Element_Array_Access parameter for the known content length.
+
+2003-02-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-net.ads, aws-net-std.ads:
 	(Set_Send_Buffer): New routine.
 	(Set_Receive_Buffer): New routine.
