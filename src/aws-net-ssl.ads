@@ -55,7 +55,7 @@ package AWS.Net.SSL is
 
    procedure Accept_Socket
      (Socket     : in     Socket_Type;
-      New_Socket :    out Net.Socket_Type'Class);
+      New_Socket :    out Socket_Access);
    --  Accept a connection on a socket. If Security is true a secure socket
    --  will be used.
 
