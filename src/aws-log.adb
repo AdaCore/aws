@@ -219,9 +219,11 @@ package body AWS.Log is
 
          Text_IO.Put_Line
            (Log.File,
-            AWS.Status.Peername (Connect_Stat) & " - "
-            & Status.Authorization_Name (Connect_Stat) & " - ["
-            & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
+            AWS.Status.Peername (Connect_Stat)
+            & " - "
+            & Status.Authorization_Name (Connect_Stat)
+            & " - ["
+            & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y %T")
             & "] """
             & Status.Request_Method'Image (Status.Method (Connect_Stat))
             & ' '
