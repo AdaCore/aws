@@ -1,3 +1,18 @@
+2002-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-parameters.ads, aws-parameters.adb:
+	(Get_Name): Fix comment.
+	(Get_Value): Fix comment.
+	(Normalize_Name): Moved outside from AWS.Parameters.Set.Add.
+	Fixing exception handlers for catching just Missing_Item_Error.
+
+	* aws-parameters-set.adb:
+	(Add): Normalize_Name removed.
+
+	* aws-headers.ads, aws-headers.adb,
+	  aws-headers-set.ads, aws-headers-set.adb:
+	Initial revision.
+
 2002-11-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-parameters.adb:
