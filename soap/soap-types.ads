@@ -242,6 +242,13 @@ package SOAP.Types is
 
    function V (O : in SOAP_Record) return Object_Set;
 
+   --------------
+   -- Any Type --
+   --------------
+
+   XML_Any_Type : constant String := "xsd:anyType";
+   --  Not supported by this implementation
+
    ---------
    -- Get --
    ---------
