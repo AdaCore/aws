@@ -673,6 +673,8 @@ regtests/soap5.adb
 regtests/soap5.out
 regtests/soap6.adb
 regtests/soap6.out
+regtests/soap7.adb
+regtests/soap7.out
 regtests/tc_soap_names.adb
 regtests/tc_soap_names.ads
 regtests/testxml.adb
