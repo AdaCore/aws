@@ -40,7 +40,10 @@ implemented:
   session data across the network. Something needed to do load balancing into
   a Web Farm.
 
-- Support SOAP and Web-Service framework.
+- Support SOAP and Web-Service framework. The protocol is quite easy (Simple
+  Object Application Protocol) but an Ada binding is quite hard. It would be
+  nice to be able to generate stub/squeleton from a spec file (this work could
+  reuse the gnatstub ASIS appication).
 
 - Will be nice to add all timeouts to the AWS status page.
 
