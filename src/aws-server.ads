@@ -289,7 +289,7 @@ private
       function Is_Abortable
         (Index : in Positive;
          Mode  : in Timeout_Mode)
-        return Boolean;
+         return Boolean;
       --  Return True when slot can be aborted.
 
       procedure Abort_On_Timeout (Mode : in Timeout_Mode; Done : out Boolean);
@@ -299,9 +299,9 @@ private
       function Free_Slots return Natural;
       --  Returns number of free slots.
 
-      procedure Get (FD : in Socket_Access; Index : in Positive);
+      procedure Set (Socket : in Socket_Access; Index : in Positive);
       --  Mark slot at position Index to be used. This slot will be associated
-      --  with the socket FD. Phase set to Client_Header.
+      --  with Socket. Phase set to Wait_For_Client.
 
       procedure Shutdown (Index : in Positive);
       --  Break all communications over the slot.
@@ -330,7 +330,7 @@ private
       Timeouts      : Timeouts_Array;
       Data_Timeouts : Data_Timeouts_Array;
 
-      Set   : Slot_Set (1 .. N);
+      Table : Slot_Set (1 .. N);
       Count : Natural := N;
 
    end Slots;
