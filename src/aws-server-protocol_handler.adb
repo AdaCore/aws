@@ -734,11 +734,11 @@ is
          ---------------------
 
          function Target_Filename (Filename : in String) return String is
-            I   : Natural := Fixed.Index (Filename,
-                                          Maps.To_Set ("/\"),
-                                          Going => Strings.Backward);
+            I   : constant Natural
+              := Fixed.Index (Filename, Maps.To_Set ("/\"),
+                              Going => Strings.Backward);
             UID : Natural;
-            Upload_Path : String :=
+            Upload_Path : constant String :=
                CNF.Upload_Directory (HTTP_Server.Properties);
          begin
             File_Upload_UID.Get (UID);
@@ -777,8 +777,6 @@ is
          declare
             Data : constant String := Sockets.Get_Line (Sock);
          begin
-            Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
-
             if not Parse_Boundary then
 
                if Data = "--" then
@@ -790,6 +788,8 @@ is
                   declare
                      Data : constant String := Sockets.Get_Line (Sock);
                   begin
+                     Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
+
                      Name
                        := To_Unbounded_String (Value_For ("name", Data));
                      Filename
@@ -798,16 +798,12 @@ is
                end if;
 
             else
+               Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
+
                Name     := To_Unbounded_String (Value_For ("name", Data));
                Filename := To_Unbounded_String (Value_For ("filename", Data));
             end if;
          end;
-
-         --  Set Target_Filename, the name of the file in the local file
-         --  sytstem.
-
-         Server_Filename := To_Unbounded_String
-           (Target_Filename (To_String (Filename)));
 
          --  Reach the data
 
@@ -829,6 +825,12 @@ is
 
          if Is_File_Upload then
             --  This part of the multipart message contains file data.
+
+            --  Set Server_Filename, the name of the file in the local file
+            --  sytstem.
+
+            Server_Filename := To_Unbounded_String
+              (Target_Filename (To_String (Filename)));
 
             if To_String (Filename) /= "" then
                AWS.Parameters.Set.Add
