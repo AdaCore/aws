@@ -1,5 +1,13 @@
 2004-03-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(RT_STD): Add stream_response.
+
+	* stream_response.adb, stream_response.out:
+	Initial revision.
+
+2004-03-23  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* ssock2.adb:
 	Fix copyright notice.
 
