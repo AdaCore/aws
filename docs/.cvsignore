@@ -1,4 +1,5 @@
 ada.sed
+aws-attachments.ads.texi
 aws-client-hotplug.ads.texi
 aws-client.ads.texi
 aws-communication-client.ads.texi
@@ -25,6 +26,8 @@ aws-parameters.ads.texi
 aws-pop.ads.texi
 aws-resources-embedded.ads.texi
 aws-resources-files.ads.texi
+aws-resources-streams-disk-once.ads.texi
+aws-resources-streams-disk.ads.texi
 aws-resources-streams-memory-zlib-deflate.ads.texi
 aws-resources-streams-memory-zlib-inflate.ads.texi
 aws-resources-streams-memory-zlib.ads.texi
@@ -64,6 +67,7 @@ aws.info-1
 aws.info-10
 aws.info-11
 aws.info-12
+aws.info-13
 aws.info-2
 aws.info-3
 aws.info-4
