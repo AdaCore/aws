@@ -19,3 +19,7 @@ Note that all of them are compatible with the AWS license.
   Dmitriy Anisimkov.
 
 * SHA implementation is from John Halleck.
+
+* ZLib C sources is from Jean-loup Gailly and Mark Adler
+
+* ZLib-Ada Ada binding to ZLib is from Dmitriy Anisimkov
