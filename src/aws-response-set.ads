@@ -124,13 +124,13 @@ package AWS.Response.Set is
    procedure Stream
      (D        : in out Data;
       Handle   : access Resources.Streams.Stream_Type'Class;
-      Encoding : in     Content_Encoding := Identity);
+      Encoding : in     Messages.Content_Encoding := Messages.Identity);
    pragma Inline (Stream);
    --  Set the user defined data stream
 
    procedure Data_Encoding
      (D         : in out Data;
-      Encoding  : in     Content_Encoding;
+      Encoding  : in     Messages.Content_Encoding;
       Direction : in     Encoding_Direction := Encode);
    --  Set data encoding, the encoding will be used for the Message_Body and
    --  Append_Body routines below.
