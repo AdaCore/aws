@@ -364,7 +364,7 @@ package body AWS.Net.SSL is
          end;
       end loop;
 
-      Last := Stream_Element_Offset (Len);
+      Last := Data'First + Stream_Element_Offset (Len) - 1;
    end Receive;
 
    -------------
