@@ -362,15 +362,20 @@ is
                              Parse_Boundary               : in Boolean)
       is
          --  ??? Implementation would be more efficient if the imput socket
-         --  was cached. Here the socket is read char by char.
+         --  stream was cached. Here the socket is read char by char.
 
-         Name          : Unbounded_String;
-         Filename      : Unbounded_String;
-         Content_Type  : Unbounded_String;
-         File          : Streams.Stream_IO.File_Type;
+         Name           : Unbounded_String;
+         Filename       : Unbounded_String;
+         Content_Type   : Unbounded_String;
+         File           : Streams.Stream_IO.File_Type;
+         Is_File_Upload : Boolean;
 
          procedure Get_File_Data;
          --  read file data from the stream.
+
+         function Target_Filename (Filename : in String) return String;
+         --  Returns the full path name for the file as stored on the
+         --  server side.
 
          --------------
          -- Get_Data --
@@ -389,9 +394,6 @@ is
               return Streams.Stream_Element_Array;
             --  Returns the end signature string as a element array.
 
-            function Target_Filename (Filename : in String) return String;
-            --  Removes the path from Filename.
-
             Buffer : Streams.Stream_Element_Array (1 .. 4096);
             Index  : Streams.Stream_Element_Offset := Buffer'First;
 
@@ -403,37 +405,15 @@ is
 
             function Check_EOF return Boolean is
                Signature : Streams.Stream_Element_Array :=
-                 (13, 10) & End_Boundary_Signature;
+                 (1 => 13, 2 => 10) & End_Boundary_Signature;
 
                Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
                Index  : Streams.Stream_Element_Offset := Buffer'First;
-
-               function Boundary_Found return Boolean;
-               --  check if a boundary has been reached.
 
                procedure Write_Data;
                --  Put buffer data into the main buffer (Get_Data.Buffer). If
                --  the main buffer is not big enough, it will write the buffer
                --  into the file bdefore.
-
-               --------------------
-               -- Boundary_Found --
-               --------------------
-
-               function Boundary_Found return Boolean is
-                  KS : Streams.Stream_Element_Offset := Signature'First;
-                  KB : Streams.Stream_Element_Offset := Buffer'First;
-               begin
-                  for K in 1 .. Signature'Length loop
-                     if Signature (KS) /= Buffer (KB) then
-                        return False;
-                     end if;
-                     KS := KS + 1;
-                     KB := KB + 1;
-                  end loop;
-
-                  return True;
-               end Boundary_Found;
 
                ----------------
                -- Write_Data --
@@ -472,8 +452,7 @@ is
                   Buffer (Index) := Data (1);
 
                   if Index = Buffer'Last then
---                     if Buffer = Signature then  -- BUG GNAT 3.13
-                     if Boundary_Found then
+                     if Buffer = Signature then
                         return True;
                      else
                         Write_Data;
@@ -506,24 +485,6 @@ is
                return Stream_Signature;
             end End_Boundary_Signature;
 
-            ---------------------
-            -- Target_Filename --
-            ---------------------
-
-            function Target_Filename (Filename : in String) return String is
-               I : Natural := Fixed.Index (Filename,
-                                           Maps.To_Set ("/\"),
-                                           Going => Strings.Backward);
-            begin
-               if I = 0 then
-                  return Server.Config.Upload_Directory (HTTP_Server)
-                    & Filename;
-               else
-                  return Server.Config.Upload_Directory (HTTP_Server)
-                    & Filename (I + 1 .. Filename'Last);
-               end if;
-            end Target_Filename;
-
          begin
             Streams.Stream_IO.Create (File,
                                       Streams.Stream_IO.Out_File,
@@ -553,6 +514,24 @@ is
             Streams.Stream_IO.Close (File);
          end Get_File_Data;
 
+         ---------------------
+         -- Target_Filename --
+         ---------------------
+
+         function Target_Filename (Filename : in String) return String is
+            I : Natural := Fixed.Index (Filename,
+                                        Maps.To_Set ("/\"),
+                                        Going => Strings.Backward);
+         begin
+            if I = 0 then
+               return Server.Config.Upload_Directory (HTTP_Server)
+                 & Filename;
+            else
+               return Server.Config.Upload_Directory (HTTP_Server)
+                 & Filename (I + 1 .. Filename'Last);
+            end if;
+         end Target_Filename;
+
       begin
          --  reach the boundary
 
@@ -576,6 +555,8 @@ is
          declare
             Data : constant String := Sockets.Get_Line (Sock);
          begin
+            Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
+
             if not Parse_Boundary then
                if Data = "--" then
                   --  check if this is the end of the finish boundary string.
@@ -615,32 +596,40 @@ is
 
          --  read file/field data
 
-         if To_String (Filename) = "" then
+         if Is_File_Upload then
+            --  this part of the multipart message contains file data.
+
+            if To_String (Filename) /= "" then
+               AWS.Status.Set_Parameters
+                 (C_Stat,
+                  To_String (Name), Target_Filename (To_String (Filename)));
+
+               Get_File_Data;
+
+               File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
+                            "--" & Status.Multipart_Boundary (C_Stat) & "--",
+                            False);
+            else
+               --  there is no file for this multipart, user did not enter
+               --  something in the field.
+
+               File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
+                            "--" & Status.Multipart_Boundary (C_Stat) & "--",
+                            True);
+            end if;
+
+         else
             --  this part of the multipart message contains field value.
 
             declare
                Value : constant String := Sockets.Get_Line (Sock);
             begin
-               AWS.Status.Set_Parameters (C_Stat,
-                                          To_String (Name) & '=' & Value);
+               AWS.Status.Set_Parameters (C_Stat, To_String (Name), Value);
             end;
 
             File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
                          "--" & Status.Multipart_Boundary (C_Stat) & "--",
                          True);
-
-         else
-            --  this part of the multipart message contains file data.
-
-            AWS.Status.Set_Parameters
-              (C_Stat,
-               To_String (Name) & '=' & To_String (Filename));
-
-            Get_File_Data;
-
-            File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
-                         "--" & Status.Multipart_Boundary (C_Stat) & "--",
-                         False);
          end if;
 
       end File_Upload;
