@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -151,7 +151,7 @@ package AWS.Response is
    --  Returns a message whose message body is the content of the user
    --  defined stream. The Content_Type must indicate the MIME type for
    --  the data stream, Stream_Size the total number of bytes and Status_Code
-   --  the header status code which should be send back to client's bvrowser.
+   --  the header status code which should be send back to client's browser.
 
    function Socket_Taken return Data;
    --  Must be used to say that the connection socket has been taken by user
