@@ -193,6 +193,17 @@ procedure interopLab_Main is
       Text_IO.New_Line;
    end T_echoStringArray;
 
+   ------------
+   -- Output --
+   ------------
+
+   procedure Output (S : in SOAPStruct_Type) is
+   begin
+      Integer_Text_IO.Put (S.varInt); Text_IO.New_Line;
+      LFIO.Put (S.VarFloat, Exp => 0, Aft => 2); Text_IO.New_Line;
+      Text_IO.Put_Line (To_String (S.varString));
+   end Output;
+
    ------------------
    -- T_echoStruct --
    ------------------
@@ -205,11 +216,29 @@ procedure interopLab_Main is
         := interopLab.Client.echoStruct (Struct);
    begin
       Text_IO.Put_Line ("Echo Struct");
-      Integer_Text_IO.Put (Res.varInt); Text_IO.New_Line;
-      LFIO.Put (Res.varFloat); Text_IO.New_Line;
-      Text_IO.Put_Line (To_String (Res.varString));
+      Output (Res);
       Text_IO.New_Line;
    end T_echoStruct;
+
+   -----------------------
+   -- T_echoStructArray --
+   -----------------------
+
+   procedure T_echoStructArray is
+      A_Struct : constant ArrayOfSOAPStruct
+        := ((1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three"));
+
+      Res : constant ArrayOfSOAPStruct
+        := interopLab.Client.echoStructArray (A_Struct);
+   begin
+      Text_IO.Put_Line ("Echo ArrayOfStruct");
+
+      for K in Res'Range loop
+         Output (Res (K));
+      end loop;
+
+      Text_IO.New_Line;
+   end T_echoStructArray;
 
 begin
    T_echoStringArray;
@@ -221,4 +250,5 @@ begin
    T_echoBoolean;
    T_echoString;
    T_echoBase64;
+   T_echoStructArray;
 end interopLab_Main;
