@@ -38,6 +38,7 @@ with Ada.Streams;
 with Ada.Strings.Unbounded;
 
 with AWS.Headers;
+with AWS.Messages;
 with AWS.Net;
 with AWS.Parameters;
 with AWS.Session;
@@ -52,12 +53,23 @@ package AWS.Status is
 
    type Authorization_Type is (None, Basic, Digest);
 
-   function Check_Digest (D : in Data; Password : in String) return Boolean;
+   function Check_Digest
+     (D        : in Data;
+      Password : in String)
+      return   Messages.Status_Code;
    --  This function is used by the digest authentication to check if the
-   --  client password is correct.
+   --  client password and authentication parameters are correct.
    --  The password is not transferred between the client and the server,
    --  the server check that the client knows the right password using the
    --  MD5 checksum.
+   --  Returns Messages.S200 in case of successful authentication,
+   --  Messages.S400 in case of bad authentication request
+   --  (RFC 2617 3.2.2, 3.2.2.5),
+   --  Messages.S401 in case of authentication error.
+
+   function Check_Digest (D : in Data; Password : in String) return Boolean;
+   --  The same like above, but do not distinguish wrong request and
+   --  authentication error.
 
    function Authorization_Mode     (D : in Data) return Authorization_Type;
    pragma Inline (Authorization_Mode);
@@ -235,6 +247,7 @@ private
       Auth_NC           : Unbounded_String; -- for Digest
       Auth_CNonce       : Unbounded_String; -- for Digest
       Auth_QOP          : Unbounded_String; -- for Digest
+      Auth_URI          : Unbounded_String; -- for Digest
       Auth_Response     : Unbounded_String; -- for Digest
 
       --  Session
