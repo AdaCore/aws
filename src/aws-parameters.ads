@@ -48,50 +48,39 @@ package AWS.Parameters is
    ------------------------
    -- Inherited routines --
    ------------------------
+   --
+   --  See AWS.Containers.Tables for details.
 
    --  function Count (Table : in Table_Type) return Natural;
-   --  Returns the number of item in Table.
 
    --  function Name_Count (Table : in Table_Type) return Natural;
-   --  Returns the number of unique key name in Table.
 
    --  function Count (Table : in Table_Type; Name : in String) return Natural;
-   --  Returns the number of value for Key Name in Table. It returns
-   --  0 if Key does not exist.
 
    --  function Exist (Table : in Table_Type; Name : in String) return Boolean;
-   --  Returns True if Key exist in Table.
 
    --  function Get
    --    (Table : in Table_Type;
    --     Name  : in String;
    --     N     : in Positive := 1)
    --     return String;
-   --  Returns the Nth value associated with Key into Table. Returns
-   --  the emptry string if key does not exist.
 
    --  function Get_Name
    --    (Table : in Table_Type;
    --     N     : in Positive := 1)
    --     return String;
-   --  Returns the Nth Name in Table or the empty string if there is
-   --  no parameter with this number.
 
    --  function Get_Value
    --    (Table : in Table_Type;
    --     N     : in Positive := 1)
    --     return String;
-   --  Returns the Nth Value in Table or the empty string if there is
-   --  no parameter with this number.
 
    --  function Get_Names (Table : in Table_Type) return VString_Array;
-   --  Returns array of unique key names.
 
    --  function Get_Values
    --    (Table : in Table_Type;
    --     Name  : in String)
    --     return VString_Array;
-   --  Returns all values for the specified parameter key name.
 
 private
    --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
@@ -100,7 +89,7 @@ private
    use Ada.Strings.Unbounded;
 
    type List is new AWS.Containers.Tables.Table_Type with record
-      Parameters     : Unbounded_String;
+      Parameters : Unbounded_String;
    end record;
 
 end AWS.Parameters;
