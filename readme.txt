@@ -126,6 +126,9 @@ Here are the main changes since AWS 1.3 :
    - The directory browser's template file can now be configured using the
      AWS.Config module.
 
+   - Using the session feature without server's session support is now
+     properly detected (Constraint_Error is raised).
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
