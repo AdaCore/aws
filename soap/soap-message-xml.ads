@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -47,7 +47,7 @@ package SOAP.Message.XML is
    --  Build a Payload object by parsing the XML payload string
 
    function Load_Response
-     (XML : in AWS.Client.HTTP_Connection)
+     (Connection : in AWS.Client.HTTP_Connection)
       return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the HTTP client connection output.
