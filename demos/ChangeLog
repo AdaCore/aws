@@ -1,3 +1,8 @@
+2004-02-25  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* makefile:
+	(clean): Remove interoplab.ads
+
 2004-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* demos.gpr:
