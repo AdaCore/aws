@@ -47,6 +47,7 @@ package body Filter is
    Contract_Token      : aliased constant String := "CONTRACT";
    Div_Token           : aliased constant String := "DIV";
    Exist_Token         : aliased constant String := "EXIST";
+   Format_Date_Token   : aliased constant String := "FORMAT_DATE";
    Format_Number_Token : aliased constant String := "FORMAT_NUMBER";
    Is_Empty_Token      : aliased constant String := "IS_EMPTY";
    LF_2_BR_Token       : aliased constant String := "LF_2_BR";
@@ -110,6 +111,9 @@ package body Filter is
 
          Exist          =>
            (Exist_Token'Access,          Exist'Access),
+
+         Format_Date  =>
+           (Format_Date_Token'Access,    Format_Date'Access),
 
          Format_Number  =>
            (Format_Number_Token'Access,  Format_Number'Access),
@@ -506,6 +510,59 @@ package body Filter is
          return "FALSE";
       end if;
    end Exist;
+
+   -----------------
+   -- Format_Date --
+   -----------------
+
+   function Format_Date
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
+   is
+      Date_Only : constant := 10;
+      Date_Time : constant := 19;
+      Param     : constant GNAT.Calendar.Time_IO.Picture_String
+        := GNAT.Calendar.Time_IO.Picture_String
+             (Value (To_String (P.S), T));
+      F         : constant Positive := S'First;
+
+      Year   : Calendar.Year_Number;
+      Month  : Calendar.Month_Number;
+      Day    : Calendar.Day_Number;
+      Hour   : GNAT.Calendar.Hour_Number   := 0;
+      Minute : GNAT.Calendar.Minute_Number := 0;
+      Second : GNAT.Calendar.Second_Number := 0;
+      Time   : Calendar.Time;
+   begin
+      if S'Length >= Date_Only then
+         Year  := Calendar.Year_Number'Value  (S (F     .. F + 3));
+         Month := Calendar.Month_Number'Value (S (F + 5 .. F + 6));
+         Day   := Calendar.Day_Number'Value   (S (F + 8 .. F + 9));
+
+         if S (F + 4) /= '-' or else S (F + 7) /= '-' then
+            return S;
+         end if;
+
+      else
+         return S;
+      end if;
+
+      if S'Length = Date_Time then
+         Hour   := GNAT.Calendar.Hour_Number'Value   (S (F + 11 .. F + 12));
+         Minute := GNAT.Calendar.Minute_Number'Value (S (F + 14 .. F + 15));
+         Second := GNAT.Calendar.Second_Number'Value (S (F + 17 .. F + 18));
+
+         if S (F + 13) /= ':' or else S (F + 16) /= ':' then
+            return S;
+         end if;
+      end if;
+
+      Time := GNAT.Calendar.Time_Of (Year, Month, Day, Hour, Minute, Second);
+
+      return GNAT.Calendar.Time_IO.Image (Time, Param);
+   end Format_Date;
 
    -------------------
    -- Format_Number --
