@@ -61,6 +61,7 @@ private
       Sock                : Sockets.Socket_FD;
       Free                : Boolean := True;
       Abortable           : Boolean := False;
+      Aborted             : Boolean := False;
       Activity_Time_Stamp : Calendar.Time;
    end record;
 
