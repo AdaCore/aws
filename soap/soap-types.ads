@@ -40,12 +40,16 @@ package SOAP.Types is
    --  Raised when a variable has not the expected type.
 
    type Object is abstract tagged private;
+   --  Root type for all SOAP types defined in this package
 
    type Object_Access is access all Object'Class;
 
    type Object_Safe_Pointer is tagged private;
+   --  A safe pointer to a SOAP object, such objects are controlled so the
+   --  memory is freed automatically.
 
    type Object_Set is array (Positive range <>) of Object_Safe_Pointer;
+   --  A set of SOAP types. This is used to build arrays or records.
 
    function Image (O : in Object) return String;
    --  Returns O value image.
@@ -289,6 +293,14 @@ private
 
    use Ada.Strings.Unbounded;
 
+   --  Object
+
+   type Object is abstract new Ada.Finalization.Controlled with record
+      Name : Unbounded_String;
+   end record;
+
+   --  Object_Safe_Pointer
+
    type Object_Safe_Pointer is new Ada.Finalization.Controlled with record
       O : Object_Access;
    end record;
@@ -299,13 +311,13 @@ private
    procedure Finalize   (O : in out Object_Safe_Pointer);
    pragma Inline (Finalize);
 
-   type Object is abstract new Ada.Finalization.Controlled with record
-      Name : Unbounded_String;
-   end record;
+   --  Scalar
 
    type Scalar is abstract new Object with null record;
 
    type Counter_Access is access Natural;
+
+   --  Composite
 
    type Object_Set_Access is access Object_Set;
 
@@ -322,6 +334,8 @@ private
 
    procedure Finalize   (O : in out Composite);
    pragma Inline (Finalize);
+
+   --  Simple SOAP types
 
    type XSD_Integer is new Scalar with record
       V : Integer;
@@ -349,6 +363,8 @@ private
    type SOAP_Base64 is new Scalar with record
       V : Unbounded_String;
    end record;
+
+   --  Composite SOAP types
 
    type SOAP_Array is new Composite with null record;
 
