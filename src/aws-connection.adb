@@ -721,10 +721,6 @@ package body AWS.Connection is
          when Sockets.Connection_Closed =>
             Text_IO.Put_Line ("Connection time-out, close it.");
 
-            Sockets.Put_Line (Sock, Messages.Status_Line (Messages.S500));
-            Sockets.Put_Line (Sock, Messages.Connection ("close"));
-            Sockets.New_Line (Sock);
-
             Free (Task_Identification.Current_Task);
             Ressources.Free;
 
@@ -733,11 +729,6 @@ package body AWS.Connection is
             Text_IO.Put_Line ("Connection will be closed...");
             Text_IO.New_Line;
             Text_IO.Put_Line (Exceptions.Exception_Information (E));
-
-            Sockets.Put_Line (Sock, Messages.Status_Line (Messages.S500));
-            Sockets.Put_Line (Sock, "Connection: close");
-            Sockets.New_Line (Sock);
-            Sockets.Shutdown (Sock, Sockets.Both);
 
             Free (Task_Identification.Current_Task);
             Ressources.Free;
