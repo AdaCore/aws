@@ -294,8 +294,6 @@ package body AWS.Translator is
          First := Last + 1;
       end loop;
 
-      Flush (Stream);
-
       --  Read back the data
 
       Result := new Stream_Element_Array (1 .. Size (Stream));
