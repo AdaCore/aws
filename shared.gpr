@@ -38,6 +38,9 @@ project Shared is
    type OS_Type is ("GNU/Linux", "Windows_NT");
    OS : OS_Type := external ("OS", "GNU/Linux");
 
+   type Socket_Type is ("std", "ssl");
+   Socket : Socket_Type := external ("SOCKET", "std");
+
    for Source_Dirs use ();
 
    ------------
