@@ -559,6 +559,7 @@ Now you are ready to use @code{AWS} !
 * Server Push::
 * Server Log::
 * Secure server::
+* Unexpected exception handler::
 * Client side::
 @end menu
 
@@ -760,7 +761,9 @@ case.
 @noindent
 Note that there is other @code{Start} routines which support other features.
 For example there is a @code{Start} routine which use a dispatcher routine
-instead of the simple callback procedure. @pxref{AWS.Server}.
+instead of the simple callback procedure. @pxref{AWS.Server}. And
+there is also the version using a @code{Config.Object} which is the most
+generic one.
 
 @item provides a callback procedure
 
@@ -1784,6 +1787,68 @@ not all Web browsers. These are the default protocol used by
 
 @noindent
 @code{TLSv1} is not supported at this point.
+
+@node Unexpected exception handler
+@section Unexpected exception handler
+@cindex exception handler
+
+@noindent
+When @code{AWS} detects an internal problem, it calls a specific
+handler. This handler can be used to log the error, send an alert
+message or build the answer to be sent back to the client's browser.
+
+@noindent
+Here is the spec for this handler:
+
+@smallexample
+@cartouche
+@group
+@b{type} Unexpected_Exception_Handler @b{is access}
+  @b{procedure} (E           : @b{in}     Ada.Exceptions.Exception_Occurrence;
+             Log         : @b{in out} AWS.Log.Object;
+             Error       : @b{in}     Data;
+             Answer      : @b{in out} Response.Data);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+The handler can be called in two modes:
+
+@table @b
+
+@item Non fatal error (Error.Fatal is False)
+
+In this case @code{AWS} will continue working without problem. A
+problem has been detected but it was not fatal to the thread (slot in
+@code{AWS}'s terminology) handling. In this case it is possible to
+send back an application level message to the client's browser. For
+that you just have to fill the unexpected handler's @var{Answer} parameter
+with the right response message. The @var{Error} parameter receive
+information about the problem, see @pxref{AWS.Exceptions}.
+
+@item Fatal error (Error.Fatal is True)
+
+In this case @code{AWS} will continue working but a thread (slot in
+@code{AWS}'s terminology) will be killed. It means that @code{AWS}
+will have lost one the simultaneous connection handler. The server
+will continue working unless it was the last slot handler
+available. Note that a Fatal error means an @code{AWS} internal bug
+and it should be reported if possible. In this mode there is no way to
+send back an answer to the client's browser and @var{Error} value must
+be ignored. 
+
+@end table
+
+@noindent
+The default handler for unexpected exceptions send a message to
+standard error for fatal errors. For non fatal errors it log a message
+(if the error log is activated for the server) and send back a message
+back to the client. The message is either a built-in one or, if present
+in the server's directory, the content of the @file{500.tmplt} file.
+
+@noindent
+For more information @pxref{AWS.Server} and @pxref{AWS.Exceptions}.
 
 @node Client side
 @section Client side
@@ -3090,6 +3155,7 @@ AWS User API:
 * AWS.Default::
 * AWS.Dispatchers::
 * AWS.Dispatchers.Callback::
+* AWS.Exceptions::
 * AWS.Headers::
 * AWS.Headers.Values::
 * AWS.Jabber::
@@ -3200,6 +3266,13 @@ SOAP User API:
 @cindex Callback, dispatcher API
 
 @include ../src/aws-dispatchers-callback.ads.texi
+
+@node AWS.Exceptions
+@section AWS.Exceptions
+@cindex AWS.Exceptions
+@cindex Exceptions, Unexpected exceptions, Exceptions handler
+
+@include ../src/aws-exceptions.ads.texi
 
 @node AWS.Headers
 @section AWS.Headers
