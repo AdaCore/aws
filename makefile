@@ -136,8 +136,8 @@ distrib: clean build_doc
 	mkdir $${AWS}/win32; \
 	cp AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	cp src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
-	cp demos/makefile $${AWS}/demos;\
-	cp demos/[shrw]*.ads demos/[ahmrstw]*.adb $${AWS}/demos;\
+	cp demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
+	cp demos/[shrw]*.ads demos/[ahmrstvw]*.adb $${AWS}/demos;\
 	cp demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	cp demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
 	cp regtests/*.out regtests/*.adb regtests/makefile $${AWS}/regtests;\
