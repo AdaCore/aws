@@ -557,8 +557,15 @@ package body AWS.Config.Set is
    ----------------------
 
    procedure Upload_Directory (O : in out Object; Value : in String) is
-      Last : constant Character := Value (Value'Last);
+      Last : Character;
    begin
+      if Value'Length = 0 then
+         O.P (Upload_Directory).Dir_Value := Null_Unbounded_String;
+         return;
+      else
+         Last := Value (Value'Last);
+      end if;
+
       if Last = '/' or else Last = '\' then
          O.P (Upload_Directory).Dir_Value := To_Unbounded_String (Value);
       else
