@@ -298,9 +298,15 @@ private
       function Free_Slots return Natural;
       --  Returns number of free slots.
 
-      procedure Set (Socket : in Socket_Access; Index : in Positive);
+      procedure Set
+        (Socket     : in     Socket_Access;
+         Index      : in     Positive;
+         Free_Slots :    out Natural);
       --  Mark slot at position Index to be used. This slot will be associated
       --  with Socket. Phase set to Wait_For_Client.
+      --  Returns number of Free slots in the Free_Slot out parameter, it is
+      --  necessary information for Server line task, for determine is it
+      --  necessary to call Line_Cleaner in Force mode.
 
       procedure Shutdown (Index : in Positive);
       --  Break all communications over the slot.
