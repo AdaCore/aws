@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               April 14th, 2004
+   Pascal Obry                                                May 13th, 2004
 
 
 
@@ -45,6 +45,14 @@ Here are the main changes since AWS 2.0 :
 
    - Better support for project files for developpers.
 
+   - Templates Engine is again faster, it provides a new way to store
+     translations (see Translate_Set) which is not a fixed structure like
+     Transtate_Table.
+
+   - New templates engine with unified tags which can be nested at any
+     level. Vector_Tag and Matrix_Tag are now just subtype of the new type
+     Tag. Note that this new implementation is 99% upward compatible.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -56,6 +64,9 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
+
+   - In templates engine, the Vector routine is not present anymore.
+     Use Item instead.
 
 
 Obsolescent features:
