@@ -1502,7 +1502,7 @@ begin
                   --  Here we got an exception (other than Net.Socket_Error).
                   --  It is probably due to a problem in a user's stream
                   --  implementation. Just log the problem and exit.
-                  Log.Write
+                  AWS.Log.Write
                     (HTTP_Server.Error_Log,
                      C_Stat,
                      "Exception handler bug "
