@@ -151,7 +151,7 @@ private
    function Normalize_Name
      (Name     : in String;
       To_Upper : in Boolean)
-      return   String;
+      return String;
    --  Returns Name in upper case if To_Upper is set to True and it returns
    --  Name unchanged otherwise.
 

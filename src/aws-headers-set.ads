@@ -52,7 +52,7 @@ package AWS.Headers.Set is
    --     N  > M + 1  => Constraint_Error raised
 
    procedure Read (Socket : in Net.Socket_Type'Class; Headers : in out List);
-   --  Read and parse HTTP header from the socket.
+   --  Read and parse HTTP header from the socket
 
    procedure Reset (Headers : in out List);
    pragma Inline (Reset);
@@ -61,9 +61,9 @@ package AWS.Headers.Set is
 
    procedure Free (Headers : in out List);
    pragma Inline (Free);
-   --  Release all memory used by the List container.
+   --  Release all memory used by the List container
 
    procedure Debug (Activate : in Boolean);
-   --  Turn on Debug output.
+   --  Turn on Debug output
 
 end AWS.Headers.Set;
