@@ -283,7 +283,7 @@ A simple client/server program to test the SOAP protocol.
 
 @item soap_svs.exe
 
-A server that implements the seven SOAP procedure for the validation
+A server that implements the seven SOAP procedures for the validation
 suite on @url{http://validator.soapware.org/}. This demo can be used
 to validate @code{AWS/SOAP} on your platform.
 
@@ -544,8 +544,9 @@ AWS.Response.File (Content_Type => "image/png",
 
 @noindent
 A better solution is to use a template engine like Templates_Parser to
-build the HTML Web Server answer. See Templates_Parser on
-@url{http://perso.wanadoo.fr/contrib.html}.
+build the HTML Web Server answer. Templates_Parser module is
+distributed with this version of AWS. For the latest version see
+@url{http://perso.wanadoo.fr/pascal.obry/contrib.html}.
 
 @node Callback procedure
 @subsection Callback procedure
@@ -608,6 +609,7 @@ that will answer ``Hello World'' if we ask for the internal resource
 
 @b{begin}
    AWS.Server.Start (WS, "Hello World", Callback => HW_CB'Unrestricted_Access);
+   @b{delay} 30.0;
 @b{end} Hello_World;
 @end group
 @end cartouche
@@ -950,7 +952,7 @@ set using @code{AWS.Config.Set}.
 @noindent
 For example to build a server where the @i{port} and the maximum number of
 @i{connection} can be changed via a configuration file (either
-@file{aws.ini} or @file{<program_name>.ini}:
+@file{aws.ini} or @file{<program_name>.ini}):
 
 @smallexample
 @cartouche
