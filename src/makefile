@@ -49,7 +49,8 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-services-dispatchers-timer.adb aws-net-ssl-certificate.adb
 
 ifdef XMLADA
-SOURCES       := $(SOURCES) ../xsrc/aws-jabber.adb
+SOURCES       := $(SOURCES) ../xsrc/aws-jabber.adb ../xsrc/aws-client-xml.ads \
+	../xsrc/aws-client-xml-input_sources.adb
 TMPLT_SOURCES := $(TMPLT_SOURCES) ../xsrc/templates_parser-xml.adb
 endif
 

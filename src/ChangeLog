@@ -3,6 +3,9 @@
 	* aws-client.ads, aws-client.adb:
 	(SOAP_Post): Add parameter Streaming.
 
+	* makefile:
+	Add XMLAda related sources.
+
 2004-05-31  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.ads:
