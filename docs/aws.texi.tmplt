@@ -2130,19 +2130,88 @@ Note that this communication API is used by the Hotplug module facility
 An @b{Hotplug module} is a module that can by dynamically binded to a
 running server. It is a Web server and the development process is very
 similar to what we have seen until now @xref{Building an AWS server}. 
-The Hotplug module will register itself to a Web server by
+The Hotplug module will register itself into a Web server by
 sending a message using the communication API. The Hotplug module send
 to the server a regular expression and an URL. The main server will
 redirect all URL matching the regular expression to the Hotplug module.
 
 @noindent
-Note that the main server will redirect the URL to the first matching regular
-expression.
+Note that the main server will redirect the URL to the first matching
+regular expression.
 
 @menu
-* Hotplug module - creation::
 * Hotplug module - server activation::
+* Hotplug module - creation::
 @end menu
+
+@node Hotplug module - server activation
+@subsection Hotplug module - server activation
+
+@noindent
+The first step is to properly create the main server hotplug module
+registration file. This file must list all hotplug modules that can
+register into the main server. Each line have the following format:
+
+@smallexample
+@cartouche
+@group
+hotplug_module_name:password:server:port
+@end group
+@end cartouche
+@end smallexample
+
+@table @b
+
+@item hotplug_module_name
+
+The name of the hotplug module. You can choose any name you want. This
+name will be use during the registration process and to generate the
+password.
+
+@item password
+
+The MD5 password, see below.
+
+@item server
+
+The name of the server where the redirection will be made. This is for
+security reasons, main server will not permit to redirect requests to
+any other server.
+
+@item port
+
+The port to use for the redirection on @code{server}.
+
+@end table
+
+@noindent
+You must create a password for each hotplug modules. The generated
+password depends on the hotplug module name. A tool named
+@code{hotplug_password} is provided with @code{AWS} to generate such
+password. Usage is simple:
+
+@smallexample
+@cartouche
+@group
+$ hotplug_password <hotplug_module_name> <password>
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Then, after starting the main server you must activate the Hotplug feature:
+
+@smallexample
+@cartouche
+@group
+AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222, "hotplug_conf.ini");
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+@file{hotplug_conf.ini} is the hotplug module registration file
+described above.
 
 @node Hotplug module - creation
 @subsection Hotplug module - creation
@@ -2158,7 +2227,7 @@ Here is how to create an Hotplug module:
 @smallexample
 @cartouche
 @group
-WS  : AWS.Server.HTTP
+WS : AWS.Server.HTTP
   (3, 1235, False, Hotplug_CB.Hotplug'Access, False);
 @end group
 @end cartouche
@@ -2169,26 +2238,32 @@ used alone if needed as any Server developed with AWS.
 @sp 1
 
 @item Then you register the Hotplug module to the main server
-@xref{Communication - client side}.
+@xref{AWS.Client.Hotplug}.
 @sp 1
 
 @smallexample
 @cartouche
 @group
-Response := AWS.Communication.Client.Send_Message
-  ("dieppe", 2222,
-   AWS.Server.Hotplug.Register_Message,
-   AWS.Communication.Parameters
-   (".*AWS.*",
-    "http://" & AWS.Utils.Gethostname & ":1235/"));
+Response := AWS.Client.Hotplug.Register
+  (Name     => "Hotplug_Module_Demo",
+   Password => "my_password",
+   Server   => "http://dieppe:2222",
+   Regexp   => ".*AWS.*",
+   URL      => "http://omsk:1235/");
 @end group
 @end cartouche
 @end smallexample
 
-We ask for every @code{URI} containing the string "AWS" to call the
-server running on the Hotplug hostname using port @code{1235}. This
-message is sent to the communication server running on @code{dieppe} at
-port @code{2222}.
+@noindent
+The hotplug module @code{Hotplug_Module_Demo} must have been declared
+on the main server, the password and redirection must have been
+properly recorded too for security reasons 
+@pxref{Hotplug module - server activation}.
+This command register @code{Hotplug_Module_Demo} into the server running
+on the machine @code{dieppe} and ask it to redirect all @code{URL}
+containing @code{AWS} to the server running on machine @code{omsk} on
+port @code{1235}.
+
 @sp 1
 
 @item When the Hotplug module is stopped, you must unregister it
@@ -2197,35 +2272,20 @@ port @code{2222}.
 @smallexample
 @cartouche
 @group
-Response := AWS.Communication.Client.Send_Message
-  ("dieppe", 2222,
-   AWS.Server.Hotplug.Unregister_Message,
-   AWS.Communication.Parameters (".*AWS.*"));
+Response := AWS.Client.Hotplug.Unregister
+  (Name     => "Hotplug_Module_Demo",
+   Password => "my_password",
+   Server   => "http://dieppe:2222",
+   Regexp   => ".*AWS.*");
 @end group
 @end cartouche
 @end smallexample
 
-Here we ask to unregister the Hotplug module. The regular expression
-served as a key.
+Here we ask to unregister @code{Hotplug_Module_Demo} from server
+@code{dieppe}. As for the registration process a proper password must
+be specified @pxref{Hotplug module - server activation}.
 
 @end enumerate
-
-@node Hotplug module - server activation
-@subsection Hotplug module - server activation
-
-@noindent
-On the server side you must activate the Hotplug feature:
-
-@smallexample
-@cartouche
-@group
-AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
-@end group
-@end cartouche
-@end smallexample
-
-@noindent
-Here WS is a standard Web Server.
 
 @smallexample
 @cartouche
@@ -5569,6 +5629,7 @@ AWS User's API:
 
 * AWS::
 * AWS.Client::
+* AWS.Client.Hotplug::
 * AWS.Communication::
 * AWS.Communication.Client::
 * AWS.Communication.Server::
@@ -5645,6 +5706,13 @@ SOAP User's API:
 @cindex AWS.Client
 
 @include aws-client.ads.texi
+
+@page
+@node AWS.Client.Hotplug
+@appendixsec AWS.Client.Hotplug
+@cindex AWS.Client.Hotplug
+
+@include aws-client-hotplug.ads.texi
 
 @page
 @node AWS.Communication
