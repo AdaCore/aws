@@ -280,7 +280,6 @@ package body SOAP.WSDL.Parser is
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
       begin
-
          --  Get restriction node
 
          N := XML.First_Child (N);
@@ -502,21 +501,26 @@ package body SOAP.WSDL.Parser is
       P : Name_Spaces.Cursor;
       R : Boolean;
    begin
-      P := Name_Spaces.Containers.Find (NS, V);
-
-      if Name_Spaces.Containers.Has_Element (P) then
-         return Name_Space.Create
-           (To_String (Name_Spaces.Containers.Element (P)), V);
+      if V = "" and then DOM.Core.Nodes.Parent_Node (N) /= null then
+         return Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (N));
 
       else
-         NS_Num := NS_Num + 1;
-         declare
-            Name : constant String := "n" & AWS.Utils.Image (NS_Num);
-         begin
-            Name_Spaces.Containers.Insert
-              (NS, V, To_Unbounded_String (Name), P, R);
-            return Name_Space.Create (Name, V);
-         end;
+         P := Name_Spaces.Containers.Find (NS, V);
+
+         if Name_Spaces.Containers.Has_Element (P) then
+            return Name_Space.Create
+              (To_String (Name_Spaces.Containers.Element (P)), V);
+
+         else
+            NS_Num := NS_Num + 1;
+            declare
+               Name : constant String := "n" & AWS.Utils.Image (NS_Num);
+            begin
+               Name_Spaces.Containers.Insert
+                 (NS, V, To_Unbounded_String (Name), P, R);
+               return Name_Space.Create (Name, V);
+            end;
+         end if;
       end if;
    end Get_Target_Name_Space;
 
@@ -707,6 +711,8 @@ package body SOAP.WSDL.Parser is
       pragma Assert
         (R /= null
          and then Utils.No_NS (DOM.Core.Nodes.Node_Name (R)) = "complexType");
+
+      P.NS := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (R));
 
       declare
          Name : constant String := XML.Get_Attr_Value (R, "name", False);
@@ -1353,7 +1359,8 @@ package body SOAP.WSDL.Parser is
       pragma Unreferenced (Document);
 
       function Build_Derived
-        (Name, Base : in String)
+        (Name, Base : in String;
+         E          : in DOM.Core.Node)
          return Parameters.Parameter;
       --  Returns the derived type definition
 
@@ -1368,11 +1375,14 @@ package body SOAP.WSDL.Parser is
       -------------------
 
       function Build_Derived
-        (Name, Base : in String)
+        (Name, Base : in String;
+         E          : in DOM.Core.Node)
          return Parameters.Parameter
       is
          P : Parameters.Parameter (Parameters.K_Derived);
       begin
+         P.NS := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E));
+
          P.Name   := O.Current_Name;
          P.D_Name := +Name;
 
@@ -1412,6 +1422,8 @@ package body SOAP.WSDL.Parser is
          N : DOM.Core.Node := E;
          D : Parameters.E_Node_Access;
       begin
+         P.NS := Get_Target_Name_Space (DOM.Core.Nodes.Parent_Node (E));
+
          P.Name   := O.Current_Name;
          P.E_Name := +Name;
 
@@ -1468,7 +1480,7 @@ package body SOAP.WSDL.Parser is
       then
          return Build_Enumeration (-Name, -Base, E);
       else
-         return Build_Derived (-Name, -Base);
+         return Build_Derived (-Name, -Base, N);
       end if;
    end Parse_Simple;
 
