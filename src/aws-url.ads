@@ -87,12 +87,13 @@ package AWS.URL is
      return String;
    --  Returns Path & '/' & File
 
-   function Encode (URL : in String) return String;
-   --  Encode URL. Many characters are forbiden into an URL and needs to be
-   --  encoded. A character is encoded by %XY where XY is the character's
-   --  ASCII hexadecimal code. For example a space is encoded as %20.
+   function Encode (Str : in String) return String;
+   --  Encode Str into a URL-safe form. Many characters are forbiden into an
+   --  URL and needs to be encoded. A character is encoded by %XY where XY is
+   --  the character's ASCII hexadecimal code. For example a space is encoded
+   --  as %20.
 
-   function Decode (URL : in String) return String;
+   function Decode (Str : in String) return String;
    --  This is the oposite of Encode above.
 
 private
