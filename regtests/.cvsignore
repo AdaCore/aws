@@ -54,6 +54,10 @@ b~test_speed.adb
 b~test_speed.ads
 b~test_templates_if.adb
 b~test_templates_if.ads
+b~test_wsdl.adb
+b~test_wsdl.ads
+b~test_wsdl2.adb
+b~test_wsdl2.ads
 b~testxml.adb
 b~testxml.ads
 b~tgetparam.adb
@@ -100,6 +104,13 @@ file2.html
 file3.html
 gmem.out
 head.res
+hello_demo-client.adb
+hello_demo-client.ads
+hello_demo-server.adb
+hello_demo-server.ads
+hello_demo-types.adb
+hello_demo-types.ads
+hello_demo.ads
 hostip.res
 hval.res
 moved.res
@@ -115,6 +126,13 @@ soap3.res
 sock1.res
 sp.res
 ssp.res
+stockquoteservice-client.adb
+stockquoteservice-client.ads
+stockquoteservice-server.adb
+stockquoteservice-server.ads
+stockquoteservice-types.adb
+stockquoteservice-types.ads
+stockquoteservice.ads
 strm.res
 strm2.res
 tclientto.res
@@ -122,6 +140,8 @@ test_sec_soap.res
 test_soap.res
 test_speed.res
 test_templates_if.res
+test_wsdl.res
+test_wsdl2.res
 testxml.res
 tgetparam.res
 tlog.res

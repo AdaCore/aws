@@ -1,3 +1,16 @@
+2003-03-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(WSDL_TESTS): New variable.
+	(test_wsdl): Remove this target.
+	(WSDL_TESTS): New target for all WSDL tests.
+
+	* test_wsdl2.adb, test_wsdl2.out, test_wsdl2.wsdl:
+	Initial revision.
+
+	* hello.wsdl:
+	File renamed test_wsdl.wsdl.
+
 2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

@@ -1,3 +1,12 @@
+2003-03-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.adb:
+	(Array_Type): Return the type in lower case.
+	(Start_Service): Move generated pragma Elaborate_Body after other
+	 pragmas.
+	(Get_Routine): Use lower case for the test on the type.
+	(Set_Routine): Add lower cases for all basic types.
+
 2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
