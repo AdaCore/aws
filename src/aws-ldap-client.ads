@@ -202,7 +202,7 @@ package AWS.LDAP.Client is
    --  Do a search on the LDAP server. Base is the name of the database.
    --  Filter can be used to retreive a specific set of entries. Attrs specify
    --  the set of attributes to retreive. If Attrs_Only is set to True only
-   --  the types are returned.
+   --  the types are returned. Raises LDAP_Error in case of problem.
 
    ---------------
    -- Iterators --
