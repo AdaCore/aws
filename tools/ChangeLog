@@ -1,3 +1,16 @@
+2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	($(TOOLS)): Depends on ada2wsdl-options.adb.
+	(ada2wsdl-options.adb): New target. Build Set_Default routine with
+	 the path to XMLAda and AWS components.
+
+	* ada2wsdl-main.adb:
+	Call Options.Set_Default.
+
+	* ada2wsdl-options.ads:
+	(Set_Default): New procedure. Body generated automatically.
+
 2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.adb:
