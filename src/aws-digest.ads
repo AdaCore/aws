@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -36,7 +36,7 @@ with MD5;
 
 package AWS.Digest is
 
-   subtype Digest_String is MD5.Digest_String;
+   subtype Digest_String is MD5.Message_Digest;
 
    function Create_Nonce return String;
    --  Create a Nonce value for the digest authentication
