@@ -62,10 +62,10 @@ package body SOAP.Message.Response.Error is
      return Object
    is
       use SOAP.Types;
-      use type SOAP.Parameters.Set;
+      use type SOAP.Parameters.List;
 
       O : Object;
-      P : SOAP.Parameters.Set;
+      P : SOAP.Parameters.List;
    begin
       --  Set Wrapper Name
 
@@ -169,7 +169,7 @@ package body SOAP.Message.Response.Error is
       --  Fault's parameters
 
       declare
-         P : constant SOAP.Parameters.Set := Parameters (E);
+         P : constant SOAP.Parameters.List := Parameters (E);
       begin
          for K in 1 .. SOAP.Parameters.Argument_Count (P) loop
             declare

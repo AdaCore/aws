@@ -64,10 +64,10 @@ procedure SOAP_SVS is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      P  : constant SOAP.Parameters.Set := SOAP.Message.Parameters (PL);
+      P  : constant SOAP.Parameters.List := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -134,10 +134,10 @@ procedure SOAP_SVS is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      P  : constant SOAP.Parameters.Set := SOAP.Message.Parameters (PL);
+      P  : constant SOAP.Parameters.List := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -182,10 +182,10 @@ procedure SOAP_SVS is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      P  : constant SOAP.Parameters.Set := SOAP.Message.Parameters (PL);
+      P  : constant SOAP.Parameters.List := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -223,10 +223,10 @@ procedure SOAP_SVS is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      P  : constant SOAP.Parameters.Set := SOAP.Message.Parameters (PL);
+      P  : constant SOAP.Parameters.List := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -268,10 +268,10 @@ procedure SOAP_SVS is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      P  : constant SOAP.Parameters.Set := SOAP.Message.Parameters (PL);
+      P  : constant SOAP.Parameters.List := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -312,10 +312,10 @@ procedure SOAP_SVS is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      P  : constant SOAP.Parameters.Set := SOAP.Message.Parameters (PL);
+      P  : constant SOAP.Parameters.List := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -361,10 +361,10 @@ procedure SOAP_SVS is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      P  : constant SOAP.Parameters.Set := SOAP.Message.Parameters (PL);
+      P  : constant SOAP.Parameters.List := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -409,10 +409,10 @@ procedure SOAP_SVS is
       use SOAP.Types;
       use SOAP.Parameters;
 
-      P  : constant SOAP.Parameters.Set := SOAP.Message.Parameters (PL);
+      P  : constant SOAP.Parameters.List := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -451,8 +451,7 @@ procedure SOAP_SVS is
         := AWS.Status.Payload (Request);
 
       PL : constant SOAP.Message.Payload.Object
-        := SOAP.Message.Payload.Object
-        (SOAP.Message.XML.Load_Payload (XML_Payload));
+        := SOAP.Message.XML.Load_Payload (XML_Payload);
 
       Proc_Name : constant String :=
         SOAP.Message.Payload.Procedure_Name (PL);
@@ -510,10 +509,9 @@ procedure SOAP_SVS is
    --------
 
    function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
-      URI : constant String := AWS.Status.URI (Request);
-
+      SOAPAction : constant String := AWS.Status.SOAPAction (Request);
    begin
-      if URI = "/validator1" then
+      if SOAPAction = "/validator1" then
          return SOAP_CB (Request);
 
       else

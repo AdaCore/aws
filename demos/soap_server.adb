@@ -57,14 +57,13 @@ procedure SOAP_Server is
       use SOAP.Parameters;
 
       PL : constant SOAP.Message.Payload.Object
-        := SOAP.Message.Payload.Object
-             (SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request)));
+        := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
 
-      P  : constant SOAP.Parameters.Set
+      P  : constant SOAP.Parameters.List
         := SOAP.Message.Parameters (PL);
 
       R  : SOAP.Message.Response.Object;
-      RP : SOAP.Parameters.Set;
+      RP : SOAP.Parameters.List;
 
    begin
       --  Print SOAP request for the demo
@@ -119,10 +118,9 @@ procedure SOAP_Server is
    --------
 
    function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
-      URI : constant String := AWS.Status.URI (Request);
-
+      SOAPAction : constant String := AWS.Status.SOAPAction (Request);
    begin
-      if URI = "/soapdemo" then
+      if SOAPAction = "/soapdemo" then
          return SOAP_CB (Request);
 
       else

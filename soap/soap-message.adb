@@ -48,7 +48,7 @@ package body SOAP.Message is
    -- Parameters --
    ----------------
 
-   function Parameters (M : in Object'Class) return SOAP.Parameters.Set is
+   function Parameters (M : in Object'Class) return SOAP.Parameters.List is
    begin
       return M.P;
    end Parameters;
@@ -68,7 +68,7 @@ package body SOAP.Message is
 
    procedure Set_Parameters
      (M     : in out Object'Class;
-      P_Set : in     SOAP.Parameters.Set) is
+      P_Set : in     SOAP.Parameters.List) is
    begin
       M.P := P_Set;
    end Set_Parameters;
@@ -111,7 +111,7 @@ package body SOAP.Message is
       --  Procedure's parameters
 
       declare
-         P : constant SOAP.Parameters.Set := Parameters (M);
+         P : constant SOAP.Parameters.List := Parameters (M);
       begin
          for K in 1 .. SOAP.Parameters.Argument_Count (P) loop
             Append

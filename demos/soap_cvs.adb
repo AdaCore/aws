@@ -46,7 +46,7 @@ procedure SOAP_CVS is
    use Ada;
    use SOAP;
    use SOAP.Types;
-   use type SOAP.Parameters.Set;
+   use type SOAP.Parameters.List;
 
    ----------------------
    -- countTheEntities --
@@ -54,7 +54,7 @@ procedure SOAP_CVS is
 
    procedure countTheEntities is
 
-      P_Set : constant Parameters.Set := +S ("un<><<&'", "s");
+      P_Set : constant Parameters.List := +S ("un<><<&'", "s");
 
       P     : Message.Payload.Object;
 
@@ -66,7 +66,7 @@ procedure SOAP_CVS is
            SOAP.Client.Call
            ("http://pascal:8080/validator1", P);
 
-         P : constant Parameters.Set
+         P : constant Parameters.List
            := SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Record := SOAP.Parameters.Get (P, "answer");
@@ -85,7 +85,7 @@ procedure SOAP_CVS is
 
    procedure easyStructTest is
 
-      P_Set : Parameters.Set :=
+      P_Set : Parameters.List :=
         +R ((+I (12, "moe"), +I (45, "larry"), +I (10, "curly")),
             "stooges");
 
@@ -98,7 +98,7 @@ procedure SOAP_CVS is
            SOAP.Client.Call
            ("http://pascal:8080/validator1", P);
 
-         P : constant Parameters.Set
+         P : constant Parameters.List
            := SOAP.Message.Parameters (R);
 
          Answer : constant Integer := SOAP.Parameters.Get (P, "answer");
@@ -115,7 +115,7 @@ procedure SOAP_CVS is
 
    procedure echoStructTest is
 
-      P_Set : Parameters.Set :=
+      P_Set : Parameters.List :=
         +R ((+I (12, "moe"), +I (45, "larry"), +I (10, "curly")),
             "myStruct");
 
@@ -128,7 +128,7 @@ procedure SOAP_CVS is
            SOAP.Client.Call
            ("http://pascal:8080/validator1", P);
 
-         P : constant Parameters.Set
+         P : constant Parameters.List
            := SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Record := SOAP.Parameters.Get (P, "myStruct");
@@ -147,7 +147,7 @@ procedure SOAP_CVS is
 
       use Ada.Calendar;
 
-      P_Set : Parameters.Set :=
+      P_Set : Parameters.List :=
         +I (12, "num") & B (True, "bool") & S ("Just me", "state")
         & F (3.8, "doub") & T (Clock, "dat", 3) & S ("%*kkk/:", "bin");
 
@@ -160,7 +160,7 @@ procedure SOAP_CVS is
            SOAP.Client.Call
            ("http://pascal:8080/validator1", P);
 
-         P : constant Parameters.Set
+         P : constant Parameters.List
            := SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Array := SOAP.Parameters.Get (P, "answer");
@@ -177,7 +177,7 @@ procedure SOAP_CVS is
 
    procedure moderateSizeArrayCheck is
 
-      P_Set : Parameters.Set := +A ((+S ("str 1"),
+      P_Set : Parameters.List := +A ((+S ("str 1"),
                                      +S ("str 2"),
                                      +S ("str 3"),
                                      +S ("str 4")),
@@ -192,7 +192,7 @@ procedure SOAP_CVS is
            SOAP.Client.Call
            ("http://pascal:8080/validator1", P);
 
-         P : constant Parameters.Set
+         P : constant Parameters.List
            := SOAP.Message.Parameters (R);
 
          Answer : constant String := SOAP.Parameters.Get (P, "answer");
@@ -216,7 +216,7 @@ procedure SOAP_CVS is
       S2 : constant Object_Set :=
         (+I (1, "moe"), +I (27, "larry"), +I (76, "curly"));
 
-      P_Set : Parameters.Set
+      P_Set : Parameters.List
         := +R
         ((+R ((1 => +R (S1, "test")), "year1999"),
           +R ((1 => +R ((1 => +R (S2, "day01")), "month04")), "year2000")),
@@ -231,7 +231,7 @@ procedure SOAP_CVS is
            SOAP.Client.Call
            ("http://pascal:8080/validator1", P);
 
-         P : constant Parameters.Set
+         P : constant Parameters.List
            := SOAP.Message.Parameters (R);
 
          Answer : constant Integer := SOAP.Parameters.Get (P, "answer");
@@ -248,7 +248,7 @@ procedure SOAP_CVS is
    ----------------------------
 
    procedure simpleStructReturnTest is
-      P_Set : Parameters.Set := +I (162, "myNumber");
+      P_Set : Parameters.List := +I (162, "myNumber");
       P     : Message.Payload.Object;
    begin
       P := Message.Payload.Build ("simpleStructReturnTest", P_Set);
@@ -258,7 +258,7 @@ procedure SOAP_CVS is
            SOAP.Client.Call
            ("http://pascal:8080/validator1", P);
 
-         P : constant Parameters.Set
+         P : constant Parameters.List
            := SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Record := SOAP.Parameters.Get (P, "answer");
@@ -283,7 +283,7 @@ procedure SOAP_CVS is
    procedure whichToolkit is
       use SOAP.Parameters;
 
-      P_Set : Parameters.Set;
+      P_Set : Parameters.List;
       P     : Message.Payload.Object;
    begin
       P := Message.Payload.Build ("whichToolkit", P_Set);
@@ -293,7 +293,7 @@ procedure SOAP_CVS is
            SOAP.Client.Call
            ("http://pascal:8080/validator1", P);
 
-         P : constant Parameters.Set := SOAP.Message.Parameters (R);
+         P : constant Parameters.List := SOAP.Message.Parameters (R);
 
          Answer : constant SOAP_Record := SOAP.Parameters.Get (P, "answer");
 
