@@ -305,6 +305,15 @@ package body AWS.Status is
       return D.Session_ID;
    end Session;
 
+   ---------------------
+   -- Session_Created --
+   ---------------------
+
+   function Session_Created (D : in Data) return Boolean is
+   begin
+      return D.Session_Created;
+   end Session_Created;
+
    ----------------
    -- SOAPAction --
    ----------------
