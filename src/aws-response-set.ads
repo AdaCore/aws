@@ -104,6 +104,9 @@ package AWS.Response.Set is
    -- Data --
    ----------
 
+   procedure Clear (D : in out Data);
+   --  Clear all internal data.
+
    procedure Mode
      (D     : in out Data;
       Value : in     Data_Mode);
