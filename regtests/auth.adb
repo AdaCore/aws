@@ -73,8 +73,9 @@ procedure Auth is
       Username : String := AWS.Status.Authorization_Name (Request);
    begin
       if Status.URI (Request) = Basic_Protected_URI then
+
          if Username = Auth_Username
-         and then AWS.Status.Authorization_Password (Request) = Auth_Password
+           and then AWS.Status.Authorization_Password (Request) = Auth_Password
          then
             return AWS.Response.Build
               ("text/plain",
@@ -83,8 +84,10 @@ procedure Auth is
             return AWS.Response.Authenticate ("AWS regtest",
                AWS.Response.Basic);
          end if;
+
       elsif Status.URI (Request) = Digest_Protected_URI
-      and then AWS.Status.Check_Digest (Request, Auth_Password) then
+        and then AWS.Status.Check_Digest (Request, Auth_Password)
+      then
          return AWS.Response.Build
            ("text/plain",
             "Digest authorization OK!");
@@ -100,7 +103,6 @@ procedure Auth is
 
    task body Server is
    begin
-
       AWS.Server.Start
         (HTTP, "Test authentication.",
          CB'Unrestricted_Access, Port => 7645, Max_Connection => 3);
@@ -119,38 +121,30 @@ begin
    Client.Create
      (Connection => Connect,
       Host       => "http://localhost:7645",
-      Timeouts => (5, 5));
+      Timeouts   => (5, 5));
 
-   Client.Set_WWW_Authentication (Connect,
-      Auth_Username,
-      "Wrong_Password",
-      Client.Basic);
+   Client.Set_WWW_Authentication
+     (Connect, Auth_Username, "Wrong_Password", Client.Basic);
 
    Client.Get (Connect, R, "/Basic?param=value");
    Put_Line ("-> " & Messages.Image (Response.Status_Code (R)));
 
-   Client.Set_WWW_Authentication (Connect,
-      Auth_Username,
-      Auth_Password,
-      Client.Basic);
+   Client.Set_WWW_Authentication
+     (Connect, Auth_Username, Auth_Password, Client.Basic);
 
    Client.Get (Connect, R, "/Basic?param=value");
    Put_Line ("-> " & Messages.Image (Response.Status_Code (R)));
    Put_Line ("-> " & Response.Message_Body (R));
 
 
-   Client.Set_WWW_Authentication (Connect,
-      Auth_Username,
-      "Wrong_Password",
-      Client.Digest);
+   Client.Set_WWW_Authentication
+     (Connect, Auth_Username, "Wrong_Password", Client.Digest);
 
    Client.Get (Connect, R, "/Digest?param=value");
    Put_Line ("-> " & Messages.Image (Response.Status_Code (R)));
 
-   Client.Set_WWW_Authentication (Connect,
-      Auth_Username,
-      Auth_Password,
-      Client.Digest);
+   Client.Set_WWW_Authentication
+     (Connect, Auth_Username, Auth_Password, Client.Digest);
 
    Client.Get (Connect, R, "/Digest?param=value");
    Put_Line ("-> " & Messages.Image (Response.Status_Code (R)));
