@@ -1,5 +1,15 @@
 2003-10-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* memory_streams.ads:
+	Update copyright notice.
+	(Stream_Type): Initialize Last_Length field.
+
+	* memory_streams.adb:
+	Update copyright notice.
+	Minor reformat.
+
+2003-10-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* zlib/*:
 	Synchronize with zlib 1.2.2 releaze.
 
