@@ -9,14 +9,14 @@
 # under others platforms.
 
 ifeq ($(MODE),ssl)
-GARGS = -I../src -I../ssl -I/usr/Ada.Libraries/sockets -i -gnatwu -g
+GARGS = -I../src -I../ssl -I../include -I/usr/Ada.Libraries/sockets -i -gnatwu -g
 BARGS = -E
 LARGS = -L../win32 -lssl -lcrypto -lRSAglue -lgdi32
 
 else
 # Without SSL support
 
-GARGS = -I../src -I/usr/Ada.Libraries/sockets -i -gnatwu -g
+GARGS = -I../src -I../include -I/usr/Ada.Libraries/sockets -i -gnatwu -g
 BARGS = -E
 LARGS =
 endif
