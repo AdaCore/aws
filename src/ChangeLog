@@ -1,3 +1,8 @@
+2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.adb:
+	(Receive): Fix error in Last out value.
+
 2004-05-31  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.ads, aws-client.adb:
