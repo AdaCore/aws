@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               August 24th, 2004
+   Pascal Obry                                             September 4th, 2004
 
 
 
@@ -84,11 +84,18 @@ Here are the main changes since AWS 2.0 :
 
    - Properly handle empty SOAPAction in SOAP requests.
 
-   - Better support for namespaces in SOAP requests.
+   - Better support for name-spaces in SOAP requests.
 
    - Add possibility to select the endpoint URL when using generated client
-     stubs (only the defaut URL defined in the WSDL document was handled
+     stubs (only the default URL defined in the WSDL document was handled
      before).
+
+   - Add a new option (-d) in wsdl2aws to generate debug code. This is useful
+     to debug a SOAP client or server. It displays the SOAPAction, Procedure
+     name, Payload and response.
+
+   - Add exception handler in generated SOAP code for callback and server
+     skeleton.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -105,11 +112,10 @@ implementations.
    - In templates engine, the Vector routine is not present anymore.
      Use Composite routine instead.
 
-   - In AWS.Client interface Timeout_Values record fields type was Natural and
-     become Duration. It is possible to use less then one second timeout
-     values now. Just change all http client timeout constants to
-     Duration type. If you do not want to make it more exact, just add ".0" to
-     the constant at the end.
+   - In AWS.Client interface, Timeout_Values record field types have been
+     changed from Natural to Duration. It is possible to use less then one
+     second timeout value now. Just change all http client timeout values to
+     Duration type.
 
    - By default an AWS server does not accept upload files. It is required to
      activate this feature by properly setting the Upload_Directory either
