@@ -632,7 +632,12 @@ package body Templates_Parser is
    --  Static_Tree represent a Tree immune to cache changes. Info point to the
    --  first node and C_Info to the second one. C_Info could be different to
    --  Info.Next in case of cache changes. This way we keep a pointer to the
-   --  old tree to be able to release it when not used anymore.
+   --  old tree to be able to release it when not used anymore. This way it is
+   --  possible to use the cache in multitasking program without trouble. The
+   --  changes in the cache are either because more than one task is parsing
+   --  the same template at the same time, they will update the cache with the
+   --  same tree at some point, or because a newer template was found in the
+   --  file system.
 
    type Static_Tree is record
       Info   : Tree;
@@ -684,7 +689,9 @@ package body Templates_Parser is
    --  Cached Files --
    -------------------
 
-   --  Cached_Files keep the Tree for a given file.
+   --  Cached_Files keep the parsed Tree for a given file in memory. This
+   --  implementation is thread safe so it is possible to use the cache in a
+   --  multitasking program.
 
    package Cached_Files is
 
@@ -697,21 +704,21 @@ package body Templates_Parser is
          --  Add Filename/T to the list of cached files. If Filename is
          --  already in the list, replace the current tree with T. Furthemore
          --  if Filename tree is already in use, Old will be set with the
-         --  previous C_Info node otherwise Old will be null pointer.
+         --  previous C_Info node otherwise Old will be T.Next (C_Info node
+         --  for current tree).
 
-         function Get
-           (Filename : in String;
-            Load     : in Boolean)
-           return Tree;
+         procedure Get
+           (Filename : in     String;
+            Load     : in     Boolean;
+            Result   :    out Static_Tree);
          --  Returns the Tree for Filename or null if Filename has not been
          --  cached. Load must be set to True at load stage and False at Parse
          --  stage.
 
-         procedure Release (C_Info : in out Tree);
+         procedure Release (T : in out Static_Tree);
          --  After loading a tree and using it, it is required that it be
          --  released. This will ensure that a tree marked as obsolete (a new
          --  version being now in the cache) will be released from the memory.
-         --  Old must be a C_Info node or null.
 
       end Prot;
 
@@ -844,7 +851,7 @@ package body Templates_Parser is
 
    procedure Clear (Vect : in out Vector_Tag) is
    begin
-      --  Here we just separated current vector from the new one. The memory
+      --  Here we just separate current vector from the new one. The memory
       --  used by the current one will be collected by the Finalize
       --  routine. We just want a new independant Vector_Tag here.
       Vect.Ref_Count := new Integer'(1);
@@ -2324,21 +2331,23 @@ package body Templates_Parser is
          end if;
       end Parse;
 
-      T   : Tree;
-      Old : Tree := null;
+      T     : Static_Tree;
+      New_T : Tree;
+      Old   : Tree;
 
    begin
       if Cached then
-         T := Cached_Files.Prot.Get (Filename, Load => True);
+         Cached_Files.Prot.Get (Filename, Load => True, Result => T);
 
-         if T /= null then
-            return Static_Tree'(T, Old);
+         if T.Info /= null then
+            pragma Assert (T.C_Info /= null);
+            return T;
          end if;
       end if;
 
       Text_IO.Open (File, Text_IO.In_File, Filename, Form => "shared=no");
 
-      T := Parse (Parse_Std);
+      New_T := Parse (Parse_Std);
 
       Text_IO.Close (File);
 
@@ -2347,23 +2356,24 @@ package body Templates_Parser is
 
       --  Add second node (cache info)
 
-      T := new Node'(C_Info, T, 0, False, 1);
+      Old := new Node'(C_Info, New_T, 0, False, 1);
 
       --  Add first node (info about tree)
 
-      T := new Node'(Info,
-                     T,
-                     0,
-                     To_Unbounded_String (Filename),
-                     GNAT.OS_Lib.File_Time_Stamp (Filename),
-                     I_File,
-                     1);
+      New_T := new Node'(Info,
+                         Old,
+                         0,
+                         To_Unbounded_String (Filename),
+                         GNAT.OS_Lib.File_Time_Stamp (Filename),
+                         I_File,
+                         1);
 
       if Cached then
-         Cached_Files.Prot.Add (Filename, T, Old);
+         Cached_Files.Prot.Add (Filename, New_T, Old);
+         pragma Assert (Old /= null);
       end if;
 
-      return Static_Tree'(T, Old);
+      return Static_Tree'(New_T, Old);
 
    exception
       when E : Internal_Error =>
@@ -3166,13 +3176,13 @@ package body Templates_Parser is
 
       Now := Ada.Calendar.Clock;
 
-      Analyze (T.Info, Empty_State);
+      Analyze (T.C_Info, Empty_State);
 
       if not Cached then
          Release (T.Info);
 
       else
-         Cached_Files.Prot.Release (T.C_Info);
+         Cached_Files.Prot.Release (T);
       end if;
 
       return Results;
