@@ -34,8 +34,9 @@ package body Memory_Streams is
 
    procedure Free (Item : in out Buffer_Access);
 
-   procedure Free is new Ada.Unchecked_Deallocation
-                           (Element_Array, Element_Access);
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Element_Array, Element_Access);
+
    ------------
    -- Append --
    ------------
@@ -123,11 +124,13 @@ package body Memory_Streams is
          File.Current     := File.First;
          File.Last        := File.First;
          File.Last_Length := Length;
+
       elsif File.Last.Data'Length = File.Last_Length then
          File.Last.Next   := new Buffer_Type;
          File.Last        := File.Last.Next;
          File.Last.Data   := File.Pointer;
          File.Last_Length := Length;
+
       else
          declare
             Ptr : constant Element_Access
@@ -183,10 +186,10 @@ package body Memory_Streams is
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean is
+   function End_Of_File (File : in Stream_Type) return Boolean is
    begin
-      return Resource.Current.Next = null
-        and then Resource.Current_Offset > Resource.Current.Data'Last;
+      return File.Current.Next = null
+        and then File.Current_Offset > File.Current.Data'Last;
    end End_Of_File;
 
    ----------
@@ -194,8 +197,8 @@ package body Memory_Streams is
    ----------
 
    procedure Free (Item : in out Buffer_Access) is
-      procedure Deallocate is new Ada.Unchecked_Deallocation
-                                    (Buffer_Type, Buffer_Access);
+      procedure Deallocate is
+         new Ada.Unchecked_Deallocation (Buffer_Type, Buffer_Access);
    begin
       Free (Item.Data);
       Deallocate (Item);
@@ -227,9 +230,9 @@ package body Memory_Streams is
    ----------
 
    procedure Read
-     (Resource : in out Stream_Type;
-      Buffer   :    out Element_Array;
-      Last     :    out Element_Offset)
+     (File   : in out Stream_Type;
+      Buffer :    out Element_Array;
+      Last   :    out Element_Offset)
    is
       Buffer_Offset    : Element_Offset := Buffer'First;
       Block_Over       : Boolean;
@@ -248,7 +251,7 @@ package body Memory_Streams is
          --  Buffer remain length minus 1
 
          Current_Len_1   : constant Element_Offset
-           := Data'Last - Resource.Current_Offset;
+           := Data'Last - File.Current_Offset;
          --  Data remain length minus 1
 
          Current_Last    : Element_Index;
@@ -259,52 +262,54 @@ package body Memory_Streams is
             Last := Buffer_Offset + Current_Len_1;
 
             Buffer (Buffer_Offset .. Last)
-              := Data (Resource.Current_Offset .. Data'Last);
+              := Data (File.Current_Offset .. Data'Last);
 
             Buffer_Offset := Last + 1;
 
-            Resource.Current_Offset := Data'Last + 1;
+            File.Current_Offset := Data'Last + 1;
+
          else
             Last := Buffer'Last;
 
-            Current_Last := Resource.Current_Offset + Buffer_Len_1;
+            Current_Last := File.Current_Offset + Buffer_Len_1;
 
             Buffer (Buffer_Offset .. Last)
-              := Data (Resource.Current_Offset .. Current_Last);
+              := Data (File.Current_Offset .. Current_Last);
 
-            Resource.Current_Offset := Current_Last + 1;
+            File.Current_Offset := Current_Last + 1;
          end if;
       end Append;
 
    begin
-      if Resource.Pointer /= null then
+      if File.Pointer /= null then
          raise Constraint_Error;
       end if;
 
       Last := Buffer'First - 1;
 
-      if Resource.Current = null then
+      if File.Current = null then
          return;
       end if;
 
       loop
-         if Resource.Current.Next = null then
+         if File.Current.Next = null then
             --  Last block.
 
-            Append (Resource.Current.Data (1 .. Resource.Last_Length));
+            Append (File.Current.Data (1 .. File.Last_Length));
 
             if Block_Over then
-               Resource.Current := null;
+               File.Current := null;
 
                exit;
             end if;
+
          else
-            Append (Resource.Current.Data.all);
+            Append (File.Current.Data.all);
 
             if Block_Over then
-               Resource.Current := Resource.Current.Next;
+               File.Current := File.Current.Next;
 
-               Resource.Current_Offset := Resource.Current.Data'First;
+               File.Current_Offset := File.Current.Data'First;
             end if;
          end if;
 
@@ -330,7 +335,7 @@ package body Memory_Streams is
    -- Size --
    ----------
 
-   function Size (File   : in Stream_Type) return Element_Offset is
+   function Size (File : in Stream_Type) return Element_Offset is
    begin
       return File.Length;
    end Size;
