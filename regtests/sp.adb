@@ -36,11 +36,8 @@ with Get_Free_Port;
 with Sp_Pck;
 
 procedure Sp is
-   use Sp_Pck;
-
    Port : Natural := 1249;
-
 begin
    Get_Free_Port (Port);
-   Client_Process ("http", Port);
+   Sp_Pck.Run ("http", Port);
 end Sp;
