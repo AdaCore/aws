@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Strings.Unbounded;
+
 with AWS.Translator;
 
 package body AWS.Net.Buffered is
@@ -110,27 +112,38 @@ package body AWS.Net.Buffered is
    --------------
 
    function Get_Line (Socket : in Socket_Type'Class) return String is
-      Result : String (1 .. 1_024);
-      Index  : Positive := Result'First;
+      use Ada.Strings.Unbounded;
+
+      Result : Unbounded_String;
+      --  The final result
+
+      Buffer : String (1 .. 256);
+      pragma Warnings (Off, Buffer);
+      --  Intermediate buffer
+      Index  : Positive := Buffer'First;
       Char   : Character;
    begin
       Flush (Socket);
 
-      loop
+      Get_Until_LF : loop
          Char := Get_Char (Socket);
 
          if Char = ASCII.LF then
-            return Result (1 .. Index - 1);
+            Append (Result, Buffer (1 .. Index - 1));
+            exit Get_Until_LF;
 
          elsif Char /= ASCII.CR then
-            Result (Index) := Char;
+            Buffer (Index) := Char;
             Index := Index + 1;
 
-            if Index > Result'Last then
-               return Result & Get_Line (Socket);
+            if Index > Buffer'Last then
+               Append (Result, Buffer);
+               Index := Buffer'First;
             end if;
          end if;
-      end loop;
+      end loop Get_Until_LF;
+
+      return To_String (Result);
    end Get_Line;
 
    --------------
