@@ -112,6 +112,18 @@ package body AWS.Client is
    --  Open the the Connection if it is not open. Send the common HTTP headers
    --  for all requests like the proxy, authentication, user agent, host.
 
+   function Port_Not_Default (Port : in Positive) return String;
+   --  Returns the port image (preceded by character ':') if it is not the
+   --  default port.
+
+   procedure Send_Authentication_Header
+     (Connection : in out HTTP_Connection;
+      Token      : in     String;
+      Data       : in out Authentication_Type;
+      URI        : in     String;
+      Method     : in     String);
+   --  Send the authentication header for proxy or for server
+
    procedure Internal_Post
      (Connection   : in out HTTP_Connection;
       Result       :    out Response.Data;
@@ -177,6 +189,24 @@ package body AWS.Client is
       use type Net.Socket_Access;
       Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
       Security    : constant Boolean := AWS.URL.Security (Connect_URL);
+      Sock        : Net.Socket_Access;
+
+      function Persistence return String;
+      pragma Inline (Persistence);
+
+      -----------------
+      -- Persistence --
+      -----------------
+
+      function Persistence return String is
+      begin
+         if Connection.Persistent then
+            return "Keep-Alive";
+         else
+            return "Close";
+         end if;
+      end Persistence;
+
    begin
       pragma Assert (not Connection.Opened);
       --  This should never be called with an open connection.
@@ -188,7 +218,8 @@ package body AWS.Client is
          Net.Free (Connection.Socket);
       end if;
 
-      Connection.Socket := Net.Socket (Security);
+      Sock := Net.Socket (Security);
+      Connection.Socket := Sock;
 
       if Security then
          --  This is a secure connection, set the SSL config for this socket
@@ -202,6 +233,102 @@ package body AWS.Client is
          AWS.URL.Host (Connect_URL), AWS.URL.Port (Connect_URL));
 
       Connection.Opened := True;
+
+      if AWS.URL.Security (Connection.Host_URL)
+        and then Connection.Proxy /= No_Data
+      then
+         --  We want to connect to the host using HTTPS, this can only be
+         --  done by opening a tunnel through the proxy.
+         --
+         --  CONNECT <host> HTTP/1.1
+         --  Host: <host>
+         --  [Proxy-Authorization: xxxx]
+         --  <other headers>
+         --  <empty line>
+
+         Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
+
+         declare
+            Host_Address : constant String
+              := AWS.URL.Host (Connection.Host_URL)
+                  & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
+         begin
+            Send_Header
+              (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
+            Send_Header
+              (Sock.all, Messages.Host (Host_Address));
+         end;
+
+         --  Proxy Authentication
+
+         Send_Authentication_Header
+           (Connection,
+            Messages.Proxy_Authorization_Token,
+            Connection.Auth (Proxy),
+            URI    => "/",
+            Method => "CONNECT");
+
+         Send_Header
+           (Sock.all,
+            Messages.User_Agent (To_String (Connection.User_Agent)));
+
+         Send_Header
+           (Sock.all, Messages.Proxy_Connection (Persistence));
+
+         --  Empty line to terminate the connect
+
+         Net.Buffered.New_Line (Sock.all);
+
+         --  Wait for reply from the proxy, and check status
+
+         Net.Set_Timeout (Sock.all, Connection.Read_Timeout);
+
+         declare
+            use type Messages.Status_Code;
+            Line   : constant String := Net.Buffered.Get_Line (Sock.all);
+            Status : Messages.Status_Code;
+         begin
+            Debug_Message ("< ", Line);
+
+            Status := Messages.Status_Code'Value
+              ('S' & Line (Messages.HTTP_Token'Length + 5
+                           .. Messages.HTTP_Token'Length + 7));
+
+            if Status >= Messages.S400 then
+               Exceptions.Raise_Exception
+                 (Connection_Error'Identity,
+                  Message => "Can't connect to proxy, status "
+                  & Messages.Image (Status));
+            end if;
+         end;
+
+         --  Ignore all remainings lines
+
+         loop
+            declare
+               Line : constant String := Net.Buffered.Get_Line (Sock.all);
+            begin
+               Debug_Message ("< ", Line);
+               exit when Line = "";
+            end;
+         end loop;
+
+         --  Now the tunnel is open, we need to create an SSL connection
+         --  around this tunnel.
+
+         declare
+            procedure Free is new Ada.Unchecked_Deallocation
+              (Net.Socket_Type'Class, Net.Socket_Access);
+
+            S : constant Net.Std.Socket_Type
+              := Net.Std.Socket_Type (Sock.all);
+         begin
+            Free (Sock);
+            Sock := new Net.SSL.Socket_Type'(Net.SSL.Secure_Client (S));
+            Connection.Socket := Sock;
+         end;
+      end if;
+
    exception
       when E : Net.Socket_Error =>
          Connection.Opened := False;
@@ -293,6 +420,8 @@ package body AWS.Client is
          Net.SSL.Initialize
            (Connection.SSL_Config, Certificate, Net.SSL.SSLv23_Client);
       end if;
+
+      Connect (Connection);
 
       if Persistent and then Connection.Retry = 0 then
          --  In this case the connection termination can be initiated by the
@@ -924,21 +1053,13 @@ package body AWS.Client is
       Sock      : Net.Socket_Access := Connection.Socket;
       No_Data   : Unbounded_String renames Null_Unbounded_String;
 
-      procedure Send_Authentication_Header
-        (Token : in     String;
-         Data  : in out Authentication_Type);
-      --  Send the authentication header for proxy or for server
-
       function HTTP_Prefix (Security : in Boolean) return String;
       --  Returns "http://" or "https://" if Security is set to True
 
       function Persistence return String;
+      pragma Inline (Persistence);
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
       --  otherwise.
-
-      function Port_Not_Default (Port : in Positive) return String;
-      --  Returns the port image (preceded by character ':') if it is not the
-      --  default port.
 
       -----------------
       -- HTTP_Prefix --
@@ -966,147 +1087,6 @@ package body AWS.Client is
          end if;
       end Persistence;
 
-      ----------------------
-      -- Port_Not_Default --
-      ----------------------
-
-      function Port_Not_Default (Port : in Positive) return String is
-      begin
-         if Port = 80 then
-            return "";
-         else
-            declare
-               Port_Image : constant String := Positive'Image (Port);
-            begin
-               return ':' & Port_Image (2 .. Port_Image'Last);
-            end;
-         end if;
-      end Port_Not_Default;
-
-      --------------------------------
-      -- Send_Authentication_Header --
-      --------------------------------
-
-      procedure Send_Authentication_Header
-        (Token : in     String;
-         Data  : in out Authentication_Type)
-      is
-         User : constant String := To_String (Data.User);
-         Pwd  : constant String := To_String (Data.Pwd);
-      begin
-         if User /= No_Data and then Pwd /= No_Data then
-
-            if Data.Work_Mode = Basic then
-               Send_Header
-                 (Sock.all,
-                  Token & ": Basic "
-                    & AWS.Translator.Base64_Encode (User & ':' & Pwd));
-
-            elsif Data.Work_Mode = Digest then
-
-               declare
-                  Nonce : constant String := To_String (Data.Nonce);
-                  Realm : constant String := To_String (Data.Realm);
-                  QOP   : constant String := To_String (Data.QOP);
-
-                  function Get_URI return String;
-                  --  Returns the real URI where the request is going to be
-                  --  sent. It is either Open_Send_Common_Header.URI parameter
-                  --  if it exists (without the HTTP parameters part), or URI
-                  --  part of the Connection.Connect_URL field.
-
-                  function QOP_Data return String;
-                  --  Returns string with qop, cnonce and nc parameters
-                  --  if qop parameter exists in the server auth request,
-                  --  or empty string if not [RFC 2617 - 3.2.2].
-
-                  Response : AWS.Digest.Digest_String;
-
-                  -------------
-                  -- Get_URI --
-                  -------------
-
-                  function Get_URI return String is
-                     URI_Last : Natural;
-                  begin
-                     if URI = "" then
-                        return URL.Path (Connection.Connect_URL)
-                          & URL.File (Connection.Connect_URL);
-                     else
-                        URI_Last := Strings.Fixed.Index (URI, "?");
-
-                        if URI_Last = 0 then
-                           URI_Last := URI'Last;
-                        else
-                           URI_Last := URI_Last - 1;
-                        end if;
-
-                        return URI (URI'First .. URI_Last);
-                     end if;
-                  end Get_URI;
-
-                  URI : constant String := Get_URI;
-
-                  --------------
-                  -- QOP_Data --
-                  --------------
-
-                  function QOP_Data return String is
-                     CNonce : constant AWS.Digest.Nonce
-                       := AWS.Digest.Create_Nonce;
-                  begin
-                     if QOP = No_Data then
-                        Response := AWS.Digest.Create
-                          (Username => User,
-                           Realm    => Realm,
-                           Password => Pwd,
-                           Nonce    => Nonce,
-                           Method   => Method,
-                           URI      => URI);
-                        return "";
-
-                     else
-                        Data.NC := Data.NC + 1;
-
-                        declare
-                           NC : constant String := Utils.Hex (Data.NC, 8);
-                        begin
-                           Response := AWS.Digest.Create
-                             (Username => User,
-                              Realm    => Realm,
-                              Password => Pwd,
-                              Nonce    => Nonce,
-                              CNonce   => String (CNonce),
-                              NC       => NC,
-                              QOP      => QOP,
-                              Method   => Method,
-                              URI      => URI);
-
-                           return "qop=""" & QOP
-                             & """, cnonce=""" & String (CNonce)
-                             & """, nc=" & NC
-                             & ", ";
-                        end;
-                     end if;
-                  end QOP_Data;
-
-               begin
-                  Send_Header
-                    (Sock.all,
-                     Token & ": Digest "
-                       & QOP_Data
-                       & "nonce=""" & Nonce
-                       & """, username=""" & User
-                       & """, realm=""" & Realm
-                       & """, uri=""" & URI
-                       & """, response=""" & Response
-                       & """");
-               end;
-
-            end if;
-         end if;
-      end Send_Authentication_Header;
-
       Host_Address : constant String
         := AWS.URL.Host (Connection.Host_URL)
              & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
@@ -1117,91 +1097,6 @@ package body AWS.Client is
       if not Connection.Opened then
          Connect (Connection);
          Sock := Connection.Socket;
-
-         if AWS.URL.Security (Connection.Host_URL)
-           and then Connection.Proxy /= No_Data
-         then
-            --  We want to connect to the host using HTTPS, this can only be
-            --  done by opening a tunnel through the proxy.
-            --
-            --  CONNECT <host> HTTP/1.1
-            --  Host: <host>
-            --  [Proxy-Authorization: xxxx]
-            --  <other headers>
-            --  <empty line>
-
-            Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
-
-            Send_Header
-              (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
-            Send_Header
-              (Sock.all, Messages.Host (Host_Address));
-
-            --  Proxy Authentication
-
-            Send_Authentication_Header
-              (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
-
-            Send_Header
-              (Sock.all,
-               Messages.User_Agent (To_String (Connection.User_Agent)));
-
-            Send_Header
-              (Sock.all, Messages.Proxy_Connection (Persistence));
-
-            --  Empty line to terminate the connect
-
-            Net.Buffered.New_Line (Sock.all);
-
-            --  Wait for reply from the proxy, and check status
-
-            Net.Set_Timeout (Sock.all, Connection.Read_Timeout);
-
-            declare
-               use type Messages.Status_Code;
-               Line   : constant String := Net.Buffered.Get_Line (Sock.all);
-               Status : Messages.Status_Code;
-            begin
-               Debug_Message ("< ", Line);
-
-               Status := Messages.Status_Code'Value
-                 ('S' & Line (Messages.HTTP_Token'Length + 5
-                              .. Messages.HTTP_Token'Length + 7));
-
-               if Status >= Messages.S400 then
-                  Exceptions.Raise_Exception
-                    (Connection_Error'Identity,
-                     Message => "Can't connect to proxy, status "
-                     & Messages.Image (Status));
-               end if;
-            end;
-
-            --  Ignore all remainings lines
-
-            loop
-               declare
-                  Line : constant String := Net.Buffered.Get_Line (Sock.all);
-               begin
-                  Debug_Message ("< ", Line);
-                  exit when Line = "";
-               end;
-            end loop;
-
-            --  Now the tunnel is open, we need to create an SSL connection
-            --  around this tunnel.
-
-            declare
-               procedure Free is new Ada.Unchecked_Deallocation
-                 (Net.Socket_Type'Class, Net.Socket_Access);
-
-               S : constant Net.Std.Socket_Type
-                 := Net.Std.Socket_Type (Sock.all);
-            begin
-               Free (Sock);
-               Sock := new Net.SSL.Socket_Type'(Net.SSL.Secure_Client (S));
-               Connection.Socket := Sock;
-            end;
-         end if;
       end if;
 
       Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
@@ -1263,7 +1158,11 @@ package body AWS.Client is
          --  Proxy Authentication
 
          Send_Authentication_Header
-           (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
+           (Connection,
+            Messages.Proxy_Authorization_Token,
+            Connection.Auth (Proxy),
+            URI,
+            Method);
       end if;
 
       --  Cookie
@@ -1291,7 +1190,11 @@ package body AWS.Client is
       --  User Authentication
 
       Send_Authentication_Header
-        (Messages.Authorization_Token, Connection.Auth (WWW));
+        (Connection,
+         Messages.Authorization_Token,
+         Connection.Auth (WWW),
+         URI,
+         Method);
 
    end Open_Send_Common_Header;
 
@@ -1612,6 +1515,23 @@ package body AWS.Client is
         (Proxy,
          Response.Header (Answer, Messages.Proxy_Authenticate_Token));
    end Parse_Header;
+
+   ----------------------
+   -- Port_Not_Default --
+   ----------------------
+
+   function Port_Not_Default (Port : in Positive) return String is
+   begin
+      if Port = 80 then
+         return "";
+      else
+         declare
+            Port_Image : constant String := Positive'Image (Port);
+         begin
+            return ':' & Port_Image (2 .. Port_Image'Last);
+         end;
+      end if;
+   end Port_Not_Default;
 
    ----------
    -- Post --
@@ -2049,6 +1969,133 @@ package body AWS.Client is
          Append (Result, Buffer);
       end loop Main;
    end Read_Until;
+
+   --------------------------------
+   -- Send_Authentication_Header --
+   --------------------------------
+
+   procedure Send_Authentication_Header
+     (Connection : in out HTTP_Connection;
+      Token      : in     String;
+      Data       : in out Authentication_Type;
+      URI        : in     String;
+      Method     : in     String)
+   is
+      User : constant String := To_String (Data.User);
+      Pwd  : constant String := To_String (Data.Pwd);
+   begin
+      if User /= No_Data and then Pwd /= No_Data then
+
+         if Data.Work_Mode = Basic then
+            Send_Header
+              (Connection.Socket.all,
+               Token & ": Basic "
+                 & AWS.Translator.Base64_Encode (User & ':' & Pwd));
+
+         elsif Data.Work_Mode = Digest then
+
+            declare
+               Nonce : constant String := To_String (Data.Nonce);
+               Realm : constant String := To_String (Data.Realm);
+               QOP   : constant String := To_String (Data.QOP);
+
+               function Get_URI return String;
+               --  Returns the real URI where the request is going to be
+               --  sent. It is either Open_Send_Common_Header.URI parameter
+               --  if it exists (without the HTTP parameters part), or URI
+               --  part of the Connection.Connect_URL field.
+
+               function QOP_Data return String;
+               --  Returns string with qop, cnonce and nc parameters
+               --  if qop parameter exists in the server auth request,
+               --  or empty string if not [RFC 2617 - 3.2.2].
+
+               Response : AWS.Digest.Digest_String;
+
+               -------------
+               -- Get_URI --
+               -------------
+
+               function Get_URI return String is
+                  URI_Last : Natural;
+               begin
+                  if URI = "" then
+                     return URL.Path (Connection.Connect_URL)
+                       & URL.File (Connection.Connect_URL);
+                  else
+                     URI_Last := Strings.Fixed.Index (URI, "?");
+
+                     if URI_Last = 0 then
+                        URI_Last := URI'Last;
+                     else
+                        URI_Last := URI_Last - 1;
+                     end if;
+
+                     return URI (URI'First .. URI_Last);
+                  end if;
+               end Get_URI;
+
+               URI : constant String := Get_URI;
+
+               --------------
+               -- QOP_Data --
+               --------------
+
+               function QOP_Data return String is
+                  CNonce : constant AWS.Digest.Nonce
+                    := AWS.Digest.Create_Nonce;
+               begin
+                  if QOP = No_Data then
+                     Response := AWS.Digest.Create
+                       (Username => User,
+                        Realm    => Realm,
+                        Password => Pwd,
+                        Nonce    => Nonce,
+                        Method   => Method,
+                        URI      => URI);
+                     return "";
+
+                  else
+                     Data.NC := Data.NC + 1;
+
+                     declare
+                        NC : constant String := Utils.Hex (Data.NC, 8);
+                     begin
+                        Response := AWS.Digest.Create
+                          (Username => User,
+                           Realm    => Realm,
+                           Password => Pwd,
+                           Nonce    => Nonce,
+                           CNonce   => String (CNonce),
+                           NC       => NC,
+                           QOP      => QOP,
+                           Method   => Method,
+                           URI      => URI);
+
+                        return "qop=""" & QOP
+                          & """, cnonce=""" & String (CNonce)
+                          & """, nc=" & NC
+                          & ", ";
+                     end;
+                  end if;
+               end QOP_Data;
+
+            begin
+               Send_Header
+                 (Connection.Socket.all,
+                  Token & ": Digest "
+                    & QOP_Data
+                    & "nonce=""" & Nonce
+                    & """, username=""" & User
+                    & """, realm=""" & Realm
+                    & """, uri=""" & URI
+                    & """, response=""" & Response
+                    & """");
+            end;
+
+         end if;
+      end if;
+   end Send_Authentication_Header;
 
    -----------------
    -- Send_Header --
