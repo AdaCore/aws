@@ -5,7 +5,7 @@
       PATH environment variable.
 
    2. gnatmake should be called with a 
-      -largs -L{AWS Directory}/win32/ -lssl -lcrypto
+      -largs -L{AWS Directory}/lib/ -lssl -lcrypto
       parameters
 
    Note that the libssl.a and libcrypto.a import libraries will be created
