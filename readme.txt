@@ -41,6 +41,33 @@ Here are the main changes since AWS 1.4 :
      wsdl2aws will not generate records or arrays, instead it will use them
      from the specified Ada spec.
 
+   - Some improvement in the generated AWS/SOAP code from WSDL
+     document. In the generated stub uses properly the
+     Types.To_SOAP_Object routine.
+
+   - Add support for transient pages. These are stream objects that
+     are not released by the server. Transient pages are released by a
+     cleaner task after a certain amount of time. To enable transient
+     pages it is required to use the transient pages dispatcher (see
+     AWS.Services.Transient_Pages and
+     AWS.Services.Dispatchers.Transient_Pages).
+
+   - Add a page splitter. This can be used to split a response in
+     multiple pages avoiding very large Web pages. Specific tags to
+     navigate (PREVIOUS, NEXT, CURRENT_PAGE...) are generated and can
+     be used in the template page. A set of vector tags are also
+     available to setup a page index. (See AWS.Services.Split_Pages).
+
+   - A new Response.File option "Once" can be used to remove a file
+     after sending it. This is useful if a temporary file is prepared
+     for the response as it will be removed automatically.
+
+   - A new kind of stream (AWS.Resources.Stream.Disk) has been
+     implemented. The AWS.Resources.File API is based on it.
+ 
+   - Fix WSDL SOAP record handling (code for record in record was
+     sometimes not correctly generated).
+
 
 Non upward compatible changes
 -----------------------------
