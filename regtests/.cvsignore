@@ -5,6 +5,8 @@ b~dummy.adb
 b~dummy.ads
 b~head.adb
 b~head.ads
+b~hval.adb
+b~hval.ads
 b~moved.adb
 b~moved.ads
 b~param.adb
@@ -43,6 +45,8 @@ b~turl2.adb
 b~turl2.ads
 b~turl3.adb
 b~turl3.ads
+b~turl4.adb
+b~turl4.ads
 b~unexph.adb
 b~unexph.ads
 b~upload.adb
@@ -55,6 +59,7 @@ file1.html
 file2.html
 file3.html
 head.res
+hval.res
 moved.res
 param.res
 shutdown.res
@@ -81,6 +86,7 @@ tresres.ads
 turl.res
 turl2.res
 turl3.res
+turl4.res
 unexph.res
 upload.res
 workorder.res
