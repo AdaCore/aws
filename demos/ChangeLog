@@ -1,3 +1,11 @@
+2004-11-16  Pascal Obry  <obry@adacore.com>
+
+	* demos.gpr, demos_ssl.gpr:
+	(Binder): New package renamed from Demos_Shared.Binder.
+
+	* demos_shared.gpr:
+	(Binder): New package (Add option -E).
+
 2004-11-13  Pascal Obry  <pascal@obry.org>
 
 	* runme_cb.adb:
