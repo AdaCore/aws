@@ -42,6 +42,7 @@ package body AWS.Config is
    Admin_URI_Value          : Unbounded_String := To_Unbounded_String ("");
    Server_Name_Value        : Unbounded_String := To_Unbounded_String ("");
    Log_File_Directory_Value : Unbounded_String := To_Unbounded_String ("./");
+   Upload_Directory_Value   : Unbounded_String := To_Unbounded_String ("./");
    Max_Connection_Value     : Positive := 3;
    Server_Port_Value        : Positive := 8080;
 
@@ -125,6 +126,15 @@ package body AWS.Config is
                              := To_Unbounded_String (Value & '/');
                         end if;
 
+                     elsif Key = "Upload_Directory" then
+                        if Value (Value'Last) = '/' then
+                           Upload_Directory_Value
+                             := To_Unbounded_String (Value);
+                        else
+                           Upload_Directory_Value
+                             := To_Unbounded_String (Value & '/');
+                        end if;
+
                      elsif Key = "Max_Connection" then
                         begin
                            Max_Connection_Value := Positive'Value (Value);
@@ -193,6 +203,15 @@ package body AWS.Config is
    begin
       return Server_Port_Value;
    end Server_Port;
+
+   ----------------------
+   -- Upload_Directory --
+   ----------------------
+
+   function Upload_Directory return String is
+   begin
+      return To_String (Upload_Directory_Value);
+   end Upload_Directory;
 
 begin
    Initialize;
