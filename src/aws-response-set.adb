@@ -204,8 +204,18 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : in     Streams.Stream_Element_Array) is
    begin
-      Free (D.Message_Body);
+      Utils.Free (D.Message_Body);
       D.Message_Body   := new Streams.Stream_Element_Array'(Value);
+      D.Content_Length := Value'Length;
+      D.Mode           := Message;
+   end Message_Body;
+
+   procedure Message_Body
+     (D     : in out Data;
+      Value : in     Utils.Stream_Element_Array_Access) is
+   begin
+      Utils.Free (D.Message_Body);
+      D.Message_Body   := Value;
       D.Content_Length := Value'Length;
       D.Mode           := Message;
    end Message_Body;
