@@ -120,7 +120,7 @@ package body AWS.Status is
    -- Parameter --
    ---------------
 
-   --  ??? this implementation is far from beein efficent and should be
+   --  ??? this implementation is far from being efficent and should be
    --  reimplemented a some point.
 
    function Parameter (D : in Data; N : in Positive) return String is
@@ -151,7 +151,7 @@ package body AWS.Status is
 
    function Parameter (D              : in Data;
                        Name           : in String;
-                       Case_Sensitive : in Boolean := False) return String
+                       Case_Sensitive : in Boolean := True) return String
    is
 
       use Ada;
@@ -197,6 +197,34 @@ package body AWS.Status is
          end if;
       end loop;
    end Parameter;
+
+   --------------------
+   -- Parameter_Name --
+   --------------------
+
+   function Parameter_Name (D : in Data; N : in Positive) return String is
+      P : constant String := To_String (D.Parameters);
+      I : Natural := 0;
+      S : Positive := 1;
+      E : Natural;
+
+   begin
+      for K in 1 .. N loop
+         S := I + 1;
+         I := Fixed.Index (P (S .. P'Last), "=");
+
+         if I = 0 then
+            return "";
+         end if;
+      end loop;
+
+      if N = 1 then
+         return P (S .. I - 1);
+      else
+         E := Fixed.Index (P (S .. I), "&");
+         return P (E + 1 .. I - 1);
+      end if;
+   end Parameter_Name;
 
    --------------------
    -- Set_Connection --
