@@ -1,3 +1,18 @@
+2001-07-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb: 
+	(Destroy):
+	(Generate_ID): new function.
+	(Key_Exist): avoid raising an exception if the SID is not present
+	 into the sessions table.
+	(New_Session): use now Generate_ID to generate a uniq session ID.
+	(Image): update to use new SID implementation.
+	(Value): update to use new SID implementation.
+
+	* aws-session.ads:
+	(ID): type changed from an integer to a string.
+	Minor style fix.
+
 2001-07-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
