@@ -47,7 +47,7 @@ package body AWS.Resources.Files is
    begin
       return OS_Lib.File_Size (Name);
    exception
-      when others =>
+      when OS_Lib.No_Such_File =>
          raise Resource_Error;
    end File_Size;
 
@@ -59,7 +59,7 @@ package body AWS.Resources.Files is
    begin
       return OS_Lib.File_Timestamp (Name);
    exception
-      when others =>
+      when OS_Lib.No_Such_File =>
          raise Resource_Error;
    end File_Timestamp;
 
@@ -70,9 +70,6 @@ package body AWS.Resources.Files is
    function Is_Regular_File (Name : in String) return Boolean is
    begin
       return OS_Lib.Is_Regular_File (Name);
-   exception
-      when others =>
-         raise Resource_Error;
    end Is_Regular_File;
 
    ----------
