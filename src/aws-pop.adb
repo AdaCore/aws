@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -53,9 +53,6 @@ package body AWS.POP is
    subtype Stream_Type is AWS.Resources.Streams.Memory.Stream_Type;
 
    CRLF : constant String := ASCII.CR & ASCII.LF;
-
-   Content_Transfer_Encoding : constant String := "Content-Transfer-Encoding";
-   Content_Disposition       : constant String := "Content-Disposition";
 
    procedure Check_Response (Response : in String);
    --  Checks server's response, raise POP_Error with server's message
@@ -343,15 +340,17 @@ package body AWS.POP is
 
          Base64 := Headers.Get
            (Attachment.Headers,
-            Content_Transfer_Encoding) = "base64";
+            Messages.Content_Transfer_Encoding_Token) = "base64";
 
          --  Check for filename
 
          declare
             Filename : constant String
               := Headers.Values.Search
-                   (Headers.Get (Attachment.Headers, Content_Disposition),
-                   "filename");
+                   (Headers.Get
+                    (Attachment.Headers,
+                     Messages.Content_Disposition_Token),
+                    "filename");
          begin
             if Filename /= "" then
                Attachment.Filename := To_Unbounded_String (Filename);
