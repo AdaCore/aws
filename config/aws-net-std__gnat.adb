@@ -354,7 +354,7 @@ package body AWS.Net.Std is
 
             Sockets.Close_Socket (SFD (Socket.S.all));
          exception
-            when Sockets.Socket_Error =>
+            when Sockets.Socket_Error | Constraint_Error =>
                null;
          end;
       end if;
