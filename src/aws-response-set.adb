@@ -304,6 +304,7 @@ package body AWS.Response.Set is
             Translator.To_Stream_Element_Array (Slice (Value, First, Last)));
 
          First := Last + 1;
+
          exit when First > Len;
       end loop;
    end Message_Body;
