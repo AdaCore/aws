@@ -1,5 +1,20 @@
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	(Default_Unexpected_Exception_Handler): Put the exception message
+	 for internal 500 response into an HTML <pre> tag.
+
+2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Fix cut&paste error in previous check-in.
+
+	* aws-server.adb:
+	(Default_Unexpected_Exception_Handler): Add pragma unreferenced
+	 for Log. Avoid warnings.
+	
+2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-exceptions.ads:
 	Update comment.
 
