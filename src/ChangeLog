@@ -1,3 +1,16 @@
+2003-08-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-session.adb:
+	(Database.Get_Value.Modify): Use pragma Unreferenced instead
+	 of pragma Warning. Use new Key_Value.Get_Value routine instead
+	 of exception handling in case of key absent.
+	(Database.Unsafe_Delete_Session): Use Session_Set.Remove with
+	 Was_Present flag instead of exception handling.
+
+	* aws-containers-tables.adb
+	(Get_Indexes): Use new Index_Table.Get_Value routine instead of
+	 generic instantiation of Update_Value_Or_Status_G.
+
 2003-08-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.ads:
