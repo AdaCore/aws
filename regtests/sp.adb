@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -54,4 +54,6 @@ begin
       Max_Connection => 3);
 
    Client_Process ("http://localhost:" & AWS.Utils.Image (Port));
+
+   AWS.Server.Shutdown (HTTP);
 end Sp;
