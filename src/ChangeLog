@@ -1,5 +1,33 @@
 2004-05-27  Pascal Obry  <pascal@obry.org>
 
+	* aws-client.adb:
+	(Skip_Line): Add comment.
+	(Read_Limited): Add comment. Set Limit to constant.
+	 Minor reformatting.
+
+	* aws-containers-tables.ads:
+	(Index_Access): Removed.
+	(Table_Type): Index is now an Index_Table.Map, we do not need the
+	 access type anymore.
+	
+	* aws-containers-tables.adb:
+	Update comments at the top of the unit.
+	(Get_Indexes): Simplify code, we do not need to check for null
+	 Table.Index.
+	(Get_Names): Idem.
+	(Name_Count): Idem.
+	(Get_Name): Remove assert pragma for Table.Index /= null.
+	(Get_Value): Idem.
+	(Get_Values): Idem.
+
+	* aws-containers-tables-set.adb:
+	(Add): Update code to new Index type.
+	(Update): Idem.
+	(Free): Simplify code, we do not need to check for null.
+	(Reset): Idem.
+
+2004-05-27  Pascal Obry  <pascal@obry.org>
+
 	* aws-client.ads:
 	Minor reformatting.
 	
