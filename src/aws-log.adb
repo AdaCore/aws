@@ -53,45 +53,54 @@ package body AWS.Log is
    Split         : Split_Mode;
    Current_Tag   : Positive;
 
-   function Log_Prefix return String;
+   function Log_Prefix (Prefix : in String) return String;
    --  Returns the prefix to be added before the log filename. The returned
-   --  value is the executable name without directory and filetype.
+   --  value is the executable name without directory and filetype if Prefix
+   --  is No_Prefix otherwise Prefix is returned.
 
    ----------------
    -- Log_Prefix --
    ----------------
 
-   function Log_Prefix return String is
+   function Log_Prefix (Prefix : in String) return String is
       Name  : constant String := Ada.Command_Line.Command_Name;
       First : Natural;
       Last  : Natural;
    begin
-      First := Strings.Fixed.Index
-        (Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
+      if Prefix = No_Prefix then
+         First := Strings.Fixed.Index
+           (Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
 
-      if First = 0 then
-         First := Name'First;
+         if First = 0 then
+            First := Name'First;
+         else
+            First := First + 1;
+         end if;
+
+         Last := Strings.Fixed.Index
+           (Name (First .. Name'Last), ".", Strings.Backward);
+
+         if Last = 0 then
+            Last := Name'Last;
+         else
+            Last := Last - 1;
+         end if;
+
+         return AWS.Config.Log_File_Directory & Name (First .. Last);
+
       else
-         First := First + 1;
+         return Prefix;
       end if;
-
-      Last := Strings.Fixed.Index
-        (Name (First .. Name'Last), ".", Strings.Backward);
-
-      if Last = 0 then
-         Last := Name'Last;
-      else
-         Last := Last - 1;
-      end if;
-
-      return AWS.Config.Log_File_Directory & Name (First .. Last);
    end Log_Prefix;
 
    -----------
    -- Start --
    -----------
 
-   procedure Start (Split : in Split_Mode := None) is
+   procedure Start
+     (Split           : in Split_Mode := None;
+      Log_File_Prefix : in String     := No_Prefix)
+   is
       Now      : constant Calendar.Time := Calendar.Clock;
       Filename : Unbounded_String;
       use GNAT;
@@ -100,7 +109,7 @@ package body AWS.Log is
       Log.Split     := Split;
 
       Filename := To_Unbounded_String
-        (Log_Prefix
+        (Log_Prefix (Log_File_Prefix)
          & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d.log"));
 
       case Split is
@@ -114,7 +123,7 @@ package body AWS.Log is
                exit when not OS_Lib.Is_Regular_File (To_String (Filename));
 
                Filename := To_Unbounded_String
-                 (Log_Prefix
+                 (Log_Prefix (Log_File_Prefix)
                   & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d-")
                   & Utils.Image (K) & ".log");
             end loop;
