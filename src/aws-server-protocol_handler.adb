@@ -91,6 +91,7 @@ is
    ----------------------
 
    procedure Answer_To_Client is
+
       use type Messages.Status_Code;
       use type Response.Data_Mode;
 
@@ -397,6 +398,8 @@ is
    begin
       loop
          begin
+            HTTP_Server.Slots.Set_Abortable (Index, True);
+
             declare
                Data : constant String := Sockets.Get_Line (Sock);
             begin
@@ -763,8 +766,6 @@ begin
    --  so or if we time-out on waiting for a request.
 
    For_Every_Request : loop
-
-      HTTP_Server.Slots.Set_Abortable (Index, True);
 
       Get_Message_Header;
 
