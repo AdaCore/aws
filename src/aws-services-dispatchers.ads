@@ -30,7 +30,6 @@
 
 --  $Id$
 
-with Ada.Unchecked_Deallocation;
 with Ada.Finalization;
 
 with AWS.Response;
@@ -65,6 +64,8 @@ package AWS.Services.Dispatchers is
    procedure Initialize (Dispatcher : in out Handler);
    procedure Adjust     (Dispatcher : in out Handler);
    procedure Finalize   (Dispatcher : in out Handler);
+   --  Initialize/Adjust/Finalize is doing the reference counting, children
+   --  should just call these routines if posssible.
 
    function Dispatch
      (Dispatcher : in Handler;
