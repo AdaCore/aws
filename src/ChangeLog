@@ -1,3 +1,81 @@
+2002-02-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-push.ads:
+	A lot of changes in the spec to make this interface easier to use
+	 and understand. Add lot of comments.
+
+	* aws-services-dispatchers-callback.ads,
+	  aws-services-dispatchers-callback.ads:
+	Initial revision.
+	
+	* aws-services-dispatchers-method.ads,
+	  aws-services-dispatchers-method.adb: 
+	Initial revision.
+
+	* aws-services-dispatchers-uri.ads, aws-services-dispatchers-uri.adb:
+	Initial revision.
+
+	* aws-services-dispatchers-virtual_host.ads, 
+	  aws-services-dispatchers-virtual_host.adb:
+	Initial revision.
+
+	* aws-services-dispatchers.ads, aws-services-dispatchers.adb:
+	Initial revision.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Clien): Call dispatcher instead of Callback.
+	Minor reformatting.
+	
+	* aws-default.ads:
+	(Line_Stack_Size): New constant.
+
+	* aws-config.ads, aws-config.adb,
+	  aws-config-set.ads, aws-config-set.adb:
+	(Line_Stack_Size): New procedure.
+	Handle Line_Stack_Size.
+
+	* aws-server.adb:
+	(Accept_Socket_Serialize): New function.
+	(Start): Remove version with a Callback and add version with a
+	 Dispatcher.
+	(Line): Call Accept_Socket_Serialized.
+	(Semaphore): New protected type used to serialize the Accept
+	 statements.
+	(Slots.Release): Add some Assert pragmas.
+	(Slots.Release): Idem. Add exception handler.
+	(Start): New version using a Dispatcher.
+	(Start): Add Line_Stack_Size.
+	Minor reformatting.
+	
+	* aws-server.ads:
+	(Def_Line_Stack_Size): New constant.
+	(Start): New version using a Dispatcher.
+	(Start): Add Line_Stack_Size.
+	(Line): Add pragma  Storage_Size.
+	(Semaphore): New protected type used to serialize the Accept
+	 statements.
+	(Shutdown): Free Lines.
+	(Line_Access): New type.
+	(Line_Set): Now an array of Line_Access.
+	(HTTP.Sock_Sem): New field (Semaphore).
+	(HTTP.CB): Removed.
+	(HTTP.Dispatcher): Replace CB since now every callback is based on
+	 a more general dispatcher feature.
+
+	* aws-services.ads:
+	Add some comments.
+
+2002-02-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(SOAP_Post): New routine.
+	Patch from Wiljan Derks.
+	(Cleaner_Task): Correctly free memory used by the socket.
+	
+	* aws-client.ads:
+	(SOAP_Post): New routine.
+	Patch from Wiljan Derks.
+
 2002-02-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
