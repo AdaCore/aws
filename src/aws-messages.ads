@@ -71,6 +71,10 @@ package AWS.Messages is
    subtype Transfer_Encoding_Range is
      Positive range Transfer_Encoding_Token'Range;
 
+   Cookie_Token : constant String := "Cookie: ";
+   subtype Cookie_Range is
+     Positive range Cookie_Token'Range;
+
    Form_Data : constant String := "application/x-www-form-urlencoded";
 
    type Status_Code is
