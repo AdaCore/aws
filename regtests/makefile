@@ -58,7 +58,7 @@ ifdef ASIS
 # and 9. Socket port is then 770<digit>.
 
 ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8
-ASIS2_TESTS  = wsdl_a wsdl_b
+ASIS2_TESTS  = wsdl_a wsdl_b register
 endif
 
 SPEC_TESTS   = $(ALONE_TESTS) $(OTH_TESTS)
