@@ -568,6 +568,9 @@ package body AWS.Jabber is
       or
          --  Or stop now if the connection is closed before it is started
          accept Stop;
+
+      or
+         terminate;
       end select;
 
    exception
