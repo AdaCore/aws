@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                            Copyright (C) 2003                            --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -63,6 +63,10 @@ package body AWS.LDAP.Client is
    function Attrib (Name, Value : in String) return String;
    pragma Inline (Attrib);
    --  Returns Name or Name=Value if Value is not the empty string.
+
+   procedure Check_Handle (Dir : in Directory);
+   pragma Inline (Check_Handle);
+   --  Raises LDAP_Error if Dir is Null_Directory.
 
    ------------
    -- Attrib --
@@ -136,6 +140,8 @@ package body AWS.LDAP.Client is
       C_Login    : chars_ptr := New_String (Login);
       C_Password : chars_ptr := New_String (Password);
    begin
+      Check_Handle (Dir);
+
       Res := Thin.ldap_simple_bind_s (Dir, C_Login, C_Password);
 
       Free (C_Login);
@@ -204,6 +210,18 @@ package body AWS.LDAP.Client is
       end if;
    end Cat;
 
+   ------------------
+   -- Check_Handle --
+   ------------------
+
+   procedure Check_Handle (Dir : in Directory) is
+   begin
+      if not Is_Open (Dir) then
+         Raise_Error
+           (Thin.LDAP_OPERATIONS_ERROR, "Handle is not initialized.");
+      end if;
+   end Check_Handle;
+
    --------
    -- cn --
    --------
@@ -222,6 +240,7 @@ package body AWS.LDAP.Client is
       Chain : in LDAP_Message)
       return Natural is
    begin
+      Check_Handle (Dir);
       return Natural (Thin.ldap_count_entries (Dir, Chain));
    end Count_Entries;
 
@@ -292,6 +311,8 @@ package body AWS.LDAP.Client is
    is
       Result : chars_ptr;
    begin
+      Check_Handle (Dir);
+
       Result := Thin.ldap_first_attribute (Dir, Node, BER);
 
       declare
@@ -311,6 +332,7 @@ package body AWS.LDAP.Client is
       Chain : in LDAP_Message)
       return LDAP_Message is
    begin
+      Check_Handle (Dir);
       return Thin.ldap_first_entry (Dir, Chain);
    end First_Entry;
 
@@ -325,6 +347,8 @@ package body AWS.LDAP.Client is
       BER  : aliased LDAP.Client.BER_Element;
       Quit : Boolean;
    begin
+      Check_Handle (Dir);
+
       declare
          Attrs : constant String
            := LDAP.Client.First_Attribute (Dir, Node, BER'Unchecked_Access);
@@ -361,6 +385,8 @@ package body AWS.LDAP.Client is
       Message : LDAP_Message;
       Quit    : Boolean;
    begin
+      Check_Handle (Dir);
+
       Message := LDAP.Client.First_Entry (Dir, Chain);
 
       while Message /= Null_LDAP_Message loop
@@ -398,6 +424,8 @@ package body AWS.LDAP.Client is
    is
       Result : chars_ptr;
    begin
+      Check_Handle (Dir);
+
       Result := Thin.ldap_get_dn (Dir, Node);
       return Value (Result);
    end Get_DN;
@@ -452,6 +480,8 @@ package body AWS.LDAP.Client is
       Attribs  : Thin.Attribute_Set_Access;
       N        : Natural := 0;
    begin
+      Check_Handle (Dir);
+
       Attribs := Thin.ldap_get_values (Dir, Node, C_Target);
       Free (C_Target);
 
@@ -540,6 +570,8 @@ package body AWS.LDAP.Client is
    is
       Result : chars_ptr;
    begin
+      Check_Handle (Dir);
+
       Result := Thin.ldap_next_attribute (Dir, Node, BER);
 
       if Result = Null_Ptr then
@@ -564,6 +596,7 @@ package body AWS.LDAP.Client is
       Entries : in LDAP_Message)
       return LDAP_Message is
    begin
+      Check_Handle (Dir);
       return Thin.ldap_next_entry (Dir, Entries);
    end Next_Entry;
 
@@ -616,6 +649,8 @@ package body AWS.LDAP.Client is
       C_Filter   : chars_ptr := New_String (Filter);
       Result     : aliased LDAP_Message;
    begin
+      Check_Handle (Dir);
+
       if Attrs = Null_Set then
          Res := Thin.ldap_search_s
            (Dir, C_Base, C_Scope (Scope), C_Filter, Null_Ptr,
@@ -709,8 +744,10 @@ package body AWS.LDAP.Client is
    procedure Unbind (Dir : in out Directory) is
       Res : IC.int;
    begin
-      Res := Thin.ldap_unbind_s (Dir);
-      Dir := Null_Directory;
+      if Is_Open (Dir) then
+         Res := Thin.ldap_unbind_s (Dir);
+         Dir := Null_Directory;
+      end if;
    end Unbind;
 
 end AWS.LDAP.Client;
