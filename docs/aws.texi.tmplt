@@ -4295,6 +4295,10 @@ parameters.
 Force creation of the file. Overwrite any exiting files with the same
 name.
 
+@item -e
+Specify the default endpoint to use instead of the one found in the
+WSDL document.
+
 @item -s
 Skip non supported @code{SOAP} routines. If @code{-s} is not used,
 @code{wsdl2aws} will exit with an error when a problem is found while
