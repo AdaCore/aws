@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<definitions name="interopLab" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:w="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://soapinterop.org/xsd" xmlns:tns="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mstk2="http://schemas.microsoft.com/soap-toolkit/wsdl-extension" xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab">
+<definitions name="interopLab" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:w="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://t_soapinterop.org/xsd" xmlns:tns="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mstk2="http://schemas.microsoft.com/soap-toolkit/wsdl-extension" xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://tempuri.org/4s4c/1/3/wsdl/def/interopLab">
 	<types>
-		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://soapinterop.org/xsd">
+		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://t_soapinterop.org/xsd">
 			<import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
 			<complexType name="ArrayOfstring">
 				<complexContent>
@@ -182,111 +182,111 @@
 		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
 		<mstk2:binding preferredEncoding="UTF-8"/>
 		<operation name="echoVoid">
-			<soap:operation soapAction="http://soapinterop.org/#echoVoid"/>
+			<soap:operation soapAction="http://t_soapinterop.org/#echoVoid"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoString">
-			<soap:operation soapAction="http://soapinterop.org/#echoString"/>
+			<soap:operation soapAction="http://t_soapinterop.org/#echoString"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoStringArray">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoInteger">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoIntegerArray">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoFloat">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoFloatArray">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoStruct">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoStructArray">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoDate">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoBase64">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 		<operation name="echoBoolean">
-			<soap:operation soapAction="http://soapinterop.org/"/>
+			<soap:operation soapAction="http://t_soapinterop.org/"/>
 			<input>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</input>
 			<output>
-				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+				<soap:body use="encoded" namespace="http://t_soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
 			</output>
 		</operation>
 	</binding>
