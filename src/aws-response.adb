@@ -101,8 +101,13 @@ package body AWS.Response is
    ------------
 
    function Binary (D : in Data) return Streams.Stream_Element_Array is
+      No_Data : constant Streams.Stream_Element_Array := (1 .. 0 => 0);
    begin
-      return D.Elements.all;
+      if D.Elements = null then
+         return No_Data;
+      else
+         return D.Elements.all;
+      end if;
    end Binary;
 
    -----------
