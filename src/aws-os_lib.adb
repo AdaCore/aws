@@ -141,7 +141,7 @@ package body AWS.OS_Lib is
       gmt := gmtime (ltime'Unchecked_Access).all;
 
       return Time_Of (Year_Number (1900 + gmt.tm_year),
-                      Month_Number (gmt.tm_mon),
+                      Month_Number (gmt.tm_mon + 1),
                       Day_Number (gmt.tm_mday),
                       Day_Duration (gmt.tm_hour * 3600
                                     + gmt.tm_min * 60
