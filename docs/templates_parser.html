@@ -1,15 +1,15 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 7 March 2004 -->
+     from templates_parser.texi on 12 May 2004 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
 <BODY>
 <H1>Templates Parser</H1>
 <H2>$Revision$</H2>
-<H2>Date: 7 March 2004</H2>
-<ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
+<H2>Date: 12 May 2004</H2>
+<ADDRESS>Pascal Obry (<A HREF="mailto:pascal@obry.org">pascal@obry.org</A>)</ADDRESS>
 <P>
 <P><HR><P>
 <H1>Table of Contents</H1>
@@ -18,7 +18,7 @@
 <LI><A NAME="TOC2" HREF="templates_parser.html#SEC2">What is a tag ?</A>
 <LI><A NAME="TOC3" HREF="templates_parser.html#SEC3">Variable tags</A>
 <UL>
-<LI><A NAME="TOC4" HREF="templates_parser.html#SEC4">Discrete, Boolean, Vector and Matrix</A>
+<LI><A NAME="TOC4" HREF="templates_parser.html#SEC4">Discrete Boolean Composite</A>
 <LI><A NAME="TOC5" HREF="templates_parser.html#SEC5">Filters and Attributes</A>
 <UL>
 <LI><A NAME="TOC6" HREF="templates_parser.html#SEC6">Filters</A>
@@ -26,15 +26,16 @@
 </UL>
 <LI><A NAME="TOC8" HREF="templates_parser.html#SEC8">Other variable tags</A>
 </UL>
-<LI><A NAME="TOC9" HREF="templates_parser.html#SEC9">Tag statements</A>
+<LI><A NAME="TOC9" HREF="templates_parser.html#SEC9">Translations</A>
+<LI><A NAME="TOC10" HREF="templates_parser.html#SEC10">Tag statements</A>
 <UL>
-<LI><A NAME="TOC10" HREF="templates_parser.html#SEC10">Comments tag statement</A>
-<LI><A NAME="TOC11" HREF="templates_parser.html#SEC11">INCLUDE tag statement</A>
-<LI><A NAME="TOC12" HREF="templates_parser.html#SEC12">IF tag statement</A>
-<LI><A NAME="TOC13" HREF="templates_parser.html#SEC13">TABLE tag statement</A>
+<LI><A NAME="TOC11" HREF="templates_parser.html#SEC11">Comments tag statement</A>
+<LI><A NAME="TOC12" HREF="templates_parser.html#SEC12">INCLUDE tag statement</A>
+<LI><A NAME="TOC13" HREF="templates_parser.html#SEC13">IF tag statement</A>
+<LI><A NAME="TOC14" HREF="templates_parser.html#SEC14">TABLE tag statement</A>
 </UL>
-<LI><A NAME="TOC14" HREF="templates_parser.html#SEC14">Last notes</A>
-<LI><A NAME="TOC15" HREF="templates_parser.html#SEC15">Templates_Parser Ada spec</A>
+<LI><A NAME="TOC15" HREF="templates_parser.html#SEC15">Last notes</A>
+<LI><A NAME="TOC16" HREF="templates_parser.html#SEC16">Templates_Parser Ada spec</A>
 </UL>
 <P><HR><P>
 
@@ -136,7 +137,7 @@ of data. You just have to provides as many templates as you like.
 A tag is a string found in the template page and surrounded by a specific set
 of characters. The default is <B>@_</B> at the start and <B>_@</B> at the
 end of the tag. This default can be changed using <CODE>Set_Tag_Separators</CODE>
-routine, see section <A HREF="templates_parser.html#SEC15">Templates_Parser Ada spec</A>. Note that it must be changed
+routine, see section <A HREF="templates_parser.html#SEC16">Templates_Parser Ada spec</A>. Note that it must be changed
 as the first API call and should not be changed after that.
 
 </P>
@@ -151,7 +152,7 @@ For example with the template file <TT>`demo.tmplt'</TT>:
 
 <PRE>
 
-&#60;P&#62;Name @_NAME_@
+&#60;P&#62;Hello @_NAME_@
 
 </PRE>
 
@@ -167,8 +168,8 @@ Using the following code <TT>`demo.adb'</TT>:
 
 <B>procedure</B> Demo <B>is</B>
 
-   Translations : Templates_Parser.Translate_Table :=
-     (1 =&#62; Templates_Parser.Assoc ("<I>NAME</I>", "<I>Ada</I>"));
+   Translations : <B>constant</B> Templates_Parser.Translate_Table
+     := (1 =&#62; Templates_Parser.Assoc ("<I>NAME</I>", "<I>Ada</I>"));
 
 <B>begin</B>
    Ada.Text_IO.Put_Line
@@ -183,7 +184,7 @@ The program will print out :
 </P>
 
 <PRE>
-&#60;P&#62;Name Ada
+&#60;P&#62;Hello Ada
 </PRE>
 
 <P>
@@ -198,65 +199,75 @@ powerful construct that you can use into a template file.
 
 
 <UL>
-<LI><A HREF="templates_parser.html#SEC4">Discrete Boolean Vector and Matrix</A>
+<LI><A HREF="templates_parser.html#SEC4">Discrete Boolean Composite</A>
 <LI><A HREF="templates_parser.html#SEC5">Filters and Attributes</A>
 <LI><A HREF="templates_parser.html#SEC8">Other variable tags</A>
 </UL>
 
 
 
-<H2><A NAME="SEC4" HREF="templates_parser.html#TOC4">Discrete, Boolean, Vector and Matrix</A></H2>
+<H2><A NAME="SEC4" HREF="templates_parser.html#TOC4">Discrete Boolean Composite</A></H2>
 
 <P>
 A variable tag is a specific string to be replaced by the template
-parser. There is four kinds of variable tags: <B>discrete</B>, <B>boolean</B>,
-<B>vector</B> and <B>matrix</B>. All variables tags are build using the Assoc
-constructors, see section <A HREF="templates_parser.html#SEC15">Templates_Parser Ada spec</A>.
+parser. There is three kinds of variable tags: <B>discrete</B>, <B>boolean</B>,
+<B>composite</B>. All variables tags are built using the <CODE>Assoc</CODE>
+constructors, see section <A HREF="templates_parser.html#SEC16">Templates_Parser Ada spec</A>.
 
 </P>
 <DL COMPACT>
 
-<DT><CODE>discrete</CODE>
+<DT><B>discrete</B>
 <DD>
 We have already seen the discrete variable tag. This is a variable which
 has only one value. This value will replace the tag in the template
 file. Discrete variable constructors are provided for String,
 Unbounded_String and Integer (see Assoc routines).
+<P>
 
-<DT><CODE>boolean</CODE>
+<DT><B>boolean</B>
 <DD>
 A boolean tag as a value of TRUE or FALSE. This value will replace the
-tag in the template file. These tags can also be used with the IF tag
+tag in the template file. These tags can also be used with the <CODE>IF</CODE> tag
 statement.
+<P>
 
-<DT><CODE>vector</CODE>
+<DT><B>composite (Tag)</B>
 <DD>
-A vector tag is a variable which represent a set of values. These kind of
-variables will be used with the TABLE tag statement 
-see section <A HREF="templates_parser.html#SEC13">TABLE tag statement</A>. Outside a table statement it will be
-replaced by all values in the vector tag.
+A composite tag is a variable which contains a set of values. These kind of
+variables will be used with the <CODE>TABLE</CODE> tag statement 
+see section <A HREF="templates_parser.html#SEC14">TABLE tag statement</A>. Outside a table statement it will be
+replaced by all values concatenated with a specified separator. See
+<CODE>Set_Separator</CODE> routine. Such tag are variables declared on the
+Ada program a <CODE>Templates_Parser.Tag</CODE> type.
 
-There is many overloaded constructors to build vector tags (see "+"
-operators).  The "+" operators are used to build a Vector_Tag item from
-standards types like String, Unbounded_String, Character, Integer and
-Boolean. 
+<P>
+There is many overloaded constructors to build a composite tags (see "+"
+operators).  The "+" operators are used to build a Tag item from
+standard types like String, Unbounded_String, Character, Integer and
+Boolean.
 
-To add items to a vector tag many overloaded operators are provided (see
-"&#38;" operators). The "&#38;" operators add one item at the end of the vector,
-it is possible to add directly String, Unbounded_String, Character,
-Integer and Boolean items using one of the overloaded operator.
+<P>
+To add items to a Tag many overloaded operators are provided (see
+"&#38;" operators). The "&#38;" operators add one item at the start or the end
+of the tag, it is possible to add directly String, Unbounded_String,
+Character, Integer and Boolean items using one of the overloaded operator.
 
-A Vector tag composed of only boolean value TRUE or FALSE is called a
-Boolean Vector tag. This tag is to be used with a IF tag statement
-inside a TABLE tag statement.
+<P>
+A tag composed of only boolean values TRUE or FALSE is called a
+Boolean composite tag. This tag is to be used with a <CODE>IF</CODE> tag statement
+inside a <CODE>TABLE</CODE> tag statement.
 
-<DT><CODE>matrix</CODE>
-<DD>
-A matrix tag is a variable which represent a set of vector tags. These
-kind of variables will be used inside a TABLE tag statement embedded
-into another TABLE tag statement (i.e. a TABLE tag statement of level 2).
+<P>
+It is possible to build a composite tag having any number of nested
+level. A vector is a composite tag with only one level, a matrix is a
+composite tag with two level (a Tag with a set of vector tag).
 
-A matrix variable tag is built by concatenating vector variables.
+<P>
+Two aliases exists for composite tags with one or two nested level,
+they are named <CODE>Vector_Tag</CODE> and <CODE>Matrix_Tag</CODE>. In the suite
+of the document, we call <I>vector tag</I> a tag with a single nested
+level and <I>matrix tag</I> a tag with two nested level.
 
 </DL>
 
@@ -265,14 +276,15 @@ A matrix variable tag is built by concatenating vector variables.
 <H2><A NAME="SEC5" HREF="templates_parser.html#TOC5">Filters and Attributes</A></H2>
 
 <P>
-All kinds of variable tag can have one or more function-prefix or filter. The
-function prefix is applied to the variable value. The syntax is
+All kinds of variable tag can have one or more function-prefix or
+filter. The function prefix is applied to the variable value. The
+syntax is
 <CODE>@_[[FILTER_NAME[(parameter)]:]FILTER_NAME[(parameter)]:]SOME_VAR_@</CODE>.
 Filters are evaluated from right to left.
 
 </P>
 <P>
-Vector and Matrix tag can also have attributes. Attributes are placed
+Composite tags can also have attributes. Attributes are placed
 after the tag name and preceded with a simple quote.
 <CODE>@_SOME_VAR['ATTRIBUTE_NAME]_@</CODE>. It is possible to use filters
 and attributes together. In that case the attribute is first evaluated and
@@ -636,19 +648,24 @@ Current supported attributes are:
 
 <DT><CODE>V'length</CODE>
 <DD>
-Returns the number of item in the vector.
+Returns the number of item in the composite tag (can be applied only
+to a composite tag having a single nested level - a vector).
 
 <DT><CODE>M'Line</CODE>
 <DD>
-Returns the number of line in the matrix.
+Returns the number of line in the composite tag. This is identical to
+'Length but can be applied only to a composite tag having two nested
+level - a matrix).
 
 <DT><CODE>M'Min_Column</CODE>
 <DD>
-Returns the size of smallest vector in the matrix.
+Returns the size of smallest composite tag in M composite tag. This attribute
+can be applied only to a composite tag having two nested level - a matrix.
 
 <DT><CODE>M'Max_Column</CODE>
 <DD>
-Returns the size of largest vector in the matrix.
+Returns the size of largest composite tag in M composite tag. This attribute
+can be applied only to a composite tag having two nested level - a matrix.
 
 </DL>
 
@@ -719,7 +736,39 @@ Current full day name (Monday .. Sunday).
 
 
 
-<H1><A NAME="SEC9" HREF="templates_parser.html#TOC9">Tag statements</A></H1>
+<H1><A NAME="SEC9" HREF="templates_parser.html#TOC9">Translations</A></H1>
+
+<P>
+Associations between variable tags and the template tag names are
+created with one of the <CODE>Assoc</CODE> routines. This set of
+associations are used by the parser (<CODE>Parse</CODE> routine). There is
+two kinds of associations set:
+
+</P>
+
+<UL>
+
+<LI>Translate_Table
+
+an array of associations, this is easy to use when the number of
+associations is known at the creation time.
+
+<LI>Translate_Set
+
+a set of associations, it is possible to insert as many associations
+as needed into this object.
+</UL>
+
+<P>
+Note that this difference is only for users, the Templates_Parser
+engine uses only <CODE>Translate_Set</CODE> objects internally as it is much more
+efficient.
+
+</P>
+
+
+
+<H1><A NAME="SEC10" HREF="templates_parser.html#TOC10">Tag statements</A></H1>
 
 <P>
 There is three different tag statements. A tag statement is surrounded
@@ -728,15 +777,15 @@ by <CODE>@@</CODE>. The tag statements are:
 </P>
 
 <UL>
-<LI><A HREF="templates_parser.html#SEC10">Comments tag statement</A>
-<LI><A HREF="templates_parser.html#SEC11">INCLUDE tag statement</A>
-<LI><A HREF="templates_parser.html#SEC12">IF tag statement</A>
-<LI><A HREF="templates_parser.html#SEC13">TABLE tag statement</A>
+<LI><A HREF="templates_parser.html#SEC11">Comments tag statement</A>
+<LI><A HREF="templates_parser.html#SEC12">INCLUDE tag statement</A>
+<LI><A HREF="templates_parser.html#SEC13">IF tag statement</A>
+<LI><A HREF="templates_parser.html#SEC14">TABLE tag statement</A>
 </UL>
 
 
 
-<H2><A NAME="SEC10" HREF="templates_parser.html#TOC10">Comments tag statement</A></H2>
+<H2><A NAME="SEC11" HREF="templates_parser.html#TOC11">Comments tag statement</A></H2>
 
 <P>
 Every line starting with <B>@@--</B> are comments and are completly
@@ -759,7 +808,7 @@ format and number of lines with or without the comments.
 
 
 
-<H2><A NAME="SEC11" HREF="templates_parser.html#TOC11">INCLUDE tag statement</A></H2>
+<H2><A NAME="SEC12" HREF="templates_parser.html#TOC12">INCLUDE tag statement</A></H2>
 
 <P>
 This tag is used to include another template file. This is useful if you
@@ -812,7 +861,7 @@ tag is kept as-is.
 </P>
 
 
-<H2><A NAME="SEC12" HREF="templates_parser.html#TOC12">IF tag statement</A></H2>
+<H2><A NAME="SEC13" HREF="templates_parser.html#TOC13">IF tag statement</A></H2>
 
 <P>
 This is the conditional tag statement. The complete form is:
@@ -832,7 +881,8 @@ This is the conditional tag statement. The complete form is:
 <P>
 The part1 one will be parsed if expression1 evaluate to "TRUE", part2
 will be parsed if expression2 evaluate to "TRUE" and the part3 will
-be parse in any other case. The ELSIF and ELSE part are optional.
+be parse in any other case. The <CODE>ELSIF</CODE> and <CODE>ELSE</CODE> part are
+optional.
 
 </P>
 <P>
@@ -924,7 +974,7 @@ following <B>Templates_Parser</B> function:
 </PRE>
 
 <P>
-Let's see an example using an IF tag statement. With the following
+Let's see an example using an <CODE>IF</CODE> tag statement. With the following
 template:
 
 </P>
@@ -932,9 +982,9 @@ template:
 <PRE>
 
 @@IF@@ @_USER_@
-   &#60;P&#62;As a <B>use</B>r you have a restricted access to this server.
+   &#60;P&#62;As a <B>use</B>r you have a restricted <B>access</B> to this server.
 @@ELSE@@
-   &#60;P&#62;As an administrator you have full access to this server.
+   &#60;P&#62;As an administrator you have full <B>access</B> to this server.
 @@END_IF@@
 
 </PRE>
@@ -951,8 +1001,8 @@ The following program:
 
 <B>procedure</B> User1 <B>is</B>
 
-   Translations : Templates_Parser.Translate_Table :=
-     (1 =&#62; Templates_Parser.Assoc ("<I>USER</I>", True));
+   Translations : <B>constant</B> Templates_Parser.Translate_Table
+     := (1 =&#62; Templates_Parser.Assoc ("<I>USER</I>", True));
 
 <B>begin</B>
    Ada.Text_IO.Put_Line
@@ -983,8 +1033,8 @@ But the following program:
 
 <B>procedure</B> User2 <B>is</B>
 
-   Translations : Templates_Parser.Translate_Table :=
-     (1 =&#62; Templates_Parser.Assoc ("<I>USER</I>", False));
+   Translations : <B>constant</B> Templates_Parser.Translate_Table
+     := (1 =&#62; Templates_Parser.Assoc ("<I>USER</I>", False));
 
 <B>begin</B>
    Ada.Text_IO.Put_Line
@@ -1005,22 +1055,22 @@ Will display:
 
 
 
-<H2><A NAME="SEC13" HREF="templates_parser.html#TOC13">TABLE tag statement</A></H2>
+<H2><A NAME="SEC14" HREF="templates_parser.html#TOC14">TABLE tag statement</A></H2>
 
 <P>
-A table tag is useful to generate HTML table for example. Basically the
+A table tag is useful to generate <CODE>HTML</CODE> table for example. Basically the
 code between the <CODE>@@TABLE@@</CODE> and <CODE>@@END_TABLE@@</CODE> will
 be repeated as many time as the vector tag will have of values. If many
 vector tags are specified in a table statement, the code between the
 table will be repeated a number of time equal to the maximum length of
-all vector tags in the table tag statement.
+all vector tags in the <CODE>TABLE</CODE> tag statement.
 
 </P>
 <P>
-A table tag statement is a kind of implicit iterator. This is a very
-important concept to build HTML table. Using <CODE>Vector_Tag</CODE> or
-<CODE>Matrix_Tag</CODE> variable in a <CODE>@@TABLE@@</CODE> tag statement it is
-possible to build very complex Web pages.
+A <CODE>TABLE</CODE> tag statement is a kind of implicit iterator. This is a very
+important concept to build HTML tables. Using a composite tag variable in
+a <CODE>@@TABLE@@</CODE> tag statement it is possible to build very
+complex Web pages.
 
 </P>
 <P>
@@ -1074,9 +1124,9 @@ And the following program:
    Ages  : <B>constant</B> Templates_Parser.Vector_Tag
      := +"<I>10</I>" &#38; "<I>30</I>" &#38; "<I>5</I>";
 
-   Translations : Templates_Parser.Translate_Table :=
-     (1 =&#62; Templates_Parser.Assoc ("<I>NAME</I>", Names),
-      2 =&#62; Templates_Parser.Assoc ("<I>AGE</I>", Ages));
+   Translations : <B>constant</B> Templates_Parser.Translate_Table
+     := (1 =&#62; Templates_Parser.Assoc ("<I>NAME</I>", Names),
+         2 =&#62; Templates_Parser.Assoc ("<I>AGE</I>", Ages));
 
 <B>begin</B>
    Ada.Text_IO.Put_Line
@@ -1111,33 +1161,31 @@ The following output will be generated:
 Note that we use vector tag variables here. A discrete variable tag in a table
 will be replaced by the same (the only one) value for each row. A vector
 tag outside a table will be displayed as a list of values, each value
-being separated by a specified string. The default is a comma and a
+being separated by a specified separator. The default is a comma and a
 space ", ".
 
 </P>
 <P>
-The complete prototype for the <CODE>Vector_Tag</CODE> Assoc function is:
+The complete prototype for the <CODE>Tag</CODE> Assoc function is:
 
 </P>
 
 <PRE>
    <B>function</B> Assoc (Variable  : <B>in</B> String;
-                   Value     : <B>in</B> Vector_Tag;
+                   Value     : <B>in</B> Tag;
                    Separator : <B>in</B> String    := Default_Separator;
                    <B>return</B> Association;
-<I>--  build an Association (Variable = Value) to be added to a</I>
-<I>--  Translate_Table. This is a vector tag association, value is a</I>
-<I>--  Vector_Tag. If the vector tag is found outside a table tag statement</I>
-<I>--  it is returned as a single string, each value being separated by the</I>
-<I>--  specified separator.</I>
+<I>--  Build an Association (Variable = Value) to be added to Translate_Table.</I>
+<I>--  This is a tag association. Separator will be used when outputting the</I>
+<I>--  a flat representation of the Tag (outside a table statement).</I>
 </PRE>
 
 <P>
 A table can contain many sections. The section to use will be selected
 depending on the current line. For example, a table with two sections
-will use different data on even and odd lines. This is useful, for
-example, when you want to alternate the line background color for a
-better lisibility when working on HTML pages.
+will use different data on even and odd lines. This is useful when you
+want to alternate the line background color for a better readability
+when working on HTML pages.
 
 </P>
 <P>
@@ -1199,9 +1247,9 @@ And the following program:
    Prices  : <B>constant</B> Templates_Parser.Vector_Tag
      := +"<I>$500</I>" &#38; "<I>$20</I>" &#38; "<I>$15</I>" &#38; "<I>$140</I>";
 
-   Translations : Templates_Parser.Translate_Table :=
-     (1 =&#62; Templates_Parser.Assoc ("<I>DEVICES</I>", Devices),
-      2 =&#62; Templates_Parser.Assoc ("<I>PRICES</I>", Prices));
+   Translations : <B>constant</B> Templates_Parser.Translate_Table
+     := (1 =&#62; Templates_Parser.Assoc ("<I>DEVICES</I>", Devices),
+         2 =&#62; Templates_Parser.Assoc ("<I>PRICES</I>", Prices));
 
 <B>begin</B>
    Ada.Text_IO.Put_Line
@@ -1330,15 +1378,15 @@ And the following program:
    <B>use</B> <B>type</B> Templates_Parser.Vector_Tag;
 
    <B>function</B> In_Stock (Device : <B>in</B> String) <B>return</B> Boolean;
-   -- <I> Complex <B>function</B>. Does a SQL access to the right database to know if</I>
-   -- <I> the Device <B>is</B> available and thus can be ordered.</I>
+   -- <I> Complex function. Does a SQL access to the right database to know if</I>
+   -- <I> the Device is available and thus can be ordered.</I>
 
    <B>procedure</B> Add (Device, Price : <B>in</B> String);
-   -- <I> Add the device <B>in</B>to the list to be displayed.</I>
+   -- <I> Add the device into the list to be displayed.</I>
 
-   Devices   : Templates_Parser.Vector_Tag;
-   Prices    : Templates_Parser.Vector_Tag;
-   Available : Templates_Parser.Vector_Tag;
+   Devices   : Templates_Parser.Tag;
+   Prices    : Templates_Parser.Tag;
+   Available : Templates_Parser.Tag;
 
    ---------
    -- <I>Add --</I>
@@ -1346,8 +1394,8 @@ And the following program:
 
    <B>procedure</B> Add (Device, Price : <B>in</B> String) <B>is</B>
    <B>begin</B>
-      Devices := Devices &#38; Device;
-      Prices  := Prices &#38; Price;
+      Devices   := Devices &#38; Device;
+      Prices    := Prices &#38; Price;
       Available := Available &#38; In_Stock (Device);
    <B>end</B> Add;
 
@@ -1357,11 +1405,11 @@ And the following program:
 
    <B>function</B> In_Stock (Device : <B>in</B> String) <B>return</B> Boolean <B>is</B>
    <B>begin</B>
-      if Device = "<I>Keyboard</I>" then
+      <B>if</B> Device = "<I>Keyboard</I>" <B>then</B>
          <B>return</B> True;
-      else
+      <B>else</B>
          <B>return</B> False;
-      <B>end</B> if;
+      <B>end</B> <B>if</B>;
    <B>end</B> In_Stock;
 
    Translations : Templates_Parser.Translate_Table (1 .. 3);
@@ -1429,8 +1477,15 @@ Sorry, not available
 </PRE>
 
 <P>
-Table tag statement can also be used with matrix tag. There is 3
-possibles placements for a matrix tag:
+Table tag statements can also be used with matrix tag or more nested
+tag variables. In this case, for a tag variable with N nested level,
+the Nth closest enclosing <CODE>TABLE</CODE> tag statement will be used for
+the corresponding indices. If there is not enough indices, the last
+axis are just streamed as a single text value.
+
+</P>
+<P>
+Let's see what happen for a matrix tag:
 
 </P>
 
@@ -1440,24 +1495,25 @@ possibles placements for a matrix tag:
 
 statement).
 
-In this case the first TABLE iterate through the matrix lines.
+In this case the first <CODE>TABLE</CODE> iterates through the matrix lines.
 First iteration will use the first matrix's vector, second
-iteration will use second matrix's vector and so on. And the second TABLE
-will be use to iterate through the vector's values.
+iteration will use second matrix's vector and so on. And the second
+<CODE>TABLE</CODE> will be use to iterate through the vector's values.
 
 <LI>Inside a table of level 1.
 
-In this case the TABLE iterate through the matrix lines. First iteration
-will use the first matrix's vector, second iteration will use second
-matrix's vector and so on. Each vector is then converted to a string by
-concatenating all values and using the supplied separator (see Assoc
-constructor for Matrix_Tag).
+In this case the <CODE>TABLE</CODE> iterates through the matrix lines. First
+iteration will use the first matrix's vector, second iteration will
+use second matrix's vector and so on. Each vector is then converted to
+a string by concatenating all values using the specified separator
+(see Assoc constructor for Tag or <CODE>Set_Separator</CODE> routine).
 
 <LI>Outside a table statement.
 
-In this case the matrix is converted to a string. Each line represent a
-vector converted as a string using the supplied separator (see point 2
-above), and each vector is separated by an ASCII.LF character.
+In this case the matrix is converted to a string. Each line represents
+a vector converted as a string using the supplied separator (see point
+2 above), and each vector is separated by an ASCII.LF character. The
+separators to use for each level can be specified using <CODE>Set_Separator</CODE>.
 
 </OL>
 
@@ -1592,32 +1648,32 @@ A3.1, A3.2
 
 
 
-<H1><A NAME="SEC14" HREF="templates_parser.html#TOC14">Last notes</A></H1>
+<H1><A NAME="SEC15" HREF="templates_parser.html#TOC15">Last notes</A></H1>
 
 <P>
-The templates parser has be written to parse HTML page but it is usable
-with any king of files. There is nothing hard coded for HTML, it is then
-possible to use it with plain text files, XML files, SGML files or
-whatever as long as it is not a binary file.
+The templates parser has be written to parse <CODE>HTML</CODE> page but it is usable
+with any king of files. There is nothing hard coded for <CODE>HTML</CODE>, it is then
+possible to use it with plain text files, <CODE>XML</CODE> files, <CODE>SGML</CODE> files
+or whatever as long as it is not a binary file.
 
 </P>
 <P>
 
 <P>
-All tag statements can be mixed together. A <CODE>table</CODE> tag statement can be
-put in a <CODE>if</CODE> tag statement. An <CODE>if</CODE> tag statement can be put
-in a <CODE>table</CODE> tag statement. Idem for the <CODE>include</CODE> tag statement.
+All tag statements can be mixed together. A <CODE>TABLE</CODE> tag statement can be
+put in an <CODE>IF</CODE> tag statement. An <CODE>IF</CODE> tag statement can be put
+in a <CODE>TABLE</CODE> tag statement. Idem for the <CODE>INCLUDE</CODE> tag statement.
 
 </P>
 <P>
-Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wanadoo.fr/pascal.obry/</A>.
+Download page is <A HREF="http://www.obry.org/">http://www.obry.org/</A>.
 
 </P>
 <P>
 
 
 
-<H1><A NAME="SEC15" HREF="templates_parser.html#TOC15">Templates_Parser Ada spec</A></H1>
+<H1><A NAME="SEC16" HREF="templates_parser.html#TOC16">Templates_Parser Ada spec</A></H1>
 
 
 <PRE>
@@ -1625,7 +1681,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 ------------------------------------------------------------------------------
 -- <I>                            Templates Parser                             --</I>
 -- <I>                                                                         --</I>
--- <I>                       Copyright (C) 1999 - 2001                         --</I>
+-- <I>                       Copyright (C) 1999 - 2004                         --</I>
 -- <I>                              Pascal Obry                                --</I>
 -- <I>                                                                         --</I>
 -- <I> This library is free software; you can redistribute it and/or modify    --</I>
@@ -1655,6 +1711,8 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 <B>with</B> Ada.Finalization;
 <B>with</B> Ada.Strings.Unbounded;
 
+<B>with</B> Strings_Maps;
+
 <B>package</B> Templates_Parser <B>is</B>
 
    <B>use</B> Ada.Strings.Unbounded;
@@ -1672,169 +1730,94 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -- <I> Set the tag separators for the whole session. This should be changed as</I>
    -- <I> the very first API call and should not be changed after.</I>
 
-   ----------------
-   -- <I>Vector Tag --</I>
-   ----------------
+   -----------------
+   -- <I>Generic Tag --</I>
+   -----------------
 
-   <B>type</B> Vector_Tag <B>is</B> <B>private</B>;
-   -- <I> A vector tag is a set <B>of</B> strings. Note that this object <B>is</B> using a</I>
-   -- <I> by-reference semantic. A reference counter <B>is</B> associated to it and</I>
-   -- <I> the memory is realeased when there <B>is</B> no more reference to it.</I>
+   <B>type</B> Tag <B>is</B> <B>private</B>;
 
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> String) <B>return</B> Vector_Tag;
-   -- <I> Vector_Tag constructor.</I>
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> String)           <B>return</B> Tag;
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Character)        <B>return</B> Tag;
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Boolean)          <B>return</B> Tag;
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Unbounded_String) <B>return</B> Tag;
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Integer)          <B>return</B> Tag;
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Tag)              <B>return</B> Tag;
+   -- <I> Tag constructors</I>
 
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Character) <B>return</B> Vector_Tag;
-   -- <I> Vector_Tag constructor.</I>
+   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> String)           <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Character)        <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Boolean)          <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Unbounded_String) <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Integer)          <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Tag)              <B>return</B> Tag;
+   -- <I> Add Value at the end of the tag</I>
 
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Boolean) <B>return</B> Vector_Tag;
-   -- <I> Vector_Tag constructor.</I>
+   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> String;           T : <B>in</B> Tag) <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> Character;        T : <B>in</B> Tag) <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> Boolean;          T : <B>in</B> Tag) <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> Unbounded_String; T : <B>in</B> Tag) <B>return</B> Tag;
+   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> Integer;          T : <B>in</B> Tag) <B>return</B> Tag;
+   -- <I> Add Value at the front of the tag</I>
 
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Unbounded_String) <B>return</B> Vector_Tag;
-   -- <I> Vector_Tag constructor.</I>
+   <B>procedure</B> Set_Separator (T : <B>in</B> <B>out</B> Tag; Separator : <B>in</B> String);
+   -- <I> Set separator to be used when building a flat representation of</I>
+   -- <I> a composite tag.</I>
 
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Integer) <B>return</B> Vector_Tag;
-   -- <I> Vector_Tag constructor.</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Vect  : <B>in</B> Vector_Tag;
-      Value : <B>in</B> String)
-      <B>return</B> Vector_Tag;
-   -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Value : <B>in</B> String;
-      Vect  : <B>in</B> Vector_Tag)
-      <B>return</B> Vector_Tag;
-   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Vect  : <B>in</B> Vector_Tag;
-      Value : <B>in</B> Character)
-      <B>return</B> Vector_Tag;
-   -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Value : <B>in</B> Character;
-      Vect  : <B>in</B> Vector_Tag)
-      <B>return</B> Vector_Tag;
-   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Vect  : <B>in</B> Vector_Tag;
-      Value : <B>in</B> Boolean)
-      <B>return</B> Vector_Tag;
-   -- <I> Add Value (either string TRUE or FALSE) at the <B>end</B> <B>of</B> the vector tag</I>
-   -- <I> set.</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Value : <B>in</B> Boolean;
-      Vect  : <B>in</B> Vector_Tag)
-      <B>return</B> Vector_Tag;
-   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Vect  : <B>in</B> Vector_Tag;
-      Value : <B>in</B> Unbounded_String)
-      <B>return</B> Vector_Tag;
-   -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Value : <B>in</B> Unbounded_String;
-      Vect  : <B>in</B> Vector_Tag)
-      <B>return</B> Vector_Tag;
-   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Vect  : <B>in</B> Vector_Tag;
-      Value : <B>in</B> Integer)
-      <B>return</B> Vector_Tag;
-   -- <I> Add Value (converted to a String) at the <B>end</B> <B>of</B> the vector tag set.</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Value : <B>in</B> Integer;
-      Vect  : <B>in</B> Vector_Tag)
-      <B>return</B> Vector_Tag;
-   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
-
-   <B>procedure</B> Clear (Vect : <B>in</B> <B>out</B> Vector_Tag);
-   -- <I> Removes all values <B>in</B> the vector tag. Current Vect <B>is</B> not released but</I>
-   -- <I> the <B>return</B>ed object <B>is</B> separated (not using the same reference) from</I>
+   <B>procedure</B> Clear (T : <B>in</B> <B>out</B> Tag);
+   -- <I> Removes all values in the tag. Current tag T is not released but</I>
+   -- <I> the returned object is separated (not using the same reference) than</I>
    -- <I> the original one.</I>
 
-   <B>function</B> Size (Vect : <B>in</B> Vector_Tag) <B>return</B> Natural;
-   -- <I> Returns the number <B>of</B> value <B>in</B>to Vect.</I>
+   <B>function</B> Size (T : <B>in</B> Tag) <B>return</B> Natural;
+   -- <I> Returns the number of value into T</I>
 
-   <B>function</B> Item (Vect : in Vector_Tag; N : <B>in</B> Positive) <B>return</B> String;
-   -- <I> Returns the Nth Vector Tag's item. Raises Constraint_Error if there <B>is</B></I>
-   -- <I> no such Item <B>in</B> the vector (i.e. vector length &#60; N).</I>
+   <B>function</B> Item (T : <B>in</B> Tag; N : <B>in</B> Positive) <B>return</B> String;
+   -- <I> Returns the Nth Tag's item. Raises Constraint_Error if there is</I>
+   -- <I> no such Item in T (i.e. T length &#60; N).</I>
 
-   ----------------
-   -- <I>Matrix Tag --</I>
-   ----------------
+   <B>function</B> Item (T : <B>in</B> Tag; N : <B>in</B> Positive) <B>return</B> Tag;
+   -- <I> Returns the Nth Tag's item. Raises Constraint_Error if there is</I>
+   -- <I> no such Item in T (i.e. T length &#60; N).</I>
 
-   <B>type</B> Matrix_Tag <B>is</B> <B>private</B>;
-   -- <I> A matrix tag is a set <B>of</B> vectors. Note that this object <B>is</B> using a</I>
-   -- <I> by-reference semantic. A reference counter <B>is</B> associated to it and</I>
-   -- <I> the memory is realeased when there <B>is</B> no more reference to it.</I>
+   <B>subtype</B> Vector_Tag <B>is</B> Tag;
+   <B>subtype</B> Matrix_Tag <B>is</B> Tag;
 
-   <B>function</B> "<I>+</I>" (Vect : <B>in</B> Vector_Tag) <B>return</B> Matrix_Tag;
-   -- <I> Matrix_Tag constructor. It <B>return</B>s a matrix <B>with</B> a single row whose</I>
-   -- <I> value <B>is</B> Vect.</I>
-
-   <B>function</B> "<I>&#38;</I>"
-     (Matrix : <B>in</B> Matrix_Tag;
-      Vect   : <B>in</B> Vector_Tag)
-      <B>return</B> Matrix_Tag;
-   -- <I> Returns Matrix <B>with</B> Vect added to the <B>end</B>.</I>
-
-   <B>function</B> Size (Matrix : <B>in</B> Matrix_Tag) <B>return</B> Natural;
-   -- <I> Returns the number <B>of</B> Vector_Tag (rows) <B>in</B>side the Matrix.</I>
-
-   <B>function</B> Vector (Matrix : in Matrix_Tag; N : <B>in</B> Positive) <B>return</B> Vector_Tag;
-   -- <I> Returns Nth Vector_Tag <B>in</B> the Matrix. Raises Constraint_Error if there</I>
-   -- <I> <B>is</B> no such vector <B>in</B> the matrix.</I>
-
-   -----------------------
-   -- <I>Association table --</I>
-   -----------------------
+   ------------------
+   -- <I>Associations --</I>
+   ------------------
 
    <B>type</B> Association <B>is</B> <B>private</B>;
 
-   <B>type</B> Association_Kind <B>is</B> (Std, Vect, Matrix);
-   -- <I> The kind <B>of</B> association which <B>is</B> either Std (a simple value), a vector</I>
+   <B>type</B> Association_Kind <B>is</B> (Std, Composite);
+   -- <I> The kind of association which is either Std (a simple value), a vector</I>
    -- <I> tag or a Matrix tag.</I>
 
-   <B>type</B> Translate_Table <B>is</B> <B>array</B> (Positive <B>range</B> &#60;&#62;) <B>of</B> Association;
-
-   No_Translation : <B>constant</B> Translate_Table;
-
    <B>function</B> Assoc
-     (Variable  : <B>in</B> String;
-      Value     : <B>in</B> String)
+     (Variable : <B>in</B> String;
+      Value    : <B>in</B> String)
       <B>return</B> Association;
    -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. This is a standard association, value <B>is</B> a string.</I>
+   -- <I> Translate_Table. This is a standard association, value is a string.</I>
 
    <B>function</B> Assoc
-     (Variable  : <B>in</B> String;
-      Value     : <B>in</B> Unbounded_String)
+     (Variable : <B>in</B> String;
+      Value    : <B>in</B> Unbounded_String)
       <B>return</B> Association;
    -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. This is a standard association, value <B>is</B> an</I>
+   -- <I> Translate_Table. This is a standard association, value is an</I>
    -- <I> Unbounded_String.</I>
 
    <B>function</B> Assoc
-     (Variable  : <B>in</B> String;
-      Value     : <B>in</B> Integer)
+     (Variable : <B>in</B> String;
+      Value    : <B>in</B> Integer)
       <B>return</B> Association;
    -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. This is a standard association, value <B>is</B> an Integer.</I>
-   -- <I> It will be displayed <B>with</B>out leading space if positive.</I>
+   -- <I> Translate_Table. This is a standard association, value is an Integer.</I>
+   -- <I> It will be displayed without leading space if positive.</I>
 
    <B>function</B> Assoc
-     (Variable  : <B>in</B> String;
-      Value     : <B>in</B> Boolean)
+     (Variable : <B>in</B> String;
+      Value    : <B>in</B> Boolean)
       <B>return</B> Association;
    -- <I> Build an Association (Variable = Value) to be added to a</I>
    -- <I> Translate_Table. It set the variable to TRUE or FALSE depending on</I>
@@ -1842,25 +1825,41 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 
    <B>function</B> Assoc
      (Variable  : <B>in</B> String;
-      Value     : <B>in</B> Vector_Tag;
-      Separator : <B>in</B> String     := Default_Separator)
+      Value     : <B>in</B> Tag;
+      Separator : <B>in</B> String := Default_Separator)
       <B>return</B> Association;
-   -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. This is a vector tag association, value <B>is</B> a</I>
-   -- <I> Vector_Tag. If the vector tag <B>is</B> found <B>out</B>side a table tag statement</I>
-   -- <I> it <B>is</B> <B>return</B>ed as a single string, each value being separated by the</I>
-   -- <I> specified separator.</I>
+   -- <I> Build an Association (Variable = Value) to be added to Translate_Table.</I>
+   -- <I> This is a tag association. Separator will be used when outputting the</I>
+   -- <I> a flat representation of the Tag (outside a table statement).</I>
 
-   <B>function</B> Assoc
-     (Variable  : <B>in</B> String;
-      Value     : <B>in</B> Matrix_Tag;
-      Separator : <B>in</B> String     := Default_Separator)
-      <B>return</B> Association;
-   -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. This is a matrix tag association, value <B>is</B> a</I>
-   -- <I> Matrix_Tag. If the matrix tag <B>is</B> found <B>out</B>side <B>of</B> a 2nd level table tag</I>
-   -- <I> statement, Separator <B>is</B> <B>use</B>d to build string representation <B>of</B> the</I>
-   -- <I> matrix tag's vectors.</I>
+   ---------------------------
+   -- <I>Association table/set --</I>
+   ---------------------------
+
+   <B>type</B> Translate_Table <B>is</B> <B>array</B> (Positive <B>range</B> &#60;&#62;) <B>of</B> Association;
+   -- <I> A table with a set of associations, note that it is better to use</I>
+   -- <I> Translate_Set below as it is more efficient.</I>
+
+   No_Translation : <B>constant</B> Translate_Table;
+
+   <B>type</B> Translate_Set <B>is</B> <B>private</B>;
+   -- <I> This is a set of association like Translate_Table but it is possible to</I>
+   -- <I> insert item into this set more easily, furthermore there is no need to</I>
+   -- <I> know the number of item before hand. This is the object used internally</I>
+   -- <I> by the templates engine as it is far more efficient to retrieve a</I>
+   -- <I> specific item from it.</I>
+
+   <B>procedure</B> Insert (Set : <B>in</B> <B>out</B> Translate_Set; Item : <B>in</B> Association);
+   -- <I> Add Item into the translate set. If an association for this variable</I>
+   -- <I> already exist it just replaces it by the new item.</I>
+
+   <B>function</B> Exists
+     (Set      : <B>in</B> Translate_Set;
+      Variable : <B>in</B> String) <B>return</B> Boolean;
+   -- <I> Returns True if an association for Variable exists into the Set</I>
+
+   <B>function</B> To_Set (Table : <B>in</B> Translate_Table) <B>return</B> Translate_Set;
+   -- <I> Convert a Translate_Table into a Translate_Set</I>
 
    -----------------------------
    -- <I>Parsing and Translating --</I>
@@ -1873,10 +1872,10 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
       Keep_Unknown_Tags : <B>in</B> Boolean         := False)
       <B>return</B> String;
    -- <I> Parse the Template_File replacing variables' occurrences by the</I>
-   -- <I> corresponding values. If Cached <B>is</B> set to True, Filename tree will be</I>
-   -- <I> <B>record</B>ed <B>in</B>to a cache for quick retrieval. If Keep_Unknown_Tags <B>is</B> set</I>
-   -- <I> to True then tags that are not <B>in</B> the translate table are kept</I>
-   -- <I> as-is if it is part of the template data. If this tags <B>is</B> part <B>of</B> a</I>
+   -- <I> corresponding values. If Cached is set to True, Filename tree will be</I>
+   -- <I> recorded into a cache for quick retrieval. If Keep_Unknown_Tags is set</I>
+   -- <I> to True then tags that are not in the translate table are kept</I>
+   -- <I> as-is if it is part of the template data. If this tags is part of a</I>
    -- <I> condition (in an IF statement tag), the condition will evaluate to</I>
    -- <I> False.</I>
 
@@ -1886,119 +1885,46 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
       Cached            : <B>in</B> Boolean         := False;
       Keep_Unknown_Tags : <B>in</B> Boolean         := False)
       <B>return</B> Unbounded_String;
-   -- <I> Idem as above but <B>return</B>s an Unbounded_String.</I>
+   -- <I> Idem but returns an Unbounded_String</I>
+
+   <B>function</B> Parse
+     (Filename          : <B>in</B> String;
+      Translations      : <B>in</B> Translate_Set;
+      Cached            : <B>in</B> Boolean       := False;
+      Keep_Unknown_Tags : <B>in</B> Boolean       := False)
+      <B>return</B> String;
+   -- <I> Idem with a Translation_Set</I>
+
+   <B>function</B> Parse
+     (Filename          : <B>in</B> String;
+      Translations      : <B>in</B> Translate_Set;
+      Cached            : <B>in</B> Boolean       := False;
+      Keep_Unknown_Tags : <B>in</B> Boolean       := False)
+      <B>return</B> Unbounded_String;
+   -- <I> Idem with a Translation_Set</I>
 
    <B>function</B> Translate
      (Template     : <B>in</B> String;
       Translations : <B>in</B> Translate_Table := No_Translation)
       <B>return</B> String;
-   -- <I> Just translate the discrete variables <B>in</B> the Template string using the</I>
-   -- <I> Translations table. This <B>function</B> does not parse the command tag</I>
-   -- <I> (TABLE, IF, INCLUDE). All Vector and Matrix tag are replaced by the</I>
-   -- <I> empty string.</I>
+   -- <I> Just translate the discrete variables in the Template string using the</I>
+   -- <I> Translations table. This function does not parse the command tag (TABLE,</I>
+   -- <I> IF, INCLUDE). All composite tags are replaced by the empty string.</I>
 
-   <B>procedure</B> Print_Tree (Filename : <B>in</B> String);
-   -- <I> Use for debugging purpose only, it will <B>out</B>put the <B>in</B>ternal tree</I>
-   -- <I> representation.</I>
+   <B>function</B> Translate
+     (Template     : <B>in</B> String;
+      Translations : <B>in</B> Translate_Set)
+      <B>return</B> String;
+   -- <I> Idem with a Translation_Set</I>
 
 <B>private</B>
-
-   ------------------
-   -- <I> Vector Tags --</I>
-   ------------------
-
-   <B>type</B> Vector_Tag_Node;
-   <B>type</B> Vector_Tag_Node_Access <B>is</B> access Vector_Tag_Node;
-
-   <B>type</B> Vector_Tag_Node <B>is</B> <B>record</B>
-      Value : Unbounded_String;
-      Next  : Vector_Tag_Node_Access;
-   <B>end</B> <B>record</B>;
-
-   <B>type</B> Integer_Access <B>is</B> access Integer;
-
-   <B>type</B> Access_Vector_Tag_Node_Access <B>is</B> access Vector_Tag_Node_Access;
-
-   <B>type</B> Vector_Tag <B>is</B> new Ada.Finalization.Controlled <B>with</B> <B>record</B>
-      Ref_Count : Integer_Access;
-      Count     : Natural;
-      Head      : Vector_Tag_Node_Access;
-      Last      : Vector_Tag_Node_Access;
-      Current   : Access_Vector_Tag_Node_Access; -- <I>Current/Pos are Iterator</I>
-      Pos       : Integer_Access;                -- <I>cache <B>in</B>formation.</I>
-   <B>end</B> <B>record</B>;
-
-   <B>type</B> Vector_Tag_Access <B>is</B> access Vector_Tag;
-
-   <B>procedure</B> Initialize (V : <B>in</B> <B>out</B> Vector_Tag);
-   <B>procedure</B> Finalize   (V : <B>in</B> <B>out</B> Vector_Tag);
-   <B>procedure</B> Adjust     (V : <B>in</B> <B>out</B> Vector_Tag);
-
-   ------------------
-   -- <I> Matrix Tags --</I>
-   ------------------
-
-   <B>type</B> Matrix_Tag_Node;
-
-   <B>type</B> Matrix_Tag_Node_Access <B>is</B> access Matrix_Tag_Node;
-
-   <B>type</B> Matrix_Tag_Node <B>is</B> <B>record</B>
-      Vect : Vector_Tag;
-      Next : Matrix_Tag_Node_Access;
-   <B>end</B> <B>record</B>;
-
-   <B>type</B> Access_Matrix_Tag_Node_Access <B>is</B> access Matrix_Tag_Node_Access;
-
-   <B>type</B> Matrix_Tag_Int <B>is</B> new Ada.Finalization.Controlled <B>with</B> <B>record</B>
-      Ref_Count : Integer_Access;
-      Count     : Natural; -- <I>Number <B>of</B> vector</I>
-      Min, Max  : Natural; -- <I>Min/Max vector's sizes</I>
-      Head      : Matrix_Tag_Node_Access;
-      Last      : Matrix_Tag_Node_Access;
-      Current   : Access_Matrix_Tag_Node_Access; -- <I>Current/Pos are Iterator</I>
-      Pos       : Integer_Access;                -- <I>cahce <B>in</B>formation.</I>
-   <B>end</B> <B>record</B>;
-
-   <B>type</B> Matrix_Tag <B>is</B> <B>record</B>
-      M : Matrix_Tag_Int;
-   <B>end</B> <B>record</B>;
-
-   <B>procedure</B> Initialize (M : <B>in</B> <B>out</B> Matrix_Tag_Int);
-   <B>procedure</B> Finalize   (M : <B>in</B> <B>out</B> Matrix_Tag_Int);
-   <B>procedure</B> Adjust     (M : <B>in</B> <B>out</B> Matrix_Tag_Int);
-
-   ------------------
-   -- <I> Association --</I>
-   ------------------
-
-   <B>type</B> Association (Kind : Association_Kind := Std) <B>is</B> <B>record</B>
-      Variable  : Unbounded_String;
-
-      case Kind <B>is</B>
-         when Std =&#62;
-            Value : Unbounded_String;
-
-         when Vect =&#62;
-            Vect_Value : Vector_Tag;
-            Separator  : Unbounded_String;
-
-         when Matrix =&#62;
-            Mat_Value        : Matrix_Tag;
-            Column_Separator : Unbounded_String;
-      <B>end</B> case;
-   <B>end</B> <B>record</B>;
-
-   No_Translation : <B>constant</B> Translate_Table
-     := (2 .. 1 =&#62; Association'(Std,
-                                Null_Unbounded_String,
-                                Null_Unbounded_String));
-
+   -- <I> implementation removed</I>
 <B>end</B> Templates_Parser;
 
 </PRE>
 
 <P><HR><P>
-This document was generated on 7 March 2004 using the
+This document was generated on 12 May 2004 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
