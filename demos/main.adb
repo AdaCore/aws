@@ -75,4 +75,6 @@ begin
    AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
 
    AWS.Server.Start_Log (WS);
+
+   AWS.Server.Wait;
 end Main;
