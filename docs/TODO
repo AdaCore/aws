@@ -42,8 +42,6 @@ implemented:
 
 - Will be nice to add all timeouts to the AWS status page.
 
-- Will be nice to have AWS.Client.Get follow the redirection if requested.
-
 - We need to add the directory browser template into the config file.
 
 - Replace OpenSSL by GNUTLS library when this library will become stable.
