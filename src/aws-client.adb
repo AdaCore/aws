@@ -87,23 +87,29 @@ package body AWS.Client is
       Proxy_Pwd  : in String := No_Data)
      return Sockets.Socket_FD'Class
    is
-      function Get_Host_Name return String;
-      --  returns the local hostname
 
       function Open_Socket return Sockets.Socket_FD'Class;
       --  Opens socket (SSL if need) with server
 
-      -------------------
-      -- Get_Host_Name --
-      -------------------
+      function Port_Not_Default (Port : in Positive) return String;
+      --  Returns the port image if it is not the default port preceded by ':'
 
-      function Get_Host_Name return String is
-         Buffer : Interfaces.C.char_array (1 .. 100);
-         Res    : Interfaces.C.int;
+      ----------------------
+      -- Port_Not_Default --
+      ----------------------
+
+      function Port_Not_Default (Port : in Positive) return String is
       begin
-         Res := Sockets.Thin.C_Gethostname (Buffer (1)'Address, 100);
-         return Interfaces.C.To_Ada (Buffer);
-      end Get_Host_Name;
+         if Port = 80 then
+            return "";
+         else
+            declare
+               Port_Image : constant String := Positive'Image (Port);
+            begin
+               return ':' & Port_Image (2 .. Port_Image'Last);
+            end;
+         end if;
+      end Port_Not_Default;
 
       -----------------
       -- Open_Socket --
@@ -123,6 +129,9 @@ package body AWS.Client is
                                  & AWS.URL.URI (URL_Data)
                                  & ' ' & HTTP_Version);
                Sockets.Put_Line (Sock, "Connection: Keep-Alive");
+               Sockets.Put_Line (Sock, "Host: " &
+                                 AWS.URL.Server_Name (URL_Data) &
+                                 Port_Not_Default (AWS.URL.Port (URL_Data)));
                return Sock;
             end;
          else
@@ -136,6 +145,9 @@ package body AWS.Client is
                Sockets.Put_Line (Sock,
                                  Method & ' ' & URL & ' ' & HTTP_Version);
                Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
+               Sockets.Put_Line (Sock, "Host: " &
+                                 AWS.URL.Server_Name (Proxy_Data) &
+                                 Port_Not_Default (AWS.URL.Port (Proxy_Data)));
                return Sock;
             end;
          end if;
@@ -149,8 +161,7 @@ package body AWS.Client is
 
       Sockets.Put_Line (Sock, "Accept: text/html, */*");
       Sockets.Put_Line (Sock, "Accept-Language: fr, us");
-      Sockets.Put_Line (Sock, "User-Agent: AWS/v" & Version);
-      Sockets.Put_Line (Sock, "Host: " & Get_Host_Name);
+      Sockets.Put_Line (Sock, "User-Agent: AWS (Ada Web Server) v" & Version);
 
       if User /= No_Data and then Pwd /= No_Data then
          Sockets.Put_Line
