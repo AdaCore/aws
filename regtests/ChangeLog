@@ -1,3 +1,12 @@
+2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* sock3.adb, sock3.out, sock3_proc.adb, sock3_sec.adb, sock3_sec.out,
+	  makefile:
+	New regression tests pair, plain and secure.
+
+	* ssock2.adb:
+	Do not call Get_Free_Port. It is calling inside of Sock2_Proc.
+
 2004-09-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sock1.adb:
