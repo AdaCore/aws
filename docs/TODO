@@ -18,10 +18,6 @@ implemented:
 - support standard method encoding under HTTP/1.1 for small files instead of
   the chuncked encoding.
 
-- digest authentication (only basic authentication is supported right
-  now, which is to say no authentication at all :) Not sure it is supported by
-  Web browser...
-
 - implement multi-server with a dispatcher of request to build server which
   must support a lot of requests. Could be using GLADE or a standard
   redirector of request (using HTTP redirection).
