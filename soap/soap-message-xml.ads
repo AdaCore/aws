@@ -31,6 +31,9 @@
 --  $Id$
 
 with Ada.Strings.Unbounded;
+
+with AWS.Client;
+
 with SOAP.Message.Payload;
 with SOAP.Message.Response;
 
@@ -42,6 +45,12 @@ package SOAP.Message.XML is
      (XML : in String)
       return Message.Payload.Object;
    --  Build a Payload object by parsing the XML payload string
+
+   function Load_Response
+     (XML : in AWS.Client.HTTP_Connection)
+      return Message.Response.Object'Class;
+   --  Build a Response object (either a standard response or an error
+   --  response) by parsing the HTTP client connection output.
 
    function Load_Response
      (XML : in String)
