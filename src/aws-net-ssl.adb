@@ -63,7 +63,6 @@ package body AWS.Net is
                           return Sockets.Socket_FD'Class is
    begin
       if Security then
-         Init;
          declare
             New_Socket : SSL.Handle;
          begin
@@ -108,4 +107,6 @@ package body AWS.Net is
       end if;
    end Connect;
 
+begin
+   Init;
 end AWS.Net;
