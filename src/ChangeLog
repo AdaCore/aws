@@ -4,6 +4,11 @@
 	(Next_Private): New private routine starting from current socket.
 	(Next): Starting from next socket.
 
+	* aws-client.adb:
+	(Internal_Post): New parameter Content_Type.
+	(Post): Use Content-Type: application/octet-stream for binary data.
+	(SOAP_Post): Send appropriate Content_Type.
+
 2004-02-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets.ads, aws-net-sets.adb:
