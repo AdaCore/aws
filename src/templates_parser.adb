@@ -177,6 +177,9 @@ package body Templates_Parser is
          Divide,
          --  Divide the given parameter to the string (operator "/")
 
+         Absolute,
+         --  Returns the abosulte value
+
          Add,
          --  Add the given parameter to the string
 
@@ -239,6 +242,9 @@ package body Templates_Parser is
 
          Mult,
          --  Multiply the given parameter to the string
+
+         Neg,
+         --  Change the size of the value
 
          No_Context,
          --  This is a command filter, it indicates that the variable even
@@ -385,6 +391,13 @@ package body Templates_Parser is
       procedure Check_Null_Parameter (P : in Parameter_Data);
       --  Raises Template_Error if P is not equal to Null_Parameter.
 
+      function Absolute
+        (S : in String;
+         P : in Parameter_Data     := No_Parameter;
+         T : in Translate_Set      := Null_Set;
+         I : in Include_Parameters := No_Include_Parameters)
+         return String;
+
       function Add_Param
         (S : in String;
          P : in Parameter_Data     := No_Parameter;
@@ -477,6 +490,13 @@ package body Templates_Parser is
          return String;
 
       function Match
+        (S : in String;
+         P : in Parameter_Data     := No_Parameter;
+         T : in Translate_Set      := Null_Set;
+         I : in Include_Parameters := No_Include_Parameters)
+         return String;
+
+      function Neg
         (S : in String;
          P : in Parameter_Data     := No_Parameter;
          T : in Translate_Set      := Null_Set;
@@ -1980,6 +2000,23 @@ package body Templates_Parser is
          Containers.Delete (Set.Set.all, Name);
       end if;
    end Remove;
+
+   ---------------------------
+   -- For_Every_Association --
+   ---------------------------
+
+   procedure For_Every_Association (Set : in Translate_Set) is
+      Pos  : Containers.Cursor;
+      Quit : Boolean := False;
+   begin
+      Pos := Containers.First (Set.Set.all);
+
+      while Containers.Has_Element (Pos) loop
+         Action (Containers.Element (Pos), Quit);
+         exit when Quit;
+         Pos := Containers.Next (Pos);
+      end loop;
+   end For_Every_Association;
 
    ------------
    -- To_Set --
