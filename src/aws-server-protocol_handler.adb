@@ -32,7 +32,9 @@
 --  $Revision$
 --  $Date$
 --  $Author$
---  $State$
+
+--  This procedure is responsible to treat the HTTP protocol. Every responses
+--  and coming requests are parsed/formated here.
 
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
@@ -67,11 +69,11 @@ is
    use Ada.Strings;
    use Ada.Strings.Unbounded;
 
-   Admin_URI      : constant String
-     := CNF.Admin_URI (HTTP_Server.Properties);
-
    Case_Sensitive_Parameters : constant Boolean
      := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
+
+   Admin_URI      : constant String
+     := CNF.Admin_URI (HTTP_Server.Properties);
 
    End_Of_Message : constant String := "";
    HTTP_10        : constant String := "HTTP/1.0";
@@ -179,8 +181,8 @@ is
            and then (AWS.Status.Session (C_Stat) = Session.No_Session
                      or else not Session.Exist (AWS.Status.Session (C_Stat)))
          then
+            --  Generate the session ID
             AWS.Status.Set.Session (C_Stat);
-            --  Generate the session ID.
          end if;
       end Create_Session;
 
