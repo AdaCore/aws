@@ -80,6 +80,21 @@ package body AWS.Net is
       Free (Socket.C);
    end Release_Cache;
 
+   -----------------------
+   -- Set_Blocking_Mode --
+   -----------------------
+
+   procedure Set_Blocking_Mode
+     (Socket   : in out Socket_Type;
+      Blocking : in     Boolean) is
+   begin
+      if Blocking then
+         Socket.Timeout := Forever;
+      else
+         Socket.Timeout := 0.0;
+      end if;
+   end Set_Blocking_Mode;
+
    ---------------
    -- Set_Cache --
    ---------------

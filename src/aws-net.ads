@@ -161,10 +161,10 @@ package AWS.Net is
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
    procedure Set_Blocking_Mode
-     (Socket   : in Socket_Type;
-      Blocking : in Boolean)
-      is abstract;
+     (Socket   : in out Socket_Type;
+      Blocking : in     Boolean);
    --  Set the blocking mode for the socket.
+   --  Obsolete routine, use Set_Timeout instead.
 
    procedure Set_Timeout
      (Socket   : in out Socket_Type;
