@@ -1,3 +1,9 @@
+2005-02-15  Pascal Obry  <pascal@obry.org>
+
+	* src/check_config.c:
+	Check if there is IPv6 support or not on the host. Defines dummy
+	value for some constants if not.
+
 2005-02-14  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* aws-net-std__gnat.adb:
