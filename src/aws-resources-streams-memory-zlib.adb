@@ -47,8 +47,13 @@ package body AWS.Resources.Streams.Memory.ZLib is
 
    procedure Append
      (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array)
+      Buffer   : in     Stream_Element_Array;
+      Trim     : in     Boolean := False)
    is
+      pragma Unreferenced (Trim);
+      --  Ignore the Trim parameter, because stream would be trimmed anyway
+      --  in the Flush routine.
+
       procedure Append (Item : in Stream_Element_Array);
       pragma Inline (Append);
 
@@ -108,9 +113,16 @@ package body AWS.Resources.Streams.Memory.ZLib is
       loop
          ZL.Flush (Resource.Filter, Flush_Buffer, Last, ZL.Finish);
 
-         Append (Memory.Stream_Type (Resource), Flush_Buffer (1 .. Last));
+         if Last < Flush_Buffer'Last then
+            Append
+              (Memory.Stream_Type (Resource),
+               Flush_Buffer (1 .. Last),
+               Trim => True);
 
-         exit when Last < Flush_Buffer'Last;
+            exit;
+         else
+            Append (Memory.Stream_Type (Resource), Flush_Buffer);
+         end if;
       end loop;
 
       Resource.Flushed := True;
