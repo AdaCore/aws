@@ -453,6 +453,21 @@ package body SOAP.Generator is
       O.Force := True;
    end Overwrite;
 
+   ----------------
+   -- Procs_Spec --
+   ----------------
+
+   function Procs_Spec (O : in Object) return String is
+   begin
+      if O.Spec /= Null_Unbounded_String then
+         return To_String (O.Spec);
+      elsif O.Types_Spec /= Null_Unbounded_String then
+         return To_String (O.Types_Spec);
+      else
+         return "";
+      end if;
+   end Procs_Spec;
+
    ---------------------
    -- Put_File_Header --
    ---------------------
@@ -727,8 +742,8 @@ package body SOAP.Generator is
 
          --  Is types are to be reused from an Ada  spec ?
 
-         if O.Types_Spec = Null_Unbounded_String then
-            --  No user's spec, generate all typ definitions
+         if Types_Spec (O) = "" then
+            --  No user's spec, generate all type definitions
 
             --  Array type
 
@@ -797,13 +812,12 @@ package body SOAP.Generator is
                Text_IO.Put_Line
                  (Type_Ads,
                   "   subtype " & F_Name & "_Index is Positive range 1 .. "
-                    & AWS.Utils.Image (P.Length) & ";");
+                  & AWS.Utils.Image (P.Length) & ";");
             end if;
 
             Text_IO.Put_Line
               (Type_Ads, "   subtype " & F_Name & " is "
-                 & To_String (O.Types_Spec)
-                 & "." & To_String (P.T_Name) & ";");
+               & Types_Spec (O) & "." & To_String (P.T_Name) & ";");
 
             --  Note that we can't generate safe array runtime support at this
             --  point. It could be the case that this array is not inside a
@@ -876,15 +890,13 @@ package body SOAP.Generator is
 
          --  Is types are to be reused from an Ada  spec ?
 
-         if O.Types_Spec = Null_Unbounded_String then
+         if Types_Spec (O) = "" then
             Text_IO.Put_Line
-              (Type_Ads, "   type " & F_Name
-                 & " is new " & T_Name & ";");
+              (Type_Ads, "   type " & F_Name & " is new " & T_Name & ";");
          else
             Text_IO.Put_Line
               (Type_Ads, "   subtype " & F_Name & " is "
-                 & To_String (O.Types_Spec)
-                 & "." & To_String (P.D_Name) & ";");
+               & Types_Spec (O) & "." & To_String (P.D_Name) & ";");
          end if;
       end Generate_Derived;
 
@@ -935,15 +947,13 @@ package body SOAP.Generator is
 
          --  Is types are to be reused from an Ada  spec ?
 
-         if O.Types_Spec = Null_Unbounded_String then
+         if Types_Spec (O) = "" then
             Text_IO.Put_Line
-              (Type_Ads, "   type " & F_Name
-                 & " is " & Image (P.E_Def) & ";");
+              (Type_Ads, "   type " & F_Name & " is " & Image (P.E_Def) & ";");
          else
             Text_IO.Put_Line
               (Type_Ads, "   subtype " & F_Name & " is "
-                 & To_String (O.Types_Spec)
-                 & "." & To_String (P.E_Name) & ";");
+               & Types_Spec (O) & "." & To_String (P.E_Name) & ";");
          end if;
 
          --  Generate Image function
@@ -963,8 +973,8 @@ package body SOAP.Generator is
          while N /= null loop
             Text_IO.Put (Type_Adb, "         when ");
 
-            if O.Types_Spec /= Null_Unbounded_String then
-               Text_IO.Put (Type_Adb, To_String (O.Types_Spec) & '.');
+            if Types_Spec (O) /= "" then
+               Text_IO.Put (Type_Adb, Types_Spec (O) & '.');
             end if;
 
             Text_IO.Put_Line
@@ -1008,7 +1018,7 @@ package body SOAP.Generator is
 
          --  Is types are to be reused from an Ada spec ?
 
-         if O.Types_Spec = Null_Unbounded_String then
+         if Types_Spec (O) = "" then
 
             --  Compute max field width
 
@@ -1061,8 +1071,7 @@ package body SOAP.Generator is
             Text_IO.New_Line (Type_Ads);
             Text_IO.Put_Line
               (Type_Ads, "   subtype " & F_Name & " is "
-                 & To_String (O.Types_Spec)
-                 & "." & To_String (P.T_Name) & ";");
+               & Types_Spec (O) & "." & To_String (P.T_Name) & ";");
          end if;
 
          --  Generate conversion spec
@@ -1327,7 +1336,7 @@ package body SOAP.Generator is
       is
          F_Name : constant String := Format_Name (O, Name) & "_Type";
       begin
-         if O.Types_Spec /= Null_Unbounded_String
+         if Types_Spec (O) /= ""
            and then Is_Inside_Record (Name)
            and then not Name_Set.Exists (Name & "Safe_Array_Support__")
          then
@@ -1344,8 +1353,8 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Type_Ads, "   subtype " & F_Name & "_Safe_Access");
             Text_IO.Put_Line
-              (Type_Ads, "      is " & To_String (O.Types_Spec) & "."
-                 & To_String (P.T_Name) & "_Safe_Pointer.Safe_Pointer;");
+              (Type_Ads, "      is " & Types_Spec (O) & "."
+               & To_String (P.T_Name) & "_Safe_Pointer.Safe_Pointer;");
 
             Text_IO.New_Line (Type_Ads);
             Text_IO.Put_Line
@@ -1355,8 +1364,8 @@ package body SOAP.Generator is
             Text_IO.Put_Line
               (Type_Ads, "      return " & F_Name & "_Safe_Access");
             Text_IO.Put_Line
-              (Type_Ads, "      renames " & To_String (O.Types_Spec) & "."
-                 & To_String (P.T_Name) & "_Safe_Pointer.To_Safe_Pointer;");
+              (Type_Ads, "      renames " & Procs_Spec (O) & "."
+               & To_String (P.T_Name) & "_Safe_Pointer.To_Safe_Pointer;");
             Text_IO.Put_Line
               (Type_Ads, "   --  Convert an array to a safe pointer");
          end if;
@@ -1722,6 +1731,15 @@ package body SOAP.Generator is
 
    package body Skel is separate;
 
+   ----------------
+   -- Specs_From --
+   ----------------
+
+   procedure Specs_From (O : in out Object; Spec : in String) is
+   begin
+      O.Spec := To_Unbounded_String (Spec);
+   end Specs_From;
+
    -------------------
    -- Start_Service --
    -------------------
@@ -1882,8 +1900,13 @@ package body SOAP.Generator is
       Text_IO.Put_Line (Type_Ads, "with SOAP.Utils;");
       Text_IO.New_Line (Type_Ads);
 
-      if O.Types_Spec /= Null_Unbounded_String then
-         Text_IO.Put_Line (Type_Ads, "with " & To_String (O.Types_Spec) & ';');
+      if Types_Spec (O) /= "" then
+         Text_IO.Put_Line (Type_Ads, "with " & Types_Spec (O) & ';');
+         Text_IO.New_Line (Type_Ads);
+      end if;
+
+      if Procs_Spec (O) /= "" and then Procs_Spec (O) /= Types_Spec (O) then
+         Text_IO.Put_Line (Type_Ads, "with " & Procs_Spec (O) & ';');
          Text_IO.New_Line (Type_Ads);
       end if;
 
@@ -1896,10 +1919,17 @@ package body SOAP.Generator is
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Types);");
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Utils);");
 
-      if O.Types_Spec /= Null_Unbounded_String then
+      if Types_Spec (O) /= "" then
          Text_IO.Put_Line
            (Type_Ads,
-            "   pragma Warnings (Off, " & To_String (O.Types_Spec) & ");");
+            "   pragma Warnings (Off, " & Types_Spec (O) & ");");
+         Text_IO.New_Line (Type_Ads);
+      end if;
+
+      if Procs_Spec (O) /= "" and then Procs_Spec (O) /= Types_Spec (O) then
+         Text_IO.Put_Line
+           (Type_Ads,
+            "   pragma Warnings (Off, " & Procs_Spec (O) & ");");
          Text_IO.New_Line (Type_Ads);
       end if;
 
@@ -2029,6 +2059,21 @@ package body SOAP.Generator is
    begin
       O.Types_Spec := To_Unbounded_String (To_Unit_Name (Spec));
    end Types_From;
+
+   ----------------
+   -- Types_Spec --
+   ----------------
+
+   function Types_Spec (O : in Object) return String is
+   begin
+      if O.Types_Spec /= Null_Unbounded_String then
+         return To_String (O.Types_Spec);
+      elsif O.Spec /= Null_Unbounded_String then
+         return To_String (O.Spec);
+      else
+         return "";
+      end if;
+   end Types_Spec;
 
    --------------------
    -- Version_String --
