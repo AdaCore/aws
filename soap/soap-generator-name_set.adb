@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -31,7 +31,7 @@
 separate (SOAP.Generator)
 package body Name_Set is
 
-   Set : array (1 .. 100) of Unbounded_String;
+   Set : array (1 .. 512) of Unbounded_String;
    S   : Natural := 0;
 
    ---------
