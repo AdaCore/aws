@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -39,7 +39,10 @@ package SOAP is
    --  Will be raised when an error occurs in the SOAP implementation. The
    --  exception message will described the problem.
 
-   Version : constant String := "1.2";
-   --  Version number for this implementation.
+   Version : constant String := "1.3";
+   --  Version number for this implementation
+
+   No_SOAPAction : constant String := (1 => ASCII.Nul);
+   --  Value used to specify that there was no SOAPAction specified
 
 end SOAP;
