@@ -1,5 +1,8 @@
 2002-12-15  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-headers.ads:
+	Add Get into the comment as inherited routine.
+
 	* aws-headers-set.ads:
 	(Update): Put pragma inline next to the spec.
 
