@@ -415,11 +415,25 @@ package body AWS.Client is
       Close (Connection);
 
       if Follow_Redirection
-        and then Response.Status_Code (Result) = Messages.S301
+        and then
+        Response.Status_Code (Result) = Messages.S305
       then
+         --  This is "Use Proxy" message, Location point to the proxy to use.
+         --  We do not have the login/password for the proxy.
+         return Get
+           (URL, User, Pwd, Response.Location (Result),
+            Timeouts => Timeouts, Follow_Redirection => Follow_Redirection);
+
+      elsif Follow_Redirection
+        and then
+        Response.Status_Code (Result) in Messages.S301 .. Messages.S307
+        and then
+        Response.Status_Code (Result) /= Messages.S304
+      then
+         --  All other redirections, 304 is not one of them.
          return Get
            (Response.Location (Result), User, Pwd,
-            Proxy, Proxy_User, Proxy_Pwd, Timeouts);
+            Proxy, Proxy_User, Proxy_Pwd, Timeouts, Follow_Redirection);
       else
          return Result;
       end if;
@@ -529,8 +543,11 @@ package body AWS.Client is
       procedure Check_Status is
          use type Messages.Status_Code;
       begin
-         if Status = Messages.S301 then
-            --  moved permanently
+         if Status in Messages.S301 .. Messages.S307
+           and then
+           Status /= Messages.S304
+         then
+            --  Page Moved, Location pointing to new location
 
             Result := Response.Moved
               (Location => To_String (Location),
