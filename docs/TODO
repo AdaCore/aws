@@ -195,3 +195,6 @@ implemented:
 
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
+
+- With a POST request does the parameters passed with the URL (as for a GET
+  method) must be parsed ? Currently AWS just ignore them.
