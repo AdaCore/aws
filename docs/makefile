@@ -63,7 +63,8 @@ aws_docs : aws.ps aws.pdf aws.html aws.txt aws.info
 sg_docs : style-guide.ps style-guide.pdf style-guide.html style-guide.txt style-guide.info
 
 build: check_env aws_docs sg_docs
-	echo done
+	echo ""
+	echo Documentation built with success.
 
 ada.sed: makefile
 	echo "s/\([^@]\)@\([^@]\)/\1@@\2/g" > ada.sed
@@ -84,10 +85,10 @@ ada.sed: makefile
 	./gentexifile $< NOGROUP
 
 %.dvi : %.texi
-	-texi2dvi --clean $<
+	-texi2dvi --clean --quiet $<
 
 %.ps : %.dvi
-	-dvips $< -o $@
+	-dvips -q $< -o $@
 
 %.pdf : %.ps
 	-ps2pdf $< $@
@@ -158,9 +159,9 @@ adabrowse_apiref: check_api
 	)
 
 clean:
-	-rm aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
+	-rm -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
           $(APIFILES) *~ *.o *.ali genout
-	-rm style-guide.dvi style-guide.html style-guide.info* \
+	-rm -f style-guide.dvi style-guide.html style-guide.info* \
 		style-guide.log style-guide.ps style-guide.txt
 
 clean_apiref:
