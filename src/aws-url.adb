@@ -97,13 +97,16 @@ package body AWS.URL is
       if Messages.Is_Match (URL, HTTP_Token) then
          Parse (URL (URL'First + HTTP_Token'Length .. URL'Last));
          O.Security := False;
+
       elsif Messages.Is_Match (URL, HTTPS_Token) then
          Parse (URL (URL'First + HTTPS_Token'Length .. URL'Last));
          O.Security := True;
+
       else
          Parse (URL);
          O.Security := False;
       end if;
+
       return O;
    exception
       when others =>
