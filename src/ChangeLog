@@ -1,3 +1,24 @@
+2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-resources-embedded.adb:
+	(Node): Remove Mode field.
+	(Exists): Removed.
+	(File_Size): Checks for compressed resources  (".gz" extension).
+	(File_Timestamp): Idem.
+	(Is_Regular_File): New implementation.
+	(Open): Checks  for compressed resources (".gz" extension).
+	(Register): Remove Mode parameter.
+
+	* aws-resources-embedded.ads:
+	(Is_Regular_File): Add pragma Inline.
+	(Register): Remove Mode parameter.
+	(Exists): Removed.
+
+	* aws-resources.adb:
+	(File_Size): Use Embedded.Is_Regular_File.
+	(File_Timestamp): Idem.
+	(Is_Regular_File): Idem.
+
 2003-12-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources.ads:
