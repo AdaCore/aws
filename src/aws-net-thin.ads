@@ -78,7 +78,6 @@ package AWS.Net.Thin is
    function GAI_StrError (errcode : in C.int) return chars_ptr;
 
 private
-
    --  Use Win32 convention for Win32 platform
    --  all other platforms would treat it as C convention with warning.
 
