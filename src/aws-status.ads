@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -37,6 +37,7 @@
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
+with AWS.Attachments;
 with AWS.Headers;
 with AWS.Messages;
 with AWS.Net;
@@ -59,19 +60,24 @@ package AWS.Status is
 
    function Method                 (D : in Data) return Request_Method;
    pragma Inline (Method);
-   --  Returns the request method.
+   --  Returns the request method
 
    function URI                    (D : in Data) return String;
    pragma Inline (URI);
-   --  Returns the requested resource.
+   --  Returns the requested resource
 
    function URI                    (D : in Data) return URL.Object;
    pragma Inline (URI);
-   --  As above but return an URL object.
+   --  As above but return an URL object
+
+   function Parameters             (D : in Data) return Parameters.List;
+   pragma Inline (Parameters);
+   --  Returns the list of parameters for the request. This list can be empty
+   --  if there was no form or URL parameters.
 
    function HTTP_Version           (D : in Data) return String;
    pragma Inline (HTTP_Version);
-   --  Returns the HTTP version used by the client.
+   --  Returns the HTTP version used by the client
 
    ------------
    -- Header --
@@ -79,7 +85,7 @@ package AWS.Status is
 
    function Header                 (D : in Data) return Headers.List;
    pragma Inline (Header);
-   --  Returns the list of header lines for the request.
+   --  Returns the list of header lines for the request
 
    function Accept_Encoding        (D : in Data) return String;
    pragma Inline (Accept_Encoding);
@@ -108,7 +114,7 @@ package AWS.Status is
 
    function Keep_Alive             (D : in Data) return Boolean;
    pragma Inline (Keep_Alive);
-   --  Returns the flag if the current HTTP connection is keep-alive.
+   --  Returns the flag if the current HTTP connection is keep-alive
 
    function User_Agent             (D : in Data) return String;
    pragma Inline (User_Agent);
@@ -155,12 +161,16 @@ package AWS.Status is
 
    function Binary_Data (D : in Data) return Stream_Element_Array;
    pragma Inline (Binary_Data);
-   --  Returns the binary data message content
+   --  Returns the binary data message content.
+   --  Note that only the root part of a multipart/related message is returned.
 
-   function Parameters             (D : in Data) return Parameters.List;
-   pragma Inline (Parameters);
-   --  Returns the list of parameters for the request. This list can be empty
-   --  if there was no form or URL parameters.
+   -----------------
+   -- Attachments --
+   -----------------
+
+   function Attachments            (D : in Data) return AWS.Attachments.List;
+   pragma Inline (Attachments);
+   --  Returns the list of Attachments for the request
 
    -------------
    -- Session --
@@ -196,7 +206,7 @@ package AWS.Status is
    function Payload                (D : in Data) return String;
    pragma Inline (Payload);
    --  Returns the XML Payload message. XML payload is the actual SOAP
-   --  request.
+   --  request. This is the root part of multipart/related SOAP message.
 
    -----------
    -- HTTPS --
@@ -267,21 +277,22 @@ private
 
       --  Request
       Header            : Headers.List;
-      Method            : Request_Method     := GET;
+      Method            : Request_Method        := GET;
       HTTP_Version      : Unbounded_String;
       URI               : URL.Object;
       Parameters        : AWS.Parameters.List;
-      Binary_Data       : Utils.Stream_Element_Array_Access := null;
-      Content_Length    : Natural            := 0;
+      Binary_Data       : Utils.Stream_Element_Array_Access;
+      Content_Length    : Natural               := 0;
       Keep_Alive        : Boolean;
-      File_Up_To_Date   : Boolean            := False;
+      File_Up_To_Date   : Boolean               := False;
+      Attachments       : AWS.Attachments.List;
 
       --  SOAP
-      SOAP_Action       : Boolean            := False;
+      SOAP_Action       : Boolean               := False;
       --  True if SOAPAction is set in the header list
 
       --  Authentication
-      Auth_Mode         : Authorization_Type := None;
+      Auth_Mode         : Authorization_Type    := None;
       Auth_Name         : Unbounded_String; -- for Basic and Digest
       Auth_Password     : Unbounded_String; -- for Basic
       Auth_Realm        : Unbounded_String; -- for Digest
@@ -293,8 +304,8 @@ private
       Auth_Response     : Unbounded_String; -- for Digest
 
       --  Session
-      Session_ID        : AWS.Session.ID     := AWS.Session.No_Session;
-      Session_Created   : Boolean            := False;
+      Session_ID        : AWS.Session.ID        := AWS.Session.No_Session;
+      Session_Created   : Boolean               := False;
    end record;
 
 end AWS.Status;

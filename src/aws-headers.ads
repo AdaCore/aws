@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -78,6 +78,10 @@ package AWS.Headers is
    --  Returns all values for the specified header field Name in a
    --  comma-separated string. This format is conformant to [RFC 2616 - 4.2]
    --  (see last paragraph).
+
+   function Length (Headers : in AWS.Headers.List) return Natural;
+   --  Returns the length (in bytes) of the header, including the ending
+   --  empty line.
 
    --  See AWS.Containers.Tables for inherited routines.
 

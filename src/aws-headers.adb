@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -93,6 +93,23 @@ package body AWS.Headers is
          return "";
       end if;
    end Get_Values;
+
+   ------------
+   -- Length --
+   ------------
+
+   function Length (Headers : in AWS.Headers.List) return Natural is
+      L : Natural := 2; -- The ending CR+LF
+   begin
+      for J in 1 .. AWS.Headers.Count (Headers) loop
+         L := L
+           + AWS.Headers.Get_Line
+               (Headers => Headers,
+                N       => J)'Length + 2;
+      end loop;
+
+      return L;
+   end Length;
 
    -----------------
    -- Send_Header --

@@ -75,6 +75,9 @@ package body AWS.MIME is
       function Get (Filename : in String) return String;
       --  Returns Filename's MIME content type
 
+      function Extension (Content_Type : in String) return String;
+      --  Returns the best guess of the extension to use for the Content Type
+
       procedure Add_Extension (Ext : in String; MIME_Type : in String);
       --  Add Ext to the set of known content type extensions
 
@@ -98,7 +101,7 @@ package body AWS.MIME is
 
    function File_Extension (Filename : in String) return String;
    pragma Inline (File_Extension);
-   --  Returns file extension without the dot.
+   --  Returns file extension without the dot
 
    function Is_Type
      (MIME_Type : in String;
@@ -141,6 +144,15 @@ package body AWS.MIME is
    begin
       return Set.Get (Filename);
    end Content_Type;
+
+   ---------------
+   -- Extension --
+   ---------------
+
+   function Extension (Content_Type : in String) return String is
+   begin
+      return Set.Extension (Content_Type);
+   end Extension;
 
    --------------------
    -- File_Extension --
@@ -417,6 +429,55 @@ package body AWS.MIME is
             Last      := Last.Next;
          end if;
       end Add_Regexp;
+
+      ---------------
+      -- Extension --
+      ---------------
+
+      function Extension (Content_Type : in String) return String is
+
+         CT     : constant Unbounded_String :=
+                    To_Unbounded_String (Content_Type);
+         Result : Unbounded_String;
+
+         procedure Process (Position : in Containers.Key_Value.Cursor);
+         --  Iterator callback procedure
+
+         -------------
+         -- Process --
+         -------------
+
+         procedure Process (Position : in Containers.Key_Value.Cursor) is
+         begin
+            if Result = "" and then
+              Containers.Key_Value.Has_Element (Position) then
+
+               if
+                 Containers.Key_Value.Table.Containers.Element (Position) = CT
+               then
+                  Result := To_Unbounded_String
+                    (Containers.Key_Value.Table.Containers.Key (Position));
+               end if;
+            end if;
+         end Process;
+
+         ---------------
+         -- Iteration --
+         ---------------
+
+         procedure Iteration is new Key_Value.Generic_Iteration (Process);
+
+      begin
+         if Content_Type = Default_Content_Type then
+            null; -- We don't want give unknown data the exe extension
+         elsif Content_Type = Text_Plain then
+            Result := To_Unbounded_String ("txt");
+         else
+            Iteration (Ext_Set);
+         end if;
+
+         return To_String (Result);
+      end Extension;
 
       ---------
       -- Get --

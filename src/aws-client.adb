@@ -86,7 +86,7 @@ package body AWS.Client is
       User       : in     String;
       Pwd        : in     String;
       Mode       : in     Authentication_Mode);
-   --  Internal procedure to set authentication parameters.
+   --  Internal procedure to set authentication parameters
 
    procedure Parse_Header
      (Connection        : in out HTTP_Connection;
@@ -101,7 +101,7 @@ package body AWS.Client is
    --  Connection.Opened is set to False.
 
    procedure Disconnect (Connection : in out HTTP_Connection);
-   --  Close connection. Further use is not possible.
+   --  Close connection. Further use is not possible
 
    procedure Open_Send_Common_Header
      (Connection : in out HTTP_Connection;
@@ -116,8 +116,28 @@ package body AWS.Client is
       Data         : in     Streams.Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
+      Content_Type : in     String;
+      Attachments  : in     AWS.Attachments.List);
+   --  Common base routine for Post and SOAP_Post routines
+
+   procedure Internal_Post_Without_Attachment
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     Streams.Stream_Element_Array;
+      URI          : in     String;
+      SOAPAction   : in     String;
       Content_Type : in     String);
-   --  Common base routine for Post and SOAP_Post routines.
+   --  Only used by Internal_Post
+
+   procedure Internal_Post_With_Attachment
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     Streams.Stream_Element_Array;
+      URI          : in     String;
+      SOAPAction   : in     String;
+      Content_Type : in     String;
+      Attachments  : in     AWS.Attachments.List);
+   --  Only used by Internal_Post
 
    procedure Send_Header
      (Sock : in Net.Socket_Type'Class;
@@ -644,6 +664,187 @@ package body AWS.Client is
       Data         : in     Streams.Stream_Element_Array;
       URI          : in     String;
       SOAPAction   : in     String;
+      Content_Type : in     String;
+      Attachments  : in     AWS.Attachments.List) is
+      use type AWS.Attachments.List;
+   begin
+      if Attachments = AWS.Attachments.Empty_List then
+         Internal_Post_Without_Attachment
+           (Connection   => Connection,
+            Result       => Result,
+            Data         => Data,
+            URI          => URI,
+            SOAPAction   => SOAPAction,
+            Content_Type => Content_Type);
+      else
+         Internal_Post_With_Attachment
+           (Connection   => Connection,
+            Result       => Result,
+            Data         => Data,
+            URI          => URI,
+            SOAPAction   => SOAPAction,
+            Content_Type => Content_Type,
+            Attachments  => Attachments);
+      end if;
+   end Internal_Post;
+
+   --------------------------------------
+   -- Internal_Post_With_Attachment --
+   --------------------------------------
+
+   procedure Internal_Post_With_Attachment
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     Streams.Stream_Element_Array;
+      URI          : in     String;
+      SOAPAction   : in     String;
+      Content_Type : in     String;
+      Attachments  : in     AWS.Attachments.List)
+   is
+      Pref_Suf  : constant String        := "--";
+      Now       : constant Calendar.Time := Calendar.Clock;
+      Boundary  : constant String
+        := "AWS_Attachment-" & GNAT.Calendar.Time_IO.Image (Now, "%s");
+
+      Root_Content_Id       : constant String := "<rootpart>";
+      Root_Part_Header      : AWS.Headers.List;
+
+      Try_Count             : Natural := Connection.Retry;
+
+      Auth_Attempts         : Auth_Attempts_Count := (others => 2);
+      Auth_Is_Over          : Boolean;
+
+      procedure Build_Root_Part_Header;
+      --  Builds the rootpart header and calculates its size
+
+      function Content_Length return Integer;
+      --  Returns the total message content length
+
+      ----------------------------
+      -- Build_Root_Part_Header --
+      ----------------------------
+
+      procedure Build_Root_Part_Header is
+      begin
+         AWS.Headers.Set.Add
+           (Headers => Root_Part_Header,
+            Name    => AWS.Messages.Content_Type_Token,
+            Value   => Content_Type);
+
+         AWS.Headers.Set.Add
+           (Headers => Root_Part_Header,
+            Name    => AWS.Messages.Content_ID_Token,
+            Value   => Root_Content_Id);
+
+      end Build_Root_Part_Header;
+
+      --------------------
+      -- Content_Length --
+      --------------------
+
+      function Content_Length return Integer is
+      begin
+         return 2
+           + Boundary'Length + 2    -- Root part boundary + CR+LF
+           + AWS.Headers.Length (Root_Part_Header)
+           + Data'Length            -- Root part data length
+           + AWS.Attachments.Length (Attachments, Boundary);
+      end Content_Length;
+
+   begin
+      Build_Root_Part_Header;
+
+      Retry : loop
+         begin
+            Open_Send_Common_Header (Connection, "POST", URI);
+
+            declare
+               Sock : Net.Socket_Type'Class renames Connection.Socket.all;
+            begin
+               --  Send message Content-Type (multipart/related)
+
+               Send_Header
+                 (Sock,
+                  Messages.Content_Type
+                    (MIME.Multipart_Related
+                     & "; type=" & Content_Type
+                     & "; start=""" & Root_Content_Id & '"',
+                     Boundary));
+
+               if SOAPAction /= No_Data then
+                  --  SOAP header
+
+                  if SOAPAction = """""" then
+                     --  An empty SOAPAction
+                     Send_Header (Sock, Messages.SOAPAction (""));
+                  else
+                     Send_Header (Sock, Messages.SOAPAction (SOAPAction));
+                  end if;
+               end if;
+
+               --  Send message Content-Length
+
+               Send_Header (Sock, Messages.Content_Length (Content_Length));
+
+               Net.Buffered.New_Line (Sock);
+
+               --  Send multipart message start boundary
+
+               Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary);
+
+               --  Send root part header
+
+               AWS.Headers.Send_Header (Sock, Root_Part_Header);
+
+               Net.Buffered.New_Line (Sock);
+
+               --  Send root part data
+
+               Net.Buffered.Write (Sock, Data);
+
+               --  Send the attachments
+
+               AWS.Attachments.Send (Sock, Attachments, Boundary);
+
+            end;
+
+            --  Get answer from server
+
+            Get_Response (Connection, Result, not Connection.Streaming);
+
+            Decrement_Authentication_Attempt
+              (Connection, Auth_Attempts, Auth_Is_Over);
+
+            if Auth_Is_Over then
+               return;
+            end if;
+
+         exception
+            when Net.Socket_Error =>
+
+               Disconnect (Connection);
+
+               if Try_Count = 0 then
+                  Result := Response.Build
+                    (MIME.Text_HTML, "Upload Timeout", Messages.S408);
+                  exit Retry;
+               end if;
+
+               Try_Count := Try_Count - 1;
+         end;
+      end loop Retry;
+   end Internal_Post_With_Attachment;
+
+   --------------------------------------
+   -- Internal_Post_Without_Attachment --
+   --------------------------------------
+
+   procedure Internal_Post_Without_Attachment
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     Streams.Stream_Element_Array;
+      URI          : in     String;
+      SOAPAction   : in     String;
       Content_Type : in     String)
    is
       Try_Count : Natural := Connection.Retry;
@@ -666,6 +867,7 @@ package body AWS.Client is
 
                if SOAPAction /= No_Data then
                   --  SOAP header
+
                   if SOAPAction = """""" then
                      --  An empty SOAPAction
                      Send_Header (Sock, Messages.SOAPAction (""));
@@ -697,7 +899,6 @@ package body AWS.Client is
             end if;
 
          exception
-
             when Net.Socket_Error =>
 
                Disconnect (Connection);
@@ -711,7 +912,7 @@ package body AWS.Client is
                Try_Count := Try_Count - 1;
          end;
       end loop Retry;
-   end Internal_Post;
+   end Internal_Post_Without_Attachment;
 
    -----------------------------
    -- Open_Send_Common_Header --
@@ -794,7 +995,6 @@ package body AWS.Client is
       is
          User : constant String := To_String (Data.User);
          Pwd  : constant String := To_String (Data.Pwd);
-
       begin
          if User /= No_Data and then Pwd /= No_Data then
 
@@ -1326,26 +1526,26 @@ package body AWS.Client is
    ----------
 
    function Post
-     (URL        : in String;
-      Data       : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
+     (URL         : in String;
+      Data        : in String;
+      User        : in String               := No_Data;
+      Pwd         : in String               := No_Data;
+      Proxy       : in String               := No_Data;
+      Proxy_User  : in String               := No_Data;
+      Proxy_Pwd   : in String               := No_Data;
+      Timeouts    : in Timeouts_Values      := No_Timeout;
+      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
-
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Post (Connection, Result, Data);
+      Post (Connection, Result, Data, Attachments => Attachments);
       Close (Connection);
       return Result;
 
@@ -1360,26 +1560,26 @@ package body AWS.Client is
    ----------
 
    function Post
-     (URL        : in String;
-      Data       : in Streams.Stream_Element_Array;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
+     (URL         : in String;
+      Data        : in Streams.Stream_Element_Array;
+      User        : in String               := No_Data;
+      Pwd         : in String               := No_Data;
+      Proxy       : in String               := No_Data;
+      Proxy_User  : in String               := No_Data;
+      Proxy_Pwd   : in String               := No_Data;
+      Timeouts    : in Timeouts_Values      := No_Timeout;
+      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
-
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Post (Connection, Result, Data);
+      Post (Connection, Result, Data, Attachments => Attachments);
       Close (Connection);
       return Result;
 
@@ -1394,10 +1594,12 @@ package body AWS.Client is
    ----------
 
    procedure Post
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Data       : in     Streams.Stream_Element_Array;
-      URI        : in     String := No_Data) is
+     (Connection  : in out HTTP_Connection;
+      Result      :    out Response.Data;
+      Data        : in     Streams.Stream_Element_Array;
+      URI         : in     String               := No_Data;
+      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
+     is
    begin
       Internal_Post
         (Connection,
@@ -1405,7 +1607,8 @@ package body AWS.Client is
          Data,
          URI,
          SOAPAction   => No_Data,
-         Content_Type => MIME.Application_Octet_Stream);
+         Content_Type => MIME.Application_Octet_Stream,
+         Attachments  => Attachments);
    end Post;
 
    ----------
@@ -1413,10 +1616,12 @@ package body AWS.Client is
    ----------
 
    procedure Post
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      Data       : in     String;
-      URI        : in     String := No_Data) is
+     (Connection  : in out HTTP_Connection;
+      Result      :    out Response.Data;
+      Data        : in     String;
+      URI         : in     String               := No_Data;
+      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
+     is
    begin
       Internal_Post
         (Connection,
@@ -1424,7 +1629,8 @@ package body AWS.Client is
          Translator.To_Stream_Element_Array (Data),
          URI,
          SOAPAction   => No_Data,
-         Content_Type => MIME.Application_Form_Data);
+         Content_Type => MIME.Application_Form_Data,
+         Attachments  => Attachments);
    end Post;
 
    ---------
@@ -1444,7 +1650,6 @@ package body AWS.Client is
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
-
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
@@ -1477,7 +1682,6 @@ package body AWS.Client is
 
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
-
    begin
       Retry : loop
 
@@ -1839,27 +2043,30 @@ package body AWS.Client is
    ---------------
 
    function SOAP_Post
-     (URL        : in String;
-      Data       : in String;
-      SOAPAction : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
+     (URL         : in String;
+      Data        : in String;
+      SOAPAction  : in String;
+      User        : in String               := No_Data;
+      Pwd         : in String               := No_Data;
+      Proxy       : in String               := No_Data;
+      Proxy_User  : in String               := No_Data;
+      Proxy_Pwd   : in String               := No_Data;
+      Timeouts    : in Timeouts_Values      := No_Timeout;
+      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
-
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
               Persistent => False,
               Timeouts   => Timeouts);
 
-      SOAP_Post (Connection, Result, SOAPAction, Data => Data);
+      SOAP_Post (Connection, Result, SOAPAction,
+                 Data        => Data,
+                 Attachments => Attachments);
+
       Close (Connection);
       return Result;
 
@@ -1870,11 +2077,12 @@ package body AWS.Client is
    end SOAP_Post;
 
    procedure SOAP_Post
-     (Connection : in     HTTP_Connection;
-      Result     :    out Response.Data;
-      SOAPAction : in     String;
-      Data       : in     String;
-      Streaming  : in     Boolean := False)
+     (Connection  : in     HTTP_Connection;
+      Result      :    out Response.Data;
+      SOAPAction  : in     String;
+      Data        : in     String;
+      Streaming   : in     Boolean              := False;
+      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
    is
       Save_Streaming : constant Boolean := Connection.Streaming;
    begin
@@ -1886,7 +2094,8 @@ package body AWS.Client is
          Data         => AWS.Translator.To_Stream_Element_Array (Data),
          URI          => No_Data,
          SOAPAction   => SOAPAction,
-         Content_Type => MIME.Text_XML);
+         Content_Type => MIME.Text_XML,
+         Attachments  => Attachments);
 
       Connection.Self.Streaming := Save_Streaming;
    end SOAP_Post;
@@ -1918,10 +2127,10 @@ package body AWS.Client is
       Auth_Is_Over  : Boolean;
 
       function Content_Length return Integer;
-      --  Returns the total message content length.
+      --  Returns the total message content length
 
       procedure Send_File;
-      --  Send file content to the server.
+      --  Send file content to the server
 
       --------------------
       -- Content_Length --
@@ -1943,10 +2152,10 @@ package body AWS.Client is
       ---------------
 
       procedure Send_File is
-         Sock     : Net.Socket_Type'Class renames Connection.Socket.all;
-         Buffer   : Streams.Stream_Element_Array (1 .. 4_096);
-         Last     : Streams.Stream_Element_Offset;
-         File     : Streams.Stream_IO.File_Type;
+         Sock   : Net.Socket_Type'Class renames Connection.Socket.all;
+         Buffer : Streams.Stream_Element_Array (1 .. 4_096);
+         Last   : Streams.Stream_Element_Offset;
+         File   : Streams.Stream_IO.File_Type;
       begin
          --  Send multipart message start boundary
 
@@ -2054,7 +2263,6 @@ package body AWS.Client is
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
-
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,

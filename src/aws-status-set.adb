@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -33,6 +33,7 @@
 with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
@@ -43,6 +44,7 @@ with AWS.Parameters.Set;
 package body AWS.Status.Set is
 
    use Ada.Strings;
+   use Ada.Strings.Unbounded;
 
    procedure Authorization (D : in out Data);
    --  Parse the Authorization parameters from the Authorization header value.
@@ -51,6 +53,17 @@ package body AWS.Status.Set is
    --  Update some Data fields from the internal Data header container.
    --  The Update_Data_From_Header should be called after the complete
    --  header parsing.
+
+   -----------------
+   -- Attachments --
+   -----------------
+
+   procedure Attachments
+     (D           : in out Data;
+      Attachments : in     AWS.Attachments.List) is
+   begin
+      D.Attachments := Attachments;
+   end Attachments;
 
    -------------------
    -- Authorization --
@@ -195,6 +208,7 @@ package body AWS.Status.Set is
 
       AWS.Parameters.Set.Free (D.Parameters);
       AWS.Headers.Set.Free (D.Header);
+      AWS.Attachments.Reset (D.Attachments, Delete_Files => True);
    end Free;
 
    ----------------
@@ -281,6 +295,7 @@ package body AWS.Status.Set is
 
       AWS.Parameters.Set.Reset (D.Parameters);
       AWS.Headers.Set.Reset (D.Header);
+      AWS.Attachments.Reset (D.Attachments, Delete_Files => True);
    end Reset;
 
    -------------
