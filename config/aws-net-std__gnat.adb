@@ -87,7 +87,7 @@ package body AWS.Net.Std is
 
       Set_Cache (New_Socket);
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Free (New_Socket);
          Raise_Exception (E, "Accept_Socket");
    end Accept_Socket;
@@ -118,7 +118,7 @@ package body AWS.Net.Std is
         (Socket.S.FD,
          (Sockets.Family_Inet, Inet_Addr, Sockets.Port_Type (Port)));
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error | Sockets.Host_Error =>
          Raise_Exception (E, "Bind");
    end Bind;
 
@@ -132,11 +132,14 @@ package body AWS.Net.Std is
       Port     : in     Positive)
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
-   begin
 
+      Close_On_Exception : Boolean := True;
+   begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
+         Close_On_Exception := False;
          Sockets.Create_Socket (Socket.S.FD);
+         Close_On_Exception := True;
       end if;
 
       Sock_Addr := (Sockets.Family_Inet,
@@ -146,8 +149,11 @@ package body AWS.Net.Std is
 
       Set_Cache (Socket);
    exception
-      when E : others =>
-         Sockets.Close_Socket (Socket.S.FD);
+      when E : Sockets.Socket_Error | Sockets.Host_Error =>
+         if Close_On_Exception then
+            Sockets.Close_Socket (Socket.S.FD);
+         end if;
+
          Free (Socket);
          Raise_Exception (E, "Connect");
    end Connect;
@@ -205,7 +211,7 @@ package body AWS.Net.Std is
    begin
       return Get_Socket_Option (Socket.S.FD, Name => Receive_Buffer).Size;
    exception
-      when E : Socket_Error =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Get_Receive_Buffer_Size");
    end Get_Receive_Buffer_Size;
 
@@ -218,7 +224,7 @@ package body AWS.Net.Std is
    begin
       return Get_Socket_Option (Socket.S.FD, Name => Send_Buffer).Size;
    exception
-      when E : Socket_Error =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Get_Send_Buffer_Size");
    end Get_Send_Buffer_Size;
 
@@ -241,7 +247,7 @@ package body AWS.Net.Std is
    begin
       Sockets.Listen_Socket (Socket.S.FD, Queue_Size);
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Listen");
    end Listen;
 
@@ -254,7 +260,7 @@ package body AWS.Net.Std is
    begin
       return Image (Get_Peer_Name (Socket.S.FD).Addr);
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Peer_Addr");
    end Peer_Addr;
 
@@ -297,7 +303,7 @@ package body AWS.Net.Std is
 
       return Buffer (1 .. Last);
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Receive");
    end Receive;
 
@@ -317,7 +323,7 @@ package body AWS.Net.Std is
          raise Socket_Error;
       end if;
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Send");
    end Send;
 
@@ -336,7 +342,7 @@ package body AWS.Net.Std is
 
       Control_Socket (Socket.S.FD, Mode);
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Set_Blocking_Mode");
    end Set_Blocking_Mode;
 
