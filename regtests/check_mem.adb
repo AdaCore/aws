@@ -149,7 +149,7 @@ procedure Check_Mem is
          declare
             use type Templates.Vector_Tag;
 
-            Vect   : constant Templates.Vector_Tag := +"V1" & "V2" & "V3";
+            Vect   : Templates.Vector_Tag := +"V1" & "V2" & "V3";
             Matrix : constant Templates.Matrix_Tag := +Vect & Vect;
 
             Trans : constant Templates.Translate_Table
@@ -159,6 +159,9 @@ procedure Check_Mem is
                   4 => Templates.Assoc ("V", Vect),
                   5 => Templates.Assoc ("M", Matrix));
          begin
+            Templates.Clear (Vect);
+            Vect := +"V1" & "V2" & "V3";
+
             return Response.Build
               (MIME.Text_HTML,
                String'(Templates.Parse ("check_mem.tmplt", Trans)));
