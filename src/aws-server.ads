@@ -44,7 +44,7 @@ package AWS.Server is
 
    Def_Admin_URI  : String renames Default.Admin_URI;
    Def_Upload_Dir : String renames Default.Upload_Directory;
-   Def_Port       : constant := Config.Default_Server_Port;
+   Def_Port       : constant := Default.Server_Port;
 
    type HTTP
      (Max_Connection : Positive := Default.Max_Connection)
