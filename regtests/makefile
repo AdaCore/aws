@@ -61,6 +61,7 @@ run : build checks
 force:
 
 build: tres
+	cp ../demos/cert.pem .
 	for file in $(ALL_TESTS); do \
 	   echo -n Building $$file; \
 	   gnatmake -g $$file $(GARGS) -largs $(LARGS) -bargs -E; \
