@@ -1,5 +1,9 @@
 2004-11-07  Pascal Obry  <pascal@obry.org>
 
+	* aws-exceptions.ads:
+	Minor reformatting.
+	Update copyright notice.
+
 	* aws-services-split_pages-uniform.ads,
 	  aws-services-split_pages-uniform-overlapping.ads,
 	  aws-services-split_pages-uniform-alpha.ads,
