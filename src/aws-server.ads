@@ -46,7 +46,7 @@ package AWS.Server is
       Security       : Boolean           := False;
       CB             : Response.Callback := Response.Default_Handler;
       Session        : Boolean           := False) is
-     limited private;
+   limited private;
    --  Max_Connection is the maximum number of simultaneous connection
    --  handled by the server. Port is the socket server port. If security is
    --  set to True then an HTTPS (secure socket) will be created. CB is the
@@ -63,7 +63,7 @@ package AWS.Server is
 
 private
 
-   Keep_Open_Duration : constant Duration := 120.0;
+   Keep_Open_Duration : constant Duration := 30.0;
 
    type HTTP_Access is access all HTTP;
 
@@ -134,7 +134,8 @@ private
      (Max_Connection : Positive          := Default_Connection;
       Port           : Positive          := Default_Port;
       Security       : Boolean           := False;
-      CB             : Response.Callback := Response.Default_Handler) is
+      CB             : Response.Callback := Response.Default_Handler;
+      Session        : Boolean           := False) is
    limited record
       Name      : Unbounded_String;
       Self      : HTTP_Access := HTTP'Unchecked_Access;
