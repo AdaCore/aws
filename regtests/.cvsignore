@@ -1,3 +1,4 @@
+1.upload.adb
 WSDL_6
 alldifs
 append
@@ -183,6 +184,7 @@ b~zstrm.adb
 b~zstrm.ads
 b~zstrm2.adb
 b~zstrm2.ads
+cert.pem
 check_mem
 check_mem.res
 check_mem.run1
@@ -527,7 +529,9 @@ zbig
 zbig.res
 zfile
 zfile.res
+zopen
 zopen.res
+zres
 zres.res
 zresres-file1_txt.ads
 zresres-file2_txt.ads

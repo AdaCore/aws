@@ -85,6 +85,7 @@ test_jabber
 test_ldap
 text_input
 vh_demo
+web_mail
 wps
 ws
 wsdl_demo_client
