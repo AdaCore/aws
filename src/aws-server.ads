@@ -72,12 +72,13 @@ private
    Keep_Open_Duration : constant Duration := 30.0;
 
    type Slot is record
-      Sock                : Sockets.Socket_FD;
-      Peername            : Ada.Strings.Unbounded.Unbounded_String;
-      Opened              : Boolean := False;
-      Abortable           : Boolean := False;
-      Activity_Counter    : Natural := 0;
-      Activity_Time_Stamp : Ada.Calendar.Time := Ada.Calendar.Clock;
+      Sock                  : Sockets.Socket_FD;
+      Peername              : Ada.Strings.Unbounded.Unbounded_String;
+      Opened                : Boolean := False;
+      Abortable             : Boolean := False;
+      Slot_Activity_Counter : Natural := 0;
+      Activity_Counter      : Natural := 0;
+      Activity_Time_Stamp   : Ada.Calendar.Time := Ada.Calendar.Clock;
    end record;
 
    --  Abortable is set to true when the line can be aborted by closing the
@@ -123,6 +124,10 @@ private
 
       function Get_Peername (Index : in Positive) return String;
       --  Returns the peername for socket at position Index.
+
+      procedure Increment_Slot_Activity_Counter (Index : in Positive);
+      --  Add 1 to the slot activity. This is the total number of request
+      --  handled by the slot.
 
    private
       Set   : Slot_Set (1 .. N);
