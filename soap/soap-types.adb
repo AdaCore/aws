@@ -108,7 +108,7 @@ package body SOAP.Types is
    function B64
      (V      : in String;
       Name   : in String  := "item")
-     return SOAP_BAse64 is
+     return SOAP_Base64 is
    begin
       return (To_Unbounded_String (Name), To_Unbounded_String (V));
    end B64;
@@ -454,7 +454,7 @@ package body SOAP.Types is
       return O.T;
    end V;
 
-   function V (O : in SOAP_BAse64) return String is
+   function V (O : in SOAP_Base64) return String is
    begin
       return To_String (O.V);
    end V;
@@ -514,7 +514,7 @@ package body SOAP.Types is
       return XML_Image (Object (O));
    end XML_Image;
 
-   function XML_Image (O : in XSD_NUll) return String is
+   function XML_Image (O : in XSD_Null) return String is
       OC : constant Object'Class := Object'Class (O);
    begin
       return "<" & Name (OC) & " xsi_null=""1""/>";
