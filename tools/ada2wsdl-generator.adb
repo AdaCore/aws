@@ -383,7 +383,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put_Line ("   > " & Comment & "     " & Name);
+         Text_IO.Put_Line ("   > " & Comment & "       " & Name);
       end if;
    end Start_Routine;
 
