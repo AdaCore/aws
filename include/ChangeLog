@@ -1,3 +1,9 @@
+2003-01-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std-gnat.adb:
+	(Bind): If Host is not specified use "localhost". Fix bind failure
+	 on GNU/Linux.
+
 2003-01-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb, templates_parser-expr.adb:
