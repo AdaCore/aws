@@ -1,3 +1,8 @@
+2005-01-25  Pascal Obry  <pascal@obry.org>
+
+	* aws-status.ads:
+        (Authorization_Tail): Further improve comments.
+
 2005-01-24  Pascal Obry  <pascal@obry.org>
 
 	* aws-digest.ads:
