@@ -35,6 +35,7 @@ with "../include/include";
 with "../src/src";
 with "../ssl/ssl";
 with "../ssl/nossl";
+with "../win32/win32";
 
 project Demos is
 
@@ -102,11 +103,11 @@ project Demos is
 
    package Linker is
 
-      COFF_Res   := ("../lib/aws.coff");
-      LIB_Crypt  := ("-lcrypto", "-lssl");
+      COFF_Res  := ("../lib/aws.coff");
+      LIB_Crypt := ("-lcrypto", "-lssl");
 
-      WIN_OPT    := ("-L../lib", "-lpoll") & COFF_Res & Shared.ZLIB;
-      UNX_OPT    := Shared.ZLIB;
+      WIN_OPT   := COFF_Res & Shared.ZLIB;
+      UNX_OPT   := Shared.ZLIB;
 
       case Shared.OS is
          when "Windows_NT" =>
