@@ -34,6 +34,8 @@ b~redirect.adb
 b~redirect.ads
 b~sessions.adb
 b~sessions.ads
+b~sessions2.adb
+b~sessions2.ads
 b~shutdown.adb
 b~shutdown.ads
 b~simple.adb
@@ -159,6 +161,7 @@ redirect.tmp
 run1
 run2
 sessions.res
+sessions2.res
 shutdown.res
 shutdown.tmp
 simple.res

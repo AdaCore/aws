@@ -1,3 +1,14 @@
+2003-04-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add sessions2.
+
+	* check_mem.adb:
+	Add session support.
+
+	* sessions2.adb, sessions2.out:
+	Initial revision.
+
 2003-03-31  Pascal Obry  <obry@act-europe.fr>
 
 	* tmime.out:
