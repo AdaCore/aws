@@ -30,12 +30,19 @@
 
 --  $Id$
 
+--  Handle .ini style configuration file. In this file each option is on one
+--  line. The first word is the option name and the second one is the option
+--  value.
+
 package AWS.Config.Ini is
 
    function Read (File_Name : in String := "") return Object;
-   --  Read aws.ini, <program name>.ini and <File_Name>.ini files
-   --  if present and return configuration record. File aws.ini is
-   --  parsed before <program name>.ini which is parsed before <File_Name>.ini
+   --  Read 'aws.ini', '<progname>.ini' and '<File_Name>.ini' files
+   --  if present and return configuration record. File 'aws.ini' is
+   --  parsed before '<progname>.ini' which is parsed before '<File_Name>.ini'
    --  and the later overrides values set by the former.
+   --  '<progname>' is computed from the program name as launched on the
+   --  command line and without extension if present (no .exe under Windows
+   --  for example).
 
 end AWS.Config.Ini;
