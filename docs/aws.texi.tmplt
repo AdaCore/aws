@@ -2702,14 +2702,16 @@ Port : @b{constant} := 80;
   (isbn : @b{in} String)
    @b{return} Long_Float;
 @b{function} getPrice_CB
-  (Request : @b{in} AWS.Status.Data)
+  (SOAPAction : @b{in} String;
+   Payload    : @b{in} SOAP.Message.Payload.Object;
+   Request    : @b{in} AWS.Status.Data)
    @b{return} AWS.Response.Data;
 @end group
 @end cartouche
 @end smallexample
 
 @noindent
-This is an AWS's callback routine that can be instantiated with the right
+This is a SOAP AWS's callback routine that can be instantiated with the right
 routine to retrieve the price of a book given its ISBN number. A
 possible implementation of such routine could be:
 
@@ -2731,9 +2733,67 @@ possible implementation of such routine could be:
 @end smallexample
 
 @noindent
-The routine @code{SOAP_getPrice} can be used as any other AWS's
-callback routines. Note that the port to be used by the AWS server is
-described into the server spec.
+@code{SOAP_getPrice} is a SOAP AWS's callback routine (i.e. it is not
+a standard callback). To use it there is different solutions:
+
+@table @b
+
+@item Using SOAP.Utils.SOAP_Wrapper
+This generic function can be used to translate a standard callback
+based on AWS.Status.Data into a SOAP callback routine.
+
+@smallexample
+@cartouche
+@group
+@b{function} getPrice_Wrapper @b{is new} SOAP.Utils.SOAP_Wrapper (SOAP_getPrice);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+The routine @code{getPrice_Wrapper} can be used as any other AWS's
+callback routines. Note that inside this wrapper the XML payload is
+parsed to check the routine name and to retrieve the SOAP
+parameters. To call this routine the payload needs to be parsed (we
+need to know which routine has be invoked). In this case we have
+parsed the XML payload twice, this is not efficient.
+
+@item Building the wrapper yourself
+
+@noindent
+This solution is more efficient if there is many SOAP procedures as the
+payload is parsed only once.
+
+@smallexample
+@cartouche
+@group
+@b{function} CB (Request : @b{in} Status.Data) @b{return} Response.Data @b{is}
+   SOAPAction : @b{constant} String := Status.SOAPAction (Request);
+   Payload    : @b{constant} SOAP.Message.Payload.Object
+     := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
+   Proc       : @b{constant} String
+     := SOAP.Message.Payload.Procedure_Name (Payload);
+@b{begin}
+   @b{if} SOAPAction = "..." @b{then}
+
+      @b{if} Proc = "getPrice" @b{then}
+         @b{return} SOAP_getPrice (SOAPAction, Payload, Request);
+      @b{elsif} ...
+         ...
+      @b{end if};
+
+   @b{else}
+      ...
+   @b{end if};
+@end group
+@end cartouche
+@end smallexample
+
+@end table
+
+@noindent
+Note that the port to be used by the AWS server is described into the
+server spec.
 
 @node wsdl2aws
 @section wsdl2aws
@@ -3795,6 +3855,8 @@ SOAP User API:
 
 * SOAP::
 * SOAP.Client::
+* SOAP.Dispatchers::
+* SOAP.Dispatchers.Callback::
 * SOAP.Message::
 * SOAP.Message.XML::
 * SOAP.Parameters::
@@ -4097,6 +4159,20 @@ SOAP User API:
 @cindex SOAP.Client
 
 @include soap-client.ads.texi
+
+@page
+@node SOAP.Dispatchers
+@appendixsec SOAP.Dispatchers
+@cindex SOAP.Dispatchers
+
+@include soap-dispatchers.ads.texi
+
+@page
+@node SOAP.Dispatchers.Callback
+@appendixsec SOAP.Dispatchers.Callback
+@cindex SOAP.Dispatchers.Callback
+
+@include soap-dispatchers-callback.ads.texi
 
 @page
 @node SOAP.Message
