@@ -49,8 +49,6 @@
 --  associated with the key K are concatenated together with a specific
 --  separator.
 
-with Ada.Strings.Unbounded;
-
 with AWS.Utils;
 
 with Strings_Cutter;
@@ -82,9 +80,11 @@ package body AWS.Parameters is
    begin
       Key_Value.Get_Value (Parameter_List.Data.all, Name, Value);
 
-      Strings_Cutter.Create (CS,
-                             To_String (Value),
-                             String'(1 => Val_Separator));
+      Strings_Cutter.Create
+        (CS,
+         To_String (Value),
+         String'(1 => Val_Separator));
+
       declare
          Result : constant Natural := Strings_Cutter.Field_Count (CS);
       begin
@@ -179,5 +179,14 @@ package body AWS.Parameters is
       when others =>
          return "";
    end Internal_Get;
+
+   ----------------
+   -- URI_Format --
+   ----------------
+
+   function URI_Format (Parameter_List : in List) return String is
+   begin
+      return To_String (Parameter_List.Parameters);
+   end URI_Format;
 
 end AWS.Parameters;
