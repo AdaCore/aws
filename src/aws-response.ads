@@ -50,8 +50,7 @@ package AWS.Response is
    type Data is private;
    --  Note that this type use a reference counter which is not thread safe.
 
-   type Data_Mode is (Header, Message, File, Stream, Socket_Taken,
-      No_Data);
+   type Data_Mode is (Header, Message, File, Stream, Socket_Taken, No_Data);
 
    type Authentication_Mode is (Any, Basic, Digest);
    --  The authentication mode.
@@ -62,7 +61,7 @@ package AWS.Response is
 
    subtype Content_Length_Type is Integer range -1 .. Integer'Last;
 
-   Undefined_Length : constant := -1;
+   Undefined_Length : constant Content_Length_Type;
    --  Undefined length could be used when we do not know the message length
    --  at the start of transfer. The end of message could be determined by the
    --  chunked transfer-encoding in the HTTP/1.1, or by the closing connection
@@ -78,15 +77,17 @@ package AWS.Response is
    ------------------
 
    function Build
-     (Content_Type : in String;
-      Message_Body : in String;
-      Status_Code  : in Messages.Status_Code := Messages.S200)
+     (Content_Type  : in String;
+      Message_Body  : in String;
+      Status_Code   : in Messages.Status_Code  := Messages.S200;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
       return Data;
 
    function Build
      (Content_Type    : in String;
       UString_Message : in Strings.Unbounded.Unbounded_String;
-      Status_Code     : in Messages.Status_Code := Messages.S200)
+      Status_Code     : in Messages.Status_Code  := Messages.S200;
+      Cache_Control   : in Messages.Cache_Option := Messages.Unspecified)
       return Data;
    --  Return a message whose body is passed into Message_Body. The
    --  Content_Type parameter is the MIME type for the message
@@ -94,9 +95,10 @@ package AWS.Response is
    --  definition).
 
    function Build
-     (Content_Type : in String;
-      Message_Body : in Streams.Stream_Element_Array;
-      Status_Code  : in Messages.Status_Code := Messages.S200)
+     (Content_Type  : in String;
+      Message_Body  : in Streams.Stream_Element_Array;
+      Status_Code   : in Messages.Status_Code         := Messages.S200;
+      Cache_Control : in Messages.Cache_Option        := Messages.Unspecified)
       return Data;
    --  Idem above, but the message body is a stream element array.
 
@@ -141,7 +143,8 @@ package AWS.Response is
      (Content_Type  : in String;
       Stream_Handle : in Resources.Streams.Stream_Access;
       Stream_Size   : in Content_Length_Type;
-      Status_Code   : in Messages.Status_Code := Messages.S200)
+      Status_Code   : in Messages.Status_Code  := Messages.S200;
+      Cache_Control : in Messages.Cache_Option := Messages.No_Cache)
       return Data;
    --  Returns a message whose message body is the content of the user
    --  defined stream. The Content_Type must indicate the MIME type for
@@ -188,6 +191,10 @@ package AWS.Response is
    pragma Inline (Content_Type);
    --  Returns the MIME type for the message body.
 
+   function Cache_Control (D : in Data) return Messages.Cache_Option;
+   pragma Inline (Cache_Control);
+   --  Returns the cache control specified for the response
+
    function Filename (D : in Data) return String;
    pragma Inline (Filename);
    --  Returns the filename which should be sent back.
@@ -231,6 +238,8 @@ private
 
    use Ada.Strings.Unbounded;
 
+   Undefined_Length : constant Content_Length_Type := -1;
+
    type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
 
    procedure Free is new Ada.Unchecked_Deallocation
@@ -251,6 +260,7 @@ private
       Auth_Stale     : Boolean              := False;
       Stream         : AWS.Resources.Streams.Stream_Access;
       Message_Body   : Stream_Element_Array_Access;
+      Cache_Control  : Unbounded_String;
    end record;
 
    procedure Initialize (Object : in out Data);
