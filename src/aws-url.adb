@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 
@@ -78,7 +79,11 @@ package body AWS.URL is
       loop
          K := K + 1;
 
-         if URL (I) = '%' and then I + 2 <= URL'Length then
+         if URL (I) = '%'
+           and then I + 2 <= URL'Length
+           and then Characters.Handling.Is_Hexadecimal_Digit (URL (I + 1))
+           and then Characters.Handling.Is_Hexadecimal_Digit (URL (I + 2))
+         then
             Res (K) := Character'Val
               (Natural'Value ("16#" & URL (I + 1 .. I + 2) & '#'));
             I := I + 2;
