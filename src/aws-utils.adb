@@ -32,6 +32,7 @@
 
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
 with Ada.Numerics.Discrete_Random;
 with Ada.Exceptions;
 with Interfaces.C.Strings;
@@ -181,6 +182,22 @@ package body AWS.Utils is
          return D_Img (D_Img'First + 1 .. K + 2);
       end if;
    end Image;
+
+   ---------------
+   -- Is_Number --
+   ---------------
+
+   function Is_Number (S : in String) return Boolean is
+      use Strings;
+   begin
+      for K in S'Range loop
+         if not Maps.Is_In (S (K), Maps.Constants.Decimal_Digit_Set) then
+            return False;
+         end if;
+      end loop;
+
+      return True;
+   end Is_Number;
 
    ----------------------------
    -- Parse_HTTP_Header_Line --

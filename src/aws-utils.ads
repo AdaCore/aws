@@ -61,7 +61,10 @@ package AWS.Utils is
 
    function Hex_Value (Hex : in String) return Natural;
    --  Returns the value for the hexadecimal number Hex. Raises
-   --  COnstraint_Error is Hex is not an hexadecimal number.
+   --  Constraint_Error is Hex is not an hexadecimal number.
+
+   function Is_Number (S : in String) return Boolean;
+   --  Returns True is S contains only decimal digits.
 
    generic
       type Enum is (<>);
