@@ -280,6 +280,9 @@ package body AWS.Client is
       Proxy_URL   : AWS.URL.Object := AWS.URL.Parse (Proxy);
 
    begin
+      --  If there is a proxy, the host to connect to is the proxy otherwise
+      --  we connect to the Web server.
+
       if Proxy = No_Data then
          Connect_URL := Host_URL;
       else
