@@ -113,6 +113,7 @@ begin
    Client_Side.Stop;
 
    Net.Shutdown (Peer);
+   Net.Shutdown (Server);
 
    Text_IO.Put_Line ("done.");
 
