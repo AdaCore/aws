@@ -60,8 +60,8 @@
 @@--  * Create the contents of each pages. In this implementation, all notebook
 @@--    pages are loaded at the same time, and no further access to the server
 @@--    is done when the user switches pages. Your style sheet should be such
-@@--    that the background color of the page is activePageColor, since it gives
-@@--    better results.
+@@--    that the background color of the page is activePageColor, since it
+@@--    gives better results.
 @@--
 @@--       <div class="TabContents" id="page1">
 @@--          Content of page 1
@@ -75,8 +75,7 @@
 @@--
 @@--   The last call makes sure the current page after a refresh of the page
 @@--   remains the same that it was before. This requires cookies, but so does
-@@--   AWS.
-
+@@--   AWS to support sessions.
 
 <style type="text/css">
 #@_$1_@           { border-bottom: 1px solid @_$6_@;
@@ -116,9 +115,11 @@ div.@_$3_@        { border: 1px solid #ccc;
 div#@_$4_@        { display: block; }
 </style>
 
-<script src="scripts/cookies.js" type="text/javascript"></script>
+<script src="/we_js/cookies.js" type="text/javascript"></script>
 <script language="javascript">
+
 @@--  Select a new tab, return True if it could change the page
+
 function switchTabPage_@_$1_@ (pageName) {
    var ul = document.getElementById ('@_$1_@');
    var children = ul.getElementsByTagName ('li');
@@ -145,7 +146,8 @@ function switchTabPage_@_$1_@ (pageName) {
 }
 
 @@--  Set the current page given the one previously set by the user (from the
-@@--  cookie), or using the default one
+@@--  cookie), or using the default one.
+
 function setCurrentPage_@_$1_@ () {
    var value = readCookie ("currentPage_@_$1_@");
    if (value) {
