@@ -29,6 +29,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-messages.ads.texi \
 	../src/aws-mime.ads.texi \
 	../src/aws-parameters.ads.texi \
+	../src/aws-pop.ads.texi \
 	../src/aws-resources-files.ads.texi \
 	../src/aws-resources-embedded.ads.texi \
 	../src/aws-resources-streams.ads.texi \
@@ -109,7 +110,6 @@ ada.sed: makefile
 
 %.html: %.texi
 	-makeinfo --html --no-split --ifinfo $<
-#	-texi2html -menu -monolithic $<
 
 %.txt: %.texi
 	-makeinfo --no-headers $< > $@
@@ -133,6 +133,8 @@ check_api:
 		exit 1; \
 	fi;
 
+# apiref can be set to gnathtml_apiref or adabrowse_apiref to select the tool
+# used to generate the API cross-reference.
 apiref: gnathtml_apiref
 
 # API cross-references using gnathtml
