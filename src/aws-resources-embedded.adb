@@ -105,50 +105,6 @@ package body AWS.Resources.Embedded is
       end if;
    end File_Timestamp;
 
-   --------------
-   -- Get_Line --
-   --------------
-
-   procedure Get_Line
-     (Resource  : in out File_Tagged;
-      Buffer    :    out String;
-      Last      :    out Natural)
-   is
-      CR : Stream_Element := 13;
-      LF : Stream_Element := 10;
-
-      K : Stream_Element_Offset renames Resource.K;
-   begin
-      Resource.LFT := False;
-
-      if K = Resource.Buffer'Last then
-         Last := 0;
-      else
-         Last := Buffer'First - 1;
-
-         for I in K .. Resource.Buffer'Last loop
-
-            if Resource.Buffer (I) = LF then     -- UNIX style line terminator
-               Resource.K   := I + 1;
-               Resource.LFT := True;
-               exit;
-
-            elsif Resource.Buffer (I) = CR       -- DOS style line terminator
-              and then I + 1 <= Resource.Buffer'Last
-              and then Resource.Buffer (I + 1) = LF
-            then
-               Resource.K   := I + 2;
-               Resource.LFT := True;
-               exit;
-
-            else
-               Last := Last + 1;
-               Buffer (Last) := Character'Val (Resource.Buffer (I));
-            end if;
-         end loop;
-      end if;
-   end Get_Line;
-
    ---------------------
    -- Is_Regular_File --
    ---------------------
@@ -157,15 +113,6 @@ package body AWS.Resources.Embedded is
    begin
       return Exists (Name);
    end Is_Regular_File;
-
-   -------------------
-   -- LF_Terminated --
-   -------------------
-
-   function LF_Terminated (Resource : in File_Tagged) return Boolean is
-   begin
-      return Resource.LFT;
-   end LF_Terminated;
 
    ----------
    -- Open --
