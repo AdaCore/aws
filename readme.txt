@@ -93,6 +93,9 @@ Here are the main changes:
   - Fix SSL support in AWS. The SSL layer should now be as reliable as the
     standard socket one.
 
+  - Update distribued Win32 OpenSSL library to version 0.9.6b. Also now there
+    are built as DLL.
+
 NOTE: Since we have switched to the .PNG file format we have found that
 Netscape Navigator is not able to display the PNG transparent layer properly!
 
