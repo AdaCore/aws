@@ -274,7 +274,7 @@ package body AWS.POP is
          Mess := Get (Mailbox, K, Remove);
          Action (Mess, K, Quit);
 
-         exit when Quit = True;
+         exit when Quit;
       end loop;
    end For_Every_Message;
 
@@ -290,7 +290,7 @@ package body AWS.POP is
          Mess := Get_Header (Mailbox, K);
          Action (Mess, K, Quit);
 
-         exit when Quit = True;
+         exit when Quit;
       end loop;
    end For_Every_Message_Header;
 
