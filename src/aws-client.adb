@@ -30,18 +30,21 @@
 
 --  $Id$
 
+with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Ada.Streams;
+with Ada.Streams.Stream_IO;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Table;
+with GNAT.Calendar.Time_IO;
 with Sockets;
 
 with AWS.Messages;
 with AWS.MIME;
+with AWS.OS_Lib;
 with AWS.Translator;
 with AWS.Net;
 
@@ -305,7 +308,7 @@ package body AWS.Client is
          Connection.Retry := 1;
       end if;
 
-      Connection.Timeouts     := Timeouts;
+      Connection.Timeouts         := Timeouts;
 
       if Connection.Timeouts /= No_Timeout then
          --  If we have some timeouts, initialize the cleaner task.
@@ -333,6 +336,7 @@ package body AWS.Client is
    begin
       if Connection.Opened then
          Connection.Opened := False;
+
          if Connection.Socket /= null then
             Sockets.Shutdown (Connection.Socket.all);
          end if;
@@ -443,7 +447,7 @@ package body AWS.Client is
       procedure Free is new Ada.Unchecked_Deallocation
         (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
-      Sock : Sockets.Socket_FD'Class := Connection.Socket.all;
+      Sock : constant Sockets.Socket_FD'Class := Connection.Socket.all;
 
       CT       : Unbounded_String;
       CT_Len   : Natural              := 0;
@@ -1182,7 +1186,8 @@ package body AWS.Client is
             Open_Send_Common_Header (Connection, "POST", URI);
 
             declare
-               Sock : Sockets.Socket_FD'Class := Connection.Socket.all;
+               Sock : constant Sockets.Socket_FD'Class
+                 := Connection.Socket.all;
             begin
 
                if Connection.SOAPAction = No_Data then
@@ -1431,13 +1436,11 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       Phase      : in     Client_Phase) is
    begin
-
       Connection.Current_Phase := Phase;
 
       if Connection.Cleaner /= null then
          Connection.Cleaner.Next_Phase;
       end if;
-
    end Set_Phase;
 
    ---------------
@@ -1481,5 +1484,172 @@ package body AWS.Client is
       Post (Connection.all, Result, Data);
       return Result;
    end SOAP_Post;
+
+   ------------
+   -- Upload --
+   ------------
+
+   procedure Upload
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Filename   : in     String;
+      URI        : in     String := No_Data)
+   is
+      Pref_Suf  : constant String := "--";
+      Now       : constant Calendar.Time := Calendar.Clock;
+      Boundary  : constant String :=
+        "AWS_File_Upload-" & GNAT.Calendar.Time_IO.Image (Now, "%s");
+
+      CT        : constant String :=
+        Messages.Content_Type (MIME.Content_Type (Filename));
+      CD        : constant String :=
+        Messages.Content_Disposition ("form-data", "filename", Filename);
+
+      No_Data   : Unbounded_String renames Null_Unbounded_String;
+      Try_Count : Natural := Connection.Retry;
+
+      function Content_Length return Integer;
+      --  Returns the total message content length.
+
+      procedure Send_File;
+      --  Send file content to the server.
+
+      --------------------
+      -- Content_Length --
+      --------------------
+
+      function Content_Length return Integer is
+      begin
+         return 2 * Boundary'Length                -- 2 boundaries
+           + 2                                     -- second one end with "--"
+           + 10                                    -- 5 lines with CR+LF
+           + CT'Length                             -- content length header
+           + CD'Length                             -- content disposition head
+           + Integer (OS_Lib.File_Size (Filename)) -- file size
+           + 2;                                    -- CR+LF after file data
+      end Content_Length;
+
+      ---------------
+      -- Send_File --
+      ---------------
+
+      procedure Send_File is
+         Sock     : constant Sockets.Socket_FD'Class := Connection.Socket.all;
+         Buffer   : Streams.Stream_Element_Array (1 .. 4_096);
+         Last     : Streams.Stream_Element_Offset;
+         File     : Streams.Stream_IO.File_Type;
+      begin
+         --  Send multipart message start boundary
+
+         Sockets.Put_Line (Sock, Pref_Suf & Boundary);
+
+         --  Send Content-Disposition header
+
+         Sockets.Put_Line (Sock, CD);
+
+         --  Send Content-Type: header
+
+         Sockets.Put_Line (Sock, CT);
+
+         Sockets.New_Line (Sock);
+
+         --  Send file content
+
+         Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File, Filename);
+
+         while not Streams.Stream_IO.End_Of_File (File) loop
+            Streams.Stream_IO.Read (File, Buffer, Last);
+            Sockets.Send (Sock, Buffer (1 .. Last));
+         end loop;
+
+         Streams.Stream_IO.Close (File);
+
+         Sockets.New_Line (Sock);
+
+         --  Send multipart message end boundary
+
+         Sockets.Put_Line (Sock, Pref_Suf & Boundary & Pref_Suf);
+      end Send_File;
+
+   begin
+      loop
+         begin
+            Open_Send_Common_Header (Connection, "POST", URI);
+
+            declare
+               Sock : constant Sockets.Socket_FD'Class
+                 := Connection.Socket.all;
+            begin
+               --  Send message Content-Type (Multipart/form-data)
+
+               Send_Header
+                 (Sock,
+                  Messages.Content_Type (MIME.Multipart_Form_Data, Boundary));
+
+               --  Send message Content-Length
+
+               Send_Header (Sock, Messages.Content_Length (Content_Length));
+
+               Sockets.New_Line (Sock);
+
+               --  Send message body
+
+               Send_File;
+            end;
+
+            --  Get answer from server
+
+            Get_Response (Connection, Result, not Connection.Server_Push);
+
+            return;
+
+         exception
+
+            when Sockets.Connection_Closed | Sockets.Socket_Error =>
+
+               Disconnect (Connection);
+
+               if Try_Count = 0 then
+                  Result := Response.Build
+                    (MIME.Text_HTML, "Post Timeout", Messages.S408);
+                  Set_Phase (Connection, Not_Monitored);
+                  exit;
+               end if;
+
+               Try_Count := Try_Count - 1;
+         end;
+      end loop;
+   end Upload;
+
+   function Upload
+     (URL        : in String;
+      Filename   : in String;
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
+      return Response.Data
+   is
+      Connection : HTTP_Connection;
+      Result     : Response.Data;
+
+   begin
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              Persistent => False,
+              Timeouts   => Timeouts);
+
+      Upload (Connection, Result, Filename);
+
+      Close (Connection);
+      return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
+   end Upload;
 
 end AWS.Client;
