@@ -1,3 +1,9 @@
+2003-03-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-reader.adb:
+	(Ignorable_Whitespace): Handle properly multiple spaces. Fix bug
+	 reported by Wiljan Derks.
+
 2003-03-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-xml.adb:
