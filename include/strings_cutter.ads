@@ -81,36 +81,36 @@
 
 package Strings_Cutter is
 
-   type Cutted_String is private;
+   type Cut_String is private;
 
    --  constructors
-   procedure Create (S          :    out Cutted_String;
+   procedure Create (S          :    out Cut_String;
                      From       : in     String;
                      Separators : in     String);
 
-   procedure Destroy (S : in out Cutted_String);
+   procedure Destroy (S : in out Cut_String);
 
 
    --  modifier
-   procedure Set (S          : in out Cutted_String;
+   procedure Set (S          : in out Cut_String;
                   Separators : in     String);
 
 
    --  actions
    subtype Index_Values is Natural range 0 .. 1_000;
 
-   function Field_Count (S : in Cutted_String)
+   function Field_Count (S : in Cut_String)
       return  Index_Values;
 
-   function Field (S     : in Cutted_String;
+   function Field (S     : in Cut_String;
                    Index : in Index_Values)
       return String;
    --  Index = 0 => all the line.
 
 private
 
-   type Cutted_String_Record;
+   type Cut_String_Record;
 
-   type Cutted_String is access Cutted_String_Record;
+   type Cut_String is access Cut_String_Record;
 
 end Strings_Cutter;
