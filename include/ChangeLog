@@ -1,3 +1,8 @@
+2003-09-30  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* memory_streams.adb:
+	Minor reformat.
+
 2003-09-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser-filter.adb:
