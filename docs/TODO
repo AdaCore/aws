@@ -161,8 +161,6 @@ implemented:
 
 =============== Point to fix/implement/review before next release (2.0)
 
-- Document the SOAP_Base64 runtime type support
-
 - Check the documentation before the release
 
 - Add reply support to the Web_Mail service.
