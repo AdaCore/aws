@@ -69,7 +69,7 @@ $(ALL_TESTS): force
 	echo ",  run it"
 	rm -f $@.res
 	./$@ > $@.res
-	diff -c -w $@.out $@.res >> alldifs
+	-diff -c -w $@.out $@.res >> alldifs
 
 checks_out: checks_tres
 	cat alldifs
