@@ -1,3 +1,8 @@
+2004-10-07  Pascal Obry  <pascal@obry.org>
+
+	* regtests.gpr:
+	Do not import ssl project.
+
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
 	* makefile:

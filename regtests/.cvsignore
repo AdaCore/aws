@@ -4,6 +4,7 @@ WSDL_6
 afile
 afile.res
 afile_sec.res
+all_mains.lst
 alldifs
 append
 append.res
@@ -351,6 +352,11 @@ redirect.tmp
 regtests_lst.gpr
 run1
 run2
+s_mains.lst
+s_tsec.lst
+s_tsecsoap.lst
+s_tsoap.lst
+s_tstd.lst
 sback
 sback.res
 server_config
