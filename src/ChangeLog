@@ -1,3 +1,10 @@
+2001-10-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.ads, aws-response.adb:
+	(Build): rename parameter Message_Body to UString_Message. This
+	 will help raising ambiguity with Templates_Parser.Parse which can
+	 returns a String or an Unbounded_String.
+
 2001-09-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
