@@ -57,11 +57,46 @@ project Src is
 
    package Ide renames Shared.IDE;
 
+   Full_Debug_Switches
+     := ("-m", "-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfiru",
+         "-gnatwe", "-gnaty3abcefhiklmnoprst", "-gnatwjmeur", "-Wall");
+
+   Limited_Debug_Switches
+     := ("-m", "-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfiru",
+         "-gnatwe", "-gnaty3abcefhiklmnprt", "-gnatwjmeur", "-Wall");
+
    --------------
    -- Compiler --
    --------------
 
-   package Compiler renames Shared.Compiler;
+   package Compiler is
+
+      case Shared.Build is
+         when "Debug" =>
+            for Default_Switches ("Ada") use Full_Debug_Switches;
+
+            for Switches ("templates_parser.adb")
+              use Limited_Debug_Switches;
+            for Switches ("templates_parser-filter.adb")
+              use Limited_Debug_Switches;
+            for Switches ("templates_parser-expr.adb")
+              use Limited_Debug_Switches;
+            for Switches ("templates_parser-cached_files.adb")
+              use Limited_Debug_Switches;
+            for Switches ("templates_parser-data.adb")
+              use Limited_Debug_Switches;
+            for Switches ("templates_parser-input.adb")
+              use Limited_Debug_Switches;
+            for Switches ("templates_parser-query.adb")
+              use Limited_Debug_Switches;
+            for Switches ("templates_parser-print_tree.adb")
+              use Limited_Debug_Switches;
+
+         when "Release" =>
+            for Default_Switches ("Ada") use ("-O2", "-gnatws", "-gnatn");
+      end case;
+
+   end Compiler;
 
    -------------
    -- Builder --
