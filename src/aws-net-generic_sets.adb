@@ -161,38 +161,6 @@ package body AWS.Net.Generic_Sets is
       end if;
    end Check_Range;
 
-   ----------------
-   -- Could_Read --
-   ----------------
-
-   function Could_Read
-     (Set   : in Socket_Set_Type;
-      Index : in Positive)
-      return Boolean
-   is
-      use AWS.OS_Lib.Definitions;
-   begin
-      Check_Range (Set, Index);
-
-      return (Set.Poll (Index).REvents and (POLLIN or POLLPRI)) /= 0;
-   end Could_Read;
-
-   -----------------
-   -- Could_Write --
-   -----------------
-
-   function Could_Write
-     (Set   : in Socket_Set_Type;
-      Index : in Positive)
-      return Boolean
-   is
-      use AWS.OS_Lib.Definitions;
-   begin
-      Check_Range (Set, Index);
-
-      return (Set.Poll (Index).REvents and POLLOUT) /= 0;
-   end Could_Write;
-
    -----------
    -- Count --
    -----------
@@ -269,6 +237,38 @@ package body AWS.Net.Generic_Sets is
       return (Set.Poll (Set.Last).REvents
               and (POLLERR or POLLHUP or POLLNVAL)) /= 0;
    end Is_Error;
+
+   -------------------
+   -- Is_Read_Ready --
+   -------------------
+
+   function Is_Read_Ready
+     (Set   : in Socket_Set_Type;
+      Index : in Positive)
+      return Boolean
+   is
+      use AWS.OS_Lib.Definitions;
+   begin
+      Check_Range (Set, Index);
+
+      return (Set.Poll (Index).REvents and (POLLIN or POLLPRI)) /= 0;
+   end Is_Read_Ready;
+
+   --------------------
+   -- Is_Write_Ready --
+   --------------------
+
+   function Is_Write_Ready
+     (Set   : in Socket_Set_Type;
+      Index : in Positive)
+      return Boolean
+   is
+      use AWS.OS_Lib.Definitions;
+   begin
+      Check_Range (Set, Index);
+
+      return (Set.Poll (Index).REvents and POLLOUT) /= 0;
+   end Is_Write_Ready;
 
    ----------
    -- Next --
