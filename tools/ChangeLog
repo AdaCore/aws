@@ -1,3 +1,10 @@
+2004-01-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* tools.gpr:
+	(Languages): Add support for Ada, ChangeLog, makefile and Project
+	 files.
+	Rename Z_Lib to ZLib.
+
 2003-12-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* awsres.adb:

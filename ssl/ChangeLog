@@ -1,3 +1,9 @@
+2004-01-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl.gpr:
+	(Languages): Add support for Ada, ChangeLog and Project files.
+	(Source_Files): Add ChangeLog and ssl.gpr.
+
 2003-12-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl.gpr:
