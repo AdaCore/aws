@@ -1,4 +1,16 @@
+2001-09-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Shutdown): reorder again the termination phases. safer and should
+	 avoid lock.
+
+	* aws-server.ads:
+	(Release): fix comments.
+
 2001-09-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-push.ads:
+	Update comments.
 
 	* aws-server-protocol_handler.adb:
 	(Get_Message_Header): removes exception handler since it is not
