@@ -46,18 +46,21 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tlog unexph2 dirop sp $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
-ALL_TESTS = $(RT_STD)
+STD_TESTS = $(RT_STD)
+OTH_TESTS= tres
 else
-ALL_TESTS = $(RT_STD) $(RT_SOAP)
+STD_TESTS = $(RT_STD) $(RT_SOAP)
+OTH_TESTS= tres check_mem
 endif
 
-ALL_EXEC = $(addsuffix $(EXEEXT), $(ALL_TESTS)) tres$(EXEEXT)
+ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
+		$(addsuffix $(EXEEXT), $(OTH_TESTS))
 
 run : build checks
 
 force:
 
-build: init tres $(ALL_TESTS) check_mem
+build: init $(STD_TESTS) $(OTH_TESTS)
 
 init:
 	cp ../demos/cert.pem .
@@ -65,7 +68,7 @@ init:
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
 
-$(ALL_TESTS): force
+$(STD_TESTS): force
 	echo -n Building $@
 	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
