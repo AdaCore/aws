@@ -2,7 +2,7 @@
 			    A W S - Ada Web Sever
                                  0 . 9 . 11
 				       
-April 28th, 2001.
+May 1st, 2001.
 
 
 Dmitriy Anisimkov and I are happy to announce the availability of the 
