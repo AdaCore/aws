@@ -1,3 +1,9 @@
+2002-05-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	Add with clause for Ada.Strings.Fixed. A patch chunk got removed
+	 somehow.
+
 2002-05-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb, aws-server-get_status.adb, aws-parameters.adb:
