@@ -74,7 +74,7 @@ distrib:
 		src/*.ad[sb] demos/[hrw]*.ads demos/[ahmrw]*.adb demos/*.png \
 		docs/aws.texi docs/[at]*.html docs/aws.txt docs/aws.info* \
 		docs/aws.ps docs/makefile win32/*.a win32/*.txt \
-		demos/cert.pem ssl/*.ad* ssl/ChangeLog ssl/makefile \
+		demos/cert.pem ssl/*.ad[sb] ssl/ChangeLog ssl/makefile \
 		demos/page*.html demos/aws_*.thtml docs/TODO \
 		include/*.ad[sb] include/makefile demos/com*.adb \
 		docs/openssl.license icons/*.gif demos/ws.ini
