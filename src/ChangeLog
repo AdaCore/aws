@@ -1,5 +1,16 @@
 2004-05-20  Pascal Obry  <pascal@obry.org>
 
+	* aws-response.adb:
+	(File): Add new parameter Attachment. If Attachment is set to True
+	 or the Content-Type is in the application category add the
+	 Content-Disposition header.
+	Improves latest check-in.
+
+	* aws-response.ads:
+	(File): Add new parameter Attachment. Document it.
+
+2004-05-20  Pascal Obry  <pascal@obry.org>
+
 	* aws-services-transient_pages.adb:
 	Minor reformatting.
 
