@@ -1,3 +1,11 @@
+2003-04-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-containers-tables.adb:
+	(Get_Indexes): Fix comments.
+	(Dummy_Update): Add routine header box.
+	Use pragma Unreferenced instead of Warnings.
+	Properly set in UNIX format.
+
 2003-04-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-containers-tables.ads, aws-containers-tables.adb:
