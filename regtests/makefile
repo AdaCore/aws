@@ -55,19 +55,22 @@ run : build checks
 
 force:
 
-build: tres
+build: init tres $(ALL_TESTS)
+
+init:
 	cp ../demos/cert.pem .
-	for file in $(ALL_TESTS); do \
-	   echo -n Building $$file; \
-	   gnatmake -g $$file $(GARGS) -largs $(LARGS) -bargs -E; \
-	   echo ",  run it"; \
-	   ./$$file > $$file.res; \
-	done
+	rm -f alldifs
+
+$(ALL_TESTS): force
+	echo -n Building $@
+	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
+	echo ",  run it"
+	rm -f $@.res
+	./$@ > $@.res
+	diff -c -w $@.out $@.res >> alldifs
 
 checks_out: checks_tres
-	for file in $(ALL_TESTS); do \
-	   diff -c -w $$file.out $$file.res; \
-	done
+	cat alldifs
 
 tres: force
 	echo -n Building tres;
@@ -100,6 +103,7 @@ tres: force
 	echo ",  run it again"
 	./tres 1246 > tres-2.res
 	cat tres-1.res tres-2.res > tres.res
+	diff -c -w tres.out tres.res > alldifs
 
 checks_tres:
 	-diff -c -w tres.out tres.res
