@@ -43,9 +43,8 @@ procedure SockTO is
 
    Port : constant := 8800;
 
-   D1   : constant Duration := 0.25;
+   D1   : constant Duration := 1.0;
    D2   : constant Duration := D1 * 1.5;
-   WBL  : constant := 1024;
 
    task Client_Side;
 
@@ -65,12 +64,17 @@ procedure SockTO is
       Client : Net.Socket_Type'Class := Net.Socket (False);
    begin
       Net.Connect (Client, "localhost", Port);
-      Net.Set_Timeout (Client, D1);
 
-      for J in 1 .. 10 loop
-         Get (Client, WBL);
+      for J in 1 .. 5 loop
+         Net.Send (Client, Data (1234));
+         delay D2;
       end loop;
 
+      Net.Set_Timeout (Client, D1);
+
+      delay D2;
+
+      Get (Client, 100_000);
    exception
       when E : others =>
          Text_IO.Put_Line
@@ -145,25 +149,20 @@ begin
 
    Net.Accept_Socket (Server, Peer);
 
-   Net.Set_Send_Buffer (Peer, WBL);
    Net.Set_Timeout (Peer, D1);
 
-   --  First write should be non-blocking only to buffer.
+   for J in 1 .. 10 loop
+      Get (Peer, 1234);
+   end loop;
 
-   --  Net.Send (Peer, Data (WBL));
-
-   --  Would be timeout here.
-
-   Text_IO.Put_Line ("Send 100 WBL");
-   Net.Send (Peer, Data (WBL * 100));
-   Text_IO.Put_Line ("Send done.");
+   Net.Send (Peer, Data (100_000));
 
    Net.Shutdown (Server);
    Net.Shutdown (Peer);
 exception
    when E : others =>
       Text_IO.Put_Line
-         ("Server side " & Exceptions.Exception_Information (E));
+         ("Server side " & Exceptions.Exception_Message (E));
       Net.Shutdown (Server);
       Net.Shutdown (Peer);
 end SockTO;
