@@ -1,5 +1,10 @@
 2004-05-31  Pascal Obry  <pascal@obry.org>
 
+	* aws-client.ads:
+	(Read): Edit comment.
+	(Read_Some): Idem.
+	(Set_Streaming_Connection): Idem.
+
 	* aws-session-control.ads:
 	Minor reformatting.
 	Update copyright notice.
