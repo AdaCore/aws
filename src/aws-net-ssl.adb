@@ -47,6 +47,11 @@ with SSL.Thin;
 
 package body AWS.Net.SSL is
 
+   pragma Linker_Options ("-lsslaws");
+   --  This is the library used to link without SSL support. The symbols there
+   --  will be used only if the application is not linked with the real SSL
+   --  libraries.
+
    use type Interfaces.C.int;
    use type System.Address;
 
