@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -304,5 +304,32 @@ package body AWS.Translator is
      (Data : in Stream_Element_Array)
       return String
       renames Conversion.To_String;
+
+   -------------------------
+   -- To_Unbounded_String --
+   -------------------------
+
+   function To_Unbounded_String
+     (Data : in Ada.Streams.Stream_Element_Array)
+      return Ada.Strings.Unbounded.Unbounded_String
+   is
+      use Ada.Strings.Unbounded;
+
+      Chunk_Size : constant := 1_024;
+      Result     : Unbounded_String;
+      K          : Stream_Element_Offset := Data'First;
+   begin
+      while K <= Data'Last loop
+         declare
+            Last : constant Stream_Element_Offset
+              := Stream_Element_Offset'Min (K + Chunk_Size, Data'Last);
+         begin
+            Append (Result, To_String (Data (K .. Last)));
+            K := K + Chunk_Size + 1;
+         end;
+      end loop;
+
+      return Result;
+   end To_Unbounded_String;
 
 end AWS.Translator;
