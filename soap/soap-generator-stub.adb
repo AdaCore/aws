@@ -89,6 +89,12 @@ package body Stub is
          N      : in WSDL.Parameters.P_Set);
       --  Output a derived type parameter
 
+      procedure Output_Enumeration
+        (K      : in Positive;
+         Prefix : in String;
+         N      : in WSDL.Parameters.P_Set);
+      --  Output an enumeration type parameter
+
       procedure Output_Record
         (K      : in Positive;
          Prefix : in String;
@@ -162,6 +168,39 @@ package body Stub is
          Output_Parameter (K + 1, Prefix, N.Next);
       end Output_Derived;
 
+      ------------------------
+      -- Output_Enumeration --
+      ------------------------
+
+      procedure Output_Enumeration
+        (K      : in Positive;
+         Prefix : in String;
+         N      : in WSDL.Parameters.P_Set)
+      is
+         use type WSDL.Parameter_Type;
+      begin
+         if Prefix /= "" then
+            --  Inside a record
+            Text_IO.Put
+              (Stub_Adb,
+               WSDL.Set_Routine (WSDL.P_String, Context => WSDL.Component));
+         else
+            Text_IO.Put (Stub_Adb, WSDL.Set_Routine (WSDL.P_String));
+         end if;
+
+         Text_IO.Put
+           (Stub_Adb,
+            " (" & To_String (N.E_Name) & "_Type'Image ("
+              & Prefix & Format_Name (O, To_String (N.Name))
+              & "), """ & To_String (N.Name) & """)");
+
+         if Prefix /= "" and then N.Next /= null then
+            Text_IO.Put (Stub_Adb, ",");
+         end if;
+
+         Output_Parameter (K + 1, Prefix, N.Next);
+      end Output_Enumeration;
+
       ----------------------
       -- Output_Parameter --
       ----------------------
@@ -194,6 +233,9 @@ package body Stub is
 
                when WSDL.Parameters.K_Derived =>
                   Output_Derived (K, Prefix, N);
+
+               when WSDL.Parameters.K_Enumeration =>
+                  Output_Enumeration (K, Prefix, N);
 
                when WSDL.Parameters.K_Array =>
                   Output_Array (K, Prefix, N);
@@ -494,6 +536,20 @@ package body Stub is
                           & """)));");
                   end if;
 
+               when WSDL.Parameters.K_Enumeration =>
+
+                  Text_IO.Put_Line
+                    (Stub_Adb,
+                     "                 := "
+                       & Result_Type (O, Proc, Output));
+                  Text_IO.Put_Line
+                    (Stub_Adb,
+                     "                   ("
+                       & To_String (Output.E_Name) & "_Type'Value"
+                       & " (SOAP.Parameters.Get (R_Param, """
+                       & To_String (Output.Name)
+                       & """)));");
+
                when WSDL.Parameters.K_Array =>
                   Text_IO.Put_Line
                     (Stub_Adb,
@@ -564,12 +620,10 @@ package body Stub is
       Documentation : in     String;
       Location      : in     String)
    is
-      pragma Unreferenced (Documentation);
+      pragma Unreferenced (Location, Documentation);
 
       L_Name : constant String := Format_Name (O, Name);
    begin
-      O.Location := To_Unbounded_String (Location);
-
       --  Spec
 
       Text_IO.Put_Line (Stub_Ads, "pragma Warnings (Off);");
