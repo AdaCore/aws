@@ -56,7 +56,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tlog unexph2 sp sessions dirop multiple tcom tmime sessions2 \
 	sessions3 huge_response server_info server_config sback append \
 	compress zapp zbig zfile zstrm dispatch dispatch_vh dispatch_method \
-	split zstrm2 once get_post zopen timer tmem file2 $(RT_STD_SEC)
+	split zstrm2 once get_post zopen timer tmem file2 eres $(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
 OTH_TESTS    = tres zres
@@ -222,6 +222,7 @@ zres: force
 	-diff -c -w zres.out zres.res >> alldifs
 
 file2: zres
+eres: zres
 
 # We change 2 values in aws-containers-tables.ads because its implementation
 # is based on GNAT.Dynamic_Tables which uses a low-level realloc. This
