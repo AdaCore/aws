@@ -1,25 +1,26 @@
 
 # $Id$
 
-.SILENT: all auth runme agent ws clean
+.SILENT: all auth runme agent ws clean soap hotplug com_1 com_2 hello_world
+.SILENT: main soap_server soap_client
 
 ifeq ($(MODE),ssl)
 # For SSL support, note that -lgdi32 is Win32 specific and should be removed
 # under others platforms.
 
-GARGS = -I../src -I../ssl -I../include $(INCLUDES) -i -gnatwu -g
+GARGS = -I../src -I../ssl -I../include -I../soap $(INCLUDES) -i -gnatwu -g
 BARGS = -E
 LARGS = -L../win32 -lssl -lcrypto -lRSAglue -lgdi32
 
 else
 # Without SSL support
 
-GARGS = -I../src -I../include $(INCLUDES) -i -gnatwu -g
+GARGS = -I../src -I../include -I../soap $(INCLUDES) -i -gnatwu -g
 BARGS = -E
 LARGS =
 endif
 
-build: runme agent auth ws com_1 com_2 main hotplug hello_world
+build: runme agent auth ws com_1 com_2 main hotplug hello_world soap
 
 runme:
 	gnatmake $(GARGS) runme -bargs $(BARGS) -largs $(LARGS)
@@ -48,5 +49,13 @@ hotplug:
 hello_world:
 	gnatmake $(GARGS) hello_world -bargs $(BARGS) -largs $(LARGS)
 
+soap:
+	(if [ -e ../soap/soap.o ] ; then \
+	gnatmake $(GARGS) soap_client -bargs $(BARGS) -largs $(LARGS); \
+	gnatmake $(GARGS) soap_server -bargs $(BARGS) -largs $(LARGS); \
+	else \
+	echo ""; \
+	echo Please build SOAP library before building SOAP demos;\
+	fi)
 clean:
 	-rm -f *.o *.ali *.exe b~*.* *.~*.*.~
