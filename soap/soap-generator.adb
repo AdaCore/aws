@@ -694,13 +694,6 @@ package body SOAP.Generator is
          P    : in WSDL.Parameters.P_Set);
       --  Generate enumeration type definition
 
---        procedure Generate_Safe_Array
---          (Name : in String;
---           P    : in WSDL.Parameters.P_Set);
-      --  Generate the safe array runtime support. This is only done when a
-      --  user spec is speficied. We must generate such reference to user's
-      --  spec only if we have an array inside a record.
-
       function Generate_Namespace
         (NS     : in Name_Space.Object;
          Create : in Boolean) return String;
