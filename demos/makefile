@@ -11,7 +11,7 @@ GARGS = $(GFLAGS) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LIBS) -L../win32 -lssl -lcrypto -lRSAglue -lgdi32
+LARGS = $(LIBS) -L../win32 -lssl -lcrypto
 else
 LARGS = $(LIBS) -lssl -lcrypto
 endif
