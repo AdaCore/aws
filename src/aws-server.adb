@@ -262,6 +262,10 @@ package body AWS.Server is
          new Ada.Unchecked_Deallocation (Slots, Slots_Access);
 
    begin
+      if Web_Server.Shutdown then
+         return;
+      end if;
+
       Web_Server.Shutdown := True;
 
       --  First, close the sever socket, so no more request will be queued
