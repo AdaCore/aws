@@ -47,6 +47,23 @@ package body AWS.Client.XML.Input_Sources is
    function "+" (Item : Stream_Element_Array) return String
      renames AWS.Translator.To_String;
 
+   procedure Clean_Buffer (From : in out HTTP_Input);
+   pragma Inline (Clean_Buffer);
+   --  Clean buffer in the connection. Ensure that the garbadge after the last
+   --  character read are cleaned.
+
+   ------------------
+   -- Clean_Buffer --
+   ------------------
+
+   procedure Clean_Buffer (From : in out HTTP_Input) is
+      First : constant Stream_Element_Offset := From.Last + 1;
+      Last  : constant Stream_Element_Offset
+        := Stream_Element_Offset'Min (First + 6, From.Buffer'Last);
+   begin
+      From.Buffer (First .. Last) := (others => 0);
+   end Clean_Buffer;
+
    ------------
    -- Create --
    ------------
@@ -98,6 +115,7 @@ package body AWS.Client.XML.Input_Sources is
    begin
       if From.First > From.Last then
          Read_Some (From.Self.HTTP.all, From.Self.Buffer, From.Self.Last);
+         Clean_Buffer (HTTP_Input (From.Self.all));
          From.Self.First := From.Buffer'First;
       end if;
 
@@ -141,6 +159,8 @@ package body AWS.Client.XML.Input_Sources is
 
          From.First := From.Buffer'First;
          From.Last  := Temp;
+
+         Clean_Buffer (From);
       end if;
 
       Read_Encoded_Char : loop
@@ -180,6 +200,8 @@ package body AWS.Client.XML.Input_Sources is
               (From.HTTP.all,
                Data => From.Buffer (Temp + 1 .. From.Buffer'Last),
                Last => From.Last);
+
+            Clean_Buffer (From);
 
             if From.Last <= Temp then
                --  No more bytes to read, so we have the start of an encoded
