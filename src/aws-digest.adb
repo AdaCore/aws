@@ -73,6 +73,12 @@ package body AWS.Digest is
       Digest        : MD5.Fingerprint;
       Sample        : Digest_String;
    begin
+      --  Our nonces length is length of Digest plus 5 symbols for
+      --  Day durations.
+      if Value'Length /= Digest_String'Length + 5 then
+         return False;
+      end if;
+
       Split (Now, Year_Now, Month_Now, Day_Now, Seconds_Now);
 
       Integer_Text_IO.Get
