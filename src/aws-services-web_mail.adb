@@ -112,10 +112,7 @@ package body AWS.Services.Web_Mail is
       --  Checks current session data and set corresponding variables,
       --  POP_Server is set to Null_Unbounded_String if no session data found.
 
-      SMTP_Server : Unbounded_String;
-      POP_Server  : Unbounded_String;
-      User_Name   : Unbounded_String;
-      Password    : Unbounded_String;
+      POP_Server : Unbounded_String;
 
       -------------------
       -- Check_Session --
@@ -124,14 +121,8 @@ package body AWS.Services.Web_Mail is
       procedure Check_Session is
       begin
          if Session.Exist (WM_Session, "WM_POP_SERVER") then
-            SMTP_Server := To_Unbounded_String
-              (String'(Session.Get (WM_Session, "WM_SMTP_SERVER")));
             POP_Server := To_Unbounded_String
               (String'(Session.Get (WM_Session, "WM_POP_SERVER")));
-            User_Name := To_Unbounded_String
-              (String'(Session.Get (WM_Session, "WM_USER_NAME")));
-            Password := To_Unbounded_String
-              (String'(Session.Get (WM_Session, "WM_PASSWORD")));
          end if;
       end Check_Session;
 
