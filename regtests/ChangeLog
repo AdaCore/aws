@@ -1,3 +1,17 @@
+2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(tres): Call tres with a different port each time.
+
+	* tres.adb:
+	The port number is now passed in the command line. This test is
+	 runned twice and we need to use a different port each time.
+
+	* auth.adb, moved.adb, redirect.adb, strm.adb, tclientto.adb,
+	  unexph.adb, upload3.adb, tgetparam.adb, param.adb, head.adb:
+	Change port number used. On GNU/Linux port are not released at
+	 once. These changes avoid crash while running the regression tests.
+
 2003-01-29  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* tres2.adb:
