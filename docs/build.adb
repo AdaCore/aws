@@ -25,6 +25,7 @@ procedure Build is
    T : Translate_Table
      := (Assoc ("VERSION", AWS.Version),
          Assoc ("MAX_CONNECT", Image (Default.Max_Connection)),
+         Assoc ("QUEUE_SIZE", Default.Accept_Queue_Size),
          Assoc ("SERVER_NAME", Default.Server_Name),
          Assoc ("SERVER_PORT", Image (Default.Server_Port)),
          Assoc ("LOG_FILE_DIR", Default.Log_File_Directory),
