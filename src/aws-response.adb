@@ -204,6 +204,24 @@ package body AWS.Response is
       return To_String (D.Content_Type);
    end Content_Type;
 
+   -----------
+   -- Empty --
+   -----------
+
+   function Empty return Data is
+   begin
+      return Data'(Finalization.Controlled with
+                   new Natural'(1),
+                   Response.No_Data,
+                   Messages.S204,
+                   0,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   null);
+   end Empty;
+
    ----------
    -- File --
    ----------
