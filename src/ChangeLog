@@ -1,3 +1,39 @@
+2003-01-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Fix RFC reference syntax.
+
+	* aws-status-set.adb:
+	(Read_Header): Use new Headers.Set.Read spec.
+	Update copyright notice.
+
+	* aws-client.adb:
+	(Read_Status_Line): Handle continuation line.
+	Minor reformatting.
+
+	* aws-response-set.adb:
+	(Read_Header): Use new Headers.Set.Read spec.
+	Minor reformatting.	
+	Update copyright notice.
+
+	* aws-headers-set.adb:
+	(Read): Set Socket as the first parameter.
+	Minor reformatting.
+	Update copyright notice.
+	
+	* aws-headers-set.ads:
+	(Read): Set Socket as the first parameter.
+	Update copyright notice.
+
+	* aws-net-buffered.adb:
+	(Peek_Char): New routine.
+	Update copyright notice.
+
+	* aws-net-buffered.ads:
+	(Peek_Char): New routine.
+	Comment the complete API.
+	Update copyright notice.
+	
 2003-01-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
