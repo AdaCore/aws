@@ -51,15 +51,21 @@ package AWS.Config is
    Default_Log_File_Directory : constant String := "./";
    Default_Upload_Directory   : constant String := "./";
 
-   Default_Cleaner_Wait_For_Client_Timeout : constant Duration :=  80.0;
-   Default_Cleaner_Client_Header_Timeout   : constant Duration :=  20.0;
-   Default_Cleaner_Client_Data_Timeout     : constant Duration := 300.0;
-   Default_Cleaner_Server_Response_Timeout : constant Duration := 300.0;
+   Height_Hours : constant := 28_800.0;
+   Three_Hours  : constant := 10_800.0;
 
-   Default_Force_Wait_For_Client_Timeout   : constant Duration :=   2.0;
-   Default_Force_Client_Header_Timeout     : constant Duration :=   3.0;
-   Default_Force_Client_Data_Timeout       : constant Duration :=  10.0;
-   Default_Force_Server_Response_Timeout   : constant Duration :=  10.0;
+   Default_Cleaner_Wait_For_Client_Timeout : constant Duration := 80.0;
+   Default_Cleaner_Client_Header_Timeout   : constant Duration := 20.0;
+   Default_Cleaner_Client_Data_Timeout     : constant Duration := Height_Hours;
+   Default_Cleaner_Server_Response_Timeout : constant Duration := Height_Hours;
+
+   Default_Force_Wait_For_Client_Timeout   : constant Duration :=  2.0;
+   Default_Force_Client_Header_Timeout     : constant Duration :=  3.0;
+   Default_Force_Client_Data_Timeout       : constant Duration :=  Three_Hours;
+   Default_Force_Server_Response_Timeout   : constant Duration :=  Three_Hours;
+
+   Default_Send_Timeout      : constant Duration :=  40.0;
+   Default_Receive_Timeout   : constant Duration :=  30.0;
 
    function Server_Name return String;
    --  Format: Server_Name <string>
@@ -127,5 +133,13 @@ package AWS.Config is
    --  Format: Force_Server_Response <duration>
    --  Number of seconds to timout on waiting for client to accept answer.
    --  This is a timeout for urgent request when ressources are missing.
+
+   function Send_Timeout return Duration;
+   --  Format: Send_Timeout <duration>
+   --  Number of seconds to timeout when sending chunck of data.
+
+   function Receive_Timeout   return Duration;
+   --  Format: Receive_Timeout <duration>
+   --  Number of seconds to timeout when receiving chunck of data.
 
 end AWS.Config;
