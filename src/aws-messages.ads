@@ -72,6 +72,9 @@ package AWS.Messages is
    Content_Type_Token : constant String := "Content-Type: ";
    subtype Content_Type_Range is Positive range Content_Type_Token'Range;
 
+   Cache_Control_Token : constant String := "Cache-Control: ";
+   subtype Cache_Control_Range is Positive range Cache_Control_Token'Range;
+
    Get_Token : constant String := "GET ";
    subtype Get_Range is Positive range Get_Token'Range;
 
@@ -153,6 +156,16 @@ package AWS.Messages is
    function Reason_Phrase (S : in Status_Code) return String;
    --  Returns the reason phrase for the status code S, see [RFC 2616 - 6.1.1]
 
+   -------------------
+   -- Cache_Control --
+   -------------------
+
+   type Cache_Option is new String;
+
+   Unspecified : constant Cache_Option;
+   No_Cache    : constant Cache_Option;
+   No_Store    : constant Cache_Option;
+
    -------------------------------
    -- HTTP message constructors --
    -------------------------------
@@ -177,6 +190,9 @@ package AWS.Messages is
       Boundary : in String := "")
       return String;
    pragma Inline (Content_Type);
+
+   function Cache_Control (Option : in Cache_Option) return String;
+   pragma Inline (Cache_Control);
 
    function Content_Disposition
      (Format   : in String;
@@ -246,5 +262,11 @@ package AWS.Messages is
    function To_Time (HTTP_Date : in String) return Calendar.Time;
    --  Returns an Ada time from an HTTP one. This is To_HTTP_Date opposite
    --  function.
+
+private
+
+   Unspecified : constant Cache_Option := "";
+   No_Cache    : constant Cache_Option := "no-cahce";
+   No_Store    : constant Cache_Option := "no-store";
 
 end AWS.Messages;
