@@ -1,3 +1,8 @@
+2005-02-01  Pascal Obry  <pascal@obry.org>
+
+	* wspiapi.c:
+	Fix typo in comment.
+
 2004-11-16  Pascal Obry  <pascal@obry.net>
 
 	* makefile:
