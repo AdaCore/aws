@@ -200,6 +200,15 @@ package body Filter is
            (Yes_No_Token'Access,         Yes_No'Access)
          );
 
+   function Replace_One_Or_All
+     (S   : in String;
+      P   : in Parameter_Data  := No_Parameter;
+      T   : in Translate_Table := No_Translation;
+      One : Boolean)
+      return String;
+   --  Routine used to implement the REPLACE (One set to True) and REPLACE_ALL
+   --  filters.
+
    function Value
      (Str          : in String;
       Translations : in Translate_Table)
@@ -1044,52 +1053,8 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
-      use type GNAT.Regpat.Match_Location;
-
-      Param          : constant String  := Value (To_String (P.Param), T);
-      Exists_Pattern : constant Boolean := Fixed.Index (Param, "\1") /= 0;
-
-      Matches : GNAT.Regpat.Match_Array
-        (0 .. GNAT.Regpat.Paren_Count (P.Regpat.all));
-
-      Result  : Unbounded_String := To_Unbounded_String (Param);
-
-      N       : Natural;
    begin
-      GNAT.Regpat.Match (P.Regpat.all, S, Matches);
-
-      for K in 1 .. Matches'Last loop
-         exit when Matches (K) = GNAT.Regpat.No_Match;
-
-         N := Index (Result, '\' & Image (K));
-
-         if N /= 0 then
-            Replace_Slice
-              (Result, N, N + 1,
-               By => S (Matches (K).First .. Matches (K).Last));
-         end if;
-      end loop;
-
-      if Matches (0) /= GNAT.Regpat.No_Match then
-         --  At least one match
-
-         if Exists_Pattern then
-            --  A replacement pattern was present
-            return To_String (Result);
-         else
-            return S (S'First .. Matches (0).First - 1)
-                     & To_String (Result) & S (Matches (0).Last + 1 .. S'Last);
-         end if;
-
-      else
-         --  No match, returns the initial string
-         return S;
-      end if;
-
-   exception
-      when Constraint_Error =>
-         Exceptions.Raise_Exception
-           (Template_Error'Identity, "replace filter parameter error");
+      return Replace_One_Or_All (S, P, T, One => True);
    end Replace;
 
    -----------------
@@ -1102,9 +1067,25 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
-      use type GNAT.Regpat.Match_Location;
+   begin
+      return Replace_One_Or_All (S, P, T, One => False);
+   end Replace_All;
 
-      Param : constant String := Value (To_String (P.Param), T);
+   ------------------------
+   -- Replace_One_Or_All --
+   ------------------------
+
+   function Replace_One_Or_All
+     (S   : in String;
+      P   : in Parameter_Data  := No_Parameter;
+      T   : in Translate_Table := No_Translation;
+      One : Boolean)
+      return String
+   is
+      use type GNAT.Regpat.Match_Location;
+      use Ada.Strings.Fixed;
+
+      Param   : constant String  := Value (To_String (P.Param), T);
 
       Matches : GNAT.Regpat.Match_Array
         (0 .. GNAT.Regpat.Paren_Count (P.Regpat.all));
@@ -1114,7 +1095,6 @@ package body Filter is
       N       : Natural;
       Current : Natural := S'First;
       Matched : Boolean := False;
-
    begin
 
       loop
@@ -1125,27 +1105,41 @@ package body Filter is
 
          Temp    := To_Unbounded_String (Param);
 
+         --  Replace each occurrence of \n in Temp by the corresponding match
+
          for K in 1 .. Matches'Last loop
-            exit when Matches (K) = GNAT.Regpat.No_Match;
+            --  We only accept \1 ... \9 because we want to be able to write
+            --  such a replacement string "\10123456789\2"
+            exit when K = 10 or else Matches (K) = GNAT.Regpat.No_Match;
 
-            N := Index (Temp, '\' & Image (K));
+            N := 1;
 
-            if N /= 0 then
+            loop
+               N := Index (Slice (Temp, N, Length (Temp)), '\' & Image (K));
+
+               exit when N = 0;
+
                Replace_Slice
                  (Temp, N, N + 1,
                   By => S (Matches (K).First .. Matches (K).Last));
-            end if;
+
+               --  Position N just after the inserted replacement text
+               N := N + Matches (K).Last - Matches (K).First + 1;
+            end loop;
          end loop;
 
+         --  Prepend the beginning of string before the match
          Result := Result
            & To_Unbounded_String (S (Current .. Matches (0).First - 1))
            & Temp;
 
+         --  Position the cursor just after the current match
          Current := Matches (0).Last + 1;
+
+         exit when One;
       end loop;
 
       if Matched then
-         --  At least one match
          return To_String (Result) & S (Current .. S'Last);
       else
          --  No match, returns the initial string
@@ -1155,7 +1149,7 @@ package body Filter is
       when Constraint_Error =>
          Exceptions.Raise_Exception
            (Template_Error'Identity, "replace filter parameter error");
-   end Replace_All;
+   end Replace_One_Or_All;
 
    -------------------
    -- Replace_Param --
