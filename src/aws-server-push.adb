@@ -118,7 +118,7 @@ package body AWS.Server.Push is
       --------------
 
       procedure Register
-        (Client_ID       : in     Client_Key;
+        (Client_Id       : in     Client_Key;
          Holder          : in out Client_Holder;
          Close_Duplicate : in     Boolean)
       is
@@ -130,15 +130,15 @@ package body AWS.Server.Push is
             raise Closed;
          end if;
 
-         Table.Insert (Container, Client_ID, Holder, Cursor, Success);
+         Table.Insert (Container, Client_Id, Holder, Cursor, Success);
 
          if not Success then
             if Close_Duplicate then
-               Unregister (Client_ID, True);
+               Unregister (Client_Id, True);
                Table.Replace_Element (Cursor, Holder);
             else
                Net.Stream_IO.Free (Holder.Stream, False);
-               raise Duplicate_Client_ID;
+               raise Duplicate_Client_Id;
             end if;
          end if;
 
@@ -171,25 +171,25 @@ package body AWS.Server.Push is
 
          exception
             when others =>
-               Unregister (Client_ID, Close_Socket => False);
+               Unregister (Client_Id, Close_Socket => False);
                raise;
          end;
       end Register;
 
       procedure Register
-        (Client_ID         : in     Client_Key;
+        (Client_Id         : in     Client_Key;
          Holder            : in out Client_Holder;
          Init_Data         : in     Client_Output_Type;
          Init_Content_Type : in     String;
          Close_Duplicate   : in     Boolean) is
       begin
-         Register (Client_ID, Holder, Close_Duplicate);
+         Register (Client_Id, Holder, Close_Duplicate);
 
          begin
             Send_Data (Holder, Init_Data, Init_Content_Type);
          exception
             when others =>
-               Unregister (Client_ID, Close_Socket => False);
+               Unregister (Client_Id, Close_Socket => False);
                raise;
          end;
       end Register;
@@ -288,13 +288,13 @@ package body AWS.Server.Push is
       -------------
 
       procedure Send_To
-        (Client_ID    : in Client_Key;
+        (Client_Id    : in Client_Key;
          Data         : in Client_Output_Type;
          Content_Type : in String)
       is
          Cursor : Table.Cursor;
       begin
-         Cursor := Table.Find (Container, Client_ID);
+         Cursor := Table.Find (Container, Client_Id);
 
          if Table.Has_Element (Cursor) then
             Send_Data (Table.Element (Cursor), Data, Content_Type);
@@ -304,7 +304,7 @@ package body AWS.Server.Push is
 
       exception
          when Net.Socket_Error =>
-            Unregister (Client_ID, True);
+            Unregister (Client_Id, True);
             raise Client_Gone;
       end Send_To;
 
@@ -348,13 +348,13 @@ package body AWS.Server.Push is
       ----------------
 
       procedure Unregister
-        (Client_ID    : in Client_Key;
+        (Client_Id    : in Client_Key;
          Close_Socket : in Boolean)
       is
          Cursor : Table.Cursor;
          Value  : Client_Holder;
       begin
-         Cursor := Table.Find (Container, Client_ID);
+         Cursor := Table.Find (Container, Client_Id);
 
          if Table.Has_Element (Cursor) then
             Value := Table.Element (Cursor);
@@ -393,7 +393,7 @@ package body AWS.Server.Push is
 
    procedure Register
      (Server            : in out Object;
-      Client_ID         : in     Client_Key;
+      Client_Id         : in     Client_Key;
       Socket            : in     Net.Socket_Type'Class;
       Environment       : in     Client_Environment;
       Init_Data         : in     Client_Output_Type;
@@ -404,7 +404,7 @@ package body AWS.Server.Push is
       Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
    begin
       Server.Register
-        (Client_ID,
+        (Client_Id,
          Holder,
          Init_Data,
          Init_Content_Type,
@@ -413,7 +413,7 @@ package body AWS.Server.Push is
 
    procedure Register
      (Server          : in out Object;
-      Client_ID       : in     Client_Key;
+      Client_Id       : in     Client_Key;
       Socket          : in     Net.Socket_Type'Class;
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
@@ -421,7 +421,7 @@ package body AWS.Server.Push is
    is
       Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
    begin
-      Server.Register (Client_ID, Holder, Close_Duplicate);
+      Server.Register (Client_Id, Holder, Close_Duplicate);
    end Register;
 
    -------------
@@ -478,11 +478,11 @@ package body AWS.Server.Push is
 
    procedure Send_To
      (Server       : in out Object;
-      Client_ID    : in     Client_Key;
+      Client_Id    : in     Client_Key;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "") is
    begin
-      Server.Send_To (Client_ID, Data, Content_Type);
+      Server.Send_To (Client_Id, Data, Content_Type);
    end Send_To;
 
    --------------
@@ -534,10 +534,10 @@ package body AWS.Server.Push is
 
    procedure Unregister
      (Server       : in out Object;
-      Client_ID    : in     Client_Key;
+      Client_Id    : in     Client_Key;
       Close_Socket : in     Boolean    := True) is
    begin
-      Server.Unregister (Client_ID, Close_Socket);
+      Server.Unregister (Client_Id, Close_Socket);
    end Unregister;
 
    ------------------------
