@@ -1,3 +1,21 @@
+2001-11-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Get_Response): use MIME.Is_Text to correctly handle textual and
+	 non textual data.
+
+	* aws-mime.ads, aws-mime.adb:
+	(Is_Text): new function.
+
+2001-11-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-translator.adb:
+	Change implementation of BASE64 algorithm. It is now based on
+	 base64 tables instead of functions. Removes use of unbounded
+	 string, now the result length is computed before the encoding. 
+	 This should be faster. This code has been contributed by 
+	 Thomas Quinot.
+
 2001-11-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
