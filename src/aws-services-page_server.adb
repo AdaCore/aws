@@ -39,7 +39,6 @@ with AWS.Templates;
 
 package body AWS.Services.Page_Server is
 
-   WWW_Root         : String renames AWS.Config.WWW_Root (Config.Get_Current);
    Browse_Directory : Boolean := False;
 
    --------------
@@ -47,6 +46,7 @@ package body AWS.Services.Page_Server is
    --------------
 
    function Callback (Request : in AWS.Status.Data) return AWS.Response.Data is
+      WWW_Root : String renames AWS.Config.WWW_Root (Config.Get_Current);
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
 
@@ -76,7 +76,8 @@ package body AWS.Services.Page_Server is
                --  leat one image.
 
                return AWS.Response.Acknowledge
-                 (Messages.S404, Templates.Parse ("404.thtml", Table));
+                 (Messages.S404,
+                  Templates.Parse (WWW_Root & "404.thtml", Table));
             end;
 
          else
