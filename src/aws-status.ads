@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -42,6 +42,7 @@ with AWS.Net;
 with AWS.Parameters;
 with AWS.Session;
 with AWS.URL;
+with AWS.Utils;
 
 package AWS.Status is
 
@@ -199,15 +200,13 @@ private
 
    use Ada.Strings.Unbounded;
 
-   type Stream_Element_Array_Access is access Stream_Element_Array;
-
    type Data is record
       Peername          : Unbounded_String;
       Method            : Request_Method     := GET;
       URI               : AWS.URL.Object;
       Parameters        : AWS.Parameters.List;
       Header            : AWS.Headers.List;
-      Binary_Data       : Stream_Element_Array_Access := null;
+      Binary_Data       : Utils.Stream_Element_Array_Access := null;
       HTTP_Version      : Unbounded_String;
       Content_Length    : Natural            := 0;
       Keep_Alive        : Boolean;
