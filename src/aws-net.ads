@@ -219,4 +219,7 @@ private
    procedure Release_Cache (Socket : in out Socket_Type'Class);
    --  Release cache object memory
 
+   function Errno return Integer;
+   --  Return error code for the last socket operation.
+
 end AWS.Net;

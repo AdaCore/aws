@@ -39,6 +39,8 @@ package body AWS.Net is
 
    use Ada;
 
+   function Errno return Integer renames Std.Errno;
+
    ----------
    -- Free --
    ----------
