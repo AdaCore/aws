@@ -1,7 +1,10 @@
 alldifs
+append.res
 auth.res
 auth.tmp
 auth2.res
+b~append.adb
+b~append.ads
 b~auth.adb
 b~auth.ads
 b~auth2.adb
