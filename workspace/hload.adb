@@ -4,6 +4,7 @@
 --  See Sock. This could be used as a regression test when bug showed by
 --  sock.adb will be fixed.
 
+with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -20,7 +21,8 @@ procedure Hload is
    use Ada;
    use Ada.Strings.Unbounded;
 
-   Max_Client : constant := 18;
+   Max_Client   : constant := 18;
+   Client_Count : constant := 3000;
 
    function Image (K : in Positive) return String;
 
@@ -35,6 +37,27 @@ procedure Hload is
       entry Stop;
    end Client;
 
+   subtype Count is Long_Integer;
+
+   protected Interval_Timer is
+      procedure Stamp;
+      procedure Print_Statistic;
+   private
+      Last : Ada.Calendar.Time;
+      Start : Ada.Calendar.Time;
+
+      Counter   : Count := 0;
+      Max_Index : Count := 0;
+      Min_Index : Count := 0;
+
+      Max : Duration := 0.0;
+      Min : Duration := Duration'Last;
+   end Interval_Timer;
+
+   ------------
+   -- Client --
+   ------------
+
    task body Client is
       Name : Unbounded_String;
       Connect : AWS.Client.HTTP_Connection;
@@ -43,9 +66,10 @@ procedure Hload is
          Client.Name := To_Unbounded_String (Name);
       end Start;
 
-      AWS.Client.Create (Connect, "http://localhost:1234", Timeouts => (5, 5));
+      AWS.Client.Create
+        (Connect, "http://localhost:1234", Timeouts => (15, 15));
 
-      for K in 1 .. 3000 loop
+      for K in 1 .. Client_Count loop
          begin
             declare
                K_Img : constant String := Image (K) & '-' & To_String (Name);
@@ -56,8 +80,8 @@ procedure Hload is
 
                if Expected /= String'(AWS.Response.Message_Body (R)) then
                   Text_IO.Put_Line
-                    ("nok " & K_Img &
-                     "expected " & Expected
+                    ("nok " & K_Img
+                     & " expected " & Expected
                      & " -> found " & String'(AWS.Response.Message_Body (R)));
                end if;
             end;
@@ -77,13 +101,73 @@ procedure Hload is
 
    end Client;
 
+   --------------------
+   -- Interval_Timer --
+   --------------------
+
+   protected body Interval_Timer is
+
+      ---------------------
+      -- Print_Statistic --
+      ---------------------
+
+      procedure Print_Statistic is
+         use type Ada.Calendar.Time;
+      begin
+         Ada.Text_IO.Put_Line
+           ("Counter:" & Count'Image (Counter) & ASCII.LF
+            & "Min:" & Count'Image (Min_Index) & Duration'Image (Min)
+            & ASCII.LF
+            & "Max:" & Count'Image (Max_Index) & Duration'Image (Max)
+            & ASCII.LF
+            & "Average:" & Count'Image (Counter / Count (Last - Start)));
+      end Print_Statistic;
+
+      -----------
+      -- Stamp --
+      -----------
+
+      procedure Stamp is
+         use type Ada.Calendar.Time;
+
+         Now : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+         Interval : Duration;
+      begin
+         if Counter = 0 then
+            Last  := Now;
+            Start := Now;
+         else
+            Interval := Now - Last;
+
+            if Interval > Max then
+               Max       := Interval;
+               Max_Index := Counter;
+
+            elsif Interval < Min then
+               Min       := Interval;
+               Min_Index := Counter;
+            end if;
+         end if;
+
+         Last    := Now;
+         Counter := Counter + 1;
+      end Stamp;
+
+   end Interval_Timer;
+
    use AWS;
 
    WS : Server.HTTP;
 
+   --------
+   -- CB --
+   --------
+
    function CB (Request : in Status.Data) return Response.Data is
       P : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
    begin
+      Interval_Timer.Stamp;
+
       return Response.Build
         (MIME.Text_HTML, "Data:" & AWS.Parameters.Get (P, "PARAM"));
    end CB;
@@ -92,7 +176,8 @@ procedure Hload is
 
 begin
    Server.Start
-     (WS, "Heavy Loaded",
+     (WS,
+      "Heavy Loaded",
       CB'Unrestricted_Access,
       Port           => 1234,
       Max_Connection => 16,
@@ -112,4 +197,11 @@ begin
 
    Server.Shutdown (WS);
    Ada.Text_IO.Put_Line ("shutdown");
+
+   Interval_Timer.Print_Statistic;
+
+exception
+   when E : others =>
+      Text_IO.Put_Line
+        ("main task" & ASCII.LF & Exceptions.Exception_Information (E));
 end Hload;
