@@ -376,7 +376,10 @@ package body SOAP.Message.XML is
       Name  : constant String        := Local_Name (N);
       Value : constant DOM.Core.Node := First_Child (N);
    begin
-      if Node_Value (Value) = "1" then
+      if Node_Value (Value) = "1"
+        or else Node_Value (Value) = "true"
+        or else Node_Value (Value) = "TRUE"
+      then
          return Types.B (True, Name);
       else
          return Types.B (False, Name);
@@ -630,16 +633,28 @@ package body SOAP.Message.XML is
       Name  : constant String        := Local_Name (N);
       Value : constant DOM.Core.Node := First_Child (N);
       TI    : constant String        := Node_Value (Value);
+
+      T     : Time;
    begin
-      return Types.T
-        (Time_Of (Year    => Year_Number'Value (TI (1 .. 4)),
-                  Month   => Month_Number'Value (TI (6 .. 7)),
-                  Day     => Day_Number'Value (TI (9 .. 10)),
-                  Seconds => Duration (Natural'Value (TI (12 .. 13)) * 3600
-                                       + Natural'Value (TI (15 .. 16)) * 60
-                                       + Natural'Value (TI (18 .. 19)))),
-         Name,
-         Types.TZ'Value (TI (20 .. 22)));
+      --  timeInstant format is CCYY-MM-DDThh:mm:ss[[+|-]hh:mm | Z]
+
+      T := Time_Of (Year    => Year_Number'Value (TI (1 .. 4)),
+                    Month   => Month_Number'Value (TI (6 .. 7)),
+                    Day     => Day_Number'Value (TI (9 .. 10)),
+                    Seconds => Duration (Natural'Value (TI (12 .. 13)) * 3600
+                                           + Natural'Value (TI (15 .. 16)) * 60
+                                           + Natural'Value (TI (18 .. 19))));
+
+      if TI'Last = 19                         -- No timezone
+        or else
+        (TI'Last = 20 and then TI (20) = 'Z') --  GMT timezone
+        or else
+        TI'Last < 22                          -- No enough timezone data
+      then
+         return Types.T (T, Name);
+      else
+         return Types.T (T, Name, Types.TZ'Value (TI (20 .. 22)));
+      end if;
    end Parse_Time_Instant;
 
    -------------------
