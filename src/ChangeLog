@@ -1,5 +1,8 @@
 2002-11-21  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-parameters.adb:
+	Rename Cutted_String to Cut_String.
+
 	* aws-headers-values.adb:
 	(Parsing_Step): Renamed Next_Value. Remove Spaces from there as it
 	 was already declared in the package body.
