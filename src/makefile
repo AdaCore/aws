@@ -4,7 +4,7 @@
 .SILENT: build ssl_mode std_mode gnat_oslib posix_oslib win32_oslib clean
 
 GCC	= gcc
-GARGS	= $(GFLAGS) -I../ssl -I../include $(INCLUDES)
+GARGS	= $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 
 SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-parameters.adb aws-response.adb aws-server-get_status.adb \
