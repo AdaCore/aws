@@ -31,11 +31,12 @@
 --  $Id$
 
 with Ada.Characters.Handling;
-with Ada.Exceptions;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 
 with AWS.Messages;
 with AWS.Utils;
+with AWS.URL.Raise_URL_Error;
 
 package body AWS.URL is
 
@@ -167,6 +168,15 @@ package body AWS.URL is
       return To_String (URL.Host);
    end Host;
 
+   --------------
+   -- Is_Valid --
+   --------------
+
+   function Is_Valid (URL : in Object) return Boolean is
+   begin
+      return URL.Status = Valid;
+   end Is_Valid;
+
    ---------------
    -- Normalize --
    ---------------
@@ -177,6 +187,16 @@ package body AWS.URL is
       K : Natural;
       P : Natural;
    begin
+      --  Checks for current directory and removes all occurences
+
+      loop
+         K := Index (URL_Path, "/./");
+
+         exit when K = 0;
+
+         Delete (URL_Path, K, K + 1);
+      end loop;
+
       --  Checks for parent directory
 
       loop
@@ -194,28 +214,15 @@ package body AWS.URL is
          Delete (URL_Path, P, K + 2);
       end loop;
 
-      --  Checks for current directory and removes all occurences
-
-      loop
-         K := Index (URL_Path, "/./");
-
-         exit when K = 0;
-
-         Delete (URL_Path, K, K + 1);
-      end loop;
-
       return URL_Path;
    end Normalize;
 
    procedure Normalize (URL : in out Object) is
    begin
-      URL.Path := Normalize (URL.Path);
+      URL.Path := URL.N_Path;
 
-      if Length (URL.Path) >= 4 and then Slice (URL.Path, 1, 4) = "/../" then
-         Exceptions.Raise_Exception
-           (URL_Error'Identity,
-            "Wrong URL: (" & To_String (URL.Path)
-              & ")Reference Web root parent directory.");
+      if URL.Status = Wrong then
+         Raise_URL_Error (To_String (URL.Path));
       end if;
    end Normalize;
 
@@ -241,11 +248,15 @@ package body AWS.URL is
 
    function Parse
       (URL            : in String;
-       Check_Validity : in Boolean := True)
+       Check_Validity : in Boolean := True;
+       Normalize      : in Boolean := False)
        return Object
    is
       HTTP_Token  : constant String := "http://";
       HTTPS_Token : constant String := "https://";
+
+      L_URL : constant String
+        := Strings.Fixed.Translate (URL, Strings.Maps.To_Mapping ("\", "/"));
 
       P : Natural;
 
@@ -318,54 +329,67 @@ package body AWS.URL is
 
       --  Checks for parameters
 
-      P := Strings.Fixed.Index (URL, "?");
+      P := Strings.Fixed.Index (L_URL, "?");
 
       if P = 0 then
-         P := URL'Last;
+         P := L_URL'Last;
       else
-         O.Params := To_Unbounded_String (URL (P .. URL'Last));
+         O.Params := To_Unbounded_String (L_URL (P .. L_URL'Last));
          P := P - 1;
       end if;
 
       --  Checks for prefix
 
-      if Messages.Match (URL, HTTP_Token) then
+      if Messages.Match (L_URL, HTTP_Token) then
          O.Port := Default_HTTP_Port;
-         Parse (URL (URL'First + HTTP_Token'Length .. P));
+         Parse (L_URL (L_URL'First + HTTP_Token'Length .. P));
 
-      elsif Messages.Match (URL, HTTPS_Token) then
+      elsif Messages.Match (L_URL, HTTPS_Token) then
          O.Port := Default_HTTPS_Port;
-         Parse (URL (URL'First + HTTPS_Token'Length .. P));
+         Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P));
          O.Security := True;
 
-      elsif URL /= "" then
+      elsif L_URL /= "" then
          --  No server and port, just an URL.
 
-         if URL (URL'First) = '/' then
+         if L_URL (L_URL'First) = '/' then
             --  This is a rooted URL, no problem to parse as-is
-            Parse (URL);
+            Parse (L_URL);
 
          else
             --  This is not rooted. Parse with a '/' slash added, then remove
             --  it after parsing.
-            Parse ('/' & URL);
+            Parse ('/' & L_URL);
             O.Path := To_Unbounded_String (Slice (O.Path, 2, Length (O.Path)));
          end if;
 
-            O.Security := False;
+         O.Security := False;
       end if;
 
-      if Check_Validity and then O.Path /= Null_Unbounded_String then
-         declare
-            N_Path : Unbounded_String := Normalize (O.Path);
-         begin
-            if Length (N_Path) >= 4 and then Slice (N_Path, 1, 4) = "/../" then
-               Exceptions.Raise_Exception
-                 (URL_Error'Identity,
-                  "Wrong URL: (" & To_String (N_Path)
-                    & ") Reference Web root parent directory.");
-            end if;
-         end;
+      --  Normalize the URL path
+
+      O.N_Path := AWS.URL.Normalize (O.Path);
+
+      --  Set status
+
+      if Length (O.N_Path) >= 4
+        and then Slice (O.N_Path, 1, 4) = "/../"
+      then
+         O.Status := Wrong;
+      else
+         O.Status := Valid;
+      end if;
+
+      --  If Normalize is activated, the active URL Path is the normalized one
+
+      if Normalize then
+         O.Path := O.N_Path;
+      end if;
+
+      --  Raise URL_Error is the URL is suspicious
+
+      if Check_Validity and then O.Status = Wrong then
+         Raise_URL_Error (To_String (O.N_Path));
       end if;
 
       return O;
