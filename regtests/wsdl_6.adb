@@ -84,6 +84,24 @@ package body WSDL_6 is
       return V;
    end Echo_Int;
 
+   ----------------
+   -- Echo_Short --
+   ----------------
+
+   function Echo_Short (V : in SOAP.Types.Short) return SOAP.Types.Short is
+   begin
+      return V;
+   end Echo_Short;
+
+   ---------------
+   -- Echo_Long --
+   ---------------
+
+   function Echo_Long (V : in SOAP.Types.Long) return SOAP.Types.Long is
+   begin
+      return V;
+   end Echo_Long;
+
    ------------------
    -- Echo_New_Rec --
    ------------------

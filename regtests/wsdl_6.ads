@@ -29,6 +29,8 @@
 --  $Id$
 
 with Ada.Strings.Unbounded;
+
+with SOAP.Types;
 with SOAP.Utils;
 
 package WSDL_6 is
@@ -69,6 +71,10 @@ package WSDL_6 is
    function Next (Col : in Color) return Color;
 
    function Echo_Int (V : in Integer) return Integer;
+
+   function Echo_Short (V : in SOAP.Types.Short) return SOAP.Types.Short;
+
+   function Echo_Long (V : in SOAP.Types.Long) return SOAP.Types.Long;
 
    function Echo_Float (V : in Long_Float) return Long_Float;
 
