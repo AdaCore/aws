@@ -1,3 +1,9 @@
+2000-03-10    Pascal Obry <p.obry@wanadoo.fr>
+
+	* aws-connection.adb: 
+	(Line): never exit with an exception from the outer loop in this
+	task. We have a pool of Line that gets recycled.
+	
 2000-03-05    Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws-connection.adb:
@@ -23,7 +29,7 @@
 	(Put): new function
 	(Init_Connection): new function
 	(Parse_Header): new function
-	(Get): reoganized - use Init_Connection to Parse_Header
+	(Get): reorganized - use Init_Connection to Parse_Header
 
 	* aws-clients.ads:
 	(Put): new function
