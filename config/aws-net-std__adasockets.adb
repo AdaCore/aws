@@ -132,6 +132,15 @@ package body AWS.Net.Std is
          Raise_Exception (E, "Connect");
    end Connect;
 
+   -----------
+   -- Errno --
+   -----------
+
+   function Errno return Integer is
+   begin
+      return Sockets.Thin.Errno;
+   end Errno;
+
    ----------
    -- Free --
    ----------

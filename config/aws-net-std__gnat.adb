@@ -34,7 +34,15 @@ with Ada.Exceptions;
 with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
-with GNAT.Sockets;
+pragma Warnings (Off);
+
+--  Ignore warning about portability of the GNAT.Sockets.Thin
+--  because we are using only Socket_Errno and it is exists at all main
+--  platforms Unix, Windows and VMS.
+
+with GNAT.Sockets.Thin;
+
+pragma Warnings (On);
 
 package body AWS.Net.Std is
 
@@ -143,6 +151,15 @@ package body AWS.Net.Std is
          Free (Socket);
          Raise_Exception (E, "Connect");
    end Connect;
+
+   -----------
+   -- Errno --
+   -----------
+
+   function Errno return Integer is
+   begin
+      return GNAT.Sockets.Thin.Socket_Errno;
+   end Errno;
 
    ----------
    -- Free --

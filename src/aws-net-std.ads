@@ -124,6 +124,10 @@ package AWS.Net.Std is
    --  Returns the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
+   function Errno return Integer;
+   pragma Inline (Errno);
+   --  Return error code for the last socket operation.
+
 private
 
    type Socket_Hidden;
