@@ -1428,7 +1428,7 @@ each protected resources.
 @group
 @b{function} Protected_Service 
   (Request : @b{in} AWS.Status.Data) 
-  @b{return} AWS.Response.Data 
+   @b{return} AWS.Response.Data 
 @b{is}
    User : @b{constant} String := Status.Authorization_Name (Request);
    Pwd  : @b{constant} String := Status.Authorization_Password (Request);
@@ -1505,11 +1505,12 @@ The value is "Send File"
 
 @noindent
 This API is used to do communication between programs using the HTTP
-protocol. It is a very simple API not to be compared with @code{GLADE}. This
-communication facility is to be used for simple request or when a
-light communication support is needed. For more complex communications
-or to achieve inter-operability with other modules it is certainly a
-good idea to have a look at the @code{AWS/SOAP} support, @pxref{SOAP}.
+GET protocol. It is a very simple API not to be compared with @code{GLADE}
+or @code{SOAP}. This communication facility is to be used for simple
+request or when a light communication support is needed. For more
+complex communications or to achieve inter-operability with other
+modules it is certainly a good idea to have a look at the
+@code{AWS/SOAP} support, @pxref{SOAP}.
 
 @noindent
 In a communication there is a Client and a Server. Here is what is to be
@@ -1531,11 +1532,12 @@ using @code{AWS.Communication.Client.Send_Message}.
 @smallexample
 @cartouche
 @group
-@b{function} Send_Message (Server     : @b{in} String;
-                       Port       : @b{in} Positive;
-                       Name       : @b{in} String;
-                       Parameters : @b{in} Parameter_Set := Null_Parameter_Set)
-  @b{return} Response.Data;
+@b{function} Send_Message
+  (Server     : @b{in} String;
+   Port       : @b{in} Positive;
+   Name       : @b{in} String;
+   Parameters : @b{in} Parameter_Set := Null_Parameter_Set)
+   @b{return} Response.Data;
 @end group
 @end cartouche
 @end smallexample
@@ -1574,7 +1576,7 @@ server. This context will be passed back to the callback procedure.
       Name       : @b{in} String;
       Context    : @b{in} T_Access;
       Parameters : @b{in} Parameter_Set := Null_Parameter_Set)
-     @b{return} Response.Data;
+      @b{return} Response.Data;
 
 @b{package} AWS.Communication.Server @b{is}
    ...
