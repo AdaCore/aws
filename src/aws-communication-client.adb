@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,10 +31,10 @@
 --  $Id$
 
 with AWS.Client;
+with AWS.Net;
 with AWS.Utils;
 
 package body AWS.Communication.Client is
-
 
    ------------------
    -- Send_Message --
@@ -51,7 +51,7 @@ package body AWS.Communication.Client is
    begin
       URL := URL & "http://" & Server & ':' & Utils.Image (Port)
         & AWS_Com
-        & "?HOST=" & Utils.Gethostname
+        & "?HOST=" & Net.Host_Name
         & "&NAME=" & Name;
 
       for K in Parameters'Range loop
