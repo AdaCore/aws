@@ -272,6 +272,7 @@ regtests/file2.adb
 regtests/file2.out
 regtests/ftp.thtml
 regtests/generate.adb
+regtests/get_free_port.adb
 regtests/get_post.adb
 regtests/get_post.out
 regtests/head.adb
