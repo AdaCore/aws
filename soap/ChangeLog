@@ -1,3 +1,9 @@
+2004-06-19  Pascal Obry  <pascal@obry.org>
+
+	* soap-message-xml.adb:
+	(Parse_Header): New procedure.
+	(Parse_Envelope): Properly handle header node.
+
 2004-06-01  Pascal Obry  <pascal@obry.org>
 
 	* soap-client.adb:
