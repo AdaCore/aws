@@ -57,6 +57,9 @@ package AWS.Resources.Embedded is
    --  Create the resource directly from memory data
 
    function Is_Regular_File (Name : in String) return Boolean;
+   pragma Inline (Is_Regular_File);
+   --  Returns True if file named Name has been registered (i.e. it is an
+   --  in-memory file).
 
    function File_Size
      (Name : in String)
@@ -67,16 +70,11 @@ package AWS.Resources.Embedded is
    procedure Register
      (Name      : in String;
       Content   : in Buffer_Access;
-      File_Time : in Calendar.Time;
-      Mode      : in Data_Mode     := Uncompressed);
+      File_Time : in Calendar.Time);
    --  Register a new file named Name into the embedded resources. The file
    --  content is pointed to by Content, the File_Time must be the last
-   --  modification time stamp for the file.
-
-   function Exists (Name : in String) return Boolean;
-   pragma Inline (Exists);
-   --  Returns True if file named Name has been registered (i.e. it is an
-   --  in-memory file).
+   --  modification time stamp for the file. If Name ends with ".gz" the
+   --  embedded resource registered as compressed.
 
 private
 
