@@ -123,7 +123,7 @@ install:
 	cp src/*.ad[sb] ssl/*.ad[sb] soap/*.ad[sb] $(INSTALL)/include
 	cp src/*.ali ssl/*.ali soap/*.ali $(INSTALL)/lib
 	chmod uog-w $(INSTALL)/lib/*.ali
-	cp libaws.a $(INSTALL)/lib
+	mv libaws.a $(INSTALL)/lib
 	-cp docs/aws.html $(INSTALL)/docs
 	cp docs/templates_parser.html $(INSTALL)/docs
 	-cp docs/aws.txt $(INSTALL)/docs
