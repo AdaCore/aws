@@ -38,6 +38,7 @@ with AWS.Server;
 
 with SOAP.Dispatchers.Callback;
 
+with WSDL_4;
 with WSDL_4_Server;
 with WSDL_4_Service.Client;
 with WSDL_4_Service.Types;
@@ -56,6 +57,14 @@ procedure WSDL_4_Main is
 
    Res  : Long_Float;
 
+   Rec : constant WSDL_4.Rec
+        := (98765, 9.8765432, 333333, 23.67,
+            To_Unbounded_String ("this is a string!"), '@');
+
+   Rec2 : WSDL_4.Rec;
+
+   Res2 : WSDL_4.My_Int;
+
 begin
    H := SOAP.Dispatchers.Callback.Create
      (WSDL_4_Server.HTTP_CB'Access, WSDL_4_Server.SOAP_CB'Access);
@@ -64,9 +73,24 @@ begin
 
    Server.Start (WS, H, Conf);
 
+   WSDL_4_Service.Client.Try (9, 8.8, 0, 0.1, Rec);
+
+   Rec2 := WSDL_4_Service.Client.Try2 (578, "pascal");
+
+   Text_IO.Put_Line ("Item1 " & WSDL_4.My_Int'Image (Rec2.Item1));
+   Text_IO.Put_Line ("Item2 " & WSDL_4.My_Float'Image (Rec2.Item2));
+   Text_IO.Put_Line ("Item3 " & Integer'Image (Rec2.Item3));
+   Text_IO.Put_Line ("Item4 " & Long_Float'Image (Rec2.Item4));
+   Text_IO.Put_Line ("Item5 " & To_String (Rec2.Item5));
+   Text_IO.Put_Line ("Item6 " & Rec2.Item6);
+
    Res := WSDL_4_Service.Client.Try3 (12.3, 8);
 
    Text_IO.Put_Line ("Res = " & Long_Float'Image (Res));
+
+   Res2 := WSDL_4_Service.Client.Try4;
+
+   Text_IO.Put_Line ("Res2 = " & WSDL_4.My_Int'Image (Res2));
 
    Server.Shutdown (WS);
 end WSDL_4_Main;
