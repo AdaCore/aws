@@ -14,7 +14,8 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-communication-client.ads.texi \
 	../src/aws-communication-server.ads.texi \
 	../src/aws-server-hotplug.ads.texi ../src/aws-log.ads.texi \
-	../src/aws-parameters.ads.texi
+	../src/aws-parameters.ads.texi ../src/aws-config-ini.ads.texi \
+	../src/aws-config-set.ads.texi
 
 build: aws.ps aws.html aws.txt aws.info
 	echo done
