@@ -3,6 +3,9 @@
 	* sockto.adb, ssockto.adb:
 	Remove DOS style CR at end of line.
 
+	* sslcfg.adb, sslcfg.out, makefile:
+	Regression test for not found certificate.
+
 2004-04-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sockto.adb, ssockto.adb:
