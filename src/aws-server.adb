@@ -57,8 +57,6 @@ package body AWS.Server is
    use Ada;
    use type Net.Socket_Access;
 
-   Security_Initialized : Boolean := False;
-
    procedure Free is new Ada.Unchecked_Deallocation
      (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
 
@@ -117,8 +115,8 @@ package body AWS.Server is
      (Server : in HTTP_Access)
       return Net.Socket_Type'Class
    is
-      New_Socket : Net.Socket_Type'Class
-        := Net.Socket (CNF.Security (Server.Properties));
+      Security   : constant Boolean      := CNF.Security (Server.Properties);
+      New_Socket : Net.Socket_Type'Class := Net.Socket (Security);
 
       Released_Socket : Net.Socket_Access;
 
@@ -134,6 +132,11 @@ package body AWS.Server is
       Server.Sock_Sem.Seize_Or_Socket (Released_Socket);
 
       Accepting := Released_Socket = null;
+
+      if Security then
+         Net.SSL.Set_Config
+           (Net.SSL.Socket_Type (New_Socket), Server.SSL_Config);
+      end if;
 
       if Accepting then
          --  No socket was given back to the server, just accept a socket from
@@ -471,10 +474,22 @@ package body AWS.Server is
    -- Set_Security --
    ------------------
 
-   procedure Set_Security (Certificate_Filename : in String) is
+   procedure Set_Security
+     (Web_Server           : in out HTTP;
+      Certificate_Filename : in     String;
+      Security_Mode        : in     Net.SSL.Method := Net.SSL.SSLv23;
+      Key_Filename         : in     String         := "") is
    begin
-      Security_Initialized := True;
-      Net.SSL.Initialize (Certificate_Filename);
+      AWS.Config.Set.Certificate (Web_Server.Properties, Certificate_Filename);
+
+      if Key_Filename = "" then
+         AWS.Config.Set.Key (Web_Server.Properties, Certificate_Filename);
+      else
+         AWS.Config.Set.Key (Web_Server.Properties, Key_Filename);
+      end if;
+
+      AWS.Config.Set.Security_Mode
+        (Web_Server.Properties, Net.SSL.Method'Image (Security_Mode));
    end Set_Security;
 
    --------------------------------------
@@ -972,11 +987,12 @@ package body AWS.Server is
    begin
       --  If it is an SSL connection, initialize the SSL library
 
-      if not Security_Initialized
-        and then CNF.Security (Web_Server.Properties)
-      then
-         Security_Initialized := True;
-         Net.SSL.Initialize (CNF.Certificate);
+      if CNF.Security (Web_Server.Properties) then
+         Net.SSL.Initialize
+           (Web_Server.SSL_Config,
+            CNF.Certificate (Web_Server.Properties),
+            Exchange_Certificate =>
+              CNF.Exchange_Certificate ((Web_Server.Properties)));
       end if;
 
       Net.Std.Bind
