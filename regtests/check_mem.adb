@@ -31,8 +31,10 @@
 --  $Id$
 
 with Ada.Command_Line;
-with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.IO_Exceptions;
+with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.MIME;
@@ -53,7 +55,9 @@ with SOAP.Types;
 procedure Check_Mem is
 
    use Ada;
+   use Ada.Strings.Unbounded;
    use Ada.Text_IO;
+
    use AWS;
 
    function CB (Request : in Status.Data) return Response.Data;
@@ -122,6 +126,23 @@ procedure Check_Mem is
 
       elsif URI = "/file" then
          return Response.File (MIME.Text_Plain, "check_mem.adb");
+
+      elsif URI = "/no-template" then
+         declare
+            Trans : constant Templates.Translate_Table
+              := (1 => Templates.Assoc ("ONE", 1));
+
+            Result : Unbounded_String;
+
+         begin
+            Result
+              := Templates.Parse ("_._.tmplt", Trans, Cached => False);
+         exception
+            when Ada.IO_Exceptions.Name_Error =>
+               null;
+         end;
+
+         return Response.Build (MIME.Text_HTML, "dummy");
 
       elsif URI = "/template" then
 
@@ -275,6 +296,7 @@ procedure Check_Mem is
       Request ("/simple?p1=8&p2=azerty%20qwerty");
       Request ("/file");
       Request ("/template");
+      Request ("/no-template");
 
       Request ("multProc", 2, 3);
       Request ("multProc", 98, 123);
