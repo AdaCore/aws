@@ -425,11 +425,11 @@ procedure SOAP_SVS is
       R := SOAP.Message.Response.From (PL);
 
       declare
-         A : constant SOAP_Array := SOAP.Parameters.Get (P, "myArray");
-         O : constant Object_Set := V (A);
+         A    : constant SOAP_Array := SOAP.Parameters.Get (P, "myArray");
+         Last : constant Natural := Size (A);
 
-         S1 : constant String := Get (-O (O'First));
-         S2 : constant String := Get (-O (O'Last));
+         S1   : constant String := Get (-O (1));
+         S2   : constant String := Get (-O (Last));
       begin
          RP := +S (S1 & S2, "answer");
       end;
