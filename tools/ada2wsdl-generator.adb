@@ -34,6 +34,7 @@ with Ada.Exceptions;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with AWS.Utils;
 with SOAP.WSDL;
 
 with Ada2WSDL.Options;
@@ -68,7 +69,10 @@ package body Ada2WSDL.Generator is
          when Routine =>
             Return_Type : Parameter_Access;
 
-         when Structure | Table | Derived | Enumeration =>
+         when Table =>
+            Length : Natural;
+
+         when Structure | Derived | Enumeration =>
             null;
 
          when Safe_Pointer_Definition =>
@@ -145,6 +149,7 @@ package body Ada2WSDL.Generator is
       end Check_Safe_Pointer;
 
       L_Comp_Type : constant String := Check_Safe_Pointer (Comp_Type);
+
       New_P       : constant Parameter_Access
         := new Parameter'(+Comp_Name, +L_Comp_Type,
                           +To_XSD (L_Comp_Type), null);
@@ -285,7 +290,10 @@ package body Ada2WSDL.Generator is
    -- Start_Array --
    -----------------
 
-   procedure Start_Array (Name, Component_Type : in String) is
+   procedure Start_Array
+     (Name, Component_Type : in String;
+      Length               : in Natural := 0)
+   is
       New_P : constant Parameter_Access
         := new Parameter'(+"item", +Component_Type,
                           +To_XSD (Component_Type), null);
@@ -297,12 +305,19 @@ package body Ada2WSDL.Generator is
 
       D.Name       := +Name;
       D.Parameters := New_P;
+      D.Length     := Length;
 
       Index := Index + 1;
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put ("   - array         " & Name & " of " & Component_Type);
+         Text_IO.Put ("   - array (");
+         if Length /= 0 then
+            Text_IO.Put (AWS.Utils.Image (Length));
+         end if;
+         Text_IO.Put (")");
+         Text_IO.Set_Col (22);
+         Text_IO.Put (Name & " of " & Component_Type);
 
          if Options.Verbose then
             Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
@@ -329,7 +344,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put_Line ("   - enumeration   " & Name);
+         Text_IO.Put_Line ("   - enumeration     " & Name);
       end if;
    end Start_Enumeration;
 
@@ -349,7 +364,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put_Line ("   - record        " & Name);
+         Text_IO.Put_Line ("   - record          " & Name);
       end if;
    end Start_Record;
 
@@ -407,6 +422,7 @@ package body Ada2WSDL.Generator is
          if API (I).Def_Mode = Structure
            or else API (I).Def_Mode = Derived
            or else API (I).Def_Mode = Enumeration
+           or else API (I).Def_Mode = Table
          then
             if -API (I).Name = Name then
                return True;
