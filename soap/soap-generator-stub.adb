@@ -135,7 +135,7 @@ package body Stub is
                if Prefix = "" then
                   Text_IO.Put (Stub_Adb, "      & ");
                else
-                  Text_IO.Put (Stub_Adb, "      + ");
+                  Text_IO.Put (Stub_Adb, "      +");
                end if;
             end if;
 
@@ -222,7 +222,7 @@ package body Stub is
       begin
          if Prefix /= "" and then N.P_Type = WSDL.P_String then
             --  A string inside a record
-            Text_IO.Put (Stub_Adb, "SOAP.utils.US");
+            Text_IO.Put (Stub_Adb, "SOAP.Utils.US");
          else
             Text_IO.Put (Stub_Adb, SOAP_Constructor (N.P_Type));
          end if;
@@ -478,6 +478,8 @@ package body Stub is
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "   use SOAP.Types;");
       Text_IO.Put_Line (Stub_Adb, "   use type SOAP.Parameters.List;");
+      Text_IO.New_Line (Stub_Adb);
+      Text_IO.Put_Line (Stub_Adb, "   pragma Style_Checks (Off);");
    end Start_Service;
 
 end Stub;
