@@ -107,10 +107,51 @@ package body AWS.Server.Push is
    procedure Send
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
-      Content_Type : in     String             := "") is
+      Content_Type : in     String             := "")
+   is
+      Gone : Table.Table_Type;
    begin
-      Server.Send (Data, Content_Type);
+      Server.Send (Data, Content_Type, Gone);
+      Table.Destroy (Gone);
    end Send;
+
+   ------------
+   -- Send_G --
+   ------------
+
+   procedure Send_G
+     (Server       : in out Object;
+      Data         : in     Client_Output_Type;
+      Content_Type : in     String             := "")
+   is
+      procedure Action
+        (Key          : in     Client_Key;
+         Value        : in     Client_Holder;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean);
+
+      Gone : Table.Table_Type;
+
+      ------------
+      -- Action --
+      ------------
+
+      procedure Action
+        (Key          : in     Client_Key;
+         Value        : in     Client_Holder;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean) is
+      begin
+         Client_Gone (Key);
+      end Action;
+
+      procedure For_Each is new Table.Disorder_Traverse_G (Action);
+
+   begin
+      Server.Send (Data, Content_Type, Gone);
+      For_Each (Gone);
+      Table.Destroy (Gone);
+   end send_G;
 
    -------------
    -- Send_To --
@@ -247,8 +288,9 @@ package body AWS.Server.Push is
       ----------
 
       procedure Send
-        (Data         : in Client_Output_Type;
-         Content_Type : in String)
+        (Data           : in     Client_Output_Type;
+         Content_Type   : in     String;
+         Not_Responding : in out Table.Table_Type)
       is
 
          procedure Action
@@ -263,8 +305,6 @@ package body AWS.Server.Push is
             Order_Number : in     Positive;
             Continue     : in out Boolean);
 
-         For_Remove : Table.Table_Type;
-
          ------------
          -- Action --
          ------------
@@ -278,7 +318,7 @@ package body AWS.Server.Push is
             Send_Data (Value, Data, Content_Type);
          exception
             when others =>
-               Table.Insert (For_Remove, Key, Value);
+               Table.Insert (Not_Responding, Key, Value);
          end Action;
 
          ----------
@@ -300,8 +340,7 @@ package body AWS.Server.Push is
 
       begin
          For_Each (Container);
-         Remove_Each (For_Remove);
-         Table.Destroy (For_Remove);
+         Remove_Each (Not_Responding);
       end Send;
 
       ---------------
@@ -352,9 +391,8 @@ package body AWS.Server.Push is
          Data         : in Client_Output_Type;
          Content_Type : in String)
       is
-         Value : constant Client_Holder := Table.Value (Container, Client_ID);
       begin
-         Send_Data (Value, Data, Content_Type);
+         Send_Data (Table.Value (Container, Client_ID), Data, Content_Type);
       exception
          when others =>
             Unregister (Client_ID);
