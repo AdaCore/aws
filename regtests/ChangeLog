@@ -1,3 +1,8 @@
+2004-08-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* test_soap5.adb:
+	Use Get_Free_Port.
+
 2004-08-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* strm.adb, user_strm.adb:
