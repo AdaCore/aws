@@ -126,4 +126,15 @@ package body AWS.MIME is
       return Default_Content_Type;
    end Content_Type;
 
+   -------------
+   -- Is_Text --
+   -------------
+
+   function Is_Text (Mime_Type : in String) return Boolean is
+   begin
+      return Mime_Type'Length > 5
+        and then To_Lower (Mime_Type (Mime_Type'First .. Mime_Type'First + 4))
+                   = "text/";
+   end Is_Text;
+
 end AWS.MIME;
