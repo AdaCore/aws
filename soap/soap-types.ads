@@ -377,6 +377,10 @@ package SOAP.Types is
    -- Get --
    ---------
 
+   --  It is possible to pass an XSD_Any_Type to all get routines below. The
+   --  proper value will be returned if the XSD_Any_Type is actually of this
+   --  type.
+
    function Get (O : in Object'Class) return XSD_Any_Type;
    --  Returns O value as an XSD_Any_Type. Raises Data_Error if O is not a
    --  SOAP anyType.
