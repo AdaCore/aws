@@ -1,3 +1,12 @@
+2004-01-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* tools.gpr:
+	(Ide): Renaming of Shared.Ide.
+
+	* awsres.adb:
+	Minor reformatting.
+	Update copyright notice.
+
 2004-01-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tools.gpr:
@@ -59,7 +68,7 @@
 
 	* ada2wsdl-generator.adb:
 	Update output layout.
-	
+
 2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-parser.adb:
@@ -163,7 +172,7 @@
 	* ada2wsdl-parser.adb:
 	(Type_Name): Fix regression introduced in previous check-in. Check
 	 for subtype of float to avoid introducing a schema definition.
-	
+
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-parser.adb:
@@ -229,7 +238,7 @@
 
 	* ada2wsdl-generator.adb:
 	(Write_Character): Output simpler Character schema definition.
-	
+
 2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.adb:
@@ -350,7 +359,7 @@
 	* ada2wsdl-options.ads:
 	Initial revision.
 
-	* ada2wsdl-parser.ads, ada2wsdl-parser.adb: 
+	* ada2wsdl-parser.ads, ada2wsdl-parser.adb:
 	Initial revision.
 
 	* ada2wsdl.ads, ada2wsdl.adb:
@@ -390,10 +399,10 @@
 	 the SOAP Generator.
 
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
 	* makefile:
 	Use variable instead of directly calling tools.
-	
+
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -427,7 +436,7 @@
 	* wsdl2aws.adb:
 	Fix proxy handling. A proxy can be specified without user/password
 	Add some comments.
-	
+
 2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:
