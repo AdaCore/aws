@@ -51,6 +51,10 @@ project Shared is
    type XMLAda_Type is ("Installed", "Disabled");
    XMLAda : XMLAda_Type := external ("AWS_XMLAda", "Installed");
 
+   LIB_XMLAda := ("-lxmlada_dom", "-lxmlada_sax",
+                  "-lxmlada_unicode", "-lxmlada_input_sources")
+     & XMLAda.LIB_Path;
+
    --------------
    -- Compiler --
    --------------
@@ -68,19 +72,6 @@ project Shared is
       end case;
 
    end Compiler;
-
-   ------------
-   -- Linker --
-   ------------
-
-   package Linker is
-
-      case Build is
-         when "Release" =>
-            for Default_Switches ("Ada") use ("-s");
-      end case;
-
-   end Linker;
 
    -------------
    -- Builder --
