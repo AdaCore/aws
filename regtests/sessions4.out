@@ -1,0 +1,13 @@
+started
+Ok, Null_Context
+Response : Ok, this is call  0, aaaaaaaaaa, FALSE, z
+Ok, Null_Context
+Response : Ok, this is call  1, bbbbbbbbbb, TRUE, y
+Ok, Null_Context
+Response : Ok, this is call  2, cccccccccc, FALSE, x
+Ok, Null_Context
+Response : Ok, this is call  3, dddddddddd, TRUE, w
+Ok, Null_Context
+Response : Ok, this is call  4, eeeeeeeeee, FALSE, v
+Ready to stop
+shutdown
