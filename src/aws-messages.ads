@@ -93,6 +93,7 @@ package AWS.Messages is
 
    Form_Data
      : constant String := "application/x-www-form-urlencoded";
+
    Multipart_Form_Data
      : constant String := "multipart/form-data";
 
@@ -157,6 +158,11 @@ package AWS.Messages is
    pragma Inline (Is_Match);
    --  returns True if Pattern matches the begining of Str. The test is not
    --  case sensitive.
+
+   function Does_Not_Match (Str, Pattern : in String) return Boolean;
+   pragma Inline (Does_Not_Match);
+   --  returns True if Pattern does not matches the begining of Str. The test
+   --  is not case sensitive.
 
    function To_HTTP_Date (Time : in Calendar.Time) return String;
 
