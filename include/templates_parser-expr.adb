@@ -211,8 +211,9 @@ package body Expr is
          when Op =>
             Release (E.Left);
             Release (E.Right);
-            Free (E);
       end case;
+
+      Free (E);
    end Release;
 
    -----------
