@@ -419,7 +419,7 @@ package body SSL is
       Error_If
         (Thin.SSL_Ctx_Use_Certificate_File
          (Ctx    => Context,
-          File   => To_C (Cert_File),
+          File   => To_C (Cert_Filename),
           C_Type => Thin.SSL_Filetype_Pem) = -1,
          Lib_Error'Identity);
 
