@@ -30,6 +30,9 @@
 
 --  $Id$
 
+with Ada.Streams;
+with AWS.Translator;
+
 package body AWS.Headers is
 
    --------------
@@ -41,13 +44,68 @@ package body AWS.Headers is
       N       : in Positive)
       return String
    is
-      Name : constant String := Get_Name (Headers, N);
+      Pair : constant Name_Value_Type :=
+         Get_Name_Value (Headers, N);
    begin
-      if Name = "" then
+      if Pair.Name = "" then
          return "";
       else
-         return Name & ": " & Get_Value (Headers, N);
+         return Pair.Name & ": " & Pair.Value;
       end if;
    end Get_Line;
+
+   -----------------
+   -- Send_Header --
+   -----------------
+
+   procedure Send_Header
+     (Headers : in List;
+      Socket : Sockets.Socket_FD'Class)
+   is
+      use Ada.Streams;
+
+      Buffer : Stream_Element_Array (1 .. 1024);
+      --  The buffer is for more data portion sending at once.
+      --  The SSL implementation working better with bigger data portions.
+
+      CRLF   : Stream_Element_Array :=
+         (1 => Character'Pos (ASCII.CR),
+          2 => Character'Pos (ASCII.LF));
+      --  End of line.
+
+      First  : Stream_Element_Offset := Buffer'First;
+      Last   : Stream_Element_Offset;
+
+   begin
+      for J in 1 .. Count (Headers) loop
+         declare
+            Line :  Stream_Element_Array :=
+               AWS.Translator.To_Stream_Element_Array
+                  (Get_Line (Headers, J)) & CRLF;
+
+            pragma Warnings (Off, Buffer);
+
+         begin
+            Last := First + Line'Length - 1;
+
+            if Last > Buffer'Last then
+               Sockets.Send
+                 (Socket,
+                  Buffer (Buffer'First .. First - 1) & Line);
+               First := Buffer'First;
+
+            else
+               Buffer (First .. Last) := Line;
+               First := Last + 1;
+            end if;
+         end;
+      end loop;
+
+      if First > Buffer'First then
+         Sockets.Send
+           (Socket,
+            Buffer (Buffer'First .. First - 1));
+      end if;
+   end Send_Header;
 
 end AWS.Headers;
