@@ -1369,11 +1369,89 @@ A complete example can be found in the demos directory. Look for
 @cindex Push
 
 @noindent
-To be written.
+Server Push is a feature that let the Web Server send continuously
+data to client's  Web Browser. The client does not have to reload at
+periodic time to have the data updated, each time the server send a
+piece of data it gets displayed on the client.
+
+@noindent
+Here are the step-by-step instructions to build a Push Server:
+
+@enumerate
+
+@sp 1
+@item The data to be sent
+@sp 1
+First you must create a type that will contains the data to be sent to
+client's browser.
+
+@sp 1
+@item The data that will be streamed
+@sp 1
+This is the representation of the data that will be sent to client's
+browser. This will be either a @code{String} for Web pages or
+@code{Stream_Element_Array} for binary data like pictures.
+
+@sp 1
+@item Provides a function to convert from the data type to be sent to
+the data that will be streamed.
+@sp 1
+This is a function that will transform the data described on point 1
+above to the form described on point 2 above.
+
+@sp 1
+@item The context
+@sp 1
+It is often nice to be able to configure each client with different
+parameters if needed. This can be achieved with the Context data type
+that will be passed as parameter of the conversion function described
+above.
+
+@sp 1
+@item Build the Push Server
+@sp 1
+To do so you just need to instantiate @code{AWS.Server.Push} with the
+above declarations.
+
+@sp 1
+@item Registering new clients
+@sp 1
+In the standard AWS procedure callback it is possible to register a
+client if requested. This is done by calling
+@code{AWS.Server.Push.Register}. It is possible to unregister a
+client using @code{AWS.Server.Push.Unregister}. Each client must be
+identified with a unique client ID.
+
+@sp 1
+@item Sending the data
+@sp 1
+At this point it is possible to send data to clients. To do so it is
+two routines are available.
+@sp 1
+
+@table @code
+@item AWS.Server.Push.Data_For
+@cindex Data_For
+To send a piece of data to a specific client identified by its client ID.
+
+@item AWS.Server.Push.Broadcast
+@cindex Broadcast
+To send a piece of data to all clients registered on this server.
+
+@end table
+
+@end enumerate
+
+@noindent
+Note that this feature should not be used for very large Web
+application as each client will have a socket reserved for him on the
+server side.
 
 @node Server Log
 @section Server Log
 @cindex logs
+@cindex Start_Log
+@cindex Stop_Log
 
 @noindent
 It is possible to have the server activity logged into the file
@@ -1419,6 +1497,7 @@ this server corresponds to the AWS version string
 @node SOAP Server
 @subsection SOAP Server
 @cindex SOAP Server
+@cindex SOAPAction
 
 @noindent
 A SOAP server implementation must provides a callback procedure as for
@@ -1786,10 +1865,14 @@ here please have a look at the documentation.
 
 @noindent
 Note that this is an ongoing project but it is quite mature at this
-point. The goal is not to do a full Web Server, for that @i{Apache} is
+stage. The goal is not to do a full Web Server, for that @i{Apache} is
 unbeatable. AWS is and will stay an embedded HTTP component with a nice
 framework to build Web applications. If you have an idea or need a
 feature not yet implemented, send us a mail.
+
+@noindent
+Note that AWS has some built-in features that Apache does not
+have. And of course Apache has some features that AWS does not have.
 
 @noindent
 Thanks to the contributors and peoples who send feedbacks, ideas
