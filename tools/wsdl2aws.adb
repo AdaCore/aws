@@ -74,7 +74,7 @@ procedure WSDL2AWS is
 
    Verbose      : SOAP.WSDL.Parser.Verbose_Level := 0;
 
-   Gen_Cb       : Boolean := False;
+   Gen_CB       : Boolean := False;
    Types        : Boolean := False;
 
    ------------------
@@ -214,8 +214,8 @@ procedure WSDL2AWS is
                   SOAP.Generator.CVS_Tag (Gen);
 
                elsif Command_Line.Full_Switch = "cb" then
-                  SOAP.Generator.Gen_Cb (Gen);
-                  Gen_Cb := True;
+                  SOAP.Generator.Gen_CB (Gen);
+                  Gen_CB := True;
 
                else
                   raise Syntax_Error;
@@ -284,7 +284,7 @@ begin
 
    end if;
 
-   if Gen_Cb and then not Types then
+   if Gen_CB and then not Types then
       Raise_Exception
         (Constraint_Error'Identity,
          "Callback can't be generated if no Ada spec specified");
