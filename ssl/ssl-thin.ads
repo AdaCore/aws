@@ -48,44 +48,44 @@ package SSL.Thin is
 
    subtype Error_Code is unsigned_long;
 
-   SSL_Filetype_Pem                    : constant := 1;
-   SSL_Ctrl_Need_Tmp_Rsa               : constant := 1;
-   SSL_Ctrl_Set_Tmp_Rsa                : constant := 2;
-   SSL_Ctrl_Set_Tmp_Dh                 : constant := 3;
-   SSL_Ctrl_Set_Tmp_Rsa_Cb             : constant := 4;
-   SSL_Ctrl_Set_Tmp_Dh_Cb              : constant := 5;
-   SSL_Ctrl_Get_Session_Reused         : constant := 6;
-   SSL_Ctrl_Get_Client_Cert_Request    : constant := 7;
-   SSL_Ctrl_Get_Num_Renegotiations     : constant := 8;
-   SSL_Ctrl_Clear_Num_Renegotiations   : constant := 9;
-   SSL_Ctrl_Get_Total_Renegotiations   : constant := 10;
-   SSL_Ctrl_Get_Flags                  : constant := 11;
-   SSL_Ctrl_Extra_Chain_Cert           : constant := 12;
-   SSL_Ctrl_Sess_Number                : constant := 20;
-   SSL_Ctrl_Sess_Connect               : constant := 21;
-   SSL_Ctrl_Sess_Connect_Good          : constant := 22;
-   SSL_Ctrl_Sess_Connect_Renegotiate   : constant := 23;
-   SSL_Ctrl_Sess_Accept                : constant := 24;
-   SSL_Ctrl_Sess_Accept_Good           : constant := 25;
-   SSL_Ctrl_Sess_Accept_Renegotiate    : constant := 26;
-   SSL_Ctrl_Sess_Hit                   : constant := 27;
-   SSL_Ctrl_Sess_Cb_Hit                : constant := 28;
-   SSL_Ctrl_Sess_Misses                : constant := 29;
-   SSL_Ctrl_Sess_Timeouts              : constant := 30;
-   SSL_Ctrl_Sess_Cache_Full            : constant := 31;
-   SSL_Ctrl_Options                    : constant := 16#0020#;
-   SSL_Ctrl_Mode                       : constant := 33;
-   SSL_Ctrl_Get_Read_Ahead             : constant := 40;
-   SSL_Ctrl_Set_Read_Ahead             : constant := 41;
-   SSL_Ctrl_Set_Sess_Cache_Size        : constant := 42;
-   SSL_Ctrl_Get_Sess_Cache_Size        : constant := 43;
-   SSL_Ctrl_Set_Sess_Cache_Mode        : constant := 44;
-   SSL_Ctrl_Get_Sess_Cache_Mode        : constant := 45;
-   SSL_SENT_SHUTDOWN                   : constant := 1;
-   SSL_RECEIVED_SHUTDOWN               : constant := 2;
+   SSL_Filetype_Pem                  : constant := 1;
+   SSL_Ctrl_Need_Tmp_Rsa             : constant := 1;
+   SSL_Ctrl_Set_Tmp_Rsa              : constant := 2;
+   SSL_Ctrl_Set_Tmp_Dh               : constant := 3;
+   SSL_Ctrl_Set_Tmp_Rsa_Cb           : constant := 4;
+   SSL_Ctrl_Set_Tmp_Dh_Cb            : constant := 5;
+   SSL_Ctrl_Get_Session_Reused       : constant := 6;
+   SSL_Ctrl_Get_Client_Cert_Request  : constant := 7;
+   SSL_Ctrl_Get_Num_Renegotiations   : constant := 8;
+   SSL_Ctrl_Clear_Num_Renegotiations : constant := 9;
+   SSL_Ctrl_Get_Total_Renegotiations : constant := 10;
+   SSL_Ctrl_Get_Flags                : constant := 11;
+   SSL_Ctrl_Extra_Chain_Cert         : constant := 12;
+   SSL_Ctrl_Sess_Number              : constant := 20;
+   SSL_Ctrl_Sess_Connect             : constant := 21;
+   SSL_Ctrl_Sess_Connect_Good        : constant := 22;
+   SSL_Ctrl_Sess_Connect_Renegotiate : constant := 23;
+   SSL_Ctrl_Sess_Accept              : constant := 24;
+   SSL_Ctrl_Sess_Accept_Good         : constant := 25;
+   SSL_Ctrl_Sess_Accept_Renegotiate  : constant := 26;
+   SSL_Ctrl_Sess_Hit                 : constant := 27;
+   SSL_Ctrl_Sess_Cb_Hit              : constant := 28;
+   SSL_Ctrl_Sess_Misses              : constant := 29;
+   SSL_Ctrl_Sess_Timeouts            : constant := 30;
+   SSL_Ctrl_Sess_Cache_Full          : constant := 31;
+   SSL_Ctrl_Options                  : constant := 16#0020#;
+   SSL_Ctrl_Mode                     : constant := 33;
+   SSL_Ctrl_Get_Read_Ahead           : constant := 40;
+   SSL_Ctrl_Set_Read_Ahead           : constant := 41;
+   SSL_Ctrl_Set_Sess_Cache_Size      : constant := 42;
+   SSL_Ctrl_Get_Sess_Cache_Size      : constant := 43;
+   SSL_Ctrl_Set_Sess_Cache_Mode      : constant := 44;
+   SSL_Ctrl_Get_Sess_Cache_Mode      : constant := 45;
+   SSL_SENT_SHUTDOWN                 : constant := 1;
+   SSL_RECEIVED_SHUTDOWN             : constant := 2;
 
-   Rsa_3    : constant := 3;
-   Rsa_F4   : constant := 16#10001#;
+   Rsa_3  : constant := 3;
+   Rsa_F4 : constant := 16#10001#;
 
    function SSLv3_Method         return SSL_Method;
    function SSLv3_Server_Method  return SSL_Method;
@@ -101,101 +101,130 @@ package SSL.Thin is
    function Tlsv1_Client_Method  return SSL_Method;
 
    function Crypto_Set_Mem_Functions
-     (M : System.Address;
-      R : System.Address;
-      F : System.Address) return int;
+     (M : in System.Address;
+      R : in System.Address;
+      F : in System.Address)
+      return int;
 
+   function SSL_Ctx_New (Meth : in SSL_Method) return SSL_Ctx;
 
-   function SSL_Ctx_New (Meth : SSL_Method) return SSL_Ctx;
-   procedure SSL_Ctx_Free (P1 : SSL_Ctx);
-   procedure SSL_Ctx_Set_Quiet_Shutdown (Ctx : SSL_Ctx;
-                                         Mode : int);
-   function SSL_Ctx_Ctrl (Ctx : SSL_Ctx;
-                          Cmd : int;
-                          Larg : int;
-                          Parg : Pointer) return int;
+   procedure SSL_Ctx_Free (P1 : in SSL_Ctx);
+
+   procedure SSL_Ctx_Set_Quiet_Shutdown (Ctx : in SSL_Ctx; Mode : in int);
+
+   function SSL_Ctx_Ctrl
+     (Ctx  : in SSL_Ctx;
+      Cmd  : in int;
+      Larg : in int;
+      Parg : in Pointer)
+      return int;
 
    procedure SSL_Library_Init;
 
    procedure SSL_Load_Error_Strings;
+
    procedure Err_Load_Crypto_Strings;
+
    procedure Err_Load_SSL_Strings;
+
    function Err_Get_Error return Error_Code;
-   function Err_Error_String (Code : Error_Code;
-                              Buffer : Cstr.chars_ptr) return Cstr.chars_ptr;
 
-   procedure Err_Error_String_N (Code : Error_Code;
-                              Buffer : char_array; Len : size_t);
+   function Err_Error_String
+     (Code   : in Error_Code;
+      Buffer : in Cstr.chars_ptr)
+      return Cstr.chars_ptr;
 
-   procedure ERR_Remove_State (pid : int := 0);
+   procedure Err_Error_String_N
+     (Code   : in Error_Code;
+      Buffer : in char_array;
+      Len    : in size_t);
 
-   function SSL_New (Ctx : SSL_Ctx) return SSL_Handle;
+   procedure ERR_Remove_State (pid : in int := 0);
 
-   procedure SSL_Free (SSL : SSL_Handle);
+   function SSL_New (Ctx : in SSL_Ctx) return SSL_Handle;
 
-   function SSL_Set_Fd (S  : SSL_Handle;
-                        Fd : int)
-                       return int;
-   procedure SSL_Set_Read_Ahead (S   : SSL_Handle;
-                                 Yes : int);
-   function SSL_Connect (SSL : SSL_Handle) return int;
-   function SSL_Accept (SSL : SSL_Handle) return int;
+   procedure SSL_Free (SSL : in SSL_Handle);
 
-   procedure SSL_Set_Connect_State (SSL : SSL_Handle);
-   procedure SSL_Set_Accept_State (SSL : SSL_Handle);
+   function SSL_Set_Fd
+     (S  : in SSL_Handle;
+      Fd : in int)
+      return int;
 
-   function SSL_Renegotiate (SSL : SSL_Handle) return int;
-   function SSL_Do_Handshake (SSL : SSL_Handle) return int;
-   function SSL_Want (S : SSL_Handle) return int;
+   procedure SSL_Set_Read_Ahead
+     (S   : in SSL_Handle;
+      Yes : in int);
 
-   function SSL_Read (SSL : SSL_Handle;
-                      Buf : Pointer;
-                      Num : int)
-                     return int;
+   function SSL_Connect (SSL : in SSL_Handle) return int;
 
-   function SSL_Peek (SSL : SSL_Handle;
-                      Buf : Pointer;
-                      Num : int)
-                     return int;
+   function SSL_Accept (SSL : in SSL_Handle) return int;
 
-   function SSL_Write (SSL : SSL_Handle;
-                       Buf : Pointer;
-                       Num : int)
-                      return int;
+   procedure SSL_Set_Connect_State (SSL : in SSL_Handle);
 
-   function SSL_Pending (S : SSL_Handle) return int;
+   procedure SSL_Set_Accept_State (SSL : in SSL_Handle);
+
+   function SSL_Renegotiate (SSL : in SSL_Handle) return int;
+
+   function SSL_Do_Handshake (SSL : in SSL_Handle) return int;
+
+   function SSL_Want (S : in SSL_Handle) return int;
+
+   function SSL_Read
+     (SSL : in SSL_Handle;
+      Buf : in Pointer;
+      Num : in int)
+      return int;
+
+   function SSL_Peek
+     (SSL : in SSL_Handle;
+      Buf : in Pointer;
+      Num : in int)
+      return int;
+
+   function SSL_Write
+     (SSL : in SSL_Handle;
+      Buf : in Pointer;
+      Num : in int)
+      return int;
+
+   function SSL_Pending (S : in SSL_Handle) return int;
 
 
    type Generate_Key_Callback is access
-     procedure (I1, I2 : Integer; Param : Pointer);
-
+     procedure (I1, I2 : in Integer; Param : in Pointer);
    pragma Convention (C, Generate_Key_Callback);
 
 
-   function Rsa_Generate_Key (Bits    : int;
-                              E        : unsigned;
-                              Callback : Generate_Key_Callback;
-                              Cb_Arg   : Pointer)
-                             return RSA;
+   function Rsa_Generate_Key
+     (Bits     : in int;
+      E        : in unsigned;
+      Callback : in Generate_Key_Callback;
+      Cb_Arg   : in Pointer)
+      return RSA;
 
-   function SSL_Use_Rsaprivatekey (SSL : SSL_Handle;
-                                   Private_Key : RSA) return int;
+   function SSL_Use_Rsaprivatekey
+     (SSL         : in SSL_Handle;
+      Private_Key : in RSA)
+      return int;
 
-   function SSL_Shutdown (SSL : SSL_Handle) return int;
+   function SSL_Shutdown (SSL : in SSL_Handle) return int;
 
-   procedure SSL_Set_Shutdown (SSL : SSL_Handle; Mode : int);
+   procedure SSL_Set_Shutdown (SSL : in SSL_Handle; Mode : in int);
 
-   function SSL_Ctx_Use_Privatekey_File (Ctx : SSL_Ctx;
-                                         File  : char_array;
-                                         C_Type : int) return int;
+   function SSL_Ctx_Use_Privatekey_File
+     (Ctx    : in SSL_Ctx;
+      File   : in char_array;
+      C_Type : in int)
+      return int;
 
-   function SSL_Ctx_Use_Certificate_File (Ctx : SSL_Ctx;
-                                          File  : char_array;
-                                          C_Type : int) return int;
+   function SSL_Ctx_Use_Certificate_File
+     (Ctx    : in SSL_Ctx;
+      File   : in char_array;
+      C_Type : in int)
+      return int;
 
-   function SSL_Ctx_Check_Private_Key (Ctx : SSL_Ctx) return int;
+   function SSL_Ctx_Check_Private_Key (Ctx : in SSL_Ctx) return int;
 
-   procedure Rand_Seed (Buf : Pointer; Num : Integer);
+   procedure Rand_Seed (Buf : in Pointer; Num : in Integer);
 
 private
 
