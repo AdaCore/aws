@@ -565,6 +565,10 @@ AWS.Response.File (Content_Type => "image/png",
 @end enumerate
 
 @noindent
+Note that the main procedure should exit only when the server is terminated.
+For this you can use the @code{AWS.Server.Wait} service.
+
+@noindent
 A better solution is to use a template engine like Templates_Parser to
 build the HTML Web Server answer. Templates_Parser module is
 distributed with this version of AWS. For the latest version see
