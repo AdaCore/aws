@@ -1,3 +1,15 @@
+2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* test_soap5_sec.adb, test_soap5_sec.out, makefile:
+	Add security version of the test_soap5.adb regression test.
+
+	* test_soap5_pack.ads, test_soap5_pack.adb:
+	Common code for test_soap5 and test_soap5_sec regtession tests.
+	Close persistent client connection after use.
+
+	* test_soap5.adb:
+	Use test_soap5_pack package.
+
 2004-08-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* test_soap5.adb:
