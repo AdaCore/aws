@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -73,8 +73,8 @@ package body SOAP.Message.XML is
      & "xmlns:xsd=""" & URL_xsd & """ "
      & "xmlns:xsi=""" & URL_xsi & """>";
 
-   Start_Body      : constant String := "<SOAP-ENV:Body>";
-   End_Body        : constant String := "</SOAP-ENV:Body>";
+   Start_Body : constant String := "<SOAP-ENV:Body>";
+   End_Body   : constant String := "</SOAP-ENV:Body>";
 
    type Array_State is (Void, A_Undefined, A_Int, A_Float, A_String,
                         A_Boolean, A_Time_Instant, A_Base64);
@@ -106,22 +106,22 @@ package body SOAP.Message.XML is
 
    function Parse_Time_Instant
      (N : in DOM.Core.Node)
-     return Types.Object'Class;
+      return Types.Object'Class;
 
    function Parse_Param
      (N        : in DOM.Core.Node;
       S        : in State)
-     return Types.Object'Class;
+      return Types.Object'Class;
 
    function Parse_Array
      (N : in DOM.Core.Node;
       S : in State)
-     return Types.Object'Class;
+      return Types.Object'Class;
 
    function Parse_Record
      (N : in DOM.Core.Node;
       S : in State)
-     return Types.Object'Class;
+      return Types.Object'Class;
 
    procedure Error (Node : in DOM.Core.Node; Message : in String);
    pragma No_Return (Error);
@@ -277,6 +277,10 @@ package body SOAP.Message.XML is
 
       function A_State (A_Type : in String) return Array_State;
       --  Returns the Array_State given the SOAP-ENC:arrayType value.
+
+      -------------
+      -- A_State --
+      -------------
 
       function A_State (A_Type : in String) return Array_State is
          N : constant Positive := Strings.Fixed.Index (A_Type, "[");
@@ -546,7 +550,12 @@ package body SOAP.Message.XML is
                               return Parse_Array (N, S);
 
                            else
-                              Error (N, "Wrong or unsupported type " & xsd);
+                              --  Not a known basic type, let's try to parse a
+                              --  record object. This implemtation does not
+                              --  support schema so there is no way to check
+                              --  for the real type here.
+
+                              return Parse_Record (N, S);
                            end if;
                         end;
                      end if;
