@@ -38,9 +38,11 @@ with Ada.Streams;
 with Ada.Finalization;
 with Ada.Unchecked_Deallocation;
 
+with AWS.Headers;
 with AWS.Status;
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Net;
 with AWS.Resources.Streams;
 
 package AWS.Response is
@@ -166,6 +168,26 @@ package AWS.Response is
    -- Other API --
    ---------------
 
+   function Header
+     (D    : in Data;
+      Name : in String;
+      N    : in Positive)
+      return String;
+   pragma Inline (Header);
+   --  Return the N-th value for header Name.
+
+   function Header
+     (D    : in Data;
+      Name : in String)
+      return String;
+   pragma Inline (Header);
+   --  Return all values as a comma-separated string for header Name.
+   --  See [RFC 2616 - 4.2] last paragraph.
+
+   procedure Send_Header (Socket : in Net.Socket_Type'Class; D : in Data);
+   pragma Inline (Send_Header);
+   --  Send all header lines to the socket.
+
    function Mode (D : in Data) return Data_Mode;
    pragma Inline (Mode);
    --  Returns the data mode, either Header, Message or File.
@@ -252,15 +274,10 @@ private
       Mode           : Data_Mode            := No_Data;
       Status_Code    : Messages.Status_Code := Messages.S200;
       Content_Length : Content_Length_Type  := 0;
-      Content_Type   : Unbounded_String;
       Filename       : Unbounded_String;
-      Location       : Unbounded_String;
-      Realm          : Unbounded_String;
-      Authentication : Authentication_Mode  := Any;
-      Auth_Stale     : Boolean              := False;
-      Stream         : AWS.Resources.Streams.Stream_Access;
+      Stream         : Resources.Streams.Stream_Access;
       Message_Body   : Stream_Element_Array_Access;
-      Cache_Control  : Unbounded_String;
+      Header         : AWS.Headers.List;
    end record;
 
    procedure Initialize (Object : in out Data);
