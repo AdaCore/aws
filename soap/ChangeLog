@@ -1,3 +1,16 @@
+2004-09-03  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Minor parameters layout fix of the generated
+	 server callback function.
+	Minor reformatting.
+
+	* soap-generator-cb.adb:
+	(End_Service): Add exception handler at the end of the generated
+	 callback function.
+	(Start_Service): Remove a generated blank line. Add code
+	 generation for exception support in the generated callback package.
+
 2004-08-08  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator-skel.adb:
