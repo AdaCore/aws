@@ -1,5 +1,8 @@
 2002-04-16  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.ads:
+	(Start): Add documentation about Dispatcher object.
+
 	* aws-server.adb:
 	(Start): Initialize socket before any other data. If the socket is
 	 alreday used the problem will be detected before record
