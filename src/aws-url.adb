@@ -94,8 +94,7 @@ package body AWS.URL is
            and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 1))
            and then Characters.Handling.Is_Hexadecimal_Digit (Str (I + 2))
          then
-            Res (K) := Character'Val
-              (Natural'Value ("16#" & Str (I + 1 .. I + 2) & '#'));
+            Res (K) := Character'Val (Utils.Hex_Value (Str (I + 1 .. I + 2)));
             I := I + 2;
 
          elsif Str (I) = '+' then
