@@ -1,6 +1,15 @@
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
 	* aws-net-std__gnat.adb:
+	(Raise_Socket_Error): Add code to support GNAT 5.02 and 5.03
+	 compilers. Both have a different spec for the routine
+	 GNAT.Sockets.Thin.Socket_Error_Message. This fixes AWS build
+	 failure on GNAT 5.03, thanks to Ada overloading.
+	Minor reformatting.
+
+2004-09-15  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-std__gnat.adb:
 	(Raise_Socket_Error): Add missing parameter mode.
 
 2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
