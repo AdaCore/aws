@@ -49,6 +49,7 @@ procedure Test_WSDL2 is
    use Ada;
    use AWS;
    use StockQuoteService;
+   use type StockQuoteService.Types.ArrayOfFloat;
 
    H_Server : AWS.Server.HTTP;
 
@@ -94,7 +95,7 @@ procedure Test_WSDL2 is
       D : constant Duration := timePeriod.endTime - timePeriod.startTime;
    begin
       Text_IO.Put_Line ("Symbol " & tickerSymbol);
-      return (new Types.ArrayOfFloat'(1.2, 2.3, 3.4), Long_Float (D));
+      return (+Types.ArrayOfFloat'(1.2, 2.3, 3.4), Long_Float (D));
    end GetLastTradePrice;
 
    ----------------------
@@ -115,9 +116,9 @@ procedure Test_WSDL2 is
       LFIO.Put (Result.Frequency, Aft => 2, Exp => 0);
       Text_IO.New_Line;
 
-      for K in Result.Result'Range loop
+      for K in Result.Result.Item'Range loop
          Text_IO.Put (Positive'Image (K) & " = ");
-         LFIO.Put (Result.Result (K), Aft => 2, Exp => 0);
+         LFIO.Put (Result.Result.Item (K), Aft => 2, Exp => 0);
          Text_IO.New_Line;
       end loop;
    end WSDL_Demo_Client;
