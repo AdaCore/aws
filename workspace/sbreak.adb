@@ -21,6 +21,7 @@ procedure SBreak is
 
    task Client is
       entry Start;
+      entry Sent;
    end Client;
 
    task body Client is
@@ -38,12 +39,14 @@ procedure SBreak is
          Sockets.Connect_Socket (Socket, Address);
          Sockets.Send_Socket (Socket, (1 .. 32 => 22), Last);
 
-         delay 0.01;
+         accept Sent;
 
          Sockets.Shutdown_Socket (Peer);
          Sockets.Close_Socket (Peer);
 
-         Sockets.Shutdown_Socket (Socket);
+         --  Just close, do not shutdown, because opposite
+         --  peer is already closed.
+
          Sockets.Close_Socket (Socket);
       end loop;
    exception
@@ -74,6 +77,8 @@ begin
          Data : Stream_Element_Array (1 .. 256);
          Last : Stream_Element_Offset;
       begin
+         Client.Sent;
+
          loop
             Sockets.Receive_Socket (Peer, Data, Last);
 
