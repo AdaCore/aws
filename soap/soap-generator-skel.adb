@@ -419,6 +419,8 @@ package body Skel is
    begin
       --  Spec
 
+      Text_IO.Put_Line (Skel_Ads, "with Ada.Calendar;");
+      Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with AWS.Status;");
       Text_IO.Put_Line (Skel_Ads, "with AWS.Response;");
       Text_IO.New_Line (Skel_Ads);
