@@ -78,27 +78,27 @@ package AWS.Status.Set is
    procedure Request (D            : in out Data;
                       Method       : in     Request_Method;
                       URI          : in     String;
-                      HTTP_Version : in     String;
-                      Parameters   : in     String := "");
+                      HTTP_Version : in     String);
+
    --  Set values for the request line:
    --
    --  GET URI[?parametrers] [HTTP/1.0 or HTTP/1.1]
    --  POST URI [HTTP/1.0 or HTTP/1.1]
-   --
-   --  the parameters for a POST method are passed in the message body. See
-   --  procedure below to set them afterward.
 
-   procedure Parameters (D : in out Data; Name, Value : in String);
-   --  Add one parameter into D. Value is associated to key Name.
+   procedure Parameters (D : in out Data; Set : in AWS.Parameters.List);
+   --  Associate the parameters in Set to the status data.
 
-   procedure Parameters (D : in out Data; Parameters : in String);
-   --  Set parameters for the current request. This is used for a POST method
-   --  because the parameters are found in the message body and are not known
-   --  when we parse the request line. The Parameters string has the form
-   --  "name1=value1&name2=value2...". The paramaters are added to the list.
+--     procedure Parameters (D : in out Data; Name, Value : in String);
+--     --  Add one parameter into D. Value is associated to key Name.
 
-   procedure Parameters (D         : in out Data;
-                         Parameter : in     Stream_Element_Array);
+--     procedure Parameters (D : in out Data; Parameters : in String);
+--     --  Set parameters for the current request. This is used for a POST method
+--     --  because the parameters are found in the message body and are not known
+--     --  when we parse the request line. The Parameters string has the form
+--     --  "name1=value1&name2=value2...". The paramaters are added to the list.
+
+   procedure Binary (D         : in out Data;
+                     Parameter : in     Stream_Element_Array);
    --  This procedure is used to store any binary data sent with the
    --  request. For example this will be used by the PUT method if a binary
    --  file is sent to the server.
