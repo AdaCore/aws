@@ -15,6 +15,7 @@ config/aws-translator-conversion__f.adb
 config/aws-translator-conversion__p.adb
 config/makefile
 config/projects/ChangeLog
+config/projects/ai302.gpr
 config/projects/aws.gpr
 config/projects/aws_ssl.gpr
 config/projects/components.gpr
