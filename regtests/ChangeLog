@@ -1,3 +1,14 @@
+2003-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* user_strm.adb:
+	(Read): Correctly convert a Stream_Element_Offset to a
+	 Stream_Element to avoid constraint error (detected with GNAT 3.16).
+	Update copyright notice.
+
+	* user_strm.ads:
+	Fix with clause order.
+	Update copyright notice.
+
 2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
