@@ -102,7 +102,7 @@ project Demos is
       COFF_Res   := ("../win32/aws.coff");
       LIB_Crypt  := ("-lcrypto", "-lssl");
 
-      WIN_OPT    := ("-L../lib") & COFF_Res & Shared.ZLIB;
+      WIN_OPT    := ("-L../lib -lpoll") & COFF_Res & Shared.ZLIB;
       UNX_OPT    := Shared.ZLIB;
 
       case Shared.OS is
