@@ -162,9 +162,9 @@ package body AWS.Messages is
    -- Content_Length --
    --------------------
 
-   function Content_Length (Size : in Positive) return String is
+   function Content_Length (Size : in Natural) return String is
    begin
-      return Content_Length_Token & Positive'Image (Size);
+      return Content_Length_Token & Natural'Image (Size);
    end Content_Length;
 
    ------------------
@@ -308,5 +308,14 @@ package body AWS.Messages is
           + Natural'Value (HTTP_Date (F + 20 .. F + 21)) * 60
           + Natural'Value (HTTP_Date (F + 23 .. F + 24))));
    end To_Time;
+
+   ----------------------
+   -- Www_Authenticate --
+   ----------------------
+
+   function Www_Authenticate (Realm : in String) return String is
+   begin
+      return "Www-Authenticate: Basic realm=""" & Realm & """";
+   end Www_Authenticate;
 
 end AWS.Messages;
