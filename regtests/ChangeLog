@@ -6,9 +6,9 @@
 	* makefile:
 	(RT_SOAP): Add soap5.adb.
 
-	* tlog.adb: 
+	* tlog.adb:
 	Add missing with clauses.
-	
+
 2004-06-19  Pascal Obry  <pascal@obry.org>
 
 	* soap5.adb, soap5.out:
@@ -29,7 +29,7 @@
 
 	* sslcfg.adb:
 	Minor reformatting.
-	
+
 	* soap1.adb, soap2.adb, soap3.adb, soap4.adb:
 	Add header.
 
@@ -45,7 +45,7 @@
 	Minor reformatting.
 
 	* auth.adb, disp_soap.adb, sessions.adb, sessions2.adb, sessions3.adb,
-	  sessions4.adb, sp.adb, ssback.adb, ssock2.adb, xmlt.adb, 
+	  sessions4.adb, sp.adb, ssback.adb, ssock2.adb, xmlt.adb,
 	  xmlt_sec.adb:
 	Use Get_Free_Port.
 
@@ -56,6 +56,29 @@
 	  unexph3.adb, upload2.adb:
 	Use Get_Free_Port.
 	Update copyright notice.
+
+2004-06-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* afile_pack.ads, afile_pack.adb:
+	Code of afile regtest, use Get_Free_Port routine.
+
+	* afile.adb:
+	Just call AFile_Pack.Run.
+
+	* afile_sec.adb, afile_sec.out:
+	Security analog of afile test.
+
+	* append_pack.ads, append_pack.adb:
+	Code of append regtest, use Get_Free_Port routine.
+
+	* append.adb:
+	Just call Append_Pack.Run.
+
+	* append_sec.adb, append_sec.out:
+	Security analog of append test.
+
+	* makefile:
+	Add afile_sec and append_sec.
 
 2004-06-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
