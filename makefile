@@ -158,6 +158,7 @@ common_tarball:
 	$(MKDIR) $${AWS}/docs/html; \
 	$(MKDIR) $${AWS}/icons; \
 	$(MKDIR) $${AWS}/include; \
+	$(MKDIR) $${AWS}/include/ai302; \
 	$(MKDIR) $${AWS}/include/zlib; \
 	$(MKDIR) $${AWS}/lib; \
 	$(MKDIR) $${AWS}/ssl; \
@@ -248,7 +249,10 @@ install: force
 	$(CP) demos/wm_login.html $(INSTALL)/AWS/templates
 	$(CP) icons/*.gif $(INSTALL)/AWS/icons
 	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
-	-$(CP) -p include/*.ad? $(INSTALL)/AWS/components
+	$(CP) -p include/*.ad? $(INSTALL)/AWS/components
+ifeq (${AI302},Internal)
+	$(CP) -p include/ai302/*.ad? $(INSTALL)/AWS/components
+endif
 	-$(CP) -p $(BDIR)/include/* $(INSTALL)/AWS/components
 	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(INSTALL)/AWS/tools
