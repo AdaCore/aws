@@ -294,6 +294,10 @@ PRJ_XMLADA=Disabled
 GEXT_MODULE := gxmlada_dummy
 endif
 
+ifndef TP_XMLADA
+TP_XMLADA="$(PRJ_XMLADA)"
+endif
+
 ## AdaSockets
 
 ifdef ADASOCKETS
@@ -349,7 +353,7 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_ASIS="$(PRJ_ASIS)" \
 	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
 	PRJ_OSLIB="$(OSLIB)" \
-	TP_XMLADA="$(PRJ_XMLADA)"
+	TP_XMLADA="$(TP_XMLADA)"
 
 ${MODULES_BUILD}: force
 	${MAKE} -C ${@:%_build=%} build $(GALL_OPTIONS)
