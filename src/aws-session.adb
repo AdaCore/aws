@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -269,9 +269,9 @@ package body AWS.Session is
 
       entry Clean when Lock = 0 is
 
-         Max_Remove : constant := 200;
+         Max_Remove : constant := 50;
          --  Maximum number of items that will get removed at a time. Other
-         --  items will be check for removal during next run.
+         --  items will be checked for removal during next run.
 
          Remove : Session_ID_Array (1 .. Max_Remove);
          --  ??? can't use anonymous array here, GNAT bug TN 9023-002
@@ -383,7 +383,7 @@ package body AWS.Session is
       entry Get_Value
         (SID   : in     ID;
          Key   : in     String;
-         Value : out Unbounded_String)
+         Value :    out Unbounded_String)
       when Lock = 0 is
 
          procedure Modify
@@ -446,8 +446,9 @@ package body AWS.Session is
 
          procedure Modify
            (SID  : in     ID;
-            Node : in out Session_Node) is
-            pragma Warnings (Off, SID);
+            Node : in out Session_Node)
+         is
+            pragma Unreferenced (SID);
          begin
             Node.Time_Stamp := Calendar.Clock;
             Result := Key_Value.Is_Present (Node.Root, Key);
@@ -518,7 +519,7 @@ package body AWS.Session is
            (SID  : in     ID;
             Node : in out Session_Node)
          is
-            pragma Warnings (Off, SID);
+            pragma Unreferenced (SID);
             Was_Present : Boolean;
          begin
             Node.Time_Stamp := Calendar.Clock;
@@ -569,7 +570,7 @@ package body AWS.Session is
            (SID  : in     ID;
             Node : in out Session_Node)
          is
-            pragma Warnings (Off, SID);
+            pragma Unreferenced (SID);
             V : constant Unbounded_String := To_Unbounded_String (Value);
          begin
             Node.Time_Stamp := Calendar.Clock;
@@ -605,8 +606,9 @@ package body AWS.Session is
 
          procedure Modify
            (Key  : in     ID;
-            Node : in out Session_Node) is
-            pragma Warnings (Off, Key);
+            Node : in out Session_Node)
+         is
+            pragma Unreferenced (Key);
          begin
             Node.Time_Stamp := Calendar.Clock;
          end Modify;
@@ -695,10 +697,7 @@ package body AWS.Session is
       is
          Quit : Boolean := False;
       begin
-         Action (Order,
-                 Key,
-                 Session.Time_Stamp,
-                 Quit);
+         Action (Order, Key, Session.Time_Stamp, Quit);
 
          Continue := not Quit;
       end Process;
@@ -755,10 +754,7 @@ package body AWS.Session is
       is
          Quit : Boolean := False;
       begin
-         Action (Order,
-                 Key,
-                 To_String (Value),
-                 Quit);
+         Action (Order, Key, To_String (Value), Quit);
 
          Continue := not Quit;
       end Process;
@@ -776,8 +772,9 @@ package body AWS.Session is
 
       procedure Start
         (SID  : in     ID;
-         Node : in out Session_Node) is
-         pragma Warnings (Off, SID);
+         Node : in out Session_Node)
+      is
+         pragma Unreferenced (SID);
       begin
          In_Order (Key_Value.Table.Table_Type (Node.Root));
       end Start;
@@ -958,8 +955,8 @@ package body AWS.Session is
          Order    : in     Positive;
          Continue : in out Boolean)
       is
-         pragma Warnings (Off, Order);
-         pragma Warnings (Off, Continue);
+         pragma Unreferenced (Order);
+         pragma Unreferenced (Continue);
 
          procedure Process
            (Key      : in     String;
@@ -976,9 +973,10 @@ package body AWS.Session is
            (Key      : in     String;
             Value    : in     Unbounded_String;
             Order    : in     Positive;
-            Continue : in out Boolean) is
-            pragma Warnings (Off, Order);
-            pragma Warnings (Off, Continue);
+            Continue : in out Boolean)
+         is
+            pragma Unreferenced (Order);
+            pragma Unreferenced (Continue);
          begin
             String'Output (Stream_Ptr, Key);
             String'Output (Stream_Ptr, To_String (Value));
