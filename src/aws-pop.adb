@@ -104,24 +104,24 @@ package body AWS.POP is
    -- Close --
    -----------
 
-   procedure Close (Server : in POP.Server) is
+   procedure Close (Mailbox : in POP.Mailbox) is
    begin
       --  Send command
 
-      Net.Buffered.Put_Line (Server.Sock, "QUIT");
+      Net.Buffered.Put_Line (Mailbox.Sock, "QUIT");
 
       declare
          Response : constant String
-           := Net.Buffered.Get_Line (Server.Sock);
+           := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
       end;
 
-      Net.Std.Shutdown (Server.Sock);
+      Net.Std.Shutdown (Mailbox.Sock);
 
    exception
       when POP_Error =>
-         Net.Std.Shutdown (Server.Sock);
+         Net.Std.Shutdown (Mailbox.Sock);
          raise;
    end Close;
 
@@ -239,14 +239,14 @@ package body AWS.POP is
    -----------------------
 
    procedure For_Every_Message
-     (Server : in POP.Server;
-      Remove : in Boolean := False)
+     (Mailbox : in POP.Mailbox;
+      Remove  : in Boolean     := False)
    is
       Mess : Message;
       Quit : Boolean := False;
    begin
-      for K in 1 .. Server.Message_Count loop
-         Mess := Get (Server, K, Remove);
+      for K in 1 .. Mailbox.Message_Count loop
+         Mess := Get (Mailbox, K, Remove);
          Action (Mess, Quit);
 
          exit when Quit = True;
@@ -267,14 +267,14 @@ package body AWS.POP is
    ---------
 
    function Get
-     (Server : in POP.Server;
-      N      : in Positive;
-      Remove : in Boolean    := False)
+     (Mailbox : in POP.Mailbox;
+      N       : in Positive;
+      Remove  : in Boolean     := False)
       return Message
    is
 
       procedure Get
-        (Server     : in     POP.Server;
+        (Mailbox    : in     POP.Mailbox;
          Boundary   : in     String;
          Attachment :    out POP.Attachment;
          Last       :    out Boolean);
@@ -284,7 +284,7 @@ package body AWS.POP is
       ---------
 
       procedure Get
-        (Server     : in     POP.Server;
+        (Mailbox    : in     POP.Mailbox;
          Boundary   : in     String;
          Attachment :    out POP.Attachment;
          Last       :    out Boolean)
@@ -296,7 +296,7 @@ package body AWS.POP is
 
          --  Read headers
 
-         AWS.Headers.Set.Read (Server.Sock, Attachment.Headers);
+         AWS.Headers.Set.Read (Mailbox.Sock, Attachment.Headers);
 
          --  Check Base64 encoding
 
@@ -322,7 +322,7 @@ package body AWS.POP is
          loop
             declare
                Response : constant String
-                 := Net.Buffered.Get_Line (Server.Sock);
+                 := Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                Last := Response = End_Boundary;
 
@@ -347,18 +347,18 @@ package body AWS.POP is
    begin
       --  Send command
 
-      Net.Buffered.Put_Line (Server.Sock, "RETR " & Utils.Image (N));
+      Net.Buffered.Put_Line (Mailbox.Sock, "RETR " & Utils.Image (N));
 
       declare
          Response : constant String
-           := Net.Buffered.Get_Line (Server.Sock);
+           := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
       end;
 
       --  Read headers
 
-      AWS.Headers.Set.Read (Server.Sock, Mess.Headers);
+      AWS.Headers.Set.Read (Mailbox.Sock, Mess.Headers);
 
       --  Check for MIME message
 
@@ -379,7 +379,7 @@ package body AWS.POP is
          loop
             declare
                Response : constant String
-                 := Net.Buffered.Get_Line (Server.Sock);
+                 := Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                exit when Response = ".";
                Append (Mess.Content, Response & ASCII.CR & ASCII.LF);
@@ -392,7 +392,7 @@ package body AWS.POP is
          loop
             declare
                Response : constant String
-                 := Net.Buffered.Get_Line (Server.Sock);
+                 := Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                exit when Response = To_String (Boundary);
                Append (Mess.Content, Response & ASCII.CR & ASCII.LF);
@@ -406,7 +406,7 @@ package body AWS.POP is
                A    : Attachment;
                Last : Boolean;
             begin
-               Get (Server, To_String (Boundary), A, Last);
+               Get (Mailbox, To_String (Boundary), A, Last);
 
                if Mess.Last = null then
                   Mess.Attachments := new Attachment'(A);
@@ -425,7 +425,7 @@ package body AWS.POP is
          loop
             declare
                Response : constant String
-                 := Net.Buffered.Get_Line (Server.Sock);
+                 := Net.Buffered.Get_Line (Mailbox.Sock);
             begin
                exit when Response = ".";
             end;
@@ -435,11 +435,11 @@ package body AWS.POP is
       --  Remove message from server
 
       if Remove then
-         Net.Buffered.Put_Line (Server.Sock, "DELE " & Utils.Image (N));
+         Net.Buffered.Put_Line (Mailbox.Sock, "DELE " & Utils.Image (N));
 
          declare
             Response : constant String
-              := Net.Buffered.Get_Line (Server.Sock);
+              := Net.Buffered.Get_Line (Mailbox.Sock);
          begin
             Check_Response (Response);
          end;
@@ -500,21 +500,21 @@ package body AWS.POP is
       Password     : in String;
       Authenticate : in Authenticate_Mode := Clear_Text;
       Port         : in Positive          := Default_POP_Port)
-      return Server
+      return Mailbox
    is
       Timestamp  : Unbounded_String;
-      POP_Server : Server;
+      Mailbox    : POP.Mailbox;
    begin
-      POP_Server.Name := To_Unbounded_String (Server_Name);
-      POP_Server.Sock := Net.Std.Socket_Type (Net.Socket (False).all);
+      Mailbox.Name := To_Unbounded_String (Server_Name);
+      Mailbox.Sock := Net.Std.Socket_Type (Net.Socket (False).all);
 
       --  Connect to the server
 
-      Net.Std.Connect (POP_Server.Sock, Server_Name, Port);
+      Net.Std.Connect (Mailbox.Sock, Server_Name, Port);
 
       declare
          Response : constant String
-           := Net.Buffered.Get_Line (POP_Server.Sock);
+           := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
 
@@ -542,32 +542,32 @@ package body AWS.POP is
 
       if Authenticate = Clear_Text then
 
-         Net.Buffered.Put_Line (POP_Server.Sock, "USER " & User);
+         Net.Buffered.Put_Line (Mailbox.Sock, "USER " & User);
 
          declare
             Response : constant String
-              := Net.Buffered.Get_Line (POP_Server.Sock);
+              := Net.Buffered.Get_Line (Mailbox.Sock);
          begin
             Check_Response (Response);
          end;
 
-         Net.Buffered.Put_Line (POP_Server.Sock, "PASS " & Password);
+         Net.Buffered.Put_Line (Mailbox.Sock, "PASS " & Password);
 
          declare
             Response : constant String
-              := Net.Buffered.Get_Line (POP_Server.Sock);
+              := Net.Buffered.Get_Line (Mailbox.Sock);
          begin
             Check_Response (Response);
          end;
 
       else
          Net.Buffered.Put_Line
-           (POP_Server.Sock, "APOP " & User
+           (Mailbox.Sock, "APOP " & User
               & AWS.Utils.Get_MD5 (To_String (Timestamp) & Password));
 
          declare
             Response : constant String
-              := Net.Buffered.Get_Line (POP_Server.Sock);
+              := Net.Buffered.Get_Line (Mailbox.Sock);
          begin
             Check_Response (Response);
          end;
@@ -575,11 +575,11 @@ package body AWS.POP is
 
       --  Checks for mailbox's content
 
-      Net.Buffered.Put_Line (POP_Server.Sock, "STAT");
+      Net.Buffered.Put_Line (Mailbox.Sock, "STAT");
 
       declare
          Response : constant String
-           := Net.Buffered.Get_Line (POP_Server.Sock);
+           := Net.Buffered.Get_Line (Mailbox.Sock);
       begin
          Check_Response (Response);
 
@@ -588,18 +588,18 @@ package body AWS.POP is
          begin
             K := Strings.Fixed.Index (Response, " ", Strings.Backward);
 
-            POP_Server.Message_Count
+            Mailbox.Message_Count
               := Natural'Value (Response (Response'First + 4 .. K - 1));
-            POP_Server.Mailbox_Size
+            Mailbox.Size
               := Natural'Value (Response (K + 1 .. Response'Last));
          end;
       end;
 
-      return POP_Server;
+      return Mailbox;
 
    exception
       when POP_Error =>
-         Net.Std.Shutdown (POP_Server.Sock);
+         Net.Std.Shutdown (Mailbox.Sock);
          raise;
    end Initialize;
 
@@ -612,23 +612,23 @@ package body AWS.POP is
       return Attachment.Filename /= Null_Unbounded_String;
    end Is_File;
 
-   ------------------
-   -- Mailbox_Size --
-   ------------------
-
-   function Mailbox_Size (Server : in POP.Server) return Natural is
-   begin
-      return Server.Mailbox_Size;
-   end Mailbox_Size;
-
    -------------------
    -- Message_Count --
    -------------------
 
-   function Message_Count (Server : in POP.Server) return Natural is
+   function Message_Count (Mailbox : in POP.Mailbox) return Natural is
    begin
-      return Server.Message_Count;
+      return Mailbox.Message_Count;
    end Message_Count;
+
+   ----------
+   -- Size --
+   ----------
+
+   function Size (Mailbox : in POP.Mailbox) return Natural is
+   begin
+      return Mailbox.Size;
+   end Size;
 
    -------------
    -- Subject --
@@ -643,9 +643,9 @@ package body AWS.POP is
    -- User_Name --
    ---------------
 
-   function User_Name (Server : in POP.Server) return String is
+   function User_Name (Mailbox : in POP.Mailbox) return String is
    begin
-      return To_String (Server.User_Name);
+      return To_String (Mailbox.User_Name);
    end User_Name;
 
    -----------

@@ -45,13 +45,13 @@ package AWS.POP is
    POP_Error : exception;
    --  Raised by all routines when an error has been detected
 
-   ------------
-   -- Server --
-   ------------
+   -------------
+   -- Mailbox --
+   -------------
 
    Default_POP_Port : constant := 110;
 
-   type Server is private;
+   type Mailbox is private;
 
    type Authenticate_Mode is (Clear_Text, APOP);
 
@@ -61,21 +61,20 @@ package AWS.POP is
       Password     : in String;
       Authenticate : in Authenticate_Mode := Clear_Text;
       Port         : in Positive          := Default_POP_Port)
-      return Server;
-   --  Create a Server composed of the Name and the Port (default POP3 port
-   --  is 110), this server will be used to retrieve messages from the
-   --  mailbox.
+      return Mailbox;
+   --  Connect on the given Port to Server_Name and open User's Mailbox. This
+   --  mailbox object will be used to retrieve messages.
 
-   procedure Close (Server : in POP.Server);
-   --  Close server
+   procedure Close (Mailbox : in POP.Mailbox);
+   --  Close mailbox
 
-   function User_Name (Server : in POP.Server) return String;
-   --  Returns User's name for this server
+   function User_Name (Mailbox : in POP.Mailbox) return String;
+   --  Returns User's name for this mailbox
 
-   function Message_Count (Server : in POP.Server) return Natural;
+   function Message_Count (Mailbox : in POP.Mailbox) return Natural;
    --  Returns the number of messages in the user's mailbox
 
-   function Mailbox_Size (Server : in POP.Server) return Natural;
+   function Size (Mailbox : in POP.Mailbox) return Natural;
    --  Returns the total size in bytes of the user's mailbox
 
    -------------
@@ -85,20 +84,20 @@ package AWS.POP is
    type Message is tagged private;
 
    function Get
-     (Server : in POP.Server;
-      N      : in Positive;
-      Remove : in Boolean    := False)
+     (Mailbox : in POP.Mailbox;
+      N       : in Positive;
+      Remove  : in Boolean     := False)
       return Message;
-   --  Retrieve Nth message from Server, let the message on the server if
-   --  Remove is False.
+   --  Retrieve Nth message from the mailbox, let the message on the mailbox
+   --  if Remove is False.
 
    generic
       with procedure Action
         (Message : in     POP.Message;
          Quit    : in out Boolean);
    procedure For_Every_Message
-     (Server : in POP.Server;
-      Remove : in Boolean := False);
+     (Mailbox : in POP.Mailbox;
+      Remove  : in Boolean := False);
    --  Calls action for each message read on the mailbox, delete the message
    --  from the mailbox if Remove is True. Set Quit to True to stop the
    --  iterator.
@@ -173,12 +172,12 @@ private
 
    use Ada;
 
-   type Server is record
+   type Mailbox is record
       Sock          : Net.Std.Socket_Type;
       Name          : Unbounded_String;
       User_Name     : Unbounded_String;
       Message_Count : Natural;
-      Mailbox_Size  : Natural;
+      Size          : Natural;
    end record;
 
    type Count_Access is access Natural;
