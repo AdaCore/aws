@@ -50,7 +50,7 @@ with AWS.Utils;
 package AWS.Log is
 
    type Object is limited private;
-   --  A log object. It must be activated by calling Start below.
+   --  A log object. It must be activated by calling Start below
 
    type Split_Mode is (None, Each_Run, Daily, Monthly);
    --  It specifies when to create a new log file.
@@ -78,7 +78,7 @@ package AWS.Log is
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
       Answer       : in     Response.Data);
-   --  Write log info if activated (i.e. Start routine above has been called).
+   --  Write log info if activated (i.e. Start routine above has been called)
 
    procedure Write
      (Log            : in out Object;
@@ -109,10 +109,10 @@ package AWS.Log is
    --  messages.
 
    procedure Stop (Log : in out Object);
-   --  Stop logging activity.
+   --  Stop logging activity
 
    function Is_Active (Log : in Object) return Boolean;
-   --  Returns True if Log is activated.
+   --  Returns True if Log is activated
 
    function Filename (Log : in Object) return String;
    --  Returns current log filename or the empty string if the log is not
