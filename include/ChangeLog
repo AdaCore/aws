@@ -1,3 +1,8 @@
+2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(gsetup): Build the Z library.
+
 2003-12-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* memory_streams.ads;
