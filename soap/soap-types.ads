@@ -137,8 +137,7 @@ package SOAP.Types is
 
    function S
      (V      : in String;
-      Name   : in String  := "item";
-      Encode : in Boolean := True)
+      Name   : in String  := "item")
       return XSD_String;
 
    function V (O : in XSD_String) return String;
