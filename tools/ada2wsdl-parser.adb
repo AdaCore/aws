@@ -230,6 +230,10 @@ package body Ada2WSDL.Parser is
       --  Analyse a package declaration, the package name is used as
       --  the Web Service name.
 
+      procedure Analyse_Package_Instantiation (Node : in Link);
+      --  Checks if this instantiation is to create a safe pointer, in this
+      --  case records the type and access type for later used.
+
       procedure Analyse_Routine (Node : in Link);
       --  Node is a procedure or function, analyse its spec profile
 
@@ -267,9 +271,7 @@ package body Ada2WSDL.Parser is
          case Arg_Kind is
 
             when A_Function_Declaration
-              | A_Generic_Function_Declaration
               | A_Procedure_Declaration
-              | A_Generic_Procedure_Declaration
               =>
                Analyse_Routine (Node);
 
@@ -280,11 +282,16 @@ package body Ada2WSDL.Parser is
               | A_Task_Type_Declaration
               | A_Generic_Package_Declaration
               | An_Incomplete_Type_Declaration
+              | A_Generic_Function_Declaration
+              | A_Generic_Procedure_Declaration
               =>
                null;
 
             when A_Package_Declaration =>
                Analyse_Package (Node);
+
+            when A_Package_Instantiation =>
+               Analyse_Package_Instantiation (Node);
 
             when A_Subtype_Declaration =>
                null;
@@ -348,6 +355,37 @@ package body Ada2WSDL.Parser is
             Options.WS_Name := To_Unbounded_String (Node.Spec_Name.all);
          end if;
       end Analyse_Package;
+
+      -----------------------------------
+      -- Analyse_Package_Instantiation --
+      -----------------------------------
+
+      procedure Analyse_Package_Instantiation (Node : in Link) is
+         use Extensions.Flat_Kinds;
+         G_Unit : constant Asis.Expression
+           := Declarations.Generic_Unit_Name (Node.Spec);
+         --  The generic unit name (name after the reserved word is)
+         G_Name : constant String := Image (Text.Element_Image (G_Unit));
+      begin
+         if G_Name = "SOAP.Utils.Safe_Pointers" then
+            --  This is the safe pointer AWS/SOAP runtime type support
+
+            declare
+               Actual : constant Asis.Association_List
+                 := Declarations.Generic_Actual_Part (Node.Spec);
+            begin
+               if Actual'Length = 2 then
+                  --  There is only two formal parameters, the first one is
+                  --  the type, the second the access type to the first one.
+
+                  Generator.Register_Safe_Pointer
+                    (Name        => Node.Spec_Name.all,
+                     Type_Name   => Image (Text.Element_Image (Actual (1))),
+                     Access_Name => Image (Text.Element_Image (Actual (2))));
+               end if;
+            end;
+         end if;
+      end Analyse_Package_Instantiation;
 
       ----------------------
       -- Analyse_Profile --
@@ -746,7 +784,7 @@ package body Ada2WSDL.Parser is
          New_Node.Spec_Name := new String'(Name (El));
 
          if State.New_List_Needed then
-            --  here we have to set up a new sub-list:
+            --  Here we have to set up a new sub-list:
             State.Current_List    := New_Node;
             New_Node.Up           := State.Last_Top;
             State.Last_Top.Down   := New_Node;
@@ -758,13 +796,13 @@ package body Ada2WSDL.Parser is
             --  last element to the Prev field of the list head element
 
          else
-            --  here we have to insert New_Node in an existing list,
+            --  Here we have to insert New_Node in an existing list,
             --  keeping the alphabetical order of program unit names
 
             New_Node.Up := State.Current_List.Up;
 
             if Arg_Kind = An_Incomplete_Type_Declaration then
-               --  no need for alphabetical ordering, inserting in the
+               --  No need for alphabetical ordering, inserting in the
                --  very beginning:
 
                New_Node.Last := State.Current_List.Last;
@@ -785,7 +823,7 @@ package body Ada2WSDL.Parser is
          end if;
       end Insert_In_List;
 
-      --  start of the processing of Create_Element_Node
+      --  Start of the processing of Create_Element_Node
 
    begin
 
@@ -822,16 +860,22 @@ package body Ada2WSDL.Parser is
         or else Arg_Kind = A_Single_Protected_Declaration
         or else Arg_Kind = A_Protected_Type_Declaration
       then
-         --  here we may have specs requiring bodies inside a construct
+         --  Here we may have specs requiring bodies inside a construct
          State.New_List_Needed := True;
          State.Last_Top        := Current_Node;
 
       elsif Arg_Kind = A_Protected_Definition then
-         --  we have to skip this syntax level
+         --  We have to skip this syntax level
          null;
 
+      elsif Arg_Kind = A_Package_Instantiation then
+         --  We want to keep track of all package instantiations to analyse
+         --  those that are used to create a safe pointer for array in
+         --  records.
+         Insert_In_List (State, Element, Current_Node);
+
       else
-         --  no need to go deeper
+         --  No need to go deeper
          Control := Abandon_Children;
       end if;
 
