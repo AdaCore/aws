@@ -1,3 +1,40 @@
+2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads:
+	Fix style (trailing spaces).
+
+	* aws-server-push.ads, aws-server-push.adb:
+	(Data_For): renamed Send_To.
+	(Broadcast): renamed Send.
+
+	* aws-server.adb:
+	(Line): loop until HTTP_Server.Shutdown is true.
+	(Shutdown): wait for 0.5 second between each check for Cleaner
+	 task termination. Idem for lines termination. 
+	(Slots.Shutdown): new procedure.
+	(Abort_On_Timeout): call Shutdown for the right index.
+	(Release): correctly detect when a sockets need to be shutdown and
+	 free memory associated with the socket handle.
+
+	* aws-server.ads:
+	(Slot_Phase): add Aborted.
+	(Socket_Access): new type.
+	(Slot): Sock is now a Socket_Access.
+	(Slots.Get): FD parameter is now a Socket_Access.
+	(Slots.Shutdown): new procedure.
+
+	* aws-server-get_status.adb:
+	(Slot_Table): Sock is now an access type, use .all to access object.
+
+	* aws-net-ssl.adb:
+	(Free): new procedure.
+
+	* aws-net-std.adb:
+	(Free): new procedure.
+
+	* aws-net.ads:
+	(Free): new procedure.
+
 2001-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-default.ads:
