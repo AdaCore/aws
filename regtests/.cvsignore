@@ -8,6 +8,8 @@ b~soap1.adb
 b~soap1.ads
 b~soap2.adb
 b~soap2.ads
+b~tclientto.adb
+b~tclientto.ads
 b~tgetparam.adb
 b~tgetparam.ads
 b~turl.adb
