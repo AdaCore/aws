@@ -526,7 +526,6 @@ package body AWS.Server is
          new Ada.Unchecked_Deallocation (Line, Line_Access);
 
       All_Lines_Terminated : Boolean := False;
-
    begin
       if Web_Server.Shutdown then
          return;
