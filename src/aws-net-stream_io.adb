@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -99,7 +99,7 @@ package body AWS.Net.Stream_IO is
      (Socket : in Socket_Type'Class)
       return Socket_Stream_Access
    is
-      Result : Socket_Stream_Access := new Socket_Stream_Type;
+      Result : constant Socket_Stream_Access := new Socket_Stream_Type;
    begin
       Result.Socket := new Socket_Type'Class'(Socket);
       return Result;
