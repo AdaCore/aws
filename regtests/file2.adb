@@ -36,6 +36,7 @@ with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.MIME;
+with AWS.Net.Log.Callbacks;
 with AWS.Response;
 with AWS.Server.Log;
 with AWS.Status;
@@ -111,6 +112,9 @@ procedure File2 is
 begin
    Get_Free_Port (Port);
 
+   Net.Log.Callbacks.Initialize
+     ("file2.netlog", Net.Log.Callbacks.Binary'Access);
+
    Server.Start
      (WS, "file", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
 
@@ -123,6 +127,8 @@ begin
    Call_It;
 
    Server.Shutdown (WS);
+
+   Net.Log.Callbacks.Finalize;
 
    Text_IO.Put_Line ("shutdown");
 end File2;
