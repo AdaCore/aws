@@ -1,5 +1,13 @@
 2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* test_soap5.out:
+	Update output.
+
+	* test_soap5.adb:
+	Add a non SOAP call between 2 SOAP calls.
+
+2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(RT_SOAP): Add test_soap5.adb.
 
