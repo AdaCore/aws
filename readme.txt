@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             March 11th, 2004
+   Pascal Obry                                             March 19th, 2004
 
 
 
@@ -156,6 +156,11 @@ Here are the main changes since AWS 1.4 :
 
    - A a simple Web Mail service (AWS.Services.Web_Mail) using the SMTP/POP
      AWS support.
+
+   - Add new boolean constant AWS.Net.SSL.Is_Supported which is set to true
+     if SSL is supported by the runtime.
+
+   - Improve demos/agent implementation to support large responses
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
