@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -175,7 +175,7 @@ package body AWS.Status is
       ---------------
 
       function Get_Nonce return String is
-         QOP   : constant String := Authorization_QOP (D);
+         QOP : constant String := Authorization_QOP (D);
       begin
          if QOP = "" then
             return Nonce;
@@ -199,7 +199,7 @@ package body AWS.Status is
 
       elsif Authorization_Response (D)
             /=
-            AWS.Digest.Create_Digest
+            AWS.Digest.Create
               (Username => Authorization_Name (D),
                Realm    => Authorization_Realm (D),
                Password => Password,
