@@ -58,50 +58,40 @@ package body AWS.Net.Std is
    -------------------
 
    procedure Accept_Socket
-     (Socket     : in     Socket_Type;
-      New_Socket :    out Socket_Access)
+     (Socket     : in     Net.Socket_Type'Class;
+      New_Socket :    out Socket_Type)
    is
       pragma Warnings (Off, New_Socket);
    begin
-      if New_Socket = null then
-         New_Socket := new Socket_Type;
+      if New_Socket.S = null then
+         New_Socket.S := new Socket_Hidden;
       end if;
 
-      Socket_Type (New_Socket.all).S := new Socket_Hidden;
-
-      Set_Cache (New_Socket.all);
-
       Sockets.Accept_Socket
-        (SFD (Socket.S.all), SFD (Socket_Type (New_Socket.all).S.all));
+        (SFD (Socket_Type (Socket).S.all), SFD (New_Socket.S.all));
+
+      Set_Cache (New_Socket);
    exception
       when E : others =>
-         Free (New_Socket.all);
          Free (New_Socket);
          Raise_Exception (E, "Accept_Socket");
    end Accept_Socket;
-
-   ------------
-   -- Assign --
-   ------------
-
-   procedure Assign
-     (Left  : in out Socket_Type;
-      Right : in     Net.Socket_Type'Class) is
-   begin
-      Free (Left.S);
-      Left.S := new Socket_Hidden'(Socket_Type (Right).S.all);
-   end Assign;
 
    ----------
    -- Bind --
    ----------
 
    procedure Bind
-     (Socket : in Socket_Type;
-      Port   : in Natural;
-      Host   : in String := "") is
+     (Socket : in out Socket_Type;
+      Port   : in     Natural;
+      Host   : in     String := "") is
    begin
-      Sockets.Bind (SFD (Socket.S.all), Port, Host);
+      if Socket.S = null then
+         Socket.S := new Socket_Hidden;
+         Std.Socket (Socket.S.all);
+      end if;
+
+      Std.Bind (Socket.S.all, Port, Host);
    exception
       when E : others =>
          Raise_Exception (E, "Bind");
@@ -112,11 +102,18 @@ package body AWS.Net.Std is
    -------------
 
    procedure Connect
-     (Socket   : in Socket_Type;
-      Host     : in String;
-      Port     : in Positive) is
+     (Socket   :    out Socket_Type;
+      Host     : in     String;
+      Port     : in     Positive) is
    begin
-      Sockets.Connect (SFD (Socket.S.all), Host, Port);
+      if Socket.S = null then
+         Socket.S := new Socket_Hidden;
+         Std.Socket (Socket.S.all);
+      end if;
+
+      Std.Connect (Socket.S.all, Host, Port);
+
+      Set_Cache (Socket);
    exception
       when E : others =>
          Raise_Exception (E, "Connect");
@@ -233,22 +230,5 @@ package body AWS.Net.Std is
       when E : others =>
          Raise_Exception (E, "Shutdown");
    end Shutdown;
-
-   ------------
-   -- Socket --
-   ------------
-
-   function Socket return Socket_Access is
-      Sock : Socket_Access;
-   begin
-      Sock                     := new Socket_Type;
-      Socket_Type (Sock.all).S := new Socket_Hidden;
-      Sockets.Socket (SFD (Socket_Type (Sock.all).S.all));
-
-      return Sock;
-   exception
-      when E : others =>
-         Raise_Exception (E, "Socket");
-   end Socket;
 
 end AWS.Net.Std;
