@@ -1,3 +1,20 @@
+2002-02-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-client.adb:
+	(Call): [HTTP_Connection] New function.
+	Remove with AWS.Client.
+	Patch from Wiljan Derks.
+	
+	* soap-client.ads:
+	(Call): [HTTP_Connection] New function.
+	Move with AWS.Client here instead of body.
+	Patch from Wiljan Derks.
+
+	* soap-types.ads, soap-types.adb:
+	(V): [SOAP_Record] New function returning an Object_Set for a SOAP
+	 record.
+	Patch from Wiljan Derks.
+
 2002-01-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-client.adb:
