@@ -1,5 +1,11 @@
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(RT_STD): Add sessions.
+
+	* sessions.adb, sessions.out:
+	Initial revision.
+
 	* test_speed.adb:
 	(Check_Computer_Speed): Add allocation as this does have a big
 	 impact on the gdb speed.
