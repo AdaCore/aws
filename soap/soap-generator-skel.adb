@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -201,7 +201,7 @@ package body Skel is
         (Skel_Adb, "       return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
       Text_IO.Put_Line
-        (Skel_Adb, "      Proc       : constant String");
+        (Skel_Adb, "      Proc_Name  : constant String");
       Text_IO.Put_Line
         (Skel_Adb, "        := SOAP.Message.Payload.Procedure_Name"
            & " (Payload);");
@@ -240,7 +240,7 @@ package body Skel is
       --  Then check the procedure name
 
       Text_IO.Put_Line
-        (Skel_Adb, "      if Proc /= """ & Proc & """ then");
+        (Skel_Adb, "      if Proc_Name /= """ & Proc & """ then");
       Text_IO.Put_Line
         (Skel_Adb, "         return SOAP.Message.Response.Build");
       Text_IO.Put_Line
@@ -249,7 +249,7 @@ package body Skel is
         (Skel_Adb, "              (SOAP.Message.Response.Error.Client,");
       Text_IO.Put_Line
         (Skel_Adb, "               """
-           & "Found procedure "" & Proc & "" in " & L_Proc & ", """);
+           & "Found procedure "" & Proc_Name & "" in " & L_Proc & ", """);
       Text_IO.Put_Line
         (Skel_Adb, "               "
            & "  & """ & Proc & " expected.""));");
@@ -583,6 +583,7 @@ package body Skel is
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with AWS.Status;");
       Text_IO.Put_Line (Skel_Ads, "with AWS.Response;");
+      Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with SOAP.Message.Payload;");
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with " & U_Name & ".Types;");
