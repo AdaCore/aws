@@ -1,3 +1,17 @@
+2001-07-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-directory.adb:
+	Minor type fix.
+
+	* aws-session.adb:
+	(Add_Session): new entry into the Database protected record.
+	(Save): new procedure.
+	(Load): new procedure.
+
+	* aws-session.ads:
+	(Save): new procedure.
+	(Load): new procedure.
+
 2001-07-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-config.adb:
