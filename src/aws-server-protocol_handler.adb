@@ -231,6 +231,10 @@ is
                        AWS.Status.HTTP_Version (C_Stat));
          end if;
 
+      exception
+         when AWS.OS_Lib.No_Such_File =>
+            --  file was not found, just ignore.
+            null;
       end Send_File;
 
       -----------------
@@ -424,13 +428,14 @@ is
                              Parse_Boundary               : in Boolean)
       is
          --  ??? Implementation would be more efficient if the input socket
-         --  stream was cached. Here the socket is read char by char.
+         --  stream was buffered. Here the socket is read char by char.
 
-         Name           : Unbounded_String;
-         Filename       : Unbounded_String;
-         Content_Type   : Unbounded_String;
-         File           : Streams.Stream_IO.File_Type;
-         Is_File_Upload : Boolean;
+         Name            : Unbounded_String;
+         Filename        : Unbounded_String;
+         Server_Filename : Unbounded_String;
+         Content_Type    : Unbounded_String;
+         File            : Streams.Stream_IO.File_Type;
+         Is_File_Upload  : Boolean;
 
          procedure Get_File_Data;
          --  read file data from the stream.
@@ -550,7 +555,7 @@ is
          begin
             Streams.Stream_IO.Create (File,
                                       Streams.Stream_IO.Out_File,
-                                      Target_Filename (To_String (Filename)));
+                                      To_String (Server_Filename));
 
             Read_File : loop
                Sockets.Receive (Sock, Data);
@@ -587,6 +592,7 @@ is
             UID : Natural;
          begin
             File_Upload_UID.Get (UID);
+
             if I = 0 then
                return Config.Upload_Directory
                  & Utils.Image (UID) & '_'
@@ -644,6 +650,12 @@ is
             end if;
          end;
 
+         --  set Target_Filename, the name of the file in the local file
+         --  sytstem.
+
+         Server_Filename := To_Unbounded_String
+           (Target_Filename (To_String (Filename)));
+
          --  reach the data
 
          loop
@@ -667,8 +679,7 @@ is
 
             if To_String (Filename) /= "" then
                AWS.Status.Set.Parameters
-                 (C_Stat,
-                  To_String (Name), Target_Filename (To_String (Filename)));
+                 (C_Stat, To_String (Name), To_String (Server_Filename));
 
                Get_File_Data;
 
