@@ -1,3 +1,9 @@
+2003-09-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* test_speed.adb:
+	If test fails display the Max_Time variable (time allowed to run
+	 the test).
+
 2003-08-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
