@@ -1,6 +1,9 @@
 2001-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
+	Release memory for binary data in the exception handler.
+	
+	* aws-server-protocol_handler.adb:
 	(Parse_Request_Line): correctly decode resource and parameters. Use
 	 AWS.URL.Decode instead of AWS.Translator.Decode_URL.
 
