@@ -207,3 +207,6 @@ implemented:
 - Revisite the AdaSockets support. Should we continue supporting this ?
   It would certainly be easier to support only GNAT.Sockets and use the
   selector facilities instead of the AWS's poll() support.
+
+- Now that AWS is based on project files it will be cleaner to remove the copy
+  of the files in config/ and use a Naming GNAT Project file package.
