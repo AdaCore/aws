@@ -402,8 +402,6 @@ package body AWS.Client is
            (Connection.SSL_Config, Certificate, Net.SSL.SSLv23_Client);
       end if;
 
-      Connect (Connection);
-
       if Persistent and then Connection.Retry = 0 then
          --  In this case the connection termination can be initiated by the
          --  server or the client after a period. So the connection could be
@@ -583,9 +581,12 @@ package body AWS.Client is
    is
       use type Net.Socket_Access;
    begin
-      if Connection.Socket = null
-        or else Connection.Socket.all not in AWS.Net.SSL.Socket_Type'Class
-      then
+      if not Connection.Opened then
+         --  SSL socket have to be created to get certificate.
+         Connect (Connection.Self.all);
+      end if;
+
+      if Connection.Socket.all not in AWS.Net.SSL.Socket_Type'Class then
          return Net.SSL.Certificate.Undefined;
       else
          return Net.SSL.Certificate.Get
