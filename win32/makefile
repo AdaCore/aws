@@ -18,19 +18,19 @@ endif
 
 build: $(IMPORT_LIB)
 
-libssl.a: libssl32.dll
+../ssl/libssl.a: libssl32.dll
 	dll2def libssl32.dll > ssl.def
-	dlltool --def ssl.def --dllname libssl32.dll --output-lib libssl.a
+	dlltool --def ssl.def --dllname libssl32.dll \
+	        --output-lib ../ssl/libssl.a
 	rm ssl.def
 
 libcrypto.a: libeay32.dll
 	dll2def libeay32.dll > crypto.def
 	dlltool --def crypto.def --dllname libeay32.dll \
-		--output-lib libcrypto.a
+		--output-lib ../ssl/libcrypto.a
 	rm crypto.def
 
-build_lib: libssl.a libcrypto.a
-	cp *.a ../ssl
+build_lib: ../ssl/libssl.a ../ssl/libcrypto.a
 
 clean:
-	-rm *.a *~
+	-rm ../ssl/*.a *~
