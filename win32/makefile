@@ -25,14 +25,12 @@ $(LIBSSL): libssl32.dll
 	$(DLLTOOL) --def ssl.def --dllname libssl32.dll \
 	        --output-lib $(LIBSSL)
 	$(RM) ssl.def
-	$(CP) libssl32.dll ../lib
 
 $(LIBCRYPTO): libeay32.dll
 	$(DLL2DEF) libeay32.dll > crypto.def
 	$(DLLTOOL) --def crypto.def --dllname libeay32.dll \
 		--output-lib $(LIBCRYPTO)
 	$(RM) crypto.def
-	$(CP) libeay32.dll ../lib
 
 $(LIBLDAP): wldap32.def
 	$(DLLTOOL) --def wldap32.def --dllname wldap32.dll \
