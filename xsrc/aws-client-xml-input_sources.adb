@@ -115,6 +115,7 @@ package body AWS.Client.XML.Input_Sources is
    begin
       if From.First > From.Last then
          Read_Some (From.Self.HTTP.all, From.Self.Buffer, From.Self.Last);
+         Clean_Buffer (HTTP_Input (From.Self.all));
 
          From.Self.First := From.Buffer'First;
       end if;
@@ -167,55 +168,41 @@ package body AWS.Client.XML.Input_Sources is
          --  We need a loop to append data to buffer if last character in
          --  buffer is only part of the encoded character.
 
-         Temp := From.First;
-
          begin
             ES.Read (+From.Buffer, Integer (From.First), C);
+            C := CS.To_Unicode (C);
+            exit Read_Encoded_Char;
          exception
             when Unicode.CES.Invalid_Encoding =>
                if From.Last - From.First < 5 then
                   --  It can be the case where we have only a part of the
-                  --  UTF8 or UTF16 character. Set From.First after the last
-                  --  buffer position to force reading more bytes in the next
-                  --  section.
-                  --  ??? Note, we could not distinguish character portion from
-                  --  the wrong encoding in the first attempt when number of
-                  --  bytes is less then 5 with the current XMLAda interface.
+                  --  UTF8 or UTF16 character.
+                  --  Note that it is not possible to detect this earlier. It
+                  --  can be the case that there is less than 5 characters in
+                  --  the buffer and that it is not a problem as UFT encoding
+                  --  are not using the same number of bytes for all
+                  --  characters. So we know about missing bytes in the buffer
+                  --  only if we have an Invalid_Encoding exception.
 
-                  --  To be true next if condition. We need the same handling
-                  --  of the index overrun and invalid encoding because of
-                  --  index overrun.
+                  Temp := From.Last;
 
-                  From.First := From.Last + 2;
+                  Read_Some
+                    (From.HTTP.all,
+                     Data => From.Buffer (Temp + 1 .. From.Buffer'Last),
+                     Last => From.Last);
+
+                  Clean_Buffer (From);
+
+                  if From.Last <= Temp then
+                     --  No more bytes to read, so we have the start of an
+                     --  encoded character but not the end of it.
+                     raise Unicode.CES.Invalid_Encoding;
+                  end if;
 
                else
                   raise;
                end if;
          end;
-
-         if From.First > From.Last + 1 then
-            --  We have only a part of the character in the buffer. We have to
-            --  read some more bytes from the HTTP connection.
-
-            From.First := Temp;
-
-            Temp := From.Last;
-
-            Read_Some
-              (From.HTTP.all,
-               Data => From.Buffer (Temp + 1 .. From.Buffer'Last),
-               Last => From.Last);
-
-            if From.Last <= Temp then
-               --  No more bytes to read, so we have the start of an encoded
-               --  character but not the end of it.
-               raise Unicode.CES.Invalid_Encoding;
-            end if;
-
-         else
-            C := CS.To_Unicode (C);
-            exit Read_Encoded_Char;
-         end if;
       end loop Read_Encoded_Char;
    end Next_Char;
 
