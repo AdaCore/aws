@@ -8,11 +8,11 @@ Authors:
 
 
 
-We are very happy to announce the availability of the AWS 1.3 release. The API
+We are happy to announce the availability of the AWS 1.3 release. The API
 could change slightly at this stage but should be fairly stable now.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
-a small yet powerful HTTP component to embedded in any applications. It means
+a small yet powerful HTTP component to embed in any applications. It means
 that you can communicate with your application using a standard Web browser
 and this without the need for a Web Server. AWS is fully developed in Ada with
 GNAT.
@@ -116,6 +116,9 @@ Here are the main changes:
 
    - Better handling of unexpected errors and give a way to the client to send
      back a message.
+
+   - AWS now parse and record all header lines from requests. It is also
+     possible to add any header lines to an HTTP response.
 
    - Plus many small fixes, enhancements and documentation work.
 
@@ -313,9 +316,9 @@ AWS uses
   an heavy loaded server, it handle something like 40 to 50 requests per
   seconds on a Windows 2000 Server.
 
-- http://www.forexcoach.com site is powered by AWS. This site has been done by
-  Dmitriy Anisimkov.
+- http://www.ada-ru.org (Ada in Russian)
 
+  This Web Site is powered by AWS.
 
 
 Thanks to all who have reported bugs and have sent us patches.
