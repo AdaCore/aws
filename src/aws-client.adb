@@ -1403,7 +1403,6 @@ package body AWS.Client is
       use type Messages.Status_Code;
 
    begin
-
       for Level in Authentication_Level'Range loop
          Connection.Auth (Level).Requested := False;
       end loop;
@@ -1412,12 +1411,12 @@ package body AWS.Client is
       Response.Set.Read_Header (Sock, Answer);
 
       --  ??? we should not expect 100 response message after the body sent.
-      --  this code should be changed later.
+      --  This code needs to be fixed.
       --  We should expect 100 status line only before sending the message
       --  body to server.
       --  And we should send Expect: header line in the header if we could
       --  deal with 100 status code.
-      --  See [RFC 2616 - 8.2.3] Use of the 100 (Continue) Status.
+      --  See [RFC 2616 - 8.2.3] use of the 100 (Continue) Status.
 
       if Status = Messages.S100 then
          Read_Status_Line;
@@ -1973,6 +1972,14 @@ package body AWS.Client is
          --  Send multipart message end boundary
 
          Net.Buffered.Put_Line (Sock, Pref_Suf & Boundary & Pref_Suf);
+
+      exception
+         when Net.Socket_Error =>
+            --  Properly close the file if needed
+            if Streams.Stream_IO.Is_Open (File) then
+               Streams.Stream_IO.Close (File);
+            end if;
+            raise;
       end Send_File;
 
    begin
