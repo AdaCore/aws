@@ -81,7 +81,7 @@ package body SOAP.Generator is
 
    function SOAP_Constructor
      (P_Type : in WSDL.Parameter_Type)
-      return Character;
+      return String;
    --  Return the SOAP types constructor for P_Type
 
    function Result_Type
@@ -1173,14 +1173,15 @@ package body SOAP.Generator is
 
    function SOAP_Constructor
      (P_Type : in WSDL.Parameter_Type)
-      return Character is
+      return String is
    begin
       case P_Type is
-         when WSDL.P_Integer => return 'I';
-         when WSDL.P_Float   => return 'F';
-         when WSDL.P_String  => return 'S';
-         when WSDL.P_Boolean => return 'B';
-         when WSDL.P_Time    => return 'T';
+         when WSDL.P_Integer => return "I";
+         when WSDL.P_Float   => return "F";
+         when WSDL.P_String  => return "S";
+         when WSDL.P_Boolean => return "B";
+         when WSDL.P_Time    => return "T";
+         when WSDL.P_B64     => return "B64";
       end case;
    end SOAP_Constructor;
 
