@@ -1197,6 +1197,18 @@ is
             Command
               (Messages.SOAPAction_Token'Length + 2 .. Command'Last - 1));
 
+      elsif Messages.Is_Match (Command, Messages.User_Agent_Token) then
+         Status.Set.User_Agent
+           (C_Stat,
+            Command
+              (Messages.User_Agent_Token'Length + 1 .. Command'Last));
+
+      elsif Messages.Is_Match (Command, Messages.Referer_Token) then
+         Status.Set.Referer
+           (C_Stat,
+            Command
+              (Messages.Referer_Token'Length + 1 .. Command'Last));
+
       end if;
 
    exception
