@@ -1,3 +1,59 @@
+2004-06-19  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(RT_SOAP): Add soap5.adb.
+
+	* tlog.adb: 
+	Add missing with clauses.
+	
+2004-06-19  Pascal Obry  <pascal@obry.org>
+
+	* soap5.adb, soap5.out:
+	Initial revision.
+
+	* back_pack.adb:
+	Add some output to track task exceptions.
+
+	* back_pack.ads:
+	Set in UNIX format.
+
+	* append_sec.adb:
+	Fix copyright header.
+
+	* append_pack.ads, append_pack.adb:
+	Minor reformatting.
+	Fix copyright header.
+
+	* sslcfg.adb:
+	Minor reformatting.
+	
+	* soap1.adb, soap2.adb, soap3.adb, soap4.adb:
+	Add header.
+
+	* shutdown.adb:
+	Add header.
+	Use Get_Free_Port.
+
+	* print_tasks.adb:
+	Add pragma Warnings Off/On around GNAT specific units.
+
+	* dummy.adb:
+	Add header.
+	Minor reformatting.
+
+	* auth.adb, disp_soap.adb, sessions.adb, sessions2.adb, sessions3.adb,
+	  sessions4.adb, sp.adb, ssback.adb, ssock2.adb, xmlt.adb, 
+	  xmlt_sec.adb:
+	Use Get_Free_Port.
+
+	* append.adb, auth2.adb, disp_soap_sec.adb, file2.adb, head.adb,
+	  huge_response.adb, huge_response_sec.adb, moved.adb, multiple.adb,
+	  once.adb, param.adb, redirect.adb, sback.adb, server_config.adb,
+	  server_info.adb, split.adb, tlog.adb, unexph.adb, unexph2.adb,
+	  unexph3.adb, upload2.adb:
+	Use Get_Free_Port.
+	Update copyright notice.
+
 2004-06-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* huge_response_pack.ads, huge_response_pack.adb:
