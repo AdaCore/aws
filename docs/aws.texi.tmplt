@@ -576,6 +576,7 @@ Now you are ready to use @code{AWS} !
 @menu
 * Setting up environment::
 * Basic notions::
+* Building answers::
 * Configuration options::
 * Session handling::
 * Authentication::
@@ -941,8 +942,8 @@ perfectly possible to build with AWS a simple page server.
 @cindex Simple server
 @noindent
 As an example, let's build a simple page server. This server will
-returns files in the current directory. Here there resource internal
-name represents an HTML page or a GIF or PNG image for example. This
+returns files in the current directory. Resources internal name
+represent an HTML page or a GIF or PNG image for example. This
 server will return a 404 message (Web Page Not Found) if the file does
 not exist. Here is the callback procedure that implement such simple
 page server:
@@ -1084,6 +1085,276 @@ The @code{AWS} hotplug table down arrow.
 Note that these filename are the current AWS default. But it is
 possible for example to change this using the configuration files
 @pxref{Configuration options}.
+
+@node Building answers
+@section Building answers
+
+@noindent
+We have already seen, in simple examples, how to build basic answers using
+@code{AWS.Response} API. In this section we present all ways to build
+answers from basic support to the more advanced support like the
+compressed memory stream response.
+
+@menu
+* Redirection::
+* New location for a page::
+* Authentication required::
+* Sending back an error message::
+* Response from a string::
+* Response from a Stream_Element_Array::
+* Response from a file::
+* Response from a stream::
+* Response from a memory stream::
+* Response from a compressed memory stream::
+@end menu
+
+@node Redirection
+@subsection Redirection
+
+@noindent
+A redirection is a way to redirect the client's browser to another
+URL. Client's won't notice that a redirection has occurs. As soon as
+the browser has received the response from the server it will retrieve
+the page as pointed by the redirection.
+
+@smallexample
+@cartouche
+@group
+   @b{return} Response.URL (Location => "/use-this-one");
+@end group
+@end cartouche
+@end smallexample
+
+@node New location for a page
+@subsection New location for a page
+
+@noindent
+User will receive a Web page saying that this page has moved and
+eventually pointing to the new location.
+
+@smallexample
+@cartouche
+@group
+   @b{return} Response.Moved
+     (Location => "/use-this-one";
+      Message  => "This page has moved, please update your reference");
+@end group
+@end cartouche
+@end smallexample
+
+@node Authentication required
+@subsection Authentication required
+
+@noindent
+For protected pages you need to ask user to enter a password.
+@pxref{Authentication}.
+
+@node Sending back an error message
+@subsection Sending back an error message
+
+@noindent
+@code{Acknowledge} can be used to send back error messages. There is
+many kind of status code, see @code{Message.Status_Code}
+definition. Together with the status code it is possible to pass
+textual error message in @code{Message_Body} parameter.
+
+@smallexample
+@cartouche
+@group
+   @b{return} Response.Acknowledge
+     (Status_Code  => Messages.S503,
+      Message_Body => "Can't connect to the database, please retry later.",
+      Content_Type => MIME.Text_Plain);
+@end group
+@end cartouche
+@end smallexample
+
+@node Response from a string
+@subsection Response from a string
+
+@noindent
+This is the simplest way to build a response object. There is two
+constructors in @code{AWS.Response}, one based on a standard string
+and one for Unbounded_String.
+
+@smallexample
+@cartouche
+@group
+   @b{return} Response.Build (MIME.Text_HTML, "My answer");
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+The Build routine takes also a status code parameter to handle
+errors. By default this code is @code{Messages.S200} which is the
+standard HTTP status (no error encountered). The other parameter can
+be used to control caches. @pxref{AWS.Response}.
+
+@node Response from a Stream_Element_Array
+@subsection Response from a Stream_Element_Array
+
+@noindent
+This is exactly as above but the Build routine takes a
+@code{Stream_Element_Array} instead of a string.
+
+@node Response from a file
+@subsection Response from a file
+
+@noindent
+To build a @code{File} response there is a single constructor named
+@code{File}. This routine is very similar to the one above except that
+we specify a filename as the response.
+
+@smallexample
+@cartouche
+@group
+   @b{return} Response.File (MIME.Text_HTML, "index.html");
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Again there parameters to control the status code and cache. No check
+on the filename is done at this point, so if @file{index.html} does
+not exit no exception is raised. The server is responsible to check
+for the file and to properly send back the 404 message if necessary.
+
+@node Response from a stream
+@subsection Response from a stream
+
+@noindent
+Sometimes it is not possible (or convenient) to build the response in
+memory as a string object for example. Streams can be used to
+workaround this. The constructor for such response is again very
+similar to the ones above except that instead of the data we pass an
+handle to a @code{Resources.Streams.Stream_Type} object.
+
+@noindent
+The first step is to build the stream object. This is done by deriving
+a new type from @code{Resources.Streams.Stream_Type} and implementing
+three abstract procedures.
+
+@table @code
+@item Read
+
+Must return the next chunk of data from the stream. Note that
+initialization if needed are to be done there during the first call to
+read.
+
+@item End_Of_File
+
+Must return True when there is no more data on the stream.
+
+@item Close
+
+Must close the stream and for example release all memory used by the
+implementation.
+@end table
+
+@noindent
+The second step is to build the response object:
+
+@smallexample
+@cartouche
+@group
+   @b{type} SQL_Stream @b{is new} Resources.Streams.Stream_Type;
+
+   Stream_Object : SQL_Stream;
+
+   @b{procedure} Read (...) @b{is} ...
+   @b{function} End_Of_File (...) @b{return} Boolean @b{is} ...
+   @b{procedure} Close (...) @b{is}
+
+   ...
+
+   @b{return} Response.Stream (MIME.Text_HTML, Stream_Object);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Note that in some cases it is needed to create a file containing the
+data for the client (for example a tar.gz or a zip archive). But there
+is no way to properly remove this file from the file system as we
+really don't know when the upload is terminated when using the
+@code{AWS.Response.File} constructor. To solve this problem it is
+possible to use a stream as the procedure @code{Close} is called by
+the server when all data have been read. In this procedure it is
+trivial to do the necessary clean-up.
+
+@node Response from a memory stream
+@subsection Response from a memory stream
+
+@noindent
+This is an implementation of the standard stream support described
+above. In this case the stream is in memory and built by adding data
+to it.
+
+@noindent
+To create a memory stream just declare an object of type
+@code{AWS.Resources.Streams.Memory.Stream_Type}. When created, this
+memory stream is empty, using the @code{Streams.Memory.Append}
+routines it is possible to add chunk of data to it. It is of course
+possible to call @code{Append} as many times as needed. When done just
+return this object to the server.
+
+@smallexample
+@cartouche
+@group
+   Data : AWS.Resources.Streams.Memory.Stream_Type;
+
+   Append (Data, Translator.To_Stream_Element_Array ("First chunk"));
+   Append (Data, Translator.To_Stream_Element_Array ("Second chunk..."));
+
+   ...
+
+   @b{return} Response.Stream (MIME.Text_HTML, Data);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Note that you do not have to take care of releasing the allocated
+memory, the default @code{Close} routine will do just that.
+
+@node Response from a compressed memory stream
+@subsection Response from a compressed memory stream
+
+@noindent
+This is a slight variant of the standard memory stream described
+above. In this case the object must be declared as a
+@code{AWS.Resources.Streams.Memory.ZLib.Stream_Type}.
+
+@noindent
+The ZLib stream object must be initialized to enable the
+compression and select the right parameters. This is done using the
+@code{AWS.Resources.Streams.Memory.ZLib.Deflate.Initialize} which
+takes many parameters to select the right options for the compression
+algorithm, all of them have good default values. When initialized the
+compressed stream object is used exactly as a standard stream.
+
+@smallexample
+@cartouche
+@group
+   Data : AWS.Resources.Streams.Memory.Stream_Type;
+
+   Deflate.Initialize (Data);
+
+   Append (Data, Translator.To_Stream_Element_Array ("First chunk"));
+   Append (Data, Translator.To_Stream_Element_Array ("Second chunk..."));
+
+   ...
+
+   @b{return} Response.Stream (MIME.Text_HTML, Data);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Note that there is the reverse implementation to decompress a
+stream. @pxref{AWS.Resources.Streams.Memory.ZLib.Inflate}. It's usage
+is identical.
 
 @node Configuration options
 @section Configuration options
@@ -2051,7 +2322,7 @@ bug has been detected but it was not fatal to the thread (slot in
 send back an application level message to the client's browser. For
 that you just have to fill the unexpected handler's @var{Answer} parameter
 with the right response message. The @var{Error} parameter receive
-information about the problem, see @pxref{AWS.Exceptions}.
+information about the problem, @pxref{AWS.Exceptions}.
 
 @item Fatal error (Error.Fatal is True)
 
@@ -4080,6 +4351,9 @@ AWS User API:
 * AWS.Resources.Files::
 * AWS.Resources.Streams::
 * AWS.Resources.Streams.Memory::
+* AWS.Resources.Streams.Memory.ZLib::
+* AWS.Resources.Streams.Memory.ZLib.Inflate::
+* AWS.Resources.Streams.Memory.ZLib.Deflate::
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Hotplug::
@@ -4096,6 +4370,7 @@ AWS User API:
 * AWS.SMTP.Client::
 * AWS.Status::
 * AWS.Templates::
+* AWS.Translator::
 * AWS.URL::
 @end menu
 
@@ -4298,6 +4573,27 @@ SOAP User API:
 @include aws-resources-streams-memory.ads.texi
 
 @page
+@node AWS.Resources.Streams.Memory.ZLib
+@appendixsec AWS.Resources.Streams.Memory.ZLib
+@cindex AWS.Resources.Streams.Memory.ZLib
+
+@include aws-resources-streams-memory-zlib.ads.texi
+
+@page
+@node AWS.Resources.Streams.Memory.ZLib.Deflate
+@appendixsec AWS.Resources.Streams.Memory.ZLib.Deflate
+@cindex AWS.Resources.Streams.Memory.ZLib.Deflate
+
+@include aws-resources-streams-memory-zlib-deflate.ads.texi
+
+@page
+@node AWS.Resources.Streams.Memory.ZLib.Inflate
+@appendixsec AWS.Resources.Streams.Memory.ZLib.Inflate
+@cindex AWS.Resources.Streams.Memory.ZLib.Inflate
+
+@include aws-resources-streams-memory-zlib-inflate.ads.texi
+
+@page
 @node AWS.Response
 @appendixsec AWS.Response
 @cindex AWS.Response
@@ -4408,6 +4704,13 @@ SOAP User API:
 @cindex AWS.Templates
 
 @include aws-templates.ads.texi
+
+@page
+@node AWS.Translator
+@appendixsec AWS.Translator
+@cindex AWS.Translator
+
+@include aws-translator.ads.texi
 
 @page
 @node AWS.URL
