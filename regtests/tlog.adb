@@ -33,6 +33,7 @@
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Exceptions;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
@@ -49,6 +50,7 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Status;
 with AWS.Server;
+with AWS.Translator;
 
 procedure Tlog is
 
@@ -56,7 +58,30 @@ procedure Tlog is
    use GNAT;
    use AWS;
 
+   Filename : constant String := "file.tmp";
+   Success  : Boolean;
+
    WS   : Server.HTTP;
+
+   -----------------
+   -- Create_File --
+   -----------------
+
+   procedure Create_File is
+      File : Streams.Stream_IO.File_Type;
+
+      L1   : constant Streams.Stream_Element_Array :=
+        Translator.To_Stream_Element_Array ("9");
+
+   begin
+      Streams.Stream_IO.Create (File, Streams.Stream_IO.Out_File, Filename);
+
+      for K in 1 .. 2_897 loop
+         Streams.Stream_IO.Write (File, L1);
+      end loop;
+
+      Streams.Stream_IO.Close (File);
+   end Create_File;
 
    ---------
    -- UEH --
@@ -203,7 +228,7 @@ procedure Tlog is
          return Response.Build (MIME.Text_HTML, "one");
 
       elsif URI = "/file" then
-         return Response.File (MIME.Text_Plain, "simple.adb");
+         return Response.File (MIME.Text_Plain, Filename);
 
       elsif URI = "/error" then
          raise Constraint_Error;
@@ -221,6 +246,7 @@ procedure Tlog is
 
 begin
    Delete_Logs;
+   Create_File;
 
    AWS.Server.Set_Unexpected_Exception_Handler
      (WS, UEH'Unrestricted_Access);
@@ -269,6 +295,8 @@ begin
    Ada.Text_IO.Put_Line ("shutdown");
 
    Parse_Logs;
+
+   OS_Lib.Delete_File (Filename, Success);
 
 exception
    when E : others =>
