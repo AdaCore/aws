@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
+--                         Copyright (C) 2002-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -45,8 +45,8 @@ package AWS.Net.SSL is
 
    type Socket_Type is new Net.Std.Socket_Type with private;
 
-   Supported : constant Boolean;
-   --  Is the SSL sockets supported in the current runtime.
+   Is_Supported : constant Boolean;
+   --  True if SSL supported in the current runtime
 
    ----------------
    -- Initialize --
@@ -125,7 +125,7 @@ private
 
    package TSSL renames Standard.SSL.Thin;
 
-   Supported : constant Boolean := Integer (TSSL.SSLeay) /= 0;
+   Is_Supported : constant Boolean := Integer (TSSL.SSLeay) /= 0;
 
    subtype SSL_Handle is TSSL.SSL_Handle;
 
