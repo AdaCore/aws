@@ -165,7 +165,7 @@ is
 
          if HTTP_Server.Session and then Send_Session_Cookie then
             --  This is an HTTP connection with session but there is no session
-            --  ID set yet. So, send cookie to client browser
+            --  ID set yet. So, send cookie to client browser.
 
             Sockets.Put_Line
               (Sock,
