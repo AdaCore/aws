@@ -1,9 +1,15 @@
 2004-12-21 Emmanuel Briot <briot@adacore.com>
 
-        * notebook/notebook.thtml:
+	* notebook/notebook.thtml:
+	Fix issue with the handling of the background color for active
+	pages.
+	
+2004-12-21 Emmanuel Briot <briot@adacore.com>
+
+	* notebook/notebook.thtml:
         Add support for preserving the current tab when the page is reloaded
 
-        * notebook/cookies.js:
+	* notebook/cookies.js:
         Initial revision
 
 2004-12-18  Pascal Obry  <pascal@obry.org>
