@@ -79,8 +79,9 @@ package body AWS.Parameters.Set is
       K_Key   : constant String   := "__AWS_K" & Utils.Image (C);
       K_Value : constant String   := "__AWS_V" & Utils.Image (C);
 
+      OL_Key  : constant String   := URL.Decode (Name);
       L_Key   : constant String   := Normalize_Name
-        (URL.Decode (Name), not Parameter_List.Case_Sensitive);
+        (OL_Key, not Parameter_List.Case_Sensitive);
 
       L_Value : constant String   := URL.Decode (Value);
    begin
@@ -108,7 +109,7 @@ package body AWS.Parameters.Set is
       end;
 
       Key_Value.Insert
-        (Parameter_List.HTTP_Data.all, K_Key, To_Unbounded_String (L_Key));
+        (Parameter_List.HTTP_Data.all, K_Key, To_Unbounded_String (OL_Key));
 
       Key_Value.Insert
         (Parameter_List.HTTP_Data.all, K_Value, To_Unbounded_String (L_Value));
