@@ -1,5 +1,11 @@
 2000-09-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws.ads:
+	(Version): set to 0.8.1.
+
+	* aws-net-ssl.adb: 
+	(Connect): minor indentation.
+
 	* aws-server-protocol_handler.adb: 
 	(Protocol_Handler): HTTP_Server parameter changed to "in out" mode.
 
