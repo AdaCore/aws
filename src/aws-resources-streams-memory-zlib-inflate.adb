@@ -35,16 +35,16 @@
 
 package body AWS.Resources.Streams.Memory.ZLib.Inflate is
 
-   ----------
-   -- Init --
-   ----------
+   ----------------
+   -- Initialize --
+   ----------------
 
-   procedure Init
+   procedure Initialize
      (Resource    : in out Stream_Type;
       Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
       Header      : in     Header_Type      := ZL.Default) is
    begin
       ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
-   end Init;
+   end Initialize;
 
 end AWS.Resources.Streams.Memory.ZLib.Inflate;

@@ -35,11 +35,11 @@
 
 package body AWS.Resources.Streams.Memory.ZLib.Deflate is
 
-   ----------
-   -- Init --
-   ----------
+   ----------------
+   -- Initialize --
+   ----------------
 
-   procedure Init
+   procedure Initialize
      (Resource     : in out Stream_Type;
       Level        : in     Compression_Level  := ZL.Default_Compression;
       Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
@@ -51,6 +51,6 @@ package body AWS.Resources.Streams.Memory.ZLib.Deflate is
       ZL.Deflate_Init
         (Resource.Filter, Level, Strategy, Method,
          Window_Bits, Memory_Level, Header);
-   end Init;
+   end Initialize;
 
 end AWS.Resources.Streams.Memory.ZLib.Deflate;

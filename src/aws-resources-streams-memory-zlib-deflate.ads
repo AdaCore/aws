@@ -44,7 +44,7 @@ package AWS.Resources.Streams.Memory.ZLib.Deflate is
    subtype Compression_Method is ZL.Compression_Method;
    subtype Memory_Level_Type  is ZL.Memory_Level_Type;
 
-   procedure Init
+   procedure Initialize
      (Resource     : in out Stream_Type;
       Level        : in     Compression_Level  := ZL.Default_Compression;
       Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
@@ -52,7 +52,7 @@ package AWS.Resources.Streams.Memory.ZLib.Deflate is
       Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
       Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
       Header       : in     Header_Type        := ZL.Default);
-   --  Initialize
+   --  Initialize the compression
 
 private
 
