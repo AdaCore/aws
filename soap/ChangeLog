@@ -1,3 +1,21 @@
+2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.ads:
+	(XML_Any_Type): New constant.
+
+	* soap-wsdl-parser.adb:
+	(Skip_Error): New variable.
+	(Continue_On_Error): New procedure.
+	(Parse): Display message when no service tag have been found.
+	(Parse_Array): Check for unsupported ArrayOfanyType type.
+	(Parse_Binding): Catch WSDL_Error exceptions. Display error
+	 message and re-raise only if no in continue-on-error mode.
+	(Parse_Parameter): Properly detect unsupported anyType type.
+	(Parse_Part;): Idem.
+
+	* soap-wsdl-parser.ads:
+	(Continue_On_Error): New procedure.
+
 2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-client.adb:
