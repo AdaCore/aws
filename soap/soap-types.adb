@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Long_Float_Text_IO;
+with Ada.Long_Long_Float_Text_IO;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Tags;
@@ -138,6 +139,18 @@ package body SOAP.Types is
    end B64;
 
    -------
+   -- D --
+   -------
+
+   function D
+     (V    : in Long_Long_Float;
+      Name : in String := "item")
+      return XSD_Double is
+   begin
+      return (Finalization.Controlled with To_Unbounded_String (Name), V);
+   end D;
+
+   -------
    -- F --
    -------
 
@@ -199,6 +212,19 @@ package body SOAP.Types is
          Exceptions.Raise_Exception
            (Data_Error'Identity,
             "Float expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
+   function Get (O : in Object'Class) return Long_Long_Float is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Double'Tag then
+         return V (XSD_Double (O));
+
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "Double expected, found " & Tags.Expanded_Name (O'Tag));
       end if;
    end Get;
 
@@ -326,6 +352,19 @@ package body SOAP.Types is
       Result : String (1 .. Long_Float'Width);
    begin
       Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
+      return Strings.Fixed.Trim (Result, Strings.Both);
+   end Image;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (O : in XSD_Double) return String is
+      use Ada;
+
+      Result : String (1 .. Long_Long_Float'Width);
+   begin
+      Long_Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
 
@@ -566,6 +605,11 @@ package body SOAP.Types is
       return O.V;
    end V;
 
+   function V (O : in XSD_Double) return Long_Long_Float is
+   begin
+      return O.V;
+   end V;
+
    function V (O : in XSD_String) return String is
    begin
       return To_String (O.V);
@@ -642,6 +686,15 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in XSD_Float) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   ---------------
+   -- XML_Image --
+   ---------------
+
+   function XML_Image (O : in XSD_Double) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -825,6 +878,12 @@ package body SOAP.Types is
       pragma Warnings (Off, O);
    begin
       return XML_Float;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Double) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Double;
    end XML_Type;
 
    function XML_Type (O : in XSD_String) return String is
