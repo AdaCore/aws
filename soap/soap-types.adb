@@ -219,6 +219,19 @@ package body SOAP.Types is
       end if;
    end Get;
 
+   function Get (O : in Object'Class) return Short is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Short'Tag then
+         return V (XSD_Short (O));
+
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "Short expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
    function Get (O : in Object'Class) return Long is
       use type Ada.Tags.Tag;
    begin
@@ -370,10 +383,6 @@ package body SOAP.Types is
       return "";
    end Image;
 
-   -----------
-   -- Image --
-   -----------
-
    function Image (O : in XSD_Integer) return String is
       V : constant String := Integer'Image (O.V);
    begin
@@ -384,9 +393,15 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   -----------
-   -- Image --
-   -----------
+   function Image (O : in XSD_Short) return String is
+      V : constant String := Short'Image (O.V);
+   begin
+      if O.V >= 0 then
+         return V (V'First + 1 .. V'Last);
+      else
+         return V;
+      end if;
+   end Image;
 
    function Image (O : in XSD_Long) return String is
       V : constant String := Long'Image (O.V);
@@ -398,10 +413,6 @@ package body SOAP.Types is
       end if;
    end Image;
 
-   -----------
-   -- Image --
-   -----------
-
    function Image (O : in XSD_Float) return String is
       use Ada;
 
@@ -410,10 +421,6 @@ package body SOAP.Types is
       Long_Float_Text_IO.Put (Result, O.V, Exp => 0);
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
-
-   -----------
-   -- Image --
-   -----------
 
    function Image (O : in XSD_Double) return String is
       use Ada;
@@ -424,18 +431,10 @@ package body SOAP.Types is
       return Strings.Fixed.Trim (Result, Strings.Both);
    end Image;
 
-   -----------
-   -- Image --
-   -----------
-
    function Image (O : in XSD_String) return String is
    begin
       return To_String (O.V);
    end Image;
-
-   -----------
-   -- Image --
-   -----------
 
    function Image (O : in XSD_Boolean) return String is
    begin
@@ -445,10 +444,6 @@ package body SOAP.Types is
          return "0";
       end if;
    end Image;
-
-   -----------
-   -- Image --
-   -----------
 
    function Image (O : in XSD_Time_Instant) return String is
 
@@ -495,18 +490,10 @@ package body SOAP.Types is
         & Image (O.Timezone);
    end Image;
 
-   -----------
-   -- Image --
-   -----------
-
    function Image (O : in SOAP_Base64) return String is
    begin
       return To_String (O.V);
    end Image;
-
-   -----------
-   -- Image --
-   -----------
 
    function Image (O : in SOAP_Array) return String is
       Result : Unbounded_String;
@@ -528,10 +515,6 @@ package body SOAP.Types is
       return To_String (Result);
    end Image;
 
-   -----------
-   -- Image --
-   -----------
-
    function Image (O : in SOAP_Record) return String is
       Result : Unbounded_String;
    begin
@@ -551,10 +534,6 @@ package body SOAP.Types is
 
       return To_String (Result);
    end Image;
-
-   -----------
-   -- Image --
-   -----------
 
    function Image (O : in SOAP_Enumeration) return String is
    begin
@@ -638,6 +617,11 @@ package body SOAP.Types is
    -- S --
    -------
 
+   function S (V : in Short; Name : in String := "item") return XSD_Short is
+   begin
+      return (Finalization.Controlled with To_Unbounded_String (Name), V);
+   end S;
+
    function S
      (V    : in String;
       Name : in String := "item")
@@ -646,7 +630,7 @@ package body SOAP.Types is
       L_V : constant String := Utils.To_Utf8 (V);
    begin
       return (Finalization.Controlled
-                with To_Unbounded_String (Name), To_Unbounded_String (L_V));
+              with To_Unbounded_String (Name), To_Unbounded_String (L_V));
    end S;
 
    function S
@@ -696,6 +680,11 @@ package body SOAP.Types is
    -------
 
    function V (O : in XSD_Integer) return Integer is
+   begin
+      return O.V;
+   end V;
+
+   function V (O : in XSD_Short) return Short is
    begin
       return O.V;
    end V;
@@ -794,72 +783,45 @@ package body SOAP.Types is
       end if;
    end XML_Image;
 
-   ---------------
-   -- XML_Image --
-   ---------------
-
    function XML_Image (O : in XSD_Integer) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   ---------------
-   -- XML_Image --
-   ---------------
+   function XML_Image (O : in XSD_Short) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
 
    function XML_Image (O : in XSD_Long) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   ---------------
-   -- XML_Image --
-   ---------------
-
    function XML_Image (O : in XSD_Float) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
-
-   ---------------
-   -- XML_Image --
-   ---------------
 
    function XML_Image (O : in XSD_Double) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   ---------------
-   -- XML_Image --
-   ---------------
-
    function XML_Image (O : in XSD_String) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
-
-   ---------------
-   -- XML_Image --
-   ---------------
 
    function XML_Image (O : in XSD_Boolean) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
 
-   ---------------
-   -- XML_Image --
-   ---------------
-
    function XML_Image (O : in XSD_Time_Instant) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
-
-   ---------------
-   -- XML_Image --
-   ---------------
 
    function XML_Image (O : in XSD_Null) return String is
       Indent : constant Natural := XML_Indent.Value;
@@ -868,18 +830,10 @@ package body SOAP.Types is
       return Spaces (Indent) & "<" & Name (OC) & " xsi_null=""1""/>";
    end XML_Image;
 
-   ---------------
-   -- XML_Image --
-   ---------------
-
    function XML_Image (O : in SOAP_Base64) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
-
-   ---------------
-   -- XML_Image --
-   ---------------
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
 
@@ -994,10 +948,6 @@ package body SOAP.Types is
       return To_String (Result);
    end XML_Image;
 
-   ---------------
-   -- XML_Image --
-   ---------------
-
    function XML_Image (O : in SOAP_Record) return String is
       Indent : constant Natural := XML_Indent.Value;
       Result : Unbounded_String;
@@ -1031,10 +981,6 @@ package body SOAP.Types is
       return To_String (Result);
    end XML_Image;
 
-   ---------------
-   -- XML_Image --
-   ---------------
-
    function XML_Image (O : in SOAP_Enumeration) return String is
    begin
       return Spaces (XML_Indent.Value) & "<" & Name (O)
@@ -1057,6 +1003,12 @@ package body SOAP.Types is
       pragma Warnings (Off, O);
    begin
       return XML_Int;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Short) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Short;
    end XML_Type;
 
    function XML_Type (O : in XSD_Long) return String is
