@@ -1,3 +1,10 @@
+2004-03-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	(Load): Improve previous check-in, do not put the Open into the
+	 exception handler.
+        Patch contributed by Jean-Pierre Rosen.
+
 2004-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
