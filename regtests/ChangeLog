@@ -1,3 +1,12 @@
+2003-09-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* test_wsdl2.wsdl, test_wsdl3.wsdl: 
+	Remove space before http in href.
+	Add missing wsdl shema detected by XmlAda v1.0 (prepare migration).
+	
+	* test_wsdl.wsdl:
+	Remove space before http in href.
+
 2003-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* hval.adb, hval.out:
