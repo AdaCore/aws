@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,6 +34,7 @@ with Ada.Strings.Unbounded;
 
 with AWS.Containers.Key_Value;
 with AWS.Net;
+with AWS.Utils;
 
 package AWS.Jabber is
 
@@ -114,34 +115,7 @@ private
 
    type Message_Access is access all Message;
 
-   type Message_Set is array (Natural range <>) of Message_Access;
-
-   -------------
-   -- Mailbox --
-   -------------
-
-   protected type Mailbox (Max_Size : Positive) is
-
-      entry Add (M : in Message_Access);
-      --  Add a new message into the Mailbox, only possible if there is some
-      --  free room on the Mailbox.
-
-      entry Get (M : out Message_Access);
-      --  Get a message from the Mailbox, only possible if there is some
-      --  message in the Mailbox.
-
-      function Size return Natural;
-      --  Returns the current number of message waiting in the Mailbox.
-
-      procedure Destroy;
-      --  Removes and free memory associated with a messages in the Mailbox.
-
-   private
-      Buffer       : Message_Set (1 .. Max_Size);
-      Current_Size : Natural := 0;
-      Current      : Natural := 0;
-      Last         : Natural := 0;
-   end Mailbox;
+   package Message_Mailbox is new Utils.Mailbox_G (Message_Access);
 
    ---------------------
    -- Incoming_Stream --
@@ -174,7 +148,7 @@ private
       Started : Boolean := False;
       SID     : Unbounded_String;
 
-      MB     : Mailbox (25); -- Mailbox with a maximum of 25 mesages
+      MB     : Message_Mailbox.Mailbox (25); -- 25 messages maximum
       Stream : Incoming_Stream_Access;
    end record;
 
