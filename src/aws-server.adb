@@ -204,8 +204,13 @@ package body AWS.Server is
       when E : others =>
 
          if not HTTP_Server.Shutdown then
-            Text_IO.Put_Line ("Slot problem has been detected!");
-            Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+            Text_IO.Put_Line
+              (Text_IO.Current_Error,
+               "Slot problem has been detected!");
+
+            Text_IO.Put_Line
+              (Text_IO.Current_Error,
+               Ada.Exceptions.Exception_Information (E));
          end if;
 
    end Line;
