@@ -46,6 +46,7 @@ package AWS.Response is
    use Ada;
 
    type Data is private;
+   --  Note that this type use a reference counter which is not thread safe.
 
    type Data_Mode is (Header, Message, File, Socket_Taken);
 
