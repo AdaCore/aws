@@ -154,7 +154,9 @@ embedded HTTP protocol in an application. It means that it is possible
 to build an application which can also answer to a standard browser like
 @i{Internet Explorer} or @i{Netscape Navigator}. Since @code{AWS} provides
 support client and server HTTP protocol applications can communicate
-through the HTTP channel. This give a way to build distributed applications.
+through the HTTP channel. This give a way to build distributed
+applications, @xref{AWS.Client}.
+
 
 @noindent
 An application using @code{AWS} can open many HTTP channels. Each
@@ -440,12 +442,18 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 
 @ifinfo
 @menu
+* AWS.Client::
 * AWS.Response::
 * AWS.Server::
 * AWS.Session::
 * AWS.Status::
 @end menu
 @end ifinfo
+
+@node AWS.Client
+@section AWS.Client
+
+@include ../src/aws-client.ads.texi
 
 @node AWS.Response
 @section AWS.Response
