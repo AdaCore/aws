@@ -22,7 +22,7 @@ procedure Hload is
    use Ada.Strings.Unbounded;
 
    Max_Client   : constant := 18;
-   Client_Count : constant := 3000;
+   Client_Count : constant := 300;
 
    function Image (K : in Positive) return String;
 
@@ -116,11 +116,12 @@ procedure Hload is
       begin
          Ada.Text_IO.Put_Line
            ("Counter:" & Count'Image (Counter) & ASCII.LF
-            & "Min:" & Count'Image (Min_Index) & Duration'Image (Min)
-            & ASCII.LF
-            & "Max:" & Count'Image (Max_Index) & Duration'Image (Max)
-            & ASCII.LF
-            & "Average:" & Count'Image (Counter / Count (Last - Start)));
+            & "Min: index" & Count'Image (Min_Index)
+              & "; interval:" & Duration'Image (Min) & " sec." & ASCII.LF
+            & "Max: index" & Count'Image (Max_Index)
+              & "; interval:" & Duration'Image (Max) & " sec." & ASCII.LF
+            & "Average:" & Duration'Image (Duration (Counter) / (Last - Start))
+              & " requests in second.");
       end Print_Statistic;
 
       -----------
