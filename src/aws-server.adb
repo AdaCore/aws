@@ -316,7 +316,7 @@ package body AWS.Server is
             Socket : aliased Net.Socket_Type'Class
               := Accept_Socket_Serialized (HTTP_Server);
 
-            Free_Slots  : Natural;
+            Free_Slots : Natural;
 
             Keep_Alive_Limit : constant Positive
                := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
