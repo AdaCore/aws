@@ -1,9 +1,31 @@
+2004-02-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-smtp.ads:
+	Minor reformatting.
+
+	* aws-pop.adb:
+	(CC): New procedure.
+        (CC_Count): New procedure.
+
+	* aws-pop.ads:
+	(CC): New procedure.
+        (CC_Count): New procedure.
+        Update copyright notice.
+
 2004-02-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-protocol_handler.adb:
 	(Get_File_Data): Fix routine body header.
 
 2004-02-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-buffered.adb:
+	(Pop): Fix pragma inline.
+        Update copyright notice.
+
+	* aws-response-set.ads:
+	(Cache_Control): Fix pragma inline.
+        Update copyright notice.
 
 	* templates_parser.adb:
 	Update to version 7.1.
