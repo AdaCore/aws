@@ -31,53 +31,113 @@
 
 --  Candidate for regression test of the socket timeout.
 
-with AWS.Net.Buffered;
+with AWS.Net;
+with Ada.Streams;
 with Ada.Text_IO;
 with Ada.Exceptions;
 
 procedure SockTO is
    use AWS;
    use Ada;
+   use Streams;
 
    Port : constant := 8800;
 
-   Server, Peer, Client : Net.Socket_Type'Class := Net.Socket (False);
+   D1   : constant Duration := 0.25;
+   D2   : constant Duration := D1 * 1.5;
+   WBL  : constant := 1024;
 
    task Client_Side;
 
-   procedure Read_Line
-     (Socket  : in out Net.Socket_Type'Class;
-      Timeout : in     Duration);
+   function Data (Length : Stream_Element_Count) return Stream_Element_Array;
+   pragma Inline (Data);
+
+   procedure Get
+     (Socket : in Net.Socket_Type'Class;
+      Length : in Stream_Element_Count);
+   --  Read all data length.
 
    -----------------
    -- Client_Side --
    -----------------
 
    task body Client_Side is
+      Client : Net.Socket_Type'Class := Net.Socket (False);
    begin
       Net.Connect (Client, "localhost", Port);
-      Read_Line (Client, 1.0);
+      Net.Set_Timeout (Client, D1);
 
-      delay 10.0;
+      for J in 1 .. 10 loop
+         Get (Client, WBL);
+      end loop;
 
-      Net.Buffered.Put_Line (Client, "Hi, wassup man ;-/");
-      Read_Line (Client, 6.0);
-   end Client_Side;
-
-   ---------------
-   -- Read_Line --
-   ---------------
-
-   procedure Read_Line
-     (Socket  : in out Net.Socket_Type'Class;
-      Timeout : in     Duration) is
-   begin
-      Net.Set_Timeout (Socket, Timeout);
-      Text_IO.Put_Line (Net.Buffered.Get_Line (Socket));
    exception
       when E : others =>
-         Text_IO.Put_Line (Exceptions.Exception_Message (E));
-   end Read_Line;
+         Text_IO.Put_Line
+           ("Client side " & Exceptions.Exception_Message (E));
+   end Client_Side;
+
+   ----------
+   -- Data --
+   ----------
+
+   function Data
+     (Length : Stream_Element_Count)
+      return Stream_Element_Array
+   is
+      Result : Stream_Element_Array (1 .. Length);
+   begin
+      for J in Result'Range loop
+         Result (J)
+           := Stream_Element
+                (J mod (Stream_Element_Offset (Stream_Element'Last) + 1));
+      end loop;
+
+      return Result;
+   end Data;
+
+   ---------
+   -- Get --
+   ---------
+
+   procedure Get
+     (Socket : in Net.Socket_Type'Class;
+      Length : in Stream_Element_Count)
+   is
+      Sample : constant Stream_Element_Array := Data (Length);
+      Rest   : Stream_Element_Count  := Length;
+      Index  : Stream_Element_Offset := Sample'First;
+   begin
+      loop
+         declare
+            Buffer : constant Stream_Element_Array
+              := Net.Receive (Socket, Rest);
+            Next   : constant Stream_Element_Offset := Index + Buffer'Length;
+         begin
+            if Buffer /= Sample (Index .. Next - 1) then
+               Text_IO.Put_Line
+                 ("Data error" & Integer'Image (Buffer'Length)
+                  & Stream_Element'Image (Buffer (Buffer'First))
+                  & Stream_Element'Image (Sample (Sample'First)));
+            end if;
+
+            exit when Next > Sample'Last;
+
+            Rest  := Rest - Buffer'Length;
+            Index := Next;
+         end;
+      end loop;
+
+      Text_IO.Put_Line ("Got length" & Stream_Element_Count'Image (Length));
+   exception
+      when E : others =>
+         Text_IO.Put_Line
+           ("Got length"
+            & Stream_Element_Count'Image (Length - Rest)
+            & ' ' & Exceptions.Exception_Message (E));
+   end Get;
+
+   Server, Peer : Net.Socket_Type'Class := Net.Socket (False);
 
 begin
    Net.Bind (Server, Port);
@@ -85,12 +145,25 @@ begin
 
    Net.Accept_Socket (Server, Peer);
 
-   Net.Buffered.Put_Line (Peer, "It's me");
+   Net.Set_Send_Buffer (Peer, WBL);
+   Net.Set_Timeout (Peer, D1);
 
-   Read_Line (Peer, 6.0);
-   Read_Line (Peer, 6.0);
+   --  First write should be non-blocking only to buffer.
 
-   for J in 1 .. 10000 loop
-      Net.Buffered.Put_Line (Peer, Integer'Image (J));
-   end loop;
+   --  Net.Send (Peer, Data (WBL));
+
+   --  Would be timeout here.
+
+   Text_IO.Put_Line ("Send 100 WBL");
+   Net.Send (Peer, Data (WBL * 100));
+   Text_IO.Put_Line ("Send done.");
+
+   Net.Shutdown (Server);
+   Net.Shutdown (Peer);
+exception
+   when E : others =>
+      Text_IO.Put_Line
+         ("Server side " & Exceptions.Exception_Information (E));
+      Net.Shutdown (Server);
+      Net.Shutdown (Peer);
 end SockTO;
