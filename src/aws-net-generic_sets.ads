@@ -38,7 +38,13 @@ generic
    type Data_Type is private;
 package AWS.Net.Generic_Sets is
 
-   type Waiting_Mode is (Input, Output, Both);
+   type Waiting_Mode is (Error, Input, Output, Both);
+   --  Input  - would wait for data available for read from socket.
+   --  Output - would wait output buffer availability for write.
+   --  Both   - would wait for both Input and Output.
+   --  Error  - would wait only for error state in socket.
+   --  Note that all other waiting modes would be waiting for error state
+   --  anyway.
 
    type Socket_Set_Type is limited private;
 
