@@ -71,7 +71,7 @@ procedure Runme is
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
-   Text_IO.Put_Line ("Kill me when you want me to stop...");
+   Text_IO.Put_Line ("Enter any key to exit...");
 
    AWS.Server.Start (WSS, "Runme Secure",
                      Port     => 4433,
@@ -79,11 +79,25 @@ begin
                      Callback => Runme_CB.Service_Sec'Access);
 
    AWS.Server.Start (WS, "Runme",
-                     Admin_URI      => "/Admin-Page",
-                     Port           => 1234,
-                     Session        => True,
-                     Callback       => Runme_CB.Service'Access);
+                     Admin_URI => "/Admin-Page",
+                     Port      => 1234,
+                     Session   => True,
+                     Callback  => Runme_CB.Service'Access);
 
    AWS.Server.Start_Log (WS, Split_Mode => AWS.Log.Daily);
    AWS.Server.Start_Log (WSS, Filename_Prefix => "runme-secure");
+
+   --  Do not exit from this procedure
+
+   declare
+      C : Character;
+   begin
+      Text_IO.Get_Immediate (C);
+   end;
+
+   --  Close servers.
+
+   AWS.Server.Shutdown (WS);
+   AWS.Server.Shutdown (WSS);
+
 end Runme;
