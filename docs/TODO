@@ -157,3 +157,5 @@ implemented:
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply all support to the Web_Mail service.
+
+- Add support for SOAP hotplug modules
