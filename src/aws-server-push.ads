@@ -63,6 +63,9 @@ package AWS.Server.Push is
    Client_Gone : exception;
    --  Raised when a client is not responding.
 
+   Duplicate_Client_ID : exception;
+   --  Raised in trying to register an already registered client.
+
    type Object is limited private;
 
    type Mode is (Plain, Multipart, Chunked);
@@ -78,10 +81,21 @@ package AWS.Server.Push is
       Client_ID   : in     Client_Key;
       Socket      : in     Socket_Type;
       Environment : in     Client_Environment;
-      Kind        : in     Mode               := Plain);
+      Kind        : in     Mode;
+      Duplicate   :    out Boolean);
    --  Add client identified by Client_ID to the server subscription
    --  list. After registering this client will be able to receive pushed data
-   --  from the server in brodcasting mode.
+   --  from the server in brodcasting mode. Duplicate is set to True if the
+   --  Client is already registered and in this case nothing is done.
+
+   procedure Register
+     (Server      : in out Object;
+      Client_ID   : in     Client_Key;
+      Socket      : in     Socket_Type;
+      Environment : in     Client_Environment;
+      Kind        : in     Mode               := Plain);
+   --  Same as above but raises Duplicate_Client_ID if Client_ID is already
+   --  registered.
 
    procedure Unregister
      (Server    : in out Object;
@@ -124,24 +138,33 @@ private
 
    protected type Object is
 
+      function Count return Natural;
+      --  Returns the number of registered client.
+
+      procedure Destroy;
+      --  Release all associated memory with this object.
+
       procedure Register
-        (Client_ID : in Client_Key;
-         Holder    : in Client_Holder);
+        (Client_ID : in     Client_Key;
+         Holder    : in     Client_Holder;
+         Duplicate :    out Boolean);
+      --  Register a client. Duplicate is set to True if a Client with
+      --  Client_ID is already registered.
 
       procedure Send_To
         (Client_ID    : in Client_Key;
          Data         : in Client_Output_Type;
          Content_Type : in String);
+      --  Send Data to the client whose ID is Client_ID.
 
       procedure Send
         (Data         : in Client_Output_Type;
          Content_Type : in String);
+      --  Send Data to all clients registered.
 
       procedure Unregister (Client_ID : in Client_Key);
-
-      procedure Destroy;
-
-      function Count return Natural;
+      --  Unregister Client_ID client from this object. Does nothing if
+      --  Client_ID was not registered.
 
    private
       Container : Table.Table_Type;
