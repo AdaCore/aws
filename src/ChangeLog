@@ -1,3 +1,8 @@
+2004-11-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
+	(Start): Do not try to initialize SSL_Config if SSL not supported.
+
 2004-11-15  Pascal Obry  <pascal@obry.org>
 
 	Update to new version of Templates_Parser.
