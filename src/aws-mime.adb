@@ -55,7 +55,7 @@ package body AWS.MIME is
    Dot_H    : aliased constant String := ".h";
    Dot_Gif  : aliased constant String := ".gif";
    Dot_Jpg  : aliased constant String := ".jpg";
-   Dot_Jpeg : aliased constant String := ".jepg";
+   Dot_Jpeg : aliased constant String := ".jpeg";
    Dot_Png  : aliased constant String := ".png";
    Dot_Ps   : aliased constant String := ".ps";
    Dot_Pdf  : aliased constant String := ".pdf";
