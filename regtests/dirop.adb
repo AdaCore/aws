@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
 --                                                                          --
@@ -47,7 +47,7 @@ begin
    Status.Set.Reset (Stat);
 
    declare
-      Result : String
+      Result : constant String
         := Services.Directory.Browse
              (Directory_Name    => "../icons",
               Template_Filename => "dirop.tmplt",
