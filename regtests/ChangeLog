@@ -1,5 +1,13 @@
 2004-10-31  Pascal Obry  <pascal@obry.org>
 
+	* test_net_log.adb:
+	(HTTP_Log): Change to ensure constant output.
+	
+	* test_net_log.out:
+	Update due to new output.
+	
+2004-10-31  Pascal Obry  <pascal@obry.org>
+
 	* interoplab_main1.wsdl:
 	Change service name to avoid conflic with Interoplab demo sources.
 
