@@ -272,6 +272,8 @@ package body AWS.Server is
       procedure Free is
          new Ada.Unchecked_Deallocation (Slots, Slots_Access);
 
+      All_Lines_Terminated : Boolean := False;
+
    begin
       if Web_Server.Shutdown then
          return;
@@ -279,14 +281,44 @@ package body AWS.Server is
 
       Web_Server.Shutdown := True;
 
-      --  First, close the sever socket, so no more request will be queued
+      --  First, close the sever socket, so no more request will be queued,
+      --  furthermore this will help terminate all lines (see below).
 
       Sockets.Shutdown (Web_Server.Sock);
 
       --  Release the cleaner task
 
       abort Web_Server.Cleaner.all;
+
+      --  Wait for Cleaner task to terminate to be able to release associated
+      --  memory.
+
+      while not Web_Server.Cleaner'Terminated loop
+         delay 1.0;
+      end loop;
+
       Free (Web_Server.Cleaner);
+
+      --  Terminate all the lines.
+
+      for K in Web_Server.Lines'Range loop
+         abort Web_Server.Lines (K);
+      end loop;
+
+      --  Wait for all lines to be terminated to be able to release associated
+      --  memory.
+
+      while not All_Lines_Terminated loop
+         All_Lines_Terminated := True;
+
+         for K in Web_Server.Lines'Range loop
+            if not Web_Server.Lines (K)'Terminated then
+               All_Lines_Terminated := False;
+            end if;
+         end loop;
+
+         delay 1.0;
+      end loop;
 
       --  Release lines
 
@@ -294,7 +326,7 @@ package body AWS.Server is
 
       --  Release the slots
 
-      for S in 1 .. CNF.Max_Connection (Web_Server.Properties) loop
+      for S in 1 .. Web_Server.Slots.N loop
          Web_Server.Slots.Release (S);
       end loop;
 
@@ -305,6 +337,10 @@ package body AWS.Server is
       if CNF.Session (Web_Server.Properties) then
          Session.Control.Shutdown;
       end if;
+
+      --  Close log, this ensure that all data will be written to the file.
+
+      Stop_Log (Web_Server);
    end Shutdown;
 
    -----------
@@ -623,6 +659,7 @@ package body AWS.Server is
             Session_Lifetime       => CNF.Session_Lifetime);
       end if;
 
+      Web_Server.Shutdown := False;
    end Start;
 
    ---------------
