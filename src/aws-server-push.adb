@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,12 +31,13 @@
 --  $Id$
 
 with Ada.Calendar;
-with System;
-with GNAT.Calendar.Time_IO;
 
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Utils;
+
+with GNAT.Calendar.Time_IO;
+with System;
 
 package body AWS.Server.Push is
 
@@ -82,6 +83,10 @@ package body AWS.Server.Push is
    ------------
 
    protected body Object is
+
+      ---------------
+      -- Send_Data --
+      ---------------
 
       procedure Send_Data
         (Holder       : in Client_Holder;
@@ -162,11 +167,10 @@ package body AWS.Server.Push is
             Net.Stream_IO.Flush (Holder.Stream);
 
          exception
-         when others =>
-            Unregister (Client_ID, Close_Socket => False);
-            raise;
+            when others =>
+               Unregister (Client_ID, Close_Socket => False);
+               raise;
          end;
-
       end Register;
 
       procedure Register
@@ -232,7 +236,7 @@ package body AWS.Server.Push is
          begin
             Send_Data (Value, Data, Content_Type);
          exception
-            when others =>
+            when Net.Socket_Error =>
                Table.Insert (Unregistered, Key, Value);
          end Action;
 
@@ -316,7 +320,7 @@ package body AWS.Server.Push is
       exception
          when Table.Missing_Item_Error =>
             raise Client_Gone;
-         when others =>
+         when Net.Socket_Error =>
             Unregister (Client_ID, True);
             raise Client_Gone;
       end Send_To;
@@ -581,4 +585,3 @@ package body AWS.Server.Push is
    end Unregister_Clients;
 
 end AWS.Server.Push;
-
