@@ -273,11 +273,21 @@ package body AWS.Client is
       Connection.Proxy_URL       := Proxy_URL;
       Connection.Proxy_User      := Set (Proxy_User);
       Connection.Proxy_Pwd       := Set (Proxy_Pwd);
+
+      begin
+         Connection.Socket       := new Sockets.Socket_FD'Class'
+           (AWS.Net.Connect (AWS.URL.Host (Connect_URL),
+                             AWS.URL.Port (Connect_URL),
+                             AWS.URL.Security (Connect_URL)));
+      exception
+         when others =>
+            Connection.Opened    := False;
+            Exceptions.Raise_Exception
+              (Connection_Error'Identity,
+               "can't connect to " & AWS.URL.URL (Connect_URL));
+      end;
+
       Connection.Opened          := True;
-      Connection.Socket          := new Sockets.Socket_FD'Class'
-        (AWS.Net.Connect (AWS.URL.Host (Connect_URL),
-                          AWS.URL.Port (Connect_URL),
-                          AWS.URL.Security (Connect_URL)));
       Connection.Retry           := Create.Retry;
       Connection.Cookie          := Null_Unbounded_String;
       Connection.SOAPAction      := Set (SOAPAction);
@@ -322,7 +332,9 @@ package body AWS.Client is
    begin
       if Connection.Opened then
          Connection.Opened := False;
-         Sockets.Shutdown (Connection.Socket.all);
+         if Connection.Socket /= null then
+           Sockets.Shutdown (Connection.Socket.all);
+         end if;
       end if;
    end Disconnect;
 
