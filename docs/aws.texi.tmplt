@@ -205,6 +205,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 * Client side::
 * Communication::
 * Hotplug module::
+* Server Log::
 @end menu
 @end ifinfo
 
@@ -730,6 +731,30 @@ A complete example can be found in the demos directory. Look for
 @end cartouche
 @end smallexample
 
+@node Server Log
+@section Server Log
+
+@noindent
+It is possible to have the server activitly logged into the file
+@file{aws.log}. To activate the logging you must call the
+@code{AWS.Log.Start}, and it is possible to stop logging by calling
+@code{AWS.Log.Stop}. @xref{AWS.Log}.
+
+@noindent
+The log format is very close to the Apache Web server one.
+
+@smallexample
+<client IP> - <auth name> - [<date and time>] "<request>" <status code>
+
+For example:
+
+100.99.12.1 -  - [22/Nov/2000:11:44:14] "GET /whatever HTTP/1.1" 200
+@end smallexample
+
+@noindent
+The only missing part is the length of the data sent to the client that
+is found at the end of the log data line.
+
 @node Status page
 @chapter Status page
 
@@ -856,6 +881,7 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 * AWS.Communication::
 * AWS.Communication.Client::
 * AWS.Communication.Server::
+* AWS.Log::
 * AWS.MIME::
 * AWS.Response::
 * AWS.Server::
@@ -885,6 +911,11 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @section AWS.Communication.Server
 
 @include ../src/aws-communication-server.ads.texi
+
+@node AWS.Log
+@section AWS.Log
+
+@include ../src/aws-log.ads.texi
 
 @node AWS.MIME
 @section AWS.MIME
