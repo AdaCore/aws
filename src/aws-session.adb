@@ -75,19 +75,6 @@ package body AWS.Session is
 
    procedure Destroy (Value : in out Session_Node);
 
-   procedure Assign
-     (Destination : in out Session_Node;
-      Source      : in     Session_Node) is
-   begin
-      Destination.Time_Stamp := Source.Time_Stamp;
-      Key_Value.Assign (Destination.Root, Source.Root);
-   end Assign;
-
-   procedure Destroy (Value : in out Session_Node) is
-   begin
-      Key_Value.Destroy (Value.Root);
-   end Destroy;
-
    package Session_Set is new Table_Of_Static_Keys_And_Dynamic_Values_G
      (ID, "<", "=", Session_Node, Assign, Destroy);
 
@@ -167,6 +154,18 @@ package body AWS.Session is
 
    end Database;
 
+   ------------
+   -- Assign --
+   ------------
+
+   procedure Assign
+     (Destination : in out Session_Node;
+      Source      : in     Session_Node) is
+   begin
+      Destination.Time_Stamp := Source.Time_Stamp;
+      Key_Value.Assign (Destination.Root, Source.Root);
+   end Assign;
+
    -------------
    -- Cleaner --
    -------------
@@ -196,6 +195,17 @@ package body AWS.Session is
             "Unrecoverable Error : Cleaner Task bug detected"
             & Exceptions.Exception_Information (E));
    end Cleaner;
+
+   ------------
+   -- Create --
+   ------------
+
+   function Create return ID is
+      New_ID : ID;
+   begin
+      Database.New_Session (New_ID);
+      return New_ID;
+   end Create;
 
    ---------------------
    -- Cleaner_Control --
@@ -236,17 +246,6 @@ package body AWS.Session is
       end Stop;
 
    end Cleaner_Control;
-
-   ------------
-   -- Create --
-   ------------
-
-   function Create return ID is
-      New_ID : ID;
-   begin
-      Database.New_Session (New_ID);
-      return New_ID;
-   end Create;
 
    --------------
    -- Database --
@@ -593,6 +592,15 @@ package body AWS.Session is
    begin
       Database.Delete_Session (SID);
    end Delete;
+
+   -------------
+   -- Destroy --
+   -------------
+
+   procedure Destroy (Value : in out Session_Node) is
+   begin
+      Key_Value.Destroy (Value.Root);
+   end Destroy;
 
    -----------
    -- Exist --
