@@ -8,7 +8,7 @@
 GFLAGSY = $(patsubst -gnatwe -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GFLAGS))
 # We do not want to check for separate spec for the demos (s option).
 
-GARGS = -m -q $(GFLAGSY) -i -I../src -I../ssl -I../include \
+GARGS = -m -q $(GFLAGSY) -i -I../src -I../xsrc -I../ssl -I../include \
 	-I../soap $(INCLUDES)
 BARGS = -E
 
