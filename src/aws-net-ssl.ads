@@ -50,19 +50,15 @@ package AWS.Net.SSL is
    -- Initialize --
    ----------------
 
-   function Socket return Socket_Access;
-   --  Create a socket INET/SOCK_STREAM
-
    procedure Accept_Socket
-     (Socket     : in     Socket_Type;
-      New_Socket :    out Socket_Access);
-   --  Accept a connection on a socket. If Security is true a secure socket
-   --  will be used.
+     (Socket     : in     Net.Socket_Type'Class;
+      New_Socket :    out Socket_Type);
+   --  Accept a connection on a socket.
 
    procedure Connect
-     (Socket   : in Socket_Type;
-      Host     : in String;
-      Port     : in Positive);
+     (Socket   :    out Socket_Type;
+      Host     : in     String;
+      Port     : in     Positive);
    --  Connect a socket on a given host/port. If Security is true an secure
    --  socket will be used.
 
@@ -86,14 +82,6 @@ package AWS.Net.SSL is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array;
    pragma Inline (Receive);
-
-   ------------
-   -- Others --
-   ------------
-
-   procedure Assign
-     (Left  : in out Socket_Type;
-      Right : in     Net.Socket_Type'Class);
 
    --------------------
    -- Initialization --

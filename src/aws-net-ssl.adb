@@ -97,24 +97,22 @@ package body AWS.Net.SSL is
    -------------------
 
    procedure Accept_Socket
-     (Socket     : in     Socket_Type;
-      New_Socket :    out Socket_Access) is
+     (Socket     : in     Net.Socket_Type'Class;
+      New_Socket :    out Socket_Type) is
    begin
-      New_Socket := new Socket_Type;
-
       loop
-         Net.Std.Accept_Socket (NSST (Socket), New_Socket);
+         Net.Std.Accept_Socket (Socket, NSST (New_Socket));
 
-         TS_SSL.Set_FD (Socket_Type (New_Socket.all));
+         TS_SSL.Set_FD (New_Socket);
 
-         TSSL.SSL_set_accept_state (Socket_Type (New_Socket.all).SSL);
+         TSSL.SSL_set_accept_state (New_Socket.SSL);
 
-         exit when TSSL.SSL_accept (Socket_Type (New_Socket.all).SSL) > 0;
+         exit when TSSL.SSL_accept (New_Socket.SSL) > 0;
 
-         Shutdown (New_Socket.all);
+         Shutdown (New_Socket);
       end loop;
 
-      Set_Read_Ahead (Socket_Type (New_Socket.all), True);
+      Set_Read_Ahead (New_Socket, True);
 
    exception
       when others =>
@@ -122,32 +120,26 @@ package body AWS.Net.SSL is
          raise;
    end Accept_Socket;
 
-   ------------
-   -- Assign --
-   ------------
-
-   procedure Assign
-     (Left  : in out Socket_Type;
-      Right : in     Net.Socket_Type'Class) is
-   begin
-      Net.Std.Assign (NSST (Left), Right);
-      Left.SSL := Socket_Type (Right).SSL;
-   end Assign;
-
    -------------
    -- Connect --
    -------------
 
    procedure Connect
-     (Socket   : in Socket_Type;
-      Host     : in String;
-      Port     : in Positive) is
+     (Socket   :    out Socket_Type;
+      Host     : in     String;
+      Port     : in     Positive) is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port);
+
+      TS_SSL.Set_FD (Socket);
 
       TSSL.SSL_set_connect_state (Socket.SSL);
 
       Error_If (TSSL.SSL_connect (Socket.SSL) = -1);
+   exception
+      when others =>
+         Free (Socket);
+         raise;
    end Connect;
 
    --------------
@@ -187,7 +179,6 @@ package body AWS.Net.SSL is
       end if;
 
       Net.Std.Free (NSST (Socket));
-      Release_Cache (Socket);
    end Free;
 
    -----------------
@@ -270,26 +261,6 @@ package body AWS.Net.SSL is
         (Socket.SSL, TSSL.SSL_SENT_SHUTDOWN + TSSL.SSL_RECEIVED_SHUTDOWN);
       Net.Std.Shutdown (NSST (Socket));
    end Shutdown;
-
-   ------------
-   -- Socket --
-   ------------
-
-   function Socket return Socket_Access is
-      S    : Socket_Access;
-      Sock : Socket_Access;
-   begin
-      S    := Net.Std.Socket;
-      Sock := new Socket_Type;
-
-      Net.Std.Assign (NSST (Sock.all), S.all);
-
-      Free (S);
-
-      TS_SSL.Set_FD (Socket_Type (Sock.all));
-
-      return Sock;
-   end Socket;
 
    ------------
    -- TS_SSL --

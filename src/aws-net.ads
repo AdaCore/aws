@@ -45,24 +45,30 @@ package AWS.Net is
    --  Raised by all routines below, a message will indicate the nature of
    --  the error.
 
-   type Socket_Type is abstract tagged limited private;
+   type Socket_Type is abstract tagged private;
    type Socket_Access is access all Socket_Type'Class;
 
    ----------------
    -- Initialize --
    ----------------
 
-   function Socket
-     (Security : in Boolean)
-      return Socket_Access;
-   --  Create a socket INET/SOCK_STREAM
+   function Socket (Security : in Boolean) return Socket_Type'Class;
+   --  Create an unitialized socket.
+   --  This socket could be used as is in the New_Socket parameter
+   --  in the Accept_Socket routine.
+   --  For the use this socket in the Connect it is necessary to call Create
+   --  first.
+
+   function Socket (Security : in Boolean) return Socket_Access;
+   --  Create a dynamically allocated unitialized socket.
 
    procedure Bind
-     (Socket : in Socket_Type;
-      Port   : in Natural;
-      Host   : in String := "")
+     (Socket : in out Socket_Type;
+      Port   : in     Natural;
+      Host   : in     String := "")
       is abstract;
    --  Bind a socket on a given port.
+   --  Create a server socket if necessary.
 
    procedure Listen
      (Socket     : in Socket_Type;
@@ -71,21 +77,19 @@ package AWS.Net is
    --  Set the queue size of the socket
 
    procedure Accept_Socket
-     (Socket     : in     Socket_Type;
-      New_Socket :    out Socket_Access)
+     (Socket     : in     Socket_Type'Class;
+      New_Socket :    out Socket_Type)
       is abstract;
-   --  Accept a connection on a socket. If Security is true a secure socket
-   --  will be used. If it raises Socket_Error, all resources used by
-   --  New_Socket have been released. There is not need to call Free or
-   --  Shutdown.
+   --  Accept a connection on a socket. If it raises Socket_Error,
+   --  all resources used by new_Socket have been released.
+   --  There is not need to call Free or Shutdown.
 
    procedure Connect
-     (Socket   : in Socket_Type;
-      Host     : in String;
-      Port     : in Positive)
+     (Socket   :    out Socket_Type;
+      Host     : in     String;
+      Port     : in     Positive)
       is abstract;
-   --  Connect a socket on a given host/port. If Security is true an secure
-   --  socket will be used.
+   --  Connect a socket on a given host/port.
 
    procedure Shutdown (Socket : in Socket_Type) is abstract;
    --  Shutdown both side of the socket and close it. Does not raise
@@ -133,11 +137,6 @@ package AWS.Net is
    function Host_Name return String;
    --  Returns the running host name
 
-   procedure Assign
-     (Left  : in out Socket_Type;
-      Right : in     Socket_Type'Class)
-      is abstract;
-
 private
    --  This object is to cache data writed to the stream. It is more efficient
    --  than to write byte by byte on the stream.
@@ -167,7 +166,7 @@ private
 
    type RW_Cache_Access is access RW_Cache;
 
-   type Socket_Type is abstract tagged limited record
+   type Socket_Type is abstract tagged record
       C : RW_Cache_Access;
    end record;
 
