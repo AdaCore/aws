@@ -1,3 +1,15 @@
+2004-11-28  Pascal Obry  <pascal@obry.org>
+
+	* wsdl_6_main.adb:
+	Rename net log output to wsdl_6.netlog.
+	Properly close the net log file.
+
+	* makefile:
+	(WSDL_TESTS): Add anytype.
+
+	* anytype.adb, anytype.out, anytype.wsdl:
+	Initial revision.
+
 2004-11-27  Pascal Obry  <pascal@obry.org>
 
 	* wsdl_6_main.adb:
