@@ -50,7 +50,7 @@
 --  5. Finaly add support for this type in SOAP.Message.XML. Add this type
 --     into Type_State, write the corresponding parse procedure and fill entry
 --     into Handlers. Again after adding the proper type into Type_State the
---     compiler will issue errors where fix is needed.
+--     compiler will issue errors where changes are needed.
 
 with Ada.Calendar;
 with Ada.Finalization;
@@ -276,6 +276,23 @@ package SOAP.Types is
 
    function V (O : in SOAP_Record) return Object_Set;
 
+   -----------
+   -- Short --
+   -----------
+
+   type Short is range -2**15 .. 2**15 - 1;
+
+   XML_Short : aliased constant String := "xsd:short";
+
+   type XSD_Short is new Scalar with private;
+
+   function Image     (O : in XSD_Short) return String;
+   function XML_Image (O : in XSD_Short) return String;
+   function XML_Type  (O : in XSD_Short) return String;
+
+   function S (V : in Short; Name : in String := "item") return XSD_Short;
+   function V (O : in XSD_Short) return Short;
+
    ------------
    -- String --
    ------------
@@ -352,6 +369,10 @@ package SOAP.Types is
    function Get (O : in Object'Class) return Integer;
    --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
    --  Integer.
+
+   function Get (O : in Object'Class) return Short;
+   --  Returns O value as a Short. Raises Data_Error if O is not a SOAP
+   --  Short.
 
    function Get (O : in Object'Class) return Long;
    --  Returns O value as a Long. Raises Data_Error if O is not a SOAP
@@ -442,6 +463,10 @@ private
 
    type XSD_Integer is new Scalar with record
       V : Integer;
+   end record;
+
+   type XSD_Short is new Scalar with record
+      V : Short;
    end record;
 
    type XSD_Long is new Scalar with record
