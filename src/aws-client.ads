@@ -127,29 +127,31 @@ package AWS.Client is
    --  Put will retry one time if it fails.
 
    function Post
-     (URL         : in String;
-      Data        : in String;
-      User        : in String               := No_Data;
-      Pwd         : in String               := No_Data;
-      Proxy       : in String               := No_Data;
-      Proxy_User  : in String               := No_Data;
-      Proxy_Pwd   : in String               := No_Data;
-      Timeouts    : in Timeouts_Values      := No_Timeout;
-      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+     (URL          : in String;
+      Data         : in String;
+      Content_Type : in String               := No_Data;
+      User         : in String               := No_Data;
+      Pwd          : in String               := No_Data;
+      Proxy        : in String               := No_Data;
+      Proxy_User   : in String               := No_Data;
+      Proxy_Pwd    : in String               := No_Data;
+      Timeouts     : in Timeouts_Values      := No_Timeout;
+      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
    function Post
-     (URL         : in String;
-      Data        : in Ada.Streams.Stream_Element_Array;
-      User        : in String               := No_Data;
-      Pwd         : in String               := No_Data;
-      Proxy       : in String               := No_Data;
-      Proxy_User  : in String               := No_Data;
-      Proxy_Pwd   : in String               := No_Data;
-      Timeouts    : in Timeouts_Values      := No_Timeout;
-      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+     (URL          : in String;
+      Data         : in Ada.Streams.Stream_Element_Array;
+      Content_Type : in String               := No_Data;
+      User         : in String               := No_Data;
+      Pwd          : in String               := No_Data;
+      Proxy        : in String               := No_Data;
+      Proxy_User   : in String               := No_Data;
+      Proxy_Pwd    : in String               := No_Data;
+      Timeouts     : in Timeouts_Values      := No_Timeout;
+      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data;
    --  Idem as above but with binary data.
 
@@ -308,19 +310,23 @@ package AWS.Client is
    --  Same as Put above but using a Connection
 
    procedure Post
-     (Connection  : in out HTTP_Connection;
-      Result      :    out Response.Data;
-      Data        : in     String;
-      URI         : in     String               := No_Data;
-      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List);
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     String;
+      Content_Type : in     String               := No_Data;
+      URI          : in     String               := No_Data;
+      Attachments  : in     AWS.Attachments.List
+        := AWS.Attachments.Empty_List);
    --  Same as Post above but using a Connection
 
    procedure Post
-     (Connection  : in out HTTP_Connection;
-      Result      :    out Response.Data;
-      Data        : in     Ada.Streams.Stream_Element_Array;
-      URI         : in     String               := No_Data;
-      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List);
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     Ada.Streams.Stream_Element_Array;
+      Content_Type : in     String               := No_Data;
+      URI          : in     String               := No_Data;
+      Attachments  : in     AWS.Attachments.List
+        := AWS.Attachments.Empty_List);
    --  Same as Post above but using a Connection
 
    procedure Upload
