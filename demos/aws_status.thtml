@@ -16,7 +16,7 @@
 <H2 align=center>Ada Web Server Status</H2>
 
 <td width=50%>
-<img align=center src="logo.gif"> Version @@_VERSION_@@
+<img align=center src="@@_LOGO_@@"> Version @@_VERSION_@@
 </table>
 
 <br>
