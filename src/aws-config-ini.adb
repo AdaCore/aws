@@ -40,28 +40,50 @@ with AWS.Utils;
 
 package body AWS.Config.Ini is
 
+   use Ada;
    use Ada.Strings.Unbounded;
+
+   function Program_Ini_File return String;
+   --  Returns initialization filename for current server (using the
+   --  executable name and adding .ini)
+
+   ----------------------
+   -- Program_Ini_File --
+   ----------------------
+
+   function Program_Ini_File return String is
+      Exec_Name : constant String := Ada.Command_Line.Command_Name;
+      Last      : Natural;
+      First     : Natural;
+   begin
+      First := Strings.Fixed.Index
+        (Exec_Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
+
+      if First = 0 then
+         First := Exec_Name'First;
+      end if;
+
+      Last := Strings.Fixed.Index
+        (Exec_Name (First .. Exec_Name'Last), ".", Strings.Backward);
+
+      if Last = 0 then
+         return Exec_Name & ".ini";
+      else
+         return Exec_Name (Exec_Name'First .. Last) & "ini";
+      end if;
+   end Program_Ini_File;
 
    ----------
    -- Read --
    ----------
 
    procedure Read
-     (Config    : in out Object;
-      File_Name : in     String := "")
+     (Config   : in out Object;
+      Filename : in     String := "")
    is
-
-      use Ada;
 
       procedure Error_Message (Filename : in String; Message : in String);
       --  Output error message with filename and line number.
-
-      procedure Process_Ini (Filename : in String);
-      --  Read init file and set variables accordingly.
-
-      function Program_Ini_File return String;
-      --  Returns initialization filename for current server (using the
-      --  executable name and adding .ini)
 
       procedure Set_Value
         (Filename : in String;
@@ -197,120 +219,77 @@ package body AWS.Config.Ini is
 
       end Set_Value;
 
-      -----------------
-      -- Process_Ini --
-      -----------------
+      Separators : constant Strings.Maps.Character_Set
+        := Strings.Maps.To_Set (' ' & ASCII.HT);
 
-      procedure Process_Ini (Filename : in String) is
+      File    : Text_IO.File_Type;
+      Buffer  : String (1 .. 1024);
+      Last    : Natural;
 
-         Separators : constant Strings.Maps.Character_Set
-           := Strings.Maps.To_Set (' ' & ASCII.HT);
+      K_First : Natural;
+      K_Last  : Natural;
 
-         File    : Text_IO.File_Type;
-         Buffer  : String (1 .. 1024);
-         Last    : Natural;
+      V_First : Natural;
+      V_Last  : Natural;
 
-         K_First : Natural;
-         K_Last  : Natural;
+   begin
+      Text_IO.Open (Name => Filename,
+                    File => File,
+                    Mode => Text_IO.In_File);
+      Line := 0;
 
-         V_First : Natural;
-         V_Last  : Natural;
+      while not Text_IO.End_Of_File (File) loop
 
-      begin
-         Text_IO.Open (Name => Filename,
-                       File => File,
-                       Mode => Text_IO.In_File);
-         Line := 0;
+         Text_IO.Get_Line (File, Buffer, Last);
+         Line := Line + 1;
 
-         while not Text_IO.End_Of_File (File) loop
+         --  Remove comments
 
-            Text_IO.Get_Line (File, Buffer, Last);
-            Line := Line + 1;
-
-            --  Remove comments
-
-            for I in 1 .. Last loop
-               if Buffer (I) = '#' then
-                  Last := I - 1;
-                  exit;
-               end if;
-            end loop;
-
-            if Last /= 0 then
-
-               --  Looks for Key token
-
-               Strings.Fixed.Find_Token
-                 (Buffer (1 .. Last), Separators, Strings.Outside,
-                  K_First, K_Last);
-
-               --  Looks for associated value
-
-               Strings.Fixed.Find_Token
-                 (Buffer (K_Last + 1 .. Last), Separators, Strings.Outside,
-                  V_First, V_Last);
-
-               if K_Last /= 0 and then V_Last /= 0 then
-
-                  declare
-                     Key   : constant String := Buffer (K_First .. K_Last);
-                     Value : constant String := Buffer (V_First .. V_Last);
-                  begin
-                     Set_Value (Filename, Key, Value);
-                  end;
-
-               else
-                  Error_Message (Filename, "wrong format");
-               end if;
-
+         for I in 1 .. Last loop
+            if Buffer (I) = '#' then
+               Last := I - 1;
+               exit;
             end if;
          end loop;
 
-         Text_IO.Close (File);
-      exception
-         when Text_IO.Name_Error =>
-            null;
-      end Process_Ini;
+         if Last /= 0 then
 
-      ----------------------
-      -- Program_Ini_File --
-      ----------------------
+            --  Looks for Key token
 
-      function Program_Ini_File return String is
-         Exec_Name : constant String := Ada.Command_Line.Command_Name;
-         Last      : Natural;
-         First     : Natural;
-      begin
-         First := Strings.Fixed.Index
-           (Exec_Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
+            Strings.Fixed.Find_Token
+              (Buffer (1 .. Last), Separators, Strings.Outside,
+               K_First, K_Last);
 
-         if First = 0 then
-            First := Exec_Name'First;
+            --  Looks for associated value
+
+            Strings.Fixed.Find_Token
+              (Buffer (K_Last + 1 .. Last), Separators, Strings.Outside,
+               V_First, V_Last);
+
+            if K_Last /= 0 and then V_Last /= 0 then
+
+               declare
+                  Key   : constant String := Buffer (K_First .. K_Last);
+                  Value : constant String := Buffer (V_First .. V_Last);
+               begin
+                  Set_Value (Filename, Key, Value);
+               end;
+
+            else
+               Error_Message (Filename, "wrong format");
+            end if;
+
          end if;
+      end loop;
 
-         Last := Strings.Fixed.Index
-           (Exec_Name (First .. Exec_Name'Last), ".", Strings.Backward);
+      Text_IO.Close (File);
 
-         if Last = 0 then
-            return Exec_Name & ".ini";
-         else
-            return Exec_Name (Exec_Name'First .. Last) & "ini";
-         end if;
-      end Program_Ini_File;
-
-   begin
-      Process_Mode := True;
-
-      Process_Ini ("aws.ini");
-      Process_Ini (Program_Ini_File);
-
-      Process_Mode := False;
-
-      if File_Name /= "" then
-         Process_Ini (File_Name);
-      end if;
+   exception
+      when Text_IO.Name_Error =>
+         null;
    end Read;
 
 begin
-   Read (Server_Config);
+   Read (Server_Config, "aws.ini");
+   Read (Server_Config, Program_Ini_File);
 end AWS.Config.Ini;
