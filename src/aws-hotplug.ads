@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -33,12 +33,26 @@
 with Ada.Strings.Unbounded;
 with GNAT.Regexp;
 
+with AI302.Containers.Vectors;
+
 with AWS.Response;
 with AWS.Status;
 
 package AWS.Hotplug is
 
+   Register_Error : exception;
+   --  Raised if the Register command failed
+
+   type Register_Mode is (Add, Replace);
+   --  Add     : Add a new filter at the end of the set if there is no such
+   --            key, raises Register_Error otherwise (default value)
+   --  Replace : Replace existing filter with the same key or add it if
+   --            there is no such filter in the set.
+
    type Filter_Set is private;
+
+   procedure Set_Mode (Filters : in out Filter_Set; Mode : in Register_Mode);
+   --  Set registering mode for this Filter_Set
 
    procedure Register
      (Filters : in out Filter_Set;
@@ -80,17 +94,20 @@ private
    use Ada.Strings.Unbounded;
 
    type Filter_Data is record
-      Regexp_Str : Unbounded_String;
-      Regexp     : GNAT.Regexp.Regexp;
-      URL        : Unbounded_String;
+      Regexp_Str : Unbounded_String;   -- The regexp
+      Regexp     : GNAT.Regexp.Regexp; -- The compiled regexp
+      URL        : Unbounded_String;   -- The redirection URL
    end record;
 
-   type Filter_Array is array (Positive range <>) of Filter_Data;
-   type Filter_Array_Access is access Filter_Array;
+   function Equal_Data (Left, Right : in Filter_Data) return Boolean;
+   --  Returns True if Left.Regexp and Right.Regexp are equals
+
+   package Filter_Table is
+     new AI302.Containers.Vectors (Positive, Filter_Data, Equal_Data);
 
    type Filter_Set is record
-      Count : Natural := 0;
-      Set   : Filter_Array_Access;
+      Mode : Register_Mode;
+      Set  : Filter_Table.Vector;
    end record;
 
 end AWS.Hotplug;
