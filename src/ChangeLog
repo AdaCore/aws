@@ -1,6 +1,15 @@
 2003-02-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
+	(Set): Add Free_Slots out parameter, it reduces number of protected
+	 calls, and giving more precise information about free slots for the
+	 time of slot becoming busy. Moreover this avoid internal non visible
+	 bug, when the Forse mode is not stopping sometimes inside of
+	 Line_Cleaner.
+
+2003-02-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
 	(Mark_Phase): Raise Net.Socket_Error instead PROGRAM_ERROR, becouse
 	 the server line could try to setup non-close phase after the abort
 	 state if the abortion happen after socket operation and before
