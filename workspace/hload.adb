@@ -22,6 +22,7 @@ procedure Hload is
    use Ada.Strings.Unbounded;
 
    Max_Client   : constant := 18;
+   Max_Line     : constant := 16;
    Client_Count : constant := 300;
 
    function Image (K : in Positive) return String;
@@ -67,7 +68,7 @@ procedure Hload is
       end Start;
 
       AWS.Client.Create
-        (Connect, "http://localhost:1234", Timeouts => (15, 15));
+        (Connect, "http://localhost:1234", Timeouts => (15.0, 15.0));
 
       for K in 1 .. Client_Count loop
          begin
@@ -181,7 +182,7 @@ begin
       "Heavy Loaded",
       CB'Unrestricted_Access,
       Port           => 1234,
-      Max_Connection => 16,
+      Max_Connection => Max_Line,
       Session        => True);
 
    Ada.Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
