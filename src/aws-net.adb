@@ -97,6 +97,28 @@ package body AWS.Net is
       Free (Socket.C);
    end Release_Cache;
 
+   ----------
+   -- Send --
+   ----------
+
+   procedure Send
+     (Socket : in Socket_Type'CLass;
+      Data   : in Stream_Element_Array)
+   is
+      First : Stream_Element_Offset := Data'First;
+      Last  : Stream_Element_Offset;
+   begin
+      loop
+         Send (Socket, Data (First .. Data'Last), Last);
+
+         exit when Last = Data'Last;
+
+         Wait_For (Output, Socket);
+
+         First := Last + 1;
+      end loop;
+   end Send;
+
    -----------------------
    -- Set_Blocking_Mode --
    -----------------------
