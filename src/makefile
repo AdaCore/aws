@@ -1,10 +1,9 @@
 
 # $Id$
 
-.SILENT: build ssl_mode std_mode gnat_oslib posix_oslib win32_oslib clean
+.SILENT: build gnat_oslib posix_oslib win32_oslib adasockets gnatsockets clean
 .SILENT: aws-translator-conversion.adb
 
-GCC	= gcc
 GARGS	= -q $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 
 SOURCES	= aws-client.adb aws-communication-client.adb \
@@ -50,6 +49,14 @@ aws-translator-conversion.adb:
 	gnatmake -q test_uconv
 	./test_uconv
 	-rm test_uconv$(EXEEXT) test_uconv.o test_uconv.ali
+
+adasockets:
+	-rm -f *.o *.ali
+	cp ../include/aws-net-std-adasockets.adb aws-net-std.adb
+
+gnatsockets:
+	-rm -f *.o *.ali
+	cp ../include/aws-net-std-gnat.adb aws-net-std.adb
 
 gnat_oslib:
 	-rm -f *.o *.ali
