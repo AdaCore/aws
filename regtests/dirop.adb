@@ -49,7 +49,7 @@ begin
    declare
       Result : constant String
         := Services.Directory.Browse
-             (Directory_Name    => "../icons",
+             (Directory_Name    => "icons",
               Template_Filename => "dirop.tmplt",
               Request           => Stat);
    begin
