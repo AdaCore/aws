@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             November 26th, 2002
+   Pascal Obry                                             January 14th, 2003
 
 
 
@@ -93,6 +93,20 @@ Here are the main changes:
    - Update to Templates_Parser 4.2 (add +,add,-,sub,*,mult,/,div,mod filters,
      support attributes for vectors and matrix, add not and /= operators).
      This new version completely preserve the template's format.
+
+   - Complete rewrite of the socket handling. Sockets are now buffered for
+     reading and writing making AWS faster. The AWS.Net interface also
+     provide two implementations one based on GNAT.Sockets (the default) and
+     on based AdaSockets.
+
+     This is a big change and means that there is some incompatibilities. For
+     example now for all socket errors the exception AWS.Net.Socket_Error is
+     raised, it used to be some AdaSockets errors (either Connection_Refused
+     or Socket_Error.
+
+   - SSL support is now specified at link time and not at configuration time.
+     To build an SSL/AWS application you just need to link with -lssl and
+     -lcrypto. There is no specific AWS configuration.
 
    - Plus many small fixes, enhancements and documentation work.
 
