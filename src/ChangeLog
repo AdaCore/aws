@@ -1,5 +1,8 @@
 2001-08-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(clean): removes Emacs VC *~ files.
+	
 	* aws-default.ads, aws-config.ads, aws-config.adb,
 	  aws-config-set.ads, aws-config-set.adb:
 	Rename Log_File_Prefix to Log_Filename_Prefix.
