@@ -136,7 +136,8 @@ main (void)
   }
 
   printf ("      ai_next      : Addr_Info_Access;\n");
-  printf ("   end record;\n\n");
+  printf ("   end record;\n");
+  printf ("   pragma Convention (C, Addr_Info);\n\n");
 
   printf ("end AWS.OS_Lib.Definitions;\n");
 
