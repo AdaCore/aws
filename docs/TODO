@@ -127,3 +127,6 @@ implemented:
   implemented.
 
 - Document ada2wsdl and new wsdl2aws -types option.
+
+- Properly support WSDL One-way Operations
+  (see Web Services Description Language (WSDL) 1.1 section 2.4.1)
