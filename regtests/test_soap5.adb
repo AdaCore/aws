@@ -132,7 +132,7 @@ procedure Test_SOAP5 is
    begin
       AWS.Server.Start
         (HTTP, "soap_demo",
-         CB'Unrestricted_Access, Port => 6543, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => 6548, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -198,7 +198,7 @@ begin
 
    Server.Started;
 
-   AWS.Client.Create (Connection, "http://localhost:6543/soap_demo");
+   AWS.Client.Create (Connection, "http://localhost:6548/soap_demo");
 
    Request ("multProc", 2, 3, "/mul");
    Request ("multProc", 9, 9, "/mul");
