@@ -33,15 +33,16 @@
 --
 --  Composite tags :
 --
---     If a tag named TAG exists, then the name TAG_LABEL is used as a label
---     for this specific tag. This label is meant to be used as label for this
---     set of values (vector, matrix or deeper).
+--     If a tag named TAG exists, then the name TAG_DESCRIPTION is used as a
+--     description for this specific tag.
 --
 --  Composite tags (more than one nested level)
 --
---     If a tag named TAG exists, then the names TAG_DIM[n]_LABEL is used as a
---     label for the tag's nth axis. In this case TAG_DIM[n]_LABEL must be a
---     vector tag, each entry corresponds to a label on this axis.
+--     If a tag named TAG exists, then the names TAG_DIM[n]_LABELS is used as
+--     a set of labels for the tag's nth axis. In this case TAG_DIM[n]_LABELS
+--     must be a vector tag, each entry corresponds to a label on this
+--     axis. Also TAG_DIM[n]_DESCRIPTION is used as a description for this
+--     axis.
 --
 --  Here is the DTD :
 --
@@ -51,14 +52,14 @@
 --  <!--a dimension-->
 --  <!ELEMENT Dim (Description, Labels)>
 --  <!ATTLIST Dim
---  	n CDATA #REQUIRED
+--      n CDATA #REQUIRED
 --  >
 --  <!--entry of a CompositeTag-->
 --  <!ELEMENT Entry (ind+, V)>
 --  <!--label of an indice of a dimension (ex: 2000)-->
 --  <!ELEMENT Label (#PCDATA)>
 --  <!ATTLIST Label
---  	ind CDATA #REQUIRED
+--      ind CDATA #REQUIRED
 --  >
 --  <!--list of labels of one dimension (ex: 1999, 2000, 2001)-->
 --  <!ELEMENT Labels (Label+)>
@@ -70,7 +71,7 @@
 --  <!ELEMENT V (#PCDATA)>
 --  <!ELEMENT ind (#PCDATA)>
 --  <!ATTLIST ind
---  	n CDATA #REQUIRED
+--      n CDATA #REQUIRED
 --  >
 --  <!--identification name for this tag-->
 --  <!ELEMENT Name (#PCDATA)>
