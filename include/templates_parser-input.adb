@@ -31,7 +31,7 @@
 --  This is the implementation to be used with AWS, it is using AWS.Resources
 --  to support embedded resources.
 
-with Ada.Text_IO;
+with Ada.IO_Exceptions;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Resources;
@@ -53,7 +53,7 @@ package body Templates_Parser.Input is
    procedure Check_Open (File : in File_Type) is
    begin
       if File = null then
-         raise Ada.Text_IO.Status_Error;
+         raise Ada.IO_Exceptions.Status_Error;
       end if;
    end Check_Open;
 
@@ -116,6 +116,10 @@ package body Templates_Parser.Input is
 
       File := new File_Record;
       Open (File.all, Name, Form);
+   exception
+      when Ada.IO_Exceptions.Name_Error =>
+         Free (File);
+         raise;
    end Open;
 
 end Templates_Parser.Input;
