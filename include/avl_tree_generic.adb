@@ -85,8 +85,6 @@
 --
 
 with Unchecked_Deallocation;
-with Text_Io;
-use Text_Io;
 
 package body Avl_Tree_Generic is
 
@@ -131,11 +129,10 @@ package body Avl_Tree_Generic is
     end if;
   end Avlt_Update;
 
-  procedure Update_Node (Update_Key : in Key;
-                         Update_Item : in Item;
+  procedure Update_Node (Update_Item : in Item;
                          Tree : in Avl_Tree) is
   begin
-    Avlt_Update (Tree.Root, Update_Key, Update_Item);
+    Avlt_Update (Tree.Root, Key_For (Update_Item), Update_Item);
   end Update_Node;
 
 
