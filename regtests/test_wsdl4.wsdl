@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="wsdl4"
+   targetNamespace="urn:aws:WSDL4"
+   xmlns:tns="urn:aws:WSDL4"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+   <types>
+      <schema xmlns="http://www.w3.org/2000/10/XMLSchema">
+
+         <simpleType name="Character">
+            <restriction base="xsd:string">
+               <length value="1"/>
+            </restriction>
+         </simpleType>
+
+         <simpleType name="Color">
+            <restriction base="xsd:string">
+               <enumeration value="Red"/>
+               <enumeration value="GrEEn"/>
+               <enumeration value="Blue"/>
+            </restriction>
+         </simpleType>
+
+         <complexType name="Rec">
+            <all>
+               <element name="A" type="xsd:int"/>
+               <element name="B" type="xsd:float"/>
+               <element name="C" type="xsd:double"/>
+               <element name="D" type="tns:Character"/>
+               <element name="E" type="xsd:string"/>
+               <element name="F" type="xsd:boolean"/>
+            </all>
+         </complexType>
+
+         <complexType name="New_Rec">
+            <all>
+               <element name="NC" type="tns:Color"/>
+               <element name="NR" type="tns:Rec"/>
+            </all>
+         </complexType>
+
+         <complexType name="Set_Of_Int">
+            <complexContent>
+               <restriction base="soap-enc:Array">
+                  <attribute ref="soap-enc:arrayType" wsdl:arrayType="xsd:int[]"/>
+               </restriction>
+            </complexContent>
+         </complexType>
+
+         <complexType name="Set_Of_Rec">
+            <complexContent>
+               <restriction base="soap-enc:Array">
+                  <attribute ref="soap-enc:arrayType" wsdl:arrayType="tns:Rec[]"/>
+               </restriction>
+            </complexContent>
+         </complexType>
+
+         <complexType name="Complex_Rec">
+            <all>
+               <element name="SI" type="tns:Set_Of_Int"/>
+            </all>
+         </complexType>
+      </schema>
+   </types>
+
+   <message name="Plus_Request">
+      <part name="Value" type="xsd:int"/>
+   </message>
+
+   <message name="Plus_Response">
+      <part name="Result" type="xsd:int"/>
+   </message>
+
+   <message name="Next_Request">
+      <part name="Col" type="tns:Color"/>
+   </message>
+
+   <message name="Next_Response">
+      <part name="Result" type="tns:Color"/>
+   </message>
+
+   <message name="Echo_Int_Request">
+      <part name="V" type="xsd:int"/>
+   </message>
+
+   <message name="Echo_Int_Response">
+      <part name="Result" type="xsd:int"/>
+   </message>
+
+   <message name="Echo_Float_Request">
+      <part name="V" type="xsd:float"/>
+   </message>
+
+   <message name="Echo_Float_Response">
+      <part name="Result" type="xsd:float"/>
+   </message>
+
+   <message name="Echo_Boolean_Request">
+      <part name="V" type="xsd:boolean"/>
+   </message>
+
+   <message name="Echo_Boolean_Response">
+      <part name="Result" type="xsd:boolean"/>
+   </message>
+
+   <message name="Echo_Double_Request">
+      <part name="V" type="xsd:double"/>
+   </message>
+
+   <message name="Echo_Double_Response">
+      <part name="Result" type="xsd:double"/>
+   </message>
+
+   <message name="Echo_Rec_Request">
+      <part name="V" type="tns:Rec"/>
+   </message>
+
+   <message name="Echo_Rec_Response">
+      <part name="Result" type="tns:Rec"/>
+   </message>
+
+   <message name="Echo_New_Rec_Request">
+      <part name="V" type="tns:New_Rec"/>
+   </message>
+
+   <message name="Echo_New_Rec_Response">
+      <part name="Result" type="tns:New_Rec"/>
+   </message>
+
+   <message name="Echo_Set_Request">
+      <part name="Set" type="tns:Set_Of_Int"/>
+   </message>
+
+   <message name="Echo_Set_Response">
+      <part name="Result" type="tns:Set_Of_Int"/>
+   </message>
+
+   <message name="Echo_Set_Rec_Request">
+      <part name="Set" type="tns:Set_Of_Rec"/>
+   </message>
+
+   <message name="Echo_Set_Rec_Response">
+      <part name="Result" type="tns:Set_Of_Rec"/>
+   </message>
+
+   <message name="Echo_Complex_Rec_Request">
+      <part name="C_Rec" type="tns:Complex_Rec"/>
+   </message>
+
+   <message name="Echo_Complex_Rec_Response">
+      <part name="Result" type="tns:Complex_Rec"/>
+   </message>
+
+   <portType name="WSDL4_PortType">
+
+      <operation name="Plus">
+         <input message="tns:Plus_Request"/>
+         <output message="tns:Plus_Response"/>
+      </operation>
+
+      <operation name="Next">
+         <input message="tns:Next_Request"/>
+         <output message="tns:Next_Response"/>
+      </operation>
+
+      <operation name="Echo_Int">
+         <input message="tns:Echo_Int_Request"/>
+         <output message="tns:Echo_Int_Response"/>
+      </operation>
+
+      <operation name="Echo_Float">
+         <input message="tns:Echo_Float_Request"/>
+         <output message="tns:Echo_Float_Response"/>
+      </operation>
+
+      <operation name="Echo_Boolean">
+         <input message="tns:Echo_Boolean_Request"/>
+         <output message="tns:Echo_Boolean_Response"/>
+      </operation>
+
+      <operation name="Echo_Double">
+         <input message="tns:Echo_Double_Request"/>
+         <output message="tns:Echo_Double_Response"/>
+      </operation>
+
+      <operation name="Echo_Rec">
+         <input message="tns:Echo_Rec_Request"/>
+         <output message="tns:Echo_Rec_Response"/>
+      </operation>
+
+      <operation name="Echo_New_Rec">
+         <input message="tns:Echo_New_Rec_Request"/>
+         <output message="tns:Echo_New_Rec_Response"/>
+      </operation>
+
+      <operation name="Echo_Set">
+         <input message="tns:Echo_Set_Request"/>
+         <output message="tns:Echo_Set_Response"/>
+      </operation>
+
+      <operation name="Echo_Set_Rec">
+         <input message="tns:Echo_Set_Rec_Request"/>
+         <output message="tns:Echo_Set_Rec_Response"/>
+      </operation>
+
+      <operation name="Echo_Complex_Rec">
+         <input message="tns:Echo_Complex_Rec_Request"/>
+         <output message="tns:Echo_Complex_Rec_Response"/>
+      </operation>
+   </portType>
+
+   <binding name="WSDL4_Binding" type="tns:WSDL4_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <operation name="Plus">
+         <soap:operation soapAction="Plus"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Next">
+         <soap:operation soapAction="Next"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_Int">
+         <soap:operation soapAction="Echo_Int"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_Float">
+         <soap:operation soapAction="Echo_Float"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_Boolean">
+         <soap:operation soapAction="Echo_Boolean"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_Double">
+         <soap:operation soapAction="Echo_Double"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_Rec">
+         <soap:operation soapAction="Echo_Rec"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_New_Rec">
+         <soap:operation soapAction="Echo_New_Rec"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_Set">
+         <soap:operation soapAction="Echo_Set"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_Set_Rec">
+         <soap:operation soapAction="Echo_Set_Rec"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+
+      <operation name="Echo_Complex_Rec">
+         <soap:operation soapAction="Echo_Complex_Rec"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:WSDL4"
+               use="encoded"/>
+         </output>
+      </operation>
+   </binding>
+
+   <service name="wsdl4">
+      <port name="WSDL4_Port" binding="tns:WSDL4_Binding">
+         <soap:address location="http://localhost:7706"/>
+      </port>
+   </service>
+</definitions>
