@@ -617,6 +617,11 @@ package body Ada2WSDL.Parser is
                then
                   return "character";
 
+               elsif Characters.Handling.To_Lower
+                       (Image (Text.Element_Image (Elem))) = "boolean"
+               then
+                  return "boolean";
+
                else
                   if Options.Enum_To_String then
                      return "string";
@@ -628,7 +633,7 @@ package body Ada2WSDL.Parser is
 
             when A_Floating_Point_Definition =>
                Check_Float (E);
-               return "float";
+               return Image (Text.Element_Image (Elem));
 
             when A_Signed_Integer_Type_Definition
               | A_Modular_Type_Definition
