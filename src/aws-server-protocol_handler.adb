@@ -214,17 +214,18 @@ is
 
          AWS.Status.Set.File_Up_To_Date (C_Stat, Is_Up_To_Date);
 
-         Send_General_Header;
-
          if Is_Up_To_Date then
             --  [RFC 2616 - 10.3.5]
             Sockets.Put_Line (Sock,
                               Messages.Status_Line (Messages.S304));
+            Send_General_Header;
             Sockets.New_Line (Sock);
             return;
          else
             Sockets.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
+
+         Send_General_Header;
 
          Sockets.Put_Line
            (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
