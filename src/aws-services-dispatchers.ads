@@ -30,12 +30,9 @@
 
 --  $Id$
 
-with Ada.Finalization;
-
-with AWS.Response;
-with AWS.Status;
-
 package AWS.Services.Dispatchers is
+
+   pragma Pure;
 
    --  Services on the Dispatcher tree are to help building big servers.
    --  Experiences shows that a lot of user's code is to check the value of a
@@ -58,30 +55,5 @@ package AWS.Services.Dispatchers is
    --     to dispatch to a callback depending on the host name. This is known
    --     as virtual hosting and permit to have multiple servers on the same
    --     machine using the same port.
-
-   type Handler is abstract new Ada.Finalization.Controlled with private;
-
-   procedure Initialize (Dispatcher : in out Handler);
-   procedure Adjust     (Dispatcher : in out Handler);
-   procedure Finalize   (Dispatcher : in out Handler);
-   --  Initialize/Adjust/Finalize is doing the reference counting, children
-   --  should just call these routines if posssible.
-
-   function Dispatch
-     (Dispatcher : in Handler;
-      Request    : in Status.Data)
-     return Response.Data is abstract;
-   --  Call the appropriate inherited dispatcher
-
-   type Handler_Class_Access is access all Handler'Class;
-
-   procedure Free (Dispatcher : in out Handler_Class_Access);
-   pragma Inline (Free);
-
-private
-
-   type Handler is abstract new Ada.Finalization.Controlled with record
-      Ref_Counter : Natural := 1;
-   end record;
 
 end AWS.Services.Dispatchers;
