@@ -1,3 +1,40 @@
+2001-05-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.ads, aws-utils.adb:
+	Update copyright notice.
+
+	* aws-translator.ads, aws-translator.adb:
+	Update copyright notice.
+
+	* aws.ads: 
+	(Version): set to 0.11. Will probably be changed later to 1.0.
+
+	* aws-parameters-set.adb:
+	(Add): Handle case where the parameter name has some encoded
+	 characters like $ or #.
+
+	* aws-config.adb:
+	Removed with GNAT.Regpat.
+	(Process_Ini): use Strings.Fixed.Find_Token to parse the
+	 file. Handle now properly the ini files.
+	(Initialize): Fix typo in configuration file name.
+
+	* aws-server-hotplug.ads, aws-server-hotplug.adb: 
+	Update copyright notice.
+
+	* aws-server-get_status.adb:
+	Removes with AWS.Status.
+
+	* aws-parameters.adb: 
+	Update copyright notice.
+	Fix typo.
+	
+	* aws-messages.ads, aws-messages.adb:
+	Update copyright notice.
+
+	* aws-hotplug.ads, aws-hotplug.adb:
+	Update copyright notice.
+
 2001-05-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-log.adb:
