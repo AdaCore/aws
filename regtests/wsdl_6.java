@@ -31,8 +31,9 @@
 // This program can be used to test the AWS SOAP/WSDL implementation using the
 // Axis application server based on Tomcat.
 //
-// First launch the AWS server:
+// First build and launch the AWS server:
 //
+//    $ gnatmake -Pregtests wsdl_6_main
 //    $ wsdl_6_main -j
 //
 // Create the Java stub from WSDL document:
