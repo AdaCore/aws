@@ -100,6 +100,9 @@ procedure WSDL_6_Main is
       Res   : WSDL_6.Rec;
       N_Res : WSDL_6.New_Rec;
 
+      I_Arr : WSDL_6.Set_Of_Int (1 .. 7);
+      A_Res : WSDL_6.Set_Of_Int (1 .. 7);
+
    begin
       Put_Line
         (WSDL_6.Color'Image (WSDL_6_Service.Client.Next (WSDL_6.Red)));
@@ -123,6 +126,20 @@ procedure WSDL_6_Main is
       N_Res := WSDL_6_Service.Client.Echo_New_Rec (NR);
       Put_Line (WSDL_6.Color'Image (N_Res.NC));
       Put_Rec (N_Res.NR);
+
+      --  Array
+
+      for K in I_Arr'Range loop
+         I_Arr (K) := K;
+      end loop;
+
+      A_Res := WSDL_6_Service.Client.Echo_Set (I_Arr);
+
+      Put_Line ("array");
+
+      for K in A_Res'Range loop
+         Put (A_Res (K)); New_Line;
+      end loop;
    end Client;
 
    WS   : AWS.Server.HTTP;
