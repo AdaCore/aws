@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Streams;
+with Ada.Unchecked_Deallocation;
 with System;
 
 with MD5;
@@ -120,5 +122,14 @@ package AWS.Utils is
    private
       R, W : Natural := 0;
    end RW_Semaphore;
+
+   -------------
+   -- Streams --
+   -------------
+
+   type Stream_Element_Array_Access is access Ada.Streams.Stream_Element_Array;
+
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Ada.Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
 end AWS.Utils;
