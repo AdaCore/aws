@@ -30,15 +30,10 @@
 
 --  $Id$
 
-with AWS.Resources.Streams.Memory;
+with AWS.Default;
+with AWS.Resources.Streams;
 
 package AWS.Services.Transient_Pages is
-
-   Default_Lifetime : constant Duration := 5 * 60.0;
-   --  Default life time for a transient page
-
-   type Stream_Type is
-     new AWS.Resources.Streams.Memory.Stream_Type with null record;
 
    function Get_URI return String;
    --  Create a unique URI, must be used to register a transient web page
@@ -46,7 +41,7 @@ package AWS.Services.Transient_Pages is
    procedure Register
      (URI      : in String;
       Resource : in AWS.Resources.Streams.Stream_Access;
-      Lifetime : in Duration := Default_Lifetime);
+      Lifetime : in Duration := Default.Transient_Lifetime);
    --  Register a new transient page, this page will be deleted after Lifetime
    --  seconds.
 
@@ -55,16 +50,6 @@ package AWS.Services.Transient_Pages is
    --  registered.
 
 private
-
-   procedure Close (Resource : in out Stream_Type);
-   --  We override this routine here as we do not want the server to release
-   --  the stream handle. This is handled internaly.
-
-   procedure Release
-     (Resource : in     Stream_Type;
-      File     : in out AWS.Resources.File_Type);
-   --   We override this routine here as we do not want the server to release
-   --  the stream handle. This is handled internaly.
 
    -------------------
    --  Cleaner task --
