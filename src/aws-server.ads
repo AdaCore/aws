@@ -70,6 +70,7 @@ private
 
    type Slot is record
       Sock                : Sockets.Socket_FD;
+      Peername            : Ada.Strings.Unbounded.Unbounded_String;
       Opened              : Boolean := False;
       Abortable           : Boolean := False;
       Activity_Counter    : Natural := 0;
@@ -90,15 +91,18 @@ private
    protected type Slots (N : Positive) is
 
       procedure Set_Abortable (Index : in Positive; Flag : in Boolean);
-      --  set Abortable field to Flag for the Line number Index. This flag is
+      --  Set Abortable field to Flag for the Line number Index. This flag is
       --  used by the Line_Cleaner to know if a line can be aborted safely.
 
+      procedure Set_Peername (Index : in Positive; Peername : in String);
+      --  Set the Peername for the associated socket.
+
       procedure Mark_Activity_Time (Index : in Positive);
-      --  set Activity_Time_Stamp which is the last time where the line number
+      --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
 
       procedure Abort_Oldest  (Force : in Boolean);
-      --  abort oldest line (the line with the oldest activity time stamp) if
+      --  Abort oldest line (the line with the oldest activity time stamp) if
       --  force is True. Otherwise the Line must be in an abortable state.
 
       procedure Get (FD : in Sockets.Socket_FD; Index : in Positive);
@@ -106,13 +110,16 @@ private
       --  with the socket FD. Opened status is set to True.
 
       procedure Release  (Index : in Positive);
-      --  release slot number Index. Opened status us set to False.
+      --  Release slot number Index. Opened status us set to False.
 
       function Free return Boolean;
-      --  returns True if there is some free slots available.
+      --  Returns True if there is some free slots available.
 
       function Get (Index : in Positive) return Slot;
-      --  returns Slot data
+      --  Returns Slot data
+
+      function Get_Peername (Index : in Positive) return String;
+      --  Returns the peername for socket at position Index.
 
    private
       Set   : Slot_Set (1 .. N);
