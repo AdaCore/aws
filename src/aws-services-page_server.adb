@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,6 +34,7 @@ with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.OS_Lib;
+with AWS.Resources;
 with AWS.Server;
 with AWS.Services.Directory;
 with AWS.Templates;
@@ -52,7 +53,7 @@ package body AWS.Services.Page_Server is
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
 
    begin
-      if OS_Lib.Is_Regular_File (Filename) then
+      if Resources.Is_Regular_File (Filename) then
          return AWS.Response.File
            (Content_Type => AWS.MIME.Content_Type (Filename),
             Filename     => Filename);
