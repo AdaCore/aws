@@ -82,5 +82,6 @@ package AWS.Default is
    Security                  : constant Boolean := False;
    Session                   : constant Boolean := False;
    Case_Sensitive_Parameters : constant Boolean := True;
+   Line_Stack_Size           : constant         := 200_000;
 
 end AWS.Default;
