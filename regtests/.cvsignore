@@ -227,6 +227,7 @@ dirop.res
 dirop.tmp
 disp_soap
 disp_soap.res
+disp_soap_sec.res
 dispatch
 dispatch.res
 dispatch_method
@@ -307,6 +308,7 @@ moved.tmp
 multiple
 multiple.res
 no_param.res
+nonce.res
 once
 once.res
 param
