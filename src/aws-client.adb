@@ -1662,7 +1662,7 @@ package body AWS.Client is
               (Read_Internal, Connection.Decode_Buffer.all,
                Connection.Decode_First, Connection.Decode_Last,
                Allow_Read_Some => True);
-            --  Decompress gzip or deflate encoded data.
+            --  Decompress gzip or deflate encoded data
          begin
             Read (Connection.Decode_Filter, Data, Last);
          end;
@@ -1671,7 +1671,7 @@ package body AWS.Client is
             --  When the 4 byte check sum is in the last chunk
             --  external routines could think that data is over,
             --  and would not call Read_Some any more. We have to
-            --  read rest 0 at the end of chunked stream.
+            --  read the last chunk of a chunked stream.
 
             Read_Internal (Data, Last);
 
