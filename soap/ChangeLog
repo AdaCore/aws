@@ -1,5 +1,8 @@
 2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-client.ads, soap-client.adb:
+	(Call): Change connection mode to "in". Reformat parameter. 
+
 	* soap-client.adb:
 	(Call): Add SOAPAction for the persistent connection. Pass it to
 	 the AWS.Client.SOAP_Post call.
