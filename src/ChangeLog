@@ -1,3 +1,14 @@
+2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.ads:
+	(Secure_Server): New routine.
+	(Secure_Client): New routine.
+
+	* aws-net-ssl.adb:
+	(Secure): New routine.
+	(Secure_Server): New routine.
+	(Secure_Client): New routine.
+
 2004-09-25  Pascal Obry  <pascal@obry.org>
 
 	* aws-server-protocol_handler.adb:
@@ -15,7 +26,7 @@
 	(File_Upload): Register uploaded files as attachments this ensures
 	 that all files will be removed by the server.
 	(Store_Attachments): Rename Content_ID to Content_Id.
-	
+
 2004-09-25  Pascal Obry  <pascal@obry.org>
 
 	* aws-net.ads, aws-net-generic_sets.ads:
@@ -26,7 +37,7 @@
 	(Set_Certificate): Call File_Error with the proper kind of
 	 expected file.
 	Minor reformatting.
-	
+
 2004-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:

@@ -1,3 +1,8 @@
+2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* plain2ssl.adb, plain2ssl.out, makefile:
+	New regression test.
+
 2004-09-26  Pascal Obry  <pascal@obry.org>
 
 	* upload5.adb:
@@ -35,9 +40,9 @@
 
 2004-09-17  Pascal Obry  <pascal@obry.org>
 
-	* upload5.out: 
+	* upload5.out:
 	Fix output.
-	
+
 2004-09-17  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
