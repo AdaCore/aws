@@ -654,17 +654,23 @@ support/README.TXT
 tools/awsres.adb
 tools/hotplug_password.adb
 tools/makefile
+win32/ChangeLog
 win32/aws.ico
 win32/aws.rc
-win32/ChangeLog
+win32/crypto.def
+win32/gai_strerror.c
 win32/makefile
 win32/poll.adb
 win32/poll.ads
 win32/readme.txt
+win32/ssl.def
+win32/win32.gpr
 win32/wldap32.def
+win32/wspiapi.c
+win32/wspiapi.h
 
 --  FULL section distrib
---  following files are used for the full distrib
+--  following files are used for the full distrib (SOAP/XMLADA/SSL support)
 
 demos/hello.wsdl
 demos/interoplab_main.adb
@@ -815,7 +821,6 @@ regtests/xmlt_proc.adb
 regtests/xmlt_sec.adb
 regtests/xmlt_sec.out
 soap/ChangeLog
-soap/makefile
 soap/soap-client.adb
 soap/soap-client.ads
 soap/soap-dispatchers-callback.adb
