@@ -32,7 +32,9 @@
 
 with Ada.Strings.Unbounded;
 
-with AWS.Containers.Key_Value;
+with GNAT.Dynamic_Tables;
+
+with Table_Of_Strings_And_Static_Values_G;
 
 package AWS.Containers.Tables is
 
@@ -89,12 +91,48 @@ private
    --  A Table_Type must be initialized by calling
    --  AWS.Containers.Tables.Set.Reset, Server is responsible for doing that.
 
+   type String_Access is access all String;
+
+   type Element is record
+      Name  : String_Access;
+      Value : String_Access;
+   end record;
+   --  We could not use Unbounded_String becouse GNAT.Dynamic_Tables
+   --  does not support controlled types.
+
+   type Key_Positive is new Positive;
+
+   package Name_Indexes is new GNAT.Dynamic_Tables
+     (Table_Component_Type => Positive,
+      Table_Index_Type     => Key_Positive,
+      Table_Low_Bound      => 1,
+      Table_Initial        => 4,
+      Table_Increment      => 30);
+
+   subtype Name_Index_Table is Name_Indexes.Instance;
+
+   package Data_Table is new GNAT.Dynamic_Tables
+     (Table_Component_Type => Element,
+      Table_Index_Type     => Natural,
+      Table_Low_Bound      => 1,
+      Table_Initial        => 8,
+      Table_Increment      => 30);
+
+   package Index_Table is new Table_Of_Strings_And_Static_Values_G
+     (Character, String, "<", "=", Name_Index_Table);
+   --  Index of the Element_Array.
+
+   type Index_Table_Type is new Index_Table.Table_Type;
+
+   type Index_Access is access Index_Table_Type;
+
    type Table_Type is tagged record
       Case_Sensitive : Boolean := True;
-      Data           : Key_Value.Set_Access;
-      --  Main data tree.
-      Ordered_Data   : Key_Value.Set_Access;
-      --  Tree to record key and value by order.
+      Index          : Index_Access;
+      --  Index for find appropriate Name/Value pairs
+      --  in the Data by the name.
+      Data           : Data_Table.Instance;
+      --  Array of name and value pairs by order.
    end record;
 
    function Internal_Get
@@ -106,8 +144,6 @@ private
    --  Returns the Nth value associated with Key into Table. Returns
    --  the emptry string if key does not exist. If N = 0 it returns as-is all
    --  the values as inserted in the tree for Key.
-
-   Val_Separator : constant Character := ASCII.VT;
 
    function Normalize_Name
      (Name : in String; To_Upper : in Boolean)
