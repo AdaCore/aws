@@ -205,22 +205,14 @@ package body AWS.Server is
                                 ("EXCEPTION", Exception_Information (E)))),
                Messages.S500);
          else
-            declare
-               M500 : constant String
-                 := "Internal Server Error.<br>"
-                 & "Please, send the following information to the Web Master,"
-                 & " thanks.<br><hr><br>"
-                 & "@_LF_2_BR:EXCEPTION_@"
-                 & "<br><hr>";
-
-               EXP  : constant Templates.Association
-                 := Templates.Assoc ("EXCEPTION", Exception_Information (E));
-            begin
-               Answer := Response.Build
-                 (MIME.Text_HTML,
-                  String'(Templates.Translate (M500, (1 => EXP))),
-                  Messages.S500);
-            end;
+            Answer := Response.Build
+              (MIME.Text_HTML,
+               "Internal Server Error.<br>"
+                 & "Please, send the following information to the Web "
+                 & "Master, thanks.<br><hr><br>"
+                 & "<pre>" & Exception_Information (E) & "</pre>"
+                 & "<br><hr>",
+               Messages.S500);
          end if;
       end if;
    end Default_Unexpected_Exception_Handler;
