@@ -56,7 +56,7 @@ package body AWS.Attachments is
    procedure Add
      (Attachments : in out List;
       Filename    : in     String;
-      Content_Id  : in     String)
+      Content_ID  : in     String)
    is
       use type Attachment_Table.Vector;
 
