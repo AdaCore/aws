@@ -19,12 +19,12 @@
 @subtitle $Revision$
 @subtitle Date: @today{}
 @author Dmitriy Anisimkov (anisimkov@@yahoo.com)
-@author Pascal Obry (p.obry@@wanadoo.fr)
+@author Pascal Obry (pascal@@obry.org)
 
 @sp 1
 @url{http://libre.act-europe.fr}
 @sp 1
-@url{http://perso.wanadoo.fr/pascal.obry}
+@url{http://www.obry.org}
 
 @vskip 0pt plus 1filll
 
@@ -42,12 +42,12 @@
 <p>$Revision$
 <p>Date: @today{}
 <p>Dmitriy Anisimkov (anisimkov@@yahoo.com)
-<p>Pascal Obry (p.obry@@wanadoo.fr)
+<p>Pascal Obry (pascal@@obry.org)
 </font>
 
 <font size="+1">
 <p>@url{http://libre.act-europe.fr}
-<p>@url{http://perso.wanadoo.fr/pascal.obry}
+<p>@url{http://www.obry.org}
 </font>
 
 @page
