@@ -66,9 +66,9 @@ is possible as @code{AWS} also implement the client side of the HTTP protocol.
 
 @noindent
 Moreover with this library it is possible to have more than one server
-in a single application. It is then possible to export differents kind
+in a single application. It is then possible to export different kind
 of services by using different HTTP ports, or two have different port
-for differents services priority. Client which must be served with a
+for different services priority. Client which must be served with a
 very high priority can be assigned a specific port for example.
 
 @noindent
@@ -102,14 +102,14 @@ a very good and Open Source SSL implementation.
 @section Requirements
 
 @noindent
-@code{AWS} has been developped with GNAT under Windows NT but should be fairly
+@code{AWS} has been developed with GNAT under Windows NT but should be fairly
 portable. To build @code{AWS} you need:
 
 @itemize @bullet
 
 @item an Ada95 compiler ;
 
-There is many of them. @code{AWS} has been developped with GNAT but uses
+There is many of them. @code{AWS} has been developed with GNAT but uses
 only Ada95 features. So any Ada95 compiler should be usable.
 
 @item a socket binding ;
@@ -130,11 +130,11 @@ Under Windows you can use the one distributed at:
 Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
 @item OpenSSL (@b{optional}) ;
-@cindex OpenSLL
+@cindex OpenSSL
 
 OpenSSL is an Open Source toolkit implementing the Secure Sockets Layer
 (SSL v2 and v3) and much more. You'll find libraries for Win32 into this
-distribution. For other paltforms just download the OpenSSL source
+distribution. For other platforms just download the OpenSSL source
 distribution from @url{http://www.openssl.org} and build it.
 
 @end itemize
@@ -151,7 +151,7 @@ The @code{AWS.OS_Lib} has 3 implementations. One using @code{POSIX}, one using
 
 @item GNAT.OS_Lib implementation
 
-Version using @code{GNAT.OS_Lib} is GNAT dependant and will run on whatever OS 
+Version using @code{GNAT.OS_Lib} is GNAT dependent and will run on whatever OS 
 GNAT has be ported to. This is the @b{default implementation} used.
 
 @smallexample
@@ -164,9 +164,9 @@ $ make gnat_oslib
 
 @item POSIX implementation
 
-Version with POSIX is compiler and OS independant (well if you have a POSIX
+Version with POSIX is compiler and OS independent (well if you have a POSIX
 implementation for your OS). Check out Florist which is available on many
-UNIXs and the version for Win32 available under my homepage.
+UNIX and the version for Win32 available under my homepage.
 
 @smallexample
 Just copy @file{include/aws-os_lib-posix.adb} over @file{src/aws-os_lib.adb}.
@@ -305,7 +305,7 @@ You need to start the server before using it. This is done by calling
 @i{--  lines. Name is just a string used to identify the server. This is used}
 @i{--  for example in the administrative page. Admin_URI must be set to enable}
 @i{--  the administrative status page. Callback is the procedure to call for}
-@i{--  each ressource requested. Port is the Web server port. If Security is}
+@i{--  each resource requested. Port is the Web server port. If Security is}
 @i{--  set to True the server will use an HTTPS/SSL connection. If Session is}
 @i{--  set to True the server will be able to get a status for each client}
 @i{--  connected. A session ID is used for that, on the client side it is a}
@@ -334,7 +334,7 @@ example in the administrative status page.
 @item Callback
 @cindex Callback
 
-This is the procedure to call for each requested ressources. In this
+This is the procedure to call for each requested resources. In this
 procedure you must handle all the possible URI that you want to support.
 (see below).
 
@@ -350,7 +350,7 @@ connections.
 @item Admin_URI
 @cindex Admin_URI
 
-This is a special URI recongnized internally by the server. If this URI
+This is a special URI recognized internally by the server. If this URI
 is requested the server will return the administrative page. This page
 is built using a specific template page (default is
 @file{@_STATUS_PAGE_@}) @pxref{Status page}.
@@ -461,32 +461,32 @@ build the HTML Web Server answer. See Templates_Parser on
 
 @noindent
 The callback procedure is the user's code that will be called by the AWS
-component to get the right answer for the requested ressource. In fact
+component to get the right answer for the requested resource. In fact
 AWS just open the HTTP message, parsing the HTTP header and it builds
 an object of type @code{AWS.Status.Data}. At this point it calls the
 user's callback procedure, passing the object. The callback procedure
-must returns the right response for the requested ressources. Now AWS
+must returns the right response for the requested resources. Now AWS
 will just build up the HTTP response message and send it back to
 user's browser.
 
 @noindent
-@b{But what is the ressource ?}
-@cindex ressources
+@b{But what is the resource ?}
+@cindex resources
 
 @noindent
-Indeed in a standard Web development a ressource is either a static
+Indeed in a standard Web development a resource is either a static
 object - an HTML page, an XML or SSL document - or a CGI script. With
-AWS a ressource is @i{just a string} to identify the ressource, it
+AWS a resource is @i{just a string} to identify the resource, it
 does not represent the name of a static object or CGI script.
 
 @noindent
 So this string is just an internal representation of the
-ressource. The callback procedure must be implemented to handle each
-internal ressource and answer the right response.
+resource. The callback procedure must be implemented to handle each
+internal resource and answer the right response.
 
 @noindent
 Let's have a small example. For example we want to build a Web server
-that will answer ``Hello World'' if we ask for the internal ressource 
+that will answer ``Hello World'' if we ask for the internal resource 
 @b{/hello}, and must answer ``Hum...'' otherwise.
 
 @cindex Hello world
@@ -521,7 +521,7 @@ that will answer ``Hello World'' if we ask for the internal ressource
 @end smallexample
 
 @noindent
-Now of course the ressource internal name can represent a file on
+Now of course the resource internal name can represent a file on
 disk. It is not mandatory but it is possible. For example it is
 perfectly possible to build with AWS a simple page server.
 
@@ -529,7 +529,7 @@ perfectly possible to build with AWS a simple page server.
 @cindex Simple server
 @noindent
 As an example, let's build a simple page server. This server will
-returns files in the current directory. Here there ressource internal
+returns files in the current directory. Here there resource internal
 name represents an HTML page or a GIF or PNG image for example. This
 server will return a 404 message (Web Page Not Found) if the file does
 not exist. Here is the callback procedure that implement such simple
@@ -581,9 +581,9 @@ Enter your name
 @end smallexample
 
 @noindent
-Note that as explained above @pxref{Callback procedure}, the ressource
+Note that as explained above @pxref{Callback procedure}, the resource
 described in @code{ACTION} is just an internal string representation
-for the ressource.
+for the resource.
 
 @noindent
 In this example there is two form parameters:
@@ -637,7 +637,7 @@ Returns the string "Ok".
 
 @noindent
 @code{Request} is the @code{AWS} current connection status passed to the
-callback procedure. And @code{P} is the parameters list retreived from the
+callback procedure. And @code{P} is the parameters list retrieved from the
 connection status data. For a discussion about the callback procedure
 @xref{Building an AWS server}.
 
@@ -686,7 +686,7 @@ recompiling it. There is two configurations files:
 @item aws.ini
 @cindex aws.ini
 
-This file is parsed first and correspond to configuation for all AWS
+This file is parsed first and correspond to configuration for all AWS
 server runs from the same directory.
 
 @item <program_name>.ini
@@ -719,24 +719,24 @@ calling @code{AWS.Server.Start}. The default is @file{@_ADMIN_URI_@}.
 
 @item Cleaner_Wait_For_Client_Timeout (duration)
 @cindex Cleaner_Wait_For_Client_Timeout
-Number of seconds to timout on waiting for a client request. This is a
+Number of seconds to timeout on waiting for a client request. This is a
 timeout for regular cleaning task. The default is
 @_CT_WAIT_FOR_CLIENT_@ seconds.
 
 @item Cleaner_Client_Header_Timeout (duration)
 @cindex Cleaner_Client_Header_Timeout
-Number of seconds to timout on waiting for client header. This is a
+Number of seconds to timeout on waiting for client header. This is a
 timeout for regular cleaning task. The default is @_CT_CLIENT_HEADER_@ seconds.
 
 @item Cleaner_Client_Data_Timeout (duration)
 @cindex Cleaner_Client_Data_Timeout
-Number of seconds to timout on waiting for client message body. This
+Number of seconds to timeout on waiting for client message body. This
 is a timeout for regular cleaning task. The default is
 @_CT_CLIENT_DATA_@ seconds.
 
 @item Cleaner_Server_Response_Timeout (duration)
 @cindex Cleaner_Server_Response_Timeout
-Number of seconds to timout on waiting for client to accept
+Number of seconds to timeout on waiting for client to accept
 answer. This is a timeout for regular cleaning task. The default is
 @_CT_SERVER_RESPONSE_@ seconds.
 
@@ -747,26 +747,26 @@ The name of the down arrow image to use in the status page. The default is
 
 @item Force_Wait_For_Client_Timeout (duration)
 @cindex Force_Wait_For_Client_Timeout
-Number of seconds to timout on waiting for a client request. This is a
-timeout for urgent request when ressources are missing. The default is
+Number of seconds to timeout on waiting for a client request. This is a
+timeout for urgent request when resources are missing. The default is
 @_FT_WAIT_FOR_CLIENT_@ seconds.
 
 @item Force_Client_Header_Timeout (duration)
 @cindex Force_Client_Header_Timeout
-Number of seconds to timout on waiting for client header. This is a
-timeout for urgent request when ressources are missing. The default is
+Number of seconds to timeout on waiting for client header. This is a
+timeout for urgent request when resources are missing. The default is
 @_FT_CLIENT_HEADER_@ seconds.
 
 @item Force_Client_Data_Timeout (duration)
 @cindex Force_Client_Data_Timeout
-Number of seconds to timout on waiting for client message body. This
-is a timeout for urgent request when ressources are missing. The default is
+Number of seconds to timeout on waiting for client message body. This
+is a timeout for urgent request when resources are missing. The default is
 @_FT_CLIENT_DATA_@ seconds.
 
 @item Force_Server_Response_Timeout (duration)
 @cindex Force_Server_Response_Timeout
-Number of seconds to timout on waiting for client to accept answer. This 
-is a timeout for urgent request when ressources are missing. The default is
+Number of seconds to timeout on waiting for client to accept answer. This 
+is a timeout for urgent request when resources are missing. The default is
 @_FT_SERVER_RESPONSE_@ seconds.
 
 @item Log_File_Directory (string)
@@ -800,12 +800,12 @@ default is @_MAX_CONNECT_@.
 
 @item Receive_Timeout (duration)
 @cindex Receive_Timeout
-Number of seconds to timeout when receiving chunck of data. The
+Number of seconds to timeout when receiving chunk of data. The
 default is @_RECEIVE_TIMEOUT_@ seconds.
 
 @item Send_Timeout (duration)
 @cindex Send_Timeout
-Number of seconds to timeout when sending chunck of data. The default is
+Number of seconds to timeout when sending chunk of data. The default is
 @_SEND_TIMEOUT_@ seconds.
 
 @item Server_Name (string)
@@ -815,7 +815,7 @@ The name of the server. This can be used when calling
 
 @item Server_Port (integer)
 @cindex Server_Port
-The port where server will wait for incomming connections requests. This
+The port where server will wait for incoming connections requests. This
 can be used when calling @code{AWS.Server.Start}. The default is
 @_SERVER_PORT_@.
 
@@ -883,11 +883,11 @@ browsing. There is no need to mess with the Cookies, @code{AWS} will do
 that for you. The idea is simple. A session ID will be transparently
 created and then you'll be able to insert and retrieve session data
 using a standard Ada API (@xref{AWS.Session}.). Session data
-are key/value pair each of them beeing strings. How to deal with that ?
+are key/value pair each of them being strings. How to deal with that ?
 
 @itemize
 
-@item First you declare and start an HTTP chanel with session enabled:
+@item First you declare and start an HTTP channel with session enabled:
 
 @smallexample
 @cartouche
@@ -907,7 +907,7 @@ Here we have built an HTTP channel with a maximum of 3 simultaneous
 connections using the port 1234. A session ID will be created and sent
 inside a cookie to the client's browser at the first request. This
 session ID will be sent back to the server each time the client will ask
-for a ressource to the server.
+for a resource to the server.
 
 @item Next, in the Service callback procedure that you have provided you
 must retrieve the Session ID. As we have seen, the callback procedure
@@ -922,7 +922,7 @@ has the following prototype:
 @end smallexample
 
 @noindent
-The Session ID is keept in the Request object and can be retrieved using:
+The Session ID is kept in the Request object and can be retrieved using:
 
 @smallexample
 @cartouche
@@ -1019,8 +1019,8 @@ request many URI from the same server using the same connection
 (i.e. the same sockets).
 
 @noindent
-@code{AWS} client API also support proxy, proxy authentification and Web server
-authentification. Only basic (and not digest) authentification is
+@code{AWS} client API also support proxy, proxy authentication and Web server
+authentication. Only basic (and not digest) authentication is
 supported at this time.
 
 @noindent
@@ -1047,6 +1047,15 @@ From there you can ask for the result's content type:
 @end smallexample
 
 @noindent
+Or using the MIME types defined in @code{AWS.MIME} unit:
+
+@smallexample
+@b{if} Response.Content_Type (Data) = MIME.Text_HTML @b{then}
+   ...
+@b{end if};
+@end smallexample
+
+@noindent
 And display the content if it is some kind of text data:
 
 @smallexample
@@ -1054,7 +1063,7 @@ Text_IO.Put_Line (Response.Message_Body (Data));
 @end smallexample
 
 @noindent
-If the content is some kind of binary data (executable, png image, Zip
+If the content is some kind of binary data (executable, PNG image, Zip
 archive...), then it is possible to write the result to a file for
 example. Look at the @code{agent} program in the @code{demos} directory.
 
@@ -1070,11 +1079,15 @@ example. Look at the @code{agent} program in the @code{demos} directory.
 
 @noindent
 This API is used to do communication between programs using the HTTP
-protocol. It is a very simple API not to be compared with GLADE.
+protocol. It is a very simple API not to be compared with @code{GLADE}. This
+communication facility is to be used for simple request or when a
+light communication support is needed. For more complex communications
+or to achieve inter-operability with other modules it is certainly a
+good idea to have a look at the @code{AWS/SOAP} support, @pxref{SOAP}.
 
 @noindent
 In a communication there is a Client and a Server. Here is what is to be
-done on both sides.
+done on both sides to have programs talking together.
 
 @node Communication - client side
 @subsection Communication - client side
@@ -1109,12 +1122,12 @@ callback procedure.
 
 @noindent
 On the server side things are a bit more complex but not that
-difficult. You must instanciate the @code{AWS.Communication.Server}
+difficult. You must instantiate the @code{AWS.Communication.Server}
 generic package by providing a callback procedure. This callback
 procedure will must handle all kind of message that a client will send.
 
 @noindent
-During instanciation you must also pass a context for the communication
+During instantiation you must also pass a context for the communication
 server. This context will be passed back to the callback procedure.
 
 @smallexample
@@ -1270,7 +1283,7 @@ To be written.
 @cindex logs
 
 @noindent
-It is possible to have the server activitly logged into the file
+It is possible to have the server activity logged into the file
 @file{<progname>-Y-M-D.log}. To activate the logging you must call the
 @code{AWS.Server.Start_Log}, and it is possible to stop logging by calling
 @code{AWS.Server.Stop_Log}. @xref{AWS.Log}, for more information
@@ -1364,7 +1377,7 @@ Params  : @b{constant} SOAP.Parameters.List
 @end smallexample
 
 @code{SOAP.Parameters.List} is a structure which holds the SOAP parameters.
-Each parameter can be retreived using a @code{SOAP.Parameters} API,
+Each parameter can be retrieved using a @code{SOAP.Parameters} API,
 @pxref{SOAP.Parameters}. For example to get the parameter named
 @code{myStruc} which is a SOAP struct:
 
@@ -1512,7 +1525,7 @@ connection, the number of time a connection has been used...
 @noindent
 To display the information @code{AWS} use a template file. The
 template file (default is @file{@_STATUS_PAGE_@}) is an HTML file with
-some specific file recongnized by the parser. For more information
+some specific file recognized by the parser. For more information
 about how does the template parser works, please look for the template
 parser distribution at @url{http://perso.wanadoo.fr/} in the Ada section.
 
