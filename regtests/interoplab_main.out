@@ -48,3 +48,14 @@ Echo ArrayOfFloat
  6 = 65.60
  7 =  1.70
 
+Echo ArrayOfStruct
+          1
+ 1.10
+one
+          2
+ 2.20
+two
+          3
+ 3.30
+three
+
