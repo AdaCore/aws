@@ -1,5 +1,12 @@
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws.ads:
+	(Version): Set to 1.3-rc2.
+
+	* aws-server-protocol_handler.adb:
+	Properly call the unexpected exception handler when Data_Sent is
+	 True. Better patch for previous fix.
+
 	* aws-log.adb:
 	(Log_Prefix): Handle the program name position specificed with
 	 character '@'.
