@@ -289,9 +289,11 @@ private
          return Boolean;
       --  Return True when slot can be aborted
 
-      procedure Abort_On_Timeout (Mode : in Timeout_Mode; Done : out Boolean);
-      --  Abort slots if timeout exceeded.
-      --  Set Done to True in case of abortion.
+      procedure Abort_On_Timeout
+        (Mode   : in     Timeout_Mode;
+         Socket :    out Socket_Access);
+      --  Get the socket pointer from slot where timeout exceeded.
+      --  Return null if no such sockets.
 
       function Free_Slots return Natural;
       --  Returns number of free slots
@@ -306,12 +308,20 @@ private
       --  necessary information for Server line task, for determine is it
       --  necessary to call Line_Cleaner in Force mode.
 
-      procedure Shutdown (Index : in Positive);
-      --  Break all communications over the slot.
+      procedure Get_For_Shutdown
+        (Index  : in     Positive;
+         Socket :    out Socket_Access);
+      --  Get socket from the slot for shutdown.
       --  Slot phase is set to Aborted.
 
-      procedure Release  (Index : in Positive);
-      --  Release slot number Index. Slot phase is set to Closed
+      procedure Release
+        (Index    : in     Positive;
+         Shutdown :    out Boolean);
+      --  Release slot number Index. Slot phase is set to Closed.
+      --  Set the shutdown flag to True is called task have to
+      --  shutdown and free the socket.
+      --  Note that calling task is only the Line task,
+      --  so the socket need to be shutdown is in the stack on the Line task.
 
       function Get (Index : in Positive) return Slot;
       --  Returns Slot data
