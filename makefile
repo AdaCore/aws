@@ -24,6 +24,12 @@ LIB_IS   =  -lxmlada_input_sources-$(v_XMLADA)
 LIBS	 = -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX)
 endif
 
+ifeq (${OS}, Windows_NT)
+EXEEXT = .exe
+else
+EXEEXT =
+endif
+
 INSTALL	 = /usr/Ada.Libraries
 # AWS will be installed under $(INSTALL)/AWS
 
@@ -82,10 +88,13 @@ set_std:
 	echo "MODE=std" > makefile.conf
 	${MAKE} -C src std_mode
 
-build: build_ssllib build_include build_aws build_win32 build_demo
+build: build_ssllib build_include build_aws build_win32 build_tools build_demo
 
 build_aws:
 	${MAKE} -C src build $(ALL_OPTIONS)
+
+build_tools:
+	${MAKE} -C tools build $(ALL_OPTIONS)
 
 build_demo:
 	${MAKE} -C demos build $(ALL_OPTIONS)
@@ -133,6 +142,7 @@ clean:
 	${MAKE} -C soap clean
 	${MAKE} -C regtests clean
 	${MAKE} -C win32 clean
+	${MAKE} -C tools clean
 	-rm *.~*.*~
 	rm makefile.conf
 	echo MODE=std > makefile.conf
@@ -151,6 +161,7 @@ distrib: clean build_doc
 	mkdir $${AWS}/soap; \
 	mkdir $${AWS}/ssl; \
 	mkdir $${AWS}/win32; \
+	mkdir $${AWS}/tools; \
 	cp AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	cp src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
 	cp demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
@@ -170,6 +181,7 @@ distrib: clean build_doc
 	cp include/readme.txt $${AWS}/include;\
 	cp icons/*.gif $${AWS}/icons;\
 	cp soap/*.ad[sb] soap/makefile soap/ChangeLog $${AWS}/soap;\
+	cp tools/*.ad[sb] tools/makefile $${AWS}/tools;\
 	tar cf $${AWS}.tar $${AWS};\
 	gzip -9 $${AWS}.tar;\
 	rm -fr $${AWS})
@@ -184,6 +196,7 @@ install:
 	mkdir $(INSTALL)/AWS/templates
 	mkdir $(INSTALL)/AWS/docs
 	mkdir $(INSTALL)/AWS/components
+	mkdir $(INSTALL)/AWS/tools
 	ar cr libaws.a src/*.o
 	-ar cr libaws.a ssl/*.o
 	-ar cr libaws.a soap/*.o
@@ -203,3 +216,4 @@ install:
 	cp demos/aws_*.png $(INSTALL)/AWS/images
 	-cp ssl/*.a $(INSTALL)/AWS/lib
 	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/AWS/components
+	cp tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
