@@ -1,3 +1,11 @@
+2004-12-04  Pascal Obry  <pascal@obry.org>
+
+	* tools.gpr:
+	Do not use the full pathname for the ASIS project file. It is
+	 required to have the .build/projects diorectory into the
+	 ADA_PROJECT_PATH ant it makes it possible to use the default
+	 asis.gpr in recent ASIS version.
+
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
 	* wsdl2aws.adb:
