@@ -40,6 +40,9 @@ endif
 RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
 	test_soap2 test_soap3 test_soap4 test_soap5 disp_soap $(RT_SOAP_SEC)
 
+# SOAP/WSDL test using ada2wsdl (ASIS package required)
+RT_SOAP_ASIS = wsdl_1
+
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tres2 upload unexph auth auth2 moved turl2 turl3 test_templates_if \
@@ -49,16 +52,21 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	compress zapp zbig zfile zstrm dispatch dispatch_vh dispatch_method \
 	$(RT_STD_SEC)
 
-ifeq ($(XMLADA),)
 STD_TESTS   = $(RT_STD)
 OTH_TESTS   = tres
 WSDL_TESTS  =
 WSDL_ATESTS =
-else
-STD_TESTS   = $(RT_STD) $(RT_SOAP)
-OTH_TESTS   = tres check_mem
+ASIS_TESTS  =
+
+ifdef XMLADA
+STD_TESTS   := $(STD_TESTS) $(RT_SOAP)
+OTH_TESTS   := $(OTH_TESTS) check_mem
 WSDL_TESTS  = test_wsdl test_wsdl2 interoplab_main googlesearch
-WSDL_ATESTS = test_wsdl3 
+WSDL_ATESTS = test_wsdl3
+endif
+
+ifdef ASIS
+ASIS_TESTS  = $(RT_SOAP_ASIS)
 endif
 
 ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
@@ -70,7 +78,8 @@ run : build checks
 
 force:
 
-build: init $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) $(OTH_TESTS)
+build: init $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
+	$(OTH_TESTS) $(ASIS_TESTS)
 
 init:
 	cp ../demos/cert.pem .
@@ -115,6 +124,20 @@ ifdef GDB_REGTESTS
 	./tgdb $@ > $@.res
 else
 	./$@ > $@.res
+endif
+	-diff -c -w $@.out $@.res >> alldifs
+
+$(ASIS_TESTS): force
+	echo -n Building $@
+	../tools/ada2wsdl -q -f -a http://localhost:3333 $@.ads -o $@.wsdl
+	../tools/wsdl2aws -q -f $@.wsdl
+	gnatmake -g $@_main $(GARGS) -largs $(LARGS) -bargs -E
+	echo ",  run it"
+	rm -f $@.res
+ifdef GDB_REGTESTS
+	./tgdb $@_main > $@.res
+else
+	./$@_main > $@.res
 endif
 	-diff -c -w $@.out $@.res >> alldifs
 
