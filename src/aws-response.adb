@@ -479,6 +479,15 @@ package body AWS.Response is
       end if;
    end Message_Body;
 
+   procedure Message_Body
+     (D    : in     Data;
+      File :    out AWS.Resources.File_Type) is
+   begin
+      Resources.Streams.Create (File, D.Stream);
+
+      D.Ref_Counter.Stream_Taken := True;
+   end Message_Body;
+
    ----------
    -- Mode --
    ----------
