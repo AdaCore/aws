@@ -55,6 +55,19 @@ project Shared is
                   "-lxmlada_unicode", "-lxmlada_input_sources")
      & XMLAda.LIB_Path;
 
+   ----------
+   -- ASIS --
+   ----------
+
+   type ASIS_Type is ("Installed", "Disabled");
+   ASIS : ASIS_Type := external ("AWS_ASIS", "Installed");
+
+   -------------------------
+   -- Compression library --
+   -------------------------
+
+   Z_Lib := ("-L../lib", "-lz");
+
    --------------
    -- Compiler --
    --------------
@@ -78,9 +91,7 @@ project Shared is
    -------------
 
    package Builder is
-
       for Default_Switches ("Ada") use ("-m");
-
    end Builder;
 
    ------------
@@ -88,7 +99,7 @@ project Shared is
    ------------
 
    package Linker is
-      for Default_Switches ("Ada") use ("-lz");
+      for Default_Switches ("Ada") use Z_Lib;
    end Linker;
 
 end Shared;
