@@ -282,7 +282,25 @@ package SOAP.Types is
       return XSD_Time_Instant;
 
    function V (O : in XSD_Time_Instant) return Ada.Calendar.Time;
-   --  Returns a GMT date and time.
+   --  Returns a GMT date and time
+
+   -----------------
+   -- Enumeration --
+   -----------------
+
+   type XSD_Enumeration is new Scalar with private;
+
+   function Image     (O : in XSD_Enumeration) return String;
+   function XML_Image (O : in XSD_Enumeration) return String;
+   function XML_Type  (O : in XSD_Enumeration) return String;
+
+   function E
+     (V         : in String;
+      Type_Name : in String;
+      Name      : in String := "item")
+      return XSD_Enumeration;
+
+   function V (O : in XSD_Enumeration) return String;
 
    ---------
    -- Get --
@@ -401,6 +419,11 @@ private
 
    type SOAP_Base64 is new Scalar with record
       V : Unbounded_String;
+   end record;
+
+   type XSD_Enumeration is new Scalar with record
+      V         : Unbounded_String;
+      Type_Name : Unbounded_String;
    end record;
 
    --  Composite SOAP types
