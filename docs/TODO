@@ -143,6 +143,7 @@ implemented:
 
 - Properly support WSDL One-way Operations
   (see Web Services Description Language (WSDL) 1.1 section 2.4.1)
+  PortType without <output> tag.
 
 - Add a simple Web Mail service (AWS.Services.Web_Mail) using the AWS.POP and
   AWS.SMTP API.
