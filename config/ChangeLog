@@ -1,5 +1,20 @@
 2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* src/check_config.c:
+	Add IPPROTO_TCP constant, not defined in AdaSockets.
+	Use linker option -lws2_32 in Win32 anyway to link with AdaSockets.
+
+	* aws-net-std__adasockets.adb:
+	(Get_Addr_Info): New routine.
+	(Bind): Use Get_Addr_Info routine together with Thin.C_Bind.
+	 Catch exception only on socket creation.
+	(Connect): Use Get_Addr_Info routine together with Thin.C_Connect.
+	 Catch exception only on socket creation.
+	Dummy call to FreeAddrInfo in the package initialization, for
+	 initialize internal libwspiapi.a static data.
+
+2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
 	(Pending): New routine.
 
