@@ -225,6 +225,8 @@ regtests/auth.out
 regtests/auth2.adb
 regtests/auth2.out
 regtests/aws.ini
+regtests/back_pack.ads
+regtests/back_pack.adb
 regtests/cert.adb
 regtests/cert.out
 regtests/ChangeLog
@@ -270,7 +272,8 @@ regtests/hostip.adb
 regtests/hostip.out
 regtests/huge_response.adb
 regtests/huge_response.out
-regtests/huge_response_proc.adb
+regtests/huge_response_pack.ads
+regtests/huge_response_pack.adb
 regtests/huge_response_sec.adb
 regtests/huge_response_sec.out
 regtests/hval.adb
