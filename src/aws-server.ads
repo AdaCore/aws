@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Exceptions;
 with Ada.Finalization;
 
 with Sockets.Naming;
@@ -42,7 +43,7 @@ with AWS.Config;
 with AWS.Default;
 with AWS.Log;
 with AWS.Dispatchers;
-with Ada.Exceptions;
+with AWS.Utils;
 
 package AWS.Server is
 
@@ -174,6 +175,10 @@ private
       Termination : in Boolean);
    --  Default unexpected exception handler.
 
+   ------------
+   -- Phases --
+   ------------
+
    type Slot_Phase is
      (Closed,
       --  Socket has been closed by one of the peer
@@ -206,15 +211,22 @@ private
    subtype Data_Phase is Abortable_Phase
      range Client_Data .. Server_Response;
 
-   --  This is Force timeouts and timeouts for Line_Cleaner task.
+   --------------
+   -- Timeouts --
+   --------------
 
    type Timeout_Mode is (Cleaner, Force);
+   --  This is Force timeouts and timeouts for Line_Cleaner task.
 
    type Timeouts_Array is array (Timeout_Mode, Abortable_Phase) of Duration;
 
    type Data_Timeouts_Array is array (Data_Phase) of Duration;
 
    subtype Socket_Access is AWS.Status.Socket_Access;
+
+   ----------
+   -- Slot --
+   ----------
 
    type Slot is record
       Sock                  : Socket_Access := null;
@@ -331,17 +343,6 @@ private
 
    type Line_Set_Access is access Line_Set;
 
-   ---------------
-   -- Semaphore --
-   ---------------
-
-   protected type Semaphore is
-      entry Seize;
-      procedure Release;
-   private
-      Seized : Boolean := False;
-   end Semaphore;
-
    ------------------
    -- Line_Cleaner --
    ------------------
@@ -352,6 +353,10 @@ private
 
    type Line_Cleaner_Access is access Line_Cleaner;
    --  run through the slots and see if some of them could be closed.
+
+   ----------
+   -- HTTP --
+   ----------
 
    type HTTP is new Ada.Finalization.Limited_Controlled with record
       Self              : HTTP_Access := HTTP'Unchecked_Access;
@@ -367,12 +372,12 @@ private
       Sock              : Sockets.Socket_FD;
       --  This is the server socket for incoming connection.
 
-      Sock_Sem          : Semaphore;
+      Sock_Sem          : Utils.Semaphore;
       --  Semaphore used to serialize the accepts call on the server socket.
 
       Cleaner           : Line_Cleaner_Access;
       --  Task in charge of cleaning slots status. It checks from time to time
-      --  is the slots is still in used and closed it if possible.
+      --  if the slots is still in used and closed it if possible.
 
       Properties        : CNF.Object := CNF.Get_Current;
       --  All server properties controled by the configuration file.
@@ -381,8 +386,10 @@ private
       --  Loggin support.
 
       Dispatcher        : Dispatchers.Handler_Class_Access;
-      pragma Atomic (Dispatcher);
       --  Dispatcher for the user actions.
+
+      Dispatcher_Sem    : Utils.RW_Semaphore;
+      --  RW semaphore to be able to change dynamically the Dispatcher object.
 
       Filters           : Hotplug.Filter_Set;
       --  Hotplug filters are recorded here.
