@@ -270,14 +270,12 @@ else
 	echo "Using GNAT.Sockets"
 endif
 
-build_tarball:
+common_tarball:
 	$(CHMOD) uog+rx win32/*.dll
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-$${VERSION}; \
-	$(RM) -f $${AWS}.tar.gz; \
 	$(MKDIR) $${AWS}; \
 	$(MKDIR) $${AWS}/src; \
-	$(MKDIR) $${AWS}/xsrc; \
 	$(MKDIR) $${AWS}/demos; \
 	$(MKDIR) $${AWS}/regtests; \
 	$(MKDIR) $${AWS}/docs; \
@@ -286,7 +284,6 @@ build_tarball:
 	$(MKDIR) $${AWS}/include; \
 	$(MKDIR) $${AWS}/include/zlib; \
 	$(MKDIR) $${AWS}/lib; \
-	$(MKDIR) $${AWS}/soap; \
 	$(MKDIR) $${AWS}/ssl; \
 	$(MKDIR) $${AWS}/win32; \
 	$(MKDIR) $${AWS}/tools; \
@@ -294,117 +291,53 @@ build_tarball:
 	$(MKDIR) $${AWS}/config/src; \
 	$(MKDIR) $${AWS}/config/projects; \
 	$(MKDIR) $${AWS}/support; \
-	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
-	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
-	$(CP) demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
-	$(CP) demos/*.ads demos/*.adb $${AWS}/demos;\
-	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
-	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
-	$(CP) demos/*.wsdl $${AWS}/demos;\
-	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
-	$(CP) regtests/*.wsdl $${AWS}/regtests;\
-	$(CP) regtests/ChangeLog regtests/*.tmplt $${AWS}/regtests;\
-	$(CP) regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
-	$(CP) regtests/makefile regtests/*.ini $${AWS}/regtests;\
-	$(CP) docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
-	$(CP) docs/makefile $${AWS}/docs;\
-	$(CP) docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
-	$(CP) docs/aws.info* $${AWS}/docs;\
-	$(CP) docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
-	$(CP) -r docs/html/* $${AWS}/docs/html;\
-	$(CP) win32/ChangeLog $${AWS}/win32;\
-	$(CP) win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
-	$(CP) win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
-	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
-	$(CP) include/*.ad[sb] include/makefile $${AWS}/include;\
-	$(CP) include/zlib/*.[ch] $${AWS}/include/zlib;\
-	$(CP) include/zlib/makefile $${AWS}/include/zlib;\
-	$(CP) include/zlib/FAQ include/zlib/README $${AWS}/include/zlib;\
-	$(CP) include/zlib/ChangeLog* $${AWS}/include/zlib;\
-	$(CP) include/readme.txt $${AWS}/include;\
-	$(CP) lib/makefile $${AWS}/lib;\
-	$(CP) icons/*.gif $${AWS}/icons;\
-	$(CP) soap/*.ad[sb] soap/makefile soap/ChangeLog $${AWS}/soap;\
-	$(CP) tools/*.ad[sb] tools/makefile $${AWS}/tools;\
-	$(CP) config/*.ad[sb] config/ChangeLog $${AWS}/config;\
-	$(CP) config/makefile $${AWS}/config;\
-	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
-	$(CP) config/projects/*.gpr $${AWS}/config/projects;\
-	$(CP) config/projects/ChangeLog $${AWS}/config/projects;\
-	$(CP) xsrc/*.ad[sb] xsrc/README xsrc/ChangeLog $${AWS}/xsrc;\
-	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
+	\
+	for file in \
+           `$(AWK) '$$1!="--" && $$1!="" {print $$0} \
+		    $$2=="FULL" {exit}' MANIFEST`; \
+        do \
+		$(CP) $$file $${AWS}/$$file; \
+	done;\
+	\
+	$(CP) -r docs/html/* $${AWS}/docs/html)
+
+build_tarball:
+	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
+	AWS=aws-$${VERSION}; \
+	$(RM) -f $${AWS}.tar.gz; \
+	$(MKDIR) $${AWS}/xsrc; \
+	$(MKDIR) $${AWS}/soap; \
+	\
+	for file in \
+           `$(AWK) 'BEGIN{p=0} \
+		    p==1 && $$1!="--" && $$1!="" {print $$0} \
+		    $$2=="FULL"{p=1}' MANIFEST`; \
+        do \
+		$(CP) $$file $${AWS}/$$file; \
+	done;\
+	\
 	$(TAR) cf $${AWS}.tar $${AWS};\
 	$(GZIP) -9 $${AWS}.tar;\
 	$(RM) -fr $${AWS})
 
 build_http_tarball:
-	$(CHMOD) uog+rx win32/*.dll
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-http-$${VERSION}; \
+	$(MV) aws-$${VERSION} $${AWS}; \
 	$(RM) -f $${AWS}.tar.gz; \
-	$(MKDIR) $${AWS}; \
-	$(MKDIR) $${AWS}/src; \
-	$(MKDIR) $${AWS}/demos; \
-	$(MKDIR) $${AWS}/regtests; \
-	$(MKDIR) $${AWS}/docs; \
-	$(MKDIR) $${AWS}/docs/html; \
-	$(MKDIR) $${AWS}/icons; \
-	$(MKDIR) $${AWS}/include; \
-	$(MKDIR) $${AWS}/include/zlib; \
-	$(MKDIR) $${AWS}/lib; \
-	$(MKDIR) $${AWS}/ssl; \
-	$(MKDIR) $${AWS}/win32; \
-	$(MKDIR) $${AWS}/tools; \
-	$(MKDIR) $${AWS}/config; \
-	$(MKDIR) $${AWS}/config/src; \
-	$(MKDIR) $${AWS}/config/projects; \
-	$(MKDIR) $${AWS}/support; \
-	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
-	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
-	$(CP) demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
-	$(CP) demos/*.ads demos/*.adb $${AWS}/demos;\
-	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
-	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
-	$(CP) demos/*.wsdl $${AWS}/demos;\
-	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
-	$(CP) regtests/*.wsdl $${AWS}/regtests;\
-	$(CP) regtests/ChangeLog regtests/*.tmplt $${AWS}/regtests;\
-	$(CP) regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
-	$(CP) regtests/makefile regtests/*.ini $${AWS}/regtests;\
-	$(CP) docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
-	$(CP) docs/makefile $${AWS}/docs;\
-	$(CP) docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
-	$(CP) docs/aws.info* $${AWS}/docs;\
-	$(CP) docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
-	$(CP) -r docs/html/* $${AWS}/docs/html;\
-	$(CP) win32/*.txt win32/ChangeLog $${AWS}/win32;\
-	$(CP) win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
-	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
-	$(CP) include/*.ad[sb] $${AWS}/include;\
-	$(CP) include/zlib/*.[ch] $${AWS}/include/zlib;\
-	$(CP) include/zlib/makefile $${AWS}/include/zlib;\
-	$(CP) include/zlib/FAQ include/zlib/README $${AWS}/include/zlib;\
-	$(CP) include/zlib/ChangeLog* $${AWS}/include/zlib;\
-	$(CP) include/readme.txt $${AWS}/include;\
-	$(CP) lib/makefile $${AWS}/lib;\
-	$(CP) icons/*.gif $${AWS}/icons;\
-	$(CP) tools/awsres.adb tools/makefile $${AWS}/tools;\
-	$(CP) config/*.ad[sb] config/ChangeLog $${AWS}/config;\
-	$(CP) config/makefile $${AWS}/config;\
-	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
-	$(CP) config/projects/*.gpr $${AWS}/config/projects;\
-	$(CP) config/projects/ChangeLog $${AWS}/config/projects;\
-	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
-	$(RM) $${AWS}/include/sha*;\
 	$(SED) 's/$$(LIBSSL) $$(LIBCRYPTO)//' \
 	   win32/makefile > $${AWS}/win32/makefile;\
 	$(SED) 's/sha.ads sha-process_data.adb sha-strings.adb//' \
 	   include/makefile > $${AWS}/include/makefile;\
 	$(TAR) cf $${AWS}.tar $${AWS};\
 	$(GZIP) -9 $${AWS}.tar;\
-	$(RM) -fr $${AWS})
+	$(CP) win32/makefile $${AWS}/win32/makefile;\
+	$(CP) include/makefile $${AWS}/include/makefile;\
+	$(MV) $${AWS} aws-$${VERSION})
 
-distrib: build_apiref clean_noapiref build_doc build_tarball build_http_tarball
+build_tarballs: common_tarball build_http_tarball build_tarball
+
+distrib: build_apiref clean_noapiref build_doc build_tarballs
 
 force:
 
