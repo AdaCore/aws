@@ -20,6 +20,9 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-default.ads.texi \
 	../src/aws-dispatchers-callback.ads.texi \
 	../src/aws-dispatchers.ads.texi \
+	../src/aws-headers.ads.texi \
+	../src/aws-headers-values.ads.texi \
+	../src/aws-jabber.ads.texi \
 	../src/aws-ldap-client.ads.texi \
 	../src/aws-log.ads.texi \
 	../src/aws-mime.ads.texi \
