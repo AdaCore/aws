@@ -33,8 +33,11 @@
 with AWS.Communication;
 with AWS.Communication.Server;
 with AWS.Messages;
+with Ada.Strings.Unbounded;
 
 package body AWS.Server.Hotplug is
+
+   use Ada.Strings.Unbounded;
 
    function Message
      (Server     : in String;
