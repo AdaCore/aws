@@ -24,7 +24,7 @@ build: $(IMPORT_LIB)
 	        --output-lib ../ssl/libssl.a
 	rm ssl.def
 
-libcrypto.a: libeay32.dll
+../ssl/libcrypto.a: libeay32.dll
 	dll2def libeay32.dll > crypto.def
 	dlltool --def crypto.def --dllname libeay32.dll \
 		--output-lib ../ssl/libcrypto.a
