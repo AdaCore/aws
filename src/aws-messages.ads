@@ -78,7 +78,7 @@ package AWS.Messages is
       --  1xx : Informational - Request received, continuing process
 
       S200, S201, S202, S203, S204, S205, S206,
-      --  2xx : Success - The action was successfully receivedn understood and
+      --  2xx : Success - The action was successfully received, understood and
       --  accepted
 
       S300, S301, S302, S303, S304, S305, S307,
