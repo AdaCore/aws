@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,23 +32,23 @@
 
 with Ada.Calendar;
 with Ada.Unchecked_Conversion;
+with Ada.Streams;
 with Ada.Strings.Maps.Constants;
-
-with MD5;
 
 with AWS.Utils;
 
 package body AWS.Digest is
 
    use Ada;
+   use Ada.Streams;
 
    Private_Key : MD5.Context;
 
    Nonce_Expiration : constant Duration := 300.0;
    --  Expiration expressed in seconds
 
-   subtype Byte_Array_Of_Integer
-      is MD5.Byte_Array (1 .. Integer'Size / MD5.Byte_Array'Component_Size);
+   subtype Byte_Array_Of_Integer is Stream_Element_Array
+     (1 .. Integer'Size / Stream_Element_Array'Component_Size);
 
    function To_Byte_Array is
       new Ada.Unchecked_Conversion (Integer, Byte_Array_Of_Integer);
@@ -59,7 +59,6 @@ package body AWS.Digest is
 
    function Check_Nonce (Value : in String) return Boolean is
       use Calendar;
-      use type MD5.Byte_Array;
 
       Now           : constant Time := Clock;
       Nonce_Time    : Time;
@@ -70,7 +69,6 @@ package body AWS.Digest is
 
       Seconds_Nonce : Natural;
       Ctx           : MD5.Context;
-      Digest        : MD5.Fingerprint;
       Sample        : Digest_String;
    begin
       --  Our nonces length is length of Digest plus 5 symbols for
@@ -117,9 +115,7 @@ package body AWS.Digest is
                     & To_Byte_Array (Day_Now)
                     & To_Byte_Array (Seconds_Nonce));
 
-      MD5.Final (Ctx, Digest);
-
-      Sample := MD5.Digest_To_Text (Digest);
+      Sample := MD5.Digest (Ctx);
 
       return Value (6 .. Value'Last) = Sample;
    end Check_Nonce;
@@ -149,10 +145,10 @@ package body AWS.Digest is
       Method, URI               : in String)
       return Digest_String is
    begin
-      return Utils.Get_MD5
-        (Utils.Get_MD5 (Username & ':' & Realm & ':' & Password)
+      return MD5.Digest
+        (MD5.Digest (Username & ':' & Realm & ':' & Password)
            & ':' & Nonce & ':'
-           & Utils.Get_MD5 (Method & ':' & URI));
+           & MD5.Digest (Method & ':' & URI));
    end Create_Digest;
 
    ------------------
@@ -168,7 +164,6 @@ package body AWS.Digest is
       Seconds_Now : Day_Duration;
 
       Seconds_Int : Natural;
-      Digest      : MD5.Fingerprint;
       Ctx         : MD5.Context;
       Result      : Digest_String;
    begin
@@ -182,11 +177,10 @@ package body AWS.Digest is
       MD5.Update (Ctx, To_Byte_Array (Month_Now));
       MD5.Update (Ctx, To_Byte_Array (Day_Now));
       MD5.Update (Ctx, To_Byte_Array (Seconds_Int));
-      MD5.Final (Ctx, Digest);
 
       --  Place the digest string representation into the result variable
 
-      Result := MD5.Digest_To_Text (Digest);
+      Result := MD5.Digest (Ctx);
 
       --  Five hex digits before MD5 digest for the nonce expiration check
 
