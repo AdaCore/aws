@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -61,11 +61,11 @@ with Ada.Exceptions;
 with GNAT.Command_Line;
 
 with AWS.Client;
+with AWS.Resources;
 with AWS.Response;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Status;
-with AWS.Translator;
 
 procedure Agent is
 
@@ -295,52 +295,57 @@ begin
             --  this is not a text/html body, but output it anyway
 
             declare
-               Message_Body : constant Unbounded_String
-                 := Response.Message_Body (Data);
-               Len          : constant Natural := Length (Message_Body);
+               use Streams;
+
+               Message_Stream : Resources.File_Type;
+               Buffer         : Stream_Element_Array (1 .. 4_096);
+               Last           : Stream_Element_Offset;
             begin
+               Response.Message_Body (Data, Message_Stream);
+
                if File then
                   declare
-                     use Streams;
-                     Chunk_Size : constant := 4_096;
-                     F          : Streams.Stream_IO.File_Type;
-                     K          : Natural;
-                     Last       : Positive;
+                     F : Streams.Stream_IO.File_Type;
                   begin
                      Stream_IO.Create
                        (F, Stream_IO.Out_File, "agent.out");
 
-                     K := 1;
+                     loop
+                        Resources.Read (Message_Stream, Buffer, Last);
 
-                     while K <= Len loop
-                        Last := Positive'Min (Len, K + Chunk_Size);
+                        Stream_IO.Write (F, Buffer (1 .. Last));
 
-                        Stream_IO.Write
-                          (F,
-                           Translator.To_Stream_Element_Array
-                             (Slice (Message_Body, K, Last)));
-                        K := Last + 1;
+                        exit when Last < Buffer'Last;
                      end loop;
 
                      Stream_IO.Close (F);
                   end;
 
                else
-                  for K in 1 .. Len loop
-                     declare
-                        C : constant Character := Element (Message_Body, K);
-                     begin
-                        if C = ASCII.CR
-                          or else C = ASCII.LF
-                          or else not Characters.Handling.Is_Control (C)
-                        then
-                           Text_IO.Put (C);
-                        else
-                           Text_IO.Put ('.');
-                        end if;
-                     end;
+                  loop
+                     Resources.Read (Message_Stream, Buffer, Last);
+
+                     for K in Buffer'First .. Last loop
+                        declare
+                           C : constant Character
+                             := Character'Val (Buffer (K));
+                        begin
+                           if C = ASCII.CR
+                             or else C = ASCII.LF
+                             or else not Characters.Handling.Is_Control (C)
+                           then
+                              Text_IO.Put (C);
+                           else
+                              Text_IO.Put ('.');
+                           end if;
+                        end;
+                     end loop;
+
+                     exit when Last < Buffer'Last;
                   end loop;
                end if;
+
+               Resources.Close (Message_Stream);
             end;
 
          end if;
