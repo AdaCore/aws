@@ -28,36 +28,11 @@
 
 --  $Id$
 
-with Interfaces.C.Strings;
-
-with Sockets.Thin;
-
 with AWS.Client;
 with AWS.Utils;
 
 package body AWS.Communication.Client is
 
-   function Gethostname return String;
-   --  Return hostname
-
-   -----------------
-   -- Gethostname --
-   -----------------
-
-   function Gethostname return String is
-
-      use Interfaces;
-
-      Buffer : aliased C.char_array := (1 .. 100 => ' ');
-      Name   : C.Strings.Chars_Ptr :=
-        C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access);
-      Len    : C.int := Buffer'Length;
-      Res    : C.int;
-
-   begin
-      Res := Sockets.Thin.C_Gethostname (Name, Len);
-      return C.Strings.Value (Name, C.size_t (Len));
-   end Gethostname;
 
    ------------------
    -- Send_Message --
@@ -74,7 +49,7 @@ package body AWS.Communication.Client is
    begin
       URL := URL & "http://" & Server & ':' & Utils.Image (Port)
         & AWS_Com
-        & "?HOST=" & Gethostname
+        & "?HOST=" & Utils.Gethostname
         & "&NAME=" & Name;
 
       for K in Parameters'Range loop
