@@ -1,3 +1,27 @@
+2002-10-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams.ads, aws-resources-streams.adb:
+	New package.
+
+	* aws-response.ads, aws-response.adb:
+	(Data_Mode): New available value Stream.
+	(Content_Length_Type): New subtype.
+	(Undefined_Length): New constant.
+	(Stream): New routine.
+	(Content_Length): Returning the subtype Content_Length_Type now.
+	(Create_Resource): Could create resource from user defined stream now.
+
+	* aws-log.ads, aws-log.adb:
+	(Write): New routine.
+
+	* aws-server-protocol_handler.adb:
+	(Send_Resource_Body): Returns actual data length was sent now.
+	(Send_Data): Checking for the undefined data length for close
+	 connection at the end of data transfer. Do not send Content-Length
+	 if it is undefined.
+	(Answer_To_Client): Processing new response mode Stream.
+	 Write to log actual number of bytes sent.
+
 2002-10-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-embedded.adb:
