@@ -1,3 +1,11 @@
+2004-06-21  Pascal Obry  <pascal@obry.org>
+
+	* tmem.adb:
+	Add header and CVS tag.
+
+	* tmime.adb, ctab.adb:
+	Minor reformatting.
+
 2004-06-20  Pascal Obry  <pascal@obry.org>
 
 	* sto.adb, ssto.adb:
