@@ -45,7 +45,7 @@ procedure Com_1 is
    use Ada.Strings.Unbounded;
    use AWS;
 
-   N : Natural := 0;
+   N    : Natural := 0;
    Wait : Boolean := True;
 
    -------------
