@@ -222,24 +222,26 @@ begin
 
    URL_Object := AWS.URL.Parse (To_String (URL));
 
-   Client.Create
-     (Connection  => Connect,
-      Host        => To_String (URL),
-      Proxy       => To_String (Proxy),
-      Persistent  => Keep_Alive,
-      Server_Push => Server_Push);
+   if not (Method = Status.GET and then Follow_Redirection) then
+      Client.Create
+        (Connection  => Connect,
+         Host        => To_String (URL),
+         Proxy       => To_String (Proxy),
+         Persistent  => Keep_Alive,
+         Server_Push => Server_Push);
 
-   Client.Set_WWW_Authentication
-     (Connection => Connect,
-      User       => To_String (User),
-      Pwd        => To_String (Pwd),
-      Mode       => WWW_Auth);
+      Client.Set_WWW_Authentication
+        (Connection => Connect,
+         User       => To_String (User),
+         Pwd        => To_String (Pwd),
+         Mode       => WWW_Auth);
 
-   Client.Set_Proxy_Authentication
-     (Connection => Connect,
-      User       => To_String (Proxy_User),
-      Pwd        => To_String (Proxy_Pwd),
-      Mode       => Proxy_Auth);
+      Client.Set_Proxy_Authentication
+        (Connection => Connect,
+         User       => To_String (Proxy_User),
+         Pwd        => To_String (Proxy_Pwd),
+         Mode       => Proxy_Auth);
+   end if;
 
    loop
       if Method = Status.GET then
@@ -288,21 +290,11 @@ begin
          end if;
 
       else
-         if not AWS.URL.Security (URL_Object) then
-            --  We can't output headers for an HTTPS request as this is not
-            --  yet decoded.
-            --  ??? would be nice to decode HTTPS stream
-            Text_IO.Put_Line
-              (Messages.Content_Type (Response.Content_Type (Data)));
+         Text_IO.Put_Line
+           (Messages.Content_Type (Response.Content_Type (Data)));
 
-            Text_IO.Put_Line
-              (Messages.Content_Length (Response.Content_Length (Data)));
-
-         else
-            --  For HTTPS request file output, this is the raw crypted
-            --  stream.
-            File := True;
-         end if;
+         Text_IO.Put_Line
+           (Messages.Content_Length (Response.Content_Length (Data)));
 
          if Force or else File then
             --  This is not a text/html body, but output it anyway
