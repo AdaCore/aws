@@ -1,3 +1,12 @@
+2004-10-12  Pascal Obry  <pascal@obry.org>
+
+	* aws-resources-streams-disk-once.ads:
+	Add some comments.
+	Update copyright notice.
+	
+	* aws-resources-streams-disk.ads:
+	Add some comments.
+
 2004-10-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
