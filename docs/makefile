@@ -104,7 +104,7 @@ aws.dvi: aws.texi $(APIFILES)
 	-texi2dvi --clean aws.texi
 
 prog: build.adb
-	gnatmake -m build -I../src -I../soap -I../include \
+	gnatmake -m -q build -I../src -I../soap -I../include \
 		$(INCLUDES) -largs $(LIBS)
 
 aws.texi: prog aws.texi.tmplt
@@ -112,6 +112,7 @@ aws.texi: prog aws.texi.tmplt
 
 check_api:
 	if [ -f ../soap/soap.ali ]; then \
+		rm -f ../src/test_uconv.ali; \
 		exit 0; \
 	else \
 		echo SOAP not activated, cannot generate API documentation ; \
@@ -123,7 +124,7 @@ apiref: gnathtml_apiref
 # API cross-references using gnathtml
 gnathtml_apiref: check_api
 	(cd ..; fileset=; \
-	for file in src/*.ad[sb] include/templates*.ad[sb] \
+	for file in src/a*.ad[sb] include/templates*.ad[sb] \
 	   	include/strings_cutter.ad[sb] \
 		soap/soap*.ad[sb]; \
 	do \
@@ -141,7 +142,7 @@ gnathtml_apiref: check_api
 # API cross-references using AdaBrowse
 adabrowse_apiref: check_api
 	(cd ..; \
-	for file in src/*.ad[sb] include/templates*.ad[sb] \
+	for file in src/a*.ad[sb] include/templates*.ad[sb] \
 	   	include/strings_cutter.ad[sb] \
 		soap/soap*.ad[sb]; \
 	do \
