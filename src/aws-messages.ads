@@ -102,6 +102,9 @@ package AWS.Messages is
    SOAPAction_Token : constant String := "SOAPAction: ";
    subtype SOAPAction_Range is Positive range SOAPAction_Token'Range;
 
+   Last_Modified_Token : constant String := "Last-Modified: ";
+   subtype Last_Modified_Range is Positive range Last_Modified_Token'Range;
+
    type Status_Code is
      (S100, S101,
       --  1xx : Informational - Request received, continuing process
@@ -144,6 +147,8 @@ package AWS.Messages is
    function Content_Type (Format : in String) return String;
 
    function Host (Name : in String) return String;
+
+   function Last_Modified (Date : in Calendar.Time) return String;
 
    function Location (URL : in String) return String;
 
