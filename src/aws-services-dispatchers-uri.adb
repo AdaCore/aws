@@ -35,6 +35,7 @@ with Ada.Unchecked_Deallocation;
 
 with GNAT.Regexp;
 
+with AWS.Messages;
 with AWS.MIME;
 with AWS.Dispatchers.Callback;
 with System.Address_To_Access_Conversions;
@@ -61,6 +62,8 @@ package body AWS.Services.Dispatchers.URI is
       Request    : in Status.Data)
       return Response.Data
    is
+      use type AWS.Messages.Status_Code;
+
       URI    : constant String := Status.URI (Request);
       Result : Response.Data;
    begin
