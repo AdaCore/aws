@@ -109,10 +109,10 @@ private
    --  AWS.Containers.Tables.Set.Reset, Server is responsible for doing that.
 
    type Element_Access is access all Element;
-   --  Data type for keep the name/value pair in the
+   --  Data type to keep the name/value pair in the
    --  GNAT.Dynamic_Tables.Table_Type.
-   --  We could not use Unbounded_String becouse GNAT.Dynamic_Tables
-   --  does not support controlled types.
+   --  We cannot use Unbounded_String becouse GNAT.Dynamic_Tables
+   --  does not support controlled objects.
 
    type Key_Positive is new Positive;
 
@@ -143,10 +143,9 @@ private
    type Table_Type is tagged record
       Case_Sensitive : Boolean := True;
       Index          : Index_Access;
-      --  Index for find appropriate Name/Value pairs
-      --  in the Data by the name.
+      --  Index to find appropriate Name/Value pairs in Data by the name
       Data           : Data_Table.Instance;
-      --  Array of name and value pairs by order.
+      --  Ordered array of name and value pairs
    end record;
 
    function Internal_Get
