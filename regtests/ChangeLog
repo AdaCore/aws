@@ -1,3 +1,11 @@
+2002-10-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* user_strm.ads, user_strm.adb:
+	Add file header.
+
+	* strm.adb:
+	Minor reformatting.
+
 2002-10-23  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* strm.adb, user_strm.ads, user_strm.adb, strm.out:
