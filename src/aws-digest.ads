@@ -38,14 +38,18 @@ package AWS.Digest is
 
    subtype Digest_String is MD5.Message_Digest;
 
-   type Nonce is new String (1 .. 37);
+   subtype Nonce is String (1 .. 41);
+   --  5 bytes hex seconds, 4 bytes hex global counter, 32 bytes digest
+   --  of the creation date, seconds and global index.
 
    function Create_Nonce return Nonce;
    --  Create a Nonce value for the digest authentication
    --  see [RFC-2617 - 3.2.1]
 
-   function Check_Nonce (Value : in Nonce) return Boolean;
-   --  Check Nonce for validity and expiration
+   function Check_Nonce (Value : in String) return Boolean;
+   --  Check Nonce for validity and expiration.
+   --  We could not send a type Nonce here, because Nonce received from
+   --  HTTP client, and have to checked for the length too.
 
    function Create
      (Username, Realm, Password : in String;
