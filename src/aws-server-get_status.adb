@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,17 +30,17 @@
 
 --  $Id$
 
-with Templates_Parser;
 with GNAT.Calendar.Time_IO;
 
-with AWS.Session;
 with AWS.Hotplug.Get_Status;
+with AWS.Session;
+with AWS.Templates;
 with AWS.Utils;
 
 function AWS.Server.Get_Status (Server : in HTTP) return String is
 
    use Ada;
-   use Templates_Parser;
+   use AWS.Templates;
 
    function Slot_Table return Translate_Table;
    --  returns the information for each slot
@@ -69,7 +69,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       --  add key/value pair to the list
 
       procedure For_Each_Session
-        (N          : in Positive;
+        (N          : in     Positive;
          SID        : in     Session.ID;
          Time_Stamp : in     Calendar.Time;
          Quit       : in out Boolean);
@@ -82,7 +82,8 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       procedure For_Each_Key_Value
         (N          : in     Positive;
          Key, Value : in     String;
-         Quit       : in out Boolean) is
+         Quit       : in out Boolean)
+      is
          pragma Warnings (Off, N);
          pragma Warnings (Off, Quit);
       begin
@@ -102,7 +103,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       ----------------------
 
       procedure For_Each_Session
-        (N          : in Positive;
+        (N          : in     Positive;
          SID        : in     Session.ID;
          Time_Stamp : in     Calendar.Time;
          Quit       : in out Boolean)
@@ -209,11 +210,11 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Assoc ("ACTIVITY_TIME_STAMP_V",   Activity_Time_Stamp));
    end Slot_Table;
 
-   use type Templates_Parser.Translate_Table;
+   use type Templates.Translate_Table;
 
    Admin_URI : constant String := CNF.Admin_URI (Server.Properties);
 
-   Translations : constant Templates_Parser.Translate_Table
+   Translations : constant Templates.Translate_Table
      := (Assoc ("SERVER_NAME",
                 CNF.Server_Name (Server.Properties)),
 
@@ -311,6 +312,6 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
    & Hotplug.Get_Status (Server.Filters);
 
 begin
-   return Templates_Parser.Parse
+   return Templates.Parse
      (CNF.Status_Page (Server.Properties), Translations);
 end AWS.Server.Get_Status;
