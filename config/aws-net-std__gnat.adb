@@ -33,7 +33,7 @@
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
-with AWS.Net.Thin;
+with AWS.OS_Lib.Definitions;
 with AWS.Utils;
 
 pragma Warnings (Off);
@@ -54,6 +54,8 @@ package body AWS.Net.Std is
 
    use Ada;
    use GNAT;
+
+   package OSD renames AWS.OS_Lib.Definitions;
 
    type Socket_Hidden is record
       FD : Sockets.Socket_Type;
@@ -76,7 +78,7 @@ package body AWS.Net.Std is
      (Host  : in String;
       Port  : in Positive;
       Flags : in Interfaces.C.int := 0)
-      return Thin.Addr_Info_Access;
+      return OSD.Addr_Info_Access;
    --  Returns the inet address information for the given host and port.
    --  Flags should be used from getaddrinfo C routine.
 
@@ -130,8 +132,8 @@ package body AWS.Net.Std is
       Res   : C.int;
       Errno : Integer;
 
-      Info : constant Thin.Addr_Info_Access
-        := Get_Addr_Info (Host, Port, Thin.AI_PASSIVE);
+      Info : constant OSD.Addr_Info_Access
+        := Get_Addr_Info (Host, Port, OSD.AI_PASSIVE);
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
@@ -141,7 +143,7 @@ package body AWS.Net.Std is
          exception
             when E : Sockets.Socket_Error =>
                Free (Socket.S);
-               Thin.FreeAddrInfo (Info);
+               OSD.FreeAddrInfo (Info);
                Raise_Exception (E, "Bind.Create_Socket");
          end;
 
@@ -157,11 +159,11 @@ package body AWS.Net.Std is
          Errno := Std.Errno;
          Sockets.Close_Socket (Socket.S.FD);
          Free (Socket.S);
-         Thin.FreeAddrInfo (Info);
+         OSD.FreeAddrInfo (Info);
          Raise_Socket_Error (Errno);
       end if;
 
-      Thin.FreeAddrInfo (Info);
+      OSD.FreeAddrInfo (Info);
    end Bind;
 
    -------------
@@ -175,7 +177,7 @@ package body AWS.Net.Std is
    is
       use Interfaces;
       use type C.int;
-      Info : constant Thin.Addr_Info_Access := Get_Addr_Info (Host, Port);
+      Info : constant OSD.Addr_Info_Access := Get_Addr_Info (Host, Port);
       Res  : C.int;
 
       Errno : Integer;
@@ -189,7 +191,7 @@ package body AWS.Net.Std is
          exception
             when E : Sockets.Socket_Error =>
                Free (Socket.S);
-               Thin.FreeAddrInfo (Info);
+               OSD.FreeAddrInfo (Info);
                Raise_Exception (E, "Connect.Create_Socket");
          end;
       end if;
@@ -203,11 +205,11 @@ package body AWS.Net.Std is
          Errno := Std.Errno;
          Sockets.Close_Socket (Socket.S.FD);
          Free (Socket.S);
-         Thin.FreeAddrInfo (Info);
+         OSD.FreeAddrInfo (Info);
          Raise_Socket_Error (Errno);
       end if;
 
-      Thin.FreeAddrInfo (Info);
+      OSD.FreeAddrInfo (Info);
 
       --  ??? Make non-blocking connect later.
 
@@ -243,17 +245,17 @@ package body AWS.Net.Std is
      (Host  : in String;
       Port  : in Positive;
       Flags : in Interfaces.C.int := 0)
-      return Thin.Addr_Info_Access
+      return OSD.Addr_Info_Access
    is
       use Interfaces.C;
-      use type Thin.Addr_Info_Access;
+      use type OSD.Addr_Info_Access;
 
       C_Node : aliased char_array := To_C (Host);
       P_Node : Strings.chars_ptr;
       C_Serv : aliased char_array := To_C (AWS.Utils.Image (Port));
       Res    : int;
-      Result : aliased Thin.Addr_Info_Access;
-      Hints  : constant Thin.Addr_Info
+      Result : aliased OSD.Addr_Info_Access;
+      Hints  : constant OSD.Addr_Info
         := (ai_family    => Sockets.Constants.AF_INET,
             ai_socktype  => Sockets.Constants.SOCK_STREAM,
             ai_protocol  => Sockets.Constants.IPPROTO_TCP,
@@ -269,7 +271,7 @@ package body AWS.Net.Std is
          P_Node := Strings.To_Chars_Ptr (C_Node'Unchecked_Access);
       end if;
 
-      Res := Thin.GetAddrInfo
+      Res := OSD.GetAddrInfo
                (node    => P_Node,
                 service => Strings.To_Chars_Ptr (C_Serv'Unchecked_Access),
                 hints   => Hints,
@@ -557,5 +559,5 @@ begin
    --  We should remove this call after remove libwspiapi.a usage.
    --  libwspiapi.a need for support Windows 2000.
 
-   Thin.FreeAddrInfo (null);
+   OSD.FreeAddrInfo (null);
 end AWS.Net.Std;
