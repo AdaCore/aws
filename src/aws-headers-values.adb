@@ -102,25 +102,25 @@ package body AWS.Headers.Values is
    ------------
 
    function Index
-     (S              : in Set;
+     (Set            : in Data_Set;
       Name           : in String;
       Case_Sensitive : in Boolean := True)
       return Natural
    is
       Map    : Maps.Character_Mapping;
-      Sample : Unbounded_String;
+      M_Name : Unbounded_String;
    begin
       if Case_Sensitive then
-         Map := Maps.Identity;
-         Sample := To_Unbounded_String (Name);
+         Map    := Maps.Identity;
+         M_Name := To_Unbounded_String (Name);
       else
-         Map := Maps.Constants.Upper_Case_Map;
-         Sample := Translate (To_Unbounded_String (Name), Map);
+         Map    := Maps.Constants.Upper_Case_Map;
+         M_Name := Translate (To_Unbounded_String (Name), Map);
       end if;
 
-      for I in S'Range loop
-         if S (I).Named_Value
-           and then Translate (S (I).Name, Map) = Sample
+      for I in Set'Range loop
+         if Set (I).Named_Value
+           and then Translate (Set (I).Name, Map) = M_Name
          then
             return I;
          end if;
@@ -315,10 +315,10 @@ package body AWS.Headers.Values is
          Test   => Outside);
 
       if Case_Sensitive then
-         Map := Maps.Identity;
+         Map    := Maps.Identity;
          M_Name := Name;
       else
-         Map := Maps.Constants.Upper_Case_Map;
+         Map    := Maps.Constants.Upper_Case_Map;
          M_Name := Fixed.Translate (Name, Map);
       end if;
 
@@ -347,12 +347,12 @@ package body AWS.Headers.Values is
    -- Split --
    -----------
 
-   function Split (Header_Value : in String) return Set is
+   function Split (Header_Value : in String) return Data_Set is
 
       First    : Natural;
-      Null_Set : Set (1 .. 0);
+      Null_Set : Data_Set (1 .. 0);
 
-      function To_Set return Set;
+      function To_Set return Data_Set;
       --  Parse the Header_Value and return a set of named and un-named
       --  value. Note that this routine is recursive as the final Set size is
       --  not known. This should not be a problem as the number of token on an
@@ -362,7 +362,7 @@ package body AWS.Headers.Values is
       -- To_Set --
       ------------
 
-      function To_Set return Set is
+      function To_Set return Data_Set is
 
          Name_First  : Positive;
          Name_Last   : Natural;
@@ -403,7 +403,7 @@ package body AWS.Headers.Values is
 
          Next_Value
            (Header_Value, First,
-            Name_First,  Name_Last,
+            Name_First, Name_Last,
             Value_First, Value_Last);
 
          return Element & To_Set;
