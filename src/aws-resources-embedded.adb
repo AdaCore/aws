@@ -37,7 +37,6 @@ package body AWS.Resources.Embedded is
    type Node is record
       File_Buffer : Buffer_Access;
       File_Time   : Calendar.Time;
-      Mode        : Data_Mode;
    end record;
 
    package Res_Files is new Table_Of_Strings_And_Static_Values_G
@@ -106,15 +105,6 @@ package body AWS.Resources.Embedded is
       return Resource.K > Resource.Buffer'Last;
    end End_Of_File;
 
-   ------------
-   -- Exists --
-   ------------
-
-   function Exists (Name : in String) return Boolean is
-   begin
-      return Res_Files.Is_Present (Files_Table, Name);
-   end Exists;
-
    ---------------
    -- File_Size --
    ---------------
@@ -125,6 +115,9 @@ package body AWS.Resources.Embedded is
    begin
       if Res_Files.Is_Present (Files_Table, Name) then
          return Res_Files.Value (Files_Table, Name).File_Buffer'Length;
+
+      elsif Res_Files.Is_Present (Files_Table, Name & ".gz") then
+         return Res_Files.Value (Files_Table, Name & ".gz").File_Buffer'Length;
       else
          raise Resource_Error;
       end if;
@@ -138,6 +131,10 @@ package body AWS.Resources.Embedded is
    begin
       if Res_Files.Is_Present (Files_Table, Name) then
          return Res_Files.Value (Files_Table, Name).File_Time;
+
+      elsif Res_Files.Is_Present (Files_Table, Name & ".gz") then
+         return Res_Files.Value (Files_Table, Name & ".gz").File_Time;
+
       else
          raise Resource_Error;
       end if;
@@ -149,7 +146,8 @@ package body AWS.Resources.Embedded is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return Exists (Name);
+      return Res_Files.Is_Present (Files_Table, Name)
+        or else Res_Files.Is_Present (Files_Table, Name & ".gz");
    end Is_Regular_File;
 
    ----------
@@ -165,19 +163,20 @@ package body AWS.Resources.Embedded is
       N : Node;
    begin
       if Res_Files.Is_Present (Files_Table, Name) then
-         N := Res_Files.Value (Files_Table, Name);
+         N    := Res_Files.Value (Files_Table, Name);
+         File := new File_Tagged;
 
-         if N.Mode = Uncompressed then
-            File := new File_Tagged;
-         else
-            --  This is a compressed data
-            File := new Z_File_Tagged;
-         end if;
+      elsif Res_Files.Is_Present (Files_Table, Name & ".gz") then
+         N    := Res_Files.Value (Files_Table, Name & ".gz");
+         File := new Z_File_Tagged;
 
-         File_Tagged (File.all).Buffer := N.File_Buffer;
-         File_Tagged (File.all).K := N.File_Buffer'First;
       else
          File := null;
+      end if;
+
+      if File /= null then
+         File_Tagged (File.all).Buffer := N.File_Buffer;
+         File_Tagged (File.all).K      := N.File_Buffer'First;
       end if;
    end Open;
 
@@ -272,10 +271,9 @@ package body AWS.Resources.Embedded is
    procedure Register
      (Name      : in String;
       Content   : in Buffer_Access;
-      File_Time : in Calendar.Time;
-      Mode      : in Data_Mode     := Uncompressed) is
+      File_Time : in Calendar.Time) is
    begin
-      Res_Files.Insert (Files_Table, Name, (Content, File_Time, Mode));
+      Res_Files.Insert (Files_Table, Name, (Content, File_Time));
    end Register;
 
    -----------
