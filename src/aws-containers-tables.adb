@@ -44,6 +44,8 @@
 
 with Ada.Characters.Handling;
 
+with AI302.Containers.Generic_Array_Sort;
+
 package body AWS.Containers.Tables is
 
    use Ada.Strings.Unbounded;
@@ -63,8 +65,7 @@ package body AWS.Containers.Tables is
 
    function Count (Table : in Table_Type) return Natural is
    begin
-      pragma Assert (Table.Index /= null);
-      return Data_Table.Last (Table.Data);
+      return Natural (Data_Table.Length (Table.Data));
    end Count;
 
    -----------
@@ -79,12 +80,10 @@ package body AWS.Containers.Tables is
       Value : Name_Index_Table;
       Found : Boolean;
    begin
-      pragma Assert (Table.Index /= null);
-
       Get_Indexes (Table, Name, Value, Found);
 
       if Found then
-         return Natural (Name_Indexes.Last (Value));
+         return Natural (Name_Indexes.Length (Value));
       else
          return 0;
       end if;
@@ -99,8 +98,6 @@ package body AWS.Containers.Tables is
       Name  : in String)
       return Boolean is
    begin
-      pragma Assert (Table.Index /= null);
-
       return Index_Table.Is_In
         (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index.all);
    end Exist;
@@ -117,14 +114,13 @@ package body AWS.Containers.Tables is
    is
       Value : Name_Index_Table;
       Found : Boolean;
-
    begin
-      pragma Assert (Table.Index /= null);
-
       Get_Indexes (Table, Name, Value, Found);
 
-      if Found and then Key_Positive (N) <= Name_Indexes.Last (Value) then
-         return Table.Data.Table (Value.Table (Key_Positive (N))).Value;
+      if Found and then N <= Natural (Name_Indexes.Length (Value)) then
+         return Data_Table.Element
+           (Table.Data,
+            Natural ((Name_Indexes.Element (Value, N)))).Value;
       else
          return "";
       end if;
@@ -135,10 +131,8 @@ package body AWS.Containers.Tables is
       N     : in Positive)
       return Element is
    begin
-      pragma Assert (Table.Index /= null);
-
-      if N <= Data_Table.Last (Table.Data) then
-         return Table.Data.Table (N).all;
+      if N <= Natural (Data_Table.Length (Table.Data)) then
+         return Data_Table.Element (Table.Data, N).all;
       else
          return Null_Element;
       end if;
@@ -156,8 +150,10 @@ package body AWS.Containers.Tables is
    is
       Cursor : Index_Table.Cursor;
    begin
-      Cursor := Index_Table.Find
-        (Table.Index.all, Normalize_Name (Name, not Table.Case_Sensitive));
+      if Table.Index /= null then
+         Cursor := Index_Table.Find
+           (Table.Index.all, Normalize_Name (Name, not Table.Case_Sensitive));
+      end if;
 
       if not Index_Table.Has_Element (Cursor) then
          Found := False;
@@ -178,8 +174,8 @@ package body AWS.Containers.Tables is
    begin
       pragma Assert (Table.Index /= null);
 
-      if N <= Data_Table.Last (Table.Data) then
-         return Table.Data.Table (N).Name;
+      if N <= Natural (Data_Table.Length (Table.Data)) then
+         return Data_Table.Element (Table.Data, N).Name;
       else
          return "";
       end if;
@@ -194,33 +190,27 @@ package body AWS.Containers.Tables is
       Sort  : in Boolean := False)
       return VString_Array
    is
+      procedure Sort_Names is
+        new AI302.Containers.Generic_Array_Sort
+          (Positive, Unbounded_String, VString_Array);
+
       Result : VString_Array (1 .. Name_Count (Table));
       Cursor : Index_Table.Cursor;
       Index  : Natural := Result'First - 1;
    begin
-      Cursor := Index_Table.First (Table.Index.all);
+      if Table.Index /= null then
+         Cursor := Index_Table.First (Table.Index.all);
 
-      while Index_Table.Has_Element (Cursor) loop
-         Index := Index + 1;
-         Result (Index) :=
-           To_Unbounded_String (Index_Table.Key (Cursor));
-         Index_Table.Next (Cursor);
-      end loop;
-
-      if Sort then
-         --  ??? should use a sort from AI302
-         for K in Result'Range loop
-            for J in K .. Result'Last loop
-               if Result (K) > Result (J) then
-                  declare
-                     Tmp : Unbounded_String := Result (K);
-                  begin
-                     Result (K) := Result (J);
-                     Result (J) := Tmp;
-                  end;
-               end if;
-            end loop;
+         while Index_Table.Has_Element (Cursor) loop
+            Index := Index + 1;
+            Result (Index) :=
+              To_Unbounded_String (Index_Table.Key (Cursor));
+            Index_Table.Next (Cursor);
          end loop;
+
+         if Sort then
+            Sort_Names (Result);
+         end if;
       end if;
 
       return Result;
@@ -237,8 +227,8 @@ package body AWS.Containers.Tables is
    begin
       pragma Assert (Table.Index /= null);
 
-      if N <= Data_Table.Last (Table.Data) then
-         return Table.Data.Table (N).Value;
+      if N <= Natural (Data_Table.Length (Table.Data)) then
+         return Data_Table.Element (Table.Data, N).Value;
       else
          return "";
       end if;
@@ -262,13 +252,16 @@ package body AWS.Containers.Tables is
 
       if Found then
          declare
-            Last   : constant Key_Positive := Name_Indexes.Last (Value);
-            Result : VString_Array (1 .. Natural (Last));
+            Last   : constant Natural
+              := Natural (Name_Indexes.Length (Value));
+            Result : VString_Array (1 .. Last);
          begin
-            for I in Name_Indexes.First .. Last loop
+            for I in 1 .. Last loop
                Result (Natural (I))
                   := To_Unbounded_String
-                        (Table.Data.Table (Value.Table (I)).Value);
+                   (Data_Table.Element
+                        (Table.Data,
+                         Natural ((Name_Indexes.Element (Value, I)))).Value);
             end loop;
             return Result;
          end;
