@@ -1,3 +1,27 @@
+2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-parser.adb:
+	(Register_Deferred): Moved to package level.
+	(Analyse_Type): Add Deferred_U_Arrays table to handle properly
+	 field in record whose type is an array with constraint. Code
+	 clean-up. Generate deferred arrays definition after analysing
+	 record fields. Properly handle constrained arrays
+	 definition. Checks for unconstrained array derived types.
+	(Array_Type_Suffix): New routine.
+	(Analyse_Field): Check for unconstrained array definition. Record
+	 a deferred array definition if needed.
+	(Type_Name): Handles arrays. Checks for String special case.
+
+	* ada2wsdl-generator.adb:
+	(Definition) [Table]: Add Length field.
+	(Start_Array): Add Length formal parameter, record Length into the
+	 definition object.
+	(Type_Exists): Properly checks for Table.
+	Minor reformatting.
+
+	* ada2wsdl-generator.ads:
+	(Start_Array): Add Length formal parameter.
+
 2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:
