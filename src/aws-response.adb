@@ -275,9 +275,6 @@ package body AWS.Response is
       Set.Filename      (Result, Filename);
       Set.Cache_Control (Result, Cache_Control);
       return Result;
-   exception
-      when Resources.Resource_Error =>
-         return Acknowledge (Messages.S404, "<p> " & Filename & " not found");
    end File;
 
    --------------
