@@ -1,14 +1,14 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 25 Febuary 2003 -->
+     from templates_parser.texi on 28 September 2003 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
 <BODY>
 <H1>Templates Parser</H1>
 <H2>$Revision$</H2>
-<H2>Date: 25 Febuary 2003</H2>
+<H2>Date: 28 September 2003</H2>
 <ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
 <P>
 <P><HR><P>
@@ -129,6 +129,7 @@ of data. You just have to provides as many templates as you like.
 </P>
 
 
+
 <H1><A NAME="SEC2" HREF="templates_parser.html#TOC2">What is a tag ?</A></H1>
 
 <P>
@@ -183,7 +184,6 @@ The program will print out :
 
 <PRE>
 &#60;P&#62;Name Ada
-
 </PRE>
 
 <P>
@@ -191,6 +191,7 @@ This is a very simple example, but you'll see that there is a lot of
 powerful construct that you can use into a template file.
 
 </P>
+
 
 
 <H1><A NAME="SEC3" HREF="templates_parser.html#TOC3">Variable tags</A></H1>
@@ -364,7 +365,8 @@ Put all characters in the variable in lower-case.
 <DT><CODE>MATCH(<I>REGEXP</I>)</CODE>
 <DD>
 Returns <B>True</B> if variable match the regular expression passed as
-filter's parameter.
+filter's parameter. The regular expression is using a format as
+found in <TT>`gawk'</TT>, <TT>`sed'</TT> or <TT>`grep'</TT> tools.
 
 <DT><CODE>MOD(<I>N</I>)</CODE>
 <DD>
@@ -405,6 +407,11 @@ Reverse the string.
 <DD>
 Returns the size (number of characters) of the string value.
 
+<DT><CODE>SLICE(<I>x .. y</I>)</CODE>
+<DD>
+Returns the sub-string starting from position x and ending to position
+y. Note that the string to slice always start from position 1.
+
 <DT><CODE>TRIM</CODE>
 <DD>
 Removes leading and trailing spaces.
@@ -443,7 +450,8 @@ If VAR is set to "<I>vector_tag</I>" then:
 @_CAPITALIZE:VAR_@          -&#62;  Vector_Tag
 @_EXIST:VAR_@               -&#62;  TRUE
 @_UPPER:REVERSE:VAR_@       -&#62;  GAT_ROTCEV
-@_MATCH(VEC.*):UPPER:VAR_   -&#62;  TRUE
+@_MATCH(VEC.*):UPPER:VAR_@  -&#62;  TRUE
+@_SLICE(1..6):VAR_@         -&#62;  vector
 
 </PRE>
 
@@ -924,7 +932,6 @@ The following output will be generated:
    &#60;TD&#62;Toto
    &#60;TD&#62;5
 &#60;/TABLE&#62;
-
 </PRE>
 
 <P>
@@ -1068,7 +1075,6 @@ The following output will be generated:
    &#60;TD WIDTH=150&#62;
    &#60;TD BGCOLOR=#00F WIDTH=10&#62;
 &#60;/TABLE&#62;
-
 </PRE>
 
 <P>
@@ -1409,8 +1415,6 @@ The same matrix outside a table:
 A1.1, A1.2
 A2.1, A2.2
 A3.1, A3.2
-
-
 </PRE>
 
 
@@ -1585,7 +1589,8 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -- <I> Returns the number <B>of</B> Vector_Tag (rows) <B>in</B>side the Matrix.</I>
 
    <B>function</B> Vector (Matrix : in Matrix_Tag; N : <B>in</B> Positive) <B>return</B> Vector_Tag;
-   -- <I> Returns Nth Vector_Tag <B>in</B> the Matrix.</I>
+   -- <I> Returns Nth Vector_Tag <B>in</B> the Matrix. Raises Constraint_Error if there</I>
+   -- <I> <B>is</B> no such vector <B>in</B> the matrix.</I>
 
    -----------------------
    -- <I>Association table --</I>
@@ -1705,11 +1710,15 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 
    <B>type</B> Integer_Access <B>is</B> access Integer;
 
+   <B>type</B> Access_Vector_Tag_Node_Access <B>is</B> access Vector_Tag_Node_Access;
+
    <B>type</B> Vector_Tag <B>is</B> new Ada.Finalization.Controlled <B>with</B> <B>record</B>
       Ref_Count : Integer_Access;
       Count     : Natural;
       Head      : Vector_Tag_Node_Access;
       Last      : Vector_Tag_Node_Access;
+      Current   : Access_Vector_Tag_Node_Access; -- <I>Current/Pos are Iterator</I>
+      Pos       : Integer_Access;                -- <I>cache <B>in</B>formation.</I>
    <B>end</B> <B>record</B>;
 
    <B>type</B> Vector_Tag_Access <B>is</B> access Vector_Tag;
@@ -1731,12 +1740,16 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
       Next : Matrix_Tag_Node_Access;
    <B>end</B> <B>record</B>;
 
+   <B>type</B> Access_Matrix_Tag_Node_Access <B>is</B> access Matrix_Tag_Node_Access;
+
    <B>type</B> Matrix_Tag_Int <B>is</B> new Ada.Finalization.Controlled <B>with</B> <B>record</B>
       Ref_Count : Integer_Access;
       Count     : Natural; -- <I>Number <B>of</B> vector</I>
       Min, Max  : Natural; -- <I>Min/Max vector's sizes</I>
       Head      : Matrix_Tag_Node_Access;
       Last      : Matrix_Tag_Node_Access;
+      Current   : Access_Matrix_Tag_Node_Access; -- <I>Current/Pos are Iterator</I>
+      Pos       : Integer_Access;                -- <I>cahce <B>in</B>formation.</I>
    <B>end</B> <B>record</B>;
 
    <B>type</B> Matrix_Tag <B>is</B> <B>record</B>
@@ -1780,7 +1793,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 </PRE>
 
 <P><HR><P>
-This document was generated on 25 Febuary 2003 using the
+This document was generated on 28 September 2003 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
