@@ -42,22 +42,28 @@ package body Ada2WSDL is
    use Asis;
    use AWS;
 
+   --------------
+   -- Location --
+   --------------
+
+   function Location (E : in Asis.Element) return String is
+      E_Span : constant Text.Span := Text.Element_Span (E);
+   begin
+      return Utils.Image (E_Span.First_Line)
+        & ':' & Utils.Image (E_Span.First_Column);
+   end Location;
+
    ----------------------
    -- Raise_Spec_Error --
    ----------------------
 
    procedure Raise_Spec_Error
      (E       : in Asis.Element;
-      Message : in String)
-     is
-      E_Span : Text.Span;
+      Message : in String) is
    begin
-      E_Span := Text.Element_Span (E);
-
       Exceptions.Raise_Exception
         (Spec_Error'Identity,
-         "ada2wsdl:" & Utils.Image (E_Span.First_Line)
-           & ':' & Utils.Image (E_Span.First_Column) & ": " & Message);
+         "ada2wsdl:" & Location (E) & ": " & Message);
    end Raise_Spec_Error;
 
 end Ada2WSDL;
