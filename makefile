@@ -170,6 +170,7 @@ install:
 	mkdir $(INSTALL)/images
 	mkdir $(INSTALL)/templates
 	mkdir $(INSTALL)/docs
+	mkdir $(INSTALL)/components
 	ar cr libaws.a src/*.o
 	-ar cr libaws.a ssl/*.o
 	-ar cr libaws.a soap/*.o
@@ -188,3 +189,4 @@ install:
 	cp icons/*.gif $(INSTALL)/icons
 	cp demos/aws_*.png $(INSTALL)/images
 	-cp ssl/*.a $(INSTALL)/lib
+	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/components
