@@ -1,3 +1,9 @@
+2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	$(WSDL_TESTS): Change -rpc option by -doc.
+	$(WSDL_ATESTS): Idem.
+
 2003-03-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* auth2.adb:

@@ -1,5 +1,18 @@
 2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-wsdl-parser.adb:
+	(Accept_RPC): Removed.
+	(Accept_Document): New procedure.
+	(Parse_Binding): Raise an exception if document style binding and
+	 not activated.
+	
+	* soap-wsdl-parser.ads:
+	(Accept_RPC): Removed.
+	(Accept_Document): New procedure.
+	(Object): Remove field Accept_RPC, add field Accept_Dcument.
+	
+2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* soap-types.ads:
 	(XML_Any_Type): New constant.
 
