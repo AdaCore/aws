@@ -65,6 +65,7 @@ package body Filter is
    Repeat_Token        : aliased constant String := "REPEAT";
    Replace_Token       : aliased constant String := "REPLACE";
    Replace_All_Token   : aliased constant String := "REPLACE_ALL";
+   Replace_Param_Token : aliased constant String := "REPLACE_PARAM";
    Reverse_Token       : aliased constant String := "REVERSE";
    Size_Token          : aliased constant String := "SIZE";
    Slice_Token         : aliased constant String := "SLICE";
@@ -167,6 +168,9 @@ package body Filter is
 
          Replace_All    =>
            (Replace_All_Token'Access,    Replace_All'Access),
+
+         Replace_Param  =>
+           (Replace_Param_Token'Access,  Replace_Param'Access),
 
          Invert        =>
            (Reverse_Token'Access,        Reverse_Data'Access),
@@ -342,7 +346,26 @@ package body Filter is
       T : in Translate_Table := No_Translation)
       return String
    is
-      Param : constant String := To_String (P.S);
+      function Get (Str : in String) return String;
+      pragma Inline (Get);
+      --  Returns the parameter key=value to be added
+
+      ---------
+      -- Get --
+      ---------
+
+      function Get (Str : in String) return String is
+         P : constant Natural := Strings.Fixed.Index (Str, "=");
+      begin
+         if P = 0 then
+            return Str;
+         else
+            return Str (Str'First .. P) & Value (Str (P + 1 .. Str'Last), T);
+         end if;
+      end Get;
+
+      Param : constant String := Get (To_String (P.S));
+
    begin
       if Strings.Fixed.Index (S, "?") = 0 then
          --  No parameter yet
@@ -536,6 +559,7 @@ package body Filter is
    is
       Param : constant String  := To_String (P.S);
       E     : constant Natural := Strings.Fixed.Index (S, "?");
+      Len   : constant Natural := Param'Length;
 
    begin
       if E = 0 then
@@ -547,7 +571,12 @@ package body Filter is
             Pos : constant Natural := Strings.Fixed.Index (S, Param);
             First, Last : Natural;
          begin
-            if Pos < E then
+            if Pos < E
+              or else
+                (Pos + Len <= S'Last
+                 and then S (Pos + Len) /= '='
+                 and then S (Pos + Len) /= '&')
+            then
                --  The parameter is not present, return original string
                return S;
 
@@ -1108,6 +1137,35 @@ package body Filter is
          Exceptions.Raise_Exception
            (Template_Error'Identity, "replace filter parameter error");
    end Replace_All;
+
+   -------------------
+   -- Replace_Param --
+   -------------------
+
+   function Replace_Param
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
+   is
+      Param : constant String  := To_String (P.S);
+      Pos   : constant Natural := Strings.Fixed.Index (Param, "=");
+
+   begin
+      if Pos = 0 then
+         Exceptions.Raise_Exception
+           (Template_Error'Identity, "Replace_Param error");
+
+      else
+         declare
+            Key : constant String := Param (Param'First .. Pos - 1);
+         begin
+            return Add_Param
+              (Del_Param (S, (Str, To_Unbounded_String (Key)), T),
+               P, T);
+         end;
+      end if;
+   end Replace_Param;
 
    ------------------
    -- Reverse_Data --
