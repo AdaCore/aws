@@ -163,7 +163,8 @@ package body AWS.Server is
          Sockets.SO_REUSEADDR,
          1);
 
-      Sockets.Bind (Accepting_Socket, Server_Port (Web_Server.Properties));
+      Sockets.Bind (Accepting_Socket,
+                    Config.Server_Port (Web_Server.Properties));
 
       Sockets.Listen (Accepting_Socket);
 
