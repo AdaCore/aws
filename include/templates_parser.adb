@@ -1641,14 +1641,20 @@ package body Templates_Parser is
         (Include_Filename : in Unbounded_String)
          return String
       is
+         Dir_Seps : constant Maps.Character_Set := Maps.To_Set ("/\");
+
          K : constant Natural
-           := Index (Include_Filename, Maps.To_Set ("/\"),
-                     Going => Strings.Backward);
+           := Index (Include_Filename, Dir_Seps, Going => Strings.Backward);
       begin
-         if K = 0 then
+         if K = 1 then
+            --  Include filename is an absolute path, return it without the
+            --  leading directory separator.
+            return Slice (Include_Filename, 2, Length (Include_Filename));
+
+         else
             declare
                K : constant Natural
-                 := Fixed.Index (Filename, Maps.To_Set ("/\"),
+                 := Fixed.Index (Filename, Dir_Seps,
                                  Going => Strings.Backward);
             begin
                if K = 0 then
@@ -1658,8 +1664,6 @@ package body Templates_Parser is
                     & To_String (Include_Filename);
                end if;
             end;
-         else
-            return To_String (Include_Filename);
          end if;
       end Build_Include_Pathname;
 
