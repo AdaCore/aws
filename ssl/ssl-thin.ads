@@ -5,7 +5,7 @@
 --                         Copyright (C) 2000-2001                          --
 --                                ACT-Europe                                --
 --                                                                          --
---  Authors: Dmitriy Anisimov - Pascal Obry                                 --
+--  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -126,13 +126,13 @@ package SSL.Thin is
 
    procedure Err_Error_String_N (Code : Error_Code;
                               Buffer : char_array; Len : size_t);
-                              
+
    procedure ERR_Remove_State (pid : int := 0);
 
    function SSL_New (Ctx : SSL_Ctx) return SSL_Handle;
-   
+
    procedure SSL_Free (SSL : SSL_Handle);
-   
+
    function SSL_Set_Fd (S  : SSL_Handle;
                         Fd : int)
                        return int;
@@ -203,10 +203,10 @@ private
    pragma Import (C, SSL_Set_Fd, "SSL_set_fd");
    pragma Import (C, SSL_Accept, "SSL_accept");
    pragma Import (C, ERR_Remove_State, "ERR_remove_state");
-   
+
    pragma Import (C, SSL_Set_Connect_State, "SSL_set_connect_state");
    pragma Import (C, SSL_Set_Accept_State, "SSL_set_accept_state");
-   
+
    pragma Import (C, SSL_Ctx_Use_Certificate_File,
                     "SSL_CTX_use_certificate_file");
    pragma Import (C, SSL_Ctx_Use_Privatekey_File,
@@ -232,14 +232,14 @@ private
    pragma Import (C, SSL_Library_Init, "SSL_library_init");
 
    pragma Import (C, SSL_Load_Error_Strings, "SSL_load_error_strings");
-   
+
    pragma Import (C, Err_Load_Crypto_Strings, "ERR_load_crypto_strings");
    pragma Import (C, Err_Load_SSL_Strings, "ERR_load_SSL_strings");
 
    pragma Import (C, Err_Get_Error, "ERR_get_error");
    pragma Import (C, Err_Error_String, "ERR_error_string");
    pragma Import (C, Err_Error_String_N, "ERR_error_string_n");
-   
+
 
    pragma Import (C, Crypto_Set_Mem_Functions, "CRYPTO_set_mem_functions");
 
