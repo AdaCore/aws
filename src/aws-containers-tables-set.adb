@@ -38,7 +38,7 @@ package body AWS.Containers.Tables.Set is
    --  Free all elements and destroy his entries.
 
    procedure Free is new Ada.Unchecked_Deallocation
-     (Name_Value_Type, Name_Value_Access);
+     (Element, Element_Access);
 
    procedure Free_Elements (Data : in out Data_Table.Instance);
    --  Free all dynamically allocated strings in the data table.
@@ -81,7 +81,7 @@ package body AWS.Containers.Tables.Set is
 
       Data_Table.Append
         (Table.Data,
-         new Name_Value_Type'
+         new Element'
            (Name_Length  => Name'Length,
             Value_Length => Value'Length,
             Name         => Name,
