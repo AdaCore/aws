@@ -111,7 +111,7 @@ aws.dvi: aws.texi $(APIFILES)
 	-texi2dvi --clean --quiet aws.texi
 
 prog: build.adb
-	gnatmake -m -q build -I../src -I../soap -I../include \
+	$(GNATMAKE) -m -q build -I../src -I../soap -I../include \
 		$(INCLUDES) -largs $(LIBS)
 
 aws.texi: prog aws.texi.tmplt
@@ -164,10 +164,10 @@ adabrowse_apiref: check_api
 	)
 
 clean:
-	-rm -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
+	-$(RM) -f aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
           $(APIFILES) *~ *.o *.ali genout
-	-rm -f style-guide.dvi style-guide.html style-guide.info* \
+	-$(RM) -f style-guide.dvi style-guide.html style-guide.info* \
 		style-guide.log style-guide.ps style-guide.txt
 
 clean_apiref:
-	-rm -fr html
+	-$(RM) -fr html
