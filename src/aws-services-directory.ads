@@ -44,29 +44,69 @@ with Templates_Parser;
 --     VERSION (discrete)
 --        AWS version string.
 --
-
---     IS_DIR (vector)
+--     IS_DIR_V (vector)
 --        A list of booleans, indicate if Nth entry is a directory or not.
 --
---     NAMES (vector)
+--     NAME_V (vector)
 --        A list of filenames. Nth name is a directory if Nth entry in IS_DIR
 --        is set to true.
 --
---     SIZES (vector)
+--     SIZE_V (vector)
 --        A list of sizes. Nth entry is the file size of the Nth entry in
 --        NAMES.
 --
---     TIMES (vector)
+--     TIME_V (vector)
 --        A list of last modification times. Nth entry is is the last
 --        modification time of the Nth entry in NAMES.
 --
 --     NAME_ORDR
+--        Rule to either set ordering on name or to revert current name
+--        ordering.
+--
+--     SNME_ORDR
+--        Rule to either set ordering on name (case sensitive) or to revert
+--        current name (case sensitive) ordering.
+--
+--     EXT_ORDR
+--        Rule to either set ordering on extension or to revert current
+--        extension ordering.
+--
+--     SEXT_ORDR
+--        Rule to either set ordering on extension (case sensitive) or to
+--        revert current extension (case sensitive) ordering.
+--
+--     MIME_ORDR
+--        Rule to either set ordering on MIME type or to revert current MIME
+--        type ordering.
+--
 --     DIR_ORDR
+--        Rule to either set ordering on directory or to revert current
+--        directory ordering.
+--
 --     SIZE_ORDR
+--        Rule to either set ordering on size or to revert current size
+--        ordering.
+--
 --     TIME_ORDR
+--        Rule to either set ordering on time or to revert current time
+--        ordering.
+--
 --     ORIG_ORDR
+--        Rule to either set original ordering (file order as read on the file
+--        system) or to revert current original ordering.
+--
 --     DIR_NAME_ORDR
+--        Rule to either set ordering on directory/name or to revert current
+--        directory/name ordering.
+--
+--     DIR_SNME_ORDR
+--        Rule to either set ordering on directory/name (case sensitive) or to
+--        revert current directory/name (case sensitive) ordering.
+--
 --     DIR_TIME_ORDR
+--        Rule to either set ordering on directory/time or to revert current
+--        directory/time ordering.
+--
 
 package AWS.Services.Directory is
 
@@ -76,8 +116,8 @@ package AWS.Services.Directory is
      (Directory_Name : in String;
       Request        : in AWS.Status.Data)
      return Translate_Table;
-   --  Returns a translation table to be used with a directory template fill
-   --  with information parsed from Directory_Name.
+   --  Returns a translation table containing information parsed from
+   --  Directory_Name. This is supposed to be used with a directory template.
 
    function Browse
      (Directory_Name    : in String;
@@ -85,5 +125,8 @@ package AWS.Services.Directory is
       Request           : in AWS.Status.Data;
       Translations      : in Translate_Table := No_Translation)
      return String;
+   --  Parses directory Directory_Name and use Templates_Parser to fill in the
+   --  template Template_Filename. It is possible to specified some specifics
+   --  tags in Translations.
 
 end AWS.Services.Directory;
