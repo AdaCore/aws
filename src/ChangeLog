@@ -1,5 +1,10 @@
 2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	Remove one call to Set_Close_Status, cut&paste error.
+
+2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(SOURCES): Add aws-status-translate_table.adb.
 
