@@ -1,3 +1,46 @@
+2003-04-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.ads, aws-utils.adb:
+	(Mailbox_G): New package.
+
+	* aws-session.adb:
+	(Max_Expired): New constant.
+	(Expired_SID): New array.
+	(E_Index): New variable.
+	(Session_Callback): New variable.
+	(Database.Clean): Removed.
+	(Database.Lock_And_Clean): New entry.
+	(Database.Unsafe_Delete_Session): New procedure.
+	(Database.Destroy): New procedure.
+	(Assign): Call Destroy on destination Session_Node.
+	(Cleaner): Use Lock_And_Clean to retreive all session to
+	 remove. Call Session_Callback if set before destroying the
+	 session data. Destroy all data remaining on the database when
+	 leaving.
+	(Database.Delete_Session): Call Database.Unsafe_Delete_Session.
+	(Set_Callback): New procedure.
+
+	* aws-session.ads:
+	Add some section comments.
+	(Callback): New type.
+	(Set_Callback): New procedure.
+
+	* aws-session-control.adb:
+	(Start): Add parameter's mode.
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-jabber.adb:
+	(Close): Delete all remaining message from the mailbox.
+	(Mailbox): Moved to AWS.Utils.
+	Update copyright notice.
+
+	* aws-jabber.ads:
+	(Mailbox): Moved to AWS.Utils.
+	(Message_Mailbox): New package, instance of Utils.Mailbox_G.
+	(Server): Use new mailbox.
+	Update copyright notice.
+
 2003-04-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
