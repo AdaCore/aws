@@ -62,6 +62,7 @@ procedure SSBack is
       entry Start;
       entry Next (Keep_Alive : Boolean);
       entry Stop;
+      entry Stopped;
    end Wait_Call;
 
    task IO is
@@ -196,6 +197,7 @@ procedure SSBack is
 
       Client.Close (Connect);
 
+      accept Stopped;
    exception
       when others =>
          IO.Put_Line ("Wait_Call error!");
@@ -255,7 +257,11 @@ begin
    Wait_Call.Stop;
 
    IO.Put_Line ("shutdown...");
+
    IO.Stop;
+   Wait_Call.Stopped;
+
+   delay 1.0;
 
    Server.Shutdown (WS);
 end SSBack;
