@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                            Copyright (C) 2003                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -41,18 +41,17 @@ package body SOAP.Dispatchers is
    function Dispatch
      (Dispatcher : in Handler;
       Request    : in AWS.Status.Data)
-      return     AWS.Response.Data is
+      return AWS.Response.Data is
    begin
       if AWS.Status.Is_SOAP (Request) then
          return Dispatch_SOAP
-                  (Handler'Class (Dispatcher),
-                   AWS.Status.SOAPAction (Request),
-                   SOAP.Message.XML.Load_Payload
-                     (AWS.Status.Payload (Request)));
+           (Handler'Class (Dispatcher),
+            AWS.Status.SOAPAction (Request),
+            SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request)),
+            Request);
       else
-         return Dispatch_Base (Handler'Class (Dispatcher), Request);
+         return Dispatch_HTTP (Handler'Class (Dispatcher), Request);
       end if;
    end Dispatch;
 
 end SOAP.Dispatchers;
-
