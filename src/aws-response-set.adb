@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Strings.Fixed;
+
 with AWS.Translator;
 with AWS.Headers.Set;
 with AWS.Digest;
@@ -146,6 +148,14 @@ package body AWS.Response.Set is
            (D.Header,
             Name  => Messages.Cache_Control_Token,
             Value => String (Value));
+
+         if Strings.Fixed.Index (String (Value), "no-cache") /= 0 then
+            --  There is a no-cache option specified for the Cache-Control
+            --  header. Add "Pragma: no-cache" for compatibility with HTTP/1.0
+            --  protocol.
+            Headers.Set.Update
+              (D.Header, Name => Messages.Pragma_Token, Value => "no-cache");
+         end if;
       end if;
    end Cache_Control;
 
