@@ -1,8 +1,16 @@
+2004-12-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait_proc.adb, wait.out, wait_sec.out:
+	Remove Read numbering. No numbering guarantee.
+
+	* makefile, dirop.out:
+	Fix .png file touch time.
+
 2004-12-13  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
 	(clean): Update to new namespace.
- 
+
 	* interoplab_main1.adb:
 	Update namespaces checks.
 
