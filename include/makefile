@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build clean
+.SILENT:
 
 ifeq ($(DEBUG),1)
 OFLAGS	= -g
@@ -16,8 +16,8 @@ SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
 	table_of_static_keys_and_static_values_g \
 	table_of_strings_and_static_values_g.adb \
 	strings_cutter.adb md5.adb \
-	sha.ads sha-process_data.adb sha-strings.adb \
-	memory_streams.adb zlib-thin.adb zlib.adb
+	memory_streams.adb zlib-thin.adb zlib.adb \
+	sha.ads sha-process_data.adb sha-strings.adb
 
 UNITS = $(sort $(basename $(SOURCES)))
 
