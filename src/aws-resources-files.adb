@@ -67,7 +67,6 @@ package body AWS.Resources.Files is
          raise Resource_Error;
    end File_Size;
 
-
    --------------------
    -- File_Timestamp --
    --------------------
@@ -95,6 +94,10 @@ package body AWS.Resources.Files is
       procedure Next_Char;
       --  Set C with next character in the file, update Resource.Last.
 
+      ---------------
+      -- Next_Char --
+      ---------------
+
       procedure Next_Char is
       begin
          if Resource.Current > Resource.Last then
@@ -107,7 +110,8 @@ package body AWS.Resources.Files is
       end Next_Char;
 
    begin
-      Last := 0;
+      Last         := 0;
+      Resource.LFT := False;
 
       loop
          Next_Char;
@@ -117,6 +121,7 @@ package body AWS.Resources.Files is
 
          else
             if C = ASCII.LF then         -- UNIX style line terminator
+               Resource.LFT := True;
                exit;
 
             elsif C = ASCII.CR then      -- DOS style line terminator
@@ -125,6 +130,7 @@ package body AWS.Resources.Files is
                if Resource.Last < Resource.Buffer'First then -- no more char
                   exit;
                elsif  C = ASCII.LF then  --  Ok, found CR+LF
+                  Resource.LFT := True;
                   exit;
 
                else                      --  CR, but no LF, continue reading
@@ -151,6 +157,15 @@ package body AWS.Resources.Files is
       when others =>
          raise Resource_Error;
    end Is_Regular_File;
+
+   -------------------
+   -- LF_Terminated --
+   -------------------
+
+   function LF_Terminated (Resource : in File_Tagged) return Boolean is
+   begin
+      return Resource.LFT;
+   end LF_Terminated;
 
    ----------
    -- Open --
