@@ -1,5 +1,8 @@
 2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* wsdl_6.out:
+	Update to new output.
+
 	* makefile:
 	($(ASIS_TESTS)): Call ada2wsdl with $(INCLUDES) and -I for AWS
 	 packages.
