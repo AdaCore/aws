@@ -1,3 +1,8 @@
+2004-09-15  Pascal Obry  <pascal@obry.org>
+
+	* tools.gpr:
+	Do not use "null;" as it is not support on GNAT 5.02.
+	
 2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
