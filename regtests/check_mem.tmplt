@@ -1,6 +1,8 @@
 
 Check_Mem template
 
+@@INCLUDE@@ cm_include.tmplt
+
 @_ONE_@
 
 @_TWO_@
@@ -12,6 +14,8 @@ Check_Mem template
 @@TABLE@@
 @_TWO_@ @_V_@
 @@END_TABLE@@
+
+@@INCLUDE@@ cm_include.tmplt
 
 @@TABLE@@
 @_ONE_@
