@@ -1,3 +1,10 @@
+2003-04-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-session.adb
+	(Key_Exist): Use Update_Value_Or_Status_G instead of
+	 Update_Value_Or_Exception_G generic instantiation, so we do not have
+	 to catch exception Missing_Item_Error now.
+
 2003-04-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb:
