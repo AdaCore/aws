@@ -1849,26 +1849,29 @@ in the server's directory, the content of the @file{500.tmplt} file.
 This templates can used the following tags:
 
 @table @b
-@item PEERNAME
-The IP address of the client
+@item AUTH_MODE
+The authorization mode (Either NONE, BASIC or DIGEST).
 
-@item METHOD
-The request method (Either GET, HEAD, POST or PUT)
-
-@item URI
-The complete URI
+@item EXCEPTION
+Exception information with traceback if activated.
 
 @item HTTP_VERSION
 Either HTTP/1.0 or HTTP/1.1
 
-@item AUTH_MODE
-The authorization mode (Either NONE, BASIC or DIGEST).
+@item METHOD
+The request method (Either GET, HEAD, POST or PUT)
+
+@item PAYLOAD
+The full XML payload for SOAP request.
+
+@item PEERNAME
+The IP address of the client
 
 @item SOAP_ACTION
 Either True or False. Set to True for a SOAP request.
 
-@item PAYLOAD
-The full XML payload for SOAP request.
+@item URI
+The complete URI
 @end table
 
 @noindent
