@@ -103,6 +103,9 @@ procedure WSDL_6_Main is
       I_Arr : WSDL_6.Set_Of_Int (1 .. 7);
       A_Res : WSDL_6.Set_Of_Int (1 .. 7);
 
+      R_Arr : WSDL_6.Set_Of_Rec (1 .. 12);
+      R_Res : WSDL_6.Set_Of_Rec (1 .. 12);
+
    begin
       Put_Line
         (WSDL_6.Color'Image (WSDL_6_Service.Client.Next (WSDL_6.Red)));
@@ -139,6 +142,24 @@ procedure WSDL_6_Main is
 
       for K in A_Res'Range loop
          Put (A_Res (K)); New_Line;
+      end loop;
+
+      --  Array of Rec
+
+      for K in R_Arr'Range loop
+         R_Arr (K)
+           := (K, Long_Float (K), Long_Long_Float (K),
+               Character'Val (K + Character'Pos ('a') - 1),
+               To_Unbounded_String ("This is number " & Integer'Image (K)),
+               K mod 2 = 0);
+      end loop;
+
+      R_Res := WSDL_6_Service.Client.Echo_Set_Rec (R_Arr);
+
+      Put_Line ("array of rec");
+
+      for K in R_Res'Range loop
+         Put_Rec (R_Res (K)); New_Line;
       end loop;
    end Client;
 
