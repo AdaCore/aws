@@ -1,3 +1,8 @@
+2004-07-07  Pascal Obry  <pascal@obry.org>
+
+	* poll.adb:
+	Fix casing.
+
 2004-04-14  Pascal Obry  <pascal@obry.org>
 
 	* poll.adb:
