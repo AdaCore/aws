@@ -487,6 +487,10 @@ package body Skel is
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "   use SOAP.Types;");
       Text_IO.Put_Line (Skel_Adb, "   use type SOAP.Parameters.List;");
+      Text_IO.New_Line (Skel_Adb);
+      Text_IO.Put_Line (Skel_Adb, "   pragma Warnings (Off);");
+      Text_IO.Put_Line (Skel_Adb, "   --  Suppress wrong warnings generated"
+                          & " by GNAT (fixed in 3.17)");
    end Start_Service;
 
 end Skel;
