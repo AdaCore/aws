@@ -62,10 +62,10 @@ RT_STD_ALONE = dispatch dispatch_method dispatch_vh tlog upload2 upload3 \
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tres2 upload unexph auth auth2 moved turl2 turl3 test_templates_if \
-	head hval turl4 ctab sock1 file redirect hostip unexph2 sp sessions \
+	head hval turl4 ctab file redirect hostip unexph2 sp sessions zres \
 	dirop multiple tcom tmime sessions2 sessions3 huge_response sback \
 	server_info append compress zapp zbig zfile zstrm split zstrm2 once \
-	get_post zopen timer tmem file2 eres zres $(RT_STD_SEC)
+	get_post zopen timer tmem file2 eres sock1 sock2 $(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
 ALONE_TESTS  = $(RT_STD_ALONE)
