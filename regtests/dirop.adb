@@ -30,19 +30,46 @@
 
 --  $Id$
 
-with AWS.Services.Directory;
-with AWS.Status.Set;
+with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
+with AWS.Services.Directory;
+with AWS.Status.Set;
+
 procedure Dirop is
+
+   use Ada;
    use AWS;
+
    Stat : Status.Data;
 
 begin
    Status.Set.Reset (Stat);
-   Ada.Text_IO.Put_Line
-     (Services.Directory.Browse
-        (Directory_Name    => "../icons",
-         Template_Filename => "dirop.tmplt",
-         Request           => Stat));
+
+   declare
+      Result : String
+        := Services.Directory.Browse
+             (Directory_Name    => "../icons",
+              Template_Filename => "dirop.tmplt",
+              Request           => Stat);
+      K : Natural;
+      S : Positive := Result'First;
+   begin
+      --  Replace times with xx:xx:xx, avoid TZ problems
+
+      loop
+         K := Strings.Fixed.Index (Result (S .. Result'Last), ":");
+         exit when K = 0;
+
+         --  Found hh:mm:ss, replace value with xx
+
+         Result (K - 2 .. K - 1) := "xx";
+         Result (K + 1 .. K + 2) := "xx";
+         Result (K + 4 .. K + 5) := "xx";
+
+         S := K + 6;
+      end loop;
+
+      Text_IO.Put_Line (Result);
+   end;
 end Dirop;
