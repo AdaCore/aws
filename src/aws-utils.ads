@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -75,5 +75,50 @@ package AWS.Utils is
 
    function Get_MD5 (Data : in String) return MD5.Digest_String;
    --  Returns the MD5 digest value for the Data string.
+
+   ---------------
+   -- Semaphore --
+   ---------------
+
+   --  This is a binary semaphore, only a single task can enter it (Seize) and
+   --  must call Release when the resource is not needed anymore. This
+   --  implement a standard semaphore (P/V mutex).
+
+   protected type Semaphore is
+      entry Seize;
+      procedure Release;
+   private
+      Seized : Boolean := False;
+   end Semaphore;
+
+   ------------------
+   -- RW_Semaphore --
+   ------------------
+
+   --  This is a Read/Write semaphore. Many reader tasks can enter (Read) at
+   --  the same time excluding all writers (Write). A single writer can enter
+   --  (Write) excluding all readers (Read). The task must release the
+   --  corresponding resource by calling either Release_Read or Release_Write.
+   --  As soon as a writer arrive all readers will wait for it to complete.
+
+   protected type RW_Semaphore is
+
+      --  Readers must call Read to enter the critical section and call
+      --  Release_Read at the end.
+
+      entry Read;
+
+      procedure Release_Read;
+
+      --  Writers must call Write to enter the critical section and call
+      --  Release_Write at the end.
+
+      entry Write;
+
+      procedure Release_Write;
+
+   private
+      R, W : Natural := 0;
+   end RW_Semaphore;
 
 end AWS.Utils;
