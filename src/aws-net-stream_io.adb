@@ -88,8 +88,7 @@ package body AWS.Net.Stream_IO is
 
    procedure Shutdown (Stream : in Socket_Stream_Access) is
    begin
-      Buffered.Flush (Stream.Socket.all);
-      Net.Shutdown (Stream.Socket.all);
+      Buffered.Shutdown (Stream.Socket.all);
    end Shutdown;
 
    ------------
