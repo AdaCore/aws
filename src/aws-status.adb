@@ -29,6 +29,7 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
+with Ada.Characters.Handling;
 
 package body AWS.Status is
 
@@ -148,11 +149,31 @@ package body AWS.Status is
       end if;
    end Parameter;
 
-   function Parameter (D : in Data; Name : in String) return String is
+   function Parameter (D              : in Data;
+                       Name           : in String;
+                       Case_Sensitive : in Boolean := False) return String
+   is
+
+      use Ada;
+
+      function Compare (S1, S2 : in String) return Boolean;
+      --  Returns true if S1 and S2 are equal. If Case_Sensitive is set to
+      --  False it will do a case insensitive checks.
+
       P : constant String := To_String (D.Parameters);
       I : Natural;
       S : Positive := 1;
       E : Natural;
+
+      function Compare (S1, S2 : in String) return boolean is
+      begin
+         if Case_Sensitive then
+            return S1 = S2;
+         else
+            return Characters.Handling.To_Upper (S1)
+              = Characters.Handling.To_Upper (S2);
+         end if;
+      end Compare;
 
    begin
       loop
@@ -162,7 +183,7 @@ package body AWS.Status is
          else
             S := I + 1;
             if I - Name'Length > 0
-              and then P (I - Name'Length .. I - 1) = Name
+              and then Compare (P (I - Name'Length .. I - 1), Name)
             then
                E := Fixed.Index (P (S .. P'Last), "&");
 

@@ -103,7 +103,11 @@ package AWS.Status is
    function URI               (D : in Data) return String;
    function HTTP_Version      (D : in Data) return String;
    function Parameter         (D : in Data; N    : in Positive) return String;
-   function Parameter         (D : in Data; Name : in String)   return String;
+
+   function Parameter         (D : in Data; Name : in String;
+                               Case_Sensitive : in Boolean := False)
+                               return String;
+
    function Binary_Data       (D : in Data) return Stream_Element_Array;
 
 private
