@@ -56,7 +56,32 @@ package AWS.Resources is
       Form : in     String    := "");
    --  Open file in mode In_File. Only reading from the file is supported.
    --  This procedure open the in-memory (embedded) file if present, otherwise
-   --  the file on disk is opened.
+   --  the file on disk is opened. Note that file content could be gotten from
+   --  file (embedded or on-disk) with the filename Name & ".gz" if file with
+   --  filename Name does not exists, output would be unzipped in this case.
+
+   procedure Open
+     (File :    out File_Type;
+      Name : in     String;
+      Form : in     String    := "";
+      GZip : in out Boolean);
+   --  Open file in mode In_File. Only reading from the file is supported.
+   --  This procedure open the in-memory (embedded) file if present, otherwise
+   --  the file on disk is opened. If in value of GZip parameter is False
+   --  data output would be the same as in previous Open routine. If GZip in
+   --  value is True routine would try to open file with name Name & ".gz"
+   --  first and provide GZipped output for File. GZip out value would be True
+   --  in this case. If in GZip value is True and file with name Name & ".gz"
+   --  does not exists, routine would try to open file with name Name and
+   --  put out GZip value to False.
+   --  Note, if both files Name and Name & ".gz" exists, file opened is depend
+   --  on GZip in value. The user should be responsible for the WWW_Root
+   --  folder and embedded resources contents integrity. Sometimes it would be
+   --  usable to provide 2 different content for HTTP clients supported and
+   --  not suported gzip decoding. For example web designer want to give
+   --  access to big html file for all http clients. /file.html URI would
+   --  give either direct access to file.html.gz or to the small page with
+   --  link to file.html.gz depend on http client gzip decoding support.
 
    procedure Reset (Resource : in out File_Type);
    --  Reset the file, reading will restart at the beginning
@@ -101,19 +126,11 @@ package AWS.Resources is
    --  Get the time for last modification to a file in UTC/GMT. Checks first
    --  for in memory file then for disk file.
 
-   procedure Support_Compressed
-     (Resource : in out File_Type;
-      State    : in     Boolean);
-   --  By the default data read from a resource are returned as-is. This means
-   --  that for compressed embedded resources the data are returned
-   --  compressed. It can be changed by calling this routine with State set to
-   --  False. It tells the underlying resource implementation that the data
-   --  must always be returned uncompressed. This routine must be called on
-   --  an open Resource.
-
 private
 
    Undefined_Length : constant Content_Length_Type := -1;
+
+   GZip_Ext : constant String := ".gz";
 
    type File_Tagged is abstract tagged limited record
       LFT : Boolean; -- LF terminated state
@@ -124,6 +141,9 @@ private
    --  one for files on a hard disk and files in memory (array of bytes).
 
    type File_Type is access all File_Tagged'Class;
+
+   function Is_GZip (Name : String) return Boolean;
+   --  Return true if filename is with .gz extension.
 
    function End_Of_File
      (Resource : in File_Tagged)
@@ -146,10 +166,6 @@ private
 
    procedure Reset (File : in out File_Tagged)
       is abstract;
-
-   procedure Support_Compressed
-     (Resource : in out File_Tagged;
-      State    : in     Boolean);
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);

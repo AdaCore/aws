@@ -124,6 +124,17 @@ package body AWS.Resources is
       end loop;
    end Get_Line;
 
+   -------------
+   -- Is_GZip --
+   -------------
+
+   function Is_GZip (Name : String) return Boolean is
+   begin
+      return Name'Length > GZip_Ext'Length
+        and then Name (Name'Last - GZip_Ext'Length + 1 .. Name'Last)
+                 = GZip_Ext;
+   end Is_GZip;
+
    ---------------------
    -- Is_Regular_File --
    ---------------------
@@ -150,15 +161,26 @@ package body AWS.Resources is
    procedure Open
      (File :    out File_Type;
       Name : in     String;
-      Form : in     String    := "") is
+      Form : in     String    := "";
+      GZip : in out Boolean) is
    begin
       --  Try to open the file in memory, if not found open the file on disk
 
-      Resources.Embedded.Open (File, Name, Form);
+      Resources.Embedded.Open (File, Name, Form, GZip);
 
       if File = null then
-         Resources.Files.Open (File, Name, Form);
+         Resources.Files.Open (File, Name, Form, GZip);
       end if;
+   end Open;
+
+   procedure Open
+     (File :    out File_Type;
+      Name : in     String;
+      Form : in     String    := "")
+   is
+      GZip : Boolean := False;
+   begin
+      Open (File, Name, Form, GZip);
    end Open;
 
    ----------
@@ -190,25 +212,5 @@ package body AWS.Resources is
    begin
       return Size (Resource.all);
    end Size;
-
-   ------------------------
-   -- Support_Compressed --
-   ------------------------
-
-   procedure Support_Compressed
-     (Resource : in out File_Type;
-      State    : in     Boolean) is
-   begin
-      Support_Compressed (Resource.all, State);
-   end Support_Compressed;
-
-   procedure Support_Compressed
-     (Resource : in out File_Tagged;
-      State    : in     Boolean)
-   is
-      pragma Unreferenced (Resource, State);
-   begin
-      null;
-   end Support_Compressed;
 
 end AWS.Resources;
