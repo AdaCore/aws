@@ -75,7 +75,7 @@ procedure Generate is
            & "   exception" & Lf
            & "      when E : others =>" & Lf
            & "         Put_Line (""Test " & Name & " failed."");" & Lf
-           & "         Put_Line (Exceptions.Exception_Information (E));" & Lf
+           & "         Put_Line (Exception_Information (E));" & Lf
            & "   end;" & Lf
            & "   Close (Std_Out);" & Lf & Lf);
    end Test;
@@ -83,6 +83,7 @@ procedure Generate is
 begin
    Create (Main, Out_File, "test_all.adb");
    Put_Line (Main, "with Ada.Text_IO; use Ada.Text_IO;");
+   Put_Line (Main, "with Ada.Exceptions; use Ada.Exceptions;");
 
    for J in 1 .. Argument_Count loop
       Test (Argument (J));
