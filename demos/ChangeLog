@@ -1,3 +1,9 @@
+2004-12-11  Pascal Obry  <pascal@obry.net>
+
+	* demos.gpr:
+	(Source_Files): Add Mains_XMLADA only if XMLADA is activated. Fix
+	 build failure for the HTTP only distrib.
+
 2004-12-04  Pascal Obry  <pascal@obry.org>
 
 	* demos.gpr:
