@@ -201,6 +201,7 @@ package body AWS.Session is
 
       Next_Run : Calendar.Time := Calendar.Clock + Session_Check_Interval;
       L_SC     : Callback;
+      pragma Atomic (L_SC);
       --  Local pointer to the session callback procedure. This is to ensure
       --  that there is no race condition and that the code below will not
       --  crash if SC pointer is changed.
@@ -228,8 +229,11 @@ package body AWS.Session is
                begin
                   L_SC.all (Expired_SID (K));
                exception
-                  when others =>
-                     null;
+                  when E : others =>
+                     Ada.Text_IO.Put_Line
+                       (Ada.Text_IO.Current_Error,
+                        "Delete session callback error : "
+                          & Exceptions.Exception_Information (E));
                end;
             end if;
 
