@@ -309,6 +309,7 @@ hload_sec.res
 hostip
 hostip.res
 hostip.tmp
+hotplug_access.ini
 huge_response
 huge_response.res
 huge_response_sec.res
@@ -448,6 +449,7 @@ tcom
 tcom.res
 test_all
 test_all.adb
+test_hotplug.res
 test_net_log.res
 test_sec_soap
 test_sec_soap.res
@@ -464,6 +466,7 @@ test_soap4.res
 test_soap5
 test_soap5.res
 test_soap5_sec.res
+test_soap_hotplug.res
 test_speed
 test_speed.res
 test_speed.tmp
