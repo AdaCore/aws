@@ -77,4 +77,6 @@ begin
    Test ("http://www.myserver.com:89/app/request?p1=9&p2=toto");
    Test ("http://www.myserver.com:89/app/request/?p1=9&p2=toto");
    Test ("http://www.myserver.com:89/app/request/?p1=9&url=http://titi");
+   Test ("http://www.myserver.com:89/app/..\..\toto&url=http://titi");
+   Test ("http://www.myserver.com:89/app/.\..\toto&url=http://titi");
 end Turl;
