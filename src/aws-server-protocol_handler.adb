@@ -63,7 +63,7 @@ with AWS.URL;
 separate (AWS.Server)
 
 procedure Protocol_Handler
-  (HTTP_Server : in out HTTP;
+  (HTTP_Server : in out HTTP_Access;
    Index       : in     Positive;
    Keep_Alive  : in     Boolean)
 is
@@ -82,9 +82,9 @@ is
 
    HTTP_10        : constant String := "HTTP/1.0";
 
-   C_Stat         : AWS.Status.Data;     -- Connection status
+   C_Stat         : aliased AWS.Status.Data; -- Connection status
 
-   P_List         : AWS.Parameters.List; -- Form data
+   P_List         : AWS.Parameters.List;     -- Form data
 
    Sock_Ptr       : constant Socket_Access
      := HTTP_Server.Slots.Get (Index => Index).Sock;
@@ -212,7 +212,7 @@ is
                begin
                   Answer := Response.Build
                     (Content_Type => MIME.Text_HTML,
-                     Message_Body => Get_Status (HTTP_Server));
+                     Message_Body => Get_Status (HTTP_Server.all));
                exception
                   when Templates.Template_Error =>
                      Answer := Response.Build
@@ -1599,6 +1599,8 @@ begin
    --  beeing sent. We are by default using HTTP/1.1 persistent
    --  connection. We will exit this loop only if the client request
    --  so or if we time-out on waiting for a request.
+
+   Line_Attribute.Set_Value ((HTTP_Server, Index, C_Stat'Unchecked_Access));
 
    For_Every_Request : loop
 
