@@ -5,6 +5,10 @@
 	 memory leak. Clear the data in the Response before Append_Body calls
 	 to avoid leading data from previos response usage.
 
+	* aws-resources-streams-zlib.adb:
+	(Deflate_Initialize): Init Resource.Rest_First.
+	(Inflate_Initialize): Init Resource.Rest_First.
+
 2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.adb:
