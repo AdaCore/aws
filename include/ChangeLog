@@ -1,6 +1,12 @@
 2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb, templates_parser-filter.adb:
+	Update to new version, MATCH filter support a regpat (uniform with
+	 REPLACE and REPLACE_ALL filters).
+	
+2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb, templates_parser-filter.adb:
 	Update to new version, support for FORMAT_DATE filter.
 
 2003-12-09  Pascal Obry  <p.obry@wanadoo.fr>
