@@ -107,6 +107,15 @@ package body AWS.Status is
       return D.File_Up_To_Date;
    end File_Up_To_Date;
 
+   -----------------
+   -- Has_Session --
+   -----------------
+
+   function Has_Session (D : in Data) return Boolean is
+   begin
+      return D.Session_ID /= Null_Unbounded_String;
+   end Has_Session;
+
    ----------
    -- Host --
    ----------
