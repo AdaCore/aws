@@ -141,6 +141,9 @@ package body AWS.OS_Lib is
         (D_Entry : in     Files.Directory_Entry;
          Quit    : in out Boolean);
 
+      function Get_Directory return String;
+      --  Returns directory with an ending slash
+
       ------------
       -- Action --
       ------------
@@ -152,8 +155,23 @@ package body AWS.OS_Lib is
          Filename : constant String
            := To_String (Files.Filename_Of (D_Entry));
       begin
-         Action (Filename, Is_Directory (Filename), Quit);
+         Action (Filename, Is_Directory (Get_Directory & Filename), Quit);
       end Action;
+
+      -------------------
+      -- Get_Directory --
+      -------------------
+
+      function Get_Directory return String is
+      begin
+         if Directory_Name /= ""
+           and then Directory_Name (Directory_Name'Last) = '/'
+         then
+            return Directory_Name;
+         else
+            return Directory_Name & '/';
+         end if;
+      end Get_Directory;
 
       --------------
       -- Iterator --
