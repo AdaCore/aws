@@ -300,6 +300,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_write;
 
+   ------------
+   -- SSLeay --
+   ------------
+
+   function SSLeay return Long_Integer is
+   begin
+      return 0;
+   end SSLeay;
+
    --------------------------
    -- SSLv23_client_method --
    --------------------------

@@ -119,6 +119,9 @@ package SSL.Wrappers is
    procedure TLSv1_method;
    pragma Export (C, TLSv1_method, "TLSv1_method");
 
+   function SSLeay return Long_Integer;
+   pragma Export (C, SSLeay, "SSLeay");
+
    procedure SSLv23_client_method;
    pragma Export (C, SSLv23_client_method, "SSLv23_client_method");
 
