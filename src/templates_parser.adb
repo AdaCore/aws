@@ -2047,6 +2047,10 @@ package body Templates_Parser is
    is
       T : Tag := Value;
    begin
+      if Separator /= Default_Separator then
+         Set_Separator  (T, Separator);
+      end if;
+
       return Association'
         (Composite,
          To_Unbounded_String (Variable),
