@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 29 November 2002 -->
+     from templates_parser.texi on 19 December 2002 -->
 
 <TITLE>Templates Parser
 </TITLE>
@@ -11,7 +11,7 @@
 </H1>
 <H2>$Revision$
 </H2>
-<H2>Date: 29 November 2002
+<H2>Date: 19 December 2002
 </H2>
 <ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)
 </ADDRESS>
@@ -163,7 +163,6 @@ Using the following code <TT>`demo.adb'</TT>:
 
 
 <PRE>
-
 
 <B>with</B> Ada.Text_IO;
 <B>with</B> Templates_Parser;
@@ -738,7 +737,6 @@ The following program:
 
 <PRE>
 
-
 <B>with</B> Ada.Text_IO;
 <B>with</B> Templates_Parser;
 
@@ -770,7 +768,6 @@ But the following program:
 
 
 <PRE>
-
 
 <B>with</B> Ada.Text_IO;
 <B>with</B> Templates_Parser;
@@ -834,7 +831,6 @@ Let's have an example. With the following template:
 
 <PRE>
 
-
 &#60;P&#62;Here <B>is</B> the ages <B>of</B> some peoples:
 
 &#60;TABLE&#62;
@@ -853,7 +849,6 @@ And the following program:
 
 
 <PRE>
-
 
 <B>with</B> Ada.Text_IO;
 <B>with</B> Templates_Parser;
@@ -941,7 +936,6 @@ will be complete with empty tag value.
 
 <PRE>
 
-
 &#60;P&#62;Here are some available computer devices:
 
 &#60;TABLE&#62;
@@ -977,7 +971,6 @@ And the following program:
 
 
 <PRE>
-
 
 <B>with</B> Ada.Text_IO;
 <B>with</B> Templates_Parser;
@@ -1085,7 +1078,6 @@ Here is the template:
 
 <PRE>
 
-
 Hello here are a list <B>of</B> devices:
 
 &#60;table&#62;
@@ -1116,7 +1108,6 @@ And the following program:
 
 
 <PRE>
-
 
 <B>with</B> Ada.Text_IO;
 <B>with</B> Templates_Parser;
@@ -1266,7 +1257,6 @@ Let's look at an example, with the following template:
 
 <PRE>
 
-
 A matrix <B>in</B>side a table <B>of</B> level 2:
 
 @@TABLE@@
@@ -1302,7 +1292,6 @@ Using the program:
 
 
 <PRE>
-
 
 <B>with</B> Ada.Text_IO;
 <B>with</B> Templates_Parser;
@@ -1477,7 +1466,9 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    ----------------
 
    <B>type</B> Vector_Tag <B>is</B> <B>private</B>;
-   -- <I> A vector tag <B>is</B> a set <B>of</B> string.</I>
+   -- <I> A vector tag is a set <B>of</B> strings. Note that this object <B>is</B> using a</I>
+   -- <I> by-reference semantic. A reference counter <B>is</B> associated to it and</I>
+   -- <I> the memory is realeased when there <B>is</B> no more reference to it.</I>
 
    <B>function</B> "<I>+</I>" (Value : <B>in</B> String) <B>return</B> Vector_Tag;
    -- <I> Vector_Tag constructor.</I>
@@ -1526,7 +1517,9 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -- <I> Add Value (converted to a String) at the <B>end</B> <B>of</B> the vector tag set.</I>
 
    <B>procedure</B> Clear (Vect : <B>in</B> <B>out</B> Vector_Tag);
-   -- <I> Removes all values <B>in</B> the vector tag.</I>
+   -- <I> Removes all values <B>in</B> the vector tag. Current Vect <B>is</B> not released but</I>
+   -- <I> the <B>return</B>ed object <B>is</B> separated (not using the same reference) from</I>
+   -- <I> the original one.</I>
 
    <B>function</B> Size (Vect : <B>in</B> Vector_Tag) <B>return</B> Natural;
    -- <I> Returns the number <B>of</B> value <B>in</B>to Vect.</I>
@@ -1540,9 +1533,13 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    ----------------
 
    <B>type</B> Matrix_Tag <B>is</B> <B>private</B>;
+   -- <I> A matrix tag is a set <B>of</B> vectors. Note that this object <B>is</B> using a</I>
+   -- <I> by-reference semantic. A reference counter <B>is</B> associated to it and</I>
+   -- <I> the memory is realeased when there <B>is</B> no more reference to it.</I>
 
    <B>function</B> "<I>+</I>" (Vect : <B>in</B> Vector_Tag) <B>return</B> Matrix_Tag;
-   -- <I> Matrix_Tag constructor.</I>
+   -- <I> Matrix_Tag constructor. It <B>return</B>s a matrix <B>with</B> a single row whose</I>
+   -- <I> value <B>is</B> Vect.</I>
 
    <B>function</B> "<I>&#38;</I>"
      (Matrix : <B>in</B> Matrix_Tag;
@@ -1551,7 +1548,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -- <I> Returns Matrix <B>with</B> Vect added to the <B>end</B>.</I>
 
    <B>function</B> Size (Matrix : <B>in</B> Matrix_Tag) <B>return</B> Natural;
-   -- <I> Returns the number <B>of</B> Vector_Tag <B>in</B>side the Matrix.</I>
+   -- <I> Returns the number <B>of</B> Vector_Tag (rows) <B>in</B>side the Matrix.</I>
 
    <B>function</B> Vector (Matrix : in Matrix_Tag; N : <B>in</B> Positive) <B>return</B> Vector_Tag;
    -- <I> Returns Nth Vector_Tag <B>in</B> the Matrix.</I>
@@ -1751,7 +1748,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 <P>
 
 <P><HR><P>
-This document was generated on 29 November 2002 using the
+This document was generated on 19 December 2002 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
