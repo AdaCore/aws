@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2003-2004                          --
---                                ACT-Europe                                --
+--                         Copyright (C) 2003-2005                          --
+--                                 AdaCore                                  --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -89,16 +89,18 @@ project Shared is
    -- Compiler --
    --------------
 
+   Common_Options  := ("-gnatwcefijkmruv", "-gnaty3abcefhiklmnoprst", "-Wall");
+   Debug_Options   := ("-g", "-gnata", "-gnatVa", "-gnatQ");
+   Release_Options := ("-O2", "-gnatn");
+
    package Compiler is
 
       case Build is
          when "Debug" =>
-            for Default_Switches ("Ada") use
-              ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfikmruv",
-               "-gnatwe", "-gnaty3abcefhiklmnoprst", "-gnatwjmeur", "-Wall");
+            for Default_Switches ("Ada") use Common_Options & Debug_Options;
 
          when "Release" =>
-            for Default_Switches ("Ada") use ("-O2", "-gnatws", "-gnatn");
+            for Default_Switches ("Ada") use Common_Options & Release_Options;
       end case;
 
    end Compiler;
