@@ -88,6 +88,7 @@ b~workorder.adb
 b~workorder.ads
 check_mem.res
 ctab.res
+dirop.res
 dummy.res
 file.res
 file.tmp
