@@ -31,6 +31,7 @@
 --  Usage: agent [options] [GET/PUT] <URL>
 --         -f                      force display of message body.
 --         -k                      keep-alive connection.
+--         -n                      non stop for stress test.
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
@@ -70,6 +71,7 @@ procedure Agent is
    Proxy_Pwd  : Unbounded_String;
    Force      : Boolean := False;
    Keep_Alive : Boolean := False;
+   Wait_Key   : Boolean := True;
    Connect    : AWS.Client.HTTP_Connection;
 
    procedure Parse_Command_Line;
@@ -79,13 +81,16 @@ procedure Agent is
    procedure Parse_Command_Line is
    begin
      loop
-        case GNAT.Command_Line.Getopt ("f u: p: pu: pp: proxy: k") is
+        case GNAT.Command_Line.Getopt ("f u: p: pu: pp: proxy: k n") is
 
            when ASCII.NUL =>
               exit;
 
            when 'f' =>
               Force := True;
+
+           when 'n' =>
+              Wait_Key := False;
 
            when 'k' =>
               Keep_Alive := True;
@@ -127,6 +132,7 @@ begin
       Text_IO.Put_Line ("Usage: agent [options] [GET/PUT] <URL>");
       Text_IO.Put_Line ("       -f           force display of message body.");
       Text_IO.Put_Line ("       -k           keep-alive connection.");
+      Text_IO.Put_Line ("       -n           non stop for stress test.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
@@ -166,10 +172,11 @@ begin
          Text_IO.Put_Line (Response.Message_Body (Data));
 
       else
-         Text_IO.Put_Line ("Content-Type: "
-                           & Response.Content_Type (Data));
-         Text_IO.Put_Line ("Content-Length: "
-                           & Natural'Image (Response.Content_Length (Data)));
+         Text_IO.Put_Line
+           (Messages.Content_Type (Response.Content_Type (Data)));
+
+         Text_IO.Put_Line
+           (Messages.Content-Length (Response.Content_Length (Data)));
 
          if Force = True then
             --  this is not a text/html body, but output it anyway
@@ -199,16 +206,20 @@ begin
 
       if Keep_Alive then
          --  check that the keep alive connection is kept alive
+         if Wait_Key then
 
-         Text_IO.Put_Line ("Type 'q' to exit, the connection will be closed.");
-         Text_IO.Put_Line ("Any other key to retreive again the same URL");
+            Text_IO.Put_Line
+              ("Type 'q' to exit, the connection will be closed.");
 
-         declare
-            Char : Character;
-         begin
-            Text_IO.Get_Immediate (Char);
-            exit when char = 'q';
-         end;
+            Text_IO.Put_Line ("Any other key to retreive again the same URL");
+
+            declare
+               Char : Character;
+            begin
+               Text_IO.Get_Immediate (Char);
+               exit when char = 'q';
+            end;
+         end if;
 
       else
          Client.Close (Connect);
