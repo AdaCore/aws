@@ -31,6 +31,7 @@
 --  $Id$:
 
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
 with Interfaces.C.Strings;
 
 with AWS.Utils;
@@ -284,8 +285,8 @@ package body AWS.LDAP.Client is
    ---------------------
 
    function First_Attribute
-     (Dir  : in Directory;
-      Node : in LDAP_Message;
+     (Dir  : in     Directory;
+      Node : in     LDAP_Message;
       BER  : access BER_Element)
       return String
    is
@@ -400,6 +401,42 @@ package body AWS.LDAP.Client is
       Result := Thin.ldap_get_dn (Dir, Node);
       return Value (Result);
    end Get_DN;
+
+   ---------------
+   -- Get_Error --
+   ---------------
+
+   function Get_Error
+     (E : in Ada.Exceptions.Exception_Occurrence)
+      return Thin.Return_Code
+   is
+      Message     : constant String := Exceptions.Exception_Message (E);
+      First, Last : Natural;
+   begin
+      First := Strings.Fixed.Index (Message, "[");
+
+      if First = 0 then
+         return Thin.LDAP_SUCCESS;
+      else
+
+         Last := Strings.Fixed.Index (Message, "]");
+
+         if Last > First then
+            declare
+               Error : constant String := Message (First + 1 .. Last - 1);
+            begin
+               if Utils.Is_Number (Error) then
+                  return Thin.Return_Code'Value (Error);
+               else
+                  return Thin.LDAP_SUCCESS;
+               end if;
+            end;
+         else
+
+            return Thin.LDAP_SUCCESS;
+         end if;
+      end if;
+   end Get_Error;
 
    ----------------
    -- Get_Values --
@@ -590,6 +627,10 @@ package body AWS.LDAP.Client is
            (Dir, C_Base, C_Scope (Scope), C_Filter, Null_Ptr,
             C_Bool (Attrs_Only), Result'Unchecked_Access);
 
+         if Res /= Thin.LDAP_SUCCESS then
+            Raise_Error (Res, "Search failed");
+         end if;
+
       else
          declare
             Attributes : chars_ptr_array
@@ -605,6 +646,10 @@ package body AWS.LDAP.Client is
               (Dir, C_Base, C_Scope (Scope), C_Filter, Attributes,
                C_Bool (Attrs_Only), Result'Unchecked_Access);
 
+            if Res /= Thin.LDAP_SUCCESS then
+               Raise_Error (Res, "Search failed");
+            end if;
+
             --  Free Attributes
 
             for K in Attributes'Range loop
@@ -619,6 +664,12 @@ package body AWS.LDAP.Client is
       Free (C_Filter);
 
       return Result;
+
+   exception
+      when others =>
+         Free (C_Base);
+         Free (C_Filter);
+         raise;
    end Search;
 
    --------
@@ -661,10 +712,11 @@ package body AWS.LDAP.Client is
    -- Unbind --
    ------------
 
-   procedure Unbind (Dir : in Directory) is
+   procedure Unbind (Dir : in out Directory) is
       Res : IC.int;
    begin
       Res := Thin.ldap_unbind_s (Dir);
+      Dir := Null_Directory;
    end Unbind;
 
 end AWS.LDAP.Client;
