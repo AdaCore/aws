@@ -52,8 +52,10 @@ with Ada.Strings.Unbounded;
 
 package SOAP.Types is
 
+   use Ada.Strings.Unbounded;
+
    Data_Error : exception;
-   --  Raised when a variable has not the expected type.
+   --  Raised when a variable has not the expected type
 
    type Object is abstract tagged private;
    --  Root type for all SOAP types defined in this package
@@ -265,7 +267,14 @@ package SOAP.Types is
       Name : in String := "item")
       return XSD_String;
 
+   function S
+     (V    : in Unbounded_String;
+      Name : in String  := "item")
+      return XSD_String;
+
    function V (O : in XSD_String) return String;
+
+   function V (O : in XSD_String) return Unbounded_String;
 
    -----------------
    -- TimeInstant --
@@ -329,6 +338,9 @@ package SOAP.Types is
    function Get (O : in Object'Class) return String;
    --  Returns O value as a String. Raises Data_Error if O is not a SOAP
    --  String.
+
+   function Get (O : in Object'Class) return Unbounded_String;
+   --  As above but returns an Unbounded_String
 
    function Get (O : in Object'Class) return Boolean;
    --  Returns O value as a Boolean. Raises Data_Error if O is not a SOAP

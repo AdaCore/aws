@@ -257,6 +257,18 @@ package body SOAP.Types is
       end if;
    end Get;
 
+   function Get (O : in Object'Class) return Unbounded_String is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_String'Tag then
+         return V (XSD_String (O));
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "String expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
    function Get (O : in Object'Class) return Boolean is
       use type Ada.Tags.Tag;
    begin
@@ -597,6 +609,15 @@ package body SOAP.Types is
                 with To_Unbounded_String (Name), To_Unbounded_String (L_V));
    end S;
 
+   function S
+     (V      : in Unbounded_String;
+      Name   : in String  := "item")
+      return XSD_String is
+   begin
+      return (Finalization.Controlled
+              with To_Unbounded_String (Name), Utils.To_Utf8 (V));
+   end S;
+
    ----------
    -- Size --
    ----------
@@ -652,6 +673,11 @@ package body SOAP.Types is
    function V (O : in XSD_String) return String is
    begin
       return Utils.From_Utf8 (To_String (O.V));
+   end V;
+
+   function V (O : in XSD_String) return Unbounded_String is
+   begin
+      return Utils.From_Utf8 (O.V);
    end V;
 
    function V (O : in XSD_Boolean) return Boolean is
