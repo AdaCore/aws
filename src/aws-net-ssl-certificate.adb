@@ -35,6 +35,9 @@ with Interfaces.C.Strings;
 
 package body AWS.Net.SSL.Certificate is
 
+   function NAME_oneline (Name : in TSSL.X509_Name) return String;
+   --  Return the value for Name
+
    ---------
    -- Get --
    ---------
@@ -43,18 +46,22 @@ package body AWS.Net.SSL.Certificate is
       use type System.Address;
 
       X509 : constant TSSL.X509 := TSSL.SSL_get_peer_certificate (Socket.SSL);
+
+      Result : Object;
    begin
       if X509 = TSSL.Null_Pointer then
          return Undefined;
 
       else
-         return
-           (To_Unbounded_String
-              (Interfaces.C.Strings.Value
-                 (TSSL.X509_NAME_oneline (TSSL.X509_get_subject_name (X509)))),
-            To_Unbounded_String
-              (Interfaces.C.Strings.Value
-                 (TSSL.X509_NAME_oneline (TSSL.X509_get_issuer_name (X509)))));
+         Result
+           := (To_Unbounded_String
+                 (NAME_oneline (TSSL.X509_get_subject_name (X509))),
+               To_Unbounded_String
+                 (NAME_oneline
+                    (TSSL.X509_get_issuer_name (X509))));
+
+         TSSL.X509_free (X509);
+         return Result;
       end if;
    end Get;
 
@@ -66,6 +73,16 @@ package body AWS.Net.SSL.Certificate is
    begin
       return To_String (Certificate.Issuer);
    end Issuer;
+
+   ------------------
+   -- NAME_oneline --
+   ------------------
+
+   function NAME_oneline (Name : in TSSL.X509_Name) return String is
+   begin
+      return Interfaces.C.Strings.Value
+        (TSSL.X509_NAME_oneline (Name, TSSL.Null_Pointer, 0));
+   end NAME_oneline;
 
    -------------
    -- Subject --
