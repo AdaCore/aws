@@ -103,9 +103,9 @@ package body AWS.Config.Ini is
 
       procedure Error_Message (Filename : in String; Message : in String) is
       begin
-         Text_IO.Put ('(' & Filename & ':');
-         Text_IO.Put (AWS.Utils.Image (Line));
-         Text_IO.Put_Line (") " & Message & '.');
+         Text_IO.Put (Text_IO.Current_Error, '(' & Filename & ':');
+         Text_IO.Put (Text_IO.Current_Error, AWS.Utils.Image (Line));
+         Text_IO.Put_Line (Text_IO.Current_Error, ") " & Message & '.');
       end Error_Message;
 
       ---------------
