@@ -36,7 +36,7 @@ package SOAP.WSDL.Parameters is
 
    use Ada.Strings.Unbounded;
 
-   type Kind is (K_Record, K_Array, K_Derived, K_Simple);
+   type Kind is (K_Record, K_Array, K_Derived, K_Simple, K_Enumeration);
 
    type Parameter;
    type P_Set is access Parameter;
@@ -50,13 +50,17 @@ package SOAP.WSDL.Parameters is
             P_Type : Parameter_Type;
 
          when K_Derived =>
-            Parent_Type : Parameter_Type;
-            D_Name      : Unbounded_String;
+            Parent_Type : Parameter_Type;   -- Parent type
+            D_Name      : Unbounded_String; -- Derived type name
 
          when K_Array | K_Record =>
             T_Name : Unbounded_String; -- Type name
             E_Type : Unbounded_String; -- Array element's type
             P      : P_Set;
+
+         when K_Enumeration =>
+            E_Name : Unbounded_String; -- Enumeration type name
+            E_Def  : Unbounded_String; -- The enum definition "(red, greed)"
       end case;
    end record;
 
