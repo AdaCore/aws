@@ -1,3 +1,18 @@
+2004-07-09  Pascal Obry  <pascal@obry.org>
+
+	* ada2wsdl-options.ads:
+	Fix typos in comment.
+        Update copyright notice.
+
+	* ada2wsdl-parser.ads:
+	Remove Asis with clause from here.
+        (Initialize): Fix typo in comment.
+        Update copyright notice.
+
+	* ada2wsdl-parser.adb:
+        Sort withed units.
+	(Get_Tree_Name): Fix bug when removing the pathname.
+
 2004-06-27  Pascal Obry  <pascal@obry.org>
 
 	* ada2wsdl-generator.adb:
