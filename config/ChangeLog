@@ -1,3 +1,9 @@
+2004-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
+	Fix segmentation fault on Solaris and FreeBSD. Do not call
+	 OSD.FreeAddrInfo with null pointer.
+
 2004-09-21  Pascal Obry  <pascal@obry.org>
 
 	* src/check_config.c:
