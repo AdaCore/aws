@@ -32,6 +32,7 @@
 --  $Id$
 
 with Interfaces.C.Strings;
+with System;
 
 package SSL.Thin is
 
