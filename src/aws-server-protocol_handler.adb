@@ -185,7 +185,7 @@ is
             AWS.Status.If_Modified_Since (C_Stat) /= ""
             and then
            File_Timestamp (Response.Message_Body (Answer))
-            >= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat)));
+            <= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat)));
 
          if AWS.Status.File_Up_To_Date (C_Stat) then
             Sockets.Put_Line (Sock,
@@ -631,7 +631,6 @@ is
          --  send file content
 
          Sockets.Send (Sock, Buffer (1 .. Last));
-         Sockets.New_Line (Sock);
       end Send_File;
 
       ---------------------
@@ -678,7 +677,8 @@ is
       end Send_File_Chunked;
 
    begin
-      Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File, Filename);
+      Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File,
+                              Filename, "shared=no");
 
       Sockets.Put_Line
         (Sock,
