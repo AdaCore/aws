@@ -333,7 +333,7 @@ package body AWS.Client is
       if Connection.Opened then
          Connection.Opened := False;
          if Connection.Socket /= null then
-           Sockets.Shutdown (Connection.Socket.all);
+            Sockets.Shutdown (Connection.Socket.all);
          end if;
       end if;
    end Disconnect;
