@@ -32,18 +32,23 @@
 
 with Interfaces;
 
+with AWS.Utils;
+
 package body AWS.Translator is
 
    use Ada.Streams;
 
+   -------------------
+   -- Base64_Decode --
+   -------------------
+
    function Base64_Decode
      (B64_Data : in String)
-     return Stream_Element_Array
+      return Stream_Element_Array
    is
       use Interfaces;
 
-      function Base64 (C : in Character)
-        return Interfaces.Unsigned_32;
+      function Base64 (C : in Character) return Interfaces.Unsigned_32;
       pragma Inline (Base64);
       --  Returns the base64 stream element given a character
 
@@ -70,13 +75,13 @@ package body AWS.Translator is
       function Shift_Left
         (Value  : in Interfaces.Unsigned_32;
          Amount : in Natural)
-        return Interfaces.Unsigned_32;
+         return Interfaces.Unsigned_32;
       pragma Import (Intrinsic, Shift_Left);
 
       function Shift_Right
         (Value  : in Interfaces.Unsigned_32;
          Amount : in Natural)
-        return Interfaces.Unsigned_32;
+         return Interfaces.Unsigned_32;
       pragma Import (Intrinsic, Shift_Right);
 
       Result : Stream_Element_Array
@@ -88,8 +93,11 @@ package body AWS.Translator is
 
       Pad    : Stream_Element_Offset := 0;
 
-      function Base64 (C : in Character)
-        return Interfaces.Unsigned_32 is
+      ------------
+      -- Base64 --
+      ------------
+
+      function Base64 (C : in Character) return Interfaces.Unsigned_32 is
       begin
          pragma Assert (Base64_Values (C) < 64);
          return Base64_Values (C);
@@ -134,19 +142,18 @@ package body AWS.Translator is
    -- Base64_Encode --
    -------------------
 
-   function Base64_Encode (Data : Stream_Element_Array)
-     return String
-   is
+   function Base64_Encode (Data : Stream_Element_Array) return String is
+
       function Shift_Left
         (Value  : in Stream_Element;
          Amount : in Natural)
-        return Stream_Element;
+         return Stream_Element;
       pragma Import (Intrinsic, Shift_Left);
 
       function Shift_Right
         (Value  : in Stream_Element;
          Amount : in Natural)
-        return Stream_Element;
+         return Stream_Element;
       pragma Import (Intrinsic, Shift_Right);
 
       Encoded_Length : constant Integer := 4 * ((Data'Length + 2) / 3);
@@ -221,13 +228,55 @@ package body AWS.Translator is
       return Base64_Encode (Stream_Data);
    end Base64_Encode;
 
+   ---------------
+   -- QP_Decode --
+   ---------------
+
+   function QP_Decode (QP_Data : in String) return String is
+
+      End_Of_QP : constant String := "00";
+      K         : Positive := QP_Data'First;
+      Result    : String (1 .. QP_Data'Length);
+      R         : Natural := 0;
+   begin
+      loop
+         if QP_Data (K) = '=' then
+            if K + 1 <= QP_Data'Last and then QP_Data (K + 1) = ASCII.CR then
+               K := K + 1;
+
+            elsif K + 2 <= QP_Data'Last then
+               declare
+                  Hex : constant String := QP_Data (K + 1 .. K + 2);
+               begin
+                  if Hex /= End_Of_QP then
+                     R := R + 1;
+                     Result (R) := Character'Val (Utils.Hex_Value (Hex));
+                  end if;
+
+                  K := K + 2;
+               end;
+            end if;
+
+         else
+            R := R + 1;
+            Result (R) := QP_Data (K);
+         end if;
+
+         K := K + 1;
+
+         exit when K > QP_Data'Last;
+      end loop;
+
+      return Result (1 .. R);
+   end QP_Decode;
+
    -----------------------------
    -- To_Stream_Element_Array --
    -----------------------------
 
    function To_Stream_Element_Array
      (Data : in String)
-     return Stream_Element_Array
+      return Stream_Element_Array
    is
       Result : Stream_Element_Array
         (Stream_Element_Offset (Data'First)
@@ -245,7 +294,7 @@ package body AWS.Translator is
 
    function To_String
      (Data : in Stream_Element_Array)
-     return String
+      return String
    is
       Result : String (Integer (Data'First) .. Integer (Data'Last));
    begin
