@@ -32,6 +32,7 @@
 
 with GNAT.Calendar.Time_IO;
 
+with AWS.Config;
 with AWS.Hotplug.Get_Status;
 with AWS.Session;
 with AWS.Templates;
@@ -40,6 +41,55 @@ with AWS.Utils;
 package body AWS.Server.Status is
 
    use Ada;
+
+   -------------------------
+   -- Current_Connections --
+   -------------------------
+
+   function Current_Connections (Server : in HTTP) return Natural is
+   begin
+      return Server.Slots.N - Server.Slots.Free_Slots;
+   end Current_Connections;
+
+   ---------------------------
+   -- Is_Security_Activated --
+   ---------------------------
+
+   function Is_Security_Activated (Server : in HTTP) return Boolean is
+   begin
+      return AWS.Config.Security (Server.Properties);
+   end Is_Security_Activated;
+
+   --------------------------
+   -- Is_Session_Activated --
+   --------------------------
+
+   function Is_Session_Activated (Server : in HTTP) return Boolean is
+   begin
+      return AWS.Config.Session (Server.Properties);
+   end Is_Session_Activated;
+
+   -----------------
+   -- Is_Shutdown --
+   -----------------
+
+   function Is_Shutdown (Server : in HTTP) return Boolean is
+   begin
+      return Server.Shutdown;
+   end Is_Shutdown;
+
+   ----------------------
+   -- Resources_Served --
+   ----------------------
+
+   function Resources_Served (Server : in HTTP) return Natural is
+      N : Natural := 0;
+   begin
+      for K in 1 .. Server.Slots.N loop
+         N := N + Server.Slots.Get (K).Slot_Activity_Counter;
+      end loop;
+      return N;
+   end Resources_Served;
 
    ------------
    -- Socket --
@@ -187,7 +237,7 @@ package body AWS.Server.Status is
          Activity_Time_Stamp   : Vector_Tag;
          Peer_Name             : Vector_Tag;
 
-         --  Avoid : may be referenced before it has a value
+         --  Avoids : may be referenced before it has a value
          pragma Warnings (Off, Sock);
          pragma Warnings (Off, Phase);
          pragma Warnings (Off, Abortable);
