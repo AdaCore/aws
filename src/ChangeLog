@@ -9,6 +9,10 @@
 
 2004-04-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-server.adb:
+	(Start): Fix Cleaner_Server_Response_Timeout
+	 -> Force_Server_Response_Timeout in the Force timeout section.
+
 	* aws-client.ads:
 	(Client_Phase): Type removed.
 	(Cleaner_Task): Task type removed.
