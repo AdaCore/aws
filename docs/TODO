@@ -161,9 +161,13 @@ implemented:
 
 - Check why huge_response hangs on GNU/Linux multiprocessors machines.
 
-- Add support for namespaces in part. For example AXIS can return something
-  like:
-     <artificial xmlns:ns5="http://www.w3.org/2001/XMLSchema" 
-         xsi:type="ns5:boolean">false</artificial>
-  AWS supports only:
-     <artificial xsi:type="xsd:boolean">false</artificial>
+- Add Templates_Parser command tag to be able to have a relative path for
+  included template files. Problem is when 2 templates files (in 2
+  different directories) include the same file and this file has a reference
+  to another file like: <link... "file.css">
+
+  Possible syntax: @_PATH:"../file.css"_@
+  Means take ../file.css as relatif to current file location.
+
+- SOAP.Message.XML is not easy to maintain because there is many changes to do
+  each time we add a new SOAP type. This should be fixed.
