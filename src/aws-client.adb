@@ -126,17 +126,6 @@ package body AWS.Client is
    procedure Free is new Ada.Unchecked_Deallocation
      (Sockets.Socket_FD'Class, Socket_Access);
 
-   -------------------
-   -- Adjust_Cookie --
-   -------------------
-
-   procedure Adjust_Cookie
-     (Destination : in out HTTP_Connection;
-      Source      : in     HTTP_Connection) is
-   begin
-      Destination.Cookie := Source.Cookie;
-   end Adjust_Cookie;
-
    ------------------
    -- Cleaner_Task --
    ------------------
@@ -239,6 +228,17 @@ package body AWS.Client is
       Disconnect (Connection);
       Free (Connection.Socket);
    end Close;
+
+   -----------------
+   -- Copy_Cookie --
+   -----------------
+
+   procedure Copy_Cookie
+     (Source      : in     HTTP_Connection;
+      Destination : in out HTTP_Connection) is
+   begin
+      Destination.Cookie := Source.Cookie;
+   end Copy_Cookie;
 
    ------------
    -- Create --
