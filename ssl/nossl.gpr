@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -45,7 +45,7 @@ project NOSSL is
          for Library_Dir use "../.build/release/ssl/lib";
    end case;
 
-   for Library_Name use "nosslaws";
+   for Library_Name use "aws_nossl";
    for Library_Kind use "static";
 
 end NOSSL;
