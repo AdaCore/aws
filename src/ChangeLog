@@ -1,5 +1,32 @@
 2001-05-24  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Use Config.Logo_Image, Config.Status_Page,
+	 Config.Up_Image and config.Down_Image instead of hard coded value.
+
+	* aws-server-get_status.adb:
+	Use Config.Status_Page instead of hard coded 'status.tmplt'.
+
+	* aws-config.adb: 
+	(Status_Page): new variable.
+	(Up_Image): idem.
+	(Down_Image): idem.
+	(Logo_Image): idem.
+	(Status_Page): new function.
+	(Up_Image): idem.
+	(Down_Image): idem.
+	(Logo_Image): idem.
+
+	* aws-config.ads:
+	(Default_Status_Page): new constant.
+	(Default_Up_Image): idem.
+	(Default_Down_Image): idem.
+	(Default_Logo_Image): idem.
+	(Status_Page): new function.
+	(Up_Image): idem.
+	(Down_Image): idem.
+	(Logo_Image): idem.
+
 	* aws-server.ads:
 	(Server_Processing): Fix comment.
 
