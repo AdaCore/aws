@@ -148,7 +148,7 @@ package AWS.Server is
    procedure Set_Security
      (Web_Server           : in out HTTP;
       Certificate_Filename : in     String;
-      Security_Mode        : in     Net.SSL.Method := Net.SSL.SSLv23;
+      Security_Mode        : in     Net.SSL.Method := Net.SSL.SSLv23_Server;
       Key_Filename         : in     String         := "");
    --  Set security option for AWS. Certificate_Filename is the name of a file
    --  containing a certificate. Key_Filename is the name of the file
