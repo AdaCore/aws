@@ -47,8 +47,9 @@ begin
    Text_IO.Put_Line ("I will stop in 5 minutes anyway !");
 
    AWS.Server.Start (WS_CB.WS, "WS Demo",
-                     Port     => 1234,
-                     Callback => WS_CB.Service'Access);
+                     Port           => 1234,
+                     Callback       => WS_CB.Service'Access,
+                     Max_Connection => 5);
 
    delay 5 * 60.0;
 

@@ -39,7 +39,7 @@ with AWS.Default;
 
 procedure Hello_World is
 
-   WS  : AWS.Server.HTTP (1);
+   WS : AWS.Server.HTTP;
 
    function HW_CB (Request : in AWS.Status.Data)
      return AWS.Response.Data is
@@ -53,7 +53,9 @@ begin
       & Positive'Image (AWS.Default.Server_Port)
       & ", I will stop in 60 seconds...");
 
-   AWS.Server.Start (WS, "Hello World", Callback => HW_CB'Unrestricted_Access);
+   AWS.Server.Start (WS, "Hello World",
+                     Max_Connection => 1,
+                     Callback       => HW_CB'Unrestricted_Access);
 
    delay 60.0;
 

@@ -34,7 +34,7 @@ with AWS.Server;
 
 package WS_CB is
 
-   WS : AWS.Server.HTTP (5);
+   WS : AWS.Server.HTTP;
 
    procedure Stop_Push_Server;
 
