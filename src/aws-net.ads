@@ -75,7 +75,9 @@ package AWS.Net is
       New_Socket :    out Socket_Access)
       is abstract;
    --  Accept a connection on a socket. If Security is true a secure socket
-   --  will be used.
+   --  will be used. If it raises Socket_Error, all resources used by
+   --  New_Socket have been released. There is not need to call Free or
+   --  Shutdown.
 
    procedure Connect
      (Socket   : in Socket_Type;
