@@ -1,3 +1,12 @@
+2004-05-31  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-memory-zlib.ads:
+	Update comments and copyright years.
+
+	* aws-resources-streams-zlib.adb:
+	(Deflate_Initialize): Initialise Resource.Rest_Last.
+	(Inflate_Initialize): Idem.
+
 2004-05-31  Pascal Obry  <pascal@obry.org>
 
 	* aws-hotplug.adb:
