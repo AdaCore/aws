@@ -234,6 +234,7 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/projects
 	$(CP) -p src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) -p xsrc/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) -p $(BDIR)/lib/* $(INSTALL)/AWS/lib
 	$(CP) -p $(BDIR)/obj/* $(INSTALL)/AWS/obj
 	-$(CP) -p $(BDIR)/ssl/lib/* $(INSTALL)/AWS/lib
