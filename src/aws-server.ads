@@ -41,6 +41,7 @@ with AWS.Log;
 with AWS.Net.Std;
 with AWS.Net.SSL;
 with AWS.Response;
+with AWS.Status;
 with AWS.Utils;
 
 package AWS.Server is
@@ -159,6 +160,10 @@ package AWS.Server is
    --  Get current server. This can be used in a callback procedure to
    --  retrieve the running HTTP server. It is needed when a callback
    --  procedure is shared by multiple servers.
+
+   function Get_Status return Status.Data;
+   --  Returns the current status data. This is usefull to get the full status
+   --  in a templates engine callback procedure for example.
 
    ---------------
    -- Other API --
