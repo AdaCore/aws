@@ -262,7 +262,7 @@ package body AWS.Translator is
       Stream : Deflate.Stream_Type;
       Result : Utils.Stream_Element_Array_Access;
    begin
-      Deflate.Init (Stream, Level => Deflate.Compression_Level (Level));
+      Deflate.Initialize (Stream, Level => Deflate.Compression_Level (Level));
 
       Compress_Decompress (Stream, Data, Result);
       return Result;
@@ -339,7 +339,7 @@ package body AWS.Translator is
       Stream : Inflate.Stream_Type;
       Result : Utils.Stream_Element_Array_Access;
    begin
-      Inflate.Init (Stream);
+      Inflate.Initialize (Stream);
 
       Compress_Decompress (Stream, Data, Result);
       return Result;
