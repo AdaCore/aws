@@ -243,19 +243,6 @@ package body AWS.Messages is
       return Status_Messages (S).Code;
    end Image;
 
-   --------------
-   -- Is_Match --
-   --------------
-
-   function Is_Match (Str, Pattern : in String) return Boolean is
-      use Ada.Characters;
-      U_Str     : constant String := Handling.To_Upper (Str);
-      U_Pattern : constant String := Handling.To_Upper (Pattern);
-   begin
-      return Pattern'Length <= Str'Length
-        and then U_Str (1 .. Pattern'Length) = U_Pattern;
-   end Is_Match;
-
    -------------------
    -- Last_Modified --
    -------------------
@@ -273,6 +260,19 @@ package body AWS.Messages is
    begin
       return Location_Token & URL;
    end Location;
+
+   -----------
+   -- Match --
+   -----------
+
+   function Match (Str, Pattern : in String) return Boolean is
+      use Ada.Characters;
+      U_Str     : constant String := Handling.To_Upper (Str);
+      U_Pattern : constant String := Handling.To_Upper (Pattern);
+   begin
+      return Pattern'Length <= Str'Length
+        and then U_Str (1 .. Pattern'Length) = U_Pattern;
+   end Match;
 
    -------------------------
    -- Proxy_Authorization --
