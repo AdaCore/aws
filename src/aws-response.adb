@@ -470,7 +470,7 @@ package body AWS.Response is
             Resources.Streams.Read (D.Stream.all, Result, Last);
 
             --  Raise Contraint_Error on try to get Message_Body
-            --  not from memory stream;
+            --  not from memory stream.
 
             RSM.Reset (RSM.Stream_Type (D.Stream.all));
 
