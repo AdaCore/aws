@@ -1,5 +1,21 @@
 2003-12-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-resources.ads, aws-resources.adb:
+	(File_Instance): New type.
+	(Exist): New routine.
+
+	* aws-resources-embedded.ads:
+	(Exist): New routine.
+
+	* aws-resources-embedded.adb:
+	(Exist): New routine.
+	Use GZip_Ext constant instead of direct ".gz".
+
+	* aws-resources-files.ads, aws-resources-files.adb:
+	(Exist): New routine.
+
+2003-12-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-resources-embedded.ads:
 	(Append): New routine for constant buffer access.
 	(Buffer_Access): Is subtype from Streams.Memory, constant too.
