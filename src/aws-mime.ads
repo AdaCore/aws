@@ -81,8 +81,8 @@ package AWS.MIME is
    Application_Powerpoint      : constant String := "application/powerpoint";
    Application_Rtf             : constant String := "application/rtf";
    Application_X_Compress      : constant String := "application/x-compress";
-   Application_X_Gtar          : constant String := "application/x-gtar";
-   Application_X_Gzip          : constant String := "application/x-gzip";
+   Application_X_GTar          : constant String := "application/x-gtar";
+   Application_X_GZip          : constant String := "application/x-gzip";
    Application_X_Latex         : constant String := "application/x-latex";
    Application_X_Sh            : constant String := "application/x-sh";
    Application_X_Shar          : constant String := "application/x-shar";
