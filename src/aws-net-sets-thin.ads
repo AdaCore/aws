@@ -36,23 +36,16 @@
 with Interfaces.C;
 with System;
 
+with AWS.OS_Lib.Definitions;
+
 package AWS.Net.Sets.Thin is
 
    use Interfaces;
 
-   POLLIN   : constant := 1;
-   POLLPRI  : constant := 2;
-   POLLOUT  : constant := 4;
-   POLLERR  : constant := 8;
-   POLLHUP  : constant := 16;
-   POLLNVAL : constant := 32;
-
-   subtype FD_Type is C.int;
-   subtype Length_Type is C.unsigned_long;
+   subtype FD_Type is OS_Lib.Definitions.FD_Type;
+   subtype nfds_t is OS_Lib.Definitions.nfds_t;
    subtype Timeout_Type is C.int;
-
-   type Events_Type is mod 2 ** C.short'Size;
-   for Events_Type'Size use C.short'Size;
+   subtype Events_Type is OS_Lib.Definitions.Events_Type;
 
    type Pollfd is record
       FD      : FD_Type;
@@ -63,7 +56,7 @@ package AWS.Net.Sets.Thin is
 
    function Poll
      (Fds     : in System.Address;
-      Nfds    : in Length_Type;
+      Nfds    : in nfds_t;
       Timeout : in Timeout_Type)
       return C.int;
    pragma Import (C, Poll, "poll");
