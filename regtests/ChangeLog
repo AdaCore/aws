@@ -1,3 +1,14 @@
+2004-09-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait_pack.adb:
+	Use new Socket_Index, Socket_Count types.
+
+	* afile_pack.ads:
+	Remove DOS CR at end of line.
+
+	* makefile:
+	Remove google_search_service* at clean.
+
 2004-09-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait_pack.adb:
