@@ -364,7 +364,7 @@ procedure Check_Mem is
 
       use type Streams.Stream_Element_Array;
 
-      Sample : aliased Streams.Stream_Element_Array := (1 .. 64 => 20);
+      Sample : Streams.Stream_Element_Array := (1 .. 64 => 20);
 
       Plain  : Stream_Type;
       Unpack : ZLib.Stream_Type;
@@ -399,7 +399,7 @@ procedure Check_Mem is
    begin
       ZLib.Inflate_Initialize (Unpack);
 
-      Packed := Translator.Compress (Sample'Access);
+      Packed := Translator.Compress (Sample);
 
       Test (Unpack, Packed.all);
       Utils.Free (Packed);
@@ -422,13 +422,13 @@ procedure Check_Mem is
       ----------
 
       procedure Test (Str : in String) is
-         Data   : aliased Streams.Stream_Element_Array
+         Data   : constant Streams.Stream_Element_Array
            := Translator.To_Stream_Element_Array (Str);
          Comp   : Utils.Stream_Element_Array_Access;
          Decomp : Utils.Stream_Element_Array_Access;
       begin
-         Comp   := Translator.Compress (Data'Access);
-         Decomp := Translator.Decompress (Comp);
+         Comp   := Translator.Compress (Data);
+         Decomp := Translator.Decompress (Comp.all);
 
          if Data = Decomp.all then
             Text_IO.Put_Line ("Ok");

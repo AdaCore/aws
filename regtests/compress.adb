@@ -46,13 +46,13 @@ procedure Compress is
    Comp_Level : Translator.Compression_Level := 0;
 
    procedure Test (Str : in String) is
-      Data   : aliased Streams.Stream_Element_Array
+      Data   : constant Streams.Stream_Element_Array
         := Translator.To_Stream_Element_Array (Str);
       Comp   : Utils.Stream_Element_Array_Access;
       Decomp : Utils.Stream_Element_Array_Access;
    begin
-      Comp   := Translator.Compress (Data'Unchecked_Access, Comp_Level);
-      Decomp := Translator.Decompress (Comp);
+      Comp   := Translator.Compress (Data, Comp_Level);
+      Decomp := Translator.Decompress (Comp.all);
 
       if Data = Decomp.all then
          Text_IO.Put_Line ("Ok");
