@@ -35,7 +35,6 @@ with Ada.Unchecked_Deallocation;
 
 with GNAT.Regexp;
 
-with AWS.Messages;
 with AWS.MIME;
 with AWS.Dispatchers.Callback;
 with System.Address_To_Access_Conversions;
@@ -62,7 +61,7 @@ package body AWS.Services.Dispatchers.URI is
       Request    : in Status.Data)
       return Response.Data
    is
-      use type AWS.Messages.Status_Code;
+      use type Response.Data_Mode;
 
       URI    : constant String := Status.URI (Request);
       Result : Response.Data;
@@ -75,7 +74,7 @@ package body AWS.Services.Dispatchers.URI is
             --  Return response if dispatcher did return something, otherwise
             --  continue to next handler.
 
-            if Response.Status_Code (Result) /= Messages.S204 then
+            if Response.Mode (Result) /= Response.No_Data then
                return Result;
             end if;
          end if;
