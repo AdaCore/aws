@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2003                         --
+--                        Copyright (C) 1999 - 2004                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -223,6 +223,9 @@ package body Templates_Parser is
          Replace_All,
          --  Idem as above, but replace all matches. This equivalent to the
          --  well known "s/<regexp>/<new value>/g" sed command.
+
+         Replace_Param,
+         --  Idem as @_ADD_PARAM(key=value):DEL_PARAM(key):VAR_@
 
          Invert,
          --  Reverse string.
@@ -449,6 +452,12 @@ package body Templates_Parser is
          return String;
 
       function Replace_All
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
+
+      function Replace_Param
         (S : in String;
          P : in Parameter_Data  := No_Parameter;
          T : in Translate_Table := No_Translation)
