@@ -493,6 +493,13 @@ tgetparam.res
 tgetparam.tmp
 timer
 timer.res
+tinteroplab-client.adb
+tinteroplab-client.ads
+tinteroplab-server.adb
+tinteroplab-server.ads
+tinteroplab-types.adb
+tinteroplab-types.ads
+tinteroplab.ads
 tlog
 tlog.res
 tlog.tmp
