@@ -33,6 +33,7 @@
 --  Some utilities for http digest authentication.
 
 with MD5;
+
 package AWS.Digest is
 
    subtype Digest_String is MD5.Digest_String;
@@ -41,21 +42,21 @@ package AWS.Digest is
    --  Create a Nonce value for the digest authentication
    --  see RFC-2617 3.2.1
 
-   function Check_Nonce (Value : String) return Boolean;
+   function Check_Nonce (Value : in String) return Boolean;
    --  Check Nonce for validity and expiration.
 
    function Create_Digest
-     (Username, Realm, Password : String;
-      Nonce : String;
-      Method, URI : String) return String;
-   --  Creating simple MD5 Digest is for
-   --  the parameters.
+     (Username, Realm, Password : in String;
+      Nonce                     : in String;
+      Method, URI               : in String)
+      return String;
+   --  Returns a simple MD5 Digest.
 
    function Create_Digest
-     (Username, Realm, Password : String;
-      Nonce, NC, CNonce, QOP : String;
-      Method, URI : String) return String;
-   --  Creating more complex MD5 Digest is for
-   --  the parameters.
+     (Username, Realm, Password : in String;
+      Nonce, NC, CNonce, QOP    : in String;
+      Method, URI               : in String)
+      return String;
+   --  Returns a more complex MD5 Digest.
 
 end AWS.Digest;
