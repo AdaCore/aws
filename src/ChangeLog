@@ -1,3 +1,9 @@
+2004-10-15  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-expr.adb:
+	(Next_Token): Properly detect the "/" operator into an if condition.
+	Patch contributed by Jean-Pierre Rosen.
+
 2004-10-12  Pascal Obry  <pascal@obry.org>
 
 	* aws-resources-streams-disk-once.ads:
