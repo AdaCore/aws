@@ -50,15 +50,15 @@ package AWS.Resources.Streams is
    procedure Close (Resource : in out Stream_Type)
       is abstract;
 
-   function Size (Resource : in Stream_Type) return Stream_Element_Offset;
-   --  This default implementation returns Undefined_Length. If the derived
-   --  stream implementation knows about the size (in bytes) of the stream
-   --  this routine should be redefined.
-
    procedure Release
      (Resource : in     Stream_Type;
       File     : in out File_Type);
    --  Release File handle
+
+   function Size (Resource : in Stream_Type) return Stream_Element_Offset;
+   --  This default implementation returns Undefined_Length. If the derived
+   --  stream implementation knows about the size (in bytes) of the stream
+   --  this routine should be redefined.
 
    procedure Create
      (Resource :    out File_Type;
