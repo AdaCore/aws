@@ -3388,7 +3388,7 @@ package body Templates_Parser is
          begin
             case E.Kind is
                when Expr.Value =>
-                     return To_String (E.V);
+                  return To_String (E.V);
 
                when Expr.Var =>
                   return Translate (E.Var);
