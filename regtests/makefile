@@ -93,12 +93,12 @@ tres: force
 	../tools/awsres -q -r tresres file1.html file2.html file.tmplt
 	gnatmake -g tres $(GARGS) -largs $(LARGS) -bargs -E
 	echo -n ",  run it"
-	./tres > tres-1.res
+	./tres 1245 > tres-1.res
 	echo "line 3, file 1" >> file1.html
 	echo "line 4, file 2" >> file2.html
 	echo "line 3, file 3" >> file3.html
 	echo ",  run it again"
-	./tres > tres-2.res
+	./tres 1246 > tres-2.res
 	cat tres-1.res tres-2.res > tres.res
 
 checks_tres:
