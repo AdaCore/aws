@@ -96,7 +96,7 @@ by Dmitriy Anisimkov) to Win32 of the 0.1.9 version from ENST.
 Under UNIX you must use the socket binding from ENST 
 @url{http://www.infres.enst.fr/ANC/}.
 
-@item OpenSSL
+@item OpenSSL (optional)
 
 OpenSSL is an Open Source toolkit implementing the Secure Sockets Layer
 (SSL v2 and v3) and much more. You'll find libraries for Win32 into this
@@ -116,7 +116,7 @@ to build AWS:
    $ make build_ssl
 @end smallexample
 
-@item without SSL support
+@item without SSL support (no need for the OpenSSL libraries in this case).
 
 @smallexample
    $ make build_std
@@ -128,23 +128,24 @@ to build AWS:
 @chapter How to use it ?
 
 @noindent
-AWS is not a Web Server like IIS or Apache, it is a component to support
-HTTP protocol. It means that it is possible to build an application
-which can also answer to a standard browser like @i{Internet Explorer} or
-@i{Netscape Navigator}. Since AWS provides support client and server
-HTTP protocol applications can communicate through the HTTP chanel.
+AWS is not a Web Server like IIS or Apache, it is a component to embedded
+HTTP protocol in an application. It means that it is possible to build
+an application which can also answer to a standard browser like
+@i{Internet Explorer} or @i{Netscape Navigator}. Since AWS provides
+support client and server HTTP protocol applications can communicate
+through the HTTP channel. This give a way to build distributed applications.
 
 @noindent
-An application using AWS can open many HTTP chanel. Each chanel will use
-a specific port. So it is possible to embeded an HTTP and an HTTPS
-chanel in the same application.
+An application using AWS can open many HTTP channels. Each channel will use
+a specific port. So it is possible to embedded some HTTP and some HTTPS
+channels in the same application.
 
 @noindent
 To build a server you must:
 
 @itemize @bullet
 
-@item declare the HTTP chanels
+@item declare the HTTP channel
 
 @smallexample
 WS  : AWS.Server.HTTP (Max_Connection => 3, 
@@ -154,8 +155,8 @@ WS  : AWS.Server.HTTP (Max_Connection => 3,
 @end smallexample
 
 @noindent
-Here we have declared an HTTP chanel with a maximum of 3 simultaneous
-connections using the port 1234. This chanel is not secure (False) and
+Here we have declared an HTTP channel with a maximum of 3 simultaneous
+connections using the port 1234. This channel is not secure (False) and
 answer will be given by the procedure Service.
 
 @item provides a callback procedure
@@ -168,7 +169,7 @@ The callback procedure have the following prototype:
 @end smallexample
 
 @noindent
-This procedure receive the request status. It is possible to retreive
+This procedure receive the request status. It is possible to retrieve
 many data from request through the @code{AWS.Status} API.
 
 @noindent
@@ -201,9 +202,14 @@ AWS.Response.File (Content_Type => "image/gif",
 
 @end itemize
 
-@noindent
+@smallexample
+@cartouche
+@group
 This documentation is not complete. Have a look at the demos directory. 
 Almost every features are used by the samples there.
+@end group
+@end cartouche
+@end smallexample
 
 @node The AWS packages, Last notes, How to use it ?, Top
 @chapter The AWS packages
@@ -215,14 +221,11 @@ This section is left empty for now.
 @chapter Last notes
 
 @noindent
-I'd like to thanks contributors and peoples who send me feedbacks, ideas
+Thanks to the contributors and peoples who send me feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 @noindent
 So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
-
-@noindent
-As always, I hope I did not forget somebody.
 
 @node AWS APIs, , Last notes, Top
 @chapter AWS APIs
