@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Sockets;
@@ -185,9 +186,15 @@ package body AWS.Net.Std is
    ---------------
 
    function Peer_Addr (Socket : in Socket_Type) return String is
+      Peername : constant String
+        := Sockets.Image (Sockets.Get_Peer_Name (SFD (Socket.S.all)));
+      K        : constant Natural := Strings.Fixed.Index (Peername, ":");
    begin
-      return Sockets.Image
-        (Sockets.Get_Peer_Name (SFD (Socket.S.all)));
+      if K = 0 then
+         return Peername;
+      else
+         return Peername (Peername'First .. K - 1);
+      end if;
    exception
       when E : others =>
          Raise_Exception (E, "Peer_Addr");
