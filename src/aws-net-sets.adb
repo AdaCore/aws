@@ -142,11 +142,11 @@ package body AWS.Net.Sets is
 
       case Mode is
          when Input  =>
-            Set.Poll (Set.Last).Events := Thin.Pollin;
+            Set.Poll (Set.Last).Events := Thin.POLLIN;
          when Output =>
-            Set.Poll (Set.Last).Events := Thin.Pollout;
+            Set.Poll (Set.Last).Events := Thin.POLLOUT;
          when Both   =>
-            Set.Poll (Set.Last).Events := Thin.Pollin + Thin.Pollout;
+            Set.Poll (Set.Last).Events := Thin.POLLIN + Thin.POLLOUT;
       end case;
    end Add_Private;
 
@@ -268,22 +268,22 @@ package body AWS.Net.Sets is
    function To_State (Event : in Thin.Events_Type) return Socket_State is
       use type Thin.Events_Type;
    begin
-      if (Event and (Thin.Pollerr
-                    or Thin.Pollhup
-                    or Thin.Pollnval
-                    or Thin.Pollin
-                    or Thin.Pollpri
-                    or Thin.Pollout)) = 0
+      if (Event and (Thin.POLLERR
+                    or Thin.POLLHUP
+                    or Thin.POLLNVAL
+                    or Thin.POLLIN
+                    or Thin.POLLPRI
+                    or Thin.POLLOUT)) = 0
       then
          return None;
       end if;
 
-      if (Event and (Thin.Pollerr or Thin.Pollhup or Thin.Pollnval)) /= 0 then
+      if (Event and (Thin.POLLERR or Thin.POLLHUP or Thin.POLLNVAL)) /= 0 then
          return Error;
       end if;
 
-      if (Event and (Thin.Pollin or Thin.Pollpri)) /= 0 then
-         if (Event and Thin.Pollout) /= 0 then
+      if (Event and (Thin.POLLIN or Thin.POLLPRI)) /= 0 then
+         if (Event and Thin.POLLOUT) /= 0 then
             return Both;
          else
             return Input;
@@ -303,15 +303,15 @@ package body AWS.Net.Sets is
       Result       : Integer;
       Poll_Timeout : Thin.Timeout_Type;
    begin
-      if Timeout >= Duration (Thin.Timeout_Type'Last / 1000) then
+      if Timeout >= Duration (Thin.Timeout_Type'Last / 1_000) then
          Poll_Timeout := Thin.Timeout_Type'Last;
       else
-         Poll_Timeout := Thin.Timeout_Type (Timeout * 1000);
+         Poll_Timeout := Thin.Timeout_Type (Timeout * 1_000);
       end if;
 
       Result := Integer
         (Thin.Poll
-           (FDS     => Set.Poll (1)'Address,
+           (FDS     => Set.Poll (Set.Poll'First)'Address,
             Nfds    => Thin.Length_Type (Set.Last),
             Timeout => Poll_Timeout));
 
@@ -320,7 +320,7 @@ package body AWS.Net.Sets is
            (Socket_Error'Identity, "Poll error code" & Integer'Image (Errno));
 
       elsif Result > 0 then
-         Set.Current := 1;
+         Set.Current := Set.Poll'First;
          Next_Private (Set);
       end if;
    end Wait;
