@@ -36,6 +36,9 @@ package body AWS.Dispatchers is
 
    procedure Release is
       new Ada.Unchecked_Deallocation (Handler'Class, Handler_Class_Access);
+      
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Natural, Natural_Access);
 
    ------------
    -- Adjust --
@@ -43,7 +46,7 @@ package body AWS.Dispatchers is
 
    procedure Adjust (Dispatcher : in out Handler) is
    begin
-      Dispatcher.Ref_Counter := Dispatcher.Ref_Counter + 1;
+      Dispatcher.Ref_Counter.all := Dispatcher.Ref_Counter.all + 1;
    end Adjust;
 
    --------------
@@ -52,7 +55,10 @@ package body AWS.Dispatchers is
 
    procedure Finalize (Dispatcher : in out Handler) is
    begin
-      Dispatcher.Ref_Counter := 0;
+      Dispatcher.Ref_Counter.all := Dispatcher.Ref_Counter.all - 1;
+      if Dispatcher.Ref_Counter.all = 0 then
+         Free (Dispatcher.Ref_Counter);
+      end if;
    end Finalize;
 
    ----------
@@ -70,7 +76,7 @@ package body AWS.Dispatchers is
 
    procedure Initialize (Dispatcher : in out Handler) is
    begin
-      Dispatcher.Ref_Counter := 1;
+      Dispatcher.Ref_Counter := new Natural'(1);
    end Initialize;
 
    -----------------
@@ -79,7 +85,11 @@ package body AWS.Dispatchers is
 
    function Ref_Counter (Dispatcher : in Handler) return Natural is
    begin
-      return Dispatcher.Ref_Counter;
+      if Dispatcher.Ref_Counter = null then
+         return 0;
+      else
+         return Dispatcher.Ref_Counter.all;
+      end if;
    end Ref_Counter;
 
 end AWS.Dispatchers;
