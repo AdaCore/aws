@@ -1,5 +1,14 @@
 2001-09-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-message-payload.ads, soap-message-payload.adb:
+	Minor reformating.
+
+	* soap-message-xml.adb:
+	(Load_Payload): Call free to relase DOM tree memory.
+	(Load_Response): idem.
+	(Parse_Float): Value is now a constant.
+	(Parse_Int): idem.
+
 	* soap-message-response-error.adb:
 	(Tag): moved to SOAP.Utils.
 	(XML_Image): uses SOAP.Utils.Tag.
