@@ -170,11 +170,11 @@ package body AWS.Net.Buffered is
    ----------
 
    procedure Read (Socket : in Socket_Type'Class) is
-      C      : Read_Cache renames Socket.C.R_Cache;
+      C : Read_Cache renames Socket.C.R_Cache;
    begin
       Receive (Socket, C.Buffer, C.Last);
 
-      --  Reset the C.First only after successful Receive, the buffer would
+      --  Reset C.First only after successful Receive, the buffer would
       --  remain empty on timeout this way.
 
       C.First := C.Buffer'First;
@@ -190,20 +190,18 @@ package body AWS.Net.Buffered is
       Flush (Socket);
 
       if Is_Empty (C) then
-         --  No more data, read the socket
-
-         Receive (Socket, Data, Last);
-
-      else
-         declare
-            C_Last : constant Stream_Element_Offset
-              := Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
-         begin
-            Last := Data'First + C_Last - C.First;
-            Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
-            C.First := C_Last + 1;
-         end;
+         --  No more data, fill the cache
+         Read (Socket);
       end if;
+
+      declare
+         C_Last : constant Stream_Element_Offset
+           := Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
+      begin
+         Last := Data'First + C_Last - C.First;
+         Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
+         C.First := C_Last + 1;
+      end;
    end Read;
 
    function Read
