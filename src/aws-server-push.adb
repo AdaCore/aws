@@ -40,13 +40,16 @@ with AWS.Utils;
 
 package body AWS.Server.Push is
 
+   use AWS.Net;
+
    function To_Holder
      (Socket      : in Socket_Type;
       Environment : in Client_Environment;
       Kind        : in Mode)
      return Client_Holder;
 
-   procedure Close (Socket : in out Client_Holder);
+   function To_Stream (Socket : Socket_Type) return Stream_Access
+      renames AWS.Net.Stream_IO.Stream;
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line.
@@ -68,19 +71,8 @@ package body AWS.Server.Push is
    begin
       return (Kind        => Kind,
               Environment => Environment,
-              Stream      => AWS.Net.Stream_IO.Stream (Socket));
+              Stream      => To_Stream (Socket));
    end To_Holder;
-
-   -----------
-   -- Close --
-   -----------
-
-   procedure Close (Socket : in out Client_Holder) is
-      use AWS.Net.Stream_IO;
-   begin
-      Shutdown (Socket.Stream);
-      Free (Socket.Stream);
-   end Close;
 
    -----------
    -- Count --
@@ -92,13 +84,22 @@ package body AWS.Server.Push is
    end Count;
 
    -------------
-   -- Destroy --
+   -- Is_Open --
    -------------
 
-   procedure Destroy (Server : in out Object) is
+   function Is_Open (Server : in Object) return Boolean is
    begin
-      Server.Destroy;
-   end Destroy;
+      return Server.Is_Open;
+   end Is_Open;
+
+   -------------
+   -- Restart --
+   -------------
+
+   procedure Restart (Server : in out Object) is
+   begin
+      Server.Restart;
+   end Restart;
 
    ----------
    -- Send --
@@ -151,7 +152,35 @@ package body AWS.Server.Push is
       Server.Send (Data, Content_Type, Gone);
       For_Each (Gone);
       Table.Destroy (Gone);
-   end send_G;
+   end Send_G;
+
+   --------------
+   -- Shutdown --
+   --------------
+
+   procedure Shutdown
+     (Server        : in out Object;
+      Close_Sockets : in     Boolean := True) is
+   begin
+      Server.Shutdown (Close_Sockets => Close_Sockets);
+   end Shutdown;
+
+   procedure Shutdown
+     (Server             : in out Object;
+      Final_Data         : in     Client_Output_Type;
+      Final_Content_Type : in     String             := "") is
+   begin
+      Server.Shutdown (Final_Data, Final_Content_Type);
+   end Shutdown;
+
+   -----------------------
+   -- Shutdown_If_Empty --
+   -----------------------
+
+   procedure Shutdown_If_Empty (Server : in out Object; Open : out Boolean) is
+   begin
+      Server.Shutdown_If_Empty (Open);
+   end Shutdown_If_Empty;
 
    -------------
    -- Send_To --
@@ -171,45 +200,69 @@ package body AWS.Server.Push is
    ----------------
 
    procedure Unregister
-     (Server    : in out Object;
-      Client_ID : in     Client_Key) is
+     (Server       : in out Object;
+      Client_ID    : in     Client_Key;
+      Close_Socket : in     Boolean    := True) is
    begin
-      Server.Unregister (Client_ID);
+      Server.Unregister (Client_ID, Close_Socket);
    end Unregister;
+
+   ------------------------
+   -- Unregister_Clients --
+   ------------------------
+
+   procedure Unregister_Clients
+     (Server        : in out Object;
+      Close_Sockets : in     Boolean := True) is
+   begin
+      Server.Unregister_Clients (Close_Sockets => Close_Sockets);
+   end Unregister_Clients;
 
    --------------
    -- Register --
    --------------
 
    procedure Register
-     (Server      : in out Object;
-      Client_ID   : in     Client_Key;
-      Socket      : in     Socket_Type;
-      Environment : in     Client_Environment;
-      Kind        : in     Mode               := Plain)
+     (Server            : in out Object;
+      Client_ID         : in     Client_Key;
+      Socket            : in     Socket_Type;
+      Environment       : in     Client_Environment;
+      Init_Data         : in     Client_Output_Type;
+      Init_Content_Type : in     String := "";
+      Kind              : in     Mode := Plain;
+      Close_Duplicate   : in     Boolean := False)
    is
-      Duplicate : Boolean;
+      Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
    begin
       Server.Register
         (Client_ID,
-         To_Holder (Socket, Environment, Kind), Duplicate);
-
-      if Duplicate then
-         raise Duplicate_Client_ID;
-      end if;
+         Holder,
+         Init_Data,
+         Init_Content_Type,
+         Close_Duplicate);
+   exception
+   when Closed | Duplicate_Client_ID =>
+      Stream_IO.Free (Holder.Stream);
+      raise;
    end Register;
 
    procedure Register
-     (Server      : in out Object;
-      Client_ID   : in     Client_Key;
-      Socket      : in     Socket_Type;
-      Environment : in     Client_Environment;
-      Kind        : in     Mode;
-      Duplicate   :    out Boolean) is
+     (Server          : in out Object;
+      Client_ID       : in     Client_Key;
+      Socket          : in     Socket_Type;
+      Environment     : in     Client_Environment;
+      Kind            : in     Mode               := Plain;
+      Close_Duplicate : in     Boolean := False)
+   is
+      Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
    begin
       Server.Register
         (Client_ID,
-         To_Holder (Socket, Environment, Kind), Duplicate);
+         Holder, Close_Duplicate);
+   exception
+   when Closed | Duplicate_Client_ID =>
+      Stream_IO.Free (Holder.Stream);
+      raise;
    end Register;
 
    -----------------
@@ -234,53 +287,136 @@ package body AWS.Server.Push is
       end Count;
 
       -------------
-      -- Destroy --
+      -- Is_Open --
       -------------
 
-      procedure Destroy is
+      function Is_Open return Boolean is
       begin
-         while Table.Size (Container) > 0 loop
-            Unregister (Table.Min_Key (Container));
-         end loop;
-      end Destroy;
+         return Open;
+      end Is_Open;
 
       --------------
       -- Register --
       --------------
 
       procedure Register
-        (Client_ID : in     Client_Key;
-         Holder    : in     Client_Holder;
-         Duplicate :    out Boolean) is
+        (Client_ID       : in Client_Key;
+         Holder          : in Client_Holder;
+         Close_Duplicate : in Boolean)
+      is
+         Duplicate : Boolean;
       begin
+
+         if not Open then
+            raise Closed;
+         end if;
+
          Table.Insert (Container, Client_ID, Holder, Duplicate);
 
          if Duplicate then
-            return;
+            if Close_Duplicate then
+               Unregister (Client_ID, True);
+               Table.Insert (Container, Client_ID, Holder);
+            else
+               raise Duplicate_Client_ID;
+            end if;
          end if;
 
-         String'Write (Holder.Stream,
-                       "HTTP/1.1 200 OK" & New_Line
-                       & "Server: AWS (Ada Web Server) v" & Version & New_Line
-                       & Messages.Connection ("Close") & New_Line);
+         begin
 
-         if Holder.Kind = Chunked then
-            String'Write
-              (Holder.Stream,
-               Messages.Transfer_Encoding ("chunked") & New_Line & New_Line);
+            String'Write (Holder.Stream,
+                          "HTTP/1.1 200 OK" & New_Line
+                          & "Server: AWS (Ada Web Server) v"
+                          & Version & New_Line
+                          & Messages.Connection ("Close") & New_Line);
 
-         elsif Holder.Kind = Multipart then
-            String'Write
-              (Holder.Stream,
-               Messages.Content_Type (MIME.Multipart_Mixed_Replace, Boundary)
-               & New_Line);
+            if Holder.Kind = Chunked then
+               String'Write
+                 (Holder.Stream,
+                  Messages.Transfer_Encoding ("chunked")
+                  & New_Line & New_Line);
 
-         else
-            String'Write (Holder.Stream, New_Line);
-         end if;
+            elsif Holder.Kind = Multipart then
+               String'Write
+                 (Holder.Stream,
+                  Messages.Content_Type (MIME.Multipart_Mixed_Replace,
+                     Boundary)
+                  & New_Line);
 
-         AWS.Net.Stream_IO.Flush (Holder.Stream);
+            else
+               String'Write (Holder.Stream, New_Line);
+            end if;
+
+            Stream_IO.Flush (Holder.Stream);
+
+         exception
+         when others =>
+            Unregister (Client_ID, Close_Socket => False);
+            raise;
+         end;
+
       end Register;
+
+      procedure Register
+        (Client_ID         : in Client_Key;
+         Holder            : in Client_Holder;
+         Init_Data         : in Client_Output_Type;
+         Init_Content_Type : in String;
+         Close_Duplicate   : in Boolean) is
+      begin
+         Register (Client_ID, Holder, Close_Duplicate);
+         begin
+            Send_Data (Holder, Init_Data, Init_Content_Type);
+         exception
+         when others =>
+            Unregister (Client_ID, Close_Socket => False);
+            raise;
+         end;
+      end Register;
+
+      -------------
+      -- Restart --
+      -------------
+
+      procedure Restart is
+      begin
+         Open := True;
+      end Restart;
+
+      --------------
+      -- Shutdown --
+      --------------
+
+      procedure Shutdown (Close_Sockets : in Boolean) is
+      begin
+         Open := False;
+         Unregister_Clients (Close_Sockets => Close_Sockets);
+      end Shutdown;
+
+
+      procedure Shutdown
+        (Final_Data         : in Client_Output_Type;
+         Final_Content_Type : in String)
+      is
+         Gone : Table.Table_Type;
+      begin
+         Send (Final_Data, Final_Content_Type, Gone);
+         Table.Destroy (Gone);
+         Shutdown (Close_Sockets => True);
+      end Shutdown;
+
+      -----------------------
+      -- Shutdown_If_Empty --
+      -----------------------
+
+      procedure Shutdown_If_Empty (Open : out Boolean)
+      is
+      begin
+         if Table.Size (Container) = 0 then
+            Object.Open := False;
+         end if;
+         Shutdown_If_Empty.Open := Object.Open;
+      end Shutdown_If_Empty;
 
       ----------
       -- Send --
@@ -330,7 +466,7 @@ package body AWS.Server.Push is
             Order_Number : in     Positive;
             Continue     : in out Boolean) is
          begin
-            Unregister (Key);
+            Unregister (Key, True);
          end Free;
 
          procedure For_Each is new Table.Disorder_Traverse_G (Action);
@@ -377,8 +513,7 @@ package body AWS.Server.Push is
             String'Write (Holder.Stream, New_Line);
          end if;
 
-         AWS.Net.Stream_IO.Flush (Holder.Stream);
-
+         Stream_IO.Flush (Holder.Stream);
       end Send_Data;
 
       -------------
@@ -390,11 +525,16 @@ package body AWS.Server.Push is
          Data         : in Client_Output_Type;
          Content_Type : in String)
       is
+         Holder : Client_Holder;
+         use Sockets;
       begin
-         Send_Data (Table.Value (Container, Client_ID), Data, Content_Type);
+         Holder := Table.Value (Container, Client_ID);
+         Send_Data (Holder, Data, Content_Type);
       exception
+         when Table.Missing_Item_Error =>
+            raise Client_Gone;
          when others =>
-            Unregister (Client_ID);
+            Unregister (Client_ID, True);
             raise Client_Gone;
       end Send_To;
 
@@ -402,15 +542,32 @@ package body AWS.Server.Push is
       -- Unregister --
       ----------------
 
-      procedure Unregister (Client_ID : in Client_Key) is
+      procedure Unregister
+        (Client_ID    : in Client_Key;
+         Close_Socket : in Boolean)
+      is
          Value : Client_Holder;
       begin
          Table.Remove (Container, Client_ID, Value);
-         Close (Value);
+         if Close_Socket then
+            Stream_IO.Shutdown (Value.Stream);
+         end if;
+         Stream_IO.Free (Value.Stream);
       exception
          when Table.Missing_Item_Error =>
             null;
       end Unregister;
+
+      ------------------------
+      -- Unregister_Clients --
+      ------------------------
+
+      procedure Unregister_Clients (Close_Sockets : in Boolean) is
+      begin
+         while Table.Size (Container) > 0 loop
+            Unregister (Table.Min_Key (Container), Close_Sockets);
+         end loop;
+      end Unregister_Clients;
 
    end Object;
 
