@@ -1,6 +1,11 @@
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
 	* aws-attachments.adb:
+	(Add): Another Content_ID casing fix.
+	
+2004-09-15  Pascal Obry  <pascal@obry.org>
+
+	* aws-attachments.adb:
 	(Add): Fix Content_ID casing.
 
 	* aws-attachments.ads: 
