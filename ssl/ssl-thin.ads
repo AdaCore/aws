@@ -191,11 +191,9 @@ package SSL.Thin is
 
    function SSL_pending (S : in SSL_Handle) return int;
 
-
    type Generate_Key_Callback is access
      procedure (I1, I2 : in Integer; Param : in Pointer);
    pragma Convention (C, Generate_Key_Callback);
-
 
    function RSA_generate_key
      (Bits     : in int;
@@ -219,8 +217,20 @@ package SSL.Thin is
       C_Type : in int)
       return int;
 
+   function SSL_use_PrivateKey_file
+     (SSL    : in SSL_Handle;
+      File   : in char_array;
+      C_Type : in int)
+      return int;
+
    function SSL_CTX_use_certificate_file
      (Ctx    : in SSL_CTX;
+      File   : in char_array;
+      C_Type : in int)
+      return int;
+
+   function SSL_use_certificate_file
+     (SSL    : in SSL_Handle;
       File   : in char_array;
       C_Type : in int)
       return int;
@@ -243,6 +253,8 @@ private
                     "SSL_CTX_use_certificate_file");
    pragma Import (C, SSL_CTX_use_PrivateKey_file,
                     "SSL_CTX_use_PrivateKey_file");
+   pragma Import (C, SSL_use_certificate_file, "SSL_use_certificate_file");
+   pragma Import (C, SSL_use_PrivateKey_file, "SSL_use_PrivateKey_file");
    pragma Import (C, SSL_CTX_check_private_key, "SSL_CTX_check_private_key");
    pragma Import (C, SSL_read, "SSL_read");
    pragma Import (C, SSL_write, "SSL_write");
