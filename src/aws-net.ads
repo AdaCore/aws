@@ -221,7 +221,7 @@ package AWS.Net is
    --  Empty event set in result mean that timeout occured.
 
    function Errno (Socket : in Socket_Type) return Integer is abstract;
-   --  Returns and clears error state in socket.
+   --  Returns and clears error state in socket
 
 private
 
