@@ -250,7 +250,7 @@ package body AWS.Client is
          Exceptions.Raise_Exception
            (Connection_Error'Identity,
             "can't connect to " & AWS.URL.URL (Connect_URL)
-            & " -> " & Exceptions.Exception_Information (E));
+              & " -> " & Exceptions.Exception_Information (E));
    end Connect;
 
    -----------------
@@ -477,8 +477,7 @@ package body AWS.Client is
       Auth_Is_Over  : Boolean;
 
    begin
-
-      loop
+      Retry: loop
          begin
             Open_Send_Common_Header (Connection, "GET", URI);
 
@@ -503,12 +502,12 @@ package body AWS.Client is
                     (MIME.Text_HTML, "Get Timeout", Messages.S408);
 
                   Set_Phase (Connection, Not_Monitored);
-                  exit;
+                  exit Retry;
                end if;
 
                Try_Count := Try_Count - 1;
          end;
-      end loop;
+      end loop Retry;
    end Get;
 
    ------------------
@@ -547,9 +546,7 @@ package body AWS.Client is
 
       procedure Disconnect is
       begin
-         if not Keep_Alive
-           and not Connection.Server_Push
-         then
+         if not Keep_Alive and not Connection.Server_Push then
             Disconnect (Connection);
          end if;
       end Disconnect;
@@ -839,8 +836,7 @@ package body AWS.Client is
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
    begin
-
-      loop
+      Retry: loop
          begin
             Open_Send_Common_Header (Connection, "HEAD", URI);
 
@@ -864,12 +860,12 @@ package body AWS.Client is
                   Result := Response.Build
                     (MIME.Text_HTML, "Head Timeout", Messages.S408);
                   Set_Phase (Connection, Not_Monitored);
-                  exit;
+                  exit Retry;
                end if;
 
                Try_Count := Try_Count - 1;
          end;
-      end loop;
+      end loop Retry;
    end Head;
 
    -----------------------------
@@ -1512,8 +1508,7 @@ package body AWS.Client is
       Auth_Is_Over  : Boolean;
 
    begin
-
-      loop
+      Retry: loop
          begin
             Open_Send_Common_Header (Connection, "POST", URI);
 
@@ -1564,12 +1559,12 @@ package body AWS.Client is
                   Result := Response.Build
                     (MIME.Text_HTML, "Post Timeout", Messages.S408);
                   Set_Phase (Connection, Not_Monitored);
-                  exit;
+                  exit Retry;
                end if;
 
                Try_Count := Try_Count - 1;
          end;
-      end loop;
+      end loop Retry;
    end Post;
 
    ----------
@@ -1638,8 +1633,7 @@ package body AWS.Client is
       Auth_Is_Over  : Boolean;
 
    begin
-
-      loop
+      Retry: loop
 
          begin
             Open_Send_Common_Header (Connection, "PUT", URI);
@@ -1680,12 +1674,12 @@ package body AWS.Client is
                   Result := Response.Build
                     (MIME.Text_HTML, "Put Timeout", Messages.S408);
                   Set_Phase (Connection, Not_Monitored);
-                  exit;
+                  exit Retry;
                end if;
 
                Try_Count := Try_Count - 1;
          end;
-      end loop;
+      end loop Retry;
    end Put;
 
    ----------------
@@ -1983,7 +1977,7 @@ package body AWS.Client is
       end Send_File;
 
    begin
-      loop
+      Retry: loop
          begin
             Open_Send_Common_Header (Connection, "POST", URI);
 
@@ -2028,12 +2022,12 @@ package body AWS.Client is
                   Result := Response.Build
                     (MIME.Text_HTML, "Upload Timeout", Messages.S408);
                   Set_Phase (Connection, Not_Monitored);
-                  exit;
+                  exit Retry;
                end if;
 
                Try_Count := Try_Count - 1;
          end;
-      end loop;
+      end loop Retry;
    end Upload;
 
    function Upload
