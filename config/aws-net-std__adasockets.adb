@@ -83,7 +83,7 @@ package body AWS.Net.Std is
 
       Set_Cache (New_Socket);
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Free (New_Socket);
          Raise_Exception (E, "Accept_Socket");
    end Accept_Socket;
@@ -104,7 +104,7 @@ package body AWS.Net.Std is
 
       Sockets.Bind (Socket.S.FD, Port, Host);
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Bind");
    end Bind;
 
@@ -115,19 +115,27 @@ package body AWS.Net.Std is
    procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
-      Port     : in     Positive) is
+      Port     : in     Positive)
+   is
+      Close_On_Exception : Boolean := True;
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
+
+         Close_On_Exception := False;
          Sockets.Socket (Socket.S.FD);
+         Close_On_Exception := True;
       end if;
 
       Sockets.Connect (Socket.S.FD, Host, Port);
 
       Set_Cache (Socket);
    exception
-      when E : others =>
-         Sockets.Shutdown (Socket.S.FD);
+      when E : Sockets.Connection_Refused | Sockets.Socket_Error =>
+         if Close_On_Exception then
+            Sockets.Shutdown (Socket.S.FD);
+         end if;
+
          Free (Socket);
          Raise_Exception (E, "Connect");
    end Connect;
@@ -211,7 +219,7 @@ package body AWS.Net.Std is
    begin
       Sockets.Listen (Socket.S.FD, Queue_Size);
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Listen");
    end Listen;
 
