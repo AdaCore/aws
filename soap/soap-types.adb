@@ -158,7 +158,7 @@ package body SOAP.Types is
      (V         : in String;
       Type_Name : in String;
       Name      : in String := "item")
-      return XSD_Enumeration is
+      return SOAP_Enumeration is
    begin
       return (Finalization.Controlled
                 with To_Unbounded_String (Name),
@@ -516,7 +516,7 @@ package body SOAP.Types is
    -- Image --
    -----------
 
-   function Image (O : in XSD_Enumeration) return String is
+   function Image (O : in SOAP_Enumeration) return String is
    begin
       return To_String (O.V);
    end Image;
@@ -649,7 +649,7 @@ package body SOAP.Types is
       return To_String (O.V);
    end V;
 
-   function V (O : in XSD_Enumeration) return String is
+   function V (O : in SOAP_Enumeration) return String is
    begin
       return To_String (O.V);
    end V;
@@ -916,9 +916,9 @@ package body SOAP.Types is
    -- XML_Image --
    ---------------
 
-   function XML_Image (O : in XSD_Enumeration) return String is
+   function XML_Image (O : in SOAP_Enumeration) return String is
    begin
-      return "<" & Name (O)
+      return Spaces (XML_Indent.Value) & "<" & Name (O)
         & " type=""" & To_String (O.Type_Name) & """>"
         & To_String (O.V)
         & Utils.Tag (Name (O), Start => False);
@@ -994,7 +994,7 @@ package body SOAP.Types is
       return "";
    end XML_Type;
 
-   function XML_Type (O : in XSD_Enumeration) return String is
+   function XML_Type (O : in SOAP_Enumeration) return String is
    begin
       return To_String (O.Type_Name);
    end XML_Type;
