@@ -57,7 +57,7 @@ package body AWS.Digest is
    -- Check_Nonce --
    -----------------
 
-   function Check_Nonce (Value : in String) return Boolean is
+   function Check_Nonce (Value : in Nonce) return Boolean is
       use Calendar;
 
       Now           : constant Time := Clock;
@@ -71,26 +71,19 @@ package body AWS.Digest is
       Ctx           : MD5.Context;
       Sample        : Digest_String;
    begin
-      --  Our nonces length is length of Digest plus 5 symbols for
-      --  Day durations.
-
-      if Value'Length /= Digest_String'Length + 5 then
-         return False;
-      end if;
-
       Split (Now, Year_Now, Month_Now, Day_Now, Seconds_Now);
 
       declare
          use Ada.Strings.Maps;
       begin
          if not Is_Subset
-           (To_Set (Value (1 .. 5)), Constants.Hexadecimal_Digit_Set)
+           (To_Set (String (Value (1 .. 5))), Constants.Hexadecimal_Digit_Set)
          then
             return False;
          end if;
       end;
 
-      Seconds_Nonce := Utils.Hex_Value (Value (1 .. 5));
+      Seconds_Nonce := Utils.Hex_Value (String (Value (1 .. 5)));
 
       Nonce_Time := Time_Of
         (Year_Now, Month_Now, Day_Now, Day_Duration (Seconds_Nonce));
@@ -117,29 +110,29 @@ package body AWS.Digest is
 
       Sample := MD5.Digest (Ctx);
 
-      return Value (6 .. Value'Last) = Sample;
+      return String (Value (6 .. Value'Last)) = Sample;
    end Check_Nonce;
 
-   ------------------
-   -- Create_Digest --
-   ------------------
+   ------------
+   -- Create --
+   ------------
 
-   function Create_Digest
+   function Create
      (Username, Realm, Password : in String;
       Nonce, NC, CNonce, QOP    : in String;
       Method, URI               : in String)
       return Digest_String is
    begin
-      return Create_Digest
+      return Create
         (Username => Username,
          Realm    => Realm,
          Password => Password,
          Nonce    => Nonce & ':' & NC & ':' & CNonce & ':' & QOP,
          Method   => Method,
          URI      => URI);
-   end Create_Digest;
+   end Create;
 
-   function Create_Digest
+   function Create
      (Username, Realm, Password : in String;
       Nonce                     : in String;
       Method, URI               : in String)
@@ -149,13 +142,13 @@ package body AWS.Digest is
         (MD5.Digest (Username & ':' & Realm & ':' & Password)
            & ':' & Nonce & ':'
            & MD5.Digest (Method & ':' & URI));
-   end Create_Digest;
+   end Create;
 
    ------------------
    -- Create_Nonce --
    ------------------
 
-   function Create_Nonce return String is
+   function Create_Nonce return Nonce is
       use Calendar;
 
       Year_Now    : Year_Number;
@@ -184,10 +177,9 @@ package body AWS.Digest is
 
       --  Five hex digits before MD5 digest for the nonce expiration check
 
-      return Utils.Hex (Seconds_Int, Width => 5) & Result;
+      return Nonce (Utils.Hex (Seconds_Int, Width => 5) & Result);
    end Create_Nonce;
 
 begin
-   MD5.Update (Private_Key,
-               Utils.Random_Integer'Image (Utils.Random));
+   MD5.Update (Private_Key, Utils.Random_Integer'Image (Utils.Random));
 end AWS.Digest;
