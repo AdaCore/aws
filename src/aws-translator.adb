@@ -33,7 +33,7 @@ with Ada.Strings.Unbounded;
 
 with Interfaces;
 
-package body AWS.Translater is
+package body AWS.Translator is
 
    use Ada;
    use Ada.Strings.Unbounded;
@@ -251,5 +251,4 @@ package body AWS.Translater is
       return Result (1 .. R - 1 - Pad);
    end Base64_Decode;
 
-end AWS.Translater;
-
+end AWS.Translator;
