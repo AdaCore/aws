@@ -197,17 +197,3 @@ implemented:
 
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
-
-- Add better support for enumeration types, the way to go is to generate a
-  WSDL enum as:
-
-     <simpleType name="Color">
-        <restriction base="xsd:string">
-           <enumeration value="Red"/>
-           <enumeration value="Green"/>
-           <enumeration value="Blue"/>
-        </restriction>
-     </simpleType>
-
-- wsdl2aws should be able to generate the SOAP callback routine. This should
-  be an option. See for example regtests wsdl_4_server.ad[sb].
