@@ -1,3 +1,13 @@
+2004-01-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-os_lib__gnat.adb:
+	(For_Every_Directory_Entry): End_Slash renamed Get_Directory.
+
+	* aws-os_lib__posix.adb:
+	(For_Every_Directory_Entry): Internal call to Is_Directory is with
+	 a full pathname now, because directory iterator could be not only
+	 in the current directory.
+
 2004-01-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-os_lib__gnat.adb:
