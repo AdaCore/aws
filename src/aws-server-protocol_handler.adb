@@ -63,10 +63,10 @@ is
    use Ada.Strings;
 
    Admin_URI      : constant String
-     := Config.Admin_URI (HTTP_Server.Properties);
+     := CNF.Admin_URI (HTTP_Server.Properties);
 
    Case_Sensitive_Parameters : constant Boolean
-     := Config.Case_Sensitive_Parameters (HTTP_Server.Properties);
+     := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
 
    End_Of_Message : constant String := "";
    HTTP_10        : constant String := "HTTP/1.0";
@@ -166,7 +166,7 @@ is
 
       procedure Create_Session is
       begin
-         if Config.Session (HTTP_Server.Properties)
+         if CNF.Session (HTTP_Server.Properties)
            and then (AWS.Status.Session (C_Stat) = ""
                      or else not Session.Exist (AWS.Status.Session (C_Stat)))
          then
@@ -187,7 +187,7 @@ is
       begin
          --  Session
 
-         if Config.Session (HTTP_Server.Properties)
+         if CNF.Session (HTTP_Server.Properties)
            and then Send_Session_Cookie
          then
             --  This is an HTTP connection with session but there is no session
@@ -410,21 +410,21 @@ is
                     (Content_Type => MIME.Text_HTML,
                      Message_Body =>
                        "Status template error. Please check "
-                       & "that '" & Config.Status_Page (HTTP_Server.Properties)
+                       & "that '" & CNF.Status_Page (HTTP_Server.Properties)
                        & "' file is valid.");
             end;
 
          elsif URI = Admin_URI & "-logo" then
             --  Status page logo
-            Answer_File (Config.Logo_Image (HTTP_Server.Properties));
+            Answer_File (CNF.Logo_Image (HTTP_Server.Properties));
 
          elsif URI = Admin_URI & "-uparr" then
             --  Status page hotplug up-arrow
-            Answer_File (Config.Up_Image (HTTP_Server.Properties));
+            Answer_File (CNF.Up_Image (HTTP_Server.Properties));
 
          elsif URI = Admin_URI & "-downarr" then
             --  Status page hotplug down-arrow
-            Answer_File (Config.Down_Image (HTTP_Server.Properties));
+            Answer_File (CNF.Down_Image (HTTP_Server.Properties));
 
          elsif URI = Admin_URI & "-HPup" then
             --  Status page hotplug up message
@@ -477,7 +477,8 @@ is
 
       Status := Response.Status_Code (Answer);
 
-      Log.Write (C_Stat, Status, HTTP_Server.Slots.Get_Peername (Index));
+      AWS.Log.Write (HTTP_Server.Log,
+                     C_Stat, Status, HTTP_Server.Slots.Get_Peername (Index));
 
       if Response.Mode (Answer) = Response.Message then
          Send_Message;
@@ -685,7 +686,7 @@ is
                                           Going => Strings.Backward);
             UID : Natural;
             Upload_Path : String :=
-               Config.Upload_Directory (HTTP_Server.Properties);
+               CNF.Upload_Directory (HTTP_Server.Properties);
          begin
             File_Upload_UID.Get (UID);
 
