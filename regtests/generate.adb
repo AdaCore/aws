@@ -50,9 +50,9 @@ procedure Generate is
    Main   : File_Type;
    Source : U.Unbounded_String
      := U.To_Unbounded_String
-          ("procedure Test_All is" & ASCII.LF
-         & "   Std_Out : File_Type;" & ASCII.LF
-         & "begin"  & ASCII.LF);
+       ("procedure Test_All is" & ASCII.LF
+        & "   Std_Out : File_Type;" & ASCII.LF
+        & "begin"  & ASCII.LF);
 
    procedure Test (Name : in String);
 
