@@ -53,6 +53,9 @@ package body WSDL_4_Server is
    function Try3_CB is
       new WSDL_4_Service.Server.Try3_CB (WSDL_4.Try3);
 
+   function Try4_CB is
+      new WSDL_4_Service.Server.Try4_CB (WSDL_4.Try4);
+
    -------------
    -- HTTP_CB --
    -------------
@@ -81,6 +84,9 @@ package body WSDL_4_Server is
 
       elsif SOAPAction = "Try3" then
          return Try3_CB (SOAPAction, Payload, Request);
+
+      elsif SOAPAction = "Try4" then
+         return Try4_CB (SOAPAction, Payload, Request);
 
       else
          return Message.Response.Build
