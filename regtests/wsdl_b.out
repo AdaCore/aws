@@ -17,6 +17,7 @@
    - array (10)      Set_Of_Int_1_10 of Integer (xsd:int)
    > function        Echo_Complex_Rec
         C_Rec : Complex_Rec (tns:Complex_Rec)
+        return Complex_Rec (tns:Complex_Rec)
    - array (23)      Arr1 of Integer (xsd:int)
    - array (32)      Arr2 of Integer (xsd:int)
 
