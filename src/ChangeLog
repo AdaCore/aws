@@ -1,10 +1,15 @@
 2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	Fix stupid typo.
+	
+2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	(SOURCES): Add aws-headers.adb aws-headers-values.adb, aws-jabber.adb,
 	 aws-containers.ads, aws-containers-key_value.adb,
 	 aws-containers-tables.adb, aws-containers-tables-set.adb
-
+	
 	* aws-headers-values.ads, aws-headers-values.adb:
 	Change back Data_Set to Set.
 	Prefix Set when needed to raise ambiguity.
