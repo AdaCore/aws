@@ -405,7 +405,7 @@ Reporting bugs:
 
 You can report bugs to:
 
-   Dmitriy Anisimkov	anisimkov@yahoo.com
+   Dmitriy Anisimkov	anisimkov@ada-ru.org
    Pascal Obry		pascal@obry.org
 
 It would be nice if you could also sent us a note if you are using AWS just
