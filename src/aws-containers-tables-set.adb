@@ -175,7 +175,7 @@ package body AWS.Containers.Tables.Set is
          Name_Indexes.Free (Value);
       end Release_Value;
 
-      procedure Release_values is new
+      procedure Release_Values is new
          Index_Table.Disorder_Traverse_And_Update_Value_G (Release_Value);
 
    begin
