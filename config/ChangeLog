@@ -8,6 +8,8 @@
 	(Get_Addr_Info): Use GAI_StrError in error handling.
 	(Errno): New routine.
 	(Connect): Implement timeout.
+	(Bind): Free_Addr_Info just after C_Bind. Fix routine name in error
+	 message.
 
 2004-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
