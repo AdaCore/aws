@@ -119,7 +119,7 @@ begin
 
    Resources.Close (F);
 
-   OS_Lib.Delete_File (Filename, Success);
+   GNAT.OS_Lib.Delete_File (Filename, Success);
 
 exception
    when E : others =>
