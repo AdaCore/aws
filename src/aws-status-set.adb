@@ -243,4 +243,15 @@ package body AWS.Status.Set is
       D.Session_ID := To_Unbounded_String (ID);
    end Session;
 
+   ------------
+   -- Socket --
+   ------------
+
+   procedure Socket
+     (D     : in out Data;
+      Value : in Socket_Access) is
+   begin
+      D.Socket := Value;
+   end Socket;
+
 end AWS.Status.Set;
