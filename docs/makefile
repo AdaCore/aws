@@ -136,7 +136,8 @@ apiref: gnathtml_apiref
 gnathtml_apiref: check_api
 	(cd ..; fileset=; \
 	for file in src/a*.ad[sb] include/templates*.ad[sb] \
-	   	include/strings_cutter.ad[sb] \
+	   	include/strings_cutter.ad[sb] include/zlib*.ad[sb] \
+		include/memory_streams.ad[sb] \
 		soap/soap*.ad[sb]; \
 	do \
 		echo -n $$file; \
@@ -154,7 +155,8 @@ gnathtml_apiref: check_api
 adabrowse_apiref: check_api
 	(cd ..; \
 	for file in src/a*.ad[sb] include/templates*.ad[sb] \
-	   	include/strings_cutter.ad[sb] \
+	   	include/strings_cutter.ad[sb] include/zlib*.ad[sb] \
+		include/memory_streams.ad[sb] \
 		soap/soap*.ad[sb]; \
 	do \
 		echo -n $$file; \
