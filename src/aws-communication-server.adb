@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Ada Web Server                               --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,7 +40,11 @@ with AWS.Utils;
 
 package body AWS.Communication.Server is
 
+   Com_Server : AWS.Server.HTTP_Access;
+   --  The server that will handle all communication requests
+
    Context : T_Access;
+   --  The context kept for each server
 
    function Receive (Request : in Status.Data) return Response.Data;
    --  Handle communication server message.
@@ -73,8 +77,8 @@ package body AWS.Communication.Server is
             begin
                if AWS.Parameters.Get (P_Set, P) /= "" then
                   I := I + 1;
-                  PS (I) :=
-                    To_Unbounded_String (AWS.Parameters.Get (P_Set, P));
+                  PS (I)
+                    := To_Unbounded_String (AWS.Parameters.Get (P_Set, P));
                end if;
             end;
          end loop;
@@ -88,12 +92,11 @@ package body AWS.Communication.Server is
                           Context,
                           PS (1 .. I));
       else
-         return Response.Acknowledge (Messages.S412,
-                                      "AWS communication message error!");
+         return Response.Acknowledge
+           (Messages.S412,
+            "AWS communication message error!");
       end if;
    end Receive;
-
-   Com_Server : AWS.Server.HTTP_Access;
 
    --------------
    -- Shutdown --
@@ -114,11 +117,14 @@ package body AWS.Communication.Server is
    procedure Start (Port : in Positive; Context : in T_Access) is
    begin
       Com_Server := new AWS.Server.HTTP;
+
       Server.Context := Context;
-      AWS.Server.Start (Com_Server.all, "Communication Server",
-                        Max_Connection => 1,
-                        Port           => Port,
-                        Callback       => Receive'Unrestricted_Access);
+
+      AWS.Server.Start
+        (Com_Server.all, "Communication Server",
+         Max_Connection => 1,
+         Port           => Port,
+         Callback       => Receive'Unrestricted_Access);
    end Start;
 
 end AWS.Communication.Server;
