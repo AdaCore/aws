@@ -1,3 +1,14 @@
+2003-09-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Accept_Socket_Serialized): Clean-up code, add comments.
+	(Socket_Semaphore): Minor reformatting.
+
+	* aws-server.ads:
+	(Give_Back_Socket): Update comments.
+	(Socket_Semaphore): Fix wrong comment about Release. Add more
+	 comments.
+
 2003-09-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
