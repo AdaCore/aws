@@ -1,5 +1,9 @@
 2003-02-10  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-status.adb:
+	(SOAPAction): Fix bug in implementation. Checks result bound
+	 before result's value.
+
 	* aws-jabber.ads:
 	(Incoming_Stream): Add pragma Storage_Size. This task needs a
 	 stack bigger than the default as it use the XMLAda parser.
