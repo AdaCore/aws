@@ -1,3 +1,17 @@
+2003-02-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-config-ini.ads, aws-config-ini.adb:
+	(Read): Do not hide Ada.Text_IO.Name_Error exception, add comment.
+	(Optional_Read): New routine hiding Ada.Text_IO.Name_Error exception.
+
+	* aws-server-push.adb:
+	"with" reorder.
+	(Register): Minor reformat.
+	(Send.Action): Exception handler for Net.Socket_Error instead of
+	 'others'.
+	(Send_To): Exception handler for Net.Socket_Error instead
+	 of 'others'.
+
 2003-02-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
