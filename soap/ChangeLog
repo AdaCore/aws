@@ -1,3 +1,17 @@
+2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-stub.adb, soap-generator-skel.adb:
+	(New_Procedure): Handle properly case of routines without input data
+	 and/or without return data.
+	
+	* soap-generator.adb:
+	(Put_Header): Handle properly case of routines without input data
+	 and/or without return data.
+
+	* soap-wsdl-parser.adb:
+	(First_Child): Check for null pointer to exit the loop.
+	(Parse_Message): Add trace.
+
 2003-03-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-reader.adb:
