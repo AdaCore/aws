@@ -1,0 +1,15 @@
+Start main, wait for server to start...
+Server started
+
+Proc echo
+S: [un été]
+Expexted =  6 ; Result =  6 [un été]
+
+Proc echo
+S: [éçàèîûôêâùñ]
+Expexted =  11 ; Result =  11 [éçàèîûôêâùñ]
+
+Proc echo
+S: [ le  marché  en    été est beau   j'espère]
+Expexted =  42 ; Result =  42 [ le  marché  en    été est beau   j'espère]
+
