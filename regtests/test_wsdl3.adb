@@ -50,7 +50,7 @@ procedure Test_WSDL3 is
    use Ada;
    use AWS;
    use Stock_Quote_Service;
-   use type Stock_Quote_Service.Types.Array_Of_Float;
+   use type Stock_Quote_Service.Types.Array_Of_Float_Type;
 
    H_Server : AWS.Server.HTTP;
 
@@ -98,7 +98,7 @@ procedure Test_WSDL3 is
       D : constant Duration := Time_Period.End_Time - Time_Period.Start_Time;
    begin
       Text_IO.Put_Line ("Symbol " & Ticker_Symbol);
-      return (+Types.Array_Of_Float'(1.2, 2.3, 3.4), Long_Float (D));
+      return (+Types.Array_Of_Float_Type'(1.2, 2.3, 3.4), Long_Float (D));
    end Get_Last_Trade_Price;
 
    ----------------------

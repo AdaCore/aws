@@ -159,9 +159,9 @@ procedure interopLab_Main is
    ------------------------
 
    procedure T_echoIntegerArray is
-      Arr : constant ArrayOfint := (34, 67, 98, 54, 78, 65, 1);
+      Arr : constant ArrayOfint_Type := (34, 67, 98, 54, 78, 65, 1);
 
-      Res : constant ArrayOfint
+      Res : constant echoIntegerArray_Result
         := interopLab.Client.echoIntegerArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfint");
@@ -192,9 +192,9 @@ procedure interopLab_Main is
    -----------------------
 
    procedure T_echoStringArray is
-      Arr : constant ArrayOfstring := (+"first", +"second", +"third");
+      Arr : constant ArrayOfstring_Type := (+"first", +"second", +"third");
 
-      Res : constant ArrayOfstring
+      Res : constant echoStringArray_Result
         := interopLab.Client.echoStringArray (Arr);
    begin
       Text_IO.Put_Line ("Echo ArrayOfstring");
@@ -209,8 +209,7 @@ procedure interopLab_Main is
    ------------------
 
    procedure T_echoStruct is
-      Struct : constant SOAPStruct_Type
-        := (6, 6.6, +"666");
+      Struct : constant SOAPStruct_Type := (6, 6.6, +"666");
 
       pragma Warnings (Off);
       --  Suppress a wrong warnings issued by GNAT, this is fixed in
@@ -228,10 +227,10 @@ procedure interopLab_Main is
    -----------------------
 
    procedure T_echoStructArray is
-      A_Struct : constant ArrayOfSOAPStruct
+      A_Struct : constant ArrayOfSOAPStruct_Type
         := ((1, 1.1, +"one"), (2, 2.2, +"two"), (3, 3.3, +"three"));
 
-      Res : constant ArrayOfSOAPStruct
+      Res : constant echoStructArray_Result
         := interopLab.Client.echoStructArray (A_Struct);
    begin
       Text_IO.Put_Line ("Echo ArrayOfStruct");
