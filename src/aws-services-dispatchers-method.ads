@@ -71,6 +71,9 @@ package AWS.Services.Dispatchers.Method is
 
 private
 
+   procedure Initialize (Dispatcher : in out Handler);
+   procedure Finalize   (Dispatcher : in out Handler);
+
    type Method_Table is
      array (Status.Request_Method) of AWS.Dispatchers.Handler_Class_Access;
 
