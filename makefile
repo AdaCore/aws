@@ -55,6 +55,8 @@ endif
 # NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
 
+CP = cp -p
+
 all:
 	echo ""
 	echo "Targets :"
@@ -223,29 +225,29 @@ build_tarball:
 	mkdir $${AWS}/ssl; \
 	mkdir $${AWS}/win32; \
 	mkdir $${AWS}/tools; \
-	cp INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
-	cp src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
-	cp demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
-	cp demos/[shrw]*.ads demos/[ahmrstvw]*.adb $${AWS}/demos;\
-	cp demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
-	cp demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
-	cp regtests/*.out regtests/*.ad* regtests/makefile $${AWS}/regtests;\
-	cp regtests/ChangeLog $${AWS}/regtests;\
-	cp regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
-	cp regtests/dirop.tmplt $${AWS}/regtests;\
-	cp docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
-	cp docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
-	cp docs/aws.info* docs/aws.ps docs/aws.pdf docs/makefile $${AWS}/docs;\
-	cp docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
-	cp -r docs/html/* $${AWS}/docs/html;\
-	cp win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
-	cp win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
-	cp ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
-	cp include/*.ad[sb] include/makefile $${AWS}/include;\
-	cp include/readme.txt $${AWS}/include;\
-	cp icons/*.gif $${AWS}/icons;\
-	cp soap/*.ad[sb] soap/makefile soap/ChangeLog $${AWS}/soap;\
-	cp tools/*.ad[sb] tools/makefile $${AWS}/tools;\
+	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
+	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
+	$(CP) demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
+	$(CP) demos/[shrw]*.ads demos/[ahmrstvw]*.adb $${AWS}/demos;\
+	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
+	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
+	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
+	$(CP) regtests/ChangeLog regtests/check_mem.tmplt $${AWS}/regtests;\
+	$(CP) regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
+	$(CP) regtests/dirop.tmplt regtests/makefile $${AWS}/regtests;\
+	$(CP) docs/aws.texi.tmplt docs/build.adb docs/makefile $${AWS}/docs;\
+	$(CP) docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
+	$(CP) docs/aws.info* docs/aws.ps docs/aws.pdf $${AWS}/docs;\
+	$(CP) docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
+	$(CP) -r docs/html/* $${AWS}/docs/html;\
+	$(CP) win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
+	$(CP) win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
+	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
+	$(CP) include/*.ad[sb] include/makefile $${AWS}/include;\
+	$(CP) include/readme.txt $${AWS}/include;\
+	$(CP) icons/*.gif $${AWS}/icons;\
+	$(CP) soap/*.ad[sb] soap/makefile soap/ChangeLog $${AWS}/soap;\
+	$(CP) tools/*.ad[sb] tools/makefile $${AWS}/tools;\
 	tar cf $${AWS}.tar $${AWS};\
 	gzip -9 $${AWS}.tar;\
 	rm -fr $${AWS})
@@ -269,26 +271,27 @@ install: force
 	ar cr libaws.a src/*.o
 	ar cr libaws.a ssl/*.o
 	-ar cr libaws.a soap/*.o
-	cp src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
-	-cp soap/*.ad[sb] $(INSTALL)/AWS/include
-	cp src/a*.ali $(INSTALL)/AWS/lib
-	-cp ssl/*.ali $(INSTALL)/AWS/lib
-	-cp soap/*.ali $(INSTALL)/AWS/lib
+	$(CP) src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
+	-$(CP) soap/*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) src/a*.ali $(INSTALL)/AWS/lib
+	-$(CP) ssl/*.ali $(INSTALL)/AWS/lib
+	-$(CP) soap/*.ali $(INSTALL)/AWS/lib
 	chmod uog-w $(INSTALL)/AWS/lib/*.ali
 	mv libaws.a $(INSTALL)/AWS/lib
 	mv ssl/libnosslaws.a $(INSTALL)/AWS/lib
-	-cp docs/aws.html $(INSTALL)/AWS/docs
-	cp docs/templates_parser.html $(INSTALL)/AWS/docs
-	-cp docs/aws.txt $(INSTALL)/AWS/docs
-	-cp docs/*.info* $(INSTALL)/AWS/docs
-	-cp -r docs/html/* $(INSTALL)/AWS/docs/html
-	cp demos/*.thtml $(INSTALL)/AWS/templates
-	cp icons/*.gif $(INSTALL)/AWS/icons
-	cp demos/aws_*.png $(INSTALL)/AWS/images
-	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/AWS/components
-	-cp tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
+	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
+	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
+	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
+	-$(CP) docs/*.info* $(INSTALL)/AWS/docs
+	-$(CP) -r docs/html/* $(INSTALL)/AWS/docs/html
+	$(CP) demos/*.thtml $(INSTALL)/AWS/templates
+	$(CP) icons/*.gif $(INSTALL)/AWS/icons
+	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
+	-$(CP) include/*.ad? $(INSTALL)/AWS/components
+	-$(CP) include/*.o include/*.ali $(INSTALL)/AWS/components
+	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-chmod -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
-	cp win32/lib*.a $(INSTALL)/AWS/lib
-	cp win32/*.dll $(INSTALL)/AWS/lib
+	$(CP) win32/lib*.a $(INSTALL)/AWS/lib
+	$(CP) win32/*.dll $(INSTALL)/AWS/lib
 endif
