@@ -239,7 +239,17 @@ package AWS.Config is
    function Session_Lifetime return Duration;
    pragma Inline (Session_Lifetime);
    --  Number of seconds to keep a session if not used. After this period the
-   --  session data is obsoleted and will be removed during new cleanup.
+   --  session data is obsoleted and will be removed during next cleanup.
+
+   function Transient_Cleanup_Interval return Duration;
+   pragma Inline (Transient_Cleanup_Interval);
+   --  Number of seconds between each run of the cleaner task to remove
+   --  transient pages.
+
+   function Transient_Lifetime return Duration;
+   pragma Inline (Transient_Lifetime);
+   --  Number of seconds to keep a transient page. After this period the
+   --  transient page is obsoleted and will be removed during next cleanup.
 
 private
 
@@ -285,14 +295,16 @@ private
       Case_Sensitive_Parameters,
       --  Per process options
       Session_Cleanup_Interval,
-      Certificate,
-      Session_Lifetime);
+      Session_Lifetime,
+      Transient_Cleanup_Interval,
+      Transient_Lifetime,
+      Certificate);
 
    subtype Server_Parameter_Name is Parameter_Name
      range Server_Name .. Case_Sensitive_Parameters;
 
    subtype Process_Parameter_Name is Parameter_Name
-     range Session_Cleanup_Interval .. Session_Lifetime;
+     range Session_Cleanup_Interval .. Certificate;
 
    type Value_Type  is (Str, Dir, Pos, Dur, Bool);
 
@@ -438,10 +450,17 @@ private
      := (Session_Cleanup_Interval =>
            (Dur, Default.Session_Cleanup_Interval),
 
-         Certificate =>
-           (Str, To_Unbounded_String (Default.Certificate)),
-
          Session_Lifetime =>
-           (Dur, Default.Session_Lifetime));
+           (Dur, Default.Session_Lifetime),
+
+         Transient_Cleanup_Interval =>
+           (Dur, Default.Transient_Cleanup_Interval),
+
+         Transient_Lifetime =>
+           (Dur, Default.Transient_Lifetime),
+
+         Certificate =>
+           (Str, To_Unbounded_String (Default.Certificate)));
+
 
 end AWS.Config;
