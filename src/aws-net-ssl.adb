@@ -96,6 +96,12 @@ package body AWS.Net.SSL is
    end Private_Key_Holder;
    --  The private key to use by all SSL servers
 
+   procedure Secure
+     (Source : in     Net.Socket_Type'Class;
+      Target :    out Socket_Type;
+      Config : in     SSL.Config);
+   --  Common code for Secure_Server and Secure_Client routines.
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -415,6 +421,57 @@ package body AWS.Net.SSL is
          Free (Config);
       end if;
    end Release;
+
+   ------------
+   -- Secure --
+   ------------
+
+   procedure Secure
+     (Source : in     Net.Socket_Type'Class;
+      Target :    out Socket_Type;
+      Config : in     SSL.Config) is
+   begin
+      Std.Socket_Type (Target) := Std.Socket_Type (Source);
+
+      if Config = null then
+         Initialize_Default_Config;
+         Target.Config := Default_Config;
+      else
+         Target.Config := Config;
+      end if;
+
+      Target.Config.Set_FD (Target);
+   end Secure;
+
+   -------------------
+   -- Secure_Client --
+   -------------------
+
+   function Secure_Client
+     (Socket : in Net.Socket_Type'Class;
+      Config : in SSL.Config := Null_Config) return Socket_Type
+   is
+      Result : Socket_Type;
+   begin
+      Secure (Socket, Result, Config);
+      TSSL.SSL_set_connect_state (Result.SSL);
+      return Result;
+   end Secure_Client;
+
+   -------------------
+   -- Secure_Server --
+   -------------------
+
+   function Secure_Server
+     (Socket : in Net.Socket_Type'Class;
+      Config : in SSL.Config := Null_Config) return Socket_Type
+   is
+      Result : Socket_Type;
+   begin
+      Secure (Socket, Result, Config);
+      TSSL.SSL_set_accept_state (Result.SSL);
+      return Result;
+   end Secure_Server;
 
    ----------
    -- Send --
