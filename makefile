@@ -158,7 +158,7 @@ build_soaplib: build_include
 	echo === Build SOAP library
 	${MAKE} -C soap build $(ALL_OPTIONS)
 
-build_soap: build_lib build_soaplib build_soap_demo
+build_soap: build_lib build_soaplib build_soap_demos
 
 gnat_oslib:
 	${MAKE} -C src gnat_oslib
