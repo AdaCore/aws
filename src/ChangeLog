@@ -1,5 +1,9 @@
 2003-11-09  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-communication.ads:
+	Update documentation. Point out that this API should be used only
+	 if AWS has not been built with SOAP support.
+
 	* aws-services-transient_pages.adb:
 	(Close): New routine.
 	Add notes about the way to release memory. This will be used with
