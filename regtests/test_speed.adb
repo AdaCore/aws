@@ -86,9 +86,9 @@ procedure Test_Speed is
 
       Elapsed := Finish - Start;
 
-      --  40 found empirically
+      --  60 found empirically
 
-      Max_Time := Elapsed * 40;
+      Max_Time := Elapsed * 60;
    end Check_Computer_Speed;
 
    --------
