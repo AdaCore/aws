@@ -56,7 +56,7 @@ package body AWS.Net.Std is
    use GNAT;
 
    type Socket_Hidden is record
-      FD  : Sockets.Socket_Type;
+      FD : Sockets.Socket_Type;
    end record;
 
    procedure Free is
@@ -373,12 +373,39 @@ package body AWS.Net.Std is
    ------------------------
 
    procedure Raise_Socket_Error (Error : in Integer) is
+
+      use Interfaces;
+
+      pragma Warnings (Off);
+      --  Kill warnings as one of the following procedure won't be used
+
+      function To_String (Str : in String)              return String;
+      function To_String (Str : in C.Strings.chars_ptr) return String;
+      --  The GNAT.Sockets.Thin.Socket_Error_Message has a different
+      --  spec in GNAT 5.02 and 5.03. Those routines are there to be
+      --  able to accommodate both compilers.
+
+      ---------------
+      -- To_String --
+      ---------------
+
+      function To_String (Str : in String) return String is
+      begin
+         return Str;
+      end To_String;
+
+      function To_String (Str : in C.Strings.chars_ptr) return String is
+      begin
+         return C.Strings.Value (Str);
+      end To_String;
+
+      SEM : constant String
+        := To_String (Sockets.Thin.Socket_Error_Message (Error));
+
       Msg : String := Integer'Image (Error) & "] ";
    begin
       Msg (Msg'First) := '[';
-      Ada.Exceptions.Raise_Exception
-        (Socket_Error'Identity,
-         Msg & Sockets.Thin.Socket_Error_Message (Error));
+      Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Msg & SEM);
    end Raise_Socket_Error;
 
    -------------
