@@ -67,9 +67,9 @@ procedure Sessions2 is
    --------
 
    function CB (Request : in Status.Data) return Response.Data is
-      SID    : constant Session.ID      := Status.Session (Request);
-      Key    : constant String := "key";
-      N      : Natural := 0;
+      SID : constant Session.ID      := Status.Session (Request);
+      Key : constant String := "key";
+      N   : Natural := 0;
    begin
       if Session.Exist (SID, Key) then
          N := Session.Get (SID, Key);
@@ -173,8 +173,12 @@ begin
 
    delay 5.0;
 
+   Session.Set_Callback (null);
+
    Server.Stop;
 
    AWS.Server.Shutdown (WS);
+
+   Session.Clear;
    Ada.Text_IO.Put_Line ("shutdown");
 end Sessions2;
