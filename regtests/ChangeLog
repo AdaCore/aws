@@ -1,3 +1,9 @@
+2003-09-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* server_info.adb:
+	Use 6 simultaneous connections otherwise AWS will try to release
+	 one as soon as only a single one is free.
+
 2003-09-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sback.adb, sback.out, ssback.adb, ssback.out, makefile:
