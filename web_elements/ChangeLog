@@ -1,3 +1,14 @@
+2004-12-18  Pascal Obry  <pascal@obry.org>
+
+	* menu_css/menu.tcss, rounded_boxes/rounded_boxes.tcss:
+	Add CVS tag.
+	Fix icons alias.
+	Minor reformatting.
+	
+	* notebook/notebook.thtml:
+	Add CVS tag.
+	Minor reformatting.
+
 2004-12-17  Pascal Obry  <pascal@obry.org>
 
 	* makefile:

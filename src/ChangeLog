@@ -1,3 +1,8 @@
+2004-12-18  Pascal Obry  <pascal@obry.org>
+
+	* aws-session.ads:
+	Minor reformatting.
+
 2004-12-17  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
