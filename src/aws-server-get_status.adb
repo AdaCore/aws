@@ -135,7 +135,6 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       Sock                : Unbounded_String;
       Opened              : Unbounded_String;
       Abortable           : Unbounded_String;
-      Quit                : Unbounded_String;
       Activity_Counter    : Unbounded_String;
       Activity_Time_Stamp : Unbounded_String;
 
@@ -148,7 +147,6 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
             Sock                := Sock   & '|';
             Opened              := Opened & '|';
             Abortable           := Abortable & '|';
-            Quit                := Quit & '|';
             Activity_Counter    := Activity_Counter & '|';
             Activity_Time_Stamp := Activity_Time_Stamp & '|';
          end if;
@@ -161,9 +159,6 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
          Abortable := Abortable &
            Boolean'Image (Slot_Data.Abortable);
-
-         Quit := Quit &
-           Boolean'Image (Slot_Data.Quit);
 
          Activity_Counter := Activity_Counter &
            Positive'Image (Slot_Data.Activity_Counter);
@@ -180,8 +175,6 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
                                  To_String (Opened), True),
          Templates_Parser.Assoc ("ABORTABLE_L",
                                  To_String (Abortable), True),
-         Templates_Parser.Assoc ("QUIT_L",
-                                 To_String (Quit), True),
          Templates_Parser.Assoc ("ACTIVITY_COUNTER_L",
                                  To_String (Activity_Counter), True),
          Templates_Parser.Assoc ("ACTIVITY_TIME_STAMP_L",
