@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -64,7 +64,7 @@ procedure AwsRes is
    Root_Pck : Unbounded_String := To_Unbounded_String ("res");
    Quiet    : Boolean := False;
 
-   RT_File   : Text_IO.File_Type;
+   RT_File  : Text_IO.File_Type;
    --  Root temp file
 
    R_File   : Text_IO.File_Type;
