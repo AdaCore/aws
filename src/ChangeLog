@@ -1,3 +1,29 @@
+2004-05-27  Pascal Obry  <pascal@obry.org>
+
+	* aws-client.ads:
+	Minor reformatting.
+	
+        Following changes are a first step to use AI302.Containers instead
+         of GNAT.Dynamic_Table. Some optimisations, possible with the new
+         containers, will be done in following check-ins.
+
+	* aws-services-dispatchers-uri.ads,
+          aws-services-dispatchers-uri.adb:
+	Remove use of GNAT.Dynamic_Table and use AI302.Containers instead.
+        Update copyright notice.
+
+	* aws-services-dispatchers-timer.ads,
+          aws-services-dispatchers-timer.adb:
+	Remove use of GNAT.Dynamic_Table and use AI302.Containers instead.
+        Update copyright notice.
+
+	* aws-containers-tables.ads, aws-containers-tables-set.adb:
+	Remove use of GNAT.Dynamic_Table and use AI302.Containers instead.
+
+	* aws-containers-tables.adb:
+	Remove use of GNAT.Dynamic_Table and use AI302.Containers instead.
+        (Get_Names): Use AI302 sorting routine instead of simple bubble sort.
+
 2004-05-26  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.ads:
