@@ -32,6 +32,10 @@
 
 package SOAP is
 
-   Version : constant String := "0.2";
+   SOAP_Error : exception;
+   --  Will be raised when an error occurs in the SOAP implementation. The
+   --  exception message will described the problem.
+
+   Version : constant String := "0.8";
 
 end SOAP;
