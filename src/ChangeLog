@@ -1,5 +1,33 @@
 2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-services-page_server.adb:
+	(Browse): Retrieve the directory browser template filename using
+	 the config database.
+	Update copyright notice.
+
+	* aws-services-directory.ads:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-default.ads:
+	(Directory_Browser_Page): New routine.
+
+	* aws-config.ads:
+	(Directory_Browser_Page): New routine.
+	(Parameter_Name): Add Directory_Browser_Page.
+	(Default_Parameters): Add Directory_Browser_Page.
+	Minor reformatting.
+	Update some comments.
+
+	* aws-config.adb, aws-config-set.adb:
+	(Directory_Browser_Page): New routine.
+
+	* aws-config-set.ads:
+	(Directory_Browser_Page): New routine.
+	Update some comments.
+
+2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-server.ads:
 	Minor layout fix.
 	Update copyright notice.
