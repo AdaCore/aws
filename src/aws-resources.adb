@@ -61,8 +61,8 @@ package body AWS.Resources is
    ---------------
 
    function File_Size
-     (Name : in String)
-      return Ada.Streams.Stream_Element_Offset is
+     (Name   : in String)
+      return Stream_Element_Offset is
    begin
       if Resources.Embedded.Exists (Name) then
          return Resources.Embedded.File_Size (Name);
@@ -180,5 +180,14 @@ package body AWS.Resources is
    begin
       Read (Resource.all, Buffer, Last);
    end Read;
+
+   ----------
+   -- Size --
+   ----------
+
+   function Size (Resource : in File_Type) return Content_Length_Type is
+   begin
+      return Size (Resource.all);
+   end Size;
 
 end AWS.Resources;
