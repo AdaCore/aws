@@ -1,3 +1,117 @@
+2000-10-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-hotplug.ads, aws-hotplug.adb:
+	(Move_Up): new procedure.
+	(Move_Down): new procedure.
+
+	* aws-server-get_status.adb:
+	(Get_Status): add ADMIN tag in the Translations table.
+
+	* aws-server-hotplug.adb:
+	(Message): Use string constants Register_Message and
+	 Unregister_Message.
+
+	* aws-server-hotplug.ads:
+	(Register_Message): new string constant.
+	(Unregister_Message): new string constant.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Handle hotplug status page items.
+
+	* aws.ads:
+	(Version): set to 0.9.9.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): look for Hotplug module before using the
+	 server's default callback procedure. Handle hotplug status page
+	 items.
+
+	* aws-communication-client.adb:
+	(Gethostname): moved to AWS.Utils.
+	(Send_Message): use AWS.Utils.Gethostname.
+
+	* aws-communication-server.adb:
+	Removes code to start Server from the package elaboration code
+	 This will now be done at runtime by the start procedure.
+	(Start): new procedure.
+	(Context): new global variable.
+	(Com_Server): is now an HTTP_Access.
+	(Shutdown): free the memory associated with the Com_Server.
+	(Receive): pass the Context to the callback.
+
+	* aws-communication-server.ads:
+	Removes generic formal parameter Port and add a type T (and its
+	 access type). This is to be able to pass a context to the
+	 Callback generic formal function.
+	(Start): new procedure.
+	
+	* aws-communication.ads:
+	(Parameters): improve comments.
+
+	* aws-server.adb:
+	Add with AWS.Session.
+
+	* aws-server.ads:
+	(HTTP_Access): type moved outside the private section.
+	(HTTP): add field Filters.
+
+	* aws-utils.adb:
+	(Gethostname): new function.
+
+	* aws-utils.ads:
+	(Gethostname): new function.
+	Removes pragma pure.
+
+	* aws-server-get_status.adb:
+	Add Hotplug translate table.
+
+	* aws-hotplug-get_status.ads, aws-hotplug-get_status.adb:
+	Initial revison.
+
+	* aws-server-hotplug.ads, aws-server-hotplug.adb:
+	Initial revision.
+
+	* aws-hotplug.ads, aws-hotplug.adb:
+	Initial revision.
+
+2000-10-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std.adb:
+	Minor comment casing fixes.
+
+	* aws-mime.adb:
+	(Dot_Jpeg): fix string value.
+
+2000-10-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): set to 0.9.5.
+
+	* aws-communication-client.ads, aws-communication-client.adb:
+	Initial revision.
+
+	* aws-communication-server.ads, aws-communication-server.adb:
+	Initial revision.
+
+	* aws-communication.ads, aws-communication.adb:
+	Initial revision.
+
+2000-10-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): set to 0.9.2 (previous check-in was wrong).
+
+	* aws-session.ads, aws-session.adb:
+	(Shutdown): new procedure.
+
+	* aws-server.adb:
+	(Start): start session server only if needed.
+	(Shutdown): stop session server.
+	(Line): do not display error message if we are in a shutdown process.
+
+	* aws-server.ads:
+	(HTTP): add boolean field Shutdown.
+
 2000-10-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
