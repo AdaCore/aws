@@ -93,7 +93,7 @@ package body Wait_Pack is
 
          --  All sockets should be ready for output.
 
-         while Sets.Count (Set) > 0 and then Sets.Could_Write (Set, 1) loop
+         while Sets.Count (Set) > 0 and then Sets.Is_Write_Ready (Set, 1) loop
             declare
                Socket : Net.Socket_Type'Class := Sets.Get_Socket (Set, 1);
             begin
@@ -139,7 +139,7 @@ package body Wait_Pack is
 
          Sets.Next (Set, Index);
 
-         if not Sets.Could_Read (Set, Index) then
+         if not Sets.Is_Read_Ready (Set, Index) then
             Put_Line ("Could not read from socket.");
             exit;
          end if;

@@ -1,3 +1,8 @@
+2004-09-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait_pack.adb:
+	(Run): Could_Read/Write call changed to Is_Read/Write_Ready.
+
 2004-09-07  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
