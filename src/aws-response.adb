@@ -315,7 +315,7 @@ package body AWS.Response is
       --  the browser. This will also force the browser to propose to save
       --  this file instead of displaying it.
 
-      if Attachment or else MIME.Is_Application (Content_Type) then
+      if Attachment then
          Set.Add_Header
            (Result,
             Messages.Content_Disposition_Token,
