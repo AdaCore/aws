@@ -5,6 +5,7 @@
 with Ada.Unchecked_Conversion;
 with Ada.Streams; use Ada.Streams;
 with Ada.Text_IO;
+with Ada.Command_Line;
 
 procedure Uconv is
 
@@ -12,7 +13,7 @@ procedure Uconv is
       "$Author$" & ASCII.LF &
       "$Date$" & ASCII.LF &
       "$Name$" & ASCII.LF &
-      "$Locker$" & ASCII.LF & 
+      "$Locker$" & ASCII.LF &
       "$RCSfile$" & ASCII.LF &
       "$Revision$" & ASCII.LF &
       "$Source$" & ASCII.LF &
@@ -37,5 +38,10 @@ begin
       Ada.Text_IO.Put_Line ("Use fast.");
    else
       Ada.Text_IO.Put_Line ("Use portable.");
+      declare
+         use Ada.Command_Line;
+      begin
+         Set_Exit_Status (Failure);
+      end;
    end if;
 end Uconv;
