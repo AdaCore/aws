@@ -43,15 +43,18 @@ procedure Dispatch is
    use Ada;
    use AWS.Services;
 
-   function HW_CB (Request : in AWS.Status.Data)
-     return AWS.Response.Data is
+   function HW_CB
+     (Request : in AWS.Status.Data)
+      return AWS.Response.Data
+   is
+      pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "<p>Hello Dispatcher !");
    end HW_CB;
 
-   H : AWS.Services.Dispatchers.URI.Handler;
+   H  : AWS.Services.Dispatchers.URI.Handler;
 
-   WS   : AWS.Server.HTTP;
+   WS : AWS.Server.HTTP;
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);

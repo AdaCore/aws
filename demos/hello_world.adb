@@ -43,8 +43,11 @@ procedure Hello_World is
 
    WS : AWS.Server.HTTP;
 
-   function HW_CB (Request : in AWS.Status.Data)
-     return AWS.Response.Data is
+   function HW_CB
+     (Request : in AWS.Status.Data)
+      return AWS.Response.Data
+   is
+      pragma Unreferenced (Request);
    begin
       return AWS.Response.Build ("text/html", "<p>Hello world !");
    end HW_CB;

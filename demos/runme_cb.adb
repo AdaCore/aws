@@ -223,6 +223,7 @@ package body Runme_CB is
    ---------
 
    function Put (Request : in Status.Data) return Response.Data is
+      pragma Unreferenced (Request);
    begin
       return Response.Acknowledge (Status_Code => Messages.S200);
    end Put;
