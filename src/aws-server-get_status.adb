@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -160,6 +160,15 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       Slot_Activity_Counter : Vector_Tag;
       Activity_Time_Stamp   : Vector_Tag;
       Peer_Name             : Vector_Tag;
+
+      --  Avoid : may be referenced before it has a value
+      pragma Warnings (Off, Sock);
+      pragma Warnings (Off, Phase);
+      pragma Warnings (Off, Abortable);
+      pragma Warnings (Off, Activity_Counter);
+      pragma Warnings (Off, Slot_Activity_Counter);
+      pragma Warnings (Off, Activity_Time_Stamp);
+      pragma Warnings (Off, Peer_Name);
 
       Slot_Data             : Slot;
 
