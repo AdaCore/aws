@@ -1,5 +1,8 @@
 2002-03-24  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-types.adb:
+	Fix minor style error.
+
 	* soap-message-xml.adb:
 	(Parse_Param): Detect object without type. Workaround a problem
 	 with interoperability with IIS server using WSDL and not providing
