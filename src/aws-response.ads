@@ -60,6 +60,12 @@ package AWS.Response is
       Message_Body : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
      return Data;
+
+   function Build
+     (Content_Type : in String;
+      Message_Body : in Strings.Unbounded.Unbounded_String;
+      Status_Code  : in Messages.Status_Code := Messages.S200)
+     return Data;
    --  Return a message whose body is passed into Message_Body. The
    --  Content_Type parameter is the MIME type for the message
    --  body. Status_Code is the response status (see Messages.Status_Code
@@ -126,6 +132,10 @@ package AWS.Response is
 
    function Message_Body   (D : in Data) return String;
    --  Returns the message body content as a string.
+
+   function Message_Body   (D : in Data)
+       return Strings.Unbounded.Unbounded_String;
+   --  Returns the message body content as a unbounded_string.
 
    function Realm          (D : in Data) return String;
    --  Returns the Realm for the current authentification request.

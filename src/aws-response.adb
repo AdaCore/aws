@@ -36,9 +36,10 @@ package body AWS.Response is
    -- Acknowledge --
    -----------------
 
-   function Acknowledge (Status_Code  : in Messages.Status_Code;
-                         Message_Body : in String := "";
-                         Content_Type : in String := MIME.Text_HTML)
+   function Acknowledge
+     (Status_Code  : in Messages.Status_Code;
+      Message_Body : in String := "";
+      Content_Type : in String := MIME.Text_HTML)
      return Data is
    begin
       if Message_Body = "" then
@@ -106,10 +107,11 @@ package body AWS.Response is
    -- Build --
    -----------
 
-   function Build (Content_Type : in String;
-                   Message_Body : in String;
-                   Status_Code  : in Messages.Status_Code := Messages.S200)
-                  return Data is
+   function Build
+     (Content_Type : in String;
+      Message_Body : in String;
+      Status_Code  : in Messages.Status_Code := Messages.S200)
+     return Data is
    begin
       return Data'(Message,
                    Status_Code,
@@ -121,10 +123,27 @@ package body AWS.Response is
                    null);
    end Build;
 
-   function Build (Content_Type : in String;
-                   Message_Body : in Streams.Stream_Element_Array;
-                   Status_Code  : in Messages.Status_Code := Messages.S200)
-                  return Data is
+   function Build
+     (Content_Type : in String;
+      Message_Body : in Strings.Unbounded.Unbounded_String;
+      Status_Code  : in Messages.Status_Code := Messages.S200)
+     return Data is
+   begin
+      return Data'(Message,
+                   Status_Code,
+                   Length (Message_Body),
+                   To_Unbounded_String (Content_Type),
+                   Message_Body,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   null);
+   end Build;
+
+   function Build
+     (Content_Type : in String;
+      Message_Body : in Streams.Stream_Element_Array;
+      Status_Code  : in Messages.Status_Code := Messages.S200)
+     return Data is
    begin
       return Data'(Message,
                    Status_Code,
@@ -158,8 +177,9 @@ package body AWS.Response is
    -- File --
    ----------
 
-   function File (Content_Type : in String;
-                  Filename     : in String) return Data is
+   function File
+     (Content_Type : in String;
+      Filename     : in String) return Data is
    begin
       return Data'(File,
                    Messages.S200,
@@ -189,6 +209,11 @@ package body AWS.Response is
       return To_String (D.Message_Body);
    end Message_Body;
 
+   function Message_Body (D : in Data) return Unbounded_String is
+   begin
+      return D.Message_Body;
+   end Message_Body;
+
    ----------
    -- Mode --
    ----------
@@ -202,9 +227,10 @@ package body AWS.Response is
    -- Moved --
    -----------
 
-   function Moved (Location     : in String;
-                   Message      : in String := Default_Moved_Message)
-                  return Data
+   function Moved
+     (Location     : in String;
+      Message      : in String := Default_Moved_Message)
+     return Data
    is
       use Ada.Strings;
 
