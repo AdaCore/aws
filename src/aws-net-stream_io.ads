@@ -92,7 +92,7 @@ private
    private
       Socket : Socket_Access := null;
       Buffer : Stream_Element_Array (1 .. Cache_Size);
-      Last   : Stream_Element_Offset;
+      Last   : Stream_Element_Offset := 0;
    end Write_Cache;
 
    type Socket_Stream_Type is new Ada.Streams.Root_Stream_Type with record
