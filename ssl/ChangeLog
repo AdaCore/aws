@@ -1,5 +1,20 @@
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
+	* ssl_wrappers.ads, ssl_wrappers.adb:
+	Was ssl-wrappers.
+
+	* ssl-wrappers.ads, ssl-wrappers.adb:
+	Renamed ssl_wrappers. This must be independant from the ssl
+	 hierarchy as we can't have the same file (ssl.ads) part of
+	 multiple project files.
+
+	* nossl.gpr:
+	Rename ssl-wrappers.adb to ssl_wrappers.adb. This wrapper must be
+	 fully independant from the ssl hierarchy to satisfy project files
+	 consistentcy check found in GNAT 5.03. Add ssl_wrappers.ads.
+
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	(setup_ssl): New target used to generate ssl_shared.gpr project
 	 file. This file contains the default path to the libssl.a and
