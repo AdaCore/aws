@@ -35,69 +35,6 @@
 
 package body AWS.Resources.Streams.Memory.ZLib.Deflate is
 
-   ------------
-   -- Append --
-   ------------
-
-   procedure Append
-     (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Array)
-   is
-      procedure Append (Item : Stream_Element_Array);
-      pragma Inline (Append);
-
-      ------------
-      -- Append --
-      ------------
-
-      procedure Append (Item : Stream_Element_Array) is
-      begin
-         Append (ZLib.Stream_Type (Resource), Item);
-      end Append;
-
-      procedure Write is new ZL.Write (Append);
-   begin
-      Write (Resource.Filter, Buffer, ZL.No_Flush);
-   end Append;
-
-   ------------
-   -- Append --
-   ------------
-
-   procedure Append
-     (Resource : in out Stream_Type;
-      Buffer   : in     Stream_Element_Access)
-   is
-      Copy : Stream_Element_Access;
-      --  We should free memory, becouse the buffer is compressed and could
-      --  not be append to the memory stream as is.
-      --  We could not free just the Buffer, becouse Unchecked_Deallocation
-      --  need in out parameter.
-
-      procedure Free is new Unchecked_Deallocation
-                              (Stream_Element_Array, Stream_Element_Access);
-   begin
-      Append (Resource, Buffer.all);
-      Free (Copy);
-   end Append;
-
-   -----------
-   -- Flush --
-   -----------
-
-   procedure Flush (Resource : in out Stream_Type) is
-      Flush_Buffer : Stream_Element_Array (1 .. 1024);
-      Last         : Stream_Element_Offset;
-   begin
-      loop
-         ZL.Flush (Resource.Filter, Flush_Buffer, Last, ZL.Finish);
-
-         Append (ZLib.Stream_Type (Resource), Flush_Buffer (1 .. Last));
-
-         exit when Last < Flush_Buffer'Last;
-      end loop;
-   end Flush;
-
    ----------
    -- Init --
    ----------
@@ -112,13 +49,8 @@ package body AWS.Resources.Streams.Memory.ZLib.Deflate is
       Header       : in     Header_Type        := ZL.Default) is
    begin
       ZL.Deflate_Init
-        (Resource.Filter,
-         Level,
-         Strategy,
-         Method,
-         Window_Bits,
-         Memory_Level,
-         Header);
+        (Resource.Filter, Level, Strategy, Method,
+         Window_Bits, Memory_Level, Header);
    end Init;
 
 end AWS.Resources.Streams.Memory.ZLib.Deflate;
