@@ -677,8 +677,9 @@ package body AWS.Connection is
 
    begin
 
-      begin
-         loop
+      loop
+
+         begin
 
             select
                accept Start (FD : in Sockets.Socket_FD;
@@ -714,25 +715,34 @@ package body AWS.Connection is
 
             Free (Task_Identification.Current_Task);
             Ressources.Free;
-         end loop;
 
-      exception
+         exception
 
-         when Sockets.Connection_Closed =>
-            Text_IO.Put_Line ("Connection time-out, close it.");
+            --  we must never exit from the outer loop as a Line task is
+            --  supposed to live forever. We have here a pool of Line and each
+            --  line is recycled when needed.
 
-            Free (Task_Identification.Current_Task);
-            Ressources.Free;
+            when Sockets.Connection_Closed =>
+               Text_IO.Put_Line ("Connection time-out, close it.");
 
-         when E : others =>
-            Text_IO.Put_Line ("A problem has been detected!");
-            Text_IO.Put_Line ("Connection will be closed...");
-            Text_IO.New_Line;
-            Text_IO.Put_Line (Exceptions.Exception_Information (E));
+               --  free the slot to be sure the Line will gets recycled.
 
-            Free (Task_Identification.Current_Task);
-            Ressources.Free;
-      end;
+               Free (Task_Identification.Current_Task);
+               Ressources.Free;
+
+            when E : others =>
+               Text_IO.Put_Line ("A problem has been detected!");
+               Text_IO.Put_Line ("Connection will be closed...");
+               Text_IO.New_Line;
+               Text_IO.Put_Line (Exceptions.Exception_Information (E));
+
+               --  free the slot to be sure the Line will gets recycled.
+
+               Free (Task_Identification.Current_Task);
+               Ressources.Free;
+         end;
+
+      end loop;
 
    end Line;
 
