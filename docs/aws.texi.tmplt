@@ -287,26 +287,30 @@ You need to start the server before using it. This is done by calling
 @code{AWS.Server.Start} (@xref{AWS.Server}.)
 
 @smallexample
-   @b{procedure} Start
-     (Web_Server                : @b{in out} HTTP;
-      Name                      : @b{in}     String;
-      Callback                  : @b{in}     Response.Callback;
-      Admin_URI                 : @b{in}     String            := No_Admin;
-      Port                      : @b{in}     Positive          := Default_Port;
-      Security                  : @b{in}     Boolean           := False;
-      Session                   : @b{in}     Boolean           := False;
-      Case_Sensitive_Parameters : @b{in}     Boolean           := True);
-   @i{--  Start the Web server. It initialize the connections lines.}
-   @i{--  Name is just a string used to identify the server. This is used for}
-   @i{--  example in the administrative page. Admin_URI must be set to enable the}
-   @i{--  administrative status page.}
-   @i{--  Callback is the procedure to call for each ressource requested.}
-   @i{--  Port is the Web server port. If Security is set to True the server will}
-   @i{--  use an HTTPS/SSL connection. If Session is set to True the server will}
-   @i{--  be able to get a status for each client connected. A session ID is used}
-   @i{--  for that, on the client side it is a cookie. Case_Sensitive_Parameters}
-   @i{--  if set to False it means that the CGI parameters name will be handled}
-   @i{--  without case sensitivity.}
+@cartouche
+@group
+@b{procedure} Start
+  (Web_Server                : @b{in out} HTTP;
+   Name                      : @b{in}     String;
+   Callback                  : @b{in}     Response.Callback;
+   Admin_URI                 : @b{in}     String            := No_Admin;
+   Port                      : @b{in}     Positive          := Default_Port;
+   Security                  : @b{in}     Boolean           := False;
+   Session                   : @b{in}     Boolean           := False;
+   Case_Sensitive_Parameters : @b{in}     Boolean           := True);
+@i{--  Start the Web server. It initialize the connections lines.}
+@i{--  Name is just a string used to identify the server. This is used for}
+@i{--  example in the administrative page. Admin_URI must be set to enable the}
+@i{--  administrative status page.}
+@i{--  Callback is the procedure to call for each ressource requested.}
+@i{--  Port is the Web server port. If Security is set to True the server will}
+@i{--  use an HTTPS/SSL connection. If Session is set to True the server will}
+@i{--  be able to get a status for each client connected. A session ID is used}
+@i{--  for that, on the client side it is a cookie. Case_Sensitive_Parameters}
+@i{--  if set to False it means that the CGI parameters name will be handled}
+@i{--  without case sensitivity.}
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -369,7 +373,11 @@ case.
 The callback procedure has the following prototype:
 
 @smallexample
+@cartouche
+@group
 @b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -381,11 +389,15 @@ information about the request through the @code{AWS.Status} API
 For example, to know what URI has been asked:
 
 @smallexample
+@cartouche
+@group
 URI : @b{constant} String := AWS.Status.URI (Request);
 
 @b{if} URI = "/whatever" @b{then}
    ...
 @b{end if};
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -394,8 +406,12 @@ in @code{AWS.Response} (@xref{AWS.Response}.). For example, to return an
 HTML message:
 
 @smallexample
+@cartouche
+@group
 AWS.Response.Build (Content_Type => "text/html",
                     Message_Body => "<p>just a demo");
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -418,12 +434,16 @@ input tag name and the value is the content of the input field as filled by
 the user.
 
 @smallexample
+@cartouche
+@group
 Enter your name 
 
 <FORM METHOD=GET ACTION=/get-form>"
 <INPUT TYPE=TEXT NAME=name VALUE="<default>" size=15>
 <INPUT TYPE=SUBMIT NAME=go VALUE="Ok">
 </FORM>
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -438,32 +458,46 @@ The value is "Ok".
 @end table
 
 @noindent
-There is three functions (in @code{AWS.Status}) to retrieve the tag name
-or value. Here are some examples:
+There is many functions (in @code{AWS.Parameters}) to retrieve the tag name
+or value and the number of parameters. Here are some examples:
+
+@smallexample
+@cartouche
+@group
+@b{function} Service (Request : @b{in} AWS.Status.Data) 
+  @b{return} AWS.Response.Data
+@b{is}
+   P : @b{constant} AWS.Parameters.List := AWS.Status.Parameters (Request);
+   ...
+@end group
+@end cartouche
+@end smallexample
+
 
 @table @code
-@item AWS.Status.Parameter (Request, "name")
+@item AWS.Parameters.Get (P, "name")
 Returns the value for parameter named @b{name}
 
-@item AWS.Status.Parameter_Name (Request, 1)
+@item AWS.Parameters.Get_Name (P, 1)
 Returns the string "name".
 
-@item AWS.Status.Parameter (Request, 1)
+@item AWS.Parameters.Get (P, 1)
 Returns the value for parameter named @b{name}
 
-@item AWS.Status.Parameter (Request, "go")
+@item AWS.Parameters.Get (P, "go")
 Returns the string "Ok".
 
-@item AWS.Status.Parameter_Name (Request, 2)
+@item AWS.Parameters.Get_Name (P, 2)
 Returns the string "go".
 
-@item AWS.Status.Parameter (Request, 2)
+@item AWS.Parameters.Get (P, 2)
 Returns the string "Ok".
 @end table
 
 @noindent
 @code{Request} is the @code{AWS} current connection status passed to the
-callback procedure. For a discussion about the callback procedure
+callback procedure. And @code{P} is the parameters list retreived from the
+connection status data. For a discussion about the callback procedure
 @xref{Building an AWS server}.
 
 @node Distribution of an AWS server
@@ -515,11 +549,12 @@ The name of the server. This must be used when calling @code{AWS.Server.Start}.
 
 @item Server_Port
 The port where server will wait for incomming connections requests. This
-must be used when declaring the @code{HTTP} object.
+must be used when calling @code{AWS.Server.Start}.
 
 @item Max_Connection
 This is the maximum number of simultaneous connections for the
-server. This must be used when declaring the @code{HTTP} object.
+server. This must be used when declaring the @code{HTTP} object. The
+default is @_MAX_CONNECT_@.
 
 @item Admin_URI
 This is the URI to call the administrative page. This must be used when
@@ -533,6 +568,39 @@ facility is enabled. By default log files are written in the current directory.
 @item Upload_Directory
 This is to set the directory where upload files must be stored. By
 default uploaded files are written in the current directory.
+
+@item Cleaner_Wait_For_Client_Timeout
+Number of seconds to timout on waiting for a client request. This is a
+timeout for regular cleaning task.
+
+@item Cleaner_Client_Header_Timeout
+Number of seconds to timout on waiting for client header. This is a
+timeout for regular cleaning task.
+
+@item Cleaner_Client_Data_Timeout
+Number of seconds to timout on waiting for client message body. This
+is a timeout for regular cleaning task.
+
+@item Cleaner_Server_Response_Timeout
+Number of seconds to timout on waiting for client to accept
+answer. This is a timeout for regular cleaning task.
+
+@item Force_Wait_For_Client_Timeout
+Number of seconds to timout on waiting for a client request. This is a
+timeout for urgent request when ressources are missing.
+
+@item Force_Client_Header_Timeout
+Number of seconds to timout on waiting for client header. This is a
+timeout for urgent request when ressources are missing.
+
+@item Force_Client_Data_Timeout
+Number of seconds to timout on waiting for client message body. This
+is a timeout for urgent request when ressources are missing.
+
+@item Force_Server_Response_Timeout
+Number of seconds to timout on waiting for client to accept answer. This 
+is a timeout for urgent request when ressources are missing.
+
 @end table
 
 @noindent
@@ -543,11 +611,15 @@ For example to build a server where the @i{port} and the @i{maximum number} of
 connection can be changed via the configuration file:
 
 @smallexample
+@cartouche
+@group
 WS  : AWS.Server.HTTP (Max_Connection => AWS.Config.Max_Connection);
 
 Server.Start (WS,
               Port     => AWS.Config.Server_Port,
               Callback => Service'Access);
+@end group
+@end cartouche
 @end smallexample
 
 @node Session handling
@@ -566,12 +638,16 @@ are key/value pair each of them beeing strings. How to deal with that ?
 @item First you declare and start an HTTP chanel with session enabled:
 
 @smallexample
+@cartouche
+@group
 WS  : AWS.Server.HTTP (3);
 
 Server.Start (WS,
               Port     => 1234,
               Callback => Service'Access,
               Session  => True);
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -586,20 +662,30 @@ must retrieve the Session ID. As we have seen, the callback procedure
 has the following prototype:
 
 @smallexample
+@cartouche
+@group
 @b{function} Service (Request : @b{in} AWS.Status.Data) @b{return} AWS.Response.Data;
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
 The Session ID is keept in the Request object and can be retrieved using:
 
 @smallexample
+@cartouche
+@group
 Session_ID  : @b{constant} AWS.Session.ID := AWS.Status.Session (Request);
+@end group
+@end cartouche
 @end smallexample
 
 @item From there it is quite easy to get or set some session data using
 the provided API. For example:
 
 @smallexample
+@cartouche
+@group
 @b{declare}
    C : Integer;
 @b{begin}
@@ -607,6 +693,8 @@ the provided API. For example:
    C := C + 1;
    AWS.Session.Set (Session_ID, "counter", C);
 @b{end};
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -625,10 +713,14 @@ enable file upload on the client side the Web page must contain a @b{FORM}
 with an @b{INPUT} tag of type @b{FILE}.
 
 @smallexample
+@cartouche
+@group
 <FORM ACTION=/whatever METHOD=POST>
 File to process: <INPUT NAME=filename TYPE=FILE>
 <INPUT TYPE=SUBMIT NAME=go VALUE="Send File">
 </FORM>
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -674,8 +766,12 @@ Pascal Obry's homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
 code to do so is:
 
 @smallexample
+@cartouche
+@group
 Data := Client.Get
   (URL => "http://perso.wanadoo.fr/pascal.obry/contrib.html");
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -725,11 +821,15 @@ On the client side it is quite simple. You just have to send a message
 using @code{AWS.Communication.Client.Send_Message}.
 
 @smallexample
+@cartouche
+@group
 @b{function} Send_Message (Server     : @b{in} String;
                        Port       : @b{in} Positive;
                        Name       : @b{in} String;
                        Parameters : @b{in} Parameter_Set := Null_Parameter_Set)
   @b{return} Response.Data;
+@end group
+@end cartouche
 @end smallexample
 
 @noindent
@@ -753,6 +853,8 @@ During instanciation you must also pass a context for the communication
 server. This context will be passed back to the callback procedure.
 
 @smallexample
+@cartouche
+@group
 @b{generic}
 
    @b{type} T (<>) @b{is limited private};
@@ -767,6 +869,8 @@ server. This context will be passed back to the callback procedure.
 
 @b{package} AWS.Communication.Server @b{is}
    ...
+@end group
+@end cartouche
 @end smallexample
 
 @smallexample
@@ -827,12 +931,16 @@ used alone if needed as any Server developed with AWS.
 @xref{Communication - client side}.
 
 @smallexample
+@cartouche
+@group
 Response := AWS.Communication.Client.Send_Message
   ("dieppe", 2222,
    AWS.Server.Hotplug.Register_Message,
    AWS.Communication.Parameters
    (".*AWS.*",
     "http://" & AWS.Utils.Gethostname & ":1235/"));
+@end group
+@end cartouche
 @end smallexample
 
 We ask for every @code{URI} containing the string "AWS" to call the
@@ -843,10 +951,14 @@ port @code{2222}.
 @item When the Hotplug module is stopped, you must unregister it
 
 @smallexample
+@cartouche
+@group
 Response := AWS.Communication.Client.Send_Message
   ("dieppe", 2222,
    AWS.Server.Hotplug.Unregister_Message,
    AWS.Communication.Parameters (".*AWS.*"));
+@end group
+@end cartouche
 @end smallexample
 
 Here we ask to unregister the Hotplug module. The regular expression
@@ -1039,6 +1151,7 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 * AWS.Config::
 * AWS.Log::
 * AWS.MIME::
+* AWS.Parameters::
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Hotplug::
@@ -1081,6 +1194,11 @@ So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 @section AWS.MIME
 
 @include ../src/aws-mime.ads.texi
+
+@node AWS.Parameters
+@section AWS.Parameters
+
+@include ../src/aws-parameters.ads.texi
 
 @node AWS.Response
 @section AWS.Response
