@@ -505,9 +505,7 @@ package body SOAP.Generator is
             K := K - 1;
          end if;
 
-         --  First character is converted in lower case
-
-         return Characters.Handling.To_Lower (Name (8)) & Name (9 .. K);
+         return Name (8 .. K);
       end Array_Type;
 
       --------------------
@@ -827,6 +825,7 @@ package body SOAP.Generator is
          Text_IO.Put_Line (Type_Adb, "      Name : in String := ""item"")");
          Text_IO.Put_Line (Type_Adb, "      return SOAP.Types.SOAP_Record");
          Text_IO.Put_Line (Type_Adb, "   is");
+         Text_IO.Put_Line (Type_Adb, "      pragma Unreferenced (Name);");
          Text_IO.Put_Line (Type_Adb, "      Result : SOAP.Types.SOAP_Record;");
          Text_IO.Put_Line (Type_Adb, "   begin");
 
@@ -1259,6 +1258,8 @@ package body SOAP.Generator is
         (Type_Ads, "   pragma Warnings (Off, Ada.Strings.Unbounded);");
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Types);");
       Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Utils);");
+      Text_IO.New_Line (Type_Ads);
+      Text_IO.Put_Line (Type_Ads, "   pragma Style_Checks (Off);");
       Text_IO.New_Line (Type_Ads);
       Text_IO.Put_Line (Type_Ads, "   pragma Elaborate_Body;");
       Text_IO.New_Line (Type_Ads);
