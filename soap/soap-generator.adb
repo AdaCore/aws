@@ -1140,18 +1140,32 @@ package body SOAP.Generator is
 
          if Output.Next = null then
 
-            if Output.Mode /= WSDL.Parameters.K_Simple
-              and then Output.Mode /= WSDL.Parameters.K_Derived
-            then
-               --  A single declaration, if it is a composite type create a
-               --  subtype
+            case Output.Mode is
 
-               Text_IO.New_Line (Type_Ads);
-               Text_IO.Put_Line
-                 (Type_Ads,
-                  "   subtype " & L_Proc & "_Result is "
-                    & To_String (Output.T_Name) & "_Type;");
-            end if;
+               when WSDL.Parameters.K_Simple =>
+                  null;
+
+               when WSDL.Parameters.K_Derived =>
+                  --  A single declaration, this is a derived type create a
+                  --  subtype.
+
+                  Text_IO.New_Line (Type_Ads);
+                  Text_IO.Put_Line
+                    (Type_Ads,
+                     "   subtype " & L_Proc & "_Result is "
+                       & To_String (Output.D_Name) & "_Type;");
+
+
+               when WSDL.Parameters.K_Record | WSDL.Parameters.K_Array =>
+                  --  A single declaration, this is a composite type create
+                  --  a subtype.
+
+                  Text_IO.New_Line (Type_Ads);
+                  Text_IO.Put_Line
+                    (Type_Ads,
+                     "   subtype " & L_Proc & "_Result is "
+                       & To_String (Output.T_Name) & "_Type;");
+            end case;
 
          else
             Generate_Record (L_Proc & "_Result", Output, Output => True);
