@@ -241,7 +241,7 @@ All local subprograms in a subprogram or package body should be declared
 before the first local subprogram body. 
 
 @item
-Do not declare discriminated record types where the discriminant is used
+Avoid declaring discriminated record types where the discriminant is used
 for constraining an unconstrained array type. (Discriminated
 records for a variant part are allowed.)
 
