@@ -529,11 +529,6 @@ package body AWS.Client is
          elsif CT_Len = Response.Undefined_Length then
             Connection.Transfer := Until_Close;
          else
-            if CT_Len = 0 then
-               Disconnect;
-               return;
-            end if;
-
             Connection.Transfer := Content_Length;
             Connection.Length   := CT_Len;
          end if;
@@ -1588,11 +1583,13 @@ package body AWS.Client is
             end;
 
          when Content_Length =>
-            Read_Limited;
-
             if Connection.Length = 0 then
                Connection.Transfer := End_Response;
+               Last := Data'First - 1;
+               return;
             end if;
+
+            Read_Limited;
 
          when Chunked =>
             if Connection.Length = 0 then
