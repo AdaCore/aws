@@ -106,21 +106,21 @@ TOGETHER = $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS))
 
 force:
 
-gen_main:
+gen_main: gen_sources
 	echo Generating the main driver
 	$(GNATMAKE) -q -Pregtests -XTest_Mode=Generator \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 	./generate $(TOGETHER) $(addsuffix _main, $(ASIS_TESTS))
 
 gen_sources: $(sort $(WSDL_TESTS) $(WSDL_ATESTS) $(ASIS_TESTS) \
-	$(ASIS2_TESTS) $(WSDL2AWS_TESTS)) 
+	$(ASIS2_TESTS) $(WSDL2AWS_TESTS))
 
 build: gen_main
 	echo "Building drivers (takes some time)"
 	$(GNATMAKE) -q -Pregtests -XTest_Mode=Grouped \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
-run: init gen_main gen_sources build $(OTH_TESTS) $(ALONE_TESTS)
+run: init build $(OTH_TESTS) $(ALONE_TESTS)
 ifdef GDB_REGTESTS
 	gdb --exec=test_all --command=cmd.gdb --batch
 else
