@@ -1,3 +1,94 @@
+2001-08-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb: 
+	Use CNF renaming for AWS.Config to avoid name clash.
+	Pass the Log object when writting log info.
+
+	* aws-server-get_status.adb:
+	(Translations): Add LOG, LOG_FILE, LOG_MODE tag.
+
+	* aws-config-ini.adb:
+	Reorganize the code. Now the Read procedure update the
+	 configuration object by reading only the filename passed in
+	 parameter. The Server_Config object is updated at elaboration
+	 time by reading 'aws.ini' and 'prognam.ini' files.
+
+	* aws-config-ini.ads: 
+	(Read): update comment.
+
+	* aws-config.ads:
+	(Get_Current): update comments.
+
+	* aws-server.adb:
+	Support the per-server logging facility.
+	(Start): Add Log_Split_Mode parameter.
+	(Config): new function.
+	(Start_Log): new procedure.
+	(Stop_Log): new procedure.
+	Put routines in alphabetical order.
+
+	* aws-server.ads:
+	Support the per-server logging facility.
+	(Start): Add Log_Split_Mode parameter.
+	(Config): new function.
+	(Start_Log): new procedure.
+	(Stop_Log): new procedure.
+
+	* aws.ads: 
+	(Version): set to 1.0.
+
+2001-08-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-config.adb: 
+	With AWS.Config.Ini to initialize options set.
+	(Get_Current): new function.
+	(Log_File_Prefix): idem.
+	(Log_Split_Mode): idem.
+	(Session_Cleanup_Interval): remove object parameter as this is a
+	 per-process option.
+	(Session_Lifetime): idem.
+
+	* aws-config.ads:
+	Add support for 2 new options, Log_File_Prefix and Log_Split_Mode.
+	Split the handling for per-process and per-server options.
+	(Get_Current): new function.
+	(Log_File_Prefix): idem.
+	(Log_Split_Mode): idem.
+	(Session_Cleanup_Interval): remove object parameter as this is a
+	 per-process option.
+	(Session_Lifetime): idem.
+	(Server_Config): new variable to old per-process options.
+
+	* aws-log.ads, aws-log.adb:
+	A lot of changes to make this package an ADT.
+	(Start): add Log, File_Directory and Filename_Prefix parameter.
+	(Write): add Log object parameter.
+	(Stop): idem.
+	(Is_Active): new function.
+	(Filename): idem.
+	(Mode): idem.
+
+	* aws-default.ads:
+	(Log_File_Prefix): new constant.
+	(Log_Split_Mode): new constant.
+
+	* aws-config-set.ads, aws-config-set.adb:
+	(Log_File_Prefix): new procedure.
+	(Log_Split_Mode): new procedure.
+	(Session_Cleanup_Interval): remove object parameter as this is a
+	 per-process option.
+	(Session_Lifetime): idem.
+
+	* aws-config-ini.adb: 
+	(Read): was a function it is now a procedure to be able to update
+	 the configuration object. Handle per-server and per-process
+	 options.
+	Initialize Server_Config at elaboration.
+	
+	* aws-config-ini.ads: 
+	(Read): was a function it is now a procedure to be able to update
+	 the configuration object.
+
 2001-08-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
