@@ -29,6 +29,8 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-log.ads.texi \
 	../src/aws-messages.ads.texi \
 	../src/aws-mime.ads.texi \
+	../src/aws-net-ssl.ads.texi \
+	../src/aws-net-ssl-certificate.ads.texi \
 	../src/aws-parameters.ads.texi \
 	../src/aws-pop.ads.texi \
 	../src/aws-resources-files.ads.texi \
