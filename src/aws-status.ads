@@ -150,6 +150,10 @@ package AWS.Status is
    pragma Inline (Session);
    --  Returns the Session ID for the request.
 
+   function Session_Created (D : in Data) return Boolean;
+   --  Returns True is session was just created.
+   --  and it is going to be send to client.
+
    function Socket                 (D : in Data) return Socket_Type;
    pragma Inline (Socket);
    --  Returns the socket used to transfert data between the client and
@@ -233,6 +237,7 @@ private
       Auth_QOP          : Unbounded_String; -- for Digest
       Auth_Response     : Unbounded_String; -- for Digest
       Session_ID        : AWS.Session.ID     := AWS.Session.No_Session;
+      Session_Created   : Boolean            := False;
       SOAPAction        : Unbounded_String;
       Payload           : Unbounded_String;
       User_Agent        : Unbounded_String;
