@@ -44,5 +44,5 @@ procedure WS is
 
 begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");
-   AWS.Server.Start (WS);
+   AWS.Server.Start (WS, "WS Demo");
 end WS;
