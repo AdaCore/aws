@@ -303,6 +303,10 @@ Use only one statement or label per line.
 @item
 A longer sequence_of_statements may be divided in logical groups
 or separated from surrounding code using a blank line.
+
+@item Prefer using "/=" to "not =" except in complex expression if it
+makes the expression easier to read or in "well-known" expressions for
+whose the reverse must be checked.
 @end itemize
 
 @subsection If Statements
