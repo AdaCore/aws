@@ -1,3 +1,8 @@
+2003-01-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(LARGS): Add -lnosslaws instead of ssl-wrappers.o. (without SSL case).
+
 2003-01-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* hval.out:

@@ -1,3 +1,37 @@
+2003-01-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(aws-translator-conversion.adb): Use EXEEXT to remove test_uconv.
+
+	* aws-server.adb:
+	(Accept_Socket_Serialized): Do not create the new socket here,
+	 Accept_Socket will do that.
+	(Release): Do not fail closing the socket (Shutdown). This routine
+	 must not fail to properly release the resources. The shutdown
+	 here can fail if the client's browser stop the transfer for example.
+
+	* aws-server-protocol_handler.adb:
+	(Buffer_Size): New constant.
+	(Chunk_Size): New constant.
+	(Chunk_Message_Size): New routine.
+	(Send_Resource): Send Content_Lenght header for the chunked case.
+	With this patch the browser will be able to display the download
+	 progress-bar in the chunked-encoding case.
+
+	* aws-net-ssl.adb:
+	(Accept_Socket): Create SSL socket access.
+	Work to fix a resource leak (socket not used and not released).
+
+	* aws-net-std.adb:
+	(Accept_Socket): New_Socket parameter is now a Socket_Access.
+	Create the pointer only if not already defined.
+	Initialize the cache for the new socket.
+	Work to fix a resource leak (socket not used and not released).
+	
+	* aws-net.ads, aws-net-std.ads, aws-net-ssl.ads:
+	(Accept_Socket): New_Socket parameter is now a Socket_Access.
+	Work to fix a resource leak (socket not used and not released).
+
 2003-01-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
