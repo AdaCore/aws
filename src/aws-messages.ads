@@ -36,8 +36,17 @@ package AWS.Messages is
 
    HTTP_Token : constant String := "HTTP/";
 
-   Host_Token : constant String := "Host: ";
-   subtype Host_Range is Positive range Host_Token'Range;
+   Authorization_Token : constant String := "Authorization: ";
+   subtype Authorization_Range is Positive range Authorization_Token'Range;
+
+   Connection_Token : constant String := "Connection: ";
+   subtype Connection_Range is Positive range Connection_Token'Range;
+
+   Content_Length_Token : constant String := "Content-Length: ";
+   subtype Content_Length_Range is Positive range Content_Length_Token'Range;
+
+   Content_Type_Token : constant String := "Content-Type: ";
+   subtype Content_Type_Range is Positive range Content_Type_Token'Range;
 
    Get_Token : constant String := "GET ";
    subtype Get_Range is Positive range Get_Token'Range;
@@ -45,24 +54,18 @@ package AWS.Messages is
    Head_Token : constant String := "HEAD ";
    subtype Head_Range is Positive range Head_Token'Range;
 
-   Post_Token : constant String := "POST ";
-   subtype Post_Range is Positive range Post_Token'Range;
-
-   Connection_Token : constant String := "Connection: ";
-   subtype Connection_Range is Positive range Connection_Token'Range;
-
-   Location_Token : constant String := "Location: ";
-   subtype Location_Range is Positive range Location_Token'Range;
-
-   Content_Type_Token : constant String := "Content-Type: ";
-   subtype Content_Type_Range is Positive range Content_Type_Token'Range;
-
-   Content_Length_Token : constant String := "Content-Length: ";
-   subtype Content_Length_Range is Positive range Content_Length_Token'Range;
+   Host_Token : constant String := "Host: ";
+   subtype Host_Range is Positive range Host_Token'Range;
 
    If_Modified_Since_Token : constant String := "If-Modified-Since: ";
    subtype If_Modified_Since_Range is
      Positive range If_Modified_Since_Token'Range;
+
+   Location_Token : constant String := "Location: ";
+   subtype Location_Range is Positive range Location_Token'Range;
+
+   Post_Token : constant String := "POST ";
+   subtype Post_Range is Positive range Post_Token'Range;
 
    Transfer_Encoding_Token : constant String := "Transfer-Encoding: ";
    subtype Transfer_Encoding_Range is
