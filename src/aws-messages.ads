@@ -52,19 +52,19 @@ package AWS.Messages is
    subtype Authorization_Range is Positive range Authorization_Token'Range;
 
    Proxy_Authorization_Token : constant String := "Proxy-Authorization: ";
-   subtype Proxy_Authorization_Range is
-     Positive range Proxy_Authorization_Token'Range;
+   subtype Proxy_Authorization_Range
+     is Positive range Proxy_Authorization_Token'Range;
 
    Connection_Token : constant String := "Connection: ";
    subtype Connection_Range is Positive range Connection_Token'Range;
 
    Proxy_Connection_Token : constant String := "Proxy-Connection: ";
-   subtype Proxy_Connection_Range is
-     Positive range Proxy_Connection_Token'Range;
+   subtype Proxy_Connection_Range
+     is Positive range Proxy_Connection_Token'Range;
 
    Content_Disposition_Token : constant String := "Content-Disposition: ";
-   subtype Content_Disposition_Range is
-     Positive range Content_Disposition_Token'Range;
+   subtype Content_Disposition_Range
+     is Positive range Content_Disposition_Token'Range;
 
    Content_Length_Token : constant String := "Content-Length: ";
    subtype Content_Length_Range is Positive range Content_Length_Token'Range;
@@ -82,8 +82,8 @@ package AWS.Messages is
    subtype Host_Range is Positive range Host_Token'Range;
 
    If_Modified_Since_Token : constant String := "If-Modified-Since: ";
-   subtype If_Modified_Since_Range is
-     Positive range If_Modified_Since_Token'Range;
+   subtype If_Modified_Since_Range
+     is Positive range If_Modified_Since_Token'Range;
 
    Location_Token : constant String := "Location: ";
    subtype Location_Range is Positive range Location_Token'Range;
@@ -92,8 +92,8 @@ package AWS.Messages is
    subtype Post_Range is Positive range Post_Token'Range;
 
    Transfer_Encoding_Token : constant String := "Transfer-Encoding: ";
-   subtype Transfer_Encoding_Range is
-     Positive range Transfer_Encoding_Token'Range;
+   subtype Transfer_Encoding_Range
+     is Positive range Transfer_Encoding_Token'Range;
 
    Cookie_Token : constant String := "Cookie: ";
    subtype Cookie_Range is Positive range Cookie_Token'Range;
@@ -118,8 +118,8 @@ package AWS.Messages is
      Positive range WWW_Authenticate_Token'Range;
 
    Proxy_Authenticate_Token : constant String := "Proxy-Authenticate: ";
-   subtype Proxy_Authenticate_Range is
-     Positive range Proxy_Authenticate_Token'Range;
+   subtype Proxy_Authenticate_Range
+     is Positive range Proxy_Authenticate_Token'Range;
 
    -----------------
    -- Status Code --
@@ -221,7 +221,7 @@ package AWS.Messages is
      (Realm : in String;
       Nonce : in String;
       Stale : in Boolean)
-     return String;
+      return String;
    pragma Inline (Www_Authenticate);
    --  Digest authentication request.
 
@@ -229,12 +229,12 @@ package AWS.Messages is
 
    function Is_Match (Str, Pattern : in String) return Boolean;
    pragma Inline (Is_Match);
-   --  returns True if Pattern matches the begining of Str. The test is not
+   --  Returns True if Pattern matches the begining of Str. The test is not
    --  case sensitive.
 
    function Does_Not_Match (Str, Pattern : in String) return Boolean;
    pragma Inline (Does_Not_Match);
-   --  returns True if Pattern does not matches the begining of Str. The test
+   --  Returns True if Pattern does not matches the begining of Str. The test
    --  is not case sensitive.
 
    function To_HTTP_Date (Time : in Calendar.Time) return String;
