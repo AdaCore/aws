@@ -30,8 +30,6 @@
 
 --  $Id$
 
-with Ada.Characters.Handling;
-
 with Interfaces;
 
 package body AWS.Translator is
@@ -222,42 +220,6 @@ package body AWS.Translator is
       end loop;
       return Base64_Encode (Stream_Data);
    end Base64_Encode;
-
-   ----------------
-   -- Decode_URL --
-   ----------------
-
-   function Decode_URL (Str : in String) return String is
-      I, K   : Positive := Str'First;
-      Result : String (Str'Range);
-   begin
-      while I <= Str'Last loop
-         if Str (I) = '+' then
-            Result (K) := ' ';
-            I := I + 1;
-
-         elsif Str (I) = '%'
-           and then I + 2 <= Str'Last
-           and then Ada.Characters.Handling.Is_Hexadecimal_Digit (Str (I + 1))
-           and then Ada.Characters.Handling.Is_Hexadecimal_Digit (Str (I + 2))
-         then
-            declare
-               Hex_Num : constant String := "16#" & Str (I + 1 .. I + 2) & '#';
-            begin
-               Result (K) := Character'Val (Natural'Value (Hex_Num));
-               I := I + 3;
-            end;
-
-         else
-            Result (K) := Str (I);
-            I := I + 1;
-         end if;
-
-         K := K + 1;
-      end loop;
-
-      return Result (Result'First .. K - 1);
-   end Decode_URL;
 
    -----------------------------
    -- To_Stream_Element_Array --
