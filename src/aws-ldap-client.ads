@@ -57,6 +57,8 @@ package AWS.LDAP.Client is
    --  An iterator structure. Initialized and used to iterate through all the
    --  attributes for a specific message.
 
+   Null_Directory    : constant Directory    := Thin.Null_LDAP_Type;
+
    Null_LDAP_Message : constant LDAP_Message := Thin.Null_LDAPMessage;
 
    type Scope_Type is
@@ -162,16 +164,20 @@ package AWS.LDAP.Client is
       Port : in Positive := Default_Port)
       return Directory;
    --  Must be called first, to initialize the LDAP communication with the
-   --  server.
+   --  server. Returns Null_Directory in case of error.
 
    procedure Bind
-     (Dir      : in Directory;
+     (Dir      : in out Directory;
       Login    : in String;
       Password : in String);
    --  Bind to the server by providing a login and password
 
    procedure Unbind (Dir : in Directory);
    --  Must be called to release resources asociated with the Directory.
+
+   function Is_Open (Dir : in Directory) return Boolean;
+   --  Returns True if the directory has correctly been initialized and binded
+   --  with the server.
 
    ------------
    -- Search --
