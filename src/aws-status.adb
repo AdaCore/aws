@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                          Copyright (C) 2000-2001                         --
+--                      Dmitriy Anisimkov & Pascal Obry                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -152,6 +152,19 @@ package body AWS.Status is
       return To_String (D.Boundary);
    end Multipart_Boundary;
 
+   --------------------
+   -- Normalize_Name --
+   --------------------
+
+   function Normalize_Name (Name : String; To_Upper : Boolean) return String is
+   begin
+      if To_Upper then
+         return Ada.Characters.Handling.To_Upper (Name);
+      else
+         return Name;
+      end if;
+   end Normalize_Name;
+
    ---------------
    -- Parameter --
    ---------------
@@ -163,41 +176,13 @@ package body AWS.Status is
 
    function Parameter (D              : in Data;
                        Name           : in String;
-                       N              : in Positive := 1;
-                       Case_Sensitive : in Boolean  := True) return String
+                       N              : in Positive := 1) return String
    is
 
-      function Equal (S1, S2 : in String) return Boolean;
-      --  Returns true if S1 and S2 are equal. The check is not
-      --  Case_Sensitive.
-
-      function Equal (S1, S2 : in String) return Boolean is
-         use Ada;
-      begin
-         return Characters.Handling.To_Upper (S1)
-           = Characters.Handling.To_Upper (S2);
-      end Equal;
-
-      Index : Natural := 0;
-
    begin
-      if Case_Sensitive then
-         return Parameters.Get (D.Parameters, Name, N);
-      else
-         for K in 1 .. Parameters.Count (D.Parameters) loop
-            if Equal (Parameters.Get_Key (D.Parameters, K), Name) then
-               Index := Index + 1;
-
-               if Index = N then
-                  return Parameters.Get_Value (D.Parameters, K);
-               end if;
-            end if;
-         end loop;
-
-         --  Key not found.
-
-         return "";
-      end if;
+      return Parameters.Get
+        (D.Parameters,
+         Normalize_Name (Name, not D.Parameters_Case_Sensitive), N);
    end Parameter;
 
    --------------------
