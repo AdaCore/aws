@@ -59,7 +59,7 @@ package body AWS.URL is
       procedure Parse (URL : in String) is
 
          function US (S : in String)
-                     return Unbounded_String
+           return Unbounded_String
            renames To_Unbounded_String;
 
          I1, I2 : Natural;
@@ -108,6 +108,7 @@ package body AWS.URL is
       end if;
 
       return O;
+
    exception
       when others =>
          raise URL_Error;
