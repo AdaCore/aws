@@ -1,5 +1,20 @@
 2002-01-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): Add aws-services-page_server.adb.
+
+	* aws-services-page_server.ads, aws-services-page_server.adb:
+	Initial revision.
+
+	* aws-services-directory.ads, aws-services-directory.adb:
+	Add RCS Id tag.
+
+	* aws-config.ads:
+	Fix comment typo.
+
+	* aws-response.ads, aws-response.adb:
+	Fix layout.
+
 	* aws-server-protocol_handler.adb:
 	Fix minor syntax error.
 
