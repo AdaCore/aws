@@ -867,9 +867,9 @@ AWS a resource is @i{just a string} to identify the resource, it
 does not represent the name of a static object or CGI script.
 
 @noindent
-So this string is just an internal representation of the
+So this string is just an internal representation for the
 resource. The callback procedure must be implemented to handle each
-internal resource and answer the right response.
+internal resource and return the right response.
 
 @noindent
 Let's have a small example. For example we want to build a Web server
@@ -1080,6 +1080,7 @@ configurations files:
 
 @item aws.ini
 @cindex aws.ini
+@cindex ini file
 
 This file is parsed first and correspond to configuration for all AWS
 server runs from the same directory.
