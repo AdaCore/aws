@@ -124,8 +124,12 @@ package body AWS.Session is
 
    end Database;
 
-   task Cleaner;
+   task type Cleaner;
    --  Call Database.Clean every Session_Lifetime seconds.
+
+   type Cleaner_Access is access Cleaner;
+
+   Cleaner_Task : Cleaner_Access;
 
    -------------
    -- Cleaner --
@@ -548,6 +552,15 @@ package body AWS.Session is
    begin
       Session_Lifetime := Seconds;
    end Set_Session_Lifetime;
+
+   -----------
+   -- Start --
+   -----------
+
+   procedure Start is
+   begin
+      Cleaner_Task := new Cleaner;
+   end Start;
 
    -----------
    -- Value --
