@@ -64,15 +64,6 @@ package body SOAP.Types is
    package XML_Indent is new Ada.Task_Attributes (Natural, 0);
    --  Thread safe Indentation counter.
 
-   -------
-   -- - --
-   -------
-
-   function "-" (O : in Object_Safe_Pointer) return Object'Class is
-   begin
-      return O.O.all;
-   end "-";
-
    ---------
    -- "+" --
    ---------
@@ -81,6 +72,15 @@ package body SOAP.Types is
    begin
       return (Finalization.Controlled with new Object'Class'(O));
    end "+";
+
+   -------
+   -- - --
+   -------
+
+   function "-" (O : in Object_Safe_Pointer) return Object'Class is
+   begin
+      return O.O.all;
+   end "-";
 
    -------
    -- A --
