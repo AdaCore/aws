@@ -77,22 +77,6 @@ project Src is
 
    package Naming is
 
-      --  SOAP Support
-
-      case Shared.XMLADA is
-         when "Installed" =>
-            for Spec ("aws.soap")
-              use "aws-soap__soap.ads";
-            for Implementation ("aws.soap")
-              use "aws-soap__soap.adb";
-
-         when "Disabled" =>
-            for Spec ("aws.soap")
-              use "aws-soap__nosoap.ads";
-            for Implementation ("aws.soap")
-              use "aws-soap__nosoap.adb";
-      end case;
-
       --  Socket implementation
 
       case Socket is
