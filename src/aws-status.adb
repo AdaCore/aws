@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings;
 
@@ -308,21 +309,88 @@ package body AWS.Status is
       Encoding : in Messages.Content_Encoding)
       return Boolean
    is
+      function To_Lower (Item : String) return String
+         renames Ada.Characters.Handling.To_Lower;
+
       Encoding_Image : constant String
-        := Messages.Content_Encoding'Image (Encoding);
-   begin
-      for K in
-        1 .. Headers.Count (D.Header, Messages.Accept_Encoding_Token)
-      loop
-         if Messages.Match
-           (Headers.Get (D.Header, Messages.Accept_Encoding_Token, K),
-            Encoding_Image)
-         then
-            return True;
+        := To_Lower (Messages.Content_Encoding'Image (Encoding));
+
+      Found_Encoding  : Boolean := False;
+      Enable_Encoding : Boolean := True;
+      --  QValue is 1 by default, i.e enought.
+
+      Just_Found_Others : Boolean := False;
+
+      Found_Others  : Boolean := False;
+      --  Found others - "*" symbol.
+
+      Enable_Others : Boolean := True;
+      --  All others encoding enabled by default.
+
+      procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
+
+      procedure Value (Item : in String; Quit : in out Boolean);
+
+      -----------------
+      -- Named_Value --
+      -----------------
+
+      procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
+      begin
+         if (Name = "q" or Name = "Q") and Float'Value (Value) = 0.0 then
+            if Found_Encoding then
+               --  Encoding is disabled by encoding;q=0;
+
+               Enable_Encoding := False;
+               Quit            := True;
+            elsif Just_Found_Others then
+               Enable_Others := False;
+            end if;
          end if;
+      end Named_Value;
+
+      -----------
+      -- Value --
+      -----------
+
+      procedure Value (Item : in String; Quit : in out Boolean) is
+      begin
+         if Found_Encoding then
+            if Enable_Encoding then
+               Quit := True;
+
+               return;
+            else
+               --  Encoding is enable if qvalue is not specified.
+
+               Enable_Encoding := True;
+            end if;
+         end if;
+
+         Found_Encoding    := To_Lower (Item) = Encoding_Image;
+         Just_Found_Others := Item = "*";
+
+         if Just_Found_Others and not Found_Others then
+            Found_Others := True;
+         end if;
+      end Value;
+
+      procedure Parse is new Headers.Values.Parse (Value, Named_Value);
+
+      use type Messages.Content_Encoding;
+
+   begin
+      for
+        K in 1 .. Headers.Count (D.Header, Messages.Accept_Encoding_Token)
+      loop
+         Parse (Headers.Get (D.Header, Messages.Accept_Encoding_Token, K));
       end loop;
 
-      return False;
+      return (Found_Encoding and Enable_Encoding)
+        or else
+        (not Found_Encoding and Found_Others and Enable_Others)
+        or else
+        (Encoding = Messages.Identity and Enable_Others);
    end Is_Supported;
 
    ----------------
@@ -452,7 +520,16 @@ package body AWS.Status is
       procedure Parse is new Headers.Values.Parse (Value, Named_Value);
 
    begin
-      Parse (Accept_Encoding (D));
+      for
+        K in 1 .. Headers.Count (D.Header, Messages.Accept_Encoding_Token)
+      loop
+         Parse (Headers.Get (D.Header, Messages.Accept_Encoding_Token, K));
+      end loop;
+
+      if Supported and Next_QValue > Best_QValue then
+         Best_Encoding := Next_Encoding;
+         Best_QValue   := Next_QValue;
+      end if;
 
       return Best_Encoding;
    end Preferred_Coding;
