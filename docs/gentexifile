@@ -17,9 +17,13 @@ fi
 
 $awk 'BEGIN{out=1}$1=="end"&&substr($0,1,1)=="e"{out=1}out==1{print}$1=="private"&&out==1{out=0; print "   --  implementation removed"}' ${SOURCE} > genout
 
-echo "@smallexample"      >${TMPTAR}
+rm -f ${TMPTAR}
+
 if [ $# = 1 ]; then
 echo "@cartouche"        >>${TMPTAR}
+fi
+echo "@smallexample"     >>${TMPTAR}
+if [ $# = 1 ]; then
 echo "@group"            >>${TMPTAR}
 fi
 echo ""                  >>${TMPTAR}
@@ -27,9 +31,11 @@ sed -f ada.sed genout    >>${TMPTAR}
 echo ""                  >>${TMPTAR}
 if [ $# = 1 ]; then
 echo "@end group"        >>${TMPTAR}
-echo "@end cartouche"    >>${TMPTAR}
 fi
 echo "@end smallexample" >>${TMPTAR}
+if [ $# = 1 ]; then
+echo "@end cartouche"    >>${TMPTAR}
+fi
 
 cat ${TMPTAR} | tr -d '\r' > ${TARGET}
 rm ${TMPTAR}
