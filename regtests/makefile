@@ -36,7 +36,7 @@ LARGS := $(LARGS) -lssl -lcrypto
 
 RT_SOAP_SEC = test_sec_soap xmlt_sec disp_soap_sec
 RT_STD_SEC = tsgetparam ssp ssback cert ssock2 ssto ssockto sslcfg \
-	huge_response_sec
+	huge_response_sec wait_sec
 
 else
 # Without SSL support
