@@ -30,14 +30,17 @@
 
 --  $Id$
 
-with Ada.Text_IO; use Ada.Text_IO;
-with AWS.URL;     use AWS.URL;
+with Ada.Exceptions; use Ada.Exceptions;
+with Ada.Text_IO;    use Ada.Text_IO;
+with AWS.URL;        use AWS.URL;
 
 procedure Turl is
 
    procedure Test (URL : in String) is
-      O : Object := Parse (URL);
+      O : Object;
    begin
+      O := Parse (URL);
+
       Put_Line (URL);
       Put_Line (AWS.URL.URL (O));
       Put_Line ("   Server    : " & Server_Name (O));
@@ -50,6 +53,10 @@ procedure Turl is
       Put_Line ("   Server    : " & Server_Name (O));
       Put_Line ("   Port      : " & Port (O));
       Put_Line ("   URI       : " & URI (O));
+
+   exception
+      when E : URL_Error =>
+         Put_Line ("Error on " & URL & " - " & Exception_Message (E));
    end Test;
 
 begin
@@ -58,6 +65,10 @@ begin
    Test ("http://a/tata/my_url/xyz/../../b/c/d/../../z");
    Test ("/azerty/me/too.html");
    Test ("demo.html");
+   Test ("../demo.html");
+   Test ("http://myserver:8088/../demo.html");
+   Test ("http://myserver.com");
+   Test ("https://myserver.com");
    Test ("kye/demo.html");
    Test ("http://www.myserver.com:12/request?p1=9");
    Test ("");
