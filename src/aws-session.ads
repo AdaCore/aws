@@ -112,8 +112,11 @@ package AWS.Session is
    procedure For_Every_Session_Data (SID : in ID);
    --  Iterator which returns all the key/value pair defined for session SID.
 
-   procedure Set_Session_Lifetime (Seconds : in Duration);
+   procedure Set_Lifetime (Seconds : in Duration);
    --  Set the lifetime for session data.
+
+   function Get_Lifetime return Duration;
+   --  Get current session lifetime for session data.
 
    procedure Start;
    --  Start session cleaner task.
