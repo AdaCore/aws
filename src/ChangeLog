@@ -1,3 +1,9 @@
+2004-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-protocol_handler.adb:
+	Exit from For_Every_Request loop in case of server shutdown.
+	 We are ready for delicate shutdown this way.
+
 2004-09-20  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb, templates_parser-print_tree.adb:
