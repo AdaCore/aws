@@ -1,3 +1,9 @@
+2004-10-09  Pascal Obry  <pascal@obry.org>
+
+	* tlog.adb:
+	Use a single connection to ensure stable output.
+        Minor reformatting.
+
 2004-10-08  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
