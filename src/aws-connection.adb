@@ -111,9 +111,13 @@ package body AWS.Connection is
       for K in Slots'Range loop
          if Slots (K).L'Identity = T then
             Slots (K).Free := True;
-            exit;
+            return;
          end if;
       end loop;
+
+      --  We really should find the Task_ID, if not we just can't do anything,
+      --  there is something wrong going on.
+
       Exceptions.Raise_Exception (Internal_Error'Identity,
                                   Message => ("Free: Task_ID not found."));
    end Free;
@@ -516,7 +520,13 @@ package body AWS.Connection is
 
          procedure Send_File is
 
-            Buffer : Streams.Stream_Element_Array (1 .. 10_000);
+            use POSIX_File_Status;
+
+            File_Size : Streams.Stream_Element_Offset :=
+              Streams.Stream_Element_Offset
+              (Size_Of (Get_File_Status (POSIX.To_POSIX_String (Filename))));
+
+            Buffer : Streams.Stream_Element_Array (1 .. File_Size);
 
          begin
 
@@ -525,7 +535,7 @@ package body AWS.Connection is
             --  terminate header
 
             Sockets.Put_Line (Sock, "Content-Length:"
-                              & Natural'Image (Natural (Last)));
+                              & Natural'Image (Natural (File_Size)));
             Sockets.New_Line (Sock);
 
             --  send file content
@@ -598,6 +608,7 @@ package body AWS.Connection is
 
       begin
          loop
+
             select
                accept Start (FD : in Sockets.Socket_FD;
                              CB : in Response.Callback) do
@@ -607,6 +618,8 @@ package body AWS.Connection is
             or
                terminate;
             end select;
+
+            C_Stat := Status.No_Data;
 
             --  this new connection has been initialized because some data are
             --  beeing sent. Were are by default using HTTP/1.1 persistent
@@ -621,7 +634,8 @@ package body AWS.Connection is
 
                Answer_To_Client;
 
-               exit when Status.Connection (C_Stat) /= "Keep-Alive";
+               exit when Status.Connection (C_Stat) /= "Keep-Alive"
+                 or else Status.HTTP_Version (C_Stat) = HTTP_10;
 
             end loop For_Every_Request;
 
