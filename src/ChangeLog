@@ -1,5 +1,18 @@
 2004-05-26  Pascal Obry  <pascal@obry.org>
 
+	* templates_parser.ads:
+	(Null_Association): New constant.
+	(Remove): New routine.
+	(Get): New routine.
+	(TP_Context): Removed.
+	(Parse) [all versions]: Context is now of Context_Access type.
+
+	* templates_parser.adb:
+	(Remove): New routine.
+	(Get): New routine.
+	(Parse) [all versions]: Context is now of Context_Access type. Fix
+	 accessibility check problem.
+
 	* aws-parameters-set.ads:
 	Minor reformatting.
 
