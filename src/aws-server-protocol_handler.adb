@@ -1148,13 +1148,55 @@ is
       --  This is what AWS understand as being a small file. AWS will try to
       --  not send such file with the chunked method.
 
+      Buffer_Size     : constant := 4 * 1_024;
+      --  Size of the buffer used to send the file.
+
+      Chunk_Size      : constant := 1_024;
+      --  Size of the buffer used to send the file with the chunk encoding.
+      --  This is the maximum size of the chunks.
+
       procedure Send_File;
       --  Send file in one part
 
       procedure Send_File_Chunked;
       --  Send file in chunk (HTTP/1.1 only)
 
+      function Chunked_Message_Size return Positive;
+      --  Returns the total number of bytes that is sent by the
+      --  Senfd_File_Chunked. This is the length of the file plus all the
+      --  encoding data.
+
       Last : Streams.Stream_Element_Offset;
+
+      --------------------------
+      -- Chunked_Message_Size --
+      --------------------------
+
+      function Chunked_Message_Size return Positive is
+         Size_Chunk_Size      : constant Natural
+           := Utils.Hex (Chunk_Size)'Length;
+
+         Size_Last_Chunk_Size : Natural;
+         N_Chunk              : Natural;
+         Last_Chunk           : Natural;
+         Size_Last_Chunk      : Natural;
+      begin
+         N_Chunk := Length / Chunk_Size;
+
+         Size_Last_Chunk := Length - (N_Chunk * Chunk_Size);
+
+         if Size_Last_Chunk = 0 then
+            Last_Chunk := 0;
+         else
+            Last_Chunk := 1;
+            Size_Last_Chunk_Size := Utils.Hex (Size_Last_Chunk)'Length;
+         end if;
+
+         return Length                               -- The size of the file
+           + N_Chunk * (4 + Size_Chunk_Size)         -- Size of full chunks
+           + Last_Chunk * (4 + Size_Last_Chunk_Size) -- Size of last chunk
+           + 3;                                      -- Terminating chunk
+      end Chunked_Message_Size;
 
       ---------------
       -- Send_File --
@@ -1164,7 +1206,7 @@ is
 
          use type Ada.Streams.Stream_Element_Offset;
 
-         Buffer : Streams.Stream_Element_Array (1 .. 4_096);
+         Buffer : Streams.Stream_Element_Array (1 .. Buffer_Size);
 
       begin
          loop
@@ -1187,7 +1229,7 @@ is
       procedure Send_File_Chunked is
          use type Streams.Stream_Element_Array;
 
-         Buffer : Streams.Stream_Element_Array (1 .. 1_024);
+         Buffer : Streams.Stream_Element_Array (1 .. Chunk_Size);
          --  Each chunk will have a maximum length of Buffer'Length
 
          CRLF : constant Streams.Stream_Element_Array
@@ -1263,7 +1305,13 @@ is
          end if;
 
       else
-         --  Terminate header, do not send Content_Length see [RFC 2616 - 4.4]
+         --  Terminate header, send the Content_Length see [RFC 2616 - 4.4]
+         --  This is the number of bytes in the chunked encoding message.
+
+         if Length /= Response.Undefined_Length then
+            Net.Buffered.Put_Line
+              (Sock, Messages.Content_Length (Chunked_Message_Size));
+         end if;
 
          Net.Buffered.Put_Line (Sock, "Transfer-Encoding: chunked");
          Net.Buffered.New_Line (Sock);
