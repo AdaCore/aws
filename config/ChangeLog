@@ -1,3 +1,14 @@
+2004-01-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb:
+	(Wait_For): Use Ada enumerator Wait_Mode instead of C.int.
+	(Send): Check for timeout before each internal write buffer.
+	(Get_Send_Buffer): New routine.
+	(Raise_Exception): New routine.
+
+	* aws-net-std__gnat.adb:
+	(Send): Raise Socket_Error if not all data written.
+
 2004-01-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb:
