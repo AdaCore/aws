@@ -63,12 +63,17 @@ procedure Build is
          Assoc ("QUEUE_SIZE", Default.Accept_Queue_Size),
          Assoc ("SERVER_NAME", Default.Server_Name),
          Assoc ("SERVER_PORT", Image (Default.Server_Port)),
+         Assoc ("HOTPLUG_PORT", Image (Default.Hotplug_Port)),
          Assoc ("LOG_FILE_DIR", Default.Log_File_Directory),
          Assoc ("LOG_SPLIT_MODE", Default.Log_Split_Mode),
+         Assoc ("ERROR_LOG_SPLIT_MODE", Default.Error_Log_Split_Mode),
+         Assoc ("DIRECTORY_BROWSER_PAGE", Default.Directory_Browser_Page),
          Assoc ("UPLOAD_DIR", Default.Upload_Directory),
          Assoc ("LINE_STACK_SIZE", Default.Line_Stack_Size),
          Assoc ("CHECK_URL_VALIDITY", Default.Check_URL_Validity),
          Assoc ("DEFAULT_CERTIFICATE", Default.Certificate),
+         Assoc ("CASE_SENSITIVE_PARAMETERS",
+                Default.Case_Sensitive_Parameters),
          Assoc ("ADMIN_URI", Default.Admin_URI),
          Assoc ("CT_WAIT_FOR_CLIENT",
                 Image (Default.Cleaner_Wait_For_Client_Timeout)),
@@ -101,7 +106,12 @@ procedure Build is
          Assoc ("SESSION_LIFETIME",
                 Image (Default.Session_Lifetime)),
          Assoc ("SESSION_CLEANUP_INTERVAL",
-                Image (Default.Session_Cleanup_Interval))
+                Image (Default.Session_Cleanup_Interval)),
+         Assoc ("TRANSIENT_LIFETIME",
+                Image (Default.Transient_Lifetime)),
+         Assoc ("TRANSIENT_CLEANUP_INTERVAL",
+                Image (Default.Transient_Cleanup_Interval)),
+         Assoc ("WWW_ROOT", Default.WWW_Root)
         );
 
 begin
