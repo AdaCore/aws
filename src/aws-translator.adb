@@ -199,6 +199,8 @@ package body AWS.Translater is
       Group  : Interfaces.Unsigned_32 := 0;
       J      : Integer := 18;
 
+      Pad    : Stream_Element_Offset := 0;
+
       function Base64 (C : in Character) return Interfaces.Unsigned_32 is
       begin
          if C in 'A' .. 'Z' then
@@ -223,7 +225,7 @@ package body AWS.Translater is
          else
             case B64_Data (C) is
                when '=' =>
-                  null;
+                  Pad := Pad + 1;
 
                when others =>
                   Group := Group or Shift_Left (Base64 (B64_Data (C)), J);
@@ -246,7 +248,7 @@ package body AWS.Translater is
          end if;
       end loop;
 
-      return Result (1 .. R - 1);
+      return Result (1 .. R - 1 - Pad);
    end Base64_Decode;
 
 end AWS.Translater;
