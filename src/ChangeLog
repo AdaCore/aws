@@ -1,3 +1,13 @@
+2002-04-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-directory.adb:
+	Add pragma Optimize Off. This unit should not be compiled with
+	 optimisation on.
+
+	* aws-server-protocol_handler.adb:
+	(Send_File): A file is up-to-date if it has the exact same
+	 timestamp as the one in the cache. [RFC 2616 - 14.25].
+
 2002-04-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
