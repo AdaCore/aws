@@ -1,5 +1,9 @@
 2002-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Parse): Do not catch and throw Internal_Error it prevents
+	 reporting proper info about exception location and nature.
+
 	* aws-server.adb:
 	(Shutdown): Properly release memory for Web_Server.Dispatcher. Fix
 	 a memory leak.
