@@ -1,5 +1,19 @@
 2002-10-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-default.ads:
+	(Check_URL_Validity): New Boolean constant.
+
+	* aws-config.ads, aws-config.adb:
+	(Check_URL_Validity): New routine.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Checking the URL validity if necessary.
+
+	* aws-status.ads, aws-status.adb:
+	(URI): Remove Check_Validity and Normalize parameters.
+
+2002-10-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-resources.ads, aws-resources.adb:
 	(File_Tagged): LFT new field.
 	(LF_Terminated): Private abstract function removed.
