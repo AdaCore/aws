@@ -1,3 +1,8 @@
+2004-06-27  Pascal Obry  <pascal@obry.org>
+
+	* ada2wsdl-generator.adb:
+	(Write_Message): Use SOAP.WSDL defintions to output the header.
+
 2004-06-01  Pascal Obry  <pascal@obry.org>
 
 	* makefile:

@@ -1,5 +1,16 @@
 2004-06-27  Pascal Obry  <pascal@obry.org>
 
+	* aws-net.adb:
+	Adjust casing of poll constants (all upper-case now).
+        Minor reformatting.
+
+	* aws-net-sets.adb:
+	Adjust casing of poll constants (all upper-case now).
+        (Wait): Minor code clean-up.
+
+	* aws-net-sets-thin.ads:
+	Put all poll constant in upper-case following the C standard.
+
 	* aws-client.adb:
 	(Internal_Post): Properly handle empty SOAPAction.
 
