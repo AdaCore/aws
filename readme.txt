@@ -187,6 +187,13 @@ Here are the main changes since AWS 2.0 :
    - New root directory web_elements which contains a set of reusable
      Web design elements.
 
+   - The templates parse has now a way to set constant or aliases inside a
+     template page. This makes it easier to build reusable template files.
+
+   - The templates parser have now support for tag command attributes. The two
+     first such attributes are the table tag attributes TERMINATE_SECTIONS and
+     REVERSE.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
