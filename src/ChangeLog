@@ -1,3 +1,9 @@
+2004-09-13  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-thin.ads:
+	Removes some DOS line ending.
+	Minor reformatting.
+
 2004-09-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-thin.ads:
