@@ -39,40 +39,33 @@ package AWS.Resources is
 
    Resource_Error : exception;
 
-   type File_Type is abstract tagged private;
-   --  Abstract file, operations below must be implemented. The goal here is
-   --  to abstract the file location. Currently there is two implementations,
-   --  one for files on a hard disk and files in memory (array of bytes).
-
-   type File_Access is access all File_Type'Class;
+   type File_Type is limited private;
 
    procedure Open
-     (File :    out File_Access;
+     (File :    out File_Type;
       Name : in     String;
       Form : in     String    := "");
    --  Open file in mode In_File. Only reading from the file is supported.
    --  This procedure open the in-memory file if present, otherwise the file
    --  on disk is opened.
 
-   procedure Close (Resource : in out File_Access);
+   procedure Close (Resource : in out File_Type);
    --  Close the file.
 
    procedure Read
      (Resource : in out File_Type;
       Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
-      is abstract;
+      Last     :    out Stream_Element_Offset);
    --  Returns a set of bytes from the file.
 
    procedure Get_Line
      (Resource  : in out File_Type;
       Buffer    :    out String;
-      Last      :    out Natural)
-      is abstract;
+      Last      :    out Natural);
    --  Returns a line from the file. A line is a set of character terminated
    --  by ASCII.LF (UNIX style EOF) or ASCII.CR+ASCII.LF (DOS style EOF).
 
-   function End_Of_File (Resource : in File_Type) return Boolean is abstract;
+   function End_Of_File (Resource : in File_Type) return Boolean;
    --  Returns true if there is no more data to read.
 
    function Is_Regular_File
@@ -95,9 +88,31 @@ package AWS.Resources is
 
 private
 
-   procedure Close (Resource : in File_Type);
-   --  Close the file handle.
+   type File_Tagged is abstract tagged limited null record;
+   --  Abstract file, operations below must be implemented. The goal here is
+   --  to abstract the file location. Currently there is two implementations,
+   --  one for files on a hard disk and files in memory (array of bytes).
 
-   type File_Type is abstract tagged null record;
+   type File_Type is access all File_Tagged'Class;
+
+   function End_Of_File
+     (Resource : in File_Tagged)
+      return Boolean
+      is abstract;
+
+   procedure Read
+     (Resource : in out File_Tagged;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset)
+      is abstract;
+
+   procedure Get_Line
+     (Resource  : in out File_Tagged;
+      Buffer    :    out String;
+      Last      :    out Natural)
+      is abstract;
+
+   procedure Close (File : in out File_Tagged)
+      is abstract;
 
 end AWS.Resources;
