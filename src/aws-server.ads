@@ -35,17 +35,17 @@ with Sockets;
 
 with AWS.Response;
 with AWS.Hotplug;
+with AWS.Config;
 
 package AWS.Server is
 
-   Default_Connection  : constant := 10;
-   Default_Port        : constant := 8080;
-   Default_Upload_Path : constant String := ".";
-   No_Admin            : constant String := "";
+   Def_Admin_URI  : String   renames Config.Default_Admin_URI;
+   Def_Upload_Dir : String   renames Config.Default_Upload_Directory;
+   Def_Port       : constant := Config.Default_Server_Port;
 
    type HTTP
-     (Max_Connection : Positive := Default_Connection) is
-   limited private;
+     (Max_Connection : Positive := Config.Default_Max_Connection)
+   is limited private;
    --  Max_Connection is the maximum number of simultaneous connection
    --  handled by the server.
 
@@ -53,11 +53,12 @@ package AWS.Server is
      (Web_Server                : in out HTTP;
       Name                      : in     String;
       Callback                  : in     Response.Callback;
-      Admin_URI                 : in     String            := No_Admin;
-      Port                      : in     Positive          := Default_Port;
+      Admin_URI                 : in     String            := Def_Admin_URI;
+      Port                      : in     Positive          := Def_Port;
       Security                  : in     Boolean           := False;
       Session                   : in     Boolean           := False;
-      Case_Sensitive_Parameters : in     Boolean           := True);
+      Case_Sensitive_Parameters : in     Boolean           := True;
+      Upload_Directory          : in     String            := Def_Upload_Dir);
    --  Start the Web server. It initialize the connections lines.
    --  Name is just a string used to identify the server. This is used for
    --  example in the administrative page. Admin_URI must be set to enable the
@@ -68,7 +69,8 @@ package AWS.Server is
    --  be able to get a status for each client connected. A session ID is used
    --  for that, on the client side it is a cookie. Case_Sensitive_Parameters
    --  if set to False it means that the CGI parameters name will be handled
-   --  without case sensitivity.
+   --  without case sensitivity. Upload directory point to a directory where
+   --  uploaded files will be stored.
 
    procedure Shutdown (Web_Server : in out HTTP);
    --  Stop the server and release all associated memory.
@@ -207,7 +209,7 @@ private
    use Ada.Strings.Unbounded;
 
    type HTTP
-     (Max_Connection : Positive := Default_Connection) is
+     (Max_Connection : Positive := Config.Default_Max_Connection) is
    limited record
       Self                      : HTTP_Access := HTTP'Unchecked_Access;
       --  Point to the record.
