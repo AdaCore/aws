@@ -1,3 +1,4 @@
+@@--
 @@--  This template implements pure CSS menus.
 @@--  These menus require no javascript. However, they are displayed as soon as
 @@--  the mouse is over a menu item.
@@ -41,6 +42,8 @@
 @@--
 @@--  These menus will degrade properly on browsers that do not implement style
 @@--  sheets, and will simply show a list instead
+@@--
+@@--  $Id$
 
 <style>
 .@_$1_@             { width:100%;
@@ -74,12 +77,12 @@
 .@_$1_@ li li li:hover ul,
 .@_$1_@ li li li li:hover ul    {display:block;}
 .@_$1_@ h2           { color: black;
-                       background:#aaa url('/wc_icons/arrow.png') 
+                       background:#aaa url('/we_icons/arrow.png') 
                        no-repeat bottom right;
                        text-transform:uppercase;
                        margin:0;
                        width:100%; }
 .@_$1_@ li          { background: #ccc; }
-.@_$1_@ .@_$2_@     { background: url('/wc_icons/arrow.png') 
+.@_$1_@ .@_$2_@     { background: url('/we_icons/arrow.png') 
                       no-repeat bottom right;}
 </style>

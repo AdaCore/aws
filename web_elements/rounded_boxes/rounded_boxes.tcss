@@ -1,12 +1,12 @@
+@@--
 @@--  This templates provides a style sheet to display a set of boxes with
 @@--  rounded corner, each of which should contain a list of links
 @@--
 @@-- This template was tested on Opera 7.0, Firefox 1.0, Internet Explorer 6
 @@--
-@@-- When installing this template, you should put the picture
-@@--    rcorner.gif
-@@-- in the same directory. If not found, the boxes will not have rounded
-@@-- corners.
+@@-- When installing this template, you should put the picture 'rcorner.gif'
+@@-- in a directory which is aliased by AWS as '/we_icons/'. If not found, the
+@@-- boxes will not have rounded corners.
 @@--
 @@-- This template degrades nicely on browsers that do not support stylesheets
 @@--
@@ -44,6 +44,8 @@
 @@--  On browsers that support for fixed position, this frame will not scroll
 @@--  along with the rest of the document. This doesn't work on Internet
 @@--  explorer 6.0.
+@@--
+@@--  $Id$
 
 <style>
 .@_$1_@    { width: 7em;
@@ -53,7 +55,7 @@
              margin-left: 3px;
              padding: 0px; }
 .@_$1_@ h2 { text-transform: uppercase;
-             background: #369 url('/wc_icons/rcorner.gif') right top no-repeat;
+             background: #369 url('/we_icons/rcorner.gif') right top no-repeat;
              color: white;
              margin: 1em 0 0 0;
              padding: 2px; 
