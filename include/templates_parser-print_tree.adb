@@ -28,6 +28,8 @@
 
 --  $Id$
 
+with Ada.Text_IO;
+
 separate (Templates_Parser)
 
 procedure Print_Tree (T : in Tree; Level : in Natural := 0) is
