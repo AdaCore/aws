@@ -1,3 +1,8 @@
+2003-11-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-parser.adb:
+	(Analyse_Package): Convert dot to dash to form a valid GNAT filename.
+
 2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.adb:
