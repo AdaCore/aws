@@ -84,10 +84,10 @@ package body SOAP.Message.XML is
    Start_Body : constant String := "<SOAP-ENV:Body>";
    End_Body   : constant String := "</SOAP-ENV:Body>";
 
-   type Array_State is
-     (Void, A_Undefined,
-      A_Int, A_Float, A_Double, A_Long,
-      A_String, A_Boolean, A_Time_Instant, A_Base64);
+   type Type_State is
+     (Void, T_Undefined,
+      T_Int, T_Float, T_Double, T_Long,
+      T_String, T_Boolean, T_Time_Instant, T_Base64);
 
    type Namespaces is record
       --  ??? we will probably have to support more namespaces here
@@ -100,7 +100,7 @@ package body SOAP.Message.XML is
       Name_Space   : Unbounded_String; -- Wrapper routine namespace
       Wrapper_Name : Unbounded_String;
       Parameters   : SOAP.Parameters.List;
-      A_State      : Array_State := Void;
+      A_State      : Type_State := Void;
       NS           : Namespaces;
    end record;
 
@@ -114,6 +114,12 @@ package body SOAP.Message.XML is
       NS               : in Unbounded_String) return Boolean;
    pragma Inline (Is_A);
    --  Returns True if T1_Name is equal to T2_Name based on namespace
+
+   function To_Type
+     (Type_Name : in String;
+      NS        : in Namespaces)
+      return Type_State;
+   --  Given the Type_Name and the namespaces return the proper type
 
    procedure Parse_Namespaces
      (N  : in     DOM.Core.Node;
@@ -204,7 +210,42 @@ package body SOAP.Message.XML is
 
    procedure Error (Node : in DOM.Core.Node; Message : in String);
    pragma No_Return (Error);
-   --  Raises SOAP_Error with the Message as exception message.
+   --  Raises SOAP_Error with the Message as exception message
+
+   type Parse_Type is access
+     function (Name : in String;
+               N    : in DOM.Core.Node)
+               return Types.Object'Class;
+
+   type Type_Name_Access is access constant String;
+
+   type Type_Handler is record
+      Name    : Type_Name_Access;
+      Handler : Parse_Type;
+      Encoded : Boolean; --  True if based on soap-enc namespaces
+   end record;
+
+   Handlers : constant array (Type_State) of Type_Handler
+     := (Void           =>
+           (null, null, False),
+         T_Undefined    =>
+           (Types.XML_Undefined'Access, null, False),
+         T_Int          =>
+           (Types.XML_Int'Access, Parse_Int'Access, False),
+         T_Float        =>
+           (Types.XML_Float'Access, Parse_Float'Access, False),
+         T_Double       =>
+           (Types.XML_Double'Access, Parse_Double'Access, False),
+         T_Long         =>
+           (Types.XML_Long'Access, Parse_Long'Access, False),
+         T_String       =>
+           (Types.XML_String'Access, Parse_String'Access, False),
+         T_Boolean      =>
+           (Types.XML_Boolean'Access, Parse_Boolean'Access, False),
+         T_Base64       =>
+           (Types.XML_Base64'Access, Parse_Base64'Access, True),
+         T_Time_Instant =>
+           (Types.XML_Time_Instant'Access, Parse_Time_Instant'Access, False));
 
    -----------
    -- Error --
@@ -429,52 +470,11 @@ package body SOAP.Message.XML is
       use type DOM.Core.Node;
       use SOAP.Types;
 
-      function A_State (A_Type : in String) return Array_State;
-      --  Returns the Array_State given the SOAP-ENC:arrayType value
-
       function Item_Type (Name : in String) return String;
       pragma Inline (Item_Type);
       --  Returns the array's item type, remove [] if present
 
       LS : State := S;
-
-      -------------
-      -- A_State --
-      -------------
-
-      function A_State (A_Type : in String) return Array_State is
-      begin
-         if Is_A (A_Type, Types.XML_Int, S.NS.xsd) then
-            return A_Int;
-
-         elsif Is_A (A_Type, Types.XML_Long, S.NS.xsd) then
-            return A_Long;
-
-         elsif Is_A (A_Type, Types.XML_Float, S.NS.xsd) then
-            return A_Float;
-
-         elsif Is_A (A_Type, Types.XML_Double, S.NS.xsd) then
-            return A_Double;
-
-         elsif Is_A (A_Type, Types.XML_String, S.NS.xsd) then
-            return A_String;
-
-         elsif Is_A (A_Type, Types.XML_Boolean, S.NS.xsd) then
-            return A_Boolean;
-
-         elsif Is_A (A_Type, Types.XML_Time_Instant, S.NS.xsd) then
-            return A_Time_Instant;
-
-         elsif Is_A (A_Type, Types.XML_Base64, S.NS.enc) then
-            return A_Base64;
-
-         elsif Is_A (A_Type, Types.XML_Undefined, S.NS.xsd) then
-            return A_Undefined;
-
-         else
-            return A_Undefined;
-         end if;
-      end A_State;
 
       ---------------
       -- Item_Type --
@@ -503,7 +503,7 @@ package body SOAP.Message.XML is
          Type_Name : constant String
            := Item_Type (Node_Value (Get_Named_Item (Atts, A_Name)));
 
-         A_Type    : constant Array_State := A_State (Type_Name);
+         A_Type    : constant Type_State := To_Type (Type_Name, LS.NS);
       begin
          Field := SOAP.XML.First_Child (N);
 
@@ -779,10 +779,13 @@ package body SOAP.Message.XML is
          return Parse_String (Name, Ref);
 
       else
-         if XSI_Type = null and then S.A_State in Void .. A_Undefined then
+         if XSI_Type = null and then S.A_State in Void .. T_Undefined then
             --  No xsi:type attribute found
 
-            if S_Type /= null
+            if Get_Named_Item (Atts, -LS.NS.xsi & ":null") /= null then
+               return Types.N (Name);
+
+            elsif S_Type /= null
               and then First_Child (Ref).Node_Type = DOM.Core.Text_Node
             then
                --  Not xsi:type but a type information, the child being a text
@@ -822,89 +825,34 @@ package body SOAP.Message.XML is
             end if;
 
          else
-            case S.A_State is
-               when A_Int =>
-                  return Parse_Int (Name, Ref);
+            if S.A_State in Void .. T_Undefined then
+               --  No array type state
 
-               when A_Long =>
-                  return Parse_Long (Name, Ref);
+               declare
+                  xsd    : constant String     := Node_Value (XSI_Type);
+                  S_Type : constant Type_State := To_Type (xsd, LS.NS);
+               begin
+                  if S_Type = T_Undefined then
+                     if Is_Array then
+                        return Parse_Array (Name, Ref, S);
 
-               when A_Float =>
-                  return Parse_Float (Name, Ref);
+                     else
+                        --  Not a known basic type, let's try to parse a
+                        --  record object. This implemtation does not
+                        --  support schema so there is no way to check
+                        --  for the real type here.
 
-               when A_Double =>
-                  return Parse_Double (Name, Ref);
-
-               when A_String =>
-                  return Parse_String (Name, Ref);
-
-               when A_Boolean =>
-                  return Parse_Boolean (Name, Ref);
-
-               when A_Time_Instant =>
-                  return Parse_Time_Instant (Name, Ref);
-
-               when A_Base64 =>
-                  return Parse_Base64 (Name, Ref);
-
-               when Void | A_Undefined =>
-
-                  if XSI_Type = null then
-                     declare
-                        N : constant DOM.Core.Node
-                          := Get_Named_Item (Atts, -LS.NS.xsi & ":null");
-                     begin
-                        if N = null then
-                           Error (Parse_Param.N, "Wrong or unsupported type");
-                        else
-                           return Types.N (Name);
-                        end if;
-                     end;
+                        return Parse_Record (Name, Ref, S);
+                     end if;
 
                   else
-
-                     declare
-                        xsd : constant String     := Node_Value (XSI_Type);
-                        NS  : constant Namespaces := LS.NS;
-                     begin
-                        if Is_A (xsd, Types.XML_Int, NS.xsd) then
-                           return Parse_Int (Name, Ref);
-
-                        elsif Is_A (xsd, Types.XML_Long, NS.xsd) then
-                           return Parse_Long (Name, Ref);
-
-                        elsif Is_A (xsd, Types.XML_Float, NS.xsd) then
-                           return Parse_Float (Name, Ref);
-
-                        elsif Is_A (xsd, Types.XML_Double, NS.xsd) then
-                           return Parse_Double (Name, Ref);
-
-                        elsif Is_A (xsd, Types.XML_String, NS.xsd) then
-                           return Parse_String (Name, Ref);
-
-                        elsif Is_A (xsd, Types.XML_Boolean, NS.xsd) then
-                           return Parse_Boolean (Name, Ref);
-
-                        elsif Is_A (xsd, Types.XML_Time_Instant, NS.xsd) then
-                           return Parse_Time_Instant (Name, Ref);
-
-                        elsif Is_A (xsd, Types.XML_Base64, NS.enc) then
-                           return Parse_Base64 (Name, Ref);
-
-                        elsif Is_Array then
-                           return Parse_Array (Name, Ref, S);
-
-                        else
-                           --  Not a known basic type, let's try to parse a
-                           --  record object. This implemtation does not
-                           --  support schema so there is no way to check
-                           --  for the real type here.
-
-                           return Parse_Record (Name, Ref, S);
-                        end if;
-                     end;
+                     return Handlers (S_Type).Handler (Name, Ref);
                   end if;
-            end case;
+               end;
+
+            else
+               return Handlers (S.A_State).Handler (Name, Ref);
+            end if;
          end if;
       end if;
    end Parse_Param;
@@ -1070,5 +1018,28 @@ package body SOAP.Message.XML is
          end if;
       end loop;
    end Parse_Wrapper;
+
+   -------------
+   -- To_Type --
+   -------------
+
+   function To_Type
+     (Type_Name : in String;
+      NS        : in Namespaces)
+      return Type_State is
+   begin
+      for K in Handlers'Range loop
+         if Handlers (K).Name /= null
+           and then
+             ((Handlers (K).Encoded
+               and then Is_A (Type_Name, Handlers (K).Name.all, NS.enc))
+              or else Is_A (Type_Name, Handlers (K).Name.all, NS.xsd))
+         then
+            return K;
+         end if;
+      end loop;
+
+      return T_Undefined;
+   end To_Type;
 
 end SOAP.Message.XML;
