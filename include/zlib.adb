@@ -82,13 +82,13 @@ package body ZLib is
    Flush_Finish : constant array (Boolean) of Flush_Mode
      := (True => Finish, False => No_Flush);
 
-   procedure Raise_Error (Stream : Z_Stream);
+   procedure Raise_Error (Stream : in Z_Stream);
    pragma Inline (Raise_Error);
 
-   procedure Raise_Error (Message : String);
+   procedure Raise_Error (Message : in String);
    pragma Inline (Raise_Error);
 
-   procedure Check_Error (Stream : Z_Stream; Code : Thin.Int);
+   procedure Check_Error (Stream : in Z_Stream; Code : in Thin.Int);
 
    procedure Free is new Ada.Unchecked_Deallocation
       (Z_Stream, Z_Stream_Access);
@@ -118,7 +118,7 @@ package body ZLib is
    -- Check_Error --
    -----------------
 
-   procedure Check_Error (Stream : Z_Stream; Code : Thin.Int) is
+   procedure Check_Error (Stream : in Z_Stream; Code : in Thin.Int) is
       use type Thin.Int;
    begin
       if Code /= Thin.Z_OK then
@@ -254,14 +254,14 @@ package body ZLib is
       In_Buffer_Size  : Integer := Default_Buffer_Size;
       Out_Buffer_Size : Integer := Default_Buffer_Size)
    is
-      In_Buffer : Stream_Element_Array
+      In_Buffer  : Stream_Element_Array
          (1 .. Stream_Element_Offset (In_Buffer_Size));
       Out_Buffer : Stream_Element_Array
         (1 .. Stream_Element_Offset (Out_Buffer_Size));
-      Last : Stream_Element_Offset;
-      In_Last : Stream_Element_Offset;
-      In_First : Stream_Element_Offset;
-      Out_Last : Stream_Element_Offset;
+      Last       : Stream_Element_Offset;
+      In_Last    : Stream_Element_Offset;
+      In_First   : Stream_Element_Offset;
+      Out_Last   : Stream_Element_Offset;
    begin
       Main : loop
          Data_In (In_Buffer, Last);
@@ -364,12 +364,12 @@ package body ZLib is
    -- Raise_Error --
    -----------------
 
-   procedure Raise_Error (Message : String) is
+   procedure Raise_Error (Message : in String) is
    begin
       Ada.Exceptions.Raise_Exception (ZLib_Error'Identity, Message);
    end Raise_Error;
 
-   procedure Raise_Error (Stream : Z_Stream) is
+   procedure Raise_Error (Stream : in Z_Stream) is
    begin
       Raise_Error (Last_Error_Message (Stream));
    end Raise_Error;
@@ -527,7 +527,6 @@ package body ZLib is
          - Stream_Element_Offset (Avail_In (Filter.Strm.all));
       Out_Last := Out_Data'Last
          - Stream_Element_Offset (Avail_Out (Filter.Strm.all));
-
    end Translate_Auto;
 
    --------------------
@@ -542,7 +541,7 @@ package body ZLib is
       Out_Last  :    out Ada.Streams.Stream_Element_Offset;
       Flush     : in     Flush_Mode)
    is
-      Out_First  : Stream_Element_Offset;
+      Out_First : Stream_Element_Offset;
 
       procedure Add_Data (Data : in Stream_Element_Array);
       --  Add data to stream from the Filter.Offset till necessary,
@@ -617,7 +616,6 @@ package body ZLib is
             Flush    => Flush);
 
          CRC32 (Filter.CRC, In_Data (In_Data'First .. In_Last));
-
       end if;
 
       if Filter.Stream_End and then Out_Last <= Out_Data'Last then
@@ -657,8 +655,9 @@ package body ZLib is
       Item   : in     Ada.Streams.Stream_Element_Array;
       Flush  : in     Flush_Mode := No_Flush)
    is
-      Buffer : Stream_Element_Array (1 .. Buffer_Size);
-      In_Last, Out_Last : Stream_Element_Offset;
+      Buffer   : Stream_Element_Array (1 .. Buffer_Size);
+      In_Last  : Stream_Element_Offset;
+      Out_Last : Stream_Element_Offset;
       In_First : Stream_Element_Offset := Item'First;
    begin
       if Item'Length = 0 and Flush = No_Flush then
