@@ -108,16 +108,16 @@ private
    --  maybe this timeouts should be in the server configuration
    Timeouts : array (Timeout_Mode, Abortable_Phase) of Duration
      := (Cleaner => -- Timeouts for Line_Cleaner
-           (Wait_For_Client  => 80.0,
-            Client_Header    => 20.0,
-            Client_Data      => 2000.0,
-            Server_Response  => 30000.0),
+           (Wait_For_Client  => Config.Cleaner_Wait_For_Client_Timeout,
+            Client_Header    => Config.Cleaner_Client_Header_Timeout,
+            Client_Data      => Config.Cleaner_Client_Data_Timeout,
+            Server_Response  => Config.Cleaner_Server_Response_Timeout),
 
          Force   => -- Force timeouts used when there is no free slot
-           (Wait_For_Client  => 1.0,
-            Client_Header    => 3.0,
-            Client_Data      => 1500.0,
-            Server_Response  => 20000.0));
+           (Wait_For_Client  => Config.Force_Wait_For_Client_Timeout,
+            Client_Header    => Config.Force_Client_Header_Timeout,
+            Client_Data      => Config.Force_Client_Data_Timeout,
+            Server_Response  => Config.Cleaner_Server_Response_Timeout));
 
    type Slot is record
       Sock                  : Sockets.Socket_FD;
@@ -162,7 +162,7 @@ private
       function Free_Slots return Natural;
       --  Returns number of free slots.
 
-      entry Get (FD : in Sockets.Socket_FD; Index : in Positive);
+      procedure Get (FD : in Sockets.Socket_FD; Index : in Positive);
       --  Mark slot at position Index to be used. This slot will be associated
       --  with the socket FD. Phase set to Client_Header.
 
