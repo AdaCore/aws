@@ -20,12 +20,6 @@ implemented:
 - support standard method encoding under HTTP/1.1 for small files instead of
   the chuncked encoding.
 
-- add support for multi-callbacks (calling a callback depending on a regular
-  expression). A default callback procedure which act as a file server could
-  be provided. Could be a way to integrate templates (see above) ? Not sure it
-  is a good idea, better to implement multi-server each one would handle a set
-  of URL for example... see below.
-
 - digest authentification (only basic authentification is supported right
   now, which is to say no authetification at all :)
 
@@ -44,3 +38,5 @@ implemented:
 
 - integrate Template_Parser with AWS. A callback which knows how to parse
   .tmplt files ???
+
+- document the logging facility
