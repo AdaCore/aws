@@ -38,7 +38,7 @@ package body AWS.Response is
 
    function Acknowledge (Status_Code  : in Messages.Status_Code;
                          Message_Body : in String := "";
-                         Content_Type : in String := "text/html")
+                         Content_Type : in String := MIME.Text_HTML)
      return Data is
    begin
       if Message_Body = "" then
@@ -86,7 +86,7 @@ package body AWS.Response is
       return Data'(Message,
                    Messages.S401,
                    Auth_Mess'Length,
-                   To_Unbounded_String ("text/html"),
+                   To_Unbounded_String (AWS.MIME.Text_HTML),
                    To_Unbounded_String (Auth_Mess),
                    To_Unbounded_String (Realm),
                    Null_Unbounded_String,
@@ -228,7 +228,7 @@ package body AWS.Response is
       return Data'(Response.Message,
                    Messages.S301,
                    Message_Body'Length,
-                   To_Unbounded_String ("text/html"),
+                   To_Unbounded_String (AWS.MIME.Text_HTML),
                    To_Unbounded_String (Message_Body),
                    To_Unbounded_String (Location),
                    Null_Unbounded_String,
