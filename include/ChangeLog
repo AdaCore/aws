@@ -1,5 +1,8 @@
 2003-12-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* templates_parser-filter.adb:
+        (Format_Number): Fix bug when the input string is empty.
+
 	* templates_parser.adb:
         Update to new version. Fix attribute detection.
 
