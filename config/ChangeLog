@@ -1,3 +1,9 @@
+2004-10-29  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
+	(Send): Call Net.Log.Write if socket log activated.
+	(Receive): Call Net.Log.Write if socket log activated.
+
 2004-10-25  Pascal Obry  <pascal@obry.org>
 
 	* aws-net-std__adasockets.adb:
