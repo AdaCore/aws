@@ -154,8 +154,8 @@ Templates_Parser sources:
 
    Latest version of this module and the documentation can be found at:
 
-   http://perso.wanadoo.fr/pascal.obry/contrib.html
-   http://perso.wanadoo.fr/pascal.obry/templates_parser.html
+   http://www.obry.org/contrib.html
+   http://www.obry.org/templates_parser.html
 
    Templates_Parser is a very useful add-on for AWS. You should have a look at
    it if you plan to develop a Web application. Templates_Parser permits to
@@ -180,7 +180,7 @@ Socket binding (Optional) :
    that by default AWS uses GNAT.Sockets.
 
    for Win32:
-      http://perso.wanadoo.fr/pascal.obry/contrib.html
+      http://www.obry.org/contrib.html
       http://vagul.tripod.com/adasockets.tgz
 
    for UNIX:
@@ -196,7 +196,7 @@ XMLada (optional):
 POSIX Binding (optional) :
 
    for Win32:
-      http://perso.wanadoo.fr/pascal.obry/contrib.html
+      http://www.obry.org/contrib.html
 
    for UNIX:
       http://www.cs.fsu.edu/~baker/florist.html
@@ -247,7 +247,7 @@ Reporting bugs:
 You can report bugs to:
 
    Dmitriy Anisimkov	anisimkov@yahoo.com
-   Pascal Obry		p.obry@wanadoo.fr
+   Pascal Obry		pascal@obry.org
 
 It would be nice if you could also sent us a note if you are using AWS just
 to know if it is used at all or not :) And if you are ok, we'll add an entry
