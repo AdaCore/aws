@@ -1017,10 +1017,17 @@ package body AWS.Client is
                declare
 
                   function Get_URI return String;
-                  --  ??? need comments
+                  --  Returning the real URI where
+                  --  the request is going to be send.
+                  --  It is eather Open_Send_Common_Header.URI parameter
+                  --  if exists (without HTTP parameters part),
+                  --  or URI part of the Connect_URL field of Connection
+                  --  properties if Open_Send_Common_Header.URI is empty.
 
                   function QOP_Data return String;
-                  --  ??? need comments
+                  --  returning string with qop, cnonce, nc parameters
+                  --  if qop parameter exists in the server auth request,
+                  --  or empty string if not (RFC 2617 3.2.2)
 
                   Response : AWS.Digest.Digest_String;
 
@@ -1075,7 +1082,9 @@ package body AWS.Client is
                         Data.NC := Data.NC + 1;
 
                         Ada.Integer_Text_IO.Put (NC, Data.NC, 16);
-                        --  ??? We should use AWS.Utils.Hex
+                        --  We do not use AWS.Utils.Hex
+                        --  becouse we need a bit different format,
+                        --  with 8 symbols augmented by 0 at the left.
 
                         NC (NC'Length - 8 .. Strings.Fixed.Index (NC, "#"))
                           := (others => '0');
@@ -1236,10 +1245,14 @@ package body AWS.Client is
       procedure Parse_Authenticate_Line
         (Level : in Authentication_Level;
          Data  : in String);
-      --  ??? needs comments
+      --  Parses Authentication request line
+      --  and fill one of the Connection.Auth field elements
+      --  Depend of Authentication request WWW or Proxy.
 
       procedure Set_Keep_Alive (Data : in String);
-      --  ??? needs comments
+      --  Set the Keep_Alive out parameter depend on
+      --  data from the Proxy-Connection or Connection
+      --  header line
 
       -----------------------------
       -- Parse_Authenticate_Line --
@@ -1300,9 +1313,18 @@ package body AWS.Client is
                   "Only MD5 algorithm is supported.");
             end if;
 
-            --  Do not know what to do with it now.
-            --  until we do not support interactive logon.
-            --  ???
+            --  The parameter Stale is true when the Digest value is right
+            --  but the nonce value is too old or incorrect.
+            --  This mean that interactive HTTP client should not ask
+            --  name/password from the user, and try to use name/password from the
+            --  previos successful authentication attempt.
+            --  We do not need to check Stale authentication parameter
+            --  for now, becouse our client is not interactive now,
+            --  we are not going to ask user to input the name/password
+            --  anyway. We could uncomment it later, when we would provide
+            --  some interactive behavior to AWS.Client or interface to the
+            --  interactive programs by callback to the AWS.Client.
+            --
             --  if Messages.Is_Match ("true", To_String (Result (Stale))) then
             --     null;
             --  end if;
@@ -1329,6 +1351,10 @@ package body AWS.Client is
       --  We should initialize Keep_Alive, because it is possible to receive
       --  absolutely incorrect answer from server.
       --  ???
+      --  This comment would gone, when we would check the
+      --  Messages.HTTP_Token only in the first line.
+      --  and raise exception if the first line is not match HTTP_Token
+      --  I think it's better.
 
       Keep_Alive := False;
 
