@@ -30,15 +30,18 @@
 
 --  $Id$
 
+with Ada.Strings.Unbounded;
 with SOAP.Message.Payload;
 with SOAP.Message.Response;
 
 package SOAP.Message.XML is
 
+   use Ada.Strings.Unbounded;
+
    function Load_Payload
      (XML : in String)
       return Message.Payload.Object;
-   --  Build a Payload object by parsing the XML payload string.
+   --  Build a Payload object by parsing the XML payload string
 
    function Load_Response
      (XML : in String)
@@ -46,10 +49,15 @@ package SOAP.Message.XML is
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the XML response string.
 
+   function Load_Response
+     (XML : in Unbounded_String)
+     return Message.Response.Object'Class;
+   --  As above but using an Unbounded_String
+
    function Image (O : in Object'Class) return String;
-   --  Returns XML representation of object O.
+   --  Returns XML representation of object O
 
    function Image (O : in Object'Class) return Unbounded_String;
-   --  Idem as above but returns an Unbounded_String instead of a String.
+   --  Idem as above but returns an Unbounded_String instead of a String
 
 end SOAP.Message.XML;
