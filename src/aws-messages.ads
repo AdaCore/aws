@@ -41,88 +41,75 @@ package AWS.Messages is
    -----------------
 
    HTTP_Token : constant String := "HTTP/";
-
-   Accept_Token : constant String := "Accept: ";
-   subtype Accept_Range is Positive range Accept_Token'Range;
-
-   Accept_Language_Token : constant String := "Accept-Language: ";
-   subtype Accept_Language_Range is Positive range Accept_Language_Token'Range;
-
-   Authorization_Token : constant String := "Authorization: ";
-   subtype Authorization_Range is Positive range Authorization_Token'Range;
-
-   Proxy_Authorization_Token : constant String := "Proxy-Authorization: ";
-   subtype Proxy_Authorization_Range
-     is Positive range Proxy_Authorization_Token'Range;
-
-   Connection_Token : constant String := "Connection: ";
-   subtype Connection_Range is Positive range Connection_Token'Range;
-
-   Proxy_Connection_Token : constant String := "Proxy-Connection: ";
-   subtype Proxy_Connection_Range
-     is Positive range Proxy_Connection_Token'Range;
-
-   Content_Disposition_Token : constant String := "Content-Disposition: ";
-   subtype Content_Disposition_Range
-     is Positive range Content_Disposition_Token'Range;
-
-   Content_Length_Token : constant String := "Content-Length: ";
-   subtype Content_Length_Range is Positive range Content_Length_Token'Range;
-
-   Content_Type_Token : constant String := "Content-Type: ";
-   subtype Content_Type_Range is Positive range Content_Type_Token'Range;
-
-   Cache_Control_Token : constant String := "Cache-Control: ";
-   subtype Cache_Control_Range is Positive range Cache_Control_Token'Range;
-
-   Get_Token : constant String := "GET ";
-   subtype Get_Range is Positive range Get_Token'Range;
-
+   Get_Token  : constant String := "GET ";
    Head_Token : constant String := "HEAD ";
-   subtype Head_Range is Positive range Head_Token'Range;
-
-   Host_Token : constant String := "Host: ";
-   subtype Host_Range is Positive range Host_Token'Range;
-
-   If_Modified_Since_Token : constant String := "If-Modified-Since: ";
-   subtype If_Modified_Since_Range
-     is Positive range If_Modified_Since_Token'Range;
-
-   Location_Token : constant String := "Location: ";
-   subtype Location_Range is Positive range Location_Token'Range;
-
    Post_Token : constant String := "POST ";
-   subtype Post_Range is Positive range Post_Token'Range;
 
-   Transfer_Encoding_Token : constant String := "Transfer-Encoding: ";
-   subtype Transfer_Encoding_Range
-     is Positive range Transfer_Encoding_Token'Range;
+   ------------------------
+   -- HTTP header tokens --
+   ------------------------
 
-   Cookie_Token : constant String := "Cookie: ";
-   subtype Cookie_Range is Positive range Cookie_Token'Range;
+   --  General header tokens RFC 2616
+   Cache_Control_Token       : constant String := "Cache-Control";
+   Connection_Token          : constant String := "Connection";
+   Date_Token                : constant String := "Date";
+   Pragma_Token              : constant String := "Pragma";
+   Trailer_Token             : constant String := "Trailer";
+   Transfer_Encoding_Token   : constant String := "Transfer-Encoding";
+   Upgrade_Token             : constant String := "Upgrade";
+   Via_Token                 : constant String := "Via";
+   Warning_Token             : constant String := "Warning";
 
-   Set_Cookie_Token : constant String := "Set-Cookie: ";
-   subtype Set_Cookie_Range is Positive range Set_Cookie_Token'Range;
+   --  Request header tokens RFC 2616
+   Accept_Token              : constant String := "Accept";
+   Accept_Charset_Token      : constant String := "Accept-Charset";
+   Accept_Encoding_Token     : constant String := "Accept-Encoding";
+   Accept_Language_Token     : constant String := "Accept-Language";
+   Authorization_Token       : constant String := "Authorization";
+   Expect_Token              : constant String := "Expect";
+   From_Token                : constant String := "From";
+   Host_Token                : constant String := "Host";
+   If_Match_Token            : constant String := "If-Match";
+   If_Modified_Since_Token   : constant String := "If-Modified-Since";
+   If_None_Match_Token       : constant String := "If-None-Match";
+   If_Range_Token            : constant String := "If-Range";
+   If_Unmodified_Since_Token : constant String := "If-Unmodified-Since";
+   Max_Forwards_Token        : constant String := "Max-Forwards";
+   Proxy_Authorization_Token : constant String := "Proxy-Authorization";
+   Range_Token               : constant String := "Range";
+   Referer_Token             : constant String := "Referer";
+   TE_Token                  : constant String := "TE";
+   User_Agent_Token          : constant String := "User-Agent";
 
-   User_Agent_Token : constant String := "User-Agent: ";
-   subtype User_Agent_Range is Positive range User_Agent_Token'Range;
+   --  Response header tokens RFC 2616
+   Accept_Ranges_Token       : constant String := "Accept-Ranges";
+   Age_Token                 : constant String := "Age";
+   ETag_Token                : constant String := "ETag";
+   Location_Token            : constant String := "Location";
+   Proxy_Authenticate_Token  : constant String := "Proxy-Authenticate";
+   Retry_After_Token         : constant String := "Retry-After";
+   Server_Token              : constant String := "Server";
+   Vary_Token                : constant String := "Vary";
+   WWW_Authenticate_Token    : constant String := "WWW-Authenticate";
 
-   Referer_Token : constant String := "Referer: ";
-   subtype Referer_Range is Positive range Referer_Token'Range;
+   --  Entity header tokens RFC 2616
+   Allow_Token               : constant String := "Allow";
+   Content_Encoding_Token    : constant String := "Content-Encoding";
+   Content_Language_Token    : constant String := "Content-Language";
+   Content_Length_Token      : constant String := "Content-Length";
+   Content_Location_Token    : constant String := "Content-Location";
+   Content_MD5_Token         : constant String := "Content-MD5";
+   Content_Range_Token       : constant String := "Content-Range";
+   Content_Type_Token        : constant String := "Content-Type";
+   Expires_Token             : constant String := "Expires";
+   Last_Modified_Token       : constant String := "Last-Modified";
 
-   SOAPAction_Token : constant String := "SOAPAction: ";
-   subtype SOAPAction_Range is Positive range SOAPAction_Token'Range;
-
-   Last_Modified_Token : constant String := "Last-Modified: ";
-   subtype Last_Modified_Range is Positive range Last_Modified_Token'Range;
-
-   WWW_Authenticate_Token : constant String := "WWW-Authenticate: ";
-   subtype WWW_Authenticate_Range is
-     Positive range WWW_Authenticate_Token'Range;
-
-   Proxy_Authenticate_Token : constant String := "Proxy-Authenticate: ";
-   subtype Proxy_Authenticate_Range
-     is Positive range Proxy_Authenticate_Token'Range;
+   --  Other tokens.
+   Proxy_Connection_Token    : constant String := "Proxy-Connection";
+   Content_Disposition_Token : constant String := "Content-Disposition";
+   Cookie_Token              : constant String := "Cookie";
+   Set_Cookie_Token          : constant String := "Set-Cookie";
+   SOAPAction_Token          : constant String := "SOAPAction";
 
    -----------------
    -- Status Code --
@@ -185,6 +172,9 @@ package AWS.Messages is
    function Content_Length (Size : in Natural) return String;
    pragma Inline (Content_Length);
 
+   function Cookie (Value : in String) return String;
+   pragma Inline (Cookie);
+
    function Content_Type
      (Format   : in String;
       Boundary : in String := "")
@@ -231,16 +221,16 @@ package AWS.Messages is
    function User_Agent (Name : in String) return String;
    pragma Inline (User_Agent);
 
-   function Www_Authenticate (Realm : in String) return String;
-   pragma Inline (Www_Authenticate);
+   function WWW_Authenticate (Realm : in String) return String;
+   pragma Inline (WWW_Authenticate);
    --  Basic authentication request.
 
-   function Www_Authenticate
+   function WWW_Authenticate
      (Realm : in String;
       Nonce : in String;
       Stale : in Boolean)
       return String;
-   pragma Inline (Www_Authenticate);
+   pragma Inline (WWW_Authenticate);
    --  Digest authentication request.
 
    --  helper functions
