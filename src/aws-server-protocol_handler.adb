@@ -740,7 +740,7 @@ is
                      Data : Streams.Stream_Element_Array
                        (1 .. Streams.Stream_Element_Offset
                           (AWS.Resources.Streams.Memory.Size (Content)));
-                     Last :  Streams.Stream_Element_Offset;
+                     Last : Streams.Stream_Element_Offset;
                   begin
                      AWS.Resources.Streams.Memory.Read
                        (Resource => Content,
