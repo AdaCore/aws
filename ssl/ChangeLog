@@ -1,3 +1,9 @@
+2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(wrappers): Removed.
+	(build): Build libsslaws.a.
+
 2002-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl-thin.ads:
