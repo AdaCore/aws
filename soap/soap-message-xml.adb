@@ -30,7 +30,6 @@
 
 --  $Id$
 
-with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Exceptions;
@@ -42,7 +41,7 @@ with DOM.Core.Nodes;
 with Sax.Readers;
 
 with SOAP.Message.Reader;
-
+with SOAP.Message.Response.Error;
 with SOAP.Types;
 
 package body SOAP.Message.XML is
@@ -342,8 +341,6 @@ package body SOAP.Message.XML is
    ----------------
 
    procedure Parse_Body (N : in DOM.Core.Node; S : in out State) is
-      NL   : constant DOM.Core.Node_List := Child_Nodes (N);
-      Name : constant String := Local_Name (N);
    begin
       Parse_Wrapper (First_Child (N), S);
    end Parse_Body;
