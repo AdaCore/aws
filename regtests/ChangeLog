@@ -13,7 +13,10 @@
 	Just call wait_proc.adb.
 
 	* wait_sec.adb, wait_sec.out:
-	New regtest. Not working. Have to be fixed before place to makefile.
+	New regtest.
+
+	* makefile:
+	Add wait_sec.
 
 2004-06-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
