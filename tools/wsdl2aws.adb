@@ -35,7 +35,11 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with GNAT.Command_Line;
+with GNAT.Directory_Operations;
+with GNAT.OS_Lib;
 
+with AWS.Client;
+with AWS.Response;
 with SOAP.Generator;
 with SOAP.WSDL.Parser;
 
@@ -50,6 +54,11 @@ procedure WSDL2AWS is
    Syntax_Error : exception;
 
    procedure Parse_Command_Line;
+   --  Parse command line arguments
+
+   function Get_Document (URL : in Unbounded_String) return Unbounded_String;
+   --  Get WSDL document pointed to by URL, returns the name of the local
+   --  filename.
 
    Gen : SOAP.Generator.Object;
    Def : SOAP.WSDL.Object;
@@ -57,10 +66,43 @@ procedure WSDL2AWS is
    Filename : Unbounded_String;
    Proxy    : Unbounded_String;
    Pu, Pp   : Unbounded_String;
+   Force    : Boolean := False;
 
    WSDL_Des : Boolean := False;
 
    Verbose  : SOAP.WSDL.Parser.Verbose_Level := 0;
+
+   ------------------
+   -- Get_Document --
+   ------------------
+
+   function Get_Document (URL : in Unbounded_String) return Unbounded_String is
+      L_URL    : constant String := To_String (URL);
+      Filename : constant String := Directory_Operations.File_Name (L_URL);
+      Response : AWS.Response.Data;
+      File     : Text_IO.File_Type;
+   begin
+      Response := AWS.Client.Get
+        (L_URL,
+         Proxy      => To_String (Proxy),
+         Proxy_User => To_String (Pu),
+         Proxy_Pwd  => To_String (Pp));
+
+      if OS_Lib.Is_Regular_File (Filename) and then not Force then
+         Exceptions.Raise_Exception
+           (Constraint_Error'Identity,
+            "WSDL file " & Filename & " already present, use -f option "
+              & "to overwrite");
+      end if;
+
+      Text_IO.Create (File, Text_IO.Out_File, Filename);
+
+      Text_IO.Put_Line (File, AWS.Response.Message_Body (Response));
+
+      Text_IO.Close (File);
+
+      return To_Unbounded_String (Filename);
+   end Get_Document;
 
    ------------------------
    -- Parse_Command_Line --
@@ -70,7 +112,7 @@ procedure WSDL2AWS is
    begin
       loop
          case Command_Line.Getopt
-           ("q a f v proxy: pu: pp: rpc wsdl cvs nostub noskel")
+           ("q a f v s proxy: pu: pp: rpc wsdl cvs nostub noskel")
          is
             when ASCII.NUL => exit;
 
@@ -81,6 +123,7 @@ procedure WSDL2AWS is
                SOAP.Generator.Ada_Style (Gen);
 
             when 'f' =>
+               Force := True;
                SOAP.Generator.Overwrite (Gen);
 
             when 'r' =>
@@ -89,6 +132,9 @@ procedure WSDL2AWS is
                else
                   raise Syntax_Error;
                end if;
+
+            when 's' =>
+               SOAP.WSDL.Parser.Continue_On_Error;
 
             when 'v' =>
                Verbose := Verbose + 1;
@@ -145,6 +191,8 @@ procedure WSDL2AWS is
       end if;
    end Parse_Command_Line;
 
+   use Text_IO;
+
 begin
    Parse_Command_Line;
 
@@ -169,37 +217,41 @@ begin
 
    if Filename = Null_Unbounded_String then
       raise Syntax_Error;
-   else
-      Def := SOAP.WSDL.Load (To_String (Filename));
+
+   elsif Length (Filename) > 7 and then Slice (Filename, 1, 7) = "http://" then
+      Filename := Get_Document (Filename);
    end if;
+
+   Def := SOAP.WSDL.Load (To_String (Filename));
 
    SOAP.WSDL.Parser.Parse (Gen, Def);
 
 exception
    when Syntax_Error | Command_Line.Invalid_Switch =>
-      Text_IO.New_Line;
-      Text_IO.Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
-      Text_IO.New_Line;
-      Text_IO.Put_Line ("Usage: wsdl2aws [options] <file>");
-      Text_IO.Put_Line ("   -q        Quiet mode");
-      Text_IO.Put_Line ("   -a        Ada style identifier");
-      Text_IO.Put_Line ("   -f        Force stub/skeleton generation");
-      Text_IO.Put_Line ("   -rpc      Accept RPC style binding");
-      Text_IO.Put_Line ("   -v        Verbose mode");
-      Text_IO.Put_Line ("   -v -v     Very verbose mode");
-      Text_IO.Put_Line ("   -wsdl     Add WSDL file in unit comment");
-      Text_IO.Put_Line ("   -cvs      Add CVS tag in unit's headers");
-      Text_IO.Put_Line ("   -nostub   Do not create stub units");
-      Text_IO.Put_Line ("   -noskel   Do not create skeleton units");
-      Text_IO.Put_Line ("   -proxy n  Name or IP of the proxy");
-      Text_IO.Put_Line ("   -pu n     The proxy user name");
-      Text_IO.Put_Line ("   -pp n     The proxy password");
-      Text_IO.New_Line;
+      New_Line;
+      Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
+      New_Line;
+      Put_Line ("Usage: wsdl2aws [options] <file|URL>");
+      Put_Line ("   -q        Quiet mode");
+      Put_Line ("   -a        Ada style identifier");
+      Put_Line ("   -f        Force files creation stub/skeleton/WSDL");
+      Put_Line ("   -s        Skip non supported SOAP routines");
+      Put_Line ("   -rpc      Accept RPC style binding");
+      Put_Line ("   -v        Verbose mode");
+      Put_Line ("   -v -v     Very verbose mode");
+      Put_Line ("   -wsdl     Add WSDL file in unit comment");
+      Put_Line ("   -cvs      Add CVS tag in unit's headers");
+      Put_Line ("   -nostub   Do not create stub units");
+      Put_Line ("   -noskel   Do not create skeleton units");
+      Put_Line ("   -proxy n  Name or IP of the proxy");
+      Put_Line ("   -pu n     The proxy user name");
+      Put_Line ("   -pp n     The proxy password");
+      New_Line;
 
    when E : others =>
-      Text_IO.New_Line;
-      Text_IO.Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
-      Text_IO.New_Line;
-      Text_IO.Put_Line ("Error: " & Exception_Information (E));
-      Text_IO.New_Line;
+      New_Line;
+      Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
+      New_Line;
+      Put_Line ("Error: " & Exception_Information (E));
+      New_Line;
 end WSDL2AWS;
