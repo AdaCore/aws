@@ -428,8 +428,8 @@ procedure SOAP_SVS is
          A : constant SOAP_Array := SOAP.Parameters.Get (P, "myArray");
          O : constant Object_Set := V (A);
 
-         S1 : constant String := Get (O (O'First).O.all);
-         S2 : constant String := Get (O (O'Last).O.all);
+         S1 : constant String := Get (-O (O'First));
+         S2 : constant String := Get (-O (O'Last));
       begin
          RP := +S (S1 & S2, "answer");
       end;
