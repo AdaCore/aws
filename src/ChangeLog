@@ -1,3 +1,9 @@
+2002-11-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_Resource): Correctly handle case HTTP/1.0 and unknown data
+	 length. Add RFC reference.
+
 2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
