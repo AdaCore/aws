@@ -62,6 +62,7 @@ package body Stub is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
+      Namespace  : in     String;
       Input      : in     WSDL.Parameters.P_Set;
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set)
@@ -86,7 +87,31 @@ package body Stub is
          N      : in WSDL.Parameters.P_Set);
       --  Output a record parameter
 
+      procedure Output_Array
+        (K      : in Positive;
+         Prefix : in String;
+         N      : in WSDL.Parameters.P_Set);
+      --  Output an array parameter
+
       procedure Output_Result (N : in WSDL.Parameters.P_Set);
+
+      ------------------
+      -- Output_Array --
+      ------------------
+
+      procedure Output_Array
+        (K      : in Positive;
+         Prefix : in String;
+         N      : in WSDL.Parameters.P_Set)
+      is
+         pragma Unreferenced (Prefix);
+         pragma Unreferenced (K);
+      begin
+         Text_IO.Put
+           (Stub_Adb, "A (To_Object_Set ("
+              & Format_Name (O, To_String (N.Name))
+              & "), """ & To_String (N.Name) & """)");
+      end Output_Array;
 
       ----------------------
       -- Output_Parameter --
@@ -116,8 +141,14 @@ package body Stub is
 
             if N.Mode = WSDL.Parameters.K_Simple then
                Output_Simple (K + 1, Prefix, N);
+
             else
-               Output_Record (K + 1, Prefix, N);
+
+               if Utils.Is_Array (To_String (N.C_Name)) then
+                  Output_Array (K + 1, Prefix, N);
+               else
+                  Output_Record (K + 1, Prefix, N);
+               end if;
             end if;
          end if;
       end Output_Parameter;
@@ -185,9 +216,16 @@ package body Stub is
       procedure Output_Simple
         (K      : in Positive;
          Prefix : in String;
-         N      : in WSDL.Parameters.P_Set) is
+         N      : in WSDL.Parameters.P_Set)
+      is
+         use type WSDL.Parameter_Type;
       begin
-         Text_IO.Put (Stub_Adb, SOAP_Constructor (N.P_Type));
+         if Prefix /= "" and then N.P_Type = WSDL.P_String then
+            --  A string inside a record
+            Text_IO.Put (Stub_Adb, "SOAP.utils.US");
+         else
+            Text_IO.Put (Stub_Adb, SOAP_Constructor (N.P_Type));
+         end if;
 
          Text_IO.Put
            (Stub_Adb,
@@ -215,7 +253,7 @@ package body Stub is
 
       Text_IO.Put_Line (Stub_Ads, ";");
       Text_IO.Put_Line
-        (Stub_Ads, "   --  Raises SOAP.SOAP_Error is the procedure fails.");
+        (Stub_Ads, "   --  Raises SOAP.SOAP_Error if the procedure fails");
 
       --  Body
 
@@ -243,8 +281,15 @@ package body Stub is
       Text_IO.Put_Line (Stub_Adb, ";");
 
       Text_IO.Put_Line
-        (Stub_Adb, "      Payload := SOAP.Message.Payload.Build ("""
-           & Proc & """, P_Set);");
+        (Stub_Adb, "      Payload := SOAP.Message.Payload.Build");
+      Text_IO.Put
+        (Stub_Adb, "         (""" & Proc & """, P_Set");
+
+      if Namespace = "" then
+         Text_IO.Put_Line (Stub_Adb, ");");
+      else
+         Text_IO.Put_Line (Stub_Adb, ", """ & Namespace & """);");
+      end if;
 
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "      declare");
@@ -318,16 +363,32 @@ package body Stub is
                  & To_String (Output.Name)
                  & """);");
          else
-            Text_IO.Put_Line
-              (Stub_Adb,
-               "                  "
-                 & " := To_" & To_String (Output.C_Name) & "_Type");
-            Text_IO.Put_Line
-              (Stub_Adb,
-               "                  "
-                 & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
-                 & To_String (Output.Name)
-                 & """)));");
+
+            if Utils.Is_Array (To_String (Output.C_Name)) then
+               Text_IO.Put_Line
+                 (Stub_Adb,
+                  "                  "
+                    & ":= To_" & To_String (Output.C_Name));
+               Text_IO.Put_Line
+                 (Stub_Adb,
+                  "                  "
+                    & "(V (SOAP_Array'(SOAP.Parameters.Get (R_Param, """
+                    & To_String (Output.Name)
+                    & """))));");
+
+            else
+               Text_IO.Put_Line
+                 (Stub_Adb,
+                  "                  "
+                    & ":= To_" & To_String (Output.C_Name) & "_Type");
+               Text_IO.Put_Line
+                 (Stub_Adb,
+                  "                  "
+                    & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
+                    & To_String (Output.Name)
+                    & """)));");
+            end if;
+
          end if;
 
       else
@@ -396,6 +457,7 @@ package body Stub is
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Message.Response;");
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Parameters;");
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Types;");
+      Text_IO.Put_Line (Stub_Adb, "with SOAP.Utils;");
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "package body " & L_Name & ".Client is");
       Text_IO.New_Line (Stub_Adb);
