@@ -59,7 +59,12 @@ package AWS.Config is
 
    function Log_File_Directory return String;
    --  Format: Log_File_Directory <string>
-   --  This point to the directory where the log file will be written. The
-   --  directory returned will terminate by a directory separator.
+   --  This point to the directory where log files will be written. The
+   --  directory returned will end with a directory separator.
+
+   function Upload_Directory return String;
+   --  Format: Upload_Directory <string>
+   --  This point to the directory where uploaded files will be stored. The
+   --  directory returned will end with a directory separator.
 
 end AWS.Config;
