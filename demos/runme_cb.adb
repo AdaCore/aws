@@ -209,7 +209,7 @@ package body Runme_CB is
               & " message could have been"
               & " fetched on my file system..."
               & "<p>This is a secure connection as shown by your browser's"
-              & "icon"
+              & " icon"
               & "<p><img src=""/first_img"">"
               & "<p>Enter your name <form method=get action=/get-form>"
               & "<input type=text name=name value=""<default>"" size=15>"
