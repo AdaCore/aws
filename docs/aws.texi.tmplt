@@ -90,7 +90,7 @@ look for the Florist package at
 @item a socket binding ;
 
 Under Windows you must use the one on my homepage which is a port (done 
-by Dmitriy Anisimkov) to Win32 of the 0.1.6 version from ENST.
+by Dmitriy Anisimkov) to Win32 of the 0.1.9 version from ENST.
 
 Under UNIX you must use the socket binding from ENST 
 @url{http://www.infres.enst.fr/ANC/}.
