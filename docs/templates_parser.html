@@ -1,0 +1,1473 @@
+<HTML>
+<HEAD>
+<!-- This HTML file has been created by texi2html 1.52
+     from templates_parser.texi on 23 May 2001 -->
+
+<TITLE>Templates Parser</TITLE>
+</HEAD>
+<BODY>
+<H1>Templates Parser</H1>
+<H2>$Revision$</H2>
+<H2>$Date$</H2>
+<ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
+<P>
+<P><HR><P>
+<H1>Table of Contents</H1>
+<UL>
+<LI><A NAME="TOC1" HREF="templates_parser.html#SEC1">Introduction</A>
+<LI><A NAME="TOC2" HREF="templates_parser.html#SEC2">How to use it ?</A>
+<UL>
+<LI><A NAME="TOC3" HREF="templates_parser.html#SEC3">What is a tag ?</A>
+<LI><A NAME="TOC4" HREF="templates_parser.html#SEC4">Variable tags</A>
+<LI><A NAME="TOC5" HREF="templates_parser.html#SEC5">Tag statements</A>
+<UL>
+<LI><A NAME="TOC6" HREF="templates_parser.html#SEC6">INCLUDE tag statement</A>
+<LI><A NAME="TOC7" HREF="templates_parser.html#SEC7">IF tag statement</A>
+<LI><A NAME="TOC8" HREF="templates_parser.html#SEC8">TABLE tag statement</A>
+</UL>
+</UL>
+<LI><A NAME="TOC9" HREF="templates_parser.html#SEC9">Last notes</A>
+<LI><A NAME="TOC10" HREF="templates_parser.html#SEC10">Templates_Parser Ada spec</A>
+</UL>
+<P><HR><P>
+
+
+
+<H1><A NAME="SEC1" HREF="templates_parser.html#TOC1">Introduction</A></H1>
+
+<P>
+First of all this package is distributed under the GNAT modified GNU GPL.
+
+</P>
+<P>
+The templates parser package has been designed to parse files and to
+replace some specific tags into these files by some specified values.
+
+</P>
+<P>
+The main goal was to ease the development of Web servers. In CGI 
+(<I>Common Gateway Interface</I>) mode you have to write the HTML page in
+the program (in Ada or whatever other languages) by using some specific
+libraries or by using only basic output functions like Ada <CODE>Put_Line</CODE> for
+example. This is of course not mandatory but by lack of a good library
+every Web development end up doing just that.
+
+</P>
+<P>
+The main problems with this approach are:
+
+</P>
+
+<UL>
+
+<LI>It is painful to have to recompile the program each time you have
+
+a slight change to do in the design (center an image, change the border
+width of a table...)
+
+<LI>You have the design and the program merged together. It means that
+
+to change the design you must know the Ada language. And to change the
+Ada program you need to understand what is going on with all these
+inline HTML command.
+
+<LI>You can't use the nice tools to generate your HTML.
+
+</UL>
+
+<P>
+With the templates parser package these problems are gone. The code and
+the design is <B>completly</B> separated. This is a very important
+point. PHP or JSP have tried this but most of the time you have the
+script embedded into the Web template. And worst you need to use another
+language just for your Web development.
+
+</P>
+
+<UL>
+
+<LI>The HTML page is separated from the program code. Then you can
+
+change the design without changing the code. Moreover when you fix the
+code you don't have to handle all the specific HTML output. And you do
+not risk to break the design.
+
+<LI>It is easier to work on the design and the program at the same time
+
+using the right peoples for the job.
+
+<LI>It reduce the number of <I>edit/build/test</I> cycles. Writing HTML
+
+code from a program is error prone.
+
+<LI>It is possible to use standard tools to produce the HTML.
+
+<LI>You don't have to learn a new language.
+
+<LI>The script is Ada, so here you have the benefit of all the Ada power.
+
+</UL>
+
+<P>
+In fact, now the Ada program just compute some values, get some data
+from a database or whatever and then call the templates parser to output
+a page with the data displayed. To the templates parser you just pass
+the template filename and an associative table. 
+
+</P>
+<P>
+It is even more convenient to have different display with the same set
+of data. You just have to provides as many templates as you like.
+
+</P>
+
+
+<H1><A NAME="SEC2" HREF="templates_parser.html#TOC2">How to use it ?</A></H1>
+
+
+<UL>
+<LI><A HREF="templates_parser.html#SEC3">What is a tag ?</A>
+<LI><A HREF="templates_parser.html#SEC4">Variable tags</A>
+<LI><A HREF="templates_parser.html#SEC5">Tag statements</A>
+</UL>
+
+
+
+<H2><A NAME="SEC3" HREF="templates_parser.html#TOC3">What is a tag ?</A></H2>
+
+<P>
+A tag is a string found in the template page and surrounded by a specific set
+of characters. The default is <B>@_</B> at the start and <B>_@</B> at the
+end of the tag. This default can be changed using <CODE>Set_Tag_Separators</CODE>
+routine, see section <A HREF="templates_parser.html#SEC10">Templates_Parser Ada spec</A>. Note that it must be changed
+as the first API call and should not be changed after that.
+
+</P>
+<P>
+The tag will be replaced by a value specified in a translation table.
+
+</P>
+<P>
+For example with the template file <TT>`demo.tmplt'</TT>:
+
+</P>
+
+<PRE>
+
+&#60;P&#62;Name @_NAME_@
+
+</PRE>
+
+<P>
+Using the following code <TT>`demo.adb'</TT>:
+
+</P>
+
+<PRE>
+
+<B>with</B> Ada.Text_IO;
+<B>with</B> Templates_Parser;
+
+<B>procedure</B> Demo <B>is</B>
+
+   Translations : Templates_Parser.Translate_Table :=
+     (1 =&#62; Templates_Parser.Assoc ("<I>NAME</I>", "<I>Ada</I>"));
+
+<B>begin</B>
+   Ada.Text_IO.Put_Line
+     (Templates_Parser.Parse ("<I>demo.tmplt</I>", Translations));
+<B>end</B> Demo;
+
+</PRE>
+
+<P>
+The program will print out :
+
+</P>
+
+<PRE>
+&#60;P&#62;Name Ada
+
+</PRE>
+
+<P>
+This is a very simple example, but you'll see that there is a lot of
+powerful construct that you can use into a template file.
+
+</P>
+
+
+<H2><A NAME="SEC4" HREF="templates_parser.html#TOC4">Variable tags</A></H2>
+
+<P>
+A variable tag is a specific string to be replaced by the template
+parser. There is four kinds of variable tags: <B>discrete</B>, <B>boolean</B>,
+<B>vector</B> and <B>matrix</B>. All variables tags are build using the Assoc
+constructors, see section <A HREF="templates_parser.html#SEC10">Templates_Parser Ada spec</A>.
+
+</P>
+<DL COMPACT>
+
+<DT><CODE>discrete</CODE>
+<DD>
+We have already seen the discrete variable tag. This is a variable which
+has only one value. This value will replace the tag in the template
+file. Discrete variable constructors are provided for String,
+Unbounded_String and Integer (see Assoc routines).
+
+<DT><CODE>boolean</CODE>
+<DD>
+A boolean tag as a value of TRUE or FALSE. This value will replace the
+tag in the template file. These tags can also be used with the IF tag
+statement.
+
+<DT><CODE>vector</CODE>
+<DD>
+A vector tag is a variable which represent a set of values. These kind of
+variables will be used with the TABLE tag statement 
+see section <A HREF="templates_parser.html#SEC8">TABLE tag statement</A>. Outside a table statement it will be
+replaced by all values in the vector tag.
+
+There is many overloaded constructors to build vector tags (see "+"
+operators).  The "+" operators are used to build a Vector_Tag item from
+standards types like String, Unbounded_String, Character, Integer and
+Boolean. 
+
+To add items to a vector tag many overloaded operators are provided (see
+"&#38;" operators). The "&#38;" operators add one item at the end of the vector,
+it is possible to add directly String, Unbounded_String, Character,
+Integer and Boolean items using one of the overloaded operator.
+
+A Vector tag composed of only boolean value TRUE or FALSE is called a
+Boolean Vector tag. This tag is to be used with a IF tag statement
+inside a TABLE tag statement.
+
+<DT><CODE>matrix</CODE>
+<DD>
+A matrix tag is a variable which represent a set of vector tags. These
+kind of variables will be used inside a TABLE tag statement embedded
+into another TABLE tag statement (i.e. a TABLE tag statement of level 2).
+
+A matrix variable tag is built by concatenating vector variables.
+
+</DL>
+
+<P>
+All kinds of variable tag can have one or more function-prefix or filter. The
+function prefix is applied to the variable value. The syntax is
+<CODE>@_[[FILTER_NAME:]FILTER_NAME:]SOME_VAR_@</CODE>. The current filters are:
+
+</P>
+<DL COMPACT>
+
+<DT><CODE>UPPER</CODE>
+<DD>
+Put all characters in the variable in upper-case.
+
+<DT><CODE>LOWER</CODE>
+<DD>
+Put all characters in the variable in lower-case.
+
+<DT><CODE>REVERSE</CODE>
+<DD>
+Reverse the string.
+
+<DT><CODE>CAPITALIZE</CODE>
+<DD>
+Put all characters in the variable in lower case except characters after
+a space or an underscore which are set in upper-case.
+
+<DT><CODE>CLEAN_TEXT</CODE>
+<DD>
+Keep only letters and digits all others characters are changed to
+spaces.
+
+<DT><CODE>NO_SPACE</CODE>
+<DD>
+Removes all spaces in the variable.
+
+<DT><CODE>YES_NO</CODE>
+<DD>
+If variable value is <B>True</B> it returns <B>Yes</B>, if <B>False</B> it
+returns <B>No</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
+capitalized (all upper, all lower or first letter capital).
+
+<DT><CODE>OUI_NON</CODE>
+<DD>
+If variable value is <B>True</B> it returns <B>Oui</B>, if <B>False</B> it
+returns <B>Non</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
+capitalized (all upper, all lower or first letter capital).
+
+<DT><CODE>EXIST</CODE>
+<DD>
+Returns <B>True</B> if variable is set and has a value different that the null
+string and <B>False</B> otherwize.
+
+<DT><CODE>IS_EMPTY</CODE>
+<DD>
+Returns <B>True</B> if variable is the empty string and <B>False</B> otherwize.
+
+</DL>
+
+<P>
+For example:
+
+</P>
+
+<PRE>
+If VAR is set to "<I>vector_tag</I>" then:
+
+@_VAR_@                     -&#62;  vector_tag
+@_UPPER:VAR_@               -&#62;  VECTOR_TAG
+@_CAPITALIZE:VAR_@          -&#62;  Vector_Tag
+@_EXIST:VAR_@               -&#62;  TRUE
+@_UPPER:REVERSE:VAR_@       -&#62;  GAT_ROTCEV
+
+</PRE>
+
+
+
+<H2><A NAME="SEC5" HREF="templates_parser.html#TOC5">Tag statements</A></H2>
+
+<P>
+There is three different tag statements. A tag statement is surrounded
+by <CODE>@@</CODE>. The tag statements are:
+
+</P>
+
+<UL>
+<LI>INCLUDE
+
+<LI>IF
+
+<LI>TABLE
+
+</UL>
+
+
+<UL>
+<LI><A HREF="templates_parser.html#SEC6">INCLUDE tag statement</A>
+<LI><A HREF="templates_parser.html#SEC7">IF tag statement</A>
+<LI><A HREF="templates_parser.html#SEC8">TABLE tag statement</A>
+</UL>
+
+
+
+<H3><A NAME="SEC6" HREF="templates_parser.html#TOC6">INCLUDE tag statement</A></H3>
+
+<P>
+This tag is used to include another template file. This is useful if you
+have the same header and/or footer in all your HTML pages. For example:
+
+</P>
+
+<PRE>
+@@INCLUDE@@ header.tmplt
+
+&#60;P&#62;This is by Web page
+
+@@INCLUDE@@ footer.tmplt
+</PRE>
+
+
+
+<H3><A NAME="SEC7" HREF="templates_parser.html#TOC7">IF tag statement</A></H3>
+
+<P>
+This is the conditional tag statement. The complete form is:
+
+</P>
+
+<PRE>
+@@IF@@ &#60;expression&#62;
+   part1
+@@ELSE@@
+   part2
+@@END_IF@@
+</PRE>
+
+<P>
+The part1 one will be parsed if expression evaluate to "TRUE" and the part2
+will be parse in any other case.
+
+</P>
+<P>
+The expression here is composed of boolean variable (or conditional
+variable) and/or boolean expression. Recognized operators are:
+
+</P>
+<DL COMPACT>
+
+<DT><CODE>A = B</CODE>
+<DD>
+Returns TRUE if A equal B
+
+<DT><CODE>A &#62; B</CODE>
+<DD>
+Returns TRUE if A greater than B. If A and B are numbers it returns the
+the number comparason (5 &#62; 003 = TRUE) otherwise it returns the string
+comparaison (5 &#62; 003 = FALSE).
+
+<DT><CODE>A &#62;= B</CODE>
+<DD>
+Returns TRUE if A greater than or equal to B. See above for rule about numbers.
+
+<DT><CODE>A &#60; B</CODE>
+<DD>
+Returns TRUE if A lesser than B. See above for rule about numbers.
+
+<DT><CODE>A &#60;= B</CODE>
+<DD>
+Returns TRUE if A lesser than or equal to B. See above for rule about numbers.
+
+<DT><CODE>A and B</CODE>
+<DD>
+Returns TRUE if A and B is TRUE and FALSE otherwise.
+
+<DT><CODE>A or B</CODE>
+<DD>
+Returns TRUE if A or B is TRUE and FALSE otherwise.
+
+<DT><CODE>A xor B</CODE>
+<DD>
+Returns TRUE if either A or B (but not both) is TRUE and FALSE otherwise.
+</DL>
+
+<P>
+To build an expression it is possible to use the parentheses. So a valid
+expression could be:
+
+</P>
+
+<PRE>
+@@IF@@ (@_VAR1_@ &#62; 3) or (@_COND1_@ and @_COND2_@)
+</PRE>
+
+<P>
+To generate a conditional variable tag it is possible to use the
+following <B>Templates_Parser</B> function:
+
+</P>
+
+<PRE>
+<B>function</B> Assoc (Variable  : <B>in</B> String;
+                Value     : <B>in</B> Boolean;
+                <B>return</B> Association;
+<I>--  build an Association (Variable = Value) to be added to a</I>
+<I>--  Translate_Table. It set the variable to TRUE or FALSE depending on</I>
+<I>--  Value.</I>
+</PRE>
+
+<P>
+Let's see an example using an IF tag statement. With the following
+template:
+
+</P>
+
+<PRE>
+
+@@IF@@ @_USER_@
+   &#60;P&#62;As a <B>use</B>r you have a restricted access to this server.
+@@ELSE@@
+   &#60;P&#62;As an administrator you have full access to this server.
+@@END_IF@@
+
+</PRE>
+
+<P>
+The following program:
+
+</P>
+
+<PRE>
+
+<B>with</B> Ada.Text_IO;
+<B>with</B> Templates_Parser;
+
+<B>procedure</B> User1 <B>is</B>
+
+   Translations : Templates_Parser.Translate_Table :=
+     (1 =&#62; Templates_Parser.Assoc ("<I>USER</I>", True));
+
+<B>begin</B>
+   Ada.Text_IO.Put_Line
+     (Templates_Parser.Parse ("<I>user.tmplt</I>", Translations));
+<B>end</B> User1;
+
+</PRE>
+
+<P>
+Will display:
+
+</P>
+
+<PRE>
+   &#60;P&#62;As a user you have a restricted access to this server.
+
+</PRE>
+
+<P>
+But the following program:
+
+</P>
+
+<PRE>
+
+<B>with</B> Ada.Text_IO;
+<B>with</B> Templates_Parser;
+
+<B>procedure</B> User2 <B>is</B>
+
+   Translations : Templates_Parser.Translate_Table :=
+     (1 =&#62; Templates_Parser.Assoc ("<I>USER</I>", False));
+
+<B>begin</B>
+   Ada.Text_IO.Put_Line
+     (Templates_Parser.Parse ("<I>user.tmplt</I>", Translations));
+<B>end</B> User2;
+
+</PRE>
+
+<P>
+Will display:
+
+</P>
+
+<PRE>
+   &#60;P&#62;As an administrator you have full access to this server.
+
+</PRE>
+
+
+
+<H3><A NAME="SEC8" HREF="templates_parser.html#TOC8">TABLE tag statement</A></H3>
+
+<P>
+A table tag is useful to generate HTML table for example. Basicly the
+code between the <CODE>@@TABLE@@</CODE> and <CODE>@@END_TABLE@@</CODE> will
+be repeated as many time as the vector tag will have of values. If many
+vector tags are specified in a table statement, the code between the
+table will be repeated a number of time equal to the maximum length of
+all vector tags in the table tag statement.
+
+</P>
+<P>
+A table tag statement is a kind of implicit iterator. This is a very
+important concept to build HTML table. Using <CODE>Vector_Tag</CODE> or
+<CODE>Matrix_Tag</CODE> variable in a <CODE>@@TABLE@@</CODE> tag statement it is
+possible to build very complexe Web pages.
+
+</P>
+<P>
+Syntax:
+
+</P>
+
+<PRE>
+@@TABLE@@ [@@TERMINATE_SECTIONS@@]
+   ...
+[@@SECTION@@]
+   ...
+@@END_TABLE@@
+</PRE>
+
+<P>
+Let's have an example. With the following template:
+
+</P>
+
+<PRE>
+
+&#60;P&#62;Here <B>is</B> the ages <B>of</B> some peoples:
+
+&#60;TABLE&#62;
+@@TABLE@@
+   &#60;TR&#62;
+   &#60;TD&#62;@_NAME_@
+   &#60;TD&#62;@_AGE_@
+@@END_TABLE@@
+&#60;/TABLE&#62;
+
+</PRE>
+
+<P>
+And the following program:
+
+</P>
+
+<PRE>
+
+<B>with</B> Ada.Text_IO;
+<B>with</B> Templates_Parser;
+
+<B>procedure</B> Table <B>is</B>
+
+   <B>use</B> <B>type</B> Templates_Parser.Vector_Tag;
+
+   Names : <B>constant</B> Templates_Parser.Vector_Tag
+     := +"<I>Bob</I>" &#38; "<I>Bill</I>" &#38; "<I>Toto</I>";
+   Ages  : <B>constant</B> Templates_Parser.Vector_Tag
+     := +"<I>10</I>" &#38; "<I>30</I>" &#38; "<I>5</I>";
+
+   Translations : Templates_Parser.Translate_Table :=
+     (1 =&#62; Templates_Parser.Assoc ("<I>NAME</I>", Names),
+      2 =&#62; Templates_Parser.Assoc ("<I>AGE</I>", Ages));
+
+<B>begin</B>
+   Ada.Text_IO.Put_Line
+     (Templates_Parser.Parse ("<I>table.tmplt</I>", Translations));
+<B>end</B> Table;
+
+</PRE>
+
+<P>
+The following output will be generated:
+
+</P>
+
+<PRE>
+
+&#60;P&#62;Here is the ages of some peoples:
+
+&#60;TABLE&#62;
+   &#60;TR&#62;
+   &#60;TD&#62;Bob
+   &#60;TD&#62;10
+   &#60;TR&#62;
+   &#60;TD&#62;Bill
+   &#60;TD&#62;30
+   &#60;TR&#62;
+   &#60;TD&#62;Toto
+   &#60;TD&#62;5
+&#60;/TABLE&#62;
+
+</PRE>
+
+<P>
+Note that we use vector tag variables here. A discrete variable tag in a table
+will be replaced by the same (the only one) value for each row. A vector
+tag outside a table will be displayed as a list of values, each value
+beeing separated by a specified string. The default is a comma and a
+space ", ".
+
+</P>
+<P>
+The complete prototype for the <CODE>Vector_Tag</CODE> Assoc function is:
+
+</P>
+
+<PRE>
+   <B>function</B> Assoc (Variable  : <B>in</B> String;
+                   Value     : <B>in</B> Vector_Tag;
+                   Separator : <B>in</B> String    := Default_Separator;
+                   <B>return</B> Association;
+<I>--  build an Association (Variable = Value) to be added to a</I>
+<I>--  Translate_Table. This is a vector tag association, value is a</I>
+<I>--  Vector_Tag. If the vector tag is found outside a table tag statement</I>
+<I>--  it is returned as a single string, each value beeing separater by the</I>
+<I>--  specified separator.</I>
+</PRE>
+
+<P>
+A table can contain many sections. The section to use will be selected
+depending on the current line. For example, a table with two sections
+will use different data on even and odd lines. This is usefull, for
+example, when you want to alternate the line background color for a
+better lisibility when working on HTML pages.
+
+</P>
+<P>
+A table with sections can have the modifier
+<CODE>@@TERMINATE_SECTIONS@@</CODE>. This ensure that the table output will end
+with the last section. If the number of data in the vector variable tag
+is not a multiple of the number of sections then the remaining section
+will be complete with empty tag value.
+
+</P>
+
+<PRE>
+
+&#60;P&#62;Here are some available computer devices:
+
+&#60;TABLE&#62;
+@@TABLE@@
+   &#60;TR BGCOLOR=#F00&#62;
+   &#60;TD&#62;@_DEVICES_@
+   &#60;TD&#62;@_PRICES_@
+@@SECTION@@
+   &#60;TR BGCOLOR=#00F&#62;
+   &#60;TD&#62;@_DEVICES_@
+   &#60;TD&#62;@_PRICES_@
+@@END_TABLE@@
+&#60;/TABLE&#62;
+
+&#60;TABLE&#62;
+@@TABLE@@ @@TERMINATE_SECTIONS@@
+   &#60;TR&#62;
+   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
+   &#60;TD WIDTH=150&#62;@_DEVICES_@
+@@SECTION@@
+   &#60;TD WIDTH=150&#62;@_DEVICES_@
+@@SECTION@@
+   &#60;TD WIDTH=150&#62;@_DEVICES_@
+   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
+@@END_TABLE@@
+&#60;/TABLE&#62;
+
+</PRE>
+
+<P>
+And the following program:
+
+</P>
+
+<PRE>
+
+<B>with</B> Ada.Text_IO;
+<B>with</B> Templates_Parser;
+
+<B>procedure</B> Table_Section <B>is</B>
+
+   <B>use</B> <B>type</B> Templates_Parser.Vector_Tag;
+
+   Devices : <B>constant</B> Templates_Parser.Vector_Tag
+     := +"<I>Screen</I>" &#38; "<I>Keyboard</I>" &#38; "<I>Mouse</I>" &#38; "<I>Hard Drive</I>";
+   Prices  : <B>constant</B> Templates_Parser.Vector_Tag
+     := +"<I>$500</I>" &#38; "<I>$20</I>" &#38; "<I>$15</I>" &#38; "<I>$140</I>";
+
+   Translations : Templates_Parser.Translate_Table :=
+     (1 =&#62; Templates_Parser.Assoc ("<I>DEVICES</I>", Devices),
+      2 =&#62; Templates_Parser.Assoc ("<I>PRICES</I>", Prices));
+
+<B>begin</B>
+   Ada.Text_IO.Put_Line
+     (Templates_Parser.Parse ("<I>table_section.tmplt</I>", Translations));
+<B>end</B> Table_Section;
+
+</PRE>
+
+<P>
+The following output will be generated:
+
+</P>
+
+<PRE>
+
+&#60;P&#62;Here are some available computer devices:
+
+&#60;TABLE&#62;
+   &#60;TR BGCOLOR=#F00&#62;
+   &#60;TD&#62;Screen
+   &#60;TD&#62;$500
+   &#60;TR BGCOLOR=#00F&#62;
+   &#60;TD&#62;Keyboard
+   &#60;TD&#62;$20
+   &#60;TR BGCOLOR=#F00&#62;
+   &#60;TD&#62;Mouse
+   &#60;TD&#62;$15
+   &#60;TR BGCOLOR=#00F&#62;
+   &#60;TD&#62;Hard Drive
+   &#60;TD&#62;$140
+&#60;/TABLE&#62;
+
+&#60;TABLE&#62;
+   &#60;TR&#62;
+   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
+   &#60;TD WIDTH=150&#62;Screen
+   &#60;TD WIDTH=150&#62;Keyboard
+   &#60;TD WIDTH=150&#62;Mouse
+   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
+   &#60;TR&#62;
+   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
+   &#60;TD WIDTH=150&#62;Hard Drive
+   &#60;TD WIDTH=150&#62;
+   &#60;TD WIDTH=150&#62;
+   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
+&#60;/TABLE&#62;
+
+</PRE>
+
+<P>
+Into a table construct there are some additional variable tags available:
+
+</P>
+<DL COMPACT>
+
+<DT><CODE>@_UP_TABLE_LINE_@</CODE>
+<DD>
+This tag will be replaced by the table line number of the upper table
+statement. It will be set to 0 outside a table statement or inside a
+single table statement.
+
+<DT><CODE>@_TABLE_LINE_@</CODE>
+<DD>
+This tag will be replaced by the current table line number. It will be
+replaced by 0 outside a table statement.
+
+<DT><CODE>@_NUMBER_LINE_@</CODE>
+<DD>
+This is the number of line displayed in the table. It will be replaced
+by 0 outside a table statement.
+
+<DT><CODE>@_TABLE_LEVEL_@</CODE>
+<DD>
+This is the table level number. A table construct declared in a table
+has a level value of 2.  It will be replaced by 0 outside a table statement.
+
+</DL>
+
+<P>
+Let's have a look at a more complex example with mixed IF and TABLE tag
+statement.
+
+</P>
+<P>
+Here is the template:
+
+</P>
+
+<PRE>
+
+Hello here are a list <B>of</B> devices:
+
+&#60;table&#62;
+&#60;tr&#62;
+&#60;th&#62;Device Name
+&#60;th&#62;Price
+&#60;th&#62;Order
+
+@@TABLE@@
+&#60;tr&#62;
+&#60;td&#62;@_DEVICES_@
+&#60;td&#62;@_PRICES_@
+
+&#60;td&#62;
+@@IF@@ @_AVAILABLE_@
+&#60;a href="<I>/order?DEVICE=@_DEVICES_@</I>"&#62;Order
+@@ELSE@@
+Sorry, not available
+@@END_IF@@
+
+@@END_TABLE@@
+
+</PRE>
+
+<P>
+And the following program:
+
+</P>
+
+<PRE>
+
+<B>with</B> Ada.Text_IO;
+<B>with</B> Templates_Parser;
+
+<B>procedure</B> Table_If <B>is</B>
+
+   <B>use</B> <B>type</B> Templates_Parser.Vector_Tag;
+
+   <B>function</B> In_Stock (Device : <B>in</B> String) <B>return</B> Boolean;
+   -- <I> Complex <B>function</B>. Does a SQL access to the right database to know if</I>
+   -- <I> the Device <B>is</B> available and thus can be ordered.</I>
+
+   <B>procedure</B> Add (Device, Price : <B>in</B> String);
+   -- <I> Add the device <B>in</B>to the list to be displayed.</I>
+
+   Devices   : Templates_Parser.Vector_Tag;
+   Prices    : Templates_Parser.Vector_Tag;
+   Available : Templates_Parser.Vector_Tag;
+
+   ---------
+   -- <I>Add --</I>
+   ---------
+
+   <B>procedure</B> Add (Device, Price : <B>in</B> String) <B>is</B>
+   <B>begin</B>
+      Devices := Devices &#38; Device;
+      Prices  := Prices &#38; Price;
+      Available := Available &#38; In_Stock (Device);
+   <B>end</B> Add;
+
+   --------------
+   -- <I>In_Stock --</I>
+   --------------
+
+   <B>function</B> In_Stock (Device : <B>in</B> String) <B>return</B> Boolean <B>is</B>
+   <B>begin</B>
+      if Device = "<I>Keyboard</I>" then
+         <B>return</B> True;
+      else
+         <B>return</B> False;
+      <B>end</B> if;
+   <B>end</B> In_Stock;
+
+   Translations : Templates_Parser.Translate_Table (1 .. 3);
+
+<B>begin</B>
+   Add ("<I>Screen</I>", "<I>$500</I>");
+   Add ("<I>Keyboard</I>", "<I>$15</I>");
+   Add ("<I>Mouse</I>", "<I>$15</I>");
+   Add ("<I>Hard Drive</I>", "<I>$140</I>");
+
+   Translations := (Templates_Parser.Assoc ("<I>DEVICES</I>", Devices),
+                    Templates_Parser.Assoc ("<I>PRICES</I>", Prices),
+                    Templates_Parser.Assoc ("<I>AVAILABLE</I>", Available));
+
+   Ada.Text_IO.Put_Line
+     (Templates_Parser.Parse ("<I>table_if.tmplt</I>", Translations));
+<B>end</B> Table_If;
+
+</PRE>
+
+<P>
+The following output will be generated:
+
+</P>
+
+<PRE>
+
+Hello here are a list of devices:
+
+&#60;table&#62;
+&#60;tr&#62;
+&#60;th&#62;Device Name
+&#60;th&#62;Price
+&#60;th&#62;Order
+
+&#60;tr&#62;
+&#60;td&#62;Screen
+&#60;td&#62;$500
+
+&#60;td&#62;
+Sorry, not available
+
+&#60;tr&#62;
+&#60;td&#62;Keyboard
+&#60;td&#62;$15
+
+&#60;td&#62;
+&#60;a href="/order?DEVICE=Keyboard"&#62;Order
+
+&#60;tr&#62;
+&#60;td&#62;Mouse
+&#60;td&#62;$15
+
+&#60;td&#62;
+Sorry, not available
+
+&#60;tr&#62;
+&#60;td&#62;Hard Drive
+&#60;td&#62;$140
+
+&#60;td&#62;
+Sorry, not available
+
+</PRE>
+
+<P>
+Table tag statement can also be used with matrix tag. There is 3
+possibles placements for a matrix tag:
+
+</P>
+
+<OL>
+
+<LI>Inside a table of level 2 (a TABLE tag statement inside a TABLE tag
+
+statement).
+
+In this case the first TABLE iterate through the matrix lines.
+First iteration will use the first matrix's vector, second
+iteration will use second matrix's vector and so on. And the second TABLE
+will be use to iterate through the vector's values.
+
+<LI>Inside a table of level 1.
+
+In this case the TABLE iterate through the matrix lines. First iteration
+will use the first matrix's vector, second iteration will use second
+matrix's vector and so on. Each vector is then converted to a string by
+concatenating all values and using the supplied separator (see Assoc
+constructor for Matrix_Tag).
+
+<LI>Outside a table statement.
+
+In this case the matrix is converted to a string. Each line represent a
+vector converted as a string using the supplied separator (see point 2
+above), and each vector is separated by an ASCII.LF character.
+
+</OL>
+
+<P>
+Let's look at an example, with the following template:
+
+</P>
+
+<PRE>
+
+A matrix <B>in</B>side a table <B>of</B> level 2:
+
+@@TABLE@@
+&#60;tr&#62;
+@@TABLE@@
+&#60;td&#62;
+@_MAT_@
+&#60;/td&#62;
+@@END_TABLE@@
+&#60;/tr&#62;
+
+@@END_TABLE@@
+
+The same matrix <B>in</B>side a single table:
+
+@@TABLE@@
+&#60;tr&#62;
+&#60;td&#62;
+@_MAT_@
+&#60;/tr&#62;
+
+@@END_TABLE@@
+
+The same matrix <B>out</B>side a table:
+
+@_MAT_@
+
+</PRE>
+
+<P>
+Using the program:
+
+</P>
+
+<PRE>
+
+<B>with</B> Ada.Text_IO;
+<B>with</B> Templates_Parser;
+
+<B>procedure</B> Matrix <B>is</B>
+
+   <B>package</B> TP renames Templates_Parser;
+
+   <B>use</B> <B>type</B> TP.Vector_Tag;
+   <B>use</B> <B>type</B> TP.Matrix_Tag;
+
+   V1 : <B>constant</B> TP.Vector_Tag := +"<I>A1.1</I>" &#38; "<I>A1.2</I>";
+   V2 : <B>constant</B> TP.Vector_Tag := +"<I>A2.1</I>" &#38; "<I>A2.2</I>";
+   V3 : <B>constant</B> TP.Vector_Tag := +"<I>A3.1</I>" &#38; "<I>A3.2</I>";
+
+   M  : <B>constant</B> TP.Matrix_Tag := +V1 &#38; V2 &#38; V3;
+
+<B>begin</B>
+   Ada.Text_IO.Put_Line
+     (TP.Parse ("<I>matrix.tmplt</I>",
+                TP.Translate_Table'(1 =&#62; TP.Assoc ("<I>MAT</I>", M))));
+<B>end</B> Matrix;
+
+</PRE>
+
+<P>
+We get the following result:
+
+</P>
+
+<PRE>
+
+A matrix inside a table of level 2:
+
+&#60;tr&#62;
+&#60;td&#62;
+A1.1
+&#60;/td&#62;
+&#60;td&#62;
+A1.2
+&#60;/td&#62;
+&#60;/tr&#62;
+
+&#60;tr&#62;
+&#60;td&#62;
+A2.1
+&#60;/td&#62;
+&#60;td&#62;
+A2.2
+&#60;/td&#62;
+&#60;/tr&#62;
+
+&#60;tr&#62;
+&#60;td&#62;
+A3.1
+&#60;/td&#62;
+&#60;td&#62;
+A3.2
+&#60;/td&#62;
+&#60;/tr&#62;
+
+The same matrix inside a single table:
+
+&#60;tr&#62;
+&#60;td&#62;
+A1.1, A1.2
+&#60;/tr&#62;
+
+&#60;tr&#62;
+&#60;td&#62;
+A2.1, A2.2
+&#60;/tr&#62;
+
+&#60;tr&#62;
+&#60;td&#62;
+A3.1, A3.2
+&#60;/tr&#62;
+
+The same matrix outside a table:
+
+A1.1, A1.2
+A2.1, A2.2
+A3.1, A3.2
+
+</PRE>
+
+
+
+<H1><A NAME="SEC9" HREF="templates_parser.html#TOC9">Last notes</A></H1>
+
+<P>
+The templates parser has be written to parse HTML page but it is usable
+with any king of files. There is nothing hard coded for HTML, it is then
+possible to use it with plain text files, XML files, SGML files or
+whatever as long as it is not a binary file.
+
+</P>
+<P>
+
+<P>
+All tag statements can be mixed together. A <CODE>table</CODE> tag statement can be
+put in a <CODE>if</CODE> tag statement. An <CODE>if</CODE> tag statement can be put
+in a <CODE>table</CODE> tag statement. Idem for the <CODE>include</CODE> tag statement.
+
+</P>
+<P>
+Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wanadoo.fr/pascal.obry/</A>.
+
+</P>
+<P>
+
+
+
+<H1><A NAME="SEC10" HREF="templates_parser.html#TOC10">Templates_Parser Ada spec</A></H1>
+
+
+<PRE>
+
+------------------------------------------------------------------------------
+-- <I>                            Templates Parser                             --</I>
+-- <I>                                                                         --</I>
+-- <I>                       Copyright (C) 1999 - 2001                         --</I>
+-- <I>                              Pascal Obry                                --</I>
+-- <I>                                                                         --</I>
+-- <I> This library is free software; you can redistribute it and/or modify    --</I>
+-- <I> it under the terms of the GNU General Public License as published by    --</I>
+-- <I> the Free Software Foundation; either version 2 of the License, or (at   --</I>
+-- <I> your option) any later version.                                         --</I>
+-- <I>                                                                         --</I>
+-- <I> This library is distributed in the hope that it will be useful, but     --</I>
+-- <I> WITHOUT ANY WARRANTY; without even the implied warranty of              --</I>
+-- <I> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --</I>
+-- <I> General Public License for more details.                                --</I>
+-- <I>                                                                         --</I>
+-- <I> You should have received a copy of the GNU General Public License       --</I>
+-- <I> along with this library; if not, write to the Free Software Foundation, --</I>
+-- <I> Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --</I>
+-- <I>                                                                         --</I>
+-- <I> As a special exception, if other files instantiate generics from this   --</I>
+-- <I> unit, or you link this unit with other files to produce an executable,  --</I>
+-- <I> this  unit  does not  by itself cause  the resulting executable to be   --</I>
+-- <I> covered by the GNU General Public License. This exception does not      --</I>
+-- <I> however invalidate any other reasons why the executable file  might be  --</I>
+-- <I> covered by the  GNU Public License.                                     --</I>
+------------------------------------------------------------------------------
+
+-- <I> $Id$</I>
+
+<B>with</B> Ada.Finalization;
+<B>with</B> Ada.Strings.Unbounded;
+
+<B>package</B> Templates_Parser <B>is</B>
+
+   <B>use</B> Ada.Strings.Unbounded;
+
+   Template_Error : <B>exception</B>;
+
+   Default_Begin_Tag : <B>constant</B> String := "<I>@_</I>";
+   Default_End_Tag   : <B>constant</B> String := "<I>_@</I>";
+
+   Default_Separator : <B>constant</B> String := "<I>, </I>";
+
+   <B>procedure</B> Set_Tag_Separators
+     (Start_With : <B>in</B> String := Default_Begin_Tag;
+      Stop_With  : <B>in</B> String := Default_End_Tag);
+   -- <I> Set the tag separators for the whole session. This should be changed as</I>
+   -- <I> the very first API call and should not be changed after.</I>
+
+   ----------------
+   -- <I>Vector Tag --</I>
+   ----------------
+
+   <B>type</B> Vector_Tag <B>is</B> <B>private</B>;
+   -- <I> A vector tag <B>is</B> a set <B>of</B> string.</I>
+
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> String) <B>return</B> Vector_Tag;
+   -- <I> Vector_Tag constructor.</I>
+
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Character) <B>return</B> Vector_Tag;
+   -- <I> Vector_Tag constructor.</I>
+
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Boolean) <B>return</B> Vector_Tag;
+   -- <I> Vector_Tag constructor.</I>
+
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Unbounded_String) <B>return</B> Vector_Tag;
+   -- <I> Vector_Tag constructor.</I>
+
+   <B>function</B> "<I>+</I>" (Value : <B>in</B> Integer) <B>return</B> Vector_Tag;
+   -- <I> Vector_Tag constructor.</I>
+
+   <B>function</B> "<I>&#38;</I>"
+     (Vect  : <B>in</B> Vector_Tag;
+      Value : <B>in</B> String)
+     <B>return</B> Vector_Tag;
+   -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
+
+   <B>function</B> "<I>&#38;</I>"
+     (Vect  : <B>in</B> Vector_Tag;
+      Value : <B>in</B> Character)
+     <B>return</B> Vector_Tag;
+   -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
+
+   <B>function</B> "<I>&#38;</I>"
+     (Vect  : <B>in</B> Vector_Tag;
+      Value : <B>in</B> Boolean)
+     <B>return</B> Vector_Tag;
+   -- <I> Add Value (either string TRUE or FALSE) at the <B>end</B> <B>of</B> the vector tag</I>
+   -- <I> set.</I>
+
+   <B>function</B> "<I>&#38;</I>"
+     (Vect  : <B>in</B> Vector_Tag;
+      Value : <B>in</B> Unbounded_String)
+     <B>return</B> Vector_Tag;
+   -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
+
+   <B>function</B> "<I>&#38;</I>"
+     (Vect  : <B>in</B> Vector_Tag;
+      Value : <B>in</B> Integer)
+     <B>return</B> Vector_Tag;
+   -- <I> Add Value (converted to a String) at the <B>end</B> <B>of</B> the vector tag set.</I>
+
+   <B>procedure</B> Clear (Vect : <B>in</B> <B>out</B> Vector_Tag);
+   -- <I> Removes all values <B>in</B> the vector tag.</I>
+
+   <B>function</B> Size (Vect : <B>in</B> Vector_Tag) <B>return</B> Natural;
+   -- <I> Returns the number <B>of</B> value <B>in</B>to Vect.</I>
+
+   ----------------
+   -- <I>Matrix Tag --</I>
+   ----------------
+
+   <B>type</B> Matrix_Tag <B>is</B> <B>private</B>;
+
+   <B>function</B> "<I>+</I>" (Vect : <B>in</B> Vector_Tag) <B>return</B> Matrix_Tag;
+   -- <I> Matrix_Tag constructor.</I>
+
+   <B>function</B> "<I>&#38;</I>"
+     (Matrix : <B>in</B> Matrix_Tag;
+      Vect   : <B>in</B> Vector_Tag)
+     <B>return</B> Matrix_Tag;
+   -- <I> Returns Matrix <B>with</B> Vect added to the <B>end</B>.</I>
+
+   <B>function</B> Size (Matrix : <B>in</B> Matrix_Tag) <B>return</B> Natural;
+   -- <I> Returns the number <B>of</B> Vector_Tag <B>in</B>side the Matrix.</I>
+
+   <B>function</B> Vector (Matrix : in Matrix_Tag; N : <B>in</B> Positive) <B>return</B> Vector_Tag;
+   -- <I> Returns Nth Vector_Tag <B>in</B> the Matrix.</I>
+
+   -----------------------
+   -- <I>Association table --</I>
+   -----------------------
+
+   <B>type</B> Association <B>is</B> <B>private</B>;
+
+   <B>type</B> Translate_Table <B>is</B> <B>array</B> (Positive <B>range</B> &#60;&#62;) <B>of</B> Association;
+
+   No_Translation : <B>constant</B> Translate_Table;
+
+   <B>function</B> Assoc
+     (Variable  : <B>in</B> String;
+      Value     : <B>in</B> String)
+     <B>return</B> Association;
+   -- <I> Build an Association (Variable = Value) to be added to a</I>
+   -- <I> Translate_Table. This is a standard association, value <B>is</B> a string.</I>
+
+   <B>function</B> Assoc
+     (Variable  : <B>in</B> String;
+      Value     : <B>in</B> Unbounded_String)
+     <B>return</B> Association;
+   -- <I> Build an Association (Variable = Value) to be added to a</I>
+   -- <I> Translate_Table. This is a standard association, value <B>is</B> an</I>
+   -- <I> Unbounded_String.</I>
+
+   <B>function</B> Assoc
+     (Variable  : <B>in</B> String;
+      Value     : <B>in</B> Integer)
+     <B>return</B> Association;
+   -- <I> Build an Association (Variable = Value) to be added to a</I>
+   -- <I> Translate_Table. This is a standard association, value <B>is</B> an Integer.</I>
+   -- <I> It will be displayed <B>with</B>out leading space if positive.</I>
+
+   <B>function</B> Assoc
+     (Variable  : <B>in</B> String;
+      Value     : <B>in</B> Boolean)
+     <B>return</B> Association;
+   -- <I> Build an Association (Variable = Value) to be added to a</I>
+   -- <I> Translate_Table. It set the variable to TRUE or FALSE depending on</I>
+   -- <I> value.</I>
+
+   <B>function</B> Assoc
+     (Variable  : <B>in</B> String;
+      Value     : <B>in</B> Vector_Tag;
+      Separator : <B>in</B> String     := Default_Separator)
+     <B>return</B> Association;
+   -- <I> Build an Association (Variable = Value) to be added to a</I>
+   -- <I> Translate_Table. This is a vector tag association, value <B>is</B> a</I>
+   -- <I> Vector_Tag. If the vector tag <B>is</B> found <B>out</B>side a table tag statement</I>
+   -- <I> it <B>is</B> <B>return</B>ed as a single string, each value beeing separater by the</I>
+   -- <I> specified separator.</I>
+
+   <B>function</B> Assoc
+     (Variable  : <B>in</B> String;
+      Value     : <B>in</B> Matrix_Tag;
+      Separator : <B>in</B> String     := Default_Separator)
+     <B>return</B> Association;
+   -- <I> Build an Association (Variable = Value) to be added to a</I>
+   -- <I> Translate_Table. This is a matrix tag association, value <B>is</B> a</I>
+   -- <I> Matrix_Tag. If the matrix tag <B>is</B> found <B>out</B>side <B>of</B> a 2nd level table tag</I>
+   -- <I> statement, Separator <B>is</B> <B>use</B>d to build string representation <B>of</B> the</I>
+   -- <I> matrix tag's vectors.</I>
+
+   -----------------------------
+   -- <I>Parsing and Translating --</I>
+   -----------------------------
+
+   <B>function</B> Parse
+     (Filename     : <B>in</B> String;
+      Translations : <B>in</B> Translate_Table := No_Translation;
+      Cached       : <B>in</B> Boolean         := False)
+     <B>return</B> String;
+   -- <I> Parse the Template_File replacing variables' occurences by the</I>
+   -- <I> corresponding values. If Cached <B>is</B> set to True, Filename tree will be</I>
+   -- <I> <B>record</B>ed <B>in</B>to a cache to quick retrieval.</I>
+
+   <B>function</B> Translate
+     (Template     : <B>in</B> String;
+      Translations : <B>in</B> Translate_Table := No_Translation)
+     <B>return</B> String;
+   -- <I> Just translate the discrete variables <B>in</B> the Template string using the</I>
+   -- <I> Translations table. This <B>function</B> does not parse the command tag</I>
+   -- <I> (TABLE, IF, INCLUDE). All Vector and Matrix tag are replaced by the</I>
+   -- <I> empty string.</I>
+
+   <B>procedure</B> Print_Tree (Filename : <B>in</B> String);
+   -- <I> Use for debugging purpose only, it will <B>out</B>put the <B>in</B>ternal tree</I>
+   -- <I> representation.</I>
+
+<B>private</B>
+
+   ------------------
+   -- <I> Vector Tags --</I>
+   ------------------
+
+   <B>type</B> Vector_Tag_Node;
+   <B>type</B> Vector_Tag_Node_Access <B>is</B> access Vector_Tag_Node;
+
+   <B>type</B> Vector_Tag_Node <B>is</B> <B>record</B>
+      Value : Unbounded_String;
+      Next  : Vector_Tag_Node_Access;
+   <B>end</B> <B>record</B>;
+
+   <B>type</B> Integer_Access <B>is</B> access Integer;
+
+   <B>type</B> Vector_Tag <B>is</B> new Ada.Finalization.Controlled <B>with</B> <B>record</B>
+      Ref_Count : Integer_Access;
+      Count     : Natural;
+      Head      : Vector_Tag_Node_Access;
+      Last      : Vector_Tag_Node_Access;
+   <B>end</B> <B>record</B>;
+
+   <B>type</B> Vector_Tag_Access <B>is</B> access Vector_Tag;
+
+   <B>procedure</B> Initialize (V : <B>in</B> <B>out</B> Vector_Tag);
+   <B>procedure</B> Finalize   (V : <B>in</B> <B>out</B> Vector_Tag);
+   <B>procedure</B> Adjust     (V : <B>in</B> <B>out</B> Vector_Tag);
+
+   ------------------
+   -- <I> Matrix Tags --</I>
+   ------------------
+
+   <B>type</B> Matrix_Tag_Node;
+
+   <B>type</B> Matrix_Tag_Node_Access <B>is</B> access Matrix_Tag_Node;
+
+   <B>type</B> Matrix_Tag_Node <B>is</B> <B>record</B>
+      Vect : Vector_Tag;
+      Next : Matrix_Tag_Node_Access;
+   <B>end</B> <B>record</B>;
+
+   <B>type</B> Matrix_Tag_Int <B>is</B> new Ada.Finalization.Controlled <B>with</B> <B>record</B>
+      Ref_Count : Integer_Access;
+      Count     : Natural;
+      Head      : Matrix_Tag_Node_Access;
+      Last      : Matrix_Tag_Node_Access;
+   <B>end</B> <B>record</B>;
+
+   <B>type</B> Matrix_Tag <B>is</B> <B>record</B>
+      M : Matrix_Tag_Int;
+   <B>end</B> <B>record</B>;
+
+   <B>procedure</B> Initialize (M : <B>in</B> <B>out</B> Matrix_Tag_Int);
+   <B>procedure</B> Finalize   (M : <B>in</B> <B>out</B> Matrix_Tag_Int);
+   <B>procedure</B> Adjust     (M : <B>in</B> <B>out</B> Matrix_Tag_Int);
+
+   ------------------
+   -- <I> Association --</I>
+   ------------------
+
+   <B>type</B> Var_Kind <B>is</B> (Std, Vect, Matrix);
+
+   <B>type</B> Association (Kind : Var_Kind := Std) <B>is</B> <B>record</B>
+      Variable  : Unbounded_String;
+
+      case Kind <B>is</B>
+         when Std =&#62;
+            Value : Unbounded_String;
+
+         when Vect =&#62;
+            Vect_Value : Vector_Tag;
+            Separator  : Unbounded_String;
+
+         when Matrix =&#62;
+            Mat_Value        : Matrix_Tag;
+            Column_Separator : Unbounded_String;
+      <B>end</B> case;
+   <B>end</B> <B>record</B>;
+
+   No_Translation : <B>constant</B> Translate_Table
+     := (2 .. 1 =&#62; Association'(Std,
+                                Null_Unbounded_String,
+                                Null_Unbounded_String));
+
+<B>end</B> Templates_Parser;
+
+</PRE>
+
+<P><HR><P>
+This document was generated on 23 May 2001 using the
+<A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
+translator version 1.52.</P>
+</BODY>
+</HTML>
