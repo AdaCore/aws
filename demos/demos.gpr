@@ -43,7 +43,7 @@ project Demos is
    Mains := ("hello_world.adb", "com_1.adb", "com_2.adb", "main.adb",
              "hotplug.adb", "dispatch.adb", "wps.adb", "ws.adb",
              "auth.adb", "text_input.adb", "vh_demo.adb", "res_demo.adb",
-             "zdemo.adb", "split.adb", "web_mail.adb");
+             "zdemo.adb", "split.adb", "web_mail.adb", "web_elements.adb");
 
    Mains_XMLAda := ("soap_client.adb", "soap_server.adb", "soap_svs.adb",
                     "soap_cvs.adb", "wsdl_demo_client.adb",
