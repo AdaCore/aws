@@ -1,3 +1,11 @@
+2003-12-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add get_post.
+
+	* get_post.adb, get_post.out: 
+	Initial revision.
+
 2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

@@ -1,3 +1,11 @@
+2003-12-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Parse_Request_Line): Always parse the request line parameters
+	 even in the POST case. This was not activated on purpose as the
+	 RFC is not clear. But as this feature is on PHP for example it is now
+	 activated.
+
 2003-11-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-pop.adb:
