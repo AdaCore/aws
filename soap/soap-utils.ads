@@ -83,8 +83,8 @@ package SOAP.Utils is
    function SOAP_Wrapper
      (Request : in AWS.Status.Data)
       return AWS.Response.Data;
-   --  From a standard HTTP callback call the SOAP callback passed as generic
-   --  formal procedure. Raise Constraint_Error if Request is not a SOAP
+   --  From a standard HTTP callback calls the SOAP callback passed as generic
+   --  formal procedure. Raises Constraint_Error if Request is not a SOAP
    --  request.
 
    ------------------------------------
