@@ -1,3 +1,8 @@
+2002-01-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile
+	Be sure that aws-net-std.adb defined before build.
+
 2003-01-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-std.adb:
