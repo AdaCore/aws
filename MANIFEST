@@ -703,6 +703,10 @@ regtests/test_soap4.adb
 regtests/test_soap4.out
 regtests/test_soap5.adb
 regtests/test_soap5.out
+regtests/test_soap5_pack.adb
+regtests/test_soap5_pack.ads
+regtests/test_soap5_sec.adb
+regtests/test_soap5_sec.out
 regtests/wsdl_1.adb
 regtests/wsdl_1.ads
 regtests/wsdl_1.out
