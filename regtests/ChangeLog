@@ -1,5 +1,10 @@
 2004-11-28  Pascal Obry  <pascal@obry.org>
 
+	* wsdl_6.java, anytype.java: 
+	Add build command in comment.
+	
+2004-11-28  Pascal Obry  <pascal@obry.org>
+
 	* anytype.out:
 	Update to new output (comparable to Java/AXIS one).
 
