@@ -109,10 +109,11 @@ package body AWS.Communication.Server is
 
    procedure Start (Port : in Positive; Context : in T_Access) is
    begin
-      Com_Server := new AWS.Server.HTTP (1, Port, False,
-                                         Receive'Unrestricted_Access, False);
+      Com_Server := new AWS.Server.HTTP (1);
       Server.Context := Context;
-      AWS.Server.Start (Com_Server.all, "Communication Server");
+      AWS.Server.Start (Com_Server.all, "Communication Server",
+                        Port     => Port,
+                        Callback => Receive'Unrestricted_Access);
    end Start;
 
 end AWS.Communication.Server;
