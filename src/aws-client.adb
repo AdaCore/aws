@@ -1891,6 +1891,11 @@ package body AWS.Client is
       Post (Connection, Result, Data);
       Close (Connection);
       return Result;
+
+   exception
+      when others =>
+         Close (Connection);
+         raise;
    end SOAP_Post;
 
    function SOAP_Post
