@@ -1,3 +1,8 @@
+2004-04-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* sockto.adb, ssockto.adb:
+	Remove DOS style CR at end of line.
+
 2004-04-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sockto.adb, ssockto.adb:
