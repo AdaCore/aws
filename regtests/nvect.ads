@@ -35,4 +35,4 @@ with AWS.Digest;
 with AI302.Containers.Vectors;
 
 package Nvect is
-   new AI302.Containers.Vectors (Positive, AWS.Digest.Nonce, AWS.Digest."=");
+   new AI302.Containers.Vectors (Positive, AWS.Digest.Nonce, "=");
