@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -45,7 +45,7 @@ package body AWS.Server.Hotplug is
       Web_Server : in HTTP_Access;
       Parameters : in Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
-     return Response.Data;
+      return Response.Data;
    --  Handle incoming message to register/unregister a module.
 
    package Hotplug_Server is
@@ -83,13 +83,15 @@ package body AWS.Server.Hotplug is
       --  UNREGISTER <regexp>
 
       if Name = Register_Message then
-         AWS.Hotplug.Register (Web_Server.Filters,
-                               To_String (Parameters (1)),
-                               To_String (Parameters (2)));
+         AWS.Hotplug.Register
+           (Web_Server.Filters,
+            To_String (Parameters (1)),
+            To_String (Parameters (2)));
 
       elsif Name = Unregister_Message then
-         AWS.Hotplug.Unregister (Web_Server.Filters,
-                                 To_String (Parameters (1)));
+         AWS.Hotplug.Unregister
+           (Web_Server.Filters,
+            To_String (Parameters (1)));
 
       end if;
 

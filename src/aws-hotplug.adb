@@ -75,6 +75,10 @@ package body AWS.Hotplug is
       --  Returns the list of parameters suitable to send to a GET HTTP
       --  command "?name1=value1&name2=value2...".
 
+      ----------------
+      -- Parameters --
+      ----------------
+
       function Parameters return String is
          Result : Unbounded_String;
       begin
@@ -127,8 +131,9 @@ package body AWS.Hotplug is
    -- Move_Down --
    ---------------
 
-   procedure Move_Down (Filters : in Filter_Set;
-                        N       : in Positive)
+   procedure Move_Down
+     (Filters : in Filter_Set;
+      N       : in Positive)
    is
       Tmp : Filter_Data;
    begin
@@ -143,8 +148,9 @@ package body AWS.Hotplug is
    -- Move_Up --
    -------------
 
-   procedure Move_Up (Filters : in Filter_Set;
-                      N       : in Positive)
+   procedure Move_Up
+     (Filters : in Filter_Set;
+      N       : in Positive)
    is
       Tmp : Filter_Data;
    begin
@@ -190,4 +196,3 @@ package body AWS.Hotplug is
    end Unregister;
 
 end AWS.Hotplug;
-
