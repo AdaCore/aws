@@ -2729,10 +2729,10 @@ package body Templates_Parser is
    -----------
 
    function Parse
-     (Filename          : in String;
-      Translations      : in Translate_Table                := No_Translation;
-      Cached            : in Boolean                        := False;
-      Keep_Unknown_Tags : in Boolean                        := False;
+     (Filename          : in     String;
+      Translations      : in     Translate_Table  := No_Translation;
+      Cached            : in     Boolean          := False;
+      Keep_Unknown_Tags : in     Boolean          := False;
       Context           : access TP_Context'Class := Null_Context)
       return String is
    begin
@@ -2741,10 +2741,10 @@ package body Templates_Parser is
    end Parse;
 
    function Parse
-     (Filename          : in String;
-      Translations      : in Translate_Table                := No_Translation;
-      Cached            : in Boolean                        := False;
-      Keep_Unknown_Tags : in Boolean                        := False;
+     (Filename          : in     String;
+      Translations      : in     Translate_Table  := No_Translation;
+      Cached            : in     Boolean          := False;
+      Keep_Unknown_Tags : in     Boolean          := False;
       Context           : access TP_Context'Class := Null_Context)
       return Unbounded_String is
    begin
@@ -2753,10 +2753,10 @@ package body Templates_Parser is
    end Parse;
 
    function Parse
-     (Filename          : in String;
-      Translations      : in Translate_Set;
-      Cached            : in Boolean                        := False;
-      Keep_Unknown_Tags : in Boolean                        := False;
+     (Filename          : in     String;
+      Translations      : in     Translate_Set;
+      Cached            : in     Boolean          := False;
+      Keep_Unknown_Tags : in     Boolean          := False;
       Context           : access TP_Context'Class := Null_Context)
       return String is
    begin
@@ -2765,10 +2765,10 @@ package body Templates_Parser is
    end Parse;
 
    function Parse
-     (Filename          : in String;
-      Translations      : in Translate_Set;
-      Cached            : in Boolean                        := False;
-      Keep_Unknown_Tags : in Boolean                        := False;
+     (Filename          : in     String;
+      Translations      : in     Translate_Set;
+      Cached            : in     Boolean          := False;
+      Keep_Unknown_Tags : in     Boolean          := False;
       Context           : access TP_Context'Class := Null_Context)
       return Unbounded_String
    is
@@ -2936,7 +2936,11 @@ package body Templates_Parser is
                --  Check now if the variable is known in the current user's
                --  context.
 
-               Callback (Context, T_Name, Result, Found);
+               if Context_Access (Context) = Null_Context then
+                  Found := False;
+               else
+                  Callback (Context, T_Name, Result, Found);
+               end if;
 
                if Found then
                   return Translate (Var, To_String (Result), Translations);
