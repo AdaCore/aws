@@ -36,9 +36,11 @@
 
 package AWS.Config.Ini is
 
-   function Read (File_Name : in String := "") return Object;
+   procedure Read
+     (Config    : in out Object;
+      File_Name : in     String := "");
    --  Read 'aws.ini', '<progname>.ini' and '<File_Name>.ini' files
-   --  if present and return configuration record. File 'aws.ini' is
+   --  if present and update configuration record. File 'aws.ini' is
    --  parsed before '<progname>.ini' which is parsed before '<File_Name>.ini'
    --  and the later overrides values set by the former.
    --  '<progname>' is computed from the program name as launched on the
