@@ -50,7 +50,7 @@ package body SOAP.Client is
      (URL        : in String;
       P          : in Message.Payload.Object;
       SOAPAction : in String         := Not_Specified)
-     return Message.Response.Object'Class
+      return Message.Response.Object'Class
    is
 
       procedure RPC_Call;
