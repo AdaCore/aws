@@ -53,7 +53,7 @@ package SOAP.Parameters is
    --  found.
 
    function Argument (P : in List; N : in Positive) return Types.Object'Class;
-   --  Returns Nth parameters in P. Raises Types.Data_Error if not found.
+   --  Returns Nth parameters in P. Raises Types.Data_Error if not found
 
    function Exist (P : in List; Name : in String) return Boolean;
    --  Returns True if parameter named Name exist in P and False otherwise
@@ -116,31 +116,31 @@ package SOAP.Parameters is
    ----------------
 
    procedure Check (P : in List; N : in Natural);
-   --  Checks that there is exactly N parameters or raise Types.Data_Error.
+   --  Checks that there is exactly N parameters or raise Types.Data_Error
 
    procedure Check_Integer (P : in List; Name : in String);
-   --  Checks that parameter named Name exist and is an Integer value.
+   --  Checks that parameter named Name exist and is an Integer value
 
    procedure Check_Float (P : in List; Name : in String);
-   --  Checks that parameter named Name exist and is a Float value.
+   --  Checks that parameter named Name exist and is a Float value
 
    procedure Check_Boolean (P : in List; Name : in String);
-   --  Checks that parameter named Name exist and is a Boolean value.
+   --  Checks that parameter named Name exist and is a Boolean value
 
    procedure Check_Time_Instant (P : in List; Name : in String);
-   --  Checks that parameter named Name exist and is a Time_Instant value.
+   --  Checks that parameter named Name exist and is a Time_Instant value
 
    procedure Check_Base64 (P : in List; Name : in String);
-   --  Checks that parameter named Name exist and is a Base64 value.
+   --  Checks that parameter named Name exist and is a Base64 value
 
    procedure Check_Null (P : in List; Name : in String);
-   --  Checks that parameter named Name exist and is a Null value.
+   --  Checks that parameter named Name exist and is a Null value
 
    procedure Check_Record (P : in List; Name : in String);
-   --  Checks that parameter named Name exist and is a Record value.
+   --  Checks that parameter named Name exist and is a Record value
 
    procedure Check_Array (P : in List; Name : in String);
-   --  Checks that parameter named Name exist and is an Array value.
+   --  Checks that parameter named Name exist and is an Array value
 
 private
 
