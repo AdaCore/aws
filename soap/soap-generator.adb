@@ -41,6 +41,7 @@ with GNAT.Calendar.Time_IO;
 
 with AWS;
 with AWS.OS_Lib;
+with SOAP.Utils;
 with SOAP.WSDL.Parameters;
 
 package body SOAP.Generator is
@@ -78,11 +79,6 @@ package body SOAP.Generator is
    --  Output procedure header into File. The terminating ';' or 'is' is not
    --  outputed for this routine to be used to generate the spec and body.
 
-   function SOAP_Constructor
-     (P_Type : in WSDL.Parameter_Type)
-      return String;
-   --  Return the SOAP types constructor for P_Type
-
    function Result_Type
      (O      : in Object;
       Proc   : in String;
@@ -97,7 +93,7 @@ package body SOAP.Generator is
    --  Generate header box
 
    Root     : Text_IO.File_Type; -- Parent packages
-   Type_Ads : Text_IO.File_Type; -- Child with all type defintions
+   Type_Ads : Text_IO.File_Type; -- Child with all type definitions
    Type_Adb : Text_IO.File_Type;
    Stub_Ads : Text_IO.File_Type; -- Child with client interface
    Stub_Adb : Text_IO.File_Type;
@@ -272,7 +268,7 @@ package body SOAP.Generator is
       Ada_Name : constant String := Ada_Format (Name);
 
    begin
-      if WSDL.Is_Ada_Reserved_Word (Name) then
+      if Utils.Is_Ada_Reserved_Word (Name) then
          return "v_" & Ada_Name;
       else
          return Ada_Name;
@@ -551,20 +547,9 @@ package body SOAP.Generator is
 
          function To_Ada_Type (Name : in String) return String is
          begin
-            if Name = "Float" or else Name = "float" then
-               return "Long_Float";
-
-            elsif Name = "Double" or else Name = "double" then
-               return "Long_Long_Float";
-
-            elsif Name = "String" or else Name = "string" then
-               return "Unbounded_String";
-
-            elsif Name = "int" then
-               return "Integer";
-
-            elsif WSDL.Is_Standard (Name) then
-               return Name;
+            if WSDL.Is_Standard (Name) then
+               return WSDL.To_Ada
+                 (WSDL.To_Type (Name), Context => WSDL.Component);
 
             else
                return Name & "_Type";
@@ -650,24 +635,7 @@ package body SOAP.Generator is
          P      : in WSDL.Parameters.P_Set;
          Output : in Boolean               := False)
       is
-         function V_Routine (Name : in String) return String;
-         --  Returns the Ada corresponding type
-
          F_Name : constant String := Format_Name (O, Name);
-
-         ---------------
-         -- V_Routine --
-         ---------------
-
-         function V_Routine (Name : in String) return String is
-         begin
-            if Name = "String" then
-               return "SOAP.Utils.V";
-
-            else
-               return "SOAP.Types.V";
-            end if;
-         end V_Routine;
 
          R   : WSDL.Parameters.P_Set;
          N   : WSDL.Parameters.P_Set;
@@ -769,8 +737,7 @@ package body SOAP.Generator is
             case N.Mode is
                when WSDL.Parameters.K_Simple =>
                   declare
-                     I_Type : constant String
-                       := Set_Type (WSDL.To_Ada (N.P_Type));
+                     I_Type : constant String := WSDL.Set_Type (N.P_Type);
                   begin
                      Text_IO.Put_Line
                        (Type_Adb,
@@ -819,7 +786,7 @@ package body SOAP.Generator is
             case N.Mode is
                when WSDL.Parameters.K_Simple =>
                   Text_IO.Put
-                    (Type_Adb, V_Routine (WSDL.To_Ada (N.P_Type))
+                    (Type_Adb, WSDL.V_Routine (N.P_Type, WSDL.Component)
                        & " (" & Format_Name (O, To_String (N.Name)) & ')');
 
                when WSDL.Parameters.K_Array =>
@@ -915,28 +882,10 @@ package body SOAP.Generator is
       -----------------
 
       function Get_Routine (P : in WSDL.Parameters.P_Set) return String is
-
-         function Get_Routine (Name : in String) return String;
-
-         -----------------
-         -- Get_Routine --
-         -----------------
-
-         function Get_Routine (Name : in String) return String is
-         begin
-            if Name = "string" then
-               return "SOAP.Utils.Get";
-            else
-               return "SOAP.Types.Get";
-            end if;
-         end Get_Routine;
-
-         Name : constant String := Type_Name (P);
-
       begin
          case P.Mode is
             when WSDL.Parameters.K_Simple =>
-               return Get_Routine (Name);
+               return WSDL.Get_Routine (P.P_Type);
 
             when WSDL.Parameters.K_Array =>
                declare
@@ -944,14 +893,15 @@ package body SOAP.Generator is
                     := Array_Type (To_String (P.E_Type));
                begin
                   if WSDL.Is_Standard (T_Name) then
-                     return Get_Routine (T_Name);
+                     return WSDL.Get_Routine
+                       (WSDL.To_Type (T_Name), WSDL.Component);
                   else
                      return "To_" & T_Name & "_Type";
                   end if;
                end;
 
             when WSDL.Parameters.K_Record =>
-               return "To_" & Name;
+               return "To_" & Type_Name (P);
          end case;
       end Get_Routine;
 
@@ -992,76 +942,19 @@ package body SOAP.Generator is
       -----------------
 
       function Set_Routine (P : in WSDL.Parameters.P_Set) return String is
-
-         function Set_Routine (Name : in String) return String;
-         --  Returns the routine use to build object with type Name
-
-         Is_Array : Boolean := False;
-         --  Set to true inside an array
-
-         -----------------
-         -- Set_Routine --
-         -----------------
-
-         function Set_Routine (Name : in String) return String is
-         begin
-            if Name = "String" or else Name = "string" then
-
-               --  In an array we store object of type Unbounded_String
-
-               if Is_Array then
-                  return "SOAP.Utils.US";
-               else
-                  return "SOAP.Types.S";
-               end if;
-
-            elsif Name = "Unbounded_String" then
-               return "SOAP.Utils.US";
-
-            elsif Name = "Integer" or else Name = "integer" then
-               return "SOAP.Types.I";
-
-            elsif Name = "int" then
-               return "SOAP.Types.I";
-
-            elsif Name = "Float" or else Name = "float" then
-               return "SOAP.Types.F";
-
-            elsif Name = "Long_Float" then
-               return "SOAP.Types.F";
-
-            elsif Name = "Long_Long_Float" then
-               return "SOAP.Types.D";
-
-            elsif Name = "Boolean" or else Name = "boolean" then
-               return "SOAP.Types.B";
-
-            elsif Name = "Ada.Calendar.Time" then
-               return "SOAP.Types.T";
-
-            else
-               Raise_Exception
-                 (Generator_Error'Identity,
-                  "(Set_Routine): type " & Name & " not supported.");
-            end if;
-         end Set_Routine;
-
-         Name : constant String := Type_Name (P);
-
       begin
          case P.Mode is
             when WSDL.Parameters.K_Simple =>
-               return Set_Routine (Name);
+               return WSDL.Set_Routine (P.P_Type, Context => WSDL.Component);
 
             when WSDL.Parameters.K_Array =>
-               Is_Array := True;
-
                declare
                   T_Name : constant String
                     := Array_Type (To_String (P.E_Type));
                begin
                   if WSDL.Is_Standard (T_Name) then
-                     return Set_Routine (T_Name);
+                     return WSDL.Set_Routine
+                       (WSDL.To_Type (T_Name), Context => WSDL.Component);
                   else
                      return "To_SOAP_Object";
                   end if;
@@ -1078,30 +971,8 @@ package body SOAP.Generator is
 
       function Set_Type (Name : in String) return String is
       begin
-         if Name = "String" or else Name = "string" then
-            return "SOAP.Types.XSD_String";
-
-         elsif Name = "Integer" or else Name = "integer" then
-            return "SOAP.Types.XSD_Integer";
-
-         elsif Name = "int" then
-            return "SOAP.Types.XSD_Integer";
-
-         elsif Name = "Float" or else Name = "float" then
-            return "SOAP.Types.XSD_Float";
-
-         elsif Name = "Long_Float" then
-            return "SOAP.Types.XSD_Float";
-
-         elsif Name = "Long_Long_Float" then
-            return "SOAP.Types.XSD_Double";
-
-         elsif Name = "Boolean" or else Name = "boolean" then
-            return "SOAP.Types.XSD_Boolean";
-
-         elsif Name = "Ada.Calendar.Time" then
-            return "SOAP.Types.XSD_Time_Instant";
-
+         if WSDL.Is_Standard (Name) then
+            return WSDL.Set_Type (WSDL.To_Type (Name));
          else
             return "SOAP.Types.SOAP_Record";
          end if;
@@ -1116,12 +987,9 @@ package body SOAP.Generator is
       begin
          case N.Mode is
             when WSDL.Parameters.K_Simple =>
-               if N.P_Type = WSDL.P_String then
-                  --  Inside a record we must use Unbounded_String
-                  return "Unbounded_String";
-               else
-                  return WSDL.To_Ada (N.P_Type);
-               end if;
+               --  This routine is called only for SOAP object in records
+               --  or arrays.
+               return WSDL.To_Ada (N.P_Type, Context => WSDL.Component);
 
             when WSDL.Parameters.K_Array =>
                return To_String (N.T_Name) & "_Safe_Access";
@@ -1216,25 +1084,6 @@ package body SOAP.Generator is
    ----------
 
    package body Skel is separate;
-
-   ----------------------
-   -- SOAP_Constructor --
-   ----------------------
-
-   function SOAP_Constructor
-     (P_Type : in WSDL.Parameter_Type)
-      return String is
-   begin
-      case P_Type is
-         when WSDL.P_Integer => return "I";
-         when WSDL.P_Float   => return "F";
-         when WSDL.P_Double  => return "D";
-         when WSDL.P_String  => return "S";
-         when WSDL.P_Boolean => return "B";
-         when WSDL.P_Time    => return "T";
-         when WSDL.P_B64     => return "B64";
-      end case;
-   end SOAP_Constructor;
 
    -------------------
    -- Start_Service --
