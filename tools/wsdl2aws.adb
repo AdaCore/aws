@@ -150,7 +150,7 @@ procedure WSDL2AWS is
    begin
       loop
          case Command_Line.Getopt
-           ("q a f v s o: proxy: pu: pp: rpc wsdl cvs nostub noskel")
+           ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel")
          is
             when ASCII.NUL => exit;
 
@@ -168,9 +168,9 @@ procedure WSDL2AWS is
                Out_Filename
                  := To_Unbounded_String (GNAT.Command_Line.Parameter);
 
-            when 'r' =>
-               if Command_Line.Full_Switch = "rpc" then
-                  SOAP.WSDL.Parser.Accept_RPC (Gen);
+            when 'd' =>
+               if Command_Line.Full_Switch = "doc" then
+                  SOAP.WSDL.Parser.Accept_Document (Gen);
                else
                   raise Syntax_Error;
                end if;
@@ -284,7 +284,7 @@ exception
       Put_Line ("   -f        Force files creation stub/skeleton/WSDL");
       Put_Line ("   -s        Skip non supported SOAP routines");
       Put_Line ("   -o        Output filename for Web Document (URL mode)");
-      Put_Line ("   -rpc      Accept RPC style binding");
+      Put_Line ("   -doc      Accept Document style binding (parse as RPC)");
       Put_Line ("   -v        Verbose mode");
       Put_Line ("   -v -v     Very verbose mode");
       Put_Line ("   -wsdl     Add WSDL file in unit comment");
