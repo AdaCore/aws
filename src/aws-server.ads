@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
+--                          Copyright (C) 2000-2001                         --
 --                      Dmitriy Anisimkov & Pascal Obry                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -44,11 +44,7 @@ package AWS.Server is
    No_Admin            : constant String := "";
 
    type HTTP
-     (Max_Connection : Positive          := Default_Connection;
-      Port           : Positive          := Default_Port;
-      Security       : Boolean           := False;
-      CB             : Response.Callback := Response.Default_Handler;
-      Session        : Boolean           := False) is
+     (Max_Connection : Positive := Default_Connection) is
    limited private;
    --  Max_Connection is the maximum number of simultaneous connection
    --  handled by the server. Port is the socket server port. If security is
@@ -56,9 +52,15 @@ package AWS.Server is
    --  user's callback function which reply to request sent to the
    --  server.
 
-   procedure Start (Web_Server : in out HTTP;
-                    Name       : in String;
-                    Admin_URI  : in String := No_Admin);
+   procedure Start
+     (Web_Server                : in out HTTP;
+      Name                      : in     String;
+      Callback                  : in     Response.Callback;
+      Admin_URI                 : in     String            := No_Admin;
+      Port                      : in     Positive          := Default_Port;
+      Security                  : in     Boolean           := False;
+      Session                   : in     Boolean           := False;
+      Case_Sensitive_Parameters : in     Boolean           := True);
    --  Start the Web server. It initialize the connections lines.
    --  Admin_URI must be set to enable the admin status page.
 
@@ -107,9 +109,11 @@ private
 
       procedure Abort_Oldest  (Force : in Boolean);
       --  Abort oldest line (the line with the oldest activity time stamp) if
-      --  force is True. Otherwise the Line must be in an abortable state.
+      --  force is True. Otherwise the Line must be older then
+      --  Keep_Open_Duration.
+      --  Anyway Line mast be in abortable state for abortion.
 
-      procedure Get (FD : in Sockets.Socket_FD; Index : in Positive);
+      entry Get (FD : in Sockets.Socket_FD; Index : in Positive);
       --  Mark slot at position Index to be used. This slot will be associated
       --  with the socket FD. Opened status is set to True.
 
@@ -130,8 +134,9 @@ private
       --  handled by the slot.
 
    private
-      Set   : Slot_Set (1 .. N);
-      Count : Natural := N;
+      Set             : Slot_Set (1 .. N);
+      Count           : Natural := N;
+      Abortable_Count : Natural := 0;
    end Slots;
 
    ----------
@@ -156,24 +161,24 @@ private
    use Ada.Strings.Unbounded;
 
    type HTTP
-     (Max_Connection : Positive          := Default_Connection;
-      Port           : Positive          := Default_Port;
-      Security       : Boolean           := False;
-      CB             : Response.Callback := Response.Default_Handler;
-      Session        : Boolean           := False) is
+     (Max_Connection : Positive := Default_Connection) is
    limited record
-      Self        : HTTP_Access := HTTP'Unchecked_Access;
-      Shutdown    : Boolean     := False;
-      Name        : Unbounded_String;
-      Upload_Path : Unbounded_String;
-      Sock        : Sockets.Socket_FD;
+      Self                      : HTTP_Access := HTTP'Unchecked_Access;
+      Shutdown                  : Boolean     := False;
+      Name                      : Unbounded_String;
+      Upload_Path               : Unbounded_String;
+      Sock                      : Sockets.Socket_FD;
       --  this is the server socket for incoming connection.
-
-      Lines       : Line_Set (1 .. Max_Connection);
-      Slots       : Server.Slots (Max_Connection);
-      Cleaner     : Line_Cleaner (HTTP'Unchecked_Access);
-      Admin_URI   : Unbounded_String;
-      Filters     : Hotplug.Filter_Set;
+      Lines                     : Line_Set (1 .. Max_Connection);
+      Slots                     : Server.Slots (Max_Connection);
+      Cleaner                   : Line_Cleaner (HTTP'Unchecked_Access);
+      Admin_URI                 : Unbounded_String;
+      Filters                   : Hotplug.Filter_Set;
+      Port                      : Positive;
+      Security                  : Boolean;
+      CB                        : Response.Callback;
+      Session                   : Boolean;
+      Case_Sensitive_Parameters : Boolean;
    end record;
 
 end AWS.Server;
