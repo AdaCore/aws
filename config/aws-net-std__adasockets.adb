@@ -68,9 +68,6 @@ package body AWS.Net.Std is
    --  Raise exception Socket_Error with E's message and a reference to the
    --  routine name.
 
-   function Errno (Socket : in Socket_Type) return Integer;
-   --  Returns and clears error state in socket.
-
    function Get_Addr_Info
      (Host  : in String;
       Port  : in Positive;
