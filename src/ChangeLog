@@ -1,5 +1,8 @@
 2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws.ads:
+	(Version): Set to 1.3-rc1.
+
 	* aws-server.adb:
 	(Default_Unexpected_Exception_Handler): Add traceback into the
 	 log and in the 500 template file. Shorter fatal error message.
