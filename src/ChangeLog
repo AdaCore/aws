@@ -1,3 +1,9 @@
+2004-01-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std.ads:
+	(Send): Remove pragma Inline. AdaSockets based implementation is big
+	 enought and using nested subroutine.
+
 2004-01-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net.ads, aws-net.adb:
