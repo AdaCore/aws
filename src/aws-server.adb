@@ -40,7 +40,7 @@ with AWS.Config.Set;
 
 with AWS.Net;
 with AWS.Session.Control;
-with AWS.Services.Dispatchers.Callback;
+with AWS.Dispatchers.Callback;
 
 package body AWS.Server is
 
@@ -700,7 +700,7 @@ package body AWS.Server is
       CNF.Set.Case_Sensitive_Parameters
         (Web_Server.Properties, Case_Sensitive_Parameters);
 
-      Start (Web_Server, Services.Dispatchers.Callback.Create (Callback));
+      Start (Web_Server, Dispatchers.Callback.Create (Callback));
    end Start;
 
    -----------
@@ -713,7 +713,7 @@ package body AWS.Server is
       Config     : in     AWS.Config.Object) is
    begin
       Web_Server.Properties := Config;
-      Start (Web_Server, Services.Dispatchers.Callback.Create (Callback));
+      Start (Web_Server, Dispatchers.Callback.Create (Callback));
    end Start;
 
    -----------
