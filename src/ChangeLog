@@ -1,3 +1,14 @@
+2004-09-28  Pascal Obry  <pascal@obry.org>
+
+	* aws-client.adb:
+	(Open_Send_Common_Header): Fix tunnel creation with persistent
+	 connections. The tunnel creation is now done only the first time
+	 as the proxy authentication.
+
+	* aws-client.ads:
+	(HTTP_Connection): Add Tunneling field. Set to True when a tunnel
+	 through is opened.
+
 2004-09-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-services-transient_pages.ads:
