@@ -1,3 +1,11 @@
+2004-12-23  Pascal Obry  <pascal@obry.net>
+
+	* line_status_pck.ads, line_status_pck.adb:
+	Initial revision.
+
+	* line_status.adb, line_status.out, line_status.tmplt:
+	Initial revision.
+
 2004-12-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait_proc.adb, wait.out, wait_sec.out:

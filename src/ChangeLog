@@ -1,3 +1,20 @@
+2004-12-23  Pascal Obry  <pascal@obry.net>
+
+	* aws-server-protocol_handler.adb:
+	(C_Stat): Now aliased.
+	Call Line_Attribute.Set_Value here.
+
+	* aws-server.adb:
+	(Line_Attribute_Record): Add Data field.
+	(Line_Attribute): Adjust instantiation.
+	(Protocol_Handler): Change HTTP_Server parameter to be an access type.
+	(Line): Do not call the Line_Attribute.Set_Value here, moved
+	 inside Protocol_Handler as we now need to set the Status.Data.
+	(Get_Status): New routine.
+
+	* aws-server.ads:
+	(Get_Status): New routine.
+
 2004-12-22  Pascal Obry  <pascal@obry.net>
 
 	* aws-config-ini.ads:
