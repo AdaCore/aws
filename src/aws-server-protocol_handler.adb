@@ -1317,6 +1317,8 @@ begin
 
       Status.Set.Reset (C_Stat);
 
+      P_List := Status.Parameters (C_Stat);
+
       Parameters.Set.Case_Sensitive
         (P_List, Case_Sensitive_Parameters);
 
