@@ -56,6 +56,9 @@ package body AWS.Net.Sets is
       Socket : in     Socket_Access;
       Mode   : in     Waiting_Mode);
 
+   procedure Next_Private (Set : in out Socket_Set_Type);
+   --  Looking for next active sockets beginning from current.
+
    ---------
    -- Add --
    ---------
@@ -104,8 +107,6 @@ package body AWS.Net.Sets is
          Set.Poll := new Poll_Set_Type (1 .. 4);
          Set.Set  := new Socket_Array (Set.Poll'Range);
 
-         Set.Last := 1;
-
       elsif Set.Last >= Set.Poll'Length then
          declare
             Prev_Set  : Socket_Array_Access := Set.Set;
@@ -128,9 +129,9 @@ package body AWS.Net.Sets is
             Free (Prev_Set);
             Free (Prev_Poll);
          end;
-
-         Set.Last := Set.Last + 1;
       end if;
+
+      Set.Last := Set.Last + 1;
 
       Set.Set (Set.Last).Socket := Socket;
       Set.Poll (Set.Last).FD := Thin.FD_Type (Get_FD (Socket.all));
@@ -154,7 +155,7 @@ package body AWS.Net.Sets is
 
       Set.Last := Set.Last - 1;
 
-      Next (Set);
+      Next_Private (Set);
    end Delete_Current;
 
    --------------
@@ -200,12 +201,27 @@ package body AWS.Net.Sets is
    procedure Next (Set : in out Socket_Set_Type) is
       use type Thin.Events_Type;
    begin
+      loop
+         Set.Current := Set.Current + 1;
+
+         exit when Set.Current > Set.Last
+           or else Set.Poll (Set.Current).REvents /= 0;
+      end loop;
+   end Next;
+
+   ------------------
+   -- Next_Private --
+   ------------------
+
+   procedure Next_Private (Set : in out Socket_Set_Type) is
+      use type Thin.Events_Type;
+   begin
       while Set.Current <= Set.Last
         and then Set.Poll (Set.Current).REvents = 0
       loop
          Set.Current := Set.Current + 1;
       end loop;
-   end Next;
+   end Next_Private;
 
    -------------------
    -- Remove_Socket --
@@ -302,7 +318,7 @@ package body AWS.Net.Sets is
 
       elsif Result > 0 then
          Set.Current := 1;
-         Next (Set);
+         Next_Private (Set);
 
       end if;
    end Wait;

@@ -1,3 +1,9 @@
+2004-03-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-sets.adb:
+	(Next_Private): New private routine starting from current socket.
+	(Next): Starting from next socket.
+
 2004-02-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets.ads, aws-net-sets.adb:
