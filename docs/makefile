@@ -3,17 +3,19 @@
 
 .SILENT: clean build ada.sed aws.ps aws.info aws.dvi aws.txt aws.html aws.texi
 .SILENT: prog check_env
+.SILENT: check_api apiref clean_apiref adabrowse_apiref gnathtml_apiref
+
 
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
 		subtype generic limited access all
 
-APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
+APIFILES = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-server.ads.texi ../src/aws-config.ads.texi \
 	../src/aws-session.ads.texi ../src/aws-client.ads.texi \
 	../src/aws-mime.ads.texi ../src/aws-communication.ads.texi \
 	../src/aws-url.ads.texi ../src/aws-communication-client.ads.texi \
-	../src/aws-communication-server.ads.texi \
+	../src/aws-communication-server.ads.texi ../src/aws-default.ads.texi \
 	../src/aws-server-hotplug.ads.texi ../src/aws-log.ads.texi \
 	../src/aws-parameters.ads.texi ../src/aws-config-ini.ads.texi \
 	../src/aws-config-set.ads.texi ../src/aws-server-push.ads.texi \
@@ -28,7 +30,6 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../soap/soap-message.ads.texi ../soap/soap-message-xml.ads.texi \
 	../soap/soap-parameters.ads.texi ../soap/soap-types.ads.texi \
 	../soap/soap-client.ads.texi
-
 
 check_env:
 	(if ! [ -e ../src/aws-os_lib.adb ]; then \
@@ -76,6 +77,54 @@ prog: build.adb
 aws.texi: prog aws.texi.tmplt
 	./build | tr -d '\r' > aws.texi
 
+check_api:
+	if [ -f ../soap/soap.ali ]; then \
+		exit 0; \
+	else \
+		echo SOAP not activated, cannot generate API documentation ; \
+		exit 1; \
+	fi;
+
+apiref: gnathtml_apiref
+
+# API cross-references using gnathtml
+gnathtml_apiref: check_api
+	(cd ..; fileset=; \
+	for file in src/*.ad[sb] include/templates*.ad[sb] \
+	   	include/strings_cutter.ad[sb] \
+		soap/soap-*.ad[sb]; \
+	do \
+		echo -n $$file; \
+		if [ -f `echo $$file | sed -e 's/\.ad[sb]/.ali/'` ]; then \
+			echo "    included"; \
+			fileset="$$fileset $$file"; \
+		else \
+			echo "    skipped"; \
+		fi; \
+	done; \
+	gnathtml.pl -odocs/html $$fileset; \
+	)
+
+# API cross-references using AdaBrowse
+adabrowse_apiref: check_api
+	(cd ..; \
+	for file in src/*.ad[sb] include/templates*.ad[sb] \
+	   	include/strings_cutter.ad[sb] \
+		soap/soap-*.ad[sb]; \
+	do \
+		echo -n $$file; \
+		if [ -f `echo $$file | sed -e 's/\.ad[sb]/.ali/'` ]; then \
+			echo "    included"; \
+			adabrowse -o docs\\html\\ -f $$file -Isrc -Iinclude; \
+		else \
+			echo "    skipped"; \
+		fi; \
+	done; \
+	)
+
 clean:
 	-rm aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
           $(APIFILES) *~ *.o *.ali
+
+clean_apiref:
+	-rm -fr html
