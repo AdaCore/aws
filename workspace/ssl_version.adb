@@ -1,3 +1,5 @@
+--  $Id$
+
 with Interfaces.C.Strings;
 with Ada.Text_IO;
 
