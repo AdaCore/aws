@@ -110,8 +110,18 @@ package body Sp_Pck is
       end loop;
 
       for J in Connect'Range loop
+         --  Next line would automatically unregister
+         --  server push clients, closed in previous iterations.
+         --  Last connection would not be unregistered.
+
+         Server_Push.Send (Push, Data, "text/plain");
+
          Client.Close (Connect (J));
       end loop;
+
+      if Server_Push.Count (Push) /= 1 then
+         Ada.Text_IO.Put_Line ("Auto unregister error.");
+      end if;
 
       Server_Push.Unregister_Clients (Push);
    end Client_Process;
