@@ -1,3 +1,83 @@
+2001-05-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Read_Chunk): new implementation. Do not use a recursive algorithm
+	 to read the data to work-around a problem with gigantic stack size
+	 used to build the result. Patch contributed by Wiljan Derks.
+
+	* aws-server.adb:
+	(Check_Timeouts): removed.
+	(Abort_On_Timeout): new parameter Done.
+	(Free_Slot): new function.
+	(Get): change entry guard.
+	(Line_Cleaner): new implementation. Fix another problem with abortion.
+	(Line): check if there is some slot available, if not force
+	 abortion of one.
+	
+	* aws-server.ads:
+	(Check_Timeouts): removed.
+	(Abort_On_Timeout): new parameter Done.
+	(Free_Slot): new function.
+
+2001-05-18  Pascal Obry  <p.obry@wanadoo.fr>
+	
+	* aws-server-protocol_handler.adb:
+	(P_List): new variable.
+	Many changes in the code to use routines in AWS.Parameters instead
+	 of the removed ones in AWS.Status. Cleaner design.
+	Reset P_List at each iteration.
+	Associate the P_List with the C_Stat at each iteration.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	(Request): remove Parameters routine's parameter.
+	(Parameters): renamed Binary.
+	(Parameter): removed.
+
+	* aws-status.adb: 
+	(Parameter_Name): moved to AWS.Parameters.
+	(Parameter): idem.
+	(count): idem.
+	(Normalize_Name): idem.
+	(Parameter): new procedure to add a parameter list to the status 
+	 record.
+	Remove unused unit Ada.Characters.Handling.
+
+	* aws-status.ads:
+	(Data): remove discriminant.
+	(Parameter_Name): moved to AWS.Parameters.
+	(Parameter): idem.
+	(count): idem.
+	(Normalize_Name): idem.
+	(Parameter): new procedure to add a parameter list to the status 
+	 record.
+
+	* aws-server.adb:
+	Remove some debuging code.
+
+	* aws-server-get_status.adb:
+	Remove unused unit Interfaces.C.
+
+	* aws-parameters.ads:
+	Redesign. All routine to change the parameters list are now in a
+	 child package.
+	(Empty_Set): removed.
+	(Set): renamed List.
+	(Add): moved to child package.
+	(Release): rename Reset and moved to child package.
+	Update copyright notice.
+	Reformating.
+	
+	* aws-parameters.adb:
+	Redesign. All routine to change the parameters list are now in a
+	 child package.
+	(Add): moved to child package.
+	(Release): rename Reset and moved to child package.
+	Update copyright notice.
+	Reformating.
+	
+	* aws-parameters-set.ads, aws-parameters-set.adb:
+	Initial revision.
+
 2001-05-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-status.adb:
