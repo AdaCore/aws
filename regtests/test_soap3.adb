@@ -125,10 +125,10 @@ procedure Test_SOAP3 is
         (HTTP, "soap_demo",
          CB'Unrestricted_Access, Port => 6545, Max_Connection => 5);
 
+      accept Started;
+
       Put_Line ("Server started");
       New_Line;
-
-      accept Started;
 
       select
          accept Stopped;
