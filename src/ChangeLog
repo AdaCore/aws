@@ -1,6 +1,6 @@
 2003-02-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
-	* aws-server.adb:
+	* aws-server.ads, aws-server.adb:
 	(Set): Add Free_Slots out parameter, it reduces number of protected
 	 calls, and giving more precise information about free slots for the
 	 time of slot becoming busy. Moreover this avoid internal non visible
