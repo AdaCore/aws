@@ -157,10 +157,10 @@ implemented:
 
 - Add client's compress/decompress support.
 
-- Add more certificate information in AWS.Net.SSL.Certificate
+- Add more certificate information in AWS.Net.SSL.Certificate.
+
+- Add reply all support to the Web_Mail service.
 
 =============== Point to fix/implement/review before next release (2.0)
 
 - Check the documentation before the release
-
-- Add reply support to the Web_Mail service.
