@@ -40,7 +40,7 @@ package SOAP.WSDL.Parser is
    -- Parser --
    ------------
 
-   type Object is tagged private;
+   type Object is tagged limited private;
 
    procedure Start_Service
      (O             : in out Object;
@@ -98,7 +98,10 @@ private
 
    type All_Parameters is array (Parameter_Mode) of Parameters.P_Set;
 
-   type Object is tagged record
+   type Object_Access is access all Object'Class;
+
+   type Object is tagged limited record
+      Self            : Object_Access := Object'Unchecked_Access;
       Proc            : Unbounded_String; -- SOAP procedure name
       SOAPAction      : Unbounded_String; -- SOAPAction string
       Namespace       : Unbounded_String;
