@@ -51,6 +51,7 @@ with AWS.OS_Lib;
 with AWS.Response.Set;
 with AWS.Translator;
 with AWS.Utils;
+with AWS.Net.SSL;
 
 package body AWS.Client is
 
@@ -234,6 +235,8 @@ package body AWS.Client is
 
       end if;
 
+      Net.SSL.Release (Connection.SSL_Config);
+
       Disconnect (Connection);
       Net.Free (Connection.Socket);
    end Close;
@@ -245,6 +248,7 @@ package body AWS.Client is
    procedure Connect (Connection : in out HTTP_Connection) is
       use type Net.Socket_Access;
       Connect_URL : AWS.URL.Object renames Connection.Connect_URL;
+      Security    : constant Boolean := AWS.URL.Security (Connect_URL);
    begin
       pragma Assert (not Connection.Opened);
       --  This should never be called with an open connection.
@@ -256,11 +260,18 @@ package body AWS.Client is
          Net.Free (Connection.Socket);
       end if;
 
-      Connection.Socket := Net.Socket (AWS.URL.Security (Connect_URL));
+      Connection.Socket := Net.Socket (Security);
 
-      Net.Connect (Connection.Socket.all,
-                   AWS.URL.Host (Connect_URL),
-                   AWS.URL.Port (Connect_URL));
+      if Security then
+         --  This is a secure connection, set the SSL config for this socket
+         Net.SSL.Set_Config
+           (Net.SSL.Socket_Type (Connection.Socket.all),
+            Connection.SSL_Config);
+      end if;
+
+      Net.Connect
+        (Connection.Socket.all,
+         AWS.URL.Host (Connect_URL), AWS.URL.Port (Connect_URL));
 
       Connection.Opened := True;
    exception
@@ -299,7 +310,9 @@ package body AWS.Client is
       Retry       : in     Natural         := Retry_Default;
       Persistent  : in     Boolean         := True;
       Timeouts    : in     Timeouts_Values := No_Timeout;
-      Server_Push : in     Boolean         := False)
+      Server_Push : in     Boolean         := False;
+      Certificate : in     String          := Default.Client_Certificate;
+      User_Agent  : in     String          := Default.User_Agent)
    is
       Connect_URL : AWS.URL.Object;
       Host_URL    : AWS.URL.Object := AWS.URL.Parse (Host);
@@ -330,6 +343,9 @@ package body AWS.Client is
       Connection.Current_Phase            := Not_Monitored;
       Connection.Server_Push              := Server_Push;
       Connection.Timeouts                 := Timeouts;
+      Connection.Certificate              := To_Unbounded_String (Certificate);
+
+      Connection.User_Agent := To_Unbounded_String (User_Agent);
 
       --  If we have set the proxy or standard authentication we must set the
       --  authentication mode to Basic.
@@ -340,6 +356,11 @@ package body AWS.Client is
 
       if User /= No_Data then
          Connection.Auth (WWW).Work_Mode := Basic;
+      end if;
+
+      if URL.Security (Host_URL) then
+         --  This is a secure connection, initialize the SSL layer
+         Net.SSL.Initialize (Connection.SSL_Config, Certificate);
       end if;
 
       --  Establish the connection now
@@ -521,6 +542,26 @@ package body AWS.Client is
          end;
       end loop Retry;
    end Get;
+
+   ---------------------
+   -- Get_Certificate --
+   ---------------------
+
+   function Get_Certificate
+     (Connection : in HTTP_Connection)
+      return Net.SSL.Certificate.Object
+   is
+      use type Net.Socket_Access;
+   begin
+      if Connection.Socket = null
+        or else Connection.Socket.all not in AWS.Net.SSL.Socket_Type'Class
+      then
+         return Net.SSL.Certificate.Undefined;
+      else
+         return Net.SSL.Certificate.Get
+           (Net.SSL.Socket_Type (Connection.Socket.all));
+      end if;
+   end Get_Certificate;
 
    ------------------
    -- Get_Response --
@@ -1148,7 +1189,7 @@ package body AWS.Client is
                    Messages.Accept_Language ("fr, ru, us"));
 
       Send_Header (Sock.all,
-                   Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
+                   Messages.User_Agent (To_String (Connection.User_Agent)));
 
       --  User Authentification
 
