@@ -80,6 +80,11 @@ demos/vh_demo.adb
 demos/vh_demo_cb.adb
 demos/vh_demo_cb.ads
 demos/web_mail.adb
+demos/wm_error.thtml
+demos/wm_login.html
+demos/wm_message.thtml
+demos/wm_reply.thtml
+demos/wm_summary.thtml
 demos/wps.adb
 demos/ws.adb
 demos/ws.ini
