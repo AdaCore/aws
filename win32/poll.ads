@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -27,10 +27,10 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
+
 --  $Id$
---
---  emulates unix "poll" call under Win32.
+
+--  Emulates UNIX "poll" call under Win32
 
 with Interfaces.C; use Interfaces;
 with System;

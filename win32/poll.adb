@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -27,10 +27,8 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
+
 --  $Id$
---
---  emulates unix "poll" call under Win32.
 
 with AWS.Net.Sets.Thin;
 with System.Address_To_Access_Conversions;
@@ -63,7 +61,7 @@ is
    pragma Convention (C, Poll_Array);
 
    package Conversion is
-      new System.Address_To_Access_Conversions (Poll_Array);
+     new System.Address_To_Access_Conversions (Poll_Array);
 
    type FD_Set_Type is record
       Count : C.int := 0;
@@ -71,23 +69,22 @@ is
    end record;
    pragma Convention (C, FD_Set_Type);
 
-   procedure FD_SET (FD : C.int; Set : in out FD_Set_Type);
+   procedure FD_SET (FD : in C.int; Set : in out FD_Set_Type);
    pragma Inline (FD_SET);
 
-   function FD_ISSET (FD : C.int; Set : System.Address)
-     return C.int;
+   function FD_ISSET (FD : in C.int; Set : in System.Address) return C.int;
    pragma Import (Stdcall, FD_ISSET, "__WSAFDIsSet");
 
    function C_Select
-     (Nfds      : C.int;
-      readfds   : System.Address;
-      writefds  : System.Address;
-      exceptfds : System.Address;
-      timeout   : System.Address)
-     return C.int;
+     (Nfds      : in C.int;
+      readfds   : in System.Address;
+      writefds  : in System.Address;
+      exceptfds : in System.Address;
+      timeout   : in System.Address)
+      return C.Int;
    pragma Import (Stdcall, C_Select, "select");
 
-   Poll_Ptr  : constant Conversion.Object_Pointer
+   Poll_Ptr : constant Conversion.Object_Pointer
      := Conversion.To_Pointer (Fds);
 
    timeout_v : aliased Timeval;
@@ -104,7 +101,7 @@ is
    -- FD_SET --
    ------------
 
-   procedure FD_SET (FD : C.int; Set : in out FD_Set_Type) is
+   procedure FD_SET (FD : in C.int; Set : in out FD_Set_Type) is
    begin
       Set.Count := Set.Count + 1;
       Set.Set (C.unsigned_long (Set.Count)) := FD;
@@ -131,15 +128,15 @@ begin
    end loop;
 
    if Timeout < 0 then
-      Rs := C_Select (0, rfds'Address, wfds'Address, efds'Address,
-               System.Null_Address);
+      Rs := C_Select (0, Rfds'Address, Wfds'Address, Efds'Address,
+                      System.Null_Address);
    else
       Rs := C_Select (0, rfds'Address, wfds'Address, efds'Address,
-               timeout_v'Address);
+                      Timeout_V'Address);
    end if;
 
    if Rs > 0 then
-      Rs      := 0;
+      Rs := 0;
 
       for J in 1 .. Nfds loop
          Good   := False;
