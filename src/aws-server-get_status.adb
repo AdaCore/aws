@@ -178,11 +178,11 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Slot_Data := Server.Slots.Get (Index => K);
 
          declare
-            Socket : constant Socket_Data
-               := Server.Slots.Get_Socket_Info (Index => K);
+            SD : constant Socket_Data
+              := Server.Slots.Get_Socket_Info (Index => K);
          begin
-            Sock := Sock & Socket.FD;
-            Peer_Name := Peer_Name & Socket.Peername;
+            Sock      := Sock      & SD.FD;
+            Peer_Name := Peer_Name & SD.Peername;
          end;
 
          Phase     := Phase & Slot_Phase'Image (Slot_Data.Phase);
