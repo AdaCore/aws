@@ -1,11 +1,7 @@
 
 # $Id$
 
-.SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
-.SILENT: checks checks_header checks_soap shutdown testxml turl2 turl3 turl4
-.SILENT: soap1 soap2 soap3 workorder tres tres2 upload unexph test_speed
-.SILENT: test_soap moved auth strm test_templates_if head hval tsgetparam
-.SILENT: test_sec_soap checks_std checks_sec_soap checks_sec_std
+.SILENT: checks checks_header checks_soap checks_out checks_tres tres
 
 # To add a new test:
 #
