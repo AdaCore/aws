@@ -1,3 +1,34 @@
+2004-03-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-sets.adb:
+        (Count): New routine.
+        (Reset): New routine.
+        (Delete_Current): Moved into Remove_Socket.
+        (Take_Socket): Removed.
+        (Remove_Socket): Raises Constraint_Error if no socket are selected.
+        (To_State): Rename parameter Item to Event.
+        (Wait): Add ???.
+	Minor reformatting.
+
+	* aws-net-sets.ads:
+        (Socket_State): Add comments.
+        (Add): Fix comments.
+        (Wait): Idem.
+        (Count): New routine.
+        (Take_Socket): Removed.
+        (Remove_Socket): Document that Constraint_Error can be raised.
+        (Next): Fix comments.
+        (Reset): New routine.
+	Minor reformatting.
+
+	* aws-net.ads:
+	Minor reformatting.
+        (Errno): Fix comments.
+
+	* aws-net-sets-thin.ads:
+	Minor reformatting.
+        Add some comments.
+
 2004-03-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets.adb:
