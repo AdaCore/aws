@@ -111,7 +111,7 @@ package body AWS.Net.SSL is
 
          Shutdown (New_Socket);
 
-         --  We could not reuse allocated SSL handle.
+         --  We cannot reuse allocated SSL handle.
          --  Free it before the next use.
 
          TSSL.SSL_free (New_Socket.SSL);
@@ -170,10 +170,15 @@ package body AWS.Net.SSL is
 
    function Error_Str (Code : in TSSL.Error_Code) return String is
       use Interfaces;
+      use type TSSL.Error_Code;
       Buffer : C.char_array := (0 .. 511 => Interfaces.C.nul);
    begin
-      TSSL.ERR_error_string_n (Code, Buffer, Buffer'Length);
-      return C.To_Ada (Buffer);
+      if Code = 0 then
+         return "Not an error";
+      else
+         TSSL.ERR_error_string_n (Code, Buffer, Buffer'Length);
+         return C.To_Ada (Buffer);
+      end if;
    end Error_Str;
 
    ----------
@@ -352,30 +357,30 @@ package body AWS.Net.SSL is
 
          begin
             Error_If
-              (TSSL.SSL_CTX_use_PrivateKey_file
-                 (Ctx    => Context,
-                  File   => To_C (Key_File_Name),
-                  C_Type => TSSL.SSL_Filetype_Pem) = -1);
-
-            Error_If
               (TSSL.SSL_CTX_use_certificate_file
                  (Ctx    => Context,
                   File   => To_C (Cert_Filename),
-                  C_Type => TSSL.SSL_Filetype_Pem) = -1);
+                  C_Type => TSSL.SSL_FILETYPE_PEM) = -1);
+
+            Error_If
+              (TSSL.SSL_CTX_use_PrivateKey_file
+                 (Ctx    => Context,
+                  File   => To_C (Key_File_Name),
+                  C_Type => TSSL.SSL_FILETYPE_PEM) = -1);
 
             Error_If
               (TSSL.SSL_CTX_check_private_key (Ctx => Context) = -1);
 
             if TSSL.SSL_CTX_ctrl
               (Ctx  => Context,
-               Cmd  => TSSL.SSL_Ctrl_Need_Tmp_RSA,
+               Cmd  => TSSL.SSL_CTRL_NEED_TMP_RSA,
                Larg => 0,
                Parg => Null_Ptr) /= 0
             then
                Error_If
                  (TSSL.SSL_CTX_ctrl
                     (Ctx  => Context,
-                     Cmd  => TSSL.SSL_Ctrl_Set_Tmp_RSA,
+                     Cmd  => TSSL.SSL_CTRL_SET_TMP_RSA,
                      Larg => 0,
                      Parg => Private_Key) = -1);
             end if;
@@ -401,7 +406,7 @@ package body AWS.Net.SSL is
             Error_If
               (TSSL.SSL_CTX_ctrl
                  (Ctx  => Context,
-                  Cmd  => TSSL.SSL_Ctrl_Set_Sess_Cache_Size,
+                  Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
                   Larg => Interfaces.C.int (Value),
                   Parg => Null_Ptr) = -1);
          end Set_Sess_Cache_Size;
@@ -419,11 +424,12 @@ package body AWS.Net.SSL is
 
             --  Initialize private key
 
-            Private_Key :=
-              TSSL.RSA_generate_key (Bits     => 512,
-                                     E        => TSSL.Rsa_F4,
-                                     Callback => null,
-                                     Cb_Arg   => Null_Ptr);
+            Private_Key := TSSL.RSA_generate_key
+              (Bits     => 512,
+               E        => TSSL.RSA_F4,
+               Callback => null,
+               Cb_Arg   => Null_Ptr);
+
             Error_If (Private_Key = Null_Ptr);
 
             Set_Certificate (Certificate_Filename, Key_Filename);
