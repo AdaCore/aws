@@ -1,3 +1,14 @@
+2004-09-17  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(RT_STD): Add upload5.
+
+	* upload.adb:
+	Use Get_Free_Port.
+
+	* upload5.adb, upload5.out:
+	Initial revision to test the upload directory option.
+
 2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sock3.out, sock3_proc.adb, sock3_sec.out:
