@@ -1,5 +1,22 @@
 2001-05-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-config.adb:
+	Fix casing.
+
+	* aws-status.adb:
+	(Count): removed.
+
+	* aws-status-set.ads:
+	Remove comment out code.
+	Update copyright notice.
+
+	* aws-server.adb: 
+	(Slots.Get): is now a procedure was an entry.
+
+	* aws-server.ads:
+	(Timeouts): use AWS.Config*_Timeout function to initialize array.
+	(Slots.Get): is now a procedure was an entry.
+
 	* aws-server.adb: 
 	(Start): add Upload_Directory parameter. Use default from
 	 AWS.Config.
