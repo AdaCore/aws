@@ -1,3 +1,15 @@
+2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP_ASIS_PARSE): Add wsdl_b.
+	($(ASIS2_TESTS)): Use verbose mode for ada2wsdl.
+
+	* wsdl_a.out:
+	Update to new output (ada2wsdl used with verbose mode).
+
+	* wsdl_b.ads, wsdl_b.adb, wsdl_b_pck.ads, wsdl_b.out:
+	Initial revision.
+
 2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

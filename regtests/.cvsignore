@@ -494,6 +494,8 @@ wsdl_6_service-types.ads
 wsdl_6_service.ads
 wsdl_a.res
 wsdl_a.wsdl
+wsdl_b.res
+wsdl_b.wsdl
 wsdl_parse_1-client.adb
 wsdl_parse_1-client.ads
 wsdl_parse_1-server.adb

@@ -1,5 +1,10 @@
 2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* ada2wsdl-generator.adb:
+	Update output layout.
+	
+2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* ada2wsdl-parser.adb:
 	(Analyse_Node): Handle A_Subtype_Declaration.
 	(Analyse_Field): Handle subtypes.
