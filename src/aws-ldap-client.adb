@@ -127,9 +127,9 @@ package body AWS.LDAP.Client is
    ----------
 
    procedure Bind
-     (Dir      : in Directory;
-      Login    : in String;
-      Password : in String)
+     (Dir      : in out Directory;
+      Login    : in     String;
+      Password : in     String)
    is
       Res        : IC.int;
       C_Login    : chars_ptr := New_String (Login);
@@ -141,6 +141,7 @@ package body AWS.LDAP.Client is
       Free (C_Password);
 
       if Res /= Thin.LDAP_SUCCESS then
+         Dir := Null_Directory;
          Raise_Error (Res, "Bind failed");
       end if;
    end Bind;
@@ -459,12 +460,18 @@ package body AWS.LDAP.Client is
       Dir := Thin.ldap_init (C_Host, IC.int (Port));
       Free (C_Host);
 
-      if Dir = Thin.Null_LDAP_Type then
-         null;
-      end if;
-
       return Dir;
    end Init;
+
+   -------------
+   -- Is_Open --
+   -------------
+
+   function Is_Open (Dir : in Directory) return Boolean is
+      use type Thin.LDAP_Type;
+   begin
+      return not (Dir = Null_Directory);
+   end Is_Open;
 
    -------
    -- l --
