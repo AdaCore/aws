@@ -6,7 +6,7 @@
 	* disp_soap.adb:
 	Only call to disp_soap_proc.adb.
 
-	* makefile, disp_soap_sec.adb:
+	* makefile, disp_soap_sec.adb, disp_soap_sec.out:
 	New regression test, the same like disp_soap, but over SSL.
 
 	* auth.adb:
