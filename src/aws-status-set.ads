@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -50,8 +50,7 @@ package AWS.Status.Set is
       Flag : in     Boolean);
    --  Set the Keep-Alive flag for the current HTTP connection.
 
-   procedure Session
-     (D : in out Data);
+   procedure Session (D : in out Data);
    --  Generate new Session ID
 
    procedure Peername
