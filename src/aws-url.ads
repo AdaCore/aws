@@ -34,6 +34,12 @@ with Ada.Strings.Unbounded;
 
 package AWS.URL is
 
+   --  The general URL form is:
+   --
+   --  http://usernam@password:www.here.com:80/dir1/dir2/xyz.html
+   --   |                           |       |  |         |
+   --   protocol                    host  port path      file
+
    type Object is private;
 
    URL_Error : exception;
@@ -44,20 +50,19 @@ package AWS.URL is
    function Parse (URL : in String) return Object;
    --  Parse an URL and return an Object representing this URL. It is then
    --  possible to extract each part of the URL with the services bellow.
-   --  An URL has the following form: http://server_name:port/uri. The port
-   --  being optional and the protocol could be a secure HTTP (https://
-   --  prefix).
 
    procedure Normalize (URL : in out Object);
    --  Removes all occurences to parent directory ".." and current
    --  directory '.'
 
    function URL (URL : in Object) return String;
-   --  Returns full URL string, this can be different to the URL pased if it
+   --  Returns full URL string, this can be different to the URL passed if it
    --  has been normalized.
 
-   function Server_Name (URL : in Object) return String;
-   --  Returns the server name.
+   function Host (URL : in Object) return String;
+   --  Returns the hostname.
+
+   function Server_Name (URL : in Object) return String renames Host;
 
    function Port (URL : in Object) return Positive;
    --  Returns the port as a positive.
@@ -68,24 +73,38 @@ package AWS.URL is
    function Security (URL : in Object) return Boolean;
    --  Returns True if it is an secure HTTP (HTTPS) URL.
 
-   function URI (URL : in Object; Encode : in Boolean := False) return String;
-   --  Returns the URI. If Encode is True then the URI will be encoded using
+   function Path (URL : in Object; Encode : in Boolean := False) return String;
+   --  Returns the Path. If Encode is True then the URI will be encoded using
    --  the Encode routine.
+
+   function File (URL : in Object; Encode : in Boolean := False) return String;
+   --  Returns the File. If Encode is True then the URI will be encoded using
+   --  the Encode routine.
+
+   function Pathname
+     (URL    : in Object;
+      Encode : in Boolean := False)
+     return String;
+   --  Returns Path & '/' & File
 
    function Encode (URL : in String) return String;
    --  Encode URL. Many characters are forbiden into an URL and needs to be
    --  encoded. A character is encoded by %XY where XY is the character's
    --  ASCII hexadecimal code. For example a space is encoded as %20.
 
+   function Decode (URL : in String) return String;
+   --  This is the oposite of Encode above.
+
 private
 
    use Ada.Strings.Unbounded;
 
    type Object is record
-      Server_Name : Unbounded_String;
-      Port        : Positive := Default_HTTP_Port;
-      Security    : Boolean := False;
-      URI         : Unbounded_String;
+      Host     : Unbounded_String;
+      Port     : Positive := Default_HTTP_Port;
+      Security : Boolean := False;
+      Path     : Unbounded_String;
+      File     : Unbounded_String;
    end record;
 
 end AWS.URL;
