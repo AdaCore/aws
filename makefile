@@ -268,7 +268,7 @@ endif
 	-$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} \
 		$(INSTALL)/AWS/tools/ada2wsdl${EXEEXT}
 	$(CP) set-aws.* $(INSTALL)/AWS
-ifdef XMLADA
+ifeq (${XMLADA}, true)
 	$(MV) aws_tmp.gpr $(INSTALL)/AWS/projects/aws.gpr
 	$(MV) aws_ssl_tmp.gpr $(INSTALL)/AWS/projects/aws_ssl.gpr
 else
@@ -306,7 +306,7 @@ MODULES_SETUP = ${MODULES:%=%_setup}
 
 MODULES_CLEAN = ${MODULES:%=%_clean}
 
-ifdef XMLADA
+ifeq (${XMLADA}, true)
 PRJ_XMLADA=Installed
 GEXT_MODULE := gxmlada
 else
