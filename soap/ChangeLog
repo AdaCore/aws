@@ -1,5 +1,10 @@
 2004-06-27  Pascal Obry  <pascal@obry.org>
 
+	* soap-wsdl.ads:
+        (NS_XSI): New constant.
+
+2004-06-27  Pascal Obry  <pascal@obry.org>
+
 	* soap-client.adb:
 	(Call): Set SOAPAction parameter to No_SOAPAction by default. Properly
          handle No_SOAPAction case and empty SOAPAction.
