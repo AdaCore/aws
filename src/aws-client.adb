@@ -122,9 +122,6 @@ package body AWS.Client is
    pragma Inline (Send_Header);
    --  Send header Data to socket and call Debug_Message.
 
-   procedure Free is new Ada.Unchecked_Deallocation
-     (Net.Socket_Type'Class, Net.Socket_Access);
-
    ------------------
    -- Cleaner_Task --
    ------------------
@@ -225,7 +222,7 @@ package body AWS.Client is
       end if;
 
       Disconnect (Connection);
-      Free (Connection.Socket);
+      Net.Free (Connection.Socket);
    end Close;
 
    -----------------
@@ -307,6 +304,7 @@ package body AWS.Client is
       exception
          when E : others =>
             Connection.Opened := False;
+            Net.Free (Connection.Socket);
 
             Exceptions.Raise_Exception
               (Connection_Error'Identity,
