@@ -1311,29 +1311,41 @@ is
       ---------------------
 
       procedure Send_File_Chunked is
+         use type Streams.Stream_Element_Array;
 
          Buffer : Streams.Stream_Element_Array (1 .. 1_024);
+
+         CRLF : constant Streams.Stream_Element_Array
+           := (1 => Character'Pos (ASCII.CR), 2 => Character'Pos (ASCII.LF));
 
       begin
          loop
             Resources.Read (File, Buffer, Last);
 
-            exit when Last < Buffer'First;
-
-            Sockets.Put_Line (Sock, Utils.Hex (Positive (Last)));
-
-            Sockets.Send (Sock, Buffer (1 .. Last));
-            Sockets.New_Line (Sock);
-
             Length := Length + Positive (Last);
 
             HTTP_Server.Slots.Mark_Data_Time_Stamp (Index);
+
+            declare
+               Packet : constant Streams.Stream_Element_Array
+                 := Translator.To_Stream_Element_Array
+                      (Utils.Hex (Positive (Last)))
+                 & CRLF
+                 & Buffer (1 .. Last)
+                 & CRLF;
+            begin
+               --  Check if the last data portion.
+
+               if Last < Buffer'Last then
+                  --  No more data, add the terminating chunk
+                  Sockets.Send
+                    (Sock, Packet & Character'Pos ('0') & CRLF & CRLF);
+                  exit;
+               else
+                  Sockets.Send (Sock, Packet);
+               end if;
+            end;
          end loop;
-
-         --  Last chunk
-
-         Sockets.Put_Line (Sock, "0");
-         Sockets.New_Line (Sock);
       end Send_File_Chunked;
 
    begin
