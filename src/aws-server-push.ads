@@ -124,9 +124,9 @@ package AWS.Server.Push is
    --  raised if Client_ID was not registered.
 
    procedure Unregister_Clients
-     (Server       : in out Object;
-      Close_Socket : in     Boolean := True);
-   --  Remove all registered clients from the server. Closes if Close_Socket
+     (Server        : in out Object;
+      Close_Sockets : in     Boolean := True);
+   --  Remove all registered clients from the server. Closes if Close_Sockets
    --  is set to True (default) otherwise the sockets remain open. After this
    --  call the sever will still in running mode. Does nothing if there is no
    --  client registered.
@@ -166,8 +166,8 @@ package AWS.Server.Push is
    --  finalisation data.
 
    procedure Shutdown
-     (Server       : in out Object;
-      Close_Socket : in     Boolean := True);
+     (Server        : in out Object;
+      Close_Sockets : in     Boolean := True);
    --  Unregisted all clients and close all associated connections (socket) if
    --  Close_Socket is True. The server will be in Closed mode. After this
    --  call any client trying to register will get the Closed exception. It is
@@ -226,8 +226,12 @@ private
       --  See above.
 
       procedure Shutdown
+        (Close_Sockets : in Boolean);
+      --  See above.
+
+      procedure Shutdown
         (Final_Data        : in Client_Output_Type;
-         Data_Content_Type : in String);
+         Final_Content_Type : in String);
       --  See above.
 
       procedure Register
@@ -240,7 +244,7 @@ private
         (Client_ID         : in Client_Key;
          Holder            : in Client_Holder;
          Init_Data         : in Client_Output_Type;
-         Data_Content_Type : in String;
+         Init_Content_Type : in String;
          Close_Duplicate   : in Boolean);
       --  See above.
 
