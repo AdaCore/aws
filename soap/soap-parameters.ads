@@ -63,6 +63,10 @@ package SOAP.Parameters is
    --  Returns parameter named Name in P as a Float value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Float.
 
+   function Get (P : in List; Name : in String) return Long_Long_Float;
+   --  Returns parameter named Name in P as a Float value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Double.
+
    function Get (P : in List; Name : in String) return String;
    --  Returns parameter named Name in P as a String value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a String.
