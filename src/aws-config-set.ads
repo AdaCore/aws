@@ -164,7 +164,10 @@ package AWS.Config.Set is
    --  Number of seconds to timeout when receiving chunck of data.
 
    procedure Status_Page (O : in out Object; Value : in String);
-   --  Filename for the status page.
+   --  Filename for the status template page.
+
+   procedure Directory_Browser_Page (O : in out Object; Value : in String);
+   --  Filename for the directory browser template page.
 
    procedure Up_Image (O : in out Object; Value : in String);
    --  Filename for the up arrow image used in the status page.
