@@ -1,7 +1,7 @@
 
 			    A W S - Ada Web Server
 			    2.1 release / SOAP 1.2
-				       
+
 Authors:
    Dmitriy Anisimkov
    Pascal Obry                                                June 19th, 2004
@@ -95,6 +95,11 @@ implementations.
    - In templates engine, the Vector routine is not present anymore.
      Use Composite routine instead.
 
+   - In AWS.Client interface Timeout_Values record fields type was Natural and
+     become Duration. It is possible to use less then one second timeout
+     values now. Just change all http client timeout constants to
+     Duration type. If you do not want to make it more exact, just add ".0" to
+     the constant at the end.
 
 Obsolescent features:
 ---------------------
@@ -161,7 +166,7 @@ AWS User's Mailing List:
 AWS Home Page (sources and printable documentations in Postscript and PDF):
    http://libre.act-europe.fr/aws
 
-Templates_Parser sources: 
+Templates_Parser sources:
    Templates_Parser module (sources and documentation) is provided with AWS
    distribution. Version 8.0 is distributed with AWS 2.1.
 
@@ -328,7 +333,7 @@ AWS uses:
   am use kavachart) and it allows simple navigation through different groups
   of equipments and different views on the equipment.
 
-- WORM from Pascal Obry 
+- WORM from Pascal Obry
   (see http://www.ada-france.org/ADHERENTS/101100/05-obry.pdf).
 
   A Web server to share bookmarks, this server was using a standard CGI
@@ -340,7 +345,7 @@ AWS uses:
 
   Also the server seems to be fastest, there is no more CGI to spawn.
 
-- Internet Currency Trading System at http://www.actforex.com by 
+- Internet Currency Trading System at http://www.actforex.com by
   Dmitriy Anisimkov
 
   This is a server is used to keep historical data about currency trading to
