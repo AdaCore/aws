@@ -14,6 +14,7 @@ config/makefile
 config/projects/aws.gpr
 config/projects/ChangeLog
 config/projects/components.gpr
+config/src/check_config.c
 config/src/test_uconv.adb
 demos/404.thtml
 demos/adains.png
@@ -179,6 +180,7 @@ include/memory_streams.ads
 include/readme.txt
 include/strings_cutter.adb
 include/strings_cutter.ads
+include/strings_maps.ads
 include/zlib/adler32.c
 include/zlib/ChangeLog
 include/zlib/compress.c
@@ -596,6 +598,8 @@ src/templates_parser-input.ads
 src/templates_parser-print_tree.adb
 src/templates_parser-query.adb
 src/templates_parser-query.ads
+src/templates_parser-utils.adb
+src/templates_parser-utils.ads
 src/templates_parser.adb
 src/templates_parser.ads
 ssl/ChangeLog
