@@ -602,8 +602,11 @@ package body SOAP.Generator is
             end if;
          end V_Routine;
 
-         R : WSDL.Parameters.P_Set;
-         N : WSDL.Parameters.P_Set;
+         R   : WSDL.Parameters.P_Set;
+         N   : WSDL.Parameters.P_Set;
+
+         Max : Positive;
+
       begin
          if Output then
             R := P;
@@ -616,6 +619,20 @@ package body SOAP.Generator is
          Text_IO.New_Line (Type_Ads);
          Header_Box (O, Type_Ads, "Record " & F_Name);
 
+         --  Compute max filed width
+
+         N := R;
+
+         Max := 1;
+
+         while N /= null loop
+            Max := Positive'Max
+              (Max, Format_Name (O, To_String (N.Name))'Length);
+            N := N.Next;
+         end loop;
+
+         --  Output field
+
          N := R;
 
          Text_IO.New_Line (Type_Ads);
@@ -623,9 +640,14 @@ package body SOAP.Generator is
            (Type_Ads, "   type " & F_Name & " is record");
 
          while N /= null loop
-            Text_IO.Put
-              (Type_Ads, "      "
-                 & Format_Name (O, To_String (N.Name)) & " : ");
+            declare
+               F_Name : constant String := Format_Name (O, To_String (N.Name));
+            begin
+               Text_IO.Put
+                 (Type_Ads, "      "
+                    &  F_Name
+                    & String'(1 .. Max - F_Name'Length => ' ') & " : ");
+            end;
 
             Text_IO.Put (Type_Ads, Format_Name (O, Type_Name (N)));
 
