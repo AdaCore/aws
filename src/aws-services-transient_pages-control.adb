@@ -42,8 +42,13 @@ package body AWS.Services.Transient_Pages.Control is
    -----------
 
    procedure Register (Transient_Check_Interval : in Duration) is
+      Need_Start : Boolean;
    begin
-      Cleaner_Control.Register (Transient_Check_Interval);
+      Cleaner_Control.Register (Transient_Check_Interval, Need_Start);
+
+      if Need_Start then
+         Cleaner_Task := new Cleaner;
+      end if;
    end Register;
 
    --------------
