@@ -151,14 +151,14 @@ procedure Sp is
 begin
    AWS.Server.Start
      (HTTP, "Testing server push.",
-      CB'Unrestricted_Access, Port => 1244, Max_Connection => 3);
+      CB'Unrestricted_Access, Port => 1249, Max_Connection => 3);
 
    --  Init the all modes server push transfers.
 
    for J in Connect'Range loop
       Client.Create
         (Connection  => Connect (J),
-         Host        => "http://localhost:1244",
+         Host        => "http://localhost:1249",
          Timeouts    => (15, 15),
          Server_Push => True);
 
