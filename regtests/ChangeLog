@@ -1,3 +1,8 @@
+2003-02-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* check_mem.adb:
+	Add some SOAP requests to check the SOAP API memory usage.
+
 2003-02-08  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* tlog.adb:
