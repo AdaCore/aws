@@ -32,13 +32,10 @@ with Ada.Integer_Text_IO;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 
-with POSIX;
-with POSIX_File_Status;
-with POSIX_Calendar;
-
 with AWS.Messages;
-with AWS.Status;
+with AWS.OS_Lib;
 with AWS.Session;
+with AWS.Status;
 
 separate (AWS.Server)
 
@@ -77,9 +74,17 @@ is
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.
 
-   function File_Timestamp (Filename : in String)
-                           return Calendar.Time;
-   --  returns the last modification time stamp for filename.
+   procedure Send_File_Time (Sock     : in Sockets.Socket_FD'Class;
+                             Filename : in String);
+   --  Send Last-Modified: header
+
+   procedure Send_File_Size (Sock     : in Sockets.Socket_FD'Class;
+                             Filename : in String);
+   --  Send Content-Length: header
+
+   function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean;
+   --  Check the date format as some Web brower seems to return invalid date
+   --  field.
 
    ----------------------
    -- Answer_To_Client --
@@ -94,6 +99,7 @@ is
       Status : Messages.Status_Code;
 
       Send_Session_Cookie : Boolean := False;
+      --  will be set to True if a session Cookie must be sent in the header.
 
       procedure Create_Session;
       --  create a session if needed
@@ -149,12 +155,10 @@ is
          end if;
 
          Sockets.Put_Line (Sock,
-                           "Date: "
-                           & Messages.To_HTTP_Date (Calendar.Clock));
+                           "Date: " & Messages.To_HTTP_Date (Calendar.Clock));
 
          Sockets.Put_Line (Sock,
-                           "Server: AWS (Ada Web Server) v"
-                           & Version);
+                           "Server: AWS (Ada Web Server) v" & Version);
       end Header_Date_Serv;
 
       ---------------------
@@ -182,9 +186,9 @@ is
       begin
          AWS.Status.Set_File_Up_To_Date
            (C_Stat,
-            AWS.Status.If_Modified_Since (C_Stat) /= ""
+            Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
             and then
-           File_Timestamp (Response.Message_Body (Answer))
+           OS_Lib.File_Timestamp (Response.Message_Body (Answer))
             <= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat)));
 
          if AWS.Status.File_Up_To_Date (C_Stat) then
@@ -200,13 +204,19 @@ is
 
          Send_Connection;
 
-         Sockets.Put_Line (Sock,
-                           Messages.Content_Type
-                           (Response.Content_Type (Answer)));
+         Sockets.Put_Line
+           (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
 
          --  send message body only if needed
 
-         if AWS.Status.Method (C_Stat) /= AWS.Status.HEAD then
+         if AWS.Status.Method (C_Stat) = AWS.Status.HEAD then
+            --  Send file info and terminate header
+
+            Send_File_Time (Sock, Response.Message_Body (Answer));
+            Send_File_Size (Sock, Response.Message_Body (Answer));
+            Sockets.New_Line (Sock);
+
+         else
             Send_File (Response.Message_Body (Answer),
                        AWS.Status.HTTP_Version (C_Stat));
          end if;
@@ -325,19 +335,6 @@ is
       end if;
    end Answer_To_Client;
 
-   --------------------
-   -- File_Timestamp --
-   --------------------
-
-   function File_Timestamp (Filename : in String)
-                           return Calendar.Time is
-   begin
-      return POSIX_Calendar.To_Time
-        (POSIX_File_Status.Last_Modification_Time_Of
-         (POSIX_File_Status.Get_File_Status
-          (POSIX.To_POSIX_String (Filename))));
-   end File_Timestamp;
-
    ----------------------
    -- Get_Message_Data --
    ----------------------
@@ -422,6 +419,39 @@ is
          end;
       end loop;
    end Get_Message_Header;
+
+   ------------------------
+   -- Is_Valid_HTTP_Date --
+   ------------------------
+
+   function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean is
+      Mask   : constant String := "Aaa, 99 Aaa 9999 99:99:99 GMT";
+      Offset : constant Integer := HTTP_Date'First - 1;
+      --  Make sure the function works for inputs with 'First <> 1
+      Result : Boolean := True;
+   begin
+      for I in Mask'Range loop
+         Result := I + Offset in HTTP_Date'Range;
+
+         exit when not Result;
+
+         case Mask (I) is
+            when 'A' =>
+               Result := HTTP_Date (I + Offset) in 'A' .. 'Z';
+
+            when 'a' =>
+               Result := HTTP_Date (I + Offset) in 'a' .. 'z';
+
+            when '9' =>
+               Result := HTTP_Date (I + Offset) in '0' .. '9';
+
+            when others =>
+               Result := Mask (I) = HTTP_Date (I + Offset);
+         end case;
+      end loop;
+
+      return Result;
+   end Is_Valid_HTTP_Date;
 
    -----------
    -- Parse --
@@ -610,27 +640,24 @@ is
 
       procedure Send_File is
 
-         use POSIX_File_Status;
+         use type Ada.Streams.Stream_Element_Offset;
 
-         File_Size : Streams.Stream_Element_Offset :=
-           Streams.Stream_Element_Offset
-           (Size_Of (Get_File_Status (POSIX.To_POSIX_String (Filename))));
-
-         Buffer : Streams.Stream_Element_Array (1 .. File_Size);
+         Buffer : Streams.Stream_Element_Array (1 .. 4_096);
 
       begin
-
-         Streams.Stream_IO.Read (File, Buffer, Last);
-
          --  terminate header
 
-         Sockets.Put_Line (Sock, "Content-Length:"
-                           & Natural'Image (Natural (File_Size)));
+         Send_File_Size (Sock, Filename);
          Sockets.New_Line (Sock);
 
          --  send file content
 
-         Sockets.Send (Sock, Buffer (1 .. Last));
+         loop
+            Streams.Stream_IO.Read (File, Buffer, Last);
+            exit when Last <= 0;
+            Sockets.Send (Sock, Buffer (1 .. Last));
+         end loop;
+
       end Send_File;
 
       ---------------------
@@ -680,19 +707,46 @@ is
       Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File,
                               Filename, "shared=no");
 
-      Sockets.Put_Line
-        (Sock,
-         "Last-Modified: " &
-         Messages.To_HTTP_Date (File_Timestamp (Filename)));
+      Send_File_Time (Sock, Filename);
 
       if HTTP_Version = HTTP_10 then
          Send_File;
       else
+         --  Always use chunked transfer encoding method for HTTP/1.1 even if
+         --  it also support standard method.
+         --  ??? it could be better to use the standard method for small file
+         --  (could be faster).
+
          Send_File_Chunked;
       end if;
 
       Streams.Stream_IO.Close (File);
    end Send_File;
+
+   --------------------
+   -- Send_File_Time --
+   --------------------
+
+   procedure Send_File_Time (Sock     : in Sockets.Socket_FD'Class;
+                             Filename : in String) is
+   begin
+      Sockets.Put_Line
+        (Sock,
+         "Last-Modified: " &
+         Messages.To_HTTP_Date (OS_Lib.File_Timestamp (Filename)));
+   end Send_File_Time;
+
+   --------------------
+   -- Send_File_Size --
+   --------------------
+
+   procedure Send_File_Size (Sock     : in Sockets.Socket_FD'Class;
+                             Filename : in String) is
+   begin
+      Sockets.Put_Line
+        (Sock, "Content-Length:"
+         & Streams.Stream_Element_Offset'Image (OS_Lib.File_Size (Filename)));
+   end Send_File_Size;
 
 begin
 
