@@ -42,6 +42,9 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Upload4 is
 
@@ -63,6 +66,7 @@ procedure Upload4 is
    end Server;
 
    HTTP : AWS.Server.HTTP;
+   Port : Positive := 7644;
 
    -----------
    -- Error --
@@ -104,10 +108,12 @@ procedure Upload4 is
       AWS.Server.Set_Unexpected_Exception_Handler
         (HTTP, Error'Unrestricted_Access);
 
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (HTTP, "upload4",
          CB'Unrestricted_Access,
-         Port             => 7642,
+         Port             => Port,
          Max_Connection   => 5);
 
       Put_Line ("Server started");
@@ -143,7 +149,8 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:7642/upload", "upload4.ali");
+   Request
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload4.ali");
 
    Server.Stopped;
 
