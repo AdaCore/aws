@@ -21,7 +21,7 @@ BARGS = -E
 LARGS =
 endif
 
-build: runme agent auth
+build: runme agent auth ws
 
 runme:
 	gnatmake $(GARGS) runme -bargs $(BARGS) -largs $(LARGS)
