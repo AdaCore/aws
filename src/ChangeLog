@@ -1,3 +1,30 @@
+2002-03-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add aws-dispatchers.adb remove aws-services-dispatchers.adb
+
+	* aws-services-dispatchers.ads:
+	This is now just an empty root package. Add pragma Pure.
+
+	* aws-services-dispatchers.adb:
+	Removed.
+
+	* aws-dispatchers.ads, aws-dispatchers.adb:
+	Was AWS.Services.Dispatchers. Moved here as this is a general API
+	 and can be used outside of the high level services.
+
+	* aws-server-protocol_handler.adb, aws-server.adb, aws-server.ads,
+	  aws-services-dispatchers-callback.adb,
+	  aws-services-dispatchers-callback.ads,
+	  aws-services-dispatchers-method.adb,
+	  aws-services-dispatchers-method.ads,
+	  aws-services-dispatchers-uri.adb,
+	  aws-services-dispatchers-uri.ads,
+	  aws-services-dispatchers-virtual_host.adb,
+	  aws-services-dispatchers-virtual_host.ads:
+	Adjusted to use AWS.Dispatchers API instead of 
+	 AWS.Services.Dispatchers.
+	
 2002-02-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
