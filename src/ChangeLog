@@ -1,3 +1,16 @@
+2004-11-12  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Attribute): Add Up_Level value.
+	(Attribute_Data): New record composed of an attribute defintiion and
+         its associated value.
+	(Tag_Var): Use Attribute_Data instead of Attribute only.
+	(Image): Add support for new Up_Level attribute.
+	(Get_Attribute): Returns now an Attribute_Data instead of a simple
+         Attribute. Handles new Up_Level attribute.
+	(Field): Add parameter Up_Value used to compute value position.
+	(Translate): Update to handle new Up_Level attribute.
+
 2004-11-11  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
