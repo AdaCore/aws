@@ -1,3 +1,12 @@
+2002-10-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-page_server.adb:
+	(WWW_Root): Put inside callback to be sure it is evaluated otherwise
+	 the value is set at elaboration time and can't be changed.
+	(Callback): Add WWW_Root prefix to the parsed template file. Fix
+	 bug as the test was pointing to the right file but not the parsing!
+	Both problems have been reported by Jean-Pierre Rosen.
+
 2002-10-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-files.adb:
