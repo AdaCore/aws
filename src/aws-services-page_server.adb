@@ -88,7 +88,7 @@ package body AWS.Services.Page_Server is
          else
             return AWS.Response.Acknowledge
               (Messages.S404,
-               "<p>Page '" & URI & "' Not found." & Spaces);
+               "<p>Page '" & URI & "' Not found.");
          end if;
       end if;
    end Callback;
