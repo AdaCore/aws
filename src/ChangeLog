@@ -1,31 +1,91 @@
+2000-03-05    Pascal Obry <p.obry@wanadoo.fr>
+
+	* aws-connection.adb:
+	(line): do not send a message to the client when an exception has
+	 occured since this is because the server has most certainly
+	 closed the connection. (fixes from Dmitriy Anisimkov)
+
+2000-02-14    Pascal Obry <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Get): Handle status 301 (moved permanently) with Location message.
+	(Read_Message): new function
+
+	* aws-messages.ads:
+	(Location_Token): new constant
+
+	* aws-response.ads, aws-response.adb:
+	(Location): new function
+	
+2000-02-05    Pascal Obry <p.obry@wanadoo.fr>
+
+	* aws-clients.adb:
+	(Put): new function
+	(Init_Connection): new function
+	(Parse_Header): new function
+	(Get): reoganized - use Init_Connection to Parse_Header
+
+	* aws-clients.ads:
+	(Put): new function
+
+	* aws-messages.ads:
+	(Head_Token): new constant
+	(Form_Data): new constant
+	(Content_Length): parameter changed from Positive to Natural
+	(Www-Authenticate): new function
+	
+	* aws-messages.adb:
+	(Content_Length): parameter changed from Positive to Natural
+	(Www-Authenticate): new function
+	
+	* aws-response.ads:
+	(Data_Mode): add Header to the enumeration
+	(Content_Length): parameter changed from Positive to Natural
+	(Acknowledge): new function
+	
+	* aws-response.adb:
+	(Content_Length): parameter changed from Positive to Natural
+	(Acknowledge): new function
+	
+	* aws-status.ads, aws-status.adb:
+	(Set_Parameter): new function with Stream_Element_Array data
+	(Set_Content_Type): new function
+	(Content_Type): new function
+	(Binary_Data): new function
+	
+	* aws-connection.adb:
+	A lot of changes to handle PUT method and handle POST method with
+	binary data.
+	
 2000-02-04    Pascal Obry <p.obry@wanadoo.fr>
 
-	* aws-clients.adb
+	* aws-clients.adb:
 	(Get_Host_Name): new function use to get the host name to send to
 	the server.
 
-	* aws-messages.adb
-	(Weekday): fix minor bug (use local var for time)
+	* aws-messages.adb:
+	(Weekday): fix minor bug (use local var for time) 
+	[patch from Sune Falck]
 
 2000-01-24    Pascal Obry <p.obry@wanadoo.fr>
 
-	* aws.ads
+	* aws.ads:
 	(Internal_Error): exception added.
 	
-	* aws-client.adb
+	* aws-client.adb:
 	(Get): Fix sockets interface to use the UNIX compliant one.
 
-	* aws-connection.adb
+	* aws-connection.adb:
 	(Internal_Error): exception removed.
 	
-	* aws-messages.adb: 
+	* aws-messages.adb:
 	(Status_Code_Image): new type to handle 3 digits status code
 	(Status_Data): Code is now a Status_Code_Image
 	(Status_Messages): change declaration to match new design.
 
 2000-01-24    Sune Falck <Sune.Falck@swipnet.se>
 
-	* aws-messages.adb
+	* aws-messages.adb:
 	Changed Image to handle Natural instead of Positive, gave
 	constraint_error for 0 in seconds and minutes. Image now returns a
 	leading zero for numbers with only one digit so that time and day
@@ -35,8 +95,8 @@
 
 2000-01-22    Pascal Obry <p.obry@wanadoo.fr>
 
-	* aws*.ad[sb] this is to be considered the first version of AWS
+	* aws*.ad[sb]: this is to be considered the first version of AWS
 
 2000-01-16    Pascal Obry <p.obry@wanadoo.fr>
 	
-	* aws*.ad[sb] this is the very first release.
+	* aws*.ad[sb]: this is the very first release.
