@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                            Copyright (C) 1999                            --
+--                        Copyright (C) 1999 - 2001                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -35,7 +35,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
-with Strings_Cutter;
 
 package body Templates_Parser is
 
@@ -100,27 +99,139 @@ package body Templates_Parser is
 
    --  filter functions, see above.
 
-   function Lower_Filter (S : in String) return String;
-   function Identity_Filter (S : in String) return String;
-   function Reverse_Filter (S : in String) return String;
-   function Upper_Filter (S : in String) return String;
+   function Lower_Filter      (S : in String) return String;
+   function Identity_Filter   (S : in String) return String;
+   function Reverse_Filter    (S : in String) return String;
+   function Upper_Filter      (S : in String) return String;
    function Capitalize_Filter (S : in String) return String;
    function Clean_Text_Filter (S : in String) return String;
-   function Yes_No_Filter (S : in String) return String;
-   function Oui_Non_Filter (S : in String) return String;
+   function Yes_No_Filter     (S : in String) return String;
+   function Oui_Non_Filter    (S : in String) return String;
 
-   function Check_Filter (Str : in Unbounded_String;
-                          P   : in Positive)
-                         return Filters_Mode;
+   function Check_Filter
+     (Str : in Unbounded_String;
+      P   : in Positive)
+     return Filters_Mode;
    --  returns the prefix filter for the tag variable starting a position P in
    --  Str or Identity if no filter has been found.
 
-   function Through_Filter (S      : in String;
-                            Filter : in Filters_Mode) return String;
+   function Through_Filter
+     (S      : in String;
+      Filter : in Filters_Mode) return String;
    --  apply Filter to string S and return the result string.
 
    function Filter_Length (Filter : in Filters_Mode) return Natural;
    --  returns the number of characters for the filter token Filter.
+
+   function Field
+     (Vect_Value : in Vector_Tag;
+      N          : in Positive) return String;
+   --  returns the Nth value in the vector tag.
+
+   function List (A : in Association) return String;
+   --  returns the Vector_Tag for the Association as a String, each value is
+   --  separated by the given separator.
+
+   ---------
+   -- "+" --
+   ---------
+
+   function "+" (Value : in String) return Vector_Tag is
+
+      Item : constant Vector_Tag_Node_Access
+        := new Vector_Tag_Node'(To_Unbounded_String (Value), null);
+
+   begin
+      return Vector_Tag'
+        (Ada.Finalization.Controlled with
+         Ref_Count => new Integer'(1),
+         Count     => 1,
+         Head      => Item,
+         Last      => Item);
+   end "+";
+
+   ---------
+   -- "&" --
+   ---------
+
+   function "&"
+     (Vect  : in Vector_Tag;
+      Value : in String)
+     return Vector_Tag
+   is
+      Item : constant Vector_Tag_Node_Access
+        := new Vector_Tag_Node'(To_Unbounded_String (Value), null);
+   begin
+      Vect.Ref_Count.all := Vect.Ref_Count.all + 1;
+
+      if Vect.Count = 0 then
+         return Vector_Tag'
+           (Ada.Finalization.Controlled with
+            Ref_Count => Vect.Ref_Count,
+            Count     => 1,
+            Head      => Item,
+            Last      => Item);
+      else
+         Vect.Last.Next := Item;
+         return Vector_Tag'
+           (Ada.Finalization.Controlled with
+            Ref_Count => Vect.Ref_Count,
+            Count     => Vect.Count + 1,
+            Head      => Vect.Head,
+            Last      => Item);
+      end if;
+   end "&";
+
+   ------------
+   -- Adjust --
+   ------------
+
+   procedure Adjust (V : in out Vector_Tag) is
+   begin
+      V.Ref_Count.all := V.Ref_Count.all + 1;
+   end Adjust;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (V : in out Vector_Tag) is
+   begin
+      V.Ref_Count := new Integer'(1);
+      V.Count     := 0;
+   end Initialize;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (V : in out Vector_Tag) is
+   begin
+      V.Ref_Count.all := V.Ref_Count.all - 1;
+
+      if V.Ref_Count.all = 0 then
+         declare
+            procedure Free is new Ada.Unchecked_Deallocation
+              (Vector_Tag_Node, Vector_Tag_Node_Access);
+
+            procedure Free is new Ada.Unchecked_Deallocation
+              (Integer, Integer_Access);
+
+            P, N : Vector_Tag_Node_Access;
+         begin
+            P := V.Head;
+
+            while P /= null loop
+               N := P.Next;
+               Free (P);
+               P := N;
+            end loop;
+
+            V.Head := null;
+            Free (V.Ref_Count);
+         end;
+      end if;
+   end Finalize;
 
    ---------------------
    -- Identity_Filter --
@@ -292,9 +403,10 @@ package body Templates_Parser is
    -- Check_Filter --
    ------------------
 
-   function Check_Filter (Str : in Unbounded_String;
-                          P   : in Positive)
-                         return Filters_Mode is
+   function Check_Filter
+     (Str : in Unbounded_String;
+      P   : in Positive)
+     return Filters_Mode is
    begin
       for F in Filter_Table'Range loop
          if P - Filter_Table (F).Name'Length >= 1
@@ -312,8 +424,9 @@ package body Templates_Parser is
    -- Through_Filter --
    --------------------
 
-   function Through_Filter (S      : in String;
-                            Filter : in Filters_Mode) return String is
+   function Through_Filter
+     (S      : in String;
+      Filter : in Filters_Mode) return String is
    begin
       return Filter_Table (Filter).Handle (S);
    end Through_Filter;
@@ -332,53 +445,111 @@ package body Templates_Parser is
    end Filter_Length;
 
    -----------
+   -- Field --
+   -----------
+
+   function Field
+     (Vect_Value : in Vector_Tag;
+      N          : in Positive) return String
+   is
+      P : Vector_Tag_Node_Access := Vect_Value.Head;
+   begin
+      if N = Vect_Value.Count then
+         return To_String (Vect_Value.Last.Value);
+      else
+         for K in 1 .. N - 1 loop
+            P := P.Next;
+         end loop;
+         return To_String (P.Value);
+      end if;
+   end Field;
+
+   ----------
+   -- List --
+   ----------
+
+   function List (A : in Association) return String is
+      Result : Unbounded_String;
+      P      : Vector_Tag_Node_Access := A.Vect_Value.Head;
+   begin
+      Result := P.Value;
+      for K in 2 .. A.Vect_Value.Count loop
+         P := P.Next;
+         Result := Result & A.Separator & P.Value;
+      end loop;
+
+      return To_String (Result);
+   end List;
+
+   -----------
    -- Assoc --
    -----------
 
-   function Assoc (Variable  : in String;
-                   Value     : in String;
-                   Is_Vector : in Boolean   := False;
-                   Begin_Tag : in String    := Default_Begin_Tag;
-                   End_Tag   : in String    := Default_End_Tag;
-                   Separator : in Character := Default_Separator)
-                  return Association is
+   function Assoc
+     (Variable  : in String;
+      Value     : in String;
+      Begin_Tag : in String    := Default_Begin_Tag;
+      End_Tag   : in String    := Default_End_Tag)
+     return Association is
    begin
       return Association'
-        (To_Unbounded_String (Begin_Tag & Variable & End_Tag),
-         To_Unbounded_String (Value),
-         Separator,
-         Is_Vector);
+        (Std,
+         To_Unbounded_String (Begin_Tag & Variable & End_Tag),
+         To_Unbounded_String (Value));
    end Assoc;
 
    -----------
    -- Assoc --
    -----------
 
-   function Assoc (Variable  : in String;
-                   Value     : in Boolean;
-                   Begin_Tag : in String    := Default_Begin_Tag;
-                   End_Tag   : in String    := Default_End_Tag)
-                   return Association is
+   function Assoc
+     (Variable  : in String;
+      Value     : in Boolean;
+      Begin_Tag : in String    := Default_Begin_Tag;
+      End_Tag   : in String    := Default_End_Tag)
+     return Association is
    begin
       if Value then
-         return Assoc (Variable, "TRUE", False, Begin_Tag, End_Tag);
+         return Assoc (Variable, "TRUE", Begin_Tag, End_Tag);
       else
-         return Assoc (Variable, "FALSE", False, Begin_Tag, End_Tag);
+         return Assoc (Variable, "FALSE", Begin_Tag, End_Tag);
       end if;
+   end Assoc;
+
+   -----------
+   -- Assoc --
+   -----------
+
+   function Assoc
+     (Variable  : in String;
+      Value     : in Vector_Tag;
+      Separator : in String     := Default_Separator;
+      Begin_Tag : in String     := Default_Begin_Tag;
+      End_Tag   : in String     := Default_End_Tag)
+     return Association is
+   begin
+      return Association'
+        (Vect,
+         To_Unbounded_String (Begin_Tag & Variable & End_Tag),
+         Value,
+         To_Unbounded_String (Separator));
    end Assoc;
 
    ---------------
    -- Translate --
    ---------------
 
-   procedure Translate (Str : in out Unbounded_String;
-                        Tag : in     String;
-                        To  : in     String);
+   procedure Translate
+     (Str : in out Unbounded_String;
+      Tag : in     String;
+      To  : in     String);
    --  Translate all tags named Tag in Str by To
 
-   procedure Translate (Str : in out Unbounded_String;
-                        Tag : in     String;
-                        To  : in     String) is
+   procedure Translate
+     (Str : in out Unbounded_String;
+      Tag : in     String;
+      To  : in     String)
+   is
       Pos    : Natural;
       Filter : Filters_Mode;
    begin
@@ -405,9 +576,11 @@ package body Templates_Parser is
    -- Parse --
    -----------
 
-   function Parse (Template     : in Template_File;
-                   Translations : in Translate_Table := No_Translation)
-                  return String is
+   function Parse
+     (Template     : in Template_File;
+      Translations : in Translate_Table := No_Translation)
+     return String
+   is
 
       Template_Filename : constant String := To_String (Template.Filename);
 
@@ -434,9 +607,10 @@ package body Templates_Parser is
       --  Translate all tags in the translations table and the specials tags
       --  in Str by their corresponding value.
 
-      procedure Translate (Str  : in out Unbounded_String;
-                           N    : in     Positive;
-                           Stop :    out Boolean);
+      procedure Translate
+        (Str  : in out Unbounded_String;
+         N    : in     Positive;
+         Stop :    out Boolean);
       --  Translate all tags in Str with the Nth Tag's value. This procedure
       --  is used to build the tables. Tags used in a table are a set of
       --  values separated by a special character.
@@ -457,9 +631,10 @@ package body Templates_Parser is
       -- Exist --
       -----------
 
-      function Exist (Translations : in Translate_Table;
-                      Tag          : in String;
-                      Value        : in String)
+      function Exist
+        (Translations : in Translate_Table;
+         Tag          : in String;
+         Value        : in String)
         return Boolean is
       begin
          for K in Translations'Range loop
@@ -478,10 +653,17 @@ package body Templates_Parser is
       procedure Translate (Str : in out Unbounded_String) is
       begin
          for K in Translations'Range loop
-
-            Translate (Str,
-                       To_String (Translations (K).Variable),
-                       To_String (Translations (K).Value));
+            if Translations (K).Kind = Std then
+               Translate (Str,
+                          To_String (Translations (K).Variable),
+                          To_String (Translations (K).Value));
+            else
+               --  this is a vector tag (outside of a table tag statement), we
+               --  display it as a list separated by the specified separator.
+               Translate (Str,
+                          To_String (Translations (K).Variable),
+                          List (Translations (K)));
+            end if;
          end loop;
 
          Translate (Str,
@@ -495,14 +677,12 @@ package body Templates_Parser is
                                        Strings.Both));
       end Translate;
 
-      procedure Translate (Str  : in out Unbounded_String;
-                           N    : in     Positive;
-                           Stop :    out Boolean)
+      procedure Translate
+        (Str  : in out Unbounded_String;
+         N    : in     Positive;
+         Stop :    out Boolean)
       is
-         use Strings_Cutter;
-
          Pos     : Natural;
-         CS      : Cutted_String;
          Nb_Item : Natural;
 
          Filter  : Filters_Mode;
@@ -525,25 +705,29 @@ package body Templates_Parser is
 
                Filter := Check_Filter (Str, Pos);
 
-               Create (CS,
-                       To_String (Translations (K).Value),
-                       String'(1 => Translations (K).Separator));
-
-               Nb_Item := Field_Count (CS);
+               if Translations (K).Kind = Std then
+                  if Translations (K).Value = "" then
+                     Nb_Item := 0;
+                  else
+                     Nb_Item := 1;
+                  end if;
+               else
+                  Nb_Item := Translations (K).Vect_Value.Count;
+               end if;
 
                --  we stop when we reach (or are over) the maximum number of
                --  fields
 
                Stop := Stop
                  or else ((Nb_Item = 0 or else N >= Nb_Item)
-                          and then Translations (K).Vector);
+                          and then Translations (K).Kind = Vect);
 
                --  if there is no value for the tag or we ask for a value
                --  that does not exist, just replace it with an
                --  emptry string (i.e. removing it from the template).
 
                if Nb_Item = 0
-                 or else (Nb_Item < N and then Translations (K).Vector)
+                 or else (Nb_Item < N and then Translations (K).Kind = Vect)
                then
                   Replace_Slice
                     (Str,
@@ -551,22 +735,23 @@ package body Templates_Parser is
                      Pos + Length (Translations (K).Variable) - 1,
                      "");
                else
-                  if Translations (K).Vector then
+                  if Translations (K).Kind = Vect then
                      Replace_Slice
                        (Str,
                         Pos - Filter_Length (Filter),
                         Pos + Length (Translations (K).Variable) - 1,
-                        Through_Filter (Field (CS, N), Filter));
+                        Through_Filter
+                          (Field (Translations (K).Vect_Value, N),
+                           Filter));
                   else
                      Replace_Slice
                        (Str,
                         Pos - Filter_Length (Filter),
                         Pos + Length (Translations (K).Variable) - 1,
-                        Through_Filter (Field (CS, 1), Filter));
+                        Through_Filter
+                          (To_String (Translations (K).Value), Filter));
                   end if;
                end if;
-
-               Destroy (CS);
             end loop;
 
          end loop;
@@ -600,12 +785,14 @@ package body Templates_Parser is
       -- Get_Next_Line --
       -------------------
 
-      procedure Get_Next_Line (Buffer, Trimed_Buffer : out String;
-                               Last                  : out Natural);
+      procedure Get_Next_Line
+        (Buffer, Trimed_Buffer : out String;
+         Last                  : out Natural);
       pragma Inline (Get_Next_Line);
 
-      procedure Get_Next_Line (Buffer, Trimed_Buffer : out String;
-                               Last                  : out Natural) is
+      procedure Get_Next_Line
+        (Buffer, Trimed_Buffer : out String;
+         Last                  : out Natural) is
       begin
          Current_Line := Current_Line + 1;
 
@@ -630,8 +817,9 @@ package body Templates_Parser is
          Str : Unbounded_String;
 
 
-         function Parse_If (Condition       : in String  := "";
-                            Check_Condition : in Boolean := True)
+         function Parse_If
+           (Condition       : in String  := "";
+            Check_Condition : in Boolean := True)
            return String;
          --  Parse an if statement (from If_Token to End_If_Token). Condition
          --  is the if conditional part. It will be checked only if
@@ -667,23 +855,18 @@ package body Templates_Parser is
             Section       : Positive := 1;
 
             function Count_Lines (Lines : Sections) return Natural is
-               use Strings_Cutter;
                Max_Values : Natural := 0;
-               CS         : Cutted_String;
             begin
                for S in Lines'Range loop
                   for T in Translations'Range loop
-                     if Translations (T).Vector
+                     if Translations (T).Kind = Vect
                        and then
                        Index (Lines (S),
                               To_String (Translations (T).Variable)) /= 0
                      then
-                        Create (CS,
-                                To_String (Translations (T).Value),
-                                String'(1 => Translations (T).Separator));
-                        Max_Values := Natural'Max (Max_Values,
-                                                   Field_Count (CS));
-                        Destroy (CS);
+                        Max_Values := Natural'Max
+                          (Max_Values,
+                           Translations (T).Vect_Value.Count);
                      end if;
                   end loop;
                end loop;
@@ -778,8 +961,9 @@ package body Templates_Parser is
          -- Parse_If --
          --------------
 
-         function Parse_If (Condition       : in String  := "";
-                            Check_Condition : in Boolean := True)
+         function Parse_If
+           (Condition       : in String  := "";
+            Check_Condition : in Boolean := True)
            return String
          is
             Buffer        : Buffer_Type;
@@ -1021,9 +1205,10 @@ package body Templates_Parser is
    -- Parse --
    -----------
 
-   function Parse (Template_Filename : in String;
-                   Translations      : in Translate_Table := No_Translation)
-                   return String is
+   function Parse
+     (Template_Filename : in String;
+      Translations      : in Translate_Table := No_Translation)
+     return String is
    begin
       return Parse (Open (Template_Filename), Translations);
    end Parse;
@@ -1032,9 +1217,10 @@ package body Templates_Parser is
    -- Translate --
    ---------------
 
-   function Translate (Template : in String;
-                       Translations : in Translate_Table := No_Translation)
-                      return String
+   function Translate
+     (Template : in String;
+      Translations : in Translate_Table := No_Translation)
+     return String
    is
       New_Template : Unbounded_String := To_Unbounded_String (Template);
    begin
@@ -1050,8 +1236,9 @@ package body Templates_Parser is
    -- Open --
    ----------
 
-   function Open (Template_Filename : in String)
-                 return Template_File
+   function Open
+     (Template_Filename : in String)
+     return Template_File
    is
       File     : Text_IO.File_Type;
       Lines    : Template_Content (1 .. Max_Template_Lines);
