@@ -28,7 +28,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$ $Date$ $Author$
 
 with Ada.Strings.Unbounded;
 
@@ -59,6 +60,12 @@ package AWS.Services.Dispatchers.Virtual_Host is
       Virtual_Hostname : in     String;
       Action           : in     AWS.Dispatchers.Handler'Class);
    --  Register Virtual_Hostname to use the specified callback.
+
+   procedure Register
+     (Dispatcher       : in out Handler;
+      Virtual_Hostname : in     String;
+      Action           : in     Response.Callback);
+   --  Idem as above but take a callback procedure as parameter.
 
    procedure Unregister
      (Dispatcher       : in out Handler;

@@ -28,7 +28,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$ $Date$ $Author$
 
 --  Dispatch a specific request to a callback depending on the request method.
 
@@ -50,6 +51,12 @@ package AWS.Services.Dispatchers.Method is
       Method     : in     Status.Request_Method;
       Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register callback to use for a specific request method.
+
+   procedure Register
+     (Dispatcher : in out Handler;
+      Method     : in     Status.Request_Method;
+      Action     : in     Response.Callback);
+   --  Idem as above but take a callback procedure as parameter.
 
    procedure Unregister
      (Dispatcher : in out Handler;

@@ -28,9 +28,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$ $Date$ $Author$
 
 with AWS.MIME;
+with AWS.Dispatchers.Callback;
 
 package body AWS.Services.Dispatchers.Method is
 
@@ -73,6 +75,14 @@ package body AWS.Services.Dispatchers.Method is
       end if;
 
       Dispatcher.Table (Method) := new AWS.Dispatchers.Handler'Class'(Action);
+   end Register;
+
+   procedure Register
+     (Dispatcher : in out Handler;
+      Method     : in     Status.Request_Method;
+      Action     : in     Response.Callback) is
+   begin
+      Register (Dispatcher, Method, AWS.Dispatchers.Callback.Create (Action));
    end Register;
 
    -------------------------------
