@@ -1,3 +1,9 @@
+2004-03-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Do not use GNU/date as it is not available on all OS by default
+	 and it is quite easy to avoid it.
+
 2004-03-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl_3.ads, wsdl_3.adb, wsdl_3_main.adb:
