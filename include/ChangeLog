@@ -1,3 +1,10 @@
+2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser-input.adb:
+	Update to new templates_parser version.
+	Set Support_Compressed to False. The template engine must get the
+	 resource uncompressed to be able to parse it.
+
 2003-11-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb, templates_parser-filter.adb:

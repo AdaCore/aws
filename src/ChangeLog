@@ -1,3 +1,11 @@
+2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Support_Compressed): New variable.
+	(Get_Message_Header): Checks the Accept-Encoding header, set
+	 Support_Compressed accordingly.
+	(Send_Data): Set the support compressed flag for the file.
+
 2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-embedded.adb:
