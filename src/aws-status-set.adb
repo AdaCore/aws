@@ -182,8 +182,9 @@ package body AWS.Status.Set is
    -- Peername --
    --------------
 
-   procedure Peername (D        : in out Data;
-                       Peername : in     String) is
+   procedure Peername
+     (D        : in out Data;
+      Peername : in     String) is
    begin
       D.Peername := To_Unbounded_String (Peername);
    end Peername;
@@ -193,7 +194,7 @@ package body AWS.Status.Set is
    -------------
 
    procedure Referer
-     (D                 : in out Data;
+     (D       : in out Data;
       Referer : in     String) is
    begin
       D.Referer := To_Unbounded_String (Referer);
@@ -235,7 +236,6 @@ package body AWS.Status.Set is
       D.Boundary          := Null_Unbounded_String;
       D.Content_Length    := 0;
       D.If_Modified_Since := Null_Unbounded_String;
---      D.File_Up_To_Date   := False;
       D.Auth_Name         := Null_Unbounded_String;
       D.Auth_Password     := Null_Unbounded_String;
       D.Session_ID        := AWS.Session.No_Session;
