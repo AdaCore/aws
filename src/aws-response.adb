@@ -144,13 +144,15 @@ package body AWS.Response is
      (Content_Type  : in String;
       Message_Body  : in String;
       Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return Data
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
+      Encoding      : in Content_Encoding      := Identity)
+      return        Data
    is
       Result : Data;
    begin
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
+      Set.Append_Encode (Result, Encoding);
       Set.Message_Body  (Result, Message_Body);
       Set.Cache_Control (Result, Cache_Control);
       return Result;
@@ -160,13 +162,15 @@ package body AWS.Response is
      (Content_Type    : in String;
       UString_Message : in Strings.Unbounded.Unbounded_String;
       Status_Code     : in Messages.Status_Code  := Messages.S200;
-      Cache_Control   : in Messages.Cache_Option := Messages.Unspecified)
-      return Data
+      Cache_Control   : in Messages.Cache_Option := Messages.Unspecified;
+      Encoding        : in Content_Encoding      := Identity)
+      return          Data
    is
       Result : Data;
    begin
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
+      Set.Append_Encode (Result, Encoding);
       Set.Message_Body  (Result, UString_Message);
       Set.Cache_Control (Result, Cache_Control);
       return Result;
@@ -176,13 +180,15 @@ package body AWS.Response is
      (Content_Type  : in String;
       Message_Body  : in Streams.Stream_Element_Array;
       Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return Data
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified;
+      Encoding      : in Content_Encoding      := Identity)
+      return        Data
    is
       Result : Data;
    begin
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
+      Set.Append_Encode (Result, Encoding);
       Set.Message_Body  (Result, Message_Body);
       Set.Cache_Control (Result, Cache_Control);
       return Result;
@@ -266,7 +272,7 @@ package body AWS.Response is
       Filename      : in String;
       Status_Code   : in Messages.Status_Code  := Messages.S200;
       Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return Data
+      return        Data
    is
       Result : Data;
    begin
@@ -527,12 +533,13 @@ package body AWS.Response is
      (Content_Type  : in     String;
       Handle        : access Resources.Streams.Stream_Type'Class;
       Status_Code   : in     Messages.Status_Code  := Messages.S200;
-      Cache_Control : in     Messages.Cache_Option := Messages.No_Cache)
-      return Data
+      Cache_Control : in     Messages.Cache_Option := Messages.No_Cache;
+      Encoding      : in     Content_Encoding      := Identity)
+      return        Data
    is
       Result : Data;
    begin
-      Set.Stream        (Result, Handle);
+      Set.Stream        (Result, Handle, Encoding);
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
       Set.Cache_Control (Result, Cache_Control);
