@@ -93,6 +93,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_accept;
 
+   ---------------
+   -- SSL_clear --
+   ---------------
+
+   procedure SSL_clear is
+   begin
+      Raise_Error;
+   end SSL_clear;
+
    -----------------
    -- SSL_connect --
    -----------------

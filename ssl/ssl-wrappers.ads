@@ -146,4 +146,7 @@ package SSL.Wrappers is
    procedure ERR_get_error;
    pragma Export (C, ERR_get_error, "ERR_get_error");
 
+   procedure SSL_clear;
+   pragma Export (C, SSL_clear, "SSL_clear");
+
 end SSL.Wrappers;
