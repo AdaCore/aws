@@ -50,8 +50,8 @@ package AWS.Services.Dispatchers.URI is
       Request    : in Status.Data)
      return Response.Data;
    --  Dispatch will return the value returned by the first callback matching
-   --  the request. Note that if a callback returns the 202 messages (No
-   --  Content), Dispatch will just continue to the next matching callback. In
+   --  the request. Note that if a callback returns the Response.Empty
+   --  message, Dispatch will just continue to the next matching callback. In
    --  any cases, if no handler matches it will call the default callback.
 
    procedure Register
