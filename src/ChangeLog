@@ -1,3 +1,8 @@
+2002-10-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-digest.adb:
+	(Check_Nonce): Checking for the 5 first chars is hexadecimal.
+
 2002-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -66,7 +71,7 @@
 2002-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.ads, aws-server.adb, aws-server-protocol_handler.adb:
-	(Socket_Access): now it is subtype from AWS.Status.Socket_Access to
+	(Socket_Access): Now it is subtype from AWS.Status.Socket_Access to
 	 be able to easier put it to the AWS.Status.Data.
 
 2002-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
