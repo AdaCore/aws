@@ -1,5 +1,11 @@
 2001-09-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	(Line): do not handle Constraint_Error as an internal
+	 error. AdaSockets has a bug and sends Constraint_Error when a
+	 socket is closed while sending data. Constraint_Error should be
+	 removed from the handler when this bug will be fixed.
+
 	* aws-config-ini.adb:
 	(Error_Message): Send error message to Current_Error.
 
