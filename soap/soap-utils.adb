@@ -151,15 +151,37 @@ package body SOAP.Utils is
    -- Is_Ada_Reserved_Word --
    --------------------------
 
-   --  ??? This needs to be completed
-
    function Is_Ada_Reserved_Word (Name : in String) return Boolean is
    begin
-      if Name = "return" then
+      if Name = "abort"  or else Name = "else" or else Name = "new"
+        or else Name = "return" or else Name = "abs" or else Name = "elsif"
+        or else Name = "not" or else Name = "reverse" or else Name = "abstract"
+        or else Name = "end" or else Name = "null" or else Name = "accept"
+        or else Name = "entry" or else Name = "select" or else Name = "access"
+        or else Name = "exception" or else Name = "separate"
+        or else Name = "aliased" or else Name = "exit" or else Name = "of"
+        or else Name = "subtype" or else Name = "all" or else Name = "or"
+        or else Name = "and" or else Name = "for" or else Name = "others"
+        or else Name = "tagged" or else Name = "array"
+        or else Name = "function" or else Name = "out" or else Name = "task"
+        or else Name = "at" or else Name = "terminate" or else Name = "generic"
+        or else Name = "package" or else Name = "then" or else Name = "begin"
+        or else Name = "goto" or else Name = "pragma" or else Name = "type"
+        or else Name = "body" or else Name = "private" or else Name = "if"
+        or else Name = "procedure" or else Name = "case" or else Name = "in"
+        or else Name = "protected" or else Name = "until"
+        or else Name = "constant" or else Name = "is" or else Name = "use"
+        or else Name = "raise" or else Name = "declare" or else Name = "range"
+        or else Name = "when" or else Name = "delay" or else Name = "limited"
+        or else Name = "record" or else Name = "while" or else Name = "delta"
+        or else Name = "loop" or else Name = "rem" or else Name = "with"
+        or else Name = "digits" or else Name = "renames" or else Name = "do"
+        or else Name = "mod" or else Name = "requeue" or else Name = "xor"
+      then
          return True;
+      else
+         return False;
       end if;
-
-      return False;
    end Is_Ada_Reserved_Word;
 
    -----------
@@ -254,7 +276,7 @@ package body SOAP.Utils is
    is
       SOAPAction : constant String := AWS.Status.SOAPAction (Request);
    begin
-      if SOAPAction /= "" then
+      if SOAPAction /= No_SOAPAction then
          declare
             Payload : constant Message.Payload.Object
               := Message.XML.Load_Payload (AWS.Status.Payload (Request));
@@ -389,5 +411,18 @@ package body SOAP.Utils is
    begin
       return Types.V (O) (1);
    end V;
+
+   -------------
+   -- With_NS --
+   -------------
+
+   function With_NS (NS, Name : in String) return String is
+   begin
+      if NS = "" then
+         return Name;
+      else
+         return NS & ':' & Name;
+      end if;
+   end With_NS;
 
 end SOAP.Utils;
