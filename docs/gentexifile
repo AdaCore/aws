@@ -6,19 +6,23 @@ fi
 
 SOURCE=$1
 TARGET=${SOURCE}.texi
+TMPTAR=${SOURCE}.texi.tmp
 
 gawk 'BEGIN{out=1}$1=="end"&&substr($0,1,1)=="e"{out=1}out==1{print}$1=="private"&&out==1{out=0; print "   --  implementation removed"}' ${SOURCE} > genout
 
-echo "@smallexample"      >${TARGET}
+echo "@smallexample"      >${TMPTAR}
 if [ $# = 1 ]; then
-echo "@cartouche"        >>${TARGET}
-echo "@group"            >>${TARGET}
+echo "@cartouche"        >>${TMPTAR}
+echo "@group"            >>${TMPTAR}
 fi
-echo ""                  >>${TARGET}
-sed -f ada.sed genout    >>${TARGET}
-echo ""                  >>${TARGET}
+echo ""                  >>${TMPTAR}
+sed -f ada.sed genout    >>${TMPTAR}
+echo ""                  >>${TMPTAR}
 if [ $# = 1 ]; then
-echo "@end group"        >>${TARGET}
-echo "@end cartouche"    >>${TARGET}
+echo "@end group"        >>${TMPTAR}
+echo "@end cartouche"    >>${TMPTAR}
 fi
-echo "@end smallexample" >>${TARGET}
+echo "@end smallexample" >>${TMPTAR}
+
+cat ${TMPTAR} | tr -d '\r' > ${TARGET}
+rm ${TMPTAR}
