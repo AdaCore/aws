@@ -152,23 +152,6 @@ package body AWS.Server is
 
    protected body Slots is
 
-      -------------------
-      -- Set_Abortable --
-      -------------------
-
-      procedure Set_Abortable (Index : in Positive; Flag : in Boolean) is
-      begin
-         if Flag /= Set (Index).Abortable then
-            Set (Index).Abortable := Flag;
-
-            if Flag then
-               Abortable_Count := Abortable_Count + 1;
-            else
-               Abortable_Count := Abortable_Count - 1;
-            end if;
-         end if;
-      end Set_Abortable;
-
       ------------------
       -- Set_Peername --
       ------------------
@@ -185,86 +168,77 @@ package body AWS.Server is
       procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
       begin
          Set (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
-         Set_Abortable (Index, Phase = Wait_For_Client);
          Set (Index).Phase := Phase;
       end Mark_Phase;
+
+      ---------------
+      -- Abortable --
+      ---------------
+
+      function Is_Abortable
+        (Index : in Positive;
+         Mode  : in Timeout_Mode)
+        return Boolean
+      is
+         use type Calendar.Time;
+         Phase : constant Slot_Phase    := Set (Index).Phase;
+         Now   : constant Calendar.Time := Calendar.Clock;
+      begin
+         return
+            Phase in Abortable_Phase'Range
+           and then
+            (Now - Set (Index).Phase_Time_Stamp) > Timeouts (Mode, Phase);
+      end Is_Abortable;
 
       --------------------
       -- Check_Timeouts --
       --------------------
 
-      procedure Check_Timeouts is
-         use type Calendar.Time;
+      function Check_Timeouts return Boolean is
       begin
          for S in Set'Range loop
-            if Set (S).Phase = Client_Header
-              and then
-              (Calendar.Clock - Set (S).Phase_Time_Stamp)
-                > Client_Header_Timeout
-            then
-               Set_Abortable (S, True);
+            if Is_Abortable (S, Force) then
+               return True;
             end if;
          end loop;
+         return False;
       end Check_Timeouts;
 
       ------------------
       -- Abort_Oldest --
       ------------------
 
-      procedure Abort_Oldest (Force : in Boolean) is
-         use type Calendar.Time;
-         To_Be_Closed        : Natural := 0;
-         Time_Stamp          : Calendar.Time := Calendar.Clock;
-         Activity_Time_Stamp : Calendar.Time;
+      procedure Abort_On_Timeout (Mode : in Timeout_Mode) is
       begin
-
-         --  look for the oldest abortable slot
-
          for S in Set'Range loop
-            Activity_Time_Stamp := Set (S).Phase_Time_Stamp;
-
-            if Set (S).Abortable
-              and then Activity_Time_Stamp < Time_Stamp
-            then
-               To_Be_Closed := S;
-               Time_Stamp   := Activity_Time_Stamp;
+            if Is_Abortable (S, Mode) then
+               if Mode = Force then
+                  --  ??? not sure we want to keep this, should be removed at
+                  --  some point.
+                  Text_IO.Put_Line
+                    ("Aborted " & Slot_Phase'Image (Set (S).Phase));
+               end if;
+               Sockets.Shutdown (Set (S).Sock);
+               Mark_Phase (S, Closed);
             end if;
-
          end loop;
-
-         --  if one Slot has and abortable state, and we are in Force mode or
-         --  slot is open since more than Keep_Open_Duration we close it.
-
-         if To_Be_Closed /= 0
-           and then
-           (Force or else (Calendar.Clock - Time_Stamp) > Keep_Open_Duration)
-         then
-            Sockets.Shutdown (Set (To_Be_Closed).Sock);
-            Mark_Phase (To_Be_Closed, Closed);
-
-         elsif To_Be_Closed = 0 and Force then
-            --  ??? this case should never happen, code should be removed at
-            --  some point.
-            raise Internal_Error;
-         end if;
-      end Abort_Oldest;
+      end Abort_On_Timeout;
 
       ---------
       -- Get --
       ---------
 
       entry Get (FD : in Sockets.Socket_FD; Index : in Positive)
-         when Count > 1 or else Abortable_Count > 0 or else Set'Length = 1 is
+         when Count > 1 or else Set'Length = 1 or else Check_Timeouts is
       begin
-         Set (Index).Sock             := FD;
-         Set (Index).Phase            := Client_Header;
-         Set (Index).Abortable        := False;
+         Set (Index).Sock := FD;
+         Mark_Phase (Index, Client_Header);
          Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
 
          Count := Count - 1;
 
          if Count = 0 and then Set'Length > 1 then
-            Abort_Oldest (True);
+            Abort_On_Timeout (Force);
          end if;
       end Get;
 
@@ -326,27 +300,19 @@ package body AWS.Server is
    ------------------
 
    task body Line_Cleaner is
-      Is_Force : Boolean;
-      type Counter_Type is mod 16;
-      Counter  :  Counter_Type := 1;
+      Mode : Timeout_Mode;
    begin
       loop
          select
             accept Force do
-               Is_Force := True;
+               Mode := Force;
             end Force;
          or
-            delay 3.0;
-            Is_Force := False;
+            delay 30.0;
+            Mode := Cleaner;
          end select;
 
-         Server.Slots.Check_Timeouts;
-
-         if Is_Force or else Counter = 0 then
-            Server.Slots.Abort_Oldest (Is_Force);
-         end if;
-
-         Counter := Counter + 1;
+         Server.Slots.Abort_On_Timeout (Mode);
 
       end loop;
    end Line_Cleaner;
