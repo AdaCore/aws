@@ -340,6 +340,11 @@ regtests/sock1.out
 regtests/sock2.adb
 regtests/sock2.out
 regtests/sock2_proc.adb
+regtests/sock3.adb
+regtests/sock3.out
+regtests/sock3_proc.adb
+regtests/sock3_sec.adb
+regtests/sock3_sec.out
 regtests/sockext.adb
 regtests/sockext.out
 regtests/sockext_proc.adb
