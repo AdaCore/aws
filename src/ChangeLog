@@ -1,3 +1,12 @@
+2002-04-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Finalize): Do not handle server's counter here.
+	(Initialize): Idem.
+	(Start): Call Counter.Add here.
+	(Shutdown): Call Counter.Remove here.
+	Fix server termination for global servers.
+
 2002-04-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.ads:
