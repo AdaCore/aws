@@ -36,7 +36,9 @@
 --  should be used like java applets or ActiveX controls.
 
 with AWS.Net.Stream_IO;
+
 with Table_Of_Strings_And_Static_Values_G;
+with Sockets;
 
 generic
 
@@ -63,44 +65,71 @@ package AWS.Server.Push is
    Client_Gone : exception;
    --  Raised when a client is not responding.
 
+   Closed : exception;
+   --  Raised when trying to register to a closed push server.
+
    Duplicate_Client_ID : exception;
    --  Raised in trying to register an already registered client.
 
    type Object is limited private;
+   --  This is the push server object. A push server has two modes, either it
+   --  is Open or Closed. When open it will send data to registered
+   --  clients. No data will be sent to registered client if the server is
+   --  Closed.
 
    type Mode is (Plain, Multipart, Chunked);
-
-   type Client_Holder is tagged private;
-
-   subtype Socket_Type is AWS.Net.Stream_IO.Socket_Type;
+   --  Describeed the mode to communicate with the client.
+   --  Plain     : no transformation is done, the data are sent as-is
+   --  Multipart : data are MIME encoded.
+   --  Chuncked  : data are chunked, a piece of data is sent in small pieces.
 
    subtype Client_Key is String;
+   --  The Client ID key representation. In a server each client must have a
+   --  uniq ID. This ID is used for registration and for sending data to
+   --  specific client.
+
+   subtype Socket_Type is Sockets.Socket_FD'Class;
 
    procedure Register
-     (Server      : in out Object;
-      Client_ID   : in     Client_Key;
-      Socket      : in     Socket_Type;
-      Environment : in     Client_Environment;
-      Kind        : in     Mode;
-      Duplicate   :    out Boolean);
+     (Server            : in out Object;
+      Client_ID         : in     Client_Key;
+      Socket            : in     Socket_Type;
+      Environment       : in     Client_Environment;
+      Init_Data         : in     Client_Output_Type;
+      Init_Content_Type : in     String             := "";
+      Kind              : in     Mode               := Plain;
+      Close_Duplicate   : in     Boolean            := False);
    --  Add client identified by Client_ID to the server subscription
-   --  list. After registering this client will be able to receive pushed data
-   --  from the server in brodcasting mode. Duplicate is set to True if the
-   --  Client is already registered and in this case nothing is done.
+   --  list and send the Init_Data (as a Data_Content_Type mime content) to
+   --  him. After registering this client will be able to receive pushed data
+   --  from the server in brodcasting mode. If Close_Duplicate is True and
+   --  Client_ID is already registered into the list then old one will be
+   --  unregistered first (no exception will be raised).
 
    procedure Register
-     (Server      : in out Object;
-      Client_ID   : in     Client_Key;
-      Socket      : in     Socket_Type;
-      Environment : in     Client_Environment;
-      Kind        : in     Mode               := Plain);
-   --  Same as above but raises Duplicate_Client_ID if Client_ID is already
-   --  registered.
+     (Server          : in out Object;
+      Client_ID       : in     Client_Key;
+      Socket          : in     Socket_Type;
+      Environment     : in     Client_Environment;
+      Kind            : in     Mode               := Plain;
+      Close_Duplicate : in     Boolean            := False);
+   --  Same as above but without sending initial data.
 
    procedure Unregister
-     (Server    : in out Object;
-      Client_ID : in     Client_Key);
-   --  Removes client from server subscription list.
+     (Server       : in out Object;
+      Client_ID    : in     Client_Key;
+      Close_Socket : in     Boolean    := True);
+   --  Removes client Client_ID from server subscription list. The associated
+   --  client's socket will be closed if Close_Socket is True. No exception is
+   --  raised if Client_ID was not registered.
+
+   procedure Unregister_Clients
+     (Server       : in out Object;
+      Close_Socket : in     Boolean := True);
+   --  Remove all registered clients from the server. Closes if Close_Socket
+   --  is set to True (default) otherwise the sockets remain open. After this
+   --  call the sever will still in running mode. Does nothing if there is no
+   --  client registered.
 
    procedure Send_To
      (Server       : in out Object;
@@ -116,7 +145,7 @@ package AWS.Server.Push is
    --  Push data to every client (broadcast) subscribed to the server.
 
    generic
-      with procedure Client_Gone (Client_ID : String);
+      with procedure Client_Gone (Client_ID : in String);
    procedure Send_G
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
@@ -125,15 +154,51 @@ package AWS.Server.Push is
    --  Call Client_Gone for each client with broken socket.
 
    function Count (Server : in Object) return Natural;
-   --  Number of server push clients
+   --  Returns the number of registered clients in the server.
 
-   procedure Destroy (Server : in out Object);
-   --  Close all clients connections.
+   function Is_Open (Server : in Object) return Boolean;
+   --  Return True if the server is open, meaning server is still running,
+   --  ready to accept client's registration and still sending data to
+   --  clients.
+
+   --  Shutdown routines put the server in a Closed mode. The routines below
+   --  provides a way to eventually close the socket, to send some
+   --  finalisation data.
+
+   procedure Shutdown
+     (Server       : in out Object;
+      Close_Socket : in     Boolean := True);
+   --  Unregisted all clients and close all associated connections (socket) if
+   --  Close_Socket is True. The server will be in Closed mode. After this
+   --  call any client trying to register will get the Closed exception. It is
+   --  possible to reactivate the server with Restart.
+
+   procedure Shutdown
+     (Server             : in out Object;
+      Final_Data         : in     Client_Output_Type;
+      Final_Content_Type : in     String             := "");
+   --  Idem as above but it send Final_Data (as a Data_Content_Type mime
+   --  content) before closing connections.
+
+   procedure Shutdown_If_Empty
+     (Server : in out Object;
+      Open   :    out Boolean);
+   --  Server will be shutdown (close mode) if there is no more active clients
+   --  (Count = 0). Returns new server status in Open (Open will be True if
+   --  server is in Open mode and False otherwise). After this call any client
+   --  trying to register will get the Closed exception. It is possible to
+   --  reactivate the server with Restart.
+
+   procedure Restart (Server : in out Object);
+   --  Set server to Open mode. Server will again send data to registered
+   --  clients. It does nothing if server was already open.
 
 private
 
-   type Client_Holder is tagged record
-      Stream      : AWS.Net.Stream_IO.Socket_Stream_Access;
+   subtype Stream_Access is AWS.Net.Stream_IO.Socket_Stream_Access;
+
+   type Client_Holder is record
+      Stream      : Stream_Access;
       Kind        : Mode;
       Environment : Client_Environment;
    end record;
@@ -150,36 +215,60 @@ private
       function Count return Natural;
       --  Returns the number of registered client.
 
-      procedure Destroy;
-      --  Release all associated memory with this object.
+      procedure Unregister_Clients (Close_Sockets : in Boolean);
+      --  Unregister al clients, close associated socket if Close_Socket is
+      --  set to True.
+
+      procedure Shutdown_If_Empty (Open : out Boolean);
+      --  See above.
+
+      procedure Restart;
+      --  See above.
+
+      procedure Shutdown
+        (Final_Data        : in Client_Output_Type;
+         Data_Content_Type : in String);
+      --  See above.
 
       procedure Register
-        (Client_ID : in     Client_Key;
-         Holder    : in     Client_Holder;
-         Duplicate :    out Boolean);
-      --  Register a client. Duplicate is set to True if a Client with
-      --  Client_ID is already registered.
+        (Client_ID       : in Client_Key;
+         Holder          : in Client_Holder;
+         Close_Duplicate : in Boolean);
+      --  See above.
+
+      procedure Register
+        (Client_ID         : in Client_Key;
+         Holder            : in Client_Holder;
+         Init_Data         : in Client_Output_Type;
+         Data_Content_Type : in String;
+         Close_Duplicate   : in Boolean);
+      --  See above.
 
       procedure Send_To
         (Client_ID    : in Client_Key;
          Data         : in Client_Output_Type;
          Content_Type : in String);
-      --  Send Data to the client whose ID is Client_ID.
+      --  See above.
 
       procedure Send
         (Data         : in     Client_Output_Type;
          Content_Type : in     String;
          Unregistered : in out Table.Table_Type);
-      --  Send Data to all clients registered. Not_Responding will contain a
-      --  list of client that have have not responded to the request. These
+      --  Send Data to all clients registered. Unregistered will contain a
+      --  list of clients that have not responded to the request. These
       --  clients have been removed from the list of registered client.
 
-      procedure Unregister (Client_ID : in Client_Key);
-      --  Unregister Client_ID client from this object. Does nothing if
-      --  Client_ID was not registered.
+      procedure Unregister
+        (Client_ID    : in Client_Key;
+         Close_Socket : in Boolean);
+      --  See above.
+
+      function Is_Open return Boolean;
+      --  See above.
 
    private
       Container : Table.Table_Type;
+      Open      : Boolean := True;
    end Object;
 
 end AWS.Server.Push;
