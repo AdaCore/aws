@@ -88,6 +88,9 @@ package SOAP.Generator is
    procedure WSDL_File (O : in out Object; Filename : in String);
    --  Add WSDL file in parent file comments (no WSDL by default)
 
+   procedure Options (O : in out Object; Options : in String);
+   --  Set options used with wsdl2aws tool to generate the code
+
    procedure Overwrite (O : in out Object);
    --  Add WSDL file in parent file comments (no overwritting by default)
 
@@ -111,6 +114,7 @@ private
       Proxy     : Unbounded_String;
       P_User    : Unbounded_String;
       P_Pwd     : Unbounded_String;
+      Options   : Unbounded_String;
    end record;
 
 end SOAP.Generator;
