@@ -1,5 +1,10 @@
 2002-10-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-status.adb:
+	Remove 'with' referense to AWS.URL.Raise_URL_Error.
+
+2002-10-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-default.ads:
 	(Check_URL_Validity): New Boolean constant.
 
