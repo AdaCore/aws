@@ -104,8 +104,7 @@ package body AWS.Client.XML.Input_Sources is
       From.Self.First := From.Buffer'First;
 
       --  Do not change comparision below to From.First > From.Last.
-      --  This is workaround of the GNAT optimization bug
-      --  (at least in version 5.02a).
+      --  ??? This is workaround of a possible GNAT optimization problem.
 
       return From.Self.First > From.Self.Last;
    end Eof;
