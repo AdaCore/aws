@@ -42,6 +42,8 @@ b~text_input.adb
 b~text_input.ads
 b~vh_demo.adb
 b~vh_demo.ads
+b~web_mail.adb
+b~web_mail.ads
 b~wps.adb
 b~wps.ads
 b~ws.adb
@@ -50,6 +52,8 @@ b~wsdl_demo_client.adb
 b~wsdl_demo_client.ads
 b~wsdl_demo_server.adb
 b~wsdl_demo_server.ads
+b~zdemo.adb
+b~zdemo.ads
 com_1
 com_2
 dispatch
