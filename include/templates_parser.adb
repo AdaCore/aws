@@ -61,6 +61,8 @@ package body Templates_Parser is
    Filter_Upper_Token       : aliased constant String := "@@UPPER";
    Filter_Clean_Text_Token  : aliased constant String := "@@CLEAN_TEXT";
    Filter_Capitalize_Token  : aliased constant String := "@@CAPITALIZE";
+   Filter_Yes_No_Token      : aliased constant String := "@@YES_NO";
+   Filter_Oui_Non_Token     : aliased constant String := "@@OUI_NON";
 
    subtype Table_Range     is Positive range Table_Token'Range;
    subtype Section_Range   is Positive range Section_Token'Range;
@@ -82,7 +84,9 @@ package body Templates_Parser is
       Lower,      -- lower case
       Upper,      -- upper case
       Capitalize, -- lower case except char before spaces and underscores
-      Clean_Text  -- only letter/digits all other chars are changed to spaces.
+      Clean_Text, -- only letter/digits all other chars are changed to spaces.
+      Yes_No,     -- if True return Yes, If False returns No, else do nothing.
+      Oui_Non     -- if True return Oui, If False returns Non, else do nothing.
       );
 
    type Filter_Function is access function (S : in String) return String;
@@ -102,6 +106,8 @@ package body Templates_Parser is
    function Upper_Filter (S : in String) return String;
    function Capitalize_Filter (S : in String) return String;
    function Clean_Text_Filter (S : in String) return String;
+   function Yes_No_Filter (S : in String) return String;
+   function Oui_Non_Filter (S : in String) return String;
 
    function Check_Filter (Str : in Unbounded_String;
                           P   : in Positive)
@@ -204,6 +210,66 @@ package body Templates_Parser is
       return Result;
    end Clean_Text_Filter;
 
+   -------------------
+   -- Yes_No_Filter --
+   -------------------
+
+   function Yes_No_Filter (S : in String) return String is
+   begin
+      if S = "TRUE" then
+         return "YES";
+
+      elsif S = "true" then
+         return "yes";
+
+      elsif S = "True" then
+         return "Yes";
+
+      elsif S = "FALSE" then
+         return "NO";
+
+      elsif S = "false" then
+         return "no";
+
+      elsif S = "False" then
+         return "No";
+
+      else
+         return S;
+      end if;
+   end Yes_No_Filter;
+
+   --------------------
+   -- Oui_Non_Filter --
+   --------------------
+
+   function Oui_Non_Filter (S : in String) return String is
+   begin
+      if S = "TRUE" then
+         return "OUI";
+
+      elsif S = "true" then
+         return "oui";
+
+      elsif S = "True" then
+         return "Oui";
+
+      elsif S = "FALSE" then
+         return "NON";
+
+      elsif S = "false" then
+         return "non";
+
+      elsif S = "False" then
+         return "Non";
+
+      else
+         return S;
+      end if;
+   end Oui_Non_Filter;
+
+   --  Filter Table
+
    Filter_Table : array (Filters_Mode) of Filter_Record
      := (Identity   =>
            (Filter_Identity_Token'Access,   Identity_Filter'Access),
@@ -216,14 +282,18 @@ package body Templates_Parser is
          Clean_Text =>
            (Filter_Clean_Text_Token'Access, Clean_Text_Filter'Access),
          Invert     =>
-           (Filter_Reverse_Token'Access,    Reverse_Filter'Access));
+           (Filter_Reverse_Token'Access,    Reverse_Filter'Access),
+         Yes_No     =>
+           (Filter_Yes_No_Token'Access,     Yes_No_Filter'Access),
+         Oui_Non    =>
+           (Filter_Oui_Non_Token'Access,    Oui_Non_Filter'Access));
 
    ------------------
    -- Check_Filter --
    ------------------
 
    function Check_Filter (Str : in Unbounded_String;
-                          P : in Positive)
+                          P   : in Positive)
                          return Filters_Mode is
    begin
       for F in Filter_Table'Range loop
