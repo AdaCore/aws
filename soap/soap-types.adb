@@ -543,21 +543,13 @@ package body SOAP.Types is
 
    function S
      (V      : in String;
-      Name   : in String  := "item";
-      Encode : in Boolean := True)
+      Name   : in String  := "item")
       return XSD_String
    is
       L_V : constant String := Utils.To_Utf8 (V);
    begin
-      if Encode then
-         return (Finalization.Controlled
-                   with To_Unbounded_String (Name),
-                        To_Unbounded_String (Utils.Encode (L_V)));
-      else
-         return (Finalization.Controlled
-                   with To_Unbounded_String (Name),
-                        To_Unbounded_String (L_V));
-      end if;
+      return (Finalization.Controlled
+                with To_Unbounded_String (Name), To_Unbounded_String (L_V));
    end S;
 
    ----------
@@ -665,13 +657,20 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in Object) return String is
-      Indent : constant Natural := XML_Indent.Value;
+      Indent : constant Natural      := XML_Indent.Value;
       OC     : constant Object'Class := Object'Class (O);
    begin
-      return Spaces (Indent)
-        & "<" & Name (OC) & xsi_type (XML_Type (OC)) & '>'
-        & Image (OC)
-        & "</" & Name (OC) & '>';
+      if OC in XSD_String then
+         return Spaces (Indent)
+           & "<" & Name (OC) & xsi_type (XML_Type (OC)) & '>'
+           & Utils.Encode (Image (OC))
+           & "</" & Name (OC) & '>';
+      else
+         return Spaces (Indent)
+           & "<" & Name (OC) & xsi_type (XML_Type (OC)) & '>'
+           & Image (OC)
+           & "</" & Name (OC) & '>';
+      end if;
    end XML_Image;
 
    ---------------
