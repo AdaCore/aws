@@ -32,10 +32,9 @@
 
 with Ada.Strings.Unbounded;
 
-with GNAT.Dynamic_Tables;
-
 with AI302.Containers.Indefinite_Hashed_Maps;
 with AI302.Strings.Hash;
+with AI302.Containers.Vectors;
 
 package AWS.Containers.Tables is
 
@@ -115,28 +114,17 @@ private
    Null_Element : constant Element := (0, 0, "", "");
 
    type Element_Access is access all Element;
-   --  Data type to keep the name/value pair in the
-   --  GNAT.Dynamic_Tables.Table_Type.
-   --  We cannot use Unbounded_String because GNAT.Dynamic_Tables
-   --  does not support controlled objects.
+   --  Data type to keep the name/value pair in Data_Table
 
    type Key_Positive is new Positive;
 
-   package Name_Indexes is new GNAT.Dynamic_Tables
-     (Table_Component_Type => Positive,
-      Table_Index_Type     => Key_Positive,
-      Table_Low_Bound      => 1,
-      Table_Initial        => 4,
-      Table_Increment      => 30);
+   package Name_Indexes is
+     new AI302.Containers.Vectors (Positive, Key_Positive);
 
-   subtype Name_Index_Table is Name_Indexes.Instance;
+   subtype Name_Index_Table is Name_Indexes.Vector;
 
-   package Data_Table is new GNAT.Dynamic_Tables
-     (Table_Component_Type => Element_Access,
-      Table_Index_Type     => Natural,
-      Table_Low_Bound      => 1,
-      Table_Initial        => 8,
-      Table_Increment      => 30);
+   package Data_Table is
+     new AI302.Containers.Vectors (Positive, Element_Access);
 
    package Index_Table is
      new AI302.Containers.Indefinite_Hashed_Maps
@@ -151,7 +139,7 @@ private
       Case_Sensitive : Boolean := True;
       Index          : Index_Access;
       --  Index to find appropriate Name/Value pairs in Data by the name
-      Data           : Data_Table.Instance;
+      Data           : Data_Table.Vector;
       --  Ordered array of name and value pairs
    end record;
 

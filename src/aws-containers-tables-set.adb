@@ -41,7 +41,7 @@ package body AWS.Containers.Tables.Set is
    procedure Free is new Ada.Unchecked_Deallocation
      (Element, Element_Access);
 
-   procedure Free_Elements (Data : in out Data_Table.Instance);
+   procedure Free_Elements (Data : in out Data_Table.Vector);
    --  Free all dynamically allocated strings in the data table
 
    ---------
@@ -75,7 +75,8 @@ package body AWS.Containers.Tables.Set is
          declare
             Item : Name_Index_Table := Index_Table.Element (Cursor);
          begin
-            Name_Indexes.Append (Item, Data_Table.Last (Table.Data));
+            Name_Indexes.Append
+              (Item, Key_Positive (Data_Table.Length (Table.Data)));
             Index_Table.Replace_Element (Cursor, By => Item);
          end;
 
@@ -84,8 +85,8 @@ package body AWS.Containers.Tables.Set is
             Value   : Name_Index_Table;
             Success : Boolean;
          begin
-            Name_Indexes.Init (Value);
-            Name_Indexes.Append (Value, Data_Table.Last (Table.Data));
+            Name_Indexes.Append
+              (Value, Key_Positive (Data_Table.Length (Table.Data)));
             Index_Table.Insert
               (Table.Index.all, L_Key, Value, Cursor, Success);
             pragma Assert (Success);
@@ -119,7 +120,7 @@ package body AWS.Containers.Tables.Set is
          Free (Table.Index);
 
          Free_Elements (Table.Data);
-         Data_Table.Free (Table.Data);
+         Data_Table.Clear (Table.Data);
       end if;
    end Free;
 
@@ -127,10 +128,14 @@ package body AWS.Containers.Tables.Set is
    -- Free_Elements --
    -------------------
 
-   procedure Free_Elements (Data : in out Data_Table.Instance) is
+   procedure Free_Elements (Data : in out Data_Table.Vector) is
    begin
-      for I in Data_Table.First .. Data_Table.Last (Data) loop
-         Free (Data.Table (I));
+      for K in 1 .. Natural (Data_Table.Length (Data)) loop
+         declare
+            Item : Element_Access := Data_Table.Element (Data, K);
+         begin
+            Free (Item);
+         end;
       end loop;
    end Free_Elements;
 
@@ -147,7 +152,7 @@ package body AWS.Containers.Tables.Set is
          declare
             Item : Name_Index_Table := Index_Table.Element (Cursor);
          begin
-            Name_Indexes.Free (Item);
+            Name_Indexes.Clear (Item);
          end;
          Index_Table.Next (Cursor);
       end loop;
@@ -165,7 +170,7 @@ package body AWS.Containers.Tables.Set is
          Free_Elements (Table.Data);
       end if;
 
-      Data_Table.Init (Table.Data);
+      Data_Table.Clear (Table.Data);
    end Reset;
 
    ------------
@@ -194,8 +199,6 @@ package body AWS.Containers.Tables.Set is
             Values  : Name_Index_Table;
             Success : Boolean;
          begin
-            Name_Indexes.Init (Values);
-
             Data_Table.Append
               (Table.Data,
                new Element'
@@ -204,7 +207,8 @@ package body AWS.Containers.Tables.Set is
                   Name         => Name,
                   Value        => Value));
 
-            Name_Indexes.Append (Values, Data_Table.Last (Table.Data));
+            Name_Indexes.Append
+              (Values, Key_Positive (Data_Table.Length (Table.Data)));
             Index_Table.Insert
               (Table.Index.all, L_Key, Values, Cursor, Success);
             pragma Assert (Success);
@@ -214,21 +218,26 @@ package body AWS.Containers.Tables.Set is
          declare
             Item : Name_Index_Table := Index_Table.Element (Cursor);
          begin
-            if Key_Positive (N) <= Name_Indexes.Last (Item) then
+            if N <= Natural (Name_Indexes.Length (Item)) then
                --  Replace item
                declare
-                  Index : constant Positive := Item.Table (Key_Positive (N));
+                  Index : constant Positive
+                    := Positive (Name_Indexes.Element (Item, N));
+                  Item  : Element_Access
+                    := Data_Table.Element (Table.Data, Index);
                begin
-                  Free (Table.Data.Table (Index));
-                  Table.Data.Table (Index) :=
-                    new Element'
-                      (Name_Length  => Name'Length,
-                       Value_Length => Value'Length,
-                       Name         => Name,
-                       Value        => Value);
+                  Free (Item);
+                  Data_Table.Replace_Element
+                    (Table.Data,
+                     Index,
+                     new Element'
+                       (Name_Length  => Name'Length,
+                        Value_Length => Value'Length,
+                        Name         => Name,
+                        Value        => Value));
                end;
 
-            elsif Key_Positive (N) = Name_Indexes.Last (Item) + 1 then
+            elsif N = Natural (Name_Indexes.Length (Item)) + 1 then
                --  Add item at then end of the table
                Data_Table.Append
                  (Table.Data,
@@ -238,7 +247,8 @@ package body AWS.Containers.Tables.Set is
                      Name         => Name,
                      Value        => Value));
 
-               Name_Indexes.Append (Item, Data_Table.Last (Table.Data));
+               Name_Indexes.Append
+                 (Item, Key_Positive (Data_Table.Length (Table.Data)));
                Index_Table.Replace_Element (Cursor, By => Item);
 
             else
