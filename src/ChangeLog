@@ -12,6 +12,17 @@
 	Document WM_CC tag for the message page.
         Update copyright notice.
 
+2004-03-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.adb:
+	Update copyright years.
+	Reorder with statements.
+	(Default_Config): New internal variable.
+	(Initialize_Default_Config): New routine.
+	(Connect): Use Default_Config if Config is not assigned.
+	 Show error code in case of SSL connection error.
+	(Accept): Use Default_Config if Config is not assigned.
+
 2004-03-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-response.adb:
