@@ -270,7 +270,7 @@ package body AWS.Net.Std is
    begin
       Sockets.Send_Socket (Socket.S.FD, Data, Last);
 
-      if Last = Data'First - 1 then
+      if Last < Data'Last then
          raise Socket_Error;
       end if;
    exception
