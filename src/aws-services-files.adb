@@ -55,13 +55,16 @@ package body AWS.Services.Files is
    begin
       if OS_Lib.Is_Regular_File (Z_Filename) and then GZip_Supported then
          --  Compressed file exists and GZip supported by client
+         --  Note, that Content-Type should be of the non compressed file.
+
          return Response.File
-           (MIME.Application_X_GZip,
+           (MIME.Content_Type (Filename),
             Filename & ".gz",
             Encoding => Messages.GZip);
 
       elsif OS_Lib.Is_Regular_File (Filename) then
          --  File exits
+
          return Response.File (MIME.Content_Type (Filename), Filename);
 
       elsif OS_Lib.Is_Regular_File (Z_Filename) then
@@ -88,9 +91,14 @@ package body AWS.Services.Files is
             Resources.Streams.ZLib.Inflate_Initialize
               (Stream_Type (Decoding_Stream.all), In_Stream);
 
+            --  Stream would not be encoded, so Content-Encoding would be
+            --  Identity.
+            --  Content_Type would be of the original non-compressed file
+            --  anyway.
+
             return Response.Stream
-              (MIME.Application_X_GZip,
-               Decoding_Stream, Encoding => Messages.GZip);
+              (MIME.Content_Type (Filename),
+               Decoding_Stream);
          end;
 
       else
