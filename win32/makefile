@@ -12,11 +12,12 @@ LIBSSL		= ../lib/libssl.a
 LIBCRYPTO	= ../lib/libcrypto.a
 LIBLDAP		= ../lib/libldap.a
 LIBPOLL         = ../lib/libpoll.a
+LIBWSPIAPI      = ../lib/libwspiapi.a
 AWS_COFF	= ../lib/aws.coff
 
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
-   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBPOLL) $(LIBLDAP)
+   IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBPOLL) $(LIBLDAP) $(LIBWSPIAPI)
 else
    RES        =
    IMPORT_LIB =
@@ -52,6 +53,11 @@ $(LIBPOLL): poll.ads poll.adb
 	$(GNATMAKE) -u $(GARGS) poll.adb
 	$(AR) r $(LIBPOLL) poll.o
 
+$(LIBWSPIAPI): wspiapi.h wspiapi.c
+	echo Building protocol independent API support
+	$(GCC) -c wspiapi.c
+	$(AR) r $(LIBWSPIAPI) wspiapi.o
+
 clean:
 	-$(RM) -f $(LIBSSL) $(LIBCRYPTO) $(LIBPOLL) $(LIBLDAP) *~ aws.coff
 	-$(RM) -f *.o
@@ -59,7 +65,7 @@ clean:
 #############################################################################
 # Configuration for GNAT Projet Files
 
-gsetup: 
+gsetup:
 
 gbuild: build
 
