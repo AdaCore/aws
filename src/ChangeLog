@@ -1,3 +1,35 @@
+2002-03-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Rename AWS.Services.Dispatchers.Callback to 
+	 AWS.Dispatchers.Callback.
+
+	* aws-server.adb:
+	Use AWS.Dispatchers.Callback, this unit does not depend anymore on
+	 AWS.Services hierarchy.
+
+	* aws-services-dispatchers-method.ads, 
+	  aws-services-dispatchers-method.adb:
+	(Register): New routine with a Callback procedure parameter.
+
+	* aws-services-dispatchers-uri.ads, aws-services-dispatchers-uri.adb:
+	(Register): New routine with a Callback procedure parameter.
+	(Register_Regexp): Idem.
+	
+	* aws-services-dispatchers-virtual_host.ads,
+	  aws-services-dispatchers-virtual_host.adb:
+	(Register): New routine with a Callback procedure parameter.
+
+	* aws-services-dispatchers.ads:
+	Remove doc for AWS.Services.Dispatchers.Callback.
+
+	* aws-services-dispatchers-callback.ads, 
+	  aws-services-dispatchers-callback.adb:
+	Moved to AWS.Dispatchers hierarchy.
+
+	* aws-dispatchers-callback.ads, aws-dispatchers-callback.adb:
+	Initial revision based on AWS.Services.Dispatchers.Callback.
+
 2002-03-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
