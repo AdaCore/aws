@@ -1,3 +1,28 @@
+2000-04-05    Dmitriy Anisimkov <anisimkov@iforex.net>
+
+	* aws-client.adb:
+	(Parse_Header): correctly initilialize Content_Length.
+	
+	* aws-connection.ads, aws-connection.adb:
+	Removed not needed anymore.
+	
+	* aws-server.ads, aws-server.adb:
+	Complete rewrite. more efficent implementation.
+
+	* aws-server-protocol_handler.adb
+	Initial revision. (most of the code here comes from AWS.Connection).
+
+2000-04-05    Dmitriy Anisimkov <anisimkov@iforex.net>
+
+	* aws-connection.ads:
+	(Slot): add Aborted field.
+	
+	* aws-connection.adb:
+	(Abort_Slot): new procedure
+	(Line): use Abort_Slot. general cleanup.
+	(Line_Cleaner): use Abort_Slot instead of Sosckets.Shutdown
+	(Get_Free_Slot): idem
+	
 2000-04-01    Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws-client.adb, aws-connection.adb, aws-messages.adb,
@@ -11,7 +36,7 @@
 	
 	* aws-connection.ads:
 	(Slot): moved here from the body as a limited private type. Abortable, 
-	 Actiity_Time_Stamp, Sock fields added.
+	 Activity_Time_Stamp, Sock fields added.
 	(Line): add access to Slot discriminant
 
 	* aws-connection.adb:
