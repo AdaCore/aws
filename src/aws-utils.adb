@@ -42,9 +42,7 @@ package body AWS.Utils is
 
    use Ada;
 
-   pragma Warnings (Off);
    package Integer_Random is new Ada.Numerics.Discrete_Random (Random_Integer);
-   pragma Warnings (On);
 
    procedure Compress_Decompress
      (Filter       : in out ZLib.Filter_Type;
