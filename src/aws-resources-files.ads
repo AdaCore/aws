@@ -35,6 +35,12 @@ package AWS.Resources.Files is
    procedure Open
      (File :    out File_Type;
       Name : in     String;
+      Form : in     String    := "";
+      GZip : in out Boolean);
+
+   procedure Open
+     (File :    out File_Type;
+      Name : in     String;
       Form : in     String    := "");
 
    function Is_Regular_File (Name : in String) return Boolean;
