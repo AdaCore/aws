@@ -270,6 +270,7 @@ package body SSL is
       if Socket.H /= Null_Ptr then
          Error_If (Thin.SSL_Shutdown (Socket.H) = -1, Lib_Error'Identity);
          Thin.SSL_Free (Socket.H);
+         Socket.H := Null_Ptr;
       end if;
       Sockets.Shutdown (Sockets.Socket_FD (Socket), How);
    end Shutdown;
