@@ -32,6 +32,47 @@ procedure Test_Speed is
    Soap_Produced  : constant String := "Produced";
    Soap_TapeSwap  : constant String := "Tapeswap";
 
+   Max_Time       : Duration;
+   --  Time allowed to complete the test. This is set below.
+
+   --------------------------
+   -- Check_Computer_Speed --
+   --------------------------
+
+   procedure Check_Computer_Speed is
+      Start   : Time;
+      Finish  : Time;
+      Elapsed : Duration;
+
+      procedure Call (K : in Positive) is
+         I : Integer := K;
+      begin
+         I := I + 78;
+         I := I / 5678;
+         I := I - 34;
+         I := I * 89;
+      end Call;
+
+   begin
+      Start := Clock;
+
+      for K in 1 .. 1_000_000 loop
+         Call (K);
+      end loop;
+
+      Finish := Clock;
+
+      Elapsed := Finish - Start;
+
+      --  55 found empirically
+
+      Max_Time := Elapsed * 55;
+   end Check_Computer_Speed;
+
+   --------
+   -- Ol --
+   --------
+
    function Ol
      (Tnc     : String  := "123456781234";
       Device  : String  := "BC847B";
@@ -61,6 +102,8 @@ procedure Test_Speed is
    Elapsed : Duration;
 
 begin
+   Check_Computer_Speed;
+
    Start := Clock;
 
    for X in 1 .. N_Test loop
@@ -96,7 +139,7 @@ begin
       --  Computers are certainly faster now, update the check here.
       Put_Line ("Really quick now, should update the regtest!");
 
-   elsif  Elapsed < 5.0 then
+   elsif  Elapsed < Max_Time then
       Put_Line ("Ok");
 
    else
