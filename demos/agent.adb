@@ -35,6 +35,7 @@
 --         -o                      output result in file agent.out.
 --         -k                      keep-alive connection.
 --         -s                      server-push mode.
+--         -r                      follow redirection.
 --         -n                      non stop for stress test.
 --         -d                      debug mode, view HTTP headers.
 --         -proxy <proxy_url>
@@ -71,22 +72,26 @@ procedure Agent is
    use Ada;
    use Ada.Strings.Unbounded;
    use type Status.Request_Method;
+   use type Messages.Status_Code;
 
-   Method      : Status.Request_Method;
-   User        : Unbounded_String;
-   Pwd         : Unbounded_String;
-   WWW_Auth    : Client.Authentication_Mode := Client.Basic;
-   URL         : Unbounded_String;
-   Proxy       : Unbounded_String;
-   Proxy_User  : Unbounded_String;
-   Proxy_Pwd   : Unbounded_String;
-   Proxy_Auth  : Client.Authentication_Mode := Client.Basic;
-   Force       : Boolean := False;
-   File        : Boolean := False;
-   Keep_Alive  : Boolean := False;
-   Server_Push : Boolean := False;
-   Wait_Key    : Boolean := True;
-   Connect     : AWS.Client.HTTP_Connection;
+   Syntax_Error : exception;
+
+   Method             : Status.Request_Method;
+   User               : Unbounded_String;
+   Pwd                : Unbounded_String;
+   WWW_Auth           : Client.Authentication_Mode := Client.Basic;
+   URL                : Unbounded_String;
+   Proxy              : Unbounded_String;
+   Proxy_User         : Unbounded_String;
+   Proxy_Pwd          : Unbounded_String;
+   Proxy_Auth         : Client.Authentication_Mode := Client.Basic;
+   Force              : Boolean := False;
+   File               : Boolean := False;
+   Keep_Alive         : Boolean := False;
+   Server_Push        : Boolean := False;
+   Follow_Redirection : Boolean := False;
+   Wait_Key           : Boolean := True;
+   Connect            : AWS.Client.HTTP_Connection;
 
    procedure Parse_Command_Line;
    --  parse Agent command line.
@@ -94,6 +99,10 @@ procedure Agent is
    function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode;
    --  Return the authentication value from the string representation.
    --  raises the human readable exception on error.
+
+   -------------------
+   -- Get_Auth_Mode --
+   -------------------
 
    function Get_Auth_Mode (Mode : String) return Client.Authentication_Mode is
    begin
@@ -113,7 +122,7 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d u: p: a: pu: pp: pa: proxy: k n s") is
+           ("f o d u: p: a: pu: pp: pa: proxy: k n s r") is
 
             when ASCII.NUL =>
                exit;
@@ -132,6 +141,9 @@ procedure Agent is
 
             when 'k' =>
                Keep_Alive := True;
+
+            when 'r' =>
+               Follow_Redirection := True;
 
             when 's' =>
                Server_Push := True;
@@ -169,6 +181,12 @@ procedure Agent is
          end case;
       end loop;
 
+      if Follow_Redirection and then Keep_Alive then
+         Exceptions.Raise_Exception
+           (Syntax_Error'Identity,
+            "Follow redirection and keep-alive mode can't be used together.");
+      end if;
+
       Method := Status.Request_Method'Value (GNAT.Command_Line.Get_Argument);
       URL    := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
    end Parse_Command_Line;
@@ -184,6 +202,7 @@ begin
       Text_IO.Put_Line ("       -k           keep-alive connection.");
       Text_IO.Put_Line ("       -s           server-push mode.");
       Text_IO.Put_Line ("       -n           non stop for stress test.");
+      Text_IO.Put_Line ("       -r           follow redirection.");
       Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
@@ -221,7 +240,16 @@ begin
    loop
 
       if Method = Status.GET then
-         Client.Get (Connect, Data);
+
+         if Keep_Alive then
+            Client.Get (Connect, Data);
+         else
+            Data := Client.Get
+              (To_String (URL), To_String (User), To_String (Pwd),
+               To_String (Proxy),
+               To_String (Proxy_User), To_String (Proxy_Pwd),
+               Follow_Redirection => Follow_Redirection);
+         end if;
 
       else
          --  ??? PUT just send a simple piece of Data.
@@ -236,6 +264,10 @@ begin
            & " - "
            & Messages.Reason_Phrase (Response.Status_Code (Data)));
 
+      if Response.Status_Code (Data) = Messages.S301 then
+         Text_IO.Put_Line ("New location : " & Response.Location (Data));
+      end if;
+
       if MIME.Is_Text (Response.Content_Type (Data)) then
 
          if File then
@@ -247,6 +279,7 @@ begin
                Text_IO.Close (F);
             end;
          else
+            Text_IO.New_Line;
             Text_IO.Put_Line (Response.Message_Body (Data));
          end if;
 
@@ -333,6 +366,9 @@ begin
    end loop;
 
 exception
+   when SE : Syntax_Error =>
+      Text_IO.Put_Line ("Syntax error: " & Exceptions.Exception_Message (SE));
+
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));
 end Agent;
