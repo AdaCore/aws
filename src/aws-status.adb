@@ -338,7 +338,7 @@ package body AWS.Status is
    -- Socket --
    ------------
 
-   function Socket (D : in Data) return Socket_Type is
+   function Socket (D : in Data) return Net.Socket_Type'Class is
    begin
       return D.Socket.all;
    end Socket;
