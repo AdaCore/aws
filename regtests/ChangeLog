@@ -1,7 +1,15 @@
+2002-11-11  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add head regression test.
+
+	* head.adb, head.out:
+	Initial revision.
+
 2002-10-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
-	Add test_templates_if regression test/
+	Add test_templates_if regression test.
 	(clean): Remove log files.
 
 	* test_templates_if.adb, test_templates_if.out, ftp.thtml:
