@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,7 +38,6 @@
 with AWS.Net.Stream_IO;
 
 with Table_Of_Strings_And_Static_Values_G;
-with Sockets;
 
 generic
 
@@ -88,12 +87,10 @@ package AWS.Server.Push is
    --  uniq ID. This ID is used for registration and for sending data to
    --  specific client.
 
-   subtype Socket_Type is Sockets.Socket_FD'Class;
-
    procedure Register
      (Server            : in out Object;
       Client_ID         : in     Client_Key;
-      Socket            : in     Socket_Type;
+      Socket            : in     Net.Socket_Type'Class;
       Environment       : in     Client_Environment;
       Init_Data         : in     Client_Output_Type;
       Init_Content_Type : in     String             := "";
@@ -109,7 +106,7 @@ package AWS.Server.Push is
    procedure Register
      (Server          : in out Object;
       Client_ID       : in     Client_Key;
-      Socket          : in     Socket_Type;
+      Socket          : in     Net.Socket_Type'Class;
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
       Close_Duplicate : in     Boolean            := False);
