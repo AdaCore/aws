@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             January 30th, 2004
+   Pascal Obry                                             March 11th, 2004
 
 
 
@@ -105,15 +105,21 @@ Here are the main changes since AWS 1.4 :
 
    - New template engine filters:
 
-       REPLACE       Pattern matching with replacement facility.
-       REPLACE_ALL   As above but replace all occurences not the first one.
-       FORMAT_DATE   To format a date using GNU/Date pattern format.
-       ADD_PARAM     Add a parameter to an URL.
-       DEL_PARAM     Delete a parameter from an URL.
+       REPLACE         Pattern matching with replacement facility.
+       REPLACE_ALL     As above but replace all occurences not the first one.
+       FORMAT_DATE     To format a date using GNU/Date pattern format.
+       ADD_PARAM       Add a parameter to an URL.
+       DEL_PARAM       Delete a parameter from an URL.
+       REPLACE_PARAM   Replace a parameter from an URL.
 
    - New template engine NOW variable tag.
 
    - Templates engine should be a bit faster as it uses less recursivity.
+
+   - Templates engine expression parser is now a standard LL(0) parser.
+     Patch contributed by Jean-Pierre Rosen.
+
+   - Fix templates engine cache implementation when reloading files.
 
    - On GNAT 3.15 the templates engine should be lot faster as it uses a cache
      buffer to work around the slow Unbounded_String implementation. It
@@ -287,7 +293,7 @@ Socket binding (Optional) :
 XMLada (optional):
 
    You need this library only if you want to use AWS SOAP feature. You need
-   at least XMLada 0.7.1.
+   at least XMLada 1.0.
 
    http://libre.act-europe.fr/
 
