@@ -1,3 +1,11 @@
+2002-12-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Fix comment.
+	Remove use of Templates_Parser, use AWS.Templates.
+	Remove ??? comment about more efficient file upload implementation
+	 as now the socket are buffered.
+
 2002-12-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* ChangeLog, aws-containers-tables-set.ads, aws-containers-tables.adb,
