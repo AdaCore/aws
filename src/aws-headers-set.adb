@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
@@ -121,7 +122,9 @@ package body AWS.Headers.Set is
 
                   if Delimiter_Index = 0 then
                      --  No delimiter, this is not a valid Header Line
-                     raise Format_Error;
+
+                     Ada.Exceptions.Raise_Exception
+                       (Format_Error'Identity, Line);
                   end if;
 
                   Add (Headers,
