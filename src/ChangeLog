@@ -1,3 +1,11 @@
+2004-10-29  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-log.ads, aws-net-log.adb:
+	Initial revision.
+
+	* templates_parser.adb:
+	(Assoc) [Separator]: Properly set the separator to use if specified.
+
 2004-10-26  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
