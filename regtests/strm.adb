@@ -36,7 +36,7 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams;
 
-with AWS.Server;
+with AWS.Server.Log;
 with AWS.Client;
 with AWS.Status;
 with AWS.MIME;
@@ -115,7 +115,7 @@ procedure Strm is
         (HTTP, "Testing user defined stream.",
          CB'Unrestricted_Access, Port => 1238, Max_Connection => 3);
 
-      AWS.Server.Start_Log (HTTP);
+      AWS.Server.Log.Start (HTTP);
 
       accept Wait_Start;
       accept Stop;

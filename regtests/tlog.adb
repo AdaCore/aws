@@ -49,7 +49,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
 with AWS.Status;
-with AWS.Server;
+with AWS.Server.Log;
 with AWS.Translator;
 
 procedure Tlog is
@@ -237,8 +237,8 @@ begin
    Server.Start
      (WS, "tlog", CB'Unrestricted_Access, Port => 1251, Max_Connection => 2);
 
-   Server.Start_Log (WS);
-   Server.Start_Error_Log (WS);
+   Server.Log.Start (WS);
+   Server.Log.Start_Error (WS);
 
    Ada.Text_IO.Put_Line ("started");
 
