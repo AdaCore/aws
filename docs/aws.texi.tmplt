@@ -42,7 +42,7 @@
 * Building AWS::
 * Using AWS::
 * High level services::
-* SOAP::
+* Using SOAP::
 * Sending e-mail::
 * Resources::
 * Status page::
@@ -774,7 +774,7 @@ that will answer ``Hello World'' if we ask for the internal resource
 
 @b{procedure} Hello_World @b{is}
 
-   WS  : AWS.Server.HTTP;
+   WS : AWS.Server.HTTP;
 
    @b{function} HW_CB (Request : @b{in} AWS.Status.Data)
      @b{return} AWS.Response.Data 
@@ -1141,7 +1141,7 @@ For example to build a server where the @i{port} and the maximum number of
 @group
 WS   : AWS.Server.HTTP;
 
-Conf : AWS.Config.Object := AWS.Config.Get_Current;
+Conf : @b{constant} AWS.Config.Object := AWS.Config.Get_Current;
 
 Server.Start (WS,
               Callback => Service'Access,
@@ -1169,7 +1169,7 @@ are key/value pair each of them being strings. How to deal with that ?
 @smallexample
 @cartouche
 @group
-WS  : AWS.Server.HTTP;
+WS : AWS.Server.HTTP;
 
 Server.Start (WS,
               Port     => 1234,
@@ -1883,8 +1883,8 @@ total page size is bigger than 512 bytes or it includes at least one image.}
 
 @c ----------------------------------------------------------------------
 
-@node SOAP
-@chapter SOAP
+@node Using SOAP
+@chapter Using SOAP
 @cindex SOAP
 @cindex Simple Object Access Protocol
 
@@ -2256,6 +2256,7 @@ Web Server must serve to clients.
 @menu
 * Building resources::
 * Using resources::
+* Stream resources::
 * awsres tool::
 @end menu
 
@@ -2306,6 +2307,22 @@ Note that @code{AWS} supports only a single resource tree. If more
 than one resource tree is included into a program only one will be
 seen.
 
+@node Stream resources
+@section Stream resources
+@cindex Stream resources
+
+@noindent
+Users can build a response directly from a stream. In this case the
+callback answer is built using @code{AWS.Response.Stream}. It creates a
+resource object whose operations have been inherited from
+@code{AWS.Resource.Stream.Stream_Type} and redefined by the user. So
+the @code{Read} operation can dynamically create the result stream
+data, the @code{End_Of_File} operation must returns @code{True} when the
+stream data is out and so on. This feature is useful to let users completely
+create and control dynamically @code{AWS}'s response content.
+
+@pxref{AWS.Resources.Streams}.
+
 @node awsres tool
 @section awsres tool
 @cindex awsres
@@ -2347,7 +2364,8 @@ To display the information @code{AWS} use a template file. The
 template file (default is @file{@_STATUS_PAGE_@}) is an HTML file with
 some specific file recognized by the parser. For more information
 about how does the template parser works, please look for the template
-parser distribution at @url{http://perso.wanadoo.fr/} in the Ada section.
+parser documentation distributed with @code{AWS} or on the Web at
+@url{http://perso.wanadoo.fr/} in the Ada section.
 
 @noindent
 Here are the tag variables recognized by @code{AWS} status page:
@@ -2503,8 +2521,9 @@ tag. This is to be able to display the key/value in column.
 @end table
 
 @noindent
-There is also all Templates_Parser specific tags. This is not listed
-here please have a look at the documentation.
+There is also all @code{Templates_Parser} specific tags. This is not listed
+here please have a look at the @code{Templates_Parser} documentation
+distributed with @code{AWS}.
 
 @c ----------------------------------------------------------------------
 
@@ -2538,7 +2557,10 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 @node AWS API Reference
 @chapter AWS API Reference
 
+AWS User's API:
+
 @menu
+* AWS::
 * AWS.Client::
 * AWS.Communication::
 * AWS.Communication.Client::
@@ -2552,6 +2574,8 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 * AWS.Log::
 * AWS.MIME::
 * AWS.Parameters::
+* AWS.Resources::
+* AWS.Resources.Streams::
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Hotplug::
@@ -2570,13 +2594,22 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 * AWS.URL::
 @end menu
 
+SOAP User's API:
+
 @menu
+* SOAP::
 * SOAP.Client::
 * SOAP.Message::
 * SOAP.Message.XML::
 * SOAP.Parameters::
 * SOAP.Types::
 @end menu
+
+@node AWS
+@section AWS
+@cindex AWS
+
+@include ../src/aws.ads.texi
 
 @node AWS.Client
 @section AWS.Client
@@ -2656,6 +2689,18 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 @cindex AWS.Parameters
 
 @include ../src/aws-parameters.ads.texi
+
+@node AWS.Resources
+@section AWS.Resources
+@cindex AWS.Resources
+
+@include ../src/aws-resources.ads.texi
+
+@node AWS.Resources.Streams
+@section AWS.Resources.Streams
+@cindex AWS.Resources.Streams
+
+@include ../src/aws-resources-streams.ads.texi
 
 @node AWS.Response
 @section AWS.Response
@@ -2752,6 +2797,12 @@ Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 @cindex AWS.URL
 
 @include ../src/aws-url.ads.texi
+
+@node SOAP
+@section SOAP
+@cindex SOAP (API)
+
+@include ../soap/soap.ads.texi
 
 @node SOAP.Client
 @section SOAP.Client
