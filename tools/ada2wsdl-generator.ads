@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,12 +40,12 @@ package Ada2WSDL.Generator is
    --  Must be called when a new routine named Name has been parsed in the
    --  Ada spec file. Comment is displayed before the procedure name.
 
-   procedure New_Formal (Var_Name, Var_Type : in String);
+   procedure New_Formal (NS, Var_Name, Var_Type : in String);
    --  Must be called for each formal parameter parsed. This new formal
    --  parameter will be added into the current routine definition created by
    --  Start_Routine.
 
-   procedure Return_Type (Name : in String);
+   procedure Return_Type (NS, Name : in String);
    --  Must be called when a returned type (for a function) has been
    --  parsed. It is fine to not call this routine, for example if current
    --  routine is a procedure there is no need to call it.
@@ -54,10 +54,10 @@ package Ada2WSDL.Generator is
    -- Record --
    ------------
 
-   procedure Start_Record (Name : in String);
+   procedure Start_Record (NS, Name : in String);
    --  Must be called when a new record named Name as been parsed
 
-   procedure New_Component (Comp_Name, Comp_Type : in String);
+   procedure New_Component (NS, Comp_Name, Comp_Type : in String);
    --  Must be called when a new component has been parsed. This component
    --  will be added into the current record definition created by
    --  Start_Record.
@@ -67,15 +67,15 @@ package Ada2WSDL.Generator is
    -----------
 
    procedure Start_Array
-     (Name, Component_Type : in String;
-      Length               : in Natural := 0);
+     (NS, Name, Component_Type : in String;
+      Length                   : in Natural := 0);
    --  Must be called when an array definition has been parsed
 
    -----------------
    -- Enumeration --
    -----------------
 
-   procedure Start_Enumeration (Name : in String);
+   procedure Start_Enumeration (NS, Name : in String);
    --  Must be called when a new enumeration type named Name as been parsed
 
    procedure New_Literal (Name : in String);
@@ -85,7 +85,7 @@ package Ada2WSDL.Generator is
    -- Types --
    -----------
 
-   procedure Register_Derived (Name, Parent_Name : in String);
+   procedure Register_Derived (NS, Name, Parent_Name : in String);
    --  Register a derived type
 
    function Type_Exists (Name : in String) return Boolean;

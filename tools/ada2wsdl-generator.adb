@@ -35,8 +35,11 @@ with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with AWS.Utils;
+with SOAP.Name_Space;
 with SOAP.Types;
 with SOAP.WSDL;
+
+with Strings_Maps;
 
 with Ada2WSDL.Options;
 
@@ -63,6 +66,7 @@ package body Ada2WSDL.Generator is
 
    type Definition (Def_Mode : Mode := Routine) is record
       Name        : Unbounded_String;
+      NS          : Unbounded_String;
       Parameters  : Parameter_Access;
       Last        : Parameter_Access;
 
@@ -94,13 +98,25 @@ package body Ada2WSDL.Generator is
    Character_Schema : Boolean := False;
    --  Set to Trus if a WSDL Character schema must be generated
 
+   package NS_Maps is new Strings_Maps (Positive);
+   use NS_Maps;
+
+   Name_Spaces : NS_Maps.Map;
+   NS_Num      : Natural := 0;
+
+   procedure Insert_NS (Value : in String);
+   --  Insert a new namespace value into Name_Spaces table
+
+   function NS_Prefix (Value : in String) return String;
+   --  Returns the name space prefix for the given name space value
+
    function "+" (S : in String) return Unbounded_String
       renames To_Unbounded_String;
 
    function "-" (S : in Unbounded_String) return String
       renames To_String;
 
-   function To_XSD (Ada_Type : in String) return String;
+   function To_XSD (NS, Ada_Type : in String) return String;
 
    procedure Check_Routine (Name : in String);
    --  Checks the routine name, no overloading is allowed, raises
@@ -124,11 +140,25 @@ package body Ada2WSDL.Generator is
       end loop;
    end Check_Routine;
 
+   ---------------
+   -- Insert_NS --
+   ---------------
+
+   procedure Insert_NS (Value : in String) is
+      P       : Cursor;
+      Success : Boolean;
+   begin
+      if not Containers.Is_In (Value, Name_Spaces) then
+         NS_Num := NS_Num + 1;
+         Containers.Insert (Name_Spaces, Value, NS_Num, P, Success);
+      end if;
+   end Insert_NS;
+
    -------------------
    -- New_Component --
    -------------------
 
-   procedure New_Component (Comp_Name, Comp_Type : in String) is
+   procedure New_Component (NS, Comp_Name, Comp_Type : in String) is
 
       function Check_Safe_Pointer (Type_Name : in String) return String;
 
@@ -153,7 +183,7 @@ package body Ada2WSDL.Generator is
 
       New_P       : constant Parameter_Access
         := new Parameter'(+Comp_Name, +L_Comp_Type,
-                          +To_XSD (L_Comp_Type), null);
+                          +To_XSD (NS, L_Comp_Type), null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line
@@ -174,9 +204,10 @@ package body Ada2WSDL.Generator is
    -- New_Formal --
    ----------------
 
-   procedure New_Formal (Var_Name, Var_Type : in String) is
+   procedure New_Formal (NS, Var_Name, Var_Type : in String) is
       New_P : constant Parameter_Access
-        := new Parameter'(+Var_Name, +Var_Type, +To_XSD (Var_Type), null);
+        := new Parameter'
+                 (+Var_Name, +Var_Type, +To_XSD (NS, Var_Type), null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line
@@ -214,19 +245,35 @@ package body Ada2WSDL.Generator is
       API (Index).Last := New_P;
    end New_Literal;
 
+   ---------------
+   -- NS_Prefix --
+   ---------------
+
+   function NS_Prefix (Value : in String) return String is
+      use AWS;
+   begin
+      if Value = "" then
+         return "tns";
+      else
+         return 'n' & Utils.Image (Containers.Element (Name_Spaces, Value));
+      end if;
+   end NS_Prefix;
+
    ----------------------
    -- Register_Derived --
    ----------------------
 
-   procedure Register_Derived (Name, Parent_Name : in String) is
+   procedure Register_Derived (NS, Name, Parent_Name : in String) is
       New_P : constant Parameter_Access
-        := new Parameter'(+Name, +Parent_Name, +To_XSD (Parent_Name), null);
+        := new Parameter'
+          (+Name, +Parent_Name, +To_XSD (NS, Parent_Name), null);
 
       D : Definition (Derived);
    begin
       --  We need to write a schema for this derived type
       Schema_Needed := True;
 
+      D.NS         := +NS;
       D.Name       := +Name;
       D.Parameters := New_P;
 
@@ -234,8 +281,8 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put ("   - derived         " & Name
-                        & " is new " & Parent_Name);
+         Text_IO.Put
+           ("   - derived         " & Name & " is new " & Parent_Name);
 
          if Options.Verbose then
             Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
@@ -280,9 +327,9 @@ package body Ada2WSDL.Generator is
    -- Return_Type --
    -----------------
 
-   procedure Return_Type (Name : in String) is
+   procedure Return_Type (NS, Name : in String) is
       New_P : constant Parameter_Access
-        := new Parameter'(+"Result", +Name, +To_XSD (Name), null);
+        := new Parameter'(+"Result", +Name, +To_XSD (NS, Name), null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line
@@ -297,19 +344,21 @@ package body Ada2WSDL.Generator is
    -----------------
 
    procedure Start_Array
-     (Name, Component_Type : in String;
-      Length               : in Natural := 0)
+     (NS, Name, Component_Type : in String;
+      Length                   : in Natural := 0)
    is
       New_P : constant Parameter_Access
         := new Parameter'(+"item", +Component_Type,
-                          +To_XSD (Component_Type), null);
+                          +To_XSD (NS, Component_Type), null);
 
       D : Definition (Table);
    begin
       --  We need to write a schema for this record
       Schema_Needed := True;
 
+      D.NS         := +NS;
       D.Name       := +Name;
+      D.NS         := +NS;
       D.Parameters := New_P;
       D.Length     := Length;
 
@@ -340,12 +389,15 @@ package body Ada2WSDL.Generator is
    -- Start_Enumeration --
    -----------------------
 
-   procedure Start_Enumeration (Name : in String) is
+   procedure Start_Enumeration (NS, Name : in String) is
       D : Definition (Enumeration);
    begin
       --  We need to write a schema for this derived type
       Schema_Needed := True;
 
+      Insert_NS (NS);
+
+      D.NS         := +NS;
       D.Name       := +Name;
       D.Parameters := null;
 
@@ -361,12 +413,15 @@ package body Ada2WSDL.Generator is
    -- Start_Record --
    ------------------
 
-   procedure Start_Record (Name : in String) is
+   procedure Start_Record (NS, Name : in String) is
       D : Definition (Structure);
    begin
       --  We need to write a schema for this record
       Schema_Needed := True;
 
+      Insert_NS (NS);
+
+      D.NS   := +NS;
       D.Name := +Name;
 
       Index := Index + 1;
@@ -400,13 +455,16 @@ package body Ada2WSDL.Generator is
    -- To_XSD --
    ------------
 
-   function To_XSD (Ada_Type : in String) return String is
+   function To_XSD (NS, Ada_Type : in String) return String is
       P        : WSDL.Parameter_Type;
       Standard : Boolean;
    begin
+      Insert_NS (NS);
+
       if Ada_Type = "character" then
          Character_Schema := True;
-         return "tns:Character";
+         return NS_Prefix
+           (Name_Space.Value (Name_Space.AWS) & "Standard/") & ":Character";
 
       elsif Ada_Type = "SOAP_Base64" then
          return Types.XML_Base64_Binary;
@@ -420,7 +478,7 @@ package body Ada2WSDL.Generator is
       else
          --  We suppose here that this is a composite type (record/array)
          --  and that a corresponding entry will be found in the schema.
-         return "tns:" & Ada_Type;
+         return NS_Prefix (NS) & ':' & Ada_Type;
       end if;
    end To_XSD;
 
@@ -454,6 +512,9 @@ package body Ada2WSDL.Generator is
       use Ada.Text_IO;
 
       WS_Name : constant String := -Options.WS_Name;
+
+      NS      : constant String
+        := SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & WS_Name & "_def/";
 
       procedure Write_Header;
       --  Write WSDL header
@@ -501,8 +562,7 @@ package body Ada2WSDL.Generator is
                Put_Line ("            <soap:body");
                Put_Line ("               encodingStyle="""
                            & "http://schemas.xmlsoap.org/soap/encoding/""");
-               Put_Line ("               namespace=""urn:aws:"
-                           & WS_Name & '"');
+               Put_Line ("               namespace=""" & NS & '"');
                Put_Line ("               use=""encoded""/>");
             end Write_SOAP_Body;
 
@@ -555,17 +615,37 @@ package body Ada2WSDL.Generator is
       ------------------
 
       procedure Write_Header is
+         use AWS;
+         P : Cursor;
+         N : Positive;
       begin
          Put_Line ("<?xml version=""1.0"" encoding=""UTF-8""?>");
          Put_Line ("<definitions name=""" & WS_Name  & """");
-         Put_Line ("   targetNamespace=""http://soapaws/" & WS_Name & """");
-         Put_Line ("   xmlns:tns=""http://soapaws/" & WS_Name & """");
+         Put_Line ("   targetNamespace=""" & NS & '"');
+         Put_Line ("   xmlns:tns=""" & NS & '"');
          Put_Line ("   xmlns=""" & WSDL.NS_WSDL & '"');
          Put_Line ("   xmlns:soap=""" & WSDL.NS_SOAP & '"');
          Put_Line ("   xmlns:soapenc=""" & WSDL.NS_SOAPENC & '"');
          Put_Line ("   xmlns:wsdl=""" & WSDL.NS_WSDL & '"');
          Put_Line ("   xmlns:xsi=""" & WSDL.NS_XSI & '"');
-         Put_Line ("   xmlns:xsd=""" & WSDL.NS_XSD & """>");
+         Put ("   xmlns:xsd=""" & WSDL.NS_XSD & '"');
+
+         --  Write all name spaces
+
+         P := Containers.First (Name_Spaces);
+
+         while Has_Element (P) loop
+            N := Containers.Element (P);
+
+            New_Line;
+            Put ("   xmlns:n" & Utils.Image (N)
+                 & "=""" & Containers.Key (P) & '"');
+            P := Containers.Next (P);
+         end loop;
+
+         --  Close definition
+
+         Put_Line (">");
       end Write_Header;
 
       --------------------
@@ -592,8 +672,9 @@ package body Ada2WSDL.Generator is
                A : Parameter_Access := P;
             begin
                while A /= null loop
-                  Put_Line ("      <part name=""" & (-A.Name)
-                              & """ type=""" & (-A.XSD_Name) & """/>");
+                  Put_Line
+                    ("      <part name=""" & (-A.Name)
+                     & """ type=""" & (-A.XSD_Name) & """/>");
                   A := A.Next;
                end loop;
             end Write_Part;
@@ -722,7 +803,8 @@ package body Ada2WSDL.Generator is
 
          begin
             New_Line;
-            Put_Line ("         <complexType name=""" & (-E.Name) & """>");
+            Put_Line ("         <complexType name=""" & (-E.Name) & '"');
+            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
             Put_Line ("            <complexContent>");
             Put_Line ("               <restriction base=""soapenc:Array"">");
             Put_Line ("                  <attribute ref=""soapenc:arrayType"""
@@ -740,7 +822,10 @@ package body Ada2WSDL.Generator is
          procedure Write_Character is
          begin
             New_Line;
-            Put_Line ("         <simpleType name=""Character"">");
+            Put_Line ("         <simpleType name=""Character""");
+            Put_Line ("                 targetNamespace="""
+                      & Name_Space.Value (Name_Space.AWS)
+                      & "Standard/" & """>");
             Put_Line ("            <restriction base=""xsd:string"">");
             Put_Line ("               <length value=""1""/>");
             Put_Line ("            </restriction>");
@@ -790,7 +875,8 @@ package body Ada2WSDL.Generator is
             P : Parameter_Access := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <complexType name=""" & (-E.Name) & """>");
+            Put_Line ("         <complexType name=""" & (-E.Name) & '"');
+            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
             Put_Line ("            <all>");
 
             while P /= null loop
