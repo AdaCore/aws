@@ -42,7 +42,8 @@ Here are the main changes:
    - Add support for embedded resources. An AWS server can now be easily
      built as a stand-alone executable. All resources (images, templates,
      HTML pages...) can be embedded into the executable. See AWS.Resources
-     tree and the AWSRes tools to help building the embedded resources.
+     tree and the AWSRes tools to help building the embedded resources. There
+     is also a support for user defined stream.
 
    - Add support for client upload (see AWS.Client.Upload).
 
@@ -75,6 +76,8 @@ Here are the main changes:
      AWS.Translator if the compiler/target support it.
 
    - Support HTTP header lines in multiple line as it should be.
+
+   - Option added to AWS.Client.Get to automatically follow redirection.
 
    - Plus many small fixes, enhancements and documentation work.
 
