@@ -1,3 +1,37 @@
+2001-06-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-*:
+	Transfert the Copyright to ACTE.
+
+	* aws-session.adb:
+	(Session_Check_Interval): initialize using 
+	 Config.Session_Cleanup_Interval.
+	(Session_Lifetime): initialize using Config.Session_Lifetime.
+
+	* aws-session.ads:
+	(Default_Session_Lifetime): removed.
+
+	* aws-server-get_status.adb:
+	(Session_Table): add SESSIONS_TERMINATE_V.
+	(Translations): add SESSION_CLEANUP_INTERVAL_V.
+
+	* aws-config.adb: 
+	(Session_Cleanup_Interval_Token): new constant.
+	(Session_Lifetime_Token): idem.
+	(Session_Cleanup_Interval_Value): new variable.
+	(Session_Lifetime_Value): idem.
+	(Session_Cleanup_Interval): new function.
+	(Session_Lifetime): new function.
+	(Parameters): add session lifetime and session cleanup interval.
+
+	* aws-config.ads:
+	(Five_Minutes): new constant.
+	(Ten_Minutes): new constant.
+	(Default_Session_Cleanup_Interval): new constant.
+	(Default_Session_Lifetime): new constant.
+	(Session_Cleanup_Interval): new function.
+	(Session_Lifetime): new function.
+
 2001-06-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.ads, aws-utils.adb:
