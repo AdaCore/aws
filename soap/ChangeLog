@@ -1,5 +1,8 @@
 2003-06-21  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-wsdl-parser.adb:
+	(Parse_Record): Fix assertion.
+
 	* makefile:
 	(SOURCES): Add soap-dispatchers.adb soap-dispatchers-callback.adb
 
