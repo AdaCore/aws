@@ -204,12 +204,28 @@ package body AWS.Messages is
 
    function To_HTTP_Date (Time : in Calendar.Time) return String is
 
+      function Truncation (S : in Calendar.Day_Duration) return Natural;
+      --  returns the integral value of S.
+
       function Image (V : in Natural) return String;
       --  returns V image without the leading space and with leading zero if
       --  only one digit
 
       function Weekday (Date : Calendar.Time) return String;
       --  returns the weekday as a 3 letters string for the Date.
+
+      ----------------
+      -- Truncation --
+      ----------------
+
+      function Truncation (S : in Calendar.Day_Duration) return Natural is
+      begin
+         if S = 0.0 then
+            return 0;
+         else
+            return Natural (S - 0.5);
+         end if;
+      end Truncation;
 
       -----------
       -- Image --
@@ -262,7 +278,7 @@ package body AWS.Messages is
       Mon  : constant String  := Month_Name (Calendar.Month (Time));
       Year : constant String  := Image (Calendar.Year (Time));
 
-      Secs : constant Natural := Natural (Calendar.Seconds (Time) - 0.5);
+      Secs : constant Natural := Truncation (Calendar.Seconds (Time));
 
       Tmp  : constant Natural := Secs mod 3600;
 
