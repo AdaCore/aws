@@ -90,8 +90,13 @@ package AWS.Containers.Tables is
       return Element;
    --  Return N'th name/value pair.
 
-   function Get_Names (Table : in Table_Type) return VString_Array;
-   --  Returns array of unique key names.
+   function Get_Names
+     (Table : in Table_Type;
+      Sort  : Boolean := False)
+      return VString_Array;
+   --  Returns array of unique key names. If Sort is True, the returned names
+   --  array is sorted in alphabetical order. This is of course slightly
+   --  slower than returning unsorted results.
 
    function Get_Values
      (Table : in Table_Type;

@@ -155,7 +155,11 @@ package body AWS.Containers.Tables is
    -- Get_Names --
    ---------------
 
-   function Get_Names (Table : in Table_Type) return VString_Array is
+   function Get_Names
+     (Table : in Table_Type;
+      Sort  : Boolean := False)
+      return VString_Array
+   is
 
       procedure Process
         (Key      : in     String;
@@ -181,16 +185,27 @@ package body AWS.Containers.Tables is
          Result (Order) := To_Unbounded_String (Key);
       end Process;
 
-      --------------------
-      -- Each_Key_Value --
-      --------------------
+      -----------------------
+      -- Disorder_Traverse --
+      -----------------------
 
-      procedure Each_Key_Value is
+      procedure Disorder_Traverse is
          new Index_Table.Disorder_Traverse_G (Process);
+
+      ------------------
+      -- Traverse_Asc --
+      ------------------
+
+      procedure Traverse_Asc is
+         new Index_Table.Traverse_Asc_G (Process);
 
    begin
       if Table.Index /= null then
-         Each_Key_Value (Index_Table.Table_Type (Table.Index.all));
+         if Sort then
+            Traverse_Asc (Index_Table.Table_Type (Table.Index.all));
+         else
+            Disorder_Traverse (Index_Table.Table_Type (Table.Index.all));
+         end if;
       end if;
 
       return Result;
