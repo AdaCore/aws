@@ -32,12 +32,16 @@
 --  This is the implementation to be used with AWS, it is using AWS.Resources
 --  to support embedded resources.
 
+with Ada.Exceptions;
 with Ada.IO_Exceptions;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Resources;
 
 package body Templates_Parser.Input is
+
+   use Ada;
+   use Ada.Exceptions;
 
    type File_Record is new AWS.Resources.File_Type;
 
@@ -118,9 +122,11 @@ package body Templates_Parser.Input is
       File := new File_Record;
       Open (File.all, Name, Form);
    exception
-      when Ada.IO_Exceptions.Name_Error =>
+      when IO_Exceptions.Name_Error =>
          Free (File);
-         raise;
+         Raise_Exception
+           (IO_Exceptions.Name_Error'Identity,
+            "File '" & Name & "' not found.");
    end Open;
 
 end Templates_Parser.Input;
