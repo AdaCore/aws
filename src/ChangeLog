@@ -1,3 +1,11 @@
+2000-02-04    Pascal Obry <p.obry@wanadoo.fr>
+
+	* aws-clients.adb
+	(Get_Host_Name): new function use to get the host name to send to
+	the server.
+
+	* aws-messages.adb
+	(Weekday): fix minor bug (use local var for time)
 
 2000-01-24    Pascal Obry <p.obry@wanadoo.fr>
 
