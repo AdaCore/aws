@@ -31,17 +31,12 @@
 --  $RCSfile$
 --  $Revision$ $Date$ $Author$
 
-with Ada.Unchecked_Deallocation;
+--  with Ada.Unchecked_Deallocation;
 
 package body AWS.Containers.Tables.Set is
 
    procedure Reset (Table : in out Index_Table_Type);
    --  Free all elements and destroy his entries
-
-   procedure Free is new Ada.Unchecked_Deallocation (Element, Element_Access);
-
-   procedure Free_Elements (Data : in out Data_Table.Vector);
-   --  Free all dynamically allocated strings in the data table
 
    ---------
    -- Add --
@@ -60,7 +55,7 @@ package body AWS.Containers.Tables.Set is
 
       Data_Table.Append
         (Table.Data,
-         new Element'
+         Element'
            (Name_Length  => Name'Length,
             Value_Length => Value'Length,
             Name         => Name,
@@ -111,24 +106,8 @@ package body AWS.Containers.Tables.Set is
    procedure Free (Table : in out Table_Type) is
    begin
       Reset (Table.Index);
-      Free_Elements (Table.Data);
       Data_Table.Clear (Table.Data);
    end Free;
-
-   -------------------
-   -- Free_Elements --
-   -------------------
-
-   procedure Free_Elements (Data : in out Data_Table.Vector) is
-   begin
-      for K in 1 .. Natural (Data_Table.Length (Data)) loop
-         declare
-            Item : Element_Access := Data_Table.Element (Data, K);
-         begin
-            Free (Item);
-         end;
-      end loop;
-   end Free_Elements;
 
    -----------
    -- Reset --
@@ -154,7 +133,6 @@ package body AWS.Containers.Tables.Set is
    procedure Reset (Table : in out Table_Type) is
    begin
       Reset (Table.Index);
-      Free_Elements (Table.Data);
       Data_Table.Clear (Table.Data);
    end Reset;
 
@@ -186,7 +164,7 @@ package body AWS.Containers.Tables.Set is
          begin
             Data_Table.Append
               (Table.Data,
-               new Element'
+               Element'
                  (Name_Length  => Name'Length,
                   Value_Length => Value'Length,
                   Name         => Name,
@@ -208,14 +186,11 @@ package body AWS.Containers.Tables.Set is
                declare
                   Index : constant Positive
                     := Positive (Name_Indexes.Element (Item, N));
-                  Item  : Element_Access
-                    := Data_Table.Element (Table.Data, Index);
                begin
-                  Free (Item);
                   Data_Table.Replace_Element
                     (Table.Data,
                      Index,
-                     new Element'
+                     Element'
                        (Name_Length  => Name'Length,
                         Value_Length => Value'Length,
                         Name         => Name,
@@ -226,7 +201,7 @@ package body AWS.Containers.Tables.Set is
                --  Add item at then end of the table
                Data_Table.Append
                  (Table.Data,
-                  new Element'
+                  Element'
                     (Name_Length  => Name'Length,
                      Value_Length => Value'Length,
                      Name         => Name,
