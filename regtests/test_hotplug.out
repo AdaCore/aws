@@ -1,0 +1,12 @@
+Starting main server...
+Response: Main module: /MkHuoi
+Response: Main module: /toto
+Response: Main module: /Hotplug
+Register OK
+Response: Main module: /MkHuoi
+Response: Main module: /toto
+Response: Hotplug module: /Hotplug
+Stop hotplug server
+Register OK
+Shutdown hotplug server support
+Shutdown main server
