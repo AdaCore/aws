@@ -83,6 +83,8 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
         (N          : in     Positive;
          Key, Value : in     String;
          Quit       : in out Boolean) is
+         pragma Warnings (Off, N);
+         pragma Warnings (Off, Quit);
       begin
          Keys   := Keys & Key;
          Values := Values & Value;
@@ -105,6 +107,8 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Time_Stamp : in     Calendar.Time;
          Quit       : in out Boolean)
       is
+         pragma Warnings (Off, N);
+         pragma Warnings (Off, Quit);
          use type Calendar.Time;
       begin
          Sessions    := Sessions & Session.Image (SID);

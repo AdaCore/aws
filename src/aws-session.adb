@@ -298,6 +298,7 @@ package body AWS.Session is
             Order    : in     Positive;
             Continue : in out Boolean)
          is
+            pragma Warnings (Off, Order);
             use type Calendar.Time;
          begin
             if Session.Time_Stamp + Session_Lifetime < Now then
@@ -393,6 +394,7 @@ package body AWS.Session is
          procedure Modify
            (SID  : in     ID;
             Node : in out Session_Node) is
+            pragma Warnings (Off, SID);
          begin
             Node.Time_Stamp := Calendar.Clock;
             Key_Value.Get_Value (Node.Root, Key, Value);
@@ -431,6 +433,7 @@ package body AWS.Session is
          procedure Modify
            (SID  : in     ID;
             Node : in out Session_Node) is
+            pragma Warnings (Off, SID);
          begin
             Node.Time_Stamp := Calendar.Clock;
             Result := Key_Value.Is_Present (Node.Root, Key);
@@ -493,6 +496,7 @@ package body AWS.Session is
            (SID  : in     ID;
             Node : in out Session_Node)
          is
+            pragma Warnings (Off, SID);
             Was_Present : Boolean;
          begin
             Node.Time_Stamp := Calendar.Clock;
@@ -535,6 +539,7 @@ package body AWS.Session is
            (SID  : in     ID;
             Node : in out Session_Node)
          is
+            pragma Warnings (Off, SID);
             V : constant Unbounded_String := To_Unbounded_String (Value);
          begin
             Node.Time_Stamp := Calendar.Clock;
@@ -563,6 +568,7 @@ package body AWS.Session is
          procedure Modify
            (Key  : in     ID;
             Node : in out Session_Node) is
+            pragma Warnings (Off, Key);
          begin
             Node.Time_Stamp := Calendar.Clock;
          end Modify;
@@ -729,6 +735,7 @@ package body AWS.Session is
       procedure Start
         (SID  : in     ID;
          Node : in out Session_Node) is
+         pragma Warnings (Off, SID);
       begin
          In_Order (Key_Value.Table.Table_Type (Node.Root));
       end Start;
@@ -908,6 +915,8 @@ package body AWS.Session is
          Order    : in     Positive;
          Continue : in out Boolean)
       is
+         pragma Warnings (Off, Order);
+         pragma Warnings (Off, Continue);
 
          procedure Process
            (Key      : in     String;
@@ -925,6 +934,8 @@ package body AWS.Session is
             Value    : in     Unbounded_String;
             Order    : in     Positive;
             Continue : in out Boolean) is
+            pragma Warnings (Off, Order);
+            pragma Warnings (Off, Continue);
          begin
             String'Output (Stream_Ptr, Key);
             String'Output (Stream_Ptr, To_String (Value));

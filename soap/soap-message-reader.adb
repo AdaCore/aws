@@ -64,6 +64,9 @@ package body SOAP.Message.Reader is
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";
       Qname         : in     Unicode.CES.Byte_Sequence := "") is
+      pragma Warnings (Off, Namespace_URI);
+      pragma Warnings (Off, Local_Name);
+      pragma Warnings (Off, Qname);
    begin
       Handler.Current_Node := Parent_Node (Handler.Current_Node);
    end End_Element;
@@ -118,6 +121,7 @@ package body SOAP.Message.Reader is
       Local_Name    : in     Unicode.CES.Byte_Sequence       := "";
       Qname         : in     Unicode.CES.Byte_Sequence       := "";
       Atts          : in     Sax.Attributes.Attributes'Class) is
+      pragma Warnings (Off, Local_Name);
    begin
       Handler.Current_Node := Append_Child
         (Handler.Current_Node,
