@@ -1,3 +1,10 @@
+2004-11-04  Pascal Obry  <pascal@obry.org>
+
+	* wsdl2aws.adb:
+	Add support for new option "-spec", used if the SOAP procedure
+	 specs are not in the same packages as the type definitions.
+	
+
 2004-11-03  Pascal Obry  <pascal@obry.org>
 
 	* ada2wsdl-parser.adb:

@@ -1,3 +1,24 @@
+2004-11-04  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator-cb.adb:
+	(New_Procedure): Use Procs_Spec routine to generate the callbacks
+	 instantiation.
+	(Start_Service): Generate with clause for Procs_Spec if needed.
+
+	* soap-generator.adb:
+	(Procs_Spec): New function.
+	(Types_Spec): New function.
+	(Specs_From): New routine.
+	(Start_Service): Generate with clause for Procs_Spec if needed.
+	Use Types_Spec routine everywhere instead of directly reading the
+	 object field.
+	
+	* soap-generator.ads:
+	(Procs_Spec): New function.
+	(Types_Spec): New function.
+	(Specs_From): New routine.
+	(Object): Add field spec.
+
 2004-10-31  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator-cb.adb:
