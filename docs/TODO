@@ -86,3 +86,5 @@ implemented:
   server. The value will be automatically retrieved at initialization time and
   stored back into the AWSFS at finalization. These steps should be completely
   transparent to users.
+
+- Should we be able to associate a new Dispatcher object to the server ?
