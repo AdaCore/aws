@@ -304,6 +304,9 @@ procedure Interoplab_Main is
       Struct : constant SOAPStruct_Type
         := (6, 6.6, +"666");
 
+      pragma Warnings (Off);
+      --  Suppress a wrong warnings issued by GNAT, this is fixed in
+      --  GNAT 3.17
       Res : constant echoStruct_Result
         := interopLab.Client.echoStruct (Struct);
    begin
