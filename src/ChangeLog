@@ -1,5 +1,10 @@
 2003-02-28  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-ldap-client.ads:
+	(Search): Fix comment.
+
+2003-02-28  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-ldap-client.adb:
 	(Get_Error): New function.
 	(Search): Raise an exception if the LDAP call fails. Free memory
