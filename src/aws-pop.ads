@@ -142,6 +142,7 @@ package AWS.POP is
    generic
       with procedure Action
         (Attachment : in     POP.Attachment;
+         Index      : in     Positive;
          Quit       : in out Boolean);
    procedure For_Every_Attachment (Message : in POP.Message);
    --  Calls action for every Attachment in Message. Stop iterator if Quit is
