@@ -28,15 +28,15 @@
 
 --  $Id$
 
-with GNAT.OS_Lib;
+with AWS.OS_Lib;
 
 with AWS.Messages;
 with AWS.MIME;
+with AWS.Services.Directory;
 
 package body WS_CB is
 
    use AWS;
-   use GNAT;
 
    ---------
    -- Get --
@@ -54,6 +54,13 @@ package body WS_CB is
          return AWS.Response.File
            (Content_Type => AWS.MIME.Content_Type (Filename),
             Filename     => Filename);
+
+      elsif OS_Lib.Is_Directory ("./" & Filename) then
+         return AWS.Response.Build
+           (Content_Type => "text/html",
+            Message_Body =>
+              AWS.Services.Directory.Browse
+              ("./" & Filename, "dir.tmplt", Request));
       else
 
          return AWS.Response.Acknowledge
