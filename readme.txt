@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             October 10th, 2003
+   Pascal Obry                                             October 14th, 2003
 
 
 
@@ -226,7 +226,7 @@ AWS Home Page (sources and documentation):
 
 Templates_Parser sources: 
    Templates_Parser module (sources and documentation) is provided with AWS
-   distribution. Version 6.0 is distributed with AWS 1.4.
+   distribution. Version 6.2 is distributed with AWS 1.4.
 
    Latest version of this module and the documentation can be found at:
 
@@ -248,7 +248,7 @@ GNU/Ada - GNAT
 
    You need at least version 3.15 to build and use AWS 1.4.
 
-   ftp://cs.nyu.edu/pub/gnat/
+   http://libre.act-europe.fr/GNAT/
 
 Socket binding (Optional) :
 
@@ -329,6 +329,7 @@ AWS users is to register to the AWS dedicated mailing list. See:
 
    http://lists.act-europe.fr/mailman/listinfo/aws
 
+
 Contributors:
 -------------
 
@@ -338,6 +339,7 @@ about AWS. In the early stage of the project this is very valuable.
 So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
 Thierry Lelegard, Nicolas Lesbats, Jean-François Rameau, Maxim Reznik,
 Jean-Pierre Rosen, Jerôme Roussel, Ariane Sinibardy.
+
 
 AWS uses:
 ---------
