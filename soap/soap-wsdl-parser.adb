@@ -1292,8 +1292,11 @@ package body SOAP.WSDL.Parser is
       is
          pragma Unreferenced (Base);
 
+         use type Parameters.E_Node_Access;
+
          P : Parameters.Parameter (Parameters.K_Enumeration);
          N : DOM.Core.Node := E;
+         D : Parameters.E_Node_Access;
       begin
          P.Name   := O.Current_Name;
          P.E_Name := +Name;
@@ -1304,18 +1307,20 @@ package body SOAP.WSDL.Parser is
             declare
                Value : constant String
                  := XML.Get_Attr_Value (N, "value", False);
+               New_Node : Parameters.E_Node_Access
+                 := new Parameters.E_Node'(To_Unbounded_String (Value), null);
             begin
-               if P.E_Def = Null_Unbounded_String then
-                  P.E_Def := +("(" & Value);
+               if D = null then
+                  P.E_Def := New_Node;
                else
-                  Append (P.E_Def, +(" ," & Value));
+                  D.Next := New_Node;
                end if;
+
+               D := New_Node;
             end;
 
             N := Next_Sibling (N);
          end loop;
-
-         Append (P.E_Def, ")");
 
          return P;
       end Build_Enumeration;
