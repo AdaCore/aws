@@ -1,5 +1,14 @@
 2002-03-13  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-dispatchers.adb:
+	Remove trailing spaces.
+
+	* aws-server.adb:
+	(Initialize): Add pragma Warnings off.
+
+	* aws-services-dispatchers-uri.adb:
+	Add missing with clause from previous check-in.
+
 	* aws-services-dispatchers-uri.ads:
 	(Dispatch): Add documentation (204 message).
 
