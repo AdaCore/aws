@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
 <definitions name="StockQuote"
 
-targetNamespace=" http://example.com/stockquote.wsdl"
-          xmlns:tns=" http://example.com/stockquote.wsdl"
-          xmlns:xsd=" http://www.w3.org/2000/10/XMLSchema"
-          xmlns:xsd1=" http://example.com/stockquote/schema"
-          xmlns:soap=" http://schemas.xmlsoap.org/wsdl/soap/"
-          xmlns:soapenc=" http://schemas.xmlsoap.org/soap/encoding/"
-          xmlns=" http://schemas.xmlsoap.org/wsdl/">
+targetNamespace="http://example.com/stockquote.wsdl"
+          xmlns:tns="http://example.com/stockquote.wsdl"
+          xmlns:xsd="http://www.w3.org/2000/10/XMLSchema"
+          xmlns:xsd1="http://example.com/stockquote/schema"
+          xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+          xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+	  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+          xmlns="http://schemas.xmlsoap.org/wsdl/">
 
     <types>
-       <schema targetNamespace=" http://example.com/stockquote/schema"
-              xmlns=" http://www.w3.org/2000/10/XMLSchema">
+       <schema targetNamespace="http://example.com/stockquote/schema"
+              xmlns="http://www.w3.org/2000/10/XMLSchema">
            <complexType name="TimePeriod">
               <all>
                   <element name="startTime" type="xsd:timeInstant"/>
@@ -46,16 +47,16 @@ targetNamespace=" http://example.com/stockquote.wsdl"
     </portType>
 
     <binding name="StockQuoteSoapBinding" type="tns:StockQuotePortType">
-        <soap:binding style="document" transport=" http://schemas.xmlsoap.org/soap/http"/>
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
         <operation name="GetLastTradePrice">
-           <soap:operation soapAction=" http://localhost/GetTradePrices"/>
+           <soap:operation soapAction="http://localhost/GetTradePrices"/>
            <input>
-               <soap:body use="encoded" namespace=" http://example.com/stockquote"
-                          encodingStyle=" http://schemas.xmlsoap.org/soap/encoding/"/>
+               <soap:body use="encoded" namespace="http://example.com/stockquote"
+                          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
            </input>
            <output>
-               <soap:body use="encoded" namespace=" http://example.com/stockquote"
-                          encodingStyle=" http://schemas.xmlsoap.org/soap/encoding/"/>
+               <soap:body use="encoded" namespace="http://example.com/stockquote"
+                          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
            </output>
         </operation>>
     </binding>
@@ -63,7 +64,7 @@ targetNamespace=" http://example.com/stockquote.wsdl"
     <service name="StockQuoteService">
         <documentation>My first service</documentation>
         <port name="StockQuotePort" binding="tns:StockQuoteSoapBinding">
-           <soap:address location=" http://localhost:9122/stockquote"/>
+           <soap:address location="http://localhost:9122/stockquote"/>
         </port>
     </service>
 </definitions>
