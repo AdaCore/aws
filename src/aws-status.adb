@@ -104,8 +104,9 @@ package body AWS.Status is
    -----------------
 
    function Has_Session (D : in Data) return Boolean is
+      use type AWS.Session.ID;
    begin
-      return D.Session_ID /= Null_Unbounded_String;
+      return D.Session_ID /= AWS.Session.No_Session; -- Null_Unbounded_String;
    end Has_Session;
 
    ----------
@@ -202,14 +203,9 @@ package body AWS.Status is
    -- Session --
    -------------
 
-   function Session (D : in Data) return String is
-   begin
-      return To_String (D.Session_ID);
-   end Session;
-
    function Session (D : in Data) return AWS.Session.ID is
    begin
-      return AWS.Session.Value (Session (D));
+      return D.Session_ID;
    end Session;
 
    ----------------
