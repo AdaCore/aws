@@ -74,4 +74,7 @@ begin
    Test ("http://www.myserver.com:12/request?p1=9");
    Test ("http://sinetics.der.edf.fr/./afficher_liste.php");
    Test ("");
+   Test ("http://www.myserver.com:89/app/request?p1=9&p2=toto");
+   Test ("http://www.myserver.com:89/app/request/?p1=9&p2=toto");
+   Test ("http://www.myserver.com:89/app/request/?p1=9&url=http://titi");
 end Turl;
