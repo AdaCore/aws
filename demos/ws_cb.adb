@@ -29,7 +29,7 @@
 --  $Id$
 
 with AWS.OS_Lib;
-
+with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Services.Directory;
@@ -38,7 +38,7 @@ package body WS_CB is
 
    use AWS;
 
-   WWW_Root : constant String := "../";
+   WWW_Root : String renames AWS.Config.WWW_Root;
 
    ---------
    -- Get --
@@ -63,8 +63,8 @@ package body WS_CB is
             Message_Body =>
               AWS.Services.Directory.Browse
               (Filename, "aws_directory.thtml", Request));
-      else
 
+      else
          return AWS.Response.Acknowledge
            (Messages.S404,
             "<p>Page '" & URI & "' Not found.");
