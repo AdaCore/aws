@@ -43,7 +43,6 @@ with Ada.Unchecked_Deallocation;
 
 with AWS.Config;
 with AWS.Net.Std;
-with AWS.OS_Lib;
 with AWS.Utils;
 
 with Interfaces.C.Strings;
@@ -69,6 +68,9 @@ package body AWS.Net.SSL is
    procedure Error_If (Error : in Boolean);
    pragma Inline (Error_If);
    --  Raises Socket_Error if Error is true. Attach the SSL error message
+
+   function Error_Stack return String;
+   --  Returns error stack of the last SSL error in multiple lines.
 
    function Error_Str (Code : in TSSL.Error_Code) return String;
    --  Returns the SSL error message for error Code
@@ -205,13 +207,39 @@ package body AWS.Net.SSL is
    --------------
 
    procedure Error_If (Error : in Boolean) is
-      use Ada;
    begin
       if Error then
-         Exceptions.Raise_Exception
-           (Socket_Error'Identity, Error_Str (TSSL.ERR_get_error));
+         Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Error_Stack);
       end if;
    end Error_If;
+
+   -----------------
+   -- Error_Stack --
+   -----------------
+
+   function Error_Stack return String is
+      use type TSSL.Error_Code;
+      Error_Code : constant TSSL.Error_Code := TSSL.ERR_get_error;
+   begin
+      if Error_Code = 0 then
+         return "";
+      else
+         declare
+            Error_Text : constant String := Error_Str (Error_Code);
+            Trim_Start : constant String := "error:";
+            First      : Positive := Error_Text'First;
+         begin
+            if Error_Text'Length > Trim_Start'Length
+              and then Error_Text (First .. Trim_Start'Last) = Trim_Start
+            then
+               First := Error_Text'First + Trim_Start'Length;
+            end if;
+
+            return Error_Text (First .. Error_Text'Last)
+                   & ASCII.LF & Error_Stack;
+         end;
+      end if;
+   end Error_Stack;
 
    ---------------
    -- Error_Str --
@@ -279,12 +307,6 @@ package body AWS.Net.SSL is
    begin
       if Config = null then
          Config := new TS_SSL;
-      end if;
-
-      if not OS_Lib.Is_Regular_File (Certificate_Filename) then
-         Exceptions.Raise_Exception
-           (Socket_Error'Identity,
-            "Certificate '" & Certificate_Filename & "' not found.");
       end if;
 
       Config.Initialize
@@ -531,37 +553,61 @@ package body AWS.Net.SSL is
             Key_Filename  : in String := "")
          is
             use Interfaces.C;
+
+            procedure File_Error (Name : in String);
+            pragma No_Return (File_Error);
+
+            -------------------
+            -- Could_Not_Use --
+            -------------------
+
+            procedure File_Error (Name : in String) is
+            begin
+               Ada.Exceptions.Raise_Exception
+                 (Socket_Error'Identity,
+                  "File """ & Name & """ error" & ASCII.LF
+                  & Error_Stack);
+            end File_Error;
+
          begin
             if Key_Filename = "" then
                --  Get certificate and private key from the same file.
                --  We could not use certificates chain this way.
 
-               Error_If
-                 (TSSL.SSL_CTX_use_certificate_file
+               if TSSL.SSL_CTX_use_certificate_file
                     (Ctx    => Context,
                      File   => To_C (Cert_Filename),
-                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
+                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
+               then
+                  File_Error (Cert_Filename);
+               end if;
 
-               Error_If
-                 (TSSL.SSL_CTX_use_PrivateKey_file
+               if TSSL.SSL_CTX_use_PrivateKey_file
                     (Ctx    => Context,
                      File   => To_C (Cert_Filename),
-                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
+                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
+               then
+                  File_Error (Cert_Filename);
+               end if;
 
             else
                --  Get the single certificate or certificate chain from
                --  the file Cert_Filename
 
-               Error_If
-                 (TSSL.SSL_CTX_use_certificate_chain_file
+               if TSSL.SSL_CTX_use_certificate_chain_file
                     (Ctx    => Context,
-                     File   => To_C (Cert_Filename)) /= 1);
+                     File   => To_C (Cert_Filename)) /= 1
+               then
+                  File_Error (Cert_Filename);
+               end if;
 
-               Error_If
-                 (TSSL.SSL_CTX_use_PrivateKey_file
+               if TSSL.SSL_CTX_use_PrivateKey_file
                     (Ctx    => Context,
                      File   => To_C (Key_Filename),
-                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
+                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1
+               then
+                  File_Error (Key_Filename);
+               end if;
             end if;
 
             Error_If
