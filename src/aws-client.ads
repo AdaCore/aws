@@ -47,12 +47,14 @@ package AWS.Client is
    --  Number of time a data is requested from the Server if the connection
    --  fails.
 
-   function Get (URL        : in String;
-                 User       : in String := No_Data;
-                 Pwd        : in String := No_Data;
-                 Proxy      : in String := No_Data;
-                 Proxy_User : in String := No_Data;
-                 Proxy_Pwd  : in String := No_Data) return Response.Data;
+   function Get
+     (URL        : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
+     return Response.Data;
    --  retreive the message data given a specific URL. It open a connection
    --  with the server and ask for the ressource specified in the URL it then
    --  return it in the Response.Data structure.
@@ -65,42 +67,50 @@ package AWS.Client is
    --
    --  Get will retry one time if it fails.
 
-   function Head (URL        : in String;
-                  User       : in String := No_Data;
-                  Pwd        : in String := No_Data;
-                  Proxy      : in String := No_Data;
-                  Proxy_User : in String := No_Data;
-                  Proxy_Pwd  : in String := No_Data) return Response.Data;
+   function Head
+     (URL        : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
+     return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
-   function Put (URL        : in String;
-                 Data       : in String;
-                 User       : in String := No_Data;
-                 Pwd        : in String := No_Data;
-                 Proxy      : in String := No_Data;
-                 Proxy_User : in String := No_Data;
-                 Proxy_Pwd  : in String := No_Data) return Response.Data;
+   function Put
+     (URL        : in String;
+      Data       : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
+     return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
-   function Post (URL        : in String;
-                  Data       : in String;
-                  User       : in String := No_Data;
-                  Pwd        : in String := No_Data;
-                  Proxy      : in String := No_Data;
-                  Proxy_User : in String := No_Data;
-                  Proxy_Pwd  : in String := No_Data) return Response.Data;
+   function Post
+     (URL        : in String;
+      Data       : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
+     return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
-   function Post (URL        : in String;
-                  Data       : in Ada.Streams.Stream_Element_Array;
-                  User       : in String := No_Data;
-                  Pwd        : in String := No_Data;
-                  Proxy      : in String := No_Data;
-                  Proxy_User : in String := No_Data;
-                  Proxy_Pwd  : in String := No_Data) return Response.Data;
+   function Post
+     (URL        : in String;
+      Data       : in Ada.Streams.Stream_Element_Array;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
+     return Response.Data;
    --  Idem as above but with binary data.
 
    --  Keep-Alive client implementation.
@@ -120,32 +130,37 @@ package AWS.Client is
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The request will be tried Retry time if it fails.
 
-   procedure Get (Connection : in out HTTP_Connection;
-                  Result     :    out Response.Data;
-                  URI        : in     String          := No_Data);
+   procedure Get
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      URI        : in     String          := No_Data);
    --  Same as Get above but using a Connection.
 
-   procedure Head (Connection : in out HTTP_Connection;
-                   Result     :    out Response.Data;
-                   URI        : in     String          := No_Data);
+   procedure Head
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      URI        : in     String          := No_Data);
    --  Same as Head above but using a Connection.
 
-   procedure Put (Connection : in out HTTP_Connection;
-                  Result     :    out Response.Data;
-                  Data       : in     String;
-                  URI       : in     String          := No_Data);
+   procedure Put
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Data       : in     String;
+      URI       : in     String          := No_Data);
    --  Same as Put above but using a Connection.
 
-   procedure Post (Connection : in out HTTP_Connection;
-                   Result     :    out Response.Data;
-                   Data       : in     String;
-                   URI        : in     String          := No_Data);
+   procedure Post
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Data       : in     String;
+      URI        : in     String          := No_Data);
    --  Same as Post above but using a Connection.
 
-   procedure Post (Connection : in out HTTP_Connection;
-                   Result     :    out Response.Data;
-                   Data       : in     Ada.Streams.Stream_Element_Array;
-                   URI        : in     String          := No_Data);
+   procedure Post
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Data       : in     Ada.Streams.Stream_Element_Array;
+      URI        : in     String          := No_Data);
    --  Same as Post above but using a Connection.
 
    procedure Close (Connection : in out HTTP_Connection);
