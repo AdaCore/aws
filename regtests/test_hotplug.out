@@ -7,6 +7,6 @@ Response: Main module: /MkHuoi
 Response: Main module: /toto
 Response: Hotplug module: /Hotplug
 Stop hotplug server
-Register OK
+Unregister OK
 Shutdown hotplug server support
 Shutdown main server
