@@ -61,7 +61,7 @@ gsetup: $(GEN)
 	$(MKDIR) -p ../.build/release/tools/obj
 
 gbuild:
-	$(GNATMAKE) -Ptools -XAWS_BUILD=${PRJ_BUILD} \
+	$(GNATMAKE) -Ptools -XBuild=${PRJ_BUILD} \
 		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS}
 
 gclean:
