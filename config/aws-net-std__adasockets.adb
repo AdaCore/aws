@@ -148,15 +148,14 @@ package body AWS.Net.Std is
          Info.ai_addr,
          C.int (Info.ai_addrlen));
 
+      OSD.FreeAddrInfo (Info);
+
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
          Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
          Free (Socket.S);
-         OSD.FreeAddrInfo (Info);
-         Raise_Exception (Errno, "Bind.Create_Socket");
+         Raise_Exception (Errno, "Bind");
       end if;
-
-      OSD.FreeAddrInfo (Info);
    end Bind;
 
    -------------
