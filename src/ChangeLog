@@ -1,3 +1,8 @@
+2003-09-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	Minor reformatting.
+
 2003-09-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-status.ads:
