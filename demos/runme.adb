@@ -28,23 +28,6 @@
 
 --  $Id$
 
---  Here is the first documentation.
---
---  To build you need to have the Ada socket implementation. Either the one
---  for Windows or the one for UNIX.
---
---  This has been tested under Windows with GNAT 3.12 and Internet Explorer
---  4.01. Please let me know if it does not work with other tools.
---
---  Some pointers:
---
---  Ada Windows sockets : http://perso.wanadoo.fr/archive/sockets.tar.gz
---  Ada UNIX socket     : http://www.infres.enst.fr/ANC/
---
---  How to build this demo ?
---
---  $ gnatmake runme -I/whatever/path/to/sockets
---
 --  How to run this demo ?
 --
 --  On the server side:
@@ -64,6 +47,12 @@
 --     I'am the runme demo. Note that this message could have been fetched
 --     on my file system...
 --
+--  To get the administrative page:
+--  http://<servername>:1234/Admin-Page
+--
+--  To test the HTTPS server:
+--  http://<servername>:4433/give_me_this
+--
 --  That's all for now. Enjoy !
 
 with Ada.Text_IO;
@@ -76,10 +65,11 @@ procedure Runme is
    use Ada;
 
    WSS : AWS.Server.HTTP (3, 4433, True, Runme_CB.Service'Access);
+
    WS  : AWS.Server.HTTP (3, 1234, False, Runme_CB.Service'Access);
 
 begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");
-   AWS.Server.Start (WSS);
-   AWS.Server.Start (WS);
+   AWS.Server.Start (WSS, "Runme Secure");
+   AWS.Server.Start (WS, "Runme", "/Admin-Page");
 end Runme;
