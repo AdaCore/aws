@@ -1,5 +1,28 @@
 2002-10-26  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-smtp.adb:
+	(Code_Table): Set to constant.
+
+	* aws-server-protocol_handler.adb:
+	(Sock_Ptr): Set to constant.
+	(Send_Data): Set File_Mode to constant.
+	(File_Upload): Set Multipart_Boundary to constant.
+	(Check_EOF): Set Signature to constant.
+	(Parse): Set Token (2 occurences) to constant.
+	
+	* aws-mime.adb:
+	(Content_Type): Set Pos and File_Type to constant.
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-messages.adb:
+	(Weekday): Set D to constant.
+	Update copyright notice.
+
+	* aws-digest.adb:
+	(Check_Nonce): Set Now to constant.
+	Update copyright notice.
+
 	* makefile:
 	(clean): Remove aws-translator-conversion.adb.
 
