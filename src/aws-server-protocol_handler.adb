@@ -1224,8 +1224,7 @@ is
    -- Send_Resource_Body --
    ------------------------
 
-   procedure Send_Resource_Body (File         : in out Resources.File_Type)
-   is
+   procedure Send_Resource_Body (File : in out Resources.File_Type) is
       use type Streams.Stream_Element_Offset;
 
       procedure Send_File;
