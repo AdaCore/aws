@@ -314,10 +314,8 @@ private
 
    type Access_Tag_Node_Access is access Tag_Node_Access;
 
-   type Cursor is record
-      Current : Access_Tag_Node_Access; -- Current/Pos are Iterator
-      Pos     : Integer_Access;         -- cache information
-   end record;
+   type Tag_Node_Arr is array (Positive range <>) of Tag_Node_Access;
+   type Tag_Node_Arr_Access is access Tag_Node_Arr;
 
    type Tag_Data is record
       Count        : Natural;  -- Number of items
@@ -326,7 +324,9 @@ private
       Separator    : Unbounded_String;
       Head         : Tag_Node_Access;
       Last         : Tag_Node_Access;
-      Position     : Cursor;
+      Tag_Nodes    : Tag_Node_Arr_Access;
+      --  This array will be setup during parsing to ensure fast iteration
+      --  in reverse order.
    end record;
 
    type Tag_Data_Access is access Tag_Data;
