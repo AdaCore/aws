@@ -1,5 +1,9 @@
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(ALL_EXEC): New variable.
+	(clean): Use it.
+
 	* soap_client.adb:
 	(Bad): Specify the SOAPAction.
 	(Good): Idem.
