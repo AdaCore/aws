@@ -52,24 +52,7 @@ begin
              (Directory_Name    => "../icons",
               Template_Filename => "dirop.tmplt",
               Request           => Stat);
-      K : Natural;
-      S : Positive := Result'First;
    begin
-      --  Replace times with xx:xx:xx, avoid TZ problems
-
-      loop
-         K := Strings.Fixed.Index (Result (S .. Result'Last), ":");
-         exit when K = 0;
-
-         --  Found hh:mm:ss, replace value with xx
-
-         Result (K - 2 .. K - 1) := "xx";
-         Result (K + 1 .. K + 2) := "xx";
-         Result (K + 4 .. K + 5) := "xx";
-
-         S := K + 6;
-      end loop;
-
       Text_IO.Put_Line (Result);
    end;
 end Dirop;
