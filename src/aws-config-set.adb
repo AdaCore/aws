@@ -167,14 +167,14 @@ package body AWS.Config.Set is
       O.P (Log_File_Directory).Dir_Value := To_Unbounded_String (Value);
    end Log_File_Directory;
 
-   ---------------------
-   -- Log_File_Prefix --
-   ---------------------
+   -------------------------
+   -- Log_Filename_Prefix --
+   -------------------------
 
-   procedure Log_File_Prefix (O : in out Object; Value : in String) is
+   procedure Log_Filename_Prefix (O : in out Object; Value : in String) is
    begin
-      O.P (Log_File_Prefix).Str_Value := To_Unbounded_String (Value);
-   end Log_File_Prefix;
+      O.P (Log_Filename_Prefix).Str_Value := To_Unbounded_String (Value);
+   end Log_Filename_Prefix;
 
    --------------------
    -- Log_Split_Mode --

@@ -36,16 +36,16 @@ package AWS.Default is
 
    pragma Pure;
 
-   Server_Name        : constant String := "AWS Module";
-   WWW_Root           : constant String := "./";
-   Admin_URI          : constant String := "";
-   Server_Port        : constant        := 8080;
-   Hotplug_Port       : constant        := 8888;
-   Max_Connection     : constant        := 5;
-   Log_File_Directory : constant String := "./";
-   Log_File_Prefix    : constant String := "";
-   Log_Split_Mode     : constant String := "NONE";
-   Upload_Directory   : constant String := "./";
+   Server_Name         : constant String := "AWS Module";
+   WWW_Root            : constant String := "./";
+   Admin_URI           : constant String := "";
+   Server_Port         : constant        := 8080;
+   Hotplug_Port        : constant        := 8888;
+   Max_Connection      : constant        := 5;
+   Log_File_Directory  : constant String := "./";
+   Log_Filename_Prefix : constant String := "";
+   Log_Split_Mode      : constant String := "NONE";
+   Upload_Directory    : constant String := "./";
 
    Eight_Hours  : constant := 28_800.0;
    Three_Hours  : constant := 10_800.0;

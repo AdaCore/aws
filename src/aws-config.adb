@@ -163,14 +163,14 @@ package body AWS.Config is
       return To_String (O.P (Log_File_Directory).Dir_Value);
    end Log_File_Directory;
 
-   ---------------------
-   -- Log_File_Prefix --
-   ---------------------
+   -------------------------
+   -- Log_Filename_Prefix --
+   -------------------------
 
-   function Log_File_Prefix (O : in Object) return String is
+   function Log_Filename_Prefix (O : in Object) return String is
    begin
-      return To_String (O.P (Log_File_Prefix).Str_Value);
-   end Log_File_Prefix;
+      return To_String (O.P (Log_Filename_Prefix).Str_Value);
+   end Log_Filename_Prefix;
 
    --------------------
    -- Log_Split_Mode --

@@ -68,7 +68,7 @@ package AWS.Config.Set is
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
 
-   procedure Log_File_Prefix (O : in out Object; Value : in String);
+   procedure Log_Filename_Prefix (O : in out Object; Value : in String);
    --  This is the prefix to use for the log filename.
 
    procedure Log_Split_Mode (O : in out Object; Value : in String);
