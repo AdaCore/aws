@@ -39,8 +39,6 @@
 --  This package is thread safe. There will never be two simultaneous calls
 --  to the callback routine.
 
-with Ada.Streams;
-
 package AWS.Net.Log is
 
    type Data_Direction is (Sent, Received);
@@ -49,8 +47,8 @@ package AWS.Net.Log is
    type Write_Callback is access procedure
      (Direction : in Data_Direction;
       FD        : in Integer;
-      Data      : in Ada.Streams.Stream_Element_Array;
-      Last      : in Ada.Streams.Stream_Element_Offset);
+      Data      : in Stream_Element_Array;
+      Last      : in Stream_Element_Offset);
    --  The callback procedure which is called for each incoming/outgoing data
 
    procedure Start (Write : in Write_Callback);
@@ -63,8 +61,8 @@ package AWS.Net.Log is
    procedure Write
      (Direction : in Data_Direction;
       FD        : in Integer;
-      Data      : in Ada.Streams.Stream_Element_Array;
-      Last      : in Ada.Streams.Stream_Element_Offset);
+      Data      : in Stream_Element_Array;
+      Last      : in Stream_Element_Offset);
    --  Write sent/received data indirectly through the callback routine,
    --  if activated (i.e. Start routine above has been called). Otherwise this
    --  call does nothing.
