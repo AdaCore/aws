@@ -1,5 +1,19 @@
 2002-10-29  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): Add all LDAP units.
+
+	* aws-ldap-thin.ads, aws-ldap-client.ads, aws-ldap-client.adb:
+	Minor style fixes.
+
+	* aws-response.adb:
+	(Finalize): Remove Free move to spec's private part.
+
+	* aws-response.ads:
+	(Free): New routine. Moved in the private part from the body.
+
+2002-10-29  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-server.adb:
 	(Set): New routine.
 	Update copyright notice.
