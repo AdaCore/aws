@@ -318,19 +318,6 @@ package body AWS.Messages is
       function Weekday (Date : Calendar.Time) return String;
       --  returns the weekday as a 3 letters string for the Date.
 
-      ----------------
-      -- Truncation --
-      ----------------
-
-      function Truncation (S : in Calendar.Day_Duration) return Natural is
-      begin
-         if S = 0.0 then
-            return 0;
-         else
-            return Natural (S - 0.5);
-         end if;
-      end Truncation;
-
       -----------
       -- Image --
       -----------
@@ -345,6 +332,19 @@ package body AWS.Messages is
             return V_Image (2 .. V_Image'Last);
          end if;
       end Image;
+
+      ----------------
+      -- Truncation --
+      ----------------
+
+      function Truncation (S : in Calendar.Day_Duration) return Natural is
+      begin
+         if S = 0.0 then
+            return 0;
+         else
+            return Natural (S - 0.5);
+         end if;
+      end Truncation;
 
       -------------
       -- Weekday --

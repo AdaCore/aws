@@ -123,22 +123,6 @@ package body AWS.Hotplug is
       end loop Look_For_Filters;
    end Apply;
 
-   -------------
-   -- Move_Up --
-   -------------
-
-   procedure Move_Up (Filters : in Filter_Set;
-                      N       : in Positive)
-   is
-      Tmp : Filter_Data;
-   begin
-      if Filters.Count >= N and then N > 1 then
-         Tmp := Filters.Set (N - 1);
-         Filters.Set (N - 1) := Filters.Set (N);
-         Filters.Set (N) := Tmp;
-      end if;
-   end Move_Up;
-
    ---------------
    -- Move_Down --
    ---------------
@@ -154,6 +138,22 @@ package body AWS.Hotplug is
          Filters.Set (N + 1) := Tmp;
       end if;
    end Move_Down;
+
+   -------------
+   -- Move_Up --
+   -------------
+
+   procedure Move_Up (Filters : in Filter_Set;
+                      N       : in Positive)
+   is
+      Tmp : Filter_Data;
+   begin
+      if Filters.Count >= N and then N > 1 then
+         Tmp := Filters.Set (N - 1);
+         Filters.Set (N - 1) := Filters.Set (N);
+         Filters.Set (N) := Tmp;
+      end if;
+   end Move_Up;
 
    --------------
    -- Register --

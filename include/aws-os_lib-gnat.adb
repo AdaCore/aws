@@ -55,18 +55,6 @@ package body AWS.OS_Lib is
    function Is_Regular_File (Filename : in String) return Boolean
      renames GNAT.OS_Lib.Is_Regular_File;
 
-   --------------------
-   -- File_Timestamp --
-   --------------------
-
-   function File_Timestamp (Filename : in String) return Ada.Calendar.Time is
-   begin
-      return OS_Time_To_Calendar_Time (GNAT.OS_Lib.File_Time_Stamp (Filename));
-   exception
-      when others =>
-         raise No_Such_File;
-   end File_Timestamp;
-
    ---------------
    -- File_Size --
    ---------------
@@ -88,6 +76,18 @@ package body AWS.OS_Lib is
       end if;
       raise No_Such_File;
    end File_Size;
+
+   --------------------
+   -- File_Timestamp --
+   --------------------
+
+   function File_Timestamp (Filename : in String) return Ada.Calendar.Time is
+   begin
+      return OS_Time_To_Calendar_Time (GNAT.OS_Lib.File_Time_Stamp (Filename));
+   exception
+      when others =>
+         raise No_Such_File;
+   end File_Timestamp;
 
    ---------------
    -- GMT_Clock --

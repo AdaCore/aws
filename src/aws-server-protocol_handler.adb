@@ -181,51 +181,6 @@ is
          end if;
       end Create_Session;
 
-      -------------------------
-      -- Send_General_Header --
-      -------------------------
-
-      procedure Send_General_Header is
-      begin
-         --  Session
-
-         if CNF.Session (HTTP_Server.Properties)
-           and then Send_Session_Cookie
-         then
-            --  This is an HTTP connection with session but there is no session
-            --  ID set yet. So, send cookie to client browser.
-
-            Sockets.Put_Line
-              (Sock,
-               "Set-Cookie: AWS="
-               & Session.Image (AWS.Status.Session (C_Stat)));
-         end if;
-
-         --  Date
-
-         Sockets.Put_Line
-           (Sock,
-            "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
-
-         --  Server
-
-         Sockets.Put_Line (Sock,
-                           "Server: AWS (Ada Web Server) v" & Version);
-
-         --  Connection
-
-         if Will_Close then
-            --  If there is no connection received we assume a non Keep-Alive
-            --  connection.
-
-            Sockets.Put_Line (Sock, Messages.Connection ("close"));
-         else
-            Sockets.Put_Line
-              (Sock,
-               Messages.Connection (AWS.Status.Connection (C_Stat)));
-         end if;
-      end Send_General_Header;
-
       ---------------
       -- Send_File --
       ---------------
@@ -283,6 +238,51 @@ is
             --  File was not found, just ignore.
             null;
       end Send_File;
+
+      -------------------------
+      -- Send_General_Header --
+      -------------------------
+
+      procedure Send_General_Header is
+      begin
+         --  Session
+
+         if CNF.Session (HTTP_Server.Properties)
+           and then Send_Session_Cookie
+         then
+            --  This is an HTTP connection with session but there is no session
+            --  ID set yet. So, send cookie to client browser.
+
+            Sockets.Put_Line
+              (Sock,
+               "Set-Cookie: AWS="
+               & Session.Image (AWS.Status.Session (C_Stat)));
+         end if;
+
+         --  Date
+
+         Sockets.Put_Line
+           (Sock,
+            "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
+
+         --  Server
+
+         Sockets.Put_Line (Sock,
+                           "Server: AWS (Ada Web Server) v" & Version);
+
+         --  Connection
+
+         if Will_Close then
+            --  If there is no connection received we assume a non Keep-Alive
+            --  connection.
+
+            Sockets.Put_Line (Sock, Messages.Connection ("close"));
+         else
+            Sockets.Put_Line
+              (Sock,
+               Messages.Connection (AWS.Status.Connection (C_Stat)));
+         end if;
+      end Send_General_Header;
 
       ----------------------
       -- Send_Header_Only --
@@ -1014,95 +1014,6 @@ is
       return Result;
    end Is_Valid_HTTP_Date;
 
-   ------------------------
-   -- Parse_Request_Line --
-   ------------------------
-
-   procedure Parse_Request_Line (Command : in String) is
-
-      I1, I2 : Natural;
-      --  Index of first space and second space
-
-      I3 : Natural;
-      --  Index of ? if present in the URI (means that there is some
-      --  parameters)
-
-      procedure Cut_Command;
-      --  Parse Command and set I1, I2 and I3
-
-      function URI return String;
-      pragma Inline (URI);
-      --  Returns first parameter. parameters are separated by spaces.
-
-      function Parameters return String;
-      --  Returns parameters if some where specified in the URI.
-
-      function HTTP_Version return String;
-      pragma Inline (HTTP_Version);
-      --  Returns second parameter. parameters are separated by spaces.
-
-      -----------------
-      -- Cut_Command --
-      -----------------
-
-      procedure Cut_Command is
-      begin
-         I1 := Fixed.Index (Command, " ");
-         I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
-         I3 := Fixed.Index (Command (I1 + 1 .. I2), "?");
-      end Cut_Command;
-
-      ---------
-      -- URI --
-      ---------
-
-      function URI return String is
-      begin
-         if I3 = 0 then
-            return Translator.Decode_URL (Command (I1 + 1 .. I2 - 1));
-         else
-            return Translator.Decode_URL (Command (I1 + 1 .. I3 - 1));
-         end if;
-      end URI;
-
-      ------------------
-      -- HTTP_Version --
-      ------------------
-
-      function HTTP_Version return String is
-      begin
-         return Command (I2 + 1 .. Command'Last);
-      end HTTP_Version;
-
-      ----------------
-      -- Parameters --
-      ----------------
-
-      function Parameters return String is
-      begin
-         if I3 = 0 then
-            return "";
-         else
-            return Command (I3 + 1 .. I2 - 1);
-         end if;
-      end Parameters;
-
-   begin
-      Cut_Command;
-
-      if Messages.Is_Match (Command, Messages.Get_Token) then
-         Status.Set.Request (C_Stat, Status.GET, URI, HTTP_Version);
-         AWS.Parameters.Set.Add (P_List, Parameters);
-
-      elsif Messages.Is_Match (Command, Messages.Head_Token) then
-         Status.Set.Request (C_Stat, Status.HEAD, URI, HTTP_Version);
-
-      elsif Messages.Is_Match (Command, Messages.Post_Token) then
-         Status.Set.Request (C_Stat, Status.POST, URI, HTTP_Version);
-
-      end if;
-   end Parse_Request_Line;
-
    -----------
    -- Parse --
    -----------
@@ -1212,6 +1123,95 @@ is
       when others =>
          raise Internal_Error;
    end Parse;
+
+   ------------------------
+   -- Parse_Request_Line --
+   ------------------------
+
+   procedure Parse_Request_Line (Command : in String) is
+
+      I1, I2 : Natural;
+      --  Index of first space and second space
+
+      I3 : Natural;
+      --  Index of ? if present in the URI (means that there is some
+      --  parameters)
+
+      procedure Cut_Command;
+      --  Parse Command and set I1, I2 and I3
+
+      function URI return String;
+      pragma Inline (URI);
+      --  Returns first parameter. parameters are separated by spaces.
+
+      function Parameters return String;
+      --  Returns parameters if some where specified in the URI.
+
+      function HTTP_Version return String;
+      pragma Inline (HTTP_Version);
+      --  Returns second parameter. parameters are separated by spaces.
+
+      -----------------
+      -- Cut_Command --
+      -----------------
+
+      procedure Cut_Command is
+      begin
+         I1 := Fixed.Index (Command, " ");
+         I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
+         I3 := Fixed.Index (Command (I1 + 1 .. I2), "?");
+      end Cut_Command;
+
+      ------------------
+      -- HTTP_Version --
+      ------------------
+
+      function HTTP_Version return String is
+      begin
+         return Command (I2 + 1 .. Command'Last);
+      end HTTP_Version;
+
+      ----------------
+      -- Parameters --
+      ----------------
+
+      function Parameters return String is
+      begin
+         if I3 = 0 then
+            return "";
+         else
+            return Command (I3 + 1 .. I2 - 1);
+         end if;
+      end Parameters;
+
+      ---------
+      -- URI --
+      ---------
+
+      function URI return String is
+      begin
+         if I3 = 0 then
+            return Translator.Decode_URL (Command (I1 + 1 .. I2 - 1));
+         else
+            return Translator.Decode_URL (Command (I1 + 1 .. I3 - 1));
+         end if;
+      end URI;
+
+   begin
+      Cut_Command;
+
+      if Messages.Is_Match (Command, Messages.Get_Token) then
+         Status.Set.Request (C_Stat, Status.GET, URI, HTTP_Version);
+         AWS.Parameters.Set.Add (P_List, Parameters);
+
+      elsif Messages.Is_Match (Command, Messages.Head_Token) then
+         Status.Set.Request (C_Stat, Status.HEAD, URI, HTTP_Version);
+
+      elsif Messages.Is_Match (Command, Messages.Post_Token) then
+         Status.Set.Request (C_Stat, Status.POST, URI, HTTP_Version);
+
+      end if;
+   end Parse_Request_Line;
 
    ---------------
    -- Send_File --

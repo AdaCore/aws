@@ -353,76 +353,6 @@ package body AWS.Server is
 
    protected body Slots is
 
-      ------------------
-      -- Set_Peername --
-      ------------------
-
-      procedure Set_Peername (Index : in Positive; Peername : in String) is
-      begin
-         Set (Index).Peername := To_Unbounded_String (Peername);
-      end Set_Peername;
-
-      ----------------
-      -- Mark_Phase --
-      ----------------
-
-      procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
-      begin
-         Set (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
-         Set (Index).Phase := Phase;
-
-         if Phase in Data_Phase then
-            Mark_Data_Time_Stamp (Index);
-         end if;
-      end Mark_Phase;
-
-      --------------------------
-      -- Mark_Data_Time_Stamp --
-      --------------------------
-
-      procedure Mark_Data_Time_Stamp (Index : in Positive) is
-      begin
-         Set (Index).Data_Time_Stamp := Ada.Calendar.Clock;
-      end Mark_Data_Time_Stamp;
-
-      ------------------
-      -- Is_Abortable --
-      ------------------
-
-      function Is_Abortable
-        (Index : in Positive;
-         Mode  : in Timeout_Mode)
-        return Boolean
-      is
-         use type Calendar.Time;
-         Phase : constant Slot_Phase    := Set (Index).Phase;
-         Now   : constant Calendar.Time := Calendar.Clock;
-      begin
-         return
-           (Phase in Abortable_Phase
-            and then
-            Now - Set (Index).Phase_Time_Stamp > Timeouts (Mode, Phase))
-
-           or else
-
-           (Phase in Data_Phase
-            and then
-            Now - Set (Index).Data_Time_Stamp > Data_Timeouts (Phase));
-      end Is_Abortable;
-
-      --------------
-      -- Shutdown --
-      --------------
-
-      procedure Shutdown (Index : in Positive)
-      is
-      begin
-         if Set (Index).Phase not in Closed .. Aborted then
-            Sockets.Shutdown (Set (Index).Sock.all);
-            Mark_Phase (Index, Aborted);
-         end if;
-      end Shutdown;
-
       ----------------------
       -- Abort_On_Timeout --
       ----------------------
@@ -439,6 +369,15 @@ package body AWS.Server is
             end if;
          end loop;
       end Abort_On_Timeout;
+
+      ----------
+      -- Free --
+      ----------
+
+      function Free return Boolean is
+      begin
+         return Count > 0;
+      end Free;
 
       ----------------
       -- Free_Slots --
@@ -470,6 +409,15 @@ package body AWS.Server is
          return Set (Index);
       end Get;
 
+      ------------------
+      -- Get_Peername --
+      ------------------
+
+      function Get_Peername (Index : in Positive) return String is
+      begin
+         return To_String (Set (Index).Peername);
+      end Get_Peername;
+
       -------------------------------------
       -- Increment_Slot_Activity_Counter --
       -------------------------------------
@@ -479,6 +427,54 @@ package body AWS.Server is
          Set (Index).Slot_Activity_Counter
            := Set (Index).Slot_Activity_Counter + 1;
       end Increment_Slot_Activity_Counter;
+
+      ------------------
+      -- Is_Abortable --
+      ------------------
+
+      function Is_Abortable
+        (Index : in Positive;
+         Mode  : in Timeout_Mode)
+        return Boolean
+      is
+         use type Calendar.Time;
+         Phase : constant Slot_Phase    := Set (Index).Phase;
+         Now   : constant Calendar.Time := Calendar.Clock;
+      begin
+         return
+           (Phase in Abortable_Phase
+            and then
+            Now - Set (Index).Phase_Time_Stamp > Timeouts (Mode, Phase))
+
+           or else
+
+           (Phase in Data_Phase
+            and then
+            Now - Set (Index).Data_Time_Stamp > Data_Timeouts (Phase));
+      end Is_Abortable;
+
+      --------------------------
+      -- Mark_Data_Time_Stamp --
+      --------------------------
+
+      procedure Mark_Data_Time_Stamp (Index : in Positive) is
+      begin
+         Set (Index).Data_Time_Stamp := Ada.Calendar.Clock;
+      end Mark_Data_Time_Stamp;
+
+      ----------------
+      -- Mark_Phase --
+      ----------------
+
+      procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
+      begin
+         Set (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
+         Set (Index).Phase := Phase;
+
+         if Phase in Data_Phase then
+            Mark_Data_Time_Stamp (Index);
+         end if;
+      end Mark_Phase;
 
       -------------
       -- Release --
@@ -510,31 +506,13 @@ package body AWS.Server is
       end Release;
 
       ------------------
-      -- Socket_Taken --
+      -- Set_Peername --
       ------------------
 
-      procedure Socket_Taken (Index : in Positive) is
+      procedure Set_Peername (Index : in Positive; Peername : in String) is
       begin
-         Set (Index).Socket_Taken := True;
-      end Socket_Taken;
-
-      ----------
-      -- Free --
-      ----------
-
-      function Free return Boolean is
-      begin
-         return Count > 0;
-      end Free;
-
-      ------------------
-      -- Get_Peername --
-      ------------------
-
-      function Get_Peername (Index : in Positive) return String is
-      begin
-         return To_String (Set (Index).Peername);
-      end Get_Peername;
+         Set (Index).Peername := To_Unbounded_String (Peername);
+      end Set_Peername;
 
       ------------------
       -- Set_Timeouts --
@@ -547,6 +525,27 @@ package body AWS.Server is
          Timeouts := Phase_Timeouts;
          Slots.Data_Timeouts := Set_Timeouts.Data_Timeouts;
       end Set_Timeouts;
+
+      --------------
+      -- Shutdown --
+      --------------
+
+      procedure Shutdown (Index : in Positive) is
+      begin
+         if Set (Index).Phase not in Closed .. Aborted then
+            Sockets.Shutdown (Set (Index).Sock.all);
+            Mark_Phase (Index, Aborted);
+         end if;
+      end Shutdown;
+
+      ------------------
+      -- Socket_Taken --
+      ------------------
+
+      procedure Socket_Taken (Index : in Positive) is
+      begin
+         Set (Index).Socket_Taken := True;
+      end Socket_Taken;
 
    end Slots;
 
