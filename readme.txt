@@ -132,6 +132,11 @@ Here are the main changes since AWS 1.3 :
    - Using the session feature without server's session support is now
      properly detected (Constraint_Error is raised).
 
+   - It is now possible to give back a socket, removed from the server using
+     Socket_Taken, to the server. This can be used to implement waiting line
+     for requests taking a long time without loosing the keep-alive status
+     and without blocking server's resources.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
