@@ -7,6 +7,9 @@
 	Concatenate libpoll.a and libwspiapi.a into libaws-win32.a and add
 	gai_strerror.o there.
 
+	* libeay32.dll, libssl32.dll:
+	Remove debug information.
+
 2004-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wspiapi.c:
