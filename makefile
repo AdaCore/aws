@@ -32,6 +32,8 @@ EXEEXT =
 endif
 
 STYLE_FLAGS	= -gnatwcfipru -gnatwe -gnaty3abcefhiklmnoprst
+# -gnatwk (constant) should be added but in GNAT 3.16a it reports problems on
+# withed packages.
 
 # compiler
 RELEASE_GFLAGS	= -q -O2 -gnatn
