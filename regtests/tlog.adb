@@ -252,7 +252,7 @@ begin
      (WS, UEH'Unrestricted_Access);
 
    Server.Start
-     (WS, "tlog", CB'Unrestricted_Access, Port => 1246, Max_Connection => 5);
+     (WS, "tlog", CB'Unrestricted_Access, Port => 1246, Max_Connection => 2);
 
    Server.Start_Log (WS);
    Server.Start_Error_Log (WS);
