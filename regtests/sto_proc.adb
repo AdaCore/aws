@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -27,6 +27,7 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
 --  $Id$
 
 --  Test for secure socket timeouts
@@ -109,10 +110,10 @@ procedure STO_Proc (Security : Boolean; Port : Positive) is
       Text_IO.Put_Line ("client task done.");
 
       accept Stop;
+
    exception
       when E : others =>
          Text_IO.Put_Line (Exceptions.Exception_Information (E));
-
          accept Stop;
    end Client_Side;
 

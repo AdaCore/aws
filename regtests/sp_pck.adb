@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -52,7 +52,7 @@ package body Sp_Pck is
 
    function CB (Request : in Status.Data) return Response.Data is
       use AWS.Parameters;
-      P_List : List := AWS.Status.Parameters (Request);
+      P_List     : constant List := AWS.Status.Parameters (Request);
       Mode_Image : String := Get (P_List, "mode");
       Mode_Value : Server_Push.Mode := Server_Push.Mode'Value (Mode_Image);
    begin
@@ -69,7 +69,7 @@ package body Sp_Pck is
    -- Client_Process --
    --------------------
 
-   procedure Client_Process (URL : String) is
+   procedure Client_Process (URL : in String) is
    begin
       Data := 1000.0;
 
@@ -142,7 +142,7 @@ package body Sp_Pck is
    -- Output --
    ------------
 
-   procedure Output (Data : String) is
+   procedure Output (Data : in String) is
       Ignore_Sample : constant String := "--AWS.Push.Boundary_";
       use Ada.Strings;
       First : Positive := Data'First;
