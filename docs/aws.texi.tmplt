@@ -623,7 +623,7 @@ put it on the command line @code{-I<awsroot>/components}.
 
 The GNAT library files (@file{.ali}) and the @code{AWS} libraries
 (@file{libaws.a}) are installed into @file{<awsroot>/lib}. Add this
-path into @var{ADA_OBJECT_PATH} or put it on the command line
+path into @var{ADA_OBJECTS_PATH} or put it on the command line
 @code{-aO<awsroot>/lib}. Furthermore for @code{gnatlink} to find the
 libraries you must add the following library path option on the @code{gnatmake}
 command line @code{-largs -L<awsroot>/lib -laws}.
