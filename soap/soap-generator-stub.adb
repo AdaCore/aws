@@ -43,17 +43,17 @@ package body Stub is
      (O    : in out Object;
       Name : in     String)
    is
-      L_Name : constant String := Format_Name (O, Name);
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
       --  Spec
 
       Text_IO.New_Line (Stub_Ads);
-      Text_IO.Put_Line (Stub_Ads, "end " & L_Name & ".Client;");
+      Text_IO.Put_Line (Stub_Ads, "end " & U_Name & ".Client;");
 
       --  Body
 
       Text_IO.New_Line (Stub_Adb);
-      Text_IO.Put_Line (Stub_Adb, "end " & L_Name & ".Client;");
+      Text_IO.Put_Line (Stub_Adb, "end " & U_Name & ".Client;");
    end End_Service;
 
    -------------------
@@ -617,7 +617,7 @@ package body Stub is
    is
       pragma Unreferenced (Location, Documentation);
 
-      L_Name : constant String := Format_Name (O, Name);
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
       --  Spec
 
@@ -625,11 +625,11 @@ package body Stub is
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "with Ada.Calendar;");
       Text_IO.New_Line (Stub_Ads);
-      Text_IO.Put_Line (Stub_Ads, "with " & L_Name & ".Types;");
+      Text_IO.Put_Line (Stub_Ads, "with " & U_Name & ".Types;");
       Text_IO.New_Line (Stub_Ads);
-      Text_IO.Put_Line (Stub_Ads, "package " & L_Name & ".Client is");
+      Text_IO.Put_Line (Stub_Ads, "package " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Ads);
-      Text_IO.Put_Line (Stub_Ads, "   use " & L_Name & ".Types;");
+      Text_IO.Put_Line (Stub_Ads, "   use " & U_Name & ".Types;");
 
       --  Body
 
@@ -644,7 +644,7 @@ package body Stub is
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Types;");
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Utils;");
       Text_IO.New_Line (Stub_Adb);
-      Text_IO.Put_Line (Stub_Adb, "package body " & L_Name & ".Client is");
+      Text_IO.Put_Line (Stub_Adb, "package body " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "   use SOAP.Types;");
       Text_IO.Put_Line (Stub_Adb, "   use type SOAP.Parameters.List;");

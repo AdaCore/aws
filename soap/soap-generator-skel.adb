@@ -44,17 +44,17 @@ package body Skel is
      (O    : in out Object;
       Name : in     String)
    is
-      L_Name : constant String := Format_Name (O, Name);
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
       --  Spec
 
       Text_IO.New_Line (Skel_Ads);
-      Text_IO.Put_Line (Skel_Ads, "end " & L_Name & ".Server;");
+      Text_IO.Put_Line (Skel_Ads, "end " & U_Name & ".Server;");
 
       --  Body
 
       Text_IO.New_Line (Skel_Adb);
-      Text_IO.Put_Line (Skel_Adb, "end " & L_Name & ".Server;");
+      Text_IO.Put_Line (Skel_Adb, "end " & U_Name & ".Server;");
    end End_Service;
 
    -------------------
@@ -572,7 +572,7 @@ package body Skel is
    is
       pragma Unreferenced (Documentation);
 
-      L_Name : constant String         := Format_Name (O, Name);
+      U_Name : constant String         := To_Unit_Name (Format_Name (O, Name));
       URL    : constant AWS.URL.Object := AWS.URL.Parse (Location);
    begin
       --  Spec
@@ -585,11 +585,11 @@ package body Skel is
       Text_IO.Put_Line (Skel_Ads, "with AWS.Response;");
       Text_IO.Put_Line (Skel_Ads, "with SOAP.Message.Payload;");
       Text_IO.New_Line (Skel_Ads);
-      Text_IO.Put_Line (Skel_Ads, "with " & L_Name & ".Types;");
+      Text_IO.Put_Line (Skel_Ads, "with " & U_Name & ".Types;");
       Text_IO.New_Line (Skel_Ads);
-      Text_IO.Put_Line (Skel_Ads, "package " & L_Name & ".Server is");
+      Text_IO.Put_Line (Skel_Ads, "package " & U_Name & ".Server is");
       Text_IO.New_Line (Skel_Ads);
-      Text_IO.Put_Line (Skel_Ads, "   use " & L_Name & ".Types;");
+      Text_IO.Put_Line (Skel_Ads, "   use " & U_Name & ".Types;");
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line
         (Skel_Ads,
@@ -606,7 +606,7 @@ package body Skel is
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Types;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Utils;");
       Text_IO.New_Line (Skel_Adb);
-      Text_IO.Put_Line (Skel_Adb, "package body " & L_Name & ".Server is");
+      Text_IO.Put_Line (Skel_Adb, "package body " & U_Name & ".Server is");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "   use Ada.Exceptions;");
       Text_IO.New_Line (Skel_Adb);
