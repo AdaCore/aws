@@ -142,27 +142,7 @@ implemented:
         </complexType> 
     </element>  
 
-- Add support for certificate on the client side, some code snippets found
-  on the Net:
-
-    X509*    server_cert;
-    char*    str;
-
-    /* Get server's certificate (note: beware of dynamic allocation) - opt */
-    server_cert = SSL_get_peer_certificate (ssl);
-
-  => server_cert should not be NULL
-
-    str = X509_NAME_oneline (X509_get_subject_name (server_cert),0,0);
-
-  => To get the subject (whatever it means)
-
-    str = X509_NAME_oneline (X509_get_issuer_name  (server_cert),0,0);
-
-  => To get the issuer
-
-
-=============== Point to fix/implement/review before next release (1.5)
+=============== Point to fix/implement/review before next release (2.0)
 
 - Add SMTP authentication support
 
@@ -187,7 +167,3 @@ implemented:
 
 - Improve the Web_Mail high level service to be able to reply and to handle CC
   recipients.
-
-- Add doc about creating a self signed test certificate
-
-  $ openssl req -new -x509 -key privkey.pem -out cacert.pem -days 1095
