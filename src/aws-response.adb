@@ -35,7 +35,8 @@ package body AWS.Response is
    -----------------
 
    function Acknowledge (Status_Code  : in Messages.Status_Code;
-                         Message_Body : in String := "")
+                         Message_Body : in String := "";
+                         Content_Type : in String := "text/html")
      return Data is
    begin
       if Message_Body = "" then
@@ -50,7 +51,7 @@ package body AWS.Response is
          return Data'(Message,
                       Status_Code,
                       Message_Body'Length,
-                      Null_Unbounded_String,
+                      To_Unbounded_String (Content_Type),
                       To_Unbounded_String (Message_Body),
                       Null_Unbounded_String,
                       null);
