@@ -160,7 +160,8 @@ package body AWS.Jabber is
       Net.Buffered.Put_Line
         (Server.Sock.all,
          "<presence xmlns='jabber:client' type='probe' id='ja_cp'"
-           & " from='partage@ada.ldc.edf.fr'"
+           & " from='" & To_String (Server.User)
+           & "@" & To_String (Server.Host) & "'"
            & " to='" & JID & "'>"
            & "</presence>");
 
