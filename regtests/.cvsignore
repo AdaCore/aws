@@ -36,6 +36,8 @@ b~dummy.adb
 b~dummy.ads
 b~file.adb
 b~file.ads
+b~file2.adb
+b~file2.ads
 b~get_post.adb
 b~get_post.ads
 b~googlesearch.adb
@@ -134,6 +136,8 @@ b~timer.adb
 b~timer.ads
 b~tlog.adb
 b~tlog.ads
+b~tmem.adb
+b~tmem.ads
 b~tmime.adb
 b~tmime.ads
 b~tres.adb
@@ -219,7 +223,9 @@ file.tmp
 file.tmplt
 file1.html
 file1.txt
+file2
 file2.html
+file2.res
 file2.txt
 file3.html
 filea.txt
@@ -390,6 +396,8 @@ timer.res
 tlog
 tlog.res
 tlog.tmp
+tmem
+tmem.res
 tmime
 tmime.res
 tres
