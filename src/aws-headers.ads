@@ -79,16 +79,6 @@ package AWS.Headers is
    --  comma-separated string. This format is conformant to [RFC 2616 - 4.2]
    --  (see last paragraph).
 
-   function Get_Field_Value
-     (Headers : in List;
-      Name    : in String;
-      Field   : in String)
-      return String;
-   --  Returns Field's value for header Name in Headers list. For example:
-   --  Get_Field_Value (H, "Content-Type", "boundary") returns
-   --  "0123_The_Boundary_Value_" with above example. Returns the empty
-   --  string if Name or Field do not exist.
-
    --  See AWS.Containers.Tables for inherited routines.
 
 private
