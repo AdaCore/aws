@@ -101,6 +101,10 @@ main (void)
   /* constants needed for AWS and not defined in AdaSockets */
 
   printf ("   IPPROTO_TCP : constant := %d;\n",   IPPROTO_TCP);
+  printf ("   IPPROTO_IP  : constant := %d;\n",   IPPROTO_IP);
+  printf ("   PF_UNDEF    : constant := %d;\n",   PF_UNSPEC);
+  printf ("   PF_INET     : constant := %d;\n",   PF_INET);
+  printf ("   PF_INET6    : constant := %d;\n",   PF_INET6);
   printf ("   SO_ERROR    : constant := %d;\n",   SO_ERROR);
 
 #ifdef _WIN32
