@@ -104,7 +104,7 @@ implemented:
   decimal is certainly a bit difficult to support, we need an arbitrary
   precision package.
 
-- Add support for array with multiple dimentions
+- Add support for array with multiple dimensions
 
    <complexType name="ArrayOfString2D">
      <complexContent>
@@ -114,4 +114,4 @@ implemented:
      </complexContent>
    </complexType>
 
-- Add a GNAT project files to build/use AWS
+- Add GNAT project files to build/use AWS
