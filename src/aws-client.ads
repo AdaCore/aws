@@ -184,6 +184,7 @@ private
       Proxy_Pwd   : Unbounded_String;
       Opened      : Boolean;
       Persistent  : Boolean;
+      Cookie      : Unbounded_String;
       Socket      : Socket_Access;
       Retry       : Positive;
    end record;
