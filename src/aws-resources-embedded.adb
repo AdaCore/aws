@@ -51,9 +51,6 @@ package body AWS.Resources.Embedded is
 
    Files_Table : Res_Files.Table_Type;
 
-   Empty_Buffer : aliased constant Ada.Streams.Stream_Element_Array
-     := (1 .. 0 => 0);
-
    procedure Append
      (Stream : in Streams.Stream_Access;
       Data   : in Buffer_Access);
