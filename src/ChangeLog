@@ -1,3 +1,14 @@
+2002-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Start): Set Web_Server.Shutdown to False before starting the lines.
+
+2002-01-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads:
+	(HTTP.Shutdown): Set to True by default as the server is not yet
+	 started.
+
 2002-01-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-page_server.adb:
