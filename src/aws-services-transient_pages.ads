@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -28,7 +28,10 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$
+--  $Date$
+--  $Author$
 
 with AWS.Default;
 with AWS.Resources.Streams;
@@ -71,7 +74,7 @@ private
 
       procedure Register
         (Transient_Check_Interval : in     Duration;
-         Need_Start_Cleaner       :    out Boolean);
+         Need_Start               :    out Boolean);
       --  Increment number of registerd servers. Set Need_Start flag to True
       --  if it is necessary to start cleaner task.
 
