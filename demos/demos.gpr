@@ -38,6 +38,8 @@ with "../ssl/nossl";
 
 project Demos is
 
+   for Languages use ("Ada", "ChangeLog", "Project file");
+
    for Main use ("hello_world.adb", "runme.adb", "com_1.adb", "com_2.adb",
                  "main.adb", "hotplug.adb", "dispatch.adb", "wps.adb",
                  "ws.adb", "auth.adb", "agent.adb", "text_input.adb",
@@ -93,12 +95,12 @@ project Demos is
       COFF_Res   := ("../win32/aws.coff");
       LIB_Crypt  := ("-lcrypto", "-lssl");
 
-      WIN_OPT    := ("-L../lib") & COFF_Res & Shared.Z_LIB & Shared.LIB_XMLAda;
-      UNX_OPT    := Shared.Z_LIB & Shared.LIB_XMLAda;
+      WIN_OPT    := ("-L../lib") & COFF_Res & Shared.ZLIB & Shared.LIB_XMLAda;
+      UNX_OPT    := Shared.ZLIB & Shared.LIB_XMLAda;
 
       case Shared.OS is
          when "Windows_NT" =>
-            for Default_Switches ("Ada")          use COFF_Res & Shared.Z_Lib;
+            for Default_Switches ("Ada")          use COFF_Res & Shared.ZLib;
             for Switches ("soap_cvs.adb")         use WIN_OPT;
             for Switches ("soap_svs.adb")         use WIN_OPT;
             for Switches ("soap_client.adb")      use WIN_OPT;
@@ -110,7 +112,7 @@ project Demos is
             for Switches ("runme.adb")            use WIN_OPT & LIB_Crypt;
 
          when others =>
-            for Default_Switches ("Ada")          use Shared.Z_LIB;
+            for Default_Switches ("Ada")          use Shared.ZLIB;
             for Switches ("soap_cvs.adb")         use UNX_OPT;
             for Switches ("soap_svs.adb")         use UNX_OPT;
             for Switches ("soap_client.adb")      use UNX_OPT;
