@@ -1,3 +1,30 @@
+2004-01-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add templates_parser.adb templates_parser-input.adb
+	 and templates_parser-query.adb.
+
+	* templates_parser-cached_files.adb:
+	Moved here from the include directory.
+
+	* templates_parser-data.adb:
+	Moved here from the include directory.
+
+	* templates_parser-filter.adb:
+	Moved here from the include directory.
+
+	* templates_parser-input.ads, templates_parser-input.adb:
+	Moved here from the include directory.
+
+	* templates_parser-print_tree.adb:
+	Moved here from the include directory.
+
+	* templates_parser-query.ads, templates_parser-query.ads: 
+	Moved here from the include directory.
+
+	* templates_parser.ads, templates_parser.ads:
+	Moved here from the include directory.
+
 2004-01-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-pop.adb:
