@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -33,9 +33,9 @@
 
 --  Dispatch a specific request to a callback depending on the request method.
 
+with AWS.Dispatchers;
 with AWS.Response;
 with AWS.Status;
-with AWS.Dispatchers;
 
 package AWS.Services.Dispatchers.Method is
 
@@ -44,7 +44,7 @@ package AWS.Services.Dispatchers.Method is
    function Dispatch
      (Dispatcher : in Handler;
       Request    : in Status.Data)
-     return Response.Data;
+      return Response.Data;
 
    procedure Register
      (Dispatcher : in out Handler;
