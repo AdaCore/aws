@@ -232,6 +232,7 @@ build_tarball:
 	cp regtests/*.out regtests/*.ad* regtests/makefile $${AWS}/regtests;\
 	cp regtests/ChangeLog $${AWS}/regtests;\
 	cp regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
+	cp regtests/dirop.tmplt $${AWS}/regtests;\
 	cp docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
 	cp docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
 	cp docs/aws.info* docs/aws.ps docs/aws.pdf docs/makefile $${AWS}/docs;\
