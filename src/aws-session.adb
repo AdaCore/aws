@@ -39,7 +39,7 @@ with Ada.Text_IO;
 with AWS.Config;
 with AWS.Key_Value;
 
-with Avl_Tree_Generic;
+with Table_Of_Static_Keys_And_Dynamic_Values_G;
 
 package body AWS.Session is
 
@@ -67,15 +67,26 @@ package body AWS.Session is
       Root       : AWS.Key_Value.Set;
    end record;
 
-   function Key_For (Item : in Session_Node) return ID;
-   --  returns the Key for Session_Node
+   procedure Assign (Destination : in out Session_Node;
+                     Source      : in     Session_Node);
 
-   function Key_For (Item : in Session_Node) return ID is
+   procedure Destroy (Value : in out Session_Node);
+
+   procedure Assign (Destination : in out Session_Node;
+                     Source      : in     Session_Node) is
    begin
-      return Item.SID;
-   end Key_For;
+      Destination.SID := Source.SID;
+      Destination.Time_Stamp := Source.Time_Stamp;
+      Key_Value.Assign (Destination.Root, Source.Root);
+   end Assign;
 
-   package Session_Set is new Avl_Tree_Generic (ID, Session_Node, Key_For);
+   procedure Destroy (Value : in out Session_Node) is
+   begin
+      null;
+   end Destroy;
+
+   package Session_Set is new Table_Of_Static_Keys_And_Dynamic_Values_G
+     (ID, "<", "=", Session_Node, Assign, Destroy);
 
    --------------
    -- Database --
@@ -120,7 +131,7 @@ package body AWS.Session is
       --  task cleaner.
       --
 
-      procedure Get_Sessions_And_Lock (Sessions : out Session_Set.Avl_Tree);
+      procedure Get_Sessions_And_Lock (Sessions : out Session_Set.Table_Type);
       --  Increment Lock by 1, all entries are lockedand return the Sessions
       --  tree
 
@@ -131,7 +142,7 @@ package body AWS.Session is
 
       Lock     : Natural := 0;
 
-      Sessions : Session_Set.Avl_Tree;
+      Sessions : Session_Set.Table_Type;
 
    end Database;
 
@@ -161,7 +172,7 @@ package body AWS.Session is
       when E : others =>
          Ada.Text_IO.Put_Line
            ("Unrecoverable Error : Cleaner Task bug detected"
-            & Exceptions.Exception_Message (E));
+            & Exceptions.Exception_Information (E));
    end Cleaner;
 
    ------------
@@ -201,18 +212,22 @@ package body AWS.Session is
 
          Now : constant Calendar.Time := Calendar.Clock;
 
-         procedure Process (Session  : in out Session_Node;
-                            Continue :    out Boolean);
+         procedure Process (SID      : in     ID;
+                            Session  : in     Session_Node;
+                            Order    : in     Positive;
+                            Continue : in out Boolean);
          --  Iterator callback
 
-         procedure Process (Session  : in out Session_Node;
-                            Continue :    out Boolean)
+         procedure Process (SID      : in     ID;
+                            Session  : in     Session_Node;
+                            Order    : in     Positive;
+                            Continue : in out Boolean)
          is
             use type Calendar.Time;
          begin
             if Session.Time_Stamp + Session_Lifetime < Now then
                Index := Index + 1;
-               Remove (Index) := Session;
+               Assign (Remove (Index), Session);
 
                if Index = Max_Remove then
                   --  No more space in the removal buffer, quit now.
@@ -224,7 +239,7 @@ package body AWS.Session is
          end Process;
 
          procedure In_Order is
-            new Session_Set.In_Order_Tree_Traversal (Process);
+            new Session_Set.Traverse_Asc_G (Process);
 
       begin
          In_Order (Sessions);
@@ -232,8 +247,8 @@ package body AWS.Session is
          --  delete nodes
 
          for K in 1 .. Index loop
-            Key_Value.Delete_Tree (Remove (K).Root);
-            Session_Set.Delete_Node (Key_For (Remove (K)), Sessions);
+            Key_Value.Destroy (Remove (K).Root);
+            Session_Set.Remove (Sessions, Remove (K).SID);
          end loop;
       end Clean;
 
@@ -246,13 +261,13 @@ package body AWS.Session is
          N  : Session_Node;
 
       begin
-         Session_Set.Inquire (SID, Sessions, N);
+         Session_Set.Get_Value (Sessions, SID, N);
 
-         Key_Value.Delete_Tree (N.Root);
+         Key_Value.Destroy (N.Root);
 
-         Session_Set.Delete_Node (SID, Sessions);
+         Session_Set.Remove (Sessions, SID);
       exception
-         when Key_Value.Tree.Node_Not_Found =>
+         when Key_Value.Table.Missing_Item_Error =>
             raise Internal_Error;
       end Delete_Session;
 
@@ -265,17 +280,15 @@ package body AWS.Session is
                        Value :    out Unbounded_String)
         when Lock = 0
       is
-         N  : Session_Node;
-         KV : Key_Value.Data;
+         N     : Session_Node;
       begin
-         Session_Set.Inquire (SID, Sessions, N);
+         Session_Set.Get_Value (Sessions, SID, N);
 
          N.Time_Stamp := Calendar.Clock;
 
-         Session_Set.Update_Node (N, Sessions);
+         Session_Set.Replace_Value (Sessions, SID, N);
 
-         Key_Value.Inquire (Key, N.Root, KV);
-         Value := KV.Value;
+         Key_Value.Get_Value (N.Root, Key, Value);
       exception
          when others =>
             Value := Null_Unbounded_String;
@@ -291,19 +304,14 @@ package body AWS.Session is
         when Lock = 0
       is
          N  : Session_Node;
-         KV : Key_Value.Data;
       begin
-         Session_Set.Inquire (SID, Sessions, N);
+         Session_Set.Get_Value (Sessions, SID, N);
 
          N.Time_Stamp := Calendar.Clock;
 
-         Session_Set.Update_Node (N, Sessions);
+         Session_Set.Replace_Value (Sessions, SID, N);
 
-         Key_Value.Inquire (Key, N.Root, KV);
-         Result := True;
-      exception
-         when Key_Value.Tree.Node_Not_Found =>
-            Result := False;
+         Result := Key_Value.Is_Present (N.Root, Key);
       end Key_Exist;
 
       -----------------
@@ -323,10 +331,10 @@ package body AWS.Session is
             SID := New_Node.SID;
 
             begin
-               Session_Set.Insert_Node (New_Node, Sessions);
+               Session_Set.Insert (Sessions, SID, New_Node);
                exit;
             exception
-               when Session_Set.Duplicate_Key =>
+               when Session_Set.Duplicate_Item_Error =>
                   --  very low probability but we should catch it
                   --  and try to generate unique key again.
                   null;
@@ -343,19 +351,19 @@ package body AWS.Session is
       is
          N : Session_Node;
       begin
-         Session_Set.Inquire (SID, Sessions, N);
+         Session_Set.Get_Value (Sessions, SID, N);
          N.Time_Stamp := Calendar.Clock;
 
          begin
-            Key_Value.Delete_Node (Key, N.Root);
+            Key_Value.Remove (N.Root, Key);
          exception
-            when Key_Value.Tree.Node_Not_Found =>
+            when Key_Value.Table.Missing_Item_Error =>
                null;
          end;
 
          --  set back the node
 
-         Session_Set.Update_Node (N, Sessions);
+         Session_Set.Replace_Value (Sessions, SID, N);
       exception
          when others =>
             null;
@@ -366,13 +374,8 @@ package body AWS.Session is
       -------------------
 
       function Session_Exist (SID : in ID) return Boolean is
-         N  : Session_Node;
       begin
-         Session_Set.Inquire (SID, Sessions, N);
-         return True;
-      exception
-         when Session_Set.Node_Not_Found =>
-            return False;
+         return Session_Set.Is_Present (Sessions, SID);
       end Session_Exist;
 
       ---------------
@@ -383,22 +386,21 @@ package body AWS.Session is
                        Key, Value : in String) when Lock = 0
       is
          N  : Session_Node;
-         KV : Key_Value.Data := (To_Unbounded_String (Key),
-                                 To_Unbounded_String (Value));
+         V  : constant Unbounded_String := To_Unbounded_String (Value);
       begin
-         Session_Set.Inquire (SID, Sessions, N);
+         Session_Set.Get_Value (Sessions, SID, N);
          N.Time_Stamp := Calendar.Clock;
 
          begin
-            Key_Value.Insert_Node (KV, N.Root);
+            Key_Value.Insert (N.Root, Key, V);
          exception
-            when Key_Value.Tree.Duplicate_Key =>
-               Key_Value.Update_Node (KV, N.Root);
+            when Key_Value.Table.Duplicate_Item_Error =>
+               Key_Value.Replace_Value (N.Root, Key, V);
          end;
 
          --  set back the node
 
-         Session_Set.Update_Node (N, Sessions);
+         Session_Set.Replace_Value (Sessions, SID, N);
       exception
          when others =>
             null;
@@ -408,10 +410,11 @@ package body AWS.Session is
       -- Get_Sessions_And_Lock --
       ---------------------------
 
-      procedure Get_Sessions_And_Lock (Sessions : out Session_Set.Avl_Tree) is
+      procedure Get_Sessions_And_Lock
+        (Sessions : out Session_Set.Table_Type) is
       begin
          Lock     := Lock + 1;
-         Sessions := Database.Sessions;
+         Session_Set.Assign (Sessions, Database.Sessions);
       end Get_Sessions_And_Lock;
 
       ------------
@@ -462,28 +465,29 @@ package body AWS.Session is
 
    procedure For_Every_Session is
 
-      procedure Process (Session  : in out Session_Node;
-                         Continue :    out Boolean);
+      procedure Process (Key      : in     ID;
+                         Session  : in     Session_Node;
+                         Order    : in     Positive;
+                         Continue : in out Boolean);
       --  iterator callback
-
-      Index    : Positive := 1;
 
       -------------
       -- Process --
       -------------
 
-      procedure Process (Session  : in out Session_Node;
-                         Continue :    out Boolean)
+      procedure Process (Key      : in     ID;
+                         Session  : in     Session_Node;
+                         Order    : in     Positive;
+                         Continue : in out Boolean)
       is
          Quit : Boolean := False;
       begin
-         Action (Index,
-                 Session.SID,
+         Action (Order,
+                 Key,
                  Session.Time_Stamp,
                  Quit);
 
          Continue := not Quit;
-         Index := Index + 1;
       end Process;
 
       --------------
@@ -491,9 +495,9 @@ package body AWS.Session is
       --------------
 
       procedure In_Order is
-         new Session_Set.In_Order_Tree_Traversal (Process);
+         new Session_Set.Traverse_Asc_G (Process);
 
-      Sessions : Session_Set.Avl_Tree;
+      Sessions : Session_Set.Table_Type;
 
    begin
       Database.Get_Sessions_And_Lock (Sessions);
@@ -510,28 +514,29 @@ package body AWS.Session is
 
    procedure For_Every_Session_Data (SID : in ID) is
 
-      procedure Process (KV       : in out Key_Value.Data;
-                         Continue :    out Boolean);
+      procedure Process (Key      : in     String;
+                         Value    : in     Unbounded_String;
+                         Order    : in     Positive;
+                         Continue : in out Boolean);
       --  iterator callback
-
-      Index    : Positive := 1;
 
       -------------
       -- Process --
       -------------
 
-      procedure Process (KV       : in out Key_Value.Data;
-                         Continue :    out Boolean)
+      procedure Process (Key      : in     String;
+                         Value    : in     Unbounded_String;
+                         Order    : in     Positive;
+                         Continue : in out Boolean)
       is
          Quit : Boolean := False;
       begin
-         Action (Index,
-                 To_String (KV.Key),
-                 To_String (KV.Value),
+         Action (Order,
+                 Key,
+                 To_String (Value),
                  Quit);
 
          Continue := not Quit;
-         Index := Index + 1;
       end Process;
 
       --------------
@@ -539,17 +544,17 @@ package body AWS.Session is
       --------------
 
       procedure In_Order is
-         new Key_Value.Tree.In_Order_Tree_Traversal (Process);
+         new Key_Value.Table.Traverse_Asc_G (Process);
 
       N        : Session_Node;
-      Sessions : Session_Set.Avl_Tree;
+      Sessions : Session_Set.Table_Type;
 
    begin
       Database.Get_Sessions_And_Lock (Sessions);
 
-      Session_Set.Inquire (SID, Sessions, N);
+      Session_Set.Get_Value (Sessions, SID, N);
 
-      In_Order (Key_Value.Tree.Avl_Tree (N.Root));
+      In_Order (Key_Value.Table.Table_Type (N.Root));
 
       Database.Unlock;
    exception

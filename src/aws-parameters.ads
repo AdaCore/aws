@@ -72,7 +72,7 @@ private
 
    type List is record
       Case_Sensitive : Boolean := True;
-      Data           : Key_Value.Set;
+      Data           : Key_Value.Set_Access := new Key_Value.Set;
       Count          : Natural := 0;
    end record;
 

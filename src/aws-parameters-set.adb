@@ -86,33 +86,32 @@ package body AWS.Parameters.Set is
       Parameter_List.Count := Parameter_List.Count + 1;
 
       begin
-         Key_Value.Insert_Node
-           ((To_Unbounded_String (L_Key), To_Unbounded_String (L_Value)),
-            Parameter_List.Data);
+         Key_Value.Insert
+           (Parameter_List.Data.all,
+            L_Key,
+            To_Unbounded_String (L_Value));
       exception
          --  This key already exist, catenate the new value to the old one
          --  separated with Val_Separator.
 
-         when AWS.Key_Value.Tree.Duplicate_Key =>
+         when AWS.Key_Value.Table.Duplicate_Item_Error =>
             declare
                Current_Value : constant String :=
                  Internal_Get (Parameter_List, L_Key, 0);
             begin
-               Key_Value.Update_Node
-                 ((To_Unbounded_String (L_Key),
-                   To_Unbounded_String
-                     (Current_Value & Val_Separator & L_Value)),
-                  Parameter_List.Data);
+               Key_Value.Replace_Value
+                 (Parameter_List.Data.all,
+                  L_Key,
+                  To_Unbounded_String
+                  (Current_Value & Val_Separator & L_Value));
             end;
       end;
 
-      Key_Value.Insert_Node
-        ((To_Unbounded_String (K_Key), To_Unbounded_String (L_Key)),
-         Parameter_List.Data);
+      Key_Value.Insert
+        (Parameter_List.Data.all, K_Key, To_Unbounded_String (L_Key));
 
-      Key_Value.Insert_Node
-        ((To_Unbounded_String (K_Value), To_Unbounded_String (L_Value)),
-         Parameter_List.Data);
+      Key_Value.Insert
+        (Parameter_List.Data.all, K_Value, To_Unbounded_String (L_Value));
    end Add;
 
    ---------
@@ -165,7 +164,7 @@ package body AWS.Parameters.Set is
 
    procedure Reset (Parameter_List : in out List) is
    begin
-      Key_Value.Delete_Tree (Parameter_List.Data);
+      Key_Value.Destroy (Parameter_List.Data.all);
       Parameter_List.Count := 0;
    end Reset;
 
