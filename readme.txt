@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             March 22th, 2004
+   Pascal Obry                                             March 26th, 2004
 
 
 
@@ -50,8 +50,8 @@ Here are the main changes since AWS 1.4 :
      wsdl2aws will not generate records or arrays, instead it will use them
      from the specified Ada spec.
 
-   - Add -cb wsdl2aws's option to generate the SOAP callback procedure for the
-     server.
+   - Add -cb wsdl2aws's option to generate the SOAP callback procedure for
+     the server.
 
    - Add -main wsdl2aws's option to generate a main procedure to build the
      server. This main procedure can be generated from a template file.
@@ -60,9 +60,9 @@ Here are the main changes since AWS 1.4 :
      can build a SOAP server for any Ada API. This is one of the simplest way
      to build a SOAP server.
 
-   - Some improvement in the generated AWS/SOAP code from WSDL
-     document. In the generated stub uses properly the
-     Types.To_SOAP_Object routine.
+   - Some improvement in the generated AWS/SOAP code from WSDL document.
+     The generated stub uses properly the Types.To_SOAP_Object routine
+     instead of generating specific code.
 
    - Add support for enumerations in Ada and WSDL. wsdl2aws can now generate
      enumeration type. This makes ada2wsdl and wsdl2aws even more compatible.
@@ -76,7 +76,7 @@ Here are the main changes since AWS 1.4 :
    - Many changes in the way SOAP and WSDL documents are generated for better
      interoperability (tested with Tomcat/Axis with some complex data
      structures). See for example wsdl_6 non-regression test (wsdl_6.java
-     for the Java Axis part).
+     for the Java Axis part). Tested with Tomcat 4.1.29 and Axis 1.1.
 
    - Add support for transient pages. These are stream objects that
      are not released by the server. Transient pages are released by a
@@ -112,7 +112,8 @@ Here are the main changes since AWS 1.4 :
        DEL_PARAM       Delete a parameter from an URL.
        REPLACE_PARAM   Replace a parameter from an URL.
 
-   - New template engine NOW variable tag.
+   - Add a new template engine variable tag called NOW (current time
+     and date).
 
    - Templates engine should be a bit faster as it uses less recursivity.
 
@@ -160,7 +161,11 @@ Here are the main changes since AWS 1.4 :
    - Add new boolean constant AWS.Net.SSL.Is_Supported which is set to true
      if SSL is supported by the runtime.
 
+   - New AWS.Response.Message_Body routine to retrieve a response as a
+     file stream. Make it easier to handle very large response object.
+
    - Improve demos/agent implementation to support large responses
+     based on AWS.Response.Message_Body (see above).
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -234,13 +239,13 @@ Validation:
 
 AWS 2.0 has been compiled and has passed all tests on:
 
-   Windows XP, GNAT 3.15a1, 3.16a, 3.17w and 5.01w
+   Windows XP, GNAT 3.15a1, 3.16a1, 3.17w and 5.01a
 
    Windows NT 4.0, GNAT 3.15a1
 
-   GNU/Linux x66, GNAT 3.16a and 3.17w
+   GNU/Linux x66, GNAT 3.16a1 and 3.17w
 
-   SPARC Solaris 8, GNAT 3.17w
+   SPARC Solaris 8, GNAT 5.01a
 
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
