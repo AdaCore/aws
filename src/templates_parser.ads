@@ -181,15 +181,41 @@ package Templates_Parser is
    function To_Set (Table : in Translate_Table) return Translate_Set;
    --  Convert a Translate_Table into a Translate_Set
 
+   ---------------
+   -- Callbacks --
+   ---------------
+
+   type Context is tagged private;
+   type Context_Access is access all Context'Class;
+
+   subtype TP_Context is Context;
+
+   procedure Callback
+     (Context  : access TP_Context;
+      Variable : in     String;
+      Result   :    out Unbounded_String;
+      Found    :    out Boolean);
+   --  Callback is called by the Parse routines below if a tag variable was not
+   --  found in the set of translations. This routine must then set Result with
+   --  the value to use for Variable (name of the variable tag) and in this
+   --  case Found must be set to True. If Variable is not handled in this
+   --  callback, Found must be set to False. This default implementation will
+   --  always return with Found set to False.
+
+   Null_Context : constant Context_Access;
+   --  ??? With Ada0Y it will be possible to use an anonymous access
+   --  "access Context"
+
    -----------------------------
    -- Parsing and Translating --
    -----------------------------
 
    function Parse
-     (Filename          : in String;
-      Translations      : in Translate_Table := No_Translation;
-      Cached            : in Boolean         := False;
-      Keep_Unknown_Tags : in Boolean         := False)
+     (Filename          : in     String;
+      Translations      : in     Translate_Table  := No_Translation;
+      Cached            : in     Boolean          := False;
+      Keep_Unknown_Tags : in     Boolean          := False;
+      Context           : access TP_Context'Class := Null_Context)
       return String;
    --  Parse the Template_File replacing variables' occurrences by the
    --  corresponding values. If Cached is set to True, Filename tree will be
@@ -200,26 +226,29 @@ package Templates_Parser is
    --  False.
 
    function Parse
-     (Filename          : in String;
-      Translations      : in Translate_Table := No_Translation;
-      Cached            : in Boolean         := False;
-      Keep_Unknown_Tags : in Boolean         := False)
+     (Filename          : in     String;
+      Translations      : in     Translate_Table  := No_Translation;
+      Cached            : in     Boolean          := False;
+      Keep_Unknown_Tags : in     Boolean          := False;
+      Context           : access TP_Context'Class := Null_Context)
       return Unbounded_String;
    --  Idem but returns an Unbounded_String
 
    function Parse
-     (Filename          : in String;
-      Translations      : in Translate_Set;
-      Cached            : in Boolean       := False;
-      Keep_Unknown_Tags : in Boolean       := False)
+     (Filename          : in     String;
+      Translations      : in     Translate_Set;
+      Cached            : in     Boolean          := False;
+      Keep_Unknown_Tags : in     Boolean          := False;
+      Context           : access TP_Context'Class := Null_Context)
       return String;
    --  Idem with a Translation_Set
 
    function Parse
-     (Filename          : in String;
-      Translations      : in Translate_Set;
-      Cached            : in Boolean       := False;
-      Keep_Unknown_Tags : in Boolean       := False)
+     (Filename          : in     String;
+      Translations      : in     Translate_Set;
+      Cached            : in     Boolean          := False;
+      Keep_Unknown_Tags : in     Boolean          := False;
+      Context           : access TP_Context'Class := Null_Context)
       return Unbounded_String;
    --  Idem with a Translation_Set
 
@@ -340,5 +369,13 @@ private
    function Image (N : in Integer) return String;
    pragma Inline (Image);
    --  Returns N image without leading blank
+
+   ---------------
+   -- Callbacks --
+   ---------------
+
+   type Context is tagged null record;
+
+   Null_Context : constant Context_Access := null;
 
 end Templates_Parser;
