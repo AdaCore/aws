@@ -813,6 +813,13 @@ is
                CDI := 1;
                Sockets.Receive (Sock, Data);
 
+               AWS.Status.Set.Binary (C_Stat, Data);
+               --  We record the message body as-is to be able to send it back
+               --  to an hotplug module if needed.
+
+               --  We then decode it and add the parameters read in the
+               --  message body.
+
                for K in Data'Range loop
                   Char_Data (CDI) := Character'Val (Data (K));
                   CDI := CDI + 1;
