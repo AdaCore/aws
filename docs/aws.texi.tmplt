@@ -4300,13 +4300,19 @@ Do not generated skeletons, only stubs are generated.
 Generate a @code{SOAP} dispatcher callback routine for the
 server. This dispatcher routine contains the code to handle all the
 operations as described in the @code{WSDL} document. You need also to
-specify the @code{-types} option, see below.
+specify the @code{-spec} and/or @code{-types} options, see below.
 
-@item -types spec
+@item -spec spec
 Specify the name of the spec containing the Ada implementation of the
 @code{SOAP} routines. This is used for example by the @code{-cb} option above
 to instantiate all the server side @code{SOAP} callbacks used by the main
-@code{SOAP} dispatcher routine.
+@code{SOAP} dispatcher routine. If @code{-types} is not specified, the
+type definitions are also used from this spec.
+
+@item -types spec
+Specify the name of the spec containing the Ada types (record, array) used by
+@code{SOAP} routines specified with option @code{-spec}. If @code{-spec} is
+not specified, the spec definitions are also used from this spec.
 
 @item -main filename
 Specify the name of the server's procedure main to generate. If
