@@ -479,6 +479,13 @@ image and an @code{HTML} page. The executable is self contained.
 A complete example that test many @code{AWS} features. If this test runs fine
 on your platform, @code{AWS} is certainly ok.
 
+@item split
+
+A demo for the transient pages and page splitter AWS's feature. Here a
+very big table is split on multiple pages. A set of links can be used
+to navigate to the next or previous page or to access directly to a
+given page.
+
 @item test_jabber
 
 A simple Jabber command line client to check the presence of a JID
@@ -497,6 +504,10 @@ A simple demo which handle textarea and display the content.
 
 Two servers on the same machine... virtual hosting demo.
 @pxref{Virtual host dispatcher}.
+
+@item web_mail
+
+A simple Web Mail implementation that works on a POP mailbox.
 
 @item ws
 
