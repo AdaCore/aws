@@ -1,5 +1,8 @@
 2002-06-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(build): Do not handle the aws-os_lib.adb file here.
+
 	* aws-client.adb:
 	(Read_Binary_Message): Store file content into the heap to avoid
 	 stack overflow when reading large files and returns an access
