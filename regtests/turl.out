@@ -62,6 +62,15 @@ http://myserver.com/
    Server    : myserver.com
    Port      : 80
    URI       : /
+http://myserver.com/./un/././deux.html
+http://myserver.com/./un/././deux.html
+   Server    : myserver.com
+   Port      : 80
+   URI       : /./un/././deux.html
+   *
+   Server    : myserver.com
+   Port      : 80
+   URI       : /un/deux.html
 https://myserver.com
 https://myserver.com/
    Server    : myserver.com

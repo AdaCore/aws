@@ -68,6 +68,7 @@ begin
    Test ("../demo.html");
    Test ("http://myserver:8088/../demo.html");
    Test ("http://myserver.com");
+   Test ("http://myserver.com/./un/././deux.html");
    Test ("https://myserver.com");
    Test ("kye/demo.html");
    Test ("http://www.myserver.com:12/request?p1=9");
