@@ -42,17 +42,15 @@ package body AWS.Net.Buffered is
    procedure Read (Socket : in Socket_Type'Class);
    --  Refill the read-cache, the cache must be empty before the call
 
-   procedure Push (C : in out Read_Cache; Item : in Stream_Element);
-   pragma Inline (Push);
-   --  Add item into the cache C
+   procedure Read
+     (Socket : in     Socket_Type'Class;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
+   --  Same semantic with Net.Receive procedure.
+   --  May be we should publish it.
 
-   procedure Pop (C : in out Read_Cache; Item : out Stream_Element);
-   pragma Inline (Pop);
-   --  Retreive on item from cache C and place it into Item
-
-   function Get_Byte (Socket : in Socket_Type'Class) return Stream_Element;
-   pragma Inline (Get_Byte);
-   --  Return a single byte from the input socket
+   function Is_Empty (C : in Read_Cache) return Boolean;
+   pragma Inline (Is_Empty);
 
    -----------
    -- Flush --
@@ -68,29 +66,21 @@ package body AWS.Net.Buffered is
    end Flush;
 
    --------------
-   -- Get_Byte --
-   --------------
-
-   function Get_Byte (Socket : in Socket_Type'Class) return Stream_Element is
-      C    : Read_Cache renames Socket.C.R_Cache;
-      Byte : Stream_Element;
-   begin
-      if C.Size = 0 then
-         Read (Socket);
-      end if;
-
-      Pop (C, Byte);
-
-      return Byte;
-   end Get_Byte;
-
-   --------------
    -- Get_Char --
    --------------
 
    function Get_Char (Socket : in Socket_Type'Class) return Character is
+      C    : Read_Cache renames Socket.C.R_Cache;
+      Char : Character;
    begin
-      return Character'Val (Natural (Get_Byte (Socket)));
+      if Is_Empty (C) then
+         Read (Socket);
+      end if;
+
+      Char    := Character'Val (C.Buffer (C.First));
+      C.First := C.First + 1;
+
+      return Char;
    end Get_Char;
 
    --------------
@@ -133,6 +123,15 @@ package body AWS.Net.Buffered is
    end Get_Line;
 
    --------------
+   -- Is_Empty --
+   --------------
+
+   function Is_Empty (C : in Read_Cache) return Boolean is
+   begin
+      return C.First > C.Last;
+   end Is_Empty;
+
+   --------------
    -- New_Line --
    --------------
 
@@ -148,45 +147,12 @@ package body AWS.Net.Buffered is
    function Peek_Char (Socket : in Socket_Type'Class) return Character is
       C : Read_Cache renames Socket.C.R_Cache;
    begin
-      if C.Size = 0 then
+      if Is_Empty (C) then
          Read (Socket);
       end if;
 
       return Character'Val (Natural (C.Buffer (C.First)));
    end Peek_Char;
-
-   ---------
-   -- Pop --
-   ---------
-
-   procedure Pop (C : in out Read_Cache; Item : out Stream_Element) is
-   begin
-      Item := C.Buffer (C.First);
-
-      C.First := C.First + 1;
-
-      if C.First > C.Max_Size then
-         C.First := 1;
-      end if;
-
-      C.Size := C.Size - 1;
-   end Pop;
-
-   ----------
-   -- Push --
-   ----------
-
-   procedure Push (C : in out Read_Cache; Item : in Stream_Element) is
-   begin
-      C.Last := C.Last + 1;
-
-      if C.Last > C.Max_Size then
-         C.Last := 1;
-      end if;
-
-      C.Buffer (C.Last) := Item;
-      C.Size := C.Size + 1;
-   end Push;
 
    ---------
    -- Put --
@@ -211,16 +177,36 @@ package body AWS.Net.Buffered is
    ----------
 
    procedure Read (Socket : in Socket_Type'Class) is
-
       C      : Read_Cache renames Socket.C.R_Cache;
-
-      Buffer : constant Stream_Element_Array := Receive (Socket, R_Cache_Size);
-      --  Read a chunk of data from the socket
-
    begin
-      for K in Buffer'Range loop
-         Push (C, Buffer (K));
-      end loop;
+      C.First := C.Buffer'First;
+      Receive (Socket, C.Buffer, C.Last);
+   end Read;
+
+   procedure Read
+     (Socket : in     Socket_Type'Class;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
+   is
+      C : Read_Cache renames Socket.C.R_Cache;
+   begin
+      Flush (Socket);
+
+      if Is_Empty (C) then
+         --  No more data, read the socket
+
+         Receive (Socket, Data, Last);
+
+      else
+         declare
+            C_Last  : constant Stream_Element_Offset
+              := Stream_Element_Offset'Min (C.Last, C.First + Data'Length - 1);
+         begin
+            Last := Data'First + C_Last - C.First;
+            Data (Data'First .. Last) := C.Buffer (C.First .. C_Last);
+            C.First := C_Last + 1;
+         end;
+      end if;
    end Read;
 
    function Read
@@ -228,45 +214,25 @@ package body AWS.Net.Buffered is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array
    is
-      C : Read_Cache renames Socket.C.R_Cache;
+      Buffer : Stream_Element_Array (1 .. Max);
+      Last   : Stream_Element_Offset;
    begin
-      Flush (Socket);
+      Read (Socket, Buffer, Last);
 
-      if C.Size = 0 then
-         --  No more data, read the socket
-         return Receive (Socket, Max);
-
-      else
-         declare
-            Chunk_Size : constant Stream_Element_Offset
-              := Stream_Element_Offset'Min (Max, C.Size);
-            Chunk      : Stream_Element_Array (1 .. Chunk_Size);
-         begin
-            for K in Chunk'Range loop
-               Chunk (K) := Get_Byte (Socket);
-            end loop;
-
-            return Chunk;
-         end;
-      end if;
+      return Buffer (1 .. Last);
    end Read;
 
    procedure Read
      (Socket : in     Socket_Type'Class;
       Data   :    out Stream_Element_Array)
    is
-      Index : Stream_Element_Offset := Data'First;
-      Rest  : Stream_Element_Count  := Data'Length;
+      Last  : Stream_Element_Offset;
+      First : Stream_Element_Offset := Data'First;
    begin
-      while Rest > 0 loop
-         declare
-            Buffer : constant Stream_Element_Array := Read (Socket, Rest);
-            Length : constant Stream_Element_Count := Buffer'Length;
-         begin
-            Data (Index .. Index + Length - 1) := Buffer;
-            Index := Index + Length;
-            Rest  := Rest - Length;
-         end;
+      loop
+         Read (Socket, Data (First .. Data'Last), Last);
+         exit when Last = Data'Last;
+         First := Last + 1;
       end loop;
    end Read;
 
