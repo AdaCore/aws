@@ -49,6 +49,9 @@ package AWS.Config.Set is
    procedure Server_Port (O : in out Object; Value : in Positive);
    --  This is the server port as set by the HTTP object declaration.
 
+   procedure Security (O : in out Object; Value : in Boolean);
+   --  Enable security (HTTPS/SSL) if Value is True.
+
    procedure Hotplug_Port (O : in out Object; Value : in Positive);
    --  This is the hotplug communication port needed to register and
    --  un-register an hotplug module.
@@ -64,6 +67,9 @@ package AWS.Config.Set is
    procedure Upload_Directory (O : in out Object; Value : in String);
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
+
+   procedure Session (O : in out Object; Value : in Boolean);
+   --  Enable session handling is Value is True.
 
    procedure Session_Cleanup_Interval (O : in out Object; Value : in Duration);
    --  Number of seconds between each run of the cleaner task to remove
@@ -145,12 +151,6 @@ package AWS.Config.Set is
    procedure Logo_Image (O : in out Object; Value : in String);
    --  Filename for the AWS logo image used in the status page.
 
-   procedure Security (O : in out Object; Value : in Boolean);
-   --  Enable security (HTTPS/SSL) if Value is True.
-
-   procedure Session (O : in out Object; Value : in Boolean);
-   --  Enable session handling is Value is True.
-
    procedure Case_Sensitive_Parameters (O : in out Object; Value : in Boolean);
    --  Parameters are handled with the case if Value is True.
 
@@ -161,10 +161,12 @@ private
       WWW_Root,
       Admin_URI,
       Server_Port,
+      Security,
       Hotplug_Port,
       Max_Connection,
       Log_File_Directory,
       Upload_Directory,
+      Session,
       Session_Cleanup_Interval,
       Session_Lifetime,
       Cleaner_Wait_For_Client_Timeout,
@@ -181,8 +183,6 @@ private
       Up_Image,
       Down_Image,
       Logo_Image,
-      Security,
-      Session,
       Case_Sensitive_Parameters);
 
 end AWS.Config.Set;
