@@ -1,3 +1,8 @@
+2004-09-15  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-std__gnat.adb:
+	(Raise_Socket_Error): Add missing parameter mode.
+
 2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:
