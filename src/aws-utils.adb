@@ -31,9 +31,12 @@
 --  $Id$
 
 with Ada.Integer_Text_IO;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Numerics.Discrete_Random;
+
+with GNAT.Directory_Operations;
 
 package body AWS.Utils is
 
@@ -43,7 +46,105 @@ package body AWS.Utils is
    package Integer_Random is new Ada.Numerics.Discrete_Random (Random_Integer);
    pragma Warnings (On);
 
+   procedure Compress_Decompress
+     (Filter       : in out ZLib.Filter_Type;
+      Filename_In  : in     String;
+      Filename_Out : in     String);
+   --  Compress or decompress (depending on the filter initialization)
+   --  from Filename_In to Filename_Out.
+
    Random_Generator : Integer_Random.Generator;
+
+   --------------
+   -- Compress --
+   --------------
+
+   procedure Compress
+     (Filename : in String;
+      Level    : in ZLib.Compression_Level := ZLib.Default_Compression)
+   is
+      Filter : ZLib.Filter_Type;
+
+   begin
+      ZLib.Deflate_Init (Filter, Level => Level, Header => ZLib.GZip);
+
+      Compress_Decompress (Filter, Filename, Filename & ".gz");
+
+      ZLib.Close (Filter);
+   exception
+      when others =>
+         ZLib.Close (Filter, Ignore_Error => True);
+         raise;
+   end Compress;
+
+   -------------------------
+   -- Compress_Decompress --
+   -------------------------
+
+   procedure Compress_Decompress
+     (Filter       : in out ZLib.Filter_Type;
+      Filename_In  : in     String;
+      Filename_Out : in     String)
+   is
+      use Streams;
+
+      procedure Data_In
+        (Item : out Ada.Streams.Stream_Element_Array;
+         Last : out Ada.Streams.Stream_Element_Offset);
+      --  Retrieve a chunk of data from the file
+
+      procedure Data_Out
+        (Item : in Ada.Streams.Stream_Element_Array);
+      --  Write a chunk of data into the compressed file
+
+      procedure Translate is new ZLib.Generic_Translate (Data_In, Data_Out);
+
+      File_In, File_Out : Stream_IO.File_Type;
+
+      -------------
+      -- Data_In --
+      -------------
+
+      procedure Data_In
+        (Item : out Ada.Streams.Stream_Element_Array;
+         Last : out Ada.Streams.Stream_Element_Offset) is
+      begin
+         Stream_IO.Read (File_In, Item, Last);
+      end Data_In;
+
+      --------------
+      -- Data_Out --
+      --------------
+
+      procedure Data_Out
+        (Item : in Ada.Streams.Stream_Element_Array) is
+      begin
+         Stream_IO.Write (File_Out, Item);
+      end Data_Out;
+
+   begin
+      Stream_IO.Open (File_In, Stream_IO.In_File, Filename_In);
+      Stream_IO.Create (File_Out, Stream_IO.Out_File, Filename_Out);
+
+      Translate (Filter);
+
+      Stream_IO.Close (File_Out);
+
+      --  Everything was ok, let's remove the original file now
+
+      Stream_IO.Delete (File_In);
+
+   exception
+      when others =>
+         if Stream_IO.Is_Open (File_In) then
+            Stream_IO.Close (File_In);
+         end if;
+
+         if Stream_IO.Is_Open (File_Out) then
+            Stream_IO.Close (File_Out);
+         end if;
+         raise;
+   end Compress_Decompress;
 
    -------------------
    -- CRLF_2_Spaces --
@@ -57,6 +158,28 @@ package body AWS.Utils is
               (From => ASCII.CR & ASCII.LF, To   => "  ")),
          Strings.Right);
    end CRLF_2_Spaces;
+
+   ----------------
+   -- Decompress --
+   ----------------
+
+   procedure Decompress (Filename : in String) is
+      use GNAT;
+
+      Filter : ZLib.Filter_Type;
+
+   begin
+      ZLib.Inflate_Init (Filter, Header => ZLib.GZip);
+
+      Compress_Decompress
+        (Filter, Filename, Directory_Operations.Base_Name (Filename, ".gz"));
+
+      ZLib.Close (Filter);
+   exception
+      when others =>
+         ZLib.Close (Filter, Ignore_Error => True);
+         raise;
+   end Decompress;
 
    -------------
    -- Get_MD5 --
