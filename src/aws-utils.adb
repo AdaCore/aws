@@ -157,6 +157,25 @@ package body AWS.Utils is
          Strings.Right);
    end CRLF_2_Spaces;
 
+   ---------
+   -- Dec --
+   ---------
+
+   function Dec (V : in Natural) return String is
+      N   : Integer := V;
+      S   : String (1 .. 10);
+      Idx : Natural := S'Last;
+   begin
+      loop
+         S (Idx) := Character'Val (Character'Pos ('0') + N mod 10);
+         N := N / 10;
+         exit when N = 0;
+         Idx := Idx - 1;
+      end loop;
+
+      return S (Idx .. S'Last);
+   end Dec;
+
    ----------------
    -- Decompress --
    ----------------
