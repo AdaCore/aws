@@ -45,7 +45,6 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net;
 with AWS.Resources.Streams;
-with AWS.Utils;
 
 package AWS.Response is
 
@@ -251,9 +250,14 @@ package AWS.Response is
    function Message_Body (D : in Data) return String;
    pragma Inline (Message_Body);
    --  Returns the message body content as a string.
+   --  Message_Body routines could not be used with user defined streams
+   --  (see. Stream routine in this package). Constraint_Error would be raised
+   --  on try to get data by the Message_Body from the user defined streams.
+   --  For get data from user defined streams routine Create_Resource should
+   --  be used.
 
    function Message_Body
-     (D : in Data)
+     (D      : in Data)
       return Strings.Unbounded.Unbounded_String;
    pragma Inline (Message_Body);
    --  Returns the message body content as a unbounded_string.
@@ -307,15 +311,23 @@ private
    Undefined_Length : constant Content_Length_Type
      := Content_Length_Type (Resources.Undefined_Length);
 
-   type Natural_Access is access Natural;
+   type Release_Controller is record
+      Counter        : Natural := 1;
+      --  Counter of the reference to Data object.
+
+      Stream_Taken : Boolean   := False;
+      --  Flag would be set to true after Create_Resource routine call
+      --  to do not free stream on finalize.
+   end record;
+
+   type Release_Controller_Access is access all Release_Controller;
 
    type Data is new Ada.Finalization.Controlled with record
-      Ref_Counter  : Natural_Access;
+      Ref_Counter  : Release_Controller_Access;
       Mode         : Data_Mode            := No_Data;
       Status_Code  : Messages.Status_Code := Messages.S200;
       Filename     : Unbounded_String;
       Stream       : Resources.Streams.Stream_Access;
-      Message_Body : Utils.Stream_Element_Array_Access;
       Header       : AWS.Headers.List;
    end record;
 
