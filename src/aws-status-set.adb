@@ -287,8 +287,7 @@ package body AWS.Status.Set is
    -- Session --
    -------------
 
-   procedure Session
-     (D : in out Data) is
+   procedure Session (D : in out Data) is
    begin
       D.Session_ID      := AWS.Session.Create;
       D.Session_Created := True;
@@ -414,7 +413,7 @@ package body AWS.Status.Set is
             begin
                Parse (To_String (Cookies_Set (Idx)));
 
-               --  exit when we found existing cookie.
+               --  Exit when we have found an existing cookie
                exit when D.Session_ID /= AWS.Session.No_Session;
             end;
          end loop;
