@@ -36,9 +36,6 @@ project Demos_Shared is
 
    for Source_Dirs use ();
 
-   type Socket_Type is ("std", "ssl");
-   Socket : Socket_Type := external ("SOCKET", "std");
-
    --------------
    -- Compiler --
    --------------
