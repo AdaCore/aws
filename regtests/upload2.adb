@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -44,6 +44,9 @@ with AWS.Parameters;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Upload2 is
 
@@ -60,6 +63,7 @@ procedure Upload2 is
    end Server;
 
    HTTP : AWS.Server.HTTP;
+   Port : Natural := 7643;
 
    procedure Problem
      (E      : in     Ada.Exceptions.Exception_Occurrence;
@@ -115,8 +119,10 @@ procedure Upload2 is
    begin
       accept Start;
 
+      Get_Free_Port (Port);
+
       Config.Set.Server_Name (Web_Config, "upload2");
-      Config.Set.Server_Port (Web_Config, 7643);
+      Config.Set.Server_Port (Web_Config, Port);
       Config.Set.Max_Connection (Web_Config, 5);
       Config.Set.Upload_Directory (Web_Config, "/this/one/does/not/exists");
 
@@ -165,7 +171,8 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:7643/upload", "upload2.ali");
+   Request
+     ("http://localhost:" & Utils.Image (Port) & "/upload", "upload2.ali");
 
    Server.Stopped;
 

@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -39,13 +39,17 @@ with AWS.OS_Lib;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Once is
 
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
+   Port : Natural := 1269;
 
    --------
    -- CB --
@@ -73,7 +77,7 @@ procedure Once is
       use type Messages.Status_Code;
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:1269/once");
+      R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/once");
 
       if Response.Status_Code (R) = Messages.S404 then
          Text_IO.Put_Line ("404 not found");
@@ -86,8 +90,10 @@ procedure Once is
    File : Text_IO.File_Type;
 
 begin
+   Get_Free_Port (Port);
+
    Server.Start
-     (WS, "once", CB'Unrestricted_Access, Port => 1269, Max_Connection => 5);
+     (WS, "once", CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
    Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
 
    delay 1.0;

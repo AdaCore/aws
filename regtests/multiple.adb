@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -41,6 +41,9 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Multiple is
 
@@ -51,7 +54,10 @@ procedure Multiple is
    function CB (Request : in Status.Data) return Response.Data;
 
    HTTP1 : AWS.Server.HTTP;
+   Port1 : Natural := 1252;
+
    HTTP2 : AWS.Server.HTTP;
+   Port2 : Natural := 1253;
 
    --------
    -- CB --
@@ -80,18 +86,22 @@ procedure Multiple is
 begin
    Put_Line ("Start main, wait for server to start...");
 
+   Get_Free_Port (Port1);
+
    AWS.Server.Start
      (HTTP1, "server1",
-      CB'Unrestricted_Access, Port => 1252, Max_Connection => 5);
+      CB'Unrestricted_Access, Port => Port1, Max_Connection => 5);
+
+   Get_Free_Port (Port2);
 
    AWS.Server.Start
      (HTTP2, "server2",
-      CB'Unrestricted_Access, Port => 1253, Max_Connection => 5);
+      CB'Unrestricted_Access, Port => Port2, Max_Connection => 5);
 
-   Request ("http://localhost:1252/call");
-   Request ("http://localhost:1253/call");
-   Request ("http://localhost:1253/call");
-   Request ("http://localhost:1252/call");
+   Request ("http://localhost:" & Utils.Image (Port1) & "/call");
+   Request ("http://localhost:" & Utils.Image (Port2) & "/call");
+   Request ("http://localhost:" & Utils.Image (Port2) & "/call");
+   Request ("http://localhost:" & Utils.Image (Port1) & "/call");
 
    AWS.Server.Shutdown (HTTP1);
    AWS.Server.Shutdown (HTTP2);

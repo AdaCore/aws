@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,6 +40,9 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Parameters;
 with AWS.Messages;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Param is
 
@@ -55,6 +58,7 @@ procedure Param is
    end Server;
 
    HTTP : AWS.Server.HTTP;
+   Port : Natural := 1243;
 
    --------
    -- CB --
@@ -98,9 +102,11 @@ procedure Param is
 
    task body Server is
    begin
+      Get_Free_Port (Port);
+
       AWS.Server.Start
         (HTTP, "param",
-         CB'Unrestricted_Access, Port => 1243, Max_Connection => 5);
+         CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
 
       Put_Line ("Server started");
       New_Line;
@@ -137,12 +143,18 @@ begin
 
    Server.Started;
 
-   Request ("http://localhost:1243/call");
-   Request ("http://localhost:1243/call call");
-   Request ("http://localhost:1243/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
-   Request ("http://localhost:1243/call call?p1=8&p2=azerty%3e%20qwerty");
-   Request ("http://localhost:1243/call%20call%3fp1=a%20a%3f");
-   Request ("http://localhost:1243/spec?p%261=1%3d1&p%3D2=2%262");
+   Request ("http://localhost:" & Utils.Image (Port)
+              & "/call");
+   Request ("http://localhost:" & Utils.Image (Port)
+              & "/call call");
+   Request ("http://localhost:" & Utils.Image (Port)
+              & "/call?p1=8&p2=azerty%3e%20%26%3c%3fqwerty");
+   Request ("http://localhost:" & Utils.Image (Port)
+              & "/call call?p1=8&p2=azerty%3e%20qwerty");
+   Request ("http://localhost:" & Utils.Image (Port)
+              & "/call%20call%3fp1=a%20a%3f");
+   Request ("http://localhost:" & Utils.Image (Port)
+              & "/spec?p%261=1%3d1&p%3D2=2%262");
 
    Server.Stopped;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,13 +38,18 @@ with AWS.MIME;
 with AWS.Response;
 with AWS.Server.Status;
 with AWS.Status;
+with AWS.Utils;
+
+with Get_Free_Port;
 
 procedure Server_Info is
 
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS    : Server.HTTP;
+   Port1 : Natural := 1258;
+   Port2 : Natural := 1259;
 
    task type T_Client is
       entry Start;
@@ -78,7 +83,7 @@ procedure Server_Info is
    begin
       accept Start;
 
-      Client.Create (C, "http://localhost:1258");
+      Client.Create (C, "http://localhost:" & Utils.Image (Port1));
 
       Client.Get (C, R, "/");
 
@@ -103,10 +108,12 @@ procedure Server_Info is
 
    task body Server is
    begin
+      Get_Free_Port (Port1);
+
       AWS.Server.Start
         (WS, "Server Info",
          CB'Unrestricted_Access,
-         Port           => 1258,
+         Port           => Port1,
          Max_Connection => 6);
 
       Text_IO.Put_Line ("started");
@@ -172,10 +179,12 @@ begin
 
    Text_IO.New_Line;
 
+   Get_Free_Port (Port2);
+
    AWS.Server.Start
      (WS, "Server Info",
       CB'Unrestricted_Access,
-      Port           => 1259,
+      Port           => Port2,
       Max_Connection => 2,
       Session        => True);
 

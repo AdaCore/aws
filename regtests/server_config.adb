@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -40,12 +40,15 @@ with AWS.Server;
 with AWS.Status;
 with AWS.Utils;
 
+with Get_Free_Port;
+
 procedure Server_Config is
 
    use Ada;
    use AWS;
 
-   WS : Server.HTTP;
+   WS   : Server.HTTP;
+   Port : Natural := 1259;
 
    Conf : constant Config.Object := Config.Get_Current;
    --  Config as read from the ini files
@@ -80,9 +83,11 @@ procedure Server_Config is
    end Display;
 
 begin
+   Get_Free_Port (Port);
+
    Config.Set.Directory_Browser_Page (Server_Conf, "from_ada_file");
    Config.Set.Server_Name (Server_Conf, "Server Config");
-   Config.Set.Server_Port (Server_Conf, 1259);
+   Config.Set.Server_Port (Server_Conf, Port);
    Config.Set.Log_Split_Mode (Server_Conf, "Monthly");
 
    Server.Start (WS, CB'Unrestricted_Access, Server_Conf);

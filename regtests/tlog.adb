@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2003-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -64,6 +64,7 @@ procedure Tlog is
    Success  : Boolean;
 
    WS   : Server.HTTP;
+   Port : Natural := 1251;
 
    -----------------
    -- Create_File --
@@ -234,29 +235,31 @@ begin
    AWS.Server.Set_Unexpected_Exception_Handler
      (WS, UEH'Unrestricted_Access);
 
+   Get_Free_Port (Port);
+
    Server.Start
-     (WS, "tlog", CB'Unrestricted_Access, Port => 1251, Max_Connection => 2);
+     (WS, "tlog", CB'Unrestricted_Access, Port => Port, Max_Connection => 2);
 
    Server.Log.Start (WS);
    Server.Log.Start_Error (WS);
 
    Ada.Text_IO.Put_Line ("started");
 
-   R := Client.Get ("http://localhost:1251/one");
-   R := Client.Get ("http://localhost:1251/azerty");
-   R := Client.Get ("http://localhost:1251/file");
-   R := Client.Get ("http://localhost:1251/one");
-   R := Client.Get ("http://localhost:1251/file");
-   R := Client.Get ("http://localhost:1251/error");
-   R := Client.Get ("http://localhost:1251/azerty");
-   R := Client.Get ("http://localhost:1251/error");
-   R := Client.Get ("http://localhost:1251/one");
-   R := Client.Get ("http://localhost:1251/azerty");
-   R := Client.Get ("http://localhost:1251/file");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/one");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/azerty");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/file");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/one");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/file");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/error");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/azerty");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/error");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/one");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/azerty");
+   R := Client.Get ("http://localhost:" & Utils.Image (Port) & "/file");
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:1251",
+      Host       => "http://localhost:" & Utils.Image (Port),
       Retry      => 0);
 
    --  Test for basic authentication.
