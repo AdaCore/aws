@@ -59,12 +59,20 @@ package body AWS.Net.Std is
 
    procedure Accept_Socket
      (Socket     : in     Socket_Type;
-      New_Socket :    out Net.Socket_Type'Class)
+      New_Socket :    out Socket_Access)
    is
       pragma Warnings (Off, New_Socket);
    begin
+      if New_Socket = null then
+         New_Socket := new Socket_Type;
+      end if;
+
+      Socket_Type (New_Socket.all).S := new Socket_Hidden;
+
+      Set_Cache (New_Socket.all);
+
       Sockets.Accept_Socket
-        (SFD (Socket.S.all), SFD (Socket_Type (New_Socket).S.all));
+        (SFD (Socket.S.all), SFD (Socket_Type (New_Socket.all).S.all));
    exception
       when E : others =>
          Raise_Exception (E, "Accept_Socket");
