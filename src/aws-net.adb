@@ -177,19 +177,19 @@ package body AWS.Net is
       use type Thin.Events_Type;
 
       To_Poll_Mode : constant array (Wait_Mode) of Thin.Events_Type
-        := (Input => Thin.Pollin, Output => Thin.Pollout);
+        := (Input => Thin.POLLIN, Output => Thin.POLLOUT);
 
-      PFD : Thin.Pollfd
+      PFD : aliased Thin.Pollfd
         := (Fd      => C.int (Get_FD (Socket)),
             Events  => To_Poll_Mode (Mode),
-            Revents => 0);
+            REvents => 0);
       RC      : C.int;
       Timeout : C.int;
    begin
-      if Socket.Timeout >= Duration (C.int'Last / 1000) then
+      if Socket.Timeout >= Duration (C.int'Last / 1_000) then
          Timeout := C.int'Last;
       else
-         Timeout := C.int (Socket.Timeout * 1000);
+         Timeout := C.int (Socket.Timeout * 1_000);
       end if;
 
       RC := Thin.Poll (PFD'Address, 1, Timeout);
@@ -201,12 +201,12 @@ package body AWS.Net is
                "Wait_For_" & Wait_Mode'Image (Mode)
                  & " error code" & Integer'Image (Std.Errno));
 
-         when  0 =>
+         when 0 =>
             Ada.Exceptions.Raise_Exception
               (Socket_Error'Identity,
                Wait_Mode'Image (Mode) & " timeout.");
 
-         when  1 =>
+         when 1 =>
             if PFD.REvents = To_Poll_Mode (Mode) then
                return;
             else
@@ -215,9 +215,9 @@ package body AWS.Net is
                   Wait_Mode'Image (Mode) & "_Wait error.");
             end if;
 
-         when others => raise Program_Error;
+         when others =>
+            raise Program_Error;
       end case;
-
    end Wait_For;
 
 end AWS.Net;
