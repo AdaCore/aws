@@ -706,8 +706,6 @@ support/g-calend.adb
 support/g-calend.ads
 support/g-catiio.adb
 support/g-catiio.ads
-support/g-dyntab.adb
-support/g-dyntab.ads
 support/g-regexp.adb
 support/g-regexp.ads
 support/g-regpat.adb
@@ -715,6 +713,7 @@ support/g-regpat.ads
 support/gnat.ads
 support/README.TXT
 tools/awsres.adb
+tools/hotplug_password.adb
 tools/makefile
 win32/aws.ico
 win32/aws.rc
