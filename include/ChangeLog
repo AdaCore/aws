@@ -1,3 +1,9 @@
+2003-11-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb, templates_parser-filter.adb:
+	Update to 6.5 version.
+	Implements the new REPLACE filter.
+
 2003-11-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zlib/*:
