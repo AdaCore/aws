@@ -1,6 +1,8 @@
 auth.res
 b~auth.adb
 b~auth.ads
+b~ctab.adb
+b~ctab.ads
 b~dummy.adb
 b~dummy.ads
 b~head.adb
@@ -25,6 +27,8 @@ b~strm.adb
 b~strm.ads
 b~tclientto.adb
 b~tclientto.ads
+b~test_sec_soap.adb
+b~test_sec_soap.ads
 b~test_soap.adb
 b~test_soap.ads
 b~test_speed.adb
