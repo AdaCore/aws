@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
 --                                                                          --
@@ -40,11 +40,14 @@ with AWS.Net.Buffered;
 with AWS.Response;
 with AWS.Server;
 with AWS.Status;
+with AWS.Utils;
 
 procedure SSBack is
 
    use Ada;
    use AWS;
+
+   Port : Positive := 4469;
 
    WS : Server.HTTP;
 
@@ -56,9 +59,17 @@ procedure SSBack is
    function CB (Request : in Status.Data) return Response.Data;
 
    task Wait_Call is
+      entry Start;
       entry Next (Keep_Alive : Boolean);
       entry Stop;
    end Wait_Call;
+
+   task IO is
+      entry Put_Line (Str : in String);
+      entry Put_Line_1 (Str : in String);
+      entry Put_Line_2 (Str : in String);
+      entry Stop;
+   end IO;
 
    -----------------
    -- Wait_Socket --
@@ -124,12 +135,45 @@ procedure SSBack is
       end if;
    end CB;
 
+   task body IO is
+
+      procedure Write_Line (Str : in String) is
+      begin
+         Ada.Text_Io.Put_Line (Str);
+         Ada.Text_IO.Flush;
+      end Write_Line;
+
+   begin
+      loop
+         select
+            accept Put_Line_1 (Str : in String) do
+               Write_Line (Str);
+            end Put_Line_1;
+
+            accept Put_Line_2 (Str : in String) do
+               Write_Line (Str);
+            end Put_Line_2;
+
+         or
+            accept Put_Line (Str : in String) do
+               Write_Line (Str);
+            end Put_Line;
+
+         or
+            accept Stop;
+            exit;
+         end select;
+      end loop;
+   end IO;
+
    task body Wait_Call is
       R          : Response.Data;
       Connect    : Client.HTTP_Connection;
       Keep_Alive : Boolean;
    begin
-      Client.Create (Connect, "https://localhost:4469");
+      accept Start;
+
+      Client.Create (Connect, "https://localhost:" & Utils.Image (Port));
 
       loop
          select
@@ -144,10 +188,17 @@ procedure SSBack is
          if Keep_Alive then
             Client.Get (Connect, R, Wait_Other_Call);
          else
-            R := Client.Get ("https://localhost:4469" & Wait_Other_Call);
+            R := Client.Get
+              ("https://localhost:" & Utils.Image (Port) & Wait_Other_Call);
          end if;
-         Ada.Text_IO.Put_Line (Response.Message_Body (R));
+         IO.Put_Line_1 (Response.Message_Body (R));
       end loop;
+
+      Client.Close (Connect);
+
+   exception
+      when others =>
+         IO.Put_Line ("Wait_Call error!");
    end Wait_Call;
 
    -----------------
@@ -165,18 +216,25 @@ procedure SSBack is
       begin
          Placed := True;
       end Set;
+
    end Wait_Socket;
 
 begin
-   Server.Start
-     (WS,
-      "file",
-      CB'Unrestricted_Access,
-      Port           => 4469,
-      Security       => True,
-      Max_Connection => 5);
+   loop
+      begin
+         Server.Start
+           (WS, "file", CB'Unrestricted_Access,
+            Port => SSback.Port, Max_Connection => 5, Security => True);
+         exit;
+      exception
+         when Net.Socket_Error =>
+            Port := Port + 1;
+      end;
+   end loop;
 
-   Text_IO.Put_Line ("started"); Ada.Text_IO.Flush;
+   IO.Put_Line ("started");
+
+   Wait_Call.Start;
 
    declare
       R : Response.Data;
@@ -184,16 +242,20 @@ begin
       for J in 1 .. 10 loop
          Wait_Call.Next (J rem 2 = 0);
 
-         Ada.Text_IO.Put_Line (Response.Message_Body (R));
-
          Wait_Socket.Wait;
 
          R := Client.Post
-                ("https://localhost:4469",
+                ("https://localhost:" & Utils.Image (Port),
                  "Data for transfer from one client to another "
                   & Integer'Image (J) & '.');
+         IO.Put_Line_2 (Response.Message_Body (R));
       end loop;
    end;
 
    Wait_Call.Stop;
+
+   IO.Put_Line ("shutdown...");
+   IO.Stop;
+
+   Server.Shutdown (WS);
 end SSBack;
