@@ -1,3 +1,20 @@
-start
-AWS.NET.SOCKET_ERROR
-error:02001002:system library:fopen:No such file or directory
+File "absent-file" error
+02001002:system library:fopen:No such file or directory
+20074002:BIO routines:FILE_CTRL:system lib
+140AD002:SSL routines:SSL_CTX_use_certificate_file:system lib
+
+File "absent-file" error
+02001002:system library:fopen:No such file or directory
+20074002:BIO routines:FILE_CTRL:system lib
+140B0002:SSL routines:SSL_CTX_use_PrivateKey_file:system lib
+
+File "sslcfg.adb" error
+0906D06C:PEM routines:PEM_read_bio:no start line
+140AD009:SSL routines:SSL_CTX_use_certificate_file:PEM lib
+
+File "sslcfg.adb" error
+0906D06C:PEM routines:PEM_read_bio:no start line
+140B0009:SSL routines:SSL_CTX_use_PrivateKey_file:PEM lib
+
+Success.
+Success.
