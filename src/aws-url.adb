@@ -248,7 +248,9 @@ package body AWS.URL is
       URL.Path := URL.N_Path;
 
       if URL.Status = Wrong then
-         Raise_URL_Error (To_String (URL.Path));
+         Raise_URL_Error
+           (To_String (URL.Path),
+            "Reference Web root parent directory");
       end if;
    end Normalize;
 
@@ -424,7 +426,7 @@ package body AWS.URL is
                if Utils.Is_Number (URL (I1 + 1 .. URL'Last)) then
                   O.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
                else
-                  raise URL_Error;
+                  Raise_URL_Error (AWS.URL.Parse.URL, "Port is not valid");
                end if;
 
                O.Path := +"/";
@@ -433,7 +435,7 @@ package body AWS.URL is
                if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
                   O.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
                else
-                  raise URL_Error;
+                  Raise_URL_Error (AWS.URL.Parse.URL, "Port is not valid");
                end if;
 
                Parse_Path_File (I2);
@@ -509,7 +511,9 @@ package body AWS.URL is
       --  Raise URL_Error is the URL is suspicious
 
       if Check_Validity and then O.Status = Wrong then
-         Raise_URL_Error (To_String (O.N_Path));
+         Raise_URL_Error
+           (To_String (O.N_Path),
+            "Reference Web root parent directory");
       end if;
 
       return O;
