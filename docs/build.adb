@@ -47,7 +47,15 @@ procedure Build is
          Assoc ("SEND_TIMEOUT",
                 Image (Config.Default_Send_Timeout)),
          Assoc ("RECEIVE_TIMEOUT",
-                Image (Config.Default_Receive_Timeout))
+                Image (Config.Default_Receive_Timeout)),
+         Assoc ("LOGO_IMAGE",
+                Config.Default_Logo_Image),
+         Assoc ("DOWN_IMAGE",
+                Config.Default_Down_Image),
+         Assoc ("UP_IMAGE",
+                Config.Default_Up_Image),
+         Assoc ("STATUS_PAGE",
+                Config.Default_Status_Page)
         );
 
 begin
