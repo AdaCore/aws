@@ -1,3 +1,9 @@
+2004-04-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* generate.adb:
+	Enclose all tests inside an exception handler. Ensure that even if
+	 a test fails the test suite continue to run.
+
 2004-04-06  Pascal Obry  <pascal.obry@edf.fr>
 
 	* makefile:
