@@ -11,43 +11,13 @@ aws-translator-conversion.adb:
 aws-os_lib-definitions.ads: ../config/src/check_config.c
 	$(MAKE) -C ../config setup
 
-ifdef ADASOCKETS
-aws-net-std.adb: ../config/aws-net-std__adasockets.adb
-	$(CP) ../config/aws-net-std__adasockets.adb aws-net-std.adb
-else
-aws-net-std.adb: ../config/aws-net-std__gnat.adb
-	$(CP) ../config/aws-net-std__gnat.adb aws-net-std.adb
-endif
-
-adasockets:
-	-$(RM) -f ../$(BDIR)/obj/aws-net-std.o
-	$(CP) ../config/aws-net-std__adasockets.adb aws-net-std.adb
-
-gnatsockets:
-	-$(RM) -f ../$(BDIR)/obj/aws-net-std.o
-	$(CP) ../config/aws-net-std__gnat.adb aws-net-std.adb
-
-gnat_oslib:
-	-$(RM) -f ../$(BDIR)/obj/aws-os_lib.o
-	$(CP) ../config/aws-os_lib__gnat.adb aws-os_lib.adb
-
-posix_oslib:
-	-$(RM) -f ../$(BDIR)/obj/aws-os_lib.o
-	$(CP) ../config/aws-os_lib__posix.adb aws-os_lib.adb
-
-win32_oslib:
-	-$(RM) -f ../$(BDIR)/obj/aws-os_lib.o
-	$(CP) ../config/aws-os_lib__win32.adb aws-os_lib.adb
-
-aws-os_lib.adb: gnat_oslib
-
-setup: aws-net-std.adb aws-os_lib.adb
+setup:
 	-$(MKDIR) -p ../$(BDIR)/obj
 	-$(MKDIR) -p ../$(BDIR)/lib
 
 build:
-	$(GNATMAKE) -Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Psrc -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} \
+		-XSOCKLIB=${PRJ_SOCKLIB} -XOSLIB=${PRJ_OSLIB}
 
 clean:
-	-$(RM) -f aws-os_lib.adb aws-net-std.adb aws-translator-conversion.adb
-	-$(RM) -f aws-os_lib-definitions.ads
+	-$(RM) -f aws-translator-conversion.adb aws-os_lib-definitions.ads
