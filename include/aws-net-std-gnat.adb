@@ -59,63 +59,42 @@ package body AWS.Net.Std is
    -------------------
 
    procedure Accept_Socket
-     (Socket     : in     Socket_Type;
-      New_Socket :    out Socket_Access)
+     (Socket     : in     Net.Socket_Type'Class;
+      New_Socket :    out Socket_Type)
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
    begin
-      if New_Socket = null then
-         New_Socket := new Socket_Type;
+      if New_Socket.S = null then
+         New_Socket.S := new Socket_Hidden;
       end if;
 
-      Socket_Type (New_Socket.all).S := new Socket_Hidden;
-
-      Set_Cache (New_Socket.all);
-
       Sockets.Accept_Socket
-        (SFD (Socket.S.all),
-         SFD (Socket_Type (New_Socket.all).S.all), Sock_Addr);
+        (SFD (Socket_Type (Socket).S.all),
+         SFD (New_Socket.S.all), Sock_Addr);
+
+      Set_Cache (New_Socket);
    exception
       when E : others =>
-         Free (New_Socket.all);
          Free (New_Socket);
          Raise_Exception (E, "Accept_Socket");
    end Accept_Socket;
-
-   ------------
-   -- Assign --
-   ------------
-
-   procedure Assign
-     (Left  : in out Socket_Type;
-      Right : in     Net.Socket_Type'Class) is
-   begin
-      Free (Left.S);
-      Left.S := new Socket_Hidden'(Socket_Type (Right).S.all);
-   end Assign;
 
    ----------
    -- Bind --
    ----------
 
    procedure Bind
-     (Socket : in Socket_Type;
-      Port   : in Natural;
-      Host   : in String := "")
+     (Socket : in out Socket_Type;
+      Port   : in     Natural;
+      Host   : in     String := "")
    is
-      Sock_Addr : Sockets.Sock_Addr_Type;
+      Sock_Addr : constant Sockets.Sock_Addr_Type
+        := (Sockets.Family_Inet,
+            Sockets.Inet_Addr (Host), Sockets.Port_Type (Port));
    begin
-      if Host = "" then
-         --  Not Host specified, we use localhost
-         Sock_Addr
-           := (Sockets.Family_Inet,
-               Sockets.Addresses (Sockets.Get_Host_By_Name ("localhost"), 1),
-               Sockets.Port_Type (Port));
-      else
-         Sock_Addr
-           := (Sockets.Family_Inet,
-               Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1),
-               Sockets.Port_Type (Port));
+      if Socket.S = null then
+         Socket.S := new Socket_Hidden;
+         Sockets.Create_Socket (SFD (Socket.S.all));
       end if;
 
       Sockets.Bind_Socket (SFD (Socket.S.all), Sock_Addr);
@@ -129,18 +108,27 @@ package body AWS.Net.Std is
    -------------
 
    procedure Connect
-     (Socket   : in Socket_Type;
-      Host     : in String;
-      Port     : in Positive)
+     (Socket   :    out Socket_Type;
+      Host     : in     String;
+      Port     : in     Positive)
    is
       Sock_Addr : Sockets.Sock_Addr_Type;
    begin
+
+      if Socket.S = null then
+         Socket.S := new Socket_Hidden;
+         Sockets.Create_Socket (SFD (Socket.S.all));
+      end if;
+
       Sock_Addr := (Sockets.Family_Inet,
                     Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1),
                     Sockets.Port_Type (Port));
       Sockets.Connect_Socket (SFD (Socket.S.all), Sock_Addr);
+
+      Set_Cache (Socket);
    exception
       when E : others =>
+         Free (Socket.S);
          Raise_Exception (E, "Connect");
    end Connect;
 
@@ -226,9 +214,15 @@ package body AWS.Net.Std is
       Buffer : Stream_Element_Array (1 .. Max);
       Last   : Stream_Element_Count := 0;
    begin
-      while Last = 0 loop
-         Sockets.Receive_Socket (SFD (Socket.S.all), Buffer, Last);
-      end loop;
+      Sockets.Receive_Socket (SFD (Socket.S.all), Buffer, Last);
+
+      --  Check if socket closed by peer.
+
+      if Last = Buffer'First - 1 then
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity,
+            Message => "Reseive : Socket closed by peer.");
+      end if;
 
       return Buffer (1 .. Last);
    exception
@@ -263,11 +257,11 @@ package body AWS.Net.Std is
    procedure Shutdown (Socket : in Socket_Type) is
    begin
       begin
-         --  We catch all exceptions here as we do not want this call to
+         --  We catch socket exceptions here as we do not want this call to
          --  fail. A shutdown will fail on non connected sockets.
          Sockets.Shutdown_Socket (SFD (Socket.S.all));
       exception
-         when others =>
+         when Sockets.Socket_Error =>
             null;
       end;
 
@@ -276,23 +270,6 @@ package body AWS.Net.Std is
       when E : others =>
          Raise_Exception (E, "Shutdown");
    end Shutdown;
-
-   ------------
-   -- Socket --
-   ------------
-
-   function Socket return Socket_Access is
-      Sock : Socket_Access;
-   begin
-      Sock                     := new Socket_Type;
-      Socket_Type (Sock.all).S := new Socket_Hidden;
-      Sockets.Create_Socket (SFD (Socket_Type (Sock.all).S.all));
-
-      return Sock;
-   exception
-      when E : others =>
-         Raise_Exception (E, "Socket");
-   end Socket;
 
 begin
    Sockets.Initialize;
