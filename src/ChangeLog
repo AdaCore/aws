@@ -1,6 +1,12 @@
 2003-01-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
+	(Send_File_Chunked): Correctly handle empty chunk.
+	Add some comments.
+
+2003-01-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
 	(Value): Do not check for ending ';' in un-named value.
 	Minor reformatting.
 
