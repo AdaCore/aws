@@ -723,13 +723,18 @@ package body Templates_Parser is
    --  Tags variable --
    --------------------
 
-   type Attribute is (Nil, Length, Line, Min_Column, Max_Column);
+   type Attribute is (Nil, Length, Line, Min_Column, Max_Column, Up_Level);
+
+   type Attribute_Data is record
+      Attr  : Attribute := Nil;
+      Value : Integer;
+   end record;
 
    type Tag_Var is record
-      Name    : Unbounded_String;
-      Filters : Filter.Set_Access;
-      Attr    : Attribute := Nil;
-      N       : Integer;         -- include variable index
+      Name      : Unbounded_String;
+      Filters   : Filter.Set_Access;
+      Attribute : Attribute_Data;
+      N         : Integer;         -- include variable index
    end record;
 
    function Is_Include_Variable (T : in Tag_Var) return Boolean;
@@ -780,12 +785,17 @@ package body Templates_Parser is
 
       --  Attributes
 
-      case T.Attr is
+      case T.Attribute.Attr is
          when Nil        => null;
          when Length     => Append (R, "'Length");
          when Line       => Append (R, "'Line");
          when Min_Column => Append (R, "'Min_Column");
          when Max_Column => Append (R, "'Max_Column");
+         when Up_Level   =>
+            Append (R, "'Up_Level");
+            if T.Attribute.Value /= 1 then
+               Append (R, '(' & Image (T.Attribute.Value) & ')');
+            end if;
       end case;
 
       Append (R, End_Tag);
@@ -816,7 +826,7 @@ package body Templates_Parser is
       --  Given a tag name, it retruns a set of filter to apply to this
       --  variable when translated.
 
-      function Get_Attribute (Tag : in String) return Attribute;
+      function Get_Attribute (Tag : in String) return Attribute_Data;
       --  Returns attribute for the given tag.
 
       F_Sep : constant Natural
@@ -831,11 +841,11 @@ package body Templates_Parser is
       -- Get_Attribute --
       -------------------
 
-      function Get_Attribute (Tag : in String) return Attribute is
+      function Get_Attribute (Tag : in String) return Attribute_Data is
          Start, Stop : Natural;
       begin
          if A_Sep = 0 then
-            return Nil;
+            return (Nil, 0);
          else
             Start := A_Sep + 1;
             Stop  := Tag'Last - Length (End_Tag);
@@ -846,16 +856,44 @@ package body Templates_Parser is
               := Characters.Handling.To_Lower (Tag (Start .. Stop));
          begin
             if A_Name = "length" then
-               return Length;
+               return (Length, 0);
 
             elsif A_Name = "line" then
-               return Line;
+               return (Line, 0);
 
             elsif A_Name = "min_column" then
-               return Min_Column;
+               return (Min_Column, 0);
 
             elsif A_Name = "max_column" then
-               return Max_Column;
+               return (Max_Column, 0);
+
+            elsif A_Name'Length >= 8
+              and then A_Name (A_Name'First .. A_Name'First + 7) = "up_level"
+            then
+               if A_Name'Length > 8 then
+                  --  We have a parameter
+                  declare
+                     V : constant String
+                       := Strings.Fixed.Trim
+                           (A_Name (A_Name'First + 8 .. A_Name'Last),
+                            Strings.Both);
+                     N : Integer;
+                  begin
+                     if V (V'First) = '('
+                       and then V (V'Last) = ')'
+                       and then Is_Number (V (V'First + 1 .. V'Last - 1))
+                     then
+                        N := Integer'Value (V (V'First + 1 .. V'Last - 1));
+                     else
+                        Exceptions.Raise_Exception
+                          (Template_Error'Identity,
+                           "Wrong value for attribute Up_Level");
+                     end if;
+                     return (Up_Level, N);
+                  end;
+               else
+                  return (Up_Level, 1);
+               end if;
 
             else
                Exceptions.Raise_Exception
@@ -1189,9 +1227,9 @@ package body Templates_Parser is
          A_Sep := 0;
       end if;
 
-      Result.Name    := Get_Var_Name (Str);
-      Result.Filters := Get_Filter_Set (Str);
-      Result.Attr    := Get_Attribute (Str);
+      Result.Name      := Get_Var_Name (Str);
+      Result.Filters   := Get_Filter_Set (Str);
+      Result.Attribute := Get_Attribute (Str);
 
       declare
          Name : constant String := To_String (Result.Name);
@@ -1491,10 +1529,11 @@ package body Templates_Parser is
    --  Returns the Nth item in Tag
 
    procedure Field
-     (T      : in     Tag;
-      Cursor : in     Indices;
-      Result :    out Unbounded_String;
-      Found  :    out Boolean);
+     (T        : in     Tag;
+      Cursor   : in     Indices;
+      Up_Value : in     Natural;
+      Result   :    out Unbounded_String;
+      Found    :    out Boolean);
    --  Returns Value in Tag at position Cursor. Found is set to False if
    --  there is no such value in Tag.
 
@@ -1538,7 +1577,7 @@ package body Templates_Parser is
       Result : Unbounded_String;
       Found  : Boolean;
    begin
-      Field (T, (1 => N), Result, Found);
+      Field (T, (1 => N), 0, Result, Found);
 
       if not Found then
          raise Constraint_Error;
@@ -1935,10 +1974,11 @@ package body Templates_Parser is
    end Field;
 
    procedure Field
-     (T      : in     Tag;
-      Cursor : in     Indices;
-      Result :    out Unbounded_String;
-      Found  :    out Boolean)
+     (T        : in     Tag;
+      Cursor   : in     Indices;
+      Up_Value : in     Natural;
+      Result   :    out Unbounded_String;
+      Found    :    out Boolean)
    is
 
       function Image (T : in Tag) return Unbounded_String;
@@ -1986,7 +2026,7 @@ package body Templates_Parser is
       Found := True;
 
       if Cursor'Length > T.Data.Nested_Level then
-         C := Cursor'Last - T.Data.Nested_Level + 1;
+         C := Cursor'Last - T.Data.Nested_Level + 1 - Up_Value;
          P := Cursor (C);
 
       elsif Cursor'Length /= 0 then
@@ -2005,7 +2045,7 @@ package body Templates_Parser is
       if R /= null then
          --  We have found something at this indice
 
-         if C = Cursor'Last then
+         if C + Up_Value = Cursor'Last then
             --  This is the last position
 
             if R.Kind = Value then
@@ -2027,7 +2067,7 @@ package body Templates_Parser is
                --  Look into next dimention
                Field
                  (R.VS.all,
-                  Cursor (C + 1 .. Cursor'Last),
+                  Cursor (C + 1 .. Cursor'Last), Up_Value,
                   Result, Found);
             end if;
          end if;
@@ -3333,8 +3373,8 @@ package body Templates_Parser is
                         --  First thing we want to do is to inherit attributes
                         --  from the include variable if we have no attribute.
 
-                        if V.Attr = Nil then
-                           V.Attr := Var.Attr;
+                        if V.Attribute.Attr = Nil then
+                           V.Attribute := Var.Attribute;
                         end if;
 
                         return Translate
@@ -3374,7 +3414,8 @@ package body Templates_Parser is
          ---------------
 
          function Translate (Var : in Tag_Var) return String is
-            Pos : Containers.Cursor;
+            Pos      : Containers.Cursor;
+            Up_Value : Natural := 0;
          begin
             Pos := Containers.Find
               (Translations.Set.all, To_String (Var.Name));
@@ -3386,7 +3427,7 @@ package body Templates_Parser is
                   case Tk.Kind is
 
                      when Std =>
-                        if Var.Attr = Nil then
+                        if Var.Attribute.Attr = Nil then
                            return Translate
                              (Var, To_String (Tk.Value),
                               Translations, State.F_Params);
@@ -3401,13 +3442,16 @@ package body Templates_Parser is
                         if Tk.Comp_Value.Data.Nested_Level = 1 then
                            --  This is a vector
 
-                           if Var.Attr = Length then
+                           if Var.Attribute.Attr = Length then
                               return Translate
                                 (Var,
                                  Image (Tk.Comp_Value.Data.Count),
                                  Translations, State.F_Params);
 
-                           elsif Var.Attr /= Nil then
+                           elsif Var.Attribute.Attr = Up_Level then
+                              Up_Value := Var.Attribute.Value;
+
+                           elsif Var.Attribute.Attr /= Nil then
                               Exceptions.Raise_Exception
                                 (Template_Error'Identity,
                                  "This attribute is not valid for a "
@@ -3415,28 +3459,28 @@ package body Templates_Parser is
                            end if;
 
                         elsif Tk.Comp_Value.Data.Nested_Level = 2 then
-                           if Var.Attr = Line then
+                           if Var.Attribute.Attr = Line then
                               --  'Line on a matrix
                               return Translate
                                 (Var,
                                  Image (Tk.Comp_Value.Data.Count),
                                  Translations, State.F_Params);
 
-                           elsif Var.Attr = Min_Column then
+                           elsif Var.Attribute.Attr = Min_Column then
                               --  'Min_Column on a matrix
                               return Translate
                                 (Var,
                                  Image (Tk.Comp_Value.Data.Min),
                                  Translations, State.F_Params);
 
-                           elsif Var.Attr = Max_Column then
+                           elsif Var.Attribute.Attr = Max_Column then
                               --  'Max_Column on a matrix
                               return Translate
                                 (Var,
                                  Image (Tk.Comp_Value.Data.Max),
                                  Translations, State.F_Params);
 
-                           elsif Var.Attr /= Nil then
+                           elsif Var.Attribute.Attr /= Nil then
                               Exceptions.Raise_Exception
                                 (Template_Error'Identity,
                                  "This attribute is not valid for a "
@@ -3451,6 +3495,7 @@ package body Templates_Parser is
                            Field
                              (Tk.Comp_Value,
                               State.Cursor (1 .. State.Table_Level),
+                              Up_Value,
                               Result, Found);
 
                            return Translate
@@ -4002,7 +4047,9 @@ package body Templates_Parser is
                   D         : Data.Tree := T;
                begin
                   while D /= null loop
-                     if D.Kind = Data.Var and then D.Var.Attr = Nil then
+                     if D.Kind = Data.Var
+                       and then D.Var.Attribute.Attr = Nil
+                     then
                         Iteration := Natural'Max (Iteration, Check (D.Var));
                      end if;
 
