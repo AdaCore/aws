@@ -51,7 +51,7 @@ $(AWS_COFF): aws.rc
 build_poll:
 	echo Building Win32 poll support
 	$(GNATMAKE) -u $(GARGS) poll.adb
-	$(CP) poll.o ../lib
+	$(AR) r ../lib/libpoll.a poll.o
 
 clean:
 	-$(RM) -f *.a *~ aws.coff
