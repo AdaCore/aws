@@ -32,6 +32,7 @@
 --
 --  Generator for the fast regression test executor.
 
+with Ada.Command_Line;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -40,10 +41,11 @@ with AWS.OS_Lib;
 procedure Generate is
 
    use Ada.Text_IO;
+   use Ada.Command_Line;
+
    package U renames Ada.Strings.Unbounded;
 
    Main   : File_Type;
-   Diff   : File_Type;
    Source : U.Unbounded_String
      := U.To_Unbounded_String
           ("procedure Test_All is" & ASCII.LF
@@ -68,7 +70,6 @@ procedure Generate is
       end if;
 
       Put_Line (Main, "with " & Name & ';');
-      Put_Line (Diff, "diff -c -w " & Name & ".out " & Name & Res_Ext);
 
       U.Append
         (Source,
@@ -81,74 +82,14 @@ procedure Generate is
 
 begin
    Create (Main, Out_File, "test_all.adb");
-   Create (Diff, Out_File, "diff_all.sh");
    Put_Line (Main, "with Ada.Text_IO; use Ada.Text_IO;");
 
-   --  dependent from dispatch.ini Test ("dispatch");
-   --  dependent from dispatch_method.ini Test ("dispatch_method");
-   --  dependent from dispatch_vh.ini Test ("dispatch_vh");
-   --  dependent from program name Test ("tlog");
-   --  dependent from upload UID Test ("upload2");
-   --  dependent from upload UID Test ("upload3");
-   --  dependent from program name Test ("server_config");
-
-   Test ("append");
-   Test ("auth");
-   Test ("auth2");
-   Test ("compress");
-   Test ("ctab");
-   Test ("dirop");
-   Test ("dummy");
-   Test ("eres");
-   Test ("file");
-   Test ("file2");
-   Test ("get_post");
-   Test ("head");
-   Test ("hostip");
-   Test ("huge_response");
-   Test ("hval");
-   Test ("moved");
-   Test ("multiple");
-   Test ("once");
-   Test ("param");
-   Test ("redirect");
-   Test ("sback");
-   Test ("server_info");
-   Test ("sessions");
-   Test ("sessions2");
-   Test ("sessions3");
-   Test ("shutdown");
-   Test ("simple");
-   Test ("sock1");
-   Test ("sp");
-   Test ("split");
-   Test ("strm");
-   Test ("strm2");
-   Test ("tclientto");
-   Test ("tcom");
-   Test ("test_templates_if");
-   Test ("tgetparam");
-   Test ("timer");
-   Test ("tmem");
-   Test ("tmime");
-   Test ("tres2");
-   Test ("turl");
-   Test ("turl2");
-   Test ("turl3");
-   Test ("turl4");
-   Test ("unexph");
-   Test ("unexph2");
-   Test ("upload");
-   Test ("zapp");
-   Test ("zbig");
-   Test ("zfile");
-   Test ("zopen");
-   Test ("zstrm");
-   Test ("zstrm2");
+   for J in 1 .. Argument_Count loop
+      Test (Argument (J));
+   end loop;
 
    New_Line (Main);
    Put (Main, U.To_String (Source));
    Put_Line (Main, "end Test_All;");
    Close (Main);
-   Close (Diff);
 end Generate;
