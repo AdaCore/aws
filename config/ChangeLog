@@ -1,3 +1,9 @@
+2004-01-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb:
+	Update copyright years.
+	(Wait_For): Check to do not overflow on too big timeout.
+
 2004-01-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb:
