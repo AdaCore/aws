@@ -1,3 +1,18 @@
+2002-03-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Start): Add Server_Host to Bind call.
+
+	* aws-config-set.ads, aws-config-set.adb:
+	(Server_Host): New procedure.
+
+	* aws-config.adb:
+	(Server_Host): New function.
+
+	* aws-config.ads:
+	(Server_Host): New function.
+	(Parameter_Name): Add Server_Host into the enumeration.
+
 2002-03-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
