@@ -57,13 +57,13 @@ build_std: build_include build_aws_std build_demo_std
 build_ssl: build_ssllib build_include build_aws_ssl build_demo_ssl
 
 gnat_oslib:
-	make -c src gnat_oslib
+	make -C src gnat_oslib
 
 posix_oslib:
-	make -c src posix_oslib
+	make -C src posix_oslib
 
 win32_oslib:
-	make -c src win32_oslib
+	make -C src win32_oslib
 
 build_doc:
 	make -C docs build
@@ -124,7 +124,10 @@ install:
 	cp src/*.ali ssl/*.ali soap/*.ali $(INSTALL)/lib
 	chmod uog-w $(INSTALL)/lib/*.ali
 	cp libaws.a $(INSTALL)/lib
-	cp docs/aws.html docs/templates_parser.html $(INSTALL)/docs
+	-cp docs/aws.html $(INSTALL)/docs
+	cp docs/templates_parser.html $(INSTALL)/docs
+	-cp docs/aws.txt $(INSTALL)/docs
+	-cp docs/*.info* $(INSTALL)/docs
 	cp demos/*.thtml $(INSTALL)/templates
 	cp icons/*.gif $(INSTALL)/icons
 	cp demos/aws_*.png $(INSTALL)/images
