@@ -299,6 +299,12 @@ package body AWS.Server is
 
       Free (Web_Server.Cleaner);
 
+      --  Release the slots
+
+      for S in 1 .. Web_Server.Slots.N loop
+         Web_Server.Slots.Release (S);
+      end loop;
+
       --  Terminate all the lines.
 
       for K in Web_Server.Lines'Range loop
@@ -320,15 +326,9 @@ package body AWS.Server is
          delay 1.0;
       end loop;
 
-      --  Release lines
+      --  Release lines and slots memory
 
       Free (Web_Server.Lines);
-
-      --  Release the slots
-
-      for S in 1 .. Web_Server.Slots.N loop
-         Web_Server.Slots.Release (S);
-      end loop;
 
       Free (Web_Server.Slots);
 
