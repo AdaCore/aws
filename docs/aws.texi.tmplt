@@ -1668,6 +1668,23 @@ this server corresponds to the AWS version string
 (@code{AWS.Version}) catenated with the SOAP version string
 (@code{SOAP.Version}).
 
+@noindent
+This SOAP implementation is certainly one with the higher level of abstraction.
+No need to mess with a serializer, to know what is a payload or be an XML
+expert. All the low level stuffs are completly hidden as the SOAP type system
+has been binded as much as possible to the Ada type system.
+
+@noindent
+@cindex WSDL
+@cindex Web Services Description Language
+The SOAP type system has been relaxed to be compatible with WSDL based SOAP
+implementation. In these implementations, types are generally (as in the
+Microsoft implementation) not part of the payload and should be taken
+from the WSDL (Web Services Description Language). AWS/SOAP is not
+WSDL compliant at this stage, all such types are binded into the Ada
+type system as strings. It is up to the programer to convert such
+strings to the required type.
+
 @node SOAP Server
 @section SOAP Server
 @cindex SOAP Server
