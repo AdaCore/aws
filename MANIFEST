@@ -228,6 +228,7 @@ include/zlib/trees.c
 include/zlib/trees.h
 include/zlib/uncompr.c
 include/zlib/zconf.h
+include/zlib/zlib.gpr
 include/zlib/zlib.h
 include/zlib/zutil.c
 include/zlib/zutil.h
@@ -316,6 +317,7 @@ regtests/huge_response_sec.out
 regtests/hval.adb
 regtests/hval.out
 regtests/makefile
+regtests/makefile.lst
 regtests/moved.adb
 regtests/moved.out
 regtests/multiple.adb
