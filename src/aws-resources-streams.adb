@@ -44,6 +44,16 @@ package body AWS.Resources.Streams is
    end Create;
 
    ----------
+   -- Name --
+   ----------
+
+   function Name (Resource : in Stream_Type) return String is
+      pragma Unreferenced (Resource);
+   begin
+      return "";
+   end Name;
+
+   ----------
    -- Size --
    ----------
 

@@ -58,6 +58,11 @@ package AWS.Resources.Streams is
    --  stream implementation knows about the size (in bytes) of the stream
    --  this routine should be redefined.
 
+   function Name (Resource : in Stream_Type) return String;
+   --  This default implementation returns the empty string. It is must be
+   --  overwritten by file based stream to provide the proper filename
+   --  associated with the stream.
+
    procedure Create
      (Resource :    out File_Type;
       Stream   : in     Stream_Access);
