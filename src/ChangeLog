@@ -3,6 +3,9 @@
 	* aws-net-std.ads, aws-net.ads:
 	(Errno): Add spec.
 
+	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
+	(Set_Mode): New routine.
+
 2004-11-18  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
