@@ -31,8 +31,8 @@
 --  $Id$
 
 --  This package is used to keep the HTTP protocol status. Client can then
---  request the status for various value like the requested URI and the
---  Content_Length.
+--  request the status for various values like the requested URI, the
+--  Content_Length and the Session ID for example.
 
 with Ada.Strings.Unbounded;
 with Ada.Streams;
@@ -52,32 +52,79 @@ package AWS.Status is
    type Socket_Access is access all Socket_Type;
 
    function Authorization_Name     (D : in Data) return String;
+   --  Get the value for the name in the "Authorization:" parameter
+
    function Authorization_Password (D : in Data) return String;
+   --  Get the value for the password in the "Authorization:" parameter
+
    function Connection             (D : in Data) return String;
+   --  Get the value for "Connection:" parameter
+
    function Content_Length         (D : in Data) return Natural;
+   --  Get the value for "Content-Length:" parameter, this is the number of
+   --  bytes in the message body.
+
    function Content_Type           (D : in Data) return String;
+   --  Get value for "Content-Type:" parameter
+
    function File_Up_To_Date        (D : in Data) return Boolean;
+   --  Returns true if the file to be transfered is already up-to-date on
+   --  the client side. In this case there is not need to send the file again,
+   --  a message 304 will be sent back to the client.
+
    function Has_Session            (D : in Data) return Boolean;
+   --  Returns true if a session ID has been received.
+
    function Host                   (D : in Data) return String;
+   --  Get value for "Host:" parameter
+
    function HTTP_Version           (D : in Data) return String;
+   --  Returns the HTTP version used by the client.
+
    function If_Modified_Since      (D : in Data) return String;
+   --  Get value for "If-Modified-Since:" parameter
+
    function Method                 (D : in Data) return Request_Method;
+   --  Returns the request method.
+
    function Multipart_Boundary     (D : in Data) return String;
+   --  Get value for the boundary part in "Content-Type: ...; boundary=..."
+   --  parameter. This is a string that will be used to separate each chunk of
+   --  data in a multipart message.
+
    function Parameters             (D : in Data) return Parameters.List;
+   --  Returns the list of parameters for the request. This list can be empty
+   --  if there was no form or URL parameters.
+
    function Peername               (D : in Data) return String;
-   function Session                (D : in Data) return String;
+   --  Returns the name of the peer (the name of the client computer)
+
    function Session                (D : in Data) return AWS.Session.ID;
+   --  Returns the Session ID for the request.
+
    function Socket                 (D : in Data) return Socket_Type;
+   --  Returns the socket used to transfert data between the client and
+   --  server.
+
    function URI                    (D : in Data) return String;
+   --  Returns the requested ressource
+
    function User_Agent             (D : in Data) return String;
+   --  Get value for "User-Agent:" parameter
+
    function Referer                (D : in Data) return String;
+   --  Get value for "Referer:" parameter
 
    function Is_SOAP                (D : in Data) return Boolean;
    --  Returns True if it is a SOAP request. In this case SOAPAction return
    --  the SOAPAction header and Payload returns the XML SOAP Payload message.
 
    function SOAPAction             (D : in Data) return String;
+   --  Get value for "SOAPAction:" parameter. This is a standard header to
+   --  support SOAP over HTTP protocol.
+
    function Payload                (D : in Data) return String;
+   --  Returns the XML Payload message. XML payload is the actual SOAP request
 
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
 
@@ -116,7 +163,7 @@ private
       Socket            : Socket_Access;
       Auth_Name         : Unbounded_String;
       Auth_Password     : Unbounded_String;
-      Session_ID        : Unbounded_String;
+      Session_ID        : AWS.Session.ID     := AWS.Session.No_Session;
       SOAPAction        : Unbounded_String;
       Payload           : Unbounded_String;
       User_Agent        : Unbounded_String;
