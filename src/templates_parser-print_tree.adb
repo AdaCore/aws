@@ -74,6 +74,12 @@ begin
          Data.Print_Tree (T.Text);
          Print_Tree (T.Next, Level);
 
+      when Set_Stmt =>
+         Text_IO.Put ("[SET_STMT] ");
+         Definitions.Print_Tree (T.Def);
+         Text_IO.New_Line;
+         Print_Tree (T.Next, Level);
+
       when If_Stmt  =>
          Text_IO.Put ("[IF_STMT] ");
          Expr.Print_Tree (T.Cond);
@@ -117,18 +123,19 @@ begin
          Print_Tree (T.N_Section, Level);
 
       when Include_Stmt =>
-         Text_IO.Put_Line ("[INCLUDE_STMT] "
-                           & To_String (T.File.Info.Filename));
+         Text_IO.Put_Line
+           ("[INCLUDE_STMT] " & To_String (T.File.Info.Filename));
 
          declare
             use type Data.Tree;
          begin
             for K in T.I_Params'Range loop
-               exit when T.I_Params (K) = null;
-               Print_Indent (Level + 2);
-               Text_IO.Put ("$" & Image (K) & " = ");
-               Data.Print_Tree (T.I_Params (K));
-               Text_IO.New_Line;
+               if T.I_Params (K) /= null then
+                  Print_Indent (Level + 2);
+                  Text_IO.Put ("$" & Image (K) & " = ");
+                  Data.Print_Tree (T.I_Params (K));
+                  Text_IO.New_Line;
+               end if;
             end loop;
          end;
 
