@@ -575,6 +575,7 @@ package body AWS.Server is
             end if;
 
             Web_Server.Slots.Shutdown_Done (S);
+
          exception
             when others =>
                Web_Server.Slots.Shutdown_Done (S);
@@ -876,6 +877,12 @@ package body AWS.Server is
                   --  Free the socket here  because different task is
                   --  shutdowning socket now.
 
+                  --  We have to make a copy, because task could terminate
+                  --  when we would call Socket_Done.
+
+                  Table (Index).Sock
+                     := new Net.Socket_Type'Class'(Table (Index).Sock.all);
+
                   Mark_Phase (Index, Loose_Release);
 
                   return;
@@ -906,6 +913,7 @@ package body AWS.Server is
          Free_Slots :    out Natural) is
       begin
          pragma Assert (Count > 0);
+         pragma Assert (Table (Index).Sock = null);
 
          Table (Index).Sock := Socket;
          Mark_Phase (Index, Wait_For_Client);
@@ -935,7 +943,10 @@ package body AWS.Server is
       procedure Shutdown_Done (Index : in Positive) is
       begin
          if Table (Index).Phase = Loose_Release then
-            Net.Free (Table (Index).Sock.all);
+            --  Socket was dynamically allocated for
+            --  Loose_Release state.
+
+            Net.Free (Table (Index).Sock);
             Mark_Phase (Index, Closed);
 
          elsif Table (Index).Phase /= Closed then
