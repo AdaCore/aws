@@ -41,7 +41,6 @@ with AWS.Parameters;
 with AWS.MIME;
 
 with GNAT.Calendar.Time_IO;
-with GNAT.Directory_Operations;
 
 with Table_Of_Static_Keys_And_Static_Values_G;
 
@@ -58,7 +57,6 @@ package body AWS.Services.Directory is
       Request        : in AWS.Status.Data)
       return Translate_Table
    is
-      use GNAT.Directory_Operations;
       use Ada.Strings.Unbounded;
       use Templates_Parser;
 
@@ -143,10 +141,13 @@ package body AWS.Services.Directory is
       procedure For_Each_File is
          new File_Tree.Traverse_Asc_G (Action => Each_Entry);
 
-      Names  : Vector_Tag;
-      Sizes  : Vector_Tag;
-      Times  : Vector_Tag;
-      Is_Dir : Vector_Tag;
+      procedure Read_Directory (Directory_Name : in String);
+      --  Read Dir_Name entries and insert them into the Order_Tree table
+
+      Names   : Vector_Tag;
+      Sizes   : Vector_Tag;
+      Times   : Vector_Tag;
+      Is_Dir  : Vector_Tag;
 
       Direct_Ordr : Unbounded_String;
       --  Direct ordering rules.
@@ -193,14 +194,7 @@ package body AWS.Services.Directory is
             Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT"));
       --  Defaults rules to order the directories by Name or by Time.
 
-      Last         : Natural;
-
-      File_Entry   : File_Record;
       UID_Sq       : Natural := 0;
-
-      Dir_Iterator : Dir_Type;
-
-      Dir_Entry    : String (1 .. 1_024);
 
       use File_Tree;
 
@@ -421,11 +415,67 @@ package body AWS.Services.Directory is
          end if;
       end Invert;
 
+      Dir_Str : constant String := End_Slash (Directory_Name);
+
+      --------------------
+      -- Read_Directory --
+      --------------------
+
+      procedure Read_Directory (Directory_Name : in String) is
+
+         procedure Insert
+           (Filename     : in     String;
+            Is_Directory : in     Boolean;
+            Quit         : in out Boolean);
+
+         ------------------------------
+         -- Insert_Directory_Entries --
+         ------------------------------
+
+         procedure Insert_Directory_Entries is
+            new OS_Lib.For_Every_Directory_Entry (Insert);
+
+         ------------
+         -- Insert --
+         ------------
+
+         procedure Insert
+           (Filename     : in     String;
+            Is_Directory : in     Boolean;
+            Quit         : in out Boolean)
+         is
+            Full_Pathname : constant String := Dir_Str & Filename;
+            File_Entry    : File_Record;
+         begin
+            File_Entry.Directory := Is_Directory;
+
+            if Is_Directory then
+               File_Entry.Size := -1;
+            else
+
+               File_Entry.Size
+                 := Integer (AWS.OS_Lib.File_Size (Full_Pathname));
+            end if;
+
+            File_Entry.Name := To_Unbounded_String (Filename);
+            File_Entry.Time := AWS.OS_Lib.File_Timestamp (Full_Pathname);
+            File_Entry.UID  := UID_Sq;
+            UID_Sq          := UID_Sq + 1;
+
+            File_Tree.Insert (Order_Tree, File_Entry, Nothing);
+
+            Quit := False;
+         end Insert;
+
+      begin
+         Insert_Directory_Entries (Directory_Name);
+      end Read_Directory;
+
       -------------------
       -- To_Order_Char --
       -------------------
 
-      function To_Order_Char (O : Order_Mode) return Order_Char is
+      function To_Order_Char (O : in Order_Mode) return Order_Char is
       begin
          return Order_Mode'Image (O)(1);
       end To_Order_Char;
@@ -438,8 +488,6 @@ package body AWS.Services.Directory is
       begin
          return Order_Mode'Value (String'(1 => C));
       end To_Order_Mode;
-
-      Dir_Str : constant String := End_Slash (Directory_Name);
 
    begin
       --  Read ordering rules from the Web page and build the direct and
@@ -518,38 +566,7 @@ package body AWS.Services.Directory is
       --  will be inserted with the right order, as defined by the rules
       --  above.
 
-      Open (Dir_Iterator, Directory_Name);
-
-      loop
-         Read (Dir_Iterator, Dir_Entry, Last);
-
-         exit when Last = 0;
-
-         declare
-            Filename      : constant String := Dir_Entry (1 .. Last);
-            Full_Pathname : constant String := Dir_Str & Filename;
-         begin
-
-            File_Entry.Directory := AWS.OS_Lib.Is_Directory (Full_Pathname);
-
-            if File_Entry.Directory then
-               File_Entry.Size := -1;
-            else
-
-               File_Entry.Size
-                 := Integer (AWS.OS_Lib.File_Size (Full_Pathname));
-            end if;
-
-            File_Entry.Name := To_Unbounded_String (Filename);
-            File_Entry.Time := AWS.OS_Lib.File_Timestamp (Full_Pathname);
-            File_Entry.UID  := UID_Sq;
-            UID_Sq          := UID_Sq + 1;
-         end;
-
-         File_Tree.Insert (Order_Tree, File_Entry, Nothing);
-      end loop;
-
-      Close (Dir_Iterator);
+      Read_Directory (Directory_Name);
 
       --  Iterate through the tree and fill the vector tag before insertion
       --  into the translate table.
