@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build build_ssl build_std distrib ssl_mode std_mode clean
+.SILENT:
 
 GARGS	= -q -u $(GFLAGS) -I../ssl -I../include -I../src $(INCLUDES)
 

@@ -1,8 +1,7 @@
 
 # $Id$
 
-.SILENT: build gnat_oslib posix_oslib win32_oslib adasockets gnatsockets clean
-.SILENT: aws-translator-conversion.adb
+.SILENT:
 
 GARGS	= $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 

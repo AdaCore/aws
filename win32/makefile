@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build build_lib clean libssl.a libcrypto.a
+.SILENT:
 
 # Build the library only if Win32 OS. On other OS these libraries must be
 # installed separately or are most of the time already installed.
