@@ -1,3 +1,17 @@
+2004-02-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads:
+	(Read_Cache): New type instead of Cache.
+	(Write_Cache): New type instead of Cache.
+
+	* aws-net-buffered.adb:
+	(Write): Simplified write cache algorithm.
+	(Flush): Simplified write cache algorithm.
+	(Shutdown): Ignore recent cache buffer send error.
+
+	* aws-net-stream_io.adb:
+	(Shutdown): Use Net.Buffered.Shutdown.
+
 2004-02-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-smtp.ads:
