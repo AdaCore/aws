@@ -123,6 +123,22 @@ package AWS.Response is
       return Data;
    --  Idem above, but the message body is a stream element array
 
+   type Disposition_Mode is (Attachment, Inline, None);
+   --  Describes the way a file/stream is sent to the browser.
+   --
+   --     Attachment  : The file is sent as an attachment, the browser
+   --                   wont display the content even if the MIME type
+   --                   is supported (.txt or .doc on IE for example).
+   --
+   --     Inline      : The file can be displayed inside the browser if
+   --                   MIME type is supported. If not the browser will
+   --                   propose to save this file. This is the default setting.
+   --
+   --     None        : No specific setting is sent to the browser. The
+   --                   browser default setting will be used. Note that in
+   --                   this case the browser determine the filename using
+   --                   the URI.
+
    function File
      (Content_Type  : in String;
       Filename      : in String;
@@ -130,13 +146,13 @@ package AWS.Response is
       Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
       Encoding      : in Messages.Content_Encoding := Messages.Identity;
       Once          : in Boolean                   := False;
-      Attachment    : in Boolean                   := False)
+      Disposition   : in Disposition_Mode          := Inline;
+      User_Filename : in String                    := "")
       return Data;
    --  Returns a message whose message body is the content of the file. The
-   --  Content_Type must indicate the MIME type for the file. If Attachment is
-   --  set to True, the file to download will be forced as attachment. The
-   --  browser will then propose to save this file locally instead of
-   --  displaying it.
+   --  Content_Type must indicate the MIME type for the file. User_Filename
+   --  can be used to force the filename on the client side. This can be
+   --  different from the server side Filename.
 
    function Stream
      (Content_Type  : in     String;
@@ -144,14 +160,19 @@ package AWS.Response is
       Status_Code   : in     Messages.Status_Code      := Messages.S200;
       Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
       Encoding      : in     Messages.Content_Encoding := Messages.Identity;
-      Server_Close  : in     Boolean                   := True)
+      Server_Close  : in     Boolean                   := True;
+      Disposition   : in     Disposition_Mode          := Inline;
+      User_Filename : in     String                    := "")
       return Data;
-   --  Returns a message whose message body is the content of the user
-   --  defined stream. The Content_Type must indicate the MIME type for
-   --  the data stream, Stream_Size the total number of bytes and Status_Code
-   --  the header status code which should be send back to client's browser.
-   --  If Server_Close is set to False the server will not close the stream
-   --  after sending it, it is then user's responsability to close the stream.
+   --  Returns a message whose message body is the content of the user defined
+   --  stream. The Content_Type must indicate the MIME type for the data
+   --  stream, Status_Code is the the header status code which should be send
+   --  back to client's browser. If Server_Close is set to False the server
+   --  will not close the stream after sending it, it is then user's
+   --  responsability to close the stream. User_Filename can be used to force
+   --  the filename on the client side. This can be different from the server
+   --  side filename (for file based stream) or can be used to name a non disk
+   --  based stream.
 
    ------------------------------
    -- Redirection Constructors --
