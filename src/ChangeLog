@@ -14,7 +14,7 @@
 	 Call Web_Server.Slots.Shutdown_Done after slot socket Shutdown.
 	(Slots.Abort_On_Timeout): Give slot index.
 	(Slots.Get_For_Shutdown): Put to In_Shutdown Phase.
-	(Slots.Release): Do not free the socket if Phase if In_Shutdown.
+	(Slots.Release): Do not free the socket if Phase is In_Shutdown.
 	(Slots.Shutdown_Done): New routine.
 
 2004-08-18  Pascal Obry  <pascal@obry.org>
