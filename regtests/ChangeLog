@@ -1,3 +1,8 @@
+2003-12-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* eres.adb, eres.out, makefile:
+	Test for AWS.Resources.Exist routine.
+
 2003-12-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* tmem.adb:
