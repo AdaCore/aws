@@ -1,4 +1,42 @@
+2003-01-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Move all code sending the response to the
+	 socket to procedure Send.
+	(Send): New routine.
+	(File_Upload): Detect environment errors while receiving the data
+	 (wrong access right, disk full...).
+	(Get_File_Data): In case of Name_Error exception, set Error state
+	 to Name_Error but do not raise the exception yet. We must read
+	 all data coming from the client before sending back the
+	 answer. Handle Device_Error too.
+	(Write_Data): Write to the file only if no error has been detected yet.
+	(Protocol_Hanlder): Add exception handle here.
+
+	* aws-server.adb:
+	(Default_Unexpected_Exception_Handler): Add new parameter Answer.
+	(Line): Remove Secure boolean variable (was not used). Remove
+	 exception handler from here, moved to Protocol_Handler.
+
+	* aws-server.ads:
+	(Unexpected_Exception_Handler): Add new parameter Answer. Comment
+	 properly this defintiion.
+	(Default_Unexpected_Exception_Handler): Idem.
+	
+	* aws-client.adb:
+	(Upload): Correctly send "Upload Timeout" message. Was "Post
+	 Timeout" cut&past error.
+
 2003-01-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Send_File): Add exception handle and properly close the file if
+	 it is still open.
+	Minor reformatting.
+	Fix some comments.
+
+	* aws-response.ads:
+	(Empty): Minor comment fix.
 
 	* aws-server-protocol_handler.adb:
 	(Get_File_Data): Handle exception Name_Error and Device_Error that

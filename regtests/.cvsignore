@@ -67,6 +67,8 @@ b~upload.adb
 b~upload.ads
 b~upload2.adb
 b~upload2.ads
+b~upload3.adb
+b~upload3.ads
 b~workorder.adb
 b~workorder.ads
 ctab.res
@@ -113,4 +115,5 @@ turl4.res
 unexph.res
 upload.res
 upload2.res
+upload3.res
 workorder.res
