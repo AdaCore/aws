@@ -32,12 +32,13 @@
 
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
-
-with AWS.Parameters.Set;
+with AWS.Containers.Tables.Set;
 
 package body AWS.Headers.Set is
 
-   subtype P_List is Parameters.List;
+   use AWS.Containers;
+
+   subtype P_List is Tables.Table_Type;
 
    Debug_Flag : Boolean := False;
    --  Set to True to output debug information to the standard output.
@@ -48,7 +49,7 @@ package body AWS.Headers.Set is
 
    procedure Add (Headers : in out List; Name, Value : in String) is
    begin
-      Parameters.Set.Add (P_List (Headers), Name, Value);
+      Tables.Set.Add (P_List (Headers), Name, Value);
    end Add;
 
    -----------
@@ -66,7 +67,7 @@ package body AWS.Headers.Set is
 
    procedure Free (Headers : in out List) is
    begin
-      Parameters.Set.Free (P_List (Headers));
+      Tables.Set.Free (P_List (Headers));
    end Free;
 
    -----------
@@ -97,8 +98,8 @@ package body AWS.Headers.Set is
 
    procedure Reset (Headers : in out List) is
    begin
-      Parameters.Set.Reset (P_List (Headers));
-      Parameters.Set.Case_Sensitive (P_List (Headers), False);
+      Tables.Set.Reset (P_List (Headers));
+      Tables.Set.Case_Sensitive (P_List (Headers), False);
    end Reset;
 
 end AWS.Headers.Set;
