@@ -1,5 +1,9 @@
 2004-05-19  Pascal Obry  <pascal@obry.org>
 
+	* templates_parser-xml.ads:
+	Minor comment fixes.
+	Remove tabulation introduced with the copy&paste of the DTD.
+
 	* templates_parser-utils.ads, templates_parser-utils.adb:
 	Initial revision.
 
