@@ -98,7 +98,7 @@ package body AWS.Services.Directory is
       end record;
 
       type Empty_Type is (Nothing);
-      --  File_Tree generic instanciation need a data, but we don't not.
+      --  File_Tree generic instanciation need a data, but we do not.
 
       function "<" (Left, Right : in File_Record) return Boolean;
 
