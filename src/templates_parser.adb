@@ -1770,8 +1770,19 @@ package body Templates_Parser is
 
    procedure Insert (Set : in out Translate_Set; Item : in Association) is
    begin
-      Association_Set.Containers.Replace
+      Containers.Replace
         (Set.Set.all, To_String (Item.Variable), Item);
+   end Insert;
+
+   procedure Insert (Set : in out Translate_Set; Items : in Translate_Set) is
+      Pos : Containers.Cursor;
+   begin
+      Pos := Containers.First (Items.Set.all);
+
+      while Containers.Has_Element (Pos) loop
+         Insert (Set, Containers.Element (Pos));
+         Pos := Containers.Next (Pos);
+      end loop;
    end Insert;
 
    ------------
