@@ -90,9 +90,6 @@ package AWS.Resources.Streams.Memory.ZLib is
    --  Close the ZLib stream, release all memory associated with the Resource
    --  object.
 
-   function Is_Compressed (Resource : in Stream_Type) return Boolean;
-   --  Returns True
-
 private
 
    type Stream_Access is access all Stream_Type;

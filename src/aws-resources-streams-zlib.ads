@@ -96,9 +96,6 @@ package AWS.Resources.Streams.ZLib is
    function End_Of_File (Resource : in Stream_Type) return Boolean;
    --  Returns true if there is no more data to read
 
-   function Is_Compressed (Resource : in Stream_Type) return Boolean;
-   --  Returns True
-
 private
 
    type Stream_Type is new Streams.Stream_Type with record
