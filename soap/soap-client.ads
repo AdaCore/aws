@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -60,6 +60,6 @@ package SOAP.Client is
       SOAPAction : in String;
       P          : in Message.Payload.Object)
       return Message.Response.Object'Class;
-   --  Idem as above, but use an already opened connection.
+   --  Idem as above, but use an already opened connection
 
 end SOAP.Client;
