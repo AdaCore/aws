@@ -311,6 +311,11 @@ regtests/moved.adb
 regtests/moved.out
 regtests/multiple.adb
 regtests/multiple.out
+regtests/nbconn.adb
+regtests/nbconn_proc.adb
+regtests/nbconn_sec.adb
+regtests/nbconn_sec.out
+regtests/nbconn.out
 regtests/no_param.adb
 regtests/no_param.out
 regtests/nonce.adb
