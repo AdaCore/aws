@@ -1,3 +1,19 @@
+2003-02-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-ldap-client.adb:
+	(Get_Error): New function.
+	(Search): Raise an exception if the LDAP call fails. Free memory
+	 in exception handler.
+	(Unbind): Set Dir to Null_Directory.
+	Minor reformatting.
+
+	* aws-ldap-client.ads:
+	(Get_Error): New function.
+	Minor reformatting.
+
+	* aws-ldap-thin.ads:
+	Minor reformatting.
+
 2003-02-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
