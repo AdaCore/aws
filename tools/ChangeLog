@@ -1,3 +1,11 @@
+2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(.SILENT): Simplify.
+	(GEN): New variable.
+	(build): Depends on $(GEN)
+	($(TOOLS)): Remove ada2wsdl-options.adb.
+
 2004-01-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tools.gpr:
