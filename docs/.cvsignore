@@ -21,6 +21,9 @@ aws-mime.ads.texi
 aws-parameters.ads.texi
 aws-resources-embedded.ads.texi
 aws-resources-files.ads.texi
+aws-resources-streams-memory-zlib-deflate.ads.texi
+aws-resources-streams-memory-zlib-inflate.ads.texi
+aws-resources-streams-memory-zlib.ads.texi
 aws-resources-streams-memory.ads.texi
 aws-resources-streams.ads.texi
 aws-resources.ads.texi
@@ -40,6 +43,7 @@ aws-smtp-client.ads.texi
 aws-smtp.ads.texi
 aws-status.ads.texi
 aws-templates.ads.texi
+aws-translator.ads.texi
 aws-url.ads.texi
 aws.ads.texi
 aws.aux
