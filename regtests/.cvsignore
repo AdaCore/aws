@@ -6,6 +6,15 @@ afile.res
 afile_sec.res
 all_mains.lst
 alldifs
+anytype.netlog
+anytype.res
+anytype_service-client.adb
+anytype_service-client.ads
+anytype_service-server.adb
+anytype_service-server.ads
+anytype_service-types.adb
+anytype_service-types.ads
+anytype_service.ads
 append
 append.res
 append_sec.res
@@ -637,6 +646,7 @@ wsdl_5_service-types.adb
 wsdl_5_service-types.ads
 wsdl_5_service.ads
 wsdl_6.class
+wsdl_6.netlog
 wsdl_6.res
 wsdl_6.wsdl
 wsdl_6_main

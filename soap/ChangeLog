@@ -1,3 +1,14 @@
+2004-11-28  Pascal Obry  <pascal@obry.org>
+
+	* soap-types.adb:
+	(Get) [*]: Handle XSD_Any_Type object. In this case we analyse the
+	 wrapped object. Use Get_Error.
+	(Get_Error): New procedure used to raise exception for improper
+	 use of Get routines.
+
+	* soap-types.ads:
+	(Get): Add comment about XSD_Any_Type handling.
+
 2004-11-27  Pascal Obry  <pascal@obry.org>
 
 	* soap-message-xml.adb:
