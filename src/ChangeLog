@@ -1,3 +1,14 @@
+2002-10-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-status-set.ads, aws-status-set.adb:
+	(Session): New routine generating session ID internally.
+
+	* aws-status.ads, aws-status.adb:
+	(Session_Created): New routine.
+
+	* aws-server-protocol_handler.adb:
+	Use new method to generate session ID.
+
 2002-10-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
