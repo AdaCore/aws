@@ -385,37 +385,39 @@ package body AWS.Net.SSL is
    ----------
 
    procedure Send
-     (Socket : in Socket_Type;
-      Data   : in Ada.Streams.Stream_Element_Array)
+     (Socket : in     Socket_Type;
+      Data   : in     Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
    is
       use Interfaces;
 
-      Len    : C.int;
-      Index  : Stream_Element_Offset := Data'First;
-      Remain : C.int := Data'Length;
+      RC : C.int;
    begin
       loop
-         Len := TSSL.SSL_write
-                  (Socket.SSL, Data (Index)'Address, Remain);
+         RC := TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length);
 
-         if Len > 0 then
-            Index  := Index + Stream_Element_Offset (Len);
-            Remain := Remain - Len;
+         if RC > 0 then
+            Last  := Data'First - 1 + Stream_Element_Offset (RC);
 
-            exit when Remain <= 0;
+            return;
 
          else
             declare
                Error_Code : constant C.int
-                 := TSSL.SSL_get_error (Socket.SSL, Len);
+                 := TSSL.SSL_get_error (Socket.SSL, RC);
 
                Err_Code : TSSL.Error_Code;
 
                use type TSSL.Error_Code;
             begin
                case Error_Code is
-                  when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
-                  when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
+                  when TSSL.SSL_ERROR_WANT_READ  =>
+                     Wait_For (Input, Socket);
+
+                  when TSSL.SSL_ERROR_WANT_WRITE =>
+                     Last := Data'First - 1;
+                     return;
+
                   when others =>
                      Err_Code := TSSL.ERR_get_error;
 
@@ -491,7 +493,6 @@ package body AWS.Net.SSL is
          Key_Filename         : in String;
          Exchange_Certificate : in Boolean)
       is
-
          type Meth_Func is access function return TSSL.SSL_Method;
          pragma Convention (C, Meth_Func);
 
@@ -614,6 +615,14 @@ package body AWS.Net.SSL is
 
             Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
             Error_If (Context = TSSL.Null_Pointer);
+
+            Error_If
+              (TSSL.SSL_CTX_ctrl
+                 (Ctx  => Context,
+                  Cmd  => TSSL.SSL_CTRL_MODE,
+                  Larg => TSSL.SSL_MODE_ENABLE_PARTIAL_WRITE
+                          + TSSL.SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER,
+                  Parg => TSSL.Null_Pointer) = 0);
 
             if Exchange_Certificate then
                --  Client is requested to send its certificate once
