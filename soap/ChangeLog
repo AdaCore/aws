@@ -1,3 +1,35 @@
+2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add soap-wsdl* and soap.generator.adb.
+
+	* soap-utils.ads, soap-utils.adb:
+	(Is_Array): New routine.
+	(No_NS): New routine.
+	(To_T_Array): New routine.
+	(To_Object_Set): Ne routine.
+	(Get): New routine.
+	(V): New routine.
+	(US): New routine.
+
+	* soap-wsdl.ads, soap-wsdl.adb:
+	Initial revision.
+
+	* soap-wsdl-parser.ads, soap-wsdl-parser.adb:
+	Initial revision.
+
+	* soap-wsdl-parameters.ads, soap-wsdl-parameters.adb:
+	Initial revision.
+
+	* soap-generator-stub.adb, soap-generator-skel.adb:
+	Initial revision.
+
+	* soap-generator.ads, soap-generator.adb:
+	Initial revision.
+
+	* soap-generator-name_set.adb:
+	Initial revision.
+
 2003-02-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-response-error.ads:
