@@ -1,3 +1,8 @@
+2004-04-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Add aws-net-sets-thin.ads to source list.
+
 2004-04-20  Pascal Obry  <pascal@obry.org>
 
 	* aws-net.adb:
