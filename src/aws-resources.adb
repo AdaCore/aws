@@ -98,9 +98,34 @@ package body AWS.Resources is
    procedure Get_Line
      (Resource  : in out File_Type;
       Buffer    :    out String;
-      Last      :    out Natural) is
+      Last      :    out Natural)
+   is
+      Byte     : Stream_Element_Array (1 .. 1);
+      Last_Ind : Stream_Element_Offset;
    begin
-      Get_Line (Resource.all, Buffer, Last);
+      Last := 0;
+      Resource.LFT := False;
+
+      for I in Buffer'Range loop
+
+         Read (Resource.all, Byte, Last_Ind);
+         exit when Last_Ind < Byte'Last;
+
+         Buffer (I) := Character'Val (Byte (1));
+
+         --  Check for end of line
+         if Buffer (I) = ASCII.LF then
+            if I > Buffer'First
+              and then Buffer (I - 1) = ASCII.CR
+            then
+               Last := Last - 1;
+            end if;
+            Resource.LFT := True;
+            exit;
+         end if;
+
+         Last := Last + 1;
+      end loop;
    end Get_Line;
 
    ---------------------
@@ -124,7 +149,7 @@ package body AWS.Resources is
 
    function LF_Terminated (Resource : in File_Type) return Boolean is
    begin
-      return LF_Terminated (Resource.all);
+      return Resource.all.LFT;
    end LF_Terminated;
 
    ----------

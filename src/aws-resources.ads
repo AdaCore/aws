@@ -92,7 +92,9 @@ package AWS.Resources is
 
 private
 
-   type File_Tagged is abstract tagged limited null record;
+   type File_Tagged is abstract tagged limited record
+      LFT     : Boolean; -- LF terminated state
+   end record;
    --  Abstract file, operations below must be implemented. The goal here is
    --  to abstract the file location. Currently there is two implementations,
    --  one for files on a hard disk and files in memory (array of bytes).
@@ -104,21 +106,10 @@ private
       return Boolean
       is abstract;
 
-   function LF_Terminated
-     (Resource : in File_Tagged)
-      return Boolean
-      is abstract;
-
    procedure Read
      (Resource : in out File_Tagged;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
-      is abstract;
-
-   procedure Get_Line
-     (Resource  : in out File_Tagged;
-      Buffer    :    out String;
-      Last      :    out Natural)
       is abstract;
 
    procedure Close (File : in out File_Tagged)
