@@ -21,8 +21,6 @@ implemented:
 
 - implement a Proxy server.
 
-- better implementation for stream reading on file upload.
-
 - change server parameters via the admin page (like the maximum number of
   connections, server name, active session, upload path...).
 
@@ -45,10 +43,6 @@ implemented:
 
 - Would be nice to detect if users try to use the session feature when there
   is no session active in the server.
-
-- Check that the socket layer support SSL when asking for SSL support. At the
-  moment we have an exception with a traceback, it would be good to have a
-  nice message explaining the problem.
 
 - Would be nice to have an ActiveX component to support Server Push on
   Internet Explorer.
@@ -84,12 +78,9 @@ implemented:
 - When removing the session (AWS.Session.Delete) it would be good to also
   remove the cookie on the client side.
 
-- Have a way to set the certificate to use with an HTTPS server.
-
 - Have a way to retrieve server configuration from a callback procedure.
 
 - Merge the message handling on the server and client side. Right now both are
   using different implementations.
 
-- Use AWS.Net and AWS.Net.Stream_IO for all socket IO operations. Then move
-  this interface to GNAT.Sockets.
+- Implement AWS.Net.Std for GNAT.Sockets
