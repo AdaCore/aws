@@ -3,13 +3,13 @@
 
 .SILENT: all build clean
 
-GARGS	= -g -O2
+GARGS	= -u -g -O2 -I../src
 
 SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
 	table_of_static_keys_and_dynamic_values_g \
 	table_of_static_keys_and_static_values_g \
 	table_of_strings_and_static_values_g.adb \
-	strings_cutter.adb templates_parser.adb
+	strings_cutter.adb templates_parser.adb templates_parser-input.adb
 
 all:
 	echo "Targets:"
@@ -19,6 +19,8 @@ all:
 	echo ""
 
 build: 
+	(if ! [ -e ../src/aws-os_lib.adb ]; then \
+	   cp aws-os_lib-gnat.adb ../src/aws-os_lib.adb; fi)
 	for file in $(SOURCES); do gnatmake $(GARGS) $$file; done
 
 clean:
