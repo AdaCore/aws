@@ -34,6 +34,15 @@ package body AWS.Status is
 
    use Ada.Strings;
 
+   -----------------
+   -- Binary_Data --
+   -----------------
+
+   function Binary_Data (D : in Data) return Stream_Element_Array is
+   begin
+      return D.Binary_Data.all;
+   end Binary_Data;
+
    ----------------
    -- Connection --
    ----------------
@@ -51,6 +60,15 @@ package body AWS.Status is
    begin
       return D.Content_Length;
    end Content_Length;
+
+   ------------------
+   -- Content_Type --
+   ------------------
+
+   function Content_Type (D : in Data) return String is
+   begin
+      return To_String (D.Content_Type);
+   end Content_Type;
 
    ---------------------
    -- File_Up_To_Date --
@@ -178,6 +196,16 @@ package body AWS.Status is
       D.Content_Length := Content_Length;
    end Set_Content_Length;
 
+   ----------------------
+   -- Set_Content_Type --
+   ----------------------
+
+   procedure Set_Content_Type (D            : in out Data;
+                               Content_Type : in     String) is
+   begin
+      D.Content_Type := To_Unbounded_String (Content_Type);
+   end Set_Content_Type;
+
    -------------------------
    -- Set_File_Up_To_Date --
    -------------------------
@@ -214,6 +242,12 @@ package body AWS.Status is
    procedure Set_Parameters (D : in out Data; Parameters : in String) is
    begin
       D.Parameters := To_Unbounded_String (Parameters);
+   end Set_Parameters;
+
+   procedure Set_Parameters (D         : in out Data;
+                             Parameter : in     Stream_Element_Array) is
+   begin
+      D.Binary_Data := new Stream_Element_Array'(Parameter);
    end Set_Parameters;
 
    -----------------

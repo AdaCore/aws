@@ -32,14 +32,17 @@
 --  used to keep the values for the currently handled HTTP parameters.
 
 with Ada.Strings.Unbounded;
+with Ada.Streams;
 
 package AWS.Status is
+
+   subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
 
    type Data is private;
 
    No_Data : constant Data;
 
-   type Request_Method is (GET, POST);
+   type Request_Method is (GET, HEAD, POST, PUT);
 
    procedure Set_Host (D : in out Data; Host : in String);
    --  set value for "Host:" parameter
@@ -50,6 +53,10 @@ package AWS.Status is
    procedure Set_Content_Length (D              : in out Data;
                                  Content_Length : in     Natural);
    --  set value for "Content-Length:" parameter
+
+   procedure Set_Content_Type (D            : in out Data;
+                               Content_Type : in     String);
+   --  set value for "Content-Type:" parameter
 
    procedure Set_If_Modified_Since (D                 : in out Data;
                                     If_Modified_Since : in     String);
@@ -73,15 +80,22 @@ package AWS.Status is
    --  the parameters for a POST method are passed in the message body. See
    --  procedure below to set them afterward.
 
-   procedure Set_Parameters   (D : in out Data; Parameters : in String);
+   procedure Set_Parameters (D : in out Data; Parameters : in String);
    --  set parameters for the current request. This is used for a POST method
    --  because the parameters are found in the message body and are not known
    --  when we parse the request line.
+
+   procedure Set_Parameters (D         : in out Data;
+                             Parameter : in     Stream_Element_Array);
+   --  this procedure is used to store any binary data sent with the
+   --  request. For example this will be used by the PUT method if a binary
+   --  file is sent to the server.
 
    --  All the following function are used to access the status settings.
 
    function File_Up_To_Date   (D : in Data) return Boolean;
    function If_Modified_Since (D : in Data) return String;
+   function Content_Type      (D : in Data) return String;
    function Content_Length    (D : in Data) return Natural;
    function Connection        (D : in Data) return String;
    function Host              (D : in Data) return String;
@@ -90,6 +104,7 @@ package AWS.Status is
    function HTTP_Version      (D : in Data) return String;
    function Parameter         (D : in Data; N    : in Positive) return String;
    function Parameter         (D : in Data; Name : in String)   return String;
+   function Binary_Data       (D : in Data) return Stream_Element_Array;
 
 private
 
@@ -102,13 +117,17 @@ private
 
    use Ada.Strings.Unbounded;
 
+   type Stream_Element_Array_Access is access Stream_Element_Array;
+
    type Data is record
       Connection        : Unbounded_String;
       Host              : Unbounded_String;
       Method            : Request_Method;
       URI               : Unbounded_String;
       Parameters        : Unbounded_String;
+      Binary_Data       : Stream_Element_Array_Access;
       HTTP_Version      : Unbounded_String;
+      Content_Type      : Unbounded_String;
       Content_Length    : Natural;
       If_Modified_Since : Unbounded_String;
       File_Up_To_Date   : Boolean := False;
@@ -119,6 +138,8 @@ private
       Null_Unbounded_String,
       GET,
       Null_Unbounded_String,
+      Null_Unbounded_String,
+      null,
       Null_Unbounded_String,
       Null_Unbounded_String,
       0,
