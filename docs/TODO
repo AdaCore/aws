@@ -78,9 +78,6 @@ implemented:
   AWS.Response.Data internal data storage instead of one dynamically
   allocated data array.
 
-- Add some high level routines in AWS.Server.Status to get some server
-  information like the number of current users connected...
-
 - AWS.Client support a single cookie. This is a bad limitation and must be
   fixed. It must also handle properly the case where a cookie value is
   updated.
