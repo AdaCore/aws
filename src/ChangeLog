@@ -1,9 +1,23 @@
+2004-06-03  Pascal Obry  <pascal@obry.org>
+
+	* aws-digest.adb:
+        (Word): Set back to 32 bits. This is needed to avoid duplicate
+         Nonce value on fast computer.
+        (Timestamp_String): New substring.
+        (Nonce_String): New substring.
+        (Check_Nonce): Add subtypes to get slice from the Nonce value. Do not
+         suppose that Value'First is 1. Use Timestamp_String and Nonce_String
+         definitions to slice the value. Remove some useless conversion.
+        (Create_Nonce): Use Timestamp_String and Nonce_String definitions.
+        These changes make the code easier to maintain when the Nonce
+         representation is changed.
+
 2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-digest.ads:
 	(Nonce): Is constrained subtype now.
 	(Check_Nonce): Receive unconstrained parameter, because we have to
-	 check nonce for the length too. 
+	 check nonce for the length too.
 
 	* aws-digest.adb:
 	(Word): 16 bit now, for 4 character length in hex representation.
@@ -16,7 +30,7 @@
 	* aws-digest.adb:
 	(Create_Nonce): Remove useless conversion introduced by error in
 	 previous check-in.
-	
+
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-digest.adb:
@@ -47,7 +61,7 @@
 
 	* aws-status.adb:
 	(Check_Digest): Rename Create_Digest to Create.
-	Minor reformatting.	
+	Minor reformatting.
 	Update copyright notice.
 
 	* aws-server.ads:
@@ -97,7 +111,7 @@
 	* aws-digest.adb:
 	(Create_Nonce): Use Nonce type.
 	(Check_Nonce): Idem and emove check for Value length. Not needed now.
-	
+
 	* aws-communication-server.ads:
 	Add some comments.
 	Update copyright notice.
@@ -179,7 +193,7 @@
 	 a pointer to it now.
 	(Free) [Table_Type]: Remove call to Free_Elements.
 	(Upadte): No need to free element before replacing it. Add directly
-	 an element into the vector, no need to create a pointer to it now. 
+	 an element into the vector, no need to create a pointer to it now.
 
 	* aws-containers-tables.adb:
 	(Get): Remove .all as now we have an Element not a pointer to it.
@@ -216,7 +230,7 @@
 	(Index_Access): Removed.
 	(Table_Type): Index is now an Index_Table.Map, we do not need the
 	 access type anymore.
-	
+
 	* aws-containers-tables.adb:
 	Update comments at the top of the unit.
 	(Get_Indexes): Simplify code, we do not need to check for null
@@ -237,7 +251,7 @@
 
 	* aws-client.ads:
 	Minor reformatting.
-	
+
         Following changes are a first step to use AI302.Containers instead
          of GNAT.Dynamic_Table. Some optimisations, possible with the new
          containers, will be done in following check-ins.
