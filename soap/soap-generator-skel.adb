@@ -154,7 +154,11 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Ads, "   function " & L_Proc & "_CB");
       Text_IO.Put_Line
-        (Skel_Ads, "      (Request : in AWS.Status.Data)");
+        (Skel_Ads, "      (SOAPAction : in String;");
+      Text_IO.Put_Line
+        (Skel_Ads, "       Payload    : in SOAP.Message.Payload.Object;");
+      Text_IO.Put_Line
+        (Skel_Ads, "       Request    : in AWS.Status.Data)");
       Text_IO.Put_Line
         (Skel_Ads, "       return AWS.Response.Data;");
 
@@ -167,17 +171,14 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "   function " & L_Proc & "_CB");
       Text_IO.Put_Line
-        (Skel_Adb, "      (Request : in AWS.Status.Data)");
+        (Skel_Adb, "      (SOAPAction : in String;");
+      Text_IO.Put_Line
+        (Skel_Adb, "       Payload    : in SOAP.Message.Payload.Object;");
+      Text_IO.Put_Line
+        (Skel_Adb, "       Request    : in AWS.Status.Data)");
       Text_IO.Put_Line
         (Skel_Adb, "       return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
-      Text_IO.Put_Line
-        (Skel_Adb, "      SOAPAction : constant String := "
-           & "AWS.Status.SOAPAction (Request);");
-      Text_IO.Put_Line
-        (Skel_Adb, "      Payload    : constant SOAP.Message.Payload.Object");
-      Text_IO.Put_Line
-        (Skel_Adb, "        := AWS.Status.Payload (Request);");
       Text_IO.Put_Line
         (Skel_Adb, "      Proc       : constant String");
       Text_IO.Put_Line
@@ -511,6 +512,7 @@ package body Skel is
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with AWS.Status;");
       Text_IO.Put_Line (Skel_Ads, "with AWS.Response;");
+      Text_IO.Put_Line (Skel_Ads, "with SOAP.Message.Payload;");
       Text_IO.New_Line (Skel_Ads);
       Text_IO.Put_Line (Skel_Ads, "with " & L_Name & ".Types;");
       Text_IO.New_Line (Skel_Ads);
@@ -528,7 +530,6 @@ package body Skel is
 
       Text_IO.Put_Line (Skel_Adb, "with Ada.Exceptions;");
       Text_IO.New_Line (Skel_Adb);
-      Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Payload;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Response.Error;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Parameters;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Types;");
