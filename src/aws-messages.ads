@@ -143,6 +143,14 @@ package AWS.Messages is
    function Reason_Phrase (S : in Status_Code) return String;
    --  Returns the reason phrase for the status code S, see [RFC 2616 - 6.1.1]
 
+   ----------------------
+   -- Content encoding --
+   ----------------------
+
+   type Content_Encoding is (Identity, GZip, Deflate);
+   --  Encoding mode for the response, Identity means that no encoding is
+   --  done, Gzip/Deflate to select the Gzip or Deflate encoding algorithm.
+
    -------------------
    -- Cache_Control --
    -------------------
@@ -244,7 +252,9 @@ package AWS.Messages is
    pragma Inline (WWW_Authenticate);
    --  Digest authentication request.
 
-   --  helper functions
+   -----------------------
+   --  helper functions --
+   -----------------------
 
    function Match (Str, Pattern : in String) return Boolean;
    pragma Inline (Match);
