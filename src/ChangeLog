@@ -1,3 +1,68 @@
+2001-08-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): add aws-config, aws-config-ini, aws-config-set, aws-default
+
+	* aws-config-ini.ads:
+	Update comment.
+
+	* aws-config-set.ads:
+	Reorder routine.
+
+	* aws-config.adb: 
+	A lot more changes to support ADT. All values moved to sepc.
+	(Initialize): moved to AWS.Config.Ini.
+	(Session): new function.
+	(Security): new function.
+	(Case_Sesitive_Parameters): new function.
+
+	* aws-config.ads:
+	Move constants for default AWS parameters into AWS.Default.
+	This package is now designed as an ADT instead of an ASM. It is
+	 then possible to have a configuration per server instead of per
+	 process.
+	All variables are move into the private part here to be accessible
+	 from AWS.Config.Set.
+	(Session): new function.
+	(Security): new function.
+	(Case_Sesitive_Parameters): new function.
+	A lot more changes to support ADT.
+
+	* aws-default.ads:
+	Initial revision.
+
+	* aws-config-set.ads, aws-config-set.adb: 
+	Initial revision.
+
+	* aws-config-ini.ads, aws-config-ini.adb:
+	Initial revision.
+
+2001-07-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads: 
+	Minor reformating.
+
+	* aws-log.adb: 
+	(Log_Prefix): returns either the specicifed prefix or the program
+	 name.
+	(Start): add Log_File_Prefix field to control the log filename.
+
+	* aws-log.ads:
+	(Start): add Log_File_Prefix field to control the log filename.
+	Minor reformating.
+
+	* aws-log.adb:
+	(Start): add code to handle Each_Run mode.
+
+	* aws-log.ads: 
+	(Split_Mode): add Each_Run to have a new log file every time the
+	 server is started.
+	Fix and add comments.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): check for empty Admin_URI. Now all URI
+	 starting by Admin_URI are reserved. Speed up a bit the code.
+
 2001-07-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-config.ads: 
