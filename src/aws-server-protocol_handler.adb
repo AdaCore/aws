@@ -1390,6 +1390,7 @@ begin
 
 exception
    when others =>
+      Status.Set.Reset (C_Stat);
       Parameters.Set.Free (P_List);
       raise;
 end Protocol_Handler;
