@@ -1,3 +1,8 @@
+2004-06-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb:
+	(Shutdown): Add control for too much task termination time.
+
 2004-06-14  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:

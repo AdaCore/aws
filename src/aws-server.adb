@@ -526,6 +526,8 @@ package body AWS.Server is
          new Ada.Unchecked_Deallocation (Line, Line_Access);
 
       All_Lines_Terminated : Boolean := False;
+
+      Wait_Counter : Natural := 0;
    begin
       if Web_Server.Shutdown then
          return;
@@ -557,6 +559,16 @@ package body AWS.Server is
          end loop;
 
          delay 0.5;
+
+         Wait_Counter := Wait_Counter + 1;
+
+         if Wait_Counter > 10 then
+            Ada.Text_IO.Put_Line
+              (Text_IO.Current_Error,
+               "Terminating lines takes too much time.");
+
+            exit;
+         end if;
       end loop;
 
       --  Release the cleaner task
@@ -566,8 +578,20 @@ package body AWS.Server is
       --  Wait for Cleaner task to terminate to be able to release associated
       --  memory.
 
+      Wait_Counter := 0;
+
       while not Web_Server.Cleaner'Terminated loop
          delay 0.5;
+
+         Wait_Counter := Wait_Counter + 1;
+
+         if Wait_Counter > 10 then
+            Text_IO.Put_Line
+              (Text_IO.Current_Error,
+               "Terminating clearing task takes too much time.");
+
+            exit;
+         end if;
       end loop;
 
       --  Release lines and slots memory
