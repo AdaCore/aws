@@ -103,14 +103,27 @@ package body AWS.Client is
    procedure Free is new Ada.Unchecked_Deallocation
      (Sockets.Socket_FD'Class, Socket_Access);
 
+   -------------------
+   -- Adjust_Cookie --
+   -------------------
+
+   procedure Adjust_Cookie
+     (Destination : in out HTTP_Connection;
+      Source      : in     HTTP_Connection) is
+   begin
+      Destination.Cookie := Source.Cookie;
+   end Adjust_Cookie;
+
    ------------------
    -- Cleaner_Task --
    ------------------
 
    task body Cleaner_Task is
       Connection : HTTP_Connection_Access;
-      P          : Client_Phase;
+      Forever    : constant Duration := Duration'Last;
+      P          : Client_Phase      := Not_Monitored;
       W          : Duration;
+      Timeout    : Boolean;
    begin
       accept Start (Connection : in HTTP_Connection_Access) do
          Cleaner_Task.Connection := Connection;
@@ -120,42 +133,43 @@ package body AWS.Client is
 
          --  Wait for the job to be done
 
-         select
-            accept Send do
-               W := Duration (Connection.Timeouts.Send);
-               P := Send;
-            end Send;
-         or
-            accept Receive do
+         case P is
+            when Stopped =>
+               exit Phase_Loop;
+
+            when Not_Monitored =>
+               W := Forever;
+
+            when Receive =>
                W := Duration (Connection.Timeouts.Receive);
-               P := Receive;
-            end Receive;
 
-         or
-            accept Stop;
-            exit Phase_Loop;
+            when Send =>
+               W := Duration (Connection.Timeouts.Send);
+         end case;
 
-         or
-            accept Next_Phase;
-            exit Phase_Loop;
-
-         end select;
-
-         --  Delay for the right time
+         if W = 0.0 then
+            P := Not_Monitored;
+            W := Forever;
+         end if;
 
          select
-            accept Stop;
-            exit Phase_Loop;
-         or
-            accept Next_Phase;
+            accept Next_Phase do
+               P       := Connection.Current_Phase;
+               Timeout := False;
+            end Next_Phase;
          or
             delay W;
+
+            Timeout := True;
          end select;
 
          --  Still in the same phase after the delay, just close the socket
          --  now.
 
-         if Connection.Current_Phase = P and then Connection.Opened then
+         if Timeout
+           and then P /= Not_Monitored
+           and then Connection.Opened
+         then
             Connection.Opened := False;
             Sockets.Shutdown (Connection.Socket.all);
          end if;
@@ -185,7 +199,7 @@ package body AWS.Client is
             --  We don't want to fail here, we really want to free the cleaner
             --  object.
             if not Connection.Cleaner'Terminated then
-               Connection.Cleaner.Stop;
+               Connection.Cleaner.Next_Phase;
             end if;
          exception
             when others =>
@@ -372,15 +386,16 @@ package body AWS.Client is
          exception
             when Sockets.Connection_Closed | Sockets.Socket_Error =>
 
+               Disconnect (Connection);
+
                if Try_Count = 0 then
-                  Close (Connection);
                   Result := Response.Build
                     (MIME.Text_HTML, "Get Timeout", Messages.S408);
+                  Set_Phase (Connection, Not_Monitored);
                   exit;
                end if;
 
                Try_Count := Try_Count - 1;
-               Disconnect (Connection);
          end;
       end loop;
    end Get;
@@ -778,15 +793,16 @@ package body AWS.Client is
          exception
             when Sockets.Connection_Closed | Sockets.Socket_Error =>
 
+               Disconnect (Connection);
+
                if Try_Count = 0 then
-                  Close (Connection);
                   Result := Response.Build
                     (MIME.Text_HTML, "Head Timeout", Messages.S408);
+                  Set_Phase (Connection, Not_Monitored);
                   exit;
                end if;
 
                Try_Count := Try_Count - 1;
-               Disconnect (Connection);
          end;
       end loop;
    end Head;
@@ -1161,15 +1177,16 @@ package body AWS.Client is
 
             when Sockets.Connection_Closed | Sockets.Socket_Error =>
 
+               Disconnect (Connection);
+
                if Try_Count = 0 then
-                  Close (Connection);
                   Result := Response.Build
                     (MIME.Text_HTML, "Post Timeout", Messages.S408);
+                  Set_Phase (Connection, Not_Monitored);
                   exit;
                end if;
 
                Try_Count := Try_Count - 1;
-               Disconnect (Connection);
          end;
       end loop;
    end Post;
@@ -1275,15 +1292,16 @@ package body AWS.Client is
          exception
             when Sockets.Connection_Closed | Sockets.Socket_Error =>
 
+               Disconnect (Connection);
+
                if Try_Count = 0 then
-                  Close (Connection);
                   Result := Response.Build
                     (MIME.Text_HTML, "Put Timeout", Messages.S408);
+                  Set_Phase (Connection, Not_Monitored);
                   exit;
                end if;
 
                Try_Count := Try_Count - 1;
-               Disconnect (Connection);
          end;
       end loop;
    end Put;
@@ -1297,25 +1315,38 @@ package body AWS.Client is
       Delimiter  : in String)
      return String
    is
-      Sample_Idx : Natural := Delimiter'First;
       Result     : Unbounded_String;
+   begin
+      Read_Until (Connection.Self.all, Delimiter, Result);
+      return To_String (Result);
+   end Read_Until;
+
+   procedure Read_Until
+     (Connection : in out HTTP_Connection;
+      Delimiter  : in     String;
+      Result     : in out Ada.Strings.Unbounded.Unbounded_String)
+   is
+      Sample_Idx : Natural := Delimiter'First;
       Buffer     : String (1 .. 1024);
 
    begin
-      loop
+      Set_Phase (Connection, Receive);
+
+      Main : loop
          for I in Buffer'Range loop
             begin
                Buffer (I) := Sockets.Get_Char (Connection.Socket.all);
             exception
                when Sockets.Connection_Closed | Sockets.Socket_Error =>
-                  return To_String (Result) & Buffer (Buffer'First .. I - 1);
+                  Append (Result, Buffer (Buffer'First .. I - 1));
+                  exit Main;
             end;
 
             if Buffer (I) = Delimiter (Sample_Idx) then
 
                if Sample_Idx = Delimiter'Last then
-                  return To_String (Result) & Buffer (Buffer'First .. I);
-
+                  Append (Result, Buffer (Buffer'First .. I));
+                  exit Main;
                else
                   Sample_Idx := Sample_Idx + 1;
                end if;
@@ -1326,7 +1357,9 @@ package body AWS.Client is
          end loop;
 
          Append (Result, Buffer);
-      end loop;
+      end loop Main;
+
+      Set_Phase (Connection, Not_Monitored);
    end Read_Until;
 
    -----------------
@@ -1358,21 +1391,13 @@ package body AWS.Client is
      (Connection : in out HTTP_Connection;
       Phase      : in     Client_Phase) is
    begin
+
       Connection.Current_Phase := Phase;
 
-      if Phase = Send and then Connection.Timeouts.Send /= 0 then
-         Connection.Cleaner.Send;
-
-      elsif Phase = Receive and then Connection.Timeouts.Receive /= 0 then
-         Connection.Cleaner.Receive;
-
-      elsif Phase = Not_Monitored
-        and then (Connection.Timeouts.Send /= 0
-                  or else Connection.Timeouts.Receive /= 0)
-      then
+      if Connection.Cleaner /= null then
          Connection.Cleaner.Next_Phase;
-
       end if;
+
    end Set_Phase;
 
    ---------------
