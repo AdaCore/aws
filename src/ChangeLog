@@ -1,5 +1,33 @@
 2001-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Cut_Command): Do not Decode URL as parameter name/value should
+	 not be decoded yet. Check for pathname/parameters separators '?'
+	 and '%3f'.
+	(Resource): Decode URI.
+
+	* aws-client.adb:
+	(Open_Send_Common_Header): Do not encode URL, only change spaces
+	 to '+' to be nice with Windows systems which tends to have spaces
+	 anywhere. Only part of the URL needs to be encoded (parameter
+	 name, parameter value, host name) and this must be done before
+	 calling this code.
+
+	* aws-client.ads:
+	Minor indent fix.
+
+	* aws-response.ads, aws-response.adb:
+	(Initialize): new procedure.
+
+	* aws-url.adb:
+	(Encode): Update comment. Rename parameter from URL to Str. Fix
+	 bug in URL length detection.
+	(Decode): idem.	
+
+	* aws-url.ads:
+	(Encode): Update comment. Rename parameter from URL to Str.
+	(Decode): idem.
+
 	* aws-response.ads:
 	(Data): Ref_Counter is now an access type. Previous implementation
 	 was wrong.
