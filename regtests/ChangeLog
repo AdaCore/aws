@@ -1,3 +1,8 @@
+2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(LARGS): Windows case, add -L../win32 new location of SSL library.
+
 2002-12-15  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* makefile:
