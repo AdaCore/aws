@@ -1,3 +1,8 @@
+2004-06-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-push.adb:
+	(Send): DO NOT use cursor after delete element under it.
+
 2004-06-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
