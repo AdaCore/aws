@@ -1,5 +1,12 @@
 2003-10-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-resources-streams-memory-zlib.ads,
+	  aws-resources-streams-memory-zlib-deflate.ads,
+	  aws-resources-streams-memory-zlib-deflate.adb:
+	New packages for compressed memory stream.
+
+2003-10-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-resources-streams-memory.ads:
 	Reorder with part.
 
