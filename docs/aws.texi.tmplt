@@ -149,11 +149,11 @@ This is the default implementation.
 
 @item GNAT.OS_Lib implementation
 
-Version using GNAT.OS_Lib is GNAT dependant and will run on whatever OS 
+Version using @code{GNAT.OS_Lib} is GNAT dependant and will run on whatever OS 
 GNAT has be ported to.
 
 @smallexample
-Just copy include/aws-os_lib-gnat.adb over src/aws-os_lib.adb.
+Just copy @file{include/aws-os_lib-gnat.adb} over @file{src/aws-os_lib.adb}.
 @end smallexample
 
 @item Win32 implementation
@@ -162,7 +162,7 @@ Version for Win32 should be usable by any Ada compiler for Windows
 95/98/NT/2000.
 
 @smallexample
-Just copy include/aws-os_lib-win32.adb over src/aws-os_lib.adb.
+Just copy @file{include/aws-os_lib-win32.adb} over @file{src/aws-os_lib.adb}.
 @end smallexample
 
 @end table
@@ -171,8 +171,12 @@ Just copy include/aws-os_lib-win32.adb over src/aws-os_lib.adb.
 @section Building
 
 @noindent
-When you have built and configured all libraries you can build
-AWS. There is two ways to build AWS:
+When you have built and configured all libraries you must either set
+ADA_INCLUDE_PATH and ADA_OBJECTS_PATH (for GNAT) to point to the right
+directories or update the @code{LIBS} variable in @file{src/makefile}.
+
+@noindent
+At this point you can build AWS. There is two ways to build AWS:
 
 @itemize @bullet
 @item with SSL support
