@@ -1,3 +1,38 @@
+2000-09-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): set to 0.8.2.
+
+	* aws-client.adb:
+	Minor reformating.
+
+2000-09-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb: 
+	(Cleaner): update Next_Run.
+
+	* aws-server-protocol_handler.adb:
+	Remove POSIX withed units, use AWS.OS_Lib instead.
+	(File_Timestamp): removed.
+	(Send_File_Time): new procedure.
+	(Send_File_Size): new procedure.
+	(Is_Valid_HTTP_Date): new function.
+	(Header_Date_Serv): minor reformating.
+	(Send_File): check that the HTTP date filed is correctly
+	 formated. Handle correctly HEAD method (From Sune Falck).
+	(Send_File): remove use of POSIX. Send file in piece instead of
+	 reading and sending the whole file. Should fix problem with very
+	 big file. (From Sune Falck).
+	
+	* aws-os_lib.ads, aws-os_lib.adb: 
+	Initial revision.
+
+2000-09-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb: 
+	Add comments.
+	Minor reformating.
+
 2000-09-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
