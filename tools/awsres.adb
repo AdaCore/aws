@@ -132,8 +132,8 @@ procedure AwsRes is
       if Compress then
          RS.ZLib.Deflate_Initialize
            (Z_File, D_File'Unchecked_Access, Header => ZLib.GZip);
-
          I_File := Z_File'Unchecked_Access;
+
       else
          I_File := D_File'Unchecked_Access;
       end if;
@@ -211,8 +211,7 @@ procedure AwsRes is
          exit when Last < Buffer'Last;
       end loop;
 
-      Text_IO.Put_Line
-        (O_File, ");");
+      Text_IO.Put_Line (O_File, ");");
 
       --  Output end of package
 
@@ -229,15 +228,12 @@ procedure AwsRes is
 
       --  Register package into root package body
 
-      Text_IO.Put_Line
-        (RT_File, "         Register");
+      Text_IO.Put_Line (RT_File, "         Register");
 
       if Compress then
-         Text_IO.Put_Line
-           (RT_File, "            (""" & Filename & ".gz"",");
+         Text_IO.Put_Line (RT_File, "            (""" & Filename & ".gz"",");
       else
-         Text_IO.Put_Line
-           (RT_File, "            (""" & Filename & """,");
+         Text_IO.Put_Line (RT_File, "            (""" & Filename & """,");
       end if;
 
       Text_IO.Put_Line
@@ -246,7 +242,7 @@ procedure AwsRes is
       Text_IO.Put_Line
         (RT_File, "             GNAT.Calendar.Time_Of ("
            & GNAT.Calendar.Time_IO.Image
-           (File_Time, "%Y, %m, %d, %H, %M, %S, 0.0));"));
+               (File_Time, "%Y, %m, %d, %H, %M, %S, 0.0));"));
 
       if not Quiet then
          Text_IO.Put_Line ("  -> registered");

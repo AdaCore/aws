@@ -196,7 +196,7 @@ package body AWS.Resources.Embedded is
 
    begin
       if Is_GZip (Name) then
-         --  Don't let to try get file Name & ".gz.gz".
+         --  Don't try to open file Name & ".gz.gz"
 
          GZip := False;
 
@@ -212,6 +212,7 @@ package body AWS.Resources.Embedded is
                GZip := False;
             end if;
          end if;
+
       else
          Open_File (Name);
 
