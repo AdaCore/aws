@@ -165,3 +165,9 @@ implemented:
 - Let SSL sockets to be used without explicitly set SSL config.
 
 =============== Point to fix/implement/review before next release (2.0)
+
+- Document the SOAP_Base64 runtime type support
+
+- Check the documentation before the release
+
+- Add a non regression test for the Message_Body stream oriented response
