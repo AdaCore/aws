@@ -35,16 +35,18 @@ with Ada.Exceptions;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with Sockets.Naming;
 with AWS.Config.Set;
-
-with AWS.Net;
-with AWS.Session.Control;
 with AWS.Dispatchers.Callback;
+with AWS.Net.Buffered;
+with AWS.Net.SSL;
+with AWS.Session.Control;
 
 package body AWS.Server is
 
    use Ada;
+
+   SSL_Initialized : Boolean := False;
+   pragma Atomic (SSL_Initialized);
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
@@ -68,8 +70,8 @@ package body AWS.Server is
    --  Handle the lines, this is where all the HTTP protocol is defined.
 
    function Accept_Socket_Serialized
-     (Server   : in HTTP_Access)
-     return Sockets.Socket_FD'Class;
+     (Server : in HTTP_Access)
+      return Net.Socket_Access;
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
 
@@ -96,18 +98,19 @@ package body AWS.Server is
 
    function Accept_Socket_Serialized
      (Server : in HTTP_Access)
-      return Sockets.Socket_FD'Class is
+      return Net.Socket_Access
+   is
+      New_Socket : Net.Socket_Access;
    begin
       Server.Sock_Sem.Seize;
 
-      declare
-         Result : Sockets.Socket_FD'Class
-           := AWS.Net.Accept_Socket
-           (Server.Sock, CNF.Security (Server.Properties));
-      begin
-         Server.Sock_Sem.Release;
-         return Result;
-      end;
+      New_Socket := Net.Socket (CNF.Security (Server.Properties));
+
+      Net.Accept_Socket (Server.Sock.all, New_Socket.all);
+
+      Server.Sock_Sem.Release;
+
+      return New_Socket;
    exception
       when others =>
          Server.Sock_Sem.Release;
@@ -250,7 +253,7 @@ package body AWS.Server is
             --  is serialized as some platforms do not handle properly
             --  multiple accepts on the same socket.
 
-            Sock : aliased Sockets.Socket_FD'Class :=
+            Sock : Net.Socket_Access :=
               Accept_Socket_Serialized (HTTP_Server);
 
          begin
@@ -270,11 +273,10 @@ package body AWS.Server is
                   end select;
                end if;
 
-               HTTP_Server.Slots.Get (Sock'Unchecked_Access, Slot_Index);
+               HTTP_Server.Slots.Get (Sock, Slot_Index);
 
                HTTP_Server.Slots.Set_Peer_Addr
-                 (Slot_Index,
-                  Sockets.Naming.Get_Peer_Addr (Sockets.Socket_FD (Sock)));
+                 (Slot_Index, Net.Peer_Addr (Sock.all));
 
                Protocol_Handler (HTTP_Server.all, Slot_Index);
 
@@ -284,7 +286,7 @@ package body AWS.Server is
                --  We have here a pool of Line and each line is recycled when
                --  needed.
 
-               when Sockets.Connection_Closed | Sockets.Socket_Error =>
+               when Net.Socket_Error =>
                   null;
 
                when E : others =>
@@ -375,8 +377,7 @@ package body AWS.Server is
 
    procedure Set_Unexpected_Exception_Handler
      (Web_Server : in out HTTP;
-      Handler    : in     Unexpected_Exception_Handler)
-   is
+      Handler    : in     Unexpected_Exception_Handler) is
    begin
       if Web_Server.Shutdown then
          Web_Server.Exception_Handler := Handler;
@@ -416,7 +417,8 @@ package body AWS.Server is
       --  First, close the sever socket, so no more request will be queued,
       --  furthermore this will help terminate all lines (see below).
 
-      Sockets.Shutdown (Web_Server.Sock);
+      Net.Buffered.Shutdown (Web_Server.Sock.all);
+      Net.Free (Web_Server.Sock);
 
       --  Release the cleaner task
 
@@ -548,7 +550,7 @@ package body AWS.Server is
 
       function Get_Peername (Index : in Positive) return String is
       begin
-         return Sockets.Naming.Image (Set (Index).Peer_Addr);
+         return To_String (Set (Index).Peer_Addr);
       end Get_Peername;
 
       -------------------------------------
@@ -606,7 +608,7 @@ package body AWS.Server is
          if Set (Index).Phase = Aborted
            and then Phase /= Closed
          then
-            raise Sockets.Connection_Closed;
+            raise Net.Socket_Error;
          end if;
 
          Set (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
@@ -622,15 +624,16 @@ package body AWS.Server is
       -------------
 
       procedure Release (Index : in Positive) is
+         use type Socket_Access;
       begin
          pragma Assert (Count < N);
          --  No more release than it is possible
          pragma Assert
            ((Set (Index).Phase = Closed
-              and then AWS.Status."=" (Set (Index).Sock, null))
-            --  If phase is closed, then Sock must be null
-            or else (Set (Index).Phase /= Closed));
-            --  or phase is not closed
+               and then -- If phase is closed, then Sock must be null
+               (Set (Index).Sock = null))
+            or else -- or phase is not closed
+              (Set (Index).Phase /= Closed));
 
          Count := Count + 1;
 
@@ -639,10 +642,10 @@ package body AWS.Server is
             if not Set (Index).Socket_Taken then
 
                if Set (Index).Phase /= Aborted then
-                  Sockets.Shutdown (Set (Index).Sock.all);
+                  Net.Buffered.Shutdown (Set (Index).Sock.all);
                end if;
 
-               AWS.Net.Free (Set (Index).Sock.all);
+               Net.Free (Set (Index).Sock);
             else
 
                Set (Index).Socket_Taken := False;
@@ -659,9 +662,9 @@ package body AWS.Server is
 
       procedure Set_Peer_Addr
         (Index     : in Positive;
-         Peer_Addr : in Sockets.Naming.Address) is
+         Peer_Addr : in String) is
       begin
-         Set (Index).Peer_Addr := Peer_Addr;
+         Set (Index).Peer_Addr := To_Unbounded_String (Peer_Addr);
       end Set_Peer_Addr;
 
       ------------------
@@ -684,7 +687,7 @@ package body AWS.Server is
       begin
          if Set (Index).Phase not in Closed .. Aborted then
             Mark_Phase (Index, Aborted);
-            Sockets.Shutdown (Set (Index).Sock.all);
+            Net.Buffered.Shutdown (Set (Index).Sock.all);
          end if;
       end Shutdown;
 
@@ -765,28 +768,30 @@ package body AWS.Server is
      (Web_Server : in out HTTP;
       Dispatcher : in     Dispatchers.Handler'Class)
    is
-      Accepting_Socket : Sockets.Socket_FD;
-
-      Max_Connection   : constant Positive
+      Max_Connection : constant Positive
         := CNF.Max_Connection (Web_Server.Properties);
 
    begin
+      --  If it is an SSL connection, initialize the SSL library
+
+      if not SSL_Initialized
+        and then CNF.Security (Web_Server.Properties)
+      then
+         SSL_Initialized := True;
+         Net.SSL.Initialize (CNF.Certificate);
+      end if;
+
       --  Initialize the server socket
 
-      Sockets.Socket
-        (Accepting_Socket,
-         Sockets.AF_INET,
-         Sockets.SOCK_STREAM);
+      Web_Server.Sock := Net.Socket (CNF.Security (Web_Server.Properties));
 
-      Sockets.Bind (Accepting_Socket,
-                    CNF.Server_Port (Web_Server.Properties),
-                    CNF.Server_Host (Web_Server.Properties));
+      Net.Bind (Web_Server.Sock.all,
+                CNF.Server_Port (Web_Server.Properties),
+                CNF.Server_Host (Web_Server.Properties));
 
-      Sockets.Listen
-        (Accepting_Socket,
+      Net.Listen
+        (Web_Server.Sock.all,
          Queue_Size => CNF.Accept_Queue_Size (Web_Server.Properties));
-
-      Web_Server.Sock := Accepting_Socket;
 
       Web_Server.Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
 
