@@ -31,7 +31,7 @@ status.</H3>
 <table>
 
 <tr>
-<td width=250>Maximum connection
+<td width=250>Maximum connections
 <td><b>@@_MAX_CONNECTION_@@</b>
 </tr>
 
@@ -77,9 +77,9 @@ status.</H3>
 <tr bgcolor=white>
 <td align=center>@@_TABLE_LINE_@@
 <td align=center>@@_SOCK_L_@@
-<td>@@_OPENED_L_@@
-<td>@@_ABORTABLE_L_@@
-<td>@@_QUIT_L_@@
+<td align=center>@@YES_NO@@_OPENED_L_@@
+<td align=center>@@YES_NO@@_ABORTABLE_L_@@
+<td align=center>@@YES_NO@@_QUIT_L_@@
 <td align=center>@@_ACTIVITY_COUNTER_L_@@
 <td>@@_ACTIVITY_TIME_STAMP_L_@@
 </tr>
@@ -87,9 +87,9 @@ status.</H3>
 <tr bgcolor=turquoise>
 <td align=center>@@_TABLE_LINE_@@
 <td align=center>@@_SOCK_L_@@
-<td>@@_OPENED_L_@@
-<td>@@_ABORTABLE_L_@@
-<td>@@_QUIT_L_@@
+<td align=center>@@YES_NO@@_OPENED_L_@@
+<td align=center>@@YES_NO@@_ABORTABLE_L_@@
+<td align=center>@@YES_NO@@_QUIT_L_@@
 <td align=center>@@_ACTIVITY_COUNTER_L_@@
 <td>@@_ACTIVITY_TIME_STAMP_L_@@
 </tr>
