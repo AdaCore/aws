@@ -1,30 +1,41 @@
 
 			    A W S - Ada Web Sever
-                               0 . 9 . 10
+                                 0 . 9 . 11
 				       
-March 10th, 2001.
+April 28th, 2001.
 
 
 Dmitriy Anisimkov and I are happy to announce the availability of the 
-AWS 0.9.10 release. This version is close to the 1.0 version. We plan to
+AWS 0.9.11 release. This version is close to the 1.0 version. We plan to
 change slightly the API at this stage but it should be mostly stable.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
-an HTTP component to embedded in any applications. AWS is fully developed in
-Ada with GNAT.
+an HTTP component to embedded in any applications. It means that you can
+communicate with your application using a standard Web browser and this
+without the need for a Web Server. AWS is fully developed in Ada with GNAT.
 
-This is a maintenance release:
+Here are the main changes:
 
-  - hotplug_cb.ads was missing from the distribution. Reported by Sune Falck.
+  - Fix bug in Keep-Alive connection handling in the server. If client does
+    not ask for a non Keep-Alive connection we assume a Keep-Alive
+    connection. This conform to RFC 2616.
 
-  - can be used with latest version of Adasocket 0.1.12 and 0.1.13. With this
-    release you must use the updated Win32 port (see link below). Reported
-    by Sune Falck.
+  - New rountine AWS.Response.URL to jump to a given Web page.
 
-  - In the administrative page, if the socket is not opened a dummy value was
-    reported, not the character minus is displayed. Reported by Sune Falck.
+  - AWS now use the new Templates_Parser API. This version should be
+    stable now. Templates_Parser is used to display the status page.
 
-  - some minor bugs have been fixed.
+  - The main demo (runme) can now be launched as a Windows NT/2000
+    service. This uses Ted Dennison Ada Services library.
+
+  - It is now possible to specify the certificate to use for the SSL 
+    connection.
+
+  - Improve (slightly) the documentation.
+
+  - Do not use GIF images anymore, we use PNG images.
+
+  - As always some bugs have been fixed.
 
 At this stage we feel that AWS is ready to build small to medium Web
 server. AWS has been reported to work under Windows NT, Linux and FreeBSD 4.1.
@@ -43,7 +54,7 @@ The OpenSSL libraries (optional) distributed are for Windows GNAT 3.13. GNAT
 http://vagul.tripod.com/libssl.zip.
 
 Under UNIX you'll have to build the libraries from sources, it is quite easy 
-to do so.
+to do so. This has been tested under Linux without trouble.
 
 See documentation for build information.
 
@@ -55,6 +66,12 @@ AWS documentation:
    http://perso.wanadoo.fr/pascal.obry/aws.html
 
 AWS sources: 
+   http://perso.wanadoo.fr/pascal.obry/contrib.html
+
+Templates_Parser sources: 
+   Templates_Parser module is provided with AWS distribution. Latest version
+   of this module and the documentation can be found at:
+
    http://perso.wanadoo.fr/pascal.obry/contrib.html
 
 Socket binding:
@@ -77,14 +94,20 @@ OpenSSL library (optional) :
 
    Sources for UNIX or Win32:
       http://www.openssl.org
-      (we have used and we distribute version OpenSSL version 0.9.5a with AWS
-      v0.9.9, we have also tested AWS with 0.9.6 without trouble)
+      (we have used and we distribute OpenSSL version 0.9.5a with AWS
+      v0.9.11, we have also tested AWS with OpenSSL 0.9.6a without trouble)
 
    binaries for Win32 with GNAT 3.13 (and later):
       Included with the main AWS distribution.
 
    binaries for Win32 with GNAT 3.12:
       http://vagul.tripod.com/libssl.zip
+
+Windows Services API (optional):
+
+   To build runme demo as a Windows NT/2000 services you must download
+   the services API made by Ted Dennison for his SETI@Home project.
+      http://www.telepath.com/dennison/Ted/SETI/SETI_Service.html
 
 
 Reporting bugs:
@@ -99,6 +122,6 @@ It would be nice if you could also sent us a note if you are using AWS just
 to know if it is used at all or not :)
 
 
-Thanks to all who have reported bugs and send us patches.
+Thanks to all who have reported bugs and have sent us patches.
 
 Dmitriy & Pascal.
