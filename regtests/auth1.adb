@@ -44,6 +44,8 @@ with AWS.Utils;
 
 with Get_Free_Port;
 
+with MD5;
+
 procedure Auth1 is
 
    use Ada;
@@ -95,7 +97,13 @@ procedure Auth1 is
          Valid_Nonce
            := Digest.Check_Nonce (Status.Authorization_Nonce (Request));
 
-         if AWS.Status.Check_Digest (Request, Auth_Password)
+         if AWS.Status.Authorization_Response (Request)
+            = MD5.Digest
+                (MD5.Digest
+                   (Username
+                    & ':' & AWS.Status.Authorization_Realm (Request)
+                    & ':' & Auth_Password)
+                 & AWS.Status.Authorization_Tail (Request))
            and then Valid_Nonce
          then
             return AWS.Response.Build
