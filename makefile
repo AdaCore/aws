@@ -74,8 +74,6 @@ endif
 # NO NEED TO CHANGE ANYTHING PAST THIS POINT
 #############################################################################
 
-CP = cp -p
-
 all:
 	echo ""
 	echo "Targets :"
