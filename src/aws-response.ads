@@ -36,6 +36,7 @@
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Finalization;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Status;
 with AWS.Messages;
@@ -231,6 +232,9 @@ private
    use Ada.Strings.Unbounded;
 
    type Stream_Element_Array_Access is access Streams.Stream_Element_Array;
+
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
    type Natural_Access is access Natural;
 
