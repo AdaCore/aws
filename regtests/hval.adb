@@ -54,8 +54,7 @@ procedure HVal is
    -- Test --
    ----------
 
-   procedure Test (Data : String)
-   is
+   procedure Test (Data : String) is
       S  : Set := Split (Data);
 
       Dummy : Boolean := False;
