@@ -139,10 +139,10 @@ package body AWS.Config.Ini is
 
          if P in Server_Parameter_Name then
 
-            case Config (P).Kind is
+            case Config.P (P).Kind is
                when Str =>
                   Expected_Type := +"string";
-                  Config (P).Str_Value := +Value;
+                  Config.P (P).Str_Value := +Value;
 
                when Dir =>
                   Expected_Type := +"string";
@@ -150,22 +150,22 @@ package body AWS.Config.Ini is
                   if Value (Value'Last) = '/'
                     or else Value (Value'Last) = '\'
                   then
-                     Config (P).Dir_Value := +Value;
+                     Config.P (P).Dir_Value := +Value;
                   else
-                     Config (P).Dir_Value := +(Value & '/');
+                     Config.P (P).Dir_Value := +(Value & '/');
                   end if;
 
                when Pos =>
                   Expected_Type := +"positive";
-                  Config (P).Pos_Value := Positive'Value (Value);
+                  Config.P (P).Pos_Value := Positive'Value (Value);
 
                when Dur =>
                   Expected_Type := +"duration";
-                  Config (P).Dur_Value := Duration'Value (Value);
+                  Config.P (P).Dur_Value := Duration'Value (Value);
 
                when Bool =>
                   Expected_Type := +"boolean";
-                  Config (P).Bool_Value := Boolean'Value (Value);
+                  Config.P (P).Bool_Value := Boolean'Value (Value);
 
             end case;
 
