@@ -34,12 +34,9 @@ endif
 	echo "end SSL_Shared;" >> ssl_shared.gpr
 
 setup: setup_ssl
-	-$(MKDIR) -p ../.build/debug/ssl/obj
-	-$(MKDIR) -p ../.build/debug/ssl/lib
-	-$(MKDIR) -p ../.build/debug/ssl/lobj
-	-$(MKDIR) -p ../.build/release/ssl/obj
-	-$(MKDIR) -p ../.build/release/ssl/lib
-	-$(MKDIR) -p ../.build/release/ssl/lobj
+	-$(MKDIR) -p ../$(BDIR)/ssl/obj
+	-$(MKDIR) -p ../$(BDIR)/ssl/lib
+	-$(MKDIR) -p ../$(BDIR)/ssl/lobj
 
 clean:
 	-$(RM) -f ssl_shared.gpr
