@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2002-2003                          --
+--                            Copyright (C) 2003                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -44,32 +44,38 @@ package AWS.Resources.Streams.Memory is
 
    subtype Stream_Element_Access is Utils.Stream_Element_Array_Access;
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean;
-
    procedure Append
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Array);
+   --  Append Buffer into the memory stream
 
    procedure Append
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Access);
+   --  Append Buffer into the memory stream
 
    procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
+   --  Returns a chunck of data in Buffer, Last point to the last element
+   --  returned in Buffer.
 
-   procedure Close (Resource : in out Stream_Type);
-   --  Close the memory stream.
+   function End_Of_File (Resource : in Stream_Type) return Boolean;
+   --  Returns True if the end of the memory stream has been reached
 
    procedure Clear (Resource : in out Stream_Type);
    pragma Inline (Clear);
    --  Delete all data from memory stream.
 
    procedure Reset (Resource : in out Stream_Type);
-   --  Reset the streaming data to the first position.
+   --  Reset the streaming data to the first position
 
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
+   --  Retruns the number of bytes in the memory stream
+
+   procedure Close (Resource : in out Stream_Type);
+   --  Close the memory stream
 
 private
 
