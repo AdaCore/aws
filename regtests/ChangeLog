@@ -1,3 +1,11 @@
+2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* auth.adb:
+	Check for correct nonce.
+
+	* nvect.ads:
+	Do not use AWS.Digest prefix for "=".
+
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -6,7 +14,7 @@
 	* nonce.adb, nonce.out, nvect.ads:
 	Initial revision.
 
-2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+2004-06-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
 	Move xmlt test to RT_SOAP section.
