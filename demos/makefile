@@ -4,10 +4,12 @@
 .SILENT: all auth runme agent ws clean soap hotplug com_1 com_2 hello_world
 .SILENT: main build_soap
 
+GFLAGSY = $(patsubst -gnaty,-gnaty3abcefhiklmnoprt,$(GFLAGS))
+
 ifeq ($(MODE),ssl)
 # With SSL support
 
-GARGS = $(GFLAGS) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
+GARGS = $(GFLAGSY) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
@@ -19,7 +21,7 @@ endif
 else
 # Without SSL support
 
-GARGS = $(GFLAGS) -i -I../src -I../include -I../soap $(INCLUDES)
+GARGS = $(GFLAGSY) -i -I../src -I../include -I../soap $(INCLUDES)
 BARGS = -E
 LARGS = $(LIBS)
 endif
