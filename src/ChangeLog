@@ -1,3 +1,10 @@
+2004-09-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
+	(Waiting_Mode): Add None waiting mode.
+	(Socket_Count): New type.
+	(Socket_Index): Subtype of Socket_Count.
+
 2004-09-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
