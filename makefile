@@ -275,6 +275,7 @@ else
 		< aws_tmp.gpr > $(INSTALL)/AWS/projects/aws.gpr
 	$(SED) -e 's/with "xmlada";//' \
 		< aws_ssl_tmp.gpr > $(INSTALL)/AWS/projects/aws_ssl.gpr
+	$(RM) -f aws_tmp.gpr aws_ssl_tmp.gpr
 endif
 ifeq (${OS}, Windows_NT)
 	-$(CP) -p $(BDIR)/win32/lib/* $(INSTALL)/AWS/lib
