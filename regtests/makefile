@@ -18,6 +18,11 @@
 #      WSDL_ATESTS  : WSDL tests using the wsdl2aws -a option (Ada Name Style)
 #      RT_SOAP_ASIS : ada2wsdl tests using a server
 #      RT_SOAP_ASIS_PARSE : ada2wsdl tests using only the parser
+#
+#   Note, tests in the RT_SOAP, RT_STD, RT_STD_SEC, RT_SOAP_ASIS, WSDL_TESTS,
+#   WSDL_ATESTS sections should not imply that name of executable file would be
+#   the name of regression test main procedure. This tests would be linked
+#   together to test_all executable file.
 
 GARGS = -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
