@@ -82,8 +82,11 @@ package SOAP.Types is
    --  Allocate an object into the heap and return an access to it.
 
    type Scalar is abstract new Object with private;
+   --  Scalar types are using a by-copy semantic.
 
    type Composite is abstract new Object with private;
+   --  Composite types are using a by-reference semantic for efficiency
+   --  reason. Not that these types are not thread safe.
 
    -------------
    -- Integer --
@@ -131,7 +134,7 @@ package SOAP.Types is
      (V      : in String;
       Name   : in String  := "item";
       Encode : in Boolean := True)
-     return XSD_String;
+      return XSD_String;
 
    function V (O : in XSD_String) return String;
 
@@ -169,7 +172,7 @@ package SOAP.Types is
      (V        : in Ada.Calendar.Time;
       Name     : in String        := "item";
       Timezone : in TZ            := GMT)
-     return XSD_Time_Instant;
+      return XSD_Time_Instant;
 
    function V (O : in XSD_Time_Instant) return Ada.Calendar.Time;
    --  Returns a GMT date and time.
@@ -202,7 +205,7 @@ package SOAP.Types is
    function B64
      (V    : in String;
       Name : in String := "item")
-     return SOAP_Base64;
+      return SOAP_Base64;
 
    function V (O : in SOAP_Base64) return String;
 
@@ -222,7 +225,7 @@ package SOAP.Types is
    function A
      (V    : in Object_Set;
       Name : in String)
-     return SOAP_Array;
+      return SOAP_Array;
 
    function V (O : in SOAP_Array) return Object_Set;
 
@@ -239,7 +242,7 @@ package SOAP.Types is
    function R
      (V    : in Object_Set;
       Name : in String)
-     return SOAP_Record;
+      return SOAP_Record;
 
    function V (O : in SOAP_Record; Name : in String) return Object'Class;
    function V (O : in SOAP_Record) return Object_Set;
@@ -265,7 +268,11 @@ private
 
    type Scalar is abstract new Object with null record;
 
-   type Composite is abstract new Object with null record;
+   type Counter_Access is access Natural;
+
+   type Composite is abstract new Object with record
+      Ref_Counter : Counter_Access;
+   end record;
 
    type XSD_Integer is new Scalar with record
       V : Integer;
@@ -296,19 +303,24 @@ private
 
    type Object_Set_Access is access Object_Set;
 
-   type Object_Set_Controlled is new Ada.Finalization.Controlled with record
+   type SOAP_Array is new Composite with record
       O : Object_Set_Access;
    end record;
 
-   procedure Adjust   (O : in out Object_Set_Controlled);
-   procedure Finalize (O : in out Object_Set_Controlled);
-
-   type SOAP_Array is new Composite with record
-      Items : Object_Set_Controlled;
-   end record;
+   procedure Initialize (O : in out SOAP_Array);
+   procedure Adjust     (O : in out SOAP_Array);
+   procedure Finalize   (O : in out SOAP_Array);
 
    type SOAP_Record is new Composite with record
-      Items : Object_Set_Controlled;
+      O : Object_Set_Access;
    end record;
+
+   procedure Initialize (O : in out SOAP_Record);
+   procedure Adjust     (O : in out SOAP_Record);
+   procedure Finalize   (O : in out SOAP_Record);
+
+   pragma Inline (Initialize);
+   pragma Inline (Adjust);
+   pragma Inline (Finalize);
 
 end SOAP.Types;
