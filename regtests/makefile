@@ -24,11 +24,7 @@ LARGS = $(LFLAGS) $(LIBS) -L../lib -lz
 ifeq ($(MODE),ssl)
 # With SSL support
 
-ifeq (${OS}, Windows_NT)
 LARGS := $(LARGS) -lssl -lcrypto
-else
-LARGS := $(LARGS) -lssl -lcrypto
-endif
 
 RT_SOAP_SEC = test_sec_soap
 RT_STD_SEC = tsgetparam ssp ssback
