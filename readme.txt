@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                May 20th, 2004
+   Pascal Obry                                                May 22th, 2004
 
 
 
@@ -38,6 +38,11 @@ Changes
 -------
 
 Here are the main changes since AWS 2.0 :
+
+   - Support for Content-Disposition for file and stream. This make it
+     possible to properly pass the filename to be used by the client browser
+     to save the file locally. See Disposition and User_Filename parameters of
+     Response.File and Response.Stream constructors.
 
    - Uses the Ada.Containers reference implementation (known as AI302). These
      containers are based on an hash table and is therefore faster than the
@@ -150,7 +155,7 @@ AWS Home Page (sources and printable documentations in Postscript and PDF):
 
 Templates_Parser sources: 
    Templates_Parser module (sources and documentation) is provided with AWS
-   distribution. Version 6.2 is distributed with AWS 1.4.
+   distribution. Version 8.0 is distributed with AWS 2.1.
 
    Latest version of this module and the documentation can be found at:
 
