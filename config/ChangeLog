@@ -8,6 +8,16 @@
 	(AI_NUMERICHOST): New constant.
 	Add pragma Linker_Options for Win32 platform.
 
+	* aws-net-std__gnat.adb:
+	(Get_Inet_Addr): Removed.
+	(Get_Addr_Info): New routine.
+	(Raise_Socket_Error): New routine.
+	(Bind): Use Get_Addr_Info routine together with Thin.C_Bind.
+	 Catch exception only on socket creation.
+	(Connect): Use Get_Addr_Info routine together with Thin.C_Connect.
+	 Catch exception only on socket creation.
+	(Send): Use Raise_Socket_Error.
+
 2004-09-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:

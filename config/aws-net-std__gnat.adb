@@ -31,8 +31,10 @@
 --  $Id$
 
 with Ada.Exceptions;
-with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
+
+with AWS.Net.Thin;
+with AWS.Utils;
 
 pragma Warnings (Off);
 
@@ -45,7 +47,8 @@ with GNAT.Sockets.Constants;
 
 pragma Warnings (On);
 
-with Interfaces.C;
+with Interfaces.C.Strings;
+with System;
 
 package body AWS.Net.Std is
 
@@ -66,9 +69,16 @@ package body AWS.Net.Std is
    --  Raise exception Socket_Error with E's message and a reference to the
    --  routine name.
 
-   function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type;
-   pragma Inline (Get_Inet_Addr);
-   --  Returns the inet address for the given host.
+   procedure Raise_Socket_Error (Error : Integer);
+   pragma No_Return (Raise_Socket_Error);
+
+   function Get_Addr_Info
+     (Host  : in String;
+      Port  : in Positive;
+      Flags : in Interfaces.C.int := 0)
+      return Thin.Addr_Info_Access;
+   --  Returns the inet address information for the given host and port.
+   --  Flags should be used from getaddrinfo C routine.
 
    procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
    --  Set the socket to the non-blocking mode.
@@ -114,26 +124,44 @@ package body AWS.Net.Std is
       Port   : in     Natural;
       Host   : in     String := "")
    is
-      Inet_Addr : Sockets.Inet_Addr_Type;
-   begin
-      if Host = "" then
-         Inet_Addr := Sockets.Any_Inet_Addr;
-      else
-         Inet_Addr := Get_Inet_Addr (Host);
-      end if;
+      use Interfaces;
+      use type C.int;
 
+      Res   : C.int;
+      Errno : Integer;
+
+      Info : constant Thin.Addr_Info_Access
+        := Get_Addr_Info (Host, Port, Thin.AI_PASSIVE);
+   begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
-         Sockets.Create_Socket (Socket.S.FD);
+
+         begin
+            Sockets.Create_Socket (Socket.S.FD);
+         exception
+            when E : Sockets.Socket_Error =>
+               Free (Socket.S);
+               Thin.FreeAddrInfo (Info.all);
+               Raise_Exception (E, "Bind.Create_Socket");
+         end;
+
          Set_Non_Blocking_Mode (Socket);
       end if;
 
-      Sockets.Bind_Socket
-        (Socket.S.FD,
-         (Sockets.Family_Inet, Inet_Addr, Sockets.Port_Type (Port)));
-   exception
-      when E : Sockets.Socket_Error | Sockets.Host_Error =>
-         Raise_Exception (E, "Bind");
+      Res := Sockets.Thin.C_Bind
+               (C.int (Get_FD (Socket)),
+                Info.ai_addr,
+                C.int (Info.ai_addrlen));
+
+      if Res = Sockets.Thin.Failure then
+         Errno := Std.Errno;
+         Sockets.Close_Socket (Socket.S.FD);
+         Free (Socket.S);
+         Thin.FreeAddrInfo (Info.all);
+         Raise_Socket_Error (Errno);
+      end if;
+
+      Thin.FreeAddrInfo (Info.all);
    end Bind;
 
    -------------
@@ -145,38 +173,47 @@ package body AWS.Net.Std is
       Host     : in     String;
       Port     : in     Positive)
    is
-      Sock_Addr : Sockets.Sock_Addr_Type;
+      use Interfaces;
+      use type C.int;
+      Info : constant Thin.Addr_Info_Access := Get_Addr_Info (Host, Port);
+      Res  : C.int;
 
-      Close_On_Exception : Boolean := True;
+      Errno : Integer;
+
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
 
-         Close_On_Exception := False;
-         Sockets.Create_Socket (Socket.S.FD);
-         Close_On_Exception := True;
+         begin
+            Sockets.Create_Socket (Socket.S.FD);
+         exception
+            when E : Sockets.Socket_Error =>
+               Free (Socket.S);
+               Thin.FreeAddrInfo (Info.all);
+               Raise_Exception (E, "Connect.Create_Socket");
+         end;
       end if;
 
-      Sock_Addr := (Sockets.Family_Inet,
-                    Get_Inet_Addr (Host),
-                    Sockets.Port_Type (Port));
+      Res := Sockets.Thin.C_Connect
+               (C.int (Get_FD (Socket)),
+                Info.ai_addr,
+                C.int (Info.ai_addrlen));
 
-      Sockets.Connect_Socket (Socket.S.FD, Sock_Addr);
+      if Res = Sockets.Thin.Failure then
+         Errno := Std.Errno;
+         Sockets.Close_Socket (Socket.S.FD);
+         Free (Socket.S);
+         Thin.FreeAddrInfo (Info.all);
+         Raise_Socket_Error (Errno);
+      end if;
 
-      --  GNAT.Sockets does not support non blocking connect,
-      --  so we are making socket non-blocking after connect.
+      Thin.FreeAddrInfo (Info.all);
+
+      --  ??? Make non-blocking connect later.
 
       Set_Non_Blocking_Mode (Socket);
 
       Set_Cache (Socket);
-   exception
-      when E : Sockets.Socket_Error | Sockets.Host_Error =>
-         if Close_On_Exception then
-            Sockets.Close_Socket (Socket.S.FD);
-         end if;
-
-         Free (Socket);
-         Raise_Exception (E, "Connect");
    end Connect;
 
    -----------
@@ -198,6 +235,53 @@ package body AWS.Net.Std is
       Release_Cache (Socket);
    end Free;
 
+   -------------------
+   -- Get_Addr_Info --
+   -------------------
+
+   function Get_Addr_Info
+     (Host  : in String;
+      Port  : in Positive;
+      Flags : in Interfaces.C.int := 0)
+      return Thin.Addr_Info_Access
+   is
+      use Interfaces.C;
+      use type Thin.Addr_Info_Access;
+
+      C_Node : aliased char_array := To_C (Host);
+      P_Node : Strings.chars_ptr;
+      C_Serv : aliased char_array := To_C (AWS.Utils.Image (Port));
+      Res    : int;
+      Result : aliased Thin.Addr_Info_Access;
+      Hints  : constant Thin.Addr_Info
+        := (ai_family    => Sockets.Constants.AF_INET,
+            ai_socktype  => Sockets.Constants.SOCK_STREAM,
+            ai_protocol  => Sockets.Constants.IPPROTO_TCP,
+            ai_flags     => Flags,
+            ai_addrlen   => 0,
+            ai_canonname => Strings.Null_Ptr,
+            ai_addr      => System.Null_Address,
+            ai_next      => null);
+   begin
+      if Host = "" then
+         P_Node := Strings.Null_Ptr;
+      else
+         P_Node := Strings.To_Chars_Ptr (C_Node'Unchecked_Access);
+      end if;
+
+      Res := Thin.GetAddrInfo
+               (node    => P_Node,
+                service => Strings.To_Chars_Ptr (C_Serv'Unchecked_Access),
+                hints   => Hints,
+                res     => Result'Access);
+
+      if Res /= 0 then
+         Raise_Socket_Error (Errno);
+      end if;
+
+      return Result;
+   end Get_Addr_Info;
+
    ------------
    -- Get_FD --
    ------------
@@ -206,22 +290,6 @@ package body AWS.Net.Std is
    begin
       return Sockets.To_C (Socket.S.FD);
    end Get_FD;
-
-   -------------------
-   -- Get_Inet_Addr --
-   -------------------
-
-   function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type is
-      use Strings.Maps;
-      IP : constant Character_Set := To_Set ("0123456789.");
-   begin
-      if Is_Subset (To_Set (Host), IP) then
-         --  Only numbers, this is an IP address
-         return Sockets.Inet_Addr (Host);
-      else
-         return Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1);
-      end if;
-   end Get_Inet_Addr;
 
    -----------------------------
    -- Get_Receive_Buffer_Size --
@@ -300,6 +368,19 @@ package body AWS.Net.Std is
          Message => Routine & " : " & Exception_Message (E));
    end Raise_Exception;
 
+   ------------------------
+   -- Raise_Socket_Error --
+   ------------------------
+
+   procedure Raise_Socket_Error (Error : Integer) is
+      Msg : String := Integer'Image (Error) & "] ";
+   begin
+      Msg (Msg'First) := '[';
+      Ada.Exceptions.Raise_Exception
+        (Socket_Error'Identity,
+         Msg & Sockets.Thin.Socket_Error_Message (Error));
+   end Raise_Socket_Error;
+
    -------------
    -- Receive --
    -------------
@@ -336,30 +417,27 @@ package body AWS.Net.Std is
       Last   :    out Stream_Element_Offset)
    is
       use Interfaces;
-      use Sockets;
       use type C.int;
 
       Errno : Integer;
       RC    : C.int;
    begin
-      RC := Thin.C_Send
+      RC := Sockets.Thin.C_Send
               (C.int (Get_FD (Socket)),
                Data'Address,
                Data'Length,
                0);
 
-      if RC = Thin.Failure then
-         Errno := Thin.Socket_Errno;
+      if RC = Sockets.Thin.Failure then
+         Errno := Std.Errno;
 
-         if Errno = Constants.EWOULDBLOCK then
+         if Errno = Sockets.Constants.EWOULDBLOCK then
             Last := Data'First - 1;
 
             return;
 
          else
-            Ada.Exceptions.Raise_Exception
-              (Socket_Error'Identity,
-               Message => "Send error code:" & Integer'Image (Errno));
+            Raise_Socket_Error (Errno);
          end if;
       end if;
 
