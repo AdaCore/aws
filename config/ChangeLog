@@ -8,6 +8,7 @@
 	FreeAddrInfo use Addr_Info_Access parameter now.
 	Dummy call to FreeAddrInfo in the package initialization, for
 	 initialize internal libwspiapi.a static data.
+	Use AWS.OS_Lib.Definitions instead of AWS.Net.Thin.
 
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
