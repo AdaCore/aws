@@ -76,4 +76,4 @@ distrib:
 		demos/page*.html demos/status.tmplt docs/TODO \
 		include/*.ad[sb] include/makefile demos/com*.adb
 	gzip -9 aws.tar
-	mv aws.tar.gz aws-`grep " Version" src/aws.ads | cut -c 41-43`.tar.gz
+	mv aws.tar.gz aws-`grep " Version" src/aws.ads | cut -c 41-44`.tar.gz
