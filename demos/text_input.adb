@@ -66,8 +66,8 @@ procedure Text_Input is
 
       return AWS.Response.Build
         ("text/html", "<html><body>"
-         & "<p>Thanks for you comment <br><i>"
-         & Text & "</i>"
+         & "<p>Thanks for you comment <br><pre>"
+         & Text & "</pre>"
          & "<form>"
          & "<input type=""Submit"" value=""Back"">"
          & "</form></body></html>");
