@@ -5,10 +5,15 @@
 
 2004-03-03  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* templates_parser.adb:
+	(Load): Ensure that the file is always closed even if the parsing
+         fails.
+        Patch contributed by Jean-Pierre Rosen.
+
 	* src.gpr:
 	(Source_Dirs): Add ../win32 on Windows based OS.
 	Add some comments.
-	
+
 	* aws-net-sets-thin.ads:
 	(Poll): Add parameter mode. Fix casing.
         Remove obsolete comments.
