@@ -1,3 +1,13 @@
+2002-12-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-headers-set.adb:
+	(Read): Reset header before read it from socket.
+
+	* aws-headers.ads, aws-headers.adb:
+	(Send_Header): Socket parameter moved to the first place,
+	 like for IO routines.
+	(Get_Values): New routine returning all values comma concatenated.
+
 2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-ssl.adb:
