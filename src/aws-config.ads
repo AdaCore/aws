@@ -62,7 +62,7 @@ package AWS.Config is
    function WWW_Root (O : in Object) return String;
    --  This is the root directory name for the server. This variable is not
    --  used internally by AWS. It is supposed to be used by the callback
-   --  procedures who want to retreive physical objects (images, Web
+   --  procedures who want to retrieve physical objects (images, Web
    --  pages...). The default value is the current working directory.
 
    function Admin_URI (O : in Object) return String;
