@@ -1,3 +1,8 @@
+2003-10-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(build_zlib): Echo a trace.
+
 2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
