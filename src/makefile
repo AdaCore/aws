@@ -38,4 +38,4 @@ build_std:
 	cp aws-net-std.adb aws-net.adb
 
 clean:
-	-rm *.o *.ali gnat.adc build_ssl aws-net.adb
+	-rm *.o *.ali gnat.adc build_ssl build_std aws-net.adb
