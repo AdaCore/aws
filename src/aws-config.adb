@@ -181,6 +181,15 @@ package body AWS.Config is
       return O.P (Force_Wait_For_Client_Timeout).Dur_Value;
    end Force_Wait_For_Client_Timeout;
 
+   ---------------------------------
+   -- Free_Slots_Keep_Alive_Limit --
+   ---------------------------------
+
+   function Free_Slots_Keep_Alive_Limit (O : in Object) return Positive is
+   begin
+      return O.P (Free_Slots_Keep_Alive_Limit).Pos_Value;
+   end Free_Slots_Keep_Alive_Limit;
+
    -----------------
    -- Get_Current --
    -----------------
