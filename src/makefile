@@ -21,6 +21,7 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-resources-files.adb aws-resources-streams.adb aws-resources.adb \
 	aws-resources-streams-memory.ads aws-resources-streams-zlib.adb \
 	aws-resources-streams-memory-zlib.adb \
+	aws-resources-streams-disk.adb aws-resources-streams-disk-once.adb \
 	aws-response-set.adb aws-response.adb aws-server-get_status.adb \
 	aws-server-hotplug.adb aws-server-push.adb aws-server.adb \
 	aws-services-directory.adb aws-services-dispatchers-method.adb \
