@@ -41,11 +41,14 @@ package SSL.Thin is
    package Cstr renames Interfaces.C.Strings;
 
    subtype Pointer is System.Address;
+   Null_Pointer : constant Pointer := System.Null_Address;
 
    subtype SSL_Method is Pointer;
    subtype SSL_CTX    is Pointer;
    subtype SSL_Handle is Pointer;
    subtype RSA        is Pointer;
+   subtype X509       is Pointer;
+   subtype X509_Name  is Pointer;
 
    subtype Error_Code is unsigned_long;
 
@@ -84,6 +87,12 @@ package SSL.Thin is
    SSL_CTRL_GET_SESS_CACHE_MODE      : constant := 45;
    SSL_SENT_SHUTDOWN                 : constant := 1;
    SSL_RECEIVED_SHUTDOWN             : constant := 2;
+
+   SSL_VERIFY_NONE                   : constant := 0;
+   SSL_VERIFY_PEER                   : constant := 1;
+   SSL_VERIFY_FAIL_IF_NO_PEER_CERT   : constant := 2;
+   SSL_VERIFY_CLIENT_ONCE            : constant := 4;
+   SSL_F_SSL_VERIFY_CERT_CHAIN       : constant := 207;
 
    RSA_3  : constant := 3;
    RSA_F4 : constant := 16#10001#;
@@ -237,7 +246,23 @@ package SSL.Thin is
 
    function SSL_CTX_check_private_key (Ctx : in SSL_CTX) return int;
 
+   procedure SSL_CTX_set_verify
+     (Ctx      : in SSL_CTX;
+      Mode     : in int;
+      Callback : in Pointer);
+
    procedure RAND_seed (Buf : in Pointer; Num : in Integer);
+
+   --  Certificate
+
+   function SSL_get_peer_certificate (SSL : in SSL_Handle) return X509;
+
+   function X509_NAME_oneline (Name : in X509_Name) return Cstr.chars_ptr;
+
+   function X509_get_subject_name (X509 : in Thin.X509) return X509_Name;
+   function X509_get_issuer_name (X509 : in Thin.X509) return X509_Name;
+
+   procedure SSL_CTX_set_default_verify_paths (Ctx : in SSL_CTX);
 
 private
 
@@ -307,4 +332,11 @@ private
    pragma Import (C, SSL_free, "SSL_free");
    pragma Import (C, SSL_clear, "SSL_clear");
 
+   pragma Import (C, SSL_get_peer_certificate, "SSL_get_peer_certificate");
+   pragma Import (C, X509_get_subject_name, "X509_get_subject_name");
+   pragma Import (C, X509_get_issuer_name, "X509_get_issuer_name");
+   pragma Import (C, X509_NAME_oneline, "X509_NAME_oneline");
+   pragma Import (C, SSL_CTX_set_verify, "SSL_CTX_set_verify");
+   pragma Import (C, SSL_CTX_set_default_verify_paths,
+                  "SSL_CTX_set_default_verify_paths");
 end SSL.Thin;
