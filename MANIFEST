@@ -86,6 +86,11 @@ demos/text_input_cb.ads
 demos/vh_demo.adb
 demos/vh_demo_cb.adb
 demos/vh_demo_cb.ads
+demos/we_library.html
+demos/we_test_menu_css.html
+demos/we_test_notebook.html
+demos/we_test_rounded_boxes.html
+demos/web_elements.adb
 demos/web_mail.adb
 demos/wm_error.thtml
 demos/wm_login.html
