@@ -1,3 +1,8 @@
+2004-03-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(LARGS) [Windows_NT]: Add ../lib/poll.o
+
 2004-02-25  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* makefile:
