@@ -176,7 +176,7 @@ package AWS.Client is
      (Connection : in out HTTP_Connection;
       Result     :    out Response.Data;
       Data       : in     String;
-      URI       : in     String          := No_Data);
+      URI        : in     String          := No_Data);
    --  Same as Put above but using a Connection.
 
    procedure Post
