@@ -52,4 +52,13 @@ package AWS.Client is
    --
    --  Only Basic authetification is supported (i.e. Digest is not).
 
+   function Put (URL        : in String;
+                 Data       : in String;
+                 User       : in String := No_Data;
+                 Pwd        : in String := No_Data;
+                 Proxy      : in String := No_Data;
+                 Proxy_User : in String := No_Data;
+                 Proxy_Pwd  : in String := No_Data) return Response.Data;
+   --  send to the server a PUT request to URL with Data
+
 end AWS.Client;
