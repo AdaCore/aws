@@ -43,16 +43,16 @@ procedure Turl is
 
       Put_Line (URL);
       Put_Line (AWS.URL.URL (O));
-      Put_Line ("   Server    : " & Server_Name (O));
+      Put_Line ("   Server    : " & Host (O));
       Put_Line ("   Port      : " & Port (O));
-      Put_Line ("   URI       : " & URI (O));
+      Put_Line ("   URI       : " & Pathname (O));
 
       Normalize (O);
 
       Put_Line ("   *");
-      Put_Line ("   Server    : " & Server_Name (O));
+      Put_Line ("   Server    : " & Host (O));
       Put_Line ("   Port      : " & Port (O));
-      Put_Line ("   URI       : " & URI (O));
+      Put_Line ("   URI       : " & Pathname (O));
 
    exception
       when E : URL_Error =>
