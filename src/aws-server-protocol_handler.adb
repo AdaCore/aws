@@ -735,7 +735,7 @@ is
       if Status.Content_Length (C_Stat) /= 0 then
 
          if Status.Method (C_Stat) = Status.POST
-           and then Status_Content_Type = MIME.Appl_Form_Data
+           and then Status_Content_Type = MIME.Application_Form_Data
          then
             --  Read data from the stream and convert it to a string as
             --  these are a POST form parameters.
