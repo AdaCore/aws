@@ -208,9 +208,10 @@ package Templates_Parser is
      (Template     : in String;
       Translations : in Translate_Table := No_Translation)
      return String;
-   --  Just translate the variable in the Template using the Translations
-   --  table. This function does not parse the command tag (TABLE, IF,
-   --  INCLUDE).
+   --  Just translate the discrete variables in the Template string using the
+   --  Translations table. This function does not parse the command tag
+   --  (TABLE, IF, INCLUDE). All Vector and Matrix tag are replaced by the
+   --  empty string.
 
    procedure Print_Tree (Filename : in String);
    --  Use for debugging purpose only, it will output the internal tree

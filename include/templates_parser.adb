@@ -37,18 +37,18 @@ with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
+with GNAT.Calendar.Time_IO;
+
 package body Templates_Parser is
 
    use Ada;
    use Ada.Exceptions;
    use Ada.Strings;
 
+   Internal_Error : exception;
+
    Begin_Tag : Unbounded_String := To_Unbounded_String (Default_Begin_Tag);
    End_Tag   : Unbounded_String := To_Unbounded_String (Default_End_Tag);
-
-   function With_Tag (Str : in String) return Boolean;
-   pragma Inline (With_Tag);
-   --  Returns True if Str has some tags and False otherwise.
 
    Table_Token              : constant String := "@@TABLE@@";
    Terminate_Sections_Token : constant String := "@@TERMINATE_SECTIONS@@";
@@ -59,16 +59,16 @@ package body Templates_Parser is
    End_If_Token             : constant String := "@@END_IF@@";
    Include_Token            : constant String := "@@INCLUDE@@";
 
-   Filter_Identity_Token    : aliased constant String := "@_IDENTITY";
-   Filter_Reverse_Token     : aliased constant String := "@_REVERSE";
-   Filter_Lower_Token       : aliased constant String := "@_LOWER";
-   Filter_Upper_Token       : aliased constant String := "@_UPPER";
-   Filter_Clean_Text_Token  : aliased constant String := "@_CLEAN_TEXT";
-   Filter_Capitalize_Token  : aliased constant String := "@_CAPITALIZE";
-   Filter_Yes_No_Token      : aliased constant String := "@_YES_NO";
-   Filter_Oui_Non_Token     : aliased constant String := "@_OUI_NON";
-   Filter_Exist_Token       : aliased constant String := "@_EXIST";
-   Filter_Is_Empty_Token    : aliased constant String := "@_IS_EMPTY";
+   Filter_Reverse_Token     : aliased constant String := "REVERSE";
+   Filter_Lower_Token       : aliased constant String := "LOWER";
+   Filter_Upper_Token       : aliased constant String := "UPPER";
+   Filter_Clean_Text_Token  : aliased constant String := "CLEAN_TEXT";
+   Filter_No_Space_Token    : aliased constant String := "NO_SPACE";
+   Filter_Capitalize_Token  : aliased constant String := "CAPITALIZE";
+   Filter_Yes_No_Token      : aliased constant String := "YES_NO";
+   Filter_Oui_Non_Token     : aliased constant String := "OUI_NON";
+   Filter_Exist_Token       : aliased constant String := "EXIST";
+   Filter_Is_Empty_Token    : aliased constant String := "IS_EMPTY";
 
    subtype Table_Range     is Positive range Table_Token'Range;
    subtype Section_Range   is Positive range Section_Token'Range;
@@ -79,6 +79,247 @@ package body Templates_Parser is
    subtype Include_Range   is Positive range Include_Token'Range;
 
    Blank : constant Maps.Character_Set := Maps.To_Set (' ' & ASCII.HT);
+
+   ----------------------
+   --  Filters setting --
+   ----------------------
+
+   --  a filter appear just before a tag variable (e.g. @@LOWER@@_SOME_VAT_@@
+   --  and means that the filter LOWER should be applied to SOME_VAR before
+   --  replacing it in the template file.
+
+   type Filters_Mode is
+     (Invert,     -- reverse string
+      Lower,      -- lower case
+      Upper,      -- upper case
+      Capitalize, -- lower case except char before spaces and underscores
+      Clean_Text, -- only letter/digits all other chars are changed to spaces.
+      No_Space,   -- removes all spaces found in the value.
+      Yes_No,     -- if True return Yes, If False returns No, else do nothing.
+      Oui_Non,    -- if True return Oui, If False returns Non, else do nothing.
+      Exist,      -- return "TRUE" if var is not empty and "FALSE" otherwise.
+      Is_Empty    -- return "TRUE" if var is empty and "FALSE" otherwise.
+      );
+
+   type Filter_Function is access function (S : in String) return String;
+
+   type Filter_Set is array (Positive range <>) of Filter_Function;
+   type Filter_Set_Access is access Filter_Set;
+
+   type String_Access is access constant String;
+
+   type Filter_Record is record
+      Name   : String_Access;
+      Handle : Filter_Function;
+   end record;
+
+   --  filter functions, see above.
+
+   function Lower_Filter      (S : in String) return String;
+   function Reverse_Filter    (S : in String) return String;
+   function Upper_Filter      (S : in String) return String;
+   function Capitalize_Filter (S : in String) return String;
+   function Clean_Text_Filter (S : in String) return String;
+   function No_Space_Filter   (S : in String) return String;
+   function Yes_No_Filter     (S : in String) return String;
+   function Oui_Non_Filter    (S : in String) return String;
+   function Exist_Filter      (S : in String) return String;
+   function Is_Empty_Filter   (S : in String) return String;
+
+   function Filter_Handle (Name : in String) return Filter_Function;
+   --  Returns the filter function for the given filter name.
+
+   function Filter_Name (Handle : in Filter_Function) return String;
+   --  Returns the filter name for the given filter function.
+
+   --------------------
+   --  Tags variable --
+   --------------------
+
+   type Tag is record
+      Name    : Unbounded_String;
+      Filters : Filter_Set_Access;
+   end record;
+
+   function Build (Str : in String) return Tag;
+   --  Create a Tag from Str. A tag is composed of a name and a set of
+   --  filters.
+
+   function Image (T : in Tag) return String;
+   --  Returns string representation for the Tag variable.
+
+   function Translate (T : in Tag; Value : in String) return String;
+   --  Returns the result of T.Name after applying all filters.
+
+   procedure Release (T : in out Tag);
+   --  Release all memory associated with Tag.
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (T : in Tag) return String is
+      R     : Unbounded_String;
+   begin
+      R := Begin_Tag;
+
+      if T.Filters /= null then
+         for K in reverse T.Filters'Range loop
+            Append (R, Filter_Name (T.Filters (K)));
+            Append (R, ":");
+         end loop;
+      end if;
+
+      Append (R, T.Name);
+      Append (R, End_Tag);
+
+      return To_String (R);
+   end Image;
+
+   -----------
+   -- Build --
+   -----------
+
+   function Build (Str : in String) return Tag is
+
+      function Get_Var_Name (Tag : in String) return Unbounded_String;
+      --  Given a Tag name, it returns the variable name only. It removes
+      --  the tag separator and the filters.
+
+      function Get_Filter_Set (Tag : in String) return Filter_Set_Access;
+      --  Given a tag name, it retruns a set of filter to apply to this
+      --  variable when translated.
+
+      --------------------
+      -- Get_Filter_Set --
+      --------------------
+
+      function Get_Filter_Set (Tag : in String) return Filter_Set_Access is
+         Start : Natural;
+         Stop  : Natural := Tag'Last;
+         FS    : Filter_Set (1 .. Strings.Fixed.Count (Tag, ":"));
+         K     : Positive := FS'First;
+      begin
+         if FS'Length = 0 then
+            return null;
+         end if;
+
+         loop
+            Start := Tag'First;
+
+            Stop := Strings.Fixed.Index
+              (Tag (Start .. Stop), ":", Strings.Backward);
+
+            exit when Stop = 0;
+
+            Start := Strings.Fixed.Index
+              (Tag (Start .. Stop - 1), ":", Strings.Backward);
+
+            if Start = 0 then
+               --  last filter found
+               FS (K) := Filter_Handle
+                 (Tag (Tag'First + Length (Begin_Tag) .. Stop - 1));
+            else
+               FS (K) := Filter_Handle (Tag (Start + 1 .. Stop - 1));
+            end if;
+
+            K := K + 1;
+
+            Stop := Stop - 1;
+         end loop;
+
+         pragma Assert (K = 1);
+
+         return new Filter_Set'(FS);
+      end Get_Filter_Set;
+
+      ------------------
+      -- Get_Var_Name --
+      ------------------
+
+      function Get_Var_Name (Tag : in String) return Unbounded_String is
+         Pos : Natural;
+      begin
+         Pos := Strings.Fixed.Index (Tag, ":", Strings.Backward);
+
+         if Pos = 0 then
+            return To_Unbounded_String
+              (Tag (Tag'First + Length (Begin_Tag)
+                    .. Tag'Last - Length (End_Tag)));
+         else
+            return To_Unbounded_String
+              (Tag (Pos + 1 .. Tag'Last - Length (End_Tag)));
+         end if;
+      end Get_Var_Name;
+
+   begin
+      return (Get_Var_Name (Str), Get_Filter_Set (Str));
+   end Build;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release (T : in out Tag) is
+      procedure Free is
+         new Ada.Unchecked_Deallocation (Filter_Set, Filter_Set_Access);
+   begin
+      Free (T.Filters);
+   end Release;
+
+   ---------------
+   -- Translate --
+   ---------------
+
+   function Translate (T : in Tag; Value : in String) return String is
+   begin
+      if T.Filters /= null then
+         declare
+            R : Unbounded_String := To_Unbounded_String (Value);
+         begin
+            for K in T.Filters'Range loop
+               R := To_Unbounded_String (T.Filters (K) (To_String (R)));
+            end loop;
+
+            return To_String (R);
+         end;
+      end if;
+
+      return Value;
+   end Translate;
+
+   ----------
+   -- Data --
+   ----------
+
+   package Data is
+
+      type Node;
+      type Tree is access Node;
+
+      type NKind is (Text, Var);
+
+      type Node (Kind : NKind) is record
+         Next : Tree;
+         case Kind is
+            when Text =>
+               Value : Unbounded_String;
+            when Var =>
+               Var   : Tag;
+         end case;
+      end record;
+
+      function Parse (Line : in String) return Tree;
+      --  Parse text line and returns the corresponding tree representation.
+
+      procedure Print_Tree (D : in Tree);
+      --  Decend the text tree and print it to the standard output.
+
+      procedure Release (D : in out Tree);
+      --  Release all memory used by the tree.
+
+   end Data;
+
 
    ------------------
    --  Expressions --
@@ -98,12 +339,16 @@ package body Templates_Parser is
       type Node;
       type Tree is access Node;
 
-      type NKind is (Value, Op);
+      type NKind is (Value, Var, Op);
 
       type Node (Kind : NKind) is record
          case Kind is
             when Value =>
-               V : Unbounded_String;
+               V   : Unbounded_String;
+
+            when Var =>
+               Var : Tag;
+
             when Op =>
                O           : Ops;
                Left, Right : Tree;
@@ -118,13 +363,22 @@ package body Templates_Parser is
       --  expression with all parenthesis to show without ambiguity the way the
       --  expression has been parsed.
 
+      procedure Release (E : in out Tree);
+      --  Release all associated memory with the tree.
+
    end Expr;
 
    --------------------------------
    --  Template Tree definitions --
    --------------------------------
 
-   type Nkind is (Data, If_Stmt, Table_Stmt, Section_Stmt, Include_Stmt);
+   type Nkind is (Text,          --  this is a text line
+                  If_Stmt,       --  an IF tag statement
+                  Table_Stmt,    --  a TABLE tag statement
+                  Section_Stmt,  --  a TABLE section
+                  Include_Stmt); --  an INCLUDE tag statement
+
+   --  A template line is coded as a suite of Data and Var element.
 
    type Node;
    type Tree is access Node;
@@ -133,9 +387,8 @@ package body Templates_Parser is
       Next : Tree;
 
       case Kind is
-         when Data =>
-            Value   : Unbounded_String;
-            Has_Tag : Boolean;
+         when Text =>
+            Text    : Data.Tree;
 
          when If_Stmt =>
             Cond    : Expr.Tree;
@@ -154,6 +407,9 @@ package body Templates_Parser is
             Filename : Unbounded_String;
       end case;
    end record;
+
+   procedure Release (T : in out Tree);
+   --  Release all memory associated with the tree.
 
    -------------------
    --  Cached Files --
@@ -174,82 +430,14 @@ package body Templates_Parser is
 
    end Cached_Files;
 
-   ----------------------
-   --  Filters setting --
-   ----------------------
-
-   --  a filter appear just before a tag variable (e.g. @@LOWER@@_SOME_VAT_@@
-   --  and means that the filter LOWER should be applied to SOME_VAR before
-   --  replacing it in the template file.
-
-   type Filters_Mode is
-     (Identity,   -- same string as the input
-      Invert,     -- reverse string
-      Lower,      -- lower case
-      Upper,      -- upper case
-      Capitalize, -- lower case except char before spaces and underscores
-      Clean_Text, -- only letter/digits all other chars are changed to spaces.
-      Yes_No,     -- if True return Yes, If False returns No, else do nothing.
-      Oui_Non,    -- if True return Oui, If False returns Non, else do nothing.
-      Exist,      -- return "TRUE" if var is not empty and "FALSE" otherwise.
-      Is_Empty    -- return "TRUE" if var is empty and "FALSE" otherwise.
-      );
-
-   type Filter_Function is access function (S : in String) return String;
-
-   type String_Access is access constant String;
-
-   type Filter_Record is record
-      Name   : String_Access;
-      Handle : Filter_Function;
-   end record;
-
-   --  filter functions, see above.
-
-   function Lower_Filter      (S : in String) return String;
-   function Reverse_Filter    (S : in String) return String;
-   function Upper_Filter      (S : in String) return String;
-   function Capitalize_Filter (S : in String) return String;
-   function Clean_Text_Filter (S : in String) return String;
-   function Yes_No_Filter     (S : in String) return String;
-   function Oui_Non_Filter    (S : in String) return String;
-   function Exist_Filter      (S : in String) return String;
-   function Is_Empty_Filter   (S : in String) return String;
-
-   function Identity_Filter   (S : in String) return String;
-   pragma Inline (Identity_Filter);
-
-   function Check_Filter
-     (Str : in Unbounded_String;
-      P   : in Positive)
-     return Filters_Mode;
-   --  returns the prefix filter for the tag variable starting a position P in
-   --  Str or Identity if no filter has been found.
-
-   function Through_Filter
-     (S      : in String;
-      Filter : in Filters_Mode) return String;
-   --  apply Filter to string S and return the result string.
-   pragma Inline (Through_Filter);
-
-   function Filter_Length (Filter : in Filters_Mode) return Natural;
-   --  returns the number of characters for the filter token Filter.
+   ----------------
+   -- Vector_Tag --
+   ----------------
 
    function Field
      (Vect_Value : in Vector_Tag;
       N          : in Positive) return String;
    --  returns the Nth value in the vector tag.
-
-   procedure Translate
-     (Str : in out Unbounded_String;
-      Tag : in     String;
-      To  : in     String);
-   --  Translate all tags named Tag in Str by To
-   pragma Inline (Translate);
-
-   ----------------
-   -- Vector_Tag --
-   ----------------
 
    ---------
    -- "+" --
@@ -558,13 +746,14 @@ package body Templates_Parser is
       P : Matrix_Tag_Node_Access := Matrix.M.Head;
    begin
       for K in 1 .. N - 1 loop
-         P := P . Next;
+         P := P.Next;
       end loop;
+
       return P.Vect;
    exception
       when others =>
-         Exceptions.Raise_Exception (Template_Error'Identity,
-                                     "Index out of range");
+         Exceptions.Raise_Exception
+           (Internal_Error'Identity, "Index out of range");
    end Vector;
 
    ------------------
@@ -681,6 +870,128 @@ package body Templates_Parser is
 
    end Cached_Files;
 
+   ----------
+   -- Data --
+   ----------
+
+   package body Data is
+
+      -----------
+      -- Parse --
+      -----------
+
+      function Parse (Line : in String) return Tree is
+
+         Begin_Tag : constant String
+           := To_String (Templates_Parser.Begin_Tag);
+
+         End_Tag : constant String
+           := To_String (Templates_Parser.End_Tag);
+
+         function Build (Line : in String) return Tree;
+         --  Recursive function to build the tree.
+
+         -----------
+         -- Build --
+         -----------
+
+         function Build (Line : in String) return Tree is
+            Start, Stop : Natural;
+         begin
+            if Line = "" then
+               return null;
+
+            else
+               Start := Strings.Fixed.Index (Line, Begin_Tag);
+
+               if Start = 0 then
+                  --  no more tag
+                  return new Node'(Text,
+                                   null,
+                                   To_Unbounded_String (Line));
+               else
+                  Stop := Strings.Fixed.Index (Line, End_Tag);
+
+                  if Stop = 0 then
+                     Exceptions.Raise_Exception
+                       (Internal_Error'Identity,
+                        "Tag variable not terminated (missing "
+                        & End_Tag & ")");
+
+                  else
+                     Stop := Stop + End_Tag'Length - 1;
+
+                     if Start = Line'First then
+                        return new Node'
+                          (Var,
+                           Build (Line (Stop + 1 .. Line'Last)),
+                           Build (Line (Start .. Stop)));
+                     else
+                        return new Node'
+                          (Text,
+                           Build (Line (Start .. Line'Last)),
+                           To_Unbounded_String
+                             (Line (Line'First .. Start - 1)));
+                     end if;
+                  end if;
+               end if;
+            end if;
+         end Build;
+
+      begin
+         return Build (Line);
+      end Parse;
+
+      ----------------
+      -- Print_Tree --
+      ----------------
+
+      procedure Print_Tree (D : in Tree) is
+      begin
+         if D = null then
+            return;
+         end if;
+
+         case D.Kind is
+            when Text =>
+               Text_IO.Put (To_String (D.Value));
+
+            when Var =>
+               Text_IO.Put (Image (D.Var));
+         end case;
+
+         Print_Tree (D.Next);
+      end Print_Tree;
+
+      -------------
+      -- Release --
+      -------------
+
+      procedure Release (D : in out Tree) is
+
+         procedure Free is new Ada.Unchecked_Deallocation (Node, Tree);
+
+         P : Tree;
+         T : Tree := D;
+      begin
+         while T /= null loop
+            P := T;
+            T := T.Next;
+
+            if P.Kind = Var then
+               Release (P.Var);
+            end if;
+
+            Free (P);
+         end loop;
+      end Release;
+
+   end Data;
+
+   ----------
+   -- Expr --
+   ----------
+
    package body Expr is
 
       -----------
@@ -760,7 +1071,7 @@ package body Templates_Parser is
                   --  No matching closing parenthesis.
 
                   Exceptions.Raise_Exception
-                    (Template_Error'Identity,
+                    (Internal_Error'Identity,
                      "condition, no matching parenthesis for parent at pos "
                      & Natural'Image (Index));
 
@@ -793,8 +1104,18 @@ package body Templates_Parser is
 
       begin
          if O_Tok = "" then
-            --  no more operator, this is a leaf
-            return new Node'(Value, To_Unbounded_String (L_Tok));
+            --  No more operator, this is a leaf. It is either a variable or a
+            --  value.
+
+            if Strings.Fixed.Index (L_Tok, To_String (Begin_Tag)) = 0 then
+               --  a value
+               return new Node'(Value, To_Unbounded_String (L_Tok));
+
+            else
+               --  a variable
+               return new Node'(Var, Build (L_Tok));
+            end if;
+
 
          else
             if Index > Expression'Last then
@@ -825,6 +1146,10 @@ package body Templates_Parser is
          case E.Kind is
             when Value =>
                Text_IO.Put (To_String (E.V));
+
+            when Var =>
+               Text_IO.Put (Image (E.Var));
+
             when Op =>
                Text_IO.Put ('(');
                Print_Tree (E.Left);
@@ -833,6 +1158,27 @@ package body Templates_Parser is
                Text_IO.Put (')');
          end case;
       end Print_Tree;
+
+      -------------
+      -- Release --
+      -------------
+
+      procedure Release (E : in out Tree) is
+         procedure Free is new Ada.Unchecked_Deallocation (Node, Tree);
+      begin
+         case E.Kind is
+            when Value =>
+               null;
+
+            when Var =>
+               Release (E.Var);
+
+            when Op =>
+               Release (E.Left);
+               Release (E.Right);
+               Free (E);
+         end case;
+      end Release;
 
       -----------
       -- Value --
@@ -866,51 +1212,11 @@ package body Templates_Parser is
 
          else
             Exceptions.Raise_Exception
-              (Template_Error'Identity, "condition, unknown operator " & O);
+              (Internal_Error'Identity, "condition, unknown operator " & O);
          end if;
       end Value;
 
    end Expr;
-
-   ---------------------
-   -- Identity_Filter --
-   ---------------------
-
-   function Identity_Filter (S : in String) return String is
-   begin
-      return S;
-   end Identity_Filter;
-
-   ------------------
-   -- Lower_Filter --
-   ------------------
-
-   function Lower_Filter (S : in String) return String is
-   begin
-      return Characters.Handling.To_Lower (S);
-   end Lower_Filter;
-
-   --------------------
-   -- Reverse_Filter --
-   --------------------
-
-   function Reverse_Filter (S : in String) return String is
-      Result : String (S'Range);
-   begin
-      for K in S'Range loop
-         Result (Result'Last - K + Result'First) := S (K);
-      end loop;
-      return Result;
-   end Reverse_Filter;
-
-   ------------------
-   -- Upper_Filter --
-   ------------------
-
-   function Upper_Filter (S : in String) return String is
-   begin
-      return Characters.Handling.To_Upper (S);
-   end Upper_Filter;
 
    -----------------------
    -- Capitalize_Filter --
@@ -960,34 +1266,57 @@ package body Templates_Parser is
       return Result;
    end Clean_Text_Filter;
 
-   -------------------
-   -- Yes_No_Filter --
-   -------------------
+   ------------------
+   -- Exist_Filter --
+   ------------------
 
-   function Yes_No_Filter (S : in String) return String is
+   function Exist_Filter (S : in String) return String is
    begin
-      if S = "TRUE" then
-         return "YES";
-
-      elsif S = "true" then
-         return "yes";
-
-      elsif S = "True" then
-         return "Yes";
-
-      elsif S = "FALSE" then
-         return "NO";
-
-      elsif S = "false" then
-         return "no";
-
-      elsif S = "False" then
-         return "No";
-
+      if S /= "" then
+         return "TRUE";
       else
-         return S;
+         return "FALSE";
       end if;
-   end Yes_No_Filter;
+   end Exist_Filter;
+
+   ---------------------
+   -- Is_Empty_Filter --
+   ---------------------
+
+   function Is_Empty_Filter (S : in String) return String is
+   begin
+      if S = "" then
+         return "TRUE";
+      else
+         return "FALSE";
+      end if;
+   end Is_Empty_Filter;
+
+   ------------------
+   -- Lower_Filter --
+   ------------------
+
+   function Lower_Filter (S : in String) return String is
+   begin
+      return Characters.Handling.To_Lower (S);
+   end Lower_Filter;
+
+   ---------------------
+   -- No_Space_Filter --
+   ---------------------
+
+   function No_Space_Filter (S : in String) return String is
+      Result : String (S'Range);
+      L      : Natural := Result'First - 1;
+   begin
+      for K in S'Range loop
+         if not (S (K) = ' ') then
+            L := L + 1;
+            Result (L) := S (K);
+         end if;
+      end loop;
+      return Result (Result'First .. L);
+   end No_Space_Filter;
 
    --------------------
    -- Oui_Non_Filter --
@@ -1018,38 +1347,61 @@ package body Templates_Parser is
       end if;
    end Oui_Non_Filter;
 
-   ------------------
-   -- Exist_Filter --
-   ------------------
+   --------------------
+   -- Reverse_Filter --
+   --------------------
 
-   function Exist_Filter (S : in String) return String is
+   function Reverse_Filter (S : in String) return String is
+      Result : String (S'Range);
    begin
-      if S /= "" then
-         return "TRUE";
-      else
-         return "FALSE";
-      end if;
-   end Exist_Filter;
+      for K in S'Range loop
+         Result (Result'Last - K + Result'First) := S (K);
+      end loop;
+      return Result;
+   end Reverse_Filter;
 
-   ---------------------
-   -- Is_Empty_Filter --
-   ---------------------
+   ------------------
+   -- Upper_Filter --
+   ------------------
 
-   function Is_Empty_Filter (S : in String) return String is
+   function Upper_Filter (S : in String) return String is
    begin
-      if S = "" then
-         return "TRUE";
+      return Characters.Handling.To_Upper (S);
+   end Upper_Filter;
+
+   -------------------
+   -- Yes_No_Filter --
+   -------------------
+
+   function Yes_No_Filter (S : in String) return String is
+   begin
+      if S = "TRUE" then
+         return "YES";
+
+      elsif S = "true" then
+         return "yes";
+
+      elsif S = "True" then
+         return "Yes";
+
+      elsif S = "FALSE" then
+         return "NO";
+
+      elsif S = "false" then
+         return "no";
+
+      elsif S = "False" then
+         return "No";
+
       else
-         return "FALSE";
+         return S;
       end if;
-   end Is_Empty_Filter;
+   end Yes_No_Filter;
 
    --  Filter Table
 
    Filter_Table : array (Filters_Mode) of Filter_Record
-     := (Identity   =>
-           (Filter_Identity_Token'Access,   Identity_Filter'Access),
-         Lower      =>
+     := (Lower      =>
            (Filter_Lower_Token'Access,      Lower_Filter'Access),
          Upper      =>
            (Filter_Upper_Token'Access,      Upper_Filter'Access),
@@ -1057,6 +1409,8 @@ package body Templates_Parser is
            (Filter_Capitalize_Token'Access, Capitalize_Filter'Access),
          Clean_Text =>
            (Filter_Clean_Text_Token'Access, Clean_Text_Filter'Access),
+         No_Space   =>
+           (Filter_No_Space_Token'Access,   No_Space_Filter'Access),
          Invert     =>
            (Filter_Reverse_Token'Access,    Reverse_Filter'Access),
          Yes_No     =>
@@ -1068,50 +1422,37 @@ package body Templates_Parser is
          Is_Empty   =>
            (Filter_Is_Empty_Token'Access,   Is_Empty_Filter'Access));
 
-   ------------------
-   -- Check_Filter --
-   ------------------
+   -------------------
+   -- Filter_Handle --
+   -------------------
 
-   function Check_Filter
-     (Str : in Unbounded_String;
-      P   : in Positive)
-     return Filters_Mode is
+   function Filter_Handle (Name : in String) return Filter_Function is
    begin
-      for F in Filter_Table'Range loop
-         if P - Filter_Table (F).Name'Length >= 1
-           and then Slice (Str,
-                           P - Filter_Table (F).Name'Length,
-                           P - 1) = Filter_Table (F).Name.all
-         then
-            return F;
+      for K in Filter_Table'Range loop
+         if Filter_Table (K).Name.all = Name then
+            return Filter_Table (K).Handle;
          end if;
       end loop;
-      return Identity;
-   end Check_Filter;
 
-   --------------------
-   -- Through_Filter --
-   --------------------
+      Exceptions.Raise_Exception (Internal_Error'Identity,
+                                  "Unknown filter " & Name);
+   end Filter_Handle;
 
-   function Through_Filter
-     (S      : in String;
-      Filter : in Filters_Mode) return String is
+   -----------------
+   -- Filter_Name --
+   -----------------
+
+   function Filter_Name (Handle : in Filter_Function) return String is
    begin
-      return Filter_Table (Filter).Handle (S);
-   end Through_Filter;
+      for K in Filter_Table'Range loop
+         if Filter_Table (K).Handle = Handle then
+            return Filter_Table (K).Name.all;
+         end if;
+      end loop;
 
-   -------------------
-   -- Filter_Length --
-   -------------------
-
-   function Filter_Length (Filter : in Filters_Mode) return Natural is
-   begin
-      if Filter = Identity then
-         return 0;
-      else
-         return Filter_Table (Filter).Name'Length;
-      end if;
-   end Filter_Length;
+      Exceptions.Raise_Exception (Internal_Error'Identity,
+                                  "Unknown filter handle");
+   end Filter_Name;
 
    -----------
    -- Field --
@@ -1168,7 +1509,7 @@ package body Templates_Parser is
    begin
       return Association'
         (Std,
-         Begin_Tag & To_Unbounded_String (Variable) & End_Tag,
+         To_Unbounded_String (Variable),
          To_Unbounded_String (Value));
    end Assoc;
 
@@ -1215,7 +1556,7 @@ package body Templates_Parser is
    begin
       return Association'
         (Vect,
-         Begin_Tag & To_Unbounded_String (Variable) & End_Tag,
+         To_Unbounded_String (Variable),
          Value,
          To_Unbounded_String (Separator));
    end Assoc;
@@ -1228,40 +1569,10 @@ package body Templates_Parser is
    begin
       return Association'
         (Matrix,
-         Begin_Tag & To_Unbounded_String (Variable) & End_Tag,
+         To_Unbounded_String (Variable),
          Value,
          To_Unbounded_String (Separator));
    end Assoc;
-
-   ---------------
-   -- Translate --
-   ---------------
-
-   procedure Translate
-     (Str : in out Unbounded_String;
-      Tag : in     String;
-      To  : in     String)
-   is
-      Pos    : Natural;
-      Filter : Filters_Mode;
-   begin
-      loop
-         Pos := Index (Str, Tag);
-
-         exit when Pos = 0;
-
-         --  check if there is a prefix filter to apply
-
-         Filter := Check_Filter (Str, Pos);
-
-         if Pos /= 0 then
-            Replace_Slice (Str,
-                           Pos - Filter_Length (Filter),
-                           Pos + Tag'Length - 1,
-                           Through_Filter (To, Filter));
-         end if;
-      end loop;
-   end Translate;
 
    ----------
    -- Load --
@@ -1498,15 +1809,12 @@ package body Templates_Parser is
             return T;
 
          else
-            declare
-               V : constant String := Buffer (1 .. Last);
-            begin
-               return
-                 new Node'(Data,
-                           Value   => To_Unbounded_String (V),
-                           Has_Tag => With_Tag (V),
-                           Next    => Parse (Mode));
-            end;
+            T := new Node (Text);
+
+            T.Text := Data.Parse (Buffer (1 .. Last));
+
+            T.Next := Parse (Mode);
+            return T;
          end if;
       end Parse;
 
@@ -1521,7 +1829,7 @@ package body Templates_Parser is
          end if;
       end if;
 
-      Text_IO.Open (File, Text_IO.In_File, Filename);
+      Text_IO.Open (File, Text_IO.In_File, Filename, Form => "shared=no");
 
       T := Parse (Parse_Std);
 
@@ -1532,6 +1840,10 @@ package body Templates_Parser is
       end if;
 
       return T;
+
+   exception
+      when E : Internal_Error =>
+         Fatal_Error (Exceptions.Exception_Message (E));
    end Load;
 
    ----------------
@@ -1554,10 +1866,10 @@ package body Templates_Parser is
       Print_Indent (Level);
 
       case T.Kind is
-         when Data =>
-            Text_IO.Put_Line ("[DATA] (HAS_TAGS="
-                              & Boolean'Image (T.Has_Tag)
-                              & ") " & To_String (T.Value));
+         when Text =>
+            Text_IO.Put ("[TEXT] ");
+            Data.Print_Tree (T.Text);
+            Text_IO.New_Line;
             Print_Tree (T.Next, Level);
 
          when If_Stmt  =>
@@ -1602,6 +1914,7 @@ package body Templates_Parser is
    begin
       T := Load (Filename);
       Print_Tree (T);
+      Release (T);
    end Print_Tree;
 
    -----------
@@ -1624,13 +1937,15 @@ package body Templates_Parser is
 
       Empty_State : constant Table_State := (0, 0, 0, 0, 0, 0);
 
-      Results : Unbounded_String;
+      Results : Unbounded_String := Null_Unbounded_String;
+
+      Now     : Calendar.Time;
 
       procedure Analyze
         (T     : in Tree;
          State : in Table_State);
-      --  Parse T and build results file. Table_Level is the number of table
-      --  imbication and Section_Number the section number parsed.
+      --  Parse T and build results file. State is needed for Vector_Tag and
+      --  Matrix_Tag expansion.
 
       -------------
       -- Analyze --
@@ -1647,6 +1962,11 @@ package body Templates_Parser is
          --  FALSE. Note that a string is True if it is equal to string "TRUE"
          --  and False otherwise.
 
+         procedure Analyze (D : in Data.Tree);
+         --  Analyse the data tree and replace all variables by the
+         --  correspinding value specified in Translations. This procedure
+         --  catenate the result into Results variable.
+
          procedure Get_Max
            (T          : in     Tree;
             Max_Lines  :    out Natural;
@@ -1659,13 +1979,225 @@ package body Templates_Parser is
          --  (Max_Expand), this is equal to Max_Lines + offset to terminate
          --  the sections.
 
-         procedure Translate (Str : in out Unbounded_String);
-         --  Translate all tags in the translations table and the specials tags
-         --  in Str by their corresponding value.
-
          function Is_True (Str : in String) return Boolean;
          --  Return True if Str is one of "TRUE", "OUI", the case beeing not
          --  case sensitive.
+
+         function Translate (Var : in Tag) return String;
+         --  Translate Tag variable using Translation table and apply all
+         --  Filters recorded for this variable.
+
+         ---------------
+         -- Translate --
+         ---------------
+
+         function Translate (Var : in Tag) return String is
+
+            function Vect_List (A : in Association) return String;
+            --  Returns the Vector_Tag for the Association as a String, each
+            --  value is separated by the given separator.
+
+            function Mat_List (A : in Association) return String;
+            --  Returns the Matrix_Tag as a string. If Matrix_Tag is not into
+            --  a table, each Vector_Tag is convected using Vect_List and a LF
+            --  is inserted between each rows. If the Matrix_Tag is into a
+            --  table of level 1, it returns only the Vector_Tag (converted
+            --  using Vect_List) for the current table line.
+
+            ---------------
+            -- Vect_List --
+            ---------------
+
+            function Vect_List (A : in Association) return String is
+               Result : Unbounded_String;
+               P      : Vector_Tag_Node_Access := A.Vect_Value.Head;
+            begin
+               if P = null then
+                  return "";
+               else
+                  Result := P.Value;
+                  for K in 2 .. A.Vect_Value.Count loop
+                     P := P.Next;
+                     Append (Result, A.Separator & P.Value);
+                  end loop;
+
+                  return To_String (Result);
+               end if;
+            end Vect_List;
+
+            --------------
+            -- Mat_List --
+            --------------
+
+            function Mat_List (A : in Association) return String is
+               Result : Unbounded_String;
+               P      : Matrix_Tag_Node_Access := A.Mat_Value.M.Head;
+
+               procedure Add_Vector (V : in Vector_Tag);
+               --  Add V Vector_Tag representation into Result variable.
+
+               ----------------
+               -- Add_Vector --
+               ----------------
+
+               procedure Add_Vector (V : in Vector_Tag) is
+                  P : Vector_Tag_Node_Access := V.Head;
+               begin
+                  Result := Result & P.Value;
+                  for K in 2 .. V.Count loop
+                     P := P.Next;
+                     Append (Result, A.Column_Separator & P.Value);
+                  end loop;
+               end Add_Vector;
+
+            begin
+               if State.Table_Level = 0 then
+                  --  A Matrix outside a table statement.
+
+                  while P /= null loop
+                     Add_Vector (P.Vect);
+                     Append (Result, ASCII.LF);
+                     P := P.Next;
+                  end loop;
+
+               else
+                  Add_Vector (Vector (A.Mat_Value, State.J));
+               end if;
+
+               return To_String (Result);
+            end Mat_List;
+
+         begin
+            for K in Translations'Range loop
+               if Var.Name = Translations (K).Variable then
+
+                  declare
+                     Tk : constant Association := Translations (K);
+                  begin
+                     case Tk.Kind is
+
+                        when Std =>
+                           return Translate (Var, To_String (Tk.Value));
+
+                        when Vect =>
+                           if State.Table_Level = 0 then
+                              --  This is a vector tag (outside of a
+                              --  table tag statement), we display it as
+                              --  a list separated by the specified
+                              --  separator.
+                              return Translate (Var, Vect_List (Tk));
+                           else
+                              return Translate
+                                (Var, Field (Tk.Vect_Value, State.J));
+                           end if;
+
+                        when Matrix =>
+                           if State.Table_Level in 0 .. 1 then
+                              --  This is a matrix tag (outside of a
+                              --  level 2 table tag statement), convert
+                              --  it using Mat_List.
+                              return Translate (Var, Mat_List (Tk));
+
+                           else
+                              return Translate (Var,
+                                                Field (Tk.Mat_Value,
+                                                       State.I, State.J));
+                           end if;
+                     end case;
+                  end;
+               end if;
+            end loop;
+
+            --  check now for an internal tag
+
+            declare
+               T_Name : constant String := To_String (Var.Name);
+            begin
+
+               if T_Name = "UP_TABLE_LINE" then
+                  return Translate
+                    (Var,
+                     Fixed.Trim (Positive'Image (State.I), Strings.Left));
+
+               elsif T_Name = "TABLE_LINE" then
+                  return Translate
+                    (Var,
+                     Fixed.Trim (Positive'Image (State.J), Strings.Left));
+
+               elsif T_Name = "NUMBER_LINE" then
+                  return Translate
+                    (Var,
+                     Fixed.Trim (Positive'Image (State.Max_Lines),
+                                 Strings.Left));
+
+               elsif T_Name = "TABLE_LEVEL" then
+                  return Translate
+                    (Var,
+                     Fixed.Trim (Positive'Image (State.Table_Level),
+                                 Strings.Left));
+
+               elsif T_Name = "YEAR" then
+                  return Translate
+                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%Y"));
+
+               elsif T_Name = "MONTH" then
+                  return Translate
+                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%m"));
+
+               elsif T_Name = "DAY" then
+                  return Translate
+                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%d"));
+
+               elsif T_Name = "HOUR" then
+                  return Translate
+                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%H"));
+
+               elsif T_Name = "MINUTE" then
+                  return Translate
+                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%M"));
+
+               elsif T_Name = "SECOND" then
+                  return Translate
+                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%S"));
+
+               elsif T_Name = "MONTH_NAME" then
+                  return Translate
+                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%B"));
+
+               elsif T_Name = "DAY_NAME" then
+                  return Translate
+                    (Var, GNAT.Calendar.Time_IO.Image (Now, "%A"));
+               end if;
+            end;
+
+            return "";
+         end Translate;
+
+         -------------
+         -- Analyze --
+         -------------
+
+         procedure Analyze (D : in Data.Tree) is
+            use type Data.Tree;
+
+            T : Data.Tree := D;
+
+         begin
+            while T /= null loop
+
+               case T.Kind is
+
+                  when Data.Text =>
+                     Append (Results, T.Value);
+
+                  when Data.Var =>
+                     Append (Results, Translate (T.Var));
+
+               end case;
+
+               T := T.Next;
+            end loop;
+         end Analyze;
 
          -------------
          -- Analyze --
@@ -1829,169 +2361,15 @@ package body Templates_Parser is
          begin
             case E.Kind is
                when Expr.Value =>
-                  declare
-                     V : Unbounded_String := E.V;
-                  begin
-                     Translate (V);
-                     return To_String (V);
-                  end;
+                     return To_String (E.V);
+
+               when Expr.Var =>
+                  return Translate (E.Var);
 
                when Expr.Op =>
                   return Op_Table (E.O) (Analyze (E.Left), Analyze (E.Right));
             end case;
          end Analyze;
-
-         ---------------
-         -- Translate --
-         ---------------
-
-         procedure Translate (Str : in out Unbounded_String) is
-
-            function Vect_List (A : in Association) return String;
-            --  Returns the Vector_Tag for the Association as a String, each
-            --  value is separated by the given separator.
-
-            function Mat_List (A : in Association) return String;
-            --  Returns the Matrix_Tag as a string. If Matrix_Tag is not into
-            --  a table, each Vector_Tag is convected using Vect_List and a LF
-            --  is inserted between each rows. If the Matrix_Tag is into a
-            --  table of level 1, it returns only the Vector_Tag (converted
-            --  using Vect_List) for the current table line.
-
-            ---------------
-            -- Vect_List --
-            ---------------
-
-            function Vect_List (A : in Association) return String is
-               Result : Unbounded_String;
-               P      : Vector_Tag_Node_Access := A.Vect_Value.Head;
-            begin
-               if P = null then
-                  return "";
-               else
-                  Result := P.Value;
-                  for K in 2 .. A.Vect_Value.Count loop
-                     P := P.Next;
-                     Append (Result, A.Separator & P.Value);
-                  end loop;
-
-                  return To_String (Result);
-               end if;
-            end Vect_List;
-
-            --------------
-            -- Mat_List --
-            --------------
-
-            function Mat_List (A : in Association) return String is
-               Result : Unbounded_String;
-               P      : Matrix_Tag_Node_Access := A.Mat_Value.M.Head;
-
-               procedure Add_Vector (V : in Vector_Tag);
-               --  Add V Vector_Tag representation into Result variable.
-
-               ----------------
-               -- Add_Vector --
-               ----------------
-
-               procedure Add_Vector (V : in Vector_Tag) is
-                  P : Vector_Tag_Node_Access := V.Head;
-               begin
-                  Result := Result & P.Value;
-                  for K in 2 .. V.Count loop
-                     P := P.Next;
-                     Append (Result, A.Column_Separator & P.Value);
-                  end loop;
-               end Add_Vector;
-
-            begin
-               if State.Table_Level = 0 then
-                  --  A Matrix outside a table statement.
-
-                  while P /= null loop
-                     Add_Vector (P.Vect);
-                     Append (Result, ASCII.LF);
-                     P := P.Next;
-                  end loop;
-
-               else
-                  Add_Vector (Vector (A.Mat_Value, State.J));
-               end if;
-
-               return To_String (Result);
-            end Mat_List;
-
-         begin
-            for K in Translations'Range loop
-
-               declare
-                  Tk : constant Association := Translations (K);
-               begin
-
-                  if Index (Str, To_String (Tk.Variable)) /= 0 then
-                     --  Do we have a matching tag in this line ?
-
-                     case Tk.Kind is
-
-                        when Std =>
-                           Translate (Str,
-                                      To_String (Tk.Variable),
-                                      To_String (Tk.Value));
-
-                        when Vect =>
-                           if State.Table_Level = 0 then
-                              --  This is a vector tag (outside of a table tag
-                              --  statement), we display it as a list
-                              --  separated by the specified separator.
-                              Translate (Str,
-                                         To_String (Tk.Variable),
-                                         Vect_List (Tk));
-                           else
-                              Translate (Str,
-                                         To_String (Tk.Variable),
-                                         Field (Tk.Vect_Value, State.J));
-                           end if;
-
-                        when Matrix =>
-                           if State.Table_Level in 0 .. 1 then
-                              --  This is a matrix tag (outside of a level 2
-                              --  table tag statement), convert it using
-                              --  Mat_List.
-                              Translate (Str,
-                                         To_String (Tk.Variable),
-                                         Mat_List (Tk));
-
-                           else
-                              Translate (Str,
-                                         To_String (Tk.Variable),
-                                         Field (Tk.Mat_Value,
-                                                State.I, State.J));
-                           end if;
-                     end case;
-                  end if;
-               end;
-            end loop;
-
-            Translate (Str,
-                       Tag => "@_UP_TABLE_LINE_@",
-                       To  => Fixed.Trim (Positive'Image (State.I),
-                                          Strings.Left));
-
-            Translate (Str,
-                       Tag => "@_TABLE_LINE_@",
-                       To  => Fixed.Trim (Positive'Image (State.J),
-                                          Strings.Left));
-
-            Translate (Str,
-                       Tag => "@_NUMBER_LINE_@",
-                       To  => Fixed.Trim (Positive'Image (State.Max_Lines),
-                                          Strings.Left));
-
-            Translate (Str,
-                       Tag => "@_TABLE_LEVEL_@",
-                       To  => Fixed.Trim (Positive'Image (State.Table_Level),
-                                          Strings.Left));
-         end Translate;
 
          -------------
          -- Get_Max --
@@ -2038,23 +2416,31 @@ package body Templates_Parser is
               return Natural
             is
 
-               function Check (Str : in String) return Natural;
-               --  Returns the length of the smallest vector tag found on Str.
+               function Check (T : in Data.Tree) return Natural;
+               --  Returns the length of the largest vector tag found on the
+               --  subtree.
 
                -----------
                -- Check --
                -----------
 
-               function Check (Str : in String) return Natural is
+               function Check (T : in Data.Tree) return Natural is
+                  use type Data.Tree;
+                  use type Data.NKind;
                   Iteration : Natural := Natural'First;
+                  D : Data.Tree := T;
                begin
-                  for K in Translations'Range loop
-                     declare
-                        Tk : constant Association := Translations (K);
-                     begin
-                        if Fixed.Index (Str, To_String (Tk.Variable)) /= 0 then
+                  while D /= null loop
 
-                           if N = 1 then
+                     if D.Kind = Data.Var then
+
+                        for K in Translations'Range loop
+                           declare
+                              Tk : constant Association := Translations (K);
+                           begin
+                           if D.Var.Name = Translations (K).Variable then
+
+                              if N = 1 then
                               --  First block level analysed.
 
                               if Tk.Kind = Vect then
@@ -2114,10 +2500,12 @@ package body Templates_Parser is
                                    Natural'Max (Iteration,
                                                 Size (Tk.Mat_Value));
                               end if;
+                              end if;
                            end if;
-                        end if;
-                     end;
-
+                           end;
+                        end loop;
+                     end if;
+                     D := D.Next;
                   end loop;
 
                   return Iteration;
@@ -2129,8 +2517,8 @@ package body Templates_Parser is
                end if;
 
                case T.Kind is
-                  when Data =>
-                     return Natural'Max (Check (To_String (T.Value)),
+                  when Text =>
+                     return Natural'Max (Check (T.Text),
                                          Get_Max_Lines (T.Next, N));
                   when If_Stmt =>
                      return Natural'Max
@@ -2193,19 +2581,10 @@ package body Templates_Parser is
          end if;
 
          case T.Kind is
-            when Data =>
-               if T.Has_Tag then
-                  declare
-                     Value : Unbounded_String := T.Value;
-                  begin
-                     Translate (Value);
+            when Text =>
+               Analyze (T.Text);
 
-                     Append (Results, To_String (Value) & ASCII.LF);
-                  end;
-
-               else
-                  Append (Results, To_String (T.Value) & ASCII.LF);
-               end if;
+               Append (Results, ASCII.LF);
 
                Analyze (T.Next, State);
 
@@ -2270,10 +2649,57 @@ package body Templates_Parser is
    begin
       T := Load (Filename, Cached);
 
+      Now := Ada.Calendar.Clock;
+
       Analyze (T, Empty_State);
+
+      if not Cached then
+         Release (T);
+      end if;
 
       return To_String (Results);
    end Parse;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release (T : in out Tree) is
+      procedure Free is new Ada.Unchecked_Deallocation (Node, Tree);
+   begin
+      if T = null then
+         return;
+      end if;
+
+      case T.Kind is
+         when Text =>
+            Data.Release (T.Text);
+            Release (T.Next);
+            Free (T);
+
+         when If_Stmt  =>
+            Expr.Release (T.Cond);
+            Release (T.N_True);
+            Release (T.N_False);
+            Release (T.Next);
+            Free (T);
+
+         when Table_Stmt =>
+            Release (T.Sections);
+            Release (T.Next);
+            Free (T);
+
+         when Section_Stmt =>
+            Release (T.Next);
+            Release (T.N_Section);
+            Free (T);
+
+         when Include_Stmt =>
+            Release (T.File);
+            Release (T.Next);
+            Free (T);
+      end case;
+   end Release;
 
    ------------------------
    -- Set_Tag_Separators --
@@ -2296,23 +2722,58 @@ package body Templates_Parser is
       Translations : in Translate_Table := No_Translation)
      return String
    is
-      New_Template : Unbounded_String := To_Unbounded_String (Template);
+      T : Data.Tree := Data.Parse (Template);
+      P : Data.Tree := T;
+
+      Results : Unbounded_String;
+
+      function Translate (Var : in Tag) return String;
+      --  Returns translation for Var.
+
+      ---------------
+      -- Translate --
+      ---------------
+
+      function Translate (Var : in Tag) return String is
+      begin
+         for K in Translations'Range loop
+            if Var.Name = Translations (K).Variable then
+               declare
+                  Tk : constant Association := Translations (K);
+               begin
+                  case Tk.Kind is
+
+                     when Std =>
+                        return Translate (Var, To_String (Tk.Value));
+
+                     when others =>
+                        return "";
+                  end case;
+               end;
+            end if;
+         end loop;
+
+         return "";
+      end Translate;
+
+      use type Data.Tree;
+
    begin
-      for T in Translations'Range loop
-         Translate (New_Template,
-                    To_String (Translations (T).Variable),
-                    To_String (Translations (T).Value));
+      while P /= null loop
+         case P.Kind is
+            when Data.Text =>
+               Append (Results, P.Value);
+
+            when Data.Var =>
+               Append (Results, Translate (P.Var));
+         end case;
+
+         P := P.Next;
       end loop;
-      return To_String (New_Template);
+
+      Data.Release (T);
+
+      return To_String (Results);
    end Translate;
-
-   --------------
-   -- With_Tag --
-   --------------
-
-   function With_Tag (Str : in String) return Boolean is
-   begin
-      return Strings.Fixed.Index (Str, To_String (Begin_Tag)) /= 0;
-   end With_Tag;
 
 end Templates_Parser;

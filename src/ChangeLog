@@ -1,3 +1,15 @@
+2001-05-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status.adb:
+	(Has_Session): new function.
+
+	* aws-status.ads:
+	(Has_Session): new function.
+	(Normalize_Name): minor reformating.
+
+	* aws-client.adb:
+	Minor reformating.
+
 2001-05-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
