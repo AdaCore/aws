@@ -65,9 +65,12 @@ procedure Upload5 is
       entry Stopped;
    end Server;
 
-   HTTP : AWS.Server.HTTP;
+   HTTP  : AWS.Server.HTTP;
 
-   Port : Natural := 7645;
+   Port  : Natural := 7645;
+
+   First : Boolean := True;
+   --  Set to True for the first file upload
 
    --------
    -- CB --
@@ -90,11 +93,19 @@ procedure Upload5 is
             --  Checks that the first are in the upload directory
 
             if AWS.OS_Lib.Is_Regular_File (Server_Filename) then
-               declare
-                  Result : Boolean;
-               begin
-                  GNAT.OS_Lib.Delete_File (Server_Filename, Result);
-               end;
+
+               if First then
+                  First := False;
+                  --  We rename the file, so the server will not be able to
+                  --  delete it.
+
+                  declare
+                     Result : Boolean;
+                  begin
+                     GNAT.OS_Lib.Rename_File
+                       (Server_Filename, "my_file_upload", Result);
+                  end;
+               end if;
 
                return Response.Build (MIME.Text_HTML, "call ok");
 
