@@ -259,6 +259,7 @@ endif
 
 build_tarball:
 	-$(RM) -f aws-*.tar*
+	$(CHMOD) uog+rx win32/*.dll
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-$${VERSION}; \
 	$(MKDIR) $${AWS}; \
