@@ -69,6 +69,8 @@ package AWS.Status is
    function Session                (D : in Data) return AWS.Session.ID;
    function Socket                 (D : in Data) return Socket_Type;
    function URI                    (D : in Data) return String;
+   function User_Agent             (D : in Data) return String;
+   function Referer                (D : in Data) return String;
 
    function Is_SOAP                (D : in Data) return Boolean;
    --  Returns True if it is a SOAP request. In this case SOAPAction return
@@ -117,6 +119,8 @@ private
       Session_ID        : Unbounded_String;
       SOAPAction        : Unbounded_String;
       Payload           : Unbounded_String;
+      User_Agent        : Unbounded_String;
+      Referer           : Unbounded_String;
    end record;
 
 end AWS.Status;
