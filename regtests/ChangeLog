@@ -1,8 +1,13 @@
+2004-06-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* sp.adb, ssp.adb, sp_pck.ads, sp_pck.adb:
+	Move server start to the common code.
+
 2004-06-27  Pascal Obry  <pascal@obry.org>
 
 	* datafeed_service.adb:
 	Remove error server logs.
-	
+
 2004-06-27  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
