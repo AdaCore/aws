@@ -136,8 +136,7 @@ package AWS.Response is
    --  Content_Type must indicate the MIME type for the file. If Attachment is
    --  set to True, the file to download will be forced as attachment. The
    --  browser will then propose to save this file locally instead of
-   --  displaying it. Note that by default this is done for all application
-   --  Content-Type.
+   --  displaying it.
 
    function Stream
      (Content_Type  : in     String;
