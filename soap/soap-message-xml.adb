@@ -662,10 +662,10 @@ package body SOAP.Message.XML is
 
       if Value = null then
          --  No node found, this is an empty string.
-         return Types.S ("", Name, Encode => False);
+         return Types.S ("", Name);
 
       else
-         return Types.S (Node_Value (Value), Name, Encode => False);
+         return Types.S (Node_Value (Value), Name);
       end if;
    end Parse_String;
 
