@@ -71,10 +71,9 @@ package body AWS.Digest is
    function Check_Nonce (Value : in String) return Boolean is
       use Calendar;
 
-      F             : constant Positive := Value'First;
-
       subtype Timestamp_Range is
-        Positive range F      .. F + Timestamp_String'Length - 1;
+        Positive range Value'First
+          .. Value'First + Timestamp_String'Length - 1;
 
       subtype Index_Range is
         Positive range Timestamp_Range'Last + 1
