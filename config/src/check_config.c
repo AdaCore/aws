@@ -10,10 +10,11 @@
 /* We define WIN2000SUPPORT to ensure that executables built with this version
    will run ok on both Win2000 and WinXP.  */
 #include <ws2tcpip.h>
-#else
+#else /* ! _WIN32 */
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #endif
 
 int
