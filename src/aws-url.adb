@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -48,7 +48,13 @@ package body AWS.URL is
 
    function Code (C : in Character) return Escape_Code;
    pragma Inline (Code);
-   --  Returns hexadecimal code for character C.
+   --  Returns hexadecimal code for character C
+
+   subtype ASCII_7 is Character range Character'First .. Character'Val (127);
+   type ASCII_7_Set is array (ASCII_7) of Escape_Code;
+
+   function Build_Hex_Escape return ASCII_7_Set;
+   --  Returns the table with pre-computed encoding for 7bits characters
 
    function Normalize (Path : in Unbounded_String) return Unbounded_String;
    --  Returns Path with all possible occurences of parent and current
@@ -73,6 +79,23 @@ package body AWS.URL is
       end if;
    end Abs_Path;
 
+   ----------------------
+   -- Build_Hex_Escape --
+   ----------------------
+
+   function Build_Hex_Escape return ASCII_7_Set is
+      Result : ASCII_7_Set;
+   begin
+      for C in Character'Val (0) .. Character'Val (127) loop
+         if Strings.Maps.Is_In (C, Default_Encoding_Set) then
+            Result (C) := Code (C);
+         else
+            Result (C) := Not_Escaped;
+         end if;
+      end loop;
+      return Result;
+   end Build_Hex_Escape;
+
    ----------
    -- Code --
    ----------
@@ -82,18 +105,7 @@ package body AWS.URL is
       return Utils.Hex (Character'Pos (C));
    end Code;
 
-   subtype ASCII_7 is Character range Character'First .. Character'Val (127);
-
-   Hex_Escape : constant array (ASCII_7) of Escape_Code
-     := (';' => Code (';'), '/' => Code ('/'), '?' => Code ('?'),
-         ':' => Code (':'), '@' => Code ('@'), '&' => Code ('&'),
-         '=' => Code ('='), '+' => Code ('+'), '$' => Code ('$'),
-         ',' => Code (','), '<' => Code ('<'), '>' => Code ('>'),
-         '#' => Code ('#'), '%' => Code ('%'), '"' => Code ('"'),
-         '{' => Code ('{'), '}' => Code ('}'), '|' => Code ('|'),
-         '\' => Code ('\'), '^' => Code ('^'), '[' => Code ('['),
-         ']' => Code (']'), '`' => Code ('`'), ' ' => Code (' '),
-         others => Not_Escaped);
+   Hex_Escape : constant ASCII_7_Set :=  Build_Hex_Escape;
    --  Limit Hex_Escape to 7bits ASCII characters only. Other ISO-8859-1 are
    --  handled separately in Encode function. Space character is not processed
    --  specifically, contrary to what is done in AWS.URL.
@@ -140,29 +152,35 @@ package body AWS.URL is
    -- Encode --
    ------------
 
-   function Encode (Str : in String) return String is
-      Res : String (1 .. Str'Length * 3);
-      K   : Natural := 0;
+   function Encode
+     (Str          : in String;
+      Encoding_Set : in Strings.Maps.Character_Set := Default_Encoding_Set)
+      return String
+   is
+      C_128 : constant Character := Character'Val (128);
+      Res   : String (1 .. Str'Length * 3);
+      K     : Natural := 0;
    begin
       for I in Str'Range loop
-         if Character'Pos (Str (I)) >= 128 then
+         if Strings.Maps.Is_In (Str (I), Encoding_Set) then
+            --  This character must be encoded
+
             K := K + 1;
             Res (K) := '%';
             K := K + 1;
-            Res (K .. K + 1) := Code (Str (I));
-            K := K + 1;
-            --  Add this case to handle ISO-8859-1 characters 128 to 255
 
-         elsif Hex_Escape (Str (I)) = Not_Escaped then
+            if Str (I) < C_128 then
+               --  We keep a table for characters lower than 128 for efficiency
+               Res (K .. K + 1) := Hex_Escape (Str (I));
+            else
+               Res (K .. K + 1) := Code (Str (I));
+            end if;
+
             K := K + 1;
-            Res (K) := Str (I);
 
          else
             K := K + 1;
-            Res (K) := '%';
-            K := K + 1;
-            Res (K .. K + 1) := Hex_Escape (Str (I));
-            K := K + 1;
+            Res (K) := Str (I);
          end if;
       end loop;
 
@@ -238,7 +256,7 @@ package body AWS.URL is
 
          exit when K = 0;
 
-         --  Look for previous directory, which should be removed.
+         --  Look for previous directory, which should be removed
 
          P := Strings.Fixed.Index
            (Slice (URL_Path, 1, K - 1), "/", Strings.Backward);
