@@ -90,7 +90,7 @@ package AWS.Containers.Tables is
      (Table : in Table_Type;
       N     : in Positive)
       return Element;
-   --  Returns N'th name/value pair. Returns Null_Element if if there is no
+   --  Returns N'th name/value pair. Returns Null_Element if there is no
    --  such item in the table.
 
    function Get_Names
