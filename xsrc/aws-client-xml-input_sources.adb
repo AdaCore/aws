@@ -65,8 +65,6 @@ package body AWS.Client.XML.Input_Sources is
 
       Read_Bom (+Input.Buffer, Length, BOM);
 
-      Input.First := Input.First + Stream_Element_Offset (Length);
-
       case BOM is
          when Utf32_LE =>
             Set_Encoding (Input, Utf32.Utf32_LE_Encoding);
@@ -87,7 +85,9 @@ package body AWS.Client.XML.Input_Sources is
             Set_Encoding (Input, Utf8.Utf8_Encoding);
       end case;
 
-      Input.EOF := False;
+      -- Move First index past the BOM
+
+      Input.First := Input.First + Stream_Element_Offset (Length);
    end Create;
 
    ---------
@@ -117,10 +117,9 @@ package body AWS.Client.XML.Input_Sources is
       Temp : Stream_Element_Offset;
    begin
       if From.First > From.Last then
-         --  Unexpected end of stream. Data have to be taken from
-         --  HTTP connection in the EOF routine or after partial symbol
-         --  detected.
-
+         --  Unexpected end of stream detected. Data should have been taken
+         --  from the HTTP connection in the Eof routine or after partial
+         --  character detected.
          raise Unicode.CES.Invalid_Encoding;
       end if;
 
@@ -128,12 +127,12 @@ package body AWS.Client.XML.Input_Sources is
       CS := Get_Character_Set (From);
 
       if From.Buffer'Last - From.First < 5 then
-         --  UTF8 encoding character length could be from 1 to 6 bytes.
-         --  UTF16 could be 2 or 4 bytes.
+         --  UTF8 encoding character length can take from 1 to 6 bytes.
+         --  UTF16 can be from 2 or 4 bytes.
          --  Unicode.CES.Read routine is in danger to violate byte sequence
-         --  range if last character in buffer only portion. We have to move
-         --  remain data in buffer to the begin, to have a place for parse
-         --  encoding.
+         --  range if last character in buffer is only a part of the encoded
+         --  character. We move remaining data in buffer to the begin, to
+         --  have some place if we need to read some data.
 
          Temp := From.Buffer'First + From.Last - From.First;
 
@@ -142,12 +141,11 @@ package body AWS.Client.XML.Input_Sources is
 
          From.First := From.Buffer'First;
          From.Last  := Temp;
-
       end if;
 
-      loop
-         --  We would need loop for append data to buffer, if last character in
-         --  buffer is only portion.
+      Read_Encoded_Char : loop
+         --  We need a loop to append data to buffer if last character in
+         --  buffer is only part of the encoded character.
 
          Temp := From.First;
 
@@ -156,12 +154,13 @@ package body AWS.Client.XML.Input_Sources is
          exception
             when Unicode.CES.Invalid_Encoding =>
                if From.Last - From.First < 5 then
-                  --  It could be just portion of the UTF8 or UTF16 encoding
-                  --  Emulate normal encoding with overrange.
+                  --  It can be the case where we have only a part of the
+                  --  UTF8 or UTF16 character. Set From.First to the last
+                  --  buffer position to force reading more bytes in the next
+                  --  section.
                   --  ??? Note, we could not distinguish character portion from
                   --  the wrong encoding in the first attempt when number of
                   --  bytes is less then 5 with the current XMLAda interface.
-
                   From.First := From.Buffer'Last;
 
                else
@@ -170,8 +169,8 @@ package body AWS.Client.XML.Input_Sources is
          end;
 
          if From.First > From.Last + 1 then
-            --  Last character is only portion. We have to read some more data
-            --  from the HTTP connection.
+            --  We have only a part of the character in the buffer. We have to
+            --  read some more bytes from the HTTP connection.
 
             From.First := Temp;
 
@@ -182,16 +181,17 @@ package body AWS.Client.XML.Input_Sources is
                Data => From.Buffer (Temp + 1 .. From.Buffer'Last),
                Last => From.Last);
 
-            if From.Last = Temp then
-               --  End of stream with last broken character.
-
+            if From.Last <= Temp then
+               --  No more bytes to read, so we have the start of an encoded
+               --  character but not the end of it.
                raise Unicode.CES.Invalid_Encoding;
             end if;
+
          else
             C := CS.To_Unicode (C);
-            exit;
+            exit Read_Encoded_Char;
          end if;
-      end loop;
+      end loop Read_Encoded_Char;
    end Next_Char;
 
 end AWS.Client.XML.Input_Sources;
