@@ -42,6 +42,19 @@ package body SOAP.WSDL is
 
    use Ada;
 
+   --------------------------
+   -- Is_Ada_Reserved_Word --
+   --------------------------
+
+   function Is_Ada_Reserved_Word (Name : in String) return Boolean is
+   begin
+      if Name = "return" then
+         return True;
+      end if;
+
+      return False;
+   end Is_Ada_Reserved_Word;
+
    -----------------
    -- Is_Standard --
    -----------------
@@ -56,6 +69,8 @@ package body SOAP.WSDL is
         or else XSD_Type = "Int"
         or else XSD_Type = "float"
         or else XSD_Type = "Float"
+        or else XSD_Type = "double"
+        or else XSD_Type = "Double"
         or else XSD_Type = "boolean"
         or else XSD_Type = "Boolean"
         or else XSD_Type = "timeInstant"
@@ -102,6 +117,7 @@ package body SOAP.WSDL is
       case P is
          when P_Integer => return "Integer";
          when P_Float   => return "Long_Float";
+         when P_Double  => return "Long_Long_Float";
          when P_String  => return "String";
          when P_Boolean => return "Boolean";
          when P_Time    => return "Ada.Calendar.Time";
@@ -126,6 +142,9 @@ package body SOAP.WSDL is
 
       elsif XSD_Type = "float" or else XSD_Type = "Float" then
          return P_Float;
+
+      elsif XSD_Type = "double" or else XSD_Type = "Double" then
+         return P_Double;
 
       elsif XSD_Type = "boolean" or else XSD_Type = "Boolean" then
          return P_Boolean;
