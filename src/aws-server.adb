@@ -122,7 +122,7 @@ package body AWS.Server is
 
       Accepting : Boolean := False;
       --  Determine either "accept socket" mode or "give back" mode.
-      --  Init to False to do not Release semaphore in case of exception
+      --  Init to False to not Release semaphore in case of exception
       --  in Seize_Or_Socket call.
 
       procedure Free is new
