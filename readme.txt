@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            September 25th, 2004
+   Pascal Obry                                            October 29th, 2004
 
 
 
@@ -119,6 +119,10 @@ Here are the main changes since AWS 2.0 :
      removed after calling the callback function.
 
    - Add support for client's HTTPS requests through a proxy (tunneling).
+
+   - Add support for logging the sockets activity (sent and received data)
+     This API (AWS.Net.Log) can be used to debug complex applications.
+     This feature has been contributed by Henrik Sundberg.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
