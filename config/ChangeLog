@@ -1,3 +1,9 @@
+2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* src/check_config.c:
+	Add comment header for Addr_Info.
+	Fix typo in comment.
+
 2004-09-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:
