@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all auth runme agent ws clean soap hotplug com_1 com_2 hello_world
+.SILENT: all auth runme agent ws wps clean soap hotplug com_1 com_2 hello_world
 .SILENT: main build_soap
 
 #GFLAGSY = $(patsubst -gnaty,-gnaty3abcefhiklmnoprt,$(GFLAGS))
@@ -29,7 +29,7 @@ BARGS = -E
 LARGS = $(LIBS)
 endif
 
-build: runme agent auth ws com_1 com_2 main hotplug hello_world text_input
+build: runme agent auth ws wps com_1 com_2 main hotplug hello_world text_input
 
 force:
 
@@ -38,6 +38,9 @@ runme: force
 
 ws: force
 	gnatmake $(GARGS) ws -bargs $(BARGS) -largs $(LARGS)
+
+wps: force
+	gnatmake $(GARGS) wps -bargs $(BARGS) -largs $(LARGS)
 
 agent: force
 	gnatmake $(GARGS) agent -bargs $(BARGS) -largs $(LARGS)
