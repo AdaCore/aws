@@ -921,25 +921,25 @@ Here are the tag variables recognized by AWS:
 
 @table @b
 
-@item ABORTABLE_L (vector tag)
+@item ABORTABLE_V (vector tag)
 
 A list of boolean. One for each connection. True means that this
 connection can be aborted if none is available. This is to be inserted
 in a template table.
 
-@item ACTIVITY_COUNTER_L (vector tag)
+@item ACTIVITY_COUNTER_V (vector tag)
 
 A list of natural. One for each connection. This is the number of
 request the connection has answered. This counter is reset each time the
 connection is closed. In other word this is the number of request a
 keep-alive connection has processed.
 
-@item ACTIVITY_TIME_STAMP_L (vector tag)
+@item ACTIVITY_TIME_STAMP_V (vector tag)
 
 A list of date. One for each connection. This is the time of the latest
 request answered.
 
-@item KEYS_L (vector tag)
+@item KEYS_M (matrix tag)
 
 A list of set of keys (for each key correspond a value in the tag
 VALUES_L, see below). Each key in the vector tag start with an HTML
@@ -954,17 +954,17 @@ logo image.
 
 Maximum number of simultaneous connections.
 
-@item OPENED_L (vector tag)
+@item OPENED_V (vector tag)
 
 A list of boolean. One for each connection. True means that the socket
 is open. This is to be inserted in a template table.
 
-@item PEERNAME_L (vector tag)
+@item PEERNAME_V (vector tag)
 
 A list of peer name. One for each connection. This is the name of the last
 peer connected to the slot.
 
-@item QUIT_L (vector tag)
+@item QUIT_V (vector tag)
 
 A list of boolean. One for each connection. True means that the
 connection will terminate as soon as possible. This is to be inserted
@@ -987,20 +987,20 @@ The server HTTP port.
 
 Server socket ID.
 
-@item SESSIONS_L (vector tag)
+@item SESSIONS_V (vector tag)
 
 A list of session ID.
 
-@item SLOT_ACTIVITY_COUNTER_L (vector tag)
+@item SLOT_ACTIVITY_COUNTER_V (vector tag)
 
 A list of natural. One for each connection. This is the total number of
 requests the slot has answered. This counter is never reseted.
 
-@item SOCK_L (vector tag)
+@item SOCK_V (vector tag)
 
 A list of sockets ID. One for each connection.
 
-@item VALUES_L (vector tag)
+@item VALUES_M (matrix tag)
 
 A list of set of values (for each value correspond a key in the vector tag
 KEYS_L, see above). Each key in the vector tag start with an HTML "<td>"
