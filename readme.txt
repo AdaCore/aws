@@ -4,13 +4,12 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             November 22nd, 2002,
+   Pascal Obry                                             November 26th, 2002
 
 
 
-Dmitriy Anisimkov and I are very happy to announce the availability of the 
-AWS 1.3 release. The API could change slightly at this stage but should be
-fairly stable now.
+We are very happy to announce the availability of the AWS 1.3 release. The API
+could change slightly at this stage but should be fairly stable now.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
 a small yet powerful HTTP component to embedded in any applications. It means
@@ -29,7 +28,7 @@ The SOAP implementation has been validated on http://validator.soapware.org/.
 
 Here are the main changes:
 
-   - Fix bug in Client module in reading chunck size returned by some 
+   - Fix bug in Client module in reading chunk size returned by some
      Web servers.
 
    - Fix bug in Client module when reading large binary data.
@@ -77,11 +76,19 @@ Here are the main changes:
    - Add fast support for string/stream_element_array conversion in
      AWS.Translator if the compiler/target support it.
 
-   - Support HTTP header lines in multiple line as it should be.
+   - Support HTTP header lines in multiple lines as permitted by the RFC.
 
    - Option added to AWS.Client.Get to automatically follow redirection.
 
    - Add some support for the Jabber protocol (Message and Presence detection)
+
+   - Improve performance when sending small files.
+
+   - Fix bug in chunk protocol, it was working fine but was not conforming to
+     the RFC.
+
+   - Fix chunked encoding over SSL incompatibiliy with Opera browser (really
+     an Opera bug)
 
    - Plus many small fixes, enhancements and documentation work.
 
@@ -111,7 +118,7 @@ AWS User's Mailing List:
    http://lists.act-europe.fr/mailman/listinfo/aws
 
 AWS Home Page (sources and documentation): 
-   http://libre.act-europe.fr/
+   http://libre.act-europe.fr/aws
 
 Templates_Parser sources: 
    Templates_Parser module (sources and documentation) is provided with AWS
@@ -137,12 +144,6 @@ GNU/Ada - GNAT
 
    ftp://cs.nyu.edu/pub/gnat/
 
-XMLada (optional):
-   You need this library only if you want to use AWS SOAP feature. You need
-   at least XMLada 0.7.1.
-
-   http://libre.act-europe.fr/
-
 Socket binding:
    Since AWS 1.2 you need at least version 1.0 of the Socket binding.
 
@@ -152,6 +153,12 @@ Socket binding:
 
    for UNIX:
       http://www.rfc1149.net/devel/adasockets
+
+XMLada (optional):
+   You need this library only if you want to use AWS SOAP feature. You need
+   at least XMLada 0.7.1.
+
+   http://libre.act-europe.fr/
 
 POSIX Binding (optional) :
 
