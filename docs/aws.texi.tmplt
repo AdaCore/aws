@@ -2372,6 +2372,11 @@ Here are the tag variables recognized by @code{AWS} status page:
 
 @table @b
 
+@item ACCEPT_QUEUE_SIZE
+@cindex ACCEPT_QUEUE_SIZE
+
+@pxref{Configuration files}.
+
 @item ABORTABLE_V (vector tag)
 @cindex ABORTABLE_V
 
@@ -2392,6 +2397,46 @@ keep-alive connection has processed.
 
 A list of date. One for each connection. This is the time of the latest
 request answered.
+
+@item CLEANER_WAIT_FOR_CLIENT_TIMEOUT
+@cindex CLEANER_WAIT_FOR_CLIENT_TIMEOUT
+
+@pxref{Configuration files}.
+
+@item CLEANER_CLIENT_HEADER_TIMEOUT
+@cindex CLEANER_CLIENT_HEADER_TIMEOUT
+
+@pxref{Configuration files}.
+
+@item CLEANER_CLIENT_DATA_TIMEOUT
+@cindex CLEANER_CLIENT_DATA_TIMEOUT
+
+@pxref{Configuration files}.
+
+@item CLEANER_SERVER_RESPONSE_TIMEOUT
+@cindex CLEANER_SERVER_RESPONSE_TIMEOUT
+
+@pxref{Configuration files}.
+
+@item FORCE_WAIT_FOR_CLIENT_TIMEOUT
+@cindex FORCE_WAIT_FOR_CLIENT_TIMEOUT
+
+@pxref{Configuration files}.
+
+@item FORCE_CLIENT_HEADER_TIMEOUT
+@cindex FORCE_CLIENT_HEADER_TIMEOUT
+
+@pxref{Configuration files}.
+
+@item FORCE_CLIENT_DATA_TIMEOUT
+@cindex FORCE_CLIENT_DATA_TIMEOUT
+
+@pxref{Configuration files}.
+
+@item FORCE_SERVER_RESPONSE_TIMEOUT
+@cindex FORCE_SERVER_RESPONSE_TIMEOUT
+
+@pxref{Configuration files}.
 
 @item KEYS_M (matrix tag)
 @cindex KEYS_M
@@ -2425,7 +2470,7 @@ The rotating log mode, this is either @code{NONE}, @code{DAILY},
 @item MAX_CONNECTION
 @cindex MAX_CONNECTION
 
-Maximum number of simultaneous connections.
+@pxref{Configuration files}.
 
 @item OPENED_V (vector tag)
 @cindex OPENED_V
@@ -2446,21 +2491,30 @@ A list of boolean. One for each connection. True means that the
 connection will terminate as soon as possible. This is to be inserted
 in a template table.
 
+@item RECEIVE_TIMEOUT
+@cindex RECEIVE_TIMEOUT
+
+@pxref{Configuration files}.
+
 @item SECURITY
 @cindex SECURITY
 
 A boolean set to True if this is a secure socket (HTTPS/SSL).
 
+@item SEND_TIMEOUT
+@cindex SEND_TIMEOUT
+
+@pxref{Configuration files}.
+
 @item SERVER_NAME
 @cindex SERVER_NAME
 
-Name of the server. This is set when starting the server with
-@code{AWS.Server.Start}.
+@pxref{Configuration files}.
 
 @item SERVER_PORT
 @cindex SERVER_PORT
 
-The server HTTP port.
+@pxref{Configuration files}.
 
 @item SERVER_SOCK
 @cindex SERVER_SOCK
@@ -2505,6 +2559,16 @@ requests the slot has answered. This counter is never reseted.
 @cindex SOCK_V
 
 A list of sockets ID. One for each connection.
+
+@item STATUS_PAGE
+@cindex STATUS_PAGE
+
+@pxref{Configuration files}.
+
+@item UPLOAD_DIRECTORY
+@cindex UPLOAD_DIRECTORY
+
+@pxref{Configuration files}.
 
 @item VALUES_M (matrix tag)
 @cindex VALUES_M
