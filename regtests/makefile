@@ -1,7 +1,8 @@
 
 # $Id$
 
-.SILENT:
+#.SILENT:
+.PHONY:
 
 # To add a new test:
 #
@@ -24,26 +25,45 @@
 #   the name of regression test main procedure. This tests would be linked
 #   together to test_all executable file.
 
-GARGS = -q -I../src -I../ssl -I../include -I../soap -I../xsrc $(INCLUDES)
+ifdef DEBUG
+BDIR		= ../.build/debug
+else
+BDIR		= ../.build/release
+endif
+
+GARGS = -q -I../src -I../ssl -I../include -I../soap -I../xsrc \
+	-I$(BDIR)/obj -I$(BDIR)/include \
+	-I$(BDIR)/ssl/obj -I$(BDIR)/ssl/lobj \
+	-I$(BDIR)/win32/lib -I$(BDIR)/win32/obj
+
 BARGS = -E
 
-LARGS = $(LFLAGS) $(LIBS) -L../lib -lz
+LARGS = -L../lib -L$(BDIR)/lib -laws $(LIBS) -lz
+
+ifdef XMLADA
+IXMLADA	= $(XMLADA)/include/xmlada
+GARGS := $(GARGS) -I$(IXMLADA) -I$(IXMLADA)/obj -I$(XMLADA)/lib
+LIB_DOM  = -lxmlada_dom
+LIB_UNIC = -lxmlada_unicode
+LIB_SAX  = -lxmlada_sax
+LIB_IS   = -lxmlada_input_sources
+LARGS := $(LARGS) -L$(IXMLADA)/obj $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX)
+endif
 
 ifeq ($(MODE),ssl)
 # With SSL support
-
-LARGS := $(LARGS) -lssl -lcrypto
-
+LARGS := $(LARGS) -L$(BDIR)/ssl/lib -lssl -lcrypto
 RT_SOAP_SEC = test_sec_soap xmlt_sec disp_soap_sec test_soap5_sec
 RT_STD_SEC = tsgetparam ssp ssback cert ssock2 ssto ssockto sslcfg \
 	huge_response_sec wait_sec afile_sec append_sec sockext_sec \
 	hload_sec wait2_sec sock3_sec plain2ssl
-
 else
 # Without SSL support
+LARGS := $(LARGS) -laws_nossl
+endif
 
-LARGS := $(LARGS) -lnosslaws
-
+ifeq (${OS}, Windows_NT)
+LARGS := $(LARGS) -L$(BDIR)/win32/lib -laws_win32
 endif
 
 # SOAP regression tests
@@ -54,6 +74,10 @@ RT_SOAP = soap1 soap2 soap3 soap4 soap5 soap6 soap7 workorder testxml \
 ifdef EXTRA_TESTS
 RT_SOAP := test_speed $(RT_SOAP)
 endif
+
+ADA2WSDL = $(BDIR)/tools/ada2wsdl-main
+WSDL2AWS = $(BDIR)/tools/wsdl2aws
+AWSRES   = $(BDIR)/tools/awsres
 
 # SOAP/WSDL test using ada2wsdl (ASIS package required)
 # Names must start with wsdl_ and be followed by a single digit between 0
@@ -80,22 +104,22 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	stream_response smtp sto sockto ctable tpc afile no_param \
 	nonce sockext hload upload4 upload5 wait2 attachment $(RT_STD_SEC)
 
-STD_TESTS    = $(RT_STD)
-ALONE_TESTS  = $(RT_STD_ALONE)
-OTH_TESTS    = tres
-WSDL_TESTS   =
-WSDL_ATESTS  =
-ASIS_TESTS   =
-ASIS2_TESTS  =
-WSDL2AWS     =
+STD_TESTS      = $(RT_STD)
+ALONE_TESTS    = $(RT_STD_ALONE)
+OTH_TESTS      = tres
+WSDL_TESTS     =
+WSDL_ATESTS    =
+ASIS_TESTS     =
+ASIS2_TESTS    =
+WSDL2AWS_TESTS =
 
 ifdef XMLADA
-STD_TESTS   := $(STD_TESTS) $(RT_SOAP)
-OTH_TESTS   := $(OTH_TESTS) check_mem
-WSDL_TESTS  = test_wsdl test_wsdl2 test_wsdl4 interoplab_main googlesearch \
-		datafeed_service
-WSDL_ATESTS = test_wsdl3 test_wsdl5
-WSDL2AWS    = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
+STD_TESTS     := $(STD_TESTS) $(RT_SOAP)
+OTH_TESTS     := $(OTH_TESTS) check_mem
+WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 interoplab_main \
+			googlesearch datafeed_service
+WSDL_ATESTS    = test_wsdl3 test_wsdl5
+WSDL2AWS_TESTS = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
 endif
 
 ifdef ASIS
@@ -111,7 +135,7 @@ TOGETHER = $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS))
 force:
 
 run: init $(sort $(ALONE_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
-	$(ASIS_TESTS) $(ASIS2_TESTS) $(WSDL2AWS) $(OTH_TESTS))
+	$(ASIS_TESTS) $(ASIS2_TESTS) $(WSDL2AWS_TESTS) $(OTH_TESTS))
 	gnatmake -m -g generate.adb $(GARGS)
 	./generate $(TOGETHER) $(addsuffix _main, $(ASIS_TESTS))
 	gnatmake -m -g test_all $(GARGS) -largs $(LARGS) -bargs -E
@@ -153,7 +177,7 @@ init:
 	echo "line 2, file 2" >> file2.txt
 	echo "line 3, file 2" >> file2.txt
 	echo "Number @_ONE_@ following by @_TWO_@." > file.tmplt
-	../tools/awsres -q -r zresres file1.txt -z file2.txt file.tmplt
+	$(AWSRES) -q -r zresres file1.txt -z file2.txt file.tmplt
 	rm -f *.res
 
 $(ALONE_TESTS): force
@@ -169,29 +193,29 @@ endif
 
 $(WSDL_TESTS): force
 	echo Preparing $@
-	../tools/wsdl2aws -q -f -doc $@.wsdl
+	$(WSDL2AWS) -q -f -doc $@.wsdl
 
 $(WSDL_ATESTS): force
 	echo Preparing $@
-	../tools/wsdl2aws -q -f -a -doc $@.wsdl
+	$(WSDL2AWS) -q -f -a -doc $@.wsdl
 
-$(WSDL2AWS): force
+$(WSDL2AWS_TESTS): force
 	echo -n "Building " $@
 	echo ",  run it"
-	../tools/wsdl2aws -q -f -doc $@.wsdl | grep Message > $@.res
+	$(WSDL2AWS) -q -f -doc $@.wsdl | grep Message > $@.res
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(ASIS_TESTS): force
 	echo Preparing $@
-	../tools/ada2wsdl -q -f $(INCLUDES) -I../include -I../soap -I../src \
-		-I../xsrc -I../ssl \
+	$(ADA2WSDL) -q -f $(INCLUDES) -I../include -I../soap \
+		-I../src -I../xsrc -I../ssl \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
-	../tools/wsdl2aws -q -f -cb -types $@ $@.wsdl
+	$(WSDL2AWS) -q -f -cb -types $@ $@.wsdl
 
 $(ASIS2_TESTS): force
 	rm -f $@.res
 	echo "Running  " $@
-	../tools/ada2wsdl -v -f $@.ads -o $@.wsdl > tmp 2>&1
+	$(ADA2WSDL) -v -f $@.ads -o $@.wsdl > tmp 2>&1
 	tail +3 tmp > $@.res
 	rm tmp
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
@@ -217,7 +241,7 @@ tres: force
 	echo "@@ELSE@@" >> file.tmplt
 	echo "   nok" >> file.tmplt
 	echo "@@END_IF@@" >> file.tmplt
-	../tools/awsres -q -r tresres file1.html file2.html file.tmplt
+	$(AWSRES) -q -r tresres file1.html file2.html file.tmplt
 	gnatmake -g tres $(GARGS) -largs $(LARGS) -bargs -E
 	echo -n ",  run it"
 	./tres 1245 > tres-1.res
