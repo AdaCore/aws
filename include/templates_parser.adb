@@ -612,6 +612,7 @@ package body Templates_Parser is
    --------------------------------
 
    type Nkind is (Info,          --  first node is tree infos
+                  C_Info,        --  second node is cache tree info
                   Text,          --  this is a text line
                   If_Stmt,       --  an IF tag statement
                   Table_Stmt,    --  a TABLE tag statement
@@ -620,8 +621,23 @@ package body Templates_Parser is
 
    --  A template line is coded as a suite of Data and Var element.
 
+   --  The first node in the tree is of type Info and should never be release
+   --  and changed. This ensure that included tree will always be valid
+   --  otherwise will would have to parse all the current trees in the cache
+   --  to update the reference.
+
    type Node;
    type Tree is access Node;
+
+   --  Static_Tree represent a Tree immune to cache changes. Info point to the
+   --  first node and C_Info to the second one. C_Info could be different to
+   --  Info.Next in case of cache changes. This way we keep a pointer to the
+   --  old tree to be able to release it when not used anymore.
+
+   type Static_Tree is record
+      Info   : Tree;
+      C_Info : Tree;
+   end record;
 
    type Node (Kind : Nkind) is record
       Next : Tree;
@@ -629,10 +645,17 @@ package body Templates_Parser is
 
       case Kind is
          when Info =>
-            Filename  : Unbounded_String;
-            Timestamp : GNAT.OS_Lib.OS_Time;
-            Ref       : Natural := 0;
-            I_File    : Tree;
+            Filename  : Unbounded_String;    --  Name of the file
+            Timestamp : GNAT.OS_Lib.OS_Time; --  Date and Time of last change
+            I_File    : Tree;                --  Included file references
+
+            --  Used for the cache system
+
+            Ref       : Natural := 0;        --  Number of ref in the cache
+
+         when C_Info =>
+            Obsolete  : Boolean := False;    --  True if newerversion in cache
+            Used      : Natural := 0;        --  >0 if currently used
 
          when Text =>
             Text    : Data.Tree;
@@ -650,7 +673,7 @@ package body Templates_Parser is
             N_Section : Tree;
 
          when Include_Stmt =>
-            File : Tree;
+            File : Static_Tree;
       end case;
    end record;
 
@@ -668,9 +691,13 @@ package body Templates_Parser is
       protected Prot is
 
          procedure Add
-           (Filename : in String;
-            T        : in Tree);
-         --  Add Filename/T to the list of cached files.
+           (Filename : in     String;
+            T        : in     Tree;
+            Old      :    out Tree);
+         --  Add Filename/T to the list of cached files. If Filename is
+         --  already in the list, replace the current tree with T. Furthemore
+         --  if Filename tree is already in use, Old will be set with the
+         --  previous C_Info node otherwise Old will be null pointer.
 
          function Get
            (Filename : in String;
@@ -679,6 +706,12 @@ package body Templates_Parser is
          --  Returns the Tree for Filename or null if Filename has not been
          --  cached. Load must be set to True at load stage and False at Parse
          --  stage.
+
+         procedure Release (C_Info : in out Tree);
+         --  After loading a tree and using it, it is required that it be
+         --  released. This will ensure that a tree marked as obsolete (a new
+         --  version being now in the cache) will be released from the memory.
+         --  Old must be a C_Info node or null.
 
       end Prot;
 
@@ -1917,7 +1950,7 @@ package body Templates_Parser is
    function Load
      (Filename : in String;
       Cached   : in Boolean := False)
-     return Tree
+     return Static_Tree
    is
 
       File   : Text_IO.File_Type;  --  file beeing parsed.
@@ -2291,14 +2324,15 @@ package body Templates_Parser is
          end if;
       end Parse;
 
-      T : Tree;
+      T   : Tree;
+      Old : Tree := null;
 
    begin
       if Cached then
          T := Cached_Files.Prot.Get (Filename, Load => True);
 
          if T /= null then
-            return T;
+            return Static_Tree'(T, Old);
          end if;
       end if;
 
@@ -2306,22 +2340,30 @@ package body Templates_Parser is
 
       T := Parse (Parse_Std);
 
+      Text_IO.Close (File);
+
+      --  T is the tree file, add two nodes (Info and C_Info) in front of the
+      --  tree.
+
+      --  Add second node (cache info)
+
+      T := new Node'(C_Info, T, 0, False, 1);
+
       --  Add first node (info about tree)
+
       T := new Node'(Info,
                      T,
                      0,
                      To_Unbounded_String (Filename),
                      GNAT.OS_Lib.File_Time_Stamp (Filename),
-                     1,
-                     I_File);
-
-      Text_IO.Close (File);
+                     I_File,
+                     1);
 
       if Cached then
-         Cached_Files.Prot.Add (Filename, T);
+         Cached_Files.Prot.Add (Filename, T, Old);
       end if;
 
-      return T;
+      return Static_Tree'(T, Old);
 
    exception
       when E : Internal_Error =>
@@ -2339,11 +2381,11 @@ package body Templates_Parser is
    ----------------
 
    procedure Print_Tree (Filename : in String) is
-      T : Tree;
+      T : Static_Tree;
    begin
       T := Load (Filename);
-      Print_Tree (T);
-      Release (T);
+      Print_Tree (T.Info);
+      Release (T.Info);
    end Print_Tree;
 
    -----------
@@ -2974,7 +3016,7 @@ package body Templates_Parser is
                end if;
 
                case T.Kind is
-                  when Info =>
+                  when Info | C_Info =>
                      return Get_Max_Lines (T.Next, N);
 
                   when Text =>
@@ -2999,7 +3041,7 @@ package body Templates_Parser is
                                          Get_Max_Lines (T.N_Section, N));
 
                   when Include_Stmt =>
-                     return Natural'Max (Get_Max_Lines (T.File, N),
+                     return Natural'Max (Get_Max_Lines (T.File.Info, N),
                                          Get_Max_Lines (T.Next, N));
                end case;
             end Get_Max_Lines;
@@ -3042,7 +3084,7 @@ package body Templates_Parser is
 
          case T.Kind is
 
-            when Info =>
+            when Info | C_Info =>
                Analyze (T.Next, State);
 
             when Text =>
@@ -3110,24 +3152,27 @@ package body Templates_Parser is
                end;
 
             when Include_Stmt =>
-               Analyze (T.File, State);
+               Analyze (T.File.Info, State);
 
                Analyze (T.Next, State);
 
          end case;
       end Analyze;
 
-      T : Tree;
+      T : Static_Tree;
 
    begin
       T := Load (Filename, Cached);
 
       Now := Ada.Calendar.Clock;
 
-      Analyze (T, Empty_State);
+      Analyze (T.Info, Empty_State);
 
       if not Cached then
-         Release (T);
+         Release (T.Info);
+
+      else
+         Cached_Files.Prot.Release (T.C_Info);
       end if;
 
       return Results;
@@ -3160,6 +3205,10 @@ package body Templates_Parser is
             Release (T.Next);
             Free (T);
 
+         when C_Info =>
+            Release (T.Next);
+            Free (T);
+
          when Text =>
             Data.Release (T.Text);
             Release (T.Next);
@@ -3183,11 +3232,11 @@ package body Templates_Parser is
             Free (T);
 
          when Include_Stmt =>
-            T.File.Ref := T.File.Ref - 1;
+            T.File.Info.Ref := T.File.Info.Ref - 1;
 
-            if T.File.Ref = 0 then
+            if T.File.Info.Ref = 0 then
                --  No more reference to this include file we release it.
-               Release (T.File);
+               Release (T.File.C_Info);
             end if;
 
             Release (T.Next);

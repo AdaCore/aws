@@ -59,8 +59,9 @@ package body Cached_Files is
       ---------
 
       procedure Add
-        (Filename : in String;
-         T        : in Tree)
+        (Filename : in     String;
+         T        : in     Tree;
+         Old      :    out Tree)
       is
          L_Filename : constant Unbounded_String
            := To_Unbounded_String (Filename);
@@ -69,9 +70,9 @@ package body Cached_Files is
          E : Natural := Index;
          N : Natural;
 
-         Old : Tree;
-
       begin
+         --  Does the table initialized and do we have enough place on it ?
+
          if Files = null or else Index = Files'Last then
             Growth;
          end if;
@@ -82,18 +83,30 @@ package body Cached_Files is
             N := (S + E) / 2;
 
             if Files (N).Filename = L_Filename then
-
                --  This is a file that was already loaded. If loaded again
                --  it is because the file timestamp has changed. We want to
                --  just update the tree and not the info node.
 
                Old := Files (N).Next;
-               --  This is a pointer to the tree, skiping the info node.
+               --  This is a pointer to the C_Info tree node, skipping the
+               --  info node (first node).
 
                Files (N).Next      := T.Next;
                Files (N).Timestamp := T.Timestamp;
 
-               Release (Old);
+               --  This part is tricky, the tree could be currently used
+               --  (parsed). So we need to be careful to not release the tree
+               --  too early.
+
+               if Old.Used = 0 then
+                  --  File is not currently used, we can release it safely.
+                  Release (Old);
+
+               else
+                  --  Tree is used, mark it as obsoleted, it will be removed
+                  --  when no more used by the Prot.Release call.
+                  Old.Obsolete := True;
+               end if;
 
                --  Nothing more to do in this case.
 
@@ -106,6 +119,8 @@ package body Cached_Files is
                E := N - 1;
             end if;
          end loop;
+
+         --  Filename was not found, insert it in the array at position S
 
          Files (S + 1 .. Index + 1) := Files (S .. Index);
 
@@ -123,9 +138,7 @@ package body Cached_Files is
          Load     : in Boolean)
         return Tree
       is
-
          N : constant Natural := Get (Filename);
-
       begin
          if N = 0 then
             return null;
@@ -135,9 +148,25 @@ package body Cached_Files is
                Files (N).Ref := Files (N).Ref + 1;
             end if;
 
+            Files (N).Next.Used := Files (N).Next.Used + 1;
             return Files (N);
          end if;
       end Get;
+
+      -------------
+      -- Release --
+      -------------
+
+      procedure Release (C_Info : in out Tree) is
+      begin
+         if C_Info /= null then
+            C_Info.Used := C_Info.Used - 1;
+
+            if C_Info.Obsolete and then C_Info.Used = 0 then
+               Templates_Parser.Release (C_Info);
+            end if;
+         end if;
+      end Release;
 
    end Prot;
 
@@ -213,14 +242,14 @@ package body Cached_Files is
    ----------------
 
    function Up_To_Date (T : in Tree) return Boolean is
+      use GNAT;
       use type GNAT.OS_Lib.OS_Time;
+
       P : Tree;
    begin
       --  Check main file
 
-      if GNAT.OS_Lib.File_Time_Stamp (To_String (T.Filename))
-        /= T.Timestamp
-      then
+      if OS_Lib.File_Time_Stamp (To_String (T.Filename)) /= T.Timestamp then
          return False;
       end if;
 
@@ -229,8 +258,8 @@ package body Cached_Files is
       P := T.I_File;
 
       while P /= null loop
-         if GNAT.OS_Lib.File_Time_Stamp (To_String (P.File.Filename))
-           /= P.File.Timestamp
+         if OS_Lib.File_Time_Stamp (To_String (P.File.Info.Filename))
+           /= P.File.Info.Timestamp
          then
             return False;
          end if;
