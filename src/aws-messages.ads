@@ -62,6 +62,10 @@ package AWS.Messages is
    subtype Proxy_Connection_Range is
      Positive range Proxy_Connection_Token'Range;
 
+   Content_Disposition_Token : constant String := "Content-Disposition: ";
+   subtype Content_Disposition_Range is
+     Positive range Content_Disposition_Token'Range;
+
    Content_Length_Token : constant String := "Content-Length: ";
    subtype Content_Length_Range is Positive range Content_Length_Token'Range;
 
@@ -161,8 +165,18 @@ package AWS.Messages is
    function Content_Type
      (Format   : in String;
       Boundary : in String := "")
-     return String;
+      return String;
    pragma Inline (Content_Type);
+
+   function Content_Disposition
+     (Format   : in String;
+      Name     : in String;
+      Filename : in String)
+      return String;
+   pragma Inline (Content_Disposition);
+   --  Note that this is not part of HTTP/1.1 standard, it is there because
+   --  there is a lot of implementation around using it. This header is used
+   --  in multipart data.
 
    function Host (Name : in String) return String;
    pragma Inline (Host);
