@@ -47,10 +47,10 @@ package AWS.Utils is
    --  Returns a random integer number.
 
    function Image (N : in Natural) return String;
-   --  return image of N without the leading blank.
+   --  Returns image of N without the leading blank.
 
    function Image (D : in Duration) return String;
-   --  return image of N without the leading blank and with only 2 decimals
+   --  Returns image of N without the leading blank and with only 2 decimals
    --  numbers.
 
    function Hex (V : in Natural; Width : in Natural := 0) return String;

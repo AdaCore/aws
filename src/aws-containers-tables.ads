@@ -88,7 +88,7 @@ package AWS.Containers.Tables is
      (Table  : in Table_Type;
       N      : in Positive)
       return Element;
-   --  Return N'th name/value pair.
+   --  Returns N'th name/value pair.
 
    function Get_Names
      (Table  : in Table_Type;
