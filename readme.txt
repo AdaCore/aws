@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                              Septembre 6th, 2003
+   Pascal Obry                                              October 8th, 2003
 
 
 
@@ -124,7 +124,7 @@ Here are the main changes since AWS 1.3 :
    - Important Templates_Parser speed-up (between x10 and x15) for template
      files containing large vector or matrix tags.
 
-   - Slots activity counters are updated only if an answer as been handled.
+   - Slots activity counters are updated only if an answer has been handled.
 
    - The directory browser's template file can now be configured using the
      AWS.Config module.
