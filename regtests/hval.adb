@@ -40,7 +40,7 @@ procedure HVal is
    use AWS.Headers.Values;
    use Ada.Strings.Unbounded;
 
-   procedure Test (Data : String);
+   procedure Test (Data : in String);
 
    Test_1 : constant String := " Token_1 name_1=value_1,";
    Test_2 : constant String := Test_1 & "name_2=""value_2"";" & ASCII.LF;
@@ -54,21 +54,22 @@ procedure HVal is
    -- Test --
    ----------
 
-   procedure Test (Data : String) is
-      S  : Set := Split (Data);
+   procedure Test (Data : in String) is
+
+      S  : constant Data_Set := Split (Data);
 
       Dummy : Boolean := False;
 
-      procedure Named_Value (Name, Value : String; Quit : in out Boolean);
+      procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
 
-      procedure Value (Item : String; Quit : in out Boolean);
+      procedure Value (Item : in String; Quit : in out Boolean);
 
-      procedure Named_Value (Name, Value : String; Quit : in out Boolean) is
+      procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
       begin
          Put_Line (Name & "=""" & Value & '"');
       end Named_Value;
 
-      procedure Value (Item : String; Quit : in out Boolean) is
+      procedure Value (Item : in String; Quit : in out Boolean) is
       begin
          Put_Line (Item);
       end Value;
@@ -77,6 +78,7 @@ procedure HVal is
 
    begin
       Put_Line ("===============");
+
       for I in S'Range loop
          if S (I).Named_Value then
             Named_Value
