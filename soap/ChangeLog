@@ -1,5 +1,44 @@
 2003-11-18  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-client.adb:
+	Minor reformatting.
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Fix return code generated for enumeration
+	 value. Use new enumeration support.
+
+	* soap-generator.adb:
+	(Generate_Enumeration): Generate a routine to get the image of the
+	 enumeration as found in the WSDL document.
+	(Generate_Enumeration.Image): New routine, output enumeration Ada
+	 representation.
+
+	* soap-types.ads, soap-types.adb:
+	Add support for enumeration types. This was handled as string in
+	 previous implementation as a temporary implementation. So this is
+	 the first real interoperable enumeration implementation.
+	(XSD_Enumeration): New type.
+	(Image): New routine.
+	(XML_Image): New routine.
+	(XML_Type): New routine.
+	(E): New routine.
+	Minor reformatting.
+
+	* soap-wsdl-parameters.adb:
+	(Release): Handle new E_Def dynamic structure.
+
+	* soap-wsdl-parameters.ads:
+	(E_Node): New type.
+	(E_Node_Access): New type.
+	(Parameter) [K_Enumeration]: E_Def is now an E_Node_Access instead
+	 of an Unbounded_String.
+
+	* soap-wsdl-parser.adb:
+	(Build_Enumeration): Change code to accommodate new enumeration
+	 structure.
+
+2003-11-18  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(SOURCES): Add SOAP.XML.
 
