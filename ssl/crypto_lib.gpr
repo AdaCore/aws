@@ -33,6 +33,7 @@
 --  Project for libcrypto.a external library
 
 with "ssl_shared";
+with "nossl";
 
 project Crypto_Lib is
 
