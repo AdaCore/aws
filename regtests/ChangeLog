@@ -1,3 +1,8 @@
+2003-02-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(check_mem): Fix gnatmem command.
+
 2003-02-03  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* makefile, dirop.adb, dirop,tmplt, dirop.out:
