@@ -115,7 +115,7 @@ package body AWS.Client.XML.Input_Sources is
    begin
       if From.First > From.Last then
          Read_Some (From.Self.HTTP.all, From.Self.Buffer, From.Self.Last);
-         Clean_Buffer (HTTP_Input (From.Self.all));
+
          From.Self.First := From.Buffer'First;
       end if;
 
@@ -181,7 +181,12 @@ package body AWS.Client.XML.Input_Sources is
                   --  ??? Note, we could not distinguish character portion from
                   --  the wrong encoding in the first attempt when number of
                   --  bytes is less then 5 with the current XMLAda interface.
-                  From.First := From.Buffer'Last;
+
+                  --  To be true next if condition. We need the same handling
+                  --  of the index overrun and invalid encoding because of
+                  --  index overrun.
+
+                  From.First := From.Last + 2;
 
                else
                   raise;
@@ -200,8 +205,6 @@ package body AWS.Client.XML.Input_Sources is
               (From.HTTP.all,
                Data => From.Buffer (Temp + 1 .. From.Buffer'Last),
                Last => From.Last);
-
-            Clean_Buffer (From);
 
             if From.Last <= Temp then
                --  No more bytes to read, so we have the start of an encoded
