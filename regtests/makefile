@@ -117,12 +117,13 @@ endif
 
 init:
 	cp ../demos/cert.pem .
-	-mkdir ../icons/test-dir1 2> /dev/null
-	-mkdir ../icons/test-dir2 2> /dev/null
-	-mkdir ../icons/test-dir3 2> /dev/null
+	-cp -pr ../web_elements/icons . 2> /dev/null
+	-mkdir icons/test-dir1 2> /dev/null
+	-mkdir icons/test-dir2 2> /dev/null
+	-mkdir icons/test-dir3 2> /dev/null
 	(TZ=UTC; export TZ; \
-	touch -t 200102030405 ../icons/*.gif; \
-	touch -t 200401020304 ../icons/test-dir?)
+	touch -t 200102030405 icons/*.gif; \
+	touch -t 200401020304 icons/test-dir?)
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
 	-rm file[abc].txt* > /dev/null 2>&1
@@ -315,8 +316,6 @@ clean:
 	-rm -f wsdl_?_service* wsdl4* wsdl_parse_?-* wsdl_parse_?.ads
 	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
 	-rm -f test_all.adb filez.tmplt
-	-rm -fr ../icons/test-dir1
-	-rm -fr ../icons/test-dir2
-	-rm -fr ../icons/test-dir3
+	-rm -fr icons
 	-rm -f s_mains.lst all_mains.lst
 	-rm -f s_tsecsoap.lst s_tsec.lst s_tstd.lst s_tsoap.lst
