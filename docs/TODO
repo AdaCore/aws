@@ -88,3 +88,5 @@ implemented:
   transparent to users.
 
 - Should we be able to associate a new Dispatcher object to the server ?
+
+- Implement client file upload.
