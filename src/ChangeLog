@@ -1,3 +1,9 @@
+2004-04-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads, aws-net.adb:
+	(Wait_Mode): Moved from aws-net-std__adasockets.adb.
+	(Wait_For): Idem.
+
 2004-03-23  Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws-headers-set.adb:
