@@ -40,6 +40,7 @@ with Templates_Parser;
 with AWS.Log;
 with AWS.Messages;
 with AWS.OS_Lib;
+with AWS.Parameters.Set;
 with AWS.Session;
 with AWS.Status.Set;
 with AWS.Config;
@@ -62,8 +63,8 @@ is
    End_Of_Message : constant String := "";
    HTTP_10        : constant String := "HTTP/1.0";
 
-   C_Stat         : AWS.Status.Data (HTTP_Server.Case_Sensitive_Parameters);
-   --  Connection status
+   C_Stat         : AWS.Status.Data;     -- Connection status
+   P_List         : AWS.Parameters.List; -- Form data
 
    Will_Close     : Boolean;
    --  Will_Close is set to true when the connection will be closed by the
@@ -374,14 +375,14 @@ is
          --  Status page hotplug up message
          Hotplug.Move_Up
            (HTTP_Server.Filters,
-            Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
+            Positive'Value (AWS.Parameters.Get (P_List, "N")));
          Answer := Response.URL (Admin_URI);
 
       elsif URI = Admin_URI & "-HPdown" then
          --  Status page hotplug down message
          Hotplug.Move_Down
            (HTTP_Server.Filters,
-            Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
+            Positive'Value (AWS.Parameters.Get (P_List, "N")));
          Answer := Response.URL (Admin_URI);
 
       --  End of Internal status page handling.
@@ -705,8 +706,8 @@ is
             --  This part of the multipart message contains file data.
 
             if To_String (Filename) /= "" then
-               AWS.Status.Set.Parameters
-                 (C_Stat, To_String (Name), To_String (Server_Filename));
+               AWS.Parameters.Set.Add
+                 (P_List, To_String (Name), To_String (Server_Filename));
 
                Get_File_Data;
 
@@ -728,7 +729,7 @@ is
             declare
                Value : constant String := Sockets.Get_Line (Sock);
             begin
-               AWS.Status.Set.Parameters (C_Stat, To_String (Name), Value);
+               AWS.Parameters.Set.Add (P_List, To_String (Name), Value);
             end;
 
             File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
@@ -765,23 +766,26 @@ is
          then
             --  Read data from the stream and convert it to a string as
             --  these are a POST form parameters.
-            --  The body as the format: name1=value1;name2=value2...
+            --  The body has the format: name1=value1;name2=value2...
 
             declare
-               Data : Streams.Stream_Element_Array
-                 (1 .. Streams.Stream_Element_Offset
-                  (Status.Content_Length (C_Stat)));
+               use Streams;
+
+               Data : Stream_Element_Array
+                 (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
+
                Char_Data : String (1 .. Data'Length);
                CDI       : Positive := 1;
             begin
                CDI := 1;
                Sockets.Receive (Sock, Data);
+
                for K in Data'Range loop
                   Char_Data (CDI) := Character'Val (Data (K));
                   CDI := CDI + 1;
                end loop;
 
-               Status.Set.Parameters (C_Stat, Char_Data);
+               AWS.Parameters.Set.Add (P_List, Char_Data);
             end;
 
          elsif Status.Method (C_Stat) = Status.POST
@@ -802,7 +806,7 @@ is
                   Data : constant Streams.Stream_Element_Array
                     := Sockets.Receive (Sock);
                begin
-                  Status.Set.Parameters (C_Stat, Data);
+                  AWS.Status.Set.Binary (C_Stat, Data);
                end;
 
             exception
@@ -966,18 +970,16 @@ is
          Cut_Command;
 
          if Messages.Is_Match (Command, Messages.Get_Token) then
-            Status.Set.Request (C_Stat, Status.GET,
-                                URI, HTTP_Version, Parameters);
+            Status.Set.Request (C_Stat, Status.GET, URI, HTTP_Version);
+            AWS.Parameters.Set.Add (P_List, Parameters);
             return True;
 
          elsif Messages.Is_Match (Command, Messages.Head_Token) then
-            Status.Set.Request (C_Stat, Status.HEAD,
-                                URI, HTTP_Version, "");
+            Status.Set.Request (C_Stat, Status.HEAD, URI, HTTP_Version);
             return True;
 
          elsif Messages.Is_Match (Command, Messages.Post_Token) then
-            Status.Set.Request (C_Stat, Status.POST,
-                                URI, HTTP_Version, "");
+            Status.Set.Request (C_Stat, Status.POST, URI, HTTP_Version);
             return True;
 
          else
@@ -1221,6 +1223,10 @@ begin
    For_Every_Request : loop
 
       Status.Set.Reset (C_Stat);
+      Parameters.Set.Reset (P_List);
+
+      Parameters.Set.Case_Sensitive
+        (P_List, HTTP_Server.Case_Sensitive_Parameters);
 
       HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
 
@@ -1240,6 +1246,8 @@ begin
            (Status.Connection (C_Stat), "keep-alive"));
 
       HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
+
+      Status.Set.Parameters (C_Stat, P_List);
 
       Answer_To_Client;
 
