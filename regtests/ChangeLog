@@ -4,6 +4,9 @@
 	Handle new configuration parameter GDB_REGTESTS.
 	Clean for out.gdb and out.tmp
 
+	* cmd.gdb:
+	New file for GDB command.
+
 2003-03-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
