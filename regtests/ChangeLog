@@ -1,3 +1,12 @@
+2003-09-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* server_info.adb:
+	Slight change to ensure the connections are really active before
+	 getting the current number of connections. Fix failure on UNIX.
+
+	* sessions3.adb:
+	Use port 1260 for this test.
+
 2003-09-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
