@@ -1,0 +1,87 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename aws.info
+@settitle Ada Web Server
+@setchapternewpage off
+@syncodeindex fn cp
+
+@iftex
+@afourpaper
+@end iftex
+
+@titlepage
+
+@title AWS
+@subtitle Ada Web Server
+@subtitle $Revision$
+@subtitle $Date$
+@author Pascal Obry (p.obry@@wanadoo.fr)
+
+@vskip 0pt plus 1filll
+
+@end titlepage
+
+@finalout
+
+@ifinfo
+@node Top, Introduction, (dir), (dir)
+@top Templates Parser
+
+@menu
+* Introduction::
+* How to use it ?::
+* The AWS packages::
+* Last notes::
+@end menu
+@end ifinfo
+
+@contents
+
+@node Introduction, How to use it ?, Top, Top
+@chapter Introduction
+
+@noindent
+AWS stand for Ada Web Server. It is an Ada implementation of the
+HTTP/1.1 protocol as defined in the RFC 2616.
+
+@noindent
+The goal is not to build a full Web server but more to make it possible
+to use a Web browser (like Internet Explorer, or Netscape Navigator) to
+control an Ada application. As we'll see later it is also possible to
+have two Ada programs exchange informations via the HTTP protocol. This
+is possible as AWS also implement the client side of the HTTP protocol.
+
+@noindent
+Moreover with this library it is possible to have more than one server
+in a single application. It is then possible to export differents kind
+of services by using different HTTP ports, or two have different port
+for differents services priority. Client which must be served with a
+very high priority can be assigned a specific port.
+
+@node How to use it ?, The AWS packages, Introduction, Top
+@chapter How to use it ?
+
+@noindent
+Right now there is no documentation. Have a look at the demos
+directory. Almost every features are used by the samples there.
+
+@node The AWS packages, Last notes, How to use it ?, Top
+@chapter The AWS packages
+
+@noindent
+This section is left empty for now.
+
+@node Last notes,  , The AWS packages, Top
+@chapter Last notes
+
+@noindent
+I'd like to thanks contributors and peoples who send me feedbacks, ideas
+about AWS. In the early stage of the project this is very valuable.
+
+@noindent
+So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
+
+@noindent
+As always I hope I did not forget somebody.
+
+@bye
