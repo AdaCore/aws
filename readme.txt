@@ -164,6 +164,9 @@ Here are the main changes since AWS 2.0 :
    - Improve wsdl2aws to properly handle multiple schemas inside WSDL
      documents.
 
+   - Add new wsdl2aws's option to exclude a set of operations from the code
+     generator.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
