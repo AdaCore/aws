@@ -36,7 +36,7 @@ package AWS.Translator is
 
    function Base64_Encode
      (Data : in Ada.Streams.Stream_Element_Array)
-     return String;
+      return String;
    --  Encode Data using the base64 algorithm
 
    function Base64_Encode (Data : in String) return String;
@@ -44,17 +44,19 @@ package AWS.Translator is
 
    function Base64_Decode
      (B64_Data : in String)
-     return Ada.Streams.Stream_Element_Array;
+      return Ada.Streams.Stream_Element_Array;
    --  Decode B64_Data using the base64 algorithm
 
    function To_String
      (Data : in Ada.Streams.Stream_Element_Array)
-     return String;
+      return String;
+   pragma Inline (To_String);
    --  Convert a Stream_Element_Array to a string.
 
    function To_Stream_Element_Array
      (Data : in String)
-     return Ada.Streams.Stream_Element_Array;
+      return Ada.Streams.Stream_Element_Array;
+   pragma Inline (To_Stream_Element_Array);
    --  Convert a String to a Stream_Element_Array.
 
 end AWS.Translator;
