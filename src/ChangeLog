@@ -1,5 +1,10 @@
 2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	(Line): Add pragma warnings off to avoid a warning on S.
+
+2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws.ads:
 	(Version): Set to 1.3-rc1.
 
