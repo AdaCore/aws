@@ -30,7 +30,7 @@
 
 with Ada.Calendar;
 with Ada.Strings.Unbounded;
-with GNAT.Calendar;
+with Ada.Numerics.Discrete_Random;
 
 with AWS.Key_Value;
 
@@ -38,14 +38,16 @@ with Avl_Tree_Generic;
 
 package body AWS.Session is
 
+   package SID_Random is new Ada.Numerics.Discrete_Random (ID);
+
+   use SID_Random;
    use Ada;
    use Ada.Strings.Unbounded;
 
+   SID_Generator    : Generator;
    SID_Prefix       : constant String := "SID-";
 
    Session_Lifetime : Duration := Default_Session_Lifetime;
-
-   type UID is mod 8;
 
    --  table of session ID
 
@@ -72,10 +74,13 @@ package body AWS.Session is
    protected Database is
 
       entry New_Session (SID : out Session.ID);
-      --  add a new session named Session_Name into the database
+      --  Add a new session named Session_Name into the database
+
+      entry Delete_Session (Session_Name : in String);
+      --  Removes Session_Name from the Tree.
 
       function Session_Exist (Session_Name : in String) return Boolean;
-      --  return True if session named Session_Name exist in the database
+      --  Return True if session named Session_Name exist in the database
 
       entry Key_Exist (Session_Name, Key : in    String;
                        Result            :    out Boolean);
@@ -109,13 +114,6 @@ package body AWS.Session is
    private
 
       Lock     : Natural := 0;
-
-      ID       : UID := 0;
-      --  A session ID is based on a number computed with the following
-      --  format: MMDDHHMMSSnn (Month - Day - Hour - Minute - Second - UID)
-      --  So ID must be uniq for the same second. Here we handle no more than
-      --  128 connections during the same second. It seems safe enough for a
-      --  Web framework.
 
       Sessions : Session_Set.Avl_Tree;
 
@@ -167,7 +165,7 @@ package body AWS.Session is
 
       entry Clean when Lock = 0 is
 
-         Now : Calendar.Time := Calendar.Clock;
+         Now : constant Calendar.Time := Calendar.Clock;
 
          procedure Process (Session  : in out Session_Node;
                             Continue :    out Boolean);
@@ -197,6 +195,25 @@ package body AWS.Session is
       begin
          In_Order (Sessions);
       end Clean;
+
+      --------------------
+      -- Delete_Session --
+      --------------------
+
+      entry Delete_Session (Session_Name : in String) when Lock = 0 is
+
+         N  : Session_Node;
+
+      begin
+         Session_Set.Inquire (Session_Name, Sessions, N);
+
+         Key_Value.Delete_Tree (N.Root);
+
+         Session_Set.Delete_Node (Session_Name, Sessions);
+      exception
+         when Key_Value.Tree.Node_Not_Found =>
+            raise Internal_Error;
+      end Delete_Session;
 
       ---------------
       -- Get_Value --
@@ -253,38 +270,27 @@ package body AWS.Session is
 
       entry New_Session (SID : out Session.ID) when Lock = 0 is
 
-         use Ada.Calendar;
-         use GNAT.Calendar;
-
          New_Node : Session_Node;
-         Y        : Year_Number;
-         M        : Month_Number;
-         D        : Day_Number;
-         H        : Hour_Number;
-         Mi       : Minute_Number;
-         S        : Second_Number;
-         SS       : Second_Duration;
+
       begin
-         Split (Ada.Calendar.Clock, Y, M, D, H, Mi, S, SS);
 
-         --  SID format MMDDHHMMSSNN (40 bits)
-         --      MM : month 5 bits
-         --      DD : day 6 bits
-         --      HH : hour 7 bits
-         --      MM : minute 7 bits
-         --      SS : second 7 bits
-         --      NN : uniq ID 8 bits
-
-         SID := Session.ID
-           (((((((((M * 32) + D) * 64) + H) * 64) + Mi * 64) + S) * 128)
-            + Natural (ID));
-
-         New_Node.SID        := To_Unbounded_String (Image (SID));
          New_Node.Time_Stamp := Calendar.Clock;
 
-         ID := ID + 1;
+         loop
+            SID := Random (SID_Generator);
 
-         Session_Set.Insert_Node (New_Node, Sessions);
+            New_Node.SID := To_Unbounded_String (Image (SID));
+
+            begin
+               Session_Set.Insert_Node (New_Node, Sessions);
+               exit;
+            exception
+               when Session_Set.Duplicate_Key =>
+                  --  very low probability but we should catch it
+                  --  and try to generate unique key again.
+                  null;
+            end;
+         end loop;
       end New_Session;
 
       -------------------
@@ -348,6 +354,15 @@ package body AWS.Session is
       end Unlock;
 
    end Database;
+
+   ------------
+   -- Delete --
+   ------------
+
+   procedure Delete (SID : in ID) is
+   begin
+      Database.Delete_Session (Image (SID));
+   end Delete;
 
    -----------
    -- Exist --
@@ -532,8 +547,7 @@ package body AWS.Session is
    procedure Set
      (SID   : in ID;
       Key   : in String;
-      Value : in String)
-   is
+      Value : in String) is
    begin
       Database.Set_Value (Image (SID), Key, Value);
    end Set;
@@ -602,4 +616,6 @@ package body AWS.Session is
       return ID'Value (SID (SID'First + SID_Prefix'Length .. SID'Last));
    end Value;
 
+begin
+   Reset (SID_Generator);
 end AWS.Session;
