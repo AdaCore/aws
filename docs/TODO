@@ -195,6 +195,3 @@ implemented:
   We should be able to remove the tools/makefile kludge (-largs -laws).
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
-
-- Would be nice to use the new template engine @@SET@@ command tag
-  in the Web Elements.
