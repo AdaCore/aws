@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 12 November 2004
+<p>Date: 15 November 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -411,6 +411,12 @@ is not found.
 
 <p>Returns <b>True</b> if variable is set and has a value different that the null
 string and <b>False</b> otherwise.
+
+<br><dt><code>FILE_EXISTS</code>
+<dd>
+
+<p>Returns <b>True</b> if variable is set and has a value that corresponds
+to a filename present on the file system and <b>False</b> otherwise.
 
 <br><dt><code>FORMAT_DATE(<b>FORMAT</b>)</code>
 <dd>
@@ -2299,6 +2305,12 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
    -- <i> Returns a string representation encoded in XML for this</i>
    -- <i> translate table.</i>
 
+   <b>function</b> Value (Translations : <b>in</b> String) <b>return</b> Translate_Set;
+   -- <i> Returns a translate set for this string representation</i>
+
+   <b>function</b> Value (Translations : <b>in</b> Unbounded_String) <b>return</b> Translate_Set;
+   -- <i> Save as above but based on an Ubounded_String</i>
+
    <b>function</b> Load (Filename : <b>in</b> String) <b>return</b> Translate_Set;
    -- <i> Read XML document Filename and create the corresponding Translate_set</i>
 
@@ -2358,6 +2370,7 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <li>Filter, CONTRACT: <a href="#Filters">Filters</a>
 <li>Filter, DEL_PARAM: <a href="#Filters">Filters</a>
 <li>Filter, EXIST: <a href="#Filters">Filters</a>
+<li>Filter, FILE_EXISTS: <a href="#Filters">Filters</a>
 <li>Filter, FORMAT_DATE: <a href="#Filters">Filters</a>
 <li>Filter, FORMAT_NUMBER: <a href="#Filters">Filters</a>
 <li>Filter, IS_EMPTY: <a href="#Filters">Filters</a>
