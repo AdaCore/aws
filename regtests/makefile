@@ -121,10 +121,12 @@ check_mem: force
 	rm -f aws-containers-tables.*
 	echo -n ",  run it"
 	./check_mem 2 1248 > check_mem.res
-	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 5 | grep "   Final" > run1
+	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 2 1248 \
+		| grep "   Final" > run1
 	echo ",  run it again"
 	./check_mem 30 1249 >> check_mem.res
-	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 5 | grep "   Final" > run2
+	gnatmem 3 -i gmem.out check_mem$(EXEEXT) 30 1249 \
+		| grep "   Final" > run2
 	-diff -c -w run1 run2 >> alldifs
 
 checks:
