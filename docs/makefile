@@ -12,6 +12,7 @@ ADA_KW    = use package is in out exception function with type constant \
 
 APIFILES = ../src/aws.ads.texi \
 	../src/aws-client.ads.texi \
+	../src/aws-client-hotplug.ads.texi \
 	../src/aws-communication-client.ads.texi \
 	../src/aws-communication-server.ads.texi \
 	../src/aws-communication.ads.texi \
