@@ -50,12 +50,12 @@ package AWS.Services.Dispatchers.Transient_Pages is
    procedure Register
      (Dispatcher : in out Handler;
       Action     : in     AWS.Dispatchers.Handler'Class);
-   --  Register callback to use for a specific request method.
+   --  Register callback to use for a specific request method
 
    procedure Register
      (Dispatcher : in out Handler;
       Action     : in     Response.Callback);
-   --  Idem as above but take a callback procedure as parameter.
+   --  Idem as above but takes a callback procedure as parameter
 
 private
 
