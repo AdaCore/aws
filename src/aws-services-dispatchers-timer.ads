@@ -142,8 +142,7 @@ package AWS.Services.Dispatchers.Timer is
    --  A period that repeats each hour
 
    function Minutely
-     (Name        : in String;
-      From_Second : in Second_Number;
+     (From_Second : in Second_Number;
       To_Second   : in Second_Number)
       return Period;
    --  A period that repeats each minute
@@ -157,6 +156,7 @@ package AWS.Services.Dispatchers.Timer is
 
    procedure Register
      (Dispatcher : in out Handler;
+      Name       : in     String;
       Period     : in     Timer.Period;
       Action     : in     Response.Callback);
    --  Idem as above but take a callback procedure as parameter
@@ -183,9 +183,10 @@ private
    type Kind is (Once, Yearly, Monthly, Weekly, Daily, Hourly, Minutely);
 
    type Date_Time is record
-      Year   : Calendar.Year_Number;
-      Month  : Calendar.Month_Number;
-      Day    : Calendar.Day_Number;
+      Year   : Year_Number;
+      Month  : Month_Number;
+      Day    : Day_Number;
+      N_Day  : Day_Name;
       Hour   : Hour_Number;
       Minute : Minute_Number;
       Second : Second_Number;
