@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -89,6 +89,13 @@ package AWS.Log is
       Data         : in     String);
    --  Write user's log info if activated.  (i.e. Start routine above has been
    --  called).
+
+   procedure Write
+     (Log  : in out Object;
+      Data : in     String);
+   --  Write Data into the log file. This Data is unstructured, only a time
+   --  tag prefix is prepended to Data. This routine is designed to be used
+   --  for user's info in error log file.
 
    procedure Stop (Log : in out Object);
    --  Stop logging activity.
