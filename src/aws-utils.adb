@@ -28,7 +28,30 @@
 
 --  $Id$
 
+with Interfaces.C.Strings;
+
+with Sockets.Thin;
+
 package body AWS.Utils is
+
+   -----------------
+   -- Gethostname --
+   -----------------
+
+   function Gethostname return String is
+
+      use Interfaces;
+
+      Buffer : aliased C.char_array := (1 .. 100 => ' ');
+      Name   : C.Strings.Chars_Ptr :=
+        C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access);
+      Len    : C.int := Buffer'Length;
+      Res    : C.int;
+
+   begin
+      Res := Sockets.Thin.C_Gethostname (Name, Len);
+      return C.Strings.Value (Name, C.size_t (Len));
+   end Gethostname;
 
    -----------
    -- Image --
