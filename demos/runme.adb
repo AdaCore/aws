@@ -38,7 +38,7 @@
 --
 --  Some pointers:
 --
---  Ada Windows sockets : http://stad.dsl.nl/~jvandyk/w32sock2.zip
+--  Ada Windows sockets : http://perso.wanadoo.fr/archive/sockets.tar.gz
 --  Ada UNIX socket     : http://www.infres.enst.fr/ANC/
 --
 --  How to build this demo ?
@@ -79,4 +79,5 @@ procedure Runme is
 
 begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");
+   AWS.Server.Start (WS);
 end Runme;
