@@ -718,6 +718,7 @@ package body AWS.Session is
    exception
       when others =>
          Database.Unlock;
+         raise;
    end For_Every_Session;
 
    ----------------------------
@@ -802,62 +803,34 @@ package body AWS.Session is
    -- Get --
    ---------
 
-   function Get
-     (SID : in ID;
-      Key : in String)
-      return String
-   is
+   function Get (SID : in ID; Key : in String) return String is
       Value : Unbounded_String;
    begin
       Database.Get_Value (SID, Key, Value);
       return To_String (Value);
    end Get;
 
-   function Get
-     (SID : in ID;
-      Key : in String)
-      return Integer
-   is
-      Value : Unbounded_String;
+   function Get (SID : in ID; Key : in String) return Integer is
+      Value : constant String := Get (SID, Key);
    begin
-      Database.Get_Value (SID, Key, Value);
-      return Integer'Value (To_String (Value));
+      return Integer'Value (Value);
    exception
-      when others =>
+      when Constraint_Error =>
          return 0;
    end Get;
 
-   function Get
-     (SID : in ID;
-      Key : in String)
-      return Float
-   is
-      Value : Unbounded_String;
+   function Get (SID : in ID; Key : in String) return Float is
+      Value : constant String := Get (SID, Key);
    begin
-      Database.Get_Value (SID, Key, Value);
-      return Float'Value (To_String (Value));
+      return Float'Value (Value);
    exception
-      when others =>
+      when Constraint_Error =>
          return 0.0;
    end Get;
 
-   function Get
-     (SID : in ID;
-      Key : in String)
-      return Boolean
-   is
-      Value : Unbounded_String;
+   function Get (SID : in ID; Key : in String) return Boolean is
    begin
-      Database.Get_Value (SID, Key, Value);
-
-      if To_String (Value) = "T" then
-         return True;
-      else
-         return False;
-      end if;
-   exception
-      when others =>
-         return False;
+      return Get (SID, Key) = "T";
    end Get;
 
    ------------------
