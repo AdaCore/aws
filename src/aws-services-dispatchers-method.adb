@@ -62,6 +62,32 @@ package body AWS.Services.Dispatchers.Method is
    end Dispatch;
 
    --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize   (Dispatcher : in out Handler) is
+   begin
+      Finalize (AWS.Dispatchers.Handler (Dispatcher));
+
+      if Ref_Counter (Dispatcher) = 0 then
+         for K in Dispatcher.Table'Range loop
+            Free (Dispatcher.Table (K));
+         end loop;
+
+         Free (Dispatcher.Action);
+      end if;
+   end Finalize;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (Dispatcher : in out Handler) is
+   begin
+      Initialize (AWS.Dispatchers.Handler (Dispatcher));
+   end Initialize;
+
+   --------------
    -- Register --
    --------------
 
