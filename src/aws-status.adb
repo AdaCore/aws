@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -147,12 +147,12 @@ package body AWS.Status is
    function Authorization_Tail     (D : in Data) return String is
    begin
       return AWS.Digest.Tail
-               (Nonce  => Authorization_Nonce (D),
-                NC     => Authorization_NC (D),
-                CNonce => Authorization_CNonce (D),
-                QOP    => Authorization_QOP (D),
-                Method => Request_Method'Image (D.Method),
-                URI    => Authorization_URI (D));
+        (Nonce  => Authorization_Nonce (D),
+         NC     => Authorization_NC (D),
+         CNonce => Authorization_CNonce (D),
+         QOP    => Authorization_QOP (D),
+         Method => Request_Method'Image (D.Method),
+         URI    => Authorization_URI (D));
    end Authorization_Tail;
 
    -----------------------
