@@ -1,3 +1,8 @@
+2004-08-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.adb:
+	(Read_Some): Fix bug with compression CRC in the last chunk.
+
 2004-08-11  Pascal Obry  <pascal@obry.org>
 
 	* src.gpr:
