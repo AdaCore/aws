@@ -56,6 +56,8 @@
 --  associated with the key K are concatenated together with a specific
 --  separator.
 
+with Ada.Characters.Handling;
+
 with AWS.Utils;
 
 with Strings_Cutter;
@@ -63,6 +65,9 @@ with Strings_Cutter;
 package body AWS.Parameters is
 
    use Ada.Strings.Unbounded;
+
+   Missing_Item_Error : exception
+      renames AWS.Key_Value.Table.Missing_Item_Error;
 
    -----------
    -- Count --
@@ -105,7 +110,7 @@ package body AWS.Parameters is
       end;
 
    exception
-      when others =>
+      when Missing_Item_Error =>
          return 0;
    end Count;
 
@@ -118,7 +123,9 @@ package body AWS.Parameters is
       Name           : in String)
       return Boolean is
    begin
-      return Key_Value.Is_Present (Parameter_List.Data.all, Name);
+      return Key_Value.Is_Present
+        (Parameter_List.Data.all,
+         Normalize_Name (Name, not Parameter_List.Case_Sensitive));
    end Exist;
 
    ---------
@@ -147,7 +154,7 @@ package body AWS.Parameters is
    begin
       return To_String (Key_Value.Value (Parameter_List.HTTP_Data.all, Key));
    exception
-      when others =>
+      when Missing_Item_Error =>
          return "";
    end Get_Name;
 
@@ -209,7 +216,7 @@ package body AWS.Parameters is
    begin
       return To_String (Key_Value.Value (Parameter_List.HTTP_Data.all, Key));
    exception
-      when others =>
+      when Missing_Item_Error =>
          return "";
    end Get_Value;
 
@@ -225,7 +232,10 @@ package body AWS.Parameters is
       Value : Unbounded_String;
       CS    : Strings_Cutter.Cutted_String;
    begin
-      Key_Value.Get_Value (Parameter_List.Data.all, Name, Value);
+      Key_Value.Get_Value
+        (Parameter_List.Data.all,
+         Normalize_Name (Name, not Parameter_List.Case_Sensitive),
+         Value);
 
       Strings_Cutter.Create
         (CS,
@@ -243,7 +253,7 @@ package body AWS.Parameters is
       end;
 
    exception
-      when others =>
+      when Missing_Item_Error =>
          return (1 .. 0 => Null_Unbounded_String);
    end Get_Values;
 
@@ -260,7 +270,10 @@ package body AWS.Parameters is
       Value : Unbounded_String;
       CS    : Strings_Cutter.Cutted_String;
    begin
-      Key_Value.Get_Value (Parameter_List.Data.all, Name, Value);
+      Key_Value.Get_Value
+        (Parameter_List.Data.all,
+         Normalize_Name (Name, not Parameter_List.Case_Sensitive),
+         Value);
 
       Strings_Cutter.Create (CS,
                              To_String (Value),
@@ -273,7 +286,7 @@ package body AWS.Parameters is
       end;
 
    exception
-      when others =>
+      when Missing_Item_Error =>
          return "";
    end Internal_Get;
 
@@ -290,6 +303,21 @@ package body AWS.Parameters is
          return Key_Value.Size (Parameter_List.Data.all);
       end if;
    end Name_Count;
+
+   --------------------
+   -- Normalize_Name --
+   --------------------
+
+   function Normalize_Name
+     (Name : in String; To_Upper : in Boolean)
+     return String is
+   begin
+      if To_Upper then
+         return Ada.Characters.Handling.To_Upper (Name);
+      else
+         return Name;
+      end if;
+   end Normalize_Name;
 
    ----------------
    -- URI_Format --

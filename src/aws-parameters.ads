@@ -67,14 +67,14 @@ package AWS.Parameters is
       N              : in Positive := 1)
       return String;
    --  Returns the Nth Name in Parameter_List or the empty string if there is
-   --  no parameter with this Name.
+   --  no parameter with this number.
 
    function Get_Value
      (Parameter_List : in List;
       N              : in Positive := 1)
       return String;
    --  Returns the Nth Value in Parameter_List or the empty string if there is
-   --  no such Value.
+   --  no parameter with this number.
 
    function URI_Format (Parameter_List : in List) return String;
    --  Returns the list of parameters in the URI format. This can be added
@@ -114,5 +114,11 @@ private
    --  the values as inserted in the tree for Key.
 
    Val_Separator : constant Character := ASCII.VT;
+
+   function Normalize_Name
+     (Name : in String; To_Upper : in Boolean)
+     return String;
+   --  Returns Name in upper case if To_Upper is set to True and it returns
+   --  Name unchanged otherwise.
 
 end AWS.Parameters;
