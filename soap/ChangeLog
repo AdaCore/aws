@@ -1,5 +1,9 @@
 2001-08-26  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
+	* soap-message-xml.ads, soap-message-xml.adb:
+	Removed unused package.
+	Rename Message.Error to Message.Response.Error.
+
 	* soap.ads:
 	Add copyright notice. This is to be considered as the first
 	 version. Most of the framework is validated at this point.
