@@ -31,21 +31,19 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Strings.Unbounded;
 
 with Table_Of_Strings_And_Static_Values_G;
 
+with AWS.Resources.Release;
 with AWS.Utils;
 
 package body AWS.Services.Transient_Pages is
 
-   --  ??? This is the first implementation mostly as a proof-of concept. The
-   --  real implementation will have a task to release the stream after theirs
-   --  life-time and eventually move them to disk after a certain period...
-   --
-   --  Note that to release memory we just have to call parent's Release
-   --  routine.
-
    use Ada;
+   use Ada.Strings.Unbounded;
+
+   Max_Obsolete : constant := 30;
 
    type Item is record
       Stream      : AWS.Resources.Streams.Stream_Access;
@@ -55,15 +53,259 @@ package body AWS.Services.Transient_Pages is
    package Table is new Table_Of_Strings_And_Static_Values_G
      (Character, String, "<", "=", Item);
 
-   Resources : Table.Table_Type;
+   subtype ID is String (1 .. 25);
+   --  Random ID generated as transient page identity
 
-   K : Natural := 0;
+   Obsolete : array (1 .. Max_Obsolete) of Unbounded_String;
+   O_Index  : Natural := 0;
+
+   --  Concurrent access for the transient pages
+
+   protected Database is
+
+      procedure Generate_ID (URI : out ID);
+      --  Generate a unique ID used to create a transient URI
+
+      procedure Register
+        (URI      : in String;
+         Resource : in Item);
+      --  Register URI into the database
+
+      procedure Release (URI : in String);
+      --  Release all memory associated with URI (the entry in the table and
+      --  the memory stream).
+
+      procedure Get_Value
+        (URI    : in     String;
+         Result :    out Item;
+         Found  :    out Boolean);
+      --  Returns URI's information or set Found to False if not found
+
+      procedure Fill_Obsolete_Table;
+      --  Add a set of obsolete objects into the obsolete table
+
+   private
+      K         : Natural := 0;
+      Resources : Table.Table_Type;
+   end Database;
+
+   ---------------------
+   -- Cleaner_Control --
+   ---------------------
+
+   protected body Cleaner_Control is
+
+      --------------
+      -- Register --
+      --------------
+
+      procedure Register (Transient_Check_Interval : in Duration) is
+         pragma Unreferenced (Transient_Check_Interval);
+      begin
+         Server_Count := Server_Count + 1;
+         null;
+      end Register;
+
+      ----------
+      -- Stop --
+      ----------
+
+      procedure Stop (Need_Release : out Boolean) is
+      begin
+         Server_Count := Server_Count - 1;
+         Need_Release := (Server_Count = 0 and then Cleaner_Task /= null);
+      end Stop;
+
+   end Cleaner_Control;
+
+   -------------
+   -- Cleaner --
+   -------------
+
+   task body Cleaner is
+      use type Calendar.Time;
+
+      C_Interval : constant Duration := 60.0;
+      --  ??? This should be a configuration option
+
+      Next : Calendar.Time := Calendar.Clock + C_Interval;
+   begin
+      Clean : loop
+         select
+            accept Stop;
+            exit Clean;
+         or
+            delay until Next;
+         end select;
+
+         Database.Fill_Obsolete_Table;
+
+         for K in 1 .. O_Index loop
+            Database.Release (To_String (Obsolete (K)));
+            Obsolete (K) := Null_Unbounded_String;
+         end loop;
+
+         Next := Next + C_Interval;
+      end loop Clean;
+   end Cleaner;
+
+   --------------
+   -- Database --
+   --------------
+
+   protected body Database is
+
+      -------------------------
+      -- Fill_Obsolete_Table --
+      -------------------------
+
+      procedure Fill_Obsolete_Table is
+
+         Now : constant Calendar.Time := Calendar.Clock;
+
+         procedure Action
+           (Key          : in     String;
+            Value        : in     Item;
+            Order_Number : in     Positive;
+            Continue     : in out Boolean);
+         --  Iterator callback
+
+         procedure Action
+           (Key          : in     String;
+            Value        : in     Item;
+            Order_Number : in     Positive;
+            Continue     : in out Boolean)
+         is
+            pragma Unreferenced (Order_Number);
+
+            use type Calendar.Time;
+         begin
+            if Now > Value.Delete_Time then
+               O_Index := O_Index + 1;
+               Obsolete (O_Index) := To_Unbounded_String (Key);
+
+               if O_Index = Obsolete'Last then
+                  Continue := False;
+               end if;
+            end if;
+         end Action;
+
+         procedure Check_Delete_Time is new Table.Traverse_Asc_G;
+
+      begin
+         O_Index := 0;
+
+         Check_Delete_Time (Resources);
+      end Fill_Obsolete_Table;
+
+      -----------------
+      -- Generate_ID --
+      -----------------
+
+      procedure Generate_ID (URI : out ID) is
+
+         type NID is new AWS.Utils.Random_Integer;
+
+         Chars : constant String
+           := "0123456789"
+                & "abcdefghijklmnopqrstuvwxyz"
+                & "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+         Rand   : NID := 0;
+         Result : ID;
+
+         K_Img  : constant String := Natural'Image (K);
+         J      : Positive := K_Img'First + 1;
+      begin
+         for I in 1 .. 6 - K_Img'Length loop
+            Result (I) := '$';
+         end loop;
+
+         for I in 6 - K_Img'Length + 1 .. 5 loop
+            Result (I) := K_Img (J);
+            J := J + 1;
+         end loop;
+
+         for I in 6 .. ID'Last loop
+            if Rand = 0 then
+               Rand := Random;
+            end if;
+
+            Result (I) := Chars (Integer (Rand rem Chars'Length) + 1);
+            Rand := Rand / Chars'Length;
+         end loop;
+
+         K := K + 1;
+
+         if K >= 100_000 then
+            K := 0;
+         end if;
+
+         URI := Result;
+      end Generate_ID;
+
+      ---------------
+      -- Get_Value --
+      ---------------
+
+      procedure Get_Value
+        (URI    : in     String;
+         Result :    out Item;
+         Found  :    out Boolean) is
+      begin
+         Table.Get_Value (Resources, URI, Result, Found);
+      end Get_Value;
+
+      --------------
+      -- Register --
+      --------------
+
+      procedure Register
+        (URI      : in String;
+         Resource : in Item) is
+      begin
+         if Cleaner_Task = null then
+            Cleaner_Task := new Cleaner;
+         end if;
+
+         Table.Insert (Resources, URI, Resource);
+      end Register;
+
+      -------------
+      -- Release --
+      -------------
+
+      procedure Release (URI : in String) is
+         Found  : Boolean;
+         Result : Item;
+      begin
+         Table.Get_Value (Resources, URI, Result, Found);
+         Table.Remove (Resources, URI);
+
+         declare
+            Resource : AWS.Resources.File_Type;
+         begin
+            AWS.Resources.Streams.Create (Resource, Result.Stream);
+
+            --  Close the stream
+
+            AWS.Resources.Streams.Memory.Close
+              (AWS.Resources.Streams.Memory.Stream_Type (Result.Stream.all));
+
+            --  Release the memory associated with the stream handle
+
+            AWS.Resources.Release (Resource);
+         end;
+      end Release;
+
+   end Database;
 
    -----------
    -- Close --
    -----------
 
    procedure Close (Resource : in out Stream_Type) is
+      pragma Unreferenced (Resource);
    begin
       null;
    end Close;
@@ -76,7 +318,7 @@ package body AWS.Services.Transient_Pages is
       Result : Item;
       Found  : Boolean;
    begin
-      Table.Get_Value (Resources, URI, Result, Found);
+      Database.Get_Value (URI, Result, Found);
 
       if Found then
          --  Reset the stream pointer to the stream's first byte
@@ -92,9 +334,10 @@ package body AWS.Services.Transient_Pages is
    -------------
 
    function Get_URI return String is
+      URI : ID;
    begin
-      K := K + 1;
-      return "uri" & Utils.Image (K);
+      Database.Generate_ID (URI);
+      return "/transient/" & URI;
    end Get_URI;
 
    --------------
@@ -102,13 +345,13 @@ package body AWS.Services.Transient_Pages is
    --------------
 
    procedure Register
-     (URI       : in String;
-      Resource  : in AWS.Resources.Streams.Stream_Access;
-      Life_Time : in Duration := Default_Life_Time)
+     (URI      : in String;
+      Resource : in AWS.Resources.Streams.Stream_Access;
+      Lifetime : in Duration := Default_Lifetime)
    is
       use type Calendar.Time;
    begin
-      Table.Insert (Resources, URI, (Resource, Calendar.Clock + Life_Time));
+      Database.Register (URI, (Resource, Calendar.Clock + Lifetime));
    end Register;
 
    -------------
