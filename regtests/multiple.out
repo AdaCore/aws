@@ -1,0 +1,10 @@
+Start main, wait for server to start...
+=> call ok : server1
+
+=> call ok : server2
+
+=> call ok : server2
+
+=> call ok : server1
+
+Exit now
