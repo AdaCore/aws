@@ -17,6 +17,10 @@ TOOLS := $(TOOLS)  ada2wsdl-main
 GEN   = ada2wsdl-options.adb
 endif
 
+ifeq (${OS}, Windows_NT)
+POLL = ../lib/poll.o -lwsock32
+endif
+
 EXECS    = $(patsubst  ada2wsdl-main,ada2wsdl,$(TOOLS))
 ALL_EXEC = $(addsuffix $(EXEEXT), $(EXECS))
 
@@ -27,7 +31,7 @@ force:
 $(TOOLS): force
 	echo Building `basename $@ -main`
 	$(GNATMAKE) $(GARGS) $@ -o `basename $@ -main` \
-		-largs -s -L../lib $(LIBS) -lz
+		-largs -s -L../lib $(LIBS) -lz $(POLL)
 
 ada2wsdl-options.adb: force
 	echo "--  This file is generated automatically" > ada2wsdl-options.adb
