@@ -47,13 +47,11 @@ package AWS.Resources.Streams is
       Last     :    out Stream_Element_Offset)
       is abstract;
 
-   procedure Close (Resource : in out Stream_Type)
+   procedure Reset (Resource : in out Stream_Type)
       is abstract;
 
-   procedure Release
-     (Resource : in     Stream_Type;
-      File     : in out File_Type);
-   --  Release File handle
+   procedure Close (Resource : in out Stream_Type)
+      is abstract;
 
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
    --  This default implementation returns Undefined_Length. If the derived
