@@ -33,7 +33,6 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
-with Ada.Integer_Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
@@ -1017,17 +1016,15 @@ package body AWS.Client is
                declare
 
                   function Get_URI return String;
-                  --  Returning the real URI where
-                  --  the request is going to be send.
-                  --  It is eather Open_Send_Common_Header.URI parameter
-                  --  if exists (without HTTP parameters part),
-                  --  or URI part of the Connect_URL field of Connection
-                  --  properties if Open_Send_Common_Header.URI is empty.
+                  --  Returns the real URI where the request is going to be
+                  --  sent. It is either Open_Send_Common_Header.URI parameter
+                  --  if it exists (without the HTTP parameters part), or URI
+                  --  part of the Connection.Connect_URL field.
 
                   function QOP_Data return String;
-                  --  returning string with qop, cnonce, nc parameters
+                  --  Returns string with qop, cnonce and nc parameters
                   --  if qop parameter exists in the server auth request,
-                  --  or empty string if not (RFC 2617 3.2.2)
+                  --  or empty string if not (RFC 2617 3.2.2).
 
                   Response : AWS.Digest.Digest_String;
 
@@ -1066,7 +1063,6 @@ package body AWS.Client is
 
                   function QOP_Data return String is
                      CNonce : constant String := AWS.Digest.Create_Nonce;
-                     NC : String (1 .. 12);
                   begin
                      if QOP = No_Data then
                         Response := AWS.Digest.Create_Digest
@@ -1081,29 +1077,25 @@ package body AWS.Client is
                      else
                         Data.NC := Data.NC + 1;
 
-                        Ada.Integer_Text_IO.Put (NC, Data.NC, 16);
-                        --  We do not use AWS.Utils.Hex
-                        --  becouse we need a bit different format,
-                        --  with 8 symbols augmented by 0 at the left.
+                        declare
+                           NC : constant String := Utils.Hex (Data.NC, 8);
+                        begin
+                           Response := AWS.Digest.Create_Digest
+                             (Username => Username,
+                              Realm    => Realm,
+                              Password => To_String (Data.Pwd),
+                              Nonce    => Nonce,
+                              CNonce   => CNonce,
+                              NC       => NC,
+                              QOP      => QOP,
+                              Method   => Method,
+                              URI      => URI);
 
-                        NC (NC'Length - 8 .. Strings.Fixed.Index (NC, "#"))
-                          := (others => '0');
-
-                        Response := AWS.Digest.Create_Digest
-                          (Username => Username,
-                           Realm    => Realm,
-                           Password => To_String (Data.Pwd),
-                           Nonce    => Nonce,
-                           CNonce   => CNonce,
-                           NC       => NC (NC'Length - 8 .. NC'Length - 1),
-                           QOP      => QOP,
-                           Method   => Method,
-                           URI      => URI);
-
-                        return "qop=""" & QOP
-                          & """, cnonce=""" & CNonce
-                          & """, nc=" & NC (NC'Length - 8 .. NC'Length - 1)
-                          & ", ";
+                           return "qop=""" & QOP
+                             & """, cnonce=""" & CNonce
+                             & """, nc=" & NC
+                             & ", ";
+                        end;
                      end if;
                   end QOP_Data;
 
@@ -1243,24 +1235,23 @@ package body AWS.Client is
         := (others => Any);
 
       procedure Parse_Authenticate_Line
-        (Level : in Authentication_Level;
-         Data  : in String);
-      --  Parses Authentication request line
-      --  and fill one of the Connection.Auth field elements
-      --  Depend of Authentication request WWW or Proxy.
+        (Level     : in Authentication_Level;
+         Auth_Line : in String);
+      --  Parses Authentication request line and fill Connection.Auth (Level)
+      --  field with the information read on the line. Handle WWW and Proxy
+      --  authentication.
 
       procedure Set_Keep_Alive (Data : in String);
-      --  Set the Keep_Alive out parameter depend on
-      --  data from the Proxy-Connection or Connection
-      --  header line
+      --  Set the Parse_Header.Keep_Alive depending on data from the
+      --  Proxy-Connection or Connection header line.
 
       -----------------------------
       -- Parse_Authenticate_Line --
       -----------------------------
 
       procedure Parse_Authenticate_Line
-        (Level : in Authentication_Level;
-         Data  : in     String)
+        (Level     : in Authentication_Level;
+         Auth_Line : in     String)
       is
          Basic_Token  : constant String := "Basic ";
          Digest_Token : constant String := "Digest ";
@@ -1278,15 +1269,21 @@ package body AWS.Client is
             new AWS.Utils.Parse_HTTP_Header_Line (Auth_Attribute, Result_Set);
 
       begin
-         if Messages.Is_Match (Data, Basic_Token) then
+         if Messages.Is_Match (Auth_Line, Basic_Token) then
             Request_Mode := Basic;
-            Parse_Line
-              (Data (Data'First + Basic_Token'Length .. Data'Last), Result);
 
-         elsif Messages.Is_Match (Data, Digest_Token) then
-            Request_Mode := Digest;
             Parse_Line
-              (Data (Data'First + Digest_Token'Length .. Data'Last), Result);
+              (Auth_Line
+                 (Auth_Line'First + Basic_Token'Length .. Auth_Line'Last),
+               Result);
+
+         elsif Messages.Is_Match (Auth_Line, Digest_Token) then
+            Request_Mode := Digest;
+
+            Parse_Line
+              (Auth_Line
+                 (Auth_Line'First + Digest_Token'Length .. Auth_Line'Last),
+               Result);
 
          else
             --  Ignore unrecognized authentication mode
@@ -1313,17 +1310,18 @@ package body AWS.Client is
                   "Only MD5 algorithm is supported.");
             end if;
 
-            --  The parameter Stale is true when the Digest value is right
+            --  The parameter Stale is true when the Digest value is correct
             --  but the nonce value is too old or incorrect.
-            --  This mean that interactive HTTP client should not ask
-            --  name/password from the user, and try to use name/password from the
-            --  previos successful authentication attempt.
+            --
+            --  This mean that an interactive HTTP client should not ask
+            --  name/password from the user, and try to use name/password from
+            --  the previous successful authentication attempt.
             --  We do not need to check Stale authentication parameter
-            --  for now, becouse our client is not interactive now,
-            --  we are not going to ask user to input the name/password
-            --  anyway. We could uncomment it later, when we would provide
-            --  some interactive behavior to AWS.Client or interface to the
-            --  interactive programs by callback to the AWS.Client.
+            --  for now, because our client is not interactive, so we are not
+            --  going to ask user to input the name/password anyway. We could
+            --  uncomment it later, when we would provide some interactive
+            --  behavior to AWS.Client or interface to the interactive
+            --  programs by callback to the AWS.Client.
             --
             --  if Messages.Is_Match ("true", To_String (Result (Stale))) then
             --     null;
@@ -1350,11 +1348,9 @@ package body AWS.Client is
 
       --  We should initialize Keep_Alive, because it is possible to receive
       --  absolutely incorrect answer from server.
+      --  We should check the Messages.HTTP_Token only in the first line
+      --  and raise an exception if the first line does not match HTTP_Token.
       --  ???
-      --  This comment would gone, when we would check the
-      --  Messages.HTTP_Token only in the first line.
-      --  and raise exception if the first line is not match HTTP_Token
-      --  I think it's better.
 
       Keep_Alive := False;
 
