@@ -43,6 +43,6 @@ begin
       URL    := URL    & Filters.Set (K).URL;
    end loop;
 
-   return Translate_Table'(Assoc ("HP_REGEXP_L", Regexp),
-                           Assoc ("HP_URL_L",    URL));
+   return Translate_Table'(Assoc ("HP_REGEXP_V", Regexp),
+                           Assoc ("HP_URL_V",    URL));
 end AWS.Hotplug.Get_Status;
