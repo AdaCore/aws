@@ -30,8 +30,9 @@
 
 --  $Id$
 
-with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
+with Ada.Text_IO;
 
 with GNAT.OS_Lib;
 
@@ -81,6 +82,21 @@ procedure Unexph2 is
       OS_Lib.Delete_File ("500.tmplt", Success);
    end Delete_500_Tmplt;
 
+   ------------------
+   -- No_Traceback --
+   ------------------
+
+   function No_Traceback (Str : in String) return String is
+      K1 : constant Natural := Strings.Fixed.Index (Str, "locations:");
+      K2 : constant Natural := Strings.Fixed.Index (Str, "</pre>");
+   begin
+      if K1 = 0 or else K2 = 0 then
+         return Str;
+      else
+         return Str (Str'First .. K1 + 9) & " .. " & Str (K2 .. Str'Last);
+      end if;
+   end No_Traceback;
+
    --------
    -- CB --
    --------
@@ -115,7 +131,7 @@ begin
    R := Client.Get ("http://localhost:1240/test", Timeouts => (2, 2));
 
    Text_IO.Put_Line ("----------------------");
-   Text_IO.Put_Line (Response.Message_Body (R));
+   Text_IO.Put_Line (No_Traceback (Response.Message_Body (R)));
 
    Create_500_Tmplt;
 
