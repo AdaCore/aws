@@ -63,8 +63,9 @@ package body AWS.Server is
    is
       Accepting_Socket : Sockets.Socket_FD;
    begin
-      Web_Server.Name      := To_Unbounded_String (Name);
-      Web_Server.Admin_URI := To_Unbounded_String (Admin_URI);
+      Web_Server.Name        := To_Unbounded_String (Name);
+      Web_Server.Admin_URI   := To_Unbounded_String (Admin_URI);
+      Web_Server.Upload_Path := To_Unbounded_String (Default_Upload_Path);
 
       Sockets.Socket (Accepting_Socket,
                       Sockets.AF_INET,
