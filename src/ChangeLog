@@ -1,3 +1,20 @@
+2002-12-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-containers-tables.ads:
+	Minor comment fix.
+
+	* aws-net-ssl.adb:
+	Remove comment about potential memory leak as there is no problem
+	 after all.
+
+	* aws-server.adb:
+	(SSL_Initialized): Rename to Security_Initialized.
+	(Set_Security): New routine.
+
+	* aws-server.ads:
+	(Set_Security): New routine.
+	Add/fix some comments.
+
 2002-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net.adb:
