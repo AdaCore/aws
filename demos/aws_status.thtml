@@ -115,6 +115,30 @@ status.</H3>
 </ol>
 
 <br>
+
+<H3>Hotplug modules are listed below:</H3>
+
+<table>
+
+<tr bgcolor=yellow>
+<td width=150>Module Regexp
+<td width=300>Server address
+</tr>
+
+@@TABLE@@
+<tr bgcolor=white>
+<td align=center>@@_HP_REGEXP_L_@@
+<td>@@_HP_URL_L_@@
+</tr>
+@@SECTION@@
+<tr bgcolor=turquoise>
+<td align=center>@@_HP_REGEXP_L_@@
+<td>@@_HP_URL_L_@@
+</tr>
+@@END_TABLE@@
+</table>
+
+<br>
 <hr>
 <br>
 
