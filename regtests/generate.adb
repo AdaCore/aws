@@ -84,6 +84,7 @@ begin
 
    New_Line (Main);
    Put (Main, U.To_String (Source));
+   Put_Line (Main, "   null;");
    Put_Line (Main, "end Test_All;");
    Close (Main);
 end Generate;
