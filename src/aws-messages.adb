@@ -85,7 +85,7 @@ package body AWS.Messages is
       Reason_Phrase : String_Access;
    end record;
 
-   Status_Messages : array (Status_Code) of Status_Data
+   Status_Messages : constant array (Status_Code) of Status_Data
      := (S100 => ("100", S100_Message'Access),
          S101 => ("101", S101_Message'Access),
          S200 => ("200", S200_Message'Access),
@@ -127,9 +127,9 @@ package body AWS.Messages is
          S504 => ("504", S504_Message'Access),
          S505 => ("505", S505_Message'Access));
 
-   Month_Name : constant array (Calendar.Month_Number)
-     of String (1 .. 3) := ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+   Month_Name : constant array (Calendar.Month_Number) of String (1 .. 3)
+     := ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
    ---------------------
    -- Accept_Language --
@@ -334,7 +334,7 @@ package body AWS.Messages is
       --  returns V image without the leading space and with leading zero if
       --  only one digit
 
-      function Weekday (Date : Calendar.Time) return String;
+      function Weekday (Date : in Calendar.Time) return String;
       --  returns the weekday as a 3 letters string for the Date.
 
       -----------
@@ -369,14 +369,16 @@ package body AWS.Messages is
       -- Weekday --
       -------------
 
-      function Weekday (Date : Calendar.Time) return String is
+      function Weekday (Date : in Calendar.Time) return String is
+
+         Day_Names : constant array (Integer range 0 .. 6) of String (1 .. 3)
+           := ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+
          C         : Integer;
          Y         : Integer := Calendar.Year (Date);
          M         : Integer := Calendar.Month (Date);
          D         : Integer := Calendar.Day (Date);
 
-         Day_Names : constant array (Integer range 0 .. 6) of String (1 .. 3)
-           := ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
       begin
          --  Calculate day of week by using Zeller's congruence
          if M < 3 then
@@ -419,22 +421,30 @@ package body AWS.Messages is
 
    function To_Time (HTTP_Date : in String) return Calendar.Time is
 
-      function Month_Number (Month_Name : in String)
-                            return Calendar.Month_Number;
+      function Month_Number
+        (Month_Name : in String)
+         return Calendar.Month_Number;
       --  returns the month number given a 3 letter month name.
 
       F : constant Positive := HTTP_Date'First;
 
-      function Month_Number (Month_Name : in String)
-                            return Calendar.Month_Number is
+      ------------------
+      -- Month_Number --
+      ------------------
+
+      function Month_Number
+        (Month_Name : in String)
+         return Calendar.Month_Number is
       begin
          for I in Calendar.Month_Number loop
             if Month_Name = Messages.Month_Name (I) then
                return I;
             end if;
          end loop;
-         Exceptions.Raise_Exception (Internal_Error'Identity,
-                                     "Month_Number: Month name not found");
+
+         Exceptions.Raise_Exception
+           (Constraint_Error'Identity,
+            "Month_Number: Wrong Month name (" & Month_Name & ')');
       end Month_Number;
 
    begin
