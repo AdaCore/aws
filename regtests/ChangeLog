@@ -1,3 +1,9 @@
+2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* sessions3.adb:
+	(Server): Fix output to ensure that the order does not depends on
+	 the scheduling.
+
 2003-10-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* shutdown.adb:
