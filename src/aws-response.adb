@@ -34,6 +34,7 @@ with Ada.Strings.Fixed;
 
 with AWS.Headers.Set;
 with AWS.Headers.Values;
+with AWS.OS_Lib;
 with AWS.Resources.Streams.Memory;
 with AWS.Resources.Streams.Disk.Once;
 with AWS.Response.Set;
@@ -301,9 +302,27 @@ package body AWS.Response is
       Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
       Encoding      : in Messages.Content_Encoding := Messages.Identity;
       Once          : in Boolean                   := False;
-      Attachment    : in Boolean                   := False)
+      Disposition   : in Disposition_Mode          := Inline;
+      User_Filename : in String                    := "")
       return Data
    is
+      function CD_Filename return String;
+      pragma Inline (CD_Filename);
+      --  Returns the Content-Disposition filename
+
+      -----------------
+      -- CD_Filename --
+      -----------------
+
+      function CD_Filename return String is
+      begin
+         if User_Filename = "" then
+            return OS_Lib.File_Name (Filename);
+         else
+            return User_Filename;
+         end if;
+      end CD_Filename;
+
       Result : Data;
    begin
       Set.Status_Code   (Result, Status_Code);
@@ -312,20 +331,24 @@ package body AWS.Response is
       Set.Cache_Control (Result, Cache_Control);
 
       --  Set the Content_Disposition to properly pass the filename to
-      --  the browser. This will also force the browser to propose to save
-      --  this file instead of displaying it.
+      --  the browser.
 
-      if Attachment then
-         Set.Add_Header
-           (Result,
-            Messages.Content_Disposition_Token,
-            "attachment; filename=""" & Filename & '"');
-      else
-         Set.Add_Header
-           (Result,
-            Messages.Content_Disposition_Token,
-            "inline; filename=""" & Filename & '"');
-      end if;
+      case Disposition is
+         when Attachment =>
+            Set.Add_Header
+              (Result,
+               Messages.Content_Disposition_Token,
+               "attachment; filename=""" & CD_Filename & '"');
+
+         when Inline =>
+            Set.Add_Header
+              (Result,
+               Messages.Content_Disposition_Token,
+               "inline; filename=""" & CD_Filename & '"');
+
+         when None =>
+            null;
+      end case;
 
       if Once then
          Set.Mode (Result, File_Once);
@@ -607,9 +630,28 @@ package body AWS.Response is
       Status_Code   : in     Messages.Status_Code      := Messages.S200;
       Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
       Encoding      : in     Messages.Content_Encoding := Messages.Identity;
-      Server_Close  : in     Boolean                   := True)
+      Server_Close  : in     Boolean                   := True;
+      Disposition   : in     Disposition_Mode          := Inline;
+      User_Filename : in     String                    := "")
       return Data
    is
+      function CD_Filename return String;
+      pragma Inline (CD_Filename);
+      --  Returns the Content-Disposition filename
+
+      -----------------
+      -- CD_Filename --
+      -----------------
+
+      function CD_Filename return String is
+      begin
+         if User_Filename = "" then
+            return OS_Lib.File_Name (Resources.Streams.Name (Handle.all));
+         else
+            return User_Filename;
+         end if;
+      end CD_Filename;
+
       Result : Data;
    begin
       Set.Stream         (Result, Handle, Encoding);
@@ -617,6 +659,28 @@ package body AWS.Response is
       Set.Content_Type   (Result, Content_Type);
       Set.Cache_Control  (Result, Cache_Control);
       Set.Close_Resource (Result, Server_Close);
+
+      --  Set the Content_Disposition to properly pass the filename to
+      --  the browser. This will also force the browser to propose to save
+      --  this file instead of displaying it if Attachment is set.
+
+      case Disposition is
+         when Attachment =>
+            Set.Add_Header
+              (Result,
+               Messages.Content_Disposition_Token,
+               "attachment; filename=""" & CD_Filename & '"');
+
+         when Inline =>
+            Set.Add_Header
+              (Result,
+               Messages.Content_Disposition_Token,
+               "inline; filename=""" & CD_Filename & '"');
+
+         when None =>
+            null;
+      end case;
+
       return Result;
    end Stream;
 
