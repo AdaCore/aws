@@ -65,7 +65,7 @@ package body AWS.Hotplug is
    begin
       Found := False;
 
-      Look_For_Filters:
+      Look_For_Filters :
       for K in 1 .. Filters.Count loop
 
          if GNAT.Regexp.Match (URI, Filters.Set (K).Regexp) then
