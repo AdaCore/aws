@@ -1,6 +1,6 @@
 2004-11-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
-	test_hotplug.adb:
+	* test_hotplug.adb:
 	Print exception information on error.
 	More interval between ports to be able find a free port.
 
