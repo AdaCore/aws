@@ -1,3 +1,9 @@
+2003-04-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-jabber.ads:
+	(Incoming_Stream): Set stack size below 2Mb as this is the
+	 GNU/Linux thread limit. Fix task runtime activation problem.
+
 2003-04-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-containers-tables.adb:
