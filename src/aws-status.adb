@@ -194,6 +194,15 @@ package body AWS.Status is
       return Parameters.Get_Key (D.Parameters, N);
    end Parameter_Name;
 
+   --------------
+   -- Peername --
+   --------------
+
+   function Peername (D : in Data) return String is
+   begin
+      return To_String (D.Peername);
+   end Peername;
+
    -------------
    -- Session --
    -------------
