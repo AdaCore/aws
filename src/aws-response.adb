@@ -322,9 +322,6 @@ package body AWS.Response is
             "attachment; filename=""" & Filename & '"');
       end if;
 
-      Set.Add_Header
-        (Result, "Title", Filename);
-
       if Once then
          Set.Mode (Result, File_Once);
       else
