@@ -89,21 +89,14 @@ package body AWS.URL is
          Delete (URL.URI, P, K + 2);
       end loop;
 
-      --  checks for current directory
+      --  checks for current directory and removes all occurences
 
       loop
          K := Index (URL.URI, "/./");
 
          exit when K = 0;
 
-         --  look for previous directory, which should be removed.
-
-         P := Strings.Fixed.Index
-           (Slice (URL.URI, 1, K - 1), "/", Strings.Backward);
-
-         exit when P = 0;
-
-         Delete (URL.URI, P, K + 1);
+         Delete (URL.URI, K, K + 1);
       end loop;
    end Normalize;
 
