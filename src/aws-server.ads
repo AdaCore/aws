@@ -54,12 +54,6 @@ package AWS.Server is
    type HTTP is limited private;
    --  A Web server.
 
-   type Unexpected_Exception_Handler is access
-     procedure (E           : in Ada.Exceptions.Exception_Occurrence;
-                Termination : in Boolean);
-   --  Unexpected exception handler can be set to monitor server errors.
-   --  Termination is set to true if the line has been terminated.
-
    ---------------------------
    -- Server initialization --
    ---------------------------
@@ -134,6 +128,19 @@ package AWS.Server is
    -- Server configuration --
    --------------------------
 
+   type Unexpected_Exception_Handler is access
+     procedure (E           : in     Ada.Exceptions.Exception_Occurrence;
+                Termination : in     Boolean;
+                Answer      : in out Response.Data);
+   --  Unexpected exception handler can be set to monitor server errors.
+   --  Termination is set to true if the line has been terminated. It means
+   --  that this is an AWS's fatal error. One of the line handling
+   --  simultaneous connection is broken. The server could still be working
+   --  but less efficiently. This is clearly an AWS internal error that should
+   --  be fixed in AWS. Answer will be used only if Termination is False, this
+   --  will be the answer sent back to the client, it is a way to send an
+   --  application level message.
+
    function Config (Web_Server : in HTTP) return AWS.Config.Object;
    --  Returns configuration object for Web_Server.
 
@@ -178,8 +185,9 @@ package AWS.Server is
 private
 
    procedure Default_Unexpected_Exception_Handler
-     (E           : in Ada.Exceptions.Exception_Occurrence;
-      Termination : in Boolean);
+     (E           : in     Ada.Exceptions.Exception_Occurrence;
+      Termination : in     Boolean;
+      Answer      : in out Response.Data);
    --  Default unexpected exception handler.
 
    ------------
