@@ -51,7 +51,7 @@ package body AWS.Status.Set is
      (D             : in out Data;
       Authorization : in     String)
    is
-      Basic_Token : constant String := "Basic ";
+      Basic_Token  : constant String := "Basic ";
       Digest_Token : constant String := "Digest ";
    begin
       if Messages.Is_Match (Authorization, Basic_Token) then
@@ -61,18 +61,20 @@ package body AWS.Status.Set is
          declare
             use Ada.Streams;
 
-            Auth_Bin : Stream_Element_Array :=
-              Translator.Base64_Decode
-              (Authorization (Basic_Token'Length + Authorization'First
-                              .. Authorization'Last));
+            Auth_Bin : constant Stream_Element_Array
+              := Translator.Base64_Decode
+              (Authorization
+                 (Basic_Token'Length + Authorization'First
+                    .. Authorization'Last));
+
             Auth_Str : String (1 .. Auth_Bin'Length);
             K        : Positive := Auth_Str'First;
             Delimit  : Natural;
          begin
 
             for i in Auth_Bin'Range loop
-               Auth_Str (K) :=
-                 Character'Val (Stream_Element'Pos (Auth_Bin (i)));
+               Auth_Str (K)
+                 := Character'Val (Stream_Element'Pos (Auth_Bin (i)));
                K := K + 1;
             end loop;
 
@@ -81,10 +83,11 @@ package body AWS.Status.Set is
             if Delimit = 0 then
                D.Auth_Name := To_Unbounded_String (Auth_Str);
             else
-               D.Auth_Name     :=
-                 To_Unbounded_String (Auth_Str (1 .. Delimit - 1));
-               D.Auth_Password :=
-                 To_Unbounded_String (Auth_Str (Delimit + 1 .. Auth_Str'Last));
+               D.Auth_Name
+                 := To_Unbounded_String (Auth_Str (1 .. Delimit - 1));
+               D.Auth_Password
+                 := To_Unbounded_String (Auth_Str
+                                           (Delimit + 1 .. Auth_Str'Last));
             end if;
          end;
       elsif Messages.Is_Match (Authorization, Digest_Token) then
@@ -94,20 +97,21 @@ package body AWS.Status.Set is
          declare
 
             type Digest_Attribute is
-              (Username, Realm, Nonce, NC, CNonce, QOP,
-                 URI, Response, Algorithm);
+              (Username, Realm, Nonce, NC, CNonce,
+               QOP, URI, Response, Algorithm);
+
             type Result_Set is array (Digest_Attribute) of Unbounded_String;
 
             Result : Result_Set;
 
-            procedure Parse_Auth_Line is new
-               AWS.Utils.Parse_HTTP_Header_Line (Digest_Attribute, Result_Set);
+            procedure Parse_Auth_Line is
+               new Utils.Parse_HTTP_Header_Line (Digest_Attribute, Result_Set);
 
          begin
-            Parse_Auth_Line (
-               Data => Authorization
-                  (Authorization'First + Digest_Token'Length
-                   .. Authorization'Last),
+            Parse_Auth_Line
+              (Data   => Authorization
+                 (Authorization'First + Digest_Token'Length
+                    .. Authorization'Last),
                Result => Result);
 
             D.URI           := Result (URI);
@@ -120,14 +124,13 @@ package body AWS.Status.Set is
             D.Auth_QOP      := Result (QOP);
 
             if Result (Algorithm) /= Null_Unbounded_String
-            and then To_String (Result (Algorithm)) /= "MD5" then
+              and then To_String (Result (Algorithm)) /= "MD5"
+            then
                Ada.Exceptions.Raise_Exception
                   (Constraint_Error'Identity,
                    "Only MD5 algorithm is supported.");
             end if;
-
          end;
-
       end if;
    end Authorization;
 
