@@ -57,6 +57,7 @@ procedure Tres is
    function CB (Request : in Status.Data) return Response.Data;
 
    task Server is
+      entry Start;
       entry Started;
       entry Stopped;
    end Server;
@@ -106,6 +107,8 @@ procedure Tres is
 
    task body Server is
    begin
+      accept Start;
+
       AWS.Server.Start
         (HTTP, "tres",
          CB'Unrestricted_Access, Port => Port, Max_Connection => 5);
@@ -142,6 +145,8 @@ procedure Tres is
 
 begin
    Put_Line ("Start main, wait for server to start...");
+
+   Server.Start;
 
    Server.Started;
 
