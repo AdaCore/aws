@@ -1394,7 +1394,7 @@ A complete example can be found in the demos directory. Look for
 
 @noindent
 Server Push is a feature that let the Web Server send continuously
-data to client's  Web Browser or client apprications. The client does
+data to client's  Web Browser or client applications. The client does
 not have to reload at periodic time to have the data updated, each
 time the server send a piece of data it gets displayed on the client.
 
@@ -1545,7 +1545,7 @@ Working with a dispatcher is quite easy:
 @enumerate
 @item Create a new dispatcher by inheriting from the service you want
 to build.
-@item Register a set of action based on rules (strings, regural
+@item Register a set of action based on rules (strings, regular
 expressions depending on the service)
 @end enumerate
 
@@ -1589,8 +1589,8 @@ POST, PUT, HEAD.
 @cindex URI, dispatcher
 
 @noindent
-This is a dispatcher based on the request ressource. A different callback
-procedure can be registered for specific ressources. The ressource is
+This is a dispatcher based on the request resource. A different callback
+procedure can be registered for specific resources. The resource is
 described either by its full name (string) or a regular expression.
 
 @pxref{AWS.Services.Dispatchers.URI} for complete spec description.
@@ -1610,7 +1610,7 @@ The same computer can be registered into the DNS with different
 names. So all names point to the same machine. But in fact you want
 each name to be seen as a different Web server. This is called virtual
 hosting. This service will just do that, call different @b{callback}
-procedures or redirect to some @b{mahine/port} based on the host name
+procedures or redirect to some @b{machine/port} based on the host name
 in the client's request.
 
 @pxref{AWS.Services.Dispatchers.Virtual_Host} for complete spec description.
@@ -1680,7 +1680,7 @@ this server corresponds to the AWS version string
 @noindent
 This SOAP implementation is certainly one with the higher level of abstraction.
 No need to mess with a serializer, to know what is a payload or be an XML
-expert. All the low level stuffs are completly hidden as the SOAP type system
+expert. All the low level stuffs are completely hidden as the SOAP type system
 has been binded as much as possible to the Ada type system.
 
 @noindent
@@ -2079,8 +2079,8 @@ Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 @noindent
-So thanks goes to Wiljan Derks, Sune Falck, David C. Hoos,
-Jean-Fran@,cois Rameau.
+So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
+Thierry Lelegard, Jean-Fran@,cois Rameau, Ariane Sinibardy.
 
 @c ----------------------------------------------------------------------
 
