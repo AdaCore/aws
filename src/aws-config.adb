@@ -59,6 +59,7 @@ package body AWS.Config is
    Up_Image_Token           : aliased constant String := "up_image";
    Down_Image_Token         : aliased constant String := "down_image";
    Logo_Image_Token         : aliased constant String := "logo_image";
+   WWW_Root_Token           : aliased constant String := "www_root";
 
    Session_Lifetime_Token                : aliased constant String
      := "session_lifetime";
@@ -97,6 +98,9 @@ package body AWS.Config is
 
    Server_Name_Value        : aliased Unbounded_String
      := To_Unbounded_String (Default_Server_Name);
+
+   WWW_Root_Value           : aliased Unbounded_String
+     := To_Unbounded_String (Default_WWW_Root);
 
    Log_File_Directory_Value : aliased Unbounded_String
      := To_Unbounded_String (Default_Log_File_Directory);
@@ -191,6 +195,9 @@ package body AWS.Config is
 
      ((Str, Server_Name_Token'Access,
        Server_Name_Value'Access),
+
+      (Str, WWW_Root_Token'Access,
+       WWW_Root_Value'Access),
 
       (Str, Admin_URI_Token'Access,
        Admin_URI_Value'Access),
@@ -547,8 +554,17 @@ package body AWS.Config is
       function Program_Ini_File return String is
          Exec_Name : constant String := Ada.Command_Line.Command_Name;
          Last      : Natural;
+         First     : Natural;
       begin
-         Last := Strings.Fixed.Index (Exec_Name, ".", Strings.Backward);
+         First := Strings.Fixed.Index
+           (Exec_Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
+
+         if First = 0 then
+            First := Exec_Name'First;
+         end if;
+
+         Last := Strings.Fixed.Index
+           (Exec_Name (First .. Exec_Name'Last), ".", Strings.Backward);
 
          if Last = 0 then
             return Exec_Name & ".ini";
@@ -668,6 +684,15 @@ package body AWS.Config is
    begin
       return To_String (Upload_Directory_Value);
    end Upload_Directory;
+
+   --------------
+   -- WWW_Root --
+   --------------
+
+   function WWW_Root return String is
+   begin
+      return To_String (WWW_Root_Value);
+   end WWW_Root;
 
 begin
    Initialize;
