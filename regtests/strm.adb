@@ -101,7 +101,7 @@ procedure Strm is
    begin
       AWS.Server.Start
         (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => 7645, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 1238, Max_Connection => 3);
 
       AWS.Server.Start_Log (HTTP);
 
@@ -146,7 +146,7 @@ begin
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:7645",
+      Host       => "http://localhost:1238",
       Timeouts   => (5, 5));
 
    Client.Get (Connect, R, Length_Defined_URI);
