@@ -25,8 +25,7 @@ BUILD_EXT = build_wsdl
 endif
 
 setup:
-	-$(MKDIR) -p ../.build/debug/demos/obj
-	-$(MKDIR) -p ../.build/release/demos/obj
+	-$(MKDIR) -p ../$(BDIR)/demos/obj
 
 build: build_res $(BUILD_EXT)
 	$(GNATMAKE) -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $(GCC_342_FIX)
@@ -34,5 +33,4 @@ build: build_res $(BUILD_EXT)
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} $(GCC_342_FIX)
 
 clean:
-	$(RM) -fr ../.build/debug/demos
-	$(RM) -fr ../.build/release/demos
+	$(RM) -fr ../$(BDIR)/demos

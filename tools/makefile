@@ -26,13 +26,11 @@ ada2wsdl-options.adb: force
 	echo "end Ada2WSDL.Options;" >> ada2wsdl-options.adb
 
 setup: $(GEN)
-	$(MKDIR) -p ../.build/debug/tools/obj
-	$(MKDIR) -p ../.build/release/tools/obj
+	$(MKDIR) -p ../$(BDIR)/tools/obj
 
 build:
 	$(GNATMAKE) -Ptools -XBuild=${PRJ_BUILD} \
 		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS}
 
 clean:
-	$(RM) -fr ../.build/debug/tools
-	$(RM) -fr ../.build/release/tools
+	$(RM) -fr ../$(BDIR)/tools
