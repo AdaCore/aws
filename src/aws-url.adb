@@ -188,6 +188,14 @@ package body AWS.URL is
    begin
       --  Checks for current directory and removes all occurences
 
+      --  Look for starting ./
+
+      if Length (URL_Path) >= 2 and then Slice (URL_Path, 1, 2) = "./" then
+         Delete (URL_Path, 1, 1);
+      end if;
+
+      --  Look for all /./ references
+
       loop
          K := Index (URL_Path, "/./");
 
@@ -289,11 +297,36 @@ package body AWS.URL is
               := Strings.Fixed.Index (PF, "/", Strings.Backward);
          begin
             if I3 = 0 then
-               O.Path := US ("/");
-               O.File := US (URL (I2 + 1 .. URL'Last));
+               --  No ending '/' check for current and parent directories
+               --  which must be part of the path.
+
+               declare
+                  File : constant String := URL (I2 + 1 .. URL'Last);
+               begin
+                  if File = ".." or else File = "." then
+                     O.Path := US ("/" & File);
+                     O.File := US ("");
+                  else
+                     O.Path := US ("/");
+                     O.File := US (File);
+                  end if;
+               end;
+
             else
-               O.Path := US (URL (I2 .. I3));
-               O.File := US (URL (I3 + 1 .. URL'Last));
+               --  Check that after the last '/' we have not a current or
+               --  parent directories which must be part of the path.
+
+               declare
+                  File : constant String := URL (I3 + 1 .. URL'Last);
+               begin
+                  if File = ".." or else File = "." then
+                     O.Path := US (URL (I2 .. URL'Last));
+                     O.File := US ("");
+                  else
+                     O.Path := US (URL (I2 .. I3));
+                     O.File := US (File);
+                  end if;
+               end;
             end if;
          end Parse_Path_File;
 
@@ -304,7 +337,7 @@ package body AWS.URL is
          if I1 = 0 then
             if I2 = 0 then
                O.Host := US (URL);
-               O.Path        := US ("/");
+               O.Path := US ("/");
             else
                O.Host := US (URL (URL'First .. I2 - 1));
                Parse_Path_File;
@@ -371,13 +404,20 @@ package body AWS.URL is
 
       --  Set status
 
-      if Length (O.N_Path) >= 4
-        and then Slice (O.N_Path, 1, 4) = "/../"
-      then
-         O.Status := Wrong;
-      else
-         O.Status := Valid;
-      end if;
+      declare
+         Path_Len : constant Natural := Length (O.N_Path);
+      begin
+         if (Path_Len >= 4
+               and then Slice (O.N_Path, 1, 4) = "/../")
+           or else
+           (Path_Len >= 3
+              and then Slice (O.N_Path, Path_Len - 2, Path_Len) = "/..")
+         then
+            O.Status := Wrong;
+         else
+            O.Status := Valid;
+         end if;
+      end;
 
       --  If Normalize is activated, the active URL Path is the normalized one
 
