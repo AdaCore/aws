@@ -73,6 +73,16 @@ package body AWS.Resources.Streams.Memory.ZLib is
    end Append;
 
    -----------
+   -- Close --
+   -----------
+
+   procedure Close (Resource : in out Stream_Type) is
+   begin
+      Close (Memory.Stream_Type (Resource));
+      ZL.Close (Resource.Filter);
+   end Close;
+
+   -----------
    -- Flush --
    -----------
 
