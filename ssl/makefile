@@ -3,7 +3,7 @@
 
 .SILENT: all build clean wrappers
 
-GARGS = -c $(INCLUDES) -gnatwu -O2
+GARGS = -c $(INCLUDES) $(GFLAGS) -gnatwu
 
 build:
 	echo Building ssl-thin.ads
