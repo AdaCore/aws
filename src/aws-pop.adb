@@ -45,6 +45,7 @@ with AWS.Translator;
 with AWS.Utils;
 
 with MD5;
+with Strings_Cutter;
 
 package body AWS.POP is
 
@@ -88,6 +89,42 @@ package body AWS.POP is
 
       return Count;
    end Attachment_Count;
+
+   --------
+   -- CC --
+   --------
+
+   function CC (Message : in POP.Message; N : Natural := 0) return String is
+      CC_Values : constant String := Header (Message, "CC");
+      Cut_CC    : Strings_Cutter.Cut_String;
+   begin
+      if N = 0 then
+         return CC_Values;
+      else
+         Strings_Cutter.Create (Cut_CC, CC_Values, ",");
+
+         declare
+            Result : constant String := Strings_Cutter.Field (Cut_CC, N);
+         begin
+            Strings_Cutter.Destroy (Cut_CC);
+            return Strings.Fixed.Trim (Result, Strings.Both);
+         end;
+      end if;
+   end CC;
+
+   --------------
+   -- CC_Count --
+   --------------
+
+   function CC_Count (Message : in POP.Message) return Natural is
+      CC_Values : constant String  := Header (Message, "CC");
+   begin
+      if CC_Values = "" then
+         return 0;
+      else
+         return Strings.Fixed.Count (CC_Values, ",") + 1;
+      end if;
+   end CC_Count;
 
    --------------------
    -- Check_Response --
