@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
+--                            Copyright (C) 2001                            --
 --                      Dmitriy Anisimov - Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
