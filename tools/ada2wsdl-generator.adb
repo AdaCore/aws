@@ -475,6 +475,11 @@ package body Ada2WSDL.Generator is
          Put_Line ("   xmlns:tns=""urn:aws:" & WS_Name & """");
          Put_Line ("   xmlns=""http://schemas.xmlsoap.org/wsdl/""");
          Put_Line ("   xmlns:soap=""http://schemas.xmlsoap.org/wsdl/soap/""");
+         Put_Line
+           ("   xmlns:soap-enc=""http://schemas.xmlsoap.org/soap/encoding/""");
+         Put_Line ("   xmlns:wsdl=""http://schemas.xmlsoap.org/wsdl/""");
+         Put_Line
+           ("   xmlns:xsi=""http://www.w3.org/1999/XMLSchema-instance""");
          Put_Line ("   xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">");
       end Write_Header;
 
@@ -618,7 +623,7 @@ package body Ada2WSDL.Generator is
             Put_Line ("            <complexContent>");
             Put_Line ("               <restriction base=""soap-enc:Array"">");
             Put_Line ("                  <attribute ref=""soap-enc:arrayType"""
-                        & " arrayType=""" & (-E.Parameters.XSD_Name)
+                        & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
                         & "[]""/>");
 
             Put_Line ("               </restriction>");
