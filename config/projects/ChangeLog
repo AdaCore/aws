@@ -1,3 +1,8 @@
+2004-10-07  Pascal Obry  <pascal@obry.org>
+
+	* aws.gpr, aws_ssl.gpr:
+	Import project ai302.
+
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
 	* crypto_lib.gpr, ssl_lib.gpr:
