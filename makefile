@@ -410,7 +410,7 @@ ${MODULES_CLEAN}: force
 gbuild: $(MODULES_BUILD)
 
 gclean: $(MODULES_CLEAN)
-	-rm -fr .build
+	-rm -fr .build asis.gpr xmlada.gpr
 
 gxmlada:
 	echo "project XMLAda is" > xmlada.gpr
