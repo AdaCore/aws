@@ -47,20 +47,15 @@ package body Runme_CB is
       --  let's play with the Session now.
 
       if AWS.Session.Exist (Session_ID, "counter") then
-         C := Natural'Value (AWS.Session.Get (Session_ID, "counter"));
+         C := AWS.Session.Get (Session_ID, "counter");
       end if;
 
       C := C + 1;
-      AWS.Session.Set (Session_ID, "counter", Natural'Image (C));
+      AWS.Session.Set (Session_ID, "counter", C);
 
       if URI = "/first_img" then
          return AWS.Response.File (Content_Type => "image/gif",
                                    Filename     => "adains.gif");
-
-      elsif URI = "/logo.gif" then
-         --  this is for the status page
-         return AWS.Response.File (Content_Type => "image/gif",
-                                   Filename     => "logo.gif");
 
       elsif URI = "/last" then
          return AWS.Response.Build
