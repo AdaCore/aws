@@ -1,3 +1,8 @@
+2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* sessions.adb:
+	Add missing with clause for Ada.Exceptions. Was not detected by GNAT.
+
 2003-09-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
