@@ -143,8 +143,9 @@ begin
 
    Parse_Command_Line;
 
-   Connect := Client.Create
-     (Host       => To_String (URL),
+   Client.Create
+     (Connection => Connect,
+      Host       => To_String (URL),
       User       => To_String (User),
       Pwd        => To_String (Pwd),
       Proxy      => To_String (Proxy),
