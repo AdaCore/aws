@@ -77,3 +77,12 @@ implemented:
 
 - Cookie for the session is set for the whole site (path=/), would be nice to
   have a way to configure that.
+
+- Support session parameter of any types (only Boolean, Float, Integer and
+  String are supported currently).
+
+- Build a Web based file-system framework (AWSFS). Using GET/PUT to handle
+  variables, inherited from a specific type, whose value is stored on an AWS
+  server. The value will be automatically retrieved at initialization time and
+  stored back into the AWSFS at finalization. These steps should be completely
+  transparent to users.
