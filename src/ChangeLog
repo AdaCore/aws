@@ -13,6 +13,7 @@
 	* aws-status-translate_table.adb:
 	Use AWS.Status.Payload routine call instead of
 	 direct read from Payload field.
+	Change CVS macroses because string was too long.
 
 	* aws-status-set.ads, aws-status-set.adb:
 	(Payload): Remove. The Payload would be set just to the message body.
