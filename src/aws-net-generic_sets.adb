@@ -140,6 +140,8 @@ package body AWS.Net.Generic_Sets is
       Set.Poll (Set.Last).FD := Thin.FD_Type (Get_FD (Socket.all));
 
       case Mode is
+         when Error  =>
+            Set.Poll (Set.Last).Events := 0;
          when Input  =>
             Set.Poll (Set.Last).Events := OS_Lib.Definitions.POLLIN;
          when Output =>
