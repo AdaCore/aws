@@ -34,8 +34,10 @@
 --  '<progname>-Y-M-D.log' and is written by default in the directory where
 --  the server is launched, see configuration file.
 --
---  Note that this package is used internaly by AWS to log server requests but
---  it can also be used by users to handle application's log.
+--  Note that this package is used internally by AWS to log server requests
+--  but it can also be used by users to handle application's log.
+--
+--  This package is thread safe.
 
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -43,6 +45,7 @@ with Ada.Strings.Unbounded;
 with AWS.Status;
 with AWS.Response;
 with AWS.Messages;
+with AWS.Utils;
 
 package AWS.Log is
 
@@ -56,7 +59,7 @@ package AWS.Log is
    --  Daily    : a new log file is created each day.
    --  Monthly  : a new log file is created each month.
 
-   Not_Specified : constant String := "";
+   Not_Specified : constant String;
 
    procedure Start
      (Log             : in out Object;
@@ -115,12 +118,15 @@ private
    use Ada;
    use Ada.Strings.Unbounded;
 
+   Not_Specified : constant String := "";
+
    type Object is limited record
       File            : Text_IO.File_Type;
       File_Directory  : Unbounded_String;
       Filename_Prefix : Unbounded_String;
       Split           : Split_Mode := None;
       Current_Tag     : Positive;
+      Semaphore       : Utils.Semaphore;
    end record;
 
 end AWS.Log;
