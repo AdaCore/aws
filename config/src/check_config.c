@@ -200,10 +200,10 @@ main (void)
   printf ("   Dummy : constant Integer := WSPIAPI_init;\n\n");
 
   printf ("   pragma Import (Stdcall, GetAddrInfo, \"WspiapiGetAddrInfo\");\n");
-  printf ("   pragma Import (Stdcall, FreeAddrInfo, \"WspiapiFreeAddrInfo\");\n\n");
+  printf ("   pragma Import (Stdcall, FreeAddrInfo, \"WspiapiFreeAddrInfo\");\n");
 #else
   printf ("   pragma Import (%s, GetAddrInfo, \"getaddrinfo\");\n", i_conv);
-  printf ("   pragma Import (%s, FreeAddrInfo, \"freeaddrinfo\");\n\n", i_conv);
+  printf ("   pragma Import (%s, FreeAddrInfo, \"freeaddrinfo\");\n", i_conv);
 #endif
 
   // gai_strerror for Win32 inlined in WS2TCPIP.H and is not thread safe.
@@ -214,7 +214,6 @@ main (void)
 #else
   printf ("   pragma Import (C, GAI_StrError, \"gai_strerror\");\n\n");
 #endif
-
 
   printf ("end AWS.OS_Lib.Definitions;\n");
 
