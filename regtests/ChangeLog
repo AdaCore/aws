@@ -1,3 +1,8 @@
+2003-09-30  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* append.adb, append.out, makefile:
+	New regression test for Response.Set.Append_Body.
+
 2003-09-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* test_wsdl2.wsdl, test_wsdl3.wsdl: 
