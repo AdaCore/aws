@@ -84,14 +84,10 @@ package body Ada2WSDL.Parser is
    -- Status variables --
    ----------------------
 
-   Tree_Exists : Boolean := False;
-   --  If the tree file has been created or has been found as existing
-   --  during the initialization
+   My_Context : Asis.Context;
 
-   My_Context  : Asis.Context;
-
-   Tree_File   : Text_IO.File_Type;
-   Spec_File   : Text_IO.File_Type;
+   Tree_File  : Text_IO.File_Type;
+   Spec_File  : Text_IO.File_Type;
 
    -----------------------
    -- Local subprograms --
@@ -338,30 +334,6 @@ package body Ada2WSDL.Parser is
          end if;
       end Analyse_Package;
 
-      ---------------------
-      -- Analyse_Routine --
-      ---------------------
-
-      procedure Analyse_Routine (Node : in Link) is
-         use Extensions.Flat_Kinds;
-
-         Arg_Kind : constant Flat_Element_Kinds
-           := Flat_Element_Kind (Node.Spec);
-      begin
-         begin
-            if Arg_Kind = A_Function_Declaration then
-               Generator.Start_Routine (Node.Spec_Name.all, "function ");
-            else
-               Generator.Start_Routine (Node.Spec_Name.all, "procedure");
-            end if;
-         exception
-            when E : Spec_Error =>
-               Raise_Spec_Error (Node.Spec, Exception_Message (E));
-         end;
-
-         Analyse_Profile (Node);
-      end Analyse_Routine;
-
       ----------------------
       -- Analyse_Profile --
       ----------------------
@@ -418,6 +390,30 @@ package body Ada2WSDL.Parser is
             end;
          end if;
       end Analyse_Profile;
+
+      ---------------------
+      -- Analyse_Routine --
+      ---------------------
+
+      procedure Analyse_Routine (Node : in Link) is
+         use Extensions.Flat_Kinds;
+
+         Arg_Kind : constant Flat_Element_Kinds
+           := Flat_Element_Kind (Node.Spec);
+      begin
+         begin
+            if Arg_Kind = A_Function_Declaration then
+               Generator.Start_Routine (Node.Spec_Name.all, "function ");
+            else
+               Generator.Start_Routine (Node.Spec_Name.all, "procedure");
+            end if;
+         exception
+            when E : Spec_Error =>
+               Raise_Spec_Error (Node.Spec, Exception_Message (E));
+         end;
+
+         Analyse_Profile (Node);
+      end Analyse_Routine;
 
       ------------------
       -- Analyse_Type --
