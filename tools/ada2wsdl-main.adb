@@ -216,7 +216,8 @@ exception
       Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
    when E : Spec_Error =>
-      Text_IO.Put_Line (Exception_Message (E));
+      Text_IO.New_Line;
+      Text_IO.Put_Line ("ada2wsdl: " & Exception_Message (E));
       Command_Line.Set_Exit_Status (Ada.Command_Line.Failure);
 
    when E : others =>
