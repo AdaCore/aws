@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -43,9 +43,8 @@ procedure CTab is
 
    procedure Print_Table;
 
-   procedure Print_Table
-   is
-      Names : VString_Array := Get_Names (Table, Sort => True);
+   procedure Print_Table is
+      Names : constant VString_Array := Get_Names (Table, Sort => True);
    begin
       Put_Line ("----------------------------");
       for K in 1 .. Name_Count (Table) loop
@@ -83,6 +82,7 @@ begin
    Set.Add (Table, "Name_4", "value_4_2");
    Set.Add (Table, "NAME_4", "value_4_3");
    Print_Table;
+
    Set.Update (Table, "NAme_1", "Value (1, 4)", 4);
    Set.Update (Table, "NAME_1", "Value (1, 3)", 3);
    Set.Update (Table, "Name_1", "Value (1, 2)", 2);
