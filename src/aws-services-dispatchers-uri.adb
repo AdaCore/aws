@@ -38,6 +38,8 @@ with AWS.MIME;
 
 package body AWS.Services.Dispatchers.URI is
 
+   use AWS.Dispatchers;
+
    type Reg_URI is new Std_URI with record
       Reg_URI : GNAT.Regexp.Regexp;
    end record;
@@ -83,9 +85,9 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Finalize (Dispatcher : in out Handler) is
    begin
-      Finalize (Dispatchers.Handler (Dispatcher));
+      Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
-      if Dispatcher.Ref_Counter = 0 then
+      if Ref_Counter (Dispatcher) = 0 then
          for K in 1 .. URI_Table.Last (Dispatcher.Table) loop
             Free (Dispatcher.Table.Table (K));
          end loop;
@@ -99,7 +101,7 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Initialize (Dispatcher : in out Handler) is
    begin
-      Initialize (Dispatchers.Handler (Dispatcher));
+      Initialize (AWS.Dispatchers.Handler (Dispatcher));
       URI_Table.Init (Dispatcher.Table);
    end Initialize;
 
@@ -124,11 +126,11 @@ package body AWS.Services.Dispatchers.URI is
    procedure Register
      (Dispatcher : in out Handler;
       URI        : in     String;
-      Action     : in     Dispatchers.Handler'Class)
+      Action     : in     AWS.Dispatchers.Handler'Class)
    is
       Value : URI_Class_Access;
    begin
-      Value := new Std_URI'(new Dispatchers.Handler'Class'(Action),
+      Value := new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
                             To_Unbounded_String (URI));
 
       URI_Table.Increment_Last (Dispatcher.Table);
@@ -141,13 +143,13 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     Dispatchers.Handler'Class) is
+      Action     : in     AWS.Dispatchers.Handler'Class) is
    begin
       if Dispatcher.Action /= null then
          Free (Dispatcher.Action);
       end if;
 
-      Dispatcher.Action := new Dispatchers.Handler'Class'(Action);
+      Dispatcher.Action := new AWS.Dispatchers.Handler'Class'(Action);
    end Register_Default_Callback;
 
    ---------------------
@@ -157,11 +159,11 @@ package body AWS.Services.Dispatchers.URI is
    procedure Register_Regexp
      (Dispatcher : in out Handler;
       URI        : in     String;
-      Action     : in     Dispatchers.Handler'Class)
+      Action     : in     AWS.Dispatchers.Handler'Class)
    is
       Value : URI_Class_Access;
    begin
-      Value := new Reg_URI'(new Dispatchers.Handler'Class'(Action),
+      Value := new Reg_URI'(new AWS.Dispatchers.Handler'Class'(Action),
                             To_Unbounded_String (URI),
                             GNAT.Regexp.Compile (URI));
 

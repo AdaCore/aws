@@ -40,6 +40,7 @@ with AWS.Parameters;
 package body AWS.Services.Dispatchers.Virtual_Host is
 
    use Ada;
+   use AWS.Dispatchers;
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Virtual_Host_Table.Table_Type, VH_Table_Access);
@@ -50,9 +51,9 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Finalize (Dispatcher : in out Handler) is
    begin
-      Finalize (Dispatchers.Handler (Dispatcher));
+      Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
-      if Dispatcher.Ref_Counter = 0 then
+      if Ref_Counter (Dispatcher) = 0 then
          Virtual_Host_Table.Destroy (Dispatcher.Table.all);
          Free (Dispatcher.Table);
          Free (Dispatcher.Action);
@@ -65,7 +66,7 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Initialize (Dispatcher : in out Handler) is
    begin
-      Initialize (Dispatchers.Handler (Dispatcher));
+      Initialize (AWS.Dispatchers.Handler (Dispatcher));
       Dispatcher.Table := new Virtual_Host_Table.Table_Type;
    end Initialize;
 
@@ -91,10 +92,10 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    procedure Register
      (Dispatcher       : in out Handler;
       Virtual_Hostname : in     String;
-      Action           : in     Dispatchers.Handler'Class)
+      Action           : in     AWS.Dispatchers.Handler'Class)
    is
       Node : constant VH_Node
-        := (Virtual_Host.Callback, new Dispatchers.Handler'Class'(Action));
+        := (Virtual_Host.Callback, new AWS.Dispatchers.Handler'Class'(Action));
    begin
       Virtual_Host_Table.Insert_Or_Replace_Value
         (Dispatcher.Table.all, Virtual_Hostname, Node);
@@ -106,9 +107,9 @@ package body AWS.Services.Dispatchers.Virtual_Host is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     Dispatchers.Handler'Class) is
+      Action     : in     AWS.Dispatchers.Handler'Class) is
    begin
-      Dispatcher.Action := new Dispatchers.Handler'Class'(Action);
+      Dispatcher.Action := new AWS.Dispatchers.Handler'Class'(Action);
    end Register_Default_Callback;
 
    ----------------

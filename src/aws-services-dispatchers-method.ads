@@ -34,10 +34,11 @@
 
 with AWS.Response;
 with AWS.Status;
+with AWS.Dispatchers;
 
 package AWS.Services.Dispatchers.Method is
 
-   type Handler is new Dispatchers.Handler with private;
+   type Handler is new AWS.Dispatchers.Handler with private;
 
    function Dispatch
      (Dispatcher : in Handler;
@@ -47,7 +48,7 @@ package AWS.Services.Dispatchers.Method is
    procedure Register
      (Dispatcher : in out Handler;
       Method     : in     Status.Request_Method;
-      Action     : in     Dispatchers.Handler'Class);
+      Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register callback to use for a specific request method.
 
    procedure Unregister
@@ -57,16 +58,17 @@ package AWS.Services.Dispatchers.Method is
 
    procedure Register_Default_Callback
      (Dispatcher : in out Handler;
-      Action     : in     Dispatchers.Handler'Class);
+      Action     : in     AWS.Dispatchers.Handler'Class);
    --  Register the default callback. This will be used if no request method
    --  have been activated.
 
 private
 
-   type Method_Table is array (Status.Request_Method) of Handler_Class_Access;
+   type Method_Table is
+     array (Status.Request_Method) of AWS.Dispatchers.Handler_Class_Access;
 
-   type Handler is new Dispatchers.Handler with record
-      Action : Handler_Class_Access;
+   type Handler is new AWS.Dispatchers.Handler with record
+      Action : AWS.Dispatchers.Handler_Class_Access;
       Table  : Method_Table;
    end record;
 

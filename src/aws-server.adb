@@ -56,7 +56,7 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Dispatcher : in     Services.Dispatchers.Handler'Class);
+      Dispatcher : in     Dispatchers.Handler'Class);
    --  Start web server with current configuration.
 
    procedure Protocol_Handler
@@ -722,7 +722,7 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Dispatcher : in     Services.Dispatchers.Handler'Class;
+      Dispatcher : in     Dispatchers.Handler'Class;
       Config     : in     AWS.Config.Object) is
    begin
       Web_Server.Properties := Config;
@@ -735,7 +735,7 @@ package body AWS.Server is
 
    procedure Start
      (Web_Server : in out HTTP;
-      Dispatcher : in     Services.Dispatchers.Handler'Class)
+      Dispatcher : in     Dispatchers.Handler'Class)
    is
       Accepting_Socket : Sockets.Socket_FD;
 
@@ -744,7 +744,7 @@ package body AWS.Server is
 
    begin
       Web_Server.Dispatcher :=
-         new Services.Dispatchers.Handler'Class'(Dispatcher);
+         new Dispatchers.Handler'Class'(Dispatcher);
 
       --  Initialize slots
 

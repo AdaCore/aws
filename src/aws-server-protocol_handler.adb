@@ -491,7 +491,7 @@ is
                begin
                   AWS.Status.Set.Socket (C_Stat, Socket'Unchecked_Access);
 
-                  Answer := Services.Dispatchers.Dispatch
+                  Answer := Dispatchers.Dispatch
                     (HTTP_Server.Dispatcher.all, C_Stat);
                end;
             end if;
