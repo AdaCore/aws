@@ -1,5 +1,22 @@
 2004-11-28  Pascal Obry  <pascal@obry.org>
 
+	* anytype.out:
+	Update to new output (comparable to Java/AXIS one).
+
+	* anytype.java:
+	Initial revision.
+
+	* wsdl_6.java:
+	Remove authors line from comment.
+	Add test for echo_Short and echo_Long.
+	Update comment for the diff command.
+
+	* anytype.adb:
+	(Trim): New routine. To have output comparable to Java/AXIS.
+	Add support for -j option to run this test against a Java/AXIS client.
+
+2004-11-28  Pascal Obry  <pascal@obry.org>
+
 	* wsdl_6_main.adb:
 	Rename net log output to wsdl_6.netlog.
 	Properly close the net log file.

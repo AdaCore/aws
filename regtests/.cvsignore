@@ -6,6 +6,8 @@ afile.res
 afile_sec.res
 all_mains.lst
 alldifs
+anytype
+anytype.class
 anytype.netlog
 anytype.res
 anytype_service-client.adb
@@ -335,6 +337,8 @@ interoplab-types.ads
 interoplab.ads
 interoplab_main1
 interoplab_main1.res
+janytype.res
+jwsdl_6.res
 moved
 moved.res
 moved.tmp
