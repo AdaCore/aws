@@ -38,7 +38,7 @@ package body AWS.Translator is
 
    procedure Compress_Decompress
      (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
-      Data   : access Ada.Streams.Stream_Element_Array;
+      Data   : in     Ada.Streams.Stream_Element_Array;
       Result :    out Utils.Stream_Element_Array_Access);
    --  Compress or decompress (depending on the Stream initialization)
    --  Data. Set result with the compressed or decompressed string. This is
@@ -250,8 +250,8 @@ package body AWS.Translator is
    --------------
 
    function Compress
-     (Data  : access Ada.Streams.Stream_Element_Array;
-      Level : in     Compression_Level                := Default_Compression)
+     (Data  : in Ada.Streams.Stream_Element_Array;
+      Level : in Compression_Level                := Default_Compression)
       return Utils.Stream_Element_Array_Access
    is
       Stream : ZL.Stream_Type;
@@ -269,7 +269,7 @@ package body AWS.Translator is
 
    procedure Compress_Decompress
      (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
-      Data   : access Ada.Streams.Stream_Element_Array;
+      Data   : in     Ada.Streams.Stream_Element_Array;
       Result :    out Utils.Stream_Element_Array_Access)
    is
       use ZL;
@@ -324,7 +324,7 @@ package body AWS.Translator is
    -- Decompress --
    ----------------
 
-   function Decompress (Data : access Ada.Streams.Stream_Element_Array)
+   function Decompress (Data : in Ada.Streams.Stream_Element_Array)
      return Utils.Stream_Element_Array_Access
    is
       Stream : ZL.Stream_Type;
