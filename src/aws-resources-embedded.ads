@@ -88,4 +88,6 @@ private
 
    procedure Close (Resource : in out File_Tagged);
 
+   procedure Reset (Resource : in out File_Tagged);
+
 end AWS.Resources.Embedded;

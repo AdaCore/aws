@@ -161,4 +161,13 @@ package body AWS.Resources.Streams.ZLib is
       Resource.End_Of_File := Last < Buffer'Last;
    end Read;
 
+   -----------
+   -- Reset --
+   -----------
+
+   procedure Reset (Resource : in out Stream_Type) is
+   begin
+      Reset (Resource.Source);
+   end Reset;
+
 end AWS.Resources.Streams.ZLib;

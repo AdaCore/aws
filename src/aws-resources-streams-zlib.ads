@@ -91,6 +91,8 @@ package AWS.Resources.Streams.ZLib is
 
    procedure Close (Resource : in out Stream_Type);
 
+   procedure Reset (Resource : in out Stream_Type);
+
    function End_Of_File (Resource : in Stream_Type) return Boolean;
    --  Returns true if there is no more data to read
 

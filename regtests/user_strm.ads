@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2003                          --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
 --                                                                          --
@@ -55,6 +55,8 @@ package User_Strm is
    function Size (File : in File_Tagged) return Stream_Element_Offset;
 
    procedure Close (File : in out File_Tagged);
+
+   procedure Reset (File : in out File_Tagged);
 
    procedure Create
      (Resource       : in out AWS.Resources.Streams.Stream_Type'Class;
