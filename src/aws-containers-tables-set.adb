@@ -56,12 +56,9 @@
 --  associated with the key K are concatenated together with a specific
 --  separator.
 
-with Ada.Characters.Handling;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Utils;
-
-with Strings_Cutter;
 
 package body AWS.Containers.Tables.Set is
 
@@ -109,10 +106,10 @@ package body AWS.Containers.Tables.Set is
       end;
 
       Key_Value.Insert
-        (Table.HTTP_Data.all, K_Key, To_Unbounded_String (Name));
+        (Table.Ordered_Data.all, K_Key, To_Unbounded_String (Name));
 
       Key_Value.Insert
-        (Table.HTTP_Data.all, K_Value, To_Unbounded_String (Value));
+        (Table.Ordered_Data.all, K_Value, To_Unbounded_String (Value));
    end Add;
 
    --------------------
@@ -140,9 +137,9 @@ package body AWS.Containers.Tables.Set is
    begin
       if not (Table.Data = null) then
          Key_Value.Destroy (Table.Data.all);
-         Key_Value.Destroy (Table.HTTP_Data.all);
+         Key_Value.Destroy (Table.Ordered_Data.all);
          Free (Table.Data);
-         Free (Table.HTTP_Data);
+         Free (Table.Ordered_Data);
       end if;
    end Free;
 
@@ -155,10 +152,10 @@ package body AWS.Containers.Tables.Set is
    begin
       if Table.Data = null then
          Table.Data := new Key_Value.Set;
-         Table.HTTP_Data := new Key_Value.Set;
+         Table.Ordered_Data := new Key_Value.Set;
       else
          Key_Value.Destroy (Table.Data.all);
-         Key_Value.Destroy (Table.HTTP_Data.all);
+         Key_Value.Destroy (Table.Ordered_Data.all);
       end if;
 
    end Reset;

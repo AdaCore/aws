@@ -30,10 +30,6 @@
 
 --  $Id$
 
-with Ada.Strings.Unbounded;
-
-with AWS.Containers.Key_Value;
-
 package AWS.Containers.Tables.Set is
 
    procedure Add
