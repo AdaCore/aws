@@ -245,6 +245,15 @@ package body AWS.Config is
    end Send_Timeout;
 
    -----------------
+   -- Server_Host --
+   -----------------
+
+   function Server_Host (O : in Object) return String is
+   begin
+      return To_String (O.P (Server_Host).Str_Value);
+   end Server_Host;
+
+   -----------------
    -- Server_Name --
    -----------------
 
