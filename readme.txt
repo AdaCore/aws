@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             September 7th, 2004
+   Pascal Obry                                            September 15th, 2004
 
 
 
@@ -101,6 +101,11 @@ Here are the main changes since AWS 2.0 :
 
    - Add a new package AWS.Net.Generic_Sets which support user's data
      associated with each sockets.
+
+   - New support for HTTP/SOAP messages with attachments. This support is for
+     now only at the library level, there is no WSDL support nor direct
+     interface with the SOAP engine. This feature has been contributed by
+     Henrik Sundberg.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -318,8 +323,9 @@ Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
-Thierry Lelegard, Nicolas Lesbats, Jean-François Rameau, Maxim Reznik,
-Jean-Pierre Rosen, Jerôme Roussel, Ariane Sinibardy.
+Audran Le Baron, Thierry Lelegard, Nicolas Lesbats, Jean-François Rameau,
+Maxim Reznik, Jean-Pierre Rosen, Jerôme Roussel, Ariane Sinibardy,
+Henrik Sundberg.
 
 
 AWS uses:
