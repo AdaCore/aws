@@ -1,0 +1,85 @@
+@@--  This template implements pure CSS menus.
+@@--  These menus require no javascript. However, they are displayed as soon as
+@@--  the mouse is over a menu item.
+@@--
+@@--  This template has been tested on Opera 7 and Firefox 1.0.
+@@--  It doesn't work with Internet Explorer 6
+@@--
+@@--  To use this template, you must do the following in your HTML file:
+@@--    * Include this template in the header (between <head> and </head>).
+@@--      This is done with an instruction like:
+@@--
+@@--          @@INCLUDE@@ menu.tcss 1=>menuClass 2=>submenuClass
+@@--
+@@--      where the parameters are used below
+@@--
+@@--   * Create a <ul> list in the body of your document, that describes the
+@@--     menu. This list should be put in a <div> with the appropriate id
+@@--     attribute.
+@@--
+@@--        <div class="menuClass">
+@@--          <ul>
+@@--            <li><h2>Menu1</h2>
+@@--                <ul>
+@@--                  <li><a href="...">Submenu1</a></li>
+@@--                  <li><a href="..." class="submenuClass">Submenu2</a></li>
+@@--                      <ul>
+@@--                        <li><a href="...">SubSubmenu1</a></li>
+@@--                        <li><a href="...">SubSubmenu1</a></li>
+@@--                      </ul>
+@@--                  </li>
+@@--                </ul>
+@@--            </li>
+@@--          </ul>
+@@--
+@@--          <ul>
+@@--            <li><h2>Menu2</h2>
+@@--            .... 
+@@--
+@@--      Note that for submenus, the <a> element should have a specific class
+@@--      for proper rendering.
+@@--
+@@--  These menus will degrade properly on browsers that do not implement style
+@@--  sheets, and will simply show a list instead
+
+<style>
+.@_$1_@             { width:100%;
+                      float:left; }
+.@_$1_@ a, .@_$1_@ h2 { display:block;
+                        font:bold 0.7em/1.4em arial,helvetica,sans-serif;
+                        border-width:0.1em;
+                        border-style:solid;
+                        border-color:#ccc #888 #555 #bbb;
+                        white-space:nowrap;
+                        text-indent:3px;
+                        margin:0;
+                        padding:1px 0px; }
+.@_$1_@ a           { background:#ccc; text-decoration:none; width:100%; }
+.@_$1_@ a,
+.@_$1_@ a:visited   { color:#000; }
+.@_$1_@ a:hover     { color:#000; background:#ddd; }
+.@_$1_@ a:active    { color:#060; background:#ccc; }
+.@_$1_@ ul          { margin:0; padding:0;
+                      position: relative;
+                      list-style:none; float:left; width: 6.9em; }
+.@_$1_@ li:hover    { cursor:pointer; position:relative; }
+.@_$1_@ ul ul       { position:absolute; top:auto; display:none; }
+.@_$1_@ ul ul ul    { top:0; left:7.05em; }
+.@_$1_@ li:hover ul ul,
+.@_$1_@ li li:hover ul ul,
+.@_$1_@ li li li:hover ul ul,
+.@_$1_@ li li li li:hover ul ul {display:none;}
+.@_$1_@ li:hover ul,
+.@_$1_@ li li:hover ul,
+.@_$1_@ li li li:hover ul,
+.@_$1_@ li li li li:hover ul    {display:block;}
+.@_$1_@ h2           { color: black;
+                       background:#aaa url('/wc_icons/arrow.png') 
+                       no-repeat bottom right;
+                       text-transform:uppercase;
+                       margin:0;
+                       width:100%; }
+.@_$1_@ li          { background: #ccc; }
+.@_$1_@ .@_$2_@     { background: url('/wc_icons/arrow.png') 
+                      no-repeat bottom right;}
+</style>

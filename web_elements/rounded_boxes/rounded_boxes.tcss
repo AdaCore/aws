@@ -1,0 +1,85 @@
+@@--  This templates provides a style sheet to display a set of boxes with
+@@--  rounded corner, each of which should contain a list of links
+@@--
+@@-- This template was tested on Opera 7.0, Firefox 1.0, Internet Explorer 6
+@@--
+@@-- When installing this template, you should put the picture
+@@--    rcorner.gif
+@@-- in the same directory. If not found, the boxes will not have rounded
+@@-- corners.
+@@--
+@@-- This template degrades nicely on browsers that do not support stylesheets
+@@--
+@@-- To use this template, you need to:
+@@--   * Include it in the header of your document, as in:
+@@--
+@@--      @@INCLUDE@@ rounded_boxes.thtml 1=>menuClass 2=>contentsID
+@@--
+@@--   * Add a list in your document, with the following format:
+@@--
+@@--     <div class="menuClass">
+@@--         <h2>A first box</h2>
+@@--         <div>
+@@--            <h3>SubTitle</h3>
+@@--            <ul>
+@@--              <li><a href="#">A link</a></li>
+@@--              <li><a href="#">A link</a></li>
+@@--            </ul>
+@@--            <h3>SubTitle2</h3>
+@@--            ... any number of h3/ul combination
+@@--         </div>
+@@--         <h2>A second box</h2>
+@@--         <div>
+@@--            <ul>     <!--  h3 is not necessary -->
+@@--              <li><a href="#">A link</a></li>
+@@--              <li><a href="#">A link</a></li>
+@@--            </ul>
+@@--         </div>
+@@--     </div>
+@@--
+@@--     <div class="contentsID">
+@@--       The contents of your document
+@@--     </div>
+@@--
+@@--  On browsers that support for fixed position, this frame will not scroll
+@@--  along with the rest of the document. This doesn't work on Internet
+@@--  explorer 6.0.
+
+<style>
+.@_$1_@    { width: 7em;
+             position: fixed;   /* Do not scroll with the rest of the doc*/
+             float: left;
+             margin: 0px;
+             margin-left: 3px;
+             padding: 0px; }
+.@_$1_@ h2 { text-transform: uppercase;
+             background: #369 url('/wc_icons/rcorner.gif') right top no-repeat;
+             color: white;
+             margin: 1em 0 0 0;
+             padding: 2px; 
+             font-size: 1em; }
+.@_$1_@ h3 { color: #c60;
+             font-weight: 600;
+             font-size: 1em;
+             margin: 10px 0 0 0; }
+.@_$1_@ div { border: 1px solid #369;
+              border-top-width: 0px;
+              padding: 5px;
+              background: #EEE;
+              font-size: 1em;
+              margin-bottom: 15px; }
+.@_$1_@ ul { color: #369;
+             margin: 3px 0px 0px 20px;
+             padding: 0px; }
+.@_$1_@ li { margin-top: 3px; }
+.@_$1_@ a:hover  { color: #369;
+                   border-bottom: 1px solid #369; }
+.@_$1_@ a:visited,
+.@_$1_@ a:link,
+.@_$1_@ a:active  { color: #369;
+                    text-decoration: none; }
+.@_$2_@ { padding: 0px;
+          position: relative;
+          top: 20px;
+          margin-left: 8em; }
+</style>

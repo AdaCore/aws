@@ -1,0 +1,129 @@
+@@-- This templates provides support for implementing notebook tabs in
+@@-- an HTML page, ie something that looks like:
+@@--
+@@--     +-------+-------+-------+
+@@--     | Page1 | Page2 | Page3 |
+@@--  +--+-------+       +-------+---------------------------------+
+@@--  | The content of the second page                             |
+@@--  |                                                            |
+@@--  +------------------------------------------------------------+
+@@--
+@@-- This implements depends on browsers supporting CSS 2.0 and javascript,
+@@-- and was tested on IExplorer 6.0, Firefox 1.0, Opera 7.0.
+@@-- They degrade correctly if javascript is disabled, except the user will
+@@-- then see all pages at the same time.
+@@--
+@@-- To use this template, you must do the following in your HTML file:
+@@--   * Include this template in the header (between <head> and </head>)
+@@--     This is done with an instruction like:
+@@--
+@@--         @@INCLUDE@@ notebook.thtml 1=>Tabs 2=>currentPage 3=>TabContents
+@@--                4=>initialPageName  5=>activePageColor 6=>inactivePageColor
+@@--
+@@--     Where the six parameters will be explained below, but should appear
+@@--     on the same line.
+@@--     The first parameter mustn't contain spaces
+@@--
+@@--  * Create a <ul> list that contains the text for the tabs. This
+@@--    should look like the following, where the id and class attributes
+@@--    should match the corresponding parameters in the @@INCLUDE@@ statement
+@@--    above.
+@@--    The idea for each of the <li> elements is left to your choice, but
+@@--    should be the same everywhere the same page is referenced
+@@--
+@@--       <ul id="Tabs" >
+@@--          <li id="page1" class="currentPage">
+@@--              <a href="#"
+@@--                 onclick="switchTabPage('page1')">
+@@--                 Title of page 1
+@@--              </a>
+@@--          </li>
+@@--          <li id="page2">
+@@--             <a href="#" onclick="switchTabPage_Tabs('page2')">...
+@@--          </li>
+@@--          ...  same for other pages
+@@--       </ul>
+@@--
+@@--    One of the pages should have the name given in the initialPageName, and
+@@--    will be selected initially.
+@@--    The name of the javascript function is made from the prefix 
+@@--    "switchTabPage_", followed by the name of the first parameter--
+@@--    above. This is so that multiple
+@@--    notebooks can be created on the same page.
+@@--
+@@--  * Create the contents of each pages. In this implementation, all notebook
+@@--    pages are loaded at the same time, and no further access to the server
+@@--    is done when the user switches pages. Your style sheet should be such
+@@--    that the background color of the page is activePageColor, since it--
+@@--    gives better results.
+@@--
+@@--       <div class="TabContents" id="page1">
+@@--          Content of page 1
+@@--       </div>
+@@--
+@@--       <div class="TabContents" id="page2">
+@@--          Content of page 2
+@@--       </div>
+
+
+<style type="text/css">
+#@_$1_@           { border-bottom: 1px solid @_$6_@;
+                    margin: 15px 10px 0px 0px;
+                    position: relative;
+                    height: 19px;
+                    padding-left: 10px; }
+#@_$1_@ li        { display: inline;
+                    list-style-type: none;
+                    margin: 0px 20px 0px 20px; }
+#@_$1_@ a:link,
+#@_$1_@ a:active,
+#@_$1_@ a:visited { background: @_$6_@;
+                    border: 1px solid @_$6_@;
+                    color:  #666;
+                    position: relative;    /* Required for IE6 */
+                    float: left;
+                    font-size: .75em;
+                    font-weight: normal;
+                    line-height: 14px;
+                    margin-right: 8px;
+                    padding: 2px 10px 2px 10px;
+                    text-decoration: none; }
+#@_$1_@ a:hover   { color: #f00; }
+#@_$1_@ li.@_$2_@ a:link,
+#@_$1_@ li.@_$2_@ a:active,
+#@_$1_@ li.@_$2_@ a:visited
+                  { background: @_$5_@;
+                    border-bottom: 1px solid @_$5_@;
+                    color: black; }
+div.@_$3_@        { border: 1px solid #ccc;
+                    border-top: none;
+                    display: none;
+                    padding: 20px 5px 10px 5px;
+                    margin: 0px 10px 30px 0px; }
+div#@_$4_@        { display: block; }
+</style>
+
+<script language="javascript">
+function switchTabPage_@_$1_@ (pageName) {
+   var ul = document.getElementById ('@_$1_@');
+   var children = ul.getElementsByTagName ('li');
+   for (var i=0; i < children.length; i++) {
+      if (children[i].id == pageName) {
+         children[i].className = "@_$2_@";
+      } else {
+         children[i].className = "";
+      }
+   }
+
+   var children = document.getElementsByTagName ('div');
+   for (var i=0; i < children.length; i++) {
+     if (children[i].className == '@_$3_@') {
+        if (children[i].id == pageName) {
+           children[i].style.display = 'block';
+        } else {
+           children[i].style.display = 'none';
+        }
+     }
+   }
+}
+</script>
