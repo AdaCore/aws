@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Exceptions;
@@ -93,9 +94,11 @@ package body SOAP.Message.XML is
 
    procedure Parse_Envelope (N : in DOM.Core.Node; S : in out State);
 
-   procedure Parse_Document (N : in DOM.Core.Node; S : in out State);
+   procedure Parse_Header   (N : in DOM.Core.Node; S : in out State);
 
    procedure Parse_Body     (N : in DOM.Core.Node; S : in out State);
+
+   procedure Parse_Document (N : in DOM.Core.Node; S : in out State);
 
    procedure Parse_Wrapper  (N : in DOM.Core.Node; S : in out State);
 
@@ -550,9 +553,17 @@ package body SOAP.Message.XML is
       NL : constant DOM.Core.Node_List := Child_Nodes (N);
    begin
       if Length (NL) = 1 then
+         --  This must be the body
          Parse_Body (First_Child (N), S);
+
+      elsif Length (NL) = 2 then
+         --  The first child must the header tag
+         Parse_Header (First_Child (N), S);
+
+         --  The second child must be the body
+         Parse_Body (Next_Sibling (First_Child (N)), S);
       else
-         Error (N, "Envelope must have a single node, found "
+         Error (N, "Envelope must have at most two nodes, found "
                 & Natural'Image (Length (NL)));
       end if;
    end Parse_Envelope;
@@ -570,6 +581,19 @@ package body SOAP.Message.XML is
    begin
       return Types.F (Long_Float'Value (Node_Value (Value)), Name);
    end Parse_Float;
+
+   ------------------
+   -- Parse_Header --
+   ------------------
+
+   procedure Parse_Header (N : in DOM.Core.Node; S : in out State) is
+      pragma Unreferenced (S);
+      Name : constant String := Local_Name (N);
+   begin
+      if Ada.Characters.Handling.To_Lower (Name) /= "header" then
+         Error (N, "Header node expected, found " & Name);
+      end if;
+   end Parse_Header;
 
    ---------------
    -- Parse_Int --
