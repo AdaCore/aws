@@ -1281,7 +1281,7 @@ package body Templates_Parser is
 
    function Size (T : in Tag) return Natural is
    begin
-      return T.Count;
+      return T.Data.Count;
    end Size;
 
    -----------
@@ -1296,12 +1296,13 @@ package body Templates_Parser is
 
       Finalize (T);
 
-      T.Ref_Count    := new Integer'(1);
-      T.Count        := 0;
-      T.Head         := null;
-      T.Last         := null;
-      T.Position     := (null, new Integer'(1));
-      T.Nested_Level := 1;
+      T.Ref_Count         := new Integer'(1);
+      T.Data              := new Tag_Data;
+      T.Data.Count        := 0;
+      T.Data.Head         := null;
+      T.Data.Last         := null;
+      T.Data.Position     := (null, new Integer'(1));
+      T.Data.Nested_Level := 1;
    end Clear;
 
    ----------
@@ -1344,7 +1345,7 @@ package body Templates_Parser is
 
    procedure Set_Separator (T : in out Tag; Separator : in String) is
    begin
-      T.Separator := To_Unbounded_String (Separator);
+      T.Data.Separator := To_Unbounded_String (Separator);
    end Set_Separator;
 
    ----------------
@@ -1353,12 +1354,13 @@ package body Templates_Parser is
 
    procedure Initialize (T : in out Tag) is
    begin
-      T.Ref_Count    := new Integer'(1);
-      T.Count        := 0;
-      T.Min          := Natural'Last;
-      T.Max          := 0;
-      T.Position     := (null, new Integer'(1));
-      T.Nested_Level := 1;
+      T.Ref_Count         := new Integer'(1);
+      T.Data              := new Tag_Data;
+      T.Data.Count        := 0;
+      T.Data.Min          := Natural'Last;
+      T.Data.Max          := 0;
+      T.Data.Position     := (null, new Integer'(1));
+      T.Data.Nested_Level := 1;
    end Initialize;
 
    --------------
@@ -1380,9 +1382,12 @@ package body Templates_Parser is
             procedure Free is new Ada.Unchecked_Deallocation
               (Tag_Node_Access, Access_Tag_Node_Access);
 
+            procedure Free is new Ada.Unchecked_Deallocation
+              (Tag_Data, Tag_Data_Access);
+
             P, N : Tag_Node_Access;
          begin
-            P := T.Head;
+            P := T.Data.Head;
 
             while P /= null loop
                N := P.Next;
@@ -1396,12 +1401,13 @@ package body Templates_Parser is
                P := N;
             end loop;
 
-            T.Head := null;
-            T.Last := null;
+            T.Data.Head := null;
+            T.Data.Last := null;
 
             Free (T.Ref_Count);
-            Free (T.Position.Pos);
-            Free (T.Position.Current);
+            Free (T.Data.Position.Pos);
+            Free (T.Data.Position.Current);
+            Free (T.Data);
          end;
       end if;
    end Finalize;
@@ -1426,14 +1432,16 @@ package body Templates_Parser is
    begin
       return (Ada.Finalization.Controlled with
               Ref_Count    => new Integer'(1),
-              Count        => 1,
-              Min          => 1,
-              Max          => 1,
-              Nested_Level => 1,
-              Separator    => To_Unbounded_String (Default_Separator),
-              Head         => Item,
-              Last         => Item,
-              Position     => (new Tag_Node_Access'(Item), new Integer'(1)));
+              Data         => new Tag_Data'
+                (Count        => 1,
+                 Min          => 1,
+                 Max          => 1,
+                 Nested_Level => 1,
+                 Separator    => To_Unbounded_String (Default_Separator),
+                 Head         => Item,
+                 Last         => Item,
+                 Position     =>
+                   (new Tag_Node_Access'(Item), new Integer'(1))));
    end "+";
 
    function "+" (Value : in Character) return Tag is
@@ -1476,63 +1484,67 @@ package body Templates_Parser is
    begin
       T.Ref_Count.all := T.Ref_Count.all + 1;
 
-      if T.Head = null then
-         return (Ada.Finalization.Controlled with
-                 T.Ref_Count,
-                 T.Count + 1,
-                 Min          => Natural'Min (T.Min, 1),
-                 Max          => Natural'Max (T.Max, 1),
-                 Nested_Level => 1,
-                 Separator    => To_Unbounded_String (Default_Separator),
-                 Head         => Item,
-                 Last         => Item,
-                 Position     =>
-                   (new Tag_Node_Access'(Item), T.Position.Pos));
+      if T.Data.Head = null then
+         T.Data.all :=
+           (T.Data.Count + 1,
+            Min          => Natural'Min (T.Data.Min, 1),
+            Max          => Natural'Max (T.Data.Max, 1),
+            Nested_Level => 1,
+            Separator    => To_Unbounded_String (Default_Separator),
+            Head         => Item,
+            Last         => Item,
+            Position     => (new Tag_Node_Access'(Item), T.Data.Position.Pos));
+
+         return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
+
       else
-         T.Last.Next := Item;
-         return (Ada.Finalization.Controlled with
-                 T.Ref_Count,
-                 T.Count + 1,
-                 Min          => Natural'Min (T.Min, 1),
-                 Max          => Natural'Max (T.Max, 1),
-                 Nested_Level => T.Nested_Level,
-                 Separator    => T.Separator,
-                 Head         => T.Head,
-                 Last         => Item,
-                 Position     => (T.Position.Current, T.Position.Pos));
+         T.Data.Last.Next := Item;
+         T.Data.all :=
+           (T.Data.Count + 1,
+            Min          => Natural'Min (T.Data.Min, 1),
+            Max          => Natural'Max (T.Data.Max, 1),
+            Nested_Level => T.Data.Nested_Level,
+            Separator    => T.Data.Separator,
+            Head         => T.Data.Head,
+            Last         => Item,
+            Position     => T.Data.Position);
+
+         return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
       end if;
    end "&";
 
    function "&" (Value : in String; T : in Tag) return Tag is
       Item : constant Tag_Node_Access
         := new Tag_Node'
-          (Templates_Parser.Value, T.Head, To_Unbounded_String (Value));
+          (Templates_Parser.Value, T.Data.Head, To_Unbounded_String (Value));
    begin
       T.Ref_Count.all := T.Ref_Count.all + 1;
 
-      if T.Head = null then
-         return (Ada.Finalization.Controlled with
-                 T.Ref_Count,
-                 T.Count + 1,
-                 Min          => Natural'Min (T.Min, 1),
-                 Max          => Natural'Max (T.Max, 1),
-                 Nested_Level => 1,
-                 Separator    => To_Unbounded_String (Default_Separator),
-                 Head         => Item,
-                 Last         => Item,
-                 Position     =>
-                   (new Tag_Node_Access'(Item), T.Position.Pos));
+      if T.Data.Head = null then
+         T.Data.all :=
+           (T.Data.Count + 1,
+            Min          => Natural'Min (T.Data.Min, 1),
+            Max          => Natural'Max (T.Data.Max, 1),
+            Nested_Level => 1,
+            Separator    => To_Unbounded_String (Default_Separator),
+            Head         => Item,
+            Last         => Item,
+            Position     => (new Tag_Node_Access'(Item), T.Data.Position.Pos));
+
+         return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
+
       else
-         return (Ada.Finalization.Controlled with
-                 T.Ref_Count,
-                 T.Count + 1,
-                 Min          => Natural'Min (T.Min, 1),
-                 Max          => Natural'Max (T.Max, 1),
-                 Nested_Level => T.Nested_Level,
-                 Separator    => T.Separator,
-                 Head         => Item,
-                 Last         => T.Last,
-                 Position     => (T.Position.Current, T.Position.Pos));
+         T.Data.all :=
+           (T.Data.Count + 1,
+            Min          => Natural'Min (T.Data.Min, 1),
+            Max          => Natural'Max (T.Data.Max, 1),
+            Nested_Level => T.Data.Nested_Level,
+            Separator    => T.Data.Separator,
+            Head         => Item,
+            Last         => T.Data.Last,
+            Position     => T.Data.Position);
+
+         return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
       end if;
    end "&";
 
@@ -1543,31 +1555,35 @@ package body Templates_Parser is
    begin
       T.Ref_Count.all := T.Ref_Count.all + 1;
 
-      if T.Head = null then
-         return (Ada.Finalization.Controlled with
-                 T.Ref_Count,
-                 T.Count + 1,
-                 Min          => Natural'Min (T.Min, T_Size),
-                 Max          => Natural'Max (T.Max, T_Size),
-                 Nested_Level => Value.Nested_Level + 1,
-                 Separator    => To_Unbounded_String ((1 => ASCII.LF)),
-                 Head         => Item,
-                 Last         => Item,
-                 Position     =>
-                   (new Tag_Node_Access'(Item), T.Position.Pos));
+      if T.Data.Head = null then
+         T.Data.all :=
+           (T.Data.Count + 1,
+            Min          => Natural'Min (T.Data.Min, T_Size),
+            Max          => Natural'Max (T.Data.Max, T_Size),
+            Nested_Level => Value.Data.Nested_Level + 1,
+            Separator    => To_Unbounded_String ((1 => ASCII.LF)),
+            Head         => Item,
+            Last         => Item,
+            Position     => (new Tag_Node_Access'(Item), T.Data.Position.Pos));
+
+         return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
+
       else
-         T.Last.Next := Item;
-         return (Ada.Finalization.Controlled with
-                 T.Ref_Count,
-                 T.Count + 1,
-                 Min          => Natural'Min (T.Min, T_Size),
-                 Max          => Natural'Max (T.Max, T_Size),
-                 Nested_Level =>
-                   Positive'Max (T.Nested_Level, Value.Nested_Level + 1),
-                 Separator    => T.Separator,
-                 Head         => T.Head,
-                 Last         => Item,
-                 Position     => (T.Position.Current, T.Position.Pos));
+         T.Data.Last.Next := Item;
+
+         T.Data.all :=
+           (T.Data.Count + 1,
+            Min          => Natural'Min (T.Data.Min, T_Size),
+            Max          => Natural'Max (T.Data.Max, T_Size),
+            Nested_Level =>
+              Positive'Max
+                (T.Data.Nested_Level, Value.Data.Nested_Level + 1),
+            Separator    => T.Data.Separator,
+            Head         => T.Data.Head,
+            Last         => Item,
+            Position     => T.Data.Position);
+
+         return (Ada.Finalization.Controlled with T.Ref_Count, T.Data);
       end if;
    end "&";
 
@@ -1641,34 +1657,34 @@ package body Templates_Parser is
    begin
       Found := True;
 
-      if N = T.Count then
-         Result := T.Last;
+      if N = T.Data.Count then
+         Result := T.Data.Last;
 
-      elsif N > T.Count then
+      elsif N > T.Data.Count then
          --  No such item for this position
          Result := null;
          Found  := False;
 
-      elsif N > T.Position.Pos.all then
+      elsif N > T.Data.Position.Pos.all then
          --  Use cursor to move to the right position
 
-         for K in 1 .. N - T.Position.Pos.all loop
-            T.Position.Pos.all     := T.Position.Pos.all + 1;
-            T.Position.Current.all := T.Position.Current.all.Next;
+         for K in 1 .. N - T.Data.Position.Pos.all loop
+            T.Data.Position.Pos.all     := T.Data.Position.Pos.all + 1;
+            T.Data.Position.Current.all := T.Data.Position.Current.all.Next;
          end loop;
 
-         Result := T.Position.Current.all;
+         Result := T.Data.Position.Current.all;
       else
 
          declare
-            P : Tag_Node_Access := T.Head;
+            P : Tag_Node_Access := T.Data.Head;
          begin
             for K in 1 .. N - 1 loop
                P := P.Next;
             end loop;
 
-            T.Position.Pos.all     := N;
-            T.Position.Current.all := P;
+            T.Data.Position.Pos.all     := N;
+            T.Data.Position.Current.all := P;
 
             Result := P;
          end;
@@ -1726,11 +1742,11 @@ package body Templates_Parser is
          end Image;
 
          Result : Unbounded_String;
-         N      : Tag_Node_Access := T.Head;
+         N      : Tag_Node_Access := T.Data.Head;
       begin
          while N /= null loop
             if Result /= Null_Unbounded_String then
-               Append (Result, T.Separator);
+               Append (Result, T.Data.Separator);
             end if;
             Append (Result, Image (N.all));
             N := N.Next;
@@ -1744,8 +1760,8 @@ package body Templates_Parser is
    begin
       Found := True;
 
-      if Cursor'Length > T.Nested_Level then
-         C := Cursor'Last - T.Nested_Level + 1;
+      if Cursor'Length > T.Data.Nested_Level then
+         C := Cursor'Last - T.Data.Nested_Level + 1;
          P := Cursor (C);
 
       elsif Cursor'Length /= 0 then
@@ -1940,6 +1956,19 @@ package body Templates_Parser is
          To_Unbounded_String (Variable),
          T);
    end Assoc;
+
+   ---------
+   -- Get --
+   ---------
+
+   function Get (Assoc : in Association) return Tag is
+   begin
+      if Assoc.Kind = Composite then
+         return Assoc.Comp_Value;
+      else
+         raise Constraint_Error;
+      end if;
+   end Get;
 
    ----------
    -- Load --
@@ -2781,13 +2810,13 @@ package body Templates_Parser is
                         end if;
 
                      when Composite =>
-                        if Tk.Comp_Value.Nested_Level = 1 then
+                        if Tk.Comp_Value.Data.Nested_Level = 1 then
                            --  This is a vector
 
                            if Var.Attr = Length then
                               return Translate
                                 (Var,
-                                 Image (Tk.Comp_Value.Count),
+                                 Image (Tk.Comp_Value.Data.Count),
                                  Translations);
 
                            elsif Var.Attr /= Nil then
@@ -2797,26 +2826,26 @@ package body Templates_Parser is
                                  & "vector tag (" & Image (Var) & ')');
                            end if;
 
-                        elsif Tk.Comp_Value.Nested_Level = 2 then
+                        elsif Tk.Comp_Value.Data.Nested_Level = 2 then
                            if Var.Attr = Line then
                               --  'Line on a matrix
                               return Translate
                                 (Var,
-                                 Image (Tk.Comp_Value.Count),
+                                 Image (Tk.Comp_Value.Data.Count),
                                  Translations);
 
                            elsif Var.Attr = Min_Column then
                               --  'Min_Column on a matrix
                               return Translate
                                 (Var,
-                                 Image (Tk.Comp_Value.Min),
+                                 Image (Tk.Comp_Value.Data.Min),
                                  Translations);
 
                            elsif Var.Attr = Max_Column then
                               --  'Max_Column on a matrix
                               return Translate
                                 (Var,
-                                 Image (Tk.Comp_Value.Max),
+                                 Image (Tk.Comp_Value.Data.Max),
                                  Translations);
 
                            elsif Var.Attr /= Nil then
@@ -3308,13 +3337,13 @@ package body Templates_Parser is
                      Result : Natural := 0;
                   begin
                      declare
-                        P : Tag_Node_Access := T.Head;
+                        P : Tag_Node_Access := T.Data.Head;
                      begin
                         while P /= null loop
                            if P.Kind = Value_Set then
                               if N = 1 then
                                  Result :=
-                                   Natural'Max (Result, P.VS.Count);
+                                   Natural'Max (Result, P.VS.Data.Count);
                               else
                                  Result := Natural'Max
                                    (Result, Max (P.VS.all, N - 1));
@@ -3337,7 +3366,7 @@ package body Templates_Parser is
                         Tk : constant Association := Containers.Element (Pos);
                      begin
                         if Tk.Kind = Composite then
-                           if N > Tk.Comp_Value.Nested_Level then
+                           if N > Tk.Comp_Value.Data.Nested_Level then
                               --  Ignore this variable as it is deeper than
                               --  its nested level.
                               return 0;
@@ -3348,7 +3377,7 @@ package body Templates_Parser is
                            --  table statement.
 
                            if Table_Level = 1
-                             or else Tk.Comp_Value.Nested_Level = 1
+                             or else Tk.Comp_Value.Data.Nested_Level = 1
                            then
                               --  First table level, or flat composite, the
                               --  number of iterations corresponds to the
@@ -3360,20 +3389,20 @@ package body Templates_Parser is
                            then
                               --  Table level 2 while looking to nested
                               --  variable.
-                              return Tk.Comp_Value.Max;
+                              return Tk.Comp_Value.Data.Max;
 
                            else
                               --  All other cases here
                               declare
                                  K : constant Positive
-                                   := Tk.Comp_Value.Nested_Level - N + 1;
+                                   := Tk.Comp_Value.Data.Nested_Level - N + 1;
                                  --  K is the variable indice for which
                                  --  the number of items is looked for.
                               begin
                                  if K = 1 then
                                     return Size (Tk.Comp_Value);
                                  elsif K = 2 then
-                                    return Tk.Comp_Value.Max;
+                                    return Tk.Comp_Value.Data.Max;
                                  else
                                     return Max (Tk.Comp_Value, K - 1);
                                  end if;
