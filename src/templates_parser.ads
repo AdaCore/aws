@@ -95,7 +95,7 @@ package Templates_Parser is
    --  Returns the Nth Tag's item. Raises Constraint_Error if there is
    --  no such Item in T (i.e. T length < N).
 
-   function Item (T : in Tag; N : in Positive) return Tag;
+   function Composite (T : in Tag; N : in Positive) return Tag;
    --  Returns the Nth Tag's item. Raises Constraint_Error if there is
    --  no such Item in T (i.e. T length < N).
 
@@ -326,11 +326,11 @@ private
    package Association_Set is new Strings_Maps (Association, "=");
    use Association_Set;
 
-   type Map_Type_Access is access Containers.Map_Type;
+   type Map_Access is access Containers.Map;
 
    type Translate_Set is new Ada.Finalization.Controlled with record
       Ref_Count : Integer_Access;
-      Set       : Map_Type_Access;
+      Set       : Map_Access;
    end record;
 
    procedure Initialize (Set : in out Translate_Set);
