@@ -46,13 +46,19 @@ package AWS.Log is
    --  Daily    : a new log file is created each day.
    --  Monthly  : a new log file is created each month.
 
-   procedure Start (Split : in Split_Mode := None);
-   --  Activate server activity logging. Split indicate the way the log file
-   --  should be.
+   No_Prefix : constant String := "";
 
-   procedure Write (Connect_Stat : in Status.Data;
-                    Answer_Stat  : in Messages.Status_Code;
-                    Peername     : in String);
+   procedure Start
+     (Split           : in Split_Mode := None;
+      Log_File_Prefix : in String     := No_Prefix);
+   --  Activate server's activity logging. Split indicate the way the log file
+   --  should be created. Log_File_Prefix is the log filename prefix. If it is
+   --  not specified the default prefix is the program name.
+
+   procedure Write
+     (Connect_Stat : in Status.Data;
+      Answer_Stat  : in Messages.Status_Code;
+      Peername     : in String);
    --  Write log info if activated (i.e. Start routine above as been called).
 
    procedure Stop;
