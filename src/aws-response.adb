@@ -128,46 +128,61 @@ package body AWS.Response is
    -----------
 
    function Build
-     (Content_Type : in String;
-      Message_Body : in String;
-      Status_Code  : in Messages.Status_Code := Messages.S200)
+     (Content_Type  : in String;
+      Message_Body  : in String;
+      Status_Code   : in Messages.Status_Code  := Messages.S200;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
       return Data
    is
       Result : Data;
    begin
-      Set.Status_Code  (Result, Status_Code);
-      Set.Content_Type (Result, Content_Type);
-      Set.Message_Body (Result, Message_Body);
+      Set.Status_Code   (Result, Status_Code);
+      Set.Content_Type  (Result, Content_Type);
+      Set.Message_Body  (Result, Message_Body);
+      Set.Cache_Control (Result, Cache_Control);
       return Result;
    end Build;
 
    function Build
      (Content_Type    : in String;
       UString_Message : in Strings.Unbounded.Unbounded_String;
-      Status_Code     : in Messages.Status_Code := Messages.S200)
+      Status_Code     : in Messages.Status_Code  := Messages.S200;
+      Cache_Control   : in Messages.Cache_Option := Messages.Unspecified)
       return Data
    is
       Result : Data;
    begin
-      Set.Status_Code  (Result, Status_Code);
-      Set.Content_Type (Result, Content_Type);
-      Set.Message_Body (Result, UString_Message);
+      Set.Status_Code   (Result, Status_Code);
+      Set.Content_Type  (Result, Content_Type);
+      Set.Message_Body  (Result, UString_Message);
+      Set.Cache_Control (Result, Cache_Control);
       return Result;
    end Build;
 
    function Build
-     (Content_Type : in String;
-      Message_Body : in Streams.Stream_Element_Array;
-      Status_Code  : in Messages.Status_Code := Messages.S200)
+     (Content_Type  : in String;
+      Message_Body  : in Streams.Stream_Element_Array;
+      Status_Code   : in Messages.Status_Code         := Messages.S200;
+      Cache_Control : in Messages.Cache_Option        := Messages.Unspecified)
       return Data
    is
       Result : Data;
    begin
-      Set.Status_Code  (Result, Status_Code);
-      Set.Content_Type (Result, Content_Type);
-      Set.Message_Body (Result, Message_Body);
+      Set.Status_Code   (Result, Status_Code);
+      Set.Content_Type  (Result, Content_Type);
+      Set.Message_Body  (Result, Message_Body);
+      Set.Cache_Control (Result, Cache_Control);
       return Result;
    end Build;
+
+   -------------------
+   -- Cache_Control --
+   -------------------
+
+   function Cache_Control (D : in Data) return Messages.Cache_Option is
+   begin
+      return Messages.Cache_Option (To_String (D.Cache_Control));
+   end Cache_Control;
 
    --------------------
    -- Content_Length --
@@ -410,14 +425,16 @@ package body AWS.Response is
      (Content_Type  : in String;
       Stream_Handle : in Resources.Streams.Stream_Access;
       Stream_Size   : in Content_Length_Type;
-      Status_Code   : in Messages.Status_Code := Messages.S200)
+      Status_Code   : in Messages.Status_Code  := Messages.S200;
+      Cache_Control : in Messages.Cache_Option := Messages.No_Cache)
       return Data
    is
       Result : Data;
    begin
-      Set.Stream       (Result, Stream_Handle, Stream_Size);
-      Set.Status_Code  (Result, Status_Code);
-      Set.Content_Type (Result, Content_Type);
+      Set.Stream        (Result, Stream_Handle, Stream_Size);
+      Set.Status_Code   (Result, Status_Code);
+      Set.Content_Type  (Result, Content_Type);
+      Set.Cache_Control (Result, Cache_Control);
       return Result;
    end Stream;
 
