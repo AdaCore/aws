@@ -2002,6 +2002,14 @@ package body Templates_Parser is
          Start : Natural;
       begin
          Start := Strings.Fixed.Index (Buffer (First .. Last), Blank);
+
+         if Buffer (Last) = ASCII.CR then
+            --  last character is a DOS CR (certainly because the template
+            --  file is in DOS format), ignore it as this is not part of the
+            --  parameter.
+            Last := Last - 1;
+         end if;
+
          return Buffer (Start .. Last);
       end Get_All_Parameters;
 
