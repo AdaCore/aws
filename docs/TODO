@@ -93,3 +93,6 @@ implemented:
   transparent to users.
 
 - Should we be able to associate a new Dispatcher object to the server ?
+
+- When removing the session (AWS.Session.Delete) it would be good to also
+  remove the cookie on the client side.
