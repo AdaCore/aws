@@ -1,3 +1,10 @@
+2003-10-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-status.adb:
+	(Preferred_Encoding): Fix parsing last encoding value. Use loop to
+	 parse every Accept-Encoding lines in the header.
+	(Is_Supported): Make it conforming to RFC 2616 14.3.
+
 2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.ads:
