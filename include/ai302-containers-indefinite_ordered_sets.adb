@@ -198,7 +198,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       while X /= null loop
 
          declare
-            Y : Node_Access := Copy_Node (X);
+            Y : constant Node_Access := Copy_Node (X);
          begin
 
             P.Left := Y;
