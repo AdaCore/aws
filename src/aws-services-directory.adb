@@ -1,8 +1,10 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2001                            --
---                      Dmitriy Anisimkov & Pascal Obry                     --
+--                         Copyright (C) 2000-2001                          --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimov - Pascal Obry                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,16 +31,21 @@
 with Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Strings.Unbounded;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 
 with AWS.OS_Lib;
 with AWS.Parameters;
+with AWS.MIME;
 
 with GNAT.Calendar.Time_IO;
 with GNAT.Directory_Operations;
 
-with Avl_Tree_Generic;
+with Table_Of_Static_Keys_And_Static_Values_G;
 
 package body AWS.Services.Directory is
+
+   use Ada;
 
    ------------
    -- Browse --
@@ -49,16 +56,36 @@ package body AWS.Services.Directory is
       Request        : in AWS.Status.Data)
      return Translate_Table
    is
-
       use GNAT.Directory_Operations;
       use Ada.Strings.Unbounded;
       use Templates_Parser;
 
-      type Order_By is (Orig,  -- original order, as read on the file system
-                        Dir,   -- order by Directory flag
-                        Name,  -- order by file/directory name
-                        Time,  -- order by file time
-                        Size); -- order by file time
+      type Order_Mode is
+        (O,  -- original order, as read on the file system
+         D,  -- order by Directory flag
+         M,  -- order by MIME content type
+         E,  -- order by file extention case insensitive
+         X,  -- order by file extention case sensitive
+         N,  -- order by file/directory name case insensitive
+         A,  -- order by file/directory name case sensitive
+         T,  -- order by file time
+         S); -- order by file size
+
+      Dir    : constant Order_Mode := D;
+      MIME   : constant Order_Mode := M;
+      Ext    : constant Order_Mode := E;
+      SExt   : constant Order_Mode := X;
+      Name   : constant Order_Mode := N;
+      SName  : constant Order_Mode := A;
+      Size   : constant Order_Mode := S;
+      Time   : constant Order_Mode := T;
+      Orig   : constant Order_Mode := O;
+
+      Max_Order_Length : constant := 8;
+
+      subtype Order_Char is Character;
+
+      Default_Order : constant String := "DN";
 
       --  File Tree
 
@@ -66,27 +93,54 @@ package body AWS.Services.Directory is
          Name      : Unbounded_String;
          Size      : Integer;
          Directory : Boolean;
-         Time      : Ada.Calendar.Time;
+         Time      : Calendar.Time;
          UID       : Natural;
       end record;
 
-      function Key_For (File : in File_Record) return File_Record;
-      pragma Inline (Key_For);
+      type Empty_Type is (Nothing);
+      --  File_Tree generic instanciation need a data, but we don't not.
 
       function "<" (Left, Right : in File_Record) return Boolean;
 
-      procedure Each_Entry
-        (Item     : in out File_Record;
-         Continue :    out Boolean);
+      function "=" (Left, Right : in File_Record) return Boolean;
 
-      package File_Tree is new Avl_Tree_Generic
-        (File_Record, File_Record, Key_For, "<");
+      pragma Inline ("=");
+
+      package File_Tree is new Table_Of_Static_Keys_And_Static_Values_G
+        (Key_Type   => File_Record,
+         Value_Type => Empty_Type,
+         Less       => "<",
+         Equals     => "=");
+
+      function Invert (C : in Order_Char) return Order_Char;
+      --  Return the reverse order for C. It means that the upper case letter
+      --  is change to a lower case and a lower case letter to an upper case
+      --  one.
+
+      procedure Each_Entry
+        (Item         : in     File_Record;
+         Value        : in     Empty_Type;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean);
+      --  Iterator callback procedure.
 
       function End_Slash (Name : in String) return String;
       --  Return Name terminated with a directory separator.
 
-      procedure For_Each_File is new
-        File_Tree.In_Order_Tree_Traversal (Process => Each_Entry);
+      function Get_Ext (File_Name : in String) return String;
+      --  Returns file extension for File_Name and the empty string if there
+      --  is not extension.
+
+      function To_Order_Mode (C : in Order_Char) return Order_Mode;
+      --  Returns the Order_Mode value for the Order_Char. See Order_Set
+      --  comments for the data equivalence table.
+
+      function To_Order_Char (O : in Order_Mode) return Order_Char;
+      --  Returns the Order_Char for the Order_Mode. This routine is the
+      --  above reverse function.
+
+      procedure For_Each_File is
+         new File_Tree.Traverse_Asc_G (Action => Each_Entry);
 
       Names  : Vector_Tag;
       Sizes  : Vector_Tag;
@@ -94,18 +148,62 @@ package body AWS.Services.Directory is
       Is_Dir : Vector_Tag;
 
       Direct_Ordr : Unbounded_String;
+      --  Direct ordering rules.
+
       Back_Ordr   : Unbounded_String;
+      --  Reverse ordering rules. This rules is the opposite of the above one.
 
-      Ordr : array (Order_By'Range) of Unbounded_String;
+      Order_Set : Unbounded_String;
+      --  This variable is set with the order rules from the Web page ORDER
+      --  variable. The value is a set of characters each one represent an
+      --  ordering key:
+      --    'D'   directory order
+      --    'M'   MIME type order
+      --    'E'   extension order
+      --    'X'   extension (case sensitive) order
+      --    'N'   name order
+      --    'A'   name (case sensitive) order
+      --    'S'   size order
+      --    'T'   time order
+      --
+      --  Furthermore, an upper-case character means an ascending order and a
+      --  lower-case character means a descending order.
 
-      --  Composite with directory flag orders
+      Ordr : array (Order_Mode'Range) of Unbounded_String;
+      --  This table will receive the string rule (a set of Order_Char) for
+      --  each order.
 
-      Dir_Ordr : array (Name .. Time) of Unbounded_String;
+      Param_List   : constant AWS.Parameters.List
+        := AWS.Status.Parameters (Request);
+      --  Web parameter's list.
 
-      Order_Set : array (1 .. Ordr'Length) of Order_By :=
-         (1 => Dir, 2 => Name, others => Orig);
+      Mode         : constant String
+        := AWS.Parameters.Get (Param_List, "MODE");
 
-      Order_Asc : array (Order_Set'Range) of Boolean := (others => True);
+      Mode_Param   : constant String := "?MODE=" & Mode;
+      --  MODE Web variable is set either to True or False to toggle the
+      --  simple ordering rules or the complex one.
+
+      subtype Dir_Order_Range is Order_Mode range Name .. Time;
+
+      Dir_Ordr     : array (Dir_Order_Range) of Unbounded_String
+        := (Name  => To_Unbounded_String (Mode_Param & "&ORDER=DN"),
+            SName => To_Unbounded_String (Mode_Param & "&ORDER=DA"),
+            Time  => To_Unbounded_String (Mode_Param & "&ORDER=DT"));
+      --  Defaults rules to order the directories by Name or by Time.
+
+      Last         : Natural;
+
+      File_Entry   : File_Record;
+      UID_Sq       : Natural := 0;
+
+      Dir_Iterator : Dir_Type;
+
+      Dir_Entry    : String (1 .. 1_024);
+
+      use File_Tree;
+
+      Order_Tree   : Table_Type;
 
       ---------------
       -- End_Slash --
@@ -123,13 +221,33 @@ package body AWS.Services.Directory is
       end End_Slash;
 
       -------------
-      -- Key_For --
+      -- Get_Ext --
       -------------
 
-      function Key_For (File : in File_Record) return File_Record is
+      function Get_Ext (File_Name : in String) return String is
+         use Ada.Strings;
+
+         Pos : constant Natural
+           := Fixed.Index (File_Name, Maps.To_Set ("."), Going => Backward);
+
       begin
-         return File;
-      end Key_For;
+         if Pos = 0 then
+            return "";
+         else
+            return File_Name (Pos .. File_Name'Last);
+         end if;
+      end Get_Ext;
+
+      ---------
+      -- "=" --
+      ---------
+
+      function "=" (Left, Right : in File_Record) return Boolean is
+      begin
+         --  can't be equal as all File_Record ID are uniq.
+         pragma Assert (Left.UID /= Right.UID);
+         return False;
+      end "=";
 
       ---------
       -- "<" --
@@ -137,17 +255,84 @@ package body AWS.Services.Directory is
 
       function "<" (Left, Right : in File_Record) return Boolean is
          use type Ada.Calendar.Time;
-      begin
-         for I in Order_Set'Range loop
+         use AWS.MIME;
 
-            case Order_Set (I) is
+         Order_Item : Order_Mode;
+         Ascending  : Boolean;
+         O_C        : Order_Char;
+
+      begin
+         for I in 1 .. Length (Order_Set) loop
+
+            O_C        := Element (Order_Set, I);
+            Order_Item := To_Order_Mode (O_C);
+            Ascending  := Characters.Handling.Is_Upper (O_C);
+
+            case Order_Item is
 
                when Dir =>
+
                   if Left.Directory /= Right.Directory then
-                     return Left.Directory < Right.Directory xor Order_Asc (I);
+                     return Left.Directory < Right.Directory xor Ascending;
+                  end if;
+
+               when MIME =>
+
+                  if Left.Directory /= Right.Directory then
+                     return Left.Directory < Right.Directory xor Ascending;
+
+                  elsif not Left.Directory and not Right.Directory then
+                     declare
+                        Mime_Left  : constant String
+                          := Content_Type (To_String (Left.Name));
+                        Mime_Right : constant String
+                          := Content_Type (To_String (Right.Name));
+                     begin
+                        if Mime_Left /= Mime_Right then
+                           return Mime_Left < Mime_Right xor not Ascending;
+                        end if;
+                     end;
+                  end if;
+
+               when Ext  =>
+
+                  if Left.Directory /= Right.Directory then
+                     return Left.Directory < Right.Directory xor Ascending;
+
+                  elsif not Left.Directory and not Right.Directory then
+                     declare
+                        use Ada.Characters.Handling;
+                        Ext_Left  : constant String
+                          := To_Upper (Get_Ext (To_String (Left.Name)));
+                        Ext_Right : constant String
+                          := To_Upper (Get_Ext (To_String (Right.Name)));
+                     begin
+                        if Ext_Left /= Ext_Right then
+                           return Ext_Left < Ext_Right xor not Ascending;
+                        end if;
+                     end;
+                  end if;
+
+               when SExt  =>
+
+                  if Left.Directory /= Right.Directory then
+                     return Left.Directory < Right.Directory xor Ascending;
+
+                  elsif not Left.Directory and not Right.Directory then
+                     declare
+                        Ext_Left  : constant String
+                          := Get_Ext (To_String (Left.Name));
+                        Ext_Right : constant String
+                          := Get_Ext (To_String (Right.Name));
+                     begin
+                        if Ext_Left /= Ext_Right then
+                           return Ext_Left < Ext_Right xor not Ascending;
+                        end if;
+                     end;
                   end if;
 
                when Name =>
+
                   declare
                      use Ada.Characters.Handling;
                      Left_Name  : constant  String
@@ -156,53 +341,57 @@ package body AWS.Services.Directory is
                        To_Upper (To_String (Right.Name));
                   begin
                      if Left_Name /= Right_Name then
-                        return Left_Name < Right_Name xor not Order_Asc (I);
+                        return Left_Name < Right_Name xor not Ascending;
+                     end if;
+                  end;
+
+               when SName =>
+
+                  declare
+                     Left_Name  : constant String := To_String (Left.Name);
+                     Right_Name : constant String := To_String (Right.Name);
+                  begin
+                     if Left_Name /= Right_Name then
+                        return Left_Name < Right_Name xor not Ascending;
                      end if;
                   end;
 
                when Size =>
+
                   if Left.Size /= Right.Size then
-                     return Left.Size < Right.Size xor not Order_Asc (I);
+                     return Left.Size < Right.Size xor not Ascending;
                   end if;
 
                when Time =>
+
                   if Left.Time /= Right.Time then
-                     return Left.Time < Right.Time xor not Order_Asc (I);
+                     return Left.Time < Right.Time xor not Ascending;
                   end if;
 
                when Orig =>
-                  return Left.UID < Right.UID xor not Order_Asc (I);
+
+                  return Left.UID < Right.UID xor not Ascending;
+
             end case;
          end loop;
 
          return Left.UID < Right.UID;
       end "<";
 
-      Dir_Iterator : Dir_Type;
-      URI          : constant String := End_Slash (AWS.Status.URI (Request));
-      Dir_Entry    : String (1 .. 1_024);
-      Param_List   : AWS.Parameters.List;
-      Last         : Natural;
-
-      Dir_Str      : constant String := End_Slash (Directory_Name);
-      File_Entry   : File_Record;
-      UID_Sq       : Natural := 0;
-
-      use File_Tree;
-
-      Order_Tree   : Avl_Tree;
-
       ----------------
       -- Each_Entry --
       ----------------
 
       procedure Each_Entry
-        (Item     : in out File_Record;
-         Continue :    out Boolean) is
+        (Item         : in     File_Record;
+         Value        : in     Empty_Type;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean) is
       begin
          if Item.Directory then
             Sizes := Sizes & '-';
-            Names := Names & End_Slash (To_String (Item.Name));
+            Names := Names & (Item.Name & '/');
+
          else
             Sizes := Sizes & Integer'Image (Item.Size);
             Names := Names & Item.Name;
@@ -215,68 +404,119 @@ package body AWS.Services.Directory is
          Continue := True;
       end Each_Entry;
 
-      --  Table for quick False and True external representation look-up.
+      ------------
+      -- Invert --
+      ------------
 
-      Asc_Image : constant array (Boolean) of Character
-        := (False => 'N', True => 'Y');
+      function Invert (C : in Character) return Character is
+      begin
+         if Characters.Handling.Is_Upper (C) then
+            return Characters.Handling.To_Lower (C);
+         else
+            return Characters.Handling.To_Upper (C);
+         end if;
+      end Invert;
+
+      -------------------
+      -- To_Order_Mode --
+      -------------------
+
+      function To_Order_Mode (C : in Order_Char) return Order_Mode is
+      begin
+         return Order_Mode'Value ("" & C);
+      end To_Order_Mode;
+
+      -------------------
+      -- To_Order_Char --
+      -------------------
+
+      function To_Order_Char (O : Order_Mode) return Order_Char
+      is
+      begin
+         return Order_Mode'Image (O)(1);
+      end To_Order_Char;
+
+      Dir_Str : constant String := End_Slash (Directory_Name);
 
    begin
-      Param_List := AWS.Status.Parameters (Request);
 
-      for I in Order_Set'Range loop
-         declare
-            Ordr : constant String := AWS.Parameters.Get (Param_List, "O", I);
+      --  Read ordering rules from the Web page and build the direct and
+      --  reverve rules.
+
+      declare
+
+         function Get_Order return String;
+         --  Get current ordering string, if no ordering retreive we set a
+         --  default ordering.
+
+         function Get_Order return String is
+            P_Order : constant String :=
+               AWS.Parameters.Get (Param_List, "ORDER");
          begin
-            if Ordr /= "" then
-               Order_Set (I) := Order_By'Value (Ordr);
-               Order_Asc (I) := AWS.Parameters.Get (Param_List, "A", I) = "Y";
-            end if;
+            if P_Order = "" then
+               --  no ordering define, use the default one.
+               return Default_Order;
 
-            Append (Direct_Ordr,
-                    "&O=" & Order_By'Image (Order_Set (I)) &
-                    "&A=" & Asc_Image (Order_Asc (I)));
+            elsif P_Order'Length > Max_Order_Length then
+               return Strings.Fixed.Head (P_Order, Max_Order_Length);
 
-            if I = Order_Set'First then
-               Append (Back_Ordr,
-                       "?O=" & Order_By'Image (Order_Set (I)) &
-                       "&A=" & Asc_Image (not Order_Asc (I)));
             else
-               Append (Back_Ordr,
-                       "&O=" & Order_By'Image (Order_Set (I)) &
-                       "&A=" & Asc_Image (Order_Asc (I)));
+               return P_Order;
             end if;
+         end Get_Order;
 
-            exit when Order_Set (I) = Orig;
-         end;
-      end loop;
+         Order : constant String := Get_Order;
 
-      for I in Dir_Ordr'Range loop
-         Dir_Ordr (I) :=
-           To_Unbounded_String ("?A=Y&A=Y&O=Dir&O=" & Order_By'Image (I));
-      end loop;
+      begin
+         Order_Set := To_Unbounded_String (Order);
 
-      if Order_Set (Order_Set'First) = Dir
-        and then Order_Set (Order_Set'First + 1) in Dir_Ordr'Range
+         for K in Order'Range loop
+            Append (Direct_Ordr, Order (K));
+
+            if K = Order'First then
+               --  ???
+               Append (Back_Ordr, Invert (Order (K)));
+            else
+               Append (Back_Ordr, Order (K));
+            end if;
+         end loop;
+      end;
+
+      --  Check if the directory ordering rules needs to be reverted.
+
+      if Length (Order_Set) >= 2
+        and then To_Order_Mode (Element (Order_Set, 1)) = Dir
+        and then To_Order_Mode (Element (Order_Set, 2)) in Dir_Order_Range
       then
-         Dir_Ordr (Order_Set (Order_Set'First + 1)) :=
-           To_Unbounded_String
-           ("?O=Dir&A="
-            & Asc_Image (not Order_Asc (Order_Set'First))
-            & "&O=" & Order_By'Image (Order_Set (Order_Set'First + 1))
-            & "&A=" & Asc_Image (not Order_Asc (Order_Set'First + 1)));
+         --  The current rule is a directory ordering, just invert it.
+         Dir_Ordr (To_Order_Mode (Element (Order_Set, 2)))
+           := To_Unbounded_String
+           (Mode_Param
+            & "&ORDER="
+            & Invert (Element (Order_Set, 1))
+            & Invert (Element (Order_Set, 2)));
       end if;
 
-      for I in Ordr'Range loop
-         if I = Order_Set (Order_Set'First) then
-            Ordr (I) := Back_Ordr;
+      --  Build the Ordr table for each kind of ordering.
+
+      for K in Ordr'Range loop
+         if Length (Order_Set) >= 1
+           and then K = To_Order_Mode (Element (Order_Set, 1))
+         then
+            --  This is the current rule, reverse it.
+            Ordr (K) := Mode_Param & "&ORDER=" & Back_Ordr;
+
          else
-            Ordr (I) := "?A=Y&O=" & Order_By'Image (I) & Direct_Ordr;
+            Ordr (K) := Mode_Param
+              & "&ORDER=" & To_Order_Char (K) & Direct_Ordr;
          end if;
       end loop;
 
-      --  Read directory entry.
+      --  Read directory entries and insert each one on the Order_Tree. This
+      --  will be inserted with the right order, as defined by the rules
+      --  above.
 
-      Open (Dir_Iterator, Dir_Str);
+      Open (Dir_Iterator, Directory_Name);
 
       loop
          Read (Dir_Iterator, Dir_Entry, Last);
@@ -287,11 +527,13 @@ package body AWS.Services.Directory is
             Filename      : constant String := Dir_Entry (1 .. Last);
             Full_Pathname : constant String := Dir_Str & Filename;
          begin
+
             File_Entry.Directory := AWS.OS_Lib.Is_Directory (Full_Pathname);
 
             if File_Entry.Directory then
                File_Entry.Size := -1;
             else
+
                File_Entry.Size :=
                  Integer (AWS.OS_Lib.File_Size (Full_Pathname));
             end if;
@@ -302,24 +544,33 @@ package body AWS.Services.Directory is
             UID_Sq          := UID_Sq + 1;
          end;
 
-         File_Tree.Insert_Node (File_Entry, Order_Tree);
+         File_Tree.Insert (Order_Tree, File_Entry, Nothing);
       end loop;
+
+      --  Iterate through the tree and fill the vector tag before insertion
+      --  into the translate table.
 
       For_Each_File (Order_Tree);
 
-      return (1 => Assoc ("URI", URI),
-              2 => Assoc ("VERSION",   AWS.Version),
-              3 => Assoc ("IS_DIR", Is_Dir),
-              4 => Assoc ("NAMES", Names),
-              5 => Assoc ("SIZES", Sizes),
-              6 => Assoc ("TIMES", Times),
-              7 => Assoc ("NAME_ORDR", Ordr (Name)),
-              8 => Assoc ("DIR_ORDR", Ordr (Dir)),
-              9 => Assoc ("SIZE_ORDR", Ordr (Size)),
-             10 => Assoc ("TIME_ORDR", Ordr (Time)),
-             11 => Assoc ("ORIG_ORDR", Ordr (Orig)),
-             12 => Assoc ("DIR_NAME_ORDR", Dir_Ordr (Name)),
-             13 => Assoc ("DIR_TIME_ORDR", Dir_Ordr (Time)));
+      return (Assoc ("URI",           End_Slash (AWS.Status.URI (Request))),
+              Assoc ("VERSION",       AWS.Version),
+              Assoc ("IS_DIR_V",      Is_Dir),
+              Assoc ("NAME_V",        Names),
+              Assoc ("SIZE_V",        Sizes),
+              Assoc ("TIME_V",        Times),
+              Assoc ("DIR_ORDR",      Ordr (Dir)),
+              Assoc ("MIME_ORDR",     Ordr (MIME)),
+              Assoc ("EXT_ORDR",      Ordr (Ext)),
+              Assoc ("SEXT_ORDR",     Ordr (SExt)),
+              Assoc ("NAME_ORDR",     Ordr (Name)),
+              Assoc ("SNME_ORDR",     Ordr (SName)),
+              Assoc ("SIZE_ORDR",     Ordr (Size)),
+              Assoc ("TIME_ORDR",     Ordr (Time)),
+              Assoc ("ORIG_ORDR",     Ordr (Orig)),
+              Assoc ("MODE",          Mode),
+              Assoc ("DIR_NAME_ORDR", Dir_Ordr (Name)),
+              Assoc ("DIR_SNME_ORDR", Dir_Ordr (SName)),
+              Assoc ("DIR_TIME_ORDR", Dir_Ordr (Time)));
    end Browse;
 
    ------------
