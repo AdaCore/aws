@@ -35,7 +35,6 @@ package AWS is
    pragma Pure;
 
    Internal_Error   : exception;
-   Connection_Error : exception;
 
    Version          : constant String := "1.2";
 
