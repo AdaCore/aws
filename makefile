@@ -20,7 +20,11 @@ ADASOCKETS = /usr/Ada.Libraries/adasockets
 
 # XMLADA package, needed if you want to build SOAP's AWS support.
 # comment out XMLADA if you don't want to build with SOAP support.
+
 #XMLADA	 = /usr/Ada.Libraries/XMLada
+# v_XMLADA is the XMLAda version. This string must start with a minus sign.
+# Leave it empty is the libraries (.a) installed on your system does not have
+# a version prefix.
 v_XMLADA = -0.7
 
 # AWS will be installed under $(INSTALL)/AWS
@@ -88,7 +92,7 @@ all:
 	echo "    build_lib:    build AWS library only"
 	echo "    build_tools:  build AWS tools only"
 	echo "    build_doc:    build documentation (needs texinfo support)"
-	echo "    build_soap:   build SOAP library (needs XML-Ada package)"
+	echo "    build_soap:   build SOAP library (needs XMLAda package)"
 	echo ""
 	echo "  Support :"
 	echo ""
@@ -109,7 +113,11 @@ set_std:
 
 build_lib: build_ssllib build_include build_aws build_win32
 
+ifdef XMLADA
+build: build_lib build_soaplib build_demos build_soap_demo
+else
 build: build_lib build_demos
+endif
 
 build_aws:
 	${MAKE} -C src build $(ALL_OPTIONS)
