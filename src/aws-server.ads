@@ -208,7 +208,7 @@ private
       --  receiving data and we should disconnect him.
 
       Server_Processing
-      --  While in the User's Callback procedure.
+      --  While in the User's Callback procedure
      );
 
    subtype Abortable_Phase is Slot_Phase
@@ -222,7 +222,7 @@ private
    --------------
 
    type Timeout_Mode is (Cleaner, Force);
-   --  This is Force timeouts and timeouts for Line_Cleaner task.
+   --  This is Force timeouts and timeouts for Line_Cleaner task
 
    type Timeouts_Array is array (Timeout_Mode, Abortable_Phase) of Duration;
 
@@ -281,20 +281,20 @@ private
       --  socket, changing HTTP to other protocol for example.
 
       procedure Mark_Data_Time_Stamp (Index : in Positive);
-      --  Mark timestamp for receive or send chunk of data.
+      --  Mark timestamp for receive or send chunk of data
 
       function Is_Abortable
         (Index : in Positive;
          Mode  : in Timeout_Mode)
          return Boolean;
-      --  Return True when slot can be aborted.
+      --  Return True when slot can be aborted
 
       procedure Abort_On_Timeout (Mode : in Timeout_Mode; Done : out Boolean);
       --  Abort slots if timeout exceeded.
       --  Set Done to True in case of abortion.
 
       function Free_Slots return Natural;
-      --  Returns number of free slots.
+      --  Returns number of free slots
 
       procedure Set
         (Socket     : in     Socket_Access;
@@ -311,10 +311,10 @@ private
       --  Slot phase is set to Aborted.
 
       procedure Release  (Index : in Positive);
-      --  Release slot number Index. Slot phase is set to Closed.
+      --  Release slot number Index. Slot phase is set to Closed
 
       function Get (Index : in Positive) return Slot;
-      --  Returns Slot data.
+      --  Returns Slot data
 
       function Get_Socket_Info (Index : in Positive) return Socket_Data;
       --  Returns information about socket (FD and Peername) associated with
@@ -322,7 +322,7 @@ private
       --  (FD => 0, Peername => "-")
 
       function Get_Peername (Index : in Positive) return String;
-      --  Returns the peername for socket at position Index.
+      --  Returns the peername for socket at position Index
 
       procedure Increment_Slot_Activity_Counter (Index : in Positive);
       --  Add 1 to the slot activity. This is the total number of request
@@ -369,7 +369,7 @@ private
    end Line_Cleaner;
 
    type Line_Cleaner_Access is access Line_Cleaner;
-   --  run through the slots and see if some of them could be closed.
+   --  run through the slots and see if some of them could be closed
 
    ----------------------
    -- Socket_Semaphore --
