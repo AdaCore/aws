@@ -1,3 +1,14 @@
+2002-09-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb:
+	(Delete_Session): Do not reraise Internal_Error.
+
+	* aws-session.ads:
+	(Delete): Now fail silently if SID does not exists.
+
+	* aws-client.ads:
+	Minor comment fix.
+
 2002-09-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.ads:
