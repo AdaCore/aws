@@ -357,6 +357,7 @@ exception
       Put_Line ("   -noskel      Do not create skeleton units");
       Put_Line ("   -cb          Generate SOAP callback routine");
       Put_Line ("   -types spec  Use types from Ada spec");
+      Put_Line ("   -main file   Generate SOAP main server's procedure");
       Put_Line ("   -proxy addr  Name or IP of the proxy");
       Put_Line ("   -pu name     The proxy user name");
       Put_Line ("   -pp pwd      The proxy password");
