@@ -1,3 +1,8 @@
+2003-12-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* include.gpr:
+	(Ide): New package.
+
 2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
