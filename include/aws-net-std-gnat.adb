@@ -88,16 +88,22 @@ package body AWS.Net.Std is
       Port   : in     Natural;
       Host   : in     String := "")
    is
-      Sock_Addr : constant Sockets.Sock_Addr_Type
-        := (Sockets.Family_Inet,
-            Sockets.Inet_Addr (Host), Sockets.Port_Type (Port));
+      Inet_Addr : Sockets.Inet_Addr_Type;
    begin
+      if Host = "" then
+         Inet_Addr := Sockets.Any_Inet_Addr;
+      else
+         Inet_Addr := Sockets.Inet_Addr (Host);
+      end if;
+
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
          Sockets.Create_Socket (SFD (Socket.S.all));
       end if;
 
-      Sockets.Bind_Socket (SFD (Socket.S.all), Sock_Addr);
+      Sockets.Bind_Socket
+        (SFD (Socket.S.all),
+         (Sockets.Family_Inet, Inet_Addr, Sockets.Port_Type (Port)));
    exception
       when E : others =>
          Raise_Exception (E, "Bind");
