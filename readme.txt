@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             October 3rd, 2002,
+   Pascal Obry                                             November 22nd, 2002,
 
 
 
@@ -80,6 +80,8 @@ Here are the main changes:
    - Support HTTP header lines in multiple line as it should be.
 
    - Option added to AWS.Client.Get to automatically follow redirection.
+
+   - Add some support for the Jabber protocol (Message and Presence detection)
 
    - Plus many small fixes, enhancements and documentation work.
 
