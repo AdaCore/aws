@@ -36,6 +36,7 @@ with Ada.Streams;
 
 with AWS.Status;
 with AWS.Messages;
+with AWS.MIME;
 
 package AWS.Response is
 
@@ -75,12 +76,12 @@ package AWS.Response is
    function Moved (Location     : in String;
                    Message      : in String := Default_Moved_Message)
                   return Data;
-   --  This send back a moved message (Messages.S301) whithe the specified
+   --  This send back a moved message (Messages.S301) with the specified
    --  message body.
 
    function Acknowledge (Status_Code  : in Messages.Status_Code;
                          Message_Body : in String := "";
-                         Content_Type : in String := "text/html")
+                         Content_Type : in String := MIME.Text_HTML)
      return Data;
    --  Returns a message to the Web browser. This routine must be used to
    --  send back an error message to the Web browser. For example if a
