@@ -30,22 +30,39 @@
 --
 --  $Id$
 --
---  Test for not found certificate file
+--  Test for certificate or keyfile absence and wrong format.
 
-with AWS.Net.SSL;
-with Ada.Text_IO;
 with Ada.Exceptions;
+with Ada.Text_IO;
+with AWS.Net.SSL;
 
 procedure SSLCfg is
-   use AWS.Net;
 
-   Config : SSL.Config;
+   procedure Test (Cert : String; Key : String := "");
+
+   ----------
+   -- Test --
+   ----------
+
+   procedure Test (Cert : String; Key : String := "") is
+      use AWS.Net.SSL;
+      Conf : Config;
+   begin
+      Initialize
+        (Config               => Conf,
+         Certificate_Filename => Cert,
+         Key_Filename         => Key);
+      Ada.Text_IO.Put_Line ("Success.");
+   exception
+      when E : others =>
+         Ada.Text_IO.Put_Line (Ada.Exceptions.Exception_Message (E));
+   end Test;
+
 begin
-   Ada.Text_IO.Put_Line ("start");
-   SSL.Initialize (Config, "wrong-file-name");
-exception
-   when E : others =>
-      Ada.Text_IO.Put_Line
-        (Ada.Exceptions.Exception_Name (E) & ASCII.Lf
-         & Ada.Exceptions.Exception_Message (E));
+   Test ("absent-file");
+   Test ("cert.pem", "absent-file");
+   Test ("sslcfg.adb");
+   Test ("cert.pem", "sslcfg.adb");
+   Test ("cert.pem");
+   Test ("cert.pem", "cert.pem");
 end SSLCfg;

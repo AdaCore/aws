@@ -1,3 +1,8 @@
+2004-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* sslcfg.adb, sslcfg.out:
+	Test for wrong format and keyfile.
+
 2004-09-20  Pascal Obry  <pascal@obry.org>
 
 	* upload5.adb:
