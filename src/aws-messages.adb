@@ -265,6 +265,15 @@ package body AWS.Messages is
       return Status_Messages (S).Reason_Phrase.all;
    end Reason_Phrase;
 
+   ----------------
+   -- SOAPAction --
+   ----------------
+
+   function SOAPAction (URI : in String) return String is
+   begin
+      return SOAPAction_Token & '"' & URI & '"';
+   end SOAPAction;
+
    -----------------
    -- Status_Line --
    -----------------
