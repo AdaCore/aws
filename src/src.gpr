@@ -127,6 +127,8 @@ project Src is
 
    package Naming is
 
+      -- Templates Parser
+
       for Specification ("Templates_Parser.Configuration")
         use "templates_parser-configuration__aws.ads";
 
@@ -135,6 +137,28 @@ project Src is
 
       for Implementation ("Templates_Parser.Tasking")
         use "templates_parser-tasking__standard_tasking.adb";
+
+      --  OSLIB
+
+      case Shared.OSLIB is
+         when "GNAT" =>
+            for Implementation ("AWS.OS_Lib") use "aws-os_lib__gnat.adb";
+         when "Win32" =>
+            for Implementation ("AWS.OS_Lib") use "aws-os_lib__win32.adb";
+         when "POSIX" =>
+            for Implementation ("AWS.OS_Lib") use "aws-os_lib__posix.adb";
+      end case;
+
+      --  SOCKLIB
+
+      case Shared.SOCKLIB is
+         when "GNAT" =>
+            for Implementation ("AWS.Net.Std")
+              use "aws-net-std__gnat.adb";
+         when "AdaSockets" =>
+            for Implementation ("AWS.Net.Std")
+              use "aws-net-std__adasockets.adb";
+      end case;
 
    end Naming;
 
