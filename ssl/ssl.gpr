@@ -32,6 +32,9 @@
 
 with "../shared";
 
+with "crypto_lib";
+with "ssl_lib";
+
 project SSL is
 
    for Languages use ("Ada", "ChangeLog", "Project file");
