@@ -1,7 +1,7 @@
 2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
 
 	* makefile:
-	Fix previous check-in. Most regtests were desactivated.
+	Fix previous check-in. Most regtests were deactivated.
 	
 2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
 
