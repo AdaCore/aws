@@ -52,12 +52,13 @@ clean:
 #############################################################################
 # Configuration for GNAT Projet Files
 
-gsetup: 
+gsetup: $(GEN) 
 	$(MKDIR) -p ../.build/debug/tools/obj
 	$(MKDIR) -p ../.build/release/tools/obj
 
 gbuild:
-	$(GNATMAKE) -Ptools -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Ptools -XAWS_BUILD=${PRJ_BUILD} \
+		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS}
 
 gclean:
 	$(RM) -fr ../.build/debug/tools
