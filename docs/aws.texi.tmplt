@@ -96,6 +96,7 @@ a very good and Open Source SSL implementation.
 * Requirements::
 * AWS.OS_Lib::
 * Building::
+* Installing::
 @end menu
 
 @node Requirements
@@ -297,6 +298,23 @@ above server.
 In each case you'll certainly have to edit the makefile to correctly set
 the include path for the libraries @code{POSIX}, @code{OpenSSL}, 
 @code{Socket} and @code{XMLAda}. For more information, look at the makefiles.
+
+@node Installing
+@section Installing
+@cindex Installing
+
+@noindent
+When the build is done it is possible to install AWS at a specific
+location. The target directory is defined with the @var{INSTALL}
+@file{makefile} variable. Update this variable to point to the right
+location, then:
+
+@smallexample
+   $ make install
+@end smallexample
+
+@noindent
+Now you are ready to use AWS !
 
 @c ----------------------------------------------------------------------
 
