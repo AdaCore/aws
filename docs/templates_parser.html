@@ -352,7 +352,130 @@ string and <B>False</B> otherwise.
 Returns the date with the given format. The date must be in the ISO
 format (YYYY-MM-DD) eventually followed by a space and the time with
 the format HH:MM:SS. If the date is not given in the right format it
-returns the date as-is.
+returns the date as-is. The format is using the GNU/date description
+patterns as also implemented in <CODE>GNAT.Calendar.Time_IO</CODE>.
+
+<P>
+
+<DL COMPACT>
+
+<DT><I>Characters:</I>
+<DD>
+<DL COMPACT>
+
+<DT><B>%</B>
+<DD>
+a literal %
+<DT><B>n</B>
+<DD>
+a newline
+<DT><B>t</B>
+<DD>
+a horizontal tab
+</DL>
+
+<DT><I>Time fields:</I>
+<DD>
+<DL COMPACT>
+
+<DT><B>%H</B>
+<DD>
+hour (00..23)
+<DT><B>%I</B>
+<DD>
+hour (01..12)
+<DT><B>%k</B>
+<DD>
+hour ( 0..23)
+<DT><B>%l</B>
+<DD>
+hour ( 1..12)
+<DT><B>%M</B>
+<DD>
+minute (00..59)
+<DT><B>%p</B>
+<DD>
+locale's AM or PM
+<DT><B>%r</B>
+<DD>
+time, 12-hour (hh:mm:ss [AP]M)
+<DT><B>%s</B>
+<DD>
+seconds  since 1970-01-01  00:00:00 UTC (a nonstandard extension)
+<DT><B>%S</B>
+<DD>
+second (00..59)
+<DT><B>%T</B>
+<DD>
+time, 24-hour (hh:mm:ss)
+</DL>
+
+<DT><I>Date fields:</I>
+<DD>
+<DL COMPACT>
+
+<DT><B>%a</B>
+<DD>
+locale's abbreviated weekday name (Sun..Sat)
+<DT><B>%A</B>
+<DD>
+locale's full weekday name, variable length (Sunday..Saturday)
+<DT><B>%b</B>
+<DD>
+locale's abbreviated month name (Jan..Dec)
+<DT><B>%B</B>
+<DD>
+locale's full month name, variable length (January..December)
+<DT><B>%c</B>
+<DD>
+locale's date and time (Sat Nov 04 12:02:33 EST 1989)
+<DT><B>%d</B>
+<DD>
+day of month (01..31)
+<DT><B>%D</B>
+<DD>
+date (mm/dd/yy)
+<DT><B>%h</B>
+<DD>
+same as %b
+<DT><B>%j</B>
+<DD>
+day of year (001..366)
+<DT><B>%m</B>
+<DD>
+month (01..12)
+<DT><B>%U</B>
+<DD>
+week number of year with  Sunday as first day of week (00..53)
+<DT><B>%w</B>
+<DD>
+day of week (0..6) with 0 corresponding to Sunday
+<DT><B>%W</B>
+<DD>
+week number of year with  Monday as first day of week (00..53)
+<DT><B>%x</B>
+<DD>
+locale's date representation (mm/dd/yy)
+<DT><B>%y</B>
+<DD>
+last two digits of year (00..99)
+<DT><B>%Y</B>
+<DD>
+year (1970...)
+</DL>
+
+<DT><I>By default,  date pads numeric fields with zeroes. GNU date recognizes the following nonstandard numeric modifiers:</I>
+<DD>
+<DL COMPACT>
+
+<DT><B>-    (hyphen)</B>
+<DD>
+do not pad the field
+<DT><B>_    (underscore)</B>
+<DD>
+pad the field with spaces
+</DL>
+</DL>
 
 <DT><CODE>FORMAT_NUMBER</CODE>
 <DD>
