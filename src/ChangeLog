@@ -1,3 +1,8 @@
+2005-01-17  Pascal Obry  <pascal@obry.org>
+
+	* aws-status.ads, aws-status.adb:
+	(Authorization_URI): New routine.
+
 2005-01-09  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
