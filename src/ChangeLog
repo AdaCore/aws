@@ -1,3 +1,17 @@
+2003-05-08  Anisimkov Dmitriy <anisimkov@yahoo.com>
+
+	* aws-ldap-client.adb:
+	(Free): Change pragma Unreferenced to Warnings Off for Res
+	 becouse of GNAT 3.15p bug with pragma Unreferenced (left side
+	 of assignment).
+	(Unbind): Idem.
+
+	* aws-server.ads:
+	(Flush_Log): New routine.
+
+	* aws-server.adb:
+	(Start_Error_Log): Start error log in Auto_Flush mode.
+
 2003-05-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-log.ads:
