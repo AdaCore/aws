@@ -56,7 +56,7 @@ package body Ada2WSDL.Generator is
       Next      : Parameter_Access;
    end record;
 
-   type Mode is (Routine, Structure, Table, Derived);
+   type Mode is (Routine, Structure, Table, Derived, Enumeration);
 
    type Definition (Def_Mode : Mode := Routine) is record
       Name        : Unbounded_String;
@@ -66,7 +66,7 @@ package body Ada2WSDL.Generator is
       case Def_Mode is
          when Routine =>
             Return_Type : Parameter_Access;
-         when Structure | Table | Derived =>
+         when Structure | Table | Derived | Enumeration =>
             null;
       end case;
    end record;
@@ -160,6 +160,27 @@ package body Ada2WSDL.Generator is
       API (Index).Last := New_P;
    end New_Formal;
 
+   -----------------
+   -- New_Literal --
+   -----------------
+
+   procedure New_Literal (Name : in String) is
+      New_P : constant Parameter_Access
+        := new Parameter'(+Name, +"", +"", null);
+   begin
+      if Options.Verbose then
+         Text_IO.Put_Line ("        " & Name);
+      end if;
+
+      if API (Index).Parameters = null then
+         API (Index).Parameters := New_P;
+      else
+         API (Index).Last.Next := New_P;
+      end if;
+
+      API (Index).Last := New_P;
+   end New_Literal;
+
    ----------------------
    -- Register_Derived --
    ----------------------
@@ -180,7 +201,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put ("   - derived     " & Name & " is new " & Parent_Name);
+         Text_IO.Put ("   - derived       " & Name & " is new " & Parent_Name);
 
          if Options.Verbose then
             Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
@@ -222,7 +243,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put ("   - array     " & Name & " of " & Component_Type);
+         Text_IO.Put ("   - array       " & Name & " of " & Component_Type);
 
          if Options.Verbose then
             Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
@@ -231,6 +252,27 @@ package body Ada2WSDL.Generator is
          end if;
       end if;
    end Start_Array;
+
+   -----------------------
+   -- Start_Enumeration --
+   -----------------------
+
+   procedure Start_Enumeration (Name : in String) is
+      D : Definition (Enumeration);
+   begin
+      --  We need to write a schema for this derived type
+      Schema_Needed := True;
+
+      D.Name       := +Name;
+      D.Parameters := null;
+
+      Index := Index + 1;
+      API (Index) := D;
+
+      if not Options.Quiet then
+         Text_IO.Put_Line ("   - enumeration " & Name);
+      end if;
+   end Start_Enumeration;
 
    ------------------
    -- Start_Record --
@@ -248,7 +290,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put_Line ("   - record    " & Name);
+         Text_IO.Put_Line ("   - record      " & Name);
       end if;
    end Start_Record;
 
@@ -267,7 +309,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put_Line ("   > " & Comment & " " & Name);
+         Text_IO.Put_Line ("   > " & Comment & "   " & Name);
       end if;
    end Start_Routine;
 
@@ -304,6 +346,7 @@ package body Ada2WSDL.Generator is
       for I in 1 .. Index loop
          if API (I).Def_Mode = Structure
            or else API (I).Def_Mode = Derived
+           or else API (I).Def_Mode = Enumeration
          then
             if -API (I).Name = Name then
                return True;
@@ -554,6 +597,9 @@ package body Ada2WSDL.Generator is
          procedure Write_Derived (E : in Definition);
          --  Write a derived type (simpleType)
 
+         procedure Write_Enumeration (E : in Definition);
+         --  Write an enumeration type definition (simpleType)
+
          procedure Write_Character;
          --  Write the Character schema
 
@@ -604,6 +650,27 @@ package body Ada2WSDL.Generator is
             Put_Line ("         </simpleType>");
          end Write_Derived;
 
+         -----------------------
+         -- Write_Enumeration --
+         -----------------------
+
+         procedure Write_Enumeration (E : in Definition) is
+            P : Parameter_Access := E.Parameters;
+         begin
+            New_Line;
+            Put_Line ("         <simpleType name=""" & (-E.Name) & """>");
+            Put_Line ("            <restriction base=""xsd:string"">");
+
+            while P /= null loop
+               Put_Line ("               <enumeration value="""
+                           & (-P.Name) & """/>");
+               P := P.Next;
+            end loop;
+
+            Put_Line ("            </restriction>");
+            Put_Line ("         </simpleType>");
+         end Write_Enumeration;
+
          ------------------
          -- Write_Record --
          ------------------
@@ -639,16 +706,13 @@ package body Ada2WSDL.Generator is
             --  Output all structures
 
             for I in 1 .. Index loop
-               if API (I).Def_Mode = Structure then
-                  Write_Record (API (I));
-
-               elsif API (I).Def_Mode = Table then
-                  Write_Array (API (I));
-
-               elsif API (I).Def_Mode = Derived then
-                  Write_Derived (API (I));
-
-               end if;
+               case API (I).Def_Mode is
+                  when Structure   => Write_Record (API (I));
+                  when Table       => Write_Array (API (I));
+                  when Derived     => Write_Derived (API (I));
+                  when Enumeration => Write_Enumeration (API (I));
+                  when Routine     => null;
+               end case;
             end loop;
 
             Put_Line ("      </schema>");
