@@ -1,5 +1,9 @@
 2002-03-17  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Send_General_Header): Set cookie for the entire site 
+	 (path start at /).
+
 	* aws-status-set.adb:
 	Minor reformatting.
 	Removed commented out code.
