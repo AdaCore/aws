@@ -4,7 +4,7 @@
 .SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
 .SILENT: checks checks_header checks_soap shutdown testxml turl2 turl3 turl4
 .SILENT: soap1 soap2 soap3 workorder tres tres2 upload unexph test_speed
-.SILENT: test_soap moved auth strm test_templates_if head hval
+.SILENT: test_soap moved auth strm test_templates_if head hval tsgetparam
 
 #INCLUDES = -I../src -I../ssl -I../include
 #LIBS     = -L../ssl -lssl -lcrypto
@@ -33,9 +33,9 @@ endif
 rt_soap: soap1 soap2 soap3 workorder testxml test_speed test_soap
 
 # Standard regression tests
-rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2 \
-	upload unexph auth moved turl2 turl3 strm test_templates_if head \
-	hval turl4
+rt_std: turl tgetparam tsgetparam param dummy simple tclientto shutdown tres \
+	tres2 upload unexph auth moved turl2 turl3 strm test_templates_if \
+	head hval turl4
 
 ifeq ($(XMLADA),)
 run : rt_std checks
@@ -64,6 +64,10 @@ turl4: force
 tgetparam: force
 	gnatmake -g tgetparam  $(GARGS) -largs $(LARGS) -bargs -E
 	./tgetparam > tgetparam.res
+
+tsgetparam: force
+	gnatmake -g tsgetparam  $(GARGS) -largs $(LARGS) -bargs -E
+	./tsgetparam > tsgetparam.res
 
 param: force
 	gnatmake -g param $(GARGS) -largs $(LARGS) -bargs -E
@@ -200,6 +204,7 @@ endif
 	-diff -c -w turl3.out turl3.res
 	-diff -c -w turl4.out turl4.res
 	-diff -c -w tgetparam.out tgetparam.res
+	-diff -c -w tgetparam.out tsgetparam.res
 	-diff -c -w param.out param.res
 	-diff -c -w dummy.out dummy.res
 	-diff -c -w simple.out simple.res
