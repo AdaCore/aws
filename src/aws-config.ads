@@ -51,13 +51,13 @@ package AWS.Config is
    Default_Log_File_Directory : constant String := "./";
    Default_Upload_Directory   : constant String := "./";
 
-   Height_Hours : constant := 28_800.0;
-   Three_Hours  : constant := 10_800.0;
+   Eight_Hours : constant := 28_800.0;
+   Three_Hours : constant := 10_800.0;
 
    Default_Cleaner_Wait_For_Client_Timeout : constant Duration := 80.0;
    Default_Cleaner_Client_Header_Timeout   : constant Duration := 20.0;
-   Default_Cleaner_Client_Data_Timeout     : constant Duration := Height_Hours;
-   Default_Cleaner_Server_Response_Timeout : constant Duration := Height_Hours;
+   Default_Cleaner_Client_Data_Timeout     : constant Duration := Eight_Hours;
+   Default_Cleaner_Server_Response_Timeout : constant Duration := Eight_Hours;
 
    Default_Force_Wait_For_Client_Timeout   : constant Duration :=  2.0;
    Default_Force_Client_Header_Timeout     : constant Duration :=  3.0;
