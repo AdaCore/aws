@@ -89,8 +89,8 @@ package body AWS.Response is
                    Auth_Mess'Length,
                    To_Unbounded_String (AWS.MIME.Text_HTML),
                    To_Unbounded_String (Auth_Mess),
-                   To_Unbounded_String (Realm),
                    Null_Unbounded_String,
+                   To_Unbounded_String (Realm),
                    null);
    end Authenticate;
 
