@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -48,7 +48,7 @@ procedure Turl2 is
       Put_Line ("   Path       : " & Path (O));
       Put_Line ("   File       : " & File (O));
       Put_Line ("   Parameters : " & Parameters (O));
-      Put_Line ("   URI        : " & Pathname (O));
+      Put_Line ("   URI        : " & Pathname_And_Parameters (O));
 
       Normalize (O);
 
@@ -58,7 +58,7 @@ procedure Turl2 is
       Put_Line ("   Path       : " & Path (O));
       Put_Line ("   File       : " & File (O));
       Put_Line ("   Parameters : " & Parameters (O));
-      Put_Line ("   URI        : " & Pathname (O));
+      Put_Line ("   URI        : " & Pathname_And_Parameters (O));
 
    exception
       when E : URL_Error =>

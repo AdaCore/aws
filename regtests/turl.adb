@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -45,14 +45,14 @@ procedure Turl is
       Put_Line (AWS.URL.URL (O));
       Put_Line ("   Server    : " & Host (O));
       Put_Line ("   Port      : " & Port (O));
-      Put_Line ("   URI       : " & Pathname (O));
+      Put_Line ("   URI       : " & Pathname_And_Parameters (O));
 
       Normalize (O);
 
       Put_Line ("   *");
       Put_Line ("   Server    : " & Host (O));
       Put_Line ("   Port      : " & Port (O));
-      Put_Line ("   URI       : " & Pathname (O));
+      Put_Line ("   URI       : " & Pathname_And_Parameters (O));
 
    exception
       when E : URL_Error =>
