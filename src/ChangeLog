@@ -1,3 +1,11 @@
+2004-08-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server-push.adb:
+	(Send_To): Raise Client_Gone exception with text message.
+
+	* templates_parser.adb:
+	(Clear): Initialize Min and Max fields.
+
 2004-07-25  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
