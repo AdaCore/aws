@@ -1,10 +1,7 @@
 
 # $Id$
 
-.SILENT: all build build clean clean_noapiref distrib install build_tarball
-.SILENT: display build_aws build_lib build_doc build_tools build_soap
-.SILENT: build_soap_demos build_ssllib build_soaplib build_win32 build_include
-.SILENT: build_demos run_regtests setup build_apiref build_scripts
+.SILENT:
 
 # NOTE: You should not have to change this makefile. Configuration options can
 # be changed in makefile.conf
@@ -121,7 +118,9 @@ build: build_scripts build_stdlib build_soap_internal build_lib build_demos
 build_lib: build_stdlib build_soap_internal
 	$(AR) cr lib/libaws.a src/*.o
 	$(AR) cr lib/libaws.a ssl/*.o
+ifdef XMLADA
 	-$(AR) cr lib/libaws.a soap/*.o
+endif
 
 build_scripts:
 	echo ""
@@ -258,10 +257,10 @@ else
 endif
 
 build_tarball:
-	-$(RM) -f aws-*.tar*
 	$(CHMOD) uog+rx win32/*.dll
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-$${VERSION}; \
+	$(RM) -f $${AWS}.tar.gz; \
 	$(MKDIR) $${AWS}; \
 	$(MKDIR) $${AWS}/src; \
 	$(MKDIR) $${AWS}/xsrc; \
@@ -287,11 +286,13 @@ build_tarball:
 	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
 	$(CP) demos/*.wsdl $${AWS}/demos;\
-	$(CP) regtests/*.out regtests/*.ad* regtests/*.wsdl $${AWS}/regtests;\
+	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
+	$(CP) regtests/*.wsdl $${AWS}/regtests;\
 	$(CP) regtests/ChangeLog regtests/*.tmplt $${AWS}/regtests;\
 	$(CP) regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
 	$(CP) regtests/makefile regtests/*.ini $${AWS}/regtests;\
-	$(CP) docs/aws.texi.tmplt docs/build.adb docs/makefile $${AWS}/docs;\
+	$(CP) docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
+	$(CP) docs/makefile $${AWS}/docs;\
 	$(CP) docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
 	$(CP) docs/aws.info* $${AWS}/docs;\
 	$(CP) docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
@@ -300,7 +301,8 @@ build_tarball:
 	$(CP) win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
 	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
 	$(CP) include/*.ad[sb] include/makefile $${AWS}/include;\
-	$(CP) include/zlib/*.[ch] include/zlib/makefile $${AWS}/include/zlib;\
+	$(CP) include/zlib/*.[ch] $${AWS}/include/zlib;\
+	$(CP) include/zlib/makefile $${AWS}/include/zlib;\
 	$(CP) include/zlib/FAQ include/zlib/README $${AWS}/include/zlib;\
 	$(CP) include/zlib/ChangeLog* $${AWS}/include/zlib;\
 	$(CP) include/readme.txt $${AWS}/include;\
@@ -308,7 +310,8 @@ build_tarball:
 	$(CP) icons/*.gif $${AWS}/icons;\
 	$(CP) soap/*.ad[sb] soap/makefile soap/ChangeLog $${AWS}/soap;\
 	$(CP) tools/*.ad[sb] tools/makefile $${AWS}/tools;\
-	$(CP) config/*.ad[sb] config/ChangeLog config/makefile $${AWS}/config;\
+	$(CP) config/*.ad[sb] config/ChangeLog $${AWS}/config;\
+	$(CP) config/makefile $${AWS}/config;\
 	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
 	$(CP) xsrc/*.ad[sb] xsrc/README xsrc/ChangeLog $${AWS}/xsrc;\
 	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
@@ -316,7 +319,71 @@ build_tarball:
 	$(GZIP) -9 $${AWS}.tar;\
 	$(RM) -fr $${AWS})
 
-distrib: build_apiref clean_noapiref build_doc build_tarball clean
+build_http_tarball:
+	$(CHMOD) uog+rx win32/*.dll
+	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
+	AWS=aws-http-$${VERSION}; \
+	$(RM) -f $${AWS}.tar.gz; \
+	$(MKDIR) $${AWS}; \
+	$(MKDIR) $${AWS}/src; \
+	$(MKDIR) $${AWS}/demos; \
+	$(MKDIR) $${AWS}/regtests; \
+	$(MKDIR) $${AWS}/docs; \
+	$(MKDIR) $${AWS}/docs/html; \
+	$(MKDIR) $${AWS}/icons; \
+	$(MKDIR) $${AWS}/include; \
+	$(MKDIR) $${AWS}/include/zlib; \
+	$(MKDIR) $${AWS}/lib; \
+	$(MKDIR) $${AWS}/ssl; \
+	$(MKDIR) $${AWS}/win32; \
+	$(MKDIR) $${AWS}/tools; \
+	$(MKDIR) $${AWS}/config; \
+	$(MKDIR) $${AWS}/config/src; \
+	$(MKDIR) $${AWS}/support; \
+	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
+	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
+	$(CP) demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
+	$(CP) demos/*.ads demos/*.adb $${AWS}/demos;\
+	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
+	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
+	$(CP) demos/*.wsdl $${AWS}/demos;\
+	$(CP) regtests/*.out regtests/*.ad* $${AWS}/regtests;\
+	$(CP) regtests/*.wsdl $${AWS}/regtests;\
+	$(CP) regtests/ChangeLog regtests/*.tmplt $${AWS}/regtests;\
+	$(CP) regtests/ftp.thtml regtests/zerolength.html $${AWS}/regtests;\
+	$(CP) regtests/makefile regtests/*.ini $${AWS}/regtests;\
+	$(CP) docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
+	$(CP) docs/makefile $${AWS}/docs;\
+	$(CP) docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
+	$(CP) docs/aws.info* $${AWS}/docs;\
+	$(CP) docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
+	$(CP) -r docs/html/* $${AWS}/docs/html;\
+	$(CP) win32/*.txt $${AWS}/win32;\
+	$(CP) win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
+	$(CP) ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
+	$(CP) include/*.ad[sb] $${AWS}/include;\
+	$(CP) include/zlib/*.[ch] $${AWS}/include/zlib;\
+	$(CP) include/zlib/makefile $${AWS}/include/zlib;\
+	$(CP) include/zlib/FAQ include/zlib/README $${AWS}/include/zlib;\
+	$(CP) include/zlib/ChangeLog* $${AWS}/include/zlib;\
+	$(CP) include/readme.txt $${AWS}/include;\
+	$(CP) lib/makefile $${AWS}/lib;\
+	$(CP) icons/*.gif $${AWS}/icons;\
+	$(CP) tools/awsres.adb tools/makefile $${AWS}/tools;\
+	$(CP) config/*.ad[sb] config/ChangeLog $${AWS}/config;\
+	$(CP) config/makefile $${AWS}/config;\
+	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
+	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
+	$(RM) $${AWS}/include/sha*;\
+	$(SED) 's/$$(LIBSSL) $$(LIBCRYPTO)//' \
+	   win32/makefile > $${AWS}/win32/makefile;\
+	$(SED) 's/sha.ads sha-process_data.adb sha-strings.adb//' \
+	   include/makefile > $${AWS}/include/makefile;\
+	$(TAR) cf $${AWS}.tar $${AWS};\
+	$(GZIP) -9 $${AWS}.tar;\
+	$(RM) -fr $${AWS})
+
+distrib: build_apiref clean_noapiref build_doc build_tarball build_http_tarball
 
 force:
 
@@ -359,7 +426,7 @@ install: force
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
 	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
-	$(CP) win32/*.dll $(INSTALL)/AWS/lib
+	-$(CP) win32/*.dll $(INSTALL)/AWS/lib
 endif
 
 #############################################################################
