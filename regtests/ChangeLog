@@ -3,7 +3,7 @@
 	* auth2.out, cert.out, compress.out, dirop.out, get_post.out,
 	  googlesearch.out, multiple.out, sback.out, server_config.out,
 	  sessions.out, ssback.out, tcom.out, test_soap2.out, test_soap3.out,
-	  wsdl_1.out, wsdl_2.out, wsdl_5.out, wsdl_6.out:
+	  wsdl_1.out, wsdl_2.out, wsdl_5.out, wsdl_6.out, zopen.out:
 	Remove DOS style CR at end of line.
 
 2004-02-01  Pascal Obry  <obry@act-europe.fr>
