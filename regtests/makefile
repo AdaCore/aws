@@ -56,7 +56,7 @@ WSDL_ATESTS =
 else
 STD_TESTS   = $(RT_STD) $(RT_SOAP)
 OTH_TESTS   = tres check_mem
-WSDL_TESTS  = test_wsdl test_wsdl2 
+WSDL_TESTS  = test_wsdl test_wsdl2 interoplab_main
 WSDL_ATESTS = test_wsdl3 
 endif
 
@@ -93,7 +93,7 @@ endif
 
 $(WSDL_TESTS): force
 	echo -n Building $@
-	../tools/wsdl2aws -q -f $@.wsdl
+	../tools/wsdl2aws -q -f -rpc $@.wsdl
 	gnatmake -g $@ $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
@@ -182,3 +182,4 @@ clean:
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
 	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
 	-rm -f stockquoteservice* stock_quote_service*
+	-rm -f interoplab-* interoplab.ad*
