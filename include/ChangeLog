@@ -1,3 +1,8 @@
+2003-10-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add memory_streams.adb.
+
 2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* memory_streams.ads, memory_streams.adb:
