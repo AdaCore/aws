@@ -85,7 +85,7 @@ build_doc:
 	echo ""
 	echo "=== Build doc"
 	${MAKE} -C docs build $(GALL_OPTIONS)
-	${MAKE} -C templates_parser/docs doc $(GALL_OPTIONS)
+	${MAKE} -C templates_parser doc $(GALL_OPTIONS)
 
 build_apiref:
 	echo ""
@@ -322,7 +322,7 @@ endif
 # Configuration for GNAT Projet Files
 
 EXTRA_MODULES = demos regtests
-MODULES = config ssl include src win32 tools templates_parser ${EXTRA_MODULES}
+MODULES = config ssl include src win32 tools ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -404,6 +404,7 @@ ${MODULES_CLEAN}: force
 build: $(MODULES_BUILD)
 
 clean: $(MODULES_CLEAN)
+	${MAKE} -C templates_parser clean
 	-rm -fr .build
 
 PRJDIR = .build/projects
