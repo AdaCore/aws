@@ -38,12 +38,18 @@ package AWS.Parameters is
 
    type List is private;
 
+   type VString_Array is array (Positive range <>)
+     of Ada.Strings.Unbounded.Unbounded_String;
+
    function Count (Parameter_List : in List) return Natural;
    --  Returns the number of item in Parameter_List.
 
+   function Name_Count (Parameter_List : in List) return Natural;
+   --  Returns the number of unique name in Parameter_List.
+
    function Count (Parameter_List : in List; Name : in String) return Natural;
-   --  Returns the number of value for Key in Parameter_List. It returns 0 if
-   --  Key does not exist.
+   --  Returns the number of value for Key Name in Parameter_List. It returns
+   --  0 if Key does not exist.
 
    function Exist (Parameter_List : in List; Name : in String) return Boolean;
    --  Returns True if Key exist in Parameter_List.
@@ -75,16 +81,28 @@ package AWS.Parameters is
    --  after the ressource to form the complete URI. The format is:
    --  "?name1=value1&name2=value2..."
 
+   function Get_Names (Parameter_List : in List) return VString_Array;
+   --  Returns array of unique names.
+
+   function Get_Values
+     (Parameter_List : in List;
+      Name           : in String)
+     return VString_Array;
+   --  Returns all values for the specified parameter name.
+
 private
+
+   --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
+   --  is responsible for doing that.
 
    type List is record
       Parameters     : Ada.Strings.Unbounded.Unbounded_String;
       Case_Sensitive : Boolean := True;
       Data           : Key_Value.Set_Access;
-      Count          : Natural := 0;
+      --  Main data tree.
+      HTTP_Data      : Key_Value.Set_Access;
+      --  Tree to record key and value by order.
    end record;
-   --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
-   --  is responsible for doing that.
 
    function Internal_Get
      (Parameter_List : in List;
