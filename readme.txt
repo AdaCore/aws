@@ -184,6 +184,9 @@ Here are the main changes since AWS 2.0 :
    - AWS.Services.Dispatchers.URI.Register add a way to match using the URI
      prefix instead of the full URI.
 
+   - New root directory web_elements which contains a set of reusable
+     Web design elements.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
