@@ -220,6 +220,9 @@ package AWS.Net is
    --  Waiting time is defined by Set_Timeout.
    --  Empty event set in result mean that timeout occured.
 
+   function Errno (Socket : in Socket_Type) return Integer is abstract;
+   --  Returns and clears error state in socket.
+
 private
 
    procedure Wait_For
