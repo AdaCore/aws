@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+<title>GNAT Pro Server</title>
+
+
+</head>
+<body>
+<h1 align="center">Upload/Download (Wavefront)</h1>
+
+<h2>Files in your repository:</h2>
+
+<form action="/ftp" method="post">
+
+<table width="100%" border="0">
+<tr bgcolor="lightblue" border="1">
+<td border="0"><input type="radio" name="filename" value="titi" />
+titi =
+</td>
+</tr>
+<table width="90%">begin table
+<tr bgcolor="lightblue" border="1">
+<td border="0"><input type="radio" name="filename" value="tata" />
+tata =
+</td>
+</tr>
+</table>end table
+<tr bgcolor="lightblue" border="1">
+<td border="0"><input type="radio" name="filename" value="toto" />
+toto =
+</td>
+</tr>
+<tr bgcolor="lightsteelblue" border="1">
+<td border="0"><input type="radio" name="filename" value="toutou" />
+toutou  =
+</td>
+</tr>
+</table>
+</form>
+
+</body>
+
+</html>
