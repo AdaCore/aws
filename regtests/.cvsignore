@@ -38,6 +38,8 @@ b~param.adb
 b~param.ads
 b~redirect.adb
 b~redirect.ads
+b~server_info.adb
+b~server_info.ads
 b~sessions.adb
 b~sessions.ads
 b~sessions2.adb

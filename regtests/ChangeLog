@@ -1,5 +1,11 @@
 2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(RT_STD): Add server_info.
+
+	* server_info.adb, server_info.out:
+	Initial revision.
+
 	* sessions.adb:
 	Add missing with clause for Ada.Exceptions. Was not detected by GNAT.
 
