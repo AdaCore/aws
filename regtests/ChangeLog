@@ -1,3 +1,10 @@
+2004-06-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait_proc.adb:
+	(Set_Small_Buffers): Do not decrease buffer size for secure sockets.
+	 it lead to test fail.
+	(Client_Side): Use Sample_Size value.
+
 2004-06-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* print_tasks.adb:
