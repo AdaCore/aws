@@ -1,3 +1,24 @@
+2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-generator.ads, ada2wsdl-generator.adb:
+	Initial revision.
+
+	* ada2wsdl-main.ads, ada2wsdl-main.adb:
+	Initial revision.
+
+	* ada2wsdl-options.ads:
+	Initial revision.
+
+	* ada2wsdl-parser.ads, ada2wsdl-parser.adb: 
+	Initial revision.
+
+	* ada2wsdl.ads, ada2wsdl.adb:
+	Initial revision.
+
+	* makefile:
+	(TOOLS): Add ada2wsdl-main if ASIS installed.
+	($(TOOLS)): Remove -main suffix if present.
+
 2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tools.gpr:

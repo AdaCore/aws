@@ -1,3 +1,14 @@
+2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads:
+	(Start_Log): Removed, this was an obsolescent feature in 1.4.
+	(Stop_Log): Idem.
+	(Start_Error_Log): Idem.
+	(Stop_Error_Log): Idem.
+
+	* aws.ads:
+	(Version): Set to 1.5w.
+
 2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-push.ads:
