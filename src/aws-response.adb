@@ -49,7 +49,8 @@ package body AWS.Response is
      (Status_Code  : in Messages.Status_Code;
       Message_Body : in String := "";
       Content_Type : in String := MIME.Text_HTML)
-      return Data is
+      return Data
+   is
       Result : Data;
    begin
       Set.Status_Code (Result, Status_Code);
@@ -118,7 +119,7 @@ package body AWS.Response is
    -- Authentication_Stale --
    --------------------------
 
-   function Authentication_Stale  (D : in Data) return Boolean is
+   function Authentication_Stale (D : in Data) return Boolean is
    begin
       return D.Auth_Stale;
    end Authentication_Stale;
@@ -131,7 +132,8 @@ package body AWS.Response is
      (Content_Type : in String;
       Message_Body : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-      return Data is
+      return Data
+   is
       Result : Data;
    begin
       Set.Status_Code  (Result, Status_Code);
@@ -158,7 +160,8 @@ package body AWS.Response is
      (Content_Type : in String;
       Message_Body : in Streams.Stream_Element_Array;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-      return Data is
+      return Data
+   is
       Result : Data;
    begin
       Set.Status_Code  (Result, Status_Code);
@@ -230,7 +233,8 @@ package body AWS.Response is
      (Content_Type : in String;
       Filename     : in String;
       Status_Code  : in Messages.Status_Code := Messages.S200)
-      return Data is
+      return Data
+   is
       Result : Data;
    begin
       Set.Status_Code  (Result, Status_Code);
@@ -411,7 +415,8 @@ package body AWS.Response is
       Stream_Handle : in Resources.Streams.Stream_Access;
       Stream_Size   : in Content_Length_Type;
       Status_Code   : in Messages.Status_Code := Messages.S200)
-      return Data is
+      return Data
+   is
       Result : Data;
    begin
       Set.Stream       (Result, Stream_Handle, Stream_Size);
