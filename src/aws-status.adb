@@ -88,15 +88,6 @@ package body AWS.Status is
       return To_String (D.Content_Type);
    end Content_Type;
 
-   -----------
-   -- Count --
-   -----------
-
-   function Count (D : in Data; Name : in String) return Natural is
-   begin
-      return AWS.Parameters.Count (D.Parameters, Name);
-   end Count;
-
    ---------------------
    -- File_Up_To_Date --
    ---------------------
