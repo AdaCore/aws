@@ -229,7 +229,7 @@ check_mem: force
 	./check_mem 30 1249 >> check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) 30 1249 > check_mem.run2
 	grep "   Final" check_mem.run2 > run2
-	diff -c -w run1 run2 1>> alldifs 2>> alldifs
+	-diff -c -w run1 run2 1>> alldifs 2>> alldifs
 
 clean:
 	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
@@ -240,5 +240,4 @@ clean:
 	-rm -f interoplab-* interoplab.ad* googlesearchservice*
 	-rm -f wsdl_?_service* wsdl4*
 	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
-	-rm -f $(addsuffix .ads, $(TOGETHER))
-	-rm -f $(addsuffix _main.ads, $(ASIS_TESTS))
+	-rm -f test_all.adb
