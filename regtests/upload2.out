@@ -3,5 +3,6 @@ Server started
 
 Ok, exception received on the server side
   => ADA.IO_EXCEPTIONS.NAME_ERROR
-  => Cannot create file /this/one/does/not/exists/0.upload2.exe
-Ok, exception Socket_Error on client side!
+  => Cannot create file /this/one/does/not/exists/0.upload2.ali
+=> Upload Timeout
+
