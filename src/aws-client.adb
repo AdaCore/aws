@@ -1333,6 +1333,10 @@ package body AWS.Client is
 
          function Get_Full_Line return String;
          --  Returns a full HTTP line (handle continuation line)
+         --
+         --  ??? This is non-standard and as been implemented because some
+         --  Lotus Domino servers do send a Reason-Phrase with continuation
+         --  line. This is clearly not valid see [RFC 2616 - 6.1].
 
          -------------------
          -- Get_Full_Line --
@@ -1343,7 +1347,8 @@ package body AWS.Client is
             N_Char : constant Character := Net.Buffered.Peek_Char (Sock);
          begin
             if N_Char = ' ' or else N_Char = ASCII.HT then
-               --  Next line is a continuation line [RFC 2616 - 2.2]
+               --  Next line is a continuation line [RFC 2616 - 2.2], but
+               --  again this is non standard here, see comment above.
                return Line & Get_Full_Line;
             else
                return Line;
