@@ -83,6 +83,21 @@ package body SOAP.Utils is
       return To_Unbounded_String (String'(Types.Get (Item)));
    end Get;
 
+   --------------------------
+   -- Is_Ada_Reserved_Word --
+   --------------------------
+
+   --  ??? This needs to be completed
+
+   function Is_Ada_Reserved_Word (Name : in String) return Boolean is
+   begin
+      if Name = "return" then
+         return True;
+      end if;
+
+      return False;
+   end Is_Ada_Reserved_Word;
+
    -----------
    -- No_NS --
    -----------

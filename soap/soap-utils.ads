@@ -55,6 +55,9 @@ package SOAP.Utils is
    function No_NS (Name : in String) return String;
    --  Returns Name without leading name space if present
 
+   function Is_Ada_Reserved_Word (Name : in String) return Boolean;
+   --  Returns True if Name is an Ada reserved word
+
    ----------------------------------
    -- Basic_8bit string convertion --
    ----------------------------------
@@ -64,7 +67,7 @@ package SOAP.Utils is
    --  Convert the Basic_8bit encoded Str string to Utf-8
 
    function From_Utf8 (Str : in String) return String;
-   pragma Inline (To_Utf8);
+   pragma Inline (From_Utf8);
    --  Convert the Utf-8 encoded Str string to Basic_8bit
 
    -------------------------------
