@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: clean build
+.SILENT: clean build ada.sed aws.ps aws.info aws.dvi aws.txt aws.html aws.texi
 
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
