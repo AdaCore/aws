@@ -57,6 +57,7 @@
 
 with Ada.Text_IO;
 
+with AWS.Server;
 with Runme_CB;
 
 procedure Runme is
