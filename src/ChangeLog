@@ -1,3 +1,16 @@
+2001-08-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Remove call to AWS.Parameters.Set.Reset has this this already done
+	 by AWS.Status.Set.Reset.
+
+	* aws-services-directory.adb:
+	Close directory iterator and destroy internal tree (fix memory leak).
+
+	* aws-status-set.adb:
+	(Reset): call AWS.Parameters.Set.Reset.
+	Minor reformating.
+
 2001-08-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-config.ads:
