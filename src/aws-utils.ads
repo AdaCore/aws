@@ -53,9 +53,10 @@ package AWS.Utils is
    function Gethostname return String;
    --  Return hostname.
 
-   function Hex (V : in Natural) return String;
+   function Hex (V : in Natural; Width : in Natural := 0) return String;
    --  Returns the hexadecimal string representation of the decimal
-   --  number V.
+   --  number V. if Width /= 0, the result will have exactly Width characters
+   --  eventually padded with leading 0 or trimmed on the right.
 
    generic
       type Enum is (<>);
