@@ -119,6 +119,20 @@ package body AWS.Status is
       return D.Method;
    end Method;
 
+   -------------
+   -- Session --
+   -------------
+
+   function Session (D : in Data) return String is
+   begin
+      return To_String (D.Session_ID);
+   end Session;
+
+   function Session (D : in Data) return AWS.Session.ID is
+   begin
+      return AWS.Session.Value (Session (D));
+   end Session;
+
    ---------------
    -- Parameter --
    ---------------
@@ -317,6 +331,16 @@ package body AWS.Status is
       D.HTTP_Version := To_Unbounded_String (HTTP_Version);
       D.Parameters   := To_Unbounded_String (Parameters);
    end Set_Request;
+
+   -----------------
+   -- Set_Session --
+   -----------------
+
+   procedure Set_Session  (D  : in out Data;
+                           ID : in     String) is
+   begin
+      D.Session_ID := To_Unbounded_String (ID);
+   end Set_Session;
 
    ---------
    -- URI --
