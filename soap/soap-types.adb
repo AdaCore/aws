@@ -605,7 +605,6 @@ package body SOAP.Types is
          use type Ada.Tags.Tag;
 
          T         : Ada.Tags.Tag;
-         Same_Type : Boolean := True;
       begin
          if O.Items.O'Length = 0 then
             --  This is a zero length array, type is undefined.
@@ -614,6 +613,11 @@ package body SOAP.Types is
 
          T := O.Items.O (O.Items.O'First).O'Tag;
 
+         if T = SOAP_Record'Tag then
+            --  This is a record, no need to parse further.
+            return XML_Undefined;
+         end if;
+
          for K in O.Items.O'First + 1 .. O.Items.O'Last loop
 
             --  Not same type if type different or is a composite type.
@@ -621,18 +625,13 @@ package body SOAP.Types is
             if T /= O.Items.O (K).O'Tag
               or else O.Items.O (K).O.all in SOAP.Types.Composite'Class
             then
-               Same_Type := False;
-               exit;
+               return XML_Undefined;
             end if;
 
          end loop;
 
-         if Same_Type then
-            return XML_Type (O.Items.O (O.Items.O'First).O.all);
-
-         else
-            return XML_Undefined;
-         end if;
+         --  We have the same type, and it is not a record.
+         return XML_Type (O.Items.O (O.Items.O'First).O.all);
       end Array_Type;
 
       Result : Unbounded_String;
@@ -646,7 +645,7 @@ package body SOAP.Types is
       Append (Result, Array_Type);
       Append (Result, '[');
       Append (Result, AWS.Utils.Image (O.Items.O'Length));
-      Append (Result, "]"" ");
+      Append (Result, "]""");
       Append (Result, xsi_type (XML_Array));
       Append (Result, '>');
       Append (Result, New_Line);
