@@ -28,14 +28,17 @@
 
 --  $Id$
 
+with Ada.Streams.Stream_IO;
 with Ada.Integer_Text_IO;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 
 with AWS.Messages;
 with AWS.OS_Lib;
 with AWS.Session;
 with AWS.Status;
+with AWS.Server.Config;
 
 separate (AWS.Server)
 
@@ -343,6 +346,321 @@ is
    procedure Get_Message_Data is
       use type Status.Request_Method;
 
+      procedure File_Upload (Start_Boundary, End_Boundary : in String;
+                             Parse_Boundary               : in Boolean);
+      --  handle file upload data coming from the client browser.
+
+      function Value_For (Name : in String; Into : in String) return String;
+      --  Returns the value for the variable named "Name" into the string
+      --  "Into". The data format is: name1="value2"; name2="value2"...
+
+      -----------------
+      -- File_Upload --
+      -----------------
+
+      procedure File_Upload (Start_Boundary, End_Boundary : in String;
+                             Parse_Boundary               : in Boolean)
+      is
+         --  ??? Implementation would be more efficient if the imput socket
+         --  was cached. Here the socket is read char by char.
+
+         Name          : Unbounded_String;
+         Filename      : Unbounded_String;
+         Content_Type  : Unbounded_String;
+         File          : Streams.Stream_IO.File_Type;
+
+         procedure Get_File_Data;
+         --  read file data from the stream.
+
+         --------------
+         -- Get_Data --
+         --------------
+
+         procedure Get_File_Data is
+
+            use type Streams.Stream_Element;
+            use type Streams.Stream_Element_Offset;
+            use type Streams.Stream_Element_Array;
+
+            function Check_EOF return Boolean;
+            --  Returns True if we have reach the end of file data.
+
+            function End_Boundary_Signature
+              return Streams.Stream_Element_Array;
+            --  Returns the end signature string as a element array.
+
+            function Target_Filename (Filename : in String) return String;
+            --  Removes the path from Filename.
+
+            Buffer : Streams.Stream_Element_Array (1 .. 4096);
+            Index  : Streams.Stream_Element_Offset := Buffer'First;
+
+            Data   : Streams.Stream_Element_Array (1 .. 1);
+
+            ---------------
+            -- Check_EOF --
+            ---------------
+
+            function Check_EOF return Boolean is
+               Signature : Streams.Stream_Element_Array :=
+                 (13, 10) & End_Boundary_Signature;
+
+               Buffer : Streams.Stream_Element_Array (1 .. Signature'Length);
+               Index  : Streams.Stream_Element_Offset := Buffer'First;
+
+               function Boundary_Found return Boolean;
+               --  check if a boundary has been reached.
+
+               procedure Write_Data;
+               --  Put buffer data into the main buffer (Get_Data.Buffer). If
+               --  the main buffer is not big enough, it will write the buffer
+               --  into the file bdefore.
+
+               --------------------
+               -- Boundary_Found --
+               --------------------
+
+               function Boundary_Found return Boolean is
+                  KS : Streams.Stream_Element_Offset := Signature'First;
+                  KB : Streams.Stream_Element_Offset := Buffer'First;
+               begin
+                  for K in 1 .. Signature'Length loop
+                     if Signature (KS) /= Buffer (KB) then
+                        return False;
+                     end if;
+                     KS := KS + 1;
+                     KB := KB + 1;
+                  end loop;
+
+                  return True;
+               end Boundary_Found;
+
+               ----------------
+               -- Write_Data --
+               ----------------
+
+               procedure Write_Data is
+               begin
+                  if Get_File_Data.Buffer'Last
+                    < Get_File_Data.Index + Index - 1
+                  then
+                     Streams.Stream_IO.Write
+                       (File, Get_File_Data.Buffer
+                        (Get_File_Data.Buffer'First
+                         .. Get_File_Data.Index - 1));
+                     Get_File_Data.Index := Get_File_Data.Buffer'First;
+                  end if;
+
+                  Get_File_Data.Buffer (Get_File_Data.Index
+                                        .. Get_File_Data.Index + Index - 2)
+                    := Buffer (Buffer'First .. Index - 1);
+                  Get_File_Data.Index := Get_File_Data.Index + Index - 1;
+               end Write_Data;
+
+            begin
+               Buffer (Index) := 13;
+               Index := Index + 1;
+
+               loop
+                  Sockets.Receive (Sock, Data);
+
+                  if Data (1) = 13 then
+                     Write_Data;
+                     return False;
+                  end if;
+
+                  Buffer (Index) := Data (1);
+
+                  if Index = Buffer'Last then
+--                     if Buffer = Signature then  -- BUG GNAT 3.13
+                     if Boundary_Found then
+                        return True;
+                     else
+                        Write_Data;
+                        return False;
+                     end if;
+                  end if;
+
+                  Index := Index + 1;
+
+               end loop;
+            end Check_EOF;
+
+            ----------------------------
+            -- End_Boundary_Signature --
+            ----------------------------
+
+            function End_Boundary_Signature
+              return Streams.Stream_Element_Array
+            is
+               use Streams;
+               End_Signature    : constant String := Start_Boundary;
+               Stream_Signature : Stream_Element_Array
+                 (Stream_Element_Offset (End_Signature'First)
+                  .. Stream_Element_Offset (End_Signature'Last));
+            begin
+               for K in End_Signature'Range loop
+                  Stream_Signature (Stream_Element_Offset (K))
+                    := Stream_Element (Character'Pos (End_Signature (K)));
+               end loop;
+               return Stream_Signature;
+            end End_Boundary_Signature;
+
+            ---------------------
+            -- Target_Filename --
+            ---------------------
+
+            function Target_Filename (Filename : in String) return String is
+               I : Natural := Fixed.Index (Filename,
+                                           Maps.To_Set ("/\"),
+                                           Going => Strings.Backward);
+            begin
+               if I = 0 then
+                  return Server.Config.Upload_Directory (HTTP_Server)
+                    & Filename;
+               else
+                  return Server.Config.Upload_Directory (HTTP_Server)
+                    & Filename (I + 1 .. Filename'Last);
+               end if;
+            end Target_Filename;
+
+         begin
+            Streams.Stream_IO.Create (File,
+                                      Streams.Stream_IO.Out_File,
+                                      Target_Filename (To_String (Filename)));
+
+            Read_File: Loop
+               Sockets.Receive (Sock, Data);
+
+               while Data (1) = 13 loop
+                  exit Read_File when Check_EOF;
+               end loop;
+
+               Buffer (Index) := Data (1);
+               Index := Index + 1;
+
+               if Index > Buffer'Last then
+                  Streams.Stream_IO.Write (File, Buffer);
+                  Index := Buffer'First;
+               end if;
+            end loop Read_File;
+
+            if not (Index = Buffer'First) then
+               Streams.Stream_IO.Write
+                 (File, Buffer (Buffer'First .. Index - 1));
+            end if;
+
+            Streams.Stream_IO.Close (File);
+         end Get_File_Data;
+
+      begin
+         --  reach the boundary
+
+         if Parse_Boundary then
+            loop
+               declare
+                  Data : constant String := Sockets.Get_Line (Sock);
+               begin
+                  exit when Data = Start_Boundary;
+
+                  if Data = End_Boundary then
+                     --  this is the end of the multipart data
+                     return;
+                  end if;
+               end;
+            end loop;
+         end if;
+
+         --  read file upload parameters
+
+         declare
+            Data : constant String := Sockets.Get_Line (Sock);
+         begin
+            if not Parse_Boundary then
+               if Data = "--" then
+                  --  check if this is the end of the finish boundary string.
+                  return;
+               else
+                  --  data should be CR+LF here
+                  declare
+                     Data : constant String := Sockets.Get_Line (Sock);
+                  begin
+                     Name
+                       := To_Unbounded_String (Value_For ("name", Data));
+                     Filename
+                       := To_Unbounded_String (Value_For ("filename", Data));
+                  end;
+               end if;
+            else
+               Name     := To_Unbounded_String (Value_For ("name", Data));
+               Filename := To_Unbounded_String (Value_For ("filename", Data));
+            end if;
+         end;
+
+         --  reach the data
+
+         loop
+            declare
+               Data : constant String := Sockets.Get_Line (Sock);
+            begin
+               if Data = "" then
+                  exit;
+               else
+                  Content_Type := To_Unbounded_String
+                    (Data
+                     (Messages.Content_Type_Token'Length + 1 .. Data'Last));
+               end if;
+            end;
+         end loop;
+
+         --  read file/field data
+
+         if To_String (Filename) = "" then
+            --  this part of the multipart message contains field value.
+
+            declare
+               Value : constant String := Sockets.Get_Line (Sock);
+            begin
+               AWS.Status.Set_Parameters (C_Stat,
+                                          To_String (Name) & '=' & Value);
+            end;
+
+            File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
+                         "--" & Status.Multipart_Boundary (C_Stat) & "--",
+                         True);
+
+         else
+            --  this part of the multipart message contains file data.
+
+            AWS.Status.Set_Parameters
+              (C_Stat,
+               To_String (Name) & '=' & To_String (Filename));
+
+            Get_File_Data;
+
+            File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
+                         "--" & Status.Multipart_Boundary (C_Stat) & "--",
+                         False);
+         end if;
+
+      end File_Upload;
+
+      ---------------
+      -- Value_For --
+      ---------------
+
+      function Value_For (Name : in String; Into : in String) return String is
+         Pos   : constant Natural := Fixed.Index (Into, Name & '=');
+         Start : constant Natural := Pos + Name'Length + 2;
+      begin
+         if Pos = 0 then
+            return "";
+         else
+            return Into (Start
+                         .. Fixed.Index (Into (Start .. Into'Last), """") - 1);
+         end if;
+      end Value_For;
+
    begin
       --  is there something to read ?
 
@@ -353,7 +671,8 @@ is
 
          then
             --  read data from the stream and convert it to a string as
-            --  these are a POST form parameters
+            --  these are a POST form parameters.
+            --  The body as the format: name1=value1;name2=value2...
 
             declare
                Data : constant Streams.Stream_Element_Array
@@ -366,8 +685,18 @@ is
                   Char_Data (CDI) := Character'Val (Data (K));
                   CDI := CDI + 1;
                end loop;
+
                Status.Set_Parameters (C_Stat, Char_Data);
             end;
+
+         elsif Status.Method (C_Stat) = Status.POST
+           and then Status.Content_Type (C_Stat) = Messages.Multipart_Form_Data
+         then
+            --  this is a file upload.
+
+            File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
+                         "--" & Status.Multipart_Boundary (C_Stat) & "--",
+                         True);
 
          else
             --  let's suppose for now that all others content type data are
@@ -583,10 +912,24 @@ is
                       .. Command'Last)));
 
       elsif Messages.Is_Match (Command, Messages.Content_Type_Token) then
-         Status.Set_Content_Type
-           (C_Stat,
-            Command
-            (Messages.Content_Type_Token'Length + 1 .. Command'Last));
+         declare
+            Pos : constant Natural := Fixed.Index (Command, ";");
+         begin
+            if Pos = 0 then
+               Status.Set_Content_Type
+                 (C_Stat,
+                  Command
+                  (Messages.Content_Type_Token'Length + 1 .. Command'Last));
+            else
+               Status.Set_Content_Type
+                 (C_Stat,
+                  Command
+                  (Messages.Content_Type_Token'Length + 1 .. Pos - 1));
+               Status.Set_Multipart_Boundary
+                 (C_Stat,
+                  Command (Pos + 11 .. Command'Last));
+            end if;
+         end;
 
       elsif Messages.Is_Match
         (Command, Messages.If_Modified_Since_Token)
@@ -779,6 +1122,8 @@ begin
       exit when Status.Connection (C_Stat) /= "Keep-Alive"
         or else Status.HTTP_Version (C_Stat) = HTTP_10
         or else HTTP_Server.Slots.N = 1;
+
+      Status.Reset (C_Stat);
 
    end loop For_Every_Request;
 
