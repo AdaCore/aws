@@ -1,3 +1,19 @@
+2001-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Debug_On): new variable.
+	(Debug_Release): new procedure.
+	(Send_Header): new routine.
+	(Debug_Message): new routine.
+	(Get_Response): handle properly the textual data chunked encoded.
+	(Open_Send_Common_Header): send data using Send_Header.
+	(Parse_Header): call debug message for each header line.
+	(Post): send data using Send_Header.
+	(Put): send data using Send_Header.
+
+	* aws-client.ads:
+	(Set_Debug): new routine.
+
 2001-10-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
