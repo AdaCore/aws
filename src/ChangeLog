@@ -1,5 +1,38 @@
 2003-10-10  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): Add aws-server-log.adb.
+
+	* aws-server-protocol_handler.adb:
+	Fix ambiguous call.
+
+	* aws-server.adb:
+	(Start_Log): Renaming of routines in AWS.Server.Log.
+	(Stop_Log): Idem.
+	(Start_Error_Log): Idem.
+	(Stop_Error_Log): Idem.
+	(Flush_Log): Moved to AWS.Server.Log.
+	(Is_Log_Active): Idem.
+	(Log_Name): Idem.
+	(Is_Error_Log_Active): Idem.
+	(Error_Log_Name): Idem.
+
+	* aws-server.ads:
+	(Start_Log): Add pragma Obsolescent.
+	(Stop_Log): Idem.
+	(Start_Error_Log): Idem.
+	(Stop_Error_Log): Idem.
+	(Flush_Log): Moved to AWS.Server.Log.
+	(Is_Log_Active): Idem.
+	(Log_Name): Idem.
+	(Is_Error_Log_Active): Idem.
+	(Error_Log_Name): Idem.
+
+	* aws-server-log.ads, aws-server-log.adb:
+	Initial revision.
+
+2003-10-10  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-log.ads:
 	Minor reformatting.
 
