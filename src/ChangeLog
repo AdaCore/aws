@@ -6,6 +6,7 @@
 	(AI_NUMERICHOST): Idem.
 	(GetAddrInfo): Idem.
 	(FreeAddrInfo): Idem.
+	(GAI_StrError): Removed.
 
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
