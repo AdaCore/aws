@@ -353,10 +353,6 @@ is
          Parse_Boundary               : in Boolean);
       --  Handle file upload data coming from the client browser.
 
-      function Value_For (Name : in String; Into : in String) return String;
-      --  Returns the value for the variable named "Name" into the string
-      --  "Into". The data format is: name1="value2"; name2="value2"...
-
       -----------------
       -- File_Upload --
       -----------------
@@ -619,12 +615,15 @@ is
          --  Read file upload parameters
 
          declare
-            Data : constant String := Net.Buffered.Get_Line (Sock);
+            use Headers;
+            Data       : constant String := Net.Buffered.Get_Line (Sock);
+            L_Name     : constant String := Values.Search (Data, "name");
+            L_Filename : constant String := Values.Search (Data, "filename");
          begin
-            Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
+            Is_File_Upload := (L_Filename /= "");
 
-            Name     := To_Unbounded_String (Value_For ("name", Data));
-            Filename := To_Unbounded_String (Value_For ("filename", Data));
+            Name     := To_Unbounded_String (L_Name);
+            Filename := To_Unbounded_String (L_Filename);
          end;
 
          --  Reach the data
@@ -727,22 +726,6 @@ is
          end if;
       end File_Upload;
 
-      ---------------
-      -- Value_For --
-      ---------------
-
-      function Value_For (Name : in String; Into : in String) return String is
-         Pos   : constant Natural := Fixed.Index (Into, Name & '=');
-         Start : constant Natural := Pos + Name'Length + 2;
-      begin
-         if Pos = 0 then
-            return "";
-         else
-            return Into
-              (Start .. Fixed.Index (Into (Start .. Into'Last), """") - 1);
-         end if;
-      end Value_For;
-
    begin
       --  Is there something to read ?
 
@@ -819,15 +802,14 @@ is
 
       Status_Connection := To_Unbounded_String (Status.Connection (C_Stat));
 
-      --  Get necessary data from header for the reading HTTP body.
+      --  Get necessary data from header for reading HTTP body
 
       declare
 
          procedure Named_Value
            (Name, Value : in String;
             Quit        : in out Boolean);
-         --  Looking for the Boundary value in the
-         --  Content-Type header line.
+         --  Looking for the Boundary value in the  Content-Type header line
 
          procedure Value (Item : in String; Quit : in out Boolean);
          --  Reading the first unnamed value into the Status_Content_Type
@@ -854,7 +836,7 @@ is
          procedure Value (Item : in String; Quit : in out Boolean) is
          begin
             if Status_Content_Type /= Null_Unbounded_String then
-               --  Only first unnamed value is the Content_Type.
+               --  Only first unnamed value is the Content_Type
 
                Quit := True;
 
