@@ -1,3 +1,19 @@
+2004-08-24  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(RT_STD): Add upload4.
+
+	* upload.adb:
+	(Server): Set Upload_Directory to "./".
+
+	* upload4.adb:
+	Use Get_Free_Port.
+	
+2004-08-24  Pascal Obry  <pascal@obry.org>
+
+	* upload4.adb, upload4.out: 
+	Initial revision.
+
 2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* test_soap5_sec.adb, test_soap5_sec.out, makefile:

@@ -184,6 +184,8 @@ b~upload2.adb
 b~upload2.ads
 b~upload3.adb
 b~upload3.ads
+b~upload4.adb
+b~upload4.ads
 b~workorder.adb
 b~workorder.ads
 b~wsdl_1_main.adb
@@ -300,6 +302,8 @@ hello_demo-server.ads
 hello_demo-types.adb
 hello_demo-types.ads
 hello_demo.ads
+hload.res
+hload_sec.res
 hostip
 hostip.res
 hostip.tmp
