@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002-2003                       --
+--                         Copyright (C) 2002-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -56,10 +56,9 @@ package AWS.Resources.Streams is
    pragma Inline (Create);
    --  Create the resource from user defined resource.
 
-   function Size
-     (Resource : in Stream_Type)
-      return   Stream_Element_Offset;
-   --  Returns the Undefined_Length. If the derived types has a defined size,
+   function Size (Resource : in Stream_Type) return Stream_Element_Offset;
+   --  This default implementation returns Undefined_Length. If the derived
+   --  stream implementation knows about the size (in bytes) of the stream
    --  this routine should be redefined.
 
 private
