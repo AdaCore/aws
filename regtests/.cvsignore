@@ -1,6 +1,14 @@
+b~dummy.adb
+b~dummy.ads
+b~param.adb
+b~param.ads
+b~simple.adb
+b~simple.ads
 b~tgetparam.adb
 b~tgetparam.ads
 b~turl.adb
 b~turl.ads
+dummy.res
+simple.res
 tgetparam.res
 turl.res
