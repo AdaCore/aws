@@ -34,6 +34,10 @@
 
 package AWS.Config.Set is
 
+   ------------------------
+   -- Per Server Options --
+   ------------------------
+
    procedure Server_Name (O : in out Object; Value : in String);
    --  This is the name of the server as set by AWS.Server.Start.
 
@@ -64,20 +68,19 @@ package AWS.Config.Set is
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
 
+   procedure Log_File_Prefix (O : in out Object; Value : in String);
+   --  This is the prefix to use for the log filename.
+
+   procedure Log_Split_Mode (O : in out Object; Value : in String);
+   --  This is split mode for the log file. Possible values are : Each_Run,
+   --  Daily, Monthly and None. Any other values will raise an exception.
+
    procedure Upload_Directory (O : in out Object; Value : in String);
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
 
    procedure Session (O : in out Object; Value : in Boolean);
    --  Enable session handling is Value is True.
-
-   procedure Session_Cleanup_Interval (O : in out Object; Value : in Duration);
-   --  Number of seconds between each run of the cleaner task to remove
-   --  obsolete session data.
-
-   procedure Session_Lifetime (O : in out Object; Value : in Duration);
-   --  Number of seconds to keep a session if not used. After this period the
-   --  session data is obsoleted and will be removed during new cleanup.
 
    procedure Cleaner_Wait_For_Client_Timeout
      (O     : in out Object;
@@ -153,6 +156,18 @@ package AWS.Config.Set is
 
    procedure Case_Sensitive_Parameters (O : in out Object; Value : in Boolean);
    --  Parameters are handled with the case if Value is True.
+
+   -------------------------
+   -- Per Process Options --
+   -------------------------
+
+   procedure Session_Cleanup_Interval (Value : in Duration);
+   --  Number of seconds between each run of the cleaner task to remove
+   --  obsolete session data.
+
+   procedure Session_Lifetime (Value : in Duration);
+   --  Number of seconds to keep a session if not used. After this period the
+   --  session data is obsoleted and will be removed during new cleanup.
 
 private
 

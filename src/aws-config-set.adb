@@ -162,12 +162,28 @@ package body AWS.Config.Set is
    -- Log_File_Directory --
    ------------------------
 
-   procedure Log_File_Directory
-     (O     : in out Object;
-      Value : in     String) is
+   procedure Log_File_Directory (O : in out Object; Value : in String) is
    begin
       O (Log_File_Directory).Dir_Value := To_Unbounded_String (Value);
    end Log_File_Directory;
+
+   ---------------------
+   -- Log_File_Prefix --
+   ---------------------
+
+   procedure Log_File_Prefix (O : in out Object; Value : in String) is
+   begin
+      O (Log_File_Prefix).Str_Value := To_Unbounded_String (Value);
+   end Log_File_Prefix;
+
+   --------------------
+   -- Log_Split_Mode --
+   --------------------
+
+   procedure Log_Split_Mode (O : in out Object; Value : in String) is
+   begin
+      O (Log_Split_Mode).Str_Value := To_Unbounded_String (Value);
+   end Log_Split_Mode;
 
    ----------------
    -- Logo_Image --
@@ -246,19 +262,18 @@ package body AWS.Config.Set is
    ------------------------------
 
    procedure Session_Cleanup_Interval
-     (O     : in out Object;
-      Value : in     Duration) is
+     (Value : in Duration) is
    begin
-      O (Session_Cleanup_Interval).Dur_Value := Value;
+      Process_Options (Session_Cleanup_Interval).Dur_Value := Value;
    end Session_Cleanup_Interval;
 
    ----------------------
    -- Session_Lifetime --
    ----------------------
 
-   procedure Session_Lifetime (O : in out Object; Value : in Duration) is
+   procedure Session_Lifetime (Value : in Duration) is
    begin
-      O (Session_Lifetime).Dur_Value := Value;
+      Process_Options (Session_Lifetime).Dur_Value := Value;
    end Session_Lifetime;
 
    -----------------
