@@ -11,10 +11,12 @@ include makefile.conf
 
 # External packages to be configured
 
-XMLADA	= /usr/Ada.Libraries/XMLada
+# XMLADA	= /usr/Ada.Libraries/XMLada
 
+ifdef XMLADA
 INCLUDES = -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib
 LIBS	 = -L$(XMLADA)/lib -lxmlada
+endif
 
 INSTALL	 = /usr/Ada.Libraries/AWS
 
@@ -153,9 +155,12 @@ install:
 	mkdir $(INSTALL)/images
 	mkdir $(INSTALL)/templates
 	mkdir $(INSTALL)/docs
-	ar cr libaws.a src/*.o ssl/*.o soap/*.o
-	cp src/*.ad[sb] ssl/*.ad[sb] soap/*.ad[sb] $(INSTALL)/include
-	cp src/*.ali ssl/*.ali soap/*.ali $(INSTALL)/lib
+	ar cr libaws.a src/*.o ssl/*.o
+	-ar cr libaws.a soap/*.o
+	cp src/*.ad[sb] ssl/*.ad[sb] $(INSTALL)/include
+	-cp soap/*.ad[sb] $(INSTALL)/include
+	cp src/*.ali ssl/*.ali $(INSTALL)/lib
+	-cp soap/*.ali $(INSTALL)/lib
 	chmod uog-w $(INSTALL)/lib/*.ali
 	mv libaws.a $(INSTALL)/lib
 	-cp docs/aws.html $(INSTALL)/docs
