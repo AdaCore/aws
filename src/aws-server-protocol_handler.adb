@@ -193,13 +193,14 @@ is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
 
+         Filename      : constant String := Response.Message_Body (Answer);
          Is_Up_To_Date : Boolean;
 
       begin
          Is_Up_To_Date :=
            Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
             and then
-           OS_Lib.File_Timestamp (Response.Message_Body (Answer))
+           OS_Lib.File_Timestamp (Filename)
             = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
          --  Equal used here see [RFC 2616 - 14.25]
 
@@ -224,22 +225,18 @@ is
          if AWS.Status.Method (C_Stat) = AWS.Status.HEAD then
             --  Send file info and terminate header
 
-            Send_File_Time (Sock, Response.Message_Body (Answer));
+            Send_File_Time (Sock, Filename);
+
             Sockets.Put_Line
               (Sock,
                Messages.Content_Length (Response.Content_Length (Answer)));
             Sockets.New_Line (Sock);
 
          else
-            Send_File (Response.Message_Body (Answer),
+            Send_File (Filename,
                        Response.Content_Length (Answer),
                        AWS.Status.HTTP_Version (C_Stat));
          end if;
-
-      exception
-         when AWS.OS_Lib.No_Such_File =>
-            --  File was not found, just ignore.
-            null;
       end Send_File;
 
       -------------------------
@@ -1329,6 +1326,7 @@ is
 
       when others =>
          Streams.Stream_IO.Close (File);
+         raise;
    end Send_File;
 
    --------------------
