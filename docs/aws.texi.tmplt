@@ -1208,6 +1208,21 @@ This is the maximum number of simultaneous connections for the
 server. This can be used when calling the @code{AWS.Server.Start}. The
 default is @_MAX_CONNECT_@.
 
+Note that the total number of threads used by a server is:
+
+@smallexample
+@cartouche
+@group
+N = <main server thread> + <max connections> [+ <session>]
+
+  Note: [...] means optional value
+        Add 1 only if the session feature is activated. This is
+        due to the session cleaner task.
+@end group
+@end cartouche
+@end smallexample
+
+
 @item Free_Slots_Keep_Alive_Limit (positive)
 @cindex Free_Slots_Keep_Alive_Limit
 This is the minimum number of remaining free slots to enable keep-alive HTTP
