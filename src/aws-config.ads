@@ -91,6 +91,12 @@ package AWS.Config is
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
+   function Free_Slots_Keep_Alive_Limit (O : in Object) return Positive;
+   pragma Inline (Free_Slots_Keep_Alive_Limit);
+   --  The number of free slots, where keep-alive connection is still enable.
+   --  Should be more where the Max_Connection is big for the good handling
+   --  of the hard loading.
+
    function Accept_Queue_Size (O : in Object) return Positive;
    pragma Inline (Accept_Queue_Size);
    --  This is the size of the queue for the incoming requests. Higher this
@@ -244,6 +250,7 @@ private
       Security,
       Hotplug_Port,
       Max_Connection,
+      Free_Slots_Keep_Alive_Limit,
       Accept_Queue_Size,
       Log_File_Directory,
       Log_Filename_Prefix,
@@ -377,6 +384,9 @@ private
 
          Max_Connection =>
            (Pos, Default.Max_Connection),
+
+         Free_Slots_Keep_Alive_Limit =>
+           (Pos, Default.Free_Slots_Keep_Alive_Limit),
 
          Accept_Queue_Size =>
            (Pos, Default.Accept_Queue_Size),
