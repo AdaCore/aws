@@ -1,3 +1,8 @@
+2003-03-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* interoplab_main.adb, interoplab_main.out:
+	Add test for echoStructArray SOAP service.
+
 2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* interoplab_main.out:
