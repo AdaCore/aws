@@ -1,5 +1,8 @@
 2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* zlib.adb:
+	Minor reformatting.
+
 	* memory_streams.adb:
 	(End_Of_File): Correctly detect end of stream data. Fix an access
 	 violation.

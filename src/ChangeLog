@@ -1,5 +1,12 @@
 2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-streams-memory-zlib.adb:
+	(Close): New procedure. Properly free the ZLib filter
+	 resources. Fixes memory leak.
+
+	* aws-resources-streams-memory-zlib.ads:
+	(Close): New procedure (overloading of parent's implementation).
+
 	* aws-translator.adb:
 	(Compress_Decompress): Add missing spec.
 	Put routines in alphabetical order.
