@@ -1,3 +1,9 @@
+2005-02-15  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* zapp.adb:
+	Don't with Ada.Strings.Unbounded and AWS.MIME.
+	Use Get_Free_Port.
+
 2005-02-05  Pascal Obry  <pascal@obry.org>
 
 	* sp_pck.adb:
