@@ -56,7 +56,8 @@ Here are the main changes:
    - Add complete HTML code browsing facility using gnathtml. See
      aws/docs/html directory.
 
-   - Add support for Digest authentication.
+   - Add support for Digest authentication (far more secure than the
+     Basic one).
 
    - Fix a serious file upload bug. Some files were not correctly detected in
      the MIME sections.
@@ -65,6 +66,15 @@ Here are the main changes:
      exception is raised if an URL try to reach a resource above the Web
      root. This was not a big problem in AWS as most URL are just "string"
      which does not reference file on disk.
+
+   - Add support to send SMTP e-mail (MIME attachments are supported).
+
+   - Add support for user/password in URL.
+
+   - Add fast support for string/stream_element_array conversion in
+     AWS.Translator if the compiler/target support it.
+
+   - Support HTTP header lines in multiple line as it should be.
 
    - Plus many small fixes, enhancements and documentation work.
 
