@@ -162,5 +162,3 @@ implemented:
 - Add reply all support to the Web_Mail service.
 
 =============== Point to fix/implement/review before next release (2.0)
-
-- Check the documentation before the release
