@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -337,7 +337,8 @@ package body AWS.Services.Web_Mail is
                   Templates.Assoc ("WM_INDEX", No_Message),
                   Templates.Assoc ("WM_SUBJECT", POP.Subject (Mess)),
                   Templates.Assoc ("WM_DATE", POP.Date (Mess)),
-                  Templates.Assoc ("WM_FROM", POP.From (Mess)))
+                  Templates.Assoc ("WM_FROM", POP.From (Mess)),
+                  Templates.Assoc ("WM_CC", POP.CC (Mess)))
                & Get_Content)));
    end Message;
 
