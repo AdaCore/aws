@@ -319,8 +319,12 @@ package body AWS.Net.Std is
                 hints   => Hints,
                 res     => Result'Access);
 
-      if Res /= 0 then
+      if Res = OSD.EAI_SYSTEM then
          Raise_Socket_Error (Errno);
+
+      elsif Res /= 0 then
+         Ada.Exceptions.Raise_Exception
+           (Socket_Error'Identity, Strings.Value (OSD.GAI_StrError (Res)));
       end if;
 
       return Result;
