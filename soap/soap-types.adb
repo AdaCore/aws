@@ -34,6 +34,7 @@ with Ada.Long_Float_Text_IO;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Tags;
+with Ada.Task_Attributes;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Utils;
@@ -48,6 +49,12 @@ package body SOAP.Types is
    function xsi_type (Name : in String) return String;
    --  Returns the xsi:type field for the XML type representation whose name
    --  is passed as argument.
+
+   function Spaces (N : in Natural) return String;
+   --  Returns N * 3 spaces.
+
+   package XML_Indent is new Ada.Task_Attributes (Natural, 0);
+   --  Thread safe Indentation counter.
 
    ---------
    -- "+" --
@@ -412,6 +419,16 @@ package body SOAP.Types is
       end if;
    end S;
 
+   ------------
+   -- Spaces --
+   ------------
+
+   function Spaces (N : in Natural) return String is
+      use Ada.Strings.Fixed;
+   begin
+      return (3 * N) * ' ';
+   end Spaces;
+
    -------
    -- T --
    -------
@@ -487,55 +504,102 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in Object) return String is
-      OC : constant Object'Class := Object'Class (O);
+      Indent : constant Natural := XML_Indent.Value;
+      OC     : constant Object'Class := Object'Class (O);
    begin
-      return "<" & Name (OC) & xsi_type (XML_Type (OC)) & '>'
+      return Spaces (Indent)
+        & "<" & Name (OC) & xsi_type (XML_Type (OC)) & '>'
         & Image (OC)
         & "</" & Name (OC) & '>';
    end XML_Image;
 
+   ---------------
+   -- XML_Image --
+   ---------------
+
    function XML_Image (O : in XSD_Integer) return String is
+      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
+
+   ---------------
+   -- XML_Image --
+   ---------------
 
    function XML_Image (O : in XSD_Float) return String is
+      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
+
+   ---------------
+   -- XML_Image --
+   ---------------
 
    function XML_Image (O : in XSD_String) return String is
+      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
+
+   ---------------
+   -- XML_Image --
+   ---------------
 
    function XML_Image (O : in XSD_Boolean) return String is
+      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
+
+   ---------------
+   -- XML_Image --
+   ---------------
 
    function XML_Image (O : in XSD_Time_Instant) return String is
+      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
+
+   ---------------
+   -- XML_Image --
+   ---------------
 
    function XML_Image (O : in XSD_Null) return String is
-      OC : constant Object'Class := Object'Class (O);
+      Indent : constant Natural := XML_Indent.Value;
+      OC     : constant Object'Class := Object'Class (O);
    begin
-      return "<" & Name (OC) & " xsi_null=""1""/>";
+      return Spaces (Indent) & "<" & Name (OC) & " xsi_null=""1""/>";
    end XML_Image;
 
+   ---------------
+   -- XML_Image --
+   ---------------
+
    function XML_Image (O : in SOAP_Base64) return String is
+      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
+
+   ---------------
+   -- XML_Image --
+   ---------------
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
 
    function XML_Image (O : in SOAP_Array) return String is
 
+      Indent : constant Natural := XML_Indent.Value;
+
       function Array_Type return String;
       --  Returns the right SOAP array type.
+
+      ----------------
+      -- Array_Type --
+      ----------------
 
       function Array_Type return String is
          use type Ada.Tags.Tag;
@@ -551,10 +615,16 @@ package body SOAP.Types is
          T := O.Items.O (O.Items.O'First).O'Tag;
 
          for K in O.Items.O'First + 1 .. O.Items.O'Last loop
-            if T /= O.Items.O (K).O'Tag then
+
+            --  Not same type if type different or is a composite type.
+
+            if T /= O.Items.O (K).O'Tag
+              or else O.Items.O (K).O.all in SOAP.Types.Composite'Class
+            then
                Same_Type := False;
                exit;
             end if;
+
          end loop;
 
          if Same_Type then
@@ -569,6 +639,7 @@ package body SOAP.Types is
    begin
       --  Open array element
 
+      Append (Result, Spaces (Indent));
       Append (Result, '<');
       Append (Result, O.Name);
       Append (Result, " SOAP-ENC:arrayType=""");
@@ -582,29 +653,45 @@ package body SOAP.Types is
 
       --  Add all elements
 
+      XML_Indent.Set_Value (Indent + 1);
+
       for K in O.Items.O'Range loop
          Append (Result, XML_Image (O.Items.O (K).O.all));
          Append (Result, New_Line);
       end loop;
 
+      XML_Indent.Set_Value (Indent);
+
       --  End array element
 
+      Append (Result, Spaces (Indent));
       Append (Result, Utils.Tag (To_String (O.Name), Start => False));
 
       return To_String (Result);
    end XML_Image;
 
+   ---------------
+   -- XML_Image --
+   ---------------
+
    function XML_Image (O : in SOAP_Record) return String is
+      Indent : constant Natural := XML_Indent.Value;
       Result : Unbounded_String;
    begin
+      Append (Result, Spaces (Indent));
       Append (Result, Utils.Tag (Name (O), Start => True));
       Append (Result, New_Line);
+
+      XML_Indent.Set_Value (Indent + 1);
 
       for K in O.Items.O'Range loop
          Append (Result, XML_Image (O.Items.O (K).O.all));
          Append (Result, New_Line);
       end loop;
 
+      XML_Indent.Set_Value (Indent);
+
+      Append (Result, Spaces (Indent));
       Append (Result, Utils.Tag (Name (O), Start => False));
 
       return To_String (Result);
