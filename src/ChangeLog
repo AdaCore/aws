@@ -1,3 +1,12 @@
+2004-04-20  Pascal Obry  <pascal@obry.org>
+
+	* aws-net.adb:
+	Minor reformatting.
+        Update copyright notice.
+
+	* aws-net.ads:
+	(Set_Blocking_Mode): Add pragma Obsolescent. Remove obsolete comment.
+
 2004-04-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.ads:
@@ -41,7 +50,7 @@
 	* templates_parser-filter.adb:
 	(BR_2_LF): Fix Constraint_Error if S is empty.
 	Patch from Jérôme Roussel.
-	
+
 2004-04-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
