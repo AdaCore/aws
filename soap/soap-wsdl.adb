@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,6 +38,8 @@ with Ada.Characters.Handling;
 with Input_Sources.File;
 with Sax.Readers;
 with DOM.Readers;
+
+with SOAP.Types;
 
 package body SOAP.WSDL is
 
@@ -78,6 +80,9 @@ package body SOAP.WSDL is
       then
          Result := P_Integer;
 
+      elsif L_Type = "long" then
+         Result := P_Long;
+
       elsif L_Type = "float" or else L_Type = "long_float" then
          Result := P_Float;
 
@@ -115,7 +120,7 @@ package body SOAP.WSDL is
          when P_Character =>
             return "SOAP.Utils.Get";
 
-         when P_Integer | P_Double | P_Float | P_Boolean
+         when P_Integer | P_Long | P_Double | P_Float | P_Boolean
            | P_Time | P_B64
            =>
             return "SOAP.Types.Get";
@@ -170,6 +175,7 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Integer   => return "SOAP.Types.I";
+         when P_Long      => return "SOAP.Types.L";
          when P_Float     => return "SOAP.Types.F";
          when P_Double    => return "SOAP.Types.D";
          when P_Boolean   => return "SOAP.Types.B";
@@ -193,6 +199,7 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Integer   => return "SOAP.Types.XSD_Integer";
+         when P_Long      => return "SOAP.Types.XSD_Long";
          when P_Float     => return "SOAP.Types.XSD_Float";
          when P_Double    => return "SOAP.Types.XSD_Double";
          when P_Boolean   => return "SOAP.Types.XSD_Boolean";
@@ -214,6 +221,7 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Integer    => return "Integer";
+         when P_Long       => return "SOAP.Types.Long";
          when P_Float      => return "Long_Float";
          when P_Double     => return "Long_Long_Float";
          when P_Boolean    => return "Boolean";
@@ -247,6 +255,9 @@ package body SOAP.WSDL is
 
       elsif L_Type = "integer" or else L_Type = "int" then
          Result := P_Integer;
+
+      elsif L_Type = "long" then
+         Result := P_Long;
 
       elsif L_Type = "float" then
          Result := P_Float;
@@ -292,15 +303,17 @@ package body SOAP.WSDL is
 
    function To_XSD (P : in WSDL.Parameter_Type) return String is
       use SOAP.WSDL;
+      use SOAP.Types;
    begin
       case P is
-         when P_Integer   => return "xsd:int";
-         when P_Float     => return "xsd:float";
-         when P_Double    => return "xsd:double";
-         when P_Boolean   => return "xsd:boolean";
-         when P_Time      => return "xsd:timeInstant";
+         when P_Integer   => return XML_Int;
+         when P_Long      => return XML_Long;
+         when P_Float     => return XML_Float;
+         when P_Double    => return XML_Double;
+         when P_Boolean   => return XML_Boolean;
+         when P_Time      => return XML_Time_Instant;
          when P_B64       => return "xsd:base64";
-         when P_String    => return "xsd:string";
+         when P_String    => return XML_String;
          when P_Character => return "Character";
       end case;
    end To_XSD;
@@ -325,7 +338,7 @@ package body SOAP.WSDL is
          when P_Character =>
             return "SOAP.Utils.V";
 
-         when P_Integer | P_Double | P_Float | P_Boolean
+         when P_Integer | P_Long | P_Double | P_Float | P_Boolean
            | P_Time | P_B64
            =>
             return "SOAP.Types.V";
