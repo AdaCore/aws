@@ -16,6 +16,7 @@
 @subtitle $Revision$
 @subtitle $Date$
 @author Pascal Obry (p.obry@@wanadoo.fr)
+@url {http://perso.wanadoo.fr/pascal.obry}
 
 @vskip 0pt plus 1filll
 
@@ -29,6 +30,7 @@
 
 @menu
 * Introduction::
+* How to build it ?::
 * How to use it ?::
 * The AWS packages::
 * Last notes::
@@ -37,12 +39,12 @@
 
 @contents
 
-@node Introduction, How to use it ?, Top, Top
+@node Introduction, How to build it ?, Top, Top
 @chapter Introduction
 
 @noindent
 AWS stand for Ada Web Server. It is an Ada implementation of the
-HTTP/1.1 protocol as defined in the RFC 2616.
+HTTP/1.1 protocol as defined in the RFC 2616 from June 1999.
 
 @noindent
 The goal is not to build a full Web server but more to make it possible
@@ -56,9 +58,40 @@ Moreover with this library it is possible to have more than one server
 in a single application. It is then possible to export differents kind
 of services by using different HTTP ports, or two have different port
 for differents services priority. Client which must be served with a
-very high priority can be assigned a specific port.
+very high priority can be assigned a specific port for example.
 
-@node How to use it ?, The AWS packages, Introduction, Top
+@noindent
+You must keep in mind that this is work in progress and only a very
+small part of the HTTP/1.1 protocol is implemented. Nevertheless the
+AWS project grows as days goes...
+
+@node How to build it ?, How to use it ?, Introduction, Top
+@chapter How to build it ?
+
+@noindent
+AWS has been developped with GNAT under Windows NT but should be fairly
+portable. To build AWS you need:
+
+@itemize @bullet
+
+@item an Ada95 compiler
+
+@item a POSIX binding (Interface to the underlying OS services) ;
+
+Under Windows you can use the one distributed on my homepage. Under UNIX
+look for the Florist package at 
+@url{http://www.cs.fsu.edu/~baker/florist.html}.
+
+@item a socket binding ;
+
+Under Windows you must use the one on my homepage as the original
+Sockets port to Win32 was not conformant with the original
+binding. Under UNIX you must use the socket binding from ENST 
+@url{http://www.infres.enst.fr/ANC/}.
+
+@end itemize
+
+@node How to use it ?, The AWS packages, How to build it ?, Top
 @chapter How to use it ?
 
 @noindent
@@ -82,6 +115,6 @@ about AWS. In the early stage of the project this is very valuable.
 So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 
 @noindent
-As always I hope I did not forget somebody.
+As always, I hope I did not forget somebody.
 
 @bye
