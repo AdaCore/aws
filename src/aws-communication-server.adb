@@ -46,13 +46,11 @@ package body AWS.Communication.Server is
    Context    : T_Access;
    --  The context kept for each server
 
-   type Internal_Callback is
-     access function (Request : in Status.Data) return Response.Data;
+   type Internal_Callback is new Response.Callback;
    --  This is the internal callback access type. It is not possible to use
    --  Receive'Access for as the callback address as the Response.Callback is
    --  outside generic package. We then use Unchecked_Conversion to convert
-   --  value from Internal_Callback to Callback. Both type must be kept
-   --  identical.
+   --  value from Internal_Callback to Callback.
 
    function To_Callback is
       new Ada.Unchecked_Conversion (Internal_Callback, Response.Callback);
