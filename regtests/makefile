@@ -307,8 +307,10 @@ clean:
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
 	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
+	-rm -f anytype_service* r_hello_demo* example-com*
+	-rm -f soapinterop* urn*
 	-rm -f stockquoteservice* stock_quote_service* datafeedservice*
-	-rm -f interoplab-* interoplab.ad* googlesearchservice*
+	-rm -f tinteroplab* googlesearchservice*
 	-rm -f google_search_service*
 	-rm -f wsdl_?_service* wsdl4* wsdl_parse_?-* wsdl_parse_?.ads
 	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
