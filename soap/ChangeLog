@@ -1,6 +1,50 @@
 2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
+	(Start_Service): Generate with clause for Ada.Calendar.
+
+	* soap-generator-stub.adb:
+	(New_Procedure): Correctly handle the case of a single Base64 returned.
+	(Start_Service): Generate with clause for Ada.Calendar.
+	
+	* soap-generator.adb:
+	(SOAP_Constructor): Return a string (was a character), handle the
+	 P_B64 case.
+
+	* soap-message-xml.adb:
+	(Parse_Boolean): Handle all cases. A True boolean can have the
+	 values 1, true or TRUE.
+	(Parse_Time_Instant): Fix bug in TZ handling. Correctly detect GMT
+	 timezone (Z character).
+
+	* soap-parameters.ads, soap-parameters.adb:
+	(Get): Add version returning an Ada.Calendar.Time object.
+
+	* soap-types.adb:
+	(Get): Add version returning an Ada.Calendar.Time object.
+	Minor reformatting.
+	Update copyright notice.
+
+	* soap-types.ads:
+	(XML_Date_Time): New constant.
+	(XML_Base64_Binary): New constant.
+	(Get): Add version returning an Ada.Calendar.Time object.
+	Update copyright notice.
+
+	* soap-wsdl-parser.adb:
+	(Parse_Part): Handle XML_Date_Time and XML_Base64_Binary.
+
+	* soap-wsdl.adb:
+	(Is_Standard): Add dateTime and base64Binary.
+	(To_Ada): Add P_B64 case.
+	(To_Type): Idem.
+
+	* soap-wsdl.ads:
+	(Parameter_Type): Add P_B64.
+
+2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
 	(New_Procedure): Add Namespace parameter. Handle properly arrays
 	 as in parameter or as returned object.
 

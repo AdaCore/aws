@@ -1,3 +1,13 @@
+2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(WSDL_TESTS): Add interoplab_main.
+	(WSDL_TESTS): Generate SOAP spec with -rpc option.
+	(clean): Add interoplab-* interoplab.ad*.
+	
+	* interoplab_main.adb, interoplab_main.out, interoplab_main.wsdl:
+	Initial revision.
+	
 2003-03-11  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* test_wsdl2.adb, test_wsdl3.adb:

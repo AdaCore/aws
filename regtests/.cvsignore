@@ -19,6 +19,8 @@ b~hostip.adb
 b~hostip.ads
 b~hval.adb
 b~hval.ads
+b~interoplab_main.adb
+b~interoplab_main.ads
 b~moved.adb
 b~moved.ads
 b~param.adb
@@ -124,6 +126,14 @@ hostip.res
 hostip.tmp
 hval.res
 hval.tmp
+interoplab-client.adb
+interoplab-client.ads
+interoplab-server.adb
+interoplab-server.ads
+interoplab-types.adb
+interoplab-types.ads
+interoplab.ads
+interoplab_main.res
 moved.res
 moved.tmp
 param.res
