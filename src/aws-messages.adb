@@ -479,11 +479,12 @@ package body AWS.Messages is
      (Realm : in String;
       Nonce : in String;
       Stale : in Boolean)
-     return String is
+      return String is
    begin
-      return WWW_Authenticate_Token & "Digest qop=""auth"", realm=""" & Realm
-         & """, stale=""" & Boolean'Image (Stale)
-         & """, nonce=""" & Nonce & """";
+      return WWW_Authenticate_Token
+        & "Digest qop=""auth"", realm=""" & Realm
+        & """, stale=""" & Boolean'Image (Stale)
+        & """, nonce=""" & Nonce & """";
    end Www_Authenticate;
 
 end AWS.Messages;
