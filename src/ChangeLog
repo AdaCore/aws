@@ -1,5 +1,10 @@
 2002-12-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-headers.ads:
+	subtype Name_Value_Type rnamed to Element.
+
+2002-12-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-containers-tables.ads, aws-containers-tables.adb
 	  aws-containers-tables-set.adb:
 	Name_Value_Type renamed to Element.
