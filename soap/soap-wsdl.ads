@@ -43,7 +43,8 @@ package SOAP.WSDL is
    function Load (Filename : in String) return Object;
    --  Load and parse a WSDL document and return the XML tree representation
 
-   type Parameter_Type is (P_Integer, P_Float, P_String, P_Boolean, P_Time);
+   type Parameter_Type is
+     (P_Integer, P_Float, P_String, P_Boolean, P_Time, P_B64);
    --  These are the types supported by the WSDL parser
 
    function To_Type (XSD_Type : in String) return Parameter_Type;
