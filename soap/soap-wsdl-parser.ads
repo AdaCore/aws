@@ -58,6 +58,7 @@ package SOAP.WSDL.Parser is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
+      Namespace  : in     String;
       Input      : in     Parameters.P_Set;
       Output     : in     Parameters.P_Set;
       Fault      : in     Parameters.P_Set);
@@ -87,6 +88,7 @@ private
    type Object is tagged record
       Proc         : Unbounded_String; -- SOAP procedure name
       SOAPAction   : Unbounded_String; -- SOAPAction string
+      Namespace    : Unbounded_String;
       Mode         : Parameter_Mode;   -- Current parameter parsing mode
       Params       : All_Parameters;   -- All parameters
       Current_Name : Unbounded_String; -- Current parameter name
