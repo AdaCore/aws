@@ -1,3 +1,11 @@
+2002-12-15  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* makefile:
+	Add ctab regression test.
+
+	* ctab.adb, ctab.out:
+	Initial revision.
+
 2002-12-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
