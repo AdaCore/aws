@@ -83,8 +83,8 @@ package body SOAP.Message.XML is
    End_Body   : constant String := "</SOAP-ENV:Body>";
 
    type Type_State is
-     (Void, T_Undefined,
-      T_Int, T_Float, T_Double, T_Long,
+     (Void, T_Undefined, T_Any_Type,
+      T_Int, T_Float, T_Double, T_Long, T_Short,
       T_String, T_Boolean, T_Time_Instant, T_Base64);
 
    type Namespaces is record
@@ -138,7 +138,19 @@ package body SOAP.Message.XML is
      (N : in     DOM.Core.Node;
       S : in out State);
 
+   --  Parse routines for specific types
+
+   function Parse_Any_Type
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+
    function Parse_Int
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
+
+   function Parse_Short
      (Name : in String;
       N    : in DOM.Core.Node)
       return Types.Object'Class;
@@ -222,14 +234,18 @@ package body SOAP.Message.XML is
            (null, null, False),
          T_Undefined    =>
            (Types.XML_Undefined'Access, null, False),
+         T_Any_Type    =>
+           (Types.XML_Any_Type'Access, Parse_Any_Type'Access, False),
          T_Int          =>
            (Types.XML_Int'Access, Parse_Int'Access, False),
+         T_Short        =>
+           (Types.XML_Short'Access, Parse_Short'Access, False),
+         T_Long         =>
+           (Types.XML_Long'Access, Parse_Long'Access, False),
          T_Float        =>
            (Types.XML_Float'Access, Parse_Float'Access, False),
          T_Double       =>
            (Types.XML_Double'Access, Parse_Double'Access, False),
-         T_Long         =>
-           (Types.XML_Long'Access, Parse_Long'Access, False),
          T_String       =>
            (Types.XML_String'Access, Parse_String'Access, False),
          T_Boolean      =>
@@ -437,6 +453,20 @@ package body SOAP.Message.XML is
          return Result;
       end;
    end Load_Response;
+
+   --------------------
+   -- Parse_Any_Type --
+   --------------------
+
+   function Parse_Any_Type
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class is
+   begin
+      --  ??? We have no type information, in this implementation we map the
+      --  value into a xsd:string.
+      return Parse_String (Name, N);
+   end Parse_Any_Type;
 
    -----------------
    -- Parse_Array --
@@ -743,12 +773,16 @@ package body SOAP.Message.XML is
       function Is_Array return Boolean is
          XSI_Type : constant DOM.Core.Node
            := Get_Named_Item (Atts, -(LS.NS.xsi) & ":type");
-         xsd : constant String := Node_Value (XSI_Type);
+         SOAP_Enc : constant DOM.Core.Node
+           := Get_Named_Item (Atts, -(LS.NS.enc) & ":arrayType");
       begin
-         --  ???
-         return Utils.No_NS (xsd) = "Array"
-           and then Get_Named_Item
-                      (Atts, Utils.NS (xsd) & ":arrayType") /= null;
+         return
+         --  Either we have xsi:type="soapenc:Array"
+           (XSI_Type /= null
+            and then Utils.No_NS (Node_Value (XSI_Type)) = "Array")
+           or else
+         --  or soapenc:arrayType="..."
+             SOAP_Enc /= null;
       end Is_Array;
 
       S_Type   : constant DOM.Core.Node := Get_Named_Item (Atts, "type");
@@ -762,8 +796,13 @@ package body SOAP.Message.XML is
       if To_String (S.Wrapper_Name) = "Fault" then
          return Parse_String (Name, Ref);
 
+      elsif Is_Array then
+         return Parse_Array (Name, Ref, LS);
+
       else
-         if XSI_Type = null and then S.A_State in Void .. T_Undefined then
+         if XSI_Type = null
+           and then S.A_State in Void .. T_Undefined
+         then
             --  No xsi:type attribute found
 
             if Get_Named_Item (Atts, -LS.NS.xsi & ":null") /= null then
@@ -809,7 +848,7 @@ package body SOAP.Message.XML is
             end if;
 
          else
-            if S.A_State in Void .. T_Undefined then
+            if S.A_State in Void .. T_Any_Type then
                --  No array type state
 
                declare
@@ -817,17 +856,12 @@ package body SOAP.Message.XML is
                   S_Type : constant Type_State := To_Type (xsd, LS.NS);
                begin
                   if S_Type = T_Undefined then
-                     if Is_Array then
-                        return Parse_Array (Name, Ref, LS);
+                     --  Not a known basic type, let's try to parse a
+                     --  record object. This implemtation does not
+                     --  support schema so there is no way to check
+                     --  for the real type here.
 
-                     else
-                        --  Not a known basic type, let's try to parse a
-                        --  record object. This implemtation does not
-                        --  support schema so there is no way to check
-                        --  for the real type here.
-
-                        return Parse_Record (Name, Ref, LS);
-                     end if;
+                     return Parse_Record (Name, Ref, LS);
 
                   else
                      return Handlers (S_Type).Handler (Name, Ref);
@@ -883,6 +917,20 @@ package body SOAP.Message.XML is
          return Types.R (OS (1 .. K), Name);
       end if;
    end Parse_Record;
+
+   -----------------
+   -- Parse_Short --
+   -----------------
+
+   function Parse_Short
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.S (Types.Short'Value (Node_Value (Value)), Name);
+   end Parse_Short;
 
    ------------------
    -- Parse_String --
