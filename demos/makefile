@@ -30,7 +30,7 @@ else
 # Without SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS := $(LARGS) ../lib/aws.coff
+LARGS := $(LARGS) ../lib/poll.o ../lib/aws.coff
 endif
 endif
 
