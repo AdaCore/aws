@@ -97,4 +97,4 @@ implemented:
 - Add GNAT project files to use AWS. Only support for developpers has been
   implemented.
 
-- Document the Give_Back_Socket routine.
+- Add support for more sockets in AWS.Server.Socket_Semaphore.
