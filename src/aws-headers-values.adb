@@ -102,7 +102,7 @@ package body AWS.Headers.Values is
    ------------
 
    function Index
-     (Set            : in Data_Set;
+     (Set            : in Values.Set;
       Name           : in String;
       Case_Sensitive : in Boolean := True)
       return Natural
@@ -347,12 +347,12 @@ package body AWS.Headers.Values is
    -- Split --
    -----------
 
-   function Split (Header_Value : in String) return Data_Set is
+   function Split (Header_Value : in String) return Set is
 
       First    : Natural;
-      Null_Set : Data_Set (1 .. 0);
+      Null_Set : Set (1 .. 0);
 
-      function To_Set return Data_Set;
+      function To_Set return Set;
       --  Parse the Header_Value and return a set of named and un-named
       --  value. Note that this routine is recursive as the final Set size is
       --  not known. This should not be a problem as the number of token on an
@@ -362,7 +362,7 @@ package body AWS.Headers.Values is
       -- To_Set --
       ------------
 
-      function To_Set return Data_Set is
+      function To_Set return Set is
 
          Name_First  : Positive;
          Name_Last   : Natural;

@@ -54,7 +54,7 @@ package AWS.Headers.Values is
       end case;
    end record;
 
-   type Data_Set is array (Positive range <>) of Data;
+   type Set is array (Positive range <>) of Data;
 
    -----------
    -- Parse --
@@ -83,11 +83,11 @@ package AWS.Headers.Values is
    -- Split / Index --
    -------------------
 
-   function Split (Header_Value : in String) return Data_Set;
+   function Split (Header_Value : in String) return Set;
    --  Returns a Set with each named and un-named values splited from Data.
 
    function Index
-     (Set            : in Data_Set;
+     (Set            : in Values.Set;
       Name           : in String;
       Case_Sensitive : in Boolean := True)
       return Natural;
