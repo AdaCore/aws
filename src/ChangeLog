@@ -1,3 +1,8 @@
+2001-07-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-key_value.adb:
+	Removed as it is not used anymore.
+
 2001-07-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-key_value.ads, aws-parameters-set.adb, aws-parameters.ads,
