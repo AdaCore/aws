@@ -33,6 +33,8 @@ b~dummy.adb
 b~dummy.ads
 b~file.adb
 b~file.ads
+b~get_post.adb
+b~get_post.ads
 b~googlesearch.adb
 b~googlesearch.ads
 b~head.adb
@@ -207,6 +209,7 @@ file.tmplt
 file1.html
 file2.html
 file3.html
+get_post.res
 gmem.out
 googlesearch
 googlesearch.res
