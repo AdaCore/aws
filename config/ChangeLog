@@ -1,3 +1,13 @@
+2004-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__gnat.adb:
+	(Get_Addr_Info): Use GAI_StrError in error handling.
+
+	* src/check_config.c:
+	Replace linker options -lpoll and -lwspiapi to -laws-win32.
+	(EAI_SYSTEM): New constant.
+	(GAI_StrError): New routine definition.
+
 2004-09-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__gnat.adb:
