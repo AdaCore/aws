@@ -1,6 +1,16 @@
 2004-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:
+	Minor reformat.
+
+	* aws-net-std__gnat.adb:
+	(Bind): FreeAddrInfo just after C_Bind.
+	(Raise_Socket_Error): Add pragma Inline for To_String routines.
+	 Do not use intermediate constant SEM. Turn warnings on when possible.
+
+2004-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* src/check_config.c:
 	(SO_ERROR): Add constant not defined in AdaSockets.
 	(ETIMEDOUT): Idem.
 	Add include errno.h for not Win32 platforms.
