@@ -1,3 +1,9 @@
+2004-05-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.adb:
+	(Set_Certificate): Use SSL_CTX_use_certificate_chain_file in case of
+	 private key in separate file.
+
 2004-05-13  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -36,7 +42,7 @@
 
 2004-04-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
-	*  aws-headers-set.adb:
+	* aws-headers-set.adb:
 	(Parse_Header_Lines):  Show erroneous line in Format_Error
 	 exception message.
 
