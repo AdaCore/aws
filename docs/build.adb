@@ -55,7 +55,11 @@ procedure Build is
          Assoc ("UP_IMAGE",
                 Config.Default_Up_Image),
          Assoc ("STATUS_PAGE",
-                Config.Default_Status_Page)
+                Config.Default_Status_Page),
+         Assoc ("SESSION_LIFETIME",
+                Image (Config.Default_Session_Lifetime)),
+         Assoc ("SESSION_CLEANUP_INTERVAL",
+                Image (Config.Default_Session_Cleanup_Interval))
         );
 
 begin
