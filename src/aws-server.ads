@@ -166,7 +166,8 @@ package AWS.Server is
       Split_Mode      : in     Log.Split_Mode := Log.None;
       Filename_Prefix : in     String         := "";
       Auto_Flush      : in     Boolean        := False);
-   --  Activate server's logging activity. See AWS.Log.
+   --  Activate server's logging activity. See AWS.Log. If Auto_Flush is True
+   --  the file will be flushed after all written data.
 
    procedure Stop_Log (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log.
@@ -182,8 +183,8 @@ package AWS.Server is
 
    procedure Flush_Log (Web_Server : in out HTTP);
    --  Flush the server log.
-   --  Note that error log do not need to be flushed, becouse it is in the
-   --  Auto_Flush mode.
+   --  Note that error log do not need to be flushed because it is always
+   --  flushed by default.
 
 private
 
