@@ -1,3 +1,14 @@
+2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(zres): Add compressed file.tmplt.
+
+	* zres.out:
+	Update to new output.
+
+	* zres.adb:
+	Update test. Add test for compressed templates.
+
 2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* zstrm3.adb:
