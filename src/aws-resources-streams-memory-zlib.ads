@@ -84,11 +84,9 @@ package AWS.Resources.Streams.Memory.ZLib is
       Last     :    out Stream_Element_Offset);
    --  Returns a chunck of data in Buffer, Last point to the last element
    --  returned in Buffer.
-   --  We need redefine it for auto flush after append before read.
 
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
    --  Returns the number of bytes in the memory stream
-   --  We need redefine it for auto flush after append before get size.
 
    procedure Close (Resource : in out Stream_Type);
    --  Close the ZLib stream, release all memory associated with the Resource
@@ -100,7 +98,7 @@ private
 
    type Stream_Type is new Memory.Stream_Type with record
       Self    : Stream_Access := Stream_Type'Unchecked_Access;
-      --  We need it for auto flush in the Size routine call.
+      --  We need it for auto flush in the Size routine call
 
       Filter  : ZL.Filter_Type;
       Flushed : Boolean;
