@@ -47,24 +47,10 @@ package body AWS.Config.Ini is
    --  Returns initialization filename for current server (using the
    --  executable name and adding .ini)
 
-   procedure Optional_Read
+   procedure Read_If_Present
      (Config   : in out Object;
       Filename : in     String);
    --  In case or file with Filename does not exists returns without errors.
-
-   -------------------
-   -- Optional_Read --
-   -------------------
-
-   procedure Optional_Read
-     (Config   : in out Object;
-      Filename : in     String) is
-   begin
-      Read (Config, Filename);
-   exception
-      when Text_IO.Name_Error =>
-         null;
-   end Optional_Read;
 
    ----------------------
    -- Program_Ini_File --
@@ -300,7 +286,21 @@ package body AWS.Config.Ini is
       Text_IO.Close (File);
    end Read;
 
+   ---------------------
+   -- Read_If_Present --
+   ---------------------
+
+   procedure Read_If_Present
+     (Config   : in out Object;
+      Filename : in     String) is
+   begin
+      Read (Config, Filename);
+   exception
+      when Text_IO.Name_Error =>
+         null;
+   end Read_If_Present;
+
 begin
-   Optional_Read (Server_Config, "aws.ini");
-   Optional_Read (Server_Config, Program_Ini_File);
+   Read_If_Present (Server_Config, "aws.ini");
+   Read_If_Present (Server_Config, Program_Ini_File);
 end AWS.Config.Ini;
