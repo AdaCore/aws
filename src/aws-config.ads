@@ -209,10 +209,26 @@ package AWS.Config is
    pragma Inline (Security);
    --  Is the server working through th SSL
 
-   function Certificate return String;
+   function Certificate (O : in Object) return String;
    pragma Inline (Certificate);
    --  Returns the certificate to be used with the secure server. Returns the
    --  empty string if the server is not a secure one.
+
+   function Key (O : in Object) return String;
+   pragma Inline (Key);
+   --  Returns the key to be used with the secure server. Returns the
+   --  empty string if the server is not a secure one.
+
+   function Security_Mode (O : in Object) return String;
+   pragma Inline (Security_Mode);
+   --  Returns the security mode to be used with the secure server. Returns the
+   --  empty string if the server is not a secure one.
+
+   function Exchange_Certificate (O : in Object) return Boolean;
+   pragma Inline (Exchange_Certificate);
+   --  Returns True if the client is requested to send its certificate to the
+   --  server. Note that this option must not be used if the client is a Web
+   --  Browser.
 
    function Case_Sensitive_Parameters (O : in Object) return Boolean;
    pragma Inline (Case_Sensitive_Parameters);
@@ -264,6 +280,10 @@ private
       Server_Host,
       Server_Port,
       Security,
+      Certificate,
+      Key,
+      Security_Mode,
+      Exchange_Certificate,
       Hotplug_Port,
       Max_Connection,
       Free_Slots_Keep_Alive_Limit,
@@ -297,14 +317,13 @@ private
       Session_Cleanup_Interval,
       Session_Lifetime,
       Transient_Cleanup_Interval,
-      Transient_Lifetime,
-      Certificate);
+      Transient_Lifetime);
 
    subtype Server_Parameter_Name is Parameter_Name
      range Server_Name .. Case_Sensitive_Parameters;
 
    subtype Process_Parameter_Name is Parameter_Name
-     range Session_Cleanup_Interval .. Certificate;
+     range Session_Cleanup_Interval .. Transient_Lifetime;
 
    type Value_Type  is (Str, Dir, Pos, Dur, Bool);
 
@@ -427,6 +446,18 @@ private
          Security =>
            (Bool, Default.Security),
 
+         Certificate =>
+           (Str, To_Unbounded_String (Default.Certificate)),
+
+         Key =>
+           (Str, To_Unbounded_String (Default.Key)),
+
+         Security_Mode =>
+           (Str, To_Unbounded_String (Default.Security_Mode)),
+
+         Exchange_Certificate =>
+           (Bool, Default.Exchange_Certificate),
+
          Case_Sensitive_Parameters =>
            (Bool, Default.Case_Sensitive_Parameters),
 
@@ -457,10 +488,6 @@ private
            (Dur, Default.Transient_Cleanup_Interval),
 
          Transient_Lifetime =>
-           (Dur, Default.Transient_Lifetime),
-
-         Certificate =>
-           (Str, To_Unbounded_String (Default.Certificate)));
-
+           (Dur, Default.Transient_Lifetime));
 
 end AWS.Config;
