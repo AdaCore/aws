@@ -56,6 +56,8 @@ Here are the main changes:
    - Add complete HTML code browsing facility using gnathtml. See
      aws/docs/html directory.
 
+   - Add support for Digest authentication.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
