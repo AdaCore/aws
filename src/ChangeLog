@@ -41,6 +41,28 @@
 	* aws-services-dispatchers-timer.adb:
 	Initial revision.
 
+2003-12-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-dispatchers-method.ads,
+	  aws-services-dispatchers-method.adb:
+	(Initialize): New routine.
+	(Finalize): New routine.
+
+	* aws-services-dispatchers-timer.ads:
+	(Minutely): Remove Name parameter.
+	(Register) [Callback]: Add Name parameter.
+	(Date_Time): Add N_Day field.
+
+	* aws-services-dispatchers-transient_pages.ads:
+	Minor reformatting.
+
+	* aws-services-dispatchers-uri.adb:
+	(Finalize): Release memory with all Action (Handler access).
+	(Unregister): Minor reformatting.
+
+	* aws-services-dispatchers-virtual_host.adb:
+	(Finalize): Release memory associated with each node on the tree.
+
 2003-12-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-dispatchers-timer.ads:
