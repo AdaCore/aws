@@ -118,35 +118,78 @@ package body AWS.Client is
 
       function Read_Chunk return Streams.Stream_Element_Array is
 
-         use type Streams.Stream_Element_Array;
-         use type Streams.Stream_Element_Offset;
+         use Streams;
+
+         use type Stream_Element_Array;
+         use type Stream_Element_Offset;
+
+         type Stream_Element_Array_Access is access Stream_Element_Array;
+
+         procedure Free is new Ada.Unchecked_Deallocation
+           (Stream_Element_Array, Stream_Element_Array_Access);
+
+         Data : Stream_Element_Array_Access :=
+           new Streams.Stream_Element_Array (1 .. 10_000);
+
+         Data_Last : Streams.Stream_Element_Offset := 0;
 
          procedure Skip_Line;
          --  skip a line on the socket
 
-         --  read the chunk size that is an hex number
-
-         Size : Streams.Stream_Element_Offset
-           := Streams.Stream_Element_Offset'Value
-                ("16#" & Sockets.Get_Line (Sock) & '#');
-
-         Elements : Streams.Stream_Element_Array (1 .. Size);
-
          procedure Skip_Line is
             D : constant String := Sockets.Get_Line (Sock);
+            pragma Warnings (Off, D);
          begin
             null;
          end Skip_Line;
 
+         Size : Stream_Element_Offset;
+         Help : Stream_Element_Array_Access;
+
       begin
-         if Size = 0 then
-            Skip_Line;
-            return Elements;
-         else
-            Sockets.Receive (Sock, Elements);
-            Skip_Line;
-            return Elements & Read_Chunk;
-         end if;
+         loop
+            --  Read the chunk size that is an hex number
+            Size := Stream_Element_Offset'Value
+              ("16#" & Sockets.Get_Line (Sock) & '#');
+
+            if Size = 0 then
+               Skip_Line;
+               exit;
+
+            else
+               if Data_Last + Size > Data'Last then
+
+                  Help := new Stream_Element_Array
+                    (1
+                     .. Stream_Element_Offset'Max
+                     (Data_Last + Size, 2 * Data'Length));
+
+                  Help (1 .. Data_Last) := Data (1 .. Data_Last);
+                  Free (Data);
+                  Data := Help;
+               end if;
+
+               Sockets.Receive
+                 (Sock, Data (Data_Last + 1 .. Data_Last + Size));
+
+               Skip_Line;
+               Data_Last := Data_Last + Size;
+            end if;
+
+         end loop;
+
+         declare
+            Copy : Stream_Element_Array (1 .. Data_Last);
+         begin
+            Copy := Data (1 .. Data_Last);
+            Free (Data);
+            return Copy;
+         end;
+
+      exception
+         when others =>
+            Free (Data);
+            raise;
       end Read_Chunk;
 
       ------------------
