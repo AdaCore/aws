@@ -165,6 +165,4 @@ implemented:
 
 - Check the documentation before the release
 
-- Add a non regression test for the Message_Body stream oriented response
-
 - Add reply support to the Web_Mail service.
