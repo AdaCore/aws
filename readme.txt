@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             January 15th, 2003
+   Pascal Obry                                             January 29th, 2003
 
 
 
@@ -37,6 +37,10 @@ Here are the main changes:
      Content-Length is 0).
 
    - Fix bug in log where client IP addresses could be wrong.
+
+   - Fix resource leak (socket) in the Client module.
+
+   - Correctly handle HTTP headers continuation lines in the client API.
 
    - Add support for embedded resources. An AWS server can now be easily
      built as a stand-alone executable. All resources (images, templates,
@@ -90,7 +94,7 @@ Here are the main changes:
    - Fix chunked encoding over SSL incompatibiliy with Opera browser (really
      an Opera bug)
 
-   - Update to Templates_Parser 4.2 (add +,add,-,sub,*,mult,/,div,mod filters,
+   - Update to Templates_Parser 4.4 (add +,add,-,sub,*,mult,/,div,mod filters,
      support attributes for vectors and matrix, add not and /= operators).
      This new version completely preserve the template's format.
 
@@ -107,6 +111,11 @@ Here are the main changes:
    - SSL support is now specified at link time and not at configuration time.
      To build an SSL/AWS application you just need to link with -lssl and
      -lcrypto. There is no specific AWS configuration.
+
+   - Add support for error log file
+
+   - Better handling of unexpected errors and give a way to the client to send
+     back a message.
 
    - Plus many small fixes, enhancements and documentation work.
 
@@ -147,7 +156,7 @@ Templates_Parser sources:
    http://perso.wanadoo.fr/pascal.obry/templates_parser.html
 
    Templates_Parser is a very useful add-on for AWS. You should have a look at
-   it if you plan to develop a Web service. Templates_Parser permits to
+   it if you plan to develop a Web application. Templates_Parser permits to
    completely separate the HTML design from the Ada code.
 
    Some other Templates engine are WebMacro, FreeMarker, PHP, ASP, JSP and
@@ -209,7 +218,7 @@ Windows Services API (optional):
    To build the runme demo as a Windows NT/2000 services you must download
    the services API made by Ted Dennison for his SETI@Home project.
 
-      http://www.telepath.com/dennison/Ted/SETI/SETI_Service.html
+      http://www.telepath.com/~dennison/Ted/SETI/SETI_Service.html
 
 
 Reporting bugs:
