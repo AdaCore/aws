@@ -281,7 +281,8 @@ package body AWS.Client is
    is
 
       Connect : HTTP_Connection := Create (URL, User, Pwd,
-                                           Proxy, Proxy_User, Proxy_Pwd);
+                                           Proxy, Proxy_User, Proxy_Pwd,
+                                           Persistent => False);
       Result  : Response.Data;
 
    begin
@@ -305,7 +306,8 @@ package body AWS.Client is
    is
 
       Connect : HTTP_Connection := Create (URL, User, Pwd,
-                                           Proxy, Proxy_User, Proxy_Pwd);
+                                           Proxy, Proxy_User, Proxy_Pwd,
+                                           Persistent => False);
 
       Result : Response.Data;
 
@@ -397,7 +399,8 @@ package body AWS.Client is
    is
 
       Connect : HTTP_Connection := Create (URL, User, Pwd,
-                                           Proxy, Proxy_User, Proxy_Pwd);
+                                           Proxy, Proxy_User, Proxy_Pwd,
+                                           Persistent => False);
       Result  : Response.Data;
 
    begin
@@ -422,7 +425,8 @@ package body AWS.Client is
    is
 
       Connect : HTTP_Connection := Create (URL, User, Pwd,
-                                           Proxy, Proxy_User, Proxy_Pwd);
+                                           Proxy, Proxy_User, Proxy_Pwd,
+                                           Persistent => False);
       Result  : Response.Data;
 
    begin
@@ -467,6 +471,10 @@ package body AWS.Client is
       function HTTP_Prefix (Security : Boolean) return String;
       --  Returns "http://" or "https://" if Security is set to True.
 
+      function Persistence return String;
+      --  Returns "Keep-Alive" is we have a persistent connection and "Close"
+      --  otherwise.
+
       function Port_Not_Default (Port : in Positive)
         return String;
       --  Returns the port image (preceded by character ':') if it is not the
@@ -503,6 +511,19 @@ package body AWS.Client is
          end if;
       end HTTP_Prefix;
 
+      -----------------
+      -- Persistence --
+      -----------------
+
+      function Persistence return String is
+      begin
+         if Connection.Persistent then
+            return "Keep-Alive";
+         else
+            return "Close";
+         end if;
+      end Persistence;
+
       Host_Address : constant String :=
         AWS.URL.Server_Name (Connection.Host_URL)
         & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
@@ -531,7 +552,7 @@ package body AWS.Client is
                               & ' ' & HTTP_Version);
          end if;
 
-         Sockets.Put_Line (Sock, Messages.Connection ("Keep-Alive"));
+         Sockets.Put_Line (Sock, Messages.Connection (Persistence));
 
       else
          if URI = "" then
@@ -546,7 +567,8 @@ package body AWS.Client is
                & ' ' & HTTP_Version);
          end if;
 
-         Sockets.Put_Line (Sock, Messages.Proxy_Connection ("Keep-Alive"));
+         Sockets.Put_Line (Sock, Messages.Proxy_Connection (Persistence));
+
       end if;
 
       --  Sockets.Put_Line (Sock, "Pragma: no-cache");
@@ -593,7 +615,8 @@ package body AWS.Client is
       Proxy      : in String   := No_Data;
       Proxy_User : in String   := No_Data;
       Proxy_Pwd  : in String   := No_Data;
-      Retry      : in Positive := Retry_Default)
+      Retry      : in Positive := Retry_Default;
+      Persistent : in Boolean  := True)
      return HTTP_Connection
    is
       Connect_URL : AWS.URL.Object;
@@ -620,7 +643,8 @@ package body AWS.Client is
                 (AWS.Net.Connect (AWS.URL.Server_Name (Connect_URL),
                                   AWS.URL.Port (Connect_URL),
                                   AWS.URL.Security (Connect_URL))),
-              Retry       => Create.Retry);
+              Retry       => Create.Retry,
+              Persistent  => Persistent);
    end Create;
 
    ---------
