@@ -69,8 +69,8 @@ package body AWS.Server is
    --  Handle the lines, this is where all the HTTP protocol is defined.
 
    function Accept_Socket_Serialized
-     (Server : in HTTP_Access)
-      return Net.Socket_Access;
+     (Server : in     HTTP_Access)
+      return Net.Socket_Type'Class;
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
 
@@ -96,18 +96,20 @@ package body AWS.Server is
    ------------------------------
 
    function Accept_Socket_Serialized
-     (Server : in HTTP_Access)
-      return Net.Socket_Access
+     (Server : in     HTTP_Access)
+      return Net.Socket_Type'Class
    is
-      New_Socket : Net.Socket_Access;
+      Result : Net.Socket_Type'Class
+        := Net.Socket (CNF.Security (Server.Properties));
    begin
       Server.Sock_Sem.Seize;
 
-      Net.Accept_Socket (Server.Sock.all, New_Socket);
+      Net.Accept_Socket (Server.Sock, Result);
 
       Server.Sock_Sem.Release;
 
-      return New_Socket;
+      return Result;
+
    exception
       when others =>
          Server.Sock_Sem.Release;
@@ -229,6 +231,8 @@ package body AWS.Server is
       HTTP_Server : HTTP_Access;
       Slot_Index  : Positive;
 
+      Secure : Boolean;
+
    begin
 
       select
@@ -243,6 +247,8 @@ package body AWS.Server is
          terminate;
       end select;
 
+      Secure := CNF.Security (HTTP_Server.Properties);
+
       while not HTTP_Server.Shutdown loop
 
          declare
@@ -250,8 +256,8 @@ package body AWS.Server is
             --  is serialized as some platforms do not handle properly
             --  multiple accepts on the same socket.
 
-            Sock : Net.Socket_Access :=
-              Accept_Socket_Serialized (HTTP_Server);
+            Socket : aliased Net.Socket_Type'Class
+              := Accept_Socket_Serialized (HTTP_Server);
 
          begin
             begin
@@ -270,10 +276,7 @@ package body AWS.Server is
                   end select;
                end if;
 
-               HTTP_Server.Slots.Set (Sock, Slot_Index);
-
-               HTTP_Server.Slots.Set_Peer_Addr
-                 (Slot_Index, Net.Peer_Addr (Sock.all));
+               HTTP_Server.Slots.Set (Socket'Unchecked_Access, Slot_Index);
 
                Protocol_Handler (HTTP_Server.all, Slot_Index);
 
@@ -423,8 +426,8 @@ package body AWS.Server is
       --  First, close the sever socket, so no more request will be queued,
       --  furthermore this will help terminate all lines (see below).
 
-      Net.Buffered.Shutdown (Web_Server.Sock.all);
-      Net.Free (Web_Server.Sock);
+      Net.Std.Shutdown (Web_Server.Sock);
+      Net.Std.Free (Web_Server.Sock);
 
       --  Release the cleaner task
 
@@ -539,8 +542,14 @@ package body AWS.Server is
       ------------------
 
       function Get_Peername (Index : in Positive) return String is
+         use type Socket_Access;
+         Socket : constant Socket_Access := Table (Index).Sock;
       begin
-         return To_String (Table (Index).Peer_Addr);
+         if Socket = null then
+            return "";
+         else
+            return Net.Peer_Addr (Socket.all);
+         end if;
       end Get_Peername;
 
       -------------------------------------
@@ -598,7 +607,7 @@ package body AWS.Server is
          if Table (Index).Phase = Aborted
            and then Phase /= Closed
          then
-            raise Net.Socket_Error;
+            raise Program_Error;
          end if;
 
          Table (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
@@ -629,21 +638,21 @@ package body AWS.Server is
 
          if Table (Index).Phase /= Closed then
 
-            if not Table (Index).Socket_Taken then
+            if not Table (Index).Socket_Taken  then
 
                if Table (Index).Phase /= Aborted then
                   begin
                      --  This must never fail, it is possible that Shutdown
                      --  raise Socket_Error if the slot has been aborted by
                      --  the browser for example.
-                     Net.Buffered.Shutdown (Table (Index).Sock.all);
+                     Net.Shutdown (Table (Index).Sock.all);
                   exception
-                     when others =>
+                     when Net.Socket_Error =>
                         null;
                   end;
                end if;
 
-               Net.Free (Table (Index).Sock);
+               Net.Free (Table (Index).Sock.all);
             else
 
                Table (Index).Socket_Taken := False;
@@ -670,17 +679,6 @@ package body AWS.Server is
          Count := Count - 1;
       end Set;
 
-      -------------------
-      -- Set_Peer_Addr --
-      -------------------
-
-      procedure Set_Peer_Addr
-        (Index     : in Positive;
-         Peer_Addr : in String) is
-      begin
-         Table (Index).Peer_Addr := To_Unbounded_String (Peer_Addr);
-      end Set_Peer_Addr;
-
       ------------------
       -- Set_Timeouts --
       ------------------
@@ -701,8 +699,7 @@ package body AWS.Server is
       begin
          if Table (Index).Phase not in Closed .. Aborted then
             Mark_Phase (Index, Aborted);
-            Net.Buffered.Shutdown (Table (Index).Sock.all);
-            Net.Free (Table (Index).Sock);
+            Net.Shutdown (Table (Index).Sock.all);
          end if;
       end Shutdown;
 
@@ -796,16 +793,12 @@ package body AWS.Server is
          Net.SSL.Initialize (CNF.Certificate);
       end if;
 
-      --  Initialize the server socket
-
-      Web_Server.Sock := Net.Socket (CNF.Security (Web_Server.Properties));
-
-      Net.Bind (Web_Server.Sock.all,
+      Net.Std.Bind (Web_Server.Sock,
                 CNF.Server_Port (Web_Server.Properties),
                 CNF.Server_Host (Web_Server.Properties));
 
-      Net.Listen
-        (Web_Server.Sock.all,
+      Net.Std.Listen
+        (Web_Server.Sock,
          Queue_Size => CNF.Accept_Queue_Size (Web_Server.Properties));
 
       Web_Server.Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
