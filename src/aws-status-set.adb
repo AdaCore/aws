@@ -226,7 +226,7 @@ package body AWS.Status.Set is
      (D       : in out Data;
       Payload : in     String) is
    begin
-      D.Payload := To_Unbounded_String (Payload);
+      D.Payload := SOAP.Load_Payload (Payload);
    end Payload;
 
    --------------
