@@ -79,7 +79,7 @@ implemented:
    <complexType name="ArrayOfString2D">
      <complexContent>
        <restriction base="SOAP-ENC:Array">
-         <attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="xsd:string[,]" /> 
+         <attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="xsd:string[,]" />
        </restriction>
      </complexContent>
    </complexType>
@@ -87,48 +87,48 @@ implemented:
 - Add support for all kind of WSDL array definition, current supported form
   is:
 
-    <complexType name="ArrayOfString"> 
-      <complexContent> 
-          <restriction base="soapenc:Array"> 
-            <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:string[]"/> 
-          </restriction> 
-      </complexContent> 
+    <complexType name="ArrayOfString">
+      <complexContent>
+          <restriction base="soapenc:Array">
+            <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:string[]"/>
+          </restriction>
+      </complexContent>
     </complexType>
 
   There is 4 other forms:
 
-    <complexType name='ArrayOfString'> 
-        <sequence> 
-            <element name='name' type='xsd:string' maxOccurs='unbounded'/> 
-        </sequence> 
-    </complexType>  
+    <complexType name='ArrayOfString'>
+        <sequence>
+            <element name='name' type='xsd:string' maxOccurs='unbounded'/>
+        </sequence>
+    </complexType>
 
 
-    <complexType name='ArrayOfString'> 
-        <complexContent> 
-            <restriction base='SOAP-ENC:Array'> 
-              <sequence> 
-                <element name='name' type='xsd:String' maxOccurs='unbounded'/> 
-              </sequence> 
-            </restriction> 
-        </complexContent> 
-    </complexType>  
+    <complexType name='ArrayOfString'>
+        <complexContent>
+            <restriction base='SOAP-ENC:Array'>
+              <sequence>
+                <element name='name' type='xsd:String' maxOccurs='unbounded'/>
+              </sequence>
+            </restriction>
+        </complexContent>
+    </complexType>
 
 
-    <element name='ArrayOfString'> 
-        <complexType> 
-            <element name='name' type='xsd:String' maxOccurs='unbounded'/> 
-        </complexType> 
-    </element>  
+    <element name='ArrayOfString'>
+        <complexType>
+            <element name='name' type='xsd:String' maxOccurs='unbounded'/>
+        </complexType>
+    </element>
 
 
-    <element name='ArrayOfString'> 
-        <complexType> 
-            <sequence> 
-                <element name='name' type='xsd:String' maxOccurs='unbounded'/> 
-            </sequence> 
-        </complexType> 
-    </element>  
+    <element name='ArrayOfString'>
+        <complexType>
+            <sequence>
+                <element name='name' type='xsd:String' maxOccurs='unbounded'/>
+            </sequence>
+        </complexType>
+    </element>
 
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
@@ -190,8 +190,5 @@ implemented:
 
 - Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
   We should be able to remove the tools/makefile kludge (-largs -laws).
-
-- Instantiate AWS.Net.Sets from AWS.Net.Generic_Sets
-  Code clean-up.
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
