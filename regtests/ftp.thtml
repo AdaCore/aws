@@ -1,0 +1,45 @@
+<html lang="en">
+<head>
+<title>GNAT Pro Server</title>
+
+
+</head>
+<body>
+<h1 align="center">Upload/Download (Wavefront)</h1>
+
+<h2>Files in your repository:</h2>
+
+<form action="/ftp" method="post">
+
+<table width="100%" border="0">
+@@TABLE@@
+@@IF@@ (@_DEPTH_@ = "+1")
+<table width="90%">begin table
+@@ELSIF@@ (@_DEPTH_@ = "-1")
+</table>end table
+@@ELSE@@
+<tr bgcolor="lightblue" border="1">
+<td border="0"><input type="radio" name="filename" value="@_FILE_NAME_@" />
+@_ITEM_@ @_DEPTH_@
+</td>
+</tr>
+@@END_IF@@
+@@SECTION@@
+@@IF@@ (@_DEPTH_@ = "+1")
+<table width="90%">begin table
+@@ELSIF@@ (@_DEPTH_@ = "-1")
+</table>end table
+@@ELSE@@
+<tr bgcolor="lightsteelblue" border="1">
+<td border="0"><input type="radio" name="filename" value="@_FILE_NAME_@" />
+@_ITEM_@  @_DEPTH_@
+</td>
+</tr>
+@@END_IF@@
+@@END_TABLE@@
+</table>
+</form>
+
+</body>
+
+</html>
