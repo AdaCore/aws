@@ -14,6 +14,9 @@ GARGS	= -q -u -I../src $(OFLAGS)
 SOURCES	= strings_cutter.adb md5.adb \
 	memory_streams.adb zlib-thin.adb zlib.adb \
 	sha.ads sha-process_data.adb sha-strings.adb \
+	ai302-containers-generic_array_sort.adb \
+	ai302-containers-generic_constrained_array_sort.adb \
+	ai302-containers-vectors.adb \
 	ai302-containers-hash_tables.adb \
 	ai302-containers-indefinite_hashed_maps.adb \
 	ai302-containers-indefinite_ordered_sets.adb \
