@@ -955,7 +955,8 @@ package body SOAP.WSDL.Parser is
 
       if Verbose_Mode > 0 then
          Text_IO.New_Line;
-         Text_IO.Put_Line ("Procedure " & (-O.Proc));
+         Text_IO.Put_Line
+           ("Procedure " & (-O.Proc) & " SOAPAction:" & (-O.SOAPAction));
          Text_IO.Put_Line ("   Input");
          Parameters.Output (O.Params (Input));
 
