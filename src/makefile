@@ -24,7 +24,7 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-smtp.adb aws-smtp-client.adb \
 	aws-ldap.ads aws-ldap-thin.adb aws-ldap-client.adb aws-jabber.adb \
 	aws-headers.adb aws-headers-values.adb \
-	aws-containers.ads aws-containers-key_value.adb \
+	aws-containers.ads aws-containers-key_value.ads \
 	aws-containers-tables.adb aws-containers-tables-set.adb
 
 build: aws-translator-conversion.adb
