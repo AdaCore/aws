@@ -142,6 +142,9 @@ implemented:
         </complexType> 
     </element>  
 
+- Would be nice to have a regular expression replacement facility in the
+  templates engine. A new filter REPLACE for example that could be used as
+  a 's/.../.../g' command.
 
 =============== Point to fix/implement/review before next release (1.5)
 
