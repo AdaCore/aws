@@ -1,11 +1,16 @@
 2004-11-07  Pascal Obry  <pascal@obry.org>
 
+	* aws-services-split_pages-alpha.ads:
+	(Set_Default_Href): Add comment.
+
+2004-11-07  Pascal Obry  <pascal@obry.org>
+
 	* aws-services-split_pages-uniform-alpha.ads:
 	Minor reformatting.
 
 	* aws-services-split_pages-alpha.ads:
 	Minor reformatting.
-	
+
 2004-11-07  Pascal Obry  <pascal@obry.org>
 
 	* aws-exceptions.ads:
