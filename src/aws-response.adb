@@ -35,6 +35,7 @@ with Ada.Strings.Fixed;
 with AWS.Headers.Set;
 with AWS.Headers.Values;
 with AWS.Resources.Streams.Memory;
+with AWS.Resources.Streams.Disk.Once;
 with AWS.Response.Set;
 with AWS.Translator;
 
@@ -204,6 +205,15 @@ package body AWS.Response is
    end Cache_Control;
 
    --------------------
+   -- Close_Resource --
+   --------------------
+
+   function Close_Resource (D : in Data) return Boolean is
+   begin
+      return D.Close_Stream;
+   end Close_Resource;
+
+   --------------------
    -- Content_Length --
    --------------------
 
@@ -241,6 +251,17 @@ package body AWS.Response is
          when Response.File =>
             Open (File, Filename (D), "shared=no");
 
+         when Response.File_Once =>
+            declare
+               Stream : AWS.Resources.Streams.Stream_Access;
+            begin
+               Stream := new AWS.Resources.Streams.Disk.Once.Stream_Type;
+               AWS.Resources.Streams.Disk.Once.Open
+                 (AWS.Resources.Streams.Disk.Once.Stream_Type (Stream.all),
+                  Filename (D), "shared=no");
+               AWS.Resources.Streams.Create (File, Stream);
+            end;
+
          when Response.Stream | Response.Message =>
             Resources.Streams.Create (File, D.Stream);
 
@@ -271,7 +292,8 @@ package body AWS.Response is
       Filename      : in String;
       Status_Code   : in Messages.Status_Code      := Messages.S200;
       Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
-      Encoding      : in Messages.Content_Encoding := Messages.Identity)
+      Encoding      : in Messages.Content_Encoding := Messages.Identity;
+      Once          : in Boolean                   := False)
       return Data
    is
       Result : Data;
@@ -280,6 +302,12 @@ package body AWS.Response is
       Set.Content_Type  (Result, Content_Type);
       Set.Filename      (Result, Filename);
       Set.Cache_Control (Result, Cache_Control);
+
+      if Once then
+         Set.Mode (Result, File_Once);
+      else
+         Set.Mode (Result, File);
+      end if;
 
       case Encoding is
          when Messages.GZip     =>
@@ -545,15 +573,17 @@ package body AWS.Response is
       Handle        : access Resources.Streams.Stream_Type'Class;
       Status_Code   : in     Messages.Status_Code      := Messages.S200;
       Cache_Control : in     Messages.Cache_Option     := Messages.No_Cache;
-      Encoding      : in     Messages.Content_Encoding := Messages.Identity)
+      Encoding      : in     Messages.Content_Encoding := Messages.Identity;
+      Server_Close  : in     Boolean                   := True)
       return Data
    is
       Result : Data;
    begin
-      Set.Stream        (Result, Handle, Encoding);
-      Set.Status_Code   (Result, Status_Code);
-      Set.Content_Type  (Result, Content_Type);
-      Set.Cache_Control (Result, Cache_Control);
+      Set.Stream         (Result, Handle, Encoding);
+      Set.Status_Code    (Result, Status_Code);
+      Set.Content_Type   (Result, Content_Type);
+      Set.Cache_Control  (Result, Cache_Control);
+      Set.Close_Resource (Result, Server_Close);
       return Result;
    end Stream;
 
