@@ -50,13 +50,14 @@ package body Wait_Pack is
 
    procedure Run (Security : Boolean; Port : Positive) is
       use Ada.Text_IO;
+      use type Sets.Socket_Count;
 
       Set_Size    : constant := 20;
       Sample_Size : constant := 10;
 
       Free_Port : Positive := Port;
 
-      Index : Positive := 1;
+      Index : Sets.Socket_Index := 1;
 
       task Client_Side is
          entry Next;
