@@ -56,7 +56,8 @@ package body Ada2WSDL.Generator is
       Next      : Parameter_Access;
    end record;
 
-   type Mode is (Routine, Structure, Table, Derived, Enumeration);
+   type Mode is (Routine, Safe_Pointer_Definition,
+                 Structure, Table, Derived, Enumeration);
 
    type Definition (Def_Mode : Mode := Routine) is record
       Name        : Unbounded_String;
@@ -66,8 +67,12 @@ package body Ada2WSDL.Generator is
       case Def_Mode is
          when Routine =>
             Return_Type : Parameter_Access;
+
          when Structure | Table | Derived | Enumeration =>
             null;
+
+         when Safe_Pointer_Definition =>
+            Type_Name, Access_Name : Unbounded_String;
       end case;
    end record;
 
@@ -119,12 +124,34 @@ package body Ada2WSDL.Generator is
    -------------------
 
    procedure New_Component (Comp_Name, Comp_Type : in String) is
-      New_P : constant Parameter_Access
-        := new Parameter'(+Comp_Name, +Comp_Type, +To_XSD (Comp_Type), null);
+
+      function Check_Safe_Pointer (Type_Name : in String) return String;
+
+      ------------------------
+      -- Check_Safe_Pointer --
+      ------------------------
+
+      function Check_Safe_Pointer (Type_Name : in String) return String is
+      begin
+         for I in 1 .. Index loop
+            if API (I).Def_Mode = Safe_Pointer_Definition then
+               if To_String (API (I).Name) & ".Safe_Pointer" = Type_Name then
+                  return To_String (API (I).Type_Name);
+               end if;
+            end if;
+         end loop;
+
+         return Type_Name;
+      end Check_Safe_Pointer;
+
+      L_Comp_Type : constant String := Check_Safe_Pointer (Comp_Type);
+      New_P       : constant Parameter_Access
+        := new Parameter'(+Comp_Name, +L_Comp_Type,
+                          +To_XSD (L_Comp_Type), null);
    begin
       if Options.Verbose then
          Text_IO.Put_Line
-           ("        " & Comp_Name & " : " & Comp_Type
+           ("        " & Comp_Name & " : " & L_Comp_Type
               & " (" & (-New_P.XSD_Name) & ')');
       end if;
 
@@ -201,7 +228,8 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put ("   - derived       " & Name & " is new " & Parent_Name);
+         Text_IO.Put ("   - derived         " & Name
+                        & " is new " & Parent_Name);
 
          if Options.Verbose then
             Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
@@ -210,6 +238,37 @@ package body Ada2WSDL.Generator is
          end if;
       end if;
    end Register_Derived;
+
+   ---------------------------
+   -- Register_Safe_Pointer --
+   ---------------------------
+
+   procedure Register_Safe_Pointer
+     (Name, Type_Name, Access_Name : in String)
+   is
+      use Exceptions;
+      D : Definition (Safe_Pointer_Definition);
+   begin
+      if Name /= Type_Name & "_Safe_Pointer" then
+         Raise_Exception
+           (Spec_Error'Identity,
+            "Package Safe_Pointers instantiation must be named "
+              & Type_Name & "_Safe_Pointer.");
+      end if;
+
+      D.Name        := +Name;
+      D.Type_Name   := +Type_Name;
+      D.Access_Name := +Access_Name;
+
+      Index := Index + 1;
+      API (Index) := D;
+
+      if not Options.Quiet then
+         Text_IO.Put_Line
+           ("   - safe pointer  " & Name
+              & " (" & Type_Name & ", " & Access_Name & ")");
+      end if;
+   end Register_Safe_Pointer;
 
    -----------------
    -- Return_Type --
@@ -243,7 +302,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put ("   - array       " & Name & " of " & Component_Type);
+         Text_IO.Put ("   - array         " & Name & " of " & Component_Type);
 
          if Options.Verbose then
             Text_IO.Put_Line (" (" & (-New_P.XSD_Name) & ')');
@@ -270,7 +329,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put_Line ("   - enumeration " & Name);
+         Text_IO.Put_Line ("   - enumeration   " & Name);
       end if;
    end Start_Enumeration;
 
@@ -290,7 +349,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put_Line ("   - record      " & Name);
+         Text_IO.Put_Line ("   - record        " & Name);
       end if;
    end Start_Record;
 
@@ -309,7 +368,7 @@ package body Ada2WSDL.Generator is
       API (Index) := D;
 
       if not Options.Quiet then
-         Text_IO.Put_Line ("   > " & Comment & "   " & Name);
+         Text_IO.Put_Line ("   > " & Comment & "     " & Name);
       end if;
    end Start_Routine;
 
@@ -720,7 +779,10 @@ package body Ada2WSDL.Generator is
                   when Table       => Write_Array (API (I));
                   when Derived     => Write_Derived (API (I));
                   when Enumeration => Write_Enumeration (API (I));
-                  when Routine     => null;
+
+                  when Safe_Pointer_Definition
+                    | Routine
+                    => null;
                end case;
             end loop;
 
