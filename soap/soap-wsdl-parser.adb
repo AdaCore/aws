@@ -49,8 +49,9 @@ package body SOAP.WSDL.Parser is
    use Ada.Strings.Unbounded;
    use type DOM.Core.Node;
 
-   Verbose_Mode : Verbose_Level := 0;
-   Skip_Error   : Boolean       := False;
+   Verbose_Mode  : Verbose_Level := 0;
+   Skip_Error    : Boolean       := False;
+   NS_SOAP       : Unbounded_String;
 
    function Get_Node
      (Parent  : in DOM.Core.Node;
@@ -83,6 +84,12 @@ package body SOAP.WSDL.Parser is
       Binding  : in     DOM.Core.Node;
       Document : in     WSDL.Object);
    --  Parse WSDL binding nodes
+
+   procedure Parse_Definitions
+     (O           : in Object'Class;
+      Definitions : in DOM.Core.Node;
+      Document    : in WSDL.Object);
+   --  Parse WSDL definition node
 
    procedure Parse_Operation
      (O         : in out Object'Class;
@@ -569,7 +576,9 @@ package body SOAP.WSDL.Parser is
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
          L := First_Child (L);
 
-         if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all" then
+         if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all"
+           or else Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
+         then
             L := First_Child (L);
 
             if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element" then
@@ -629,12 +638,18 @@ package body SOAP.WSDL.Parser is
       NL    : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
       Found : Boolean := False;
    begin
+      --  First we want to parse the definitions node to get the namespaces
+
+      Parse_Definitions (O, N, Document);
+
+      --  Look for the service node
+
       for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
          declare
             S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
          begin
-            if DOM.Core.Nodes.Node_Name (S) = "service" then
-               Parse_Service (O, DOM.Core.Nodes.Item (NL, K), Document);
+            if DOM.Core.Nodes.Local_Name (S) = "service" then
+               Parse_Service (O, S, Document);
                Found := True;
             end if;
          end;
@@ -712,7 +727,13 @@ package body SOAP.WSDL.Parser is
    begin
       Trace ("(Parse_Binding)", Binding);
 
-      N := Get_Node (Binding, "soap:binding", NS => True);
+      N := Get_Node (Binding, Utils.With_NS (-NS_SOAP, "binding"), NS => True);
+
+      if N = null then
+         Raise_Exception
+           (WSDL_Error'Identity,
+            "Binding style/transport definition not found.");
+      end if;
 
       --  Check for style (only Document is supported)
 
@@ -744,7 +765,7 @@ package body SOAP.WSDL.Parser is
             declare
                S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
             begin
-               if DOM.Core.Nodes.Node_Name (S) = "operation" then
+               if Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "operation" then
                   begin
                      Parse_Operation
                        (O, DOM.Core.Nodes.Item (NL, K), Document);
@@ -770,6 +791,33 @@ package body SOAP.WSDL.Parser is
          end loop;
       end;
    end Parse_Binding;
+
+   -----------------------
+   -- Parse_Definitions --
+   -----------------------
+
+   procedure Parse_Definitions
+     (O           : in Object'Class;
+      Definitions : in DOM.Core.Node;
+      Document    : in WSDL.Object)
+   is
+      pragma Unreferenced (O, Document);
+
+      Atts : constant DOM.Core.Named_Node_Map
+        := DOM.Core.Nodes.Attributes (Definitions);
+   begin
+      Trace ("(Parse_Definitions)", Definitions);
+
+      for K in 0 .. DOM.Core.Nodes.Length (Atts) - 1 loop
+         declare
+            N : constant DOM.Core.Node := DOM.Core.Nodes.Item (Atts, K);
+         begin
+            if DOM.Core.Nodes.Node_Value (N) = WSDL.NS_SOAP then
+               NS_SOAP := +DOM.Core.Nodes.Local_Name (N);
+            end if;
+         end;
+      end loop;
+   end Parse_Definitions;
 
    -------------------
    -- Parse_Element --
@@ -871,14 +919,21 @@ package body SOAP.WSDL.Parser is
 
       O.Proc := +XML.Get_Attr_Value (Operation, "name");
 
-      N := Get_Node (Operation, "soap:operation", NS => True);
+      N := Get_Node
+        (Operation, Utils.With_NS (-NS_SOAP, "operation"), NS => True);
 
       if N = null then
          Raise_Exception
            (WSDL_Error'Identity, "soap:operation not found.");
       end if;
 
-      O.SOAPAction := +XML.Get_Attr_Value (N, "soapAction");
+      if DOM.Core.Nodes.Get_Named_Item
+        (DOM.Core.Nodes.Attributes (N), "soapAction") = null
+      then
+         O.SOAPAction := +No_SOAPAction;
+      else
+         O.SOAPAction := +XML.Get_Attr_Value (N, "soapAction");
+      end if;
 
       N := Next_Sibling (N);
       N := First_Child (N);
@@ -1191,7 +1246,7 @@ package body SOAP.WSDL.Parser is
       Service  : in     DOM.Core.Node;
       Document : in     WSDL.Object)
    is
-      N             : DOM.Core.Node;
+      Port, N       : DOM.Core.Node;
       Name          : Unbounded_String;
       Documentation : Unbounded_String;
       Location      : Unbounded_String;
@@ -1209,7 +1264,13 @@ package body SOAP.WSDL.Parser is
            +DOM.Core.Nodes.Node_Value (DOM.Core.Nodes.First_Child (N));
       end if;
 
-      N := Get_Node (Service, "port.soap:address", NS => True);
+      Port := Get_Node (Service, "port");
+
+      if Port = null then
+         Raise_Exception (WSDL_Error'Identity, "port definition not found");
+      end if;
+
+      N := Get_Node (Port, Utils.With_NS (-NS_SOAP, "address"), NS => True);
 
       if N /= null then
          Location := +XML.Get_Attr_Value (N, "location");
@@ -1219,15 +1280,10 @@ package body SOAP.WSDL.Parser is
 
       --  Look for the right binding
 
-      N := Get_Node (Service, "port");
-
-      if N /= null then
-         Binding := +XML.Get_Attr_Value (N, "binding", False);
-      end if;
+      Binding := +XML.Get_Attr_Value (N, "binding", False);
 
       N := Get_Node
-        (First_Child (DOM.Core.Node (Document)),
-         "binding", -Binding);
+        (First_Child (DOM.Core.Node (Document)), "binding", -Binding);
 
       if N = null then
          Raise_Exception
@@ -1316,7 +1372,7 @@ package body SOAP.WSDL.Parser is
          P.E_Name := +Name;
 
          while N /= null
-           and then DOM.Core.Nodes.Node_Name (E) = "enumeration"
+           and then Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"
          loop
             declare
                Value    : constant String
@@ -1363,7 +1419,9 @@ package body SOAP.WSDL.Parser is
 
       E := First_Child (N);
 
-      if E /= null and then DOM.Core.Nodes.Node_Name (E) = "enumeration" then
+      if E /= null
+        and then Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"
+      then
          return Build_Enumeration (-Name, -Base, E);
       else
          return Build_Derived (-Name, -Base);
