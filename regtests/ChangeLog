@@ -1,5 +1,10 @@
 2003-03-31  Pascal Obry  <obry@act-europe.fr>
 
+	* tmime.out:
+	Update output.
+	
+2003-03-31  Pascal Obry  <obry@act-europe.fr>
+
 	* makefile:
 	(RT_STD): Add tmime.
 
