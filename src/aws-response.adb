@@ -81,30 +81,17 @@ package body AWS.Response is
    ------------------
 
    function Authenticate
-     (Realm : in String;
-      Mode  : in Authentication_Mode := Basic;
-      Stale : in Boolean             := False)
+     (Realm   : in String;
+      Mode    : in Authentication_Mode := Basic;
+      Stale   : in Boolean             := False;
+      Message : in String              := Default_Authenticate_Message)
       return Data
    is
       Result : Data;
-      CRLF : constant String := ASCII.CR & ASCII.LF;
-
-      Auth_Mess : constant String
-        := "<HTML><HEAD>" & CRLF
-        & "<TITLE>401 Authorization Required</TITLE>" & CRLF
-        & "</HEAD><BODY>" & CRLF
-        & "<H1>Authorization Required</H1>" & CRLF
-        & "This server could not verify that you" & CRLF
-        & "are authorized to access the document you" & CRLF
-        & "requested.  Either you supplied the wrong" & CRLF
-        & "credentials (e.g., bad password), or your" & CRLF
-        & "browser doesn't understand how to supply" & CRLF
-        & "the credentials required.<P>" & CRLF
-        & "</BODY></HTML>" & CRLF;
    begin
       Set.Authentication (Result, Realm, Mode, Stale);
       Set.Content_Type   (Result, AWS.MIME.Text_HTML);
-      Set.Message_Body   (Result, Auth_Mess);
+      Set.Message_Body   (Result, Message);
       return Result;
    end Authenticate;
 
