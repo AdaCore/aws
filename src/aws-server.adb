@@ -149,7 +149,8 @@ package body AWS.Server is
          terminate;
       end select;
 
-      loop
+      while not HTTP_Server.Shutdown loop
+
          declare
             --  Wait for an incoming connection.
 
@@ -169,7 +170,7 @@ package body AWS.Server is
                   HTTP_Server.Cleaner.Force;
                end if;
 
-               HTTP_Server.Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
+               HTTP_Server.Slots.Get (Sock'Unchecked_Access, Slot_Index);
 
                HTTP_Server.Slots.Set_Peername
                  (Slot_Index,
@@ -297,7 +298,7 @@ package body AWS.Server is
       --  memory.
 
       while not Web_Server.Cleaner'Terminated loop
-         delay 1.0;
+         delay 0.5;
       end loop;
 
       Free (Web_Server.Cleaner);
@@ -305,7 +306,7 @@ package body AWS.Server is
       --  Release the slots
 
       for S in 1 .. Web_Server.Slots.N loop
-         Web_Server.Slots.Release (S);
+         Web_Server.Slots.Shutdown (S);
       end loop;
 
       --  Terminate all the lines.
@@ -326,7 +327,7 @@ package body AWS.Server is
             end if;
          end loop;
 
-         delay 1.0;
+         delay 0.5;
       end loop;
 
       --  Release lines and slots memory
@@ -409,6 +410,19 @@ package body AWS.Server is
             Now - Set (Index).Data_Time_Stamp > Data_Timeouts (Phase));
       end Is_Abortable;
 
+      --------------
+      -- Shutdown --
+      --------------
+
+      procedure Shutdown (Index : in Positive)
+      is
+      begin
+         if Set (Index).Phase not in Closed .. Aborted then
+            Sockets.Shutdown (Set (Index).Sock.all);
+            Mark_Phase (Index, Aborted);
+         end if;
+      end Shutdown;
+
       ----------------------
       -- Abort_On_Timeout --
       ----------------------
@@ -420,8 +434,7 @@ package body AWS.Server is
 
          for S in Set'Range loop
             if Is_Abortable (S, Mode) then
-               Sockets.Shutdown (Set (S).Sock);
-               Mark_Phase (S, Closed);
+               Shutdown (S);
                Done := True;
             end if;
          end loop;
@@ -440,7 +453,7 @@ package body AWS.Server is
       -- Get --
       ---------
 
-      procedure Get (FD : in Sockets.Socket_FD; Index : in Positive) is
+      procedure Get (FD : in Socket_Access; Index : in Positive) is
       begin
          Set (Index).Sock := FD;
          Mark_Phase (Index, Client_Header);
@@ -478,13 +491,21 @@ package body AWS.Server is
          if Set (Index).Phase /= Closed then
 
             if not Set (Index).Socket_Taken then
-               Sockets.Shutdown (Set (Index).Sock);
+
+               if Set (Index).Phase /= Aborted then
+                  Sockets.Shutdown (Set (Index).Sock.all);
+               end if;
+
+               AWS.Net.Free (Set (Index).Sock.all);
 
             else
                Set (Index).Socket_Taken := False;
             end if;
 
             Mark_Phase (Index, Closed);
+
+            Set (Index).Sock := null;
+
          end if;
       end Release;
 
