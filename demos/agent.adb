@@ -169,14 +169,14 @@ begin
    Parse_Command_Line;
 
    Client.Create
-     (Connection => Connect,
-      Host       => To_String (URL),
-      User       => To_String (User),
-      Pwd        => To_String (Pwd),
-      Proxy      => To_String (Proxy),
-      Proxy_User => To_String (Proxy_User),
-      Proxy_Pwd  => To_String (Proxy_Pwd),
-      Persistent => Keep_Alive,
+     (Connection  => Connect,
+      Host        => To_String (URL),
+      User        => To_String (User),
+      Pwd         => To_String (Pwd),
+      Proxy       => To_String (Proxy),
+      Proxy_User  => To_String (Proxy_User),
+      Proxy_Pwd   => To_String (Proxy_Pwd),
+      Persistent  => Keep_Alive,
       Server_Push => Server_Push);
 
    loop
@@ -297,4 +297,3 @@ exception
    when E : others =>
       Text_IO.Put_Line (Exceptions.Exception_Information (E));
 end Agent;
-
