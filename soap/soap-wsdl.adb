@@ -199,7 +199,7 @@ package body SOAP.WSDL is
          when P_Time      => return "SOAP.Types.XSD_Time_Instant";
          when P_B64       => return "SOAP.Types.SOAP_Base64";
          when P_String    => return "SOAP.Types.XSD_String";
-         when P_Character => return "SOAP.Types.XSD_String";
+         when P_Character => return "SOAP.Types.SOAP_Enumeration";
       end case;
    end Set_Type;
 
