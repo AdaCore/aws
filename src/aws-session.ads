@@ -56,6 +56,10 @@ package AWS.Session is
    function Exist (SID : in ID) return Boolean;
    --  Returns True if SID exist
 
+   procedure Touch (SID : in ID);
+   --  Update to current time the timestamp associated with SID. Does nothing
+   --  if SID does not exists.
+
    procedure Set
      (SID   : in ID;
       Key   : in String;
@@ -113,7 +117,10 @@ package AWS.Session is
          Time_Stamp : in     Ada.Calendar.Time;
          Quit       : in out Boolean);
    procedure For_Every_Session;
-   --  Iterator which call Action for every active session.
+   --  Iterator which call Action for every active session. N is the SID
+   --  order. Time_Stamp is the time when SID was updated for the last
+   --  time. Quit is set to False by default, it is possible to control the
+   --  iterator termination by setting its value to True.
 
    generic
       with procedure Action
@@ -122,6 +129,8 @@ package AWS.Session is
          Quit       : in out Boolean);
    procedure For_Every_Session_Data (SID : in ID);
    --  Iterator which returns all the key/value pair defined for session SID.
+   --  Quit is set to False by default, it is possible to control the iterator
+   --  termination by setting its value to True.
 
    procedure Set_Lifetime (Seconds : in Duration);
    --  Set the lifetime for session data.
