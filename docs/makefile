@@ -51,6 +51,8 @@ APIFILES = ../src/aws.ads.texi \
 	../xsrc/aws-jabber.ads.texi \
 	../soap/soap.ads.texi \
 	../soap/soap-client.ads.texi \
+	../soap/soap-dispatchers.ads.texi \
+	../soap/soap-dispatchers-callback.ads.texi \
 	../soap/soap-message-xml.ads.texi \
 	../soap/soap-message.ads.texi \
 	../soap/soap-parameters.ads.texi \
