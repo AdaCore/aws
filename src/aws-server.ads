@@ -285,8 +285,9 @@ private
       Start_Time      : Ada.Calendar.Time;
       --  Date and Time when server was started.
 
-      Shutdown        : Boolean     := False;
-      --  True when shutdown has been requested.
+      Shutdown        : Boolean     := True;
+      --  True when server is shutdown. This will be set to False when server
+      --  will be started.
 
       Sock            : Sockets.Socket_FD;
       --  This is the server socket for incoming connection.
