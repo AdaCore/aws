@@ -1,4 +1,9 @@
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
+	
+	* makefile:
+	Use variable instead of directly calling tools.
+	
+2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
 	Add section to build AWS based on project files.
