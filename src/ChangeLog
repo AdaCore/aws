@@ -1,3 +1,11 @@
+2003-09-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status.ads:
+	(Session): Update comment.
+
+	* aws-status.adb:
+	(Session): Raise Constraint_Error if session support not activated.
+
 2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-page_server.adb:
