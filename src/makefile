@@ -14,7 +14,7 @@ TMPLT_GARGS = $(TGARGS) -I. -I../ssl -I../include $(INCLUDES)
 TMPLT_SOURCES	= templates_parser.adb templates_parser-input.adb \
 	templates_parser-query.adb templates_parser-utils.adb
 
-SOURCES	= aws-client.adb aws-communication-client.adb \
+SOURCES	= aws-attachments.adb aws-client.adb aws-communication-client.adb \
 	aws-communication-server.adb aws-communication.adb \
 	aws-config-ini.adb aws-config-set.adb aws-config.adb \
 	aws-containers-key_value.ads aws-containers-tables-set.adb \
