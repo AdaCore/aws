@@ -1,5 +1,32 @@
 2004-07-10  Pascal Obry  <pascal@obry.org>
 
+	* soap-types.ads:
+	(XML_Undefined): Set aliased.
+        (XML_Base64): Idem.
+        (XML_Boolean): Idem.
+        (XML_Double): Idem.
+        (XML_Float): Idem.
+        (XML_Int): Idem.
+        (XML_Long): Idem.
+        (XML_String): Idem.
+        (XML_Time_Instant): Idem.
+
+	* soap-message-xml.adb:
+        (Array_State): Renamed Type_State.
+        (To_Type): New function.
+        (Parse_Type): New type (function access).
+        (Type_Name_Access): New type.
+        (Type_Handler): New type.
+        (Handlers): New array. This handles all the data to be parse SOAP
+         types.
+        (Parse_Array.A_State): Removed.
+        (Parse_Array): Use To_Type.
+        (Parse_Param): Rewrite part of this implementation. It is now based
+         on Hanlders to easy maintenance, the code is lot smaller now.
+         Properly handle xsi:null.
+
+2004-07-10  Pascal Obry  <pascal@obry.org>
+
 	* soap-message-xml.adb:
 	(Parse_Array.Item_Type): New function.
         (Parse_Array.A_State): New the proper array type is passed as
