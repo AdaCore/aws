@@ -107,7 +107,7 @@ package AWS.Status is
    --  server.
 
    function URI                    (D : in Data) return String;
-   --  Returns the requested ressource
+   --  Returns the requested resource
 
    function User_Agent             (D : in Data) return String;
    --  Get value for "User-Agent:" parameter
