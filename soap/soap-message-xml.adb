@@ -35,6 +35,8 @@ with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Exceptions;
 
+with AWS.Client.XML.Input_Sources;
+
 with Input_Sources.Strings;
 with Unicode.CES.Utf8;
 with DOM.Core.Nodes;
@@ -244,6 +246,51 @@ package body SOAP.Message.XML is
    -------------------
    -- Load_Response --
    -------------------
+
+   function Load_Response
+     (XML : in AWS.Client.HTTP_Connection)
+      return Message.Response.Object'Class
+   is
+      use AWS.Client.XML.Input_Sources;
+
+      Source  : HTTP_Input;
+      Reader  : Tree_Reader;
+      S       : State;
+      Doc     : DOM.Core.Document;
+
+   begin
+      Create (XML, Source);
+
+      --  If True, xmlns:* attributes will be reported in Start_Element
+      Set_Feature (Reader, Sax.Readers.Namespace_Prefixes_Feature, True);
+      Set_Feature (Reader, Sax.Readers.Validation_Feature, False);
+
+      Parse (Reader, Source);
+      Close (Source);
+
+      Doc := Get_Tree (Reader);
+
+      Parse_Document (Doc, S);
+
+      Free (Doc);
+
+      if SOAP.Parameters.Exist (S.Parameters, "faultcode") then
+         return Message.Response.Error.Build
+           (Faultcode   =>
+              Message.Response.Error.Faultcode
+               (String'(SOAP.Parameters.Get (S.Parameters, "faultcode"))),
+            Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
+      else
+         return Message.Response.Object'
+           (S.Name_Space, S.Wrapper_Name, S.Parameters);
+      end if;
+
+   exception
+      when E : others =>
+         return Message.Response.Error.Build
+           (Faultcode   => Message.Response.Error.Client,
+            Faultstring => Exceptions.Exception_Message (E));
+   end Load_Response;
 
    function Load_Response
      (XML : in String)
