@@ -1,6 +1,11 @@
 2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	(clean): Add ada2wsdl-options.adb.
+
+2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	($(TOOLS)): Depends on ada2wsdl-options.adb.
 	(ada2wsdl-options.adb): New target. Build Set_Default routine with
 	 the path to XMLAda and AWS components.
