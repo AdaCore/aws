@@ -122,8 +122,8 @@ procedure Agent is
    begin
       loop
          case GNAT.Command_Line.Getopt
-           ("f o d u: p: a: pu: pp: pa: proxy: k n s r") is
-
+           ("f o d u: p: a: pu: pp: pa: proxy: k n s r")
+         is
             when ASCII.NUL =>
                exit;
 
