@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -36,7 +36,7 @@ with AWS.Config.Set;
 with AWS.Messages;
 with AWS.Response;
 with AWS.Server.Log;
-with AWS.Services.Split_Pages;
+with AWS.Services.Split_Pages.Alpha;
 with AWS.Services.Dispatchers.Transient_Pages;
 with AWS.Status;
 with AWS.Templates;
@@ -73,11 +73,23 @@ procedure Split is
         := (Assoc ("V1", Vect ("vector 1 - value ", 300)),
             Assoc ("V2", Vect ("vector 2 - value ", 280)));
 
+      T3 : Translate_Table
+        := (Assoc ("V1", Vect ("vector 1 - value ", 300)),
+            Assoc ("V2", Vect ("vector 2 - value ", 280)),
+            Assoc ("KEY", Vect ("key", 300)));
+
+      A_Splitter : Services.Split_Pages.Alpha.Splitter;
+
    begin
       if URI = "/main" then
          return Services.Split_Pages.Parse ("split.thtml", T1, T2, 15, 10);
-      else
 
+      elsif URI = "/alpha" then
+         Services.Split_Pages.Alpha.Set_Key (A_Splitter, "KEY");
+         return Services.Split_Pages.Parse
+           ("split.thtml", T1 & Assoc ("ALPHA", "true"), T3, A_Splitter);
+
+      else
          return Response.Acknowledge (Messages.S404);
       end if;
    end CB;
@@ -91,10 +103,27 @@ procedure Split is
       return Templates.Vector_Tag
    is
       use type Templates.Vector_Tag;
+      N : constant Natural := (Size / 26) + 1;
       V : Templates.Vector_Tag;
+      A : Natural := 0;
+      C : Character := 'A';
    begin
+      if Prefix = "key" then
+         V := V & "" & "" & "1_key" & "5_key" & "9_key";
+      end if;
+
       for K in 1 .. Size loop
-         V := V & (Prefix & Utils.Image (K));
+         if Prefix = "key" then
+            V := V & (C & "_" & Prefix & Utils.Image (K));
+            A := A + 1;
+
+            if A = N then
+               C := Character'Succ (C);
+               A := 0;
+            end if;
+         else
+            V := V & (Prefix & Utils.Image (K));
+         end if;
       end loop;
 
       return V;
