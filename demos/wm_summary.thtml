@@ -23,7 +23,7 @@ on server @_WM_POP_SERVER_@
 @@TABLE@@
 <tr>
 <td><a href="/wm_message?NO_MESSAGE=@_WM_INDEX_V_@">@_WM_INDEX_V_@</a>
-<td>@_WM_FROM_V_@
+<td>@_WEB_ESCAPE:WM_FROM_V_@
 <td>@_WM_DATE_V_@
 <td>@_WM_SIZE_V_@
 <td>@_WM_SUBJECT_V_@
@@ -32,7 +32,7 @@ on server @_WM_POP_SERVER_@
 @@SECTION@@
 <tr bgcolor=turquoise>
 <td><a href="/wm_message?NO_MESSAGE=@_WM_INDEX_V_@">@_WM_INDEX_V_@</a>
-<td>@_WM_FROM_V_@
+<td>@_WEB_ESCAPE:WM_FROM_V_@
 <td>@_WM_DATE_V_@
 <td>@_WM_SIZE_V_@
 <td>@_WM_SUBJECT_V_@
