@@ -94,6 +94,8 @@ package AWS.Net.SSL is
 
    type Config is private;
 
+   Null_Config : constant Config;
+
    procedure Initialize
      (Config               : in out SSL.Config;
       Certificate_Filename : in     String;
@@ -143,9 +145,11 @@ private
 
    type Config is access TS_SSL;
 
+   Null_Config : constant Config := null;
+
    type Socket_Type is new Net.Std.Socket_Type with record
       Config : SSL.Config;
-      SSL    : SSL_Handle   := TSSL.Null_Pointer;
+      SSL    : SSL_Handle := TSSL.Null_Pointer;
    end record;
 
 end AWS.Net.SSL;
