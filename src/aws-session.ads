@@ -30,6 +30,8 @@
 
 --  $Id$
 
+--  This is the API to handle session data for each client connected.
+
 with Ada.Calendar;
 
 package AWS.Session is
@@ -120,10 +122,16 @@ package AWS.Session is
    procedure Shutdown;
    --  Stop session cleaner task.
 
+   procedure Save (File_Name : in String);
+   --  Save all sessions data into File_Name.
+
+   procedure Load (File_Name : in String);
+   --  Restore all sessions data from File_Name.
+
 private
 
    pragma Inline (Image, Value);
-   
+
    type ID is new String (1 .. 11);
-   
+
 end AWS.Session;
