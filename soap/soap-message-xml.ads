@@ -37,12 +37,12 @@ package SOAP.Message.XML is
 
    function Load_Payload
      (XML : in String)
-     return Message.Payload.Object;
+      return Message.Payload.Object;
    --  Build a Payload object by parsing the XML payload string.
 
    function Load_Response
      (XML : in String)
-     return Message.Response.Object'Class;
+      return Message.Response.Object'Class;
    --  Build a Response object (either a standard response or an error
    --  response) by parsing the XML response string.
 
