@@ -48,10 +48,6 @@ package body AWS.Net.Std is
       FD : Sockets.Socket_FD;
    end record;
 
-   type Wait_Mode is (Read, Write);
-
-   procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type);
-
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
 
@@ -401,51 +397,5 @@ package body AWS.Net.Std is
       when E : others =>
          Raise_Exception (E, "Shutdown");
    end Shutdown;
-
-   --------------
-   -- Wait_For --
-   --------------
-
-   procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type) is
-      use Sockets;
-      use type C.int;
-      use type C.short;
-
-      To_Poll_Mode : constant array (Wait_Mode) of C.short
-        := (Read => Constants.Pollin, Write => Constants.Pollout);
-
-      PFD : Thin.Pollfd
-        := (Fd      => Get_FD (Socket.S.FD),
-            Events  => To_Poll_Mode (Mode),
-            Revents => 0);
-      RC      : C.int;
-      Timeout : C.int;
-   begin
-      if Socket.Timeout >= Duration (C.int'Last / 1000) then
-         Timeout := C.int'Last;
-      else
-         Timeout := C.int (Socket.Timeout * 1000);
-      end if;
-
-      RC := Thin.C_Poll (PFD'Address, 1, Timeout);
-
-      case RC is
-         when -1 => Raise_Exception
-                      (Thin.Errno, "Wait_For_" & Wait_Mode'Image (Mode));
-         when  0 =>
-            Ada.Exceptions.Raise_Exception
-              (Socket_Error'Identity,
-               Wait_Mode'Image (Mode) & " timeout.");
-         when  1 =>
-            if PFD.Revents = To_Poll_Mode (Mode) then
-               return;
-            else
-               Ada.Exceptions.Raise_Exception
-                 (Socket_Error'Identity,
-                  Wait_Mode'Image (Mode) & "_Wait error.");
-            end if;
-         when others => raise Program_Error;
-      end case;
-   end Wait_For;
 
 end AWS.Net.Std;

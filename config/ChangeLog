@@ -1,3 +1,9 @@
+2004-04-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb:
+	(Wait_Mode): Moved to aws-net.adb.
+	(Wait_For): Moved to aws-net.adb.
+
 2004-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb:
