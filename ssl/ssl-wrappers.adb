@@ -201,6 +201,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_free;
 
+   -------------------
+   -- SSL_get_error --
+   -------------------
+
+   procedure SSL_get_error is
+   begin
+      Raise_Error;
+   end SSL_get_error;
+
    ------------------------------
    -- SSL_get_peer_certificate --
    ------------------------------
