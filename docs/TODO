@@ -78,3 +78,5 @@ implemented:
 
 - Support socket timeout options (send and receive timeout) at the OS
   level. Right now a task is doing the job.
+
+- Support compress/gzip encoding if client sypport it.
