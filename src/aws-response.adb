@@ -262,16 +262,18 @@ package body AWS.Response is
    ----------
 
    function File
-     (Content_Type : in String;
-      Filename     : in String;
-      Status_Code  : in Messages.Status_Code := Messages.S200)
+     (Content_Type  : in String;
+      Filename      : in String;
+      Status_Code   : in Messages.Status_Code  := Messages.S200;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
       return Data
    is
       Result : Data;
    begin
-      Set.Status_Code  (Result, Status_Code);
-      Set.Content_Type (Result, Content_Type);
-      Set.Filename     (Result, Filename);
+      Set.Status_Code   (Result, Status_Code);
+      Set.Content_Type  (Result, Content_Type);
+      Set.Filename      (Result, Filename);
+      Set.Cache_Control (Result, Cache_Control);
       return Result;
    exception
       when Resources.Resource_Error =>
