@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,79 +30,217 @@
 
 --  $Id$
 
---  Routines here are wrappers around standard sockets when building with no
---  SSL support.
-
 with Ada.Exceptions;
+with Ada.Text_IO;
+with Ada.Unchecked_Deallocation;
 
-package body AWS.Net is
+with Sockets.Naming;
 
-   procedure Check_SSL (Security : in Boolean);
-   --  Check that Security is False as there is no support for SSL provied by
-   --  this implementation.
+package body AWS.Net.Std is
+
+   use Ada;
+
+   subtype SFD is Sockets.Socket_FD;
+
+   type Socket_Hidden is new Sockets.Socket_FD with null record;
+
+   procedure Free is
+      new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
+
+   procedure Raise_Exception
+     (E       : in Exceptions.Exception_Occurrence;
+      Routine : in String);
+   pragma No_Return (Raise_Exception);
+   --  Raise exception Socket_Error with E's message and a reference to the
+   --  routine name.
 
    -------------------
    -- Accept_Socket --
    -------------------
 
-   function Accept_Socket
-     (Socket     : in Sockets.Socket_FD;
-      Security   : in Boolean)
-      return Sockets.Socket_FD'Class
+   procedure Accept_Socket
+     (Socket     : in     Socket_Type;
+      New_Socket :    out Net.Socket_Type'Class)
    is
-      New_Socket : Sockets.Socket_FD;
+      pragma Warnings (Off, New_Socket);
    begin
-      Check_SSL (Security);
-      Sockets.Accept_Socket (Socket, New_Socket);
-      return New_Socket;
+      Sockets.Accept_Socket
+        (SFD (Socket.S.all), SFD (Socket_Type (New_Socket).S.all));
+   exception
+      when E : others =>
+         Raise_Exception (E, "Accept_Socket");
    end Accept_Socket;
 
-   ---------------
-   -- Check_SSL --
-   ---------------
+   ------------
+   -- Assign --
+   ------------
 
-   procedure Check_SSL (Security : in Boolean) is
+   procedure Assign
+     (Left  : in out Socket_Type;
+      Right : in     Net.Socket_Type'Class) is
    begin
-      if Security then
-         Ada.Exceptions.Raise_Exception
-           (Program_Error'Identity,
-            "You should compile AWS with SSL support.");
-      end if;
-   end Check_SSL;
+      Free (Left.S);
+      Left.S := new Socket_Hidden'(Socket_Type (Right).S.all);
+   end Assign;
+
+   ----------
+   -- Bind --
+   ----------
+
+   procedure Bind
+     (Socket : in Socket_Type;
+      Port   : in Natural;
+      Host   : in String := "") is
+   begin
+      Sockets.Bind (SFD (Socket.S.all), Port, Host);
+   exception
+      when E : others =>
+         Raise_Exception (E, "Bind");
+   end Bind;
 
    -------------
    -- Connect --
    -------------
 
-   function Connect
-     (Host     : in String;
-      Port     : in Positive;
-      Security : in Boolean)
-      return Sockets.Socket_FD'Class
-   is
-      Sock : Sockets.Socket_FD;
+   procedure Connect
+     (Socket   : in Socket_Type;
+      Host     : in String;
+      Port     : in Positive) is
    begin
-      Check_SSL (Security);
-      Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
-
-      begin
-         Sockets.Connect (Sock, Host, Port);
-      exception
-         when Sockets.Socket_Error | Sockets.Connection_Refused =>
-            Sockets.Shutdown (Sock);
-            raise;
-      end;
-      return Sock;
+      Sockets.Connect (SFD (Socket.S.all), Host, Port);
+   exception
+      when E : others =>
+         Raise_Exception (E, "Connect");
    end Connect;
 
    ----------
    -- Free --
    ----------
 
-   procedure Free (Socket : in out Sockets.Socket_FD'Class) is
-      pragma Unreferenced (Socket);
+   procedure Free (Socket : in out Socket_Type) is
    begin
-      null;
+      Free (Socket.S);
    end Free;
 
-end AWS.Net;
+   ------------
+   -- Get_FD --
+   ------------
+
+   function Get_FD (Socket : in Socket_Type) return Integer is
+   begin
+      return Integer (Sockets.Get_FD (SFD (Socket.S.all)));
+   end Get_FD;
+
+   ---------------
+   -- Host_Name --
+   ---------------
+
+   function Host_Name return String is
+   begin
+      return Sockets.Naming.Host_Name;
+   end Host_Name;
+
+   ------------
+   -- Listen --
+   ------------
+
+   procedure Listen
+     (Socket     : in Socket_Type;
+      Queue_Size : in Positive := 5) is
+   begin
+      Sockets.Listen (SFD (Socket.S.all), Queue_Size);
+   exception
+      when E : others =>
+         Raise_Exception (E, "Listen");
+   end Listen;
+
+   ---------------
+   -- Peer_Addr --
+   ---------------
+
+   function Peer_Addr (Socket : in Socket_Type) return String is
+   begin
+      return Sockets.Naming.Image
+        (Sockets.Naming.Address'
+           (Sockets.Naming.Get_Peer_Addr (SFD (Socket.S.all))));
+   exception
+      when E : others =>
+         Raise_Exception (E, "Peer_Addr");
+   end Peer_Addr;
+
+   ---------------------
+   -- Raise_Exception --
+   ---------------------
+
+   procedure Raise_Exception
+     (E       : in Exceptions.Exception_Occurrence;
+      Routine : in String)
+   is
+      use Ada.Exceptions;
+   begin
+      Raise_Exception
+        (Socket_Error'Identity,
+         Message => Routine & " : " & Exception_Message (E));
+   end Raise_Exception;
+
+   -------------
+   -- Receive --
+   -------------
+
+   function Receive
+     (Socket : in Socket_Type;
+      Max    : in Stream_Element_Count := 4096)
+      return Stream_Element_Array is
+   begin
+      if Socket.S = null then
+         Ada.Text_IO.Put_Line ("NULL !!");
+      end if;
+      return Sockets.Receive (SFD (Socket.S.all), Max);
+   exception
+      when E : others =>
+         Raise_Exception (E, "Receive");
+   end Receive;
+
+   ----------
+   -- Send --
+   ----------
+
+   procedure Send
+     (Socket : in Socket_Type;
+      Data   : in Stream_Element_Array) is
+   begin
+      Sockets.Send (SFD (Socket.S.all), Data);
+   exception
+      when E : others =>
+         Raise_Exception (E, "Send");
+   end Send;
+
+   --------------
+   -- Shutdown --
+   --------------
+
+   procedure Shutdown (Socket : in Socket_Type) is
+   begin
+      Sockets.Shutdown (SFD (Socket.S.all));
+   exception
+      when E : others =>
+         Raise_Exception (E, "Shutdown");
+   end Shutdown;
+
+   ------------
+   -- Socket --
+   ------------
+
+   function Socket return Socket_Access is
+      Sock : Socket_Access;
+   begin
+      Sock                     := new Socket_Type;
+      Socket_Type (Sock.all).S := new Socket_Hidden;
+      Sockets.Socket (SFD (Socket_Type (Sock.all).S.all));
+      return Sock;
+   exception
+      when E : others =>
+         Raise_Exception (E, "Socket");
+   end Socket;
+
+end AWS.Net.Std;
