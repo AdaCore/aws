@@ -544,7 +544,6 @@ package body SOAP.Generator is
            (Type_Ads, "   " & String'(1 .. 12 + Name'Length => '-'));
 
          Text_IO.New_Line (Type_Ads);
-
          Text_IO.Put_Line
            (Type_Ads, "   type " & Name
               & " is array (Positive range <>) of "
@@ -555,13 +554,37 @@ package body SOAP.Generator is
 
          Text_IO.New_Line (Type_Ads);
          Text_IO.Put_Line
+           (Type_Ads, "   package " & Name & "_Safe_Pointer is");
+         Text_IO.Put_Line
+           (Type_Ads, "      new SOAP.Utils.Safe_Pointers ("
+              & Name & ", " & Name & "_Access);");
+
+         Text_IO.New_Line (Type_Ads);
+         Text_IO.Put_Line
+           (Type_Ads, "   subtype " & Name & "_Safe_Access");
+         Text_IO.Put_Line
+           (Type_Ads, "      is " & Name & "_Safe_Pointer.Safe_Pointer;");
+
+         Text_IO.New_Line (Type_Ads);
+         Text_IO.Put_Line
+           (Type_Ads, "   function ""+""");
+         Text_IO.Put_Line
+           (Type_Ads, "     (O : in " & Name & ')');
+         Text_IO.Put_Line
+           (Type_Ads, "      return " & Name & "_Safe_Access");
+         Text_IO.Put_Line
+           (Type_Ads, "      renames " & Name
+              & "_Safe_Pointer.To_Safe_Pointer;");
+         Text_IO.Put_Line
+           (Type_Ads, "   --  Convert an array to a safe pointer");
+
+         Text_IO.New_Line (Type_Ads);
+         Text_IO.Put_Line
            (Type_Ads, "   function To_" & Name
               & " is new SOAP.Utils.To_T_Array");
          Text_IO.Put_Line
-           (Type_Ads, "     (" & To_Ada_Type (T_Name) & ", " & Name & ",");
-         Text_IO.Put_Line
-           (Type_Ads,
-            "      " & Name & "_Access, " & Get_Routine (P) & ");");
+           (Type_Ads, "     (" & To_Ada_Type (T_Name) & ", "
+              & Name & ", " & Get_Routine (P) & ");");
 
          Text_IO.New_Line (Type_Ads);
          Text_IO.Put_Line
@@ -652,6 +675,14 @@ package body SOAP.Generator is
             Text_IO.Put (Type_Ads, Format_Name (O, Type_Name (N)));
 
             Text_IO.Put_Line (Type_Ads, ";");
+
+            if N.Mode = WSDL.Parameters.K_Composite
+              and then Utils.Is_Array (To_String (N.C_Name))
+            then
+               Text_IO.Put_Line
+                 (Type_Ads,
+                  "      --  Access items with : result.Item (n)");
+            end if;
 
             N := N.Next;
          end loop;
@@ -751,7 +782,7 @@ package body SOAP.Generator is
             else
                if Utils.Is_Array (To_String (N.C_Name)) then
                   Text_IO.Put
-                    (Type_Adb, "To_" & Format_Name (O, To_String (N.C_Name))
+                    (Type_Adb, "+To_" & Format_Name (O, To_String (N.C_Name))
                        & " (SOAP.Types.V ("
                        & Format_Name (O, To_String (N.Name)) & "))");
 
@@ -809,8 +840,8 @@ package body SOAP.Generator is
                   Text_IO.Put
                     (Type_Adb,
                      "SOAP.Types.A (To_Object_Set (R."
-                       & Format_Name (O, To_String (N.Name)) & ".all), """
-                       & To_String (N.Name) & """)");
+                       & Format_Name (O, To_String (N.Name))
+                       & ".Item.all), """ & To_String (N.Name) & """)");
                else
                   Text_IO.Put (Type_Adb, Set_Routine (N));
 
@@ -1026,7 +1057,7 @@ package body SOAP.Generator is
 
          else
             if Utils.Is_Array (To_String (N.C_Name)) then
-               return To_String (N.C_Name) & "_Access";
+               return To_String (N.C_Name) & "_Safe_Access";
             else
                return To_String (N.C_Name) & "_Record";
             end if;
