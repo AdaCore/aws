@@ -1,5 +1,11 @@
 2002-12-14  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-net-buffered.adb:
+	(Get_Line): Implementation not using recursivity for better
+	 performances when reading large data.
+
+2002-12-14  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(clean): Do not remove aws-net.adb.
 
