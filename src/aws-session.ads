@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -94,21 +94,21 @@ package AWS.Session is
    function Get
      (SID : in ID;
       Key : in String)
-     return Integer;
+      return Integer;
    --  Returns the Value for Key in the session SID or the integer value 0 if
    --  key does not exist or is not an integer.
 
    function Get
      (SID : in ID;
       Key : in String)
-     return Float;
+      return Float;
    --  Returns the Value for Key in the session SID or the float value 0.0 if
    --  key does not exist or is not a float.
 
    function Get
      (SID : in ID;
       Key : in String)
-     return Boolean;
+      return Boolean;
    --  Returns the Value for Key in the session SID or the boolean False if
    --  key does not exist or is not a boolean.
 
@@ -120,7 +120,7 @@ package AWS.Session is
    function Exist
      (SID : in ID;
       Key : in String)
-     return Boolean;
+      return Boolean;
    --  Returns True if Key exist in session SID.
 
    generic

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -54,7 +54,7 @@ generic
    with function To_Stream_Output
      (Output : in Client_Output_Type;
       Client : in Client_Environment)
-     return Stream_Output_Type;
+      return Stream_Output_Type;
    --  Function used for convert Client_Output_Type to Stream_Output_Type.
    --  This is used by the server to prepare the data to be sent to the
    --  clients.
