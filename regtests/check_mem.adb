@@ -530,7 +530,9 @@ begin
 
    Server.Stopped;
 
+   Command_Line.Set_Exit_Status (Command_Line.Success);
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Command_Line.Set_Exit_Status (Command_Line.Failure);
 end Check_Mem;
