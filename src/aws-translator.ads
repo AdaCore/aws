@@ -34,11 +34,6 @@ with Ada.Streams;
 
 package AWS.Translator is
 
-   function Decode_URL (Str : in String) return String;
-   --  The translations are:
-   --     +     should be changed to a space
-   --     %xy   should be replaced by the character whose ASCII code is xy
-
    function Base64_Encode
      (Data : in Ada.Streams.Stream_Element_Array)
      return String;
