@@ -80,7 +80,7 @@ package body AWS.Net is
 
    procedure Set_Cache (Socket : in out Socket_Type'Class) is
    begin
-      --  Recreate cache if it is already exist.
+      --  Recreate cache if it already exists.
 
       if Socket.C /= null then
          Release_Cache (Socket);
@@ -101,6 +101,7 @@ package body AWS.Net is
          begin
             return Result;
          end;
+
       else
          declare
             Result : Std.Socket_Type;
