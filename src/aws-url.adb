@@ -288,21 +288,26 @@ package body AWS.URL is
 
       O : Object;
 
-      procedure Parse (URL : in String);
+      procedure Parse (URL : in String; Protocol_Specified : in Boolean);
       --  Parse URL, the URL must not contain the HTTP_Token prefix.
+      --  Protocol_Specified is set to True when the protocol (http:// or
+      --  https:// prefix) was specified. This is used to raise ambiguity
+      --  while parsing the URL. See comment below.
 
       -----------
       -- Parse --
       -----------
 
-      procedure Parse (URL : in String) is
+      procedure Parse (URL : in String;  Protocol_Specified : in Boolean) is
 
-         function US (S : in String)
-           return Unbounded_String
-           renames To_Unbounded_String;
+         function "+"
+           (S : in String)
+            return Unbounded_String
+            renames To_Unbounded_String;
 
-         procedure Parse_Path_File;
-         --  Parse Path and File URL information
+         procedure Parse_Path_File (Start : in Positive);
+         --  Parse Path and File URL information starting at position Start in
+         --  URL.
 
          I1, I2, I3 : Natural;
          F          : Positive;
@@ -311,24 +316,25 @@ package body AWS.URL is
          -- Parse_Path_File --
          ---------------------
 
-         procedure Parse_Path_File is
-            PF : constant String := URL (I2 + 1 .. URL'Last);
+         procedure Parse_Path_File (Start : in Positive) is
+            PF : constant String := URL (Start .. URL'Last);
             I3 : constant Natural
               := Strings.Fixed.Index (PF, "/", Strings.Backward);
          begin
             if I3 = 0 then
-               --  No ending '/' check for current and parent directories
+               --  No '/' so this is certainly a single file. As a special
+               --  exception we check for current and parent directories
                --  which must be part of the path.
 
                declare
-                  File : constant String := URL (I2 + 1 .. URL'Last);
+                  File : constant String := URL (Start .. URL'Last);
                begin
                   if File = ".." or else File = "." then
-                     O.Path := US ("/" & File);
-                     O.File := US ("");
+                     O.Path := +File;
+                     O.File := +"";
                   else
-                     O.Path := US ("/");
-                     O.File := US (File);
+                     O.Path := +"";
+                     O.File := +File;
                   end if;
                end;
 
@@ -340,59 +346,97 @@ package body AWS.URL is
                   File : constant String := URL (I3 + 1 .. URL'Last);
                begin
                   if File = ".." or else File = "." then
-                     O.Path := US (URL (I2 .. URL'Last));
-                     O.File := US ("");
+                     O.Path := +URL (Start .. URL'Last);
+                     O.File := +"";
                   else
-                     O.Path := US (URL (I2 .. I3));
-                     O.File := US (File);
+                     O.Path := +URL (Start .. I3);
+                     O.File := +File;
                   end if;
                end;
             end if;
          end Parse_Path_File;
+
+         User_Password : Boolean := False;
 
       begin
          I1 := Strings.Fixed.Index (URL, ":");
          I2 := Strings.Fixed.Index (URL, "/");
          I3 := Strings.Fixed.Index (URL, "@");
 
-         --  Check for "user:pawwsord@"
+         --  Check for [user:pawwsord@]
 
-         if I1 < I3 and then I1 /= 0 then
-            O.User     := US (URL (URL'First .. I1 - 1));
-            O.Password := US (URL (I1 + 1 .. I3 - 1));
+         if I1 /= 0 and then I3 /= 0 and then I1 < I3 then
+            --  We have [user:password@]
+            O.User     := +URL (URL'First .. I1 - 1);
+            O.Password := +URL (I1 + 1 .. I3 - 1);
 
-            I1 := Strings.Fixed.Index (URL (I3 + 1 .. URL'Last), ":");
             F  := I3 + 1;
+
+            --  Check if there is another ':' specified
+            I1 := Strings.Fixed.Index (URL (F .. URL'Last), ":");
+
+            User_Password := True;
 
          else
             F := URL'First;
          end if;
 
-         if I1 = 0 then
-            --  No ':', there is no port specified
+         if I1 = 0
+           and then not User_Password
+           and then not Protocol_Specified
+         then
+            --  No ':', there is no port specified and no host since we did
+            --  not have a [user:password@] parsed and there was no protocol
+            --  specified. Let's just parse the data as a path information.
+            --
+            --  There is ambiguity here, the data could be either:
+            --
+            --     some_host_name/some_path
+            --   or
+            --     relative_path/some_more_path
+            --
+            --  As per explanations above we take the second choice.
+
+            O.Host := +"";
+            Parse_Path_File (URL'First);
+
+         elsif I1 = 0 then
+            --  In this case we have not port specified but a [user:password@]
+            --  was found, we expect the first string to be the hostname.
 
             if I2 = 0 then
-               --  No '/', we have just [host/]
-               O.Host := US (URL (F .. URL'Last));
-               O.Path := US ("/");
+               --  No path information, case [user:password@host]
+               O.Host := +URL (F .. URL'Last);
+               O.Path := +"/";
+
             else
-               --  We have [host/path]
-               O.Host := US (URL (F .. I2 - 1));
-               Parse_Path_File;
+               --  A path, case [user:password@host/path]
+               O.Host := +URL (F .. I2 - 1);
+               Parse_Path_File (I2);
             end if;
 
          else
             --  Here we have a port specified [host:port]
-            O.Host := US (URL (F .. I1 - 1));
+            O.Host := +URL (F .. I1 - 1);
 
             if I2 = 0 then
-               --  No path, we have [host:port/]
-               O.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
-               O.Path := US ("/");
+               --  No path, we have [host:port]
+               if Utils.Is_Number (URL (I1 + 1 .. URL'Last)) then
+                  O.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
+               else
+                  raise URL_Error;
+               end if;
+
+               O.Path := +"/";
             else
                --  Here we have a complete URL [host:port/path]
-               O.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
-               Parse_Path_File;
+               if Utils.Is_Number (URL (I1 + 1 .. I2 - 1)) then
+                  O.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
+               else
+                  raise URL_Error;
+               end if;
+
+               Parse_Path_File (I2);
             end if;
          end if;
       end Parse;
@@ -415,28 +459,24 @@ package body AWS.URL is
 
       if Messages.Match (L_URL, HTTP_Token) then
          O.Port := Default_HTTP_Port;
-         Parse (L_URL (L_URL'First + HTTP_Token'Length .. P));
+         Parse (L_URL (L_URL'First + HTTP_Token'Length .. P), True);
 
       elsif Messages.Match (L_URL, HTTPS_Token) then
          O.Port := Default_HTTPS_Port;
-         Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P));
+         Parse (L_URL (L_URL'First + HTTPS_Token'Length .. P), True);
          O.Security := True;
 
       elsif L_URL /= "" then
-         --  No server and port, just an URL.
-
-         if L_URL (L_URL'First) = '/' then
-            --  This is a rooted URL, no problem to parse as-is
-            Parse (L_URL);
-
-         else
-            --  This is not rooted. Parse with a '/' slash added, then remove
-            --  it after parsing.
-            Parse ('/' & L_URL);
-            O.Path := To_Unbounded_String (Slice (O.Path, 2, Length (O.Path)));
-         end if;
+         --  Prefix is not recognied, this is either because there is no
+         --  protocol specified or the protocol is not supported by AWS. For
+         --  example a javascript reference start with "javascript:". This
+         --  will be catched on the next parsing level.
+         --
+         --  At least we know that it is not a Secure HTTP protocol URL.
 
          O.Security := False;
+
+         Parse (L_URL (L_URL'First .. P), False);
       end if;
 
       --  Normalize the URL path
