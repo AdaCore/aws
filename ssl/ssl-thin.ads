@@ -43,17 +43,17 @@ package SSL.Thin is
    subtype Pointer is System.Address;
 
    subtype SSL_Method is Pointer;
-   subtype SSL_Ctx is Pointer;
+   subtype SSL_CTX    is Pointer;
    subtype SSL_Handle is Pointer;
-   subtype RSA is Pointer;
+   subtype RSA        is Pointer;
 
    subtype Error_Code is unsigned_long;
 
    SSL_Filetype_Pem                  : constant := 1;
-   SSL_Ctrl_Need_Tmp_Rsa             : constant := 1;
-   SSL_Ctrl_Set_Tmp_Rsa              : constant := 2;
+   SSL_Ctrl_Need_Tmp_RSA             : constant := 1;
+   SSL_Ctrl_Set_Tmp_RSA              : constant := 2;
    SSL_Ctrl_Set_Tmp_Dh               : constant := 3;
-   SSL_Ctrl_Set_Tmp_Rsa_Cb           : constant := 4;
+   SSL_Ctrl_Set_Tmp_RSA_Cb           : constant := 4;
    SSL_Ctrl_Set_Tmp_Dh_Cb            : constant := 5;
    SSL_Ctrl_Get_Session_Reused       : constant := 6;
    SSL_Ctrl_Get_Client_Cert_Request  : constant := 7;
@@ -61,7 +61,7 @@ package SSL.Thin is
    SSL_Ctrl_Clear_Num_Renegotiations : constant := 9;
    SSL_Ctrl_Get_Total_Renegotiations : constant := 10;
    SSL_Ctrl_Get_Flags                : constant := 11;
-   SSL_Ctrl_Extra_Chain_Cert         : constant := 12;
+   SSL_Ctrl_Extra_Chain_CERT         : constant := 12;
    SSL_Ctrl_Sess_Number              : constant := 20;
    SSL_Ctrl_Sess_Connect             : constant := 21;
    SSL_Ctrl_Sess_Connect_Good        : constant := 22;
@@ -88,106 +88,106 @@ package SSL.Thin is
    Rsa_3  : constant := 3;
    Rsa_F4 : constant := 16#10001#;
 
-   function SSLv3_Method         return SSL_Method;
-   function SSLv3_Server_Method  return SSL_Method;
-   function SSLv3_Client_Method  return SSL_Method;
-   function SSLv2_Method         return SSL_Method;
-   function SSLv2_Server_Method  return SSL_Method;
-   function SSLv2_Client_Method  return SSL_Method;
-   function SSLv23_Method        return SSL_Method;
-   function SSLv23_Server_Method return SSL_Method;
-   function SSLv23_Client_Method return SSL_Method;
-   function Tlsv1_Method         return SSL_Method;
-   function Tlsv1_Server_Method  return SSL_Method;
-   function Tlsv1_Client_Method  return SSL_Method;
+   function SSLv3_method         return SSL_Method;
+   function SSLv3_server_method  return SSL_Method;
+   function SSLv3_client_method  return SSL_Method;
+   function SSLv2_method         return SSL_Method;
+   function SSLv2_server_method  return SSL_Method;
+   function SSLv2_client_method  return SSL_Method;
+   function SSLv23_method        return SSL_Method;
+   function SSLv23_server_method return SSL_Method;
+   function SSLv23_client_method return SSL_Method;
+   function Tlsv1_method         return SSL_Method;
+   function Tlsv1_server_method  return SSL_Method;
+   function Tlsv1_client_method  return SSL_Method;
 
-   function Crypto_Set_Mem_Functions
+   function CRYPTO_set_mem_functions
      (M : in System.Address;
       R : in System.Address;
       F : in System.Address)
       return int;
 
-   function SSL_Ctx_New (Meth : in SSL_Method) return SSL_Ctx;
+   function SSL_CTX_new (Meth : in SSL_Method) return SSL_CTX;
 
-   procedure SSL_Ctx_Free (P1 : in SSL_Ctx);
+   procedure SSL_CTX_free (P1 : in SSL_CTX);
 
-   procedure SSL_Ctx_Set_Quiet_Shutdown (Ctx : in SSL_Ctx; Mode : in int);
+   procedure SSL_CTX_set_quiet_shutdown (Ctx : in SSL_CTX; Mode : in int);
 
-   function SSL_Ctx_Ctrl
-     (Ctx  : in SSL_Ctx;
+   function SSL_CTX_ctrl
+     (Ctx  : in SSL_CTX;
       Cmd  : in int;
       Larg : in int;
       Parg : in Pointer)
       return int;
 
-   procedure SSL_Library_Init;
+   procedure SSL_library_init;
 
-   procedure SSL_Load_Error_Strings;
+   procedure SSL_load_error_strings;
 
-   procedure Err_Load_Crypto_Strings;
+   procedure ERR_load_crypto_strings;
 
-   procedure Err_Load_SSL_Strings;
+   procedure ERR_load_ssl_strings;
 
-   function Err_Get_Error return Error_Code;
+   function ERR_get_error return Error_Code;
 
-   function Err_Error_String
+   function ERR_error_string
      (Code   : in Error_Code;
       Buffer : in Cstr.chars_ptr)
       return Cstr.chars_ptr;
 
-   procedure Err_Error_String_N
+   procedure ERR_error_string_n
      (Code   : in Error_Code;
       Buffer : in char_array;
       Len    : in size_t);
 
    procedure ERR_Remove_State (pid : in int := 0);
 
-   function SSL_New (Ctx : in SSL_Ctx) return SSL_Handle;
+   function SSL_new (Ctx : in SSL_CTX) return SSL_Handle;
 
-   procedure SSL_Free (SSL : in SSL_Handle);
+   procedure SSL_free (SSL : in SSL_Handle);
 
-   function SSL_Set_Fd
+   function SSL_set_fd
      (S  : in SSL_Handle;
       Fd : in int)
       return int;
 
-   procedure SSL_Set_Read_Ahead
+   procedure SSL_set_read_ahead
      (S   : in SSL_Handle;
       Yes : in int);
 
-   function SSL_Connect (SSL : in SSL_Handle) return int;
+   function SSL_connect (SSL : in SSL_Handle) return int;
 
-   function SSL_Accept (SSL : in SSL_Handle) return int;
+   function SSL_accept (SSL : in SSL_Handle) return int;
 
-   procedure SSL_Set_Connect_State (SSL : in SSL_Handle);
+   procedure SSL_set_connect_state (SSL : in SSL_Handle);
 
-   procedure SSL_Set_Accept_State (SSL : in SSL_Handle);
+   procedure SSL_set_accept_state (SSL : in SSL_Handle);
 
-   function SSL_Renegotiate (SSL : in SSL_Handle) return int;
+   function SSL_renegotiate (SSL : in SSL_Handle) return int;
 
-   function SSL_Do_Handshake (SSL : in SSL_Handle) return int;
+   function SSL_do_handshake (SSL : in SSL_Handle) return int;
 
-   function SSL_Want (S : in SSL_Handle) return int;
+   function SSL_want (S : in SSL_Handle) return int;
 
-   function SSL_Read
+   function SSL_read
      (SSL : in SSL_Handle;
       Buf : in Pointer;
       Num : in int)
       return int;
 
-   function SSL_Peek
+   function SSL_peek
      (SSL : in SSL_Handle;
       Buf : in Pointer;
       Num : in int)
       return int;
 
-   function SSL_Write
+   function SSL_write
      (SSL : in SSL_Handle;
       Buf : in Pointer;
       Num : in int)
       return int;
 
-   function SSL_Pending (S : in SSL_Handle) return int;
+   function SSL_pending (S : in SSL_Handle) return int;
 
 
    type Generate_Key_Callback is access
@@ -195,101 +195,101 @@ package SSL.Thin is
    pragma Convention (C, Generate_Key_Callback);
 
 
-   function Rsa_Generate_Key
+   function RSA_generate_key
      (Bits     : in int;
       E        : in unsigned;
       Callback : in Generate_Key_Callback;
       Cb_Arg   : in Pointer)
       return RSA;
 
-   function SSL_Use_Rsaprivatekey
+   function SSL_use_RSAPrivateKey
      (SSL         : in SSL_Handle;
       Private_Key : in RSA)
       return int;
 
-   function SSL_Shutdown (SSL : in SSL_Handle) return int;
+   function SSL_shutdown (SSL : in SSL_Handle) return int;
 
-   procedure SSL_Set_Shutdown (SSL : in SSL_Handle; Mode : in int);
+   procedure SSL_set_shutdown (SSL : in SSL_Handle; Mode : in int);
 
-   function SSL_Ctx_Use_Privatekey_File
-     (Ctx    : in SSL_Ctx;
+   function SSL_CTX_use_PrivateKey_file
+     (Ctx    : in SSL_CTX;
       File   : in char_array;
       C_Type : in int)
       return int;
 
-   function SSL_Ctx_Use_Certificate_File
-     (Ctx    : in SSL_Ctx;
+   function SSL_CTX_use_certificate_file
+     (Ctx    : in SSL_CTX;
       File   : in char_array;
       C_Type : in int)
       return int;
 
-   function SSL_Ctx_Check_Private_Key (Ctx : in SSL_Ctx) return int;
+   function SSL_CTX_check_private_key (Ctx : in SSL_CTX) return int;
 
-   procedure Rand_Seed (Buf : in Pointer; Num : in Integer);
+   procedure RAND_seed (Buf : in Pointer; Num : in Integer);
 
 private
 
-   pragma Import (C, Rand_Seed, "RAND_seed");
-   pragma Import (C, SSL_Set_Fd, "SSL_set_fd");
-   pragma Import (C, SSL_Accept, "SSL_accept");
+   pragma Import (C, RAND_seed, "RAND_seed");
+   pragma Import (C, SSL_set_fd, "SSL_set_fd");
+   pragma Import (C, SSL_accept, "SSL_accept");
    pragma Import (C, ERR_Remove_State, "ERR_remove_state");
 
-   pragma Import (C, SSL_Set_Connect_State, "SSL_set_connect_state");
-   pragma Import (C, SSL_Set_Accept_State, "SSL_set_accept_state");
+   pragma Import (C, SSL_set_connect_state, "SSL_set_connect_state");
+   pragma Import (C, SSL_set_accept_state, "SSL_set_accept_state");
 
-   pragma Import (C, SSL_Ctx_Use_Certificate_File,
+   pragma Import (C, SSL_CTX_use_certificate_file,
                     "SSL_CTX_use_certificate_file");
-   pragma Import (C, SSL_Ctx_Use_Privatekey_File,
+   pragma Import (C, SSL_CTX_use_PrivateKey_file,
                     "SSL_CTX_use_PrivateKey_file");
-   pragma Import (C, SSL_Ctx_Check_Private_Key, "SSL_CTX_check_private_key");
-   pragma Import (C, SSL_Read, "SSL_read");
-   pragma Import (C, SSL_Write, "SSL_write");
-   pragma Import (C, SSL_Peek, "SSL_peek");
-   pragma Import (C, SSL_Connect, "SSL_connect");
-   pragma Import (C, SSL_Ctx_Set_Quiet_Shutdown, "SSL_CTX_set_quiet_shutdown");
-   pragma Import (C, SSL_Ctx_Ctrl, "SSL_CTX_ctrl");
-   pragma Import (C, SSL_Pending, "SSL_pending");
-   pragma Import (C, SSL_Set_Shutdown, "SSL_set_shutdown");
-   pragma Import (C, SSL_Shutdown, "SSL_shutdown");
-   pragma Import (C, SSL_Do_Handshake, "SSL_do_handshake");
-   pragma Import (C, SSL_Renegotiate, "SSL_renegotiate");
-   pragma Import (C, SSL_Want, "SSL_want");
-   pragma Import (C, SSL_Set_Read_Ahead, "SSL_set_read_ahead");
+   pragma Import (C, SSL_CTX_check_private_key, "SSL_CTX_check_private_key");
+   pragma Import (C, SSL_read, "SSL_read");
+   pragma Import (C, SSL_write, "SSL_write");
+   pragma Import (C, SSL_peek, "SSL_peek");
+   pragma Import (C, SSL_connect, "SSL_connect");
+   pragma Import (C, SSL_CTX_set_quiet_shutdown, "SSL_CTX_set_quiet_shutdown");
+   pragma Import (C, SSL_CTX_ctrl, "SSL_CTX_ctrl");
+   pragma Import (C, SSL_pending, "SSL_pending");
+   pragma Import (C, SSL_set_shutdown, "SSL_set_shutdown");
+   pragma Import (C, SSL_shutdown, "SSL_shutdown");
+   pragma Import (C, SSL_do_handshake, "SSL_do_handshake");
+   pragma Import (C, SSL_renegotiate, "SSL_renegotiate");
+   pragma Import (C, SSL_want, "SSL_want");
+   pragma Import (C, SSL_set_read_ahead, "SSL_set_read_ahead");
 
-   pragma Import (C, Rsa_Generate_Key, "RSA_generate_key");
-   pragma Import (C, SSL_Use_Rsaprivatekey, "SSL_use_RSAPrivateKey");
+   pragma Import (C, RSA_generate_key, "RSA_generate_key");
+   pragma Import (C, SSL_use_RSAPrivateKey, "SSL_use_RSAPrivateKey");
 
-   pragma Import (C, SSL_Library_Init, "SSL_library_init");
+   pragma Import (C, SSL_library_init, "SSL_library_init");
 
-   pragma Import (C, SSL_Load_Error_Strings, "SSL_load_error_strings");
+   pragma Import (C, SSL_load_error_strings, "SSL_load_error_strings");
 
-   pragma Import (C, Err_Load_Crypto_Strings, "ERR_load_crypto_strings");
-   pragma Import (C, Err_Load_SSL_Strings, "ERR_load_SSL_strings");
+   pragma Import (C, ERR_load_crypto_strings, "ERR_load_crypto_strings");
+   pragma Import (C, ERR_load_ssl_strings, "ERR_load_SSL_strings");
 
-   pragma Import (C, Err_Get_Error, "ERR_get_error");
-   pragma Import (C, Err_Error_String, "ERR_error_string");
-   pragma Import (C, Err_Error_String_N, "ERR_error_string_n");
+   pragma Import (C, ERR_get_error, "ERR_get_error");
+   pragma Import (C, ERR_error_string, "ERR_error_string");
+   pragma Import (C, ERR_error_string_n, "ERR_error_string_n");
 
 
-   pragma Import (C, Crypto_Set_Mem_Functions, "CRYPTO_set_mem_functions");
+   pragma Import (C, CRYPTO_set_mem_functions, "CRYPTO_set_mem_functions");
 
-   pragma Import (C, SSL_Ctx_New, "SSL_CTX_new");
-   pragma Import (C, SSL_Ctx_Free, "SSL_CTX_free");
+   pragma Import (C, SSL_CTX_new, "SSL_CTX_new");
+   pragma Import (C, SSL_CTX_free, "SSL_CTX_free");
 
-   pragma Import (C, SSLv3_Method, "SSLv3_method");
-   pragma Import (C, SSLv3_Server_Method, "SSLv3_server_method");
-   pragma Import (C, SSLv3_Client_Method, "SSLv3_client_method");
-   pragma Import (C, SSLv2_Method, "SSLv2_method");
-   pragma Import (C, SSLv2_Server_Method, "SSLv2_server_method");
-   pragma Import (C, SSLv2_Client_Method, "SSLv2_client_method");
-   pragma Import (C, SSLv23_Method, "SSLv23_method");
-   pragma Import (C, SSLv23_Server_Method, "SSLv23_server_method");
-   pragma Import (C, SSLv23_Client_Method, "SSLv23_client_method");
-   pragma Import (C, Tlsv1_Method, "TLSv1_method");
-   pragma Import (C, Tlsv1_Server_Method, "TLSv1_server_method");
-   pragma Import (C, Tlsv1_Client_Method, "TLSv1_client_method");
+   pragma Import (C, SSLv3_method, "SSLv3_method");
+   pragma Import (C, SSLv3_server_method, "SSLv3_server_method");
+   pragma Import (C, SSLv3_client_method, "SSLv3_client_method");
+   pragma Import (C, SSLv2_method, "SSLv2_method");
+   pragma Import (C, SSLv2_server_method, "SSLv2_server_method");
+   pragma Import (C, SSLv2_client_method, "SSLv2_client_method");
+   pragma Import (C, SSLv23_method, "SSLv23_method");
+   pragma Import (C, SSLv23_server_method, "SSLv23_server_method");
+   pragma Import (C, SSLv23_client_method, "SSLv23_client_method");
+   pragma Import (C, Tlsv1_method, "TLSv1_method");
+   pragma Import (C, Tlsv1_server_method, "TLSv1_server_method");
+   pragma Import (C, Tlsv1_client_method, "TLSv1_client_method");
 
-   pragma Import (C, SSL_New, "SSL_new");
-   pragma Import (C, SSL_Free, "SSL_free");
+   pragma Import (C, SSL_new, "SSL_new");
+   pragma Import (C, SSL_free, "SSL_free");
 
 end SSL.Thin;
