@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                            Copyright (C) 2002-2003                       --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,9 +38,7 @@ package AWS.Resources.Streams is
 
    type Stream_Access is access all Stream_Type'Class;
 
-   function End_Of_File
-     (Resource : in Stream_Type)
-      return Boolean
+   function End_Of_File (Resource : in Stream_Type) return Boolean
       is abstract;
 
    procedure Read
