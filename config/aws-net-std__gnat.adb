@@ -345,11 +345,17 @@ package body AWS.Net.Std is
                null;
          end;
 
-         Sockets.Close_Socket (SFD (Socket.S.all));
+         begin
+            --  ??? In some cases the call above fails because the socket
+            --  descriptor is not valid (errno = EABF). This happen on
+            --  GNU/Linux only and the problem is not fully understood at this
+            --  point. We catch the exception here to hide this problem.
+            Sockets.Close_Socket (SFD (Socket.S.all));
+         exception
+            when Sockets.Socket_Error =>
+               null;
+         end;
       end if;
-   exception
-      when E : others =>
-         Raise_Exception (E, "Shutdown");
    end Shutdown;
 
 begin
