@@ -448,53 +448,52 @@ procedure Interoplab_Main is
 
    function CB (Request : in Status.Data) return Response.Data is
       SOAPAction : constant String := Status.SOAPAction (Request);
+      Payload    : constant SOAP.Message.Payload.Object
+        := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
    begin
       if SOAPAction = "http://soapinterop.org/#echoString" then
-         return echoString_CB (Request);
+         return echoString_CB (SOAPAction, Payload, Request);
 
       elsif SOAPAction = "http://soapinterop.org/#echoVoid" then
-         return echoVoid_CB (Request);
+         return echoVoid_CB (SOAPAction, Payload, Request);
 
       elsif SOAPAction = "http://soapinterop.org/" then
-
          declare
-            PL : constant SOAP.Message.Payload.Object
-              := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
             Proc : constant String
-              := SOAP.Message.Payload.Procedure_Name (PL);
+              := SOAP.Message.Payload.Procedure_Name (Payload);
          begin
             if Proc = "echoString" then
-               return echoString_CB (Request);
+               return echoString_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoStringArray" then
-               return echoStringArray_CB (Request);
+               return echoStringArray_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoBoolean" then
-               return echoBoolean_CB (Request);
+               return echoBoolean_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoBase64" then
-               return echoBase64_CB (Request);
+               return echoBase64_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoInteger" then
-               return echoInteger_CB (Request);
+               return echoInteger_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoIntegerArray" then
-               return echoIntegerArray_CB (Request);
+               return echoIntegerArray_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoFloat" then
-               return echoFloat_CB (Request);
+               return echoFloat_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoStruct" then
-               return echoStruct_CB (Request);
+               return echoStruct_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoDate" then
-               return echoDate_CB (Request);
+               return echoDate_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoFloatArray" then
-               return echoFloatArray_CB (Request);
+               return echoFloatArray_CB (SOAPAction, Payload, Request);
 
             elsif Proc = "echoStructArray" then
-               return echoStructArray_CB (Request);
+               return echoStructArray_CB (SOAPAction, Payload, Request);
 
             else
                return Response.Build
