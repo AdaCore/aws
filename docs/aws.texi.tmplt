@@ -38,7 +38,7 @@
 <font size="+2">
 <p>AWS - version @_AWS_VERSION_@
 <p>Support for SOAP 1.1 - version @_SOAP_VERSION_@
-<p>SMTP, LDAP and Jabber protocols.
+<p>SMTP, POP, LDAP and Jabber protocols.
 <p>$Revision$
 <p>Date: @today{}
 <p>Dmitriy Anisimkov (anisimkov@@yahoo.com)
@@ -129,6 +129,8 @@ Major supported features are:
 
 @item HTTPS (Secure HTTP) implementation based on SSLv3
 
+@item Template Web pages (separate the code and the design)
+
 @item Web Services - SOAP based
 
 @item WSDL support (generate stub/skeleton from WSDL documents)
@@ -146,8 +148,6 @@ Major supported features are:
 @item LDAP (client API)
 
 @item Embedded resources (full self dependant Web server)
-
-@item Template Web pages (separate the code and the design)
 
 @item Complete client API, including HTTPS
 
@@ -573,7 +573,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL},
 @noindent
 When the build is done you must install @code{AWS} at a specific
 location. The target directory is defined with the @var{INSTALL}
-@file{makefile} variable. The default value is your home directory. To
+@file{makefile.conf} variable. The default value is your home directory. To
 install:
 
 @smallexample
@@ -585,8 +585,9 @@ $ make install
 @end smallexample
 
 @noindent
-To install @code{AWS} into another directory just force the make
-@code{INSTALL} variable:
+To install @code{AWS} into another directory you can either edit
+@file{makefile.conf} and set @var{INSTALL} to the directory you like
+to install @code{AWS} or just force the make @code{INSTALL} variable:
 
 @smallexample
 @cartouche
@@ -627,6 +628,14 @@ Now you are ready to use @code{AWS} !
 @node Setting up environment
 @section Setting up environment
 
+@menu
+* Using environment variables::
+* Using GNAT Project Files::
+@end menu
+
+@node Using environment variables
+@subsection Using environment variables
+
 @noindent
 After installing @code{AWS} you must set the build environment to
 point the compiler to the right libraries. First let's say that
@@ -645,7 +654,7 @@ If you pefer setting the environment yourself here is how to do with
 @item spec files
 
 The spec files are installed in @file{<awsroot>/include}. Add this
-path into ADA_INCLUDE_PATH or put it on the command line
+path into @var{ADA_INCLUDE_PATH} or put it on the command line
 @code{-aI<awsroot>/include}.
 
 @item components
@@ -660,8 +669,8 @@ The GNAT library files (@file{.ali}) and the @code{AWS} libraries
 (@file{libaws.a}) are installed into @file{<awsroot>/lib}. Add this
 path into @var{ADA_OBJECTS_PATH} or put it on the command line
 @code{-aO<awsroot>/lib}. Furthermore for @code{gnatlink} to find the
-libraries you must add the following library path option on the @code{gnatmake}
-command line @code{-largs -L<awsroot>/lib -laws}.
+libraries you must add the following library path option on the
+@code{gnatmake} command line @code{-largs -L<awsroot>/lib -laws}.
 
 Note that to build SSL applications you need to add @code{-lssl -lcrypto} on
 gnatmake's @code{-largs} section.
@@ -676,14 +685,49 @@ be using. For example you'll have to point @code{GNAT} to the
 
 @end table
 
+@node Using GNAT Project Files
+@subsection Using GNAT Project Files
+
+@noindent
+The best solution is to use the installed GNAT Project File
+@file{aws.gpr}. This is supported only for @code{GNAT 5.01} or
+above. You must have installed @code{XMLAda} with project file
+support too.
+
+If this is the case just set the @var{ADA_PROJECT_PATH} variable to
+point to the @code{AWS} and @code{XMLAda} install directories. From
+there you just have to with the @code{AWS} project file in your GNAT
+Project file, nothing else to set.
+
+@smallexample
+@cartouche
+@group
+@b{with} "aws";
+
+@b{project} Simple @b{is}
+
+   @b{for} Main @b{use} ("prog.adb");
+
+   @b{for} Source_Dirs @b{use} (".");
+
+   @b{for} Object_Dir @b{use} ".";
+
+@b{end} Simple;
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+See the @i{GNAT User's Guide} for more information about GNAT Project Files.
+
 @c ----------------------------------------------------------------------
 
 @node Basic notions
 @section Basic notions
 
 @noindent
-@code{AWS} is not a Web Server like @i{IIS} or @i{Apache}, it is a component to
-embedded HTTP protocol in an application. It means that it is possible
+@code{AWS} is not a Web Server like @i{IIS} or @i{Apache}, it is a component
+to embedded HTTP protocol in an application. It means that it is possible
 to build an application which can also answer to a standard browser like
 @i{Internet Explorer} or @i{Netscape Navigator}. Since @code{AWS} provides
 support client and server HTTP protocol, applications can communicate
@@ -1126,8 +1170,8 @@ The @code{AWS} hotplug table down arrow.
 @end table
 
 @noindent
-Note that these filename are the current AWS default. But it is
-possible for example to change this using the configuration files
+Note that these filenames are the current @code{AWS} default. But it is
+possible to change those defaults using the configuration files
 @pxref{Configuration options}.
 
 @c ----------------------------------------------------------------------
