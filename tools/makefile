@@ -15,7 +15,8 @@ ifdef ASIS
 TOOLS := $(TOOLS) ada2wsdl-main
 endif
 
-ALL_EXEC = $(addsuffix $(EXEEXT), $(TOOLS))
+EXECS    = $(patsubst  ada2wsdl-main,ada2wsdl,$(TOOLS))
+ALL_EXEC = $(addsuffix $(EXEEXT), $(EXECS))
 
 build: $(TOOLS)
 
@@ -27,7 +28,7 @@ $(TOOLS): force
 		-largs -s -L../lib $(LIBS) -lz
 
 clean:
-	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.ad[sb]
+	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.ad[sb] *~
 
 #############################################################################
 # Configuration for GNAT Projet Files
