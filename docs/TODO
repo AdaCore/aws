@@ -167,7 +167,9 @@ implemented:
 
 - Add a non regression test for the Message_Body stream oriented response
 
-- Let SSL sockets to be used without explicitly set SSL config.
-
 - Improve the Web_Mail high level service to be able to reply and to
   handle CC recipients.
+
+- Add regression test for the auto SSL config
+
+- Add regression test for Response.Message_Body (stream oriented)
