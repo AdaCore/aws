@@ -43,5 +43,18 @@ package body AWS.Resources.Streams is
       File := File_Type (Buffer);
    end Create;
 
+   ----------
+   -- Size --
+   ----------
+
+   function Size
+     (Resource : in Stream_Type)
+      return   Stream_Element_Offset
+   is
+      pragma Unreferenced (Resource);
+   begin
+      return Undefined_Length;
+   end Size;
+
 end AWS.Resources.Streams;
 
