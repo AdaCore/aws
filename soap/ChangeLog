@@ -1,3 +1,8 @@
+2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.adb:
+	(Image): Add missing ')' in generated code.
+
 2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:

@@ -1,3 +1,11 @@
+2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Add wsdl4*
+
+	* test_wsdl4.adb, test_wsdl4.wsdl, test_wsdl4.out:
+	Initial revision.
+
 2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
