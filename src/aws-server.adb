@@ -33,11 +33,8 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
-with Ada.Unchecked_Conversion;
 with Ada.Unchecked_Deallocation;
-with Interfaces.C;
 
-with Sockets.Thin;
 with Sockets.Naming;
 with AWS.Config.Set;
 
@@ -62,8 +59,7 @@ package body AWS.Server is
    --  Start web server with current configuration
 
    procedure Protocol_Handler
-     (Sock        : in     Sockets.Socket_FD'Class;
-      HTTP_Server : in out HTTP;
+     (HTTP_Server : in out HTTP;
       Index       : in     Positive);
    --  Handle the lines, this is where all the HTTP protocol is defined.
 
@@ -171,34 +167,6 @@ package body AWS.Server is
       HTTP_Server : HTTP_Access;
       Slot_Index  : Positive;
 
-      function Get_Peername (Sock : in Sockets.Socket_FD) return String;
-      --  Returns the peername for Sock.
-
-      function Get_Peername (Sock : in Sockets.Socket_FD)
-         return String
-      is
-         package C renames Interfaces.C;
-         use type C.int;
-         use Sockets;
-
-         Sockaddr    : aliased Thin.Sockaddr;
-         Sockaddr_In : Thin.Sockaddr_In;
-
-         function To_Sockaddr_In is new
-           Ada.Unchecked_Conversion (Thin.Sockaddr, Thin.Sockaddr_In);
-
-         Len      : aliased C.int := Thin.Sockaddr'Size / 8;
-         Result   : C.int;
-      begin
-         Result := Sockets.Thin.C_Getpeername (Sockets.Get_FD (Sock),
-                                               Sockaddr'Address,
-                                               Len'Unchecked_Access);
-
-         Sockaddr_In := To_Sockaddr_In (Sockaddr);
-
-         return Sockets.Naming.Image (Sockaddr_In.Sin_Addr);
-      end Get_Peername;
-
    begin
 
       select
@@ -241,11 +209,11 @@ package body AWS.Server is
 
                HTTP_Server.Slots.Get (Sock'Unchecked_Access, Slot_Index);
 
-               HTTP_Server.Slots.Set_Peername
+               HTTP_Server.Slots.Set_Peer_Addr
                  (Slot_Index,
-                  Get_Peername (Sockets.Socket_FD (Sock)));
+                  Sockets.Naming.Get_Peer_Addr (Sockets.Socket_FD (Sock)));
 
-               Protocol_Handler (Sock, HTTP_Server.all, Slot_Index);
+               Protocol_Handler (HTTP_Server.all, Slot_Index);
 
             exception
 
@@ -331,8 +299,7 @@ package body AWS.Server is
    ----------------------
 
    procedure Protocol_Handler
-     (Sock        : in     Sockets.Socket_FD'Class;
-      HTTP_Server : in out HTTP;
+     (HTTP_Server : in out HTTP;
       Index       : in     Positive) is separate;
 
    --------------
@@ -444,15 +411,6 @@ package body AWS.Server is
          end loop;
       end Abort_On_Timeout;
 
-      ----------
-      -- Free --
-      ----------
-
-      function Free return Boolean is
-      begin
-         return Count > 0;
-      end Free;
-
       ----------------
       -- Free_Slots --
       ----------------
@@ -469,7 +427,9 @@ package body AWS.Server is
       procedure Get (FD : in Socket_Access; Index : in Positive) is
       begin
          Set (Index).Sock := FD;
-         Mark_Phase (Index, Client_Header);
+         Mark_Phase (Index, Wait_For_Client);
+         Set (Index).Alive_Counter := 0;
+         Set (Index).Alive_Time_Stamp := Ada.Calendar.Clock;
          Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
          Count := Count - 1;
       end Get;
@@ -489,7 +449,7 @@ package body AWS.Server is
 
       function Get_Peername (Index : in Positive) return String is
       begin
-         return To_String (Set (Index).Peername);
+         return Sockets.Naming.Image (Set (Index).Peer_Addr);
       end Get_Peername;
 
       -------------------------------------
@@ -500,6 +460,8 @@ package body AWS.Server is
       begin
          Set (Index).Slot_Activity_Counter
            := Set (Index).Slot_Activity_Counter + 1;
+         Set (Index).Alive_Counter
+           := Set (Index).Alive_Counter + 1;
       end Increment_Slot_Activity_Counter;
 
       ------------------
@@ -542,6 +504,12 @@ package body AWS.Server is
 
       procedure Mark_Phase (Index : in Positive; Phase : in Slot_Phase) is
       begin
+         if Set (Index).Phase = Aborted
+           and then Phase /= Closed
+         then
+            raise Sockets.Connection_Closed;
+         end if;
+
          Set (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
          Set (Index).Phase := Phase;
 
@@ -579,22 +547,24 @@ package body AWS.Server is
          end if;
       end Release;
 
-      ------------------
-      -- Set_Peername --
-      ------------------
+      -------------------
+      -- Set_Peer_Addr --
+      -------------------
 
-      procedure Set_Peername (Index : in Positive; Peername : in String) is
+      procedure Set_Peer_Addr
+        (Index     : in Positive;
+         Peer_Addr : in Sockets.Naming.Address) is
       begin
-         Set (Index).Peername := To_Unbounded_String (Peername);
-      end Set_Peername;
+         Set (Index).Peer_Addr := Peer_Addr;
+      end Set_Peer_Addr;
 
       ------------------
       -- Set_Timeouts --
       ------------------
 
       procedure Set_Timeouts
-        (Phase_Timeouts : Timeouts_Array;
-         Data_Timeouts  : Data_Timeouts_Array) is
+        (Phase_Timeouts : in Timeouts_Array;
+         Data_Timeouts  : in Data_Timeouts_Array) is
       begin
          Timeouts := Phase_Timeouts;
          Slots.Data_Timeouts := Set_Timeouts.Data_Timeouts;
@@ -607,8 +577,8 @@ package body AWS.Server is
       procedure Shutdown (Index : in Positive) is
       begin
          if Set (Index).Phase not in Closed .. Aborted then
-            Sockets.Shutdown (Set (Index).Sock.all);
             Mark_Phase (Index, Aborted);
+            Sockets.Shutdown (Set (Index).Sock.all);
          end if;
       end Shutdown;
 
