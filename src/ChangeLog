@@ -1,3 +1,10 @@
+2004-02-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	Update to version 7.1.
+	Handle now tables having a single vector tag in an if condition.
+	(Check): Optimize a little bit the code.
+
 2004-02-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
