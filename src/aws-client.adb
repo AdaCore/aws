@@ -174,7 +174,7 @@ package body AWS.Client is
            and then P /= Not_Monitored
            and then Connection.Opened
          then
-            Disconnect (Connection);
+            Disconnect (Connection.all);
          end if;
 
       end loop Phase_Loop;
@@ -354,7 +354,7 @@ package body AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data
+      return Response.Data
    is
       Connection : HTTP_Connection;
       Result     : Response.Data;
@@ -474,7 +474,7 @@ package body AWS.Client is
 
       function Read_Binary_Message
         (Len : in Positive)
-        return Stream_Element_Array_Access
+         return Stream_Element_Array_Access
       is
          use Streams;
 
@@ -498,6 +498,12 @@ package body AWS.Client is
          end loop;
 
          return Elements;
+
+      exception
+         when Sockets.Connection_Closed =>
+            --  Could have been killed by a timeout.
+            Free (Elements);
+            raise;
       end Read_Binary_Message;
 
       ----------------
@@ -527,7 +533,7 @@ package body AWS.Client is
          end Skip_Line;
 
          Size : Stream_Element_Offset;
-         Help : Stream_Element_Array_Access;
+         Tmp  : Stream_Element_Array_Access;
 
       begin
          loop
@@ -547,14 +553,14 @@ package body AWS.Client is
             else
                if Data_Last + Size > Data'Last then
 
-                  Help := new Stream_Element_Array
-                    (1
-                     .. Stream_Element_Offset'Max
-                     (Data_Last + Size, 2 * Data'Length));
+                  Tmp := new Stream_Element_Array
+                    (1 ..
+                       Stream_Element_Offset'Max
+                       (Data_Last + Size, 2 * Data'Length));
 
-                  Help (1 .. Data_Last) := Data (1 .. Data_Last);
+                  Tmp (1 .. Data_Last) := Data (1 .. Data_Last);
                   Free (Data);
-                  Data := Help;
+                  Data := Tmp;
                end if;
 
                Sockets.Receive
@@ -576,6 +582,7 @@ package body AWS.Client is
 
       exception
          when others =>
+            --  Could have been killed by a timeout.
             Free (Data);
             raise;
       end Read_Chunk;
@@ -743,15 +750,17 @@ package body AWS.Client is
                     (To_String (CT),
                      Streams.Stream_Element_Array
                        (Stream_Element_Table.Table
-                         (1 .. Stream_Element_Table.Last)),
+                          (1 .. Stream_Element_Table.Last)),
                      Status);
+
+                  Stream_Element_Table.Free;
                end;
             end if;
 
          else
 
             declare
-               Elements : constant Stream_Element_Array_Access
+               Elements : Stream_Element_Array_Access
                  := Read_Binary_Message (CT_Len);
             begin
                if MIME.Is_Text (To_String (CT)) then
