@@ -37,7 +37,7 @@ with Ada.Characters.Handling;
 
 with Input_Sources.File;
 with Sax.Readers;
-with Tree_Readers;
+with DOM.Readers;
 
 package body SOAP.WSDL is
 
@@ -129,7 +129,7 @@ package body SOAP.WSDL is
 
    function Load (Filename : in String) return Object is
       use Input_Sources.File;
-      use Tree_Readers;
+      use DOM.Readers;
 
       Source : File_Input;
       Reader : Tree_Reader;
@@ -144,7 +144,7 @@ package body SOAP.WSDL is
 
       Close (Source);
 
-      return Object (Tree_Readers.Get_Tree (Reader));
+      return Object (DOM.Readers.Get_Tree (Reader));
    end Load;
 
    -----------------
