@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 Marsh 12th, 2003
+   Pascal Obry                                                 Marsh 18th, 2003
 
 
 
@@ -43,6 +43,20 @@ Here are the main changes since AWS 1.3 :
 
    - New configuration parameter Free_Slots_Keep_Alive_Limit to control
      keep-alive connections on heavy-loaded servers.
+
+   - It is now possible to set the message that must be displayed when an
+     authentication is cancelled.
+
+   - Correctly free connection if a SOAP request fails. Fix memory leak.
+
+   - LDAP API checks for non initialized Directory object.
+
+   - Handle properly arrays of SOAP record. Only basic types were supported.
+
+   - Fix space handling bug in SOAP parser. Multiple spaces were removed
+     from the parsed string.
+
+   - Handle properly accents in SOAP messages.
 
    - Plus many small fixes, enhancements and documentation work.
 
