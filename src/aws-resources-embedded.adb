@@ -48,7 +48,7 @@ package body AWS.Resources.Embedded is
    -- Close --
    -----------
 
-   procedure Close (Resource : in out File_Type) is
+   procedure Close (Resource : in out File_Tagged) is
       pragma Unreferenced (Resource);
    begin
       null;
@@ -58,7 +58,7 @@ package body AWS.Resources.Embedded is
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (Resource : in File_Type) return Boolean is
+   function End_Of_File (Resource : in File_Tagged) return Boolean is
    begin
       return Resource.K > Resource.Buffer'Last;
    end End_Of_File;
@@ -110,7 +110,7 @@ package body AWS.Resources.Embedded is
    --------------
 
    procedure Get_Line
-     (Resource  : in out File_Type;
+     (Resource  : in out File_Tagged;
       Buffer    :    out String;
       Last      :    out Natural)
    is
@@ -159,7 +159,7 @@ package body AWS.Resources.Embedded is
    ----------
 
    procedure Open
-     (File :    out File_Access;
+     (File :    out File_Type;
       Name : in     String;
       Form : in     String    := "")
    is
@@ -169,8 +169,9 @@ package body AWS.Resources.Embedded is
       if Res_Files.Is_Present (Files_Table, Name) then
          N := Res_Files.Value (Files_Table, Name);
 
-         File := new File_Type'
-           (Resources.File_Type with N.File_Buffer, N.File_Buffer'First);
+         File := new File_Tagged;
+         File_Tagged (File.all).Buffer := N.File_Buffer;
+         File_Tagged (File.all).K := N.File_Buffer'First;
       else
          File := null;
       end if;
@@ -181,7 +182,7 @@ package body AWS.Resources.Embedded is
    ----------
 
    procedure Read
-     (Resource : in out File_Type;
+     (Resource : in out File_Tagged;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
    is

@@ -34,24 +34,10 @@ with Ada.Streams.Stream_IO;
 
 package AWS.Resources.Files is
 
-   type File_Type is new Resources.File_Type with private;
-
    procedure Open
-     (File :    out File_Access;
+     (File :    out File_Type;
       Name : in     String;
       Form : in     String    := "");
-
-   procedure Read
-     (Resource : in out File_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
-
-   procedure Get_Line
-     (Resource  : in out File_Type;
-      Buffer    :    out String;
-      Last      :    out Natural);
-
-   function End_Of_File (Resource : in File_Type) return Boolean;
 
    function Is_Regular_File (Name : in String) return Boolean;
 
@@ -63,19 +49,31 @@ package AWS.Resources.Files is
 
 private
 
-   procedure Close (Resource : in out File_Type);
+   type Stream_File_Access is access Stream_IO.File_Type;
 
    Buffer_Size : constant := 8_192;
 
-   type Stream_File_Access is access Stream_IO.File_Type;
-
-   type File_Type is new Resources.File_Type with record
-      File    : Stream_File_Access;
+   type File_Tagged is new Resources.File_Tagged with record
+      File    : Stream_IO.File_Type;
       Stream  : Stream_IO.Stream_Access;
       --  below are data for buffered access to the file.
       Buffer  : Stream_Element_Array (1 .. Buffer_Size);
       Current : Stream_Element_Offset := 1;
       Last    : Stream_Element_Offset := 0;
    end record;
+
+   function End_Of_File (Resource : in File_Tagged) return Boolean;
+
+   procedure Read
+     (Resource : in out File_Tagged;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset);
+
+   procedure Get_Line
+     (Resource  : in out File_Tagged;
+      Buffer    :    out String;
+      Last      :    out Natural);
+
+   procedure Close (Resource : in out File_Tagged);
 
 end AWS.Resources.Files;

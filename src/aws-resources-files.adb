@@ -38,19 +38,19 @@ package body AWS.Resources.Files is
    -- Close --
    -----------
 
-   procedure Close (Resource : in out File_Type) is
+   procedure Close (Resource : in out File_Tagged) is
    begin
-      Stream_IO.Close (Resource.File.all);
+      Stream_IO.Close (Resource.File);
    end Close;
 
    -----------------
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (Resource : in File_Type) return Boolean is
+   function End_Of_File (Resource : in File_Tagged) return Boolean is
    begin
       return Resource.Current > Resource.Last
-        and then Stream_IO.End_Of_File (Resource.File.all);
+        and then Stream_IO.End_Of_File (Resource.File);
    end End_Of_File;
 
    ---------------
@@ -85,7 +85,7 @@ package body AWS.Resources.Files is
    --------------
 
    procedure Get_Line
-     (Resource  : in out File_Type;
+     (Resource  : in out File_Tagged;
       Buffer    :    out String;
       Last      :    out Natural)
    is
@@ -157,17 +157,20 @@ package body AWS.Resources.Files is
    ----------
 
    procedure Open
-     (File :    out File_Access;
+     (File :    out File_Type;
       Name : in     String;
-      Form : in     String    := "")
-   is
-      F : Stream_File_Access;
+      Form : in     String    := "") is
    begin
-      F := new Stream_IO.File_Type;
+      File := new File_Tagged;
 
-      Stream_IO.Open (F.all, Stream_IO.In_File, Name, Form);
+      Stream_IO.Open
+        (File_Tagged (File.all).File,
+         Stream_IO.In_File, Name, Form);
 
-      File := new File_Type'(F, Stream_IO.Stream (F.all), (others => 0), 1, 0);
+      File_Tagged (File.all).Stream :=
+        Stream_IO.Stream (File_Tagged (File.all).File);
+
+      File_Tagged (File.all).Buffer  := (others => 0);
    end Open;
 
    ----------
@@ -175,7 +178,7 @@ package body AWS.Resources.Files is
    ----------
 
    procedure Read
-     (Resource : in out File_Type;
+     (Resource : in out File_Tagged;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset)
    is
