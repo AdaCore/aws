@@ -55,7 +55,7 @@ package Memory_Streams is
    --  Set read index at the start of the stream, raises Constraint_Error if
    --  ???
 
-   function End_Of_File (Resource : in Stream_Type) return Boolean;
+   function End_Of_File (File : in Stream_Type) return Boolean;
    --  Returns true if there is no more data to read on the stream
 
    procedure Read
