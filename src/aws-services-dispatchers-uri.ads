@@ -57,15 +57,18 @@ package AWS.Services.Dispatchers.URI is
    procedure Register
      (Dispatcher : in out Handler;
       URI        : in     String;
-      Action     : in     AWS.Dispatchers.Handler'Class);
+      Action     : in     AWS.Dispatchers.Handler'Class;
+      Prefix     : in     Boolean := False);
    --  Register URI to use the specified dispatcher. URI is the full string
-   --  that must match the ressource requested (with the leading /).
+   --  that must match the ressource requested (with the leading /). If Prefix
+   --  is True, only the URI prefix is checked.
 
    procedure Register
      (Dispatcher : in out Handler;
       URI        : in     String;
-      Action     : in     Response.Callback);
-   --  Idem as above but take a callback procedure as parameter.
+      Action     : in     Response.Callback;
+      Prefix     : in     Boolean := False);
+   --  Idem as above but take a callback procedure as parameter
 
    procedure Register_Regexp
      (Dispatcher : in out Handler;
@@ -78,7 +81,7 @@ package AWS.Services.Dispatchers.URI is
      (Dispatcher : in out Handler;
       URI        : in     String;
       Action     : in     Response.Callback);
-   --  Idem as above but take a callback procedure as parameter.
+   --  Idem as above but take a callback procedure as parameter
 
    procedure Unregister
      (Dispatcher : in out Handler;
@@ -102,6 +105,7 @@ private
    type Std_URI is tagged record
       Action : AWS.Dispatchers.Handler_Class_Access;
       URI    : Unbounded_String;
+      Prefix : Boolean;
    end record;
 
    function Match (URI : in Std_URI; Value : in String) return Boolean;
