@@ -30,9 +30,9 @@
 
 --  $Id$
 
-with Back_Proc;
+with Back_Pack;
 
 procedure SSBack is
 begin
-   Back_Proc (4469, True);
+   Back_Pack.Run ("https", 4469);
 end SSBack;
