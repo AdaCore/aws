@@ -3,7 +3,7 @@
 
 .SILENT: all auth runme agent ws clean
 
-# just comment or uncomment the right lines below.
+# You must change the path to the socket library.
 
 # For SSL support, note that -lgdi32 is Win32 specific and should be removed
 # under others platforms.
@@ -21,7 +21,7 @@ BARGS = -E
 LARGS =
 endif
 
-build: runme agent auth ws
+build: runme agent auth ws com_1 com_2 main hotplug
 
 runme:
 	gnatmake $(GARGS) runme -bargs $(BARGS) -largs $(LARGS)
@@ -40,6 +40,12 @@ com_1:
 
 com_2:
 	gnatmake $(GARGS) com_2 -bargs $(BARGS) -largs $(LARGS)
+
+main:
+	gnatmake $(GARGS) main -bargs $(BARGS) -largs $(LARGS)
+
+hotplug:
+	gnatmake $(GARGS) hotplug -bargs $(BARGS) -largs $(LARGS)
 
 clean:
 	-rm -f .o *.ali *.exe b~runme.* b~agent.*
