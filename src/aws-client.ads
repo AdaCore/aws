@@ -152,7 +152,7 @@ package AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data;
+      return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
