@@ -1,3 +1,9 @@
+2004-08-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* hload.adb, hload_pack.ads, hload_pack.adb, hload_sec.adb, makefile,
+	  hload.out hload_sec.out:
+	Regression test for heavy loaded server.
+
 2004-08-11  Pascal Obry  <pascal@obry.org>
 
 	* tres.adb:
