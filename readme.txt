@@ -331,8 +331,8 @@ Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
-Audran Le Baron, Thierry Lelegard, Nicolas Lesbats, Jean-Franï¿½is Rameau,
-Maxim Reznik, Jean-Pierre Rosen, Jerme Roussel, Ariane Sinibardy,
+Audran Le Baron, Thierry Lelegard, Nicolas Lesbats, Jean-François Rameau,
+Maxim Reznik, Jean-Pierre Rosen, Jerôme Roussel, Ariane Sinibardy,
 Henrik Sundberg.
 
 
