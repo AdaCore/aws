@@ -31,6 +31,7 @@
 --  $Id$
 
 with "../shared";
+with "zlib/zlib";
 
 project Include is
 
@@ -40,6 +41,8 @@ project Include is
       when "Release" =>
          for Object_Dir use "../.build/release/include";
    end case;
+
+   for Languages use ("Ada", "ChangeLog", "Project file");
 
    for Source_Dirs use (".");
 
