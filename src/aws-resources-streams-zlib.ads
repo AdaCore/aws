@@ -39,7 +39,7 @@ package AWS.Resources.Streams.ZLib is
 
    use Ada;
 
-   type Stream_Type is abstract new Streams.Stream_Type with private;
+   type Stream_Type is new Streams.Stream_Type with private;
 
    package ZL renames Standard.ZLib;
 
@@ -54,6 +54,7 @@ package AWS.Resources.Streams.ZLib is
 
    procedure Deflate_Initialize
      (Resource     : in out Stream_Type;
+      Source       : in     Streams.Stream_Access;
       Level        : in     Compression_Level  := ZL.Default_Compression;
       Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
       Method       : in     Compression_Method := ZL.Deflated;
@@ -64,6 +65,7 @@ package AWS.Resources.Streams.ZLib is
 
    procedure Inflate_Initialize
      (Resource    : in out Stream_Type;
+      Source      : in     Streams.Stream_Access;
       Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
       Header      : in     Header_Type      := ZL.Default);
    --  Initialize the decompression of the user defined stream.
@@ -72,25 +74,23 @@ package AWS.Resources.Streams.ZLib is
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
-   --  Get the source data from the Read_Source, encode it, and return encoded
-   --  data in the Buffer.
-
-   procedure Read_Source
-     (Resource : in out Stream_Type;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
-      is abstract;
-   --  Provide data for encoding.
+   --  Get the source data from the Source stream, encode it, and return
+   --  encoded data in the Buffer.
 
    procedure Close (Resource : in out Stream_Type);
 
+   function End_Of_File (Resource : in Stream_Type) return Boolean;
+   --  Returns true if there is no more data to read.
+
 private
 
-   type Stream_Type is abstract new Streams.Stream_Type with record
-      Filter     : ZL.Filter_Type;
-      Buffer     : Stream_Element_Array (1 .. 4096);
-      Rest_First : Stream_Element_Offset;
-      Rest_Last  : Stream_Element_Offset;
+   type Stream_Type is new Streams.Stream_Type with record
+      Source      : Resources.File_Type;
+      End_Of_File : Boolean;
+      Filter      : ZL.Filter_Type;
+      Buffer      : Stream_Element_Array (1 .. 4096);
+      Rest_First  : Stream_Element_Offset;
+      Rest_Last   : Stream_Element_Offset;
    end record;
 
 end AWS.Resources.Streams.ZLib;
