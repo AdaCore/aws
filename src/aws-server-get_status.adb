@@ -152,8 +152,12 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
             Activity_Time_Stamp := Activity_Time_Stamp & '|';
          end if;
 
-         Sock := Sock &
-           Interfaces.C.int'Image (Sockets.Get_FD (Slot_Data.Sock));
+         if Slot_Data.Opened then
+            Sock := Sock &
+              Interfaces.C.int'Image (Sockets.Get_FD (Slot_Data.Sock));
+         else
+            Sock := Sock & '-';
+         end if;
 
          Opened := Opened &
            Boolean'Image (Slot_Data.Opened);
