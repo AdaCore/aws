@@ -1,3 +1,11 @@
+2004-01-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net.ads:
+	(Send): Remove pragma Inline. Was not done in previous check-in.
+	(Receive): Idem.
+        (Forever): Set to the longest delay possible.
+        Update copyright notice to 2004.
+
 2004-01-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std.ads:
