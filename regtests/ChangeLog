@@ -1,3 +1,8 @@
+2004-06-07  Pascal Obry  <pascal@obry.org>
+
+	* huge_response_proc.adb:
+	Use a single connection to run this test.
+
 2004-06-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sp_pck.adb:
