@@ -33,3 +33,7 @@ implemented:
 - implement multi-server with a dispatcher of request to build server which
   must support a lot of requests. Could be using GLADE or a standard
   redirector of request.
+
+- implement a Proxy server.
+
+- better implementation for file upload stream reading.
