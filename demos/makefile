@@ -49,4 +49,4 @@ hello_world:
 	gnatmake $(GARGS) hello_world -bargs $(BARGS) -largs $(LARGS)
 
 clean:
-	-rm -f .o *.ali *.exe b~runme.* b~agent.*
+	-rm -f *.o *.ali *.exe b~runme.* b~agent.*
