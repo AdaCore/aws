@@ -1,6 +1,13 @@
 2003-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* memory_streams.ads, memory_streams.adb:
+	(Append): New routine for append dynamically allocated data.
+	(Get_Pointer): Removed.
+	(Back_Pointer): Removed.
+
+2003-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* memory_streams.ads, memory_streams.adb:
 	New generic package.
 
 2003-08-30  Dmitriy Anisimkov <anisimkov@yahoo.com>
