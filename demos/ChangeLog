@@ -1,3 +1,11 @@
+2004-03-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wm_summary.thtml, wm_message.thtml:
+	Add WM_CC tag.
+
+	* wm_login.html:
+	Add entry labels.
+
 2004-03-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* agent.adb:
