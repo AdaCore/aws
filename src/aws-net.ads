@@ -189,16 +189,21 @@ private
 
    Forever : constant Duration := Duration'Last;
 
-   type Cache (Max_Size : Stream_Element_Count) is record
+   type Read_Cache (Max_Size : Stream_Element_Count) is record
       Buffer : Stream_Element_Array (1 .. Max_Size);
       First  : Stream_Element_Offset := 1;
       Last   : Stream_Element_Offset := 0;
       Size   : Stream_Element_Count  := 0;
    end record;
 
+   type Write_Cache (Max_Size : Stream_Element_Count) is record
+      Buffer : Stream_Element_Array (1 .. Max_Size);
+      Last   : Stream_Element_Offset := 0;
+   end record;
+
    type RW_Cache is record
-      W_Cache : Cache (W_Cache_Size);
-      R_Cache : Cache (R_Cache_Size);
+      W_Cache : Write_Cache (W_Cache_Size);
+      R_Cache : Read_Cache (R_Cache_Size);
    end record;
 
    type RW_Cache_Access is access RW_Cache;
