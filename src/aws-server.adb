@@ -403,6 +403,9 @@ package body AWS.Server is
       procedure Free is
          new Ada.Unchecked_Deallocation (Line, Line_Access);
 
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
+
       All_Lines_Terminated : Boolean := False;
 
    begin
@@ -466,6 +469,8 @@ package body AWS.Server is
       Free (Web_Server.Lines);
 
       Free (Web_Server.Slots);
+
+      Free (Web_Server.Dispatcher);
 
       --  Release the session server if needed
 
