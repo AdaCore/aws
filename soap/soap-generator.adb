@@ -1025,7 +1025,14 @@ package body SOAP.Generator is
 
          N := R;
 
+         if N.Next = null then
+            --  We have a single element into this record, we must use a named
+            --  notation for the aggregate.
+            Text_IO.Put (Type_Adb, To_String (N.Name) & " => ");
+         end if;
+
          while N /= null loop
+
             if N /= R then
                Text_IO.Put      (Type_Adb, "              ");
             end if;
@@ -1094,7 +1101,15 @@ package body SOAP.Generator is
          while N /= null loop
 
             if N = R then
-               Text_IO.Put      (Type_Adb, "        ((+");
+
+               if R.Next = null then
+                  --  We have a single element into this record, we must use a
+                  --  named notation for the aggregate.
+                  Text_IO.Put (Type_Adb, "        ((1 => +");
+               else
+                  Text_IO.Put (Type_Adb, "        ((+");
+               end if;
+
             else
                Text_IO.Put      (Type_Adb, "          +");
             end if;
