@@ -56,7 +56,7 @@ package AWS.Net is
    --  Output - socket available for write.
 
    type Event_Set is array (Event_Type) of Boolean;
-   --  Type for get result of events waiting.
+   --  Type for get result of events waiting
 
    subtype Wait_Event_Type is Event_Type range Input .. Output;
    type Wait_Event_Set is array (Wait_Event_Type) of Boolean;

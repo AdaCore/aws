@@ -42,15 +42,15 @@ package AWS.Net.Generic_Sets is
 
    Input  : constant Wait_Event_Set
      := (Net.Input => True, Net.Output => False);
-   --  Would wait for data available for read from socket.
+   --  Would wait for data available for read from socket
 
    Output : constant Wait_Event_Set
      := (Net.Input => False, Net.Output => True);
-   --  Would wait output buffer availability for write.
+   --  Would wait output buffer availability for write
 
    Both   : constant Wait_Event_Set
      := (Net.Input => True, Net.Output => True);
-   --  Would wait for both Input and Output.
+   --  Would wait for both Input and Output
 
    None   : constant Wait_Event_Set
      := (Net.Input => False, Net.Output => False);
@@ -74,11 +74,11 @@ package AWS.Net.Generic_Sets is
      (Set    : in out Socket_Set_Type;
       Socket : in     Socket_Access;
       Mode   : in     Waiting_Mode);
-   --  Add socket to the set.
+   --  Add socket to the set
 
    function Count (Set : in Socket_Set_Type) return Socket_Count;
    pragma Inline (Count);
-   --  Returns the number of sockets in the Set.
+   --  Returns the number of sockets in the Set
 
    procedure Wait
      (Set     : in out Socket_Set_Type;
@@ -116,14 +116,14 @@ package AWS.Net.Generic_Sets is
       Index : in Socket_Index)
       return Boolean;
    pragma Inline (Is_Error);
-   --  Return True if any error occured with socket while waiting.
+   --  Return True if any error occured with socket while waiting
 
    function In_Range
      (Set   : in Socket_Set_Type;
       Index : in Socket_Index)
       return Boolean;
    pragma Inline (In_Range);
-   --  Return True if Index is in socket set range.
+   --  Return True if Index is in socket set range
 
    function Get_Socket
      (Set   : in Socket_Set_Type;
