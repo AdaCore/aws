@@ -1,3 +1,10 @@
+2004-01-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-os_lib__gnat.adb:
+	(For_Every_Directory_Entry): Internal call to Is_Directory is with
+	 a full pathname now, because directory iterator could be not only
+	 in the current directory.
+
 2004-01-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:

@@ -1,3 +1,8 @@
+2004-01-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	dirop.out, dirop.tmplt, makefile:
+	Add regression test for browse directory entries.
+
 2004-01-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sock2.adb, sock2.out, makefile:
