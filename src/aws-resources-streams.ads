@@ -50,16 +50,16 @@ package AWS.Resources.Streams is
    procedure Close (Resource : in out Stream_Type)
       is abstract;
 
-   procedure Create
-     (Resource :    out File_Type;
-      Buffer   : in     Stream_Access);
-   pragma Inline (Create);
-   --  Create the resource from user defined resource.
-
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
    --  This default implementation returns Undefined_Length. If the derived
    --  stream implementation knows about the size (in bytes) of the stream
    --  this routine should be redefined.
+
+   procedure Create
+     (Resource :    out File_Type;
+      Stream   : in     Stream_Access);
+   pragma Inline (Create);
+   --  Create a resource file from user defined stream
 
 private
 
