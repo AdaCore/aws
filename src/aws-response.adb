@@ -152,7 +152,7 @@ package body AWS.Response is
    begin
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
-      Set.Append_Encode (Result, Encoding);
+      Set.Data_Encoding (Result, Encoding);
       Set.Message_Body  (Result, Message_Body);
       Set.Cache_Control (Result, Cache_Control);
       return Result;
@@ -170,7 +170,7 @@ package body AWS.Response is
    begin
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
-      Set.Append_Encode (Result, Encoding);
+      Set.Data_Encoding (Result, Encoding);
       Set.Message_Body  (Result, UString_Message);
       Set.Cache_Control (Result, Cache_Control);
       return Result;
@@ -188,7 +188,7 @@ package body AWS.Response is
    begin
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
-      Set.Append_Encode (Result, Encoding);
+      Set.Data_Encoding (Result, Encoding);
       Set.Message_Body  (Result, Message_Body);
       Set.Cache_Control (Result, Cache_Control);
       return Result;
