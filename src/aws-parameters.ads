@@ -72,9 +72,11 @@ private
 
    type List is record
       Case_Sensitive : Boolean := True;
-      Data           : Key_Value.Set_Access := new Key_Value.Set;
+      Data           : Key_Value.Set_Access;
       Count          : Natural := 0;
    end record;
+   --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
+   --  is responsible for doing that.
 
    function Internal_Get
      (Parameter_List : in List;
