@@ -585,8 +585,7 @@ package body Ada2WSDL.Generator is
             New_Line;
             Put_Line ("         <simpleType name=""Character"">");
             Put_Line ("            <restriction base=""xsd:string"">");
-            Put_Line ("               <minLength value=""1""/>");
-            Put_Line ("               <maxLength value=""1""/>");
+            Put_Line ("               <length value=""1""/>");
             Put_Line ("            </restriction>");
             Put_Line ("         </simpleType>");
          end Write_Character;
