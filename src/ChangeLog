@@ -1,3 +1,20 @@
+2003-09-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	Fix comments, minor reformatting.
+
+	* aws-response-set.adb:
+	Minor reformatting.
+	
+	* aws-response-set.ads:
+	Fix comments. Reorganize routines for better readability.
+
+	* aws-response.adb:
+	Add some comments, minor reformatting.
+
+	* aws-response.ads:
+	Fix comments, minor reformatting.
+
 2003-09-30  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-resources-streams-memory.ads:
