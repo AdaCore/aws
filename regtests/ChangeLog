@@ -1,3 +1,18 @@
+2004-01-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Do not remove spec files as these are not generated now.
+	(check_mem): Ensure that the rule never fails even if there is
+	 some differences.
+
+	* generate.adb:
+	Do not generate unnedded spec files.
+	Update copyright notice.
+
+	* sessions2.adb:
+	Add missing with for Ada.Exceptions.
+	Update copyright notice.
+
 2004-01-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
