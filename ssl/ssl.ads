@@ -41,7 +41,6 @@ with Sockets;
 package SSL is
 
    Lib_Error        : exception;
-   Connection_Error : exception;
 
    type Method is (SSLv2,
                    SSLv2_Server,
@@ -112,6 +111,12 @@ package SSL is
    procedure Shutdown
      (Socket : in out Handle;
       How    : in     Sockets.Shutdown_Type := Sockets.Both);
+   --  Shutdown the socket and SSL wrapper. When socket is shutdown completely
+   --  (both sides) it automatically closes. Memory used by the SSL wrapper
+   --  is still allocated and must be released with free procedure below.
+
+   procedure Free (Socket : in out Handle);
+   --  Releases memory associated with SSL wrapper.
 
    procedure Renegotiate (Socket : in Handle);
 
