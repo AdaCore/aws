@@ -57,6 +57,8 @@ with Asis.Text;
 
 with A4G.GNAT_Int;
 
+with SOAP.Name_Space;
+
 with Ada2WSDL.Options;
 with Ada2WSDL.Generator;
 
@@ -275,6 +277,10 @@ package body Ada2WSDL.Parser is
       procedure Analyse_Node_List (List : in Link);
       --  Call Analyse_Node for each element in List
 
+      function Name_Space (E : in Asis.Element) return String;
+      --  Returns the name space for element E. Name space is defined as
+      --  follow: http://soapaws/<unit_name>/
+
       ------------------
       -- Analyse_Node --
       ------------------
@@ -435,6 +441,8 @@ package body Ada2WSDL.Parser is
 
                   Names : constant Defining_Name_List
                     := Declarations.Names (Parameters (I));
+
+                  E     : Asis.Element := Elem;
                begin
                   --  For each name create a new formal parameter
 
@@ -446,9 +454,18 @@ package body Ada2WSDL.Parser is
                         Message => "only in mode supported.");
                   end if;
 
+                  if Elements.Expression_Kind (E) = A_Selected_Component then
+                     E := Expressions.Selector (E);
+                  end if;
+
+                  E := Expressions.Corresponding_Name_Declaration (E);
+
+                  E := Declarations.Type_Declaration_View (E);
+
                   for K in Names'Range loop
                      Generator.New_Formal
-                       (Var_Name => Image (Text.Element_Image (Names (K))),
+                       (NS       => Name_Space (E),
+                        Var_Name => Image (Text.Element_Image (Names (K))),
                         Var_Type => Type_Name (Elem));
                   end loop;
                end;
@@ -462,7 +479,7 @@ package body Ada2WSDL.Parser is
                Elem : constant Asis.Element
                  := Declarations.Result_Profile (Node.Spec);
             begin
-               Generator.Return_Type (Type_Name (Elem));
+               Generator.Return_Type (Name_Space (Elem), Type_Name (Elem));
             end;
          end if;
       end Analyse_Profile;
@@ -500,8 +517,8 @@ package body Ada2WSDL.Parser is
          use Extensions.Flat_Kinds;
 
          type U_Array_Def is record
-            Name, Comp_Type : Unbounded_String;
-            Length          : Positive;
+            Name, NS, Comp_Type : Unbounded_String;
+            Length              : Positive;
          end record;
 
          Deferred_U_Arrays : array (1 .. 100) of U_Array_Def;
@@ -576,6 +593,9 @@ package body Ada2WSDL.Parser is
                   Deferred_U_Arrays (U_Array_Index).Comp_Type
                     := To_Unbounded_String (Image (Text.Element_Image (E)));
 
+                  Deferred_U_Arrays (U_Array_Index).NS
+                    := To_Unbounded_String (Name_Space (E));
+
                   --  Set array's type name
 
                   E := CND;
@@ -604,6 +624,7 @@ package body Ada2WSDL.Parser is
                      end if;
 
                      --  Add array's name suffix
+
                      Array_Type_Suffix
                        (R (1), Type_Suffix,
                         Deferred_U_Arrays (U_Array_Index).Length);
@@ -642,7 +663,9 @@ package body Ada2WSDL.Parser is
 
             for K in Names'Range loop
                Generator.New_Component
-                 (Comp_Name => Image (Text.Element_Image (Names (K))),
+                 (NS        => Name_Space
+                    (Declarations.Type_Declaration_View (CND)),
+                  Comp_Name => Image (Text.Element_Image (Names (K))),
                   Comp_Type => To_String (Type_Name));
             end loop;
          end Analyse_Field;
@@ -661,7 +684,7 @@ package body Ada2WSDL.Parser is
 
             when A_Record_Type_Definition =>
 
-               Generator.Start_Record (Name);
+               Generator.Start_Record (Name_Space (E), Name);
 
                E := Definitions.Record_Definition (E);
 
@@ -678,7 +701,8 @@ package body Ada2WSDL.Parser is
 
                for K in 1 .. U_Array_Index loop
                   Generator.Start_Array
-                    (To_String (Deferred_U_Arrays (K).Name),
+                    (To_String (Deferred_U_Arrays (K).NS),
+                     To_String (Deferred_U_Arrays (K).Name),
                      To_String (Deferred_U_Arrays (K).Comp_Type),
                      Deferred_U_Arrays (K).Length);
                end loop;
@@ -716,7 +740,7 @@ package body Ada2WSDL.Parser is
                   E := Definitions.Array_Component_Definition (E);
 
                   Generator.Start_Array
-                    (Name,
+                    (Name_Space (E), Name,
                      Image (Text.Element_Image (E)),
                      Array_Len);
 
@@ -728,7 +752,7 @@ package body Ada2WSDL.Parser is
                E := Definitions.Array_Component_Definition (E);
 
                Generator.Start_Array
-                 (Name,
+                 (Name_Space (E), Name,
                   Image (Text.Element_Image (E)));
 
                Analyse_Array_Component (E);
@@ -774,7 +798,7 @@ package body Ada2WSDL.Parser is
 
                            if not Generator.Type_Exists (Name) then
                               Generator.Start_Array
-                                (Name,
+                                (Name_Space (Comp), Name,
                                  Image (Text.Element_Image (Comp)),
                                  Array_Len);
 
@@ -789,7 +813,8 @@ package body Ada2WSDL.Parser is
                E := Definitions.Subtype_Mark
                       (Definitions.Parent_Subtype_Indication (E));
 
-               Generator.Register_Derived (Name, Type_Name (E));
+               Generator.Register_Derived
+                 (Name_Space (E), Name, Type_Name (E));
 
             when A_Subtype_Indication =>
 
@@ -827,7 +852,7 @@ package body Ada2WSDL.Parser is
 
                         if not Generator.Type_Exists (Name) then
                            Generator.Start_Array
-                             (Name,
+                             (Name_Space (Comp), Name,
                               Image (Text.Element_Image (Comp)),
                               Array_Len);
                            Analyse_Array_Component (Comp);
@@ -839,7 +864,7 @@ package body Ada2WSDL.Parser is
             when An_Enumeration_Type_Definition =>
 
                if not Options.Enum_To_String then
-                  Generator.Start_Enumeration (Name);
+                  Generator.Start_Enumeration (Name_Space (E), Name);
 
                   declare
                      D : constant Asis.Declaration_List
@@ -887,6 +912,19 @@ package body Ada2WSDL.Parser is
                   Message => "Only arrays with one numeric index supported.");
          end;
       end Array_Type_Suffix;
+
+      ----------------
+      -- Name_Space --
+      ----------------
+
+      function Name_Space (E : in Asis.Element) return String is
+         NS : String
+           := Image (Compilation_Units.Unit_Full_Name
+                       (Elements.Enclosing_Compilation_Unit (E)));
+      begin
+         Strings.Fixed.Translate (NS, Strings.Maps.To_Mapping (".", "/"));
+         return SOAP.Name_Space.Value (SOAP.Name_Space.AWS) & NS & '/';
+      end Name_Space;
 
       ---------------
       -- Type_Name --
