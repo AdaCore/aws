@@ -29,7 +29,7 @@
 ------------------------------------------------------------------------------
 --  $Id$
 
---  Test for secure socket timeouts
+--  Test for socket timeouts
 
 with Ada.Text_IO;
 with Ada.Exceptions;
@@ -85,8 +85,12 @@ procedure STO is
 
       loop
          declare
-            Buffer : Stream_Element_Array := Net.Receive (Client);
-            Next   : Stream_Element_Offset := First + Buffer'Length;
+            Buffer : constant Stream_Element_Array
+              := Net.Receive
+                   (Client,
+                    Stream_Element_Count'Max (4096, Sample'Last - First + 1));
+
+            Next : constant Stream_Element_Offset := First + Buffer'Length;
          begin
             if Buffer'Length = 0 then
                Text_IO.Put_Line ("short data");
