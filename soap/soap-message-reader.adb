@@ -51,18 +51,28 @@ package body SOAP.Message.Reader is
      (Handler : in out Tree_Reader;
       Ch      : in     Unicode.CES.Byte_Sequence)
    is
-      --  Ch comes from the SAX parser and is Utf8 encoded. We convert it back
-      --  to Basic_8bit (standard Ada strings).
-      Str : constant String := Utils.From_Utf8 (Ch);
-
       Tmp : Node;
       pragma Warnings (Off, Tmp);
-      --  We are not using pragma Unreferenced here becouse of GNAT 3.15p.
-      --  It is count left side assignment as a reference.
+      --  We are not using pragma Unreferenced here because of GNAT 3.15p.
+      --  It counts left side assignment as a reference.
 
    begin
-      Tmp := Append_Child
-        (Handler.Current_Node, Create_Text_Node (Handler.Tree, Str));
+      declare
+         --  Ch comes from the SAX parser and is Utf8 encoded. We convert
+         --  it back to Basic_8bit (standard Ada strings). Depending on
+         --  Ch's value this could raise an exception. For example if
+         --  Ch is Utf32 encoded and contains characters outside the
+         --  Basic_8bit encoding.
+         Str : constant String := Utils.From_Utf8 (Ch);
+      begin
+         Tmp := Append_Child
+           (Handler.Current_Node, Create_Text_Node (Handler.Tree, Str));
+      end;
+   exception
+      when Unicode.CES.Invalid_Encoding =>
+         --  Here we had a problem decoding the string, just keep Ch as-is
+         Tmp := Append_Child
+           (Handler.Current_Node, Create_Text_Node (Handler.Tree, Ch));
    end Characters;
 
    -----------------
