@@ -33,14 +33,15 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Numerics.Discrete_Random;
+with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with System;
 
+with Table_Of_Static_Keys_And_Dynamic_Values_G;
+
 with AWS.Config;
 with AWS.Key_Value;
-
-with Table_Of_Static_Keys_And_Dynamic_Values_G;
 
 package body AWS.Session is
 
@@ -97,6 +98,9 @@ package body AWS.Session is
    --------------
 
    protected Database is
+
+      entry Add_Session (SID : in ID);
+      --  Acdd a new session ID into the database.
 
       entry New_Session (SID : out ID);
       --  Add a new session SID into the database.
@@ -257,6 +261,18 @@ package body AWS.Session is
 
    protected body Database is
 
+      -----------------
+      -- Add_Session --
+      -----------------
+
+      entry Add_Session (SID : in ID) when Lock = 0 is
+         New_Node : Session_Node;
+
+      begin
+         New_Node.Time_Stamp := Calendar.Clock;
+         Session_Set.Insert (Sessions, SID, New_Node);
+      end Add_Session;
+
       -----------
       -- Clean --
       -----------
@@ -367,7 +383,7 @@ package body AWS.Session is
          procedure Modify
            (SID  : in     ID;
             Node : in out Session_Node);
-         -- Adjust time stamp and retreive the value associated to key.
+         --  Adjust time stamp and retreive the value associated to key.
 
          Found : Boolean;
 
@@ -433,7 +449,7 @@ package body AWS.Session is
          New_Node : Session_Node;
 
       begin
-         Generate_UID: loop
+         Generate_UID : loop
             SID := Generate_ID;
 
             New_Node.Time_Stamp := Calendar.Clock;
@@ -766,6 +782,44 @@ package body AWS.Session is
       return SID_Prefix & String (SID);
    end Image;
 
+   ----------
+   -- Load --
+   ----------
+
+   procedure Load (File_Name : in String) is
+      use Ada.Streams.Stream_IO;
+      File       : File_Type;
+      Stream_Ptr : Stream_Access;
+
+   begin
+      Open (File, Name => File_Name, Mode => In_File);
+
+      Stream_Ptr := Stream (File);
+
+      while not End_Of_File (File) loop
+         declare
+            SID : constant ID := ID'Input (Stream_Ptr);
+            Key_Value_Size : Natural;
+         begin
+            Database.Add_Session (SID);
+
+            Key_Value_Size := Natural'Input (Stream_Ptr);
+
+            for I in 1 .. Key_Value_Size loop
+               declare
+                  Key   : constant String := String'Input (Stream_Ptr);
+                  Value : constant String := String'Input (Stream_Ptr);
+               begin
+                  Set (SID, Key, Value);
+               end;
+            end loop;
+
+         end;
+      end loop;
+
+      Close (File);
+   end Load;
+
    ------------
    -- Remove --
    ------------
@@ -776,6 +830,98 @@ package body AWS.Session is
    begin
       Database.Remove_Key (SID, Key);
    end Remove;
+
+   ----------
+   -- Save --
+   ----------
+
+   procedure Save (File_Name : in String) is
+      use Ada.Streams.Stream_IO;
+      File       : File_Type;
+      Sessions   : Session_Set_Access;
+      Stream_Ptr : Stream_Access;
+
+      procedure Process
+        (Key      : in     ID;
+         Value    : in     Session_Node;
+         Order    : in     Positive;
+         Continue : in out Boolean);
+      --  Callback for each session node in the table.
+
+      -------------
+      -- Process --
+      -------------
+
+      procedure Process
+        (Key      : in     ID;
+         Value    : in     Session_Node;
+         Order    : in     Positive;
+         Continue : in out Boolean)
+      is
+
+         procedure Process
+           (Key      : in     String;
+            Value    : in     Unbounded_String;
+            Order    : in     Positive;
+            Continue : in out Boolean);
+         --  Callback for each key/value pair for a specific session.
+
+         -------------
+         -- Process --
+         -------------
+
+         procedure Process
+           (Key      : in     String;
+            Value    : in     Unbounded_String;
+            Order    : in     Positive;
+            Continue : in out Boolean) is
+         begin
+            String'Output (Stream_Ptr, Key);
+            String'Output (Stream_Ptr, To_String (Value));
+         end Process;
+
+         --------------------
+         -- Each_Key_Value --
+         --------------------
+
+         procedure Each_Key_Value is
+            new Key_Value.Table.Disorder_Traverse_G (Process);
+
+         Key_Value_Size : constant Natural := Key_Value.Size (Value.Root);
+
+      begin
+         if Key_Value_Size > 0 then
+            ID'Output (Stream_Ptr, Key);
+            Natural'Output (Stream_Ptr, Key_Value_Size);
+            Each_Key_Value (Key_Value.Table.Table_Type (Value.Root));
+         end if;
+      end Process;
+
+      ------------------
+      -- Each_Session --
+      ------------------
+
+      procedure Each_Session is
+         new Session_Set.Disorder_Traverse_G (Process);
+
+   begin
+      Create (File, Name => File_Name);
+
+      Database.Get_Sessions_And_Lock (Sessions);
+
+      begin
+         Stream_Ptr := Stream (File);
+         Each_Session (Sessions.all);
+      exception
+         when others =>
+            --  Never leave this block without releasing the database lock.
+            Database.Unlock;
+            raise;
+      end;
+
+      Database.Unlock;
+      Close (File);
+   end Save;
 
    ---------
    -- Set --
