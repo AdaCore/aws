@@ -24,7 +24,7 @@
 #   the name of regression test main procedure. This tests would be linked
 #   together to test_all executable file.
 
-GARGS = -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
+GARGS = -q -I../src -I../ssl -I../include -I../soap -I../xsrc $(INCLUDES)
 BARGS = -E
 
 LARGS = $(LFLAGS) $(LIBS) -L../lib -lz
@@ -183,6 +183,7 @@ $(WSDL2AWS): force
 $(ASIS_TESTS): force
 	echo Preparing $@
 	../tools/ada2wsdl -q -f $(INCLUDES) -I../include -I../soap -I../src \
+		-I../xsrc -I../ssl \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
 	../tools/wsdl2aws -q -f -cb -types $@ $@.wsdl
 
