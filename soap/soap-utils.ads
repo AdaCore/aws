@@ -30,7 +30,13 @@
 
 --  $Id$
 
+with Ada.Strings.Unbounded;
+
+with SOAP.Types;
+
 package SOAP.Utils is
+
+   use Ada.Strings.Unbounded;
 
    function Tag (Name : in String; Start : in Boolean) return String;
    --  Returns XML tag named Name. If Start is True then an XML start element
@@ -38,5 +44,44 @@ package SOAP.Utils is
 
    function Encode (Str : in String) return String;
    --  Encode XML entities and return the resulting string.
+
+   function Is_Array (Name : in String) return Boolean;
+   pragma Inline (Is_Array);
+   --  Returns true if Name is an WSDL array (i.e. starting with ArrayOf)
+
+   function No_NS (Name : in String) return String;
+   --  Returns Str without leading name space if present
+
+   ------------------------------------
+   -- SOAP Generator Runtime Support --
+   ------------------------------------
+
+   generic
+      type T is private;
+      type T_Array is array (Positive range <>) of T;
+      type T_Array_Access is access all T_Array;
+      with function Get (O : in Types.Object'Class) return T;
+   function To_T_Array (From : in Types.Object_Set) return T_Array_Access;
+   --  Convert a Types.Object_Set to an array of T
+
+   generic
+      type T is private;
+      type T_Array is array (Positive range <>) of T;
+      type XSD_Type is new Types.Object with private;
+      with function Get (V : in T; Name : in String := "item") return XSD_Type;
+   function To_Object_Set (From : in T_Array) return Types.Object_Set;
+   --  Convert an array of T to a Types.Object_Set
+
+   function Get (Item : in Types.Object'Class) return Unbounded_String;
+   --  Returns an Unbounded_String for Item. Item must be a SOAP string object
+
+   function V (O : in Types.XSD_String) return Unbounded_String;
+   --  Returns the Ubounded_String representation for the SOAP string parameter
+
+   function US
+     (V      : in Unbounded_String;
+      Name   : in String  := "item")
+      return Types.XSD_String;
+   --  Returns the SOAP string for the given Unbounded_String value and name
 
 end SOAP.Utils;

@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 
 package body SOAP.Utils is
@@ -58,6 +59,39 @@ package body SOAP.Utils is
    end Encode;
 
    ---------
+   -- Get --
+   ---------
+
+   function Get (Item : in Types.Object'Class) return Unbounded_String is
+   begin
+      return To_Unbounded_String (String'(Types.Get (Item)));
+   end Get;
+
+   --------------
+   -- Is_Array --
+   --------------
+
+   function Is_Array (Name : in String) return Boolean is
+   begin
+      return Name'Length > 7
+        and then Name (Name'First .. Name'First + 6) = "ArrayOf";
+   end Is_Array;
+
+   -----------
+   -- No_NS --
+   -----------
+
+   function No_NS (Name : in String) return String is
+      K : constant Natural := Ada.Strings.Fixed.Index (Name, ":");
+   begin
+      if K = 0 then
+         return Name;
+      else
+         return Name (K + 1 .. Name'Last);
+      end if;
+   end No_NS;
+
+   ---------
    -- Tag --
    ---------
 
@@ -69,5 +103,56 @@ package body SOAP.Utils is
          return "</" & Name & '>';
       end if;
    end Tag;
+
+   -------------------
+   -- To_Object_Set --
+   -------------------
+
+   function To_Object_Set (From : in T_Array) return Types.Object_Set is
+      use SOAP.Types;
+      Result : Types.Object_Set (From'Range);
+   begin
+      for K in From'Range loop
+         Result (K) := +Get (From (K));
+      end loop;
+
+      return Result;
+   end To_Object_Set;
+
+   ----------------
+   -- To_T_Array --
+   ----------------
+
+   function To_T_Array (From : in Types.Object_Set) return T_Array_Access is
+      use SOAP.Types;
+      Result : T_Array (From'Range);
+   begin
+      for K in From'Range loop
+         Result (K) := Get (-From (K));
+      end loop;
+
+      return new T_Array'(Result);
+   end To_T_Array;
+
+   --------
+   -- US --
+   --------
+
+   function US
+     (V      : in Unbounded_String;
+      Name   : in String  := "item")
+      return Types.XSD_String is
+   begin
+      return Types.S (To_String (V), Name);
+   end US;
+
+   -------
+   -- V --
+   -------
+
+   function V (O : in Types.XSD_String) return Unbounded_String is
+   begin
+      return To_Unbounded_String (Types.V (O));
+   end V;
 
 end SOAP.Utils;
