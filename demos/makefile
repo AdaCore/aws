@@ -95,12 +95,16 @@ WSDL2AWS = ../tools/wsdl2aws
 endif
 endif
 
+ifeq (${PRJ_XMLADA}, Installed)
+BUILD_EXT = build_wsdl
+endif
+
 gsetup: 
 	-$(MKDIR) -p ../.build/debug/demos/obj
 	-$(MKDIR) -p ../.build/release/demos/obj
 
-gbuild: build_res build_wsdl
-	$(GNATMAKE) -Pdemos -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+gbuild: build_res $(BUILD_EXT)
+	$(GNATMAKE) -Pdemos -XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 gclean:
 	$(RM) -fr ../.build/debug/demos
