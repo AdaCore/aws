@@ -36,6 +36,8 @@ demos/aws_logo.png
 demos/aws_status.thtml
 demos/aws_up.png
 demos/base64.adb
+demos/bounded_index.thtml
+demos/bounded_s_index.thtml
 demos/cert.pem
 demos/com_1.adb
 demos/com_2.adb
@@ -69,6 +71,10 @@ demos/runme_info.ads
 demos/runme_server.adb
 demos/runme_service.adb
 demos/runme_service.ads
+demos/simple_index.thtml
+demos/simple_s_index.thtml
+demos/sliding_index.thtml
+demos/sliding_s_index.thtml
 demos/split.adb
 demos/split.thtml
 demos/test_jabber.adb
@@ -147,6 +153,7 @@ icons/tex.gif
 icons/text.gif
 icons/unknown.gif
 icons/uu.gif
+include/ChangeLog
 include/ai302/ai302-containers-generic_array_sort.adb
 include/ai302/ai302-containers-generic_array_sort.ads
 include/ai302/ai302-containers-generic_constrained_array_sort.adb
@@ -184,6 +191,7 @@ include/ai302/charles-algorithms-generic_set_symmetric_difference.adb
 include/ai302/charles-algorithms-generic_set_symmetric_difference.ads
 include/ai302/charles-algorithms.ads
 include/ai302/charles.ads
+include/include.gpr
 include/makefile
 include/md5.adb
 include/md5.ads
@@ -223,6 +231,7 @@ include/zlib/zconf.h
 include/zlib/zlib.h
 include/zlib/zutil.c
 include/zlib/zutil.h
+lib/ChangeLog
 lib/makefile
 makefile
 makefile.conf
@@ -312,10 +321,10 @@ regtests/moved.out
 regtests/multiple.adb
 regtests/multiple.out
 regtests/nbconn.adb
+regtests/nbconn.out
 regtests/nbconn_proc.adb
 regtests/nbconn_sec.adb
 regtests/nbconn_sec.out
-regtests/nbconn.out
 regtests/no_param.adb
 regtests/no_param.out
 regtests/nonce.adb
@@ -330,6 +339,7 @@ regtests/plain2ssl.out
 regtests/print_tasks.adb
 regtests/redirect.adb
 regtests/redirect.out
+regtests/regtests.gpr
 regtests/sback.adb
 regtests/sback.out
 regtests/server_config.adb
@@ -600,6 +610,18 @@ src/aws-services-dispatchers-virtual_host.ads
 src/aws-services-dispatchers.ads
 src/aws-services-page_server.adb
 src/aws-services-page_server.ads
+src/aws-services-split_pages-alpha-bounded.adb
+src/aws-services-split_pages-alpha-bounded.ads
+src/aws-services-split_pages-alpha.adb
+src/aws-services-split_pages-alpha.ads
+src/aws-services-split_pages-shared.adb
+src/aws-services-split_pages-shared.ads
+src/aws-services-split_pages-uniform-alpha.adb
+src/aws-services-split_pages-uniform-alpha.ads
+src/aws-services-split_pages-uniform-overlapping.adb
+src/aws-services-split_pages-uniform-overlapping.ads
+src/aws-services-split_pages-uniform.adb
+src/aws-services-split_pages-uniform.ads
 src/aws-services-split_pages.adb
 src/aws-services-split_pages.ads
 src/aws-services-transient_pages-control.adb
@@ -634,6 +656,7 @@ src/aws-utils.adb
 src/aws-utils.ads
 src/aws.ads
 src/makefile
+src/src.gpr
 src/templates_parser-cached_files.adb
 src/templates_parser-data.adb
 src/templates_parser-debug.adb
