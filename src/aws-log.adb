@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -46,6 +46,13 @@ package body AWS.Log is
    --  Returns the prefix to be added before the log filename. The returned
    --  value is the executable name without directory and filetype if Prefix
    --  is No_Prefix otherwise Prefix is returned.
+
+   procedure Write_Log
+     (Log  : in out Object;
+      Now  : in     Calendar.Time;
+      Data : in     String);
+   --  Write data into the log file, change log file depending on the log file
+   --  split mode and Now.
 
    --------------
    -- Filename --
@@ -237,6 +244,41 @@ package body AWS.Log is
    is
       Now : constant Calendar.Time := Calendar.Clock;
    begin
+      Write_Log
+        (Log, Now,
+         AWS.Status.Peername (Connect_Stat)
+           & " - "
+           & Status.Authorization_Name (Connect_Stat)
+           & " - ["
+           & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
+           & "] """
+           & Status.Request_Method'Image (Status.Method (Connect_Stat))
+           & ' '
+           & Status.URI (Connect_Stat) & " "
+           & Status.HTTP_Version (Connect_Stat) & """ "
+           & Data);
+   end Write;
+
+   procedure Write
+     (Log  : in out Object;
+      Data : in     String)
+   is
+      Now : constant Calendar.Time := Calendar.Clock;
+   begin
+      Write_Log (Log, Now,
+                 "[" & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T") & "] "
+                   & Data);
+   end Write;
+
+   ---------------
+   -- Write_Log --
+   ---------------
+
+   procedure Write_Log
+     (Log  : in out Object;
+      Now  : in     Calendar.Time;
+      Data : in     String) is
+   begin
       if Text_IO.Is_Open (Log.File) then
 
          if (Log.Split = Daily
@@ -252,22 +294,10 @@ package body AWS.Log is
                    To_String (Log.Filename_Prefix));
          end if;
 
-         Text_IO.Put_Line
-           (Log.File,
-            AWS.Status.Peername (Connect_Stat)
-            & " - "
-            & Status.Authorization_Name (Connect_Stat)
-            & " - ["
-            & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
-            & "] """
-            & Status.Request_Method'Image (Status.Method (Connect_Stat))
-            & ' '
-            & Status.URI (Connect_Stat) & " "
-            & Status.HTTP_Version (Connect_Stat) & """ "
-            & Data);
+         Text_IO.Put_Line (Log.File, Data);
 
          Text_IO.Flush (Log.File);
       end if;
-   end Write;
+   end Write_Log;
 
 end AWS.Log;
