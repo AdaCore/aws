@@ -995,8 +995,7 @@ package body SOAP.WSDL.Parser is
 
          elsif T = Types.XML_Any_Type then
             Raise_Exception
-              (WSDL_Error'Identity,
-               "Type anyType is not supported.");
+              (WSDL_Error'Identity, "Type anyType is not supported.");
 
          else
             --  First search for element in the schema
