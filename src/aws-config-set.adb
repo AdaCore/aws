@@ -467,8 +467,7 @@ package body AWS.Config.Set is
    -- Session_Cleanup_Interval --
    ------------------------------
 
-   procedure Session_Cleanup_Interval
-     (Value : in Duration) is
+   procedure Session_Cleanup_Interval (Value : in Duration) is
    begin
       Process_Options (Session_Cleanup_Interval).Dur_Value := Value;
    end Session_Cleanup_Interval;
@@ -490,6 +489,24 @@ package body AWS.Config.Set is
    begin
       O.P (Status_Page).Str_Value := To_Unbounded_String (Value);
    end Status_Page;
+
+   --------------------------------
+   -- Transient_Cleanup_Interval --
+   --------------------------------
+
+   procedure Transient_Cleanup_Interval (Value : in Duration) is
+   begin
+      Process_Options (Transient_Cleanup_Interval).Dur_Value := Value;
+   end Transient_Cleanup_Interval;
+
+   ------------------------
+   -- Transient_Lifetime --
+   ------------------------
+
+   procedure Transient_Lifetime (Value : in Duration) is
+   begin
+      Process_Options (Transient_Lifetime).Dur_Value := Value;
+   end Transient_Lifetime;
 
    --------------
    -- Up_Image --
