@@ -1,5 +1,22 @@
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-exceptions.ads:
+	Update comment.
+
+	* aws-server-protocol_handler.adb:
+	(Exception_String): Move here from AWS.Server.
+	Log error before calling exception handler.
+
+	* aws-server.ads:
+	(Exception_String): Move to AWS.Server.Protocol_Handler body.
+	
+	* aws-server.adb:
+	(Exception_String): Idem.
+	(Default_Unexpected_Exception_Handler): Do not log error
+	 here. Exception handling and error log are orthogonal features.
+
+2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-server.adb:
 	(Default_Unexpected_Exception_Handler): Add exception information
 	 to the internal 500 message.
