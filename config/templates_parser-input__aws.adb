@@ -26,7 +26,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$ $Date$ $Author$
 
 --  This is the implementation to be used with AWS, it is using AWS.Resources
 --  to support embedded resources.

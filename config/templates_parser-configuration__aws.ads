@@ -26,7 +26,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$ $Date$ $Author$
 
 with Ada.Calendar;
 
