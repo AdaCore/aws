@@ -57,7 +57,7 @@ begin
 
    Clear (Stream);
    Deflate_Initialize (Stream);
-   Append (Stream, Buffer);
+   Append (Stream, Buffer.all);
 
    AWS.Utils.Free (Buffer);
 
