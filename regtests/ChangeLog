@@ -1,5 +1,8 @@
 2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	Do not output diff only if files differ.
+
 	* upload2.adb:
 	Properly serialize the output to avoid line swaping.
 
