@@ -58,10 +58,10 @@ package AWS.Net is
    ----------------
 
    function Socket (Security : in Boolean) return Socket_Type'Class;
-   --  Create an uninitialized socket.
+   --  Create an uninitialized socket
 
    function Socket (Security : in Boolean) return Socket_Access;
-   --  Create a dynamically allocated uninitialized socket.
+   --  Create a dynamically allocated uninitialized socket
 
    procedure Bind
      (Socket : in out Socket_Type;
@@ -90,7 +90,7 @@ package AWS.Net is
       Host     : in     String;
       Port     : in     Positive)
       is abstract;
-   --  Connect a socket on a given host/port.
+   --  Connect a socket on a given host/port
 
    procedure Shutdown (Socket : in Socket_Type) is abstract;
    --  Shutdown both side of the socket and close it. Does not raise
@@ -170,7 +170,7 @@ package AWS.Net is
      (Socket   : in out Socket_Type;
       Timeout  : in     Duration);
    pragma Inline (Set_Timeout);
-   --  Sets the timeout for following socket read/write operations.
+   --  Sets the timeout for the socket read/write operations
 
 private
    --  This object is to cache data writed to the stream. It is more efficient
@@ -220,6 +220,6 @@ private
    --  Release cache object memory
 
    function Errno return Integer;
-   --  Return error code for the last socket operation.
+   --  Return error code for the last socket operation
 
 end AWS.Net;
