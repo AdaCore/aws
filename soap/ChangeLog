@@ -1,3 +1,31 @@
+2004-07-09  Pascal Obry  <pascal@obry.org>
+
+	* soap-message-xml.adb:
+	(URL_xsd_01): New constant (2001 XMLSchema).
+        (URL_xsi_01): New constant (2001 XMLSchema-instance).
+        (Namespaces): New record.
+        (State): Add NS (Namespaces) field.
+        (Parse_Namespaces): New procedure.
+        (Is_A): New function.
+        (A_State): Test using new Is_A routine and the current namespaces.
+         Properly handle types in specific namespaces.
+        (Parse_Envelope): Parse local namespaces and pass them to Parse_Body
+         and Parse_Header.
+        (Parse_Param): Parse local namespaces and use them to detect types.
+        (Parse_Wrapper): Parse local namespaces and pass them to Parse_Param.
+        AWS is now handling more properly non standard namespaces.
+
+	* soap-message.ads:
+	Minor reformatting.
+        Update copyright notice.
+
+	* soap-parameters.ads:
+	Minor reformatting.
+
+	* soap-utils.adb:
+	(With_NS): This new implementation also replace a namespace if
+         present.
+
 2004-07-07  Pascal Obry  <pascal@obry.org>
 
 	* soap-message-xml.adb:
