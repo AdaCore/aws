@@ -287,6 +287,9 @@ private
 
    use Ada.Streams;
 
+   pragma Assert (Ada.Streams.Stream_Element'Size    =    8);
+   pragma Assert (Ada.Streams.Stream_Element'Modulus = 2**8);
+
    type Flush_Mode is new Integer range 0 .. 5;
 
    type Compression_Method is new Integer range 8 .. 8;
