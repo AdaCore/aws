@@ -42,11 +42,6 @@ package body SOAP.Message.Response.Error is
 
    Start_Fault_Env            : constant String := "<SOAP-ENV:Fault>";
    End_Fault_Env              : constant String := "</SOAP-ENV:Fault>";
-   Start_Faultcode            : constant String := "<faultcode>";
-   End_Faultcode              : constant String := "</faultcode>";
-   Start_Faultstring          : constant String := "<faultstring>";
-   End_Faultstring            : constant String := "</faultstring>";
-
 
    function Fault_Code (Name, Subname : in String) return Faultcode;
    --  Returns the Faultcode for Name and Subname. If Subname is empty it
@@ -112,6 +107,7 @@ package body SOAP.Message.Response.Error is
    ----------
 
    function From (P : in Message.Payload.Object) return Object is
+      pragma Warnings (Off, P);
       N : Object;
    begin
       return N;
@@ -122,6 +118,7 @@ package body SOAP.Message.Response.Error is
    --------------
 
    function Is_Error (E : in Object) return Boolean is
+      pragma Warnings (Off, E);
    begin
       return True;
    end Is_Error;
