@@ -1,3 +1,13 @@
+2003-09-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* sback.out, ssback.out:
+	Update output.
+
+	* sback.adb, ssback.adb:
+	Fix this regression test to pass on UNIX. Serialize IO to have
+	 always the same output. Close persistent connection and shutdown
+	 the server.
+
 2003-09-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* server_info.adb:

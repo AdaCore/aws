@@ -38,6 +38,8 @@ b~param.adb
 b~param.ads
 b~redirect.adb
 b~redirect.ads
+b~sback.adb
+b~sback.ads
 b~server_config.adb
 b~server_config.ads
 b~server_info.adb
@@ -64,6 +66,8 @@ b~sock1.adb
 b~sock1.ads
 b~sp.adb
 b~sp.ads
+b~ssback.adb
+b~ssback.ads
 b~ssp.adb
 b~ssp.ads
 b~strm.adb
