@@ -38,7 +38,7 @@ package body AWS.Translator is
 
    use Ada.Streams;
 
-   package Binary is
+   package Conversion is
 
       function To_String
         (Data : in Ada.Streams.Stream_Element_Array)
@@ -52,7 +52,7 @@ package body AWS.Translator is
       pragma Inline (To_Stream_Element_Array);
       --  Convert a String to a Stream_Element_Array.
 
-   end Binary;
+   end Conversion;
 
    -------------------
    -- Base64_Decode --
@@ -248,7 +248,7 @@ package body AWS.Translator is
    -- Binary --
    ------------
 
-   package body Binary is separate;
+   package body Conversion is separate;
 
    ---------------
    -- QP_Decode --
@@ -299,7 +299,7 @@ package body AWS.Translator is
    function To_Stream_Element_Array
      (Data : in String)
      return Stream_Element_Array
-   renames Binary.To_Stream_Element_Array;
+   renames Conversion.To_Stream_Element_Array;
 
    ---------------
    -- To_String --
@@ -308,6 +308,6 @@ package body AWS.Translator is
    function To_String
      (Data : in Stream_Element_Array)
      return String
-   renames Binary.To_String;
+   renames Conversion.To_String;
 
 end AWS.Translator;

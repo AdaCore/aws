@@ -30,77 +30,57 @@
 
 --  $Id$
 
---  Detection of the fast unchecked conversion availability between
---  String and Stream_Element_Array. Copy file aws-translator-conversion-f.adb
---  to aws-translator-binary.adb if the fast unchecked conversion
---  is supported on the target, or otherwise copy aws-translator-conversion-p.adb
---  to aws-translator-binary.adb if the fast unchecked conversion
---  cannot be used.
+--  Fast convertion between String and Stream_Element_Array.
+--  Only for Ada compilers and platforms, where it is possible.
 
 with Ada.Unchecked_Conversion;
-with Ada.Streams.Stream_IO; use Ada.Streams;
 
-procedure Test_UConv is
+separate (AWS.Translator)
 
-   Sample : constant String :=
-      "$Author$" & ASCII.LF &
-      "$Date$" & ASCII.LF &
-      "$Name$" & ASCII.LF &
-      "$Locker$" & ASCII.LF &
-      "$RCSfile$" & ASCII.LF &
-      "$Revision$" & ASCII.LF &
-      "$Source$" & ASCII.LF &
-      "$State$" & ASCII.LF;
+package body Conversion is
 
-   Prefix : constant String := "aws-translator-conversion";
-   Suffix : constant String := ".adb";
-   Target : constant String := Prefix & Suffix;
+   -----------------------------
+   -- To_Stream_Element_Array --
+   -----------------------------
 
-   subtype Fixed_String is String (Sample'First .. Sample'Last);
+   function To_Stream_Element_Array
+     (Data : in String)
+     return Stream_Element_Array
+   is
 
-   subtype Fixed_Array is Stream_Element_Array
-     (Stream_Element_Offset (Sample'First)
-      .. Stream_Element_Offset (Sample'Last));
+      subtype Fixed_String is String (Data'First .. Data'Last);
 
-   procedure Copy_File (Source : String);
+      subtype Fixed_Array is Stream_Element_Array
+        (Stream_Element_Offset (Data'First)
+         .. Stream_Element_Offset (Data'Last));
 
-   function To_Stream_Elements is
-     new Ada.Unchecked_Conversion (Fixed_String, Fixed_Array);
+      function To_Stream_Elements is
+        new Ada.Unchecked_Conversion (Fixed_String, Fixed_Array);
 
-   function To_String is
-     new Ada.Unchecked_Conversion (Fixed_Array, Fixed_String);
-
-   ---------------
-   -- Copy_File --
-   ---------------
-
-   procedure Copy_File (Source : String) is
-      use Ada.Streams.Stream_IO;
-      Source_File : File_Type;
-      Target_File : File_Type;
-      Buffer      : Stream_Element_Array (0 .. 1024);
-      Last        : Stream_Element_Offset;
    begin
-      Open   (Source_File, In_File,  Source);
-      Create (Target_File, Out_File, Target);
+      return To_Stream_Elements (Data);
+   end To_Stream_Element_Array;
 
-      loop
-         Read  (Source_File, Buffer, Last);
-         Write (Target_File, Buffer (0 .. Last));
-         exit when Last < Buffer'Last;
-      end loop;
+   ---------------
+   -- To_String --
+   ---------------
 
-      Close (Source_File);
-      Close (Target_File);
-   end Copy_File;
+   function To_String
+     (Data : in Stream_Element_Array)
+     return String
+   is
 
-begin
-   if Fixed_Array'Size = Fixed_String'Size
-     and then Fixed_Array'Alignment = Fixed_String'Alignment
-     and then Sample = To_String (To_Stream_Elements (Sample))
-   then
-      Copy_File (Prefix & "-f" & Suffix);
-   else
-      Copy_File (Prefix & "-p" & Suffix);
-   end if;
-end Test_UConv;
+      subtype Fixed_String is String (Integer (Data'First)
+        .. Integer (Data'Last));
+
+      subtype Fixed_Array is Stream_Element_Array
+         (Data'First .. Data'Last);
+
+      function To_Characters is
+        new Ada.Unchecked_Conversion (Fixed_Array, Fixed_String);
+
+   begin
+      return To_Characters (Data);
+   end To_String;
+
+end Conversion;
