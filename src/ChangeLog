@@ -1,3 +1,22 @@
+2002-11-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-headers-values.adb:
+	(Parsing_Step): Renamed Next_Value. Remove Spaces from there as it
+	 was already declared in the package body.
+	(Index): Call Translate only when the Map is not Identity.
+	(Element): Rename V by "+", with operators it is possible to remove
+	 one level of parentheses.
+	Fix comments.
+	Reformat code, add routine header when missing.
+	Fix copyright header.
+	
+	* aws-headers-values.ads:
+	(Parse): Alone_Value renamed Value. Value parameter renamed
+	 Header_Value.
+	Fix comments.
+	Reformat code.
+	Fix copyright header.
+
 2002-11-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers-values.ads, aws-headers-values.adb:
