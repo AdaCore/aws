@@ -222,7 +222,6 @@ private
       File_Up_To_Date   : Boolean            := False;
       --  SOAP
       SOAP_Action       : Boolean            := False;
-      Payload           : Unbounded_String;
       --  Authentication
       Auth_Mode         : Authorization_Type := None;
       Auth_Name         : Unbounded_String; -- for Basic and Digest
