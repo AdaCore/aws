@@ -106,8 +106,9 @@ implemented:
   compressed or decompressed data to the browser depending on it's support for
   compressed message body.
 
-=============== Point to fix before next release
-
 - Change support for uncompressed memory stream. The data should be
   uncompressed only when reading data and not when appending compressed data
   into the stream. This enhancement will reduce the memory used by the data.
+
+=============== Point to fix before next release
+
