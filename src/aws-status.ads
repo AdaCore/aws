@@ -124,6 +124,10 @@ package AWS.Status is
       return Boolean;
    --  Returns True if the content encoding scheme is sported by the client
 
+   function Preferred_Coding (D : in Data) return Messages.Content_Encoding;
+   --  Returns supported by AWS coding preferred by client from the
+   --  Accept-Coding header.
+
    ----------------
    -- Connection --
    ----------------
