@@ -46,7 +46,7 @@ package AWS.Response is
 
    type Data is private;
 
-   type Data_Mode is (Header, Message, File);
+   type Data_Mode is (Header, Message, File, Socket_Taken);
 
    Default_Moved_Message : constant String :=
      "Page moved<br><a href=""_@_"">Click here</a>";
@@ -110,6 +110,11 @@ package AWS.Response is
                   Filename     : in String) return Data;
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file.
+
+   function Socket_Taken return Data;
+   --  Must be used to say that the connection socket has been taken by user
+   --  inside of user callback. No operations should be performed on this
+   --  socket, and associated slot should be released for further operations.
 
    --
    --  Other API
