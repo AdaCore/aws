@@ -35,6 +35,7 @@ with Ada.Exceptions;
 with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
@@ -361,7 +362,11 @@ package body Ada2WSDL.Parser is
       procedure Analyse_Package (Node : in Link) is
       begin
          if Options.WS_Name = Null_Unbounded_String then
-            Options.WS_Name := To_Unbounded_String (Node.Spec_Name.all);
+            Options.WS_Name
+              := To_Unbounded_String
+                   (Strings.Fixed.Translate
+                     (Node.Spec_Name.all,
+                      Strings.Maps.To_Mapping (".", "-")));
          end if;
       end Analyse_Package;
 
