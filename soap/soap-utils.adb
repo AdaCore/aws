@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -33,6 +33,9 @@
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
+
+with Unicode.CES.Utf8;
+with Unicode.CES.Basic_8bit;
 
 package body SOAP.Utils is
 
@@ -72,6 +75,16 @@ package body SOAP.Utils is
 
       return To_String (Result);
    end Encode;
+
+   ---------------
+   -- From_Utf8 --
+   ---------------
+
+   function From_Utf8 (Str : in String) return String is
+   begin
+      return Unicode.CES.Basic_8bit.From_Utf32
+        (Unicode.CES.Utf8.To_Utf32 (Str));
+   end From_Utf8;
 
    ---------
    -- Get --
@@ -222,6 +235,16 @@ package body SOAP.Utils is
 
       return T_Array'(Result);
    end To_T_Array;
+
+   -------------
+   -- To_Utf8 --
+   -------------
+
+   function To_Utf8 (Str : in String) return String is
+   begin
+      return Unicode.CES.Utf8.From_Utf32
+        (Unicode.CES.Basic_8bit.To_Utf32 (Str));
+   end To_Utf8;
 
    --------
    -- US --

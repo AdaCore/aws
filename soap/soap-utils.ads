@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -59,6 +59,18 @@ package SOAP.Utils is
 
    function No_NS (Name : in String) return String;
    --  Returns Name without leading name space if present
+
+   ----------------------------------
+   -- Basic_8bit string convertion --
+   ----------------------------------
+
+   function To_Utf8 (Str : in String) return String;
+   pragma Inline (To_Utf8);
+   --  Convert the Basic_8bit encoded Str string to Utf-8
+
+   function From_Utf8 (Str : in String) return String;
+   pragma Inline (To_Utf8);
+   --  Convert the Utf-8 encoded Str string to Basic_8bit
 
    ------------------------------------
    -- SOAP Generator Runtime Support --
