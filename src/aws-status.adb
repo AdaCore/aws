@@ -242,6 +242,15 @@ package body AWS.Status is
       return D.SOAPAction /= Null_Unbounded_String;
    end Is_SOAP;
 
+   ----------------
+   -- Keep_Alive --
+   ----------------
+
+   function Keep_Alive (D : in Data) return Boolean is
+   begin
+      return D.Keep_Alive;
+   end Keep_Alive;
+
    ------------
    -- Method --
    ------------

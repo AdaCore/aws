@@ -197,6 +197,18 @@ package body AWS.Status.Set is
       D.If_Modified_Since := To_Unbounded_String (If_Modified_Since);
    end If_Modified_Since;
 
+   ----------------
+   -- Keep_Alive --
+   ----------------
+
+   procedure Keep_Alive
+     (D    : in out Data;
+      Flag : in     Boolean)
+   is
+   begin
+      D.Keep_Alive := Flag;
+   end Keep_Alive;
+
    ------------------------
    -- Multipart_Boundary --
    ------------------------
