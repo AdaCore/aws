@@ -518,13 +518,17 @@ package body Ada2WSDL.Parser is
          -----------------------------
 
          procedure Analyse_Array_Component (Component : in Asis.Element) is
-            E : constant Asis.Element
-              := Declarations.Corresponding_First_Subtype
-                (Expressions.Corresponding_Name_Declaration
-                     (Definitions.Subtype_Mark
-                          (Definitions.Component_Subtype_Indication
-                               (Component))));
+            E : Asis.Element
+              := (Definitions.Subtype_Mark
+                    (Definitions.Component_Subtype_Indication (Component)));
          begin
+            if Elements.Expression_Kind (E) = A_Selected_Component then
+               E := Expressions.Selector (E);
+            end if;
+
+            E := Declarations.Corresponding_First_Subtype
+              (Expressions.Corresponding_Name_Declaration (E));
+
             Analyse_Type (E);
          end Analyse_Array_Component;
 
