@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build_std build_ssl clean distrib
+.SILENT: all build_std build_ssl clean distrib install
 
 # update INCLUDES to point to the libraries directories for POSIX and Sockets
 # or use GNAT ADA_INCLUDE_PATH or ADA_OBJECTS_PATH
@@ -116,15 +116,18 @@ install:
 	mkdir $(INSTALL)/lib
 	mkdir $(INSTALL)/include
 	mkdir $(INSTALL)/icons
+	mkdir $(INSTALL)/images
 	mkdir $(INSTALL)/templates
 	mkdir $(INSTALL)/docs
 	ar cr libaws.a src/*.o ssl/*.o soap/*.o
 	cp src/*.ad[sb] ssl/*.ad[sb] soap/*.ad[sb] $(INSTALL)/include
 	cp src/*.ali ssl/*.ali soap/*.ali $(INSTALL)/lib
-	chmod uog-w $(INSTALL)/*.ali
+	chmod uog-w $(INSTALL)/lib/*.ali
 	cp libaws.a $(INSTALL)/lib
 	cp docs/aws.html docs/templates_parser.html $(INSTALL)/docs
 	cp demos/*.thtml $(INSTALL)/templates
+	cp icons/*.gif $(INSTALL)/icons
+	cp demos/aws_*.png $(INSTALL)/images
 ifeq (${OS}, Windows_NT)
 	cp win32/*.a $(INSTALL)/lib
 endif
