@@ -55,21 +55,21 @@ package body Runme_CB is
    function Get (Request : in Status.Data) return Response.Data is
       URI        : constant String          := Status.URI (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
-      Session_ID : constant Session.ID      := Status.Session (Request);
+      Session_Id : constant Session.Id      := Status.Session (Request);
       C : Natural := 0;
 
    begin
       --  let's play with the Session now.
 
-      if Session.Exist (Session_ID, "counter") then
-         C := Session.Get (Session_ID, "counter");
+      if Session.Exist (Session_Id, "counter") then
+         C := Session.Get (Session_Id, "counter");
       end if;
 
       C := C + 1;
-      Session.Set (Session_ID, "counter", C);
+      Session.Set (Session_Id, "counter", C);
 
       if C > 5 then
-         Session.Set (Session_ID, "another", "string value");
+         Session.Set (Session_Id, "another", "string value");
       end if;
 
       if URI = "/first_img" then

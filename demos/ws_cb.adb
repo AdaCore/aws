@@ -59,11 +59,11 @@ package body WS_CB is
 
    --  Simple ID generator.
 
-   protected New_Client_ID is
-      procedure Get (New_ID : out String);
+   protected New_Client_Id is
+      procedure Get (New_Id : out String);
    private
-      ID : Natural := 0;
-   end New_Client_ID;
+      Id : Natural := 0;
+   end New_Client_Id;
 
    task Server_Push_Task;
    --  The push data are generated here.
@@ -106,9 +106,9 @@ package body WS_CB is
             Picture : Unbounded_String
               := To_Unbounded_String (AWS.Parameters.Get_Value (P_List));
 
-            Client_ID : String (1 .. 32);
+            Client_Id : String (1 .. 32);
          begin
-            New_Client_ID.Get (Client_ID);
+            New_Client_Id.Get (Client_Id);
 
             if Picture = Null_Unbounded_String then
                Picture := To_Unbounded_String ("%D - %T");
@@ -116,13 +116,13 @@ package body WS_CB is
 
             Time_Push.Register
               (Server      => SP,
-               Client_ID   => Client_ID,
+               Client_Id   => Client_Id,
                Socket      => AWS.Status.Socket (Request),
                Environment => (Clock, Picture),
                Kind        => Time_Push.Multipart);
 
             Time_Push.Send_To
-              (SP, Client_ID, Ada.Calendar.Clock, "text/html");
+              (SP, Client_Id, Ada.Calendar.Clock, "text/html");
          end;
 
          return AWS.Response.Socket_Taken;
@@ -178,15 +178,15 @@ package body WS_CB is
    -- New_Client_ID --
    -------------------
 
-   protected body New_Client_ID is
+   protected body New_Client_Id is
 
-      procedure Get (New_ID : out String) is
+      procedure Get (New_Id : out String) is
       begin
-         ID := ID + 1;
-         Ada.Integer_Text_IO.Put (New_ID, ID);
+         Id := Id + 1;
+         Ada.Integer_Text_IO.Put (New_Id, Id);
       end Get;
 
-   end New_Client_ID;
+   end New_Client_Id;
 
    ---------
    -- Put --
