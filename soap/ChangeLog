@@ -1,0 +1,68 @@
+2001-08-26  Pascal Obry  <p.obry@wanadoo.fr>
+	
+	* soap.ads:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+	* soap-types.ads, soap-types.adb:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+	* soap-message.ads, soap-message.adb:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+	* soap-message-xml.ads, soap-message-xml.adb:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+	* soap-message-response.ads, soap-message-response.adb:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+	* soap-message-payload.ads, soap-message-payload.adb:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+	* soap-message-error.ads, soap-message-error.adb:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+	* soap-client.ads, soap-client.adb:
+	Add copyright notice. This is to be considered as the first
+	 version. Most of the framework is validated at this point.
+
+2001-08-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap.ads:
+	Initial revision.
+
+	* soap-types.ads, soap-types.adb:
+	Initial revision.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	Initial revision.
+
+	* soap-message.ads, soap-message.adb:
+	Initial revision.
+
+	* soap-message-xml.ads, soap-message-xml.adb:
+	Initial revision.
+
+	* soap-message-response.ads, soap-message-response.adb:
+	Initial revision.
+
+	* soap-message-payload.ads, soap-message-payload.adb:
+	Initial revision.
+
+	* soap-message-error.ads, soap-message-error.adb:
+	Initial revision.
+
+	* soap-client.ads, soap-client.adb:
+
+	Initial revision.
+
