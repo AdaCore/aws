@@ -1,3 +1,8 @@
+2003-03-11  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* test_wsdl2.adb, test_wsdl3.adb:
+	Use new safe array reference.
+
 2003-03-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
