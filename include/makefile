@@ -59,6 +59,7 @@ gbuild:
 gsetup:
 	-$(MKDIR) -p ../.build/debug/include
 	-$(MKDIR) -p ../.build/release/include
+	${MAKE} -C zlib
 
 gclean: clean
 	$(RM) -fr ../.build/debug/include
