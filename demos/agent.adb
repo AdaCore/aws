@@ -222,7 +222,7 @@ begin
                Char : Character;
             begin
                Text_IO.Get_Immediate (Char);
-               exit when char = 'q';
+               exit when Char = 'q';
             end;
          end if;
 
