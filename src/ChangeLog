@@ -1,6 +1,17 @@
 2004-09-25  Pascal Obry  <pascal@obry.org>
 
 	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+
+	* aws-client.adb:
+	(Open_Send_Common_Header): When the URL is HTTPS and the request
+	 must be done through a proxy we need to open a tunnel in the
+	 proxy. This is done with CONNECT.
+	Minor reformatting.
+
+2004-09-25  Pascal Obry  <pascal@obry.org>
+
+	* aws-server-protocol_handler.adb:
 	(File_Upload): Register uploaded files as attachments this ensures
 	 that all files will be removed by the server.
 	(Store_Attachments): Rename Content_ID to Content_Id.
