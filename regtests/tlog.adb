@@ -237,13 +237,12 @@ begin
    Delete_Logs;
    Create_File;
 
-   AWS.Server.Set_Unexpected_Exception_Handler
-     (WS, UEH'Unrestricted_Access);
+   AWS.Server.Set_Unexpected_Exception_Handler (WS, UEH'Unrestricted_Access);
 
    Get_Free_Port (Port);
 
    Server.Start
-     (WS, "tlog", CB'Unrestricted_Access, Port => Port, Max_Connection => 2);
+     (WS, "tlog", CB'Unrestricted_Access, Port => Port, Max_Connection => 1);
 
    Server.Log.Start (WS);
    Server.Log.Start_Error (WS);
@@ -269,8 +268,7 @@ begin
 
    --  Test for basic authentication.
 
-   Client.Set_WWW_Authentication
-     (Connect, "login", "pwd", Client.Basic);
+   Client.Set_WWW_Authentication (Connect, "login", "pwd", Client.Basic);
 
    Client.Get (Connect, R, "/azerty");
    Client.Get (Connect, R, "/one");
