@@ -1,5 +1,41 @@
 2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-resources.ads, aws-resources.adb:
+	(Open): New routine with GZip in out parameter.
+	(Is_GZip): New private routine.
+	(Support_Compressed): Removed.
+
+	* aws-resources-embedded.ads:
+	(Open): New routine with GZip in out parameter.
+	(Support_Compressed): Removed.
+
+	* aws-resources-embedded.adb:
+	Implementation based on AWS.Resources.Streams.Memory for keep data
+	 and on AWS.Resources.Streams.ZLib for decompress compressed resources
+	 if necessary.
+
+	* aws-resources-files.ads:
+	(Open): New routine with GZip in out parameter.
+
+	* aws-resources-files.adb:
+	Add ability to decompress compressed resources when necessary and
+	 provide compressed stream when possible.
+	(File_Timestamp): Checking for .gz file too.
+	(Is_Regular_File): Idem.
+	(File_Size): Idem.
+
+	* aws-response.ads, aws-response.adb:
+	(Create_Resource): Data parameter is in "in out" mode to be able to
+	 set Content-Encoding header value. New parameter GZip allowed to get
+	 static resource in GZip format.
+
+	* aws-server-protocol_handler.adb:
+	(Send): Parameter Answer is in "in out" mode to be able to call
+	 Create_Resource routine. Checking for GZip Accept-Encoding instead
+	 of Deflate.
+
+2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-resources-streams-memory-zlib.ads:
 	(Default_Header): New constant.
 
