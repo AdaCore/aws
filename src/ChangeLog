@@ -1,3 +1,16 @@
+2003-09-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.adb:
+	(Create_Resource): Swap parameters.
+
+	* aws-response.ads:
+	Reorder all procedures. Create clear section for better
+	 readability of this interface.
+	(Create_Resource): Swap parameters.
+
+	* aws-server-protocol_handler.adb:
+	(Send_Data): Use new Create_Resource profile.
+
 2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-streams-memory.adb:
