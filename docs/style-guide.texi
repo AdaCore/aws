@@ -420,7 +420,7 @@ When possible, have "for" or "while" on one line with the condition
 and the "loop" keyword.
 
 @smallexample
-       for I in S'Range loop
+       for J in S'Range loop
           ...
        end loop;
 @end smallexample
@@ -531,6 +531,7 @@ format:
       procedure My_Function is
       begin
 @end smallexample
+
 Note that the name in the header is preceded by a single space, 
 not two spaces as for other comments.
 
