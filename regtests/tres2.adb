@@ -36,6 +36,8 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 with Ada.Streams.Stream_IO;
 
+with GNAT.OS_Lib;
+
 with AWS.Resources;
 with AWS.Translator;
 
@@ -81,6 +83,8 @@ procedure Tres2 is
       Stream_IO.Close (File);
    end Create_File;
 
+   Success : Boolean;
+
 begin
    Create_File;
 
@@ -114,6 +118,9 @@ begin
    end loop;
 
    Resources.Close (F);
+
+   OS_Lib.Delete_File (Filename, Success);
+
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));
