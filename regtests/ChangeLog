@@ -1,5 +1,19 @@
 2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* dirop.adb:
+	Set Result to constant.
+
+	* makefile:
+	(RT_STD): Add server_config.
+
+	* aws.ini:
+	Initial revision.
+	
+	* server_config.adb, server_config.out, server_config.ini:
+	Initial revision.
+	
+2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(RT_STD): Add server_info.
 
