@@ -29,7 +29,7 @@ else
 ifeq (${OS}, Windows_NT)
 LARGS = $(LFLAGS) $(LIBS) -L../lib ../lib/aws.coff
 else
-LARGS = $(LFLAGS) $(LIBS)
+LARGS = $(LFLAGS) $(LIBS) -L../lib
 endif
 endif
 
