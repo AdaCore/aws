@@ -1436,8 +1436,14 @@ package body AWS.Client is
       Set_Keep_Alive (Response.Header
         (Answer, Messages.Proxy_Connection_Token));
 
-      Connection.Cookie := +Response.Header
-        (Answer, Messages.Set_Cookie_Token);
+      --  ??? We handle a single cookie on the client side. This must be
+      --  fixed. Every cookie received should be stored and sent back to the
+      --  server.
+
+      if Connection.Cookie = No_Data then
+         Connection.Cookie := +Response.Header
+           (Answer, Messages.Set_Cookie_Token);
+      end if;
 
       Parse_Authenticate_Line
         (WWW,
