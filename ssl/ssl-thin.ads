@@ -107,6 +107,27 @@ package SSL.Thin is
    RSA_3  : constant := 3;
    RSA_F4 : constant := 16#10001#;
 
+   --------------------------
+   --  SSL mode constants. --
+   --------------------------
+
+   SSL_MODE_ENABLE_PARTIAL_WRITE : constant := 1;
+   --  Allow SSL_write(..., n) to return r with 0 < r < n (i.e. report success
+   --  when just a single record has been written).
+
+   SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER : constant := 2;
+   --  Make it possible to retry SSL_write() with changed buffer location
+   --  (buffer contents must stay the same!); this is not the default to avoid
+   --  the misconception that non-blocking SSL_write() behaves like
+   --  non-blocking write().
+
+   SSL_MODE_AUTO_RETRY : constant := 4;
+   --  Never bother the application with retries if the transport
+   --  is blocking.
+
+   SSL_MODE_NO_AUTO_CHAIN : constant := 8;
+   --  Don't attempt to automatically build certificate chain.
+
    function SSLeay return long;
    --  Returns OpenSSL numeric release version identifier.
 
