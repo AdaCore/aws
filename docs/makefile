@@ -2,6 +2,7 @@
 # $Id$
 
 .SILENT: clean build ada.sed aws.ps aws.info aws.dvi aws.txt aws.html aws.texi
+.SILENT: prog
 
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
@@ -64,8 +65,10 @@ aws.html: aws.texi
 aws.txt: aws.texi
 	makeinfo --no-headers aws.texi > aws.txt
 
-aws.texi: aws.texi.tmplt build.adb
+prog: build.adb
 	gnatmake build -I../src -I../soap -I../include
+
+aws.texi: prog aws.texi.tmplt
 	./build | tr -d '\r' > aws.texi
 
 clean:
