@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -36,7 +36,7 @@
 with Ada.Calendar;
 with Ada.Strings.Unbounded;
 
-with GNAT.Dynamic_Tables;
+with AI302.Containers.Vectors;
 with GNAT.Calendar;
 
 with AWS.Dispatchers;
@@ -207,11 +207,11 @@ private
    type Node_Access is access Node;
 
    package Period_Table is
-      new GNAT.Dynamic_Tables (Node_Access, Natural, 1, 20, 10);
+     new AI302.Containers.Vectors (Positive, Node_Access, "=");
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;
-      Table  : Period_Table.Instance;
+      Table  : Period_Table.Vector;
    end record;
 
 end AWS.Services.Dispatchers.Timer;
