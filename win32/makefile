@@ -30,7 +30,7 @@ libcrypto.a: libeay32.dll
 	rm crypto.def
 
 build_lib: libssl.a libcrypto.a
-	mv *.a ../ssl
+	cp *.a ../ssl
 
 clean:
 	-rm *.a *~
