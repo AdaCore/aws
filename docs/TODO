@@ -102,5 +102,5 @@ implemented:
      </complexContent>
    </complexType>
 
-- Add GNAT project files to build/use AWS (partly done, projects are there but
-  not used).
+- Add GNAT project files to use AWS. Only support for developpers has been
+  implemented.
