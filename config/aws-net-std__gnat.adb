@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -29,11 +29,10 @@
 --  $Id$
 
 with Ada.Exceptions;
+with Ada.Strings.Maps;
 with Ada.Unchecked_Deallocation;
 
 with AWS.Net.Log;
-with AWS.OS_Lib.Definitions;
-with AWS.Utils;
 
 pragma Warnings (Off);
 
@@ -54,8 +53,6 @@ package body AWS.Net.Std is
    use Ada;
    use GNAT;
 
-   package OSD renames AWS.OS_Lib.Definitions;
-
    type Socket_Hidden is record
       FD : Sockets.Socket_Type;
    end record;
@@ -73,13 +70,9 @@ package body AWS.Net.Std is
    procedure Raise_Socket_Error (Error : in Integer);
    pragma No_Return (Raise_Socket_Error);
 
-   function Get_Addr_Info
-     (Host  : in String;
-      Port  : in Positive;
-      Flags : in Interfaces.C.int := 0)
-      return OSD.Addr_Info_Access;
-   --  Returns the inet address information for the given host and port.
-   --  Flags should be used from getaddrinfo C routine.
+   function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type;
+   pragma Inline (Get_Inet_Addr);
+   --  Returns the inet address for the given host.
 
    procedure Set_Non_Blocking_Mode (Socket : in Socket_Type);
    --  Set the socket to the non-blocking mode.
@@ -125,43 +118,28 @@ package body AWS.Net.Std is
       Port   : in     Natural;
       Host   : in     String := "")
    is
-      use Interfaces;
-      use type C.int;
-
-      Info  : constant OSD.Addr_Info_Access
-        := Get_Addr_Info (Host, Port, OSD.AI_PASSIVE);
-      Res   : C.int;
-      Errno : Integer;
-
+      use Ada.Strings.Maps;
+      Inet_Addr : Sockets.Inet_Addr_Type;
    begin
+      if Host = "" then
+         Inet_Addr := Sockets.Any_Inet_Addr;
+      else
+         Inet_Addr := Get_Inet_Addr (Host);
+      end if;
+
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
-
-         begin
-            Sockets.Create_Socket (Socket.S.FD);
-         exception
-            when E : Sockets.Socket_Error =>
-               Free (Socket.S);
-               OSD.FreeAddrInfo (Info);
-               Raise_Exception (E, "Bind.Create_Socket");
-         end;
-
+         Sockets.Create_Socket (Socket.S.FD);
          Set_Non_Blocking_Mode (Socket);
       end if;
 
-      Res := Sockets.Thin.C_Bind
-               (C.int (Get_FD (Socket)),
-                Info.ai_addr,
-                C.int (Info.ai_addrlen));
+      Sockets.Bind_Socket
+        (Socket.S.FD,
+         (Sockets.Family_Inet, Inet_Addr, Sockets.Port_Type (Port)));
 
-      OSD.FreeAddrInfo (Info);
-
-      if Res = Sockets.Thin.Failure then
-         Errno := Std.Errno;
-         Sockets.Close_Socket (Socket.S.FD);
-         Free (Socket.S);
-         Raise_Socket_Error (Errno);
-      end if;
+   exception
+      when E : Sockets.Socket_Error | Sockets.Host_Error =>
+         Raise_Exception (E, "Bind");
    end Bind;
 
    -------------
@@ -174,66 +152,82 @@ package body AWS.Net.Std is
       Port   : in     Positive;
       Wait   : in     Boolean := True)
    is
-      use Interfaces;
-      use type C.int;
+      Sock_Addr : Sockets.Sock_Addr_Type;
 
-      Info  : constant OSD.Addr_Info_Access := Get_Addr_Info (Host, Port);
-      Res   : C.int;
-      Errno : Integer;
-
+      Close_On_Exception : Boolean := True;
    begin
       if Socket.S = null then
          Socket.S := new Socket_Hidden;
 
-         begin
-            Sockets.Create_Socket (Socket.S.FD);
-         exception
-            when E : Sockets.Socket_Error =>
-               Free (Socket.S);
-               OSD.FreeAddrInfo (Info);
-               Raise_Exception (E, "Connect.Create_Socket");
-         end;
+         Close_On_Exception := False;
+         Sockets.Create_Socket (Socket.S.FD);
+         Close_On_Exception := True;
       end if;
+
+      Sock_Addr := (Sockets.Family_Inet,
+                    Get_Inet_Addr (Host),
+                    Sockets.Port_Type (Port));
 
       Set_Non_Blocking_Mode (Socket);
 
-      Res := Sockets.Thin.C_Connect
-               (C.int (Get_FD (Socket)),
-                Info.ai_addr,
-                C.int (Info.ai_addrlen));
+      declare
+         use GNAT.Sockets;
+      begin
+         Connect_Socket (Socket.S.FD, Sock_Addr);
+      exception
+         when E : GNAT.Sockets.Socket_Error =>
+            --  Ignore EWOULDBLOCK and EINPROGRESS errors, because we are
+            --  using none blocking connect.
+            --  !!! Note, we should change it when GNAT would support
+            --  Non-blocking connect.
 
-      OSD.FreeAddrInfo (Info);
+            case Resolve_Exception (E) is
+               when Operation_Now_In_Progress
+                    | Resource_Temporarily_Unavailable => null;
+               when others =>
+                  Sockets.Close_Socket (Socket.S.FD);
+                  Free (Socket);
 
-      if Res = Sockets.Thin.Failure then
-         Errno := Std.Errno;
+                  Raise_Exception (E, "Connect");
+            end case;
+      end;
 
-         if Errno = Sockets.Constants.EWOULDBLOCK
-           or else Errno = Sockets.Constants.EINPROGRESS
-         then
-            Errno := 0;
+      if Wait then
+         declare
+            Events : constant Event_Set
+              := Net.Wait (Socket, (Output => True, Input => False));
 
-            if Wait then
-               declare
-                  Events : constant Event_Set
-                    := Net.Wait (Socket, (Output => True, Input => False));
-               begin
-                  if Events (Error) then
-                     Errno := Std.Errno (Socket);
-                  elsif not Events (Output) then
-                     Errno := Sockets.Constants.ETIMEDOUT;
-                  end if;
-               end;
+            procedure Raise_Error (Errno : Integer);
+
+            -----------------
+            -- Raise_Error --
+            -----------------
+
+            procedure Raise_Error (Errno : Integer) is
+            begin
+               Sockets.Close_Socket (Socket.S.FD);
+               Free (Socket);
+               Raise_Socket_Error (Errno);
+            end Raise_Error;
+
+         begin
+            if Events (Error) then
+               Raise_Error (Std.Errno (Socket));
+            elsif not Events (Output) then
+               Raise_Error (Sockets.Constants.ETIMEDOUT);
             end if;
-         end if;
-
-         if Errno /= 0 then
-            Sockets.Close_Socket (Socket.S.FD);
-            Free (Socket.S);
-            Raise_Socket_Error (Errno);
-         end if;
+         end;
       end if;
 
       Set_Cache (Socket);
+   exception
+      when E : Sockets.Socket_Error | Sockets.Host_Error =>
+         if Close_On_Exception then
+            Sockets.Close_Socket (Socket.S.FD);
+         end if;
+
+         Free (Socket);
+         Raise_Exception (E, "Connect");
    end Connect;
 
    -----------
@@ -277,57 +271,6 @@ package body AWS.Net.Std is
       Release_Cache (Socket);
    end Free;
 
-   -------------------
-   -- Get_Addr_Info --
-   -------------------
-
-   function Get_Addr_Info
-     (Host  : in String;
-      Port  : in Positive;
-      Flags : in Interfaces.C.int := 0)
-      return OSD.Addr_Info_Access
-   is
-      use Interfaces.C;
-      use type OSD.Addr_Info_Access;
-
-      C_Node : aliased char_array := To_C (Host);
-      P_Node : Strings.chars_ptr;
-      C_Serv : aliased char_array := To_C (AWS.Utils.Image (Port));
-      Res    : int;
-      Result : aliased OSD.Addr_Info_Access;
-      Hints  : constant OSD.Addr_Info
-        := (ai_family    => Sockets.Constants.AF_INET,
-            ai_socktype  => Sockets.Constants.SOCK_STREAM,
-            ai_protocol  => Sockets.Constants.IPPROTO_TCP,
-            ai_flags     => Flags,
-            ai_addrlen   => 0,
-            ai_canonname => Strings.Null_Ptr,
-            ai_addr      => System.Null_Address,
-            ai_next      => null);
-   begin
-      if Host = "" then
-         P_Node := Strings.Null_Ptr;
-      else
-         P_Node := Strings.To_Chars_Ptr (C_Node'Unchecked_Access);
-      end if;
-
-      Res := OSD.GetAddrInfo
-               (node    => P_Node,
-                service => Strings.To_Chars_Ptr (C_Serv'Unchecked_Access),
-                hints   => Hints,
-                res     => Result'Access);
-
-      if Res = OSD.EAI_SYSTEM then
-         Raise_Socket_Error (Errno);
-
-      elsif Res /= 0 then
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, Strings.Value (OSD.GAI_StrError (Res)));
-      end if;
-
-      return Result;
-   end Get_Addr_Info;
-
    ------------
    -- Get_FD --
    ------------
@@ -336,6 +279,22 @@ package body AWS.Net.Std is
    begin
       return Sockets.To_C (Socket.S.FD);
    end Get_FD;
+
+   -------------------
+   -- Get_Inet_Addr --
+   -------------------
+
+   function Get_Inet_Addr (Host : in String) return Sockets.Inet_Addr_Type is
+      use Strings.Maps;
+      IP : constant Character_Set := To_Set ("0123456789.");
+   begin
+      if Is_Subset (To_Set (Host), IP) then
+         --  Only numbers, this is an IP address
+         return Sockets.Inet_Addr (Host);
+      else
+         return Sockets.Addresses (Sockets.Get_Host_By_Name (Host), 1);
+      end if;
+   end Get_Inet_Addr;
 
    -----------------------------
    -- Get_Receive_Buffer_Size --
