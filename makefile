@@ -115,6 +115,7 @@ clean:
 	make -C docs clean
 	make -C soap clean
 	make -C regtests clean
+	make -C win32 clean
 	-rm *.~*.*~
 	rm makefile.conf
 	echo MODE=std > makefile.conf
