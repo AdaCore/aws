@@ -1,3 +1,13 @@
+2004-09-25  Pascal Obry  <pascal@obry.org>
+
+	* agent.adb:
+	With an HTTPS URL do not try to output the headers or the message body.
+	Minor reformatting.
+	
+	* demos.gpr:
+	(Compiler): Remove option -m (there is no such option on
+	 gcc). This could be used in a Builder package.
+
 2004-09-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* runme_cb.adb, ws_cb.adb:
