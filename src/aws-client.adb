@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Exceptions;
+with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Streams;
 with Ada.Unchecked_Deallocation;
@@ -76,6 +78,178 @@ package body AWS.Client is
       URI        : in     String);
    --  Open the the Connection if it is not open. Send the common HTTP headers
    --  for all requests like the proxy, authentification, user agent, host.
+
+   procedure Set_Phase
+     (Connection : in out HTTP_Connection;
+      Phase      : in     Client_Phase);
+   pragma Inline (Set_Phase);
+   --  Set the phase for the connection. This will activate the Send and
+   --  Receive timeouts of the cleaner task if needed.
+
+   -------------------
+   -- Build_Cleaner --
+   -------------------
+
+   function Build_Cleaner
+     (Connection : access HTTP_Connection)
+     return Cleaner_Access is
+   begin
+      if Connection.With_Timeouts then
+         return new Cleaner_Task (Connection);
+
+      else
+         return null;
+      end if;
+   end Build_Cleaner;
+
+   ------------------
+   -- Cleaner_Task --
+   ------------------
+
+   task body Cleaner_Task is
+      P : Client_Phase;
+      W : Duration;
+   begin
+      Phase_Loop : loop
+         select
+            accept Send do
+               W := Duration (Connection.Timeouts.Send);
+               P := Send;
+            end Send;
+         or
+            accept Receive do
+               W := Duration (Connection.Timeouts.Receive);
+               P := Receive;
+            end Receive;
+
+         or
+            accept Stop;
+            exit Phase_Loop;
+
+         or
+            accept Next_Phase;
+            exit Phase_Loop;
+
+         end select;
+
+         select
+            accept Stop;
+            exit Phase_Loop;
+         or
+            accept Next_Phase;
+         or
+            delay W;
+         end select;
+
+         if Connection.Current_Phase = P then
+            --  Still in the same phase, just close the socket now.
+            Sockets.Shutdown (Connection.Socket.all);
+            Connection.Socket := null;
+         end if;
+
+      end loop Phase_Loop;
+   exception
+      when E : others =>
+         Text_IO.Put_Line (Exceptions.Exception_Information (E));
+   end Cleaner_Task;
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close (Connection : in out HTTP_Connection) is
+
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Sockets.Socket_FD'Class, Socket_Access);
+
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Cleaner_Task, Cleaner_Access);
+
+   begin
+      Connection.Current_Phase := Stopped;
+
+      if not (Connection.Cleaner = null) then
+         Connection.Cleaner.Stop;
+
+         while not Connection.Cleaner'Terminated loop
+            delay 0.01;
+         end loop;
+
+         Free (Connection.Cleaner);
+
+      end if;
+
+      if not (Connection.Socket = null) then
+         Sockets.Shutdown (Connection.Socket.all);
+         Free (Connection.Socket);
+      end if;
+   end Close;
+
+   ------------
+   -- Create --
+   ------------
+
+   procedure Create
+     (Connection : in out HTTP_Connection;
+      Host       : in     String;
+      User       : in     String          := No_Data;
+      Pwd        : in     String          := No_Data;
+      Proxy      : in     String          := No_Data;
+      Proxy_User : in     String          := No_Data;
+      Proxy_Pwd  : in     String          := No_Data;
+      Retry      : in     Positive        := Retry_Default;
+      SOAPAction : in     String          := No_Data;
+      Persistent : in     Boolean         := True;
+      Timeouts   : in     Timeouts_Values := No_Timeout)
+   is
+      function Set (V : in String) return Unbounded_String;
+      --  Returns V as an Unbounded_String if V is not the empty string
+      --  otherwise it returns Null_Unbounded_String.
+
+      ---------
+      -- Set --
+      ---------
+
+      function Set (V : in String) return Unbounded_String is
+      begin
+         if V = No_Data then
+            return Null_Unbounded_String;
+         else
+            return To_Unbounded_String (V);
+         end if;
+      end Set;
+
+      Connect_URL : AWS.URL.Object;
+      Host_URL    : AWS.URL.Object := AWS.URL.Parse (Host);
+      Proxy_URL   : AWS.URL.Object := AWS.URL.Parse (Proxy);
+
+   begin
+      if Proxy = No_Data then
+         Connect_URL := Host_URL;
+      else
+         Connect_URL := Proxy_URL;
+      end if;
+
+      Connection.Host            := To_Unbounded_String (Host);
+      Connection.Host_URL        := Host_URL;
+      Connection.Connect_URL     := Connect_URL;
+      Connection.User            := Set (User);
+      Connection.Pwd             := Set (Pwd);
+      Connection.Proxy           := Set (Proxy);
+      Connection.Proxy_URL       := Proxy_URL;
+      Connection.Proxy_User      := Set (Proxy_User);
+      Connection.Proxy_Pwd       := Set (Proxy_Pwd);
+      Connection.Opened          := True;
+      Connection.Socket          := new Sockets.Socket_FD'Class'
+        (AWS.Net.Connect (AWS.URL.Server_Name (Connect_URL),
+                          AWS.URL.Port (Connect_URL),
+                          AWS.URL.Security (Connect_URL)));
+      Connection.Retry           := Create.Retry;
+      Connection.Cookie          := Null_Unbounded_String;
+      Connection.SOAPAction      := Set (SOAPAction);
+      Connection.Persistent      := Persistent;
+      Connection.Current_Phase   := Not_Monitored;
+   end Create;
 
    ----------------
    -- Disconnect --
@@ -237,6 +411,8 @@ package body AWS.Client is
 
 
    begin
+      Set_Phase (Connection, Receive);
+
       Parse_Header
         (Sock, Status, CT_Len, CT, TE, Location, Connect, Connection.Cookie);
 
@@ -291,7 +467,7 @@ package body AWS.Client is
 
                if CT = MIME.Text_HTML or else CT = MIME.Text_XML then
 
-                  --  if the content is textual info put it in a string
+                  --  If the content is textual info put it in a string
 
                   declare
                      Message : String (1 .. Elements'Length);
@@ -307,7 +483,7 @@ package body AWS.Client is
 
                else
 
-                  --  this is some kind of binary data.
+                  --  This is some kind of binary data.
 
                   Result := Response.Build
                     (To_String (CT), Elements, Status);
@@ -317,6 +493,8 @@ package body AWS.Client is
       end if;
 
       Disconnect;
+
+      Set_Phase (Connection, Not_Monitored);
    end Get_Response;
 
    ---------
@@ -325,23 +503,66 @@ package body AWS.Client is
 
    function Get
      (URL        : in String;
-      User       : in String := No_Data;
-      Pwd        : in String := No_Data;
-      Proxy      : in String := No_Data;
-      Proxy_User : in String := No_Data;
-      Proxy_Pwd  : in String := No_Data)
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
      return Response.Data
    is
 
-      Connect : HTTP_Connection := Create (URL, User, Pwd,
-                                           Proxy, Proxy_User, Proxy_Pwd,
-                                           Persistent => False);
-      Result  : Response.Data;
+      Connection : HTTP_Connection (Timeouts /= No_Timeout);
+      Result     : Response.Data;
 
    begin
-      Get (Connect, Result);
-      Close (Connect);
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              Persistent => False);
+
+      Get (Connection, Result);
+
+      Close (Connection);
       return Result;
+   end Get;
+
+   ---------
+   -- Get --
+   ---------
+
+   procedure Get
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      URI        : in     String          := No_Data)
+   is
+      Try_Count : Natural := Connection.Retry;
+   begin
+
+      loop
+         begin
+
+            Open_Send_Common_Header (Connection, "GET", URI);
+
+            Sockets.New_Line (Connection.Socket.all);
+
+            Get_Response (Connection, Result);
+
+            return;
+
+         exception
+            when Sockets.Connection_Closed | Constraint_Error =>
+
+               if Try_Count = 0 then
+                  Close (Connection);
+                  Result := Response.Build
+                    (MIME.Text_HTML, "Get Timeout", Messages.S408);
+                  exit;
+               end if;
+
+               Try_Count := Try_Count - 1;
+               Disconnect (Connection);
+         end;
+      end loop;
    end Get;
 
    ----------
@@ -350,210 +571,66 @@ package body AWS.Client is
 
    function Head
      (URL        : in String;
-      User       : in String := No_Data;
-      Pwd        : in String := No_Data;
-      Proxy      : in String := No_Data;
-      Proxy_User : in String := No_Data;
-      Proxy_Pwd  : in String := No_Data)
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
      return Response.Data
    is
 
-      Connect : HTTP_Connection := Create (URL, User, Pwd,
-                                           Proxy, Proxy_User, Proxy_Pwd,
-                                           Persistent => False);
-
-      Result : Response.Data;
+      Connection : HTTP_Connection (Timeouts /= No_Timeout);
+      Result     : Response.Data;
 
    begin
-      Head (Connect, Result);
-      Close (Connect);
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              Persistent => False);
+
+      Head (Connection, Result);
+      Close (Connection);
       return Result;
    end Head;
 
-   ------------------
-   -- Parse_Header --
-   ------------------
+   ----------
+   -- Head --
+   ----------
 
-   procedure Parse_Header
-     (Sock              : in     Sockets.Socket_FD'Class;
-      Status            :    out Messages.Status_Code;
-      Content_Length    :    out Natural;
-      Content_Type      :    out Unbounded_String;
-      Transfer_Encoding :    out Unbounded_String;
-      Location          :    out Unbounded_String;
-      Connection        :    out Unbounded_String;
-      Cookie            :    out Unbounded_String) is
+   procedure Head
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      URI        : in     String := No_Data)
+   is
+      Try_Count : Natural := Connection.Retry;
    begin
-      Content_Length := 0;
 
       loop
-         declare
-            Line : constant String := Sockets.Get_Line (Sock);
          begin
-            if Line = End_Section then
-               exit;
 
-            elsif Messages.Is_Match (Line, Messages.HTTP_Token) then
-               Status := Messages.Status_Code'Value
-                  ('S' & Line (Messages.HTTP_Token'Last + 5
-                     .. Messages.HTTP_Token'Last + 7));
+            Open_Send_Common_Header (Connection, "HEAD", URI);
 
-            elsif Messages.Is_Match (Line, Messages.Content_Type_Token) then
-               Content_Type := To_Unbounded_String
-                  (Line (Messages.Content_Type_Token'Last + 1 .. Line'
-                     Last));
+            Sockets.New_Line (Connection.Socket.all);
 
-            elsif Messages.Is_Match (Line, Messages.Content_Length_Token) then
-               Content_Length := Natural'Value
-                  (Line (Messages.Content_Length_Range'Last + 1 .. Line'
-                     Last));
+            Get_Response (Connection, Result, Get_Body => False);
 
-            elsif Messages.Is_Match (Line, Messages.Location_Token) then
-               Location := To_Unbounded_String
-                  (Line (Messages.Location_Token'Last + 1 .. Line'Last));
+            return;
 
-            elsif Messages.Is_Match (Line,
-                  Messages.Transfer_Encoding_Token) then
+         exception
+            when Sockets.Connection_Closed | Constraint_Error =>
 
-               Transfer_Encoding := To_Unbounded_String
-                  (Line (Messages.Transfer_Encoding_Range'Last + 1
-                     .. Line'Last));
+               if Try_Count = 0 then
+                  Close (Connection);
+                  Result := Response.Build
+                    (MIME.Text_HTML, "Head Timeout", Messages.S408);
+                  exit;
+               end if;
 
-            elsif Messages.Is_Match (Line, Messages.Connection_Token) then
-               Connection := To_Unbounded_String
-                  (Line (Messages.Connection_Token'Last + 1 .. Line'Last));
-
-            elsif Messages.Is_Match (Line, Messages.
-                  Proxy_Connection_Token) then
-               Connection := To_Unbounded_String
-                  (Line (Messages.Proxy_Connection_Token'Last + 1 .. Line'
-                     Last));
-
-            elsif Messages.Is_Match (Line, Messages.Set_Cookie_Token) then
-               Cookie := To_Unbounded_String
-                  (Line (Messages.Set_Cookie_Token'Last + 1 .. Line'Last));
-
-            else
-               --  everything else is ignore right now
-               null;
-            end if;
+               Try_Count := Try_Count - 1;
+               Disconnect (Connection);
          end;
       end loop;
-   end Parse_Header;
-
-   ---------
-   -- Put --
-   ---------
-
-   function Put
-     (URL        : in String;
-      Data       : in String;
-      User       : in String := No_Data;
-      Pwd        : in String := No_Data;
-      Proxy      : in String := No_Data;
-      Proxy_User : in String := No_Data;
-      Proxy_Pwd  : in String := No_Data)
-     return Response.Data
-   is
-
-      Connect : HTTP_Connection := Create (URL, User, Pwd,
-                                           Proxy, Proxy_User, Proxy_Pwd,
-                                           Persistent => False);
-      Result  : Response.Data;
-
-   begin
-      Put (Connect, Result, Data);
-      Close (Connect);
-      return Result;
-   end Put;
-
-   ----------
-   -- Post --
-   ----------
-
-   function Post
-     (URL        : in String;
-      Data       : in String;
-      User       : in String := No_Data;
-      Pwd        : in String := No_Data;
-      Proxy      : in String := No_Data;
-      Proxy_User : in String := No_Data;
-      Proxy_Pwd  : in String := No_Data)
-     return Response.Data
-   is
-      use Streams;
-   begin
-      return Post (URL, Translator.To_Stream_Element_Array (Data),
-                   User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
-   end Post;
-
-   function Post
-     (URL        : in String;
-      Data       : in Streams.Stream_Element_Array;
-      User       : in String := No_Data;
-      Pwd        : in String := No_Data;
-      Proxy      : in String := No_Data;
-      Proxy_User : in String := No_Data;
-      Proxy_Pwd  : in String := No_Data)
-     return Response.Data
-   is
-      Connect : HTTP_Connection
-        := Create (URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-                   Persistent => False);
-
-      Result  : Response.Data;
-
-   begin
-      Post (Connect, Result, Data);
-      Close (Connect);
-      return Result;
-   end Post;
-
-   ---------------
-   -- SOAP_Post --
-   ---------------
-
-   function SOAP_Post
-     (URL        : in String;
-      Data       : in String;
-      SOAPAction : in String;
-      User       : in String := No_Data;
-      Pwd        : in String := No_Data;
-      Proxy      : in String := No_Data;
-      Proxy_User : in String := No_Data;
-      Proxy_Pwd  : in String := No_Data)
-     return Response.Data
-   is
-      Connect : HTTP_Connection
-        := Create (URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-                   SOAPAction => SOAPAction, Persistent => False);
-
-      Result  : Response.Data;
-
-   begin
-      Post (Connect, Result, Data);
-      Close (Connect);
-      return Result;
-   end SOAP_Post;
-
-   -----------
-   -- Close --
-   -----------
-
-   procedure Close (Connection : in out HTTP_Connection) is
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Sockets.Socket_FD'Class, Socket_Access);
-
-   begin
-      if Connection.Socket = null then
-         return;
-      end if;
-
-      Sockets.Shutdown (Connection.Socket.all);
-      Free (Connection.Socket);
-      Connection.Socket := null;
-   end Close;
+   end Head;
 
    -----------------------------
    -- Open_Send_Common_Header --
@@ -644,6 +721,8 @@ package body AWS.Client is
          Connection.Opened     := True;
       end if;
 
+      Set_Phase (Connection, Send);
+
       --  Header command.
 
       if Connection.Proxy = No_Data then
@@ -727,144 +806,128 @@ package body AWS.Client is
             Messages.SOAPAction (To_String (Connection.SOAPAction)));
       end if;
 
+      Set_Phase (Connection, Not_Monitored);
    end Open_Send_Common_Header;
 
-   ------------
-   -- Create --
-   ------------
+   ------------------
+   -- Parse_Header --
+   ------------------
 
-   function Create
-     (Host       : in String;
-      User       : in String   := No_Data;
-      Pwd        : in String   := No_Data;
-      Proxy      : in String   := No_Data;
-      Proxy_User : in String   := No_Data;
-      Proxy_Pwd  : in String   := No_Data;
-      Retry      : in Positive := Retry_Default;
-      SOAPAction : in String   := No_Data;
-      Persistent : in Boolean  := True)
-     return HTTP_Connection
-   is
-      function Set (V : in String) return Unbounded_String;
-      --  Returns V as an Unbounded_String if V is not the empty string
-      --  otherwise it returns Null_Unbounded_String.
-
-      ---------
-      -- Set --
-      ---------
-
-      function Set (V : in String) return Unbounded_String is
-      begin
-         if V = No_Data then
-            return Null_Unbounded_String;
-         else
-            return To_Unbounded_String (V);
-         end if;
-      end Set;
-
-      Connect_URL : AWS.URL.Object;
-      Host_URL    : AWS.URL.Object := AWS.URL.Parse (Host);
-      Proxy_URL   : AWS.URL.Object := AWS.URL.Parse (Proxy);
-
+   procedure Parse_Header
+     (Sock              : in     Sockets.Socket_FD'Class;
+      Status            :    out Messages.Status_Code;
+      Content_Length    :    out Natural;
+      Content_Type      :    out Unbounded_String;
+      Transfer_Encoding :    out Unbounded_String;
+      Location          :    out Unbounded_String;
+      Connection        :    out Unbounded_String;
+      Cookie            :    out Unbounded_String) is
    begin
-      if Proxy = No_Data then
-         Connect_URL := Host_URL;
-      else
-         Connect_URL := Proxy_URL;
-      end if;
-
-      return (Host        => To_Unbounded_String (Host),
-              Host_URL    => Host_URL,
-              Connect_URL => Connect_URL,
-              User        => Set (User),
-              Pwd         => Set (Pwd),
-              Proxy       => Set (Proxy),
-              Proxy_URL   => Proxy_URL,
-              Proxy_User  => Set (Proxy_User),
-              Proxy_Pwd   => Set (Proxy_Pwd),
-              Opened      => True,
-              Socket      => new Sockets.Socket_FD'Class'
-                (AWS.Net.Connect (AWS.URL.Server_Name (Connect_URL),
-                                  AWS.URL.Port (Connect_URL),
-                                  AWS.URL.Security (Connect_URL))),
-              Retry       => Create.Retry,
-              Cookie      => Null_Unbounded_String,
-              SOAPAction  => Set (SOAPAction),
-              Persistent  => Persistent);
-   end Create;
-
-   ---------
-   -- Get --
-   ---------
-
-   procedure Get
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      URI        : in     String          := No_Data)
-   is
-      Try_Count : Natural := Connection.Retry;
-   begin
+      Content_Length := 0;
 
       loop
+         declare
+            Line : constant String := Sockets.Get_Line (Sock);
          begin
+            if Line = End_Section then
+               exit;
 
-            Open_Send_Common_Header (Connection, "GET", URI);
+            elsif Messages.Is_Match (Line, Messages.HTTP_Token) then
+               Status := Messages.Status_Code'Value
+                  ('S' & Line (Messages.HTTP_Token'Last + 5
+                     .. Messages.HTTP_Token'Last + 7));
 
-            Sockets.New_Line (Connection.Socket.all);
+            elsif Messages.Is_Match (Line, Messages.Content_Type_Token) then
+               Content_Type := To_Unbounded_String
+                  (Line (Messages.Content_Type_Token'Last + 1 .. Line'
+                     Last));
 
-            Get_Response (Connection, Result);
+            elsif Messages.Is_Match (Line, Messages.Content_Length_Token) then
+               Content_Length := Natural'Value
+                  (Line (Messages.Content_Length_Range'Last + 1 .. Line'
+                     Last));
 
-            return;
+            elsif Messages.Is_Match (Line, Messages.Location_Token) then
+               Location := To_Unbounded_String
+                  (Line (Messages.Location_Token'Last + 1 .. Line'Last));
 
-         exception
-            when Sockets.Connection_Closed | Constraint_Error =>
+            elsif Messages.Is_Match (Line,
+                  Messages.Transfer_Encoding_Token) then
 
-               if Try_Count = 0 then
-                  raise;
-               end if;
+               Transfer_Encoding := To_Unbounded_String
+                  (Line (Messages.Transfer_Encoding_Range'Last + 1
+                     .. Line'Last));
 
-               Try_Count := Try_Count - 1;
-               Disconnect (Connection);
+            elsif Messages.Is_Match (Line, Messages.Connection_Token) then
+               Connection := To_Unbounded_String
+                  (Line (Messages.Connection_Token'Last + 1 .. Line'Last));
+
+            elsif Messages.Is_Match (Line, Messages.
+                  Proxy_Connection_Token) then
+               Connection := To_Unbounded_String
+                  (Line (Messages.Proxy_Connection_Token'Last + 1 .. Line'
+                     Last));
+
+            elsif Messages.Is_Match (Line, Messages.Set_Cookie_Token) then
+               Cookie := To_Unbounded_String
+                  (Line (Messages.Set_Cookie_Token'Last + 1 .. Line'Last));
+
+            else
+               --  everything else is ignore right now
+               null;
+            end if;
          end;
       end loop;
-
-   end Get;
+   end Parse_Header;
 
    ----------
-   -- Head --
+   -- Post --
    ----------
 
-   procedure Head
-     (Connection : in out HTTP_Connection;
-      Result     :    out Response.Data;
-      URI        : in     String := No_Data)
+   function Post
+     (URL        : in String;
+      Data       : in String;
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
+     return Response.Data
    is
-      Try_Count : Natural := Connection.Retry;
+      use Streams;
    begin
+      return Post (URL, Translator.To_Stream_Element_Array (Data),
+                   User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
+   end Post;
 
-      loop
-         begin
+   ----------
+   -- Post --
+   ----------
 
-            Open_Send_Common_Header (Connection, "HEAD", URI);
+   function Post
+     (URL        : in String;
+      Data       : in Streams.Stream_Element_Array;
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
+     return Response.Data
+   is
+      Connection : HTTP_Connection (Timeouts /= No_Timeout);
+      Result     : Response.Data;
 
-            Sockets.New_Line (Connection.Socket.all);
+   begin
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              Persistent => False);
 
-            Get_Response (Connection, Result, Get_Body => False);
-
-            return;
-
-         exception
-            when Sockets.Connection_Closed | Constraint_Error =>
-
-               if Try_Count = 0 then
-                  raise;
-               end if;
-
-               Try_Count := Try_Count - 1;
-               Disconnect (Connection);
-         end;
-      end loop;
-   end Head;
+      Post (Connection, Result, Data);
+      Close (Connection);
+      return Result;
+   end Post;
 
    ----------
    -- Post --
@@ -923,7 +986,10 @@ package body AWS.Client is
             when Sockets.Connection_Closed | Constraint_Error =>
 
                if Try_Count = 0 then
-                  raise;
+                  Close (Connection);
+                  Result := Response.Build
+                    (MIME.Text_HTML, "Post Timeout", Messages.S408);
+                  exit;
                end if;
 
                Try_Count := Try_Count - 1;
@@ -931,6 +997,10 @@ package body AWS.Client is
          end;
       end loop;
    end Post;
+
+   ----------
+   -- Post --
+   ----------
 
    procedure Post
      (Connection : in out HTTP_Connection;
@@ -941,6 +1011,35 @@ package body AWS.Client is
       Post (Connection, Result,
             Translator.To_Stream_Element_Array (Data), URI);
    end Post;
+
+   ---------
+   -- Put --
+   ---------
+
+   function Put
+     (URL        : in String;
+      Data       : in String;
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
+     return Response.Data
+   is
+
+      Connection : HTTP_Connection (Timeouts /= No_Timeout);
+      Result     : Response.Data;
+
+   begin
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              Persistent => False);
+
+      Put (Connection, Result, Data);
+      Close (Connection);
+      return Result;
+   end Put;
 
    ---------
    -- Put --
@@ -996,7 +1095,10 @@ package body AWS.Client is
             when Sockets.Connection_Closed | Constraint_Error =>
 
                if Try_Count = 0 then
-                  raise;
+                  Close (Connection);
+                  Result := Response.Build
+                    (MIME.Text_HTML, "Put Timeout", Messages.S408);
+                  exit;
                end if;
 
                Try_Count := Try_Count - 1;
@@ -1004,5 +1106,64 @@ package body AWS.Client is
          end;
       end loop;
    end Put;
+
+   ---------------
+   -- Set_Phase --
+   ---------------
+
+   procedure Set_Phase
+     (Connection : in out HTTP_Connection;
+      Phase      : in     Client_Phase) is
+   begin
+      Connection.Current_Phase := Phase;
+
+      if Phase = Send and then Connection.Timeouts.Send /= 0 then
+         Connection.Cleaner.Send;
+
+      elsif Phase = Receive and then Connection.Timeouts.Receive /= 0 then
+         Connection.Cleaner.Receive;
+
+      elsif Phase = Not_Monitored and then
+        (Connection.Timeouts.Send /= 0
+         or else Connection.Timeouts.Receive /= 0)
+      then
+         Connection.Cleaner.Next_Phase;
+
+      end if;
+   end Set_Phase;
+
+   ---------------
+   -- SOAP_Post --
+   ---------------
+
+   function SOAP_Post
+     (URL        : in String;
+      Data       : in String;
+      SOAPAction : in String;
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
+     return Response.Data
+   is
+      Connection : HTTP_Connection (Timeouts /= No_Timeout);
+      Result     : Response.Data;
+
+   begin
+      Create (Connection,
+              URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+              SOAPAction => SOAPAction,
+              Persistent => False);
+
+      Post (Connection, Result, Data);
+      Close (Connection);
+      return Result;
+   exception
+      when others =>
+         Close (Connection);
+         return Response.Build (MIME.Text_HTML, "Timeouts", Messages.S408);
+   end SOAP_Post;
 
 end AWS.Client;
