@@ -1,5 +1,20 @@
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.adb:
+	(Line): Log fatal error exception information.
+	Update copyright notice.
+	
+	* aws-log.ads:
+	(Write): New version with a single string. (used to log fatal errors).
+	Update copyright notice.
+	
+	* aws-log.adb:
+	(Write): New version with a single string. (used to log fatal errors).
+	(Write_Log): New routine.
+	Update copyright notice.
+	
+2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-server-get_status.adb:
 	(Slot_Table): Rename Socket to SD. Reformat code.
 
