@@ -123,6 +123,7 @@ package body SOAP.Generator is
         (O          : in out Object;
          Proc       : in     String;
          SOAPAction : in     String;
+         Namespace  : in     String;
          Input      : in     WSDL.Parameters.P_Set;
          Output     : in     WSDL.Parameters.P_Set;
          Fault      : in     WSDL.Parameters.P_Set);
@@ -147,6 +148,7 @@ package body SOAP.Generator is
         (O          : in out Object;
          Proc       : in     String;
          SOAPAction : in     String;
+         Namespace  : in     String;
          Input      : in     WSDL.Parameters.P_Set;
          Output     : in     WSDL.Parameters.P_Set;
          Fault      : in     WSDL.Parameters.P_Set);
@@ -304,6 +306,7 @@ package body SOAP.Generator is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
+      Namespace  : in     String;
       Input      : in     WSDL.Parameters.P_Set;
       Output     : in     WSDL.Parameters.P_Set;
       Fault      : in     WSDL.Parameters.P_Set) is
@@ -316,11 +319,13 @@ package body SOAP.Generator is
       Put_Types (O, Proc, Input, Output);
 
       if O.Gen_Stub then
-         Stub.New_Procedure (O, Proc, SOAPAction, Input, Output, Fault);
+         Stub.New_Procedure
+           (O, Proc, SOAPAction, Namespace, Input, Output, Fault);
       end if;
 
       if O.Gen_Skel then
-         Skel.New_Procedure (O, Proc, SOAPAction, Input, Output, Fault);
+         Skel.New_Procedure
+           (O, Proc, SOAPAction, Namespace, Input, Output, Fault);
       end if;
    end New_Procedure;
 
@@ -422,8 +427,14 @@ package body SOAP.Generator is
          if N.Mode = WSDL.Parameters.K_Simple then
             Text_IO.Put (File, WSDL.To_Ada (N.P_Type));
          else
-            Text_IO.Put
-              (File, Format_Name (O, To_String (N.C_Name)) & "_Type");
+
+            if Utils.Is_Array (To_String (N.C_Name)) then
+               Text_IO.Put
+                 (File, Format_Name (O, To_String (N.C_Name)));
+            else
+               Text_IO.Put
+                 (File, Format_Name (O, To_String (N.C_Name)) & "_Type");
+            end if;
          end if;
 
          if N.Next = null then
@@ -514,11 +525,14 @@ package body SOAP.Generator is
 
          function To_Ada_Type (Name : in String) return String is
          begin
-            if Name = "Float" then
+            if Name = "Float" or else Name = "float" then
                return "Long_Float";
 
-            elsif Name = "String" then
+            elsif Name = "String" or else Name = "string" then
                return "Unbounded_String";
+
+            elsif Name = "int" then
+               return "Integer";
 
             elsif WSDL.Is_Standard (Name) then
                return Name;
@@ -952,6 +966,9 @@ package body SOAP.Generator is
          function Set_Routine (Name : in String) return String;
          --  Returns the routine use to build object with type Name
 
+         Is_Array : Boolean := False;
+         --  Set to true inside an array
+
          -----------------
          -- Set_Routine --
          -----------------
@@ -959,12 +976,22 @@ package body SOAP.Generator is
          function Set_Routine (Name : in String) return String is
          begin
             if Name = "String" or else Name = "string" then
-               return "SOAP.Types.S";
+
+               --  In an array we store object of type Unbounded_String
+
+               if  Is_Array then
+                  return "SOAP.Utils.US";
+               else
+                  return "SOAP.Types.S";
+               end if;
 
             elsif Name = "Unbounded_String" then
                return "SOAP.Utils.US";
 
             elsif Name = "Integer" or else Name = "integer" then
+               return "SOAP.Types.I";
+
+            elsif Name = "int" then
                return "SOAP.Types.I";
 
             elsif Name = "Float" or else Name = "float" then
@@ -992,7 +1019,9 @@ package body SOAP.Generator is
          if P.Mode = WSDL.Parameters.K_Simple then
             return Set_Routine (Name);
 
-         elsif  Utils.Is_Array (To_String (P.C_Name)) then
+         elsif Utils.Is_Array (To_String (P.C_Name)) then
+            Is_Array := True;
+
             declare
                T_Name : constant String := Array_Type (Name);
             begin
@@ -1014,19 +1043,22 @@ package body SOAP.Generator is
 
       function Set_Type (Name : in String) return String is
       begin
-         if Name = "String" then
+         if Name = "String" or else Name = "string" then
             return "SOAP.Types.XSD_String";
 
-         elsif Name = "Integer" then
+         elsif Name = "Integer" or else Name = "integer" then
             return "SOAP.Types.XSD_Integer";
 
-         elsif Name = "Float" then
+         elsif Name = "int" then
+            return "SOAP.Types.XSD_Integer";
+
+         elsif Name = "Float" or else Name = "float" then
             return "SOAP.Types.XSD_Float";
 
          elsif Name = "Long_Float" then
             return "SOAP.Types.XSD_Float";
 
-         elsif Name = "Boolean" then
+         elsif Name = "Boolean" or else Name = "boolean" then
             return "SOAP.Types.XSD_Boolean";
 
          elsif Name = "Ada.Calendar.Time" then
@@ -1077,11 +1109,19 @@ package body SOAP.Generator is
          --  A single declaration, if it is a composite type create a subtype
 
          if Output.Mode = WSDL.Parameters.K_Composite then
+
             Text_IO.New_Line (Type_Ads);
-            Text_IO.Put_Line
+            Text_IO.Put
               (Type_Ads,
                "   subtype " & L_Proc & "_Result is "
-                 & To_String (Output.C_Name) & "_Type;");
+                 & To_String (Output.C_Name));
+
+            if Utils.Is_Array (To_String (Output.C_Name)) then
+               Text_IO.Put_Line (Type_Ads, ";");
+
+            else
+               Text_IO.Put_Line (Type_Ads, "_Type;");
+            end if;
          end if;
 
       else
