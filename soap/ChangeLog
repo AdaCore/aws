@@ -1,6 +1,11 @@
 2004-11-28  Pascal Obry  <pascal@obry.org>
 
 	* soap-types.adb:
+	Minor typo fix.
+	
+2004-11-28  Pascal Obry  <pascal@obry.org>
+
+	* soap-types.adb:
 	(Get) [*]: Handle XSD_Any_Type object. In this case we analyse the
 	 wrapped object. Use Get_Error.
 	(Get_Error): New procedure used to raise exception for improper
