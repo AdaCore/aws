@@ -1,3 +1,8 @@
+2003-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-jabber.adb:
+	(Check_Presence): Properly generate the from attribute.
+
 2003-07-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-jabber.ads, aws-jabber.adb:
