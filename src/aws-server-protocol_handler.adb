@@ -977,11 +977,6 @@ is
                end if;
 
             end;
-
-         exception
-            when others =>
-               --  Here we time-out on Sockets.Get_Line
-               raise Sockets.Connection_Closed;
          end;
       end loop;
    end Get_Message_Header;
