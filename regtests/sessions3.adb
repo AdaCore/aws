@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
 --                                                                          --
@@ -96,7 +96,7 @@ procedure Sessions3 is
       AWS.Server.Start
         (WS, "session",
          CB'Unrestricted_Access,
-         Port           => 1248,
+         Port           => 1260,
          Max_Connection => 5,
          Session        => False);
 
@@ -107,12 +107,15 @@ procedure Sessions3 is
       accept Stop;
 
       Ada.Text_IO.Put_Line ("Ready to stop");
+   exception
+      when E : others =>
+         Text_IO.Put_Line (Exceptions.Exception_Information (E));
    end Server;
 
 begin
    Server.Started;
 
-   Client.Create (C, "http://localhost:1248");
+   Client.Create (C, "http://localhost:1260");
 
    Client.Get (C, R, "/");
    Ada.Text_IO.Put_Line ("Response : " & Image (Response.Message_Body (R)));
