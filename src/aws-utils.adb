@@ -305,16 +305,16 @@ package body AWS.Utils is
 
       procedure Release_Write is
       begin
-         W := 0;
+         W := W - 1;
       end Release_Write;
 
       -----------
       -- Write --
       -----------
 
-      entry Write when R = 0 and then W = 0 is
+      entry Write when R = 0 and then W < Writers is
       begin
-         W := 1;
+         W := W + 1;
       end Write;
 
    end RW_Semaphore;
