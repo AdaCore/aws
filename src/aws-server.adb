@@ -628,7 +628,8 @@ package body AWS.Server is
          pragma Assert (Count < N);
          --  No more release than it is possible
          pragma Assert
-           ((Set (Index).Phase = Closed and then Set (Index).Sock = null)
+           ((Set (Index).Phase = Closed
+              and then AWS.Status."=" (Set (Index).Sock, null))
             --  If phase is closed, then Sock must be null
             or else (Set (Index).Phase /= Closed));
             --  or phase is not closed
