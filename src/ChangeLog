@@ -1,3 +1,12 @@
+2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(aws-translator-conversion.adb): Remove test_uconv.{o,exe,ali}, we
+	 don't want the object to get dragged into libaws.a.
+
+	* aws-net-ssl.adb:
+	Add library -lsslaws for non SSL applications.
+
 2002-12-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
