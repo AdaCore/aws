@@ -28,7 +28,6 @@
 
 --  $Id$
 
-with Interfaces.C;
 with Templates_Parser;
 with GNAT.Calendar.Time_IO;
 
