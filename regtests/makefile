@@ -56,7 +56,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tlog unexph2 sp sessions dirop multiple tcom tmime sessions2 \
 	sessions3 huge_response server_info server_config sback append \
 	compress zapp zbig zfile zstrm dispatch dispatch_vh dispatch_method \
-	$(RT_STD_SEC)
+	split $(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
 OTH_TESTS    = tres
