@@ -127,6 +127,13 @@ package AWS.Response.Set is
    pragma Inline (Stream);
    --  Set the user defined data stream
 
+   procedure Close_Resource
+     (D     : in out Data;
+      State : in     Boolean);
+   --  Set the server close state, if State if False the resource will not be
+   --  closed. This is needed to build transient resources as the closing must
+   --  be controlled by the transient task cleaner and not the server.
+
    procedure Data_Encoding
      (D         : in out Data;
       Encoding  : in     Messages.Content_Encoding;

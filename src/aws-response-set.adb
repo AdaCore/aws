@@ -200,6 +200,17 @@ package body AWS.Response.Set is
       end if;
    end Clear_Memory_Stream;
 
+   --------------------
+   -- Close_Resource --
+   --------------------
+
+   procedure Close_Resource
+     (D     : in out Data;
+      State : in     Boolean) is
+   begin
+      D.Close_Stream := State;
+   end Close_Resource;
+
    ------------------
    -- Content_Type --
    ------------------
