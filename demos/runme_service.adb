@@ -50,11 +50,8 @@ package body Runme_Service is
 
    Running        : Boolean := False;
 
-   WSS : AWS.Server.HTTP (3, 4433, True,
-                          Runme_CB.Service_Sec'Access, False);
-
-   WS  : AWS.Server.HTTP (3, 1234, False,
-                          Runme_CB.Service'Access, True);
+   WSS : AWS.Server.HTTP (3);
+   WS  : AWS.Server.HTTP (3);
 
    Output : Text_IO.File_Type;
 
@@ -68,7 +65,7 @@ package body Runme_Service is
 
       AWS.Server.Shutdown (WS);
       AWS.Server.Shutdown (WSS);
-      AWS.Log.Stop;
+      AWS.Server.Stop_Log (WS);
       Text_IO.Close (Output);
 
       Running := False;
@@ -120,9 +117,14 @@ package body Runme_Service is
 
       Running := True;
 
-      AWS.Server.Start (WSS, "Runme Secure");
-      AWS.Server.Start (WS, "Runme", "/Admin-Page");
-      AWS.Log.Start    (Split => AWS.Log.Daily);
+      AWS.Server.Start (WSS, "Runme Secure",
+                        Runme_CB.Service_Sec'Access,
+                        Port => 4433, Security => True);
+
+      AWS.Server.Start (WS, "Runme", Runme_CB.Service'Access,
+                        "/Admin-Page", 1234, False, True);
+
+      AWS.Server.Start_Log (WS, Split_Mode => AWS.Log.Daily);
 
       loop
          delay 10.0;
