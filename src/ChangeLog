@@ -1,3 +1,21 @@
+2001-05-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-log.adb:
+	Minor reformating.
+	
+	* aws-log.adb:
+	Add with for Ada.Command_Line.
+	Add with for AWS.Config.
+	(Log_Prefix): new function.
+	(Start): change log filename to use ISO date format.
+
+	* aws-config.adb:
+	(Proces_Ini): new procedure.
+	(Program_Ini_File): new function.
+	(Error_Message): add parameter Filename.
+	(Regexp): add _ to match parameter name.
+	(Initialize): process aws.ini and <program_name>.ini.
+
 2001-05-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
