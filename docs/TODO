@@ -156,9 +156,6 @@ implemented:
 
 - Add support for SOAP hotplug modules
 
-- Move regtests/demos depending on XML/Ada out of the aws-http tarball in
-  the MANIFEST file.
-
 - Add Templates_Parser command tag to be able to have a relative path for
   included template files. Problem is when 2 templates files (in 2
   different directories) include the same file and this file has a reference
