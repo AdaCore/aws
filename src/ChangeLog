@@ -1,3 +1,11 @@
+2004-01-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.ads, aws-server.adb:
+	(Set_Security): Security_Mode default value is SSLv23_Server.
+
+	* aws-client.adb:
+	(Create): Set Security_Mode to SSLv23_Client.
+
 2004-01-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.ads, aws-utils.adb:
