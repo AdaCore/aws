@@ -181,6 +181,15 @@
 	<binding name="interopTestBinding" type="tns:interopTestPortType">
 		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
 		<mstk2:binding preferredEncoding="UTF-8"/>
+		<operation name="echoVoid">
+			<soap:operation soapAction="http://soapinterop.org/#echoVoid"/>
+			<input>
+				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+			</input>
+			<output>
+				<soap:body use="encoded" namespace="http://soapinterop.org/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+			</output>
+		</operation>
 		<operation name="echoString">
 			<soap:operation soapAction="http://soapinterop.org/#echoString"/>
 			<input>
