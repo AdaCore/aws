@@ -1,3 +1,8 @@
+2003-04-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-containers-tables.ads, aws-utils.ads:
+	Fix some comments, 'Returns' instead of 'return'.
+
 2003-04-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-session.adb
