@@ -30,69 +30,72 @@
 
 with AWS.Messages;
 with AWS.Session;
+with AWS.Parameters;
 
 package body Runme_CB is
+
+   use AWS;
 
    ---------
    -- Get --
    ---------
 
-   function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
-      URI : constant String := AWS.Status.URI (Request);
-
-      Session_ID  : constant AWS.Session.ID := AWS.Status.Session (Request);
+   function Get (Request : in Status.Data) return Response.Data is
+      URI        : constant String          := Status.URI (Request);
+      P_List     : constant Parameters.List := Status.Parameters (Request);
+      Session_ID : constant Session.ID      := Status.Session (Request);
       C : Natural := 0;
 
    begin
       --  let's play with the Session now.
 
-      if AWS.Session.Exist (Session_ID, "counter") then
-         C := AWS.Session.Get (Session_ID, "counter");
+      if Session.Exist (Session_ID, "counter") then
+         C := Session.Get (Session_ID, "counter");
       end if;
 
       C := C + 1;
-      AWS.Session.Set (Session_ID, "counter", C);
+      Session.Set (Session_ID, "counter", C);
 
       if C > 5 then
-         AWS.Session.Set (Session_ID, "another", "string value");
+         Session.Set (Session_ID, "another", "string value");
       end if;
 
       if URI = "/first_img" then
-         return AWS.Response.File (Content_Type => "image/png",
+         return Response.File (Content_Type => "image/png",
                                    Filename     => "adains.png");
 
       elsif URI = "/last" then
-         return AWS.Response.Build
+         return Response.Build
            (Content_Type => "text/html",
             Message_Body =>
               "<p>Ok, that's the end of it for now!"
             & "<p>filename = "
-            &  AWS.Status.Parameter (Request, "filename")
+            &  Parameters.Get (P_List, "filename")
             & "<p>filename_opt = "
-            &  AWS.Status.Parameter (Request, "filename_opt")
+            &  Parameters.Get (P_List, "filename_opt")
             & "<p>color = "
-            &  AWS.Status.Parameter (Request, "color")
+            &  Parameters.Get (P_List, "color")
             & "<p>size = "
-            &  AWS.Status.Parameter (Request, "size")
+            &  Parameters.Get (P_List, "size")
             & "<p>go = "
-            &  AWS.Status.Parameter (Request, "go")
+            &  Parameters.Get (P_List, "go")
             & "<p>length = "
-            &  Positive'Image (AWS.Status.Content_Length (Request)));
+            &  Positive'Image (Status.Content_Length (Request)));
 
       elsif URI = "/upload" then
-         return AWS.Response.Build
+         return Response.Build
            (Content_Type => "text/html",
             Message_Body =>
               "<p>Let's look at the form data:"
-            & "<p>Your name is " & AWS.Status.Parameter (Request, "name")
+            & "<p>Your name is " & Parameters.Get (P_List, "name")
             & "<p>parameter name (1) = "
-            & AWS.Status.Parameter_Name (Request, 1)
+            & Parameters.Get_Name (P_List, 1)
             & "<p>parameter value (1) = "
-            & AWS.Status.Parameter (Request, 1)
+            & Parameters.Get_Value (P_List, 1)
             & "<p>parameter name (2) = "
-            & AWS.Status.Parameter_Name (Request, 2)
+            & Parameters.Get_Name (P_List, 2)
             & "<p>parameter value (2) = "
-            & AWS.Status.Parameter (Request, 2)
+            & Parameters.Get_Value (P_List, 2)
             & "<p>There was " & Natural'Image (C)
             & " requests to the server."
             & "<form enctype=""multipart/form-data"" action=/last"
@@ -105,16 +108,16 @@ package body Runme_CB is
             & "</form>");
 
       elsif URI = "/get-form" then
-         return AWS.Response.Build
+         return Response.Build
            (Content_Type => "text/html",
             Message_Body => "<p>Hello again "
-            & AWS.Status.Parameter (Request, "name") & " !"
+            & Parameters.Get (P_List, "name") & " !"
             & "<p>You have selected "
-            & Natural'Image (AWS.Status.Count (Request, "OS"))
+            & Natural'Image (Parameters.Count (P_List, "OS"))
             & " OS."
             & "<p>Your first two OS are "
-            & AWS.Status.Parameter (Request, "OS")
-            & ", " & AWS.Status.Parameter (Request, "OS", 2)
+            & Parameters.Get (P_List, "OS")
+            & ", " & Parameters.Get (P_List, "OS", 2)
             & "<p>I'll now check for the POST form, counter="
             & Natural'Image (C)
             & "<p>Enter your name <form method=post action=/upload>"
@@ -123,9 +126,9 @@ package body Runme_CB is
             & "</form>");
 
       else
-         return AWS.Response.Build
+         return Response.Build
            (Content_Type => "text/html",
-            Message_Body => "<p>Hello " & AWS.Status.Peername (Request)
+            Message_Body => "<p>Hello " & Status.Peername (Request)
             & ", I'm glad you ask for " & URI & '.'
             & "<p>I'm the runme demo. Note that this"
             & " message could have been"
@@ -152,50 +155,52 @@ package body Runme_CB is
    --------------------
 
    function Get_No_Session
-     (Request : in AWS.Status.Data) return AWS.Response.Data
+     (Request : in Status.Data) return Response.Data
    is
-      URI : constant String := AWS.Status.URI (Request);
+      URI    : constant String          := Status.URI (Request);
+      P_List : constant Parameters.List := Status.Parameters (Request);
 
    begin
       if URI = "/first_img" then
-         return AWS.Response.File (Content_Type => "image/png",
-                                   Filename     => "adains.png");
+         return Response.File (Content_Type => "image/png",
+                               Filename     => "adains.png");
 
       elsif URI = "/last" then
-         return AWS.Response.Build
+         return Response.Build
            (Content_Type => "text/html",
             Message_Body =>
               "<p>Ok, that's the end of it for now!"
-            & "<p>Your name is " & AWS.Status.Parameter (Request, "name")
-            & "<p>parameter name (1) = "
-            & AWS.Status.Parameter_Name (Request, 1)
-            & "<p>parameter name (2) = "
-            & AWS.Status.Parameter_Name (Request, 2));
+              & "<p>Your name is " & Parameters.Get (P_List, "name")
+              & "<p>parameter name (1) = "
+              & Parameters.Get_Name (P_List, 1)
+              & "<p>parameter name (2) = "
+              & Parameters.Get_Name (P_List, 2));
 
       elsif URI = "/get-form" then
-         return AWS.Response.Build
+         return Response.Build
            (Content_Type => "text/html",
             Message_Body => "<p>Hello again "
-            & AWS.Status.Parameter (Request, "name") & " !"
-            & "<p>I'll now check for the POST form"
-            & "<p>Enter your name <form method=post action=/last>"
-            & "<input type=text name=name value=""<default>"" size=15>"
-            & "<input type=submit name=go value=""This is a POST Form"">"
-            & "</form>");
+              & Parameters.Get (P_List, "name") & " !"
+              & "<p>I'll now check for the POST form"
+              & "<p>Enter your name <form method=post action=/last>"
+              & "<input type=text name=name value=""<default>"" size=15>"
+              & "<input type=submit name=go value=""This is a POST Form"">"
+              & "</form>");
 
       else
-         return AWS.Response.Build
+         return Response.Build
            (Content_Type => "text/html",
             Message_Body => "<p>Hello, I'm glad you ask for " & URI & '.'
-            & "<p>I'm the runme demo. Note that this"
-            & " message could have been"
-            & " fetched on my file system..."
-            & "<p>This is a secure connection as shown by your browser's icon"
-            & "<p><img src=""/first_img"">"
-            & "<p>Enter your name <form method=get action=/get-form>"
-            & "<input type=text name=name value=""<default>"" size=15>"
-            & "<input type=submit name=go value=""This is a GET Form"">"
-            & "</form>");
+              & "<p>I'm the runme demo. Note that this"
+              & " message could have been"
+              & " fetched on my file system..."
+              & "<p>This is a secure connection as shown by your browser's"
+              & "icon"
+              & "<p><img src=""/first_img"">"
+              & "<p>Enter your name <form method=get action=/get-form>"
+              & "<input type=text name=name value=""<default>"" size=15>"
+              & "<input type=submit name=go value=""This is a GET Form"">"
+              & "</form>");
       end if;
    end Get_No_Session;
 
@@ -203,25 +208,25 @@ package body Runme_CB is
    -- Put --
    ---------
 
-   function Put (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Put (Request : in Status.Data) return Response.Data is
    begin
-      return AWS.Response.Acknowledge (Status_Code => AWS.Messages.S200);
+      return Response.Acknowledge (Status_Code => Messages.S200);
    end Put;
 
    -------------
    -- Service --
    -------------
 
-   function Service (Request : in AWS.Status.Data)
-     return AWS.Response.Data is
-      use type AWS.Status.Request_Method;
+   function Service (Request : in Status.Data)
+     return Response.Data is
+      use type Status.Request_Method;
    begin
-      if AWS.Status.Method (Request) = AWS.Status.GET
-        or else AWS.Status.Method (Request) = AWS.Status.POST
+      if Status.Method (Request) = Status.GET
+        or else Status.Method (Request) = Status.POST
       then
          return Get (Request);
 
-      elsif AWS.Status.Method (Request) = AWS.Status.PUT then
+      elsif Status.Method (Request) = Status.PUT then
          return Put (Request);
       end if;
    end Service;
@@ -230,16 +235,16 @@ package body Runme_CB is
    -- Service_Sec --
    -----------------
 
-   function Service_Sec (Request : in AWS.Status.Data)
-     return AWS.Response.Data is
-      use type AWS.Status.Request_Method;
+   function Service_Sec (Request : in Status.Data)
+     return Response.Data is
+      use type Status.Request_Method;
    begin
-      if AWS.Status.Method (Request) = AWS.Status.GET
-        or else AWS.Status.Method (Request) = AWS.Status.POST
+      if Status.Method (Request) = Status.GET
+        or else Status.Method (Request) = Status.POST
       then
          return Get_No_Session (Request);
 
-      elsif AWS.Status.Method (Request) = AWS.Status.PUT then
+      elsif Status.Method (Request) = Status.PUT then
          return Put (Request);
       end if;
    end Service_Sec;
