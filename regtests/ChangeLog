@@ -1,5 +1,16 @@
 2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* generate.adb:
+	Add instruction null at the end of the procedure.
+
+	* makefile:
+	(RT_SOAP): Removes test_speed by default, add only if EXTRA_TESTS
+	 is defined.
+	(RT_STD_ALONE): Removes tlog by default, add only if EXTRA_TESTS
+	 is defined.
+	
+2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* alldifs.out:
 	Initial revision.
 	
