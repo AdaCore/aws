@@ -72,7 +72,7 @@ package body AWS.Services.Page_Server is
          end;
 
       else
-         if OS_Lib.Is_Regular_File (WWW_Root & "404.thtml") then
+         if Resources.Is_Regular_File (WWW_Root & "404.thtml") then
 
             declare
                Table : constant AWS.Templates.Translate_Table
