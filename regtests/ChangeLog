@@ -1,3 +1,20 @@
+2002-07-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* upload.adb:
+	Allow only 5 seconds to the server.
+
+	* upload.out:
+	Initial revision.
+
+	* makefile:
+	(.SILENT): Add upload.
+	(rt_std): Add upload.
+	(upload): New target.
+	(checks): Add check for upload.
+
+	* upload.adb:
+	Initial revision. (test file upload).
+
 2002-06-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tres2.adb:
