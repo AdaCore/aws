@@ -1,3 +1,89 @@
+2001-05-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Set Peername before calling user's callback.
+
+	* aws-status.adb:
+	(Peername): new function.
+
+	* aws-status.ads:
+	(Data): add field Peername.
+	(Peername): new function.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	(Peername): new procedure.
+
+	* aws-server.adb:
+	(Abort_Oldest): raise Internal_Error instead of displaing a bug
+	 message. This should never happen anyway.
+
+	* aws-response.ads:
+	(Default_Handler): removed.
+
+	* aws.ads:
+	(Version): set 0.10.
+        Update copyright notice.
+
+	* aws-status.adb: 
+	(Parameter): remove Case_Sensistive parameter. More efficient
+	 implementation in the non case sensitive case.
+	(Normalize_Name): new procedure.
+        Update copyright notice.
+
+	* aws-status.ads:
+	(Data): add discriminant Parameters_Case_Sensitive. Default is set
+	 to True. CGI parameters are case sensitive by default.
+	(No_Data): removed.
+	(Parameter): remove Case_Sensistive parameter.
+	(Normalize_Name): new procedure.
+        Update copyright notice.
+
+	* aws-status-set.adb:
+	(Parameters): Set name to upper case if no case sensitive parameters
+	 requested.
+	(Reset): Free Binary_Data parameter (avoid memory leak). Initialize
+	 all parameters to their default value.
+        Update copyright notice.
+
+	* aws-server.adb:
+	(Start): add many parameters that were HTTP discriminant. Initialize 
+	 HTTP new parameters.
+	(Set_Abortable): better implementation.
+	(Abort_Oldest): better implementation.
+	(Get): is now a protected entry. (better implementation). We
+	 should not call this entry if there is no free slot available
+	 except if some Slot have an abortable state. This should fix some
+	 browser hanging.
+	(Line): do not anymore output message about line beeing
+	 closed. This was a message for the AWS early days to ease
+	 debugging and does not need to be there anymore.
+        Update copyright notice.
+	
+	* aws-server.ads:
+	(HTTP): remove all discriminants except Max_Connection. All values
+	 will be set by the Start procedure. This is more dynamic.
+	(Start): add many parameters that were HTTP discriminant.
+	(Abort_Oldest): fix comments.
+	(Slots): add Abortable_Count variable.
+        Update copyright notice.
+
+	* aws-server-protocol_handler.adb:
+	Call Status.Set.Reset at start of the loop (simplify code).
+	(C_Stat): Add discriminant to declaration.
+	(Will_Close): handle case for Netscape HTTP/1.0 and Keep-Alive
+	 connection. Should fix some more server hanging.
+        Update copyright notice.
+	
+	* aws-communication-server.adb:
+	(Start): use new HTTP definition (only one discriminant) others
+	 setting are done through the Server.Start procedure.
+        Update copyright notice.
+
+2001-05-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-get_status.adb:
+	(Slot_Table): Add Peer_Name to the vector tag list (PEER_NAME_L).
+
 2001-05-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
