@@ -70,7 +70,6 @@ package SOAP.Message.Response.Error is
    function Server (Subname : in String := "") return Faultcode;
    --  Returns the Server faultcode.
 
-
 private
 
    type Object is new Message.Response.Object with null record;
