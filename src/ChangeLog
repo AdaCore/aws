@@ -1,3 +1,8 @@
+2004-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser-expr.adb:
+	Update to new version. Fix handling of tag variable parameters.
+
 2004-03-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb, templates_parser-print_tree.adb,
