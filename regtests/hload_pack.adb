@@ -63,6 +63,7 @@ package body HLoad_Pack is
    subtype Count is Long_Integer;
 
    protected Interval_Timer is
+      procedure Reset;
       procedure Stamp;
       function Statistic_Image (Timed : Boolean) return String;
 
@@ -70,12 +71,12 @@ package body HLoad_Pack is
       Last : Ada.Calendar.Time;
       Start : Ada.Calendar.Time;
 
-      Counter   : Count := 0;
-      Max_Index : Count := 0;
-      Min_Index : Count := 0;
+      Counter   : Count;
+      Max_Index : Count;
+      Min_Index : Count;
 
-      Max : Duration := 0.0;
-      Min : Duration := Duration'Last;
+      Max : Duration;
+      Min : Duration;
    end Interval_Timer;
 
    --------
@@ -96,6 +97,19 @@ package body HLoad_Pack is
    --------------------
 
    protected body Interval_Timer is
+
+      -----------
+      -- Reset --
+      -----------
+
+      procedure Reset is
+      begin
+         Counter   := 0;
+         Max_Index := 0;
+         Min_Index := 0;
+         Max       := 0.0;
+         Min       := Duration'Last;
+      end Reset;
 
       -----------
       -- Stamp --
@@ -224,6 +238,7 @@ package body HLoad_Pack is
 
    begin
       Get_Free_Port (Free_Port);
+      Interval_Timer.Reset;
 
       Server.Start
         (WS,
