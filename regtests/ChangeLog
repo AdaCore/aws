@@ -9,6 +9,10 @@
 	* check_mem.adb:
 	Do not use AWS.Services.Files.
 
+	* makefile:
+	Add ../lib/poll.o to the linker.
+	Add wait.adb regression test.
+
 2004-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait.adb, wait.out:
