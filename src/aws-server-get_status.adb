@@ -177,13 +177,13 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       for K in 1 .. CNF.Max_Connection (Server.Properties) loop
          Slot_Data := Server.Slots.Get (Index => K);
 
-         if Slot_Data.Phase /= Closed then
-            Sock := Sock & Net.Get_FD (Slot_Data.Sock.all);
-            Peer_Name := Peer_Name & Net.Peer_Addr (Slot_Data.Sock.all);
-         else
-            Sock := Sock & '-';
-            Peer_Name := Peer_Name & '-';
-         end if;
+         declare
+            Socket : constant Socket_Data
+               := Server.Slots.Get_Socket_Info (Index => K);
+         begin
+            Sock := Sock & Socket.FD;
+            Peer_Name := Peer_Name & Socket.Peername;
+         end;
 
          Phase     := Phase & Slot_Phase'Image (Slot_Data.Phase);
 
