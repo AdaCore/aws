@@ -1,3 +1,34 @@
+2002-11-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-headers-set.adb:
+	(Debug): Moved here from AWS.Headers.
+	Rename all C parameters to Headers.
+	Put file in UNIX format.
+
+	* aws-headers-set.ads:
+	(Debug): Moved here from AWS.Headers.
+	Move pragma inline next to the spec.
+	Rename all C parameters to Headers.
+	Fix some comments.
+
+	* aws-headers.adb:
+	(Count): New routine.
+	(Debug): Moved to AWS.Headers.Set.
+	(Get_Line): Name set to constant.
+	Rename all C parameters to Headers.
+
+	* aws-headers.ads:
+	(Container): Renamed Header_List and set to private to not inherit
+	 all routines from AWS.Parameters. Some of them are really of no
+	 use in this interface.
+	(Debug): Moved to AWS.Headers.Set.
+	(Debug_Flag): Moved to AWS.Headers.Set.
+	(Count): New routine.
+	(VString_Array): Removed.
+	(Header_Format_Error): renamed Format_Error.
+	Add lot of comments.
+	Rename all C parameters to Headers.
+	
 2002-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-parameters.ads, aws-parameters.adb:
