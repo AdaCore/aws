@@ -1,6 +1,12 @@
 2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:
+	Fix proxy handling. A proxy can be specified without user/password
+	Add some comments.
+	
+2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* wsdl2aws.adb:
 	Add support for -doc option. Removes -rpc option. We want to bind
 	 to RPC style web services, the -doc option is to try to parse a
 	 document style web service as an RPC one but there is no
