@@ -20,7 +20,7 @@ ifeq ($(MODE),ssl)
 ifeq (${OS}, Windows_NT)
 LARGS = $(LFLAGS) $(LIBS) -L../lib -lssl -lcrypto ../lib/aws.coff
 else
-LARGS = $(LFLAGS) $(LIBS) -L../ssl -lssl -lcrypto
+LARGS = $(LFLAGS) $(LIBS) -L../lib -lssl -lcrypto
 endif
 
 else
