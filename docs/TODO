@@ -190,3 +190,8 @@ implemented:
 
 - Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
   We should be able to remove the tools/makefile kludge (-largs -laws).
+
+- Instantiate AWS.Net.Sets from AWS.Net.Generic_Sets
+  Code clean-up.
+
+- Analyse and fix regression found on FreeBSD GCC 3.4.3.
