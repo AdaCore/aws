@@ -54,5 +54,6 @@ procedure Auth is
    WS : AWS.Server.HTTP (10, 1234, Get'Unrestricted_Access);
 
 begin
+   AWS.Server.Start (WS);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
 end Auth;
