@@ -8,10 +8,12 @@
 
 # External packages to be configured
 
-XMLADA	= /home/obry/Projets/build/xml
+XMLADA	= /usr/Ada.Libraries/XMLada
 
-INCLUDES = -I$(XMLADA)/xml -I$(XMLADA)/sax -I$(XMLADA)/input_sources \
-	-I$(XMLADA)/unicode
+INCLUDES = -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib
+LIBS	 = -L$(XMLADA)/lib -lxmlada
+
+INSTALL	 = /usr/Ada.Libraries/AWS
 
 all:
 	echo "Targets :"
@@ -28,26 +30,27 @@ all:
 	echo ""
 	echo "clean:        to clean directories"
 	echo "distrib:      to build a tarball distribution"
+	echo "install:      install AWS library"
 
 build_aws_std:
 	make -C src std_mode
-	make -C src build MODE=std INCLUDES="$(INCLUDES)"
+	make -C src build MODE=std INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
 
 build_aws_ssl:
 	make -C src ssl_mode
-	make -C src build MODE=ssl INCLUDES="$(INCLUDES)"
+	make -C src build MODE=ssl INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
 
 build_demo_std:
-	make -C demos build MODE=std INCLUDES="$(INCLUDES)"
+	make -C demos build MODE=std INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
 
 build_demo_ssl:
-	make -C demos build MODE=ssl INCLUDES="$(INCLUDES)"
+	make -C demos build MODE=ssl INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
 
 build_ssllib:
 	make -C ssl build INCLUDES="$(INCLUDES)"
 
 build_soap: build_include
-	make -C soap build INCLUDES="$(INCLUDES)"
+	make -C soap build INCLUDES="$(INCLUDES)" LIBS="$(LIBS)"
 
 build_std: build_include build_aws_std build_demo_std
 
@@ -106,3 +109,22 @@ distrib: build_doc
 	tar cf $${AWS}.tar $${AWS};\
 	gzip -9 $${AWS}.tar;\
 	rm -fr $${AWS})
+
+install:
+	-rm -fr $(INSTALL)
+	mkdir $(INSTALL)
+	mkdir $(INSTALL)/lib
+	mkdir $(INSTALL)/include
+	mkdir $(INSTALL)/icons
+	mkdir $(INSTALL)/templates
+	mkdir $(INSTALL)/docs
+	ar cr libaws.a src/*.o ssl/*.o soap/*.o
+	cp src/*.ad[sb] ssl/*.ad[sb] soap/*.ad[sb] $(INSTALL)/include
+	cp src/*.ali ssl/*.ali soap/*.ali $(INSTALL)/lib
+	chmod uog-w $(INSTALL)/*.ali
+	cp libaws.a $(INSTALL)/lib
+	cp docs/aws.html docs/templates_parser.html $(INSTALL)/docs
+	cp demos/*.thtml $(INSTALL)/templates
+ifeq (${OS}, Windows_NT)
+	cp win32/*.a $(INSTALL)/lib
+endif
