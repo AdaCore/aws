@@ -33,8 +33,12 @@ with AWS.Response;
 
 package Runme_CB is
 
-   function Service (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Service (Request : in AWS.Status.Data)
+     return AWS.Response.Data;
+   --  callback procedure for the standard server.
 
-   function Service2 (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Service_Sec (Request : in AWS.Status.Data)
+     return AWS.Response.Data;
+   --  callback procedure for the secure server.
 
 end Runme_CB;
