@@ -1,5 +1,11 @@
 2001-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-client.adb:
+	(Get): close connection if an exception is raised.
+	(Head): idem.
+	(Post): idem.
+	(Put): idem.
+
 	* aws-url.adb:
 	(Normalize): handle properly the "/./" case.
 
