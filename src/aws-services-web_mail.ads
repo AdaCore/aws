@@ -75,6 +75,7 @@
 --                    WM_CC            carbon-copy recipients
 --                    WM_SUBJECT       message's subject
 --                    WM_CONTENT       message's content (lines prefix >)
+--                    WM_TO_ALL        set to True in reply all case
 --
 --  In all templates the tag AWS_VERSION is defined and corresponds to the AWS
 --  version string.
