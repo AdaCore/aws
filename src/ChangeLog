@@ -1,3 +1,22 @@
+2002-03-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-dispatchers-uri.ads:
+	(Dispatch): Fix comment.
+
+	* aws-services-dispatchers-uri.adb:
+	(Dispatch): Check if Mode is No_Data instead of Status_Code to 204.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Add case for No_Data (does nothing).
+
+	* aws-response.adb:
+	(Empty): New function.
+
+	* aws-response.ads:
+	(Data_Mode): Add No_Data.
+	(Empty): New function.
+	(Data): Mode set to No_Data by default.
+
 2002-03-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-page_server.adb:
