@@ -39,11 +39,7 @@ package AWS.Services.Dispatchers is
    --  specific URI or request method to call the right callback that will
    --  handle the request. This code is a big "if/elsif/end if" that just hide
    --  the real job. A dispatcher is to replace this code. Currently there is
-   --  four of them:
-   --
-   --  Callback (AWS.Services.Dispatchers.Callback)
-   --     to dispatch to a specific callback. This is a wrapper object around
-   --     standard callback to integrate this feature into the dispatchers.
+   --  three of them:
    --
    --  URI (AWS.Services.Dispatchers.URI)
    --     to dispatch to a callback depending of the ressource name.
