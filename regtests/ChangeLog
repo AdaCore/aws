@@ -1,3 +1,11 @@
+2003-09-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add huge_response.
+
+	* huge_response.adb, huge_response.out:
+	Initial revision.
+
 2003-09-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* test_speed.adb:
