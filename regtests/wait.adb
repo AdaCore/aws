@@ -41,8 +41,9 @@ procedure Wait is
 
    use type Net.Sets.Socket_State;
 
-   Port     : constant := 1245;
-   Set_Size : constant := 20;
+   Port        : constant := 1245;
+   Set_Size    : constant := 20;
+   Sample_Size : constant := 10;
 
    Security : Boolean  := False;
 
@@ -57,34 +58,49 @@ procedure Wait is
    -----------------
 
    task body Client_Side is
-      Socket : array (1 .. Set_Size) of Net.Socket_Access;
-      A_Bit : constant Duration := 0.125;
+      Set    : Net.Sets.Socket_Set_Type;
+      A_Bit  : constant Duration := 0.125;
    begin
       for J in 1 .. Set_Size loop
-         Socket (J) := Net.Socket (Security);
+         declare
+            Socket : Net.Socket_Type'Class := Net.Socket (Security);
+         begin
+            accept Next;
+            delay A_Bit;
+            Net.Connect (Socket, "localhost", Port);
 
-         accept Next;
-         delay A_Bit;
-         Net.Connect (Socket (J).all, "localhost", Port);
+            Set_Small_Buffers (Socket);
 
-         Set_Small_Buffers (Socket (J).all);
+            accept Next;
+            delay A_Bit;
+            Net.Send (Socket,
+                      (1 .. 10 => Ada.Streams.Stream_Element (J rem 256)));
 
-         accept Next;
-         delay A_Bit;
-         Net.Send (Socket (J).all,
-                   (1 .. 10 => Ada.Streams.Stream_Element (J rem 256)));
+            Net.Sets.Add (Set, Socket, Net.Sets.Output);
+         end;
       end loop;
 
-      for J in 1 .. Set_Size loop
-         accept Next;
-         delay A_Bit;
-         Net.Send (Socket (J).all,
-                   (1 .. 10 => Ada.Streams.Stream_Element (J rem 256)));
+      Net.Sets.Wait (Set, 2.0);
 
-         accept Next;
-         delay A_Bit;
-         Net.Shutdown (Socket (J).all);
-         Net.Free (Socket (J));
+      --  All sockets should be ready for output.
+
+      while Net.Sets.Get_Socket_State (Set) = Net.Sets.Output loop
+         declare
+            Socket : Net.Socket_Type'Class := Net.Sets.Get_Socket (Set);
+         begin
+            Net.Sets.Remove_Socket (Set);
+
+            accept Next;
+            delay A_Bit;
+            Net.Send
+              (Socket,
+               (1 .. Sample_Size => Ada.Streams.Stream_Element
+                                      (Net.Sets.Count (Set) rem 256)));
+   
+            accept Next;
+            delay A_Bit;
+            Net.Shutdown (Socket);
+         end;
       end loop;
 
    exception
@@ -126,6 +142,7 @@ begin
       declare
          Socket : Net.Socket_Type'Class := Net.Sets.Get_Socket (Set);
          New_Sock : Net.Socket_Type'Class := Net.Socket (Security);
+         Socket_Removed : Boolean := False;
       begin
          if Net.Get_FD (Socket) = Net.Get_FD (Server) then
             Put_Line ("Accept" & Integer'Image ((J + 1) / 2));
@@ -137,23 +154,34 @@ begin
 
             Net.Sets.Add (Set, New_Sock, Net.Sets.Input);
          else
-            Put ("Data");
-
             declare
-               Data : constant Ada.Streams.Stream_Element_Array
-                 := Net.Receive (Socket);
+               Data : Ada.Streams.Stream_Element_Array (1 .. Sample_Size);
             begin
+               Data := Net.Receive (Socket);
+
+               Put ("Data");
+
                for J in Data'Range loop
                   Put (Ada.Streams.Stream_Element_Offset'Image (J)
                        & " =>" & Ada.Streams.Stream_Element'Image (Data (J)));
                end loop;
 
                New_Line;
+            exception
+               when E : Net.Socket_Error =>
+                  Put_Line ("Close socket.");
+
+                  Net.Shutdown (Socket);
+                  Net.Sets.Remove_Socket (Set);
+
+                  Socket_Removed := True;
             end;
          end if;
-      end;
 
-      Net.Sets.Next (Set);
+         if not Socket_Removed then
+            Net.Sets.Next (Set);
+         end if;
+      end;
 
       if Net.Sets.Get_Socket_State (Set) /= Net.Sets.None then
          Put_Line ("State " & Net.Sets.Socket_State'Image
