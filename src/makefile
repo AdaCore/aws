@@ -15,7 +15,7 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-server-hotplug.adb aws-status-set.adb aws-parameters-set.adb \
 	aws-services.ads aws-services-directory.adb aws-default.ads \
 	aws-config.adb aws-config-ini.adb aws-config-set.adb \
-	aws-net.adb aws-net-stream_io.adb
+	aws-net.adb aws-net-stream_io.adb aws-services-page_server.adb
 
 build:
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
