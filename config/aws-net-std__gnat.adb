@@ -69,7 +69,7 @@ package body AWS.Net.Std is
    --  Raise exception Socket_Error with E's message and a reference to the
    --  routine name.
 
-   procedure Raise_Socket_Error (Error : Integer);
+   procedure Raise_Socket_Error (Error : in Integer);
    pragma No_Return (Raise_Socket_Error);
 
    function Get_Addr_Info
@@ -372,7 +372,7 @@ package body AWS.Net.Std is
    -- Raise_Socket_Error --
    ------------------------
 
-   procedure Raise_Socket_Error (Error : Integer) is
+   procedure Raise_Socket_Error (Error : in Integer) is
       Msg : String := Integer'Image (Error) & "] ";
    begin
       Msg (Msg'First) := '[';
