@@ -1,5 +1,29 @@
 2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-response.ads:
+	(Content_Encoding): New type.
+	(Build): New parameter Encoding.
+	(Stream): New parameter Encoding.
+
+	* aws-response.adb:
+	(Build): New parameter Encoding processing for all routines.
+	(Stream): New parameter Encoding processing.
+
+	* aws-response-set.ads:
+	(Encode_Direction): New type.
+	(Append_Encode): New routine.
+	(Stream): New parameter Encoding.
+
+	* aws-response-set.adb:
+	(Append_Encode): New routine.
+	(Stream): New parameter Encoding processing.
+
+	* aws-client.adb:
+	(Open_Send_Common_Header): Add 'ru' to the Accept-Language.
+	 Add Accept-Encoding: deflate, gzip.
+	(Parse_Header): Set Append decode mode in case of known
+	 Content_Encoding.
+
 	* aws-resources-streams-memory-zlib.adb:
 	(Append): Deallocate Buffer access parameter.
 
@@ -134,7 +158,7 @@
 	(Append): Moved to parent package.
 	(Flush): Idem.
 	Fix some lines ending (DOS format).
-	
+
 	* aws-resources-streams-memory-zlib.ads:
 	(Append): Moved here from deflate child package. This routine is
 	 now shared with the inflate child.
@@ -190,7 +214,7 @@
 
 	* aws-response-set.adb:
 	Minor reformatting.
-	
+
 	* aws-response-set.ads:
 	Fix comments. Reorganize routines for better readability.
 
@@ -219,7 +243,7 @@
 
 	* aws-response-set.ads:
 	(Append_Body): New routines.
-	
+
 	* aws-response-set.adb:
 	(Check_Memory_Stream): New routine.
 	(Clear_Memory_Stream): New routine.
@@ -268,15 +292,15 @@
 	* aws-resources-streams-memory.ads:
 	(Close): Rename parameter File to Resource for consistency.
 	Minor reformatting.
-	
+
 	* aws-resources-streams-memory.adb:
 	(Close): Rename parameter File to Resource for consistency.
 	Minor reformatting.
 	Put file in UNIX format.
-	
+
 	* aws-resources-streams.adb:
 	(Create): Rename parameter File to Resource for consistency.
-	
+
 	* aws-resources-streams.ads:
 	(Close): Rename parameter File to Resource for consistency.
 	(Create): Idem.
@@ -422,7 +446,7 @@
 	* aws-status-set.adb:
 	Minor reformatting.
 	Minor comment fix.
-	
+
 	* aws-status-set.ads:
 	Minor reformatting.
 	Update copyright notice.
@@ -463,7 +487,7 @@
 	* aws-response.ads:
 	(File): Add parameter Cache_Control.
 
-	* aws-response.adb (Module): 
+	* aws-response.adb (Module):
 	(File): Add parameter Cache_Control. Set response data's cache
 	 control.
 
@@ -499,7 +523,7 @@
 
 	* makefile:
 	Use variable instead of directly calling tools.
-	
+
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.adb:
@@ -544,7 +568,7 @@
 
 	* aws-resources-files.ads, aws-resources-files.adb:
 	(Size): Minor reformatting.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-resources-streams.ads, aws-resources-streams.adb:
 	(Size): Minor reformatting.
@@ -554,7 +578,7 @@
 	Update copyright notice.
 
 2003-07-03  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
 	* aws-resources-streams.adb:
 	Minor reformatting.
 
@@ -696,7 +720,7 @@
 	(aws-soap.adb): Target removed.
 	(GARGS): Remove -I../soap.
 	(CONF_UNITS): Removed aws-soap.ad[sb]
-	
+
 	* aws-status-translate_table.adb:
 	Undo previous check-in.
 
@@ -773,7 +797,7 @@
 	* aws-mime.ads, aws-mime.adb:
 	(Text_CSS): New MIME type. Web browser Mozilla does not recognize
 	 Cascade Style Sheet files without Content-Type: text/css
-	 
+
 2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:
@@ -979,7 +1003,7 @@
 	* aws-log.adb:
 	(Write_Log): Make this routine thread safe by using the semaphore.
 	 Do not flush the log as it is really bad for the server performance.
-	
+
 	* aws-log.ads:
 	(Object): Add Semaphore field.
 
@@ -992,7 +1016,7 @@
 	(Create): Correctly initialize the web and proxy authentication
 	 mode.
 	(Send_Authentication_Header): Minor editing.
-	
+
 2003-03-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-status.ads:
@@ -1013,7 +1037,7 @@
 	* aws-server-status.ads, aws-server-status.adb:
 	Initial revision.
 
-	* aws-communication-server.adb: 
+	* aws-communication-server.adb:
 	(Com_Server): Not anymore a pointer to the server. This is not
 	 needed anymore.
 	(Shutdown): Remove Free.
@@ -1080,7 +1104,7 @@
 	 an iterator is running.
 	(Get_Value): Idem.
 	(Get_Sessions_And_Lock): Update comment.
-	
+
 	* aws-session.ads:
 	(For_Every_Session): Update comments.
 	(For_Every_Session_Data): Update comments.
@@ -1152,7 +1176,7 @@
 	 from child packages.
 
 	* aws.ads:
-	(Version): Set to 1.4w.	
+	(Version): Set to 1.4w.
 
 2003-03-04  Pascal Obry  <p.obry@wanadoo.fr>
 
@@ -1174,16 +1198,16 @@
 
 	* aws-services-dispatchers-method.adb:
 	Put with clauses in alphabetical order.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-services-dispatchers-method.ads:
 	Put with clauses in alphabetical order.
 	Minor reformatting.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-services-dispatchers-uri.adb:
 	Put with clauses in alphabetical order.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-services-dispatchers-uri.ads:
 	Minor reformatting.
@@ -1191,16 +1215,16 @@
 
 	* aws-communication-client.ads:
 	Minor reformatting.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-communication-server.adb:
 	Minor reformatting.
 	Add some comments.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-communication-server.ads:
 	Minor reformatting.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-communication.adb:
 	Add routine header box.
@@ -1227,7 +1251,7 @@
 	* aws-headers-values.adb:
 	(Exist_Unnamed_Value): Rename to Unnamed_Value_Exists.
 	Add missing routine header box.
-	
+
 	* aws-headers-values.ads:
 	(Exist_Unnamed_Value): Rename to Unnamed_Value_Exists.
 	Update copyright notice.
@@ -1266,7 +1290,7 @@
 	* aws-status.adb:
 	Remove "AWS." prefix when it is not needed.
 	Update copyright notice.
-	
+
 	* aws-status.ads:
 	Minor reformatting.
 	Remove "AWS." prefix when it is not needed.
@@ -1279,15 +1303,15 @@
 	(Max_Remove): Set to 50.
 	Minor reformatting.
 	Replace pragma Warnings by Unreferenced.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-server-push.ads:
 	Minor reformatting.
 	Update copyright notice.
-	
+
 	* aws-server-push.adb:
 	Minor reformatting.
-	
+
 	* aws-os_lib.ads:
 	Put pragma inline next to the routines.
 	Update copyright notice.
@@ -1437,7 +1461,7 @@
 
 	* aws.ads:
 	(Version): Set to 1.3-rc3.
-	
+
 	* aws-client.adb:
 	(Stream_Element_Array_Access): Removed. Use version from AWS.Utils.
 	(Free): Idem.
@@ -1537,7 +1561,7 @@
 
 	* aws-headers.ads:
 	Remove list of inherited routines. Add note about them.
-	
+
 	* aws-parameters.ads:
 	Remove list of inherited routines. Add note about them.
 
@@ -1553,7 +1577,7 @@
 	* aws-server.adb:
 	(Line): Log data error as a single line.
 	Minor reformatting.
-	
+
 	* aws-utils.ads, aws-utils.adb:
 	(CRLF_2_Spaces): New routine (a similar routine was in
 	 Protocol_Handler)
@@ -1564,16 +1588,16 @@
 	* aws-server.adb:
 	(Line): Log fatal error exception information.
 	Update copyright notice.
-	
+
 	* aws-log.ads:
 	(Write): New version with a single string. (used to log fatal errors).
 	Update copyright notice.
-	
+
 	* aws-log.adb:
 	(Write): New version with a single string. (used to log fatal errors).
 	(Write_Log): New routine.
 	Update copyright notice.
-	
+
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-get_status.adb:
@@ -1609,7 +1633,7 @@
 	* aws-server.adb:
 	(Default_Unexpected_Exception_Handler): Add pragma unreferenced
 	 for Log. Avoid warnings.
-	
+
 2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-exceptions.ads:
@@ -1621,7 +1645,7 @@
 
 	* aws-server.ads:
 	(Exception_String): Move to AWS.Server.Protocol_Handler body.
-	
+
 	* aws-server.adb:
 	(Exception_String): Idem.
 	(Default_Unexpected_Exception_Handler): Do not log error
@@ -1643,10 +1667,10 @@
 	* aws-server.adb:
 	(Exception_String): New routine.
 	(Default_Unexpected_Exception_Handler): Use it.
-	
+
 	* aws-server.ads:
 	(Exception_String): New routine.
-	
+
 	* aws-log.adb:
 	Remove withed unit AWS.Default (not used anymore).
 
@@ -1665,13 +1689,13 @@
 	 character '@'.
 	(Start): Do not add the '-' separator here, added now in
 	 Log_Prefix.
-	
+
 	* aws-default.ads:
 	(Log_Filename_Prefix): Use '@' as character to specify where the
 	 filename will be inserted.
 	(Error_Log_Filename_Prefix): Idem.
 
-	* aws-status-set.adb: 
+	* aws-status-set.adb:
 	Reformat code. Fix some comments.
 
 2003-01-30  Pascal Obry  <p.obry@wanadoo.fr>
@@ -1685,7 +1709,7 @@
 	Do not initialize Answer (not needed).
 	If an error occurs while calling the unexpected exception handler
 	 exit the loop. Fix a potential memory leak.
-	
+
 2003-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
@@ -1697,7 +1721,7 @@
 
 	* aws-client.adb:
 	Fix some formatting errors.
-	
+
 2003-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
@@ -1743,14 +1767,14 @@
 
 	* aws-server-get_status.ads:
 	Minor comment fix.
-	Update copyright notice.	
+	Update copyright notice.
 
 2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-get_status.adb:
 	Use AWS.Templates instead of Templates_Parser directly.
 	Minor reformatting.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* makefile:
 	(SOURCES): Add aws-exceptions.ads.
@@ -1772,7 +1796,7 @@
 	(Start_Error_Log): New routine.
 	(Stop_Error_Log): Idem.
 	(HTTP): Add Error_Log object.
-	
+
 	* aws-server.adb:
 	(Default_Unexpected_Exception_Handler): New implementation based
 	 on AWS.Exceptions. In fatal error display a message on standard
@@ -1783,18 +1807,18 @@
 	* aws-default.ads:
 	(Error_Log_Filename_Prefix): New constant.
 	(Error_Log_Split_Mode): New constant.
-	
+
 	* aws-config-set.ads:
 	(Error_Log_Filename_Prefix): New routine.
 	(Error_Log_Split_Mode): Idem.
 	Remove all inlines.
 	Update copyright notice.
-	
+
 	* aws-config-set.adb:
 	(Error_Log_Filename_Prefix): New routine.
 	(Error_Log_Split_Mode): Idem.
 	Update copyright notice.
-	
+
 	* aws-config.ads:
 	(Error_Log_Filename_Prefix): New routine.
 	(Error_Log_Split_Mode): Idem.
@@ -1807,7 +1831,7 @@
 	(Error_Log_Filename_Prefix): New routine.
 	(Error_Log_Split_Mode): Idem.
 	Update copyright notice.
-	
+
 	* aws-exceptions.ads:
 	Initial revision.
 
@@ -1840,7 +1864,7 @@
 	(Unexpected_Exception_Handler): Add new parameter Answer. Comment
 	 properly this defintiion.
 	(Default_Unexpected_Exception_Handler): Idem.
-	
+
 	* aws-client.adb:
 	(Upload): Correctly send "Upload Timeout" message. Was "Post
 	 Timeout" cut&past error.
@@ -1877,7 +1901,7 @@
 
 	* aws-client.adb:
 	(Get_Response): Correctly handle file whose size is 0.
-	
+
 2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
@@ -1979,14 +2003,14 @@
 
 	* aws-response-set.adb:
 	(Read_Header): Use new Headers.Set.Read spec.
-	Minor reformatting.	
+	Minor reformatting.
 	Update copyright notice.
 
 	* aws-headers-set.adb:
 	(Read): Set Socket as the first parameter.
 	Minor reformatting.
 	Update copyright notice.
-	
+
 	* aws-headers-set.ads:
 	(Read): Set Socket as the first parameter.
 	Update copyright notice.
@@ -1999,7 +2023,7 @@
 	(Peek_Char): New routine.
 	Comment the complete API.
 	Update copyright notice.
-	
+
 2003-01-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
@@ -2082,7 +2106,7 @@
 	Create the pointer only if not already defined.
 	Initialize the cache for the new socket.
 	Work to fix a resource leak (socket not used and not released).
-	
+
 	* aws-net.ads, aws-net-std.ads, aws-net-ssl.ads:
 	(Accept_Socket): New_Socket parameter is now a Socket_Access.
 	Work to fix a resource leak (socket not used and not released).
@@ -2267,7 +2291,7 @@
 
 	* aws-jabber.ads:
 	Use Containers.Key_Value instead of AWS.Key_Value.
-	
+
 	* aws-jabber.adb:
 	Many changes to use Containers.Key_Value instead of AWS.Key_Value.
 
@@ -2436,7 +2460,7 @@
 	(Set_Cache): New routine.
 	(Release_Cache): New routine.
 	(Socket): Call Set_Cache.
-	
+
 	* aws-net.ads:
 	(RW_Cache): New record type.
 	(RW_Cache_Access): New access type.
@@ -2486,7 +2510,7 @@
 
 	* aws-default.ads:
 	(Certificate): New constant.
-	Update copyright notice.	
+	Update copyright notice.
 
 	* aws-jabber.adb:
 	Change code to use AWS.Net instead of the AdaSocket binding.
@@ -2502,7 +2526,7 @@
 	(Check_Presence): Server mode set to in.
 	(Server): New field Self. Stream is now an access to the task
 	 type.
-	
+
 	* aws-utils.ads, aws-utils.adb:
 	(Gethostname): Removed. See AWS.Net.Host_Name.
 
@@ -2518,7 +2542,7 @@
 	* aws-status-set.ads, aws-status-set.adb:
 	(Socket): Sock parameter based on AWS.Net.
 	Update copyright notice.
-	
+
 	* aws-smtp-client.adb:
 	Change code to use AWS.Net instead of the AdaSocket binding.
 
@@ -2548,7 +2572,7 @@
 
 	* aws-headers.ads, aws-headers.adb:
 	Change code to use AWS.Net instead of the AdaSocket binding.
-	
+
 	* aws-client.adb:
 	Change code to use AWS.Net instead of the AdaSocket binding.
 
@@ -2677,7 +2701,7 @@
 	(GARGS): Add -q (quiet mode) option.
 	(.SILENT): Add aws-translator-conversion.adb.
 	(build): Echo the current built package.
-	(aws-translator-conversion.adb): Add echo. 
+	(aws-translator-conversion.adb): Add echo.
 
 	* aws-server-protocol_handler.adb:
 	(Send_General_Header): Send the cache control header if needed.
@@ -2740,7 +2764,7 @@
 	(End_Boundary_Signature): Use Translator.To_Stream_Element_Array.
 	(Get_Message_Data): Use Translator.To_String.
 	Minor reformatting in many places.
-	
+
 2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
@@ -2761,7 +2785,7 @@
 	* aws-client.ads:
 	(No_Data): Is now a defered constant, implementation is not useful
 	 for the spec.
-	(No_Timeout): Idem. 
+	(No_Timeout): Idem.
 	(Adjust_Cookie): Rename to Copy_Cookie, swap also the parameters.
 	Minor reformatting.
 
@@ -2783,12 +2807,12 @@
 	(Normalize): Pass the right message to Raise_URL_Error.
 	(Parse): Use Raise_URL_Error to raise the exceptions and pass a
 	 clear message about the problem.
-	
-	* aws-url-raise_url_error.ads: 
+
+	* aws-url-raise_url_error.ads:
 	Add Message parameter.
 	Update copyright notice.
-	
-	* aws-url-raise_url_error.adb: 
+
+	* aws-url-raise_url_error.adb:
 	Add Message parameter and display it instead of the hard coded one.
 	Update copyright notice.
 
@@ -2818,7 +2842,7 @@
 	(SOURCES): Add aws-headers.adb aws-headers-values.adb, aws-jabber.adb,
 	 aws-containers.ads, aws-containers-key_value.adb,
 	 aws-containers-tables.adb, aws-containers-tables-set.adb
-	
+
 	* aws-headers-values.ads, aws-headers-values.adb:
 	Change back Data_Set to Set.
 	Prefix Set when needed to raise ambiguity.
@@ -2902,7 +2926,7 @@
 	Fix comments.
 	Reformat code, add routine header when missing.
 	Fix copyright header.
-	
+
 	* aws-headers-values.ads:
 	(Parse): Alone_Value renamed Value. Value parameter renamed
 	 Header_Value.
@@ -2956,7 +2980,7 @@
 	(Header_Format_Error): renamed Format_Error.
 	Add lot of comments.
 	Rename all C parameters to Headers.
-	
+
 2002-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-parameters.ads, aws-parameters.adb:
@@ -3110,7 +3134,7 @@
 	(Set): Correctly create a critical section before updating the
 	 Dispatcher.
 	Minor reformatting.
-	
+
 	* aws-server.ads:
 	(HTTP): Add field Dispatcher_Sem. Remove pragma Atomic on Dispatcher.
 	(Semaphore): Moved to AWS.Utils.
@@ -3160,7 +3184,7 @@
 	Minor reformatting.
 	Remove 2000-2001 from copyright header.
 	Set file to UNIX format.
-	
+
 	* aws-response-set.ads:
 	Minor reformatting.
 	Remove 2000-2001 from copyright header.
@@ -3199,7 +3223,7 @@
 	(File_Upload): Set Multipart_Boundary to constant.
 	(Check_EOF): Set Signature to constant.
 	(Parse): Set Token (2 occurences) to constant.
-	
+
 	* aws-mime.adb:
 	(Content_Type): Set Pos and File_Type to constant.
 	Minor reformatting.
@@ -3315,7 +3339,7 @@
 	 true and response is a 301 message, return the data pointed by
 	 the location HTTP parameter.
 	Minor reformatting.
-	
+
 	* aws-client.ads:
 	(Get): Add Follow_Redirection parameter.
 
@@ -3371,7 +3395,7 @@
 	Minor reformatting.
 
 	* aws-resources.ads:
-	Minor reformatting.	
+	Minor reformatting.
 
 	* aws-resources.adb:
 	(Get_Line): Add some comments.
@@ -3433,7 +3457,7 @@
 	* aws-resources-embedded.ads:
 	(File_Tagged): LFT new field.
 	(LF_Terminated): New function.
-	
+
 	* aws-resources-files.adb:
 	(Get_Line): Set Resource.LFT to True when a line is terminated by
 	 ASCII.LF.
@@ -3463,7 +3487,7 @@
 	(Parse_Request_Line): Add comments about URL query support for
 	 GET/HEAD/POST request. Support parameters for HEAD request as
 	 "permitted" by RFC 2616.
-	
+
 2002-10-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.adb:
@@ -3488,7 +3512,7 @@
 	* aws-smtp.ads, aws-smtp.adb:
 	Initial revision. This is derived from Pascal Obry's SMTP component.
 
-	* aws-smtp-client.ads, aws-smtp-client.adb: 
+	* aws-smtp-client.ads, aws-smtp-client.adb:
 	Initial revision. This is derived from Pascal Obry's SMTP component.
 
 	* aws-url.adb:
@@ -3566,7 +3590,7 @@
 	* test_uconv.adb:
 	Fix layout and comment.
 
-	* aws-services-page_server.adb: 
+	* aws-services-page_server.adb:
 	(Spaces): Removed.
 	(Callback): Do not add 512 bytes to the 404 templates. Add
 	 explicit documentation about MSIE feature.
@@ -3658,7 +3682,7 @@
 	(Target_Filename): I and Upload_Path set to constant.
 	(File_Upload): Correctly detect file upload section in a MIME
 	 message. Initialize Server_Filename only when used.
-	
+
 	* aws-status-set.adb:
 	(Authorization): URI field initialized with the parsed URI.
 	(Request): Idem.
@@ -3720,7 +3744,7 @@
 
 2002-09-27  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-utils.adb: 
+	* aws-utils.adb:
 	Put in alphabetical order.
 
 2002-09-27  Pascal Obry  <p.obry@wanadoo.fr>
@@ -3732,7 +3756,7 @@
 	(Create_Digest): Return a Digest_String and not a String.
 	(Get_MD5): Moved to AWS.Utils.
 	Minor reformatting.
-	
+
 	* aws-digest.ads:
 	(Create_Digest): Return a Digest_String and not a String.
 	(Get_MD5): Moved to AWS.Utils.
@@ -3815,11 +3839,11 @@
 
 	* aws-status.adb:
 	Minor reformatting.
-	
+
 	* aws-status.ads:
 	Minor reformatting.
 	Put the pragma Inline next to the spec (before the comment).
-	
+
 	* aws-status-set.adb:
 	Minor reformatting.
 
@@ -3836,7 +3860,7 @@
 	* aws-messages.ads, aws-messages.adb:
 	Minor reformatting.
 
-	* aws-digest.ads, aws-digest.adb: 
+	* aws-digest.ads, aws-digest.adb:
 	Reformat code.
 
 	* aws-client.ads:
@@ -3910,7 +3934,7 @@
 	* aws-status-set.adb:
 	(Authorization): Added functionality to parse Digest authentication
 	 header line.
-	
+
 	* aws-status.ads, aws-status.adb:
 	(Authorization_Type): New enumeration type.
 	(Authorization_Mode): New routine returning Authorization_Type.
@@ -3945,7 +3969,7 @@
 	* aws-server-protocol_handler.adb:
 	(Send_File): Send the Content-Type header in the chunked case. This
 	 way browsers can display the progression during the download.
-	 
+
 
 2002-08-31  Pascal Obry  <p.obry@wanadoo.fr>
 
@@ -3992,7 +4016,7 @@
 	* aws-url.ads:
 	(Parameters): New procedure.
 	Update comments.
-	
+
 	* aws-url.adb:
 	(Parameters): New procedure.
 	(Parse): Handler parameters.
@@ -4043,13 +4067,13 @@
 	Change implementation. Now all visible routines are using the same
 	 type and the dispatching routines are in the private part. This
 	 is a cleaner implementation.
-	
+
 	* aws-resources-files.ads, aws-resources-files.adb:
 	Change related to new AWS.Resources design.
-	
-	* aws-resources-embedded.ads, aws-resources-embedded.adb: 
+
+	* aws-resources-embedded.ads, aws-resources-embedded.adb:
 	Change related to new AWS.Resources design.
-	
+
 	* aws-server-protocol_handler.adb:
 	(Send_File): Use File_Type instead of File_Access.
 
@@ -4070,7 +4094,7 @@
 	 ones.
 	(Send_File_Time): Idem.
 	Minor reformatting.
-	
+
 	* aws-response.adb:
 	(File): Use AWS.Resources instead of AWS.OS_Lib.
 
@@ -4088,7 +4112,7 @@
 	* aws-services-dispatchers-uri.ads:
 	Update comment.
 
-	* aws-translator.ads: 
+	* aws-translator.ads:
 	(To_String): Add pragma Inline.
 	(To_Stream_Element_Array): Idem.
 	Minor reformatting.
@@ -4117,7 +4141,7 @@
 	(Message_Body): [return Stream_Element_Array] - was Binary.
 	(Binary): Renamed to Message_Body.
 	Add parameter name in aggregate to ease reading.
-	
+
 	* aws-response.ads:
 	(Filename): New routine.
 	(Message_Body): [return Stream_Element_Array] - was Binary.
@@ -4298,7 +4322,7 @@
 	(Disconnect): Close if connection is opened.
 	(Cleaner_Task): Start entry take an HTTP_Connection_Access. Use it.
 	Minor reformatting.
-	
+
 	* aws-client.ads:
 	(HTTP_Connection_Access): New access type.
 	(HTTP_Connection): Add self field (auto-reference).
@@ -4349,7 +4373,7 @@
 	(Read_Until): New function.
 	(SOAP_Post): Remove exception handler, not exception can be
 	 propagated here.
-	
+
 	* aws-client.ads:
 	(Create): Add parameter Server_Push.
 	(Read_Until): New function.
@@ -4359,7 +4383,7 @@
 2002-03-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
-	(Send_General_Header): Set cookie for the entire site 
+	(Send_General_Header): Set cookie for the entire site
 	 (path start at /).
 
 	* aws-status-set.adb:
@@ -4459,7 +4483,7 @@
 	* aws-server-push.adb:
 	Put all routines in alphabetical order.
 	Minor reformatting.
-	
+
 	* makefile:
 	(build): Cleanup makefile for GNAT 3.14. (GNAT 3.13 is no more
 	 supported).
@@ -4490,21 +4514,21 @@
 2002-03-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
-	(SOURCES): Rename AWS.Services.Dispatchers.Callback to 
+	(SOURCES): Rename AWS.Services.Dispatchers.Callback to
 	 AWS.Dispatchers.Callback.
 
 	* aws-server.adb:
 	Use AWS.Dispatchers.Callback, this unit does not depend anymore on
 	 AWS.Services hierarchy.
 
-	* aws-services-dispatchers-method.ads, 
+	* aws-services-dispatchers-method.ads,
 	  aws-services-dispatchers-method.adb:
 	(Register): New routine with a Callback procedure parameter.
 
 	* aws-services-dispatchers-uri.ads, aws-services-dispatchers-uri.adb:
 	(Register): New routine with a Callback procedure parameter.
 	(Register_Regexp): Idem.
-	
+
 	* aws-services-dispatchers-virtual_host.ads,
 	  aws-services-dispatchers-virtual_host.adb:
 	(Register): New routine with a Callback procedure parameter.
@@ -4512,7 +4536,7 @@
 	* aws-services-dispatchers.ads:
 	Remove doc for AWS.Services.Dispatchers.Callback.
 
-	* aws-services-dispatchers-callback.ads, 
+	* aws-services-dispatchers-callback.ads,
 	  aws-services-dispatchers-callback.adb:
 	Moved to AWS.Dispatchers hierarchy.
 
@@ -4543,9 +4567,9 @@
 	  aws-services-dispatchers-uri.ads,
 	  aws-services-dispatchers-virtual_host.adb,
 	  aws-services-dispatchers-virtual_host.ads:
-	Adjusted to use AWS.Dispatchers API instead of 
+	Adjusted to use AWS.Dispatchers API instead of
 	 AWS.Services.Dispatchers.
-	
+
 2002-02-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
@@ -4593,15 +4617,15 @@
 	* aws-services-dispatchers-callback.ads,
 	  aws-services-dispatchers-callback.ads:
 	Initial revision.
-	
+
 	* aws-services-dispatchers-method.ads,
-	  aws-services-dispatchers-method.adb: 
+	  aws-services-dispatchers-method.adb:
 	Initial revision.
 
 	* aws-services-dispatchers-uri.ads, aws-services-dispatchers-uri.adb:
 	Initial revision.
 
-	* aws-services-dispatchers-virtual_host.ads, 
+	* aws-services-dispatchers-virtual_host.ads,
 	  aws-services-dispatchers-virtual_host.adb:
 	Initial revision.
 
@@ -4611,7 +4635,7 @@
 	* aws-server-protocol_handler.adb:
 	(Answer_To_Client): Call dispatcher instead of Callback.
 	Minor reformatting.
-	
+
 	* aws-default.ads:
 	(Line_Stack_Size): New constant.
 
@@ -4632,7 +4656,7 @@
 	(Start): New version using a Dispatcher.
 	(Start): Add Line_Stack_Size.
 	Minor reformatting.
-	
+
 	* aws-server.ads:
 	(Def_Line_Stack_Size): New constant.
 	(Start): New version using a Dispatcher.
@@ -4657,7 +4681,7 @@
 	(SOAP_Post): New routine.
 	Patch from Wiljan Derks.
 	(Cleaner_Task): Correctly free memory used by the socket.
-	
+
 	* aws-client.ads:
 	(SOAP_Post): New routine.
 	Patch from Wiljan Derks.
@@ -4670,20 +4694,20 @@
 	* makefile:
 	(SOURCES): Add aws-services-virtual_host.adb.
 
-	* aws-services-virtual_host.ads, aws-services-virtual_host.adb: 
+	* aws-services-virtual_host.ads, aws-services-virtual_host.adb:
 	Initial revision.
 
 	* aws-parameters-set.adb:
 	(Reset): Reset Parameter_List.Parameters field.
 	(Add): Set Parameter_List.Parameters field.
 
-	* aws-parameters-set.ads: 
+	* aws-parameters-set.ads:
 	Minor reformatting.
 
 	* aws-parameters.adb:
 	(URI_Format): New function.
 	Minor reformatting.
-	
+
 	* aws-parameters.ads:
 	(URI_Format): New function.
 	(List): Add Parameters field.
@@ -4776,7 +4800,7 @@
 
 	* aws-server.ads:
 	Remove Ada.Strings.Unbounded and Sockets (not used).
-	(Slot): Remove Peername field, add Peer_Addr, Alive_Time_Stamp, 
+	(Slot): Remove Peername field, add Peer_Addr, Alive_Time_Stamp,
 	 Alive_Counter.
 	(Slots): Remove Set_Peername routine, add Set_Peer_Addr. Remove
 	 Free which is not used.
@@ -4822,7 +4846,7 @@
 	* aws-url.adb:
 	(Encode): Update comment. Rename parameter from URL to Str. Fix
 	 bug in URL length detection.
-	(Decode): idem.	
+	(Decode): idem.
 
 	* aws-url.ads:
 	(Encode): Update comment. Rename parameter from URL to Str.
@@ -4831,7 +4855,7 @@
 	* aws-response.ads:
 	(Data): Ref_Counter is now an access type. Previous implementation
 	 was wrong.
-	
+
 	* aws-response.adb:
 	Change all reference counters initialization.
 
@@ -4839,7 +4863,7 @@
 
 	* aws-server-protocol_handler.adb:
 	Release memory for binary data in the exception handler.
-	
+
 	* aws-server-protocol_handler.adb:
 	(Parse_Request_Line): correctly decode resource and parameters. Use
 	 AWS.URL.Decode instead of AWS.Translator.Decode_URL.
@@ -4848,7 +4872,7 @@
 	(Decode): add check for 2 numbers after '%' character.
 
 	* aws-parameters-set.adb:
-	(Add): Use AWS.URL.Decode instead of AWS.Translator.Decode_URL. 
+	(Add): Use AWS.URL.Decode instead of AWS.Translator.Decode_URL.
 
 	* aws-translator.ads, aws-translator.adb:
 	(Decode_URL): removed.
@@ -4898,7 +4922,7 @@
 	 used for the binary data.
 	(Adjust): new procedure.
 	(Finalize): new procedure.
-	
+
 	* aws-response.adb:
 	Fix all aggregates since Data is now a controlled type.
 	(Adjust): new procedure.
@@ -4916,8 +4940,8 @@
 	* aws-translator.adb:
 	Change implementation of BASE64 algorithm. It is now based on
 	 base64 tables instead of functions. Removes use of unbounded
-	 string, now the result length is computed before the encoding. 
-	 This should be faster. This code has been contributed by 
+	 string, now the result length is computed before the encoding.
+	 This should be faster. This code has been contributed by
 	 Thomas Quinot.
 
 2001-11-06  Pascal Obry  <p.obry@wanadoo.fr>
@@ -4930,7 +4954,7 @@
 	(Wait): new procedure.
 	(Initialize): new procedure.
 	(Finalize): decrement counter.
-	
+
 	* aws-server.ads:
 	(Termination): new type.
 	(Wait): new procedure.
@@ -4968,7 +4992,7 @@
 
 	* aws-server-push.adb:
 	(Register): in Plain mode send a new line.
-	
+
 	* aws-server-push.adb:
 	(Register): new version that does not raise exception but return a
 	 boolean if duplicate item found.
@@ -4987,7 +5011,7 @@
 	* aws-net-stream_io.adb:
 	(Initialize): removes Last initialization from here.
 
-	* aws-net-stream_io.ads: 
+	* aws-net-stream_io.ads:
 	(Write_Cache): Initialize Last to 0.
 
 2001-10-17  Pascal Obry  <p.obry@wanadoo.fr>
@@ -5031,7 +5055,7 @@
 
 2001-10-13  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-session-control.adb, aws-translator.adb: 
+	* aws-session-control.adb, aws-translator.adb:
 	Put all routines in alphabetical order.
 
 	* aws-server.adb, aws-server-protocol_handler.adb:
@@ -5163,7 +5187,7 @@
 	* aws-server.adb:
 	(Line): loop until HTTP_Server.Shutdown is true.
 	(Shutdown): wait for 0.5 second between each check for Cleaner
-	 task termination. Idem for lines termination. 
+	 task termination. Idem for lines termination.
 	(Slots.Shutdown): new procedure.
 	(Abort_On_Timeout): call Shutdown for the right index.
 	(Release): correctly detect when a sockets need to be shutdown and
@@ -5285,13 +5309,13 @@
 
 	* aws-url.adb:
 	(Parse): ignore empty URL.
-	
+
 	* aws-url.adb:
 	(Parse): properly check for URI without server and port
 	 information.
 	(URL): if this is a simple URI (no server info) return the URI.
 
-	* aws-client.adb: 
+	* aws-client.adb:
 	(Get): add Timeouts parameter.
 	(Head): idem.
 	(Put): idem.
@@ -5306,7 +5330,7 @@
 	 end of the routine.
 	(Get_Response): idem.
 	Put routines in alphabetical order.
-	
+
 	* aws-client.ads:
 	(Timeouts_Values): new type.
 	(Get): add Timeouts parameter.
@@ -5349,7 +5373,7 @@
 	(URI): add parameter Encode.
 	(Encode): new function.
 	Put routines in alphabetical order.
-	
+
 	* aws-url.ads:
 	(URI): add parameter Encode.
 	(Encode): new function.
@@ -5430,7 +5454,7 @@
 	* aws-log.adb:
 	Removes empty line at end of file.
 
-	* aws-messages.adb: 
+	* aws-messages.adb:
 	(Content_Type): add boundary data.
 	(Transfer_Encoding): new function.
 
@@ -5456,7 +5480,7 @@
 
 2001-09-13  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-response.ads: 
+	* aws-response.ads:
 	Minor reformatting.
 
 	* aws-server-protocol_handler.adb:
@@ -5479,7 +5503,7 @@
 	* aws-status-set.ads:
 	Minor reformatting.
 
-	* aws-status.adb: 
+	* aws-status.adb:
 	(Has_Session): check using AWS.Session.No_Session which is cleaner.
 	(Session): remove version returning a string (it is always
 	 possible to use AWS.Session.Image to do so).
@@ -5490,16 +5514,16 @@
 	 possible to use AWS.Session.Image to do so).
 	(Data): Session_ID is not a Session.ID type.
 
-	* aws-translator.ads: 
+	* aws-translator.ads:
 	Minor comment fix.
 
 	* aws-url.adb:
 	Reformatting.
 
-	* aws-session.ads: 
+	* aws-session.ads:
 	Reformatting.
 
-	* aws-log.adb: 
+	* aws-log.adb:
 	(Write): Fix log format. Minor reformatting.
 
 2001-09-12  Pascal Obry  <p.obry@wanadoo.fr>
@@ -5513,7 +5537,7 @@
 	 rendez-vous. In this case the task will exit from the loop.
 	(Cleaner_Control.Stop): Returns now a boolean to tell if the session
 	 cleaner task can be terminated or not.
-	
+
 	* aws-session.ads:
 	(Cleaner): add entry Stop.
 	(Cleaner_Control.Stop): Returns now a boolean to tell if the session
@@ -5537,7 +5561,7 @@
 	* aws-server-get_status.adb:
 	Use Max_Connection from the server properties.
 
-	* aws-server.adb: 
+	* aws-server.adb:
 	(Shutdown): release memory allocated for the slots HTTP field. Use
 	 Max_Connection from the server properties.
 	(Start): add parameter Max_Connection. Use Max_Connection from the
@@ -5559,7 +5583,7 @@
 	* aws-log.adb:
 	(Write): new procedure. For user's log.
 	Use AWS.OS_Lib instead of GNAT.OS_Lib.
-	
+
 	* aws-log.ads:
 	(Write): remove Peername which is now into the connection status.
 	(Write): new procedure. For user's log.
@@ -5607,9 +5631,9 @@
 	* aws-response.adb:
 	(File): compute the file size and set the content length field
 	 properly (was always set to 0).
-	 (Module): 
+	 (Module):
 
-	* aws-messages.adb: 
+	* aws-messages.adb:
 	(Last_Modified): new constructor.
 	(Location): use Location_Token constant instead of string.
 
@@ -5618,7 +5642,7 @@
 	(Last_Modified_Range): new subtype.
 	(Last_Modified): new constructor.
 
-	* aws-log.adb: 
+	* aws-log.adb:
 	(Write): Add parameter Answer and removes Answer_Stat. Write the
 	 content length that has been transfered. Now the log format is
 	 the same than most standard Web servers.
@@ -5645,7 +5669,7 @@
 	* aws-status-set.ads, aws-status-set.adb:
 	(User_Agent): new procedure.
 	(Referer): new procedure.
-	
+
 	* aws-status.adb:
 	(User_Agent): new function.
 	(Referer): new function.
@@ -5657,7 +5681,7 @@
 
 2001-08-31  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-config-ini.adb: 
+	* aws-config-ini.adb:
 	(Read): parameters' value is now everything after the parameter name.
 
 2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
@@ -5698,7 +5722,7 @@
 	 Messages.Form_Data. Idem for MIME.Multipart_Data. Check for SOAP
 	 message and correctly set the payload request in this case.
 	(Parse): parse the SOAPAction HTTP header.
-	This is work to support SOAP over HTTP.	
+	This is work to support SOAP over HTTP.
 
 	* aws-client.adb:
 	(Send_Command): rename to Open_Send_Common_Header.
@@ -5777,12 +5801,12 @@
 	* aws-server-push.adb:
 	Fix casing error.
 
-	* aws-client.adb: 
+	* aws-client.adb:
 	(Parse_Header): add Cookie parameter which is set when parsing
  	 header. This part of the header was just ignored before.
 	(Send_Command): output Set-Cookie: HTTP header if needed.
 
-	* aws-client.ads: 
+	* aws-client.ads:
 	(HTTP_Connection): add Cookie field to support HTTP client cookies.
 
 	* aws-messages.ads:
@@ -5810,10 +5834,10 @@
 	* aws-server-push.ads, aws-server-push.adb:
 	Initial revision.
 
-	* aws-status-set.adb: 
+	* aws-status-set.adb:
 	(Socket): new procedure.
-	
-	* aws-status-set.ads: 
+
+	* aws-status-set.ads:
 	(Socket): new procedure.
 	Fix layout.
 
@@ -5829,7 +5853,7 @@
 	(List): do not initialize Data field. This is now done by Reset to
 	 avoid memory leak.
 
-	* aws-parameters-set.adb: 
+	* aws-parameters-set.adb:
 	(Reset): destroy data if it exists otherwise create an empty set.
 	(Free): new procedure.
 
@@ -5858,7 +5882,7 @@
 	(Socket_Taken): new procedure in Slots protected object.
 	(Slot): add boolean field Socket_Taken.
 
-	* aws-response.adb: 
+	* aws-response.adb:
 	(Socket_Taken): new constructor function.
 
 	* aws-response.ads:
@@ -5883,7 +5907,7 @@
 
 	* makefile:
 	(clean): removes Emacs VC *~ files.
-	
+
 	* aws-default.ads, aws-config.ads, aws-config.adb,
 	  aws-config-set.ads, aws-config-set.adb:
 	Rename Log_File_Prefix to Log_Filename_Prefix.
@@ -5902,16 +5926,16 @@
 
 2001-08-07  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-config.adb, aws-config-set.adb, aws-config-ini.adb: 
+	* aws-config.adb, aws-config-set.adb, aws-config-ini.adb:
 	Lot of changes to accommodate for new Object declaration.
 
-	* aws-config.ads: 
+	* aws-config.ads:
 	(Object): now a record to be able to initialize the all parameters.
 
-	* aws-log.ads: 
+	* aws-log.ads:
 	(Object): Initialize Split field.
 
-	* aws-server-protocol_handler.adb: 
+	* aws-server-protocol_handler.adb:
 	Use CNF renaming for AWS.Config to avoid name clash.
 	Pass the Log object when writting log info.
 
@@ -5924,7 +5948,7 @@
 	 parameter. The Server_Config object is updated at elaboration
 	 time by reading 'aws.ini' and 'prognam.ini' files.
 
-	* aws-config-ini.ads: 
+	* aws-config-ini.ads:
 	(Read): update comment.
 
 	* aws-config.ads:
@@ -5945,12 +5969,12 @@
 	(Start_Log): new procedure.
 	(Stop_Log): new procedure.
 
-	* aws.ads: 
+	* aws.ads:
 	(Version): set to 1.0.
 
 2001-08-06  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-config.adb: 
+	* aws-config.adb:
 	With AWS.Config.Ini to initialize options set.
 	(Get_Current): new function.
 	(Log_File_Prefix): idem.
@@ -5990,13 +6014,13 @@
 	 per-process option.
 	(Session_Lifetime): idem.
 
-	* aws-config-ini.adb: 
+	* aws-config-ini.adb:
 	(Read): was a function it is now a procedure to be able to update
 	 the configuration object. Handle per-server and per-process
 	 options.
 	Initialize Server_Config at elaboration.
-	
-	* aws-config-ini.ads: 
+
+	* aws-config-ini.ads:
 	(Read): was a function it is now a procedure to be able to update
 	 the configuration object.
 
@@ -6027,7 +6051,7 @@
 
 	* aws-session-control.ads, aws-session-control.adb:
 	(Start): add two parameters to control the session server.
-	
+
 	* aws-session.ads, aws-session.adb:
 	(Start): add two parameters to control the session server.
 
@@ -6042,7 +6066,7 @@
 	* aws-config-set.ads:
 	Reorder routine.
 
-	* aws-config.adb: 
+	* aws-config.adb:
 	A lot more changes to support ADT. All values moved to sepc.
 	(Initialize): moved to AWS.Config.Ini.
 	(Session): new function.
@@ -6064,7 +6088,7 @@
 	* aws-default.ads:
 	Initial revision.
 
-	* aws-config-set.ads, aws-config-set.adb: 
+	* aws-config-set.ads, aws-config-set.adb:
 	Initial revision.
 
 	* aws-config-ini.ads, aws-config-ini.adb:
@@ -6072,10 +6096,10 @@
 
 2001-07-31  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-server.ads: 
+	* aws-server.ads:
 	Minor reformatting.
 
-	* aws-log.adb: 
+	* aws-log.adb:
 	(Log_Prefix): returns either the specicifed prefix or the program
 	 name.
 	(Start): add Log_File_Prefix field to control the log filename.
@@ -6087,7 +6111,7 @@
 	* aws-log.adb:
 	(Start): add code to handle Each_Run mode.
 
-	* aws-log.ads: 
+	* aws-log.ads:
 	(Split_Mode): add Each_Run to have a new log file every time the
 	 server is started.
 	Fix and add comments.
@@ -6098,15 +6122,15 @@
 
 2001-07-30  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-config.ads: 
+	* aws-config.ads:
 	Minor reformatting.
 
 2001-07-28  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* makefile: 
+	* makefile:
 	(SOURCES): Add AWS.Session.Control module.
 
-	* aws-server.adb: 
+	* aws-server.adb:
 	(Start): call Start from AWS.Session.Control was in AWS.Session.
 	(Shutdown): call Shutdown from AWS.Session.Control was in AWS.Session.
 
@@ -6149,7 +6173,7 @@
 	* makefile:
 	(build): do not build AWS.Services.Directory with optimization.
 
-	* aws-session.adb: 
+	* aws-session.adb:
 	(Cleaner_Control): new protected record to handle concurrent
 	 access to the task cleaner creation.
 
@@ -6159,10 +6183,10 @@
 	Lot of changes to avoid memory leak and copy of the whole session
 	 table during iteration.
 	Fix layout.
-	
+
 2001-07-23  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-session.adb: 
+	* aws-session.adb:
 	(Destroy): Destroy the root tree.
 	(Generate_ID): new function.
 	(Key_Exist): avoid raising an exception if the SID is not present
@@ -6241,7 +6265,7 @@
 	(Hotplug_Port_Value): new variable.
 	(Hotplug_Port): new function.
 	(Initialize): update comment.
-	
+
 	* aws-config.ads:
 	(Default_Hotplug_Port): new constant.
 	(Hotplug_Port): new function.
@@ -6252,7 +6276,7 @@
 	Transfert the Copyright to ACTE.
 
 	* aws-session.adb:
-	(Session_Check_Interval): initialize using 
+	(Session_Check_Interval): initialize using
 	 Config.Session_Cleanup_Interval.
 	(Session_Lifetime): initialize using Config.Session_Lifetime.
 
@@ -6263,7 +6287,7 @@
 	(Session_Table): add SESSIONS_TERMINATE_V.
 	(Translations): add SESSION_CLEANUP_INTERVAL_V.
 
-	* aws-config.adb: 
+	* aws-config.adb:
 	(Session_Cleanup_Interval_Token): new constant.
 	(Session_Lifetime_Token): idem.
 	(Session_Cleanup_Interval_Value): new variable.
@@ -6285,7 +6309,7 @@
 	* aws-utils.ads, aws-utils.adb:
 	(Image): on duration, new function.
 
-	* aws-session.adb: 
+	* aws-session.adb:
 	(Set_Session_Lifetime): renamed Set_Lifetime.
 	(Get_Lifetime): new function.
 	(Session_Check_Interval): new constant.
@@ -6333,7 +6357,7 @@
 
 	* aws-services-directory.ads, aws-services-directory.adb:
 	Initial revision.
-	
+
 	* aws-services.ads:
 	Initial revision.
 
@@ -6379,13 +6403,13 @@
 	(Count): correctly returns the number of parameters in the list
 	 and not the total number of node in the tree.
 
-	* aws-hotplug.adb: 
+	* aws-hotplug.adb:
 	(Apply): Removes URI parameter and add Status. Call hotplug module
 	 with parameters.
 	(Apply.Parameters): new function.
 
 	* aws-hotplug.ads:
-	(Apply): Removes URI parameter and add Status. 
+	(Apply): Removes URI parameter and add Status.
 
 	* aws-server-protocol_handler.adb:
 	(Answer_To_Client): when calling Hotplug.Apply pass full status
@@ -6409,7 +6433,7 @@
 	* aws-translator.ads, aws-translator.adb:
 	Update copyright notice.
 
-	* aws.ads: 
+	* aws.ads:
 	(Version): set to 0.11. Will probably be changed later to 1.0.
 
 	* aws-parameters-set.adb:
@@ -6422,16 +6446,16 @@
 	 file. Handle now properly the ini files.
 	(Initialize): Fix typo in configuration file name.
 
-	* aws-server-hotplug.ads, aws-server-hotplug.adb: 
+	* aws-server-hotplug.ads, aws-server-hotplug.adb:
 	Update copyright notice.
 
 	* aws-server-get_status.adb:
 	Removes with AWS.Status.
 
-	* aws-parameters.adb: 
+	* aws-parameters.adb:
 	Update copyright notice.
 	Fix typo.
-	
+
 	* aws-messages.ads, aws-messages.adb:
 	Update copyright notice.
 
@@ -6442,7 +6466,7 @@
 
 	* aws-log.adb:
 	Minor reformatting.
-	
+
 	* aws-log.adb:
 	Add with for Ada.Command_Line.
 	Add with for AWS.Config.
@@ -6465,7 +6489,7 @@
 	* aws-server-get_status.adb:
 	Use Config.Status_Page instead of hard coded 'status.tmplt'.
 
-	* aws-config.adb: 
+	* aws-config.adb:
 	(Status_Page): new variable.
 	(Up_Image): idem.
 	(Down_Image): idem.
@@ -6513,7 +6537,7 @@
 	 transfert of big file.
 	(Mark_Phase): if Phase is in Data_Phase adjust the data timestamp.
 	Minor reformatting.
-	
+
 	* aws-server.ads:
 	(Slot_Phase): add Server_Processing.
 	(Data_Phase): new subtype.
@@ -6522,13 +6546,13 @@
 	(Slot): add Data_Time_Stamp field.
 	(Mark_Data_Time_Stamp): new procedure.
 
-	* aws-config.adb: 
+	* aws-config.adb:
 	(Send_Timeout): new function.
 	(Receive_Timeout): new function.
 	(Initialize): updated to parse Send_Timeout and Receive_Timeout.
 	(Send_Timeout_Value): new variable;
 	(Receive_Timeout_Value): new variable;
-	
+
 	* aws-config.ads:
 	(Send_Timeout): new function.
 	(Receive_Timeout): new function.
@@ -6536,7 +6560,7 @@
 	(Default_Cleaner_Server_Response_Timeout): set to Height_Hours.
 	(Force_Cleaner_Client_Data_Timeout): set to Three_Hours.
 	(Force_Cleaner_Server_Response_Timeout): set to Three_Hours.
-	
+
 2001-05-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-config.adb:
@@ -6549,14 +6573,14 @@
 	Remove comment out code.
 	Update copyright notice.
 
-	* aws-server.adb: 
+	* aws-server.adb:
 	(Slots.Get): is now a procedure was an entry.
 
 	* aws-server.ads:
 	(Timeouts): use AWS.Config*_Timeout function to initialize array.
 	(Slots.Get): is now a procedure was an entry.
 
-	* aws-server.adb: 
+	* aws-server.adb:
 	(Start): add Upload_Directory parameter. Use default from
 	 AWS.Config.
 
@@ -6571,7 +6595,7 @@
 	(Default_Port): removed.
 	(Default_Upload_Path): removed.
 	(No_Admin): removed.
-	
+
 	* aws-communication-server.adb:
 	(Receive): use new parameter interface.
 
@@ -6604,7 +6628,7 @@
 	(Force_Server_Response_Timeout): new function.
 	(Initialize): add parsing for all timeouts string.
 
-	* aws-config.ads: 
+	* aws-config.ads:
 	(Default_Server_Name): new constant.
 	(Default_Admin_URI): new constant.
 	(Default_Server_Port): new constant.
@@ -6643,14 +6667,14 @@
 	(Line_Cleaner): new implementation. Fix another problem with abortion.
 	(Line): check if there is some slot available, if not force
 	 abortion of one.
-	
+
 	* aws-server.ads:
 	(Check_Timeouts): removed.
 	(Abort_On_Timeout): new parameter Done.
 	(Free_Slot): new function.
 
 2001-05-18  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
 	* aws-server-protocol_handler.adb:
 	(P_List): new variable.
 	Many changes in the code to use routines in AWS.Parameters instead
@@ -6663,12 +6687,12 @@
 	(Parameters): renamed Binary.
 	(Parameter): removed.
 
-	* aws-status.adb: 
+	* aws-status.adb:
 	(Parameter_Name): moved to AWS.Parameters.
 	(Parameter): idem.
 	(count): idem.
 	(Normalize_Name): idem.
-	(Parameter): new procedure to add a parameter list to the status 
+	(Parameter): new procedure to add a parameter list to the status
 	 record.
 	Remove unused unit Ada.Characters.Handling.
 
@@ -6678,7 +6702,7 @@
 	(Parameter): idem.
 	(count): idem.
 	(Normalize_Name): idem.
-	(Parameter): new procedure to add a parameter list to the status 
+	(Parameter): new procedure to add a parameter list to the status
 	 record.
 
 	* aws-server.adb:
@@ -6696,7 +6720,7 @@
 	(Release): rename Reset and moved to child package.
 	Update copyright notice.
 	Reformatting.
-	
+
 	* aws-parameters.adb:
 	Redesign. All routine to change the parameters list are now in a
 	 child package.
@@ -6704,7 +6728,7 @@
 	(Release): rename Reset and moved to child package.
 	Update copyright notice.
 	Reformatting.
-	
+
 	* aws-parameters-set.ads, aws-parameters-set.adb:
 	Initial revision.
 
@@ -6763,7 +6787,7 @@
 
 	* aws-server-protocol_handler.adb:
 	(Send_File): Send Date: field in the 304 case (up to date).
-	
+
 	* aws-server-protocol_handler.adb:
 	Set properly the status of the socket actvity using Mark_Phase.
 
@@ -6786,7 +6810,7 @@
 	(Check_Timeouts): new procedure.
 	(Set_Abortable): new procedure.
 	(HTTP): add comments for the fields.
-	
+
 	* aws-server-get_status.adb:
 	(Slot_Table): do not use Opened but Phase.
 
@@ -6797,7 +6821,7 @@
 
 	* aws-hotplug-get_status.adb:
 	Use suffix _V for vector tag (was _L for historical reasons).
-	
+
 	* aws-server-get_status.adb:
 	(Session_Table): Update to use Matrix_Tag. There is no more HTML
 	 tag hard coded. Use suffix _V for vector tag (was _L for
@@ -6867,7 +6891,7 @@
 	(Version): set 0.10.
         Update copyright notice.
 
-	* aws-status.adb: 
+	* aws-status.adb:
 	(Parameter): remove Case_Sensistive parameter. More efficient
 	 implementation in the non case sensitive case.
 	(Normalize_Name): new procedure.
@@ -6889,7 +6913,7 @@
         Update copyright notice.
 
 	* aws-server.adb:
-	(Start): add many parameters that were HTTP discriminant. Initialize 
+	(Start): add many parameters that were HTTP discriminant. Initialize
 	 HTTP new parameters.
 	(Set_Abortable): better implementation.
 	(Abort_Oldest): better implementation.
@@ -6901,7 +6925,7 @@
 	 closed. This was a message for the AWS early days to ease
 	 debugging and does not need to be there anymore.
         Update copyright notice.
-	
+
 	* aws-server.ads:
 	(HTTP): remove all discriminants except Max_Connection. All values
 	 will be set by the Start procedure. This is more dynamic.
@@ -6916,7 +6940,7 @@
 	(Will_Close): handle case for Netscape HTTP/1.0 and Keep-Alive
 	 connection. Should fix some more server hanging.
         Update copyright notice.
-	
+
 	* aws-communication-server.adb:
 	(Start): use new HTTP definition (only one discriminant) others
 	 setting are done through the Server.Start procedure.
@@ -7010,7 +7034,7 @@
 	* aws-client.adb:
 	(Disconnect): use proper order for Is_Math parameters.
 	(Put): idem.
-	
+
 	* aws-server-protocol_handler.adb:
 	(Will_Close): new boolean.
 	(Header_Date_Serv): removed.
@@ -7043,7 +7067,7 @@
 	(URL): new function.
 	Minor reformatting.
 
-	* aws-mime.adb: 
+	* aws-mime.adb:
 	Minor reformatting.
 
 2001-03-13  Pascal Obry  <p.obry@wanadoo.fr>
@@ -7102,7 +7126,7 @@
 	(Proxy_Connection): new function.
 	(Authorization): new function.
 	(Host): new function.
-	
+
 	* aws-client.ads, aws-client.adb:
 	(HTTP_Connection): new private type (keep-alive client
 	 implementation, checked-in for Dmitriy Anisimkov)
@@ -7126,7 +7150,7 @@
 	(Get_Message_Data): Use Content_Length to read POST message
 	 data. Avoid to lost some data.
 
-	* aws-translater.adb: 
+	* aws-translater.adb:
 	(Base64_Decode) Fix problem with '=' handling.
 
 2001-01-10  Pascal Obry  <p.obry@wanadoo.fr>
@@ -7206,7 +7230,7 @@
 	* aws-config.adb:
 	(Upload_Directory): new function.
 	(Initialize): handle Upload_Directory parameter.
-	
+
 	* aws-config.ads:
 	(Upload_Directory): new function.
 
@@ -7218,7 +7242,7 @@
 	* aws-log.adb:
 	(Start): add Split parameter.
 	(Write): check if log file need to be changed (daily, monthly).
-	
+
 	* aws-log.ads:
 	(Split_Mode): new type.
 	(Start): add Split parameter.
@@ -7243,7 +7267,7 @@
 	(Get_Response): new parameter Get_Body. Read message body only if
 	 Get_Body is set.
 	(Head): new function.
-	
+
 	* aws-client.ads:
 	(Head): new function.
 
@@ -7319,7 +7343,7 @@
 	 access type). This is to be able to pass a context to the
 	 Callback generic formal function.
 	(Start): new procedure.
-	
+
 	* aws-communication.ads:
 	(Parameters): improve comments.
 
@@ -7391,7 +7415,7 @@
 
 	* makefile:
 	(SOURCES): add aws-utils.adb, aws-key_value.adb and aws-log.adb
-	
+
 	* aws.ads:
 	(Version): set to 0.9.2.
 
@@ -7407,7 +7431,7 @@
 	* aws-parameters.adb:
 	(Image): removed use Utils.Image instead.
 	(Add): Use new Update_Node prototype.
-	
+
 	* aws-server.adb:
 	(File_Upload_UID): new protected object.
 	(Set_Peername): new procedure.
@@ -7476,7 +7500,7 @@
 	(Moved): new function.
 	(File): add initialization for new Location field.
 	(Location): return the Location field.
-	
+
 	* aws-response.ads:
 	(Default_Moved_Message): new constant.
 	(Moved): new function.
@@ -7527,7 +7551,7 @@
 	(Multipart_Boundary): new function.
 	(Data): parameter field is now a AWS.Parameters.Set.
 	Add some comments.
-	
+
 	* aws-status.adb:
 	(Multipart_Boundary): new function.
 	(Parameter): complete reimplementation (more efficient now).
@@ -7537,7 +7561,7 @@
 	(Set_Parameters): complete reimplementation (more efficient now).
 	(Set_Request): call to Set_Parameters to setup the form
 	 parameters.
-	
+
 	* aws-server.ads:
 	(Default_Upload_Path): new constant.
 	(HTTP): add field Upload_Path.
@@ -7558,7 +7582,7 @@
 
 	* aws-messages.ads:
 	(Multipart_Form_Data): new constant.
-	
+
 2000-10-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-config.ads, aws-server-config.adb:
@@ -7610,7 +7634,7 @@
 	* aws-server-protocol_handler.adb:
 	(Header_Date_Serv): Use OS_Lib.OS_Clock instead of Calendar.Clock.
 
-	* aws-response.adb: 
+	* aws-response.adb:
 	(Acknowledge): add Content_Type string.
 	Properly set the content type when message body non empty.
 
@@ -7627,7 +7651,7 @@
 
 2000-09-07  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-session.adb: 
+	* aws-session.adb:
 	(Cleaner): update Next_Run.
 
 	* aws-server-protocol_handler.adb:
@@ -7642,13 +7666,13 @@
 	(Send_File): remove use of POSIX. Send file in piece instead of
 	 reading and sending the whole file. Should fix problem with very
 	 big file. (From Sune Falck).
-	
-	* aws-os_lib.ads, aws-os_lib.adb: 
+
+	* aws-os_lib.ads, aws-os_lib.adb:
 	Initial revision.
 
 2000-09-05  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-server-protocol_handler.adb: 
+	* aws-server-protocol_handler.adb:
 	Add comments.
 	Minor reformatting.
 
@@ -7660,14 +7684,14 @@
 	(Send_File): open file with shared=no (fix from Sune Falck).
 	(Send_File.Send_File): remove a newline sent to the socket (fix
 	 from Sune Falck).
-	
+
 	* aws.ads:
 	(Version): set to 0.8.1.
 
-	* aws-net-ssl.adb: 
+	* aws-net-ssl.adb:
 	(Connect): minor indentation.
 
-	* aws-server-protocol_handler.adb: 
+	* aws-server-protocol_handler.adb:
 	(Protocol_Handler): HTTP_Server parameter changed to "in out" mode.
 
 	* aws-server.adb:
@@ -7680,7 +7704,7 @@
 
 2000-09-02  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-session.adb: 
+	* aws-session.adb:
 	(Start): new procedure.
 	(Cleaner): is now a task type.
 	(Cleaner_Task): a pointer to a Cleaner task.
@@ -7688,30 +7712,30 @@
 	* aws-session.ads:
 	(Start): new procedure.
 
-	* aws-server.adb: 
+	* aws-server.adb:
 	(Start): call Session.Start to start session server.
 
 	* aws-session.adb:
 	Fix some bad casing. Remove a space.
 
-	* aws.ads: 
+	* aws.ads:
 	(Version): set to 0.8.
 
-	* aws-status.ads: 
+	* aws-status.ads:
 	(Session): ne functions.
 	(Set_Session): new procedure.
 	(Data): add Session_ID field to this record.
 	(No_Data): add intialization for new field Session_ID.
-	
+
 	* aws-status.adb:
 	(Session): ne functions.
 	(Set_Session): new procedure.
 
-	* aws-server.ads: 
+	* aws-server.ads:
 	(Keep_Open_Duration): set to 30 seconds (was 120).
 	(HTTP): add Session field.
 
-	* aws-server-protocol_handler.adb: 
+	* aws-server-protocol_handler.adb:
 	(Send_Session_Cookie): new boolean.
 	(Create_Session): new procedure.
 	(Header_Date_Serv): send a cookie to the client browser if needed.
@@ -7724,11 +7748,11 @@
 	(Slot_Table): rename all tag variable to end by _L and not _T
 	(Get_Status): add tag variables LOGO and SESSION.
 
-	* aws-messages.ads: 
+	* aws-messages.ads:
 	(Cookie_Token): new constant.
 	(Cookie_Range): new subtype.
 
-	* aws-session.ads, aws-session.adb: 
+	* aws-session.ads, aws-session.adb:
 	Initial revision.
 
 2000-09-01  Pascal Obry  <p.obry@wanadoo.fr>
@@ -7736,19 +7760,19 @@
 	* aws.ads:
 	(Version): set to 0.7
 
-	* aws-server-get_status.ads: 
+	* aws-server-get_status.ads:
 	Initial revision.
 
-	* aws-server-get_status.adb: 
+	* aws-server-get_status.adb:
 	Initial revision.
 
 	* aws-server.adb:
 	(Protocol_Handler): simplify prototype now that we have a
 	 reference to the HTTP server (no need to drag around so much
-	 data). 
+	 data).
 	(Line): remove many variable not needed anymore.
 	(Start): add Admin_URI parameter.
-	
+
 	* aws-server.ads:
 	(HTTP): add the field Self to the record. It is an auto-pointer
 	 (i.e. pointing to itself).
@@ -7759,7 +7783,7 @@
 	 reference to the HTTP server (no need to drag around so much
 	 data). Simplify the code to use the HTTP reference.
 
-	* aws-messages.ads: 
+	* aws-messages.ads:
 	Fix typo.
 
 2000-08-27  Pascal Obry  <p.obry@wanadoo.fr>
@@ -7774,14 +7798,14 @@
 
 2000-08-14  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-server-protocol_handler.adb: 
+	* aws-server-protocol_handler.adb:
 	(Get_Message_Data): do not decode URL parameters here.
 	(Parameters): do not decode URL parameters here.
 
-	* aws-server.adb: 
+	* aws-server.adb:
 	remove withed unit Translater (not used anymore).
 
-	* aws-status.adb: 
+	* aws-status.adb:
 	(Parameter): decode URL parameter.
 
 	* aws-status.ads:
@@ -7789,16 +7813,16 @@
 	(Authorization_Name): new function
 	(Authorization_Password): new function
 	(Data): new field Auth_Name and Auth_Password.
-	
+
 	* aws-status.adb:
 	(Set_Authorization): new procedure
 	(Authorization_Name): new function
 	(Authorization_Password): new function
-	
-	* aws-server-protocol_handler.adb: 
+
+	* aws-server-protocol_handler.adb:
 	Handle authorization protocol.
 
-	* aws-messages.ads: 
+	* aws-messages.ads:
 	Add Authorization_Token
 	Sort constants in alphabetical order.
 
@@ -7813,7 +7837,7 @@
 
 2000-07-28  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* aws-net-ssl.adb: 
+	* aws-net-ssl.adb:
 	(Accept_Socket): remove call to Init.
 	(AWS.Net): add call to Init during elaboration of the package.
 
@@ -7821,10 +7845,10 @@
 
 	* aws.ads:
 	(Version): updated to 0.6
-	
+
 	* aws-net.ads:
 	Fix copyright notice.
-	
+
 	* aws-server.adb:
 	Fix minor typo.
 
@@ -7847,17 +7871,17 @@
 
 	* aws-net.ads:
 	Initial revision
-	
+
 	* aws-net-ssl.adb:
 	Initial revision
-	
+
 	* aws-net-std.adb:
 	Initial revision
 
 	* aws-server.ads:
 	(Get): update comments
 	(HTTP): add field Security.
-	
+
 	* aws-server.adb:
 	Use AWS.Net
 	(Line): handle security.
@@ -7867,7 +7891,7 @@
 
 	* aws-status.adb:
 	Minor casing fix.
-	
+
 	* aws-url.ads:
 	(Security): new function
 	(Object): new field Security
@@ -7875,15 +7899,15 @@
 	* aws-url.adb:
 	(Parse): add support for HTTPS
 	(Security): new function
-	
+
 2000-04-05    Dmitriy Anisimkov <anisimkov@iforex.net>
 
 	* aws-client.adb:
 	(Parse_Header): correctly initilialize Content_Length.
-	
+
 	* aws-connection.ads, aws-connection.adb:
 	Removed not needed anymore.
-	
+
 	* aws-server.ads, aws-server.adb:
 	Complete rewrite. more efficent implementation.
 
@@ -7894,26 +7918,26 @@
 
 	* aws-connection.ads:
 	(Slot): add Aborted field.
-	
+
 	* aws-connection.adb:
 	(Abort_Slot): new procedure
 	(Line): use Abort_Slot. general cleanup.
 	(Line_Cleaner): use Abort_Slot instead of Sosckets.Shutdown
 	(Get_Free_Slot): idem
-	
+
 2000-04-01    Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws-client.adb, aws-connection.adb, aws-messages.adb,
 	  aws-translater.adb, aws-url.adb:
 	Minor reformatting to conform to -gnaty switch.
-	
+
 2000-04-01    Pascal Obry <p.obry@wanadoo.fr>
-	
+
 	* aws.ads
 	(Version): changed to 0.4
-	
+
 	* aws-connection.ads:
-	(Slot): moved here from the body as a limited private type. Abortable, 
+	(Slot): moved here from the body as a limited private type. Abortable,
 	 Activity_Time_Stamp, Sock fields added.
 	(Line): add access to Slot discriminant
 
@@ -7928,10 +7952,10 @@
 
 2000-03-10    Pascal Obry <p.obry@wanadoo.fr>
 
-	* aws-connection.adb: 
+	* aws-connection.adb:
 	(Line): never exit with an exception from the outer loop in this
 	task. We have a pool of Line that gets recycled.
-	
+
 2000-03-05    Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws-connection.adb:
@@ -7950,7 +7974,7 @@
 
 	* aws-response.ads, aws-response.adb:
 	(Location): new function
-	
+
 2000-02-05    Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws-clients.adb:
@@ -7967,30 +7991,30 @@
 	(Form_Data): new constant
 	(Content_Length): parameter changed from Positive to Natural
 	(Www-Authenticate): new function
-	
+
 	* aws-messages.adb:
 	(Content_Length): parameter changed from Positive to Natural
 	(Www-Authenticate): new function
-	
+
 	* aws-response.ads:
 	(Data_Mode): add Header to the enumeration
 	(Content_Length): parameter changed from Positive to Natural
 	(Acknowledge): new function
-	
+
 	* aws-response.adb:
 	(Content_Length): parameter changed from Positive to Natural
 	(Acknowledge): new function
-	
+
 	* aws-status.ads, aws-status.adb:
 	(Set_Parameter): new function with Stream_Element_Array data
 	(Set_Content_Type): new function
 	(Content_Type): new function
 	(Binary_Data): new function
-	
+
 	* aws-connection.adb:
 	A lot of changes to handle PUT method and handle POST method with
 	binary data.
-	
+
 2000-02-04    Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws-clients.adb:
@@ -7998,20 +8022,20 @@
 	the server.
 
 	* aws-messages.adb:
-	(Weekday): fix minor bug (use local var for time) 
+	(Weekday): fix minor bug (use local var for time)
 	[patch from Sune Falck]
 
 2000-01-24    Pascal Obry <p.obry@wanadoo.fr>
 
 	* aws.ads:
 	(Internal_Error): exception added.
-	
+
 	* aws-client.adb:
 	(Get): Fix sockets interface to use the UNIX compliant one.
 
 	* aws-connection.adb:
 	(Internal_Error): exception removed.
-	
+
 	* aws-messages.adb:
 	(Status_Code_Image): new type to handle 3 digits status code
 	(Status_Data): Code is now a Status_Code_Image
@@ -8032,5 +8056,5 @@
 	* aws*.ad[sb]: this is to be considered the first version of AWS
 
 2000-01-16    Pascal Obry <p.obry@wanadoo.fr>
-	
+
 	* aws*.ad[sb]: this is the very first release.
