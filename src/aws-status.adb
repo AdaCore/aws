@@ -33,6 +33,7 @@
 with Ada.Strings;
 
 with AWS.Digest;
+with AWS.URL.Raise_URL_Error;
 
 package body AWS.Status is
 
@@ -326,9 +327,60 @@ package body AWS.Status is
    -- URI --
    ---------
 
-   function URI (D : in Data) return String is
+   function URI
+     (D              : in Data;
+      Check_Validity : in Boolean := True;
+      Normalize      : in Boolean := False)
+      return String is
    begin
-      return To_String (D.URI);
+      if Normalize then
+         declare
+            O : URL.Object := D.URI;
+         begin
+            URL.Normalize (O);
+            return URL.URL (O);
+         exception
+            when URL.URL_Error =>
+               if Check_Validity then
+                  raise;
+               end if;
+
+               return URL.URL (O);
+         end;
+
+      else
+         if Check_Validity and then not URL.Is_Valid (D.URI) then
+            URL.Raise_URL_Error (URL.URL (D.URI));
+         end if;
+
+         return URL.URL (D.URI);
+      end if;
+   end URI;
+
+   function URI
+     (D              : in Data;
+      Check_Validity : in Boolean := True;
+      Normalize      : in Boolean := False)
+      return URL.Object
+   is
+      O : URL.Object := D.URI;
+   begin
+      if Normalize then
+         begin
+            URL.Normalize (O);
+         exception
+            when URL.URL_Error =>
+               if Check_Validity then
+                  URL.Raise_URL_Error (URL.URL (D.URI));
+               end if;
+         end;
+      end if;
+
+      if Check_Validity and then not URL.Is_Valid (O) then
+         URL.Raise_URL_Error (URL.URL (D.URI));
+      else
+         return O;
+      end if;
    end URI;
 
    ----------------
