@@ -1,3 +1,38 @@
+2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-headers-values.adb:
+	Add some comments.
+	Reformat code.
+	(Search): Rename local variable Sample to M_Name. Call translate
+	 only if needed.
+
+	* aws-headers-values.ads:
+	(Set): Rename Data_Set.
+	Add header to group routines.
+	Fix comments.
+	Reformat code.
+
+	* aws-parameters.adb:
+	Removes comments for internal data structure for the containers,
+	 this is now in AWS.Containers.Tables.
+	Update copyright notice.
+
+	* aws-parameters.ads:
+	Removes comments for inherited routines and point to the
+	 AWS.Containers.Tables for a complete description.
+
+	* aws-jabber.adb:
+	(Incoming_Stream): Add a terminate clause into the select to have
+	 the task properly terminate if the Connect routine has never been
+	 called.
+
+	* aws-parameters-set.adb:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-containers-tables-set.ads:
+	Fix layout.
+
 2002-11-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-containers-tables.adb:
