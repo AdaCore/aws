@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -36,13 +36,13 @@ with Ada.Unchecked_Deallocation;
 package body AWS.Containers.Tables.Set is
 
    procedure Reset (Table : in out Index_Table_Type);
-   --  Free all elements and destroy his entries.
+   --  Free all elements and destroy his entries
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Element, Element_Access);
 
    procedure Free_Elements (Data : in out Data_Table.Instance);
-   --  Free all dynamically allocated strings in the data table.
+   --  Free all dynamically allocated strings in the data table
 
    ---------
    -- Add --
@@ -52,31 +52,10 @@ package body AWS.Containers.Tables.Set is
      (Table       : in out Table_Type;
       Name, Value : in     String)
    is
-      L_Key : constant String
+      L_Key  : constant String
         :=  Normalize_Name (Name, not Table.Case_Sensitive);
 
-      Found : Boolean;
-
-      procedure Add_Value
-        (Key   : in     String;
-         Value : in out Name_Index_Table);
-      --  Append value to the current key's values
-
-      ---------------
-      -- Add_Value --
-      ---------------
-
-      procedure Add_Value
-        (Key   : in     String;
-         Value : in out Name_Index_Table)
-      is
-         pragma Unreferenced (Key);
-      begin
-         Name_Indexes.Append (Value, Data_Table.Last (Table.Data));
-      end Add_Value;
-
-      procedure Update is new Index_Table.Update_Value_Or_Status_G (Add_Value);
-
+      Cursor : Index_Table.Cursor;
    begin
       --  Add name/value pair into the Data table
 
@@ -88,22 +67,28 @@ package body AWS.Containers.Tables.Set is
             Name         => Name,
             Value        => Value));
 
-      --  ???
+      --  Add Data_Table.Last index into the corresponding Name_Indexes table
 
-      Update
-        (Table => Index_Table.Table_Type (Table.Index.all),
-         Key   => L_Key,
-         Found => Found);
+      Cursor := Index_Table.Find (Table.Index.all, L_Key);
 
-      --  ???
-
-      if not Found then
+      if Index_Table.Has_Element (Cursor) then
          declare
-            Value : Name_Index_Table;
+            Item : Name_Index_Table := Index_Table.Element (Cursor);
+         begin
+            Name_Indexes.Append (Item, Data_Table.Last (Table.Data));
+            Index_Table.Replace_Element (Cursor, By => Item);
+         end;
+
+      else
+         declare
+            Value   : Name_Index_Table;
+            Success : Boolean;
          begin
             Name_Indexes.Init (Value);
             Name_Indexes.Append (Value, Data_Table.Last (Table.Data));
-            Insert (Table.Index.all, L_Key, Value);
+            Index_Table.Insert
+              (Table.Index.all, L_Key, Value, Cursor, Success);
+            pragma Assert (Success);
          end;
       end if;
    end Add;
@@ -154,37 +139,20 @@ package body AWS.Containers.Tables.Set is
    -----------
 
    procedure Reset (Table : in out Index_Table_Type) is
-
-      procedure Release_Value
-        (Key          : in     String;
-         Value        : in out Name_Index_Table;
-         Order_Number : in     Positive;
-         Continue     : in out Boolean);
-      --  Release memory associted with the value
-
-      -------------------
-      -- Release_Value --
-      -------------------
-
-      procedure Release_Value
-        (Key          : in     String;
-         Value        : in out Name_Index_Table;
-         Order_Number : in     Positive;
-         Continue     : in out Boolean)
-      is
-         pragma Unreferenced (Key);
-         pragma Unreferenced (Order_Number);
-         pragma Unreferenced (Continue);
-      begin
-         Name_Indexes.Free (Value);
-      end Release_Value;
-
-      procedure Release_Values is new
-        Index_Table.Disorder_Traverse_And_Update_Value_G (Release_Value);
-
+      Cursor : Index_Table.Cursor;
    begin
-      Release_Values (Index_Table.Table_Type (Table));
-      Destroy (Table);
+      Cursor := Index_Table.First (Table);
+
+      while Index_Table.Has_Element (Cursor) loop
+         declare
+            Item : Name_Index_Table := Index_Table.Element (Cursor);
+         begin
+            Name_Indexes.Free (Item);
+         end;
+         Index_Table.Next (Cursor);
+      end loop;
+
+      Index_Table.Clear (Table);
    end Reset;
 
    procedure Reset (Table : in out Table_Type) is
@@ -210,73 +178,21 @@ package body AWS.Containers.Tables.Set is
       Value : in     String;
       N     : in     Positive := 1)
    is
-
-      L_Key : constant String
+      L_Key  : constant String
         :=  Normalize_Name (Name, not Table.Case_Sensitive);
 
-      Found : Boolean;
-
-      procedure Update_Value
-        (Key    : in     String;
-         Values : in out Name_Index_Table);
-      --  Append value to the current key's values
-
-      ------------------
-      -- Update_Value --
-      ------------------
-
-      procedure Update_Value
-        (Key    : in     String;
-         Values : in out Name_Index_Table)
-      is
-         pragma Unreferenced (Key);
-      begin
-         if Key_Positive (N) <= Name_Indexes.Last (Values) then
-
-            declare
-               Index : Positive := Values.Table (Key_Positive (N));
-            begin
-               Free (Table.Data.Table (Index));
-               Table.Data.Table (Index) :=
-                  new Element'
-                       (Name_Length  => Name'Length,
-                        Value_Length => Value'Length,
-                        Name         => Name,
-                        Value        => Value);
-            end;
-
-         elsif Key_Positive (N) = Name_Indexes.Last (Values) + 1 then
-            Data_Table.Append
-              (Table.Data,
-               new Element'
-                 (Name_Length  => Name'Length,
-                  Value_Length => Value'Length,
-                  Name         => Name,
-                  Value        => Value));
-
-            Name_Indexes.Append (Values, Data_Table.Last (Table.Data));
-         else
-            raise Constraint_Error;
-         end if;
-      end Update_Value;
-
-      procedure Update is
-         new Index_Table.Update_Value_Or_Status_G (Update_Value);
-
+      Cursor : Index_Table.Cursor;
    begin
-      Update
-        (Table => Index_Table.Table_Type (Table.Index.all),
-         Key   => L_Key,
-         Found => Found);
+      Cursor := Index_Table.Find (Table.Index.all, L_Key);
 
-      if not Found then
-
+      if not Index_Table.Has_Element (Cursor) then
          if N /= 1 then
             raise Constraint_Error;
          end if;
 
          declare
-            Values : Name_Index_Table;
+            Values  : Name_Index_Table;
+            Success : Boolean;
          begin
             Name_Indexes.Init (Values);
 
@@ -289,7 +205,46 @@ package body AWS.Containers.Tables.Set is
                   Value        => Value));
 
             Name_Indexes.Append (Values, Data_Table.Last (Table.Data));
-            Insert (Table.Index.all, L_Key, Values);
+            Index_Table.Insert
+              (Table.Index.all, L_Key, Values, Cursor, Success);
+            pragma Assert (Success);
+         end;
+
+      else
+         declare
+            Item : Name_Index_Table := Index_Table.Element (Cursor);
+         begin
+            if Key_Positive (N) <= Name_Indexes.Last (Item) then
+               --  Replace item
+               declare
+                  Index : constant Positive := Item.Table (Key_Positive (N));
+               begin
+                  Free (Table.Data.Table (Index));
+                  Table.Data.Table (Index) :=
+                    new Element'
+                      (Name_Length  => Name'Length,
+                       Value_Length => Value'Length,
+                       Name         => Name,
+                       Value        => Value);
+               end;
+
+            elsif Key_Positive (N) = Name_Indexes.Last (Item) + 1 then
+               --  Add item at then end of the table
+               Data_Table.Append
+                 (Table.Data,
+                  new Element'
+                    (Name_Length  => Name'Length,
+                     Value_Length => Value'Length,
+                     Name         => Name,
+                     Value        => Value));
+
+               Name_Indexes.Append (Item, Data_Table.Last (Table.Data));
+               Index_Table.Replace_Element (Cursor, By => Item);
+
+            else
+               --  This item does not exist
+               raise Constraint_Error;
+            end if;
          end;
       end if;
    end Update;

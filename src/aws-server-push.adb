@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with AI302.Containers;
 
 with AWS.Messages;
 with AWS.MIME;
@@ -100,7 +101,7 @@ package body AWS.Server.Push is
 
       function Count return Natural is
       begin
-         return Table.Size (Container);
+         return Natural (Table.Length (Container));
       end Count;
 
       -------------
@@ -121,7 +122,8 @@ package body AWS.Server.Push is
          Holder          : in out Client_Holder;
          Close_Duplicate : in     Boolean)
       is
-         Duplicate : Boolean;
+         Cursor  : Table.Cursor;
+         Success : Boolean;
       begin
 
          if not Open then
@@ -129,12 +131,12 @@ package body AWS.Server.Push is
             raise Closed;
          end if;
 
-         Table.Insert (Container, Client_ID, Holder, Duplicate);
+         Table.Insert (Container, Client_ID, Holder, Cursor, Success);
 
-         if Duplicate then
+         if not Success then
             if Close_Duplicate then
                Unregister (Client_ID, True);
-               Table.Insert (Container, Client_ID, Holder);
+               Table.Containers.Replace_Element (Cursor, Holder);
             else
                Net.Stream_IO.Free (Holder.Stream, False);
                raise Duplicate_Client_ID;
@@ -209,64 +211,36 @@ package body AWS.Server.Push is
       procedure Send
         (Data         : in     Client_Output_Type;
          Content_Type : in     String;
-         Unregistered : in out Table.Table_Type)
+         Unregistered : in out Table.Map)
       is
-
-         procedure Action
-           (Key          : in     Client_Key;
-            Value        : in     Client_Holder;
-            Order_Number : in     Positive;
-            Continue     : in out Boolean);
-
-         procedure Free
-           (Key          : in     Client_Key;
-            Value        : in     Client_Holder;
-            Order_Number : in     Positive;
-            Continue     : in out Boolean);
-
-         ------------
-         -- Action --
-         ------------
-
-         procedure Action
-           (Key          : in     Client_Key;
-            Value        : in     Client_Holder;
-            Order_Number : in     Positive;
-            Continue     : in out Boolean)
-         is
-            pragma Unreferenced (Order_Number);
-            pragma Unreferenced (Continue);
-         begin
-            Send_Data (Value, Data, Content_Type);
-         exception
-            when Net.Socket_Error =>
-               Table.Insert (Unregistered, Key, Value);
-         end Action;
-
-         ----------
-         -- Free --
-         ----------
-
-         procedure Free
-           (Key          : in     Client_Key;
-            Value        : in     Client_Holder;
-            Order_Number : in     Positive;
-            Continue     : in out Boolean)
-         is
-            pragma Unreferenced (Value);
-            pragma Unreferenced (Order_Number);
-            pragma Unreferenced (Continue);
-         begin
-            Unregister (Key, True);
-         end Free;
-
-         procedure For_Each is new Table.Disorder_Traverse_G (Action);
-
-         procedure Remove_Each is new Table.Disorder_Traverse_G (Free);
-
+         Cursor : Table.Cursor;
       begin
-         For_Each (Container);
-         Remove_Each (Unregistered);
+         Cursor := Table.First (Container);
+
+         while Table.Has_Element (Cursor) loop
+            declare
+               Holder : constant Client_Holder
+                 := Table.Containers.Element (Cursor);
+            begin
+               declare
+                  Success : Boolean;
+               begin
+                  Send_Data (Holder, Data, Content_Type);
+               exception
+                  when Net.Socket_Error =>
+                     declare
+                        C   : Table.Cursor;
+                        Key : constant Client_Key
+                          := Table.Containers.Key (Cursor);
+                     begin
+                        Table.Insert (Unregistered, Key, Holder, C, Success);
+                        Unregister (Key, True);
+                     end;
+               end;
+            end;
+
+            Table.Containers.Next (Cursor);
+         end loop;
       end Send;
 
       ---------------
@@ -315,15 +289,17 @@ package body AWS.Server.Push is
          Data         : in Client_Output_Type;
          Content_Type : in String)
       is
-         Holder : Client_Holder;
+         Cursor : Table.Cursor;
       begin
-         Holder := Table.Value (Container, Client_ID);
-         Send_Data (Holder, Data, Content_Type);
+         Cursor := Table.Find (Container, Client_ID);
+
+         if Table.Has_Element (Cursor) then
+            Send_Data (Table.Containers.Element (Cursor), Data, Content_Type);
+         else
+            raise Client_Gone;
+         end if;
 
       exception
-         when Table.Missing_Item_Error =>
-            raise Client_Gone;
-
          when Net.Socket_Error =>
             Unregister (Client_ID, True);
             raise Client_Gone;
@@ -344,10 +320,10 @@ package body AWS.Server.Push is
         (Final_Data         : in Client_Output_Type;
          Final_Content_Type : in String)
       is
-         Gone : Table.Table_Type;
+         Gone : Table.Map;
       begin
          Send (Final_Data, Final_Content_Type, Gone);
-         Table.Destroy (Gone);
+         Table.Clear (Gone);
          Shutdown (Close_Sockets => True);
       end Shutdown;
 
@@ -356,8 +332,9 @@ package body AWS.Server.Push is
       -----------------------
 
       procedure Shutdown_If_Empty (Open : out Boolean) is
+         use type AI302.Containers.Size_Type;
       begin
-         if Table.Size (Container) = 0 then
+         if Table.Length (Container) = 0 then
             Object.Open := False;
          end if;
          Shutdown_If_Empty.Open := Object.Open;
@@ -371,19 +348,22 @@ package body AWS.Server.Push is
         (Client_ID    : in Client_Key;
          Close_Socket : in Boolean)
       is
-         Value : Client_Holder;
+         Cursor : Table.Cursor;
+         Value  : Client_Holder;
       begin
-         Table.Remove (Container, Client_ID, Value);
+         Cursor := Table.Find (Container, Client_ID);
 
-         if Close_Socket then
-            Net.Stream_IO.Shutdown (Value.Stream);
+         if Table.Has_Element (Cursor) then
+            Table.Delete (Container, Cursor);
+
+            Value := Table.Containers.Element (Cursor);
+
+            if Close_Socket then
+               Net.Stream_IO.Shutdown (Value.Stream);
+            end if;
+
+            Net.Stream_IO.Free (Value.Stream, Close_Socket);
          end if;
-
-         Net.Stream_IO.Free (Value.Stream, Close_Socket);
-
-      exception
-         when Table.Missing_Item_Error =>
-            null;
       end Unregister;
 
       ------------------------
@@ -391,9 +371,13 @@ package body AWS.Server.Push is
       ------------------------
 
       procedure Unregister_Clients (Close_Sockets : in Boolean) is
+         Cursor : Table.Cursor;
       begin
-         while Table.Size (Container) > 0 loop
-            Unregister (Table.Min_Key (Container), Close_Sockets);
+         Cursor := Table.First (Container);
+
+         while Table.Has_Element (Cursor) loop
+            Unregister (Table.Containers.Key (Cursor), Close_Sockets);
+            Table.Containers.Next (Cursor);
          end loop;
       end Unregister_Clients;
 
@@ -454,10 +438,10 @@ package body AWS.Server.Push is
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "")
    is
-      Gone : Table.Table_Type;
+      Gone : Table.Map;
    begin
       Server.Send (Data, Content_Type, Gone);
-      Table.Destroy (Gone);
+      Table.Clear (Gone);
    end Send;
 
    ------------
@@ -469,37 +453,19 @@ package body AWS.Server.Push is
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "")
    is
-      procedure Action
-        (Key          : in     Client_Key;
-         Value        : in     Client_Holder;
-         Order_Number : in     Positive;
-         Continue     : in out Boolean);
-
-      Gone : Table.Table_Type;
-
-      ------------
-      -- Action --
-      ------------
-
-      procedure Action
-        (Key          : in     Client_Key;
-         Value        : in     Client_Holder;
-         Order_Number : in     Positive;
-         Continue     : in out Boolean)
-      is
-         pragma Unreferenced (Value);
-         pragma Unreferenced (Order_Number);
-         pragma Unreferenced (Continue);
-      begin
-         Client_Gone (Key);
-      end Action;
-
-      procedure For_Each is new Table.Disorder_Traverse_G (Action);
-
+      Cursor : Table.Cursor;
+      Gone   : Table.Map;
    begin
       Server.Send (Data, Content_Type, Gone);
-      For_Each (Gone);
-      Table.Destroy (Gone);
+
+      Cursor := Table.First (Gone);
+
+      while Table.Has_Element (Cursor) loop
+         Client_Gone (Table.Containers.Key (Cursor));
+         Table.Containers.Next (Cursor);
+      end loop;
+
+      Table.Clear (Gone);
    end Send_G;
 
    -------------

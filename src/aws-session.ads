@@ -41,10 +41,10 @@ package AWS.Session is
    No_Session : constant ID;
 
    function Create return ID;
-   --  Create a new uniq Session ID.
+   --  Create a new uniq Session ID
 
    procedure Delete (SID : in ID);
-   --  Delete session, does nothing if SID does not exists.
+   --  Delete session, does nothing if SID does not exists
 
    function Image (SID : in ID) return String;
    pragma Inline (Image);
@@ -127,13 +127,16 @@ package AWS.Session is
    procedure Remove
      (SID : in ID;
       Key : in String);
-   --  Removes Key from the specified session.
+   --  Removes Key from the specified session
 
    function Exist
      (SID : in ID;
       Key : in String)
       return Boolean;
-   --  Returns True if Key exist in session SID.
+   --  Returns True if Key exist in session SID
+
+   procedure Clear;
+   --  Removes all sessions data
 
    ---------------
    -- Iterators --

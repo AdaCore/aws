@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,9 +31,8 @@
 --  $Id$
 
 with Ada.Calendar;
-with Ada.Strings.Unbounded;
 
-with Table_Of_Strings_And_Static_Values_G;
+with Strings_Maps;
 
 with AWS.Resources.Streams;
 with AWS.Utils;
@@ -41,25 +40,18 @@ with AWS.Utils;
 package body AWS.Services.Transient_Pages is
 
    use Ada;
-   use Ada.Strings.Unbounded;
-
-   Max_Obsolete : constant := 30;
 
    type Item is record
       Stream      : AWS.Resources.Streams.Stream_Access;
       Delete_Time : Calendar.Time;
    end record;
 
-   package Table is new Table_Of_Strings_And_Static_Values_G
-     (Character, String, "<", "=", Item);
+   package Table is new Strings_Maps (Item, "=");
 
    subtype ID is String (1 .. 25);
    --  Random ID generated as transient page identity, the five first
    --  characters are a number with a set of '$' character as prefix the 20
    --  next characters are completely random.
-
-   Obsolete : array (1 .. Max_Obsolete) of Unbounded_String;
-   O_Index  : Natural := 0;
 
    Clean_Interval : Duration;
    --  Interval between each run of the cleaner task
@@ -76,22 +68,18 @@ package body AWS.Services.Transient_Pages is
          Resource : in Item);
       --  Register URI into the database
 
-      procedure Release (URI : in String);
-      --  Release all memory associated with URI (the entry in the table and
-      --  the memory stream).
-
       procedure Get_Value
         (URI    : in     String;
          Result :    out Item;
          Found  :    out Boolean);
       --  Returns URI's information or set Found to False if not found
 
-      procedure Fill_Obsolete_Table;
-      --  Add a set of obsolete objects into the obsolete table
+      procedure Clean;
+      --  Removes obsolete items from the table
 
    private
       K         : Natural := 0;
-      Resources : Table.Table_Type;
+      Resources : Table.Map;
    end Database;
 
    ---------------------
@@ -138,12 +126,7 @@ package body AWS.Services.Transient_Pages is
             delay until Next;
          end select;
 
-         Database.Fill_Obsolete_Table;
-
-         for K in 1 .. O_Index loop
-            Database.Release (To_String (Obsolete (K)));
-            Obsolete (K) := Null_Unbounded_String;
-         end loop;
+         Database.Clean;
 
          Next := Next + Clean_Interval;
       end loop Clean;
@@ -155,48 +138,44 @@ package body AWS.Services.Transient_Pages is
 
    protected body Database is
 
-      -------------------------
-      -- Fill_Obsolete_Table --
-      -------------------------
+      -----------
+      -- Clean --
+      -----------
 
-      procedure Fill_Obsolete_Table is
+      procedure Clean is
+         use type Calendar.Time;
 
-         Now : constant Calendar.Time := Calendar.Clock;
-
-         procedure Action
-           (Key          : in     String;
-            Value        : in     Item;
-            Order_Number : in     Positive;
-            Continue     : in out Boolean);
-         --  Iterator callback
-
-         procedure Action
-           (Key          : in     String;
-            Value        : in     Item;
-            Order_Number : in     Positive;
-            Continue     : in out Boolean)
-         is
-            pragma Unreferenced (Order_Number);
-
-            use type Calendar.Time;
-         begin
-            if Now > Value.Delete_Time then
-               O_Index := O_Index + 1;
-               Obsolete (O_Index) := To_Unbounded_String (Key);
-
-               if O_Index = Obsolete'Last then
-                  Continue := False;
-               end if;
-            end if;
-         end Action;
-
-         procedure Check_Delete_Time is new Table.Traverse_Asc_G;
-
+         Now    : constant Calendar.Time := Calendar.Clock;
+         Cursor : Table.Cursor;
       begin
-         O_Index := 0;
+         Cursor := Table.First (Resources);
 
-         Check_Delete_Time (Resources);
-      end Fill_Obsolete_Table;
+         while Table.Has_Element (Cursor) loop
+            declare
+               Value : constant Item := Table.Containers.Element (Cursor);
+            begin
+               if Now > Value.Delete_Time then
+                  declare
+                     Result  : constant Item
+                       := Table.Containers.Element (Cursor);
+                     Current : Table.Cursor := Cursor;
+                  begin
+                     Table.Containers.Next (Cursor);
+                     Table.Delete (Resources, Current);
+
+                     declare
+                        Resource : AWS.Resources.File_Type;
+                     begin
+                        AWS.Resources.Streams.Create (Resource, Result.Stream);
+                        AWS.Resources.Close (Resource);
+                     end;
+                  end;
+               else
+                  Table.Containers.Next (Cursor);
+               end if;
+            end;
+         end loop;
+      end Clean;
 
       -----------------
       -- Generate_ID --
@@ -257,9 +236,18 @@ package body AWS.Services.Transient_Pages is
       procedure Get_Value
         (URI    : in     String;
          Result :    out Item;
-         Found  :    out Boolean) is
+         Found  :    out Boolean)
+      is
+         Cursor : Table.Cursor;
       begin
-         Table.Get_Value (Resources, URI, Result, Found);
+         Cursor := Table.Find (Resources, URI);
+
+         if Table.Has_Element (Cursor) then
+            Found  := True;
+            Result := Table.Containers.Element (Cursor);
+         else
+            Found  := False;
+         end if;
       end Get_Value;
 
       --------------
@@ -268,33 +256,17 @@ package body AWS.Services.Transient_Pages is
 
       procedure Register
         (URI      : in String;
-         Resource : in Item) is
+         Resource : in Item)
+      is
+         Cursor  : Table.Cursor;
+         Success : Boolean;
       begin
          if Cleaner_Task = null then
             Cleaner_Task := new Cleaner;
          end if;
 
-         Table.Insert (Resources, URI, Resource);
+         Table.Insert (Resources, URI, Resource, Cursor, Success);
       end Register;
-
-      -------------
-      -- Release --
-      -------------
-
-      procedure Release (URI : in String) is
-         Found  : Boolean;
-         Result : Item;
-      begin
-         Table.Get_Value (Resources, URI, Result, Found);
-         Table.Remove (Resources, URI);
-
-         declare
-            Resource : AWS.Resources.File_Type;
-         begin
-            AWS.Resources.Streams.Create (Resource, Result.Stream);
-            AWS.Resources.Close (Resource);
-         end;
-      end Release;
 
    end Database;
 

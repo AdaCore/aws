@@ -33,7 +33,7 @@
 
 with Ada.Strings.Unbounded;
 
-with Table_Of_Strings_And_Static_Values_G;
+with Strings_Maps;
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -46,7 +46,7 @@ package AWS.Services.Dispatchers.Virtual_Host is
    function Dispatch
      (Dispatcher : in Handler;
       Request    : in Status.Data)
-     return Response.Data;
+      return Response.Data;
 
    procedure Register
      (Dispatcher       : in out Handler;
@@ -96,14 +96,11 @@ private
       end case;
    end record;
 
-   package Virtual_Host_Table is new Table_Of_Strings_And_Static_Values_G
-     (Character, String, "<", "=", VH_Node);
-
-   type VH_Table_Access is access Virtual_Host_Table.Table_Type;
+   package Virtual_Host_Table is new Strings_Maps (VH_Node, "=");
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;
-      Table  : VH_Table_Access;
+      Table  : Virtual_Host_Table.Map;
    end record;
 
 end AWS.Services.Dispatchers.Virtual_Host;

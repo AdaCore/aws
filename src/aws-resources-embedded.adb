@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2003                         --
+--                          Copyright (C) 2002-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,7 +32,7 @@
 
 with AWS.Resources.Streams.ZLib;
 
-with Table_Of_Strings_And_Static_Values_G;
+with Strings_Maps;
 
 with ZLib;
 
@@ -43,10 +43,9 @@ package body AWS.Resources.Embedded is
       File_Time   : Calendar.Time;
    end record;
 
-   package Res_Files is new Table_Of_Strings_And_Static_Values_G
-     (Character, String, "<", "=", Node);
+   package Res_Files is new Strings_Maps (Node, "=");
 
-   Files_Table : Res_Files.Table_Type;
+   Files_Table : Res_Files.Map;
 
    procedure Append
      (Stream : in Streams.Stream_Access;
@@ -89,15 +88,17 @@ package body AWS.Resources.Embedded is
    function Exist (Name : in String) return File_Instance is
    begin
       if not Is_GZip (Name)
-        and then Res_Files.Is_Present (Files_Table, Name & GZip_Ext)
+        and then Res_Files.Is_In (Name & GZip_Ext, Files_Table)
       then
-         if Res_Files.Is_Present (Files_Table, Name) then
+         if Res_Files.Is_In (Name, Files_Table) then
             return Both;
          else
             return GZip;
          end if;
-      elsif Res_Files.Is_Present (Files_Table, Name) then
+
+      elsif Res_Files.Is_In (Name, Files_Table) then
          return Plain;
+
       else
          return None;
       end if;
@@ -111,24 +112,23 @@ package body AWS.Resources.Embedded is
      (Name : in String)
       return Ada.Streams.Stream_Element_Offset
    is
-      N     : Node;
-      Found : Boolean;
+      Cursor : Res_Files.Cursor;
    begin
-      Res_Files.Get_Value (Files_Table, Name, N, Found);
+      Cursor := Res_Files.Find (Files_Table, Name);
 
-      if Found then
-         return N.File_Buffer'Length;
+      if Res_Files.Has_Element (Cursor) then
+         return Res_Files.Containers.Element (Cursor).File_Buffer'Length;
 
       elsif Is_GZip (Name) then
-         --  Don't look for resource Name & ".gz.gz";
+         --  Don't look for resource Name & ".gz.gz"
 
          raise Resource_Error;
       end if;
 
-      Res_Files.Get_Value (Files_Table, Name & GZip_Ext, N, Found);
+      Cursor := Res_Files.Find (Files_Table, Name & GZip_Ext);
 
-      if Found then
-         return N.File_Buffer'Length;
+      if Res_Files.Has_Element (Cursor) then
+         return Res_Files.Containers.Element (Cursor).File_Buffer'Length;
       else
          raise Resource_Error;
       end if;
@@ -139,13 +139,12 @@ package body AWS.Resources.Embedded is
    --------------------
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time is
-      N     : Node;
-      Found : Boolean;
+      Cursor : Res_Files.Cursor;
    begin
-      Res_Files.Get_Value (Files_Table, Name, N, Found);
+      Cursor := Res_Files.Find (Files_Table, Name);
 
-      if Found then
-         return N.File_Time;
+      if Res_Files.Has_Element (Cursor) then
+         return Res_Files.Containers.Element (Cursor).File_Time;
 
       elsif Is_GZip (Name) then
          --  Don't look for resource Name & ".gz.gz";
@@ -153,10 +152,10 @@ package body AWS.Resources.Embedded is
          raise Resource_Error;
       end if;
 
-      Res_Files.Get_Value (Files_Table, Name & GZip_Ext, N, Found);
+      Cursor := Res_Files.Find (Files_Table, Name & GZip_Ext);
 
-      if Found then
-         return N.File_Time;
+      if Res_Files.Has_Element (Cursor) then
+         return Res_Files.Containers.Element (Cursor).File_Time;
       else
          raise Resource_Error;
       end if;
@@ -168,9 +167,9 @@ package body AWS.Resources.Embedded is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return Res_Files.Is_Present (Files_Table, Name)
+      return Res_Files.Is_In (Name, Files_Table)
         or else (not Is_GZip (Name)
-                 and then Res_Files.Is_Present (Files_Table, Name & GZip_Ext));
+                 and then Res_Files.Is_In (Name & GZip_Ext, Files_Table));
    end Is_Regular_File;
 
    ----------
@@ -184,6 +183,7 @@ package body AWS.Resources.Embedded is
       GZip : in out Boolean)
    is
       pragma Unreferenced (Form);
+
       Stream : Streams.Stream_Access;
       Found  : Boolean;
 
@@ -194,14 +194,18 @@ package body AWS.Resources.Embedded is
       ---------------
 
       procedure Open_File (Name : in String) is
-         N        : Node;
+         Cursor : Res_Files.Cursor;
       begin
-         Res_Files.Get_Value (Files_Table, Name, N, Found);
+         Cursor := Res_Files.Find (Files_Table, Name);
 
-         if Found then
+         if Res_Files.Has_Element (Cursor) then
+            Found := True;
             Stream := new Streams.Memory.Stream_Type;
 
-            Append (Stream, N.File_Buffer);
+            Append (Stream, Res_Files.Containers.Element (Cursor).File_Buffer);
+
+         else
+            Found := False;
          end if;
       end Open_File;
 
@@ -231,8 +235,8 @@ package body AWS.Resources.Embedded is
             Open_File (Name & GZip_Ext);
 
             if Found then
-               Stream := Streams.ZLib.Inflate_Create
-                           (Stream, Header => ZLib.GZip);
+               Stream
+                 := Streams.ZLib.Inflate_Create (Stream, Header => ZLib.GZip);
             end if;
          end if;
       end if;
@@ -247,9 +251,17 @@ package body AWS.Resources.Embedded is
    procedure Register
      (Name      : in String;
       Content   : in Buffer_Access;
-      File_Time : in Calendar.Time) is
+      File_Time : in Calendar.Time)
+   is
+      N       : constant Node := (Content, File_Time);
+      Cursor  : Res_Files.Cursor;
+      Success : Boolean;
    begin
-      Res_Files.Insert (Files_Table, Name, (Content, File_Time));
+      Res_Files.Insert (Files_Table, Name, N, Cursor, Success);
+
+      if not Success then
+         Res_Files.Containers.Replace_Element (Cursor, By => N);
+      end if;
    end Register;
 
 end AWS.Resources.Embedded;
