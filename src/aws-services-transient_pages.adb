@@ -35,7 +35,7 @@ with Ada.Strings.Unbounded;
 
 with Table_Of_Strings_And_Static_Values_G;
 
-with AWS.Resources.Release;
+with AWS.Resources.Streams;
 with AWS.Utils;
 
 package body AWS.Services.Transient_Pages is
@@ -54,10 +54,15 @@ package body AWS.Services.Transient_Pages is
      (Character, String, "<", "=", Item);
 
    subtype ID is String (1 .. 25);
-   --  Random ID generated as transient page identity
+   --  Random ID generated as transient page identity, the five first
+   --  characters are a number with a set of '$' character as prefix the 20
+   --  next characters are completely random.
 
    Obsolete : array (1 .. Max_Obsolete) of Unbounded_String;
    O_Index  : Natural := 0;
+
+   Clean_Interval : Duration;
+   --  Interval between each run of the cleaner task
 
    --  Concurrent access for the transient pages
 
@@ -100,10 +105,9 @@ package body AWS.Services.Transient_Pages is
       --------------
 
       procedure Register (Transient_Check_Interval : in Duration) is
-         pragma Unreferenced (Transient_Check_Interval);
       begin
          Server_Count := Server_Count + 1;
-         null;
+         Clean_Interval := Transient_Check_Interval;
       end Register;
 
       ----------
@@ -124,11 +128,7 @@ package body AWS.Services.Transient_Pages is
 
    task body Cleaner is
       use type Calendar.Time;
-
-      C_Interval : constant Duration := 60.0;
-      --  ??? This should be a configuration option
-
-      Next : Calendar.Time := Calendar.Clock + C_Interval;
+      Next : Calendar.Time := Calendar.Clock + Clean_Interval;
    begin
       Clean : loop
          select
@@ -145,7 +145,7 @@ package body AWS.Services.Transient_Pages is
             Obsolete (K) := Null_Unbounded_String;
          end loop;
 
-         Next := Next + C_Interval;
+         Next := Next + Clean_Interval;
       end loop Clean;
    end Cleaner;
 
@@ -217,14 +217,20 @@ package body AWS.Services.Transient_Pages is
          K_Img  : constant String := Natural'Image (K);
          J      : Positive := K_Img'First + 1;
       begin
+         --  Fill with '$'
+
          for I in 1 .. 6 - K_Img'Length loop
             Result (I) := '$';
          end loop;
+
+         --  Add the number
 
          for I in 6 - K_Img'Length + 1 .. 5 loop
             Result (I) := K_Img (J);
             J := J + 1;
          end loop;
+
+         --  Fill the next 20 characters with random characters
 
          for I in 6 .. ID'Last loop
             if Rand = 0 then
@@ -286,29 +292,11 @@ package body AWS.Services.Transient_Pages is
             Resource : AWS.Resources.File_Type;
          begin
             AWS.Resources.Streams.Create (Resource, Result.Stream);
-
-            --  Close the stream
-
-            AWS.Resources.Streams.Memory.Close
-              (AWS.Resources.Streams.Memory.Stream_Type (Result.Stream.all));
-
-            --  Release the memory associated with the stream handle
-
-            AWS.Resources.Release (Resource);
+            AWS.Resources.Close (Resource);
          end;
       end Release;
 
    end Database;
-
-   -----------
-   -- Close --
-   -----------
-
-   procedure Close (Resource : in out Stream_Type) is
-      pragma Unreferenced (Resource);
-   begin
-      null;
-   end Close;
 
    ---------
    -- Get --
@@ -322,7 +310,7 @@ package body AWS.Services.Transient_Pages is
 
       if Found then
          --  Reset the stream pointer to the stream's first byte
-         Reset (Stream_Type (Result.Stream.all));
+         AWS.Resources.Streams.Reset (Result.Stream.all);
          return Result.Stream;
       else
          return null;
@@ -347,24 +335,11 @@ package body AWS.Services.Transient_Pages is
    procedure Register
      (URI      : in String;
       Resource : in AWS.Resources.Streams.Stream_Access;
-      Lifetime : in Duration := Default_Lifetime)
+      Lifetime : in Duration := Default.Transient_Lifetime)
    is
       use type Calendar.Time;
    begin
       Database.Register (URI, (Resource, Calendar.Clock + Lifetime));
    end Register;
-
-   -------------
-   -- Release --
-   -------------
-
-   procedure Release
-     (Resource : in     Stream_Type;
-      File     : in out AWS.Resources.File_Type)
-   is
-      pragma Unreferenced (Resource, File);
-   begin
-      null;
-   end Release;
 
 end AWS.Services.Transient_Pages;
