@@ -152,16 +152,17 @@ package AWS.Messages is
    --  Cache_Option is a string and any specific option can be specified. We
    --  define three options:
    --
-   --  Unspecified : No cache option will used.
-   --  No_Cache    : Ask browser and proxy to not cache data (no-cache,
-   --                max-age, and s-maxage is specified).
-   --  No_Store    : Ask browser and proxy to not store any data. This can be
-   --                used to protect sensitive data.
-   --
+   --  Unspecified   : No cache option will used.
+   --  No_Cache      : Ask browser and proxy to not cache data (no-cache,
+   --                  max-age, and s-maxage are specified).
+   --  No_Store      : Ask browser and proxy to not store any data. This can be
+   --                  used to protect sensitive data.
+   --  Prevent_Cache : Equivalent to No_Store + No_Cache
 
-   Unspecified : constant Cache_Option;
-   No_Cache    : constant Cache_Option;
-   No_Store    : constant Cache_Option;
+   Unspecified   : constant Cache_Option;
+   No_Cache      : constant Cache_Option;
+   No_Store      : constant Cache_Option;
+   Prevent_Cache : constant Cache_Option;
 
    -------------------------------
    -- HTTP message constructors --
@@ -265,8 +266,9 @@ package AWS.Messages is
 
 private
 
-   Unspecified : constant Cache_Option := "";
-   No_Cache    : constant Cache_Option := "no-cache, max-age=0, s-maxage=0";
-   No_Store    : constant Cache_Option := "no-store";
+   Unspecified   : constant Cache_Option := "";
+   No_Cache      : constant Cache_Option := "no-cache, max-age=0, s-maxage=0";
+   No_Store      : constant Cache_Option := "no-store";
+   Prevent_Cache : constant Cache_Option := No_Store & ", " & No_Cache;
 
 end AWS.Messages;
