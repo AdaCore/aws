@@ -41,10 +41,11 @@
 --
 --  wm_summary.thtml  A template to display the mailbox summary. The following
 --                    variable tags are defined:
---                    WM_POP_SERVER    name of the POP server.
+--                    WM_POP_SERVER    name of the POP server
 --                    WM_USER_NAME     user or mailbox name
+--                    WM_MESS_COUNT    total number of messages in mailbox
 --                    WM_MAILBOX_SIZE  the number of bytes into the mailbox
---                    WM_INDEX_V       message numbers (vector tag)
+--                    WM_MESSAGE_V     message numbers (vector tag)
 --                    WM_SIZE_V        corresponding merssage size
 --                    WM_FROM_V        corresponding from field
 --                    WM_DATE_V        corresponding data field
@@ -52,8 +53,9 @@
 --
 --  wm_message.thtml  A template to display a message. The following variable
 --                    tags are defined:
---                    WM_POP_SERVER    name of the POP server.
+--                    WM_POP_SERVER    name of the POP server
 --                    WM_USER_NAME     user or mailbox name
+--                    WM_MESS_COUNT    total number of messages in mailbox
 --                    WM_MESSAGE       message number
 --                    WM_DATE          date of the message
 --                    WM_FROM          sender address
@@ -63,7 +65,20 @@
 --                    WM_ATT_NAME_V    message attachment names (vector tag)
 --                    WM_ATT_REF_V     URI reference to the attachment content
 --
---  In all templates the tag AWS_VERSION is defined and correspond to the AWS
+--  wm_reply.thtml    A template to reply to a given message. The following
+--                    variable tags are defined:
+--                    WM_SMTP_SERVER   server that will be used to send message
+--                    WM_POP_SERVER    name of The POP Server
+--                    WM_USER_NAME     user or mailbox name
+--                    WM_MESS_COUNT    total number of messages in mailbox
+--                    WM_MESSAGE       message number
+--                    WM_DATE          date of the message
+--                    WM_FROM          sender address
+--                    WM_CC            carbon-copy recipients
+--                    WM_SUBJECT       message's subject
+--                    WM_CONTENT       message's content (lines prefix >)
+--
+--  In all templates the tag AWS_VERSION is defined and corresponds to the AWS
 --  version string.
 
 with AWS.Status;
