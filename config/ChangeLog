@@ -1,3 +1,13 @@
+2005-02-14  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-net-std__gnat.adb:
+	Update copyright years.
+	(Get_Addr_Info): Remove.
+	(Get_Inet_Addr): Reappear from old package version.
+	(Bind): Revert version before Get_Addr_Info usage.
+	(Connect): Use GNAT.Sockets.Connect with exception handler
+	 for non-blocking connect.
+
 2005-02-05  Pascal Obry  <pascal@obry.org>
 
 	* src/check_config.c:
