@@ -30,8 +30,6 @@
 
 --  $Id$
 
-with Ada.Streams.Stream_IO;
-
 package AWS.Resources.Files is
 
    procedure Open
@@ -46,31 +44,5 @@ package AWS.Resources.Files is
       return Ada.Streams.Stream_Element_Offset;
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time;
-
-private
-
-   type Stream_File_Access is access Stream_IO.File_Type;
-
-   Buffer_Size : constant := 8_192;
-
-   type File_Tagged is new Resources.File_Tagged with record
-      File    : Stream_IO.File_Type;
-      Stream  : Stream_IO.Stream_Access;
-      --  Below are data for buffered access to the file
-      Buffer  : Stream_Element_Array (1 .. Buffer_Size);
-      Current : Stream_Element_Offset := 1;
-      Last    : Stream_Element_Offset := 0;
-   end record;
-
-   function End_Of_File (Resource : in File_Tagged) return Boolean;
-
-   procedure Read
-     (Resource : in out File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
-
-   function Size (Resource : in File_Tagged) return Stream_Element_Offset;
-
-   procedure Close (Resource : in out File_Tagged);
 
 end AWS.Resources.Files;
