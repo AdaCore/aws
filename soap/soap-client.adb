@@ -30,17 +30,14 @@
 
 --  $Id$
 
-with Ada.Strings.Unbounded;
-
 with SOAP.Message.XML;
 with SOAP.Message.Payload;
 
+with AWS.Client;
 with AWS.Response;
 with AWS.URL;
 
 package body SOAP.Client is
-
-   use Ada.Strings.Unbounded;
 
    ----------
    -- Call --
@@ -58,46 +55,45 @@ package body SOAP.Client is
       Timeouts   : in AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
       return Message.Response.Object'Class
    is
+      function SOAP_Action return String;
+      --  Returns not empty SOAPAction anyway.
 
-      procedure RPC_Call;
-      --  Does the actual RPC over HTTP call
+      Connection   : AWS.Client.HTTP_Connection;
 
-      Message_Body : Unbounded_String;
-      Response     : AWS.Response.Data;
-      Result       : Unbounded_String;
+      -----------------
+      -- SOAP_Action --
+      -----------------
 
-      --------------
-      -- RPC_Call --
-      --------------
-
-      procedure RPC_Call is
+      function SOAP_Action return String is
       begin
          if SOAPAction = Not_Specified then
             declare
                URL_Object : constant AWS.URL.Object := AWS.URL.Parse (URL);
             begin
-               Response := AWS.Client.SOAP_Post
-                 (URL,
-                  To_String (Message_Body),
-                  AWS.URL.URL (URL_Object)
-                    & '#' & SOAP.Message.Payload.Procedure_Name (P),
-                  User, Pwd, Proxy, Proxy_User, Proxy_Pwd, Timeouts);
+               return AWS.URL.URL (URL_Object) & '#'
+                      & SOAP.Message.Payload.Procedure_Name (P);
             end;
 
          else
-            Response := AWS.Client.SOAP_Post
-              (URL,
-               To_String (Message_Body),
-               SOAPAction,
-               User, Pwd, Proxy, Proxy_User, Proxy_Pwd, Timeouts);
+            return SOAPAction;
+
          end if;
-      end RPC_Call;
+      end SOAP_Action;
 
    begin
-      Message_Body := SOAP.Message.XML.Image (P);
-      RPC_Call;
-      Result := AWS.Response.Message_Body (Response);
-      return Message.XML.Load_Response (Result);
+      AWS.Client.Create
+        (Connection,
+         URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
+         Persistent  => False,
+         Timeouts    => Timeouts);
+
+      declare
+         Result : constant Message.Response.Object'Class
+           := Call (Connection, SOAP_Action, P);
+      begin
+         AWS.Client.Close (Connection);
+         return Result;
+      end;
    end Call;
 
    ----------
@@ -110,15 +106,12 @@ package body SOAP.Client is
       P          : in Message.Payload.Object)
       return Message.Response.Object'Class
    is
-      Message_Body : Unbounded_String;
       Response     : AWS.Response.Data;
-      Result       : Unbounded_String;
    begin
-      Message_Body := SOAP.Message.XML.Image (P);
       AWS.Client.SOAP_Post
-        (Connection, Response, SOAPAction, To_String (Message_Body));
-      Result := AWS.Response.Message_Body (Response);
-      return Message.XML.Load_Response (Result);
+        (Connection, Response, SOAPAction, SOAP.Message.XML.Image (P), True);
+
+      return Message.XML.Load_Response (Connection);
    end Call;
 
 end SOAP.Client;
