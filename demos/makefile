@@ -53,7 +53,7 @@ build: $(BUILD_SPECIFIC) $(DEMOS) $(BUILD_OPT)
 
 $(DEMOS): force
 	echo Building $@;
-	gnatmake $(GARGS) $@ -bargs $(BARGS) -largs $(LARGS);
+	gnatmake $(GARGS) $@ -bargs $(BARGS) -largs $(LARGS)
 
 build_res:
 	echo Generate resources for res_demo
