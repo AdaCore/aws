@@ -1,3 +1,9 @@
+2004-01-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.ads, aws-utils.adb:
+	(Dec): Removed. Indentical to Image routine.
+        Update copyright notice.
+
 2003-12-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.adb:
