@@ -32,6 +32,7 @@
 
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
+with Ada.Unchecked_Deallocation;
 
 package body SOAP.Utils is
 
@@ -91,6 +92,60 @@ package body SOAP.Utils is
       end if;
    end No_NS;
 
+   -------------------
+   -- Safe_Pointers --
+   -------------------
+
+   package body Safe_Pointers is
+
+      procedure Free is new Ada.Unchecked_Deallocation (T, T_Access);
+
+      procedure Free is new Ada.Unchecked_Deallocation (Natural, Ref_Counter);
+
+      ------------
+      -- Adjust --
+      ------------
+
+      procedure Adjust (SP : in out Safe_Pointer) is
+      begin
+         SP.Ref.all := SP.Ref.all + 1;
+      end Adjust;
+
+      --------------
+      -- Finalize --
+      --------------
+
+      procedure Finalize (SP : in out Safe_Pointer) is
+      begin
+         SP.Ref.all := SP.Ref.all - 1;
+
+         if SP.Ref.all = 0 then
+            Free (SP.Item);
+            Free (SP.Ref);
+         end if;
+      end Finalize;
+
+      ----------------
+      -- Initialize --
+      ----------------
+
+      procedure Initialize (SP : in out Safe_Pointer) is
+      begin
+         SP.Ref := new Natural'(1);
+      end Initialize;
+
+      ----------------------mart
+      -- To_Safe_Pointer --
+      ----------------------
+
+      function To_Safe_Pointer (Item : in T) return Safe_Pointer is
+      begin
+         return (Ada.Finalization.Controlled with
+                   new T'(Item), new Natural'(1));
+      end To_Safe_Pointer;
+
+   end Safe_Pointers;
+
    ---------
    -- Tag --
    ---------
@@ -123,7 +178,7 @@ package body SOAP.Utils is
    -- To_T_Array --
    ----------------
 
-   function To_T_Array (From : in Types.Object_Set) return T_Array_Access is
+   function To_T_Array (From : in Types.Object_Set) return T_Array is
       use SOAP.Types;
       Result : T_Array (From'Range);
    begin
@@ -131,7 +186,7 @@ package body SOAP.Utils is
          Result (K) := Get (-From (K));
       end loop;
 
-      return new T_Array'(Result);
+      return T_Array'(Result);
    end To_T_Array;
 
    --------
