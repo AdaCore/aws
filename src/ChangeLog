@@ -3,6 +3,7 @@
 	* aws-net-sets.adb:
         (Remove_Socket): Use local Free routine.
          Fixing memory damage detected in Linux.
+        (Reset): Use local Free routine.
 	(Delete_Socket): Removed. Use code directly.
 
 2004-03-02  Pascal Obry  <p.obry@wanadoo.fr>
