@@ -87,7 +87,10 @@ procedure Upload is
    begin
       AWS.Server.Start
         (HTTP, "upload",
-         CB'Unrestricted_Access, Port => 7642, Max_Connection => 5);
+         CB'Unrestricted_Access,
+         Port             => 7642,
+         Max_Connection   => 5,
+         Upload_Directory => "./");
 
       Put_Line ("Server started");
       New_Line;
