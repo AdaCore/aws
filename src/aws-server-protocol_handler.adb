@@ -62,7 +62,12 @@ is
    use Ada;
    use Ada.Strings;
 
-   Admin_URI      : constant String := To_String (HTTP_Server.Admin_URI);
+   Admin_URI      : constant String
+     := Config.Admin_URI (HTTP_Server.Properties);
+
+   Case_Sensitive_Parameters : constant Boolean
+     := Config.Case_Sensitive_Parameters (HTTP_Server.Properties);
+
    End_Of_Message : constant String := "";
    HTTP_10        : constant String := "HTTP/1.0";
 
@@ -77,8 +82,9 @@ is
    procedure Parse (Command : in String);
    --  Parse a line sent by the client and do what is needed
 
-   procedure Send_File (Filename          : in String;
-                        HTTP_Version      : in String);
+   procedure Send_File
+     (Filename     : in String;
+      HTTP_Version : in String);
    --  Send content of filename as chunk data
 
    procedure Answer_To_Client;
@@ -94,12 +100,14 @@ is
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.
 
-   procedure Send_File_Time (Sock     : in Sockets.Socket_FD'Class;
-                             Filename : in String);
+   procedure Send_File_Time
+     (Sock     : in Sockets.Socket_FD'Class;
+      Filename : in String);
    --  Send Last-Modified: header
 
-   procedure Send_File_Size (Sock     : in Sockets.Socket_FD'Class;
-                             Filename : in String);
+   procedure Send_File_Size
+     (Sock     : in Sockets.Socket_FD'Class;
+      Filename : in String);
    --  Send Content-Length: header
 
    function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean;
@@ -138,13 +146,27 @@ is
       procedure Send_Message;
       --  Answer is a text or HTML message.
 
+      procedure Answer_File (File_Name : in String);
+      --  Assign File to Answer response data.
+
+      -----------------
+      -- Answer_File --
+      -----------------
+
+      procedure Answer_File (File_Name : in String) is
+      begin
+         Answer := Response.File
+           (Content_Type => MIME.Content_Type (File_Name),
+            Filename     => File_Name);
+      end Answer_File;
+
       --------------------
       -- Create_Session --
       --------------------
 
       procedure Create_Session is
       begin
-         if HTTP_Server.Session
+         if Config.Session (HTTP_Server.Properties)
            and then (AWS.Status.Session (C_Stat) = ""
                      or else not Session.Exist (AWS.Status.Session (C_Stat)))
          then
@@ -165,7 +187,9 @@ is
       begin
          --  Session
 
-         if HTTP_Server.Session and then Send_Session_Cookie then
+         if Config.Session (HTTP_Server.Properties)
+           and then Send_Session_Cookie
+         then
             --  This is an HTTP connection with session but there is no session
             --  ID set yet. So, send cookie to client browser.
 
@@ -386,26 +410,21 @@ is
                     (Content_Type => MIME.Text_HTML,
                      Message_Body =>
                        "Status template error. Please check "
-                       & "that '" & Config.Status_Page & "' file is valid.");
+                       & "that '" & Config.Status_Page (HTTP_Server.Properties)
+                       & "' file is valid.");
             end;
 
          elsif URI = Admin_URI & "-logo" then
             --  Status page logo
-            Answer := Response.File
-              (Content_Type => MIME.Content_Type (Config.Logo_Image),
-               Filename     => Config.Logo_Image);
+            Answer_File (Config.Logo_Image (HTTP_Server.Properties));
 
          elsif URI = Admin_URI & "-uparr" then
             --  Status page hotplug up-arrow
-            Answer := Response.File
-              (Content_Type => MIME.Content_Type (Config.Up_Image),
-               Filename     => Config.Up_Image);
+            Answer_File (Config.Up_Image (HTTP_Server.Properties));
 
          elsif URI = Admin_URI & "-downarr" then
             --  Status page hotplug down-arrow
-            Answer := Response.File
-              (Content_Type => MIME.Content_Type (Config.Down_Image),
-               Filename     => Config.Down_Image);
+            Answer_File (Config.Down_Image (HTTP_Server.Properties));
 
          elsif URI = Admin_URI & "-HPup" then
             --  Status page hotplug up message
@@ -482,8 +501,9 @@ is
 
       use type Status.Request_Method;
 
-      procedure File_Upload (Start_Boundary, End_Boundary : in String;
-                             Parse_Boundary               : in Boolean);
+      procedure File_Upload
+        (Start_Boundary, End_Boundary : in String;
+         Parse_Boundary               : in Boolean);
       --  Handle file upload data coming from the client browser.
 
       function Value_For (Name : in String; Into : in String) return String;
@@ -494,8 +514,9 @@ is
       -- File_Upload --
       -----------------
 
-      procedure File_Upload (Start_Boundary, End_Boundary : in String;
-                             Parse_Boundary               : in Boolean)
+      procedure File_Upload
+        (Start_Boundary, End_Boundary : in String;
+         Parse_Boundary               : in Boolean)
       is
          --  ??? Implementation would be more efficient if the input socket
          --  stream was buffered. Here the socket is read char by char.
@@ -663,15 +684,17 @@ is
                                           Maps.To_Set ("/\"),
                                           Going => Strings.Backward);
             UID : Natural;
+            Upload_Path : String :=
+               Config.Upload_Directory (HTTP_Server.Properties);
          begin
             File_Upload_UID.Get (UID);
 
             if I = 0 then
-               return To_String (HTTP_Server.Upload_Path)
+               return Upload_Path
                  & Utils.Image (UID) & '.'
                  & Filename;
             else
-               return To_String (HTTP_Server.Upload_Path)
+               return Upload_Path
                  & Utils.Image (UID) & '.'
                  & Filename (I + 1 .. Filename'Last);
             end if;
@@ -890,6 +913,7 @@ is
             declare
                Data : constant String := Sockets.Get_Line (Sock);
             begin
+
                --  A request by the client has been received, do not abort
                --  until this request is handled.
 
@@ -1140,8 +1164,9 @@ is
    -- Send_File --
    ---------------
 
-   procedure Send_File (Filename          : in String;
-                        HTTP_Version      : in String)
+   procedure Send_File
+     (Filename          : in String;
+      HTTP_Version      : in String)
    is
 
       procedure Send_File;
@@ -1257,8 +1282,9 @@ is
    -- Send_File_Time --
    --------------------
 
-   procedure Send_File_Time (Sock     : in Sockets.Socket_FD'Class;
-                             Filename : in String) is
+   procedure Send_File_Time
+     (Sock     : in Sockets.Socket_FD'Class;
+      Filename : in String) is
    begin
       Sockets.Put_Line
         (Sock,
@@ -1270,8 +1296,9 @@ is
    -- Send_File_Size --
    --------------------
 
-   procedure Send_File_Size (Sock     : in Sockets.Socket_FD'Class;
-                             Filename : in String) is
+   procedure Send_File_Size
+     (Sock     : in Sockets.Socket_FD'Class;
+      Filename : in String) is
    begin
       Sockets.Put_Line
         (Sock, "Content-Length:"
@@ -1290,7 +1317,7 @@ begin
       Parameters.Set.Reset (P_List);
 
       Parameters.Set.Case_Sensitive
-        (P_List, HTTP_Server.Case_Sensitive_Parameters);
+        (P_List, Case_Sensitive_Parameters);
 
       HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
 
