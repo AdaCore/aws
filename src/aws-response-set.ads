@@ -35,6 +35,10 @@ with AWS.Utils;
 
 package AWS.Response.Set is
 
+   ------------
+   -- Header --
+   ------------
+
    procedure Add_Header
      (D     : in out Data;
       Name  : in     String;
@@ -58,13 +62,6 @@ package AWS.Response.Set is
    --  Read all header data from the socket and fill appropriate
    --  data's fields.
 
-   procedure Mode
-     (D     : in out Data;
-      Value : in     Data_Mode);
-   pragma Inline (Mode);
-   --  Set the data mode.
-   --  Header, Message, File, Stream, Socket_Taken or No_Data.
-
    procedure Status_Code
      (D     : in out Data;
       Value : in     Messages.Status_Code);
@@ -83,13 +80,6 @@ package AWS.Response.Set is
    pragma Inline (Content_Type);
    --  Set the Cache_Control mode for the message
 
-   procedure Filename
-     (D     : in out Data;
-      Value : in     String);
-   pragma Inline (Filename);
-   --  Set the filename which should be sent back.
-   --  set the Mode field to File.
-
    procedure Location
      (D     : in out Data;
       Value : in     String);
@@ -106,30 +96,35 @@ package AWS.Response.Set is
    --  Set the authentication mode requested by server. Set the status code to
    --  the 401.
 
+   ----------
+   -- Data --
+   ----------
+
+   procedure Mode
+     (D     : in out Data;
+      Value : in     Data_Mode);
+   pragma Inline (Mode);
+   --  Set the data mode:
+   --  Header, Message, File, Stream, Socket_Taken or No_Data.
+
+   procedure Filename
+     (D     : in out Data;
+      Value : in     String);
+   pragma Inline (Filename);
+   --  Set the filename which should be sent back.
+   --  It also set the Mode field to File.
+
    procedure Stream
      (D       : in out Data;
       Handle  : access Resources.Streams.Stream_Type'Class);
    pragma Inline (Stream);
-   --  Set the user defined data stream. Set the Mode field to Stream.
-
-   procedure Append_Body
-     (D    : in out Data;
-      Item : in     Streams.Stream_Element_Array);
-   --  Add the data to the message.
-
-   procedure Append_Body
-     (D    : in out Data;
-      Item : in     Utils.Stream_Element_Array_Access);
-   --  Add dynamically allocated data to the message.
-
-   procedure Append_Body (D : in out Data; Item : in String);
-   --  Add the data to the message.
+   --  Set the user defined data stream. Set the Mode field to Stream
 
    procedure Message_Body
      (D     : in out Data;
       Value : in     Streams.Stream_Element_Array);
    pragma Inline (Message_Body);
-   --  Set message body as a binary content. Set the Mode field to Message.
+   --  Set message body as a binary content. Set the Mode field to Message
 
    procedure Message_Body
      (D     : in out Data;
@@ -150,7 +145,24 @@ package AWS.Response.Set is
      (D     : in out Data;
       Value : in     String);
    pragma Inline (Message_Body);
-   --  Set the message body content as a string. Set the Mode field to Message.
+   --  Set the message body content as a string. Set the Mode field to Message
+
+   procedure Append_Body
+     (D    : in out Data;
+      Item : in     Streams.Stream_Element_Array);
+   --  Add Item to the message
+
+   procedure Append_Body
+     (D    : in out Data;
+      Item : in     Utils.Stream_Element_Array_Access);
+   --  Add Item to the message
+
+   procedure Append_Body (D : in out Data; Item : in String);
+   --  Add Item to the message
+
+   ---------------
+   -- Other API --
+   ---------------
 
    function Is_Valid (D : in Data) return Boolean;
    --  Checking validity of the HTTP response
