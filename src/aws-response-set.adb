@@ -110,7 +110,8 @@ package body AWS.Response.Set is
             Name  => Messages.WWW_Authenticate_Token,
             Value => "Digest qop=""auth"", realm=""" & Realm
                      & """, stale=""" & Boolean'Image (Stale)
-                     & """, nonce=""" & AWS.Digest.Create_Nonce & """",
+                     & """, nonce="""
+                     & String (AWS.Digest.Create_Nonce) & """",
             N => N);
          N := N + 1;
       end if;
