@@ -77,9 +77,6 @@ package AWS.Server is
 
 private
 
-   Keep_Open_Duration    : constant Duration := 80.0;
-   Client_Header_Timeout : constant Duration := 5.0;
-
    type Slot_Phase is
      (Closed,
 
@@ -95,13 +92,34 @@ private
       --  who are spending too much server time in sending data
 
       Server_Response
-      --  We are already trust to ourselves
+      --  We are trusting ourselves but client may be too slow purposely in
+      --  receiving data and we should disconnect him.
      );
+
+   subtype Abortable_Phase is Slot_Phase
+     range Wait_For_Client .. Slot_Phase'Last;
+
+   --  This is Force timeouts and timeouts for Line_Cleaner task.
+
+   type Timeout_Mode is (Cleaner, Force);
+
+   --  maybe this timeouts should be in the server configuration
+   Timeouts : array (Timeout_Mode, Abortable_Phase) of Duration
+     := (Cleaner => -- Timeouts for Line_Cleaner
+           (Wait_For_Client  => 80.0,
+            Client_Header    => 20.0,
+            Client_Data      => 2000.0,
+            Server_Response  => 30000.0),
+
+         Force   => -- Force timeouts used when there is no free slot
+           (Wait_For_Client  => 1.0,
+            Client_Header    => 3.0,
+            Client_Data      => 1500.0,
+            Server_Response  => 20000.0));
 
    type Slot is record
       Sock                  : Sockets.Socket_FD;
       Peername              : Ada.Strings.Unbounded.Unbounded_String;
-      Abortable             : Boolean := False;
       Phase                 : Slot_Phase := Closed;
       Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
       Slot_Activity_Counter : Natural := 0;
@@ -129,18 +147,21 @@ private
       --  Set Activity_Time_Stamp which is the last time where the line number
       --  Index as been used.
 
-      procedure Check_Timeouts;
-      --  Check slots timeout and set slots abortable state if possible.
+      function Check_Timeouts return Boolean;
+      --  Return true if Force_Timeouts found
 
-      procedure Abort_Oldest  (Force : in Boolean);
-      --  Abort oldest line (the line with the oldest activity time stamp) if
-      --  force is True. Otherwise the Line must be older then
-      --  Keep_Open_Duration.
-      --  Anyway Line mast be in abortable state for abortion.
+      function Is_Abortable
+        (Index : in Positive;
+         Mode  : in Timeout_Mode)
+        return Boolean;
+      --  Return True when slot can be aborted.
+
+      procedure Abort_On_Timeout (Mode : in Timeout_Mode);
+      --  Abort slots if timeout exceeded.
 
       entry Get (FD : in Sockets.Socket_FD; Index : in Positive);
       --  Mark slot at position Index to be used. This slot will be associated
-      --  with the socket FD. Opened status is set to True.
+      --  with the socket FD. Phase set to Client_Header.
 
       procedure Release  (Index : in Positive);
       --  Release slot number Index. Opened status us set to False.
@@ -149,7 +170,7 @@ private
       --  Returns True if there is some free slots available.
 
       function Get (Index : in Positive) return Slot;
-      --  Returns Slot data
+      --  Returns Slot data.
 
       function Get_Peername (Index : in Positive) return String;
       --  Returns the peername for socket at position Index.
@@ -159,14 +180,8 @@ private
       --  handled by the slot.
 
    private
-      Set             : Slot_Set (1 .. N);
-      Count           : Natural := N;
-      Abortable_Count : Natural := 0;
-
-      procedure Set_Abortable (Index : in Positive; Flag : in Boolean);
-      --  Set Abortable field to Flag for the Line number Index. This flag is
-      --  used by the Line_Cleaner to know if a line can be aborted safely.
-
+      Set   : Slot_Set (1 .. N);
+      Count : Natural := N;
    end Slots;
 
    ----------
