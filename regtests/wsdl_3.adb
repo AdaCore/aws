@@ -55,7 +55,7 @@ package body WSDL_3 is
    function Image_Rec2 (Rec : in Rec2) return String is
    begin
       return "(" & Image_Rec1 (Rec.Field1)
---        & ", " & Rec.Field2
+        & ", " & Rec.Field2
         & ", " & To_String (Rec.Field3)
         & ", " & Long_Float'Image (Rec.Field4)
         & ")";

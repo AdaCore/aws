@@ -44,8 +44,7 @@ package WSDL_3 is
 
    type Rec2 is record
       Field1 : Rec1;
---      Field2 : Character;
---      ??? Not properly supported for now
+      Field2 : Character;
       Field3 : Unbounded_String;
       Field4 : Long_Float;
    end record;
