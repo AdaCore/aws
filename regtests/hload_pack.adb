@@ -122,7 +122,6 @@ package body HLoad_Pack is
          Interval : Duration;
       begin
          if Counter = 0 then
-            Last  := Now;
             Start := Now;
          else
             Interval := Now - Last;

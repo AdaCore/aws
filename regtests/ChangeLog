@@ -3,6 +3,9 @@
 	* strm.adb, user_strm.adb:
 	Make compressed stream last chunk size less then 4 bytes.
 
+	* hload_pack.adb:
+	(Stamp): Remove unnecessary Last initialization.
+
 2004-08-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* hload_pack.adb:
