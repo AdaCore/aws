@@ -1,5 +1,8 @@
 2004-01-06  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* cert.adb:
+	Fix copyright notice.
+	
 	* makefile:
 	(clean): Do not remove spec files as these are not generated now.
 	(check_mem): Ensure that the rule never fails even if there is
