@@ -1,3 +1,18 @@
+2001-07-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-directory.adb:
+	Remove use of AVL_Tree_Gereric and use now a new AVL
+	 implementation which is not buggy.
+	Add case sensitive, mime, extension ordering.
+	Order (Ascending or Descending) is now based on the casing of the
+	 option instead of using a specific option for this. This reduce
+	 the Web parameters size to be sent to the server.
+	Fix code layout.
+	Add lot of comments.
+
+	* aws-services-directory.ads:
+	Add lot of comments.
+
 2001-07-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response.adb:
