@@ -13,6 +13,7 @@
 #else /* ! _WIN32 */
 #include <sys/poll.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <errno.h>
