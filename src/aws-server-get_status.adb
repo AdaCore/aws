@@ -38,50 +38,48 @@ with AWS.Hotplug.Get_Status;
 function AWS.Server.Get_Status (Server : in HTTP) return String is
 
    use Ada;
+   use Templates_Parser;
 
-   function Slot_Table return Templates_Parser.Translate_Table;
+   function Slot_Table return Translate_Table;
    --  returns the information for each slot
 
-   function Session_Table return Templates_Parser.Translate_Table;
+   function Session_Table return Translate_Table;
    --  returns session information
 
    -------------------
    -- Session_Table --
    -------------------
 
-   function Session_Table return Templates_Parser.Translate_Table is
-      Sessions : Unbounded_String;
-      Keys     : Unbounded_String;
-      Values   : Unbounded_String;
+   function Session_Table return Translate_Table is
 
-      procedure For_Each_Key_Value (N          : in     Positive;
-                                    Key, Value : in     String;
-                                    Quit       : in out Boolean);
+      Sessions : Vector_Tag;
+      Keys     : Vector_Tag;
+      Values   : Vector_Tag;
+
+      procedure For_Each_Key_Value
+        (N          : in     Positive;
+         Key, Value : in     String;
+         Quit       : in out Boolean);
       --  add key/value pair to the list
 
-      procedure For_Each_Session (N          : in Positive;
-                                  SID        : in     Session.ID;
-                                  Time_Stamp : in     Calendar.Time;
-                                  Quit       : in out Boolean);
+      procedure For_Each_Session
+        (N          : in Positive;
+         SID        : in     Session.ID;
+         Time_Stamp : in     Calendar.Time;
+         Quit       : in out Boolean);
       --  add session SID to the list
 
       ------------------------
       -- For_Each_Key_Value --
       ------------------------
 
-      procedure For_Each_Key_Value (N          : in     Positive;
-                                    Key, Value : in     String;
-                                    Quit       : in out Boolean) is
+      procedure For_Each_Key_Value
+        (N          : in     Positive;
+         Key, Value : in     String;
+         Quit       : in out Boolean) is
       begin
-         if N = 1 then
-            if Keys /= Null_Unbounded_String then
-               Keys   := Keys & '|';
-               Values := Values & '|';
-            end if;
-         end if;
-
-         Keys   := Keys & "<td>" & Key;
-         Values := Values & "<td>" & Value;
+         Keys   := Keys & ("<td>" & Key);
+         Values := Values & ("<td>" & Value);
       end For_Each_Key_Value;
 
       --------------------------
@@ -95,15 +93,12 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       -- For_Each_Session --
       ----------------------
 
-      procedure For_Each_Session (N          : in Positive;
-                                  SID        : in     Session.ID;
-                                  Time_Stamp : in     Calendar.Time;
-                                  Quit       : in out Boolean) is
+      procedure For_Each_Session
+        (N          : in Positive;
+         SID        : in     Session.ID;
+         Time_Stamp : in     Calendar.Time;
+         Quit       : in out Boolean) is
       begin
-         if N /= 1 then
-            Sessions := Sessions & '|';
-         end if;
-
          Sessions := Sessions & Session.Image (SID);
 
          Build_Key_Value_List (SID);
@@ -119,91 +114,65 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
    begin
       Build_Session_List;
 
-      return Templates_Parser.Translate_Table'
-        (Templates_Parser.Assoc ("SESSIONS_L",
-                                 To_String (Sessions), True),
-         Templates_Parser.Assoc ("KEYS_L",
-                                 To_String (Keys), True),
-         Templates_Parser.Assoc ("VALUES_L",
-                                 To_String (Values), True));
+      return Translate_Table'(Assoc ("SESSIONS_L", Sessions),
+                              Assoc ("KEYS_L",     Keys),
+                              Assoc ("VALUES_L",   Values));
    end Session_Table;
 
    ----------------
    -- Slot_Table --
    ----------------
 
-   function Slot_Table return Templates_Parser.Translate_Table is
-      Sock                : Unbounded_String;
-      Opened              : Unbounded_String;
-      Abortable           : Unbounded_String;
-      Activity_Counter    : Unbounded_String;
-      Activity_Time_Stamp : Unbounded_String;
+   function Slot_Table return Translate_Table is
+
+      Sock                : Vector_Tag;
+      Opened              : Vector_Tag;
+      Abortable           : Vector_Tag;
+      Activity_Counter    : Vector_Tag;
+      Activity_Time_Stamp : Vector_Tag;
 
       Slot_Data           : Slot;
    begin
       for K in 1 .. Server.Max_Connection loop
          Slot_Data := Server.Slots.Get (Index => K);
 
-         if K > 1 then
-            Sock                := Sock   & '|';
-            Opened              := Opened & '|';
-            Abortable           := Abortable & '|';
-            Activity_Counter    := Activity_Counter & '|';
-            Activity_Time_Stamp := Activity_Time_Stamp & '|';
-         end if;
-
          if Slot_Data.Opened then
-            Sock := Sock &
-              Interfaces.C.int'Image (Sockets.Get_FD (Slot_Data.Sock));
+            Sock := Sock & Integer (Sockets.Get_FD (Slot_Data.Sock));
          else
             Sock := Sock & '-';
          end if;
 
-         Opened := Opened &
-           Boolean'Image (Slot_Data.Opened);
+         Opened := Opened & Slot_Data.Opened;
 
-         Abortable := Abortable &
-           Boolean'Image (Slot_Data.Abortable);
+         Abortable := Abortable & Slot_Data.Abortable;
 
-         Activity_Counter := Activity_Counter &
-           Positive'Image (Slot_Data.Activity_Counter);
+         Activity_Counter := Activity_Counter & Slot_Data.Activity_Counter;
 
          Activity_Time_Stamp := Activity_Time_Stamp &
            GNAT.Calendar.Time_IO.Image (Slot_Data.Activity_Time_Stamp,
                                         "%a %D %T");
       end loop;
 
-      return Templates_Parser.Translate_Table'
-        (Templates_Parser.Assoc ("SOCK_L",
-                                 To_String (Sock), True),
-         Templates_Parser.Assoc ("OPENED_L",
-                                 To_String (Opened), True),
-         Templates_Parser.Assoc ("ABORTABLE_L",
-                                 To_String (Abortable), True),
-         Templates_Parser.Assoc ("ACTIVITY_COUNTER_L",
-                                 To_String (Activity_Counter), True),
-         Templates_Parser.Assoc ("ACTIVITY_TIME_STAMP_L",
-                                 To_String (Activity_Time_Stamp), True));
+      return Translate_Table'
+        (Assoc ("SOCK_L",                Sock),
+         Assoc ("OPENED_L",              Opened),
+         Assoc ("ABORTABLE_L",           Abortable),
+         Assoc ("ACTIVITY_COUNTER_L",    Activity_Counter),
+         Assoc ("ACTIVITY_TIME_STAMP_L", Activity_Time_Stamp));
    end Slot_Table;
 
    use type Templates_Parser.Translate_Table;
 
    Translations : constant Templates_Parser.Translate_Table
-     := (Templates_Parser.Assoc ("SERVER_NAME",
-                                 To_String (Server.Name)),
-         Templates_Parser.Assoc ("MAX_CONNECTION",
-                                 Positive'Image (Server.Max_Connection)),
-         Templates_Parser.Assoc ("SERVER_PORT",
-                                 Positive'Image (Server.Port)),
-         Templates_Parser.Assoc ("SECURITY", Server.Security),
-         Templates_Parser.Assoc ("SERVER_SOCK",
-                                 Interfaces.C.int'Image
-                                 (Sockets.Get_FD (Server.Sock))),
-         Templates_Parser.Assoc ("VERSION", Version),
-         Templates_Parser.Assoc ("SESSION", Server.Session),
-         Templates_Parser.Assoc ("LOGO",
-                                 To_String (Server.Admin_URI) & "-logo"),
-         Templates_Parser.Assoc ("ADMIN", To_String (Server.Admin_URI)))
+     := (Assoc ("SERVER_NAME",    Server.Name),
+         Assoc ("MAX_CONNECTION", Server.Max_Connection),
+         Assoc ("SERVER_PORT",    Server.Port),
+         Assoc ("SECURITY",       Server.Security),
+         Assoc ("SERVER_SOCK",    Integer (Sockets.Get_FD (Server.Sock))),
+         Assoc ("VERSION",        Version),
+         Assoc ("SESSION",        Server.Session),
+         Assoc ("LOGO",           Server.Admin_URI & "-logo"),
+         Assoc ("ADMIN",          Server.Admin_URI))
      & Slot_Table
      & Session_Table
      & Hotplug.Get_Status (Server.Filters);
