@@ -1,3 +1,8 @@
+2003-12-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_directory.thtml:
+	Footer references the AWS's libre site instead of my homepage.
+
 2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* demos.gpr:
