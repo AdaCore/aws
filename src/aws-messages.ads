@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -148,8 +148,10 @@ package AWS.Messages is
       );
 
    function Image (S : in Status_Code) return String;
+   --  Returns Status_Code image. This value does not contain the leading S.
 
    function Reason_Phrase (S : in Status_Code) return String;
+   --  Returns the reason phrase for the status code S, see [RFC 2616 - 6.1.1]
 
    -------------------------------
    -- HTTP message constructors --
@@ -238,7 +240,11 @@ package AWS.Messages is
    --  is not case sensitive.
 
    function To_HTTP_Date (Time : in Calendar.Time) return String;
+   --  Returns an Ada time as a string using the HTTP normalized format.
+   --  Format is RFC 822, updated by RFC 1123.
 
    function To_Time (HTTP_Date : in String) return Calendar.Time;
+   --  Returns an Ada time from an HTTP one. This is To_HTTP_Date opposite
+   --  function.
 
 end AWS.Messages;
