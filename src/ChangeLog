@@ -1,3 +1,10 @@
+2003-04-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb:
+	(Cleaner): Add pragma Atomic for variable L_SC. Display an error
+	 message on current error in case of exceptions raised in the
+	 expired session callback.
+
 2003-04-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.ads, aws-utils.adb:
