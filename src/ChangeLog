@@ -1,3 +1,9 @@
+2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-memory-zlib.ads:
+	(Deflate_Intialize): pragma Inline.
+	(Inflate_Initialize): pragma Inline.
+
 2003-10-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -8,6 +14,17 @@
 
 	* aws-resources-streams-zlib.adb:
 	Put file in UNIX format.
+
+2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-zlib.ads,
+	  aws-resources-streams-zlib.adb:
+	New package for compression/decompression user defined streams.
+
+	* aws-resources-streams-zlib.ads,
+	  aws-resources-streams-zlib.adb:
+	Change design from 2 read routines to incapsulated
+	 AWS.Resource.File_Type.
 
 2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
