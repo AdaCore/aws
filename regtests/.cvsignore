@@ -34,6 +34,8 @@ b~dispatch_vh.adb
 b~dispatch_vh.ads
 b~dummy.adb
 b~dummy.ads
+b~eres.adb
+b~eres.ads
 b~file.adb
 b~file.ads
 b~file2.adb
@@ -217,6 +219,7 @@ dispatch_vh.res
 dummy
 dummy.res
 dummy.tmp
+eres.res
 file
 file.res
 file.tmp
