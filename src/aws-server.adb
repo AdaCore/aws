@@ -44,7 +44,7 @@ with AWS.Net.Buffered;
 with AWS.Net.SSL;
 with AWS.OS_Lib;
 with AWS.Session.Control;
-with AWS.Status;
+with AWS.Status.Translate_Table;
 with AWS.Templates;
 
 package body AWS.Server is
@@ -199,7 +199,9 @@ package body AWS.Server is
          if AWS.OS_Lib.Is_Regular_File (Fatal_Error_Template) then
             Answer := Response.Build
               (MIME.Text_HTML,
-               String'(Templates.Parse (Fatal_Error_Template)),
+               String'(Templates.Parse
+                         (Fatal_Error_Template,
+                          Status.Translate_Table (Error.Request))),
                Messages.S500);
          else
             Answer := Response.Build
