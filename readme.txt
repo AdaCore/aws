@@ -118,6 +118,8 @@ Here are the main changes since AWS 2.0 :
    - File upload is more secure now. All files upload to the server are
      removed after calling the callback function.
 
+   - Add support for client's HTTPS requests through a proxy (tunneling).
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
