@@ -144,6 +144,9 @@ package AWS.Response is
    function Content_Type   (D : in Data) return String;
    --  Returns the MIME type for the message body.
 
+   function Filename       (D : in Data) return String;
+   --  Returns the filename which should be sent back.
+
    function Location       (D : in Data) return String;
    --  Returns the location for the new page in the case of a moved
    --  message. See Moved constructor above.
@@ -155,11 +158,11 @@ package AWS.Response is
        return Strings.Unbounded.Unbounded_String;
    --  Returns the message body content as a unbounded_string.
 
+   function Message_Body   (D : in Data) return Streams.Stream_Element_Array;
+   --  Returns message body as a binary content.
+
    function Realm          (D : in Data) return String;
    --  Returns the Realm for the current authentification request.
-
-   function Binary         (D : in Data) return Streams.Stream_Element_Array;
-   --  Returns the binary message body content.
 
    type Callback is access function (Request : in Status.Data) return Data;
    --  This is the Web Server Callback procedure. A client must declare and
@@ -179,10 +182,10 @@ private
       Status_Code    : Messages.Status_Code;
       Content_Length : Natural;
       Content_Type   : Unbounded_String;
-      Message_Body   : Unbounded_String;
+      Filename       : Unbounded_String;
       Location       : Unbounded_String;
       Realm          : Unbounded_String;
-      Elements       : Stream_Element_Array_Access;
+      Message_Body   : Stream_Element_Array_Access;
    end record;
 
    procedure Initialize (Object : in out Data);
