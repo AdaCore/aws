@@ -1,3 +1,8 @@
+2004-02-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-sets.ads, aws-net-sets.adb, aws-net-sets-thin.ads:
+	Waiting on group of sockets for input/output availability.
+
 2004-02-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net.ads:
