@@ -506,7 +506,14 @@ is
             Command (Messages.If_Modified_Since_Token'Length + 1
                      .. Command'Last));
 
+      elsif Messages.Is_Match
+        (Command, Messages.Authorization_Token)
+      then
+         Status.Set_Authorization
+           (C_Stat,
+            Command (Messages.Authorization_Token'Length + 1 .. Command'Last));
       end if;
+
    exception
       when others =>
          raise Internal_Error;
