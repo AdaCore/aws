@@ -32,7 +32,7 @@ endif
 rt_soap: soap1 soap2 workorder
 
 # Standard regression tests
-rt_std: turl tgetparam param dummy simple tclientto
+rt_std: turl tgetparam param dummy simple tclientto shutdown
 
 ifeq ($(XMLADA),)
 run : rt_std checks
@@ -78,6 +78,10 @@ tclientto: force
 	gnatmake -g tclientto $(GARGS) -largs $(LARGS) -bargs -E
 	./tclientto > tclientto.res
 
+shutdown: force
+	gnatmake -g shutdown $(GARGS) -largs $(LARGS) -bargs -E
+	./shutdown > shutdown.res
+
 checks_soap:
 	-diff -c -w soap1.out soap1.res
 	-diff -c -w soap2.out soap2.res
@@ -97,6 +101,7 @@ endif
 	-diff -c -w dummy.out dummy.res
 	-diff -c -w simple.out simple.res
 	-diff -c -w tclientto.out tclientto.res
+	-diff -c -w shutdown.out shutdown.res
 
 clean:
 	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe
