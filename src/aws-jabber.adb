@@ -649,7 +649,7 @@ package body AWS.Jabber is
 
       procedure Destroy is
       begin
-         while not (Last = Current) loop
+         while Last /= Current loop
             Last := Last + 1;
 
             if Last > Max_Size then
