@@ -204,6 +204,10 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
      := (Assoc ("SERVER_NAME",
                 CNF.Server_Name (Server.Properties)),
 
+         Assoc ("START_TIME",
+                GNAT.Calendar.Time_IO.Image
+                (Server.Start_Time, "%A %-d %B %Y, %T")),
+
          Assoc ("MAX_CONNECTION",
                 Server.Max_Connection),
 
