@@ -16,7 +16,11 @@ b~runme.adb
 b~runme.ads
 b~soap_client.adb
 b~soap_client.ads
+b~soap_cvs.adb
+b~soap_cvs.ads
 b~soap_server.adb
 b~soap_server.ads
+b~soap_svs.adb
+b~soap_svs.ads
 b~ws.adb
 b~ws.ads
