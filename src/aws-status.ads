@@ -244,7 +244,7 @@ package AWS.Status is
 
    function Authorization_Password (D : in Data) return String;
    pragma Inline (Authorization_Password);
-   --  Returns the value for password in the "Authorization:" parameter
+   --  Returns "password" value in the "Authorization:" parameter
 
    function Authorization_Realm    (D : in Data) return String;
    pragma Inline (Authorization_Realm);
