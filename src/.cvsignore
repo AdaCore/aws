@@ -2,6 +2,8 @@ aws-client.ads.texi
 aws-communication-client.ads.texi
 aws-communication-server.ads.texi
 aws-communication.ads.texi
+aws-config-ini.ads.texi
+aws-config-set.ads.texi
 aws-config.ads.texi
 aws-log.ads.texi
 aws-mime.ads.texi
