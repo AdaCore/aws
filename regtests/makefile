@@ -4,6 +4,7 @@
 .SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
 .SILENT: checks checks_header checks_soap shutdown testxml
 .SILENT: soap1 soap2 workorder tres tres2 upload unexph test_speed
+.SILENT: test_soap
 
 #INCLUDES = -I../src -I../ssl -I../include
 #LIBS     = -L../ssl -lssl -lcrypto
@@ -29,10 +30,11 @@ LARGS = $(LFLAGS) $(LIBS)
 endif
 
 # SOAP regression tests
-rt_soap: soap1 soap2 workorder testxml test_speed
+rt_soap: soap1 soap2 workorder testxml test_speed test_soap
 
 # Standard regression tests
-rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2 upload unexph
+rt_std: turl tgetparam param dummy simple tclientto shutdown tres tres2 \
+	upload unexph
 
 ifeq ($(XMLADA),)
 run : rt_std checks
@@ -81,6 +83,10 @@ testxml: force
 test_speed: force
 	gnatmake -g test_speed $(GARGS) -largs $(LARGS) -bargs -E
 	./test_speed > test_speed.res
+
+test_soap: force
+	gnatmake -g test_soap $(GARGS) -largs $(LARGS) -bargs -E
+	./test_soap > test_soap.res
 
 tclientto: force
 	gnatmake -g tclientto $(GARGS) -largs $(LARGS) -bargs -E
@@ -136,6 +142,7 @@ checks_soap:
 	-diff -c -w workorder.out workorder.res
 	-diff -c -w testxml.out testxml.res
 	-diff -c -w test_speed.out test_speed.res
+	-diff -c -w test_soap.out test_soap.res
 
 checks_header:
 	echo "### Every output after this line means there is a regression ###"
