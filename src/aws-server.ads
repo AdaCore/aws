@@ -193,10 +193,10 @@ private
       --  Socket has been closed by one of the peer
 
       In_Shutdown,
-      --  Phase when socket got from protected object for shutdown.
+      --  Phase when socket is in protected object for shutdown
 
       Loose_Release,
-      --  Phase when socket did not relased because of socket had
+      --  Phase when socket was not relased because of socket was in
       --  In_Shutdown state.
 
       Aborted,
@@ -322,12 +322,11 @@ private
       procedure Get_For_Shutdown
         (Index  : in     Positive;
          Socket :    out Socket_Access);
-      --  Get socket from the slot for shutdown.
-      --  Slot phase is set to In_Shutdown.
+      --  Get socket from the slot for shutdown, Slot phase is set to
+      --  In_Shutdown.
 
       procedure Shutdown_Done (Index : in Positive);
-      --  We have to call it after shutdown complete.
-      --  Slot phase is set to Aborted.
+      --  Called when Shutdown is complete, Slot phase is set to Aborted
 
       procedure Release
         (Index    : in     Positive;
