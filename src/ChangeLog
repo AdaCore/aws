@@ -1,3 +1,9 @@
+2003-01-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.adb:
+	(URL): Correctly set the mode. Fix a bug where the server was not
+	 sending any data in this case.
+
 2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:

@@ -1,3 +1,11 @@
+2003-01-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add redirect.
+
+	* redirect.adb, redirect.out:
+	Initial revision.
+
 2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* simple.adb:
