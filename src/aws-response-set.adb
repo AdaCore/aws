@@ -92,52 +92,6 @@ package body AWS.Response.Set is
       Append_Body (D, Translator.To_Stream_Element_Array (Item));
    end Append_Body;
 
-   -------------------
-   -- Append_Encode --
-   -------------------
-
-   procedure Append_Encode
-     (D         : in out Data;
-      Encoding  : in     Content_Encoding;
-      Direction : in     Encode_Direction := Encode)
-   is
-      use type Resources.Streams.Stream_Access;
-      Header : RSM.ZLib.Header_Type;
-   begin
-      if D.Stream /= null then
-         return;
-      end if;
-
-      D.Mode   := Message;
-
-      case Encoding is
-         when Identity => D.Stream := new RSM.Stream_Type;
-         when GZip     => Header   := ZLib.GZip;
-         when Deflate  => Header   := ZLib.Default;
-      end case;
-
-      if D.Stream = null then
-         --  ZLib encoding/decoding is necessary.
-
-         D.Stream := new RSM.ZLib.Stream_Type;
-
-         if Direction = Encode then
-            RSM.ZLib.Deflate_Initialize
-              (RSM.ZLib.Stream_Type (D.Stream.all), Header => Header);
-
-            --  Set the Content-Encoding header value for server responce.
-
-            Update_Header
-              (D,
-               Messages.Content_Encoding_Token,
-               Content_Encoding'Image (Encoding));
-         else
-            RSM.ZLib.Inflate_Initialize
-              (RSM.ZLib.Stream_Type (D.Stream.all), Header => Header);
-         end if;
-      end if;
-   end Append_Encode;
-
    --------------------
    -- Authentication --
    --------------------
@@ -153,7 +107,6 @@ package body AWS.Response.Set is
       --  We are not using AWS.Headers.Set.Add routine for add WWW-Authenticate
       --  header lines, becouse user could call this routine more than once.
    begin
-
       --  In case of Authenticate = Any
       --  We should create both header lines
       --  WWW-Authenticate: Basic
@@ -179,7 +132,7 @@ package body AWS.Response.Set is
             N     => N);
       end if;
 
-      D.Status_Code    := Messages.S401;
+      D.Status_Code := Messages.S401;
    end Authentication;
 
    -------------------
@@ -202,6 +155,7 @@ package body AWS.Response.Set is
             --  There is a no-cache option specified for the Cache-Control
             --  header. Add "Pragma: no-cache" for compatibility with HTTP/1.0
             --  protocol.
+
             Headers.Set.Update
               (D.Header, Name => Messages.Pragma_Token, Value => "no-cache");
          end if;
@@ -249,6 +203,57 @@ package body AWS.Response.Set is
          Name  => Messages.Content_Type_Token,
          Value => Value);
    end Content_Type;
+
+   -------------------
+   -- Data_Encoding --
+   -------------------
+
+   procedure Data_Encoding
+     (D         : in out Data;
+      Encoding  : in     Content_Encoding;
+      Direction : in     Encoding_Direction := Encode)
+   is
+      use type Resources.Streams.Stream_Access;
+      Header : RSM.ZLib.Header_Type;
+   begin
+      if D.Stream /= null then
+         --  The stream is already active, there is nothing to do, we can't
+         --  change the encoding when data has alredy been added into the
+         --  stream.
+         return;
+      end if;
+
+      D.Mode := Message;
+
+      case Encoding is
+         when Identity => D.Stream := new RSM.Stream_Type;
+         when GZip     => Header   := ZLib.GZip;
+         when Deflate  => Header   := ZLib.Default;
+      end case;
+
+      if D.Stream = null then
+         --  ZLib encoding/decoding is necessary
+
+         D.Stream := new RSM.ZLib.Stream_Type;
+         --  Create the encoding stream, now initialize it
+
+         if Direction = Encode then
+            RSM.ZLib.Deflate_Initialize
+              (RSM.ZLib.Stream_Type (D.Stream.all), Header => Header);
+
+            --  Set the Content-Encoding header value for server's response
+
+            Update_Header
+              (D,
+               Messages.Content_Encoding_Token,
+               Content_Encoding'Image (Encoding));
+
+         else
+            RSM.ZLib.Inflate_Initialize
+              (RSM.ZLib.Stream_Type (D.Stream.all), Header => Header);
+         end if;
+      end if;
+   end Data_Encoding;
 
    --------------
    -- Filename --
@@ -429,7 +434,7 @@ package body AWS.Response.Set is
          Messages.Content_Encoding_Token,
          Content_Encoding'Image (Encoding));
 
-      D.Mode   := Stream;
+      D.Mode := Stream;
    end Stream;
 
    -------------------
