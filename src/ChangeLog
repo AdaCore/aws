@@ -1,3 +1,15 @@
+2004-02-29  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-sets.ads, aws-net-sets.adb:
+	(Socket_Set_Type): Make finalization controlled.
+	(Wait): Put socket error code to exception text on error.
+
+	* aws-net.ads, aws-net.adb:
+	(Errno): New private routine.
+
+        * aws-net-std.ads:
+        (Errno): New routine.
+
 2004-02-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets.ads, aws-net-sets.adb, aws-net-sets-thin.ads:
