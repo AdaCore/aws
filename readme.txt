@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            September 16th, 2004
+   Pascal Obry                                            September 25th, 2004
 
 
 
@@ -115,6 +115,9 @@ Here are the main changes since AWS 2.0 :
    - Templates_Parser table now support section blocks. This permits better
      code sharing amongst sections.
 
+   - File upload is more secure now. All files upload to the server are
+     removed after calling the callback function.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
@@ -138,6 +141,11 @@ implementations.
    - By default an AWS server does not accept upload files. It is required to
      activate this feature by properly setting the Upload_Directory either
      with the Start routine procedure or a config object.
+
+   - File uploaded to the server are deleted after calling the user's
+     callback function. It is up to the user to copy/rename the file to keep
+     it around.
+
 
 Obsolescent features:
 ---------------------
