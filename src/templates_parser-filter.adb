@@ -206,21 +206,20 @@ package body Filter is
 
    function Replace_One_Or_All
      (S   : in String;
-      P   : in Parameter_Data := No_Parameter;
-      T   : in Translate_Set  := Null_Set;
-      One : Boolean)
+      P   : in Parameter_Data;
+      T   : in Translate_Set;
+      I   : in Include_Parameters;
+      One : in Boolean)
       return String;
    --  Routine used to implement the REPLACE (One set to True) and REPLACE_ALL
    --  filters.
 
    function Value
      (Str          : in String;
-      Translations : in Translate_Set)
+      Translations : in Translate_Set;
+      I_Params     : in Include_Parameters)
       return String;
    --  Returns the value for Str, or if Str is a tag, returns it's value
-
-   function Is_Number (S : in String) return Boolean;
-   pragma Inline (Is_Number);
 
    --------------------------
    -- Check_Null_Parameter --
@@ -359,8 +358,9 @@ package body Filter is
 
    function Add_Param
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       function Get (Str : in String) return String;
@@ -377,7 +377,8 @@ package body Filter is
          if P = 0 then
             return Str;
          else
-            return Str (Str'First .. P) & Value (Str (P + 1 .. Str'Last), T);
+            return Str (Str'First .. P)
+              & Value (Str (P + 1 .. Str'Last), T, I);
          end if;
       end Get;
 
@@ -402,11 +403,12 @@ package body Filter is
 
    function BR_2_LF
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Result : String (S'Range);
       K      : Positive := Result'First;
       J      : Positive := S'First;
@@ -443,11 +445,12 @@ package body Filter is
 
    function Capitalize
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Result : String (S'Range);
       Upper  : Boolean := True;
    begin
@@ -473,11 +476,12 @@ package body Filter is
 
    function Clean_Text
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       use type Strings.Maps.Character_Set;
 
       Result : String (S'Range);
@@ -506,11 +510,12 @@ package body Filter is
 
    function Coma_2_Point
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Result : String := S;
    begin
       Check_Null_Parameter (P);
@@ -530,11 +535,12 @@ package body Filter is
 
    function Contract
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       use type Strings.Maps.Character_Set;
 
       Result : String (S'Range);
@@ -577,11 +583,12 @@ package body Filter is
 
    function Del_Param
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Param : constant String  := To_String (P.S);
       E     : constant Natural := Strings.Fixed.Index (S, "?");
       Len   : constant Natural := Param'Length;
@@ -631,11 +638,12 @@ package body Filter is
 
    function Exist
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
 
@@ -652,15 +660,16 @@ package body Filter is
 
    function Format_Date
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       Date_Only : constant := 10;
       Date_Time : constant := 19;
       Param     : constant GNAT.Calendar.Time_IO.Picture_String
         := GNAT.Calendar.Time_IO.Picture_String
-             (Value (To_String (P.S), T));
+             (Value (To_String (P.S), T, I));
       F         : constant Positive := S'First;
 
       Year   : Calendar.Year_Number;
@@ -705,11 +714,12 @@ package body Filter is
 
    function Format_Number
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       TS : constant String := Strings.Fixed.Trim (S, Both);
 
       function Is_Number return Boolean;
@@ -738,7 +748,7 @@ package body Filter is
       Result : String (1 .. TS'Length * 2);
       K      : Natural := Result'Last;
 
-      I      : Natural;
+      N      : Natural;
       Count  : Natural := 0;
 
    begin
@@ -747,12 +757,12 @@ package body Filter is
       if Is_Number then
 
          if Point = 0 then
-            I := TS'Last;
+            N := TS'Last;
          else
-            I := Point - 1;
+            N := Point - 1;
          end if;
 
-         for P in reverse TS'First .. I loop
+         for P in reverse TS'First .. N loop
             Result (K) := TS (P);
             K := K - 1;
             Count := Count + 1;
@@ -781,11 +791,12 @@ package body Filter is
 
    function Is_Empty
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
 
@@ -812,11 +823,12 @@ package body Filter is
 
    function LF_2_BR
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       N      : constant Natural
         := Fixed.Count (S, Strings.Maps.To_Set (ASCII.LF));
    begin
@@ -851,11 +863,12 @@ package body Filter is
 
    function Lower
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
 
@@ -868,11 +881,12 @@ package body Filter is
 
    function Match
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       use type GNAT.Regpat.Match_Location;
 
       Matches : GNAT.Regpat.Match_Array (0 .. 0);
@@ -897,11 +911,12 @@ package body Filter is
 
    function No_Context
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
       return S;
@@ -913,11 +928,12 @@ package body Filter is
 
    function No_Digit
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Result : String := S;
    begin
       Check_Null_Parameter (P);
@@ -939,11 +955,12 @@ package body Filter is
 
    function No_Letter
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Result : String := S;
    begin
       Check_Null_Parameter (P);
@@ -963,11 +980,12 @@ package body Filter is
 
    function No_Space
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Result : String (S'Range);
       L      : Natural := Result'First - 1;
    begin
@@ -989,11 +1007,12 @@ package body Filter is
 
    function Oui_Non
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
 
@@ -1026,11 +1045,12 @@ package body Filter is
 
    function Point_2_Coma
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Result : String := S;
    begin
       Check_Null_Parameter (P);
@@ -1050,8 +1070,9 @@ package body Filter is
 
    function Repeat
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       N : Natural;
@@ -1062,7 +1083,7 @@ package body Filter is
          if Is_Number (V_Str) then
             N := Natural'Value (V_Str);
          else
-            N := Natural'Value (Value (V_Str, T));
+            N := Natural'Value (Value (V_Str, T, I));
          end if;
 
          declare
@@ -1087,12 +1108,13 @@ package body Filter is
 
    function Replace
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
    begin
-      return Replace_One_Or_All (S, P, T, One => True);
+      return Replace_One_Or_All (S, P, T, I, One => True);
    end Replace;
 
    -----------------
@@ -1101,12 +1123,13 @@ package body Filter is
 
    function Replace_All
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
    begin
-      return Replace_One_Or_All (S, P, T, One => False);
+      return Replace_One_Or_All (S, P, T, I, One => False);
    end Replace_All;
 
    ------------------------
@@ -1115,15 +1138,16 @@ package body Filter is
 
    function Replace_One_Or_All
      (S   : in String;
-      P   : in Parameter_Data := No_Parameter;
-      T   : in Translate_Set  := Null_Set;
-      One : Boolean)
+      P   : in Parameter_Data;
+      T   : in Translate_Set;
+      I   : in Include_Parameters;
+      One : in Boolean)
       return String
    is
       use type GNAT.Regpat.Match_Location;
       use Ada.Strings.Fixed;
 
-      Param   : constant String  := Value (To_String (P.Param), T);
+      Param   : constant String  := Value (To_String (P.Param), T, I);
 
       Matches : GNAT.Regpat.Match_Array
         (0 .. GNAT.Regpat.Paren_Count (P.Regpat.all));
@@ -1140,7 +1164,6 @@ package body Filter is
          exit when Matches (0) = GNAT.Regpat.No_Match;
 
          Matched := True;
-
          Temp    := To_Unbounded_String (Param);
 
          --  Replace each occurrence of \n in Temp by the corresponding match
@@ -1195,8 +1218,9 @@ package body Filter is
 
    function Replace_Param
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       Param : constant String  := To_String (P.S);
@@ -1212,7 +1236,7 @@ package body Filter is
             Key : constant String := Param (Param'First .. Pos - 1);
          begin
             return Add_Param
-              (Del_Param (S, (Str, To_Unbounded_String (Key)), T),
+              (Del_Param (S, (Str, To_Unbounded_String (Key)), T, I),
                P, T);
          end;
       end if;
@@ -1224,11 +1248,12 @@ package body Filter is
 
    function Reverse_Data
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Result : String (S'Range);
    begin
       Check_Null_Parameter (P);
@@ -1245,11 +1270,12 @@ package body Filter is
 
    function Size
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
 
@@ -1263,10 +1289,11 @@ package body Filter is
    function Slice
      (S : in String;
       P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      T : in Translate_Set  := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       First, Last : Natural;
    begin
       First := Natural'Min (P.First, S'Length + 1);
@@ -1281,11 +1308,12 @@ package body Filter is
 
    function Trim
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
 
@@ -1298,11 +1326,12 @@ package body Filter is
 
    function Upper
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
 
@@ -1315,11 +1344,12 @@ package body Filter is
 
    function Web_Escape
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Max_Escape_Sequence : constant Positive := 5;
       Result              : String (1 .. S'Length * Max_Escape_Sequence);
       Last                : Natural := 0;
@@ -1361,11 +1391,12 @@ package body Filter is
 
    function Web_NBSP
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
       Nbsp_Token          : constant String := "&nbsp;";
       Max_Escape_Sequence : constant Positive := Nbsp_Token'Length;
       Result              : String (1 .. S'Length * Max_Escape_Sequence);
@@ -1394,11 +1425,12 @@ package body Filter is
 
    function Yes_No
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
-      pragma Unreferenced (T);
+      pragma Unreferenced (T, I);
    begin
       Check_Null_Parameter (P);
 
@@ -1432,7 +1464,8 @@ package body Filter is
    function Plus
      (S : in String;
       P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      T : in Translate_Set  := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       N, V : Integer;
@@ -1443,7 +1476,7 @@ package body Filter is
          if Is_Number (V_Str) then
             N := Integer'Value (V_Str);
          else
-            N := Integer'Value (Value (V_Str, T));
+            N := Integer'Value (Value (V_Str, T, I));
          end if;
       exception
          when Constraint_Error =>
@@ -1466,8 +1499,9 @@ package body Filter is
 
    function Minus
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       N, V : Integer;
@@ -1478,7 +1512,7 @@ package body Filter is
          if Is_Number (V_Str) then
             N := Integer'Value (V_Str);
          else
-            N := Integer'Value (Value (V_Str, T));
+            N := Integer'Value (Value (V_Str, T, I));
          end if;
       exception
          when Constraint_Error =>
@@ -1501,8 +1535,9 @@ package body Filter is
 
    function Divide
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       N, V : Integer;
@@ -1513,7 +1548,7 @@ package body Filter is
          if Is_Number (V_Str) then
             N := Integer'Value (V_Str);
          else
-            N := Integer'Value (Value (V_Str, T));
+            N := Integer'Value (Value (V_Str, T, I));
          end if;
       exception
          when Constraint_Error =>
@@ -1536,8 +1571,9 @@ package body Filter is
 
    function Multiply
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       N, V : Integer;
@@ -1548,7 +1584,7 @@ package body Filter is
          if Is_Number (V_Str) then
             N := Integer'Value (V_Str);
          else
-            N := Integer'Value (Value (V_Str, T));
+            N := Integer'Value (Value (V_Str, T, I));
          end if;
       exception
          when Constraint_Error =>
@@ -1571,8 +1607,9 @@ package body Filter is
 
    function Modulo
      (S : in String;
-      P : in Parameter_Data := No_Parameter;
-      T : in Translate_Set  := Null_Set)
+      P : in Parameter_Data     := No_Parameter;
+      T : in Translate_Set      := Null_Set;
+      I : in Include_Parameters := No_Include_Parameters)
       return String
    is
       N, V : Integer;
@@ -1583,7 +1620,7 @@ package body Filter is
          if Is_Number (V_Str) then
             N := Integer'Value (V_Str);
          else
-            N := Integer'Value (Value (V_Str, T));
+            N := Integer'Value (Value (V_Str, T, I));
          end if;
       exception
          when Constraint_Error =>
@@ -1628,24 +1665,39 @@ package body Filter is
 
    function Value
      (Str          : in String;
-      Translations : in Translate_Set)
+      Translations : in Translate_Set;
+      I_Params     : in Include_Parameters)
       return String
    is
       Pos : Containers.Cursor;
    begin
-      Pos := Containers.Find (Translations.Set.all, Str);
+      if Str (Str'First) = '$'
+        and then Is_Number (Str (Str'First + 1 .. Str'Last))
+      then
+         --  This is an include parameter
 
-      if Containers.Has_Element (Pos) then
          declare
-            Tk : constant Association := Containers.Element (Pos);
+            N  : constant Natural
+              := Natural'Value (Str (Str'First + 1 .. Str'Last));
          begin
-            if Tk.Kind = Std then
-               return To_String (Tk.Value);
-            end if;
+            return To_String (I_Params (N));
          end;
-      end if;
 
-      return Str;
+      else
+         Pos := Containers.Find (Translations.Set.all, Str);
+
+         if Containers.Has_Element (Pos) then
+            declare
+               Tk : constant Association := Containers.Element (Pos);
+            begin
+               if Tk.Kind = Std then
+                  return To_String (Tk.Value);
+               end if;
+            end;
+         end if;
+
+         return Str;
+      end if;
    end Value;
 
 end Filter;
