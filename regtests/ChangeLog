@@ -1,5 +1,17 @@
 2004-12-13  Pascal Obry  <pascal@obry.org>
 
+	* makefile:
+	(init): Copy icons directory here for the dirop test.
+	(clean): Update accordingly.
+
+	* dirop.adb:
+	Update directory containing icons.
+
+	* dirop.out:
+	Update output.
+
+2004-12-13  Pascal Obry  <pascal@obry.org>
+
 	* dispatch1.adb, dispatch1.out:
 	Update to test for new Prefix option in URI Registrer routine.
 
