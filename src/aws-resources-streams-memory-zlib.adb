@@ -35,6 +35,8 @@
 
 package body AWS.Resources.Streams.Memory.ZLib is
 
+   pragma Linker_Options ("-lz");
+
    procedure Flush (Resource : in out Stream_Type);
    --  Complete compression, flush internal compression buffer to the
    --  memory stream.
