@@ -37,7 +37,7 @@ package body AI302.Containers.Prime_Numbers is
 
    function Is_Less
      (Index : in Positive;
-      Item  : in Size_Type) return Boolean is
+      Item  : in Count_Type) return Boolean is
 
       pragma Inline (Is_Less);
    begin
@@ -49,11 +49,11 @@ package body AI302.Containers.Prime_Numbers is
       new Charles.Algorithms.Generic_Lower_Bound
         (Iterator_Type => Positive,
          Offset_Type   => Integer,
-         Element_Type  => Size_Type,
+         Element_Type  => Count_Type,
          Is_Less       => Is_Less);
 
 
-   function To_Prime (Length : Size_Type) return Hash_Type is
+   function To_Prime (Length : Count_Type) return Hash_Type is
 
       I : constant Positive :=
         Lower_Bound (Primes'First, Primes'Last, Length);

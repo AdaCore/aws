@@ -53,7 +53,7 @@ generic
 package AI302.Containers.Indefinite_Hashed_Maps is
    pragma Preelaborate (Indefinite_Hashed_Maps);
 
-   type Map is private;
+   type Map is tagged private;
 
    type Cursor is private;
 
@@ -63,7 +63,7 @@ package AI302.Containers.Indefinite_Hashed_Maps is
 
    function "=" (Left, Right : Map) return Boolean;
 
-   function Length (Container : Map) return Size_Type;
+   function Length (Container : Map) return Count_Type;
 
    function Is_Empty (Container : Map) return Boolean;
 
@@ -73,8 +73,8 @@ package AI302.Containers.Indefinite_Hashed_Maps is
      return Element_Type;
 
    generic
-      with procedure Process (Element : in out Element_Type) is <>;
-   procedure Generic_Update (Position : in Cursor);
+      with procedure Process (Element : in out Element_Type);
+   procedure Generic_Update_Element (Position : in Cursor);
 
    procedure Replace_Element (Position : in Cursor;
                               By       : in Element_Type);
@@ -98,8 +98,8 @@ package AI302.Containers.Indefinite_Hashed_Maps is
    procedure Delete (Container : in out Map;
                      Position  : in out Cursor);
 
-   function Is_In (Key       : Key_Type;
-                   Container : Map)
+   function Is_In (Container : Map;
+                   Key       : Key_Type)
       return Boolean;
 
    function Find (Container : Map;
@@ -110,10 +110,10 @@ package AI302.Containers.Indefinite_Hashed_Maps is
                      Key       : Key_Type)
      return Element_Type;
 
-   function Size (Container : Map) return Size_Type;
+   function Capacity (Container : Map) return Count_Type;
 
-   procedure Resize (Container : in out Map;
-                     Size      : in     Size_Type);
+   procedure Set_Capacity (Container : in out Map;
+                           Capacity  : in     Count_Type);
 
    function First (Container : Map) return Cursor;
 
@@ -137,7 +137,7 @@ package AI302.Containers.Indefinite_Hashed_Maps is
      return Boolean;
 
    generic
-      with procedure Process (Position : in Cursor) is <>;
+      with procedure Process (Position : in Cursor);
    procedure Generic_Iteration (Container : in Map);
 
 private

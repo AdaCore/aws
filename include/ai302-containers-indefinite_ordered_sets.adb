@@ -233,7 +233,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
       Tree : Tree_Type renames Container.Tree;
 
-      Length : constant Size_Type := Tree.Length;
+      Length : constant Count_Type := Tree.Length;
 
       X : Node_Access := Root (Tree);
       Y : Node_Access;
@@ -362,7 +362,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
    end;
 
 
-   function Length (Container : Set) return Size_Type is
+   function Length (Container : Set) return Count_Type is
    begin
       return Container.Tree.Length;
    end;
@@ -479,8 +479,8 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
    end;
 
 
-   function Is_In (Item      : Element_Type;
-                   Container : Set) return Boolean is
+   function Is_In (Container : Set;
+                   Item      : Element_Type) return Boolean is
    begin
       return Find (Container, Item) /= null;
    end;
@@ -584,7 +584,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
    end;
 
 
-   procedure Generic_Update (Position : in Cursor) is
+   procedure Generic_Update_Element (Position : in Cursor) is
    begin
       pragma Assert (Position.Color /= White);
       Process (Position.Element.all);
@@ -614,18 +614,24 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
    end;
 
 
---     function Lower_Bound (Container  : Set;
---                           Item : Element_Type) return Cursor is
---     begin
---        return (Node => Element_Keys.Lower_Bound (Container.Tree, Item));
---     end;
+   function Ceiling (Container : Set;
+                     Item      : Element_Type) return Cursor is
+
+      Node : constant Node_Access :=
+        Element_Keys.Ceiling (Container.Tree, Item);
+   begin
+      return Cursor (Node);
+   end;
 
 
---     function Upper_Bound (Container  : Set;
---                           Item : Element_Type) return Cursor is
---     begin
---        return (Node => Element_Keys.Upper_Bound (Container.Tree, Item));
---     end;
+   function Floor (Container : Set;
+                   Item      : Element_Type) return Cursor is
+
+      Node : constant Node_Access :=
+        Element_Keys.Floor (Container.Tree, Item);
+   begin
+      return Cursor (Node);
+   end;
 
 
    function "<" (Left, Right : Cursor) return Boolean is
@@ -734,8 +740,8 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       end;
 
 
-      function Is_In (Key       : Key_Type;
-                      Container : Set)
+      function Is_In (Container : Set;
+                      Key       : Key_Type)
          return Boolean is
       begin
          return Find (Container, Key) /= null;
@@ -752,20 +758,24 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       end;
 
 
---        function Lower_Bound (Container : Set;
---                              Key : Key_Type)
---          return Cursor is
---        begin
---           return (Node => Key_Keys.Lower_Bound (Container.Tree, Key));
---        end;
+      function Ceiling (Container : Set;
+                        Key       : Key_Type) return Cursor is
+
+         Node : constant Node_Access :=
+           Key_Keys.Ceiling (Container.Tree, Key);
+      begin
+         return Cursor (Node);
+      end;
 
 
---        function Upper_Bound (Container : Set;
---                              Key : Key_Type)
---          return Cursor is
---        begin
---           return (Node => Key_Keys.Upper_Bound (Container.Tree, Key));
---        end;
+      function Floor (Container : Set;
+                      Key       : Key_Type) return Cursor is
+
+         Node : constant Node_Access :=
+           Key_Keys.Floor (Container.Tree, Key);
+      begin
+         return Cursor (Node);
+      end;
 
 
       procedure Delete (Container : in out Set;
@@ -801,46 +811,6 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
          return Right < Left.Element.all;
       end;
 
-
-      procedure Generic_Insertion
-        (Container : in out Set;
-         Key       : in     Key_Type;
-         Position  :    out Cursor;
-         Success   :    out Boolean) is
-
-         function New_Node return Node_Access is
-            pragma Inline (New_Node);
-
-            Node : Node_Access := new Node_Type;
-         begin
-            --Set_Key (Node.Element, Key);
-            Node.Element := new Element_Type'(New_Element (Key));
-
-            Node.Color := Red;
-
-            return Node;
-         exception
-            when others =>
-               Free (Node);
-               raise;
-         end;
-
-         procedure Insert_Post is
-            new Key_Keys.Generic_Insert_Post (New_Node);
-
-         procedure Insert_Sans_Hint is
-            new Key_Keys.Generic_Conditional_Insert (Insert_Post);
-
-      begin -- Generic_Insertion
-
-         Insert_Sans_Hint
-           (Container.Tree,
-            Key,
-            Node_Access (Position),
-            Success);
-
-      end Generic_Insertion;
-
    end Generic_Keys;
 
 
@@ -858,7 +828,7 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
    begin -- Write
 
-      Size_Type'Base'Write (Stream, Container.Tree.Length);
+      Count_Type'Base'Write (Stream, Container.Tree.Length);
 
       Iterate (Container.Tree);
 
@@ -886,13 +856,13 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       procedure Read is
          new Tree_Types.Generic_Read (New_Node);
 
-      N : Size_Type'Base;
+      N : Count_Type'Base;
 
    begin
 
       Clear (Container);
 
-      Size_Type'Base'Read (Stream, N);
+      Count_Type'Base'Read (Stream, N);
       pragma Assert (N >= 0);
 
       Read (Container.Tree, N);
@@ -1344,8 +1314,8 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
 
    function Is_Subset
-     (Item      : Set;
-      Container : Set) return Boolean is
+     (Container : Set;
+      Item      : Set) return Boolean is
 
       function Is_Subset is
          new Charles.Algorithms.Generic_Includes
@@ -1369,8 +1339,8 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
 
 
    function Is_Disjoint
-     (Item      : Set;
-      Container : Set) return Boolean is
+     (Container : Set;
+      Item      : Set) return Boolean is
 
       L_Node : Node_Access := First (Item.Tree);
       R_Node : Node_Access := First (Container.Tree);

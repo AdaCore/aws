@@ -129,6 +129,15 @@ package body AI302.Containers.Indefinite_Hashed_Maps is
    end;
 
 
+   function Find_Equal_Key
+     (HT : Hash_Table_Type;
+      N  : Node_Access) return Node_Access is
+
+      pragma Inline (Find_Equal_Key);
+   begin
+      return Find (HT, Key => N.Key.all);
+   end;
+
    function Is_Equal_Element_Node_Node
      (L, R : Node_Access) return Boolean is
 
@@ -151,9 +160,10 @@ package body AI302.Containers.Indefinite_Hashed_Maps is
 
    end Is_Equal_Element_Node_Node;
 
-
    function Is_Equal is
-      new Hash_Table_Types.Generic_Equal (Is_Equal_Element_Node_Node);
+      new Hash_Table_Types.Generic_Equal
+        (Find_Equal_Key   => Find_Equal_Key,
+         Is_Equal_Element => Is_Equal_Element_Node_Node);
 
    function "=" (Left, Right : Map) return Boolean is
    begin
@@ -167,7 +177,7 @@ package body AI302.Containers.Indefinite_Hashed_Maps is
    end "=";
 
 
-   function Length (Container : Map) return Size_Type is
+   function Length (Container : Map) return Count_Type is
    begin
       return Container.HT.Length;
    end;
@@ -193,7 +203,7 @@ package body AI302.Containers.Indefinite_Hashed_Maps is
    end;
 
 
-   function Size (Container : Map) return Size_Type is
+   function Capacity (Container : Map) return Count_Type is
    begin
       if Container.HT.Buckets = null then
          return 0;
@@ -203,10 +213,10 @@ package body AI302.Containers.Indefinite_Hashed_Maps is
    end;
 
 
-   procedure Resize (Container : in out Map;
-                     Size      : in     Size_Type) is
+   procedure Set_Capacity (Container : in out Map;
+                           Capacity  : in     Count_Type) is
    begin
-      Resize (Container.HT, Size);
+      Resize (Container.HT, Capacity);
    end;
 
 
@@ -338,8 +348,8 @@ package body AI302.Containers.Indefinite_Hashed_Maps is
    end Find;
 
 
-   function Is_In (Key       : Key_Type;
-                   Container : Map) return Boolean is
+   function Is_In (Container : Map;
+                   Key       : Key_Type) return Boolean is
    begin
       return Find (Container, Key) /= No_Element;
    end;
@@ -433,7 +443,7 @@ package body AI302.Containers.Indefinite_Hashed_Maps is
    end;
 
 
-   procedure Generic_Update (Position : in Cursor) is
+   procedure Generic_Update_Element (Position : in Cursor) is
    begin
       Process (Position.Node.Element.all);
    end;
