@@ -228,6 +228,16 @@ package body AWS.Server is
          return Set (Index);
       end Get;
 
+      -------------------------------------
+      -- Increment_Slot_Activity_Counter --
+      -------------------------------------
+
+      procedure Increment_Slot_Activity_Counter (Index : in Positive) is
+      begin
+         Set (Index).Slot_Activity_Counter
+           := Set (Index).Slot_Activity_Counter + 1;
+      end Increment_Slot_Activity_Counter;
+
       -------------
       -- Release --
       -------------
