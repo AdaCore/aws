@@ -330,7 +330,19 @@ is
 
          --  and get answer from client callback
 
-         Answer := HTTP_Server.CB (C_Stat);
+         declare
+            Found : Boolean;
+         begin
+            --  check the hotplug filters
+
+            Hotplug.Apply (HTTP_Server.Filters,
+                           AWS.Status.URI (C_Stat), Found, Answer);
+
+            --  if no one applied, run the default callback
+            if not Found then
+               Answer := HTTP_Server.CB (C_Stat);
+            end if;
+         end;
       end if;
 
       Status := Response.Status_Code (Answer);
