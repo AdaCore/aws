@@ -324,5 +324,64 @@ package body AWS.Status is
       return To_String (D.URI);
    end URI;
 
-end AWS.Status;
+   -----------------------
+   -- Set_Authorization --
+   -----------------------
 
+   procedure Set_Authorization (D             : in out Data;
+                                Authorization : in     String) is
+      Basic_Token : constant String := "Basic ";
+   begin
+      if Messages.Is_Match (Authorization, Basic_Token) then
+
+         declare
+            use Ada.Streams;
+
+            Auth_Bin : Stream_Element_Array :=
+              Translater.Base64_Decode
+              (Authorization (Basic_Token'Length + Authorization'First
+                              .. Authorization'Last));
+            Auth_Str : String (1 .. Auth_Bin'Length);
+            K        : Positive := Auth_Str'First;
+            Delimit  : Natural;
+         begin
+
+            for i in Auth_Bin'Range loop
+               Auth_Str (K) :=
+                 Character'Val (Stream_Element'Pos (Auth_Bin (i)));
+               K := K + 1;
+            end loop;
+
+            Delimit := Fixed.Index (Auth_Str, ":");
+
+            if Delimit = 0 then
+               D.Auth_Name := To_Unbounded_String (Auth_Str);
+            else
+               D.Auth_Name     :=
+                 To_Unbounded_String (Auth_Str (1 .. Delimit - 1));
+               D.Auth_Password :=
+                 To_Unbounded_String (Auth_Str (Delimit + 1 .. Auth_Str'Last));
+            end if;
+         end;
+      end if;
+   end Set_Authorization;
+
+   ------------------------
+   -- Authorization_Name --
+   ------------------------
+
+   function Authorization_Name (D : in Data) return String is
+   begin
+      return To_String (D.Auth_Name);
+   end Authorization_Name;
+
+   ----------------------------
+   -- Authorization_Password --
+   ----------------------------
+
+   function Authorization_Password (D : in Data) return String is
+   begin
+      return To_String (D.Auth_Password);
+   end Authorization_Password;
+
+end AWS.Status;
