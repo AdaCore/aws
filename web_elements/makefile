@@ -1,7 +1,7 @@
 
 # $Id$
 
-DIRS = menu_css notebook rounded_boxes icons
+DIRS = menu_css notebook rounded_boxes icons javascripts
 
 init:
 	$(MKDIR) $(INSTALL)/AWS/web_elements
