@@ -33,6 +33,7 @@
 --  Project for libssl.a external library
 
 with "ssl_shared";
+with "nossl";
 
 project SSL_Lib is
 
