@@ -178,10 +178,8 @@ package body Skel is
            & "AWS.Status.SOAPAction (Request);");
       Text_IO.Put_Line
         (Skel_Adb, "      Payload    : constant SOAP.Message.Payload.Object");
-      Text_IO.Put
-        (Skel_Adb, "        := SOAP.Message.XML.Load_Payload");
       Text_IO.Put_Line
-        (Skel_Adb, " (AWS.Status.Payload (Request));");
+        (Skel_Adb, "        := AWS.Status.Payload (Request);");
       Text_IO.Put_Line
         (Skel_Adb, "      Params     : constant SOAP.Parameters.List");
       Text_IO.Put_Line
@@ -512,7 +510,6 @@ package body Skel is
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Payload;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Response.Error;");
-      Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.XML;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Parameters;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Types;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Utils;");
