@@ -41,10 +41,10 @@ package AWS.Net.Stream_IO is
    function Stream
      (Socket : in Socket_Type'Class)
       return Socket_Stream_Access;
-   --  Build a Stream Socket type.
+   --  Build a Stream Socket type
 
    procedure Shutdown (Stream : in Socket_Stream_Access);
-   --  Terminate the Stream and Flush the stream if needed.
+   --  Terminate the Stream and Flush the stream if needed
 
    procedure Free
      (Stream : in out Socket_Stream_Access;
@@ -59,7 +59,7 @@ package AWS.Net.Stream_IO is
 
    procedure Flush (Stream : in Socket_Stream_Access);
    pragma Inline (Flush);
-   --  Send all remaining data in the stream to the peer.
+   --  Send all remaining data in the stream to the peer
 
    procedure Read
      (Stream : in out Socket_Stream_Type;
@@ -71,7 +71,7 @@ package AWS.Net.Stream_IO is
    procedure Write
      (Stream : in out Socket_Stream_Type;
       Item   : in     Ada.Streams.Stream_Element_Array);
-   --  Write Item to the stream.
+   --  Write Item to the stream
 
 private
 

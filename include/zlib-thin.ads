@@ -356,7 +356,7 @@ private package ZLib.Thin is
       Source_Len : in ULong)
       return     ULong;
 
-   function gzungetc (C : in Int; File : in  gzFile) return Int;
+   function gzungetc (C : in Int; File : in gzFile) return Int;
 
    function zlibCompileFlags return ULong;
 
