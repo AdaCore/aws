@@ -32,6 +32,13 @@ b~wps.adb
 b~wps.ads
 b~ws.adb
 b~ws.ads
+hello_demo-client.adb
+hello_demo-client.ads
+hello_demo-server.adb
+hello_demo-server.ads
+hello_demo-types.adb
+hello_demo-types.ads
+hello_demo.ads
 rdemo-adains_png.ads
 rdemo-page3_html.ads
 rdemo.adb
