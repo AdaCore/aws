@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,7 +32,7 @@
 
 --  Just Comment out if XMLAda is not installed on your machine
 
-with "xmlada";
+--  with "xmlada";
 
 project Shared is
 
@@ -50,10 +50,6 @@ project Shared is
 
    type XMLAda_Type is ("Installed", "Disabled");
    XMLAda : XMLAda_Type := external ("AWS_XMLAda", "Installed");
-
-   LIB_XMLAda := ("-lxmlada_dom", "-lxmlada_sax",
-                  "-lxmlada_unicode", "-lxmlada_input_sources")
-     & XMLAda.LIB_Path;
 
    ----------
    -- ASIS --
