@@ -1,3 +1,27 @@
+2001-09-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.adb:
+	(A): return now a controlled object.
+	(Adjust): new procedure.
+	(Finalize): new procedure.
+	(Finalize): free memory only if pointer is not null.
+	(Image): [for SOAP_Array] fix reference to object since now it is
+	 a controlled object.
+	(Image): [for SOAP_Record] idem.
+	(V): [for SOAP_Array] idem.
+	(V): [for SOAP_Record] idem.
+	(XML_Image): [for SOAP_Array] idem.
+	(XML_Image): [for SOAP_Record] idem.
+	(R): return now a controlled object.
+
+	* soap-types.ads:
+	(Object_Set_Controlled): new type. Used for SOAP_Array and
+	 SOAP_Record to avoid memory leak.
+	(Adjust): new procedure.
+	(Finalize): new procedure.
+	(SOAP_Array): use an Object_Set_Controlled.
+	(SOAP_Record): idem.
+
 2001-09-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-payload.ads, soap-message-payload.adb:

@@ -1,3 +1,18 @@
+2001-09-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-log.adb:
+	(Stop): check if file is open before closing it.
+
+	* aws-server.adb:
+	(Shutdown): Correctly wait for tasks to terminate before releasing
+	 the memory. Further fix to avoid memory leak. Close the log.
+	(Start): Properly set Web_Server.Shutdown to False. Fix problem
+	 when starting/stopping a server.
+
+	* aws-server.ads:
+	(Shutdown): update comment.
+	Fix typo.
+
 2001-09-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
