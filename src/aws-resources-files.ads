@@ -69,6 +69,10 @@ private
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
 
+   function Size
+     (Resource : in File_Tagged)
+      return   Stream_Element_Offset;
+
    procedure Close (Resource : in out File_Tagged);
 
 end AWS.Resources.Files;
