@@ -1,8 +1,19 @@
+2004-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb:
+	(Generic_Data): New package.
+        Update copyright notice.
+
+	* aws-session.ads:
+	(Generic_Data): New package.
+        Minor reformatting.
+        Update copyright notice.
+
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:
 	Add with for xmlada project.
-	
+
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:
@@ -26,10 +37,10 @@
 	* aws-digest.adb:
 	Many changes to use new MD5 implementation.
 	Update copyright notice.
-	
+
 	* aws-pop.adb:
 	(Initialize): Change to use new MD5 implementation.
-	
+
 	* aws-utils.ads, aws-utils.adb:
 	(Get_MD5): Removed.
 
