@@ -198,27 +198,56 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
    use type Templates_Parser.Translate_Table;
 
-   Admin_URI : constant String := Config.Admin_URI (Server.Properties);
+   Admin_URI : constant String := CNF.Admin_URI (Server.Properties);
 
    Translations : constant Templates_Parser.Translate_Table
-     := (Assoc ("SERVER_NAME",      Config.Server_Name (Server.Properties)),
-         Assoc ("MAX_CONNECTION",   Server.Max_Connection),
-         Assoc ("SERVER_PORT",      Config.Server_Port (Server.Properties)),
-         Assoc ("SECURITY",         Config.Security (Server.Properties)),
-         Assoc ("SERVER_SOCK",      Integer (Sockets.Get_FD (Server.Sock))),
-         Assoc ("VERSION",          Version),
-         Assoc ("SESSION",          Config.Session (Server.Properties)),
-         Assoc ("SESSION_LIFETIME", Utils.Image (Session.Get_Lifetime)),
+     := (Assoc ("SERVER_NAME",
+                CNF.Server_Name (Server.Properties)),
+
+         Assoc ("MAX_CONNECTION",
+                Server.Max_Connection),
+
+         Assoc ("SERVER_PORT",
+                CNF.Server_Port (Server.Properties)),
+
+         Assoc ("SECURITY",
+                CNF.Security (Server.Properties)),
+
+         Assoc ("SERVER_SOCK",
+                Integer (Sockets.Get_FD (Server.Sock))),
+
+         Assoc ("VERSION",
+                Version),
+
+         Assoc ("SESSION",
+                CNF.Session (Server.Properties)),
+
+         Assoc ("SESSION_LIFETIME",
+                Utils.Image (Session.Get_Lifetime)),
+
          Assoc ("SESSION_CLEANUP_INTERVAL",
-                Utils.Image (Config.Session_Cleanup_Interval
-                   (Server.Properties))),
-         Assoc ("LOGO",             Admin_URI & "-logo"),
-         Assoc ("ADMIN",            Admin_URI))
+                Utils.Image (CNF.Session_Cleanup_Interval)),
+
+         Assoc ("LOGO",
+                Admin_URI & "-logo"),
+
+         Assoc ("LOG",
+                Log.Is_Active (Server.Log)),
+
+         Assoc ("LOG_FILE",
+                Log.Filename (Server.Log)),
+
+         Assoc ("LOG_MODE",
+                Log.Split_Mode'Image (Log.Mode (Server.Log))),
+
+
+         Assoc ("ADMIN",
+                Admin_URI))
      & Slot_Table
      & Session_Table
      & Hotplug.Get_Status (Server.Filters);
 
 begin
    return Templates_Parser.Parse
-     (Config.Status_Page (Server.Properties), Translations);
+     (CNF.Status_Page (Server.Properties), Translations);
 end AWS.Server.Get_Status;
