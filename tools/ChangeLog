@@ -1,3 +1,8 @@
+2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	($(TOOLS)): Add -lz.
+
 2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

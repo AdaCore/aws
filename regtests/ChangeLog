@@ -1,3 +1,15 @@
+2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* check_mem.adb:
+	Add procedure to check the ZLib stream based implementation.
+
+	* compress.adb, compress.out:
+	Initial revision.
+
+	* makefile:
+	(LARGS): Simplify handling of this variable. Add -lz.
+	(RT_STD): Add compress.	
+	
 2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
