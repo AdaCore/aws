@@ -310,6 +310,15 @@ package body AWS.Response is
       Set.Filename      (Result, Filename);
       Set.Cache_Control (Result, Cache_Control);
 
+      --  Set the Content_Disposition to properly pass the filename to
+      --  the browser. This will also force the browser to propose to save
+      --  this file instead of displaying it.
+
+      Set.Add_Header
+        (Result,
+         Messages.Content_Disposition_Token,
+         "attachment; filename=""" & Filename & '"');
+
       if Once then
          Set.Mode (Result, File_Once);
       else
