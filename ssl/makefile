@@ -42,3 +42,4 @@ setup: setup_ssl
 	-$(MKDIR) -p ../.build/release/ssl/lobj
 
 clean:
+	-$(RM) -f ssl_shared.gpr
