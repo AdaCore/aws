@@ -39,7 +39,7 @@ package AWS.Status.Set is
    --  Reset the status data for a new use.
 
    procedure Free (D : in out Data);
-   --  Free all internaly allocated memeory.
+   --  Free all allocated memory.
 
    procedure Authorization (D             : in out Data;
                             Authorization : in     String);
