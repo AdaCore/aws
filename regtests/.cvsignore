@@ -144,6 +144,7 @@ interoplab.ads
 interoplab_main.res
 moved.res
 moved.tmp
+multiple.res
 param.res
 param.tmp
 redirect.res
@@ -187,11 +188,13 @@ strm2.res
 strm2.tmp
 tclientto.res
 tclientto.tmp
+tcom.res
 test_sec_soap.res
 test_sec_soap.tmp
 test_soap.res
 test_soap.tmp
 test_soap2.res
+test_soap3.res
 test_speed.res
 test_speed.tmp
 test_templates_if.res
