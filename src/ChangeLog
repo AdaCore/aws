@@ -1,5 +1,10 @@
 2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources.adb:
+	Fix bad indentation.
+
+2003-12-02  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-resources-streams-memory-zlib.ads,
 	  aws-resources-streams-memory-zlib.adb:
 	(Is_Compressed): New routine.
