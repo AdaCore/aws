@@ -52,6 +52,10 @@ package AWS.Net.Thin is
 
    subtype chars_ptr is C.Strings.chars_ptr;
 
+   AI_PASSIVE     : constant := OS_Lib.Definitions.AI_PASSIVE;
+   AI_CANONNAME   : constant := OS_Lib.Definitions.AI_CANONNAME;
+   AI_NUMERICHOST : constant := OS_Lib.Definitions.AI_NUMERICHOST;
+
    type Pollfd is record
       FD      : FD_Type;
       Events  : Events_Type := 0;
