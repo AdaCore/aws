@@ -2540,11 +2540,15 @@ package body Templates_Parser is
                procedure Add_Vector (V : in Vector_Tag) is
                   P : Vector_Tag_Node_Access := V.Head;
                begin
-                  Result := Result & P.Value;
-                  for K in 2 .. V.Count loop
-                     P := P.Next;
-                     Append (Result, A.Column_Separator & P.Value);
-                  end loop;
+                  --  Check that vector is not empty
+                  if P /= null then
+                     Result := Result & P.Value;
+
+                     for K in 2 .. V.Count loop
+                        P := P.Next;
+                        Append (Result, A.Column_Separator & P.Value);
+                     end loop;
+                  end if;
                end Add_Vector;
 
             begin
