@@ -4,4 +4,4 @@
 .SILENT: clean
 
 clean:
-	-$(RM) -f *.a aws.coff
+	-$(RM) -f *.a aws.coff *.o
