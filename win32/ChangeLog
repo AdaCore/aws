@@ -1,3 +1,8 @@
+2004-11-14  Pascal Obry  <pascal@obry.org>
+
+	* poll.ads:
+	Remove Authors from header.
+
 2004-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* poll.adb:
