@@ -15,7 +15,7 @@
 @title Ada Web Server User's Guide
 @subtitle AWS - version @_AWS_VERSION_@
 @subtitle Support for SOAP 1.1 - version @_SOAP_VERSION_@
-@subtitle SMTP, LDAP and Jabber protocols.
+@subtitle SMTP, POP, LDAP and Jabber protocols.
 @subtitle $Revision$
 @subtitle Date: @today{}
 @author Dmitriy Anisimkov (anisimkov@@yahoo.com)
@@ -87,21 +87,21 @@
 
 @noindent
 @code{AWS} stand for @i{Ada Web Server}. It is an Ada implementation of the
-HTTP/1.1 protocol as defined in the RFC 2616 from June 1999.
+@code{HTTP/1.1} protocol as defined in the RFC 2616 from June 1999.
 
 @sp 1
 @noindent
 The goal is not to build a full Web server but more to make it possible
 to use a Web browser (like Internet Explorer, or Netscape Navigator) to
 control an Ada application. As we'll see later it is also possible to
-have two Ada programs exchange informations via the HTTP protocol. This
+have two Ada programs exchange informations via the @code{HTTP} protocol. This
 is possible as @code{AWS} also implement the client side of the HTTP protocol.
 
 @sp 1
 @noindent
 Moreover with this library it is possible to have more than one server
 in a single application. It is then possible to export different kind
-of services by using different HTTP ports, or to have different ports
+of services by using different @code{HTTP} ports, or to have different ports
 for different services priority. Client which must be served with a
 very high priority can be assigned a specific port for example.
 
@@ -115,8 +115,9 @@ easier with @code{AWS} to deal with session data.
 
 @sp 1
 @noindent
-@code{AWS} support also HTTPS (secure HTTP) using SSL. This is based on OpenSSL
-a very good and Open Source SSL implementation.
+@code{AWS} support also @code{HTTPS} (secure @code{HTTP}) using
+@code{SSL}. This is based on @code{OpenSSL} a very good and Open Source SSL
+implementation.
 
 @sp 1
 @noindent
@@ -617,9 +618,16 @@ Now you are ready to use @code{AWS} !
 
 @noindent
 After installing @code{AWS} you must set the build environment to
-point the compiler to the right location. Here is how to do with
-@code{GNAT}. First let's say that @code{AWS} has been installed in
-@file{awsroot} directory.
+point the compiler to the right libraries. First let's say that
+@code{AWS} has been installed in @file{awsroot} directory.
+
+@noindent
+This can be done automatically for the @code{GNAT} compiler by using
+the @file{<awsroot>/set-aws.sh} on UNIX or @file{<awsroot>\set-aws.cmd}
+on Windows.
+
+If you pefer setting the environment yourself here is how to do with
+@code{GNAT}.
 
 @table @b
 
@@ -672,9 +680,10 @@ through the HTTP channel. This give a way to build distributed
 applications, @xref{AWS.Client}.
 
 @noindent
-An application using @code{AWS} can open many HTTP channels. Each
+An application using @code{AWS} can open many @code{HTTP} channels. Each
 channel will use a specific port. For example, it is possible to
-embedded many HTTP and/or many HTTPS channels in the same application.
+embedded many @code{HTTP} and/or many @code{HTTPS} channels in the
+same application.
 
 @menu
 * Building an AWS server::
