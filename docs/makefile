@@ -10,27 +10,44 @@ ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
 		subtype generic limited access all
 
-APIFILES = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
-	../src/aws-server.ads.texi ../src/aws-config.ads.texi \
-	../src/aws-session.ads.texi ../src/aws-client.ads.texi \
-	../src/aws-mime.ads.texi ../src/aws-communication.ads.texi \
-	../src/aws-url.ads.texi ../src/aws-communication-client.ads.texi \
-	../src/aws-communication-server.ads.texi ../src/aws-default.ads.texi \
-	../src/aws-server-hotplug.ads.texi ../src/aws-log.ads.texi \
-	../src/aws-parameters.ads.texi ../src/aws-config-ini.ads.texi \
-	../src/aws-config-set.ads.texi ../src/aws-server-push.ads.texi \
-	../src/aws-services-directory.ads.texi ../src/aws-templates.ads.texi \
-	../src/aws-services-page_server.ads.texi \
-	../src/aws-dispatchers.ads.texi \
+APIFILES = ../src/aws.ads.texi \
+	../src/aws-client.ads.texi \
+	../src/aws-communication-client.ads.texi \
+	../src/aws-communication-server.ads.texi \
+	../src/aws-communication.ads.texi \
+	../src/aws-config-ini.ads.texi \
+	../src/aws-config-set.ads.texi \
+	../src/aws-config.ads.texi \
+	../src/aws-default.ads.texi \
 	../src/aws-dispatchers-callback.ads.texi \
-	../src/aws-services-dispatchers.ads.texi \
+	../src/aws-dispatchers.ads.texi \
+	../src/aws-log.ads.texi \
+	../src/aws-mime.ads.texi \
+	../src/aws-parameters.ads.texi \
+	../src/aws-resources-streams.ads.texi \
+	../src/aws-resources.ads.texi \
+	../src/aws-response.ads.texi \
+	../src/aws-server-hotplug.ads.texi \
+	../src/aws-server-push.ads.texi \
+	../src/aws-server.ads.texi \
+	../src/aws-services-directory.ads.texi \
 	../src/aws-services-dispatchers-method.ads.texi \
 	../src/aws-services-dispatchers-uri.ads.texi \
 	../src/aws-services-dispatchers-virtual_host.ads.texi \
-	../src/aws-smtp.ads.texi ../src/aws-smtp-client.ads.texi \
-	../soap/soap-message.ads.texi ../soap/soap-message-xml.ads.texi \
-	../soap/soap-parameters.ads.texi ../soap/soap-types.ads.texi \
-	../soap/soap-client.ads.texi
+	../src/aws-services-dispatchers.ads.texi \
+	../src/aws-services-page_server.ads.texi \
+	../src/aws-session.ads.texi \
+	../src/aws-smtp-client.ads.texi \
+	../src/aws-smtp.ads.texi \
+	../src/aws-status.ads.texi \
+	../src/aws-templates.ads.texi \
+	../src/aws-url.ads.texi \
+	../soap/soap.ads.texi \
+	../soap/soap-client.ads.texi \
+	../soap/soap-message-xml.ads.texi \
+	../soap/soap-message.ads.texi \
+	../soap/soap-parameters.ads.texi \
+	../soap/soap-types.ads.texi
 
 check_env:
 	(if ! [ -e ../src/aws-os_lib.adb ]; then \
