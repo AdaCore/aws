@@ -311,8 +311,7 @@ endif
 #############################################################################
 # Configuration for GNAT Projet Files
 
-#MODULES = config win32 ssl include src tools demos
-MODULES = config win32 ssl src tools demos
+MODULES = config win32 ssl include src tools demos
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -332,17 +331,17 @@ else
 PRJ_BUILD=Release
 endif
 
-ALL_OPTIONS := $(ALL_OPTIONS) \
+GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" PRJ_XMLADA="$(PRJ_XMLADA)"
 
 ${MODULES_BUILD}: force
-	${MAKE} -C ${@:%_build=%} gbuild $(ALL_OPTIONS)
+	${MAKE} -C ${@:%_build=%} gbuild $(GALL_OPTIONS)
 
 ${MODULES_SETUP}: force
-	${MAKE} -C ${@:%_setup=%} gsetup $(ALL_OPTIONS)
+	${MAKE} -C ${@:%_setup=%} gsetup $(GALL_OPTIONS)
 
 ${MODULES_CLEAN}: force
-	${MAKE} -C ${@:%_clean=%} gclean $(ALL_OPTIONS)
+	${MAKE} -C ${@:%_clean=%} gclean $(GALL_OPTIONS)
 
 gbuild: $(MODULES_BUILD)
 
