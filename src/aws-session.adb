@@ -34,6 +34,7 @@ with Ada.Numerics.Discrete_Random;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
+with AWS.Config;
 with AWS.Key_Value;
 
 with Avl_Tree_Generic;
@@ -49,10 +50,12 @@ package body AWS.Session is
    SID_Generator          : Generator;
    SID_Prefix             : constant String := "SID-";
 
-   Session_Check_Interval : constant Duration := 10.0 * 60.0;
+   Session_Check_Interval : constant Duration
+     := Config.Session_Cleanup_Interval;
    --  Check for obsolete section every 10 minutes.
 
-   Session_Lifetime       : Duration := Default_Session_Lifetime;
+   Session_Lifetime       : Duration := Config.Session_Lifetime;
+   --  A session is obsolete if not used after Session_Lifetime seconds.
 
    --  table of session ID
 
