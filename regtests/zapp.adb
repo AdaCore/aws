@@ -53,15 +53,16 @@ procedure ZApp is
    --------
 
    function CB (Request : in Status.Data) return Response.Data is
+
       Answer : Response.Data;
 
-      procedure Append (Item : String);
+      procedure Append (Item : in String);
 
       ------------
       -- Append --
       ------------
 
-      procedure Append (Item : String) is
+      procedure Append (Item : in String) is
       begin
          if Item'Length > 0 then
             Response.Set.Append_Body (Answer, Item & ASCII.LF);
@@ -81,11 +82,11 @@ procedure ZApp is
       end Append;
 
    begin
-      Response.Set.Append_Encode (Answer, Response.Deflate);
+      Response.Set.Data_Encoding (Answer, Response.Deflate);
 
       Append
         ("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-         & "!""#$%&'()*+,-./:;<=>?@[\]^_`{|}~");
+           & "!""#$%&'()*+,-./:;<=>?@[\]^_`{|}~");
 
       return Answer;
    end CB;

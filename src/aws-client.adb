@@ -1432,9 +1432,10 @@ package body AWS.Client is
                 (Header (Answer, Messages.Content_Encoding_Token));
       begin
          if Content_Encoding = "gzip" then
-            Set.Append_Encode (Answer, GZip, Set.Decode);
+            Set.Data_Encoding (Answer, GZip, Set.Decode);
+
          elsif Content_Encoding = "deflate" then
-            Set.Append_Encode (Answer, Deflate, Set.Decode);
+            Set.Data_Encoding (Answer, Deflate, Set.Decode);
          end if;
       end;
 
