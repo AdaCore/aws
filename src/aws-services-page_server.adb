@@ -36,6 +36,7 @@ with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Services.Directory;
+with AWS.Templates;
 
 package body AWS.Services.Page_Server is
 
@@ -73,11 +74,17 @@ package body AWS.Services.Page_Server is
               (Filename, "aws_directory.thtml", Request));
 
       else
-         if OS_Lib.Is_Regular_File (WWW_Root & "404.html") then
-            return AWS.Response.File
-              (Content_Type => AWS.MIME.Content_Type (Filename),
-               Filename     => "404.html",
-               Status_Code  => Messages.S404);
+         if OS_Lib.Is_Regular_File (WWW_Root & "404.thtml") then
+
+            declare
+               Table : AWS.Templates.Translate_Table
+                 := (1 => Templates.Assoc ("PAGE", URI));
+            begin
+               return AWS.Response.Acknowledge
+                 (Messages.S404,
+                  Templates.Parse ("404.thtml", Table) & Spaces);
+            end;
+
          else
             return AWS.Response.Acknowledge
               (Messages.S404,
