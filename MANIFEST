@@ -775,6 +775,10 @@ regtests/wsdl_7.adb
 regtests/wsdl_7.ads
 regtests/wsdl_7.out
 regtests/wsdl_7_main.adb
+regtests/wsdl_8.adb
+regtests/wsdl_8.ads
+regtests/wsdl_8.out
+regtests/wsdl_8_main.adb
 regtests/wsdl_a.ads
 regtests/wsdl_a.out
 regtests/wsdl_a_pck.ads
