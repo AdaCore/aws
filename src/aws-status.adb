@@ -390,6 +390,73 @@ package body AWS.Status is
       return To_String (D.Peername);
    end Peername;
 
+   ----------------------
+   -- Preferred_Coding --
+   ----------------------
+
+   function Preferred_Coding (D : in Data) return Messages.Content_Encoding is
+
+      Best_Encoding : Messages.Content_Encoding := Messages.Identity;
+      Next_Encoding : Messages.Content_Encoding;
+
+      Supported     : Boolean := False;
+      --  Next coding supported by AWS.
+
+      Best_QValue : Float := 0.0;
+      Next_QValue : Float;
+
+      procedure Named_Value (Name, Value : in String; Quit : in out Boolean);
+
+      procedure Value (Item : in String; Quit : in out Boolean);
+
+      -----------------
+      -- Named_Value --
+      -----------------
+
+      procedure Named_Value (Name, Value : in String; Quit : in out Boolean) is
+         pragma Unreferenced (Quit);
+      begin
+         if Supported and (Name = "Q" or Name = "q") then
+            Next_QValue := Float'Value (Value);
+         end if;
+      end Named_Value;
+
+      -----------
+      -- Value --
+      -----------
+
+      procedure Value (Item : in String; Quit : in out Boolean) is
+      begin
+         if Supported and Next_QValue > Best_QValue then
+            Best_Encoding := Next_Encoding;
+            Best_QValue   := Next_QValue;
+
+            if Best_QValue = 1.0 then
+               --  Could not be more then 1.
+
+               Quit := True;
+               return;
+            end if;
+         end if;
+
+         begin
+            Next_Encoding := Messages.Content_Encoding'Value (Item);
+            Next_QValue   := 1.0; --  Default qvalue.
+            Supported     := True;
+         exception
+            when Constraint_Error =>
+               Supported := False;
+         end;
+      end Value;
+
+      procedure Parse is new Headers.Values.Parse (Value, Named_Value);
+
+   begin
+      Parse (Accept_Encoding (D));
+
+      return Best_Encoding;
+   end Preferred_Coding;
+
    -------------
    -- Referer --
    -------------

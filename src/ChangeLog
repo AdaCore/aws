@@ -1,3 +1,8 @@
+2003-10-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-status.ads, aws-status.adb:
+	(Preferred_Coding): New routine.
+
 2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-containers-tables.adb:
