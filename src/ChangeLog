@@ -1,3 +1,16 @@
+2000-09-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb: 
+	(Protocol_Handler): HTTP_Server parameter changed to "in out" mode.
+
+	* aws-server.adb:
+	(Protocol_Handler): HTTP_Server parameter changed to "in out" mode.
+
+	* aws-server.ads:
+	(Slot): initialize Activity_Time_Stamp.
+	(Slots_Access): type removed.
+	(HTTP): field slot is a protected type (was a protected access).
+
 2000-09-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb: 
