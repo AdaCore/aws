@@ -1,3 +1,9 @@
+2003-07-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(build): Put $(OTH_TESTS) at the end. check_mem should be at the
+	 end as it modify a source and will trigger many recompilations.
+
 2003-07-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* strm.adb:
