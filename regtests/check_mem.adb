@@ -77,7 +77,7 @@ procedure Check_Mem is
 
    procedure Check_Memory_Streams;
 
-   procedure Check_Dynamic_Message (Encoding : Response.Content_Encoding);
+   procedure Check_Dynamic_Message (Encoding : Messages.Content_Encoding);
 
    task Server is
       entry Started;
@@ -346,7 +346,7 @@ procedure Check_Mem is
    -- Check_Dynamic_Message --
    ---------------------------
 
-   procedure Check_Dynamic_Message (Encoding : Response.Content_Encoding) is
+   procedure Check_Dynamic_Message (Encoding : in Messages.Content_Encoding) is
       Answer : Response.Data;
    begin
       Response.Set.Data_Encoding (Answer, Encoding);
@@ -399,8 +399,8 @@ procedure Check_Mem is
          end if;
 
          --  ??? We could not free dynamically allocated data here,
-         --  becouse plain memory stream would free it in the Close call,
-         --  But ZLib stream would not free it, becouse it is keeping only
+         --  because plain memory stream would free it in the Close call,
+         --  But ZLib stream would not free it, because it is keeping only
          --  compressed copy of the data, not the original one.
 
          Close (Stream);
@@ -470,8 +470,8 @@ begin
       Client;
       Check_Zlib;
       Check_Memory_Streams;
-      Check_Dynamic_Message (Response.Identity);
-      Check_Dynamic_Message (Response.Deflate);
+      Check_Dynamic_Message (Messages.Identity);
+      Check_Dynamic_Message (Messages.Deflate);
    end loop;
 
    Server.Stopped;

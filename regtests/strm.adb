@@ -90,13 +90,13 @@ procedure Strm is
          return AWS.Response.Stream
            ("text/plain",
             File,
-            Encoding => AWS.Response.Deflate);
+            Encoding => AWS.Messages.Deflate);
 
       elsif Status.URI (Request) = GZip_URI then
          return AWS.Response.Stream
            ("text/plain",
             File,
-            Encoding => AWS.Response.GZip);
+            Encoding => AWS.Messages.GZip);
 
       else
          return AWS.Response.Stream
