@@ -2,7 +2,7 @@
 @c %**start of header
 @setfilename aws.info
 @settitle Ada Web Server
-@setchapternewpage on
+@setchapternewpage odd
 @syncodeindex fn cp
 
 @iftex
@@ -11,12 +11,17 @@
 
 @titlepage
 
-@title AWS - version @_VERSION_@
+@title AWS - version @_AWS_VERSION_@
 @subtitle Ada Web Server User's Guide
+@subtitle Support for SOAP 1.1 - version @_SOAP_VERSION_@
 @subtitle $Revision$
 @subtitle $Date$
 @author Dmitriy Anisimkov (anisimkov@@yahoo.com)
 @author Pascal Obry (p.obry@@wanadoo.fr)
+
+@sp 1
+@url{http://libre.act-europe.fr}
+@sp 1
 @url{http://perso.wanadoo.fr/pascal.obry}
 
 @vskip 0pt plus 1filll
@@ -25,6 +30,9 @@
 
 @finalout
 
+@contents
+
+@ifinfo
 @node Top
 @top Ada Web Server
 
@@ -38,8 +46,9 @@
 * References::
 * Index::
 @end menu
+@end ifinfo
 
-@contents
+@c ----------------------------------------------------------------------
 
 @node Introduction
 @chapter Introduction
@@ -78,6 +87,8 @@ part of the HTTP/1.1 protocol is implemented. Nevertheless the
 @code{AWS} support also HTTPS (secure HTTP) using SSL. This is based on OpenSSL
 a very good and Open Source SSL implementation.
 
+@c ----------------------------------------------------------------------
+
 @node How to build it ?
 @chapter How to build it ?
 
@@ -111,14 +122,14 @@ by Dmitriy Anisimkov) to Win32 of the 0.1.9 version from ENST.
 Under UNIX you must use the socket binding from ENST 
 @url{http://www.infres.enst.fr/ANC/}.
 
-@item a POSIX binding - Interface to the underlying OS services (optional) ;
+@item a POSIX binding - Interface to the underlying OS services (@b{optional}) ;
 @cindex POSIX
 
 Under Windows you can use the one distributed at: 
 @url{http://perso.wanadoo.fr/pascal.obry}. Under UNIX look for the 
 Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
-@item OpenSSL (optional) ;
+@item OpenSSL (@b{optional}) ;
 @cindex OpenSLL
 
 OpenSSL is an Open Source toolkit implementing the Secure Sockets Layer
@@ -212,6 +223,8 @@ In each case you'll certainly have to edit the makefile to correctly set
 the include path for the libraries @code{POSIX}, @code{OpenSSL} and 
 @code{Socket}. For more information, look at the makefiles.
 
+@c ----------------------------------------------------------------------
+
 @node How to use it ?
 @chapter How to use it ?
 
@@ -225,6 +238,7 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 * Hotplug module::
 * Server Push::
 * Server Log::
+* SOAP::
 @end menu
 
 @node Basic notion
@@ -259,26 +273,12 @@ To build a server you must:
 
 @enumerate
 
-@item declare the HTTP channel
+@item declare the HTTP Web Server
 @cindex HTTP declaration
 
 @smallexample
-WS  : AWS.Server.HTTP (Max_Connection => 3);
-
-or just
-
-WS  : AWS.Server.HTTP (3);
+WS  : AWS.Server.HTTP;
 @end smallexample
-
-@noindent
-Here we have declared an HTTP channel with a maximum of 3 simultaneous
-connections. It means that 3 client browser can gets answer at the same
-time. This parameter must be changed to match your needs. A medium Web
-server will certainly need something like 20 or 30 simultaneous connections.
-
- using the port 1234. This channel is not secure (False) and
-answer will be given by the procedure Service. It is possible to
-configure the server via two configuration files @xref{Configuration files}.
 
 @item Start the server
 @cindex starting server
@@ -294,24 +294,24 @@ You need to start the server before using it. This is done by calling
   (Web_Server                : @b{in out} HTTP;
    Name                      : @b{in}     String;
    Callback                  : @b{in}     Response.Callback;
+   Max_Connection            : @b{in}     Positive          := Def_Max_Connect;
    Admin_URI                 : @b{in}     String            := Def_Admin_URI;
    Port                      : @b{in}     Positive          := Def_Port;
    Security                  : @b{in}     Boolean           := False;
    Session                   : @b{in}     Boolean           := False;
    Case_Sensitive_Parameters : @b{in}     Boolean           := True;
    Upload_Directory          : @b{in}     String            := Def_Upload_Dir);
-@i{--  Start the Web server. It initialize the connections lines.}
-@i{--  Name is just a string used to identify the server. This is used for}
-@i{--  example in the administrative page. Admin_URI must be set to enable the}
-@i{--  administrative status page.}
-@i{--  Callback is the procedure to call for each ressource requested.}
-@i{--  Port is the Web server port. If Security is set to True the server will}
-@i{--  use an HTTPS/SSL connection. If Session is set to True the server will}
-@i{--  be able to get a status for each client connected. A session ID is used}
-@i{--  for that, on the client side it is a cookie. Case_Sensitive_Parameters}
-@i{--  if set to False it means that the CGI parameters name will be handled}
-@i{--  without case sensitivity.Upload directory point to a directory where}
-@i{--  uploaded files will be stored.}
+@i{--  Start the Web server. It initialize the Max_Connection connections}
+@i{--  lines. Name is just a string used to identify the server. This is used}
+@i{--  for example in the administrative page. Admin_URI must be set to enable}
+@i{--  the administrative status page. Callback is the procedure to call for}
+@i{--  each ressource requested. Port is the Web server port. If Security is}
+@i{--  set to True the server will use an HTTPS/SSL connection. If Session is}
+@i{--  set to True the server will be able to get a status for each client}
+@i{--  connected. A session ID is used for that, on the client side it is a}
+@i{--  cookie. Case_Sensitive_Parameters if set to False it means that the CGI}
+@i{--  parameters name will be handled without case sensitivity. Upload}
+@i{--  directory point to a directory where uploaded files will be stored.}
 @end group
 @end cartouche
 @end smallexample
@@ -337,6 +337,15 @@ example in the administrative status page.
 This is the procedure to call for each requested ressources. In this
 procedure you must handle all the possible URI that you want to support.
 (see below).
+
+@item Max_Connection
+@cindex Max_Connection
+
+This is the maximum number of simultaneous connections. It means that
+Max_Connection client's browsers can gets answer at the same
+time. This parameter must be changed to match your needs. A medium Web
+server will certainly need something like 20 or 30 simultaneous
+connections.
 
 @item Admin_URI
 @cindex Admin_URI
@@ -430,11 +439,20 @@ It is also possible to return a file. For example, here is the way to
 return a PNG image:
 
 @smallexample
+@cartouche
+@group
 AWS.Response.File (Content_Type => "image/png",
                    Filename     => "adains.png");
+@end group
+@end cartouche
 @end smallexample
 
 @end enumerate
+
+@noindent
+A better solution is to use a template engine like Templates_Parser to
+build the HTML Web Server answer. See Templates_Parser on
+@url{http://perso.wanadoo.fr/contrib.html}.
 
 @node Callback procedure
 @subsection Callback procedure
@@ -481,7 +499,7 @@ that will answer ``Hello World'' if we ask for the internal ressource
 
 @b{procedure} Hello_World @b{is}
 
-   WS  : AWS.Server.HTTP (1);
+   WS  : AWS.Server.HTTP;
 
    @b{function} HW_CB (Request : @b{in} AWS.Status.Data)
      @b{return} AWS.Response.Data 
@@ -696,7 +714,7 @@ client. The default value is @_QUEUE_SIZE_@.
 
 @item Admin_URI (string)
 @cindex Admin_URI
-This is the URI to call the administrative page. This must be used when
+This is the URI to call the administrative page. This can be used when
 calling @code{AWS.Server.Start}. The default is @file{@_ADMIN_URI_@}.
 
 @item Cleaner_Wait_For_Client_Timeout (duration)
@@ -777,7 +795,7 @@ The name of the logo image to use in the status page. The default is
 @item Max_Connection (positive)
 @cindex Max_Connection
 This is the maximum number of simultaneous connections for the
-server. This must be used when declaring the @code{HTTP} object. The
+server. This can be used when calling the @code{AWS.Server.Start}. The
 default is @_MAX_CONNECT_@.
 
 @item Receive_Timeout (duration)
@@ -792,13 +810,13 @@ Number of seconds to timeout when sending chunck of data. The default is
 
 @item Server_Name (string)
 @cindex Server_Name
-The name of the server. This must be used when calling
+The name of the server. This can be used when calling
 @code{AWS.Server.Start}. The default is @b{@_SERVER_NAME_@}.
 
 @item Server_Port (integer)
 @cindex Server_Port
 The port where server will wait for incomming connections requests. This
-must be used when calling @code{AWS.Server.Start}. The default is
+can be used when calling @code{AWS.Server.Start}. The default is
 @_SERVER_PORT_@.
 
 @item Session_Lifetime (duration)
@@ -844,7 +862,7 @@ For example to build a server where the @i{port} and the maximum number of
 @smallexample
 @cartouche
 @group
-WS   : AWS.Server.HTTP (Max_Connection => AWS.Config.Max_Connection);
+WS   : AWS.Server.HTTP;
 
 Conf : AWS.Config.Object := AWS.Config.Get_Current;
 
@@ -874,7 +892,7 @@ are key/value pair each of them beeing strings. How to deal with that ?
 @smallexample
 @cartouche
 @group
-WS  : AWS.Server.HTTP (3);
+WS  : AWS.Server.HTTP;
 
 Server.Start (WS,
               Port     => 1234,
@@ -1164,6 +1182,7 @@ Here is how to create an Hotplug module:
 @enumerate 1
 
 @item First you create a standard Web server @xref{Building an AWS server}.
+@sp 1
 
 @smallexample
 WS  : AWS.Server.HTTP
@@ -1172,9 +1191,11 @@ WS  : AWS.Server.HTTP
 
 Here we have a server listening to the port 1235. This server can be
 used alone if needed as any Server developed with AWS.
+@sp 1
 
 @item Then you register the Hotplug module to the main server
 @xref{Communication - client side}.
+@sp 1
 
 @smallexample
 @cartouche
@@ -1193,8 +1214,10 @@ We ask for every @code{URI} containing the string "AWS" to call the
 server running on the Hotplug hostname using port @code{1235}. This
 message is sent to the communication server running on @code{dieppe} at
 port @code{2222}.
+@sp 1
 
 @item When the Hotplug module is stopped, you must unregister it
+@sp 1
 
 @smallexample
 @cartouche
@@ -1257,19 +1280,225 @@ day, each month or at every run. See @code{AWS.Log} spec. This is
 very useful to avoid having very big log files.
 
 @noindent
-The log format is very close to the Apache Web server one.
+The log format is using the same format than the Apache Web server.
 
 @smallexample
-<client IP> - <auth name> - [<date and time>] "<request>" <status code>
+<client IP> - <auth name> - [<date and time>] "<request>" <status code> <size>
 
 For example:
 
-100.99.12.1 -  - [22/Nov/2000:11:44:14] "GET /whatever HTTP/1.1" 200
+100.99.12.1 -  - [22/Nov/2000:11:44:14] "GET /whatever HTTP/1.1" 200 1789
+@end smallexample
+
+@node SOAP
+@section SOAP
+@cindex SOAP
+@cindex Simple Object Access Protocol
+
+@menu
+* SOAP Server::
+* SOAP Client::
+@end menu
+
+@noindent
+SOAP can be used to implements Web Services. The SOAP implementation
+uses AWS HTTP as the transport layer. SOAP is platforms and
+languages independent, to ensure a good inter-operability, AWS/SOAP
+implementations have been validated through
+@url{http://validator.soapware.org/}, the version number listed on
+this server corresponds to the AWS version string
+(@code{AWS.Version}) catenated with the SOAP version string
+(@code{SOAP.Version}).
+
+@node SOAP Server
+@subsection SOAP Server
+@cindex SOAP Server
+
+@noindent
+A SOAP server implementation must provides a callback procedure as for
+standard Web server @pxref{Callback procedure}. This callback must
+checks for the SOAP Action URI to handle both standard Web requests
+and SOAP ones. The @code{SOAPAction} is sent with the HTTP headers and
+can be retrieved using @code{AWS.Status.SOAPAction}.
+
+@noindent
+Here are the step-by-step instructions to be followed in the SOAP
+callback procedure:
+
+@enumerate
+
+@item Retrieve the SOAP Payload
+@cindex Payload
+@sp 1
+
+@noindent
+The SOAP Payload is the XML message, it contains the procedure name to
+be called and the associated parameters.
+
+@smallexample
+@b{function} SOAP_CB (Request : @b{in} AWS.Status.Data) 
+  @b{return} AWS.Response.Data 
+@b{is}
+   @b{use} SOAP.Types;
+   @b{use} SOAP.Parameters;
+
+   Payload : @b{constant} SOAP.Message.Payload.Object
+     := SOAP.Message.XML.Load_Payload (AWS.Status.Payload (Request));
 @end smallexample
 
 @noindent
-The only missing part is the length of the data sent to the client that
-is found at the end of the log data line in the Apache log file.
+@code{AWS.Status.Payload} returns the XML Payload as sent by the SOAP
+Client. This XML Payload is then parsed using
+@code{SOAP.Message.XML.Load_Payload} which returns a
+@code{SOAP.Message.Payload.Object} object.
+
+@sp 1
+@item Retrieve the SOAP Parameters
+@sp 1
+
+The SOAP procedure parameters.
+
+@smallexample
+Params  : @b{constant} SOAP.Parameters.List
+  := SOAP.Message.Parameters (Payload);
+@end smallexample
+
+@code{SOAP.Parameters.List} is a structure which holds the SOAP parameters.
+Each parameter can be retreived using a @code{SOAP.Parameters} API,
+@pxref{SOAP.Parameters}. For example to get the parameter named
+@code{myStruc} which is a SOAP struct:
+
+@smallexample
+My_Struct : @b{constant} SOAP_Record 
+  := SOAP.Parameters.Get (Params, "myStruct");
+@end smallexample
+
+Another example, to get the parameter named @code{myInt} which is a
+SOAP integer:
+
+@smallexample
+My_Int : @b{constant} Integer := SOAP.Parameters.Get (Params, "myInt");
+@end smallexample
+
+@sp 1
+@item Implements the Web Service
+@sp 1
+
+@noindent
+This is the real job, as for any procedure you can do whatever is
+needed to compute the result.
+
+@sp 1
+@item Build the SOAP answer
+@sp 1
+
+@noindent
+This is the procedure answer. A SOAP answer is built from the SOAP
+Payload and by setting the parameters returned.
+
+@smallexample
+@b{declare}
+   Resp        : SOAP.Message.Response.Object;
+   Resp_Params : SOAP.Parameters.List;
+@b{begin}
+   Resp := SOAP.Message.Response.From (Payload);
+
+   Resp_Params := +I (My_Int * 2, "answer");
+
+   SOAP.Message.Set_Parameters (Resp, Resp_Params);
+@end smallexample
+
+This build a response which is a single integer value named
+@code{answer} with the value @code{My_Int * 2}.
+
+@sp 1
+@item Returns the answer back to the client
+@sp 1
+
+@noindent
+This last step will encode the response object in XML and will returns
+it as the body of an HTTP message.
+
+@smallexample
+@b{return} SOAP.Message.Response.Build (Resp);
+@end smallexample
+
+@end enumerate
+
+@node SOAP Client
+@subsection SOAP Client
+@cindex SOAP Client
+
+@noindent
+The SOAP client interface is quite simple. Here are the step-by-step
+instructions to call a SOAP Web Service:
+
+@enumerate
+
+@item Build the SOAP parameters
+@sp 1
+
+@noindent
+As for the SOAP servers, the SOAP parameters are built using a
+@code{SOAP.Parameters.List} object.
+
+@smallexample
+Params : @b{constant} Parameters.List 
+  := +I (10, "v1") & I (32, "v2");
+@end smallexample
+
+@sp 1
+@item Build the SOAP Payload
+@sp 1
+
+@noindent
+The Payload object is the procedure name and the associated parameters.
+
+@smallexample
+@b{declare}
+   Payload : Message.Payload.Object;
+@b{begin}
+   Payload := Message.Payload.Build ("Add", Params);
+@end smallexample
+
+@sp 1
+@item Call the SOAP Web Service
+@sp 1
+
+@noindent
+Here we send the above Payload to the Web Server which handles the Web
+Service. Let's say that this server is named @code{myserver}, it is
+listening on port @code{8082} and the @code{SOAPAction} is @code{soapdemo}.
+
+@smallexample
+Resp : @b{constant} Message.Response.Object'Class :=
+   SOAP.Client.Call ("http://myserver:8082/soapdemo", Payload);
+@end smallexample
+
+@sp 1
+@item Retrieve the result
+@sp 1
+
+@noindent
+Let's say that the answer is sent back into the parameter named
+"myres", to get it:
+
+@smallexample
+My_Res : @b{constant} Integer := SOAP.Parameters.Get (Params, "myres");
+@end smallexample
+
+@end enumerate
+
+@noindent
+In the above example we have called a Web Service whose spec could be
+described in Ada as follow:
+
+@smallexample
+@b{function} Add (V1, V2 : @b{in} Integer) @b{return} Integer;
+@i{--  Add V1 and V2 and returns the result. In SOAP the result is named "myres"}
+@end smallexample
+
+@c ----------------------------------------------------------------------
 
 @node Status page
 @chapter Status page
@@ -1444,6 +1673,8 @@ tag. This is to be able to display the key/value in column.
 There is also all Templates_Parser specific tags. This is not listed
 here please have a look at the documentation.
 
+@c ----------------------------------------------------------------------
+
 @node Last notes
 @chapter Last notes
 
@@ -1461,6 +1692,8 @@ about AWS. In the early stage of the project this is very valuable.
 @noindent
 So thanks goes to Wiljan Derks, Sune Falck, David C. Hoos,
 Jean-Fran@,cois Rameau.
+
+@c ----------------------------------------------------------------------
 
 @node AWS API Reference
 @chapter AWS API Reference
@@ -1482,6 +1715,11 @@ Jean-Fran@,cois Rameau.
 * AWS.Server.Push::
 * AWS.Session::
 * AWS.Status::
+* SOAP.Client::
+* SOAP.Message::
+* SOAP.Message.XML::
+* SOAP.Parameters::
+* SOAP.Types::
 @end menu
 
 @node AWS.Client
@@ -1579,6 +1817,38 @@ Jean-Fran@,cois Rameau.
 @cindex AWS.Status
 
 @include ../src/aws-status.ads.texi
+
+@node SOAP.Client
+@section SOAP.Client
+@cindex SOAP.Client
+
+@include ../soap/soap-client.ads.texi
+
+@node SOAP.Message
+@section SOAP.Message
+@cindex SOAP.Message
+
+@include ../soap/soap-message.ads.texi
+
+@node SOAP.Message.XML
+@section SOAP.Message.XML
+@cindex SOAP.Message.XML
+
+@include ../soap/soap-message-xml.ads.texi
+
+@node SOAP.Parameters
+@section SOAP.Parameters
+@cindex SOAP.Parameters
+
+@include ../soap/soap-parameters.ads.texi
+
+@node SOAP.Types
+@section SOAP.Types
+@cindex SOAP.Types
+
+@include ../soap/soap-types.ads.texi
+
+@c ----------------------------------------------------------------------
 
 @node References
 @chapter References
@@ -1704,6 +1974,45 @@ Expire in six months                                    Philip Karlton
                           The SSL Protocol
                             Version 3.0
 @end smallexample
+
+@item SOAP (W3C Note 08 May 2000)
+@cindex SOAP 1.1
+
+@smallexample
+Simple Object Access Protocol (SOAP) 1.1 
+
+W3C Note 08 May 2000
+
+This version: 
+   http://www.w3.org/TR/2000/NOTE-SOAP-20000508 
+
+Latest version: 
+   http://www.w3.org/TR/SOAP 
+
+Authors (alphabetically): 
+   Don Box, DevelopMentor
+   David Ehnebuske, IBM
+   Gopal Kakivaya, Microsoft
+   Andrew Layman, Microsoft
+   Noah Mendelsohn, Lotus Development Corp.
+   Henrik Frystyk Nielsen, Microsoft
+   Satish Thatte, Microsoft
+   Dave Winer, UserLand Software, Inc. 
+
+Copyright© 2000 DevelopMentor, International Business Machines Corporation,
+Lotus Development Corporation, Microsoft, UserLand Software
+@end smallexample
+
+@url{http://www.w3.org/TR/SOAP/}
+
+@item A Busy Developer's Guide to SOAP 1.1
+@cindex SOAP 1.1
+
+@smallexample
+By Dave Winer, Jake Savin, UserLand Software, 4/2/01.
+@end smallexample
+
+@url{http://www.soapware.org/bdg}
 
 @end enumerate
 
