@@ -70,7 +70,13 @@ package SOAP.WSDL.Parser is
       Document : in     WSDL.Object);
    --  Parse document, call routines above.
 
-   procedure Verbose (Activate : in Boolean := True);
+   -------------------
+   -- Configuration --
+   -------------------
+
+   type Verbose_Level is new Natural range 0 .. 2;
+
+   procedure Verbose (Level : in Verbose_Level := 1);
    --  Activate verbose mode
 
    procedure Accept_RPC (O : in out Object'Class);
