@@ -75,6 +75,8 @@ package body AWS.Net.Std is
         (SFD (Socket.S.all), SFD (Socket_Type (New_Socket.all).S.all));
    exception
       when E : others =>
+         Free (New_Socket.all);
+         Free (New_Socket);
          Raise_Exception (E, "Accept_Socket");
    end Accept_Socket;
 
