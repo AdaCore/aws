@@ -1,5 +1,10 @@
 2001-07-18  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-log.adb:
+	(Log_Prefix): Fix bug when program is launched from the current
+	 working directory with ./progname. In this case the program name
+	 computed was the empty string.
+
 	* makefile:
 	(SOURCES): change aws-key_value.adb to aws-key_value.ads since
 	 this unit based on new component does not require a body.
