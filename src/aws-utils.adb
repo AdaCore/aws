@@ -41,6 +41,8 @@ with Sockets.Thin;
 
 package body AWS.Utils is
 
+   use Ada;
+
    package Integer_Random is new Ada.Numerics.Discrete_Random (Random_Integer);
 
    Random_Generator : Integer_Random.Generator;
@@ -54,8 +56,8 @@ package body AWS.Utils is
       use Interfaces;
 
       Buffer : aliased C.char_array := (1 .. 100 => ' ');
-      Name   : C.Strings.chars_ptr :=
-        C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access);
+      Name   : C.Strings.chars_ptr
+        := C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access);
       Len    : C.int := Buffer'Length;
       Res    : C.int;
 
@@ -69,7 +71,7 @@ package body AWS.Utils is
    ---------
 
    function Hex (V : in Natural) return String is
-      use Ada.Strings;
+      use Strings;
 
       Hex_V : String (1 .. Integer'Size / 4 + 4);
    begin
@@ -93,8 +95,8 @@ package body AWS.Utils is
    -----------
 
    function Image (D : in Duration) return String is
-      D_Img : constant String := Duration'Image (D);
-      K     : constant Natural := Ada.Strings.Fixed.Index (D_Img, ".");
+      D_Img : constant String  := Duration'Image (D);
+      K     : constant Natural := Strings.Fixed.Index (D_Img, ".");
    begin
       if K = 0 then
          return D_Img (D_Img'First + 1 .. D_Img'Last);
@@ -108,68 +110,74 @@ package body AWS.Utils is
    ----------------------------
 
    procedure Parse_HTTP_Header_Line
-     (Data   : in  String;
-      Result : out Result_Set)
+     (Data   : in     String;
+      Result :    out Result_Set)
    is
-      use Ada.Strings.Unbounded;
-      Attribute  : Enum;
-      Name_First : Natural := Data'First;
-      Name_Last,
-      Value_First, Value_Last : Natural;
-      Recognized : Boolean;
-      Value : Unbounded_String;
-      EDel : constant String := ",";
+      use Strings.Unbounded;
+
+      EDel  : constant String := ",";
       --  Delimiter between entities in the http header line
+
       NVDel : constant String := "=";
       --  Delimiter between name and value
+
+      Attribute               : Enum;
+      Name_First              : Natural := Data'First;
+      Name_Last               : Natural;
+      Value_First, Value_Last : Natural;
+      Recognized              : Boolean;
+      Value                   : Unbounded_String;
+
    begin
       loop
+         Name_Last
+           := Strings.Fixed.Index (Data (Name_First .. Data'Last), NVDel);
 
-         Name_Last := Ada.Strings.Fixed.Index
-            (Data (Name_First .. Data'Last), NVDel);
          exit when Name_Last = 0;
 
          begin
-            Attribute := Enum'Value
-              (Data (Name_First .. Name_Last - 1));
+            Attribute  := Enum'Value (Data (Name_First .. Name_Last - 1));
             Recognized := True;
          exception
             when Constraint_Error =>
-               --  Ignoring unrecognized value.
+               --  Ignoring unrecognized value
                Recognized := False;
          end;
 
          Value_First := Name_Last + NVDel'Length;
 
          --  Quoted value
-         if Data (Value_First) = '"' then
-            Value_Last := Ada.Strings.Fixed.Index
-               (Data (Value_First + 1 .. Data'Last),
-                """");
 
-            --  If format error;
+         if Data (Value_First) = '"' then
+            Value_Last := Strings.Fixed.Index
+              (Data (Value_First + 1 .. Data'Last), """");
+
+            --  If format error
+
             if Value_Last = 0 then
                Ada.Exceptions.Raise_Exception
                  (Constraint_Error'Identity,
                   "HTTP header line format error: " & Data);
             end if;
 
-            Value := To_Unbounded_String (
-                Data (Value_First + 1 .. Value_Last - 1));
+            Value := To_Unbounded_String
+              (Data (Value_First + 1 .. Value_Last - 1));
+
             Name_First := Value_Last + EDel'Length + 1;
 
-         --  Unquoted value
          else
+            --  Unquoted value
 
             Value_Last := Ada.Strings.Fixed.Index
-               (Data (Value_First .. Data'Last), EDel);
+              (Data (Value_First .. Data'Last), EDel);
 
             if Value_Last = 0 then
                Value_Last := Data'Last + 1;
             end if;
 
-            Value := To_Unbounded_String (
-                Data (Value_First .. Value_Last - 1));
+            Value := To_Unbounded_String
+              (Data (Value_First .. Value_Last - 1));
+
             Name_First := Value_Last + EDel'Length;
          end if;
 
@@ -185,8 +193,7 @@ package body AWS.Utils is
    -- Random --
    ------------
 
-   function Random return Random_Integer
-   is
+   function Random return Random_Integer is
    begin
       return Integer_Random.Random (Random_Generator);
    end Random;
