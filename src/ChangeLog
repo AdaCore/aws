@@ -1,3 +1,8 @@
+2003-02-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Connect): Add assertion. Edit comment.
+
 2003-02-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
@@ -13,9 +18,9 @@
 2003-02-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:
-	(Disconnect): Do not use Net.Buffered.Shutdown, becouse the socket
-	 would be already closed by the oppsite side of connection, and we really
-	 do not need the flush before shutdown.
+	(Disconnect): Do not use Net.Buffered.Shutdown, because the socket
+	 would be already closed by the opposite side of connection, and we
+	 really do not need the flush before shutdown.
 	(Connect): Free previous socket before connect.
 
 2003-02-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
