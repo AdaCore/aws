@@ -104,9 +104,7 @@ package body Stub is
       procedure Output_Array
         (K      : in Positive;
          Prefix : in String;
-         N      : in WSDL.Parameters.P_Set)
-      is
-         pragma Unreferenced (K);
+         N      : in WSDL.Parameters.P_Set) is
       begin
          if Prefix = "" then
             --  Not inside a record
@@ -121,6 +119,8 @@ package body Stub is
                  & Prefix & Format_Name (O, To_String (N.Name))
                  & ".Item.all" & "), """ & To_String (N.Name) & """)");
          end if;
+
+         Output_Parameter (K + 1, Prefix, N.Next);
       end Output_Array;
 
       ----------------------
@@ -171,9 +171,6 @@ package body Stub is
          Prefix : in String;
          N      : in WSDL.Parameters.P_Set)
       is
-         pragma Unreferenced (K);
-         pragma Unreferenced (Prefix);
-
          use Ada.Strings.Fixed;
       begin
          Text_IO.Put (Stub_Adb, "R ((");
@@ -182,6 +179,8 @@ package body Stub is
            (1, Format_Name (O, To_String (N.Name)) & '.', N.P);
 
          Text_IO.Put (Stub_Adb, "), """ & To_String (N.Name) & """)");
+
+         Output_Parameter (K + 1, Prefix, N.Next);
       end Output_Record;
 
       -------------------
