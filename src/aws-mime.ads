@@ -32,17 +32,23 @@
 
 package AWS.MIME is
 
-   Text_HTML         : aliased constant String := "text/html";
-   Text_Plain        : aliased constant String := "text/plain";
+   Text_HTML           : aliased constant String := "text/html";
+   Text_XML            : aliased constant String := "text/xml";
+   Text_Plain          : aliased constant String := "text/plain";
 
-   Image_Gif         : aliased constant String := "image/gif";
-   Image_Jpeg        : aliased constant String := "image/jpeg";
-   Image_Png         : aliased constant String := "image/png";
+   Image_Gif           : aliased constant String := "image/gif";
+   Image_Jpeg          : aliased constant String := "image/jpeg";
+   Image_Png           : aliased constant String := "image/png";
 
-   Appl_Postscript   : aliased constant String := "application/postscript";
-   Appl_Pdf          : aliased constant String := "application/pdf";
-   Appl_Zip          : aliased constant String := "application/zip";
-   Appl_Octet_Stream : aliased constant String := "application/octet-stream";
+   Appl_Postscript     : aliased constant String := "application/postscript";
+   Appl_Pdf            : aliased constant String := "application/pdf";
+   Appl_Zip            : aliased constant String := "application/zip";
+   Appl_Octet_Stream   : aliased constant String := "application/octet-stream";
+
+   Appl_Form_Data      : aliased constant String
+     := "application/x-www-form-urlencoded";
+
+   Multipart_Form_Data : aliased constant String := "multipart/form-data";
 
    function Content_Type (Filename : in String) return String;
    --  Determine the MIME Content Type from the file's type extension.
