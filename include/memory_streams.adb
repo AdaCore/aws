@@ -49,6 +49,10 @@ package body Memory_Streams is
         := Stream.Last_Length + Value'Length;
 
    begin
+      if Value'Length = 0 then
+         return;
+      end if;
+
       if Stream.First = null then
          Stream.First := new Buffer_Type;
 
@@ -107,6 +111,10 @@ package body Memory_Streams is
       Data       : in     Element_Access;
       Allow_Free : in     Boolean := True) is
    begin
+      if Data'Length = 0 then
+         return;
+      end if;
+
       if Stream.First = null then
          Stream.First       := new Buffer_Type;
          Stream.First.Data  := Data;
