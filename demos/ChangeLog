@@ -1,4 +1,12 @@
-2003-11-10  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* com_2.adb, interoplab_main.adb:
+	Remove use of 'Img. Part of work for ObjectAda compatibility.
+
+	* demo.adb:
+	Moved to workspace.
+
+2003-11-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* split.thtml:
 	Fix text.
@@ -11,7 +19,7 @@
 	* split.adb, split.thtml:
 	Initial revision.
 
-2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* demos.gpr:
 	Add support for some missing demos.
