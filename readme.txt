@@ -127,6 +127,12 @@ Here are the main changes since AWS 2.0 :
    - Add support for SOAP hotplug modules. Only standard HTTP requests were
      supported by an hotplug module.
 
+   - Fix bug in ada2wsdl generator preventing the array component type
+     definitions to be generated in some cases.
+
+   - Fix bug in ada2wsdl generator which generated duplicate definitions for
+     record components in some cases.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
