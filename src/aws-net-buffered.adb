@@ -190,16 +190,14 @@ package body AWS.Net.Buffered is
       Flush (Socket);
 
       if Is_Empty (C) then
+
          if Data'Length < C.Buffer'Length then
-            --  If we need relatively small data, fill the cache.
-
+            --  If Data fit in the cache, fill it
             Read (Socket);
+
          else
-            --  If we need big data, getting data directly from socket
-            --  is more effisient then use cache.
-
+            --  Otherwise read the socket directly
             Receive (Socket, Data, Last);
-
             return;
          end if;
       end if;
