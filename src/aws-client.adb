@@ -124,6 +124,10 @@ package body AWS.Client is
    pragma Inline (Send_Header);
    --  Send header Data to socket and call Debug_Message.
 
+   function Value (V : in String) return Unbounded_String;
+   --  Returns V as an Unbounded_String if V is not the empty string
+   --  otherwise it returns Null_Unbounded_String.
+
    ------------------
    -- Cleaner_Task --
    ------------------
@@ -286,28 +290,10 @@ package body AWS.Client is
       Proxy_User  : in     String          := No_Data;
       Proxy_Pwd   : in     String          := No_Data;
       Retry       : in     Natural         := Retry_Default;
-      SOAPAction  : in     String          := No_Data;
       Persistent  : in     Boolean         := True;
       Timeouts    : in     Timeouts_Values := No_Timeout;
       Server_Push : in     Boolean         := False)
    is
-      function Set (V : in String) return Unbounded_String;
-      --  Returns V as an Unbounded_String if V is not the empty string
-      --  otherwise it returns Null_Unbounded_String.
-
-      ---------
-      -- Set --
-      ---------
-
-      function Set (V : in String) return Unbounded_String is
-      begin
-         if V = No_Data then
-            return Null_Unbounded_String;
-         else
-            return To_Unbounded_String (V);
-         end if;
-      end Set;
-
       Connect_URL : AWS.URL.Object;
       Host_URL    : AWS.URL.Object := AWS.URL.Parse (Host);
       Proxy_URL   : AWS.URL.Object := AWS.URL.Parse (Proxy);
@@ -325,15 +311,14 @@ package body AWS.Client is
       Connection.Host                     := To_Unbounded_String (Host);
       Connection.Host_URL                 := Host_URL;
       Connection.Connect_URL              := Connect_URL;
-      Connection.Auth (WWW).User          := Set (User);
-      Connection.Auth (WWW).Pwd           := Set (Pwd);
-      Connection.Proxy                    := Set (Proxy);
+      Connection.Auth (WWW).User          := Value (User);
+      Connection.Auth (WWW).Pwd           := Value (Pwd);
+      Connection.Proxy                    := Value (Proxy);
       Connection.Proxy_URL                := Proxy_URL;
-      Connection.Auth (Client.Proxy).User := Set (Proxy_User);
-      Connection.Auth (Client.Proxy).Pwd  := Set (Proxy_Pwd);
+      Connection.Auth (Client.Proxy).User := Value (Proxy_User);
+      Connection.Auth (Client.Proxy).Pwd  := Value (Proxy_Pwd);
       Connection.Retry                    := Create.Retry;
       Connection.Cookie                   := Null_Unbounded_String;
-      Connection.SOAPAction               := Set (SOAPAction);
       Connection.Persistent               := Persistent;
       Connection.Current_Phase            := Not_Monitored;
       Connection.Server_Push              := Server_Push;
@@ -1891,9 +1876,10 @@ package body AWS.Client is
    begin
       Create (Connection,
               URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd,
-              SOAPAction => SOAPAction,
               Persistent => False,
               Timeouts   => Timeouts);
+
+      Connection.SOAPAction := Value (SOAPAction);
 
       Post (Connection, Result, Data);
       Close (Connection);
@@ -1907,11 +1893,14 @@ package body AWS.Client is
 
    function SOAP_Post
      (Connection : access HTTP_Connection;
+      SOAPAction : in     String          := No_Data;
       Data       : in     String)
       return Response.Data
    is
-      Result     : Response.Data;
+      Result : Response.Data;
    begin
+      Connection.SOAPAction := Value (SOAPAction);
+
       Post (Connection.all, Result, Data);
       return Result;
    end SOAP_Post;
@@ -2097,5 +2086,18 @@ package body AWS.Client is
          Close (Connection);
          raise;
    end Upload;
+
+   -----------
+   -- Value --
+   -----------
+
+   function Value (V : in String) return Unbounded_String is
+   begin
+      if V = No_Data then
+         return Null_Unbounded_String;
+      else
+         return To_Unbounded_String (V);
+      end if;
+   end Value;
 
 end AWS.Client;
