@@ -61,6 +61,17 @@ package AWS.Digest is
       Nonce, NC, CNonce, QOP    : in String;
       Method, URI               : in String)
       return Digest_String;
-   --  Returns a more complex MD5 Digest
+   --  Returns a more complex MD5 Digest if QOP field is not empty.
+
+   function Tail
+     (Nonce, NC, CNonce, QOP    : in String;
+      Method, URI               : in String)
+      return String;
+   --  Returns the precalculated tail part of the digest
+   --  if QOP field is not empty
+   --  Tail := ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':'
+   --            & MD5.Digest (Method & ':' & URI);
+   --  otherwise
+   --  Tail := ':' & Nonce & ':' & MD5.Digest (Method & ':' & URI);
 
 end AWS.Digest;
