@@ -3,6 +3,9 @@
 	* ssto.adb, sto.adb:
 	(Client_Side): Don't receive more than sent.
 
+	* makefile:
+	Add ssto and sto regression tests.
+
 2004-04-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* ssock2.adb:
