@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -187,5 +187,8 @@ begin
    Server.Stop;
 
    AWS.Server.Shutdown (WS);
+
+   Session.Clear;
+
    Ada.Text_IO.Put_Line ("shutdown");
 end Sessions;
