@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -43,7 +43,6 @@ package body AWS.Session.Control is
       procedure Free is
          new Ada.Unchecked_Deallocation (Cleaner, Cleaner_Access);
 
-
       Need_Release : Boolean;
 
    begin
@@ -70,8 +69,8 @@ package body AWS.Session.Control is
    -----------
 
    procedure Start
-     (Session_Check_Interval : Duration;
-      Session_Lifetime       : Duration) is
+     (Session_Check_Interval : in Duration;
+      Session_Lifetime       : in Duration) is
    begin
       Cleaner_Control.Start (Session_Check_Interval, Session_Lifetime);
    end Start;
