@@ -1,3 +1,15 @@
+2004-05-18  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-xml.ads, templates_parser-xml.adb:
+	Update to new version.
+	The schema should be stable now. Only writing XML document is
+	 provided at this time.
+
+	* templates_parser.ads, templates_parser.adb:
+	Update to new version.
+	This version implements a callback mechanism to retreive tag
+	 variable value.
+
 2004-05-17  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.ads, templates_parser.adb:
