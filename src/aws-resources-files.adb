@@ -162,4 +162,15 @@ package body AWS.Resources.Files is
       end if;
    end Read;
 
+   ----------
+   -- Size --
+   ----------
+
+   function Size
+     (Resource : in File_Tagged)
+      return   Stream_Element_Offset is
+   begin
+      return Stream_Element_Offset (Stream_IO.Size (Resource.File));
+   end Size;
+
 end AWS.Resources.Files;

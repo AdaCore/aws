@@ -203,4 +203,15 @@ package body AWS.Resources.Embedded is
       Res_Files.Insert (Files_Table, Name, (Content, File_Time));
    end Register;
 
+   ----------
+   -- Size --
+   ----------
+
+   function Size
+     (Resource : in File_Tagged)
+      return   Stream_Element_Offset is
+   begin
+      return Resource.Buffer'Length;
+   end Size;
+
 end AWS.Resources.Embedded;
