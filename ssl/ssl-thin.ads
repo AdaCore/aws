@@ -97,6 +97,9 @@ package SSL.Thin is
    RSA_3  : constant := 3;
    RSA_F4 : constant := 16#10001#;
 
+   function SSLeay return long;
+   --  Returns OpenSSL numeric release version identifier.
+
    function SSLv3_method         return SSL_Method;
    function SSLv3_server_method  return SSL_Method;
    function SSLv3_client_method  return SSL_Method;
@@ -272,6 +275,7 @@ package SSL.Thin is
 
 private
 
+   pragma Import (C, SSLeay, "SSLeay");
    pragma Import (C, RAND_seed, "RAND_seed");
    pragma Import (C, SSL_set_fd, "SSL_set_fd");
    pragma Import (C, SSL_accept, "SSL_accept");
