@@ -120,6 +120,8 @@ package body AWS.Net.Std is
       Set_Cache (Socket);
    exception
       when E : others =>
+         Std.Shutdown (Socket.S.all);
+         Free (Socket);
          Raise_Exception (E, "Connect");
    end Connect;
 
