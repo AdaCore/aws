@@ -1,3 +1,22 @@
+2004-06-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* huge_response_pack.ads, huge_response_pack.adb:
+	Instead of huge_response_proc.adb to avoid Unrestricted_Access
+	 for callback.
+
+	* huge_response.adb, huge_response_sec.adb:
+	Use Huge_Response_Pack package.
+
+	* back_pack.ads, back_pack.adb:
+	Instead of back_proc.adb to avoid Unrestricted_Access
+	 for callback.
+
+	* sback.adb, ssback.adb:
+	Use Back_Pack package.
+
+	* back_proc.adb, huge_response_proc.adb:
+	Replaced by XXXX_pack.
+
 2004-06-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sock2_proc.adb:
