@@ -13,6 +13,12 @@
 
 2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-services-transient_pages.adb:
+	(Register): Move task creation out of protected action, it was
+	 bounded-error ARM-95 9.5.1.
+
+2004-09-27  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-net-ssl.ads:
 	(Secure_Server): New routine.
 	(Secure_Client): New routine.
