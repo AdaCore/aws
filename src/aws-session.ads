@@ -173,17 +173,17 @@ package AWS.Session is
    --------------
 
    procedure Set_Lifetime (Seconds : in Duration);
-   --  Set the lifetime for session data.
+   --  Set the lifetime for session data
 
    function Get_Lifetime return Duration;
-   --  Get current session lifetime for session data.
+   --  Get current session lifetime for session data
 
    ----------------------
    -- Session Callback --
    ----------------------
 
    type Callback is access procedure (SID : in Id);
-   --  Callback procedure called when a sesssion is deleted from the server.
+   --  Callback procedure called when a sesssion is deleted from the server
 
    procedure Set_Callback (Callback : in Session.Callback);
    --  Set the callback procedure to call when a session is deleted from the
@@ -194,10 +194,10 @@ package AWS.Session is
    ----------------
 
    procedure Save (File_Name : in String);
-   --  Save all sessions data into File_Name.
+   --  Save all sessions data into File_Name
 
    procedure Load (File_Name : in String);
-   --  Restore all sessions data from File_Name.
+   --  Restore all sessions data from File_Name
 
 private
 
