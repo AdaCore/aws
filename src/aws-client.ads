@@ -37,6 +37,9 @@ with AWS.Default;
 with AWS.Net.SSL.Certificate;
 with AWS.Response;
 with AWS.URL;
+with AWS.Utils;
+
+with ZLib;
 
 package AWS.Client is
 
@@ -343,6 +346,7 @@ package AWS.Client is
 private
 
    use Ada.Strings.Unbounded;
+   use Ada.Streams;
 
    No_Timeout : constant Timeouts_Values := (0, 0);
    No_Data    : constant String := "";
@@ -381,6 +385,8 @@ private
       Until_Close,    -- Document end on close socket
       End_Response);  -- Document is over
 
+   type Stream_Element_Access is access all Stream_Element_Array;
+
    type HTTP_Connection is limited record
       Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
 
@@ -403,6 +409,10 @@ private
       SSL_Config    : AWS.Net.SSL.Config;
       Length        : Response.Content_Length_Type := Undefined_Length;
       Transfer      : Transfer_Type                := None;
+      Decode_Filter : ZLib.Filter_Type;
+      Decode_Buffer : Utils.Stream_Element_Array_Access;
+      Decode_First  : Stream_Element_Offset;
+      Decode_Last   : Stream_Element_Offset;
    end record;
 
 end AWS.Client;
