@@ -39,7 +39,7 @@ with AWS.Log;
 with AWS.Messages;
 with AWS.OS_Lib;
 with AWS.Session;
-with AWS.Status;
+with AWS.Status.Set;
 with AWS.Config;
 with AWS.Server.Get_Status;
 with AWS.Utils;
@@ -140,7 +140,7 @@ is
             declare
                Cookie : constant String := Session.Image (Session.Create);
             begin
-               AWS.Status.Set_Session (C_Stat, Cookie);
+               AWS.Status.Set.Session (C_Stat, Cookie);
                Send_Session_Cookie := True;
             end;
          end if;
@@ -193,7 +193,7 @@ is
          use type Calendar.Time;
          use type AWS.Status.Request_Method;
       begin
-         AWS.Status.Set_File_Up_To_Date
+         AWS.Status.Set.File_Up_To_Date
            (C_Stat,
             Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
             and then
@@ -665,7 +665,7 @@ is
             --  this part of the multipart message contains file data.
 
             if To_String (Filename) /= "" then
-               AWS.Status.Set_Parameters
+               AWS.Status.Set.Parameters
                  (C_Stat,
                   To_String (Name), Target_Filename (To_String (Filename)));
 
@@ -689,7 +689,7 @@ is
             declare
                Value : constant String := Sockets.Get_Line (Sock);
             begin
-               AWS.Status.Set_Parameters (C_Stat, To_String (Name), Value);
+               AWS.Status.Set.Parameters (C_Stat, To_String (Name), Value);
             end;
 
             File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
@@ -740,7 +740,7 @@ is
                   CDI := CDI + 1;
                end loop;
 
-               Status.Set_Parameters (C_Stat, Char_Data);
+               Status.Set.Parameters (C_Stat, Char_Data);
             end;
 
          elsif Status.Method (C_Stat) = Status.POST
@@ -761,7 +761,7 @@ is
                   Data : constant Streams.Stream_Element_Array
                     := Sockets.Receive (Sock);
                begin
-                  Status.Set_Parameters (C_Stat, Data);
+                  Status.Set.Parameters (C_Stat, Data);
                end;
 
             exception
@@ -925,17 +925,17 @@ is
          Cut_Command;
 
          if Messages.Is_Match (Command, Messages.Get_Token) then
-            Status.Set_Request (C_Stat, Status.GET,
+            Status.Set.Request (C_Stat, Status.GET,
                                 URI, HTTP_Version, Parameters);
             return True;
 
          elsif Messages.Is_Match (Command, Messages.Head_Token) then
-            Status.Set_Request (C_Stat, Status.HEAD,
+            Status.Set.Request (C_Stat, Status.HEAD,
                                 URI, HTTP_Version, "");
             return True;
 
          elsif Messages.Is_Match (Command, Messages.Post_Token) then
-            Status.Set_Request (C_Stat, Status.POST,
+            Status.Set.Request (C_Stat, Status.POST,
                                 URI, HTTP_Version, "");
             return True;
 
@@ -949,17 +949,17 @@ is
          null;
 
       elsif Messages.Is_Match (Command, Messages.Host_Token) then
-         Status.Set_Host
+         Status.Set.Host
            (C_Stat,
             Command (Messages.Host_Token'Length + 1 .. Command'Last));
 
       elsif Messages.Is_Match (Command, Messages.Connection_Token) then
-         Status.Set_Connection
+         Status.Set.Connection
            (C_Stat,
             Command (Messages.Connection_Token'Length + 1 .. Command'Last));
 
       elsif Messages.Is_Match (Command, Messages.Content_Length_Token) then
-         Status.Set_Content_Length
+         Status.Set.Content_Length
            (C_Stat,
             Natural'Value
             (Command (Messages.Content_Length_Token'Length + 1
@@ -970,16 +970,16 @@ is
             Pos : constant Natural := Fixed.Index (Command, ";");
          begin
             if Pos = 0 then
-               Status.Set_Content_Type
+               Status.Set.Content_Type
                  (C_Stat,
                   Command
                   (Messages.Content_Type_Token'Length + 1 .. Command'Last));
             else
-               Status.Set_Content_Type
+               Status.Set.Content_Type
                  (C_Stat,
                   Command
                   (Messages.Content_Type_Token'Length + 1 .. Pos - 1));
-               Status.Set_Multipart_Boundary
+               Status.Set.Multipart_Boundary
                  (C_Stat,
                   Command (Pos + 11 .. Command'Last));
             end if;
@@ -988,7 +988,7 @@ is
       elsif Messages.Is_Match
         (Command, Messages.If_Modified_Since_Token)
       then
-         Status.Set_If_Modified_Since
+         Status.Set.If_Modified_Since
            (C_Stat,
             Command (Messages.If_Modified_Since_Token'Length + 1
                      .. Command'Last));
@@ -996,7 +996,7 @@ is
       elsif Messages.Is_Match
         (Command, Messages.Authorization_Token)
       then
-         Status.Set_Authorization
+         Status.Set.Authorization
            (C_Stat,
             Command (Messages.Authorization_Token'Length + 1 .. Command'Last));
 
@@ -1007,7 +1007,7 @@ is
          --  the expected Cookie line is:
          --  Cookie: AWS=<cookieID>
 
-         Status.Set_Session
+         Status.Set.Session
            (C_Stat,
             Command (Messages.Cookie_Token'Length + 4 .. Command'Last));
       end if;
@@ -1175,7 +1175,7 @@ begin
         or else Status.HTTP_Version (C_Stat) = HTTP_10
         or else HTTP_Server.Slots.N = 1;
 
-      Status.Reset (C_Stat);
+      Status.Set.Reset (C_Stat);
 
    end loop For_Every_Request;
 
