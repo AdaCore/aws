@@ -96,6 +96,9 @@ package body AWS.Server.Hotplug is
       pragma Unreferenced (Delete);
       --  Removes this client from the handler
 
+      procedure Delete_All;
+      --  Removes all client from the handler
+
    private
       Clients : Client_Table.Map;
    end Client_Handler;
@@ -344,6 +347,15 @@ package body AWS.Server.Hotplug is
          Client_Table.Delete (Clients, Client);
       end Delete;
 
+      ----------------
+      -- Delete_All --
+      ----------------
+
+      procedure Delete_All is
+      begin
+         Client_Table.Clear (Clients);
+      end Delete_All;
+
       ---------
       -- Get --
       ---------
@@ -395,6 +407,7 @@ package body AWS.Server.Hotplug is
    procedure Shutdown is
    begin
       Hotplug_Server.Shutdown;
+      Client_Handler.Delete_All;
    end Shutdown;
 
 end AWS.Server.Hotplug;
