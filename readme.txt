@@ -201,6 +201,8 @@ Here are the main changes since AWS 2.0 :
      inside any callback routine. This is useful in the templates engine
      context callback for example.
 
+   - Add support for reply all in the Web Mail service.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
