@@ -95,15 +95,15 @@ package body Templates_Parser is
    Begin_Tag : Unbounded_String := To_Unbounded_String (Default_Begin_Tag);
    End_Tag   : Unbounded_String := To_Unbounded_String (Default_End_Tag);
 
-   Table_Token                : constant String := "@@TABLE@@";
-   Terminate_Sections_Token   : constant String := "@@TERMINATE_SECTIONS@@";
-   Section_Token              : constant String := "@@SECTION@@";
-   End_Table_Token            : constant String := "@@END_TABLE@@";
-   If_Token                   : constant String := "@@IF@@";
-   Elsif_Token                : constant String := "@@ELSIF@@";
-   Else_Token                 : constant String := "@@ELSE@@";
-   End_If_Token               : constant String := "@@END_IF@@";
-   Include_Token              : constant String := "@@INCLUDE@@";
+   Table_Token              : constant String := "@@TABLE@@";
+   Terminate_Sections_Token : constant String := "@@TERMINATE_SECTIONS@@";
+   Section_Token            : constant String := "@@SECTION@@";
+   End_Table_Token          : constant String := "@@END_TABLE@@";
+   If_Token                 : constant String := "@@IF@@";
+   Elsif_Token              : constant String := "@@ELSIF@@";
+   Else_Token               : constant String := "@@ELSE@@";
+   End_If_Token             : constant String := "@@END_IF@@";
+   Include_Token            : constant String := "@@INCLUDE@@";
 
    ------------
    -- Filter --
@@ -1098,6 +1098,8 @@ package body Templates_Parser is
       C_Info : Tree;
    end record;
 
+   Null_Static_Tree : constant Static_Tree := (null, null);
+
    type Node (Kind : Nkind) is record
       Next : Tree;
       Line : Natural;
@@ -1107,10 +1109,6 @@ package body Templates_Parser is
             Filename  : Unbounded_String;    --  Name of the file
             Timestamp : Ada.Calendar.Time;   --  Date and Time of last change
             I_File    : Tree;                --  Included file references
-
-            --  Used for the cache system
-
-            Ref       : Natural := 0;        --  Number of ref in the cache
 
          when C_Info =>
             Obsolete  : Boolean := False;    --  True if newer version in cache
@@ -1165,11 +1163,9 @@ package body Templates_Parser is
 
          procedure Get
            (Filename : in     String;
-            Load     : in     Boolean;
             Result   :    out Static_Tree);
-         --  Returns the Tree for Filename or null if Filename has not been
-         --  cached. Load must be set to True at load stage and False at Parse
-         --  stage.
+         --  Returns the Tree for Filename or Null_Static_Tree if Filename has
+         --  not been cached or is obsolete.
 
          procedure Release (T : in out Static_Tree);
          --  After loading a tree and using it, it is required that it be
@@ -2639,9 +2635,9 @@ package body Templates_Parser is
 
    begin
       if Cached then
-         Cached_Files.Prot.Get (Filename, Load => True, Result => T);
+         Cached_Files.Prot.Get (Filename, Result => T);
 
-         if T.Info /= null then
+         if T /= Null_Static_Tree then
             pragma Assert (T.C_Info /= null);
             return T;
          end if;
@@ -2659,8 +2655,8 @@ package body Templates_Parser is
             raise;
       end;
 
-      --  T is the tree file, add two nodes (Info and C_Info) in front of the
-      --  tree.
+      --  T is the tree file, add two nodes (Info and C_Info) in front of
+      --  the tree.
 
       --  Add second node (cache info)
 
@@ -2673,8 +2669,7 @@ package body Templates_Parser is
                          0,
                          To_Unbounded_String (Filename),
                          AWS.OS_Lib.File_Timestamp (Filename),
-                         I_File,
-                         1);
+                         I_File);
 
       if Error_Include_Message /= Null_Unbounded_String then
          --  An include filename was not found, release the memory now and
@@ -3720,7 +3715,6 @@ package body Templates_Parser is
 
             when Include_Stmt =>
                Analyze (T.File.Info, State);
-
                Analyze (T.Next, State);
 
          end case;
@@ -3772,7 +3766,7 @@ package body Templates_Parser is
                end loop;
             end;
 
-            Release (T.Next, Include);
+            Release (T.Next);
 
          when C_Info =>
             Release (T.Next, Include);
@@ -3796,16 +3790,9 @@ package body Templates_Parser is
             Release (T.N_Section, Include);
 
          when Include_Stmt =>
-
             if Include then
-               T.File.Info.Ref := T.File.Info.Ref - 1;
-
-               if T.File.Info.Ref = 0 then
-                  --  No more reference to this include file we release it
-                  Release (T.File.Info, Include);
-               end if;
+               Release (T.File.Info, Include);
             end if;
-
             Release (T.Next, Include);
       end case;
 

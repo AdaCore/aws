@@ -52,6 +52,11 @@ package body Cached_Files is
    --  Returns True if the file tree is up to date (the templates files
    --  have not been modified on disk) or False otherwise.
 
+   type Mark_Mode is (Used, Released);
+
+   procedure Update_Used_Counter (T : in out Static_Tree; Mode : in Mark_Mode);
+   --  Update C_Info used counter according to Mode
+
    protected body Prot is
 
       ---------
@@ -69,6 +74,7 @@ package body Cached_Files is
          S : Natural := 1;
          E : Natural := Index;
          N : Natural;
+         I : Tree;
 
       begin
          --  Does the table initialized and do we have enough place on it ?
@@ -85,14 +91,30 @@ package body Cached_Files is
             if Files (N).Filename = L_Filename then
                --  This is a file that was already loaded. If loaded again
                --  it is because the file timestamp has changed. We want to
-               --  just update the tree and not the info node.
+               --  just update the tree and not the info node (first node).
 
                Old := Files (N).Next;
                --  This is a pointer to the C_Info tree node, skipping the
                --  info node (first node).
 
+               I := Files (N).I_File;
+               --  Old include files dependances
+
                Files (N).Next      := T.Next;
                Files (N).Timestamp := T.Timestamp;
+               Files (N).I_File    := T.I_File;
+
+               --  Now free old I_File
+
+               declare
+                  O : Tree;
+               begin
+                  while I /= null loop
+                     O := I;
+                     I := I.Next;
+                     Free (O);
+                  end loop;
+               end;
 
                --  This part is tricky, the tree could be currently used
                --  (parsed). So we need to be careful to not release the tree
@@ -101,15 +123,12 @@ package body Cached_Files is
                if Old.Used = 0 then
                   --  File is not currently used, we can release it safely
                   Release (Old, Include => False);
-                  --  ??? Note that we do not currently handle properly include
-                  --  file references so it is not safe to release files
-                  --  included from this one.
+
                   Old := T.Next;
 
                else
                   --  Tree is used, mark it as obsoleted, it will be removed
                   --  when no more used by the Prot.Release call.
-                  Old.Used     := Old.Used + 1;
                   Old.Obsolete := True;
 
                   --  But current tree is not used, it has been posted here
@@ -148,22 +167,17 @@ package body Cached_Files is
 
       procedure Get
         (Filename : in     String;
-         Load     : in     Boolean;
          Result   :    out Static_Tree)
       is
          N : constant Natural := Get (Filename);
       begin
          if N = 0 then
-            Result := (null, null);
+            Result := Null_Static_Tree;
 
          else
-            if Load then
-               Files (N).Ref := Files (N).Ref + 1;
-            end if;
-
-            Files (N).Next.Used := Files (N).Next.Used + 1;
-
             Result := (Files (N), Files (N).Next);
+
+            Update_Used_Counter (Result, Mode => Used);
          end if;
       end Get;
 
@@ -175,11 +189,11 @@ package body Cached_Files is
       begin
          pragma Assert (T.C_Info /= null);
 
-         T.C_Info.Used := T.C_Info.Used - 1;
+         Update_Used_Counter (T, Mode => Released);
 
          if T.C_Info.Obsolete and then T.C_Info.Used = 0 then
             pragma Assert (T.Info.Next /= T.C_Info);
-            Release (T.C_Info);
+            Release (T.C_Info, Include => False);
          end if;
       end Release;
 
@@ -258,7 +272,8 @@ package body Cached_Files is
       use AWS;
       use type Ada.Calendar.Time;
 
-      P : Tree;
+      P      : Tree;
+      Result : Boolean;
    begin
       --  Check main file
 
@@ -271,16 +286,38 @@ package body Cached_Files is
       P := T.I_File;
 
       while P /= null loop
-         if OS_Lib.File_Timestamp (To_String (P.File.Info.Filename))
-           /= P.File.Info.Timestamp
-         then
+         Result := Up_To_Date (P.File.Info);
+
+         if not Result then
             return False;
          end if;
-
          P := P.Next;
       end loop;
 
       return True;
    end Up_To_Date;
+
+   -------------------------
+   -- Update_Used_Counter --
+   -------------------------
+
+   procedure Update_Used_Counter
+     (T : in out Static_Tree; Mode : in Mark_Mode)
+   is
+      P : Tree;
+   begin
+      if Mode = Used then
+         T.Info.Next.Used := T.Info.Next.Used + 1;
+      else
+         T.Info.Next.Used := T.Info.Next.Used - 1;
+      end if;
+
+      P := T.Info.I_File;
+
+      while P /= null loop
+         Update_Used_Counter (P.File, Mode);
+         P := P.Next;
+      end loop;
+   end Update_Used_Counter;
 
 end Cached_Files;
