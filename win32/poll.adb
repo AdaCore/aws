@@ -128,11 +128,11 @@ begin
    end loop;
 
    if Timeout < 0 then
-      Rs := C_Select (0, Rfds'Address, Wfds'Address, Efds'Address,
-                      System.Null_Address);
+      Rs := C_Select
+        (0, Rfds'Address, Wfds'Address, Efds'Address, System.Null_Address);
    else
-      Rs := C_Select (0, Rfds'Address, Wfds'Address, Efds'Address,
-                      Timeout_V'Address);
+      Rs := C_Select
+        (0, Rfds'Address, Wfds'Address, Efds'Address, Timeout_V'Address);
    end if;
 
    if Rs > 0 then
