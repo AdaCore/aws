@@ -38,8 +38,7 @@ package body AWS.Containers.Tables.Set is
    procedure Reset (Table : in out Index_Table_Type);
    --  Free all elements and destroy his entries
 
-   procedure Free is new Ada.Unchecked_Deallocation
-     (Element, Element_Access);
+   procedure Free is new Ada.Unchecked_Deallocation (Element, Element_Access);
 
    procedure Free_Elements (Data : in out Data_Table.Vector);
    --  Free all dynamically allocated strings in the data table
@@ -69,7 +68,7 @@ package body AWS.Containers.Tables.Set is
 
       --  Add Data_Table.Last index into the corresponding Name_Indexes table
 
-      Cursor := Index_Table.Find (Table.Index.all, L_Key);
+      Cursor := Index_Table.Find (Table.Index, L_Key);
 
       if Index_Table.Has_Element (Cursor) then
          declare
@@ -88,7 +87,7 @@ package body AWS.Containers.Tables.Set is
             Name_Indexes.Append
               (Value, Key_Positive (Data_Table.Length (Table.Data)));
             Index_Table.Insert
-              (Table.Index.all, L_Key, Value, Cursor, Success);
+              (Table.Index, L_Key, Value, Cursor, Success);
             pragma Assert (Success);
          end;
       end if;
@@ -110,18 +109,10 @@ package body AWS.Containers.Tables.Set is
    ----------
 
    procedure Free (Table : in out Table_Type) is
-
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Index_Table_Type, Index_Access);
-
    begin
-      if Table.Index /= null then
-         Reset (Table.Index.all);
-         Free (Table.Index);
-
-         Free_Elements (Table.Data);
-         Data_Table.Clear (Table.Data);
-      end if;
+      Reset (Table.Index);
+      Free_Elements (Table.Data);
+      Data_Table.Clear (Table.Data);
    end Free;
 
    -------------------
@@ -162,14 +153,8 @@ package body AWS.Containers.Tables.Set is
 
    procedure Reset (Table : in out Table_Type) is
    begin
-      if Table.Index = null then
-         Table.Index := new Index_Table_Type;
-
-      else
-         Reset (Table.Index.all);
-         Free_Elements (Table.Data);
-      end if;
-
+      Reset (Table.Index);
+      Free_Elements (Table.Data);
       Data_Table.Clear (Table.Data);
    end Reset;
 
@@ -188,7 +173,7 @@ package body AWS.Containers.Tables.Set is
 
       Cursor : Index_Table.Cursor;
    begin
-      Cursor := Index_Table.Find (Table.Index.all, L_Key);
+      Cursor := Index_Table.Find (Table.Index, L_Key);
 
       if not Index_Table.Has_Element (Cursor) then
          if N /= 1 then
@@ -210,7 +195,7 @@ package body AWS.Containers.Tables.Set is
             Name_Indexes.Append
               (Values, Key_Positive (Data_Table.Length (Table.Data)));
             Index_Table.Insert
-              (Table.Index.all, L_Key, Values, Cursor, Success);
+              (Table.Index, L_Key, Values, Cursor, Success);
             pragma Assert (Success);
          end;
 
