@@ -1,3 +1,8 @@
+2004-11-13  Pascal Obry  <pascal@obry.org>
+
+	* runme_cb.adb:
+	(Get): Update link to templates parser.
+
 2004-11-07  Pascal Obry  <pascal@obry.org>
 
 	* split.thtml:
