@@ -91,6 +91,13 @@ package AWS.POP is
    --  Retrieve Nth message from the mailbox, let the message on the mailbox
    --  if Remove is False.
 
+   function Get_Header
+     (Mailbox : in POP.Mailbox;
+      N       : in Positive)
+      return Message;
+   --  Retrieve headers for the Nth message from the mailbox, let the message
+   --  on the mailbox. This is useful to build a quick summary of the mailbox.
+
    generic
       with procedure Action
         (Message : in     POP.Message;
@@ -102,6 +109,16 @@ package AWS.POP is
    --  Calls Action for each message read on the mailbox, delete the message
    --  from the mailbox if Remove is True. Set Quit to True to stop the
    --  iterator. Index is the mailbox's message index.
+
+   generic
+      with procedure Action
+        (Message : in     POP.Message;
+         Index   : in     Positive;
+         Quit    : in out Boolean);
+   procedure For_Every_Message_Header (Mailbox : in POP.Mailbox);
+   --  Calls Action for each message read on the mailbox. Only the headers are
+   --  read from the mailbox. Set Quit to True to stop the iterator. Index is
+   --  the mailbox's message index.
 
    function Content (Message : in POP.Message) return Unbounded_String;
    --  Returns message's content as an Unbounded_String. Each line are
