@@ -59,6 +59,8 @@ procedure Tlog is
    use AWS;
 
    Filename : constant String := "file.tmp";
+   Today    : constant String
+     := GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
    Success  : Boolean;
 
    WS   : Server.HTTP;
@@ -123,15 +125,6 @@ procedure Tlog is
    begin
       Del_Logs (".", ".*\.log");
    end Delete_Logs;
-
-   -----------
-   -- Today --
-   -----------
-
-   function Today return String is
-   begin
-      return GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
-   end Today;
 
    ---------------
    -- Hide_Date --
