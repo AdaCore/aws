@@ -1,3 +1,19 @@
+2002-07-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-messages.ads:
+	(Content_Disposition_Token): New constant.
+	(Content_Disposition): New routine.
+	Minor reformatting.
+
+	* aws-messages.adb:
+	(Content_Disposition): New routine.
+	Put constant some variables.
+	Minor reformatting.
+
+	* aws-client.ads, aws-client.adb:
+	(Upload): New routine.
+	Minor reformatting.
+
 2002-06-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-files.adb:
