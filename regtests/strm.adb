@@ -68,9 +68,12 @@ procedure Strm is
 
    File_Size : constant := 100_000;
 
-   Length_Defined_URI : constant String := "/length_defined";
-   Deflated_URI       : constant String := "/deflate-it";
-   GZip_URI           : constant String := "/gzip-it";
+   Base_URL : constant String := "http://localhost:1238";
+
+   Length_Defined_URI   : constant String := "/length_defined";
+   Length_Undefined_URI : constant String := "/length_undefined";
+   Deflated_URI         : constant String := "/deflate-it";
+   GZip_URI             : constant String := "/gzip-it";
 
    --------
    -- CB --
@@ -162,15 +165,17 @@ procedure Strm is
 begin
    Server.Wait_Start;
 
+   --  Keep-alive test.
+
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:1238",
+      Host       => Base_URL,
       Timeouts   => (5, 5));
 
    Client.Get (Connect, R, Length_Defined_URI);
    Compare_Message;
 
-   Client.Get (Connect, R, "/length_undefined");
+   Client.Get (Connect, R, Length_Undefined_URI);
    Compare_Message;
 
    Client.Get (Connect, R, Deflated_URI);
@@ -180,6 +185,20 @@ begin
    Compare_Message;
 
    Client.Close (Connect);
+
+   --  Non keep-alive test.
+
+   R := Client.Get (Base_URL & Length_Defined_URI);
+   Compare_Message;
+
+   R := Client.Get (Base_URL & Length_Undefined_URI);
+   Compare_Message;
+
+   R := Client.Get (Base_URL & Deflated_URI);
+   Compare_Message;
+
+   R := Client.Get (Base_URL & GZip_URI);
+   Compare_Message;
 
    Server.Stop;
 
