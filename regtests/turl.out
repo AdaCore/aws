@@ -35,23 +35,23 @@ http://a/tata/my_url/xyz/../../b/c/d/../../z
    Port      : 80
    URI       : /azerty/me/too.html
 demo.html
-demo.htm
+demo.html
    Server    : 
    Port      : 80
-   URI       : demo.htm
+   URI       : demo.html
    *
    Server    : 
    Port      : 80
-   URI       : demo.htm
+   URI       : demo.html
 kye/demo.html
-kye/demo.htm
+kye/demo.html
    Server    : 
    Port      : 80
-   URI       : kye/demo.htm
+   URI       : kye/demo.html
    *
    Server    : 
    Port      : 80
-   URI       : kye/demo.htm
+   URI       : kye/demo.html
 http://www.myserver.com:12/request?p1=9
 http://www.myserver.com:12/request?p1=9
    Server    : www.myserver.com
