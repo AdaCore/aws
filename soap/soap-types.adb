@@ -767,8 +767,10 @@ package body SOAP.Types is
       function Array_Type return String is
          use type Ada.Tags.Tag;
 
-         T         : Ada.Tags.Tag;
+         T : Ada.Tags.Tag;
       begin
+         --  Empty array
+
          if O.O'Length = 0 then
             --  This is a zero length array, type is undefined.
             return XML_Undefined;
@@ -776,10 +778,30 @@ package body SOAP.Types is
 
          T := O.O (O.O'First).O'Tag;
 
+         --  Array with record components
+
          if T = SOAP_Record'Tag then
-            --  This is a record, no need to parse further.
-            return XML_Undefined;
+            --  This is a record, check if array is composed of only records
+            --  having the same name.
+
+            declare
+               Name : constant String := Types.Name (O.O (O.O'First).O.all);
+            begin
+               for K in O.O'First + 1 .. O.O'Last loop
+                  if O.O (K).O'Tag /= SOAP_Record'Tag
+                    or else Name /= Types.Name (O.O (K).O.all)
+                  then
+                     return XML_Undefined;
+                  end if;
+               end loop;
+
+               --  The array is composed of only records having the same
+               --  name. Use this name for the array component type.
+               return "awsns:" & Name;
+            end;
          end if;
+
+         --  All other cases
 
          for K in O.O'First + 1 .. O.O'Last loop
 
@@ -794,6 +816,7 @@ package body SOAP.Types is
          end loop;
 
          --  We have the same type.
+
          return XML_Type (O.O (O.O'First).O.all);
       end Array_Type;
 
