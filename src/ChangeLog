@@ -1,3 +1,8 @@
+2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	Minor reformatting.
+
 2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
