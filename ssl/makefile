@@ -5,6 +5,8 @@
 
 GARGS = -u $(INCLUDES) $(GFLAGS)
 
+LIBNOSSLAWS	= ../lib/libnosslaws.a
+
 force:
 
 ssl-thin: force
@@ -16,14 +18,14 @@ ssl-wrappers: force
 	echo Building ssl-wrappers
 	$(GNATMAKE) -q $(GARGS) ssl-wrappers
 
-libnosslaws.a:
-	$(AR) cr libnosslaws.a ssl-wrappers.o
+$(LIBNOSSLAWS):
+	$(AR) cr $(LIBNOSSLAWS) ssl-wrappers.o
 	$(RM) ssl-wrappers.o
 
-build: ssl-thin ssl-wrappers libnosslaws.a
+build: ssl-thin ssl-wrappers $(LIBNOSSLAWS)
 
 clean:
-	-$(RM) -f *.ali *.o *.a
+	-$(RM) -f *.ali *.o
 
 #############################################################################
 # Configuration for GNAT Projet Files
