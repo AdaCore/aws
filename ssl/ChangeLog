@@ -1,5 +1,15 @@
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
+	* makefile:
+	(setup_ssl): New target used to generate ssl_shared.gpr project
+	 file. This file contains the default path to the libssl.a and
+	 libcrypto.a external libraries.
+
+	* crypto_lib.gpr, ssl_lib.gpr:
+	Use SSL_Shared generated project file.
+
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
 	* ssl_lib.gpr, crypto_lib.gpr:
 	Initial revision.
 

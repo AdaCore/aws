@@ -1,5 +1,18 @@
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
+	* demos.gpr:
+	Move all XML/Ada related source into the proper section.
+	Fix build failure. Continued work to support GNAT Project files.
+
+	* demos_ssl.gpr:
+	Minor reformatting.
+
+	* makefile:
+	(build): Capitalize SOCKET.
+	Remove some unused declarations.
+	
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	(BUILD_OPT): Removed, not used now.
 	(test_ldap): Idem.
