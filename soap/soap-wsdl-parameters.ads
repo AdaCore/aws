@@ -68,6 +68,7 @@ package SOAP.WSDL.Parameters is
          when K_Array | K_Record =>
             T_Name : Unbounded_String; -- Type name
             E_Type : Unbounded_String; -- Array element's type
+            Length : Natural;          -- Number of items (0 = unbounded)
             P      : P_Set;
 
          when K_Enumeration =>
