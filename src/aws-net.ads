@@ -192,8 +192,7 @@ private
    --  than to write byte by byte on the stream.
 
    W_Cache_Size  : constant := 2_048;
-   W_Cache_Chunk : constant := W_Cache_Size / 2;
-   --  This is write the cache size, when the cache is full W_Cache_Chunk
+   --  This is write the cache size, when the cache is full W_Cache_Size
    --  bytes will be sent to the socket. This way we avoid flushing a single
    --  byte as this is not efficient at all with SSL sockets.
 
@@ -208,7 +207,6 @@ private
       Buffer : Stream_Element_Array (1 .. Max_Size);
       First  : Stream_Element_Offset := 1;
       Last   : Stream_Element_Offset := 0;
-      Size   : Stream_Element_Count  := 0;
    end record;
 
    type Write_Cache (Max_Size : Stream_Element_Count) is record
