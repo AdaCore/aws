@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -78,13 +78,13 @@ package body AWS.Services.Dispatchers.Timer is
    is
       use type Calendar.Time;
 
-      function Match_Once     (K : in Natural) return Boolean;
-      function Match_Yearly   (K : in Natural) return Boolean;
-      function Match_Monthly  (K : in Natural) return Boolean;
-      function Match_Weekly   (K : in Natural) return Boolean;
-      function Match_Daily    (K : in Natural) return Boolean;
-      function Match_Hourly   (K : in Natural) return Boolean;
-      function Match_Minutely (K : in Natural) return Boolean;
+      function Match_Once     (Item : in Node_Access) return Boolean;
+      function Match_Yearly   (Item : in Node_Access) return Boolean;
+      function Match_Monthly  (Item : in Node_Access) return Boolean;
+      function Match_Weekly   (Item : in Node_Access) return Boolean;
+      function Match_Daily    (Item : in Node_Access) return Boolean;
+      function Match_Hourly   (Item : in Node_Access) return Boolean;
+      function Match_Minutely (Item : in Node_Access) return Boolean;
 
       Now : constant Calendar.Time := Calendar.Clock;
 
@@ -101,9 +101,9 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Daily --
       -----------------
 
-      function Match_Daily (K : in Natural) return Boolean is
-         F        : Date_Time renames Dispatcher.Table.Table (K).Period.From;
-         T        : Date_Time renames Dispatcher.Table.Table (K).Period.To;
+      function Match_Daily (Item : in Node_Access) return Boolean is
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
          From := GNAT.Calendar.Time_Of
@@ -118,9 +118,9 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Hourly --
       ------------------
 
-      function Match_Hourly (K : in Natural) return Boolean is
-         F        : Date_Time renames Dispatcher.Table.Table (K).Period.From;
-         T        : Date_Time renames Dispatcher.Table.Table (K).Period.To;
+      function Match_Hourly (Item : in Node_Access) return Boolean is
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
          From := GNAT.Calendar.Time_Of
@@ -135,9 +135,9 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Minutely --
       --------------------
 
-      function Match_Minutely (K : in Natural) return Boolean is
-         F        : Date_Time renames Dispatcher.Table.Table (K).Period.From;
-         T        : Date_Time renames Dispatcher.Table.Table (K).Period.To;
+      function Match_Minutely (Item : in Node_Access) return Boolean is
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
          From := GNAT.Calendar.Time_Of
@@ -152,9 +152,9 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Monthly --
       -------------------
 
-      function Match_Monthly (K : in Natural) return Boolean is
-         F        : Date_Time renames Dispatcher.Table.Table (K).Period.From;
-         T        : Date_Time renames Dispatcher.Table.Table (K).Period.To;
+      function Match_Monthly (Item : in Node_Access) return Boolean is
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
          From := GNAT.Calendar.Time_Of
@@ -169,9 +169,9 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Once --
       ----------------
 
-      function Match_Once (K : in Natural) return Boolean is
-         F        : Date_Time renames Dispatcher.Table.Table (K).Period.From;
-         T        : Date_Time renames Dispatcher.Table.Table (K).Period.To;
+      function Match_Once (Item : in Node_Access) return Boolean is
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
          From := GNAT.Calendar.Time_Of
@@ -186,9 +186,9 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Weekly --
       ------------------
 
-      function Match_Weekly (K : in Natural) return Boolean is
-         F        : Date_Time renames Dispatcher.Table.Table (K).Period.From;
-         T        : Date_Time renames Dispatcher.Table.Table (K).Period.To;
+      function Match_Weekly (Item : in Node_Access) return Boolean is
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
          From := GNAT.Calendar.Time_Of
@@ -207,9 +207,9 @@ package body AWS.Services.Dispatchers.Timer is
       -- Match_Yearly --
       ------------------
 
-      function Match_Yearly (K : in Natural) return Boolean is
-         F        : Date_Time renames Dispatcher.Table.Table (K).Period.From;
-         T        : Date_Time renames Dispatcher.Table.Table (K).Period.To;
+      function Match_Yearly (Item : in Node_Access) return Boolean is
+         F        : Date_Time renames Item.Period.From;
+         T        : Date_Time renames Item.Period.To;
          From, To : Calendar.Time;
       begin
          From := GNAT.Calendar.Time_Of
@@ -225,52 +225,49 @@ package body AWS.Services.Dispatchers.Timer is
         (Now, Year, Month, Day, Hour, Minute, Second, Sub_Second);
       N_Day := GNAT.Calendar.Day_Of_Week (Now);
 
-      for K in 1 .. Period_Table.Last (Dispatcher.Table) loop
+      for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
+         declare
+            Item : constant Node_Access
+              := Period_Table.Element (Dispatcher.Table, Natural (K));
+         begin
+            case Item.Period.Mode is
 
-         case Dispatcher.Table.Table (K).Period.Mode is
+               when Once =>
+                  if Match_Once (Item) then
+                     return Dispatch (Item.Action.all, Request);
+                  end if;
 
-            when Once =>
-               if Match_Once (K) then
-                  return Dispatch
-                    (Dispatcher.Table.Table (K).Action.all, Request);
-               end if;
+               when Yearly =>
+                  if Match_Yearly (Item) then
+                     return Dispatch (Item.Action.all, Request);
+                  end if;
 
-            when Yearly =>
-               if Match_Yearly (K) then
-                  return Dispatch
-                    (Dispatcher.Table.Table (K).Action.all, Request);
-               end if;
+               when Monthly =>
+                  if Match_Monthly (Item) then
+                     return Dispatch (Item.Action.all, Request);
+                  end if;
 
-            when Monthly =>
-               if Match_Monthly (K) then
-                  return Dispatch
-                    (Dispatcher.Table.Table (K).Action.all, Request);
-               end if;
+               when Weekly =>
+                  if Match_Weekly (Item) then
+                     return Dispatch (Item.Action.all, Request);
+                  end if;
 
-            when Weekly =>
-               if Match_Weekly (K) then
-                  return Dispatch
-                    (Dispatcher.Table.Table (K).Action.all, Request);
-               end if;
+               when Daily =>
+                  if Match_Daily (Item) then
+                     return Dispatch (Item.Action.all, Request);
+                  end if;
 
-            when Daily =>
-               if Match_Daily (K) then
-                  return Dispatch
-                    (Dispatcher.Table.Table (K).Action.all, Request);
-               end if;
+               when Hourly =>
+                  if Match_Hourly (Item) then
+                     return Dispatch (Item.Action.all, Request);
+                  end if;
 
-            when Hourly =>
-               if Match_Hourly (K) then
-                  return Dispatch
-                    (Dispatcher.Table.Table (K).Action.all, Request);
-               end if;
-
-            when Minutely =>
-               if Match_Minutely (K) then
-                  return Dispatch
-                    (Dispatcher.Table.Table (K).Action.all, Request);
-               end if;
-         end case;
+               when Minutely =>
+                  if Match_Minutely (Item) then
+                     return Dispatch (Item.Action.all, Request);
+                  end if;
+            end case;
+         end;
       end loop;
 
       if Dispatcher.Action /= null then
@@ -293,12 +290,17 @@ package body AWS.Services.Dispatchers.Timer is
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter (Dispatcher) = 0 then
-         for K in 1 .. Period_Table.Last (Dispatcher.Table) loop
-            Free (Dispatcher.Table.Table (K).Action);
-            Free (Dispatcher.Table.Table (K));
+         for K in 1 .. Period_Table.Length (Dispatcher.Table) loop
+            declare
+               Item : Node_Access
+                 := Period_Table.Element (Dispatcher.Table, Natural (K));
+            begin
+               Free (Item.Action);
+               Free (Item);
+            end;
          end loop;
 
-         Period_Table.Free (Dispatcher.Table);
+         Period_Table.Clear (Dispatcher.Table);
       end if;
    end Finalize;
 
@@ -330,7 +332,6 @@ package body AWS.Services.Dispatchers.Timer is
    procedure Initialize (Dispatcher : in out Handler) is
    begin
       Initialize (AWS.Dispatchers.Handler (Dispatcher));
-      Period_Table.Init (Dispatcher.Table);
    end Initialize;
 
    --------------
@@ -426,14 +427,12 @@ package body AWS.Services.Dispatchers.Timer is
       Period     : in     Timer.Period;
       Action     : in     AWS.Dispatchers.Handler'Class)
    is
-      Value : Node_Access;
+      Value : constant Node_Access
+        := new Node'(To_Unbounded_String (Name),
+                     Period,
+                     new AWS.Dispatchers.Handler'Class'(Action));
    begin
-      Value := new Node'(To_Unbounded_String (Name),
-                         Period,
-                         new AWS.Dispatchers.Handler'Class'(Action));
-
-      Period_Table.Increment_Last (Dispatcher.Table);
-      Dispatcher.Table.Table (Period_Table.Last (Dispatcher.Table)) := Value;
+      Period_Table.Append (Dispatcher.Table, Value);
    end Register;
 
    procedure Register
@@ -467,18 +466,19 @@ package body AWS.Services.Dispatchers.Timer is
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      Name       : in     String)
-   is
-      Last : constant Natural := Period_Table.Last (Dispatcher.Table);
+      Name       : in     String) is
    begin
-      for K in 1 .. Last loop
-         if To_String (Dispatcher.Table.Table (K).Name) = Name then
-            Free (Dispatcher.Table.Table (K));
-            Dispatcher.Table.Table (K .. Last - 1)
-              := Dispatcher.Table.Table (K + 1 .. Last);
-            Period_Table.Decrement_Last (Dispatcher.Table);
-            exit;
-         end if;
+      for K in 1 .. Natural (Period_Table.Length (Dispatcher.Table)) loop
+         declare
+            Item : Node_Access
+              := Period_Table.Element (Dispatcher.Table, K);
+         begin
+            if To_String (Item.Name) = Name then
+               Free (Item);
+               Period_Table.Delete (Dispatcher.Table, K);
+               exit;
+            end if;
+         end;
       end loop;
    end Unregister;
 

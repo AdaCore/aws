@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -65,18 +65,22 @@ package body AWS.Services.Dispatchers.URI is
       URI    : constant String := Status.URI (Request);
       Result : Response.Data;
    begin
-      for K in 1 .. URI_Table.Last (Dispatcher.Table) loop
-         if Match (Dispatcher.Table.Table (K).all, URI) then
-            Result :=
-              Dispatch (Dispatcher.Table.Table (K).Action.all, Request);
+      for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
+         declare
+            Item : constant URI_Class_Access
+              := URI_Table.Element (Dispatcher.Table, Natural (K));
+         begin
+            if Match (Item.all, URI) then
+               Result := Dispatch (Item.Action.all, Request);
 
-            --  Return response if dispatcher did return something, otherwise
-            --  continue to next handler.
+               --  Returns response if dispatcher did return something,
+               --  otherwise continue to next handler.
 
-            if Response.Mode (Result) /= Response.No_Data then
-               return Result;
+               if Response.Mode (Result) /= Response.No_Data then
+                  return Result;
+               end if;
             end if;
-         end if;
+         end;
       end loop;
 
       --  No rule found, try the default dispatcher
@@ -101,13 +105,18 @@ package body AWS.Services.Dispatchers.URI is
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter (Dispatcher) = 0 then
-         for K in 1 .. URI_Table.Last (Dispatcher.Table) loop
-            Free (Dispatcher.Table.Table (K).Action);
-            Free (Dispatcher.Table.Table (K));
+         for K in 1 .. URI_Table.Length (Dispatcher.Table) loop
+            declare
+               Item : URI_Class_Access
+                 := URI_Table.Element (Dispatcher.Table, Natural (K));
+            begin
+               Free (Item.Action);
+               Free (Item);
+            end;
          end loop;
 
          Free (Dispatcher.Action);
-         URI_Table.Free (Dispatcher.Table);
+         URI_Table.Clear (Dispatcher.Table);
       end if;
    end Finalize;
 
@@ -118,7 +127,6 @@ package body AWS.Services.Dispatchers.URI is
    procedure Initialize (Dispatcher : in out Handler) is
    begin
       Initialize (AWS.Dispatchers.Handler (Dispatcher));
-      URI_Table.Init (Dispatcher.Table);
    end Initialize;
 
    -----------
@@ -144,13 +152,11 @@ package body AWS.Services.Dispatchers.URI is
       URI        : in     String;
       Action     : in     AWS.Dispatchers.Handler'Class)
    is
-      Value : URI_Class_Access;
+      Value : constant URI_Class_Access
+        := new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
+                        To_Unbounded_String (URI));
    begin
-      Value := new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
-                            To_Unbounded_String (URI));
-
-      URI_Table.Increment_Last (Dispatcher.Table);
-      Dispatcher.Table.Table (URI_Table.Last (Dispatcher.Table)) := Value;
+      URI_Table.Append (Dispatcher.Table, Value);
    end Register;
 
    procedure Register
@@ -185,15 +191,12 @@ package body AWS.Services.Dispatchers.URI is
       URI        : in     String;
       Action     : in     AWS.Dispatchers.Handler'Class)
    is
-      Value : URI_Class_Access;
+      Value : constant URI_Class_Access
+        := new Reg_URI'(new AWS.Dispatchers.Handler'Class'(Action),
+                        To_Unbounded_String (URI),
+                        GNAT.Regexp.Compile (URI));
    begin
-      Value := new Reg_URI'(new AWS.Dispatchers.Handler'Class'(Action),
-                            To_Unbounded_String (URI),
-                            GNAT.Regexp.Compile (URI));
-
-
-      URI_Table.Increment_Last (Dispatcher.Table);
-      Dispatcher.Table.Table (URI_Table.Last (Dispatcher.Table)) := Value;
+      URI_Table.Append (Dispatcher.Table, Value);
    end Register_Regexp;
 
    procedure Register_Regexp
@@ -211,18 +214,19 @@ package body AWS.Services.Dispatchers.URI is
 
    procedure Unregister
      (Dispatcher : in out Handler;
-      URI        : in     String)
-   is
-      Last : constant Natural := URI_Table.Last (Dispatcher.Table);
+      URI        : in     String) is
    begin
-      for K in 1 .. Last loop
-         if To_String (Dispatcher.Table.Table (K).URI) = URI then
-            Free (Dispatcher.Table.Table (K));
-            Dispatcher.Table.Table (K .. Last - 1)
-              := Dispatcher.Table.Table (K + 1 .. Last);
-            URI_Table.Decrement_Last (Dispatcher.Table);
-            exit;
-         end if;
+      for K in 1 .. Natural (URI_Table.Length (Dispatcher.Table)) loop
+         declare
+            Item : URI_Class_Access
+              := URI_Table.Element (Dispatcher.Table, K);
+         begin
+            if To_String (Item.URI) = URI then
+               Free (Item);
+               URI_Table.Delete (Dispatcher.Table, K);
+               exit;
+            end if;
+         end;
       end loop;
    end Unregister;
 

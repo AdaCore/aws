@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,7 +35,7 @@
 
 with Ada.Strings.Unbounded;
 
-with GNAT.Dynamic_Tables;
+with AI302.Containers.Vectors;
 
 with AWS.Dispatchers;
 with AWS.Response;
@@ -111,11 +111,11 @@ private
    type URI_Class_Access is access all Std_URI'Class;
 
    package URI_Table is
-      new GNAT.Dynamic_Tables (URI_Class_Access, Natural, 1, 20, 10);
+     new AI302.Containers.Vectors (Positive, URI_Class_Access, "=");
 
    type Handler is new AWS.Dispatchers.Handler with record
       Action : AWS.Dispatchers.Handler_Class_Access;
-      Table  : URI_Table.Instance;
+      Table  : URI_Table.Vector;
    end record;
 
 end AWS.Services.Dispatchers.URI;
