@@ -51,6 +51,8 @@ package body AWS.Client.XML.Input_Sources is
    pragma Inline (Clean_Buffer);
    --  Clean buffer in the connection. Ensure that the garbadge after the last
    --  character read are cleaned.
+   --  ??? We have to remove this procedure sometime.
+   --  Now it is just for workaround some undefined problem.
 
    ------------------
    -- Clean_Buffer --
@@ -60,8 +62,11 @@ package body AWS.Client.XML.Input_Sources is
       First : constant Stream_Element_Offset := From.Last + 1;
       Last  : constant Stream_Element_Offset
         := Stream_Element_Offset'Min (First + 6, From.Buffer'Last);
+
+      --  pragma Unreferenced (First, Last);
    begin
       From.Buffer (First .. Last) := (others => 0);
+      null;
    end Clean_Buffer;
 
    ------------
@@ -139,6 +144,7 @@ package body AWS.Client.XML.Input_Sources is
          --  Unexpected end of stream detected. Data should have been taken
          --  from the HTTP connection in the Eof routine or after partial
          --  character detected.
+
          raise Unicode.CES.Invalid_Encoding;
       end if;
 
@@ -178,13 +184,17 @@ package body AWS.Client.XML.Input_Sources is
             when Unicode.CES.Invalid_Encoding =>
                if From.Last - From.First < 5 then
                   --  It can be the case where we have only a part of the
-                  --  UTF8 or UTF16 character.
+                  --  UTF8 or UTF16 character until From.Last index.
+                  --  Characters after the From.Last index is undefined, and
+                  --  could cause Invalid_Encoding exception.
                   --  Note that it is not possible to detect this earlier. It
-                  --  can be the case that there is less than 5 characters in
-                  --  the buffer and that it is not a problem as UFT encoding
+                  --  can be the case that there is less than 6 characters in
+                  --  the buffer and that it is not a problem as UTF encoding
                   --  are not using the same number of bytes for all
                   --  characters. So we know about missing bytes in the buffer
-                  --  only if we have an Invalid_Encoding exception.
+                  --  either if we have an Invalid_Encoding exception or if we
+                  --  have a From.First more then From.Last + 1 after ES.Read
+                  --  call.
 
                   From.First := From.Last + 2;
 
@@ -195,7 +205,7 @@ package body AWS.Client.XML.Input_Sources is
 
          if From.First > From.Last + 1 then
             --  We have a buffer overrun, the read procedure has read bytes
-            --  past the last valid character. So we probably had only part
+            --  past the last valid character. So we definitely had only part
             --  of the character in the buffer. We have to read some more
             --  bytes from the HTTP connection.
 
@@ -213,6 +223,7 @@ package body AWS.Client.XML.Input_Sources is
             if From.Last <= Pos then
                --  No more bytes to read, so we have the start of an encoded
                --  character but not the end of it.
+
                raise Unicode.CES.Invalid_Encoding;
             end if;
 
