@@ -1,3 +1,9 @@
+2004-11-12  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-xml.ads, templates_parser-xml.adb:
+	(Value) [String]: New routine.
+	(Value) [Unbounded_String]: Idem.
+
 2004-09-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-jabber.adb, templates_parser-xml.adb:
