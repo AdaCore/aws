@@ -3,6 +3,8 @@ auth.res
 auth.tmp
 b~auth.adb
 b~auth.ads
+b~auth2.adb
+b~auth2.ads
 b~check_mem.adb
 b~check_mem.ads
 b~ctab.adb

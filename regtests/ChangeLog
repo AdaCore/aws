@@ -1,3 +1,11 @@
+2003-03-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add auth2.
+
+	* auth2.adb, auth2.out:
+	Initial revision.
+
 2003-03-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
