@@ -6,9 +6,16 @@
 
 GARGS	= $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 
-SOURCES	= templates_parser.adb templates_parser-input.adb \
-	templates_parser-query.adb \
-        aws-client.adb aws-communication-client.adb \
+GY_tmp  = $(patsubst -gnatwe,,$(GFLAGS))
+TGARGS = $(patsubst -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnprt,$(GY_tmp))
+# We do not want to check for separate spec for the demos (s option).
+
+TMPLT_GARGS = $(GFLAGSY) -I. -I../ssl -I../include $(INCLUDES)
+
+TMPLT_SOURCES	= templates_parser.adb templates_parser-input.adb \
+	templates_parser-query.adb 
+
+SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-communication-server.adb aws-communication.adb \
 	aws-config-ini.adb aws-config-set.adb aws-config.adb \
 	aws-containers-key_value.ads aws-containers-tables-set.adb \
@@ -48,6 +55,8 @@ endif
 
 UNITS = $(sort $(basename $(SOURCES)))
 
+TMPLT_UNITS = $(sort $(basename $(TMPLT_SOURCES)))
+
 CONF_UNITS = aws-translator-conversion.adb aws-net-std.adb
 
 force:
@@ -56,7 +65,11 @@ $(UNITS): force
 	echo Building $@
 	$(GNATMAKE) -u $(GARGS) $@
 
-build: $(CONF_UNITS) $(UNITS)
+$(TMPLT_UNITS): force
+	echo Building $@
+	$(GNATMAKE) -u $(TGARGS) $@
+
+build: $(CONF_UNITS) $(UNITS) $(TMPLT_UNITS)
 
 aws-translator-conversion.adb:
 	${MAKE} -C ../config setup
