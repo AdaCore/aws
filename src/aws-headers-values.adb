@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                          Copyright (C) 2002-2003                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -175,9 +175,16 @@ package body AWS.Headers.Values is
 
       elsif Data (Last) = UVDel then
          --  This is an un-named value
+
          Value_First := First;
          Value_Last  := Last - 1;
          First       := Last + 1;
+
+         --  Do not return the delimiter as part of the value
+
+         while Maps.Is_In (Data (Value_Last), EDel) loop
+            Value_Last := Value_Last - 1;
+         end loop;
 
       else
          --  Here we have a named value
@@ -225,6 +232,7 @@ package body AWS.Headers.Values is
       end if;
 
       if First > Data'Last then
+         --  We have reached the end-of-line
          First := 0;
 
       elsif First > 0 then
