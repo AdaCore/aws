@@ -140,6 +140,7 @@ distrib: clean build_doc
 	cp demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	cp demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
 	cp regtests/*.out regtests/*.adb regtests/makefile $${AWS}/regtests;\
+	cp docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
 	cp docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
 	cp docs/aws.info* docs/aws.ps docs/makefile $${AWS}/docs;\
 	cp docs/TODO docs/openssl.license $${AWS}/docs;\
