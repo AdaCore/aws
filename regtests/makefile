@@ -227,17 +227,12 @@ tres: force
 	cat tres-1.res tres-2.res > tres.res
 	-diff -c -w tres.out tres.res 1>> alldifs 2>> alldifs
 
-# We change 2 values in aws-containers-tables.ads because its implementation
-# is based on GNAT.Dynamic_Tables which uses a low-level realloc. This
-# construct is not correctly handled by gnatmem. As this check is really
-# target dependent what we do is to run twice the same program, each time with
-# a different number of HTTP requests, then we compare the final non freed
-# memory.
+# As this check is really target dependent what we do is to run twice the same
+# program, each time with a different number of HTTP requests, then we compare
+# the final non freed memory.
 
 check_mem: force
 	echo -n "Building " check_mem
-	sed 's/4,/1000,/;s/8,/1000,/' ../src/aws-containers-tables.ads \
-		> aws-containers-tables.ads
 	gnatmake -g check_mem $(GARGS) -largs $(LARGS) -bargs -E -largs -lgmem
 	rm -f aws-containers-tables.* aws*.ali aws*.o soap*.o soap*.ali
 	echo -n ",  run it"
