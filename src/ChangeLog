@@ -1,3 +1,15 @@
+2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Value): New procedure was Create.Set.
+	(Create): Remove SOAPAction parameter, do not initialize the
+	 SOAPAction here.
+	(SOAP_Post): Initialize Connection.SOAPAction.
+
+	* aws-client.ads:
+	(Create): Remove  SOAPAction parameter.
+	(SOAP_Post): Add SOAPAction parameter.
+
 2003-06-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:
