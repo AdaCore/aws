@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                                ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -35,9 +35,11 @@
 with Interfaces.C; use Interfaces;
 with System;
 
+with AWS.OS_Lib.Definitions;
+
 function Poll
   (Fds     : in System.Address;
-   Nfds    : in C.unsigned_long;
+   Nfds    : in AWS.OS_Lib.Definitions.nfds_t;
    Timeout : in C.int)
    return C.int;
 pragma Export (C, Poll, "poll");
