@@ -78,15 +78,6 @@ package body AWS.Response.Set is
       RSM.Append (RSM.Stream_Type'Class (D.Stream.all), Item);
    end Append_Body;
 
-   procedure Append_Body
-     (D    : in out Data;
-      Item : in     Utils.Stream_Element_Array_Access) is
-   begin
-      Check_Memory_Stream (D);
-
-      RSM.Append (RSM.Stream_Type'Class (D.Stream.all), Item);
-   end Append_Body;
-
    procedure Append_Body (D : in out Data; Item : in String) is
    begin
       Append_Body (D, Translator.To_Stream_Element_Array (Item));
@@ -340,15 +331,6 @@ package body AWS.Response.Set is
    procedure Message_Body
      (D     : in out Data;
       Value : in     Streams.Stream_Element_Array) is
-   begin
-      Clear_Memory_Stream (D);
-
-      RSM.Append (RSM.Stream_Type'Class (D.Stream.all), Value);
-   end Message_Body;
-
-   procedure Message_Body
-     (D     : in out Data;
-      Value : in     Utils.Stream_Element_Array_Access) is
    begin
       Clear_Memory_Stream (D);
 

@@ -31,7 +31,6 @@
 --  $Id$
 
 with AWS.Net;
-with AWS.Utils;
 
 package AWS.Response.Set is
 
@@ -147,14 +146,6 @@ package AWS.Response.Set is
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     Utils.Stream_Element_Array_Access);
-   pragma Inline (Message_Body);
-   --  Set message body as a binary content. Set the Mode field to Message.
-   --  Note that there is no need to free Value object. This will be done when
-   --  the response object will have been sent.
-
-   procedure Message_Body
-     (D     : in out Data;
       Value : in     Strings.Unbounded.Unbounded_String);
    pragma Inline (Message_Body);
    --  Set the message body content as a unbounded_string. Set the Mode field
@@ -169,11 +160,6 @@ package AWS.Response.Set is
    procedure Append_Body
      (D    : in out Data;
       Item : in     Streams.Stream_Element_Array);
-   --  Add Item to the message
-
-   procedure Append_Body
-     (D    : in out Data;
-      Item : in     Utils.Stream_Element_Array_Access);
    --  Add Item to the message
 
    procedure Append_Body (D : in out Data; Item : in String);
