@@ -1358,11 +1358,10 @@ begin
       Will_Close :=
         AWS.Messages.Is_Match (Status.Connection (C_Stat), "close")
         or else HTTP_Server.Slots.N = 1
-        or else
-        (Status.HTTP_Version (C_Stat) = HTTP_10
-         and then
-         AWS.Messages.Does_Not_Match
-           (Status.Connection (C_Stat), "keep-alive"));
+        or else (Status.HTTP_Version (C_Stat) = HTTP_10
+                   and then
+                 AWS.Messages.Does_Not_Match
+                   (Status.Connection (C_Stat), "keep-alive"));
 
       Status.Set.Parameters (C_Stat, P_List);
 
@@ -1378,6 +1377,10 @@ begin
       HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
 
    end loop For_Every_Request;
+
+   --  Release memory for local objects
+
+   Status.Set.Reset (C_Stat);
 
    Parameters.Set.Free (P_List);
 
