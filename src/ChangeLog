@@ -1,5 +1,13 @@
 2003-10-05  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-streams-zlib.adb:
+	Reformat code.
+	Fix file format, lot of line in DOS format.
+
+	* aws-resources-streams-zlib.ads:
+	Reformat code.
+	(Deflate_Initialize): Add ???.
+
 	* aws-resources-streams-memory-zlib.adb:
 	(Append): Add ??? - bug to be fixed, waiting for final discussion
 	 on memory stream design.
