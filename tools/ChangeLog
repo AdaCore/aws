@@ -1,3 +1,9 @@
+2003-11-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-generator.adb:
+	(Write_SOAP_Body): Set use="encoded".
+	Continued work for compatibility with Axis.
+
 2003-11-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.adb:
