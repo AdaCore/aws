@@ -47,10 +47,7 @@ package AWS.Server is
      (Max_Connection : Positive := Default_Connection) is
    limited private;
    --  Max_Connection is the maximum number of simultaneous connection
-   --  handled by the server. Port is the socket server port. If security is
-   --  set to True then an HTTPS (secure socket) will be created. CB is the
-   --  user's callback function which reply to request sent to the
-   --  server.
+   --  handled by the server.
 
    procedure Start
      (Web_Server                : in out HTTP;
@@ -62,7 +59,16 @@ package AWS.Server is
       Session                   : in     Boolean           := False;
       Case_Sensitive_Parameters : in     Boolean           := True);
    --  Start the Web server. It initialize the connections lines.
-   --  Admin_URI must be set to enable the admin status page.
+   --  Name is just a string used to identify the server. This is used for
+   --  example in the administrative page. Admin_URI must be set to enable the
+   --  administrative status page.
+   --  Callback is the procedure to call for each ressource requested.
+   --  Port is the Web server port. If Security is set to True the server will
+   --  use an HTTPS/SSL connection. If Session is set to True the server will
+   --  be able to get a status for each client connected. A session ID is used
+   --  for that, on the client side it is a cookie. Case_Sensitive_Parameters
+   --  if set to False it means that the CGI parameters name will be handled
+   --  without case sensitivity.
 
    procedure Shutdown (Web_Server : in out HTTP);
    --  Stop the server and release all associated memory.
