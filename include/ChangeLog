@@ -1,3 +1,10 @@
+2003-03-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	Update to version 5.3. Fix Vector_Tag memory leak. This version
+	 has been used in a large project and checked with gnatmem, it
+	 should be memory leak free at this point.
+
 2003-03-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
