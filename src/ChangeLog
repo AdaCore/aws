@@ -1,5 +1,14 @@
 2002-09-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-client.ads:
+	(Protocol_Error): New exception.
+
+	* aws-client.adb:
+	(Parse_Header): Add checking that first line should match
+	 Messages.HTTP_Token.
+
+2002-09-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-digest.adb:
 	(Check_Nonce): Check that nonce has a correct length first.
 

@@ -1346,17 +1346,34 @@ package body AWS.Client is
    begin
       Content_Length := 0;
 
-      --  We should initialize Keep_Alive, because it is possible to receive
-      --  absolutely incorrect answer from server.
-      --  We should check the Messages.HTTP_Token only in the first line
-      --  and raise an exception if the first line does not match HTTP_Token.
-      --  ???
-
-      Keep_Alive := False;
-
       for Level in Authentication_Level'Range loop
          Connection.Auth (Level).Requested := False;
       end loop;
+
+      --  We should check the Messages.HTTP_Token only in the first line
+      --  and raise an exception if the first line does not match HTTP_Token.
+      declare
+         Line : constant String := Sockets.Get_Line (Sock);
+      begin
+         Debug_Message ("< ", Line);
+         --  Checking the first line in the HTTP header.
+         --  It should match Messages.HTTP_Token.
+         if Messages.Match (Line, Messages.HTTP_Token) then
+            Status := Messages.Status_Code'Value
+              ('S' & Line (Messages.HTTP_Token'Last + 5
+                             .. Messages.HTTP_Token'Last + 7));
+
+            --  By default HTTP/1.0 connection is not keep-alive but
+            --  HTTP/1.1 is keep-alive
+
+            Keep_Alive
+              := Line (Messages.HTTP_Token'Last + 1
+                         .. Messages.HTTP_Token'Last + 3) >= "1.1";
+         else
+            --  or else it is wrong answer from server.
+            raise Protocol_Error;
+         end if;
+      end;
 
       loop
          declare
@@ -1369,18 +1386,6 @@ package body AWS.Client is
                --  Exit if we got and End_Section (empty line) and the status
                --  is not 100 (continue).
                exit;
-
-            elsif Messages.Match (Line, Messages.HTTP_Token) then
-               Status := Messages.Status_Code'Value
-                 ('S' & Line (Messages.HTTP_Token'Last + 5
-                                .. Messages.HTTP_Token'Last + 7));
-
-               --  By default HTTP/1.0 connection is not keep-alive but
-               --  HTTP/1.1 is keep-alive
-
-               Keep_Alive
-                 := Line (Messages.HTTP_Token'Last + 1
-                            .. Messages.HTTP_Token'Last + 3) >= "1.1";
 
             elsif Messages.Match (Line, Messages.Content_Type_Token) then
                Content_Type := To_Unbounded_String
