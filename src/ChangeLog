@@ -23,7 +23,7 @@
 	* aws-server.adb:
 	(Line_Cleaner): Handle the new Shutdown entry which can be called
          to exit the task.
-        (Shutdown): Not not call abort on the task cleaner but the new
+        (Shutdown): Do not call abort on the task cleaner but the new
          Shutdown routine. Cleaner and safer this way.
         Update copyright notice.
         Work for E215-008.
