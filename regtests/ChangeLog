@@ -6,6 +6,9 @@
 	* zopen.adb:
 	Do not use AWS.Services.Files.
 
+	* check_mem.adb:
+	Do not use AWS.Services.Files.
+
 2004-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait.adb, wait.out:
