@@ -33,7 +33,7 @@
 --  $Date$
 --  $Author$
 
---  Fast convertion between String and Stream_Element_Array.
+--  Fast conversion between String and Stream_Element_Array.
 --  Only for Ada compilers and platforms, where it is possible.
 
 with Ada.Unchecked_Conversion;
@@ -48,7 +48,7 @@ package body Conversion is
 
    function To_Stream_Element_Array
      (Data : in String)
-     return Stream_Element_Array
+      return Stream_Element_Array
    is
 
       subtype Fixed_String is String (Data'First .. Data'Last);
@@ -70,7 +70,7 @@ package body Conversion is
 
    function To_String
      (Data : in Stream_Element_Array)
-     return String
+      return String
    is
 
       subtype Fixed_String is String (Integer (Data'First)

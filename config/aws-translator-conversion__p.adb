@@ -33,7 +33,7 @@
 --  $Date$
 --  $Author$
 
---  Portable convertion between String and Stream_Element_Array.
+--  Portable conversion between String and Stream_Element_Array.
 
 separate (AWS.Translator)
 
@@ -45,7 +45,7 @@ package body Conversion is
 
    function To_Stream_Element_Array
      (Data : in String)
-     return Stream_Element_Array
+      return Stream_Element_Array
    is
       Result : Stream_Element_Array
         (Stream_Element_Offset (Data'First)
@@ -63,7 +63,7 @@ package body Conversion is
 
    function To_String
      (Data : in Stream_Element_Array)
-     return String
+      return String
    is
       Result : String (Integer (Data'First) .. Integer (Data'Last));
    begin
