@@ -485,7 +485,7 @@ package body AWS.Response is
    function Stream
      (Content_Type  : in String;
       Stream_Handle : in Resources.Streams.Stream_Access;
-      Stream_Size   : in Content_Length_Type;
+      Stream_Size   : in Content_Length_Type   := Undefined_Length;
       Status_Code   : in Messages.Status_Code  := Messages.S200;
       Cache_Control : in Messages.Cache_Option := Messages.No_Cache)
       return Data
