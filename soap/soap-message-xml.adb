@@ -127,6 +127,10 @@ package body SOAP.Message.XML is
       S : in State)
       return Types.Object'Class;
 
+   function Parse_Enumeration
+     (N : in DOM.Core.Node)
+      return Types.Object'Class;
+
    procedure Error (Node : in DOM.Core.Node; Message : in String);
    pragma No_Return (Error);
    --  Raises SOAP_Error with the Message as exception message.
@@ -426,6 +430,23 @@ package body SOAP.Message.XML is
       return Types.D (Long_Long_Float'Value (Node_Value (Value)), Name);
    end Parse_Double;
 
+   -----------------------
+   -- Parse_Enumeration --
+   -----------------------
+
+   function Parse_Enumeration
+     (N : in DOM.Core.Node)
+      return Types.Object'Class
+   is
+      Name  : constant String := Local_Name (N);
+      Ref   : constant DOM.Core.Node := SOAP.XML.Get_Ref (N);
+   begin
+      return Types.E
+        (Node_Value (First_Child (Ref)),
+         Utils.No_NS (SOAP.XML.Get_Attr_Value (N, "type")),
+         Name);
+   end Parse_Enumeration;
+
    --------------------
    -- Parse_Envelope --
    --------------------
@@ -497,6 +518,7 @@ package body SOAP.Message.XML is
       end Is_Array;
 
       XSI_Type : constant DOM.Core.Node := Get_Named_Item (Atts, "xsi:type");
+      S_Type   : constant DOM.Core.Node := Get_Named_Item (Atts, "type");
 
    begin
       if To_String (S.Wrapper_Name) = "Fault" then
@@ -506,9 +528,18 @@ package body SOAP.Message.XML is
          if XSI_Type = null and then S.A_State in Void .. A_Undefined then
             --  No xsi:type attribute found
 
-            if First_Child (N) /= null
+            if S_Type /= null
               and then First_Child (N).Node_Type = DOM.Core.Text_Node
             then
+               --  Not xsi:type but a type information, the child being a text
+               --  node, this is an enumeration.
+
+               return Parse_Enumeration (N);
+
+            elsif First_Child (N) /= null
+              and then First_Child (N).Node_Type = DOM.Core.Text_Node
+            then
+               --  No xsi:type and no type information.
                --  Children are some kind of text data, so this is a data node
                --  with no type information. Note that this code is to
                --  workaround an interoperability problem with Microsoft SOAP
@@ -532,6 +563,7 @@ package body SOAP.Message.XML is
                --  This is a SOAP record, we have no attribute and no
                --  type defined. We have a single tag "<name>" which can
                --  only be the start or a record.
+
                return Parse_Record (N, S);
             end if;
 
@@ -640,8 +672,11 @@ package body SOAP.Message.XML is
         and then First_Child (Field).Node_Type = DOM.Core.Text_Node
       then
          --  This is not a record after all, it is an enumeration with an href
-         --  A record can't have a text child node..
-         return Types.S (Node_Value (First_Child (Field)), Name);
+         --  A record can't have a text child node.
+         return Types.E
+           (Node_Value (First_Child (Field)),
+            Utils.No_NS (SOAP.XML.Get_Attr_Value (Field, "xsi:type")),
+            Name);
 
       else
          Field := First_Child (Field);
