@@ -1,3 +1,12 @@
+2004-10-16  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-ssl.ads:
+	(Connect): Rewrite comment.
+        (Do_Handshake): Idem.
+
+	* aws-net.ads, aws-net-std.ads:
+	(Connect): Rewrite comment.
+
 2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net.ads, aws-net-std.ads, aws-net-ssl.ads:
