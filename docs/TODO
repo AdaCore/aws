@@ -157,6 +157,8 @@ implemented:
 
 - Add WSDL support for SOAP messages with attachments.
 
+
+
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply-all support to the Web_Mail service.
@@ -186,3 +188,6 @@ implemented:
      socket hidden in the AWS.Status.Data. We would not need intermediate data
      file with distorted name and would reach upload authentication before
      real upload.
+
+- Remove the build based on makefile rules and only support GNAT Project files.
+  Having both to support is a pain.
