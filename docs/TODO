@@ -65,7 +65,7 @@ implemented:
 - Add support for more XML Schema types
   See "C Datatypes and Facets" in XML Schema Part 2 Datatypes.
 
-  byte, unsignedByte, short, unsignedShort, unsignedInt, long,
+  byte, unsignedByte, short, unsignedShort, unsignedInt,
   unsignedLong, date, time, xsd:hexBinary, decimal
 
   decimal is certainly a bit difficult to support, we need an arbitrary
