@@ -3411,6 +3411,9 @@ package body Templates_Parser is
 
       Empty_Block_State : constant Block_State := (1, null);
 
+      type Parse_State;
+      type Parse_State_Access is access constant Parse_State;
+
       type Parse_State is record
          Cursor         : Indices (1 .. 10);
          Max_Lines      : Natural;
@@ -3421,11 +3424,13 @@ package body Templates_Parser is
          I_Params       : Include_Parameters;
          F_Params       : Filter.Include_Parameters;
          Block          : Block_State;
+         Parent         : Parse_State_Access;
       end record;
 
       Empty_State : constant Parse_State
         := ((1 .. 10 => 0), 0, 0, False, 0, 0,
-            No_Parameter, Filter.No_Include_Parameters, Empty_Block_State);
+            No_Parameter, Filter.No_Include_Parameters,
+            Empty_Block_State, null);
 
       Results : Unbounded_String := Null_Unbounded_String;
 
@@ -3480,11 +3485,13 @@ package body Templates_Parser is
          --  Return True if Str is one of "TRUE", "OUI", the case beeing not
          --  case sensitive.
 
-         function Translate (Var : in Tag_Var) return String;
+         function Translate
+           (Var : in Tag_Var; State : in Parse_State) return String;
          --  Translate Tag variable using Translation table and apply all
          --  Filters and Atribute recorded for this variable.
 
-         function I_Translate (Var : in Tag_Var) return String;
+         function I_Translate
+           (Var : in Tag_Var; State : in Parse_State) return String;
          --  As above but for an include variable
 
          procedure Flush;
@@ -3497,6 +3504,8 @@ package body Templates_Parser is
          --  Returns a flat representation of the include parameters, only the
          --  name or the value are kept. The tree are replaced by an empty
          --  value.
+
+         L_State : aliased constant Parse_State := State;
 
          ------------------------
          -- Flatten_Parameter  --
@@ -3517,7 +3526,8 @@ package body Templates_Parser is
                      when Data.Text =>
                         F (K) := I (K).Value;
                      when Data.Var  =>
-                        F (K) := To_Unbounded_String (Translate (I (K).Var));
+                        F (K) := To_Unbounded_String
+                                  (Translate (I (K).Var, State));
                   end case;
                end if;
             end loop;
@@ -3528,7 +3538,10 @@ package body Templates_Parser is
          -- I_Translate --
          -----------------
 
-         function I_Translate (Var : in Tag_Var) return String is
+         function I_Translate
+           (Var   : in Tag_Var;
+            State : in Parse_State) return String
+         is
             use type Data.Tree;
             use type Data.NKind;
          begin
@@ -3549,15 +3562,32 @@ package body Templates_Parser is
                      declare
                         V : Tag_Var := T.Var;
                      begin
-                        --  First thing we want to do is to inherit attributes
-                        --  from the include variable if we have no attribute.
+                        if V.N = -1 then
+                           --  First thing we want to do is to inherit
+                           --  attributes from the include variable if we
+                           --  have no attribute.
 
-                        if V.Attribute.Attr = Nil then
-                           V.Attribute := Var.Attribute;
+                           if V.Attribute.Attr = Nil then
+                              V.Attribute := Var.Attribute;
+                           end if;
+
+                           --  Note that below we pass the parent state. This
+                           --  is required as if the variable is an alias to
+                           --  to an include parameter we need to get the
+                           --  value for this variable in parent state. If the
+                           --  variable is a standard one (from a translate
+                           --  table) the state will not be used.
+
+                           return Translate
+                             (Var, Translate (V, State.Parent.all),
+                              Translations, State.F_Params);
+
+                        else
+                           --  This variable reference a parent include
+                           --  variable.
+
+                           return I_Translate (V, State.Parent.all);
                         end if;
-
-                        return Translate
-                          (Var, Translate (V), Translations, State.F_Params);
                      end;
 
 
@@ -3592,7 +3622,9 @@ package body Templates_Parser is
          -- Translate --
          ---------------
 
-         function Translate (Var : in Tag_Var) return String is
+         function Translate
+           (Var : in Tag_Var; State : in Parse_State) return String
+         is
             use type Data.Tree;
             D_Pos    : Definitions.Def_Map.Containers.Cursor;
             Pos      : Containers.Cursor;
@@ -3616,7 +3648,7 @@ package body Templates_Parser is
 
                      when Definitions.Ref =>
                         V.N := N.Ref;
-                        return I_Translate (V);
+                        return I_Translate (V, State);
 
                      when Definitions.Ref_Default =>
                         if N.Ref > Max_Include_Parameters
@@ -3629,7 +3661,7 @@ package body Templates_Parser is
                               Translations, State.F_Params);
                         else
                            V.N := N.Ref;
-                           return I_Translate (V);
+                           return I_Translate (V, State);
                         end if;
                   end case;
                end;
@@ -3884,9 +3916,9 @@ package body Templates_Parser is
 
                   when Data.Var =>
                      if Is_Include_Variable (T.Var) then
-                        Add (I_Translate (T.Var));
+                        Add (I_Translate (T.Var, State));
                      else
-                        Add (Translate (T.Var));
+                        Add (Translate (T.Var, State));
                      end if;
                end case;
 
@@ -4096,9 +4128,9 @@ package body Templates_Parser is
 
                when Expr.Var =>
                   if Is_Include_Variable (E.Var) then
-                     return I_Translate (E.Var);
+                     return I_Translate (E.Var, State);
                   else
-                     return Translate (E.Var);
+                     return Translate (E.Var, State);
                   end if;
 
                when Expr.Op =>
@@ -4449,7 +4481,8 @@ package body Templates_Parser is
                                         T.Blocks_Count,
                                         State.I_Params,
                                         State.F_Params,
-                                        Empty_Block_State));
+                                        Empty_Block_State,
+                                        L_State'Unchecked_Access));
                end;
 
                Analyze (T.Next, State);
@@ -4495,7 +4528,8 @@ package body Templates_Parser is
                                            State.Blocks_Count,
                                            State.I_Params,
                                            State.F_Params,
-                                           Empty_Block_State));
+                                           Empty_Block_State,
+                                           L_State'Unchecked_Access));
 
                            Analyze
                              (Block.Sections,
@@ -4506,7 +4540,8 @@ package body Templates_Parser is
                                            State.Blocks_Count,
                                            State.I_Params,
                                            State.F_Params,
-                                           B_State (B)));
+                                           B_State (B),
+                                           L_State'Unchecked_Access));
                            Block := Block.Next;
                            B := B + 1;
                         end loop;
@@ -4524,7 +4559,8 @@ package body Templates_Parser is
                                State.Blocks_Count,
                                State.I_Params,
                                State.F_Params,
-                               State.Block));
+                               State.Block,
+                               L_State'Unchecked_Access));
 
             when Include_Stmt =>
                Analyze (T.File.Info,
@@ -4534,7 +4570,8 @@ package body Templates_Parser is
                                      State.Table_Level, State.Blocks_Count,
                                      T.I_Params,
                                      Flatten_Parameters (T.I_Params),
-                                     State.Block));
+                                     State.Block,
+                                     L_State'Unchecked_Access));
                Analyze (T.Next, State);
          end case;
       end Analyze;
