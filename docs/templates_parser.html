@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 20 September 2004
+<p>Date: 3 November 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -360,6 +360,11 @@ discrete tag variable whose value is a number.
 is not a number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
 
+<br><dt><code>ABS</code>
+<dd>
+
+<p>Returns the absoute value.
+
 <br><dt><code>ADD_PARAM(<i>NAME[=VALUE]</i>)</code>
 <dd>
 
@@ -539,6 +544,11 @@ found in <code>gawk</code>, <code>sed</code> or <code>grep</code> tools.
 <p>Returns variable modulo N. If the current variable value is not a
 number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
+
+<br><dt><code>NEG</code>
+<dd>
+
+<p>Change the sign of the value.
 
 <br><dt><code>NO_CONTEXT</code>
 <dd>
@@ -1957,6 +1967,14 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
       Variable : <b>in</b> String) <b>return</b> Boolean;
    -- <i> Returns True if an association for Variable exists into the Set</i>
 
+   generic
+      <b>with</b> <b>procedure</b> Action
+        (Item : <b>in</b>     Association;
+         Quit : <b>in</b> <b>out</b> Boolean);
+   <b>procedure</b> For_Every_Association (Set : <b>in</b> Translate_Set);
+   -- <i> Iterates through all associations in the set, call Action for each one.</i>
+   -- <i> Set Quite to True to stop the iteration.</i>
+
    <b>function</b> To_Set (Table : <b>in</b> Translate_Table) <b>return</b> Translate_Set;
    -- <i> Convert a Translate_Table into a Translate_Set</i>
 
@@ -2299,6 +2317,7 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <li>Filter, "+": <a href="#Filters">Filters</a>
 <li>Filter, "-": <a href="#Filters">Filters</a>
 <li>Filter, "/": <a href="#Filters">Filters</a>
+<li>Filter, ABS: <a href="#Filters">Filters</a>
 <li>Filter, ADD_PARAM: <a href="#Filters">Filters</a>
 <li>Filter, BR_2_LF: <a href="#Filters">Filters</a>
 <li>Filter, CAPITALIZE: <a href="#Filters">Filters</a>
@@ -2314,6 +2333,7 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <li>Filter, LOWER: <a href="#Filters">Filters</a>
 <li>Filter, MATCH: <a href="#Filters">Filters</a>
 <li>Filter, MOD: <a href="#Filters">Filters</a>
+<li>Filter, NEG: <a href="#Filters">Filters</a>
 <li>Filter, NO_CONTEXT: <a href="#Filters">Filters</a>
 <li>Filter, NO_DIGIT: <a href="#Filters">Filters</a>
 <li>Filter, NO_LETTER: <a href="#Filters">Filters</a>
