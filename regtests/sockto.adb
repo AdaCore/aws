@@ -27,6 +27,7 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
+
 --  $Id$
 
 --  Regression test of the socket timeout.
@@ -37,17 +38,20 @@ with Ada.Text_IO;
 with Ada.Exceptions;
 
 procedure SockTO is
+
    use AWS;
    use Ada;
    use Streams;
 
-   Port     : constant         := 8802;
+   Port     : constant         := 1275;
    Security : constant Boolean := False;
 
    D1   : constant Duration := 1.0;
    D2   : constant Duration := D1 * 1.5;
 
-   task Client_Side;
+   task Client_Side is
+      entry Start;
+   end Client_Side;
 
    function Data (Length : Stream_Element_Count) return Stream_Element_Array;
    pragma Inline (Data);
@@ -64,6 +68,8 @@ procedure SockTO is
    task body Client_Side is
       Client : Net.Socket_Type'Class := Net.Socket (Security);
    begin
+      accept Start;
+
       Net.Connect (Client, "localhost", Port);
 
       for J in 1 .. 5 loop
@@ -147,6 +153,8 @@ begin
    Net.Bind (Server, Port);
    Net.Listen (Server);
 
+   Client_Side.Start;
+
    Net.Set_Timeout (Server, 3.0);
 
    Net.Accept_Socket (Server, Peer);
@@ -163,10 +171,11 @@ begin
 
    Net.Shutdown (Server);
    Net.Shutdown (Peer);
+
 exception
    when E : others =>
       Text_IO.Put_Line
-         ("Server side " & Exceptions.Exception_Message (E));
+        ("Server side " & Exceptions.Exception_Message (E));
       Net.Shutdown (Server);
       Net.Shutdown (Peer);
 end SockTO;
