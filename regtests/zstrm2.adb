@@ -57,4 +57,6 @@ begin
    Run (Messages.Identity);
    Run (Messages.Deflate);
    Run (Messages.Gzip);
+
+   Ada.Text_IO.Put_Line ("Done.");
 end Zstrm2;

@@ -1,3 +1,8 @@
+2003-12-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* dummy.adb, dummy.out, zstrm2.adb, zstrm2.out:
+	Add dummy output.
+
 2003-12-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* eres.adb, eres.out, makefile:
