@@ -1,5 +1,9 @@
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(ALL_EXEC): New variable.
+	(clean): Use it to remove the executable. Use rm -f to avoid warnings.
+
 	* tres2.adb:
 	Fix cut&past error.
 

@@ -1,3 +1,8 @@
+2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Use rm -f to avoid warnings.
+
 2003-01-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-std-gnat.adb:
