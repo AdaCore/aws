@@ -28,17 +28,16 @@
 
 --  $Id$
 
-with Ada.Calendar;
-with Ada.Characters.Handling;
 with Ada.Exceptions;
+with Ada.Characters.Handling;
+with Ada.Calendar;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
-with AWS.OS_Lib;
-
 with GNAT.Calendar.Time_IO;
+with AWS.OS_Lib;
 with GNAT.Regpat;
 
 with Templates_Parser.Input;
@@ -235,6 +234,12 @@ package body Templates_Parser is
 
          Mult,
          --  Multiply the given parameter to the string
+
+         No_Context,
+         --  This is a command filter, it indicates that the variable even
+         --  if not found in the translation table will not be looked up into
+         --  the context. See spec for a description about Context feature.
+         --  This filter just returns the string as-is.
 
          No_Digit,
          --  Replace all digits by spaces.
@@ -449,6 +454,12 @@ package body Templates_Parser is
          T : in Translate_Set  := Null_Set)
          return String;
 
+      function No_Context
+        (S : in String;
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
+         return String;
+
       function No_Digit
         (S : in String;
          P : in Parameter_Data := No_Parameter;
@@ -582,17 +593,20 @@ package body Templates_Parser is
          return String;
 
       function Handle (Name : in String) return Callback;
-      --  Returns the filter function for the given filter name.
+      --  Returns the filter function for the given filter name
 
       function Handle (Mode : in Filter.Mode) return Callback;
-      --  Returns the filter function for the given filter mode.
+      --  Returns the filter function for the given filter mode
 
       function Mode_Value (Name : in String) return Mode;
       --  Returns the Mode for filter named Name. This is the internal
       --  representation for this filter name.
 
       function Name (Handle : in Callback) return String;
-      --  Returns the filter name for the given filter function.
+      --  Returns the filter name for the given filter function
+
+      function Is_No_Context (Filters : in Set_Access) return Boolean;
+      --  Returns True if Filters contains NO_CONTEXT
 
    end Filter;
 
@@ -745,6 +759,8 @@ package body Templates_Parser is
       --------------------
 
       function Get_Filter_Set (Tag : in String) return Filter.Set_Access is
+
+         use type Filter.Callback;
 
          Start : Natural;
          Stop  : Natural := Tag'Last;
@@ -932,6 +948,17 @@ package body Templates_Parser is
                  (Tag (Tag'First + Length (Begin_Tag) .. Stop - 1));
             else
                FS (K) := Name_Parameter (Tag (Start + 1 .. Stop - 1));
+            end if;
+
+            --  Specific check for the NO_CONTEXT filter which must appear
+            --  first.
+
+            if FS (K).Handle = Filter.No_Context'Access
+              and then K /= FS'First
+            then
+               Exceptions.Raise_Exception
+                 (Template_Error'Identity,
+                  "NO_CONTEXT must be the first filter");
             end if;
 
             K := K + 1;
@@ -2880,10 +2907,97 @@ package body Templates_Parser is
                Found  : Boolean;
                Result : Unbounded_String;
             begin
+               --  Check now for an internal tag
+
+               if T_Name = "UP_TABLE_LINE" then
+                  if State.Table_Level < 2 then
+                     return Translate (Var, "0", Translations);
+                  else
+                     return Translate
+                       (Var,
+                        Image (State.Cursor (State.Table_Level - 1)),
+                        Translations);
+                  end if;
+
+               elsif T_Name = "TABLE_LINE" then
+                  if State.Table_Level = 0 then
+                     return Translate (Var, "0", Translations);
+                  else
+                     return Translate
+                       (Var,
+                        Image (State.Cursor (State.Table_Level)),
+                        Translations);
+                  end if;
+
+               elsif T_Name = "NUMBER_LINE" then
+                  return Translate
+                    (Var, Image (State.Max_Lines), Translations);
+
+               elsif T_Name = "TABLE_LEVEL" then
+                  return Translate
+                    (Var, Image (State.Table_Level), Translations);
+
+               elsif T_Name = "NOW" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d %H:%M:%S"),
+                     Translations);
+
+               elsif T_Name = "YEAR" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%Y"),
+                     Translations);
+
+               elsif T_Name = "MONTH" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%m"),
+                     Translations);
+
+               elsif T_Name = "DAY" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%d"),
+                     Translations);
+
+               elsif T_Name = "HOUR" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%H"),
+                     Translations);
+
+               elsif T_Name = "MINUTE" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%M"),
+                     Translations);
+
+               elsif T_Name = "SECOND" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%S"),
+                     Translations);
+
+               elsif T_Name = "MONTH_NAME" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%B"),
+                     Translations);
+
+               elsif T_Name = "DAY_NAME" then
+                  return Translate
+                    (Var,
+                     GNAT.Calendar.Time_IO.Image (Now, "%A"),
+                     Translations);
+               end if;
+
                --  Check now if the variable is known in the current user's
                --  context.
 
-               if Context = Null_Context then
+               if Context = Null_Context
+                 or else Filter.Is_No_Context (Var.Filters)
+               then
                   Found := False;
                else
                   Callback (Context, T_Name, Result, Found);
@@ -2891,92 +3005,6 @@ package body Templates_Parser is
 
                if Found then
                   return Translate (Var, To_String (Result), Translations);
-
-               else
-                  --  Check now for an internal tag
-
-                  if T_Name = "UP_TABLE_LINE" then
-                     if State.Table_Level < 2 then
-                        return Translate (Var, "0", Translations);
-                     else
-                        return Translate
-                          (Var,
-                           Image (State.Cursor (State.Table_Level - 1)),
-                           Translations);
-                     end if;
-
-                  elsif T_Name = "TABLE_LINE" then
-                     if State.Table_Level = 0 then
-                        return Translate (Var, "0", Translations);
-                     else
-                        return Translate
-                          (Var,
-                           Image (State.Cursor (State.Table_Level)),
-                           Translations);
-                     end if;
-
-                  elsif T_Name = "NUMBER_LINE" then
-                     return Translate
-                       (Var, Image (State.Max_Lines), Translations);
-
-                  elsif T_Name = "TABLE_LEVEL" then
-                     return Translate
-                       (Var, Image (State.Table_Level), Translations);
-
-                  elsif T_Name = "NOW" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d %H:%M:%S"),
-                        Translations);
-
-                  elsif T_Name = "YEAR" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%Y"),
-                        Translations);
-
-                  elsif T_Name = "MONTH" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%m"),
-                        Translations);
-
-                  elsif T_Name = "DAY" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%d"),
-                        Translations);
-
-                  elsif T_Name = "HOUR" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%H"),
-                        Translations);
-
-                  elsif T_Name = "MINUTE" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%M"),
-                        Translations);
-
-                  elsif T_Name = "SECOND" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%S"),
-                        Translations);
-
-                  elsif T_Name = "MONTH_NAME" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%B"),
-                        Translations);
-
-                  elsif T_Name = "DAY_NAME" then
-                     return Translate
-                       (Var,
-                        GNAT.Calendar.Time_IO.Image (Now, "%A"),
-                        Translations);
-                  end if;
                end if;
             end;
 

@@ -57,6 +57,7 @@ package body Filter is
    Match_Token         : aliased constant String := "MATCH";
    Modulo_Token        : aliased constant String := "MOD";
    Mult_Token          : aliased constant String := "MULT";
+   No_Context_Token    : aliased constant String := "NO_CONTEXT";
    No_Digit_Token      : aliased constant String := "NO_DIGIT";
    No_Letter_Token     : aliased constant String := "NO_LETTER";
    No_Space_Token      : aliased constant String := "NO_SPACE";
@@ -144,6 +145,9 @@ package body Filter is
 
          Mult           =>
            (Mult_Token'Access,           Multiply'Access),
+
+         No_Context       =>
+           (No_Context_Token'Access,       No_Context'Access),
 
          No_Digit       =>
            (No_Digit_Token'Access,       No_Digit'Access),
@@ -312,11 +316,15 @@ package body Filter is
                   F := Mode'Succ (F);
                end if;
 
+               exit when Table (F).Name.all > Name;
+
             else
                L := K;
                if L /= Mode'First then
                   L := Mode'Pred (L);
                end if;
+
+               exit when Table (L).Name.all < Name;
             end if;
          end if;
       end loop;
@@ -788,6 +796,16 @@ package body Filter is
       end if;
    end Is_Empty;
 
+   -------------------
+   -- Is_No_Context --
+   -------------------
+
+   function Is_No_Context (Filters : in Set_Access) return Boolean is
+   begin
+      return Filters /= null
+        and then Filters (Filters'First).Handle = No_Context'Access;
+   end Is_No_Context;
+
    -------------
    -- LF_2_BR --
    -------------
@@ -872,6 +890,22 @@ package body Filter is
          return "TRUE";
       end if;
    end Match;
+
+   ----------------
+   -- No_Context --
+   ----------------
+
+   function No_Context
+     (S : in String;
+      P : in Parameter_Data := No_Parameter;
+      T : in Translate_Set  := Null_Set)
+      return String
+   is
+      pragma Unreferenced (T);
+   begin
+      Check_Null_Parameter (P);
+      return S;
+   end No_Context;
 
    --------------
    -- No_Digit --
