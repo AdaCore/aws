@@ -40,7 +40,7 @@ package AWS.Containers.Tables is
 
    type Table_Type is tagged private;
 
-   type Name_Value_Type (Name_Length, Value_Length : Natural) is record
+   type Element (Name_Length, Value_Length : Natural) is record
       Name  : String (1 .. Name_Length);
       Value : String (1 .. Value_Length);
    end record;
@@ -84,10 +84,10 @@ package AWS.Containers.Tables is
    --  Returns the Nth Value in Table or the empty string if there is
    --  no parameter with this number.
 
-   function Get_Name_Value
+   function Get
      (Table : in Table_Type;
       N     : in Positive)
-      return Name_Value_Type;
+      return Element;
    --  Return N'th name/value pair.
 
    function Get_Names (Table : in Table_Type) return VString_Array;
@@ -103,7 +103,7 @@ private
    --  A Table_Type must be initialized by calling
    --  AWS.Containers.Tables.Set.Reset, Server is responsible for doing that.
 
-   type Name_Value_Access is access all Name_Value_Type;
+   type Element_Access is access all Element;
    --  Data type for keep the name/value pair in the
    --  GNAT.Dynamic_Tables.Table_Type.
    --  We could not use Unbounded_String becouse GNAT.Dynamic_Tables
@@ -121,7 +121,7 @@ private
    subtype Name_Index_Table is Name_Indexes.Instance;
 
    package Data_Table is new GNAT.Dynamic_Tables
-     (Table_Component_Type => Name_Value_Access,
+     (Table_Component_Type => Element_Access,
       Table_Index_Type     => Natural,
       Table_Low_Bound      => 1,
       Table_Initial        => 8,

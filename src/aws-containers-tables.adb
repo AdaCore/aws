@@ -115,6 +115,25 @@ package body AWS.Containers.Tables is
       return Internal_Get (Table, Name, N);
    end Get;
 
+   function Get
+     (Table : in Table_Type;
+      N     : in Positive)
+      return Element
+   is
+   begin
+      pragma Assert (Table.Index /= null);
+
+      if N <= Data_Table.Last (Table.Data) then
+         return Table.Data.Table (N).all;
+      else
+         return
+           (Name_Length  => 0,
+            Value_Length => 0,
+            Name         => "",
+            Value        => "");
+      end if;
+   end Get;
+
    --------------
    -- Get_Name --
    --------------
@@ -131,29 +150,6 @@ package body AWS.Containers.Tables is
          return "";
       end if;
    end Get_Name;
-
-   --------------------
-   -- Get_Name_Value --
-   --------------------
-
-   function Get_Name_Value
-     (Table : in Table_Type;
-      N     : in Positive)
-      return Name_Value_Type
-   is
-   begin
-      pragma Assert (Table.Index /= null);
-
-      if N <= Data_Table.Last (Table.Data) then
-         return Table.Data.Table (N).all;
-      else
-         return
-           (Name_Length  => 0,
-            Value_Length => 0,
-            Name         => "",
-            Value        => "");
-      end if;
-   end Get_Name_Value;
 
    ---------------
    -- Get_Names --
