@@ -1,3 +1,11 @@
+2004-12-21 Emmanuel Briot <briot@adacore.com>
+
+        * notebook/notebook.thtml:
+        Add support for preserving the current tab when the page is reloaded
+
+        * notebook/cookies.js:
+        Initial revision
+
 2004-12-18  Pascal Obry  <pascal@obry.org>
 
 	* menu_css/menu.tcss, rounded_boxes/rounded_boxes.tcss:
