@@ -92,8 +92,15 @@ package body SOAP.Client is
            := Call (Connection, SOAP_Action, P);
       begin
          AWS.Client.Close (Connection);
+
          return Result;
       end;
+
+   exception
+      when others =>
+         AWS.Client.Close (Connection);
+
+         raise;
    end Call;
 
    ----------
