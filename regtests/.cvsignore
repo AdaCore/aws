@@ -33,6 +33,8 @@ b~sock1.adb
 b~sock1.ads
 b~strm.adb
 b~strm.ads
+b~strm2.adb
+b~strm2.ads
 b~tclientto.adb
 b~tclientto.ads
 b~test_sec_soap.adb
@@ -47,6 +49,8 @@ b~testxml.adb
 b~testxml.ads
 b~tgetparam.adb
 b~tgetparam.ads
+b~tlog.adb
+b~tlog.ads
 b~tres.adb
 b~tres.ads
 b~tres2.adb
@@ -91,6 +95,7 @@ soap2.res
 soap3.res
 sock1.res
 strm.res
+strm2.res
 tclientto.res
 test_sec_soap.res
 test_soap.res
