@@ -33,7 +33,9 @@
 --  Usage: agent [options] [GET/PUT] <URL>
 --         -f                      force display of message body.
 --         -k                      keep-alive connection.
+--         -s                      server-push mode.
 --         -n                      non stop for stress test.
+--         -d                      debug mode, view HTTP headers.
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
@@ -76,6 +78,7 @@ procedure Agent is
    Proxy_Pwd  : Unbounded_String;
    Force      : Boolean := False;
    Keep_Alive : Boolean := False;
+   Server_Push : Boolean := False;
    Wait_Key   : Boolean := True;
    Connect    : AWS.Client.HTTP_Connection;
 
@@ -86,7 +89,7 @@ procedure Agent is
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f d u: p: pu: pp: proxy: k n") is
+         case GNAT.Command_Line.Getopt ("f d u: p: pu: pp: proxy: k n s") is
 
             when ASCII.NUL =>
                exit;
@@ -102,6 +105,9 @@ procedure Agent is
 
             when 'k' =>
                Keep_Alive := True;
+
+            when 's' =>
+               Server_Push := True;
 
             when 'u' =>
                User := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -140,6 +146,7 @@ begin
       Text_IO.Put_Line ("Usage: agent [options] [GET/PUT] <URL>");
       Text_IO.Put_Line ("       -f           force display of message body.");
       Text_IO.Put_Line ("       -k           keep-alive connection.");
+      Text_IO.Put_Line ("       -s           server-push mode.");
       Text_IO.Put_Line ("       -n           non stop for stress test.");
       Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
@@ -160,13 +167,16 @@ begin
       Proxy      => To_String (Proxy),
       Proxy_User => To_String (Proxy_User),
       Proxy_Pwd  => To_String (Proxy_Pwd),
-      Persistent => Keep_Alive);
+      Persistent => Keep_Alive,
+      Server_Push => Server_Push);
 
    loop
 
       if Method = Status.GET then
          Client.Get (Connect, Data);
+
       else
+         --  ??? PUT just send a simple piece of Data.
          Client.Put (Connection => Connect,
                      Result => Data,
                      Data   => "Un essai");
@@ -212,6 +222,18 @@ begin
             end;
 
          end if;
+      end if;
+
+      if Server_Push then
+         loop
+            declare
+               Line : constant String
+                 := Client.Read_Until (Connect, "" & ASCII.LF);
+            begin
+               exit when Line = "";
+               Text_IO.Put (Line);
+            end;
+         end loop;
       end if;
 
       if Keep_Alive then
