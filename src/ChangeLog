@@ -1,3 +1,12 @@
+2002-03-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-dispatchers-uri.ads:
+	(Dispatch): Add documentation (204 message).
+
+	* aws-services-dispatchers-uri.adb:
+	(Dispatch): Continue to next callback if a 204 message is returned
+	 by a callback.
+
 2002-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-url.adb:
