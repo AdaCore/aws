@@ -46,7 +46,6 @@ package body AWS.Server is
    use Ada;
 
    Security_Initialized : Boolean := False;
-   pragma Atomic (Security_Initialized);
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
