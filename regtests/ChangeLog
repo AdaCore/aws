@@ -1,5 +1,19 @@
 2004-11-27  Pascal Obry  <pascal@obry.org>
 
+	* wsdl_6_main.adb:
+	Add test for short and long integers.
+	Activate the Net.Log, it helps to debug SOAP messages sent via the
+	 wsdl_6.java client.
+
+	* wsdl_6.ads, wsdl_6.adb:
+	(Echo_Short): New routine.
+	(Echo_Long): Idem.
+
+	* wsdl_a.out, wsdl_6_main.out, register.out:
+	Update output.
+	
+2004-11-27  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	($(WSDL2AWS_TESTS)): Do not fail even if we have an error when
 	 calling $(WSDL2AWS) as this is expected for those tests. Do not
