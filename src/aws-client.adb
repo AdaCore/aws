@@ -1090,45 +1090,54 @@ package body AWS.Client is
       if Connection.Proxy = No_Data
         or else AWS.URL.Security (Connection.Host_URL)
       then
-         --  Without proxy or over proxy tunneling
+         --  Without proxy or over proxy tunneling.
+         --  In both cases we want to send the pathname only, we are not
+         --  required to send the absolute path.
 
-         if URI = "" then
+         declare
+            URL : AWS.URL.Object;
+         begin
+            if URI = "" then
+               URL := Connection.Host_URL;
+
+            else
+               --  URI should already be encoded, but to help a bit Windows
+               --  systems who tend to have spaces into URL we encode them
+               --  here.
+
+               declare
+                  E_URI : String := URI;
+               begin
+                  for K in E_URI'Range loop
+                     if E_URI (K) = ' ' then
+                        E_URI (K) := '+';
+                     end if;
+                  end loop;
+
+                  URL := AWS.URL.Parse (E_URI);
+               end;
+            end if;
+
             Send_Header
               (Sock.all,
-               Method & ' '
-                 & AWS.URL.Pathname_And_Parameters (Connection.Host_URL, False)
-                 & ' ' & HTTP_Version);
-         else
-            --  URI should already be encoded, but to help a bit Windows
-            --  systems who tend to have spaces into URL we encode them here.
-
-            declare
-               E_URI : String := URI;
-            begin
-               for K in E_URI'Range loop
-                  if E_URI (K) = ' ' then
-                     E_URI (K) := '+';
-                  end if;
-               end loop;
-
-               Send_Header
-                 (Sock.all, Method & ' ' & E_URI & ' ' & HTTP_Version);
-            end;
-         end if;
+               Method & ' ' & AWS.URL.Pathname_And_Parameters (URL, False)
+               & ' ' & HTTP_Version);
+         end;
 
          Send_Header (Sock.all, Messages.Connection (Persistence));
 
       else
-         --  We have a proxy configured
-         --- ?????
+         --  We have a proxy configured, in thoses case we want to send the
+         --  absolute path and parameters.
 
          if URI = "" then
             Send_Header
               (Sock.all,
                Method & ' '
-               & To_String (Connection.Host) & ' ' & HTTP_Version);
+               & AWS.URL.URL (Connection.Host_URL) & ' ' & HTTP_Version);
 
          else
+            --  Send GET http://<host>[:port]/URI HTTP/1.1
             Send_Header
               (Sock.all,
                Method & ' '
