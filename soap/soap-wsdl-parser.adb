@@ -429,8 +429,6 @@ package body SOAP.WSDL.Parser is
       Document : in WSDL.Object)
       return Parameters.Parameter
    is
-      pragma Unreferenced (Document);
-
       P : Parameters.Parameter (Parameters.K_Composite);
    begin
       Trace ("(Parse_Array)", R);
@@ -440,7 +438,8 @@ package body SOAP.WSDL.Parser is
          and then DOM.Core.Nodes.Node_Name (R) = "complexType");
 
       declare
-         Name : constant String := Get_Attr_Value (R, "name", False);
+         Name   : constant String := Get_Attr_Value (R, "name", False);
+         T_Name : constant String := Utils.Array_Type (Name);
       begin
          --  Set array name, R is a complexType node
 
@@ -451,6 +450,19 @@ package body SOAP.WSDL.Parser is
 
          P.Name   := O.Current_Name;
          P.C_Name := +Name;
+
+         if not WSDL.Is_Standard (T_Name) then
+            --  This is not a standard type, parse it
+            declare
+               N : constant DOM.Core.Node
+                 := Get_Node (DOM.Core.Node (Document),
+                              "definitions.types.schema.complexType", T_Name);
+            begin
+               --  ??? Right now pretent that it is a record, there is
+               --  certainly some cases not covered here.
+               Parameters.Append (P.P, Parse_Record (O, N, Document));
+            end;
+         end if;
 
          return P;
       end;
@@ -694,7 +706,7 @@ package body SOAP.WSDL.Parser is
             if R = null then
                Raise_Exception
                  (WSDL_Error'Identity,
-                  "types.schema.complexType for !!" & P_Type & " not found.");
+                  "types.schema.complexType for " & P_Type & " not found.");
             end if;
 
             if Utils.Is_Array (P_Type) then
@@ -748,6 +760,9 @@ package body SOAP.WSDL.Parser is
 
          elsif T = Types.XML_Float then
             Add_Parameter (O, -O.Current_Name, P_Float);
+
+         elsif T = Types.XML_Double then
+            Add_Parameter (O, -O.Current_Name, P_Double);
 
          elsif T = Types.XML_String then
             Add_Parameter (O, -O.Current_Name, P_String);
