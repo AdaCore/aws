@@ -170,11 +170,24 @@ package body AWS.Server is
       begin
          Set (Index).Phase_Time_Stamp := Ada.Calendar.Clock;
          Set (Index).Phase := Phase;
+
+         if Phase in Data_Phase then
+            Mark_Data_Time_Stamp (Index);
+         end if;
       end Mark_Phase;
 
-      ---------------
-      -- Abortable --
-      ---------------
+      --------------------------
+      -- Mark_Data_Time_Stamp --
+      --------------------------
+
+      procedure Mark_Data_Time_Stamp (Index : in Positive) is
+      begin
+         Set (Index).Data_Time_Stamp := Ada.Calendar.Clock;
+      end Mark_Data_Time_Stamp;
+
+      ------------------
+      -- Is_Abortable --
+      ------------------
 
       function Is_Abortable
         (Index : in Positive;
@@ -186,9 +199,15 @@ package body AWS.Server is
          Now   : constant Calendar.Time := Calendar.Clock;
       begin
          return
-            Phase in Abortable_Phase'Range
-           and then
-            (Now - Set (Index).Phase_Time_Stamp) > Timeouts (Mode, Phase);
+           (Phase in Abortable_Phase
+            and then
+            Now - Set (Index).Phase_Time_Stamp > Timeouts (Mode, Phase))
+
+           or else
+
+           (Phase in Data_Phase
+            and then
+            Now - Set (Index).Data_Time_Stamp > Data_Timeouts (Phase));
       end Is_Abortable;
 
       ----------------------
@@ -199,6 +218,7 @@ package body AWS.Server is
         (Mode : in Timeout_Mode; Done : out Boolean) is
       begin
          Done := False;
+
          for S in Set'Range loop
             if Is_Abortable (S, Mode) then
                Sockets.Shutdown (Set (S).Sock);
