@@ -66,6 +66,31 @@ package body AWS.Log is
       end if;
    end Filename;
 
+   -----------
+   -- Flush --
+   -----------
+
+   procedure Flush (Log : in out Object) is
+      use Text_IO;
+   begin
+      if Log.Auto_Flush then
+         return;
+      end if;
+
+      Log.Semaphore.Seize;
+
+      if Is_Open (Log.File) then
+         Flush (Log.File);
+      end if;
+
+      Log.Semaphore.Release;
+
+   exception
+      when others =>
+         Log.Semaphore.Release;
+         raise;
+   end Flush;
+
    ---------------
    -- Is_Active --
    ---------------
@@ -149,7 +174,8 @@ package body AWS.Log is
      (Log             : in out Object;
       Split           : in     Split_Mode := None;
       File_Directory  : in     String     := Not_Specified;
-      Filename_Prefix : in     String     := Not_Specified)
+      Filename_Prefix : in     String     := Not_Specified;
+      Auto_Flush      : in     Boolean    := False)
    is
       Now      : constant Calendar.Time := Calendar.Clock;
       Filename : Unbounded_String;
@@ -158,6 +184,7 @@ package body AWS.Log is
       Log.Filename_Prefix := To_Unbounded_String (Filename_Prefix);
       Log.File_Directory  := To_Unbounded_String (File_Directory);
       Log.Split           := Split;
+      Log.Auto_Flush      := Auto_Flush;
 
       Filename := To_Unbounded_String
         (File_Directory
@@ -296,6 +323,10 @@ package body AWS.Log is
          end if;
 
          Text_IO.Put_Line (Log.File, Data);
+
+         if Log.Auto_Flush then
+            Text_IO.Flush (Log.File);
+         end if;
       end if;
 
       Log.Semaphore.Release;
