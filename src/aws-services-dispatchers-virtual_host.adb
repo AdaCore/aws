@@ -110,10 +110,47 @@ package body AWS.Services.Dispatchers.Virtual_Host is
    --------------
 
    procedure Finalize (Dispatcher : in out Handler) is
+
+      procedure Release
+        (Key          : in     String;
+         Value        : in     VH_Node;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean);
+      --  Release memory for each node of the VH table
+
+      -------------
+      -- Release --
+      -------------
+
+      procedure Release
+        (Key          : in     String;
+         Value        : in     VH_Node;
+         Order_Number : in     Positive;
+         Continue     : in out Boolean)
+      is
+         pragma Unreferenced (Key, Order_Number, Continue);
+      begin
+         if Value.Mode = Callback then
+            declare
+               A : AWS.Dispatchers.Handler_Class_Access := Value.Action;
+            begin
+               Free (A);
+            end;
+         end if;
+      end Release;
+
+      ------------------------
+      -- Release_Every_Node --
+      ------------------------
+
+      procedure Release_Every_Node is
+         new Virtual_Host_Table.Traverse_Asc_G (Release);
+
    begin
       Finalize (AWS.Dispatchers.Handler (Dispatcher));
 
       if Ref_Counter (Dispatcher) = 0 then
+         Release_Every_Node (Dispatcher.Table.all);
          Virtual_Host_Table.Destroy (Dispatcher.Table.all);
          Free (Dispatcher.Table);
          Free (Dispatcher.Action);
