@@ -43,6 +43,11 @@ package body SOAP.WSDL is
 
    use Ada;
 
+   procedure To_Type
+     (XSD_Type : in     String;
+      Result   :    out Parameter_Type;
+      Standard :    out Boolean);
+
    -----------------
    -- Get_Routine --
    -----------------
@@ -71,14 +76,12 @@ package body SOAP.WSDL is
    -----------------
 
    function Is_Standard (XSD_Type : in String) return Boolean is
-      P : Parameter_Type;
-      pragma Unreferenced (P);
+      P        : Parameter_Type;
+      Standard : Boolean;
    begin
-      P := To_Type (XSD_Type);
-      return True;
-   exception
-      when WSDL_Error =>
-         return False;
+      To_Type (XSD_Type, P, Standard);
+
+      return Standard;
    end Is_Standard;
 
    ----------
@@ -176,38 +179,57 @@ package body SOAP.WSDL is
    -- To_Type --
    -------------
 
-   function To_Type (XSD_Type : in String) return Parameter_Type is
+   procedure To_Type
+     (XSD_Type : in     String;
+      Result   :    out Parameter_Type;
+      Standard :    out Boolean)
+   is
       use Exceptions;
 
       L_Type : constant String := Characters.Handling.To_Lower (XSD_Type);
 
    begin
+      Standard := True;
+
       if L_Type = "string" then
-         return P_String;
+         Result := P_String;
 
       elsif L_Type = "integer" or else L_Type = "int" then
-         return P_Integer;
+         Result := P_Integer;
 
       elsif L_Type = "float" then
-         return P_Float;
+         Result := P_Float;
 
       elsif L_Type = "double" then
-         return P_Double;
+         Result := P_Double;
 
       elsif L_Type = "boolean" then
-         return P_Boolean;
+         Result := P_Boolean;
 
       elsif L_Type = "timeinstant" or else L_Type = "datetime" then
-         return P_Time;
+         Result := P_Time;
 
       elsif L_Type = "base64binary" then
-         return P_B64;
+         Result := P_B64;
 
       else
-         Raise_Exception
+         Standard := False;
+      end if;
+   end To_Type;
+
+   function To_Type (XSD_Type : in String) return Parameter_Type is
+      Result   : Parameter_Type;
+      Standard : Boolean;
+   begin
+      To_Type (XSD_Type, Result, Standard);
+
+      if not Standard then
+         Ada.Exceptions.Raise_Exception
            (WSDL_Error'Identity,
             "(To_Type) Type " & XSD_Type & " not supported.");
       end if;
+
+      return Result;
    end To_Type;
 
    ---------------
