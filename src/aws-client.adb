@@ -61,7 +61,7 @@ package body AWS.Client is
    type Auth_Attempts_Count is
      array (Authentication_Level) of Natural range 0 .. 2;
 
-   Debug_On    : Boolean := False;
+   Debug_On : Boolean := False;
 
    procedure Debug_Message (Prefix, Message : in String);
    pragma Inline (Debug_Message);
