@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             October 31st, 2003
+   Pascal Obry                                             November 2nd, 2003
 
 
 
@@ -33,7 +33,13 @@ Here are the main changes since AWS 1.4 :
 
    - ada2wsdl a new tool to generate WSDL document from an Ada spec. This tool
      will help further to build Web Services with GNAT. ada2wsdl is based on
-     ASIS.
+     ASIS for GNAT. You have GNAT and ASIS installed. ada2wsdl handles
+     standard Ada types, Calendar.Time, records and arrays.
+
+   - Add -types wsdl2aws option to generate code compatible with an already
+     present Ada spec. This is to be used with ada2wsdl tool. With -types
+     wsdl2aws will not generate records or arrays, instead it will use them
+     from the specified Ada spec.
 
 
 Non upward compatible changes
@@ -44,6 +50,13 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkwards
 implementations.
+
+   - Array types generated with wsdl2aws will now have a _Type suffix. This
+     is needed to ensure different names for parameter and type. Some WSDL
+     document use different case for parameter and type, this is not possible
+     with Ada which is not case-sensitive.
+
+     => Just add "_Type" suffix to array types and constructors references.
 
 
 Obsolescent features:
