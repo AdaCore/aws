@@ -50,25 +50,25 @@
 --  To get the administrative page:
 --  http://<servername>:1234/Admin-Page
 --
---  To test the HTTPS server:
+--  To test the HTTPS/SSL server:
 --  http://<servername>:4433/give_me_this
 --
 --  That's all for now. Enjoy !
 
 with Ada.Text_IO;
 
-with AWS.Server;
 with Runme_CB;
 
 procedure Runme is
 
    use Ada;
 
-   WSS : AWS.Server.HTTP (3, 4433, True, Runme_CB.Service2'Access, False);
+   WSS : AWS.Server.HTTP (3, 4433, True, Runme_CB.Service_Sec'Access, False);
 
    WS  : AWS.Server.HTTP (3, 1234, False, Runme_CB.Service'Access, True);
 
 begin
+   Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
    AWS.Server.Start (WSS, "Runme Secure");
    AWS.Server.Start (WS, "Runme", "/Admin-Page");
