@@ -50,8 +50,8 @@ package SOAP.Message is
    function Wrapper_Name (M : in Object'class) return String;
    --  Returns wrapper name.
 
-   function Parameters   (M : in Object'class) return SOAP.Parameters.Set;
-   --  Returns the set of parameter.
+   function Parameters   (M : in Object'class) return SOAP.Parameters.List;
+   --  Returns the parameter.
 
    procedure Set_Name_Space
      (M    : in out Object'Class;
@@ -65,7 +65,7 @@ package SOAP.Message is
 
    procedure Set_Parameters
      (M     : in out Object'Class;
-      P_Set : in     SOAP.Parameters.Set);
+      P_Set : in     SOAP.Parameters.List);
    --  Set message's parameters.
 
 private
@@ -73,7 +73,7 @@ private
    type Object is tagged record
       Name_Space   : Unbounded_String;
       Wrapper_Name : Unbounded_String;
-      P            : SOAP.Parameters.Set;
+      P            : SOAP.Parameters.List;
    end record;
 
 end SOAP.Message;

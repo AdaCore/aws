@@ -38,8 +38,8 @@ package body SOAP.Message.Payload is
 
    function Build
      (Procedure_Name : in String;
-      P_Set          : in SOAP.Parameters.Set;
-      Name_Space     : in String              := "")
+      P_Set          : in SOAP.Parameters.List;
+      Name_Space     : in String               := "")
      return Object is
    begin
       return (To_Unbounded_String (Name_Space),

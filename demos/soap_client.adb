@@ -44,14 +44,14 @@ procedure SOAP_Client is
    use Ada;
    use SOAP;
    use SOAP.Types;
-   use type SOAP.Parameters.Set;
+   use type SOAP.Parameters.List;
 
    -----------
    -- Error --
    -----------
 
    procedure Error (E : in Message.Response.Error.Object) is
-      P : constant Parameters.Set := SOAP.Message.Parameters (E);
+      P : constant Parameters.List := SOAP.Message.Parameters (E);
    begin
       Text_IO.Put_Line ("Faultcode   : "
                         & SOAP.Parameters.Get (P, "faultcode"));
@@ -66,7 +66,7 @@ procedure SOAP_Client is
 
    procedure Good is
 
-      P_Set : Parameters.Set := +I (10, "p1") & I (32, "p2") & F (12.4, "p3");
+      P_Set : Parameters.List := +I (10, "p1") & I (32, "p2") & F (12.4, "p3");
 
       P     : Message.Payload.Object;
 
@@ -77,7 +77,7 @@ procedure SOAP_Client is
          R : constant Message.Response.Object'Class :=
            SOAP.Client.Call ("http://pascal:8080/soapdemo", P);
 
-         P : constant Parameters.Set
+         P : constant Parameters.List
            := SOAP.Message.Parameters (R);
 
          Myres : constant Integer := SOAP.Parameters.Get (P, "myres");
@@ -95,7 +95,7 @@ procedure SOAP_Client is
    ---------
 
    procedure Bad is
-      P_Set : Parameters.Set := +I (10, "p");
+      P_Set : Parameters.List := +I (10, "p");
 
       P     : Message.Payload.Object;
 

@@ -84,7 +84,7 @@ package body SOAP.Message.XML is
 
    type State is record
       Wrapper_Name : Unbounded_String;
-      Parameters   : SOAP.Parameters.Set;
+      Parameters   : SOAP.Parameters.List;
       A_State      : Array_State := Void;
    end record;
 
@@ -588,7 +588,7 @@ package body SOAP.Message.XML is
    -------------------
 
    procedure Parse_Wrapper (N : in DOM.Core.Node; S : in out State) is
-      use type SOAP.Parameters.Set;
+      use type SOAP.Parameters.List;
 
       NL   : constant DOM.Core.Node_List := Child_Nodes (N);
       Name : constant String := Local_Name (N);

@@ -44,8 +44,8 @@ package SOAP.Message.Payload is
 
    function Build
      (Procedure_Name : in String;
-      P_Set          : in SOAP.Parameters.Set;
-      Name_Space     : in String              := "")
+      P_Set          : in SOAP.Parameters.List;
+      Name_Space     : in String               := "")
      return Object;
    --  Retruns a Payload object initialized with the procedure name,
    --  parameters and name space.
