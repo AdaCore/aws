@@ -1,3 +1,15 @@
+2003-03-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-ldap-client.adb:
+	(Raise_Error): Do not free pointer returned by ldap_err2string as
+	 it a pointer to a static space. Fix memory corruption.
+
+	* aws-server-get_status.adb:
+	Minor reformatting.
+
+	* aws-session.ads:
+	Move pragma inline next to the routine spec.
+
 2003-03-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb, aws-server-protocol_handler.adb:
