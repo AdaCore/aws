@@ -129,10 +129,15 @@ package AWS.Response is
       Status_Code   : in Messages.Status_Code      := Messages.S200;
       Cache_Control : in Messages.Cache_Option     := Messages.Unspecified;
       Encoding      : in Messages.Content_Encoding := Messages.Identity;
-      Once          : in Boolean                   := False)
+      Once          : in Boolean                   := False;
+      Attachment    : in Boolean                   := False)
       return Data;
    --  Returns a message whose message body is the content of the file. The
-   --  Content_Type must indicate the MIME type for the file.
+   --  Content_Type must indicate the MIME type for the file. If Attachment is
+   --  set to True, the file to download will be forced as attachment. The
+   --  browser will then propose to save this file locally instead of
+   --  displaying it. Note that by default this is done for all application
+   --  Content-Type.
 
    function Stream
      (Content_Type  : in     String;
