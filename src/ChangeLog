@@ -1,3 +1,17 @@
+2004-01-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-pop.adb:
+	(Content_Transfer_Encoding): Removed.
+	(Content_Disposition): Removed.
+	(Get): Use constants from AWS.Messages.
+	Code clean-up.
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-messages.ads:
+	(Content_Transfer_Encoding_Token): New constant.
+	Update copyright notice.
+
 2004-01-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:
