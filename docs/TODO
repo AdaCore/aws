@@ -168,6 +168,3 @@ implemented:
 
   Possible syntax: @_PATH:"../file.css"_@
   Means take ../file.css as relatif to current file location.
-
-- SOAP.Message.XML is not easy to maintain because there is many changes to do
-  each time we add a new SOAP type. This should be fixed.
