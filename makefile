@@ -117,12 +117,12 @@ build_ssllib:
 	echo === Build SSL support
 	${MAKE} -C ssl build $(ALL_OPTIONS)
 
-build_soaplib: build_include
+build_soaplib: build_include build_lib
 	echo ""
 	echo === Build SOAP library
 	${MAKE} -C soap build $(ALL_OPTIONS)
 
-build_soap: build_lib build_soaplib build_soap_demos
+build_soap: build_soaplib
 
 gnatsockets:
 	${MAKE} -C src gnatsockets
