@@ -198,7 +198,8 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
          Templates_Parser.Assoc ("VERSION", Version),
          Templates_Parser.Assoc ("SESSION", Server.Session),
          Templates_Parser.Assoc ("LOGO",
-                                 To_String (Server.Admin_URI) & "-logo"))
+                                 To_String (Server.Admin_URI) & "-logo"),
+         Templates_Parser.Assoc ("ADMIN", To_String (Server.Admin_URI)))
      & Slot_Table
      & Session_Table
      & Hotplug.Get_Status (Server.Filters);
