@@ -165,6 +165,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_CTX_set_quiet_shutdown;
 
+   ------------------------
+   -- SSL_CTX_set_verify --
+   ------------------------
+
+   procedure SSL_CTX_set_verify is
+   begin
+      Raise_Error;
+   end SSL_CTX_set_verify;
+
    ----------------------------------
    -- SSL_CTX_use_certificate_file --
    ----------------------------------
@@ -191,6 +200,15 @@ package body SSL.Wrappers is
    begin
       Raise_Error;
    end SSL_free;
+
+   ------------------------------
+   -- SSL_get_peer_certificate --
+   ------------------------------
+
+   procedure SSL_get_peer_certificate is
+   begin
+      Raise_Error;
+   end SSL_get_peer_certificate;
 
    ----------------------
    -- SSL_Library_Init --
@@ -389,5 +407,32 @@ package body SSL.Wrappers is
    begin
       Raise_Error;
    end TLSv1_server_method;
+
+   --------------------------
+   -- X509_get_issuer_name --
+   --------------------------
+
+   procedure X509_get_issuer_name is
+   begin
+      Raise_Error;
+   end X509_get_issuer_name;
+
+   ---------------------------
+   -- X509_get_subject_name --
+   ---------------------------
+
+   procedure X509_get_subject_name is
+   begin
+      Raise_Error;
+   end X509_get_subject_name;
+
+   -----------------------
+   -- X509_NAME_oneline --
+   -----------------------
+
+   procedure X509_NAME_oneline is
+   begin
+      Raise_Error;
+   end X509_NAME_oneline;
 
 end SSL.Wrappers;
