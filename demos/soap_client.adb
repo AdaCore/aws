@@ -66,7 +66,7 @@ procedure SOAP_Client is
 
    procedure Good is
 
-      P_Set : Parameters.Set := +I ("p1", 10) & I ("p2", 32) & F ("p3", 12.3);
+      P_Set : Parameters.Set := +I (10, "p1") & I (32, "p2") & F (12.4, "p3");
 
       P     : Message.Payload.Object;
 
@@ -95,7 +95,7 @@ procedure SOAP_Client is
    ---------
 
    procedure Bad is
-      P_Set : Parameters.Set := +I ("p", 10);
+      P_Set : Parameters.Set := +I (10, "p");
 
       P     : Message.Payload.Object;
 

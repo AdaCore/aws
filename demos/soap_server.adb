@@ -97,7 +97,7 @@ procedure SOAP_Server is
          P1 : constant Integer := SOAP.Parameters.Get (P, "p1");
          P2 : constant Integer := SOAP.Parameters.Get (P, "p2");
       begin
-         RP := +I ("myres", P1 + P2);
+         RP := +I (P1 + P2, "myres");
       end;
 
       SOAP.Message.Set_Parameters (R, RP);
