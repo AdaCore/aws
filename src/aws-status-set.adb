@@ -312,7 +312,7 @@ package body AWS.Status.Set is
    end Session;
 
    procedure Session
-     (D  : in out Data) is
+     (D : in out Data) is
    begin
       D.Session_ID      := AWS.Session.Create;
       D.Session_Created := True;

@@ -63,11 +63,11 @@ package AWS.Status.Set is
    procedure Session
      (D  : in out Data;
       ID : in     String);
-   --  Set Session to ID.
+   --  Set Session to ID
 
    procedure Session
-     (D  : in out Data);
-   --  Generate new Session.
+     (D : in out Data);
+   --  Generate new Session ID
 
    procedure Host (D : in out Data; Host : in String);
    --  Set value for "Host:" parameter
@@ -90,7 +90,7 @@ package AWS.Status.Set is
    procedure Peername
      (D        : in out Data;
       Peername : in     String);
-   --  Set peername field.
+   --  Set peername field
 
    procedure Request
      (D            : in out Data;
@@ -103,7 +103,7 @@ package AWS.Status.Set is
    --  POST URI [HTTP/1.0 or HTTP/1.1]
 
    procedure Parameters (D : in out Data; Set : in AWS.Parameters.List);
-   --  Associate the parameters in Set to the status data.
+   --  Associate the parameters in Set to the status data
 
    procedure Binary
      (D         : in out Data;
