@@ -180,9 +180,17 @@ package body AWS.Messages is
    -- Content_Type --
    ------------------
 
-   function Content_Type (Format : in String) return String is
+   function Content_Type
+     (Format   : in String;
+      Boundary : in String := "")
+     return String is
    begin
-      return Content_Type_Token & Format;
+      if Boundary = "" then
+         return Content_Type_Token & Format;
+
+      else
+         return Content_Type_Token & Format & "; boundary=" & Boundary;
+      end if;
    end Content_Type;
 
    --------------------
@@ -420,6 +428,15 @@ package body AWS.Messages is
           + Natural'Value (HTTP_Date (F + 20 .. F + 21)) * 60
           + Natural'Value (HTTP_Date (F + 23 .. F + 24))));
    end To_Time;
+
+   -----------------------
+   -- Transfer_Encoding --
+   -----------------------
+
+   function Transfer_Encoding (Encoding : in String) return String is
+   begin
+      return Transfer_Encoding_Token & Encoding;
+   end Transfer_Encoding;
 
    ----------------
    -- User_Agent --
