@@ -28,6 +28,8 @@
 
 --  $Id$
 
+with Ada.Strings.Fixed;
+
 separate (Templates_Parser)
 package body Filter is
 
@@ -59,6 +61,7 @@ package body Filter is
    Point_2_Coma_Token  : aliased constant String := "POINT_2_COMA";
    Repeat_Token        : aliased constant String := "REPEAT";
    Replace_Token       : aliased constant String := "REPLACE";
+   Replace_All_Token   : aliased constant String := "REPLACE_ALL";
    Reverse_Token       : aliased constant String := "REVERSE";
    Size_Token          : aliased constant String := "SIZE";
    Slice_Token         : aliased constant String := "SLICE";
@@ -150,6 +153,9 @@ package body Filter is
          Replace        =>
            (Replace_Token'Access,        Replace'Access),
 
+         Replace_All    =>
+           (Replace_All_Token'Access,    Replace_All'Access),
+
          Invert        =>
            (Reverse_Token'Access,        Reverse_Data'Access),
 
@@ -206,10 +212,10 @@ package body Filter is
    function Parameter (Mode : in Filter.Mode) return Parameter_Mode is
    begin
       case Mode is
-         when Match   => return Regexp;
-         when Replace => return Regpat;
-         when Slice   => return Slice;
-         when others  => return Str;
+         when Match                 => return Regexp;
+         when Replace | Replace_All => return Regpat;
+         when Slice                 => return Slice;
+         when others                => return Str;
       end case;
    end Parameter;
 
@@ -850,11 +856,14 @@ package body Filter is
    is
       use type GNAT.Regpat.Match_Location;
 
+      Param          : constant String  := Value (To_String (P.Param), T);
+      Exists_Pattern : constant Boolean := Fixed.Index (Param, "\1") /= 0;
+
       Matches : GNAT.Regpat.Match_Array
         (0 .. GNAT.Regpat.Paren_Count (P.Regpat.all));
 
-      Result  : Unbounded_String
-        := To_Unbounded_String (Value (To_String (P.Param), T));
+      Result  : Unbounded_String := To_Unbounded_String (Param);
+
       N       : Natural;
    begin
       GNAT.Regpat.Match (P.Regpat.all, S, Matches);
@@ -871,12 +880,92 @@ package body Filter is
          end if;
       end loop;
 
-      return To_String (Result);
+      if Matches (0) /= GNAT.Regpat.No_Match then
+         --  At least one match
+
+         if Exists_Pattern then
+            --  A replacement pattern was present
+            return To_String (Result);
+         else
+            return S (S'First .. Matches (0).First - 1)
+                     & To_String (Result) & S (Matches (0).Last + 1 .. S'Last);
+         end if;
+
+      else
+         --  No match, returns the initial string
+         return S;
+      end if;
+
    exception
       when Constraint_Error =>
          Exceptions.Raise_Exception
            (Template_Error'Identity, "replace filter parameter error");
    end Replace;
+
+   -----------------
+   -- Replace_All --
+   -----------------
+
+   function Replace_All
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
+   is
+      use type GNAT.Regpat.Match_Location;
+
+      Param : constant String := Value (To_String (P.Param), T);
+
+      Matches : GNAT.Regpat.Match_Array
+        (0 .. GNAT.Regpat.Paren_Count (P.Regpat.all));
+
+      Result  : Unbounded_String;
+      Temp    : Unbounded_String;
+      N       : Natural;
+      Current : Natural := S'First;
+      Matched : Boolean := False;
+
+   begin
+
+      loop
+         GNAT.Regpat.Match (P.Regpat.all, S, Matches, Current);
+         exit when Matches (0) = GNAT.Regpat.No_Match;
+
+         Matched := True;
+
+         Temp    := To_Unbounded_String (Param);
+
+         for K in 1 .. Matches'Last loop
+            exit when Matches (K) = GNAT.Regpat.No_Match;
+
+            N := Index (Temp, '\' & Image (K));
+
+            if N /= 0 then
+               Replace_Slice
+                 (Temp, N, N + 1,
+                  By => S (Matches (K).First .. Matches (K).Last));
+            end if;
+         end loop;
+
+         Result := Result
+           & To_Unbounded_String (S (Current .. Matches (0).First - 1))
+           & Temp;
+
+         Current := Matches (0).Last + 1;
+      end loop;
+
+      if Matched then
+         --  At least one match
+         return To_String (Result) & S (Current .. S'Last);
+      else
+         --  No match, returns the initial string
+         return S;
+      end if;
+   exception
+      when Constraint_Error =>
+         Exceptions.Raise_Exception
+           (Template_Error'Identity, "replace filter parameter error");
+   end Replace_All;
 
    ------------------
    -- Reverse_Data --
