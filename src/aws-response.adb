@@ -33,8 +33,8 @@
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
-with AWS.OS_Lib;
 with AWS.Translator;
+with AWS.Resources;
 
 package body AWS.Response is
 
@@ -232,14 +232,14 @@ package body AWS.Response is
                    new Natural'(1),
                    File,
                    Status_Code,
-                   Integer (OS_Lib.File_Size (Filename)),
+                   Integer (Resources.File_Size (Filename)),
                    Content_Type => To_Unbounded_String (Content_Type),
                    Filename     => To_Unbounded_String (Filename),
                    Location     => Null_Unbounded_String,
                    Realm        => Null_Unbounded_String,
                    Message_Body => null);
    exception
-      when OS_Lib.No_Such_File =>
+      when Resources.Resource_Error =>
          return Acknowledge (Messages.S404, "<p> " & Filename & " not found");
    end File;
 
