@@ -477,10 +477,10 @@ package body AWS.URL is
          O.Security := True;
 
       elsif L_URL /= "" then
-         --  Prefix is not recognied, this is either because there is no
+         --  Prefix is not recognized, this is either because there is no
          --  protocol specified or the protocol is not supported by AWS. For
          --  example a javascript reference start with "javascript:". This
-         --  will be catched on the next parsing level.
+         --  will be caught on the next parsing level.
          --
          --  At least we know that it is not a Secure HTTP protocol URL.
 
