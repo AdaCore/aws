@@ -45,7 +45,7 @@ RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
 # SOAP/WSDL test using ada2wsdl (ASIS package required)
 # Names must start with wsdl_ and be followed by a single digit between 0
 # and 9. Socket port is then 770<digit>.
-RT_SOAP_ASIS = wsdl_1 wsdl_2
+RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3
 
 RT_SOAP_ASIS_PARSE = wsdl_a
 
@@ -56,7 +56,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tlog unexph2 sp sessions dirop multiple tcom tmime sessions2 \
 	sessions3 huge_response server_info server_config sback append \
 	compress zapp zbig zfile zstrm dispatch dispatch_vh dispatch_method \
-	split zstrm2 $(RT_STD_SEC)
+	split zstrm2 once $(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
 OTH_TESTS    = tres
@@ -86,8 +86,8 @@ run : build checks
 
 force:
 
-build: init $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
-	$(ASIS_TESTS) $(ASIS2_TESTS) $(OTH_TESTS)
+build: init $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
+	$(ASIS_TESTS) $(ASIS2_TESTS)) $(OTH_TESTS)
 
 init:
 	cp ../demos/cert.pem .
