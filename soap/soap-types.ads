@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                            Copyright (C) 2002                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -59,22 +59,6 @@ package SOAP.Types is
 
    function Name (O : in Object'Class) return String;
    --  Returns name for object O.
-
-   function Get (O : in Object'Class) return Integer;
-   --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
-   --  Integer.
-
-   function Get (O : in Object'Class) return Long_Float;
-   --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
-   --  Float.
-
-   function Get (O : in Object'Class) return String;
-   --  Returns O value as a String. Raises Data_Error if O is not a SOAP
-   --  String.
-
-   function Get (O : in Object'Class) return Boolean;
-   --  Returns O value as a Boolean. Raises Data_Error if O is not a SOAP
-   --  Boolean.
 
    function "+" (O : in Object'Class) return Object_Safe_Pointer;
    --  Allocate an object into the heap and return a safe pointer to it.
@@ -252,13 +236,33 @@ package SOAP.Types is
       return SOAP_Record;
 
    function V (O : in SOAP_Record; Name : in String) return Object'Class;
-   -- Returns SOAP_Record field named Name
+   --  Returns SOAP_Record field named Name
 
    function V (O : in SOAP_Record) return Object_Set;
 
+   ---------
+   -- Get --
+   ---------
+
+   function Get (O : in Object'Class) return Integer;
+   --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
+   --  Integer.
+
+   function Get (O : in Object'Class) return Long_Float;
+   --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
+   --  Float.
+
+   function Get (O : in Object'Class) return String;
+   --  Returns O value as a String. Raises Data_Error if O is not a SOAP
+   --  String.
+
+   function Get (O : in Object'Class) return Boolean;
+   --  Returns O value as a Boolean. Raises Data_Error if O is not a SOAP
+   --  Boolean.
+
    function Get (O : in Object'Class) return SOAP_Base64;
    --  Returns O value as a SOAP Base64. Raises Data_Error if O is not a SOAP
-   --  Struct.
+   --  Base64 object.
 
    function Get (O : in Object'Class) return SOAP_Record;
    --  Returns O value as a SOAP Struct. Raises Data_Error if O is not a SOAP
