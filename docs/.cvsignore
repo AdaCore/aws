@@ -16,6 +16,7 @@ aws-headers.ads.texi
 aws-jabber.ads.texi
 aws-ldap-client.ads.texi
 aws-log.ads.texi
+aws-messages.ads.texi
 aws-mime.ads.texi
 aws-parameters.ads.texi
 aws-resources-streams.ads.texi
