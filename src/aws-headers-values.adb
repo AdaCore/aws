@@ -188,7 +188,7 @@ package body AWS.Headers.Values is
 
          --  Check if this is a quoted or unquoted value
 
-         if Data (First) = '"' then
+         if First < Data'Last and then Data (First) = '"' then
             --  Quoted value
 
             Value_First := First + 1;
