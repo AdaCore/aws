@@ -1,3 +1,8 @@
+2004-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wspiapi.c:
+	(WSPIAPI_init): New routine.
+
 2004-09-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* libeay32.dll, libssl32.dll:
