@@ -112,6 +112,51 @@ package body AWS.Utils is
       end;
    end Hex;
 
+   ---------------
+   -- Hex_Value --
+   ---------------
+
+   function Hex_Value (Hex : in String) return Natural is
+
+      function Value (C : in Character) return Natural;
+      pragma Inline (Value);
+      --  Return value for single character C.
+
+      function Value (C : in Character) return Natural is
+      begin
+         case C is
+            when '0'       => return 0;
+            when '1'       => return 1;
+            when '2'       => return 2;
+            when '3'       => return 3;
+            when '4'       => return 4;
+            when '5'       => return 5;
+            when '6'       => return 6;
+            when '7'       => return 7;
+            when '8'       => return 8;
+            when '9'       => return 9;
+            when 'a' | 'A' => return 10;
+            when 'b' | 'B' => return 11;
+            when 'c' | 'C' => return 12;
+            when 'd' | 'D' => return 13;
+            when 'e' | 'E' => return 14;
+            when 'f' | 'F' => return 15;
+            when others    => raise Constraint_Error;
+         end case;
+      end Value;
+
+      R   : Natural := 0;
+      Exp : Natural := 1;
+
+   begin
+      for K in reverse Hex'Range loop
+         R := R + Exp * Value (Hex (K));
+         Exp := Exp * 16;
+      end loop;
+
+      return R;
+   end Hex_Value;
+
    -----------
    -- Image --
    -----------

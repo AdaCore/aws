@@ -59,6 +59,10 @@ package AWS.Utils is
    --  number V. if Width /= 0, the result will have exactly Width characters
    --  eventually padded with leading 0 or trimmed on the right.
 
+   function Hex_Value (Hex : in String) return Natural;
+   --  Returns the value for the hexadecimal number Hex. Raises
+   --  COnstraint_Error is Hex is not an hexadecimal number.
+
    generic
       type Enum is (<>);
       type Result_Set is
