@@ -545,11 +545,13 @@ supported options are:
 
 @table @code
 @item Server_Name
-The name of the server. This must be used when calling @code{AWS.Server.Start}.
+The name of the server. This must be used when calling
+@code{AWS.Server.Start}. The default is ``@_SERVER_NAME_@''.
 
 @item Server_Port
 The port where server will wait for incomming connections requests. This
-must be used when calling @code{AWS.Server.Start}.
+must be used when calling @code{AWS.Server.Start}. The default is
+@_SERVER_PORT_@
 
 @item Max_Connection
 This is the maximum number of simultaneous connections for the
@@ -558,48 +560,57 @@ default is @_MAX_CONNECT_@.
 
 @item Admin_URI
 This is the URI to call the administrative page. This must be used when
-calling @code{AWS.Server.Start}.
+calling @code{AWS.Server.Start}. The default is ``@_ADMIN_URI_@''.
 
 @item Log_File_Directory
 This is to set the directory where log file must be written. This
 parameter will be used automatically by @code{AWS.Log} if logging
-facility is enabled. By default log files are written in the current directory.
+facility is enabled. By default log files are written in the current
+directory. The default is ``@_LOG_FILE_DIR_@''.
 
 @item Upload_Directory
 This is to set the directory where upload files must be stored. By
-default uploaded files are written in the current directory.
+default uploaded files are written in the current directory. The
+default is ``@_UPLOAD_DIR_@''.
 
 @item Cleaner_Wait_For_Client_Timeout
 Number of seconds to timout on waiting for a client request. This is a
-timeout for regular cleaning task.
+timeout for regular cleaning task. The default is
+@_CT_WAIT_FOR_CLIENT_@ seconds.
 
 @item Cleaner_Client_Header_Timeout
 Number of seconds to timout on waiting for client header. This is a
-timeout for regular cleaning task.
+timeout for regular cleaning task. The default is @_CT_CLIENT_HEADER_@ seconds.
 
 @item Cleaner_Client_Data_Timeout
 Number of seconds to timout on waiting for client message body. This
-is a timeout for regular cleaning task.
+is a timeout for regular cleaning task. The default is
+@_CT_CLIENT_DATA_@ seconds.
 
 @item Cleaner_Server_Response_Timeout
 Number of seconds to timout on waiting for client to accept
-answer. This is a timeout for regular cleaning task.
+answer. This is a timeout for regular cleaning task. The default is
+@_CT_SERVER_RESPONSE_@ seconds.
 
 @item Force_Wait_For_Client_Timeout
 Number of seconds to timout on waiting for a client request. This is a
-timeout for urgent request when ressources are missing.
+timeout for urgent request when ressources are missing. The default is
+@_FT_WAIT_FOR_CLIENT_@ seconds.
 
 @item Force_Client_Header_Timeout
 Number of seconds to timout on waiting for client header. This is a
-timeout for urgent request when ressources are missing.
+timeout for urgent request when ressources are missing. The default is
+@_FT_CLIENT_HEADER_@ seconds.
 
 @item Force_Client_Data_Timeout
 Number of seconds to timout on waiting for client message body. This
-is a timeout for urgent request when ressources are missing.
+is a timeout for urgent request when ressources are missing. The default is
+@_FT_CLIENT_DATA_@ seconds.
 
 @item Force_Server_Response_Timeout
 Number of seconds to timout on waiting for client to accept answer. This 
-is a timeout for urgent request when ressources are missing.
+is a timeout for urgent request when ressources are missing. The default is
+@_FT_SERVER_RESPONSE_@ seconds.
 
 @end table
 
