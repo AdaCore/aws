@@ -47,7 +47,7 @@ package body SOAP.WSDL.Parser is
    use Ada.Strings.Unbounded;
    use type DOM.Core.Node;
 
-   Verbose_Mode : Boolean := False;
+   Verbose_Mode : Verbose_Level := 0;
 
    function Get_Node
      (Parent  : in DOM.Core.Node;
@@ -541,7 +541,6 @@ package body SOAP.WSDL.Parser is
 
             Add_Parameter (O, Parse_Array (O, CT_Node, Document));
 
-
          else
 
             for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
@@ -652,7 +651,17 @@ package body SOAP.WSDL.Parser is
                   "types.schema.complexType for " & P_Type & " not found.");
             end if;
 
-            return Parse_Record (O, R, Document);
+            if Utils.Is_Array (P_Type) then
+               declare
+                  P : Parameters.Parameter := Parse_Array (O, R, Document);
+               begin
+                  P.Name := +Get_Attr_Value (N, "name");
+                  return P;
+               end;
+
+            else
+               return Parse_Record (O, R, Document);
+            end if;
          end;
       end if;
    end Parse_Parameter;
@@ -813,7 +822,7 @@ package body SOAP.WSDL.Parser is
          Get_Element (N);
       end if;
 
-      if Verbose_Mode then
+      if Verbose_Mode > 0 then
          Text_IO.New_Line;
          Text_IO.Put_Line ("Procedure " & (-O.Proc));
          Text_IO.Put_Line ("   Input");
@@ -955,7 +964,7 @@ package body SOAP.WSDL.Parser is
 
    procedure Trace (Message : in String; N : in DOM.Core.Node) is
    begin
-      if Verbose_Mode then
+      if Verbose_Mode = 2 then
          Text_IO.Put_Line (Message);
 
          if N = null then
@@ -990,9 +999,9 @@ package body SOAP.WSDL.Parser is
    -- Verbose --
    -------------
 
-   procedure Verbose (Activate : in Boolean := True) is
+   procedure Verbose (Level : in Verbose_Level := 1) is
    begin
-      Verbose_Mode := Activate;
+      Verbose_Mode := Level;
    end Verbose;
 
 end SOAP.WSDL.Parser;
