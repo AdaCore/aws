@@ -1,3 +1,10 @@
+2004-11-05  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(FILTER_OUT): New variable, list of tests to not run if
+	 EXTRA_TESTS is false.
+	(F_TOGETHER): Filter also FILTER_OUT tests.
+
 2004-11-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* test_hotplug.adb:
