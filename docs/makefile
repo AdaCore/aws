@@ -34,6 +34,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-response.ads.texi \
 	../src/aws-server-hotplug.ads.texi \
 	../src/aws-server-push.ads.texi \
+	../src/aws-server-status.ads.texi \
 	../src/aws-server.ads.texi \
 	../src/aws-services-directory.ads.texi \
 	../src/aws-services-dispatchers-method.ads.texi \
@@ -60,7 +61,8 @@ check_env:
 
 aws_docs : aws.ps aws.pdf aws.html aws.txt aws.info
 
-sg_docs : style-guide.ps style-guide.pdf style-guide.html style-guide.txt style-guide.info
+sg_docs : style-guide.ps style-guide.pdf style-guide.html style-guide.txt \
+	style-guide.info
 
 build: check_env aws_docs sg_docs
 	echo ""
