@@ -58,6 +58,8 @@ procedure Build is
      := (Assoc ("AWS_VERSION", AWS.Version),
          Assoc ("SOAP_VERSION", SOAP.Version),
          Assoc ("MAX_CONNECT", Image (Default.Max_Connection)),
+         Assoc ("KEEP_ALIVE_LIMIT",
+                Image (Default.Free_Slots_Keep_Alive_Limit)),
          Assoc ("QUEUE_SIZE", Default.Accept_Queue_Size),
          Assoc ("SERVER_NAME", Default.Server_Name),
          Assoc ("SERVER_PORT", Image (Default.Server_Port)),
