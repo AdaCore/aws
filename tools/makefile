@@ -2,13 +2,14 @@
 
 .SILENT: build clean awsres
 
-GARGS	= $(GFLAGS) -I../src $(INCLUDES)
+GARGS	= -q $(GFLAGS) -I../src $(INCLUDES)
 
 build: awsres
 
 force:
 
 awsres: force
+	echo Building awsres tools
 	gnatmake $(GARGS) awsres -largs -s
 
 clean:
