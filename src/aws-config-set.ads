@@ -73,9 +73,11 @@ package AWS.Config.Set is
    procedure Free_Slots_Keep_Alive_Limit
      (O     : in out Object;
       Value : in     Positive);
-   --  The number of free slots, where keep-alive connection is still enable.
-   --  Should be more where the Max_Connection is big for the good handling
-   --  of the hard loading.
+   --  The minimum number of free slots where keep-alive connections are still
+   --  enabled. After this limit no more keep-alive connection will be
+   --  accepted by the server. This parameter must be used for heavy-loaded
+   --  servers to make sure the server will never run out of slots. This limit
+   --  must be less than Max_Connection.
 
    procedure Accept_Queue_Size (O : in out Object; Value : in Positive);
    --  This is the size of the queue for the incoming requests. Higher this
