@@ -31,6 +31,7 @@
 --  $Id$
 
 with SOAP.Types;
+with SOAP.Utils;
 
 package body SOAP.Message is
 
@@ -123,7 +124,8 @@ package body SOAP.Message is
 
       --  Close payload objects.
 
-      Append (Message_Body, "</awsns:" & Wrapper_Name (M) & '>' & NL);
+      Append (Message_Body,
+              Utils.Tag ("awsns:" & Wrapper_Name (M), False) & NL);
 
       return Message_Body;
    end XML_Image;
