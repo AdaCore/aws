@@ -18,6 +18,7 @@ b~workorder.adb
 b~workorder.ads
 dummy.res
 param.res
+shutdown.res
 simple.res
 soap1.res
 soap2.res
