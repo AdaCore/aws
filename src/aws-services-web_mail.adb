@@ -63,7 +63,10 @@ package body AWS.Services.Web_Mail is
    function Delete (Request : in AWS.Status.Data) return AWS.Response.Data;
    --  Delete a message, returns to the summary page
 
-   function Reply (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Reply
+     (Request : in AWS.Status.Data;
+      To_All  : in Boolean)
+      return AWS.Response.Data;
    --  Returns a reply form
 
    function Send (Request : in AWS.Status.Data) return AWS.Response.Data;
@@ -142,7 +145,10 @@ package body AWS.Services.Web_Mail is
          return Message (Request);
 
       elsif URI = "/wm_reply" then
-         return Reply (Request);
+         return Reply (Request, To_All => False);
+
+      elsif URI = "/wm_reply_all" then
+         return Reply (Request, To_All => True);
 
       elsif URI = "/wm_delete" then
          return Delete (Request);
@@ -424,7 +430,11 @@ package body AWS.Services.Web_Mail is
    -- Reply --
    -----------
 
-   function Reply (Request : in AWS.Status.Data) return AWS.Response.Data is
+   function Reply
+     (Request : in AWS.Status.Data;
+      To_All  : in Boolean)
+      return AWS.Response.Data
+   is
       use type Templates.Translate_Table;
 
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
@@ -498,7 +508,8 @@ package body AWS.Services.Web_Mail is
                   Templates.Assoc ("WM_SUBJECT", POP.Subject (Mess)),
                   Templates.Assoc ("WM_DATE", POP.Date (Mess)),
                   Templates.Assoc ("WM_FROM", POP.From (Mess)),
-                  Templates.Assoc ("WM_CC", POP.CC (Mess)))
+                  Templates.Assoc ("WM_CC", POP.CC (Mess)),
+                  Templates.Assoc ("WM_TO_ALL", To_All))
                & Get_Content)));
    end Reply;
 
