@@ -1,3 +1,12 @@
+2003-06-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status.adb:
+	Minor reformatting.
+
+	* aws-status.ads:
+	(Payload): Remove wrong comment.
+	(Data): Add some comments.
+
 2003-06-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-protocol_handler.adb:
