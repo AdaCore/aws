@@ -181,6 +181,8 @@ procedure Ada2WSDL.Main is
    end Usage;
 
 begin
+   Options.Set_Default;
+
    Parse_Command_Line;
 
    Parser.Initialize;
