@@ -175,8 +175,11 @@ package SOAP.Types is
    function XML_Image (O : in XSD_Double) return String;
    function XML_Type  (O : in XSD_Double) return String;
 
-   function D (V : in Long_Long_Float;
-               Name : in String := "item") return XSD_Double;
+   function D
+     (V    : in Long_Long_Float;
+      Name : in String          := "item")
+      return XSD_Double;
+
    function V (O : in XSD_Double) return Long_Long_Float;
 
    -----------
@@ -258,8 +261,8 @@ package SOAP.Types is
    function XML_Type  (O : in XSD_String) return String;
 
    function S
-     (V      : in String;
-      Name   : in String  := "item")
+     (V    : in String;
+      Name : in String := "item")
       return XSD_String;
 
    function V (O : in XSD_String) return String;
