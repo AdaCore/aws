@@ -1,28 +1,30 @@
 
 # $Id$
 
-.SILENT: build clean awsres
+.SILENT:
 
 GARGS	 = -q -m $(GFLAGS) -I../src -I../soap -I../ssl -I../include $(INCLUDES)
 
-TOOLS	 = awsres 
+TOOLS	 = awsres
+GEN      =
 
 ifdef XMLADA
 TOOLS := $(TOOLS) wsdl2aws
 endif
 
 ifdef ASIS
-TOOLS := $(TOOLS) ada2wsdl-main
+TOOLS := $(TOOLS)  ada2wsdl-main
+GEN   = ada2wsdl-options.adb
 endif
 
 EXECS    = $(patsubst  ada2wsdl-main,ada2wsdl,$(TOOLS))
 ALL_EXEC = $(addsuffix $(EXEEXT), $(EXECS))
 
-build: $(TOOLS)
+build: $(GEN) $(TOOLS)
 
 force:
 
-$(TOOLS): ada2wsdl-options.adb force
+$(TOOLS): force
 	echo Building `basename $@ -main`
 	$(GNATMAKE) $(GARGS) $@ -o `basename $@ -main` \
 		-largs -s -L../lib $(LIBS) -lz
