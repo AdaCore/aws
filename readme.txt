@@ -26,7 +26,7 @@ Here are the main changes:
     implementation has been validated through http://validator.soapware.org/
     and therefore should be quite inter-operable with other SOAP
     implementation. This implementation covers the SOAP client interface and
-    as all supports to build SOAP servers.
+    has all supports to build SOAP servers.
 
     Versions that validate on http://validator.soapware.org/ are the AWS 
     version string (AWS.Version) catenated with the SOAP version string
