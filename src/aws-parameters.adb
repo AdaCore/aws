@@ -57,76 +57,28 @@ package body AWS.Parameters is
 
    use Ada.Strings.Unbounded;
 
-   Val_Separator : constant Character := ASCII.VT;
+   -----------
+   -- Count --
+   -----------
 
-   function Internal_Get (Parameter_Set : in Set;
-                          Key           : in String;
-                          N             : in Natural)
-                         return String;
-   pragma Inline (Internal_Get);
-   --  Returns the Nth value associated with Key into Parameter_Set. Returns
-   --  the emptry string if key does not exist. If N = 0 it returns as-is all
-   --  the values as inserted in the tree for Key.
-
-   ---------
-   -- Add --
-   ---------
-
-   procedure Add
-     (Parameter_Set : in out Set;
-      Key, Value    : in     String)
-   is
-      C       : constant Positive := Parameter_Set.Count + 1;
-      K_Key   : constant String   := "__AWS_K" & Utils.Image (C);
-      K_Value : constant String   := "__AWS_V" & Utils.Image (C);
+   function Count (Parameter_List : in List) return Natural is
    begin
-      Parameter_Set.Count := Parameter_Set.Count + 1;
-
-      begin
-         Key_Value.Insert_Node
-           ((To_Unbounded_String (Key), To_Unbounded_String (Value)),
-            Parameter_Set.Data);
-      exception
-         --  This key already exist, catenate the new value to the old one
-         --  separated with Val_Separator.
-
-         when Key_Value.Tree.Duplicate_Key =>
-            declare
-               Current_Value : constant String :=
-                 Internal_Get (Parameter_Set, Key, 0);
-            begin
-               Key_Value.Update_Node
-                 ((To_Unbounded_String (Key),
-                   To_Unbounded_String (Current_Value
-                                        & Val_Separator
-                                        & Value)),
-                  Parameter_Set.Data);
-            end;
-      end;
-
-      Key_Value.Insert_Node
-        ((To_Unbounded_String (K_Key), To_Unbounded_String (Key)),
-         Parameter_Set.Data);
-
-      Key_Value.Insert_Node
-        ((To_Unbounded_String (K_Value), To_Unbounded_String (Value)),
-         Parameter_Set.Data);
-   end Add;
+      return Key_Value.Number_Of_Nodes (Parameter_List.Data);
+   end Count;
 
    -----------
    -- Count --
    -----------
 
-   function Count (Parameter_Set : in Set) return Natural is
-   begin
-      return Key_Value.Number_Of_Nodes (Parameter_Set.Data);
-   end Count;
-
-   function Count (Parameter_Set : in Set; Key : in String) return Natural is
+   function Count
+     (Parameter_List : in List;
+      Name           : in String)
+     return Natural
+   is
       Item : Key_Value.Data;
       CS   : Strings_Cutter.Cutted_String;
    begin
-      Key_Value.Inquire (Key, Parameter_Set.Data, Item);
+      Key_Value.Inquire (Name, Parameter_List.Data, Item);
 
       Strings_Cutter.Create (CS,
                              To_String (Item.Value),
@@ -147,10 +99,14 @@ package body AWS.Parameters is
    -- Exist --
    -----------
 
-   function Exist (Parameter_Set : in Set; Key : in String) return Boolean is
+   function Exist
+     (Parameter_List : in List;
+      Name           : in String)
+     return Boolean
+   is
       Item : Key_Value.Data;
    begin
-      Key_Value.Inquire (Key, Parameter_Set.Data, Item);
+      Key_Value.Inquire (Name, Parameter_List.Data, Item);
       return True;
    exception
       when others =>
@@ -161,54 +117,57 @@ package body AWS.Parameters is
    -- Get --
    ---------
 
-   function Get (Parameter_Set : in Set;
-                 Key           : in String;
-                 N             : in Positive := 1)
-                return String is
+   function Get
+     (Parameter_List : in List;
+      Name           : in String;
+      N              : in Positive := 1)
+     return String is
    begin
-      return Internal_Get (Parameter_Set, Key, N);
+      return Internal_Get (Parameter_List, Name, N);
    end Get;
 
-   -------------
-   -- Get_Key --
-   -------------
+   --------------
+   -- Get_Name --
+   --------------
 
-   function Get_Key
-     (Parameter_Set : in Set;
-      N             : in Positive)
+   function Get_Name
+     (Parameter_List : in List;
+      N              : in Positive := 1)
      return String
    is
       Key  : constant String := "__AWS_K" & Utils.Image (N);
    begin
-      return Get (Parameter_Set, Key);
-   end Get_Key;
+      return Get (Parameter_List, Key);
+   end Get_Name;
 
    ---------------
    -- Get_Value --
    ---------------
 
    function Get_Value
-     (Parameter_Set : in Set;
-      N             : in Positive)
-      return String
+     (Parameter_List : in List;
+      N              : in Positive := 1)
+     return String
    is
       Key  : constant String := "__AWS_V" & Utils.Image (N);
    begin
-      return Get (Parameter_Set, Key);
+      return Get (Parameter_List, Key);
    end Get_Value;
 
    ------------------
    -- Internal_Get --
    ------------------
 
-   function Internal_Get (Parameter_Set : in Set;
-                          Key           : in String;
-                          N             : in Natural)
-   return String is
+   function Internal_Get
+     (Parameter_List : in List;
+      Name           : in String;
+      N              : in Natural)
+     return String
+   is
       Item : Key_Value.Data;
       CS   : Strings_Cutter.Cutted_String;
    begin
-      Key_Value.Inquire (Key, Parameter_Set.Data, Item);
+      Key_Value.Inquire (Name, Parameter_List.Data, Item);
 
       Strings_Cutter.Create (CS,
                              To_String (Item.Value),
@@ -224,14 +183,5 @@ package body AWS.Parameters is
       when others =>
          return "";
    end Internal_Get;
-
-   -------------
-   -- Release --
-   -------------
-
-   procedure Release (Parameter_Set : in out Set) is
-   begin
-      Key_Value.Delete_Tree (Parameter_Set.Data);
-   end Release;
 
 end AWS.Parameters;
