@@ -179,6 +179,11 @@ package AWS.Server is
    procedure Stop_Error_Log (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log.
 
+   procedure Flush_Log (Web_Server : in out HTTP);
+   --  Flush the server log.
+   --  Note that error log do not need to be flushed, becouse it is in the
+   --  Auto_Flush mode.
+
 private
 
    procedure Default_Unexpected_Exception_Handler
