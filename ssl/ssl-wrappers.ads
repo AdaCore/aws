@@ -96,6 +96,9 @@ package SSL.Wrappers is
    pragma Export
      (C, SSL_CTX_use_PrivateKey_file, "SSL_CTX_use_PrivateKey_file");
 
+   procedure SSL_do_handshake;
+   pragma Export (C, SSL_do_handshake, "SSL_do_handshake");
+
    procedure SSLv3_client_method;
    pragma Export (C, SSLv3_client_method, "SSLv3_client_method");
 
