@@ -60,6 +60,13 @@ package body AWS.POP is
    procedure Check_Response (Response : in String);
    --  Checks server's response, raise POP_Error with server's message
 
+   procedure Read_Headers
+     (Sock    : in     AWS.Net.Socket_Type'Class;
+      Headers :    out AWS.Headers.List);
+   pragma Inline (Read_Headers);
+   --  Read headers from Sock, do not fail if a non conformant header is
+   --  found. It is possible to get wrong headers in SPAMs.
+
    ------------
    -- Adjust --
    ------------
@@ -373,7 +380,7 @@ package body AWS.POP is
 
          --  Read headers
 
-         AWS.Headers.Set.Read (Mailbox.Sock, Attachment.Headers);
+         Read_Headers (Mailbox.Sock, Attachment.Headers);
 
          --  Check Base64 encoding
 
@@ -437,7 +444,7 @@ package body AWS.POP is
 
       --  Read headers
 
-      AWS.Headers.Set.Read (Mailbox.Sock, Mess.Headers);
+      Read_Headers (Mailbox.Sock, Mess.Headers);
 
       --  Check for MIME message
 
@@ -579,7 +586,7 @@ package body AWS.POP is
 
       --  Read headers
 
-      AWS.Headers.Set.Read (Mailbox.Sock, Mess.Headers);
+      Read_Headers (Mailbox.Sock, Mess.Headers);
 
       --  Now read until the end of the message body, should read a single
       --  line with a dot.
@@ -748,6 +755,20 @@ package body AWS.POP is
    begin
       return Mailbox.Message_Count;
    end Message_Count;
+
+   ------------------
+   -- Read_Headers --
+   ------------------
+
+   procedure Read_Headers
+     (Sock    : in     AWS.Net.Socket_Type'Class;
+      Headers :    out AWS.Headers.List) is
+   begin
+      AWS.Headers.Set.Read (Sock, Headers);
+   exception
+      when AWS.Headers.Format_Error =>
+         null;
+   end Read_Headers;
 
    ----------
    -- Size --
