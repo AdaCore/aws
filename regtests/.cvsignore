@@ -119,6 +119,8 @@ b~test_wsdl2.adb
 b~test_wsdl2.ads
 b~test_wsdl3.adb
 b~test_wsdl3.ads
+b~test_wsdl4.adb
+b~test_wsdl4.ads
 b~testxml.adb
 b~testxml.ads
 b~tgetparam.adb
