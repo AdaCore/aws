@@ -67,6 +67,11 @@ package AWS.Config is
    Default_Send_Timeout      : constant Duration :=  40.0;
    Default_Receive_Timeout   : constant Duration :=  30.0;
 
+   Default_Status_Page       : constant String := "aws_status.thtml";
+   Default_Up_Image          : constant String := "aws_up.png";
+   Default_Down_Image        : constant String := "aws_down.png";
+   Default_Logo_Image        : constant String := "aws_logo.png";
+
    function Server_Name return String;
    --  Format: Server_Name <string>
    --  This is the name of the server as set by AWS.Server.Start.
@@ -141,5 +146,21 @@ package AWS.Config is
    function Receive_Timeout   return Duration;
    --  Format: Receive_Timeout <duration>
    --  Number of seconds to timeout when receiving chunck of data.
+
+   function Status_Page return String;
+   --  Format: Status_Page <string>
+   --  Filename for the status page.
+
+   function Up_Image    return String;
+   --  Format: Status_Page <string>
+   --  Filename for the up arrow image used in the status page.
+
+   function Down_Image  return String;
+   --  Format: Status_Page <string>
+   --  Filename for the down arrow image used in the status page.
+
+   function Logo_Image  return String;
+   --  Format: Status_Page <string>
+   --  Filename for the AWS logo image used in the status page.
 
 end AWS.Config;
