@@ -379,6 +379,17 @@ package body SOAP.WSDL.Parser is
       null;
    end End_Service;
 
+   -------------
+   -- Exclude --
+   -------------
+
+   procedure Exclude (O : in out Object; Operation : in String) is
+      Pos     : Exclude_Set.Cursor;
+      Success : Boolean;
+   begin
+      Exclude_Set.Insert (O.Exclude, Operation, Pos, Success);
+   end Exclude;
+
    --------------
    -- Get_Node --
    --------------
@@ -740,7 +751,10 @@ package body SOAP.WSDL.Parser is
             declare
                S : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
             begin
-               if Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "operation" then
+               if Utils.No_NS (DOM.Core.Nodes.Node_Name (S)) = "operation"
+                 and then not Exclude_Set.Is_In
+                   (XML.Get_Attr_Value (S, "name"), O.Exclude)
+               then
                   begin
                      Parse_Operation
                        (O, DOM.Core.Nodes.Item (NL, K), Document);
