@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -95,8 +95,8 @@ project Demos is
       COFF_Res   := ("../win32/aws.coff");
       LIB_Crypt  := ("-lcrypto", "-lssl");
 
-      WIN_OPT    := ("-L../lib") & COFF_Res & Shared.ZLIB & Shared.LIB_XMLAda;
-      UNX_OPT    := Shared.ZLIB & Shared.LIB_XMLAda;
+      WIN_OPT    := ("-L../lib") & COFF_Res & Shared.ZLIB;
+      UNX_OPT    := Shared.ZLIB;
 
       case Shared.OS is
          when "Windows_NT" =>
