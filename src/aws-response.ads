@@ -208,9 +208,9 @@ package AWS.Response is
       Stale   : in Boolean             := False;
       Message : in String              := Default_Authenticate_Message)
       return Data;
-   --  Returns an authentification message (Messages.S401), the Web browser
-   --  will then ask for an authentification. Realm string will be displayed
-   --  by the Web Browser in the authentification dialog box.
+   --  Returns an authentication message (Messages.S401), the Web browser
+   --  will then ask for an authentication. Realm string will be displayed
+   --  by the Web Browser in the authentication dialog box.
 
    function Socket_Taken return Data;
    --  Must be used to say that the connection socket has been taken by user
@@ -313,7 +313,7 @@ package AWS.Response is
 
    function Realm (D : in Data) return String;
    pragma Inline (Realm);
-   --  Returns the Realm for the current authentification request
+   --  Returns the Realm for the current authentication request
 
    function Authentication (D : in Data) return Authentication_Mode;
    pragma Inline (Authentication);

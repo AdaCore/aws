@@ -108,7 +108,7 @@ package body AWS.Client is
       Method     : in     String;
       URI        : in     String);
    --  Open the the Connection if it is not open. Send the common HTTP headers
-   --  for all requests like the proxy, authentification, user agent, host.
+   --  for all requests like the proxy, authentication, user agent, host.
 
    procedure Internal_Post
      (Connection   : in out HTTP_Connection;
@@ -996,12 +996,12 @@ package body AWS.Client is
       Send_Header (Sock.all,
                    Messages.User_Agent (To_String (Connection.User_Agent)));
 
-      --  User Authentification
+      --  User Authentication
 
       Send_Authentication_Header
         (Messages.Authorization_Token, Connection.Auth (WWW));
 
-      --  Proxy Authentification
+      --  Proxy Authentication
 
       Send_Authentication_Header
         (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
