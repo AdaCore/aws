@@ -28,11 +28,8 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
-with Ada.Characters.Handling;
-with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
-with AWS.Headers;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Response;
@@ -55,7 +52,7 @@ procedure Zdemo is
    begin
       if URI = "/" then
          --  Main page, check if browser supports the GZIP encoding
-         if Status.Is_Supported (Request, Messages.GZip) then
+         if Status.Is_Supported (Request, Encoding => Messages.GZip) then
             return Response.Build
               (MIME.Text_HTML,
                "<p>Your browser support GZIP encoding, "
