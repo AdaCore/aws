@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            September 15th, 2004
+   Pascal Obry                                            September 16th, 2004
 
 
 
@@ -106,6 +106,9 @@ Here are the main changes since AWS 2.0 :
      now only at the library level, there is no WSDL support nor direct
      interface with the SOAP engine. This feature has been contributed by
      Henrik Sundberg.
+
+   - Properly fill in the cache in buffered Read, this makes file upload
+     more efficient.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
