@@ -98,8 +98,8 @@ package AI302.Containers.Indefinite_Hashed_Maps is
    procedure Delete (Container : in out Map;
                      Position  : in out Cursor);
 
-   function Is_In (Container : Map;
-                   Key       : Key_Type)
+   function Is_In (Key       : Key_Type;
+                   Container : Map)
       return Boolean;
 
    function Find (Container : Map;

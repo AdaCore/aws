@@ -38,14 +38,6 @@ package body AI302.Containers.Indefinite_Vectors is
 
    type Int is range System.Min_Int .. System.Max_Int;
 
-   --subtype Natural_Int is Int range 0 .. Int'Last;
-
-   subtype Positive_Int is Int range 1 .. Int'Last;
-
-   --subtype Index_Int is Int range Index_Type'Pos (Index_Type'First) ..
-   --                                Index_Type'Pos (Index_Type'Last);
-
-
    procedure Free is
       new Ada.Unchecked_Deallocation (Elements_Type, Elements_Access);
 
@@ -130,12 +122,12 @@ package body AI302.Containers.Indefinite_Vectors is
       begin
          for I in Index_Type'First .. Container.Last loop
 
-            --There's another way to do this.  Instead a separate
-            --Boolean for each element, you could write a Boolean
-            --followed by a count of how many nulls or non-nulls
-            --follow in the array.  Alternately you could use a
-            --signed integer, and use the sign as the indicator
-            --or null-ness.
+            --  There's another way to do this.  Instead a separate
+            --  Boolean for each element, you could write a Boolean
+            --  followed by a count of how many nulls or non-nulls
+            --  follow in the array.  Alternately you could use a
+            --  signed integer, and use the sign as the indicator
+            --  or null-ness.
 
             if E (I) = null then
                Boolean'Write (Stream, False);
@@ -190,7 +182,7 @@ package body AI302.Containers.Indefinite_Vectors is
    function Empty_Vector return Vector is
    begin
       return (Controlled with null, Index_Type'Pred (Index_Type'First));
-   end;
+   end Empty_Vector;
 
 
    function To_Vector (Count : Count_Type) return Vector is
@@ -284,16 +276,16 @@ package body AI302.Containers.Indefinite_Vectors is
 
       for I in Index_Type'First .. Left.Last loop
 
-         --NOTE:
-         --I think it's a bounded error to read or otherwise manipulate
-         --an "empty" element, which here means that it has the value
-         --null.  If it's a bounded error then an exception might
-         --propagate, or it might not.  We take advantage of that
-         --permission here to allow empty elements to be compared.
+         --  NOTE:
+         --  I think it's a bounded error to read or otherwise manipulate
+         --  an "empty" element, which here means that it has the value
+         --  null.  If it's a bounded error then an exception might
+         --  propagate, or it might not.  We take advantage of that
+         --  permission here to allow empty elements to be compared.
          --
-         --Whether this is the right decision I'm not really sure.  If
-         --you have a contrary argument then let me know.
-         --END NOTE.
+         --  Whether this is the right decision I'm not really sure.  If
+         --  you have a contrary argument then let me know.
+         --  END NOTE.
 
          if Left.Elements (I) = null then
 
@@ -326,13 +318,13 @@ package body AI302.Containers.Indefinite_Vectors is
       N : constant Int'Base := L - F + 1;
    begin
       return Count_Type (N);
-   end;
+   end Length;
 
 
    function Is_Empty (Container : Vector) return Boolean is
    begin
       return Container.Last < Index_Type'First;
-   end;
+   end Is_Empty;
 
 
    procedure Set_Length
@@ -420,29 +412,46 @@ package body AI302.Containers.Indefinite_Vectors is
          Index_Type'Succ (Container.Last),
          New_Item,
          Count);
-   end;
+   end Append;
 
 
-   procedure Insert_Internal
+   procedure Insert
      (Container : in out Vector;
-      Before    : in     Index_Type;
+      Before    : in     Index_Type'Base;
       New_Item  : in     Element_Type;
-      Count     : in     Positive_Int) is
+      Count     : in     Count_Type := 1) is
 
-      Last_As_Int : constant Int := Int (Container.Last);
+      Old_Last_As_Int : constant Int := Int (Container.Last);
 
-      New_Last_As_Int : constant Int'Base := Last_As_Int + Count;
+      N : constant Int := Int (Count);
 
-      New_Last : constant Index_Type := Index_Type (New_Last_As_Int);
+      New_Last_As_Int : constant Int'Base := Old_Last_As_Int + N;
 
-      Index_As_Int : constant Int'Base := Int (Before) + Count;
+      New_Last : constant Last_Subtype := Last_Subtype (New_Last_As_Int);
 
-      Index : constant Index_Type := Index_Type (Index_As_Int);
+      Index : Index_Type;
 
       Dst_Last : Index_Type;
       Dst      : Elements_Access;
 
    begin
+
+      if Count = 0 then
+         return;
+      end if;
+
+      declare
+         subtype Before_Subtype is Index_Type'Base range
+           Index_Type'First .. Index_Type'Succ (Container.Last);
+
+         Old_First : constant Before_Subtype := Before;
+
+         Old_First_As_Int : constant Int := Int (Old_First);
+
+         New_First_As_Int : constant Int'Base := Old_First_As_Int + N;
+      begin
+         Index := Index_Type (New_First_As_Int);
+      end;
 
       if Container.Elements = null then
 
@@ -471,29 +480,29 @@ package body AI302.Containers.Indefinite_Vectors is
             E (Index .. New_Last) := E (Before .. Container.Last);
             Container.Last := New_Last;
 
-            --NOTE:
-            --Now we do the allocation.  If it fails, we can propagate the
-            --exception and invariants are more or less satisfied.  The
-            --issue is that we have some slots still null, and the client
-            --has no way of detecting whether the slot is null (unless we
-            --give him a way).
+            --  NOTE:
+            --  Now we do the allocation.  If it fails, we can propagate the
+            --  exception and invariants are more or less satisfied.  The
+            --  issue is that we have some slots still null, and the client
+            --  has no way of detecting whether the slot is null (unless we
+            --  give him a way).
             --
-            --Another way is to allocate a subarray on the stack, do the
-            --allocation into that array, and if that success then do
-            --the insertion proper.  The issue there is that you have to
-            --allocate the subarray on the stack, and that may fail if the
-            --subarray is long.
+            --  Another way is to allocate a subarray on the stack, do the
+            --  allocation into that array, and if that success then do
+            --  the insertion proper.  The issue there is that you have to
+            --  allocate the subarray on the stack, and that may fail if the
+            --  subarray is long.
             --
-            --Or we could try to roll-back the changes: deallocate the
-            --elements we have successfully deallocated, and then copy
-            --the elements ptrs back to their original posns.
-            --END NOTE.
+            --  Or we could try to roll-back the changes: deallocate the
+            --  elements we have successfully deallocated, and then copy
+            --  the elements ptrs back to their original posns.
+            --  END NOTE.
 
-            --NOTE: I have written the loop manually here.  I could
-            --have done it this way too:
-            --   E (Before .. Index_Type'Pred (Index)) :=
+            --  NOTE: I have written the loop manually here.  I could
+            --  have done it this way too:
+            --    E (Before .. Index_Type'Pred (Index)) :=
             --      (others => new Element_Type'New_Item);
-            --END NOTE.
+            --  END NOTE.
 
             for I in Before .. Index_Type'Pred (Index) loop
 
@@ -569,23 +578,61 @@ package body AI302.Containers.Indefinite_Vectors is
          Free (X);
       end;
 
-      --NOTE:
-      --Now do the allocation.  If the allocation fails,
-      --then the worst thing is that we have a few null slots.
-      --Our invariants are otherwise satisfied.
-      --END NOTE.
+      --  NOTE:
+      --  Now do the allocation.  If the allocation fails,
+      --  then the worst thing is that we have a few null slots.
+      --  Our invariants are otherwise satisfied.
+      --  END NOTE.
 
       for I in Before .. Index_Type'Pred (Index) loop
          Dst (I) := new Element_Type'(New_Item);
       end loop;
 
-   end Insert_Internal;
+   end Insert;
 
 
-   procedure Insert (Container : in out Vector;
-                     Before    : in     Index_Type'Base;
-                     New_Item  : in     Element_Type;
-                     Count     : in     Count_Type := 1) is
+--     procedure Insert (Container : in out Vector;
+--                       Before    : in     Index_Type'Base;
+--                       New_Item  : in     Element_Type;
+--                       Count     : in     Count_Type := 1) is
+--     begin
+--
+--        if Count = 0 then
+--           return;
+--        end if;
+--
+--        declare
+--           subtype T is Index_Type'Base range
+--             Index_Type'First .. Index_Type'Succ (Container.Last);
+--        begin
+--           Insert_Internal
+--             (Container,
+--              T'(Before),
+--              New_Item,
+--              Positive_Int (Count));
+--        end;
+--
+--     end Insert;
+
+
+   procedure Insert_Space
+     (Container : in out Vector;
+      Before    : in     Index_Type'Base;
+      Count     : in     Count_Type := 1) is
+
+      Old_Last_As_Int : constant Int := Int (Container.Last);
+
+      N : constant Int := Int (Count);
+
+      New_Last_As_Int : constant Int'Base := Old_Last_As_Int + N;
+
+      New_Last : constant Last_Subtype := Last_Subtype (New_Last_As_Int);
+
+      Index : Index_Type;
+
+      Dst_Last : Index_Type;
+      Dst      : Elements_Access;
+
    begin
 
       if Count = 0 then
@@ -593,43 +640,27 @@ package body AI302.Containers.Indefinite_Vectors is
       end if;
 
       declare
-         subtype T is Index_Type'Base range
+         subtype Before_Subtype is Index_Type'Base range
            Index_Type'First .. Index_Type'Succ (Container.Last);
+
+         Old_First : constant Before_Subtype := Before;
+
+         Old_First_As_Int : constant Int := Int (Old_First);
+
+         New_First_As_Int : constant Int'Base := Old_First_As_Int + N;
       begin
-         Insert_Internal
-           (Container,
-            T'(Before),
-            New_Item,
-            Positive_Int (Count));
+         Index := Index_Type (New_First_As_Int);
       end;
-
-   end Insert;
-
-
-   procedure Insert_Space_Internal
-     (Container : in out Vector;
-      Before    : in     Index_Type;
-      Count     : in     Positive_Int) is
-
-      Last_As_Int : constant Int := Int (Container.Last);
-
-      New_Last_As_Int : constant Int'Base := Last_As_Int + Count;
-
-      New_Last : constant Index_Type := Index_Type (New_Last_As_Int);
-
-      Index_As_Int : constant Int'Base := Int (Before) + Count;
-
-      Index : constant Index_Type := Index_Type (Index_As_Int);
-
-      Dst_Last : Index_Type;
-      Dst      : Elements_Access;
-
-   begin
 
       if Container.Elements = null then
 
-         Container.Elements := new Elements_Type (Index_Type'First .. New_Last);
-         Container.Last := New_Last;
+         declare
+            subtype Elements_Subtype is
+              Elements_Type (Index_Type'First .. New_Last);
+         begin
+            Container.Elements := new Elements_Subtype;
+            Container.Last := New_Last;
+         end;
 
          return;
 
@@ -707,28 +738,28 @@ package body AI302.Containers.Indefinite_Vectors is
          Free (X);
       end;
 
-   end Insert_Space_Internal;
-
-
-   procedure Insert_Space (Container : in out Vector;
-                           Before    : in     Index_Type'Base;
-                           Count     : in     Count_Type := 1) is
-   begin
-
-      if Count = 0 then
-         return;
-      end if;
-
-      declare
-         subtype T is Index_Type'Base range
-           Index_Type'First .. Index_Type'Succ (Container.Last);
-      begin
-         Insert_Space_Internal (Container,
-                                T'(Before),
-                                Positive_Int (Count));
-      end;
-
    end Insert_Space;
+
+
+--     procedure Insert_Space (Container : in out Vector;
+--                             Before    : in     Index_Type'Base;
+--                             Count     : in     Count_Type := 1) is
+--     begin
+--
+--        if Count = 0 then
+--           return;
+--        end if;
+--
+--        declare
+--           subtype T is Index_Type'Base range
+--             Index_Type'First .. Index_Type'Succ (Container.Last);
+--        begin
+--           Insert_Space_Internal (Container,
+--                                  T'(Before),
+--                                  Positive_Int (Count));
+--        end;
+--
+--     end Insert_Space;
 
 
 --     procedure Delete (Container : in out Vector;
@@ -811,50 +842,11 @@ package body AI302.Containers.Indefinite_Vectors is
    end Delete_Last;
 
 
-   procedure Delete_Internal (Container : in out Vector;
-                              Index     : in     Index_Type;
-                              Count     : in     Positive_Int) is
+   procedure Delete
+     (Container : in out Vector;
+      Index     : in     Index_Type'Base;
+      Count     : in     Count_Type := 1) is
 
-      I : constant Int := Int (Index);
-
-      Count2 : constant Int'Base := Int (Container.Last) - I + 1;
-
-      N : constant Int'Base := Int'Min (Count, Count2);
-
-      J_As_Int : constant Int'Base := I + N;
-
-      J : constant Index_Type'Base := Index_Type'Base (J_As_Int);
-
-      E : Elements_Type renames Container.Elements.all;
-
-      New_Last_As_Int : constant Int'Base := Int (Container.Last) - N;
-
-      New_Last : constant Index_Type'Base := Index_Type'Base (New_Last_As_Int);
-
-   begin
-
-      for I in Index .. Index_Type'Pred (J) loop
-
-         begin
-            Free (E (I));
-         exception
-            when others =>
-               E (I) := null;
-               raise;
-         end;
-
-      end loop;
-
-      E (Index .. New_Last) := E (J .. Container.Last);
-
-      Container.Last := New_Last;
-
-   end Delete_Internal;
-
-
-   procedure Delete (Container : in out Vector;
-                     Index     : in     Index_Type'Base;
-                     Count     : in     Count_Type := 1) is
    begin
 
       if Count = 0 then
@@ -862,13 +854,67 @@ package body AI302.Containers.Indefinite_Vectors is
       end if;
 
       declare
-         subtype T is Index_Type'Base range
+
+         subtype Index_Subtype is Index_Type'Base range
            Index_Type'First .. Container.Last;
+
+         I : constant Index_Subtype := Index;
+         I_As_Int : constant Int := Int (I);
+
+         Old_Last_As_Int : constant Int := Int (Container.Last);
+
+         Count1 : constant Int'Base := Int (Count);
+         Count2 : constant Int'Base := Old_Last_As_Int - I_As_Int + 1;
+
+         N : constant Int'Base := Int'Min (Count1, Count2);
+
+         J_As_Int : constant Int'Base := I_As_Int + N;
+         J : constant Index_Type'Base := Index_Type'Base (J_As_Int);
+
+         E : Elements_Type renames Container.Elements.all;
+
+         New_Last_As_Int : constant Int'Base := Old_Last_As_Int - N;
+         New_Last : constant Last_Subtype := Last_Subtype (New_Last_As_Int);
+
       begin
-         Delete_Internal (Container, T'(Index), Positive_Int (Count));
+
+         for K in I .. Index_Type'Pred (J) loop
+
+            begin
+               Free (E (K));
+            exception
+               when others =>
+                  E (K) := null;
+                  raise;
+            end;
+
+         end loop;
+
+         E (I .. New_Last) := E (J .. Container.Last);
+         Container.Last := New_Last;
+
       end;
 
    end Delete;
+
+
+--     procedure Delete (Container : in out Vector;
+--                       Index     : in     Index_Type'Base;
+--                       Count     : in     Count_Type := 1) is
+--     begin
+--
+--        if Count = 0 then
+--           return;
+--        end if;
+--
+--        declare
+--           subtype T is Index_Type'Base range
+--             Index_Type'First .. Container.Last;
+--        begin
+--           Delete_Internal (Container, T'(Index), Positive_Int (Count));
+--        end;
+--
+--     end Delete;
 
 
    function Capacity (Container : Vector) return Count_Type is
@@ -878,7 +924,7 @@ package body AI302.Containers.Indefinite_Vectors is
       end if;
 
       return Container.Elements'Length;
-   end;
+   end Capacity;
 
 
    procedure Set_Capacity (Container : in out Vector;
@@ -1006,25 +1052,25 @@ package body AI302.Containers.Indefinite_Vectors is
       pragma Warnings (Off, Container);
    begin
       return Index_Type'First;
-   end;
+   end First_Index;
 
 
    function First_Element (Container : Vector) return Element_Type is
    begin
       return Element (Container, Index_Type'First);
-   end;
+   end First_Element;
 
 
    function Last_Index (Container : Vector) return Index_Type'Base is
    begin
       return Container.Last;
-   end;
+   end Last_Index;
 
 
    function Last_Element (Container : Vector) return Element_Type is
    begin
       return Element (Container, Container.Last);
-   end;
+   end Last_Element;
 
 
    function Element (Container : Vector;
@@ -1035,7 +1081,7 @@ package body AI302.Containers.Indefinite_Vectors is
         Index_Type'First .. Container.Last;
    begin
       return Container.Elements (T'(Index)).all;
-   end;
+   end Element;
 
 
    procedure Replace_Element (Container : in Vector;
@@ -1049,13 +1095,15 @@ package body AI302.Containers.Indefinite_Vectors is
    begin
       Container.Elements (T'(Index)) := new Element_Type'(By);
       Free (X);
-   end;
+   end Replace_Element;
 
 
    procedure Generic_Sort (Container : in Vector) is
 
+      function Is_Less (L, R : Element_Access) return Boolean;
+      pragma Inline (Is_Less);
+
       function Is_Less (L, R : Element_Access) return Boolean is
-         pragma Inline (Is_Less);
       begin
          if L = null then
             return R /= null;
@@ -1133,14 +1181,14 @@ package body AI302.Containers.Indefinite_Vectors is
 
       return Index_Type'Succ (Container.Last);
 
-   end;
+   end Reverse_Find;
 
 
-   function Is_In (Container : Vector;
-                   Item      : Element_Type) return Boolean is
+   function Is_In (Item      : Element_Type;
+                   Container : Vector) return Boolean is
    begin
       return Find (Container, Item) /= Index_Type'Succ (Container.Last);
-   end;
+   end Is_In;
 
 
 
@@ -1200,7 +1248,7 @@ package body AI302.Containers.Indefinite_Vectors is
       end if;
 
       Target.Elements := null;
-      Free (X);  --shouldn't fail
+      Free (X);  --  shouldn't fail
 
       Target.Elements := Source.Elements;
       Target.Last := Source.Last;
@@ -1219,7 +1267,7 @@ package body AI302.Containers.Indefinite_Vectors is
         Index_Type'First .. Container.Last;
    begin
       Process (Container.Elements (T'(Index)).all);
-   end;
+   end Generic_Update_Element_By_Index;
 
 
    procedure Prepend (Container : in out Vector;
@@ -1230,7 +1278,7 @@ package body AI302.Containers.Indefinite_Vectors is
               Index_Type'First,
               New_Item,
               Count);
-   end;
+   end Prepend;
 
 
    procedure Swap
@@ -1452,9 +1500,15 @@ package body AI302.Containers.Indefinite_Vectors is
             Elements (Elements'Last) := new Element_Type'(Right);
          exception
             when others =>
-               for J in Index_Type'First .. Index_Type'Pred (Elements'Last) loop
-                  Free (Elements (J));
-               end loop;
+
+               declare
+                  subtype Index_Subtype is Index_Type'Base range
+                    Index_Type'First .. Index_Type'Pred (Elements'Last);
+               begin
+                  for J in Index_Subtype loop
+                     Free (Elements (J));
+                  end loop;
+               end;
 
                Free (Elements);
                raise;
@@ -1586,7 +1640,7 @@ package body AI302.Containers.Indefinite_Vectors is
       end if;
 
       return Cursor'(Container'Unchecked_Access, Index);
-   end;
+   end To_Cursor;
 
 
    function To_Index (Position : Cursor) return Index_Type'Base is
@@ -1596,17 +1650,17 @@ package body AI302.Containers.Indefinite_Vectors is
       end if;
 
       if Position.Index not in Index_Type'First .. Position.Container.Last then
-         raise Constraint_Error;   --TODO: verify these semantics
+         raise Constraint_Error;   --  TODO: verify these semantics
       end if;
 
       return Position.Index;
-   end;
+   end To_Index;
 
 
    function Element (Position : Cursor) return Element_Type is
    begin
       return Element (Position.Container.all, Position.Index);
-   end;
+   end Element;
 
 
    function Next (Position : Cursor) return Cursor is
@@ -1714,7 +1768,7 @@ package body AI302.Containers.Indefinite_Vectors is
         Index_Type'First .. C.Last;
    begin
       Process (E (T'(Position.Index)).all);
-   end;
+   end Generic_Update_Element;
 
 
    procedure Replace_Element (Position : in Cursor;
@@ -1730,7 +1784,7 @@ package body AI302.Containers.Indefinite_Vectors is
    begin
       E (T'(Position.Index)) := new Element_Type'(By);
       Free (X);
-   end;
+   end Replace_Element;
 
 
    procedure Insert (Container : in out Vector;
@@ -1762,8 +1816,11 @@ package body AI302.Containers.Indefinite_Vectors is
          begin
 
             declare
+               subtype Src_Index_Subtype is Index_Type'Base range
+                 Index_Type'First .. Index_Type'Pred (Before);
+
                Src : Elements_Type renames
-                 Container.Elements (Index_Type'First .. Index_Type'Pred (Before));
+                 Container.Elements (Src_Index_Subtype);
             begin
                for Src_Index in Src'Range loop
                   Dst_Index := Index_Type'Succ (Dst_Index);
@@ -1775,8 +1832,11 @@ package body AI302.Containers.Indefinite_Vectors is
             end;
 
             declare
+               subtype Src_Index_Subtype is Index_Type'Base range
+                 Index_Type'Succ (Dst_Last) .. Container.Last;
+
                Src : Elements_Type renames
-                 Container.Elements (Index_Type'Succ (Dst_Last) .. Container.Last);
+                 Container.Elements (Src_Index_Subtype);
             begin
                for Src_Index in Src'Range loop
                   Dst_Index := Index_Type'Succ (Dst_Index);
@@ -1838,7 +1898,7 @@ package body AI302.Containers.Indefinite_Vectors is
          Index := Before.Index;
 
       else
-         Index := Index_Type'Succ (Container.Last);  --TODO: CE?
+         Index := Index_Type'Succ (Container.Last);  --  TODO: CE?
 
       end if;
 
@@ -1881,7 +1941,7 @@ package body AI302.Containers.Indefinite_Vectors is
          Index := Before.Index;
 
       else
-         Index := Index_Type'Succ (Container.Last);  --TODO: CE?
+         Index := Index_Type'Succ (Container.Last);  --  TODO: CE?
 
       end if;
 
@@ -1912,7 +1972,7 @@ package body AI302.Containers.Indefinite_Vectors is
          Index := Before.Index;
 
       else
-         Index := Index_Type'Succ (Container.Last);  --TODO: CE?
+         Index := Index_Type'Succ (Container.Last);  --  TODO: CE?
 
       end if;
 
@@ -1955,7 +2015,7 @@ package body AI302.Containers.Indefinite_Vectors is
          Index := Before.Index;
 
       else
-         Index := Index_Type'Succ (Container.Last);  --TODO: CE?
+         Index := Index_Type'Succ (Container.Last);  --  TODO: CE?
 
       end if;
 
@@ -1971,7 +2031,7 @@ package body AI302.Containers.Indefinite_Vectors is
                       New_Item  : in     Vector) is
    begin
       Insert (Container, Index_Type'First, New_Item);
-   end;
+   end Prepend;
 
 
    procedure Append (Container : in out Vector;
@@ -1985,7 +2045,7 @@ package body AI302.Containers.Indefinite_Vectors is
         (Container,
          Index_Type'Succ (Container.Last),
          New_Item);
-   end;
+   end Append;
 
 
 
@@ -2022,7 +2082,7 @@ package body AI302.Containers.Indefinite_Vectors is
          Index := Before.Index;
 
       else
-         Index := Index_Type'Succ (Container.Last);  --TODO: CE?
+         Index := Index_Type'Succ (Container.Last);  --  TODO: CE?
 
       end if;
 
@@ -2076,7 +2136,7 @@ package body AI302.Containers.Indefinite_Vectors is
       end if;
 
       return (Container'Unchecked_Access, Index_Type'First);
-   end;
+   end First;
 
 
    function Last (Container : Vector) return Cursor is
@@ -2086,14 +2146,14 @@ package body AI302.Containers.Indefinite_Vectors is
       end if;
 
       return (Container'Unchecked_Access, Container.Last);
-   end;
+   end Last;
 
 
    procedure Swap (Container : in Vector;
                    I, J      : in Cursor) is
    begin
       Swap (Container, I => I.Index, J => J.Index);
-   end;
+   end Swap;
 
 
    function Find (Container : Vector;
@@ -2104,12 +2164,13 @@ package body AI302.Containers.Indefinite_Vectors is
 
    begin
 
-      if Is_Empty (Container) then  --TODO: correct semantics?
+      if Is_Empty (Container) then  --  TODO: correct semantics?
          return No_Element;
       end if;
 
       if Position.Container = null
-        or else Position.Index > Container.Last  --TODO: error, or counts as No_Element?
+        or else Position.Index > Container.Last
+                  --  TODO: error, or counts as No_Element?
       then
          Index := Index_Type'First;
       else
@@ -2137,12 +2198,12 @@ package body AI302.Containers.Indefinite_Vectors is
 
    begin
 
-      if Is_Empty (Container) then  --TODO: verify with Randy and Tucker
+      if Is_Empty (Container) then  --  TODO: verify with Randy and Tucker
          return No_Element;
       end if;
 
       if Position.Container = null
-        or else Position.Index > Container.Last  --TODO: correct semantics?
+        or else Position.Index > Container.Last  --  TODO: correct semantics?
       then
          Last := Container.Last;
       else

@@ -127,16 +127,16 @@ package AI302.Containers.Indefinite_Ordered_Sets is
 
    function "xor" (Left, Right : Set) return Set renames Symmetric_Difference;
 
-   function Is_Subset (Container : Set;
-                       Item      : Set)
+   function Is_Subset (Item      : Set;
+                       Container : Set)
       return Boolean;
 
-   function Is_Disjoint (Container : Set;
-                         Item      : Set)
+   function Is_Disjoint (Item      : Set;
+                         Container : Set)
       return Boolean;
 
-   function Is_In (Container : Set;
-                   Item      : Element_Type) return Boolean;
+   function Is_In (Item      : Element_Type;
+                   Container : Set) return Boolean;
 
    function Find (Container : Set;
                   Item      : Element_Type)

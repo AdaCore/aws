@@ -53,11 +53,11 @@ package AI302.Containers.Vectors is
    type Cursor is private;
 
    function Empty_Vector return Vector;
-   --NOTE:
-   --The subcommittee report has this as a constant,
-   --but you can't do that without an Ada 0X compiler.
-   --For now I'll declare this as a function (which
-   --might be better anyway).
+   --  NOTE:
+   --  The subcommittee report has this as a constant,
+   --  but you can't do that without an Ada 0X compiler.
+   --  For now I'll declare this as a function (which
+   --  might be better anyway).
 
    No_Element : constant Cursor;
 
@@ -210,6 +210,9 @@ package AI302.Containers.Vectors is
 
    procedure Swap (Container : in Vector;
                    I, J      : in Cursor);
+   --  MJH:
+   --  The inclusion of the Container parameter appears to be an error.
+   --  ENDMJH.
 
    generic
       with function "<" (Left, Right : Element_Type) return Boolean is <>;
@@ -235,9 +238,13 @@ package AI302.Containers.Vectors is
                           Position  : Cursor := No_Element)
       return Cursor;
 
-   function Is_In (Container : Vector;
-                   Item      : Element_Type)
+   function Is_In (Item      : Element_Type;
+                   Container : Vector)
       return Boolean;
+   --  MJH:
+   --  I have left the parameters in this order, pending a ruling
+   --  from the ARG.
+   --  ENDMJH.
 
    function Next (Position : Cursor) return Cursor;
 
@@ -267,9 +274,12 @@ private
 
    use Ada.Finalization;
 
+   subtype Last_Subtype is Index_Type'Base range
+     Index_Type'Pred (Index_Type'First) .. Index_Type'Last;
+
    type Vector is new Controlled with record
       Elements : Elements_Access;
-      Last     : Index_Type'Base := Index_Type'Pred (Index_Type'First);
+      Last     : Last_Subtype := Last_Subtype'First;
    end record;
 
    procedure Adjust (Container : in out Vector);
