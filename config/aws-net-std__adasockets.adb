@@ -104,7 +104,7 @@ package body AWS.Net.Std is
 
       Sockets.Bind (Socket.S.FD, Port, Host);
    exception
-      when E : Sockets.Socket_Error =>
+      when E : Sockets.Socket_Error | Sockets.Naming.Naming_Error =>
          Raise_Exception (E, "Bind");
    end Bind;
 
@@ -131,7 +131,10 @@ package body AWS.Net.Std is
 
       Set_Cache (Socket);
    exception
-      when E : Sockets.Connection_Refused | Sockets.Socket_Error =>
+      when E : Sockets.Connection_Refused
+             | Sockets.Socket_Error
+             | Sockets.Naming.Naming_Error
+      =>
          if Close_On_Exception then
             Sockets.Shutdown (Socket.S.FD);
          end if;
