@@ -45,6 +45,105 @@ package body AWS.Client is
 
    End_Section : constant String := "";
 
+   procedure Init_Connection
+     (Sock       :    out Sockets.Socket_FD;
+      Method     : in     String;
+      URL        : in     String;
+      User       : in     String            := No_Data;
+      Pwd        : in     String            := No_Data;
+      Proxy      : in     String            := No_Data;
+      Proxy_User : in     String            := No_Data;
+      Proxy_Pwd  : in     String            := No_Data);
+   --  send a header to the server eventually going through a proxy server
+   --  with authentification.
+
+   procedure Parse_Header
+     (Sock              : in     Sockets.Socket_FD;
+      Status            :    out Messages.Status_Code;
+      Content_Length    :    out Natural;
+      Content_Type      :    out Unbounded_String;
+      Transfer_Encoding :    out Unbounded_String);
+   --  Read server answer and set corresponding variable with the value
+   --  read. Most of the field are ignored right now.
+
+   ---------------------
+   -- Init_Connection --
+   ---------------------
+
+   procedure Init_Connection
+     (Sock       :    out Sockets.Socket_FD;
+      Method     : in     String;
+      URL        : in     String;
+      User       : in     String            := No_Data;
+      Pwd        : in     String            := No_Data;
+      Proxy      : in     String            := No_Data;
+      Proxy_User : in     String            := No_Data;
+      Proxy_Pwd  : in     String            := No_Data)
+   is
+      function Get_Host_Name return String;
+      --  returns the local hostname
+
+      Proxy_Data, URL_Data : AWS.URL.Object;
+
+      -------------------
+      -- Get_Host_Name --
+      -------------------
+
+      function Get_Host_Name return String is
+         Buffer : Interfaces.C.char_array (1 .. 100);
+         Res    : Interfaces.C.int;
+      begin
+         Res := Sockets.Thin.C_gethostname (Buffer (1)'Address, 100);
+         return Interfaces.C.To_Ada (Buffer);
+      end Get_Host_Name;
+
+   begin
+      URL_Data   := AWS.URL.Parse (URL);
+      Proxy_Data := AWS.URL.Parse (Proxy);
+
+      -- Connect to server
+
+      if Proxy = No_Data then
+         Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
+
+         Sockets.Connect (Sock,
+                          AWS.URL.Server_Name (URL_Data),
+                          AWS.URL.Port (URL_Data));
+
+         Sockets.Put_Line (Sock, Method & ' '
+                           & AWS.URL.URI (URL_Data)
+                           & ' ' & HTTP_Version);
+         Sockets.Put_Line (Sock, "Connection: Keep-Alive");
+
+      else
+         Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
+
+         Sockets.Connect (Sock,
+                          AWS.URL.Server_Name (Proxy_Data),
+                          AWS.URL.Port (Proxy_Data));
+
+         Sockets.Put_Line (Sock, Method & ' ' & URL & ' ' & HTTP_Version);
+         Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
+      end if;
+
+      Sockets.Put_Line (Sock, "Accept: text/html, */*");
+      Sockets.Put_Line (Sock, "Accept-Language: fr, us");
+      Sockets.Put_Line (Sock, "User-Agent: AWS/v" & Version);
+      Sockets.Put_Line (Sock, "Host: " & Get_Host_Name);
+
+      if User /= No_Data and then Pwd /= No_Data then
+         Sockets.Put_Line
+           (Sock, "Authorization: Basic " &
+            AWS.Translater.Base64_Encode (User & ':' & Pwd));
+      end if;
+
+      if Proxy_User /= No_Data and then Proxy_Pwd /= No_Data then
+         Sockets.Put_Line
+           (Sock, "Proxy-Authorization: Basic " &
+            AWS.Translater.Base64_Encode (Proxy_User & ':' & Proxy_Pwd));
+      end if;
+   end Init_Connection;
+
    ---------
    -- Get --
    ---------
@@ -60,16 +159,12 @@ package body AWS.Client is
       function Read_Chunk return Streams.Stream_Element_Array;
       --  read a chunk object from the stream
 
-      function Get_Host_Name return String;
-      --  returns the local hostname
-
       Sock    : Sockets.Socket_FD;
       CT      : Unbounded_String;
       CT_Len  : Natural;
       TE      : Unbounded_String;
       Status  : Messages.Status_Code;
       Message : Unbounded_String;
-      Proxy_Data, URL_Data : AWS.URL.Object;
 
       ----------------
       -- Read_Chunk --
@@ -108,100 +203,13 @@ package body AWS.Client is
          end if;
       end Read_Chunk;
 
-      -------------------
-      -- Get_Host_Name --
-      -------------------
-
-      function Get_Host_Name return String is
-         Buffer : Interfaces.C.char_array (1 .. 100);
-         Res    : Interfaces.C.int;
-      begin
-         Res := Sockets.Thin.C_gethostname (Buffer (1)'Address, 100);
-         return Interfaces.C.To_Ada (Buffer);
-      end Get_Host_Name;
-
    begin
-
-      URL_Data   := AWS.URL.Parse (URL);
-      Proxy_Data := AWS.URL.Parse (Proxy);
-
-      -- Connect to server
-
-      if Proxy = No_Data then
-         Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
-
-         Sockets.Connect (Sock,
-                          AWS.URL.Server_Name (URL_Data),
-                          AWS.URL.Port (URL_Data));
-
-         Sockets.Put_Line (Sock, "GET "
-                           & AWS.URL.URI (URL_Data)
-                           & ' ' & HTTP_Version);
-         Sockets.Put_Line (Sock, "Connection: Keep-Alive");
-
-      else
-         Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
-
-         Sockets.Connect (Sock,
-                          AWS.URL.Server_Name (Proxy_Data),
-                          AWS.URL.Port (Proxy_Data));
-
-         Sockets.Put_Line (Sock, "GET " & URL & ' ' & HTTP_Version);
-         Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
-      end if;
-
-      Sockets.Put_Line (Sock, "Accept: text/html, */*");
-      Sockets.Put_Line (Sock, "Accept-Language: fr, us");
-      Sockets.Put_Line (Sock, "User-Agent: AWS/v" & Version);
-      Sockets.Put_Line (Sock, "Host: " & Get_Host_Name);
-
-      if User /= No_Data and then Pwd /= No_Data then
-         Sockets.Put_Line
-           (Sock, "Authorization: Basic " &
-            AWS.Translater.Base64_Encode (User & ':' & Pwd));
-      end if;
-
-      if Proxy_User /= No_Data and then Proxy_Pwd /= No_Data then
-         Sockets.Put_Line
-           (Sock, "Proxy-Authorization: Basic " &
-            AWS.Translater.Base64_Encode (Proxy_User & ':' & Proxy_Pwd));
-      end if;
+      Init_Connection (Sock, "GET",
+                       URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
 
       Sockets.New_Line (Sock);
 
-      Parse_Header : loop
-         declare
-            Line : constant String := Sockets.Get_Line (Sock);
-         begin
-            if Line = End_Section then
-               exit Parse_Header;
-
-            elsif Messages.Is_Match (Line, Messages.HTTP_Token) then
-               Status := Messages.Status_Code'Value
-                 ('S' & Line (Messages.HTTP_Token'Last + 5
-                              .. Messages.HTTP_Token'Last + 7));
-
-            elsif Messages.Is_Match (Line, Messages.Content_Type_Token) then
-               CT := To_Unbounded_String
-                 (Line (Messages.Content_Type_Token'Last + 1 .. Line'Last));
-
-            elsif Messages.Is_Match (Line, Messages.Content_Length_Token) then
-               CT_Len := Natural'Value
-                 (Line (Messages.Content_Length_Range'Last + 1 .. Line'Last));
-
-            elsif Messages.Is_Match (Line,
-                                     Messages.Transfer_Encoding_Token)
-            then
-               TE := To_Unbounded_String
-                 (Line (Messages.Transfer_Encoding_Range'Last + 1
-                        .. Line'Last));
-
-            else
-               --  everything else is ignore right now
-               null;
-            end if;
-         end;
-      end loop Parse_Header;
+      Parse_Header (Sock, Status, CT_Len, CT, TE);
 
       --  read the message body
 
@@ -262,5 +270,89 @@ package body AWS.Client is
       when others =>
          raise URL_Error;
    end Get;
+
+   ------------------
+   -- Parse_Header --
+   ------------------
+
+   procedure Parse_Header
+     (Sock              : in     Sockets.Socket_FD;
+      Status            :    out Messages.Status_Code;
+      Content_Length    :    out Natural;
+      Content_Type      :    out Unbounded_String;
+      Transfer_Encoding :    out Unbounded_String) is
+   begin
+      loop
+         declare
+            Line : constant String := Sockets.Get_Line (Sock);
+         begin
+            if Line = End_Section then
+               exit;
+
+            elsif Messages.Is_Match (Line, Messages.HTTP_Token) then
+               Status := Messages.Status_Code'Value
+                 ('S' & Line (Messages.HTTP_Token'Last + 5
+                              .. Messages.HTTP_Token'Last + 7));
+
+            elsif Messages.Is_Match (Line, Messages.Content_Type_Token) then
+               Content_Type := To_Unbounded_String
+                 (Line (Messages.Content_Type_Token'Last + 1 .. Line'Last));
+
+            elsif Messages.Is_Match (Line, Messages.Content_Length_Token) then
+               Content_Length := Natural'Value
+                 (Line (Messages.Content_Length_Range'Last + 1 .. Line'Last));
+
+            elsif Messages.Is_Match (Line,
+                                     Messages.Transfer_Encoding_Token)
+            then
+               Transfer_Encoding := To_Unbounded_String
+                 (Line (Messages.Transfer_Encoding_Range'Last + 1
+                        .. Line'Last));
+
+            else
+               --  everything else is ignore right now
+               null;
+            end if;
+         end;
+      end loop;
+   end Parse_Header;
+
+   ---------
+   -- Put --
+   ---------
+
+   function Put (URL        : in String;
+                 Data       : in String;
+                 User       : in String := No_Data;
+                 Pwd        : in String := No_Data;
+                 Proxy      : in String := No_Data;
+                 Proxy_User : in String := No_Data;
+                 Proxy_Pwd  : in String := No_Data) return Response.Data
+   is
+      Sock    : Sockets.Socket_FD;
+      CT      : Unbounded_String;
+      CT_Len  : Natural;
+      TE      : Unbounded_String;
+      Status  : Messages.Status_Code;
+   begin
+      Init_Connection (Sock, "PUT",
+                       URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
+
+      --  send message Content_Length
+
+      Sockets.Put_Line (Sock, Messages.Content_Length (Data'Length));
+
+      Sockets.New_Line (Sock);
+
+      --  send message body
+
+      Sockets.Put_Line (Sock, Data);
+
+      --  get answer from server
+
+      Parse_Header (Sock, Status, CT_Len, CT, TE);
+
+      return Response.Acknowledge (Status);
+   end Put;
 
 end AWS.Client;
