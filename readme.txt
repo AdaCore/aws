@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 Marsh 19th, 2003
+   Pascal Obry                                                 Marsh 20th, 2003
 
 
 
@@ -58,7 +58,8 @@ Here are the main changes since AWS 1.3 :
    - Fix space handling bug in SOAP parser. Multiple spaces were removed
      from the parsed string.
 
-   - Handle properly accents in SOAP messages.
+   - Handle properly accents in SOAP messages. Convert properly DOM Utf8
+     encoded tree back to basic Ada 8 bits string.
 
    - It is now possible to retrieve the running server from a callback
      procedure. From there it is also possible to get the server
@@ -66,6 +67,10 @@ Here are the main changes since AWS 1.3 :
 
    - It is now possible to have access to the server internal status. See
      AWS.Server.Status package.
+
+   - The Log API is now thread safe.
+
+   - Fix regression in client API on standard and proxy authentication.
 
    - Plus many small fixes, enhancements and documentation work.
 
