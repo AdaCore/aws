@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -585,7 +585,6 @@ package body AWS.Server is
          if Wait_Counter > 30 then
             Ada.Text_IO.Put_Line
               (Text_IO.Current_Error, "Can't terminate all lines.");
-
             exit;
          end if;
       end loop;
@@ -607,7 +606,6 @@ package body AWS.Server is
          if Wait_Counter > 10 then
             Text_IO.Put_Line
               (Text_IO.Current_Error, "Can't terminate task cleaner.");
-
             exit;
          end if;
       end loop;
