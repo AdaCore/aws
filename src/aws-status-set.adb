@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -355,7 +355,7 @@ package body AWS.Status.Set is
 
    procedure Socket
      (D    : in out Data;
-      Sock : in     Socket_Access) is
+      Sock : in     Net.Socket_Access) is
    begin
       D.Socket := Sock;
    end Socket;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -122,7 +122,7 @@ package AWS.Status.Set is
 
    procedure Socket
      (D    : in out Data;
-      Sock : in     Socket_Access);
+      Sock : in     Net.Socket_Access);
    --  Set the Socket for the status. User callback can then retreive the
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.
