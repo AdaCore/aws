@@ -1217,8 +1217,9 @@ is
             Socket_Taken := True;
 
          when Response.No_Data =>
-            null;
-
+            Ada.Exceptions.Raise_Exception
+              (Constraint_Error'Identity,
+               "Answer not properly initialized (No_Data)");
       end case;
 
       Net.Buffered.Flush (Sock);
