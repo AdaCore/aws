@@ -4,6 +4,11 @@ $Id$
 To build AWS you need to change some settings in the top level 
 makefile.conf file.
 
+You also need to set ADA_PROJECT_PATH to at least point to .build/projects,
+you also need to set it properly if you use XML/Ada for example.
+
+        $ export ADA_PROJECT_PATH=<aws_root>/.build/projects
+
 Look for ADASOCKETS, XMLADA, ASIS, POSIX, and INSTALL make's
 variables. Then building AWS is as simple as:
 
