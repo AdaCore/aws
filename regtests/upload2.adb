@@ -33,15 +33,17 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
 with AWS.Client;
 with AWS.Config.Set;
-with AWS.Status;
+with AWS.Exceptions;
+with AWS.Log;
 with AWS.MIME;
-with AWS.Net;
-with AWS.Response;
-with AWS.Parameters;
 with AWS.Messages;
+with AWS.Net;
+with AWS.Parameters;
+with AWS.Response;
+with AWS.Server;
+with AWS.Status;
 
 procedure Upload2 is
 
@@ -59,9 +61,10 @@ procedure Upload2 is
    HTTP : AWS.Server.HTTP;
 
    procedure Problem
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
-      Termination : in     Boolean;
-      Answer      : in out Response.Data);
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data);
    --  Web exception handler
 
    --------
@@ -92,13 +95,14 @@ procedure Upload2 is
    -------------
 
    procedure Problem
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
-      Termination : in     Boolean;
-      Answer      : in out Response.Data) is
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data) is
    begin
       Put_Line ("Ok, exception received on the server side");
-      Put_Line ("  => " & Exceptions.Exception_Name (E));
-      Put_Line ("  => " & Exceptions.Exception_Message (E));
+      Put_Line ("  => " & Ada.Exceptions.Exception_Name (E));
+      Put_Line ("  => " & Ada.Exceptions.Exception_Message (E));
    end Problem;
 
    ------------
@@ -133,7 +137,7 @@ procedure Upload2 is
       AWS.Server.Shutdown (HTTP);
    exception
       when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
+         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
    end Server;
 
    -------------
@@ -162,5 +166,5 @@ begin
 
 exception
    when E : others =>
-      Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
 end Upload2;

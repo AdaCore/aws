@@ -33,15 +33,17 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
-with AWS.Server;
+with AWS.Log;
 with AWS.Client;
 with AWS.Config.Set;
-with AWS.Status;
+with AWS.Exceptions;
 with AWS.MIME;
-with AWS.Net;
-with AWS.Response;
-with AWS.Parameters;
 with AWS.Messages;
+with AWS.Net;
+with AWS.Parameters;
+with AWS.Response;
+with AWS.Server;
+with AWS.Status;
 
 procedure Upload3 is
 
@@ -59,9 +61,10 @@ procedure Upload3 is
    HTTP : AWS.Server.HTTP;
 
    procedure Problem
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
-      Termination : in     Boolean;
-      Answer      : in out Response.Data);
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data);
    --  Web exception handler
 
    --------
@@ -92,13 +95,14 @@ procedure Upload3 is
    -------------
 
    procedure Problem
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
-      Termination : in     Boolean;
-      Answer      : in out Response.Data) is
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     AWS.Exceptions.Data;
+      Answer : in out Response.Data) is
    begin
       Put_Line ("Ok, exception received on the server side");
-      Put_Line ("  => " & Exceptions.Exception_Name (E));
-      Put_Line ("  => " & Exceptions.Exception_Message (E));
+      Put_Line ("  => " & Ada.Exceptions.Exception_Name (E));
+      Put_Line ("  => " & Ada.Exceptions.Exception_Message (E));
 
       Answer := Response.Build
         (MIME.Text_HTML, "Sorry the server is temporarily unavailable.");
@@ -138,7 +142,7 @@ procedure Upload3 is
       Put_Line ("Server stopped");
    exception
       when E : others =>
-         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
+         Put_Line ("Server Error " & Ada.Exceptions.Exception_Information (E));
    end Server;
 
    -------------
@@ -154,7 +158,7 @@ procedure Upload3 is
    exception
       when E : AWS.Net.Socket_Error =>
          Put_Line ("NOk, exception Socket_Error on client side!");
-         Put_Line (Exceptions.Exception_Information (E));
+         Put_Line (Ada.Exceptions.Exception_Information (E));
    end Request;
 
 begin
@@ -168,5 +172,5 @@ begin
 
 exception
    when E : others =>
-      Put_Line ("Main Error " & Exceptions.Exception_Information (E));
+      Put_Line ("Main Error " & Ada.Exceptions.Exception_Information (E));
 end Upload3;
