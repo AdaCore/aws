@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                          Copyright (C) 2002-2003                         --
+--                          Copyright (C) 2002-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -53,7 +53,7 @@ package body AWS.Net.Buffered is
    --  Add item into the cache C
 
    procedure Pop (C : in out Cache; Item : out Stream_Element);
-   pragma Inline (Push);
+   pragma Inline (Pop);
    --  Retreive on item from cache C and place it into Item
 
    function Get_Byte (Socket : in Socket_Type'Class) return Stream_Element;
