@@ -1,6 +1,11 @@
 2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
 
 	* makefile:
+	Fix previous check-in. Most regtests were desactivated.
+	
+2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
+
+	* makefile:
 	(RT_SOAP_ASIS): Document.
 	(RT_SOAP_ASIS_PARSE): Document.
 	(RT_SOAP_ASIS_PARSE): New variable.

@@ -1,3 +1,11 @@
+2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
+
+	* soap-generator.adb:
+	(New_Procedure): Do not output SOAPAction here.
+
+	* soap-wsdl-parser.adb:
+	(Parse_PortType):Output SOAPAction if Verbose mode on.
+
 2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
