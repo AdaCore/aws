@@ -34,10 +34,8 @@ package AWS is
 
    pragma Pure;
 
-   Internal_Error   : exception;
+   Version      : constant String := "1.3w";
 
-   Version          : constant String := "1.3w";
-
-   HTTP_Version     : constant String := "HTTP/1.1";
+   HTTP_Version : constant String := "HTTP/1.1";
 
 end AWS;
