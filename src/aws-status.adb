@@ -210,6 +210,15 @@ package body AWS.Status is
       return D.Session_ID /= AWS.Session.No_Session;
    end Has_Session;
 
+   ------------
+   -- Header --
+   ------------
+
+   function Header (D : in Data) return Headers.List is
+   begin
+      return D.Header;
+   end Header;
+
    ----------
    -- Host --
    ----------
