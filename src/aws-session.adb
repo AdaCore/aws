@@ -98,13 +98,13 @@ package body AWS.Session is
       --  Updates the session Time_Stamp to current time. Does nothing if SID
       --  does not exist.
 
-      entry Key_Exist
+      procedure Key_Exist
         (SID    : in     ID;
          Key    : in     String;
          Result :    out Boolean);
       --  Result is set to True if Key_Name exist in session SID.
 
-      entry Get_Value
+      procedure Get_Value
         (SID   : in     ID;
          Key   : in     String;
          Value :    out Unbounded_String);
@@ -131,8 +131,9 @@ package body AWS.Session is
       --
 
       procedure Get_Sessions_And_Lock (Sessions : out Session_Set_Access);
-      --  Increment Lock by 1, all entries are lockedand return the Sessions
-      --  tree
+      --  Increment Lock by 1, all entries modifying data are locked, returns
+      --  the Sessions tree. Routines reading values from the database can
+      --  still be called (Key_Exist, Get_Value, Session_Exist).
 
       procedure Unlock;
       --  Decrement Lock by 1, unlock all entries when Lock return to 0.
@@ -380,11 +381,11 @@ package body AWS.Session is
       -- Get_Value --
       ---------------
 
-      entry Get_Value
+      procedure Get_Value
         (SID   : in     ID;
          Key   : in     String;
          Value :    out Unbounded_String)
-      when Lock = 0 is
+      is
 
          procedure Modify
            (SID  : in     ID;
@@ -429,11 +430,11 @@ package body AWS.Session is
       -- Key_Exist --
       ---------------
 
-      entry Key_Exist
+      procedure Key_Exist
         (SID    : in     ID;
          Key    : in     String;
          Result :    out Boolean)
-      when Lock = 0 is
+      is
 
          procedure Modify
            (SID  : in     ID;
