@@ -10,4 +10,8 @@ if [ "$OS" = "Windows_NT" ]; then
    lopts=-lpoll
 fi;
 
-gnatmake -O2 -g $1 -I. -I/usr/ada.libraries/xmlada/include/xmlada -I../include -I../soap -I../src -I../ssl -I../xsrc -largs -L/usr/ada.libraries/xmlada/lib -lxmlada_input_sources -lxmlada_dom -lxmlada_sax -lxmlada_unicode -L../lib -lz $lopts -bargs -E
+XMLADA=/opt/xmlada
+
+gnatmake -O2 -g $1 -I. -I$XMLADA/include/xmlada -I../include -I../soap \
+-I../src -I../ssl -I../xsrc -largs -L$XMLADA/lib -lxmlada_input_sources \
+-lxmlada_dom -lxmlada_sax -lxmlada_unicode -L../lib -lz $lopts -bargs -E
