@@ -35,61 +35,66 @@ with "../win32/win32";
 with "../shared";
 with "../src/src";
 
-project Regtests is
+with "regtests_lst";
 
-   for Object_Dir use ".";
+project Regtests is
 
    for Languages use ("Ada", "ChangeLog", "Project file");
 
    type Build_Mode is ("Separated", "Generator", "Grouped");
    Mode : Build_Mode := external ("Test_Mode", "Separated");
 
-   Common := ("dispatch1.adb", "dispatch_method.adb",
-              "dispatch_vh.adb", "upload2.adb", "upload3.adb",
-              "server_config.adb", "tres.adb", "check_mem.adb",
-              "tlog.adb", "test_speed.adb");
+   for Object_Dir use ".";
+   for Source_Dirs use (".");
+
+   --  Common tests for Separated and Grouped section
+
+   Common :=
+     ("dispatch1.adb", "dispatch_method.adb", "dispatch_vh.adb", "tres.adb",
+      "upload2.adb", "upload3.adb", "server_config.adb", "tlog.adb");
+
+   --  Common tests using SOAP support
+
+   Common_SOAP := ("check_mem.adb", "test_speed.adb");
 
    case Mode is
       when "Generator" =>
          for Main use ("generate.adb");
 
       when "Separated" =>
-         for Main use
-           ("test_sec_soap.adb", "xmlt_sec.adb", "disp_soap_sec.adb",
-            "test_soap5_sec.adb", "tsgetparam.adb", "ssp.adb", "ssback.adb",
-            "cert.adb", "ssock2.adb", "ssto.adb", "ssockto.adb", "sslcfg.adb",
-            "huge_response_sec.adb", "wait_sec.adb", "afile_sec.adb",
-            "append_sec.adb", "sockext_sec.adb", "hload_sec.adb",
-            "wait2_sec.adb", "sock3_sec.adb", "plain2ssl.adb", "soap1.adb",
-            "soap2.adb", "soap3.adb", "soap4.adb", "soap5.adb", "soap6.adb",
-            "soap7.adb", "workorder.adb", "testxml.adb", "test_soap.adb",
-            "xmlt.adb", "test_soap2.adb", "test_soap3.adb", "test_soap4.adb",
-            "test_soap5.adb", "disp_soap.adb", "turl.adb", "tgetparam.adb",
-            "param.adb", "dummy.adb", "simple.adb", "tclientto.adb",
-            "shutdown.adb", "strm.adb", "strm2.adb", "upload.adb",
-            "unexph.adb", "auth1.adb", "auth2.adb", "moved.adb", "turl2.adb",
-            "turl3.adb", "test_templates_if.adb", "head.adb", "hval.adb",
-            "turl4.adb", "ctab.adb", "file.adb", "redirect.adb", "hostip.adb",
-            "unexph2.adb", "sp.adb", "sessions.adb", "zres.adb", "dirop.adb",
-            "multiple.adb", "tcom.adb", "tmime.adb", "sessions2.adb",
-            "sessions3.adb", "huge_response.adb", "sback.adb",
-            "server_info.adb", "append.adb", "compress.adb", "zapp.adb",
-            "zbig.adb", "zfile.adb", "zstrm.adb", "split.adb", "zstrm2.adb",
-            "once.adb", "get_post.adb", "zopen.adb", "timer.adb", "tmem.adb",
-            "file2.adb", "eres.adb", "sock1.adb", "sock2.adb", "sock3.adb",
-            "sessions4.adb", "wait.adb", "stream_response.adb", "smtp.adb",
-            "sto.adb", "sockto.adb", "ctable.adb", "tpc.adb", "afile.adb",
-            "no_param.adb", "nonce.adb", "sockext.adb", "hload.adb",
-            "upload4.adb", "upload5.adb", "wait2.adb", "attachment.adb",
-            "test_wsdl.adb", "test_wsdl2.adb", "test_wsdl4.adb",
-            "interoplab_main.adb", "googlesearch.adb", "Datafeed_Service.adb",
-            "test_wsdl3.adb", "test_wsdl5.adb", "wsdl_parse_1.adb",
-            "wsdl_parse_2.adb", "wsdl_parse_3.adb", "wsdl_parse_4.adb",
-            "wsdl_1.adb", "wsdl_2.adb", "wsdl_3.adb", "wsdl_4.adb",
-            "wsdl_5.adb", "wsdl_6.adb", "wsdl_7.adb", "wsdl_8.adb",
-            "wsdl_a.adb", "wsdl_b.adb", "hload_sec.adb") & Common;
 
-      when "Grouped" => for Main use ("test_all.adb") & Common; end case;
+         for Main use Regtests_Lst.T_STD & Common;
+
+         case Shared.XMLAda is
+            when "Installed" =>
+               for Main use project'Main & Common_SOAP & Regtests_Lst.T_SOAP;
+
+               case Shared.SOCKET is
+                  when "ssl" =>
+                     for Main use project'Main & Regtests_Lst.T_SEC_SOAP;
+                  when "std" =>
+                     for Main use project'Main;
+               end case;
+
+            when "Disabled" =>
+               case Shared.SOCKET is
+                  when "ssl" =>
+                     for Main use project'Main & Regtests_Lst.T_SEC;
+                  when "std" =>
+                     for Main use project'Main;
+               end case;
+         end case;
+
+      when "Grouped" =>
+         for Main use ("test_all.adb") & Common;
+
+         case Shared.XMLAda is
+            when "Installed" =>
+               for Main use project'Main & Common_SOAP;
+            when "Disabled" =>
+               for Main use project'Main;
+         end case;
+   end case;
 
    --------------
    -- Compiler --
