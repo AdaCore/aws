@@ -679,8 +679,9 @@ package body SOAP.Generator is
       --  Returns the name of the type for parameter on node N
 
       procedure Generate_Array
-        (Name : in String;
-         P    : in WSDL.Parameters.P_Set);
+        (Name  : in String;
+         P     : in WSDL.Parameters.P_Set;
+         Regen : in Boolean);
       --  Generate array definitions (type and routine conversion)
 
       procedure Generate_Derived
@@ -693,9 +694,9 @@ package body SOAP.Generator is
          P    : in WSDL.Parameters.P_Set);
       --  Generate enumeration type definition
 
-      procedure Generate_Safe_Array
-        (Name : in String;
-         P    : in WSDL.Parameters.P_Set);
+--        procedure Generate_Safe_Array
+--          (Name : in String;
+--           P    : in WSDL.Parameters.P_Set);
       --  Generate the safe array runtime support. This is only done when a
       --  user spec is speficied. We must generate such reference to user's
       --  spec only if we have an array inside a record.
@@ -715,7 +716,8 @@ package body SOAP.Generator is
          Name         : in     String;
          Output       : in     Boolean;
          Prefix       :    out Unbounded_String;
-         F_Ads, F_Adb :    out Text_IO.File_Type);
+         F_Ads, F_Adb :    out Text_IO.File_Type;
+         Regen        : in     Boolean := False);
       --  Creates the full namespaces if needed and return it in Prefix.
       --  Creates also the package heierarchy. Returns a spec and body file
       --  descriptor.
@@ -771,10 +773,10 @@ package body SOAP.Generator is
       --------------------
 
       procedure Generate_Array
-        (Name : in String;
-         P    : in WSDL.Parameters.P_Set)
+        (Name  : in String;
+         P     : in WSDL.Parameters.P_Set;
+         Regen : in Boolean)
       is
-
          function To_Ada_Type (Name : in String) return String;
          --  Returns the Ada corresponding type
 
@@ -793,6 +795,9 @@ package body SOAP.Generator is
             end if;
          end To_Ada_Type;
 
+         S_Name  : constant String := Name (Name'First .. Name'Last - 5);
+         --  Simple name without the ending _Type
+
          F_Name  : constant String := Format_Name (O, Name);
          T_Name  : constant String := To_String (P.E_Type);
 
@@ -801,17 +806,20 @@ package body SOAP.Generator is
          Arr_Adb : Text_IO.File_Type;
 
       begin
-         Initialize_Types_Package (P, F_Name, False, Prefix, Arr_Ads, Arr_Adb);
+         Initialize_Types_Package
+           (P, F_Name, False, Prefix, Arr_Ads, Arr_Adb, Regen);
 
-         Text_IO.New_Line (Tmp_Ads);
-         Text_IO.Put_Line
-           (Tmp_Ads, "   " & String'(1 .. 12 + F_Name'Length => '-'));
-         Text_IO.Put_Line
-           (Tmp_Ads, "   -- Array " & F_Name & " --");
-         Text_IO.Put_Line
-           (Tmp_Ads, "   " & String'(1 .. 12 + F_Name'Length => '-'));
+         if not Regen then
+            Text_IO.New_Line (Tmp_Ads);
+            Text_IO.Put_Line
+              (Tmp_Ads, "   " & String'(1 .. 12 + F_Name'Length => '-'));
+            Text_IO.Put_Line
+              (Tmp_Ads, "   -- Array " & F_Name & " --");
+            Text_IO.Put_Line
+              (Tmp_Ads, "   " & String'(1 .. 12 + F_Name'Length => '-'));
 
-         Text_IO.New_Line (Tmp_Ads);
+            Text_IO.New_Line (Tmp_Ads);
+         end if;
 
          --  Is types are to be reused from an Ada  spec ?
 
@@ -841,11 +849,13 @@ package body SOAP.Generator is
                     & " of " & To_Ada_Type (T_Name) & ";");
             end if;
 
-            Text_IO.Put_Line
-              (Tmp_Ads, "   subtype " & F_Name);
-            Text_IO.Put_Line
-              (Tmp_Ads, "     is " &
-               To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ';');
+            if not Regen then
+               Text_IO.Put_Line
+                 (Tmp_Ads, "   subtype " & F_Name);
+               Text_IO.Put_Line
+                 (Tmp_Ads, "     is " &
+                  To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ';');
+            end if;
 
             --  Access to it
 
@@ -885,25 +895,30 @@ package body SOAP.Generator is
                Text_IO.Put_Line
                  (Arr_Ads, "   --  Convert an array to a safe pointer");
 
-               Text_IO.New_Line (Tmp_Ads);
-               Text_IO.Put_Line
-                 (Tmp_Ads, "   function ""+""");
-               Text_IO.Put_Line
-                 (Tmp_Ads, "     (O : in "
-                  & To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ')');
-               Text_IO.Put_Line
-                 (Tmp_Ads, "      return " & To_Unit_Name (To_String (Prefix))
-                  & '.' & F_Name & "_Safe_Access");
-               Text_IO.Put_Line
-                 (Tmp_Ads, "      renames "
-                  & To_Unit_Name (To_String (Prefix)) & '.' & F_Name
-                  & "_Safe_Pointer.To_Safe_Pointer;");
-               Text_IO.Put_Line
-                 (Tmp_Ads, "   --  Convert an array to a safe pointer");
+               if not Regen then
+                  Text_IO.New_Line (Tmp_Ads);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   function ""+""");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "     (O : in "
+                     & To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ')');
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      return "
+                     & To_Unit_Name (To_String (Prefix))
+                     & '.' & F_Name & "_Safe_Access");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      renames "
+                     & To_Unit_Name (To_String (Prefix)) & '.' & F_Name
+                     & "_Safe_Pointer.To_Safe_Pointer;");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   --  Convert an array to a safe pointer");
+               end if;
             end if;
 
          else
             --  Here we have a reference to a spec, just build alias to it
+
+            Text_IO.New_Line (Arr_Ads);
 
             if P.Length /= 0 then
                --  This is a constrained array, create the index subtype
@@ -911,17 +926,80 @@ package body SOAP.Generator is
                  (Arr_Ads,
                   "   subtype " & F_Name & "_Index is Positive range 1 .. "
                   & AWS.Utils.Image (P.Length) & ";");
+
+               if not Regen then
+                  Text_IO.Put_Line
+                    (Tmp_Ads,
+                     "   subtype " & F_Name & "_Index is Positive range 1 .. "
+                     & AWS.Utils.Image (P.Length) & ";");
+               end if;
             end if;
 
             Text_IO.Put_Line
               (Arr_Ads, "   subtype " & F_Name & " is "
                & Types_Spec (O) & "." & To_String (P.T_Name) & ";");
 
-            --  Note that we can't generate safe array runtime support at this
-            --  point. It could be the case that this array is not inside a
-            --  record but another reference in the WSDL document will be
-            --  inside a record. As a type is analyzed only once we must
-            --  deferred this code generation. See Generate_Safe_Array.
+            if not Regen then
+               Text_IO.Put_Line
+                 (Tmp_Ads, "   subtype " & F_Name & " is "
+                  & Types_Spec (O) & "." & To_String (P.T_Name) & ";");
+            end if;
+
+            if Is_Inside_Record (S_Name) then
+               --  Only if this array is inside a record and we don't have
+               --  generated this support yet.
+
+               if not Regen then
+                  Text_IO.New_Line (Tmp_Ads);
+
+                  Header_Box (O, Tmp_Ads, "Safe Array " & F_Name);
+
+                  Text_IO.New_Line (Tmp_Ads);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   subtype " & F_Name & "_Safe_Access");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      is " & Types_Spec (O) & "."
+                     & To_String (P.T_Name) & "_Safe_Pointer.Safe_Pointer;");
+
+                  Text_IO.New_Line (Tmp_Ads);
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   function ""+""");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "     (O : in " & F_Name & ')');
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      return " & F_Name & "_Safe_Access");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "      renames " & Procs_Spec (O) & "."
+                     & To_String (P.T_Name)
+                     & "_Safe_Pointer.To_Safe_Pointer;");
+                  Text_IO.Put_Line
+                    (Tmp_Ads, "   --  Convert an array to a safe pointer");
+               end if;
+
+               Text_IO.New_Line (Arr_Ads);
+
+               Header_Box (O, Arr_Ads, "Safe Array " & F_Name);
+
+               Text_IO.New_Line (Arr_Ads);
+               Text_IO.Put_Line
+                 (Arr_Ads, "   subtype " & F_Name & "_Safe_Access");
+               Text_IO.Put_Line
+                 (Arr_Ads, "      is " & Types_Spec (O) & "."
+                  & To_String (P.T_Name) & "_Safe_Pointer.Safe_Pointer;");
+
+               Text_IO.New_Line (Arr_Ads);
+               Text_IO.Put_Line
+                 (Arr_Ads, "   function ""+""");
+               Text_IO.Put_Line
+                 (Arr_Ads, "     (O : in " & F_Name & ')');
+               Text_IO.Put_Line
+                 (Arr_Ads, "      return " & F_Name & "_Safe_Access");
+               Text_IO.Put_Line
+                 (Arr_Ads, "      renames " & Procs_Spec (O) & "."
+                  & To_String (P.T_Name) & "_Safe_Pointer.To_Safe_Pointer;");
+               Text_IO.Put_Line
+                 (Arr_Ads, "   --  Convert an array to a safe pointer");
+            end if;
          end if;
 
          Text_IO.New_Line (Arr_Ads);
@@ -936,14 +1014,17 @@ package body SOAP.Generator is
                  & " is new SOAP.Utils.To_T_Array_C");
          end if;
 
-         Text_IO.New_Line (Tmp_Ads);
-         Text_IO.Put_Line
-           (Tmp_Ads, "   function To_" & F_Name);
-         Text_IO.Put_Line (Tmp_Ads, "     (From : in SOAP.Types.Object_Set)");
-         Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
-         Text_IO.Put_Line
-           (Tmp_Ads, "      renames "
-            & To_Unit_Name (To_String (Prefix)) & ".To_" & F_Name & ';');
+         if not Regen then
+            Text_IO.New_Line (Tmp_Ads);
+            Text_IO.Put_Line
+              (Tmp_Ads, "   function To_" & F_Name);
+            Text_IO.Put_Line
+              (Tmp_Ads, "     (From : in SOAP.Types.Object_Set)");
+            Text_IO.Put_Line (Tmp_Ads, "      return " & F_Name);
+            Text_IO.Put_Line
+              (Tmp_Ads, "      renames "
+               & To_Unit_Name (To_String (Prefix)) & ".To_" & F_Name & ';');
+         end if;
 
          Text_IO.Put
            (Arr_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
@@ -968,15 +1049,17 @@ package body SOAP.Generator is
                  & " is new SOAP.Utils.To_Object_Set_C");
          end if;
 
-         Text_IO.New_Line (Tmp_Ads);
-         Text_IO.Put_Line
-           (Tmp_Ads, "   function To_Object_Set");
-         Text_IO.Put_Line
-           (Tmp_Ads, "     (From : in " & F_Name & ')');
-         Text_IO.Put_Line (Tmp_Ads, "      return SOAP.Types.Object_Set");
-         Text_IO.Put_Line
-           (Tmp_Ads, "      renames "
-            & To_Unit_Name (To_String (Prefix)) & ".To_Object_Set;");
+         if not Regen then
+            Text_IO.New_Line (Tmp_Ads);
+            Text_IO.Put_Line
+              (Tmp_Ads, "   function To_Object_Set");
+            Text_IO.Put_Line
+              (Tmp_Ads, "     (From : in " & F_Name & ')');
+            Text_IO.Put_Line (Tmp_Ads, "      return SOAP.Types.Object_Set");
+            Text_IO.Put_Line
+              (Tmp_Ads, "      renames "
+               & To_Unit_Name (To_String (Prefix)) & ".To_Object_Set;");
+         end if;
 
          Text_IO.Put
            (Arr_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
@@ -1336,7 +1419,7 @@ package body SOAP.Generator is
 
             N := R;
 
-            Text_IO.New_Line (Tmp_Ads);
+            Text_IO.New_Line (Rec_Ads);
 
             Text_IO.Put_Line
               (Rec_Ads, "   type " & F_Name & " is record");
@@ -1374,6 +1457,11 @@ package body SOAP.Generator is
                & To_Unit_Name (To_String (Prefix)) & '.' & F_Name & ';');
 
          else
+            Text_IO.New_Line (Rec_Ads);
+            Text_IO.Put_Line
+              (Rec_Ads, "   subtype " & F_Name & " is "
+               & Types_Spec (O) & "." & To_String (P.T_Name) & ";");
+
             Text_IO.New_Line (Tmp_Ads);
             Text_IO.Put_Line
               (Tmp_Ads, "   subtype " & F_Name & " is "
@@ -1692,51 +1780,6 @@ package body SOAP.Generator is
          Text_IO.New_Line (File);
       end Generate_References;
 
-      -------------------------
-      -- Generate_Safe_Array --
-      -------------------------
-
-      procedure Generate_Safe_Array
-        (Name : in String;
-         P    : in WSDL.Parameters.P_Set)
-      is
-         F_Name : constant String := Format_Name (O, Name) & "_Type";
-      begin
-         if Types_Spec (O) /= ""
-           and then Is_Inside_Record (Name)
-           and then not Name_Set.Exists (Name & "Safe_Array_Support__")
-         then
-            --  Only if we have a user's spec specificed and this array is
-            --  inside a record and we don't have generated this support.
-
-            Name_Set.Add (Name & "Safe_Array_Support__");
-
-            Text_IO.New_Line (Tmp_Ads);
-
-            Header_Box (O, Tmp_Ads, "Safe Array " & F_Name);
-
-            Text_IO.New_Line (Tmp_Ads);
-            Text_IO.Put_Line
-              (Tmp_Ads, "   subtype " & F_Name & "_Safe_Access");
-            Text_IO.Put_Line
-              (Tmp_Ads, "      is " & Types_Spec (O) & "."
-               & To_String (P.T_Name) & "_Safe_Pointer.Safe_Pointer;");
-
-            Text_IO.New_Line (Tmp_Ads);
-            Text_IO.Put_Line
-              (Tmp_Ads, "   function ""+""");
-            Text_IO.Put_Line
-              (Tmp_Ads, "     (O : in " & F_Name & ')');
-            Text_IO.Put_Line
-              (Tmp_Ads, "      return " & F_Name & "_Safe_Access");
-            Text_IO.Put_Line
-              (Tmp_Ads, "      renames " & Procs_Spec (O) & "."
-               & To_String (P.T_Name) & "_Safe_Pointer.To_Safe_Pointer;");
-            Text_IO.Put_Line
-              (Tmp_Ads, "   --  Convert an array to a safe pointer");
-         end if;
-      end Generate_Safe_Array;
-
       -----------------
       -- Get_Routine --
       -----------------
@@ -1779,7 +1822,8 @@ package body SOAP.Generator is
          Name         : in     String;
          Output       : in     Boolean;
          Prefix       :    out Unbounded_String;
-         F_Ads, F_Adb :    out Text_IO.File_Type)
+         F_Ads, F_Adb :    out Text_IO.File_Type;
+         Regen        : in     Boolean := False)
       is
          use WSDL.Parameters;
          F_Name : constant String := Name & "_Pkg";
@@ -1789,11 +1833,13 @@ package body SOAP.Generator is
 
          --  Add references into the main types package
 
-         Text_IO.Put_Line
-           (Type_Ads, "with " & To_Unit_Name (To_String (Prefix)) & ';');
-         Text_IO.Put_Line
-           (Type_Ads, "use  " & To_Unit_Name (To_String (Prefix)) & ';');
-         Text_IO.New_Line (Type_Ads);
+         if not Regen then
+            Text_IO.Put_Line
+              (Type_Ads, "with " & To_Unit_Name (To_String (Prefix)) & ';');
+            Text_IO.Put_Line
+              (Type_Ads, "use  " & To_Unit_Name (To_String (Prefix)) & ';');
+            Text_IO.New_Line (Type_Ads);
+         end if;
 
          Text_IO.Create
            (F_Ads, Text_IO.Out_File, To_Lower (To_String (Prefix)) & ".ads");
@@ -1927,16 +1973,26 @@ package body SOAP.Generator is
                   Output_Types (N.P);
 
                   declare
-                     Name : constant String := To_String (N.T_Name);
+                     Name  : constant String := To_String (N.T_Name);
+                     Regen : Boolean;
                   begin
-                     if not Name_Set.Exists (Name) then
+                     if not Name_Set.Exists (Name)
+                       or else Is_Inside_Record (Name)
+                     then
+                        if Name_Set.Exists (Name)
+                          and then Is_Inside_Record (Name)
+                        then
+                           --  We force the regeneration of the array
+                           --  definition when it is inside a record to be sure
+                           --  that we have a safe access generated.
+                           Regen := True;
+                        else
+                           Regen := False;
+                           Name_Set.Add (Name);
+                        end if;
 
-                        Name_Set.Add (Name);
-
-                        Generate_Array (Name & "_Type", N);
+                        Generate_Array (Name & "_Type", N, Regen);
                      end if;
-
-                     Generate_Safe_Array (Name, N);
                   end;
 
                when WSDL.Parameters.K_Record =>
