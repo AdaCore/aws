@@ -1,3 +1,12 @@
+2002-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* turl2.out:
+	Update.
+
+	* turl2.adb:
+	Add some more tests to detect many forms of current and parent
+	 directories.
+
 2002-10-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* turl.out:
