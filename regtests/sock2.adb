@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -29,7 +29,7 @@
 ------------------------------------------------------------------------------
 --  $Id$
 
---  Test for bid data send/receive.
+--  Test for big data send/receive.
 
 with AWS.Net;
 with Ada.Text_IO;
