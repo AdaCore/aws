@@ -968,14 +968,15 @@ is
 
    procedure Get_Message_Header is
 
-      procedure Parse_Header_Lines (Line : String);
+      procedure Parse_Header_Lines (Line : in String);
+      --  Parse the Line eventually catenated with the next line if it is a
+      --  continuation line (see RFC 2616 4.2).
 
       ------------------------
       -- Parse_Header_Lines --
       ------------------------
 
-      procedure Parse_Header_Lines (Line : String)
-      is
+      procedure Parse_Header_Lines (Line : in String) is
       begin
          if Line = End_Of_Message then
             return;
@@ -983,13 +984,13 @@ is
             declare
                Next_Line : constant String := Sockets.Get_Line (Sock);
             begin
-               if Next_Line /= ""
-                  and then (Next_Line (1) = ' ' or Next_Line (1) = ASCII.HT)
+               if Next_Line /= End_Of_Message
+                 and then
+                 (Next_Line (1) = ' ' or else Next_Line (1) = ASCII.HT)
                then
-                  --  Continuing value on the next line
-                  --  see RFC 2616 4.2
-                  --  Header fields can be extended over multiple lines
-                  --  by preceding each extra line with at least one SP or HT.
+                  --  Continuing value on the next line. Header fields can be
+                  --  extended over multiple lines by preceding each extra
+                  --  line with at least one SP or HT.
                   Parse_Header_Lines (Line & Next_Line);
                else
                   Parse (Line);
@@ -997,11 +998,9 @@ is
                end if;
             end;
          end if;
-
       end Parse_Header_Lines;
 
    begin
-
       declare
          Data : constant String := Sockets.Get_Line (Sock);
       begin
@@ -1010,7 +1009,6 @@ is
       end;
 
       Parse_Header_Lines (Sockets.Get_Line (Sock));
-
    end Get_Message_Header;
 
    ------------------------
