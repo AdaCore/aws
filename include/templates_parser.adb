@@ -52,37 +52,38 @@ package body Templates_Parser is
    Begin_Tag : Unbounded_String := To_Unbounded_String (Default_Begin_Tag);
    End_Tag   : Unbounded_String := To_Unbounded_String (Default_End_Tag);
 
-   Table_Token               : constant String := "@@TABLE@@";
-   Terminate_Sections_Token  : constant String := "@@TERMINATE_SECTIONS@@";
-   Section_Token             : constant String := "@@SECTION@@";
-   End_Table_Token           : constant String := "@@END_TABLE@@";
-   If_Token                  : constant String := "@@IF@@";
-   Elsif_Token               : constant String := "@@ELSIF@@";
-   Else_Token                : constant String := "@@ELSE@@";
-   End_If_Token              : constant String := "@@END_IF@@";
-   Include_Token             : constant String := "@@INCLUDE@@";
+   Table_Token                : constant String := "@@TABLE@@";
+   Terminate_Sections_Token   : constant String := "@@TERMINATE_SECTIONS@@";
+   Section_Token              : constant String := "@@SECTION@@";
+   End_Table_Token            : constant String := "@@END_TABLE@@";
+   If_Token                   : constant String := "@@IF@@";
+   Elsif_Token                : constant String := "@@ELSIF@@";
+   Else_Token                 : constant String := "@@ELSE@@";
+   End_If_Token               : constant String := "@@END_IF@@";
+   Include_Token              : constant String := "@@INCLUDE@@";
 
-   Filter_Lower_Token        : aliased constant String := "LOWER";
-   Filter_Upper_Token        : aliased constant String := "UPPER";
-   Filter_Capitalize_Token   : aliased constant String := "CAPITALIZE";
-   Filter_Reverse_Token      : aliased constant String := "REVERSE";
-   Filter_Repeat_Token       : aliased constant String := "REPEAT";
-   Filter_Size_Token         : aliased constant String := "SIZE";
-   Filter_Clean_Text_Token   : aliased constant String := "CLEAN_TEXT";
-   Filter_Contract_Token     : aliased constant String := "CONTRACT";
-   Filter_No_Space_Token     : aliased constant String := "NO_SPACE";
-   Filter_No_Digit_Token     : aliased constant String := "NO_DIGIT";
-   Filter_No_Letter_Token    : aliased constant String := "NO_LETTER";
-   Filter_Yes_No_Token       : aliased constant String := "YES_NO";
-   Filter_Oui_Non_Token      : aliased constant String := "OUI_NON";
-   Filter_Exist_Token        : aliased constant String := "EXIST";
-   Filter_Is_Empty_Token     : aliased constant String := "IS_EMPTY";
-   Filter_Match_Token        : aliased constant String := "MATCH";
-   Filter_Trim_Token         : aliased constant String := "TRIM";
-   Filter_Web_Escape_Token   : aliased constant String := "WEB_ESCAPE";
-   Filter_Web_NBSP_Token     : aliased constant String := "WEB_NBSP";
-   Filter_Coma_2_Point_Token : aliased constant String := "COMA_2_POINT";
-   Filter_Point_2_Coma_Token : aliased constant String := "POINT_2_COMA";
+   Filter_Lower_Token         : aliased constant String := "LOWER";
+   Filter_Upper_Token         : aliased constant String := "UPPER";
+   Filter_Capitalize_Token    : aliased constant String := "CAPITALIZE";
+   Filter_Reverse_Token       : aliased constant String := "REVERSE";
+   Filter_Repeat_Token        : aliased constant String := "REPEAT";
+   Filter_Size_Token          : aliased constant String := "SIZE";
+   Filter_Clean_Text_Token    : aliased constant String := "CLEAN_TEXT";
+   Filter_Contract_Token      : aliased constant String := "CONTRACT";
+   Filter_No_Space_Token      : aliased constant String := "NO_SPACE";
+   Filter_No_Digit_Token      : aliased constant String := "NO_DIGIT";
+   Filter_No_Letter_Token     : aliased constant String := "NO_LETTER";
+   Filter_Format_Number_Token : aliased constant String := "FORMAT_NUMBER";
+   Filter_Yes_No_Token        : aliased constant String := "YES_NO";
+   Filter_Oui_Non_Token       : aliased constant String := "OUI_NON";
+   Filter_Exist_Token         : aliased constant String := "EXIST";
+   Filter_Is_Empty_Token      : aliased constant String := "IS_EMPTY";
+   Filter_Match_Token         : aliased constant String := "MATCH";
+   Filter_Trim_Token          : aliased constant String := "TRIM";
+   Filter_Web_Escape_Token    : aliased constant String := "WEB_ESCAPE";
+   Filter_Web_NBSP_Token      : aliased constant String := "WEB_NBSP";
+   Filter_Coma_2_Point_Token  : aliased constant String := "COMA_2_POINT";
+   Filter_Point_2_Coma_Token  : aliased constant String := "POINT_2_COMA";
 
    subtype Table_Range     is Positive range Table_Token'Range;
    subtype Section_Range   is Positive range Section_Token'Range;
@@ -117,6 +118,11 @@ package body Templates_Parser is
 
       Exist,
       --  Returns "TRUE" if var is not empty and "FALSE" otherwise.
+
+      Format_Number,
+      --  Returns the number with a space added between each 3 digits
+      --  blocks. The decimal part is not transformed. If the data is not a
+      --  number nothing is done. The data is trimmed before processing it.
 
       Invert,
       --  Reverse string.
@@ -232,6 +238,9 @@ package body Templates_Parser is
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Exist_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+   function Format_Number_Filter
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Is_Empty_Filter
@@ -1192,6 +1201,76 @@ package body Templates_Parser is
       end if;
    end Exist_Filter;
 
+   --------------------------
+   -- Format_Number_Filter --
+   --------------------------
+
+   function Format_Number_Filter
+     (S : in String;
+      P : in Parameter_Data := No_Parameter)
+     return String
+   is
+      TS : constant String := Strings.Fixed.Trim (S, Both);
+
+      function Is_Number return Boolean;
+      --  Returns true if S is a number.
+
+      Point : Natural := 0;
+
+      function Is_Number return Boolean is
+      begin
+         for K in TS'Range loop
+            if TS (K) = '.' then
+               Point := K;
+
+            elsif not Characters.Handling.Is_Digit (TS (K)) then
+               return False;
+            end if;
+         end loop;
+
+         return True;
+      end Is_Number;
+
+      Result : String (1 .. TS'Length * 2);
+      K      : Positive := Result'Last;
+
+      I      : Natural;
+      Count  : Natural := 0;
+
+   begin
+      Check_Null_Parameter (P);
+
+      if Is_Number then
+
+         if Point = 0 then
+            I := TS'Last;
+         else
+            I := Point - 1;
+         end if;
+
+         for P in reverse TS'First .. I loop
+            Result (K) := TS (P);
+            K := K - 1;
+            Count := Count + 1;
+
+            if Count mod 3 = 0 and then P /= TS'First then
+               Result (K) := ' ';
+               K := K - 1;
+            end if;
+         end loop;
+
+         if Point = 0 then
+            return Result (K + 1 .. Result'Last);
+
+         else
+            return Result (K + 1 .. Result'Last) & TS (Point .. TS'Last);
+         end if;
+
+      else
+         return S;
+      end if;
+   end Format_Number_Filter;
+
    ---------------------
    -- Is_Empty_Filter --
    ---------------------
@@ -1591,6 +1670,9 @@ package body Templates_Parser is
 
          Exist          =>
            (Filter_Exist_Token'Access,          Exist_Filter'Access),
+
+         Format_Number  =>
+           (Filter_Format_Number_Token'Access,  Format_Number_Filter'Access),
 
          Invert        =>
            (Filter_Reverse_Token'Access,        Reverse_Filter'Access),
