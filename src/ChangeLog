@@ -1,6 +1,17 @@
 2003-10-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-containers-tables.adb:
+	(Get): Returns Null_Element if item not found.
+	Reformat code.
+
+	* aws-containers-tables.ads:
+	(Null_Element): New constant.
+	(Get): Add comment about Null_Element returned when item not found.
+	Reformat code.
+
+2003-10-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-containers-tables.adb:
 	(Get_Values): Do not use 1 but Name_Indexes.First. Minor ident fix.
 
 2003-10-14  Pascal Obry  <p.obry@wanadoo.fr>
