@@ -66,23 +66,25 @@ procedure Runme is
 
    use Ada;
 
-   WSS  : AWS.Server.HTTP (3);
-   WS   : AWS.Server.HTTP (3);
+   WSS  : AWS.Server.HTTP;
+   WS   : AWS.Server.HTTP;
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Enter any key to exit...");
 
    AWS.Server.Start (WSS, "Runme Secure",
-                     Port     => 4433,
-                     Security => True,
-                     Callback => Runme_CB.Service_Sec'Access);
+                     Max_Connection => 3,
+                     Port           => 4433,
+                     Security       => True,
+                     Callback       => Runme_CB.Service_Sec'Access);
 
    AWS.Server.Start (WS, "Runme",
-                     Admin_URI => "/Admin-Page",
-                     Port      => 1234,
-                     Session   => True,
-                     Callback  => Runme_CB.Service'Access);
+                     Max_Connection => 3,
+                     Admin_URI      => "/Admin-Page",
+                     Port           => 1234,
+                     Session        => True,
+                     Callback       => Runme_CB.Service'Access);
 
    AWS.Server.Start_Log (WS, Split_Mode => AWS.Log.Daily);
    AWS.Server.Start_Log (WSS, Filename_Prefix => "runme-secure");
