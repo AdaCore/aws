@@ -86,4 +86,4 @@ win32_oslib:
 
 clean:
 	-rm -f *.o *.ali aws-os_lib.adb *.~*.*~
-	-rm aws-translator-conversion.adb
+	-rm -f aws-translator-conversion.adb
