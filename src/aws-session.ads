@@ -38,6 +38,8 @@ package AWS.Session is
 
    type ID is private;
 
+   No_Session : constant ID;
+
    function Create return ID;
    --  Create a new uniq Session ID.
 
@@ -48,65 +50,76 @@ package AWS.Session is
    --  Return ID image
 
    function Value (SID : in String) return ID;
-   --  Build an ID from a String.
+   --  Build an ID from a String, returns No_Session if SID is not recongnized
+   --  as an AWS session ID.
 
    function Exist (SID : in ID) return Boolean;
    --  Returns True if SID exist
 
-   procedure Set (SID   : in ID;
-                  Key   : in String;
-                  Value : in String);
+   procedure Set
+     (SID   : in ID;
+      Key   : in String;
+      Value : in String);
    --  Set key/pair value for the SID
 
-   procedure Set (SID   : in ID;
-                  Key   : in String;
-                  Value : in Integer);
+   procedure Set
+     (SID   : in ID;
+      Key   : in String;
+      Value : in Integer);
    --  Set key/pair value for the SID
 
-   procedure Set (SID   : in ID;
-                  Key   : in String;
-                  Value : in Float);
+   procedure Set
+     (SID   : in ID;
+      Key   : in String;
+      Value : in Float);
    --  Set key/pair value for the SID
 
-   function Get (SID : in ID;
-                 Key : in String)
+   function Get
+     (SID : in ID;
+      Key : in String)
      return String;
    --  Returns the Value for Key in the session SID or the emptry string if
    --  key does not exist.
 
-   function Get (SID : in ID;
-                 Key : in String)
+   function Get
+     (SID : in ID;
+      Key : in String)
      return Integer;
    --  Returns the Value for Key in the session SID or the integer value 0 if
    --  key does not exist.
 
-   function Get (SID : in ID;
-                 Key : in String)
+   function Get
+     (SID : in ID;
+      Key : in String)
      return Float;
    --  Returns the Value for Key in the session SID or the float value 0.0 if
    --  key does not exist.
 
-   procedure Remove (SID : in ID;
-                     Key : in String);
+   procedure Remove
+     (SID : in ID;
+      Key : in String);
    --  Removes Key from the specified session.
 
-   function Exist (SID : in ID;
-                   Key : in String)
+   function Exist
+     (SID : in ID;
+      Key : in String)
      return Boolean;
    --  Returns True if Key exist in session SID.
 
    generic
-      with procedure Action (N          : in     Positive;
-                             SID        : in     ID;
-                             Time_Stamp : in     Ada.Calendar.Time;
-                             Quit       : in out Boolean);
+      with procedure Action
+        (N          : in     Positive;
+         SID        : in     ID;
+         Time_Stamp : in     Ada.Calendar.Time;
+         Quit       : in out Boolean);
    procedure For_Every_Session;
    --  Iterator which call Action for every active session.
 
    generic
-      with procedure Action (N          : in     Positive;
-                             Key, Value : in     String;
-                             Quit       : in out Boolean);
+      with procedure Action
+        (N          : in     Positive;
+         Key, Value : in     String;
+         Quit       : in out Boolean);
    procedure For_Every_Session_Data (SID : in ID);
    --  Iterator which returns all the key/value pair defined for session SID.
 
@@ -127,6 +140,8 @@ private
    pragma Inline (Image, Value);
 
    type ID is new String (1 .. 11);
+
+   No_Session : constant ID := (others => ' ');
 
    task type Cleaner is
       entry Stop;
