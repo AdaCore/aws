@@ -16,7 +16,7 @@ SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-services.ads aws-services-directory.adb aws-default.ads \
 	aws-config.adb aws-config-ini.adb aws-config-set.adb \
 	aws-net.adb aws-net-stream_io.adb aws-services-page_server.adb \
-	aws-templates.ads aws-services-dispatchers.adb \
+	aws-templates.ads aws-dispatchers.adb aws-services-dispatchers.ads \
 	aws-services-dispatchers-uri.adb \
 	aws-services-dispatchers-method.adb \
 	aws-services-dispatchers-callback.adb \
