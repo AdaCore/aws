@@ -1,5 +1,10 @@
 2001-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-url.adb:
+	(Code): new procedure.
+	(Hex_Escape): new constant array.
+	(Encode): encode all characters not only spaces.
+
 	* aws-response.ads:
 	(Data): is now a controlled type to be able to free the memory
 	 used for the binary data.
