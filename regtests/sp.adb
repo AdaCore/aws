@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,142 +32,22 @@
 
 --  Server push regression test.
 
-with Ada.Strings.Fixed;
-with Ada.Exceptions;
-with Ada.Text_IO.Editing;
-
-with AWS.Client;
-with AWS.Messages;
-with AWS.MIME;
-with AWS.OS_Lib;
-with AWS.Parameters;
-with AWS.Response;
-with AWS.Server.Push;
-with AWS.Status;
+with AWS.Server;
 
 with Sp_Pck;
 
 procedure Sp is
-
-   use Ada;
-   use Ada.Text_IO;
-   use AWS;
-
    use Sp_Pck;
 
-   function CB (Request : in Status.Data) return Response.Data;
-
-   procedure Output (Data : String);
-   --  Ignore random string --AWS.Push.Boundary_1044468257,
-   --  and by the way ignore ASCII.CR becouse on the Win32 platform
-   --  the Ada.Text_IO.Put_Line add the ASCII.CR before ASCII.LF even so
-   --  the ASCII.CR already exists before ASCII.LF.
-
-   HTTP        : AWS.Server.HTTP;
-   Connect     : array (Server_Push.Mode'Range) of Client.HTTP_Connection;
-
-   Push        : Server_Push.Object;
-   Answer      : AWS.Response.Data;
-
-   Data        : Push_Data_Type := 1000.0;
-
-   Picture : array (Server_Push.Mode) of Editing.Picture
-     := (Server_Push.Plain     => Editing.To_Picture ("999999.99"),
-         Server_Push.Chunked   => Editing.To_Picture ("##_##9.99"),
-         Server_Push.Multipart => Editing.To_Picture ("zzzzz9.99"));
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : in Status.Data) return Response.Data is
-      use AWS.Parameters;
-      P_List : List := AWS.Status.Parameters (Request);
-      Mode_Image : String := Get (P_List, "mode");
-      Mode_Value : Server_Push.Mode := Server_Push.Mode'Value (Mode_Image);
-   begin
-      Server_Push.Register
-        (Server      => Push,
-         Client_ID   => Mode_Image,
-         Socket      => AWS.Status.Socket (Request),
-         Environment => Picture (Mode_Value),
-         Kind        => Mode_Value);
-      return Response.Socket_Taken;
-   end CB;
-
-   ------------
-   -- Output --
-   ------------
-
-   procedure Output (Data : String) is
-      Ignore_Sample : constant String := "--AWS.Push.Boundary_";
-      use Ada.Strings;
-      First : Positive := Data'First;
-      Index : Natural;
-   begin
-      loop
-         Index := Fixed.Index (Data (First .. Data'Last), CRLF);
-         if Index = 0 then
-            Put (Data (First .. Data'Last));
-            exit;
-         else
-            if Index - First < Ignore_Sample'Length
-              or else Data (First .. First + Ignore_Sample'Length - 1)
-                       /= Ignore_Sample
-            then
-               Put_Line (Data (First .. Index - 1));
-            end if;
-            First := Index + CRLF'Length;
-         end if;
-         exit when First > Data'Last;
-      end loop;
-   end Output;
+   HTTP : AWS.Server.HTTP;
 
 begin
    AWS.Server.Start
-     (HTTP, "Testing server push.",
-      CB'Unrestricted_Access, Port => 1249, Max_Connection => 3);
+     (HTTP,
+      "Testing server push.",
+      CB'Access,
+      Port => 1249,
+      Max_Connection => 3);
 
-   --  Init the all modes server push transfers.
-
-   for J in Connect'Range loop
-      Client.Create
-        (Connection  => Connect (J),
-         Host        => "http://localhost:1249",
-         Timeouts    => (15, 15),
-         Server_Push => True);
-
-      Client.Get (Connect (J), Answer, "/uri?mode="
-         & Server_Push.Mode'Image (J));
-   end loop;
-
-   for K in 1 .. 32 loop
-
-      Data := Data + 1.0;
-
-      Server_Push.Send (Push, Data, "text/plain");
-
-      for J in Connect'Range loop
-         Put_Line ("--------------------------------");
-         Output (Client.Read_Until (Connect (J), End_Of_Part));
-
-         Data := Data + 0.01;
-
-         Server_Push.Send_To
-           (Push,
-            Server_Push.Mode'Image (J),
-            Data,
-            "text/plain");
-
-         Output (Client.Read_Until (Connect (J), End_Of_Part));
-      end loop;
-
-   end loop;
-
-   for J in Connect'Range loop
-      Client.Close (Connect (J));
-   end loop;
-exception
-   when E : others =>
-      Put_Line ("Error " & Ada.Exceptions.Exception_Information (E));
+   Client_Process ("http://localhost:1249");
 end Sp;
