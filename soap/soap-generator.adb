@@ -41,6 +41,7 @@ with GNAT.Calendar.Time_IO;
 
 with AWS;
 with AWS.OS_Lib;
+with AWS.Templates;
 with SOAP.Utils;
 with SOAP.WSDL.Parameters;
 
@@ -345,6 +346,15 @@ package body SOAP.Generator is
       Text_IO.Put_Line
         (File, "   " & String'(1 .. 6 + Name'Length => '-'));
    end Header_Box;
+
+   ----------
+   -- Main --
+   ----------
+
+   procedure Main (O : in out Object; Name : in String) is
+   begin
+      O.Main := To_Unbounded_String (Name);
+   end Main;
 
    --------------
    -- Name_Set --
@@ -1605,9 +1615,16 @@ package body SOAP.Generator is
       Documentation : in     String;
       Location      : in     String)
    is
+      L_Name : constant String := Format_Name (O, Name);
+
       procedure Create (File : in out Text_IO.File_Type; Filename : in String);
       --  Create Filename, raise execption Generator_Error if the file already
       --  exists and overwrite mode not activated.
+
+      procedure Generate_Main (Filename : in String);
+      --  Generate the main server's procedure. Either the file exists and is
+      --  a template use it to generate the main otherwise just generate a
+      --  standard main procedure.
 
       ------------
       -- Create --
@@ -1626,7 +1643,74 @@ package body SOAP.Generator is
          end if;
       end Create;
 
-      L_Name  : constant String := Format_Name (O, Name);
+      -------------------
+      -- Generate_Main --
+      -------------------
+
+      procedure Generate_Main (Filename : in String) is
+         use Text_IO;
+         use AWS;
+
+         Template_Filename : constant String := Filename & ".amt";
+         File              : Text_IO.File_Type;
+      begin
+         Create (File, Filename & ".adb");
+
+         if AWS.OS_Lib.Is_Regular_File (Template_Filename) then
+            --  Use template file
+            declare
+               Translations : Templates.Translate_Table
+                 := (1 => Templates.Assoc ("SOAP_SERVICE", L_Name));
+            begin
+               Put (File,
+                    Templates.Parse (Template_Filename, Translations));
+            end;
+
+         else
+            --  Generate a minimal main for the server
+            Put_Line (File, "with AWS.Config.Set;");
+            Put_Line (File, "with AWS.Server;");
+            Put_Line (File, "with AWS.Status;");
+            Put_Line (File, "with AWS.Response;");
+            Put_Line (File, "with SOAP.Dispatchers.Callback;");
+            New_Line (File);
+            Put_Line (File,
+                      "with " & L_Name & ".CB;");
+            Put_Line (File, "with " & L_Name& ".Server;");
+            New_Line (File);
+            Put_Line (File, "procedure " & Filename & " is");
+            New_Line (File);
+            Put_Line (File, "   use AWS;");
+            New_Line (File);
+            Put_Line (File, "   function CB ");
+            Put_Line (File, "      (Request : in Status.Data)");
+            Put_Line (File, "       return Response.Data");
+            Put_Line (File, "   is");
+            Put_Line (File, "      R : Response.Data;");
+            Put_Line (File, "   begin");
+            Put_Line (File, "      return R;");
+            Put_Line (File, "   end CB;");
+            New_Line (File);
+            Put_Line (File, "   WS   : AWS.Server.HTTP;");
+            Put_Line (File, "   Conf : Config.Object;");
+            Put_Line (File, "   Disp : Simple_Service.CB.Handler;");
+            New_Line (File);
+            Put_Line (File, "begin");
+            Put_Line (File, "   Config.Set.Server_Port");
+            Put_Line (File, "      (Conf, Simple_Service.Server.Port);");
+            Put_Line (File, "   Disp := SOAP.Dispatchers.Callback.Create");
+            Put_Line (File, "     (CB'Unrestricted_Access,");
+            Put_Line (File, "      " & L_Name & ".CB.SOAP_CB'Access);");
+            New_Line (File);
+            Put_Line (File, "   AWS.Server.Start (WS, Disp, Conf);");
+            New_Line (File);
+            Put_Line (File, "   AWS.Server.Wait (AWS.Server.Forever);");
+            Put_Line (File, "end Server;");
+         end if;
+
+         Text_IO.Close (File);
+      end Generate_Main;
+
       LL_Name : constant String := Characters.Handling.To_Lower (L_Name);
 
    begin
@@ -1741,11 +1825,15 @@ package body SOAP.Generator is
 
       O.Unit := To_Unbounded_String (Name);
 
+      --  Stubs
+
       if O.Gen_Stub then
          Put_File_Header (O, Stub_Ads);
          Put_File_Header (O, Stub_Adb);
          Stub.Start_Service (O, Name, Documentation, Location);
       end if;
+
+      --  Skeletons
 
       if O.Gen_Skel then
          Put_File_Header (O, Skel_Ads);
@@ -1753,10 +1841,18 @@ package body SOAP.Generator is
          Skel.Start_Service (O, Name, Documentation, Location);
       end if;
 
+      --  Callbacks
+
       if O.Gen_CB then
          Put_File_Header (O, CB_Ads);
          Put_File_Header (O, CB_Adb);
          CB.Start_Service (O, Name, Documentation, Location);
+      end if;
+
+      --  Main
+
+      if O.Main /= Null_Unbounded_String then
+         Generate_Main (To_String (O.Main));
       end if;
    end Start_Service;
 
