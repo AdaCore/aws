@@ -1,3 +1,10 @@
+2004-04-18  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(init): Set TZ to UTC before changing file timestamp to make sure
+	 dirop regtest works across all timezone.
+	Checked in for Dmitriy.
+
 2004-04-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* ssto.adb, sto.adb:
