@@ -88,7 +88,7 @@ procedure Strm2 is
    begin
       AWS.Server.Start
         (HTTP, "Testing user defined stream.",
-         CB'Unrestricted_Access, Port => 1245, Max_Connection => 3);
+         CB'Unrestricted_Access, Port => 1250, Max_Connection => 3);
 
       accept Wait_Start;
       accept Stop;
@@ -102,7 +102,7 @@ begin
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:1245",
+      Host       => "http://localhost:1250",
       Timeouts   => (5, 5));
 
    Client.Get (Connect, R, "/toto");
