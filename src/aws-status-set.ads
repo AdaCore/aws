@@ -42,8 +42,8 @@ package AWS.Status.Set is
    --  Free all allocated memory.
 
    procedure Read_Header (Socket : in Net.Socket_Type'Class; D : in out Data);
-   --  Reading all header data from the socket and fill appropriate
-   --  internal data fields from the header values.
+   --  Read all header data from the socket and fill the appropriate
+   --  data's fields.
 
    procedure Keep_Alive
      (D    : in out Data;
