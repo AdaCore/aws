@@ -1,5 +1,10 @@
 2004-11-27  Pascal Obry  <pascal@obry.org>
 
+	* ada2wsdl-parser.adb:
+	(Type_Name): Properly handles short and long integers.
+
+2004-11-27  Pascal Obry  <pascal@obry.org>
+
 	* wsdl2aws.adb:
 	Add support for new option '-x operation' used to exclude an
 	 operation from the SOAP code generator.

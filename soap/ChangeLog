@@ -1,5 +1,53 @@
 2004-11-27  Pascal Obry  <pascal@obry.org>
 
+	* soap-message-xml.adb:
+	(Type_State): Add T_Any_Type to support SOAP anyType.
+	(Parse_Any_Type): New routine.
+	(Parse_Short): Idem.
+	(Handlers): Add entry for T_Short and T_Any_Type.
+	(Is_Array): Fix implementation to better support "literal" mode. 
+	 In this mode the xsi:type attribute is not present, we then use
+	 only the soapenc:arrayType one.
+	(Parse_Param): Better handling of array in encoded and literal mode.
+
+	* soap-types.ads:
+	(XSD_Any_Type): New type.
+	(Image) [XSD_Any_Type]: New routine.
+	(XML_Image) [XSD_Any_Type]: Idem.
+	(XML_Type) [XSD_Any_Type]: Idem.
+	(Any): New routine.
+	(V) [XSD_Any_Type]: Idem.
+	(Get) [XSD_Any_Type]: Idem.
+
+	* soap-types.adb:
+	(Image) [XSD_Any_Type]: New routine.
+	(XML_Image) [XSD_Any_Type]: Idem.
+	(XML_Type) [XSD_Any_Type]: Idem.
+	(Any): New routine.
+	(V) [XSD_Any_Type]: Idem.
+	(Get) [XSD_Any_Type]: Idem.
+
+	* soap-utils.ads, soap-utils.adb:
+	(Any): New SOAP runtime support routine.
+
+	* soap-wsdl-parser.adb:
+	(Parse_Array): Remove check for ArrayOfanyType. This is now
+	 properly supported.
+
+	* soap-wsdl.adb:
+	(From_Ada): Fix support for short and long integers.
+	(Set_Routine): Add support for Any_Type.
+	(Set_Type): Idem.
+	(To_Ada): Idem.
+	(To_Type): Idem.
+	(To_XSD): Idem.
+	(V_Routine): Idem.
+
+	* soap-wsdl.ads:
+	(Parameter_Type): Add P_Any_Type.
+
+2004-11-27  Pascal Obry  <pascal@obry.org>
+
 	* soap-wsdl-parser.adb:
 	(Exclude): New procedure.
 	(Parse_Binding): Check if the operation has been excluded from the
