@@ -30,6 +30,9 @@
 
 package AWS.Server.Hotplug is
 
+   Register_Message   : constant String := "REGISTER";
+   Unregister_Message : constant String := "UNREGISTER";
+
    procedure Activate (Web_Server : in HTTP_Access;
                        Port       : in Positive);
    --  Start hotplug server listening at the specified Port for the Web_Server.
