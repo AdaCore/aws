@@ -4,24 +4,32 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             November 14th, 2003
+   Pascal Obry                                             November 15th, 2003
 
 
 
-We are happy to announce the availability of the AWS 1.4 release. The API
+We are happy to announce the availability of the AWS 1.5 release. The API
 could change slightly at this stage but should be fairly stable now.
 
-AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
-a small yet powerful HTTP component to embed in any applications. It means
-that you can communicate with your application using a standard Web browser
-and this without the need for a Web Server. AWS is fully developed in Ada
-with GNAT.
+AWS stand for Ada Web Server. It is a small yet powerful HTTP component to
+embed in any applications. It means that you can communicate with your
+application using a standard Web browser and this without the need for a Web
+Server. AWS is fully developed in Ada with GNAT.
 
-AWS support SOAP, Server Push, HTTPS/SSL, client HTTP, hotplug modules... We
-have worked very hard to make this release as stable as possible. Note that
-Hotplug modules are very nice but have a potentially security hole as it is
-implemented today. A new secure implementation will be proposed in a future
-version.
+AWS support SOAP/WSDL, Server Push, HTTPS/SSL, client HTTP, hotplug
+modules... We have worked very hard to make this release as stable as
+possible. Note that Hotplug modules are very nice but have a potentially
+security hole as it is implemented today. A new secure implementation will be
+proposed in a future version.
+
+AWS comes with SOAP/WSDL support, two tools are proposed:
+
+   ada2wsdl   which generates a WSDL document from an Ada spec
+
+   wsdl2aws   which generates stubs/skeletons AWS code from a WSDL document
+
+Both tools have mapping for standard Ada types but also supports Ada
+enumerations, character, records and arrays.
 
 The SOAP implementation has been validated on http://validator.soapware.org/.
 
@@ -44,6 +52,13 @@ Here are the main changes since AWS 1.4 :
    - Some improvement in the generated AWS/SOAP code from WSDL
      document. In the generated stub uses properly the
      Types.To_SOAP_Object routine.
+
+   - Add support for enumerations in Ada and WSDL. wsdl2aws can now generate
+     enumeration type. This makes ada2wsdl and wsdl2aws even more compatible.
+
+   - wsdl2aws can now generate the SOAP callback routine for all routines
+     parsed in the WSDL document. This feature is one more step into
+     transparent SOAP support from Ada.
 
    - Better support for Notification and Request-response WSDL operations.
 
@@ -69,6 +84,8 @@ Here are the main changes since AWS 1.4 :
  
    - Fix WSDL SOAP record handling (code for record in record was
      sometimes not correctly generated).
+
+   - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
 Non upward compatible changes
@@ -172,7 +189,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least version 3.15 to build and use AWS 1.4.
+   You need at least version 3.15 to build and use AWS 1.5.
 
    http://libre.act-europe.fr/GNAT/
 
