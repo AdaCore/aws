@@ -999,10 +999,7 @@ package body Templates_Parser is
       --  used by the current one will be collected by the Finalize
       --  routine. We just want a new independant Vector_Tag here.
 
-      if Vect.Ref_Count.all = 1 then
-         --  This is the last reference, release object
-         Finalize (Vect);
-      end if;
+      Finalize (Vect);
 
       Vect.Ref_Count := new Integer'(1);
       Vect.Count     := 0;
