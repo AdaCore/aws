@@ -1,3 +1,9 @@
+2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-translator-conversion__p.adb, aws-translator-conversion__f.adb:
+	Fix typo in comment.
+	Minor reformatting.
+
 2003-10-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

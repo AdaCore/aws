@@ -1,3 +1,8 @@
+2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-push.ads:
+	Fix typo in comment.
+
 2003-10-23  Pascal Obry  <pascal.obry@edf.fr>
 
 	* aws-resources-streams-memory-zlib.adb:
