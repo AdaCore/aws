@@ -103,7 +103,7 @@ package AWS.Translator is
       Header : in ZL.Header_Type                   := ZL.Default_Header)
       return Utils.Stream_Element_Array_Access;
    --  Returns Data compressed with a standard deflate algorithm based on the
-   --  zlib library. The results is dynamically allocated and must be
+   --  zlib library. The result is dynamically allocated and must be
    --  explicitly freed.
 
    function Decompress
