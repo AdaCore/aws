@@ -1,0 +1,238 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                            Copyright (C) 2003                            --
+--                               ACT-Europe                                 --
+--                                                                          --
+--  Authors: Dmitriy Anisimokv - Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $Id$
+
+with Ada.Calendar;
+with Ada.Exceptions;
+with Ada.Strings.Fixed;
+with Ada.Text_IO;
+
+with GNAT.AWK;
+with GNAT.Calendar.Time_IO;
+with GNAT.Directory_Operations.Iteration;
+with GNAT.OS_Lib;
+
+with AWS.Client;
+with AWS.Messages;
+with AWS.MIME;
+with AWS.Response;
+with AWS.Status;
+with AWS.Server;
+
+procedure Tlog is
+
+   use Ada;
+   use GNAT;
+   use AWS;
+
+   WS   : Server.HTTP;
+
+   ---------
+   -- Del --
+   ---------
+
+   procedure Del
+     (Name  : in     String;
+      Index : in     Positive;
+      Quit  : in out Boolean)
+   is
+      Success : Boolean;
+   begin
+      OS_Lib.Delete_File (Name, Success);
+   end Del;
+
+   -----------------
+   -- Delete_Logs --
+   -----------------
+
+   procedure Delete_Logs is
+      procedure Del_Logs is new Directory_Operations.Iteration.Find (Del);
+   begin
+      Del_Logs (".", ".*\.log");
+   end Delete_Logs;
+
+   -----------
+   -- Today --
+   -----------
+
+   function Today return String is
+   begin
+      return GNAT.Calendar.Time_IO.Image (Ada.Calendar.Clock, "%Y-%m-%d");
+   end Today;
+
+   --------
+   -- IP --
+   --------
+
+   function IP (Str : in String) return String is
+      K : constant Natural := Strings.Fixed.Index (Str, ":");
+   begin
+      return Str (Str'First .. K);
+   end IP;
+
+   ----------------
+   -- Parse_Logs --
+   ----------------
+
+   procedure Parse_Logs is
+      use type AWK.Count;
+      I : AWK.Count;
+   begin
+      AWK.Add_File ("tlog-" & Today & ".log");
+      AWK.Add_File ("tlog_error-" & Today & ".log");
+
+      AWK.Open;
+
+      Text_IO.Put_Line ("> File : " & AWK.File);
+
+      while not AWK.End_Of_Data loop
+
+         if AWK.End_Of_File then
+            AWK.Get_Line;
+            Text_IO.Put_Line ("> File : " & AWK.File);
+         else
+            AWK.Get_Line;
+         end if;
+
+         Text_IO.Put (IP (AWK.Field (1)));
+         Text_IO.Put (" | ");
+
+         Text_IO.Put (AWK.Field (2));
+         Text_IO.Put (" | ");
+
+         Text_IO.Put (AWK.Field (3));
+         Text_IO.Put (" | ");
+
+         if AWK.Field (3) = "-" then
+            I := 4;
+         else
+            I := 5;
+         end if;
+
+         declare
+            V : constant String := AWK.Field (I);
+         begin
+            Text_IO.Put (V (V'First));
+            Text_IO.Put ("<date>");
+            Text_IO.Put (V (V'Last));
+            Text_IO.Put (" | ");
+         end;
+
+         for K in I + 1 .. AWK.Count'Min (10 + I, AWK.NF) loop
+            Text_IO.Put (AWK.Field (K));
+            Text_IO.Put (" | ");
+         end loop;
+
+         Text_IO.New_Line;
+      end loop;
+
+      AWK.Close (AWK.Current_Session);
+   end Parse_Logs;
+
+   --------
+   -- CB --
+   --------
+
+   function CB (Request : in Status.Data) return Response.Data is
+      URI : constant String := Status.URI (Request);
+   begin
+      if URI = "/one" then
+         return Response.Build (MIME.Text_HTML, "one");
+
+      elsif URI = "/file" then
+         return Response.File (MIME.Text_Plain, "simple.adb");
+
+      elsif URI = "/error" then
+         raise Constraint_Error;
+         return Response.File (MIME.Text_Plain, "tlog.adb");
+
+      else
+         return Response.Build
+           (MIME.Text_HTML, "This is an error", Messages.S404);
+      end if;
+   end CB;
+
+   R : Response.Data;
+
+   Connect : Client.HTTP_Connection;
+
+begin
+   Delete_Logs;
+
+   Server.Start
+     (WS, "tlog", CB'Unrestricted_Access, Port => 1246, Max_Connection => 5);
+
+   Server.Start_Log (WS);
+   Server.Start_Error_Log (WS);
+
+   Ada.Text_IO.Put_Line ("started");
+
+   R := Client.Get ("http://localhost:1246/one");
+   R := Client.Get ("http://localhost:1246/azerty");
+   R := Client.Get ("http://localhost:1246/file");
+   R := Client.Get ("http://localhost:1246/one");
+   R := Client.Get ("http://localhost:1246/file");
+   R := Client.Get ("http://localhost:1246/error");
+   R := Client.Get ("http://localhost:1246/azerty");
+   R := Client.Get ("http://localhost:1246/error");
+   R := Client.Get ("http://localhost:1246/one");
+   R := Client.Get ("http://localhost:1246/azerty");
+   R := Client.Get ("http://localhost:1246/file");
+
+   Client.Create
+     (Connection => Connect,
+      Host       => "http://localhost:1246",
+      Retry      => 0);
+
+   --  Test for basic authentication.
+
+   Client.Set_WWW_Authentication
+     (Connect, "login", "pwd", Client.Basic);
+
+   Client.Get (Connect, R, "/azerty");
+   Client.Get (Connect, R, "/one");
+   Client.Get (Connect, R, "/file");
+   Client.Get (Connect, R, "/error");
+   Client.Get (Connect, R, "/one");
+   Client.Get (Connect, R, "/file");
+
+   Client.Close (Connect);
+
+   Server.Shutdown (WS);
+
+   Ada.Text_IO.Put_Line ("shutdown");
+
+   Parse_Logs;
+
+exception
+   when E : others =>
+      Text_IO.Put_Line ("Main error: " & Exceptions.Exception_Information (E));
+end Tlog;
