@@ -36,12 +36,18 @@ with SOAP.Message.Response;
 
 package SOAP.Client is
 
-   Not_Specified : constant String;
+   Not_Specified : String renames AWS.Client.No_Data;
 
    function Call
      (URL        : in String;
       P          : in Message.Payload.Object;
-      SOAPAction : in String         := Not_Specified)
+      SOAPAction : in String                     := Not_Specified;
+      User       : in String                     := Not_Specified;
+      Pwd        : in String                     := Not_Specified;
+      Proxy      : in String                     := Not_Specified;
+      Proxy_User : in String                     := Not_Specified;
+      Proxy_Pwd  : in String                     := Not_Specified;
+      Timeouts   : in AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
       return Message.Response.Object'Class;
    --  Send a SOAP HTTP request to URL address. The P is the Payload and
    --  SOAPAction is the required HTTP field. If it is not specified then the
@@ -54,9 +60,5 @@ package SOAP.Client is
       P          : in     Message.Payload.Object)
       return Message.Response.Object'Class;
    --  Idem as above, but use an already opened connection.
-
-private
-
-   Not_Specified : constant String := "";
 
 end SOAP.Client;
