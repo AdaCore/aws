@@ -62,7 +62,12 @@ is
    End_Of_Message : constant String := "";
    HTTP_10        : constant String := "HTTP/1.0";
 
-   C_Stat  : AWS.Status.Data;         --  connection status
+   C_Stat         : AWS.Status.Data;         --  connection status
+
+   Will_Close     : Boolean;
+   --  Will_Close is set to true when the connection will be closed by the
+   --  server. It means that the server is about to send the lastest message
+   --  to the client using this sockets.
 
    procedure Parse (Command : in String);
    --  Parse a line sent by the client and do what is needed
@@ -115,20 +120,18 @@ is
       procedure Create_Session;
       --  Create a session if needed
 
-      procedure Header_Date_Serv;
-      --  Send the Date: and Server: data
+      procedure Send_General_Header;
+      --  Send the "Date:", "Server:", "Set-Cookie:" and "Connection:" header.
 
-      procedure Send_Connection;
-      --  Send the Connection: data
-
-      procedure Send_Header;
-      --  Send HTTP message header.
+      procedure Send_Header_Only;
+      --  Send HTTP message header only. This is used to implement the HEAD
+      --  request.
 
       procedure Send_File;
-      --  Send a binary file to the client
+      --  Send a text/binary file to the client.
 
       procedure Send_Message;
-      --  Answer by a text or HTML message.
+      --  Answer is a text or HTML message.
 
       --------------------
       -- Create_Session --
@@ -149,44 +152,47 @@ is
          end if;
       end Create_Session;
 
-      ----------------------
-      -- Header_Date_Serv --
-      ----------------------
+      -------------------------
+      -- Send_General_Header --
+      -------------------------
 
-      procedure Header_Date_Serv is
+      procedure Send_General_Header is
       begin
-         --  This is an HTTP connection with session but there is no session
-         --  ID set yet.
+         --  Session
 
          if HTTP_Server.Session and then Send_Session_Cookie then
-            --  send cookie to client browser
+            --  This is an HTTP connection with session but there is no session
+            --  ID set yet. So, send cookie to client browser
+
             Sockets.Put_Line
               (Sock,
                "Set-Cookie: AWS=" & AWS.Status.Session (C_Stat));
          end if;
 
+         --  Date
+
          Sockets.Put_Line
            (Sock,
             "Date: " & Messages.To_HTTP_Date (OS_Lib.GMT_Clock));
 
+         --  Server
+
          Sockets.Put_Line (Sock,
                            "Server: AWS (Ada Web Server) v" & Version);
-      end Header_Date_Serv;
 
-      ---------------------
-      -- Send_Connection --
-      ---------------------
+         --  Connection
 
-      procedure Send_Connection is
-      begin
-         if AWS.Status.Connection (C_Stat) = "" then
+         if Will_Close then
+            --  If there is no connection received we assume a non Keep-Alive
+            --  connection.
+
             Sockets.Put_Line (Sock, Messages.Connection_Token & "close");
          else
             Sockets.Put_Line
               (Sock,
                Messages.Connection (AWS.Status.Connection (C_Stat)));
          end if;
-      end Send_Connection;
+      end Send_General_Header;
 
       ---------------
       -- Send_File --
@@ -212,9 +218,7 @@ is
             Sockets.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
 
-         Header_Date_Serv;
-
-         Send_Connection;
+         Send_General_Header;
 
          Sockets.Put_Line
            (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
@@ -239,18 +243,18 @@ is
             null;
       end Send_File;
 
-      -----------------
-      -- Send_Header --
-      -----------------
+      ----------------------
+      -- Send_Header_Only --
+      ----------------------
 
-      procedure Send_Header is
+      procedure Send_Header_Only is
          use type AWS.Status.Request_Method;
       begin
          --  First let's output the status line
 
          Sockets.Put_Line (Sock, Messages.Status_Line (Status));
 
-         Header_Date_Serv;
+         Send_General_Header;
 
          --  There is no content
 
@@ -267,7 +271,7 @@ is
          --  End of header
 
          Sockets.New_Line (Sock);
-      end Send_Header;
+      end Send_Header_Only;
 
       ------------------
       -- Send_Message --
@@ -286,7 +290,7 @@ is
                Messages.Location (Response.Location (Answer)));
          end if;
 
-         Header_Date_Serv;
+         Send_General_Header;
 
          --  Now we output the message body length
 
@@ -408,7 +412,7 @@ is
          Send_File;
 
       elsif Response.Mode (Answer) = Response.Header then
-         Send_Header;
+         Send_Header_Only;
 
       else
          raise Constraint_Error;
@@ -1197,14 +1201,16 @@ begin
 
       Get_Message_Data;
 
+      Will_Close := AWS.Messages.Is_Match (Status.Connection (C_Stat), "close")
+        or else Status.HTTP_Version (C_Stat) = HTTP_10
+        or else HTTP_Server.Slots.N = 1;
+
       Answer_To_Client;
 
       --  Exit if connection has not the Keep-Alive status or we are working
       --  on HTTP/1.0 protocol or we have a single slot.
 
-      exit For_Every_Request when Status.Connection (C_Stat) /= "Keep-Alive"
-        or else Status.HTTP_Version (C_Stat) = HTTP_10
-        or else HTTP_Server.Slots.N = 1;
+      exit For_Every_Request when Will_Close;
 
       Status.Set.Reset (C_Stat);
 
