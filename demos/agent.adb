@@ -28,10 +28,16 @@
 
 --  $Id$
 
---  usage : agent URL
+--  Usage: agent [options] [GET/PUT] <URL>
+--         -proxy <proxy_url>
+--         -u <user_name>
+--         -p <password>
+--         -pu <proxy_user_name>
+--         -pp <proxy_password>
 
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
+with Ada.Command_Line;
 with GNAT.Command_Line;
 
 with AWS.Client;
@@ -98,6 +104,17 @@ procedure Agent is
    Data : Response.Data;
 
 begin
+
+   if Ada.Command_Line.Argument_Count = 0 then
+      Text_IO.Put_Line ("Usage: agent [options] [GET/PUT) <URL>");
+      Text_IO.Put_Line ("       -proxy <proxy_url>");
+      Text_IO.Put_Line ("       -u <user_name>");
+      Text_IO.Put_Line ("       -p <password>");
+      Text_IO.Put_Line ("       -pu <proxy_user_name>");
+      Text_IO.Put_Line ("       -pp <proxy_password>");
+      return;
+   end if;
+
    Parse_Command_Line;
 
    if Method = Status.GET then
