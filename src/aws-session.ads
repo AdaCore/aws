@@ -88,6 +88,10 @@ package AWS.Session is
    --  Returns the Value for Key in the session SID or the float value 0.0 if
    --  key does not exist.
 
+   procedure Remove (SID : in ID;
+                     Key : in String);
+   --  Removes Key from the specified session.
+
    function Exist (SID : in ID;
                    Key : in String)
      return Boolean;
