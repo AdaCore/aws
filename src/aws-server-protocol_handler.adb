@@ -1215,7 +1215,7 @@ is
             Send_Header_Only;
 
          when Response.Socket_Taken =>
-            HTTP_Server.Slots.Socket_Taken (Index);
+            HTTP_Server.Slots.Socket_Taken (Index, True);
             Socket_Taken := True;
 
          when Response.No_Data =>
