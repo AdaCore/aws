@@ -1,5 +1,8 @@
 2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(clean): fix temp CVS file pattern.
+
 	* aws.ads:
 	Fix typo in header.
 
