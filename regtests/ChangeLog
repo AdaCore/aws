@@ -1,3 +1,12 @@
+2002-06-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* tres2.adb:
+	Updated to use new AWS.Resources API (use File_Type instead of
+	 File_Access).
+	
+	* makefile:
+	(.SILENT): Add tres and tres2.
+
 2002-06-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
