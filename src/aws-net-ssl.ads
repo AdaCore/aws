@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,7 +35,6 @@
 --  not call directly a socket binding here to ease porting.
 
 with Ada.Streams;
-with System;
 
 with AWS.Net.Std;
 with SSL.Thin;
@@ -53,17 +52,17 @@ package AWS.Net.SSL is
    procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type);
-   --  Accept a connection on a socket.
+   --  Accept a connection on a socket
 
    procedure Connect
      (Socket   : in out Socket_Type;
       Host     : in     String;
       Port     : in     Positive);
    --  Connect a socket on a given host/port. If Security is true an secure
-   --  socket will be used.
+   --  socket will be used
 
    procedure Shutdown (Socket : in Socket_Type);
-   --  Shutdown both side of the socket and close it.
+   --  Shutdown both side of the socket and close it
 
    procedure Free (Socket : in out Socket_Type);
    --  Release memory associated with the socket object
@@ -93,15 +92,29 @@ package AWS.Net.SSL is
       TLSv1,  TLSv1_Server,  TLSv1_Client,
       SSLv3,  SSLv3_Server,  SSLv3_Client);
 
+   type Config is private;
+
    procedure Initialize
-     (Certificate_Filename : in String;
-      Security_Mode        : in Method := SSLv23;
-      Key_Filename         : in String := "");
-   --  Initialize the SSL layer. Certificate_Filename must point to a valid
-   --  certificate. Security mode can be used to change the security method
-   --  used by AWS. Key_Filename must be specified if the key is not in the
-   --  same file as the certificate. Note that the security options are used
-   --  by all running HTTPS server.
+     (Config               : in out SSL.Config;
+      Certificate_Filename : in     String;
+      Security_Mode        : in     Method     := SSLv23;
+      Key_Filename         : in     String     := "";
+      Exchange_Certificate : in     Boolean    := False);
+   --  Initialize the SSL layer into Config. Certificate_Filename must point
+   --  to a valid certificate. Security mode can be used to change the
+   --  security method used by AWS. Key_Filename must be specified if the key
+   --  is not in the same file as the certificate. The Config object can be
+   --  associated with all secure sockets sharing the same options. If
+   --  Exchange_Certificate is True the client will send it's certificate to
+   --  the server, if False only the server will send its certificate.
+
+   procedure Release (Config : in out SSL.Config);
+   --  Release memory associated with the Config object
+
+   procedure Set_Config
+     (Socket : in out Socket_Type;
+      Config : in     SSL.Config);
+   --  Set the SSL configuration object for the secure socket
 
 private
 
@@ -109,10 +122,30 @@ private
 
    subtype SSL_Handle is TSSL.SSL_Handle;
 
-   Null_Ptr : constant SSL_Handle := System.Null_Address;
+   protected type TS_SSL is
+
+      procedure Set_FD (Socket : in out Socket_Type);
+      --  Bind the SSL socket handle with the socket
+
+      procedure Initialize
+        (Certificate_Filename : in String;
+         Security_Mode        : in Method;
+         Key_Filename         : in String;
+         Exchange_Certificate : in Boolean);
+
+      procedure Finalize;
+
+   private
+      Initialized : Boolean      := False;
+      Private_Key : TSSL.RSA     := TSSL.Null_Pointer;
+      Context     : TSSL.SSL_CTX := TSSL.Null_Pointer;
+   end TS_SSL;
+
+   type Config is access TS_SSL;
 
    type Socket_Type is new Net.Std.Socket_Type with record
-      SSL : SSL_Handle := Null_Ptr;
+      Config : SSL.Config;
+      SSL    : SSL_Handle   := TSSL.Null_Pointer;
    end record;
 
 end AWS.Net.SSL;
