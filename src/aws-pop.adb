@@ -247,7 +247,7 @@ package body AWS.POP is
    begin
       for K in 1 .. Mailbox.Message_Count loop
          Mess := Get (Mailbox, K, Remove);
-         Action (Mess, Quit);
+         Action (Mess, K, Quit);
 
          exit when Quit = True;
       end loop;
