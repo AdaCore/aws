@@ -1,5 +1,8 @@
 2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-utils.ads:
+	(SOAP_Wrapper): Fix typos.
+
 	* soap-types.ads:
 	Sort all types in alphabetical order.
 
