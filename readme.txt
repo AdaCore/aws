@@ -154,6 +154,9 @@ Here are the main changes since AWS 2.0 :
 
    - Add support for non standard SMTP/POP ports in the Web_Mail service.
 
+   - Add new templates engine tag attribute Up_Level(n). This attribute can be
+     used on a vector to use as index an upper level table.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
