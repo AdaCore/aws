@@ -52,7 +52,7 @@ package body AWS.Resources is
       Close (Resource.all);
 
       if not Resource.Support_Compressed then
-        ZLib.Close (Resource.U_Filter, Ignore_Error => True);
+         ZLib.Close (Resource.U_Filter, Ignore_Error => True);
       end if;
 
       Free (Resource);
