@@ -1,3 +1,22 @@
+2004-08-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.ads:
+	Don't allow posibility to Free socket until other task is shutdowning it.
+	(Slot_Phase): New phases In_Shutdown and Loose_Release.
+	(Slots.Abort_On_Timeout): Add Index out parameter.
+	(Slots.Shutdown_Done): New routine.
+
+	* aws-server.adb:
+	Don't allow posibility to Free socket until other task is shutdowning it.
+	(Line_Cleaner): Get Slot index from Abort_On_Timeout for call Shutdown_Done.
+	(Shutdown): Add Slot_State and Slot_Index local variables for better error
+	 messages when we could not terminate slots.
+	 Call Web_Server.Slots.Shutdown_Done after slot socket Shutdown.
+	(Slots.Abort_On_Timeout): Give slot index.
+	(Slots.Get_For_Shutdown): Put to In_Shutdown Phase.
+	(Slots.Release): Do not free the socket if Phase if In_Shutdown.
+	(Slots.Shutdown_Done): New routine.
+
 2004-08-18  Pascal Obry  <pascal@obry.org>
 
 	* aws-server-protocol_handler.adb:
