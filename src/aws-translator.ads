@@ -37,15 +37,27 @@ package AWS.Translator is
    --     +     should be changed to a space
    --     %xy   should be replaced by the character whose code is xy
 
-   function Base64_Encode (Data : Ada.Streams.Stream_Element_Array)
-                          return String;
+   function Base64_Encode
+     (Data : in Ada.Streams.Stream_Element_Array)
+     return String;
    --  Encode Data using the base64 algorithm
 
    function Base64_Encode (Data : in String) return String;
    --  Same as above but takes a string as input
 
-   function Base64_Decode (B64_Data : in String)
-                          return Ada.Streams.Stream_Element_Array;
+   function Base64_Decode
+     (B64_Data : in String)
+     return Ada.Streams.Stream_Element_Array;
    --  Decode B64_Data using the base64 algorithm
+
+   function To_String
+     (Data : in Ada.Streams.Stream_Element_Array)
+     return String;
+   --  Convert a Stream_Element_Array to a string.
+
+   function To_Stream_Element_Array
+     (Data : in String)
+     return Ada.Streams.Stream_Element_Array;
+   --  Convert a String to a Stream_Element_Array.
 
 end AWS.Translator;
