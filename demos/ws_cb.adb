@@ -38,13 +38,15 @@ package body WS_CB is
 
    use AWS;
 
+   WWW_Root : constant String := "../";
+
    ---------
    -- Get --
    ---------
 
    function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
       URI      : constant String := AWS.Status.URI (Request);
-      Filename : constant String := URI (2 .. URI'Last);
+      Filename : constant String := WWW_Root & URI (2 .. URI'Last);
    begin
       if URI = "/ref" then
          return AWS.Response.Moved
@@ -55,12 +57,12 @@ package body WS_CB is
            (Content_Type => AWS.MIME.Content_Type (Filename),
             Filename     => Filename);
 
-      elsif OS_Lib.Is_Directory ("./" & Filename) then
+      elsif OS_Lib.Is_Directory (Filename) then
          return AWS.Response.Build
            (Content_Type => "text/html",
             Message_Body =>
               AWS.Services.Directory.Browse
-              ("./" & Filename, "aws_directory.thtml", Request));
+              (Filename, "aws_directory.thtml", Request));
       else
 
          return AWS.Response.Acknowledge
