@@ -34,6 +34,23 @@ package body Templates_Parser.Query is
 
    use Ada;
 
+   ---------------
+   -- Composite --
+   ---------------
+
+   function Composite
+     (Association : in Templates_Parser.Association)
+      return Tag is
+   begin
+      if Association.Kind = Composite then
+         return Association.Comp_Value;
+      else
+         Exceptions.Raise_Exception
+           (Constraint_Error'Identity,
+            Variable (Association) & " is not a composite tag.");
+      end if;
+   end Composite;
+
    ----------
    -- Kind --
    ----------
@@ -45,6 +62,15 @@ package body Templates_Parser.Query is
       return Association.Kind;
    end Kind;
 
+   ------------------
+   -- Nested_Level --
+   ------------------
+
+   function Nested_Level (T : in Tag) return Positive is
+   begin
+      return T.Nested_Level;
+   end Nested_Level;
+
    --------------
    -- Variable --
    --------------
@@ -55,22 +81,5 @@ package body Templates_Parser.Query is
    begin
       return To_String (Association.Variable);
    end Variable;
-
-   ------------
-   -- Vector --
-   ------------
-
-   function Vector
-     (Association : in Templates_Parser.Association)
-      return Vector_Tag is
-   begin
-      if Association.Kind = Vect then
-         return Association.Vect_Value;
-      else
-         Exceptions.Raise_Exception
-           (Constraint_Error'Identity,
-            Variable (Association) & " is not a vector tag.");
-      end if;
-   end Vector;
 
 end Templates_Parser.Query;
