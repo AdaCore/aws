@@ -30,7 +30,8 @@
 
 --  $Id$:
 
---  Thin binding to the LDAP API (derived from ldap.h)
+--  Thin binding to the LDAP API (derived from ldap.h). Only API to read from
+--  the server have been imported.
 
 --  This has been tested with OpenLDAP and wldap32.dll on Windows paltforms.
 
@@ -41,9 +42,9 @@ package AWS.LDAP.Thin is
 
    package C renames Interfaces.C;
 
-   function NS (S : in String) return C.Strings.chars_ptr
-     renames C.Strings.New_String;
    subtype chars_ptr is C.Strings.chars_ptr;
+
+   function NS (S : in String) return chars_ptr renames C.Strings.New_String;
 
    LDAP_VERSION1 : constant := 1;
    LDAP_VERSION2 : constant := 2;
@@ -52,7 +53,6 @@ package AWS.LDAP.Thin is
    LDAP_VERSION_MIN : constant := LDAP_VERSION2;
    LDAP_VERSION     : constant := LDAP_VERSION2;
    LDAP_VERSION_MAX : constant := LDAP_VERSION3;
-
 
    --  We'll use 2000+draft revision for our API version number
    --  As such, the number will be above the old RFC but below
@@ -68,7 +68,6 @@ package AWS.LDAP.Thin is
 
    --  OpenLDAP API Features
    LDAP_API_FEATURE_X_OPENLDAP : constant := LDAP_VENDOR_VERSION;
-
 
    LDAP_API_FEATURE_THREAD_SAFE : constant := 1;
 
@@ -518,6 +517,10 @@ package AWS.LDAP.Thin is
    --  object is returned by LDAP_Init.
    Null_LDAP_Type : constant LDAP_Type;
 
+   --  Refer to any LDAP API documentation for a description of the routines
+   --  below. Only the thick Ada binding in AWS.LDAP.Client is properly
+   --  documented.
+
    --  Init LDAP
 
    function ldap_init
@@ -550,6 +553,7 @@ package AWS.LDAP.Thin is
 
    type LDAPMessage is private;
    --  LDAP message, this structure can contain the search result for example.
+
    Null_LDAPMessage : constant LDAPMessage;
 
    type BerElement is private;
@@ -560,6 +564,16 @@ package AWS.LDAP.Thin is
       scope     : in C.int;
       filter    : in chars_ptr;
       attrs     : in C.Strings.chars_ptr_array;
+      attrsonly : in C.int;
+      res       : access LDAPMessage)
+      return C.int;
+
+   function ldap_search_s
+     (ld        : in LDAP_Type;
+      base      : in chars_ptr;
+      scope     : in C.int;
+      filter    : in chars_ptr;
+      attrs     : in chars_ptr; -- To be able to pass a null ptr
       attrsonly : in C.int;
       res       : access LDAPMessage)
       return C.int;
@@ -610,6 +624,11 @@ package AWS.LDAP.Thin is
 
    subtype Attribute_Set is C.Strings.chars_ptr_array (C.size_t);
    type Attribute_Set_Access is access all Attribute_Set;
+   --  This is a "char **" on the C side. We emulate this with a pointer to a
+   --  constrained chars_ptr_array. Note that it is not possible to
+   --  dereference an Attribute_Set_Access at the Ada level because this is a
+   --  dummy type which is very big! To access individual element you should
+   --  use Item routine below.
 
    function Item
      (Set   : in Attribute_Set_Access;
@@ -650,6 +669,10 @@ private
    type LDAP_Type   is new System.Address;
    type LDAPMessage is new System.Address;
    type BerElement  is new System.Address;
+   --  All these types are handled as opaque types. We do not need to expose
+   --  the structure here. These objects created and a pointer to them is
+   --  returned by routines above. We just pass this pointer around and we
+   --  must make sure that we free the structure.
 
    Null_LDAP_Type   : constant LDAP_Type
      := LDAP_Type (System.Null_Address);
