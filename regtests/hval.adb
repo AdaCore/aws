@@ -56,7 +56,7 @@ procedure HVal is
 
    procedure Test (Data : in String) is
 
-      S  : constant Data_Set := Split (Data);
+      S  : constant Set := Split (Data);
 
       Dummy : Boolean := False;
 
