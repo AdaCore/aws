@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="anytype"
+   targetNamespace="urn:aws:anytype"
+   xmlns:tns="urn:aws:anytype"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+   <types>
+      <schema xmlns="http://www.w3.org/2000/10/XMLSchema">
+
+	<complexType name='Set_Of_int'>
+	  <complexContent>
+	    <restriction base='soap-enc:Array'>
+	      <attribute ref='soap-enc:arrayType' wsdl:arrayType='xsd:int[]'/>
+            </restriction>
+          </complexContent>
+        </complexType>
+
+	<complexType name='Set_Of_x'>
+	  <complexContent>
+	    <restriction base='soap-enc:Array'>
+	      <attribute ref='soap-enc:arrayType' wsdl:arrayType='xsd:anyType[]'/>
+            </restriction>
+          </complexContent>
+        </complexType>
+
+      </schema>
+   </types>
+
+   <message name="Call_Request">
+      <part name="Param1" type="tns:Set_Of_int"/>
+      <part name="Param2" type="tns:Set_Of_x"/>
+   </message>
+
+   <message name="Call_Response">
+      <part name="Result" type="tns:Set_Of_x"/>
+   </message>
+
+   <portType name="anytype_PortType">
+
+      <operation name="Call">
+         <input message="tns:Call_Request"/>
+         <output message="tns:Call_Response"/>
+      </operation>
+
+   </portType>
+
+   <binding name="anytype_Binding" type="tns:anytype_PortType">
+      <soap:binding style="rpc"
+         transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <operation name="Call">
+         <soap:operation soapAction="Call"/>
+         <input>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:anytype"
+               use="literal"/>
+         </input>
+         <output>
+            <soap:body
+               encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+               namespace="urn:aws:anytype"
+               use="literal"/>
+         </output>
+      </operation>
+
+   </binding>
+
+   <service name="anytype_Service">
+      <port name="anytype_Port" binding="tns:anytype_Binding">
+         <soap:address location="http://localhost:7729"/>
+      </port>
+   </service>
+</definitions>
