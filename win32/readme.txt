@@ -1,15 +1,17 @@
 
 * How to use OpenSSL dynamic link libraries for Win32.
 
+   OpenSSL Version 0.9.7c
+
    1. Copy libeay32.dll and libssl32.dll to the directory referred in the
       PATH environment variable.
 
-   2. gnatmake should be called with a 
+   2. gnatmake should be called with:
+
       -largs -L{AWS Directory}/lib/ -lssl -lcrypto
-      parameters
 
    Note that the libssl.a and libcrypto.a import libraries will be created
-   during AWS build procedure. See makefile for the build procedure.
+   during AWS build procedure. See makefile.
 
 * How to use LDAP
 
