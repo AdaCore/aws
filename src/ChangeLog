@@ -1,13 +1,19 @@
 2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-headers-values.adb:
+	Reformat code.
+	Change Set to Data_Date.
+	
+2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-headers-values.adb:
 	Add some comments.
 	Reformat code.
 	(Search): Rename local variable Sample to M_Name. Call translate
 	 only if needed.
 
 	* aws-headers-values.ads:
-	(Set): Rename Data_Set.
+	(Set): Renamed to Data_Set.
 	Add header to group routines.
 	Fix comments.
 	Reformat code.
