@@ -1,5 +1,10 @@
 2002-12-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-messages.ads:
+	Fix typo in No_Cache constant definition.
+
+2002-12-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-containers-tables.ads, aws-containers-tables.adb
 	  aws-containers-tables-set.adb:
 	(Name_Value_Type): New type for receive data from container.
