@@ -27,6 +27,7 @@ APIFILES = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-services-dispatchers-method.ads.texi \
 	../src/aws-services-dispatchers-uri.ads.texi \
 	../src/aws-services-dispatchers-virtual_host.ads.texi \
+	../src/aws-smtp.ads.texi ../src/aws-smtp-client.ads.texi \
 	../soap/soap-message.ads.texi ../soap/soap-message-xml.ads.texi \
 	../soap/soap-parameters.ads.texi ../soap/soap-types.ads.texi \
 	../soap/soap-client.ads.texi
