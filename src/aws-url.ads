@@ -36,9 +36,11 @@ package AWS.URL is
 
    --  The general URL form is:
    --
-   --  http://usernam@password:www.here.com:80/dir1/dir2/xyz.html
-   --   |                           |       |  |         |
-   --   protocol                    host  port path      file
+   --  http://usernam@password:www.here.com:80/dir1/dir2/xyz.html?p=8&x=doh
+   --   |                           |       | |          |       |
+   --   protocol                    host port path       file    parameters
+   --
+   --                                         <--       pathname        -->
 
    type Object is private;
 
@@ -74,18 +76,25 @@ package AWS.URL is
    --  Returns True if it is an secure HTTP (HTTPS) URL.
 
    function Path (URL : in Object; Encode : in Boolean := False) return String;
-   --  Returns the Path. If Encode is True then the URI will be encoded using
-   --  the Encode routine.
+   --  Returns the Path (including the leading slash). If Encode is True then
+   --  the URI will be encoded using the Encode routine.
 
    function File (URL : in Object; Encode : in Boolean := False) return String;
    --  Returns the File. If Encode is True then the URI will be encoded using
    --  the Encode routine.
 
+   function Parameters
+     (URL    : in Object;
+      Encode : in Boolean := False)
+      return String;
+   --  Returns the Parameters (including the starting ? character). If Encode
+   --  is True then the URI will be encoded using the Encode routine.
+
    function Pathname
      (URL    : in Object;
       Encode : in Boolean := False)
-     return String;
-   --  Returns Path & '/' & File
+      return String;
+   --  Returns Path & File & Parameters.
 
    function Encode (Str : in String) return String;
    --  Encode Str into a URL-safe form. Many characters are forbiden into an
@@ -102,10 +111,11 @@ private
 
    type Object is record
       Host     : Unbounded_String;
-      Port     : Positive := Default_HTTP_Port;
-      Security : Boolean := False;
+      Port     : Positive          := Default_HTTP_Port;
+      Security : Boolean           := False;
       Path     : Unbounded_String;
       File     : Unbounded_String;
+      Params   : Unbounded_String;
    end record;
 
 end AWS.URL;
