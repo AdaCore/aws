@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with "xmlada";
+
 with "../shared";
 with "../include/include";
 with "../ssl/ssl";
