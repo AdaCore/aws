@@ -1,3 +1,9 @@
+2004-10-16  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.adb:
+	(Load_Include_Parameters): Fix test to properly handle the last
+         include parameter if it has a single character.
+
 2004-10-15  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser-expr.adb:
@@ -9,7 +15,7 @@
 	* aws-resources-streams-disk-once.ads:
 	Add some comments.
 	Update copyright notice.
-	
+
 	* aws-resources-streams-disk.ads:
 	Add some comments.
 
