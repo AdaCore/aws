@@ -39,8 +39,6 @@ implemented:
 
 - Replace OpenSSL by GNUTLS library when this library will become stable.
 
-- Would be nice to handle the logging of errors.
-
 - Would be nice to detect if users try to use the session feature when there
   is no session active in the server.
 
@@ -86,3 +84,6 @@ implemented:
 - Implement the AWS.Response.Set.Append_Body routines and the
   AWS.Response.Data internal data storage instead of one dynamically
   allocated data array.
+
+- Have a way to record specific MIME types for filenames matching a regular
+  expression.
