@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -32,7 +32,7 @@ package AWS is
 
    pragma Pure;
 
-   Version      : constant String := "2.1w";
+   Version      : constant String := "2.1a";
 
    HTTP_Version : constant String := "HTTP/1.1";
 
