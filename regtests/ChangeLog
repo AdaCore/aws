@@ -3,6 +3,9 @@
 	* wait.adb:
 	Call Net.Free routine after Net.Shutdown.
 
+	* zopen.adb:
+	Do not use AWS.Services.Files.
+
 2004-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait.adb, wait.out:
