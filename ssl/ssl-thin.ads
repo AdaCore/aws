@@ -97,9 +97,9 @@ package SSL.Thin is
    function SSLv23_method        return SSL_Method;
    function SSLv23_server_method return SSL_Method;
    function SSLv23_client_method return SSL_Method;
-   function Tlsv1_method         return SSL_Method;
-   function Tlsv1_server_method  return SSL_Method;
-   function Tlsv1_client_method  return SSL_Method;
+   function TLSv1_method         return SSL_Method;
+   function TLSv1_server_method  return SSL_Method;
+   function TLSv1_client_method  return SSL_Method;
 
    function CRYPTO_set_mem_functions
      (M : in System.Address;
@@ -285,9 +285,9 @@ private
    pragma Import (C, SSLv23_method, "SSLv23_method");
    pragma Import (C, SSLv23_server_method, "SSLv23_server_method");
    pragma Import (C, SSLv23_client_method, "SSLv23_client_method");
-   pragma Import (C, Tlsv1_method, "TLSv1_method");
-   pragma Import (C, Tlsv1_server_method, "TLSv1_server_method");
-   pragma Import (C, Tlsv1_client_method, "TLSv1_client_method");
+   pragma Import (C, TLSv1_method, "TLSv1_method");
+   pragma Import (C, TLSv1_server_method, "TLSv1_server_method");
+   pragma Import (C, TLSv1_client_method, "TLSv1_client_method");
 
    pragma Import (C, SSL_new, "SSL_new");
    pragma Import (C, SSL_free, "SSL_free");

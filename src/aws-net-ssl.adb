@@ -322,9 +322,9 @@ package body AWS.Net.SSL is
                SSLv23         => TSSL.SSLv23_method'Access,
                SSLv23_Server  => TSSL.SSLv23_server_method'Access,
                SSLv23_Client  => TSSL.SSLv23_client_method'Access,
-               Tlsv1          => TSSL.Tlsv1_method'Access,
-               Tlsv1_Server   => TSSL.Tlsv1_server_method'Access,
-               Tlsv1_Client   => TSSL.Tlsv1_client_method'Access,
+               TLSv1          => TSSL.TLSv1_method'Access,
+               TLSv1_Server   => TSSL.TLSv1_server_method'Access,
+               TLSv1_Client   => TSSL.TLSv1_client_method'Access,
                SSLv3          => TSSL.SSLv3_method'Access,
                SSLv3_Server   => TSSL.SSLv3_server_method'Access,
                SSLv3_Client   => TSSL.SSLv3_client_method'Access);
