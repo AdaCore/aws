@@ -69,7 +69,7 @@ package body AWS.Server is
    --  Handle the lines, this is where all the HTTP protocol is defined.
 
    function Accept_Socket_Serialized
-     (Server : in     HTTP_Access)
+     (Server : in HTTP_Access)
       return Net.Socket_Type'Class;
    --  Do a protected accept on the HTTP socket. It is not safe to call
    --  multiple accept on the same socket on some platforms.
@@ -96,19 +96,19 @@ package body AWS.Server is
    ------------------------------
 
    function Accept_Socket_Serialized
-     (Server : in     HTTP_Access)
+     (Server : in HTTP_Access)
       return Net.Socket_Type'Class
    is
-      Result : Net.Socket_Type'Class
+      New_Socket : Net.Socket_Type'Class
         := Net.Socket (CNF.Security (Server.Properties));
    begin
       Server.Sock_Sem.Seize;
 
-      Net.Accept_Socket (Server.Sock, Result);
+      Net.Accept_Socket (Server.Sock, New_Socket);
 
       Server.Sock_Sem.Release;
 
-      return Result;
+      return New_Socket;
 
    exception
       when others =>
@@ -298,15 +298,10 @@ package body AWS.Server is
       end loop;
 
    exception
-
       when E : others =>
-
          if not HTTP_Server.Shutdown then
-
             HTTP_Server.Exception_Handler (E, True);
-
          end if;
-
    end Line;
 
    ------------------
@@ -793,9 +788,10 @@ package body AWS.Server is
          Net.SSL.Initialize (CNF.Certificate);
       end if;
 
-      Net.Std.Bind (Web_Server.Sock,
-                CNF.Server_Port (Web_Server.Properties),
-                CNF.Server_Host (Web_Server.Properties));
+      Net.Std.Bind
+        (Web_Server.Sock,
+         CNF.Server_Port (Web_Server.Properties),
+         CNF.Server_Host (Web_Server.Properties));
 
       Net.Std.Listen
         (Web_Server.Sock,
