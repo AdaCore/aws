@@ -99,7 +99,7 @@ package body AWS.Config.Ini is
       Line : Natural;
       --  current line number parsed
 
-      Process_Mode : Boolean := True;
+      Process_Mode : constant Boolean := True;
       --  Set to True when parsing a file that can support per process
       --  options.
 
