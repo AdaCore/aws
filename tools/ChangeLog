@@ -1,3 +1,35 @@
+2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-generator.adb:
+	(Mode): Add Enumeration.
+	(Definition): Handle enumeration variant.
+	(Start_Enumeration): New routine.
+	(New_Literal): New routine.
+	(Type_Exists): Check also enumerations.
+	(Write_Schema.Write_Enumeration): New routine.
+	(Write_Schema): Handle enumerations.
+
+	* ada2wsdl-generator.ads:
+	(Start_Enumeration): New routine.
+	(New_Literal): New routine.
+
+	* ada2wsdl-main.adb:
+	(Parse_Command_Line): Add support for -noenum option.
+	(Usage): Document -noenum option.
+
+	* ada2wsdl-options.ads:
+	(Enum_To_String): New variable set to False.
+
+	* ada2wsdl-parser.adb:
+	(Analyse_Type): Add support for enumeration types.
+	(Register_Deferred): New routine.
+	(Type_Name): Add support for enumeration types if option activated
+	 otherwise enumerations are mapped to xsd:string.
+
+	* wsdl2aws.adb:
+	(Parse_Command_Line): Add support for option -cb.
+	Add usage info for -cb.
+
 2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.adb:
