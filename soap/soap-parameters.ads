@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -61,6 +61,10 @@ package SOAP.Parameters is
    function Get (P : in List; Name : in String) return Integer;
    --  Returns parameter named Name in P as an Integer value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Integer.
+
+   function Get (P : in List; Name : in String) return Types.Long;
+   --  Returns parameter named Name in P as a Long value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Long.
 
    function Get (P : in List; Name : in String) return Long_Float;
    --  Returns parameter named Name in P as a Float value. Raises

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -262,6 +262,11 @@ package body SOAP.Parameters is
    ---------
 
    function Get (P : in List; Name : in String) return Integer is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
+   function Get (P : in List; Name : in String) return Types.Long is
    begin
       return Types.Get (Argument (P, Name));
    end Get;
