@@ -176,16 +176,3 @@ implemented:
 
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
-
-- Add high level service to support compressed files if client support
-  compressed encoding.
-
-   function Open
-     (Filename : in String; 
-      Request  : in Status.Data)
-      return Response.Data;
-   --  Return a response object for Filename. This routine will first look for
-   --  filename and if not found it will look for file filename.gz. If the
-   --  client does not support the right encoding the file will be uncompressed
-   --  by using a decompression stream.
-   --  Returns Messages.S404 if neither filename nor filename.gz is found.
