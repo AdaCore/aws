@@ -46,7 +46,11 @@ package body WS_CB is
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := URI (2 .. URI'Last);
    begin
-      if OS_Lib.Is_Regular_File (Filename) then
+      if URI = "/ref" then
+         return AWS.Response.Moved
+           (Location => "http://dieppe:1234/page1.html");
+
+      elsif OS_Lib.Is_Regular_File (Filename) then
          return AWS.Response.File
            (Content_Type => AWS.MIME.Content_Type (Filename),
             Filename     => Filename);
