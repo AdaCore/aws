@@ -51,11 +51,10 @@ package body AWS.Containers.Tables.Set is
      (Table       : in out Table_Type;
       Name, Value : in     String)
    is
-
-      L_Key   : constant String
+      L_Key : constant String
         :=  Normalize_Name (Name, not Table.Case_Sensitive);
 
-      Found   : Boolean;
+      Found : Boolean;
 
       procedure Add_Value
         (Key   : in     String;
@@ -78,6 +77,7 @@ package body AWS.Containers.Tables.Set is
       procedure Update is new Index_Table.Update_Value_Or_Status_G (Add_Value);
 
    begin
+      --  Add name/value pair into the Data table
 
       Data_Table.Append
         (Table.Data,
@@ -87,10 +87,14 @@ package body AWS.Containers.Tables.Set is
             Name         => Name,
             Value        => Value));
 
+      --  ???
+
       Update
         (Table => Index_Table.Table_Type (Table.Index.all),
          Key   => L_Key,
          Found => Found);
+
+      --  ???
 
       if not Found then
          declare
@@ -101,7 +105,6 @@ package body AWS.Containers.Tables.Set is
             Insert (Table.Index.all, L_Key, Value);
          end;
       end if;
-
    end Add;
 
    --------------------
@@ -176,7 +179,7 @@ package body AWS.Containers.Tables.Set is
       end Release_Value;
 
       procedure Release_Values is new
-         Index_Table.Disorder_Traverse_And_Update_Value_G (Release_Value);
+        Index_Table.Disorder_Traverse_And_Update_Value_G (Release_Value);
 
    begin
       Release_Values (Index_Table.Table_Type (Table));
@@ -207,10 +210,10 @@ package body AWS.Containers.Tables.Set is
       N     : in     Positive := 1)
    is
 
-      L_Key   : constant String
+      L_Key : constant String
         :=  Normalize_Name (Name, not Table.Case_Sensitive);
 
-      Found   : Boolean;
+      Found : Boolean;
 
       procedure Update_Value
         (Key    : in     String;
@@ -260,7 +263,6 @@ package body AWS.Containers.Tables.Set is
          new Index_Table.Update_Value_Or_Status_G (Update_Value);
 
    begin
-
       Update
         (Table => Index_Table.Table_Type (Table.Index.all),
          Key   => L_Key,
