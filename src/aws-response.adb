@@ -30,6 +30,21 @@
 
 package body AWS.Response is
 
+   -----------------
+   -- Acknowledge --
+   -----------------
+
+   function Acknowledge (Status_Code : in Messages.Status_Code) return Data is
+   begin
+      return Data'(Header,
+                   Status_Code,
+                   0,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   Null_Unbounded_String,
+                   null);
+   end Acknowledge;
+
    ------------------
    -- Authenticate --
    ------------------
@@ -105,7 +120,7 @@ package body AWS.Response is
    -- Content_Length --
    --------------------
 
-   function Content_Length (D : in Data) return Positive is
+   function Content_Length (D : in Data) return Natural is
    begin
       return D.Content_Length;
    end Content_Length;
