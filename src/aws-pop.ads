@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                       P O P - Post Office Protocol                       --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -135,6 +135,14 @@ package AWS.POP is
    function From (Message : in POP.Message) return String;
    --  Returns From header value
 
+   function CC (Message : in POP.Message; N : Natural := 0) return String;
+   --  Retruns the CC header value. If N = 0 returns all recipients separated
+   --  by a coma otherwise it returns the Nth CC recipient.
+
+   function CC_Count (Message : in POP.Message) return Natural;
+   --  Returns the number of CC recipient for Message. Returns 0 if there is
+   --  no CC for this message.
+
    function Subject (Message : in POP.Message) return String;
    --  Returns Subject header value
 
@@ -199,6 +207,10 @@ private
 
    use Ada;
 
+   -------------
+   -- Mailbox --
+   -------------
+
    type Mailbox is record
       Sock          : Net.Std.Socket_Type;
       Name          : Unbounded_String;
@@ -210,6 +222,10 @@ private
    type Count_Access is access Natural;
 
    type Attachment_Access is access Attachment;
+
+   -------------
+   -- Message --
+   -------------
 
    type Message is new Finalization.Controlled with record
       Ref_Count   : Count_Access;
@@ -223,6 +239,10 @@ private
    procedure Initialize (Message : in out POP.Message);
    procedure Adjust     (Message : in out POP.Message);
    procedure Finalize   (Message : in out POP.Message);
+
+   ----------------
+   -- Attachment --
+   ----------------
 
    type Attachment is new Finalization.Controlled with record
       Ref_Count : Count_Access;
