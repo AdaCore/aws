@@ -1,6 +1,6 @@
 
-/* 
-   $Id
+/*
+   $Id$
 
    This program is used to get some OS specific settings
 */
@@ -54,7 +54,7 @@ main (void)
   printf ("   POLLERR  : constant := %d;\n", v_POLLERR);
   printf ("   POLLHUP  : constant := %d;\n", v_POLLHUP);
   printf ("   POLLNVAL : constant := %d;\n\n", v_POLLNVAL);
-  
+
   /* nfds_t */
 
   if (s_nfds_t == s_long)
