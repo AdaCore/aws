@@ -47,7 +47,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tres2 upload unexph auth auth2 moved turl2 turl3 test_templates_if \
 	head hval turl4 ctab sock1 file redirect hostip upload2 upload3 \
 	tlog unexph2 sp sessions dirop multiple tcom tmime sessions2 \
-	huge_response $(RT_STD_SEC)
+	huge_response server_info $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
 STD_TESTS   = $(RT_STD)
