@@ -186,6 +186,12 @@ package AWS.Server is
    --  Note that error log do not need to be flushed because it is always
    --  flushed by default.
 
+   procedure Give_Back_Socket
+     (Web_Server : in out HTTP;
+      Socket     : in     Net.Socket_Type'Class);
+   --  Bring the socket back to the server. Socket was taken after the
+   --  Socket_Taken return in the user callback.
+
 private
 
    procedure Default_Unexpected_Exception_Handler
@@ -385,6 +391,29 @@ private
    type Line_Cleaner_Access is access Line_Cleaner;
    --  run through the slots and see if some of them could be closed.
 
+   ----------------------
+   -- Socket_Semaphore --
+   ----------------------
+
+   --  This is a binary semaphore with Socket_Access passing, only a single
+   --  task can enter it (Seize_Or_Socket) with Socket parameter is null and
+   --  must call Release when the resource is not needed anymore.
+
+   protected type Socket_Semaphore is
+
+      entry Put_Socket (Socket : in Net.Socket_Access);
+
+      entry Seize_Or_Socket (Socket : out Net.Socket_Access);
+
+      procedure Release;
+      --  Do not call Relaease if the Socket output parameter in
+      --  Seize_Or_Socket was null;
+
+   private
+      Socket : Net.Socket_Access;
+      Seized : Boolean := False;
+   end Socket_Semaphore;
+
    ----------
    -- HTTP --
    ----------
@@ -403,8 +432,9 @@ private
       Sock              : Net.Std.Socket_Type;
       --  This is the server socket for incoming connection.
 
-      Sock_Sem          : Utils.Semaphore;
-      --  Semaphore used to serialize the accepts call on the server socket.
+      Sock_Sem          : Socket_Semaphore;
+      --  Semaphore used to serialize the accepts call on the server socket
+      --  or accept gave back sockets.
 
       Cleaner           : Line_Cleaner_Access;
       --  Task in charge of cleaning slots status. It checks from time to time
