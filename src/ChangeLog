@@ -1,5 +1,8 @@
 2001-09-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.ads:
+	(Start): fix comment.
+
 	* aws-log.adb:
 	(Stop): check if file is open before closing it.
 

@@ -1,5 +1,20 @@
 2001-09-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-message-payload.ads, soap-message-payload.adb:
+	Rename Parameters.Set to Parameters.List.
+
+	* soap-message-response-error.adb:
+	Rename Parameters.Set to Parameters.List.
+
+	* soap-message-xml.adb:
+	Rename Parameters.Set to Parameters.List.
+
+	* soap-message.ads, soap-message.adb:
+	Rename Parameters.Set to Parameters.List.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	(Set): renamed List as we have AWS.Parameters.List.
+
 	* soap-types.adb:
 	(A): return now a controlled object.
 	(Adjust): new procedure.
