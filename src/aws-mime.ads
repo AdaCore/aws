@@ -43,6 +43,7 @@ package AWS.MIME is
    -- Text --
    ----------
 
+   Text_CSS                    : constant String := "text/css";
    Text_HTML                   : constant String := "text/html";
    Text_Plain                  : constant String := "text/plain";
    Text_XML                    : constant String := "text/xml";

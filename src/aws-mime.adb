@@ -225,6 +225,7 @@ package body AWS.MIME is
    begin
       --  Text
 
+      Set.Add_Extension ("css",     Text_CSS);
       Set.Add_Extension ("html",    Text_HTML);
       Set.Add_Extension ("htm",     Text_HTML);
       Set.Add_Extension ("txt",     Text_Plain);
