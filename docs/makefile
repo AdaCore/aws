@@ -15,7 +15,10 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-communication-server.ads.texi \
 	../src/aws-server-hotplug.ads.texi ../src/aws-log.ads.texi \
 	../src/aws-parameters.ads.texi ../src/aws-config-ini.ads.texi \
-	../src/aws-config-set.ads.texi ../src/aws-server-push.ads.texi
+	../src/aws-config-set.ads.texi ../src/aws-server-push.ads.texi \
+	../soap/soap-message.ads.texi ../soap/soap-message-xml.ads.texi \
+	../soap/soap-parameters.ads.texi ../soap/soap-types.ads.texi \
+	../soap/soap-client.ads.texi
 
 build: aws.ps aws.html aws.txt aws.info
 	echo done
@@ -53,7 +56,7 @@ aws.txt: aws.texi
 	makeinfo --no-headers aws.texi > aws.txt
 
 aws.texi: aws.texi.tmplt build.adb
-	gnatmake build -I../src -I../include
+	gnatmake build -I../src -I../soap -I../include
 	./build > aws.texi
 
 clean:
