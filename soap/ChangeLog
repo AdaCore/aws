@@ -1,3 +1,27 @@
+2002-08-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-parameters.adb:
+	Change Object_Controlled to Object_Safe_Pointer. Use "-" as it is
+	 not possible to access object directly.
+
+	* soap-types.adb:
+	(xsi_type): Inlined.
+	(Spaces): Inlined.
+	("-"): New procedure to retreive an Object from an Object_Safe_Pointer.
+	(Finalize): [for Composite] Properly release all objects.
+	A lot of changes in aggregate construction due to object being
+	 a controlled object.
+	
+	* soap-types.ads:
+	(Object): Now a controlled object to properly release the memory.
+	 Needed to fix a big memory leak on composite objects.
+	(Object_Controlled): Renamed to Object_Safe_Pointer.
+	(Object_Safe_Pointer): Do not expose the record here.
+	("-"): New procedure to retreive an Object from an Object_Safe_Pointer.
+	(Composite): Add Object_Set_Access here.
+	(SOAP_Record): Derived directly from Composite adding no field.
+	(SOAP_Array): Idem.
+	
 2002-07-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-types.ads:
