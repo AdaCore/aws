@@ -3154,7 +3154,7 @@ automatically.
 Note that this tool is based on @code{ASIS}.
 
 @node Using ada2wsdl
-@subsection Using @file{ada2wsdl}
+@subsection Using ada2wsdl
 
 @noindent
 @code{ada2wsdl} can be used on any Ada spec file to generated a
@@ -3486,7 +3486,7 @@ generate standard array and record @code{WSDL} definitions as seen above.
 @end table
 
 @node ada2wsdl
-@subsection @file{ada2wsdl}
+@subsection ada2wsdl
 
 @smallexample
 Usage: ada2wsdl [options] ada_spec
@@ -3871,7 +3871,7 @@ The @code{SOAP} dispatcher callback routine.
 @end table
 
 @node wsdl2aws limitations
-@subsection @file{wsdl2aws} limitations
+@subsection wsdl2aws limitations
 @cindex wsdl2aws limitations
 
 @noindent
@@ -3892,12 +3892,12 @@ decimal), it is just not supported with the current version.
 @end itemize
 
 @node Using ada2wsdl and wsdl2aws together
-@section Using @file{ada2wsdl} and @file{wsdl2aws} together
+@section Using ada2wsdl and wsdl2aws together
 
 @noindent
 Using both tools together is an effective way to build rapidely a @code{SOAP}
 server. It can be said that doing so is quite trivial in fact. Let's
-take the following specs:
+take the following spec:
 
 @smallexample
 @cartouche
@@ -3909,6 +3909,7 @@ take the following specs:
    @b{end} record;
 
    @b{function} Distance (P1, P2 : @b{in} Point) @b{return} Long_Float;
+   --  @i{Returns the distance between points P1 and P2}
 
 @b{end} Graphics;
 @end group
@@ -3940,11 +3941,19 @@ $ gnatmake server -largs ...
 @end smallexample
 
 @noindent
-Option @code{-cb} is to create the @code{SOAP} dispatcher callback,
-@code{-main server} to generate the main server procedure in
-@file{server.adb} and @code{-types graphics} to use
-@file{graphics.ads} to get references from user's spec (reference to
+Options
+
+@table @code
+@item -cb 
+is to create the @code{SOAP} dispatcher callback routine,
+
+@item -main server
+to generate the main server procedure in @file{server.adb},
+
+@item -types graphics
+to use @file{graphics.ads} to get references from user's spec (reference to
 @code{Graphics.Point} for example).
+@end table
 
 @c ----------------------------------------------------------------------
 
