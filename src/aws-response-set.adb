@@ -209,8 +209,8 @@ package body AWS.Response.Set is
      (D     : in out Data;
       Value : in     String) is
    begin
-      D.Filename       := To_Unbounded_String (Value);
-      D.Mode           := File;
+      D.Filename := To_Unbounded_String (Value);
+      D.Mode     := File;
    end Filename;
 
    --------------
