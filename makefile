@@ -31,10 +31,7 @@ else
 EXEEXT =
 endif
 
-# Checks if compiler version if 3.15
-GNAT_VERSION = $(`gnatls -v | grep GNATLS | awk '{if ($2=="Pro"){print substr($3,1,4)}else{print substr($2,1,4)}}'`)
-
-ifeq (${GNAT_VERSION}, "3.15")
+ifeq (${GNAT_VERSION}, 3.15)
 # On GNAT 3.15 pragma Obsolescent and -gnatwjmv options are not supported,
 # so we do not use this option and furtheremore we do not treat warnings as
 # errors.
