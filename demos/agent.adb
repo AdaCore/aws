@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                         Copyright (C) 2000-2001                          --
+--                     Dmitriy Anisimkov - Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -30,11 +30,17 @@
 
 --  Usage: agent [options] [GET/PUT] <URL>
 --         -f                      for display of message body.
+--         -k                      keep-alive connection.
 --         -proxy <proxy_url>
 --         -u <user_name>
 --         -p <password>
 --         -pu <proxy_user_name>
 --         -pp <proxy_password>
+--
+--  for example:
+--
+--     agent GET http://perso.wanadoo.fr/pascal.obry/contrib.html
+--
 
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -63,21 +69,26 @@ procedure Agent is
    Proxy_User : Unbounded_String;
    Proxy_Pwd  : Unbounded_String;
    Force      : Boolean := False;
+   Keep_Alive : Boolean := False;
+   Connect    : AWS.Client.HTTP_Connection;
 
    procedure Parse_Command_Line;
    --  parse Agent command line:
-   --  Usage: agent [-u -p -proxy -pu -pp] [GET/PUT] URL
+   --  Usage: agent [-k -u -p -proxy -pu -pp] [GET/PUT] URL
 
    procedure Parse_Command_Line is
    begin
      loop
-        case GNAT.Command_Line.Getopt ("f u: p: pu: pp: proxy:") is
+        case GNAT.Command_Line.Getopt ("f u: p: pu: pp: proxy: k") is
 
            when ASCII.NUL =>
               exit;
 
            when 'f' =>
               Force := True;
+
+           when 'k' =>
+              Keep_Alive := True;
 
            when 'u' =>
               User := To_Unbounded_String (GNAT.Command_Line.Parameter);
@@ -113,8 +124,9 @@ procedure Agent is
 begin
 
    if Ada.Command_Line.Argument_Count = 0 then
-      Text_IO.Put_Line ("Usage: agent [options] [HEAD/GET/PUT) <URL>");
+      Text_IO.Put_Line ("Usage: agent [options] [GET/PUT) <URL>");
       Text_IO.Put_Line ("       -f           force display of message body.");
+      Text_IO.Put_Line ("       -k           keep-alive connection.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
@@ -125,70 +137,84 @@ begin
 
    Parse_Command_Line;
 
-   if Method = Status.HEAD then
-      Data := Client.Head (URL        => To_String (URL),
-                           User       => To_String (User),
-                           Pwd        => To_String (Pwd),
-                           Proxy      => To_String (Proxy),
-                           Proxy_User => To_String (Proxy_User),
-                           Proxy_Pwd  => To_String (Proxy_Pwd));
-   elsif Method = Status.GET then
-      Data := Client.Get (URL        => To_String (URL),
-                          User       => To_String (User),
-                          Pwd        => To_String (Pwd),
-                          Proxy      => To_String (Proxy),
-                          Proxy_User => To_String (Proxy_User),
-                          Proxy_Pwd  => To_String (Proxy_Pwd));
-   else
-      Data := Client.Put (URL        => To_String (URL),
-                          Data       => "Un essai",
-                          User       => To_String (User),
-                          Pwd        => To_String (Pwd),
-                          Proxy      => To_String (Proxy),
-                          Proxy_User => To_String (Proxy_User),
-                          Proxy_Pwd  => To_String (Proxy_Pwd));
-   end if;
+   Connect := Client.Create
+     (Host       => To_String (URL),
+      User       => To_String (User),
+      Pwd        => To_String (Pwd),
+      Proxy      => To_String (Proxy),
+      Proxy_User => To_String (Proxy_User),
+      Proxy_Pwd  => To_String (Proxy_Pwd));
 
-   Text_IO.Put_Line
-     ("Status Code = "
-      & Messages.Image (Response.Status_Code (Data))
-      & " - "
-      & Messages.Reason_Phrase (Response.Status_Code (Data)));
+   loop
 
-   if Response.Content_Type (Data) = "text/html" then
-      Text_IO.Put_Line (Response.Message_Body (Data));
+      if Method = Status.GET then
+         Client.Get (Connect, Data);
+      else
+         Client.Put (Connection  => Connect,
+                     Result => Data,
+                     Data   => "Un essai");
+      end if;
 
-   else
-      Text_IO.Put_Line ("Content-Type: "
-                        & Response.Content_Type (Data));
-      Text_IO.Put_Line ("Content-Length: "
-                        & Natural'Image (Response.Content_Length (Data)));
+      Text_IO.Put_Line
+        ("Status Code = "
+         & Messages.Image (Response.Status_Code (Data))
+         & " - "
+         & Messages.Reason_Phrase (Response.Status_Code (Data)));
 
-      if Force = True then
-         --  this is not a text/html body, but output it anyway
+      if Response.Content_Type (Data) = "text/html" then
+         Text_IO.Put_Line (Response.Message_Body (Data));
+
+      else
+         Text_IO.Put_Line ("Content-Type: "
+                           & Response.Content_Type (Data));
+         Text_IO.Put_Line ("Content-Length: "
+                           & Natural'Image (Response.Content_Length (Data)));
+
+         if Force = True then
+            --  this is not a text/html body, but output it anyway
+
+            declare
+               Message_Body : constant Streams.Stream_Element_Array
+                 := Response.Binary (Data);
+            begin
+               for K in Message_Body'Range loop
+                  declare
+                     C : Character := Character'Val (Message_Body (K));
+                  begin
+                     if C = ASCII.CR
+                       or else C = ASCII.LF
+                       or else not Characters.Handling.Is_Control (C)
+                     then
+                        Text_IO.Put (C);
+                     else
+                        Text_IO.Put ('.');
+                     end if;
+                  end;
+               end loop;
+            end;
+
+         end if;
+      end if;
+
+      if Keep_Alive then
+         --  check that the keep alive connection is kept alive
+
+         Text_IO.Put_Line ("Type 'q' to exit, the connection will be closed.");
+         Text_IO.Put_Line ("Any other key to retreive again the same URL");
 
          declare
-            Message_Body : constant Streams.Stream_Element_Array
-              := Response.Binary (Data);
+            Char : Character;
          begin
-            for K in Message_Body'Range loop
-               declare
-                  C : Character := Character'Val (Message_Body (K));
-               begin
-                  if C = ASCII.CR
-                    or else C = ASCII.LF
-                    or else not Characters.Handling.Is_Control (C)
-                  then
-                     Text_IO.Put (C);
-                  else
-                     Text_IO.Put ('.');
-                  end if;
-               end;
-            end loop;
+            Text_IO.Get_Immediate (Char);
+            exit when char = 'q';
          end;
 
+      else
+         Client.Close (Connect);
+         exit;
       end if;
-   end if;
-end Agent;
 
+   end loop;
+
+end Agent;
 
