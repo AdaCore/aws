@@ -1,3 +1,10 @@
+2003-02-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(ALL_TESTS): Renamed to STD_TESTS.
+	(OTH_TESTS): New target.
+	(build): Remove specific test, add OTH_TESTS variable.
+
 2003-02-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* check_mem.adb:
