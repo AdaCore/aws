@@ -1,5 +1,19 @@
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* tlog.adb:
+	Use 2 simultaneous connection. Fix a regression on GNU/Linux. This
+	 should be certainly analysed at some point. The problem was that
+	 the log output was not in the same order.
+	
+	* makefile:
+	(check_mem): New target.
+	Better handle error checking.
+
+	* check_mem.adb:
+	Initial revision.
+
+2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* unexph2.adb:
 	Use port 1247 as 1240 was already used. Fix GNU/Linux failure.
 

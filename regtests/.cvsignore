@@ -1,6 +1,9 @@
+alldifs
 auth.res
 b~auth.adb
 b~auth.ads
+b~check_mem.adb
+b~check_mem.ads
 b~ctab.adb
 b~ctab.ads
 b~dummy.adb
@@ -77,6 +80,7 @@ b~upload3.adb
 b~upload3.ads
 b~workorder.adb
 b~workorder.ads
+check_mem.res
 ctab.res
 dummy.res
 file.res
@@ -85,12 +89,15 @@ file.tmplt
 file1.html
 file2.html
 file3.html
+gmem.out
 head.res
 hostip.res
 hval.res
 moved.res
 param.res
 redirect.res
+run1
+run2
 shutdown.res
 simple.res
 soap1.res
