@@ -548,7 +548,7 @@ package body SOAP.WSDL.Parser is
       begin
          --  Look for arrayType in Attributes list
 
-         for K in 1 .. DOM.Core.Nodes.Length (Attributes) loop
+         for K in 0 .. DOM.Core.Nodes.Length (Attributes) - 1 loop
 
             declare
                N : constant DOM.Core.Node
