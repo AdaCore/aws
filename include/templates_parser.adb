@@ -158,6 +158,14 @@ package body Templates_Parser is
          Exist,
          --  Returns "TRUE" if var is not empty and "FALSE" otherwise.
 
+         Format_Date,
+         --  Returns the date formatted using the format parameter. This
+         --  format is following the GNU/date as implemented in
+         --  GNAT.Calendar.Time_IO. The date must be in the ISO format
+         --  YYYY-MM-DD eventually followed by a space and the time with the
+         --  format HH:MM:SS. So the string must be either 10 or 19 characters
+         --  long.
+
          Format_Number,
          --  Returns the number with a space added between each 3 digits
          --  blocks. The decimal part is not transformed. If the data is not a
@@ -338,6 +346,12 @@ package body Templates_Parser is
          return String;
 
       function Exist
+        (S : in String;
+         P : in Parameter_Data  := No_Parameter;
+         T : in Translate_Table := No_Translation)
+         return String;
+
+      function Format_Date
         (S : in String;
          P : in Parameter_Data  := No_Parameter;
          T : in Translate_Table := No_Translation)
