@@ -32,8 +32,8 @@
 
 with Ada.Streams;
 with Ada.Strings.Unbounded;
-with Sockets;
 
+with AWS.Net;
 with AWS.Response;
 with AWS.URL;
 
@@ -300,8 +300,6 @@ private
    No_Timeout : constant Timeouts_Values := (0, 0);
    No_Data    : constant String := "";
 
-   type Socket_Access is access Sockets.Socket_FD'Class;
-
    type Client_Phase is (Not_Monitored, Send, Receive, Stopped);
 
    type HTTP_Connection_Access is access all HTTP_Connection;
@@ -359,7 +357,7 @@ private
       Server_Push   : Boolean;
       SOAPAction    : Unbounded_String;
       Cookie        : Unbounded_String;
-      Socket        : Socket_Access;
+      Socket        : Net.Socket_Access;
       Retry         : Natural;
       Current_Phase : Client_Phase;
       Timeouts      : Timeouts_Values;
