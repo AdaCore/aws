@@ -43,7 +43,41 @@
 --     label for the tag's nth axis. In this case TAG_DIM[n]_LABEL must be a
 --     vector tag, each entry corresponds to a label on this axis.
 --
---  ??? Add DTD here
+--  Here is the DTD :
+--
+--  <?xml version="1.0" encoding="UTF-8"?>
+--  <!--Description of a tag or dimension (ex: year)-->
+--  <!ELEMENT Description (#PCDATA)>
+--  <!--a dimension-->
+--  <!ELEMENT Dim (Description, Labels)>
+--  <!ATTLIST Dim
+--  	n CDATA #REQUIRED
+--  >
+--  <!--entry of a CompositeTag-->
+--  <!ELEMENT Entry (ind+, V)>
+--  <!--label of an indice of a dimension (ex: 2000)-->
+--  <!ELEMENT Label (#PCDATA)>
+--  <!ATTLIST Label
+--  	ind CDATA #REQUIRED
+--  >
+--  <!--list of labels of one dimension (ex: 1999, 2000, 2001)-->
+--  <!ELEMENT Labels (Label+)>
+--  <!--alias and information-->
+--  <!ELEMENT Tag (Name, Description)>
+--  <!--tagged data to be published in templates-->
+--  <!ELEMENT Tagged (SimpleTag*, CompositeTag*)>
+--  <!--simple variable value-->
+--  <!ELEMENT V (#PCDATA)>
+--  <!ELEMENT ind (#PCDATA)>
+--  <!ATTLIST ind
+--  	n CDATA #REQUIRED
+--  >
+--  <!--identification name for this tag-->
+--  <!ELEMENT Name (#PCDATA)>
+--  <!--Tag with no dimension (simple variable)-->
+--  <!ELEMENT SimpleTag (Tag, V)>
+--  <!--Tag with one or more dimensions-->
+--  <!ELEMENT CompositeTag (Tag, Dim+, Entry)>
 
 package Templates_Parser.XML is
 

@@ -35,7 +35,8 @@ package body Templates_Parser.XML is
 
    use Ada;
 
-   Label_Suffix : constant String := "_LABEL";
+   Labels_Suffix      : constant String := "_LABELS";
+   Description_Suffix : constant String := "_DESCRIPTION";
 
    -----------
    -- Image --
@@ -78,54 +79,57 @@ package body Templates_Parser.XML is
          procedure Process_Composite;
          --  Handles composite variables
 
-         procedure Add_Label;
-         --  Add var label if found in the translation set
+         procedure Add_Description (Var : in String);
+         --  Add var description for Var if found in the translation set
 
-         function Is_Label return Boolean;
+         function Is_Labels return Boolean;
          --  Returns True if Item is a Label entry
 
-         ---------------
-         -- Add_Label --
-         ---------------
+         function Is_Description return Boolean;
+         --  Returns True if Item is a Description entry
 
-         procedure Add_Label is
-            Var_Label : constant String := Var & Label_Suffix;
+         ---------------------
+         -- Add_Description --
+         ---------------------
+
+         procedure Add_Description (Var : in String) is
+            Var_Description : constant String := Var & Description_Suffix;
          begin
-            if Containers.Is_In (Var_Label, Translations.Set.all) then
+            if Containers.Is_In (Var_Description, Translations.Set.all) then
                --  There is probably a label encoded into this set
                declare
-                  Label : constant Association
-                    := Containers.Element (Translations.Set.all, Var_Label);
+                  Description : constant Association
+                    := Containers.Element
+                        (Translations.Set.all, Var_Description);
                begin
-                  if Label.Kind = Std then
+                  if Description.Kind = Std then
                      --  Definitly a label for this variable
-                     Add ("         <Label>"
-                          & To_String (Label.Value) & "</Label>");
+                     Add ("         <Description>"
+                          & To_String (Description.Value) & "</Description>");
                   end if;
                end;
             end if;
-         end Add_Label;
+         end Add_Description;
 
-         --------------
-         -- Is_Label --
-         --------------
+         --------------------
+         -- Is_Description --
+         --------------------
 
-         function Is_Label return Boolean is
+         function Is_Description return Boolean is
             N, L : Natural;
          begin
-            --  Tag labels
-
-            if Var'Length > Label_Suffix'Length
-              and then Var
-               (Var'Last - Label_Suffix'Length + 1 .. Var'Last) = Label_Suffix
+            if Var'Length > Description_Suffix'Length
+              and then
+                Var (Var'Last - Description_Suffix'Length + 1 .. Var'Last)
+                  = Description_Suffix
               and then Containers.Is_In
-               (Var (Var'First .. Var'Last - Label_Suffix'Length),
+               (Var (Var'First .. Var'Last - Description_Suffix'Length),
                 Translations.Set.all)
             then
                return True;
             end if;
 
-            --  Nested tag labels
+            --  Nested tag description
 
             N := Strings.Fixed.Index (Var, "_DIM");
 
@@ -146,11 +150,43 @@ package body Templates_Parser.XML is
                   end if;
                end loop;
 
-               return Var (N .. Var'Last) = Label_Suffix
+               return Var (N .. Var'Last) = Description_Suffix
                  and then Containers.Is_In
                    (Var (Var'First .. L), Translations.Set.all);
             end if;
-         end Is_Label;
+         end Is_Description;
+
+         ---------------
+         -- Is_Labels --
+         ---------------
+
+         function Is_Labels return Boolean is
+            N, L : Natural;
+         begin
+            N := Strings.Fixed.Index (Var, "_DIM");
+
+            if N = 0 or else Var (N + 4) not in '0' .. '9' then
+               return False;
+
+            else
+               L := N - 1; -- Last character for the tag name
+               N := N + 4; -- First character after _DIM
+
+               loop
+                  N := N + 1;
+                  exit when Var (N) = '_' or else N = Var'Last;
+
+                  if Var (N) not in '0' .. '9' then
+                     --  Not a digit here, this is not a label
+                     return False;
+                  end if;
+               end loop;
+
+               return Var (N .. Var'Last) = Labels_Suffix
+                 and then Containers.Is_In
+                   (Var (Var'First .. L), Translations.Set.all);
+            end if;
+         end Is_Labels;
 
          -----------------------
          -- Process_Composite --
@@ -164,21 +200,22 @@ package body Templates_Parser.XML is
             --  Output recursively tag T, Pos is the current indices for the
             --  parsed items.
 
-            procedure Output_Axis_Label (N : in Positive; T : in Tag);
-            --  Output labels for axis number N. Labels are found in tag T.
-            --  T must be a vector tag (Nested_Level = 1).
+            procedure Output_Axis (N : in Positive; T : in Tag);
+            --  Output labels and description for axis number N. Labels are
+            --  found in tag T. T must be a vector tag (Nested_Level = 1).
 
-            -----------------------
-            -- Output_Axis_Label --
-            -----------------------
+            -----------------
+            -- Output_Axis --
+            -----------------
 
-            procedure Output_Axis_Label (N : in Positive; T : in Tag) is
+            procedure Output_Axis (N : in Positive; T : in Tag) is
                P : Tag_Node_Access := T.Head;
                K : Positive := 1;
             begin
                pragma Assert (T.Nested_Level = 1);
 
-               Add ("      <Dim" & Image (N) & ">");
+               Add ("      <Dim n=""" & Image (N) & """>");
+               Add_Description (Var & "_DIM" & Image (N));
                Add ("         <Labels>");
 
                while P /= null loop
@@ -189,8 +226,8 @@ package body Templates_Parser.XML is
                end loop;
 
                Add ("         </Labels>");
-               Add ("      </Dim" & Image (N) & ">");
-            end Output_Axis_Label;
+               Add ("      </Dim>");
+            end Output_Axis;
 
             ----------------
             -- Output_Tag --
@@ -211,17 +248,16 @@ package body Templates_Parser.XML is
                procedure Output_Value (Pos : in Indices; Value : in String) is
                   V : Unbounded_String;
                begin
-                  Append (V, "      <V ");
+                  Append (V, "      <Entry>");
 
                   for K in Pos'Range loop
                      Append
-                       (V, "ind" & Image (K) & "=""" & Image (Pos (K)) & '"');
-                     if K /= Pos'Last then
-                        Append (V, " ");
-                     end if;
+                       (V,
+                        "<ind n=""" & Image (K) & """>"
+                        & Image (Pos (K)) & "</ind>");
                   end loop;
 
-                  Append (V, ">" & Value & "</V>");
+                  Append (V, "<V>" & Value & "</V></Entry>");
 
                   Add (To_String (V));
                end Output_Value;
@@ -245,7 +281,7 @@ package body Templates_Parser.XML is
             Add ("   <CompositeTag>");
             Add ("      <Tag>");
             Add ("         <Name>" & Var & "</Name>");
-            Add_Label;
+            Add_Description (Var);
             Add ("      </Tag>");
 
             --  Output axis labels
@@ -253,7 +289,7 @@ package body Templates_Parser.XML is
             for K in 1 .. Item.Comp_Value.Nested_Level loop
                declare
                   Label_Var : constant String
-                    := Var & "_DIM" & Image (K) & Label_Suffix;
+                    := Var & "_DIM" & Image (K) & Labels_Suffix;
                begin
                   if Containers.Is_In (Label_Var, Translations.Set.all) then
                      declare
@@ -266,7 +302,7 @@ package body Templates_Parser.XML is
                         then
                            --  This is a vector tag, labels are expected to
                            --  be found on this vector.
-                           Output_Axis_Label (K, Item.Comp_Value);
+                           Output_Axis (K, Item.Comp_Value);
                         end if;
                      end;
                   end if;
@@ -288,7 +324,7 @@ package body Templates_Parser.XML is
             Add ("   <SimpleTag>");
             Add ("      <Tag>");
             Add ("         <Name>" & Var & "</Name>");
-            Add_Label;
+            Add_Description (Var);
             Add ("      </Tag>");
             Add ("      <V>" & To_String (Item.Value) & "</V>");
             Add ("   </SimpleTag>");
@@ -297,7 +333,7 @@ package body Templates_Parser.XML is
       begin
          --  Do not process labels encoded for another variable
 
-         if not Is_Label then
+         if not Is_Labels and then not Is_Description then
             case Item.Kind is
                when Std       => Process_Std;
                when Composite => Process_Composite;
