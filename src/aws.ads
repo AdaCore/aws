@@ -34,7 +34,7 @@ package AWS is
 
    Internal_Error : exception;
 
-   Version        : constant String := "0.4";
+   Version        : constant String := "0.5";
 
    HTTP_Version   : constant String := "HTTP/1.1";
 
