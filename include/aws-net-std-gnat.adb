@@ -31,7 +31,6 @@
 --  $Id$
 
 with Ada.Exceptions;
-with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Sockets;
@@ -186,15 +185,9 @@ package body AWS.Net.Std is
    ---------------
 
    function Peer_Addr (Socket : in Socket_Type) return String is
-      Peername : constant String
-        := Sockets.Image (Sockets.Get_Peer_Name (SFD (Socket.S.all)));
-      K        : constant Natural := Strings.Fixed.Index (Peername, ":");
+      use Sockets;
    begin
-      if K = 0 then
-         return Peername;
-      else
-         return Peername (Peername'First .. K - 1);
-      end if;
+      return Image (Get_Peer_Name (SFD (Socket.S.all)).Addr);
    exception
       when E : others =>
          Raise_Exception (E, "Peer_Addr");
@@ -262,6 +255,57 @@ package body AWS.Net.Std is
       when E : others =>
          Raise_Exception (E, "Send");
    end Send;
+
+   -----------------------
+   -- Set_Blocking_Mode --
+   -----------------------
+
+   procedure Set_Blocking_Mode
+     (Socket   : in Socket_Type;
+      Blocking : in Boolean)
+   is
+      use Sockets;
+      Mode : Request_Type (Non_Blocking_IO);
+   begin
+      Mode.Enabled := not Blocking;
+
+      Control_Socket (Socket.S.all, Mode);
+   exception
+      when E : others =>
+         Raise_Exception (E, "Set_Blocking_Mode");
+   end Set_Blocking_Mode;
+
+   ------------------------
+   -- Set_Receive_Buffer --
+   ------------------------
+
+   procedure Set_Receive_Buffer
+     (Socket : in Socket_Type;
+      Size   : in Natural)
+   is
+      use Sockets;
+   begin
+      Set_Socket_Option (Socket.S.all, Option => (Receive_Buffer, Size));
+   exception
+      when E : others =>
+         Raise_Exception (E, "Set_Receive_Buffer");
+   end Set_Receive_Buffer;
+
+   ---------------------
+   -- Set_Send_Buffer --
+   ---------------------
+
+   procedure Set_Send_Buffer
+     (Socket : in Socket_Type;
+      Size   : in Natural)
+   is
+      use Sockets;
+   begin
+      Set_Socket_Option (Socket.S.all, Option => (Send_Buffer, Size));
+   exception
+      when E : others =>
+         Raise_Exception (E, "Set_Send_Buffer");
+   end Set_Send_Buffer;
 
    --------------
    -- Shutdown --
