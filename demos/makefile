@@ -14,9 +14,9 @@ GARGS = $(GFLAGSY) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) -L../ssl -lssl -lcrypto
+LARGS = $(LFLAGS) $(LIBS) -L../ssl -lssl -lcrypto ../win32/aws.coff
 else
-LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto
+LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto -ladasockets
 endif
 
 else
@@ -24,12 +24,12 @@ else
 
 GARGS = $(GFLAGSY) -i -I../src -I../include -I../soap $(INCLUDES)
 BARGS = -E
-LARGS = $(LFLAGS) $(LIBS)
-endif
 
-# Include Win32 resource file
 ifeq (${OS}, Windows_NT)
-LARGS := $(LARGS) ../win32/aws.coff
+LARGS = $(LFLAGS) $(LIBS) ../win32/aws.coff
+else
+LARGS = $(LFLAGS) $(LIBS) -ladasockets
+endif
 endif
 
 build: runme agent auth ws wps com_1 com_2 main hotplug hello_world \
