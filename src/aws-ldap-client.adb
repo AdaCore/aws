@@ -37,25 +37,44 @@ with AWS.Utils;
 
 package body AWS.LDAP.Client is
 
+   package IC renames Interfaces.C;
+
    use Ada;
    use Interfaces.C.Strings;
 
-   package C renames Interfaces.C;
+   use type IC.int;
 
-   use type C.int;
-
-   C_Scope : array (Scope_Type) of C.int
+   C_Scope : array (Scope_Type) of IC.int
      := (LDAP_Scope_Default   => Thin.LDAP_SCOPE_DEFAULT,
          LDAP_Scope_Base      => Thin.LDAP_SCOPE_BASE,
          LDAP_Scope_One_Level => Thin.LDAP_SCOPE_ONELEVEL,
          LDAP_Scope_Subtree   => Thin.LDAP_SCOPE_SUBTREE);
+   --  Map Scope_Type with the corresponding C values
 
-   C_Bool : array (Boolean) of C.int := (False => 0, True => 1);
+   C_Bool : array (Boolean) of IC.int := (False => 0, True => 1);
+   --  Map Boolean with the corrsponding C values
 
    procedure Raise_Error (Code : in Thin.Return_Code; Message : in String);
    pragma No_Return (Raise_Error);
    --  Raises LDAP_Error, set exception message to Message, add error message
    --  string.
+
+   function Attrib (Name, Value : in String) return String;
+   pragma Inline (Attrib);
+   --  Returns Name or Name=Value if Value is not the empty string.
+
+   ------------
+   -- Attrib --
+   ------------
+
+   function Attrib (Name, Value : in String) return String is
+   begin
+      if Value = "" then
+         return Name;
+      else
+         return Name & '=' & Value;
+      end if;
+   end Attrib;
 
    ----------------
    -- Attributes --
@@ -112,7 +131,7 @@ package body AWS.LDAP.Client is
       Login    : in String;
       Password : in String)
    is
-      Res        : C.int;
+      Res        : IC.int;
       C_Login    : chars_ptr := New_String (Login);
       C_Password : chars_ptr := New_String (Password);
    begin
@@ -126,6 +145,72 @@ package body AWS.LDAP.Client is
       end if;
    end Bind;
 
+   -------
+   -- c --
+   -------
+
+   function c (Val : in String := "") return String is
+   begin
+      return Attrib ("c", Val);
+   end c;
+
+   ---------
+   -- Cat --
+   ---------
+
+   function Cat
+     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "")
+      return String
+   is
+      v : constant Character := ',';
+   begin
+      if S1 = "" then
+         return "";
+
+      elsif S2 = "" then
+         return S1;
+
+      elsif S3 = "" then
+         return S1 & v & S2;
+
+      elsif S4 = "" then
+         return S1 & v & S2 & v & S3;
+
+      elsif S5 = "" then
+         return S1 & v & S2 & v & S3 & v & S4;
+
+      elsif S6 = "" then
+         return S1 & v & S2 & v & S3 & v & S4 & v & S5;
+
+      elsif S7 = "" then
+         return S1 & v & S2 & v & S3 & v & S4 & v & S5 & v & S6;
+
+      elsif S8 = "" then
+         return S1 & v & S2 & v & S3 & v & S4 & v & S5 & v & S6 & v & S7;
+
+      elsif S9 = "" then
+         return S1 & v & S2 & v & S3 & v & S4 & v & S5 & v & S6 & v & S7
+           & v & S8;
+
+      elsif S10 = "" then
+         return S1 & v & S2 & v & S3 & v & S4 & v & S5 & v & S6 & v & S7
+           & v & S8 & v & S9;
+
+      else
+         return S1 & v & S2 & v & S3 & v & S4 & v & S5 & v & S6 & v & S7
+           & v & S8 & v & S9 & v & S10;
+      end if;
+   end Cat;
+
+   --------
+   -- cn --
+   --------
+
+   function cn (Val : in String := "") return String is
+   begin
+      return Attrib ("cn", Val);
+   end cn;
+
    -------------------
    -- Count_Entries --
    -------------------
@@ -137,6 +222,15 @@ package body AWS.LDAP.Client is
    begin
       return Natural (Thin.ldap_count_entries (Dir, Chain));
    end Count_Entries;
+
+   --------
+   -- dc --
+   --------
+
+   function dc (Val : in String := "") return String is
+   begin
+      return Attrib ("dc", Val);
+   end dc;
 
    ------------
    -- DN2UFN --
@@ -175,7 +269,7 @@ package body AWS.LDAP.Client is
       begin
          for K in Result'Range loop
             Result (K)
-              := To_Unbounded_String (Value (Thin.Item (Res, C.int (K))));
+              := To_Unbounded_String (Value (Thin.Item (Res, IC.int (K))));
          end loop;
 
          Thin.ldap_value_free (Res);
@@ -189,14 +283,14 @@ package body AWS.LDAP.Client is
    ---------------------
 
    function First_Attribute
-     (Dir     : in Directory;
-      Entries : in LDAP_Message;
-      BER     : access BER_Element)
+     (Dir  : in Directory;
+      Node : in LDAP_Message;
+      BER  : access BER_Element)
       return String
    is
       Result : chars_ptr;
    begin
-      Result := Thin.ldap_first_attribute (Dir, Entries, BER);
+      Result := Thin.ldap_first_attribute (Dir, Node, BER);
 
       declare
          R : constant String := Value (Result);
@@ -223,15 +317,15 @@ package body AWS.LDAP.Client is
    --------------------------
 
    procedure For_Every_Attributes
-     (Dir   : in Directory;
-      Chain : in LDAP_Message)
+     (Dir  : in Directory;
+      Node : in LDAP_Message)
    is
       BER  : aliased LDAP.Client.BER_Element;
       Quit : Boolean;
    begin
       declare
          Attrs : constant String
-           := LDAP.Client.First_Attribute (Dir, Chain, BER'Unchecked_Access);
+           := LDAP.Client.First_Attribute (Dir, Node, BER'Unchecked_Access);
       begin
          Quit := False;
          Action (Attrs, Quit);
@@ -240,7 +334,7 @@ package body AWS.LDAP.Client is
             loop
                declare
                   Attrs : constant String
-                    := LDAP.Client.Next_Attribute (Dir, Chain, BER);
+                    := LDAP.Client.Next_Attribute (Dir, Node, BER);
                begin
                   exit when Attrs = "";
 
@@ -281,7 +375,7 @@ package body AWS.LDAP.Client is
    ----------
 
    procedure Free (Chain : in LDAP_Message) is
-      Res : C.int;
+      Res : IC.int;
    begin
       Res := Thin.ldap_msgfree (Chain);
    end Free;
@@ -296,13 +390,13 @@ package body AWS.LDAP.Client is
    ------------
 
    function Get_DN
-     (Dir     : in Directory;
-      Entries : in LDAP_Message)
+     (Dir  : in Directory;
+      Node : in LDAP_Message)
       return String
    is
       Result : chars_ptr;
    begin
-      Result := Thin.ldap_get_dn (Dir, Entries);
+      Result := Thin.ldap_get_dn (Dir, Node);
       return Value (Result);
    end Get_DN;
 
@@ -311,16 +405,16 @@ package body AWS.LDAP.Client is
    ----------------
 
    function Get_Values
-     (Dir     : in Directory;
-      Entries : in LDAP_Message;
-      Target  : in String)
+     (Dir    : in Directory;
+      Node   : in LDAP_Message;
+      Target : in String)
       return String_Set
    is
       C_Target : chars_ptr := New_String (Target);
       Attribs  : Thin.Attribute_Set_Access;
       N        : Natural := 0;
    begin
-      Attribs := Thin.ldap_get_values (Dir, Entries, C_Target);
+      Attribs := Thin.ldap_get_values (Dir, Node, C_Target);
       Free (C_Target);
 
       N := Natural (Thin.ldap_count_values (Attribs));
@@ -330,7 +424,7 @@ package body AWS.LDAP.Client is
       begin
          for K in Result'Range loop
             Result (K)
-              := To_Unbounded_String (Value (Thin.Item (Attribs, C.int (K))));
+              := To_Unbounded_String (Value (Thin.Item (Attribs, IC.int (K))));
          end loop;
 
          Thin.ldap_value_free (Attribs);
@@ -338,6 +432,15 @@ package body AWS.LDAP.Client is
          return Result;
       end;
    end Get_Values;
+
+   ---------------
+   -- givenName --
+   ---------------
+
+   function givenName (Val : in String := "") return String is
+   begin
+      return Attrib ("givenName", Val);
+   end givenName;
 
    ----------
    -- Init --
@@ -353,7 +456,7 @@ package body AWS.LDAP.Client is
       C_Host : chars_ptr := New_String (Host);
       Dir    : Directory;
    begin
-      Dir := Thin.ldap_init (C_Host, C.int (Port));
+      Dir := Thin.ldap_init (C_Host, IC.int (Port));
       Free (C_Host);
 
       if Dir = Thin.Null_LDAP_Type then
@@ -363,19 +466,37 @@ package body AWS.LDAP.Client is
       return Dir;
    end Init;
 
+   -------
+   -- l --
+   -------
+
+   function l (Val : in String := "") return String is
+   begin
+      return Attrib ("l", Val);
+   end l;
+
+   ----------
+   -- mail --
+   ----------
+
+   function mail (Val : in String := "") return String is
+   begin
+      return Attrib ("mail", Val);
+   end mail;
+
    --------------------
    -- Next_Attribute --
    --------------------
 
    function Next_Attribute
-     (Dir      : in Directory;
-      Entries  : in LDAP_Message;
-      BER      : in BER_Element)
+     (Dir  : in Directory;
+      Node : in LDAP_Message;
+      BER  : in BER_Element)
       return String
    is
       Result : chars_ptr;
    begin
-      Result := Thin.ldap_next_attribute (Dir, Entries, BER);
+      Result := Thin.ldap_next_attribute (Dir, Node, BER);
 
       if Result = Null_Ptr then
          return "";
@@ -401,6 +522,24 @@ package body AWS.LDAP.Client is
    begin
       return Thin.ldap_next_entry (Dir, Entries);
    end Next_Entry;
+
+   -------
+   -- o --
+   -------
+
+   function o (Val : in String := "") return String is
+   begin
+      return Attrib ("o", Val);
+   end o;
+
+   --------
+   -- ou --
+   --------
+
+   function ou (Val : in String := "") return String is
+   begin
+      return Attrib ("ou", Val);
+   end ou;
 
    -----------------
    -- Raise_Error --
@@ -428,46 +567,95 @@ package body AWS.LDAP.Client is
    function Search
      (Dir        : in Directory;
       Base       : in String;
-      Scope      : in Scope_Type;
       Filter     : in String;
-      Attrs      : in Attribute_Set;
-      Attrs_Only : in Boolean := False)
+      Scope      : in Scope_Type    := LDAP_Scope_Default;
+      Attrs      : in Attribute_Set := Null_Set;
+      Attrs_Only : in Boolean       := False)
       return LDAP_Message
    is
-      Res        : C.int;
+      Res        : IC.int;
       C_Base     : chars_ptr := New_String (Base);
       C_Filter   : chars_ptr := New_String (Filter);
-      Attributes : chars_ptr_array
-        (C.size_t (Attrs'First) .. C.size_t (Attrs'Last + 1));
       Result     : aliased LDAP_Message;
    begin
-      for K in Attrs'Range loop
-         Attributes (C.size_t (K)) := New_String (To_String (Attrs (K)));
-      end loop;
-      Attributes (Attributes'Last) := Null_Ptr;
+      if Attrs = Null_Set then
+         Res := Thin.ldap_search_s
+           (Dir, C_Base, C_Scope (Scope), C_Filter, Null_Ptr,
+            C_Bool (Attrs_Only), Result'Unchecked_Access);
 
-      Res := Thin.ldap_search_s
-        (Dir, C_Base, C_Scope (Scope), C_Filter, Attributes,
-         C_Bool (Attrs_Only), Result'Unchecked_Access);
+      else
+         declare
+            Attributes : chars_ptr_array
+              (IC.size_t (Attrs'First) .. IC.size_t (Attrs'Last + 1));
+         begin
+            for K in Attrs'Range loop
+               Attributes (IC.size_t (K))
+                 := New_String (To_String (Attrs (K)));
+            end loop;
+            Attributes (Attributes'Last) := Null_Ptr;
+
+            Res := Thin.ldap_search_s
+              (Dir, C_Base, C_Scope (Scope), C_Filter, Attributes,
+               C_Bool (Attrs_Only), Result'Unchecked_Access);
+
+            --  Free Attributes
+
+            for K in Attributes'Range loop
+               Free (Attributes (K));
+            end loop;
+         end;
+      end if;
 
       --  Free all memory
 
       Free (C_Base);
       Free (C_Filter);
 
-      for K in Attributes'Range loop
-         Free (Attributes (K));
-      end loop;
-
       return Result;
    end Search;
+
+   --------
+   -- sn --
+   --------
+
+   function sn (Val : in String := "") return String is
+   begin
+      return Attrib ("sn", Val);
+   end sn;
+
+   --------
+   -- st --
+   --------
+
+   function st (Val : in String := "") return String is
+   begin
+      return Attrib ("st", Val);
+   end st;
+
+   ---------------------
+   -- telephoneNumber --
+   ---------------------
+
+   function telephoneNumber (Val : in String := "") return String is
+   begin
+      return Attrib ("telephoneNumber", Val);
+   end telephoneNumber;
+
+   ---------
+   -- uid --
+   ---------
+
+   function uid (Val : in String := "") return String is
+   begin
+      return Attrib ("uid", Val);
+   end uid;
 
    ------------
    -- Unbind --
    ------------
 
    procedure Unbind (Dir : in Directory) is
-      Res : C.int;
+      Res : IC.int;
    begin
       Res := Thin.ldap_unbind_s (Dir);
    end Unbind;
