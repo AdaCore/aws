@@ -102,9 +102,11 @@ package body AWS.Services.Dispatchers.URI is
 
       if Ref_Counter (Dispatcher) = 0 then
          for K in 1 .. URI_Table.Last (Dispatcher.Table) loop
+            Free (Dispatcher.Table.Table (K).Action);
             Free (Dispatcher.Table.Table (K));
          end loop;
 
+         Free (Dispatcher.Action);
          URI_Table.Free (Dispatcher.Table);
       end if;
    end Finalize;
@@ -216,8 +218,8 @@ package body AWS.Services.Dispatchers.URI is
       for K in 1 .. Last loop
          if To_String (Dispatcher.Table.Table (K).URI) = URI then
             Free (Dispatcher.Table.Table (K));
-            Dispatcher.Table.Table (K .. Last - 1) :=
-              Dispatcher.Table.Table (K + 1 .. Last);
+            Dispatcher.Table.Table (K .. Last - 1)
+              := Dispatcher.Table.Table (K + 1 .. Last);
             URI_Table.Decrement_Last (Dispatcher.Table);
             exit;
          end if;
