@@ -279,6 +279,7 @@ build_tarball:
 	$(MKDIR) $${AWS}/tools; \
 	$(MKDIR) $${AWS}/config; \
 	$(MKDIR) $${AWS}/config/src; \
+	$(MKDIR) $${AWS}/support; \
 	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
 	$(CP) demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
@@ -310,6 +311,7 @@ build_tarball:
 	$(CP) config/*.ad[sb] config/ChangeLog config/makefile $${AWS}/config;\
 	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
 	$(CP) xsrc/*.ad[sb] xsrc/README xsrc/ChangeLog $${AWS}/xsrc;\
+	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
 	$(TAR) cf $${AWS}.tar $${AWS};\
 	$(GZIP) -9 $${AWS}.tar;\
 	$(RM) -fr $${AWS})
