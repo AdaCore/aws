@@ -69,6 +69,16 @@ package Ada2WSDL.Generator is
    procedure Start_Array (Name, Component_Type : in String);
    --  Must be called when an array definition has been parsed
 
+   -----------------
+   -- Enumeration --
+   -----------------
+
+   procedure Start_Enumeration (Name : in String);
+   --  Must be called when a new enumeration type named Name as been parsed
+
+   procedure New_Literal (Name : in String);
+   --  Must be called for each enumeration value parsed
+
    ------------
    -- Output --
    ------------
