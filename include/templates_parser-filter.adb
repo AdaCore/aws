@@ -178,6 +178,15 @@ package body Filter is
            (Yes_No_Token'Access,         Yes_No'Access)
          );
 
+   function Value
+     (Str          : in String;
+      Translations : in Translate_Table)
+      return String;
+   --  Returns the value for Str, or if Str is a tag, returns it's value
+
+   function Is_Number (S : in String) return Boolean;
+   pragma Inline (Is_Number);
+
    --------------------------
    -- Check_Null_Parameter --
    --------------------------
@@ -235,6 +244,17 @@ package body Filter is
             return '(' & Image (P.First) & " .. " & Image (P.Last) & ')';
       end case;
    end Image;
+
+   ---------------
+   -- Is_Number --
+   ---------------
+
+   function Is_Number (S : in String) return Boolean is
+      use Strings.Maps;
+   begin
+      return S'Length > 0
+        and then Is_Subset (To_Set (S), Constants.Decimal_Digit_Set);
+   end Is_Number;
 
    ----------
    -- Mode --
@@ -299,7 +319,10 @@ package body Filter is
    -------------
 
    function BR_2_LF
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
    is
       Result : String (S'Range);
       K      : Positive := Result'First;
@@ -333,7 +356,8 @@ package body Filter is
 
    function Capitalize
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Result : String (S'Range);
@@ -361,7 +385,8 @@ package body Filter is
 
    function Clean_Text
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
 
@@ -393,7 +418,8 @@ package body Filter is
 
    function Coma_2_Point
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Result : String := S;
@@ -415,7 +441,8 @@ package body Filter is
 
    function Contract
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
 
@@ -461,7 +488,8 @@ package body Filter is
 
    function Exist
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       Check_Null_Parameter (P);
@@ -479,7 +507,8 @@ package body Filter is
 
    function Format_Number
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       TS : constant String := Strings.Fixed.Trim (S, Both);
@@ -553,7 +582,8 @@ package body Filter is
 
    function Is_Empty
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       Check_Null_Parameter (P);
@@ -570,7 +600,10 @@ package body Filter is
    -------------
 
    function LF_2_BR
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
    is
       N      : constant Natural
         := Fixed.Count (S, Strings.Maps.To_Set (ASCII.LF));
@@ -606,7 +639,8 @@ package body Filter is
 
    function Lower
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       Check_Null_Parameter (P);
@@ -620,7 +654,8 @@ package body Filter is
 
    function Match
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       if P = No_Parameter then
@@ -641,7 +676,8 @@ package body Filter is
 
    function No_Digit
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Result : String := S;
@@ -665,7 +701,8 @@ package body Filter is
 
    function No_Letter
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Result : String := S;
@@ -687,7 +724,8 @@ package body Filter is
 
    function No_Space
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Result : String (S'Range);
@@ -711,7 +749,8 @@ package body Filter is
 
    function Oui_Non
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       Check_Null_Parameter (P);
@@ -745,7 +784,8 @@ package body Filter is
 
    function Point_2_Coma
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Result : String := S;
@@ -767,23 +807,31 @@ package body Filter is
 
    function Repeat
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       N : Natural;
    begin
-      N := Natural'Value (To_String (P.S));
-
       declare
-         R : String (1 .. N * S'Length);
+         V_Str : constant String := To_String (P.S);
       begin
-         for K in 1 .. N loop
-            R (1 + (K - 1) * S'Length .. S'Length * K) := S;
-         end loop;
+         if Is_Number (V_Str) then
+            N := Natural'Value (V_Str);
+         else
+            N := Natural'Value (Value (V_Str, T));
+         end if;
 
-         return R;
+         declare
+            R : String (1 .. N * S'Length);
+         begin
+            for K in 1 .. N loop
+               R (1 + (K - 1) * S'Length .. S'Length * K) := S;
+            end loop;
+
+            return R;
+         end;
       end;
-
    exception
       when Constraint_Error =>
          Exceptions.Raise_Exception
@@ -796,7 +844,8 @@ package body Filter is
 
    function Replace
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       use type GNAT.Regpat.Match_Location;
@@ -804,7 +853,8 @@ package body Filter is
       Matches : GNAT.Regpat.Match_Array
         (0 .. GNAT.Regpat.Paren_Count (P.Regpat.all));
 
-      Result  : Unbounded_String := P.Param;
+      Result  : Unbounded_String
+        := To_Unbounded_String (Value (To_String (P.Param), T));
       N       : Natural;
    begin
       GNAT.Regpat.Match (P.Regpat.all, S, Matches);
@@ -834,7 +884,8 @@ package body Filter is
 
    function Reverse_Data
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Result : String (S'Range);
@@ -853,7 +904,8 @@ package body Filter is
 
    function Size
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       Check_Null_Parameter (P);
@@ -867,7 +919,8 @@ package body Filter is
 
    function Slice
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       First, Last : Natural;
@@ -884,7 +937,8 @@ package body Filter is
 
    function Trim
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       Check_Null_Parameter (P);
@@ -898,7 +952,8 @@ package body Filter is
 
    function Upper
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       Check_Null_Parameter (P);
@@ -912,7 +967,8 @@ package body Filter is
 
    function Web_Escape
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Max_Escape_Sequence : constant Positive := 5;
@@ -956,7 +1012,8 @@ package body Filter is
 
    function Web_NBSP
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String
    is
       Nbsp_Token          : constant String := "&nbsp;";
@@ -987,7 +1044,8 @@ package body Filter is
 
    function Yes_No
      (S : in String;
-      P : in Parameter_Data := No_Parameter)
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
       return String is
    begin
       Check_Null_Parameter (P);
@@ -1020,12 +1078,21 @@ package body Filter is
    ----------
 
    function Plus
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
    is
-      N, V : Natural;
+      N, V : Integer;
    begin
+      declare
+         V_Str : constant String := To_String (P.S);
       begin
-         N := Natural'Value (To_String (P.S));
+         if Is_Number (V_Str) then
+            N := Integer'Value (V_Str);
+         else
+            N := Integer'Value (Value (V_Str, T));
+         end if;
       exception
          when Constraint_Error =>
             Exceptions.Raise_Exception
@@ -1033,7 +1100,7 @@ package body Filter is
       end;
 
       begin
-         V := Natural'Value (S);
+         V := Integer'Value (S);
          return Image (V + N);
       exception
          when others =>
@@ -1046,12 +1113,21 @@ package body Filter is
    -----------
 
    function Minus
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
    is
-      N, V : Natural;
+      N, V : Integer;
    begin
+      declare
+         V_Str : constant String := To_String (P.S);
       begin
-         N := Natural'Value (To_String (P.S));
+         if Is_Number (V_Str) then
+            N := Integer'Value (V_Str);
+         else
+            N := Integer'Value (Value (V_Str, T));
+         end if;
       exception
          when Constraint_Error =>
             Exceptions.Raise_Exception
@@ -1059,7 +1135,7 @@ package body Filter is
       end;
 
       begin
-         V := Natural'Value (S);
+         V := Integer'Value (S);
          return Image (V - N);
       exception
          when others =>
@@ -1072,12 +1148,21 @@ package body Filter is
    ------------
 
    function Divide
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
    is
-      N, V : Natural;
+      N, V : Integer;
    begin
+      declare
+         V_Str : constant String := To_String (P.S);
       begin
-         N := Natural'Value (To_String (P.S));
+         if Is_Number (V_Str) then
+            N := Integer'Value (V_Str);
+         else
+            N := Integer'Value (Value (V_Str, T));
+         end if;
       exception
          when Constraint_Error =>
             Exceptions.Raise_Exception
@@ -1085,7 +1170,7 @@ package body Filter is
       end;
 
       begin
-         V := Natural'Value (S);
+         V := Integer'Value (S);
          return Image (V / N);
       exception
          when others =>
@@ -1098,12 +1183,21 @@ package body Filter is
    --------------
 
    function Multiply
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
    is
-      N, V : Natural;
+      N, V : Integer;
    begin
+      declare
+         V_Str : constant String := To_String (P.S);
       begin
-         N := Natural'Value (To_String (P.S));
+         if Is_Number (V_Str) then
+            N := Integer'Value (V_Str);
+         else
+            N := Integer'Value (Value (V_Str, T));
+         end if;
       exception
          when Constraint_Error =>
             Exceptions.Raise_Exception
@@ -1111,7 +1205,7 @@ package body Filter is
       end;
 
       begin
-         V := Natural'Value (S);
+         V := Integer'Value (S);
          return Image (V * N);
       exception
          when others =>
@@ -1124,12 +1218,21 @@ package body Filter is
    ------------
 
    function Modulo
-     (S : in String; P : in Parameter_Data := No_Parameter) return String
+     (S : in String;
+      P : in Parameter_Data  := No_Parameter;
+      T : in Translate_Table := No_Translation)
+      return String
    is
-      N, V : Natural;
+      N, V : Integer;
    begin
+      declare
+         V_Str : constant String := To_String (P.S);
       begin
-         N := Natural'Value (To_String (P.S));
+         if Is_Number (V_Str) then
+            N := Integer'Value (V_Str);
+         else
+            N := Integer'Value (Value (V_Str, T));
+         end if;
       exception
          when Constraint_Error =>
             Exceptions.Raise_Exception
@@ -1137,7 +1240,7 @@ package body Filter is
       end;
 
       begin
-         V := Natural'Value (S);
+         V := Integer'Value (S);
          return Image (V mod N);
       exception
          when others =>
@@ -1164,5 +1267,26 @@ package body Filter is
          Release (S (K).Parameters);
       end loop;
    end Release;
+
+   -----------
+   -- Value --
+   -----------
+
+   function Value
+     (Str          : in String;
+      Translations : in Translate_Table)
+      return String is
+   begin
+      for K in Translations'Range loop
+         if Translations (K).Kind = Std
+           and then
+             To_String (Translations (K).Variable) = Str
+         then
+            return To_String (Translations (K).Value);
+         end if;
+      end loop;
+
+      return Str;
+   end Value;
 
 end Filter;

@@ -1,14 +1,14 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 29 November 2003 -->
+     from templates_parser.texi on 8 December 2003 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
 <BODY>
 <H1>Templates Parser</H1>
 <H2>$Revision$</H2>
-<H2>Date: 29 November 2003</H2>
+<H2>Date: 8 December 2003</H2>
 <ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
 <P>
 <P><HR><P>
@@ -24,7 +24,7 @@
 <LI><A NAME="TOC6" HREF="templates_parser.html#SEC6">Filters</A>
 <LI><A NAME="TOC7" HREF="templates_parser.html#SEC7">Attributes</A>
 </UL>
-<LI><A NAME="TOC8" HREF="templates_parser.html#SEC8">Other variables tags</A>
+<LI><A NAME="TOC8" HREF="templates_parser.html#SEC8">Other variable tags</A>
 </UL>
 <LI><A NAME="TOC9" HREF="templates_parser.html#SEC9">Tag statements</A>
 <UL>
@@ -200,7 +200,7 @@ powerful construct that you can use into a template file.
 <UL>
 <LI><A HREF="templates_parser.html#SEC4">Discrete Boolean Vector and Matrix</A>
 <LI><A HREF="templates_parser.html#SEC5">Filters and Attributes</A>
-<LI><A HREF="templates_parser.html#SEC8">Other variables tags</A>
+<LI><A HREF="templates_parser.html#SEC8">Other variable tags</A>
 </UL>
 
 
@@ -298,22 +298,26 @@ The current supported filters are:
 <DT><CODE>"+"(<I>N</I>) or ADD(<I>N</I>)</CODE>
 <DD>
 Add N to variable and return the result. If the current variable value
-is not a number it returns the empty string. N must be a number.
+is not a number it returns the empty string. N must be a number or a
+discrete tag variable whose value is a number.
 
 <DT><CODE>"-"(<I>N</I>) or SUB(<I>N</I>)</CODE>
 <DD>
 Subtract N to variable and return the result. If the current variable value
-is not a number it returns the empty string. N must be a number.
+is not a number it returns the empty string. N must be a number or a
+discrete tag variable whose value is a number.
 
 <DT><CODE>"*"(<I>N</I>) or MULT(<I>N</I>)</CODE>
 <DD>
 Multiply N with variable and return the result. If the current variable value
-is not a number it returns the empty string. N must be a number.
+is not a number it returns the empty string. N must be a number or a
+discrete tag variable whose value is a number.
 
 <DT><CODE>"/"(<I>N</I>) or DIV(<I>N</I>)</CODE>
 <DD>
 Divide variable by N and return the result. If the current variable value
-is not a number it returns the empty string. N must be a number.
+is not a number it returns the empty string. N must be a number or a
+discrete tag variable whose value is a number.
 
 <DT><CODE>BR_2_LF</CODE>
 <DD>
@@ -371,7 +375,8 @@ found in <TT>`gawk'</TT>, <TT>`sed'</TT> or <TT>`grep'</TT> tools.
 <DT><CODE>MOD(<I>N</I>)</CODE>
 <DD>
 Returns variable modulo N. If the current variable value is not a
-number it returns the empty string. N must be a number.
+number it returns the empty string. N must be a number or a
+discrete tag variable whose value is a number.
 
 <DT><CODE>NO_DIGIT</CODE>
 <DD>
@@ -397,7 +402,8 @@ Replaces all comas by points.
 
 <DT><CODE>REPEAT(<I>N</I>)</CODE>
 <DD>
-Returns N times the variable, N being passed as filter's parameter.
+Returns N times the variable, N being passed as filter's parameter. N
+must be a number  or a discrete tag variable whose value is a number.
 
 <DT><CODE>REPLACE(<I>REGEXP</I>[/<I>STR</I>])</CODE>
 <DD>
@@ -405,7 +411,8 @@ This filter replaces <B>\n</B> (where <I>n</I> is a number) <I>STR</I>'s
 occurences by the corresponding match from <I>REGEXP</I>. The first match
 in <I>REGEXP</I> will replace <B>\1</B>, the second match <B>\2</B> and so
 on. Each match in <I>REGEXP</I> must be parenthesized. <I>STR</I> is an optional
-parameter, its default value is <B>\1</B>.
+parameter, its default value is <B>\1</B>. <I>STR</I> can be a tag variable
+name.
 
 <DT><CODE>REVERSE</CODE>
 <DD>
@@ -451,7 +458,7 @@ For example:
 </P>
 
 <PRE>
-If VAR is set to "<I>vector_tag</I>" then:
+If VAR is set to "<I>vector_tag</I>", ONE to "1" and TWO to "2" then:
 
 @_VAR_@                                   -&#62;  vector_tag
 @_UPPER:VAR_@                             -&#62;  VECTOR_TAG
@@ -462,6 +469,8 @@ If VAR is set to "<I>vector_tag</I>" then:
 @_SLICE(1..6):VAR_@                       -&#62;  vector
 @_REPLACE(([^_]+)):VAR_@                  -&#62;  vector
 @_REPLACE(([a-z]+)_([a-z]+)/\2_\1):VAR_@  -&#62;  tag_vector
+@_"+"(TWO):ONE_@                          -&#62;  3
+@_"-"(TWO):ONE_@                          -&#62;  -1
 </PRE>
 
 
@@ -510,7 +519,7 @@ If VEC is set to "<I>&#60;1 , 2&#62;</I>" and MAT to "<I>&#60;a, b, c&#62; ; &#6
 
 
 
-<H2><A NAME="SEC8" HREF="templates_parser.html#TOC8">Other variables tags</A></H2>
+<H2><A NAME="SEC8" HREF="templates_parser.html#TOC8">Other variable tags</A></H2>
 
 <P>
 There is some specific variables tags that can be used in any
@@ -1539,10 +1548,22 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
 
    <B>function</B> "<I>&#38;</I>"
+     (Value : <B>in</B> String;
+      Vect  : <B>in</B> Vector_Tag)
+      <B>return</B> Vector_Tag;
+   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
+
+   <B>function</B> "<I>&#38;</I>"
      (Vect  : <B>in</B> Vector_Tag;
       Value : <B>in</B> Character)
       <B>return</B> Vector_Tag;
    -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
+
+   <B>function</B> "<I>&#38;</I>"
+     (Value : <B>in</B> Character;
+      Vect  : <B>in</B> Vector_Tag)
+      <B>return</B> Vector_Tag;
+   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
 
    <B>function</B> "<I>&#38;</I>"
      (Vect  : <B>in</B> Vector_Tag;
@@ -1552,16 +1573,34 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -- <I> set.</I>
 
    <B>function</B> "<I>&#38;</I>"
+     (Value : <B>in</B> Boolean;
+      Vect  : <B>in</B> Vector_Tag)
+      <B>return</B> Vector_Tag;
+   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
+
+   <B>function</B> "<I>&#38;</I>"
      (Vect  : <B>in</B> Vector_Tag;
       Value : <B>in</B> Unbounded_String)
       <B>return</B> Vector_Tag;
    -- <I> Add Value at the <B>end</B> <B>of</B> the vector tag set.</I>
 
    <B>function</B> "<I>&#38;</I>"
+     (Value : <B>in</B> Unbounded_String;
+      Vect  : <B>in</B> Vector_Tag)
+      <B>return</B> Vector_Tag;
+   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
+
+   <B>function</B> "<I>&#38;</I>"
      (Vect  : <B>in</B> Vector_Tag;
       Value : <B>in</B> Integer)
       <B>return</B> Vector_Tag;
    -- <I> Add Value (converted to a String) at the <B>end</B> <B>of</B> the vector tag set.</I>
+
+   <B>function</B> "<I>&#38;</I>"
+     (Value : <B>in</B> Integer;
+      Vect  : <B>in</B> Vector_Tag)
+      <B>return</B> Vector_Tag;
+   -- <I> Same as above but add Value <B>in</B> front <B>of</B> the vector tag</I>
 
    <B>procedure</B> Clear (Vect : <B>in</B> <B>out</B> Vector_Tag);
    -- <I> Removes all values <B>in</B> the vector tag. Current Vect <B>is</B> not released but</I>
@@ -1804,7 +1843,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 </PRE>
 
 <P><HR><P>
-This document was generated on 29 November 2003 using the
+This document was generated on 8 December 2003 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
