@@ -701,6 +701,12 @@ package body SOAP.WSDL.Parser is
          elsif T = Types.XML_Time_Instant then
             Add_Parameter (O, -O.Current_Name, P_Time);
 
+         elsif T = Types.XML_Date_Time then
+            Add_Parameter (O, -O.Current_Name, P_Time);
+
+         elsif T = Types.XML_Base64_Binary then
+            Add_Parameter (O, -O.Current_Name, P_B64);
+
          else
             --  First search for element in the schema
 
