@@ -123,7 +123,7 @@ package body Templates_Parser is
 
    procedure Finalize (Set : in out Translate_Set) is
       procedure Free is
-        new Unchecked_Deallocation (Containers.Map, Map_Type_Access);
+        new Unchecked_Deallocation (Containers.Map, Map_Access);
    begin
       Set.Ref_Count.all := Set.Ref_Count.all - 1;
 
