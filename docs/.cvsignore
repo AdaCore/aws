@@ -80,6 +80,8 @@ aws.toc
 aws.tp
 aws.txt
 aws.vr
+b~build.adb
+b~build.ads
 soap-client.ads.texi
 soap-dispatchers-callback.ads.texi
 soap-dispatchers.ads.texi
