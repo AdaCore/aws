@@ -1,3 +1,29 @@
+2003-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Data_Sent): New boolean initialized to False.
+	(Send): Set Data_Set to True.
+	On the procedure exception handler do not try to send back an
+	 answer if some data as already been set. Just exit the loop which
+	 close the connection.
+
+	* aws-client.adb:
+	Fix some formatting errors.
+	
+2003-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Put): Name the loop Retry.
+	(Post): Idem.
+	(Upload): Idem.
+	(Get): Idem.
+	(Head): Idem.
+	Minor reformatting.
+
+	* aws-response.ads:
+	Fix typo.
+	Update copyright notice.
+
 2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
