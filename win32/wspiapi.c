@@ -14,7 +14,7 @@ int WSPIAPI_init ()
    //  internal wspiapi.h static data and make subsequent calls thread safety.
 
    struct addrinfo Hints;
-   struct addrinfo *Addr;
+   struct addrinfo *Addr = NULL;
    int rc;
 
    memset(&Hints, 0, sizeof(Hints));
