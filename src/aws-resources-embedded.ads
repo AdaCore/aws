@@ -61,8 +61,8 @@ package AWS.Resources.Embedded is
      (Name      : in String;
       Content   : in Buffer_Access;
       File_Time : in Calendar.Time);
-   --  Register a new file named Named into the embedded resources. The file
-   --  content is pointed to by Content, the File_Time must be that last
+   --  Register a new file named Name into the embedded resources. The file
+   --  content is pointed to by Content, the File_Time must be the last
    --  modification time stamp for the file.
 
    function Exists (Name : in String) return Boolean;
