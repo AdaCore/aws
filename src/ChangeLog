@@ -1,3 +1,27 @@
+2001-05-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-session.adb:
+	A lot of changes to simplify the code to handle session data. The
+	 AVL tree now use the SID instead of the string image of
+	 it. Change all routines to support this new architecture. This
+	 simplification should also improve the performance.
+
+	* aws-response.ads:
+	(URL): fix comment.
+
+	* aws-session.adb:
+	(Delete): new procedure.
+	(SID_Random): new package.
+	(SID_Generator): new variable.
+	(Database.Delete_Session): new entry.
+	(Clean): variable Now is now a constant.
+	(New_Session): change implementation to used to random session ID.
+	Reset SID_Generator at package elaboration.
+
+	* aws-session.ads:
+	(Delete): new procedure.
+	(ID): change to a larger interger based type.
+
 2001-05-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-status.adb:
