@@ -32,93 +32,75 @@
 
 with Ada.Strings.Unbounded;
 
-with AWS.Key_Value;
+with AWS.Containers.Tables;
 
 package AWS.Parameters is
 
-   type List is private;
+   type List is new AWS.Containers.Tables.Table_Type with private;
 
-   type VString_Array is array (Positive range <>)
-     of Ada.Strings.Unbounded.Unbounded_String;
-
-   function Count (Parameter_List : in List) return Natural;
-   --  Returns the number of item in Parameter_List.
-
-   function Name_Count (Parameter_List : in List) return Natural;
-   --  Returns the number of unique key name in Parameter_List.
-
-   function Count (Parameter_List : in List; Name : in String) return Natural;
-   --  Returns the number of value for Key Name in Parameter_List. It returns
-   --  0 if Key does not exist.
-
-   function Exist (Parameter_List : in List; Name : in String) return Boolean;
-   --  Returns True if Key exist in Parameter_List.
-
-   function Get
-     (Parameter_List : in List;
-      Name           : in String;
-      N              : in Positive := 1)
-      return String;
-   --  Returns the Nth value associated with Key into Parameter_List. Returns
-   --  the emptry string if key does not exist.
-
-   function Get_Name
-     (Parameter_List : in List;
-      N              : in Positive := 1)
-      return String;
-   --  Returns the Nth Name in Parameter_List or the empty string if there is
-   --  no parameter with this number.
-
-   function Get_Value
-     (Parameter_List : in List;
-      N              : in Positive := 1)
-      return String;
-   --  Returns the Nth Value in Parameter_List or the empty string if there is
-   --  no parameter with this number.
+   subtype VString_Array is AWS.Containers.Tables.VString_Array;
 
    function URI_Format (Parameter_List : in List) return String;
    --  Returns the list of parameters in the URI format. This can be added
    --  after the ressource to form the complete URI. The format is:
    --  "?name1=value1&name2=value2..."
 
-   function Get_Names (Parameter_List : in List) return VString_Array;
+   ------------------------
+   -- Inherited routines --
+   ------------------------
+
+   --  function Count (Table : in Table_Type) return Natural;
+   --  Returns the number of item in Table.
+
+   --  function Name_Count (Table : in Table_Type) return Natural;
+   --  Returns the number of unique key name in Table.
+
+   --  function Count (Table : in Table_Type; Name : in String) return Natural;
+   --  Returns the number of value for Key Name in Table. It returns
+   --  0 if Key does not exist.
+
+   --  function Exist (Table : in Table_Type; Name : in String) return Boolean;
+   --  Returns True if Key exist in Table.
+
+   --  function Get
+   --    (Table : in Table_Type;
+   --     Name  : in String;
+   --     N     : in Positive := 1)
+   --     return String;
+   --  Returns the Nth value associated with Key into Table. Returns
+   --  the emptry string if key does not exist.
+
+   --  function Get_Name
+   --    (Table : in Table_Type;
+   --     N     : in Positive := 1)
+   --     return String;
+   --  Returns the Nth Name in Table or the empty string if there is
+   --  no parameter with this number.
+
+   --  function Get_Value
+   --    (Table : in Table_Type;
+   --     N     : in Positive := 1)
+   --     return String;
+   --  Returns the Nth Value in Table or the empty string if there is
+   --  no parameter with this number.
+
+   --  function Get_Names (Table : in Table_Type) return VString_Array;
    --  Returns array of unique key names.
 
-   function Get_Values
-     (Parameter_List : in List;
-      Name           : in String)
-      return VString_Array;
+   --  function Get_Values
+   --    (Table : in Table_Type;
+   --     Name  : in String)
+   --     return VString_Array;
    --  Returns all values for the specified parameter key name.
 
 private
    --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
    --  is responsible for doing that.
 
-   type List is record
-      Parameters     : Ada.Strings.Unbounded.Unbounded_String;
-      Case_Sensitive : Boolean := True;
-      Data           : Key_Value.Set_Access;
-      --  Main data tree.
-      HTTP_Data      : Key_Value.Set_Access;
-      --  Tree to record key and value by order.
+   use Ada.Strings.Unbounded;
+
+   type List is new AWS.Containers.Tables.Table_Type with record
+      Parameters     : Unbounded_String;
    end record;
-
-   function Internal_Get
-     (Parameter_List : in List;
-      Name           : in String;
-      N              : in Natural)
-      return String;
-   pragma Inline (Internal_Get);
-   --  Returns the Nth value associated with Key into Parameter_List. Returns
-   --  the emptry string if key does not exist. If N = 0 it returns as-is all
-   --  the values as inserted in the tree for Key.
-
-   Val_Separator : constant Character := ASCII.VT;
-
-   function Normalize_Name
-     (Name : in String; To_Upper : in Boolean)
-     return String;
-   --  Returns Name in upper case if To_Upper is set to True and it returns
-   --  Name unchanged otherwise.
 
 end AWS.Parameters;
