@@ -1,3 +1,54 @@
+2004-11-29  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator.adb:
+	(Generate_Record): Set namespace if specified.
+	Minor fix of generated code layout.
+
+	* soap-message-response-error.adb:
+	Rename SOAP-ENC to soapenc and SOAP-ENV to soap.
+	Update copyright notice.
+
+	* soap-message-xml.adb:
+	(NS_SOAP_Env): New constant.
+	(NS_SOAP_Enc): Idem.
+	(NS_XSD): Idem.
+	(NS_XSI): Idem.
+	(NS_Enc): Idem.
+	(Header): use them.
+	Rename SOAP-ENC to soapenc and SOAP-ENV to soap.
+
+	* soap-message.adb:
+	(XML_Image): Generate name space in the operation element.
+	Update copyright notice.
+
+	* soap-name_space.ads, soap-name_space.adb:
+	Initial revision.
+
+	* soap-types.adb:
+	(V): New abstract routine for Composite types.
+	(Set_Name_Space): New routine.
+	(Name_Space): New routine.
+	Adjust all aggregate to add NS field.
+	Rename SOAP-ENC to soapenc and SOAP-ENV to soap.
+	(XML_Image) [SOAP_Record]: Use namespace information to set
+	 xsi:type attribute.
+	
+	* soap-types.ads:
+	(V): New abstract routine for Composite types.
+	Rename SOAP-ENC to soapenc and SOAP-ENV to soap.
+	(Set_Name_Space): New routine.
+	(Name_Space): New routine.
+	(Object): Add NS field.
+
+	* soap-wsdl-parameters.ads:
+	(Parameter): Add NS field.
+	Update copyright notice.
+	
+	* soap-wsdl-parser.adb:
+	(Get_Target_Name_Space): New routine.
+	(Parse_Record): Use it.
+	Adjust Parameter object with new field.
+
 2004-11-28  Pascal Obry  <pascal@obry.org>
 
 	* soap-types.adb:
