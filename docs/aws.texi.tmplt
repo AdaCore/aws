@@ -237,6 +237,25 @@ DEBUG make variable.
 $ make build DEBUG=1
 @end smallexample
 
+@noindent
+Others make's targets are:
+
+@table @code
+
+@item build_lib
+
+Build AWS library only.
+
+@item build_tools
+
+Build AWS tools only.
+
+@item build_demos
+
+Build AWS demos only.
+
+@end table
+
 @node Demos
 @section Demos
 
