@@ -150,6 +150,13 @@ package body SOAP.WSDL.Parser is
       return Parameters.Parameter;
    --  Returns record in node N
 
+   function Parse_Array
+     (O        : in Object'Class;
+      R        : in DOM.Core.Node;
+      Document : in WSDL.Object)
+      return Parameters.Parameter;
+   --  Returns array in node N
+
    -----------
    -- Debug --
    -----------
@@ -345,11 +352,12 @@ package body SOAP.WSDL.Parser is
      (O          : in out Object;
       Proc       : in     String;
       SOAPAction : in     String;
+      Namespace  : in     String;
       Input      : in     Parameters.P_Set;
       Output     : in     Parameters.P_Set;
       Fault      : in     Parameters.P_Set)
    is
-      pragma Unreferenced (O, Proc, SOAPAction);
+      pragma Unreferenced (O, Proc, SOAPAction, Namespace);
       pragma Unreferenced (Input, Output, Fault);
    begin
       null;
@@ -393,6 +401,38 @@ package body SOAP.WSDL.Parser is
          end;
       end loop;
    end Parse;
+
+   -----------------
+   -- Parse_Array --
+   -----------------
+
+   function Parse_Array
+     (O        : in Object'Class;
+      R        : in DOM.Core.Node;
+      Document : in WSDL.Object)
+      return Parameters.Parameter
+   is
+      pragma Unreferenced (Document);
+
+      P : Parameters.Parameter (Parameters.K_Composite);
+   begin
+      Trace ("(Parse_Array)", R);
+
+      pragma Assert
+        (R /= null
+         and then DOM.Core.Nodes.Node_Name (R) = "complexType");
+
+      declare
+         Name : constant String := Get_Attr_Value (R, "name", False);
+      begin
+         --  Set array name, R is a complexType node
+
+         P.Name   := O.Current_Name;
+         P.C_Name := +Name;
+
+         return P;
+      end;
+   end Parse_Array;
 
    -------------------
    -- Parse_Binding --
@@ -492,12 +532,15 @@ package body SOAP.WSDL.Parser is
          NL   : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
          Name : constant String := Get_Attr_Value (CT_Node, "name");
       begin
-         if (Length (NL) > 1 and then not Sequence)
-           or else Utils.Is_Array (Name)
-         then
+         if (Length (NL) > 1 and then not Sequence) then
             --  This is a record or composite type
 
             Add_Parameter (O, Parse_Record (O, CT_Node, Document));
+
+         elsif Utils.Is_Array (Name) then
+
+            Add_Parameter (O, Parse_Array (O, CT_Node, Document));
+
 
          else
 
@@ -556,6 +599,11 @@ package body SOAP.WSDL.Parser is
       end if;
 
       O.SOAPAction := +Get_Attr_Value (N, "soapAction");
+
+      N := Next_Sibling (N);
+      N := First_Child (N);
+
+      O.Namespace  := +Get_Attr_Value (N, "namespace");
 
       --  Check that input/output/fault is literal
       --  ???
@@ -646,6 +694,9 @@ package body SOAP.WSDL.Parser is
 
          elsif T = Types.XML_String then
             Add_Parameter (O, -O.Current_Name, P_String);
+
+         elsif T = Types.XML_Boolean then
+            Add_Parameter (O, -O.Current_Name, P_Boolean);
 
          elsif T = Types.XML_Time_Instant then
             Add_Parameter (O, -O.Current_Name, P_Time);
@@ -765,7 +816,7 @@ package body SOAP.WSDL.Parser is
       end if;
 
       New_Procedure
-        (O, -O.Proc, -O.SOAPAction,
+        (O, -O.Proc, -O.SOAPAction, -O.Namespace,
          O.Params (Input), O.Params (Output), O.Params (Fault));
 
       Parameters.Release (O.Params (Input));
