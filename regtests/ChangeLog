@@ -1,4 +1,4 @@
-2003-01-29  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+2003-02-03  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* makefile, dirop.adb, dirop,tmplt, dirop.out:
 	Regression test for directory browser.
