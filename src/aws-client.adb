@@ -650,7 +650,7 @@ package body AWS.Client is
                   Response.Set.Append_Body (Result, Chunk);
                exception
                   when Net.Socket_Error =>
-                     --  Could have been killed by a timeout.
+                     --  Could have been killed by a timeout
 
                      Utils.Free (Chunk);
                      raise;
@@ -664,8 +664,7 @@ package body AWS.Client is
    begin
       Set_Phase (Connection, Receive);
 
-      Parse_Header
-        (Connection, Result, Keep_Alive);
+      Parse_Header (Connection, Result, Keep_Alive);
 
       if not Get_Body then
          Disconnect;
