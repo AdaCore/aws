@@ -41,18 +41,18 @@ with AWS.Status;
 
 separate (AWS.Server)
 
-procedure Protocol_Handler (Sock    : in Sockets.Socket_FD'Class;
-                            Handler : in Response.Callback;
-                            Slots   : in Slots_Access;
-                            Index   : in Positive)
+procedure Protocol_Handler
+  (Sock        : in Sockets.Socket_FD'Class;
+   HTTP_Server : in HTTP;
+   Index       : in Positive)
 is
 
    use Ada;
    use Ada.Strings;
 
+   Admin_URI      : constant String := To_String (HTTP_Server.Admin_URI);
    End_Of_Message : constant String := "";
-
-   HTTP_10 : constant String := "HTTP/1.0";
+   HTTP_10        : constant String := "HTTP/1.0";
 
    C_Stat  : AWS.Status.Data;         --  connection status
 
@@ -88,10 +88,9 @@ is
       use type Messages.Status_Code;
       use type Response.Data_Mode;
 
-      Answer : constant Response.Data := Handler (C_Stat);
+      Answer : Response.Data;
 
-      Status : constant Messages.Status_Code :=
-        Response.Status_Code (Answer);
+      Status : Messages.Status_Code;
 
       procedure Header_Date_Serv;
       --  send the Date: and Server: data
@@ -252,6 +251,20 @@ is
       end Send_Message;
 
    begin
+      --  check if the status page is requested
+
+      if AWS.Status.URI (C_Stat) = Admin_URI then
+         Answer := Response.Build
+           (Content_Type => "text/html",
+            Message_Body => Get_Status (HTTP_Server));
+      else
+         --  otherwise get answer from client callback
+
+         Answer := HTTP_Server.CB (C_Stat);
+      end if;
+
+      Status := Response.Status_Code (Answer);
+
       if Response.Mode (Answer) = Response.Message then
          Send_Message;
 
@@ -347,14 +360,14 @@ is
                --  a request by the client has been received, do not abort
                --  until this request is handled.
 
-               Slots.Set_Abortable (Index, False);
+               HTTP_Server.Slots.Set_Abortable (Index, False);
 
                exit when Data = End_Of_Message;
 
                Parse (Data);
             end;
 
-            Slots.Mark_Activity_Time (Index);
+            HTTP_Server.Slots.Mark_Activity_Time (Index);
 
          exception
             when others =>
@@ -635,7 +648,7 @@ begin
 
    For_Every_Request : loop
 
-      Slots.Set_Abortable (Index, True);
+      HTTP_Server.Slots.Set_Abortable (Index, True);
 
       Get_Message_Header;
 
@@ -648,7 +661,7 @@ begin
 
       exit when Status.Connection (C_Stat) /= "Keep-Alive"
         or else Status.HTTP_Version (C_Stat) = HTTP_10
-        or else Slots.N = 1;
+        or else HTTP_Server.Slots.N = 1;
 
    end loop For_Every_Request;
 
