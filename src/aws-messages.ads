@@ -266,7 +266,7 @@ package AWS.Messages is
 private
 
    Unspecified : constant Cache_Option := "";
-   No_Cache    : constant Cache_Option := "no-cahce";
+   No_Cache    : constant Cache_Option := "no-cache";
    No_Store    : constant Cache_Option := "no-store";
 
 end AWS.Messages;
