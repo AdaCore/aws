@@ -84,6 +84,18 @@ package body AWS.Config is
    Receive_Timeout_Value : Duration
      := Default_Receive_Timeout;
 
+   Status_Page_Value : Unbounded_String
+     := To_Unbounded_String (Default_Status_Page);
+
+   Up_Image_Value    : Unbounded_String
+     := To_Unbounded_String (Default_Up_Image);
+
+   Down_Image_Value  : Unbounded_String
+     := To_Unbounded_String (Default_Down_Image);
+
+   Logo_Image_Value  : Unbounded_String
+     := To_Unbounded_String (Default_Logo_Image);
+
    procedure Initialize;
    --  Read aws.ini file if present and initialize this package accordingly.
 
@@ -132,6 +144,14 @@ package body AWS.Config is
       return Cleaner_Server_Response_Timeout_Value;
    end Cleaner_Server_Response_Timeout;
 
+   ----------------
+   -- Down_Image --
+   ----------------
+
+   function Down_Image return String is
+   begin
+      return To_String (Down_Image_Value);
+   end Down_Image;
 
    -----------------------------------
    -- Force_Wait_For_Client_Timeout --
@@ -387,6 +407,15 @@ package body AWS.Config is
       return To_String (Log_File_Directory_Value);
    end Log_File_Directory;
 
+   ----------------
+   -- Logo_Image --
+   ----------------
+
+   function Logo_Image return String is
+   begin
+      return To_String (Logo_Image_Value);
+   end Logo_Image;
+
    --------------------
    -- Max_Connection --
    --------------------
@@ -430,6 +459,24 @@ package body AWS.Config is
    begin
       return Server_Port_Value;
    end Server_Port;
+
+   -----------------
+   -- Status_Page --
+   -----------------
+
+   function Status_Page return String is
+   begin
+      return To_String (Status_Page_Value);
+   end Status_Page;
+
+   --------------
+   -- Up_Image --
+   --------------
+
+   function Up_Image return String is
+   begin
+      return To_String (Up_Image_Value);
+   end Up_Image;
 
    ----------------------
    -- Upload_Directory --
