@@ -315,13 +315,19 @@ package body AWS.Net.Std is
      (Socket : in Socket_Type;
       Data   : in Stream_Element_Array)
    is
-      Last   : Stream_Element_Count;
+      First  : Stream_Element_Offset := Data'First;
+      Last   : Stream_Element_Offset;
    begin
-      Sockets.Send_Socket (Socket.S.FD, Data, Last);
+      while First <= Data'Last loop
+         Sockets.Send_Socket (Socket.S.FD, Data (First .. Data'Last), Last);
 
-      if Last < Data'Last then
-         raise Socket_Error;
-      end if;
+         if Last < First then
+            --  Connection has been closed by peer
+            raise Socket_Error;
+         end if;
+
+         First := Last + 1;
+      end loop;
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Send");
