@@ -1,3 +1,12 @@
+2004-11-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* src/check_config.c:
+	(SO_SNDBUF): New constant need for IPv6 implementation.
+	(SO_RCVBUF): Idem.
+	(SHUT_RDWR): Idem.
+	(EAI_SYSTEM): Use Win32 definition instead of different generation.
+	Change "other constants" comment.
+
 2004-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:
