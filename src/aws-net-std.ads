@@ -67,12 +67,12 @@ package AWS.Net.Std is
       Host     : in     String;
       Port     : in     Positive;
       Wait     : in     Boolean := True);
-   --  Connect a socket on a given host/port.
-   --  If Wait is True routine would wait established connection
-   --  for timeout, specified by Set_Timeout routine.
-   --  If Wait is False routine would return immediately, not waiting
-   --  for establised connection. Connection completion could be waited by
-   --  Wait routine with Output set to True in Events parameter.
+   --  Connect a socket on a given host/port. If Wait is True Connect will wait
+   --  for the connection to be established for timeout seconds, specified by
+   --  Set_Timeout routine. If Wait is False Connect will return immediately,
+   --  not waiting for the connection to be establised. It is possible to wait
+   --  for the Connection completion by calling Wait routine with Output set to
+   --  True in Events parameter.
 
    procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it.
