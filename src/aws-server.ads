@@ -213,6 +213,11 @@ private
       --  While in the User's Callback procedure.
      );
 
+   type Socket_Data (Peername_Length : Natural) is record
+      Peername : String (1 .. Peername_Length);
+      FD       : Integer;
+   end record;
+
    subtype Abortable_Phase is Slot_Phase
      range Wait_For_Client .. Server_Response;
 
@@ -304,6 +309,10 @@ private
 
       function Get (Index : in Positive) return Slot;
       --  Returns Slot data.
+
+      function Get_Socket_Info (Index : in Positive) return Socket_Data;
+      --  return the information about the currently using socket.
+      --  FD and Peername
 
       function Get_Peername (Index : in Positive) return String;
       --  Returns the peername for socket at position Index.
