@@ -115,5 +115,7 @@ implemented:
 
 - Add SMTP authentication support
 
+- Add POP3 support
+
 =============== Point to fix before next release
 
