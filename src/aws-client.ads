@@ -193,6 +193,12 @@ package AWS.Client is
       URI        : in     String          := No_Data);
    --  Same as Post above but using a Connection.
 
+   function SOAP_Post
+     (Connection  : access HTTP_Connection;
+      Data        : in     String)
+     return Response.Data;
+   --  Same as SOAP_Post above but using a Connection.
+
    procedure Close (Connection : in out HTTP_Connection);
    --  Close connection, it releases all associated resources.
 
