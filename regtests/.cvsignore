@@ -19,6 +19,12 @@ b~dirop.adb
 b~dirop.ads
 b~disp_soap.adb
 b~disp_soap.ads
+b~dispatch.adb
+b~dispatch.ads
+b~dispatch_method.adb
+b~dispatch_method.ads
+b~dispatch_vh.adb
+b~dispatch_vh.ads
 b~dummy.adb
 b~dummy.ads
 b~file.adb
@@ -156,6 +162,9 @@ ctab.tmp
 dirop.res
 dirop.tmp
 disp_soap.res
+dispatch.res
+dispatch_method.res
+dispatch_vh.res
 dummy.res
 dummy.tmp
 file.res
