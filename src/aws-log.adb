@@ -36,8 +36,9 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 
 with GNAT.Calendar.Time_IO;
-with AWS.OS_Lib;
 
+with AWS.Default;
+with AWS.OS_Lib;
 with AWS.Utils;
 
 package body AWS.Log is
@@ -74,11 +75,19 @@ package body AWS.Log is
    ----------------
 
    function Log_Prefix (Prefix : in String) return String is
-      Name  : constant String := Ada.Command_Line.Command_Name;
-      First : Natural;
-      Last  : Natural;
-   begin
-      if Prefix = Not_Specified then
+
+      function Prog_Name return String;
+      --  Return current program name
+
+      ---------------
+      -- Prog_Name --
+      ---------------
+
+      function Prog_Name return String is
+         Name  : constant String := Ada.Command_Line.Command_Name;
+         First : Natural;
+         Last  : Natural;
+      begin
          First := Strings.Fixed.Index
            (Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
 
@@ -98,9 +107,23 @@ package body AWS.Log is
          end if;
 
          return Name (First .. Last);
+      end Prog_Name;
+
+   begin
+      if Prefix = Not_Specified then
+         return "";
 
       else
-         return Prefix;
+         declare
+            K : constant Natural := Strings.Fixed.Index (Prefix, "@");
+         begin
+            if K = 0 then
+               return Prefix & '-';
+            else
+               return Prefix (Prefix'First .. K - 1)
+                 & Prog_Name & Prefix (K + 1 .. Prefix'Last) & '-';
+            end if;
+         end;
       end if;
    end Log_Prefix;
 
@@ -134,7 +157,7 @@ package body AWS.Log is
       Filename := To_Unbounded_String
         (File_Directory
          & Log_Prefix (Filename_Prefix)
-         & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d.log"));
+         & GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d.log"));
 
       case Split is
          when None =>
@@ -149,7 +172,7 @@ package body AWS.Log is
                Filename := To_Unbounded_String
                  (File_Directory
                   & Log_Prefix (Filename_Prefix)
-                  & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d-")
+                  & GNAT.Calendar.Time_IO.Image (Now, "%Y-%m-%d-")
                   & Utils.Image (K) & ".log");
             end loop;
 
