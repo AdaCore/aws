@@ -181,8 +181,7 @@ package body AWS.URL is
             --  This is not rooted. Parse with a '/' slash added, then remove
             --  it after parsing.
             Parse ('/' & URL);
-            O.URI := To_Unbounded_String
-              (Slice (O.URI, 2, Length (O.URI) - 1));
+            O.URI := To_Unbounded_String (Slice (O.URI, 2, Length (O.URI)));
          end if;
 
             O.Security := False;
