@@ -3,6 +3,7 @@
 	* src/check_config.c:
 	(SO_ERROR): Add constant not defined in AdaSockets.
 	(ETIMEDOUT): Idem.
+	Add include errno.h for not Win32 platforms.
 
 	* aws-net-std__adasockets.adb:
 	(Get_Addr_Info): Use GAI_StrError in error handling.
