@@ -474,7 +474,11 @@ package body SOAP.Generator is
       end if;
 
       if Output /= null then
-         Text_IO.New_Line (File);
+
+         if Input /= null then
+            Text_IO.New_Line (File);
+         end if;
+
          Text_IO.Put (File, "      return ");
 
          Text_IO.Put (File, Result_Type (O, Proc, Output));
