@@ -1,3 +1,13 @@
+2004-09-16  Pascal Obry  <pascal@obry.org>
+
+	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+
+	* aws-net-buffered.adb:
+	(Read): Properly fill the cache when there is no more data into	it. 
+	 Previous implementation was pretty bad for uploaded files where
+	 the bytes past the 4kb were read one byte at a time from the socket.
+	
 2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-attachments.adb, aws-attachments.ads, aws-client.adb,
