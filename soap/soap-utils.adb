@@ -256,6 +256,21 @@ package body SOAP.Utils is
       return Result;
    end To_Object_Set;
 
+   ---------------------
+   -- To_Object_Set_C --
+   ---------------------
+
+   function To_Object_Set_C (From : in T_Array) return Types.Object_Set is
+      use SOAP.Types;
+      Result : Types.Object_Set (1 .. Integer (From'Last));
+   begin
+      for K in From'Range loop
+         Result (Integer (K)) := +Get (From (K));
+      end loop;
+
+      return Result;
+   end To_Object_Set_C;
+
    ----------------
    -- To_T_Array --
    ----------------
@@ -270,6 +285,21 @@ package body SOAP.Utils is
 
       return T_Array'(Result);
    end To_T_Array;
+
+   ------------------
+   -- To_T_Array_C --
+   ------------------
+
+   function To_T_Array_C (From : in Types.Object_Set) return T_Array is
+      use SOAP.Types;
+      Result : T_Array;
+   begin
+      for K in From'Range loop
+         Result (Index (K)) := Get (-From (K));
+      end loop;
+
+      return Result;
+   end To_T_Array_C;
 
    -------------
    -- To_Utf8 --

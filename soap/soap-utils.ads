@@ -100,11 +100,28 @@ package SOAP.Utils is
 
    generic
       type T is private;
+      type Index is range <>;
+      type T_Array is array (Index) of T;
+      with function Get (O : in Types.Object'Class) return T;
+   function To_T_Array_C (From : in Types.Object_Set) return T_Array;
+   --  As above but for constrained arrays
+
+   generic
+      type T is private;
       type T_Array is array (Positive range <>) of T;
       type XSD_Type is new Types.Object with private;
       with function Get (V : in T; Name : in String := "item") return XSD_Type;
    function To_Object_Set (From : in T_Array) return Types.Object_Set;
    --  Convert an array of T to a Types.Object_Set
+
+   generic
+      type T is private;
+      type Index is range <>;
+      type T_Array is array (Index) of T;
+      type XSD_Type is new Types.Object with private;
+      with function Get (V : in T; Name : in String := "item") return XSD_Type;
+   function To_Object_Set_C (From : in T_Array) return Types.Object_Set;
+   --  As above but for constrained arrays
 
    function Get (Item : in Types.Object'Class) return Unbounded_String;
    --  Returns an Unbounded_String for Item. Item must be a SOAP string object
