@@ -1,5 +1,8 @@
 2004-10-29  Pascal Obry  <pascal@obry.org>
 
+	* aws-net.ads:
+	Minor reformatting.
+
 	* aws-net-log.ads, aws-net-log.adb:
 	Initial revision.
 

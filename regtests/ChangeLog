@@ -1,3 +1,8 @@
+2004-10-29  Pascal Obry  <pascal@obry.org>
+
+	* test_net_log.adb, test_net_log.out:
+	Initial revision.
+
 2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* nbconn_proc.adb:
