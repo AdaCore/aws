@@ -36,13 +36,20 @@
 --  one must be able to ask for the value for K1 but also the name of the
 --  second key or the value of the third key.
 --
---  Each K/V pair is then inserted into the tree three times:
+--  Each K/V pair is then inserted into the Data tree and two times into the
+--  HTTP_Data tree:
+--
+--  Into Data:
 --
 --  1) key=K with value=V
---  2) key=__AWS_K<n> with value=K     (n beeing an indice representing the
---  3) key=__AWS_V<n> with value=V      entry number in the tree)
 --
---  So to get the third key name we ask for the entry indexed under __AWS_K3.
+--  Into HTTP_Data:
+--
+--  1) key=__AWS_K<n> with value=K     (n beeing an indice representing the
+--  2) key=__AWS_V<n> with value=V      entry number in the tree)
+--
+--  So to get the third key name we ask for the entry indexed under __AWS_K3
+--  into HTTP_Data tree.
 --
 --  Another important point is that a key can have many values. For example
 --  with an HTML multiple select entry in a form. In such a case all values
@@ -62,8 +69,13 @@ package body AWS.Parameters is
    -----------
 
    function Count (Parameter_List : in List) return Natural is
+      use type Key_Value.Set_Access;
    begin
-      return Parameter_List.Count;
+      if Parameter_List.HTTP_Data = null then
+         return 0;
+      else
+         return Key_Value.Size (Parameter_List.HTTP_Data.all) / 2;
+      end if;
    end Count;
 
    -----------
@@ -133,8 +145,54 @@ package body AWS.Parameters is
    is
       Key  : constant String := "__AWS_K" & Utils.Image (N);
    begin
-      return Get (Parameter_List, Key);
+      return To_String (Key_Value.Value (Parameter_List.HTTP_Data.all, Key));
+   exception
+      when others =>
+         return "";
    end Get_Name;
+
+   ---------------
+   -- Get_Names --
+   ---------------
+
+   function Get_Names (Parameter_List : in List) return VString_Array is
+      use type Key_Value.Set_Access;
+
+      procedure Process
+        (Key      : in     String;
+         Value    : in     Unbounded_String;
+         Order    : in     Positive;
+         Continue : in out Boolean);
+
+      Result : VString_Array (1 .. Name_Count (Parameter_List));
+
+      -------------
+      -- Process --
+      -------------
+
+      procedure Process
+        (Key      : in     String;
+         Value    : in     Unbounded_String;
+         Order    : in     Positive;
+         Continue : in out Boolean) is
+      begin
+         Result (Order) := Value;
+      end Process;
+
+      --------------------
+      -- Each_Key_Value --
+      --------------------
+
+      procedure Each_Key_Value is
+         new Key_Value.Table.Disorder_Traverse_G (Process);
+
+   begin
+      if Parameter_List.Data /= null then
+         Each_Key_Value (Key_Value.Table.Table_Type (Parameter_List.Data.all));
+      end if;
+
+      return Result;
+   end Get_Names;
 
    ---------------
    -- Get_Value --
@@ -147,8 +205,43 @@ package body AWS.Parameters is
    is
       Key  : constant String := "__AWS_V" & Utils.Image (N);
    begin
-      return Get (Parameter_List, Key);
+      return To_String (Key_Value.Value (Parameter_List.HTTP_Data.all, Key));
+   exception
+      when others =>
+         return "";
    end Get_Value;
+
+   ----------------
+   -- Get_Values --
+   ----------------
+
+   function Get_Values (Parameter_List : in List; Name : String)
+      return VString_Array
+   is
+      Value : Unbounded_String;
+      CS    : Strings_Cutter.Cutted_String;
+   begin
+      Key_Value.Get_Value (Parameter_List.Data.all, Name, Value);
+
+      Strings_Cutter.Create
+        (CS,
+         To_String (Value),
+         String'(1 => Val_Separator));
+
+      declare
+         Result : VString_Array (1 .. Strings_Cutter.Field_Count (CS));
+      begin
+         for I in Result'Range loop
+            Result (I) := To_Unbounded_String (Strings_Cutter.Field (CS, I));
+         end loop;
+         Strings_Cutter.Destroy (CS);
+         return Result;
+      end;
+
+   exception
+      when others =>
+         return (1 .. 0 => Null_Unbounded_String);
+   end Get_Values;
 
    ------------------
    -- Internal_Get --
@@ -179,6 +272,20 @@ package body AWS.Parameters is
       when others =>
          return "";
    end Internal_Get;
+
+   ----------------
+   -- Name_Count --
+   ----------------
+
+   function Name_Count (Parameter_List : in List) return Natural is
+      use type Key_Value.Set_Access;
+   begin
+      if Parameter_List.Data = null then
+         return 0;
+      else
+         return Key_Value.Size (Parameter_List.Data.all);
+      end if;
+   end Name_Count;
 
    ----------------
    -- URI_Format --
