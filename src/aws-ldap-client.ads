@@ -30,6 +30,12 @@
 
 --  $Id$:
 
+--  Provides an API to read information from an LDAP server. This API does not
+--  cover modifing, adding or deleting information into the server. It is a
+--  thick binding, see AWS.LDAP.Thin for a thin binding.
+--
+--  This API has been tested on Windows and Linux (OpenLDAP).
+
 with Ada.Strings.Unbounded;
 with AWS.LDAP.Thin;
 
@@ -40,29 +46,112 @@ package AWS.LDAP.Client is
    Default_Port : constant Positive := Positive (Thin.LDAP_PORT);
 
    subtype Directory    is Thin.LDAP_Type;
+   --  An LDAP directory. This object must be initialized with Init and Bind
+   --  and terminated with Unbind.
+
    subtype LDAP_Message is Thin.LDAPMessage;
+   --  An LDAP message or set of messages. There is a set of iterators to
+   --  access all messages returned by the search procedure.
+
    subtype BER_Element  is Thin.BerElement;
+   --  An iterator structure. Initialized and used to iterate through all the
+   --  attributes for a specific message.
 
    Null_LDAP_Message : constant LDAP_Message := Thin.Null_LDAPMessage;
 
    type Scope_Type is
      (LDAP_Scope_Default, LDAP_Scope_Base,
       LDAP_Scope_One_Level, LDAP_Scope_Subtree);
+   --  LDAP scope for the search
 
    type String_Set is array (Positive range <>) of Unbounded_String;
-   --  A set of strings, this is used to handle array of strings (a char **)
-   --  on the thin binding.
+   --  A set of strings, this is used to map C array of strings (a char **)
+   --  from the thin binding.
 
-   function Attributes
-     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "")
-      return String_Set;
-   --  Returns a String_Set object containing only none empty value. Values for
-   --  S1 through S10 must be set in the order of the parameters. This is a
-   --  helper routine to help building an array of unbounded string from a set
-   --  of string.
+   Null_Set : constant String_Set;
+
+   ----------------
+   -- Attributes --
+   ----------------
 
    subtype Attribute_Set is String_Set;
    --  Used to represent the set of attributes to retreive from the LDAP server
+
+   function Attributes
+     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "")
+      return Attribute_Set;
+   --  Returns a String_Set object containing only none empty values. Values
+   --  for S1 through S10 must be set in the order of the parameters. This is
+   --  an helper routine to help building an array of unbounded string from a
+   --  set of string.
+
+   function uid (Val : in String := "") return String;
+   --  Returns the uid attribute, if Val is specified "=<Val>" is
+   --  added after the attribute name.
+
+   function givenName (Val : in String := "") return String;
+   --  Returns the given name (firstname) attribute. if Val is specified
+   --  "=<Val>" is added after the attribute name.
+
+   function cn (Val : in String := "") return String;
+   function commonName (Val : in String := "") return String renames cn;
+   --  Returns the common Name attribute, if Val is specified "=<Val>" is
+   --  added after the attribute name.
+
+   function sn (Val : in String := "") return String;
+   function surname (Val : in String := "") return String renames sn;
+   --  Returns the surname attribute, if Val is specified "=<Val>" is
+   --  added after the attribute name.
+
+   function telephoneNumber (Val : in String := "") return String;
+   --  Returns the phone number. if Val is specified "=<Val>" is
+   --  added after the attribute name. Val must use the international notation
+   --  according to CCITT E.123.
+
+   function mail (Val : in String := "") return String;
+   --  Returns the mail attribute. if Val is specified "=<Val>" is added after
+   --  the attribute name.
+
+   function l (Val : in String := "") return String;
+   function localityName (Val : in String := "") return String renames l;
+   --  Returns the locality attribute, if Val is specified "=<Val>" is
+   --  added after the attribute name.
+
+   function o (Val : in String := "") return String;
+   function organizationName (Val : in String := "") return String renames o;
+   --  Returns the organization attribute, if Val is specified "=<Val>" is
+   --  added after the attribute name.
+
+   function ou (Val : in String := "") return String;
+   function organizationalUnitName (Val : in String := "") return String
+     renames ou;
+   --  Returns the organizational unit attribute, if Val is specified "=<Val>"
+   --  is added after the attribute name.
+
+   function st (Val : in String := "") return String;
+   function stateOrProvinceName (Val : in String := "") return String
+     renames st;
+   --  Returns the state name attribute, if Val is specified "=<Val>" is
+   --  added after the attribute name.
+
+   function c (Val : in String := "") return String;
+   function countryName (Val : in String) return String renames c;
+   --  Returns country code attribute, if Val is specified "=<Val>" is
+   --  added after the attribute name. Val must be a two-letter ISO 3166
+   --  country code.
+
+   function dc (Val : in String := "") return String;
+   function domainComponent (Val : in String := "") return String renames dc;
+   --  Returns a domain component attribute, if Val is specified "=<Val>" is
+   --  added after the attribute name.
+
+   function Cat
+     (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "")
+      return String;
+   --  Returns a string object containing only none empty values. Values for
+   --  S1 through S10 must be set in the order of the parameters. All values
+   --  are catenated and separated with a coma. This is an helper routine to
+   --  help building a filter objects or base distinguished name.
 
    ----------------
    -- Initialize --
@@ -91,10 +180,10 @@ package AWS.LDAP.Client is
    function Search
      (Dir        : in Directory;
       Base       : in String;
-      Scope      : in Scope_Type;
       Filter     : in String;
-      Attrs      : in Attribute_Set;
-      Attrs_Only : in Boolean := False)
+      Scope      : in Scope_Type    := LDAP_Scope_Default;
+      Attrs      : in Attribute_Set := Null_Set;
+      Attrs_Only : in Boolean       := False)
       return LDAP_Message;
    --  Do a search on the LDAP server. Base is the name of the database.
    --  Filter can be used to retreive a specific set of entries. Attrs specify
@@ -109,13 +198,13 @@ package AWS.LDAP.Client is
      (Dir   : in Directory;
       Chain : in LDAP_Message)
       return LDAP_Message;
-   --  Returns the first entry for the search result (Chain).
+   --  Returns the first entry (or Node) for the search result (Chain).
 
    function Next_Entry
      (Dir     : in Directory;
       Entries : in LDAP_Message)
       return LDAP_Message;
-   --  Returns next entry for Entries.
+   --  Returns next entry (or Node) for Entries.
 
    function Count_Entries
      (Dir   : in Directory;
@@ -128,24 +217,26 @@ package AWS.LDAP.Client is
 
    generic
       with procedure Action
-        (Entries : in LDAP_Message;
-         Quit    : in out Boolean);
+        (Node : in LDAP_Message;
+         Quit : in out Boolean);
    procedure For_Every_Entries (Dir : in Directory; Chain : in LDAP_Message);
-   --  Quit can be set to True to stop iteration; its initial value is False
+   --  This iterator call Action for each entry (Node) found in the LDAP result
+   --  set as returned by the search procedure. Quit can be set to True to
+   --  stop iteration; its initial value is False.
 
    function First_Attribute
-     (Dir     : in Directory;
-      Entries : in LDAP_Message;
-      BER     : access BER_Element)
+     (Dir  : in Directory;
+      Node : in LDAP_Message;
+      BER  : access BER_Element)
       return String;
    --  Returns the first attribute for the entry. It initialize an iteraror
    --  (the BER structure). The BER structure must be released after used by
    --  using the Free routine below.
 
    function Next_Attribute
-     (Dir      : in Directory;
-      Entries  : in LDAP_Message;
-      BER      : in BER_Element)
+     (Dir  : in Directory;
+      Node : in LDAP_Message;
+      BER  : in BER_Element)
       return String;
    --  Returns next attribute for iterator BER. First_Attribute must have been
    --  called to initialize this iterator.
@@ -159,29 +250,32 @@ package AWS.LDAP.Client is
         (Attribute : in     String;
          Quit      : in out Boolean);
    procedure For_Every_Attributes
-     (Dir   : in Directory;
-      Chain : in LDAP_Message);
-   --  Quit can be set to True to stop iteration; its initial value is False
+     (Dir  : in Directory;
+      Node : in LDAP_Message);
+   --  This iterator call action for each attribute found in the LDAP Entries
+   --  Node as returned by First_Entry or Next_Entry. Quit can be set to True
+   --  to stop iteration; its initial value is False.
 
    ---------------
    -- Accessors --
    ---------------
 
    function Get_DN
-     (Dir     : in Directory;
-      Entries : in LDAP_Message)
+     (Dir  : in Directory;
+      Node : in LDAP_Message)
       return String;
-   --  Returns the distinguished name for a given entry
+   --  Returns the distinguished name for the given entry Node.
 
    function DN2UFN (DN : in String) return String;
    --  Returns a distinguished name converted to a user-friendly format
 
    function Get_Values
-     (Dir     : in Directory;
-      Entries : in LDAP_Message;
-      Target  : in String)
+     (Dir    : in Directory;
+      Node   : in LDAP_Message;
+      Target : in String)
       return String_Set;
-   --  Returns the list of values of a given attribute (Target).
+   --  Returns the list of values of a given attribute (Target) found in entry
+   --  Node.
 
    function Explode_DN
      (DN       : in String;
@@ -189,5 +283,10 @@ package AWS.LDAP.Client is
       return String_Set;
    --  Breaks up an entry name into its component parts. If No_Types is set to
    --  True the types information ("cn=") won't be included.
+
+private
+
+   Null_Set : constant String_Set (1 .. 0)
+     := (1 .. 0 => Null_Unbounded_String);
 
 end AWS.LDAP.Client;
