@@ -1,3 +1,9 @@
+2004-01-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* auth.adb:
+	Minor reformatting.
+        Update copyright notice.
+
 2004-01-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -45,7 +51,7 @@
 
 	* cert.adb:
 	Fix copyright notice.
-	
+
 	* makefile:
 	(clean): Do not remove spec files as these are not generated now.
 	(check_mem): Ensure that the rule never fails even if there is
@@ -72,7 +78,7 @@
 
 	* generate.adb:
 	(Test): Update output. Cleaner.
-	
+
 2004-01-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:
@@ -209,7 +215,7 @@
 
 	* zstrm3.adb, zstrm3.out:
 	Initial revision.
-	
+
 2003-12-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* *.ads, *.adb:
@@ -220,7 +226,7 @@
 	* makefile:
 	(RT_STD): Add get_post.
 
-	* get_post.adb, get_post.out: 
+	* get_post.adb, get_post.out:
 	Initial revision.
 
 2003-11-26  Pascal Obry  <p.obry@wanadoo.fr>
@@ -261,7 +267,7 @@
 	* zstrm.adb, strm.adb, interoplab_main.adb, dispatch_method.adb,
 	  compress.adb, check_mem.adb:
 	Remove use of 'Img.
-	
+
 2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -323,13 +329,13 @@
 
 	* wsdl_6_main.adb:
 	Add test for array.
-	
+
 	* wsdl_6.out:
 	Update output.
 
 	* makefile:
 	(clean): Add WSDL_6 and wsdl_6.class.
-	
+
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -354,7 +360,7 @@
 
 	* makefile:
 	($(ASIS_TESTS)): Remove wsdl2aws's -a option.
-	
+
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -410,7 +416,7 @@
 
 	* makefile:
 	(RT_SOAP_ASIS): Add wsdl_4.
-	
+
 	* wsdl_4.ads, wsdl_4.adb:
 	Initial revision.
 
@@ -471,7 +477,7 @@
 
 	* makefile:
 	Fix previous check-in. Most regtests were deactivated.
-	
+
 2003-11-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -495,7 +501,7 @@
 
 	* wsdl_2_main.adb:
 	Set server port to 7702.
-	
+
 2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
