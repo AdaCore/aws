@@ -1,3 +1,8 @@
+2004-03-10  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* ssl-thin.ads, ssl-wrappers.ads, ssl-wrappers.adb:
+	Update copyright years.
+
 2004-03-09  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* ssl-thin.ads, ssl-wrappers.ads, ssl-wrappers.adb:

@@ -2,7 +2,7 @@
 --                            Secure Sockets Layer                          --
 --                     Dummy Binding for non SSL support                    --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                         Copyright (C) 2002-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
