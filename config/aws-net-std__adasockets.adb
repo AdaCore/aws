@@ -45,13 +45,21 @@ package body AWS.Net.Std is
    use Interfaces;
 
    type Socket_Hidden is record
-      FD      : Sockets.Socket_FD;
+      FD : Sockets.Socket_FD;
    end record;
 
-   procedure Wait_For (Mode : in C.short; Socket : in Socket_Type);
+   type Wait_Mode is (Read, Write);
+
+   procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type);
+
+   function Get_Send_Buffer (Socket : in Socket_Type) return Natural;
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
+
+   procedure Raise_Exception (Errno : in Integer; Routine : in String);
+   pragma No_Return (Raise_Exception);
+   --  Raise exception Socket_Error with a Message.
 
    procedure Raise_Exception
      (E       : in Exceptions.Exception_Occurrence;
@@ -66,9 +74,7 @@ package body AWS.Net.Std is
 
    procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
-      New_Socket : in out Socket_Type)
-   is
-      pragma Warnings (Off, New_Socket);
+      New_Socket : in out Socket_Type) is
    begin
       if New_Socket.S = null then
          New_Socket.S := new Socket_Hidden;
@@ -147,6 +153,22 @@ package body AWS.Net.Std is
       return Integer (Sockets.Get_FD (Socket.S.FD));
    end Get_FD;
 
+   ---------------------
+   -- Get_Send_Buffer --
+   ---------------------
+
+   function Get_Send_Buffer (Socket : in Socket_Type) return Natural is
+      use Sockets;
+      Size : Natural;
+   begin
+      Getsockopt (Socket.S.FD, Optname => SO_SNDBUF, Optval => Size);
+
+      return Size;
+   exception
+      when E : others =>
+         Raise_Exception (E, "Get_Send_Buffer");
+   end Get_Send_Buffer;
+
    ---------------
    -- Host_Name --
    ---------------
@@ -199,6 +221,17 @@ package body AWS.Net.Std is
          Message => Routine & " : " & Exception_Message (E));
    end Raise_Exception;
 
+   ---------------------
+   -- Raise_Exception --
+   ---------------------
+
+   procedure Raise_Exception (Errno : in Integer; Routine : in String) is
+   begin
+      Ada.Exceptions.Raise_Exception
+        (Socket_Error'Identity,
+         Routine & " : (error code" & Integer'Image (Errno) & ')');
+   end Raise_Exception;
+
    -------------
    -- Receive --
    -------------
@@ -208,7 +241,7 @@ package body AWS.Net.Std is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array is
    begin
-      Wait_For (Sockets.Constants.Pollin, Socket);
+      Wait_For (Read, Socket);
 
       return Sockets.Receive (Socket.S.FD, Max);
    exception
@@ -223,15 +256,50 @@ package body AWS.Net.Std is
 
    procedure Send
      (Socket : in Socket_Type;
-      Data   : in Stream_Element_Array) is
-   begin
-      Wait_For (Sockets.Constants.Pollout, Socket);
+      Data   : in Stream_Element_Array)
+   is
+      use Sockets;
+      use type C.int;
 
-      Sockets.Send (Socket.S.FD, Data);
-   exception
-      when E : Sockets.Socket_Error       |
-               Sockets.Connection_Closed  |
-               Sockets.Connection_Refused => Raise_Exception (E, "Send");
+      Index : Stream_Element_Offset  := Data'First;
+      Rest  : C.int := Data'Length;
+      FD    : C.int := Sockets.Get_FD (Socket.S.FD);
+
+      Block_Size : constant C.int := C.int (Get_Send_Buffer (Socket));
+
+      procedure Send (Size : C.int);
+
+      ----------
+      -- Send --
+      ----------
+
+      procedure Send (Size : C.int) is
+         Count : C.int;
+      begin
+         Count := Thin.C_Send (FD, Data (Index)'Address, Size, 0);
+
+         if Count < 0 then
+            Raise_Exception (Thin.Errno, "Send");
+         elsif Count < Size then
+            raise Socket_Error;
+         end if;
+      end Send;
+
+   begin
+      loop
+         Wait_For (Write, Socket);
+
+         if Rest <= Block_Size then
+            Send (Rest);
+
+            exit;
+         else
+            Send (Block_Size);
+         end if;
+
+         Rest  := Rest  - Block_Size;
+         Index := Index + Stream_Element_Offset (Block_Size);
+      end loop;
    end Send;
 
    -----------------------
@@ -304,38 +372,29 @@ package body AWS.Net.Std is
    -- Wait_For --
    --------------
 
-   procedure Wait_For (Mode : in C.short; Socket : in Socket_Type) is
+   procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type) is
       use Sockets;
       use type C.int;
 
+      To_Poll_Mode : constant array (Wait_Mode) of C.short
+        := (Read => Constants.Pollin, Write => Constants.Pollout);
+
       PFD : Thin.Pollfd
         := (Fd      => Get_FD (Socket.S.FD),
-            Events  => Mode,
+            Events  => To_Poll_Mode (Mode),
             Revents => 0);
       RC    : C.int;
-      Errno : C.int;
-
-      procedure Raise_Exception (Message : in String);
-
-      ---------------------
-      -- Raise_Exception --
-      ---------------------
-
-      procedure Raise_Exception (Message : in String) is
-      begin
-         Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Message);
-      end Raise_Exception;
-
    begin
       RC := Thin.C_Poll (PFD'Address, 1, C.int (Socket.Timeout * 1000));
 
       case RC is
-         when -1 =>
-            Errno := C.int (Thin.Errno);
-
-            Raise_Exception ('[' & C.int'Image (Errno) & " ]");
-         when 0 => Raise_Exception ("Timeout.");
-         when 1 => return;
+         when -1 => Raise_Exception
+                      (Thin.Errno, "Wait_For_" & Wait_Mode'Image (Mode));
+         when  0 =>
+            Ada.Exceptions.Raise_Exception
+              (Socket_Error'Identity,
+               Wait_Mode'Image (Mode) & " timeout.");
+         when  1 => return;
          when others => raise Program_Error;
       end case;
    end Wait_For;
