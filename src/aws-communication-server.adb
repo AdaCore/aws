@@ -43,7 +43,7 @@ package body AWS.Communication.Server is
    Com_Server : AWS.Server.HTTP;
    --  The server that will handle all communication requests
 
-   Context : T_Access;
+   Context    : T_Access;
    --  The context kept for each server
 
    function Receive (Request : in Status.Data) return Response.Data;
@@ -58,12 +58,12 @@ package body AWS.Communication.Server is
       P_Set : constant AWS.Parameters.List := Status.Parameters (Request);
 
       procedure Fill_Parameter_Set;
-      --  Put all paramters into the PS structure.
+      --  Put all paramters into the PS structure
 
-      --  ??? there is a limit of 100 parameters, seems enough anyway.
+      --  ??? there is a limit of 100 parameters, seems enough anyway
 
-      PS  : Parameter_Set (1 .. 100);
-      I   : Natural := 0;
+      PS : Parameter_Set (1 .. 100);
+      I  : Natural := 0;
 
       ------------------------
       -- Fill_Parameter_Set --
@@ -87,6 +87,7 @@ package body AWS.Communication.Server is
    begin
       if URI = AWS_Com then
          Fill_Parameter_Set;
+
          return Callback
            (AWS.Parameters.Get (P_Set, "HOST"),
             AWS.Parameters.Get (P_Set, "NAME"),
