@@ -67,8 +67,10 @@ package AWS.Dispatchers is
 
 private
 
+   type Natural_Access is access all Natural;
+
    type Handler is abstract new Ada.Finalization.Controlled with record
-      Ref_Counter : Natural;
+      Ref_Counter : Natural_Access := null;
    end record;
 
 end AWS.Dispatchers;
