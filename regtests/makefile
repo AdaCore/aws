@@ -208,7 +208,8 @@ zres: force
 	echo "line 1, file 2" > file2.txt
 	echo "line 2, file 2" >> file2.txt
 	echo "line 3, file 2" >> file2.txt
-	../tools/awsres -q -r zresres file1.txt -z file2.txt
+	echo "Number @_ONE_@ following by @_TWO_@." > file.tmplt
+	../tools/awsres -q -r zresres file1.txt -z file2.txt file.tmplt
 	gnatmake -g zres $(GARGS) -largs $(LARGS) -bargs -E
 	echo -n ",  run it"
 	./zres > zres.res
