@@ -1370,9 +1370,9 @@ A complete example can be found in the demos directory. Look for
 
 @noindent
 Server Push is a feature that let the Web Server send continuously
-data to client's  Web Browser. The client does not have to reload at
-periodic time to have the data updated, each time the server send a
-piece of data it gets displayed on the client.
+data to client's  Web Browser or client apprications. The client does
+not have to reload at periodic time to have the data updated, each
+time the server send a piece of data it gets displayed on the client.
 
 @noindent
 Here are the step-by-step instructions to build a Push Server:
@@ -1443,9 +1443,9 @@ To send a piece of data to all clients registered on this server.
 @end enumerate
 
 @noindent
-Note that this feature should not be used for very large Web
-application as each client will have a socket reserved for him on the
-server side.
+Very large Internet applications should use this feature carefully. A
+push server keeps a socket reserved for each registered clients and
+the number of available sockets per process is limited by the OS.
 
 @node Server Log
 @section Server Log
