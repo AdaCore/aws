@@ -828,7 +828,23 @@ package body SOAP.WSDL.Parser is
       else
          --  This is a complexType, continue analyse
 
-         N := XML.First_Child (N);
+         declare
+            Parent : constant DOM.Core.Node := N;
+         begin
+            N := XML.First_Child (N);
+
+            if N = null then
+               if XML.Get_Attr_Value (Parent, "abstract") = "true" then
+                  Raise_Exception
+                    (WSDL_Error'Identity,
+                     "abstract complexType not suported.");
+               else
+                  Raise_Exception
+                    (WSDL_Error'Identity,
+                     "Found an empty complexType.");
+               end if;
+            end if;
+         end;
 
          if Is_Record (O, CT_Node) then
             --  This is a record or composite type
