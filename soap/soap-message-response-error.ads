@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -48,7 +48,7 @@ package SOAP.Message.Response.Error is
    function Build
      (Faultcode   : in Error.Faultcode;
       Faultstring : in String)
-     return Object;
+      return Object;
    --  Returns an Error object built using Faultcode and Faultstring.
 
    function Is_Error (E : in Object) return Boolean;

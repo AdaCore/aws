@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -51,8 +51,8 @@ package body AWS.Net.Stream_IO is
 
    procedure Free
      (Stream : in out Socket_Stream_Access;
-      Socket : in     Boolean) is
-
+      Socket : in     Boolean)
+   is
       procedure Free is new Ada.Unchecked_Deallocation
         (Socket_Stream_Type, Socket_Stream_Access);
 
@@ -65,6 +65,7 @@ package body AWS.Net.Stream_IO is
       else
          Free (Stream.Socket);
       end if;
+
       Free (Stream);
    end Free;
 

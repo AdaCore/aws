@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -99,7 +99,7 @@ package body SOAP.Client is
    function Call
      (Connection : access AWS.Client.HTTP_Connection;
       P          : in     Message.Payload.Object)
-     return Message.Response.Object'Class
+      return Message.Response.Object'Class
    is
       Message_Body : Unbounded_String;
       Response     : AWS.Response.Data;
