@@ -80,8 +80,7 @@ is
 
    C_Stat         : AWS.Status.Data;     -- Connection status
 
-   --  Duplication of some status fields for fast access
-   --  to the status data.
+   --  Duplication of some status fields for fast access to the status data.
    Status_Connection         : Unbounded_String;
    Status_Multipart_Boundary : Unbounded_String;
    Status_Content_Type       : Unbounded_String;
