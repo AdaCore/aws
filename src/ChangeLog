@@ -1,3 +1,8 @@
+2004-06-28  Pascal Obry  <pascal@obry.org>
+
+	* aws-net.adb:
+	Revert previous check-in.
+
 2004-06-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net.adb:
