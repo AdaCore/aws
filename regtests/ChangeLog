@@ -1,6 +1,17 @@
 2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	Properly handles cases where AWS is not built with SSL support. In
+	 that case we do not run the secure tests.
+
+	* test_sec_soap.adb:
+	Initial revision.
+
+	* upload.adb, tsgetparam.adb, tres.adb, tgetparam.adb,
+	  test_soap.adb, param.adb:
+	Minor reformatting.
+
+	* makefile:
 	Copy cert.pem from the demos directory to run tsgetparam.
 	(clean): Remove cert.pem
 	
