@@ -423,6 +423,18 @@ $ make INSTALL=/opt install
 @end cartouche
 @end smallexample
 
+@noindent
+If you want to build only the AWS libraries and tools and do not want
+to build the demos you can set @code{EXTRA_MODULES} to "" as in:
+
+@smallexample
+@cartouche
+@group
+$ make EXTRA_MODULES="" build
+@end group
+@end cartouche
+@end smallexample
+
 @c ----------------------------------------------------------------------
 
 @node Demos
