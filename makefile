@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build build clean distrib install build_tarball
+.SILENT: all build build clean clean_noapiref distrib install build_tarball
 .SILENT: display build_aws build_lib build_doc build_tools build_soap
 .SILENT: build_soap_demos build_ssllib build_soaplib build_win32 build_include
 .SILENT: build_demos run_regtests
@@ -168,19 +168,19 @@ run_regtests: build_tools
 	${MAKE} -C regtests run $(ALL_OPTIONS)
 
 clean: clean_noapiref
-	${MAKE} -C docs clean_apiref
+	${MAKE} -C docs clean_apiref $(ALL_OPTIONS)
 
 clean_noapiref:
-	${MAKE} -C include clean
-	${MAKE} -C src clean
-	${MAKE} -C demos clean
-	${MAKE} -C ssl clean
-	${MAKE} -C docs clean
-	${MAKE} -C soap clean
-	${MAKE} -C regtests clean
-	${MAKE} -C win32 clean
-	${MAKE} -C tools clean
-	-rm *.~*.*~
+	${MAKE} -C include clean $(ALL_OPTIONS)
+	${MAKE} -C src clean $(ALL_OPTIONS)
+	${MAKE} -C demos clean $(ALL_OPTIONS)
+	${MAKE} -C ssl clean $(ALL_OPTIONS)
+	${MAKE} -C docs clean $(ALL_OPTIONS)
+	${MAKE} -C soap clean $(ALL_OPTIONS)
+	${MAKE} -C regtests clean $(ALL_OPTIONS)
+	${MAKE} -C win32 clean $(ALL_OPTIONS)
+	${MAKE} -C tools clean $(ALL_OPTIONS)
+	-rm -f *.~*.*~
 
 display:
 	echo ""
