@@ -75,11 +75,11 @@ project Src is
    package Ide renames Shared.IDE;
 
    Full_Debug_Switches
-     := ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfiru",
+     := ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfikmruv",
          "-gnatwe", "-gnaty3abcefhiklmnoprst", "-gnatwjmeur", "-Wall");
 
    Limited_Debug_Switches
-     := ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfiru",
+     := ("-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfikmruv",
          "-gnatwe", "-gnaty3abcefhiklmnprt", "-gnatwjmeur", "-Wall");
    --  Limited style check options (no spec, not alphabetical ordrer)
 
