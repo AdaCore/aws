@@ -322,10 +322,11 @@ package body SSL is
    --------------
 
    procedure New_Line (Socket : in Handle;
-                       Count  : in Natural := 1) is
-      use ASCII;
+                       Count  : in Natural := 1)
+   is
+      use Ada.Strings.Fixed;
    begin
-      Put (Socket, Ada.Strings.Fixed."*"(Count, Cr & Lf));
+      Put (Socket, Count * (ASCII.CR & ASCII.LF));
    end New_Line;
 
    --------------
@@ -333,9 +334,8 @@ package body SSL is
    --------------
 
    procedure Put_Line (Socket : in Handle; Item : in String) is
-      use ASCII;
    begin
-      Put (Socket, Item & Cr & Lf);
+      Put (Socket, Item & ASCII.CR & ASCII.LF);
    end Put_Line;
 
    -------------
@@ -352,7 +352,8 @@ package body SSL is
       Len    : Interfaces.C.int;
    begin
       Len := Thin.SSL_Read (Socket.H, Buffer'Address, Buffer'Length);
-      Error_If (Len = -1, Connection_Error'Identity);
+      Error_If (Len < 0, Connection_Error'Identity);
+      Error_If (Len = 0, Sockets.Connection_Closed'Identity);
 
       return Buffer
         (Buffer'First
