@@ -1,3 +1,12 @@
+2004-05-26  Pascal Obry  <pascal@obry.org>
+
+	* aws-parameters-set.ads:
+	Minor reformatting.
+
+	* aws-containers-tables.ads:
+	(Table_Type): Add documentation next to the type (was in the
+	 private section).
+
 2004-05-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.ads, aws-net-ssl.adb, aws-net-std.ads:
