@@ -334,7 +334,7 @@ package body AWS.Session is
          Session_Set.Remove (Sessions, SID);
       exception
          when Key_Value.Table.Missing_Item_Error =>
-            raise Internal_Error;
+            null;
       end Delete_Session;
 
       ------------------
