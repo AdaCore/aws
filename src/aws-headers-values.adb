@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                            Copyright (C) 2002                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,20 +38,20 @@ package body AWS.Headers.Values is
 
    use Ada.Strings;
 
-   Spaces : constant Maps.Character_Set := Maps.To_Set
-     (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
+   Spaces : constant Maps.Character_Set
+     := Maps.To_Set (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
+   --  Set of spaces to ignore during parsing
 
-   procedure Parsing_Step
+   procedure Next_Value
       (Data        : in     String;
        First       : in out Natural;
        Name_First  :    out Positive;
        Name_Last   :    out Natural;
        Value_First :    out Positive;
        Value_Last  :    out Natural);
-   --  Routine finding the next Name/Value of single value
-   --  and moving First to the next place.
-   --  if the First is 0 then the end of line reached.
-   --  if the Name_Last = 0 then found a value without name.
+   --  Returns the next named or un-named value from Data. It start the search
+   --  from First index. Returns First = 0 if it has reached the end of
+   --  Data. Returns Name_Last = 0 if an un-named value has been found.
 
    ------------
    --  Index --
@@ -60,19 +60,19 @@ package body AWS.Headers.Values is
    function Index
      (S              : in Set;
       Name           : in String;
-      Case_Sensitive : in Boolean := True) return Natural
+      Case_Sensitive : in Boolean := True)
+      return Natural
    is
       Map    : Maps.Character_Mapping;
       Sample : Unbounded_String;
    begin
-
       if Case_Sensitive then
          Map := Maps.Identity;
+         Sample := To_Unbounded_String (Name);
       else
          Map := Maps.Constants.Upper_Case_Map;
+         Sample := Translate (To_Unbounded_String (Name), Map);
       end if;
-
-      Sample := Translate (To_Unbounded_String (Name), Map);
 
       for I in S'Range loop
          if S (I).Named_Value
@@ -81,64 +81,16 @@ package body AWS.Headers.Values is
             return I;
          end if;
       end loop;
+
+      --  Name was not found, return 0
       return 0;
    end Index;
 
-   -----------
-   -- Parse --
-   -----------
+   ----------------
+   -- Next_Value --
+   ----------------
 
-   procedure Parse (Value : in String) is
-
-      First       : Natural;
-      Name_First  : Positive;
-      Name_Last   : Natural;
-      Value_First : Positive;
-      Value_Last  : Natural;
-      Quit        : Boolean;
-
-   begin
-
-      --  ignoring the leading spaces.
-      First := Fixed.Index
-            (Source => Value,
-             Set    => Spaces,
-             Test   => Outside);
-
-      if First = 0 then
-         return;
-      end if;
-
-      loop
-
-         Parsing_Step (Value, First,
-            Name_First,  Name_Last,
-            Value_First, Value_Last);
-
-         Quit := False;
-
-         if Name_Last > 0 then
-            Named_Value
-              (Value (Name_First .. Name_Last),
-               Value (Value_First .. Value_Last),
-               Quit);
-         else
-            Alone_Value
-              (Value (Value_First .. Value_Last),
-               Quit);
-         end if;
-
-         exit when Quit or First = 0;
-
-      end loop;
-
-   end Parse;
-
-   ------------------
-   -- Parsing_Step --
-   ------------------
-
-   procedure Parsing_Step
+   procedure Next_Value
      (Data        : in     String;
       First       : in out Natural;
       Name_First  :    out Positive;
@@ -146,65 +98,65 @@ package body AWS.Headers.Values is
       Value_First :    out Positive;
       Value_Last  :    out Natural)
    is
-
       EDel   : constant Maps.Character_Set := Maps.To_Set (",;");
-      --  Delimiter between name/value pairs in the http header line
-      --  In WWW-Authenticate header delimiter between name="Value"
+      --  Delimiter between name/value pairs in the HTTP header lines.
+      --  In WWW-Authenticate, header delimiter between name="Value"
       --  pairs is a comma.
-      --  In the Set-Cookie header value delimiter between name="Value"
+      --  In the Set-Cookie header, value delimiter between name="Value"
       --  pairs is a semi-colon.
 
       UVDel  : constant Character := ' ';
-      --  right delimiter of the unnamed value.
-      NVDel  : constant Character := '=';
-      --  Delimiter between name and Value
+      --  Delimiter of the un-named value
 
-      Spaces : constant Maps.Character_Set := Maps.To_Set
-        (' ' & ASCII.HT & ASCII.LF & ASCII.CR);
+      NVDel  : constant Character := '=';
+      --  Delimiter between name and Value for a named value
 
       VDel   : constant Maps.Character_Set := Maps.To_Set (UVDel & NVDel);
-      --  Delimiter between name and value is '='
-      --  or single value delimiter is space.
+      --  Delimiter between name and value is '=' and it is a space between
+      --  un-named values.
 
-      Last        : Natural;
+      Last   : Natural;
+
    begin
-
       Last := Fixed.Index (Data (First .. Data'Last), VDel);
 
       Name_Last := 0;
 
-      --  If last single value.
       if Last = 0 then
+         --  This is the last single value.
 
          Value_First := First;
          Value_Last  := Data'Last;
-         First       := 0; -- mean end of line.
+         First       := 0; -- Mean end of line
 
-      --  If single value.
       elsif Data (Last) = UVDel then
+         --  This is an un-named value
          Value_First := First;
          Value_Last  := Last - 1;
          First       := Last + 1;
 
       else
+         --  Here we have a named value
+
          Name_First := First;
          Name_Last  := Last - 1;
          First      := Last + 1;
 
-         --  Quoted value
+         --  Check if this is a quoted or unquoted value
 
          if Data (First) = '"' then
+            --  Quoted value
+
             Value_First := First + 1;
 
-            Last := Fixed.Index
-              (Data (Value_First .. Data'Last), """");
-
-            --  If format error
+            Last := Fixed.Index (Data (Value_First .. Data'Last), """");
 
             if Last = 0 then
+               --  Format error as there is no closing quote
+
                Ada.Exceptions.Raise_Exception
                  (Format_Error'Identity,
-                  "HTTP header line format error: " & Data);
+                  "HTTP header line format error : " & Data);
             else
                Value_Last := Last - 1;
             end if;
@@ -216,8 +168,7 @@ package body AWS.Headers.Values is
 
             Value_First := First;
 
-            Last := Ada.Strings.Fixed.Index
-              (Data (First .. Data'Last), EDel);
+            Last := Ada.Strings.Fixed.Index (Data (First .. Data'Last), EDel);
 
             if Last = 0 then
                Value_Last := Data'Last;
@@ -226,37 +177,90 @@ package body AWS.Headers.Values is
                Value_Last := Last - 1;
                First      := Last + 1;
             end if;
-
          end if;
-
       end if;
 
       if First > Data'Last then
          First := 0;
+
       elsif First > 0 then
-         --  ignoring the next leading spaces.
+         --  Ignore the next leading spaces
+
          First := Fixed.Index
             (Source => Data (First .. Data'Last),
              Set    => Spaces,
              Test   => Outside);
       end if;
+   end Next_Value;
 
-   end Parsing_Step;
+   -----------
+   -- Parse --
+   -----------
+
+   procedure Parse (Header_Value : in String) is
+
+      First       : Natural;
+      Name_First  : Positive;
+      Name_Last   : Natural;
+      Value_First : Positive;
+      Value_Last  : Natural;
+      Quit        : Boolean;
+
+   begin
+      --  Ignore the leading spaces
+
+      First := Fixed.Index
+        (Source => Header_Value,
+         Set    => Spaces,
+         Test   => Outside);
+
+      if First = 0 then
+         --  Value is empty or contains only spaces
+         return;
+      end if;
+
+      loop
+         Next_Value
+           (Header_Value, First,
+            Name_First,  Name_Last,
+            Value_First, Value_Last);
+
+         Quit := False;
+
+         if Name_Last > 0 then
+            Named_Value
+              (Header_Value (Name_First .. Name_Last),
+               Header_Value (Value_First .. Value_Last),
+               Quit);
+         else
+            Value
+              (Header_Value (Value_First .. Value_Last),
+               Quit);
+         end if;
+
+         exit when Quit or else First = 0;
+
+      end loop;
+   end Parse;
 
    -----------
    -- Split --
    -----------
 
-   function Split (Value : in String) return Set is
+   function Split (Header_Value : in String) return Set is
 
-      First  : Natural;
-      Empty       : Set (1 .. 0);
+      First    : Natural;
+      Null_Set : Set (1 .. 0);
 
       function To_Set return Set;
-      --  Converting Data (Data_First .. Data'Last) to the Set.
-      --  We have to use recursive routine, becouse we could not
-      --  declare the array, and then fill it.
-      --  The constraint error going to occure this way.
+      --  Parse the Header_Value and return a set of named and un-named
+      --  value. Note that this routine is recursive as the final Set size is
+      --  not known. This should not be a problem as the number of token on an
+      --  Header_Line is quite small.
+
+      ------------
+      -- To_Set --
+      ------------
 
       function To_Set return Set is
 
@@ -266,50 +270,52 @@ package body AWS.Headers.Values is
          Value_Last  : Natural;
 
          function Element return Data;
-         --  Create the Data element from the substrings defined by
+         --  Returns the Data element from the substrings defined by
          --  Name_First, Name_Last, Value_First, Value_Last.
 
          -------------
          -- Element --
          -------------
 
-         function Element return Data
-         is
-            function V (Item : String) return Unbounded_String
-               renames To_Unbounded_String;
+         function Element return Data is
+            function "+"
+              (Item : in String)
+               return Unbounded_String
+              renames To_Unbounded_String;
          begin
             if Name_Last = 0 then
                return Data'
                  (Named_Value => False,
-                  Value => V (Value (Value_First .. Value_Last)));
+                  Value => +Header_Value (Value_First .. Value_Last));
             else
                return Data'
                   (True,
-                   Name  => V (Value (Name_First .. Name_Last)),
-                   Value => V (Value (Value_First .. Value_Last)));
+                   Name  => +Header_Value (Name_First .. Name_Last),
+                   Value => +Header_Value (Value_First .. Value_Last));
             end if;
          end Element;
 
       begin
          if First = 0 then
-            return Empty;
+            -- This is
+            return Null_Set;
          end if;
 
-         Parsing_Step (Value, First,
+         Next_Value
+           (Header_Value, First,
             Name_First,  Name_Last,
             Value_First, Value_Last);
 
          return Element & To_Set;
-
       end To_Set;
 
    begin
       First := Fixed.Index
-            (Source => Value,
-             Set    => Spaces,
-             Test   => Outside);
+        (Source => Header_Value,
+         Set    => Spaces,
+         Test   => Outside);
+
       return To_Set;
    end Split;
 
 end AWS.Headers.Values;
-
