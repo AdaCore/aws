@@ -120,13 +120,20 @@ package body AWS.Server is
 
       Released_Socket : Net.Socket_Access;
 
+      Accepting : Boolean := False;
+      --  Determain either "accept socket" mode or "give back" mode.
+      --  Init to False to do not Release semaphore in case of exception
+      --  in Seize_Or_Socket call.
+
       procedure Free is new
         Ada.Unchecked_Deallocation (Net.Socket_Type'Class, Net.Socket_Access);
 
    begin
       Server.Sock_Sem.Seize_Or_Socket (Released_Socket);
 
-      if Released_Socket = null then
+      Accepting := Released_Socket = null;
+
+      if Accepting then
          --  No socket was given back to the server, just accept a socket from
          --  the server socket.
 
@@ -149,7 +156,7 @@ package body AWS.Server is
 
    exception
       when others =>
-         if Released_Socket = null then
+         if Accepting then
             Server.Sock_Sem.Release;
          end if;
 
