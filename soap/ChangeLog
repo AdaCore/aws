@@ -1,3 +1,11 @@
+2003-05-08  Anisimkov Dmitriy <anisimkov@yahoo.com>
+
+	* soap-message-reader.adb:
+	(Characters): Change pragma Unreferenced to Warnings Off for Tmp
+	 becouse of GNAT 3.15p bug with pragma Unreferenced (left side
+	 of assignment).
+	(Ignorable_Whitespace): Idem.
+
 2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-reader.adb:
