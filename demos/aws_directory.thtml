@@ -61,37 +61,30 @@
 
 @@IF@@ @_MATCH(\.\./):NAME_V_@
 <a href="@_NAME_V_@?MODE=@_MODE_@">
-<img border=0 src="/icons/dirup.gif" ALT="up">
-</a>
+<img border=0 src="/icons/dirup.gif" ALT="up"></a>
 @@ELSIF@@ @_MATCH(\./):NAME_V_@
-<a href="@_NAME_V_@?_MODE=@_MODE_@">
-<img border=0 src="/icons/folder.open.gif" ALT="current">
-</a>
+<a href="@_NAME_V_@?MODE=@_MODE_@">
+<img border=0 src="/icons/folder.open.gif" ALT="current"></a>
 @@ELSE@@
 <a href="@_NAME_V_@?MODE=@_MODE_@">
-<img border=0 src="/icons/folder.gif" ALT="dir">
-</a>
+<img border=0 src="/icons/folder.gif" ALT="dir"></a>
 @@END_IF@@
 
 @@ELSIF@@ @_MATCH(.*\.zip|.*\.gz|.*\.tgz|.*\.arj|.*\.rar|.*\.jar|.*\.lzh|.*\.z):LOWER:NAME_V_@
 <a href="@_NAME_V_@">
-<img border=0 src="/icons/compressed.gif" ALT="compressed">
-</a>
+<img border=0 src="/icons/compressed.gif" ALT="compressed"></a>
 
 @@ELSIF@@ @_MATCH(readme\..*):LOWER:NAME_V_@
 <a href="@_NAME_V_@">
-<img border=0 src="/icons/alert.red.gif" ALT="read me">
-</a>
+<img border=0 src="/icons/alert.red.gif" ALT="read me"></a>
 
 @@ELSIF@@ @_MATCH(read\.?me):LOWER:NAME_V_@
 <a href="@_NAME_V_@">
-<img border=0 src="/icons/alert.black.gif" ALT="read me">
-</a>
+<img border=0 src="/icons/alert.black.gif" ALT="read me"></a>
 
 @@ELSIF@@ @_MATCH(.*\.bin|.*\.o|.*\.obj|.*\.lib|.*\.a|.*\.exe|.*\.dll):LOWER:NAME_V_@
 <a href="@_NAME_V_@">
-<img border=0 src="/icons/binary.gif" ALT="bin">
-</a>
+<img border=0 src="/icons/binary.gif" ALT="bin"></a>
 
 @@ELSIF@@ @_MATCH(.*\.hex|.*\.hqx|.*\.binhex):LOWER:NAME_V_@
 <a href="@_NAME_V_@"><img border=0 src="/icons/binhex.gif" ALT="hex"></a>
@@ -202,7 +195,7 @@
 
 <tr>
 <td colspan=2>
-<i><a href="http://perso.wanadoo.fr/pascal.obry/contrib.tml">Ada Web Server</a>
+<i><a href="http://perso.wanadoo.fr/pascal.obry/contrib.html">Ada Web Server</a>
 /@_VERSION_@
 </tr>
 
