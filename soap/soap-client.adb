@@ -67,12 +67,13 @@ package body SOAP.Client is
       begin
          if SOAPAction = Not_Specified then
             declare
-               URL_Object : AWS.URL.Object := AWS.URL.Parse (URL);
+               URL_Object : constant AWS.URL.Object := AWS.URL.Parse (URL);
             begin
                Response := AWS.Client.SOAP_Post
                  (URL,
                   To_String (Message_Body),
-                  AWS.URL.Pathname (URL_Object));
+                  AWS.URL.URL (URL_Object)
+                    & '#' & SOAP.Message.Payload.Procedure_Name (P));
             end;
 
          else
