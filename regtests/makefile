@@ -41,7 +41,10 @@ ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
 
 OTH_TESTS      = tres
 
-ifdef XMLADA
+ifeq (${XMLADA}, true)
+XMLADA_UNICODE = ${shell gnat list -Pxmlada -s unicode.ads}
+XMLADA_SRC     = ${subst \,/,${dir $(XMLADA_UNICODE)}}
+
 OTH_TESTS     := $(OTH_TESTS) check_mem
 WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 \
 	interoplab_main1 googlesearch datafeed_service
@@ -77,7 +80,7 @@ gen_main: gen_sources
 	echo Generating the main driver
 	$(GNATMAKE) -q -Pregtests -XTest_Mode=Generator \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
-	./generate $(TOGETHER) $(addsuffix _main, $(ASIS_TESTS))
+	./generate $(TOGETHER)
 
 gen_sources: $(sort $(WSDL_TESTS) $(WSDL_ATESTS) $(ASIS_TESTS) \
 	$(ASIS2_TESTS) $(WSDL2AWS_TESTS))
@@ -86,7 +89,7 @@ build_drivers: gen_main
 	echo "Building drivers (takes some time)"
 	$(GNATMAKE) -q -Pregtests -XTest_Mode=Grouped \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA} -largs -laws
-# ??? "-largs -laws" for workaround GCC 3.4.2 project link sequence bug.
+# ??? "-largs -laws" to workaround a GCC 3.4.2 project link bug.
 
 empty:=
 space:= $(empty) $(empty)
@@ -104,11 +107,6 @@ endif
 	-for file in $(TOGETHER); do \
 	   diff -c -w $$file.out $$file.res 1>> alldifs 2>> alldifs; \
 	done
-ifdef ASIS
-	-for file in $(ASIS_TESTS); do \
-	   diff -c -w $$file.out "$$file"_main.res 1>> alldifs 2>> alldifs; \
-	done
-endif
 	cat alldifs
 	diff -q -w alldifs alldifs.out
 
@@ -183,8 +181,8 @@ $(WSDL2AWS_TESTS): force
 
 $(ASIS_TESTS): force
 	echo Preparing $@
-	$(ADA2WSDL) -q -f $(INCLUDES) -I../include -I../soap \
-		-I../src -I../xsrc -I../ssl \
+	$(ADA2WSDL) -q -f $(INCLUDES) -I../include -I../include/ai302 \
+		-I../soap -I../src -I../xsrc -I../ssl -I$(XMLADA_SRC) \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
 	$(WSDL2AWS) -q -f -cb -types $@ $@.wsdl
 
@@ -222,27 +220,6 @@ check_mem: force
 	grep "   Final" check_mem.run2 > run2
 	-diff -c -w run1 run2 1>> alldifs 2>> alldifs
 
-$(GEN_SETUP1):
-	echo ${@:%_gen=%}-client.ads >> regtests_sources.lst
-	echo ${@:%_gen=%}-client.adb >> regtests_sources.lst
-	echo ${@:%_gen=%}-types.ads >> regtests_sources.lst
-	echo ${@:%_gen=%}-types.adb >> regtests_sources.lst
-	echo ${@:%_gen=%}-server.ads >> regtests_sources.lst
-	echo ${@:%_gen=%}-server.adb >> regtests_sources.lst
-
-$(GEN_SETUP2):
-	echo ${@:%_gen=%}-client.ads >> regtests_sources.lst
-	echo ${@:%_gen=%}-client.adb >> regtests_sources.lst
-	echo ${@:%_gen=%}-types.ads >> regtests_sources.lst
-	echo ${@:%_gen=%}-types.adb >> regtests_sources.lst
-	echo ${@:%_gen=%}-server.ads >> regtests_sources.lst
-	echo ${@:%_gen=%}-server.adb >> regtests_sources.lst
-	echo ${@:%_gen=%}-cb.ads >> regtests_sources.lst
-	echo ${@:%_gen=%}-cb.adb >> regtests_sources.lst
-
-setup_init:
-	-rm -f regtests_sources.lst
-
 setup:
 # Get MAIN and standard sources
 	-$(GREP) "\-\-  ~ MAIN" *.adb > all_mains.lst
@@ -256,18 +233,17 @@ setup:
 ifdef ASIS
 	-$(GREP) "\[ASIS\]" all_mains.lst >> s_mains.lst
 endif
-ifdef XMLADA
+ifeq (${XMLADA}, true)
 	-$(GREP) "\[SOAP\]" all_mains.lst >> s_mains.lst
 endif
 ifeq ($(SOCKET),ssl)
 	-$(GREP) "\[SSL\]" all_mains.lst >> s_mains.lst
 endif
-ifdef XMLADA
+ifeq (${XMLADA}, true)
  ifdef ASIS
+	-$(GREP) "\[ASIS+SOAP\]" all_mains.lst >> s_mains.lst
   ifeq ($(SOCKET),ssl)
 	-$(GREP) "\[ASIS+SOAP+SSL\]" all_mains.lst >> s_mains.lst
-  else
-	-$(GREP) "\[ASIS+SOAP\]" all_mains.lst >> s_mains.lst
   endif
  else
   ifeq ($(SOCKET),ssl)
