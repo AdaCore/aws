@@ -2,8 +2,8 @@
 # $Id$
 
 .SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
-.SILENT: checks checks_header checks_soap
-.SILENT: soap1 soap2 workorder tres
+.SILENT: checks checks_header checks_soap shutdown
+.SILENT: soap1 soap2 workorder tres tres2
 
 #INCLUDES = -I../src -I../ssl -I../include
 #LIBS     = -L../ssl -lssl -lcrypto
