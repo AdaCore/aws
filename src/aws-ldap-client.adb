@@ -312,11 +312,11 @@ package body AWS.LDAP.Client is
       return Thin.ldap_first_entry (Dir, Chain);
    end First_Entry;
 
-   --------------------------
-   -- For_Every_Attributes --
-   --------------------------
+   -------------------------
+   -- For_Every_Attribute --
+   -------------------------
 
-   procedure For_Every_Attributes
+   procedure For_Every_Attribute
      (Dir  : in Directory;
       Node : in LDAP_Message)
    is
@@ -347,13 +347,13 @@ package body AWS.LDAP.Client is
       end;
 
       Free (BER);
-   end For_Every_Attributes;
+   end For_Every_Attribute;
 
-   -----------------------
-   -- For_Every_Entries --
-   -----------------------
+   ---------------------
+   -- For_Every_Entry --
+   ---------------------
 
-   procedure For_Every_Entries (Dir : in Directory; Chain : in LDAP_Message) is
+   procedure For_Every_Entry (Dir : in Directory; Chain : in LDAP_Message) is
       use type LDAP_Message;
 
       Message : LDAP_Message;
@@ -368,7 +368,7 @@ package body AWS.LDAP.Client is
 
          Message := LDAP.Client.Next_Entry (Dir, Message);
       end loop;
-   end For_Every_Entries;
+   end For_Every_Entry;
 
    ----------
    -- Free --

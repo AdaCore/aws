@@ -219,7 +219,7 @@ package AWS.LDAP.Client is
       with procedure Action
         (Node : in LDAP_Message;
          Quit : in out Boolean);
-   procedure For_Every_Entries (Dir : in Directory; Chain : in LDAP_Message);
+   procedure For_Every_Entry (Dir : in Directory; Chain : in LDAP_Message);
    --  This iterator call Action for each entry (Node) found in the LDAP result
    --  set as returned by the search procedure. Quit can be set to True to
    --  stop iteration; its initial value is False.
@@ -249,7 +249,7 @@ package AWS.LDAP.Client is
       with procedure Action
         (Attribute : in     String;
          Quit      : in out Boolean);
-   procedure For_Every_Attributes
+   procedure For_Every_Attribute
      (Dir  : in Directory;
       Node : in LDAP_Message);
    --  This iterator call action for each attribute found in the LDAP Entries
