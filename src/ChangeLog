@@ -1,5 +1,12 @@
 2000-09-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client.Send_File): fix check for up-to-date file (fix
+	 from Sune Falck).
+	(Send_File): open file with shared=no (fix from Sune Falck).
+	(Send_File.Send_File): remove a newline sent to the socket (fix
+	 from Sune Falck).
+	
 	* aws.ads:
 	(Version): set to 0.8.1.
 
