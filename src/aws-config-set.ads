@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -58,6 +58,9 @@ package AWS.Config.Set is
 
    procedure Security (O : in out Object; Value : in Boolean);
    --  Enable security (HTTPS/SSL) if Value is True.
+
+   procedure Certificate (Filename : in String);
+   --  Set the certificate to be used with the secure server.
 
    procedure Hotplug_Port (O : in out Object; Value : in Positive);
    --  This is the hotplug communication port needed to register and
