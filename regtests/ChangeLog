@@ -1,3 +1,9 @@
+2004-06-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* sp_pck.adb:
+	Test for auto unregistration server side server-push connection after
+	 closing it on the client side.
+
 2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* disp_soap_proc.adb:
