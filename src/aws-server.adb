@@ -562,7 +562,7 @@ package body AWS.Server is
 
          Wait_Counter := Wait_Counter + 1;
 
-         if Wait_Counter > 10 then
+         if Wait_Counter > 30 then
             Ada.Text_IO.Put_Line
               (Text_IO.Current_Error,
                "Terminating lines takes too much time.");
