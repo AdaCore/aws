@@ -1,3 +1,11 @@
+2004-03-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.adb:
+	(Close): Catch only Tasking_Error and only from entry call.
+
+	* aws-net-ssl.ads:
+	(Supported): New constant.
+
 2004-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:
