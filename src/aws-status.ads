@@ -52,6 +52,7 @@ package AWS.Status is
    function Content_Length         (D : in Data) return Natural;
    function Content_Type           (D : in Data) return String;
    function File_Up_To_Date        (D : in Data) return Boolean;
+   function Has_Session            (D : in Data) return Boolean;
    function Host                   (D : in Data) return String;
    function HTTP_Version           (D : in Data) return String;
    function If_Modified_Since      (D : in Data) return String;
@@ -119,7 +120,8 @@ private
       Session_ID        : Unbounded_String;
    end record;
 
-   function Normalize_Name (Name : String; To_Upper : Boolean) return String;
+   function Normalize_Name (Name : in String; To_Upper : in Boolean)
+     return String;
    --  Return Name in upper case if To_Upper is set to True and it returns
    --  Name unchanged otherwise.
 
