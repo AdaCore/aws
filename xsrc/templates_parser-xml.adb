@@ -121,8 +121,10 @@ package body Templates_Parser.XML is
                     := Containers.Element
                         (Translations.Set.all, Var_Description);
                begin
-                  if Description.Kind = Std then
-                     --  Definitly a label for this variable
+                  if Description.Kind = Std
+                    and then Description.Value /= ""
+                  then
+                        --  Definitly a label for this variable
                      Add ("         <Description>"
                           & To_Utf8 (Description.Value) & "</Description>");
                   end if;
@@ -562,6 +564,7 @@ package body Templates_Parser.XML is
             -----------
 
             function B_Tag (Key : in String; N : in Positive) return Tag is
+               use type Str_Maps.Containers.Cursor;
                Max_Key : constant String := Image (N) & "_MAX";
                Cursor  : Str_Maps.Containers.Cursor;
                Max     : Natural;
@@ -578,6 +581,7 @@ package body Templates_Parser.XML is
                   for K in 1 .. Max loop
                      Cursor := Str_Maps.Containers.Find
                        (Data, Key & "_" & Image (K));
+                     exit when Cursor = Str_Maps.Containers.No_Element;
                      T := T & Str_Maps.Containers.Element (Cursor);
                   end loop;
 
