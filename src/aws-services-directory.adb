@@ -47,10 +47,6 @@ with Table_Of_Static_Keys_And_Static_Values_G;
 
 package body AWS.Services.Directory is
 
-   pragma Optimize (Off);
-   --  Do not compile this unit with optimisation on. Level 1 and 2 will
-   --  trigger a bug. This happen with GNAT 3.14 and 3.15.
-
    use Ada;
 
    ------------
@@ -60,7 +56,7 @@ package body AWS.Services.Directory is
    function Browse
      (Directory_Name : in String;
       Request        : in AWS.Status.Data)
-     return Translate_Table
+      return Translate_Table
    is
       use GNAT.Directory_Operations;
       use Ada.Strings.Unbounded;
@@ -77,15 +73,15 @@ package body AWS.Services.Directory is
          T,  -- order by file time
          S); -- order by file size
 
-      Dir    : constant Order_Mode := D;
-      MIME   : constant Order_Mode := M;
-      Ext    : constant Order_Mode := E;
-      SExt   : constant Order_Mode := X;
-      Name   : constant Order_Mode := N;
-      SName  : constant Order_Mode := A;
-      Size   : constant Order_Mode := S;
-      Time   : constant Order_Mode := T;
-      Orig   : constant Order_Mode := O;
+      Dir   : constant Order_Mode := D;
+      MIME  : constant Order_Mode := M;
+      Ext   : constant Order_Mode := E;
+      SExt  : constant Order_Mode := X;
+      Name  : constant Order_Mode := N;
+      SName : constant Order_Mode := A;
+      Size  : constant Order_Mode := S;
+      Time  : constant Order_Mode := T;
+      Orig  : constant Order_Mode := O;
 
       Max_Order_Length : constant := 8;
 
@@ -109,7 +105,6 @@ package body AWS.Services.Directory is
       function "<" (Left, Right : in File_Record) return Boolean;
 
       function "=" (Left, Right : in File_Record) return Boolean;
-
       pragma Inline ("=");
 
       package File_Tree is new Table_Of_Static_Keys_And_Static_Values_G
@@ -430,8 +425,7 @@ package body AWS.Services.Directory is
       -- To_Order_Char --
       -------------------
 
-      function To_Order_Char (O : Order_Mode) return Order_Char
-      is
+      function To_Order_Char (O : Order_Mode) return Order_Char is
       begin
          return Order_Mode'Image (O)(1);
       end To_Order_Char;
@@ -448,7 +442,6 @@ package body AWS.Services.Directory is
       Dir_Str : constant String := End_Slash (Directory_Name);
 
    begin
-
       --  Read ordering rules from the Web page and build the direct and
       --  reverve rules.
 
@@ -459,8 +452,8 @@ package body AWS.Services.Directory is
          --  default ordering.
 
          function Get_Order return String is
-            P_Order : constant String :=
-               AWS.Parameters.Get (Param_List, "ORDER");
+            P_Order : constant String
+              := AWS.Parameters.Get (Param_List, "ORDER");
          begin
             if P_Order = "" then
                --  no ordering define, use the default one.
@@ -595,7 +588,7 @@ package body AWS.Services.Directory is
       Template_Filename : in String;
       Request           : in AWS.Status.Data;
       Translations      : in Translate_Table := No_Translation)
-     return String is
+      return String is
    begin
       return Parse
         (Filename     => Template_Filename,
