@@ -98,12 +98,12 @@ begin
    Server.Start
      (WS, "append message",
       CB'Unrestricted_Access,
-      Port           => 1262,
+      Port           => 1264,
       Max_Connection => 5);
 
    Ada.Text_IO.Put_Line ("started");
 
-   R := Client.Get ("http://localhost:1262");
+   R := Client.Get ("http://localhost:1264");
 
    Ada.Text_IO.Put (Response.Message_Body (R));
 
