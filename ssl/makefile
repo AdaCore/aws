@@ -3,15 +3,23 @@
 
 .SILENT: all build clean
 
-GARGS = -c $(INCLUDES) $(GFLAGS) -gnatwu
+GARGS = -u $(INCLUDES) $(GFLAGS)
 
-build:
-	echo Building ssl-thin.ads
-	gnatmake -q $(GARGS) ssl-thin.ads
-	echo Building ssl-wrappers.adb
-	gnatmake -q $(GARGS) ssl-wrappers.adb
+force:
+
+ssl-thin: force
+	echo Building ssl-thin
+	gnatmake -q $(GARGS) ssl-thin
+
+ssl-wrappers: force
+	echo Building ssl-wrappers
+	gnatmake -q $(GARGS) ssl-wrappers
+
+libnosslaws.a:
 	ar cr libnosslaws.a ssl-wrappers.o
 	rm ssl-wrappers.o
+
+build: ssl-thin ssl-wrappers libnosslaws.a
 
 clean:
 	-rm *.ali *.o *.a
