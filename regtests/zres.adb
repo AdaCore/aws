@@ -64,10 +64,27 @@ begin
 
    Resources.Close (File);
 
-   --  Read compressed resource
+   --  Read compressed embedded resource
 
    Resources.Open (File, "file2.txt");
-   Resources.Support_Compressed (File, False);
+
+   Resources.Read (File, Buffer, Last);
+   Text_IO.Put_Line ("> " & Translator.To_String (Buffer (1 .. Last)));
+
+   Resources.Close (File);
+
+   --  Read non compressed file
+
+   Resources.Open (File, "filea.txt");
+
+   Resources.Read (File, Buffer, Last);
+   Text_IO.Put_Line ("> " & Translator.To_String (Buffer (1 .. Last)));
+
+   Resources.Close (File);
+
+   --  Read compressed file
+
+   Resources.Open (File, "fileb.txt");
 
    Resources.Read (File, Buffer, Last);
    Text_IO.Put_Line ("> " & Translator.To_String (Buffer (1 .. Last)));
