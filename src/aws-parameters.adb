@@ -93,7 +93,7 @@ package body AWS.Parameters is
       return Natural
    is
       Value : Unbounded_String;
-      CS    : Strings_Cutter.Cutted_String;
+      CS    : Strings_Cutter.Cut_String;
    begin
       Key_Value.Get_Value (Parameter_List.Data.all, Name, Value);
 
@@ -230,7 +230,7 @@ package body AWS.Parameters is
       return VString_Array
    is
       Value : Unbounded_String;
-      CS    : Strings_Cutter.Cutted_String;
+      CS    : Strings_Cutter.Cut_String;
    begin
       Key_Value.Get_Value
         (Parameter_List.Data.all,
@@ -268,7 +268,7 @@ package body AWS.Parameters is
       return String
    is
       Value : Unbounded_String;
-      CS    : Strings_Cutter.Cutted_String;
+      CS    : Strings_Cutter.Cut_String;
    begin
       Key_Value.Get_Value
         (Parameter_List.Data.all,
