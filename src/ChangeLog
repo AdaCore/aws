@@ -1,5 +1,13 @@
 2002-02-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-push.adb:
+	A lot of changes to conform to new spec (see below).
+
+	* aws-server-push.ads:
+	Change all Close_Socket parameters to Close_Sockets.
+	(Register): Rename Data_Content_Type parameter to Init_Content_Type.
+	(Shutdown): Rename Data_Content_Type parameter to Final_Content_Type.
+
 	* aws-services-dispatchers-uri.adb:
 	(GNAT.Regexp): Move here from spec.
 	(Dispatch): Fix minor type.
