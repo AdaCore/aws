@@ -45,7 +45,6 @@
 
 package AWS.Config is
 
-
    Default_Server_Name        : constant String := "[no name]";
    Default_WWW_Root           : constant String := "./";
    Default_Admin_URI          : constant String := "";
