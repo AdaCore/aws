@@ -26,7 +26,7 @@ BARGS = -E
 LARGS = $(LFLAGS) $(LIBS)
 endif
 
-run : turl tgetparam param dummy simple soap1 workorder checks
+run : turl tgetparam param dummy simple soap1 soap2 workorder checks
 
 force:
 
@@ -54,6 +54,10 @@ soap1: force
 	gnatmake -g soap1 $(GARGS) -largs $(LARGS) -bargs -E
 	./soap1 > soap1.res
 
+soap2: force
+	gnatmake -g soap2 $(GARGS) -largs $(LARGS) -bargs -E
+	./soap2 > soap2.res
+
 workorder: force
 	gnatmake -g workorder $(GARGS) -largs $(LARGS) -bargs -E
 	./workorder > workorder.res
@@ -66,6 +70,7 @@ checks:
 	-diff -c -w dummy.out dummy.res
 	-diff -c -w simple.out simple.res
 	-diff -c -w soap1.out soap1.res
+	-diff -c -w soap2.out soap2.res
 	-diff -c -w workorder.out workorder.res
 
 clean:
