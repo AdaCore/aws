@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2005                          --
---                                ACT-Europe                                --
+--                                 AdaCore                                  --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -441,18 +441,23 @@ package body AWS.Server is
       Mode   : Timeout_Mode;
       Socket : Socket_Access;
       Slot   : Positive;
+      Quit   : Boolean := False;
    begin
-      loop
+      while not Quit loop
          select
             accept Force do
                Mode := Force;
             end Force;
          or
+            accept Shutdown do
+               Quit := True;
+            end Shutdown;
+         or
             delay 30.0;
             Mode := Cleaner;
          end select;
 
-         loop
+         while not Quit loop
             Server.Slots.Abort_On_Timeout (Mode, Socket, Slot);
 
             if Socket = null then
@@ -465,6 +470,10 @@ package body AWS.Server is
 
             select
                accept Force;
+            or
+               accept Shutdown do
+                  Quit := True;
+               end Shutdown;
             or
                delay 1.0;
             end select;
@@ -653,7 +662,7 @@ package body AWS.Server is
 
       --  Release the cleaner task
 
-      abort Web_Server.Cleaner.all;
+      Web_Server.Cleaner.Shutdown;
 
       --  Wait for Cleaner task to terminate to be able to release associated
       --  memory.
