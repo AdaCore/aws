@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                       Generic memory stream                              --
 --                                                                          --
---                        Copyright (C) 2003                                --
+--                       Copyright (C) 2003-2004                            --
 --                        Dmitriy Anisimkov                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -57,7 +57,6 @@ package body Memory_Streams is
    is
       Block_Length : constant Element_Offset
         := Stream.Last_Length + Value'Length;
-
    begin
       if Value'Length = 0 then
          if Trim then
@@ -90,6 +89,7 @@ package body Memory_Streams is
          if Trim then
             Trim_Last_Block (Stream);
          end if;
+
       elsif Stream.Last_Length < Stream.Last.Data'Length then
          declare
             Split_Value : constant Element_Index
@@ -114,6 +114,7 @@ package body Memory_Streams is
 
             Stream.Last_Length := Next_Length;
          end;
+
       else
          Stream.Last.Next := new Buffer_Type (False);
          Stream.Last      := Stream.Last.Next;
