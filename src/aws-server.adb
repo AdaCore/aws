@@ -34,6 +34,7 @@ with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Task_Attributes;
 with Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
@@ -101,6 +102,9 @@ package body AWS.Server is
       C : Natural := 0;
 
    end Counter;
+
+   package Line_Attribute is new Task_Attributes (HTTP_Access, null);
+   --  A line specific attribute
 
    ------------------------------
    -- Accept_Socket_Serialized --
@@ -246,6 +250,15 @@ package body AWS.Server is
       Shutdown (Web_Server);
    end Finalize;
 
+   -----------------
+   -- Get_Current --
+   -----------------
+
+   function Get_Current return HTTP_Access is
+   begin
+      return Line_Attribute.Value;
+   end Get_Current;
+
    ----------------
    -- Initialize --
    ----------------
@@ -278,6 +291,8 @@ package body AWS.Server is
       or
          terminate;
       end select;
+
+      Line_Attribute.Set_Value (HTTP_Server);
 
       --  Real job start here, we will exit only if there is an unrecoverable
       --  problem.
