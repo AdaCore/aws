@@ -5,9 +5,7 @@
 .SILENT: checks checks_header checks_soap shutdown testxml turl2 turl3 turl4
 .SILENT: soap1 soap2 soap3 workorder tres tres2 upload unexph test_speed
 .SILENT: test_soap moved auth strm test_templates_if head hval tsgetparam
-
-#INCLUDES = -I../src -I../ssl -I../include
-#LIBS     = -L../ssl -lssl -lcrypto
+.SILENT: test_sec_soap checks_std checks_sec_soap checks_sec_std
 
 ifeq ($(MODE),ssl)
 # With SSL support
@@ -21,26 +19,35 @@ else
 LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto
 endif
 
+RT_SOAP_SEC = test_sec_soap
+RT_STD_SEC = tsgetparam
+CHECKS_SEC_SOAP = checks_sec_soap
+CHECKS_SEC_STD = checks_sec_std
+
 else
 # Without SSL support
 
 GARGS = -i -I../src -I../include -I../soap $(INCLUDES)
 BARGS = -E
 LARGS = $(LFLAGS) $(LIBS)
+
+CHECKS_SEC_SOAP =
+CHECKS_SEC_STD  =
 endif
 
 # SOAP regression tests
-rt_soap: soap1 soap2 soap3 workorder testxml test_speed test_soap
+rt_soap: soap1 soap2 soap3 workorder testxml test_speed test_soap \
+	$(RT_SOAP_SEC)
 
 # Standard regression tests
-rt_std: turl tgetparam tsgetparam param dummy simple tclientto shutdown tres \
+rt_std: turl tgetparam param dummy simple tclientto shutdown tres \
 	tres2 upload unexph auth moved turl2 turl3 strm test_templates_if \
-	head hval turl4
+	head hval turl4 $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
-run : rt_std checks
+run : rt_std checks $(CHECKS_SEC_STD) $(CHECKS_SEC_SOAP)
 else
-run : rt_std rt_soap checks
+run : rt_std rt_soap checks $(CHECKS_SEC_STD)
 endif
 
 force:
@@ -109,6 +116,11 @@ test_speed: force
 test_soap: force
 	gnatmake -g test_soap $(GARGS) -largs $(LARGS) -bargs -E
 	./test_soap > test_soap.res
+
+test_sec_soap: force
+	gnatmake -g test_sec_soap $(GARGS) -largs $(LARGS) -bargs -E
+	cp ../demos/cert.pem .
+	./test_sec_soap > test_sec_soap.res
 
 tclientto: force
 	gnatmake -g tclientto $(GARGS) -largs $(LARGS) -bargs -E
@@ -183,29 +195,12 @@ hval: force
 	gnatmake -g hval $(GARGS) -largs $(LARGS) -bargs -E
 	./hval > hval.res
 
-checks_soap:
-	-diff -c -w soap1.out soap1.res
-	-diff -c -w soap2.out soap2.res
-	-diff -c -w soap3.out soap3.res
-	-diff -c -w workorder.out workorder.res
-	-diff -c -w testxml.out testxml.res
-	-diff -c -w test_speed.out test_speed.res
-	-diff -c -w test_soap.out test_soap.res
-
-checks_header:
-	echo "### Every output after this line means there is a regression ###"
-
-ifeq ($(XMLADA),)
-checks: checks_header
-else
-checks: checks_header checks_soap
-endif
+checks_std:
 	-diff -c -w turl.out turl.res
 	-diff -c -w turl2.out turl2.res
 	-diff -c -w turl3.out turl3.res
 	-diff -c -w turl4.out turl4.res
 	-diff -c -w tgetparam.out tgetparam.res
-	-diff -c -w tgetparam.out tsgetparam.res
 	-diff -c -w param.out param.res
 	-diff -c -w dummy.out dummy.res
 	-diff -c -w simple.out simple.res
@@ -223,6 +218,30 @@ endif
 	-diff -c -w hval.out hval.res
 	-diff -c upload.ali 0.upload.ali
 	-diff -c upload.adb 1.upload.adb
+
+checks_soap:
+	-diff -c -w soap1.out soap1.res
+	-diff -c -w soap2.out soap2.res
+	-diff -c -w soap3.out soap3.res
+	-diff -c -w workorder.out workorder.res
+	-diff -c -w testxml.out testxml.res
+	-diff -c -w test_speed.out test_speed.res
+	-diff -c -w test_soap.out test_soap.res
+
+checks_sec_std:
+	-diff -c -w tgetparam.out tsgetparam.res
+
+checks_sec_soap:
+	-diff -c -w test_soap.out test_sec_soap.res
+
+checks_header:
+	echo "### Every output after this line means there is a regression ###"
+
+ifeq ($(XMLADA),)
+checks: checks_header checks_std
+else
+checks: checks_header checks_std checks_soap
+endif
 
 clean:
 	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe res.ad[sb] res2.ad[sb]
