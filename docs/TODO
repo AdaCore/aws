@@ -162,6 +162,21 @@ implemented:
   whatever is needed with the uploaded file. If file upload is not permitted
   the file will never be transmitted.
 
+- Add a routine to sort a vector tag
+
+- Add a routine to reverse a vector tag
+
+- Add a routine to do a synchronized sort on multiple vector tag (from a
+  Translate_Set for example.
+
+- Add a way to skip empty values for matrix in a table
+
+  @@TABLE@@             1,1
+  @@TABLE@@             1,2
+  @@_M_@@                     <- empty line because m(1) is smaller than m(2)
+  @@END_TABLE@@         2,1
+  @@END_TABLE@@         2,2
+                        2,3
 
 =============== Point to fix/implement/review before next release (2.1)
 
@@ -171,3 +186,7 @@ implemented:
 
 - Check that AWS builds fine with GNAT 3.4.3 with SOAP support.
   We should be able to remove the tools/makefile kludge (-largs -laws).
+
+- Fix bug in REPLACE filer containing a ':'
+  @_REPLACE(([a-z]+)_([a-z]+)/\2:\1):VAR_@
+  raised TEMPLATES_PARSER.TEMPLATE_ERROR : unbalanced parenthesis "\1)"
