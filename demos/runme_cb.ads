@@ -33,6 +33,6 @@ with AWS.Response;
 
 package Runme_CB is
 
-   function Get (Request : in AWS.Status.Data) return AWS.Response.Data;
+   function Service (Request : in AWS.Status.Data) return AWS.Response.Data;
 
 end Runme_CB;

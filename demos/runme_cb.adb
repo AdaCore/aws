@@ -28,7 +28,13 @@
 
 --  $Id$
 
+with AWS.Messages;
+
 package body Runme_CB is
+
+   ---------
+   -- Get --
+   ---------
 
    function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
       URI : constant String := AWS.Status.URI (Request);
@@ -70,5 +76,31 @@ package body Runme_CB is
             & "<input type=submit name=go value=""This is a GET Form"">");
       end if;
    end Get;
+
+   ---------
+   -- Put --
+   ---------
+
+   function Put (Request : in AWS.Status.Data) return AWS.Response.Data is
+   begin
+      return AWS.Response.Acknowledge (Status_Code => AWS.Messages.S200);
+   end Put;
+
+   -------------
+   -- Service --
+   -------------
+
+   function Service (Request : in AWS.Status.Data) return AWS.Response.Data is
+      use type AWS.Status.Request_Method;
+   begin
+      if AWS.Status.Method (Request) = AWS.Status.GET
+        or else AWS.Status.Method (Request) = AWS.Status.POST
+      then
+         return Get (Request);
+
+      elsif AWS.Status.Method (Request) = AWS.Status.PUT then
+         return Put (Request);
+      end if;
+   end Service;
 
 end Runme_CB;

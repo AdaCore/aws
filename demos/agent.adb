@@ -37,13 +37,16 @@ with GNAT.Command_Line;
 with AWS.Client;
 with AWS.Response;
 with AWS.Messages;
+with AWS.Status;
 
 procedure Agent is
 
    use AWS;
    use Ada;
    use Ada.Strings.Unbounded;
+   use type Status.Request_Method;
 
+   Method     : Status.Request_Method;
    User       : Unbounded_String;
    Pwd        : Unbounded_String;
    URL        : Unbounded_String;
@@ -53,7 +56,7 @@ procedure Agent is
 
    procedure Parse_Command_Line;
    --  parse Agent command line:
-   --  Usage: agent [-u -p -proxy -pu -pp] URL
+   --  Usage: agent [-u -p -proxy -pu -pp] [GET/PUT] URL
 
    procedure Parse_Command_Line is
    begin
@@ -88,34 +91,44 @@ procedure Agent is
         end case;
      end loop;
 
-     URL := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
+     Method := Status.Request_Method'Value (GNAT.Command_Line.Get_Argument);
+     URL    := To_Unbounded_String (GNAT.Command_Line.Get_Argument);
    end Parse_Command_Line;
+
+   Data : Response.Data;
 
 begin
    Parse_Command_Line;
 
-   declare
-      Data : constant Response.Data :=
-        Client.Get (URL        => To_String (URL),
-                    User       => To_String (User),
-                    Pwd        => To_String (Pwd),
-                    Proxy      => To_String (Proxy),
-                    Proxy_User => To_String (Proxy_User),
-                    Proxy_Pwd  => To_String (Proxy_Pwd));
-   begin
-      Text_IO.Put_Line
-        ("Status Code = "
-         & Messages.Image (Response.Status_Code (Data))
-         & " - "
-         & Messages.Reason_Phrase (Response.Status_Code (Data)));
+   if Method = Status.GET then
+      Data := Client.Get (URL        => To_String (URL),
+                          User       => To_String (User),
+                          Pwd        => To_String (Pwd),
+                          Proxy      => To_String (Proxy),
+                          Proxy_User => To_String (Proxy_User),
+                          Proxy_Pwd  => To_String (Proxy_Pwd));
+   else
+      Data := Client.Put (URL        => To_String (URL),
+                          Data       => "Un essai",
+                          User       => To_String (User),
+                          Pwd        => To_String (Pwd),
+                          Proxy      => To_String (Proxy),
+                          Proxy_User => To_String (Proxy_User),
+                          Proxy_Pwd  => To_String (Proxy_Pwd));
+   end if;
 
-      if Response.Content_Type (Data) = "text/html" then
-         Text_IO.Put_Line (Response.Message_Body (Data));
-      else
-         Text_IO.Put_Line ("Content-Type: "
-                           & Response.Content_Type (Data));
-         Text_IO.Put_Line ("Content-Length: "
-                           & Natural'Image (Response.Content_Length (Data)));
-      end if;
-   end;
+   Text_IO.Put_Line
+     ("Status Code = "
+      & Messages.Image (Response.Status_Code (Data))
+      & " - "
+      & Messages.Reason_Phrase (Response.Status_Code (Data)));
+
+   if Response.Content_Type (Data) = "text/html" then
+      Text_IO.Put_Line (Response.Message_Body (Data));
+   else
+      Text_IO.Put_Line ("Content-Type: "
+                        & Response.Content_Type (Data));
+      Text_IO.Put_Line ("Content-Length: "
+                        & Natural'Image (Response.Content_Length (Data)));
+   end if;
 end Agent;
