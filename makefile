@@ -89,7 +89,7 @@ all:
 	echo "    install:      install AWS library"
 	echo "    run_regtests: run tests"
 
-ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" AR="$(AR)"
+ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)"
 
 build_lib: build_ssllib build_include build_aws build_win32
 
@@ -185,8 +185,8 @@ clean_noapiref:
 setup:
 	${MAKE} -C config setup
 	${MAKE} -C win32 build
-	-mkdir obj
-	-mkdir lib
+	-$(MKDIR) obj
+	-$(MKDIR) lib
 
 display:
 	echo ""
@@ -214,24 +214,24 @@ else
 endif
 
 build_tarball:
-	-rm -f aws-*.tar*
+	-$(RM) -f aws-*.tar*
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-$${VERSION}; \
-	mkdir $${AWS}; \
-	mkdir $${AWS}/src; \
-	mkdir $${AWS}/xsrc; \
-	mkdir $${AWS}/demos; \
-	mkdir $${AWS}/regtests; \
-	mkdir $${AWS}/docs; \
-	mkdir $${AWS}/docs/html; \
-	mkdir $${AWS}/icons; \
-	mkdir $${AWS}/include; \
-	mkdir $${AWS}/soap; \
-	mkdir $${AWS}/ssl; \
-	mkdir $${AWS}/win32; \
-	mkdir $${AWS}/tools; \
-	mkdir $${AWS}/config; \
-	mkdir $${AWS}/config/src; \
+	$(MKDIR) $${AWS}; \
+	$(MKDIR) $${AWS}/src; \
+	$(MKDIR) $${AWS}/xsrc; \
+	$(MKDIR) $${AWS}/demos; \
+	$(MKDIR) $${AWS}/regtests; \
+	$(MKDIR) $${AWS}/docs; \
+	$(MKDIR) $${AWS}/docs/html; \
+	$(MKDIR) $${AWS}/icons; \
+	$(MKDIR) $${AWS}/include; \
+	$(MKDIR) $${AWS}/soap; \
+	$(MKDIR) $${AWS}/ssl; \
+	$(MKDIR) $${AWS}/win32; \
+	$(MKDIR) $${AWS}/tools; \
+	$(MKDIR) $${AWS}/config; \
+	$(MKDIR) $${AWS}/config/src; \
 	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
 	$(CP) demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
@@ -259,9 +259,9 @@ build_tarball:
 	$(CP) config/*.ad[sb] config/ChangeLog config/makefile $${AWS}/config;\
 	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
 	$(CP) xsrc/*.ad[sb] xsrc/README xsrc/ChangeLog $${AWS}/xsrc;\
-	tar cf $${AWS}.tar $${AWS};\
-	gzip -9 $${AWS}.tar;\
-	rm -fr $${AWS})
+	$(TAR) cf $${AWS}.tar $${AWS};\
+	$(GZIP) -9 $${AWS}.tar;\
+	$(RM) -fr $${AWS})
 
 distrib: build_apiref clean_noapiref build_doc build_tarball clean
 
@@ -269,27 +269,27 @@ force:
 
 install: force
 	-rm -fr $(INSTALL)/AWS
-	mkdir $(INSTALL)/AWS
-	mkdir $(INSTALL)/AWS/lib
-	mkdir $(INSTALL)/AWS/include
-	mkdir $(INSTALL)/AWS/icons
-	mkdir $(INSTALL)/AWS/images
-	mkdir $(INSTALL)/AWS/templates
-	mkdir $(INSTALL)/AWS/docs
-	mkdir $(INSTALL)/AWS/docs/html
-	mkdir $(INSTALL)/AWS/components
-	mkdir $(INSTALL)/AWS/tools
-	ar cr libaws.a src/*.o
-	ar cr libaws.a ssl/*.o
-	-ar cr libaws.a soap/*.o
+	$(MKDIR) $(INSTALL)/AWS
+	$(MKDIR) $(INSTALL)/AWS/lib
+	$(MKDIR) $(INSTALL)/AWS/include
+	$(MKDIR) $(INSTALL)/AWS/icons
+	$(MKDIR) $(INSTALL)/AWS/images
+	$(MKDIR) $(INSTALL)/AWS/templates
+	$(MKDIR) $(INSTALL)/AWS/docs
+	$(MKDIR) $(INSTALL)/AWS/docs/html
+	$(MKDIR) $(INSTALL)/AWS/components
+	$(MKDIR) $(INSTALL)/AWS/tools
+	$(AR) cr libaws.a src/*.o
+	$(AR) cr libaws.a ssl/*.o
+	-$(AR) cr libaws.a soap/*.o
 	$(CP) src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
 	-$(CP) soap/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) src/a*.ali $(INSTALL)/AWS/lib
 	-$(CP) ssl/*.ali $(INSTALL)/AWS/lib
 	-$(CP) soap/*.ali $(INSTALL)/AWS/lib
-	chmod uog-w $(INSTALL)/AWS/lib/*.ali
-	mv libaws.a $(INSTALL)/AWS/lib
-	-mv ssl/libnosslaws.a $(INSTALL)/AWS/lib
+	$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
+	$(MV) libaws.a $(INSTALL)/AWS/lib
+	-$(MV) ssl/libnosslaws.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
 	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
 	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
@@ -302,7 +302,7 @@ install: force
 	-$(CP) include/*.o include/*.ali $(INSTALL)/AWS/components
 	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
-	-chmod -R og+r $(INSTALL)/AWS
+	-$(CHMOD) -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
 	$(CP) win32/lib*.a $(INSTALL)/AWS/lib
 	$(CP) win32/*.dll $(INSTALL)/AWS/lib
@@ -348,5 +348,14 @@ gbuild: $(MODULES_BUILD)
 
 gclean: $(MODULES_CLEAN)
 	-rm -fr .build
+
+gxmlada:
+	echo "project XMLAda is" > xmlada.gpr
+	echo " Path := \"$(XMLADA)\";" >> xmlada.gpr
+	echo " for Source_Dirs use (Path & \"/include/xmlada\");" >> xmlada.gpr
+	echo " for Object_Dir use Path & \"/include/xmlada\";" >> xmlada.gpr
+	echo " for Library_Dir use Path & \"/lib\";" >> xmlada.gpr
+	echo " LIB_Path := \"-L\" & Path & \"/lib\";" >> xmlada.gpr
+	echo "end XMLAda;" >> xmlada.gpr
 
 gsetup: $(MODULES_SETUP)
