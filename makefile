@@ -429,6 +429,8 @@ install: force
 	-$(CP) tools/ada2wsdl${EXEEXT} $(INSTALL)/AWS/tools
 	$(CP) -p $(INSTALL)/AWS/lib/*.ali $(INSTALL)/AWS/obj
 	$(CP) set-aws.* $(INSTALL)/AWS
+	$(CP) config/projects/aws.gpr $(INSTALL)/AWS
+	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
 	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
