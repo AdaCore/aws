@@ -1034,8 +1034,8 @@ package body AWS.Client is
       Method     : in     String;
       URI        : in     String)
    is
-      Sock      : Net.Socket_Access := Connection.Socket;
-      No_Data   : Unbounded_String renames Null_Unbounded_String;
+      Sock    : Net.Socket_Access := Connection.Socket;
+      No_Data : Unbounded_String renames Null_Unbounded_String;
 
       function HTTP_Prefix (Security : in Boolean) return String;
       --  Returns "http://" or "https://" if Security is set to True
@@ -1044,6 +1044,24 @@ package body AWS.Client is
       pragma Inline (Persistence);
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
       --  otherwise.
+
+      function Encoded_URI return String;
+      --  Returns URI encoded (' ' -> '+')
+
+      -----------------
+      -- Encoded_URI --
+      -----------------
+
+      function Encoded_URI return String is
+         E_URI : String := URI;
+      begin
+         for K in E_URI'Range loop
+            if E_URI (K) = ' ' then
+               E_URI (K) := '+';
+            end if;
+         end loop;
+         return E_URI;
+      end Encoded_URI;
 
       -----------------
       -- HTTP_Prefix --
@@ -1094,35 +1112,17 @@ package body AWS.Client is
          --  In both cases we want to send the pathname only, we are not
          --  required to send the absolute path.
 
-         declare
-            URL : AWS.URL.Object;
-         begin
-            if URI = "" then
-               URL := Connection.Host_URL;
-
-            else
-               --  URI should already be encoded, but to help a bit Windows
-               --  systems who tend to have spaces into URL we encode them
-               --  here.
-
-               declare
-                  E_URI : String := URI;
-               begin
-                  for K in E_URI'Range loop
-                     if E_URI (K) = ' ' then
-                        E_URI (K) := '+';
-                     end if;
-                  end loop;
-
-                  URL := AWS.URL.Parse (E_URI);
-               end;
-            end if;
-
+         if URI = "" then
             Send_Header
               (Sock.all,
-               Method & ' ' & AWS.URL.Pathname_And_Parameters (URL, False)
+               Method & ' '
+               & AWS.URL.Pathname_And_Parameters (Connection.Host_URL, False)
                & ' ' & HTTP_Version);
-         end;
+
+         else
+            Send_Header
+              (Sock.all, Method & ' ' & Encoded_URI & ' ' & HTTP_Version);
+         end if;
 
          Send_Header (Sock.all, Messages.Connection (Persistence));
 
@@ -1141,8 +1141,8 @@ package body AWS.Client is
             Send_Header
               (Sock.all,
                Method & ' '
-                 & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
-                 & Host_Address & URI & ' ' & HTTP_Version);
+               & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
+               & Host_Address & Encoded_URI & ' ' & HTTP_Version);
          end if;
 
          Send_Header
@@ -1188,7 +1188,6 @@ package body AWS.Client is
          Connection.Auth (WWW),
          URI,
          Method);
-
    end Open_Send_Common_Header;
 
    ------------------
