@@ -12,6 +12,7 @@ aws-os_lib.adb
 aws-parameters.ads.texi
 aws-response.ads.texi
 aws-server-hotplug.ads.texi
+aws-server-push.ads.texi
 aws-server.ads.texi
 aws-session.ads.texi
 aws-status.ads.texi
