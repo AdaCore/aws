@@ -51,14 +51,14 @@ package body Templates_Parser.Debug is
 
       procedure Print (T : in Tag; K : Natural) is
          Indent : constant String := K * ' ';
-         N      : Tag_Node_Access := T.Head;
+         N      : Tag_Node_Access := T.Data.Head;
       begin
          Put (Indent);
          Put_Line
-           ("(N=" & Natural'Image (T.Count)
-            & ", Min=" & Natural'Image (T.Min)
-            & ", Max=" & Natural'Image (T.Max)
-            & ", Nested_Level=" & Natural'Image (T.Nested_Level));
+           ("(N=" & Natural'Image (T.Data.Count)
+            & ", Min=" & Natural'Image (T.Data.Min)
+            & ", Max=" & Natural'Image (T.Data.Max)
+            & ", Nested_Level=" & Natural'Image (T.Data.Nested_Level));
 
          while N /= null loop
             if N.Kind = Value then

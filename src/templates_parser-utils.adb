@@ -60,7 +60,7 @@ package body Templates_Parser.Utils is
       end Quote;
 
       Result : Unbounded_String;
-      N      : Tag_Node_Access := T.Head;
+      N      : Tag_Node_Access := T.Data.Head;
    begin
       while N /= null loop
          if N.Kind = Value then

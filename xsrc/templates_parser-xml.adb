@@ -224,10 +224,10 @@ package body Templates_Parser.XML is
             -----------------
 
             procedure Output_Axis (N : in Positive; T : in Tag) is
-               P : Tag_Node_Access := T.Head;
+               P : Tag_Node_Access := T.Data.Head;
                K : Positive := 1;
             begin
-               pragma Assert (T.Nested_Level = 1);
+               pragma Assert (T.Data.Nested_Level = 1);
 
                Add ("      <Dim n=""" & Image (N) & """>");
                Add_Description (Var & "_DIM" & Image (N));
@@ -277,7 +277,7 @@ package body Templates_Parser.XML is
                   Add (To_Utf8 (V));
                end Output_Value;
 
-               N : Tag_Node_Access := T.Head;
+               N : Tag_Node_Access := T.Data.Head;
                P : Positive := 1;
             begin
                while N /= null loop
@@ -301,7 +301,7 @@ package body Templates_Parser.XML is
 
             --  Output axis labels
 
-            for K in 1 .. Item.Comp_Value.Nested_Level loop
+            for K in 1 .. Item.Comp_Value.Data.Nested_Level loop
                declare
                   Label_Var : constant String
                     := Var & "_DIM" & Image (K) & Labels_Suffix;
@@ -313,7 +313,7 @@ package body Templates_Parser.XML is
                             (Translations.Set.all, Label_Var);
                      begin
                         if Item.Kind = Composite
-                          and then Item.Comp_Value.Nested_Level = 1
+                          and then Item.Comp_Value.Data.Nested_Level = 1
                         then
                            --  This is a vector tag, labels are expected to
                            --  be found on this vector.
