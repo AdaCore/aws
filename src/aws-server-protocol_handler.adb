@@ -1485,8 +1485,23 @@ begin
                   HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
                   Send (Answer);
                end if;
+
             exception
-               when others =>
+               when Net.Socket_Error =>
+                  --  There is nothing further we can do. The socket has
+                  --  certainly been closed while sending back the answer.
+                  exit For_Every_Request;
+
+               when E : others =>
+                  --  Here we got an exception (other than Net.Socket_Error).
+                  --  It is probably due to a problem in a user's stream
+                  --  implementation. Just log the problem and exit.
+                  Log.Write
+                    (HTTP_Server.Error_Log,
+                     C_Stat,
+                     "Exception handler bug "
+                       & Exception_String
+                           (Ada.Exceptions.Exception_Information (E)));
                   exit For_Every_Request;
             end;
       end;
