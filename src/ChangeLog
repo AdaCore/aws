@@ -1,3 +1,12 @@
+2002-08-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-parameters-set.adb:
+	(Add): Skip leading ? if present.
+
+	* aws-parameters-set.ads:
+	(Add): Add some documentation about '?' character. This is to be
+	 compatible with AWS.URL.Paramaters.
+
 2002-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
