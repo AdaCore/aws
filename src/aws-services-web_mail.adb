@@ -71,6 +71,36 @@ package body AWS.Services.Web_Mail is
    function Send (Request : in AWS.Status.Data) return AWS.Response.Data;
    --  Send a message, used by the reply form above
 
+   -------------
+   -- Context --
+   -------------
+
+   type Context_Data is record
+      POP_Server       : Unbounded_String;
+      POP_Host         : Unbounded_String;
+      POP_Server_Port  : Positive;
+      SMTP_Server      : Unbounded_String;
+      SMTP_Host        : Unbounded_String;
+      SMTP_Server_Port : Positive;
+      User_Name        : Unbounded_String;
+      Password         : Unbounded_String;
+   end record;
+
+   procedure Load_Context
+     (SID     : in     Session.Id;
+      Context :    out Context_Data);
+   --  Load server context as stored in the session SID
+
+   function "+"
+     (Str : in String)
+      return Unbounded_String
+      renames To_Unbounded_String;
+
+   function "-"
+     (U_Str : in Unbounded_String)
+      return String
+      renames To_String;
+
    --------------
    -- Callback --
    --------------
@@ -183,21 +213,17 @@ package body AWS.Services.Web_Mail is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      POP_Server : constant String
-        := Session.Get (WM_Session, "WM_POP_SERVER");
-
-      User_Name  : constant String
-        := Session.Get (WM_Session, "WM_USER_NAME");
-
-      Password   : constant String
-        := Session.Get (WM_Session, "WM_PASSWORD");
-
-      No_Message : constant Positive
+      No_Message     : constant Positive
         := Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
 
+      Context : Context_Data;
       Mailbox : POP.Mailbox;
    begin
-      Mailbox := POP.Initialize (POP_Server, User_Name, Password);
+      Load_Context (WM_Session, Context);
+
+      Mailbox := POP.Initialize
+        (-Context.POP_Host, -Context.User_Name, -Context.Password,
+         Port => Context.POP_Server_Port);
 
       POP.Delete (Mailbox, No_Message);
 
@@ -205,6 +231,51 @@ package body AWS.Services.Web_Mail is
 
       return Response.URL ("/wm_summary");
    end Delete;
+
+   ------------------
+   -- Load_Context --
+   ------------------
+
+   procedure Load_Context
+     (SID     : in     Session.Id;
+      Context :    out Context_Data)
+   is
+      POP_Server  : constant String  := Session.Get (SID, "WM_POP_SERVER");
+      POP_K       : constant Natural := Strings.Fixed.Index (POP_Server, ":");
+      SMTP_Server : constant String  := Session.Get (SID, "WM_SMTP_SERVER");
+      SMTP_K      : constant Natural := Strings.Fixed.Index (SMTP_Server, ":");
+   begin
+      Context.User_Name   := +Session.Get (SID, "WM_USER_NAME");
+      Context.Password    := +Session.Get (SID, "WM_PASSWORD");
+      Context.POP_Server  := +POP_Server;
+      Context.SMTP_Server := +SMTP_Server;
+
+      --  POP
+
+      if POP_K = 0 then
+         --  No port specifier for the POP server
+         Context.POP_Host        := +POP_Server;
+         Context.POP_Server_Port := POP.Default_POP_Port;
+      else
+         Context.POP_Host       :=
+           +POP_Server (POP_Server'First .. POP_K - 1);
+         Context.POP_Server_Port :=
+           Positive'Value (POP_Server (POP_K + 1 .. POP_Server'Last));
+      end if;
+
+      --  SMTP
+
+      if SMTP_K = 0 then
+         --  No port specifier for the POP server
+         Context.SMTP_Host        := +SMTP_Server;
+         Context.SMTP_Server_Port := SMTP.Default_SMTP_Port;
+      else
+         Context.SMTP_Host        :=
+           +SMTP_Server (SMTP_Server'First .. SMTP_K - 1);
+         Context.SMTP_Server_Port :=
+           Positive'Value (SMTP_Server (SMTP_K + 1 .. SMTP_Server'Last));
+      end if;
+   end Load_Context;
 
    -----------
    -- Login --
@@ -236,18 +307,10 @@ package body AWS.Services.Web_Mail is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      POP_Server : constant String
-        := Session.Get (WM_Session, "WM_POP_SERVER");
-
-      User_Name  : constant String
-        := Session.Get (WM_Session, "WM_USER_NAME");
-
-      Password   : constant String
-        := Session.Get (WM_Session, "WM_PASSWORD");
-
       No_Message : constant Positive
         := Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
 
+      Context : Context_Data;
       Mailbox : POP.Mailbox;
       Mess    : POP.Message;
 
@@ -338,7 +401,12 @@ package body AWS.Services.Web_Mail is
       end Get_Content;
 
    begin
-      Mailbox := POP.Initialize (POP_Server, User_Name, Password);
+      Load_Context (WM_Session, Context);
+
+      Mailbox := POP.Initialize
+        (-Context.POP_Server,
+         -Context.User_Name, -Context.Password,
+         Port => Context.POP_Server_Port);
 
       Mess := POP.Get (Mailbox, No_Message);
 
@@ -351,8 +419,8 @@ package body AWS.Services.Web_Mail is
               (WWW_Root & "/wm_message.thtml",
                Templates.Translate_Table'
                  (Templates.Assoc ("AWS_VERSION", AWS.Version),
-                  Templates.Assoc ("WM_USER_NAME", User_Name),
-                  Templates.Assoc ("WM_POP_SERVER", POP_Server),
+                  Templates.Assoc ("WM_USER_NAME", Context.User_Name),
+                  Templates.Assoc ("WM_POP_SERVER", Context.POP_Server),
                   Templates.Assoc
                     ("WM_MESS_COUNT", POP.Message_Count (Mailbox)),
                   Templates.Assoc ("WM_MESSAGE", No_Message),
@@ -374,21 +442,10 @@ package body AWS.Services.Web_Mail is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      SMTP_Server : constant String
-        := Session.Get (WM_Session, "WM_SMTP_SERVER");
-
-      POP_Server : constant String
-        := Session.Get (WM_Session, "WM_POP_SERVER");
-
-      User_Name  : constant String
-        := Session.Get (WM_Session, "WM_USER_NAME");
-
-      Password   : constant String
-        := Session.Get (WM_Session, "WM_PASSWORD");
-
       No_Message : constant Positive
         := Positive'Value (Parameters.Get (P_List, "NO_MESSAGE"));
 
+      Context : Context_Data;
       Mailbox : POP.Mailbox;
       Mess    : POP.Message;
 
@@ -426,7 +483,11 @@ package body AWS.Services.Web_Mail is
       end Get_Content;
 
    begin
-      Mailbox := POP.Initialize (POP_Server, User_Name, Password);
+      Load_Context (WM_Session, Context);
+
+      Mailbox := POP.Initialize
+        (-Context.POP_Host, -Context.User_Name, -Context.Password,
+         Port => Context.POP_Server_Port);
 
       Mess := POP.Get (Mailbox, No_Message);
 
@@ -439,9 +500,9 @@ package body AWS.Services.Web_Mail is
               (WWW_Root & "/wm_reply.thtml",
                Templates.Translate_Table'
                  (Templates.Assoc ("AWS_VERSION", AWS.Version),
-                  Templates.Assoc ("WM_USER_NAME", User_Name),
-                  Templates.Assoc ("WM_SMTP_SERVER", SMTP_Server),
-                  Templates.Assoc ("WM_POP_SERVER", POP_Server),
+                  Templates.Assoc ("WM_USER_NAME", -Context.User_Name),
+                  Templates.Assoc ("WM_SMTP_SERVER", -Context.SMTP_Server),
+                  Templates.Assoc ("WM_POP_SERVER", -Context.POP_Server),
                   Templates.Assoc
                     ("WM_MESS_COUNT", POP.Message_Count (Mailbox)),
                   Templates.Assoc ("WM_MESSAGE", No_Message),
@@ -461,42 +522,39 @@ package body AWS.Services.Web_Mail is
       WM_Session : constant Session.Id := Status.Session (Request);
       P_List     : constant Parameters.List := Status.Parameters (Request);
 
-      POP_Server : constant String
-        := Session.Get (WM_Session, "WM_POP_SERVER");
-
-      SMTP_Server : constant String
-        := Session.Get (WM_Session, "WM_SMTP_SERVER");
-
-      User_Name  : constant String
-        := Session.Get (WM_Session, "WM_USER_NAME");
-
       function Get_From return SMTP.E_Mail_Data;
       --  Build the From e-mail
+
+      Context    : Context_Data;
 
       --------------
       -- Get_From --
       --------------
 
       function Get_From return SMTP.E_Mail_Data is
-         K      : constant Natural := Strings.Fixed.Index (POP_Server, ".");
+         POP_Host : constant String  := -Context.POP_Host;
+         K        : constant Natural := Strings.Fixed.Index (POP_Host, ".");
          E_Mail : Unbounded_String;
       begin
          if K = 0 then
             --  No domain specified, this is a local machine
-            E_Mail := To_Unbounded_String (User_Name & '@' & POP_Server);
+            E_Mail := Context.User_Name & '@' & POP_Host;
          else
             --  Get the domain name after the first dot
-            E_Mail := To_Unbounded_String
-              (User_Name & '@' & POP_Server (K + 1 .. POP_Server'Last));
+            E_Mail := Context.User_Name & '@' &
+                        POP_Host (K + 1 .. POP_Host'Last);
          end if;
 
          return SMTP.E_Mail (To_String (E_Mail), To_String (E_Mail));
       end Get_From;
 
-      WM_SMTP     : SMTP.Receiver;
-      Result      : SMTP.Status;
+      WM_SMTP : SMTP.Receiver;
+      Result  : SMTP.Status;
    begin
-      WM_SMTP := SMTP.Client.Initialize (SMTP_Server);
+      Load_Context (WM_Session, Context);
+
+      WM_SMTP := SMTP.Client.Initialize
+        (-Context.SMTP_Host, Port => Context.SMTP_Server_Port);
 
       SMTP.Client.Send
         (WM_SMTP,
@@ -539,15 +597,6 @@ package body AWS.Services.Web_Mail is
       WWW_Root   : String renames Config.WWW_Root (Config.Get_Current);
       WM_Session : constant Session.Id := Status.Session (Request);
 
-      POP_Server : constant String
-        := Session.Get (WM_Session, "WM_POP_SERVER");
-
-      User_Name  : constant String
-        := Session.Get (WM_Session, "WM_USER_NAME");
-
-      Password   : constant String
-        := Session.Get (WM_Session, "WM_PASSWORD");
-
       procedure Add_Message
         (Message : in     POP.Message;
          Index   : in     Positive;
@@ -586,10 +635,15 @@ package body AWS.Services.Web_Mail is
       procedure Add_Message_Headers is
          new POP.For_Every_Message_Header (Add_Message);
 
+      Context : Context_Data;
       Mailbox : POP.Mailbox;
 
    begin
-      Mailbox := POP.Initialize (POP_Server, User_Name, Password);
+      Load_Context (WM_Session, Context);
+
+      Mailbox := POP.Initialize
+        (-Context.POP_Host, -Context.User_Name, -Context.Password,
+         Port => Context.POP_Server_Port);
 
       Add_Message_Headers (Mailbox);
 
@@ -610,8 +664,8 @@ package body AWS.Services.Web_Mail is
                   Templates.Assoc ("WM_FROM_V", From_V),
                   Templates.Assoc ("WM_DATE_V", Date_V),
                   Templates.Assoc ("WM_SUBJECT_V", Subject_V),
-                  Templates.Assoc ("WM_USER_NAME", User_Name),
-                  Templates.Assoc ("WM_POP_SERVER", POP_Server)))));
+                  Templates.Assoc ("WM_USER_NAME", Context.User_Name),
+                  Templates.Assoc ("WM_POP_SERVER", Context.POP_Server)))));
    end Summary;
 
 end AWS.Services.Web_Mail;
