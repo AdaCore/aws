@@ -1,45 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
-
 <SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
-
 <SOAP-ENV:Body>
-
 <awsns:getLastResponse xmlns:awsns="urn:datafeed.dukascopy.com">
-
 <getLastReturn SOAP-ENC:arrayType="awsns:Candle[1]" xsi:type="SOAP-ENC:Array">
-
    <item>
-
       <artificial xsi:type="xsd:boolean">0</artificial>
-
       <closePrice xsi:type="xsd:double">1.74650000000000000</closePrice>
-
       <flat xsi:type="xsd:boolean">0</flat>
-
       <id xsi:type="xsd:int">533</id>
-
       <maxPrice xsi:type="xsd:double">1.74650000000000000</maxPrice>
-
       <minPrice xsi:type="xsd:double">1.74590000000000000</minPrice>
-
       <openPrice xsi:type="xsd:double">1.74650000000000000</openPrice>
-
       <periodType xsi:type="xsd:int">0</periodType>
-
       <time xsi:type="xsd:long">1089143140</time>
-
       <timeIndex xsi:type="xsd:int">108914314</timeIndex>
-
       <volume xsi:type="xsd:long">0</volume>
-
    </item>
-
 </getLastReturn>
-
 </awsns:getLastResponse>
-
 </SOAP-ENV:Body>
-
 </SOAP-ENV:Envelope>
-
-
