@@ -35,6 +35,10 @@ main (void)
   const int ai_next_offset      = (void *)&ai.ai_next      - ai_ptr;
 
 #ifdef _WIN32
+  #define ETIMEDOUT   WSAETIMEDOUT
+  #define EWOULDBLOCK WSAEWOULDBLOCK
+  #define EINPROGRESS WSAEINPROGRESS
+
   const char *i_conv      = "Stdcall";
   const int s_nfds_t      = sizeof (int) * 8;
   const int s_fd_type     = sizeof (int) * 8;
@@ -106,12 +110,13 @@ main (void)
   printf ("   PF_INET     : constant := %d;\n", PF_INET);
   printf ("   PF_INET6    : constant := %d;\n", PF_INET6);
   printf ("   SO_ERROR    : constant := %d;\n", SO_ERROR);
-
-#ifdef _WIN32
-  printf ("   ETIMEDOUT   : constant := %d;\n\n", WSAETIMEDOUT);
-#else
-  printf ("   ETIMEDOUT   : constant := %d;\n\n", ETIMEDOUT);
-#endif
+  printf ("   SOCK_STREAM : constant := %d;\n", SOCK_STREAM);
+  printf ("   SOL_SOCKET  : constant := %d;\n", SOL_SOCKET);
+  printf ("   ETIMEDOUT   : constant := %d;\n", ETIMEDOUT);
+  printf ("   EWOULDBLOCK : constant := %d;\n", EWOULDBLOCK);
+  printf ("   EINPROGRESS : constant := %d;\n", EINPROGRESS);
+  printf ("   FIONBIO     : constant := %d;\n", FIONBIO);
+  printf ("   FIONREAD    : constant := %d;\n\n", FIONREAD);
 
   /* nfds_t */
 
