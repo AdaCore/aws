@@ -125,13 +125,6 @@ package AWS.MIME is
    -- Setting --
    -------------
 
-   function Content_Type (Filename : in String) return String;
-   --  Returns the MIME Content Type based on filename's extension or if not
-   --  found the MIME Content type where Filename matches one of the specific
-   --  rules set by Add_Regexp (see below).
-   --  Returns "application/octet-stream" if the file type is unknown
-   --  (i.e. not extension and no regular expression match filename).
-
    procedure Add_Extension (Ext : in String; MIME_Type : in String);
    --  Add extension Ext (file extension without the dot, e.g. "txt") to the
    --  set of MIME type extension handled by this API. Ext will be mapped to
@@ -144,6 +137,13 @@ package AWS.MIME is
    ---------------
    -- MIME Type --
    ---------------
+
+   function Content_Type (Filename : in String) return String;
+   --  Returns the MIME Content Type based on filename's extension or if not
+   --  found the MIME Content type where Filename matches one of the specific
+   --  rules set by Add_Regexp (see below).
+   --  Returns "application/octet-stream" if the file type is unknown
+   --  (i.e. not extension and no regular expression match filename).
 
    function Is_Text (MIME_Type : in String) return Boolean;
    --  Returns True if the MIME_Type is a text data
