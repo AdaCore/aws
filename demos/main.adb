@@ -51,7 +51,6 @@
 with Ada.Text_IO;
 
 with AWS.Server.Hotplug;
-with AWS.Log;
 
 with Hotplug_CB;
 
