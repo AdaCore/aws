@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
@@ -77,8 +77,10 @@ procedure Tgetparam is
          Put_Line ("p2 = " & Parameters.Get (P_List, "p2"));
 
          for K in 1 .. Parameters.Count (P_List) loop
-            Put_Line (K'Img & " name  = " & Parameters.Get_Name (P_List, K));
-            Put_Line (K'Img & " value = " & Parameters.Get_Value (P_List, K));
+            Put_Line (Integer'Image (K)
+                        & " name  = " & Parameters.Get_Name (P_List, K));
+            Put_Line (Integer'Image (K)
+                        & " value = " & Parameters.Get_Value (P_List, K));
          end loop;
 
          return Response.Build (MIME.Text_HTML, "complex ok");
