@@ -35,5 +35,6 @@ package AWS.LDAP is
    pragma Pure;
 
    LDAP_Error : exception;
+   --  Raised by all LDAP.Client routines in case of error
 
 end AWS.LDAP;
