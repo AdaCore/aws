@@ -1,5 +1,10 @@
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-pop.ads, aws-pop.adb:
+	(Get_Header): New function.
+	(For_Every_Message_Header): New procedure.
+	This will be needed to implement the Web Mail callback.
+
 	* aws-resources-files.adb:
 	(File_Size): Catch only OS_Lib.No_Such_File.
 	(File_Timestamp): Idem.
