@@ -1,3 +1,9 @@
+2005-02-05  Pascal Obry  <pascal@obry.org>
+
+	* sp_pck.adb:
+	Minor comment fixes.
+	Update copyright notice.
+
 2005-01-24  Dmitriy Anisimkov <anisimkov@ada-ru.org>
 
 	* auth1.adb:
