@@ -1,3 +1,12 @@
+2003-03-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.adb:
+	(Open_Send_Common_Header): Rename declaration Sock is changed
+	 to the rename of just Socket access, becouse rename of Socket.all
+	 would become invalid in case of reconnect and recreate the socket.
+	 It is fixes the rarely appearing bug in the strm2.adb regression
+	 test.
+
 2003-03-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-headers-values.adb:
