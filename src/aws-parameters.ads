@@ -45,12 +45,18 @@ package AWS.Parameters is
    function Count (Parameter_Set : in Set) return Natural;
    --  Returns the number of item in Parameter_Set.
 
+   function Count (Parameter_Set : in Set; Key : in String) return Natural;
+   --  Returns the number of value for Key in Parameter_Set. It returns 0 if
+   --  Key does not exist.
+
    function Exist (Parameter_Set : in Set; Key : in String) return Boolean;
    --  Returns True if Key exist in Parameter_Set.
 
-   function Get (Parameter_Set : in Set; Key : in String) return String;
-   --  Returns the value associated with Key into Parameter_Set. Returns the
-   --  emptry string if key does not exist.
+   function Get (Parameter_Set : in Set;
+                 Key           : in String;
+                 N             : in Positive := 1) return String;
+   --  Returns the Nth value associated with Key into Parameter_Set. Returns
+   --  the emptry string if key does not exist.
 
    function Get_Key   (Parameter_Set : in Set; N : in Positive) return String;
    --  Returns the Nth Key in Parameter_Set or the empty string if there is no
