@@ -5,24 +5,29 @@
 
 # To add a new test:
 #
-#   1) create the appropriate Ada program (let's call it mytest.adb)
-#   2) create the expected output mytest.out
-#   3) add mytest to either :
-#      RT_SOAP      : for SOAP tests using HTTP
-#      RT_STD       : for standard tests using HTTP
-#      RT_SOAP_SEC  : for SOAP tests using HTTPS
-#      RT_STD_SEC   : for standard tests using HTTPS
-#      RT_STD_ALONE : for standard tests, each in separate executable.
-#      OTH_TESTS    : tests with specific target (not using standard procedure)
-#      WSDL_TESTS   : WSDL tests
-#      WSDL_ATESTS  : WSDL tests using the wsdl2aws -a option (Ada Name Style)
-#      RT_SOAP_ASIS : ada2wsdl tests using a server
-#      RT_SOAP_ASIS_PARSE : ada2wsdl tests using only the parser
+#   1) Create the appropriate Ada program (let's call it mytest.adb)
+#      Add a tag line in mytest.adb
+#      --  ~ MAIN [<options>]
+#      <options> can be:
+#         [STD]           : test requires no external support
+#         [SSL]           : test requires SSL
+#         [ASIS]          : test requires ASIS
+#         [SOAP]          : test requires SOAP
+#         [ASIS+SOAP+SSL] : test requires ASIS, SOAP and SSL
+#                           it is possible to specify only 2 options, the
+#                           ordering is important though.
 #
-#   Note, tests in the RT_SOAP, RT_STD, RT_STD_SEC, RT_SOAP_ASIS, WSDL_TESTS,
-#   WSDL_ATESTS sections should not imply that name of executable file would be
-#   the name of regression test main procedure. This tests would be linked
-#   together to test_all executable file.
+#   2) Create the expected output mytest.out
+#
+#   3) If the test needs to be executed in it's own executable add it to:
+#      ASIS_TESTS     : test using ada2wsdl tool to create test case
+#      ASIS2_TESTS    : test using ada2wsdl tool only
+#      ALONE_TESTS    : if a standard test
+#      WSDL_TESTS     : for WSDL tests
+#      WSDL_ATESTS    : for WSDL tests using Ada name style
+#      WSDL2AWS_TESTS : test using only wsdl2aws tool
+
+include makefile.lst
 
 ifdef DEBUG
 BDIR		= ../.build/debug
@@ -30,79 +35,42 @@ else
 BDIR		= ../.build/release
 endif
 
-ifeq ($(MODE),ssl)
-# With SSL support
-RT_SOAP_SEC = test_sec_soap xmlt_sec disp_soap_sec test_soap5_sec
-RT_STD_SEC = tsgetparam ssp ssback cert ssock2 ssto ssockto sslcfg \
-	huge_response_sec wait_sec afile_sec append_sec sockext_sec \
-	hload_sec wait2_sec sock3_sec plain2ssl
-endif
-
-# SOAP regression tests
-RT_SOAP = soap1 soap2 soap3 soap4 soap5 soap6 soap7 workorder testxml \
-	test_soap xmlt test_soap2 test_soap3 test_soap4 test_soap5 disp_soap \
-	$(RT_SOAP_SEC)
-
-ifdef EXTRA_TESTS
-RT_SOAP := test_speed $(RT_SOAP)
-endif
-
 ADA2WSDL = $(BDIR)/tools/ada2wsdl-main
 WSDL2AWS = $(BDIR)/tools/wsdl2aws
 AWSRES   = $(BDIR)/tools/awsres
 
-# SOAP/WSDL test using ada2wsdl (ASIS package required)
-# Names must start with wsdl_ and be followed by a single digit between 0
-# and 9. Socket port is then 770<digit>.
-RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8
+# Standard regression tests that needs to be run in a separate executable
 
-RT_SOAP_ASIS_PARSE = wsdl_a wsdl_b
-
-# Standard regression tests, could be only each in separate executable
-RT_STD_ALONE = dispatch1 dispatch_method dispatch_vh upload2 upload3 \
-	server_config
-
-ifdef EXTRA_TESTS
-RT_STD_ALONE := tlog $(RT_STD_ALONE)
-endif
-
-# Standard regression tests
-RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
-	tres2 upload unexph auth1 auth2 moved turl2 turl3 test_templates_if \
-	head hval turl4 ctab file redirect hostip unexph2 sp sessions zres \
-	dirop multiple tcom tmime sessions2 sessions3 huge_response sback \
-	server_info append compress zapp zbig zfile zstrm split1 zstrm2 once \
-	get_post zopen timer tmem file2 eres sock1 sock2 sock3 sessions4 wait \
-	stream_response smtp sto sockto ctable tpc afile no_param \
-	nonce sockext hload upload4 upload5 wait2 attachment $(RT_STD_SEC)
-
-STD_TESTS      = $(RT_STD)
-ALONE_TESTS    = $(RT_STD_ALONE)
-OTH_TESTS      = tres
-WSDL_TESTS     =
-WSDL_ATESTS    =
-ASIS_TESTS     =
-ASIS2_TESTS    =
-WSDL2AWS_TESTS =
+ALONE_TESTS    = dispatch1 dispatch_method dispatch_vh upload2 \
+	upload3 server_config test
 
 ifdef XMLADA
-STD_TESTS     := $(STD_TESTS) $(RT_SOAP)
-OTH_TESTS     := $(OTH_TESTS) check_mem
-WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 interoplab_main1 \
-			googlesearch datafeed_service
+ALONE_TESTS   := $(ALONE_TESTS) check_mem
+WSDL_TESTS     = test_wsdl test_wsdl2 test_wsdl4 \
+	interoplab_main1 googlesearch datafeed_service
 WSDL_ATESTS    = test_wsdl3 test_wsdl5
-WSDL2AWS_TESTS = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
+WSDL2AWS_TESTS = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3	wsdl_parse_4
 endif
 
 ifdef ASIS
-ASIS_TESTS   = $(RT_SOAP_ASIS)
-ASIS2_TESTS  = $(RT_SOAP_ASIS_PARSE)
+# SOAP/WSDL test using ada2wsdl (ASIS package required)
+# Names must start with wsdl_ and be followed by a single digit between 0
+# and 9. Socket port is then 770<digit>.
+
+ASIS_TESTS   = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7 wsdl_8
+ASIS2_TESTS  = wsdl_a wsdl_b
 endif
 
-ALL_EXEC = $(addsuffix $(EXEEXT), $(ALONE_TESTS) $(OTH_TESTS) \
-	generate test_all)
+ALL_EXEC = $(addsuffix $(EXEEXT), $(ALONE_TESTS) generate test_all)
 
-TOGETHER = $(sort $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS))
+SRC_WSDL_TESTS     = ${addsuffix .adb, $(WSDL_TESTS)}
+SRC_WSDL_ATESTS    = ${addsuffix .adb, $(WSDL_ATESTS)}
+SRC_WSDL2AWS_TESTS = ${addsuffix .adb, $(WSDL2AWS_TESTS)}
+SRC_ALONE_TESTS	   = ${addsuffix .adb, $(ALONE_TESTS)}
+
+S_TOGETHER	= $(sort $(TESTS) $(SRC_WSDL_TESTS) $(SRC_WSDL_ATESTS))
+F_TOGETHER 	= $(filter-out $(SRC_ALONE_TESTS), $(S_TOGETHER))
+TOGETHER 	= $(basename $(F_TOGETHER))
 
 force:
 
@@ -115,22 +83,29 @@ gen_main: gen_sources
 gen_sources: $(sort $(WSDL_TESTS) $(WSDL_ATESTS) $(ASIS_TESTS) \
 	$(ASIS2_TESTS) $(WSDL2AWS_TESTS))
 
-build: gen_main
+build_drivers: gen_main
 	echo "Building drivers (takes some time)"
 	$(GNATMAKE) -q -Pregtests -XTest_Mode=Grouped \
 		-XBuild=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
-run: init build $(OTH_TESTS) $(ALONE_TESTS)
+empty:=
+space:= $(empty) $(empty)
+
+REGEXP = $(subst $(space),"\\|",$(addsuffix .adb,$(ALONE_TESTS)))
+
+build:
+
+run: init build_drivers $(ALONE_TESTS)
 ifdef GDB_REGTESTS
 	gdb --exec=test_all --command=cmd.gdb --batch
 else
 	./test_all
 endif
-	for file in $(TOGETHER); do \
+	-for file in $(TOGETHER); do \
 	   diff -c -w $$file.out $$file.res 1>> alldifs 2>> alldifs; \
 	done
 ifdef ASIS
-	for file in $(ASIS_TESTS); do \
+	-for file in $(ASIS_TESTS); do \
 	   diff -c -w $$file.out "$$file"_main.res 1>> alldifs 2>> alldifs; \
 	done
 endif
@@ -159,8 +134,8 @@ init:
 	echo "line 1, file 2" > file2.txt
 	echo "line 2, file 2" >> file2.txt
 	echo "line 3, file 2" >> file2.txt
-	echo "Number @_ONE_@ following by @_TWO_@." > file.tmplt
-	$(AWSRES) -q -r zresres file1.txt -z file2.txt file.tmplt
+	echo "Number @_ONE_@ following by @_TWO_@." > filez.tmplt
+	$(AWSRES) -q -r zresres file1.txt -z file2.txt filez.tmplt
 	echo Preparing tres
 	echo "line 1, file 1" > file1.html
 	echo "line 2, file 1" >> file1.html
@@ -247,8 +222,107 @@ check_mem: force
 	grep "   Final" check_mem.run2 > run2
 	-diff -c -w run1 run2 1>> alldifs 2>> alldifs
 
+$(GEN_SETUP1):
+	echo ${@:%_gen=%}-client.ads >> regtests_sources.lst
+	echo ${@:%_gen=%}-client.adb >> regtests_sources.lst
+	echo ${@:%_gen=%}-types.ads >> regtests_sources.lst
+	echo ${@:%_gen=%}-types.adb >> regtests_sources.lst
+	echo ${@:%_gen=%}-server.ads >> regtests_sources.lst
+	echo ${@:%_gen=%}-server.adb >> regtests_sources.lst
+
+$(GEN_SETUP2):
+	echo ${@:%_gen=%}-client.ads >> regtests_sources.lst
+	echo ${@:%_gen=%}-client.adb >> regtests_sources.lst
+	echo ${@:%_gen=%}-types.ads >> regtests_sources.lst
+	echo ${@:%_gen=%}-types.adb >> regtests_sources.lst
+	echo ${@:%_gen=%}-server.ads >> regtests_sources.lst
+	echo ${@:%_gen=%}-server.adb >> regtests_sources.lst
+	echo ${@:%_gen=%}-cb.ads >> regtests_sources.lst
+	echo ${@:%_gen=%}-cb.adb >> regtests_sources.lst
+
+setup_init:
+	-rm -f regtests_sources.lst
+
+setup:
+# Get MAIN and standard sources
+	-$(GREP) "~ MAIN" *.ad* > all_mains.lst
+	-$(GREP) "\[STD\]" all_mains.lst | $(GREP) -v $(REGEXP) > s_tstd.lst
+	-$(CP) s_tstd.lst s_mains.lst
+	-$(GREP) "\[SOAP\]" all_mains.lst > s_tsoap.lst
+	-$(GREP) "\[ASIS+SOAP\]" all_mains.lst >> s_tsoap.lst
+	-$(GREP) "\[SSL\]" all_mains.lst > s_tsec.lst
+	-$(GREP) "\[SOAP+SSL\]" all_mains.lst > s_tsecsoap.lst
+	-$(GREP) "\[ASIS+SSL\]" all_mains.lst >> s_tsecsoap.lst
+ifdef ASIS
+	-$(GREP) "\[ASIS\]" all_mains.lst >> s_mains.lst
+endif
+ifdef XMLADA
+	-$(GREP) "\[SOAP\]" all_mains.lst >> s_mains.lst
+endif
+ifeq ($(SOCKET),ssl)
+	-$(GREP) "\[SSL\]" all_mains.lst >> s_mains.lst
+endif
+ifdef XMLADA
+ ifdef ASIS
+  ifeq ($(SOCKET),ssl)
+	-$(GREP) "\[ASIS+SOAP+SSL\]" all_mains.lst >> s_mains.lst
+  else
+	-$(GREP) "\[ASIS+SOAP\]" all_mains.lst >> s_mains.lst
+  endif
+ else
+  ifeq ($(SOCKET),ssl)
+	-$(GREP) "\[SOAP+SSL\]" all_mains.lst >> s_mains.lst
+  endif
+ endif
+else
+ ifdef ASIS
+  ifeq ($(SOCKET),ssl)
+	-$(GREP) "\[ASIS+SSL\]" all_mains.lst >> s_mains.lst
+  endif
+ endif
+endif
+	echo "TESTS=\\" > makefile.lst
+	$(AWK) 'BEGIN{FS=":"}{printf ("%s \\\n",$$1)}' s_mains.lst \
+		>> makefile.lst
+# Now write .gpr
+	echo "project regtests_lst is" > regtests_lst.gpr
+	echo "" >> regtests_lst.gpr
+	echo "   for Source_Dirs use ();" >> regtests_lst.gpr
+# T_STD
+	echo "" >> regtests_lst.gpr
+	echo "   T_STD := (" >> regtests_lst.gpr
+	$(AWK) 'BEGIN{FS=":";n=0} \
+		n==1{printf (",\n\"%s\"",$$1)} \
+		n==0{printf ("\"%s\"",$$1);n=1}' s_tstd.lst >> regtests_lst.gpr
+	echo "   );" >> regtests_lst.gpr
+# T_SEC
+	echo "" >> regtests_lst.gpr
+	echo "   T_SEC := (" >> regtests_lst.gpr
+	$(AWK) 'BEGIN{FS=":";n=0} \
+		n==1{printf (",\n\"%s\"",$$1)} \
+		n==0{printf ("\"%s\"",$$1);n=1}' s_tsec.lst >> regtests_lst.gpr
+	echo "   );" >> regtests_lst.gpr
+# T_SEC_SOAP
+	echo "" >> regtests_lst.gpr
+	echo "   T_SEC_SOAP := (" >> regtests_lst.gpr
+	$(AWK) 'BEGIN{FS=":";n=0} \
+		n==1{printf (",\n\"%s\"",$$1)} \
+		n==0{printf ("\"%s\"",$$1);n=1}' \
+			s_tsecsoap.lst >> regtests_lst.gpr
+	echo "   );" >> regtests_lst.gpr
+# T_SOAP
+	echo "" >> regtests_lst.gpr
+	echo "   T_SOAP := (" >> regtests_lst.gpr
+	$(AWK) 'BEGIN{FS=":";n=0} \
+		n==1{printf (",\n\"%s\"",$$1)} \
+		n==0{printf ("\"%s\"",$$1);n=1}' \
+			s_tsoap.lst >> regtests_lst.gpr
+	echo "   );" >> regtests_lst.gpr
+	echo "" >> regtests_lst.gpr
+	echo "end regtests_lst;" >> regtests_lst.gpr
+
 clean:
-	-rm -f *.o *.ali b~*.ad* *~ .*~ *.res res.ad[sb] res2.ad[sb]
+	-rm -f *.o *.ali b~*.ad* *~ .*~ *.res res.ad\[sb\] res2.ad\[sb\]
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
 	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
@@ -261,3 +335,5 @@ clean:
 	-rm -fr ../icons/test-dir1
 	-rm -fr ../icons/test-dir2
 	-rm -fr ../icons/test-dir3
+	-rm -f s_mains.lst all_mains.lst 
+	-rm -f s_tsecsoap.lst s_tsec.lst s_tstd.lst s_tsoap.lst
