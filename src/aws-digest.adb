@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -60,7 +60,7 @@ package body AWS.Digest is
       use Calendar;
       use type MD5.Byte_Array;
 
-      Now           : Time := Clock;
+      Now           : constant Time := Clock;
       Nonce_Time    : Time;
       Year_Now      : Year_Number;
       Month_Now     : Month_Number;
