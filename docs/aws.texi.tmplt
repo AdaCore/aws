@@ -687,6 +687,10 @@ initialization file to have specific settings for some servers.
 @end table
 
 @noindent
+Furthermore, it is possible to read a specific configuration file
+using the @code{AWS.Config.Ini.Read} routine. @pxref{AWS.Config.Ini}.
+
+@noindent
 Current supported options are:
 
 @table @code
@@ -754,6 +758,17 @@ parameter will be used automatically by @code{AWS.Log} if logging
 facility is enabled. By default log files are written in the current
 directory. The default is @file{@_LOG_FILE_DIR_@}.
 
+@item Log_Filename_Prefix (string)
+@cindex Log_Filename_Prefix
+This is to set the filename prefix for the log file. By default the
+log filename prefix is the program name (without extension).
+
+@item Log_Split_Mode [None/Each_Run/Daily/Monthly]
+@cindex Log_Split_Mode
+It indicates how to split the logs. Each_Run means that a new log file
+is used each time the process is started. Daily and Monthly will use a
+new log file each day or month. The default is @_LOG_SPLIT_MODE_@.
+
 @item Logo (string).
 @cindex Logo
 The name of the logo image to use in the status page. The default is
@@ -818,20 +833,24 @@ default is @file{@_UPLOAD_DIR_@}.
 @end table
 
 @noindent
-Each option value can be retrieved using the @code{AWS.Config} unit.
+Each option value can be retrieved using the @code{AWS.Config} unit or
+set using @code{AWS.Config.Set}.
 
 @noindent
 For example to build a server where the @i{port} and the maximum number of
-@i{connection} can be changed via the configuration file:
+@i{connection} can be changed via a configuration file (either
+@file{aws.ini} or @file{<program_name>.ini}:
 
 @smallexample
 @cartouche
 @group
-WS  : AWS.Server.HTTP (Max_Connection => AWS.Config.Max_Connection);
+WS   : AWS.Server.HTTP (Max_Connection => AWS.Config.Max_Connection);
+
+Conf : AWS.Config.Object := AWS.Config.Get_Current;
 
 Server.Start (WS,
-              Port     => AWS.Config.Server_Port,
-              Callback => Service'Access);
+              Callback => Service'Access,
+              Conf);
 @end group
 @end cartouche
 @end smallexample
@@ -1226,9 +1245,12 @@ A complete example can be found in the demos directory. Look for
 @noindent
 It is possible to have the server activitly logged into the file
 @file{<progname>-Y-M-D.log}. To activate the logging you must call the
-@code{AWS.Log.Start}, and it is possible to stop logging by calling
-@code{AWS.Log.Stop}. @xref{AWS.Log}. Log file can be changed
-automatically each day or month, see @code{AWS.Log.Start} parameter.
+@code{AWS.Server.Start_Log}, and it is possible to stop logging by calling
+@code{AWS.Server.Stop_Log}. @xref{AWS.Log}, for more information
+especially about the way rotating logs can be setup. Using this
+feature it is possible to have automatic split of the log file each
+day, each month or at every run. See @code{AWS.Log} spec. This is
+very useful to avoid having very big log files.
 
 @noindent
 The log format is very close to the Apache Web server one.
@@ -1244,11 +1266,6 @@ For example:
 @noindent
 The only missing part is the length of the data sent to the client that
 is found at the end of the log data line in the Apache log file.
-
-@noindent
-Note that it is possible to have automatic split of the log file each
-day, each month at every run. See @code{AWS.Log.Start} spec. This is
-very useful to avoid having very big log files.
 
 @node Status page
 @chapter Status page
@@ -1304,6 +1321,22 @@ VALUES_L, see below). Each key in the vector tag start with an HTML
 
 A string to be placed in an img HTML tag. This is the name of the AWS
 logo image.
+
+@item LOG (boolean tag)
+@cindex LOG
+
+This is set to true if logging is active.
+
+@item LOG_FILE
+@cindex LOG_FILE
+
+The log file full pathname.
+
+@item LOG_MODE
+@cindex LOG_MODE
+
+The rotating log mode, this is either @code{NONE}, @code{DAILY}, 
+@code{MONTHLY} or @code{EACH_RUN}.
 
 @item MAX_CONNECTION
 @cindex MAX_CONNECTION
@@ -1435,6 +1468,8 @@ Jean-Fran@,cois Rameau.
 * AWS.Communication.Client::
 * AWS.Communication.Server::
 * AWS.Config::
+* AWS.Config.Ini::
+* AWS.Config.Set::
 * AWS.Log::
 * AWS.MIME::
 * AWS.Parameters::
@@ -1475,6 +1510,18 @@ Jean-Fran@,cois Rameau.
 @cindex AWS.Config
 
 @include ../src/aws-config.ads.texi
+
+@node AWS.Config.Ini
+@section AWS.Config.Ini
+@cindex AWS.Config.Ini
+
+@include ../src/aws-config-ini.ads.texi
+
+@node AWS.Config.Set
+@section AWS.Config.Set
+@cindex AWS.Config.Set
+
+@include ../src/aws-config-set.ads.texi
 
 @node AWS.Log
 @section AWS.Log

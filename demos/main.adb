@@ -71,5 +71,6 @@ begin
                      Callback  => Hotplug_CB.Main'Access);
 
    AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
-   AWS.Log.Start;
+
+   AWS.Server.Start_Log (WS);
 end Main;

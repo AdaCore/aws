@@ -34,25 +34,24 @@
 with Ada.Text_IO;
 
 with AWS.Server;
+
 with WS_CB;
 
 procedure WS is
 
    use Ada;
 
-   WS : AWS.Server.HTTP (5);
-
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
    Text_IO.Put_Line ("I will stop in 5 minutes anyway !");
 
-   AWS.Server.Start (WS, "WS Demo",
+   AWS.Server.Start (WS_CB.WS, "WS Demo",
                      Port     => 1234,
                      Callback => WS_CB.Service'Access);
 
    delay 5 * 60.0;
 
    Text_IO.Put_Line ("ok, let's shutdown...");
-   AWS.Server.Shutdown (WS);
+   AWS.Server.Shutdown (WS_CB.WS);
 end WS;

@@ -57,8 +57,8 @@
 
 with Ada.Text_IO;
 
-with AWS.Server;
 with AWS.Log;
+with AWS.Server;
 
 with Runme_CB;
 
@@ -66,8 +66,8 @@ procedure Runme is
 
    use Ada;
 
-   WSS : AWS.Server.HTTP (3);
-   WS  : AWS.Server.HTTP (3);
+   WSS  : AWS.Server.HTTP (3);
+   WS   : AWS.Server.HTTP (3);
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
@@ -79,10 +79,11 @@ begin
                      Callback => Runme_CB.Service_Sec'Access);
 
    AWS.Server.Start (WS, "Runme",
-                     Admin_URI => "/Admin-Page",
-                     Port      => 1234,
-                     Session   => True,
-                     Callback  => Runme_CB.Service'Access);
+                     Admin_URI      => "/Admin-Page",
+                     Port           => 1234,
+                     Session        => True,
+                     Callback       => Runme_CB.Service'Access);
 
-   AWS.Log.Start (Split => AWS.Log.Daily);
+   AWS.Server.Start_Log (WS, Split_Mode => AWS.Log.Daily);
+   AWS.Server.Start_Log (WSS, Filename_Prefix => "runme-secure");
 end Runme;
