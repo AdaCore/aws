@@ -1,3 +1,10 @@
+2003-03-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Executable file name check_mem in the gnatmem parameters is with the
+	 ./ now, resolve make problem in GNAT 5.0 in case of ./ not in the
+	 path.
+
 2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
