@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2002                            --
+--                          Copyright (C) 2002-2003                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -154,6 +154,20 @@ package body AWS.Net.Buffered is
    begin
       Write (Socket, CRLF);
    end New_Line;
+
+   ---------------
+   -- Peek_Char --
+   ---------------
+
+   function Peek_Char (Socket : in Socket_Type'Class) return Character is
+      C : Cache renames Socket.C.R_Cache;
+   begin
+      if C.Size = 0 then
+         Read (Socket);
+      end if;
+
+      return Character'Val (Natural (C.Buffer (C.First)));
+   end Peek_Char;
 
    ---------
    -- Pop --
