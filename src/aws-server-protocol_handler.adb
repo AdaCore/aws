@@ -28,7 +28,11 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$
+--  $Date$
+--  $Author$
+--  $State$
 
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
