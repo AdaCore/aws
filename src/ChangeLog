@@ -2,7 +2,8 @@
 
 	* templates_parser-filter.adb:
 	(BR_2_LF): Fix Constraint_Error if S is empty.
-
+	Patch from Jérôme Roussel.
+	
 2004-04-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
