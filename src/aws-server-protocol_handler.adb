@@ -148,6 +148,10 @@ is
    --  request status. This routine must be called after Get_Message_header as
    --  the request header must have been parsed.
 
+   function Exception_String (Exception_Information : in String) return String;
+   --  Returns an exception information data in a single line. All CR and LF
+   --  are converted to spaces, trailing spaces are removed.
+
    ----------------------
    -- Answer_To_Client --
    ----------------------
@@ -333,6 +337,22 @@ is
 
       Send (Answer);
    end Answer_To_Client;
+
+   ----------------------
+   -- Exception_String --
+   ----------------------
+
+   function Exception_String
+     (Exception_Information : in String)
+      return String is
+   begin
+      return Strings.Fixed.Trim
+        (Strings.Fixed.Translate
+           (Exception_Information,
+            Strings.Maps.To_Mapping
+              (From => ASCII.CR & ASCII.LF, To   => "  ")),
+         Strings.Right);
+   end Exception_String;
 
    ----------------------
    -- Get_Message_Data --
@@ -1467,6 +1487,15 @@ begin
 
                Answer : Response.Data;
             begin
+               --  Log this error
+
+               AWS.Log.Write
+                 (HTTP_Server.Error_Log,
+                  C_Stat,
+                  Exception_String (Exception_Information (E)));
+
+               --  Call exception handler
+
                HTTP_Server.Exception_Handler
                  (E,
                   HTTP_Server.Error_Log,
