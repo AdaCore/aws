@@ -167,6 +167,11 @@ package body AWS.Utils is
    function Is_Number (S : in String) return Boolean is
       use Strings;
    begin
+      if S'Length = 0 then
+         --  S is empty, can't be a number
+         return False;
+      end if;
+
       for K in S'Range loop
          if not Maps.Is_In (S (K), Maps.Constants.Decimal_Digit_Set) then
             return False;
