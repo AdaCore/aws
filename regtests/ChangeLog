@@ -1,3 +1,11 @@
+2002-05-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add testxml regression test.
+
+	* testxml.adb, testxml.out:
+	Initial revision.
+
 2002-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
