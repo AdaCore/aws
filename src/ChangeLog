@@ -1,3 +1,23 @@
+2004-07-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.ads:
+	(Slots.Socket_Taken): Add Flag parameter.
+	(Socket_Taken): New private routine.
+
+	* aws-server.adb:
+	(Line_Attribute_Record): New type.
+	(Line_Attribute): Keep line number too.
+	(Get_Current): Use new Line_Attribute_Record.
+	(Line): Put line number to Line_Atribute.
+	(Socket_Taken): New routine.
+
+	* aws-server-push.adb:
+	(Regirster): Mark socket_taken just on registration.
+	 unmark socket_taken in case of registration fail.
+
+	* aws-server-protocol_handler.adb:
+	(Send): Add True parameter to Slots.Socket_Taken call.
+
 2004-07-23  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
