@@ -70,4 +70,6 @@ begin
                      Port           => 1234,
                      Max_Connection => 10,
                      Callback       => Get'Unrestricted_Access);
+
+   AWS.Server.Wait (AWS.Server.Q_Key_Pressed);
 end Auth;
