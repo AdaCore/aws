@@ -38,6 +38,25 @@ with SOAP.Utils;
 
 package body SOAP.XML is
 
+   -----------------
+   -- First_Child --
+   -----------------
+
+   function First_Child (Parent : in DOM.Core.Node) return DOM.Core.Node is
+      use type DOM.Core.Node;
+      use type DOM.Core.Node_Types;
+      N : DOM.Core.Node;
+   begin
+      N := DOM.Core.Nodes.First_Child (Parent);
+
+      while N /= null and then N.Node_Type = DOM.Core.Text_Node loop
+         --  DOM.Core.Nodes.Node_Name (N) = "#text" loop
+         N := DOM.Core.Nodes.Next_Sibling (N);
+      end loop;
+
+      return N;
+   end First_Child;
+
    --------------------
    -- Get_Attr_Value --
    --------------------
@@ -108,7 +127,7 @@ package body SOAP.XML is
          return N;
 
       else
-         HN := DOM.Core.Nodes.First_Child (Body_Node (N));
+         HN := XML.First_Child (Body_Node (N));
 
          declare
             Id : constant String := DOM.Core.Nodes.Node_Value (Href);
@@ -126,5 +145,24 @@ package body SOAP.XML is
          end;
       end if;
    end Get_Ref;
+
+   ------------------
+   -- Next_Sibling --
+   ------------------
+
+   function Next_Sibling (N : in DOM.Core.Node) return DOM.Core.Node is
+      use type DOM.Core.Node;
+      use type DOM.Core.Node_Types;
+      M : DOM.Core.Node := N;
+   begin
+      --  ??? .Node_Type = DOM.Core.Text_Node
+      loop
+         M := DOM.Core.Nodes.Next_Sibling (M);
+--        exit when M = null or else DOM.Core.Nodes.Node_Name (M) /= "#text";
+         exit when M = null or else M.Node_Type /= DOM.Core.Text_Node;
+      end loop;
+
+      return M;
+   end Next_Sibling;
 
 end SOAP.XML;
