@@ -1,8 +1,38 @@
 
 $Id$
 
-Here a some notes about ideas and potential features to be implemented:
+Here a some notes about things to fix, ideas and potential features to be
+implemented:
 
-- better handling of the forms parameter (look for ??? in AWS.Status package)
+- better handling of the forms parameters (look for ??? in AWS.Status package)
+  The current implementation is far from beeing efficient.
 
-- integrate Template_Parser with AWS
+- look at the GMT/UTC vs Local time issue.
+
+- correctly handle all Date/Time format, there is 3 of them:
+
+  Sun, 06 Nov 1994 08:49:37 GMT   ; RFC 822, updated by RFC 1123
+  Sunday, 06-Nov-94 08:49:37 GMT  ; RFC 850, obsoleted by RFC 1036
+  Sun Nov  6 08:49:37 1994        ; ANSI C's asctime() format
+
+  (Nice to see that when designing an RFC there are considering the C way of
+   doing things, seems completly awkward to me :)
+
+  Actually only the first format is supported.
+
+- integrate Template_Parser with AWS. A callback which knows how to parse
+  .tmplt files ???
+
+- support standard method encoding under HTTP/1.1 for small files instead of
+  the chuncked encoding.
+
+- add support for multi-callbacks (calling a callback depending on a regular
+  expression). A default callback procedure which act as a file server could
+  be provided. Could be a way to integrate templates (see above) ?
+
+- digest authentification (only basic authentification is supported right
+  now).
+
+- implement multi-server with a dispatcher of request to build server which
+  must support a lot of requests. Could be using GLADE or a standard
+  redirector of request.
