@@ -355,6 +355,26 @@ package body AWS.Net.Std is
          Raise_Exception (E, "Peer_Addr");
    end Peer_Addr;
 
+   -------------
+   -- Pending --
+   -------------
+
+   function Pending (Socket : in Socket_Type) return Stream_Element_Count is
+      use Interfaces;
+      use type C.int;
+      Arg : aliased C.int;
+      Res : constant C.int := Sockets.Thin.C_Ioctl
+                                (C.int (Get_FD (Socket)),
+                                 Sockets.Constants.FIONREAD,
+                                 Arg'Unchecked_Access);
+   begin
+      if Res = Sockets.Thin.Failure then
+         Raise_Socket_Error (Errno);
+      end if;
+
+      return Stream_Element_Count (Arg);
+   end Pending;
+
    ---------------------
    -- Raise_Exception --
    ---------------------
