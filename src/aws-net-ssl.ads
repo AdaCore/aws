@@ -79,10 +79,10 @@ package AWS.Net.SSL is
       Data   : in Stream_Element_Array);
    pragma Inline (Send);
 
-   function Receive
-     (Socket : in Socket_Type;
-      Max    : in Stream_Element_Count := 4096)
-      return Stream_Element_Array;
+   procedure Receive
+     (Socket : in     Socket_Type;
+      Data   :    out Stream_Element_Array;
+      Last   :    out Stream_Element_Offset);
    pragma Inline (Receive);
 
    --------------------
