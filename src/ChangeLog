@@ -1,3 +1,14 @@
+2004-09-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-sets-thin.ads:
+	Renamed to aws-net-thin.ads.
+
+	* aws-net-thin.ads:
+	New package.
+
+	* aws-net.adb, aws-net-sets.adb, makefile:
+	Use AWS.Net.Thin instead of AWS.Net.Sets.Thin.
+
 2004-09-02  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
