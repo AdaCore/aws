@@ -70,9 +70,8 @@ package body AWS.Services.Transient_Pages is
       --  Generate a unique ID used to create a transient URI
 
       procedure Register
-        (URI      : in     String;
-         Resource : in     Item;
-         Start    :    out Boolean);
+        (URI      : in String;
+         Resource : in Item);
       --  Register URI into the database
 
       procedure Get_Value
@@ -86,7 +85,6 @@ package body AWS.Services.Transient_Pages is
 
    private
       K         : Natural := 0;
-      Started   : Boolean := False;
       Resources : Table.Map;
    end Database;
 
@@ -100,10 +98,13 @@ package body AWS.Services.Transient_Pages is
       -- Register --
       --------------
 
-      procedure Register (Transient_Check_Interval : in Duration) is
+      procedure Register
+        (Transient_Check_Interval : in     Duration;
+         Need_Start_Cleaner       :    out Boolean) is
       begin
-         Server_Count := Server_Count + 1;
-         Clean_Interval := Transient_Check_Interval;
+         Need_Start_Cleaner := Server_Count = 0 and then Cleaner_Task = null;
+         Server_Count       := Server_Count + 1;
+         Clean_Interval     := Transient_Check_Interval;
       end Register;
 
       ----------
@@ -270,18 +271,11 @@ package body AWS.Services.Transient_Pages is
 
       procedure Register
         (URI      : in     String;
-         Resource : in     Item;
-         Start    :    out Boolean)
+         Resource : in     Item)
       is
          Cursor  : Table.Cursor;
          Success : Boolean;
       begin
-         Start := Cleaner_Task = null and then not Started;
-
-         if Start then
-            Started := True;
-         end if;
-
          Table.Insert (Resources, URI, Resource, Cursor, Success);
       end Register;
 
@@ -327,13 +321,8 @@ package body AWS.Services.Transient_Pages is
       Lifetime : in Duration := Default.Transient_Lifetime)
    is
       use type Calendar.Time;
-      Start : Boolean;
    begin
-      Database.Register (URI, (Resource, Calendar.Clock + Lifetime), Start);
-
-      if Start then
-         Cleaner_Task := new Cleaner;
-      end if;
+      Database.Register (URI, (Resource, Calendar.Clock + Lifetime));
    end Register;
 
 end AWS.Services.Transient_Pages;
