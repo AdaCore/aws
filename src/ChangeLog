@@ -1,3 +1,73 @@
+2002-10-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-ldap-client.adb:
+	Add lot of comments.
+	(uid): New function.
+	(cn): Idem.
+	(sn): Idem.
+	(surname): Idem.
+	(telephoneNumber): Idem.
+	(mail): Idem.
+	(l): Idem.
+	(o): Idem.
+	(ou): Idem.
+	(st): Idem.
+	(c): Idem.
+	(dc): Idem.
+	(Cat): Idem.
+	(Nul_Set): New constant.
+	Rename some parameters.
+
+	* aws-ldap-client.ads:
+	Add lot of comments.
+	(uid): New function.
+	(givenName): Idem.
+	(cn): Idem.
+	(commonName): Idem.
+	(sn): Idem.
+	(surname): Idem.
+	(telephoneNumber): Idem.
+	(mail): Idem.
+	(l): Idem.
+	(localityName): Idem.
+	(o): Idem.
+	(organizationName): Idem.
+	(ou): Idem.
+	(organizationalUnitName): Idem.
+	(st): Idem.
+	(stateOrProvinceName): Idem.
+	(c): Idem.
+	(countryName): Idem.
+	(dc): Idem.
+	(Cat): Idem.
+	(Nul_Set): New constant.
+	Rename some parameters.
+
+	* aws-ldap-thin.ads:
+	Add comments.
+	Minor reformatting.
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Correctly create a critical section before
+	 using the Dispatcher.
+	Minor reformatting.
+
+	* aws-server.adb:
+	(Semaphore): Moved to AWS.Utils.
+	(Set): Correctly create a critical section before updating the
+	 Dispatcher.
+	Minor reformatting.
+	
+	* aws-server.ads:
+	(HTTP): Add field Dispatcher_Sem. Remove pragma Atomic on Dispatcher.
+	(Semaphore): Moved to AWS.Utils.
+	Add some of comments.
+
+	* aws-utils.ads, aws-utils.adb:
+	(Semaphore): Protected type moved here from Server unit.
+	(RW_Semaphore): New protected type.
+	Update copyright notice.
+
 2002-10-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
