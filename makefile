@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: all build build clean distrib install set_std set_ssl
+.SILENT: all build build clean distrib install set_std set_ssl build_tarball
 
 include makefile.conf
 
@@ -30,7 +30,7 @@ else
 EXEEXT =
 endif
 
-INSTALL	 = /usr/Ada.Libraries
+INSTALL	 = $(HOME)
 # AWS will be installed under $(INSTALL)/AWS
 
 # compiler
@@ -40,8 +40,6 @@ DEBUG_GFLAGS	= -g -m -gnatwu -gnaty3abcefhiklmnoprst
 # linker
 RELEASE_LFLAGS	= -s
 DEBUG_LFLAGS	=
-
-DEBUG=1
 
 ifdef DEBUG
 GFLAGS		= $(DEBUG_GFLAGS)
@@ -69,7 +67,9 @@ all:
 	echo ""
 	echo "  Build :"
 	echo ""
-	echo "    build:        build AWS library and demos"
+	echo "    build:        build AWS library, tools and demos"
+	echo "    build_lib:    build AWS library only"
+	echo "    build_tools:  build AWS tools only"
 	echo "    build_doc:    build documentation (needs texinfo support)"
 	echo "    build_soap:   build SOAP library (needs XML-Ada package)"
 	echo ""
@@ -90,7 +90,9 @@ set_std:
 	echo "MODE=std" > makefile.conf
 	${MAKE} -C src std_mode
 
-build: build_ssllib build_include build_aws build_win32 build_tools build_demo
+build_lib: build_ssllib build_include build_aws build_win32
+
+build: build_lib build_demos
 
 build_aws:
 	${MAKE} -C src build $(ALL_OPTIONS)
@@ -98,7 +100,7 @@ build_aws:
 build_tools:
 	${MAKE} -C tools build $(ALL_OPTIONS)
 
-build_demo:
+build_demos: build_lib
 	${MAKE} -C demos build $(ALL_OPTIONS)
 
 build_soap_demo:
@@ -112,7 +114,7 @@ endif
 build_soaplib: build_include
 	${MAKE} -C soap build $(ALL_OPTIONS)
 
-build_soap: build_soaplib build_soap_demo
+build_soap: build_lib build_soaplib build_soap_demo
 
 gnat_oslib:
 	${MAKE} -C src gnat_oslib
@@ -132,10 +134,16 @@ build_include:
 build_win32:
 	${MAKE} -C win32 build $(ALL_OPTIONS)
 
+build_apiref:
+	${MAKE} -C docs apiref
+
 run_regtests:
 	${MAKE} -C regtests run $(ALL_OPTIONS)
 
-clean:
+clean: clean_noapiref
+	${MAKE} -C docs clean_apiref
+
+clean_noapiref:
 	${MAKE} -C include clean
 	${MAKE} -C src clean
 	${MAKE} -C demos clean
@@ -149,7 +157,7 @@ clean:
 	rm makefile.conf
 	echo MODE=std > makefile.conf
 
-distrib: clean build_doc
+build_tarball:
 	-rm -f aws-*.tar*
 	(VERSION=`grep " Version" src/aws.ads | cut -d\" -f2`; \
 	AWS=aws-$${VERSION}; \
@@ -158,6 +166,7 @@ distrib: clean build_doc
 	mkdir $${AWS}/demos; \
 	mkdir $${AWS}/regtests; \
 	mkdir $${AWS}/docs; \
+	mkdir $${AWS}/docs/html; \
 	mkdir $${AWS}/icons; \
 	mkdir $${AWS}/include; \
 	mkdir $${AWS}/soap; \
@@ -176,6 +185,7 @@ distrib: clean build_doc
 	cp docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
 	cp docs/aws.info* docs/aws.ps docs/makefile $${AWS}/docs;\
 	cp docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
+	cp -r docs/html/* $${AWS}/docs/html;\
 	cp win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
 	cp win32/aws.ico win32/aws.rc $${AWS}/win32;\
 	cp ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
@@ -188,6 +198,8 @@ distrib: clean build_doc
 	gzip -9 $${AWS}.tar;\
 	rm -fr $${AWS})
 
+distrib: build_apiref clean_noapiref build_doc build_tarball clean
+
 install:
 	-rm -fr $(INSTALL)/AWS
 	mkdir $(INSTALL)/AWS
@@ -197,6 +209,7 @@ install:
 	mkdir $(INSTALL)/AWS/images
 	mkdir $(INSTALL)/AWS/templates
 	mkdir $(INSTALL)/AWS/docs
+	mkdir $(INSTALL)/AWS/docs/html
 	mkdir $(INSTALL)/AWS/components
 	mkdir $(INSTALL)/AWS/tools
 	ar cr libaws.a src/*.o
@@ -213,6 +226,7 @@ install:
 	cp docs/templates_parser.html $(INSTALL)/AWS/docs
 	-cp docs/aws.txt $(INSTALL)/AWS/docs
 	-cp docs/*.info* $(INSTALL)/AWS/docs
+	-cp -r docs/html/* $(INSTALL)/AWS/docs/html
 	cp demos/*.thtml $(INSTALL)/AWS/templates
 	cp icons/*.gif $(INSTALL)/AWS/icons
 	cp demos/aws_*.png $(INSTALL)/AWS/images
