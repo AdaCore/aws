@@ -79,13 +79,6 @@ package Ada2WSDL.Generator is
    procedure New_Literal (Name : in String);
    --  Must be called for each enumeration value parsed
 
-   ------------
-   -- Output --
-   ------------
-
-   procedure Write (Filename : in String);
-   --  Write out the WSDL document into Filename
-
    -----------
    -- Types --
    -----------
@@ -95,5 +88,21 @@ package Ada2WSDL.Generator is
 
    function Type_Exists (Name : in String) return Boolean;
    --  Returns True if Name exists in the type list
+
+   ------------------
+   -- Safe Pointer --
+   ------------------
+
+   procedure Register_Safe_Pointer (Name, Type_Name, Access_Name : in String);
+   --  Add a new AWS/SOAP runtime safe pointer definition. Name is the name of
+   --  the package instance, Type_Name and Access_Name the name of the type
+   --  and access to the type respectively.
+
+   ------------
+   -- Output --
+   ------------
+
+   procedure Write (Filename : in String);
+   --  Write out the WSDL document into Filename
 
 end Ada2WSDL.Generator;
