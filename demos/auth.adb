@@ -31,11 +31,16 @@
 --  $Id$
 
 with Ada.Text_IO;
+with Ada.Command_Line;
 
 with AWS.Server;
 with AWS.Response;
 with AWS.Status;
 with AWS.Digest;
+
+--
+--  Usage : auth [any|basic|digest]
+--
 
 procedure Auth is
 
@@ -43,8 +48,7 @@ procedure Auth is
 
    Auth_Username : constant String := "AWS";
    Auth_Password : constant String := "letmein";
-   Auth_Mode     : constant AWS.Response.Authentication_Mode
-     := AWS.Response.Digest;
+   Auth_Mode     : AWS.Response.Authentication_Mode := AWS.Response.Any;
 
    function Get (Request : in AWS.Status.Data) return AWS.Response.Data;
 
@@ -101,10 +105,21 @@ begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
 
+   if Command_Line.Argument_Count = 1 then
+      Auth_Mode := AWS.Response.Authentication_Mode'Value
+        (Command_Line.Argument (1));
+   end if;
+
    AWS.Server.Start (WS, "Auth demo",
                      Port           => 1234,
                      Max_Connection => 10,
                      Callback       => Get'Unrestricted_Access);
 
    AWS.Server.Wait (AWS.Server.Q_Key_Pressed);
+
+exception
+   when others =>
+      Text_IO.New_Line;
+      Text_IO.Put_Line ("Usage : auth [any|basic|digest]");
+      Text_IO.New_Line;
 end Auth;
