@@ -228,7 +228,7 @@ package body AWS.Server is
 
       procedure Get (ID : out Natural) is
       begin
-         ID := UID;
+         ID  := UID;
          UID := UID + 1;
       end Get;
 
@@ -321,8 +321,12 @@ package body AWS.Server is
                pragma Warnings (Off, S);
                Answer : Response.Data;
             begin
-               Log.Write (HTTP_Server.Error_Log,
-                          Ada.Exceptions.Exception_Information (E));
+               Log.Write
+                 (HTTP_Server.Error_Log,
+                  "Dead slot " & Utils.Image (Slot_Index) & ' '
+                    & Utils.CRLF_2_Spaces
+                        (Ada.Exceptions.Exception_Information (E)));
+
                HTTP_Server.Exception_Handler
                  (E, HTTP_Server.Error_Log, (True, Slot_Index, S), Answer);
             end;
