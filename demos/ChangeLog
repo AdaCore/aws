@@ -1,0 +1,1119 @@
+2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap_client.adb:
+	(Bad): Specify the SOAPAction.
+	(Good): Idem.
+	Fix test.
+	
+	* interoplab_main.wsdl:
+	Add echoVoid service.
+
+	* interoplab_main.adb:
+	Add test for echoVoid.
+
+2003-03-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* interoplab_main.adb:
+	Add test for echoStructArray.
+
+2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(DEMOS): Add interoplab_main.
+	(build_wsdl): Add wsdl2aws call for interoplab_main.wsdl
+
+	* interoplab_main.wsdl, interoplab_main.adb: Initial revision.
+
+2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Remove files generated from WSDL document.
+
+	* makefile:
+	(BUILD_SPECIFIC): New variable.
+	(SOAP_DEMOS): Removed.
+	(build_wsdl): New target.
+	Build SOAP demos if XMLADA is defined.
+
+	* wsdl_demo_client.adb, wsdl_demo_server.adb, hello.wsdl:
+	Initial revision.
+
+2003-02-07  Dmitriy Anisimkov   <anisimkov@yahoo.com>
+
+	* wps.adb:
+	Enable directory browsing.
+
+	* aws_directory.thtml:
+	make directory browser template XHTML correct.
+
+2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Use rm -f to avoid warnings.
+
+	* makefile:
+	(test_ldap): Add echo.
+	(BUILD_OPT): New variable.
+	(build): Add $(BUILD_OPT) remove test_ldap.
+
+2003-01-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(UNITS): New variable used to rebuild all units.
+	(build_std): Do not use a loop for the build process. It depends on
+	 UNITS and units are built by this rule. Now the build process
+	 stop at the first error. Cleaner build process.
+	(build_soap): Idem.
+
+2003-01-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_service.adb:
+	(Main):	Add directory separator before the certificate name.
+
+2002-12-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(LARGS): Remove ssl-wrappers.o. Add -L../ssl non Windows case for
+	 the -lsslaws library.
+
+2002-12-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_service.adb:
+	Use AWS.Server.Set_Security instead of SSL.Set_Certificate. Fix
+	 build failure.
+
+2002-12-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* hotplug.adb:
+	Use AWS.Net.Host_Name instead of the version in AWS.Utils.
+
+	* makefile:
+	(GARGS): Are independent on the mode.
+	(BARGS): Idem.
+	In non-SSL mode, add ssl-wrappers.o to build the demos.
+
+	* test_jabber.adb:
+	Check for the presence 2 times (there was a bug).
+
+2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(.SILENT): Add many missing targets.
+	(GARGS): Add -q (quiet mode).
+	Simplify a lot the rules here. Removes most of the rules for the
+	 demos when the build is standard.
+
+2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap_svs.adb:
+	(SOAP_Moderate_Size_Array_Check): Fix code, better
+	 performance. Use V and Size on array.
+
+2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap_cvs.adb:
+	(Server): New constant.
+	(SOAPAction): Idem.
+	Uses these constants in many places instead of strings.
+
+	* soap_svs.adb:
+	(SOAP_Moderate_Size_Array_Check): Use Size and V on SOAP_Array. Better
+	 performance.
+
+2002-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(DEMOS): Fix error when building Jabber (others demos were not built).
+
+	* ws_cb.adb, runme_cb.adb, hello_world.adb, dispatch.adb:
+	Minor reformatting.
+	Add pragma Unreferenced to avoid warnings.
+
+2002-11-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Integrate test_jabber.
+
+	* test_jabber.adb: 
+	Initial revision.
+
+2002-10-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(.SILENT): Add test_ldap.
+	(GARGS): Add -m option (minimal recompilation). Avoid res_demo
+	 recompilation.
+
+	* test_ldap.adb:
+	Change parameter order for the Search.
+
+2002-10-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* test_ldap.adb:
+	Minor style fix.
+
+	* makefile:
+	(LARGS): Add -L../win32 on Windows.
+	(test_ldap): New target.
+
+	* test_ldap.adb:
+	Initial revision.
+
+2002-10-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Remove runme-*.log log files.
+
+2002-10-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Handle follow redirection (new option -r).
+	Print New location if message 301 returned.
+
+2002-09-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(.SILENT): Add text_input and res_demo.
+
+	* makefile:
+	Removes -gnatwe (warnings as errors) for the demos.
+
+	* auth.adb:
+	Add handling for command line option (any|basic|digest) to select the
+	 authentication mode to use.
+
+2002-09-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* auth.adb, agent.adb: 
+	Minor reformatting.
+
+2002-09-25  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* agent.adb, auth.adb:
+	add to auth.adb and agent.adb support digest authentication
+
+2002-09-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Minor indentation fix.
+
+2002-08-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap_svs.adb:
+	Use "-" to access object in an Object_Safe_Pointer.
+
+2002-07-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* text_input.adb:
+	Fix layout.
+
+2002-06-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* page3.html:
+	Initial revision.
+
+	* makefile:
+	(build): Add res_demo.
+	(res_demo): New target.
+	(clean): Handle rdemo files.
+
+	* res_demo.adb:
+	Initial revision.
+
+2002-06-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Rename Binary to Message_Body.
+
+2002-06-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Add -o option to output data into agent.out.
+
+2002-04-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Slight change for LARGS, BARGS and CARGS handling.
+
+2002-03-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap_svs.adb:
+	By default does not output trace. Use option -t to display info.
+
+	* agent.adb: 
+	Add server push support.
+
+	* soap_client.adb, soap_server.adb, soap_svs.adb:
+	Fix style errors.
+
+2002-03-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(LARGS): Add inherited LFLAGS.
+
+	* makefile: 
+	Add support for Win32 resource file.
+
+2002-03-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GFLAGSY): Cleanup for GNAT 3.14. (GNAT 3.13 is no more supported).
+
+2002-03-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* dispatch.adb, vh_demo.adb:
+	Do not build callback here use new Register service with a
+	 callback parameter.
+
+2002-02-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Add exception handler.
+	Use MIME.Is_Text to test for text/html content.
+
+2002-02-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add handling for dispatch demo.
+
+	* dispatch.adb, vh_demo.adb:
+	Initial revision.
+
+	* wps.adb:
+	Add comment about directory browsing facility.
+
+	* runme_service.adb:
+	Minor comment fix.
+	Add pragma Atomic for Stop_Request and Update_Request boolean.
+
+	* runme_service.ads:
+	Minor comment fix.
+
+	* runme.adb:
+	Removes internal handling for server termination (waiting a key)
+	 and use new Server.Wait service instead.
+
+	* auth.adb:
+	Add call to Server.Wait for proper Server handling.
+
+2002-02-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(.SILENT): Add vh_demo target.
+	(build): Add vh_demo target.
+	(vh_demo): New target.
+
+2002-01-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* 404.thtml, page1.html:
+	Add / before image name.
+
+	* wps.adb:
+	Change behavior to exit (press Q key).
+	Update message.
+
+2002-01-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* 404.thtml: 
+	Initial revision.
+
+	* 404.html: 
+	Not needed anymore, we now use 404.thmlt.
+
+	* 404.html: 
+	New version.
+
+2002-01-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Add wps target.
+
+	* wps.adb, 404.html: 
+	Initial revision.
+
+	* page1.html: 
+	Fix image name which is now in PNG format.
+
+2002-01-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* hotplug.adb: 
+	Revert previous check-in (was done in the wrong branch).
+
+2001-12-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* hotplug.adb:
+	Uses AWS.Sockets.Host_Name instead of AWS.Utils.Gethostname.
+
+2001-11-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* text_input.adb: 
+	Minor HTML formating change.
+
+2001-11-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(build): add text_input.
+	(text_input): new target.
+
+	* text_input.adb:
+	Initial revision.
+
+	* main.adb:
+	Add call to AWS.Server.Wait to control termination.
+
+2001-10-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Make sure the gnatmake command are always run on UNIX and using
+	 Cygwin make.
+
+2001-10-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GFLAGSY): removes -gnaty since selective style check options is
+	 not supported  on GNAT 3.13.
+	(LARGS): change -L../win32 by -L../ssl
+
+	* runme_cb.adb:
+	Add a space between two words in HTML data.
+
+	* hotplug_cb.adb, ws_cb.adb:
+	Put all routines in alphabetical order.
+
+	* makefile:
+	(GARGS): replaces -gnaty switch with a more limited one (no need
+	 for separate spec here).
+
+	* agent.adb, auth.adb, com_1.adb, com_2.adb, hello_world.adb,
+	 hotplug.adb, hotplug_cb.adb, hotplug_cb.ads, main.adb, runme.adb,
+	 runme_cb.adb, runme_cb.ads, runme_control.adb, runme_info.adb,
+	 runme_info.ads, runme_server.adb, runme_service.adb,
+	 runme_service.ads, soap_client.adb, soap_cvs.adb, soap_server.adb,
+	 soap_svs.adb, ws.adb, ws_cb.adb, ws_cb.ads:
+	Fix typo in header.
+
+2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Removes -lRSAglue and -lgdi32 from Win32 linker argument list.
+
+	* agent.adb, auth.adb, com_1.adb, com_2.adb, hello_world.adb,
+	 hotplug.adb, hotplug_cb.adb, hotplug_cb.ads, main.adb, runme.adb,
+	 runme_cb.adb, runme_cb.ads, runme_control.adb, runme_info.adb,
+	 runme_info.ads, runme_server.adb, runme_service.adb,
+	 runme_service.ads, soap_client.adb, soap_cvs.adb, soap_server.adb,
+	 soap_svs.adb, ws.adb, ws_cb.adb, ws_cb.ads:
+	Update copyright notice and authors.
+
+	* agent.adb: 
+	Minor casing fix.
+
+	* ws_cb.adb: 
+	Rename Data_For and Broadcast to Send_To and Send.
+
+2001-10-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb, com_1.adb, com_2.adb, runme_cb.adb, ws_cb.adb:
+	Minor layout and casing fixes.
+
+2001-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb: 
+	Add handling for option -d (debug mode).
+
+2001-09-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb: 
+	Change call to Client.Create for new spec.
+
+2001-09-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Change a lot of things to ease build step.
+
+	* soap_cvs.adb: 
+	Removes unused with clause.
+
+	* soap_client.adb, soap_cvs.adb: 
+	Change pascal:8080 to localhost:8080
+
+2001-09-20  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap_client.adb, soap_cvs.adb, soap_server.adb, soap_svs.adb:
+	Rename Parameters.Set to Parameters.List.
+
+	* soap_svs.adb: 
+	Call Server.Shutdown at the end of the program.
+
+2001-09-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap_cvs.adb:
+	(Error): removed since unused.
+
+	* soap_cvs.adb:
+	Removes unused with clause.
+
+	* makefile: 
+	Add -m (minimal recompilation option).
+	Add rules to build SOAP client/server for validation suite.
+
+	* soap_client.adb, soap_server.adb:
+	Invert parameter value and parameter name.
+
+	* soap_svs.adb, soap_cvs.adb:
+	Initial revision.
+
+2001-09-11  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(LARGS): handles automatically the rules for Windows and UNIX.
+
+	* soap_server.adb:
+	Wait for a key to exit the server.
+
+2001-09-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_service.adb, auth.adb, hotplug.adb, main.adb,
+	 soap_server.adb, hello_world.adb, runme.adb, ws.adb, ws_cb.ads:
+	Changed to use new HTTP design. No more discriminant.
+
+	* hello_world.adb:
+	Ouput some info.
+	Close server after 60 seconds.
+
+	* ws_cb.adb: 
+	Remove unused withed unit.
+
+	* aws_status.thtml: 
+	Add Server start time.
+	Minor design change.
+
+	* runme.adb: 
+	Minor reformating.
+	Wait for a key to exit.
+	Shutdown servers properly.
+
+	* com_1.adb, com_2.adb:
+	Fix demo. Do not exit before all messages are received.
+
+2001-09-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb: Fix typo.
+
+	* agent.adb:
+	Add -n option to do non-stop request, usefull to stress-test a server.
+	Use Messages.Content_Type and Messages.Content_Length constructors.
+	Minor reformating.
+
+2001-09-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme.adb: Fix comment typo.
+
+2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add all targets into .SILENT, add rules to build SOAP demos.
+
+	* ws.adb: 
+	Fix name of call (was renamed in WS package).
+
+	* runme_control.adb, runme_service.adb:
+	Update for last Server API (was not compiling under AWS 1.0).
+
+2001-08-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap_client.adb, soap_server.adb:
+	Initial revision.
+
+2001-08-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ws.adb, ws_cb.adb, ws_cb.ads:
+	Stop push server when needed (it was preventing the server to exit).
+
+2001-08-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ws_cb.adb:
+	Add server push demo.
+
+2001-08-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* main.adb: 
+	Removes with AWS.Log (not used anymore).
+
+	* runme_cb.adb: 
+	Minor reformating.
+
+	* ws_cb.adb:
+	Update URL for use with WWW_Root.
+
+2001-08-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Removes all binder files and Emacs VC mode files.
+
+	* aws_status.thtml: 
+	Add log information.
+
+	* main.adb, runme.adb, ws.adb, ws_cb.adb, ws_cb.ads:
+	Change to support new Log and Config interface.
+
+2001-08-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml: 
+	Change date format to workaround a GNAT 3.13 bug.
+
+2001-07-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Check for KEYS_M instead of VALUES_M because a key could have an
+	 empty value.
+
+2001-07-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_directory.thtml: 
+	Fix some typo.
+	Change <a> tag format for better looking into Netscape.
+
+2001-07-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ws.ini:
+	Initial revision.
+
+	* ws_cb.adb:
+	Use WWW_Root from AWS.Config.
+
+2001-07-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml: 
+	Use fixed size font for the Session ID.
+
+2001-07-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ws_cb.adb:
+	New version which handle the icons and implement a WWW_Root for
+	 the browsing facility.
+
+	* aws_directory.thtml:
+	New version to be in sync with new directoring browsing service.
+
+2001-07-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Minor reformating.
+
+2001-07-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): fix rule to remove object files.
+
+2001-06-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Add SESSION_LIFETIME, SESSION_CLEANUP_INTERVAL, SESSIONS_TS_V and
+	 SESSIONS_TERMINATE_V
+
+	* runme.adb:
+	Minor reformatting.
+
+2001-06-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Add session timestamp data.
+
+2001-06-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_directory.thtml:
+	Initial revision.
+
+	* ws_cb.adb:
+	Update directory browsing page used.
+
+	* ws_cb.adb:
+	Add test for directory browsing service.
+
+	* ws.adb:
+	Exit after 5 minutes.
+
+2001-05-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* demo.adb:
+	New version.
+
+	* hotplug_cb.adb: 
+	Add code to demo the POST hotplug feature.
+
+2001-05-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* hotplug_cb.adb:
+	Display parameters received.
+
+2001-05-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Indent properly the file.
+	Display a message when no session or no hotplug info are to be
+	 displayed.
+
+	* aws_status.thtml:
+	Add date and time using Templates_Parser specific tags.
+
+	* runme_cb.adb:
+	Add reference to templates_parser.
+
+	* makefile:
+	Add Hello_World.
+
+	* runme_cb.adb:
+	(Service): Add else part to avoid compiler Warnings.
+	(Service_Sec): idem.
+
+2001-05-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GARGS): add $(INCLUDE)
+
+2001-05-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Align table headers.
+	Fix PHASE tag filter format.
+
+	* runme_cb.adb: 
+	Change way to retreive parameter name and value.
+
+2001-05-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Update to new filter syntax.
+
+2001-05-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Handle empty peername.
+
+2001-05-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Use new default variable tag separator.
+
+	* runme_cb.adb:
+	Add another Session ID string.
+
+	* hello_world.adb:
+	Update copyright notice.
+
+2001-05-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* hello_world.adb:
+	Initial revision.
+
+2001-05-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Use _V instead of _L for vector tags names.
+
+2001-05-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_cb.adb:
+	Add Peername to output in first page.
+
+	* main.adb, runme.adb, ws.adb, auth.adb, hotplug.adb:
+	Update HTTP and Start to match new interface.
+
+2001-05-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Fix minor typo.
+
+	* aws_status.thtml:
+	Add PEER_NAME_L
+
+2001-05-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_cb.adb:
+	Change all instances of GIF to PNG.
+
+	* adains.png, aws_down.png, aws_logo.png, aws_up.png:
+	Initial revision.
+
+	* up.gif, down.gif, logo.gif, adains.gif:
+	not used anymore, we use .PNG files
+
+2001-04-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_cb.adb:
+	Fix typo.
+	Add some display to the demo.
+
+	* agent.adb:
+	Correctly set the Peristent field.
+
+2001-04-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Add SLOT_ACTIVITY_COUNTER_L tag.
+
+	* runme_service.adb, runme_service.ads, runme_control.adb,
+	 runme_info.adb, runme_info.ads, runme_server.adb:
+	Initial revision.
+
+2001-03-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* main.adb:
+	Fix comments.
+
+	* main.adb:
+	Minor layout change.
+
+	* hotplug.adb:
+	(Filter): new constant.
+	Use Filter instead of static string.
+
+2001-03-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	First implementation of a keep-alive client.
+
+	* aws_status.thtml:
+	Add reference to GNU/Ada.
+
+2001-03-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Simplify it (removes includes).
+
+2001-01-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* com_1.adb: 
+	Add indice in parameters.
+
+2001-01-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_cb.adb, hotplug_cb.adb:
+	Fix typos.
+
+2000-11-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme.adb: 
+	Set the log file to change daily.
+
+2000-11-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* main.adb:
+	(Main): change server name.
+
+2000-10-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Add support for HEAD method.
+
+2000-10-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml: 
+	Add order number in the Hotplug table.
+
+	* down.gif, up.gif:
+	New file.
+
+	* makefile:
+	(build): add com_1, com_2, main and hotplug target.
+	(main): new target.
+	(hotplug): new target.
+	Fix comment.
+
+	* aws_status.thtml:
+	Add Hotplug table.
+
+	* hotplug.adb:
+	Use Register_Message and Unregister_Message.
+	Fix use of Gethostname.
+
+	* com_2.adb, com_1.adb:
+	Change to comply with new Communication.Server unit API (mainly
+	 the Context).
+
+	* hotplug_cb.ads, main.adb, hotplug.adb, hotplug_cb.adb:
+	Initial revision.
+
+	* aws_status.thtml:
+	Add Hotplug output.
+
+2000-10-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* com_2.adb:
+	Comment reference com_1.adb.
+	Handle one parameter: the computer name.
+
+	* com_1.adb:
+	Add some comments.
+	Handle one parameter: the computer name.
+
+	* com_2.adb:
+	Add some comments.
+
+	* com_1.adb:
+	Minor layout fixes.
+
+	* makefile:
+	(Com_1): new target.
+	(Com_2): new target.
+
+	* com_1.adb, com_2.adb:
+	Initial revision.
+
+	* ws.adb:
+	Add Shutdown call.
+
+2000-10-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme.adb:
+	Start logging facility.
+
+2000-10-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme_cb.adb:
+	Add test for select with multiple value.
+
+	* ws_cb.adb:
+	Use localhost instead of dieppe for the host name in the
+	 redirection test.
+
+	* agent.adb:
+	Add option -f to force the output of the message body for non text/html
+	 content type.
+
+2000-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ws_cb.adb:
+	Add a test for redirection (Location header).
+
+	* auth.adb, ws.adb: 
+	Output AWS version.
+
+2000-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme.adb:
+	Add with AWS.Server (was removed by accident by previous check-in).
+
+	* runme_cb.adb:
+	(Service_Sec): renaming of Service2.
+	(Get): add file upload demo.
+	Add </form> everywhere.
+
+	* runme_cb.ads:
+	Rename Service2 to Service_Sec.
+
+	* runme.adb: 
+	Print AWS version.
+	Rename Service2 to Service_Sec.
+
+2000-09-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml: 
+	Removes Quit variable (not used anymore).
+
+2000-09-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ws_cb.adb (Is_Gif): 
+	Removed. Use now AWS.MIME.
+
+2000-09-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ws_cb.adb:
+	Add some code to handle HEAD request.
+
+2000-09-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Fix typo.
+
+2000-09-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Use YES_NO filter for all remaining boolean value.
+
+	* logo.gif:
+	Better lisibility.
+	And properly set the transparent color.
+
+	* aws_status.thtml:
+	Use YES_NO template filter for SECURITY and SESSION tag.
+
+	* makefile:
+	(SILENT): add auth, ws, clean
+
+	* makefile:
+	(build): add ws to the list of program to build.
+
+2000-09-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws_status.thtml:
+	Use LOGO tag variable instead of the real filename.
+
+	* runme_cb.adb:
+	Change code to use the overloaded session API for Integer (cleaner
+	 code).
+	Removes handling for /logo.gif.
+
+2000-09-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GARGS): add -I../include
+
+	* ws.adb:
+	Add session field to HTTP.
+
+	* aws_status.thtml:
+	Improve layout.
+	Add session data.
+
+	* runme_cb.adb:
+	(Service2): new function.
+	(Get_Not_Session): new function.
+	(Get): add some session demo code.
+
+	* runme_cb.ads:
+	(Service2): new function.
+
+	* runme.adb, auth.adb:
+	Add session field to HTTP.
+
+	* cert.pem:
+	New version. This certificate has AWS embedded information.
+
+	* auth.adb, ws.adb:
+	Add server name and status page name to call to Start.
+
+	* runme_cb.adb:
+	(Get): handle logo.gif for status page.
+
+	* runme.adb:
+	Removes some documentation (replaced by AWS doc)
+	Add server name and status page name to call to Start.
+
+	* aws_status.thtml, logo.gif:
+	Initial revision.
+
+2000-08-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Add rule for ws.
+
+	* page1.html, page2.html, ws.adb, ws_cb.adb, ws_cb.ads:
+	Initial revision.
+
+2000-08-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* auth.adb:
+	Display authorization data (name and password).
+
+2000-07-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb:
+	Add usage documentation.
+
+2000-07-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Add support for SSL build.
+
+	* auth.adb: 
+	Add False (no SSL) to WS declaration of type HTTP.
+
+	* runme.adb: 
+	Add HTTPS demo.
+
+	* cert.pem:
+	Initial revision.
+
+2000-07-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme.adb:
+	Minor comment update.
+
+2000-05-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* auth.adb:
+	Add AWS.Server.Start.
+
+	* runme_cb.adb:
+	Add some code to use new procedure Parameter_Name.
+
+2000-04-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* runme.adb:
+	Call AWS.Server.Start.
+
+2000-03-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* demo.adb:
+	Change interface to conform to new Sockets binding.
+
+2000-02-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb, runme.adb, runme_cb.adb, runme_cb.ads:
+	Update to add demo for the PUT method
+
+2000-01-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* auth.adb:
+	Fix sockets interface to use the UNIX compliant one.
+
+	* makefile:
+	(GARGS): update path to the sockets libraries
+
+2000-01-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): add - before the rm
+
+2000-01-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* agent.adb, auth.adb, base64.adb, demo.adb, makefile, runme.adb:
+	Again a lot of changes not worth to list all of them.
+	This is certainly the first "usable" release.
+	Most important points are:
+	Use a pool of task for the connection
+	Implement base64 algorithm used for Basic authentification
+	Implement proxy/pwd protocol for the client side
+	Implement If-Modified-Since for files
+
+2000-01-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* base64.adb:
+	New file.
+
+2000-01-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* auth.adb:
+	Minor layout fix
+
+	* demo.adb:
+	New file.
+	Just to try things not to be distributed
+
+	* makefile: 
+	Lot of changes
+
+	* adains.gif:
+	New file.
+
+	* runme_cb.adb:
+	Add test page for image and POST forms.
+
+2000-01-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* auth.adb, makefile: 
+	New file.
+
+	* agent.adb, runme.adb:
+	The server procedure is now in a package.
+
+	* runme_cb.adb, runme_cb.ads:
+	New file.
+
+	* runme.adb: 
+	Update comment for first release
+
+	* runme.adb:
+	New file.
