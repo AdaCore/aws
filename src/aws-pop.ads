@@ -94,13 +94,14 @@ package AWS.POP is
    generic
       with procedure Action
         (Message : in     POP.Message;
+         Index   : in     Positive;
          Quit    : in out Boolean);
    procedure For_Every_Message
      (Mailbox : in POP.Mailbox;
       Remove  : in Boolean := False);
-   --  Calls action for each message read on the mailbox, delete the message
+   --  Calls Action for each message read on the mailbox, delete the message
    --  from the mailbox if Remove is True. Set Quit to True to stop the
-   --  iterator.
+   --  iterator. Index is the mailbox's message index.
 
    function Content (Message : in POP.Message) return Unbounded_String;
    --  Returns message's content as an Unbounded_String. Each line are
