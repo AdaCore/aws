@@ -52,17 +52,21 @@ package User_Strm is
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
 
+   function Size (File : in File_Tagged) return Stream_Element_Offset;
+
    procedure Close (File : in out File_Tagged);
 
    procedure Create
-     (Resource : in out AWS.Resources.Streams.Stream_Type'Class;
-      Size     : in     Stream_Element_Offset);
+     (Resource       : in out AWS.Resources.Streams.Stream_Type'Class;
+      Size           : in     Stream_Element_Offset;
+      Undefined_Size : in     Boolean);
 
 private
 
    type File_Tagged is new Streams.Stream_Type with record
-      Offset : Stream_Element_Offset;
-      Size   : Stream_Element_Offset;
+      Offset         : Stream_Element_Offset;
+      Size           : Stream_Element_Offset;
+      Undefined_Size : Boolean;
    end record;
 
 end User_Strm;
