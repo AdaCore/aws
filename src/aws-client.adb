@@ -124,6 +124,9 @@ package body AWS.Client is
       W : Duration;
    begin
       Phase_Loop : loop
+
+         --  Wait for the job to be done
+
          select
             accept Send do
                W := Duration (Connection.Timeouts.Send);
@@ -145,6 +148,8 @@ package body AWS.Client is
 
          end select;
 
+         --  Delay for the right time
+
          select
             accept Stop;
             exit Phase_Loop;
@@ -154,13 +159,16 @@ package body AWS.Client is
             delay W;
          end select;
 
+         --  Still in the same phase after the delay, just close the socket
+         --  now.
+
          if Connection.Current_Phase = P then
-            --  Still in the same phase, just close the socket now.
             Sockets.Shutdown (Connection.Socket.all);
             Connection.Socket := null;
          end if;
 
       end loop Phase_Loop;
+
    exception
       when E : others =>
          Text_IO.Put_Line (Exceptions.Exception_Information (E));
@@ -182,7 +190,17 @@ package body AWS.Client is
       Connection.Current_Phase := Stopped;
 
       if not (Connection.Cleaner = null) then
-         Connection.Cleaner.Stop;
+
+         begin
+            --  We don't want to fail here, we really want to free the cleaner
+            --  object.
+            if not Connection.Cleaner'Terminated then
+               Connection.Cleaner.Stop;
+            end if;
+         exception
+            when others =>
+               null;
+         end;
 
          while not Connection.Cleaner'Terminated loop
             delay 0.01;
@@ -210,7 +228,7 @@ package body AWS.Client is
       Proxy      : in     String          := No_Data;
       Proxy_User : in     String          := No_Data;
       Proxy_Pwd  : in     String          := No_Data;
-      Retry      : in     Positive        := Retry_Default;
+      Retry      : in     Natural         := Retry_Default;
       SOAPAction : in     String          := No_Data;
       Persistent : in     Boolean         := True;
       Timeouts   : in     Timeouts_Values := No_Timeout)
