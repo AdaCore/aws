@@ -1,4 +1,3 @@
-
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
@@ -54,6 +53,127 @@ procedure SOAP_SVS is
    use Ada;
 
    WS  : AWS.Server.HTTP;
+
+   function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data;
+   --  Callback used when SOAPAction is /validator1
+
+   ------------------------------
+   -- SOAP Validation Callback --
+   ------------------------------
+
+   function SOAP_Count_The_Entities
+     (PL : in SOAP.Message.Payload.Object)
+     return AWS.Response.Data;
+
+   function SOAP_Easy_Struct_Test
+     (PL : in SOAP.Message.Payload.Object)
+     return AWS.Response.Data;
+
+   function SOAP_Echo_Struct_Test
+     (PL : in SOAP.Message.Payload.Object)
+     return AWS.Response.Data;
+
+   function SOAP_Many_Types_Test
+     (PL : in SOAP.Message.Payload.Object)
+     return AWS.Response.Data;
+
+   function SOAP_Moderate_Size_Array_Check
+     (PL : in SOAP.Message.Payload.Object)
+     return AWS.Response.Data;
+
+   function SOAP_Nested_Struct_Test
+     (PL : in SOAP.Message.Payload.Object)
+     return AWS.Response.Data;
+
+   function SOAP_Simple_Struct_Return_Test
+     (PL : in SOAP.Message.Payload.Object)
+     return AWS.Response.Data;
+
+   function SOAP_Which_Toolkit
+     (PL : in SOAP.Message.Payload.Object)
+     return AWS.Response.Data;
+
+   --------
+   -- CB --
+   --------
+
+   function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+      SOAPAction : constant String := AWS.Status.SOAPAction (Request);
+   begin
+      if SOAPAction = "/validator1" then
+         return SOAP_CB (Request);
+
+      else
+         return AWS.Response.Build
+           ("text/html",
+            "<p>This is not a SOAP action !");
+      end if;
+   end CB;
+
+   -------------
+   -- SOAP_CB --
+   -------------
+
+   function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data is
+      use SOAP.Types;
+      use SOAP.Parameters;
+
+      XML_Payload : constant String
+        := AWS.Status.Payload (Request);
+
+      PL : constant SOAP.Message.Payload.Object
+        := SOAP.Message.XML.Load_Payload (XML_Payload);
+
+      Proc_Name : constant String :=
+        SOAP.Message.Payload.Procedure_Name (PL);
+
+   begin
+      --  Print SOAP request for the demo
+
+      Text_IO.Put_Line ("SOAP Request");
+
+      Text_IO.Put_Line ("Payload : " & AWS.Status.Payload (Request));
+
+      Text_IO.Put_Line ("   Procedure : " & Proc_Name);
+
+      --  Test the procedure to call
+
+      if Proc_Name = "countTheEntities" then
+         return SOAP_Count_The_Entities (PL);
+
+      elsif Proc_Name = "easyStructTest" then
+         return SOAP_Easy_Struct_Test (PL);
+
+      elsif Proc_Name = "echoStructTest" then
+         return SOAP_Echo_Struct_Test (PL);
+
+      elsif Proc_Name = "manyTypesTest" then
+         return SOAP_Many_Types_Test (PL);
+
+      elsif Proc_Name = "moderateSizeArrayCheck" then
+         return SOAP_Moderate_Size_Array_Check (PL);
+
+      elsif Proc_Name = "nestedStructTest" then
+         return SOAP_Nested_Struct_Test (PL);
+
+      elsif Proc_Name = "simpleStructReturnTest" then
+         return SOAP_Simple_Struct_Return_Test (PL);
+
+      elsif Proc_Name = "whichToolkit" then
+         return SOAP_Which_Toolkit (PL);
+
+      else
+         return AWS.Response.Build
+           ("text/html",
+            "<p>Not yet implemented !");
+      end if;
+
+   exception
+      when SOAP.Types.Data_Error =>
+         return SOAP.Message.Response.Build
+           (SOAP.Message.Response.Error.Build
+            (SOAP.Message.Response.Error.Client, "Parameter error"));
+   end SOAP_CB;
 
    -----------------------------
    -- SOAP_Count_The_Entities --
@@ -432,7 +552,7 @@ procedure SOAP_SVS is
       RP := +SOAP.Types.R
         (Object_Set'(+S ("http://libre.act-europe.fr/", "toolkitDocsUrl"),
                      +S ("AWS/SOAP (Ada Web Server)", "toolkitName"),
-                     +S (AWS.Version & '.' & SOAP.version, "toolkitVersion"),
+                     +S (AWS.Version & '.' & SOAP.Version, "toolkitVersion"),
                      +S ("Windows", "toolkitOperatingSystem")),
          "answer");
 
@@ -440,88 +560,6 @@ procedure SOAP_SVS is
 
       return SOAP.Message.Response.Build (R);
    end SOAP_Which_Toolkit;
-
-   -------------
-   -- SOAP_CB --
-   -------------
-
-   function SOAP_CB (Request : in AWS.Status.Data) return AWS.Response.Data is
-      use SOAP.Types;
-      use SOAP.Parameters;
-
-      XML_Payload : constant String
-        := AWS.Status.Payload (Request);
-
-      PL : constant SOAP.Message.Payload.Object
-        := SOAP.Message.XML.Load_Payload (XML_Payload);
-
-      Proc_Name : constant String :=
-        SOAP.Message.Payload.Procedure_Name (PL);
-
-   begin
-      --  Print SOAP request for the demo
-
-      Text_IO.Put_Line ("SOAP Request");
-
-      Text_IO.Put_Line ("Payload : " & AWS.Status.Payload (Request));
-
-      Text_IO.Put_Line ("   Procedure : " & Proc_Name);
-
-      --  Test the procedure to call
-
-      if Proc_Name = "countTheEntities" then
-         return SOAP_Count_The_Entities (PL);
-
-      elsif Proc_Name = "easyStructTest" then
-         return SOAP_Easy_Struct_Test (PL);
-
-      elsif Proc_Name = "echoStructTest" then
-         return SOAP_Echo_Struct_Test (PL);
-
-      elsif Proc_Name = "manyTypesTest" then
-         return SOAP_Many_Types_Test (PL);
-
-      elsif Proc_Name = "moderateSizeArrayCheck" then
-         return SOAP_Moderate_Size_Array_Check (PL);
-
-      elsif Proc_Name = "nestedStructTest" then
-         return SOAP_Nested_Struct_Test (PL);
-
-      elsif Proc_Name = "simpleStructReturnTest" then
-         return SOAP_Simple_Struct_Return_Test (PL);
-
-      elsif Proc_Name = "whichToolkit" then
-         return SOAP_Which_Toolkit (PL);
-
-      else
-         return AWS.Response.Build
-           ("text/html",
-            "<p>Not yet implemented !");
-      end if;
-
-   exception
-      when SOAP.Types.Data_Error =>
-         return SOAP.Message.Response.Build
-           (SOAP.Message.Response.Error.Build
-            (SOAP.Message.Response.Error.Client, "Parameter error"));
-   end SOAP_CB;
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : in AWS.Status.Data) return AWS.Response.Data is
-      SOAPAction : constant String := AWS.Status.SOAPAction (Request);
-   begin
-      if SOAPAction = "/validator1" then
-         return SOAP_CB (Request);
-
-      else
-         return AWS.Response.Build
-           ("text/html",
-            "<p>This is not a SOAP action !");
-      end if;
-   end CB;
 
 begin
    AWS.Server.Start (WS, "SOAP Validation Suite",
