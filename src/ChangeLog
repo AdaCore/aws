@@ -1,3 +1,8 @@
+2002-04-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Disconnect): Fix style error.
+
 2002-04-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
