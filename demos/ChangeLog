@@ -1,3 +1,10 @@
+2004-11-07  Pascal Obry  <pascal@obry.org>
+
+	* sliding_s_index.thtml, sliding_index.thtml, simple_s_index.thtml,
+	  bounded_s_index.thtml, bounded_index.thtml:
+	Initial revision. A templates that can be used to create indexes
+	 for the split pages services.
+
 2004-10-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* makefile:

@@ -1,3 +1,13 @@
+2004-11-07  Pascal Obry  <pascal@obry.org>
+
+	* aws-services-split_pages-uniform.ads,
+	  aws-services-split_pages-uniform-overlapping.ads,
+	  aws-services-split_pages-uniform-alpha.ads,
+	  aws-services-split_pages-alpha.ads,
+	  aws-services-split_pages-alpha-bounded.ads:
+	Removes note about usable templates. This is now in the template
+	 file itself part of the demos.
+
 2004-11-06  Pascal Obry  <pascal@obry.org>
 
 	* aws-services-split_pages-uniform.adb:
