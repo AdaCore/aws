@@ -28,6 +28,8 @@
 
 --  $Id$
 
+with Ada.Command_Line;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -197,51 +199,75 @@ package body AWS.Config is
 
       use GNAT;
       use Ada;
-      use type GNAT.Regpat.Match_Location;
 
-      procedure Error_Message (Message : in String);
+      procedure Error_Message (Filename : in String; Message : in String);
       --  Output error message with filename and line number.
 
-      Regexp  : constant String := "^ *([#a-zA-Z]+) +([0-9a-zA-Z/\-:.]+)";
-      Matcher : constant Regpat.Pattern_Matcher := Regpat.Compile (Regexp);
-      Matches : Regpat.Match_Array (1 .. 2);
+      procedure Process_Ini (Filename : in String);
+      --  Read init file and set variables accordingly.
 
-      File    : Text_IO.File_Type;
-      Buffer  : String (1 .. 1024);
-      Last    : Natural;
-      Line    : Natural := 0;
+      function Program_Ini_File return String;
+      --  Returns initialization filename for current server (using the
+      --  executable name and adding .ini)
+
+      Line : Natural;
       --  current line number parsed
 
       -------------------
       -- Error_Message --
       -------------------
 
-      procedure Error_Message (Message : in String) is
+      procedure Error_Message (Filename : in String; Message : in String) is
       begin
-         Text_IO.Put ("(aws.ini:");
+         Text_IO.Put ('(' & Filename & ':');
          Text_IO.Put (AWS.Utils.Image (Line));
          Text_IO.Put_Line (") " & Message);
       end Error_Message;
 
-   begin
-      Text_IO.Open (Name => "aws.ini", File => File, Mode => Text_IO.In_File);
+      -----------------
+      -- Process_Ini --
+      -----------------
 
-      while not Text_IO.End_Of_File (File) loop
-         Text_IO.Get_Line (File, Buffer, Last);
-         Line := Line + 1;
+      procedure Process_Ini (Filename : in String) is
 
-         if Last /= 0 then
-            Regpat.Match (Matcher, Buffer (1 .. Last), Matches);
+         use type GNAT.Regpat.Match_Location;
 
-            if Matches (2) /= Regpat.No_Match then
-               declare
-                  Key   : constant String
-                    := Buffer (Matches (1).First .. Matches (1).Last);
-                  Value : constant String
-                    := Buffer (Matches (2).First .. Matches (2).Last);
-               begin
-                  if Key /= "#" then
+         Regexp  : constant String := "^ *([#a-zA-Z_]+) +([0-9a-zA-Z/\-:.]+)";
+         Matcher : constant Regpat.Pattern_Matcher := Regpat.Compile (Regexp);
+         Matches : Regpat.Match_Array (1 .. 2);
 
+         File    : Text_IO.File_Type;
+         Buffer  : String (1 .. 1024);
+         Last    : Natural;
+      begin
+         Text_IO.Open (Name => Filename,
+                       File => File,
+                       Mode => Text_IO.In_File);
+
+         Line := 0;
+
+         while not Text_IO.End_Of_File (File) loop
+            Text_IO.Get_Line (File, Buffer, Last);
+            Line := Line + 1;
+
+            -- Remove comments
+            for I in 1 .. Last loop
+               if Buffer (I) = '#' then
+                  Last := I - 1;
+                  exit;
+               end if;
+            end loop;
+
+            if Last /= 0 then
+               Regpat.Match (Matcher, Buffer (1 .. Last), Matches);
+
+               if Matches (2) /= Regpat.No_Match then
+                  declare
+                     Key   : constant String
+                       := Buffer (Matches (1).First .. Matches (1).Last);
+                     Value : constant String
+                       := Buffer (Matches (2).First .. Matches (2).Last);
+                  begin
                      if Key = "Server_Name" then
                         Server_Name_Value := To_Unbounded_String (Value);
 
@@ -271,7 +297,8 @@ package body AWS.Config is
                            Max_Connection_Value := Positive'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Server_Port" then
@@ -279,7 +306,8 @@ package body AWS.Config is
                            Server_Port_Value := Positive'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Cleaner_Wait_For_Client_Timeout" then
@@ -288,7 +316,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Cleaner_Wait_For_Client_Timeout" then
@@ -297,7 +326,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Cleaner_Client_Header_Timeout" then
@@ -306,7 +336,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Cleaner_Client_Data_Timeout" then
@@ -315,7 +346,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Cleaner_Server_Response_Timeout" then
@@ -324,7 +356,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Force_Wait_For_Client_Timeout" then
@@ -333,7 +366,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Force_Client_Header_Timeout" then
@@ -342,7 +376,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Force_Client_Data_Timeout" then
@@ -351,7 +386,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Force_Server_Response_Timeout" then
@@ -360,7 +396,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Send_Timeout" then
@@ -369,7 +406,8 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      elsif Key = "Receive_Timeout" then
@@ -378,24 +416,46 @@ package body AWS.Config is
                              := Duration'Value (Value);
                         exception
                            when others =>
-                              Error_Message ("wrong value for " & Key);
+                              Error_Message
+                                (Filename, "wrong value for " & Key);
                         end;
 
                      else
-                        Error_Message ("unrecognized option " & Key);
+                        Error_Message (Filename, "unrecognized option " & Key);
                      end if;
-                  end if;
-               end;
-            else
-               Error_Message ("wrong format");
+                  end;
+               else
+                  Error_Message (Filename, "wrong format");
+               end if;
             end if;
-         end if;
-      end loop;
+         end loop;
 
-      Text_IO.Close (File);
-   exception
-      when Text_IO.Name_Error =>
-         null;
+         Text_IO.Close (File);
+      exception
+         when Text_IO.Name_Error =>
+            null;
+      end Process_Ini;
+
+      ----------------------
+      -- Program_Ini_File --
+      ----------------------
+
+      function Program_Ini_File return String is
+         Exec_Name : constant String := Ada.Command_Line.Command_Name;
+         Last      : Natural;
+      begin
+         Last := Strings.Fixed.Index (Exec_Name, ".", Strings.Backward);
+
+         if Last = 0 then
+            return Exec_Name & ".ini";
+         else
+            return Exec_Name (Exec_Name'First .. Last) & "ini";
+         end if;
+      end Program_Ini_File;
+
+   begin
+      Process_Ini ("awi.ini");
+      Process_Ini (Program_Ini_File);
    end Initialize;
 
    ------------------------
