@@ -30,7 +30,7 @@
 
 --  $Id$
 
---  with Ada.Unchecked_Deallocation;
+with Ada.Unchecked_Conversion;
 
 with AWS.Messages;
 with AWS.Parameters;
@@ -45,6 +45,19 @@ package body AWS.Communication.Server is
 
    Context    : T_Access;
    --  The context kept for each server
+
+   type Internal_Callback is
+     access function (Request : in Status.Data) return Response.Data;
+   --  This is the internal callback access type. It is not possible to use
+   --  Receive'Access for as the callback address as the Response.Callback is
+   --  outside generic package. We then use Unchecked_Conversion to convert
+   --  value from Internal_Callback to Callback. Both type must be kept
+   --  identical.
+
+   function To_Callback is
+      new Ada.Unchecked_Conversion (Internal_Callback, Response.Callback);
+   --  Conversion function from the internal callback representation to the
+   --  standard and user visible callback type.
 
    function Receive (Request : in Status.Data) return Response.Data;
    --  Handle communication server message.
@@ -96,8 +109,7 @@ package body AWS.Communication.Server is
 
       else
          return Response.Acknowledge
-           (Messages.S412,
-            "AWS communication message error!");
+           (Messages.S412, "AWS communication message error!");
       end if;
    end Receive;
 
@@ -115,6 +127,7 @@ package body AWS.Communication.Server is
    -----------
 
    procedure Start (Port : in Positive; Context : in T_Access) is
+      CB : constant Internal_Callback := Receive'Access;
    begin
       Server.Context := Context;
 
@@ -122,7 +135,7 @@ package body AWS.Communication.Server is
         (Com_Server, "Communication Server",
          Max_Connection => 1,
          Port           => Port,
-         Callback       => Receive'Unrestricted_Access);
+         Callback       => To_Callback (CB));
    end Start;
 
 end AWS.Communication.Server;
