@@ -19,6 +19,9 @@ aws-log.ads.texi
 aws-messages.ads.texi
 aws-mime.ads.texi
 aws-parameters.ads.texi
+aws-resources-embedded.ads.texi
+aws-resources-files.ads.texi
+aws-resources-streams-memory.ads.texi
 aws-resources-streams.ads.texi
 aws-resources.ads.texi
 aws-response.ads.texi
