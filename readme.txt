@@ -328,7 +328,7 @@ License:
 --------
 
 AWS is distributed under the GMGPL (GNAT Modified GPL) license. This license
-ensure that it is possible to build commercial software with AWS. Note that
+ensures that commercial applications can be built using AWS. Note that
 AWS comes with a set of components. Those components are using a license
 compatible with the AWS's one. For information about component's individual
 licenses see include/readme.txt.
