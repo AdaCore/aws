@@ -76,6 +76,8 @@ Here are the main changes since AWS 1.3 :
      checked with gnatmem in a large project and should be memory leak free
      at this point.
 
+   - Handle properly file upload for filenames with accents and spaces.
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
@@ -226,6 +228,15 @@ AWS users is to register to the AWS dedicated mailing list. See:
 
    http://lists.act-europe.fr/mailman/listinfo/aws
 
+Contributors:
+-------------
+
+Thanks to the contributors and peoples who send feedbacks, ideas
+about AWS. In the early stage of the project this is very valuable.
+
+So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
+Thierry Lelegard, Nicolas Lesbats, Jean-François Rameau, Maxim Reznik,
+Jean-Pierre Rosen, Ariane Sinibardy.
 
 AWS uses:
 ---------
