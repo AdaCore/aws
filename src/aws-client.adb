@@ -666,8 +666,12 @@ package body AWS.Client is
 
                if SOAPAction /= No_Data then
                   --  SOAP header
-
-                  Send_Header (Sock, Messages.SOAPAction (SOAPAction));
+                  if SOAPAction = """""" then
+                     --  An empty SOAPAction
+                     Send_Header (Sock, Messages.SOAPAction (""));
+                  else
+                     Send_Header (Sock, Messages.SOAPAction (SOAPAction));
+                  end if;
                end if;
 
                --  Send message Content_Length
