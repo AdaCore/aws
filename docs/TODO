@@ -198,3 +198,12 @@ implemented:
 - AWS should not depends on IPv6 (should be an option).
 
 - Use GNAT.MD5 instead of include/md5.
+
+- Use Ada.Containers (remove AI302 components).
+
+- Clean-up ASIS configuration. Use new ASIS setup based on project files.
+  Remove the setup for older version of ASIS having no project file.
+
+- Revisite the AdaSockets support. Should we continue supporting this ?
+  It would certainly be easier to support only GNAT.Sockets and use the
+  selector facilities instead of the AWS's poll() support.
