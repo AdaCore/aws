@@ -1,3 +1,23 @@
+2004-07-07  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser-query.adb, templates_parser-debug.adb:
+	Some changes due to new Tag record structure to fix reference
+	 semantic implementation.
+
+	* templates_parser-xml.adb, templates_parser-utils.adb:
+	Some changes due to new Tag record structure to fix reference
+	 semantic implementation.
+
+	* templates_parser.adb:
+	(Get): New procedure.
+	Lot of changes due to new Tag record structure to fix reference
+	 semantic implementation.
+
+	* templates_parser.ads:
+	(Tag): Add comments about reference semantic. Fix referenc semantic
+	 implementation.
+	(Get): New procedure.
+
 2004-06-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-push.ads:
