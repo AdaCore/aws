@@ -17,6 +17,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-config-ini.ads.texi \
 	../src/aws-config-set.ads.texi \
 	../src/aws-config.ads.texi \
+	../src/aws-containers-tables.ads.texi \
 	../src/aws-default.ads.texi \
 	../src/aws-dispatchers-callback.ads.texi \
 	../src/aws-dispatchers.ads.texi \
