@@ -29,7 +29,7 @@
 --  $Id$
 
 --  Usage: agent [options] [GET/PUT] <URL>
---         -f                      for display of message body.
+--         -f                      force display of message body.
 --         -k                      keep-alive connection.
 --         -proxy <proxy_url>
 --         -u <user_name>
@@ -124,7 +124,7 @@ procedure Agent is
 begin
 
    if Ada.Command_Line.Argument_Count = 0 then
-      Text_IO.Put_Line ("Usage: agent [options] [GET/PUT) <URL>");
+      Text_IO.Put_Line ("Usage: agent [options] [GET/PUT] <URL>");
       Text_IO.Put_Line ("       -f           force display of message body.");
       Text_IO.Put_Line ("       -k           keep-alive connection.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
@@ -143,7 +143,8 @@ begin
       Pwd        => To_String (Pwd),
       Proxy      => To_String (Proxy),
       Proxy_User => To_String (Proxy_User),
-      Proxy_Pwd  => To_String (Proxy_Pwd));
+      Proxy_Pwd  => To_String (Proxy_Pwd),
+      Persistent => Keep_Alive);
 
    loop
 
