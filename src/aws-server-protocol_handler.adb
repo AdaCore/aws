@@ -202,8 +202,6 @@ is
            OS_Lib.File_Timestamp (Response.Message_Body (Answer))
             <= Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
 
-         AWS.Status.Set.File_Up_To_Date (C_Stat, Is_Up_To_Date);
-
          if Is_Up_To_Date then
             --  [RFC 2616 - 10.3.5]
             Sockets.Put_Line (Sock,
