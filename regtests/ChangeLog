@@ -1,10 +1,7 @@
 2004-12-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
-	* wait_proc.adb, wait.out:
+	* wait_proc.adb, wait.out, wait_sec.out:
 	Rewrite regression test.
-
-	* wait_sec.adb:
-	Turn it off temporarily.
 
 2004-12-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
