@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -32,9 +32,9 @@
 
 with Ada.Exceptions;
 
-procedure AWS.URL.Raise_URL_Error (URL : in String) is
+procedure AWS.URL.Raise_URL_Error (URL : in String; Message : in String) is
 begin
    Ada.Exceptions.Raise_Exception
      (URL_Error'Identity,
-      "Wrong URL: (" & URL & ") Reference Web root parent directory.");
+      "Wrong URL: (" & URL & ") " & Message & '.');
 end AWS.URL.Raise_URL_Error;
