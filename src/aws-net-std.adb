@@ -93,6 +93,7 @@ package body AWS.Net is
    ----------
 
    procedure Free (Socket : in out Sockets.Socket_FD'Class) is
+      pragma Unreferenced (Socket);
    begin
       null;
    end Free;
