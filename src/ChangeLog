@@ -1,3 +1,14 @@
+2004-09-25  Pascal Obry  <pascal@obry.org>
+
+	* aws-net.ads, aws-net-generic_sets.ads:
+	Minor reformatting.
+
+	* aws-net-ssl.adb:
+	(File_Error): Add prefix parameter to output a clearer error message.
+	(Set_Certificate): Call File_Error with the proper kind of
+	 expected file.
+	Minor reformatting.
+	
 2004-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:

@@ -1,4 +1,4 @@
-2004-09-25  Pascal Obry  <obry@act-europe.fr>
+2004-09-25  Pascal Obry  <pascal@obry.org>
 
 	* ai302-containers-indefinite_ordered_sets.adb:
 	(Copy_Tree): Set Y to constant as not modified.
