@@ -1,3 +1,9 @@
+2004-05-29  Pascal Obry  <pascal@obry.org>
+
+	* check_mem.adb:
+	Set exit status to Failure if there is a problem with this
+	 test. This ensure that the makefile will detect such problem.
+
 2004-05-28  Pascal Obry  <pascal@obry.org>
 
 	* check_mem.adb:
