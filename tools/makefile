@@ -23,7 +23,7 @@ build: $(TOOLS)
 force:
 
 $(TOOLS): force
-	echo Building `basename $@ -main` tools
+	echo Building `basename $@ -main`
 	$(GNATMAKE) $(GARGS) $@ -o `basename $@ -main` \
 		-largs -s -L../lib $(LIBS) -lz
 
