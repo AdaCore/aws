@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
@@ -29,6 +29,8 @@
 ------------------------------------------------------------------------------
 
 --  $Id$
+
+--  Test for user defined stream.
 
 with Ada.Text_IO;
 with Ada.Exceptions;
@@ -71,22 +73,23 @@ procedure Strm is
    --------
 
    function CB (Request : in Status.Data) return Response.Data is
-      File      : AWS.Resources.Streams.Stream_Access
-         := new User_Strm.File_Tagged;
+      File : AWS.Resources.Streams.Stream_Access
+        := new User_Strm.File_Tagged;
    begin
       User_Strm.Create
         (Resource => File.all,
          Size     => File_Size);
+
       if Status.URI (Request) = Length_Defined_URI then
          return AWS.Response.Stream
-            ("text/plain",
-             File,
-             File_Size);
+           ("text/plain",
+            File,
+            File_Size);
       else
          return AWS.Response.Stream
-            ("text/plain",
-             File,
-             AWS.Response.Undefined_Length);
+           ("text/plain",
+            File,
+            AWS.Response.Undefined_Length);
       end if;
    end CB;
 
@@ -110,20 +113,27 @@ procedure Strm is
          Put_Line ("Server Error " & Exceptions.Exception_Information (E));
    end Server;
 
-   procedure Compare_Message
-   is
+   ---------------------
+   -- Compare_Message --
+   ---------------------
+
+   procedure Compare_Message is
       use Ada.Streams;
-      Message  : Stream_Element_Array :=
-         Response.Message_Body (R);
+
+      Message      : constant Stream_Element_Array
+        := Response.Message_Body (R);
+
       Same_Message : Stream_Element_Array (Message'Range);
+
       File : User_Strm.File_Tagged;
       Last : Stream_Element_Offset;
    begin
       User_Strm.Create (File, File_Size);
       User_Strm.Read (File, Same_Message, Last);
+
       if Message = Same_Message
-        and Last = Message'Last
-        and User_Strm.End_Of_File (File)
+        and then Last = Message'Last
+        and then User_Strm.End_Of_File (File)
       then
          Put_Line ("Ok.");
       else
