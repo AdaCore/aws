@@ -1,3 +1,15 @@
+2003-01-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-get_status.adb:
+	(Slot_Table): Rename Socket to SD. Reformat code.
+
+	* aws-server.adb:
+	(Get_Socket_Info): Add missing header box. Reformat code.
+
+	* aws-server.ads:
+	(Socket_Data): Moved at the right place.
+	(Get_Socket_Info): Fix comments.
+
 2003-02-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.ads, aws-server.adb:
