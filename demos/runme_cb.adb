@@ -54,8 +54,8 @@ package body Runme_CB is
       AWS.Session.Set (Session_ID, "counter", C);
 
       if URI = "/first_img" then
-         return AWS.Response.File (Content_Type => "image/gif",
-                                   Filename     => "adains.gif");
+         return AWS.Response.File (Content_Type => "image/png",
+                                   Filename     => "adains.png");
 
       elsif URI = "/last" then
          return AWS.Response.Build
@@ -153,8 +153,8 @@ package body Runme_CB is
 
    begin
       if URI = "/first_img" then
-         return AWS.Response.File (Content_Type => "image/gif",
-                                   Filename     => "adains.gif");
+         return AWS.Response.File (Content_Type => "image/png",
+                                   Filename     => "adains.png");
 
       elsif URI = "/last" then
          return AWS.Response.Build
