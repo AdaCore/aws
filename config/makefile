@@ -20,3 +20,12 @@ setup: ../src/aws-translator-conversion.adb
 
 clean:
 	-rm -f *.o *.ali *.~*.*~ *.exe
+
+#############################################################################
+# Configuration for GNAT Projet Files
+
+gsetup: setup
+
+gclean: clean
+
+gbuild:

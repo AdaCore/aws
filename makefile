@@ -78,7 +78,7 @@ all:
 	echo ""
 	echo "    build:        build AWS library, tools and demos"
 	echo "    build_lib:    build AWS library only"
-	echo "    build_tools:  build AWS tools only"
+	echo "    build_tools:  build AWS library and tools"
 	echo "    build_doc:    build documentation (needs texinfo support)"
 	echo "    build_soap:   build SOAP library (needs XMLAda package)"
 	echo ""
@@ -89,7 +89,7 @@ all:
 	echo "    install:      install AWS library"
 	echo "    run_regtests: run tests"
 
-ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)"
+ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" RM="$(RM)" CP="$(CP)" MKDIR="$(MKDIR)" AR="$(AR)"
 
 build_lib: build_ssllib build_include build_aws build_win32
 
@@ -307,3 +307,46 @@ ifeq (${OS}, Windows_NT)
 	$(CP) win32/lib*.a $(INSTALL)/AWS/lib
 	$(CP) win32/*.dll $(INSTALL)/AWS/lib
 endif
+
+#############################################################################
+# Configuration for GNAT Projet Files
+
+#MODULES = config win32 ssl include src tools demos
+MODULES = config win32 ssl src tools demos
+
+MODULES_BUILD = ${MODULES:%=%_build}
+
+MODULES_SETUP = ${MODULES:%=%_setup}
+
+MODULES_CLEAN = ${MODULES:%=%_clean}
+
+ifdef XMLADA
+PRJ_XMLADA=Installed
+else
+PRJ_XMLADA=Disabled
+endif
+
+ifdef DEBUG
+PRJ_BUILD=Debug
+else
+PRJ_BUILD=Release
+endif
+
+ALL_OPTIONS := $(ALL_OPTIONS) \
+	PRJ_BUILD="$(PRJ_BUILD)" PRJ_XMLADA="$(PRJ_XMLADA)"
+
+${MODULES_BUILD}: force
+	${MAKE} -C ${@:%_build=%} gbuild $(ALL_OPTIONS)
+
+${MODULES_SETUP}: force
+	${MAKE} -C ${@:%_setup=%} gsetup $(ALL_OPTIONS)
+
+${MODULES_CLEAN}: force
+	${MAKE} -C ${@:%_clean=%} gclean $(ALL_OPTIONS)
+
+gbuild: $(MODULES_BUILD)
+
+gclean: $(MODULES_CLEAN)
+	-rm -fr .build
+
+gsetup: $(MODULES_SETUP)

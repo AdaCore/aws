@@ -82,3 +82,19 @@ clean:
 	-rm -f aws-translator-conversion.adb
 	-rm -f aws-net-std.adb
 	-rm -f aws-soap.ad[sb]
+
+#############################################################################
+# Configuration for GNAT Projet Files
+
+gsetup: gnatsockets gnat_oslib
+	-mkdir -p ../.build/debug/obj
+	-mkdir -p ../.build/debug/lib
+	-mkdir -p ../.build/release/obj
+	-mkdir -p ../.build/release/lib
+
+gbuild: 
+	gnatmake -Psrc -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+
+gclean: clean
+	$(RM) -fr ../.build/debug/lib ../.build/debug/obj
+	$(RM) -fr ../.build/release/lib ../.build/release/obj
