@@ -1,3 +1,22 @@
+2004-03-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-url.adb:
+	(ASCII_7_Set): New type.
+        (Build_Hex_Escape): New routine.
+        (Hex_Escape): Now initialized using Build_Hex_Escape which uses
+         Default_Encoding_Set.
+        (Encode): New implementation based on Encoding_Set.
+        Minor reformatting.
+        Update copyright notice.
+
+	* aws-url.ads:
+	(Default_Encoding_Set): New constant.
+        (Encode): Add parameter Encoding_Set with default being
+         Default_Encoding_Set. The default value makes Encode behave as
+         implemented before. It is now possible to select the set of
+         characters to encode.
+        Update copyright notice.
+
 2004-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser-expr.adb:
