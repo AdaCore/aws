@@ -1,7 +1,7 @@
 
 # $Id$
 
-.SILENT: clean
+.SILENT:
 
 clean:
-	-$(RM) -f *.a aws.coff *.o
+	-$(RM) -f *.a aws.coff
