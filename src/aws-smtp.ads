@@ -107,9 +107,22 @@ package AWS.SMTP is
 
    type E_Mail_Data is private;
 
+   type Address_Mode is (Full, Name, Address);
+
+   function Image
+     (E_Mail : in E_Mail_Data;
+      Mode   : in Address_Mode := Full) return String;
+   --  Returns E_Mail only (Mode = Address), recipient name only (Mode = Name)
+   --  or Name and e-mail (Mode = Full).
+
    function E_Mail (Name : in String; Address : in String)
      return E_Mail_Data;
-   --  Returns an e-mail address with the format "Name <address>"
+   --  Returns an e-mail address
+
+   function Parse (E_Mail : in String) return E_Mail_Data;
+   --  Parse an e-mail with format "Name <address>" or "address (Name)"
+   --  and Returns the corresponding E_Mail_Data. Raises Contraint_Error
+   --  if E_Mail can't be parsed.
 
    type Recipients is array (Positive range <>) of E_Mail_Data;
 
