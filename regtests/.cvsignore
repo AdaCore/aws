@@ -2,9 +2,11 @@
 WSDL_6
 afile
 afile.res
+afile_sec.res
 alldifs
 append
 append.res
+append_sec.res
 auth
 auth.res
 auth.tmp
@@ -96,6 +98,8 @@ b~soap3.adb
 b~soap3.ads
 b~soap4.adb
 b~soap4.ads
+b~soap5.adb
+b~soap5.ads
 b~sock1.adb
 b~sock1.ads
 b~sp.adb
@@ -352,6 +356,7 @@ soap3.res
 soap3.tmp
 soap4
 soap4.res
+soap5.res
 sock1
 sock1.res
 sock1.tmp
