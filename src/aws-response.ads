@@ -160,9 +160,9 @@ package AWS.Response is
 
    function Empty return Data;
    --  Returns an empty message (Data_Mode = No_Data and Status_Code is 204).
-   --  It is used to say that user's handlers were not able to something with
-   --  the request. This is used by the callback's chain in the dispatcher and
-   --  should not be used by users.
+   --  It is used to say that user's handlers were not able to do something
+   --  with the request. This is used by the callback's chain in the
+   --  dispatcher and should not be used by users.
 
    ---------------
    -- Other API --
