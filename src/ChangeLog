@@ -1,5 +1,11 @@
 2003-09-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-server.adb:
+	(Accept_Socket_Serialized): Release socket in exception handler only
+	 in case of accept_socket call.
+
+2003-09-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-server.ads:
 	(Give_Back_Socket): New routine.
 	(Socket_Semaphore): New private protected type.
