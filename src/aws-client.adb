@@ -643,7 +643,7 @@ package body AWS.Client is
    begin
       Set_Phase (Connection, Receive);
 
-      --  Clear the data in the Responce.
+      --  Clear the data in the response
 
       Response.Set.Clear (Result);
 
@@ -700,7 +700,6 @@ package body AWS.Client is
                end if;
             end if;
          end if;
-
       end;
 
       Disconnect;
@@ -884,10 +883,10 @@ package body AWS.Client is
       procedure Send_Authentication_Header
         (Token       : in     String;
          Data        : in out Authentication_Type);
-      --  Send the authentication header for proxy or for server.
+      --  Send the authentication header for proxy or for server
 
       function HTTP_Prefix (Security : in Boolean) return String;
-      --  Returns "http://" or "https://" if Security is set to True.
+      --  Returns "http://" or "https://" if Security is set to True
 
       function Persistence return String;
       --  Returns "Keep-Alive" is we have a persistent connection and "Close"
@@ -963,9 +962,9 @@ package body AWS.Client is
             elsif Data.Work_Mode = Digest then
 
                declare
-                  Nonce    : constant String := To_String (Data.Nonce);
-                  Realm    : constant String := To_String (Data.Realm);
-                  QOP      : constant String := To_String (Data.QOP);
+                  Nonce : constant String := To_String (Data.Nonce);
+                  Realm : constant String := To_String (Data.Realm);
+                  QOP   : constant String := To_String (Data.QOP);
 
                   function Get_URI return String;
                   --  Returns the real URI where the request is going to be
@@ -1066,10 +1065,10 @@ package body AWS.Client is
 
       Host_Address : constant String
         := AWS.URL.Host (Connection.Host_URL)
-        & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
+             & Port_Not_Default (AWS.URL.Port (Connection.Host_URL));
 
    begin
-      --  Open connection if needed.
+      --  Open connection if needed
 
       if not Connection.Opened then
          Connect (Connection);
@@ -1077,7 +1076,7 @@ package body AWS.Client is
 
       Set_Phase (Connection, Send);
 
-      --  Header command.
+      --  Header command
 
       if Connection.Proxy = No_Data then
 
@@ -1169,9 +1168,9 @@ package body AWS.Client is
    ------------------
 
    procedure Parse_Header
-     (Connection        : in out HTTP_Connection;
-      Answer            :    out Response.Data;
-      Keep_Alive        :    out Boolean)
+     (Connection : in out HTTP_Connection;
+      Answer     :    out Response.Data;
+      Keep_Alive :    out Boolean)
    is
       Sock : Net.Socket_Type'Class renames Connection.Socket.all;
 
@@ -1188,7 +1187,7 @@ package body AWS.Client is
       --  authentication.
 
       procedure Read_Status_Line;
-      --  Read the status line.
+      --  Read the status line
 
       procedure Set_Keep_Alive (Data : in String);
       --  Set the Parse_Header.Keep_Alive depending on data from the
@@ -1215,8 +1214,8 @@ package body AWS.Client is
          Request_Mode : Authentication_Mode;
 
          Read_Params  : Boolean := False;
-         --  Set it to true when the authentication
-         --  mode is stronger then before.
+         --  Set it to true when the authentication mode is stronger
+         --  then before.
 
          procedure Value
            (Item : in     String;
@@ -1363,13 +1362,13 @@ package body AWS.Client is
             Response.Set.Status_Code (Answer, Status);
 
             --  By default HTTP/1.0 connection is not keep-alive but
-            --  HTTP/1.1 is keep-alive
+            --  HTTP/1.1 is keep-alive.
 
             Keep_Alive
               := Line (Messages.HTTP_Token'Last + 1
                          .. Messages.HTTP_Token'Last + 3) >= "1.1";
          else
-            --  or else it is wrong answer from server.
+            --  or else it is wrong answer from server
             Ada.Exceptions.Raise_Exception (Protocol_Error'Identity, Line);
          end if;
       end Read_Status_Line;
@@ -1712,10 +1711,10 @@ package body AWS.Client is
    ------------------------
 
    procedure Set_Authentication
-     (Auth       :    out Authentication_Type;
-      User       : in     String;
-      Pwd        : in     String;
-      Mode       : in     Authentication_Mode) is
+     (Auth :    out Authentication_Type;
+      User : in     String;
+      Pwd  : in     String;
+      Mode : in     Authentication_Mode) is
    begin
       Auth.User      := To_Unbounded_String (User);
       Auth.Pwd       := To_Unbounded_String (Pwd);
