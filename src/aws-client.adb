@@ -1381,8 +1381,8 @@ package body AWS.Client is
             --  HTTP/1.1 is keep-alive.
 
             Keep_Alive
-              := Line (Messages.HTTP_Token'Last + 1
-                         .. Messages.HTTP_Token'Last + 3) >= "1.1";
+              := Line (Messages.HTTP_Token'Length + 1
+                         .. Messages.HTTP_Token'Length + 3) >= "1.1";
          else
             --  or else it is wrong answer from server
             Ada.Exceptions.Raise_Exception (Protocol_Error'Identity, Line);
