@@ -1,12 +1,15 @@
 
 			    A W S - Ada Web Sever
-                                  0 . 10
-				       
-May 24th, 2001.
+                               1.0 prerelease
+
+Authors:
+   Dmitriy Anisimkov
+   Pascal Obry                                                July 22th, 2001,
+
 
 
 Dmitriy Anisimkov and I are very happy to announce the availability of the 
-AWS 0.10 release. This version is close to the 1.0 version. Note that the API
+AWS 1.0pre release. This version is close to the 1.0 version. Note that the API
 has been changed a lot. This is part of a redesign to have a cleaner API. We
 plan to change slightly the API at this stage but it should be mostly stable.
 
@@ -19,51 +22,42 @@ without the need for a Web Server. AWS is fully developed in Ada with GNAT.
 
 Here are the main changes:
 
-  - API redesign.
+  - The status page to use (and associated images) can be changed via the
+    configuration file.
 
-  - Templates_Parser (included) has been almost completly rewritten. It is
-    something like 8 to 12 times faster than previous version, has lot of nice
-    new features (like Matrix_Tag). See below for references about
-    Templates_Parser module.
+  - Improved status page. A message is displayed if there is no session active
+    and if there is no hotplug module loaded.
 
-  - Fix bug in session handling. The same session ID could have been allocated
-    to differents client.  Generation of Session ID is more secure. And there
-    is some performance improvement in the way sessions ID are handled.
+  - There is now 2 initialization files: aws.ini (parsed first) then
+    <program_name>.ini. So it is possible to have general initializations for
+    AWS servers in the same directory and specific initializations for each AWS
+    server.
 
-  - New Server interface (more dynamic). HTTP has only one discriminant now,
-    the other setting are done through the Start procedure.
+  - Now option name (in initialization files) are not case sensitive.
 
-  - Default AWS.OS_Lib is now using the GNAT based implementation instead of
-    the POSIX one. This should make it easier to build AWS.
+  - Log filename is now prefixed by the name of the program (instead of
+    "aws"). It is now possible to have many AWS program using the log facility
+    running into the same directory.
 
-  - Implement HTTP/1.0 and Keep-Alive connection (Netscape browser ask this
-    kind of connection). Should fix more server hanging problems.
+  - Forms or CGI parameters are now passed to the hotplug modules.
 
-  - Server parameters can be handled with case sensitivity or not.
+  - Hotplug modules now support GET and POST methods.
 
-  - Fix possible memory leak in status data.
+  - Client POST request fixed.
 
-  - Improve again the way slots are aborted, this should fix more browser
-    hanging problems.
+  - Handle properly file name with spaces both with Netscape and IE.
 
-  - Add Peername to the status data.
+  - Correctly use Upload_Path to store uploaded files.
 
-  - Status page (status.tmplt) use the new Matrix_Tag templates parser
-    feature and the new filter syntax. Note that this new version of templates
-    parser is about 8 to 12 times faster than previous version. It has been
-    completely rewritten.
+  - A Web directory browsing services has been implemented.
 
-  - All status page (status.tmplt) vetor tag name have now an _V suffix 
-    (was _L for historical reasons)
+  - A set of icons is provided, this is used by the directory browser template.
 
-  - Handle properly all "Cookie:" HTTP messages format.
+  - Remove use of AVL tree generic for session data and use a new component.
+    The AVL tree was quite buggy. This was a serious problem, please consider 
+    upgrading to AWS 1.0pre as soon as possible.
 
-  - Add many configuration options in aws.ini.
-
-  - Improve a bit the documentation.
-
-  - Hello_World new AWS demo, the famous Hello_World a la AWS. This is
-    certainly the smallest AWS application.
+  - improve the documentation.
 
   - As always some minor bugs have been fixed but are not listed here.
 
@@ -116,7 +110,8 @@ Templates_Parser sources:
    Velocity. All of them are based on explicite iterators (#foreach with a
    variable) where Templates_Parser is based on implicit ones (you use a more
    intuitive table iterator). Be sure to check the documentation. Only
-   Velocity project will support complete separation of HTML design and code.
+   the Velocity project has the goal to support complete separation of HTML
+   design and code.
 
 Socket binding:
 
@@ -165,14 +160,15 @@ You can report bugs to:
    Pascal Obry		p.obry@wanadoo.fr
 
 It would be nice if you could also sent us a note if you are using AWS just
-to know if it is used at all or not :)
+to know if it is used at all or not :) And if you are ok, we'll add an entry
+for your project in the next section.
 
 
 AWS uses
 --------
 
-- SETI@Home from Ted Dennison. AWS is used as a "plugable" GUI to control the
-  services status.
+- SETI@Home from Ted Dennison. AWS is used as a "plugable" GUI to retrieve
+  differents program status.
 
 - DOCWEBSERVER from Wiljan Derks
 
@@ -219,10 +215,10 @@ AWS uses
 
   A Web server to share bookmarks, this server was using a standard CGI
   design. To keep session information we were using a GLADE partition. With
-  AWS the design has beeen really simplified, there is no need for a session
+  AWS the design has been really simplified, there is no need for a session
   partition, there is no need to build all CGI as partitions too. GLADE is now
   used only to handle distributed objects. Indeed WORM is a multi-server
-  system (using RACW) with a register/unregister mechanisme.
+  system (using RACW) with a register/unregister mechanism.
 
   Also the server seems to be fastest, there is no more CGI to spawn.
 
