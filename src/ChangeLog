@@ -1,3 +1,25 @@
+2001-05-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): set to 0.9.12.
+
+	* aws-session.adb:
+	(UID): new type.
+	(SID_Prefix): new string constant.
+	(New_Session): session ID is now based on the current time to be
+	 sure that a session ID is uniq. This was not the case before and
+	 in some case 2 clients could have the same SID, hence sharing the
+	 same session data.
+	(Image): use SID_Prefix.
+	(Value): use SID_Prefix'Length.
+
+	* aws-session.ads:
+	(ID): change type to a 40 bits integer based value.
+
+	* aws-server-protocol_handler.adb:
+	(Parse): fix cookie token offset when reading the the cookie
+	 data. This was a serious bug in the AWS session feature.
+
 2001-05-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
