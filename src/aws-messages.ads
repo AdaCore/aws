@@ -227,8 +227,8 @@ package AWS.Messages is
 
    --  helper functions
 
-   function Is_Match (Str, Pattern : in String) return Boolean;
-   pragma Inline (Is_Match);
+   function Match (Str, Pattern : in String) return Boolean;
+   pragma Inline (Match);
    --  Returns True if Pattern matches the begining of Str. The test is not
    --  case sensitive.
 
