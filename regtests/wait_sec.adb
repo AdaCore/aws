@@ -28,6 +28,8 @@
 
 --  $Id$
 
+--  ~ MAIN [SSL]
+
 with Wait_Proc;
 
 procedure Wait_Sec is
