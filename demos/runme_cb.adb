@@ -36,12 +36,26 @@ package body Runme_CB is
       --  I've been asked for the ressource Name via a GET message, let's for
       --  now only output a standard message
 
-      if URI = "/Toto/titi" then
+      if URI = "/first_img" then
+         return AWS.Response.File (Content_Type => "image/gif",
+                                   Filename     => "adains.gif");
+
+      elsif URI = "/last" then
          return AWS.Response.Build
            (Content_Type => "text/html",
             Message_Body =>
               "<p>Ok, that's the end of it for now!"
             & "<p>Your name is " & AWS.Status.Parameter (Request, "name"));
+
+      elsif URI = "/get-form" then
+         return AWS.Response.Build
+           (Content_Type => "text/html",
+            Message_Body => "<p>Hello again "
+            & AWS.Status.Parameter (Request, "name") & " !"
+            & "<p>I'll now check for the POST form"
+            & "<p>Enter your name <form method=post action=/last>"
+            & "<input type=text name=name value=""<default>"" size=15>"
+            & "<input type=submit name=go value=""This is a POST Form"">");
 
       else
          return AWS.Response.Build
@@ -50,9 +64,10 @@ package body Runme_CB is
             & "<p>I'am the runme demo. Note that this"
             & " message could have been"
             & " fetched on my file system..."
-            & "<p>Enter your name <form method=get action=/Toto/titi>"
-            & "<input type=text name=name size=15>"
-            & "<input type=submit name=go value=""Go..."">");
+            & "<p><img src=""/first_img"">"
+            & "<p>Enter your name <form method=get action=/get-form>"
+            & "<input type=text name=name value=""<default>"" size=15>"
+            & "<input type=submit name=go value=""This is a GET Form"">");
       end if;
    end Get;
 
