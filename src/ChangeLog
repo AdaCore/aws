@@ -1,5 +1,10 @@
 2002-12-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-headers.adb:
+	(Send_Header): Remove unnecessary output buffering.
+
+2002-12-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-headers-set.ads, aws-headers-set.adb:
 	(Update): New routine, derived from AWS.Containers.Tables.Update.
 
