@@ -318,7 +318,10 @@ package body Ada2WSDL.Generator is
 
       if not Options.Quiet then
          Text_IO.Put ("   - array (");
-         if Length /= 0 then
+         if Length = 0 then
+            --  An unconstrained array
+            Text_IO.Put ("<>");
+         else
             Text_IO.Put (AWS.Utils.Image (Length));
          end if;
          Text_IO.Put (")");
