@@ -1547,16 +1547,22 @@ expressions depending on the service)
 @node Callback dispatcher
 @subsection Callback dispatcher
 @cindex Dispatchers callback
+@cindex Callback, dispatcher
 
 @noindent
 This is a wrapper around the standard callback procedure. It is needed
-to mix dispatcher based callback and access to procedure callback.
+to mix dispatcher based callback and access to procedure
+callback. Note that it is not in the @code{AWS.Services.Dispatchers}
+hierarchy but in @code{AWS.Dispatchers.Callback} because this is a
+basic service needed for the server itself. It is referenced here for
+documentation purpose but an AWS server can be built with using it.
 
-@pxref{AWS.Services.Dispatchers.Callback} for complete spec description.
+@pxref{AWS.Dispatchers.Callback} for complete spec description.
 
 @node Method dispatcher
 @subsection Method dispatcher
 @cindex Dispatchers method
+@cindex method, dispatcher
 
 @noindent
 This is a dispatcher based on the request method. A different callback
@@ -1568,6 +1574,7 @@ POST, PUT, HEAD.
 @node URI dispatcher
 @subsection URI dispatcher
 @cindex Dispatchers URI
+@cindex URI, dispatcher
 
 @noindent
 This is a dispatcher based on the request ressource. A different callback
@@ -1579,6 +1586,7 @@ described either by its full name (string) or a regular expression.
 @node Virtual host dispatcher
 @subsection Virtual host dispatcher
 @cindex Dispatchers virtual host
+@cindex virtual host, dispatcher
 
 @noindent
 This is a dispatcher based on the host name. A different callback
@@ -2059,6 +2067,7 @@ Jean-Fran@,cois Rameau.
 * AWS.Config.Ini::
 * AWS.Config.Set::
 * AWS.Dispatchers::
+* AWS.Dispatchers.Callback::
 * AWS.Log::
 * AWS.MIME::
 * AWS.Parameters::
@@ -2068,7 +2077,6 @@ Jean-Fran@,cois Rameau.
 * AWS.Server.Push::
 * AWS.Services.Directory::
 * AWS.Services.Dispatchers::
-* AWS.Services.Dispatchers.Callback::
 * AWS.Services.Dispatchers.Method::
 * AWS.Services.Dispatchers.URI::
 * AWS.Services.Dispatchers.Virtual_Host::
@@ -2132,6 +2140,13 @@ Jean-Fran@,cois Rameau.
 
 @include ../src/aws-dispatchers.ads.texi
 
+@node AWS.Dispatchers.Callback
+@section AWS.Dispatchers.Callback
+@cindex AWS.Dispatchers.Callback
+@cindex Callback, dispatcher API
+
+@include ../src/aws-dispatchers-callback.ads.texi
+
 @node AWS.Log
 @section AWS.Log
 @cindex AWS.Log
@@ -2185,12 +2200,6 @@ Jean-Fran@,cois Rameau.
 @cindex AWS.Services.Dispatchers
 
 @include ../src/aws-services-dispatchers.ads.texi
-
-@node AWS.Services.Dispatchers.Callback
-@section AWS.Services.Dispatchers.Callback
-@cindex AWS.Services.Dispatchers.Callback
-
-@include ../src/aws-services-dispatchers-callback.ads.texi
 
 @node AWS.Services.Dispatchers.Method
 @section AWS.Services.Dispatchers.Method
