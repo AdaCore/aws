@@ -27,8 +27,6 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---  Compress/Decompress on append to memory stream.                         --
-------------------------------------------------------------------------------
 
 --  $RCSfile$
 --  $Revision$
