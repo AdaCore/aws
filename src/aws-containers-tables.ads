@@ -35,12 +35,11 @@ with Ada.Strings.Unbounded;
 with AI302.Containers.Indefinite_Hashed_Maps;
 with AI302.Strings.Hash;
 with AI302.Containers.Vectors;
+with AI302.Containers.Indefinite_Vectors;
 
 package AWS.Containers.Tables is
 
    type Table_Type is tagged private;
-   --  A Table_Type must be initialized by calling
-   --  AWS.Containers.Tables.Set.Reset, Server is responsible for doing that.
 
    type Element (Name_Length, Value_Length : Natural) is record
       Name  : String (1 .. Name_Length);
@@ -113,9 +112,6 @@ private
 
    Null_Element : constant Element := (0, 0, "", "");
 
-   type Element_Access is access all Element;
-   --  Data type to keep the name/value pair in Data_Table
-
    type Key_Positive is new Positive;
 
    package Name_Indexes is
@@ -124,7 +120,7 @@ private
    subtype Name_Index_Table is Name_Indexes.Vector;
 
    package Data_Table is
-     new AI302.Containers.Vectors (Positive, Element_Access);
+     new AI302.Containers.Indefinite_Vectors (Positive, Element);
 
    package Index_Table is
      new AI302.Containers.Indefinite_Hashed_Maps
