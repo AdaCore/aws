@@ -477,6 +477,11 @@ package body SOAP.Types is
          "(V) Struct object " & Name & " not found");
    end V;
 
+   function V (O : in SOAP_Record) return Object_Set is
+   begin
+      return O.Items.O.all;
+   end V;
+
    ---------------
    -- XML_Image --
    ---------------
