@@ -2350,8 +2350,6 @@ package body Templates_Parser is
                      return Root;
                   end if;
                end loop;
-
-               return Root;
             end;
          end if;
       end Parse;
@@ -2749,6 +2747,10 @@ package body Templates_Parser is
 
       Results : Unbounded_String := Null_Unbounded_String;
 
+      Buffer  : String (1 .. 4 * 1_024);
+      Last    : Natural := 0;
+      --  Cache to avoid too many reallocation using Append on Results above
+
       Now     : Calendar.Time;
 
       procedure Analyze
@@ -3138,6 +3140,29 @@ package body Templates_Parser is
          procedure Analyze (D : in Data.Tree) is
             use type Data.Tree;
 
+            procedure Add (S : in String);
+            --  Add S into Results (using Buffer cache if possible)
+
+            ---------
+            -- Add --
+            ---------
+
+            procedure Add (S : in String) is
+            begin
+               if Last + S'Length > Buffer'Last then
+                  --  Not enough cache space, flush buffer
+                  Append (Results, Buffer (1 .. Last));
+                  Last := 0;
+               end if;
+
+               if S'Length >= Buffer'Length then
+                  Append (Results, S);
+               else
+                  Buffer (Last + 1 .. Last + S'Length) := S;
+                  Last := Last + S'Length;
+               end if;
+            end Add;
+
             T : Data.Tree := D;
 
          begin
@@ -3146,10 +3171,10 @@ package body Templates_Parser is
                case T.Kind is
 
                   when Data.Text =>
-                     Append (Results, T.Value);
+                     Add (To_String (T.Value));
 
                   when Data.Var =>
-                     Append (Results, Translate (T.Var));
+                     Add (Translate (T.Var));
 
                end case;
 
@@ -3349,7 +3374,7 @@ package body Templates_Parser is
                   Expr.O_Diff  => F_Diff'Access);
 
             U_Op_Table : constant array (Expr.U_Ops) of U_Ops_Fct
-              := (Expr.O_Not   => F_Not'Access);
+              := (Expr.O_Not => F_Not'Access);
 
          begin
             case E.Kind is
@@ -3675,6 +3700,10 @@ package body Templates_Parser is
       else
          Cached_Files.Prot.Release (T);
       end if;
+
+      --  Flush buffer and return result
+
+      Append (Results, Buffer (1 .. Last));
 
       return Results;
    end Parse;
