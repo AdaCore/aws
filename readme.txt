@@ -1,14 +1,14 @@
 
 			    A W S - Ada Web Server
-			    2.0 release / SOAP 1.2
+			    2.1 release / SOAP 1.2
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               April 6th, 2004
+   Pascal Obry                                               April 14th, 2004
 
 
 
-We are happy to announce the availability of the AWS 2.0 release. The API
+We are happy to announce the availability of the AWS 2.1 release. The API
 could change slightly at this stage but should be fairly stable now.
 
 AWS stand for Ada Web Server. It is a small yet powerful HTTP component to
@@ -37,137 +37,9 @@ The SOAP implementation has been validated on http://validator.soapware.org/.
 Changes
 -------
 
-Here are the main changes since AWS 1.4 :
+Here are the main changes since AWS 2.0 :
 
-   - ada2wsdl a new tool to generate WSDL document from an Ada spec. This
-     tool will help further to build Web Services with GNAT. ada2wsdl is
-     based on ASIS for GNAT. You must have GNAT and ASIS installed. ada2wsdl
-     handles standard Ada types, Calendar.Time, records, arrays
-     (constrained and unconstrained), derived types.
-
-   - Add -types wsdl2aws's option to generate code compatible with an already
-     present Ada spec. This is to be used with ada2wsdl tool. With -types
-     wsdl2aws will not generate records or arrays, instead it will use them
-     from the specified Ada spec.
-
-   - Add -cb wsdl2aws's option to generate the SOAP callback procedure for
-     the server.
-
-   - Add -main wsdl2aws's option to generate a main procedure to build the
-     server. This main procedure can be generated from a template file.
-
-     Note that using wsdl2aws's -types, -main and -cb options together you
-     can build a SOAP server for any Ada API. This is one of the simplest way
-     to build a SOAP server.
-
-   - Some improvement in the generated AWS/SOAP code from WSDL document.
-     The generated stub uses properly the Types.To_SOAP_Object routine
-     instead of generating specific code.
-
-   - Add support for enumerations in Ada and WSDL. wsdl2aws can now generate
-     enumeration type. This makes ada2wsdl and wsdl2aws even more compatible.
-
-   - wsdl2aws can now generate the SOAP callback routine for all routines
-     parsed in the WSDL document. This feature is one more step into
-     transparent SOAP support from Ada.
-
-   - Better support for Notification and Request-response WSDL operations.
-
-   - Many changes in the way SOAP and WSDL documents are generated for better
-     interoperability (tested with Tomcat/Axis with some complex data
-     structures). See for example wsdl_6 non-regression test (wsdl_6.java
-     for the Java Axis part). Tested with Tomcat 4.1.29 and Axis 1.1.
-
-   - Add support for transient pages. These are stream objects that
-     are not released by the server. Transient pages are released by a
-     cleaner task after a certain amount of time. To enable transient
-     pages it is required to use the transient pages dispatcher (see
-     AWS.Services.Transient_Pages and
-     AWS.Services.Dispatchers.Transient_Pages).
-
-   - Add a page splitter. This can be used to split a response in
-     multiple pages avoiding very large Web pages. Specific tags to
-     navigate (PREVIOUS, NEXT, CURRENT_PAGE...) are generated and can
-     be used in the template page. A set of vector tags are also
-     available to setup a page index. (See AWS.Services.Split_Pages).
-
-   - A new Response.File option "Once" can be used to remove a file
-     after sending it. This is useful if a temporary file is prepared
-     for the response as it will be removed automatically.
-
-   - A new kind of stream (AWS.Resources.Stream.Disk) has been
-     implemented. The AWS.Resources.File API is based on it.
- 
-   - Fix WSDL SOAP record handling (code for record in record was
-     sometimes not correctly generated).
-
-   - New package AWS.POP which implements the POP client protocol.
-
-   - New template engine filters:
-
-       REPLACE         Pattern matching with replacement facility.
-       REPLACE_ALL     As above but replace all occurences not the first one.
-       FORMAT_DATE     To format a date using GNU/Date pattern format.
-       ADD_PARAM       Add a parameter to an URL.
-       DEL_PARAM       Delete a parameter from an URL.
-       REPLACE_PARAM   Replace a parameter from an URL.
-
-   - Add a new template engine variable tag called NOW (current time
-     and date).
-
-   - Templates engine should be a bit faster as it uses less recursivity.
-
-   - Templates engine expression parser is now a standard LL(0) parser.
-     Patch contributed by Jean-Pierre Rosen.
-
-   - Fix templates engine cache implementation when reloading files.
-
-   - On GNAT 3.15 the templates engine should be lot faster as it uses a cache
-     buffer to work around the slow Unbounded_String implementation. It
-     improves also the performance on more recent version of GNAT by 14%.
-     This patch has been contributed by Jean Pierre Rosen.
-
-   - New version of the "&" operator to prepend data into the
-     templates engine's vector tags.
-
-   - New awsres options -u/-z to add uncompressed or compressed items into the
-     resources. Compressed resources are decompressed on-the-fly if needed
-     (this is completely transparent to users). It is needed for the
-     templates engine for example (as it needs to parse the file) or if
-     the client does not support compressed resources.
-
-   - New high level service to handle transparently compressed or uncompressed
-     files. This callback routine will either returns the compressed version
-     of the file if it exists and the client support compressed encoding, the
-     uncompressed file if it exists otherwise it will return a decompressed
-     version of the file using a decompression stream.
-
-   - New dispatcher based on time. It is possible to select specific callback
-     routines depending on time. A time dispatcher is activated at a certain
-     period in time, there is a Once period (this is unique in time) and
-     Yearly, Monthly, Daily, Weekly, Hourly and Minutely periods to build
-     events that repeats periodically.
-
-   - ZLib library updated to version 1.2.1.
-
-   - Add client and server certificate support.
-
-   - The security options are now per server, it means that HTTPS servers
-     running on the same AWS process can have different settings.
-
-   - A a simple Web Mail service (AWS.Services.Web_Mail) using the SMTP/POP
-     AWS support.
-
-   - Add new boolean constant AWS.Net.SSL.Is_Supported which is set to true
-     if SSL is supported by the runtime.
-
-   - New AWS.Response.Message_Body routine to retrieve a response as a
-     file stream. Make it easier to handle very large response object.
-
-   - Improve demos/agent implementation to support large responses
-     based on AWS.Response.Message_Body (see above).
-
-   - Add support for GNAT Project (.gpr), easier to develop using GPS.
+   - Better support for project files for developpers.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
@@ -180,26 +52,6 @@ In such a case we try to give proper advice on how to change the code
 to work properly. Of course we try to avoid this as much as possible
 but we really prefer to have a clean API instead of keeping awkward
 implementations.
-
-   - Array types generated with wsdl2aws will now have a _Type suffix. This
-     is needed to ensure different names for parameter and type. Some WSDL
-     document use different case for parameter and type, this is not possible
-     with Ada which is not case-sensitive.
-
-     => Just add "_Type" suffix to array types and constructors references.
-
-   - A new abstract routine named Reset has been added to the Stream
-     interface.
-
-     => Add a Reset routine in tagged types derived from
-     AWS.Resources.Streams.Stream_Type.
-
-   - AWS.Server.Set_Security is now a per server procedure. Add the Web Server
-     as parameter.
-
-   - AWS.Net.Set_Send_Buffer and AWS.Net.Set_Receive_Buffer have been renamed
-     AWS.Net.Set_Send_Buffer_Size and AWS.Net.Set_Receive_Buffer_Size
-     respectively.
 
 
 Obsolescent features:
@@ -239,7 +91,7 @@ See documentation for build information.
 Validation:
 -----------
 
-AWS 2.0 has been compiled and has passed all tests on:
+AWS 2.1 has been compiled and has passed all tests on:
 
    Windows XP, GNAT 3.15a1, 3.16a1, 5.01a and 5.02a
 
@@ -286,7 +138,7 @@ Templates_Parser sources:
 
 GNU/Ada - GNAT
 
-   You need at least version 3.15 to build and use AWS 2.0.
+   You need at least version 3.15 to build and use AWS 2.1.
 
    http://libre.act-europe.fr/GNAT/
 
