@@ -51,11 +51,10 @@ project Demos is
                     "soap_server_disp.adb", "test_jabber.adb");
 
    for Source_Files use
-     Mains & Mains_XMLAda
-     & ("dispatch_cb.adb", "auth_cb.adb", "text_input_cb.adb",
-        "vh_demo_cb.adb", "ws_cb.adb", "zdemo_cb.adb", "rdemo.adb",
-        "hotplug_cb.adb", "hello_world_cb.adb", "res_demo_cb.adb",
-        "rdemo-adains_png.ads", "rdemo-page3_html.ads");
+     Mains & ("dispatch_cb.adb", "auth_cb.adb", "text_input_cb.adb",
+              "vh_demo_cb.adb", "ws_cb.adb", "zdemo_cb.adb", "rdemo.adb",
+              "hotplug_cb.adb", "hello_world_cb.adb", "res_demo_cb.adb",
+              "rdemo-adains_png.ads", "rdemo-page3_html.ads");
 
    for Main use Mains;
 
@@ -64,6 +63,7 @@ project Demos is
          for Main use project'Main & Mains_XMLAda;
          for Source_Files use
            project'Source_Files
+             & Mains_XMLADA
              & ("hello_demo.ads", "hello_demo-client.adb",
                 "hello_demo-server.adb", "hello_demo-types.ads",
                 "wsdl_demo_server_cb.adb", "interoplab.ads",
