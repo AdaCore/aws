@@ -114,9 +114,9 @@ package AWS.Status is
    pragma Inline (Referer);
    --  Get value for "Referer:" parameter
 
-   ------------
-   -- Socket --
-   ------------
+   ----------------
+   -- Connection --
+   ----------------
 
    function Peername               (D : in Data) return String;
    pragma Inline (Peername);
