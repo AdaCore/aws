@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -304,11 +304,13 @@ private
    --  a Socket timeout.
 
    task type Cleaner_Task is
+
       entry Start (Connection : in HTTP_Connection_Access);
       --  Task initialization, pass the HTTP_Connection to monitor.
 
       entry Next_Phase;
       --  Change the client phase.
+
    end Cleaner_Task;
 
    type Cleaner_Access is access Cleaner_Task;
