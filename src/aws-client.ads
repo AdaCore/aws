@@ -63,7 +63,7 @@ package AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data;
+      return Response.Data;
    --  retreive the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
    --  return it in the Response.Data structure.
@@ -84,7 +84,7 @@ package AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data;
+      return Response.Data;
    --  Idem as above but we do not get the message body.
    --  Head will retry one time if it fails.
 
@@ -97,7 +97,7 @@ package AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data;
+      return Response.Data;
    --  Send to the server URL a PUT request with Data
    --  Put will retry one time if it fails.
 
@@ -110,7 +110,7 @@ package AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data;
+      return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
@@ -123,7 +123,7 @@ package AWS.Client is
       Proxy_User : in String          := No_Data;
       Proxy_Pwd  : in String          := No_Data;
       Timeouts   : in Timeouts_Values := No_Timeout)
-     return Response.Data;
+      return Response.Data;
    --  Idem as above but with binary data.
 
    function SOAP_Post
@@ -139,6 +139,19 @@ package AWS.Client is
      return Response.Data;
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
+
+   function Upload
+     (URL        : in String;
+      Filename   : in String;
+      User       : in String          := No_Data;
+      Pwd        : in String          := No_Data;
+      Proxy      : in String          := No_Data;
+      Proxy_User : in String          := No_Data;
+      Proxy_Pwd  : in String          := No_Data;
+      Timeouts   : in Timeouts_Values := No_Timeout)
+      return Response.Data;
+   --  This is a file upload request. Filename file's content will be send to
+   --  the server at address URL.
 
    ---------------------------------------
    --  Keep-Alive client implementation --
@@ -214,6 +227,13 @@ package AWS.Client is
       Data       : in     Ada.Streams.Stream_Element_Array;
       URI        : in     String          := No_Data);
    --  Same as Post above but using a Connection.
+
+   procedure Upload
+     (Connection : in out HTTP_Connection;
+      Result     :    out Response.Data;
+      Filename   : in     String;
+      URI        : in     String          := No_Data);
+   --  Same as Upload above but using a Connection.
 
    function SOAP_Post
      (Connection  : access HTTP_Connection;
