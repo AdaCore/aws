@@ -1,5 +1,17 @@
 2002-10-31  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server.ads:
+	(Dispatcher_Sem): Set Writers discriminant to 1.
+
+	* aws-utils.adb:
+	(RW_Semaphore): Handle Writers maximum writers into the critical
+	 section.
+
+	* aws-utils.ads:
+	(RW_Semaphore): Add Writers discriminant. Add comments.
+
+2002-10-31  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-ldap-client.adb:
 	Add lot of comments.
 	(uid): New function.
