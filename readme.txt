@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            October 29th, 2004
+   Pascal Obry                                            November 6th, 2004
 
 
 
@@ -138,6 +138,12 @@ Here are the main changes since AWS 2.0 :
    - Add association iterator for a Template_Set in the templates engine.
 
    - Include template parameters can now be used as filter parameters.
+
+   - A new set of page splitters has been implemented. These splitters have
+     different ways to organize the pages, for example one can create
+     automatically an alphabetical index. Check the AWS.Services.Split_Pages
+     hierarchy for more information.
+     This feature has been contributed by Jean-Pierre Rosen.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
