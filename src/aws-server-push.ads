@@ -53,7 +53,9 @@ generic
      (Output : in Client_Output_Type;
       Client : in Client_Environment)
      return Stream_Output_Type;
-   --  Function used for convert Client_Output_Type to Stream_Output.
+   --  Function used for convert Client_Output_Type to Stream_Output_Type.
+   --  This is used by the server to prepare the data to be sent to the
+   --  clients.
 
 package AWS.Server.Push is
 
