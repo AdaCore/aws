@@ -43,4 +43,10 @@ project SSL is
          for Object_Dir use "../.build/release/ssl/obj";
    end case;
 
+   ---------
+   -- Ide --
+   ---------
+
+   package Ide renames Shared.IDE;
+
 end SSL;

@@ -49,6 +49,12 @@ project Src is
 --     for Library_Name use "aws";
 --     for Library_Kind use "static";
 
+   ---------
+   -- Ide --
+   ---------
+
+   package Ide renames Shared.IDE;
+
    --------------
    -- Compiler --
    --------------
