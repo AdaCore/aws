@@ -1,3 +1,16 @@
+2004-12-13  Pascal Obry  <pascal@obry.net>
+
+	* aws-services-dispatchers-uri.adb:
+	(Match): Update to take into account the new Prefix feature.
+	(Register): Add parameter Prefix (default to false for upward
+	 compatibility) to using only the given prefix to match the URI.
+
+	* aws-services-dispatchers-uri.ads:
+	(Register): Add parameter Prefix (default to false for upward
+	 compatibility) to using only the given prefix to match the URI.
+	(Std_URI): Add Prefix field.
+	Minor reformatting.
+
 2004-12-10  Pascal Obry  <pascal@obry.net>
 
 	* aws-utils.ads:
