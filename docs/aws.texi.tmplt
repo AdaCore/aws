@@ -99,16 +99,10 @@ portable. To build @code{AWS} you need:
 
 @itemize @bullet
 
-@item an Ada95 compiler
+@item an Ada95 compiler ;
 
 There is many of them. @code{AWS} has been developped with GNAT but uses
 only Ada95 features. So any Ada95 compiler should be usable.
-
-@item a POSIX binding (Interface to the underlying OS services) ;
-
-Under Windows you can use the one distributed at: 
-@url{http://perso.wanadoo.fr/pascal.obry}. Under UNIX look for the 
-Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
 @item a socket binding ;
 
@@ -119,7 +113,13 @@ by Dmitriy Anisimkov) to Win32 of the 0.1.9 version from ENST.
 Under UNIX you must use the socket binding from ENST 
 @url{http://www.infres.enst.fr/ANC/}.
 
-@item OpenSSL (optional)
+@item a POSIX binding - Interface to the underlying OS services (optional) ;
+
+Under Windows you can use the one distributed at: 
+@url{http://perso.wanadoo.fr/pascal.obry}. Under UNIX look for the 
+Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
+
+@item OpenSSL (optional) ;
 
 OpenSSL is an Open Source toolkit implementing the Secure Sockets Layer
 (SSL v2 and v3) and much more. You'll find libraries for Win32 into this
@@ -137,6 +137,19 @@ The @code{AWS.OS_Lib} has 3 implementations. One using @code{POSIX}, one using
 
 @table @b
 
+@item GNAT.OS_Lib implementation
+
+Version using @code{GNAT.OS_Lib} is GNAT dependant and will run on whatever OS 
+GNAT has be ported to. This is the @b{default implementation} used.
+
+@smallexample
+Just copy @file{include/aws-os_lib-gnat.adb} over @file{src/aws-os_lib.adb}.
+
+or
+
+$ make gnat_oslib
+@end smallexample
+
 @item POSIX implementation
 
 Version with POSIX is compiler and OS independant (well if you have a POSIX
@@ -144,16 +157,11 @@ implementation for your OS). Check out Florist which is available on many
 UNIXs and the version for Win32 available under my homepage.
 
 @smallexample
-This is the default implementation.
-@end smallexample
+Just copy @file{include/aws-os_lib-posix.adb} over @file{src/aws-os_lib.adb}.
 
-@item GNAT.OS_Lib implementation
+or
 
-Version using @code{GNAT.OS_Lib} is GNAT dependant and will run on whatever OS 
-GNAT has be ported to.
-
-@smallexample
-Just copy @file{include/aws-os_lib-gnat.adb} over @file{src/aws-os_lib.adb}.
+$ make posix_oslib
 @end smallexample
 
 @item Win32 implementation
@@ -163,6 +171,10 @@ Version for Win32 should be usable by any Ada compiler for Windows
 
 @smallexample
 Just copy @file{include/aws-os_lib-win32.adb} over @file{src/aws-os_lib.adb}.
+
+or
+
+$ make win32_oslib
 @end smallexample
 
 @end table
@@ -196,7 +208,7 @@ At this point you can build AWS. There is two ways to build AWS:
 @noindent
 In each case you'll certainly have to edit the makefile to correctly set
 the include path for the libraries @code{POSIX}, @code{OpenSSL} and 
-@code{Socket}.
+@code{Socket}. For more information, look at the makefiles.
 
 @node How to use it ?
 @chapter How to use it ?
@@ -245,21 +257,25 @@ HTTP and some HTTPS channels in the same application.
 @noindent
 To build a server you must:
 
-@itemize @bullet
+@enumerate
 
 @item declare the HTTP channel
 
 @smallexample
-WS  : AWS.Server.HTTP (Max_Connection => 3, 
-                       Port           => 1234,
-                       Security       => False,
-                       CB             => Service'Access,
-                       Session        => False);
+WS  : AWS.Server.HTTP (Max_Connection => 3);
+
+or just
+
+WS  : AWS.Server.HTTP (3);
 @end smallexample
 
 @noindent
 Here we have declared an HTTP channel with a maximum of 3 simultaneous
-connections using the port 1234. This channel is not secure (False) and
+connections. It means that 3 client browser can gets answer at the same
+time. This parameter must be changed to match your needs. A medium Web
+server will certainly need something like 20 or 30 simultaneous connections.
+
+ using the port 1234. This channel is not secure (False) and
 answer will be given by the procedure Service. It is possible to
 configure the server via a configuration file named @file{aws.ini}
 @xref{Configuration file}.
@@ -271,21 +287,81 @@ You need to start the server before using it. This is done by calling
 @code{AWS.Server.Start} (@xref{AWS.Server}.)
 
 @smallexample
-   procedure Start (Web_Server : @b{in out} HTTP;
-                    Name       : @b{in}     String;
-                    Admin_URI  : @b{in}     String := No_Admin);
-   --  @i{Start the Web server. It initialize the connections lines.}
-   --  @i{Admin_URI must be set to enable the admin status page.}
+   @b{procedure} Start
+     (Web_Server                : @b{in out} HTTP;
+      Name                      : @b{in}     String;
+      Callback                  : @b{in}     Response.Callback;
+      Admin_URI                 : @b{in}     String            := No_Admin;
+      Port                      : @b{in}     Positive          := Default_Port;
+      Security                  : @b{in}     Boolean           := False;
+      Session                   : @b{in}     Boolean           := False;
+      Case_Sensitive_Parameters : @b{in}     Boolean           := True);
+   @i{--  Start the Web server. It initialize the connections lines.}
+   @i{--  Name is just a string used to identify the server. This is used for}
+   @i{--  example in the administrative page. Admin_URI must be set to enable the}
+   @i{--  administrative status page.}
+   @i{--  Callback is the procedure to call for each ressource requested.}
+   @i{--  Port is the Web server port. If Security is set to True the server will}
+   @i{--  use an HTTPS/SSL connection. If Session is set to True the server will}
+   @i{--  be able to get a status for each client connected. A session ID is used}
+   @i{--  for that, on the client side it is a cookie. Case_Sensitive_Parameters}
+   @i{--  if set to False it means that the CGI parameters name will be handled}
+   @i{--  without case sensitivity.}
 @end smallexample
 
 @noindent
-@code{Start} takes three parameters, the first one if the HTTP server to
-start, the second one is the server name as shown in the administrative page,
-and the third one is the name of the administrative page if 
-needed. By default the value if the null string. The administrative page
-returns many information about the server. It is possible to
-configure the server via a configuration file named @file{aws.ini}
+@code{Start} takes many parameters:
+
+@table @b
+
+@item Web_Server
+
+this is the Web server to start.
+
+@item Name
+
+This is a string to identify the server. This name will be used for
+example in the administrative status page.
+
+@item Callback
+
+This is the procedure to call for each requested ressources. In this
+procedure you must handle all the possible URI that you want to support.
+(see below).
+
+@item Admin_URI
+
+This is a special URI recongnized internally by the server. If this URI
+is requested the server will return the administrative page. This page
+is built using the @file{status.tmplt} template. @pxref{Status page}.
+
+The administrative page returns many information about the server. It is
+possible to configure the server via a configuration file named @file{aws.ini}
 @xref{Configuration file}.
+
+@item Port
+
+This is the port to use for the Web server. You can use any free port on
+your computer. Note that under some OS specific range could be reserved
+or needs specials privileges (port 80 under Linux for example).
+
+@item Security
+
+If Security is set to True the server will use an HTTPS/SSL
+connection. This part uses the OpenSSL library.
+
+@item Session
+
+If Session is set to true the server will keep a session ID for each
+client. The client will be able to save and get variables associated
+with this session ID.
+
+@item Case_Sensitive_Parameters
+
+If set to True the CGI name parameters will be handled without using the
+case.
+
+@end table
 
 @item provides a callback procedure
 
@@ -331,7 +407,7 @@ AWS.Response.File (Content_Type => "image/png",
                    Filename     => "adains.png");
 @end smallexample
 
-@end itemize
+@end enumerate
 
 @node Form parameters
 @subsection Form parameters
@@ -467,11 +543,11 @@ For example to build a server where the @i{port} and the @i{maximum number} of
 connection can be changed via the configuration file:
 
 @smallexample
-WS  : AWS.Server.HTTP (Max_Connection => AWS.Config.Max_Connection, 
-                       Port           => AWS.Config.Server_Port,
-                       Security       => False,
-                       CB             => Service'Access,
-                       Session        => False);
+WS  : AWS.Server.HTTP (Max_Connection => AWS.Config.Max_Connection);
+
+Server.Start (WS,
+              Port     => AWS.Config.Server_Port,
+              Callback => Service'Access);
 @end smallexample
 
 @node Session handling
@@ -487,20 +563,23 @@ are key/value pair each of them beeing strings. How to deal with that ?
 
 @itemize
 
-@item First you declare an HTTP chanel with session.
+@item First you declare and start an HTTP chanel with session enabled:
 
 @smallexample
-WS  : AWS.Server.HTTP (Max_Connection => 3, 
-                       Port           => 1234,
-                       Security       => False,
-                       CB             => Service'Access,
-                       Session        => True);
+WS  : AWS.Server.HTTP (3);
+
+Server.Start (WS,
+              Port     => 1234,
+              Callback => Service'Access,
+              Session  => True);
 @end smallexample
 
 @noindent
-Here we have declared an HTTP channel with a maximum of 3 simultaneous
-connections using the port 1234. This channel is not secure (False) and
-answer will be given by the procedure Service. A session ID will be created.
+Here we have built an HTTP channel with a maximum of 3 simultaneous
+connections using the port 1234. A session ID will be created and sent
+inside a cookie to the client's browser at the first request. This
+session ID will be sent back to the server each time the client will ask
+for a ressource to the server.
 
 @item Next, in the Service callback procedure that you have provided you
 must retrieve the Session ID. As we have seen, the callback procedure
@@ -511,7 +590,7 @@ has the following prototype:
 @end smallexample
 
 @noindent
-The Session ID is keept in the Request object:
+The Session ID is keept in the Request object and can be retrieved using:
 
 @smallexample
 Session_ID  : @b{constant} AWS.Session.ID := AWS.Status.Session (Request);
@@ -532,7 +611,7 @@ the provided API. For example:
 
 @noindent
 This example first get the value (as an Integer) for session data whose
-key is "@code{counter}", increment this counter and then set back it to
+key is "@code{counter}", increment this counter and then set it back to
 the new value.
 
 @end itemize
@@ -714,7 +793,7 @@ Note that this communication API is used by the Hotplug module facility
 @end ifinfo
 
 @noindent
-An @b{Hotplug module} is a module that can by dynamically bind to a
+An @b{Hotplug module} is a module that can by dynamically binded to a
 running server. It is a Web server and the development process is very
 similar to what we have seen until now @xref{Building an AWS server}. 
 The Hotplug module will register itself to a Web server by
@@ -879,6 +958,11 @@ Maximum number of simultaneous connections.
 
 A list of boolean. One for each connection. True means that the socket
 is open. This is to be inserted in a template table.
+
+@item PEERNAME_L (vector tag)
+
+A list of peer name. One for each connection. This is the name of the last
+peer connected to the slot.
 
 @item QUIT_L (vector tag)
 
