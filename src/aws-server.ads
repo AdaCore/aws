@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -249,9 +249,9 @@ private
    ----------
 
    type Slot is record
-      Sock                  : Socket_Access := null;
-      Socket_Taken          : Boolean := False;
-      Phase                 : Slot_Phase := Closed;
+      Sock                  : Socket_Access     := null;
+      Socket_Taken          : Boolean           := False;
+      Phase                 : Slot_Phase        := Closed;
       Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
       Data_Time_Stamp       : Ada.Calendar.Time;
       Alive_Time_Stamp      : Ada.Calendar.Time;
