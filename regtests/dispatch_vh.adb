@@ -98,7 +98,7 @@ begin
    AWS.Server.Start
      (WS,
       Dispatcher => H,
-      Config     => AWS.Config.Get_Current);
+      Config     => Cfg);
 
    Test ("http://localhost:" & Utils.Image (Free_Port) & "/thisone");
    Test ("http://127.0.0.1:" & Utils.Image (Free_Port) & "/thisone");
