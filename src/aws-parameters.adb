@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -29,32 +29,6 @@
 ------------------------------------------------------------------------------
 
 --  $Id$
-
---  Parameters are put into an AVL Tree. Each entry in the tree is composed of
---  a Key and a Value. The parameters must be accessible through their name
---  and also using an index. So given a set of parameters (K1=V1, K2=V2...),
---  one must be able to ask for the value for K1 but also the name of the
---  second key or the value of the third key.
---
---  Each K/V pair is then inserted into the Data tree and two times into the
---  HTTP_Data tree:
---
---  Into Data:
---
---  1) key=K with value=V
---
---  Into HTTP_Data:
---
---  1) key=__AWS_K<n> with value=K     (n beeing an indice representing the
---  2) key=__AWS_V<n> with value=V      entry number in the tree)
---
---  So to get the third key name we ask for the entry indexed under __AWS_K3
---  into HTTP_Data tree.
---
---  Another important point is that a key can have many values. For example
---  with an HTML multiple select entry in a form. In such a case all values
---  associated with the key K are concatenated together with a specific
---  separator.
 
 package body AWS.Parameters is
 
