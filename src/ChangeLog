@@ -1,3 +1,19 @@
+2002-10-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Fix comment/message for 403 case.
+	Minor reformatting.
+
+	* aws-resources.ads:
+	Minor reformatting.	
+
+	* aws-resources.adb:
+	(Get_Line): Add some comments.
+	Minor reformatting.
+
+	* makefile:
+	(GARGS): Add current directory.
+
 2002-10-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.adb:
