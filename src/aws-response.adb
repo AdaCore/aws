@@ -245,6 +245,15 @@ package body AWS.Response is
       end if;
    end Finalize;
 
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (Object : in out Data) is
+   begin
+      Object.Ref_Counter := new Natural'(1);
+   end Initialize;
+
    --------------
    -- Location --
    --------------
