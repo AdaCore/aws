@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 11 November 2004
+<p>Date: 12 November 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -707,6 +707,14 @@ Up:<a rel=up accesskey=u href="#Filters%20and%20Attributes">Filters and Attribut
 
 <p>Returns the number of item in the composite tag (can be applied only
 to a composite tag having a single nested level - a vector).
+
+<br><dt><code>V'Up_Level(n)</code>
+<dd>
+
+<p>Use index from the table command <b>n</b> level(s) upper so this attribute must
+be used in a nested table command tag. <code>'Up_Level</code> is equivalent
+to <code>'Up_Level(1)</code> (can be applied only to a composite tag having
+a single nested level - a vector).
 
 <br><dt><code>M'Line</code>
 <dd>
@@ -2327,6 +2335,7 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <li>Attribute, 'Line: <a href="#Attributes">Attributes</a>
 <li>Attribute, 'Max_Column: <a href="#Attributes">Attributes</a>
 <li>Attribute, 'Min_Column: <a href="#Attributes">Attributes</a>
+<li>Attribute, 'Up_Level: <a href="#Attributes">Attributes</a>
 <li>Command, @@-: <a href="#Comments%20tag%20statement">Comments tag statement</a>
 <li>Command, comments: <a href="#Comments%20tag%20statement">Comments tag statement</a>
 <li>Command, IF: <a href="#IF%20tag%20statement">IF tag statement</a>
