@@ -1,3 +1,4 @@
+@@--
 @@-- This templates provides support for implementing notebook tabs in
 @@-- an HTML page, ie something that looks like:
 @@--
@@ -64,7 +65,8 @@
 @@--       <div class="TabContents" id="page2">
 @@--          Content of page 2
 @@--       </div>
-
+@@--
+@@--  $Id$
 
 <style type="text/css">
 #@_$1_@           { border-bottom: 1px solid @_$6_@;
