@@ -35,11 +35,6 @@ package AWS.Session is
 
    type ID is private;
 
-   Default_Session_Lifetime : constant Duration := 10.0 * 60.0;
-   --  This is the default lifetime for session data. A session data that have
-   --  been not used during this time will be removed from the server. It is
-   --  possible to change the lifetime if session data. See below.
-
    function Create return ID;
    --  Create a new uniq Session ID.
 
