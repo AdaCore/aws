@@ -1,3 +1,27 @@
+2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Add _Type suffix to generated array routine.
+
+	* soap-generator-stub.adb:
+	(Output_Result): Add _Type suffix to generated array routine.
+	(New_Procedure): Idem.
+	
+	* soap-generator.adb:
+	(Types_From): New routine.
+	Lot of changes to add suffix _Type to generated array type
+	 names. This fixes problems where parameters and types are equal
+	 without taking into account the case. Note that this was already
+	 done for records.
+	(Start_Service): Handles Types_Spec if specified.
+	(Generate_Record): Idem.
+	(Generate_Array): Idem.
+
+	* soap-generator.ads:
+	(Version): Set to 1.1.
+	(Types_From): New routine.
+	(Object): Add Types_Spec field.
+
 2003-11-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-response-error.ads:

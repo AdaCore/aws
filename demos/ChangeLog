@@ -1,3 +1,8 @@
+2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* interoplab_main.adb:
+	Add suffix _Type to array type and constructor.
+
 2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* demos.gpr:

@@ -1,5 +1,28 @@
 2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	($(TOOLS)): Do not echo tools.
+
+	* ada2wsdl-parser.adb:
+	(Type_Name.Check_Float): New routine which issue a warning for
+	 Float usage. Remove dead code.
+	(Create_Tree): Free Tree_Name.
+
+	* ada2wsdl.adb:
+	(Location): New routine.
+	(Raise_Spec_Error): Use Location.
+
+	* ada2wsdl.ads:
+	(Version): Set to 0.5.
+	(Location): New routine.
+
+	* wsdl2aws.adb:
+	(Parse_Command_Line): Add support for -types options. Option to
+	 have wsdl2aws compatible with ada2wsdl.
+	(Usage): Add -types option.
+
+2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* ada2wsdl-main.adb:
 	(Parse_Command_Line): Add support for -I options.
 	(Usage): Add -I option.
