@@ -143,5 +143,5 @@ endif
 	-diff -c -w tres2.out tres2.res
 
 clean:
-	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe
-	-rm file1.html file2.html file3.html file.tmplt tresres*
+	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe res.ad[sb] res2.ad[sb]
+	-rm file file1.html file2.html file3.html file.tmplt tresres*
