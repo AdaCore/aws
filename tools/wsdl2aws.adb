@@ -76,6 +76,7 @@ procedure WSDL2AWS is
 
    Gen_CB       : Boolean := False;
    Types        : Boolean := False;
+   Main         : Boolean := False;
 
    ------------------
    -- Get_Document --
@@ -170,7 +171,8 @@ procedure WSDL2AWS is
 
       loop
          case Command_Line.Getopt
-           ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel cb types:")
+           ("q a f v s o: proxy: pu: pp: doc wsdl cvs nostub noskel "
+              & "cb types: main:")
          is
             when ASCII.NUL => exit;
 
@@ -216,6 +218,15 @@ procedure WSDL2AWS is
                elsif Command_Line.Full_Switch = "cb" then
                   SOAP.Generator.Gen_CB (Gen);
                   Gen_CB := True;
+
+               else
+                  raise Syntax_Error;
+               end if;
+
+            when 'm' =>
+               if Command_Line.Full_Switch = "main" then
+                  SOAP.Generator.Main (Gen, GNAT.Command_Line.Parameter);
+                  Main := True;
 
                else
                   raise Syntax_Error;
@@ -288,6 +299,12 @@ begin
       Raise_Exception
         (Constraint_Error'Identity,
          "Callback can't be generated if no Ada spec specified");
+   end if;
+
+   if Main and then not Gen_CB then
+      Raise_Exception
+        (Constraint_Error'Identity,
+         "Server main can't be generated if callback not generated.");
    end if;
 
    if Filename = Null_Unbounded_String then
