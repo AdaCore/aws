@@ -164,7 +164,22 @@ package body AWS.Session is
 
    type Cleaner_Access is access Cleaner;
 
-   Cleaner_Task : Cleaner_Access;
+   ---------------------
+   -- Cleaner_Control --
+   ---------------------
+
+   protected Cleaner_Control is
+
+      procedure Start;
+      --  Launch the cleaner task the first time and does nothing after.
+
+      procedure Stop;
+      --  Stop the cleaner task when there is no more server using it.
+
+   private
+      Server_Count : Natural := 0;
+      Cleaner_Task : Cleaner_Access;
+   end Cleaner_Control;
 
    -------------
    -- Cleaner --
@@ -187,6 +202,41 @@ package body AWS.Session is
            ("Unrecoverable Error : Cleaner Task bug detected"
             & Exceptions.Exception_Information (E));
    end Cleaner;
+
+   ---------------------
+   -- Cleaner_Control --
+   ---------------------
+
+   protected body Cleaner_Control is
+
+      -----------
+      -- Start --
+      -----------
+
+      procedure Start is
+      begin
+         Server_Count := Server_Count + 1;
+
+         if Server_Count = 1 then
+            Cleaner_Task := new Cleaner;
+         end if;
+      end Start;
+
+      ----------
+      -- Stop --
+      ----------
+
+      procedure Stop is
+      begin
+         Server_Count := Server_Count - 1;
+
+         if Server_Count = 0 then
+            abort Cleaner_Task.all;
+            Cleaner_Task := null;
+         end if;
+      end Stop;
+
+   end Cleaner_Control;
 
    ------------
    -- Create --
@@ -782,7 +832,7 @@ package body AWS.Session is
 
    procedure Start is
    begin
-      Cleaner_Task := new Cleaner;
+      Cleaner_Control.Start;
    end Start;
 
    --------------
@@ -791,7 +841,7 @@ package body AWS.Session is
 
    procedure Shutdown is
    begin
-      abort Cleaner_Task.all;
+      Cleaner_Control.Stop;
    end Shutdown;
 
    -----------
