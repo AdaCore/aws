@@ -1,3 +1,14 @@
+2002-12-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-containers-tables.ads, aws-containers-tables.adb
+	  aws-containers-tables-set.adb:
+	Name_Value_Type renamed to Element.
+	Get_Name_Value renamed to Get.
+
+	* aws-headers.adb:
+	(Get_Line): Change regarding renaming in interface of
+	 AWS.Containers.Tables.
+
 2002-12-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-containers-tables-set.adb:
