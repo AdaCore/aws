@@ -157,6 +157,3 @@ implemented:
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply all support to the Web_Mail service.
-
-- Add name to stream. This is needed to be able to set the Content-Disposition
-  for streams as done for files.
