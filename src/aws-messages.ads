@@ -28,7 +28,29 @@
 
 --  $Id$
 
+with Ada.Calendar;
+
 package AWS.Messages is
+
+   use Ada;
+
+   Host_Token : constant String := "Host: ";
+   subtype Host_Range is Positive range Host_Token'Range;
+
+   Get_Token : constant String := "GET ";
+   subtype Get_Range is Positive range Get_Token'Range;
+
+   Post_Token : constant String := "POST ";
+   subtype Post_Range is Positive range Post_Token'Range;
+
+   Connection_Token : constant String := "Connection: ";
+   subtype Connection_Range is Positive range Connection_Token'Range;
+
+   Content_Type_Token : constant String := "Content-Type: ";
+   subtype Content_Type_Range is Positive range Content_Type_Token'Range;
+
+   Content_Length_Token : constant String := "Content-Length: ";
+   subtype Content_Length_Range is Positive range Content_Length_Token'Range;
 
    type Status_Code is
      (S100, S101,
@@ -52,10 +74,23 @@ package AWS.Messages is
       --  valid request
       );
 
+   --  HTTP message constructors
+
    function Status_Line (Code : in Status_Code) return String;
 
    function Content_Length (Size : in Positive) return String;
 
    function Content_Type (Format : in String) return String;
+
+   --  helper functions
+
+   function Is_Match (Str, Pattern : in String) return Boolean;
+   pragma Inline (Is_Match);
+   --  returns True if Pattern matches the begining of Str. The test is not
+   --  case sensitive.
+
+   function To_HTTP_Date (Time : in Calendar.Time) return String;
+
+   function To_Time (HTTP_Date : in String) return Calendar.Time;
 
 end AWS.Messages;
