@@ -69,4 +69,12 @@ begin
    Test ("http://www.myserver.com:89/app/request?p1=9&p2=toto");
    Test ("http://www.myserver.com:89/app/..\..\toto?url=http://titi");
    Test ("http://www.myserver.com:89/app/.\..\toto?url=http://titi&a=2");
+   Test ("http://www.myserver.com:89/..?url=http://titi&a=2");
+   Test ("http://www.myserver.com:89/./..?a=2");
+   Test (".");
+   Test ("./toto");
+   Test ("./../toto");
+   Test ("..");
+   Test ("/../");
+   Test ("/..");
 end Turl2;
