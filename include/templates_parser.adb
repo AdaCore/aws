@@ -50,6 +50,30 @@ package body Templates_Parser is
 
    Internal_Error : exception;
 
+   Blank : constant Maps.Character_Set := Maps.To_Set (' ' & ASCII.HT);
+
+   function Image (N : in Integer) return String;
+   pragma Inline (Image);
+   --  Returns N image without leading blank
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (N : in Integer) return String is
+      N_Img : constant String := Integer'Image (N);
+   begin
+      if N_Img (N_Img'First) = '-' then
+         return N_Img;
+      else
+         return N_Img (N_Img'First + 1 .. N_Img'Last);
+      end if;
+   end Image;
+
+   --------------
+   -- Tag Info --
+   --------------
+
    Begin_Tag : Unbounded_String := To_Unbounded_String (Default_Begin_Tag);
    End_Tag   : Unbounded_String := To_Unbounded_String (Default_End_Tag);
 
@@ -62,6 +86,10 @@ package body Templates_Parser is
    Else_Token                 : constant String := "@@ELSE@@";
    End_If_Token               : constant String := "@@END_IF@@";
    Include_Token              : constant String := "@@INCLUDE@@";
+
+   ----------------------
+   --  Filters setting --
+   ----------------------
 
    Filter_Lower_Token         : aliased constant String := "LOWER";
    Filter_Upper_Token         : aliased constant String := "UPPER";
@@ -85,12 +113,15 @@ package body Templates_Parser is
    Filter_Web_NBSP_Token      : aliased constant String := "WEB_NBSP";
    Filter_Coma_2_Point_Token  : aliased constant String := "COMA_2_POINT";
    Filter_Point_2_Coma_Token  : aliased constant String := "POINT_2_COMA";
-
-   Blank : constant Maps.Character_Set := Maps.To_Set (' ' & ASCII.HT);
-
-   ----------------------
-   --  Filters setting --
-   ----------------------
+   Filter_Plus_Token          : aliased constant String := """+""";
+   Filter_Add_Token           : aliased constant String := "ADD";
+   Filter_Minus_Token         : aliased constant String := """-""";
+   Filter_Sub_Token           : aliased constant String := "SUB";
+   Filter_Multiply_Token      : aliased constant String := """*""";
+   Filter_Mult_Token          : aliased constant String := "MULT";
+   Filter_Divide_Token        : aliased constant String := """/""";
+   Filter_Div_Token           : aliased constant String := "DIV";
+   Filter_Modulo_Token        : aliased constant String := "MOD";
 
    --  A filter appear just before a tag variable (e.g. @_LOWER:SOME_VAR_@
    --  and means that the filter LOWER should be applied to SOME_VAR before
@@ -163,8 +194,23 @@ package body Templates_Parser is
       Web_NBSP,
       --  Convert spaces to HTML &nbsp; - non breaking spaces.
 
-      Yes_No
+      Yes_No,
       --  If True return Yes, If False returns No, else do nothing.
+
+      Plus, Add,
+      --  Add the given parameter to the string
+
+      Minus, Sub,
+      --  Substract the given parameter to the string
+
+      Multiply, Mult,
+      --  Multiply the given parameter to the string
+
+      Divide, Div,
+      --  Divide the given parameter to the string
+
+      Modulo
+      --  Returns current value modulo N (N is the filter parameter)
       );
 
    function Expect_Regexp (Mode : in Filters_Mode) return Boolean;
@@ -284,6 +330,20 @@ package body Templates_Parser is
    function Yes_No_Filter
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
+   function Plus_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+   function Minus_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+   function Divide_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+   function Multiply_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+   function Modulo_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Filter_Handle (Name : in String) return Filter_Function;
    --  Returns the filter function for the given filter name.
@@ -847,13 +907,8 @@ package body Templates_Parser is
    end "+";
 
    function "+" (Value : in Integer) return Vector_Tag is
-      S_Value : constant String := Integer'Image (Value);
    begin
-      if Value in Natural then
-         return +S_Value (S_Value'First + 1 .. S_Value'Last);
-      else
-         return +S_Value;
-      end if;
+      return +Image (Value);
    end "+";
 
    ---------
@@ -915,15 +970,9 @@ package body Templates_Parser is
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Integer)
-      return Vector_Tag
-   is
-      S_Value : constant String := Integer'Image (Value);
+      return Vector_Tag is
    begin
-      if Value in Natural then
-         return Vect & S_Value (S_Value'First + 1 .. S_Value'Last);
-      else
-         return Vect & S_Value;
-      end if;
+      return Vect & Image (Value);
    end "&";
 
    -----------
@@ -1659,11 +1708,7 @@ package body Templates_Parser is
    begin
       Check_Null_Parameter (P);
 
-      declare
-         R : constant String := Integer'Image (S'Length);
-      begin
-         return R (R'First + 1 .. R'Last);
-      end;
+      return Image (S'Length);
    end Size_Filter;
 
    -----------------
@@ -1803,6 +1848,136 @@ package body Templates_Parser is
       end if;
    end Yes_No_Filter;
 
+   -----------------
+   -- Plus_Filter --
+   -----------------
+
+   function Plus_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String
+   is
+      N, V : Natural;
+   begin
+      begin
+         N := Natural'Value (To_String (P.S));
+      exception
+         when Constraint_Error =>
+            Exceptions.Raise_Exception
+              (Template_Error'Identity, """+"" filter parameter error");
+      end;
+
+      begin
+         V := Natural'Value (S);
+         return Image (V + N);
+      exception
+         when others =>
+            return "";
+      end;
+   end Plus_Filter;
+
+   ------------------
+   -- Minus_Filter --
+   ------------------
+
+   function Minus_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String
+   is
+      N, V : Natural;
+   begin
+      begin
+         N := Natural'Value (To_String (P.S));
+      exception
+         when Constraint_Error =>
+            Exceptions.Raise_Exception
+              (Template_Error'Identity, """-"" filter parameter error");
+      end;
+
+      begin
+         V := Natural'Value (S);
+         return Image (V - N);
+      exception
+         when others =>
+            return "";
+      end;
+   end Minus_Filter;
+
+   -------------------
+   -- Divide_Filter --
+   -------------------
+
+   function Divide_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String
+   is
+      N, V : Natural;
+   begin
+      begin
+         N := Natural'Value (To_String (P.S));
+      exception
+         when Constraint_Error =>
+            Exceptions.Raise_Exception
+              (Template_Error'Identity, """/"" filter parameter error");
+      end;
+
+      begin
+         V := Natural'Value (S);
+         return Image (V / N);
+      exception
+         when others =>
+            return "";
+      end;
+   end Divide_Filter;
+
+   ---------------------
+   -- Multiply_Filter --
+   ---------------------
+
+   function Multiply_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String
+   is
+      N, V : Natural;
+   begin
+      begin
+         N := Natural'Value (To_String (P.S));
+      exception
+         when Constraint_Error =>
+            Exceptions.Raise_Exception
+              (Template_Error'Identity, """*"" filter parameter error");
+      end;
+
+      begin
+         V := Natural'Value (S);
+         return Image (V * N);
+      exception
+         when others =>
+            return "";
+      end;
+   end Multiply_Filter;
+
+   -------------------
+   -- Modulo_Filter --
+   -------------------
+
+   function Modulo_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String
+   is
+      N, V : Natural;
+   begin
+      begin
+         N := Natural'Value (To_String (P.S));
+      exception
+         when Constraint_Error =>
+            Exceptions.Raise_Exception
+              (Template_Error'Identity, "modulo filter parameter error");
+      end;
+
+      begin
+         V := Natural'Value (S);
+         return Image (V mod N);
+      exception
+         when others =>
+            return "";
+      end;
+   end Modulo_Filter;
+
    --  Filter Table
 
    Filter_Table : constant array (Filters_Mode) of Filter_Record
@@ -1870,7 +2045,34 @@ package body Templates_Parser is
            (Filter_Web_NBSP_Token'Access,       Web_NBSP_Filter'Access),
 
          Yes_No         =>
-           (Filter_Yes_No_Token'Access,         Yes_No_Filter'Access)
+           (Filter_Yes_No_Token'Access,         Yes_No_Filter'Access),
+
+         Plus           =>
+           (Filter_Plus_Token'Access,           Plus_Filter'Access),
+
+         Add            =>
+           (Filter_Add_Token'Access,            Plus_Filter'Access),
+
+         Minus          =>
+           (Filter_Minus_Token'Access,          Minus_Filter'Access),
+
+         Sub            =>
+           (Filter_Sub_Token'Access,            Minus_Filter'Access),
+
+         Multiply       =>
+           (Filter_Multiply_Token'Access,       Multiply_Filter'Access),
+
+         Mult           =>
+           (Filter_Mult_Token'Access,           Multiply_Filter'Access),
+
+         Divide         =>
+           (Filter_Divide_Token'Access,         Divide_Filter'Access),
+
+         Div            =>
+           (Filter_Div_Token'Access,            Divide_Filter'Access),
+
+         Modulo         =>
+           (Filter_Modulo_Token'Access,         Modulo_Filter'Access)
          );
 
    -------------------
@@ -1996,12 +2198,7 @@ package body Templates_Parser is
    is
       S_Value : constant String := Integer'Image (Value);
    begin
-      if Value in Natural then
-         return Assoc (Variable,
-                       S_Value (S_Value'First + 1 .. S_Value'Last));
-      else
-         return Assoc (Variable, S_Value);
-      end if;
+      return Assoc (Variable, Image (Value));
    end Assoc;
 
    function Assoc
@@ -2648,9 +2845,8 @@ package body Templates_Parser is
             ---------------
 
             function Vect_Size (A : in Association) return String is
-               N : constant String := Natural'Image (A.Vect_Value.Count);
             begin
-               return N (N'First + 1 .. N'Last);
+               return Image (A.Vect_Value.Count);
             end Vect_Size;
 
             --------------
@@ -2709,9 +2905,8 @@ package body Templates_Parser is
             --------------
 
             function Mat_Line (A : in Association) return String is
-               N : constant String := Natural'Image (A.Mat_Value.M.Count);
             begin
-               return N (N'First + 1 .. N'Last);
+               return Image (A.Mat_Value.M.Count);
             end Mat_Line;
 
             --------------------
@@ -2719,9 +2914,8 @@ package body Templates_Parser is
             --------------------
 
             function Mat_Min_Column (A : in Association) return String is
-               N : constant String := Natural'Image (A.Mat_Value.M.Min);
             begin
-               return N (N'First + 1 .. N'Last);
+               return Image (A.Mat_Value.M.Min);
             end Mat_Min_Column;
 
             --------------------
@@ -2729,9 +2923,8 @@ package body Templates_Parser is
             --------------------
 
             function Mat_Max_Column (A : in Association) return String is
-               N : constant String := Natural'Image (A.Mat_Value.M.Max);
             begin
-               return N (N'First + 1 .. N'Last);
+               return Image (A.Mat_Value.M.Max);
             end Mat_Max_Column;
 
 
