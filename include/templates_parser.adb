@@ -30,6 +30,7 @@
 
 with Ada.Exceptions;
 with Ada.Characters.Handling;
+with Ada.Calendar;
 with Ada.Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
@@ -42,6 +43,13 @@ package body Templates_Parser is
    use Ada.Exceptions;
    use Ada.Strings;
 
+   Begin_Tag : Unbounded_String := To_Unbounded_String (Default_Begin_Tag);
+   End_Tag   : Unbounded_String := To_Unbounded_String (Default_End_Tag);
+
+   function With_Tag (Str : in String) return Boolean;
+   pragma Inline (With_Tag);
+   --  Returns True if Str has some tags and False otherwise.
+
    Table_Token              : constant String := "@@TABLE@@";
    Terminate_Sections_Token : constant String := "@@TERMINATE_SECTIONS@@";
    Section_Token            : constant String := "@@SECTION@@";
@@ -51,14 +59,16 @@ package body Templates_Parser is
    End_If_Token             : constant String := "@@END_IF@@";
    Include_Token            : constant String := "@@INCLUDE@@";
 
-   Filter_Identity_Token    : aliased constant String := "@@IDENTITY";
-   Filter_Reverse_Token     : aliased constant String := "@@REVERSE";
-   Filter_Lower_Token       : aliased constant String := "@@LOWER";
-   Filter_Upper_Token       : aliased constant String := "@@UPPER";
-   Filter_Clean_Text_Token  : aliased constant String := "@@CLEAN_TEXT";
-   Filter_Capitalize_Token  : aliased constant String := "@@CAPITALIZE";
-   Filter_Yes_No_Token      : aliased constant String := "@@YES_NO";
-   Filter_Oui_Non_Token     : aliased constant String := "@@OUI_NON";
+   Filter_Identity_Token    : aliased constant String := "@_IDENTITY";
+   Filter_Reverse_Token     : aliased constant String := "@_REVERSE";
+   Filter_Lower_Token       : aliased constant String := "@_LOWER";
+   Filter_Upper_Token       : aliased constant String := "@_UPPER";
+   Filter_Clean_Text_Token  : aliased constant String := "@_CLEAN_TEXT";
+   Filter_Capitalize_Token  : aliased constant String := "@_CAPITALIZE";
+   Filter_Yes_No_Token      : aliased constant String := "@_YES_NO";
+   Filter_Oui_Non_Token     : aliased constant String := "@_OUI_NON";
+   Filter_Exist_Token       : aliased constant String := "@_EXIST";
+   Filter_Is_Empty_Token    : aliased constant String := "@_IS_EMPTY";
 
    subtype Table_Range     is Positive range Table_Token'Range;
    subtype Section_Range   is Positive range Section_Token'Range;
@@ -67,6 +77,48 @@ package body Templates_Parser is
    subtype Else_Range      is Positive range Else_Token'Range;
    subtype End_If_Range    is Positive range End_If_Token'Range;
    subtype Include_Range   is Positive range Include_Token'Range;
+
+   Blank : constant Maps.Character_Set := Maps.To_Set (' ' & ASCII.HT);
+
+   ------------------
+   --  Expressions --
+   ------------------
+
+   package Expr is
+
+      type Ops is (O_And, O_Or, O_Sup, O_Inf, O_Esup, O_Einf, O_Equal);
+
+      function Image (O : in Ops) return String;
+      --  Returns Ops string representation.
+
+      function Value (O : in String) return Ops;
+      --  Returns Ops from its string representation. Raises Templates_Error if
+      --  the token is not a known operation.
+
+      type Node;
+      type Tree is access Node;
+
+      type NKind is (Value, Op);
+
+      type Node (Kind : NKind) is record
+         case Kind is
+            when Value =>
+               V : Unbounded_String;
+            when Op =>
+               O           : Ops;
+               Left, Right : Tree;
+         end case;
+      end record;
+
+      function Parse (Expression : in String) return Tree;
+      --  Parse Expression and returns the corresponding tree representation.
+
+      procedure Print_Tree (E : in Tree);
+      --  Decend the expression's tree and print the expression. It outputs the
+      --  expression with all parenthesis to show without ambiguity the way the
+      --  expression has been parsed.
+
+   end Expr;
 
    --------------------------------
    --  Template Tree definitions --
@@ -82,10 +134,11 @@ package body Templates_Parser is
 
       case Kind is
          when Data =>
-            Value : Unbounded_String;
+            Value   : Unbounded_String;
+            Has_Tag : Boolean;
 
          when If_Stmt =>
-            Cond    : Unbounded_String;
+            Cond    : Expr.Tree;
             N_True  : Tree;
             N_False : Tree;
 
@@ -137,7 +190,9 @@ package body Templates_Parser is
       Capitalize, -- lower case except char before spaces and underscores
       Clean_Text, -- only letter/digits all other chars are changed to spaces.
       Yes_No,     -- if True return Yes, If False returns No, else do nothing.
-      Oui_Non     -- if True return Oui, If False returns Non, else do nothing.
+      Oui_Non,    -- if True return Oui, If False returns Non, else do nothing.
+      Exist,      -- return "TRUE" if var is not empty and "FALSE" otherwise.
+      Is_Empty    -- return "TRUE" if var is empty and "FALSE" otherwise.
       );
 
    type Filter_Function is access function (S : in String) return String;
@@ -158,6 +213,8 @@ package body Templates_Parser is
    function Clean_Text_Filter (S : in String) return String;
    function Yes_No_Filter     (S : in String) return String;
    function Oui_Non_Filter    (S : in String) return String;
+   function Exist_Filter      (S : in String) return String;
+   function Is_Empty_Filter   (S : in String) return String;
 
    function Identity_Filter   (S : in String) return String;
    pragma Inline (Identity_Filter);
@@ -624,6 +681,193 @@ package body Templates_Parser is
 
    end Cached_Files;
 
+   package body Expr is
+
+      -----------
+      -- Image --
+      -----------
+
+      function Image (O : in Ops) return String is
+      begin
+         case O is
+            when O_And   => return "and";
+            when O_Or    => return "or";
+            when O_Sup   => return ">";
+            when O_Inf   => return "<";
+            when O_Esup  => return ">=";
+            when O_Einf  => return "<=";
+            when O_Equal => return "=";
+         end case;
+      end Image;
+
+      -----------
+      -- Parse --
+      -----------
+
+      function Parse (Expression : in String) return Tree is
+
+         Open_Par  : constant String := String'(1 => '(');
+         Close_Par : constant String := String'(1 => ')');
+
+         Index     : Natural := Expression'First;
+
+         function Get_Token return String;
+         --  Returns next token. Set Index to the last analysed position in
+         --  Expression.
+
+         ---------------
+         -- Get_Token --
+         ---------------
+
+         function Get_Token return String is
+            use Strings;
+            K, I  : Natural;
+         begin
+            if Index > Expression'Last then
+               --  No more data to read.
+               return "";
+            end if;
+
+            Index := Fixed.Index_Non_Blank
+              (Expression (Index .. Expression'Last));
+
+            if Index = 0 then
+               --  There is only one token, return the whole string.
+               Index := Expression'Last + 1;
+               return Expression (Index .. Expression'Last);
+
+            elsif Expression (Index) = '(' then
+               --  This is a sub-expression, returns it.
+               K := 0;
+
+               declare
+                  L : Natural := 1;
+               begin
+                  Look_For_Sub_Exp : for I in Index + 1 .. Expression'Last loop
+                     if Expression (I) = '(' then
+                        L := L + 1;
+                     elsif Expression (I) = ')' then
+                        K := I;
+                        L := L - 1;
+                     end if;
+
+                     exit Look_For_Sub_Exp when L = 0;
+                  end loop Look_For_Sub_Exp;
+               end;
+
+               if K = 0 then
+                  --  No matching closing parenthesis.
+
+                  Exceptions.Raise_Exception
+                    (Template_Error'Identity,
+                     "condition, no matching parenthesis for parent at pos "
+                     & Natural'Image (Index));
+
+               else
+                  I := Index;
+                  Index := K + 1;
+                  return Expression (I + 1 .. K - 1);
+               end if;
+
+            else
+               --  We have found the start of a token, look for end of it.
+               K := Fixed.Index (Expression (Index .. Expression'Last), Blank);
+
+               if K = 0 then
+                  --  Token end is the end of Expression.
+                  I := Index;
+                  Index := Expression'Last + 1;
+                  return Expression (I .. Expression'Last);
+               else
+                  I := Index;
+                  Index := K + 1;
+                  return Expression (I .. K - 1);
+               end if;
+            end if;
+         end Get_Token;
+
+         L_Tok : constant String := Get_Token;
+         O_Tok : constant String := Get_Token;
+         R_Tok : constant String := Get_Token;
+
+      begin
+         if O_Tok = "" then
+            --  no more operator, this is a leaf
+            return new Node'(Value, To_Unbounded_String (L_Tok));
+
+         else
+            if Index > Expression'Last then
+               --  This is the latest token
+
+               return new Node'(Op, Value (O_Tok),
+                                Parse (L_Tok), Parse (R_Tok));
+
+            else
+               declare
+                  NO_Tok : constant String := Get_Token;
+               begin
+                  return new Node'
+                    (Op, Value (NO_Tok),
+                     Parse (L_Tok & ' ' & O_Tok & ' ' & R_Tok),
+                     Parse (Expression (Index .. Expression'Last)));
+               end;
+            end if;
+         end if;
+      end Parse;
+
+      ----------------
+      -- Print_Tree --
+      ----------------
+
+      procedure Print_Tree (E : in Tree) is
+      begin
+         case E.Kind is
+            when Value =>
+               Text_IO.Put (To_String (E.V));
+            when Op =>
+               Text_IO.Put ('(');
+               Print_Tree (E.Left);
+               Text_IO.Put (' ' & Image (E.O) & ' ');
+               Print_Tree (E.Right);
+               Text_IO.Put (')');
+         end case;
+      end Print_Tree;
+
+      -----------
+      -- Value --
+      -----------
+
+      function Value (O : in String) return Ops is
+      begin
+         if O = "and" then
+            return O_And;
+
+         elsif O = "or" then
+            return O_Or;
+
+         elsif O = ">" then
+            return O_Sup;
+
+         elsif O = "<" then
+            return O_Inf;
+
+         elsif O = ">=" then
+            return O_Esup;
+
+         elsif O = "<=" then
+            return O_Einf;
+
+         elsif O = "=" then
+            return O_Equal;
+
+         else
+            Exceptions.Raise_Exception
+              (Template_Error'Identity, "condition, unknown operator " & O);
+         end if;
+      end Value;
+
+   end Expr;
+
    ---------------------
    -- Identity_Filter --
    ---------------------
@@ -770,6 +1014,32 @@ package body Templates_Parser is
       end if;
    end Oui_Non_Filter;
 
+   ------------------
+   -- Exist_Filter --
+   ------------------
+
+   function Exist_Filter (S : in String) return String is
+   begin
+      if S /= "" then
+         return "TRUE";
+      else
+         return "FALSE";
+      end if;
+   end Exist_Filter;
+
+   ---------------------
+   -- Is_Empty_Filter --
+   ---------------------
+
+   function Is_Empty_Filter (S : in String) return String is
+   begin
+      if S = "" then
+         return "TRUE";
+      else
+         return "FALSE";
+      end if;
+   end Is_Empty_Filter;
+
    --  Filter Table
 
    Filter_Table : array (Filters_Mode) of Filter_Record
@@ -788,7 +1058,11 @@ package body Templates_Parser is
          Yes_No     =>
            (Filter_Yes_No_Token'Access,     Yes_No_Filter'Access),
          Oui_Non    =>
-           (Filter_Oui_Non_Token'Access,    Oui_Non_Filter'Access));
+           (Filter_Oui_Non_Token'Access,    Oui_Non_Filter'Access),
+         Exist      =>
+           (Filter_Exist_Token'Access,      Exist_Filter'Access),
+         Is_Empty   =>
+           (Filter_Is_Empty_Token'Access,   Is_Empty_Filter'Access));
 
    ------------------
    -- Check_Filter --
@@ -885,71 +1159,59 @@ package body Templates_Parser is
 
    function Assoc
      (Variable  : in String;
-      Value     : in String;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in String)
      return Association is
    begin
       return Association'
         (Std,
-         To_Unbounded_String (Begin_Tag & Variable & End_Tag),
+         Begin_Tag & To_Unbounded_String (Variable) & End_Tag,
          To_Unbounded_String (Value));
    end Assoc;
 
    function Assoc
      (Variable  : in String;
-      Value     : in Ada.Strings.Unbounded.Unbounded_String;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in Ada.Strings.Unbounded.Unbounded_String)
      return Association is
    begin
-      return Assoc (Variable, To_String (Value), Begin_Tag, End_Tag);
+      return Assoc (Variable, To_String (Value));
    end Assoc;
 
    function Assoc
      (Variable  : in String;
-      Value     : in Integer;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in Integer)
      return Association
    is
       S_Value : constant String := Integer'Image (Value);
    begin
       if Value in Natural then
          return Assoc (Variable,
-                       S_Value (S_Value'First + 1 .. S_Value'Last),
-                       Begin_Tag,
-                       End_Tag);
+                       S_Value (S_Value'First + 1 .. S_Value'Last));
       else
-         return Assoc (Variable, S_Value, Begin_Tag, End_Tag);
+         return Assoc (Variable, S_Value);
       end if;
    end Assoc;
 
    function Assoc
      (Variable  : in String;
-      Value     : in Boolean;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in Boolean)
      return Association is
    begin
       if Value then
-         return Assoc (Variable, "TRUE", Begin_Tag, End_Tag);
+         return Assoc (Variable, "TRUE");
       else
-         return Assoc (Variable, "FALSE", Begin_Tag, End_Tag);
+         return Assoc (Variable, "FALSE");
       end if;
    end Assoc;
 
    function Assoc
      (Variable  : in String;
       Value     : in Vector_Tag;
-      Separator : in String     := Default_Separator;
-      Begin_Tag : in String     := Default_Begin_Tag;
-      End_Tag   : in String     := Default_End_Tag)
+      Separator : in String     := Default_Separator)
      return Association is
    begin
       return Association'
         (Vect,
-         To_Unbounded_String (Begin_Tag & Variable & End_Tag),
+         Begin_Tag & To_Unbounded_String (Variable) & End_Tag,
          Value,
          To_Unbounded_String (Separator));
    end Assoc;
@@ -957,14 +1219,12 @@ package body Templates_Parser is
    function Assoc
      (Variable  : in String;
       Value     : in Matrix_Tag;
-      Separator : in String     := Default_Separator;
-      Begin_Tag : in String     := Default_Begin_Tag;
-      End_Tag   : in String     := Default_End_Tag)
+      Separator : in String     := Default_Separator)
      return Association is
    begin
       return Association'
         (Matrix,
-         To_Unbounded_String (Begin_Tag & Variable & End_Tag),
+         Begin_Tag & To_Unbounded_String (Variable) & End_Tag,
          Value,
          To_Unbounded_String (Separator));
    end Assoc;
@@ -1031,6 +1291,9 @@ package body Templates_Parser is
       --  separated by a set of blank characters (space or horizontal
       --  tabulation).
 
+      function Get_All_Parameters return String;
+      --  Get all parameters on the current line.
+
       function Is_Stmt (Stmt : in String) return Boolean;
       --  Returns True is Stmt is found at the begining of the current line
       --  ignoring leading blank characters.
@@ -1059,12 +1322,22 @@ package body Templates_Parser is
             & " at line" & Natural'Image (Line) & ' ' & Message & '.');
       end Fatal_Error;
 
+      ------------------------
+      -- Get_All_Parameters --
+      ------------------------
+
+      function Get_All_Parameters return String is
+         Start : Natural;
+      begin
+         Start := Strings.Fixed.Index (Buffer (First .. Last), Blank);
+         return Buffer (Start .. Last);
+      end Get_All_Parameters;
+
       -------------------------
       -- Get_First_Parameter --
       -------------------------
 
       function Get_First_Parameter return Unbounded_String is
-         Blank : Maps.Character_Set := Maps.To_Set (' ' & ASCII.HT);
          Start, Stop : Natural;
       begin
          Start := Strings.Fixed.Index (Buffer (First .. Last), Blank);
@@ -1129,7 +1402,6 @@ package body Templates_Parser is
             when Parse_If =>
                if Is_Stmt (Else_Token) or else Is_Stmt (End_If_Token) then
                   return null;
-
                end if;
 
                if Is_Stmt (End_Table_Token) then
@@ -1187,7 +1459,7 @@ package body Templates_Parser is
          if Is_Stmt (If_Token) then
             T := new Node (If_Stmt);
 
-            T.Cond    := Get_First_Parameter;
+            T.Cond    := Expr.Parse (Get_All_Parameters);
             T.N_True  := Parse (Parse_If);
 
             if Is_Stmt (End_If_Token) then
@@ -1222,9 +1494,15 @@ package body Templates_Parser is
             return T;
 
          else
-            return new Node'(Data,
-                             Value => To_Unbounded_String (Buffer (1 .. Last)),
-                             Next  => Parse (Mode));
+            declare
+               V : constant String := Buffer (1 .. Last);
+            begin
+               return
+                 new Node'(Data,
+                           Value   => To_Unbounded_String (V),
+                           Has_Tag => With_Tag (V),
+                           Next    => Parse (Mode));
+            end;
          end if;
       end Parse;
 
@@ -1273,12 +1551,17 @@ package body Templates_Parser is
 
       case T.Kind is
          when Data =>
-            Text_IO.Put_Line ("[DATA] " & To_String (T.Value));
+            Text_IO.Put_Line ("[DATA] (HAS_TAGS="
+                              & Boolean'Image (T.Has_Tag)
+                              & ") " & To_String (T.Value));
             Print_Tree (T.Next, Level);
 
          when If_Stmt  =>
-            Text_IO.Put_Line ("[IF_STMT] " & To_String (T.Cond));
+            Text_IO.Put ("[IF_STMT] ");
+            Expr.Print_Tree (T.Cond);
+            Text_IO.New_Line;
             Print_Tree (T.N_True, Level + 1);
+            Print_Indent (Level);
             Text_IO.Put_Line ("[ELSE]");
             Print_Tree (T.N_False, Level + 1);
             Print_Indent (Level);
@@ -1305,6 +1588,10 @@ package body Templates_Parser is
       end case;
 
    end Print_Tree;
+
+   ----------------
+   -- Print_Tree --
+   ----------------
 
    procedure Print_Tree (Filename : in String) is
       T : Tree;
@@ -1350,6 +1637,12 @@ package body Templates_Parser is
          State : in Table_State)
       is
 
+         function Analyze (E : in Expr.Tree) return String;
+         --  Analyse the expression tree and returns the result as a boolean
+         --  The conditional expression must be equal to either TRUE or
+         --  FALSE. Note that a string is True if it is equal to string "TRUE"
+         --  and False otherwise.
+
          procedure Get_Max
            (T          : in     Tree;
             Max_Lines  :    out Natural;
@@ -1371,14 +1664,163 @@ package body Templates_Parser is
          --  case sensitive.
 
          -------------
-         -- Is_True --
+         -- Analyze --
          -------------
 
-         function Is_True (Str : in String) return Boolean is
-            L_Str : constant String := Characters.Handling.To_Upper (Str);
+         function Analyze (E : in Expr.Tree) return String is
+
+            type Ops_Fct is access function (L, R : in String) return String;
+
+            function F_And  (L, R : in String) return String;
+            function F_Or   (L, R : in String) return String;
+            function F_Sup  (L, R : in String) return String;
+            function F_Esup (L, R : in String) return String;
+            function F_Einf (L, R : in String) return String;
+            function F_Inf  (L, R : in String) return String;
+            function F_Equ  (L, R : in String) return String;
+
+            -----------
+            -- F_And --
+            -----------
+
+            function F_And (L, R : in String) return String is
+            begin
+               if Is_True (L) and Is_True (R) then
+                  return "TRUE";
+               else
+                  return "FALSE";
+               end if;
+            end F_And;
+
+            ------------
+            -- F_Einf --
+            ------------
+
+            function F_Einf (L, R : in String) return String is
+            begin
+               if Integer'Value (L) <= Integer'Value (R) then
+                  return "TRUE";
+               else
+                  return "FALSE";
+               end if;
+            exception
+               when others =>
+                  if L <= R then
+                     return "TRUE";
+                  else
+                     return "FALSE";
+                  end if;
+            end F_Einf;
+
+            -----------
+            -- F_Equ --
+            -----------
+
+            function F_Equ (L, R : in String) return String is
+            begin
+               if L = R then
+                  return "TRUE";
+               else
+                  return "FALSE";
+               end if;
+            end F_Equ;
+
+            ------------
+            -- F_Esup --
+            ------------
+
+            function F_Esup (L, R : in String) return String is
+            begin
+               if Integer'Value (L) >= Integer'Value (R) then
+                  return "TRUE";
+               else
+                  return "FALSE";
+               end if;
+            exception
+               when others =>
+                  if L >= R then
+                     return "TRUE";
+                  else
+                     return "FALSE";
+                  end if;
+            end F_Esup;
+
+            -----------
+            -- F_Inf --
+            -----------
+
+            function F_Inf (L, R : in String) return String is
+            begin
+               if Integer'Value (L) < Integer'Value (R) then
+                  return "TRUE";
+               else
+                  return "FALSE";
+               end if;
+            exception
+               when others =>
+                  if L < R then
+                     return "TRUE";
+                  else
+                     return "FALSE";
+                  end if;
+            end F_Inf;
+
+            ----------
+            -- F_Or --
+            ----------
+
+            function F_Or (L, R : in String) return String is
+            begin
+               if Is_True (L) or Is_True (R) then
+                  return "TRUE";
+               else
+                  return "FALSE";
+               end if;
+            end F_Or;
+
+            -----------
+            -- F_Sup --
+            -----------
+
+            function F_Sup (L, R : in String) return String is
+            begin
+               if Integer'Value (L) > Integer'Value (R) then
+                  return "TRUE";
+               else
+                  return "FALSE";
+               end if;
+            exception
+               when others =>
+                  if L > R then
+                     return "TRUE";
+                  else
+                     return "FALSE";
+                  end if;
+            end F_Sup;
+
+            Op_Table : constant array (Expr.Ops) of Ops_Fct
+              := (Expr.O_And   => F_And'Access,
+                  Expr.O_Or    => F_Or'Access,
+                  Expr.O_Sup   => F_Sup'Access,
+                  Expr.O_Inf   => F_Inf'Access,
+                  Expr.O_Esup  => F_Esup'Access,
+                  Expr.O_Einf  => F_Einf'Access,
+                  Expr.O_Equal => F_Equ'Access);
+
          begin
-            return L_Str = "TRUE" or else L_Str = "OUI";
-         end Is_True;
+            case E.Kind is
+               when Expr.Value =>
+                  declare
+                     V : Unbounded_String := E.V;
+                  begin
+                     Translate (V);
+                     return To_String (V);
+                  end;
+
+               when Expr.Op =>
+                  return Op_Table (E.O) (Analyze (E.Left), Analyze (E.Right));
+            end case;
+         end Analyze;
 
          ---------------
          -- Translate --
@@ -1512,22 +1954,22 @@ package body Templates_Parser is
             end loop;
 
             Translate (Str,
-                       Tag => "@@_UP_TABLE_LINE_@@",
+                       Tag => "@_UP_TABLE_LINE_@",
                        To  => Fixed.Trim (Positive'Image (State.I),
                                           Strings.Left));
 
             Translate (Str,
-                       Tag => "@@_TABLE_LINE_@@",
+                       Tag => "@_TABLE_LINE_@",
                        To  => Fixed.Trim (Positive'Image (State.J),
                                           Strings.Left));
 
             Translate (Str,
-                       Tag => "@@_NUMBER_LINE_@@",
+                       Tag => "@_NUMBER_LINE_@",
                        To  => Fixed.Trim (Positive'Image (State.Max_Lines),
                                           Strings.Left));
 
             Translate (Str,
-                       Tag => "@@_TABLE_LEVEL_@@",
+                       Tag => "@_TABLE_LEVEL_@",
                        To  => Fixed.Trim (Positive'Image (State.Table_Level),
                                           Strings.Left));
          end Translate;
@@ -1585,7 +2027,7 @@ package body Templates_Parser is
                -----------
 
                function Check (Str : in String) return Natural is
-                  Smallest : Natural := Natural'Last;
+                  Iteration : Natural := Natural'First;
                begin
                   for K in Translations'Range loop
                      declare
@@ -1601,8 +2043,8 @@ package body Templates_Parser is
                                  --  table statement. The number of iterations
                                  --  for this table statement correspond to
                                  --  the number of item into the vector.
-                                 Smallest :=
-                                   Natural'Min (Smallest,
+                                 Iteration :=
+                                   Natural'Max (Iteration,
                                                 Size (Tk.Vect_Value));
 
                               elsif Tk.Kind = Matrix then
@@ -1613,8 +2055,8 @@ package body Templates_Parser is
                                     --  iterations for this table statement
                                     --  correspond to the number of vector
                                     --  into the table.
-                                    Smallest :=
-                                      Natural'Min (Smallest,
+                                    Iteration :=
+                                      Natural'Max (Iteration,
                                                    Size (Tk.Mat_Value));
                                  else
                                     --  This is Matrix tag into an embbeded
@@ -1628,8 +2070,8 @@ package body Templates_Parser is
                                          := Translations (K).Mat_Value.M.Head;
                                     begin
                                        while not (P = null) loop
-                                          Smallest :=
-                                            Natural'Min (Smallest,
+                                          Iteration :=
+                                            Natural'Max (Iteration,
                                                          Size (P.Vect));
                                           P := P . Next;
                                        end loop;
@@ -1649,8 +2091,9 @@ package body Templates_Parser is
                                  --  statement. This number of iterations
                                  --  correspond to the smallest number of
                                  --  vectors into the table.
-                                 Smallest :=
-                                   Natural'Min (Smallest, Size (Tk.Mat_Value));
+                                 Iteration :=
+                                   Natural'Max (Iteration,
+                                                Size (Tk.Mat_Value));
                               end if;
                            end if;
                         end if;
@@ -1658,38 +2101,38 @@ package body Templates_Parser is
 
                   end loop;
 
-                  return Smallest;
+                  return Iteration;
                end Check;
 
             begin
                if T = null then
-                  return Natural'Last;
+                  return Natural'First;
                end if;
 
                case T.Kind is
                   when Data =>
-                     return Natural'Min (Check (To_String (T.Value)),
+                     return Natural'Max (Check (To_String (T.Value)),
                                          Get_Max_Lines (T.Next, N));
                   when If_Stmt =>
-                     return Natural'Min
-                       (Natural'Min (Get_Max_Lines (T.N_True, N),
+                     return Natural'Max
+                       (Natural'Max (Get_Max_Lines (T.N_True, N),
                                      Get_Max_Lines (T.N_False, N)),
                         Get_Max_Lines (T.Next, N));
 
                   when Table_Stmt =>
                      if N = 1 then
-                        return Natural'Min (Get_Max_Lines (T.Sections, N + 1),
+                        return Natural'Max (Get_Max_Lines (T.Sections, N + 1),
                                             Get_Max_Lines (T.Next, N));
                      else
-                        return Natural'Last;
+                        return Natural'First;
                      end if;
 
                   when Section_Stmt =>
-                     return Natural'Min (Get_Max_Lines (T.Next, N),
+                     return Natural'Max (Get_Max_Lines (T.Next, N),
                                          Get_Max_Lines (T.N_Section, N));
 
                   when Include_Stmt =>
-                     return Natural'Min (Get_Max_Lines (T.File, N),
+                     return Natural'Max (Get_Max_Lines (T.File, N),
                                          Get_Max_Lines (T.Next, N));
                end case;
             end Get_Max_Lines;
@@ -1698,10 +2141,6 @@ package body Templates_Parser is
 
          begin
             pragma Assert (T.Kind = Table_Stmt);
-
-            if Result = Natural'Last then
-               Result := 0;
-            end if;
 
             Max_Lines := Result;
 
@@ -1719,6 +2158,16 @@ package body Templates_Parser is
             Max_Expand := Result;
          end Get_Max;
 
+         -------------
+         -- Is_True --
+         -------------
+
+         function Is_True (Str : in String) return Boolean is
+            L_Str : constant String := Characters.Handling.To_Upper (Str);
+         begin
+            return L_Str = "TRUE";
+         end Is_True;
+
       begin
          if T = null then
             return;
@@ -1726,28 +2175,27 @@ package body Templates_Parser is
 
          case T.Kind is
             when Data =>
-               declare
-                  Value : Unbounded_String := T.Value;
-               begin
-                  Translate (Value);
+               if T.Has_Tag then
+                  declare
+                     Value : Unbounded_String := T.Value;
+                  begin
+                     Translate (Value);
 
-                  Results := Results & Value & ASCII.LF;
-               end;
+                     Results := Results & Value & ASCII.LF;
+                  end;
+
+               else
+                  Results := Results & T.Value & ASCII.LF;
+               end if;
 
                Analyze (T.Next, State);
 
             when If_Stmt  =>
-               declare
-                  Cond : Unbounded_String := T.Cond;
-               begin
-                  Translate (Cond);
-
-                  if Is_True (To_String (Cond)) then
-                     Analyze (T.N_True, State);
-                  else
-                     Analyze (T.N_False, State);
-                  end if;
-               end;
+               if Analyze (T.Cond) = "TRUE" then
+                  Analyze (T.N_True, State);
+               else
+                  Analyze (T.N_False, State);
+               end if;
 
                Analyze (T.Next, State);
 
@@ -1808,6 +2256,18 @@ package body Templates_Parser is
       return To_String (Results);
    end Parse;
 
+   ------------------------
+   -- Set_Tag_Separators --
+   ------------------------
+
+   procedure Set_Tag_Separators
+     (Start_With : in String := Default_Begin_Tag;
+      Stop_With  : in String := Default_End_Tag) is
+   begin
+      Begin_Tag := To_Unbounded_String (Start_With);
+      End_Tag   := To_Unbounded_String (Stop_With);
+   end Set_Tag_Separators;
+
    ---------------
    -- Translate --
    ---------------
@@ -1826,5 +2286,14 @@ package body Templates_Parser is
       end loop;
       return To_String (New_Template);
    end Translate;
+
+   --------------
+   -- With_Tag --
+   --------------
+
+   function With_Tag (Str : in String) return Boolean is
+   begin
+      return Strings.Fixed.Index (Str, To_String (Begin_Tag)) /= 0;
+   end With_Tag;
 
 end Templates_Parser;

@@ -1,3 +1,31 @@
+2001-05-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Set properly the status of the socket actvity using Mark_Phase.
+
+	* aws-server.adb:
+	(Mark_Activity_Time): removed.
+	(Mark_Phase): added.
+	(Check_Timeouts): new procedure.
+	(Set_Abortable): new procedure.
+	Many changes to use new field Phase and Phase_Time_Stamp instead
+	 of Opened and Activity_Time_Stamp.
+	(Line_Cleaner): new algorithm to detect client not sending data
+	 for some time. In this case we mark the slot Abortable.
+
+	* aws-server.ads:
+	(Client_Header_Timeout): new constant set to 5 seconds.
+	(Slot): remove Opened and Activity_Time_Stamp fields, add Phase
+	 and Phase_Time_Stamp.
+	(Mark_Activity_Time): removed.
+	(Mark_Phase): added.
+	(Check_Timeouts): new procedure.
+	(Set_Abortable): new procedure.
+	(HTTP): add comments for the fields.
+	
+	* aws-server-get_status.adb:
+	(Slot_Table): do not use Opened but Phase.
+
 2001-05-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.ads:
