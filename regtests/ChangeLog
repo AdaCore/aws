@@ -1,5 +1,10 @@
 2004-04-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* sockto.adb, ssockto.adb:
+	More stable output timeout.
+
+2004-04-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* sockto.adb, sockto.out, ssockto.adb, ssockto.out, makefile:
 	One more plain/secure pair of the socket timeout regression tests.
 

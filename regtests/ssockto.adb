@@ -157,8 +157,9 @@ begin
       Get (Peer, 1234);
    end loop;
 
-   Net.Send (Peer, Data (100_000));
-   Net.Send (Peer, Data (100_000));
+   loop
+      Net.Send (Peer, Data (100_000));
+   end loop;
 
    Net.Shutdown (Server);
    Net.Shutdown (Peer);
