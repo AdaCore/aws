@@ -223,7 +223,7 @@ begin
 
             declare
                Message_Body : constant Streams.Stream_Element_Array
-                 := Response.Binary (Data);
+                 := Response.Message_Body (Data);
             begin
                if File then
                   declare
