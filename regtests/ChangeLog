@@ -1,6 +1,7 @@
 2004-08-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
-	* sockext.adb, sockext_proc.adb, sockext_sec.adb, makefile:
+	* sockext.adb, sockext_proc.adb, sockext_sec.adb, makefile,
+	  sockext.out sockext_sec.out:
 	Regression test for partial write.
 
 2004-08-08  Pascal Obry  <pascal@obry.org>
