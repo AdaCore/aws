@@ -1,6 +1,6 @@
 2002-09-25  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
-	* move.adb, move.out:
+	* moved.adb, moved.out:
 	Initial revision. Testing that AWS.Client not understanding
 	body of message as a next header.	
 
@@ -8,7 +8,7 @@
 	Initial revision. Testing Basic and Digest authentication.
 
 	* makefile:
-	Add move regression test.
+	Add moved regression test.
 	Add auth regression test.
 
 2002-09-18  Pascal Obry  <p.obry@wanadoo.fr>
