@@ -1,3 +1,22 @@
+2002-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-translator.adb:
+	Minor reformatting.
+
+	* aws-status-set.adb:
+	(Keep_Alive): Minor reformatting.
+
+	* aws-translator-binary-p.adb:
+	Remove this unit.
+
+	* aws-translator-binary-f.adb:
+	Remove this unit.
+
+	* aws-server-protocol_handler.adb:
+	(Parse_Header_Lines): Note that this procedure as been added in
+	 previous check-in. Add comments to spec. Reformat the code. Add
+	 parameter mode.
+
 2002-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-protocol_handler.adb:
