@@ -67,7 +67,7 @@ package body AWS.Hotplug is
       Data    :    out Response.Data)
    is
       URI : constant String := AWS.Status.URI (Status);
-      P   : constant AWS.Parameters.List := Aws.Status.Parameters (Status);
+      P   : constant AWS.Parameters.List := AWS.Status.Parameters (Status);
 
       function Parameters return String;
       --  Returns the list of parameters suitable to send to a GET HTTP

@@ -380,7 +380,7 @@ package body AWS.Config is
       begin
          Found := False;
 
-         Look_For_Key : For I in Params'Range loop
+         Look_For_Key : for I in Params'Range loop
 
             if Key_Value = Params (I).Key.all then
                Found := True;
@@ -453,7 +453,8 @@ package body AWS.Config is
             Text_IO.Get_Line (File, Buffer, Last);
             Line := Line + 1;
 
-            -- Remove comments
+            --  Remove comments
+
             for I in 1 .. Last loop
                if Buffer (I) = '#' then
                   Last := I - 1;
