@@ -1,3 +1,19 @@
+2003-01-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std-gnat.adb:
+	Changes regarding the AWS.Net API modification.
+	(Bind): Rollback empty host to "localhost" substitution.
+	 becouse empty host mean all extenal accessible IP addresses
+	 of the host, but "localhost" mean IP address for access to the
+	 host just locally.
+	(Shutdown): internal catch only Socket_Error exception, we should not
+	 suppress unexpected errors.
+	(Receive): Fix possible dead loop in the Receive procedure when the
+	 connection closed by peer.
+
+	* aws-net-std-adasockets.adb:
+	Changes regarding the AWS.Net API modification.
+
 2003-01-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
