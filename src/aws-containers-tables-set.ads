@@ -49,5 +49,4 @@ package AWS.Containers.Tables.Set is
    procedure Free (Table : in out Table_Type);
    --  Release all memory used by the table.
 
-
 end AWS.Containers.Tables.Set;
