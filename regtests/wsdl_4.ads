@@ -62,4 +62,6 @@ package WSDL_4 is
 
    function Try3 (Param1 : My_Float; Param2 : S_My_Int) return S_My_Float;
 
+   function Try4 return My_Int;
+
 end WSDL_4;
