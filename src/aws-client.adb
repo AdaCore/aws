@@ -240,7 +240,7 @@ package body AWS.Client is
       Connection.Retry                    := Create.Retry;
       Connection.Cookie                   := Null_Unbounded_String;
       Connection.Persistent               := Persistent;
-      Connection.Server_Push              := Server_Push;
+      Connection.Streaming                := Server_Push;
       Connection.Certificate              := To_Unbounded_String (Certificate);
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
@@ -422,7 +422,7 @@ package body AWS.Client is
 
             Net.Buffered.New_Line (Connection.Socket.all);
 
-            Get_Response (Connection, Result, not Connection.Server_Push);
+            Get_Response (Connection, Result, not Connection.Streaming);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
@@ -490,7 +490,7 @@ package body AWS.Client is
 
       procedure Disconnect is
       begin
-         if not Keep_Alive and not Connection.Server_Push then
+         if not Keep_Alive and not Connection.Streaming then
             Disconnect (Connection);
          end if;
       end Disconnect;
@@ -686,7 +686,7 @@ package body AWS.Client is
 
             --  Get answer from server
 
-            Get_Response (Connection, Result, not Connection.Server_Push);
+            Get_Response (Connection, Result, not Connection.Streaming);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);
@@ -1738,6 +1738,17 @@ package body AWS.Client is
          Mode => Mode);
    end Set_Proxy_Authentication;
 
+   --------------------------
+   -- Set_Streaming_Output --
+   --------------------------
+
+   procedure Set_Streaming_Output
+     (Connection : in out HTTP_Connection;
+      Value      : in     Boolean) is
+   begin
+      Connection.Streaming := Value;
+   end Set_Streaming_Output;
+
    ----------------------------
    -- Set_WWW_Authentication --
    ----------------------------
@@ -1929,7 +1940,7 @@ package body AWS.Client is
 
             --  Get answer from server
 
-            Get_Response (Connection, Result, not Connection.Server_Push);
+            Get_Response (Connection, Result, not Connection.Streaming);
 
             Decrement_Authentication_Attempt
               (Connection, Auth_Attempts, Auth_Is_Over);

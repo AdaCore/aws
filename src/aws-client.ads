@@ -331,6 +331,15 @@ package AWS.Client is
    --  Set debug mode on/off. If debug is activated the request header and the
    --  server response header will be displayed.
 
+   procedure Set_Streaming_Output
+     (Connection : in out HTTP_Connection;
+      Value      : in     Boolean);
+   pragma Inline (Set_Streaming_Output);
+   --  Call this routine with Value => True if you want to read response
+   --  data streaming, by the Read and/or Read_Some routines.
+   --  Note that Connection is already in Streaming mode if you created
+   --  Connection with Server_Push => True parameter.
+
 private
 
    use Ada.Strings.Unbounded;
@@ -383,7 +392,7 @@ private
       Auth          : Authentication_Set;
       Opened        : Boolean            := False;
       Persistent    : Boolean;
-      Server_Push   : Boolean;
+      Streaming     : Boolean;
       Cookie        : Unbounded_String;
       Socket        : AWS.Net.Socket_Access;
       Retry         : Natural;
