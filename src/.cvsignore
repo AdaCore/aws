@@ -9,6 +9,7 @@ aws-containers-tables.ads.texi
 aws-default.ads.texi
 aws-dispatchers-callback.ads.texi
 aws-dispatchers.ads.texi
+aws-exceptions.ads.texi
 aws-headers-values.ads.texi
 aws-headers.ads.texi
 aws-jabber.ads.texi

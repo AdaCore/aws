@@ -1,5 +1,21 @@
 2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): Add aws-status-translate_table.adb.
+
+	* aws-status-translate_table.ads, aws-status-translate_table.adb:
+	Initial revision.
+
+	* aws-server.adb:
+	(Default_Unexpected_Exception_Handler): Add status translate table
+	 for the 500.tmplt message.
+
+	* aws-server-get_status.ads:
+	Minor comment fix.
+	Update copyright notice.	
+
+2003-01-29  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-server-get_status.adb:
 	Use AWS.Templates instead of Templates_Parser directly.
 	Minor reformatting.
