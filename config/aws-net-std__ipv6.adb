@@ -503,7 +503,7 @@ package body AWS.Net.Std is
          end;
 
       else
-         return "unknown protocol family.";
+         return "unknown protocol family" & C.short'Image (Sin6.Family);
       end if;
    end Peer_Addr;
 
