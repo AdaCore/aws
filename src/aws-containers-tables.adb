@@ -37,19 +37,19 @@
 --  second key or the value of the third key.
 --
 --  Each K/V pair is then inserted into the Data tree and two times into the
---  HTTP_Data tree:
+--  Ordered_Data tree:
 --
 --  Into Data:
 --
 --  1) key=K with value=V
 --
---  Into HTTP_Data:
+--  Into Ordered_Data:
 --
 --  1) key=__AWS_K<n> with value=K     (n beeing an indice representing the
 --  2) key=__AWS_V<n> with value=V      entry number in the tree)
 --
 --  So to get the third key name we ask for the entry indexed under __AWS_K3
---  into HTTP_Data tree.
+--  into Ordered_Data tree.
 --
 --  Another important point is that a key can have many values. For example
 --  with an HTML multiple select entry in a form. In such a case all values
@@ -77,10 +77,10 @@ package body AWS.Containers.Tables is
    function Count (Table : in Table_Type) return Natural is
       use type Key_Value.Set_Access;
    begin
-      if Table.HTTP_Data = null then
+      if Table.Ordered_Data = null then
          return 0;
       else
-         return Key_Value.Size (Table.HTTP_Data.all) / 2;
+         return Key_Value.Size (Table.Ordered_Data.all) / 2;
       end if;
    end Count;
 
@@ -151,9 +151,9 @@ package body AWS.Containers.Tables is
       N              : in Positive := 1)
       return String
    is
-      Key  : constant String := "__AWS_K" & Utils.Image (N);
+      Key : constant String := "__AWS_K" & Utils.Image (N);
    begin
-      return To_String (Key_Value.Value (Table.HTTP_Data.all, Key));
+      return To_String (Key_Value.Value (Table.Ordered_Data.all, Key));
    exception
       when Missing_Item_Error =>
          return "";
@@ -182,7 +182,8 @@ package body AWS.Containers.Tables is
         (Key      : in     String;
          Value    : in     Unbounded_String;
          Order    : in     Positive;
-         Continue : in out Boolean) is
+         Continue : in out Boolean)
+      is
          pragma Warnings (Off, Value);
          pragma Warnings (Off, Continue);
       begin
@@ -215,7 +216,7 @@ package body AWS.Containers.Tables is
    is
       Key : constant String := "__AWS_V" & Utils.Image (N);
    begin
-      return To_String (Key_Value.Value (Table.HTTP_Data.all, Key));
+      return To_String (Key_Value.Value (Table.Ordered_Data.all, Key));
    exception
       when Missing_Item_Error =>
          return "";
@@ -276,9 +277,11 @@ package body AWS.Containers.Tables is
          Normalize_Name (Name, not Table.Case_Sensitive),
          Value);
 
-      Strings_Cutter.Create (CS,
-                             To_String (Value),
-                             String'(1 => Val_Separator));
+      Strings_Cutter.Create
+        (CS,
+         To_String (Value),
+         String'(1 => Val_Separator));
+
       declare
          Result : constant String := Strings_Cutter.Field (CS, N);
       begin
@@ -288,9 +291,6 @@ package body AWS.Containers.Tables is
 
    exception
       when Missing_Item_Error | Ada.Strings.Index_Error =>
-      --  String_Cutter.Field raise Ada.Strings.Index_Error in case
-      --  of index N more then Strings cutted.
-      --  Pascal, is it right behavior of string cutter ?
          return "";
    end Internal_Get;
 
@@ -314,7 +314,7 @@ package body AWS.Containers.Tables is
 
    function Normalize_Name
      (Name : in String; To_Upper : in Boolean)
-     return String is
+      return String is
    begin
       if To_Upper then
          return Ada.Characters.Handling.To_Upper (Name);
