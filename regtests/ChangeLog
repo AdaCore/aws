@@ -1,5 +1,8 @@
 2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* interoplab_main.out:
+	Update to new output.
+
 	* interoplab_main.adb:
 	Put test for almost all routines (stub and skeleton).
 
