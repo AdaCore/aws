@@ -1,3 +1,11 @@
+2003-11-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-os_lib__gnat.adb:
+	(Max_Path): New constant.
+	(Is_Directory): Test for path length before call GNAT routine.
+	(Is_Regular_File): Idem.
+	Merge from HEAD.
+
 2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-translator-conversion__p.adb, aws-translator-conversion__f.adb:
