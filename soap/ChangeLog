@@ -1,3 +1,50 @@
+2003-11-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
+	(Output_Parameters): Handle derived types.
+	(New_Procedure): Idem.
+	
+	* soap-generator-stub.adb:
+	(Output_Derived): New routine.
+	(Output_Parameter): Handle derived types.
+	(New_Procedure): Idem.
+
+	* soap-generator.adb:
+	(Put_Header): Handle derived type parameters.
+	(Put_Types.Generate_Derived): New routine.
+	(Generate_Record): Handle derived types.
+	(Get_Routine): Handle derived types.
+	(Output_Types): Idem.
+	(Set_Routine): Idem.
+	(Type_Name): Idem.
+	(Put_Types): Idem.
+
+	* soap-utils.ads, soap-utils.adb:
+	(Get): New version for Character type.
+	(C): Convert a character to an XSD_String.
+	(V): Convert an XSD_String to a character.
+	Minor typo fix.
+
+	* soap-wsdl-parameters.adb:
+	(Output): Output derived type definition.
+	(Release): Handle K_Derived case.
+
+	* soap-wsdl-parameters.ads:
+	(Kind): Add K_Derived (for Ada derived types).
+	(Parameter): Add variant part for the K_Derived value.
+
+	* soap-wsdl-parser.adb:
+	(Parse_Derived): New function.
+	(Parse_Element): Handle simpleType schema.
+	(Parse_Parameter): Handle simpleType schema.
+	(Parse_Part): Handle simpleType schema.
+
+	* soap-wsdl.ads:
+	(Parameter_Type): Add P_Character.
+
+	* soap-wsdl.adb:
+	Handle P_Character in all routines.
+
 2003-11-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-stub.adb:
