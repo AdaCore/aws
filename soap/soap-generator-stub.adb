@@ -488,7 +488,6 @@ package body Stub is
            (Stub_Adb,
             "               Result : constant ");
 
-
          Text_IO.Put_Line (Stub_Adb, Result_Type (O, Proc, Output));
 
          if WSDL.Parameters.Length (Output) = 1 then
