@@ -1,5 +1,10 @@
 2003-03-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* auth2.adb:
+	Change server port used.
+	
+2003-03-20  Pascal Obry  <p.obry@wanadoo.fr>
+	
 	* makefile:
 	(RT_STD): Add auth2.
 
