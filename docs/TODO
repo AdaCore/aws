@@ -115,6 +115,19 @@ implemented:
   compressed or decompressed data to the browser depending on it's support for
   compressed message body.
 
+  Design notes:
+
+  Add a check in Protocol_Handler.Get_Message_Header for deflate support.
+
+  In Protocol_Handler.Send_Resource if browser support Deflate and resource is
+  compressed send header to specify that the message body is compressed. If
+  resource is not compressed send as-is. If the resource is compressed and the
+  browser does not support deflate, decompress it on-the-fly.
+
+  Add new package AWS.Resources.Embedded.Zlib to register compressed resources.
+
+  Add new method for Resources to know if it is compressed or not.
+
 - Support compress/gzip encoding if client support it.
   All the compress/decompress features are implemented as memory compressed
   streams. Should we have a direct implementation in AWS response circuitry ?
@@ -123,6 +136,8 @@ implemented:
 
 - Add GNAT project files to use AWS. Only support for developpers has been
   implemented.
+
+- Add Unbounded_String support on ada2wsdl
 
 - Document ada2wsdl and new wsdl2aws -types option.
 
@@ -134,3 +149,5 @@ implemented:
 
 - Finalize POP support, review API, is there a better name for the APOP
   authentication protocol. Document AWS.POP.
+
+- Add support for big table split on multiple pages.
