@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with SOAP.Client;
+
 separate (SOAP.Generator)
 package body Stub is
 
@@ -308,7 +310,7 @@ package body Stub is
       Text_IO.Put_Line
         (Stub_Adb, "      Payload := SOAP.Message.Payload.Build");
       Text_IO.Put
-        (Stub_Adb, "         (""" & Proc & """, P_Set");
+        (Stub_Adb, "        (""" & Proc & """, P_Set");
 
       if Namespace = "" then
          Text_IO.Put_Line (Stub_Adb, ");");
@@ -323,16 +325,37 @@ package body Stub is
          "         Response : constant SOAP.Message.Response.Object'Class");
       Text_IO.Put_Line
         (Stub_Adb,
-         "            := SOAP.Client.Call");
+         "           := SOAP.Client.Call");
       Text_IO.Put_Line
         (Stub_Adb,
-         "                 (""" & To_String (O.Location) & """,");
+         "                (""" & To_String (O.Location) & """,");
       Text_IO.Put_Line
         (Stub_Adb,
-         "                  Payload,");
-      Text_IO.Put_Line
+         "                 Payload,");
+      Text_IO.Put
         (Stub_Adb,
-         "                  """ & SOAPAction & """);");
+         "                 """ & SOAPAction & """");
+
+      --  Check if we need to generate proxy authentication
+
+      if O.Proxy = SOAP.Client.Not_Specified then
+         Text_IO.Put_Line (Stub_Adb, ");");
+
+      else
+         Text_IO.Put_Line (Stub_Adb, ",");
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "                 Proxy      => """
+              & To_String (O.Proxy) & """,");
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "                 Proxy_User => """
+              & To_String (O.P_User) & """,");
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "                 Proxy_Pwd  => """
+              & To_String (O.P_Pwd) & """);");
+      end if;
 
       Text_IO.Put_Line
         (Stub_Adb,
@@ -340,7 +363,7 @@ package body Stub is
 
       Text_IO.Put_Line
         (Stub_Adb,
-         "            := SOAP.Message.Parameters (Response);");
+         "           := SOAP.Message.Parameters (Response);");
 
       Text_IO.Put_Line (Stub_Adb, "      begin");
       Text_IO.Put_Line
@@ -351,17 +374,17 @@ package body Stub is
          "            Ada.Exceptions.Raise_Exception");
       Text_IO.Put_Line
         (Stub_Adb,
-         "               (SOAP.SOAP_Error'Identity,");
+         "              (SOAP.SOAP_Error'Identity,");
 
       if WSDL.Parameters.Length (Fault) = 1 then
          Text_IO.Put_Line
            (Stub_Adb,
-            "                SOAP.Parameters.Get (R_Param, "
+            "               SOAP.Parameters.Get (R_Param, "
               & '"' & To_String (Fault.Name) & """));");
       else
          Text_IO.Put_Line
            (Stub_Adb,
-            "                SOAP.Parameters.Get (R_Param, "
+            "               SOAP.Parameters.Get (R_Param, "
               & """faultstring""));");
       end if;
 
@@ -388,14 +411,14 @@ package body Stub is
                if Output.P_Type = WSDL.P_B64 then
                   Text_IO.Put_Line
                     (Stub_Adb,
-                     "                  "
+                     "                 "
                        & ":= V (SOAP_Base64'(SOAP.Parameters.Get (R_Param, """
                        & To_String (Output.Name)
                        & """)));");
                else
                   Text_IO.Put_Line
                     (Stub_Adb,
-                     "                  := SOAP.Parameters.Get (R_Param, """
+                     "                 := SOAP.Parameters.Get (R_Param, """
                        & To_String (Output.Name)
                        & """);");
                end if;
@@ -405,11 +428,11 @@ package body Stub is
                if Utils.Is_Array (To_String (Output.C_Name)) then
                   Text_IO.Put_Line
                     (Stub_Adb,
-                     "                  "
+                     "                 "
                        & ":= To_" & To_String (Output.C_Name));
                   Text_IO.Put_Line
                     (Stub_Adb,
-                     "                  "
+                     "                 "
                        & "(V (SOAP_Array'(SOAP.Parameters.Get (R_Param, """
                        & To_String (Output.Name)
                        & """))));");
@@ -417,11 +440,11 @@ package body Stub is
                else
                   Text_IO.Put_Line
                     (Stub_Adb,
-                     "                  "
+                     "                 "
                        & ":= To_" & To_String (Output.C_Name) & "_Type");
                   Text_IO.Put_Line
                     (Stub_Adb,
-                     "                  "
+                     "                 "
                        & "(SOAP_Record'(SOAP.Parameters.Get (R_Param, """
                        & To_String (Output.Name)
                        & """)));");
@@ -432,7 +455,7 @@ package body Stub is
          else
             Text_IO.Put
               (Stub_Adb,
-               "                  := (");
+               "                 := (");
 
             declare
                N : WSDL.Parameters.P_Set := Output;
@@ -441,7 +464,7 @@ package body Stub is
                   if N /= Output then
                      Text_IO.Put (Stub_Adb, ",");
                      Text_IO.New_Line (Stub_Adb);
-                     Text_IO.Put (Stub_Adb, "                      ");
+                     Text_IO.Put (Stub_Adb, "                     ");
                   end if;
 
                   Output_Result (N);
