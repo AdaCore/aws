@@ -1,3 +1,21 @@
+2004-11-03  Pascal Obry  <pascal@obry.org>
+
+	* templates_parser.ads:
+        (For_Every_Association): New routine.
+
+	* templates_parser.adb:
+        (Absolute): New filter.
+        (Neg): New filter.
+        (For_Every_Association): New routine.
+        (Assoc): Handle properly the separator if specified.
+
+	* templates_parser-filter.adb:
+	(Abs_Token): New constant.
+        (Table): Add Absolute abd Neg filters.
+        (Is_Number): Add '-' as possible character.
+        (Absolute): New filter.
+        (Neg): New filter.
+
 2004-11-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-url.ads:
