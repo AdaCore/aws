@@ -41,6 +41,7 @@ package SOAP.WSDL is
    NS_SOAP    : constant String := "http://schemas.xmlsoap.org/wsdl/soap/";
    NS_SOAPENC : constant String := "http://schemas.xmlsoap.org/soap/encoding/";
    NS_XSD     : constant String := "http://www.w3.org/2001/XMLSchema";
+   NS_XSI     : constant String := "http://www.w3.org/1999/XMLSchema-instance";
    NS_WSDL    : constant String := "http://schemas.xmlsoap.org/wsdl/";
 
    type Object is private;
