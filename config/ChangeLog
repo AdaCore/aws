@@ -5,6 +5,12 @@
 	(PF_UNSPEC): Idem.
 	(PF_INET): Idem.
 	(PF_INET6): Idem.
+	(SOCK_STREAM): New constant.
+	(SOL_SOCKET): Idem.
+	(EWOULDBLOCK): Idem.
+	(EINPROGRESS): Idem.
+	(FIONBIO): Idem.
+	(FIONREAD): Idem.
 
 2004-11-14  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
