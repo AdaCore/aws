@@ -32,7 +32,7 @@
 
 with Ada.Strings.Unbounded;
 
-with AWS.Key_Value;
+with AWS.Containers.Key_Value;
 with AWS.Net;
 
 package AWS.Jabber is
@@ -99,7 +99,7 @@ private
 
    use Ada.Strings.Unbounded;
 
-   subtype Message is AWS.Key_Value.Set;
+   subtype Message is AWS.Containers.Key_Value.Set;
    --  A message, this is just a set of key/value pair. Each key represent a
    --  tag and the associated value is the tag's value. Tag's attributes are
    --  encoded with a key which is the tag element name catenated with a '.'
