@@ -3,6 +3,9 @@
 	* wait_proc.adb, wait.out:
 	Rewrite regression test.
 
+	* wait_sec.adb:
+	Turn it off temporarily.
+
 2004-12-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* dispatch_vh.adb:
