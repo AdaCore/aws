@@ -665,6 +665,7 @@ tools/awsres.adb
 tools/hotplug_password.adb
 tools/makefile
 tools/tools.gpr
+web_elements/ChangeLog
 web_elements/icons/ada.gif
 web_elements/icons/adb.gif
 web_elements/icons/ads.gif
@@ -708,6 +709,7 @@ web_elements/icons/uu.gif
 web_elements/menu_css/arrow.png
 web_elements/menu_css/menu.tcss
 web_elements/notebook/notebook.thtml
+web_elements/readme.txt
 web_elements/rounded_boxes/rcorner.gif
 web_elements/rounded_boxes/rounded_boxes.tcss
 win32/ChangeLog
