@@ -338,7 +338,8 @@ endif
 GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
 	PRJ_XMLADA="$(PRJ_XMLADA)" \
-	PRJ_ASIS="$(PRJ_ASIS)"
+	PRJ_ASIS="$(PRJ_ASIS)" \
+	BDIR="$(BDIR)"
 
 ${MODULES_BUILD}: force
 	${MAKE} -C ${@:%_build=%} build $(GALL_OPTIONS)
