@@ -36,7 +36,7 @@ DEMOS = runme agent auth ws wps com_1 com_2 main hotplug hello_world \
 	text_input vh_demo dispatch res_demo test_ldap
 
 ifdef XMLADA
-DEMOS  := test_jabber
+DEMOS := $(DEMOS) test_jabber
 endif
 
 build: $(DEMOS)
