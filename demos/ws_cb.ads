@@ -36,6 +36,8 @@ package WS_CB is
 
    WS : AWS.Server.HTTP (5);
 
+   procedure Stop_Push_Server;
+
    function Service (Request : in AWS.Status.Data) return AWS.Response.Data;
 
 end WS_CB;
