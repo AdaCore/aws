@@ -38,7 +38,7 @@ with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Calendar.Time_IO;
-with GNAT.OS_Lib;
+with AWS.OS_Lib;
 with GNAT.Regexp;
 
 with Templates_Parser.Input;
@@ -860,7 +860,7 @@ package body Templates_Parser is
       case Kind is
          when Info =>
             Filename  : Unbounded_String;    --  Name of the file
-            Timestamp : GNAT.OS_Lib.OS_Time; --  Date and Time of last change
+            Timestamp : Ada.Calendar.Time;   --  Date and Time of last change
             I_File    : Tree;                --  Included file references
 
             --  Used for the cache system
@@ -2355,7 +2355,7 @@ package body Templates_Parser is
                          Old,
                          0,
                          To_Unbounded_String (Filename),
-                         GNAT.OS_Lib.File_Time_Stamp (Filename),
+                         AWS.OS_Lib.File_Timestamp (Filename),
                          I_File,
                          1);
 

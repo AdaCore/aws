@@ -188,8 +188,6 @@ package body Cached_Files is
 
    function Get (Filename : in String) return Natural is
 
-      use type GNAT.OS_Lib.OS_Time;
-
       L_Filename : constant Unbounded_String
         := To_Unbounded_String (Filename);
 
@@ -254,14 +252,14 @@ package body Cached_Files is
    ----------------
 
    function Up_To_Date (T : in Tree) return Boolean is
-      use GNAT;
-      use type GNAT.OS_Lib.OS_Time;
+      use AWS;
+      use type Ada.Calendar.Time;  
 
       P : Tree;
    begin
       --  Check main file
 
-      if OS_Lib.File_Time_Stamp (To_String (T.Filename)) /= T.Timestamp then
+      if OS_Lib.File_Timestamp (To_String (T.Filename)) /= T.Timestamp then
          return False;
       end if;
 
@@ -270,7 +268,7 @@ package body Cached_Files is
       P := T.I_File;
 
       while P /= null loop
-         if OS_Lib.File_Time_Stamp (To_String (P.File.Info.Filename))
+         if OS_Lib.File_Timestamp (To_String (P.File.Info.Filename))
            /= P.File.Info.Timestamp
          then
             return False;
