@@ -128,7 +128,7 @@ ifdef ASIS
 	done
 endif
 	cat alldifs
-	diff -c -w alldifs alldifs.out
+	diff -q -w alldifs alldifs.out
 
 init:
 	cp ../demos/cert.pem .
