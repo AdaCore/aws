@@ -166,5 +166,3 @@ implemented:
 =============== Point to fix/implement/review before next release (2.1)
 
 - Add reply-all support to the Web_Mail service.
-
-- Document AWS.Net.Log feature.
