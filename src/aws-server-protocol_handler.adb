@@ -43,6 +43,7 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.OS_Lib;
 with AWS.Parameters.Set;
+with AWS.Resources;
 with AWS.Session;
 with AWS.Server.Get_Status;
 with AWS.Status.Set;
@@ -200,7 +201,7 @@ is
          Is_Up_To_Date :=
            Is_Valid_HTTP_Date (AWS.Status.If_Modified_Since (C_Stat))
             and then
-           OS_Lib.File_Timestamp (Filename)
+           Resources.File_Timestamp (Filename)
             = Messages.To_Time (AWS.Status.If_Modified_Since (C_Stat));
          --  Equal used here see [RFC 2616 - 14.25]
 
@@ -674,9 +675,10 @@ is
             end End_Boundary_Signature;
 
          begin
-            Streams.Stream_IO.Create (File,
-                                      Streams.Stream_IO.Out_File,
-                                      To_String (Server_Filename));
+            Streams.Stream_IO.Create
+              (File,
+               Streams.Stream_IO.Out_File,
+               To_String (Server_Filename));
 
             Read_File : loop
                Sockets.Receive (Sock, Data);
@@ -1231,6 +1233,7 @@ is
       File_Size    : in Natural;
       HTTP_Version : in String)
    is
+      use type Streams.Stream_Element_Offset;
 
       procedure Send_File;
       --  Send file in one part
@@ -1238,7 +1241,7 @@ is
       procedure Send_File_Chunked;
       --  Send file in chunk (HTTP/1.1 only)
 
-      File : Streams.Stream_IO.File_Type;
+      File : Resources.File_Access;
       Last : Streams.Stream_Element_Offset;
 
       ---------------
@@ -1260,8 +1263,9 @@ is
          --  Send file content
 
          loop
-            Streams.Stream_IO.Read (File, Buffer, Last);
-            exit when Last <= 0;
+            Resources.Read (File.all, Buffer, Last);
+
+            exit when Last < Buffer'First;
 
             Sockets.Send (Sock, Buffer (1 .. Last));
 
@@ -1285,11 +1289,11 @@ is
          Sockets.New_Line (Sock);
 
          loop
-            Streams.Stream_IO.Read (File, Buffer, Last);
+            Resources.Read (File.all, Buffer, Last);
 
-            exit when Integer (Last) = 0;
+            exit when Last < Buffer'First;
 
-            Sockets.Put_Line (Sock, Utils.Hex (Natural (Last)));
+            Sockets.Put_Line (Sock, Utils.Hex (Positive (Last)));
 
             Sockets.Send (Sock, Buffer (1 .. Last));
             Sockets.New_Line (Sock);
@@ -1304,8 +1308,7 @@ is
       end Send_File_Chunked;
 
    begin
-      Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File,
-                              Filename, "shared=no");
+      Resources.Open (File, Filename, "shared=no");
 
       Send_File_Time (Sock, Filename);
 
@@ -1320,14 +1323,14 @@ is
          Send_File_Chunked;
       end if;
 
-      Streams.Stream_IO.Close (File);
+      Resources.Close (File);
 
    exception
       when Text_IO.Name_Error =>
          raise;
 
       when others =>
-         Streams.Stream_IO.Close (File);
+         Resources.Close (File);
          raise;
    end Send_File;
 
@@ -1340,7 +1343,7 @@ is
       Filename : in String) is
    begin
       Sockets.Put_Line
-        (Sock, Messages.Last_Modified (OS_Lib.File_Timestamp (Filename)));
+        (Sock, Messages.Last_Modified (Resources.File_Timestamp (Filename)));
    end Send_File_Time;
 
 begin
