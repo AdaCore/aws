@@ -62,6 +62,7 @@ procedure Upload5 is
    task Server is
       entry Start;
       entry Started;
+      entry Stop;
       entry Stopped;
    end Server;
 
@@ -145,13 +146,15 @@ procedure Upload5 is
       accept Started;
 
       select
-         accept Stopped;
+         accept Stop;
       or
          delay 5.0;
          Put_Line ("Too much time to do the job !");
       end select;
 
       AWS.Server.Shutdown (HTTP);
+
+      accept Stopped;
    exception
       when E : others =>
          Put_Line ("Server Error " & Exceptions.Exception_Information (E));
@@ -172,7 +175,12 @@ procedure Upload5 is
 begin
    --  First create the upload directory
 
-   Directory_Operations.Make_Dir ("upload_dir");
+   begin
+      Directory_Operations.Make_Dir ("upload_dir");
+   exception
+      when others =>
+         null;
+   end;
 
    Put_Line ("Start main, wait for server to start...");
 
@@ -185,6 +193,7 @@ begin
    Request
      ("http://localhost:" & Utils.Image (Port) & "/upload", "upload.adb");
 
+   Server.Stop;
    Server.Stopped;
 
    --  Remove directory
