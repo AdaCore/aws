@@ -28,45 +28,68 @@
 
 --  $Id$
 
+--  This package is used when parsing the HTTP protocol from the client. It is
+--  used to keep the values for the currently handled HTTP parameters.
+
 with Ada.Strings.Unbounded;
 
 package AWS.Status is
 
    type Data is private;
 
+   No_Data : constant Data;
+
    type Request_Method is (GET, POST);
 
    procedure Set_Host (D : in out Data; Host : in String);
-   function Host (D : in Data) return String;
+   --  set value for "Host:" parameter
 
    procedure Set_Connection (D : in out Data; Connection : in String);
-   function Connection (D : in Data) return String;
+   --  set value for "Connection:" parameter
 
    procedure Set_Content_Length (D              : in out Data;
                                  Content_Length : in     Natural);
-   function Content_Length (D : in Data) return Natural;
+   --  set value for "Content-Length:" parameter
 
    procedure Set_If_Modified_Since (D                 : in out Data;
                                     If_Modified_Since : in     String);
-   function If_Modified_Since (D : in Data) return String;
+   --  set value for "If-Modified-Since:" parameter
 
    procedure Set_File_Up_To_Date (D               : in out Data;
                                   File_Up_To_Date : in     Boolean);
-   function File_Up_To_Date (D : in Data) return Boolean;
+   --  File_Up_To_Date is true if the file to be transfered is already
+   --  up-to-date on the client side.
 
    procedure Set_Request (D            : in out Data;
                           Method       : in     Request_Method;
                           URI          : in     String;
                           HTTP_Version : in     String;
                           Parameters   : in     String := "");
+   --  set values for the request line:
+   --
+   --  GET URI[?parametrers] [HTTP/1.0 or HTTP/1.1]
+   --  POST URI [HTTP/1.0 or HTTP/1.1]
+   --
+   --  the parameters for a POST method are passed in the message body. See
+   --  procedure below to set them afterward.
 
-   procedure Set_Parameters (D : in out Data; Parameters : in String);
+   procedure Set_Parameters   (D : in out Data; Parameters : in String);
+   --  set parameters for the current request. This is used for a POST method
+   --  because the parameters are found in the message body and are not known
+   --  when we parse the request line.
 
-   function Method       (D : in Data) return Request_Method;
-   function URI          (D : in Data) return String;
-   function HTTP_Version (D : in Data) return String;
-   function Parameter    (D : in Data; N    : in Positive) return String;
-   function Parameter    (D : in Data; Name : in String)   return String;
+   --  All the following function are used to access the status settings.
+
+   function File_Up_To_Date   (D : in Data) return Boolean;
+   function If_Modified_Since (D : in Data) return String;
+   function Content_Length    (D : in Data) return Natural;
+   function Connection        (D : in Data) return String;
+   function Host              (D : in Data) return String;
+   function Method            (D : in Data) return Request_Method;
+   function URI               (D : in Data) return String;
+   function HTTP_Version      (D : in Data) return String;
+   function Parameter         (D : in Data; N    : in Positive) return String;
+   function Parameter         (D : in Data; Name : in String)   return String;
 
 private
 
@@ -90,5 +113,16 @@ private
       If_Modified_Since : Unbounded_String;
       File_Up_To_Date   : Boolean := False;
    end record;
+
+   No_Data : constant Data :=
+     (Null_Unbounded_String,
+      Null_Unbounded_String,
+      GET,
+      Null_Unbounded_String,
+      Null_Unbounded_String,
+      Null_Unbounded_String,
+      0,
+      Null_Unbounded_String,
+      False);
 
 end AWS.Status;
