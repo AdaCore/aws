@@ -1,3 +1,11 @@
+2004-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-ssl.adb:
+	(Error_Stack): New routine returning complete error stack.
+	(Error_If): Put all error stack to exception.
+	(Set_Certificate): Check and report all possible errors in files.
+	(Initialize): Not need to check certificate file existence now.
+
 2004-09-23  Pascal Obry  <pascal@obry.org>
 
 	* aws-net-ssl.adb:
