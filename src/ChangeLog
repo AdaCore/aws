@@ -1,3 +1,14 @@
+2003-11-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-services-transient_pages.adb:
+	(Close): New routine.
+	Add notes about the way to release memory. This will be used with
+	 the real implementation.
+
+	* aws-services-transient_pages.ads:
+	(Release): Moved into the private section.
+	(Close): New private routine.
+
 2003-11-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
