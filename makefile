@@ -25,6 +25,10 @@ LIB_IS   = -lxmlada_input_sources
 LIBS	 := -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX) $(LIBS)
 endif
 
+ifdef POSIX
+INCLUDES := $(INCLUDES) -I$(POSIX)
+endif
+
 ifdef ASIS
 INCLUDES := $(INCLUDES) -I$(ASIS)
 LIBS	 := $(LIBS) -L$(ASIS) -lasis
@@ -104,13 +108,20 @@ all:
 
 ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)" GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)"
 
-build_lib: build_scripts build_ssllib build_include build_aws build_win32
+build_stdlib: build_ssllib build_include build_aws build_win32
 
 ifdef XMLADA
-build: build_lib build_soaplib build_demos
+build_soap_internal: build_soaplib
 else
-build: build_lib build_demos
+build_soap_internal:
 endif
+
+build: build_scripts build_stdlib build_soap_internal build_lib build_demos
+
+build_lib: build_stdlib build_soap_internal
+	$(AR) cr lib/libaws.a src/*.o
+	$(AR) cr lib/libaws.a ssl/*.o
+	-$(AR) cr lib/libaws.a soap/*.o
 
 build_scripts:
 	echo ""
@@ -147,7 +158,7 @@ build_tools:
 	echo "=== Build tools"
 	${MAKE} -C tools build $(ALL_OPTIONS)
 
-build_demos: build_lib build_tools
+build_demos: build_stdlib build_tools
 	echo ""
 	echo "=== Build demos"
 	${MAKE} -C demos build $(ALL_OPTIONS)
@@ -157,7 +168,7 @@ build_ssllib:
 	echo "=== Build SSL support"
 	${MAKE} -C ssl build $(ALL_OPTIONS)
 
-build_soaplib: build_include build_lib
+build_soaplib: build_include build_stdlib
 	echo ""
 	echo "=== Build SOAP library"
 	${MAKE} -C soap build $(ALL_OPTIONS)
@@ -318,17 +329,14 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/docs/html
 	$(MKDIR) $(INSTALL)/AWS/components
 	$(MKDIR) $(INSTALL)/AWS/tools
-	$(AR) cr libaws.a src/*.o
-	$(AR) cr libaws.a ssl/*.o
-	-$(AR) cr libaws.a soap/*.o
 	$(CP) src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
 	-$(CP) soap/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) src/a*.ali $(INSTALL)/AWS/lib
 	-$(CP) ssl/*.ali $(INSTALL)/AWS/lib
 	-$(CP) soap/*.ali $(INSTALL)/AWS/lib
 	$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
-	$(MV) libaws.a $(INSTALL)/AWS/lib
-	-$(MV) lib/libnosslaws.a $(INSTALL)/AWS/lib
+	$(CP) lib/libaws.a $(INSTALL)/AWS/lib
+	-$(CP) lib/libnosslaws.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
 	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
 	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
