@@ -1168,7 +1168,6 @@ is
          --  and others user defined header lines.
 
          Response.Send_Header (Socket => Sock, D => Answer);
-
       end Send_General_Header;
 
       ----------------------
