@@ -207,50 +207,6 @@ package body AWS.Services.Directory is
 
       Order_Tree   : Table_Type;
 
-      ---------------
-      -- End_Slash --
-      ---------------
-
-      function End_Slash (Name : in String) return String is
-      begin
-         if Name /= ""
-           and then Name (Name'Last) = '/'
-         then
-            return Name;
-         else
-            return Name & '/';
-         end if;
-      end End_Slash;
-
-      -------------
-      -- Get_Ext --
-      -------------
-
-      function Get_Ext (File_Name : in String) return String is
-         use Ada.Strings;
-
-         Pos : constant Natural
-           := Fixed.Index (File_Name, Maps.To_Set ("."), Going => Backward);
-
-      begin
-         if Pos = 0 then
-            return "";
-         else
-            return File_Name (Pos .. File_Name'Last);
-         end if;
-      end Get_Ext;
-
-      ---------
-      -- "=" --
-      ---------
-
-      function "=" (Left, Right : in File_Record) return Boolean is
-      begin
-         --  can't be equal as all File_Record ID are uniq.
-         pragma Assert (Left.UID /= Right.UID);
-         return False;
-      end "=";
-
       ---------
       -- "<" --
       ---------
@@ -380,6 +336,17 @@ package body AWS.Services.Directory is
          return Left.UID < Right.UID;
       end "<";
 
+      ---------
+      -- "=" --
+      ---------
+
+      function "=" (Left, Right : in File_Record) return Boolean is
+      begin
+         --  can't be equal as all File_Record ID are uniq.
+         pragma Assert (Left.UID /= Right.UID);
+         return False;
+      end "=";
+
       ----------------
       -- Each_Entry --
       ----------------
@@ -406,6 +373,39 @@ package body AWS.Services.Directory is
          Continue := True;
       end Each_Entry;
 
+      ---------------
+      -- End_Slash --
+      ---------------
+
+      function End_Slash (Name : in String) return String is
+      begin
+         if Name /= ""
+           and then Name (Name'Last) = '/'
+         then
+            return Name;
+         else
+            return Name & '/';
+         end if;
+      end End_Slash;
+
+      -------------
+      -- Get_Ext --
+      -------------
+
+      function Get_Ext (File_Name : in String) return String is
+         use Ada.Strings;
+
+         Pos : constant Natural
+           := Fixed.Index (File_Name, Maps.To_Set ("."), Going => Backward);
+
+      begin
+         if Pos = 0 then
+            return "";
+         else
+            return File_Name (Pos .. File_Name'Last);
+         end if;
+      end Get_Ext;
+
       ------------
       -- Invert --
       ------------
@@ -420,15 +420,6 @@ package body AWS.Services.Directory is
       end Invert;
 
       -------------------
-      -- To_Order_Mode --
-      -------------------
-
-      function To_Order_Mode (C : in Order_Char) return Order_Mode is
-      begin
-         return Order_Mode'Value ("" & C);
-      end To_Order_Mode;
-
-      -------------------
       -- To_Order_Char --
       -------------------
 
@@ -437,6 +428,15 @@ package body AWS.Services.Directory is
       begin
          return Order_Mode'Image (O)(1);
       end To_Order_Char;
+
+      -------------------
+      -- To_Order_Mode --
+      -------------------
+
+      function To_Order_Mode (C : in Order_Char) return Order_Mode is
+      begin
+         return Order_Mode'Value ("" & C);
+      end To_Order_Mode;
 
       Dir_Str : constant String := End_Slash (Directory_Name);
 
