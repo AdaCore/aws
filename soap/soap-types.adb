@@ -253,6 +253,7 @@ package body SOAP.Types is
    -----------
 
    function Image (O : in Object) return String is
+      pragma Warnings (Off, O);
    begin
       return "";
    end Image;
@@ -518,7 +519,6 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in XSD_Integer) return String is
-      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -528,7 +528,6 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in XSD_Float) return String is
-      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -538,7 +537,6 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in XSD_String) return String is
-      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -548,7 +546,6 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in XSD_Boolean) return String is
-      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -558,7 +555,6 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in XSD_Time_Instant) return String is
-      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -579,7 +575,6 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in SOAP_Base64) return String is
-      Indent : constant Natural := XML_Indent.Value;
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -701,51 +696,61 @@ package body SOAP.Types is
    --------------
 
    function XML_Type (O : in Object) return String is
+      pragma Warnings (Off, O);
    begin
       return "";
    end XML_Type;
 
    function XML_Type (O : in XSD_Integer) return String is
+      pragma Warnings (Off, O);
    begin
       return XML_Int;
    end XML_Type;
 
    function XML_Type (O : in XSD_Float) return String is
+      pragma Warnings (Off, O);
    begin
       return XML_Float;
    end XML_Type;
 
    function XML_Type (O : in XSD_String) return String is
+      pragma Warnings (Off, O);
    begin
       return XML_String;
    end XML_Type;
 
    function XML_Type (O : in XSD_Boolean) return String is
+      pragma Warnings (Off, O);
    begin
       return XML_Boolean;
    end XML_Type;
 
    function XML_Type  (O : in XSD_Time_Instant) return String is
+      pragma Warnings (Off, O);
    begin
       return XML_Time_Instant;
    end XML_Type;
 
    function XML_Type (O : in XSD_Null) return String is
+      pragma Warnings (Off, O);
    begin
       return XML_Null;
    end XML_Type;
 
    function XML_Type (O : in SOAP_Base64) return String is
+      pragma Warnings (Off, O);
    begin
       return XML_Base64;
    end XML_Type;
 
    function XML_Type (O : in SOAP_Array) return String is
+      pragma Warnings (Off, O);
    begin
       return XML_Array;
    end XML_Type;
 
    function XML_Type  (O : in SOAP_Record) return String is
+      pragma Warnings (Off, O);
    begin
       return "";
    end XML_Type;
