@@ -1,5 +1,17 @@
 2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-streams-memory-zlib.ads:
+	Add some genaral comments about this API.
+
+	* aws-resources-streams-memory.ads:
+	Add some genaral comments about this API.
+	(Close): Add some comment.
+
+	* aws-resources-streams.ads, aws-resources-streams.adb: 
+	(Create): Rename parameter Buffer to Stream.
+
+2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-containers-tables.ads:
 	Minor comment fix.
 
