@@ -63,8 +63,7 @@ package body AWS.Services.Dispatchers.Transient_Pages is
          declare
             URI    : constant String := Status.URI (Request);
             Stream : constant AWS.Resources.Streams.Stream_Access
-              := Services.Transient_Pages.Get
-                   (URI (URI'First + 1 .. URI'Last));
+              := Services.Transient_Pages.Get (URI);
          begin
             if Stream = null then
                --  This page is not a transient one
