@@ -30,6 +30,22 @@
 
 --  $Id$
 
+--  This package contains all SOAP types supported by this implementation.
+--  Here are some notes about adding support for a new SOAP type (not a
+--  container) and the corresponding WSDL support:
+--
+--  1. Add new type derived from scalar in this package. Implements all
+--     inherited routines (Image, XML_Image and XML_Type). Implements also
+--     a constructor for this new type and a routine named V to get the
+--     value as an Ada type.
+--
+--  2. In SOAP.WSDL, add the new type name in Parameter_Type.
+--
+--  3. Add support for this new type in all SOAP.WSDL routines. All routines
+--     are using a case statement to be sure that it won't compile without
+--     fixing it first. For obvious reasons, only SOAP.WSDL.To_Type is not
+--     using a case statement, be sure to do the right change there.
+
 with Ada.Calendar;
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
