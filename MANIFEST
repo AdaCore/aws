@@ -448,8 +448,8 @@ regtests/zstrm.out
 regtests/zstrm2.adb
 regtests/zstrm2.out
 regtests/zstrm3.out
-src/aws-attachment.adb
-src/aws-attachment.ads
+src/aws-attachments.adb
+src/aws-attachments.ads
 src/aws-client-hotplug.adb
 src/aws-client-hotplug.ads
 src/aws-client.adb
