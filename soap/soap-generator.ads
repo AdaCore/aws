@@ -93,6 +93,10 @@ package SOAP.Generator is
    --  coded in Ada, it is preferable to reuse them to not have to convert
    --  to/from both definitions.
 
+   procedure Main (O : in out Object; Name : in String);
+   --  Set the main program to be generated. This is useful for simple server.
+   --  Main can be specified only if the SOAP callbacks are generated.
+
    procedure CVS_Tag (O : in out Object);
    --  Add CVS tag Id in the unit header (no CVS by default)
 
@@ -124,6 +128,7 @@ private
       First_Proc : Boolean := True;
       Unit       : Unbounded_String;
       Types_Spec : Unbounded_String;
+      Main       : Unbounded_String;
       Location   : Unbounded_String;
       WSDL_File  : Unbounded_String;
       Proxy      : Unbounded_String;
