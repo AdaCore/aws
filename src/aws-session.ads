@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -66,25 +66,25 @@ package AWS.Session is
      (SID   : in ID;
       Key   : in String;
       Value : in String);
-   --  Set key/pair value for the SID.
+   --  Set key/pair value for the SID
 
    procedure Set
      (SID   : in ID;
       Key   : in String;
       Value : in Integer);
-   --  Set key/pair value for the SID.
+   --  Set key/pair value for the SID
 
    procedure Set
      (SID   : in ID;
       Key   : in String;
       Value : in Float);
-   --  Set key/pair value for the SID.
+   --  Set key/pair value for the SID
 
    procedure Set
      (SID   : in ID;
       Key   : in String;
       Value : in Boolean);
-   --  Set key/pair value for the SID.
+   --  Set key/pair value for the SID
 
    function Get (SID : in ID; Key : in String) return String;
    pragma Inline (Get);
@@ -105,6 +105,24 @@ package AWS.Session is
    pragma Inline (Get);
    --  Returns the Value for Key in the session SID or the boolean False if
    --  key does not exist or is not a boolean.
+
+   generic
+      type Data is private;
+      Null_Data : Data;
+   package Generic_Data is
+
+      procedure Set
+        (SID   : in ID;
+         Key   : in String;
+         Value : in Data);
+      --  Set key/pair value for the SID
+
+      function Get (SID : in ID; Key : in String) return Data;
+      pragma Inline (Get);
+   --  Returns the Value for Key in the session SID or Null_Data if
+   --  key does not exist.
+
+   end Generic_Data;
 
    procedure Remove
      (SID : in ID;
