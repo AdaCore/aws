@@ -42,5 +42,5 @@ begin
            Assoc ("HTTP_VERSION", To_String (Status.HTTP_Version)),
            Assoc ("AUTH_MODE",    Authorization_Type'Image (Status.Auth_Mode)),
            Assoc ("SOAP_ACTION",  Status.SOAP_Action),
-           Assoc ("PAYLOAD",      To_String (Status.Payload)));
+           Assoc ("PAYLOAD",      SOAP.Image (Status.Payload)));
 end AWS.Status.Translate_Table;
