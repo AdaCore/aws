@@ -143,8 +143,9 @@ package AWS.Response is
       Status_Code   : in Messages.Status_Code := Messages.S200)
       return Data;
    --  Returns a message whose message body is the content of the user
-   --  defined file. The Content_Type must indicate the MIME type for
-   --  the file.
+   --  defined stream. The Content_Type must indicate the MIME type for
+   --  the data stream, Stream_Size the total number of bytes and Status_Code
+   --  the header status code which should be send back to client's bvrowser.
 
    function Socket_Taken return Data;
    --  Must be used to say that the connection socket has been taken by user
