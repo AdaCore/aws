@@ -55,4 +55,7 @@ package AWS.Net is
    --  the connection has not been accepted by the other end. If Security is
    --  true an secure socket will be used.
 
+   procedure Free (Socket : in out Sockets.Socket_FD'Class);
+   --  Release SSL wrapper memory.
+
 end AWS.Net;

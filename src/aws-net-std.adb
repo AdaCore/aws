@@ -86,4 +86,13 @@ package body AWS.Net is
       return Sock;
    end Connect;
 
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Socket : in out Sockets.Socket_FD'Class) is
+   begin
+      null;
+   end Free;
+
 end AWS.Net;

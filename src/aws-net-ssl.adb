@@ -38,6 +38,7 @@
 --  SSL.Set_Certificate.
 
 with SSL;
+with Ada.Tags;
 
 package body AWS.Net is
 
@@ -120,6 +121,18 @@ package body AWS.Net is
          end;
       end if;
    end Connect;
+
+   ----------
+   -- Free --
+   ----------
+
+   procedure Free (Socket : in out Sockets.Socket_FD'Class) is
+      use type Ada.Tags.Tag;
+   begin
+      if Socket'Tag = SSL.Handle'Tag then
+         SSL.Free (SSL.Handle (Socket));
+      end if;
+   end Free;
 
 begin
    Init;
