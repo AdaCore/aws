@@ -180,6 +180,7 @@ package body AWS.Services.Transient_Pages is
                         AWS.Resources.Close (Resource);
                      end;
                   end;
+
                else
                   Table.Containers.Next (Cursor);
                end if;
