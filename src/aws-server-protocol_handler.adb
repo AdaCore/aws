@@ -33,16 +33,14 @@
 --  $Date$
 --  $Author$
 
---  This procedure is responsible to treat the HTTP protocol. Every responses
---  and coming requests are parsed/formated here.
+--  This procedure is responsible of handling the HTTP protocol. Every
+--  responses and coming requests are parsed/formated here.
 
 with Ada.Characters.Handling;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
-
-with Templates_Parser;
 
 with AWS.Config;
 with AWS.Headers.Values;
@@ -56,6 +54,7 @@ with AWS.Resources;
 with AWS.Session;
 with AWS.Server.Get_Status;
 with AWS.Status.Set;
+with AWS.Templates;
 with AWS.Translator;
 with AWS.Utils;
 with AWS.URL;
@@ -370,7 +369,7 @@ is
                  (Content_Type => MIME.Text_HTML,
                   Message_Body => Get_Status (HTTP_Server));
             exception
-               when Templates_Parser.Template_Error =>
+               when Templates.Template_Error =>
                   Answer := Response.Build
                     (Content_Type => MIME.Text_HTML,
                      Message_Body =>
@@ -522,9 +521,6 @@ is
         (Start_Boundary, End_Boundary : in String;
          Parse_Boundary               : in Boolean)
       is
-         --  ??? Implementation would be more efficient if the input socket
-         --  stream was buffered. Here the socket is read char by char.
-
          Name            : Unbounded_String;
          Filename        : Unbounded_String;
          Server_Filename : Unbounded_String;
