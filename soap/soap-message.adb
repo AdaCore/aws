@@ -77,8 +77,8 @@ package body SOAP.Message is
    ----------------------
 
    procedure Set_Wrapper_Name
-     (M     : in out Object'Class;
-      Name  : in     String) is
+     (M    : in out Object'Class;
+      Name : in     String) is
    begin
       M.Wrapper_Name := To_Unbounded_String (Name);
    end Set_Wrapper_Name;
@@ -117,6 +117,8 @@ package body SOAP.Message is
       begin
          if NS /= No_Name_Space
            and then NS /= SOAP.Name_Space.AWS
+           and then Index
+             (Message_Header, ':' & SOAP.Name_Space.Name (NS) & '=') = 0
          then
             Append (Message_Header, " " & Image (NS));
          end if;
