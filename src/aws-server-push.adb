@@ -225,7 +225,10 @@ package body AWS.Server.Push is
            (Key          : in     Client_Key;
             Value        : in     Client_Holder;
             Order_Number : in     Positive;
-            Continue     : in out Boolean) is
+            Continue     : in out Boolean)
+         is
+            pragma Unreferenced (Order_Number);
+            pragma Unreferenced (Continue);
          begin
             Send_Data (Value, Data, Content_Type);
          exception
@@ -241,7 +244,11 @@ package body AWS.Server.Push is
            (Key          : in     Client_Key;
             Value        : in     Client_Holder;
             Order_Number : in     Positive;
-            Continue     : in out Boolean) is
+            Continue     : in out Boolean)
+         is
+            pragma Unreferenced (Value);
+            pragma Unreferenced (Order_Number);
+            pragma Unreferenced (Continue);
          begin
             Unregister (Key, True);
          end Free;
@@ -478,7 +485,11 @@ package body AWS.Server.Push is
         (Key          : in     Client_Key;
          Value        : in     Client_Holder;
          Order_Number : in     Positive;
-         Continue     : in out Boolean) is
+         Continue     : in out Boolean)
+      is
+         pragma Unreferenced (Value);
+         pragma Unreferenced (Order_Number);
+         pragma Unreferenced (Continue);
       begin
          Client_Gone (Key);
       end Action;
