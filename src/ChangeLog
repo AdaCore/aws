@@ -1,5 +1,17 @@
 2003-02-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-server.adb:
+	(Shutdown): All Free calls moved to the end of the procedure,
+	 becouse we should not free memory until tasks are working.
+	 Move abortion of the Line_Cleaner task after the stop lines,
+	 becouse Lines could call Line_Cleaner.
+	 Remove explicit abortion of the Line tasks, becouse Shutdown of the
+	 server socket and shutdown of the peer sockets would terminate line
+	 task anyway. All this modifications fix rarely bug in the tsgetparam
+	 regression test.
+
+2003-02-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-client.adb:
 	(Disconnect): Do not use Net.Buffered.Shutdown, becouse the socket
 	 would be already closed by the oppsite side of connection, and we really
