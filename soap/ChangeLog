@@ -1,5 +1,8 @@
 2002-09-18  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap.ads:
+	(Version): Set to 1.1.
+
 	* soap-client.adb:
 	(Call): SOAPAction is URL & '#' & Procedure_Name by default. This
 	 is now consistent with spec comments.
