@@ -121,7 +121,7 @@ package body AWS.Resources is
             if I > Buffer'First
               and then Buffer (I - 1) = ASCII.CR
             then
-               -- And previous char was a CR, skip it
+               --  And previous char was a CR, skip it
                Last := Last - 1;
             end if;
 
