@@ -26,6 +26,11 @@
 @@--     on the same line.
 @@--     The first parameter mustn't contain spaces
 @@--
+@@--  * Optional parameters:
+@@--
+@@--    $7 - Height offset for the tab, 0 by default. It needs to be adjusted
+@@--         if the font used is too big.
+@@--
 @@--  * Create a <ul> list that contains the text for the tabs. This
 @@--    should look like the following, where the id and class attributes
 @@--    should match the corresponding parameters in the @@INCLUDE@@ statement
@@ -79,11 +84,13 @@
 @@--
 @@--  $Id$
 
+@@SET@@ TAB_HEIGHT = $7 | 0
+
 <style type="text/css">
 #@_$1_@           { border-bottom: 1px solid @_$6_@;
                     margin: 15px 10px 0px 0px;
                     position: relative;
-                    height: 19px;
+                    height: @_"+"(19):TAB_HEIGHT_@px;
                     padding-left: 10px; }
 #@_$1_@ li        { display: inline;
                     list-style-type: none;
@@ -97,7 +104,7 @@
                     position: relative;    /* Required for IE6 */
                     float: left;
                     font-weight: normal;
-                    line-height: 14px;
+                    line-height: @_"+"(14):TAB_HEIGHT_@px;
                     margin-right: 8px;
                     padding: 2px 10px 2px 10px;
                     text-decoration: none; }
