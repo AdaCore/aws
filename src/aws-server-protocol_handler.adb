@@ -38,6 +38,7 @@ with POSIX_Calendar;
 
 with AWS.Messages;
 with AWS.Status;
+with AWS.Session;
 
 separate (AWS.Server)
 
@@ -92,6 +93,11 @@ is
 
       Status : Messages.Status_Code;
 
+      Send_Session_Cookie : Boolean := False;
+
+      procedure Create_Session;
+      --  create a session if needed
+
       procedure Header_Date_Serv;
       --  send the Date: and Server: data
 
@@ -107,12 +113,41 @@ is
       procedure Send_Message;
       --  answer by a text or HTML message.
 
+      --------------------
+      -- Create_Session --
+      --------------------
+
+      procedure Create_Session is
+      begin
+         if HTTP_Server.Session
+           and then (AWS.Status.Session (C_Stat) = ""
+                     or else not Session.Exist (AWS.Status.Session (C_Stat)))
+         then
+            declare
+               Cookie : constant String := Session.Image (Session.Create);
+            begin
+               AWS.Status.Set_Session (C_Stat, Cookie);
+               Send_Session_Cookie := True;
+            end;
+         end if;
+      end Create_Session;
+
       ----------------------
       -- Header_Date_Serv --
       ----------------------
 
       procedure Header_Date_Serv is
       begin
+         --  This is an HTTP connection with session but there is no session
+         --  ID set yet.
+
+         if HTTP_Server.Session and then Send_Session_Cookie then
+            --  send cookie to client browser
+            Sockets.Put_Line
+              (Sock,
+               "Set-Cookie: AWS=" & AWS.Status.Session (C_Stat));
+         end if;
+
          Sockets.Put_Line (Sock,
                            "Date: "
                            & Messages.To_HTTP_Date (Calendar.Clock));
@@ -251,14 +286,25 @@ is
       end Send_Message;
 
    begin
-      --  check if the status page is requested
+      --  check if the status page is requested or the status page logo. These
+      --  are AWS internal page that should not be handled by AWS users.
 
       if AWS.Status.URI (C_Stat) = Admin_URI then
          Answer := Response.Build
            (Content_Type => "text/html",
             Message_Body => Get_Status (HTTP_Server));
+
+      elsif AWS.Status.URI (C_Stat) = Admin_URI & "-logo" then
+         Answer := Response.File
+           (Content_Type => "image/gif",
+            Filename     => "logo.gif");
+
       else
-         --  otherwise get answer from client callback
+         --  otherwise, check if a session needs to be created
+
+         Create_Session;
+
+         --  and get answer from client callback
 
          Answer := HTTP_Server.CB (C_Stat);
       end if;
@@ -523,6 +569,17 @@ is
          Status.Set_Authorization
            (C_Stat,
             Command (Messages.Authorization_Token'Length + 1 .. Command'Last));
+
+      elsif Messages.Is_Match (Command, Messages.Cookie_Token)
+        and then Command (Messages.Cookie_Token'Length + 1
+                          .. Messages.Cookie_Token'Length + 3) = "AWS"
+      then
+         --  the expected Cookie line is:
+         --  Cookie: AWS=<cookieID>
+
+         Status.Set_Session
+           (C_Stat,
+            Command (Messages.Cookie_Token'Length + 4 .. Command'Last));
       end if;
 
    exception
