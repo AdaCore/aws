@@ -46,6 +46,7 @@
 * Using SOAP::
 * Sending e-mail::
 * LDAP::
+* Jabber::
 * Resources::
 * Status page::
 * Last notes::
@@ -2438,6 +2439,28 @@ LDAP API closely.
 
 @c ----------------------------------------------------------------------
 
+@node Jabber
+@chapter Jabber
+@cindex Jabber
+
+@noindent
+AWS support part of the Jabber protocol. At this stage only two kind
+of messages are supported:
+
+@table @b
+
+@item Message
+
+To send messages to a specific JID (Jabber ID)
+
+@item Presence
+
+To check the presence status of a specific JID
+
+@end table
+
+@c ----------------------------------------------------------------------
+
 @node Resources
 @chapter Resources
 @cindex Resources
@@ -2832,6 +2855,9 @@ AWS User API:
 * AWS.Default::
 * AWS.Dispatchers::
 * AWS.Dispatchers.Callback::
+* AWS.Headers::
+* AWS.Headers.Values::
+* AWS.Jabber::
 * AWS.LDAP.Client::
 * AWS.Log::
 * AWS.MIME::
@@ -2934,9 +2960,29 @@ SOAP User API:
 
 @include ../src/aws-dispatchers-callback.ads.texi
 
+@node AWS.Headers
+@section AWS.Headers
+@cindex AWS.Headers
+
+@include ../src/aws-headers.ads.texi
+
+@node AWS.Headers.Values
+@section AWS.Headers.Values
+@cindex AWS.Headers.Values
+
+@include ../src/aws-headers-values.ads.texi
+
+@node AWS.Jabber
+@section AWS.Jabber
+@cindex AWS.Jabber
+@cindex Jabber Binding
+
+@include ../src/aws-jabber.ads.texi
+
 @node AWS.LDAP.Client
 @section AWS.LDAP.Client
 @cindex AWS.LDAP.Client
+@cindex LDAP Binding
 
 @include ../src/aws-ldap-client.ads.texi
 
