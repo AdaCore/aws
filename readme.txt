@@ -271,8 +271,8 @@ OpenSSL library (optional) :
       Included with the main AWS distribution (win32 directory).
 
    Note that we have used and we distribute (for Win32 platform) OpenSSL
-   version 0.9.7c with this AWS release. OpenSSL has been built with GNAT 5.01a
-   C subsystem (based on GCC 3.2.3) with -O3 optimization level.
+   version 0.9.7d with this AWS release. OpenSSL has been built with
+   Mingw GCC version 3.4.1 with -O3 optimization level.
 
    See OpenSSL license (docs/openssl.license).
 
@@ -331,8 +331,8 @@ Thanks to the contributors and peoples who send feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 So thanks goes to Ted Dennison, Wiljan Derks, Sune Falck, David C. Hoos,
-Audran Le Baron, Thierry Lelegard, Nicolas Lesbats, Jean-François Rameau,
-Maxim Reznik, Jean-Pierre Rosen, Jerôme Roussel, Ariane Sinibardy,
+Audran Le Baron, Thierry Lelegard, Nicolas Lesbats, Jean-Franï¿½is Rameau,
+Maxim Reznik, Jean-Pierre Rosen, Jerme Roussel, Ariane Sinibardy,
 Henrik Sundberg.
 
 
