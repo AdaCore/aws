@@ -56,4 +56,7 @@ package AWS.MIME is
    --  Determine the MIME Content Type from the file's type extension.
    --  Returns "application/octet-stream" if the file type is unknown.
 
+   function Is_Text (Mime_Type : in String) return Boolean;
+   --  Returns True if the Mime_Type is a kind of textual data.
+
 end AWS.MIME;
