@@ -3,6 +3,8 @@ b~auth.adb
 b~auth.ads
 b~dummy.adb
 b~dummy.ads
+b~head.adb
+b~head.ads
 b~moved.adb
 b~moved.ads
 b~param.adb
