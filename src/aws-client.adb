@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                         Copyright (C) 2000-2004                          --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -1164,8 +1164,10 @@ package body AWS.Client is
             --  done by opening a tunnel through the proxy.
             --
             --  CONNECT <host> HTTP/1.1
-            --  HOST <host>
-            --  [empty line]
+            --  Host: <host>
+            --  [Proxy-Authorization: xxxx]
+            --  <other headers>
+            --  <empty line>
 
             Tunneling := True;
 
@@ -1532,6 +1534,10 @@ package body AWS.Client is
                 (Header (Answer, Messages.Content_Encoding_Token));
 
          procedure Decode_Init (Header : ZLib.Header_Type);
+
+         -----------------
+         -- Decode_Init --
+         -----------------
 
          procedure Decode_Init (Header : ZLib.Header_Type) is
             use type Utils.Stream_Element_Array_Access;
@@ -2010,7 +2016,6 @@ package body AWS.Client is
    is
       Sample_Idx : Natural := Delimiter'First;
       Buffer     : String (1 .. 1024);
-
    begin
       Net.Set_Timeout (Connection.Socket.all, Connection.Read_Timeout);
 
