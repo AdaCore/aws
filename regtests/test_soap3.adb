@@ -127,9 +127,6 @@ procedure Test_SOAP3 is
 
       accept Started;
 
-      Put_Line ("Server started");
-      New_Line;
-
       select
          accept Stopped;
       or
@@ -186,6 +183,9 @@ begin
    Put_Line ("Start main, wait for server to start...");
 
    Server.Started;
+
+   Put_Line ("Server started");
+   New_Line;
 
    Request ("un été");
    Request ("éçàèîûôêâùñ");
