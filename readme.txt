@@ -183,6 +183,9 @@ removed in the next version. Note that you can check usage of those
 features in your application by using the GNAT's -gnatwj option as we
 have tagged all obsolescent features with a pragma.
 
+Note that pragma Obsolescent and -gnatwj option is only supported
+since GNAT 3.16.
+
    AWS.Server.Start_Log
       use AWS.Server.Log.Start instead.
 
