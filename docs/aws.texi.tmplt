@@ -546,89 +546,105 @@ recompiling it. The configuration file is named @file{aws.ini}, current
 supported options are:
 
 @table @code
-@item Admin_URI
+@item Admin_URI (string)
 This is the URI to call the administrative page. This must be used when
-calling @code{AWS.Server.Start}. The default is ``@_ADMIN_URI_@''.
+calling @code{AWS.Server.Start}. The default is @file{@_ADMIN_URI_@}.
 
-@item Cleaner_Wait_For_Client_Timeout
+@item Cleaner_Wait_For_Client_Timeout (duration)
 Number of seconds to timout on waiting for a client request. This is a
 timeout for regular cleaning task. The default is
 @_CT_WAIT_FOR_CLIENT_@ seconds.
 
-@item Cleaner_Client_Header_Timeout
+@item Cleaner_Client_Header_Timeout (duration)
 Number of seconds to timout on waiting for client header. This is a
 timeout for regular cleaning task. The default is @_CT_CLIENT_HEADER_@ seconds.
 
-@item Cleaner_Client_Data_Timeout
+@item Cleaner_Client_Data_Timeout (duration)
 Number of seconds to timout on waiting for client message body. This
 is a timeout for regular cleaning task. The default is
 @_CT_CLIENT_DATA_@ seconds.
 
-@item Cleaner_Server_Response_Timeout
+@item Cleaner_Server_Response_Timeout (duration)
 Number of seconds to timout on waiting for client to accept
 answer. This is a timeout for regular cleaning task. The default is
 @_CT_SERVER_RESPONSE_@ seconds.
 
-@item Force_Wait_For_Client_Timeout
+@item Down_Image (string).
+The name of the down arrow image to use in the status page. The default is
+@file{@_DOWN_IMAGE_@}.
+
+@item Force_Wait_For_Client_Timeout (duration)
 Number of seconds to timout on waiting for a client request. This is a
 timeout for urgent request when ressources are missing. The default is
 @_FT_WAIT_FOR_CLIENT_@ seconds.
 
-@item Force_Client_Header_Timeout
+@item Force_Client_Header_Timeout (duration)
 Number of seconds to timout on waiting for client header. This is a
 timeout for urgent request when ressources are missing. The default is
 @_FT_CLIENT_HEADER_@ seconds.
 
-@item Force_Client_Data_Timeout
+@item Force_Client_Data_Timeout (duration)
 Number of seconds to timout on waiting for client message body. This
 is a timeout for urgent request when ressources are missing. The default is
 @_FT_CLIENT_DATA_@ seconds.
 
-@item Force_Server_Response_Timeout
+@item Force_Server_Response_Timeout (duration)
 Number of seconds to timout on waiting for client to accept answer. This 
 is a timeout for urgent request when ressources are missing. The default is
 @_FT_SERVER_RESPONSE_@ seconds.
 
-@item Log_File_Directory
+@item Log_File_Directory (string)
 This is to set the directory where log file must be written. This
 parameter will be used automatically by @code{AWS.Log} if logging
 facility is enabled. By default log files are written in the current
-directory. The default is ``@_LOG_FILE_DIR_@''.
+directory. The default is @file{@_LOG_FILE_DIR_@}.
 
-@item Max_Connection
+@item Logo (string).
+The name of the logo image to use in the status page. The default is
+@file{@_LOGO_IMAGE_@}.
+
+@item Max_Connection (positive)
 This is the maximum number of simultaneous connections for the
 server. This must be used when declaring the @code{HTTP} object. The
 default is @_MAX_CONNECT_@.
 
-@item Receive_Timeout
+@item Receive_Timeout (duration)
 Number of seconds to timeout when receiving chunck of data. The
 default is @_RECEIVE_TIMEOUT_@ seconds.
 
-@item Send_Timeout
+@item Send_Timeout (duration)
 Number of seconds to timeout when sending chunck of data. The default is
 @_SEND_TIMEOUT_@ seconds.
 
-@item Server_Name
+@item Server_Name (string)
 The name of the server. This must be used when calling
-@code{AWS.Server.Start}. The default is ``@_SERVER_NAME_@''.
+@code{AWS.Server.Start}. The default is @b{@_SERVER_NAME_@}.
 
-@item Server_Port
+@item Server_Port (integer)
 The port where server will wait for incomming connections requests. This
 must be used when calling @code{AWS.Server.Start}. The default is
 @_SERVER_PORT_@
 
-@item Upload_Directory
+@item Status_Page (string)
+The name of the status page to used. The default is
+@file{@_STATUS_PAGE_@}.
+
+@item Up_Image (string).
+The name of the up arrow image to use in the status page. The default is
+@file{@_UP_IMAGE_@}.
+
+@item Upload_Directory (string)
 This is to set the directory where upload files must be stored. By
 default uploaded files are written in the current directory. The
-default is ``@_UPLOAD_DIR_@''.
+default is @file{@_UPLOAD_DIR_@}.
 @end table
 
 @noindent
 Each option value can be retrieved using the @code{AWS.Config} unit.
 
 @noindent
-For example to build a server where the @i{port} and the @i{maximum number} of
-connection can be changed via the configuration file:
+For example to build a server where the @i{port} and the maximum number of
+@i{connection} can be changed via the configuration file:
 
 @smallexample
 @cartouche
