@@ -1,0 +1,16 @@
+/thisone
+> Dispatch 2 !
+/disp
+> Dispatch 1 !
+/disp_xyz
+> Dispatch 4 !
+/dispabc
+> Dispatch 4 !
+/dis_abc_x
+> Dispatch 3 !
+/abc
+> Dispatch 3 !
+/abcdisp
+> Dispatch 3 !
+/notknown
+> Default /notknown
