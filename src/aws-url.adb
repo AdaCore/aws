@@ -67,6 +67,40 @@ package body AWS.URL is
          ']' => Code (']'), '`' => Code ('`'), others => Not_Escaped);
 
    ------------
+   -- Decode --
+   ------------
+
+   function Decode (URL : in String) return String is
+      Res : String (1 .. URL'Length);
+      K   : Natural := 0;
+      I   : Positive := URL'First;
+   begin
+      loop
+         K := K + 1;
+
+         if URL (I) = '%' and then I + 2 <= URL'Length then
+            Res (K) := Character'Val
+              (Natural'Value ("16#" & URL (I + 1 .. I + 2) & '#'));
+            I := I + 2;
+
+         elsif URL (I) = '+' then
+            Res (K) := ' ';
+
+         else
+            Res (K) := URL (I);
+         end if;
+
+         I := I + 1;
+         exit when I > URL'Last;
+      end loop;
+
+      return Res (1 .. K);
+   exception
+      when others =>
+         return URL;
+   end Decode;
+
+   ------------
    -- Encode --
    ------------
 
@@ -81,7 +115,7 @@ package body AWS.URL is
             K := K + 1;
             Res (K) := '+';
 
-         elsif Hex_Escape (URL (I)) = Not_Escaped Then
+         elsif Hex_Escape (URL (I)) = Not_Escaped then
             K := K + 1;
             Res (K) := URL (I);
 
@@ -97,6 +131,31 @@ package body AWS.URL is
       return Res (1 .. K);
    end Encode;
 
+   ----------
+   -- File --
+   ----------
+
+   function File
+     (URL    : in Object;
+      Encode : in Boolean := False)
+     return String is
+   begin
+      if Encode then
+         return AWS.URL.Encode (To_String (URL.File));
+      else
+         return To_String (URL.File);
+      end if;
+   end File;
+
+   ----------
+   -- Host --
+   ----------
+
+   function Host (URL : in Object) return String is
+   begin
+      return To_String (URL.Host);
+   end Host;
+
    ---------------
    -- Normalize --
    ---------------
@@ -108,28 +167,28 @@ package body AWS.URL is
       --  checks for parent directory
 
       loop
-         K := Index (URL.URI, "/../");
+         K := Index (URL.Path, "/../");
 
          exit when K = 0;
 
          --  look for previous directory, which should be removed.
 
          P := Strings.Fixed.Index
-           (Slice (URL.URI, 1, K - 1), "/", Strings.Backward);
+           (Slice (URL.Path, 1, K - 1), "/", Strings.Backward);
 
          exit when P = 0;
 
-         Delete (URL.URI, P, K + 2);
+         Delete (URL.Path, P, K + 2);
       end loop;
 
       --  checks for current directory and removes all occurences
 
       loop
-         K := Index (URL.URI, "/./");
+         K := Index (URL.Path, "/./");
 
          exit when K = 0;
 
-         Delete (URL.URI, K, K + 1);
+         Delete (URL.Path, K, K + 1);
       end loop;
    end Normalize;
 
@@ -157,7 +216,23 @@ package body AWS.URL is
            return Unbounded_String
            renames To_Unbounded_String;
 
+         procedure Parse_Path_File;
+         --  Parse Path and File.
+
          I1, I2 : Natural;
+
+         procedure Parse_Path_File is
+            PF : constant String := URL (I2 + 1 .. URL'Last);
+            I3 : Natural := Strings.Fixed.Index (PF, "/", Strings.Backward);
+         begin
+            if I3 = 0 then
+               O.Path := US ("/");
+               O.File := US (URL (I2 + 1 .. URL'Last));
+            else
+               O.Path := US (URL (I2 .. I3));
+               O.File := US (URL (I3 + 1 .. URL'Last));
+            end if;
+         end Parse_Path_File;
 
       begin
          I1 := Strings.Fixed.Index (URL, ":");
@@ -165,22 +240,22 @@ package body AWS.URL is
 
          if I1 = 0 then
             if I2 = 0 then
-               O.Server_Name := US (URL);
-               O.URI         := US ("/");
+               O.Host := US (URL);
+               O.Path        := US ("/");
             else
-               O.Server_Name := US (URL (URL'First .. I2 - 1));
-               O.URI         := US (URL (I2 .. URL'Last));
+               O.Host := US (URL (URL'First .. I2 - 1));
+               Parse_Path_File;
             end if;
 
          else
-            O.Server_Name := US (URL (URL'First .. I1 - 1));
+            O.Host := US (URL (URL'First .. I1 - 1));
 
             if I2 = 0 then
                O.Port := Positive'Value (URL (I1 + 1 .. URL'Last));
-               O.URI  := US ("/");
+               O.Path := US ("/");
             else
                O.Port := Positive'Value (URL (I1 + 1 .. I2 - 1));
-               O.URI  := US (URL (I2 .. URL'Last));
+               Parse_Path_File;
             end if;
          end if;
       end Parse;
@@ -208,15 +283,15 @@ package body AWS.URL is
             --  This is not rooted. Parse with a '/' slash added, then remove
             --  it after parsing.
             Parse ('/' & URL);
-            O.URI := To_Unbounded_String (Slice (O.URI, 2, Length (O.URI)));
+            O.Path := To_Unbounded_String (Slice (O.Path, 2, Length (O.Path)));
          end if;
 
             O.Security := False;
       end if;
 
-      if O.Server_Name /= Null_Unbounded_String
-        and then Length (O.URI) >= 3
-        and then Slice (O.URI, 1, 4) = "/../"
+      if O.Host /= Null_Unbounded_String
+        and then Length (O.Path) >= 3
+        and then Slice (O.Path, 1, 4) = "/../"
       then
          Exceptions.Raise_Exception
            (URL_Error'Identity, "URI can't start with /..");
@@ -232,6 +307,40 @@ package body AWS.URL is
       when others =>
          raise URL_Error;
    end Parse;
+
+   ----------
+   -- Path --
+   ----------
+
+   function Path
+     (URL    : in Object;
+      Encode : in Boolean := False)
+     return String is
+   begin
+      if Encode then
+         return AWS.URL.Encode (To_String (URL.Path));
+      else
+         return To_String (URL.Path);
+      end if;
+   end Path;
+
+   --------------
+   -- Pathname --
+   --------------
+
+   function Pathname
+     (URL    : in Object;
+      Encode : in Boolean := False)
+     return String
+   is
+      Result : constant String := To_String (URL.Path & URL.File);
+   begin
+      if Encode then
+         return AWS.URL.Encode (Result);
+      else
+         return Result;
+      end if;
+   end Pathname;
 
    ----------
    -- Port --
@@ -256,31 +365,6 @@ package body AWS.URL is
    begin
       return URL.Security;
    end Security;
-
-   -----------------
-   -- Server_Name --
-   -----------------
-
-   function Server_Name (URL : in Object) return String is
-   begin
-      return To_String (URL.Server_Name);
-   end Server_Name;
-
-   ---------
-   -- URI --
-   ---------
-
-   function URI
-     (URL    : in Object;
-      Encode : in Boolean := False)
-     return String is
-   begin
-      if Encode then
-         return AWS.URL.Encode (To_String (URL.URI));
-      else
-         return To_String (URL.URI);
-      end if;
-   end URI;
 
    ---------
    -- URL --
@@ -333,10 +417,10 @@ package body AWS.URL is
       end Port;
 
    begin
-      if Server_Name (URL) = "" then
-         return URI (URL);
+      if Host (URL) = "" then
+         return Pathname (URL);
       else
-         return HTTP & Server_Name (URL) & Port & URI (URL);
+         return HTTP & Host (URL) & Port & Pathname (URL);
       end if;
    end URL;
 
