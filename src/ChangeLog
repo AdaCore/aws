@@ -1,3 +1,8 @@
+2002-01-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-config-set.ads, aws-config-set.adb:
+	(Parameter): New procedure.
+
 2001-12-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
