@@ -37,6 +37,7 @@ with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Streams.Stream_IO;
+with Ada.Unchecked_Deallocation;
 
 with GNAT.Calendar.Time_IO;
 
@@ -46,11 +47,12 @@ with AWS.Headers.Values;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
+with AWS.Net.SSL;
+with AWS.Net.Std;
 with AWS.OS_Lib;
 with AWS.Response.Set;
 with AWS.Translator;
 with AWS.Utils;
-with AWS.Net.SSL;
 
 package body AWS.Client is
 
@@ -82,16 +84,16 @@ package body AWS.Client is
    --  authentication attempts are over.
 
    procedure Set_Authentication
-     (Auth       :    out Authentication_Type;
-      User       : in     String;
-      Pwd        : in     String;
-      Mode       : in     Authentication_Mode);
+     (Auth :    out Authentication_Type;
+      User : in     String;
+      Pwd  : in     String;
+      Mode : in     Authentication_Mode);
    --  Internal procedure to set authentication parameters
 
    procedure Parse_Header
-     (Connection        : in out HTTP_Connection;
-      Answer            :    out Response.Data;
-      Keep_Alive        :    out Boolean);
+     (Connection : in out HTTP_Connection;
+      Answer     :    out Response.Data;
+      Keep_Alive :    out Boolean);
    --  Read server answer and set corresponding variable with the value
    --  read. Most of the fields are ignored right now.
 
@@ -923,8 +925,9 @@ package body AWS.Client is
       Method     : in     String;
       URI        : in     String)
    is
-      Sock    : Net.Socket_Access renames Connection.Socket;
-      No_Data : Unbounded_String renames Null_Unbounded_String;
+      Sock      : Net.Socket_Access := Connection.Socket;
+      No_Data   : Unbounded_String renames Null_Unbounded_String;
+      Tunneling : Boolean := False;
 
       procedure Send_Authentication_Header
         (Token : in     String;
@@ -1118,9 +1121,10 @@ package body AWS.Client is
 
       if not Connection.Opened then
          Connect (Connection);
+         Sock := Connection.Socket;
       end if;
 
-      Net.Set_Timeout (Connection.Socket.all, Connection.Write_Timeout);
+      Net.Set_Timeout (Sock.all, Connection.Write_Timeout);
 
       --  Header command
 
@@ -1150,8 +1154,7 @@ package body AWS.Client is
             end;
          end if;
 
-         Send_Header
-           (Sock.all, Messages.Connection (Persistence));
+         Send_Header (Sock.all, Messages.Connection (Persistence));
 
       else
          --  We have a proxy configured
@@ -1164,11 +1167,72 @@ package body AWS.Client is
             --  HOST <host>
             --  [empty line]
 
+            Tunneling := True;
+
             Send_Header
               (Sock.all, "CONNECT " & Host_Address & ' ' & HTTP_Version);
             Send_Header
               (Sock.all, Messages.Host (Host_Address));
+
+            --  Proxy Authentication
+
+            Send_Authentication_Header
+              (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
+
+            Send_Header
+              (Sock.all,
+               Messages.User_Agent (To_String (Connection.User_Agent)));
+
+            Send_Header
+              (Sock.all, Messages.Proxy_Connection (Persistence));
+
+            --  Empty line to terminate the connect
+
             Net.Buffered.New_Line (Sock.all);
+
+            --  Wait for reply from the proxy, and check status
+
+            declare
+               use type Messages.Status_Code;
+               Line   : constant String := Net.Buffered.Get_Line (Sock.all);
+               Status : Messages.Status_Code;
+            begin
+               Status := Messages.Status_Code'Value
+                 ('S' & Line (Messages.HTTP_Token'Length + 5
+                              .. Messages.HTTP_Token'Length + 7));
+
+               if Status >= Messages.S400 then
+                  Exceptions.Raise_Exception
+                    (Connection_Error'Identity,
+                     Message => "Can't connect to proxy, status "
+                     & Messages.Image (Status));
+               end if;
+            end;
+
+            --  Ignore all remainings lines
+
+            loop
+               declare
+                  Line : constant String := Net.Buffered.Get_Line (Sock.all);
+               begin
+                  exit when Line = "";
+               end;
+            end loop;
+
+            --  Now the tunnel is open, we need to create an SSL connection
+            --  around this tunnel.
+
+            declare
+               procedure Free is new Ada.Unchecked_Deallocation
+                 (Net.Socket_Type'Class, Net.Socket_Access);
+
+               S : constant Net.Std.Socket_Type
+                 := Net.Std.Socket_Type (Sock.all);
+            begin
+               Free (Sock);
+               Sock := new Net.SSL.Socket_Type'(Net.SSL.Secure_Client (S));
+               Connection.Socket := Sock;
+            end;
          end if;
 
          if URI = "" then
@@ -1176,6 +1240,7 @@ package body AWS.Client is
               (Sock.all,
                Method & ' '
                & To_String (Connection.Host) & ' ' & HTTP_Version);
+
          else
             Send_Header
               (Sock.all,
@@ -1184,8 +1249,10 @@ package body AWS.Client is
                  & Host_Address & URI & ' ' & HTTP_Version);
          end if;
 
-         Send_Header
-           (Sock.all, Messages.Proxy_Connection (Persistence));
+         if not Tunneling then
+            Send_Header
+              (Sock.all, Messages.Proxy_Connection (Persistence));
+         end if;
       end if;
 
       --  Cookie
@@ -1215,10 +1282,12 @@ package body AWS.Client is
       Send_Authentication_Header
         (Messages.Authorization_Token, Connection.Auth (WWW));
 
-      --  Proxy Authentication
+      if not Tunneling then
+         --  Proxy Authentication
 
-      Send_Authentication_Header
-        (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
+         Send_Authentication_Header
+           (Messages.Proxy_Authorization_Token, Connection.Auth (Proxy));
+      end if;
    end Open_Send_Common_Header;
 
    ------------------
@@ -1415,8 +1484,8 @@ package body AWS.Client is
 
          if Messages.Match (Line, Messages.HTTP_Token) then
             Status := Messages.Status_Code'Value
-                 ('S' & Line (Messages.HTTP_Token'Last + 5
-                                .. Messages.HTTP_Token'Last + 7));
+                 ('S' & Line (Messages.HTTP_Token'Length + 5
+                                .. Messages.HTTP_Token'Length + 7));
             Response.Set.Status_Code (Answer, Status);
 
             --  By default HTTP/1.0 connection is not keep-alive but
@@ -1540,15 +1609,16 @@ package body AWS.Client is
    ----------
 
    function Post
-     (URL         : in String;
-      Data        : in String;
-      User        : in String               := No_Data;
-      Pwd         : in String               := No_Data;
-      Proxy       : in String               := No_Data;
-      Proxy_User  : in String               := No_Data;
-      Proxy_Pwd   : in String               := No_Data;
-      Timeouts    : in Timeouts_Values      := No_Timeout;
-      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+     (URL          : in String;
+      Data         : in String;
+      Content_Type : in String               := No_Data;
+      User         : in String               := No_Data;
+      Pwd          : in String               := No_Data;
+      Proxy        : in String               := No_Data;
+      Proxy_User   : in String               := No_Data;
+      Proxy_Pwd    : in String               := No_Data;
+      Timeouts     : in Timeouts_Values      := No_Timeout;
+      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -1559,30 +1629,28 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Post (Connection, Result, Data, Attachments => Attachments);
+      Post (Connection, Result, Data,
+            Content_Type, Attachments => Attachments);
+
       Close (Connection);
       return Result;
-
    exception
       when others =>
          Close (Connection);
          raise;
    end Post;
-
-   ----------
-   -- Post --
-   ----------
 
    function Post
-     (URL         : in String;
-      Data        : in Streams.Stream_Element_Array;
-      User        : in String               := No_Data;
-      Pwd         : in String               := No_Data;
-      Proxy       : in String               := No_Data;
-      Proxy_User  : in String               := No_Data;
-      Proxy_Pwd   : in String               := No_Data;
-      Timeouts    : in Timeouts_Values      := No_Timeout;
-      Attachments : in AWS.Attachments.List := AWS.Attachments.Empty_List)
+     (URL          : in String;
+      Data         : in Streams.Stream_Element_Array;
+      Content_Type : in String               := No_Data;
+      User         : in String               := No_Data;
+      Pwd          : in String               := No_Data;
+      Proxy        : in String               := No_Data;
+      Proxy_User   : in String               := No_Data;
+      Proxy_Pwd    : in String               := No_Data;
+      Timeouts     : in Timeouts_Values      := No_Timeout;
+      Attachments  : in AWS.Attachments.List := AWS.Attachments.Empty_List)
       return Response.Data
    is
       Connection : HTTP_Connection;
@@ -1593,58 +1661,75 @@ package body AWS.Client is
               Persistent => False,
               Timeouts   => Timeouts);
 
-      Post (Connection, Result, Data, Attachments => Attachments);
+      Post (Connection, Result, Data,
+            Content_Type, Attachments => Attachments);
+
       Close (Connection);
       return Result;
-
    exception
       when others =>
          Close (Connection);
          raise;
    end Post;
 
-   ----------
-   -- Post --
-   ----------
-
    procedure Post
-     (Connection  : in out HTTP_Connection;
-      Result      :    out Response.Data;
-      Data        : in     Streams.Stream_Element_Array;
-      URI         : in     String               := No_Data;
-      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
-     is
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     Streams.Stream_Element_Array;
+      Content_Type : in     String               := No_Data;
+      URI          : in     String               := No_Data;
+      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
+   is
    begin
-      Internal_Post
-        (Connection,
-         Result,
-         Data,
-         URI,
-         SOAPAction   => No_Data,
-         Content_Type => MIME.Application_Octet_Stream,
-         Attachments  => Attachments);
+      if Content_Type = No_Data then
+         Internal_Post
+           (Connection,
+            Result,
+            Data,
+            URI,
+            SOAPAction   => No_Data,
+            Content_Type => MIME.Application_Octet_Stream,
+            Attachments  => Attachments);
+      else
+         Internal_Post
+           (Connection,
+            Result,
+            Data,
+            URI,
+            SOAPAction   => No_Data,
+            Content_Type => Content_Type,
+            Attachments  => Attachments);
+      end if;
    end Post;
 
-   ----------
-   -- Post --
-   ----------
-
    procedure Post
-     (Connection  : in out HTTP_Connection;
-      Result      :    out Response.Data;
-      Data        : in     String;
-      URI         : in     String               := No_Data;
-      Attachments : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
-     is
+     (Connection   : in out HTTP_Connection;
+      Result       :    out Response.Data;
+      Data         : in     String;
+      Content_Type : in     String               := No_Data;
+      URI          : in     String               := No_Data;
+      Attachments  : in     AWS.Attachments.List := AWS.Attachments.Empty_List)
+   is
    begin
-      Internal_Post
-        (Connection,
-         Result,
-         Translator.To_Stream_Element_Array (Data),
-         URI,
-         SOAPAction   => No_Data,
-         Content_Type => MIME.Application_Form_Data,
-         Attachments  => Attachments);
+      if Content_Type = No_Data then
+         Internal_Post
+           (Connection,
+            Result,
+            Translator.To_Stream_Element_Array (Data),
+            URI,
+            SOAPAction   => No_Data,
+            Content_Type => MIME.Application_Form_Data,
+            Attachments  => Attachments);
+      else
+         Internal_Post
+           (Connection,
+            Result,
+            Translator.To_Stream_Element_Array (Data),
+            URI,
+            SOAPAction   => No_Data,
+            Content_Type => Content_Type,
+            Attachments  => Attachments);
+      end if;
    end Post;
 
    ---------
