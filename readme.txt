@@ -118,6 +118,12 @@ Here are the main changes since AWS 1.4 :
      uncompressed file if it exists otherwise it will return a decompressed
      version of the file using a decompression stream.
 
+   - New dispatcher based on time. It is possible to select specific callback
+     routines depending on time. A time dispatcher is activated at a certain
+     period in time, there is a Once period (this is unique in time) and
+     Yearly, Monthly, Daily, Weekly, Hourly and Minutely periods to build
+     events that repeats periodically.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
