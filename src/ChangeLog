@@ -1,3 +1,9 @@
+2004-09-23  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-ssl.adb:
+	(Initialize): Check if certificate filename is present, raise an
+	 exception with clear error message if not.
+
 2004-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-generic_sets.ads:
