@@ -158,7 +158,7 @@ adabrowse_apiref: check_api
 
 clean:
 	-rm aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
-          $(APIFILES) *~ *.o *.ali
+          $(APIFILES) *~ *.o *.ali genout
 	-rm style-guide.dvi style-guide.html style-guide.info* \
 		style-guide.log style-guide.ps style-guide.txt
 
