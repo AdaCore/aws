@@ -1,3 +1,8 @@
+2001-09-11  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Shutdown): do nothing if the server has already been shutdown.
+
 2001-09-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-communication-server.adb:
