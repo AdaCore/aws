@@ -167,5 +167,4 @@ implemented:
 
 - Add a non regression test for the Message_Body stream oriented response
 
-- Improve the Web_Mail high level service to be able to reply and to
-  handle CC recipients.
+- Add reply support to the Web_Mail service.
