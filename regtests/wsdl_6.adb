@@ -41,6 +41,15 @@ package body WSDL_6 is
       return V;
    end Echo_Float;
 
+   ----------------------
+   -- Echo_Complex_Rec --
+   ----------------------
+
+   function Echo_Complex_Rec (C_Rec : in Complex_Rec) return Complex_Rec is
+   begin
+      return C_Rec;
+   end Echo_Complex_Rec;
+
    -----------------
    -- Echo_Double --
    -----------------
