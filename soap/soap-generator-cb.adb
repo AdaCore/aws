@@ -41,14 +41,14 @@ package body CB is
      (O    : in out Object;
       Name : in     String)
    is
-      L_Name : constant String := Format_Name (O, Name);
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
       Buffer : String (1 .. 1_024);
       Last   : Natural;
    begin
       --  Spec
 
       Text_IO.New_Line (CB_Ads);
-      Text_IO.Put_Line (CB_Ads, "end " & L_Name & ".Cb;");
+      Text_IO.Put_Line (CB_Ads, "end " & U_Name & ".CB;");
 
       --  Copy SOAP_CB definition now
 
@@ -77,7 +77,7 @@ package body CB is
       --  Body
 
       Text_IO.New_Line (CB_Adb);
-      Text_IO.Put_Line (CB_Adb, "end " & L_Name & ".Cb;");
+      Text_IO.Put_Line (CB_Adb, "end " & U_Name & ".CB;");
    end End_Service;
 
    -------------------
@@ -134,21 +134,22 @@ package body CB is
    is
       pragma Unreferenced (Location, Documentation);
 
-      L_Name : constant String := Format_Name (O, Name);
+      U_Name : constant String := To_Unit_Name (Format_Name (O, Name));
    begin
       --  Spec
 
       Text_IO.Put_Line (CB_Ads, "with AWS.Response;");
-      Text_IO.Put_Line (CB_Ads, "with AWS.Server;");
       Text_IO.Put_Line (CB_Ads, "with AWS.Status;");
       Text_IO.New_Line (CB_Ads);
       Text_IO.Put_Line (CB_Ads, "with SOAP.Dispatchers.Callback;");
       Text_IO.Put_Line (CB_Ads, "with SOAP.Message.Payload;");
       Text_IO.New_Line (CB_Ads);
-      Text_IO.Put_Line (CB_Ads, "package " & L_Name & ".Cb is");
+      Text_IO.Put_Line (CB_Ads, "package " & U_Name & ".CB is");
       Text_IO.New_Line (CB_Ads);
       Text_IO.Put_Line (CB_Ads, "   use AWS;");
       Text_IO.Put_Line (CB_Ads, "   use SOAP;");
+      Text_IO.New_Line (CB_Ads);
+      Text_IO.Put_Line (CB_Ads, "   pragma Style_Checks (Off);");
       Text_IO.New_Line (CB_Ads);
       Text_IO.Put_Line
         (CB_Ads,
@@ -164,17 +165,24 @@ package body CB is
 
       --  Body
 
-      Text_IO.Put_Line (CB_Adb, "with SOAP.Client;");
       Text_IO.Put_Line (CB_Adb, "with SOAP.Message.Response.Error;");
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "with " & To_String (O.Types_Spec) & ";");
       Text_IO.New_Line (CB_Adb);
-      Text_IO.Put_Line (CB_Adb, "with " & L_Name & ".Server;");
-      Text_IO.Put_Line (CB_Adb, "with " & L_Name & ".Types;");
+      Text_IO.Put_Line (CB_Adb, "with " & U_Name & ".Server;");
+      Text_IO.Put_Line (CB_Adb, "with " & U_Name & ".Types;");
       Text_IO.New_Line (CB_Adb);
-      Text_IO.Put_Line (CB_Adb, "package body " & L_Name & ".Cb is");
+      Text_IO.Put_Line (CB_Adb, "package body " & U_Name & ".CB is");
       Text_IO.New_Line (CB_Adb);
       Text_IO.Put_Line (CB_Adb, "   use SOAP;");
+      Text_IO.New_Line (CB_Adb);
+      Text_IO.Put_Line (CB_Adb,
+                        "   pragma Warnings (Off, " & U_Name & ".Server);");
+      Text_IO.Put_Line (CB_Adb,
+                        "   pragma Warnings (Off, " & U_Name & ".Types);");
+      Text_IO.New_Line (CB_Adb);
+      Text_IO.Put_Line (CB_Adb, "   pragma Style_Checks (Off);");
+      Text_IO.New_Line (CB_Adb);
 
       --  Tmp body
 
