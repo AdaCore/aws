@@ -510,6 +510,24 @@ package body Ada2WSDL.Parser is
          procedure Analyse_Field (Component : in Asis.Element);
          --  Analyse a field from the record
 
+         procedure Analyse_Array_Component (Component : in Asis.Element);
+         --  Analyse an array component
+
+         -----------------------------
+         -- Analyse_Array_Component --
+         -----------------------------
+
+         procedure Analyse_Array_Component (Component : in Asis.Element) is
+            E : constant Asis.Element
+              := Declarations.Corresponding_First_Subtype
+                (Expressions.Corresponding_Name_Declaration
+                     (Definitions.Subtype_Mark
+                          (Definitions.Component_Subtype_Indication
+                               (Component))));
+         begin
+            Analyse_Type (E);
+         end Analyse_Array_Component;
+
          -------------------
          -- Analyse_Field --
          -------------------
@@ -697,6 +715,8 @@ package body Ada2WSDL.Parser is
                     (Name,
                      Image (Text.Element_Image (E)),
                      Array_Len);
+
+                  Analyse_Array_Component (E);
                end;
 
             when An_Unconstrained_Array_Definition =>
@@ -706,6 +726,8 @@ package body Ada2WSDL.Parser is
                Generator.Start_Array
                  (Name,
                   Image (Text.Element_Image (E)));
+
+               Analyse_Array_Component (E);
 
             when A_Derived_Type_Definition =>
 
@@ -751,6 +773,8 @@ package body Ada2WSDL.Parser is
                                 (Name,
                                  Image (Text.Element_Image (Comp)),
                                  Array_Len);
+
+                              Analyse_Array_Component (Comp);
                            end if;
                            return;
                         end;
@@ -802,6 +826,7 @@ package body Ada2WSDL.Parser is
                              (Name,
                               Image (Text.Element_Image (Comp)),
                               Array_Len);
+                           Analyse_Array_Component (Comp);
                         end if;
                      end;
                   end if;
@@ -1330,10 +1355,31 @@ package body Ada2WSDL.Parser is
    -----------------------
 
    function Register_Deferred (E : in Asis.Declaration) return String is
+
+      function Deferred_Registered return Boolean;
+      --  Returns True if the deferred type E has already been registered
+
       Name : constant String
         := Image (Text.Element_Image (Declarations.Names (E) (1)));
+
+      -------------------------
+      -- Deferred_Registered --
+      -------------------------
+
+      function Deferred_Registered return Boolean is
+      begin
+         for K in 1 .. Index loop
+            if Name = Image (Text.Element_Image
+                               (Declarations.Names (Deferred_Types (K)) (1)))
+            then
+               return True;
+            end if;
+         end loop;
+         return False;
+      end Deferred_Registered;
+
    begin
-      if not Generator.Type_Exists (Name) then
+      if not Deferred_Registered and then not Generator.Type_Exists (Name) then
          Index := Index + 1;
          Deferred_Types (Index) := E;
       end if;
