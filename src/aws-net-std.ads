@@ -82,7 +82,6 @@ package AWS.Net.Std is
    procedure Send
      (Socket : in Socket_Type;
       Data   : in Stream_Element_Array);
-   pragma Inline (Send);
 
    function Receive
      (Socket : in Socket_Type;
