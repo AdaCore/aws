@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -35,6 +35,7 @@ with Ada.Exceptions;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+with Ada.Unchecked_Conversion;
 
 with Table_Of_Static_Keys_And_Dynamic_Values_G;
 
@@ -868,6 +869,50 @@ package body AWS.Session is
          Database.Unlock;
          raise;
    end For_Every_Session_Data;
+
+   ------------------
+   -- Generic_Data --
+   ------------------
+
+   package body Generic_Data is
+
+      subtype Data_Img is String (1 .. Data'Size / 8);
+      --  Data_Img is used to store a Data object as a String
+
+      function To_Data is new Unchecked_Conversion (Data_Img, Data);
+      --  Convert from Data_Img to Data
+
+      function To_Data_Img is new Unchecked_Conversion (Data, Data_Img);
+      --  Convert from Data to Data_Img
+
+      ---------
+      -- Get --
+      ---------
+
+      function Get (SID : in ID; Key : in String) return Data is
+         Result : constant String := Get (SID, Key);
+      begin
+         if Result = "" then
+            return Null_Data;
+         else
+            return To_Data (Result);
+         end if;
+      end Get;
+
+      ---------
+      -- Set --
+      ---------
+
+      procedure Set
+        (SID   : in ID;
+         Key   : in String;
+         Value : in Data) is
+
+      begin
+         Set (SID, Key, To_Data_Img (Value));
+      end Set;
+
+   end Generic_Data;
 
    ---------
    -- Get --
