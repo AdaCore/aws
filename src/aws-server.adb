@@ -267,7 +267,7 @@ package body AWS.Server is
                Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
                Slots.Set_Abortable (Slot_Index, True);
 
-               Protocol_Handler (Sock, Cb, Slots, Slot_Index);
+               Protocol_Handler (Sock, CB, Slots, Slot_Index);
 
             exception
 
@@ -276,7 +276,7 @@ package body AWS.Server is
                --  We have here a pool of Line and each line is recycled when
                --  needed.
 
-               when Sockets.Connection_Closed =>
+               when Sockets.Connection_Closed | Connection_Error =>
                   Text_IO.Put_Line ("Connection time-out, close it.");
 
                when E : others =>
