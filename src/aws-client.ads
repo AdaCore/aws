@@ -188,7 +188,13 @@ package AWS.Client is
       Timeouts    : in     Timeouts_Values := No_Timeout;
       Server_Push : in     Boolean         := False);
    --  Create a new connection. This is to be used with Keep-Alive client API
-   --  below. The request will be tried Retry time if it fails.
+   --  below. The connection will be tried Retry times if it fails. If
+   --  persistent is True the connection will remain open otherwise it will be
+   --  closed after each request. User/Pwd are the server authentication info,
+   --  Proxy is the name of the proxy server to use, Proxy_USer/Proxy_Pwd are
+   --  the proxy authentication data. Timeouts are the send/receive timeouts
+   --  for each request. If Server_Push is True the connection will be used to
+   --  push information to the client.
 
    procedure Set_WWW_Authentication
      (Connection : in out HTTP_Connection;
