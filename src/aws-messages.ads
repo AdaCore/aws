@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -110,6 +110,8 @@ package AWS.Messages is
    Cookie_Token              : constant String := "Cookie";
    Set_Cookie_Token          : constant String := "Set-Cookie";
    SOAPAction_Token          : constant String := "SOAPAction";
+   Content_Transfer_Encoding_Token : constant String
+     := "Content-Transfer-Encoding";
 
    -----------------
    -- Status Code --
