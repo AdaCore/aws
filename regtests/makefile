@@ -70,8 +70,13 @@ SRC_WSDL_ATESTS    = ${addsuffix .adb, $(WSDL_ATESTS)}
 SRC_WSDL2AWS_TESTS = ${addsuffix .adb, $(WSDL2AWS_TESTS)}
 SRC_SPEC_TESTS	   = ${addsuffix .adb, $(SPEC_TESTS)}
 
+ifeq (${EXTRA_TESTS}, false)
+FILTER_OUT	= test_speed.adb
+endif
+
 S_TOGETHER	= $(sort $(TESTS) $(SRC_WSDL_TESTS) $(SRC_WSDL_ATESTS))
-F_TOGETHER 	= $(filter-out $(SRC_SPEC_TESTS) generate.adb, $(S_TOGETHER))
+F_TOGETHER 	= $(filter-out $(FILTER_OUT) $(SRC_SPEC_TESTS) \
+			generate.adb, $(S_TOGETHER))
 TOGETHER 	= $(basename $(F_TOGETHER))
 
 force:
