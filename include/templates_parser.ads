@@ -107,6 +107,10 @@ package Templates_Parser is
    function Size (Vect : in Vector_Tag) return Natural;
    --  Returns the number of value into Vect.
 
+   function Item (Vect : in Vector_Tag; N : in Positive) return String;
+   --  Returns the Nth Vector Tag's item. Raises Constraint_Error if there is
+   --  no such Item in the vector (i.e. vector length < N).
+
    ----------------
    -- Matrix Tag --
    ----------------
