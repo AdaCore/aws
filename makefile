@@ -22,10 +22,6 @@ ADASOCKETS = /usr/Ada.Libraries/adasockets
 # comment out XMLADA if you don't want to build with SOAP support.
 
 #XMLADA	 = /usr/Ada.Libraries/XMLada
-# v_XMLADA is the XMLAda version. This string must start with a minus sign.
-# Leave it empty is the libraries (.a) installed on your system does not have
-# a version prefix.
-v_XMLADA = -0.7
 
 # AWS will be installed under $(INSTALL)/AWS
 INSTALL	 = $(HOME)
@@ -37,10 +33,10 @@ endif
 
 ifdef XMLADA
 INCLUDES := -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib $(INCLUDES)
-LIB_DOM  = -lxmlada_dom$(v_XMLADA)
-LIB_UNIC = -lxmlada_unicode$(v_XMLADA)
-LIB_SAX  = -lxmlada_sax$(v_XMLADA)
-LIB_IS   = -lxmlada_input_sources$(v_XMLADA)
+LIB_DOM  = -lxmlada_dom
+LIB_UNIC = -lxmlada_unicode
+LIB_SAX  = -lxmlada_sax
+LIB_IS   = -lxmlada_input_sources
 LIBS	 := -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX) $(LIBS)
 endif
 
@@ -197,7 +193,7 @@ else
 endif
 	echo "Install directory     : " $(INSTALL)
 ifdef XMLADA
-	echo "XMLada activated      : " $(XMLADA) - XMLada$(v_XMLADA)
+	echo "XMLada activated      : " $(XMLADA)
 else
 	echo "XMLada not activate, SOAP will not be built"
 endif
@@ -224,7 +220,7 @@ build_tarball:
 	mkdir $${AWS}/ssl; \
 	mkdir $${AWS}/win32; \
 	mkdir $${AWS}/tools; \
-	cp AUTHORS makefile makefile.conf readme.txt $${AWS};\
+	cp INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	cp src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
 	cp demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
 	cp demos/[shrw]*.ads demos/[ahmrstvw]*.adb $${AWS}/demos;\
@@ -238,7 +234,7 @@ build_tarball:
 	cp docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
 	cp -r docs/html/* $${AWS}/docs/html;\
 	cp win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
-	cp win32/aws.ico win32/aws.rc $${AWS}/win32;\
+	cp win32/aws.ico win32/aws.rc win32/wldap32.def $${AWS}/win32;\
 	cp ssl/*.ad[sb] ssl/ChangeLog ssl/makefile $${AWS}/ssl;\
 	cp include/*.ad[sb] include/makefile $${AWS}/include;\
 	cp include/readme.txt $${AWS}/include;\
