@@ -1,3 +1,10 @@
+2004-12-22  Pascal Obry  <pascal@obry.net>
+
+	* templates_parser.adb:
+	(Check) [Include_Parameters]: New function.
+	(Get_Max_Lines): Properly check the include parameters. This fix
+	 handling of include tag statement inside a table tag statement.
+
 2004-12-18  Pascal Obry  <pascal@obry.org>
 
 	* aws-session.ads:
