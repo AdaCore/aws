@@ -1,3 +1,74 @@
+2001-04-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): set to 0.9.11.
+
+	* aws-server.adb:
+	(Increment_Slot_Activity_Counter): new procedure.
+
+	* aws-server.ads:
+	(Slot): add Slot_Activity_Counter.
+	(Increment_Slot_Activity_Counter): new procedure.
+
+	* aws-server-protocol_handler.adb:
+	Set increment slot activity counter.
+	Fix check for "close" connection (if not keep-alive).
+
+	* aws-server-get_status.adb:
+	Add handling of slot activity counter.
+
+	* aws-messages.ads, aws-messages.adb:
+	(Does_Not_Match): new function.
+
+	* aws-client.adb:
+	(Disconnect): use proper order for Is_Math parameters.
+	(Put): idem.
+	
+	* aws-server-protocol_handler.adb:
+	(Will_Close): new boolean.
+	(Header_Date_Serv): removed.
+	(Send_Connection): removed.
+	(Send_General_Header): new procedure implementing
+	 Header_Date_Servname and Send_Connection.
+	(Protocol_Handler): set Will_Close before answerting to the client
+	 to be sure that we are sending the "close" request before
+	 actually closing the socket (Fix from Dmitriy Anisimkov). This
+	 patch will certainly fix problem with hanging browser, waiting
+	 for an answer from the server.
+
+2001-04-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Minor reformating.
+	(Answer_To_Client): Use URL API instead of Moved.
+	(Send_File): let Name_Error propagate outside of the routine.
+
+	* aws-hotplug-get_status.adb:
+	Many changes to use new Templates_Parser API.
+
+	* aws-server-get_status.adb:
+	Lot of changes to use new Templates_Parser API.
+
+	* aws-response.adb:
+	(URL): new function.
+
+	* aws-response.ads:
+	(URL): new function.
+	Minor reformating.
+
+	* aws-mime.adb: 
+	Minor reformating.
+
+2001-03-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net.ads:
+	Minor style update.
+
+	* aws-net-ssl.adb:
+	(Init): do not propagate Lib_Error exception if the default
+	 certificate has not been found. The certificate could be selected
+	 by users later.
+
 2001-03-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
