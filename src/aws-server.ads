@@ -37,6 +37,7 @@ with Ada.Finalization;
 with AWS.Config;
 with AWS.Default;
 with AWS.Dispatchers;
+with AWS.Exceptions;
 with AWS.Hotplug;
 with AWS.Log;
 with AWS.Net.Std;
@@ -44,12 +45,6 @@ with AWS.Response;
 with AWS.Utils;
 
 package AWS.Server is
-
-   Def_Admin_URI       : String renames Default.Admin_URI;
-   Def_Upload_Dir      : String renames Default.Upload_Directory;
-   Def_Max_Connect     : constant := Default.Max_Connection;
-   Def_Port            : constant := Default.Server_Port;
-   Def_Line_Stack_Size : constant := Default.Line_Stack_Size;
 
    type HTTP is limited private;
    --  A Web server.
@@ -86,16 +81,17 @@ package AWS.Server is
      (Web_Server                : in out HTTP;
       Name                      : in     String;
       Callback                  : in     Response.Callback;
-      Max_Connection            : in     Positive     := Def_Max_Connect;
-      Admin_URI                 : in     String       := Def_Admin_URI;
-      Port                      : in     Positive     := Def_Port;
-      Security                  : in     Boolean      := False;
-      Session                   : in     Boolean      := False;
-      Case_Sensitive_Parameters : in     Boolean      := True;
-      Upload_Directory          : in     String       := Def_Upload_Dir;
-      Line_Stack_Size           : in     Positive     := Def_Line_Stack_Size);
-   --  Start the Web server. It initialize the Max_Connection connections
-   --  lines. Name is just a string used to identify the server. This is used
+      Max_Connection            : in     Positive  := Default.Max_Connection;
+      Admin_URI                 : in     String    := Default.Admin_URI;
+      Port                      : in     Positive  := Default.Server_Port;
+      Security                  : in     Boolean   := False;
+      Session                   : in     Boolean   := False;
+      Case_Sensitive_Parameters : in     Boolean   := True;
+      Upload_Directory          : in     String    := Default.Upload_Directory;
+      Line_Stack_Size           : in     Positive  := Default.Line_Stack_Size);
+   --  Start the Web server. Max_Connection is the number of simultaneous
+   --  connections the server's will handle (the number of slots in AWS).
+   --  Name is just a string used to identify the server. This is used
    --  for example in the administrative page. Admin_URI must be set to enable
    --  the administrative status page. Callback is the procedure to call for
    --  each resource requested. Port is the Web server port. If Security is
@@ -128,25 +124,12 @@ package AWS.Server is
    -- Server configuration --
    --------------------------
 
-   type Unexpected_Exception_Handler is access
-     procedure (E           : in     Ada.Exceptions.Exception_Occurrence;
-                Termination : in     Boolean;
-                Answer      : in out Response.Data);
-   --  Unexpected exception handler can be set to monitor server errors.
-   --  Termination is set to true if the line has been terminated. It means
-   --  that this is an AWS's fatal error. One of the line handling
-   --  simultaneous connection is broken. The server could still be working
-   --  but less efficiently. This is clearly an AWS internal error that should
-   --  be fixed in AWS. Answer will be used only if Termination is False, this
-   --  will be the answer sent back to the client, it is a way to send an
-   --  application level message.
-
    function Config (Web_Server : in HTTP) return AWS.Config.Object;
    --  Returns configuration object for Web_Server.
 
    procedure Set_Unexpected_Exception_Handler
      (Web_Server : in out HTTP;
-      Handler    : in     Unexpected_Exception_Handler);
+      Handler    : in     Exceptions.Unexpected_Exception_Handler);
    --  Set the unexpected exception handler. It is called whenever an
    --  unrecoverable error has been detected. The default handler just display
    --  (on standard output) an error message with the location of the
@@ -167,9 +150,9 @@ package AWS.Server is
    --  before starting the first secure server. After that the call will have
    --  no effect.
 
-   ----------------
-   -- Server Log --
-   ----------------
+   -----------------
+   -- Server Logs --
+   -----------------
 
    procedure Start_Log
      (Web_Server      : in out HTTP;
@@ -180,14 +163,24 @@ package AWS.Server is
    procedure Stop_Log (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log.
 
+   procedure Start_Error_Log
+     (Web_Server      : in out HTTP;
+      Split_Mode      : in     Log.Split_Mode := Log.None;
+      Filename_Prefix : in     String         := "");
+   --  Activate server's logging activity. See AWS.Log.
+
+   procedure Stop_Error_Log (Web_Server : in out HTTP);
+   --  Stop server's logging activity. See AWS.Log.
+
    type HTTP_Access is access all HTTP;
 
 private
 
    procedure Default_Unexpected_Exception_Handler
-     (E           : in     Ada.Exceptions.Exception_Occurrence;
-      Termination : in     Boolean;
-      Answer      : in out Response.Data);
+     (E      : in     Ada.Exceptions.Exception_Occurrence;
+      Log    : in out AWS.Log.Object;
+      Error  : in     Exceptions.Data;
+      Answer : in out Response.Data);
    --  Default unexpected exception handler.
 
    ------------
@@ -393,6 +386,9 @@ private
       Log               : AWS.Log.Object;
       --  Loggin support.
 
+      Error_Log         : aliased AWS.Log.Object;
+      --  Error loggin support.
+
       Dispatcher        : Dispatchers.Handler_Class_Access;
       --  Dispatcher for the user actions.
 
@@ -409,7 +405,7 @@ private
       --  Information about each tasks above. This is a protected object to
       --  support concurrency.
 
-      Exception_Handler : Unexpected_Exception_Handler
+      Exception_Handler : Exceptions.Unexpected_Exception_Handler
          := Default_Unexpected_Exception_Handler'Access;
       --  Exception handle used for unexpected errors found on the server
       --  implementation.
