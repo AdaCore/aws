@@ -1,0 +1,71 @@
+Start main, wait for server to start...
+Server started
+
+N  =  0
+p1 = 
+p2 = 
+=> simple ok
+
+N  =  2
+p1 = 8
+p2 = azerty qwerty
+=> simple ok
+
+N  =  2
+p1 = azerty qwerty
+p2 = 8
+=> simple ok
+
+Unknown URI /doesnotexist
+=> /doesnotexist not found
+
+N  =  16
+p1 = 1
+p2 = 2
+ 1 name  = p1
+ 1 value = 1
+ 2 name  = p2
+ 2 value = 2
+ 3 name  = p3
+ 3 value = 3
+ 4 name  = p4
+ 4 value = 4
+ 5 name  = p5
+ 5 value = 5
+ 6 name  = p6
+ 6 value = 6
+ 7 name  = p7
+ 7 value = 7
+ 8 name  = p8
+ 8 value = 8
+ 9 name  = p9
+ 9 value = 9
+ 10 name  = p10
+ 10 value = 10
+ 11 name  = p11
+ 11 value = 11
+ 12 name  = p12
+ 12 value = 12
+ 13 name  = p13
+ 13 value = 13
+ 14 name  = p14
+ 14 value = 14
+ 15 name  = p15
+ 15 value = 15
+ 16 name  = very_long_name_in_a_get_form
+ 16 value = alongvalueforthistest
+=> complex ok
+
+N   =  5
+par = 1
+par = 2
+par = 3
+par = 4
+par = whatever
+=> multiple ok
+
+N  =  2
+p1 = 8
+p2 = azerty qwerty
+=> simple ok
+
