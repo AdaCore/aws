@@ -46,10 +46,8 @@ project Demos_SSL is
    for Source_Files use Mains;
 
    case Demos_Shared.Socket is
-      when "ssl" =>
-         for Main use Mains;
-      when "std" =>
-         for Main use ();
+      when "ssl" => for Main use Mains;
+      when "std" => for Main use ();
    end case;
 
    case Shared.Build is
