@@ -48,7 +48,7 @@ package AWS.Response is
    type Data is private;
    --  Note that this type use a reference counter which is not thread safe.
 
-   type Data_Mode is (Header, Message, File, Socket_Taken);
+   type Data_Mode is (Header, Message, File, Socket_Taken, No_Data);
 
    Default_Moved_Message : constant String :=
      "Page moved<br><a href=""_@_"">Click here</a>";
@@ -121,6 +121,12 @@ package AWS.Response is
    --  inside of user callback. No operations should be performed on this
    --  socket, and associated slot should be released for further operations.
 
+   function Empty return Data;
+   --  Returns an empty message (Data_Mode = No_Data and Status_Code is 204).
+   --  It is used to say that user's handlers were not able to something with
+   --  the request. This is used by the callback's chain in the dispatcher and
+   --  should not be used by users.
+
    ---------------
    -- Other API --
    ---------------
@@ -169,7 +175,7 @@ private
 
    type Data is new Ada.Finalization.Controlled with record
       Ref_Counter    : Natural_Access;
-      Mode           : Data_Mode;
+      Mode           : Data_Mode := No_Data;
       Status_Code    : Messages.Status_Code;
       Content_Length : Natural;
       Content_Type   : Unbounded_String;
