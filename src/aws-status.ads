@@ -163,24 +163,13 @@ package AWS.Status is
    --  Returns the socket used to transfert data between the client and
    --  server.
 
-   function URI
-     (D              : in Data;
-      Check_Validity : in Boolean := True;
-      Normalize      : in Boolean := False)
-      return String;
+   function URI (D : in Data) return String;
    pragma Inline (URI);
-   --  Returns the requested resource. If Check_Validity is True
-   --  AWS.URL.URL_Error will be raised if the URI reference a directory above
-   --  the Web root directory. If Normalize is True, references to parent
-   --  directories ".." and current directory "." are removed.
+   --  Returns the requested resource.
 
-   function URI
-     (D              : in Data;
-      Check_Validity : in Boolean := True;
-      Normalize      : in Boolean := False)
-      return URL.Object;
+   function URI (D : in Data) return URL.Object;
    pragma Inline (URI);
-   --  As above but return an URL object, moreover this URL can be normalized.
+   --  As above but return an URL object.
 
    function User_Agent             (D : in Data) return String;
    pragma Inline (User_Agent);
