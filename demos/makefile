@@ -2,7 +2,7 @@
 # $Id$
 
 .SILENT: all auth runme agent ws wps clean soap hotplug com_1 com_2 hello_world
-.SILENT: main build_soap vh_demo dispatch text_input res_demo
+.SILENT: main build_soap vh_demo dispatch text_input res_demo test_ldap
 
 GFLAGSY = $(patsubst -gnatwe -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GFLAGS))
 # We do not want to check for separate spec for the demos (s option).
@@ -10,7 +10,7 @@ GFLAGSY = $(patsubst -gnatwe -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GF
 ifeq ($(MODE),ssl)
 # With SSL support
 
-GARGS = $(GFLAGSY) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
+GARGS = -m $(GFLAGSY) -i -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
@@ -22,7 +22,7 @@ endif
 else
 # Without SSL support
 
-GARGS = $(GFLAGSY) -i -I../src -I../include -I../soap $(INCLUDES)
+GARGS = -m $(GFLAGSY) -i -I../src -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
 ifeq (${OS}, Windows_NT)
