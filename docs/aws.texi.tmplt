@@ -25,7 +25,6 @@
 
 @finalout
 
-@ifinfo
 @node Top
 @top Ada Web Server
 
@@ -39,7 +38,6 @@
 * References::
 * Index::
 @end menu
-@end ifinfo
 
 @contents
 
@@ -83,13 +81,11 @@ a very good and Open Source SSL implementation.
 @node How to build it ?
 @chapter How to build it ?
 
-@ifinfo
 @menu
 * Requirements::
 * AWS.OS_Lib::
 * Building::
 @end menu
-@end ifinfo
 
 @node Requirements
 @section Requirements
@@ -219,7 +215,6 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 @node How to use it ?
 @chapter How to use it ?
 
-@ifinfo
 @menu
 * Basic notion::
 * Configuration files::
@@ -228,21 +223,19 @@ the include path for the libraries @code{POSIX}, @code{OpenSSL} and
 * Client side::
 * Communication::
 * Hotplug module::
+* Server Push::
 * Server Log::
 @end menu
-@end ifinfo
 
 @node Basic notion
 @section Basic notion
 
-@ifinfo
 @menu
 * Building an AWS server::
 * Callback procedure::
 * Form parameters::
 * Distribution of an AWS server::
 @end menu
-@end ifinfo
 
 @noindent
 @code{AWS} is not a Web Server like @i{IIS} or @i{Apache}, it is a component to
@@ -1045,12 +1038,10 @@ example. Look at the @code{agent} program in the @code{demos} directory.
 @cindex Communication
 @cindex Sending message
 
-@ifinfo
 @menu
 * Communication - client side::
 * Communication - server side::
 @end menu
-@end ifinfo
 
 @noindent
 This API is used to do communication between programs using the HTTP
@@ -1139,12 +1130,10 @@ Note that this communication API is used by the Hotplug module facility
 @section Hotplug module
 @cindex hotplug
 
-@ifinfo
 @menu
 * Hotplug module - creation::
 * Hotplug module - server activation::
 @end menu
-@end ifinfo
 
 @noindent
 An @b{Hotplug module} is a module that can by dynamically binded to a
@@ -1469,7 +1458,6 @@ Jean-Fran@,cois Rameau.
 @node AWS API Reference
 @chapter AWS API Reference
 
-@ifinfo
 @menu
 * AWS.Client::
 * AWS.Communication::
@@ -1488,7 +1476,6 @@ Jean-Fran@,cois Rameau.
 * AWS.Session::
 * AWS.Status::
 @end menu
-@end ifinfo
 
 @node AWS.Client
 @section AWS.Client
