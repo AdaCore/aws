@@ -1,3 +1,8 @@
+2002-02-04  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* ssl-thin.ads:
+	(SSL_clear): New routine binded.
+
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
