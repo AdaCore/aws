@@ -54,7 +54,7 @@ all:
 	echo "    install:      install AWS library"
 	echo "    run_regtests: run non regression tests"
 
-EXTRA_TESTS = 1
+EXTRA_TESTS = true
 
 ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
