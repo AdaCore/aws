@@ -30,7 +30,7 @@
 
 with Ada.Strings.Unbounded;
 with Ada.Streams;
-with Interfaces.C.Strings;
+with Interfaces.C;
 
 with Sockets.Thin;
 
