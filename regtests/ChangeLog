@@ -1,3 +1,9 @@
+2003-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* check_mem.adb:
+	Add test for memory leak in the creation of message body from
+	 dynamically allocated data.
+
 2003-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* check_mem.adb:
