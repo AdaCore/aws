@@ -421,6 +421,10 @@ package body AWS.Session is
       begin
          Result := False;
          Update_Value (Sessions, SID);
+
+      exception
+         when Key_Value.Table.Missing_Item_Error =>
+            Result := False;
       end Key_Exist;
 
       -----------------
