@@ -1,3 +1,61 @@
+2001-03-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+
+	* aws-messages.ads:
+	(Authorization): new function.
+	(Host): new function.
+	(Proxy_Connection_Token): new constant.
+	(Proxy_Connection_Range): new subtype.
+	(Proxy_Connection): new function.
+	(Accept_Token): new constant.
+	(Accept_Range): new subtype.
+	(Accept_Type): new function.
+	(Accept_Laguage_Token): new constant.
+	(Accept_Language_Range): new subtype.
+	(Accept_Language): new function.
+	(Proxy_Authorization_Token): new constant.
+	(Proxy_Authorization_Range): new subtype.
+	(User_Agent_Token): new constant.
+	(User_Agent_Range): new subtype.
+	(User_Agent): new function.
+
+	* aws-messages.adb:
+	(Proxy_Connection): new function.
+	(User_Agent): new function.
+	(Accept_Language): new function.
+	(Accept_Type): new function.
+	(Proxy_Connection): new function.
+	(Authorization): new function.
+	(Host): new function.
+	
+	* aws-client.ads, aws-client.adb:
+	(HTTP_Connection): new private type (keep-alive client
+	 implementation, checked-in for Dmitriy Anisimkov)
+	(Create): new procedure.
+	(Get): new procedure.
+	(Head): new procedure.
+	(Put): new procedure
+	(Post): new procedure.
+	(Close): new procedure.
+	(Retry_Defaul): new constant.
+	Improve comments.
+
+2001-03-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Simplify it and add some comments.
+
+2001-02-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Data): Use Content_Length to read POST message
+	 data. Avoid to lost some data.
+
+	* aws-translater.adb: 
+	(Base64_Decode) Fix problem with '=' handling.
+
 2001-01-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
