@@ -11,7 +11,7 @@
 int WSPIAPI_init ()
 {
    //  This routine should be called in Ada elaboration process to initialize
-   //  internal wspiapi.h static data and make subsequent calls thread safety.
+   //  internal wspiapi.h static data and make subsequent calls thread safe.
 
    struct addrinfo Hints;
    struct addrinfo *Addr = NULL;
