@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -39,13 +39,17 @@
 
 with Ada.Calendar;
 with Ada.Exceptions;
+with Ada.Unchecked_Deallocation;
 with Interfaces.C;
 with System.Storage_Elements;
+with System;
 
 with AWS.Net.Std;
 with SSL.Thin;
 
 package body AWS.Net.SSL is
+
+   use Ada;
 
    pragma Linker_Options ("-lnosslaws");
    --  This is the library used to link without SSL support. The symbols there
@@ -57,7 +61,7 @@ package body AWS.Net.SSL is
 
    subtype NSST is Net.Std.Socket_Type;
 
-   procedure Error_If (Error  : in Boolean);
+   procedure Error_If (Error : in Boolean);
    pragma Inline (Error_If);
    --  Raises Socket_Error if Error is true. Attach the SSL error message
 
@@ -70,27 +74,12 @@ package body AWS.Net.SSL is
    procedure Init_Random;
    --  Initialize the SSL library with a random number
 
-   ------------------------------
-   -- Thread safe SSL handling --
-   ------------------------------
-
-   protected TS_SSL is
-
-      procedure Set_FD (Socket : in out Socket_Type);
-      --  Bind the SSL socket handle with the socket
-
-      procedure Initialize
-        (Certificate_Filename : in String;
-         Security_Mode        : in Method := SSLv23;
-         Key_Filename         : in String := "");
-
-      procedure Finalize;
-
-   private
-      Initialized : Boolean      := False;
-      Private_Key : TSSL.RSA     := Null_Ptr;
-      Context     : TSSL.SSL_CTX := Null_Ptr;
-   end TS_SSL;
+   function Verify_Callback
+     (preverify_ok : in Integer;
+      ctx          : in System.Address)
+      return Integer;
+   --  Dummy verify procedure that always return ok. This is needed to be able
+   --  to retreive the client's certificate.
 
    -------------------
    -- Accept_Socket --
@@ -103,7 +92,7 @@ package body AWS.Net.SSL is
       loop
          Net.Std.Accept_Socket (Socket, NSST (New_Socket));
 
-         TS_SSL.Set_FD (New_Socket);
+         New_Socket.Config.Set_FD (New_Socket);
 
          TSSL.SSL_set_accept_state (New_Socket.SSL);
 
@@ -115,7 +104,7 @@ package body AWS.Net.SSL is
          --  Free it before the next use.
 
          TSSL.SSL_free (New_Socket.SSL);
-         New_Socket.SSL := Null_Ptr;
+         New_Socket.SSL := TSSL.Null_Pointer;
       end loop;
 
       Set_Read_Ahead (New_Socket, True);
@@ -137,18 +126,17 @@ package body AWS.Net.SSL is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port);
 
-      TS_SSL.Set_FD (Socket);
+      Socket.Config.Set_FD (Socket);
 
       TSSL.SSL_set_connect_state (Socket.SSL);
 
       if TSSL.SSL_connect (Socket.SSL) = -1 then
          Net.Std.Shutdown (NSST (Socket));
-         Free     (Socket);
+         Free (Socket);
 
          Ada.Exceptions.Raise_Exception
            (Socket_Error'Identity, "Error on SSL connect initation.");
       end if;
-
    end Connect;
 
    --------------
@@ -188,9 +176,9 @@ package body AWS.Net.SSL is
 
    procedure Free (Socket : in out Socket_Type) is
    begin
-      if Socket.SSL /= Null_Ptr then
+      if Socket.SSL /= TSSL.Null_Pointer then
          TSSL.SSL_free (Socket.SSL);
-         Socket.SSL := Null_Ptr;
+         Socket.SSL := TSSL.Null_Pointer;
       end if;
 
       Net.Std.Free (NSST (Socket));
@@ -206,10 +194,10 @@ package body AWS.Net.SSL is
 
       Buf : String
         := Duration'Image
-        (Clock - Time_Of (Year  => Year_Number'First,
-                          Month => Month_Number'First,
-                          Day   => Day_Number'First))
-        & Integer_Address'Image (To_Integer (Init_Random'Address));
+             (Clock - Time_Of (Year  => Year_Number'First,
+                               Month => Month_Number'First,
+                               Day   => Day_Number'First))
+           & Integer_Address'Image (To_Integer (Init_Random'Address));
    begin
       TSSL.RAND_seed (Buf'Address, Buf'Length);
    end Init_Random;
@@ -219,11 +207,19 @@ package body AWS.Net.SSL is
    ----------------
 
    procedure Initialize
-     (Certificate_Filename : in String;
-      Security_Mode        : in Method := SSLv23;
-      Key_Filename         : in String := "") is
+     (Config               : in out SSL.Config;
+      Certificate_Filename : in     String;
+      Security_Mode        : in     Method     := SSLv23;
+      Key_Filename         : in     String     := "";
+      Exchange_Certificate : in     Boolean    := False) is
    begin
-      TS_SSL.Initialize (Certificate_Filename, Security_Mode, Key_Filename);
+      if Config = null then
+         Config := new TS_SSL;
+      end if;
+
+      Config.Initialize
+        (Certificate_Filename, Security_Mode, Key_Filename,
+         Exchange_Certificate);
    end Initialize;
 
    -------------
@@ -242,9 +238,21 @@ package body AWS.Net.SSL is
       Error_If (Len <= 0);
 
       return Buffer
-        (Buffer'First
-           .. Buffer'First - 1 + Stream_Element_Count (Len));
+        (Buffer'First .. Buffer'First - 1 + Stream_Element_Count (Len));
    end Receive;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release (Config : in out SSL.Config) is
+      procedure Free is new Ada.Unchecked_Deallocation (TS_SSL, SSL.Config);
+   begin
+      if Config /= null then
+         Config.Finalize;
+         Free (Config);
+      end if;
+   end Release;
 
    ----------
    -- Send --
@@ -256,6 +264,17 @@ package body AWS.Net.SSL is
    begin
       Error_If (TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length) = -1);
    end Send;
+
+   ----------------
+   -- Set_Config --
+   ----------------
+
+   procedure Set_Config
+     (Socket : in out Socket_Type;
+      Config : in     SSL.Config) is
+   begin
+      Socket.Config := Config;
+   end Set_Config;
 
    --------------------
    -- Set_Read_Ahead --
@@ -290,7 +309,7 @@ package body AWS.Net.SSL is
       procedure Finalize is
       begin
          TSSL.SSL_CTX_free (Context);
-         Context := Null_Ptr;
+         Context := TSSL.Null_Pointer;
       end Finalize;
 
       ----------------
@@ -299,8 +318,9 @@ package body AWS.Net.SSL is
 
       procedure Initialize
         (Certificate_Filename : in String;
-         Security_Mode        : in Method := SSLv23;
-         Key_Filename         : in String := "")
+         Security_Mode        : in Method;
+         Key_Filename         : in String;
+         Exchange_Certificate : in Boolean)
       is
 
          type Meth_Func is access function return TSSL.SSL_Method;
@@ -376,7 +396,7 @@ package body AWS.Net.SSL is
               (Ctx  => Context,
                Cmd  => TSSL.SSL_CTRL_NEED_TMP_RSA,
                Larg => 0,
-               Parg => Null_Ptr) /= 0
+               Parg => TSSL.Null_Pointer) /= 0
             then
                Error_If
                  (TSSL.SSL_CTX_ctrl
@@ -409,19 +429,27 @@ package body AWS.Net.SSL is
                  (Ctx  => Context,
                   Cmd  => TSSL.SSL_CTRL_SET_SESS_CACHE_SIZE,
                   Larg => Interfaces.C.int (Value),
-                  Parg => Null_Ptr) = -1);
+                  Parg => TSSL.Null_Pointer) = -1);
          end Set_Sess_Cache_Size;
 
       begin
          if not Initialized then
-            if Context /= Null_Ptr then
+            if Context /= TSSL.Null_Pointer then
                Finalize;
             end if;
 
             --  Initialize context
 
             Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
-            Error_If (Context = Null_Ptr);
+            Error_If (Context = TSSL.Null_Pointer);
+
+            if Exchange_Certificate then
+               --  Client is requested to send its certificate once
+               TSSL.SSL_CTX_set_verify
+                 (Context,
+                  TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE,
+                  Verify_Callback'Address);
+            end if;
 
             --  Initialize private key
 
@@ -429,9 +457,9 @@ package body AWS.Net.SSL is
               (Bits     => 512,
                E        => TSSL.RSA_F4,
                Callback => null,
-               Cb_Arg   => Null_Ptr);
+               Cb_Arg   => TSSL.Null_Pointer);
 
-            Error_If (Private_Key = Null_Ptr);
+            Error_If (Private_Key = TSSL.Null_Pointer);
 
             Set_Certificate (Certificate_Filename, Key_Filename);
 
@@ -448,9 +476,9 @@ package body AWS.Net.SSL is
 
       procedure Set_FD (Socket : in out Socket_Type) is
       begin
-         if Socket.SSL = Null_Ptr then
+         if Socket.SSL = TSSL.Null_Pointer then
             Socket.SSL := TSSL.SSL_new (Context);
-            Error_If (Socket.SSL = Null_Ptr);
+            Error_If (Socket.SSL = TSSL.Null_Pointer);
          else
             Error_If (TSSL.SSL_clear (Socket.SSL) /= 1);
          end if;
@@ -462,6 +490,20 @@ package body AWS.Net.SSL is
       end Set_FD;
 
    end TS_SSL;
+
+   ---------------------
+   -- Verify_Callback --
+   ---------------------
+
+   function Verify_Callback
+     (preverify_ok : in Integer;
+      ctx          : in System.Address)
+      return Integer
+   is
+      pragma Unreferenced (preverify_ok, ctx);
+   begin
+      return 1;
+   end Verify_Callback;
 
 begin
    TSSL.SSL_load_error_strings;
