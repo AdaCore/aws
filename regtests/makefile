@@ -83,8 +83,7 @@ $(STD_TESTS): force
 	echo ",  run it"
 	rm -f $@.res
 ifdef GDB_REGTESTS
-	gdb --exec=./$@ --command=cmd.gdb --batch > out.gdb
-	mv -f out.gdb $@.res
+	gdb --exec=./$@ --command=cmd.gdb --batch > $@.res
 	cat $@.out > out.tmp
 	echo "" >> out.tmp
 	echo "Program exited normally." >> out.tmp
@@ -183,5 +182,5 @@ clean:
 	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
-	-rm -f alldifs *.log run? check_mem.run? hello_demo* out.gdb out.tmp
+	-rm -f alldifs *.log run? check_mem.run? hello_demo* out.tmp
 	-rm -f stockquoteservice* stock_quote_service*
