@@ -1,3 +1,18 @@
+2001-10-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Get_Response): Fix bug in 404 message handling. The message body
+	 was not read.
+
+	* aws-url.adb:
+	(Parse): correctly set the default port for HTTPS protocol. Checks
+	 for wrong URL starting with "/..".
+	(URL.Port): properly handle default HTTPS port.
+
+	* aws-url.ads:
+	(Default_Port): renamed Default_HTTP_Port.
+	(Default_HTTPS_Port): new constant.
+
 2001-10-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
