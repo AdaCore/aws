@@ -38,6 +38,9 @@ package AWS.Status.Set is
    procedure Reset (D : in out Data);
    --  Reset the status data for a new use.
 
+   procedure Free (D : in out Data);
+   --  Free all internaly allocated memeory.
+
    procedure Authorization (D             : in out Data;
                             Authorization : in     String);
    --  Set value for "Authorization:" parameter

@@ -178,6 +178,19 @@ package body AWS.Status.Set is
    end Content_Type;
 
    ----------
+   -- Free --
+   ----------
+
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Stream_Element_Array, Stream_Element_Array_Access);
+
+   procedure Free (D : in out Data) is
+   begin
+      Free (D.Binary_Data);
+      AWS.Parameters.Set.Free (D.Parameters);
+   end Free;
+
+   ----------
    -- Host --
    ----------
 
@@ -281,10 +294,6 @@ package body AWS.Status.Set is
    -----------
 
    procedure Reset (D : in out Data) is
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Stream_Element_Array, Stream_Element_Array_Access);
-
    begin
       Free (D.Binary_Data);
 
