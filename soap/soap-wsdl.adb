@@ -294,7 +294,7 @@ package body SOAP.WSDL is
       use SOAP.WSDL;
    begin
       case P is
-         when P_Integer   => return "xsd:integer";
+         when P_Integer   => return "xsd:int";
          when P_Float     => return "xsd:float";
          when P_Double    => return "xsd:double";
          when P_Boolean   => return "xsd:boolean";
