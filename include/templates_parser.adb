@@ -40,6 +40,7 @@ with Ada.Unchecked_Deallocation;
 with GNAT.Calendar.Time_IO;
 with AWS.OS_Lib;
 with GNAT.Regexp;
+with GNAT.Regpat;
 
 with Templates_Parser.Input;
 
@@ -199,6 +200,11 @@ package body Templates_Parser is
          --  Returns N copy of the original string. The number of copy is
          --  passed as parameter.
 
+         Replace,
+         --  Replaces part of the string using a regultar expression. This is
+         --  equivalent to the well known "s/<regexp>/<new value>/" sed
+         --  command.
+
          Invert,
          --  Reverse string.
 
@@ -227,10 +233,12 @@ package body Templates_Parser is
          --  If True return Yes, If False returns No, else do nothing.
         );
 
-      type Parameter_Mode is (Void, Str, Regexp, Slice);
+      type Parameter_Mode is (Void, Str, Regexp, Regpat, Slice);
 
       function Parameter (Mode : in Filter.Mode) return Parameter_Mode;
       --  Returns the parameter mode for the given filter.
+
+      type Pattern_Matcher_Access is access GNAT.Regpat.Pattern_Matcher;
 
       type Parameter_Data (Mode : Parameter_Mode := Void) is record
          case Mode is
@@ -244,6 +252,11 @@ package body Templates_Parser is
                R_Str  : Unbounded_String;
                Regexp : GNAT.Regexp.Regexp;
 
+            when Regpat =>
+               P_Str  : Unbounded_String;
+               Regpat : Pattern_Matcher_Access;
+               Param  : Unbounded_String;
+
             when Slice =>
                First : Natural;
                Last  : Natural;
@@ -253,7 +266,11 @@ package body Templates_Parser is
       No_Parameter : constant Parameter_Data := Parameter_Data'(Mode => Void);
 
       function Image (P : in Parameter_Data) return String;
-      --  Returns parameter string representation.
+      --  Returns parameter string representation
+
+      procedure Release (P : in out Parameter_Data);
+      pragma Inline (Release);
+      --  Release all memory allocated P
 
       type Callback is
         access function (S : in String; P : in Parameter_Data := No_Parameter)
@@ -268,6 +285,9 @@ package body Templates_Parser is
 
       type Set is array (Positive range <>) of Routine;
       type Set_Access is access Set;
+
+      procedure Release (S : in out Set);
+      --  Release all memory allocated P
 
       type String_Access is access constant String;
 
@@ -330,6 +350,9 @@ package body Templates_Parser is
         (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
       function Repeat
+        (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
+      function Replace
         (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
       function Reverse_Data
@@ -533,6 +556,31 @@ package body Templates_Parser is
          --  string. Retruns First and Last set to 0 if there is not valid
          --  slice definition in Slice.
 
+         function Find_Slash (Str : in String) return Natural;
+         --  Returns the first slash index in Str, skip espaced slashes
+
+         ----------------
+         -- Find_Slash --
+         ----------------
+
+         function Find_Slash (Str : in String) return Natural is
+            Escaped : Boolean := False;
+         begin
+            for K in Str'Range loop
+               if Str (K) = '\' then
+                  Escaped := not Escaped;
+
+               elsif Str (K) = '/' and not Escaped then
+                  return K;
+
+               else
+                  Escaped := False;
+               end if;
+            end loop;
+
+            return 0;
+         end Find_Slash;
+
          ---------------
          -- Get_Slice --
          ---------------
@@ -601,6 +649,37 @@ package body Templates_Parser is
                                   (F.Regexp,
                                    To_Unbounded_String (Parameter),
                                    GNAT.Regexp.Compile (Parameter)));
+
+                     when F.Regpat =>
+                        declare
+                           K : constant Natural := Find_Slash (Parameter);
+                        begin
+                           if K = 0 then
+                              --  No replacement, this is equivalent to
+                              --  REPLACE(<regexp>/\1)
+                              return (F.Handle (Mode),
+                                      F.Parameter_Data'
+                                        (F.Regpat,
+                                         To_Unbounded_String (Parameter),
+                                         new GNAT.Regpat.Pattern_Matcher'
+                                           (GNAT.Regpat.Compile (Parameter)),
+                                         To_Unbounded_String ("\1")));
+                           else
+                              return (F.Handle (Mode),
+                                      F.Parameter_Data'
+                                        (F.Regpat,
+                                         To_Unbounded_String
+                                           (Parameter
+                                              (Parameter'First .. K - 1)),
+                                         new GNAT.Regpat.Pattern_Matcher'
+                                           (GNAT.Regpat.Compile
+                                              (Parameter
+                                                 (Parameter'First .. K - 1))),
+                                         To_Unbounded_String
+                                           (Parameter
+                                              (K + 1 .. Parameter'Last))));
+                           end if;
+                        end;
 
                      when F.Slice =>
                         declare
@@ -691,10 +770,14 @@ package body Templates_Parser is
    -------------
 
    procedure Release (T : in out Tag) is
+      use type Filter.Set_Access;
       procedure Free is
          new Ada.Unchecked_Deallocation (Filter.Set, Filter.Set_Access);
    begin
-      Free (T.Filters);
+      if T.Filters /= null then
+         Filter.Release (T.Filters.all);
+         Free (T.Filters);
+      end if;
    end Release;
 
    ---------------
@@ -1641,11 +1724,10 @@ package body Templates_Parser is
          return String
       is
          Dir_Seps : constant Maps.Character_Set := Maps.To_Set ("/\");
-
-         K : constant Natural
-           := Index (Include_Filename, Dir_Seps, Going => Strings.Backward);
       begin
-         if K = 1 then
+         if Length (Include_Filename) > 1
+           and then Maps.Is_In (Slice (Include_Filename, 1, 1) (1), Dir_Seps)
+         then
             --  Include filename is an absolute path, return it without the
             --  leading directory separator.
             return Slice (Include_Filename, 2, Length (Include_Filename));
