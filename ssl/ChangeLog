@@ -1,3 +1,10 @@
+2001-05-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl.adb:
+	(New_Line): do not "use" ASCII.
+	(Put_Line): do not "use" ASCII.
+	(Receive): correctly check for closed connection.
+
 2000-08-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl.ads:

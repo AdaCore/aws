@@ -37,9 +37,16 @@ package Templates_Parser is
 
    Template_Error : exception;
 
-   Default_Begin_Tag : constant String := "@@_";
-   Default_End_Tag   : constant String := "_@@";
+   Default_Begin_Tag : constant String := "@_";
+   Default_End_Tag   : constant String := "_@";
+
    Default_Separator : constant String := ", ";
+
+   procedure Set_Tag_Separators
+     (Start_With : in String := Default_Begin_Tag;
+      Stop_With  : in String := Default_End_Tag);
+   --  Set the tag separators for the whole session. This should be changed as
+   --  the very first API call and should not be changed after.
 
    ----------------
    -- Vector Tag --
@@ -133,18 +140,14 @@ package Templates_Parser is
 
    function Assoc
      (Variable  : in String;
-      Value     : in String;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in String)
      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is a string.
 
    function Assoc
      (Variable  : in String;
-      Value     : in Unbounded_String;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in Unbounded_String)
      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is an
@@ -152,9 +155,7 @@ package Templates_Parser is
 
    function Assoc
      (Variable  : in String;
-      Value     : in Integer;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in Integer)
      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is an Integer.
@@ -162,9 +163,7 @@ package Templates_Parser is
 
    function Assoc
      (Variable  : in String;
-      Value     : in Boolean;
-      Begin_Tag : in String    := Default_Begin_Tag;
-      End_Tag   : in String    := Default_End_Tag)
+      Value     : in Boolean)
      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. It set the variable to TRUE or FALSE depending on
@@ -173,9 +172,7 @@ package Templates_Parser is
    function Assoc
      (Variable  : in String;
       Value     : in Vector_Tag;
-      Separator : in String     := Default_Separator;
-      Begin_Tag : in String     := Default_Begin_Tag;
-      End_Tag   : in String     := Default_End_Tag)
+      Separator : in String     := Default_Separator)
      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a vector tag association, value is a
@@ -186,10 +183,13 @@ package Templates_Parser is
    function Assoc
      (Variable  : in String;
       Value     : in Matrix_Tag;
-      Separator : in String     := Default_Separator;
-      Begin_Tag : in String     := Default_Begin_Tag;
-      End_Tag   : in String     := Default_End_Tag)
+      Separator : in String     := Default_Separator)
      return Association;
+   --  Build an Association (Variable = Value) to be added to a
+   --  Translate_Table. This is a matrix tag association, value is a
+   --  Matrix_Tag. If the matrix tag is found outside of a 2nd level table tag
+   --  statement, Separator is used to build string representation of the
+   --  matrix tag's vectors.
 
    -----------------------------
    -- Parsing and Translating --
