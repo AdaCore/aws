@@ -70,8 +70,9 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
             accept Next;
             delay A_Bit;
-            Net.Send (Socket,
-                      (1 .. 10 => Ada.Streams.Stream_Element (J rem 256)));
+            Net.Send
+              (Socket,
+               (1 .. Sample_Size => Ada.Streams.Stream_Element (J rem 256)));
 
             Net.Sets.Add (Set, Socket, Net.Sets.Output);
          end;
@@ -112,8 +113,10 @@ procedure Wait_Proc (Security : Boolean; Port : Positive) is
 
    procedure Set_Small_Buffers (Socket : in out Net.Socket_Type'Class) is
    begin
-      Net.Set_Send_Buffer_Size    (Socket, 64);
-      Net.Set_Receive_Buffer_Size (Socket, 64);
+      if not Security then
+         Net.Set_Send_Buffer_Size    (Socket, 64);
+         Net.Set_Receive_Buffer_Size (Socket, 64);
+      end if;
    end Set_Small_Buffers;
 
    Set    : Net.Sets.Socket_Set_Type;
