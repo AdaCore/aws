@@ -12,8 +12,8 @@ INCLUDES = $(EXTRA_INCLUDES)
 LIBS     = $(EXTRA_LIBS)
 
 ifdef ADASOCKETS
-INCLUDES = -I$(ADASOCKETS)/lib/adasockets $(INCLUDES)
-LIBS     = -L$(ADASOCKETS)/lib -ladasockets $(LIBS)
+INCLUDES := -I$(ADASOCKETS)/lib/adasockets $(INCLUDES)
+LIBS     := -L$(ADASOCKETS)/lib -ladasockets $(LIBS)
 endif
 
 ifdef XMLADA
