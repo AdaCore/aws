@@ -42,6 +42,7 @@ with GNAT.Calendar.Time_IO;
 with AWS;
 with AWS.OS_Lib;
 with AWS.Templates;
+with AWS.Utils;
 with SOAP.Utils;
 with SOAP.WSDL.Parameters;
 
@@ -679,42 +680,77 @@ package body SOAP.Generator is
          --  Is types are to be reused from an Ada  spec ?
 
          if O.Types_Spec = Null_Unbounded_String then
-            Text_IO.Put_Line
-              (Type_Ads, "   type " & F_Name
-                 & " is array (Positive range <>) of "
-                 & To_Ada_Type (T_Name) & ";");
-            Text_IO.Put_Line
-              (Type_Ads, "   type "
-                 & F_Name & "_Access" & " is access all " & F_Name & ';');
+            --  No user's spec, generate all typ definitions
 
-            Text_IO.New_Line (Type_Ads);
-            Text_IO.Put_Line
-              (Type_Ads, "   package " & F_Name & "_Safe_Pointer is");
-            Text_IO.Put_Line
-              (Type_Ads, "      new SOAP.Utils.Safe_Pointers ("
-                 & F_Name & ", " & F_Name & "_Access);");
+            --  Array type
 
-            Text_IO.New_Line (Type_Ads);
-            Text_IO.Put_Line
-              (Type_Ads, "   subtype " & F_Name & "_Safe_Access");
-            Text_IO.Put_Line
-              (Type_Ads, "      is " & F_Name & "_Safe_Pointer.Safe_Pointer;");
+            if P.Length = 0 then
+               --  Unconstrained array
+               Text_IO.Put_Line
+                 (Type_Ads,
+                  "   type " & F_Name & " is array (Positive range <>) of "
+                    & To_Ada_Type (T_Name) & ";");
+            else
+               --  A constrained array
 
-            Text_IO.New_Line (Type_Ads);
-            Text_IO.Put_Line
-              (Type_Ads, "   function ""+""");
-            Text_IO.Put_Line
-              (Type_Ads, "     (O : in " & F_Name & ')');
-            Text_IO.Put_Line
-              (Type_Ads, "      return " & F_Name & "_Safe_Access");
-            Text_IO.Put_Line
-              (Type_Ads, "      renames " & F_Name
-                 & "_Safe_Pointer.To_Safe_Pointer;");
-            Text_IO.Put_Line
-              (Type_Ads, "   --  Convert an array to a safe pointer");
+               Text_IO.Put_Line
+                 (Type_Ads,
+                  "   subtype " & F_Name & "_Index is Positive range 1 .. "
+                    & AWS.Utils.Image (P.Length) & ";");
+               Text_IO.New_Line (Type_Ads);
+               Text_IO.Put_Line
+                 (Type_Ads,
+                  "   type " & F_Name & " is array (" & F_Name & "_Index)"
+                    & " of " & To_Ada_Type (T_Name) & ";");
+            end if;
+
+            --  Access to it
+
+            --  Safe pointer, needed only for unconstrained arrays
+
+            if P.Length = 0 then
+               Text_IO.Put_Line
+                 (Type_Ads, "   type "
+                    & F_Name & "_Access" & " is access all " & F_Name & ';');
+
+               Text_IO.New_Line (Type_Ads);
+               Text_IO.Put_Line
+                 (Type_Ads, "   package " & F_Name & "_Safe_Pointer is");
+               Text_IO.Put_Line
+                 (Type_Ads, "      new SOAP.Utils.Safe_Pointers ("
+                    & F_Name & ", " & F_Name & "_Access);");
+
+               Text_IO.New_Line (Type_Ads);
+               Text_IO.Put_Line
+                 (Type_Ads, "   subtype " & F_Name & "_Safe_Access");
+               Text_IO.Put_Line
+                 (Type_Ads, "      is " & F_Name
+                    & "_Safe_Pointer.Safe_Pointer;");
+
+               Text_IO.New_Line (Type_Ads);
+               Text_IO.Put_Line
+                 (Type_Ads, "   function ""+""");
+               Text_IO.Put_Line
+                 (Type_Ads, "     (O : in " & F_Name & ')');
+               Text_IO.Put_Line
+                 (Type_Ads, "      return " & F_Name & "_Safe_Access");
+               Text_IO.Put_Line
+                 (Type_Ads, "      renames " & F_Name
+                    & "_Safe_Pointer.To_Safe_Pointer;");
+               Text_IO.Put_Line
+                 (Type_Ads, "   --  Convert an array to a safe pointer");
+            end if;
 
          else
             --  Here we have a reference to a spec, just build alias to it
+
+            if P.Length /= 0 then
+               --  This is a constrained array, create the index subtype
+               Text_IO.Put_Line
+                 (Type_Ads,
+                  "   subtype " & F_Name & "_Index is Positive range 1 .. "
+                    & AWS.Utils.Image (P.Length) & ";");
+            end if;
 
             Text_IO.Put_Line
               (Type_Ads, "   subtype " & F_Name & " is "
@@ -729,19 +765,48 @@ package body SOAP.Generator is
          end if;
 
          Text_IO.New_Line (Type_Ads);
-         Text_IO.Put_Line
-           (Type_Ads, "   function To_" & F_Name
-              & " is new SOAP.Utils.To_T_Array");
-         Text_IO.Put_Line
-           (Type_Ads, "     (" & To_Ada_Type (T_Name) & ", "
-              & F_Name & ", " & Get_Routine (P) & ");");
+
+         if P.Length = 0 then
+            Text_IO.Put_Line
+              (Type_Ads, "   function To_" & F_Name
+                 & " is new SOAP.Utils.To_T_Array");
+         else
+            Text_IO.Put_Line
+              (Type_Ads, "   function To_" & F_Name
+                 & " is new SOAP.Utils.To_T_Array_C");
+         end if;
+
+         Text_IO.Put
+           (Type_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
+
+         if P.Length = 0 then
+            Text_IO.Put (Type_Ads, F_Name);
+         else
+            Text_IO.Put (Type_Ads, F_Name & "_Index, " & F_Name);
+         end if;
+
+         Text_IO.Put_Line (Type_Ads, ", " & Get_Routine (P) & ");");
 
          Text_IO.New_Line (Type_Ads);
-         Text_IO.Put_Line
-           (Type_Ads, "   function To_Object_Set"
-              & " is new SOAP.Utils.To_Object_Set");
-         Text_IO.Put_Line
-           (Type_Ads, "     (" & To_Ada_Type (T_Name) & ", " & F_Name & ",");
+
+         if P.Length = 0 then
+            Text_IO.Put_Line
+              (Type_Ads, "   function To_Object_Set"
+                 & " is new SOAP.Utils.To_Object_Set");
+         else
+            Text_IO.Put_Line
+              (Type_Ads, "   function To_Object_Set"
+                 & " is new SOAP.Utils.To_Object_Set_C");
+         end if;
+
+         Text_IO.Put
+           (Type_Ads, "     (" & To_Ada_Type (T_Name) & ", ");
+
+         if P.Length = 0 then
+            Text_IO.Put_Line (Type_Ads, F_Name & ",");
+         else
+            Text_IO.Put_Line (Type_Ads, F_Name & "_Index, " & F_Name & ",");
+         end if;
 
          Text_IO.Put_Line
            (Type_Ads,
