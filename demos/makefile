@@ -21,7 +21,7 @@ ifeq ($(MODE),ssl)
 # With SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS := $(LARGS) -lssl -lcrypto ../lib/aws.coff ../lib/poll.o -lwsock32
+LARGS := $(LARGS) -lssl -lcrypto ../lib/aws.coff -lpoll
 else
 LARGS := $(LARGS) -lssl -lcrypto
 endif
@@ -30,7 +30,7 @@ else
 # Without SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS := $(LARGS) ../lib/poll.o ../lib/aws.coff
+LARGS := $(LARGS) -lpoll ../lib/aws.coff
 endif
 endif
 

@@ -2,6 +2,7 @@
 
 	* makefile:
 	Add linking with lib/poll.o for win32 build mode.
+	Use libpoll.a instead of poll.o for optional linking.
 
 2004-03-23  Pascal Obry  <p.obry@wanadoo.fr>
 
