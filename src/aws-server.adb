@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -191,8 +191,7 @@ package body AWS.Server is
          Text_IO.New_Line (Text_IO.Current_Error);
 
          Text_IO.Put_Line
-           (Text_IO.Current_Error,
-            Exception_Information (E));
+           (Text_IO.Current_Error, Exception_Information (E));
 
       else
          if AWS.OS_Lib.Is_Regular_File (Fatal_Error_Template) then
@@ -322,6 +321,8 @@ package body AWS.Server is
                pragma Warnings (Off, S);
                Answer : Response.Data;
             begin
+               Log.Write (HTTP_Server.Error_Log,
+                          Ada.Exceptions.Exception_Information (E));
                HTTP_Server.Exception_Handler
                  (E, HTTP_Server.Error_Log, (True, Slot_Index, S), Answer);
             end;
