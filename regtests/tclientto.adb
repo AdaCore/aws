@@ -33,6 +33,7 @@
 with Ada.Text_IO;
 with Ada.Exceptions;
 
+with AWS.Net;
 with AWS.Server;
 with AWS.Client;
 with AWS.Status;
@@ -109,19 +110,19 @@ procedure Tclientto is
    procedure Request is
       R : Response.Data;
    begin
-      R := Client.Get ("http://localhost:1235/3sec", Timeouts => (1, 1));
+      R := Client.Get ("http://localhost:1235/3sec", Timeouts => (1.0, 1.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:1235/3sec", Timeouts => (10, 10));
+      R := Client.Get ("http://localhost:1235/3sec", Timeouts => (10.0, 10.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:1235/10sec", Timeouts => (1, 20));
+      R := Client.Get ("http://localhost:1235/10sec", Timeouts => (1.0, 20.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
 
-      R := Client.Get ("http://localhost:1235/10sec", Timeouts => (10, 7));
+      R := Client.Get ("http://localhost:1235/10sec", Timeouts => (10.0, 7.0));
       Put_Line ("=> " & Response.Message_Body (R));
       New_Line;
    end Request;
@@ -137,7 +138,7 @@ procedure Tclientto is
       Client.Create
         (Connection => Connect,
          Host       => "http://localhost:1235",
-         Timeouts   => (0, 5));
+         Timeouts   => (Net.Forever, 5.0));
 
       Client.Get (Connect, R, "/3sec");
       Put_Line ("-> " & Response.Message_Body (R));

@@ -1,3 +1,9 @@
+2004-06-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* auth.adb, head.adb, moved.adb, strm.adb, strm2.adb, tclientto.adb,
+	  unexph.adb, unexph2.adb, xmlt_proc.adb:
+	Fixes related to new timeout type Duration.
+
 2004-06-22  Pascal Obry  <pascal@obry.org>
 
 	* xmlt_proc.adb:

@@ -135,7 +135,7 @@ begin
    Server.Wait_Start;
 
    R := Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/test", Timeouts => (2, 2));
+     ("http://localhost:" & Utils.Image (Port) & "/test", Timeouts => (2.0, 2.0));
 
    Text_IO.Put_Line ("----------------------");
    Text_IO.Put_Line (No_Traceback (Response.Message_Body (R)));
@@ -143,7 +143,7 @@ begin
    Create_500_Tmplt;
 
    R := Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/test", Timeouts => (2, 2));
+     ("http://localhost:" & Utils.Image (Port) & "/test", Timeouts => (2.0, 2.0));
 
    Text_IO.Put_Line ("----------------------");
    Text_IO.Put_Line (Response.Message_Body (R));

@@ -114,13 +114,14 @@ procedure Unexph is
       Ada.Text_IO.Put_Line
         (Ada.Exceptions.Exception_Name (E) & ' '
            & Boolean'Image (Error.Fatal));
-   end;
+   end UEH;
 
 begin
    Server.Wait_Start;
 
    R := Client.Get
-     ("http://localhost:" & Utils.Image (Port) & "/test", Timeouts => (2, 2));
+          ("http://localhost:" & Utils.Image (Port) & "/test",
+           Timeouts => (2.0, 2.0));
 
    Server.Stop;
 
