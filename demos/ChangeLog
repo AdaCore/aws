@@ -1,6 +1,11 @@
 2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	Complete previous check-in.
+
+2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	(LARGS): Add -L../lib for non Windows OS. Fix UNIX build failure.
 
 2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
