@@ -1,3 +1,8 @@
+2003-07-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-jabber.ads, aws-jabber.adb:
+	Moved to ../xsrc.
+
 2003-07-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-embedded.adb:

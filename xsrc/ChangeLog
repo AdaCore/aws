@@ -1,3 +1,8 @@
+2003-07-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-jabber.ads, aws-jabber.adb:
+	Initial revision.
+
 2003-05-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* README:
