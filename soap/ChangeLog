@@ -1,3 +1,13 @@
+2004-07-27  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator-skel.adb:
+	(Start_Service): Generate a pragma Style_Checks off for the body.
+	Needed to avoid warnings for procedure being not in alphabetical order.
+
+	* soap-generator.adb:
+	(Start_Service): Generate a pragma to suppress Warnings in the
+	 type spec. Needed if the type package is not used.
+
 2004-07-11  Pascal Obry  <pascal@obry.org>
 
 	* soap-message-xml.adb:
