@@ -1,5 +1,15 @@
 2001-05-06  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-status.adb:
+	Minor reformating.
+
+	* aws-server.ads:
+	Update comment.
+
+	* aws-response.ads:
+	Minor reformating.
+	Update copyright notice.
+
 	* aws-server-protocol_handler.adb:
 	(Answer_To_Client): Set Peername before calling user's callback.
 
