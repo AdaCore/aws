@@ -568,7 +568,7 @@ is
            := To_String (Status_Multipart_Boundary);
 
          procedure Get_File_Data;
-         --  Read file data from the stream.
+         --  Read file data from the stream
 
          function Target_Filename (Filename : in String) return String;
          --  Returns the full path name for the file as stored on the
@@ -585,11 +585,11 @@ is
             use type Streams.Stream_Element_Array;
 
             function Check_EOF return Boolean;
-            --  Returns True if we have reach the end of file data.
+            --  Returns True if we have reach the end of file data
 
             function End_Boundary_Signature
               return Streams.Stream_Element_Array;
-            --  Returns the end signature string as a element array.
+            --  Returns the end signature string as an element array
 
             Buffer : Streams.Stream_Element_Array (1 .. 4096);
             Index  : Streams.Stream_Element_Offset := Buffer'First;
@@ -622,15 +622,17 @@ is
                     < Get_File_Data.Index + Index - 1
                   then
                      Streams.Stream_IO.Write
-                       (File, Get_File_Data.Buffer
-                        (Get_File_Data.Buffer'First
-                         .. Get_File_Data.Index - 1));
+                       (File,
+                        Get_File_Data.Buffer
+                          (Get_File_Data.Buffer'First
+                             .. Get_File_Data.Index - 1));
                      Get_File_Data.Index := Get_File_Data.Buffer'First;
                   end if;
 
-                  Get_File_Data.Buffer (Get_File_Data.Index
-                                        .. Get_File_Data.Index + Index - 2)
+                  Get_File_Data.Buffer
+                    (Get_File_Data.Index .. Get_File_Data.Index + Index - 2)
                     := Buffer (Buffer'First .. Index - 1);
+
                   Get_File_Data.Index := Get_File_Data.Index + Index - 1;
                end Write_Data;
 
@@ -667,19 +669,9 @@ is
             ----------------------------
 
             function End_Boundary_Signature
-              return Streams.Stream_Element_Array
-            is
-               use Streams;
-               End_Signature    : constant String := Start_Boundary;
-               Stream_Signature : Stream_Element_Array
-                 (Stream_Element_Offset (End_Signature'First)
-                  .. Stream_Element_Offset (End_Signature'Last));
+              return Streams.Stream_Element_Array is
             begin
-               for K in End_Signature'Range loop
-                  Stream_Signature (Stream_Element_Offset (K))
-                    := Stream_Element (Character'Pos (End_Signature (K)));
-               end loop;
-               return Stream_Signature;
+               return Translator.To_Stream_Element_Array (Start_Boundary);
             end End_Boundary_Signature;
 
          begin
@@ -881,7 +873,6 @@ is
 
          if Status.Method (C_Stat) = Status.POST
            and then Status_Content_Type = MIME.Appl_Form_Data
-
          then
             --  Read data from the stream and convert it to a string as
             --  these are a POST form parameters.
@@ -892,9 +883,6 @@ is
 
                Data : Stream_Element_Array
                  (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
-
-               Char_Data : String (1 .. Data'Length);
-               CDI       : Positive := Char_Data'First;
             begin
                Sockets.Receive (Sock, Data);
 
@@ -905,18 +893,13 @@ is
                --  We then decode it and add the parameters read in the
                --  message body.
 
-               for K in Data'Range loop
-                  Char_Data (CDI) := Character'Val (Data (K));
-                  CDI := CDI + 1;
-               end loop;
-
-               AWS.Parameters.Set.Add (P_List, Char_Data);
+               AWS.Parameters.Set.Add (P_List, Translator.To_String (Data));
             end;
 
          elsif Status.Method (C_Stat) = Status.POST
            and then Status_Content_Type = MIME.Multipart_Form_Data
          then
-            --  This is a file upload.
+            --  This is a file upload
 
             File_Upload ("--" & To_String (Status_Multipart_Boundary),
                          "--" & To_String (Status_Multipart_Boundary) & "--",
@@ -925,14 +908,13 @@ is
          elsif Status.Method (C_Stat) = Status.POST
            and then Status.Is_SOAP (C_Stat)
          then
-            --  This is a SOAP request, read and set the Payload XML message.
+            --  This is a SOAP request, read and set the Payload XML message
+
             declare
                use Streams;
 
                Data : Stream_Element_Array
-                 (1
-                  ..
-                  Stream_Element_Offset (Status.Content_Length (C_Stat)));
+                 (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
             begin
                Sockets.Receive (Sock, Data);
 
@@ -947,9 +929,7 @@ is
                use Streams;
 
                Data : Stream_Element_Array
-                 (1
-                  ..
-                  Stream_Element_Offset (Status.Content_Length (C_Stat)));
+                 (1 .. Stream_Element_Offset (Status.Content_Length (C_Stat)));
             begin
                Sockets.Receive (Sock, Data);
                AWS.Status.Set.Binary (C_Stat, Data);
@@ -982,13 +962,14 @@ is
                Next_Line : constant String := Sockets.Get_Line (Sock);
             begin
                if Next_Line /= End_Of_Message
-                 and then
+                    and then
                  (Next_Line (1) = ' ' or else Next_Line (1) = ASCII.HT)
                then
                   --  Continuing value on the next line. Header fields can be
                   --  extended over multiple lines by preceding each extra
                   --  line with at least one SP or HT.
                   Parse_Header_Lines (Line & Next_Line);
+
                else
                   Parse (Line);
                   Parse_Header_Lines (Next_Line);
@@ -1065,8 +1046,8 @@ is
          Status.Set.Content_Length
            (C_Stat,
             Natural'Value
-            (Command (Messages.Content_Length_Token'Length + 1
-                      .. Command'Last)));
+              (Command (Messages.Content_Length_Token'Length + 1
+                          .. Command'Last)));
 
       elsif Messages.Match (Command, Messages.Content_Type_Token) then
          declare
@@ -1102,7 +1083,7 @@ is
          Status.Set.If_Modified_Since
            (C_Stat,
             Command (Messages.If_Modified_Since_Token'Length + 1
-                     .. Command'Last));
+                       .. Command'Last));
 
       elsif Messages.Match
         (Command, Messages.Authorization_Token)
@@ -1126,8 +1107,9 @@ is
 
          begin
             if AWS_Idx /= 0 then
-               Last := Fixed.Index (Cookies (AWS_Idx .. Cookies'Last),
-                                    Maps.To_Set (",;"));
+               Last := Fixed.Index
+                 (Cookies (AWS_Idx .. Cookies'Last), Maps.To_Set (",;"));
+
                if Last = 0 then
                   Last := Cookies'Last;
                else
@@ -1155,7 +1137,6 @@ is
            (C_Stat,
             Command
               (Messages.Referer_Token'Length + 1 .. Command'Last));
-
       end if;
    end Parse;
 
