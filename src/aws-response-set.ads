@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                            Copyright (C) 2002                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -67,9 +67,9 @@ package AWS.Response.Set is
 
    procedure Authentication
      (D     : in out Data;
-      Realm : in String;
-      Mode  : in Authentication_Mode := Basic;
-      Stale : in Boolean             := False);
+      Realm : in     String;
+      Mode  : in     Authentication_Mode := Basic;
+      Stale : in     Boolean             := False);
    pragma Inline (Authentication);
    --  Set the authentication mode requested by server.
    --  Set the status code to the 401.
