@@ -18,8 +18,8 @@ implemented:
 - support standard method encoding under HTTP/1.1 for small files instead of
   the chuncked encoding.
 
-- digest authentification (only basic authentification is supported right
-  now, which is to say no authentification at all :)
+- digest authentication (only basic authentication is supported right
+  now, which is to say no authentication at all :)
 
 - implement multi-server with a dispatcher of request to build server which
   must support a lot of requests. Could be using GLADE or a standard
@@ -38,10 +38,9 @@ implemented:
   session data across the network. Something needed to do load balancing into
   a Web Farm.
 
-- Support SOAP and Web-Service framework. The protocol is quite easy (Simple
-  Object Application Protocol) but an Ada binding is quite hard. It would be
-  nice to be able to generate stub/squeleton from a spec file (this work could
-  reuse the gnatstub ASIS appication).
+- More transparent SOAP support. It would be nice to be able to generate
+  stub/squeleton from a spec file (this work could reuse the gnatstub ASIS
+  appication).
 
 - Will be nice to add all timeouts to the AWS status page.
 
@@ -59,3 +58,9 @@ implemented:
 - Check that the socket layer support SSL when asking for SSL support. At the
   moment we have an exception with a traceback, it would be good to have a
   nice message explaining the problem.
+
+- Would be nice to have an ActiveX component to support Server Push on
+  Internet Explorer.
+
+- The simple page Server callback demo should be put in the AWS.Services
+  hierarchy.
