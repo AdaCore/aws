@@ -468,4 +468,4 @@ ifeq (${OSLIB}, POSIX)
 endif
 	echo 'end Config;' >> $(BDIR)/config.gpr
 
-setup: setup_dir setup_config $(GEXT_MODULE) $(MODULES_SETUP)
+setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP) setup_config
