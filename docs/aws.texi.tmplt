@@ -1430,12 +1430,12 @@ two routines are available.
 @sp 1
 
 @table @code
-@item AWS.Server.Push.Data_For
-@cindex Data_For
+@item AWS.Server.Push.Send_To
+@cindex Send_To
 To send a piece of data to a specific client identified by its client ID.
 
-@item AWS.Server.Push.Broadcast
-@cindex Broadcast
+@item AWS.Server.Push.Send
+@cindex Send
 To send a piece of data to all clients registered on this server.
 
 @end table
