@@ -110,7 +110,8 @@ package AWS.Response is
 
    function File
      (Content_Type : in String;
-      Filename     : in String)
+      Filename     : in String;
+      Status_Code  : in Messages.Status_Code := Messages.S200)
      return Data;
    --  Returns a message whose message body is the content of the file. The
    --  Content_Type must indicate the MIME type for the file.
