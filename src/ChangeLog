@@ -1,5 +1,23 @@
 2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-streams-memory-zlib-inflate.ads,
+	  aws-resources-streams-memory-zlib-inflate.adb,
+	  aws-resources-streams-memory-zlib-deflate.ads,
+	  aws-resources-streams-memory-zlib-deflate.adb:
+	(Init): Renamed to Initialize.
+
+	* aws-response-set.adb:
+	(Filename): Fix layout.
+
+	* aws-response.adb:
+	(File): Remove exception handler, not needed anymore.
+
+	* aws-translator.adb:
+	(Compress): Rename Init to Initialize.
+	(Decompress): Rename Init to Initialize.
+
+2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-resources-streams-memory-zlib.adb:
 	(Close): New procedure. Properly free the ZLib filter
 	 resources. Fixes memory leak.
