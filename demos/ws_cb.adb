@@ -102,9 +102,9 @@ package body WS_CB is
    begin
       loop
          delay 1.0;
-         Time_Push.Broadcast (SP, Ada.Calendar.Clock, "text/plain");
+         Time_Push.Send (SP, Ada.Calendar.Clock, "text/plain");
       end loop;
-   end;
+   end Server_Push_Task;
 
    -------------------
    -- New_Client_ID --
@@ -116,7 +116,7 @@ package body WS_CB is
       begin
          ID := ID + 1;
          Ada.Integer_Text_IO.Put (New_ID, ID);
-      end;
+      end Get;
 
    end New_Client_ID;
 
@@ -160,7 +160,7 @@ package body WS_CB is
                Environment => (Clock, Picture),
                Kind        => Time_Push.Multipart);
 
-            Time_Push.Data_For
+            Time_Push.Send_To
               (SP, Client_ID, Ada.Calendar.Clock, "text/html");
          end;
 
