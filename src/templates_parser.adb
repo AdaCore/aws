@@ -1834,7 +1834,7 @@ package body Templates_Parser is
       Variable : in String)
       return Boolean is
    begin
-      return Association_Set.Containers.Is_In (Set.Set.all, Variable);
+      return Association_Set.Containers.Is_In (Variable, Set.Set.all);
    end Exists;
 
    ---------
@@ -1883,7 +1883,7 @@ package body Templates_Parser is
 
    procedure Remove (Set : in out Translate_Set; Name : in String) is
    begin
-      if Containers.Is_In (Set.Set.all, Name) then
+      if Containers.Is_In (Name, Set.Set.all) then
          Containers.Delete (Set.Set.all, Name);
       end if;
    end Remove;

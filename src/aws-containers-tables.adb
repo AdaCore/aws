@@ -99,7 +99,7 @@ package body AWS.Containers.Tables is
       return Boolean is
    begin
       return Index_Table.Is_In
-        (Table.Index, Normalize_Name (Name, not Table.Case_Sensitive));
+        (Normalize_Name (Name, not Table.Case_Sensitive), Table.Index);
    end Exist;
 
    ---------

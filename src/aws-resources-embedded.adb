@@ -89,15 +89,15 @@ package body AWS.Resources.Embedded is
    function Exist (Name : in String) return File_Instance is
    begin
       if not Is_GZip (Name)
-        and then Res_Files.Is_In (Files_Table, Name & GZip_Ext)
+        and then Res_Files.Is_In (Name & GZip_Ext, Files_Table)
       then
-         if Res_Files.Is_In (Files_Table, Name) then
+         if Res_Files.Is_In (Name, Files_Table) then
             return Both;
          else
             return GZip;
          end if;
 
-      elsif Res_Files.Is_In (Files_Table, Name) then
+      elsif Res_Files.Is_In (Name, Files_Table) then
          return Plain;
 
       else
@@ -168,9 +168,9 @@ package body AWS.Resources.Embedded is
 
    function Is_Regular_File (Name : in String) return Boolean is
    begin
-      return Res_Files.Is_In (Files_Table, Name)
+      return Res_Files.Is_In (Name, Files_Table)
         or else (not Is_GZip (Name)
-                 and then Res_Files.Is_In (Files_Table, Name & GZip_Ext));
+                 and then Res_Files.Is_In (Name & GZip_Ext, Files_Table));
    end Is_Regular_File;
 
    ----------
