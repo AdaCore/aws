@@ -17,8 +17,8 @@ build_wsdl:
 
 force:
 
-AWSRES   = .$(BDIR)/tools/awsres
-WSDL2AWS = .$(BDIR)/tools/wsdl2aws
+AWSRES   = ../$(BDIR)/tools/awsres
+WSDL2AWS = ../$(BDIR)/tools/wsdl2aws
 
 ifeq (${PRJ_XMLADA}, Installed)
 BUILD_EXT = build_wsdl
