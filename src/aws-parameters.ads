@@ -45,42 +45,7 @@ package AWS.Parameters is
    --  after the ressource to form the complete URI. The format is:
    --  "?name1=value1&name2=value2..."
 
-   ------------------------
-   -- Inherited routines --
-   ------------------------
-   --
-   --  See AWS.Containers.Tables for details.
-
-   --  function Count (Table : in Table_Type) return Natural;
-
-   --  function Name_Count (Table : in Table_Type) return Natural;
-
-   --  function Count (Table : in Table_Type; Name : in String) return Natural;
-
-   --  function Exist (Table : in Table_Type; Name : in String) return Boolean;
-
-   --  function Get
-   --    (Table : in Table_Type;
-   --     Name  : in String;
-   --     N     : in Positive := 1)
-   --     return String;
-
-   --  function Get_Name
-   --    (Table : in Table_Type;
-   --     N     : in Positive := 1)
-   --     return String;
-
-   --  function Get_Value
-   --    (Table : in Table_Type;
-   --     N     : in Positive := 1)
-   --     return String;
-
-   --  function Get_Names (Table : in Table_Type) return VString_Array;
-
-   --  function Get_Values
-   --    (Table : in Table_Type;
-   --     Name  : in String)
-   --     return VString_Array;
+   --  See AWS.Containers.Tables for inherited routines.
 
 private
    --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
