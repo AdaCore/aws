@@ -38,6 +38,7 @@ with Ada.Strings.Unbounded;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Calendar.Time_IO;
+with GNAT.OS_Lib;
 
 package body Templates_Parser is
 
@@ -372,7 +373,8 @@ package body Templates_Parser is
    --  Template Tree definitions --
    --------------------------------
 
-   type Nkind is (Text,          --  this is a text line
+   type Nkind is (Info,          --  first node is tree infos
+                  Text,          --  this is a text line
                   If_Stmt,       --  an IF tag statement
                   Table_Stmt,    --  a TABLE tag statement
                   Section_Stmt,  --  a TABLE section
@@ -387,6 +389,12 @@ package body Templates_Parser is
       Next : Tree;
 
       case Kind is
+         when Info =>
+            Filename  : Unbounded_String;
+            Timestamp : GNAT.OS_Lib.OS_Time;
+            Ref       : Natural := 0;
+            I_File    : Tree;
+
          when Text =>
             Text    : Data.Tree;
 
@@ -403,8 +411,7 @@ package body Templates_Parser is
             N_Section : Tree;
 
          when Include_Stmt =>
-            File     : Tree;
-            Filename : Unbounded_String;
+            File : Tree;
       end case;
    end record;
 
@@ -419,14 +426,22 @@ package body Templates_Parser is
 
    package Cached_Files is
 
-      procedure Add
-        (Filename : in String;
-         T        : in Tree);
-      --  Add Filename/T to the list of cached files.
+      protected Prot is
 
-      function Get (Filename : in String) return Tree;
-      --  Returns the Tree for Filename or null if Filename has not been
-      --  cached.
+         procedure Add
+           (Filename : in String;
+            T        : in Tree);
+         --  Add Filename/T to the list of cached files.
+
+         function Get
+           (Filename : in String;
+            Load     : in Boolean)
+           return Tree;
+         --  Returns the Tree for Filename or null if Filename has not been
+         --  cached. Load must be set to True at load stage and False at Parse
+         --  stage.
+
+      end Prot;
 
    end Cached_Files;
 
@@ -765,12 +780,7 @@ package body Templates_Parser is
       Initial_Size : constant := 20; -- cache initial size
       Growing_Size : constant := 50; -- cache growing size
 
-      type File_Data is record
-         Filename : Unbounded_String;
-         T        : Tree;
-      end record;
-
-      type File_Array is array (Positive range <>) of File_Data;
+      type File_Array is array (Positive range <>) of Tree;
       type File_Array_Access is access File_Array;
 
       Files : File_Array_Access;
@@ -779,42 +789,110 @@ package body Templates_Parser is
       procedure Growth;
       --  Growth the size (by Growing_Size places) of Files array.
 
-      ---------
-      -- Add --
-      ---------
+      function Get (Filename : in String) return Natural;
+      --  Look for Filename into the set and return its index. Returns 0 if
+      --  filename was not found.
 
-      procedure Add
-        (Filename : in String;
-         T        : in Tree)
-      is
-         L_Filename : constant Unbounded_String
-           := To_Unbounded_String (Filename);
-         Place      : Positive;
-      begin
-         if Files = null or else Index = Files'Last then
-            Growth;
-         end if;
+      function Up_To_Date (T : in Tree) return Boolean;
+      --  Returns True if the file tree is up to date (the templates files
+      --  have not been modified on disk) or False otherwise.
 
-         Place := Index + 1;
+      protected body Prot is
 
-         for K in 1 .. Index loop
-            if Files (Index).Filename > L_Filename then
-               Place := K;
+         ---------
+         -- Add --
+         ---------
+
+         procedure Add
+           (Filename : in String;
+            T        : in Tree)
+         is
+            L_Filename : constant Unbounded_String
+              := To_Unbounded_String (Filename);
+
+            S : Natural := 1;
+            E : Natural := Index;
+            N : Natural;
+
+            Old : Tree;
+
+         begin
+            if Files = null or else Index = Files'Last then
+               Growth;
             end if;
-         end loop;
 
-         Files (Place + 1 .. Index + 1) := Files (Place .. Index);
+            loop
+               exit when S > E;
 
-         Index := Index + 1;
+               N := (S + E) / 2;
 
-         Files (Place) := (L_Filename, T);
-      end Add;
+               if Files (N).Filename = L_Filename then
+
+                  --  This is a file that was already loaded. If loaded again
+                  --  it is because the file timestamp has changed. We want to
+                  --  just update the tree and not the info node.
+
+                  Old := Files (N).Next;
+                  --  This is a pointer to the tree, skiping the info node.
+
+                  Files (N).Next      := T.Next;
+                  Files (N).Timestamp := T.Timestamp;
+
+                  Release (Old);
+
+                  --  Nothing more to do in this case.
+
+                  return;
+
+               elsif Files (N).Filename < L_Filename then
+                  S := N + 1;
+
+               else
+                  E := N - 1;
+               end if;
+            end loop;
+
+            Files (S + 1 .. Index + 1) := Files (S .. Index);
+
+            Index := Index + 1;
+
+            Files (S) := T;
+         end Add;
+
+         ---------
+         -- Get --
+         ---------
+
+         function Get
+           (Filename : in String;
+            Load     : in Boolean)
+           return Tree
+         is
+
+            N : constant Natural := Get (Filename);
+
+         begin
+            if N = 0 then
+               return null;
+
+            else
+               if Load then
+                  Files (N).Ref := Files (N).Ref + 1;
+               end if;
+
+               return Files (N);
+            end if;
+         end Get;
+
+      end Prot;
 
       ---------
       -- Get --
       ---------
 
-      function Get (Filename : in String) return Tree is
+      function Get (Filename : in String) return Natural is
+
+         use type GNAT.OS_Lib.OS_Time;
 
          L_Filename : constant Unbounded_String
            := To_Unbounded_String (Filename);
@@ -830,17 +908,24 @@ package body Templates_Parser is
             N := (S + E) / 2;
 
             if Files (N).Filename = L_Filename then
-               return Files (N).T;
+
+               if Up_To_Date (Files (N)) then
+                  return N;
+               else
+                  --  File has changed on disk, we need to read it again. Just
+                  --  pretend that the file was not found.
+                  return 0;
+               end if;
 
             elsif Files (N).Filename < L_Filename then
-               S := N;
+               S := N + 1;
 
             else
-               E := N;
+               E := N - 1;
             end if;
          end loop;
 
-         return null;
+         return 0;
       end Get;
 
       ------------
@@ -867,6 +952,39 @@ package body Templates_Parser is
             end;
          end if;
       end Growth;
+
+      ----------------
+      -- Up_To_Date --
+      ----------------
+
+      function Up_To_Date (T : in Tree) return Boolean is
+         use type GNAT.OS_Lib.OS_Time;
+         P : Tree;
+      begin
+         --  Check main file
+
+         if GNAT.OS_Lib.File_Time_Stamp (To_String (T.Filename))
+           /= T.Timestamp
+         then
+            return False;
+         end if;
+
+         --  Check all include files
+
+         P := T.I_File;
+
+         while P /= null loop
+            if GNAT.OS_Lib.File_Time_Stamp (To_String (P.File.Filename))
+              /= P.File.Timestamp
+            then
+               return False;
+            end if;
+
+            P := P.Next;
+         end loop;
+
+         return True;
+      end Up_To_Date;
 
    end Cached_Files;
 
@@ -1581,7 +1699,7 @@ package body Templates_Parser is
      return Tree
    is
 
-      File   : Text_IO.File_Type;  --  File beeing parsed.
+      File   : Text_IO.File_Type;  --  file beeing parsed.
 
       Buffer : String (1 .. 2048); --  current line content
       Last   : Natural;            --  index of last characters read in buffer
@@ -1589,9 +1707,12 @@ package body Templates_Parser is
 
       Line   : Natural := 0;
 
+      I_File : Tree;               --  list of includes
+
       --  Line handling
 
       procedure Fatal_Error (Message : in String);
+      pragma No_Return (Fatal_Error);
       --  raise Template_Error exception with message.
 
       function Get_Next_Line return Boolean;
@@ -1609,6 +1730,14 @@ package body Templates_Parser is
       --  Returns True is Stmt is found at the begining of the current line
       --  ignoring leading blank characters.
 
+      function Build_Include_Pathname
+        (Include_Filename : in Unbounded_String)
+        return String;
+      --  Returns the full pathname to the include file (Include_Filename). It
+      --  returns Include_Filename if there is a pathname specified, or the
+      --  pathname of the main template file as a prefix of the include
+      --  filename.
+
       type Parse_Mode is
         (Parse_Std,              --  in standard line
          Parse_If,               --  in a if statement
@@ -1620,6 +1749,36 @@ package body Templates_Parser is
 
       function Parse (Mode : in Parse_Mode) return Tree;
       --  Get a line in File and returns the Tree.
+
+      ----------------------------
+      -- Build_Include_Pathname --
+      ----------------------------
+
+      function Build_Include_Pathname
+        (Include_Filename : in Unbounded_String)
+        return String
+      is
+         K : constant Natural
+           := Index (Include_Filename, Maps.To_Set ("/\"),
+                     Going => Strings.Backward);
+      begin
+         if K = 0 then
+            declare
+               K : constant Natural
+                 := Fixed.Index (Filename, Maps.To_Set ("/\"),
+                                 Going => Strings.Backward);
+            begin
+               if K = 0 then
+                  return To_String (Include_Filename);
+               else
+                  return Filename (Filename'First .. K)
+                    & To_String (Include_Filename);
+               end if;
+            end;
+         else
+            return To_String (Include_Filename);
+         end if;
+      end Build_Include_Pathname;
 
       -----------------
       -- Fatal_Error --
@@ -1658,6 +1817,13 @@ package body Templates_Parser is
          end if;
 
          Start := Strings.Fixed.Index_Non_Blank (Buffer (Start .. Last));
+
+         if Start = 0 then
+            --  We have only spaces after the first word, there is no
+            --  parameter in this case.
+            return Null_Unbounded_String;
+         end if;
+
          Stop  := Strings.Fixed.Index (Buffer (Start .. Last), Blank);
 
          if Stop = 0 then
@@ -1677,8 +1843,17 @@ package body Templates_Parser is
             return True;
          else
             Line := Line + 1;
+
             Text_IO.Get_Line (File, Buffer, Last);
+
             First := Strings.Fixed.Index_Non_Blank (Buffer (1 .. Last));
+
+            if First = 0 then
+               --  There is only spaces on this line, this is an empty line
+               --  we just have to skip it.
+               Last := 0;
+            end if;
+
             return False;
          end if;
       end Get_Next_Line;
@@ -1797,8 +1972,10 @@ package body Templates_Parser is
          elsif Is_Stmt (Include_Token) then
             T := new Node (Include_Stmt);
 
-            T.Filename := Get_First_Parameter;
-            T.File     := Load (To_String (T.Filename), Cached);
+            T.File     :=
+              Load (Build_Include_Pathname (Get_First_Parameter), Cached);
+
+            I_File     := new Node'(Include_Stmt, I_File, T.File);
 
             T.Next     := Parse (Mode);
 
@@ -1818,7 +1995,7 @@ package body Templates_Parser is
 
    begin
       if Cached then
-         T := Cached_Files.Get (Filename);
+         T := Cached_Files.Prot.Get (Filename, Load => True);
 
          if T /= null then
             return T;
@@ -1829,10 +2006,18 @@ package body Templates_Parser is
 
       T := Parse (Parse_Std);
 
+      --  Add first node (info about tree)
+      T := new Node'(Info,
+                     T,
+                     To_Unbounded_String (Filename),
+                     GNAT.OS_Lib.File_Time_Stamp (Filename),
+                     1,
+                     I_File);
+
       Text_IO.Close (File);
 
       if Cached then
-         Cached_Files.Add (Filename, T);
+         Cached_Files.Prot.Add (Filename, T);
       end if;
 
       return T;
@@ -1862,6 +2047,21 @@ package body Templates_Parser is
       Print_Indent (Level);
 
       case T.Kind is
+         when Info =>
+            Text_IO.Put_Line ("[INFO] " & To_String (T.Filename)
+                              & Natural'Image (T.Ref));
+            declare
+               I : Tree := T.I_File;
+            begin
+               while I /= null loop
+                  Text_IO.Put (" -> ");
+                  Text_IO.Put_Line (To_String (I.File.Filename));
+                  I := I.Next;
+               end loop;
+            end;
+
+            Print_Tree (T.Next, Level);
+
          when Text =>
             Text_IO.Put ("[TEXT] ");
             Data.Print_Tree (T.Text);
@@ -1894,7 +2094,7 @@ package body Templates_Parser is
             Print_Tree (T.N_Section, Level);
 
          when Include_Stmt =>
-            Text_IO.Put_Line ("[INCLUDE_STMT] " & To_String (T.Filename));
+            Text_IO.Put_Line ("[INCLUDE_STMT] " & To_String (T.File.Filename));
             Print_Tree (T.File, Level + 1);
             Print_Tree (T.Next, Level);
       end case;
@@ -2513,6 +2713,9 @@ package body Templates_Parser is
                end if;
 
                case T.Kind is
+                  when Info =>
+                     return Get_Max_Lines (T.Next, N);
+
                   when Text =>
                      return Natural'Max (Check (T.Text),
                                          Get_Max_Lines (T.Next, N));
@@ -2577,6 +2780,10 @@ package body Templates_Parser is
          end if;
 
          case T.Kind is
+
+            when Info =>
+               Analyze (T.Next, State);
+
             when Text =>
                Analyze (T.Text);
 
@@ -2668,6 +2875,21 @@ package body Templates_Parser is
       end if;
 
       case T.Kind is
+         when Info =>
+            declare
+               I : Tree := T.I_File;
+               O : Tree;
+            begin
+               while I /= null loop
+                  O := I;
+                  I := I.Next;
+                  Free (O);
+               end loop;
+            end;
+
+            Release (T.Next);
+            Free (T);
+
          when Text =>
             Data.Release (T.Text);
             Release (T.Next);
@@ -2691,7 +2913,13 @@ package body Templates_Parser is
             Free (T);
 
          when Include_Stmt =>
-            Release (T.File);
+            T.File.Ref := T.File.Ref - 1;
+
+            if T.File.Ref = 0 then
+               --  No more reference to this include file we release it.
+               Release (T.File);
+            end if;
+
             Release (T.Next);
             Free (T);
       end case;
