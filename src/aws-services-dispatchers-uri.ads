@@ -94,12 +94,12 @@ package AWS.Services.Dispatchers.URI is
    --  Register the default callback. This will be used if no URI match
    --  the request.
 
-   procedure Initialize (Dispatcher : in out Handler);
-   procedure Finalize   (Dispatcher : in out Handler);
-
 private
 
    use Ada.Strings.Unbounded;
+
+   procedure Initialize (Dispatcher : in out Handler);
+   procedure Finalize   (Dispatcher : in out Handler);
 
    type Std_URI is tagged record
       Action : AWS.Dispatchers.Handler_Class_Access;
