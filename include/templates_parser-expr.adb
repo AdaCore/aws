@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2001                         --
+--                        Copyright (C) 1999 - 2002                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -34,6 +34,12 @@ separate (Templates_Parser)
 
 package body Expr is
 
+   function Is_Op (O : in String) return Boolean;
+   --  Returns True is O is a binary operator.
+
+   function Is_U_Op (O : in String) return Boolean;
+   --  Returns True is O is an unary operator.
+
    -----------
    -- Image --
    -----------
@@ -49,8 +55,67 @@ package body Expr is
          when O_Esup  => return ">=";
          when O_Einf  => return "<=";
          when O_Equal => return "=";
+         when O_Diff  => return "/=";
       end case;
    end Image;
+
+   function Image (O : in U_Ops) return String is
+   begin
+      case O is
+         when O_Not   => return "not";
+      end case;
+   end Image;
+
+   -----------
+   -- Is_Op --
+   -----------
+
+   function Is_Op (O : in String) return Boolean is
+   begin
+      if O = "and" then
+         return True;
+
+      elsif O = "or" then
+         return True;
+
+      elsif O = "xor" then
+         return True;
+
+      elsif O = ">" then
+         return True;
+
+      elsif O = "<" then
+         return True;
+
+      elsif O = ">=" then
+         return True;
+
+      elsif O = "<=" then
+         return True;
+
+      elsif O = "=" then
+         return True;
+
+      elsif O = "/=" then
+         return True;
+
+      else
+         return False;
+      end if;
+   end Is_Op;
+
+   -------------
+   -- Is_U_Op --
+   -------------
+
+   function Is_U_Op (O : in String) return Boolean is
+   begin
+      if O = "not" then
+         return True;
+      else
+         return False;
+      end if;
+   end Is_U_Op;
 
    -----------
    -- Parse --
@@ -123,6 +188,31 @@ package body Expr is
                return Expression (I .. K);
             end if;
 
+         elsif Expression (Index) = '"' then
+            --  This is a string, returns it.
+            K := 0;
+
+            Look_For_String : for I in Index + 1 .. Expression'Last loop
+               if Expression (I) = '"' then
+                  K := I;
+                  exit;
+               end if;
+            end loop Look_For_String;
+
+            if K = 0 then
+               --  No matching closing quote
+
+               Exceptions.Raise_Exception
+                 (Internal_Error'Identity,
+                  "condition, no matching closing quote string at pos "
+                  & Natural'Image (Index));
+
+            else
+               I := Index;
+               Index := K + 1;
+               return Expression (I .. K);
+            end if;
+
          else
             --  We have found the start of a token, look for end of it.
             K := Fixed.Index (Expression (Index .. Expression'Last), Blank);
@@ -158,7 +248,30 @@ package body Expr is
       R_Tok : constant String := Get_Token;  -- right operand
 
    begin
-      if O_Tok = "" then
+      if Is_U_Op (L_Tok) then
+
+         if R_Tok = "" then
+            --  This is "not expr"
+            return new Node'
+              (U_Op, Value (L_Tok),
+               Parse (O_Tok & ' ' & R_Tok & ' '
+                        & Expression (Index .. Expression'Last)));
+         else
+            --  This is "not expr op expr", parse again with
+            --  "(not expr) op expr"
+            return Parse ('(' & L_Tok & ' ' & O_Tok & ") "
+                            & R_Tok & ' '
+                            & Expression (Index .. Expression'Last));
+         end if;
+
+      elsif Is_Op (O_Tok) and then Is_U_Op (R_Tok) then
+         --  We have "expr op u_op expr", parse again with
+         --  "expr op (u_op expr)"
+         return Parse (L_Tok & ' ' & O_Tok
+                         & " (" & R_Tok & ' '
+                         & Expression (Index .. Expression'Last) & ')');
+
+      elsif O_Tok = "" then
          --  No more operator, this is a leaf. It is either a variable or a
          --  value.
 
@@ -204,7 +317,16 @@ package body Expr is
    begin
       case E.Kind is
          when Value =>
-            Text_IO.Put (To_String (E.V));
+            declare
+               Val : constant String := To_String (E.V);
+               K   : constant Natural := Fixed.Index (Val, " ");
+            begin
+               if K = 0 then
+                  Text_IO.Put (Val);
+               else
+                  Text_IO.Put ('"' & Val & '"');
+               end if;
+            end;
 
          when Var =>
             Text_IO.Put (Image (E.Var));
@@ -214,6 +336,12 @@ package body Expr is
             Print_Tree (E.Left);
             Text_IO.Put (' ' & Image (E.O) & ' ');
             Print_Tree (E.Right);
+            Text_IO.Put (')');
+
+         when U_Op =>
+            Text_IO.Put ('(');
+            Text_IO.Put (Image (E.U_O) & ' ');
+            Print_Tree (E.Next);
             Text_IO.Put (')');
       end case;
    end Print_Tree;
@@ -235,6 +363,9 @@ package body Expr is
          when Op =>
             Release (E.Left);
             Release (E.Right);
+
+         when U_Op =>
+            Release (E.Next);
       end case;
 
       Free (E);
@@ -269,6 +400,20 @@ package body Expr is
 
       elsif O = "=" then
          return O_Equal;
+
+      elsif O = "/=" then
+         return O_Diff;
+
+      else
+         Exceptions.Raise_Exception
+           (Internal_Error'Identity, "condition, unknown operator " & O);
+      end if;
+   end Value;
+
+   function Value (O : in String) return U_Ops is
+   begin
+      if O = "not" then
+         return O_Not;
 
       else
          Exceptions.Raise_Exception
