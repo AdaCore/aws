@@ -124,6 +124,9 @@ Here are the main changes since AWS 2.0 :
      This API (AWS.Net.Log) can be used to debug complex applications.
      This feature has been contributed by Henrik Sundberg.
 
+   - Add support for SOAP hotplug modules. Only standard HTTP requests were
+     supported by an hotplug module.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
