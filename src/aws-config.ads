@@ -56,20 +56,13 @@ package AWS.Config is
    -- Per Server options --
    ------------------------
 
+   ------------
+   -- Server --
+   ------------
+
    function Server_Name (O : in Object) return String;
    pragma Inline (Server_Name);
-   --  This is the name of the server as set by AWS.Server.Start.
-
-   function WWW_Root (O : in Object) return String;
-   pragma Inline (WWW_Root);
-   --  This is the root directory name for the server. This variable is not
-   --  used internally by AWS. It is supposed to be used by the callback
-   --  procedures who want to retrieve physical objects (images, Web
-   --  pages...). The default value is the current working directory.
-
-   function Admin_URI (O : in Object) return String;
-   pragma Inline (Admin_URI);
-   --  This is the name of the admin server page as set by AWS.Server.Start.
+   --  This is the name of the server as set by AWS.Server.Start
 
    function Server_Host (O : in Object) return String;
    pragma Inline (Server_Host);
@@ -79,12 +72,24 @@ package AWS.Config is
 
    function Server_Port (O : in Object) return Positive;
    pragma Inline (Server_Port);
-   --  This is the server port as set by the HTTP object declaration.
+   --  This is the server port as set by the HTTP object declaration
 
    function Hotplug_Port (O : in Object) return Positive;
    pragma Inline (Hotplug_Port);
    --  This is the hotplug communication port needed to register and
    --  un-register an hotplug module.
+
+   function Session (O : in Object) return Boolean;
+   pragma Inline (Session);
+   --  Returns True if the server session is activated
+
+   function Case_Sensitive_Parameters (O : in Object) return Boolean;
+   pragma Inline (Case_Sensitive_Parameters);
+   --  HTTP parameters are case sensitive
+
+   ----------------
+   -- Connection --
+   ----------------
 
    function Max_Connection (O : in Object) return Positive;
    pragma Inline (Max_Connection);
@@ -105,6 +110,34 @@ package AWS.Config is
    --  value will be and less "connection refused" will be reported to the
    --  client.
 
+   function Line_Stack_Size (O : in Object) return Positive;
+   pragma Inline (Line_Stack_Size);
+   --  HTTP lines stack size
+
+   ----------
+   -- Data --
+   ----------
+
+   function WWW_Root (O : in Object) return String;
+   pragma Inline (WWW_Root);
+   --  This is the root directory name for the server. This variable is not
+   --  used internally by AWS. It is supposed to be used by the callback
+   --  procedures who want to retrieve physical objects (images, Web
+   --  pages...). The default value is the current working directory.
+
+   function Upload_Directory (O : in Object) return String;
+   pragma Inline (Upload_Directory);
+   --  This point to the directory where uploaded files will be stored. The
+   --  directory returned will end with a directory separator.
+
+   function Directory_Browser_Page (O : in Object) return String;
+   pragma Inline (Directory_Browser_Page);
+   --  Filename for the directory browser template page
+
+   ---------
+   -- Log --
+   ---------
+
    function Log_File_Directory (O : in Object) return String;
    pragma Inline (Log_File_Directory);
    --  This point to the directory where log files will be written. The
@@ -112,7 +145,7 @@ package AWS.Config is
 
    function Log_Filename_Prefix (O : in Object) return String;
    pragma Inline (Log_Filename_Prefix);
-   --  This is the prefix to use for the log filename.
+   --  This is the prefix to use for the log filename
 
    function Log_Split_Mode (O : in Object) return String;
    pragma Inline (Log_Split_Mode);
@@ -128,14 +161,34 @@ package AWS.Config is
    --  This is split mode for the log file. Possible values are : Each_Run,
    --  Daily, Monthly and None. Any other values will raise an exception.
 
-   function Upload_Directory (O : in Object) return String;
-   pragma Inline (Upload_Directory);
-   --  This point to the directory where uploaded files will be stored. The
-   --  directory returned will end with a directory separator.
+   ------------
+   -- Status --
+   ------------
 
-   function Session (O : in Object) return Boolean;
-   pragma Inline (Session);
-   --  Returns True if the server session is activated.
+   function Admin_URI (O : in Object) return String;
+   pragma Inline (Admin_URI);
+   --  This is the name of the admin server page as set by AWS.Server.Start.
+   --  It is also known as the status page.
+
+   function Status_Page (O : in Object) return String;
+   pragma Inline (Status_Page);
+   --  Filename for the status template page
+
+   function Up_Image (O : in Object) return String;
+   pragma Inline (Up_Image);
+   --  Filename for the up arrow image used in the status page
+
+   function Down_Image (O : in Object) return String;
+   pragma Inline (Down_Image);
+   --  Filename for the down arrow image used in the status page
+
+   function Logo_Image (O : in Object) return String;
+   pragma Inline (Logo_Image);
+   --  Filename for the AWS logo image used in the status page
+
+   --------------
+   -- Timeouts --
+   --------------
 
    function Cleaner_Wait_For_Client_Timeout (O : in Object) return Duration;
    pragma Inline (Cleaner_Wait_For_Client_Timeout);
@@ -179,31 +232,20 @@ package AWS.Config is
 
    function Send_Timeout (O : in Object) return Duration;
    pragma Inline (Send_Timeout);
-   --  Number of seconds to timeout when sending chunck of data.
+   --  Number of seconds to timeout when sending chunck of data
 
    function Receive_Timeout (O : in Object) return Duration;
    pragma Inline (Receive_Timeout);
    --  Number of seconds to timeout when receiving chunck of data.
 
-   function Status_Page (O : in Object) return String;
-   pragma Inline (Status_Page);
-   --  Filename for the status template page.
+   --------------
+   -- Security --
+   --------------
 
-   function Directory_Browser_Page (O : in Object) return String;
-   pragma Inline (Directory_Browser_Page);
-   --  Filename for the directory browser template page.
-
-   function Up_Image (O : in Object) return String;
-   pragma Inline (Up_Image);
-   --  Filename for the up arrow image used in the status page.
-
-   function Down_Image (O : in Object) return String;
-   pragma Inline (Down_Image);
-   --  Filename for the down arrow image used in the status page.
-
-   function Logo_Image (O : in Object) return String;
-   pragma Inline (Logo_Image);
-   --  Filename for the AWS logo image used in the status page.
+   function Check_URL_Validity (O : in Object) return Boolean;
+   pragma Inline (Check_URL_Validity);
+   --  Server have to check URI for validity. For example it checks that an
+   --  URL does not reference a resource above the Web root.
 
    function Security (O : in Object) return Boolean;
    pragma Inline (Security);
@@ -229,19 +271,6 @@ package AWS.Config is
    --  Returns True if the client is requested to send its certificate to the
    --  server. Note that this option must not be used if the client is a Web
    --  Browser.
-
-   function Case_Sensitive_Parameters (O : in Object) return Boolean;
-   pragma Inline (Case_Sensitive_Parameters);
-   --  HTTP parameters are case sensitive.
-
-   function Check_URL_Validity (O : in Object) return Boolean;
-   pragma Inline (Check_URL_Validity);
-   --  Server have to check URI for validity. For example it checks that an
-   --  URL does not reference a resource above the Web root.
-
-   function Line_Stack_Size (O : in Object) return Positive;
-   pragma Inline (Line_Stack_Size);
-   --  HTTP lines stack size.
 
    -------------------------
    -- Per Process options --
