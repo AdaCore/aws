@@ -1,5 +1,11 @@
 2004-10-31  Pascal Obry  <pascal@obry.org>
 
+	* interoplab_main1.wsdl:
+	Change service name to avoid conflic with Interoplab demo sources.
+
+	* interoplab_main1.adb:
+	Adjust calls to interoplab services due to change above.
+
 	* makefile:
 	Fix XMLADA test.
 	(gen_main): Do not add ASIS test explicitly, those tests are
@@ -10,7 +16,7 @@
 	($(GEN_SETUP1):): Removed, not used.
 	($(GEN_SETUP2):): Idem.
 	(setup_init): Idem.
-	(setup): Fix check for ASIS+SOAP tests which prevented thoses test
+	(setup): Fix check for ASIS+SOAP tests which prevented those tests
 	 to be properly added into the generated files.
 	
 	* test_soap_hotplug.adb, test_soap_hotplug.out: 

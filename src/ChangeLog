@@ -1,5 +1,8 @@
 2004-10-31  Pascal Obry  <pascal@obry.org>
 
+	* aws-status.ads:
+	Minor reformatting.
+
 	* aws-server-hotplug.adb:
 	(Client_Handler.Delete_All): New procedure to delete all entry in
          the clients table.
