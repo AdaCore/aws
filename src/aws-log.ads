@@ -78,9 +78,10 @@ package AWS.Log is
       Connect_Stat   : in     Status.Data;
       Status_Code    : in     Messages.Status_Code;
       Content_Length : in     Natural);
-   --  Write log info if activated (i.e. Start routine above as been called).
-   --  We need Content_Length parameter separated from AWS.Response.Data
-   --  becouse Content_Length could be undefined there.
+   --  Write log info if activated (i.e. Start routine above has been called).
+   --  This version separated the Content_Length from Status.Data, this is
+   --  required for example in the case of a user defined stream content. See
+   --  AWS.Resources.Stream.
 
    procedure Write
      (Log          : in out Object;
