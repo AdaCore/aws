@@ -129,13 +129,22 @@ package AWS.Net.SSL is
      (Socket : in Net.Socket_Type'Class;
       Config : in SSL.Config := Null_Config) return Socket_Type;
    --  Make client side SSL connection from plain socket.
-   --  Do not free or close source socket after this call.
+   --  SSL handshake does not performed. SSL handshake would be made
+   --  automatically on first Read/Write, or explicitly by the Do_Handshake
+   --  call. Do not free or close source socket after this call.
 
    function Secure_Server
      (Socket : in Net.Socket_Type'Class;
       Config : in SSL.Config := Null_Config) return Socket_Type;
    --  Make server side SSL connection from plain socket.
-   --  Do not free or close source socket after this call.
+   --  SSL handshake does not performed. SSL handshake would be made
+   --  automatically on first Read/Write, or explicitly by the Do_Handshake
+   --  call. Do not free or close source socket after this call.
+
+   procedure Do_Handshake (Socket : in out Socket_Type);
+   --  Will wait for a SSL/TLS handshake to take place.
+   --  You need to call this routine if you just converted plain socket to
+   --  secure and need to get peer certificate.
 
 private
 
