@@ -167,14 +167,12 @@ package body Expr is
             Current_Token := (Kind => Binary_Op, Bin_Op => O_Equal);
             Index := Index + 1;
 
-         elsif Expression (Index) = '/' then
-            Index := Index + 1;
-            if Expression (Index) = '=' then
-               Current_Token := (Kind => Binary_Op, Bin_Op => O_Diff);
-               Index := Index + 1;
-            else
-               Error ("illegal comparison operator");
-            end if;
+         elsif Expression (Index) = '/'
+           and then Index < Expression'Last
+           and then Expression (Index + 1) = '='
+         then
+            Current_Token := (Kind => Binary_Op, Bin_Op => O_Diff);
+            Index := Index + 2;
 
          elsif Expression (Index) = '<' then
             Index := Index + 1;
@@ -211,15 +209,29 @@ package body Expr is
             Index := Current_Token.Stop + 2;
 
          else
-            --  We have found the start of a string token, look for end of it.
-            I := Index;
-            Index := Fixed.Index
-              (Expression (Index .. Expression'Last), Separator);
+            --  We have found the start of a string token, look for end of it
 
-            if Index = 0 then
-               --  Token end is the end of Expression.
-               Index := Expression'Last + 1;
-            end if;
+            I := Index;
+
+            loop
+               Index := Fixed.Index
+                 (Expression (Index .. Expression'Last), Separator);
+
+               if Index = 0 then
+                  --  Token end is the end of Expression
+                  Index := Expression'Last + 1;
+                  exit;
+               end if;
+
+               --  Special case for '/': it is a separator only if appearing
+               --  in '/='. Without this test, the "/" filter is not recognized
+               --  Moreover, this allows comparisons of file paths (with '/')
+
+               exit when Expression (Index) /= '/'
+                 or else Expression (Index + 1) = '=';
+
+               Index := Index + 1;
+            end loop;
 
             declare
                Token_Image : constant String
