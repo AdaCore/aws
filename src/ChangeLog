@@ -1,3 +1,8 @@
+2003-06-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.ads:
+	(Create): Add lot of comments.
+
 2003-06-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-status.adb:
