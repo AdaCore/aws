@@ -29,6 +29,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Strings.Unbounded;
 
 with Sockets;
 with AWS.Response;
@@ -37,16 +38,26 @@ package AWS.Server is
 
    Default_Connection : constant := 10;
    Default_Port       : constant := 8080;
+   No_Admin           : constant String := "";
 
    type HTTP
      (Max_Connection : Positive          := Default_Connection;
       Port           : Positive          := Default_Port;
       Security       : Boolean           := False;
-      CB             : Response.Callback := Response.Default_Handler) is
-   limited private;
+      CB             : Response.Callback := Response.Default_Handler;
+      Session        : Boolean           := False) is
+     limited private;
+   --  Max_Connection is the maximum number of simultaneous connection
+   --  handled by the server. Port is the socket server port. If security is
+   --  set to True then an HTTPS (secure socket) will be created. CB is the
+   --  user's callback function which reply to request sent to the
+   --  server.
 
-   procedure Start (Web_Server : in out HTTP);
+   procedure Start (Web_Server : in out HTTP;
+                    Name       : in String;
+                    Admin_URI  : in String := No_Admin);
    --  Start the Web server. It initialize the connections lines.
+   --  Admin_URI must be set to enable the admin status page.
 
    procedure Shutdown (Web_Server : in out HTTP);
 
@@ -61,6 +72,7 @@ private
       Opened              : Boolean := False;
       Abortable           : Boolean := False;
       Quit                : Boolean := False;
+      Activity_Counter    : Natural := 0;
       Activity_Time_Stamp : Ada.Calendar.Time;
    end record;
 
@@ -95,6 +107,9 @@ private
       function Free return Boolean;
       --  returns True if there is some free slots available.
 
+      function Get (Index : in Positive) return Slot;
+      --  returns Slot data
+
    private
       Set   : Slot_Set (1 .. N);
       Count : Natural := N;
@@ -113,18 +128,23 @@ private
    end Line_Cleaner;
    --  run through the slots and see if some of them could be closed.
 
+   use Ada.Strings.Unbounded;
+
    type HTTP
      (Max_Connection : Positive          := Default_Connection;
       Port           : Positive          := Default_Port;
       Security       : Boolean           := False;
       CB             : Response.Callback := Response.Default_Handler) is
    limited record
-      Sock    : Sockets.Socket_FD;
+      Name      : Unbounded_String;
+      Self      : HTTP_Access := HTTP'Unchecked_Access;
+      Sock      : Sockets.Socket_FD;
       --  this is the server socket for incoming connection.
 
-      Lines   : Line_Set (1 .. Max_Connection);
-      Slots   : Slots_Access := new Server.Slots (Max_Connection);
-      Cleaner : Line_Cleaner (HTTP'Unchecked_Access);
+      Lines     : Line_Set (1 .. Max_Connection);
+      Slots     : Slots_Access := new Server.Slots (Max_Connection);
+      Cleaner   : Line_Cleaner (HTTP'Unchecked_Access);
+      Admin_URI : Unbounded_String;
    end record;
 
 end AWS.Server;
