@@ -1,3 +1,8 @@
+2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(build_wsdl): Fix minor typo.
+
 2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

@@ -1,5 +1,12 @@
 2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-generator-skel.adb:
+	(New_Procedure): Add test for the SOAP procedure name, raise an
+	 exception if it is not the expected one.
+	(Start_Service): Add pragma Warnings off.
+
+2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* soap-generator.ads:
 	(Version): Set to 1.0.
 
