@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            November 29th, 2004
+   Pascal Obry                                            December 23th, 2004
 
 
 
@@ -193,6 +193,10 @@ Here are the main changes since AWS 2.0 :
    - The templates parser have now support for tag command attributes. The two
      first such attributes are the table tag attributes TERMINATE_SECTIONS and
      REVERSE.
+
+   - It is now possible to get the current request status (Status.Data) from
+     inside any callback routine. This is useful in the templates engine
+     context callback for example.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
