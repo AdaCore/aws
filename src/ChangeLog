@@ -1,5 +1,11 @@
 2002-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-server.ads, aws-server.adb, aws-server-protocol_handler.adb:
+	(Socket_Access): now it is subtype from AWS.Status.Socket_Access to
+	be able to easier put it to the AWS.Status.Data.
+
+2002-10-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-status.ads, aws-status.adb
 	  aws-status-set.ads, aws-status-set.adb,
 	(Keep_Alive): New routine.
