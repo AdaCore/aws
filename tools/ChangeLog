@@ -1,3 +1,13 @@
+2004-03-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* tools.gpr:
+	Fix main for ada2wsdl which is ada2wsdl-main.
+	(Linker): Add -lasis to the ada2wsdl-main switches.
+
+	* makefile:
+	(gsetup): Add dependence to $(GEN) to properly generate
+	 ada2wsdl-options.adb.
+
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* tools.gpr:
