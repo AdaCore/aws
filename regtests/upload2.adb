@@ -122,10 +122,10 @@ procedure Upload2 is
 
       AWS.Server.Start (HTTP, CB'Unrestricted_Access, Web_Config);
 
+      accept Started;
+
       Put_Line ("Server started");
       New_Line;
-
-      accept Started;
 
       select
          accept Stopped;
