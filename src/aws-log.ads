@@ -37,8 +37,8 @@
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 
-with AWS.Messages;
 with AWS.Status;
+with AWS.Response;
 
 package AWS.Log is
 
@@ -65,7 +65,7 @@ package AWS.Log is
    procedure Write
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
-      Answer_Stat  : in     Messages.Status_Code;
+      Answer       : in     Response.Data;
       Peername     : in     String);
    --  Write log info if activated (i.e. Start routine above as been called).
 
