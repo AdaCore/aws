@@ -44,7 +44,7 @@ project Demos is
                  "main.adb", "hotplug.adb", "dispatch.adb", "wps.adb",
                  "ws.adb", "auth.adb", "agent.adb", "text_input.adb",
                  "vh_demo.adb", "res_demo.adb", "zdemo.adb", "split.adb",
-		 "web_mail.adb");
+                 "web_mail.adb");
 
    case Shared.XMLAda is
       when "Installed" =>
@@ -99,15 +99,15 @@ project Demos is
 
    package Linker is
 
-      COFF_Res   := ("../win32/aws.coff");
+      COFF_Res   := ("../lib/aws.coff");
       LIB_Crypt  := ("-lcrypto", "-lssl");
 
-      WIN_OPT    := ("-L../lib -lpoll") & COFF_Res & Shared.ZLIB;
+      WIN_OPT    := ("-L../lib", "-lpoll") & COFF_Res & Shared.ZLIB;
       UNX_OPT    := Shared.ZLIB;
 
       case Shared.OS is
          when "Windows_NT" =>
-            for Default_Switches ("Ada")          use COFF_Res & Shared.ZLib;
+            for Default_Switches ("Ada")          use WIN_OPT;
             for Switches ("soap_cvs.adb")         use WIN_OPT;
             for Switches ("soap_svs.adb")         use WIN_OPT;
             for Switches ("soap_client.adb")      use WIN_OPT;
