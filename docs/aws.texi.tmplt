@@ -324,11 +324,11 @@ AWS.Response.Build (Content_Type => "text/html",
 
 @noindent
 It is also possible to return a file. For example, here is the way to
-return a GIF image:
+return a PNG image:
 
 @smallexample
-AWS.Response.File (Content_Type => "image/gif",
-                   Filename     => "adains.gif");
+AWS.Response.File (Content_Type => "image/png",
+                   Filename     => "adains.png");
 @end smallexample
 
 @end itemize
@@ -402,15 +402,15 @@ files if you plan to use a status page @xref{Status page}.
 
 The template HTML file for the @code{AWS} status page.
 
-@item logo.gif
+@item logo.png
 
 The @code{AWS} logo displayed on the status page.
 
-@item up.gif
+@item up.png
 
 The @code{AWS} hotplug table up arrow.
 
-@item down.gif
+@item down.png
 
 The @code{AWS} hotplug table down arrow.
 
@@ -616,7 +616,7 @@ Text_IO.Put_Line (Response.Message_Body (Data));
 @end smallexample
 
 @noindent
-If the content is some kind of binary data (executable, gif image, Zip
+If the content is some kind of binary data (executable, png image, Zip
 archive...), then it is possible to write the result to a file for
 example. Look at the @code{agent} program in the @code{demos} directory.
 
