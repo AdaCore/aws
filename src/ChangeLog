@@ -1,3 +1,11 @@
+2004-09-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-sets.adb:
+	(Finalize): Call Reset for Free internally allocated sockets.
+
+	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
+	New generic package.
+
 2004-09-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets-thin.ads:
