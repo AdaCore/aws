@@ -81,7 +81,7 @@ procedure Agent is
    procedure Parse_Command_Line is
    begin
      loop
-        case GNAT.Command_Line.Getopt ("f u: p: pu: pp: proxy: k n") is
+        case GNAT.Command_Line.Getopt ("f d u: p: pu: pp: proxy: k n") is
 
            when ASCII.NUL =>
               exit;
@@ -91,6 +91,9 @@ procedure Agent is
 
            when 'n' =>
               Wait_Key := False;
+
+           when 'd' =>
+              AWS.Client.Set_Debug (On => True);
 
            when 'k' =>
               Keep_Alive := True;
@@ -133,6 +136,7 @@ begin
       Text_IO.Put_Line ("       -f           force display of message body.");
       Text_IO.Put_Line ("       -k           keep-alive connection.");
       Text_IO.Put_Line ("       -n           non stop for stress test.");
+      Text_IO.Put_Line ("       -d           debug mode, view HTTP headers.");
       Text_IO.Put_Line ("       -proxy <proxy_url>");
       Text_IO.Put_Line ("       -u <user_name>");
       Text_IO.Put_Line ("       -p <password>");
