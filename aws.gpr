@@ -36,8 +36,10 @@ with "src/src";
 with "ssl/ssl";
 with "ssl/nossl";
 with "demos/demos";
+with "demos/demos_ssl";
 with "tools/tools";
-with "docs/docs.gpr";
+with "docs/docs";
+with "regtests/regtests";
 
 project AWS is
 
