@@ -1,3 +1,8 @@
+2004-09-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-buffered.adb:
+	(Read): More efficient read big data on empty buffer.
+
 2004-09-17  Pascal Obry  <pascal@obry.org>
 
 	* aws-net-buffered.adb:
