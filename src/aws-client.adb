@@ -691,7 +691,7 @@ package body AWS.Client is
                declare
 
                   package Stream_Element_Table is new GNAT.Table
-                    (Streams.Stream_Element, Positive, 1, 30_000, 10_000);
+                    (Streams.Stream_Element, Natural, 1, 30_000, 10_000);
 
                   procedure Add (B : in Streams.Stream_Element_Array);
                   --  Add B to Data
@@ -739,7 +739,8 @@ package body AWS.Client is
                   Result := Response.Build
                     (To_String (CT),
                      Streams.Stream_Element_Array
-                       (Stream_Element_Table.Table.all),
+                       (Stream_Element_Table.Table
+                         (1 .. Stream_Element_Table.Last)),
                      Status);
                end;
             end if;
