@@ -40,6 +40,7 @@ demos/hello_world_cb.ads
 demos/hotplug.adb
 demos/hotplug_cb.adb
 demos/hotplug_cb.ads
+demos/hotplug_module.ini
 demos/interoplab_main.adb
 demos/interoplab_main.wsdl
 demos/main.adb
@@ -287,6 +288,9 @@ regtests/hostip.adb
 regtests/hostip.out
 regtests/huge_response.adb
 regtests/huge_response.out
+regtests/huge_response_proc.adb
+regtests/huge_response_sec.adb
+regtests/huge_response_sec.out
 regtests/hval.adb
 regtests/hval.out
 regtests/interoplab_main.adb
@@ -515,6 +519,8 @@ regtests/zstrm.out
 regtests/zstrm2.adb
 regtests/zstrm2.out
 regtests/zstrm3.out
+src/aws-client-hotplug.adb
+src/aws-client-hotplug.ads
 src/aws-client.adb
 src/aws-client.ads
 src/aws-communication-client.adb
@@ -775,9 +781,12 @@ tools/ada2wsdl.ads
 tools/wsdl2aws.adb
 win32/libeay32.dll
 win32/libssl32.dll
-xsrc/aws-jabber.adb
-xsrc/aws-jabber.ads
-xsrc/templates_parser-xml.ads
-xsrc/templates_parser-xml.adb
 xsrc/ChangeLog
 xsrc/README
+xsrc/aws-client-xml-input_sources.adb
+xsrc/aws-client-xml-input_sources.ads
+xsrc/aws-client-xml.ads
+xsrc/aws-jabber.adb
+xsrc/aws-jabber.ads
+xsrc/templates_parser-xml.adb
+xsrc/templates_parser-xml.ads
