@@ -564,6 +564,8 @@ src/aws-server-status.adb
 src/aws-server-status.ads
 src/aws-server.adb
 src/aws-server.ads
+src/aws-services-callbacks.adb
+src/aws-services-callbacks.ads
 src/aws-services-directory.adb
 src/aws-services-directory.ads
 src/aws-services-dispatchers-method.adb
