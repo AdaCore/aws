@@ -28,6 +28,8 @@
 
 --  $Id$
 
+with Ada.Strings.Fixed;
+
 package body AWS.Response is
 
    -----------------
@@ -46,6 +48,7 @@ package body AWS.Response is
                       Null_Unbounded_String,
                       Null_Unbounded_String,
                       Null_Unbounded_String,
+                      Null_Unbounded_String,
                       null);
       else
          return Data'(Message,
@@ -53,6 +56,7 @@ package body AWS.Response is
                       Message_Body'Length,
                       To_Unbounded_String (Content_Type),
                       To_Unbounded_String (Message_Body),
+                      Null_Unbounded_String,
                       Null_Unbounded_String,
                       null);
       end if;
@@ -85,6 +89,7 @@ package body AWS.Response is
                    To_Unbounded_String ("text/html"),
                    To_Unbounded_String (Auth_Mess),
                    To_Unbounded_String (Realm),
+                   Null_Unbounded_String,
                    null);
    end Authenticate;
 
@@ -112,8 +117,42 @@ package body AWS.Response is
                    To_Unbounded_String (Content_Type),
                    To_Unbounded_String (Message_Body),
                    Null_Unbounded_String,
+                   Null_Unbounded_String,
                    null);
    end Build;
+
+   function Moved (Location     : in String;
+                   Message      : in String := Default_Moved_Message)
+                  return Data
+   is
+      use Ada.Strings;
+
+      function Build_Message_Body return String;
+      --  Return proper message body using Message template. It replaces _@_
+      --  in Message by Location.
+
+      function Build_Message_Body return String is
+         Start : constant Natural := Fixed.Index (Message, "_@_");
+      begin
+         if Start = 0 then
+            return Message;
+         else
+            return Fixed.Replace_Slice (Message, Start, Start + 2, Location);
+         end if;
+      end Build_Message_Body;
+
+      Message_Body : constant String := Build_Message_Body;
+
+   begin
+      return Data'(Response.Message,
+                   Messages.S301,
+                   Message_Body'Length,
+                   To_Unbounded_String ("text/html"),
+                   To_Unbounded_String (Message_Body),
+                   To_Unbounded_String (Location),
+                   Null_Unbounded_String,
+                   null);
+   end Moved;
 
    function Build (Content_Type : in String;
                    Message_Body : in Streams.Stream_Element_Array;
@@ -124,6 +163,7 @@ package body AWS.Response is
                    Status_Code,
                    Message_Body'Length,
                    To_Unbounded_String (Content_Type),
+                   Null_Unbounded_String,
                    Null_Unbounded_String,
                    Null_Unbounded_String,
                    new Streams.Stream_Element_Array'(Message_Body));
@@ -160,6 +200,7 @@ package body AWS.Response is
                    To_Unbounded_String (Content_Type),
                    To_Unbounded_String (Filename),
                    Null_Unbounded_String,
+                   Null_Unbounded_String,
                    null);
    end File;
 
@@ -169,7 +210,7 @@ package body AWS.Response is
 
    function Location (D : in Data) return String is
    begin
-      return To_String (D.Message_Body);
+      return To_String (D.Location);
    end Location;
 
    ------------------
