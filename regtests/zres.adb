@@ -38,6 +38,7 @@ with Ada.Text_IO;
 
 with AWS.Resources;
 with AWS.Translator;
+with AWS.Templates;
 
 with Zresres;
 
@@ -72,6 +73,15 @@ begin
    Text_IO.Put_Line ("> " & Translator.To_String (Buffer (1 .. Last)));
 
    Resources.Close (File);
+
+   --  Use a compressed template
+
+   Text_IO.Put_Line
+     (Templates.Parse
+        ("file.tmplt",
+         Templates.Translate_Table'
+           (Templates.Assoc ("ONE", "1"),
+            Templates.Assoc ("TWO", "2"))));
 
 exception
    when E : others =>
