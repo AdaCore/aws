@@ -89,7 +89,7 @@ package body AWS.Services.Dispatchers.URI is
       return Response.Build
         (MIME.Text_HTML,
          "<p>AWS " & Version
-         & "<p> No rule found for '" & URI & "'in dispatch URI call and no "
+         & "<p> No rule found for '" & URI & "' in dispatch URI call and no "
          & "default dispatcher defined.");
    end Dispatch;
 

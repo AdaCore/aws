@@ -345,6 +345,6 @@ private
    end record;
 
    procedure Initialize (Web_Server : in out HTTP);
-   procedure Finalize (Web_Server : in out HTTP);
+   procedure Finalize   (Web_Server : in out HTTP);
 
 end AWS.Server;
