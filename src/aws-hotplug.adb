@@ -90,18 +90,31 @@ package body AWS.Hotplug is
          return To_String (Result);
       end Parameters;
 
+      use type AWS.Status.Request_Method;
+
    begin
       Found := False;
 
       Look_For_Filters : for K in 1 .. Filters.Count loop
 
          if GNAT.Regexp.Match (URI, Filters.Set (K).Regexp) then
+
+            Found := True;
+
             --  we must call the registered server to get the Data.
 
-            Data := Client.Get (To_String (Filters.Set (K).URL)
-                                & URI (URI'First + 1 .. URI'Last)
-                                & Parameters);
-            Found := True;
+            if AWS.Status.Method (Status) = AWS.Status.GET then
+               Data := Client.Get
+                 (To_String (Filters.Set (K).URL)
+                  & URI (URI'First + 1 .. URI'Last)
+                  & Parameters);
+            else
+               Data := Client.Post
+                 (To_String (Filters.Set (K).URL)
+                  & URI (URI'First + 1 .. URI'Last),
+                  AWS.Status.Binary_Data (Status));
+            end if;
+
             exit Look_For_Filters;
          end if;
 
