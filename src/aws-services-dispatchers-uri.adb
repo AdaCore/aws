@@ -61,11 +61,20 @@ package body AWS.Services.Dispatchers.URI is
       Request    : in Status.Data)
       return Response.Data
    is
-      URI : constant String := Status.URI (Request);
+      URI    : constant String := Status.URI (Request);
+      Result : Response.Data;
    begin
       for K in 1 .. URI_Table.Last (Dispatcher.Table) loop
          if Match (Dispatcher.Table.Table (K).all, URI) then
-            return Dispatch (Dispatcher.Table.Table (K).Action.all, Request);
+            Result :=
+              Dispatch (Dispatcher.Table.Table (K).Action.all, Request);
+
+            --  Return response if dispatcher did return something, otherwise
+            --  continue to next handler.
+
+            if Response.Status_Code (Result) /= Messages.S204 then
+               return Result;
+            end if;
          end if;
       end loop;
 
