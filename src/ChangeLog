@@ -1,3 +1,15 @@
+2002-11-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-messages.ads:
+	Add some comments.
+	Update copyright notice.
+
+	* aws-server-protocol_handler.adb:
+	(Send_General_Header): Correctly returns the connection header. We
+	 do not return any Connection options, see [RFC2616 - 14.10]. Should
+	 fix a bug with Opera not ending the connection.
+	Normalize RFC references.
+
 2002-11-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-messages.adb:
