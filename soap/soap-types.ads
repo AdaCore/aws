@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2001-2003                          --
+--                         Copyright (C) 2001-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -39,12 +39,15 @@
 --     a constructor for this new type and a routine named V to get the
 --     value as an Ada type.
 --
---  2. In SOAP.WSDL, add the new type name in Parameter_Type.
+--  2. In SOAP.Parameters add corrsponding Get routine.
 --
---  3. Add support for this new type in all SOAP.WSDL routines. All routines
+--  3. In SOAP.WSDL, add the new type name in Parameter_Type.
+--
+--  4. Add support for this new type in all SOAP.WSDL routines. All routines
 --     are using a case statement to be sure that it won't compile without
---     fixing it first. For obvious reasons, only SOAP.WSDL.To_Type is not
---     using a case statement, be sure to do the right change there.
+--     fixing it first. For obvious reasons, only SOAP.WSDL.To_Type and
+--     SOAP.WSDL.From_Ada are not using a case statement, be sure to do the
+--     right Change There.
 
 with Ada.Calendar;
 with Ada.Finalization;
@@ -215,6 +218,23 @@ package SOAP.Types is
    function V (O : in XSD_Integer) return Integer;
 
    ----------
+   -- Long --
+   ----------
+
+   type Long is range -2**63 .. 2**63 - 1;
+
+   XML_Long : constant String := "xsd:long";
+
+   type XSD_Long is new Scalar with private;
+
+   function Image     (O : in XSD_Long) return String;
+   function XML_Image (O : in XSD_Long) return String;
+   function XML_Type  (O : in XSD_Long) return String;
+
+   function L (V : in Long; Name : in String := "item") return XSD_Long;
+   function V (O : in XSD_Long) return Long;
+
+   ----------
    -- Null --
    ----------
 
@@ -327,6 +347,10 @@ package SOAP.Types is
    --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
    --  Integer.
 
+   function Get (O : in Object'Class) return Long;
+   --  Returns O value as a Long. Raises Data_Error if O is not a SOAP
+   --  Long.
+
    function Get (O : in Object'Class) return Long_Float;
    --  Returns O value as a Long_Float. Raises Data_Error if O is not a SOAP
    --  Float.
@@ -412,6 +436,10 @@ private
 
    type XSD_Integer is new Scalar with record
       V : Integer;
+   end record;
+
+   type XSD_Long is new Scalar with record
+      V : Long;
    end record;
 
    type XSD_Float is new Scalar with record
