@@ -63,7 +63,7 @@ package body AWS.Parameters is
 
    function Count (Parameter_List : in List) return Natural is
    begin
-      return Key_Value.Number_Of_Nodes (Parameter_List.Data);
+      return Parameter_List.Count;
    end Count;
 
    -----------
