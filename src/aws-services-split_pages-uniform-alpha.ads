@@ -58,12 +58,6 @@ package AWS.Services.Split_Pages.Uniform.Alpha is
    --  HREFS_V and INDEXES_V can be used to create an index to the generated
    --  pages. S_HREFS_V and S_INDEXES_V can be used to create a secondary
    --  alphabetical index that points directly to the corresponding element.
-   --  Usable templates for displaying the primary index:
-   --  simple_index.thtml
-   --  sliding_index.thtml
-   --  bounded_index.thtml
-   --  Usable templates for displaying the secondary index:
-   --  simple_index.thtml
 
    type Splitter is new Uniform.Splitter with private;
 
