@@ -29,51 +29,13 @@
 --  $Id$
 
 with Ada.Characters.Handling;
+with Ada.Exceptions;
 
 package body AWS.Messages is
 
    type String_Access is access constant String;
 
-   S100_Code : aliased constant String := "100";
-   S101_Code : aliased constant String := "101";
-   S200_Code : aliased constant String := "200";
-   S201_Code : aliased constant String := "201";
-   S202_Code : aliased constant String := "202";
-   S203_Code : aliased constant String := "203";
-   S204_Code : aliased constant String := "204";
-   S205_Code : aliased constant String := "205";
-   S206_Code : aliased constant String := "206";
-   S300_Code : aliased constant String := "300";
-   S301_Code : aliased constant String := "301";
-   S302_Code : aliased constant String := "302";
-   S303_Code : aliased constant String := "303";
-   S304_Code : aliased constant String := "304";
-   S305_Code : aliased constant String := "305";
-   S307_Code : aliased constant String := "307";
-   S400_Code : aliased constant String := "400";
-   S401_Code : aliased constant String := "401";
-   S402_Code : aliased constant String := "402";
-   S403_Code : aliased constant String := "403";
-   S404_Code : aliased constant String := "404";
-   S405_Code : aliased constant String := "405";
-   S406_Code : aliased constant String := "406";
-   S407_Code : aliased constant String := "407";
-   S408_Code : aliased constant String := "408";
-   S409_Code : aliased constant String := "409";
-   S410_Code : aliased constant String := "410";
-   S411_Code : aliased constant String := "411";
-   S412_Code : aliased constant String := "412";
-   S413_Code : aliased constant String := "413";
-   S414_Code : aliased constant String := "414";
-   S415_Code : aliased constant String := "415";
-   S416_Code : aliased constant String := "416";
-   S417_Code : aliased constant String := "417";
-   S500_Code : aliased constant String := "500";
-   S501_Code : aliased constant String := "501";
-   S502_Code : aliased constant String := "502";
-   S503_Code : aliased constant String := "503";
-   S504_Code : aliased constant String := "504";
-   S505_Code : aliased constant String := "505";
+   subtype Status_Code_Image is String (1 .. 3);
 
    S100_Message : aliased constant String := "Continue";
    S101_Message : aliased constant String := "Switching Protocols";
@@ -117,51 +79,55 @@ package body AWS.Messages is
    S505_Message : aliased constant String := "HTTP Version not supported";
 
    type Status_Data is record
-      Code          : String_Access;
+      Code          : Status_Code_Image;
       Reason_Phrase : String_Access;
    end record;
 
    Status_Messages : array (Status_Code) of Status_Data
-     := (S100 => (S100_Code'Access, S100_Message'Access),
-         S101 => (S101_Code'Access, S101_Message'Access),
-         S200 => (S200_Code'Access, S200_Message'Access),
-         S201 => (S201_Code'Access, S201_Message'Access),
-         S202 => (S202_Code'Access, S202_Message'Access),
-         S203 => (S203_Code'Access, S203_Message'Access),
-         S204 => (S204_Code'Access, S204_Message'Access),
-         S205 => (S205_Code'Access, S205_Message'Access),
-         S206 => (S206_Code'Access, S206_Message'Access),
-         S300 => (S300_Code'Access, S300_Message'Access),
-         S301 => (S301_Code'Access, S301_Message'Access),
-         S302 => (S302_Code'Access, S302_Message'Access),
-         S303 => (S303_Code'Access, S303_Message'Access),
-         S304 => (S304_Code'Access, S304_Message'Access),
-         S305 => (S305_Code'Access, S305_Message'Access),
-         S307 => (S307_Code'Access, S307_Message'Access),
-         S400 => (S400_Code'Access, S400_Message'Access),
-         S401 => (S401_Code'Access, S401_Message'Access),
-         S402 => (S402_Code'Access, S402_Message'Access),
-         S403 => (S403_Code'Access, S403_Message'Access),
-         S404 => (S404_Code'Access, S404_Message'Access),
-         S405 => (S405_Code'Access, S405_Message'Access),
-         S406 => (S406_Code'Access, S406_Message'Access),
-         S407 => (S407_Code'Access, S407_Message'Access),
-         S408 => (S408_Code'Access, S408_Message'Access),
-         S409 => (S409_Code'Access, S409_Message'Access),
-         S410 => (S410_Code'Access, S410_Message'Access),
-         S411 => (S411_Code'Access, S411_Message'Access),
-         S412 => (S412_Code'Access, S412_Message'Access),
-         S413 => (S413_Code'Access, S413_Message'Access),
-         S414 => (S414_Code'Access, S414_Message'Access),
-         S415 => (S415_Code'Access, S415_Message'Access),
-         S416 => (S416_Code'Access, S416_Message'Access),
-         S417 => (S417_Code'Access, S417_Message'Access),
-         S500 => (S500_Code'Access, S500_Message'Access),
-         S501 => (S501_Code'Access, S501_Message'Access),
-         S502 => (S502_Code'Access, S502_Message'Access),
-         S503 => (S503_Code'Access, S503_Message'Access),
-         S504 => (S504_Code'Access, S504_Message'Access),
-         S505 => (S505_Code'Access, S505_Message'Access));
+     := (S100 => ("100", S100_Message'Access),
+         S101 => ("101", S101_Message'Access),
+         S200 => ("200", S200_Message'Access),
+         S201 => ("201", S201_Message'Access),
+         S202 => ("202", S202_Message'Access),
+         S203 => ("203", S203_Message'Access),
+         S204 => ("204", S204_Message'Access),
+         S205 => ("205", S205_Message'Access),
+         S206 => ("206", S206_Message'Access),
+         S300 => ("300", S300_Message'Access),
+         S301 => ("301", S301_Message'Access),
+         S302 => ("302", S302_Message'Access),
+         S303 => ("303", S303_Message'Access),
+         S304 => ("304", S304_Message'Access),
+         S305 => ("305", S305_Message'Access),
+         S307 => ("307", S307_Message'Access),
+         S400 => ("400", S400_Message'Access),
+         S401 => ("401", S401_Message'Access),
+         S402 => ("402", S402_Message'Access),
+         S403 => ("403", S403_Message'Access),
+         S404 => ("404", S404_Message'Access),
+         S405 => ("405", S405_Message'Access),
+         S406 => ("406", S406_Message'Access),
+         S407 => ("407", S407_Message'Access),
+         S408 => ("408", S408_Message'Access),
+         S409 => ("409", S409_Message'Access),
+         S410 => ("410", S410_Message'Access),
+         S411 => ("411", S411_Message'Access),
+         S412 => ("412", S412_Message'Access),
+         S413 => ("413", S413_Message'Access),
+         S414 => ("414", S414_Message'Access),
+         S415 => ("415", S415_Message'Access),
+         S416 => ("416", S416_Message'Access),
+         S417 => ("417", S417_Message'Access),
+         S500 => ("500", S500_Message'Access),
+         S501 => ("501", S501_Message'Access),
+         S502 => ("502", S502_Message'Access),
+         S503 => ("503", S503_Message'Access),
+         S504 => ("504", S504_Message'Access),
+         S505 => ("505", S505_Message'Access));
+
+   Month_Name : constant array (Calendar.Month_Number)
+     of String (1 .. 3) := ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
 
    -----------
    -- Image --
@@ -169,7 +135,7 @@ package body AWS.Messages is
 
    function Image (S : in Status_Code) return String is
    begin
-      return Status_Messages (S).Code.all;
+      return Status_Messages (S).Code;
    end Image;
 
    -------------------
@@ -188,7 +154,7 @@ package body AWS.Messages is
    function Status_Line (Code : in Status_Code) return String is
    begin
       return HTTP_Version & ' '
-        & Status_Messages (Code).Code.all & ' '
+        & Status_Messages (Code).Code & ' '
         & Status_Messages (Code).Reason_Phrase.all;
    end Status_Line;
 
@@ -238,57 +204,73 @@ package body AWS.Messages is
 
    function To_HTTP_Date (Time : in Calendar.Time) return String is
 
-      function Image (V : in Positive) return String;
-      --  returns V image without the leading space
+      function Image (V : in Natural) return String;
+      --  returns V image without the leading space and with leading zero if
+      --  only one digit
 
-      function Month_Name (M : in Calendar.Month_Number) return String;
-      --  returns the month name given a Month number
+      function Weekday (Date : Calendar.Time) return String;
+      --  returns the weekday as a 3 letters string for the Date.
 
       -----------
       -- Image --
       -----------
 
-      function Image (V : in Positive) return String is
-         V_Image : constant String := Positive'Image (V);
+      function Image (V : in Natural) return String is
+         V_Image : constant String := Natural'Image (V);
       begin
-         return V_Image (2 .. V_Image'Last);
+         if V_Image'Length = 2 then
+            --  only one digit add a leading zero
+            return '0' & V_Image (2 .. V_Image'Last);
+         else
+            return V_Image (2 .. V_Image'Last);
+         end if;
       end Image;
 
-      ----------------
-      -- Month_Name --
-      ----------------
+      -------------
+      -- Weekday --
+      -------------
 
-      function Month_Name (M : in Calendar.Month_Number) return String is
+      function Weekday (Date : Calendar.Time) return String is
+         C         : Integer;
+         Y         : Integer := Calendar.Year (Time);
+         M         : Integer := Calendar.Month (Time);
+         D         : Integer := Calendar.Day (Time);
+
+         Day_Names : constant array (Integer range 0 .. 6) of String (1 .. 3)
+           := ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
       begin
-         case M is
-            when  1 => return "Jan";
-            when  2 => return "Feb";
-            when  3 => return "Mar";
-            when  4 => return "Apr";
-            when  5 => return "May";
-            when  6 => return "Jun";
-            when  7 => return "Jul";
-            when  8 => return "Aug";
-            when  9 => return "Sep";
-            when 10 => return "Oct";
-            when 11 => return "Nov";
-            when 12 => return "Dec";
-         end case;
-      end Month_Name;
+         --  Calculate day of week by using Zeller's congruence
+         if M < 3 then
+            Y := Y - 1;
+            M := M + 10;
+         else
+            M := M - 2;
+         end if;
 
-      Day  : constant String := Image (Calendar.Day (Time));
-      Mon  : constant String := Month_Name (Calendar.Month (Time));
-      Year : constant String := Image (Calendar.Year (Time));
+         C := Y / 100;     --  first two digits of Year
+         Y := Y mod 100;   --  last two digits of Year
+
+         return Day_Names (((26 * M - 2) / 10
+                            + D
+                            + Y
+                            + Y / 4
+                            + C / 4
+                            - 2 * C) mod 7);
+      end Weekday;
+
+      Day  : constant String  := Image (Calendar.Day (Time));
+      Mon  : constant String  := Month_Name (Calendar.Month (Time));
+      Year : constant String  := Image (Calendar.Year (Time));
 
       Secs : constant Natural := Natural (Calendar.Seconds (Time) - 0.5);
 
       Tmp  : constant Natural := Secs mod 3600;
 
-      H    : constant String := Image (Secs / 3600);
-      M    : constant String := Image (Tmp / 60);
-      S    : constant String := Image (Tmp mod 60);
+      H    : constant String  := Image (Secs / 3600);
+      M    : constant String  := Image (Tmp / 60);
+      S    : constant String  := Image (Tmp mod 60);
    begin
-      return "Sun, " & Day & ' ' & Mon & ' ' & Year & ' '
+      return Weekday (Time) & ", " & Day & ' ' & Mon & ' ' & Year & ' '
         & H & ':' & M & ':' & S & " GMT";
    end To_HTTP_Date;
 
@@ -307,31 +289,13 @@ package body AWS.Messages is
       function Month_Number (Month_Name : in String)
                             return Calendar.Month_Number is
       begin
-         if Month_Name = "Jan" then
-            return 1;
-         elsif Month_Name = "Feb" then
-            return 2;
-         elsif Month_Name = "Mar" then
-            return 3;
-         elsif Month_Name = "Apr" then
-            return 4;
-         elsif Month_Name = "May" then
-            return 5;
-         elsif Month_Name = "Jun" then
-            return 6;
-         elsif Month_Name = "Jul" then
-            return 7;
-         elsif Month_Name = "Aug" then
-            return 8;
-         elsif Month_Name = "Sep" then
-            return 9;
-         elsif Month_Name = "Oct" then
-            return 10;
-         elsif Month_Name = "Nov" then
-            return 11;
-         else
-            return 12;
-         end if;
+          for I in Calendar.Month_Number loop
+             if Month_Name = Messages.Month_Name (I) then
+                return I;
+             end if;
+          end loop;
+          Exceptions.Raise_Exception (Internal_Error'Identity,
+                                      "Month_Number: Month name not found");
       end Month_Number;
 
    begin
