@@ -30,167 +30,289 @@
 
 --  $Id$
 
---  This package provide an easy way to handle a configuration file for
---  AWS. Each line in the aws.ini has the following format:
+--  This package provide an easy way to handle server configuration options.
 --
---     <option name> <option value>
---
---  This package will initialize itself by parsing aws.ini, each option are
---  descripted below.
---
---  It is then possible to use AWS.Config to initialize the HTTP settings.
---
---  If file aws.ini is not found all functions below will return the default
---  value as declared at the start of the package.
+--  If initialization of this package is not done all functions below will
+--  return the default value as declared in AWS.Default.
+
+with Ada.Strings.Unbounded;
+
+with AWS.Default;
 
 package AWS.Config is
 
-   Default_Server_Name        : constant String := "[no name]";
-   Default_WWW_Root           : constant String := "./";
-   Default_Admin_URI          : constant String := "";
-   Default_Server_Port        : constant        := 8080;
-   Default_Hotplug_Port       : constant        := 8888;
-   Default_Max_Connection     : constant        := 5;
-   Default_Log_File_Directory : constant String := "./";
-   Default_Upload_Directory   : constant String := "./";
+   use Ada.Strings.Unbounded;
 
-   Eight_Hours  : constant := 28_800.0;
-   Three_Hours  : constant := 10_800.0;
-   Five_Minutes : constant :=  5.0 * 60.0;
-   Ten_Minutes  : constant := 10.0 * 60.0;
+   type Object is private;
 
-   Default_Session_Cleanup_Interval        : constant Duration := Five_Minutes;
-   Default_Session_Lifetime                : constant Duration := Ten_Minutes;
+   Default_Config : constant Object;
 
-   Default_Cleaner_Wait_For_Client_Timeout : constant Duration := 80.0;
-   Default_Cleaner_Client_Header_Timeout   : constant Duration := 20.0;
-   Default_Cleaner_Client_Data_Timeout     : constant Duration := Eight_Hours;
-   Default_Cleaner_Server_Response_Timeout : constant Duration := Eight_Hours;
-
-   Default_Force_Wait_For_Client_Timeout   : constant Duration := 2.0;
-   Default_Force_Client_Header_Timeout     : constant Duration := 3.0;
-   Default_Force_Client_Data_Timeout       : constant Duration := Three_Hours;
-   Default_Force_Server_Response_Timeout   : constant Duration := Three_Hours;
-
-   Default_Send_Timeout    : constant Duration := 40.0;
-   Default_Receive_Timeout : constant Duration := 30.0;
-
-   Default_Status_Page     : constant String := "aws_status.thtml";
-   Default_Up_Image        : constant String := "aws_up.png";
-   Default_Down_Image      : constant String := "aws_down.png";
-   Default_Logo_Image      : constant String := "aws_logo.png";
-
-   function Server_Name return String;
-   --  Format: Server_Name <string>
+   function Server_Name (O : in Object) return String;
    --  This is the name of the server as set by AWS.Server.Start.
 
-   function WWW_Root return String;
-   --  Format: WWW_Root <string>
+   function WWW_Root (O : in Object) return String;
    --  This is the root directory name for the server. This variable is not
    --  used internally by AWS. It is supposed to be used by the callback
    --  procedures who want to retreive physical objects (images, Web
    --  pages...). The default value is the current working directory.
 
-   function Admin_URI return String;
-   --  Format: Admin_URI <string>
+   function Admin_URI (O : in Object) return String;
    --  This is the name of the admin server page as set by AWS.Server.Start.
 
-   function Server_Port return Positive;
-   --  Format: Server_Port <positive>
+   function Server_Port (O : in Object) return Positive;
    --  This is the server port as set by the HTTP object declaration.
 
-   function Hotplug_Port return Positive;
-   --  Format: Hotplug_Port <positive>
+   function Hotplug_Port (O : in Object) return Positive;
    --  This is the hotplug communication port needed to register and
    --  un-register an hotplug module.
 
-   function Max_Connection return Positive;
-   --  Format: Max_Connection <positive>
+   function Max_Connection (O : in Object) return Positive;
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
-   function Log_File_Directory return String;
-   --  Format: Log_File_Directory <string>
+   function Log_File_Directory (O : in Object) return String;
    --  This point to the directory where log files will be written. The
    --  directory returned will end with a directory separator.
 
-   function Upload_Directory return String;
-   --  Format: Upload_Directory <string>
+   function Upload_Directory (O : in Object) return String;
    --  This point to the directory where uploaded files will be stored. The
    --  directory returned will end with a directory separator.
 
-   function Session_Cleanup_Interval return Duration;
-   --  Format: Session_Cleanup_Interval <duration>
+   function Session (O : in Object) return Boolean;
+   --  Returns True if the server session is activated.
+
+   function Session_Cleanup_Interval (O : in Object) return Duration;
    --  Number of seconds between each run of the cleaner task to remove
    --  obsolete session data.
 
-   function Session_Lifetime return Duration;
-   --  Format: Session_Lifetime <duration>
+   function Session_Lifetime (O : in Object) return Duration;
    --  Number of seconds to keep a session if not used. After this period the
    --  session data is obsoleted and will be removed during new cleanup.
 
-   function Cleaner_Wait_For_Client_Timeout return Duration;
-   --  Format: Cleaner_Wait_For_Client <duration>
+   function Cleaner_Wait_For_Client_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for a client request.
    --  This is a timeout for regular cleaning task.
 
-   function Cleaner_Client_Header_Timeout   return Duration;
-   --  Format: Cleaner_Client_Header <duration>
+   function Cleaner_Client_Header_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client header.
    --  This is a timeout for regular cleaning task.
 
-   function Cleaner_Client_Data_Timeout     return Duration;
-   --  Format: Cleaner_Client_Data  <duration>
+   function Cleaner_Client_Data_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client message body.
    --  This is a timeout for regular cleaning task.
 
-   function Cleaner_Server_Response_Timeout return Duration;
-   --  Format: Cleaner_Server_Response <duration>
+   function Cleaner_Server_Response_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client to accept answer.
    --  This is a timeout for regular cleaning task.
 
-   function Force_Wait_For_Client_Timeout   return Duration;
-   --  Format: Force_Wait_For_Client <duration>
+   function Force_Wait_For_Client_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for a client request.
    --  This is a timeout for urgent request when ressources are missing.
 
-   function Force_Client_Header_Timeout     return Duration;
-   --  Format: Force_Client_Header <duration>
+   function Force_Client_Header_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client header.
    --  This is a timeout for urgent request when ressources are missing.
 
-   function Force_Client_Data_Timeout       return Duration;
-   --  Format: Force_Client_Data <duration>
+   function Force_Client_Data_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client message body.
    --  This is a timeout for urgent request when ressources are missing.
 
-   function Force_Server_Response_Timeout   return Duration;
-   --  Format: Force_Server_Response <duration>
+   function Force_Server_Response_Timeout (O : in Object) return Duration;
    --  Number of seconds to timout on waiting for client to accept answer.
    --  This is a timeout for urgent request when ressources are missing.
 
-   function Send_Timeout return Duration;
-   --  Format: Send_Timeout <duration>
+   function Send_Timeout (O : in Object) return Duration;
    --  Number of seconds to timeout when sending chunck of data.
 
-   function Receive_Timeout   return Duration;
-   --  Format: Receive_Timeout <duration>
+   function Receive_Timeout (O : in Object) return Duration;
    --  Number of seconds to timeout when receiving chunck of data.
 
-   function Status_Page return String;
-   --  Format: Status_Page <string>
+   function Status_Page (O : in Object) return String;
    --  Filename for the status page.
 
-   function Up_Image    return String;
-   --  Format: Status_Page <string>
+   function Up_Image (O : in Object) return String;
    --  Filename for the up arrow image used in the status page.
 
-   function Down_Image  return String;
-   --  Format: Status_Page <string>
+   function Down_Image (O : in Object) return String;
    --  Filename for the down arrow image used in the status page.
 
-   function Logo_Image  return String;
-   --  Format: Status_Page <string>
+   function Logo_Image (O : in Object) return String;
    --  Filename for the AWS logo image used in the status page.
+
+   function Security (O : in Object) return Boolean;
+   --  Is the server working through th SSL
+
+   function Case_Sensitive_Parameters (O : in Object) return Boolean;
+   --  Http parameters are case sensitive.
+
+private
+
+   pragma Inline
+     (Server_Name,
+      WWW_Root,
+      Admin_URI,
+      Server_Port,
+      Security,
+      Hotplug_Port,
+      Max_Connection,
+      Log_File_Directory,
+      Upload_Directory,
+      Session,
+      Session_Cleanup_Interval,
+      Session_Lifetime,
+      Cleaner_Wait_For_Client_Timeout,
+      Cleaner_Client_Header_Timeout,
+      Cleaner_Client_Data_Timeout,
+      Cleaner_Server_Response_Timeout,
+      Force_Wait_For_Client_Timeout,
+      Force_Client_Header_Timeout,
+      Force_Client_Data_Timeout,
+      Force_Server_Response_Timeout,
+      Send_Timeout,
+      Receive_Timeout,
+      Status_Page,
+      Up_Image,
+      Down_Image,
+      Logo_Image,
+      Case_Sensitive_Parameters);
+
+   --  List of token (keyword) recognized by the parser. There must be one
+   --  entry for every option name to be handled.
+
+   type Parameter_Name is
+     (Server_Name,
+      WWW_Root,
+      Admin_URI,
+      Server_Port,
+      Security,
+      Hotplug_Port,
+      Max_Connection,
+      Log_File_Directory,
+      Upload_Directory,
+      Session,
+      Session_Cleanup_Interval,
+      Session_Lifetime,
+      Cleaner_Wait_For_Client_Timeout,
+      Cleaner_Client_Header_Timeout,
+      Cleaner_Client_Data_Timeout,
+      Cleaner_Server_Response_Timeout,
+      Force_Wait_For_Client_Timeout,
+      Force_Client_Header_Timeout,
+      Force_Client_Data_Timeout,
+      Force_Server_Response_Timeout,
+      Send_Timeout,
+      Receive_Timeout,
+      Status_Page,
+      Up_Image,
+      Down_Image,
+      Logo_Image,
+      Case_Sensitive_Parameters);
+
+   type Value_Type  is (Str, Dir, Pos, Dur, Bool);
+
+   type Values (Kind : Value_Type := Str) is record
+
+      case Kind is
+         when Str =>
+            Str_Value : Unbounded_String;
+
+         when Dir =>
+            Dir_Value : Unbounded_String;
+
+         when Pos =>
+            Pos_Value : Positive;
+
+         when Dur =>
+            Dur_Value : Duration;
+
+         when Bool =>
+            Bool_Value : Boolean;
+
+      end case;
+   end record;
+
+   type Object is array (Parameter_Name) of Values;
+
+   Default_Config : constant Object
+     := (Session_Cleanup_Interval =>
+           (Dur, Default.Session_Cleanup_Interval),
+
+         Session_Lifetime =>
+           (Dur, Default.Session_Lifetime),
+
+         Cleaner_Wait_For_Client_Timeout =>
+           (Dur, Default.Cleaner_Wait_For_Client_Timeout),
+
+         Cleaner_Client_Header_Timeout =>
+           (Dur, Default.Cleaner_Client_Header_Timeout),
+
+         Cleaner_Client_Data_Timeout =>
+           (Dur, Default.Cleaner_Client_Data_Timeout),
+
+         Cleaner_Server_Response_Timeout =>
+           (Dur, Default.Cleaner_Server_Response_Timeout),
+
+         Force_Wait_For_Client_Timeout =>
+           (Dur, Default.Force_Wait_For_Client_Timeout),
+
+         Force_Client_Header_Timeout =>
+           (Dur, Default.Force_Client_Header_Timeout),
+
+         Force_Client_Data_Timeout =>
+           (Dur, Default.Force_Client_Data_Timeout),
+
+         Force_Server_Response_Timeout =>
+           (Dur, Default.Force_Server_Response_Timeout),
+
+         Send_Timeout =>
+           (Dur, Default.Send_Timeout),
+
+         Receive_Timeout =>
+           (Dur, Default.Receive_Timeout),
+
+         Status_Page =>
+           (Str, To_Unbounded_String (Default.Status_Page)),
+
+         Up_Image =>
+           (Str, To_Unbounded_String (Default.Up_Image)),
+
+         Down_Image =>
+           (Str, To_Unbounded_String (Default.Down_Image)),
+
+         Logo_Image =>
+           (Str, To_Unbounded_String (Default.Logo_Image)),
+
+         Admin_URI =>
+           (Str, To_Unbounded_String (Default.Admin_URI)),
+
+         Server_Name =>
+           (Str, To_Unbounded_String (Default.Server_Name)),
+
+         WWW_Root =>
+           (Dir, To_Unbounded_String (Default.WWW_Root)),
+
+         Log_File_Directory =>
+           (Dir, To_Unbounded_String (Default.Log_File_Directory)),
+
+         Upload_Directory =>
+           (Dir, To_Unbounded_String (Default.Upload_Directory)),
+
+         Max_Connection =>
+           (Pos, Default.Max_Connection),
+
+         Server_Port =>
+           (Pos, Default.Server_Port),
+
+         Hotplug_Port =>
+           (Pos, Default.Hotplug_Port),
+
+         Session =>
+           (Bool, Default.Session),
+
+         Security =>
+           (Bool, Default.Security),
+
+         Case_Sensitive_Parameters =>
+           (Bool, Default.Case_Sensitive_Parameters));
 
 end AWS.Config;
