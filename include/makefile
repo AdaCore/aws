@@ -20,7 +20,7 @@ SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
 	sha.ads sha-process_data.adb sha-strings.adb \
 	ai302-containers-hash_tables.adb \
 	ai302-containers-indefinite_hashed_maps.adb \
-	ai302-containers-prime_numbers.adb \
+	ai302-containers-prime_numbers.adb ai302.ads \
 	ai302-strings-hash.adb strings_maps.ads \
 	charles-algorithms-generic_lower_bound.adb \
 	charles-algorithms-generic_lower_bound.ads \
