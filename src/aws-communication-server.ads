@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,8 +38,8 @@ generic
    type T_Access is access T;
 
    with function Callback
-     (Server     : in String;
-      Name       : in String;
+     (Server     : in String; -- Host name
+      Name       : in String; -- Message name
       Context    : in T_Access;
       Parameters : in Parameter_Set := Null_Parameter_Set)
       return Response.Data;
@@ -47,7 +47,7 @@ generic
 package AWS.Communication.Server is
 
    --  Each instantiation of this package will create an HTTP server waiting
-   --  for incoming request at the Port specified in the Start formal
+   --  for incoming requests at the Port specified in the Start formal
    --  parameter. This communication server must be started with the Start
    --  procedure and can be stopped with the procedure Shutdown below.
 
