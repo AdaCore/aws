@@ -37,7 +37,8 @@ package body AWS.Containers.Tables.Set is
    procedure Reset (Table : in out Index_Table_Type);
    --  Free all elements and destroy his entries.
 
-   procedure Free is new Ada.Unchecked_Deallocation (String, String_Access);
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Name_Value_Type, Name_Value_Access);
 
    procedure Free_Elements (Data : in out Data_Table.Instance);
    --  Free all dynamically allocated strings in the data table.
@@ -55,10 +56,6 @@ package body AWS.Containers.Tables.Set is
         (Name, not Table.Case_Sensitive);
 
       Found   : Boolean;
-
-      Item    : Element :=
-        (Name => new String'(Name),
-         Value => new String'(Value));
 
       procedure Modify
         (Key   : in     String;
@@ -81,7 +78,13 @@ package body AWS.Containers.Tables.Set is
 
    begin
 
-      Data_Table.Append (Table.Data, Item);
+      Data_Table.Append
+        (Table.Data,
+         new Name_Value_Type'
+           (Name_Length  => Name'Length,
+            Value_Length => Value'Length,
+            Name         => Name,
+            Value        => Value));
 
       Update
         (Table => Index_Table.Table_Type (Table.Index.all),
@@ -137,8 +140,7 @@ package body AWS.Containers.Tables.Set is
    procedure Free_Elements (Data : in out Data_Table.Instance) is
    begin
       for I in Data_Table.First .. Data_Table.Last (Data) loop
-         Free (Data.Table (I).Name);
-         Free (Data.Table (I).Value);
+         Free (Data.Table (I));
       end loop;
    end Free_Elements;
 
