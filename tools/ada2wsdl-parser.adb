@@ -909,7 +909,6 @@ package body Ada2WSDL.Parser is
       use Text_IO;
 
       CU         : Asis.Compilation_Unit;
-      CU_Kind    : Unit_Kinds;
 
       My_Control : Traverse_Control := Continue;
       My_State   : Body_State;
@@ -925,8 +924,6 @@ package body Ada2WSDL.Parser is
       Ada_Environments.Open (My_Context);
 
       CU := Extensions.Main_Unit_In_Current_Tree (My_Context);
-
-      CU_Kind := Compilation_Units.Unit_Kind (CU);
 
       if Compilation_Units.Is_Nil (CU) then
          Put_Line
