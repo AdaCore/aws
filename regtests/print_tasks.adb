@@ -32,12 +32,14 @@
 --
 --  Print all tasks except current.
 --
---  Used for detect tasks leaking during the regression tests.
---  This procedure is only for GNAT. It should be reimplemented or empty
+--  Used to detect tasks leaking during the regression tests.
+--  This procedure is only for GNAT. It should be reimplemented or emptied
 --  for other Ada compilers.
 
+pragma Warnings (Off);
 with System.Tasking.Debug;
 with System.Task_Primitives.Operations;
+pragma Warnings (On);
 
 procedure Print_Tasks is
    use System.Tasking;
