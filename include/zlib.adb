@@ -138,8 +138,7 @@ package body ZLib is
    is
       Code : Thin.Int;
    begin
-      Code := Flate (Filter.Compression).Done
-          (To_Thin_Access (Filter.Strm));
+      Code := Flate (Filter.Compression).Done (To_Thin_Access (Filter.Strm));
 
       Filter.Opened := False;
 
@@ -216,7 +215,7 @@ package body ZLib is
          Filter.Offset := Simple_GZip_Header'Last + 1;
       end if;
 
-      Filter.Strm := new Z_Stream;
+      Filter.Strm        := new Z_Stream;
       Filter.Compression := True;
       Filter.Stream_End  := False;
       Filter.Opened      := True;
@@ -344,7 +343,7 @@ package body ZLib is
          when Default => null;
       end case;
 
-      Filter.Strm := new Z_Stream;
+      Filter.Strm        := new Z_Stream;
       Filter.Compression := False;
       Filter.Stream_End  := False;
       Filter.Opened      := True;
