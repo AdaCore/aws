@@ -1,3 +1,9 @@
+2003-03-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.adb, aws-server-protocol_handler.adb:
+	(Protocol_Handler): New parameter Keep_Alive for be able to reject
+	 keep-alive connection for the last free slot.
+
 2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-files.adb:
