@@ -573,23 +573,26 @@ package body AWS.Server is
          end if;
       end Get_Peername;
 
+      ---------------------
+      -- Get_Socket_Info --
+      ---------------------
+
       function Get_Socket_Info (Index : in Positive) return Socket_Data is
          use type Socket_Access;
          Socket : constant Socket_Access := Table (Index).Sock;
       begin
          if Socket = null then
             return Socket_Data'
-               (Peername_Length => 1,
-                Peername => "-",
-                FD => 0);
+              (Peername_Length => 1, Peername => "-", FD => 0);
+
          else
             declare
                Peername : constant String := Net.Peer_Addr (Socket.all);
             begin
                return Socket_Data'
                   (Peername_Length => Peername'Length,
-                   Peername => Peername,
-                   FD => Net.Get_FD (Socket.all));
+                   Peername        => Peername,
+                   FD              => Net.Get_FD (Socket.all));
             end;
          end if;
       end Get_Socket_Info;
