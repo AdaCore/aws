@@ -210,3 +210,5 @@ implemented:
 
 - Now that AWS is based on project files it will be cleaner to remove the copy
   of the files in config/ and use a Naming GNAT Project file package.
+
+- Make style checking options the same in release and debug modes.
