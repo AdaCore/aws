@@ -229,7 +229,8 @@ package body AWS.URL is
 
          procedure Parse_Path_File is
             PF : constant String := URL (I2 + 1 .. URL'Last);
-            I3 : Natural := Strings.Fixed.Index (PF, "/", Strings.Backward);
+            I3 : constant Natural
+              := Strings.Fixed.Index (PF, "/", Strings.Backward);
          begin
             if I3 = 0 then
                O.Path := US ("/");
@@ -296,7 +297,7 @@ package body AWS.URL is
       end if;
 
       if O.Host /= Null_Unbounded_String
-        and then Length (O.Path) >= 3
+        and then Length (O.Path) > 3
         and then Slice (O.Path, 1, 4) = "/../"
       then
          Exceptions.Raise_Exception
