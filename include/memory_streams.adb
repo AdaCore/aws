@@ -117,7 +117,8 @@ package body Memory_Streams is
          if Stream.Last.Data'Length > Stream.Last_Length then
             declare
                Ptr : constant Element_Access
-                := new Element_Array'(Stream.Last.Data (1 .. Stream.Last_Length));
+                  := new Element_Array'(Stream.Last.Data
+                                          (1 .. Stream.Last_Length));
             begin
                Free (Stream.Last.Data);
                Stream.Last.Data := Ptr;
