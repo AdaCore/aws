@@ -361,7 +361,7 @@ package body SOAP.Generator is
       Text_IO.New_Line (File);
 
       if O.CVS_Tag then
-         Text_IO.Put_Line (File, "--  $Id$");
+         Text_IO.Put_Line (File, "--  $" & "Id$");
          Text_IO.New_Line (File);
       end if;
    end Put_File_Header;
@@ -1150,6 +1150,11 @@ package body SOAP.Generator is
       Text_IO.Put_Line (Type_Ads, "package " & L_Name & ".Types is");
       Text_IO.New_Line (Type_Ads);
       Text_IO.Put_Line (Type_Ads, "   pragma Elaborate_Body;");
+      Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, Ada.Calendar);");
+      Text_IO.Put_Line
+        (Type_Ads, "   pragma Warnings (Off, Ada.Strings.Unbounded);");
+      Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Types);");
+      Text_IO.Put_Line (Type_Ads, "   pragma Warnings (Off, SOAP.Utils);");
       Text_IO.New_Line (Type_Ads);
       Text_IO.Put_Line (Type_Ads, "   use Ada.Strings.Unbounded;");
 
