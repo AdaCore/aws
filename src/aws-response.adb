@@ -32,6 +32,8 @@
 
 with Ada.Strings.Fixed;
 
+with AWS.OS_Lib;
+
 package body AWS.Response is
 
    -----------------
@@ -190,7 +192,7 @@ package body AWS.Response is
    begin
       return Data'(File,
                    Messages.S200,
-                   0,
+                   Integer (OS_Lib.File_Size (Filename)),
                    To_Unbounded_String (Content_Type),
                    To_Unbounded_String (Filename),
                    Null_Unbounded_String,
