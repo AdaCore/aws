@@ -49,7 +49,7 @@ procedure Tres2 is
    procedure Create_File;
    --  Create file for the test
 
-   F : Resources.File_Access;
+   F : Resources.File_Type;
 
    Buffer : String (1 .. 1_024);
    Last   : Natural;
@@ -85,26 +85,26 @@ begin
 
    Resources.Open (F, "file");
 
-   Resources.Get_Line (F.all, Buffer, Last);
+   Resources.Get_Line (F, Buffer, Last);
    Text_IO.Put_Line ("1) " & Buffer (1 .. Last));
 
-   Resources.Read (F.all, Elements, E_Last);
+   Resources.Read (F, Elements, E_Last);
    Text_IO.Put_Line ("2) " & Translator.To_String (Elements (1 .. E_Last)));
 
-   Resources.Get_Line (F.all, Buffer, Last);
+   Resources.Get_Line (F, Buffer, Last);
    Text_IO.Put_Line ("3) " & Buffer (1 .. Last));
 
-   Resources.Read (F.all, Elements, E_Last);
+   Resources.Read (F, Elements, E_Last);
    Text_IO.Put_Line ("4) " & Translator.To_String (Elements (1 .. E_Last)));
 
    for K in 1 .. 2_999 loop
-      Resources.Get_Line (F.all, Buffer, Last);
+      Resources.Get_Line (F, Buffer, Last);
       if Buffer (1 .. Last) /= "123456789" then
          Text_IO.Put_Line ("Error " & Buffer (1 .. Last)
                              & "; K=" & Positive'Image (K));
       end if;
 
-      Resources.Read (F.all, Elements, E_Last);
+      Resources.Read (F, Elements, E_Last);
 
       if Translator.To_String (Elements (1 .. 3)) /= "abc" then
          Text_IO.Put_Line ("Error " & Translator.To_String (Elements (1 .. 3))
