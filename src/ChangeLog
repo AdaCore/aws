@@ -5,6 +5,16 @@
 	 Set_Proxy_Authentication before socket connection.
 	(Get_Certificate): Make socket connection if necessary.
 
+	* aws-net-ssl.ads:
+	(Secure_Client): Update comments.
+	(Secure_Server): Update comments.
+	(Do_Handshake): New routine.
+
+	* aws-net-ssl.adb:
+	(Connect): Do not call SSL_set_connect_state.
+	(Accept): Do not call SSL_set_accept_state.
+	(Do_Handshake): New routine.
+
 2004-09-28  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.adb:
