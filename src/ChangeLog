@@ -1,5 +1,14 @@
 2002-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-url.adb:
+	(Normalize): Remove leading reference to current directory.
+	(Parse.Parse): Handle properly current and parent directories
+	 which must be part of the URL path.
+	(Parse): Check also for parent directory without trailing
+	 directory separator "/.." to flag wrong URL.
+
+2002-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-client.adb:
 	(Read_Chunk): Use Utils.Hex_Value instead of adhoc implementation.
 
