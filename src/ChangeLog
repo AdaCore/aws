@@ -1,3 +1,8 @@
+2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.adb:
+	(Line): Fix previous code which does not compile.
+
 2003-03-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-default.adb:
