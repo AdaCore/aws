@@ -32,16 +32,14 @@
 
 with Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
-with Ada.Unchecked_Deallocation;
 
 with AWS.URL;
-with AWS.Utils;
-with AWS.Key_Value;
+with AWS.Containers.Tables.Set;
 
 package body AWS.Parameters.Set is
 
    use Ada.Strings.Unbounded;
-   use Ada.Strings;
+   use AWS.Containers;
 
    ---------
    -- Add --
@@ -51,46 +49,11 @@ package body AWS.Parameters.Set is
      (Parameter_List : in out List;
       Name, Value    : in     String)
    is
-
-      C       : constant Positive := Count (Parameter_List) + 1;
-
-      K_Key   : constant String   := "__AWS_K" & Utils.Image (C);
-      K_Value : constant String   := "__AWS_V" & Utils.Image (C);
-
-      OL_Key  : constant String   := URL.Decode (Name);
-      L_Key   : constant String   := Normalize_Name
-        (OL_Key, not Parameter_List.Case_Sensitive);
-
-      L_Value : constant String   := URL.Decode (Value);
    begin
-
-      begin
-         Key_Value.Insert
-           (Parameter_List.Data.all,
-            L_Key,
-            To_Unbounded_String (L_Value));
-      exception
-         --  This key already exist, catenate the new value to the old one
-         --  separated with Val_Separator.
-
-         when AWS.Key_Value.Table.Duplicate_Item_Error =>
-            declare
-               Current_Value : constant String :=
-                 Internal_Get (Parameter_List, L_Key, 0);
-            begin
-               Key_Value.Replace_Value
-                 (Parameter_List.Data.all,
-                  L_Key,
-                  To_Unbounded_String
-                  (Current_Value & Val_Separator & L_Value));
-            end;
-      end;
-
-      Key_Value.Insert
-        (Parameter_List.HTTP_Data.all, K_Key, To_Unbounded_String (OL_Key));
-
-      Key_Value.Insert
-        (Parameter_List.HTTP_Data.all, K_Value, To_Unbounded_String (L_Value));
+      Tables.Set.Add
+        (Tables.Table_Type (Parameter_List),
+         URL.Decode (Name),
+         URL.Decode (Value));
    end Add;
 
    ---------
@@ -98,6 +61,7 @@ package body AWS.Parameters.Set is
    ---------
 
    procedure Add (Parameter_List : in out List; Parameters : in String) is
+      use Ada.Strings;
       P : String renames Parameters;
       C : Positive := P'First;
       I : Natural;
@@ -143,7 +107,7 @@ package body AWS.Parameters.Set is
      (Parameter_List : in out List;
       Mode           : in     Boolean) is
    begin
-      Parameter_List.Case_Sensitive := Mode;
+      Tables.Set.Case_Sensitive (Tables.Table_Type (Parameter_List), Mode);
    end Case_Sensitive;
 
    ----------
@@ -151,19 +115,8 @@ package body AWS.Parameters.Set is
    ----------
 
    procedure Free (Parameter_List : in out List) is
-
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Key_Value.Set, Key_Value.Set_Access);
-
-      use type Key_Value.Set_Access;
-
    begin
-      if not (Parameter_List.Data = null) then
-         Key_Value.Destroy (Parameter_List.Data.all);
-         Key_Value.Destroy (Parameter_List.HTTP_Data.all);
-         Free (Parameter_List.Data);
-         Free (Parameter_List.HTTP_Data);
-      end if;
+      Tables.Set.Free (Tables.Table_Type (Parameter_List));
    end Free;
 
    -----------
@@ -171,16 +124,8 @@ package body AWS.Parameters.Set is
    -----------
 
    procedure Reset (Parameter_List : in out List) is
-      use type Key_Value.Set_Access;
    begin
-      if Parameter_List.Data = null then
-         Parameter_List.Data := new Key_Value.Set;
-         Parameter_List.HTTP_Data := new Key_Value.Set;
-      else
-         Key_Value.Destroy (Parameter_List.Data.all);
-         Key_Value.Destroy (Parameter_List.HTTP_Data.all);
-      end if;
-
+      Tables.Set.Reset (Tables.Table_Type (Parameter_List));
       Parameter_List.Parameters := Null_Unbounded_String;
    end Reset;
 
