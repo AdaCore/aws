@@ -208,7 +208,8 @@ package AWS.Config is
 
    function Check_URL_Validity (O : in Object) return Boolean;
    pragma Inline (Check_URL_Validity);
-   --  Server have to check URI for valididity.
+   --  Server have to check URI for validity. For example it checks that an
+   --  URL does not reference a resource above the Web root.
 
    function Line_Stack_Size (O : in Object) return Positive;
    pragma Inline (Line_Stack_Size);
