@@ -93,8 +93,9 @@ package AWS.Resources is
 private
 
    type File_Tagged is abstract tagged limited record
-      LFT     : Boolean; -- LF terminated state
+      LFT : Boolean; -- LF terminated state
    end record;
+
    --  Abstract file, operations below must be implemented. The goal here is
    --  to abstract the file location. Currently there is two implementations,
    --  one for files on a hard disk and files in memory (array of bytes).
