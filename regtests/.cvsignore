@@ -139,6 +139,10 @@ b~upload3.adb
 b~upload3.ads
 b~workorder.adb
 b~workorder.ads
+b~zapp.adb
+b~zapp.ads
+b~zbig.adb
+b~zbig.ads
 check_mem.res
 check_mem.run1
 check_mem.run2
@@ -298,3 +302,5 @@ upload3.res
 upload3.tmp
 workorder.res
 workorder.tmp
+zapp.res
+zbig.res
