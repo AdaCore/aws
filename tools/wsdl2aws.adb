@@ -302,6 +302,13 @@ exception
       Put_Line ("   -pp n     The proxy password");
       New_Line;
 
+   when Name_Error =>
+      New_Line;
+      Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
+      New_Line;
+      Put_Line ("WSDL file not found : " & To_String (Filename));
+      New_Line;
+
    when E : others =>
       New_Line;
       Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
