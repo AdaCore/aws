@@ -51,6 +51,8 @@ else
 ALL_TESTS = $(RT_STD) $(RT_SOAP)
 endif
 
+ALL_EXEC = $(addsuffix $(EXEEXT), $(ALL_TESTS)) tres$(EXEEXT)
+
 run : build checks
 
 force:
@@ -115,6 +117,6 @@ checks_header:
 checks: checks_header checks_out
 
 clean:
-	-rm *.o *.ali b~*.ad* *.~*.*.~ *.res *.exe res.ad[sb] res2.ad[sb]
-	-rm file.tmp file1.html file2.html file3.html file.tmplt tresres*
-	-rm ?.upload.* strm-*.log cert.pem
+	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
+	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
+	-rm -f ?.upload.* strm-*.log cert.pem $(ALL_EXEC)
