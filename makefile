@@ -66,31 +66,6 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" \
 	GCC_FOR_HOST="$(GCC_FOR_HOST)" BDIR="$(BDIR)"
 
-build_scripts:
-	echo ""
-	echo "=== Build AWS support scripts"
-	echo "  for UNIX"
-	echo "export ADA_INCLUDE_PATH=\$$ADA_INCLUDE_PATH:"$(XMLADA)/include/xmlada > set-aws.sh
-	echo "export ADA_INCLUDE_PATH=\$$ADA_INCLUDE_PATH:"$(INSTALL)/AWS/components >> set-aws.sh
-	echo "export ADA_INCLUDE_PATH=\$$ADA_INCLUDE_PATH:"$(INSTALL)/AWS/include >> set-aws.sh
-	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(INSTALL)/AWS/lib >> set-aws.sh
-	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(XMLADA)/lib >> set-aws.sh
-	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(XMLADA)/include/xmlada >> set-aws.sh
-	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(INSTALL)/AWS/components >> set-aws.sh
-	echo "export ADA_OBJECTS_PATH=\$$ADA_OBJECTS_PATH:"$(INSTALL)/AWS/include >> set-aws.sh
-	echo "export PATH=\$$PATH:"$(INSTALL)/AWS/tools  >> set-aws.sh
-	echo "  for Windows"
-	echo "@echo off" > set-aws.cmd
-	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(XMLADA)/include/xmlada >> set-aws.cmd
-	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(INSTALL)/AWS/components >> set-aws.cmd
-	echo "set ADA_INCLUDE_PATH=%ADA_INCLUDE_PATH%;"$(INSTALL)/AWS/include >> set-aws.cmd
-	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(INSTALL)/AWS/lib >> set-aws.cmd
-	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(XMLADA)/lib >> set-aws.cmd
-	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(XMLADA)/include/xmlada >> set-aws.cmd
-	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(INSTALL)/AWS/components >> set-aws.cmd
-	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(INSTALL)/AWS/include >> set-aws.cmd
-	echo "set PATH=%PATH%;"$(INSTALL)/AWS/tools  >> set-aws.cmd
-
 gnatsockets:
 	${MAKE} -C src gnatsockets $(ALL_OPTIONS)
 
@@ -230,6 +205,7 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/docs
 	$(MKDIR) $(INSTALL)/AWS/docs/html
 	$(MKDIR) $(INSTALL)/AWS/components
+	$(MKDIR) $(INSTALL)/AWS/components/ai302
 	$(MKDIR) $(INSTALL)/AWS/tools
 	$(MKDIR) $(INSTALL)/AWS/projects
 	$(CP) -p src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
@@ -252,37 +228,30 @@ install: force
 	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
 	$(CP) -p include/*.ad? $(INSTALL)/AWS/components
 ifeq (${AI302},Internal)
-	$(CP) -p include/ai302/*.ad? $(INSTALL)/AWS/components
-	$(SED) -e 's/with "ai302";//' \
-		< config/projects/aws.gpr > aws_tmp.gpr
-	$(SED) -e 's/with "ai302";//' \
-		< config/projects/aws_ssl.gpr > aws_ssl_tmp.gpr
-else
-	$(CP) config/projects/aws.gpr aws_tmp.gpr
-	$(CP) config/projects/aws_ssl.gpr aws_ssl_tmp.gpr
+	$(CP) -p include/ai302/*.ad? $(INSTALL)/AWS/components/ai302
+	$(CP) -p $(BDIR)/include/ai302/* $(INSTALL)/AWS/components/ai302
+	$(CP) config/projects/ai302.gpr $(INSTALL)/AWS/components/ai302
+	$(SED) -e 's,ai302,\.\./components/ai302/ai302,g' \
+		< config/projects/aws.gpr > $(INSTALL)/AWS/projects/aws.gpr
+	$(SED) -e 's,ai302,\.\./components/ai302/ai302,g' \
+		< config/projects/aws_ssl.gpr \
+		> $(INSTALL)/AWS/projects/aws_ssl.gpr
 endif
-	-$(CP) -p $(BDIR)/include/* $(INSTALL)/AWS/components
+ifneq ($(XMLADA),true)
+	-$(CP) $(PRJDIR)/xmlada.gpr $(INSTALL)/AWS/projects
+endif
+	-$(CP) -p $(BDIR)/include/*.o $(INSTALL)/AWS/components
+	-$(CP) -p $(BDIR)/include/*.ali $(INSTALL)/AWS/components
 	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) $(BDIR)/tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
 	-$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} \
 		$(INSTALL)/AWS/tools/ada2wsdl${EXEEXT}
-	$(CP) set-aws.* $(INSTALL)/AWS
-ifeq (${XMLADA}, true)
-	$(MV) aws_tmp.gpr $(INSTALL)/AWS/projects/aws.gpr
-	$(MV) aws_ssl_tmp.gpr $(INSTALL)/AWS/projects/aws_ssl.gpr
-else
-	$(SED) -e 's/with "xmlada";//' \
-		< aws_tmp.gpr > $(INSTALL)/AWS/projects/aws.gpr
-	$(SED) -e 's/with "xmlada";//' \
-		< aws_ssl_tmp.gpr > $(INSTALL)/AWS/projects/aws_ssl.gpr
-	$(RM) -f aws_tmp.gpr aws_ssl_tmp.gpr
-endif
 ifeq (${OS}, Windows_NT)
 	-$(CP) -p $(BDIR)/win32/lib/* $(INSTALL)/AWS/lib
 	-$(CP) -p $(BDIR)/win32/obj/* $(INSTALL)/AWS/obj
-	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
-	-$(CP) win32/*.dll $(INSTALL)/AWS/lib
+	$(CP) -p lib/lib*.a $(INSTALL)/AWS/lib
+	-$(CP) -p win32/*.dll $(INSTALL)/AWS/lib
 endif
 	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
 	$(CP) config/projects/*_lib.gpr $(INSTALL)/AWS/projects
@@ -293,6 +262,31 @@ endif
 	-$(CHMOD) uog-w $(INSTALL)/AWS/components/*.ali
 	-$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
 	-$(CHMOD) uog-w $(INSTALL)/AWS/obj/*.ali
+# We need to touch the libraries as we have changed the .gpr
+	-$(TOUCH) $(INSTALL)/AWS/lib/*.a
+
+# install-gnat is used to install AWS into the GNAT standard library
+# location. In this case there is no need to set ADA_PROJECT_PATH. This is
+# supported starting with GNAT 5.03.
+
+install-gnat: install
+	$(SED) -e 's,\.\./,AWS/,g;s,nossl_,AWS/projects/nossl_,g' \
+		< $(INSTALL)/AWS/projects/aws.gpr > aws_tmp.gpr
+	$(SED) -e 's,\.\./,AWS/,g;s,crypto,AWS/projects/crypto,g' \
+		-e 's,ssl_,AWS/projects/ssl_,g' \
+		< $(INSTALL)/AWS/projects/aws_ssl.gpr > aws_ssl_tmp.gpr
+ifneq ($(XMLADA),true)
+	$(SED) -e 's,xmlada,AWS/projects/xmlada,g' aws_tmp.gpr \
+		> $(INSTALL)/aws.gpr
+	$(SED) -e 's,xmlada,AWS/projects/xmlada,g' aws_ssl_tmp.gpr \
+		> $(INSTALL)/aws_ssl.gpr
+	$(RM) -f aws_tmp.gpr aws_ssl_tmp.gpr
+else
+	$(MV) aws_tmp.gpr $(INSTALL)/aws.gpr
+	$(MV) aws_ssl_tmp.gpr $(INSTALL)/aws_ssl.gpr
+endif
+	$(RM) -f $(INSTALL)/AWS/projects/aws.gpr
+	$(RM) -f $(INSTALL)/AWS/projects/aws_ssl.gpr
 
 #############################################################################
 # Configuration for GNAT Projet Files
@@ -423,10 +417,10 @@ gai302_internal:
 		>> $(PRJDIR)/ai302.gpr
 	echo "   case Build is" >> $(PRJDIR)/ai302.gpr
 	echo '      when "Debug" =>' >> $(PRJDIR)/ai302.gpr
-	echo '         for Object_Dir use "../../.build/debug/include";' \
+	echo '         for Object_Dir use "../../.build/debug/include/ai302";' \
 		>> $(PRJDIR)/ai302.gpr
 	echo '      when "Release" =>' >> $(PRJDIR)/ai302.gpr
-	echo '         for Object_Dir use "../../.build/release/include";' \
+	echo '         for Object_Dir use "../../.build/release/include/ai302";' \
 		>> $(PRJDIR)/ai302.gpr
 	echo "   end case;" >> $(PRJDIR)/ai302.gpr
 	echo "end AI302;" >> $(PRJDIR)/ai302.gpr
@@ -437,4 +431,4 @@ gai302_external:
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
 
-setup: setup_dir build_scripts $(GEXT_MODULE) $(MODULES_SETUP)
+setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP)
