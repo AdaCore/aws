@@ -98,6 +98,15 @@ http://www.myserver.com:12/request?p1=9
    Server    : www.myserver.com
    Port      : 12
    URI       : /request?p1=9
+http://sinetics.der.edf.fr/./afficher_liste.php
+http://sinetics.der.edf.fr/./afficher_liste.php
+   Server    : sinetics.der.edf.fr
+   Port      : 80
+   URI       : /./afficher_liste.php
+   *
+   Server    : sinetics.der.edf.fr
+   Port      : 80
+   URI       : /afficher_liste.php
 
 
    Server    : 
