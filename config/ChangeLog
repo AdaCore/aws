@@ -4,6 +4,11 @@
 	Move here GetAddrInfo and FreeAddrInfo routines from AWS.Net.Thin.
 	Add Windows 2000 support.
 
+	* aws-net-std__gnat.adb:
+	FreeAddrInfo use Addr_Info_Access parameter now.
+	Dummy call to FreeAddrInfo in the package initialization, for
+	 initialize internal libwspiapi.a static data.
+
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
 	* aws-net-std__gnat.adb:
