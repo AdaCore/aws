@@ -1,3 +1,8 @@
+2002-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl-thin.ads:
+	Fix TLS casing.
+
 2002-12-16  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl-thin.ads:
