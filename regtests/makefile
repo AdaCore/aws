@@ -50,7 +50,7 @@ LARGS := $(LARGS) -lpoll
 endif
 
 # SOAP regression tests
-RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_soap \
+RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_soap xmlt \
 	test_soap2 test_soap3 test_soap4 test_soap5 disp_soap $(RT_SOAP_SEC)
 
 ifdef EXTRA_TESTS
@@ -79,7 +79,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	dirop multiple tcom tmime sessions2 sessions3 huge_response sback \
 	server_info append compress zapp zbig zfile zstrm split zstrm2 once \
 	get_post zopen timer tmem file2 eres sock1 sock2 sessions4 wait \
-	stream_response smtp sto sockto ctable tpc afile no_param xmlt \
+	stream_response smtp sto sockto ctable tpc afile no_param \
 	$(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
