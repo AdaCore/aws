@@ -30,7 +30,6 @@
 
 with Ada.Text_IO;
 with GNAT.Command_Line;
-with GNAT.Directory_Operations;
 
 with Service;
 with Runme_Info;
