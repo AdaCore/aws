@@ -250,6 +250,15 @@ package body AWS.Server is
       Shutdown (Web_Server);
    end Finalize;
 
+   ---------------
+   -- Flush_Log --
+   ---------------
+
+   procedure Flush_Log (Web_Server : in out HTTP) is
+   begin
+      Log.Flush (Web_Server.Log);
+   end Flush_Log;
+
    -----------------
    -- Get_Current --
    -----------------
@@ -979,7 +988,8 @@ package body AWS.Server is
          Log.Split_Mode'Value
            (CNF.Error_Log_Split_Mode (Web_Server.Properties)),
          CNF.Log_File_Directory (Web_Server.Properties),
-         CNF.Error_Log_Filename_Prefix (Web_Server.Properties));
+         CNF.Error_Log_Filename_Prefix (Web_Server.Properties),
+         Auto_Flush => True);
    end Start_Error_Log;
 
    ---------------
