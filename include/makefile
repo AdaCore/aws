@@ -16,6 +16,7 @@ SOURCES	= strings_cutter.adb md5.adb \
 	sha.ads sha-process_data.adb sha-strings.adb \
 	ai302-containers-generic_array_sort.adb \
 	ai302-containers-generic_constrained_array_sort.adb \
+	ai302-containers-indefinite_vectors.adb \
 	ai302-containers-vectors.adb \
 	ai302-containers-hash_tables.adb \
 	ai302-containers-indefinite_hashed_maps.adb \
