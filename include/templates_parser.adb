@@ -984,6 +984,12 @@ package body Templates_Parser is
       --  Here we just separate current vector from the new one. The memory
       --  used by the current one will be collected by the Finalize
       --  routine. We just want a new independant Vector_Tag here.
+
+      if Vect.Ref_Count.all = 1 then
+         --  This is the last reference, release object
+         Finalize (Vect);
+      end if;
+
       Vect.Ref_Count := new Integer'(1);
       Vect.Count     := 0;
       Vect.Head      := null;
@@ -1111,7 +1117,7 @@ package body Templates_Parser is
                                   Matrix.M.Ref_Count,
                                   Matrix.M.Count + 1,
                                   Min  => Natural'Min (Matrix.M.Min, V_Size),
-                                  Max  => Natural'Max (Matrix.M.Min, V_Size),
+                                  Max  => Natural'Max (Matrix.M.Max, V_Size),
                                   Head => Item,
                                   Last => Item));
       else
@@ -1120,7 +1126,7 @@ package body Templates_Parser is
                                   Matrix.M.Ref_Count,
                                   Matrix.M.Count + 1,
                                   Min  => Natural'Min (Matrix.M.Min, V_Size),
-                                  Max  => Natural'Max (Matrix.M.Min, V_Size),
+                                  Max  => Natural'Max (Matrix.M.Max, V_Size),
                                   Head => Matrix.M.Head,
                                   Last => Item));
       end if;
@@ -1143,7 +1149,7 @@ package body Templates_Parser is
    begin
       M.Ref_Count := new Integer'(1);
       M.Count     := 0;
-      M.Min       := 0;
+      M.Min       := Natural'Last;
       M.Max       := 0;
    end Initialize;
 
