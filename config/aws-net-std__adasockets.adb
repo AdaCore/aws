@@ -264,7 +264,7 @@ package body AWS.Net.Std is
                                  Sockets.Constants.Fionread,
                                  Arg'Unchecked_Access);
    begin
-      if Res = Thin.Failure then
+      if Res = Sockets.Thin.Failure then
          Raise_Exception (Errno, "Pending");
       end if;
 
