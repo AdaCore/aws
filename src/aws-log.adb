@@ -37,7 +37,6 @@ with Ada.Strings.Maps;
 
 with GNAT.Calendar.Time_IO;
 
-with AWS.Default;
 with AWS.OS_Lib;
 with AWS.Utils;
 
