@@ -99,6 +99,9 @@ package body SOAP.Generator is
    Stub_Adb : Text_IO.File_Type;
    Skel_Ads : Text_IO.File_Type; -- Child with server interface
    Skel_Adb : Text_IO.File_Type;
+   CB_Ads   : Text_IO.File_Type; -- Child with all callback routines
+   CB_Adb   : Text_IO.File_Type;
+   Tmp_Adb  : Text_IO.File_Type; -- Temporary files with callback definitions
 
    --  Stub generator routines
 
@@ -150,6 +153,31 @@ package body SOAP.Generator is
 
    end Skel;
 
+   --  Callback generator routines
+
+   package CB is
+
+      procedure Start_Service
+        (O             : in out Object;
+         Name          : in     String;
+         Documentation : in     String;
+         Location      : in     String);
+
+      procedure End_Service
+        (O    : in out Object;
+         Name : in     String);
+
+      procedure New_Procedure
+        (O          : in out Object;
+         Proc       : in     String;
+         SOAPAction : in     String;
+         Namespace  : in     String;
+         Input      : in     WSDL.Parameters.P_Set;
+         Output     : in     WSDL.Parameters.P_Set;
+         Fault      : in     WSDL.Parameters.P_Set);
+
+   end CB;
+
    --  Simple name set used to keep record of all generated types
 
    package Name_Set is
@@ -170,6 +198,12 @@ package body SOAP.Generator is
    begin
       O.Ada_Style := True;
    end Ada_Style;
+
+   --------
+   -- CB --
+   --------
+
+   package body CB is separate;
 
    -------------
    -- CVS_Tag --
@@ -224,6 +258,15 @@ package body SOAP.Generator is
          Text_IO.Close (Skel_Ads);
          Text_IO.Close (Skel_Adb);
       end if;
+
+      --  Callbacks
+
+      if O.Gen_CB then
+         CB.End_Service (O, Name);
+         Text_IO.Close (CB_Ads);
+         Text_IO.Close (CB_Adb);
+         Text_IO.Close (Tmp_Adb);
+      end if;
    end End_Service;
 
    -----------------
@@ -274,6 +317,15 @@ package body SOAP.Generator is
          return Ada_Name;
       end if;
    end Format_Name;
+
+   ------------
+   -- Gen_CB --
+   ------------
+
+   procedure Gen_CB (O : in out Object) is
+   begin
+      O.Gen_CB := True;
+   end Gen_CB;
 
    ----------------
    -- Header_Box --
@@ -326,6 +378,11 @@ package body SOAP.Generator is
 
       if O.Gen_Skel then
          Skel.New_Procedure
+           (O, Proc, SOAPAction, Namespace, Input, Output, Fault);
+      end if;
+
+      if O.Gen_CB then
+         CB.New_Procedure
            (O, Proc, SOAPAction, Namespace, Input, Output, Fault);
       end if;
    end New_Procedure;
@@ -447,16 +504,20 @@ package body SOAP.Generator is
 
             Text_IO.Put (File, " : in ");
 
-            if N.Mode = WSDL.Parameters.K_Simple then
-               Text_IO.Put (File, WSDL.To_Ada (N.P_Type));
+            case N.Mode is
+               when WSDL.Parameters.K_Simple =>
+                  Text_IO.Put (File, WSDL.To_Ada (N.P_Type));
 
-            elsif N.Mode = WSDL.Parameters.K_Derived then
-               Text_IO.Put (File, To_String (N.D_Name) & "_Type");
+               when WSDL.Parameters.K_Derived =>
+                  Text_IO.Put (File, To_String (N.D_Name) & "_Type");
 
-            else
-               Text_IO.Put
-                 (File, Format_Name (O, To_String (N.T_Name) & "_Type"));
-            end if;
+               when WSDL.Parameters.K_Enumeration =>
+                  Text_IO.Put (File, To_String (N.E_Name) & "_Type");
+
+               when WSDL.Parameters.K_Record | WSDL.Parameters.K_Array =>
+                  Text_IO.Put
+                    (File, Format_Name (O, To_String (N.T_Name) & "_Type"));
+            end case;
 
             if N.Next = null then
                Text_IO.Put (File, ")");
@@ -516,6 +577,11 @@ package body SOAP.Generator is
         (Name : in String;
          P    : in WSDL.Parameters.P_Set);
       --  Generate derived type definition
+
+      procedure Generate_Enumeration
+        (Name : in String;
+         P    : in WSDL.Parameters.P_Set);
+      --  Generate enumeration type definition
 
       procedure Output_Types (P : in WSDL.Parameters.P_Set);
       --  Output types conversion routines
@@ -680,6 +746,32 @@ package body SOAP.Generator is
          end if;
       end Generate_Derived;
 
+      --------------------------
+      -- Generate_Enumeration --
+      --------------------------
+
+      procedure Generate_Enumeration
+        (Name : in String;
+         P    : in WSDL.Parameters.P_Set)
+      is
+         F_Name : constant String := Format_Name (O, Name);
+      begin
+         Text_IO.New_Line (Type_Ads);
+
+         --  Is types are to be reused from an Ada  spec ?
+
+         if O.Types_Spec = Null_Unbounded_String then
+            Text_IO.Put_Line
+              (Type_Ads, "   type " & F_Name
+                 & " is " & To_String (P.E_Def) & ";");
+         else
+            Text_IO.Put_Line
+              (Type_Ads, "   subtype " & F_Name & " is "
+                 & To_String (O.Types_Spec)
+                 & "." & To_String (P.E_Name) & ";");
+         end if;
+      end Generate_Enumeration;
+
       ---------------------
       -- Generate_Record --
       ---------------------
@@ -832,6 +924,16 @@ package body SOAP.Generator is
                           & To_String (N.Name) & """));");
                   end;
 
+               when WSDL.Parameters.K_Enumeration =>
+                  Text_IO.Put_Line
+                    (Type_Adb,
+                     "      " & Format_Name (O, To_String (N.Name))
+                       & " : constant SOAP.Types.XSD_String");
+                  Text_IO.Put_Line
+                    (Type_Adb,
+                     "         := SOAP.Types.XSD_String (SOAP.Types.V "
+                       & "(R, """ & To_String (N.Name) & """));");
+
                when WSDL.Parameters.K_Array =>
                   Text_IO.Put_Line
                     (Type_Adb,
@@ -878,6 +980,13 @@ package body SOAP.Generator is
                      To_String (N.D_Name) & "_Type ("
                        & WSDL.V_Routine (N.Parent_Type, WSDL.Component)
                        & " (" & Format_Name (O, To_String (N.Name)) & "))");
+
+               when WSDL.Parameters.K_Enumeration =>
+                  Text_IO.Put
+                    (Type_Adb,
+                     To_String (N.D_Name) & "_Type'Value ("
+                       & "SOAP.Types.V ("
+                       & Format_Name (O, To_String (N.Name)) & "))");
 
                when WSDL.Parameters.K_Array =>
                   Text_IO.Put
@@ -946,6 +1055,13 @@ package body SOAP.Generator is
                        & " (R." & Format_Name (O, To_String (N.Name))
                        & "), """ & To_String (N.Name) & """)");
 
+               when WSDL.Parameters.K_Enumeration =>
+                  Text_IO.Put
+                    (Type_Adb,
+                     " SOAP.Types.S (" & To_String (N.D_Name) & "'Image "
+                       & " (R." & Format_Name (O, To_String (N.Name))
+                       & "), """ & To_String (N.Name) & """)");
+
                when WSDL.Parameters.K_Array =>
                   Text_IO.Put
                     (Type_Adb,
@@ -992,6 +1108,9 @@ package body SOAP.Generator is
             when WSDL.Parameters.K_Derived =>
                return WSDL.Get_Routine (P.Parent_Type);
 
+            when WSDL.Parameters.K_Enumeration =>
+               return WSDL.Get_Routine (WSDL.P_String);
+
             when WSDL.Parameters.K_Array =>
                declare
                   T_Name : constant String
@@ -1034,6 +1153,18 @@ package body SOAP.Generator is
                      end if;
                   end;
 
+               when WSDL.Parameters.K_Enumeration =>
+                  declare
+                     Name : constant String := To_String (N.E_Name);
+                  begin
+                     if not Name_Set.Exists (Name) then
+
+                        Name_Set.Add (Name);
+
+                        Generate_Enumeration (Name & "_Type", N);
+                     end if;
+                  end;
+
                when WSDL.Parameters.K_Array | WSDL.Parameters.K_Record =>
 
                   Output_Types (N.P);
@@ -1072,6 +1203,10 @@ package body SOAP.Generator is
             when WSDL.Parameters.K_Derived =>
                return WSDL.Set_Routine
                  (P.Parent_Type, Context => WSDL.Component);
+
+            when WSDL.Parameters.K_Enumeration =>
+               return WSDL.Set_Routine
+                 (WSDL.P_String, Context => WSDL.Component);
 
             when WSDL.Parameters.K_Array =>
                declare
@@ -1120,6 +1255,9 @@ package body SOAP.Generator is
             when WSDL.Parameters.K_Derived =>
                return To_String (N.D_Name) & "_Type";
 
+            when WSDL.Parameters.K_Enumeration =>
+               return To_String (N.E_Name) & "_Type";
+
             when WSDL.Parameters.K_Array =>
                return To_String (N.T_Name) & "_Type_Safe_Access";
 
@@ -1154,6 +1292,17 @@ package body SOAP.Generator is
                     (Type_Ads,
                      "   subtype " & L_Proc & "_Result is "
                        & To_String (Output.D_Name) & "_Type;");
+
+
+               when WSDL.Parameters.K_Enumeration =>
+                  --  A single declaration, this is an enumeration type create
+                  --  a subtype.
+
+                  Text_IO.New_Line (Type_Ads);
+                  Text_IO.Put_Line
+                    (Type_Ads,
+                     "   subtype " & L_Proc & "_Result is "
+                       & To_String (Output.E_Name) & "_Type;");
 
 
                when WSDL.Parameters.K_Record | WSDL.Parameters.K_Array =>
@@ -1258,6 +1407,8 @@ package body SOAP.Generator is
       LL_Name : constant String := Characters.Handling.To_Lower (L_Name);
 
    begin
+      O.Location := To_Unbounded_String (Location);
+
       if not O.Quiet then
          Text_IO.New_Line;
          Text_IO.Put_Line ("Service " & Name);
@@ -1277,6 +1428,12 @@ package body SOAP.Generator is
       if O.Gen_Skel then
          Create (Skel_Ads, LL_Name & "-server.ads");
          Create (Skel_Adb, LL_Name & "-server.adb");
+      end if;
+
+      if O.Gen_CB then
+         Create (CB_Ads, LL_Name & "-cb.ads");
+         Create (CB_Adb, LL_Name & "-cb.adb");
+         Text_IO.Create (Tmp_Adb, Text_IO.Out_File);
       end if;
 
       --  Types
@@ -1359,6 +1516,8 @@ package body SOAP.Generator is
          Text_IO.New_Line (Root);
       end if;
 
+      O.Unit := To_Unbounded_String (Name);
+
       if O.Gen_Stub then
          Put_File_Header (O, Stub_Ads);
          Put_File_Header (O, Stub_Adb);
@@ -1369,6 +1528,12 @@ package body SOAP.Generator is
          Put_File_Header (O, Skel_Ads);
          Put_File_Header (O, Skel_Adb);
          Skel.Start_Service (O, Name, Documentation, Location);
+      end if;
+
+      if O.Gen_CB then
+         Put_File_Header (O, CB_Ads);
+         Put_File_Header (O, CB_Adb);
+         CB.Start_Service (O, Name, Documentation, Location);
       end if;
    end Start_Service;
 
