@@ -7,13 +7,15 @@ fi
 SOURCE=$1
 TARGET=${SOURCE}.texi
 
+gawk 'BEGIN{out=1}$1=="end"&&substr($0,1,1)=="e"{out=1}out==1{print}$1=="private"&&out==1{out=0; print "   --  implementation removed"}' ${SOURCE} > genout
+
 echo "@smallexample"      >${TARGET}
 if [ $# = 1 ]; then
 echo "@cartouche"        >>${TARGET}
 echo "@group"            >>${TARGET}
 fi
 echo ""                  >>${TARGET}
-sed -f ada.sed ${SOURCE} >>${TARGET}
+sed -f ada.sed genout    >>${TARGET}
 echo ""                  >>${TARGET}
 if [ $# = 1 ]; then
 echo "@end group"        >>${TARGET}
