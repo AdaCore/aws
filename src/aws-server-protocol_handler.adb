@@ -1420,6 +1420,8 @@ begin
    For_Every_Request : loop
 
       begin
+         Data_Sent := False;
+
          HTTP_Server.Slots.Mark_Phase (Index, Wait_For_Client);
 
          Status.Set.Reset (C_Stat);
@@ -1471,7 +1473,7 @@ begin
                declare
                   use type Response.Data_Mode;
 
-                  Answer : Response.Data := Response.Empty;
+                  Answer : Response.Data;
                begin
                   HTTP_Server.Exception_Handler
                     (E,
@@ -1484,7 +1486,7 @@ begin
                      Send (Answer);
                   end if;
                exception
-                  when Net.Socket_Error =>
+                  when others =>
                      exit For_Every_Request;
                end;
             end if;
