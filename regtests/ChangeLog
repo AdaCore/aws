@@ -1,3 +1,8 @@
+2005-01-24  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* auth1.adb:
+	Test AWS.Status.Authorization_Tail too.
+
 2004-12-23  Pascal Obry  <pascal@obry.net>
 
 	* line_status_pck.ads, line_status_pck.adb:

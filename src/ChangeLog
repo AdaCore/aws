@@ -1,3 +1,20 @@
+2005-01-24  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-digest.ads:
+	(Create): Fix comment for a bit extended functionality.
+	(Tail): New routine.
+
+	* aws-digest.adb:
+	(Create): Use Tail routine.
+	(Tail): New routine.
+
+	* aws-status.ads:
+	(Authorization_Tail): New routine.
+
+	* aws-status.adb:
+	(Authorization_Tail): New routine.
+	(Check_Digest): Remove Get_Nonce usage.
+
 2005-01-20  Pascal Obry  <pascal@obry.org>
 
 	* aws-status.ads:
