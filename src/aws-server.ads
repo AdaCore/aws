@@ -33,16 +33,15 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Finalization;
+with Ada.Strings.Unbounded;
 
-with Sockets.Naming;
-
-with AWS.Response;
-with AWS.Status;
-with AWS.Hotplug;
 with AWS.Config;
 with AWS.Default;
-with AWS.Log;
 with AWS.Dispatchers;
+with AWS.Hotplug;
+with AWS.Log;
+with AWS.Net;
+with AWS.Response;
 with AWS.Utils;
 
 package AWS.Server is
@@ -170,6 +169,8 @@ package AWS.Server is
 
 private
 
+   use Ada.Strings.Unbounded;
+
    procedure Default_Unexpected_Exception_Handler
      (E           : in Ada.Exceptions.Exception_Occurrence;
       Termination : in Boolean);
@@ -222,7 +223,7 @@ private
 
    type Data_Timeouts_Array is array (Data_Phase) of Duration;
 
-   subtype Socket_Access is AWS.Status.Socket_Access;
+   subtype Socket_Access is Net.Socket_Access;
 
    ----------
    -- Slot --
@@ -231,8 +232,7 @@ private
    type Slot is record
       Sock                  : Socket_Access := null;
       Socket_Taken          : Boolean := False;
-      Peer_Addr             : Sockets.Naming.Address
-         := Sockets.Naming.Any_Address;
+      Peer_Addr             : Unbounded_String;
       Phase                 : Slot_Phase := Closed;
       Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
       Data_Time_Stamp       : Ada.Calendar.Time;
@@ -260,7 +260,7 @@ private
 
       procedure Set_Peer_Addr
         (Index     : in Positive;
-         Peer_Addr : in Sockets.Naming.Address);
+         Peer_Addr : in String);
       --  Set the Peer address for the associated socket.
 
       procedure Mark_Phase (Index : in Positive; Phase : Slot_Phase);
@@ -369,7 +369,7 @@ private
       --  True when server is shutdown. This will be set to False when server
       --  will be started.
 
-      Sock              : Sockets.Socket_FD;
+      Sock              : Net.Socket_Access;
       --  This is the server socket for incoming connection.
 
       Sock_Sem          : Utils.Semaphore;
