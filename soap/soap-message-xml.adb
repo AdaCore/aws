@@ -380,8 +380,7 @@ package body SOAP.Message.XML is
    --------------------
 
    procedure Parse_Envelope (N : in DOM.Core.Node; S : in out State) is
-      NL   : constant DOM.Core.Node_List := Child_Nodes (N);
-      Name : constant String := Local_Name (N);
+      NL : constant DOM.Core.Node_List := Child_Nodes (N);
    begin
       if Length (NL) = 1 then
          Parse_Body (First_Child (N), S);
@@ -431,7 +430,7 @@ package body SOAP.Message.XML is
          return Parse_String (N);
 
       else
-         if Length (Atts) = 0 and then S.A_State = Void Then
+         if Length (Atts) = 0 and then S.A_State = Void then
             --  No attributes, this is a SOAP record since we are not parsing
             --  arrays entries.
 

@@ -182,7 +182,7 @@ package SOAP.Types is
 
    type XSD_Null is new Scalar with private;
 
-   function XML_Image (O : in XSD_NUll) return String;
+   function XML_Image (O : in XSD_Null) return String;
    function XML_Type  (O : in XSD_Null) return String;
 
    function N (Name : in String  := "item") return XSD_Null;
