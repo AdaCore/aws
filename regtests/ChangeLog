@@ -1,3 +1,14 @@
+2004-11-02  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(ASIS2_TESTS): Add register.
+
+	* framework.ads, register.ads, register.out:
+	Initial revision.
+
+	* wsdl_b.out:
+	Update to new output.
+
 2004-11-01  Pascal Obry  <pascal@obry.org>
 
 	* file2.adb:
@@ -1146,7 +1157,7 @@
 	  wsdl_1.out, wsdl_2.out, wsdl_5.out, wsdl_6.out, zopen.out:
 	Remove DOS style CR at end of line.
 
-2004-02-01  Pascal Obry  <obry@act-europe.fr>
+2004-02-01  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
 	Change check_mem ports.
@@ -2085,12 +2096,12 @@
 	* sessions2.adb, sessions2.out:
 	Initial revision.
 
-2003-03-31  Pascal Obry  <obry@act-europe.fr>
+2003-03-31  Pascal Obry  <pascal@obry.org>
 
 	* tmime.out:
 	Update output.
 
-2003-03-31  Pascal Obry  <obry@act-europe.fr>
+2003-03-31  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
 	(RT_STD): Add tmime.
