@@ -1,0 +1,7 @@
+Name : File_Test
+K =  1
+   filename = first_file
+   content  = this is the content of file 1
+K =  2
+   filename = second_file
+   content  = this is the content of file 2
