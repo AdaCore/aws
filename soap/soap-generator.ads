@@ -66,6 +66,16 @@ package SOAP.Generator is
    --  Called for each SOAP procedure found in the WSDL document for the
    --  current service.
 
+   -----------
+   -- Query --
+   -----------
+
+   function Procs_Spec (O : in Object) return String;
+   --  Returns the spec where SOAP service procedures are defined
+
+   function Types_Spec (O : in Object) return String;
+   --  Returns the spec where SOAP types are defined
+
    --------------
    -- Settings --
    --------------
@@ -85,13 +95,18 @@ package SOAP.Generator is
    procedure Ada_Style (O : in out Object);
    --  Use Ada style identifier, by default the WSDL casing is used
 
+   procedure Specs_From (O : in out Object; Spec : in String);
+   --  Use type definitions for Array and Record and SOAP services procedure
+   --  from this Ada spec. This requires that all record definitions are
+   --  insided this spec. This options is useful when generating stub/skeleton
+   --  from a WSDL document generated with ada2wsdl. In this case the types
+   --  definition are already coded in Ada, it is preferable to reuse them to
+   --  not have to convert to/from both definitions.
+
    procedure Types_From (O : in out Object; Spec : in String);
-   --  Use types definition for Array and Record from this Ada spec. This
-   --  requires that all record definitions are insided this spec. This
-   --  options is useful when generating stub/skeleton from a WSDL document
-   --  generated with ada2wsdl. In this case the types definition are already
-   --  coded in Ada, it is preferable to reuse them to not have to convert
-   --  to/from both definitions.
+   --  Use type definitions for Array and Record from this Ada spec instead of
+   --  the one defined above. If there is no spec defined above, the procs are
+   --  also used from this spec.
 
    procedure Main (O : in out Object; Name : in String);
    --  Set the main program to be generated. This is useful for simple server.
@@ -131,6 +146,7 @@ private
       First_Proc : Boolean := True;
       Debug      : Boolean := False;
       Unit       : Unbounded_String;
+      Spec       : Unbounded_String;
       Types_Spec : Unbounded_String;
       Main       : Unbounded_String;
       Location   : Unbounded_String;
