@@ -32,7 +32,7 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-status-translate_table.adb aws-server-status.adb
 
 ifdef XMLADA
-SOURCES := $(SOURCES) aws-jabber.adb
+SOURCES := $(SOURCES) ../xsrc/aws-jabber.adb
 endif
 
 UNITS = $(sort $(basename $(SOURCES)))
@@ -46,37 +46,34 @@ $(UNITS): force
 build: aws-translator-conversion.adb aws-net-std.adb $(UNITS)
 
 aws-translator-conversion.adb:
-	echo Setup conversion support
-	gnatmake -q test_uconv
-	./test_uconv
-	-rm test_uconv$(EXEEXT) test_uconv.o test_uconv.ali
+	${MAKE} -C ../config setup
 
 aws-net-std.adb:
 ifdef ADASOCKETS
-	cp ../include/aws-net-std-adasockets.adb aws-net-std.adb
+	cp ../config/aws-net-std__adasockets.adb aws-net-std.adb
 else
-	cp ../include/aws-net-std-gnat.adb aws-net-std.adb
+	cp ../config/aws-net-std__gnat.adb aws-net-std.adb
 endif
 
 adasockets:
 	-rm -f *.o *.ali
-	cp ../include/aws-net-std-adasockets.adb aws-net-std.adb
+	cp ../config/aws-net-std__adasockets.adb aws-net-std.adb
 
 gnatsockets:
 	-rm -f *.o *.ali
-	cp ../include/aws-net-std-gnat.adb aws-net-std.adb
+	cp ../config/aws-net-std__gnat.adb aws-net-std.adb
 
 gnat_oslib:
 	-rm -f *.o *.ali
-	cp ../include/aws-os_lib-gnat.adb aws-os_lib.adb
+	cp ../config/aws-os_lib__gnat.adb aws-os_lib.adb
 
 posix_oslib:
 	-rm -f *.o *.ali
-	cp ../include/aws-os_lib-posix.adb aws-os_lib.adb
+	cp ../config/aws-os_lib__posix.adb aws-os_lib.adb
 
 win32_oslib:
 	-rm -f *.o *.ali
-	cp ../include/aws-os_lib-win32.adb aws-os_lib.adb
+	cp ../config/aws-os_lib__win32.adb aws-os_lib.adb
 
 clean:
 	-rm -f *.o *.ali aws-os_lib.adb *.~*.*~
