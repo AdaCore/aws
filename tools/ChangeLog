@@ -1,3 +1,8 @@
+2003-11-14  Pascal Obry  <pascal.obry@edf.fr>
+
+	* ada2wsdl.ads:
+	(Version): Set to 0.8.
+
 2003-11-13  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.adb:
