@@ -1,5 +1,14 @@
 2004-03-23  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* wsdl_3.ads, wsdl_3.adb, wsdl_3_main.adb:
+	Enable commented-out code as now Character inside record is
+	 properly supported.
+
+	* wsdl_3.out:
+	Update to new output.
+
+2004-03-23  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(RT_STD): Add stream_response.
 
