@@ -35,6 +35,8 @@ with SOAP.Types;
 package SOAP.Parameters is
 
    Max_Parameters : constant := 50;
+   --  This is the maximum number of parameters supported by this
+   --  implementation.
 
    type Set is private;
 
@@ -48,17 +50,34 @@ package SOAP.Parameters is
    function Argument (P : in Set; N : in Positive) return Types.Object'Class;
    --  Returns Nth parameters in P. Raises Types.Data_Error if not found.
 
+   function Exist (P : in Set; Name : in String) return Boolean;
+   --  Returns True if parameter named Name exist in P and False otherwise.
+
    function Get (P : in Set; Name : in String) return Integer;
    --  Returns parameter named Name in P as an Integer value. Raises
    --  Types.Data_Error if this parameter does not exist or is not an Integer.
 
-   function Get (P : in Set; Name : in String) return Float;
+   function Get (P : in Set; Name : in String) return Long_Float;
    --  Returns parameter named Name in P as a Float value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Float.
 
    function Get (P : in Set; Name : in String) return String;
    --  Returns parameter named Name in P as a String value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a String.
+
+   function Get (P : in Set; Name : in String) return Boolean;
+   --  Returns parameter named Name in P as a Boolean value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a Boolean.
+
+   function Get (P : in Set; Name : in String) return Types.SOAP_Record;
+   --  Returns parameter named Name in P as a SOAP Struct value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a SOAP
+   --  Struct.
+
+   function Get (P : in Set; Name : in String) return Types.SOAP_Array;
+   --  Returns parameter named Name in P as a SOAP Array value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a SOAP
+   --  Array.
 
    ------------------
    -- Constructors --
@@ -82,12 +101,8 @@ package SOAP.Parameters is
 
 private
 
-   type Object_Access is access all Types.Object'Class;
-
-   type Object_Set is array (1 .. Max_Parameters) of Object_Access;
-
    type Set is record
-      V : Object_Set;
+      V : Types.Object_Set (1 .. Max_Parameters);
       N : Natural := 0;
    end record;
 
