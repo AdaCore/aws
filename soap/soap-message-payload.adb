@@ -37,10 +37,10 @@ package body SOAP.Message.Payload is
    -----------
 
    function Build
-      (Procedure_Name : in     String;
-       P_Set          : in     SOAP.Parameters.Set;
-       Name_Space     : in     String              := "")
-      return Object is
+     (Procedure_Name : in String;
+      P_Set          : in SOAP.Parameters.Set;
+      Name_Space     : in String              := "")
+     return Object is
    begin
       return (To_Unbounded_String (Name_Space),
               To_Unbounded_String (Procedure_Name),
@@ -60,7 +60,7 @@ package body SOAP.Message.Payload is
    -- Set_Procedure_Name --
    ------------------------
 
-   procedure Set_Procedure_Name (P : in out Object'Class; Name  : in String) is
+   procedure Set_Procedure_Name (P : in out Object'Class; Name : in String) is
    begin
       Set_Wrapper_Name (P, Name);
    end Set_Procedure_Name;
