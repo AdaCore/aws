@@ -33,7 +33,7 @@ endif
 endif
 
 build: runme agent auth ws wps com_1 com_2 main hotplug hello_world \
-	text_input vh_demo dispatch
+	text_input vh_demo dispatch res_demo
 
 force:
 
@@ -76,6 +76,10 @@ vh_demo: force
 dispatch: force
 	gnatmake $(GARGS) dispatch -bargs $(BARGS) -largs $(LARGS)
 
+res_demo: force
+	../tools/awsres -q -r rdemo adains.png page3.html
+	gnatmake $(GARGS) res_demo -bargs $(BARGS) -largs $(LARGS)
+
 build_soap: force
 	(if [ -e ../soap/soap.o ] ; then \
 	gnatmake $(GARGS) soap_client -bargs $(BARGS) -largs $(LARGS); \
@@ -87,4 +91,4 @@ build_soap: force
 	echo Please build SOAP library before building SOAP demos;\
 	fi)
 clean:
-	-rm -f *.o *.ali *.exe b~*.* *.~*.*.~
+	-rm -f *.o *.ali *.exe b~*.* *.~*.*.~ rdemo*
