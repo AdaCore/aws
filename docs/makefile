@@ -158,10 +158,10 @@ check_api:
 # used to generate the API cross-reference.
 apiref: gnathtml_apiref
 
-APIREFS = src/a*.ad[sb] src/templates*.ad[sb] xsrc/*.ad* \
+APIREFS = src/a*.ad[sb] templates_parser/src/templates*.ad[sb] xsrc/*.ad* \
 	   	include/strings_cutter.ad[sb] include/zlib*.ad[sb] \
 		include/memory_streams.ad[sb] \
-		soap/soap*.ad[sb]
+		soap/soap*.ad[sb] templates_parser/xsrc/templates*.ad[sb]
 
 pref1	= $(BDIR)/obj
 pref2	= $(BDIR)/include
@@ -181,6 +181,7 @@ gnathtml_apiref: check_api
 		fi; \
 	done; \
 	gnathtml.pl -Isrc -Iinclude -Isoap -Ixsrc -I$(pref1) -I$(pref2) \
+		-Itemplates_parser/src -Itemplates_parser/xsrc \
 		-odocs/html $$fileset; \
 	)
 
@@ -193,7 +194,8 @@ adabrowse_apiref: check_api
 		echo -n $$file; \
 		if [ -f `echo $$file | sed -e 's/\.ad[sb]/.ali/'` ]; then \
 			echo "    included"; \
-			adabrowse -o docs\\html\\ -f $$file -Isrc -Iinclude; \
+			adabrowse -o docs\\html\\ -f $$file -Isrc -Iinclude \
+			   -Itemplates_parser/src -Itemplates_parser/xsrc; \
 		else \
 			echo "    skipped"; \
 		fi; \
