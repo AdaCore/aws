@@ -233,6 +233,9 @@ package body AWS.Server.Push is
               (Holder.Stream,
                Messages.Content_Type (MIME.Multipart_Mixed_Replace, Boundary)
                & New_Line);
+
+         else
+            String'Write (Holder.Stream, New_Line);
          end if;
 
          AWS.Net.Stream_IO.Flush (Holder.Stream);
