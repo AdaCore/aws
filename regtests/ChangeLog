@@ -1,3 +1,14 @@
+2003-03-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Remove dirop.
+	(OTH_TESTS): Add dirop.
+	(dirop): New target.
+
+	* dirop.out:
+	Remove CVS/ from output as this is not present outside the CVS
+	 directory.
+
 2003-03-03  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* hval.adb, hval.out:
