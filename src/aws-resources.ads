@@ -68,6 +68,10 @@ package AWS.Resources is
    function End_Of_File (Resource : in File_Type) return Boolean;
    --  Returns true if there is no more data to read.
 
+   function LF_Terminated (Resource : in File_Type) return Boolean;
+   --  Returns True if last line returned by Get_Line was terminated with a LF
+   --  or CR+LF on DOS based systems.
+
    function Is_Regular_File
      (Name : in String)
       return Boolean;
@@ -96,6 +100,11 @@ private
    type File_Type is access all File_Tagged'Class;
 
    function End_Of_File
+     (Resource : in File_Tagged)
+      return Boolean
+      is abstract;
+
+   function LF_Terminated
      (Resource : in File_Tagged)
       return Boolean
       is abstract;
