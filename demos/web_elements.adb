@@ -33,10 +33,11 @@ with AWS.Default;
 with AWS.Dispatchers.Callback;
 with AWS.MIME;
 with AWS.OS_Lib;
+with AWS.Response;
 with AWS.Server;
+with AWS.Services.Callbacks;
 with AWS.Services.Dispatchers.URI;
 with AWS.Status;
-with AWS.Response;
 with AWS.Templates;
 with AWS.Utils;
 
@@ -75,27 +76,15 @@ procedure Web_Elements is
    -- CB_Icons --
    --------------
 
-   function CB_Icons (Request : in Status.Data) return Response.Data is
-      URI      : constant String := Status.URI (Request);
-      Filename : constant String := URI (URI'First + 1 .. URI'Last);
-   begin
-      return AWS.Response.File
-        (MIME.Content_Type (Filename),
-         Filename => WWW_Root & "/icons/" & URI (10 .. URI'Last));
-   end CB_Icons;
+   function CB_Icons is
+     new Services.Callbacks.File ("/we_icons/", WWW_Root & "/icons/");
 
    -----------
    -- CB_JS --
    -----------
 
-   function CB_JS (Request : in Status.Data) return Response.Data is
-      URI      : constant String := Status.URI (Request);
-      Filename : constant String := URI (URI'First + 1 .. URI'Last);
-   begin
-      return AWS.Response.File
-        (MIME.Content_Type (Filename),
-         Filename => WWW_Root & "/javascripts/" & URI (10 .. URI'Last));
-   end CB_JS;
+   function CB_JS is
+     new Services.Callbacks.File ("/we_js/", WWW_Root & "/javascripts/");
 
    Port : constant Integer := 2400;
 
