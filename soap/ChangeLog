@@ -1,5 +1,18 @@
 2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-generator-skel.adb:
+	(New_Procedure): Remove trailing space in code generation.
+
+	* soap-generator-stub.adb:
+	(New_Procedure): Remove trailing space in code generation.
+
+	* soap-generator.adb:
+	(Put_File_Header): Split CVS Id tag to avoid its expansion.
+	(Start_Service): Add pragma Warnings off for packages that are not
+	 always used.
+
+2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(SOURCES): Add soap-wsdl* and soap.generator.adb.
 
