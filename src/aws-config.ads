@@ -187,7 +187,11 @@ package AWS.Config is
 
    function Status_Page (O : in Object) return String;
    pragma Inline (Status_Page);
-   --  Filename for the status page.
+   --  Filename for the status template page.
+
+   function Directory_Browser_Page (O : in Object) return String;
+   pragma Inline (Directory_Browser_Page);
+   --  Filename for the directory browser template page.
 
    function Up_Image (O : in Object) return String;
    pragma Inline (Up_Image);
@@ -272,6 +276,7 @@ private
       Send_Timeout,
       Receive_Timeout,
       Status_Page,
+      Directory_Browser_Page,
       Up_Image,
       Down_Image,
       Logo_Image,
@@ -308,7 +313,6 @@ private
 
          when Bool =>
             Bool_Value : Boolean;
-
       end case;
    end record;
 
@@ -347,6 +351,9 @@ private
 
          Status_Page =>
            (Str, To_Unbounded_String (Default.Status_Page)),
+
+         Directory_Browser_Page =>
+           (Str, To_Unbounded_String (Default.Directory_Browser_Page)),
 
          Up_Image =>
            (Str, To_Unbounded_String (Default.Up_Image)),
@@ -421,12 +428,11 @@ private
       P : Parameter_Set (Server_Parameter_Name) := Default_Parameters;
    end record;
 
-   Default_Config : constant Object
-     := (P => Default_Parameters);
+   Default_Config : constant Object := (P => Default_Parameters);
 
    Server_Config : Object;
    --  This variable will be updated with options found in 'aws.ini' and
-   --  'progname.ini'.
+   --  '<progname>.ini'.
 
    Process_Options : Parameter_Set (Process_Parameter_Name)
      := (Session_Cleanup_Interval =>
