@@ -1,3 +1,45 @@
+2005-02-12  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(clean): Add -f option to rm to avoid warnings for missing files.
+
+	* src.gpr:
+	(Source_Dirs): Add "../templates_parser/src". Add also
+	 templates_parser/xsrc if XMLAda installed.
+
+	* templates_parser.ads, templates_parser.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-utils.ads, templates_parser-utils.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-query.ads, templates_parser-query.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-print_tree.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-input.ads, templates_parser-input.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-filter.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-expr.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-definitions.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-debug.ads, templates_parser-debug.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-data.adb:
+	Moved to templates_parser directory.
+
+	* templates_parser-cached_files.adb:
+	Moved to templates_parser directory.
+
 2005-02-07  Pascal Obry  <pascal@obry.org>
 
 	* aws.ads:
