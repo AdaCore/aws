@@ -1,11 +1,12 @@
 
 			    A W S - Ada Web Sever
 
-November 12th, 2000.
+March 7th, 2001.
 
 
 Dmitriy Anisimkov and I are happy to announce the availability of the 
-AWS 0.9.9 release.
+AWS 0.9.9 release. This version is close to the 1.0 version. We plan to
+change slightly the API at this stage but it should be mostly stable.
 
 AWS stand for Ada Web Server. It is not a real Web Server like Apache. It is
 an HTTP component to embedded in any application. AWS is fully developed in
@@ -20,13 +21,14 @@ This new version has a lot of changes:
   - Add logging facility (log format is very close to the Apache one). The log
     file can be configured to change daily or monthly.
 
-  - AWS support select with multiple values (i.e. a parameter name can be
-    given a list of values)
+  - AWS support select HTML tags with multiple values (i.e. a parameter name
+    can be given a list of values)
 
   - Add an API to use AWS as a communication layer between programs.
 
   - Add support for Hotplug module (dynamically bound module into a running
-    Web  server). See documentation.
+    Web  server). See documentation. This uses the communication API. Support
+    for Hotplug modules is at a beta stage.
 
   - POSIX implementation of the OS_Lib.GMT_Clock function now returns GMT
     time. The GMT_Clock was correct only with the GNAT and Win32
@@ -36,6 +38,11 @@ This new version has a lot of changes:
 
   - AWS.Status is lightler because all routines to set the status have been
     moved to another unit.
+
+  - AWS.Client now support Keep-Alive connection.
+
+  - We have simplified the makefile and build process, but this needs
+    certainly some more improvements.
 
   - And again, improve the documentation.
 
@@ -51,8 +58,8 @@ http://perso.wanadoo.fr/pascal.obry/contrib.html
 An online version of the documentation can be found at
 http://perso.wanadoo.fr/pascal.obry/aws.html.
 
-The OpenSSL libraries distributed are for Windows GNAT 3.13. GNAT 3.12 users
-must build the libraries from sources or obtain Win32 binaries from 
+The OpenSSL libraries (optional) distributed are for Windows GNAT 3.13. GNAT
+3.12 users must build the libraries from sources or obtain Win32 binaries from 
 http://vagul.tripod.com/libssl.zip.
 
 Under UNIX you'll have to build the libraries from sources, it is quite easy 
@@ -78,7 +85,7 @@ Socket binding:
    for UNIX:
       http://www.infres.enst.fr/ANC/
 
-POSIX Binding:
+POSIX Binding (optional) :
 
    for Win32:
       http://perso.wanadoo.fr/pascal.obry/contrib.html
@@ -86,11 +93,12 @@ POSIX Binding:
    for UNIX:
       http://www.cs.fsu.edu/~baker/florist.html
 
-OpenSSL library:
+OpenSSL library (optional) :
 
    Sources for UNIX or Win32:
       http://www.openssl.org
-      (we have used version OpenSSL version 0.9.5a with AWS v0.9.9)
+      (we have used and we distribute version OpenSSL version 0.9.5a with AWS
+      v0.9.9, we have also tested AWS with 0.9.6 without trouble)
 
    binaries for Win32 with GNAT 3.13 (and later):
       Included with the main AWS distribution.
@@ -109,5 +117,8 @@ You can report bugs to:
 
 It would be nice if you could also sent us a note if you are using AWS just
 to know if it is used at all or not :)
+
+
+Thanks to all who have reported bugs and send us patches.
 
 Dmitriy & Pascal.
