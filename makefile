@@ -143,15 +143,9 @@ build_soap_demos:
 	${MAKE} -C demos build_soap $(ALL_OPTIONS)
 
 build_ssllib:
-ifeq ($(MODE),ssl)
 	echo ""
 	echo === Build SSL support
 	${MAKE} -C ssl build $(ALL_OPTIONS)
-else
-	echo ""
-	echo === Build SSL wrappers
-	${MAKE} -C ssl wrappers $(ALL_OPTIONS)
-endif
 
 build_soaplib: build_include
 	echo ""
@@ -295,7 +289,7 @@ install: force
 	mkdir $(INSTALL)/AWS/components
 	mkdir $(INSTALL)/AWS/tools
 	ar cr libaws.a src/*.o
-	-ar cr libaws.a ssl/*.o
+	ar cr libaws.a ssl/*.o
 	-ar cr libaws.a soap/*.o
 	cp src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
 	-cp soap/*.ad[sb] $(INSTALL)/AWS/include
@@ -304,6 +298,7 @@ install: force
 	-cp soap/*.ali $(INSTALL)/AWS/lib
 	chmod uog-w $(INSTALL)/AWS/lib/*.ali
 	mv libaws.a $(INSTALL)/AWS/lib
+	mv ssl/libsslaws.a $(INSTALL)/AWS/lib
 	-cp docs/aws.html $(INSTALL)/AWS/docs
 	cp docs/templates_parser.html $(INSTALL)/AWS/docs
 	-cp docs/aws.txt $(INSTALL)/AWS/docs
@@ -312,11 +307,10 @@ install: force
 	cp demos/*.thtml $(INSTALL)/AWS/templates
 	cp icons/*.gif $(INSTALL)/AWS/icons
 	cp demos/aws_*.png $(INSTALL)/AWS/images
-	-cp ssl/*.a $(INSTALL)/AWS/lib
 	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/AWS/components
 	-cp tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-chmod -R og+r $(INSTALL)/AWS
 ifeq (${OS}, Windows_NT)
-	cp win32/libldap.a $(INSTALL)/AWS/lib
+	cp win32/lib*.a $(INSTALL)/AWS/lib
 	cp win32/*.dll $(INSTALL)/AWS/lib
 endif
