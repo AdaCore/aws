@@ -34,14 +34,19 @@ with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
+with GNAT.OS_Lib;
+
 with AWS.Config;
+with AWS.Utils;
 
 package body AWS.Log is
 
    use Ada;
+   use Ada.Strings.Unbounded;
 
    Log_Activated : Boolean := False;
    Log_File      : Text_IO.File_Type;
@@ -88,25 +93,44 @@ package body AWS.Log is
 
    procedure Start (Split : in Split_Mode := None) is
       Now      : constant Calendar.Time := Calendar.Clock;
-      Filename : constant String := Log_Prefix
-        & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d.log");
+      Filename : Unbounded_String;
+      use GNAT;
    begin
       Log_Activated := True;
       Log.Split     := Split;
 
+      Filename := To_Unbounded_String
+        (Log_Prefix
+         & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d.log"));
+
       case Split is
          when None =>
             null;
+
+         when Each_Run =>
+            for K in 1 .. 86_400 loop
+               --  no more than one run per second during a full day.
+
+               exit when not OS_Lib.Is_Regular_File (To_String (Filename));
+
+               Filename := To_Unbounded_String
+                 (Log_Prefix
+                  & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d-")
+                  & Utils.Image (K) & ".log");
+            end loop;
+
          when Daily =>
-            Current_Tag := Calendar.Day (Now);
+            Current_Tag := Ada.Calendar.Day (Now);
+
          when Monthly =>
-            Current_Tag := Calendar.Month (Now);
+            Current_Tag := Ada.Calendar.Month (Now);
       end case;
 
-      Text_IO.Open (Log_File, Text_IO.Append_File, Filename);
+      Text_IO.Open (Log_File, Text_IO.Append_File, To_String (Filename));
+
    exception
       when Text_IO.Name_Error =>
-         Text_IO.Create (Log_File, Text_IO.Out_File, Filename);
+         Text_IO.Create (Log_File, Text_IO.Out_File, To_String (Filename));
    end Start;
 
    ----------
