@@ -1906,6 +1906,7 @@ Jean-Fran@,cois Rameau.
 * AWS.Server.Push::
 * AWS.Session::
 * AWS.Status::
+* AWS.URL::
 * SOAP.Client::
 * SOAP.Message::
 * SOAP.Message.XML::
@@ -2008,6 +2009,12 @@ Jean-Fran@,cois Rameau.
 @cindex AWS.Status
 
 @include ../src/aws-status.ads.texi
+
+@node AWS.URL
+@section AWS.URL
+@cindex AWS.URL
+
+@include ../src/aws-url.ads.texi
 
 @node SOAP.Client
 @section SOAP.Client
