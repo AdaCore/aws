@@ -36,6 +36,6 @@ package SOAP is
    --  Will be raised when an error occurs in the SOAP implementation. The
    --  exception message will described the problem.
 
-   Version : constant String := "0.9";
+   Version : constant String := "1.0";
 
 end SOAP;
