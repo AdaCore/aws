@@ -1204,7 +1204,7 @@ begin
       Get_Message_Data;
 
       Will_Close :=
-        AWS.Messages.Does_Not_Match (Status.Connection (C_Stat), "Keep-Alive")
+        AWS.Messages.Is_Match (Status.Connection (C_Stat), "close")
         or else Status.HTTP_Version (C_Stat) = HTTP_10
         or else HTTP_Server.Slots.N = 1;
 
