@@ -643,12 +643,11 @@ package body AWS.Client is
    begin
       Set_Phase (Connection, Receive);
 
-      Parse_Header (Connection, Result, Keep_Alive);
-
       --  Clear the data in the Responce.
 
-      Response.Set.Message_Body
-        (Result, Streams.Stream_Element_Array'(1 .. 0 => 0));
+      Response.Set.Clear (Result);
+
+      Parse_Header (Connection, Result, Keep_Alive);
 
       if not Get_Body then
          Disconnect;
