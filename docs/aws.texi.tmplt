@@ -812,7 +812,7 @@ or needs specials privileges (port 80 on Linux for example).
 @cindex Security
 
 If Security is set to True the server will use an HTTPS/SSL
-connection. This part uses the OpenSSL library.
+connection. This part uses the @code{OpenSSL} library.
 
 @item Session
 @cindex Session
@@ -1529,6 +1529,11 @@ It indicates how to split the error logs. Each_Run means that a new log file
 is used each time the process is started. Daily and Monthly will use a
 new log file each day or month. The default is @_ERROR_LOG_SPLIT_MODE_@.
 
+@item Exchange_Certificate (boolean)
+@cindex Exchange_Certificate
+If set to True it means that the client will be asked to send its
+certificate to the server.
+
 @item Force_Wait_For_Client_Timeout (duration)
 @cindex Force_Wait_For_Client_Timeout
 Number of seconds to timeout on waiting for a client request. This is a
@@ -1564,8 +1569,14 @@ response bigger Free_Slots_Keep_Alive_Limit should be.
 The default is @_KEEP_ALIVE_LIMIT_@.
 
 @item Hotplug_Port (positive)
+@cindex Hotplug_Port
 This is the hotplug communication port needed to register and
 un-register an hotplug module. The default value is @_HOTPLUG_PORT_@.
+
+@item Key (string)
+@cindex Key
+Set the RSA key file to be used with the secure servers. The
+default file is @file{@_DEFAULT_KEY_@}.
 
 @item Line_Stack_Size (positive)
 @cindex Line_Stack_Size
@@ -1621,6 +1632,11 @@ N = <main server thread> + <max connections> [+ <session>]
 Number of seconds to timeout when receiving chunk of data. The
 default is @_RECEIVE_TIMEOUT_@ seconds.
 
+@item Security_Mode (string)
+@cindex Security_Mode
+Set the security mode to use for the secure connections. The default
+mode is "@b{@_SECURITY_MODE_@}". @pxref{AWS.Net.SSL}.
+
 @item Send_Timeout (duration)
 @cindex Send_Timeout
 Number of seconds to timeout when sending chunk of data. The default is
@@ -1673,7 +1689,7 @@ Specify the number of seconds to keep a transient page. After this
 period the transient page is obsoleted and will be removed during next
 cleanup. The default value is @_TRANSIENT_LIFETIME_@ seconds.
 
-@item Up_Image (string).
+@item Up_Image (string)
 @cindex Up_Image
 The name of the up arrow image to use in the status page. The default is
 @file{@_UP_IMAGE_@}.
@@ -2361,7 +2377,7 @@ For the full set of routines supporting the log facility
 @cindex HTTPS
 
 @noindent
-It is not much difficult to use a secure server (HTTPS) than a
+It is not much difficult to use a secure server (@code{HTTPS}) than a
 standard one. Here we describe only what is specific to an HTTPS
 server.
 
@@ -2373,6 +2389,7 @@ done, you can continue reading this section.
 
 @menu
 * Initialization::
+* Creating a test certificate::
 * Protocol::
 @end menu
 
@@ -2393,15 +2410,65 @@ rely on, you must have a valid certificate signed by one of the
 
 @noindent
 The certificate to be used must be specified before starting the
-secure server with AWS.Server.Set_Security.
+secure server with @code{AWS.Server.Set_Security}.
 
 @smallexample
 @cartouche
 @group
-AWS.Server.Set_Security (Certificate_Filename => "/xyz/aws.cert");
+AWS.Server.Set_Security (WS, Certificate_Filename => "/xyz/aws.pem");
 @end group
 @end cartouche
 @end smallexample
+
+@node Creating a test certificate
+@subsection Creating a test certificate
+@cindex certificate
+
+@noindent
+The goal here is not to replace the @code{OpenSSL} documentation but
+just to present one way to create a certificate for an @code{HTTPS}
+test server.
+
+@table @b
+
+@item The RSA key
+
+@smallexample
+@cartouche
+@group
+$ openssl genrsa -rand <filename> -out ca-key.pem
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Filename must be point to any file, this is used to initialized the
+random seed.
+
+@item The Certificate
+
+@smallexample
+@cartouche
+@group
+$ openssl req -new -x509 -days 730 -key ca-key.pem -out ca-cert.pem
+@end group
+@end cartouche
+@end smallexample
+
+@item Create a single self contained file
+
+@smallexample
+@cartouche
+@group
+$ cat ca-key.pem ca-cert.pem > aws.pem
+@end group
+@end cartouche
+@end smallexample
+
+@end table
+
+@noindent
+A this point you can use @file{aws.pem} with your server.
 
 @node Protocol
 @subsection Protocol
@@ -5448,6 +5515,8 @@ AWS User's API:
 * AWS.Log::
 * AWS.Messages::
 * AWS.MIME::
+* AWS.Net.SSL::
+* AWS.Net.SSL.Certificate::
 * AWS.Parameters::
 * AWS.POP::
 * AWS.Resources::
@@ -5634,6 +5703,20 @@ SOAP User's API:
 @cindex AWS.MIME
 
 @include aws-mime.ads.texi
+
+@page
+@node AWS.Net.SSL
+@appendixsec AWS.Net.SSL
+@cindex AWS.Net.SSL
+
+@include aws-net-ssl.ads.texi
+
+@page
+@node AWS.Net.SSL.Certificate
+@appendixsec AWS.Net.SSL.Certificate
+@cindex AWS.Net.SSL.Certificate
+
+@include aws-net-ssl-certificate.ads.texi
 
 @page
 @node AWS.Parameters
