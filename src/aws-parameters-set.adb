@@ -125,7 +125,14 @@ package body AWS.Parameters.Set is
       S : Positive := P'First;
       E : Natural;
    begin
-      Parameter_List.Parameters := To_Unbounded_String ('?' & Parameters);
+      --  Skip leading question mark if present.
+
+      if P /= "" and then P (C) = '?' then
+         C := Positive'Succ (C);
+         S := Positive'Succ (S);
+      end if;
+
+      Parameter_List.Parameters := To_Unbounded_String ('?' & P (C .. P'Last));
 
       loop
          I := Fixed.Index (P (C .. P'Last), "=");
