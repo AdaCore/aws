@@ -45,6 +45,8 @@ project Src is
    case Shared.XMLAda is
       when "Installed" =>
          for Source_Dirs use project'Source_Dirs & ("../xsrc", "../soap");
+      when "Disabled" =>
+         null;
    end case;
 
    --  Under Win32 add sources from win32 directory
@@ -52,6 +54,8 @@ project Src is
    case Shared.OS is
       when "Windows_NT" =>
          for Source_Dirs use project'Source_Dirs & ("../win32");
+      when "GNU/Linux" =>
+         null;
    end case;
 
    for Languages use ("Ada", "Changelog", "Project file", "makefile");
