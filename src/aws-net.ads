@@ -68,8 +68,7 @@ package AWS.Net is
       Port   : in     Natural;
       Host   : in     String := "")
       is abstract;
-   --  Bind a socket on a given port.
-   --  Create a server socket if necessary.
+   --  Bind a socket on a given port, Create a server socket if necessary
 
    procedure Listen
      (Socket     : in Socket_Type;
