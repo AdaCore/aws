@@ -229,9 +229,6 @@ package body AWS.Config.Ini is
       K_First : Natural;
       K_Last  : Natural;
 
-      V_First : Natural;
-      V_Last  : Natural;
-
    begin
       Text_IO.Open (Name => Filename,
                     File => File,
@@ -260,19 +257,18 @@ package body AWS.Config.Ini is
               (Buffer (1 .. Last), Separators, Strings.Outside,
                K_First, K_Last);
 
-            --  Looks for associated value
-
-            Strings.Fixed.Find_Token
-              (Buffer (K_Last + 1 .. Last), Separators, Strings.Outside,
-               V_First, V_Last);
-
-            if K_Last /= 0 and then V_Last /= 0 then
+            if K_Last /= 0 then
 
                declare
                   Key   : constant String := Buffer (K_First .. K_Last);
-                  Value : constant String := Buffer (V_First .. V_Last);
+                  Value : constant String := Strings.Fixed.Trim
+                    (Buffer (K_Last + 1 .. Last), Separators, Separators);
                begin
-                  Set_Value (Filename, Key, Value);
+                  if Value = "" then
+                     Error_Message (Filename, "No value for " & Key);
+                  else
+                     Set_Value (Filename, Key, Value);
+                  end if;
                end;
 
             else
