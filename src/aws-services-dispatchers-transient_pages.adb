@@ -70,7 +70,10 @@ package body AWS.Services.Dispatchers.Transient_Pages is
                return Result;
 
             else
-               return Response.Stream (Status.Content_Type (Request), Stream);
+               return Response.Stream
+                 (Status.Content_Type (Request),
+                  Stream,
+                  Server_Close => False);
             end if;
          end;
 
