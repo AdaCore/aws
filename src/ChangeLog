@@ -1,3 +1,12 @@
+2004-06-17  Pascal Obry  <pascal@obry.org>
+
+	* aws-pop.adb:
+	(Read_Headers): Ensure that we do not raise Format_Error when
+	 reading the POP headers. This is to be able to skip wrong
+	 headers as found in SPAM.
+	(Get): Use it.
+	(Get_Header): Use it.
+
 2004-06-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.adb:
