@@ -16,8 +16,7 @@ build: build_zlib ../src/aws-os_lib.adb
 	$(GNATMAKE) -Pinclude -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 setup:
-	-$(MKDIR) -p ../.build/debug/include
-	-$(MKDIR) -p ../.build/release/include
+	-$(MKDIR) -p ../$(BDIR)/include
 	${MAKE} -C zlib
 
 clean:
