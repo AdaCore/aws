@@ -1,5 +1,11 @@
 2003-03-09  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* strm2.adb:
+	Use port 1259 (1245 already used in tres.adb).	
+
+	* tlog.adb:
+	Use port 1251 (1246 already used in tres.adb).	
+
 	* test_wsdl3.wsdl:
 	Use port 9123 (9122 already used in test_wsdl2.wsdl).
 
