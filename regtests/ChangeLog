@@ -9,6 +9,10 @@
 	* makefile:
 	Put dirop regtest to the regular way.
 
+	* dirop.out
+	Change the original file times to odd value, could avoid regression
+	 fail under non Win32 OS-es.
+
 2003-03-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
