@@ -16,4 +16,4 @@ build:
 	for file in *.adb; do gnatmake $(GFLAGS) $$file; done
 
 clean:
-	rm *.o *.ali *.exe aws.tar*
+	-rm *.o *.ali *.exe aws.tar*
