@@ -44,7 +44,7 @@ package AWS.Session is
    --  Create a new uniq Session ID.
 
    procedure Delete (SID : in ID);
-   --  Delete session
+   --  Delete session, does nothing if SID does not exists.
 
    function Image (SID : in ID) return String;
    --  Return ID image
