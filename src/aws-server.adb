@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
+--                          Copyright (C) 2000-2001                         --
 --                      Dmitriy Anisimkov & Pascal Obry                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -56,7 +56,7 @@ package body AWS.Server is
      (Sock        : in     Sockets.Socket_FD'Class;
       HTTP_Server : in out HTTP;
       Index       : in     Positive);
-   --  handle the line, this is where the HTTP protocol is defined.
+   --  Handle the lines, this is where all the HTTP protocol is defined.
 
    ---------------------
    -- File_Upload_UID --
@@ -76,15 +76,27 @@ package body AWS.Server is
    -- Start --
    -----------
 
-   procedure Start (Web_Server : in out HTTP;
-                    Name       : in     String;
-                    Admin_URI  : in     String := No_Admin)
+   procedure Start
+     (Web_Server                : in out HTTP;
+      Name                      : in     String;
+      Callback                  : in     Response.Callback;
+      Admin_URI                 : in     String            := No_Admin;
+      Port                      : in     Positive          := Default_Port;
+      Security                  : in     Boolean           := False;
+      Session                   : in     Boolean           := False;
+      Case_Sensitive_Parameters : in     Boolean           := True)
    is
       Accepting_Socket : Sockets.Socket_FD;
    begin
       Web_Server.Name        := To_Unbounded_String (Name);
       Web_Server.Admin_URI   := To_Unbounded_String (Admin_URI);
       Web_Server.Upload_Path := To_Unbounded_String (Default_Upload_Path);
+
+      Web_Server.Port                      := Port;
+      Web_Server.Security                  := Security;
+      Web_Server.CB                        := Callback;
+      Web_Server.Session                   := Session;
+      Web_Server.Case_Sensitive_Parameters := Case_Sensitive_Parameters;
 
       Sockets.Socket (Accepting_Socket,
                       Sockets.AF_INET,
@@ -95,7 +107,7 @@ package body AWS.Server is
                           Sockets.SO_REUSEADDR,
                           1);
 
-      Sockets.Bind (Accepting_Socket, Web_Server.Port);
+      Sockets.Bind (Accepting_Socket, Port);
 
       Sockets.Listen (Accepting_Socket);
 
@@ -107,8 +119,8 @@ package body AWS.Server is
          Web_Server.Lines (I).Start (Web_Server, I);
       end loop;
 
-      if Web_Server.Session then
-         Session.Start;
+      if Session then
+         AWS.Session.Start;
       end if;
    end Start;
 
@@ -144,7 +156,15 @@ package body AWS.Server is
 
       procedure Set_Abortable (Index : in Positive; Flag : in Boolean) is
       begin
-         Set (Index).Abortable := Flag;
+         if Flag /= Set (Index).Abortable then
+            Set (Index).Abortable := Flag;
+
+            if Flag then
+               Abortable_Count := Abortable_Count + 1;
+            else
+               Abortable_Count := Abortable_Count - 1;
+            end if;
+         end if;
       end Set_Abortable;
 
       ------------------
@@ -182,7 +202,8 @@ package body AWS.Server is
             Activity_Time_Stamp := Set (S).Activity_Time_Stamp;
 
             if Set (S).Abortable
-            and then Activity_Time_Stamp < Time_Stamp then
+              and then Activity_Time_Stamp < Time_Stamp
+            then
                To_Be_Closed := S;
                Time_Stamp   := Activity_Time_Stamp;
             end if;
@@ -198,6 +219,9 @@ package body AWS.Server is
          then
             Sockets.Shutdown (Set (To_Be_Closed).Sock);
             Set (To_Be_Closed).Opened := False;
+
+         elsif To_Be_Closed = 0 and Force then
+            Ada.Text_IO.Put_Line ("Bug.");
          end if;
       end Abort_Oldest;
 
@@ -205,11 +229,12 @@ package body AWS.Server is
       -- Get --
       ---------
 
-      procedure Get (FD    : in Sockets.Socket_FD; Index : in Positive) is
+      entry Get (FD : in Sockets.Socket_FD; Index : in Positive)
+         when Count > 1 or else Abortable_Count > 0 or else Set'Length = 1 is
       begin
-         Set (Index).Sock      := FD;
-         Set (Index).Opened    := True;
-         Set (Index).Abortable := False;
+         Set (Index).Sock             := FD;
+         Set (Index).Opened           := True;
+         Set (Index).Abortable        := False;
          Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
 
          Count := Count - 1;
@@ -245,6 +270,7 @@ package body AWS.Server is
       procedure Release (Index : in Positive) is
       begin
          Count := Count + 1;
+
          if Set (Index).Opened then
             Sockets.Shutdown (Set (Index).Sock);
             Set (Index).Opened := False;
@@ -378,8 +404,7 @@ package body AWS.Server is
                --  needed.
 
                when Sockets.Connection_Closed | Connection_Error =>
-                  Text_IO.Put_Line
-                    ("Connection closed (time-out or not enough slots).");
+                  null;
 
                when E : others =>
                   Text_IO.Put_Line ("A problem has been detected!");
