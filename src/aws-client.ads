@@ -60,8 +60,8 @@ package AWS.Client is
    type Authentication_Mode is new AWS.Response.Authentication_Mode;
 
    type Timeouts_Values is record
-      Send    : Natural;
-      Receive : Natural;
+      Send    : Duration;
+      Receive : Duration;
    end record;
    --  Defined the number of seconds for the send and receive timeout
 
@@ -351,7 +351,7 @@ private
    use Ada.Strings.Unbounded;
    use Ada.Streams;
 
-   No_Timeout : constant Timeouts_Values := (0, 0);
+   No_Timeout : constant Timeouts_Values := (AWS.Net.Forever, AWS.Net.Forever);
    No_Data    : constant String := "";
 
    Undefined_Length : Response.Content_Length_Type
