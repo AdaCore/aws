@@ -96,6 +96,9 @@ package AWS.Messages is
    User_Agent_Token : constant String := "User-Agent: ";
    subtype User_Agent_Range is Positive range User_Agent_Token'Range;
 
+   Referer_Token : constant String := "Referer: ";
+   subtype Referer_Range is Positive range Referer_Token'Range;
+
    SOAPAction_Token : constant String := "SOAPAction: ";
    subtype SOAPAction_Range is Positive range SOAPAction_Token'Range;
 
