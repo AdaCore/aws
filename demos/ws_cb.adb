@@ -41,7 +41,6 @@ with Ada.Calendar;
 with Ada.Strings.Unbounded;
 with Ada.Integer_Text_IO;
 with Ada.Exceptions;
-with Ada.Text_IO;
 
 package body WS_CB is
 
