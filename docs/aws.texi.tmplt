@@ -1205,6 +1205,8 @@ compressed memory stream response.
 * Response from a Stream_Element_Array::
 * Response from a file::
 * Response from a stream::
+* Response from a on-disk stream::
+* Response from a on-disk once stream::
 * Response from a memory stream::
 * Response from a compressed memory stream::
 * Split page::
@@ -1390,6 +1392,21 @@ really don't know when the upload is terminated when using the
 possible to use a stream as the procedure @code{Close} is called by
 the server when all data have been read. In this procedure it is
 trivial to do the necessary clean-up.
+
+@node Response from a on-disk stream
+@subsection Response from a on-disk stream
+
+@noindent
+An ready-to-use implementation of the stream API described above where
+the stream content is read from an on-disk file.
+
+@node Response from a on-disk once stream
+@subsection Response from a on-disk once stream
+
+@noindent
+An ready-to-use implementation of the stream API described above where
+the stream content is read from an on-disk file. When the transfer is
+completed the file is removed from the file system.
 
 @node Response from a memory stream
 @subsection Response from a memory stream
@@ -5649,6 +5666,8 @@ AWS User's API:
 * AWS.Resources.Embedded::
 * AWS.Resources.Files::
 * AWS.Resources.Streams::
+* AWS.Resources.Streams.Disk::
+* AWS.Resources.Streams.Disk.Once::
 * AWS.Resources.Streams.Memory::
 * AWS.Resources.Streams.Memory.ZLib::
 * AWS.Response::
@@ -5899,6 +5918,20 @@ SOAP User's API:
 @cindex AWS.Resources.Streams
 
 @include aws-resources-streams.ads.texi
+
+@page
+@node AWS.Resources.Streams.Disk
+@appendixsec AWS.Resources.Streams.Disk
+@cindex AWS.Resources.Streams.Disk
+
+@include aws-resources-streams-disk.ads.texi
+
+@page
+@node AWS.Resources.Streams.Disk.Once
+@appendixsec AWS.Resources.Streams.Disk.Once
+@cindex AWS.Resources.Streams.Disk.Once
+
+@include aws-resources-streams-disk-once.ads.texi
 
 @page
 @node AWS.Resources.Streams.Memory
