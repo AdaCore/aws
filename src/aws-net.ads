@@ -108,10 +108,19 @@ package AWS.Net is
    --------
 
    procedure Send
-     (Socket : in Socket_Type;
-      Data   : in Stream_Element_Array)
+     (Socket : in Socket_Type'Class;
+      Data   : in Stream_Element_Array);
+   --  Send Data chunk to the socket.
+
+   procedure Send
+     (Socket : in     Socket_Type;
+      Data   : in     Stream_Element_Array;
+      Last   :    out Stream_Element_Offset)
       is abstract;
-   --  Send Data chunk to the socket
+   --  Try to place data to output buffer.
+   --  If all data could not be placed to the socket output buffer, Last would
+   --  be lower than Data'Last after call, if no data could be placed to output
+   --  buffer, Last would be Data'First - 1.
 
    procedure Receive
      (Socket : in     Socket_Type;
