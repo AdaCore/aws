@@ -98,7 +98,7 @@ private
       --  receiving data and we should disconnect him.
 
       Server_Processing
-      --  While send/receiving large data.
+      --  While in the User's Callback procedure.
      );
 
    subtype Abortable_Phase is Slot_Phase
