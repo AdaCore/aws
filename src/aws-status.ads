@@ -77,9 +77,13 @@ package AWS.Status is
    -- Header --
    ------------
 
-   function Header (D : in Data) return Headers.List;
+   function Header                 (D : in Data) return Headers.List;
    pragma Inline (Header);
    --  Returns the list of header lines for the request.
+
+   function Accept_Encoding        (D : in Data) return String;
+   pragma Inline (Accept_Encoding);
+   --  Get the value for "Accept-Encoding:" header
 
    function Connection             (D : in Data) return String;
    pragma Inline (Connection);
@@ -87,20 +91,20 @@ package AWS.Status is
 
    function Content_Length         (D : in Data) return Natural;
    pragma Inline (Content_Length);
-   --  Get the value for "Content-Length:" parameter, this is the number of
+   --  Get the value for "Content-Length:" header, this is the number of
    --  bytes in the message body.
 
    function Content_Type           (D : in Data) return String;
    pragma Inline (Content_Type);
-   --  Get value for "Content-Type:" parameter
+   --  Get value for "Content-Type:" header
 
    function Host                   (D : in Data) return String;
    pragma Inline (Host);
-   --  Get value for "Host:" parameter
+   --  Get value for "Host:" header
 
    function If_Modified_Since      (D : in Data) return String;
    pragma Inline (If_Modified_Since);
-   --  Get value for "If-Modified-Since:" parameter
+   --  Get value for "If-Modified-Since:" header
 
    function Keep_Alive             (D : in Data) return Boolean;
    pragma Inline (Keep_Alive);
@@ -108,11 +112,17 @@ package AWS.Status is
 
    function User_Agent             (D : in Data) return String;
    pragma Inline (User_Agent);
-   --  Get value for "User-Agent:" parameter
+   --  Get value for "User-Agent:" header
 
    function Referer                (D : in Data) return String;
    pragma Inline (Referer);
-   --  Get value for "Referer:" parameter
+   --  Get value for "Referer:" header
+
+   function Is_Supported
+     (D        : in Data;
+      Encoding : in Messages.Content_Encoding)
+      return Boolean;
+   --  Returns True if the content encoding scheme is sported by the client
 
    ----------------
    -- Connection --
@@ -191,7 +201,7 @@ package AWS.Status is
    function Check_Digest
      (D        : in Data;
       Password : in String)
-      return   Messages.Status_Code;
+      return Messages.Status_Code;
    --  This function is used by the digest authentication to check if the
    --  client password and authentication parameters are correct.
    --  The password is not transferred between the client and the server,
