@@ -98,10 +98,10 @@ package AWS.Net is
    --  There is not need to call Free or Shutdown.
 
    procedure Connect
-     (Socket   : in out Socket_Type;
-      Host     : in     String;
-      Port     : in     Positive;
-      Wait     : in     Boolean := True)
+     (Socket : in out Socket_Type;
+      Host   : in     String;
+      Port   : in     Positive;
+      Wait   : in     Boolean := True)
       is abstract;
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
