@@ -123,13 +123,14 @@ package body AWS.OS_Lib is
       Last : Natural;
       Quit : Boolean := False;
 
-      function End_Slash return String;
+      function Get_Directory return String;
+      --  Returns directory with an ending slash
 
-      ---------------
-      -- End_Slash --
-      ---------------
+      -------------------
+      -- Get_Directory --
+      -------------------
 
-      function End_Slash return String is
+      function Get_Directory return String is
       begin
          if Directory_Name /= ""
            and then Directory_Name (Directory_Name'Last) = '/'
@@ -138,9 +139,9 @@ package body AWS.OS_Lib is
          else
             return Directory_Name & '/';
          end if;
-      end End_Slash;
+      end Get_Directory;
 
-      Dir_Name : constant String := End_Slash;
+      Dir_Name : constant String := Get_Directory;
 
    begin
       GNAT.Directory_Operations.Open (Dir, Directory_Name);
