@@ -43,6 +43,7 @@ with Sax.Readers;
 with SOAP.Message.Reader;
 with SOAP.Message.Response.Error;
 with SOAP.Types;
+with SOAP.Utils;
 
 package body SOAP.Message.XML is
 
@@ -76,7 +77,7 @@ package body SOAP.Message.XML is
    Start_Body : constant String := "<SOAP-ENV:Body>";
    End_Body   : constant String := "</SOAP-ENV:Body>";
 
-   type Array_State is (Void, A_Undefined, A_Int, A_Float, A_String,
+   type Array_State is (Void, A_Undefined, A_Int, A_Float, A_Double, A_String,
                         A_Boolean, A_Time_Instant, A_Base64);
 
    type State is record
@@ -97,6 +98,8 @@ package body SOAP.Message.XML is
    function Parse_Int       (N : in DOM.Core.Node) return Types.Object'Class;
 
    function Parse_Float     (N : in DOM.Core.Node) return Types.Object'Class;
+
+   function Parse_Double    (N : in DOM.Core.Node) return Types.Object'Class;
 
    function Parse_String    (N : in DOM.Core.Node) return Types.Object'Class;
 
@@ -292,6 +295,9 @@ package body SOAP.Message.XML is
          elsif T = Types.XML_Float then
             return A_Float;
 
+         elsif T = Types.XML_Double then
+            return A_Double;
+
          elsif T = Types.XML_String then
             return A_String;
 
@@ -312,16 +318,23 @@ package body SOAP.Message.XML is
          end if;
       end A_State;
 
-      Name   : constant String := Local_Name (N);
-      OS     : Types.Object_Set (1 .. Max_Object_Size);
-      K      : Natural := 0;
+      Name     : constant String := Local_Name (N);
+      OS       : Types.Object_Set (1 .. Max_Object_Size);
+      K        : Natural := 0;
 
-      Field  : DOM.Core.Node;
+      Field    : DOM.Core.Node;
 
-      Atts   : constant DOM.Core.Named_Node_Map := Attributes (N);
+      Atts     : constant DOM.Core.Named_Node_Map := Attributes (N);
+
+      XSI_Type : constant DOM.Core.Node
+        := Get_Named_Item (Atts, "xsi:type");
+
+      A_Name   : constant String
+        := Utils.NS (Node_Value (XSI_Type)) & ":arrayType";
+      --  Attribute name
 
       A_Type : constant Array_State
-        := A_State (Node_Value (Get_Named_Item (Atts, "SOAP-ENC:arrayType")));
+        := A_State (Node_Value (Get_Named_Item (Atts, A_Name)));
 
    begin
       Field := First_Child (N);
@@ -401,6 +414,17 @@ package body SOAP.Message.XML is
       end if;
    end Parse_Document;
 
+   ------------------
+   -- Parse_Double --
+   ------------------
+
+   function Parse_Double (N : in DOM.Core.Node) return Types.Object'Class is
+      Name  : constant String        := Local_Name (N);
+      Value : constant DOM.Core.Node := First_Child (N);
+   begin
+      return Types.D (Long_Long_Float'Value (Node_Value (Value)), Name);
+   end Parse_Double;
+
    --------------------
    -- Parse_Envelope --
    --------------------
@@ -450,8 +474,27 @@ package body SOAP.Message.XML is
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
 
+      function Is_Array return Boolean;
+      --  Returns True if N is an array node
+
       Name : constant String                  := Local_Name (N);
       Atts : constant DOM.Core.Named_Node_Map := Attributes (N);
+
+      --------------
+      -- Is_Array --
+      --------------
+
+      function Is_Array return Boolean is
+         XSI_Type : constant DOM.Core.Node
+           := Get_Named_Item (Atts, "xsi:type");
+         xsd : constant String := Node_Value (XSI_Type);
+      begin
+         --  ???
+         return Utils.No_NS (xsd) = "Array"
+           and then Get_Named_Item
+                      (Atts, Utils.NS (xsd) & ":arrayType") /= null;
+      end Is_Array;
+
    begin
       if To_String (S.Wrapper_Name) = "Fault" then
          return Parse_String (N);
@@ -495,6 +538,9 @@ package body SOAP.Message.XML is
                when A_Float =>
                   return Parse_Float (N);
 
+               when A_Double =>
+                  return Parse_Double (N);
+
                when A_String =>
                   return Parse_String (N);
 
@@ -537,6 +583,9 @@ package body SOAP.Message.XML is
                            elsif xsd = Types.XML_Float then
                               return Parse_Float (N);
 
+                           elsif xsd = Types.XML_Double then
+                              return Parse_Double (N);
+
                            elsif xsd = Types.XML_String then
                               return Parse_String (N);
 
@@ -549,7 +598,7 @@ package body SOAP.Message.XML is
                            elsif xsd = Types.XML_Base64 then
                               return Parse_Base64 (N);
 
-                           elsif xsd = Types.XML_Array then
+                           elsif Is_Array then
                               return Parse_Array (N, S);
 
                            else
