@@ -1,3 +1,12 @@
+2003-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-memory.ads, aws-resources-streams-memory.adb:
+	(Reset): New routine.
+	(Clear): New routine.
+	Inheritance of type Stream_Type is in the public part now.
+	Stream_Element_Array is a subtype of Utils.Stream_Element_Array_Access
+	 now.
+
 2003-09-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-streams-memory.ads:
@@ -16,6 +25,11 @@
 	(Close): Rename parameter File to Resource for consistency.
 	(Create): Idem.
 
+2003-09-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-memory.ads, aws-resources-streams-memory.adb:
+	Add memory stream package.
+
 2003-09-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-files.adb:
@@ -24,6 +38,7 @@
 	* aws-status.ads:
 	Rename section Socket to Connection.
 
+>>>>>>> 1.509
 2003-09-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers-values.adb:
