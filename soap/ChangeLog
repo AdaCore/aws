@@ -1,3 +1,11 @@
+2001-10-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-xml.adb:
+	Fix casing.
+
+	* soap-types.ads, soap-types.adb:
+	Fix casing.
+
 2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap.ads:
