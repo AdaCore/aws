@@ -55,6 +55,8 @@ b~test_sec_soap.adb
 b~test_sec_soap.ads
 b~test_soap.adb
 b~test_soap.ads
+b~test_soap2.adb
+b~test_soap2.ads
 b~test_speed.adb
 b~test_speed.ads
 b~test_templates_if.adb
@@ -183,6 +185,7 @@ test_sec_soap.res
 test_sec_soap.tmp
 test_soap.res
 test_soap.tmp
+test_soap2.res
 test_speed.res
 test_speed.tmp
 test_templates_if.res

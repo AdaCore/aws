@@ -12,6 +12,8 @@ b~hello_world.adb
 b~hello_world.ads
 b~hotplug.adb
 b~hotplug.ads
+b~interoplab_main.adb
+b~interoplab_main.ads
 b~main.adb
 b~main.ads
 b~runme.adb

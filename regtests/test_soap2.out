@@ -1,0 +1,35 @@
+Start main, wait for server to start...
+Server started
+
+Proc string_length
+S: [simple]
+Expexted =  6 ; Result =  6
+
+Proc string_length
+S: [ simple]
+Expexted =  7 ; Result =  7
+
+Proc string_length
+S: [simple ]
+Expexted =  7 ; Result =  7
+
+Proc string_length
+S: [ simple ]
+Expexted =  8 ; Result =  8
+
+Proc string_length
+S: [one_two]
+Expexted =  7 ; Result =  7
+
+Proc string_length
+S: [with two spaces]
+Expexted =  15 ; Result =  15
+
+Proc string_length
+S: [a string  with   many    space]
+Expexted =  30 ; Result =  30
+
+Proc string_length
+S: [ a string  with   many    space ]
+Expexted =  32 ; Result =  32
+
