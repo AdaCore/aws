@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                Dmitriy Anisimkov, Sune Falck, Pascal Obry                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -25,25 +25,18 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
---  $id$
---
---  Isolated compiler and OS dependent routines in a separate package.
---
---  Use the OS support routines in GNAT.OS_Lib instead of the Posix library
---  and get the current UTC/GMT time from the C library
---
---  All times are represented in UTC/GMT.
---
---  2000-04-19 Sune Falck
---
+
+--  $Id$
+
+--  Use the OS support routines in GNAT.OS_Lib instead of the POSIX library
+--  and get the current UTC/GMT time from the C library.
 
 with GNAT.OS_Lib;
 
 package body AWS.OS_Lib is
 
    function OS_Time_To_Calendar_Time (UTC : in GNAT.OS_Lib.OS_Time)
-      return Ada.Calendar.Time;
+     return Ada.Calendar.Time;
 
    ---------------------
    -- Is_Regular_File --
@@ -56,8 +49,7 @@ package body AWS.OS_Lib is
    -- File_Timestamp --
    --------------------
 
-   function File_Timestamp (Filename : in String) return Ada.Calendar.Time
-   is
+   function File_Timestamp (Filename : in String) return Ada.Calendar.Time is
    begin
       return OS_Time_To_Calendar_Time (GNAT.OS_Lib.File_Time_Stamp (Filename));
    exception
@@ -73,6 +65,7 @@ package body AWS.OS_Lib is
      return Ada.Streams.Stream_Element_Offset
    is
       use GNAT.OS_Lib;
+
       Name    : String := Filename & ASCII.NUL;
       FD      : File_Descriptor;
       Length  : Ada.Streams.Stream_Element_Offset := 0;
@@ -90,12 +83,14 @@ package body AWS.OS_Lib is
    -- OS_Clock --
    --------------
 
-   function OS_Clock return Ada.Calendar.Time
    --  Fetch time from the C library
-   is
+
+   function OS_Clock return Ada.Calendar.Time is
       type OS_Time_A is access all GNAT.OS_Lib.OS_Time;
+
       function C_Time (Time : OS_Time_A) return GNAT.OS_Lib.OS_Time;
       pragma Import (C, C_Time, "time");
+
    begin
       return OS_Time_To_Calendar_Time (C_Time (null));
    end OS_Clock;
