@@ -63,7 +63,7 @@ package ZLib is
    ----------------------------------
 
    Deflated : constant Compression_Method;
-   --  Only one method allowed in this ZLib version.
+   --  Only one method allowed in this ZLib version
 
    ---------------------------------
    -- Compression level constants --
@@ -82,10 +82,10 @@ package ZLib is
    --  Regular way for compression, no flush
 
    Partial_Flush : constant Flush_Mode;
-   --  will be removed, use Z_SYNC_FLUSH instead
+   --  Will be removed, use Z_SYNC_FLUSH instead
 
    Sync_Flush    : constant Flush_Mode;
-   --  all pending output is flushed to the output buffer and the output
+   --  All pending output is flushed to the output buffer and the output
    --  is aligned on a byte boundary, so that the decompressor can get all
    --  input data available so far. (In particular avail_in is zero after the
    --  call if enough output space has been provided  before the call.)
@@ -93,10 +93,10 @@ package ZLib is
    --  it should be used only when necessary.
 
    Full_Flush    : constant Flush_Mode;
-   --  all output is flushed as with SYNC_FLUSH, and the compression state
+   --  All output is flushed as with SYNC_FLUSH, and the compression state
    --  is reset so that decompression can restart from this point if previous
    --  compressed data has been damaged or if random access is desired. Using
-   --  FULL_FLUSH too often can seriously degrade the compression.
+   --  Full_Flush too often can seriously degrade the compression.
 
    Finish        : constant Flush_Mode;
    --  Just for tell the compressor that input data is complete.
@@ -170,31 +170,31 @@ package ZLib is
      (Filter          : in out Filter_Type;
       In_Buffer_Size  : in     Integer := Default_Buffer_Size;
       Out_Buffer_Size : in     Integer := Default_Buffer_Size);
-   --  Compressing/decompressing data arrived from Data_In routine
+   --  Compress/decompress data fetch from Data_In routine and pass the result
    --  to the Data_Out routine. User should provide Data_In and Data_Out
    --  for compression/decompression data flow.
-   --  Compression or decompression depend on initialization of Filter.
+   --  Compression or decompression depend on Filter initialization.
 
    function Total_In (Filter : in Filter_Type) return Count;
    pragma Inline (Total_In);
-   --  Return total number of input bytes read so far.
+   --  Returns total number of input bytes read so far
 
    function Total_Out (Filter : in Filter_Type) return Count;
    pragma Inline (Total_Out);
-   --  Return total number of bytes output so far.
+   --  Returns total number of bytes output so far
 
    function CRC32
      (CRC    : in Unsigned_32;
       Data   : in Ada.Streams.Stream_Element_Array)
       return Unsigned_32;
    pragma Inline (CRC32);
-   --  Calculate CRC32, it could be necessary for make gzip format.
+   --  Compute CRC32, it could be necessary for make gzip format
 
    procedure CRC32
      (CRC  : in out Unsigned_32;
       Data : in     Ada.Streams.Stream_Element_Array);
    pragma Inline (CRC32);
-   --  Calculate CRC32, it could be necessary for make gzip format.
+   --  Compute CRC32, it could be necessary for make gzip format
 
    -------------------------------------------------
    --  Below is more complex low level routines.  --
@@ -207,15 +207,11 @@ package ZLib is
       Out_Data  :    out Ada.Streams.Stream_Element_Array;
       Out_Last  :    out Ada.Streams.Stream_Element_Offset;
       Flush     : in     Flush_Mode);
-   --  Compressing/decompressing the datas from In_Data buffer to the
-   --  Out_Data buffer.
-   --  In_Data is incoming data portion,
-   --  In_Last is the index of last element from In_Data accepted by the
-   --  Filter.
-   --  Out_Data is the buffer for output data from the filter.
-   --  Out_Last is the last element of the received data from Filter.
-   --  To tell the filter that incoming data is complete put the
-   --  Flush parameter to FINISH.
+   --  Compress/decompress the In_Data buffer and place the result into
+   --  Out_Data. In_Last is the index of last element from In_Data accepted by
+   --  the Filter. Out_Last is the last element of the received data from
+   --  Filter. To tell the filter that incoming data are complete put the
+   --  Flush parameter to Finish.
 
    function Stream_End (Filter : in Filter_Type) return Boolean;
    pragma Inline (Stream_End);
@@ -243,9 +239,8 @@ package ZLib is
      (Filter  : in out Filter_Type;
       Item    : in     Ada.Streams.Stream_Element_Array;
       Flush   : in     Flush_Mode);
-   --  Compressing/Decompressing data from Item to the
-   --  generic parameter procedure Write.
-   --  Output buffer size could be set in Buffer_Size generic parameter.
+   --  Compress/Decompress data from Item to the generic parameter procedure
+   --  Write. Output buffer size could be set in Buffer_Size generic parameter.
 
    generic
       with procedure Read
@@ -266,10 +261,9 @@ package ZLib is
      (Filter : in out Filter_Type;
       Item   :    out Ada.Streams.Stream_Element_Array;
       Last   :    out Ada.Streams.Stream_Element_Offset);
-   --  Compressing/Decompressing data from generic parameter
-   --  procedure Read to the Item.
-   --  User should provide Buffer for the operation
-   --  and Rest_First variable first time initialized to the Buffer'Last + 1.
+   --  Compress/Decompress data from generic parameter procedure Read to the
+   --  Item. User should provide Buffer for the operation and Rest_First
+   --  variable first time initialized to the Buffer'Last + 1.
 
 private
 
