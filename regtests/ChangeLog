@@ -1,3 +1,9 @@
+2003-03-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	remove unnecessary output copy in GDB_REGTESTS mode.
+	change cat usage to cp.
+
 2003-03-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
