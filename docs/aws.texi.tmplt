@@ -17,7 +17,7 @@
 @subtitle Support for SOAP 1.1 - version @_SOAP_VERSION_@
 @subtitle Also support SMTP and LDAP protocols
 @subtitle $Revision$
-@subtitle $Date$
+@subtitle Date: @today{}
 @author Dmitriy Anisimkov (anisimkov@@yahoo.com)
 @author Pascal Obry (p.obry@@wanadoo.fr)
 
