@@ -1,3 +1,8 @@
+2001-08-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-config-ini.adb: 
+	(Read): parameters' value is now everything after the parameter name.
+
 2001-08-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
