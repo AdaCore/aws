@@ -394,11 +394,11 @@ package body AWS.Server is
             Mark_Phase (Index, Closed);
          end if;
       end Release;
-      
+
       ------------------
       -- Socket_Taken --
       ------------------
-      
+
       procedure Socket_Taken (Index : in Positive) is
       begin
          Set (Index).Socket_Taken := True;
