@@ -258,7 +258,7 @@ is
             Sockets.Put_Line
               (Sock,
                "Set-Cookie: AWS="
-               & Session.Image (AWS.Status.Session (C_Stat)));
+               & Session.Image (AWS.Status.Session (C_Stat)) & "; path=/");
          end if;
 
          --  Date
