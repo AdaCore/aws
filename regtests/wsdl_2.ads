@@ -33,7 +33,7 @@
 package WSDL_2 is
 
    type Complex is record
-      X, Y : Float;
+      X, Y : Long_Float;
    end record;
 
    type Table is array (Positive range <>) of Integer;
