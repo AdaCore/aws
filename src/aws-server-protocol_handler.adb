@@ -286,6 +286,7 @@ is
       -------------------------
 
       procedure Send_General_Header is
+         use type Messages.Cache_Option;
       begin
          --  Session
 
@@ -309,14 +310,23 @@ is
 
          --  Server
 
-         Sockets.Put_Line (Sock,
-                           "Server: AWS (Ada Web Server) v" & Version);
+         Sockets.Put_Line
+           (Sock,
+            "Server: AWS (Ada Web Server) v" & Version);
 
          if Will_Close then
             --  We have decided to close connection after answering the client
             Sockets.Put_Line (Sock, Messages.Connection ("close"));
          else
             Sockets.Put_Line (Sock, Messages.Connection ("keep-alive"));
+         end if;
+
+         --  Cache control if specified
+
+         if Response.Cache_Control (Answer) /= Messages.Unspecified then
+            Sockets.Put_Line
+              (Sock,
+               Messages.Cache_Control (Response.Cache_Control (Answer)));
          end if;
 
          --  Handle authentication message
