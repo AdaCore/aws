@@ -38,6 +38,7 @@ with Sockets.Thin;
 with Sockets.Naming;
 
 with AWS.Net;
+with AWS.Session;
 
 package body AWS.Server is
 
