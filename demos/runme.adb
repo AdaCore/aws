@@ -74,5 +74,5 @@ begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");
    AWS.Server.Start (WSS, "Runme Secure");
    AWS.Server.Start (WS, "Runme", "/Admin-Page");
-   AWS.Log.Start;
+   AWS.Log.Start (Split => AWS.Log.Daily);
 end Runme;
