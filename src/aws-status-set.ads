@@ -45,43 +45,50 @@ package AWS.Status.Set is
    procedure Connection (D : in out Data; Connection : in String);
    --  Set value for "Connection:" parameter
 
-   procedure Content_Length (D              : in out Data;
-                             Content_Length : in     Natural);
+   procedure Content_Length
+     (D              : in out Data;
+      Content_Length : in     Natural);
    --  Set value for "Content-Length:" parameter
 
-   procedure Content_Type (D            : in out Data;
-                           Content_Type : in     String);
+   procedure Content_Type
+     (D            : in out Data;
+      Content_Type : in     String);
    --  Set value for "Content-Type:" parameter
 
-   procedure Multipart_Boundary (D        : in out Data;
-                                 Boundary : in     String);
+   procedure Multipart_Boundary
+     (D        : in out Data;
+      Boundary : in     String);
    --  Set value for "Content-Type: ...; boundary=..." parameter
 
-   procedure Session (D  : in out Data;
-                      ID : in     String);
+   procedure Session
+     (D  : in out Data;
+      ID : in     String);
    --  Set Session to ID.
 
-   procedure File_Up_To_Date (D               : in out Data;
-                              File_Up_To_Date : in     Boolean);
+   procedure File_Up_To_Date
+     (D               : in out Data;
+      File_Up_To_Date : in     Boolean);
    --  File_Up_To_Date is true if the file to be transfered is already
    --  up-to-date on the client side.
 
    procedure Host (D : in out Data; Host : in String);
    --  Set value for "Host:" parameter
 
-   procedure If_Modified_Since (D                 : in out Data;
-                                If_Modified_Since : in     String);
+   procedure If_Modified_Since
+     (D                 : in out Data;
+      If_Modified_Since : in     String);
    --  Set value for "If-Modified-Since:" parameter
 
-   procedure Peername (D        : in out Data;
-                       Peername : in     String);
+   procedure Peername
+     (D        : in out Data;
+      Peername : in     String);
    --  Set peername field.
 
-   procedure Request (D            : in out Data;
-                      Method       : in     Request_Method;
-                      URI          : in     String;
-                      HTTP_Version : in     String);
-
+   procedure Request
+     (D            : in out Data;
+      Method       : in     Request_Method;
+      URI          : in     String;
+      HTTP_Version : in     String);
    --  Set values for the request line:
    --
    --  GET URI[?parametrers] [HTTP/1.0 or HTTP/1.1]
@@ -90,10 +97,18 @@ package AWS.Status.Set is
    procedure Parameters (D : in out Data; Set : in AWS.Parameters.List);
    --  Associate the parameters in Set to the status data.
 
-   procedure Binary (D         : in out Data;
-                     Parameter : in     Stream_Element_Array);
+   procedure Binary
+     (D         : in out Data;
+      Parameter : in     Stream_Element_Array);
    --  This procedure is used to store any binary data sent with the
    --  request. For example this will be used by the PUT method if a binary
    --  file is sent to the server.
+
+   procedure Socket
+     (D     : in out Data;
+      Value : in     Socket_Access);
+   --  Set the Socket for the status. User callback can then retreive the
+   --  Socket for whatever it want. For example for passing it to the 'push'
+   --  server.
 
 end AWS.Status.Set;
