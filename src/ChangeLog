@@ -1,3 +1,66 @@
+2003-02-07  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): Set to 1.3-rc3.
+	
+	* aws-client.adb:
+	(Stream_Element_Array_Access): Removed. Use version from AWS.Utils.
+	(Free): Idem.
+	(Read_Chunk): Do not copy the array on the stack as this will
+	 raise a storage error (stack size limit exceed). Returns a
+	 pointer to the array.
+	(Get_Response): Use Response.Set.Message_Body with a pointer to
+	 the array.
+
+	* aws-config-ini.ads, aws-config-ini.adb:
+	Fix comments.
+
+	* aws-response-set.adb:
+	(Message_Body): New version with a Stream_Element_Array_Access. Use
+	 Utils.Free.
+
+	* aws-response-set.ads:
+	(Message_Body): New version with a Stream_Element_Array_Access.
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-response.adb:
+	(Message_Body): Use Translator.To_Unbounded_String to avoid using
+	 too much stack space.
+	Use Utils.Stream_Element_Array_Access.
+	Update copyright notice.
+
+	* aws-response.ads:
+	(Stream_Element_Array_Access): Removed.
+	(Free): Removed.
+	(Data): Use Utils.Stream_Element_Array_Access.
+
+	* aws-server-push.adb:
+	Minor reformatting.
+
+	* aws-status-set.adb:
+	(Free): Removed.
+	(Free): Use Utils.Free.
+	(Reset): Use Utils.Free.
+
+	* aws-status.ads:
+	(Stream_Element_Array_Access): Removed.
+	(Data): Use Utils.Stream_Element_Array_Access.
+	Update copyright notice.
+
+	* aws-translator.adb:
+	(To_Unbounded_String): New routine.
+	Update copyright notice.
+
+	* aws-translator.ads:
+	(To_String): Add some comments.
+	(To_Unbounded_String): New routine.
+	Update copyright notice.
+
+	* aws-utils.ads:
+	(Stream_Element_Array_Access): New type.
+	(Free): New routine.
+
 2003-02-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-config-ini.adb:
