@@ -1,3 +1,60 @@
+2000-11-12  Pascal Obry  <p.obry@wanadoo.fr>
+	
+	* aws-server-protocol_handler.adb:
+	Lot of change to use AWS.Status.Set instead of AWS.Status.
+
+2000-11-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status.adb:
+	Move all routines to set the status to aws-status-set.adb.
+	Set routine in alpha order.
+
+	* aws-status.ads:
+	Move all routines to set the status to aws-status-set.ads. This is
+	cleaner from a user point of view as this unit contain only
+	usefull routines.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	Initial revision.
+
+	* aws-server-protocol_handler.adb:
+	(Target_Filename): use Config.Upload_Directory instead of the
+	 obsolete one in AWS.Server.Config.
+
+	* aws-config.adb:
+	(Upload_Directory): new function.
+	(Initialize): handle Upload_Directory parameter.
+	
+	* aws-config.ads:
+	(Upload_Directory): new function.
+
+2000-11-11  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Minor comment update.
+
+	* aws-log.adb:
+	(Start): add Split parameter.
+	(Write): check if log file need to be changed (daily, monthly).
+	
+	* aws-log.ads:
+	(Split_Mode): new type.
+	(Start): add Split parameter.
+	Update comments.
+
+	* aws-config.ads, aws-config.adb:
+	Initial revision.
+
+2000-11-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_File): do not propagate exception.
+
+2000-10-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net.ads:
+	Comment unit.
+
 2000-10-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
