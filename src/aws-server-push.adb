@@ -47,7 +47,7 @@ package body AWS.Server.Push is
      (Socket      : in Net.Socket_Type'Class;
       Environment : in Client_Environment;
       Kind        : in Mode)
-     return Client_Holder;
+      return Client_Holder;
 
    function To_Stream (Socket : in Net.Socket_Type'Class) return Stream_Access
      renames AWS.Net.Stream_IO.Stream;
@@ -140,25 +140,24 @@ package body AWS.Server.Push is
          end if;
 
          begin
-
             String'Write (Holder.Stream,
                           "HTTP/1.1 200 OK" & New_Line
-                          & "Server: AWS (Ada Web Server) v"
-                          & Version & New_Line
-                          & Messages.Connection ("Close") & New_Line);
+                            & "Server: AWS (Ada Web Server) v"
+                            & Version & New_Line
+                            & Messages.Connection ("Close") & New_Line);
 
             if Holder.Kind = Chunked then
                String'Write
                  (Holder.Stream,
                   Messages.Transfer_Encoding ("chunked")
-                  & New_Line & New_Line);
+                    & New_Line & New_Line);
 
             elsif Holder.Kind = Multipart then
                String'Write
                  (Holder.Stream,
-                  Messages.Content_Type (MIME.Multipart_Mixed_Replace,
-                     Boundary)
-                  & New_Line);
+                  Messages.Content_Type
+                     (MIME.Multipart_Mixed_Replace, Boundary)
+                    & New_Line);
 
             else
                String'Write (Holder.Stream, New_Line);
@@ -181,12 +180,13 @@ package body AWS.Server.Push is
          Close_Duplicate   : in Boolean) is
       begin
          Register (Client_ID, Holder, Close_Duplicate);
+
          begin
             Send_Data (Holder, Init_Data, Init_Content_Type);
          exception
-         when others =>
-            Unregister (Client_ID, Close_Socket => False);
-            raise;
+            when others =>
+               Unregister (Client_ID, Close_Socket => False);
+               raise;
          end;
       end Register;
 
@@ -275,16 +275,15 @@ package body AWS.Server.Push is
          Data         : in Client_Output_Type;
          Content_Type : in String)
       is
-
-         Data_To_Send : constant Stream_Output_Type :=
-           To_Stream_Output (Data, Holder.Environment);
+         Data_To_Send : constant Stream_Output_Type
+           := To_Stream_Output (Data, Holder.Environment);
 
       begin
          if Holder.Kind = Multipart then
             String'Write
               (Holder.Stream,
                Boundary
-               & Messages.Content_Type (Content_Type) & New_Line & New_Line);
+                 & Messages.Content_Type (Content_Type) & New_Line & New_Line);
 
          elsif Holder.Kind = Chunked then
             String'Write
@@ -317,9 +316,11 @@ package body AWS.Server.Push is
       begin
          Holder := Table.Value (Container, Client_ID);
          Send_Data (Holder, Data, Content_Type);
+
       exception
          when Table.Missing_Item_Error =>
             raise Client_Gone;
+
          when Net.Socket_Error =>
             Unregister (Client_ID, True);
             raise Client_Gone;
@@ -370,10 +371,13 @@ package body AWS.Server.Push is
          Value : Client_Holder;
       begin
          Table.Remove (Container, Client_ID, Value);
+
          if Close_Socket then
             Net.Stream_IO.Shutdown (Value.Stream);
          end if;
+
          Net.Stream_IO.Free (Value.Stream);
+
       exception
          when Table.Missing_Item_Error =>
             null;
@@ -430,9 +434,7 @@ package body AWS.Server.Push is
    is
       Holder : Client_Holder := To_Holder (Socket, Environment, Kind);
    begin
-      Server.Register
-        (Client_ID,
-         Holder, Close_Duplicate);
+      Server.Register (Client_ID, Holder, Close_Duplicate);
    exception
       when Closed | Duplicate_Client_ID =>
          Net.Stream_IO.Free (Holder.Stream);
@@ -554,7 +556,7 @@ package body AWS.Server.Push is
      (Socket      : in Net.Socket_Type'Class;
       Environment : in Client_Environment;
       Kind        : in Mode)
-     return Client_Holder is
+      return Client_Holder is
    begin
       return (Kind        => Kind,
               Environment => Environment,
