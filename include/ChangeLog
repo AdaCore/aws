@@ -1,3 +1,9 @@
+2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* memory_streams.adb:
+	(Append): Fix to be able to accept pointer with arbitrary range.
+	(Read): Idem.
+
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb:

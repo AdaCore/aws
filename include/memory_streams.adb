@@ -72,8 +72,7 @@ package body Memory_Streams is
          Stream.Last.Data (Stream.Last_Length + 1
                          .. Block_Length) := Value;
          Stream.Last_Length := Block_Length;
-
-      else
+      elsif Stream.Last_Length < Stream.Last.Data'Length then
          declare
             Split_Value : constant Element_Index
               := Value'First + Stream.Last.Data'Length - Stream.Last_Length;
@@ -97,6 +96,19 @@ package body Memory_Streams is
 
             Stream.Last_Length := Next_Length;
          end;
+      else
+         Stream.Last.Next := new Buffer_Type;
+         Stream.Last      := Stream.Last.Next;
+
+         if Value'Length >= Next_Block_Length then
+            Stream.Last.Data := new Element_Array (1 .. Value'Length);
+         else
+            Stream.Last.Data := new Element_Array (1 .. Next_Block_Length);
+         end if;
+
+         Stream.Last.Data (1 .. Value'Length) := Value;
+
+         Stream.Last_Length := Value'Length;
       end if;
 
       Stream.Length := Stream.Length + Value'Length;
@@ -116,11 +128,12 @@ package body Memory_Streams is
       end if;
 
       if Stream.First = null then
-         Stream.First       := new Buffer_Type;
-         Stream.First.Data  := Data;
-         Stream.Current     := Stream.First;
-         Stream.Last        := Stream.First;
-         Stream.Last_Length := Data'Length;
+         Stream.First          := new Buffer_Type;
+         Stream.First.Data     := Data;
+         Stream.Current        := Stream.First;
+         Stream.Last           := Stream.First;
+         Stream.Last_Length    := Data'Length;
+         Stream.Current_Offset := Data'First;
 
       else
          if Stream.Last.Data'Length > Stream.Last_Length then
@@ -275,7 +288,10 @@ package body Memory_Streams is
          if Stream.Current.Next = null then
             --  Last block.
 
-            Append (Stream.Current.Data (1 .. Stream.Last_Length));
+            Append (Stream.Current.Data
+                      (Stream.Current.Data'First
+                       .. Stream.Last_Length + Stream.Current.Data'First
+                          - 1));
 
             if Block_Over then
                Stream.Current := null;
