@@ -61,12 +61,6 @@ package body SOAP.WSDL.Parser is
       return DOM.Core.Node;
    --  Returns child node named Name
 
-   function First_Child (Parent : in DOM.Core.Node) return DOM.Core.Node;
-   --  Returns the first child, skip #text nodes
-
-   function Next_Sibling (N : in DOM.Core.Node) return DOM.Core.Node;
-   --  Returns the next sibling, skip #text nodes
-
    function "+" (Str : in String) return Unbounded_String
      renames To_Unbounded_String;
 
@@ -239,9 +233,9 @@ package body SOAP.WSDL.Parser is
          N : DOM.Core.Node := Parent;
       begin
          if Child then
-            N := First_Child (N);
+            N := XML.First_Child (N);
          else
-            N := Next_Sibling (N);
+            N := XML.Next_Sibling (N);
          end if;
 
          while N /= null
@@ -249,7 +243,7 @@ package body SOAP.WSDL.Parser is
            and then DOM.Core.Nodes.Local_Name (N) /= "minLength"
            and then DOM.Core.Nodes.Local_Name (N) /= "maxLength"
          loop
-            N := Next_Sibling (N);
+            N := XML.Next_Sibling (N);
          end loop;
 
          return N;
@@ -276,7 +270,7 @@ package body SOAP.WSDL.Parser is
 
          --  Get restriction node
 
-         N := First_Child (N);
+         N := XML.First_Child (N);
 
          declare
             Base : constant String := XML.Get_Attr_Value (N, "base", False);
@@ -386,24 +380,6 @@ package body SOAP.WSDL.Parser is
       null;
    end End_Service;
 
-   -----------------
-   -- First_Child --
-   -----------------
-
-   function First_Child (Parent : in DOM.Core.Node) return DOM.Core.Node is
-      N : DOM.Core.Node;
-   begin
-      Trace ("(First_Child)", Parent);
-
-      N := DOM.Core.Nodes.First_Child (Parent);
-
-      while N /= null and then DOM.Core.Nodes.Node_Name (N) = "#text" loop
-         N := DOM.Core.Nodes.Next_Sibling (N);
-      end loop;
-
-      return N;
-   end First_Child;
-
    --------------
    -- Get_Node --
    --------------
@@ -439,7 +415,7 @@ package body SOAP.WSDL.Parser is
       begin
          --  Iterate through childs, look for "service"
 
-         N := First_Child (Parent);
+         N := XML.First_Child (Parent);
 
          while N /= null loop
             exit when
@@ -447,7 +423,7 @@ package body SOAP.WSDL.Parser is
                or else (NS and then DOM.Core.Nodes.Node_Name (N) = Element))
               and then (Name = ""
                         or else XML.Get_Attr_Value (N, "name") = Name);
-            N := Next_Sibling (N);
+            N := XML.Next_Sibling (N);
          end loop;
 
          return N;
@@ -542,13 +518,13 @@ package body SOAP.WSDL.Parser is
 
    begin
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
-         L := First_Child (L);
+         L := XML.First_Child (L);
 
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexContent" then
-            L := First_Child (L);
+            L := XML.First_Child (L);
 
             if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "restriction" then
-               L := First_Child (L);
+               L := XML.First_Child (L);
 
                if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "attribute" then
                   O.Self.Array_Elements := Array_Elements;
@@ -574,12 +550,12 @@ package body SOAP.WSDL.Parser is
       L : DOM.Core.Node := N;
    begin
       if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
-         L := First_Child (L);
+         L := XML.First_Child (L);
 
          if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all"
            or else Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "sequence"
          then
-            L := First_Child (L);
+            L := XML.First_Child (L);
 
             if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element" then
                return True;
@@ -609,23 +585,6 @@ package body SOAP.WSDL.Parser is
       null;
    end New_Procedure;
 
-   ------------------
-   -- Next_Sibling --
-   ------------------
-
-   function Next_Sibling (N : in DOM.Core.Node) return DOM.Core.Node is
-      M : DOM.Core.Node := N;
-   begin
-      Trace ("(Next_Sibling)", N);
-
-      loop
-         M := DOM.Core.Nodes.Next_Sibling (M);
-         exit when M = null or else DOM.Core.Nodes.Node_Name (M) /= "#text";
-      end loop;
-
-      return M;
-   end Next_Sibling;
-
    -----------
    -- Parse --
    -----------
@@ -634,7 +593,8 @@ package body SOAP.WSDL.Parser is
      (O        : in out Object'Class;
       Document : in     WSDL.Object)
    is
-      N     : constant DOM.Core.Node := First_Child (DOM.Core.Node (Document));
+      N     : constant DOM.Core.Node
+        := XML.First_Child (DOM.Core.Node (Document));
       NL    : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
       Found : Boolean := False;
    begin
@@ -837,7 +797,7 @@ package body SOAP.WSDL.Parser is
         and then DOM.Core.Nodes.Local_Name (N) /= "complexType"
         and then DOM.Core.Nodes.Local_Name (N) /= "simpleType"
       loop
-         N := First_Child (N);
+         N := XML.First_Child (N);
       end loop;
 
       if N = null then
@@ -853,7 +813,7 @@ package body SOAP.WSDL.Parser is
       else
          --  This is a complexType, continue analyse
 
-         N := First_Child (N);
+         N := XML.First_Child (N);
 
          if Is_Record (O, CT_Node) then
             --  This is a record or composite type
@@ -896,11 +856,11 @@ package body SOAP.WSDL.Parser is
    begin
       Trace ("(Parse_Message)", Message);
 
-      N := First_Child (N);
+      N := XML.First_Child (N);
 
       while N /= null loop
          Parse_Part (O, N, Document);
-         N := Next_Sibling (N);
+         N := XML.Next_Sibling (N);
       end loop;
    end Parse_Message;
 
@@ -935,8 +895,8 @@ package body SOAP.WSDL.Parser is
          O.SOAPAction := +XML.Get_Attr_Value (N, "soapAction");
       end if;
 
-      N := Next_Sibling (N);
-      N := First_Child (N);
+      N := XML.Next_Sibling (N);
+      N := XML.First_Child (N);
 
       O.Namespace  := +XML.Get_Attr_Value (N, "namespace");
 
@@ -944,7 +904,7 @@ package body SOAP.WSDL.Parser is
       --  ???
 
       N := Get_Node
-        (First_Child (DOM.Core.Node (Document)),
+        (XML.First_Child (DOM.Core.Node (Document)),
          "portType.operation", -O.Proc);
 
       if N = null then
@@ -1066,14 +1026,14 @@ package body SOAP.WSDL.Parser is
             --  First search for element in the schema
 
             N := Get_Node
-              (First_Child (DOM.Core.Node (Document)),
+              (XML.First_Child (DOM.Core.Node (Document)),
                "types.schema.element", T_No_NS);
 
             --  If not present look for a simpleType
 
             if N = null then
                N := Get_Node
-                 (First_Child (DOM.Core.Node (Document)),
+                 (XML.First_Child (DOM.Core.Node (Document)),
                   "types.schema.simpleType", T_No_NS);
             end if;
 
@@ -1081,7 +1041,7 @@ package body SOAP.WSDL.Parser is
 
             if N = null then
                N := Get_Node
-                 (First_Child (DOM.Core.Node (Document)),
+                 (XML.First_Child (DOM.Core.Node (Document)),
                   "types.schema.complexType", T_No_NS);
             end if;
 
@@ -1118,14 +1078,14 @@ package body SOAP.WSDL.Parser is
          Message := +XML.Get_Attr_Value (M, "message", False);
 
          N := Get_Node
-           (First_Child (DOM.Core.Node (Document)),
+           (XML.First_Child (DOM.Core.Node (Document)),
             "message", -Message);
 
          if N = null then
             --  In this case the message reference the schema element.
 
             N := Get_Node
-              (First_Child (DOM.Core.Node (Document)),
+              (XML.First_Child (DOM.Core.Node (Document)),
                "types.schema.element", -Message);
 
             if N = null then
@@ -1222,15 +1182,15 @@ package body SOAP.WSDL.Parser is
 
          --  Enter complexType element
 
-         N := First_Child (R);
+         N := XML.First_Child (R);
 
          --  Get first element
 
-         N := First_Child (N);
+         N := XML.First_Child (N);
 
          while N /= null loop
             Parameters.Append (P.P, Parse_Parameter (O, N, Document));
-            N := Next_Sibling (N);
+            N := XML.Next_Sibling (N);
          end loop;
 
          return P;
@@ -1283,7 +1243,7 @@ package body SOAP.WSDL.Parser is
       Binding := +XML.Get_Attr_Value (N, "binding", False);
 
       N := Get_Node
-        (First_Child (DOM.Core.Node (Document)), "binding", -Binding);
+        (XML.First_Child (DOM.Core.Node (Document)), "binding", -Binding);
 
       if N = null then
          Raise_Exception
@@ -1389,7 +1349,7 @@ package body SOAP.WSDL.Parser is
                D := New_Node;
             end;
 
-            N := Next_Sibling (N);
+            N := XML.Next_Sibling (N);
          end loop;
 
          return P;
@@ -1411,13 +1371,13 @@ package body SOAP.WSDL.Parser is
 
       --  Enter simpleType restriction
 
-      N := First_Child (R);
+      N := XML.First_Child (R);
 
       Base := +XML.Get_Attr_Value (N, "base", False);
 
       --  Check if this is an enumeration
 
-      E := First_Child (N);
+      E := XML.First_Child (N);
 
       if E /= null
         and then Utils.No_NS (DOM.Core.Nodes.Node_Name (E)) = "enumeration"
