@@ -1,3 +1,17 @@
+2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* append.adb:
+	Fix server name.
+
+	* zbig.adb, zbig.out:
+	New regression test.
+
+	* zapp.adb, zapp.out:
+	New regression test.
+
+	* makefile:
+	Add zapp and zbig to regression tests.
+
 2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* check_mem.adb:
@@ -8,8 +22,8 @@
 
 	* makefile:
 	(LARGS): Simplify handling of this variable. Add -lz.
-	(RT_STD): Add compress.	
-	
+	(RT_STD): Add compress.
+
 2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -46,10 +60,10 @@
 
 2003-09-23  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* test_wsdl2.wsdl, test_wsdl3.wsdl: 
+	* test_wsdl2.wsdl, test_wsdl3.wsdl:
 	Remove space before http in href.
 	Add missing wsdl shema detected by XmlAda v1.0 (prepare migration).
-	
+
 	* test_wsdl.wsdl:
 	Remove space before http in href.
 
@@ -60,7 +74,7 @@
 
 2003-09-22  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* sback.adb: 
+	* sback.adb:
 	Add routine header box.
 
 2003-09-21  Pascal Obry  <p.obry@wanadoo.fr>
@@ -111,10 +125,10 @@
 
 	* aws.ini:
 	Initial revision.
-	
+
 	* server_config.adb, server_config.out, server_config.ini:
 	Initial revision.
-	
+
 2003-09-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -245,7 +259,7 @@
 
 	* tmime.out:
 	Update output.
-	
+
 2003-03-31  Pascal Obry  <obry@act-europe.fr>
 
 	* makefile:
@@ -285,9 +299,9 @@
 
 	* auth2.adb:
 	Change server port used.
-	
+
 2003-03-20  Pascal Obry  <p.obry@wanadoo.fr>
-	
+
 	* makefile:
 	(RT_STD): Add auth2.
 
@@ -330,12 +344,12 @@
 	* interoplab_main.adb:
 	(T_echoStruct): Add pragma Warnings Off to workaorund a wrong
 	 warnings issued by GNAT. Fixed in 3.17.
-	
+
 2003-03-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* interoplab_main.out:
 	Update output.
-	
+
 	* interoplab_main.wsdl:
 	Activate the echoVoid routine.
 
@@ -372,10 +386,10 @@
 	(WSDL_TESTS): Add interoplab_main.
 	(WSDL_TESTS): Generate SOAP spec with -rpc option.
 	(clean): Add interoplab-* interoplab.ad*.
-	
+
 	* interoplab_main.adb, interoplab_main.out, interoplab_main.wsdl:
 	Initial revision.
-	
+
 2003-03-11  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* test_wsdl2.adb, test_wsdl3.adb:
@@ -402,10 +416,10 @@
 	Change all times with xx:xx:xx, test is now time-zone independant.
 
 	* strm2.adb:
-	Use port 1259 (1245 already used in tres.adb).	
+	Use port 1259 (1245 already used in tres.adb).
 
 	* tlog.adb:
-	Use port 1251 (1246 already used in tres.adb).	
+	Use port 1251 (1246 already used in tres.adb).
 
 	* test_wsdl3.wsdl:
 	Use port 9123 (9122 already used in test_wsdl2.wsdl).
@@ -458,7 +472,7 @@
 
 	* tgdb:
 	Initial revision.
-	
+
 	* makefile:
 	Run more tests with gdb.
 	(clean): Remove *.tmp.
@@ -508,7 +522,7 @@
 
 	* makefile:
 	Move test_wsdl from RT_SOAP to OTH_TESTS.
-	
+
 2003-03-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -611,7 +625,7 @@
 	Use 2 simultaneous connection. Fix a regression on GNU/Linux. This
 	 should be certainly analysed at some point. The problem was that
 	 the log output was not in the same order.
-	
+
 	* makefile:
 	(check_mem): New target.
 	Better handle error checking.
@@ -640,7 +654,7 @@
 	(build): Add $(ALL_TESTS), do not use loop.
 	(checks_out): Do not use loop.
 	(ALL_TESTS): New targets, does all the job here.
-	
+
 
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
@@ -649,7 +663,7 @@
 
 	* tlog.out:
 	Update output to new stable format.
-	
+
 	* tlog.adb:
 	(Create_File): New routine.
 	Update again this regtest to be OS independant. The filename was
@@ -667,7 +681,7 @@
 
 	* unexph2.adb:
 	Remove traceback info to have a stable output.
-	
+
 	* unexph2.out:
 	Update output to new stable format.
 
@@ -681,7 +695,7 @@
 
 	* makefile:
 	(RT_STD): Add unexph2.
-	
+
 	* unexph2.adb, unexph2.out:
 	Initial revision.
 
@@ -751,13 +765,13 @@
 	(RT_STD): Add upload3.
 
 	* unexph.adb:
-	Fix to use new unexpected exception handler. 
+	Fix to use new unexpected exception handler.
 
 	* upload2.out:
 	New output.
 
 	* upload2.adb:
-	Fix to use new unexpected exception handler. 
+	Fix to use new unexpected exception handler.
 
 	* upload3.adb, upload3.out:
 	Initial revision.
@@ -767,7 +781,7 @@
 	* makefile:
 	(RT_STD): Add upload2.
 
-	* upload2.adb, upload2.out: 
+	* upload2.adb, upload2.out:
 	Initial revision.
 
 2003-01-24  Pascal Obry  <p.obry@wanadoo.fr>
@@ -791,7 +805,7 @@
 	* simple.adb:
 	Add header.
 
-	* makefile: 
+	* makefile:
 	(RT_STD): Add file.
 
 2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
@@ -888,7 +902,7 @@
 	* makefile:
 	Copy cert.pem from the demos directory to run tsgetparam.
 	(clean): Remove cert.pem
-	
+
 2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -948,7 +962,7 @@
 	* strm.adb, user_strm.ads, user_strm.adb, strm.out:
 	Regression test user defined data stream.
 
-	* makefile: 
+	* makefile:
 	Add handling of strm regression test.
 
 2002-10-23  Pascal Obry  <p.obry@wanadoo.fr>
@@ -969,7 +983,7 @@
 
 2002-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
-	* makefile: 
+	* makefile:
 	Add handling of turl3 regression test.
 
 	* turl.adb:
@@ -979,7 +993,7 @@
 	* turl2.adb:
 	Change Pathname to Pathname_And_Parameters.
 	Update copyright notice to 2002.
-	
+
 	* turl3.adb, turl3.out:
 	Initial revision.
 
@@ -1038,7 +1052,7 @@
 
 	* moved.adb, moved.out:
 	Initial revision. Testing that AWS.Client not understanding
-	body of message as a next header.	
+	body of message as a next header.
 
 	* auth.adb, auth.out:
 	Initial revision. Testing Basic and Digest authentication.
@@ -1127,7 +1141,7 @@
 	* tres2.adb:
 	Updated to use new AWS.Resources API (use File_Type instead of
 	 File_Access).
-	
+
 	* makefile:
 	(.SILENT): Add tres and tres2.
 
@@ -1138,7 +1152,7 @@
 
 	* tres.adb, tres.out:
 	Initial revision.
-	
+
 	* tres2.adb, tres2.out:
 	Initial revision.
 
@@ -1158,12 +1172,12 @@
 	* simple.adb, simple.out:
 	Initial revision.
 
-	* dummy.out: 
+	* dummy.out:
 	Initial revision.
 
 	* dummy.adb:
 	Initial revision.
-	
+
 2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* turl.adb:
