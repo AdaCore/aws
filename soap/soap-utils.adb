@@ -37,6 +37,8 @@ with Ada.Unchecked_Deallocation;
 with Unicode.CES.Utf8;
 with Unicode.CES.Basic_8bit;
 
+with SOAP.Message.XML;
+
 package body SOAP.Utils is
 
    use Ada.Strings.Unbounded;
@@ -162,6 +164,29 @@ package body SOAP.Utils is
       end To_Safe_Pointer;
 
    end Safe_Pointers;
+
+   ------------------
+   -- SOAP_Wrapper --
+   ------------------
+
+   function SOAP_Wrapper
+     (Request : in AWS.Status.Data)
+      return AWS.Response.Data
+   is
+      SOAPAction : constant String := AWS.Status.SOAPAction (Request);
+   begin
+      if SOAPAction /= "" then
+         declare
+            Payload : constant Message.Payload.Object
+              := Message.XML.Load_Payload (AWS.Status.Payload (Request));
+         begin
+            return SOAP_CB (SOAPAction, Payload, Request);
+         end;
+
+      else
+         raise Constraint_Error;
+      end if;
+   end SOAP_Wrapper;
 
    ---------
    -- Tag --
