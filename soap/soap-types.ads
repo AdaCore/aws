@@ -56,6 +56,8 @@ with Ada.Calendar;
 with Ada.Finalization;
 with Ada.Strings.Unbounded;
 
+with SOAP.Name_Space;
+
 package SOAP.Types is
 
    use Ada.Strings.Unbounded;
@@ -103,6 +105,8 @@ package SOAP.Types is
    --  Composite types are using a by-reference semantic for efficiency
    --  reason. Not that these types are not thread safe.
 
+   function V (C : in Composite) return Object_Set is abstract;
+
    --------------
    -- Any Type --
    --------------
@@ -125,7 +129,7 @@ package SOAP.Types is
    -- Array --
    -----------
 
-   XML_Array     : constant String := "SOAP-ENC:Array";
+   XML_Array     : constant String := "soapenc:Array";
    XML_Undefined : aliased constant String := "xsd:ur-type";
 
    type SOAP_Array is new Composite with private;
@@ -154,7 +158,7 @@ package SOAP.Types is
    -- Base64 --
    ------------
 
-   XML_Base64        : aliased constant String := "SOAP-ENC:base64";
+   XML_Base64        : aliased constant String := "soapenc:base64";
    XML_Base64_Binary : constant String := "xsd:base64Binary";
 
    type SOAP_Base64 is new Scalar with private;
@@ -432,6 +436,18 @@ package SOAP.Types is
    --  Returns O value as a SOAP Array. Raises Data_Error if O is not a SOAP
    --  Array.
 
+   ----------------
+   -- Name space --
+   ----------------
+
+   procedure Set_Name_Space
+     (O  : in out Object'Class;
+      NS : in Name_Space.Object);
+   --  Set the name space for object O
+
+   function Name_Space (O : in Object'Class) return Name_Space.Object;
+   --  Returns name space associated with object O
+
 private
 
    use Ada.Strings.Unbounded;
@@ -440,6 +456,7 @@ private
 
    type Object is abstract new Ada.Finalization.Controlled with record
       Name : Unbounded_String;
+      NS   : SOAP.Name_Space.Object;
    end record;
 
    --  Object_Safe_Pointer
