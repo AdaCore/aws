@@ -240,7 +240,7 @@ build_tarball:
 	$(CP) INSTALL AUTHORS makefile makefile.conf readme.txt $${AWS};\
 	$(CP) src/makefile src/ChangeLog src/*.ad[sb] $${AWS}/src;\
 	$(CP) demos/makefile demos/404.thtml demos/di*.adb $${AWS}/demos;\
-	$(CP) demos/[hirsw]*.ads demos/[ahimrstvw]*.adb $${AWS}/demos;\
+	$(CP) demos/[hirsw]*.ads demos/[ahimrstvwz]*.adb $${AWS}/demos;\
 	$(CP) demos/*.png demos/cert.pem demos/page*.html $${AWS}/demos;\
 	$(CP) demos/aws_*.thtml demos/com*.adb  demos/ws.ini $${AWS}/demos;\
 	$(CP) demos/*.wsdl $${AWS}/demos;\
