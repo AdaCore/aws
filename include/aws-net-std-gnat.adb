@@ -93,7 +93,7 @@ package body AWS.Net.Std is
       if Host = "" then
          Inet_Addr := Sockets.Any_Inet_Addr;
       else
-         Inet_Addr := Sockets.Inet_Addr (Host);
+         Inet_Addr := Sockets.Addresses (Sockets.Get_Host_By_Name (Host));
       end if;
 
       if Socket.S = null then
@@ -262,16 +262,18 @@ package body AWS.Net.Std is
 
    procedure Shutdown (Socket : in Socket_Type) is
    begin
-      begin
-         --  We catch socket exceptions here as we do not want this call to
-         --  fail. A shutdown will fail on non connected sockets.
-         Sockets.Shutdown_Socket (SFD (Socket.S.all));
-      exception
-         when Sockets.Socket_Error =>
-            null;
-      end;
+      if Socket.S /= null then
+         begin
+            --  We catch socket exceptions here as we do not want this call to
+            --  fail. A shutdown will fail on non connected sockets.
+            Sockets.Shutdown_Socket (SFD (Socket.S.all));
+         exception
+            when Sockets.Socket_Error =>
+               null;
+         end;
 
-      Sockets.Close_Socket (SFD (Socket.S.all));
+         Sockets.Close_Socket (SFD (Socket.S.all));
+      end if;
    exception
       when E : others =>
          Raise_Exception (E, "Shutdown");
