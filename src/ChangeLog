@@ -1,3 +1,38 @@
+2002-09-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.adb: 
+	Put in alphabetical order.
+
+2002-09-27  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	Minor reformatting.
+
+	* aws-digest.adb:
+	(Create_Digest): Return a Digest_String and not a String.
+	(Get_MD5): Moved to AWS.Utils.
+	Minor reformatting.
+	
+	* aws-digest.ads:
+	(Create_Digest): Return a Digest_String and not a String.
+	(Get_MD5): Moved to AWS.Utils.
+
+	* aws-messages.adb:
+	(Status_Messages): Set to constant.
+	(Month_Number): Raise Constraint_Error instead of Internal_Error.
+	Minor reformatting.
+
+	* aws-utils.adb:
+	(Get_MD5): Moved here from AWS.Digest.
+
+	* aws-utils.ads:
+	(Get_MD5): Moved here from AWS.Digest.
+	(Parse_HTTP_Header_Line): Add comments.
+
+	* aws.ads:
+	(Internal_Error): Removed. Was there for historical reasons and is
+	 not needed anymore.
+
 2002-09-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-digest.ads, aws-digest.adb:
