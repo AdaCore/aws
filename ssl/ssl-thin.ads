@@ -81,6 +81,8 @@ package SSL.Thin is
    SSL_Ctrl_Get_Sess_Cache_Size        : constant := 43;
    SSL_Ctrl_Set_Sess_Cache_Mode        : constant := 44;
    SSL_Ctrl_Get_Sess_Cache_Mode        : constant := 45;
+   SSL_SENT_SHUTDOWN                   : constant := 1;
+   SSL_RECEIVED_SHUTDOWN               : constant := 2;
 
    Rsa_3    : constant := 3;
    Rsa_F4   : constant := 16#10001#;
@@ -113,7 +115,8 @@ package SSL.Thin is
                           Larg : int;
                           Parg : Pointer) return int;
 
-   procedure OpenSSL_Add_All_Algorithms;
+   procedure SSL_Library_Init;
+
    procedure SSL_Load_Error_Strings;
    procedure Err_Load_Crypto_Strings;
    procedure Err_Load_SSL_Strings;
@@ -121,8 +124,15 @@ package SSL.Thin is
    function Err_Error_String (Code : Error_Code;
                               Buffer : Cstr.chars_ptr) return Cstr.chars_ptr;
 
+   procedure Err_Error_String_N (Code : Error_Code;
+                              Buffer : char_array; Len : size_t);
+                              
+   procedure ERR_Remove_State (pid : int := 0);
+
    function SSL_New (Ctx : SSL_Ctx) return SSL_Handle;
+   
    procedure SSL_Free (SSL : SSL_Handle);
+   
    function SSL_Set_Fd (S  : SSL_Handle;
                         Fd : int)
                        return int;
@@ -130,6 +140,9 @@ package SSL.Thin is
                                  Yes : int);
    function SSL_Connect (SSL : SSL_Handle) return int;
    function SSL_Accept (SSL : SSL_Handle) return int;
+
+   procedure SSL_Set_Connect_State (SSL : SSL_Handle);
+   procedure SSL_Set_Accept_State (SSL : SSL_Handle);
 
    function SSL_Renegotiate (SSL : SSL_Handle) return int;
    function SSL_Do_Handshake (SSL : SSL_Handle) return int;
@@ -170,6 +183,8 @@ package SSL.Thin is
 
    function SSL_Shutdown (SSL : SSL_Handle) return int;
 
+   procedure SSL_Set_Shutdown (SSL : SSL_Handle; Mode : int);
+
    function SSL_Ctx_Use_Privatekey_File (Ctx : SSL_Ctx;
                                          File  : char_array;
                                          C_Type : int) return int;
@@ -187,6 +202,11 @@ private
    pragma Import (C, Rand_Seed, "RAND_seed");
    pragma Import (C, SSL_Set_Fd, "SSL_set_fd");
    pragma Import (C, SSL_Accept, "SSL_accept");
+   pragma Import (C, ERR_Remove_State, "ERR_remove_state");
+   
+   pragma Import (C, SSL_Set_Connect_State, "SSL_set_connect_state");
+   pragma Import (C, SSL_Set_Accept_State, "SSL_set_accept_state");
+   
    pragma Import (C, SSL_Ctx_Use_Certificate_File,
                     "SSL_CTX_use_certificate_file");
    pragma Import (C, SSL_Ctx_Use_Privatekey_File,
@@ -199,6 +219,7 @@ private
    pragma Import (C, SSL_Ctx_Set_Quiet_Shutdown, "SSL_CTX_set_quiet_shutdown");
    pragma Import (C, SSL_Ctx_Ctrl, "SSL_CTX_ctrl");
    pragma Import (C, SSL_Pending, "SSL_pending");
+   pragma Import (C, SSL_Set_Shutdown, "SSL_set_shutdown");
    pragma Import (C, SSL_Shutdown, "SSL_shutdown");
    pragma Import (C, SSL_Do_Handshake, "SSL_do_handshake");
    pragma Import (C, SSL_Renegotiate, "SSL_renegotiate");
@@ -207,13 +228,19 @@ private
 
    pragma Import (C, Rsa_Generate_Key, "RSA_generate_key");
    pragma Import (C, SSL_Use_Rsaprivatekey, "SSL_use_RSAPrivateKey");
-   pragma Import (C, OpenSSL_Add_All_Algorithms, "OpenSSL_add_all_algorithms");
+
+   pragma Import (C, SSL_Library_Init, "SSL_library_init");
+
    pragma Import (C, SSL_Load_Error_Strings, "SSL_load_error_strings");
+   
    pragma Import (C, Err_Load_Crypto_Strings, "ERR_load_crypto_strings");
    pragma Import (C, Err_Load_SSL_Strings, "ERR_load_SSL_strings");
 
    pragma Import (C, Err_Get_Error, "ERR_get_error");
    pragma Import (C, Err_Error_String, "ERR_error_string");
+   pragma Import (C, Err_Error_String_N, "ERR_error_string_n");
+   
+
    pragma Import (C, Crypto_Set_Mem_Functions, "CRYPTO_set_mem_functions");
 
    pragma Import (C, SSL_Ctx_New, "SSL_CTX_new");
