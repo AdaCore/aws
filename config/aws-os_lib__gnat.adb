@@ -33,8 +33,6 @@
 --  Use the OS support routines in GNAT.OS_Lib instead of the POSIX library
 --  and get the current UTC/GMT time from the C library.
 
-with Ada.Unchecked_Deallocation;
-
 with GNAT.OS_Lib;
 with GNAT.Directory_Operations;
 
@@ -51,36 +49,17 @@ package body AWS.OS_Lib is
    --  ??? We have to check length of path for avoid GNAT bug with too long
    --  path in versions older than 3.17 and 5.02.
 
-   type Dir_Type_Hidden is new GNAT.Directory_Operations.Dir_Type;
-
-   subtype G_Dir_Type is GNAT.Directory_Operations.Dir_Type;
-
    ---------------
    -- Base_Name --
    ---------------
 
    function Base_Name
      (Path   : in String;
-      Suffix : in String    := "")
+      Suffix : in String := "")
       return String is
    begin
       return GNAT.Directory_Operations.Base_Name (Path, Suffix);
    end Base_Name;
-
-   -----------
-   -- Close --
-   -----------
-
-   procedure Close (Dir : in out Dir_Type) is
-      procedure Free is
-         new Ada.Unchecked_Deallocation (Dir_Type_Hidden, Dir_Type);
-   begin
-      GNAT.Directory_Operations.Close (G_Dir_Type (Dir.all));
-      Free (Dir);
-   exception
-      when GNAT.Directory_Operations.Directory_Error =>
-         raise Directory_Error;
-   end Close;
 
    --------------------
    -- File_Extension --
@@ -134,6 +113,31 @@ package body AWS.OS_Lib is
          raise No_Such_File;
    end File_Timestamp;
 
+   -------------------------------
+   -- For_Every_Directory_Entry --
+   -------------------------------
+
+   procedure For_Every_Directory_Entry (Directory_Name : in String) is
+      Dir  : GNAT.Directory_Operations.Dir_Type;
+      Str  : String (1 .. 2_048);
+      Last : Natural;
+      Quit : Boolean := False;
+   begin
+      GNAT.Directory_Operations.Open (Dir, Directory_Name);
+
+      loop
+         GNAT.Directory_Operations.Read (Dir, Str, Last);
+         exit when Last = 0;
+         Action (Str (1 .. Last), Is_Directory (Str (1 .. Last)), Quit);
+         exit when Quit;
+      end loop;
+
+      GNAT.Directory_Operations.Close (Dir);
+   exception
+      when GNAT.Directory_Operations.Directory_Error =>
+         raise No_Such_File;
+   end For_Every_Directory_Entry;
+
    ---------------
    -- GMT_Clock --
    ---------------
@@ -161,7 +165,7 @@ package body AWS.OS_Lib is
       --  one symbol.
 
       return Filename'Length < Max_Path
-             and then GNAT.OS_Lib.Is_Directory (Filename);
+               and then GNAT.OS_Lib.Is_Directory (Filename);
    end Is_Directory;
 
    ---------------------
@@ -174,21 +178,8 @@ package body AWS.OS_Lib is
       --  path in versions older than 3.17 and 5.02.
 
       return Filename'Length < Max_Path
-             and then GNAT.OS_Lib.Is_Regular_File (Filename);
+               and then GNAT.OS_Lib.Is_Regular_File (Filename);
    end Is_Regular_File;
-
-   ----------
-   -- Open --
-   ----------
-
-   procedure Open (Dir : out Dir_Type; Dir_Name : in String) is
-   begin
-      Dir := new Dir_Type_Hidden;
-      GNAT.Directory_Operations.Open (G_Dir_Type (Dir.all), Dir_Name);
-   exception
-      when GNAT.Directory_Operations.Directory_Error =>
-         raise Directory_Error;
-   end Open;
 
    ------------------------------
    -- OS_Time_To_Calendar_Time --
@@ -209,20 +200,5 @@ package body AWS.OS_Lib is
         (Year, Month, Day,
          Duration (Hour   * 3600 + Minute * 60 + Second));
    end OS_Time_To_Calendar_Time;
-
-   ----------
-   -- Read --
-   ----------
-
-   procedure Read
-     (Dir  : in out Dir_Type;
-      Str  :    out String;
-      Last :    out Natural) is
-   begin
-      GNAT.Directory_Operations.Read (G_Dir_Type (Dir.all), Str, Last);
-   exception
-      when GNAT.Directory_Operations.Directory_Error =>
-         raise Directory_Error;
-   end Read;
 
 end AWS.OS_Lib;
