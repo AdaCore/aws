@@ -46,6 +46,8 @@ procedure Com_2 is
    use Ada.Strings.Unbounded;
    use AWS;
 
+   type String_Access is access all String;
+
    N : Natural := 0;
 
    -------------
@@ -55,12 +57,14 @@ procedure Com_2 is
    function Receive
      (Server     : in String;
       Message    : in String;
+      State      : in String_Access;
       Parameters : in Communication.Parameter_Set
         := Communication.Null_Parameter_Set)
      return Response.Data is
    begin
       Text_IO.Put_Line ("Server " & Server
                         & " send me the message " & Message);
+      Text_IO.Put_Line ("State " & State.all);
 
       for K in Parameters'Range loop
          Text_IO.Put_Line ("   P" & Utils.Image (K) & " = "
@@ -72,11 +76,16 @@ procedure Com_2 is
       return Response.Build ("text/html", "Ans [" & Utils.Image (N) & ']');
    end Receive;
 
-   package Local_Server is new Communication.Server (3456, Receive);
+   Name : aliased String := "com_2, local server1";
+
+   package Local_Server is
+      new Communication.Server (String, String_Access, Receive);
 
    Answer : Response.Data;
 
 begin
+   Local_Server.Start (3456, Name'Access);
+
    if Command_Line.Argument_Count = 0 then
       Text_IO.Put_Line ("Usage: com_2 <computer>");
       return;
