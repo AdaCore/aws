@@ -1,3 +1,14 @@
+2002-10-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-stream_io.adb:
+	Minor reformatting.
+	Update copyright header.
+
+	* aws-client.adb:
+	(Get): Handle all redirection cases. Correctly pass Follow_Redirection
+	 value.
+	(Check_Status): Idem.
+
 2002-10-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-smtp.adb:
