@@ -1,0 +1,93 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                            Copyright (C) 2003                            --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $Id$
+
+with "../shared";
+with "../src/src";
+with "../ssl/ssl";
+with "../ssl/nossl";
+
+project Demos is
+
+   for Main use ("hello_world.adb", "runme.adb", "com_1.adb", "com_2.adb",
+                 "main.adb", "hotplug.adb", "dispatch.adb", "wps.adb",
+                 "ws.adb", "auth.adb", "agent.adb", "text_input.adb",
+                 "vh_demo.adb");
+
+   case Shared.XMLAda is
+      when "Installed" =>
+         for Main use project'Main
+           & ("soap_client.adb", "soap_server.adb",
+              "wsdl_demo_client.adb", "wsdl_demo_server.adb");
+   end case;
+
+   for Object_Dir use "obj";
+
+   --------------
+   -- Compiler --
+   --------------
+
+   package Compiler is
+
+      case Shared.Build is
+         when "Debug" =>
+            for Default_Switches ("Ada")
+              use ("-m", "-g", "-gnaty3abcefhiklmnoprt");
+
+         when "Production" =>
+            for Default_Switches ("Ada")
+              use ("-O2", "-gnatws", "-gnatn");
+      end case;
+
+   end Compiler;
+
+   -------------
+   -- Builder --
+   -------------
+
+   package Builder renames Shared.Builder;
+
+   ------------
+   -- Linker --
+   ------------
+
+   package Linker is
+
+      case Shared.OS is
+         when "Windows_NT" =>
+            for Default_Switches ("Ada") use ("../win32/aws.coff");
+      end case;
+
+      for Switches ("runme.adb") use ("-lcrypto -lssl");
+
+  end Linker;
+
+end Demos;
