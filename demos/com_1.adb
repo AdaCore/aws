@@ -114,7 +114,8 @@ begin
    for K in 1 .. 10 loop
       Answer := Communication.Client.Send_Message
         (Command_Line.Argument (1), 3456, "mes1." & Utils.Image (K),
-         Communication.Parameters ("param1", "param2"));
+         Communication.Parameters ("param1." & Utils.Image (K),
+                                   "param2." & Utils.Image (K)));
 
       Text_IO.Put_Line ("< reply " & Response.Message_Body (Answer));
    end loop;
