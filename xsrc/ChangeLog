@@ -1,3 +1,10 @@
+2004-06-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client-xml-input_sources.adb:
+	(Next_Char): Some fixes in comments. Minor reformat.
+   (Clear_Buffer): Add commented pragma Unreferenced and null statement for
+    be able to turn off Clear_Buffer by one commented line.
+
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml-input_sources.adb:
