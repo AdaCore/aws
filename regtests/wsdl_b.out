@@ -20,5 +20,8 @@
         return Complex_Rec (n1:Complex_Rec)
    - array (23)      Arr1 of Integer (xsd:int)
    - array (32)      Arr2 of Integer (xsd:int)
+   - record          Rec
+        A : Integer (xsd:int)
+        B : Integer (xsd:int)
 
 WSDL document wsdl_b.wsdl is created for wsdl_b.ads.
