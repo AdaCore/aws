@@ -1,3 +1,9 @@
+2003-12-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* split.thtml:
+	Fix vector tag variable's name (V is a suffix).
+	Compute the real table line (across all pages).
+
 2003-12-07  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
