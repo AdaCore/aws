@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            December 23th, 2004
+   Pascal Obry                                              February 5th, 2005
 
 
 
@@ -31,7 +31,8 @@ enumerations, character, records and arrays.
 The SOAP implementation has been validated on http://validator.soapware.org/.
 This on-line service is not anymore available but the current implementation
 is validated against the Apache/AXIS SOAP implementation to ensure the
-interoperability.
+interoperability. Some users have also reported to have used AWS/SOAP with
+.NET without trouble.
 
 
 Changes
@@ -274,13 +275,11 @@ Validation:
 
 AWS 2.1 has been compiled and has passed all tests on:
 
-   Windows XP, GNAT 3.15a1, 3.16a1, 5.01a and 5.02a
+   Windows XP, GCC 3.4.2, GNAT 5.02a1, 5.03a
 
-   GNU/Linux x86, GNAT 3.16a1 and 5.02a
+   GNU/Linux x86, GCC 3.4.4 and GNAT 5.01a, 5.02a1 and 5.03a
 
-   SPARC Solaris 8, GNAT 5.01a
-
-   HP-UX 11, GNAT 5.03w
+   SPARC Solaris 8, GNAT 5.03a
 
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
