@@ -48,10 +48,15 @@ package AWS.Default is
    Log_Split_Mode      : constant String := "NONE";
    Upload_Directory    : constant String := "./";
 
-   Eight_Hours  : constant := 28_800.0;
-   Three_Hours  : constant := 10_800.0;
-   Five_Minutes : constant :=  5.0 * 60.0;
-   Ten_Minutes  : constant := 10.0 * 60.0;
+   --  All times are in seconds
+
+   One_Hour     : constant := 3_600.0;
+   One_Minute   : constant :=    60.0;
+
+   Eight_Hours  : constant :=  8.0 * One_Hour;
+   Three_Hours  : constant :=  3.0 * One_Hour;
+   Five_Minutes : constant :=  5.0 * One_Minute;
+   Ten_Minutes  : constant := 10.0 * One_Minute;
 
    Session_Cleanup_Interval        : constant Duration := Five_Minutes;
    Session_Lifetime                : constant Duration := Ten_Minutes;
