@@ -467,10 +467,7 @@ package body Ada2WSDL.Generator is
          begin
             New_Line;
 
-            if R.Parameters = null then
-               --  No parameter
-               Put_Line ("   <message name=""" & Name & "_Request""/>");
-            else
+            if R.Parameters /= null then
                Put_Line ("   <message name=""" & Name & "_Request"">");
                Write_Part (R.Parameters);
                Put_Line ("   </message>");
@@ -478,10 +475,7 @@ package body Ada2WSDL.Generator is
 
             New_Line;
 
-            if R.Return_Type = null then
-               --  No response
-               Put_Line ("   <message name=""" & Name & "_Response""/>");
-            else
+            if R.Return_Type /= null then
                Put_Line ("   <message name=""" & Name & "_Response"">");
                Write_Part (R.Return_Type);
                Put_Line ("   </message>");
@@ -514,8 +508,18 @@ package body Ada2WSDL.Generator is
 
          begin
             Put_Line ("      <operation name=""" & Name & """>");
-            Put_Line ("         <input message=""" & Name & "_Request""/>");
-            Put_Line ("         <output message=""" & Name & "_Response""/>");
+
+            if R.Parameters /= null then
+               --  Notification operation
+               Put_Line ("         <input message=""" & Name & "_Request""/>");
+            end if;
+
+            if R.Return_Type /= null then
+               --  Request-response operation
+               Put_Line
+                 ("         <output message=""" & Name & "_Response""/>");
+            end if;
+
             Put_Line ("      </operation>");
          end Write_Operation;
 
