@@ -683,7 +683,6 @@ package body AWS.Client is
         (Connection, Result, Keep_Alive);
 
       if not Get_Body then
-
          Disconnect;
          Set_Phase (Connection, Not_Monitored);
          return;
@@ -692,8 +691,8 @@ package body AWS.Client is
       --  Read the message body
 
       declare
-         TE : constant String := Response.Header
-               (Result, Messages.Transfer_Encoding_Token);
+         TE     : constant String
+           := Response.Header (Result, Messages.Transfer_Encoding_Token);
          CT_Len : constant Integer := Response.Content_Length (Result);
       begin
          if TE = "chunked" then
@@ -711,6 +710,7 @@ package body AWS.Client is
             --
 
             Response.Set.Message_Body (Result, Read_Chunk);
+
          else
             if CT_Len = Response.Undefined_Length then
 
@@ -978,7 +978,7 @@ package body AWS.Client is
                   function QOP_Data return String;
                   --  Returns string with qop, cnonce and nc parameters
                   --  if qop parameter exists in the server auth request,
-                  --  or empty string if not (RFC 2617 3.2.2).
+                  --  or empty string if not [RFC 2617 - 3.2.2].
 
                   Response : AWS.Digest.Digest_String;
 
@@ -1256,10 +1256,13 @@ package body AWS.Client is
 
             if U_Name = "REALM" then
                Auth.Realm := +Value;
+
             elsif U_Name = "NONCE" then
                Auth.Nonce := +Value;
+
             elsif U_Name = "QOP" then
                Auth.QOP   := +Value;
+
             elsif U_Name = "ALGORITHM" then
                if Value /= "MD5" then
                   Ada.Exceptions.Raise_Exception
@@ -1296,7 +1299,6 @@ package body AWS.Client is
             pragma Warnings (Off, Quit);
             Mode_Image : constant String := To_Upper (Item);
          begin
-
             if Mode_Image = Digest_Token then
                Request_Mode := Digest;
             elsif Mode_Image = Basic_Token then
@@ -1311,7 +1313,6 @@ package body AWS.Client is
                Auth.Work_Mode := Request_Mode;
                Auth.NC        := 0;
             end if;
-
          end Value;
 
          -----------
@@ -1329,7 +1330,28 @@ package body AWS.Client is
       -----------------------
 
       procedure Read_Status_Line is
-         Line : constant String := Net.Buffered.Get_Line (Sock);
+
+         function Get_Full_Line return String;
+         --  Returns a full HTTP line (handle continuation line)
+
+         -------------------
+         -- Get_Full_Line --
+         -------------------
+
+         function Get_Full_Line return String is
+            Line   : constant String    := Net.Buffered.Get_Line (Sock);
+            N_Char : constant Character := Net.Buffered.Peek_Char (Sock);
+         begin
+            if N_Char = ' ' or else N_Char = ASCII.HT then
+               --  Next line is a continuation line [RFC 2616 - 2.2]
+               return Line & Get_Full_Line;
+            else
+               return Line;
+            end if;
+         end Get_Full_Line;
+
+         Line : constant String := Get_Full_Line;
+
       begin
          Debug_Message ("< ", Line);
 
@@ -1350,8 +1372,7 @@ package body AWS.Client is
                          .. Messages.HTTP_Token'Last + 3) >= "1.1";
          else
             --  or else it is wrong answer from server.
-            Ada.Exceptions.Raise_Exception
-               (Protocol_Error'Identity, Line);
+            Ada.Exceptions.Raise_Exception (Protocol_Error'Identity, Line);
          end if;
       end Read_Status_Line;
 
@@ -1386,7 +1407,7 @@ package body AWS.Client is
       --  body to server.
       --  And we should send Expect: header line in the header if we could
       --  deal with 100 status code.
-      --  See RFC 2616 8.2.3 Use of the 100 (Continue) Status.
+      --  See [RFC 2616 - 8.2.3] Use of the 100 (Continue) Status.
 
       if Status = Messages.S100 then
          Read_Status_Line;
