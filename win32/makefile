@@ -9,9 +9,9 @@ ifeq (${OS}, Windows_NT)
    RES = aws.coff
 
    ifeq (${MODE}, ssl)
-      IMPORT_LIB = build_lib
+      IMPORT_LIB = build_lib libldap.a
    else
-      IMPORT_LIB =
+      IMPORT_LIB = libldap.a
    endif
 
 else
@@ -32,6 +32,9 @@ build: $(RES) $(IMPORT_LIB)
 	dlltool --def crypto.def --dllname libeay32.dll \
 		--output-lib ../ssl/libcrypto.a
 	rm crypto.def
+
+libldap.a: wldap32.def
+	dlltool --def wldap32.def --dllname wldap32.dll --output-lib libldap.a
 
 build_lib: ../ssl/libssl.a ../ssl/libcrypto.a
 
