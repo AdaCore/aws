@@ -190,6 +190,15 @@ package body AWS.Status is
    end Peername;
 
    -------------
+   -- Referer --
+   -------------
+
+   function Referer (D : in Data) return String is
+   begin
+      return To_String (D.Referer);
+   end Referer;
+
+   -------------
    -- Session --
    -------------
 
@@ -229,5 +238,14 @@ package body AWS.Status is
    begin
       return To_String (D.URI);
    end URI;
+
+   ----------------
+   -- User_Agent --
+   ----------------
+
+   function User_Agent (D : in Data) return String is
+   begin
+      return To_String (D.User_Agent);
+   end User_Agent;
 
 end AWS.Status;
