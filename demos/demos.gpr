@@ -52,6 +52,8 @@ project Demos is
            & ("soap_client.adb", "soap_server.adb", "soap_svs.adb",
               "soap_cvs.adb", "wsdl_demo_client.adb", "wsdl_demo_server.adb",
               "interoplab_main.adb", "soap_server_disp.adb");
+      when "Disabled" =>
+         null;
    end case;
 
    case Shared.Build is
