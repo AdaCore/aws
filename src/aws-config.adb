@@ -68,9 +68,9 @@ package body AWS.Config is
    -- Certificate --
    -----------------
 
-   function Certificate return String is
+   function Certificate (O : in Object) return String is
    begin
-      return To_String (Process_Options (Certificate).Str_Value);
+      return To_String (O.P (Certificate).Str_Value);
    end Certificate;
 
    ------------------------
@@ -154,6 +154,15 @@ package body AWS.Config is
       return To_String (O.P (Error_Log_Split_Mode).Str_Value);
    end Error_Log_Split_Mode;
 
+   --------------------------
+   -- Exchange_Certificate --
+   --------------------------
+
+   function Exchange_Certificate (O : in Object) return Boolean is
+   begin
+      return O.P (Exchange_Certificate).Bool_Value;
+   end Exchange_Certificate;
+
    -------------------------------
    -- Force_Client_Data_Timeout --
    -------------------------------
@@ -216,6 +225,15 @@ package body AWS.Config is
    begin
       return O.P (Hotplug_Port).Pos_Value;
    end Hotplug_Port;
+
+   ---------
+   -- Key --
+   ---------
+
+   function Key (O : in Object) return String is
+   begin
+      return To_String (O.P (Key).Str_Value);
+   end Key;
 
    ---------------------
    -- Line_Stack_Size --
@@ -288,6 +306,15 @@ package body AWS.Config is
    begin
       return O.P (Security).Bool_Value;
    end Security;
+
+   -------------------
+   -- Security_Mode --
+   -------------------
+
+   function Security_Mode (O : in Object) return String is
+   begin
+      return To_String (O.P (Security_Mode).Str_Value);
+   end Security_Mode;
 
    ------------------
    -- Send_Timeout --
