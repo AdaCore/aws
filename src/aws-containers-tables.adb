@@ -126,11 +126,34 @@ package body AWS.Containers.Tables is
    begin
       pragma Assert (Table.Index /= null);
       if N <= Data_Table.Last (Table.Data) then
-         return Table.Data.Table (N).Name.all;
+         return Table.Data.Table (N).Name;
       else
          return "";
       end if;
    end Get_Name;
+
+   --------------------
+   -- Get_Name_Value --
+   --------------------
+
+   function Get_Name_Value
+     (Table : in Table_Type;
+      N     : in Positive)
+      return Name_Value_Type
+   is
+   begin
+      pragma Assert (Table.Index /= null);
+
+      if N <= Data_Table.Last (Table.Data) then
+         return Table.Data.Table (N).all;
+      else
+         return
+           (Name_Length  => 0,
+            Value_Length => 0,
+            Name         => "",
+            Value        => "");
+      end if;
+   end Get_Name_Value;
 
    ---------------
    -- Get_Names --
@@ -189,7 +212,7 @@ package body AWS.Containers.Tables is
       pragma Assert (Table.Index /= null);
 
       if N <= Data_Table.Last (Table.Data) then
-         return Table.Data.Table (N).Value.all;
+         return Table.Data.Table (N).Value;
       else
          return "";
       end if;
@@ -219,7 +242,7 @@ package body AWS.Containers.Tables is
       begin
          for I in 1 .. Last loop
             Result (Natural (I)) := To_Unbounded_String (Table.Data.Table
-               (Value.Table (I)).Value.all);
+               (Value.Table (I)).Value);
          end loop;
          return Result;
       end;
@@ -249,7 +272,7 @@ package body AWS.Containers.Tables is
          Value);
 
       if Key_Positive (N) <= Name_Indexes.Last (Value) then
-         return Table.Data.Table (Value.Table (Key_Positive (N))).Value.all;
+         return Table.Data.Table (Value.Table (Key_Positive (N))).Value;
       else
          return "";
       end if;
