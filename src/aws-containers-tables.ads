@@ -92,7 +92,7 @@ package AWS.Containers.Tables is
 
    function Get_Names
      (Table : in Table_Type;
-      Sort  : Boolean := False)
+      Sort  : in Boolean := False)
       return VString_Array;
    --  Returns array of unique key names. If Sort is True, the returned names
    --  array is sorted in alphabetical order. This is of course slightly
