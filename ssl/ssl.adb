@@ -33,7 +33,6 @@ with Interfaces.C.Strings;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 
-with AWS;
 with SSL.Thin;
 
 package body SSL is
@@ -353,7 +352,7 @@ package body SSL is
       Len    : Interfaces.C.int;
    begin
       Len := Thin.SSL_Read (Socket.H, Buffer'Address, Buffer'Length);
-      Error_If (Len = -1, AWS.Connection_Error'Identity);
+      Error_If (Len = -1, Connection_Error'Identity);
 
       return Buffer
         (Buffer'First
