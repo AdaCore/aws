@@ -195,7 +195,7 @@ private
       In_Shutdown,
       --  Phase when socket is in protected object for shutdown
 
-      Loose_Release,
+      Release_Deferred,
       --  Phase when socket was not relased because of socket was in
       --  In_Shutdown state.
 
