@@ -46,7 +46,7 @@ package AWS.Utils is
    -------------------------------
 
    function Random return Random_Integer;
-   --  Returns a random integer number.
+   --  Returns a random integer number
 
    function Image (N : in Natural) return String;
    --  Returns image of N without the leading blank.
@@ -65,14 +65,14 @@ package AWS.Utils is
    --  Constraint_Error is Hex is not an hexadecimal number.
 
    function Is_Number (S : in String) return Boolean;
-   --  Returns True is S contains only decimal digits and is not empty.
+   --  Returns True is S contains only decimal digits and is not empty
 
    function Get_MD5 (Data : in String) return MD5.Digest_String;
-   --  Returns the MD5 digest value for the Data string.
+   --  Returns the MD5 digest value for the Data string
 
    function Quote (Str : in String) return String;
    pragma Inline (Quote);
-   --  Returns Str with character '"' added at the start and the end.
+   --  Returns Str with character '"' added at the start and the end
 
    function CRLF_2_Spaces (Str : in String) return String;
    --  Returns an str in a single line. All CR and LF are converted to spaces,
@@ -155,7 +155,7 @@ package AWS.Utils is
          --  message in the Mailbox.
 
          function Size return Natural;
-         --  Returns the current number of message waiting in the Mailbox.
+         --  Returns the current number of message waiting in the Mailbox
 
       private
          Buffer       : Message_Set (1 .. Max_Size);
