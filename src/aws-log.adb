@@ -28,10 +28,14 @@
 
 --  $Id$
 
-with Ada.Text_IO;
 with Ada.Calendar;
+with Ada.Command_Line;
+with Ada.Strings.Fixed;
+with Ada.Strings.Maps;
+with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
+with AWS.Config;
 
 package body AWS.Log is
 
@@ -42,14 +46,47 @@ package body AWS.Log is
    Split         : Split_Mode;
    Current_Tag   : Positive;
 
+   function Log_Prefix return String;
+   --  Returns the prefix to be added before the log filename. The returned
+   --  value is the executable name without directory and filetype.
+
+   ----------------
+   -- Log_Prefix --
+   ----------------
+
+   function Log_Prefix return String is
+      Name  : constant String := Ada.Command_Line.Command_Name;
+      First : Natural;
+      Last  : Natural;
+   begin
+      First := Strings.Fixed.Index
+        (Name, Strings.Maps.To_Set ("/\"), Going => Strings.Backward);
+
+      if First = 0 then
+         First := Name'First;
+      else
+         First := First + 1;
+      end if;
+
+      Last  := Strings.Fixed.Index (Name, ".", Strings.Backward);
+
+      if Last = 0 then
+         Last := Name'Last;
+      else
+         Last := Last - 1;
+      end if;
+
+      return AWS.Config.Log_File_Directory & Name (First .. Last);
+   end Log_Prefix;
+
    -----------
    -- Start --
    -----------
 
    procedure Start (Split : in Split_Mode := None) is
       Now      : constant Calendar.Time := Calendar.Clock;
-      Filename : constant String := "aws-"
-        & GNAT.Calendar.Time_IO.Image (Now, "%a-%d-%b-%Y") & ".log";
+      Filename : constant String := Log_Prefix
+        & GNAT.Calendar.Time_IO.Image (Now, "-%Y-%m-%d.log");
    begin
       Log_Activated := True;
       Log.Split     := Split;
@@ -118,3 +155,4 @@ package body AWS.Log is
    end Write;
 
 end AWS.Log;
+
