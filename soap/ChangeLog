@@ -1,3 +1,37 @@
+2002-09-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-client.adb:
+	(Call): SOAPAction is URL & '#' & Procedure_Name by default. This
+	 is now consistent with spec comments.
+
+	* soap-client.ads:
+	Update comment about SOAPAction.
+	Minor reformatting.	
+
+	* soap-message-payload.ads, soap-message-payload.adb:
+	(Build): Name_Space default set to Default_Name_Space.
+	Minor reformatting.
+
+	* soap-message-xml.adb:
+	(State): Add Name_Space field. Will keep the object name space as
+	 parsed into the Payload.
+	(Load_Payload): Build the payload with the right name space.
+	(LOad_Response): Build response object with the right name space
+	 instead of a null one.
+	(Parse_Array): Fix State aggregate (new field Name_Space).
+	(Parse_Base64): Correctly handle empty Base64 content.
+	(Parse_Wrapper): Retrieved and set the name space as encoded into
+	 the wrapper object.
+	Minor reformatting.	
+
+	* soap-message.adb:
+	(XML_Image): Do not use hard coded dummy name space but the one
+	 encoded into the message object.
+
+	* soap-message.ads:
+	(Default_Name_Space): New constant.
+	(Object.Name_Space): Initialize with the default name space value.
+
 2002-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-parameters.adb:
