@@ -155,15 +155,12 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
          Phase     := Phase & Slot_Phase'Image (Slot_Data.Phase);
 
-         Abortable := Abortable & Slot_Data.Abortable;
+         Abortable := Abortable
+           & Server.Slots.Is_Abortable (Index => K, Mode => Force);
 
          Activity_Counter := Activity_Counter & Slot_Data.Activity_Counter;
 
-         if Slot_Data.Peername = Null_Unbounded_String then
-            Peer_Name := Peer_Name & "&nbsp;";
-         else
-            Peer_Name := Peer_Name & Slot_Data.Peername;
-         end if;
+         Peer_Name := Peer_Name & Slot_Data.Peername;
 
          Slot_Activity_Counter := Slot_Activity_Counter
            & Slot_Data.Slot_Activity_Counter;
