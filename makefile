@@ -332,9 +332,9 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/docs/html
 	$(MKDIR) $(INSTALL)/AWS/components
 	$(MKDIR) $(INSTALL)/AWS/tools
-	$(CP) src/a*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
 	-$(CP) soap/*.ad[sb] $(INSTALL)/AWS/include
-	$(CP) src/a*.ali $(INSTALL)/AWS/lib
+	$(CP) src/[at]*.ali $(INSTALL)/AWS/lib
 	-$(CP) ssl/*.ali $(INSTALL)/AWS/lib
 	-$(CP) soap/*.ali $(INSTALL)/AWS/lib
 	$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
