@@ -1,5 +1,19 @@
 2002-11-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-containers-tables.adb:
+	Remove with to Ada.Unchecked_Deallocation.
+	Fix using name Cutted_String to Cut_String.
+
+	* aws-containers-tables-set.ads, aws-containers-tables-set.adb:
+	Remove with to Ada.Characters.Handling, Strings_Cutter,
+	 Ada.Strings.Unbounded and AWS.Containers.Key_Value.
+	Change using HTTP_Data field to the Ordered_Data.
+
+	* aws-parameters.ads, aws-parameters.adb, aws-parameters-set.adb:
+	Inhirited from AWS.Containers.Tables.Table_Type now.
+
+2002-11-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-headers-values.ads, aws-headers-values.adb:
 	(Search): New routine.
 	(Get_Unnamed_Value): New routine.
