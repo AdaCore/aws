@@ -493,7 +493,7 @@ Always write the "@b{in}" for parameters, even in functions:
 @end smallexample
 
 @item
-When the declaration line for a procedure or a function is too long, fold it.
+When the declaration line for a procedure or a function is too long, fold it
 
 @smallexample
       @b{function} Head
@@ -503,8 +503,18 @@ When the declaration line for a procedure or a function is too long, fold it.
          @b{return} String;
 @end smallexample
 
+@item For function an alternate style is to put the @b{return} at the end of
+the last declaration line
+
+@smallexample
+      @b{function} Head
+        (Source : @b{in} String;
+         Count  : @b{in} Natural;
+         Pad    : @b{in} Character := Space) @b{return} String;
+@end smallexample
+
 @item
-The parameter list for a subprogram is preceded by a space:
+The parameter list for a subprogram is preceded by a space
 
 @smallexample
         @b{procedure} Func (A : @b{in out} Integer);
