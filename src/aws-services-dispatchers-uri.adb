@@ -28,13 +28,15 @@
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
 
---  $Id$
+--  $RCSfile$
+--  $Revision$ $Date$ $Author$
 
 with Ada.Unchecked_Deallocation;
 
 with GNAT.Regexp;
 
 with AWS.MIME;
+with AWS.Dispatchers.Callback;
 
 package body AWS.Services.Dispatchers.URI is
 
@@ -137,6 +139,14 @@ package body AWS.Services.Dispatchers.URI is
       Dispatcher.Table.Table (URI_Table.Last (Dispatcher.Table)) := Value;
    end Register;
 
+   procedure Register
+     (Dispatcher : in out Handler;
+      URI        : in     String;
+      Action     : in     Response.Callback) is
+   begin
+      Register (Dispatcher, URI, AWS.Dispatchers.Callback.Create (Action));
+   end Register;
+
    -------------------------------
    -- Register_Default_Callback --
    -------------------------------
@@ -172,6 +182,15 @@ package body AWS.Services.Dispatchers.URI is
       Dispatcher.Table.Table (URI_Table.Last (Dispatcher.Table)) := Value;
    end Register_Regexp;
 
+   procedure Register_Regexp
+     (Dispatcher : in out Handler;
+      URI        : in     String;
+      Action     : in     Response.Callback) is
+   begin
+      Register_Regexp
+        (Dispatcher, URI, AWS.Dispatchers.Callback.Create (Action));
+   end Register_Regexp;
+
    ----------------
    -- Unregister --
    ----------------
@@ -194,4 +213,3 @@ package body AWS.Services.Dispatchers.URI is
    end Unregister;
 
 end AWS.Services.Dispatchers.URI;
-
