@@ -1,3 +1,10 @@
+2004-11-27  Pascal Obry  <pascal@obry.org>
+
+	* wsdl2aws.adb:
+	Add support for new option '-x operation' used to exclude an
+	 operation from the SOAP code generator.
+	Set exit status before exiting the program.
+
 2004-11-26  Pascal Obry  <pascal@obry.org>
 
 	* wsdl2aws.adb:
