@@ -2400,7 +2400,7 @@ package body Templates_Parser is
             return Null_Unbounded_String;
          end if;
 
-         Start := Strings.Fixed.Index_Non_Blank (Buffer (Start .. Last));
+         Start := Strings.Fixed.Index (Buffer (Start .. Last), Blank, Outside);
 
          if Start = 0 then
             --  We have only spaces after the first word, there is no
@@ -2432,7 +2432,7 @@ package body Templates_Parser is
 
             Input.Get_Line (File, Buffer, Last);
 
-            First := Strings.Fixed.Index_Non_Blank (Buffer (1 .. Last));
+            First := Strings.Fixed.Index (Buffer (1 .. Last), Blank, Outside);
 
             if First = 0 then
                --  There is only spaces on this line, this is an empty line
@@ -2441,8 +2441,8 @@ package body Templates_Parser is
                return False;
             end if;
 
-            Last := Strings.Fixed.Index_Non_Blank
-              (Buffer (1 .. Last), Strings.Backward);
+            Last := Strings.Fixed.Index
+              (Buffer (1 .. Last), Blank, Outside, Strings.Backward);
 
             return False;
          end if;

@@ -147,8 +147,8 @@ package body Expr is
             return "";
          end if;
 
-         Index := Fixed.Index_Non_Blank
-           (Expression (Index .. Expression'Last));
+         Index := Fixed.Index
+           (Expression (Index .. Expression'Last), Blank, Outside);
 
          if Index = 0 then
             --  There is only one token, return the whole string.
