@@ -70,6 +70,18 @@ package AWS.Resources.Streams.ZLib is
       Header      : in     Header_Type      := ZL.Default);
    --  Initialize the decompression of the user defined stream.
 
+   function Deflate_Create
+     (Source       : in     Streams.Stream_Access;
+      Level        : in     Compression_Level  := ZL.Default_Compression;
+      Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
+      Method       : in     Compression_Method := ZL.Deflated;
+      Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
+      Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
+      Header       : in     Header_Type        := ZL.Default)
+      return       Stream_Access;
+
+   --  Initialize the compression of the user defined stream.
+
    procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
