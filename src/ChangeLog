@@ -1,3 +1,35 @@
+2001-05-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): use PNG images instead of GIF images for
+	 built-in server status page.
+
+2001-04-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Get): init Persistent field to False.
+	(Head): idem.
+	(Put): idem.
+	(Post): idem.
+	(Persistence): new function.
+	(Send_Command): do not always send Keep-Alive, use new Persistence
+	 function.
+	(Create): add Persistent parameter to create a Keep-Alive
+	 connection.
+
+	* aws-client.ads:
+	(Create): add Persistent parameter to create a Keep-Alive
+	 connection.
+	(HTTP_Connection): add Persistent field.
+
+	* aws-server-protocol_handler.adb:
+	(Will_Close): fix test, we want a keep-alive connection by default
+	 (i.e. client says nothing about the connection).
+
+	* aws-server.ads:
+	(Keep_Open_Duration): set to 80 seconds to match standard browser
+	 expectation.
+
 2001-04-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
