@@ -1,6 +1,11 @@
 2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
+	(Generate_Main): Fix code generation.
+
+2003-11-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.adb:
 	(Main): New procedure.
 	(Generate_Main): New procedure to generate a simple main server or
 	 a main from a template file.
