@@ -40,21 +40,23 @@ with AWS.Hotplug;
 with AWS.Config;
 with AWS.Default;
 with AWS.Log;
+with AWS.Services.Dispatchers;
 
 package AWS.Server is
 
    Def_Admin_URI   : String renames Default.Admin_URI;
    Def_Upload_Dir  : String renames Default.Upload_Directory;
-   Def_Max_Connect : constant := Default.Max_Connection;
-   Def_Port        : constant := Default.Server_Port;
+   Def_Max_Connect     : constant := Default.Max_Connection;
+   Def_Port            : constant := Default.Server_Port;
+   Def_Line_Stack_Size : constant := Default.Line_Stack_Size;
 
    type HTTP is limited private;
    --  A Web server.
 
    procedure Start
-     (Web_Server                : in out HTTP;
-      Callback                  : in     Response.Callback;
-      Config                    : in     AWS.Config.Object);
+     (Web_Server : in out HTTP;
+      Callback   : in     Response.Callback;
+      Config     : in     AWS.Config.Object);
    --  Start server using a full configuration object. With this routine it is
    --  possible to control all features of the server. A simplified version of
    --  Start is also provided below with the most common options.
@@ -62,16 +64,24 @@ package AWS.Server is
    --  after 'aws.ini', 'prognam.ini', '<servername>.ini' files.
 
    procedure Start
+     (Web_Server : in out HTTP;
+      Dispatcher : in     Services.Dispatchers.Handler'Class;
+      Config     : in     AWS.Config.Object);
+   --  The same, but using the dispatcher tagged type instead of callback. See
+   --  AWS.Services.Dispatchers hierarchy.
+
+   procedure Start
      (Web_Server                : in out HTTP;
       Name                      : in     String;
       Callback                  : in     Response.Callback;
-      Max_Connection            : in     Positive          := Def_Max_Connect;
-      Admin_URI                 : in     String            := Def_Admin_URI;
-      Port                      : in     Positive          := Def_Port;
-      Security                  : in     Boolean           := False;
-      Session                   : in     Boolean           := False;
-      Case_Sensitive_Parameters : in     Boolean           := True;
-      Upload_Directory          : in     String            := Def_Upload_Dir);
+      Max_Connection            : in     Positive     := Def_Max_Connect;
+      Admin_URI                 : in     String       := Def_Admin_URI;
+      Port                      : in     Positive     := Def_Port;
+      Security                  : in     Boolean      := False;
+      Session                   : in     Boolean      := False;
+      Case_Sensitive_Parameters : in     Boolean      := True;
+      Upload_Directory          : in     String       := Def_Upload_Dir;
+      Line_Stack_Size           : in     Positive     := Def_Line_Stack_Size);
    --  Start the Web server. It initialize the Max_Connection connections
    --  lines. Name is just a string used to identify the server. This is used
    --  for example in the administrative page. Admin_URI must be set to enable
@@ -116,6 +126,7 @@ private
 
    type Slot_Phase is
      (Closed,
+      --  Socket has been closed by one of the peer
 
       Aborted,
       --  After socket shutdown
@@ -259,13 +270,27 @@ private
    -- Line --
    ----------
 
-   task type Line is
+   task type Line (Stack_Size : Integer) is
+      pragma Storage_Size (Stack_Size);
       entry Start (Server : in HTTP; Index : in Positive);
    end Line;
 
-   type Line_Set is array (Positive range <>) of Line;
+   type Line_Access is access Line;
+
+   type Line_Set is array (Positive range <>) of Line_Access;
 
    type Line_Set_Access is access Line_Set;
+
+   ---------------
+   -- Semaphore --
+   ---------------
+
+   protected type Semaphore is
+      entry Seize;
+      procedure Release;
+   private
+      Seized : Boolean := False;
+   end Semaphore;
 
    ------------------
    -- Line_Cleaner --
@@ -292,6 +317,9 @@ private
       Sock            : Sockets.Socket_FD;
       --  This is the server socket for incoming connection.
 
+      Sock_Sem        : Semaphore;
+      --  Semaphore used to serialize the accepts call on the server socket.
+
       Cleaner         : Line_Cleaner_Access;
       --  Task in charge of cleaning slots status. It checks from time to time
       --  is the slots is still in used and closed it if possible.
@@ -302,8 +330,8 @@ private
       Log             : AWS.Log.Object;
       --  Loggin support.
 
-      CB              : Response.Callback;
-      --  User's callback procedure.
+      Dispatcher      : Services.Dispatchers.Handler_Class_Access;
+      --  Dispatcher for the user actions.
 
       Filters         : Hotplug.Filter_Set;
       --  Hotplug filters are recorded here.
