@@ -1,10 +1,10 @@
 
 			    A W S - Ada Web Server
-			    1.3 release / SOAP 1.1
+			    1.4 release / SOAP 1.1
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 Marsh 5th, 2003
+   Pascal Obry                                                 Marsh 8th, 2003
 
 
 
@@ -28,18 +28,18 @@ The SOAP implementation has been validated on http://validator.soapware.org/.
 
 Here are the main changes since AWS 1.3 :
 
-   - wsdl2aws, new tool. Generate SOAP/AWS stub/skeleton for a WSDL
+   - wsdl2aws, new tool. Generate SOAP/AWS stub/skeleton from a WSDL
      document. With this tool it is very easy to build or to connect to Web
      Services.
 
    - Fix memory leak in templates parser when using a non existent template
      file.
 
-   - Disable keep-alive connection for the last free slot. It make AWS better
-     for the hard loading servers.
+   - Disable keep-alive connection for the last free slots. It make AWS better
+     for heavy-loaded servers.
 
    - New configuration parameter Free_Slots_Keep_Alive_Limit to control
-     disabling keep-alive connections on the hard loaded server.
+     keep-alive connections on heavy-loaded servers.
 
    - Plus many small fixes, enhancements and documentation work.
 
