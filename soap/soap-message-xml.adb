@@ -55,7 +55,9 @@ package body SOAP.Message.XML is
 
    NL         : constant String := ASCII.CR & ASCII.LF;
 
-   Max_Object_Size : constant := 250;
+   Max_Object_Size : constant := 2_048;
+   --  This is the maximum number of items in a record or an array supported
+   --  by this implementation.
 
    XML_Header : constant String := "<?xml version='1.0' encoding='UTF-8'?>";
 
@@ -96,39 +98,61 @@ package body SOAP.Message.XML is
 
    procedure Parse_Wrapper  (N : in DOM.Core.Node; S : in out State);
 
-   function Parse_Int       (N : in DOM.Core.Node) return Types.Object'Class;
+   function Parse_Int
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
 
-   function Parse_Float     (N : in DOM.Core.Node) return Types.Object'Class;
+   function Parse_Float
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
 
-   function Parse_Double    (N : in DOM.Core.Node) return Types.Object'Class;
+   function Parse_Double
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
 
-   function Parse_String    (N : in DOM.Core.Node) return Types.Object'Class;
+   function Parse_String
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
 
-   function Parse_Boolean   (N : in DOM.Core.Node) return Types.Object'Class;
+   function Parse_Boolean
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
 
-   function Parse_Base64    (N : in DOM.Core.Node) return Types.Object'Class;
+   function Parse_Base64
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class;
 
    function Parse_Time_Instant
-     (N : in DOM.Core.Node)
+     (Name : in String;
+      N    : in DOM.Core.Node)
       return Types.Object'Class;
 
    function Parse_Param
-     (N        : in DOM.Core.Node;
-      S        : in State)
-      return Types.Object'Class;
-
-   function Parse_Array
      (N : in DOM.Core.Node;
       S : in State)
       return Types.Object'Class;
 
+   function Parse_Array
+     (Name : in String;
+      N    : in DOM.Core.Node;
+      S    : in State)
+      return Types.Object'Class;
+
    function Parse_Record
-     (N : in DOM.Core.Node;
+     (Name : in String;
+      N : in DOM.Core.Node;
       S : in State)
       return Types.Object'Class;
 
    function Parse_Enumeration
-     (N : in DOM.Core.Node)
+     (Name : in String;
+      N    : in DOM.Core.Node)
       return Types.Object'Class;
 
    procedure Error (Node : in DOM.Core.Node; Message : in String);
@@ -276,8 +300,9 @@ package body SOAP.Message.XML is
    -----------------
 
    function Parse_Array
-     (N : in DOM.Core.Node;
-      S : in State)
+     (Name : in String;
+      N    : in DOM.Core.Node;
+      S    : in State)
       return Types.Object'Class
    is
       use type DOM.Core.Node;
@@ -323,7 +348,6 @@ package body SOAP.Message.XML is
          end if;
       end A_State;
 
-      Name     : constant String := Local_Name (N);
       OS       : Types.Object_Set (1 .. Max_Object_Size);
       K        : Natural := 0;
 
@@ -359,10 +383,13 @@ package body SOAP.Message.XML is
    -- Parse_Base64 --
    ------------------
 
-   function Parse_Base64 (N : in DOM.Core.Node) return Types.Object'Class is
+   function Parse_Base64
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
       use type DOM.Core.Node;
 
-      Name  : constant String := Local_Name (N);
       Value : DOM.Core.Node;
    begin
       Normalize (N);
@@ -390,8 +417,11 @@ package body SOAP.Message.XML is
    -- Parse_Boolean --
    -------------------
 
-   function Parse_Boolean (N : in DOM.Core.Node) return Types.Object'Class is
-      Name  : constant String        := Local_Name (N);
+   function Parse_Boolean
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
       Value : constant DOM.Core.Node := First_Child (N);
    begin
       if Node_Value (Value) = "1"
@@ -423,8 +453,11 @@ package body SOAP.Message.XML is
    -- Parse_Double --
    ------------------
 
-   function Parse_Double (N : in DOM.Core.Node) return Types.Object'Class is
-      Name  : constant String        := Local_Name (N);
+   function Parse_Double
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
       Value : constant DOM.Core.Node := First_Child (N);
    begin
       return Types.D (Long_Long_Float'Value (Node_Value (Value)), Name);
@@ -435,14 +468,12 @@ package body SOAP.Message.XML is
    -----------------------
 
    function Parse_Enumeration
-     (N : in DOM.Core.Node)
-      return Types.Object'Class
-   is
-      Name  : constant String := Local_Name (N);
-      Ref   : constant DOM.Core.Node := SOAP.XML.Get_Ref (N);
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class is
    begin
       return Types.E
-        (Node_Value (First_Child (Ref)),
+        (Node_Value (First_Child (N)),
          Utils.No_NS (SOAP.XML.Get_Attr_Value (N, "type")),
          Name);
    end Parse_Enumeration;
@@ -466,8 +497,11 @@ package body SOAP.Message.XML is
    -- Parse_Float --
    -----------------
 
-   function Parse_Float (N : in DOM.Core.Node) return Types.Object'Class is
-      Name  : constant String        := Local_Name (N);
+   function Parse_Float
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
       Value : constant DOM.Core.Node := First_Child (N);
    begin
       return Types.F (Long_Float'Value (Node_Value (Value)), Name);
@@ -477,8 +511,11 @@ package body SOAP.Message.XML is
    -- Parse_Int --
    ---------------
 
-   function Parse_Int (N : in DOM.Core.Node) return Types.Object'Class is
-      Name  : constant String        := Local_Name (N);
+   function Parse_Int
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
       Value : constant DOM.Core.Node := First_Child (N);
    begin
       return Types.I (Integer'Value (Node_Value (Value)), Name);
@@ -489,8 +526,8 @@ package body SOAP.Message.XML is
    -----------------
 
    function Parse_Param
-     (N        : in DOM.Core.Node;
-      S        : in State)
+     (N : in DOM.Core.Node;
+      S : in State)
       return Types.Object'Class
    is
       use type DOM.Core.Node;
@@ -500,7 +537,9 @@ package body SOAP.Message.XML is
       --  Returns True if N is an array node
 
       Name : constant String                  := Local_Name (N);
-      Atts : constant DOM.Core.Named_Node_Map := Attributes (N);
+
+      Ref  : constant DOM.Core.Node           := SOAP.XML.Get_Ref (N);
+      Atts : constant DOM.Core.Named_Node_Map := Attributes (Ref);
 
       --------------
       -- Is_Array --
@@ -522,22 +561,22 @@ package body SOAP.Message.XML is
 
    begin
       if To_String (S.Wrapper_Name) = "Fault" then
-         return Parse_String (N);
+         return Parse_String (Name, Ref);
 
       else
          if XSI_Type = null and then S.A_State in Void .. A_Undefined then
             --  No xsi:type attribute found
 
             if S_Type /= null
-              and then First_Child (N).Node_Type = DOM.Core.Text_Node
+              and then First_Child (Ref).Node_Type = DOM.Core.Text_Node
             then
                --  Not xsi:type but a type information, the child being a text
                --  node, this is an enumeration.
 
-               return Parse_Enumeration (N);
+               return Parse_Enumeration (Name, Ref);
 
-            elsif First_Child (N) /= null
-              and then First_Child (N).Node_Type = DOM.Core.Text_Node
+            elsif First_Child (Ref) /= null
+              and then First_Child (Ref).Node_Type = DOM.Core.Text_Node
             then
                --  No xsi:type and no type information.
                --  Children are some kind of text data, so this is a data node
@@ -554,7 +593,7 @@ package body SOAP.Message.XML is
                --  ??? If payload xsi:type information becomes mandatory this
                --  conditional section should be removed.
 
-               return Parse_String (N);
+               return Parse_String (Name, Ref);
 
             else
                --  This is a type defined in a schema, either a SOAP record
@@ -564,31 +603,31 @@ package body SOAP.Message.XML is
                --  type defined. We have a single tag "<name>" which can
                --  only be the start or a record.
 
-               return Parse_Record (N, S);
+               return Parse_Record (Name, Ref, S);
             end if;
 
          else
             case S.A_State is
                when A_Int =>
-                  return Parse_Int (N);
+                  return Parse_Int (Name, Ref);
 
                when A_Float =>
-                  return Parse_Float (N);
+                  return Parse_Float (Name, Ref);
 
                when A_Double =>
-                  return Parse_Double (N);
+                  return Parse_Double (Name, Ref);
 
                when A_String =>
-                  return Parse_String (N);
+                  return Parse_String (Name, Ref);
 
                when A_Boolean =>
-                  return Parse_Boolean (N);
+                  return Parse_Boolean (Name, Ref);
 
                when A_Time_Instant =>
-                  return Parse_Time_Instant (N);
+                  return Parse_Time_Instant (Name, Ref);
 
                when A_Base64 =>
-                  return Parse_Base64 (N);
+                  return Parse_Base64 (Name, Ref);
 
                when Void | A_Undefined =>
 
@@ -611,28 +650,28 @@ package body SOAP.Message.XML is
                         xsd : constant String := Node_Value (XSI_Type);
                      begin
                         if xsd = Types.XML_Int then
-                           return Parse_Int (N);
+                           return Parse_Int (Name, Ref);
 
                         elsif xsd = Types.XML_Float then
-                           return Parse_Float (N);
+                           return Parse_Float (Name, Ref);
 
                         elsif xsd = Types.XML_Double then
-                           return Parse_Double (N);
+                           return Parse_Double (Name, Ref);
 
                         elsif xsd = Types.XML_String then
-                           return Parse_String (N);
+                           return Parse_String (Name, Ref);
 
                         elsif xsd = Types.XML_Boolean then
-                           return Parse_Boolean (N);
+                           return Parse_Boolean (Name, Ref);
 
                         elsif xsd = Types.XML_Time_Instant then
-                           return Parse_Time_Instant (N);
+                           return Parse_Time_Instant (Name, Ref);
 
                         elsif xsd = Types.XML_Base64 then
-                           return Parse_Base64 (N);
+                           return Parse_Base64 (Name, Ref);
 
                         elsif Is_Array then
-                           return Parse_Array (N, S);
+                           return Parse_Array (Name, Ref, S);
 
                         else
                            --  Not a known basic type, let's try to parse a
@@ -640,7 +679,7 @@ package body SOAP.Message.XML is
                            --  support schema so there is no way to check
                            --  for the real type here.
 
-                           return Parse_Record (N, S);
+                           return Parse_Record (Name, Ref, S);
                         end if;
                      end;
                   end if;
@@ -654,21 +693,21 @@ package body SOAP.Message.XML is
    ------------------
 
    function Parse_Record
-     (N : in DOM.Core.Node;
-      S : in State)
+     (Name : in String;
+      N    : in DOM.Core.Node;
+      S    : in State)
       return Types.Object'Class
    is
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
       use SOAP.Types;
 
-      Name  : constant String := Local_Name (N);
-      OS    : Types.Object_Set (1 .. Max_Object_Size);
-      K     : Natural := 0;
+      OS : Types.Object_Set (1 .. Max_Object_Size);
+      K  : Natural := 0;
 
       Field : DOM.Core.Node := SOAP.XML.Get_Ref (N);
    begin
-      if N /= Field
+      if Name /= Local_Name (N)
         and then First_Child (Field).Node_Type = DOM.Core.Text_Node
       then
          --  This is not a record after all, it is an enumeration with an href
@@ -696,10 +735,13 @@ package body SOAP.Message.XML is
    -- Parse_String --
    ------------------
 
-   function Parse_String (N : in DOM.Core.Node) return Types.Object'Class is
+   function Parse_String
+     (Name : in String;
+      N    : in DOM.Core.Node)
+      return Types.Object'Class
+   is
       use type DOM.Core.Node;
 
-      Name  : constant String := Local_Name (N);
       Value : DOM.Core.Node;
    begin
       Normalize (N);
@@ -719,12 +761,12 @@ package body SOAP.Message.XML is
    ------------------------
 
    function Parse_Time_Instant
-     (N : in DOM.Core.Node)
+     (Name : in String;
+      N    : in DOM.Core.Node)
       return Types.Object'Class
    is
       use Ada.Calendar;
 
-      Name  : constant String        := Local_Name (N);
       Value : constant DOM.Core.Node := First_Child (N);
       TI    : constant String        := Node_Value (Value);
 
@@ -741,7 +783,7 @@ package body SOAP.Message.XML is
 
       if TI'Last = 19                           -- No timezone
         or else
-          (TI'Last = 20 and then TI (20) = 'Z') --  GMT timezone
+          (TI'Last = 20 and then TI (20) = 'Z') -- GMT timezone
         or else
           TI'Last < 22                          -- No enough timezone data
       then
