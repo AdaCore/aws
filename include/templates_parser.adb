@@ -885,11 +885,13 @@ package body Templates_Parser is
    -- Vector_Tag --
    ----------------
 
-   function Field
-     (Vect_Value : in Vector_Tag;
-      N          : in Positive)
-      return String;
-   --  returns the Nth value in the vector tag.
+   procedure Field
+     (Vect   : in     Vector_Tag;
+      N      : in     Positive;
+      Result :    out Unbounded_String;
+      Found  :    out Boolean);
+   --  Returns the Nth value in the vector tag. Found is set to False if
+   --  N > Vect_Value'Last.
 
    ---------
    -- "+" --
@@ -901,10 +903,12 @@ package body Templates_Parser is
    begin
       return Vector_Tag'
         (Ada.Finalization.Controlled with
-         Ref_Count => new Integer'(1),
-         Count     => 1,
-         Head      => Item,
-         Last      => Item);
+           Ref_Count => new Integer'(1),
+           Count     => 1,
+           Head      => Item,
+           Last      => Item,
+           Current   => new Vector_Tag_Node_Access'(Item),
+           Pos       => new Integer'(1));
    end "+";
 
    function "+" (Value : in Character) return Vector_Tag is
@@ -948,7 +952,9 @@ package body Templates_Parser is
             Ref_Count => Vect.Ref_Count,
             Count     => 1,
             Head      => Item,
-            Last      => Item);
+            Last      => Item,
+            Current   => new Vector_Tag_Node_Access'(Item),
+            Pos       => Vect.Pos);
       else
          Vect.Last.Next := Item;
          return Vector_Tag'
@@ -956,7 +962,9 @@ package body Templates_Parser is
             Ref_Count => Vect.Ref_Count,
             Count     => Vect.Count + 1,
             Head      => Vect.Head,
-            Last      => Item);
+            Last      => Item,
+            Current   => Vect.Current,
+            Pos       => Vect.Pos);
       end if;
    end "&";
 
@@ -1005,9 +1013,11 @@ package body Templates_Parser is
       Finalize (Vect);
 
       Vect.Ref_Count := new Integer'(1);
+      Vect.Pos       := new Integer'(1);
       Vect.Count     := 0;
       Vect.Head      := null;
       Vect.Last      := null;
+      Vect.Current   := null;
    end Clear;
 
    ------------
@@ -1026,6 +1036,7 @@ package body Templates_Parser is
    procedure Initialize (V : in out Vector_Tag) is
    begin
       V.Ref_Count := new Integer'(1);
+      V.Pos       := new Integer'(1);
       V.Count     := 0;
    end Initialize;
 
@@ -1034,21 +1045,16 @@ package body Templates_Parser is
    ----------
 
    function Item (Vect : in Vector_Tag; N : in Positive) return String is
-      K : Positive := 1;
-      V : Vector_Tag_Node_Access := Vect.Head;
+      Result : Unbounded_String;
+      Found  : Boolean;
    begin
-      loop
-         if K = N then
-            return To_String (V.Value);
-         end if;
+      Field (Vect, N, Result, Found);
 
-         V := V.Next;
-         K := K + 1;
-
-         if V = null then
-            raise Constraint_Error;
-         end if;
-      end loop;
+      if not Found then
+         raise Constraint_Error;
+      else
+         return To_String (Result);
+      end if;
    end Item;
 
    --------------
@@ -1065,6 +1071,9 @@ package body Templates_Parser is
               (Vector_Tag_Node, Vector_Tag_Node_Access);
 
             procedure Free is new Ada.Unchecked_Deallocation
+              (Vector_Tag_Node_Access, Access_Vector_Tag_Node_Access);
+
+            procedure Free is new Ada.Unchecked_Deallocation
               (Integer, Integer_Access);
 
             P, N : Vector_Tag_Node_Access;
@@ -1079,7 +1088,10 @@ package body Templates_Parser is
 
             V.Head := null;
             V.Last := null;
+
             Free (V.Ref_Count);
+            Free (V.Pos);
+            Free (V.Current);
          end;
       end if;
    end Finalize;
@@ -1097,6 +1109,22 @@ package body Templates_Parser is
    -- Matrix_Tag --
    ----------------
 
+   procedure Field
+     (Matrix : in     Matrix_Tag;
+      I, J   : in     Natural;
+      Result :    out Unbounded_String;
+      Found  :    out Boolean);
+   --  Returns Value in Mat_Value (I, J). Found is set to False if there is
+   --  no such value in Mat_Value.
+
+   procedure Vector
+     (Matrix : in     Matrix_Tag;
+      N      : in     Positive;
+      Vect   :    out Vector_Tag;
+      Found  :    out Boolean);
+   --  Returns Vect in Matrix (N). Found is set to False if there is no such
+   --  vector in Matrix.
+
    ---------
    -- "+" --
    ---------
@@ -1108,7 +1136,14 @@ package body Templates_Parser is
    begin
       return Matrix_Tag'
         (M => (Ada.Finalization.Controlled with
-                 new Integer'(1), 1, V_Size, V_Size, Item, Item));
+                 Ref_Count => New Integer'(1),
+                 Count     => 1,
+                 Min       => V_Size,
+                 Max       => V_Size,
+                 Head      => Item,
+                 Last      => Item,
+                 Current   => new Matrix_Tag_Node_Access'(Item),
+                 Pos       => new Integer'(1)));
    end "+";
 
    ---------
@@ -1127,22 +1162,26 @@ package body Templates_Parser is
       Matrix.M.Ref_Count.all := Matrix.M.Ref_Count.all + 1;
 
       if Matrix.M.Head = null then
-         return Matrix_Tag'(M => (Ada.Finalization.Controlled with
-                                  Matrix.M.Ref_Count,
-                                  Matrix.M.Count + 1,
-                                  Min  => Natural'Min (Matrix.M.Min, V_Size),
-                                  Max  => Natural'Max (Matrix.M.Max, V_Size),
-                                  Head => Item,
-                                  Last => Item));
+         return (M => (Ada.Finalization.Controlled with
+                       Matrix.M.Ref_Count,
+                       Matrix.M.Count + 1,
+                       Min     => Natural'Min (Matrix.M.Min, V_Size),
+                       Max     => Natural'Max (Matrix.M.Max, V_Size),
+                       Head    => Item,
+                       Last    => Item,
+                       Current => new Matrix_Tag_Node_Access'(Item),
+                       Pos     => Matrix.M.Pos));
       else
          Matrix.M.Last.Next := Item;
-         return Matrix_Tag'(M => (Ada.Finalization.Controlled with
-                                  Matrix.M.Ref_Count,
-                                  Matrix.M.Count + 1,
-                                  Min  => Natural'Min (Matrix.M.Min, V_Size),
-                                  Max  => Natural'Max (Matrix.M.Max, V_Size),
-                                  Head => Matrix.M.Head,
-                                  Last => Item));
+         return (M => (Ada.Finalization.Controlled with
+                       Matrix.M.Ref_Count,
+                       Matrix.M.Count + 1,
+                       Min     => Natural'Min (Matrix.M.Min, V_Size),
+                       Max     => Natural'Max (Matrix.M.Max, V_Size),
+                       Head    => Matrix.M.Head,
+                       Last    => Item,
+                       Current => Matrix.M.Current,
+                       Pos     => Matrix.M.Pos));
       end if;
    end "&";
 
@@ -1162,6 +1201,7 @@ package body Templates_Parser is
    procedure Initialize (M : in out Matrix_Tag_Int) is
    begin
       M.Ref_Count := new Integer'(1);
+      M.Pos       := new Integer'(1);
       M.Count     := 0;
       M.Min       := Natural'Last;
       M.Max       := 0;
@@ -1181,6 +1221,9 @@ package body Templates_Parser is
               (Matrix_Tag_Node, Matrix_Tag_Node_Access);
 
             procedure Free is new Ada.Unchecked_Deallocation
+              (Matrix_Tag_Node_Access, Access_Matrix_Tag_Node_Access);
+
+            procedure Free is new Ada.Unchecked_Deallocation
               (Integer, Integer_Access);
 
             P, N : Matrix_Tag_Node_Access;
@@ -1195,7 +1238,10 @@ package body Templates_Parser is
 
             M.Head := null;
             M.Last := null;
+
             Free (M.Ref_Count);
+            Free (M.Pos);
+            Free (M.Current);
          end;
       end if;
    end Finalize;
@@ -1213,22 +1259,61 @@ package body Templates_Parser is
    -- Vector --
    ------------
 
+   procedure Vector
+     (Matrix : in     Matrix_Tag;
+      N      : in     Positive;
+      Vect   :    out Vector_Tag;
+      Found  :    out Boolean) is
+   begin
+      Found := True;
+
+      if N = Matrix.M.Count then
+         Vect := Matrix.M.Last.Vect;
+
+      elsif N >= Matrix.M.Pos.all then
+
+         for K in 1 .. N - Matrix.M.Pos.all loop
+            Matrix.M.Pos.all     := Matrix.M.Pos.all + 1;
+            Matrix.M.Current.all := Matrix.M.Current.all.Next;
+         end loop;
+
+         Vect := Matrix.M.Current.all.Vect;
+
+      elsif N > Matrix.M.Count then
+         Found  := False;
+
+      else
+         declare
+            P : Matrix_Tag_Node_Access := Matrix.M.Head;
+         begin
+            for K in 1 .. N - 1 loop
+               P := P.Next;
+            end loop;
+
+            Matrix.M.Pos.all     := N;
+            Matrix.M.Current.all := P;
+
+            Vect := P.Vect;
+         end;
+      end if;
+   end Vector;
+
    function Vector
      (Matrix : in Matrix_Tag;
       N      : in Positive)
       return Vector_Tag
    is
-      P : Matrix_Tag_Node_Access := Matrix.M.Head;
+      Result : Vector_Tag;
+      Found  : Boolean;
    begin
-      for K in 1 .. N - 1 loop
-         P := P.Next;
-      end loop;
+      Vector (Matrix, N, Result, Found);
 
-      return P.Vect;
-   exception
-      when others =>
+      if Found then
+         return Result;
+      else
          Exceptions.Raise_Exception
-           (Internal_Error'Identity, "Index out of range");
+           (Constraint_Error'Identity, "Index out of range");
+      end if;
    end Vector;
 
    ------------------
@@ -2220,45 +2305,83 @@ package body Templates_Parser is
    -- Field --
    -----------
 
-   function Field
-     (Vect_Value : in Vector_Tag;
-      N          : in Positive)
-      return String
-   is
-      P : Vector_Tag_Node_Access := Vect_Value.Head;
+   procedure Field
+     (Vect   : in     Vector_Tag;
+      N      : in     Positive;
+      Result :    out Unbounded_String;
+      Found  :    out Boolean) is
    begin
-      if N = Vect_Value.Count then
-         return To_String (Vect_Value.Last.Value);
+      Found := True;
 
-      elsif N > Vect_Value.Count then
-         return "";
+      if N = Vect.Count then
+         Result := Vect.Last.Value;
+
+      elsif N > Vect.Count then
+         Result := Null_Unbounded_String;
+         Found  := False;
+
+      elsif N >= Vect.Pos.all then
+
+         for K in 1 .. N - Vect.Pos.all loop
+            Vect.Pos.all     := Vect.Pos.all + 1;
+            Vect.Current.all := Vect.Current.all.Next;
+         end loop;
+
+         Result := Vect.Current.all.Value;
 
       else
-         for K in 1 .. N - 1 loop
-            P := P.Next;
-         end loop;
-         return To_String (P.Value);
+         declare
+            P : Vector_Tag_Node_Access := Vect.Head;
+         begin
+            for K in 1 .. N - 1 loop
+               P := P.Next;
+            end loop;
+
+            Vect.Pos.all     := N;
+            Vect.Current.all := P;
+
+            Result := P.Value;
+         end;
       end if;
    end Field;
 
-   function Field
-     (Mat_Value : in Matrix_Tag;
-      I, J      : in Natural)
-      return String
-   is
-      P : Matrix_Tag_Node_Access := Mat_Value.M.Head;
+   procedure Field
+     (Matrix : in     Matrix_Tag;
+      I, J   : in     Natural;
+      Result :    out Unbounded_String;
+      Found  :    out Boolean) is
    begin
-      if I = Mat_Value.M.Count then
-         return Field (Mat_Value.M.Last.Vect, J);
+      Found := True;
 
-      elsif I > Mat_Value.M.Count then
-         return "";
+      if I = Matrix.M.Count then
+         Field (Matrix.M.Last.Vect, J, Result, Found);
+
+      elsif I > Matrix.M.Count then
+         Result := Null_Unbounded_String;
+         Found  := False;
+
+      elsif I >= Matrix.M.Pos.all then
+
+         for K in 1 .. I - Matrix.M.Pos.all loop
+            Matrix.M.Pos.all     := Matrix.M.Pos.all + 1;
+            Matrix.M.Current.all := Matrix.M.Current.all.Next;
+         end loop;
+
+         Field (Matrix.M.Current.all.Vect, J, Result, Found);
 
       else
-         for K in 1 .. I - 1 loop
-            P := P.Next;
-         end loop;
-         return Field (P.Vect, J);
+         declare
+            P : Matrix_Tag_Node_Access := Matrix.M.Head;
+         begin
+            for K in 1 .. I - 1 loop
+               P := P.Next;
+            end loop;
+
+            Matrix.M.Pos.all     := I;
+            Matrix.M.Current.all := P;
+
+            Field (P.Vect, J, Result, Found);
+         end;
       end if;
    end Field;
 
@@ -3389,7 +3512,6 @@ package body Templates_Parser is
                return Image (A.Mat_Value.M.Max);
             end Mat_Max_Column;
 
-
          begin
             for K in Translations'Range loop
                if Var.Name = Translations (K).Variable then
@@ -3427,8 +3549,13 @@ package body Templates_Parser is
                               return Translate (Var, Vect_List (Tk));
 
                            else
-                              return Translate
-                                (Var, Field (Tk.Vect_Value, State.J));
+                              declare
+                                 Result : Unbounded_String;
+                                 Found  : Boolean;
+                              begin
+                                 Field (Tk.Vect_Value, State.J, Result, Found);
+                                 return Translate (Var, To_String (Result));
+                              end;
                            end if;
 
                         when Matrix =>
@@ -3457,9 +3584,14 @@ package body Templates_Parser is
                               return Translate (Var, Mat_List (Tk));
 
                            else
-                              return Translate (Var,
-                                                Field (Tk.Mat_Value,
-                                                       State.I, State.J));
+                              declare
+                                 Result : Unbounded_String;
+                                 Found  : Boolean;
+                              begin
+                                 Field (Tk.Mat_Value, State.I, State.J,
+                                        Result, Found);
+                                 return Translate (Var, To_String (Result));
+                              end;
                            end if;
                      end case;
                   end;
