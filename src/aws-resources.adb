@@ -40,23 +40,26 @@ package body AWS.Resources is
    use Ada;
 
    procedure Free is
-      new Ada.Unchecked_Deallocation (Resources.File_Type'Class, File_Access);
+      new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
 
    -----------
    -- Close --
    -----------
 
-   procedure Close (Resource : in out File_Access) is
+   procedure Close (Resource : in out File_Type) is
    begin
       Close (Resource.all);
       Free (Resource);
    end Close;
 
-   procedure Close (Resource : in File_Type) is
-      pragma Unreferenced (Resource);
+   -----------------
+   -- End_Of_File --
+   -----------------
+
+   function End_Of_File (Resource : in File_Type) return Boolean is
    begin
-      null;
-   end Close;
+      return End_Of_File (Resource.all);
+   end End_Of_File;
 
    ---------------
    -- File_Size --
@@ -88,6 +91,18 @@ package body AWS.Resources is
       end if;
    end File_Timestamp;
 
+   --------------
+   -- Get_Line --
+   --------------
+
+   procedure Get_Line
+     (Resource  : in out File_Type;
+      Buffer    :    out String;
+      Last      :    out Natural) is
+   begin
+      Get_Line (Resource.all, Buffer, Last);
+   end Get_Line;
+
    ---------------------
    -- Is_Regular_File --
    ---------------------
@@ -108,7 +123,7 @@ package body AWS.Resources is
    ----------
 
    procedure Open
-     (File :    out File_Access;
+     (File :    out File_Type;
       Name : in     String;
       Form : in     String    := "") is
    begin
@@ -119,5 +134,17 @@ package body AWS.Resources is
          Resources.Files.Open (File, Name, Form);
       end if;
    end Open;
+
+   ----------
+   -- Read --
+   ----------
+
+   procedure Read
+     (Resource : in out File_Type;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset) is
+   begin
+      Read (Resource.all, Buffer, Last);
+   end Read;
 
 end AWS.Resources;
