@@ -31,27 +31,45 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Text_IO;
+with Ada.Unchecked_Conversion;
+with Interfaces.C;
 
-with Sockets;
-
---  withed units there are there to work around a bug in GNAT 3.12. These
---  withed can be removed with GNAT 3.13.
+with Sockets.Thin;
+with Sockets.Naming;
 
 with AWS.Net;
-with AWS.Messages;
-with AWS.Status;
-with AWS.Server.Get_Status;
-with AWS.Session;
 
 package body AWS.Server is
 
    use Ada;
+
+   protected File_Upload_UID is
+      procedure Get (ID : out Natural);
+      --  returns a UID for file upload. This is to ensure that files
+      --  coming from clients will always have different name.
+   private
+      UID : Natural := 0;
+   end File_Upload_UID;
 
    procedure Protocol_Handler
      (Sock        : in     Sockets.Socket_FD'Class;
       HTTP_Server : in out HTTP;
       Index       : in     Positive);
    --  handle the line, this is where the HTTP protocol is defined.
+
+   ---------------------
+   -- File_Upload_UID --
+   ---------------------
+
+   protected body File_Upload_UID is
+
+      procedure Get (ID : out Natural) is
+      begin
+         ID := UID;
+         UID := UID + 1;
+      end Get;
+
+   end File_Upload_UID;
 
    -----------
    -- Start --
@@ -119,6 +137,15 @@ package body AWS.Server is
       begin
          Set (Index).Abortable := Flag;
       end Set_Abortable;
+
+      ------------------
+      -- Set_Peername --
+      ------------------
+
+      procedure Set_Peername (Index : in Positive; Peername : in String) is
+      begin
+         Set (Index).Peername := To_Unbounded_String (Peername);
+      end Set_Peername;
 
       ------------------------
       -- Mark_Activity_Time --
@@ -214,6 +241,15 @@ package body AWS.Server is
          return Count > 0;
       end Free;
 
+      ------------------
+      -- Get_Peername --
+      ------------------
+
+      function Get_Peername (Index : in Positive) return String is
+      begin
+         return To_String (Set (Index).Peername);
+      end Get_Peername;
+
    end Slots;
 
 
@@ -256,6 +292,34 @@ package body AWS.Server is
       HTTP_Server : HTTP_Access;
       Slot_Index  : Positive;
 
+      function Get_Peername (Sock : in Sockets.Socket_FD) return String;
+      --  Returns the peername for Sock.
+
+      function Get_Peername (Sock : in Sockets.Socket_FD)
+         return String
+      is
+         package C renames Interfaces.C;
+         use type C.int;
+         use Sockets;
+
+         Sockaddr    : aliased Thin.Sockaddr;
+         Sockaddr_In : Thin.Sockaddr_In;
+
+         function To_Sockaddr_In is new
+           Ada.Unchecked_Conversion (Thin.Sockaddr, Thin.Sockaddr_In);
+
+         Len      : aliased C.int := Thin.Sockaddr'Size / 8;
+         Result   : C.int;
+      begin
+         Result := Sockets.Thin.C_Getpeername (Sockets.Get_FD (Sock),
+                                               Sockaddr'Unchecked_Access,
+                                               Len'Unchecked_Access);
+
+         Sockaddr_In := To_Sockaddr_In (Sockaddr);
+
+         return Sockets.Naming.Image (Sockaddr_In.Sin_Addr);
+      end Get_Peername;
+
    begin
 
       select
@@ -280,6 +344,10 @@ package body AWS.Server is
          begin
             begin
                HTTP_Server.Slots.Get (Sockets.Socket_FD (Sock), Slot_Index);
+
+               HTTP_Server.Slots.Set_Peername
+                 (Slot_Index,
+                  Get_Peername (Sockets.Socket_FD (Sock)));
 
                Protocol_Handler (Sock, HTTP_Server.all, Slot_Index);
 
