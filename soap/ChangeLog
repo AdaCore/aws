@@ -1,3 +1,33 @@
+2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.adb, soap-generator-stub.adb, soap-generator-skel.adb:
+	Many fixes in generated code to have proper support for
+	 enumeration objects.
+
+	* soap-message-xml.adb:
+	(Parse_Enumeration): New routine.
+	(Parse_Param): Add enumeration handling.
+	(Parse_Record): Use proper enumeration constructor.
+
+	* soap-parameters.ads, soap-parameters.adb:
+	(Get) [Long_Long_Float]: New routine.
+
+	* soap-types.adb:
+	(XSD_Enumeration): Renamed SOAP_Enumeration.
+	(XML_Image) [SOAP_Enumeration]: Fix indentation.
+	
+	* soap-types.ads:
+	(XSD_Enumeration): Renamed to SOAP_Enumeration.
+
+	* soap-utils.ads, soap-utils.adb:
+	(Get): New routine to return the string representation of an
+	 enumeration.
+	(V) [Types.SOAP_Enumeration]: A character is an enumeration,
+	 change parameter.
+
+	* soap-wsdl.adb:
+	(Set_Type): For P_Character returns SOAP_Enumeration.
+
 2003-11-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-client.adb:
