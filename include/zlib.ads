@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                      ZLib for Ada thick binding.                         --
 --                                                                          --
---              Copyright (C) 2002-2003 Dmitriy Anisimkov                   --
+--              Copyright (C) 2002-2004 Dmitriy Anisimkov                   --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -92,6 +92,14 @@ package ZLib is
    --  Flushing may degrade compression for some compression algorithms and so
    --  it should be used only when necessary.
 
+   Block_Flush   : constant Flush_Mode;
+   --  Z_BLOCK requests that inflate() stop
+   --  if and when it get to the next deflate block boundary. When decoding the
+   --  zlib or gzip format, this will cause inflate() to return immediately
+   --  after the header and before the first block. When doing a raw inflate,
+   --  inflate() will go ahead and process the first block, and will return
+   --  when it gets to the end of that block, or when it runs out of data.
+
    Full_Flush    : constant Flush_Mode;
    --  All output is flushed as with SYNC_FLUSH, and the compression state
    --  is reset so that decompression can restart from this point if previous
@@ -152,6 +160,10 @@ package ZLib is
    --  Note that header types parameter values None, GZip and Auto are
    --  supported for inflate routine only in ZLib versions 1.2.0.2 and later.
    --  Deflate_Init is supporting all header types.
+
+   function Is_Open (Filter : in Filter_Type) return Boolean;
+   pragma Inline (Is_Open);
+   --  Is the filter opened for compression or decompression.
 
    procedure Close
      (Filter       : in out Filter_Type;
@@ -264,23 +276,24 @@ package ZLib is
    --  Compress/Decompress data from generic parameter procedure Read to the
    --  Item. User should provide Buffer for the operation and Rest_First
    --  variable first time initialized to the Buffer'Last + 1.
+   --  Read routines could return Last < Item'Last only at end of stream.
 
 private
 
    use Ada.Streams;
 
-   type Flush_Mode is new Integer range 0 .. 4;
+   type Flush_Mode is new Integer range 0 .. 5;
 
    type Compression_Method is new Integer range 8 .. 8;
 
    type Strategy_Type is new Integer range 0 .. 3;
 
    No_Flush      : constant Flush_Mode := 0;
+   Partial_Flush : constant Flush_Mode := 1;
    Sync_Flush    : constant Flush_Mode := 2;
    Full_Flush    : constant Flush_Mode := 3;
    Finish        : constant Flush_Mode := 4;
-   Partial_Flush : constant Flush_Mode := 1;
-   --  will be removed, use Z_SYNC_FLUSH instead
+   Block_Flush   : constant Flush_Mode := 5;
 
    Filtered         : constant Strategy_Type := 1;
    Huffman_Only     : constant Strategy_Type := 2;
