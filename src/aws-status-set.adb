@@ -200,6 +200,17 @@ package body AWS.Status.Set is
    end Peername;
 
    -------------
+   -- Referer --
+   -------------
+
+   procedure Referer
+     (D                 : in out Data;
+      Referer : in     String) is
+   begin
+      D.Referer := To_Unbounded_String (Referer);
+   end Referer;
+
+   -------------
    -- Request --
    -------------
 
@@ -275,5 +286,16 @@ package body AWS.Status.Set is
    begin
       D.Socket := Sock;
    end Socket;
+
+   ----------------
+   -- User_Agent --
+   ----------------
+
+   procedure User_Agent
+     (D          : in out Data;
+      User_Agent : in     String) is
+   begin
+      D.User_Agent := To_Unbounded_String (User_Agent);
+   end User_Agent;
 
 end AWS.Status.Set;
