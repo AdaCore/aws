@@ -41,7 +41,9 @@ package AWS.Communication is
 
    function Parameters (P1, P2, P3, P4, P5 : in String := "")
      return Parameter_Set;
-   --  Constructor function to help create a Parameter_Set
+   --  Constructor function to help create a Parameter_Set. This function will
+   --  return a Parameter_Set array containing any parameter with a non emptry
+   --  string value.
 
 private
 
