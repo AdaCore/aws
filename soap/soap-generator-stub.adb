@@ -159,7 +159,7 @@ package body Stub is
             begin
                Text_IO.Put_Line
                  (Stub_Adb,
-                  "To_" & Name & " (V ");
+                  "+To_" & Name & " (V ");
                Text_IO.Put_Line
                  (Stub_Adb,
                   "                       "
