@@ -121,8 +121,8 @@ Here are the main changes since AWS 1.3 :
    - Templates_Parser use lot less stack space than before while parsing a
      template file. It is now possible to parse very large template file.
 
-   - Important Templates_Parser speed-up for template files containing large
-     vector or matrix tags.
+   - Important Templates_Parser speed-up (between x10 and x15) for template
+     files containing large vector or matrix tags.
 
    - Slots activity counters are updated only if an answer as been handled.
 
@@ -137,7 +137,12 @@ Here are the main changes since AWS 1.3 :
      for requests taking a long time without loosing the keep-alive status
      and without blocking server's resources.
 
-   - Plus many small fixes, enhancements and documentation work.
+   - Support for memory streams and compressed memory streams (deflate /
+     inflate) based on ZLib library.
+
+   - Add routines to compress / decompress a Stream_Element_Array.
+
+   - Plus many small fixes, enhancements, API comments, and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
 probably implement in future releases.
