@@ -96,7 +96,7 @@ package body AWS.Server is
 
    function Accept_Socket_Serialized
      (Server : in HTTP_Access)
-     return Sockets.Socket_FD'Class is
+      return Sockets.Socket_FD'Class is
    begin
       Server.Sock_Sem.Seize;
 
@@ -188,6 +188,10 @@ package body AWS.Server is
    ---------------------
 
    protected body File_Upload_UID is
+
+      ---------
+      -- Get --
+      ---------
 
       procedure Get (ID : out Natural) is
       begin
@@ -345,32 +349,6 @@ package body AWS.Server is
      (HTTP_Server : in out HTTP;
       Index       : in     Positive) is separate;
 
-   ---------------
-   -- Semaphore --
-   ---------------
-
-   protected body Semaphore is
-
-      -------------
-      -- Release --
-      -------------
-
-      procedure Release is
-      begin
-         Seized := False;
-      end Release;
-
-      -----------
-      -- Seize --
-      -----------
-
-      entry Seize when not Seized is
-      begin
-         Seized := True;
-      end Seize;
-
-   end Semaphore;
-
    ---------
    -- Set --
    ---------
@@ -381,8 +359,13 @@ package body AWS.Server is
    is
       Old : Dispatchers.Handler_Class_Access := Web_Server.Dispatcher;
    begin
+      Web_Server.Dispatcher_Sem.Write;
+
       Web_Server.Dispatcher :=
-         new Dispatchers.Handler'Class'(Dispatcher);
+        new Dispatchers.Handler'Class'(Dispatcher);
+
+      Web_Server.Dispatcher_Sem.Release_Write;
+
       Free (Old);
    end Set;
 
@@ -805,8 +788,7 @@ package body AWS.Server is
 
       Web_Server.Sock := Accepting_Socket;
 
-      Web_Server.Dispatcher :=
-         new Dispatchers.Handler'Class'(Dispatcher);
+      Web_Server.Dispatcher := new Dispatchers.Handler'Class'(Dispatcher);
 
       --  Initialize slots
 
