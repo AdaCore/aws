@@ -1,0 +1,23 @@
+Start main, wait for server to start...
+Server started
+
+SOAPAction : /mul
+SOAP_Proc : multProc
+Result =  6
+SOAPAction : /mul
+SOAP_Proc : multProc
+Result =  81
+SOAPAction : /mul
+SOAP_Proc : multProc
+Result =  730
+SOAPAction : 
+Get : This is not a SOAP request : /this/resource
+SOAPAction : /add
+SOAP_Proc : addProc
+Result =  5
+SOAPAction : /add
+SOAP_Proc : addProc
+Result =  18
+SOAPAction : /add
+SOAP_Proc : addProc
+Result =  83
