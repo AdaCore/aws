@@ -32,11 +32,13 @@
 
 with Ada.Streams;
 
+with AWS.Resources.Streams.Memory;
+
 package AWS.Resources.Embedded is
 
    use Ada;
 
-   type Buffer_Access is access constant Streams.Stream_Element_Array;
+   subtype Buffer_Access is Streams.Memory.Buffer_Access;
 
    procedure Open
      (File :    out File_Type;
