@@ -1,5 +1,16 @@
 2001-11-22  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-response.ads:
+	(Data): is now a controlled type to be able to free the memory
+	 used for the binary data.
+	(Adjust): new procedure.
+	(Finalize): new procedure.
+	
+	* aws-response.adb:
+	Fix all aggregates since Data is now a controlled type.
+	(Adjust): new procedure.
+	(Finalize): new procedure.
+
 	* aws-client.adb:
 	(Get_Response): use MIME.Is_Text to correctly handle textual and
 	 non textual data.
