@@ -1,3 +1,16 @@
+2002-10-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* test_uconv.adb:
+	Fix layout and comment.
+
+	* aws-services-page_server.adb: 
+	(Spaces): Removed.
+	(Callback): Do not add 512 bytes to the 404 templates. Add
+	 explicit documentation about MSIE feature.
+
+	* aws-services-page_server.ads:
+	Add comments about MSIE 404 page.
+
 2002-10-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-translator-binary-f.adb, aws-translator-binary-p.adb:
