@@ -404,6 +404,7 @@ package body AWS.LDAP.Client is
 
    procedure Free (Chain : in LDAP_Message) is
       Res : IC.int;
+      pragma Unreferenced (Res);
    begin
       Res := Thin.ldap_msgfree (Chain);
    end Free;
@@ -743,6 +744,7 @@ package body AWS.LDAP.Client is
 
    procedure Unbind (Dir : in out Directory) is
       Res : IC.int;
+      pragma Unreferenced (Res);
    begin
       if Is_Open (Dir) then
          Res := Thin.ldap_unbind_s (Dir);
