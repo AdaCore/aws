@@ -1,0 +1,118 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                            Copyright (C) 2000                            --
+--                               Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $Id$
+
+with AWS.Client;
+
+package body AWS.Hotplug is
+
+   procedure Adjust (Filters : in out Filter_Set);
+   --  Check that the filter set is large enough to receive a new value. If it
+   --  is not, filter set will be ajusted.
+
+   ------------
+   -- Adjust --
+   ------------
+
+   procedure Adjust (Filters : in out Filter_Set) is
+      Old_Set : Filter_Array_Access;
+   begin
+      if Filters.Set = null then
+         Filters.Set := new Filter_Array (1 .. 10);
+
+      elsif Filters.Set'Length <= Filters.Count then
+         Old_Set := Filters.Set;
+         Filters.Set := new Filter_Array (1 .. Filters.Count + 5);
+         Filters.Set.all (Old_Set'Range) := Old_Set.all;
+      end if;
+   end Adjust;
+
+   -----------
+   -- Apply --
+   -----------
+
+   procedure Apply
+     (Filters : in     Filter_Set;
+      URI     : in     String;
+      Found   :    out Boolean;
+      Data    :    out Response.Data) is
+   begin
+      Found := False;
+
+      Look_For_Filters:
+      for K in 1 .. Filters.Count loop
+
+         if GNAT.Regexp.Match (URI, Filters.Set (K).Regexp) then
+            --  we must call the registered server to get the Data.
+
+            Data := Client.Get (To_String (Filters.Set (K).URL)
+                                & URI (URI'First + 1 .. URI'Last));
+            Found := True;
+            exit Look_For_Filters;
+         end if;
+
+      end loop Look_For_Filters;
+   end Apply;
+
+   --------------
+   -- Register --
+   --------------
+
+   procedure Register
+     (Filters : in out Filter_Set;
+      Regexp  : in     String;
+      URL     : in     String) is
+   begin
+      Adjust (Filters);
+      Filters.Count := Filters.Count + 1;
+      Filters.Set (Filters.Count) := (To_Unbounded_String (Regexp),
+                                      GNAT.Regexp.Compile (Regexp),
+                                      To_Unbounded_String (URL));
+   end Register;
+
+   ----------------
+   -- Unregister --
+   ----------------
+
+   procedure Unregister
+     (Filters : in out Filter_Set;
+      Regexp  : in String) is
+   begin
+      for K in 1 .. Filters.Count loop
+         if To_String (Filters.Set (K).Regexp_Str) = Regexp then
+            Filters.Set (K .. Filters.Count - 1) :=
+              Filters.Set (K + 1 .. Filters.Count);
+            Filters.Count := Filters.Count - 1;
+            exit;
+         end if;
+      end loop;
+   end Unregister;
+
+end AWS.Hotplug;
+
