@@ -4,6 +4,7 @@
 	(Create): Do not connect to server, for be able to call
 	 Set_Proxy_Authentication before socket connection.
 	(Get_Certificate): Make socket connection if necessary.
+	(Connect): Call Do_Handshake after socket conversion.
 
 	* aws-net-ssl.ads:
 	(Secure_Client): Update comments.

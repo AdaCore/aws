@@ -48,7 +48,6 @@ with AWS.Messages;
 with AWS.MIME;
 with AWS.Net.Buffered;
 with AWS.Net.SSL;
-with AWS.Net.Std;
 with AWS.OS_Lib;
 with AWS.Response.Set;
 with AWS.Translator;
@@ -213,7 +212,7 @@ package body AWS.Client is
       end if;
 
       Net.Connect
-        (Connection.Socket.all,
+        (Sock.all,
          AWS.URL.Host (Connect_URL), AWS.URL.Port (Connect_URL));
 
       Connection.Opened := True;
@@ -301,12 +300,15 @@ package body AWS.Client is
             procedure Free is new Ada.Unchecked_Deallocation
               (Net.Socket_Type'Class, Net.Socket_Access);
 
-            S : constant Net.Std.Socket_Type
-              := Net.Std.Socket_Type (Sock.all);
+            SS : Net.SSL.Socket_Type := Net.SSL.Secure_Client (Sock.all);
          begin
             Free (Sock);
-            Sock := new Net.SSL.Socket_Type'(Net.SSL.Secure_Client (S));
-            Connection.Socket := Sock;
+            Connection.Socket := new Net.SSL.Socket_Type'(SS);
+
+            --  Do explicit handshake for be able to get server certificate
+            --  after connect.
+
+            Net.SSL.Do_Handshake (SS);
          end;
       end if;
 
