@@ -31,7 +31,9 @@
 --  $Id$
 
 --  This package is to be used to build answer to be sent to the client
---  browser.
+--  browser. It is also used as the object returned from the client API. So
+--  it is either a response built on the server side or the response received
+--  on the client side.
 
 with Ada.Strings.Unbounded;
 with Ada.Streams;
@@ -51,6 +53,10 @@ package AWS.Response is
 
    type Data is private;
    --  Note that this type use a reference counter which is not thread safe.
+
+   type Callback is access function (Request : in Status.Data) return Data;
+   --  This is the Web Server Callback procedure. A client must declare and
+   --  pass such procedure to the HTTP record.
 
    type Data_Mode is (Header, Message, File, Stream, Socket_Taken, No_Data);
 
@@ -77,9 +83,9 @@ package AWS.Response is
    --  This is the message that will be displayed on the Web Browser if the
    --  authentication process fails or is cancelled.
 
-   ------------------
-   -- Constructors --
-   ------------------
+   -----------------------
+   -- Data Constructors --
+   -----------------------
 
    function Build
      (Content_Type  : in String;
@@ -107,6 +113,38 @@ package AWS.Response is
       return Data;
    --  Idem above, but the message body is a stream element array.
 
+   function File
+     (Content_Type  : in String;
+      Filename      : in String;
+      Status_Code   : in Messages.Status_Code  := Messages.S200;
+      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
+      return Data;
+   --  Returns a message whose message body is the content of the file. The
+   --  Content_Type must indicate the MIME type for the file.
+
+   function Stream
+     (Content_Type  : in     String;
+      Handle        : access Resources.Streams.Stream_Type'Class;
+      Status_Code   : in     Messages.Status_Code   := Messages.S200;
+      Cache_Control : in     Messages.Cache_Option  := Messages.No_Cache)
+      return Data;
+   --  Returns a message whose message body is the content of the user
+   --  defined stream. The Content_Type must indicate the MIME type for
+   --  the data stream, Stream_Size the total number of bytes and Status_Code
+   --  the header status code which should be send back to client's browser.
+
+   procedure Create_Resource
+     (D    : in     Data;
+      File :    out AWS.Resources.File_Type);
+   pragma Inline (Create_Resource);
+   --  Creates the resource object (either a file or in-memory object) for
+   --  the data to be sent to the client. The resource should be closed after
+   --  use.
+
+   ------------------------------
+   -- Redirection Constructors --
+   ------------------------------
+
    function URL (Location : in String) return Data;
    --  This ask the server for a redirection to the specified URL.
 
@@ -116,6 +154,10 @@ package AWS.Response is
       return Data;
    --  This send back a moved message (Messages.S301) with the specified
    --  message body.
+
+   ------------------------
+   -- Other Constructors --
+   ------------------------
 
    function Acknowledge
      (Status_Code  : in Messages.Status_Code;
@@ -137,26 +179,6 @@ package AWS.Response is
    --  will then ask for an authentification. Realm string will be displayed
    --  by the Web Browser in the authentification dialog box.
 
-   function File
-     (Content_Type  : in String;
-      Filename      : in String;
-      Status_Code   : in Messages.Status_Code  := Messages.S200;
-      Cache_Control : in Messages.Cache_Option := Messages.Unspecified)
-      return Data;
-   --  Returns a message whose message body is the content of the file. The
-   --  Content_Type must indicate the MIME type for the file.
-
-   function Stream
-     (Content_Type  : in     String;
-      Handle        : access Resources.Streams.Stream_Type'Class;
-      Status_Code   : in     Messages.Status_Code   := Messages.S200;
-      Cache_Control : in     Messages.Cache_Option  := Messages.No_Cache)
-      return Data;
-   --  Returns a message whose message body is the content of the user
-   --  defined stream. The Content_Type must indicate the MIME type for
-   --  the data stream, Stream_Size the total number of bytes and Status_Code
-   --  the header status code which should be send back to client's browser.
-
    function Socket_Taken return Data;
    --  Must be used to say that the connection socket has been taken by user
    --  inside of user callback. No operations should be performed on this
@@ -168,9 +190,13 @@ package AWS.Response is
    --  with the request. This is used by the callback's chain in the
    --  dispatcher and should not be used by users.
 
-   ---------------
-   -- Other API --
-   ---------------
+   --
+   --  API to retrieve response data
+   --
+
+   ------------
+   -- Header --
+   ------------
 
    function Header
      (D    : in Data;
@@ -192,18 +218,6 @@ package AWS.Response is
    pragma Inline (Send_Header);
    --  Send all header lines to the socket.
 
-   function Mode (D : in Data) return Data_Mode;
-   pragma Inline (Mode);
-   --  Returns the data mode, either Header, Message or File.
-
-   function Authentication (D : in Data) return Authentication_Mode;
-   pragma Inline (Authentication);
-   --  Returns the authentication mode requested by server.
-
-   function Authentication_Stale (D : in Data) return Boolean;
-   pragma Inline (Authentication_Stale);
-   --  Returns the stale parameter for authentication.
-
    function Status_Code (D : in Data) return Messages.Status_Code;
    pragma Inline (Status_Code);
    --  Returns the status code.
@@ -221,14 +235,18 @@ package AWS.Response is
    pragma Inline (Cache_Control);
    --  Returns the cache control specified for the response
 
-   function Filename (D : in Data) return String;
-   pragma Inline (Filename);
-   --  Returns the filename which should be sent back.
-
    function Location (D : in Data) return String;
    pragma Inline (Location);
    --  Returns the location for the new page in the case of a moved
    --  message. See Moved constructor above.
+
+   ----------
+   -- Data --
+   ----------
+
+   function Mode (D : in Data) return Data_Mode;
+   pragma Inline (Mode);
+   --  Returns the data mode, either Header, Message or File.
 
    function Message_Body (D : in Data) return String;
    pragma Inline (Message_Body);
@@ -244,21 +262,25 @@ package AWS.Response is
    pragma Inline (Message_Body);
    --  Returns message body as a binary content.
 
-   procedure Create_Resource
-     (File :    out AWS.Resources.File_Type;
-      D    : in     Data);
-   pragma Inline (Create_Resource);
-   --  Creates the resource object (either a file or in-memory object) for
-   --  the data to be sent to the client. The resource should be closed after
-   --  use.
+   function Filename (D : in Data) return String;
+   pragma Inline (Filename);
+   --  Returns the filename which should be sent back.
+
+   --------------------
+   -- Authentication --
+   --------------------
 
    function Realm (D : in Data) return String;
    pragma Inline (Realm);
    --  Returns the Realm for the current authentification request.
 
-   type Callback is access function (Request : in Status.Data) return Data;
-   --  This is the Web Server Callback procedure. A client must declare and
-   --  pass such procedure to the HTTP record.
+   function Authentication (D : in Data) return Authentication_Mode;
+   pragma Inline (Authentication);
+   --  Returns the authentication mode requested by server.
+
+   function Authentication_Stale (D : in Data) return Boolean;
+   pragma Inline (Authentication_Stale);
+   --  Returns the stale parameter for authentication.
 
 private
 
@@ -283,18 +305,18 @@ private
      & "</BODY></HTML>" & CRLF;
 
    Undefined_Length : constant Content_Length_Type
-     := Integer (Resources.Undefined_Length);
+     := Content_Length_Type (Resources.Undefined_Length);
 
    type Natural_Access is access Natural;
 
    type Data is new Ada.Finalization.Controlled with record
-      Ref_Counter    : Natural_Access;
-      Mode           : Data_Mode            := No_Data;
-      Status_Code    : Messages.Status_Code := Messages.S200;
-      Filename       : Unbounded_String;
-      Stream         : Resources.Streams.Stream_Access;
-      Message_Body   : Utils.Stream_Element_Array_Access;
-      Header         : AWS.Headers.List;
+      Ref_Counter  : Natural_Access;
+      Mode         : Data_Mode            := No_Data;
+      Status_Code  : Messages.Status_Code := Messages.S200;
+      Filename     : Unbounded_String;
+      Stream       : Resources.Streams.Stream_Access;
+      Message_Body : Utils.Stream_Element_Array_Access;
+      Header       : AWS.Headers.List;
    end record;
 
    procedure Initialize (Object : in out Data);
