@@ -266,7 +266,7 @@ AWS Home Page (sources and printable documentations in Postscript and PDF):
 
 Templates_Parser sources: 
    Templates_Parser module (sources and documentation) is provided with AWS
-   distribution. Version 6.2 is distributed with AWS 1.4.
+   distribution. Version 7.5 is distributed with AWS 2.0.
 
    Latest version of this module and the documentation can be found at:
 
