@@ -35,9 +35,23 @@ all:
 	echo ""
 
 ../src/aws-os_lib.adb:
-	cp ../config/aws-os_lib__gnat.adb ../src/aws-os_lib.adb
+	$(CP) ../config/aws-os_lib__gnat.adb ../src/aws-os_lib.adb
 
 build: ../src/aws-os_lib.adb $(UNITS)
 
 clean:
-	-rm -f *.o *.ali
+	-$(RM) -f *.o *.ali
+
+#############################################################################
+# Configuration for GNAT Projet Files
+
+gbuild:
+	gnatmake -Psrc_include -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+
+gsetup:
+	-$(MKDIR) -p ../.build/debug/include
+	-$(MKDIR) -p ../.build/release/include
+
+gclean: clean
+	$(RM) -fr ../.build/debug/include
+	$(RM) -fr ../.build/release/include

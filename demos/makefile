@@ -2,8 +2,10 @@
 # $Id$
 
 .SILENT: all auth runme agent ws wps clean soap hotplug com_1 com_2 hello_world
-.SILENT: main vh_demo dispatch text_input res_demo test_ldap
-.SILENT: build_res build_std build_soap
+.SILENT: main vh_demo dispatch text_input res_demo test_ldap test_jabber
+.SILENT: build_res build_std build_soap soap_client soap_server soap_svs
+.SILENT: soap_cvs wsdl_demo_client wsdl_demo_server interoplab_main 
+.SILENT: soap_server_disp build_wsdl
 
 GFLAGSY = $(patsubst -gnatwe -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnoprt,$(GFLAGS))
 # We do not want to check for separate spec for the demos (s option).
@@ -57,12 +59,12 @@ $(DEMOS): force
 
 build_res:
 	echo Generate resources for res_demo
-	../tools/awsres -q -r rdemo adains.png page3.html
+	$(AWSRES) -q -r rdemo adains.png page3.html
 
 build_wsdl:
 	echo Generate stub/skel from WSDL documents
-	../tools/wsdl2aws -q -f -doc hello.wsdl
-	../tools/wsdl2aws -q -f -doc -noskel interoplab_main.wsdl
+	$(WSDL2AWS) -q -f -doc hello.wsdl
+	$(WSDL2AWS) -q -f -doc -noskel interoplab_main.wsdl
 
 force:
 
@@ -73,5 +75,32 @@ test_ldap: force
 build_soap: $(SOAP_DEMOS)
 
 clean:
-	-rm -f *.o *.ali $(ALL_EXEC) b~*.* *.~*.*.~ rdemo*
-	-rm -f runme-*.log hello_demo*
+	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.* *.~*.*.~ rdemo*
+	-$(RM) -f runme-*.log hello_demo*
+
+#############################################################################
+# Configuration for GNAT Projet Files
+
+ifeq (${PRJ_BUILD}, Debug)
+AWSRES	 = ../.build/debug/tools/awsres
+WSDL2AWS = ../.build/debug/tools/wsdl2aws
+else
+ifeq (${PRJ_BUILD}, Release)
+AWSRES   = ../.build/release/tools/awsres
+WSDL2AWS = ../.build/release/tools/wsdl2aws
+else
+AWSRES   = ../tools/awsres
+WSDL2AWS = ../tools/wsdl2aws
+endif
+endif
+
+gsetup: 
+	-$(MKDIR) -p ../.build/debug/demos/obj
+	-$(MKDIR) -p ../.build/release/demos/obj
+
+gbuild: build_res build_wsdl
+	gnatmake -Pdemos -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+
+gclean:
+	$(RM) -fr ../.build/debug/demos
+	$(RM) -fr ../.build/release/demos

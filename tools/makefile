@@ -22,4 +22,18 @@ $(TOOLS): force
 	gnatmake $(GARGS) $@ -largs -s $(LIBS)
 
 clean:
-	-rm -f *.o *.ali $(ALL_EXEC) b~*.ad[sb]
+	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.ad[sb]
+
+#############################################################################
+# Configuration for GNAT Projet Files
+
+gsetup: 
+	$(MKDIR) -p ../.build/debug/tools/obj
+	$(MKDIR) -p ../.build/release/tools/obj
+
+gbuild:
+	gnatmake -Ptools -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+
+gclean:
+	$(RM) -fr ../.build/debug/tools
+	$(RM) -fr ../.build/release/tools

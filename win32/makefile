@@ -38,3 +38,12 @@ aws.coff: aws.rc
 
 clean:
 	-rm -f *.a *~ aws.coff
+
+#############################################################################
+# Configuration for GNAT Projet Files
+
+gsetup: 
+
+gbuild: build
+
+gclean: clean
