@@ -1,3 +1,18 @@
+2003-11-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-stub.adb:
+	(Output_Array): Add recursive call to generate all parameters. Fix
+	 a bug where generation stopped after the first array.
+	(Output_Record): Idem. Fix a bug where generation stopped after
+	 the first record. 
+	Merge from HEAD.
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Prefix record and arrays with the name of the
+	 variable. Fix code generation when more than one array or record
+	 is passed to a routine.
+	Merge from HEAD.
+	
 2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
