@@ -235,28 +235,28 @@ begin
      (WS, UEH'Unrestricted_Access);
 
    Server.Start
-     (WS, "tlog", CB'Unrestricted_Access, Port => 1246, Max_Connection => 2);
+     (WS, "tlog", CB'Unrestricted_Access, Port => 1251, Max_Connection => 2);
 
    Server.Start_Log (WS);
    Server.Start_Error_Log (WS);
 
    Ada.Text_IO.Put_Line ("started");
 
-   R := Client.Get ("http://localhost:1246/one");
-   R := Client.Get ("http://localhost:1246/azerty");
-   R := Client.Get ("http://localhost:1246/file");
-   R := Client.Get ("http://localhost:1246/one");
-   R := Client.Get ("http://localhost:1246/file");
-   R := Client.Get ("http://localhost:1246/error");
-   R := Client.Get ("http://localhost:1246/azerty");
-   R := Client.Get ("http://localhost:1246/error");
-   R := Client.Get ("http://localhost:1246/one");
-   R := Client.Get ("http://localhost:1246/azerty");
-   R := Client.Get ("http://localhost:1246/file");
+   R := Client.Get ("http://localhost:1251/one");
+   R := Client.Get ("http://localhost:1251/azerty");
+   R := Client.Get ("http://localhost:1251/file");
+   R := Client.Get ("http://localhost:1251/one");
+   R := Client.Get ("http://localhost:1251/file");
+   R := Client.Get ("http://localhost:1251/error");
+   R := Client.Get ("http://localhost:1251/azerty");
+   R := Client.Get ("http://localhost:1251/error");
+   R := Client.Get ("http://localhost:1251/one");
+   R := Client.Get ("http://localhost:1251/azerty");
+   R := Client.Get ("http://localhost:1251/file");
 
    Client.Create
      (Connection => Connect,
-      Host       => "http://localhost:1246",
+      Host       => "http://localhost:1251",
       Retry      => 0);
 
    --  Test for basic authentication.
