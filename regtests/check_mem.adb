@@ -81,6 +81,11 @@ procedure Check_Mem is
 
    procedure Check_Dynamic_Message (Encoding : Messages.Content_Encoding);
 
+   task Server is
+      entry Started;
+      entry Stopped;
+   end Server;
+
    HTTP : AWS.Server.HTTP;
 
    S_Port : constant String   := Command_Line.Argument (2);
@@ -209,6 +214,37 @@ procedure Check_Mem is
            (MIME.Text_HTML, URI & " not found", Messages.S404);
       end if;
    end CB;
+
+   ------------
+   -- Server --
+   ------------
+
+   task body Server is
+   begin
+      AWS.Server.Start
+        (HTTP, "check_mem",
+         CB'Unrestricted_Access,
+         Port           => Port,
+         Max_Connection => 5,
+         Session        => True);
+
+      Put_Line ("Server started");
+      New_Line;
+
+      accept Started;
+
+      select
+         accept Stopped;
+      or
+         delay 10.0;
+         Put_Line ("Too much time to do the job !");
+      end select;
+
+      AWS.Server.Shutdown (HTTP);
+   exception
+      when E : others =>
+         Put_Line ("Server Error " & Exceptions.Exception_Information (E));
+   end Server;
 
    -------------
    -- SOAP_CB --
@@ -470,15 +506,7 @@ procedure Check_Mem is
 begin
    Put_Line ("Start main, wait for server to start...");
 
-   AWS.Server.Start
-     (HTTP, "check_mem",
-      CB'Unrestricted_Access,
-      Port           => Port,
-      Max_Connection => 5,
-      Session        => True);
-
-   Put_Line ("Server started");
-   New_Line;
+   Server.Started;
 
    --  This is the main loop. Be sure to run everything inside this
    --  loop. Check_Mem is checked between 2 runs with a different number of
@@ -496,7 +524,7 @@ begin
 
    delay 4.0;
 
-   AWS.Server.Shutdown (HTTP);
+   Server.Stopped;
 
 exception
    when E : others =>
