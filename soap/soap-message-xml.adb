@@ -430,41 +430,45 @@ package body SOAP.Message.XML is
       use SOAP.Types;
 
       function A_State (A_Type : in String) return Array_State;
-      --  Returns the Array_State given the SOAP-ENC:arrayType value.
+      --  Returns the Array_State given the SOAP-ENC:arrayType value
+
+      function Item_Type (Name : in String) return String;
+      pragma Inline (Item_Type);
+      --  Returns the array's item type, remove [] if present
+
+      LS : State := S;
 
       -------------
       -- A_State --
       -------------
 
       function A_State (A_Type : in String) return Array_State is
-         N : constant Positive := Strings.Fixed.Index (A_Type, "[");
-         T : constant String   := A_Type (A_Type'First .. N - 1);
       begin
-         if Is_A (T, Types.XML_Int, S.NS.xsd) then
+         if Is_A (A_Type, Types.XML_Int, S.NS.xsd) then
             return A_Int;
 
-         elsif Is_A (T, Types.XML_Long, S.NS.xsd) then
+         elsif Is_A (A_Type, Types.XML_Long, S.NS.xsd) then
             return A_Long;
 
-         elsif Is_A (T, Types.XML_Float, S.NS.xsd) then
+         elsif Is_A (A_Type, Types.XML_Float, S.NS.xsd) then
             return A_Float;
 
-         elsif Is_A (T, Types.XML_Double, S.NS.xsd) then
+         elsif Is_A (A_Type, Types.XML_Double, S.NS.xsd) then
             return A_Double;
 
-         elsif Is_A (T, Types.XML_String, S.NS.xsd) then
+         elsif Is_A (A_Type, Types.XML_String, S.NS.xsd) then
             return A_String;
 
-         elsif Is_A (T, Types.XML_Boolean, S.NS.xsd) then
+         elsif Is_A (A_Type, Types.XML_Boolean, S.NS.xsd) then
             return A_Boolean;
 
-         elsif Is_A (T, Types.XML_Time_Instant, S.NS.xsd) then
+         elsif Is_A (A_Type, Types.XML_Time_Instant, S.NS.xsd) then
             return A_Time_Instant;
 
-         elsif Is_A (T, Types.XML_Base64, S.NS.enc) then
+         elsif Is_A (A_Type, Types.XML_Base64, S.NS.enc) then
             return A_Base64;
 
-         elsif Is_A (T, Types.XML_Undefined, S.NS.xsd) then
+         elsif Is_A (A_Type, Types.XML_Undefined, S.NS.xsd) then
             return A_Undefined;
 
          else
@@ -472,35 +476,50 @@ package body SOAP.Message.XML is
          end if;
       end A_State;
 
-      OS       : Types.Object_Set (1 .. Max_Object_Size);
-      K        : Natural := 0;
+      ---------------
+      -- Item_Type --
+      ---------------
 
-      Field    : DOM.Core.Node;
+      function Item_Type (Name : in String) return String is
+         N : constant Positive := Strings.Fixed.Index (Name, "[");
+      begin
+         return Name (Name'First .. N - 1);
+      end Item_Type;
 
-      Atts     : constant DOM.Core.Named_Node_Map := Attributes (N);
+      OS    : Types.Object_Set (1 .. Max_Object_Size);
+      K     : Natural := 0;
 
-      XSI_Type : constant DOM.Core.Node
-        := Get_Named_Item (Atts, "xsi:type");
+      Field : DOM.Core.Node;
 
-      A_Name   : constant String
-        := Utils.NS (Node_Value (XSI_Type)) & ":arrayType";
-      --  Attribute name
-
-      A_Type : constant Array_State
-        := A_State (Node_Value (Get_Named_Item (Atts, A_Name)));
+      Atts  : constant DOM.Core.Named_Node_Map := Attributes (N);
 
    begin
-      Field := First_Child (N);
+      Parse_Namespaces (N, LS.NS);
 
-      while Field /= null loop
-         K := K + 1;
-         OS (K) := +Parse_Param
-           (Field, (S.Name_Space, S.Wrapper_Name, S.Parameters, A_Type, S.NS));
+      declare
+         A_Name    : constant String := -LS.NS.enc & ":arrayType";
+         --  Attribute name
 
-         Field := Next_Sibling (Field);
-      end loop;
+         Type_Name : constant String
+           := Item_Type (Node_Value (Get_Named_Item (Atts, A_Name)));
 
-      return Types.A (OS (1 .. K), Name);
+         A_Type    : constant Array_State := A_State (Type_Name);
+      begin
+         Field := SOAP.XML.First_Child (N);
+
+         while Field /= null loop
+            K := K + 1;
+
+            OS (K) := +Parse_Param
+              (Field,
+               (S.Name_Space, S.Wrapper_Name, S.Parameters, A_Type, S.NS));
+
+            Field := Next_Sibling (Field);
+         end loop;
+
+         return Types.A
+           (OS (1 .. K), Name, Utils.With_NS ("awsns", Type_Name));
+      end;
    end Parse_Array;
 
    ------------------
@@ -534,7 +553,7 @@ package body SOAP.Message.XML is
 
    procedure Parse_Body (N : in DOM.Core.Node; S : in out State) is
    begin
-      Parse_Wrapper (First_Child (N), S);
+      Parse_Wrapper (SOAP.XML.First_Child (N), S);
    end Parse_Body;
 
    -------------------
@@ -554,6 +573,7 @@ package body SOAP.Message.XML is
       then
          return Types.B (True, Name);
       else
+         --  ??? we should check for wrong boolean value
          return Types.B (False, Name);
       end if;
    end Parse_Boolean;
@@ -566,7 +586,7 @@ package body SOAP.Message.XML is
       NL : constant DOM.Core.Node_List := Child_Nodes (N);
    begin
       if Length (NL) = 1 then
-         Parse_Envelope (First_Child (N), S);
+         Parse_Envelope (SOAP.XML.First_Child (N), S);
       else
          Error (N, "Document must have a single node, found "
                 & Natural'Image (Length (NL)));
@@ -614,14 +634,14 @@ package body SOAP.Message.XML is
 
       if Length (NL) = 1 then
          --  This must be the body
-         Parse_Body (First_Child (N), LS);
+         Parse_Body (SOAP.XML.First_Child (N), LS);
 
       elsif Length (NL) = 2 then
          --  The first child must the header tag
-         Parse_Header (First_Child (N), LS);
+         Parse_Header (SOAP.XML.First_Child (N), LS);
 
          --  The second child must be the body
-         Parse_Body (Next_Sibling (First_Child (N)), LS);
+         Parse_Body (SOAP.XML.Next_Sibling (First_Child (N)), LS);
       else
          Error (N, "Envelope must have at most two nodes, found "
                 & Natural'Image (Length (NL)));
@@ -751,7 +771,7 @@ package body SOAP.Message.XML is
       XSI_Type : DOM.Core.Node;
 
    begin
-      Parse_Namespaces (N, LS.NS);
+      Parse_Namespaces (Ref, LS.NS);
 
       XSI_Type := Get_Named_Item (Atts, To_String (LS.NS.xsi) & ":type");
 
@@ -832,7 +852,7 @@ package body SOAP.Message.XML is
                   if XSI_Type = null then
                      declare
                         N : constant DOM.Core.Node
-                          := Get_Named_Item (Atts, "xsi:null");
+                          := Get_Named_Item (Atts, -LS.NS.xsi & ":null");
                      begin
                         if N = null then
                            Error (Parse_Param.N, "Wrong or unsupported type");
@@ -915,11 +935,11 @@ package body SOAP.Message.XML is
          --  A record can't have a text child node.
          return Types.E
            (Node_Value (First_Child (Field)),
-            Utils.No_NS (SOAP.XML.Get_Attr_Value (Field, "xsi:type")),
+            Utils.No_NS (SOAP.XML.Get_Attr_Value (Field, -S.NS.xsi & ":type")),
             Name);
 
       else
-         Field := First_Child (Field);
+         Field := SOAP.XML.First_Child (Field);
 
          while Field /= null loop
             K := K + 1;
@@ -1001,6 +1021,7 @@ package body SOAP.Message.XML is
 
    procedure Parse_Wrapper (N : in DOM.Core.Node; S : in out State) is
       use type SOAP.Parameters.List;
+      use type DOM.Core.Node_Types;
 
       function Prefix return String;
       --  Returns node prefix (with a ':' in front) if a prefix is used for
@@ -1044,7 +1065,9 @@ package body SOAP.Message.XML is
       S.Wrapper_Name := To_Unbounded_String (Name);
 
       for K in 0 .. Length (NL) - 1 loop
-         S.Parameters := S.Parameters & Parse_Param (Item (NL, K), LS);
+         if Item (NL, K).Node_Type /= DOM.Core.Text_Node then
+            S.Parameters := S.Parameters & Parse_Param (Item (NL, K), LS);
+         end if;
       end loop;
    end Parse_Wrapper;
 
