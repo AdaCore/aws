@@ -75,7 +75,7 @@ package body AWS.URL is
       --  checks for parent directory
 
       loop
-         K:= Index (URL.URI, "/../");
+         K := Index (URL.URI, "/../");
 
          exit when K = 0;
 
@@ -92,7 +92,7 @@ package body AWS.URL is
       --  checks for current directory
 
       loop
-         K:= Index (URL.URI, "/./");
+         K := Index (URL.URI, "/./");
 
          exit when K = 0;
 
