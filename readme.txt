@@ -53,6 +53,8 @@ Here are the main changes since AWS 2.0 :
      level. Vector_Tag and Matrix_Tag are now just subtype of the new type
      Tag. Note that this new implementation is 99% upward compatible.
 
+   - Support for certificates chain.
+
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
 
