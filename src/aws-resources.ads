@@ -59,13 +59,13 @@ package AWS.Resources is
    --  on disk is opened.
 
    procedure Close (Resource : in out File_Type);
-   --  Close the file.
+   --  Close the file
 
    procedure Read
      (Resource : in out File_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
-   --  Returns a set of bytes from the file.
+   --  Returns a set of bytes from the file
 
    procedure Get_Line
      (Resource  : in out File_Type;
@@ -136,6 +136,13 @@ private
 
    procedure Close (File : in out File_Tagged)
       is abstract;
+
+   procedure Release
+     (File        : in     File_Tagged;
+      File_Access : in out File_Type);
+   --  This procedure must release memory associated with File_Access if
+   --  necessary. For transient pages for example this is not needed as the
+   --  release of the memory must not controlled by the server.
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Resources.File_Tagged'Class, File_Type);
