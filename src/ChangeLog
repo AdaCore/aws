@@ -1,3 +1,38 @@
+2002-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Read_Chunk): Use Utils.Hex_Value instead of adhoc implementation.
+
+	* aws-digest.adb:
+	Remove use of Ada.Strings.Fixed and Ada.Integer_Text_IO.
+	(Check_Nonce): Use Utils.Hex_Value instead of adhoc implementation.
+	(Create_Nonce): Use Utils.Hex instead of adhoc implementation.
+
+	* aws-server-protocol_handler.adb:
+	Add comment about this procedure.
+	Remove $State CVS tag.
+	Minor reformatting.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	Minor reformatting.
+
+	* aws-status.ads:
+	(Session_Created): Fix comment.
+	Minor reformatting.
+
+	* aws-translator.ads:
+	(QP_Decode): New function.
+
+	* aws-translator.adb:
+	(QP_Decode): New function.
+	Minor reformatting.
+
+	* aws-url.adb:
+	(Decode): Use Utils.Hex_Value instead of adhoc implementation.
+
+	* aws-utils.ads, aws-utils.adb:
+	(Hex_Value): New function.
+
 2002-10-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status-set.ads, aws-status-set.adb:
