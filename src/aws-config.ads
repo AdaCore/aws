@@ -49,6 +49,7 @@ package AWS.Config is
    Default_Server_Name        : constant String := "[no name]";
    Default_Admin_URI          : constant String := "";
    Default_Server_Port        : constant        := 8080;
+   Default_Hotplug_Port       : constant        := 8888;
    Default_Max_Connection     : constant        := 5;
    Default_Log_File_Directory : constant String := "./";
    Default_Upload_Directory   : constant String := "./";
@@ -90,6 +91,11 @@ package AWS.Config is
    function Server_Port return Positive;
    --  Format: Server_Port <positive>
    --  This is the server port as set by the HTTP object declaration.
+
+   function Hotplug_Port return Positive;
+   --  Format: Hotplug_Port <positive>
+   --  This is the hotplug communication port needed to register and
+   --  un-register an hotplug module.
 
    function Max_Connection return Positive;
    --  Format: Max_Connection <positive>
