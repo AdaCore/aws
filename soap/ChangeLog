@@ -1,3 +1,9 @@
+2003-10-31  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-wsdl.ads, soap-wsdl.adb:
+	(From_Ada): New rotuine.
+	(To_XSD): New routine.
+
 2003-10-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
