@@ -1,6 +1,16 @@
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
+	Use variable instead of directly calling tools.
+	
+	* demos.gpr:
+	(Linker): Complete implementation. This now properly link the
+	 XMLAda based demos (SOAP and WSDL). The aws.coff file is linked
+	 for every demos.
+
+2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
 	Add section to build AWS based on project files.
 	(gbuild): New target.
 	(gclean): Idem.

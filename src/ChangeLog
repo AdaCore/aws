@@ -1,5 +1,10 @@
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	Use variable instead of directly calling tools.
+	
+2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-utils.adb:
 	(Integer_Random): Ignore warnings during instantiation of this package.
 

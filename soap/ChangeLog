@@ -1,5 +1,8 @@
 2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	Use variable instead of directly calling tools.
+	
 	* soap-wsdl.adb:
 	(Is_Standard): Add pragma Unreferenced.
 
