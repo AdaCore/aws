@@ -1,3 +1,9 @@
+2001-07-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.adb:
+	(Binary): check for null pointer and returns an null array instead
+	 of raising an exception.
+
 2001-07-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-log.adb:
