@@ -226,7 +226,7 @@ build_tarball:
 	cp regtests/ChangeLog $${AWS}/regtests;\
 	cp docs/aws.texi.tmplt docs/build.adb $${AWS}/docs;\
 	cp docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
-	cp docs/aws.info* docs/aws.ps docs/makefile $${AWS}/docs;\
+	cp docs/aws.info* docs/aws.ps docs/aws.pdf docs/makefile $${AWS}/docs;\
 	cp docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
 	cp -r docs/html/* $${AWS}/docs/html;\
 	cp win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
@@ -275,5 +275,5 @@ install:
 	cp demos/aws_*.png $(INSTALL)/AWS/images
 	-cp ssl/*.a $(INSTALL)/AWS/lib
 	-cp include/*.ad? include/*.o include/*.ali $(INSTALL)/AWS/components
-	cp tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
+	-cp tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
 	-chmod -R og+r $(INSTALL)/AWS
