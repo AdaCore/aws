@@ -184,6 +184,8 @@ package body AWS.Net.Std is
          end;
       end if;
 
+      Set_Non_Blocking_Mode (Socket);
+
       Res := Sockets.Thin.C_Connect
         (C.int (Get_FD (Socket)),
          Info.ai_addr,
@@ -191,15 +193,24 @@ package body AWS.Net.Std is
 
       if Res = Sockets.Thin.Failure then
          Errno := Std.Errno;
-         Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
-         Free (Socket.S);
-         OSD.FreeAddrInfo (Info);
-         Raise_Exception (Errno, "Bind.Create_Socket");
+
+         if Errno /= Sockets.Constants.Ewouldblock
+           and Errno /= Sockets.Constants.Einprogress
+         then
+            Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
+            Free (Socket.S);
+            OSD.FreeAddrInfo (Info);
+            Raise_Exception (Errno, "Connect");
+         end if;
       end if;
 
       OSD.FreeAddrInfo (Info);
 
-      Set_Non_Blocking_Mode (Socket);
+      if not Wait (Socket, (Output => True, Input => False)) (Output) then
+         Res := Sockets.Thin.C_Close (C.int (Get_FD (Socket)));
+         Free (Socket.S);
+         Raise_Exception (Errno, "Connect timeout.");
+      end if;
 
       Set_Cache (Socket);
    end Connect;
