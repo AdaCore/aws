@@ -56,9 +56,8 @@ package AWS.Resources is
       Form : in     String    := "");
    --  Open file in mode In_File. Only reading from the file is supported.
    --  This procedure open the in-memory (embedded) file if present, otherwise
-   --  the file on disk is opened. Note that file content could be gotten from
-   --  file (embedded or on-disk) with the filename Name & ".gz" if file with
-   --  filename Name does not exists, output would be unzipped in this case.
+   --  the file on disk is opened. Note that if Name file is not found, it
+   --  checks for Name & ".gz" and unzipped the file content in this case.
 
    procedure Open
      (File :    out File_Type;
@@ -67,21 +66,12 @@ package AWS.Resources is
       GZip : in out Boolean);
    --  Open file in mode In_File. Only reading from the file is supported.
    --  This procedure open the in-memory (embedded) file if present, otherwise
-   --  the file on disk is opened. If in value of GZip parameter is False
-   --  data output would be the same as in previous Open routine. If GZip in
-   --  value is True routine would try to open file with name Name & ".gz"
-   --  first and provide GZipped output for File. GZip out value would be True
-   --  in this case. If in GZip value is True and file with name Name & ".gz"
-   --  does not exists, routine would try to open file with name Name and
-   --  put out GZip value to False.
-   --  Note, if both files Name and Name & ".gz" exists, file opened is depend
-   --  on GZip in value. The user should be responsible for the WWW_Root
-   --  folder and embedded resources contents integrity. Sometimes it would be
-   --  usable to provide 2 different content for HTTP clients supported and
-   --  not suported gzip decoding. For example web designer want to give
-   --  access to big html file for all http clients. /file.html URI would
-   --  give either direct access to file.html.gz or to the small page with
-   --  link to file.html.gz depend on http client gzip decoding support.
+   --  the file on disk is opened. If GZip parameter is False this call is
+   --  equivalent to the Open routine above. If GZip is True this routine will
+   --  first check for the compressed version of the resource (Name & ".gz"),
+   --  if found GZip output value will remain True. If GZip value is True and
+   --  the compressed version of the resource does not exist it looks for
+   --  non-compressed version and set GZip value to False.
 
    procedure Reset (Resource : in out File_Type);
    --  Reset the file, reading will restart at the beginning
@@ -142,7 +132,7 @@ private
 
    type File_Type is access all File_Tagged'Class;
 
-   function Is_GZip (Name : String) return Boolean;
+   function Is_GZip (Name : in String) return Boolean;
    --  Return true if filename is with .gz extension.
 
    function End_Of_File
