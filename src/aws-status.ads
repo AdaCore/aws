@@ -34,12 +34,13 @@
 --  request the status for various values like the requested URI, the
 --  Content_Length and the Session ID for example.
 
-with Ada.Strings.Unbounded;
 with Ada.Streams;
+with Ada.Strings.Unbounded;
 
+with AWS.Headers;
 with AWS.Net;
-with AWS.Session;
 with AWS.Parameters;
+with AWS.Session;
 with AWS.URL;
 
 package AWS.Status is
@@ -201,20 +202,17 @@ private
    type Stream_Element_Array_Access is access Stream_Element_Array;
 
    type Data is record
-      Connection        : Unbounded_String;
-      Host              : Unbounded_String;
       Peername          : Unbounded_String;
       Method            : Request_Method     := GET;
       URI               : AWS.URL.Object;
       Parameters        : AWS.Parameters.List;
+      Header            : AWS.Headers.List;
       Binary_Data       : Stream_Element_Array_Access := null;
       HTTP_Version      : Unbounded_String;
-      Content_Type      : Unbounded_String;
-      Boundary          : Unbounded_String;
       Content_Length    : Natural            := 0;
       Keep_Alive        : Boolean;
-      If_Modified_Since : Unbounded_String;
       File_Up_To_Date   : Boolean            := False;
+      SOAP_Action       : Boolean            := False;
       Socket            : Net.Socket_Access;
       Auth_Mode         : Authorization_Type := None;
       Auth_Name         : Unbounded_String; -- for Basic and Digest
@@ -227,10 +225,7 @@ private
       Auth_Response     : Unbounded_String; -- for Digest
       Session_ID        : AWS.Session.ID     := AWS.Session.No_Session;
       Session_Created   : Boolean            := False;
-      SOAPAction        : Unbounded_String;
       Payload           : Unbounded_String;
-      User_Agent        : Unbounded_String;
-      Referer           : Unbounded_String;
    end record;
 
 end AWS.Status;
