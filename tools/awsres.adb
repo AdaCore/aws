@@ -34,16 +34,17 @@
 --  files passed as argument.
 
 with Ada.Calendar;
-with Ada.Text_IO;
 with Ada.Integer_Text_IO;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
+with Ada.Text_IO;
 
-with AWS.OS_Lib;
 with GNAT.Command_Line;
 with GNAT.Calendar.Time_IO;
+
+with AWS.OS_Lib;
 
 procedure AwsRes is
 
@@ -52,7 +53,7 @@ procedure AwsRes is
 
    Syntax_Error : exception;
 
-   Version  : constant String := "0.2";
+   Version  : constant String := "1.0";
 
    Root_Pck : Unbounded_String := To_Unbounded_String ("res");
    Quiet    : Boolean := False;
