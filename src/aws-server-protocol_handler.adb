@@ -1134,8 +1134,6 @@ is
       I1, I2 : Natural;
       --  Index of first space and second space
 
-      URI : Unbounded_String;
-
       I3 : Natural;
       --  Index of ? if present in the URI (means that there is some
       --  parameters)
@@ -1162,8 +1160,18 @@ is
       begin
          I1  := Fixed.Index (Command, " ");
          I2  := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
-         URI := To_Unbounded_String (URL.Decode (Command (I1 + 1 .. I2 - 1)));
-         I3  := Unbounded.Index (URI, "?");
+
+         I3  := Fixed.Index (Command (I1 + 1 .. I2 - 1), "?");
+
+         if I3 = 0 then
+            --  Could be encoded ?
+
+            I3  := Fixed.Index (Command (I1 + 1 .. I2 - 1), "%3f");
+
+            if I3 = 0 then
+               I3  := Fixed.Index (Command (I1 + 1 .. I2 - 1), "%3F");
+            end if;
+         end if;
       end Cut_Command;
 
       ------------------
@@ -1184,7 +1192,11 @@ is
          if I3 = 0 then
             return "";
          else
-            return Slice (URI, I3 + 1, Length (URI));
+            if Command (I3) = '%' then
+               return Command (I3 + 3 .. I2 - 1);
+            else
+               return Command (I3 + 1 .. I2 - 1);
+            end if;
          end if;
       end Parameters;
 
@@ -1195,9 +1207,9 @@ is
       function Resource return String is
       begin
          if I3 = 0 then
-            return To_String (URI);
+            return URL.Decode (Command (I1 + 1 .. I2 - 1));
          else
-            return Slice (URI, 1, I3 - 1);
+            return URL.Decode (Command (I1 + 1 .. I3 - 1));
          end if;
       end Resource;
 
