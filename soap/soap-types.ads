@@ -288,19 +288,19 @@ package SOAP.Types is
    -- Enumeration --
    -----------------
 
-   type XSD_Enumeration is new Scalar with private;
+   type SOAP_Enumeration is new Scalar with private;
 
-   function Image     (O : in XSD_Enumeration) return String;
-   function XML_Image (O : in XSD_Enumeration) return String;
-   function XML_Type  (O : in XSD_Enumeration) return String;
+   function Image     (O : in SOAP_Enumeration) return String;
+   function XML_Image (O : in SOAP_Enumeration) return String;
+   function XML_Type  (O : in SOAP_Enumeration) return String;
 
    function E
      (V         : in String;
       Type_Name : in String;
       Name      : in String := "item")
-      return XSD_Enumeration;
+      return SOAP_Enumeration;
 
-   function V (O : in XSD_Enumeration) return String;
+   function V (O : in SOAP_Enumeration) return String;
 
    ---------
    -- Get --
@@ -421,7 +421,7 @@ private
       V : Unbounded_String;
    end record;
 
-   type XSD_Enumeration is new Scalar with record
+   type SOAP_Enumeration is new Scalar with record
       V         : Unbounded_String;
       Type_Name : Unbounded_String;
    end record;
