@@ -290,7 +290,8 @@ endif
 #############################################################################
 # Configuration for GNAT Projet Files
 
-MODULES = config ssl include src win32 tools demos regtests
+EXTRA_MODULES = demos regtests
+MODULES = config ssl include src win32 tools ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
