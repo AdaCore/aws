@@ -135,7 +135,10 @@ package AWS.Session is
    --  Iterator which call Action for every active session. N is the SID
    --  order. Time_Stamp is the time when SID was updated for the last
    --  time. Quit is set to False by default, it is possible to control the
-   --  iterator termination by setting its value to True.
+   --  iterator termination by setting its value to True. Note that in the
+   --  Action procedure it is possible to use routines that read session's
+   --  data (Get, Exist) but any routines which modify the data will block
+   --  (i.e. Touch, Set, Remove, Delete will dead lock).
 
    generic
       with procedure Action
@@ -145,7 +148,10 @@ package AWS.Session is
    procedure For_Every_Session_Data (SID : in ID);
    --  Iterator which returns all the key/value pair defined for session SID.
    --  Quit is set to False by default, it is possible to control the iterator
-   --  termination by setting its value to True.
+   --  termination by setting its value to True. Note that in the Action
+   --  procedure it is possible to use routines that read session's data (Get,
+   --  Exist) but any routines which modify the data will block (i.e. Touch,
+   --  Set, Remove, Delete will dead lock).
 
    procedure Set_Lifetime (Seconds : in Duration);
    --  Set the lifetime for session data.
