@@ -49,7 +49,8 @@ package AWS.Config is
 
    function Get_Current return Object;
    --  Returns a configuration record. This is the properties as read in files
-   --  'aws.ini' and 'progname.ini' and contains all per-server options.
+   --  'aws.ini' and 'progname.ini'. This configuration object holds only the
+   --  per-server options.
 
    ------------------------
    -- Per Server options --
