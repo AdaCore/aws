@@ -193,8 +193,6 @@ implemented:
 - Add a simple Web Mail service (AWS.Services.Web_Mail) using the AWS.POP and
   AWS.SMTP API.
 
-- Document AWS.POP.
-
 - Add support for transient page on-disk after a certain amount of time.
   Is that a good idea ?
 
