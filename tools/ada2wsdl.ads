@@ -34,7 +34,7 @@ with Asis;
 
 package Ada2WSDL is
 
-   Version : constant String := "0.8";
+   Version : constant String := "0.9";
 
    Fatal_Error     : exception;
    --  Raised when a non-recoverable error has been found
