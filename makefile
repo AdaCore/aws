@@ -314,7 +314,8 @@ build_tarball:
 	$(CP) config/*.ad[sb] config/ChangeLog $${AWS}/config;\
 	$(CP) config/makefile $${AWS}/config;\
 	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
-	$(CP) config/projects/* $${AWS}/config/projects;\
+	$(CP) config/projects/*.gpr $${AWS}/config/projects;\
+	$(CP) config/projects/ChangeLog $${AWS}/config/projects;\
 	$(CP) xsrc/*.ad[sb] xsrc/README xsrc/ChangeLog $${AWS}/xsrc;\
 	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
 	$(TAR) cf $${AWS}.tar $${AWS};\
@@ -376,7 +377,8 @@ build_http_tarball:
 	$(CP) config/*.ad[sb] config/ChangeLog $${AWS}/config;\
 	$(CP) config/makefile $${AWS}/config;\
 	$(CP) config/src/*.ad[sb] $${AWS}/config/src;\
-	$(CP) config/projects/* $${AWS}/config/projects;\
+	$(CP) config/projects/*.gpr $${AWS}/config/projects;\
+	$(CP) config/projects/ChangeLog $${AWS}/config/projects;\
 	$(CP) support/*.ad* support/ChangeLog support/REA* $${AWS}/support;\
 	$(RM) $${AWS}/include/sha*;\
 	$(SED) 's/$$(LIBSSL) $$(LIBCRYPTO)//' \
