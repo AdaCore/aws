@@ -1,3 +1,12 @@
+2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* alldifs.out:
+	Initial revision.
+	
+	* makefile:
+	(run): Check that alldiffs is fine to ensure we return an error
+	 otherwise.
+
 2004-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait.adb:
