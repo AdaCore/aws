@@ -1,5 +1,9 @@
 2001-10-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-url.adb:
+	(Parse): Fix another bug with parsing non-rooted URL. Found while
+	 working on the regression test suite.
+
 	* aws-response.ads, aws-response.adb:
 	(Build): rename parameter Message_Body to UString_Message. This
 	 will help raising ambiguity with Templates_Parser.Parse which can
