@@ -23,7 +23,7 @@ ADASOCKETS = /usr/Ada.Libraries/adasockets
 # XMLADA package, needed if you want to build SOAP's AWS support.
 # comment out XMLADA if you don't want to build with SOAP support.
 
-XMLADA	 = /usr/Ada.Libraries/xmlada
+#XMLADA	 = /usr/Ada.Libraries/xmlada
 
 # AWS will be installed under $(INSTALL)/AWS
 INSTALL	 = $(HOME)
