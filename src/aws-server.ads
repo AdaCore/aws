@@ -69,7 +69,7 @@ package AWS.Server is
 
 private
 
-   Keep_Open_Duration : constant Duration := 30.0;
+   Keep_Open_Duration : constant Duration := 80.0;
 
    type Slot is record
       Sock                  : Sockets.Socket_FD;
