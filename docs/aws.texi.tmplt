@@ -69,7 +69,7 @@
 * High level services::
 * Using SOAP::
 * Using WSDL::
-* Sending e-mail::
+* Working with mails::
 * LDAP::
 * Jabber::
 * Resources::
@@ -80,7 +80,7 @@
 @end menu
 @end ifinfo
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Introduction
 @chapter Introduction
@@ -154,7 +154,7 @@ Major supported features are:
 
 @end itemize
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Building AWS
 @chapter Building AWS
@@ -167,6 +167,8 @@ Major supported features are:
 * Demos::
 * Installing::
 @end menu
+
+@c ----------------------------------------------------------------------
 
 @node Requirements
 @section Requirements
@@ -232,6 +234,8 @@ You can download OpenLDAP from @url{http://www.openldap.org}.
 
 @end itemize
 
+@c ----------------------------------------------------------------------
+
 @node AWS.OS_Lib
 @section AWS.OS_Lib
 @cindex AWS.OS_Lib
@@ -287,6 +291,8 @@ $ make win32_oslib
 
 @end table
 
+@c ----------------------------------------------------------------------
+
 @node AWS.Net.Std
 @section AWS.Net.Std
 @cindex AWS.Net.Std
@@ -325,6 +331,8 @@ $ make adasockets
 @end smallexample
 
 @end table
+
+@c ----------------------------------------------------------------------
 
 @node Building
 @section Building
@@ -415,6 +423,8 @@ $ make install INSTALL=/opt
 @end group
 @end cartouche
 @end smallexample
+
+@c ----------------------------------------------------------------------
 
 @node Demos
 @section Demos
@@ -542,6 +552,8 @@ In each case you'll certainly have to edit the makefile to correctly set
 the include path for the libraries @code{POSIX}, @code{OpenSSL}, 
 @code{Socket} and @code{XMLAda}. For more information, look at the makefiles.
 
+@c ----------------------------------------------------------------------
+
 @node Installing
 @section Installing
 @cindex Installing
@@ -575,7 +587,7 @@ $ make install INSTALL=/opt
 @noindent
 Now you are ready to use @code{AWS} !
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Using AWS
 @chapter Using AWS
@@ -597,6 +609,8 @@ Now you are ready to use @code{AWS} !
 * Unexpected exception handler::
 * Client side::
 @end menu
+
+@c ----------------------------------------------------------------------
 
 @node Setting up environment
 @section Setting up environment
@@ -642,6 +656,8 @@ be using. For example you'll have to point @code{GNAT} to the
 @code{POSIX} or with @code{SSL} support.
 
 @end table
+
+@c ----------------------------------------------------------------------
 
 @node Basic notions
 @section Basic notions
@@ -1094,6 +1110,8 @@ Note that these filename are the current AWS default. But it is
 possible for example to change this using the configuration files
 @pxref{Configuration options}.
 
+@c ----------------------------------------------------------------------
+
 @node Building answers
 @section Building answers
 
@@ -1364,6 +1382,8 @@ Note that there is the reverse implementation to decompress a
 stream. @pxref{AWS.Resources.Streams.Memory.ZLib}. It's usage
 is identical.
 
+@c ----------------------------------------------------------------------
+
 @node Configuration options
 @section Configuration options
 @cindex Configuration options
@@ -1613,6 +1633,8 @@ Server.Start (WS,
 @end cartouche
 @end smallexample
 
+@c ----------------------------------------------------------------------
+
 @node Session handling
 @section Session handling
 @cindex Session
@@ -1704,6 +1726,8 @@ feature it is possible to shutdown a server to update its look or because a
 bug has been fixed for example. It is then possible to restart it
 keeping the complete Web server context.
 
+@c ----------------------------------------------------------------------
+
 @node Authentication
 @section Authentication
 @cindex authentication
@@ -1778,6 +1802,8 @@ is sent unencoded by the browser to the server. If security is an
 issue it is better to use the @b{Digest} authentication and/or an
 @b{SSL} server.
 
+@c ----------------------------------------------------------------------
+
 @node File upload
 @section File upload
 @cindex File upload
@@ -1828,6 +1854,8 @@ The value is the full pathname of the file on the client side.
 @item go
 The value is "Send File"
 @end table
+
+@c ----------------------------------------------------------------------
 
 @node Communication
 @section Communication
@@ -1927,6 +1955,8 @@ A complete example can be found in the demos directory. Look for
 @noindent
 Note that this communication API is used by the Hotplug module facility
 @xref{Hotplug module}.
+
+@c ----------------------------------------------------------------------
 
 @node Hotplug module
 @section Hotplug module
@@ -2042,6 +2072,8 @@ A complete example can be found in the demos directory. Look for
 @end cartouche
 @end smallexample
 
+@c ----------------------------------------------------------------------
+
 @node Server Push
 @section Server Push
 @cindex Server Push
@@ -2136,6 +2168,8 @@ Very large Internet applications should use this feature carefully. A
 push server keeps a socket reserved for each registered clients and
 the number of available sockets per process is limited by the OS.
 
+@c ----------------------------------------------------------------------
+
 @node Working with Server sockets
 @section Working with Server sockets
 @cindex Working with Server sockets
@@ -2187,6 +2221,8 @@ will check for incoming requests it will be picked up.
 
 @end itemize
 
+@c ----------------------------------------------------------------------
+
 @node Server Log
 @section Server Log
 @cindex logs
@@ -2235,6 +2271,8 @@ detected by @code{AWS} will gets logged into this special file. See
 @noindent
 For the full set of routines supporting the log facility
 @pxref{AWS.Server.Log} .
+
+@c ----------------------------------------------------------------------
 
 @node Secure server
 @section Secure server
@@ -2297,6 +2335,8 @@ not all Web browsers. These are the default protocol used by
 
 @noindent
 @code{TLSv1} is not supported at this point.
+
+@c ----------------------------------------------------------------------
 
 @node Unexpected exception handler
 @section Unexpected exception handler
@@ -2386,6 +2426,8 @@ The complete URI
 
 @noindent
 For more information @pxref{AWS.Server} and @pxref{AWS.Exceptions}.
+
+@c ----------------------------------------------------------------------
 
 @node Client side
 @section Client side
@@ -2488,7 +2530,7 @@ Data := Client.Get
 The client upload protocol is implemented. Using @code{AWS.Client.Upload} it
 is possible to send a file to a server which support the file upload protocol.
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node High level services
 @chapter High level services
@@ -2506,6 +2548,8 @@ Refer to the Ada spec for a complete API and usage description.
 * Static Page server::
 @end menu
 
+@c ----------------------------------------------------------------------
+
 @node Directory browser
 @section Directory browser
 @cindex Directory browser
@@ -2517,6 +2561,8 @@ interface @pxref{AWS.Templates}. This means that you can use the
 default directory template or provide your own.
 
 @pxref{AWS.Services.Directory} for complete spec and services descriptions.
+
+@c ----------------------------------------------------------------------
 
 @node Dispatchers
 @section Dispatchers
@@ -2620,6 +2666,8 @@ callback routines.
 
 @pxref{SOAP.Dispatchers.Callback} for complete spec description.
 
+@c ----------------------------------------------------------------------
+
 @node Static Page server
 @section Static Page server
 @cindex Static Page server
@@ -2684,7 +2732,7 @@ total page size is bigger than 512 bytes or it includes at least one image.}
 
 @pxref{AWS.Services.Page_Server} for a complete spec description.
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Using SOAP
 @chapter Using @code{SOAP}
@@ -2723,6 +2771,8 @@ the programer to convert such strings to the desired type.
 * SOAP Client::
 * SOAP Server::
 @end menu
+
+@c ----------------------------------------------------------------------
 
 @node SOAP Client
 @section @code{SOAP} Client
@@ -2816,6 +2866,8 @@ described in Ada as follow:
 @end group
 @end cartouche
 @end smallexample
+
+@c ----------------------------------------------------------------------
 
 @node SOAP Server
 @section @code{SOAP} Server
@@ -3101,7 +3153,7 @@ This routine takes two parameters, one is the standard HTTP
 callback procedure and the other is the @code{SOAP} callback procedure.
 @end enumerate
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Using WSDL
 @chapter Using @code{WSDL}
@@ -3140,6 +3192,8 @@ to use a Web Service or to implement Web Services. With this tool the
 with @code{Ada} API. All the @code{SOAP} marshaling will be created
 automatically.
 @end table
+
+@c ----------------------------------------------------------------------
 
 @node Creating WSDL documents
 @section Creating @code{WSDL} documents
@@ -3545,6 +3599,8 @@ Verbose mode, display the parsed spec.
 @item Arrays with multiple dimentions not supported
 @end itemize
 
+@c ----------------------------------------------------------------------
+
 @node Working with WSDL documents
 @section Working with @code{WSDL} documents
 
@@ -3893,6 +3949,8 @@ decimal), it is just not supported with the current version.
 
 @end itemize
 
+@c ----------------------------------------------------------------------
+
 @node Using ada2wsdl and wsdl2aws together
 @section Using ada2wsdl and wsdl2aws together
 
@@ -3957,19 +4015,30 @@ to use @file{graphics.ads} to get references from user's spec (reference to
 @code{Graphics.Point} for example).
 @end table
 
+@c ======================================================================
+
+@node Working with mails
+@chapter Working with mails
+
+@menu
+* Sending e-mail::
+* Retrieving e-mail::
+@end menu
+
 @c ----------------------------------------------------------------------
 
 @node Sending e-mail
-@chapter Sending e-mail
+@section Sending e-mail
 @cindex Sending e-mail
 @cindex SMTP
 @cindex Simple Mail Transfer Protocol
 
 @noindent
-@code{AWS} provides a complete API to send e-mail using SMTP protocol. You
-need to have access to an SMTP server to use this feature. The API
-covers sending simple mail with text message and/or with @code{MIME}
-attachments (base64 encoded). Here are the steps to send a simple e-mail:
+@code{AWS} provides a complete API to send e-mail using @code{SMTP}
+protocol. You need to have access to an SMTP server to use this
+feature. The API covers sending simple mail with text message and/or
+with @code{MIME} attachments (base64 encoded). Here are the steps to
+send a simple e-mail:
 
 @itemize @bullet
 
@@ -4003,7 +4072,7 @@ SMTP.Client.Send
    From    => SMTP.E_Mail ("Pascal Obry", "p.obry@@wanadoo.fr"),
    To      => SMTP.E_Mail ("John Doe", "john.doe@@here.com"),
    Subject => "About AWS SMTP protocol",
-   Message => "AWS can now send SMTP mails",
+   Message => "AWS can now send mails",
    Status  => Status);
 @end group
 @end cartouche
@@ -4044,6 +4113,172 @@ complete documentation can be found on the spec @pxref{AWS.SMTP} and
 @pxref{AWS.SMTP.Client}.
 
 @c ----------------------------------------------------------------------
+
+@node Retrieving e-mail
+@section Retrieving e-mail
+@cindex Retrieving e-mail
+@cindex POP
+@cindex Post Office Protocol
+
+@noindent
+@code{AWS} provides an API to retrieve e-mails from a @code{POP}
+mailbox. @code{POP} stands for @i{Post Office Protocol} and is the main
+protocol used by Internet Service Providers around the
+world. @code{IMAP} is another well known protocol in this area but it
+is not supported by @code{AWS}.
+
+@noindent
+We describes here the @code{POP} API. For a complete description see
+@pxref{AWS.POP}.
+
+@itemize @bullet
+
+@item Opening the mailbox
+
+@noindent
+The first step is to authenticate using a user name and
+password. @code{AWS} supports two methods one called @code{Clear_Text}
+which is the most used and another one @code{APOP} which is more secure but
+almost not supported by @code{ISP} for the moment (and will probably
+never be supported as a more secure protocol named @code{SPA} -Secure
+Password Authentication- could be used instead).
+
+@smallexample
+@cartouche
+@group
+Mailbox : POP.Mailbox
+   := POP.Initialize ("pop.hostname", "john.does", "mysuperpwd");
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+The default Authentication method is @code{Clear_Text}.
+
+@item Getting mailbox information
+
+@noindent
+When the connection is opened it is possible to get information about
+the mailbox like the number of messages or the total number of bytes
+in the mailbox.
+
+@smallexample
+@cartouche
+@group
+N     : @b{constant} Natural := POP.Message_Count (Mailbox);
+
+Bytes : @b{constant} Natural := POP.Size (Mailbox);
+@end group
+@end cartouche
+@end smallexample
+
+@item Retreiving individual e-mail
+
+@noindent
+Each message is numbered starting from 1. A function named @code{Get}
+will return a message given its mailbox's number.
+
+@smallexample
+@cartouche
+@group
+Message : @b{constant} POP.Message := POP.Get (Mailbox, 2, Remove => True);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+Remove can be set to @code{False} for the message to stay on the
+mailbox. The default value is @code{False}.
+
+@item Iterating through the mailbox content
+
+@noindent
+Another way to retreive message is by using an iterator.
+
+@smallexample
+@cartouche
+@group
+@b{procedure} Print_Subject
+  (Message : @b{in}     POP.Message
+   Index   : @b{in}     Positive;
+   Quit    : @b{in out} Boolean) @b{is}
+@b{begin}
+   Text_IO.Put_Line (POP.Subject (Message));
+@b{end} Print_Message;
+
+@b{procedure} Print_All_Subjects @b{is new} POP.For_Every_Message (Print_Subject);
+
+...
+
+Print_All_Subjects (Mailbox, Remove => True);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+It exists a set of routines on a @code{POP.Message} object to get the subject
+the content, the date or any headers. It is also possible to work with
+attachments. See point below.
+
+@item Working with attachments
+
+@noindent
+A message can have a set of @code{MIME} attachments. The number of
+attachments can be retrieved using @code{Attachment_Count}.
+
+@smallexample
+@cartouche
+@group
+Message : @b{constant} POP.Message := ...;
+
+A_Count : @b{constant} Natural := POP.Attachment_Count (Message);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+As for messages it is possible to get a single attachment using its
+index in the message or by using an iterator.
+
+@smallexample
+@cartouche
+@group
+First_Attachment : @b{constant} POP.Attachment := POP.Get (Message, 1);
+
+@b{procedure} Write_Attachment
+  (Attachment : @b{in}     POP.Attachment
+   Index      : @b{in}     Positive;
+   Quit       : @b{in out} Boolean) @b{is}
+@b{begin}
+   POP.Write (Attachment, Directory => ".");
+@b{end} Print_Message;
+
+@b{procedure} Write_All_Attachments @b{is new} POP.For_Every_Attachment (Write_Attachment);
+
+...
+
+Write_All_Attachments (Message);
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+It is also possible to retrieve the attachment's filename, the content
+as a memory stream. @pxref{AWS.POP}.
+
+@item Closing the connection
+
+@smallexample
+@cartouche
+@group
+POP.Close (POP_Server);
+@end group
+@end cartouche
+@end smallexample
+
+@end itemize
+
+@c ======================================================================
 
 @node LDAP
 @chapter LDAP
@@ -4215,7 +4450,7 @@ Note that for complete information about @code{AWS/LDAP} you you should read
 an LDAP API description. @code{AWS/LDAP} is only a binding and follow the
 LDAP API closely.
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Jabber
 @chapter Jabber
@@ -4247,6 +4482,8 @@ to check their presence status.
 * Jabber presence::
 * Jabber message::
 @end menu
+
+@c ----------------------------------------------------------------------
 
 @node Jabber presence
 @section Jabber presence
@@ -4305,6 +4542,8 @@ AWS.Jabber.Close (Server);
 
 @end itemize
 
+@c ----------------------------------------------------------------------
+
 @node Jabber message
 @section Jabber message
 @cindex Jabber message
@@ -4330,7 +4569,7 @@ Send_Message
 @noindent
 It is as simple as that !
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Resources
 @chapter Resources
@@ -4350,6 +4589,8 @@ Web Server must serve to clients.
 * Stream resources::
 * awsres tool::
 @end menu
+
+@c ----------------------------------------------------------------------
 
 @node Building resources
 @section Building resources
@@ -4376,6 +4617,8 @@ This will create a set of packages whose root is the unit @code{res} by
 default. The resource tree is created. @pxref{awsres tool} for the
 complete AWS's usage description.
 
+@c ----------------------------------------------------------------------
+
 @node Using resources
 @section Using resources
 @cindex Using resources
@@ -4398,6 +4641,8 @@ Note that @code{AWS} supports only a single resource tree. If more
 than one resource tree is included into a program only one will be
 seen.
 
+@c ----------------------------------------------------------------------
+
 @node Stream resources
 @section Stream resources
 @cindex Stream resources
@@ -4413,6 +4658,8 @@ stream data is out and so on. This feature is useful to let users completely
 create and control dynamically @code{AWS}'s response content.
 
 @pxref{AWS.Resources.Streams}.
+
+@c ----------------------------------------------------------------------
 
 @node awsres tool
 @section awsres tool
@@ -4439,7 +4686,7 @@ Quiet mode.
 
 @end table
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Status page
 @chapter Status page
@@ -4680,7 +4927,7 @@ There is also all @code{Templates_Parser} specific tags. This is not listed
 here please have a look at the @code{Templates_Parser} documentation
 distributed with @code{AWS}.
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node References
 @appendix References
@@ -4849,7 +5096,7 @@ By Dave Winer, Jake Savin, UserLand Software, 4/2/01.
 
 @end enumerate
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node AWS API Reference
 @appendix AWS API Reference
@@ -4878,6 +5125,7 @@ AWS User's API:
 * AWS.Messages::
 * AWS.MIME::
 * AWS.Parameters::
+* AWS.POP::
 * AWS.Resources::
 * AWS.Resources.Embedded::
 * AWS.Resources.Files::
@@ -5067,6 +5315,13 @@ SOAP User's API:
 @cindex AWS.Parameters
 
 @include aws-parameters.ads.texi
+
+@page
+@node AWS.POP
+@appendixsec AWS.POP
+@cindex AWS.POP
+
+@include aws-pop.ads.texi
 
 @page
 @node AWS.Resources
@@ -5299,7 +5554,7 @@ SOAP User's API:
 
 @include soap-types.ads.texi
 
-@c ----------------------------------------------------------------------
+@c ======================================================================
 
 @node Index
 @unnumbered Index
