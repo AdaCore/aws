@@ -1,3 +1,12 @@
+2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-thin.ads:
+	(AI_PASSIVE): Removed. Use from AWS.OS_Lib.Definitions.
+	(AI_CANONNAME): Idem.
+	(AI_NUMERICHOST): Idem.
+	(GetAddrInfo): Idem.
+	(FreeAddrInfo): Idem.
+
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
 	* src.gpr:
@@ -8,16 +17,16 @@
 
 	* aws-attachments.adb:
 	(Add): Another Content_ID casing fix.
-	
+
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
 	* aws-attachments.adb:
 	(Add): Fix Content_ID casing.
 
-	* aws-attachments.ads: 
+	* aws-attachments.ads:
 	(Add): Fix Content_ID casing.
 	Fix typo in comment.
-	
+
 2004-09-15  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.ads, aws-client.adb, aws-headers.ads, aws-headers.adb,
@@ -26,7 +35,7 @@
 	  aws-server-protocol_handler.adb:
 	Merge from the multipart_related branch.
 	New feature contributed by Henrik Sundberg.
-	
+
 	* aws-attachments.ads, aws-attachments.adb:
 	Initial revision.
 	Merge from the multipart_related branch.
