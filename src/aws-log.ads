@@ -29,20 +29,26 @@
 --  $Id$
 
 --  This package handle the logging facility for AWS. The log file is named
---  'aws.log' and is written in the directory where the server is launched.
---  Each new run will append data to this file.
+--  'aws-Day-Y-M-D.log' and is written in the directory where the server is
+--  launched. Each new run will append data to this file.
 
 with AWS.Status;
 with AWS.Messages;
 
 package AWS.Log is
 
-   procedure Start;
+   type Split_Mode is (None, Daily, Monthly);
+
+   procedure Start (Split : in Split_Mode := None);
+   --  Activate server activity logging. Split indicate the way the log file
+   --  should be.
 
    procedure Write (Connect_Stat : in Status.Data;
                     Answer_Stat  : in Messages.Status_Code;
                     Peername     : in String);
+   --  Write log is activated.
 
    procedure Stop;
+   --  Stop logging activity.
 
 end AWS.Log;
