@@ -65,12 +65,6 @@ package AWS.Status.Set is
       ID : in     String);
    --  Set Session to ID.
 
-   procedure File_Up_To_Date
-     (D               : in out Data;
-      File_Up_To_Date : in     Boolean);
-   --  File_Up_To_Date is true if the file to be transfered is already
-   --  up-to-date on the client side.
-
    procedure Host (D : in out Data; Host : in String);
    --  Set value for "Host:" parameter
 

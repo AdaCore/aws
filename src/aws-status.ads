@@ -67,11 +67,6 @@ package AWS.Status is
    function Content_Type           (D : in Data) return String;
    --  Get value for "Content-Type:" parameter
 
-   function File_Up_To_Date        (D : in Data) return Boolean;
-   --  Returns true if the file to be transfered is already up-to-date on
-   --  the client side. In this case there is not need to send the file again,
-   --  a message 304 will be sent back to the client.
-
    function Has_Session            (D : in Data) return Boolean;
    --  Returns true if a session ID has been received.
 

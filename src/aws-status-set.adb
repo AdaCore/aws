@@ -127,17 +127,6 @@ package body AWS.Status.Set is
       D.Content_Type := To_Unbounded_String (Content_Type);
    end Content_Type;
 
-   ---------------------
-   -- File_Up_To_Date --
-   ---------------------
-
-   procedure File_Up_To_Date
-     (D               : in out Data;
-      File_Up_To_Date : in     Boolean) is
-   begin
-      D.File_Up_To_Date := File_Up_To_Date;
-   end File_Up_To_Date;
-
    ----------
    -- Host --
    ----------
@@ -246,7 +235,7 @@ package body AWS.Status.Set is
       D.Boundary          := Null_Unbounded_String;
       D.Content_Length    := 0;
       D.If_Modified_Since := Null_Unbounded_String;
-      D.File_Up_To_Date   := False;
+--      D.File_Up_To_Date   := False;
       D.Auth_Name         := Null_Unbounded_String;
       D.Auth_Password     := Null_Unbounded_String;
       D.Session_ID        := AWS.Session.No_Session;
