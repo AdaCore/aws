@@ -1,5 +1,13 @@
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* unexph2.adb:
+	Use port 1247 as 1240 was already used. Fix GNU/Linux failure.
+
+	* makefile:
+	(ALL_TESTS): Do not stop if diff report an error here.
+
+2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(ALL_EXEC): New variable.
 	(clean): Use it to remove the executable. Use rm -f to avoid warnings.
