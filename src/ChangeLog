@@ -1,5 +1,11 @@
 2001-05-14  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Send_File): fix wrong order of header lines.
+
+	* aws-client.adb:
+	Minor reformating.
+
 	* aws-server-get_status.adb:
 	(Slot_Table): updated to use new Is_Abortable function. Remove
 	 specific handling for missing peername. This is now handled by
