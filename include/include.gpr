@@ -50,7 +50,7 @@ project Include is
    -- Ide --
    ---------
 
-   package Ide renames Shared.IDE;
+   package Ide renames Shared.Ide;
 
    --------------
    -- Compiler --
