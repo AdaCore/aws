@@ -670,6 +670,7 @@ regtests/datafeed_service.out
 regtests/datafeed_service.wsdl
 regtests/disp_soap.adb
 regtests/disp_soap.out
+regtests/disp_soap_proc.adb
 regtests/googlesearch.adb
 regtests/googlesearch.out
 regtests/googlesearch.wsdl
