@@ -40,7 +40,7 @@
       </operation>
    </binding>
  
-   <service name="Hello_Demo">
+   <service name="R_Hello_Demo">
       <documentation>WSDL File for Hello AWS Demo</documentation>
       <port binding="tns:Hello_Binding" name="Hello_Port">
          <soap:address 
