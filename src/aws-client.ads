@@ -42,10 +42,12 @@ package AWS.Client is
    Connection_Error : exception;
    --  Raised if the connection with the server cannot be established
 
-   Protocol_Error : exception;
+   Protocol_Error   : exception;
    --  Raised if the client receives wrong HTTP protocol data
 
-   No_Data       : constant String := "";
+   No_Data       : constant String;
+   --  Used as the default parameter when no data specified for a specific
+   --  parameter.
 
    Retry_Default : constant := 0;
    --  Number of time a data is requested from the Server if the first
@@ -57,8 +59,10 @@ package AWS.Client is
       Send    : Natural;
       Receive : Natural;
    end record;
+   --  Defined the number of seconds for the send and receive timeout
 
-   No_Timeout : constant Timeouts_Values := (0, 0);
+   No_Timeout : constant Timeouts_Values;
+   --  No timeout, allow infinite time to send or retreive data
 
    function Get
      (URL                : in String;
@@ -214,11 +218,12 @@ package AWS.Client is
    --  Sets the username, password and authentication mode for the proxy
    --  authentication.
 
-   procedure Adjust_Cookie
-     (Destination : in out HTTP_Connection;
-      Source      : in     HTTP_Connection);
-   --  Copies session ID from connection Source to connection Destination.
-   --  Allow both connections to share the same user environment.
+   procedure Copy_Cookie
+     (Source      : in     HTTP_Connection;
+      Destination : in out HTTP_Connection);
+   --  Copy a session ID from connection Source to connection Destination.
+   --  Allow both connections to share the same user environment. Note that
+   --  user's environemnt are thread-safe.
 
    function Read_Until
      (Connection : in HTTP_Connection;
@@ -291,6 +296,9 @@ package AWS.Client is
 private
 
    use Ada.Strings.Unbounded;
+
+   No_Timeout : constant Timeouts_Values := (0, 0);
+   No_Data    : constant String := "";
 
    type Socket_Access is access Sockets.Socket_FD'Class;
 
