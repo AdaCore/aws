@@ -1,3 +1,8 @@
+2003-01-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-utils.ads, aws-utils.adb:
+	(Is_Number): Returns false if the string is empty (not a number).
+
 2002-12-28  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
