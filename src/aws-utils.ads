@@ -30,8 +30,9 @@
 
 --  $Id$
 
-with System;
 with Ada.Strings.Unbounded;
+with System;
+
 with MD5;
 
 package AWS.Utils is
@@ -50,9 +51,6 @@ package AWS.Utils is
    function Image (D : in Duration) return String;
    --  return image of N without the leading blank and with only 2 decimals
    --  numbers.
-
-   function Gethostname return String;
-   --  Return hostname.
 
    function Hex (V : in Natural; Width : in Natural := 0) return String;
    --  Returns the hexadecimal string representation of the decimal

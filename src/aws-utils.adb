@@ -35,9 +35,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants;
 with Ada.Numerics.Discrete_Random;
 with Ada.Exceptions;
-with Interfaces.C.Strings;
-
-with Sockets.Thin;
 
 package body AWS.Utils is
 
@@ -60,25 +57,6 @@ package body AWS.Utils is
       MD5.Final (Ctx, HA);
       return MD5.Digest_To_Text (HA);
    end Get_MD5;
-
-   -----------------
-   -- Gethostname --
-   -----------------
-
-   function Gethostname return String is
-
-      use Interfaces;
-
-      Buffer : aliased C.char_array := (1 .. 100 => ' ');
-      Name   : constant C.Strings.chars_ptr
-        := C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access);
-      Len    : constant C.int := Buffer'Length;
-      Res    : C.int;
-
-   begin
-      Res := Sockets.Thin.C_Gethostname (Name, Len);
-      return C.Strings.Value (Name, C.size_t (Len));
-   end Gethostname;
 
    ---------
    -- Hex --
