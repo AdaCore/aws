@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -64,14 +64,13 @@ package AWS.Digest is
    --  Returns a more complex MD5 Digest if QOP field is not empty.
 
    function Tail
-     (Nonce, NC, CNonce, QOP    : in String;
-      Method, URI               : in String)
+     (Nonce, NC, CNonce, QOP, Method, URI : in String)
       return String;
    --  Returns the precalculated tail part of the digest
    --  if QOP field is not empty
-   --  Tail := ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':'
-   --            & MD5.Digest (Method & ':' & URI);
+   --     Tail := ':' & Nonce & ':' & NC & ':' & CNonce & ':' & QOP & ':'
+   --               & MD5.Digest (Method & ':' & URI);
    --  otherwise
-   --  Tail := ':' & Nonce & ':' & MD5.Digest (Method & ':' & URI);
+   --     Tail := ':' & Nonce & ':' & MD5.Digest (Method & ':' & URI);
 
 end AWS.Digest;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2004                          --
+--                         Copyright (C) 2000-2005                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -274,12 +274,13 @@ package AWS.Status is
    pragma Inline (Authorization_Tail);
    --  Returns precalculated part of digest composed of
    --  Nonce, NC, CNonce, QOP, Method, URI authorization fields.
-   --  To complete calculation of the authorization response the you need
+   --  To build a full authorization response you can use:
    --
    --  MD5.Digest
-   --    (MD5.Digest (Username & ':' & Realm & ':' & Password) & Tail);
+   --    (MD5.Digest (Username & ':' & Realm & ':' & Password)
+   --      & Authorization_Tail);
    --
-   --  This method allows to do not send a password to the AWS code.
+   --  This method avoids sending a password to the AWS code.
 
 private
 
