@@ -116,7 +116,7 @@ begin  -- LDAP_Test
             Text_IO.New_Line;
 
             Attrs := To_Unbounded_String
-              (LDAP.Client.Next_Attribute (directory, Message, BER));
+              (LDAP.Client.Next_Attribute (Directory, Message, BER));
 
             --  Exit when no more attributes
             exit when Attrs = Null_Unbounded_String;
