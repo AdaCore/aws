@@ -1,3 +1,10 @@
+2004-04-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* demos.gpr:
+	(COFF_Ref): Fix aws.coff file directory.
+	(WIN_OPT): Fix syntax.
+	Add -lpoll for all demos.
+
 2004-04-06  Pascal Obry  <pascal.obry@edf.fr>
 
 	* demos.gpr:
