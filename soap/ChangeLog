@@ -1,3 +1,31 @@
+2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.ads:
+	(Version): Set to 1.0.
+
+	* soap-generator-stub.adb:
+	(Start_Service): Add pragma Warnings Off for the spec and body.
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Do not generate code to parse the payload. This
+	 is done by AWS now. Retrieve directly the payload object. Do not
+	 include SOAP.Message.XML not used anymore.
+
+	* soap-message-xml.adb:
+	(Parse_String): Remove the encode parameter in S calls. This is
+	 now the default (no encoding).
+
+	* soap-types.adb:
+	(S): Remove the encode option. This is not the right place to
+	 encode the string. Note that this is not an upward compatible
+	 change.
+	(XML_Image): Encode strings here.
+
+	* soap-types.ads:
+	(S): Remove the encode option. This is not the right place to
+	 encode the string. Note that this is not an upward compatible
+	 change.
+
 2003-05-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-reader.adb:

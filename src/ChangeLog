@@ -1,3 +1,30 @@
+2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* src.gpr:
+	(Naming): Add section for AWS.SOAP.
+
+	* makefile:
+	(GARGS): Add -I../soap removes -q.
+	(SOURCES): Add aws-soap.adb
+	(CONF_UNITS): New target.
+	(aws-soap.ads): Idem.
+	(aws-soap.adb): Idem.
+	(clean): Add aws-soap.ad[sb]
+
+	* aws-status-set.adb:
+	(Payload): Parse the XML payload using AWS.SOAP API and store it.
+
+	* aws-status-translate_table.adb:
+	Use AWS.SOAP API to build the "PAYLOAD" tag value.
+
+	* aws-status.adb:
+	(Payload): Use AWS.SOAP API.
+
+	* aws-status.ads:
+	(Payload): New version based on AWS.SOAP data type.
+	(Data): Reorder fields, add some comments. Payload is now the
+	 parsed Payload object and not the string representation.
+
 2003-05-30  Anisimkov Dmitriy <anisimkov@yahoo.com>
 
 	* aws-client.ads:
