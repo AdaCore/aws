@@ -1,5 +1,10 @@
 2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* upload2.adb:
+	Properly serialize the output to avoid line swaping.
+
+2004-03-19  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* generate.adb:
 	Add instruction null at the end of the procedure.
 
