@@ -3,7 +3,7 @@ with Ada.Text_IO;
 with Ada.Strings.Fixed;
 
 with AWS.Utils;
-with AWS.Config;
+with AWS.Default;
 
 with Templates_Parser;
 
@@ -23,43 +23,44 @@ procedure Build is
 
 
    T : Translate_Table
-     := (Assoc ("MAX_CONNECT", Image (Config.Default_Max_Connection)),
-         Assoc ("SERVER_NAME", Config.Default_Server_Name),
-         Assoc ("SERVER_PORT", Image (Config.Default_Server_Port)),
-         Assoc ("LOG_FILE_DIR", Config.Default_Log_File_Directory),
-         Assoc ("UPLOAD_DIR", Config.Default_Upload_Directory),
+     := (Assoc ("MAX_CONNECT", Image (Default.Max_Connection)),
+         Assoc ("SERVER_NAME", Default.Server_Name),
+         Assoc ("SERVER_PORT", Image (Default.Server_Port)),
+         Assoc ("LOG_FILE_DIR", Default.Log_File_Directory),
+         Assoc ("LOG_SPLIT_MODE", Default.Log_Split_Mode),
+         Assoc ("UPLOAD_DIR", Default.Upload_Directory),
          Assoc ("CT_WAIT_FOR_CLIENT",
-                Image (Config.Default_Cleaner_Wait_For_Client_Timeout)),
+                Image (Default.Cleaner_Wait_For_Client_Timeout)),
          Assoc ("CT_CLIENT_HEADER",
-                Image (Config.Default_Cleaner_Client_Header_Timeout)),
+                Image (Default.Cleaner_Client_Header_Timeout)),
          Assoc ("CT_CLIENT_DATA",
-                Image (Config.Default_Cleaner_Client_Data_Timeout)),
+                Image (Default.Cleaner_Client_Data_Timeout)),
          Assoc ("CT_SERVER_RESPONSE",
-                Image (Config.Default_Cleaner_Server_Response_Timeout)),
+                Image (Default.Cleaner_Server_Response_Timeout)),
          Assoc ("FT_WAIT_FOR_CLIENT",
-                Image (Config.Default_Force_Wait_For_Client_Timeout)),
+                Image (Default.Force_Wait_For_Client_Timeout)),
          Assoc ("FT_CLIENT_HEADER",
-                Image (Config.Default_Force_Client_Header_Timeout)),
+                Image (Default.Force_Client_Header_Timeout)),
          Assoc ("FT_CLIENT_DATA",
-                Image (Config.Default_Force_Client_Data_Timeout)),
+                Image (Default.Force_Client_Data_Timeout)),
          Assoc ("FT_SERVER_RESPONSE",
-                Image (Config.Default_Force_Server_Response_Timeout)),
+                Image (Default.Force_Server_Response_Timeout)),
          Assoc ("SEND_TIMEOUT",
-                Image (Config.Default_Send_Timeout)),
+                Image (Default.Send_Timeout)),
          Assoc ("RECEIVE_TIMEOUT",
-                Image (Config.Default_Receive_Timeout)),
+                Image (Default.Receive_Timeout)),
          Assoc ("LOGO_IMAGE",
-                Config.Default_Logo_Image),
+                Default.Logo_Image),
          Assoc ("DOWN_IMAGE",
-                Config.Default_Down_Image),
+                Default.Down_Image),
          Assoc ("UP_IMAGE",
-                Config.Default_Up_Image),
+                Default.Up_Image),
          Assoc ("STATUS_PAGE",
-                Config.Default_Status_Page),
+                Default.Status_Page),
          Assoc ("SESSION_LIFETIME",
-                Image (Config.Default_Session_Lifetime)),
+                Image (Default.Session_Lifetime)),
          Assoc ("SESSION_CLEANUP_INTERVAL",
-                Image (Config.Default_Session_Cleanup_Interval))
+                Image (Default.Session_Cleanup_Interval))
         );
 
 begin
