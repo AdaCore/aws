@@ -1,0 +1,13 @@
+<html> 
+<head> 
+<title>AWS Web Mail Demo</title>
+<meta http-equiv="refresh" content="3; url=/wm_summary">
+</head>
+  
+<body> 
+
+<p>WM Error
+<p>
+<p>@_ERROR_MESSAGE_@
+</body>
+</html>
