@@ -48,6 +48,8 @@ package AWS.Net is
    type Socket_Type is abstract tagged private;
    type Socket_Access is access all Socket_Type'Class;
 
+   type Socket_Set is array (Positive range <>) of Socket_Access;
+
    ----------------
    -- Initialize --
    ----------------
