@@ -17,7 +17,7 @@ build: build_zlib ../src/aws-os_lib.adb
 
 setup:
 	-$(MKDIR) -p ../$(BDIR)/include
-	${MAKE} -C zlib
+	-$(MKDIR) -p ../$(BDIR)/include/ai302
 
 clean:
 	${MAKE} -C zlib clean
