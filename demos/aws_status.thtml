@@ -65,6 +65,30 @@ status.</H3>
 
 <br>
 
+<H3>Logs information:</H3>
+
+@@IF@@ @_LOG_@
+
+<table>
+
+<tr>
+<td width=250>Log filename
+<td><b>@_LOG_FILE_@</b>
+</tr>
+
+<tr>
+<td>Mode
+<td><b>@_LOG_MODE_@</b>
+</tr>
+
+</table>
+
+@@ELSE@@
+   No log activated.
+@@END_IF@@
+
+<br>
+
 <H3>Slots information are given below:</H3>
 
 <table>
