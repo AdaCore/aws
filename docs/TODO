@@ -106,9 +106,12 @@ implemented:
   compressed or decompressed data to the browser depending on it's support for
   compressed message body.
 
-- Change support for uncompressed memory stream. The data should be
-  uncompressed only when reading data and not when appending compressed data
-  into the stream. This enhancement will reduce the memory used by the data.
+- Add support for compressed data in the memory stream on the client side.
+  User should be able to choose uncompressing data at the read stage.
+  This enhancement will reduce the memory used by the data.
+  This feature should be used when user reads data from memory stream
+  partially. It is better for big compressed data, but worse for relatively
+  small compressed data, when user want to read it at once.
 
 =============== Point to fix before next release
 
