@@ -972,7 +972,16 @@ package body AWS.Session is
 
    function Value (SID : in String) return ID is
    begin
-      return ID (SID (SID'First + SID_Prefix'Length .. SID'Last));
+      if SID'Length /= ID'Length + SID_Prefix'Length
+        or else
+        (SID'Length > SID_Prefix'Length
+           and then
+         SID (SID'First .. SID'First + SID_Prefix'Length - 1) /= SID_Prefix)
+      then
+         return No_Session;
+      else
+         return ID (SID (SID'First + SID_Prefix'Length .. SID'Last));
+      end if;
    end Value;
 
 begin
