@@ -58,7 +58,7 @@ begin
    H := SOAP.Dispatchers.Callback.Create
      (WSDL_2_Server.HTTP_CB'Access, WSDL_2_Server.SOAP_CB'Access);
 
-   Config.Set.Server_Port (Conf, 3333);
+   Config.Set.Server_Port (Conf, 7702);
 
    Server.Start (WS, H, Conf);
 
