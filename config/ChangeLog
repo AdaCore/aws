@@ -1,5 +1,14 @@
 2004-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* src/check_config.c:
+	Generate call to WSPIAPI_init in elaboration for wspiapi.h static data
+	 initialization.
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
+	Remove dummy call to OSD.GetAddrInfo and OSD.FreeAddrInfo.
+
+2004-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
 	Fix segmentation fault on Solaris and FreeBSD. Do not call
 	 OSD.FreeAddrInfo with null pointer.
