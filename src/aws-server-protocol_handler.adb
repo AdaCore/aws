@@ -77,10 +77,10 @@ is
    use type Resources.Content_Length_Type;
 
    Case_Sensitive_Parameters : constant Boolean
-   := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
+     := CNF.Case_Sensitive_Parameters (HTTP_Server.Properties);
 
    Admin_URI      : constant String
-   := CNF.Admin_URI (HTTP_Server.Properties);
+     := CNF.Admin_URI (HTTP_Server.Properties);
 
    HTTP_10        : constant String := "HTTP/1.0";
 
@@ -89,7 +89,7 @@ is
    P_List         : AWS.Parameters.List; -- Form data
 
    Sock_Ptr       : constant Socket_Access
-   := HTTP_Server.Slots.Get (Index => Index).Sock;
+     := HTTP_Server.Slots.Get (Index => Index).Sock;
 
    Sock           : Net.Socket_Type'Class renames Sock_Ptr.all;
 
