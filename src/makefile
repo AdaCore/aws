@@ -57,5 +57,5 @@ win32_oslib:
 	cp ../include/aws-os_lib-win32.adb aws-os_lib.adb
 
 clean:
-	-rm -f *.o *.ali aws-net.adb aws-os_lib.adb *.~*.*~
+	-rm -f *.o *.ali aws-os_lib.adb *.~*.*~
 	-rm aws-translator-conversion.adb
