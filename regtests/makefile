@@ -47,7 +47,7 @@ RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
 # and 9. Socket port is then 770<digit>.
 RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6
 
-RT_SOAP_ASIS_PARSE = wsdl_a
+RT_SOAP_ASIS_PARSE = wsdl_a wsdl_b
 
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
@@ -162,7 +162,9 @@ endif
 $(ASIS2_TESTS): force
 	rm -f $@.res
 	echo -n Building $@
-	../tools/ada2wsdl -q -f $@.ads -o $@.wsdl 2> $@.res
+	../tools/ada2wsdl -v -f $@.ads -o $@.wsdl > tmp 2>&1
+	tail +3 tmp > $@.res
+	rm tmp
 	echo ",  run it"
 	-diff -c -w $@.out $@.res >> alldifs
 
