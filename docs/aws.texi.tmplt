@@ -81,6 +81,17 @@ a very good and Open Source SSL implementation.
 @node How to build it ?
 @chapter How to build it ?
 
+@ifinfo
+@menu
+* Requirements::
+* AWS.OS_Lib::
+* Building::
+@end menu
+@end ifinfo
+
+@node Requirements
+@section Requirements
+
 @noindent
 @code{AWS} has been developped with GNAT under Windows NT but should be fairly
 portable. To build @code{AWS} you need:
@@ -116,9 +127,51 @@ distribution from @url{http://www.openssl.org} and build it.
 
 @end itemize
 
+@node AWS.OS_Lib
+@section AWS.OS_Lib
+
 @noindent
-When you have built all libraries you can build AWS. There is two ways
-to build AWS:
+The @code{AWS.OS_Lib} has 3 implementations. One using @code{POSIX}, one using
+@code{GNAT.OS_Lib} and one using direct @code{Win32} calls.
+
+@table @b
+
+@item POSIX implementation
+
+Version with POSIX is compiler and OS independant (well if you have a POSIX
+implementation for your OS). Check out Florist which is available on many
+UNIXs and the version for Win32 available under my homepage.
+
+@smallexample
+This is the default implementation.
+@end smallexample
+
+@item GNAT.OS_Lib implementation
+
+Version using GNAT.OS_Lib is GNAT dependant and will run on whatever OS 
+GNAT has be ported to.
+
+@smallexample
+Just copy include/aws-os_lib-gnat.adb over src/aws-os_lib.adb.
+@end smallexample
+
+@item Win32 implementation
+
+Version for Win32 should be usable by any Ada compiler for Windows 
+95/98/NT/2000.
+
+@smallexample
+Just copy include/aws-os_lib-win32.adb over src/aws-os_lib.adb.
+@end smallexample
+
+@end table
+
+@node Building
+@section Building
+
+@noindent
+When you have built and configured all libraries you can build
+AWS. There is two ways to build AWS:
 
 @itemize @bullet
 @item with SSL support
