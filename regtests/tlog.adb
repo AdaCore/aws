@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Characters.Handling;
 with Ada.Exceptions;
 with Ada.Strings.Fixed;
 with Ada.Text_IO;
@@ -117,6 +118,21 @@ procedure Tlog is
       return Str (Str'First .. K);
    end IP;
 
+   ---------------
+   -- Hide_Date --
+   ---------------
+
+   function Hide_Date (Filename : in String) return String is
+      R : String := Filename;
+   begin
+      for K in R'Range loop
+         if Characters.Handling.Is_Digit (R (K)) then
+            R (K) := 'x';
+         end if;
+      end loop;
+      return R;
+   end Hide_Date;
+
    ----------------
    -- Parse_Logs --
    ----------------
@@ -130,13 +146,13 @@ procedure Tlog is
 
       AWK.Open;
 
-      Text_IO.Put_Line ("> File : " & AWK.File);
+      Text_IO.Put_Line ("> File : " & Hide_Date (AWK.File));
 
       while not AWK.End_Of_Data loop
 
          if AWK.End_Of_File then
             AWK.Get_Line;
-            Text_IO.Put_Line ("> File : " & AWK.File);
+            Text_IO.Put_Line ("> File : " & Hide_Date (AWK.File));
          else
             AWK.Get_Line;
          end if;
