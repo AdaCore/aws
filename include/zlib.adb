@@ -192,8 +192,8 @@ package body ZLib is
       Level        : in     Compression_Level  := Default_Compression;
       Strategy     : in     Strategy_Type      := Default_Strategy;
       Method       : in     Compression_Method := Deflated;
-      Window_Bits  : in     Window_Bits_Type   := 15;
-      Memory_Level : in     Memory_Level_Type  := 8;
+      Window_Bits  : in     Window_Bits_Type   := Default_Window_Bits;
+      Memory_Level : in     Memory_Level_Type  := Default_Memory_Level;
       Header       : in     Header_Type        := Default)
    is
       use type Thin.Int;
@@ -301,7 +301,7 @@ package body ZLib is
 
    procedure Inflate_Init
      (Filter      : in out Filter_Type;
-      Window_Bits : in     Window_Bits_Type := 15;
+      Window_Bits : in     Window_Bits_Type := Default_Window_Bits;
       Header      : in     Header_Type      := Default)
    is
       use type Thin.Int;
