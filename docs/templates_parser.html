@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 20 May 2004
+<p>Date: 26 May 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -1800,6 +1800,8 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
 
    <b>type</b> Association <b>is</b> <b>private</b>;
 
+   Null_Association : <b>constant</b> Association;
+
    <b>type</b> Association_Kind <b>is</b> (Std, Composite);
    -- <i> The kind of association which is either Std (a simple value), a vector</i>
    -- <i> tag or a Matrix tag.</i>
@@ -1869,6 +1871,14 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
    -- <i> Add Items into the translate set. If an association for variables in</i>
    -- <i> Items already exists it just replaces it by the new one.</i>
 
+   <b>procedure</b> Remove (Set : <b>in</b> <b>out</b> Translate_Set; Name : <b>in</b> String);
+   -- <i> Removes association named Name from the Set. Does nothing if there is</i>
+   -- <i> not such association in the set.</i>
+
+   <b>function</b> Get (Set : <b>in</b> Translate_Set; Name : <b>in</b> String) <b>return</b> Association;
+   -- <i> Returns the association named Name in the Set. Returns Null_Association</i>
+   -- <i> is no such association if found in Set.</i>
+
    <b>function</b> Exists
      (Set      : <b>in</b> Translate_Set;
       Variable : <b>in</b> String) <b>return</b> Boolean;
@@ -1884,10 +1894,8 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
    <b>type</b> Context <b>is</b> tagged <b>private</b>;
    <b>type</b> Context_Access <b>is</b> <b>access</b> all Context'Class;
 
-   <b>subtype</b> TP_Context <b>is</b> Context;
-
    <b>procedure</b> Callback
-     (Context  : <b>access</b> TP_Context;
+     (Context  : <b>access</b> Templates_Parser.Context;
       Variable : <b>in</b>     String;
       Result   :    <b>out</b> Unbounded_String;
       Found    :    <b>out</b> Boolean);
@@ -1899,19 +1907,17 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
    -- <i> always return with Found set to False.</i>
 
    Null_Context : <b>constant</b> Context_Access;
-   -- <i> ??? With Ada0Y it will be possible to use an anonymous access</i>
-   -- <i> "access Context"</i>
 
    -----------------------------
    -- <i>Parsing and Translating --</i>
    -----------------------------
 
    <b>function</b> Parse
-     (Filename          : <b>in</b>     String;
-      Translations      : <b>in</b>     Translate_Table  := No_Translation;
-      Cached            : <b>in</b>     Boolean          := False;
-      Keep_Unknown_Tags : <b>in</b>     Boolean          := False;
-      Context           : <b>access</b> TP_Context'Class := Null_Context)
+     (Filename          : <b>in</b> String;
+      Translations      : <b>in</b> Translate_Table := No_Translation;
+      Cached            : <b>in</b> Boolean         := False;
+      Keep_Unknown_Tags : <b>in</b> Boolean         := False;
+      Context           : <b>in</b> Context_Access  := Null_Context)
       <b>return</b> String;
    -- <i> Parse the Template_File replacing variables' occurrences by the</i>
    -- <i> corresponding values. If Cached is set to True, Filename tree will be</i>
@@ -1922,29 +1928,29 @@ Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Pa
    -- <i> False.</i>
 
    <b>function</b> Parse
-     (Filename          : <b>in</b>     String;
-      Translations      : <b>in</b>     Translate_Table  := No_Translation;
-      Cached            : <b>in</b>     Boolean          := False;
-      Keep_Unknown_Tags : <b>in</b>     Boolean          := False;
-      Context           : <b>access</b> TP_Context'Class := Null_Context)
+     (Filename          : <b>in</b> String;
+      Translations      : <b>in</b> Translate_Table := No_Translation;
+      Cached            : <b>in</b> Boolean         := False;
+      Keep_Unknown_Tags : <b>in</b> Boolean         := False;
+      Context           : <b>in</b> Context_Access  := Null_Context)
       <b>return</b> Unbounded_String;
    -- <i> Idem but returns an Unbounded_String</i>
 
    <b>function</b> Parse
-     (Filename          : <b>in</b>     String;
-      Translations      : <b>in</b>     Translate_Set;
-      Cached            : <b>in</b>     Boolean          := False;
-      Keep_Unknown_Tags : <b>in</b>     Boolean          := False;
-      Context           : <b>access</b> TP_Context'Class := Null_Context)
+     (Filename          : <b>in</b> String;
+      Translations      : <b>in</b> Translate_Set;
+      Cached            : <b>in</b> Boolean        := False;
+      Keep_Unknown_Tags : <b>in</b> Boolean        := False;
+      Context           : <b>in</b> Context_Access := Null_Context)
       <b>return</b> String;
    -- <i> Idem with a Translation_Set</i>
 
    <b>function</b> Parse
-     (Filename          : <b>in</b>     String;
-      Translations      : <b>in</b>     Translate_Set;
-      Cached            : <b>in</b>     Boolean          := False;
-      Keep_Unknown_Tags : <b>in</b>     Boolean          := False;
-      Context           : <b>access</b> TP_Context'Class := Null_Context)
+     (Filename          : <b>in</b> String;
+      Translations      : <b>in</b> Translate_Set;
+      Cached            : <b>in</b> Boolean        := False;
+      Keep_Unknown_Tags : <b>in</b> Boolean        := False;
+      Context           : <b>in</b> Context_Access := Null_Context)
       <b>return</b> Unbounded_String;
    -- <i> Idem with a Translation_Set</i>
 
