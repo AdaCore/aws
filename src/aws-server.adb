@@ -428,6 +428,7 @@ package body AWS.Server is
    task body Line_Cleaner is
       Mode   : Timeout_Mode;
       Socket : Socket_Access;
+      Slot   : Positive;
    begin
       loop
          select
@@ -440,12 +441,13 @@ package body AWS.Server is
          end select;
 
          loop
-            Server.Slots.Abort_On_Timeout (Mode, Socket);
+            Server.Slots.Abort_On_Timeout (Mode, Socket, Slot);
 
             if Socket = null then
                exit when Mode /= Force;
             else
                Net.Shutdown (Socket.all);
+               Server.Slots.Shutdown_Done (Slot);
                exit;
             end if;
 
@@ -531,6 +533,9 @@ package body AWS.Server is
 
    procedure Shutdown (Web_Server : in out HTTP) is
 
+      Slot_State : Slot_Phase;
+      Slot_Index : Positive;
+
       procedure Free is
          new Ada.Unchecked_Deallocation (Line_Cleaner, Line_Cleaner_Access);
 
@@ -569,6 +574,13 @@ package body AWS.Server is
             if Socket /= null then
                Net.Shutdown (Socket.all);
             end if;
+
+            Web_Server.Slots.Shutdown_Done (S);
+         exception
+            when others =>
+               Web_Server.Slots.Shutdown_Done (S);
+
+               raise;
          end;
       end loop;
 
@@ -581,6 +593,9 @@ package body AWS.Server is
          for K in Web_Server.Lines'Range loop
             if not Web_Server.Lines (K)'Terminated then
                All_Lines_Terminated := False;
+
+               Slot_Index := K;
+               Slot_State := Web_Server.Slots.Get (K).Phase;
             end if;
          end loop;
 
@@ -590,8 +605,11 @@ package body AWS.Server is
 
          if Wait_Counter > 30 then
             Ada.Text_IO.Put_Line
-              (Text_IO.Current_Error, "Can't terminate all lines.");
-            exit;
+              (Text_IO.Current_Error,
+               "Can't terminate all lines. Slot" & Positive'Image (Slot_Index)
+               & " in "
+               & Slot_State'Img & " state.");
+            --  exit;
          end if;
       end loop;
 
@@ -665,13 +683,16 @@ package body AWS.Server is
 
       procedure Abort_On_Timeout
         (Mode   : in     Timeout_Mode;
-         Socket :    out Socket_Access) is
+         Socket :    out Socket_Access;
+         Index  :    out Positive) is
       begin
          for S in Table'Range loop
             if Is_Abortable (S, Mode) then
                Get_For_Shutdown (S, Socket);
 
                if Socket /= null then
+                  Index := S;
+
                   return;
                end if;
             end if;
@@ -707,7 +728,7 @@ package body AWS.Server is
          Socket :    out Socket_Access) is
       begin
          if Table (Index).Phase not in Closed .. Aborted then
-            Mark_Phase (Index, Aborted);
+            Mark_Phase (Index, In_Shutdown);
             Socket := Table (Index).Sock;
          else
             Socket := null;
@@ -852,9 +873,20 @@ package body AWS.Server is
                   --  If it was aborted, we can free it here.
 
                   Net.Free (Table (Index).Sock.all);
+
+               elsif Table (Index).Phase = In_Shutdown then
+                  --  We could not let caller to shutdown, and we could not
+                  --  Free the socket here  because different task is
+                  --  shutdowning socket now.
+
+                  Mark_Phase (Index, Loose_Release);
+
+                  return;
+
                else
                   --  We have to shutdown socket only if
-                  --  it was not aborted and was not closed.
+                  --  it is not in shutdown state and was not aborted
+                  --  and was not closed.
 
                   Shutdown := True;
                end if;
@@ -899,6 +931,20 @@ package body AWS.Server is
          Timeouts := Phase_Timeouts;
          Slots.Data_Timeouts := Set_Timeouts.Data_Timeouts;
       end Set_Timeouts;
+
+      -------------------
+      -- Shutdown_Done --
+      -------------------
+
+      procedure Shutdown_Done (Index : in Positive) is
+      begin
+         if Table (Index).Phase = Loose_Release then
+            Net.Free (Table (Index).Sock.all);
+            Mark_Phase (Index, Closed);
+         else
+            Mark_Phase (Index, Aborted);
+         end if;
+      end Shutdown_Done;
 
       ------------------
       -- Socket_Taken --
