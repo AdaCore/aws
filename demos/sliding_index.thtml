@@ -1,0 +1,71 @@
+@@-- Builds an index for split pages. 
+@@-- A sliding window of the indicated size is provided, the current page
+@@-- staying centered (if possible) within the window.
+@@-- Entries that have no associated hrefs are displayed (without link) only if
+@@-- they are greater than 'A': therefore an alphabetical index will always
+@@-- show all letters, but "<>" and "1..9" will only appear if there are
+@@-- corresponding entries.
+@@-- Buttons are added to go to first, last, previous and next pages.
+@@--
+@@-- Parameters: $1= Number of visible index entries
+@@--             $2: Treatment of entries without Hrefs (optional)
+@@--             $2=ALL   All entries without Href are displayed
+@@--             $2=ALPHA Only alpha entries without Href are displayed
+@@--             $2=NONE (or unspecified) No entry without Href is displayed
+@@--
+@@-- Can be used with splitters:
+@@--   primary index  : Alpha, Alpha.Bounded, Uniform.Alpha, Uniform,
+@@--                    Uniform.Overlapping
+@@--   secondary index: Alpha.Bounded
+
+@@IF@@ not @_IS_EMPTY:PREVIOUS_@
+   <a href="@_FIRST_@">[first]</a>
+   <a href="@_PREVIOUS_@">[previous]</a> 
+@@END_IF@@
+
+@@TABLE@@
+   @@IF@@ @_PAGE_INDEX_@ <= @_"/"(2):$1_@
+      @@IF@@ @_TABLE_LINE_@ <= @_$1_@
+         @@IF@@ @_IS_EMPTY:TRIM:HREFS_V_@
+            @@IF@@ @_UPPER:$2_@ = ALL or (@_UPPER:$2_@ = ALPHA and @_UPPER:INDEXES_V_@ >= A and @_UPPER:INDEXES_V_@ <= Z)
+              @_INDEXES_V_@
+            @@END_IF@@
+         @@ELSIF@@ @_TABLE_LINE_@ = @_PAGE_INDEX_@
+            <font color="red">@_INDEXES_V_@</font>
+         @@ELSE@@
+            <a href="@_HREFS_V_@">@_INDEXES_V_@</a>
+         @@END_IF@@
+      @@END_IF@@
+
+   @@ELSIF@@ @_"/"(2):$1_@ > @_"-"(PAGE_INDEX):INDEXES_V'LENGTH_@
+      @@IF@@ @_"+"($1):TABLE_LINE_@ > @_INDEXES_V'LENGTH_@
+         @@IF@@ @_IS_EMPTY:TRIM:HREFS_V_@
+            @@IF@@ @_UPPER:$2_@ = ALL or (@_UPPER:$2_@ = ALPHA and @_UPPER:INDEXES_V_@ >= A and @_UPPER:INDEXES_V_@ <= Z)
+              @_INDEXES_V_@
+            @@END_IF@@
+         @@ELSIF@@ @_TABLE_LINE_@ = @_PAGE_INDEX_@
+            <font color="red">@_INDEXES_V_@</font>
+         @@ELSE@@
+            <a href="@_HREFS_V_@">@_INDEXES_V_@</a>
+         @@END_IF@@
+      @@END_IF@@
+
+   @@ELSE@@
+      @@IF@@ @_ABS:"-"(PAGE_INDEX):TABLE_LINE_@ <= @_"/"(2):$1_@
+         @@IF@@ @_IS_EMPTY:TRIM:HREFS_V_@
+            @@IF@@ @_UPPER:$2_@ = ALL or (@_UPPER:$2_@ = ALPHA and @_UPPER:INDEXES_V_@ >= A and @_UPPER:INDEXES_V_@ <= Z)
+              @_INDEXES_V_@
+            @@END_IF@@
+         @@ELSIF@@ @_TABLE_LINE_@ = @_PAGE_INDEX_@
+            <font color="red">@_INDEXES_V_@</font>
+         @@ELSE@@
+            <a href="@_HREFS_V_@">@_INDEXES_V_@</a>
+         @@END_IF@@
+      @@END_IF@@
+   @@END_IF@@
+@@END_TABLE@@
+
+@@IF@@ not @_IS_EMPTY:NEXT_@
+   <a href="@_NEXT_@">[next]</a>
+   <a href="@_LAST_@">[last]</a>
+@@END_IF@@

@@ -1,0 +1,32 @@
+@@-- Builds an index for split pages (secondary index). 
+@@-- If there are more entries than the maximum allowed, the first, last, and
+@@-- current entries are always displayed; extra entries are replaced with
+@@-- "..." and are associated to $2
+@@--
+@@-- Parameters: $1= Number of visible index entries
+@@--             $2 (optional) = Href to use for "..." entries.
+@@--                             (none by default)
+
+@@TABLE@@
+   @@IF@@ @_TABLE_LINE_@ = 1 or @_TABLE_LINE_@ = @_S_HREFS_V'LENGTH_@ or (@_S_PAGE_INDEX_@ <= @_"/"(2):$1_@ and @_TABLE_LINE_@ <= @_"-"(2):$1_@) or (@_S_PAGE_INDEX_@ > @_"/"(2):"-"($1):"*"(2):S_HREFS_V'LENGTH_@ and @_TABLE_LINE_@ > @_"+"(2):"-"($1):S_HREFS_V'LENGTH_@)
+      @@IF@@ @_TABLE_LINE_@ = @_S_PAGE_INDEX_@
+         <font color="red">@_S_INDEXES_V_@</font>
+      @@ELSE@@
+         <a href="@_S_HREFS_V_@">@_S_INDEXES_V_@</a>
+      @@END_IF@@
+
+   @@ELSIF@@ @_TABLE_LINE_@ > @_"+"(2):"/"(2):"-"($1):"*"(2):S_PAGE_INDEX_@ and @_TABLE_LINE_@ <= @_"+"($1):"-"(2):"/"(2):"-"($1):"*"(2):S_PAGE_INDEX_@
+      @@IF@@ @_TABLE_LINE_@ = @_S_PAGE_INDEX_@
+         <font color="red">@_S_INDEXES_V_@</font>
+      @@ELSE@@
+         <a href="@_S_HREFS_V_@">@_S_INDEXES_V_@</a>
+      @@END_IF@@
+
+   @@ELSIF@@ @_TABLE_LINE_@ = 2 or @_TABLE_LINE_@ = @_"-"(1):S_INDEXES_V'LENGTH_@
+     @@IF@@ @_EXIST:$2_@
+       <a href="@_$2_@">...</a>
+     @@ELSE@@
+       ...
+     @@END_IF@@
+   @@END_IF@@
+@@END_TABLE@@
