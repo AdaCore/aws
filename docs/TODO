@@ -83,4 +83,6 @@ implemented:
 - Merge the message handling on the server and client side. Right now both are
   using different implementations.
 
-- Implement AWS.Net.Std for GNAT.Sockets
+- Implement the AWS.Response.Set.Append_Body routines and the
+  AWS.Response.Data internal data storage instead of one dynamically
+  allocated data array.
