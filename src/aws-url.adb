@@ -82,7 +82,9 @@ package body AWS.URL is
       return Utils.Hex (Character'Pos (C));
    end Code;
 
-   Hex_Escape : constant array (Character) of Escape_Code
+   subtype ASCII_7 is Character range Character'First .. Character'Val (127);
+
+   Hex_Escape : constant array (ASCII_7) of Escape_Code
      := (';' => Code (';'), '/' => Code ('/'), '?' => Code ('?'),
          ':' => Code (':'), '@' => Code ('@'), '&' => Code ('&'),
          '=' => Code ('='), '+' => Code ('+'), '$' => Code ('$'),
@@ -90,7 +92,11 @@ package body AWS.URL is
          '#' => Code ('#'), '%' => Code ('%'), '"' => Code ('"'),
          '{' => Code ('{'), '}' => Code ('}'), '|' => Code ('|'),
          '\' => Code ('\'), '^' => Code ('^'), '[' => Code ('['),
-         ']' => Code (']'), '`' => Code ('`'), others => Not_Escaped);
+         ']' => Code (']'), '`' => Code ('`'), ' ' => Code (' '),
+         others => Not_Escaped);
+   --  Limit Hex_Escape to 7bits ASCII characters only. Other ISO-8859-1 are
+   --  handled separately in Encode function. Space character is not processed
+   --  specifically, contrary to what is done in AWS.URL.
 
    ------------
    -- Decode --
@@ -139,11 +145,13 @@ package body AWS.URL is
       K   : Natural := 0;
    begin
       for I in Str'Range loop
-         if Str (I) = ' ' then
-            --  special case for the space that can be encoded as %20 or
-            --  '+'. The later being more readable we use this encoding here.
+         if Character'Pos (Str (I)) >= 128 then
             K := K + 1;
-            Res (K) := '+';
+            Res (K) := '%';
+            K := K + 1;
+            Res (K .. K + 1) := Code (Str (I));
+            K := K + 1;
+            --  Add this case to handle ISO-8859-1 characters 128 to 255
 
          elsif Hex_Escape (Str (I)) = Not_Escaped then
             K := K + 1;
