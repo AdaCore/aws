@@ -102,6 +102,10 @@ is
    --  POST method is handled. This procedure fill in the C_Stat status
    --  data.
 
+   procedure Parse_Request_Line (Command : in String);
+   --  Parse the request line:
+   --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
+
    procedure Send_File_Time
      (Sock     : in Sockets.Socket_FD'Class;
       Filename : in String);
@@ -958,14 +962,20 @@ is
                --  A request by the client has been received, do not abort
                --  until this request is handled.
 
-               if First_Line then
-                  HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
-                  First_Line := False;
-               end if;
-
                exit when Data = End_Of_Message;
 
-               Parse (Data);
+               if First_Line then
+
+                  HTTP_Server.Slots.Mark_Phase (Index, Client_Header);
+
+                  Parse_Request_Line (Data);
+
+                  First_Line := False;
+
+               else
+                  Parse (Data);
+               end if;
+
             end;
 
          exception
@@ -1009,11 +1019,11 @@ is
       return Result;
    end Is_Valid_HTTP_Date;
 
-   -----------
-   -- Parse --
-   -----------
+   ------------------------
+   -- Parse_Request_Line --
+   ------------------------
 
-   procedure Parse (Command : in String) is
+   procedure Parse_Request_Line (Command : in String) is
 
       I1, I2 : Natural;
       --  Index of first space and second space
@@ -1035,10 +1045,6 @@ is
       function HTTP_Version return String;
       pragma Inline (HTTP_Version);
       --  Returns second parameter. parameters are separated by spaces.
-
-      function Parse_Request_Line (Command : in String) return Boolean;
-      --  Parse the request line:
-      --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
       -----------------
       -- Cut_Command --
@@ -1086,37 +1092,29 @@ is
          end if;
       end Parameters;
 
-      ------------------------
-      -- Parse_Request_Line --
-      ------------------------
-
-      function Parse_Request_Line (Command : in String) return Boolean is
-      begin
-         Cut_Command;
-
-         if Messages.Is_Match (Command, Messages.Get_Token) then
-            Status.Set.Request (C_Stat, Status.GET, URI, HTTP_Version);
-            AWS.Parameters.Set.Add (P_List, Parameters);
-            return True;
-
-         elsif Messages.Is_Match (Command, Messages.Head_Token) then
-            Status.Set.Request (C_Stat, Status.HEAD, URI, HTTP_Version);
-            return True;
-
-         elsif Messages.Is_Match (Command, Messages.Post_Token) then
-            Status.Set.Request (C_Stat, Status.POST, URI, HTTP_Version);
-            return True;
-
-         else
-            return False;
-         end if;
-      end Parse_Request_Line;
-
    begin
-      if Parse_Request_Line (Command) then
-         null;
+      Cut_Command;
 
-      elsif Messages.Is_Match (Command, Messages.Host_Token) then
+      if Messages.Is_Match (Command, Messages.Get_Token) then
+         Status.Set.Request (C_Stat, Status.GET, URI, HTTP_Version);
+         AWS.Parameters.Set.Add (P_List, Parameters);
+
+      elsif Messages.Is_Match (Command, Messages.Head_Token) then
+         Status.Set.Request (C_Stat, Status.HEAD, URI, HTTP_Version);
+
+      elsif Messages.Is_Match (Command, Messages.Post_Token) then
+         Status.Set.Request (C_Stat, Status.POST, URI, HTTP_Version);
+
+      end if;
+   end Parse_Request_Line;
+
+   -----------
+   -- Parse --
+   -----------
+
+   procedure Parse (Command : in String) is
+   begin
+      if Messages.Is_Match (Command, Messages.Host_Token) then
          Status.Set.Host
            (C_Stat,
             Command (Messages.Host_Token'Length + 1 .. Command'Last));
