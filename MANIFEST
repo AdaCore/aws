@@ -503,6 +503,11 @@ regtests/wsdl_parse_3.out
 regtests/wsdl_parse_3.wsdl
 regtests/wsdl_parse_4.out
 regtests/wsdl_parse_4.wsdl
+regtests/xmlt.adb
+regtests/xmlt.out
+regtests/xmlt_proc.adb
+regtests/xmlt_sec.adb
+regtests/xmlt_sec.out
 regtests/zapp.adb
 regtests/zapp.out
 regtests/zbig.adb
