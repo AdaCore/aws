@@ -50,6 +50,17 @@ package body AWS.Response.Set is
       D.Status_Code    := Messages.S401;
    end Authentication;
 
+   -------------------
+   -- Cache_Control --
+   -------------------
+
+   procedure Cache_Control
+     (D     : in out Data;
+      Value : in     Messages.Cache_Option) is
+   begin
+      D.Cache_Control := To_Unbounded_String (String (Value));
+   end Cache_Control;
+
    --------------------
    -- Content_Length --
    --------------------
