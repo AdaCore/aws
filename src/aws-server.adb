@@ -262,26 +262,24 @@ package body AWS.Server is
               := Accept_Socket_Serialized (HTTP_Server);
 
          begin
-            begin
-               --  If there is only one more slot available and we have many
-               --  of them, try to abort one of them.
+            --  If there is only one more slot available and we have many
+            --  of them, try to abort one of them.
 
-               if HTTP_Server.Slots.Free_Slots = 1
-                 and then CNF.Max_Connection (HTTP_Server.Properties) > 1
-               then
-                  select
-                     HTTP_Server.Cleaner.Force;
-                  or
-                     delay 4.0;
-                     Ada.Text_IO.Put_Line
-                       (Text_IO.Current_Error, "Server too busy.");
-                  end select;
-               end if;
+            if HTTP_Server.Slots.Free_Slots = 1
+              and then CNF.Max_Connection (HTTP_Server.Properties) > 1
+            then
+               select
+                  HTTP_Server.Cleaner.Force;
+               or
+                  delay 4.0;
+                  Ada.Text_IO.Put_Line
+                    (Text_IO.Current_Error, "Server too busy.");
+               end select;
+            end if;
 
-               HTTP_Server.Slots.Set (Socket'Unchecked_Access, Slot_Index);
+            HTTP_Server.Slots.Set (Socket'Unchecked_Access, Slot_Index);
 
-               Protocol_Handler (HTTP_Server.all, Slot_Index);
-            end;
+            Protocol_Handler (HTTP_Server.all, Slot_Index);
 
             HTTP_Server.Slots.Release (Slot_Index);
          end;
