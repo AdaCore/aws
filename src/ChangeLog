@@ -1,5 +1,8 @@
 2004-09-18  Pascal Obry  <pascal@obry.org>
 
+	* templates_parser.adb, templates_parser-filter.adb:
+	Update to version 8.3. Implements the new NO_CONTEXT tag command.
+
 	* aws-session.adb:
 	Minor reformatting.
 
