@@ -889,7 +889,7 @@ package body AWS.Client is
       Method     : in     String;
       URI        : in     String)
    is
-      Sock    : Net.Socket_Type'Class renames Connection.Socket.all;
+      Sock    : Net.Socket_Access renames Connection.Socket;
       No_Data : Unbounded_String renames Null_Unbounded_String;
 
       procedure Send_Authentication_Header
@@ -968,7 +968,7 @@ package body AWS.Client is
          then
             if Data.Work_Mode = Basic then
                Send_Header
-                 (Sock,
+                 (Sock.all,
                   Token & ": Basic "
                     & AWS.Translator.Base64_Encode
                     (Username
@@ -1064,7 +1064,7 @@ package body AWS.Client is
 
                begin
                   Send_Header
-                    (Sock,
+                    (Sock.all,
                      Token & ": Digest "
                        & QOP_Data
                        & "nonce=""" & Nonce
@@ -1098,7 +1098,7 @@ package body AWS.Client is
 
          if URI = "" then
             Send_Header
-              (Sock,
+              (Sock.all,
                Method & ' '
                  & AWS.URL.Pathname_And_Parameters (Connection.Host_URL, False)
                  & ' ' & HTTP_Version);
@@ -1116,23 +1116,23 @@ package body AWS.Client is
                end loop;
 
                Send_Header
-                 (Sock,
+                 (Sock.all,
                   Method & ' ' & E_URI & ' ' & HTTP_Version);
             end;
          end if;
 
          Send_Header
-           (Sock, Messages.Connection (Persistence));
+           (Sock.all, Messages.Connection (Persistence));
 
       else
          if URI = "" then
-            Send_Header (Sock,
+            Send_Header (Sock.all,
                          Method & ' '
                            & To_String (Connection.Host)
                            & ' ' & HTTP_Version);
          else
             Send_Header
-              (Sock,
+              (Sock.all,
                Method & ' '
                  & HTTP_Prefix (AWS.URL.Security (Connection.Host_URL))
                  & Host_Address & URI
@@ -1140,7 +1140,7 @@ package body AWS.Client is
          end if;
 
          Send_Header
-           (Sock, Messages.Proxy_Connection (Persistence));
+           (Sock.all, Messages.Proxy_Connection (Persistence));
 
       end if;
 
@@ -1148,19 +1148,19 @@ package body AWS.Client is
 
       if Connection.Cookie /= No_Data then
          Send_Header
-           (Sock, Messages.Cookie (To_String (Connection.Cookie)));
+           (Sock.all, Messages.Cookie (To_String (Connection.Cookie)));
       end if;
 
-      Send_Header (Sock,
+      Send_Header (Sock.all,
                    Messages.Host (Host_Address));
 
-      Send_Header (Sock,
+      Send_Header (Sock.all,
                    Messages.Accept_Type ("text/html, */*"));
 
-      Send_Header (Sock,
+      Send_Header (Sock.all,
                    Messages.Accept_Language ("fr, us"));
 
-      Send_Header (Sock,
+      Send_Header (Sock.all,
                    Messages.User_Agent ("AWS (Ada Web Server) v" & Version));
 
       --  User Authentification
@@ -1177,7 +1177,7 @@ package body AWS.Client is
 
       if Connection.SOAPAction /= No_Data then
          Send_Header
-           (Sock,
+           (Sock.all,
             Messages.SOAPAction (To_String (Connection.SOAPAction)));
       end if;
 
