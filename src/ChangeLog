@@ -1,5 +1,8 @@
 2001-08-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-push.ads, aws-server-push.adb:
+	Fix copyright notice.
+
 	* aws.ads:
 	(Version): set to 1.1.
 
