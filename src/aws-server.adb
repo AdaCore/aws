@@ -194,10 +194,13 @@ package body AWS.Server is
                   null;
 
                when E : others =>
-                  Text_IO.Put_Line ("A problem has been detected!");
-                  Text_IO.Put_Line ("Connection will be closed...");
-                  Text_IO.New_Line;
-                  Text_IO.Put_Line (Ada.Exceptions.Exception_Information (E));
+                  Text_IO.Put_Line (Text_IO.Current_Error,
+                                    "A problem has been detected!");
+                  Text_IO.Put_Line (Text_IO.Current_Error,
+                                    "Connection will be closed...");
+                  Text_IO.New_Line (Text_IO.Current_Error);
+                  Text_IO.Put_Line (Text_IO.Current_Error,
+                                    Ada.Exceptions.Exception_Information (E));
             end;
 
             HTTP_Server.Slots.Release (Slot_Index);
