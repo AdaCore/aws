@@ -1,3 +1,8 @@
+2005-01-19  Pascal Obry  <pascal@obry.org>
+
+	* aws-status.ads:
+	(Authorization_XXX): Update comments.
+
 2005-01-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.ads:
