@@ -193,5 +193,14 @@ package body AWS.Status is
    begin
       return To_String (D.URI);
    end URI;
+   
+   ------------
+   -- Socket --
+   ------------
+
+   function Socket (D : in Data) return Socket_Type is
+   begin
+      return D.Socket.all;
+   end Socket;
 
 end AWS.Status;
