@@ -250,7 +250,7 @@ build_tarball:
 	$(CP) regtests/makefile regtests/*.ini $${AWS}/regtests;\
 	$(CP) docs/aws.texi.tmplt docs/build.adb docs/makefile $${AWS}/docs;\
 	$(CP) docs/aws.texi docs/[at]*.html docs/aws.txt $${AWS}/docs;\
-	$(CP) docs/aws.info* docs/aws.ps docs/aws.pdf $${AWS}/docs;\
+	$(CP) docs/aws.info* $${AWS}/docs;\
 	$(CP) docs/gentexifile docs/TODO docs/openssl.license $${AWS}/docs;\
 	$(CP) -r docs/html/* $${AWS}/docs/html;\
 	$(CP) win32/*.dll win32/makefile win32/*.txt $${AWS}/win32;\
