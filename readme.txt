@@ -120,6 +120,8 @@ Here are the main changes since AWS 1.2:
    - AWS now parse and record all header lines from requests. It is also
      possible to add any header lines to an HTTP response.
 
+   - AWS has support for cache control (see AWS.Response API)
+
    - Plus many small fixes, enhancements and documentation work.
 
 You can have a look at docs/TODO file to see what are the topics that we will
