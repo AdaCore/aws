@@ -15,8 +15,14 @@ aws-server-hotplug.ads.texi
 aws-server-push.ads.texi
 aws-server.ads.texi
 aws-services-directory.ads.texi
+aws-services-dispatchers-callback.ads.texi
+aws-services-dispatchers-method.ads.texi
+aws-services-dispatchers-uri.ads.texi
+aws-services-dispatchers-virtual_host.ads.texi
+aws-services-dispatchers.ads.texi
 aws-services-page_server.ads.texi
 aws-session.ads.texi
 aws-status.ads.texi
+aws-templates.ads.texi
 aws-url.ads.texi
 build_ssl
