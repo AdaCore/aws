@@ -1,3 +1,29 @@
+2002-02-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Minor comment fix.
+
+	* makefile:
+	(SOURCES): Add aws-services-virtual_host.adb.
+
+	* aws-services-virtual_host.ads, aws-services-virtual_host.adb: 
+	Initial revision.
+
+	* aws-parameters-set.adb:
+	(Reset): Reset Parameter_List.Parameters field.
+	(Add): Set Parameter_List.Parameters field.
+
+	* aws-parameters-set.ads: 
+	Minor reformatting.
+
+	* aws-parameters.adb:
+	(URI_Format): New function.
+	Minor reformatting.
+	
+	* aws-parameters.ads:
+	(URI_Format): New function.
+	(List): Add Parameters field.
+
 2002-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.ads:
