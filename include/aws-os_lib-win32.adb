@@ -1,8 +1,10 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                Dmitriy Anisimkov, Sune Falck, Pascal Obry                --
+--                         Copyright (C) 2000-2001                          --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimov - Pascal Obry                                 --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -50,8 +52,6 @@ package body AWS.OS_Lib is
       Milli_Second : Interfaces.Unsigned_16;
    end record;
 
-   ------------------------------------------------------------
-
    type File_Time is record
       Low_Date_Time  : Interfaces.Unsigned_32;
       High_Date_Time : Interfaces.Unsigned_32;
@@ -59,50 +59,44 @@ package body AWS.OS_Lib is
 
    type File_Time_Access is access all File_Time;
 
-   ------------------------------------------------------------
-
    type Handle is new Interfaces.Unsigned_32;
-
-   ------------------------------------------------------------
 
    type Unsigned_Access is access all Interfaces.Unsigned_32;
 
-   ------------------------------------------------------------
+
+   --  Import Win32 routines
 
    procedure GetSystemTime (Time : out System_Time);
    pragma Import (Stdcall, GetSystemTime, "GetSystemTime");
 
-   ------------------------------------------------------------
-
-   procedure FileTimeToSystemTime (File_Date   : in  File_Time;
-                                   System_Date : out System_Time);
+   procedure FileTimeToSystemTime
+     (File_Date   : in  File_Time;
+      System_Date : out System_Time);
    pragma Import (Stdcall, FileTimeToSystemTime, "FileTimeToSystemTime");
 
-   ------------------------------------------------------------
-
-   function GetFileTime (File_Handle : in Handle;
-                         Created     : in File_Time_Access;
-                         Accessed    : in File_Time_Access;
-                         Modified    : in File_Time_Access)
-      return Interfaces.Unsigned_32;
+   function GetFileTime
+     (File_Handle : in Handle;
+      Created     : in File_Time_Access;
+      Accessed    : in File_Time_Access;
+      Modified    : in File_Time_Access)
+     return Interfaces.Unsigned_32;
    pragma Import (Stdcall, GetFileTime, "GetFileTime");
 
-   ------------------------------------------------------------
-
-   function GetFileSize (File_Handle    : in Handle;
-                         High_Word : in Unsigned_Access := null)
-      return Interfaces.Unsigned_32;
+   function GetFileSize
+     (File_Handle    : in Handle;
+      High_Word : in Unsigned_Access := null)
+     return Interfaces.Unsigned_32;
    pragma Import (Stdcall, GetFileSize, "GetFileSize");
 
-   ------------------------------------------------------------
-   function CreateFile (File_Name     : in Interfaces.C.char_array;
-                        Access_Mode   : in Interfaces.Unsigned_32;
-                        Share_Mode    : in Interfaces.Unsigned_32;
-                        Security      : in Unsigned_Access;    -- Not used
-                        Creation      : in Interfaces.Unsigned_32;
-                        Flags         : in Interfaces.Unsigned_32;
-                        Template      : in Handle)
-      return Handle;
+   function CreateFile
+     (File_Name     : in Interfaces.C.char_array;
+      Access_Mode   : in Interfaces.Unsigned_32;
+      Share_Mode    : in Interfaces.Unsigned_32;
+      Security      : in Unsigned_Access;
+      Creation      : in Interfaces.Unsigned_32;
+      Flags         : in Interfaces.Unsigned_32;
+      Template      : in Handle)
+     return Handle;
    pragma Import (Stdcall, CreateFile, "CreateFileA");
 
    GENERIC_READ         : constant := 16#80000000#;
@@ -111,12 +105,8 @@ package body AWS.OS_Lib is
    FILE_SHARE_WRITE     : constant := 16#00000002#;
    INVALID_HANDLE_VALUE : constant := 16#FFFFFFFF#;
 
-   ------------------------------------------------------------
-
    procedure Close (File_Handle : Handle);
    pragma Import (Stdcall, Close, "CloseHandle");
-
-   ------------------------------------------------------------
 
    type File_Attribute is new Interfaces.Unsigned_32;
 
@@ -131,11 +121,10 @@ package body AWS.OS_Lib is
    FILE_ATTRIBUTE_OFFLINE    : constant File_Attribute := 16#00001000#;
    FILE_ATTRIBUTE_NO_FILE    : constant File_Attribute := 16#FFFFFFFF#;
 
-   function GetFileAttributes (Filename : in Interfaces.C.char_array)
-      return File_Attribute;
+   function GetFileAttributes
+     (Filename : in Interfaces.C.char_array)
+     return File_Attribute;
    pragma Import (Stdcall, GetFileAttributes, "GetFileAttributesA");
-
-   ------------------------------------------------------------
 
    function Open (File_Name : in String) return Handle;
 
