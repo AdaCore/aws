@@ -1,3 +1,15 @@
+2004-12-13  Pascal Obry  <pascal@obry.net>
+
+	* demos.gpr:
+	(Mains): Add web_elements.adb.
+
+	* we_test_menu_css.html, we_test_notebook.html, 
+	  we_test_rounded_boxes.html, we_library.html:
+	Initial revision.
+
+	* web_elements.adb:
+	Initial revision.
+
 2004-12-11  Pascal Obry  <pascal@obry.net>
 
 	* demos.gpr:
