@@ -422,7 +422,7 @@ package body AWS.Services.Directory is
             end if;
 
             File_Entry.Name      := To_Unbounded_String (Filename);
-            File_Entry.Time      := AWS.OS_Lib.File_Timestamp (Full_Pathname);
+            File_Entry.Time      := AWS.OS_Lib.File_Time_Stamp (Full_Pathname);
             File_Entry.UID       := UID_Sq;
             File_Entry.Order_Set := Order_Set;
 
