@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2003                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
 --                                                                          --
@@ -80,11 +80,13 @@ procedure Server_Info is
 
       Client.Create (C, "http://localhost:1258");
 
+      Client.Get (C, R, "/");
+
       accept Connected;
 
-      for K in 1 .. 5 loop
+      for K in 1 .. 4 loop
          Client.Get (C, R, "/");
-      end loop;
+     end loop;
 
       accept Stopped;
 
@@ -132,7 +134,6 @@ begin
      ("Current connection "
         & Natural'Image (AWS.Server.Status.Current_Connections (WS)));
 
-
    Clients (3).Start;
    Clients (4).Start;
    Clients (5).Start;
@@ -174,7 +175,7 @@ begin
    AWS.Server.Start
      (WS, "Server Info",
       CB'Unrestricted_Access,
-      Port           => 1258,
+      Port           => 1259,
       Max_Connection => 2,
       Session        => True);
 
