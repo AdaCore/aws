@@ -900,7 +900,7 @@ is
          then
             --  Read data from the stream and convert it to a string as
             --  these are a POST form parameters.
-            --  The body has the format: name1=value1;name2=value2...
+            --  The body has the format: name1=value1&name2=value2...
 
             declare
                use Streams;
