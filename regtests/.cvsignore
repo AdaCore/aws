@@ -175,6 +175,8 @@ b~zbig.adb
 b~zbig.ads
 b~zfile.adb
 b~zfile.ads
+b~zopen.adb
+b~zopen.ads
 b~zres.adb
 b~zres.ads
 b~zstrm.adb
@@ -213,6 +215,9 @@ file1.txt
 file2.html
 file2.txt
 file3.html
+filea.txt
+fileb.txt.gz
+filec.txt.gz
 get_post
 get_post.res
 gmem.out
@@ -522,6 +527,7 @@ zbig
 zbig.res
 zfile
 zfile.res
+zopen.res
 zres.res
 zresres-file1_txt.ads
 zresres-file2_txt.ads

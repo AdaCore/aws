@@ -1,5 +1,21 @@
 2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* check_mem.adb:
+	(CB): Add handling of file[abc].txt.
+	(Check_ZOpen): New procedure.
+	Call ZOpen in main loop.
+
+	* makefile:
+	(RT_STD): Remove zres, add zopen.
+	(OTH_TESTS): Add zres.
+	(init): Generate file[abc].txt for the ZOpen regression test.
+	(clean): Add file[abc].txt*
+
+	* zopen.adb, zopen.out:
+	Initial revision.
+
+2003-12-03  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(zres): Add compressed file.tmplt.
 
