@@ -82,7 +82,7 @@ package AWS.Status.Set is
    procedure Socket
      (D    : in out Data;
       Sock : in     Net.Socket_Access);
-   --  Set the Socket for the status. User callback can then retreive the
+   --  Set the Socket for the status. User callback can then retrieve the
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.
 

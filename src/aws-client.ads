@@ -62,7 +62,7 @@ package AWS.Client is
    --  Defined the number of seconds for the send and receive timeout
 
    No_Timeout : constant Timeouts_Values;
-   --  No timeout, allow infinite time to send or retreive data
+   --  No timeout, allow infinite time to send or retrieve data
 
    function Get
      (URL                : in String;
@@ -74,7 +74,7 @@ package AWS.Client is
       Timeouts           : in Timeouts_Values := No_Timeout;
       Follow_Redirection : in Boolean         := False)
       return Response.Data;
-   --  retreive the message data given a specific URL. It open a connection
+   --  retrieve the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
    --  return it in the Response.Data structure.
    --  If User/Pwd are given then it uses it to access the URL.
@@ -235,7 +235,7 @@ package AWS.Client is
       Delimiter  : in String)
       return String;
    --  Read data on the Connection until the delimiter (including the
-   --  delimiter). It can be used to retreive the next piece of data from a
+   --  delimiter). It can be used to retrieve the next piece of data from a
    --  push server. If returned data is empty or does not termintate with the
    --  delimiter the server push connection is closed.
 

@@ -85,7 +85,7 @@ package AWS.LDAP.Client is
    ----------------
 
    subtype Attribute_Set is String_Set;
-   --  Used to represent the set of attributes to retreive from the LDAP server
+   --  Used to represent the set of attributes to retrieve from the LDAP server
 
    function Attributes
      (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10 : in String := "")
@@ -201,8 +201,8 @@ package AWS.LDAP.Client is
       Attrs_Only : in Boolean       := False)
       return LDAP_Message;
    --  Do a search on the LDAP server. Base is the name of the database.
-   --  Filter can be used to retreive a specific set of entries. Attrs specify
-   --  the set of attributes to retreive. If Attrs_Only is set to True only
+   --  Filter can be used to retrieve a specific set of entries. Attrs specify
+   --  the set of attributes to retrieve. If Attrs_Only is set to True only
    --  the types are returned. Raises LDAP_Error in case of problem.
 
    ---------------

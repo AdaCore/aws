@@ -448,7 +448,7 @@ package body AWS.Services.Directory is
       declare
 
          function Get_Order return String;
-         --  Get current ordering string, if no ordering retreive we set a
+         --  Get current ordering string, if no ordering retrieve we set a
          --  default ordering.
 
          function Get_Order return String is
