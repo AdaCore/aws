@@ -81,6 +81,16 @@ package body AWS.Status.Set is
       end if;
    end Authorization;
 
+   ------------
+   -- Binary --
+   ------------
+
+   procedure Binary (D         : in out Data;
+                     Parameter : in     Stream_Element_Array) is
+   begin
+      D.Binary_Data := new Stream_Element_Array'(Parameter);
+   end Binary;
+
    ----------------
    -- Connection --
    ----------------
@@ -153,48 +163,9 @@ package body AWS.Status.Set is
    -- Parameters --
    ----------------
 
-   procedure Parameters (D : in out Data; Name, Value : in String) is
-
+   procedure Parameters (D : in out Data; Set : in AWS.Parameters.List) is
    begin
-      AWS.Parameters.Add
-        (D.Parameters,
-         Normalize_Name (Name, not D.Parameters_Case_Sensitive),
-         Translater.Decode_URL (Value));
-   end Parameters;
-
-   procedure Parameters (D : in out Data; Parameters : in String) is
-      P : String renames Parameters;
-      C : Positive := P'First;
-      I : Natural;
-      S : Positive := P'First;
-      E : Natural;
-   begin
-      loop
-         I := Fixed.Index (P (C .. P'Last), "=");
-
-         exit when I = 0;
-
-         S := I + 1;
-
-         E := Fixed.Index (P (S .. P'Last), "&");
-
-         if E = 0 then
-            --  last parameter
-
-            Set.Parameters (D, P (C .. I - 1), P (S .. P'Last));
-            exit;
-
-         else
-            Set.Parameters (D, P (C .. I - 1), P (S .. E - 1));
-            C := E + 1;
-         end if;
-      end loop;
-   end Parameters;
-
-   procedure Parameters (D         : in out Data;
-                         Parameter : in     Stream_Element_Array) is
-   begin
-      D.Binary_Data := new Stream_Element_Array'(Parameter);
+      D.Parameters := Set;
    end Parameters;
 
    --------------
@@ -214,14 +185,11 @@ package body AWS.Status.Set is
    procedure Request (D            : in out Data;
                       Method       : in     Request_Method;
                       URI          : in     String;
-                      HTTP_Version : in     String;
-                      Parameters   : in     String := "") is
+                      HTTP_Version : in     String) is
    begin
       D.Method       := Method;
       D.URI          := To_Unbounded_String (URI);
       D.HTTP_Version := To_Unbounded_String (HTTP_Version);
-
-      Set.Parameters (D, Parameters);
    end Request;
 
    -----------
@@ -234,7 +202,6 @@ package body AWS.Status.Set is
         (Stream_Element_Array, Stream_Element_Array_Access);
 
    begin
-      AWS.Parameters.Release (D.Parameters);
       Free (D.Binary_Data);
 
       D.Connection        := Null_Unbounded_String;
