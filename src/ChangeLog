@@ -4,10 +4,6 @@
 	(Get_Response): Do not check for Content-Length = 0.
 	(Read_Some): Check for Length = 0 before call to socket.
 
-	* aws-client-xml.ads, aws-client-xml-input_sources.ads,
-	  aws-client-xml-input_sources.adb:
-	New packages for support SAX parse just from client connection.
-
 2004-05-27  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.adb:
