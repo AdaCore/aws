@@ -1209,12 +1209,12 @@ default is @_MAX_CONNECT_@.
 
 @item Free_Slots_Keep_Alive_Limit (positive)
 @cindex Free_Slots_Keep_Alive_Limit
-This is the minimum number of remain free slots to enable keep-alive http
-connection. For the hard loaded HTTP servers the Max_Connection parameter
-should be big enought, and Free_Slots_Keep_Alive_Limit should be about 1-10%
-from the Max_Connection parameter, depend on duration of the average server
-response. If the HTTP server is longer generating HTTP pages, so the
-Free_Slots_Keep_Alive_Limit should be more.
+This is the minimum number of remaining free slots to enable keep-alive HTTP
+connections. For heavy-loaded HTTP servers, the Max_Connection parameter
+should be big enough, and Free_Slots_Keep_Alive_Limit should be about 1-10%
+of the Max_Connection parameter depending on the duration of the
+average server response. Longer is the average time to send back a
+response bigger Free_Slots_Keep_Alive_Limit should be.
 The default is @_KEEP_ALIVE_LIMIT_@.
 
 @item Receive_Timeout (duration)
