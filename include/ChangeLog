@@ -1,3 +1,13 @@
+2004-01-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	Update to new verion. Implements REPLACE_ALL filter.
+
+	* templates_parser-filter.adb:
+	Update to new verion. Implements REPLACE_ALL filter.
+        (Del_Param): Fix bug in parameter name check. Patch from
+         Audran Le Baron.
+
 2004-01-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser-filter.adb:
