@@ -1245,9 +1245,9 @@ begin
          AWS.Messages.Does_Not_Match
            (Status.Connection (C_Stat), "keep-alive"));
 
-      HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
-
       Status.Set.Parameters (C_Stat, P_List);
+
+      HTTP_Server.Slots.Mark_Phase (Index, Server_Response);
 
       Answer_To_Client;
 
