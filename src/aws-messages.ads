@@ -89,6 +89,9 @@ package AWS.Messages is
 
    Cookie_Token : constant String := "Cookie: ";
    subtype Cookie_Range is Positive range Cookie_Token'Range;
+   
+   Set_Cookie_Token : constant String := "Set-Cookie: ";
+   subtype Set_Cookie_Range is Positive range Set_Cookie_Token'Range;
 
    User_Agent_Token : constant String := "User-Agent: ";
    subtype User_Agent_Range is Positive range User_Agent_Token'Range;
