@@ -72,11 +72,16 @@ implemented:
   updated.
 
 - Add support for more XML Schema types
+  See "C Datatypes and Facets" in XML Schema Part 2 Datatypes.
+
   byte, unsignedByte, short, unsignedShort, unsignedInt, long, unsignedLong
   double, date, time, xsd:hexBinary, decimal
 
   decimal is certainly a bit difficult to support, we need an arbitrary
   precision package.
+
+  nonNegativeInteger should map to Ada Natural.
+  positiveInteger should map to Ada Positive.
 
 - Add support for array with multiple dimensions
 
@@ -137,8 +142,6 @@ implemented:
 - Add GNAT project files to use AWS. Only support for developpers has been
   implemented.
 
-- Add Unbounded_String support on ada2wsdl
-
 - Document ada2wsdl and new wsdl2aws -types option.
 
 - Properly support WSDL One-way Operations
@@ -151,4 +154,15 @@ implemented:
 - Finalize POP support, review API, is there a better name for the APOP
   authentication protocol. Document AWS.POP.
 
-- Add support for big table split on multiple pages.
+- See if it is possible to add support for characters in ada2wsdl/wsdl2aws to
+  have both compatible. It seems that this should be done by creating a new
+  schema entry like:
+
+     <simpleType name='character'>
+        <restriction base='string'>
+          <maxLength value='1'/> <minLength value='1'/>
+        </restriction>
+     </simpleType>
+
+- Add support for transient page on-disk after a certain amount of time.
+  Is that a good idea ?
