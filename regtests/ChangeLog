@@ -1,3 +1,11 @@
+2003-06-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* disp_soap.adb, disp_soap.out:
+	New regression test.
+
+	* makefile:
+	New regression test disp_soap.
+
 2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* test_soap5.out:
