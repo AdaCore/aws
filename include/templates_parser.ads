@@ -138,7 +138,8 @@ package Templates_Parser is
    --  Returns the number of Vector_Tag (rows) inside the Matrix.
 
    function Vector (Matrix : in Matrix_Tag; N : in Positive) return Vector_Tag;
-   --  Returns Nth Vector_Tag in the Matrix.
+   --  Returns Nth Vector_Tag in the Matrix. Raises Constraint_Error if there
+   --  is no such vector in the matrix.
 
    -----------------------
    -- Association table --
@@ -258,11 +259,15 @@ private
 
    type Integer_Access is access Integer;
 
+   type Access_Vector_Tag_Node_Access is access Vector_Tag_Node_Access;
+
    type Vector_Tag is new Ada.Finalization.Controlled with record
       Ref_Count : Integer_Access;
       Count     : Natural;
       Head      : Vector_Tag_Node_Access;
       Last      : Vector_Tag_Node_Access;
+      Current   : Access_Vector_Tag_Node_Access; -- Current/Pos are Iterator
+      Pos       : Integer_Access;                -- cache information.
    end record;
 
    type Vector_Tag_Access is access Vector_Tag;
@@ -284,12 +289,16 @@ private
       Next : Matrix_Tag_Node_Access;
    end record;
 
+   type Access_Matrix_Tag_Node_Access is access Matrix_Tag_Node_Access;
+
    type Matrix_Tag_Int is new Ada.Finalization.Controlled with record
       Ref_Count : Integer_Access;
       Count     : Natural; -- Number of vector
       Min, Max  : Natural; -- Min/Max vector's sizes
       Head      : Matrix_Tag_Node_Access;
       Last      : Matrix_Tag_Node_Access;
+      Current   : Access_Matrix_Tag_Node_Access; -- Current/Pos are Iterator
+      Pos       : Integer_Access;                -- cahce information.
    end record;
 
    type Matrix_Tag is record
