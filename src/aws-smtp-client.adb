@@ -230,6 +230,7 @@ package body AWS.SMTP.Client is
       return Receiver
    is
       Dummy : Sockets.Socket_FD;
+      pragma Warnings (Off, Dummy);
    begin
       return (To_Unbounded_String (Server_Name), Port, Dummy);
    end Initialize;
