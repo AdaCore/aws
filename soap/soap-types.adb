@@ -463,6 +463,15 @@ package body SOAP.Types is
       end if;
    end S;
 
+   ----------
+   -- Size --
+   ----------
+
+   function Size (O : in SOAP_Array) return Natural is
+   begin
+      return O.O'Length;
+   end Size;
+
    ------------
    -- Spaces --
    ------------
@@ -524,6 +533,11 @@ package body SOAP.Types is
    function V (O : in SOAP_Array) return Object_Set is
    begin
       return O.O.all;
+   end V;
+
+   function V (O : in SOAP_Array; N : in Positive) return Object'Class is
+   begin
+      return O.O (N).O.all;
    end V;
 
    function V (O : in SOAP_Record; Name : in String) return Object'Class is
