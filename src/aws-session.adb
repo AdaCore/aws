@@ -74,36 +74,39 @@ package body AWS.Session is
    protected Database is
 
       entry New_Session (SID : out ID);
-      --  Add a new session named Session_Name into the database
+      --  Add a new session SID into the database.
 
       entry Delete_Session (SID : in ID);
-      --  Removes Session_Name from the Tree.
+      --  Removes session SID from the Tree.
 
       function Session_Exist (SID : in ID) return Boolean;
-      --  Return True if session named Session_Name exist in the database
+      --  Return True if session SID exist in the database.
 
       entry Key_Exist (SID    : in     ID;
                        Key    : in     String;
                        Result :    out Boolean);
-      --  Result is set to True if Key_Name exist in session named
-      --  Session_Name.
+      --  Result is set to True if Key_Name exist in session SID.
 
       entry Get_Value (SID   : in     ID;
                        Key   : in     String;
                        Value :    out Unbounded_String);
       --  Value is set with the value associated with the key Key_Name in
-      --  session Session_Name.
+      --  session SID.
 
       entry Set_Value (SID        : in ID;
                        Key, Value : in String);
-      --  Add the pair key/value into the session named Session_Name
+      --  Add the pair key/value into the session SID.
+
+      entry Remove_Key (SID : in ID;
+                        Key : in String);
+      --  Removes Key from the session SID.
 
       entry Clean;
       --  Removes old session data that are older than Session_Lifetime
       --  seconds.
 
       --
-      --  Not safe routine. These are only to be used by iterators and the
+      --  Not safe routines. These are only to be used by iterators and the
       --  task cleaner.
       --
 
@@ -295,6 +298,33 @@ package body AWS.Session is
             end;
          end loop;
       end New_Session;
+
+      ------------
+      -- Remove --
+      ------------
+
+      entry Remove_Key (SID : in ID;
+                        Key : in String) when Lock = 0
+      is
+         N : Session_Node;
+      begin
+         Session_Set.Inquire (SID, Sessions, N);
+         N.Time_Stamp := Calendar.Clock;
+
+         begin
+            Key_Value.Delete_Node (Key, N.Root);
+         exception
+            when Key_Value.Tree.Node_Not_Found =>
+               null;
+         end;
+
+         --  set back the node
+
+         Session_Set.Update_Node (N, Sessions);
+      exception
+         when others =>
+            null;
+      end Remove_Key;
 
       -------------------
       -- Session_Exist --
@@ -544,6 +574,16 @@ package body AWS.Session is
    begin
       return SID_Prefix & IID (2 .. IID'Last);
    end Image;
+
+   ------------
+   -- Remove --
+   ------------
+
+   procedure Remove (SID : in ID;
+                     Key : in String) is
+   begin
+      Database.Remove_Key (SID, Key);
+   end Remove;
 
    ---------
    -- Set --
