@@ -196,6 +196,17 @@ package body AWS.Config.Set is
       O.P (Force_Wait_For_Client_Timeout).Dur_Value := Value;
    end Force_Wait_For_Client_Timeout;
 
+   ---------------------------------
+   -- Free_Slots_Keep_Alive_Limit --
+   ---------------------------------
+
+   procedure Free_Slots_Keep_Alive_Limit
+     (O     : in out Object;
+      Value : in     Positive) is
+   begin
+      O.P (Free_Slots_Keep_Alive_Limit).Pos_Value := Value;
+   end Free_Slots_Keep_Alive_Limit;
+
    ------------------
    -- Hotplug_Port --
    ------------------

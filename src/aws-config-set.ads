@@ -70,6 +70,13 @@ package AWS.Config.Set is
    --  This is the max simultaneous connections as set by the HTTP object
    --  declaration.
 
+   procedure Free_Slots_Keep_Alive_Limit
+     (O     : in out Object;
+      Value : in     Positive);
+   --  The number of free slots, where keep-alive connection is still enable.
+   --  Should be more where the Max_Connection is big for the good handling
+   --  of the hard loading.
+
    procedure Accept_Queue_Size (O : in out Object; Value : in Positive);
    --  This is the size of the queue for the incoming requests. Higher this
    --  value will be and less "connection refused" will be reported to the
@@ -148,19 +155,13 @@ package AWS.Config.Set is
    --  Number of seconds to timout on waiting for client to accept answer.
    --  This is a timeout for urgent request when resources are missing.
 
-   procedure Send_Timeout
-     (O  : in out Object;
-      Value : in     Duration);
+   procedure Send_Timeout (O  : in out Object; Value : in Duration);
    --  Number of seconds to timeout when sending chunck of data.
 
-   procedure Receive_Timeout
-     (O     : in out Object;
-      Value : in     Duration);
+   procedure Receive_Timeout (O : in out Object; Value : in Duration);
    --  Number of seconds to timeout when receiving chunck of data.
 
-   procedure Status_Page
-     (O : in out Object;
-      Value     : in     String);
+   procedure Status_Page (O : in out Object; Value : in String);
    --  Filename for the status page.
 
    procedure Up_Image (O : in out Object; Value : in String);
