@@ -58,12 +58,14 @@ package AWS.Resources.Streams.Memory.ZLib is
       Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
       Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
       Header       : in     Header_Type        := ZL.Default);
+   pragma Inline (Deflate_Initialize);
    --  Initialize the compression
 
    procedure Inflate_Initialize
      (Resource    : in out Stream_Type;
       Window_Bits : in     Window_Bits_Type := ZL.Default_Window_Bits;
       Header      : in     Header_Type      := ZL.Default);
+   pragma Inline (Inflate_Initialize);
    --  Initialize the decompression
 
    procedure Append
