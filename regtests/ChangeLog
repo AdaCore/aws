@@ -1,3 +1,12 @@
+2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(WSDL_TESTS): Add googlesearch test (using the Google API wsdl).
+	(clean): Add clean-up for googlesearch test.
+
+	* googlesearch.adb, googlesearch.out, googlesearch.wsdl:
+	Initial revision.
+
 2003-05-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap1.out, soap2.out, soap3.out, testxml.out, workorder.out:

@@ -16,6 +16,8 @@ b~dummy.adb
 b~dummy.ads
 b~file.adb
 b~file.ads
+b~googlesearch.adb
+b~googlesearch.ads
 b~head.adb
 b~head.ads
 b~hostip.adb
@@ -130,6 +132,14 @@ file1.html
 file2.html
 file3.html
 gmem.out
+googlesearch.res
+googlesearchservice-client.adb
+googlesearchservice-client.ads
+googlesearchservice-server.adb
+googlesearchservice-server.ads
+googlesearchservice-types.adb
+googlesearchservice-types.ads
+googlesearchservice.ads
 head.res
 head.tmp
 hello_demo-client.adb
