@@ -1,3 +1,12 @@
+2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-client.adb:
+	Minor reformatting.
+
+	* soap-types.ads, soap-types.adb:
+	(Size): New routine.
+	(V): New routine to get an item from an array using an index.
+
 2002-11-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-message-reader.adb:
