@@ -505,8 +505,7 @@ is
 
       AWS.Log.Write (HTTP_Server.Log,
                      C_Stat,
-                     Answer,
-                     HTTP_Server.Slots.Get_Peername (Index));
+                     Answer);
 
    end Answer_To_Client;
 
