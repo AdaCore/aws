@@ -1,3 +1,17 @@
+2004-04-27  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator-stub.adb:
+	(New_Procedure): Properly generate Ada style identifier.
+        Update copyright notice.
+
+	* soap-generator.adb:
+	(To_Ada_Type): Properly generate Ada style identifier.
+        (Generate_Array): Idem.
+        (Get_Routine): Idem.
+        (Type_Name): Idem.
+        (Put_Types): Idem.
+        Update copyright notice.
+
 2004-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-wsdl-parser.adb:
