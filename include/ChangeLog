@@ -1,3 +1,9 @@
+2003-10-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* readme.txt:
+	Remove note about AWS.OS_Lib. It is in the config folder now.
+	Add note about Memory_Streams.
+
 2003-09-30  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* memory_streams.adb:
