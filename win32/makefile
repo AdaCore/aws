@@ -14,16 +14,20 @@ AWS_COFF	= ../lib/aws.coff
 ifeq (${OS}, Windows_NT)
    RES        = $(AWS_COFF)
    IMPORT_LIB = $(LIBSSL) $(LIBCRYPTO) $(LIBWIN32) $(LIBLDAP)
+   BUILD      = build_win32
    SUPPORT    = build_c_support
 else
    RES        =
    IMPORT_LIB =
+   BUILD      =
    SUPPORT    =
 endif
 
 force:
 
-build:
+build: $(BUILD)
+
+build_win32:
 	$(GNATMAKE) -Pwin32 -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 $(LIBSSL): libssl32.dll ssl.def
