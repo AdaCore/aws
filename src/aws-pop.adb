@@ -255,6 +255,22 @@ package body AWS.POP is
       end loop;
    end For_Every_Message;
 
+   ------------------------------
+   -- For_Every_Message_Header --
+   ------------------------------
+
+   procedure For_Every_Message_Header (Mailbox : in POP.Mailbox) is
+      Mess : Message;
+      Quit : Boolean := False;
+   begin
+      for K in 1 .. Mailbox.Message_Count loop
+         Mess := Get_Header (Mailbox, K);
+         Action (Mess, K, Quit);
+
+         exit when Quit = True;
+      end loop;
+   end For_Every_Message_Header;
+
    ----------
    -- From --
    ----------
@@ -469,6 +485,47 @@ package body AWS.POP is
 
       return P.all;
    end Get;
+
+   ----------------
+   -- Get_Header --
+   ----------------
+
+   function Get_Header
+     (Mailbox : in POP.Mailbox;
+      N       : in Positive)
+      return Message
+   is
+      Mess : Message;
+   begin
+      --  Send command
+
+      Net.Buffered.Put_Line (Mailbox.Sock, "TOP " & Utils.Image (N) & " 0");
+      --  Read 0 line from the body
+
+      declare
+         Response : constant String
+           := Net.Buffered.Get_Line (Mailbox.Sock);
+      begin
+         Check_Response (Response);
+      end;
+
+      --  Read headers
+
+      AWS.Headers.Set.Read (Mailbox.Sock, Mess.Headers);
+
+      --  Now read until the end of the message body
+
+      loop
+         declare
+            Response : constant String
+              := Net.Buffered.Get_Line (Mailbox.Sock);
+         begin
+            exit when Response = ".";
+         end;
+      end loop;
+
+      return Mess;
+   end Get_Header;
 
    ------------
    -- Header --
