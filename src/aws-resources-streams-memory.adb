@@ -50,9 +50,9 @@ package body AWS.Resources.Streams.Memory is
    -- Close --
    -----------
 
-   procedure Close (File : in out Stream_Type) is
+   procedure Close (Resource : in out Stream_Type) is
    begin
-      Containers.Close (File.Data);
+      Containers.Close (Resource.Data);
    end Close;
 
    -----------------
