@@ -1,0 +1,4 @@
+gdb --exec=$1 --command=cmd.gdb --batch > $1.tmp
+nl=`cat $1.tmp | wc -l`
+nl=`echo $nl - 2 | bc`
+head -$nl $1.tmp
