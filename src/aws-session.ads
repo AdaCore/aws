@@ -64,19 +64,25 @@ package AWS.Session is
      (SID   : in ID;
       Key   : in String;
       Value : in String);
-   --  Set key/pair value for the SID
+   --  Set key/pair value for the SID.
 
    procedure Set
      (SID   : in ID;
       Key   : in String;
       Value : in Integer);
-   --  Set key/pair value for the SID
+   --  Set key/pair value for the SID.
 
    procedure Set
      (SID   : in ID;
       Key   : in String;
       Value : in Float);
-   --  Set key/pair value for the SID
+   --  Set key/pair value for the SID.
+
+   procedure Set
+     (SID   : in ID;
+      Key   : in String;
+      Value : in Boolean);
+   --  Set key/pair value for the SID.
 
    function Get
      (SID : in ID;
@@ -90,14 +96,21 @@ package AWS.Session is
       Key : in String)
      return Integer;
    --  Returns the Value for Key in the session SID or the integer value 0 if
-   --  key does not exist.
+   --  key does not exist or is not an integer.
 
    function Get
      (SID : in ID;
       Key : in String)
      return Float;
    --  Returns the Value for Key in the session SID or the float value 0.0 if
-   --  key does not exist.
+   --  key does not exist or is not a float.
+
+   function Get
+     (SID : in ID;
+      Key : in String)
+     return Boolean;
+   --  Returns the Value for Key in the session SID or the boolean False if
+   --  key does not exist or is not a boolean.
 
    procedure Remove
      (SID : in ID;
