@@ -1,3 +1,9 @@
+2003-03-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-net-std-gnat.adb, aws-net-std-adasockets.adb:
+	(Accept_Socket): New_Socket parameter is "in out" mode.
+	(Connect): Socket parameter is "in out" mode.
+
 2003-02-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb: 
