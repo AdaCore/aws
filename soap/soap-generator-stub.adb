@@ -242,6 +242,7 @@ package body Stub is
       L_Proc : constant String := Format_Name (O, Proc);
 
       use type WSDL.Parameters.Kind;
+      use type WSDL.Parameter_Type;
 
    begin
       --  Spec
@@ -355,13 +356,25 @@ package body Stub is
       Text_IO.Put_Line (Stub_Adb, Result_Type (O, Proc, Output));
 
       if WSDL.Parameters.Length (Output) = 1 then
+         --  A single parameter is returned
 
          if Output.Mode = WSDL.Parameters.K_Simple then
-            Text_IO.Put_Line
-              (Stub_Adb,
-               "                  := SOAP.Parameters.Get (R_Param, """
-                 & To_String (Output.Name)
-                 & """);");
+
+            if Output.P_Type = WSDL.P_B64 then
+               Text_IO.Put_Line
+                 (Stub_Adb,
+                  "                  "
+                    & ":= V (SOAP_Base64'(SOAP.Parameters.Get (R_Param, """
+                    & To_String (Output.Name)
+                    & """)));");
+            else
+               Text_IO.Put_Line
+                 (Stub_Adb,
+                  "                  := SOAP.Parameters.Get (R_Param, """
+                    & To_String (Output.Name)
+                    & """);");
+            end if;
+
          else
 
             if Utils.Is_Array (To_String (Output.C_Name)) then
@@ -442,6 +455,8 @@ package body Stub is
 
       --  Spec
 
+      Text_IO.Put_Line (Stub_Ads, "with Ada.Calendar;");
+      Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "with " & L_Name & ".Types;");
       Text_IO.New_Line (Stub_Ads);
       Text_IO.Put_Line (Stub_Ads, "package " & L_Name & ".Client is");
