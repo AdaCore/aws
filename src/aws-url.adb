@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
 
 with AWS.Messages;
@@ -137,8 +138,6 @@ package body AWS.URL is
          I2 := Strings.Fixed.Index (URL, "/");
 
          if I1 = 0 then
-            O.Port := Default_Port;
-
             if I2 = 0 then
                O.Server_Name := US (URL);
                O.URI         := US ("/");
@@ -148,7 +147,6 @@ package body AWS.URL is
             end if;
 
          else
-
             O.Server_Name := US (URL (URL'First .. I1 - 1));
 
             if I2 = 0 then
@@ -162,11 +160,14 @@ package body AWS.URL is
       end Parse;
 
    begin
+      O.Security := False;
+
       if Messages.Is_Match (URL, HTTP_Token) then
+         O.Port := Default_HTTP_Port;
          Parse (URL (URL'First + HTTP_Token'Length .. URL'Last));
-         O.Security := False;
 
       elsif Messages.Is_Match (URL, HTTPS_Token) then
+         O.Port := Default_HTTPS_Port;
          Parse (URL (URL'First + HTTPS_Token'Length .. URL'Last));
          O.Security := True;
 
@@ -187,9 +188,21 @@ package body AWS.URL is
             O.Security := False;
       end if;
 
+      if O.Server_Name /= Null_Unbounded_String
+        and then Length (O.URI) >= 3
+        and then Slice (O.URI, 1, 4) = "/../"
+      then
+         Exceptions.Raise_Exception
+           (URL_Error'Identity, "URI can't start with /..");
+      end if;
+
       return O;
 
    exception
+
+      when URL_Error =>
+         raise;
+
       when others =>
          raise URL_Error;
    end Parse;
@@ -255,8 +268,8 @@ package body AWS.URL is
 
       function Port return String;
       pragma Inline (Port);
-      --  Returns the port number if not the standard HTTP Port and the empty
-      --  string otherwise.
+      --  Returns the port number if not the standard HTTP or HTTPS Port and
+      --  the empty string otherwise.
 
       ----------
       -- HTTP --
@@ -271,12 +284,25 @@ package body AWS.URL is
          end if;
       end HTTP;
 
+      ----------
+      -- Port --
+      ----------
+
       function Port return String is
       begin
-         if URL.Port /= 80 then
-            return ':' & Port (URL);
+         if URL.Security then
+            if URL.Port /= Default_HTTPS_Port then
+               return ':' & Port (URL);
+            else
+               return "";
+            end if;
+
          else
-            return "";
+            if URL.Port /= Default_HTTP_Port then
+               return ':' & Port (URL);
+            else
+               return "";
+            end if;
          end if;
       end Port;
 
