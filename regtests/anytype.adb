@@ -33,6 +33,7 @@
 --  SOAP/WSDL test
 
 with Ada.Calendar;
+with Ada.Command_Line;
 with Ada.Text_IO;
 
 with AWS.MIME;
@@ -62,6 +63,9 @@ procedure AnyType is
       Param2 : in Types.Set_Of_x_Type)
       return Types.Call_Result;
 
+   function Trim (Str : in String) return String;
+   --  Remove trailing 0, use to have output comparable to the Java one
+
    -------------
    -- SOAP_CB --
    -------------
@@ -69,6 +73,26 @@ procedure AnyType is
    function SOAP_CB is new AnyType_Service.Server.Call_CB (Call);
 
    function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
+
+   ---------------------
+   -- AnyType__Client --
+   ---------------------
+
+   procedure AnyType_Client is
+      use Ada;
+      Param1 : Types.Set_Of_int_Type := (12, 9);
+      Param2 : Types.Set_Of_x_Type
+        := (Any (I (45)), Any (I (12)), Any (D (8.209)));
+   begin
+      declare
+         Result : Types.Set_Of_x_Type := Client.Call (Param1, Param2);
+      begin
+         for K in Result'Range loop
+            Text_IO.Put_Line
+              (Utils.Image (K) & " - " & Trim (SOAP.Types.Image (Result (K))));
+         end loop;
+      end;
+   end AnyType_Client;
 
    --------
    -- CB --
@@ -106,25 +130,18 @@ procedure AnyType is
       return R;
    end Call;
 
-   ---------------------
-   -- AnyType__Client --
-   ---------------------
+   ----------
+   -- Trim --
+   ----------
 
-   procedure AnyType_Client is
-      use Ada;
-      Param1 : Types.Set_Of_int_Type := (12, 9);
-      Param2 : Types.Set_Of_x_Type
-        := (Any (I (45)), Any (I (12)), Any (D (8.209)));
+   function Trim (Str : in String) return String is
+      K : Natural := Str'Last;
    begin
-      declare
-         Result : Types.Set_Of_x_Type := Client.Call (Param1, Param2);
-      begin
-         for K in Result'Range loop
-            Text_IO.Put_Line
-              (Utils.Image (K) & " - " & SOAP.Types.Image (Result (K)));
-         end loop;
-      end;
-   end AnyType_Client;
+      while Str (K) = '0' loop
+         K := K - 1;
+      end loop;
+      return Str (Str'First .. K);
+   end Trim;
 
 begin
    AWS.Server.Start
@@ -135,9 +152,17 @@ begin
    AWS.Net.Log.Callbacks.Initialize
      ("anytype.netlog", AWS.Net.Log.Callbacks.Text'Access);
 
-   AnyType_Client;
+   if Ada.Command_Line.Argument_Count = 1
+     and then Ada.Command_Line.Argument (1) = "-j"
+   then
+      AWS.Server.Wait (AWS.Server.Forever);
+      AWS.Net.Log.Callbacks.Finalize;
 
-   AWS.Net.Log.Callbacks.Finalize;
+   else
+      AnyType_Client;
 
-   AWS.Server.Shutdown (H_Server);
+      AWS.Net.Log.Callbacks.Finalize;
+
+      AWS.Server.Shutdown (H_Server);
+   end if;
 end AnyType;
