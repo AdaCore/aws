@@ -167,6 +167,7 @@ package body AWS.Net.Sets is
 
    procedure Finalize (Set : in out Socket_Set_Type) is
    begin
+      Reset (Set);
       Free (Set.Set);
       Free (Set.Poll);
    end Finalize;
