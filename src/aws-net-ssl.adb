@@ -110,6 +110,12 @@ package body AWS.Net.SSL is
          exit when TSSL.SSL_accept (New_Socket.SSL) > 0;
 
          Shutdown (New_Socket);
+
+         --  We could not reuse allocated SSL handle.
+         --  Free it before the next use.
+
+         TSSL.SSL_free (New_Socket.SSL);
+         New_Socket.SSL := Null_Ptr;
       end loop;
 
       Set_Read_Ahead (New_Socket, True);
@@ -435,6 +441,8 @@ package body AWS.Net.SSL is
          if Socket.SSL = Null_Ptr then
             Socket.SSL := TSSL.SSL_new (Context);
             Error_If (Socket.SSL = Null_Ptr);
+         else
+            Error_If (TSSL.SSL_clear (Socket.SSL) /= 1);
          end if;
 
          Error_If
