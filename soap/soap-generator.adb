@@ -42,6 +42,7 @@ with AWS;
 with AWS.OS_Lib;
 with AWS.Templates;
 with AWS.Utils;
+with SOAP.Name_Space;
 with SOAP.Utils;
 with SOAP.WSDL.Parameters;
 
@@ -995,6 +996,8 @@ package body SOAP.Generator is
          P      : in WSDL.Parameters.P_Set;
          Output : in Boolean               := False)
       is
+         use type SOAP.Name_Space.Object;
+
          F_Name : constant String := Format_Name (O, Name);
 
          R   : WSDL.Parameters.P_Set;
@@ -1238,7 +1241,7 @@ package body SOAP.Generator is
          Text_IO.New_Line (Type_Adb);
          Text_IO.Put_Line (Type_Adb, "   function To_SOAP_Object");
 
-         Text_IO.Put_Line (Type_Adb, "     (R : in " & F_Name & ';');
+         Text_IO.Put_Line (Type_Adb, "     (R    : in " & F_Name & ';');
          Text_IO.Put_Line (Type_Adb, "      Name : in String := ""item"")");
          Text_IO.Put_Line (Type_Adb, "      return SOAP.Types.SOAP_Record");
          Text_IO.Put_Line (Type_Adb, "   is");
@@ -1319,6 +1322,19 @@ package body SOAP.Generator is
          Text_IO.Put_Line
            (Type_Adb,
             "         Name, """ & To_String (P.T_Name) & """);");
+
+         if P.NS /= Name_Space.No_Name_Space then
+            Text_IO.Put_Line
+              (Type_Adb, "      SOAP.Types.Set_Name_Space");
+            Text_IO.Put_Line
+              (Type_Adb, "        (Result,");
+            Text_IO.Put_Line
+              (Type_Adb, "         SOAP.Name_Space.Create");
+            Text_IO.Put_Line
+              (Type_Adb, "           (""" & Name_Space.Name (P.NS) & """,");
+            Text_IO.Put_Line
+              (Type_Adb, "            """ & Name_Space.Value (P.NS) & """));");
+         end if;
 
          Text_IO.Put_Line (Type_Adb, "      return Result;");
          Text_IO.Put_Line (Type_Adb, "   end To_SOAP_Object;");
@@ -1946,8 +1962,14 @@ package body SOAP.Generator is
 
       Put_File_Header (O, Type_Adb);
 
+      Text_IO.Put_Line (Type_Adb, "with SOAP.Name_Space;");
+      Text_IO.New_Line (Type_Adb);
+
       Text_IO.Put_Line
         (Type_Adb, "package body " & U_Name & ".Types is");
+      Text_IO.New_Line (Type_Adb);
+      Text_IO.Put_Line
+        (Type_Adb, "   pragma Warnings (Off, SOAP.Name_Space);");
       Text_IO.New_Line (Type_Adb);
       Text_IO.Put_Line (Type_Adb, "   use SOAP.Types;");
 
