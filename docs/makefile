@@ -7,7 +7,8 @@
 
 ADA_KW    = use package is in out exception function with type constant \
 		private of return range procedure begin end array record \
-		subtype generic limited access all
+		subtype generic limited access all tagged abstract renames \
+		pragma new case when null
 
 APIFILES = ../src/aws.ads.texi \
 	../src/aws-client.ads.texi \
@@ -89,6 +90,7 @@ ada.sed: makefile
 	echo "s/_@\([^@]\)/_@@\1/g" >> ada.sed
 	echo "s/_@_/_@@_/g" >> ada.sed
 	for kw in $(ADA_KW); do \
+		echo "s/^\([^-]* \)$$kw/\1@b{$$kw}/g" >> ada.sed; \
 		echo "s/^\([^-]* \)$$kw/\1@b{$$kw}/g" >> ada.sed; \
 		echo "s/^\( *\)$$kw /\1@b{$$kw} /g" >> ada.sed; \
 		echo "s/^$$kw$$/@b{$$kw}/g" >> ada.sed; \
