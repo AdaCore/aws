@@ -67,7 +67,7 @@ package body AWS.Messages is
    S404_Message : aliased constant String := "Not Found";
    S405_Message : aliased constant String := "Method Not Allowed";
    S406_Message : aliased constant String := "Not Acceptable";
-   S407_Message : aliased constant String := "Proxy Authentification Required";
+   S407_Message : aliased constant String := "Proxy Authentication Required";
    S408_Message : aliased constant String := "Request Time-out";
    S409_Message : aliased constant String := "Conflict";
    S410_Message : aliased constant String := "Gone";
