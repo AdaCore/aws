@@ -310,8 +310,10 @@ regtests/sock1.adb
 regtests/sock1.out
 regtests/sock2.adb
 regtests/sock2.out
+regtests/sock2_proc.adb
 regtests/sockto.adb
 regtests/sockto.out
+regtests/sockto_proc.adb
 regtests/sp.adb
 regtests/sp.out
 regtests/split.adb
@@ -327,6 +329,7 @@ regtests/ssp.adb
 regtests/ssp.out
 regtests/sto.adb
 regtests/sto.out
+regtests/sto_proc.adb
 regtests/stream_response.adb
 regtests/stream_response.out
 regtests/strm.adb
@@ -355,6 +358,7 @@ regtests/test_wsdl4.out
 regtests/test_wsdl4.wsdl
 regtests/tgetparam.adb
 regtests/tgetparam.out
+regtests/tgetparam_proc.adb
 regtests/timer.adb
 regtests/timer.out
 regtests/tlog.adb
@@ -657,6 +661,7 @@ regtests/test_sec_soap.adb
 regtests/test_sec_soap.out
 regtests/test_soap.adb
 regtests/test_soap.out
+regtests/test_soap_proc.adb
 regtests/test_soap2.adb
 regtests/test_soap2.out
 regtests/test_soap3.adb
