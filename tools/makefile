@@ -45,6 +45,7 @@ ada2wsdl-options.adb: force
 
 clean:
 	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.ad[sb] *~
+	-$(RM) -f ada2wsdl-options.adb
 
 #############################################################################
 # Configuration for GNAT Projet Files
