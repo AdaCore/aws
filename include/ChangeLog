@@ -1,3 +1,10 @@
+2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Call zlib clean.
+	(build_zlib): New target.
+	(build): Add build_zlib.
+
 2003-10-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* zlib/makefile:
