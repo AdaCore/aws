@@ -612,6 +612,20 @@ $ make install INSTALL=/opt
 @end smallexample
 
 @noindent
+Alternatively, with @code{GNAT} 5.03 and above it is possible to
+install @code{AWS} into the GNAT Standard Library location. In this
+case @code{AWS} is ready-to-use as there is no need to set
+@var{ADA_PROJECT_PATH}.
+
+@smallexample
+@cartouche
+@group
+$ make install-gnat INSTALL=/opt/gnatpro/5.03a/lib/gnat
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
 Now you are ready to use @code{AWS} !
 
 @c ======================================================================
