@@ -55,7 +55,9 @@ package AWS.Response is
                    Status_Code  : in Messages.Status_Code := Messages.S200)
                   return Data;
 
-   function Acknowledge (Status_Code : in Messages.Status_Code) return Data;
+   function Acknowledge (Status_Code  : in Messages.Status_Code;
+                         Message_Body : in String := "")
+     return Data;
 
    function Authenticate (Realm : in String) return Data;
 

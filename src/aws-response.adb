@@ -34,15 +34,27 @@ package body AWS.Response is
    -- Acknowledge --
    -----------------
 
-   function Acknowledge (Status_Code : in Messages.Status_Code) return Data is
+   function Acknowledge (Status_Code  : in Messages.Status_Code;
+                         Message_Body : in String := "")
+     return Data is
    begin
-      return Data'(Header,
-                   Status_Code,
-                   0,
-                   Null_Unbounded_String,
-                   Null_Unbounded_String,
-                   Null_Unbounded_String,
-                   null);
+      if Message_Body = "" then
+         return Data'(Header,
+                      Status_Code,
+                      0,
+                      Null_Unbounded_String,
+                      Null_Unbounded_String,
+                      Null_Unbounded_String,
+                      null);
+      else
+         return Data'(Message,
+                      Status_Code,
+                      Message_Body'Length,
+                      Null_Unbounded_String,
+                      To_Unbounded_String (Message_Body),
+                      Null_Unbounded_String,
+                      null);
+      end if;
    end Acknowledge;
 
    ------------------
