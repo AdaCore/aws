@@ -33,12 +33,92 @@ with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Services.Directory;
+with AWS.Server.Push;
+with AWS.Parameters;
+
+with GNAT.Calendar.Time_IO;
+with Ada.Calendar;
+with Ada.Strings.Unbounded;
+with Ada.Integer_Text_IO;
+with Ada.Exceptions;
 
 package body WS_CB is
 
    use AWS;
+   use Ada.Strings.Unbounded;
+   use Ada.Calendar;
 
    WWW_Root : String renames AWS.Config.WWW_Root (Server.Config (WS));
+
+   type Client_Env is record
+      Start   : Time;
+      Picture : Unbounded_String;
+   end record;
+
+   --  Simple ID generator.
+
+   protected New_Client_Id is
+      procedure Get (New_ID : out String);
+   private
+      ID : Natural := 0;
+   end New_Client_ID;
+
+   task Server_Push_Task;
+   --  The push data are generated here.
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image
+     (Time : in Ada.Calendar.Time;
+      Env  : in Client_Env)
+     return String
+   is
+      use GNAT.Calendar.Time_IO;
+   begin
+      return Image (Time, Picture_String (To_String (Env.Picture)))
+        & ASCII.CR & ASCII.LF
+        & Duration'Image (Time - Env.Start);
+   end Image;
+
+   ---------------
+   -- Time_Push --
+   ---------------
+
+   package Time_Push is new AWS.Server.Push
+     (Client_Output_Type => Ada.Calendar.Time,
+      Stream_Output_Type => String,
+      Client_Environment => Client_Env,
+      To_Stream_Output   => Image);
+
+   SP : Time_Push.Object;
+
+   ----------------------
+   -- Server_Push_Task --
+   ----------------------
+
+   task body Server_Push_Task is
+   begin
+      loop
+         delay 1.0;
+         Time_Push.Broadcast (SP, Ada.Calendar.Clock, "text/plain");
+      end loop;
+   end;
+
+   -------------------
+   -- New_Client_ID --
+   -------------------
+
+   protected body New_Client_ID is
+
+      procedure Get (New_ID : out String) is
+      begin
+         ID := ID + 1;
+         Ada.Integer_Text_IO.Put (New_ID, ID);
+      end;
+
+   end New_Client_ID;
 
    ---------
    -- Get --
@@ -47,10 +127,44 @@ package body WS_CB is
    function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
+
    begin
       if URI = "/ref" then
          return AWS.Response.Moved
            (Location => "http://localhost:1234/demos/page1.html");
+
+      elsif URI = "/server_push" then
+
+         declare
+            use GNAT.Calendar.Time_IO;
+            use Ada.Calendar;
+
+            P_List : constant AWS.Parameters.List
+              := AWS.Status.Parameters (Request);
+
+            Picture : Unbounded_String
+              := To_Unbounded_String (AWS.Parameters.Get_Value (P_List));
+
+            Client_ID : String (1 .. 32);
+         begin
+            New_Client_ID.Get (Client_ID);
+
+            if Picture = Null_Unbounded_String then
+               Picture := To_Unbounded_String ("%D - %T");
+            end if;
+
+            Time_Push.Register
+              (Server      => SP,
+               Client_ID   => Client_ID,
+               Socket      => AWS.Status.Socket (Request),
+               Environment => (Clock, Picture),
+               Kind        => Time_Push.Multipart);
+
+            Time_Push.Data_For
+              (SP, Client_ID, Ada.Calendar.Clock, "text/html");
+         end;
+
+         return AWS.Response.Socket_Taken;
 
       elsif OS_Lib.Is_Regular_File (Filename) then
          return AWS.Response.File
@@ -99,6 +213,13 @@ package body WS_CB is
       else
          return AWS.Response.Acknowledge (Status_Code => Messages.S405);
       end if;
+
+   exception
+      when E : others =>
+         return AWS.Response.Build
+           (Content_Type => "text/plain",
+            Status_Code => AWS.Messages.S500,
+            Message_Body => Ada.Exceptions.Exception_Information (E));
    end Service;
 
 end WS_CB;
