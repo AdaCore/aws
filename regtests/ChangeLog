@@ -1,3 +1,12 @@
+2002-10-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* upload.out:
+	Update output.
+
+	* upload.adb:
+	Output client and server upload filename.
+	Update copyright notice.
+
 2002-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile: 

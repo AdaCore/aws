@@ -1,5 +1,14 @@
 2002-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-parameters.ads:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-server-protocol_handler.adb:
+	(File_Upload): Add the name of the file on the client side into
+	 the upload variable.
+	Update copyright notice.
+
 	* aws-resources-embedded.adb:
 	(Get_Line): Set Resource.LFT to True when a line is terminated by
 	 ASCII.LF.
