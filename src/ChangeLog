@@ -1,3 +1,37 @@
+2003-10-05  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-memory-zlib.ads:
+	(Deflate_Intialize): New routine, moved from child Deflate.
+	(Inflate_Initialize): New routine, moved from child Inflate.
+	(Compression_Level): Subtype moved from child Deflate.
+	(Strategy_Type): Subtype moved from child Deflate.
+	(Compression_Method): Subtype moved from child Deflate.
+	(Memory_Level_Type): Subtype moved from child Deflate.
+	(Default_Compression): New constant.
+
+	* aws-resources-streams-memory-zlib.adb:
+	(Deflate_Intialize): New routine, moved from child Deflate.
+	(Inflate_Initialize): New routine, moved from child Inflate.
+
+	* aws-resources-streams-memory-zlib-inflate.ads,
+	  aws-resources-streams-memory-zlib-inflate.adb,
+	  aws-resources-streams-memory-zlib-deflate.ads,
+	  aws-resources-streams-memory-zlib-deflate.adb:
+	Removed. All functionality in the parent package now.
+
+	* aws-translator.ads:
+	With AWS.Resources.Streams.Memory.ZLib for Comtress_Level type and
+	 default value.
+	Short package rename for AWS.Resources.Streams.Memory.ZLib.
+	(Compress): Use named constant in default parameter value.
+
+	* aws-translator.adb:
+	(Compress): Use moved constructor.
+	(Decompress): Use moved constructor.
+
+	* makefile:
+	Remove deleted inflate/deflate packages from compilation list.
+
 2003-10-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-streams-memory-zlib-inflate.ads,
