@@ -1,5 +1,7 @@
 ----------------------
-Internal Server Error.<br>Please, send the following information to the Web Master, thanks.<br><hr><br>Exception name: CONSTRAINT_ERROR<br>Message: unexph2.adb:90 explicit raise<br>Call stack traceback locations:<br>0x4dcc81 0x4d9df7 0x47c1cc<br><br><hr>
+Internal Server Error.<br>Please, send the following information to the Web Master, thanks.<br><hr><br><pre>Exception name: CONSTRAINT_ERROR
+Message: unexph2.adb:106 explicit raise
+Call stack traceback locations: .. </pre><br><hr>
 ----------------------
 This is the 500.tmplt file content.
 ----------------------
