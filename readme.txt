@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 Marsh 20th, 2003
+   Pascal Obry                                                 Marsh 27th, 2003
 
 
 
@@ -71,6 +71,10 @@ Here are the main changes since AWS 1.3 :
    - The Log API is now thread safe.
 
    - Fix regression in client API on standard and proxy authentication.
+
+   - Fix two memory leaks in templates parser engine. This version has been
+     checked with gnatmem in a large project and should be memory leak free
+     at this point.
 
    - Plus many small fixes, enhancements and documentation work.
 
