@@ -1,3 +1,9 @@
+2004-09-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-generic_sets.ads, aws-net-generic_sets.adb:
+	(Is_Read_Ready): Former Could_Read.
+	(Is_Write_Ready): Former Could_Write.
+
 2004-09-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets.adb:
