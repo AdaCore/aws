@@ -94,7 +94,8 @@ WSDL2AWS     =
 ifdef XMLADA
 STD_TESTS   := $(STD_TESTS) $(RT_SOAP)
 OTH_TESTS   := $(OTH_TESTS) check_mem
-WSDL_TESTS  = test_wsdl test_wsdl2 test_wsdl4 interoplab_main googlesearch
+WSDL_TESTS  = test_wsdl test_wsdl2 test_wsdl4 interoplab_main googlesearch \
+		datafeed_service
 WSDL_ATESTS = test_wsdl3 test_wsdl5
 WSDL2AWS    = wsdl_parse_1 wsdl_parse_2 wsdl_parse_3 wsdl_parse_4
 endif
@@ -253,7 +254,7 @@ clean:
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
 	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
-	-rm -f stockquoteservice* stock_quote_service*
+	-rm -f stockquoteservice* stock_quote_service* datafeedservice*
 	-rm -f interoplab-* interoplab.ad* googlesearchservice*
 	-rm -f wsdl_?_service* wsdl4* wsdl_parse_?-* wsdl_parse_?.ads
 	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
