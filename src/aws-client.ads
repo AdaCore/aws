@@ -39,7 +39,8 @@ with AWS.URL;
 
 package AWS.Client is
 
-   URL_Error : exception;
+   Connection_Error : exception;
+   --  Raised is the connection with the server cannot be established.
 
    No_Data       : constant String := "";
 
