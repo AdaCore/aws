@@ -181,7 +181,7 @@ $(WSDL_ATESTS): force
 
 $(WSDL2AWS_TESTS): force
 	echo "Running  " $@
-	$(WSDL2AWS) -q -f -doc $@.wsdl | grep Message > $@.res
+	-$(WSDL2AWS) -q -f -doc $@.wsdl > $@.res
 	-diff -c -w $@.out $@.res 1>> alldifs 2>> alldifs
 
 $(ASIS_TESTS): force
