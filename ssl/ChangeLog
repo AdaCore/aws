@@ -1,5 +1,10 @@
 2002-02-04  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
+	* ssl-wrappers.ads, ssl-wrappers.adb:
+	(SSL_clear): New routine stub.
+
+2002-02-04  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
 	* ssl-thin.ads:
 	(SSL_clear): New routine binded.
 
