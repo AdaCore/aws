@@ -143,3 +143,13 @@ http://www.myserver.com:89/app/request/?p1=9&url=http://titi
    Server    : www.myserver.com
    Port      : 89
    URI       : /app/request/?p1=9&url=http://titi
+Error on http://www.myserver.com:89/app/..\..\toto&url=http://titi - Wrong URL: (/../toto&url=http://) Reference Web root parent directory.
+http://www.myserver.com:89/app/.\..\toto&url=http://titi
+http://www.myserver.com:89/app/./../toto&url=http://titi
+   Server    : www.myserver.com
+   Port      : 89
+   URI       : /app/./../toto&url=http://titi
+   *
+   Server    : www.myserver.com
+   Port      : 89
+   URI       : /toto&url=http://titi
