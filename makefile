@@ -136,7 +136,7 @@ else
 endif
 	echo "Install directory     : " $(INSTALL)
 ifeq (${XMLADA}, true)
-	echo "XMLada activated.
+	echo "XMLada activated."
 else
 	echo "XMLada not activated, no SOAP/WSDL support"
 endif
