@@ -77,24 +77,24 @@ status.</H3>
 @@TABLE@@
 <tr bgcolor=white>
 <td align=center>@@_TABLE_LINE_@@
-<td align=center>@@_SOCK_L_@@
-<td align=center>@@_PEER_NAME_L_@@
-<td align=center>@@YES_NO@@_OPENED_L_@@
-<td align=center>@@YES_NO@@_ABORTABLE_L_@@
-<td align=center>@@_ACTIVITY_COUNTER_L_@@
-<td align=center>@@_SLOT_ACTIVITY_COUNTER_L_@@
-<td>@@_ACTIVITY_TIME_STAMP_L_@@
+<td align=center>@@_SOCK_V_@@
+<td align=center>@@_PEER_NAME_V_@@
+<td align=center>@@YES_NO@@_OPENED_V_@@
+<td align=center>@@YES_NO@@_ABORTABLE_V_@@
+<td align=center>@@_ACTIVITY_COUNTER_V_@@
+<td align=center>@@_SLOT_ACTIVITY_COUNTER_V_@@
+<td>@@_ACTIVITY_TIME_STAMP_V_@@
 </tr>
 @@SECTION@@
 <tr bgcolor=turquoise>
 <td align=center>@@_TABLE_LINE_@@
-<td align=center>@@_SOCK_L_@@
-<td align=center>@@_PEER_NAME_L_@@
-<td align=center>@@YES_NO@@_OPENED_L_@@
-<td align=center>@@YES_NO@@_ABORTABLE_L_@@
-<td align=center>@@_ACTIVITY_COUNTER_L_@@
-<td align=center>@@_SLOT_ACTIVITY_COUNTER_L_@@
-<td>@@_ACTIVITY_TIME_STAMP_L_@@
+<td align=center>@@_SOCK_V_@@
+<td align=center>@@_PEER_NAME_V_@@
+<td align=center>@@YES_NO@@_OPENED_V_@@
+<td align=center>@@YES_NO@@_ABORTABLE_V_@@
+<td align=center>@@_ACTIVITY_COUNTER_V_@@
+<td align=center>@@_SLOT_ACTIVITY_COUNTER_V_@@
+<td>@@_ACTIVITY_TIME_STAMP_V_@@
 </tr>
 @@END_TABLE@@
 
@@ -107,13 +107,15 @@ status.</H3>
 <ol>
 @@TABLE@@
 
-<li>Session ID: <b>@@_SESSIONS_L_@@</b>
+<li>Session ID: <b>@@_SESSIONS_V_@@</b>
 
 <table>
+@@TABLE@@
 <tr bgcolor=yellow>
-@@_KEYS_L_@@
+@@_KEYS_M_@@
 <tr bgcolor=turquoise>
-@@_VALUES_L_@@
+@@_VALUES_M_@@
+@@END_TABLE@@
 </table>
 
 </table>
@@ -136,8 +138,8 @@ status.</H3>
 @@TABLE@@
 <tr bgcolor=white>
 <td>@@_TABLE_LINE_@@
-<td align=center>@@_HP_REGEXP_L_@@
-<td>@@_HP_URL_L_@@
+<td align=center>@@_HP_REGEXP_V_@@
+<td>@@_HP_URL_V_@@
 <td><a href="@@_ADMIN_@@-HPup?N=@@_TABLE_LINE_@@">
 <img src="@@_ADMIN_@@-uparr" border=0></a>
 <a href="@@_ADMIN_@@-HPdown?N=@@_TABLE_LINE_@@">
@@ -146,8 +148,8 @@ status.</H3>
 @@SECTION@@
 <tr bgcolor=turquoise>
 <td>@@_TABLE_LINE_@@
-<td align=center>@@_HP_REGEXP_L_@@
-<td>@@_HP_URL_L_@@
+<td align=center>@@_HP_REGEXP_V_@@
+<td>@@_HP_URL_V_@@
 <td><a href="@@_ADMIN_@@-HPup?N=@@_TABLE_LINE_@@">
 <img src="@@_ADMIN_@@-uparr" border=0></a>
 <a href="@@_ADMIN_@@-HPdown?N=@@_TABLE_LINE_@@">
