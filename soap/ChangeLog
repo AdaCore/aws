@@ -1,3 +1,35 @@
+2003-06-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator.adb, soap-generator-stub.adb, soap-generator-skel.adb:
+	Lot of changes due to new parser recording properly the node kind
+	 (array or record). This new implementation is far cleaner and
+	 does not use old Is_Array based on array name.
+
+	* soap-wsdl-parameters.adb:
+	(Output): Display [record] or [array] instead of [composite].
+	(Release): Minor fix.
+
+	* soap-wsdl-parameters.ads:
+	(Kind): Remove K_Composite, add K_Array and K_Record.
+	(Parameter): Add E_Type for array element type.
+
+	* soap-wsdl-parser.adb:
+	(Is_Array): New routine. Check for array on the DOM node.
+	(Parse_Array): Update array element name. P has now a K_Array mode.
+	(Parse_Element): Use new Is_Array.
+	(Parse_Parameter): Use new Is_Array.
+	(Parse_Record): P has now a K_Record mode.
+
+	* soap-wsdl-parser.ads:
+	(Object): Add Array_Element field.
+
+	* soap-wsdl.adb:
+	(Is_Ada_Reserved_Word): Add comment.
+
+	* soap-utils.ads, soap-utils.adb:
+	(Array_Type): Removed.
+	(Is_Array): Removed.
+
 2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
