@@ -40,9 +40,6 @@ with Sax.Attributes;
 with Unicode.CES.Basic_8bit;
 
 with SOAP.Types;
-with SOAP.Message.Payload;
-with SOAP.Message.Response;
-with SOAP.Message.Error;
 
 package body SOAP.Message.XML is
 
@@ -265,8 +262,8 @@ package body SOAP.Message.XML is
          --  Check that there is only one parameter
 
          if SOAP.Parameters.Argument_Count (Reader.Parameters) /= 1 then
-            return Message.Error.Build
-              (Message.Error.Client,
+            return Message.Response.Error.Build
+              (Message.Response.Error.Client,
                "more than one parameters returned");
          end if;
 
