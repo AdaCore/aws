@@ -16,8 +16,6 @@ SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
 	table_of_static_keys_and_static_values_g \
 	table_of_strings_and_static_values_g.adb \
 	strings_cutter.adb md5.adb \
-	templates_parser.adb templates_parser-input.adb \
-	templates_parser-query.adb \
 	sha.ads sha-process_data.adb sha-strings.adb \
 	memory_streams.adb zlib-thin.adb zlib.adb
 
@@ -53,7 +51,7 @@ clean:
 # Configuration for GNAT Projet Files
 
 gbuild:
-	$(GNATMAKE) -Psrc_include -XAWS_BUILD=${PRJ_BUILD} \
+	$(GNATMAKE) -Pinclude -XAWS_BUILD=${PRJ_BUILD} \
 		-XXMLADA=${PRJ_XMLADA}
 
 gsetup:
