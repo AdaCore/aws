@@ -36,6 +36,8 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-resources-files.ads.texi \
 	../src/aws-resources-embedded.ads.texi \
 	../src/aws-resources-streams.ads.texi \
+	../src/aws-resources-streams-disk.ads.texi \
+	../src/aws-resources-streams-disk-once.ads.texi \
 	../src/aws-resources-streams-memory.ads.texi \
 	../src/aws-resources-streams-memory-zlib.ads.texi \
 	../src/aws-resources.ads.texi \
