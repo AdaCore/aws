@@ -1,14 +1,14 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 28 September 2003 -->
+     from templates_parser.texi on 29 November 2003 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
 <BODY>
 <H1>Templates Parser</H1>
 <H2>$Revision$</H2>
-<H2>Date: 28 September 2003</H2>
+<H2>Date: 29 November 2003</H2>
 <ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
 <P>
 <P><HR><P>
@@ -399,6 +399,14 @@ Replaces all comas by points.
 <DD>
 Returns N times the variable, N being passed as filter's parameter.
 
+<DT><CODE>REPLACE(<I>REGEXP</I>[/<I>STR</I>])</CODE>
+<DD>
+This filter replaces <B>\n</B> (where <I>n</I> is a number) <I>STR</I>'s
+occurences by the corresponding match from <I>REGEXP</I>. The first match
+in <I>REGEXP</I> will replace <B>\1</B>, the second match <B>\2</B> and so
+on. Each match in <I>REGEXP</I> must be parenthesized. <I>STR</I> is an optional
+parameter, its default value is <B>\1</B>.
+
 <DT><CODE>REVERSE</CODE>
 <DD>
 Reverse the string.
@@ -445,14 +453,15 @@ For example:
 <PRE>
 If VAR is set to "<I>vector_tag</I>" then:
 
-@_VAR_@                     -&#62;  vector_tag
-@_UPPER:VAR_@               -&#62;  VECTOR_TAG
-@_CAPITALIZE:VAR_@          -&#62;  Vector_Tag
-@_EXIST:VAR_@               -&#62;  TRUE
-@_UPPER:REVERSE:VAR_@       -&#62;  GAT_ROTCEV
-@_MATCH(VEC.*):UPPER:VAR_@  -&#62;  TRUE
-@_SLICE(1..6):VAR_@         -&#62;  vector
-
+@_VAR_@                                   -&#62;  vector_tag
+@_UPPER:VAR_@                             -&#62;  VECTOR_TAG
+@_CAPITALIZE:VAR_@                        -&#62;  Vector_Tag
+@_EXIST:VAR_@                             -&#62;  TRUE
+@_UPPER:REVERSE:VAR_@                     -&#62;  GAT_ROTCEV
+@_MATCH(VEC.*):UPPER:VAR_@                -&#62;  TRUE
+@_SLICE(1..6):VAR_@                       -&#62;  vector
+@_REPLACE(([^_]+)):VAR_@                  -&#62;  vector
+@_REPLACE(([a-z]+)_([a-z]+)/\2_\1):VAR_@  -&#62;  tag_vector
 </PRE>
 
 
@@ -1598,6 +1607,10 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 
    <B>type</B> Association <B>is</B> <B>private</B>;
 
+   <B>type</B> Association_Kind <B>is</B> (Std, Vect, Matrix);
+   -- <I> The kind <B>of</B> association which <B>is</B> either Std (a simple value), a vector</I>
+   -- <I> tag or a Matrix tag.</I>
+
    <B>type</B> Translate_Table <B>is</B> <B>array</B> (Positive <B>range</B> &#60;&#62;) <B>of</B> Association;
 
    No_Translation : <B>constant</B> Translate_Table;
@@ -1764,9 +1777,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
    -- <I> Association --</I>
    ------------------
 
-   <B>type</B> Var_Kind <B>is</B> (Std, Vect, Matrix);
-
-   <B>type</B> Association (Kind : Var_Kind := Std) <B>is</B> <B>record</B>
+   <B>type</B> Association (Kind : Association_Kind := Std) <B>is</B> <B>record</B>
       Variable  : Unbounded_String;
 
       case Kind <B>is</B>
@@ -1793,7 +1804,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 </PRE>
 
 <P><HR><P>
-This document was generated on 28 September 2003 using the
+This document was generated on 29 November 2003 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>

@@ -58,6 +58,7 @@ package body Filter is
    Oui_Non_Token       : aliased constant String := "OUI_NON";
    Point_2_Coma_Token  : aliased constant String := "POINT_2_COMA";
    Repeat_Token        : aliased constant String := "REPEAT";
+   Replace_Token       : aliased constant String := "REPLACE";
    Reverse_Token       : aliased constant String := "REVERSE";
    Size_Token          : aliased constant String := "SIZE";
    Slice_Token         : aliased constant String := "SLICE";
@@ -146,6 +147,9 @@ package body Filter is
          Repeat         =>
            (Repeat_Token'Access,         Repeat'Access),
 
+         Replace        =>
+           (Replace_Token'Access,        Replace'Access),
+
          Invert        =>
            (Reverse_Token'Access,        Reverse_Data'Access),
 
@@ -193,9 +197,10 @@ package body Filter is
    function Parameter (Mode : in Filter.Mode) return Parameter_Mode is
    begin
       case Mode is
-         when Match  => return Regexp;
-         when Slice  => return Slice;
-         when others => return Str;
+         when Match   => return Regexp;
+         when Replace => return Regpat;
+         when Slice   => return Slice;
+         when others  => return Str;
       end case;
    end Parameter;
 
@@ -224,8 +229,10 @@ package body Filter is
          when Void   => return "";
          when Str    => return '(' & To_String (P.S) & ')';
          when Regexp => return '(' & To_String (P.R_Str) & ')';
-         when Slice  => return '(' & Image (P.First)
-                                 & " .. " & Image (P.Last) & ')';
+         when Regpat =>
+            return '(' & To_String (P.P_Str) & '/' & To_String (P.Param)& ')';
+         when Slice  =>
+            return '(' & Image (P.First) & " .. " & Image (P.Last) & ')';
       end case;
    end Image;
 
@@ -245,21 +252,22 @@ package body Filter is
          if Table (K).Name.all = Name then
             return K;
 
-         elsif Table (K).Name.all < Name then
-            F := K;
-            if F /= Mode'Last then
-               F := Mode'Succ (F);
-            end if;
-
          else
-            L := K;
-            if L /= Mode'First then
-               L := Mode'Pred (L);
+            exit when F = K and then L = K;
+
+            if Table (K).Name.all < Name then
+               F := K;
+               if F /= Mode'Last then
+                  F := Mode'Succ (F);
+               end if;
+
+            else
+               L := K;
+               if L /= Mode'First then
+                  L := Mode'Pred (L);
+               end if;
             end if;
          end if;
-
-         exit when F = L and then F = K;
-
       end loop;
 
       Exceptions.Raise_Exception
@@ -480,6 +488,10 @@ package body Filter is
       --  Returns true if S is a number.
 
       Point : Natural := 0;
+
+      ---------------
+      -- Is_Number --
+      ---------------
 
       function Is_Number return Boolean is
       begin
@@ -777,6 +789,44 @@ package body Filter is
          Exceptions.Raise_Exception
            (Template_Error'Identity, "repeat filter parameter error");
    end Repeat;
+
+   -------------
+   -- Replace --
+   -------------
+
+   function Replace
+     (S : in String;
+      P : in Parameter_Data := No_Parameter)
+      return String
+   is
+      use type GNAT.Regpat.Match_Location;
+
+      Matches : GNAT.Regpat.Match_Array
+        (0 .. GNAT.Regpat.Paren_Count (P.Regpat.all));
+
+      Result  : Unbounded_String := P.Param;
+      N       : Natural;
+   begin
+      GNAT.Regpat.Match (P.Regpat.all, S, Matches);
+
+      for K in 1 .. Matches'Last loop
+         exit when Matches (K) = GNAT.Regpat.No_Match;
+
+         N := Index (Result, '\' & Image (K));
+
+         if N /= 0 then
+            Replace_Slice
+              (Result, N, N + 1,
+               By => S (Matches (K).First .. Matches (K).Last));
+         end if;
+      end loop;
+
+      return To_String (Result);
+   exception
+      when Constraint_Error =>
+         Exceptions.Raise_Exception
+           (Template_Error'Identity, "replace filter parameter error");
+   end Replace;
 
    ------------------
    -- Reverse_Data --
@@ -1094,5 +1144,25 @@ package body Filter is
             return "";
       end;
    end Modulo;
+
+   -------------
+   -- Release --
+   -------------
+
+   procedure Release (P : in out Parameter_Data) is
+      procedure Free is new Ada.Unchecked_Deallocation
+        (GNAT.Regpat.Pattern_Matcher, Pattern_Matcher_Access);
+   begin
+      if P.Mode = Regpat then
+         Free (P.Regpat);
+      end if;
+   end Release;
+
+   procedure Release (S : in out Set) is
+   begin
+      for K in S'Range loop
+         Release (S (K).Parameters);
+      end loop;
+   end Release;
 
 end Filter;
