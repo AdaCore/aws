@@ -30,6 +30,8 @@
 
 --  $Id$
 
+with Ada.Strings.Unbounded;
+
 with AWS.Key_Value;
 
 package AWS.Parameters is
@@ -68,9 +70,15 @@ package AWS.Parameters is
    --  Returns the Nth Value in Parameter_List or the empty string if there is
    --  no such Value.
 
+   function URI_Format (Parameter_List : in List) return String;
+   --  Returns the list of parameters in the URI format. This can be added
+   --  after the ressource to form the complete URI. The format is:
+   --  "?name1=value1&name2=value2..."
+
 private
 
    type List is record
+      Parameters     : Ada.Strings.Unbounded.Unbounded_String;
       Case_Sensitive : Boolean := True;
       Data           : Key_Value.Set_Access;
       Count          : Natural := 0;
