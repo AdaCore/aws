@@ -60,7 +60,7 @@ Here are the main changes since AWS 2.0 :
      needed anymore to have a cleaner task on the client side to watch
      and close connections after the timeout.
 
-   - Better support for project files for developpers.
+   - Better support for project files for developers.
 
    - Templates Engine is again faster, it provides a new way to store
      translations (see Translate_Set) which is not a fixed structure like
