@@ -150,6 +150,13 @@ package AWS.Server is
    --  before starting the first secure server. After that the call will have
    --  no effect.
 
+   type HTTP_Access is access all HTTP;
+
+   function Get_Current return HTTP_Access;
+   --  Get current server. This can be used in a callback procedure to
+   --  retrieve the running HTTP server. It is needed when a callback
+   --  procedure is shared by multiple servers.
+
    -----------------
    -- Server Logs --
    -----------------
@@ -171,8 +178,6 @@ package AWS.Server is
 
    procedure Stop_Error_Log (Web_Server : in out HTTP);
    --  Stop server's logging activity. See AWS.Log.
-
-   type HTTP_Access is access all HTTP;
 
 private
 
