@@ -1,3 +1,59 @@
+2000-07-26    Pascal Obry <p.obry@wanadoo.fr>
+
+	* aws-net.ads:
+	Fix copyright notice.
+	
+	* aws-server.adb:
+	Fix minor typo.
+
+2000-07-26    Pascal Obry <p.obry@wanadoo.fr>
+
+	Integration of Dmitriy Anisimkov SSL implementation into AWS.
+
+	* aws.ads:
+	(Connection_Error): new exception.
+
+	* aws-client.ads:
+	(Post): new function.
+	Fix copyright notive.
+
+	* aws-client.adb:
+	(Post): new function.
+	(Init_Connection): add support for POST method
+	(Open_Socket); new function.
+	Fix copyright notive.
+
+	* aws-net.ads:
+	Initial revision
+	
+	* aws-net-ssl.adb:
+	Initial revision
+	
+	* aws-net-std.adb:
+	Initial revision
+
+	* aws-server.ads:
+	(Get): update comments
+	(HTTP): add field Security.
+	
+	* aws-server.adb:
+	Use AWS.Net
+	(Line): handle security.
+
+	* aws-server-protocol_handler.adb:
+	Sock parameters is now a Socket_FD'Class.
+
+	* aws-status.adb:
+	Minor casing fix.
+	
+	* aws-url.ads:
+	(Security): new function
+	(Object): new field Security
+
+	* aws-url.adb:
+	(Parse): add support for HTTPS
+	(Security): new function
+	
 2000-04-05    Dmitriy Anisimkov <anisimkov@iforex.net>
 
 	* aws-client.adb:
