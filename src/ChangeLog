@@ -1,5 +1,8 @@
 2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-client.adb:
+	(Create): Add some comment.
+
 	* makefile:
 	(GARGS): Add -q (quiet mode) option.
 	(.SILENT): Add aws-translator-conversion.adb.

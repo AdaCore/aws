@@ -1,5 +1,11 @@
 2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(GARGS): Add -q (quiet mode).
+	(tres): Add some echos.
+
+2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* test_sec_soap.out, tsgetparam.out:
 	Initial revision.
 
