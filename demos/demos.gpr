@@ -89,13 +89,21 @@ project Demos is
 
    package Linker is
 
+      COFF_Res   := ("../win32/aws.coff");
+      LIB_Crypt  := ("-lcrypto", "-lssl");
+
       case Shared.OS is
          when "Windows_NT" =>
-            for Default_Switches ("Ada") use ("../win32/aws.coff");
+            for Default_Switches ("Ada") use COFF_Res;
       end case;
 
-      for Switches ("runme.adb") use ("-lcrypto -lssl");
+      for Switches ("runme.adb") use COFF_Res & LIB_Crypt;
 
-  end Linker;
+      for Switches ("soap_client.adb") use COFF_Res & Shared.LIB_XMLAda;
+      for Switches ("soap_server.adb") use COFF_Res & Shared.LIB_XMLAda;
+      for Switches ("wsdl_demo_client.adb") use COFF_Res & Shared.LIB_XMLAda;
+      for Switches ("wsdl_demo_server.adb") use COFF_Res & Shared.LIB_XMLAda;
+
+   end Linker;
 
 end Demos;
