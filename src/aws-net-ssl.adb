@@ -98,7 +98,7 @@ package body AWS.Net.SSL is
 
    procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
-      New_Socket :    out Socket_Type) is
+      New_Socket : in out Socket_Type) is
    begin
       loop
          Net.Std.Accept_Socket (Socket, NSST (New_Socket));
@@ -131,7 +131,7 @@ package body AWS.Net.SSL is
    -------------
 
    procedure Connect
-     (Socket   :    out Socket_Type;
+     (Socket   : in out Socket_Type;
       Host     : in     String;
       Port     : in     Positive) is
    begin
