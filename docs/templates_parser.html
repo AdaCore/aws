@@ -1,15 +1,20 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 16 April 2002 -->
+     from templates_parser.texi on 5 August 2002 -->
 
-<TITLE>Templates Parser</TITLE>
+<TITLE>Templates Parser
+</TITLE>
 </HEAD>
 <BODY>
-<H1>Templates Parser</H1>
-<H2>$Revision$</H2>
-<H2>$Date$</H2>
-<ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
+<H1>Templates Parser
+</H1>
+<H2>$Revision$
+</H2>
+<H2>$Date$
+</H2>
+<ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)
+</ADDRESS>
 <P>
 <P><HR><P>
 <H1>Table of Contents</H1>
@@ -32,21 +37,26 @@
 <LI><A NAME="TOC12" HREF="templates_parser.html#SEC12">Templates_Parser Ada spec</A>
 </UL>
 <P><HR><P>
+<P>
+
+
+
+
+
+
+
+
 
 
 
 <H1><A NAME="SEC1" HREF="templates_parser.html#TOC1">Introduction</A></H1>
-
 <P>
+
 First of all this package is distributed under the GNAT modified GNU GPL.
 
-</P>
-<P>
 The templates parser package has been designed to parse files and to
 replace some specific tags into these files by some specified values.
 
-</P>
-<P>
 The main goal was to ease the development of Web servers. In CGI 
 (<I>Common Gateway Interface</I>) mode you have to write the HTML page in
 the program (in Ada or whatever other languages) by using some specific
@@ -54,11 +64,8 @@ libraries or by using only basic output functions like Ada <CODE>Put_Line</CODE>
 example. This is of course not mandatory but by lack of a good library
 every Web development end up doing just that.
 
-</P>
-<P>
 The main problems with this approach are:
 
-</P>
 
 <UL>
 
@@ -75,16 +82,17 @@ inline HTML command.
 
 <LI>You can't use the nice tools to generate your HTML.
 
+
 </UL>
 
 <P>
+
 With the templates parser package these problems are gone. The code and
 the design is <B>completely</B> separated. This is a very important
 point. PHP or JSP have tried this but most of the time you have the
 script embedded into the Web template. And worst you need to use another
 language just for your Web development.
 
-</P>
 
 <UL>
 
@@ -104,44 +112,40 @@ code from a program is error prone.
 
 <LI>It is possible to use standard tools to produce the HTML.
 
+
 <LI>You don't have to learn a new language.
 
+
 <LI>The script is Ada, so here you have the benefit of all the Ada power.
+
 
 </UL>
 
 <P>
+
 In fact, now the Ada program just compute some values, get some data
 from a database or whatever and then call the templates parser to output
 a page with the data displayed. To the templates parser you just pass
 the template filename and an associative table. 
 
-</P>
-<P>
 It is even more convenient to have different display with the same set
 of data. You just have to provides as many templates as you like.
 
-</P>
 
 
 <H1><A NAME="SEC2" HREF="templates_parser.html#TOC2">What is a tag ?</A></H1>
-
 <P>
+
 A tag is a string found in the template page and surrounded by a specific set
 of characters. The default is <B>@_</B> at the start and <B>_@</B> at the
 end of the tag. This default can be changed using <CODE>Set_Tag_Separators</CODE>
 routine, see section <A HREF="templates_parser.html#SEC12">Templates_Parser Ada spec</A>. Note that it must be changed
 as the first API call and should not be changed after that.
 
-</P>
-<P>
 The tag will be replaced by a value specified in a translation table.
 
-</P>
-<P>
 For example with the template file <TT>`demo.tmplt'</TT>:
 
-</P>
 
 <PRE>
 
@@ -150,9 +154,9 @@ For example with the template file <TT>`demo.tmplt'</TT>:
 </PRE>
 
 <P>
+
 Using the following code <TT>`demo.adb'</TT>:
 
-</P>
 
 <PRE>
 
@@ -172,9 +176,9 @@ Using the following code <TT>`demo.adb'</TT>:
 </PRE>
 
 <P>
+
 The program will print out :
 
-</P>
 
 <PRE>
 &#60;P&#62;Name Ada
@@ -182,13 +186,14 @@ The program will print out :
 </PRE>
 
 <P>
+
 This is a very simple example, but you'll see that there is a lot of
 powerful construct that you can use into a template file.
 
-</P>
 
 
 <H1><A NAME="SEC3" HREF="templates_parser.html#TOC3">Variable tags</A></H1>
+<P>
 
 
 <UL>
@@ -196,19 +201,20 @@ powerful construct that you can use into a template file.
 <LI><A HREF="templates_parser.html#SEC5">Filters</A>
 <LI><A HREF="templates_parser.html#SEC6">Other variables tags</A>
 </UL>
+<P>
 
 
 
 <H2><A NAME="SEC4" HREF="templates_parser.html#TOC4">Discrete, Boolean, Vector and Matrix</A></H2>
-
 <P>
+
 A variable tag is a specific string to be replaced by the template
 parser. There is four kinds of variable tags: <B>discrete</B>, <B>boolean</B>,
 <B>vector</B> and <B>matrix</B>. All variables tags are build using the Assoc
 constructors, see section <A HREF="templates_parser.html#SEC12">Templates_Parser Ada spec</A>.
 
-</P>
 <DL COMPACT>
+
 
 <DT><CODE>discrete</CODE>
 <DD>
@@ -253,132 +259,153 @@ into another TABLE tag statement (i.e. a TABLE tag statement of level 2).
 A matrix variable tag is built by concatenating vector variables.
 
 </DL>
+<P>
 
 
 
 <H2><A NAME="SEC5" HREF="templates_parser.html#TOC5">Filters</A></H2>
-
 <P>
+
 All kinds of variable tag can have one or more function-prefix or filter. The
 function prefix is applied to the variable value. The syntax is
 <CODE>@_[[FILTER_NAME[(parameter)]:]FILTER_NAME[(parameter)]:]SOME_VAR_@</CODE>.
 Filters are evaluated from right to left.
 
-</P>
-<P>
 The current filters are:
 
-</P>
 <DL COMPACT>
+
 
 <DT><CODE>CAPITALIZE</CODE>
 <DD>
+
 Put all characters in the variable in lower case except characters after
 a space or an underscore which are set in upper-case.
 
 <DT><CODE>CLEAN_TEXT</CODE>
 <DD>
+
 Keep only letters and digits all others characters are changed to
 spaces.
 
 <DT><CODE>COMA_2_POINT</CODE>
 <DD>
+
 Replaces all comas by points.
 
 <DT><CODE>CONTRACT</CODE>
 <DD>
+
 Converts any suite of spaces by a single space character.
 
 <DT><CODE>EXIST</CODE>
 <DD>
+
 Returns <B>True</B> if variable is set and has a value different that the null
 string and <B>False</B> otherwise.
 
 <DT><CODE>FORMAT_NUMBER</CODE>
 <DD>
+
 Returns the number with a space added between each 3 digits
 blocks. The decimal part is not transformed. If the data is not a
 number nothing is done.
 
 <DT><CODE>IS_EMPTY</CODE>
 <DD>
+
 Returns <B>True</B> if variable is the empty string and <B>False</B> otherwise.
 
 <DT><CODE>LOWER</CODE>
 <DD>
+
 Put all characters in the variable in lower-case.
 
 <DT><CODE>MATCH(<I>REGEXP</I>)</CODE>
 <DD>
+
 Returns <B>True</B> if variable match the regular expression passed as
 filter's parameter.
 
 <DT><CODE>NO_DIGIT</CODE>
 <DD>
+
 Replaces all digits by spaces.
 
 <DT><CODE>NO_LETTER</CODE>
 <DD>
+
 Replaces all letters by spaces.
 
 <DT><CODE>NO_SPACE</CODE>
 <DD>
+
 Removes all spaces in the variable.
 
 <DT><CODE>OUI_NON</CODE>
 <DD>
+
 If variable value is <B>True</B> it returns <B>Oui</B>, if <B>False</B> it
 returns <B>Non</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
 capitalized (all upper, all lower or first letter capital).
 
 <DT><CODE>POINT_2_COMA</CODE>
 <DD>
+
 Replaces all comas by points.
 
 <DT><CODE>REPEAT(<I>N</I>)</CODE>
 <DD>
+
 Returns N times the variable, N being passed as filter's parameter.
 
 <DT><CODE>REVERSE</CODE>
 <DD>
+
 Reverse the string.
 
 <DT><CODE>SIZE</CODE>
 <DD>
+
 Returns the size (number of characters) of the string value.
 
 <DT><CODE>TRIM</CODE>
 <DD>
+
 Removes leading and trailing spaces.
 
 <DT><CODE>UPPER</CODE>
 <DD>
+
 Put all characters in the variable in upper-case.
 
 <DT><CODE>WEB_ESCAPE</CODE>
 <DD>
+
 Replaces characters '&#60;', '&#62;', '"' and '&#38;' by corresponding HTML
 sequences: &#38;lt; &#38;gt; &#38;quot; and &#38;amp; 
 
 <DT><CODE>WEB_NBSP</CODE>
 <DD>
+
 Replaces all spaces by an HTML non breaking space.
 
 <DT><CODE>YES_NO</CODE>
 <DD>
+
 If variable value is <B>True</B> it returns <B>Yes</B>, if <B>False</B> it
 returns <B>No</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
 capitalized (all upper, all lower or first letter capital).
 
 </DL>
-
 <P>
+
 For example:
 
-</P>
 
 <PRE>
 If VAR is set to "<I>vector_tag</I>" then:
+
 
 @_VAR_@                     -&#62;  vector_tag
 @_UPPER:VAR_@               -&#62;  VECTOR_TAG
@@ -389,76 +416,86 @@ If VAR is set to "<I>vector_tag</I>" then:
 
 </PRE>
 
+<P>
+
 
 
 <H2><A NAME="SEC6" HREF="templates_parser.html#TOC6">Other variables tags</A></H2>
-
 <P>
+
 There is some specific variables tags that can be used in any
 templates. Here is a description of them:
 
-</P>
 <DL COMPACT>
+
 
 <DT><CODE>YEAR</CODE>
 <DD>
+
 Current year number using 4 digits.
 
 <DT><CODE>MONTH</CODE>
 <DD>
+
 Current month number using 2 digits.
 
 <DT><CODE>DAY</CODE>
 <DD>
+
 Current day number using 2 digits.
 
 <DT><CODE>HOUR</CODE>
 <DD>
+
 Current hour using range 0 to 23 using 2 digits.
 
 <DT><CODE>MINUTE</CODE>
 <DD>
+
 Current minute using 2 digits.
 
 <DT><CODE>SECOND</CODE>
 <DD>
+
 Current seconds using 2 digits.
 
 <DT><CODE>MONTH_NAME</CODE>
 <DD>
+
 Current full month name (January .. December).
 
 <DT><CODE>DAY_NAME</CODE>
 <DD>
+
 Current full day name (Monday .. Sunday).
 
 </DL>
+<P>
 
 
 
 <H1><A NAME="SEC7" HREF="templates_parser.html#TOC7">Tag statements</A></H1>
-
 <P>
+
 There is three different tag statements. A tag statement is surrounded
 by <CODE>@@</CODE>. The tag statements are:
 
-</P>
 
 <UL>
 <LI><A HREF="templates_parser.html#SEC8">INCLUDE tag statement</A>
 <LI><A HREF="templates_parser.html#SEC9">IF tag statement</A>
 <LI><A HREF="templates_parser.html#SEC10">TABLE tag statement</A>
 </UL>
+<P>
 
 
 
 <H2><A NAME="SEC8" HREF="templates_parser.html#TOC8">INCLUDE tag statement</A></H2>
-
 <P>
+
 This tag is used to include another template file. This is useful if you
 have the same header and/or footer in all your HTML pages. For example:
 
-</P>
 
 <PRE>
 @@INCLUDE@@ header.tmplt
@@ -468,14 +505,15 @@ have the same header and/or footer in all your HTML pages. For example:
 @@INCLUDE@@ footer.tmplt
 </PRE>
 
+<P>
+
 
 
 <H2><A NAME="SEC9" HREF="templates_parser.html#TOC9">IF tag statement</A></H2>
-
 <P>
+
 This is the conditional tag statement. The complete form is:
 
-</P>
 
 <PRE>
 @@IF@@ &#60;expression1&#62;
@@ -488,16 +526,14 @@ This is the conditional tag statement. The complete form is:
 </PRE>
 
 <P>
+
 The part1 one will be parsed if expression1 evaluate to "TRUE", part2
 will be parsed if expression2 evaluate to "TRUE" and the part3 will
 be parse in any other case. The ELSIF and ELSE part are optional.
 
-</P>
-<P>
 The expression here is composed of boolean variable (or conditional
 variable) and/or boolean expression. Recognized operators are:
 
-</P>
 <DL COMPACT>
 
 <DT><CODE>A = B</CODE>
@@ -534,22 +570,24 @@ Returns TRUE if A or B is TRUE and FALSE otherwise.
 <DD>
 Returns TRUE if either A or B (but not both) is TRUE and FALSE otherwise.
 </DL>
-
 <P>
+
 To build an expression it is possible to use the parentheses. So a valid
 expression could be:
 
-</P>
 
 <PRE>
 @@IF@@ (@_VAR1_@ &#62; 3) or (@_COND1_@ and @_COND2_@)
 </PRE>
 
 <P>
+
+Note also that variables and values can be surrouded by quotes if needed.
+Quotes are needed if a value contain spaces.
+
 To generate a conditional variable tag it is possible to use the
 following <B>Templates_Parser</B> function:
 
-</P>
 
 <PRE>
 <B>function</B> Assoc (Variable  : <B>in</B> String;
@@ -561,10 +599,10 @@ following <B>Templates_Parser</B> function:
 </PRE>
 
 <P>
+
 Let's see an example using an IF tag statement. With the following
 template:
 
-</P>
 
 <PRE>
 
@@ -577,9 +615,9 @@ template:
 </PRE>
 
 <P>
+
 The following program:
 
-</P>
 
 <PRE>
 
@@ -599,9 +637,9 @@ The following program:
 </PRE>
 
 <P>
+
 Will display:
 
-</P>
 
 <PRE>
    &#60;P&#62;As a user you have a restricted access to this server.
@@ -609,9 +647,9 @@ Will display:
 </PRE>
 
 <P>
+
 But the following program:
 
-</P>
 
 <PRE>
 
@@ -631,20 +669,22 @@ But the following program:
 </PRE>
 
 <P>
+
 Will display:
 
-</P>
 
 <PRE>
    &#60;P&#62;As an administrator you have full access to this server.
 
 </PRE>
 
+<P>
+
 
 
 <H2><A NAME="SEC10" HREF="templates_parser.html#TOC10">TABLE tag statement</A></H2>
-
 <P>
+
 A table tag is useful to generate HTML table for example. Basically the
 code between the <CODE>@@TABLE@@</CODE> and <CODE>@@END_TABLE@@</CODE> will
 be repeated as many time as the vector tag will have of values. If many
@@ -652,18 +692,13 @@ vector tags are specified in a table statement, the code between the
 table will be repeated a number of time equal to the maximum length of
 all vector tags in the table tag statement.
 
-</P>
-<P>
 A table tag statement is a kind of implicit iterator. This is a very
 important concept to build HTML table. Using <CODE>Vector_Tag</CODE> or
 <CODE>Matrix_Tag</CODE> variable in a <CODE>@@TABLE@@</CODE> tag statement it is
 possible to build very complex Web pages.
 
-</P>
-<P>
 Syntax:
 
-</P>
 
 <PRE>
 @@TABLE@@ [@@TERMINATE_SECTIONS@@]
@@ -674,9 +709,9 @@ Syntax:
 </PRE>
 
 <P>
+
 Let's have an example. With the following template:
 
-</P>
 
 <PRE>
 
@@ -693,9 +728,9 @@ Let's have an example. With the following template:
 </PRE>
 
 <P>
+
 And the following program:
 
-</P>
 
 <PRE>
 
@@ -723,9 +758,9 @@ And the following program:
 </PRE>
 
 <P>
+
 The following output will be generated:
 
-</P>
 
 <PRE>
 
@@ -746,17 +781,15 @@ The following output will be generated:
 </PRE>
 
 <P>
+
 Note that we use vector tag variables here. A discrete variable tag in a table
 will be replaced by the same (the only one) value for each row. A vector
 tag outside a table will be displayed as a list of values, each value
 being separated by a specified string. The default is a comma and a
 space ", ".
 
-</P>
-<P>
 The complete prototype for the <CODE>Vector_Tag</CODE> Assoc function is:
 
-</P>
 
 <PRE>
    <B>function</B> Assoc (Variable  : <B>in</B> String;
@@ -771,21 +804,19 @@ The complete prototype for the <CODE>Vector_Tag</CODE> Assoc function is:
 </PRE>
 
 <P>
+
 A table can contain many sections. The section to use will be selected
 depending on the current line. For example, a table with two sections
 will use different data on even and odd lines. This is useful, for
 example, when you want to alternate the line background color for a
 better lisibility when working on HTML pages.
 
-</P>
-<P>
 A table with sections can have the modifier
 <CODE>@@TERMINATE_SECTIONS@@</CODE>. This ensure that the table output will end
 with the last section. If the number of data in the vector variable tag
 is not a multiple of the number of sections then the remaining section
 will be complete with empty tag value.
 
-</P>
 
 <PRE>
 
@@ -819,9 +850,9 @@ will be complete with empty tag value.
 </PRE>
 
 <P>
+
 And the following program:
 
-</P>
 
 <PRE>
 
@@ -849,9 +880,9 @@ And the following program:
 </PRE>
 
 <P>
+
 The following output will be generated:
 
-</P>
 
 <PRE>
 
@@ -890,43 +921,44 @@ The following output will be generated:
 </PRE>
 
 <P>
+
 Into a table construct there are some additional variable tags available:
 
-</P>
 <DL COMPACT>
 
 <DT><CODE>@_UP_TABLE_LINE_@</CODE>
 <DD>
+
 This tag will be replaced by the table line number of the upper table
 statement. It will be set to 0 outside a table statement or inside a
 single table statement.
 
 <DT><CODE>@_TABLE_LINE_@</CODE>
 <DD>
+
 This tag will be replaced by the current table line number. It will be
 replaced by 0 outside a table statement.
 
 <DT><CODE>@_NUMBER_LINE_@</CODE>
 <DD>
+
 This is the number of line displayed in the table. It will be replaced
 by 0 outside a table statement.
 
 <DT><CODE>@_TABLE_LEVEL_@</CODE>
 <DD>
+
 This is the table level number. A table construct declared in a table
 has a level value of 2.  It will be replaced by 0 outside a table statement.
 
 </DL>
-
 <P>
+
 Let's have a look at a more complex example with mixed IF and TABLE tag
 statement.
 
-</P>
-<P>
 Here is the template:
 
-</P>
 
 <PRE>
 
@@ -955,9 +987,9 @@ Sorry, not available
 </PRE>
 
 <P>
+
 And the following program:
 
-</P>
 
 <PRE>
 
@@ -1022,9 +1054,9 @@ And the following program:
 </PRE>
 
 <P>
+
 The following output will be generated:
 
-</P>
 
 <PRE>
 
@@ -1068,10 +1100,10 @@ Sorry, not available
 </PRE>
 
 <P>
+
 Table tag statement can also be used with matrix tag. There is 3
 possibles placements for a matrix tag:
 
-</P>
 
 <OL>
 
@@ -1086,6 +1118,7 @@ will be use to iterate through the vector's values.
 
 <LI>Inside a table of level 1.
 
+
 In this case the TABLE iterate through the matrix lines. First iteration
 will use the first matrix's vector, second iteration will use second
 matrix's vector and so on. Each vector is then converted to a string by
@@ -1094,6 +1127,7 @@ constructor for Matrix_Tag).
 
 <LI>Outside a table statement.
 
+
 In this case the matrix is converted to a string. Each line represent a
 vector converted as a string using the supplied separator (see point 2
 above), and each vector is separated by an ASCII.LF character.
@@ -1101,9 +1135,9 @@ above), and each vector is separated by an ASCII.LF character.
 </OL>
 
 <P>
+
 Let's look at an example, with the following template:
 
-</P>
 
 <PRE>
 
@@ -1137,9 +1171,9 @@ The same matrix <B>out</B>side a table:
 </PRE>
 
 <P>
+
 Using the program:
 
-</P>
 
 <PRE>
 
@@ -1168,9 +1202,9 @@ Using the program:
 </PRE>
 
 <P>
+
 We get the following result:
 
-</P>
 
 <PRE>
 
@@ -1231,34 +1265,32 @@ A3.1, A3.2
 
 </PRE>
 
+<P>
+
 
 
 <H1><A NAME="SEC11" HREF="templates_parser.html#TOC11">Last notes</A></H1>
-
 <P>
+
 The templates parser has be written to parse HTML page but it is usable
 with any king of files. There is nothing hard coded for HTML, it is then
 possible to use it with plain text files, XML files, SGML files or
 whatever as long as it is not a binary file.
 
-</P>
 <P>
 
-<P>
 All tag statements can be mixed together. A <CODE>table</CODE> tag statement can be
 put in a <CODE>if</CODE> tag statement. An <CODE>if</CODE> tag statement can be put
 in a <CODE>table</CODE> tag statement. Idem for the <CODE>include</CODE> tag statement.
 
-</P>
-<P>
 Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wanadoo.fr/pascal.obry/</A>.
 
-</P>
 <P>
 
 
 
 <H1><A NAME="SEC12" HREF="templates_parser.html#TOC12">Templates_Parser Ada spec</A></H1>
+<P>
 
 
 <PRE>
@@ -1588,8 +1620,10 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 
 </PRE>
 
+<P>
+
 <P><HR><P>
-This document was generated on 16 April 2002 using the
+This document was generated on 5 August 2002 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
