@@ -652,12 +652,12 @@ is
             File_Upload_UID.Get (UID);
 
             if I = 0 then
-               return Config.Upload_Directory
-                 & Utils.Image (UID) & '_'
+               return To_String (HTTP_Server.Upload_Path)
+                 & Utils.Image (UID) & '.'
                  & Filename;
             else
-               return Config.Upload_Directory
-                 & Utils.Image (UID) & '_'
+               return To_String (HTTP_Server.Upload_Path)
+                 & Utils.Image (UID) & '.'
                  & Filename (I + 1 .. Filename'Last);
             end if;
          end Target_Filename;
@@ -967,7 +967,7 @@ is
       procedure Cut_Command is
       begin
          I1 := Fixed.Index (Command, " ");
-         I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ");
+         I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ", Backward);
          I3 := Fixed.Index (Command (I1 + 1 .. I2), "?");
       end Cut_Command;
 
@@ -976,12 +976,11 @@ is
       ---------
 
       function URI return String is
-         use AWS.Translator;
       begin
          if I3 = 0 then
-            return Decode_URL (Command (I1 + 1 .. I2 - 1));
+            return Translator.Decode_URL (Command (I1 + 1 .. I2 - 1));
          else
-            return Decode_URL (Command (I1 + 1 .. I3 - 1));
+            return Translator.Decode_URL (Command (I1 + 1 .. I3 - 1));
          end if;
       end URI;
 
