@@ -189,8 +189,8 @@ package AWS.Server is
    procedure Give_Back_Socket
      (Web_Server : in out HTTP;
       Socket     : in     Net.Socket_Type'Class);
-   --  Bring the socket back to the server. Socket was taken after the
-   --  Socket_Taken return in the user callback.
+   --  Give the socket back to the server. Socket must have been taken from
+   --  the server using the Response.Socket_Taken routine in a callback.
 
 private
 
@@ -395,19 +395,18 @@ private
    -- Socket_Semaphore --
    ----------------------
 
-   --  This is a binary semaphore with Socket_Access passing, only a single
-   --  task can enter it (Seize_Or_Socket) with Socket parameter is null and
-   --  must call Release when the resource is not needed anymore.
-
    protected type Socket_Semaphore is
 
       entry Put_Socket (Socket : in Net.Socket_Access);
+      --  Store socket into the protected object, can enter only if there
+      --  is no socket already stored.
 
       entry Seize_Or_Socket (Socket : out Net.Socket_Access);
+      --  Enter and seize the semaphore or retrieve a waiting socket
 
       procedure Release;
-      --  Do not call Relaease if the Socket output parameter in
-      --  Seize_Or_Socket was null;
+      --  Release the semaphore. Call Release only if the Socket output
+      --  parameter in Seize_Or_Socket was null.
 
    private
       Socket : Net.Socket_Access;
