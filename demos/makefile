@@ -38,7 +38,7 @@ BUILD_SPECIFIC = build_res
 
 ifdef XMLADA
 DEMOS := $(DEMOS) test_jabber soap_client soap_server soap_svs soap_cvs \
-	wsdl_demo_client wsdl_demo_server
+	wsdl_demo_client wsdl_demo_server interoplab_main
 BUILD_SPECIFIC := $(BUILD_SPECIFIC) build_wsdl
 endif
 
@@ -59,6 +59,7 @@ build_res:
 build_wsdl:
 	echo Generate stub/skel from WSDL document
 	../tools/wsdl2aws -q -f hello.wsdl
+	../tools/wsdl2aws -q -f -rpc -noskel interoplab_main.wsdl
 
 force:
 
