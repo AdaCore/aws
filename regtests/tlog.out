@@ -19,6 +19,6 @@ shutdown
 127.0.0.1: | - | login | [<date>] | "GET | /one | HTTP/1.1" | 200 | 3 | 
 127.0.0.1: | - | login | [<date>] | "GET | /file | HTTP/1.1" | 200 | 2897 | 
 > File : tlog_error-xxxx-xx-xx.log
-127.0.0.1: | - | - | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | tlog.adb:209 | explicit | raise | 
-127.0.0.1: | - | - | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | tlog.adb:209 | explicit | raise | 
-127.0.0.1: | - | login | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | tlog.adb:209 | explicit | raise | 
+127.0.0.1: | - | - | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | tlog.adb:234 | explicit | raise | 
+127.0.0.1: | - | - | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | tlog.adb:234 | explicit | raise | 
+127.0.0.1: | - | login | [<date>] | "GET | /error | HTTP/1.1" | Exception | name: | CONSTRAINT_ERROR | Message: | tlog.adb:234 | explicit | raise | 
