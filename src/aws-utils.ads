@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -59,9 +59,6 @@ package AWS.Utils is
    --  Returns the hexadecimal string representation of the decimal
    --  number V. if Width /= 0, the result will have exactly Width characters
    --  eventually padded with leading 0 or trimmed on the right.
-
-   function Dec (V : in Natural) return String;
-   --  Returns the decimal representation for V
 
    function Hex_Value (Hex : in String) return Natural;
    --  Returns the value for the hexadecimal number Hex. Raises
