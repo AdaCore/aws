@@ -477,7 +477,7 @@ package body AWS.Client is
       Auth_Is_Over  : Boolean;
 
    begin
-      Retry: loop
+      Retry : loop
          begin
             Open_Send_Common_Header (Connection, "GET", URI);
 
@@ -836,7 +836,7 @@ package body AWS.Client is
       Auth_Attempts : Auth_Attempts_Count := (others => 2);
       Auth_Is_Over  : Boolean;
    begin
-      Retry: loop
+      Retry : loop
          begin
             Open_Send_Common_Header (Connection, "HEAD", URI);
 
@@ -1508,7 +1508,7 @@ package body AWS.Client is
       Auth_Is_Over  : Boolean;
 
    begin
-      Retry: loop
+      Retry : loop
          begin
             Open_Send_Common_Header (Connection, "POST", URI);
 
@@ -1633,7 +1633,7 @@ package body AWS.Client is
       Auth_Is_Over  : Boolean;
 
    begin
-      Retry: loop
+      Retry : loop
 
          begin
             Open_Send_Common_Header (Connection, "PUT", URI);
@@ -1977,7 +1977,7 @@ package body AWS.Client is
       end Send_File;
 
    begin
-      Retry: loop
+      Retry : loop
          begin
             Open_Send_Common_Header (Connection, "POST", URI);
 
