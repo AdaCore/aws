@@ -1,3 +1,13 @@
+2001-01-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Send_File): handle exception when a file is not found. We don't
+	 want to crash in this case.
+	(File_Upload): handle properly the server name on the server side.
+
+	* aws-communication-server.ads:
+	Fix comments.
+
 2001-01-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
