@@ -396,6 +396,19 @@ package body AWS.URL is
       return P_Image (2 .. P_Image'Last);
    end Port;
 
+   -------------------
+   -- Protocol_Name --
+   -------------------
+
+   function Protocol_Name (URL : in Object) return String is
+   begin
+      if URL.Security then
+         return "https";
+      else
+         return "http";
+      end if;
+   end Protocol_Name;
+
    --------------
    -- Security --
    --------------

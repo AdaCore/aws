@@ -72,6 +72,9 @@ package AWS.URL is
    function Port (URL : in Object) return String;
    --  Returns the port as a string.
 
+   function Protocol_Name (URL : in Object) return String;
+   --  Returns "http" or "https" depending on the protocol used by URL.
+
    function Security (URL : in Object) return Boolean;
    --  Returns True if it is an secure HTTP (HTTPS) URL.
 
