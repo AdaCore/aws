@@ -98,15 +98,18 @@ package AWS.Translator is
    Default_Compression : constant Compression_Level := ZL.Default_Compression;
 
    function Compress
-     (Data  : in Ada.Streams.Stream_Element_Array;
-      Level : in Compression_Level                := Default_Compression)
+     (Data   : in Ada.Streams.Stream_Element_Array;
+      Level  : in Compression_Level                := Default_Compression;
+      Header : in ZL.Header_Type                   := ZL.Default_Header)
       return Utils.Stream_Element_Array_Access;
    --  Returns Data compressed with a standard deflate algorithm based on the
    --  zlib library. The results is dynamically allocated and must be
    --  explicitly freed.
 
-   function Decompress (Data : in Ada.Streams.Stream_Element_Array)
-     return Utils.Stream_Element_Array_Access;
+   function Decompress
+     (Data   : in Ada.Streams.Stream_Element_Array;
+      Header : in ZL.Header_Type                   := ZL.Default_Header)
+      return Utils.Stream_Element_Array_Access;
    --  Returns Data decompressed based on the zlib library. The results is
    --  dynamically allocated and must be explicitly freed.
 

@@ -1,3 +1,12 @@
+2003-12-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-memory-zlib.ads:
+	(Default_Header): New constant.
+
+	* aws-translator.ads, aws-translator.adb:
+	(Compress): New parameter Header with default value.
+	(Decompress): Idem.
+
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
