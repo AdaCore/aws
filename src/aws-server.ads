@@ -169,22 +169,38 @@ package AWS.Server is
    --  Activate server's logging activity. See AWS.Log. If Auto_Flush is True
    --  the file will be flushed after all written data.
 
+   function Log_Name (Web_Server : in HTTP) return String;
+   --  Return the name of the Log or an empty string if one is not active
+
    procedure Stop_Log (Web_Server : in out HTTP);
-   --  Stop server's logging activity. See AWS.Log.
+   --  Stop server's logging activity. See AWS.Log
+
+   function Is_Log_Active (Web_Server : in HTTP) return Boolean;
+   --  Returns True if the Web Server log has been activated
 
    procedure Start_Error_Log
      (Web_Server      : in out HTTP;
       Split_Mode      : in     Log.Split_Mode := Log.None;
       Filename_Prefix : in     String         := "");
-   --  Activate server's logging activity. See AWS.Log.
+   --  Activate server's logging activity. See AWS.Log
+
+   function Error_Log_Name (Web_Server : in HTTP) return String;
+   --  Return the name of the Error Log or an empty string if one is not active
 
    procedure Stop_Error_Log (Web_Server : in out HTTP);
-   --  Stop server's logging activity. See AWS.Log.
+   --  Stop server's logging activity. See AWS.Log
+
+   function Is_Error_Log_Active (Web_Server : in HTTP) return Boolean;
+   --  Returns True if the Web Server error log has been activated
 
    procedure Flush_Log (Web_Server : in out HTTP);
    --  Flush the server log.
    --  Note that error log do not need to be flushed because it is always
    --  flushed by default.
+
+   ---------------
+   -- Other API --
+   ---------------
 
    procedure Give_Back_Socket
      (Web_Server : in out HTTP;

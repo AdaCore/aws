@@ -255,6 +255,15 @@ package body AWS.Server is
       end if;
    end Default_Unexpected_Exception_Handler;
 
+   --------------------
+   -- Error_Log_Name --
+   --------------------
+
+   function Error_Log_Name (Web_Server : in HTTP) return String is
+   begin
+      return Log.Filename (Web_Server.Error_Log);
+   end Error_Log_Name;
+
    ---------------------
    -- File_Upload_UID --
    ---------------------
@@ -320,6 +329,24 @@ package body AWS.Server is
    begin
       null;
    end Initialize;
+
+   -------------------------
+   -- Is_Error_Log_Active --
+   -------------------------
+
+   function Is_Error_Log_Active (Web_Server : in HTTP) return Boolean is
+   begin
+      return Log.Is_Active (Web_Server.Error_Log);
+   end Is_Error_Log_Active;
+
+   -------------------
+   -- Is_Log_Active --
+   -------------------
+
+   function Is_Log_Active (Web_Server : in HTTP) return Boolean is
+   begin
+      return Log.Is_Active (Web_Server.Log);
+   end Is_Log_Active;
 
    ----------
    -- Line --
@@ -444,6 +471,15 @@ package body AWS.Server is
 
       end loop;
    end Line_Cleaner;
+
+   --------------
+   -- Log_Name --
+   --------------
+
+   function Log_Name (Web_Server : in HTTP) return String is
+   begin
+      return Log.Filename (Web_Server.Log);
+   end Log_Name;
 
    ----------------------
    -- Protocol_Handler --
