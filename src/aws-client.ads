@@ -146,19 +146,29 @@ package AWS.Client is
    type HTTP_Connection (With_Timeouts : Boolean := False) is limited private;
 
    procedure Create
-     (Connection : in out HTTP_Connection;
-      Host       : in     String;
-      User       : in     String          := No_Data;
-      Pwd        : in     String          := No_Data;
-      Proxy      : in     String          := No_Data;
-      Proxy_User : in     String          := No_Data;
-      Proxy_Pwd  : in     String          := No_Data;
-      Retry      : in     Natural         := Retry_Default;
-      SOAPAction : in     String          := No_Data;
-      Persistent : in     Boolean         := True;
-      Timeouts   : in     Timeouts_Values := No_Timeout);
+     (Connection  : in out HTTP_Connection;
+      Host        : in     String;
+      User        : in     String          := No_Data;
+      Pwd         : in     String          := No_Data;
+      Proxy       : in     String          := No_Data;
+      Proxy_User  : in     String          := No_Data;
+      Proxy_Pwd   : in     String          := No_Data;
+      Retry       : in     Natural         := Retry_Default;
+      SOAPAction  : in     String          := No_Data;
+      Persistent  : in     Boolean         := True;
+      Timeouts    : in     Timeouts_Values := No_Timeout;
+      Server_Push : in     Boolean         := False);
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The request will be tried Retry time if it fails.
+
+   function Read_Until
+     (Connection : in HTTP_Connection;
+      Delimiter  : in String)
+     return String;
+   --  Read data on the Connection until the MIME Delimiter (including the
+   --  delimiter). It can be used to retreive the next piece of data from a
+   --  push server. If returned data is empty or does not termintate with the
+   --  delimiter the server push connection is closed.
 
    procedure Get
      (Connection : in out HTTP_Connection;
@@ -249,6 +259,7 @@ private
       Proxy_Pwd     : Unbounded_String;
       Opened        : Boolean;
       Persistent    : Boolean;
+      Server_Push   : Boolean;
       SOAPAction    : Unbounded_String;
       Cookie        : Unbounded_String;
       Socket        : Socket_Access;
