@@ -1,3 +1,29 @@
+2003-01-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net.ads, aws-net.adb, aws-net-std.ads, aws-net-ssl.ads,
+	  aws-net-ssl.adb:
+	Some changes in the AWS.Net API toward from the access limited
+	 types to the Classwide type usage.
+	(Set_Cache): Recreate the cache if it is already exists.
+
+	* aws-net-stream_io.adb:
+	(Stream): Was not able to copy socket, fixed.
+
+	* aws-server-get_status.adb:
+	(Slot_Table): Get the Peername just from socket.
+
+	* aws-server.ads, aws-server.adb:
+	(Accept_Socket_Serialized): Returning classwide type now.
+	(Get_Peername): Get the peername just from socket, not from Slot
+	 like before.
+	(Release): Catch only Net.Socket_Error exception.
+	(Set_Peer_Addr): Removed.
+	(Shutdown): Call Net.Shutdown instead of Net.Buffered.Shutdown.
+	Server socket is just Net.Std.Socket_Type now.
+	Removed dependence from Ada.Strings.Unbounded, becouse we do not need
+	 keep Peername in the Unbounded_String.
+	Peer_Addr field removed from Slot type.
+
 2003-01-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
