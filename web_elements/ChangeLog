@@ -1,5 +1,8 @@
 2004-12-22  Pascal Obry  <pascal@obry.net>
 
+	* makefile:
+	(DIRS): Add javascripts.
+
 	* notebook/notebook.thtml:
 	Add optional parameters $7 to handle an offset for the height of
 	 the tab. Can be used to adjust tab height for big fonts.
