@@ -1,3 +1,16 @@
+2004-06-20  Pascal Obry  <pascal@obry.org>
+
+	* sto.adb, ssto.adb:
+	Use Get_Free_Port.
+	Minor reformatting.
+
+	* sp_pck.adb, sto_proc.adb:
+	Minor reformatting.
+
+	* sp.adb:
+	(Sp): Shutdown the server.
+	Minor reformatting.
+
 2004-06-19  Pascal Obry  <pascal@obry.org>
 
 	* tlog.out, unexph2.out:
