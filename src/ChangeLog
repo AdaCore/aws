@@ -1,3 +1,25 @@
+2001-09-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-messages.ads:
+	(Referer_Token): new constant.
+	(Referer_Range): new subtype.
+
+	* aws-server-protocol_handler.adb:
+	(Parse): handles User_Agent and Referer fields.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	(User_Agent): new procedure.
+	(Referer): new procedure.
+	
+	* aws-status.adb:
+	(User_Agent): new function.
+	(Referer): new function.
+
+	* aws-status.ads:
+	(User_Agent): new function.
+	(Referer): new function.
+	(Data): add User_Agent and Referer field.
+
 2001-08-31  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-config-ini.adb: 
