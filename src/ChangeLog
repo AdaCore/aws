@@ -1,5 +1,17 @@
 2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	(Answer_To_Client): Length is now a Response.Content_Length_Type
+	 variable.
+	(Send_Data): Get File_Size and set Length. Do not output the
+	 Content-Length header since this must not be ouputed in chunked
+	 encoding messages.
+	(Send_Resource): Small_File_Size new constant, send file whose
+	 size is smaller than this constant without using the chunked
+	 encoding. Last_Chunk new constant. Packet renamed Chunk (this is
+	 the term used in the RFC).
+	(Send_Resource): Fix comment.
+
 	* aws-client.adb:
 	(Adjust_Cookie): Rename to Copy_Cookie, swap also the parameters.
 
