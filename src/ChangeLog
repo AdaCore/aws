@@ -1,5 +1,14 @@
 2002-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(SOURCES): Add Jabber only if XMLADA defined.
+
+	* aws-net-ssl.adb:
+	Fix TLS casing.
+
+	* aws-net-ssl.ads:
+	(Method): Fix TLS casing.
+
 	* aws-server.ads, aws-server.adb:
 	(Slots.Get): Renamed Slots.Set.
 	(Slots.Set): Protected data renamed Table.
