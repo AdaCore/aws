@@ -42,6 +42,12 @@ package AWS.Resources is
 
    type File_Type is limited private;
 
+   type File_Instance is (None, Plain, GZip, Both);
+   --  None  : No instance of this file present.
+   --  Plain : A non-compressed version of this file exists.
+   --  GZip  : A gzip encoded version of this file exists.
+   --  Both  : Both versions of this file exists.
+
    subtype Content_Length_Type is Stream_Element_Offset;
 
    Undefined_Length : constant Content_Length_Type;
@@ -103,6 +109,12 @@ package AWS.Resources is
    --  Returns the size (in bytes) of the resource. If the size of the
    --  resource is not defined, the routine Size returns Undefined_Length
    --  value.
+
+   function Exist (Name : in String) return File_Instance;
+   --  Return GZip if only file Name & ".gz" exists.
+   --  Return Plain if only file Name exists.
+   --  Return Both if both file Name and Name & ".gz" exists.
+   --  Return None if files neither Name nor Name & ".gz" exist.
 
    function Is_Regular_File (Name : in String) return Boolean;
    --  Returns True if Filename is a regular file and is readable. Checks
