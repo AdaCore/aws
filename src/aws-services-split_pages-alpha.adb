@@ -93,6 +93,8 @@ package body AWS.Services.Split_Pages.Alpha is
 
       --  Build table
 
+      --  Initialize iteration with the first item
+
       declare
          use Ada.Characters.Handling;
          use Ada.Strings.Fixed;
@@ -109,6 +111,8 @@ package body AWS.Services.Split_Pages.Alpha is
          Res_Inx          := 1;
       end;
 
+      --  For all other items
+
       for I in 2 .. Size (Key_Vec) loop
          declare
             use Ada.Characters.Handling;
@@ -122,9 +126,14 @@ package body AWS.Services.Split_Pages.Alpha is
                New_Initial := To_Upper (Name (Name'First));
             end if;
 
-            if New_Initial /= Initial then
+            if New_Initial /= Initial
+              and then (Initial not in '0' .. '9'
+                          or else New_Initial not in '0' .. '9')
+            then
+               --  This is a new entry, record the last item for previous entry
                Result (Res_Inx).Last := I - 1;
 
+               --  Initialize new entry
                Res_Inx := Res_Inx + 1;
                Result (Res_Inx).First := I;
                Set_Entry (New_Initial, Res_Inx);
@@ -132,6 +141,8 @@ package body AWS.Services.Split_Pages.Alpha is
             end if;
          end;
       end loop;
+
+      --  Last item for the last entry
 
       Result (Res_Inx).Last := Size (Key_Vec);
 
@@ -167,6 +178,7 @@ package body AWS.Services.Split_Pages.Alpha is
       procedure Add_Entry (Index : in Natural) is
       begin
          if Index = 0 then
+            --  This entry has no element
             Self.HREFS_V := Self.HREFS_V & Self.Default_Href;
          else
             Self.HREFS_V := Self.HREFS_V & URIs (Index);
@@ -197,7 +209,8 @@ package body AWS.Services.Split_Pages.Alpha is
          end if;
       end loop;
 
-      --  Compute Previous and Next
+      --  Compute Previous and Next, we need to find the previous/next non
+      --  empty entry.
 
       Previous := 0;
 
