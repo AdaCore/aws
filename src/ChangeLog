@@ -1,13 +1,18 @@
+2004-06-27  Pascal Obry  <pascal@obry.org>
+
+	* aws-client.adb:
+	(Internal_Post): Properly handle empty SOAPAction.
+
 2004-06-25  Pascal Obry  <pascal@obry.org>
 
 	* templates_parser.adb:
-	Adjust to new AI302 version.	
+	Adjust to new AI302 version.
 
 	* aws-session.adb:
-	Adjust to new AI302 version.	
+	Adjust to new AI302 version.
 
 	* aws-services-transient_pages.adb, aws-resources-embedded.adb:
-	Adjust to new AI302 version.	
+	Adjust to new AI302 version.
 
 	* aws-services-dispatchers-virtual_host.ads,
 	  aws-services-dispatchers-virtual_host.adb:
@@ -44,7 +49,7 @@
 	(For_Every_Data): Adjust to new Session_Node defintion.
 	(Process): Idem.
 	Fix bad performances introduced when moving to the AI302 containers.
-	
+
 2004-06-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server.ads:

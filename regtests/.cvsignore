@@ -226,6 +226,14 @@ ctab
 ctab.res
 ctab.tmp
 ctable.res
+datafeed_service.res
+datafeedservice-client.adb
+datafeedservice-client.ads
+datafeedservice-server.adb
+datafeedservice-server.ads
+datafeedservice-types.adb
+datafeedservice-types.ads
+datafeedservice.ads
 dirop
 dirop.res
 dirop.tmp
