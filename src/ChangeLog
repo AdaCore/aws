@@ -1,5 +1,8 @@
 2001-09-21  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	Change a lot of things to ease build step.
+
 	* aws-server-push.adb:
 	Minor reformating.
 
