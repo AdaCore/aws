@@ -547,7 +547,6 @@ src/aws-net-log-callbacks.adb
 src/aws-net-log-callbacks.ads
 src/aws-net-log.adb
 src/aws-net-log.ads
-src/aws-net-sets.adb
 src/aws-net-sets.ads
 src/aws-net-ssl-certificate.adb
 src/aws-net-ssl-certificate.ads
