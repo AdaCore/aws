@@ -1,6 +1,19 @@
 2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
+	(SOAP_Post): Is now a procedure was a function. This is more
+	 consistent with others persistent API. Reset the SOAPAction in
+	 the connection. This fix a bug were it was not possible to handle
+	 a non SOAP request after a SOAP request was made on a persistent
+	 connection.
+
+	* aws-client.ads:
+	(SOAP_Post): Is now a procedure was a function. This is more
+	 consistent with others persistent API.
+
+2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
 	(Value): New procedure was Create.Set.
 	(Create): Remove SOAPAction parameter, do not initialize the
 	 SOAPAction here.
