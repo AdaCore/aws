@@ -39,7 +39,7 @@ with Ada.Calendar;
 with Input_Sources.Strings;
 with Unicode.CES.Basic_8bit;
 with DOM.Core.Nodes;
-with SAX.Readers;
+with Sax.Readers;
 
 with SOAP.Message.Reader;
 
