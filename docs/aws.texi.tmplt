@@ -1756,6 +1756,26 @@ It is possible to activate the directory browsing facility of this
 simple page server. This is not activated by default. This feature
 is based on the directory browsing service @pxref{Directory browser}.
 
+@noindent
+Note that this service uses two template files:
+
+@table @b
+@item aws_directory.thtml
+
+The template page used for directory browsing. See
+@pxref{AWS.Services.Directory} for a full description of this template usage.
+
+@item 404.thtml
+
+The Web page returned if the requested page is not found. This is a
+template with a single tag variable named PAGE. It will be replaced by
+the ressource which was not found.
+
+@i{Note that on Microsoft IE this page will be displayed only if the
+total page size is bigger than 512 bytes or it includes at least one image.}
+
+@end table
+
 @pxref{AWS.Services.Page_Server} for a complete spec description.
 
 @c ----------------------------------------------------------------------
