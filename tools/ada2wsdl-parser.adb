@@ -36,6 +36,7 @@ with Ada.Characters.Handling;
 with Ada.Strings;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
+with Ada.Unchecked_Deallocation;
 
 with GNAT.OS_Lib;
 
@@ -515,6 +516,28 @@ package body Ada2WSDL.Parser is
       function Type_Name (Elem : in Asis.Element) return String is
          use Extensions.Flat_Kinds;
 
+         function Check_Float (Type_Name : in String) return String;
+         --  Returns Type_Name, issue a warning if Type_Name is a Float
+
+         -----------------
+         -- Check_Float --
+         -----------------
+
+         function Check_Float (Type_Name : in String) return String is
+            L_Name : constant String
+              := Characters.Handling.To_Lower (Type_Name);
+         begin
+            if L_Name = "float" then
+               Text_IO.Put_Line
+                 (Text_IO.Standard_Error,
+                  "ada2wsdl:" & Location (Elem)
+                    & ": use Long_Float instead of Float for SOAP/WSDL"
+                    & " items.");
+            end if;
+
+            return Type_Name;
+         end Check_Float;
+
          E   : Asis.Element := Elem;
          CFS : Asis.Declaration;
       begin
@@ -555,13 +578,11 @@ package body Ada2WSDL.Parser is
             begin
                --  ??? There is probably a better way to achieve this
                if E_Str = "" then
-                  return Image (Text.Element_Image (Elem));
+                  return Check_Float (Image (Text.Element_Image (Elem)));
                else
-                  return E_Str;
+                  return Check_Float (E_Str);
                end if;
             end;
-
-            return Image (Text.Element_Image (Elem));
          end if;
       end Type_Name;
 
@@ -742,6 +763,12 @@ package body Ada2WSDL.Parser is
       function Get_Tree_Name return String;
       --  Returns the name of the tree file
 
+      ----------
+      -- Free --
+      ----------
+
+      procedure Free is new Ada.Unchecked_Deallocation (String, String_Access);
+
       -------------------
       -- Get_Tree_Name --
       -------------------
@@ -770,7 +797,6 @@ package body Ada2WSDL.Parser is
 
    begin
       File_Name := new String'(To_String (Options.File_Name));
-      --  ??? free
 
       A4G.GNAT_Int.Compile
         (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success);
@@ -783,6 +809,8 @@ package body Ada2WSDL.Parser is
             "ada2wsdl: cannot create the tree file for " & File_Name.all);
          raise Parameter_Error;
       end if;
+
+      Free (File_Name);
    end Create_Tree;
 
    ------------------------
@@ -952,7 +980,7 @@ package body Ada2WSDL.Parser is
            (Standard_Error, "ada2wsdl: ASIS Diagnosis is "
               & Characters.Handling.To_String (Asis.Implementation.Diagnosis));
          New_Line (Standard_Error);
-         Put      (Standard_Error, "ada3wsdl: Status Value   is ");
+         Put      (Standard_Error, "ada2wsdl: Status Value   is ");
          Put_Line (Standard_Error, Asis.Errors.Error_Kinds'Image
                    (Asis.Implementation.Status));
          Emergency_Clean_Up;
