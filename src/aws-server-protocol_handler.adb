@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -828,8 +828,14 @@ is
               (Target_Filename (To_String (Filename)));
 
             if To_String (Filename) /= "" then
+               --  First value is the uniq name on the server side
                AWS.Parameters.Set.Add
                  (P_List, To_String (Name), To_String (Server_Filename));
+
+               --  Second value is the original name as found on the client
+               --  side.
+               AWS.Parameters.Set.Add
+                 (P_List, To_String (Name), To_String (Filename));
 
                Get_File_Data;
 
