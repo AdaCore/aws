@@ -348,20 +348,20 @@ is
       elsif URI = Admin_URI & "-logo" then
          --  Status page logo
          Answer := Response.File
-           (Content_Type => MIME.Image_Gif,
-            Filename     => "logo.gif");
+           (Content_Type => MIME.Image_Png,
+            Filename     => "logo.png");
 
       elsif URI = Admin_URI & "-uparr" then
          --  Status page hotplug up-arrow
          Answer := Response.File
-           (Content_Type => MIME.Image_Gif,
-            Filename     => "up.gif");
+           (Content_Type => MIME.Image_Png,
+            Filename     => "up.png");
 
       elsif URI = Admin_URI & "-downarr" then
          --  Status page hotplug down-arrow
          Answer := Response.File
-           (Content_Type => MIME.Image_Gif,
-            Filename     => "down.gif");
+           (Content_Type => MIME.Image_Png,
+            Filename     => "down.png");
 
       elsif URI = Admin_URI & "-HPup" then
          --  Status page hotplug up message
