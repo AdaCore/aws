@@ -161,7 +161,7 @@ status.</H3>
 
   <tr>
   @@TABLE@@
-    @@IF@@ @_EXIST:VALUES_M_@
+    @@IF@@ @_EXIST:KEYS_M_@
       <td bgcolor=turquoise>
       @_VALUES_M_@
       </td>
