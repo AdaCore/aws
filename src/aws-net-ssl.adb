@@ -28,7 +28,12 @@
 
 --  $Id$
 
---  routines here are wrappers around standard sockets and SSL.
+--  Routines here are wrappers around standard sockets and SSL.
+--
+--  IMPORTANT: The default certificate used for the SSL connection is
+--  "cert.pem" (in the working directory) if it exists. If this file does not
+--  exits it is required to initialize the SSL layer certificate with
+--  SSL.Set_Certificate.
 
 with SSL;
 
@@ -47,7 +52,15 @@ package body AWS.Net is
    begin
       if not SSL_Initialized then
          SSL.Init (SSL.SSLv23);
-         SSL.Set_Certificate ("cert.pem");
+
+         begin
+            SSL.Set_Certificate ("cert.pem");
+         exception
+            when SSL.Lib_Error =>
+               --  cert.pem has not been found.
+               null;
+         end;
+
          SSL.Set_Quiet_Shutdown;
          SSL.Set_Sess_Cache_Size (16);
          SSL_Initialized := True;
