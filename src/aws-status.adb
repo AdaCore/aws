@@ -140,6 +140,21 @@ package body AWS.Status is
       return To_String (D.Auth_Response);
    end Authorization_Response;
 
+   ------------------------
+   -- Authorization_Tail --
+   ------------------------
+
+   function Authorization_Tail     (D : in Data) return String is
+   begin
+      return AWS.Digest.Tail
+               (Nonce  => Authorization_Nonce (D),
+                NC     => Authorization_NC (D),
+                CNonce => Authorization_CNonce (D),
+                QOP    => Authorization_QOP (D),
+                Method => Request_Method'Image (D.Method),
+                URI    => Authorization_URI (D));
+   end Authorization_Tail;
+
    -----------------------
    -- Authorization_URI --
    -----------------------
@@ -180,29 +195,6 @@ package body AWS.Status is
 
       Data_URL : URL.Object := D.URI;
 
-      function Get_Nonce return String;
-      --  Returns Nonce for the Digest authentication without "qop"
-      --  parameter, or [nonce]:[nc]:[cnonce]:[qop] for the Digest
-      --  authentication with qop parameter.
-      --  It is just for convenience to implement RFC 2617 3.2.2.1.
-
-      ---------------
-      -- Get_Nonce --
-      ---------------
-
-      function Get_Nonce return String is
-         QOP : constant String := Authorization_QOP (D);
-      begin
-         if QOP = "" then
-            return Nonce;
-         else
-            return Nonce
-              & ':' & Authorization_NC (D)
-              & ':' & Authorization_CNonce (D)
-              & ':' & QOP;
-         end if;
-      end Get_Nonce;
-
    begin
       URL.Normalize (Data_URL);
 
@@ -219,7 +211,10 @@ package body AWS.Status is
               (Username => Authorization_Name (D),
                Realm    => Authorization_Realm (D),
                Password => Password,
-               Nonce    => Get_Nonce,
+               Nonce    => Nonce,
+               NC       => Authorization_NC (D),
+               CNonce   => Authorization_CNonce (D),
+               QOP      => Authorization_QOP (D),
                Method   => Request_Method'Image (D.Method),
                URI      => Auth_URI)
       then
