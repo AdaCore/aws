@@ -1,5 +1,10 @@
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(.SILENT): Simplify.
+	(SOURCES): Put sha sources at the end to make it easier to
+	 generate the aws-http distribution.
+
 	* readme.txt:
 	Document clearly the licenses used by each component. (sha is still
 	 missing and will be documented later, this component is optional

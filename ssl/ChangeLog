@@ -1,3 +1,8 @@
+2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(.SILENT): Simplify.
+
 2004-01-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl.gpr:
