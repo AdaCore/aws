@@ -76,6 +76,26 @@ package body AWS.Session is
 
    type Session_Set_Access is access all Session_Set.Table_Type;
 
+   -----------------
+   -- Expired Set --
+   -----------------
+
+   --  This is used by the task cleaner, all SID to delete will be placed here
+   --  temporarily. Note that these global value are thread safe. The data are
+   --  initialized by Database.Lock_And_Clean. When this procedure leaves the
+   --  database is locked. The set is used just after and the clean-up is done.
+
+   Max_Expired : constant := 50;
+
+   Expired_SID : array (1 .. Max_Expired) of ID;
+   E_Index     : Natural := 0;
+
+   ----------------------
+   -- Session Callback --
+   ----------------------
+
+   Session_Callback : Callback := null;
+
    --------------
    -- Database --
    --------------
@@ -121,13 +141,18 @@ package body AWS.Session is
          Key : in String);
       --  Removes Key from the session SID.
 
-      entry Clean;
-      --  Removes old session data that are older than Session_Lifetime
-      --  seconds.
-
       --
       --  Not safe routines. These are only to be used by iterators.
       --
+
+      entry Lock_And_Clean;
+      --  Checks for expired data and put them into the global Expired_SID
+      --  set. The data will be removed later by the cleaner task. This is
+      --  used only in the cleaner task.
+
+      procedure Unsafe_Delete_Session (SID : in ID);
+      --  Removes session SID from the Tree, the database must be locked
+      --  before calling this routine.
 
       procedure Get_Sessions_And_Lock (Sessions : out Session_Set_Access);
       --  Increment Lock by 1, all entries modifying data are locked, returns
@@ -136,6 +161,9 @@ package body AWS.Session is
 
       procedure Unlock;
       --  Decrement Lock by 1, unlock all entries when Lock return to 0.
+
+      procedure Destroy;
+      --  Release all memory associated with the database
 
    private
 
@@ -158,6 +186,7 @@ package body AWS.Session is
      (Destination : in out Session_Node;
       Source      : in     Session_Node) is
    begin
+      Destroy (Destination);
       Destination.Time_Stamp := Source.Time_Stamp;
       Key_Value.Assign (Destination.Root, Source.Root);
    end Assign;
@@ -171,6 +200,10 @@ package body AWS.Session is
       use type Calendar.Time;
 
       Next_Run : Calendar.Time := Calendar.Clock + Session_Check_Interval;
+      L_SC     : Callback;
+      --  Local pointer to the session callback procedure. This is to ensure
+      --  that there is no race condition and that the code below will not
+      --  crash if SC pointer is changed.
    begin
       Clean_Dead_Sessions : loop
          select
@@ -180,9 +213,39 @@ package body AWS.Session is
             delay until Next_Run;
          end select;
 
-         Database.Clean;
+         Database.Lock_And_Clean;
+
+         L_SC := Session_Callback;
+         --  Use Session_Callback copy as we don't want the value to change
+         --  between the test and the call to the session callback routine.
+
+         for K in 1 .. E_Index loop
+
+            if L_SC /= null then
+               --  Run the session's callback routine, we catch all exceptions
+               --  here as we do not want to fail.
+
+               begin
+                  L_SC.all (Expired_SID (K));
+               exception
+                  when others =>
+                     null;
+               end;
+            end if;
+
+            --  Now we can delete the session data
+
+            Database.Unsafe_Delete_Session (Expired_SID (K));
+         end loop;
+
+         E_Index := 0;
+
+         Database.Unlock;
+
          Next_Run := Next_Run + Session_Check_Interval;
       end loop Clean_Dead_Sessions;
+
+      Database.Destroy;
 
    exception
       when E : others =>
@@ -247,8 +310,6 @@ package body AWS.Session is
    -- Database --
    --------------
 
-   type Session_ID_Array is array (Integer range <>) of ID;
-
    protected body Database is
 
       -----------------
@@ -263,80 +324,23 @@ package body AWS.Session is
          Session_Set.Insert (Sessions, SID, New_Node);
       end Add_Session;
 
-      -----------
-      -- Clean --
-      -----------
-
-      entry Clean when Lock = 0 is
-
-         Max_Remove : constant := 50;
-         --  Maximum number of items that will get removed at a time. Other
-         --  items will be checked for removal during next run.
-
-         Remove : Session_ID_Array (1 .. Max_Remove);
-         --  ??? can't use anonymous array here, GNAT bug TN 9023-002
-         --  Fixed in GNAT 3.15w (20010625).
-
-         Index : Natural := 0;
-
-         Now : constant Calendar.Time := Calendar.Clock;
-
-         procedure Process
-           (SID      : in     ID;
-            Session  : in     Session_Node;
-            Order    : in     Positive;
-            Continue : in out Boolean);
-         --  Iterator callback
-
-         -------------
-         -- Process --
-         -------------
-
-         procedure Process
-           (SID      : in     ID;
-            Session  : in     Session_Node;
-            Order    : in     Positive;
-            Continue : in out Boolean)
-         is
-            pragma Warnings (Off, Order);
-            use type Calendar.Time;
-         begin
-            if Session.Time_Stamp + Session_Lifetime < Now then
-               Index := Index + 1;
-               Remove (Index) := SID;
-
-               if Index = Max_Remove then
-                  --  No more space in the removal buffer, quit now.
-                  Continue := False;
-
-               end if;
-            end if;
-         end Process;
-
-         procedure In_Order is
-            new Session_Set.Traverse_Asc_G (Process);
-
-      begin
-         In_Order (Sessions);
-
-         --  delete nodes
-
-         for K in 1 .. Index loop
-            Session_Set.Remove (Sessions, Remove (K));
-         end loop;
-      end Clean;
-
       --------------------
       -- Delete_Session --
       --------------------
 
       entry Delete_Session (SID : in ID) when Lock = 0 is
       begin
-         Session_Set.Remove (Sessions, SID);
-      exception
-         when Key_Value.Table.Missing_Item_Error =>
-            null;
+         Unsafe_Delete_Session (SID);
       end Delete_Session;
+
+      -------------
+      -- Destroy --
+      -------------
+
+      procedure Destroy is
+      begin
+         Session_Set.Destroy (Sessions);
+      end Destroy;
 
       ------------------
       -- Generate_UID --
@@ -469,6 +473,55 @@ package body AWS.Session is
          when Key_Value.Table.Missing_Item_Error =>
             Result := False;
       end Key_Exist;
+
+      --------------------
+      -- Lock_And_Clean --
+      --------------------
+
+      entry Lock_And_Clean when Lock = 0 is
+
+         Now : constant Calendar.Time := Calendar.Clock;
+
+         procedure Process
+           (SID      : in     ID;
+            Session  : in     Session_Node;
+            Order    : in     Positive;
+            Continue : in out Boolean);
+         --  Iterator callback
+
+         -------------
+         -- Process --
+         -------------
+
+         procedure Process
+           (SID      : in     ID;
+            Session  : in     Session_Node;
+            Order    : in     Positive;
+            Continue : in out Boolean)
+         is
+            pragma Unreferenced (Order);
+            use type Calendar.Time;
+         begin
+            if Session.Time_Stamp + Session_Lifetime < Now then
+               E_Index := E_Index + 1;
+               Expired_SID (E_Index) := SID;
+
+               if E_Index = Max_Expired then
+                  --  No more space in the expired mailbox, quit now.
+                  Continue := False;
+
+               end if;
+            end if;
+         end Process;
+
+         procedure In_Order is new Session_Set.Traverse_Asc_G (Process);
+
+      begin
+         Lock := Lock + 1;
+
+         E_Index := 0;
+         In_Order (Sessions);
+      end Lock_And_Clean;
 
       -----------------
       -- New_Session --
@@ -631,6 +684,18 @@ package body AWS.Session is
       begin
          Lock := Lock - 1;
       end Unlock;
+
+      ---------------------------
+      -- Unsafe_Delete_Session --
+      ---------------------------
+
+      procedure Unsafe_Delete_Session (SID : in ID) is
+      begin
+         Session_Set.Remove (Sessions, SID);
+      exception
+         when Key_Value.Table.Missing_Item_Error =>
+            null;
+      end Unsafe_Delete_Session;
 
    end Database;
 
@@ -1053,6 +1118,15 @@ package body AWS.Session is
 
       Database.Set_Value (SID, Key, V);
    end Set;
+
+   -------------------
+   -- Set__Callback --
+   -------------------
+
+   procedure Set_Callback (Callback : in Session.Callback) is
+   begin
+      Session_Callback := Callback;
+   end Set_Callback;
 
    ------------------
    -- Set_Lifetime --
