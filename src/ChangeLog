@@ -1,3 +1,26 @@
+2004-04-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.ads:
+	(Client_Phase): Type removed.
+	(Cleaner_Task): Task type removed.
+	(Cleaner_Access): Type removed.
+	(HTTP_Connection): Current_Phase field removed. Cleaner field removed.
+	 Timeouts field removed.
+	 Add Read_Timeout field (type Duration).
+	 Add Write_Timeout field (type Duration).
+
+	* aws-client.adb:
+	Remove 'with Ada.Unchecked_Deallocation;'.
+	(Set_Phase): Removed. Use Net.Set_Timeout instead.
+	(Cleaner_Task): Task body removed.
+	(Close): Do not need to warry about Cleaner task.
+	(Create): Remove Current_Phase initialization. Convert Integer timeouts
+	 to Duration. Do not create Cleaner task.
+	Just remove a lot of 'Set_Phase (Connection, Not_Monitored);'.
+	(Get_Response): Use Net.Set_Timeout instead of Set_Phase.
+	(Open_Send_Common_Header): Idem.
+	(Read_Until): Idem.
+
 2004-04-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:
