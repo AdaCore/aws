@@ -23,10 +23,10 @@
 <hr>
 <br>
 
-<p>The following data describe server <b>@@_SERVER_NAME_@@</b> current status.
+<br>
 
-<br>
-<br>
+<H3>The following data describe server "<i>@@_SERVER_NAME_@@</i>" current
+status.</H3>
 
 <table>
 
@@ -50,12 +50,16 @@
 <td><b>@@_SECURITY_@@</b>
 </tr>
 
+<tr>
+<td>Server has session
+<td><b>@@_SESSION_@@</b>
+</tr>
+
 </table>
 
-<p>Slots information are given below:
+<br>
 
-<br>
-<br>
+<H3>Slots information are given below:</H3>
 
 <table>
 
@@ -72,28 +76,47 @@
 @@TABLE@@
 <tr bgcolor=white>
 <td align=center>@@_TABLE_LINE_@@
-<td align=center>@@_SOCK_T_@@
-<td>@@_OPENED_T_@@
-<td>@@_ABORTABLE_T_@@
-<td>@@_QUIT_T_@@
-<td align=center>@@_ACTIVITY_COUNTER_T_@@
-<td>@@_ACTIVITY_TIME_STAMP_T_@@
+<td align=center>@@_SOCK_L_@@
+<td>@@_OPENED_L_@@
+<td>@@_ABORTABLE_L_@@
+<td>@@_QUIT_L_@@
+<td align=center>@@_ACTIVITY_COUNTER_L_@@
+<td>@@_ACTIVITY_TIME_STAMP_L_@@
 </tr>
 @@SECTION@@
 <tr bgcolor=turquoise>
 <td align=center>@@_TABLE_LINE_@@
-<td align=center>@@_SOCK_T_@@
-<td>@@_OPENED_T_@@
-<td>@@_ABORTABLE_T_@@
-<td>@@_QUIT_T_@@
-<td align=center>@@_ACTIVITY_COUNTER_T_@@
-<td>@@_ACTIVITY_TIME_STAMP_T_@@
+<td align=center>@@_SOCK_L_@@
+<td>@@_OPENED_L_@@
+<td>@@_ABORTABLE_L_@@
+<td>@@_QUIT_L_@@
+<td align=center>@@_ACTIVITY_COUNTER_L_@@
+<td>@@_ACTIVITY_TIME_STAMP_L_@@
 </tr>
 @@END_TABLE@@
 
 </table>
 
 <br>
+
+<H3>Sessions information are given below:</H3>
+
+<ol>
+@@TABLE@@
+
+<li>Session ID: <b>@@_SESSIONS_L_@@</b>
+
+<table>
+<tr bgcolor=yellow>
+@@_KEYS_L_@@
+<tr bgcolor=turquoise>
+@@_VALUES_L_@@
+</table>
+
+</table>
+@@END_TABLE@@
+</ol>
+
 <br>
 <hr>
 <br>
