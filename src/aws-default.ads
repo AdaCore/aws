@@ -85,10 +85,11 @@ package AWS.Default is
    Send_Timeout    : constant Duration := 40.0;
    Receive_Timeout : constant Duration := 30.0;
 
-   Status_Page     : constant String := "aws_status.thtml";
-   Up_Image        : constant String := "aws_up.png";
-   Down_Image      : constant String := "aws_down.png";
-   Logo_Image      : constant String := "aws_logo.png";
+   Status_Page            : constant String := "aws_status.thtml";
+   Directory_Browser_Page : constant String := "aws_directory.thtml";
+   Up_Image               : constant String := "aws_up.png";
+   Down_Image             : constant String := "aws_down.png";
+   Logo_Image             : constant String := "aws_logo.png";
 
    Security                  : constant Boolean := False;
    Certificate               : constant String  := "cert.pem";

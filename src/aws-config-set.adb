@@ -124,6 +124,15 @@ package body AWS.Config.Set is
       O.P (Cleaner_Wait_For_Client_Timeout).Dur_Value := Value;
    end Cleaner_Wait_For_Client_Timeout;
 
+   ----------------------------
+   -- Directory_Browser_Page --
+   ----------------------------
+
+   procedure Directory_Browser_Page (O : in out Object; Value : in String) is
+   begin
+      O.P (Directory_Browser_Page).Str_Value := To_Unbounded_String (Value);
+   end Directory_Browser_Page;
+
    ----------------
    -- Down_Image --
    ----------------
