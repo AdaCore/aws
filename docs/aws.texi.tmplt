@@ -1892,7 +1892,8 @@ issue it is better to use the @b{Digest} authentication and/or an
 @noindent
 File upload is the way to send a file from the client to the server. To
 enable file upload on the client side the Web page must contain a @b{FORM}
-with an @b{INPUT} tag of type @b{FILE}.
+with an @b{INPUT} tag of type @b{FILE}. The @b{FORM} must also contain
+the @b{enctype} attribute set to @i{multipart/form-data}.
 
 @smallexample
 @cartouche
