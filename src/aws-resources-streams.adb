@@ -38,8 +38,7 @@ package body AWS.Resources.Streams is
 
    procedure Create
      (File   :    out File_Type;
-      Buffer : in     Stream_Access)
-   is
+      Buffer : in     Stream_Access) is
    begin
       File := File_Type (Buffer);
    end Create;
