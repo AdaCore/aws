@@ -50,6 +50,9 @@ procedure SOAP_CVS is
    use SOAP.Types;
    use type SOAP.Parameters.List;
 
+   Server     : constant String := "http://localhost:8080/validator1";
+   SOAPAction : constant String := "/validator1";
+
    ----------------------
    -- countTheEntities --
    ----------------------
@@ -64,9 +67,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("countTheEntities", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call
-           ("http://localhost:8080/validator1", P);
+         R : constant Message.Response.Object'Class
+           := SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -96,9 +98,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("easyStructTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call
-           ("http://localhost:8080/validator1", P);
+         R : constant Message.Response.Object'Class
+           := SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -126,9 +127,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("echoStructTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call
-           ("http://localhost:8080/validator1", P);
+         R : constant Message.Response.Object'Class
+           := SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -158,9 +158,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("manyTypesTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call
-           ("http://localhost:8080/validator1", P);
+         R : constant Message.Response.Object'Class
+           := SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -190,9 +189,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("moderateSizeArrayCheck", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call
-           ("http://localhost:8080/validator1", P);
+         R : constant Message.Response.Object'Class
+           := SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -229,9 +227,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("nestedStructTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call
-           ("http://localhost:8080/validator1", P);
+         R : constant Message.Response.Object'Class
+           := SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -256,9 +253,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("simpleStructReturnTest", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call
-           ("http://localhost:8080/validator1", P);
+         R : constant Message.Response.Object'Class
+           := SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List
            := SOAP.Message.Parameters (R);
@@ -291,9 +287,8 @@ procedure SOAP_CVS is
       P := Message.Payload.Build ("whichToolkit", P_Set);
 
       declare
-         R : constant Message.Response.Object'Class :=
-           SOAP.Client.Call
-           ("http://localhost:8080/validator1", P);
+         R : constant Message.Response.Object'Class
+           := SOAP.Client.Call (Server, P, SOAPAction);
 
          P : constant Parameters.List := SOAP.Message.Parameters (R);
 
