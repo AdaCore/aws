@@ -98,7 +98,7 @@ package body SOAP.Message is
    ---------------
 
    function XML_Image (M : in Object) return Unbounded_String is
-      NL           : constant String := ASCII.CR & ASCII.LF;
+      New_Line     : constant String := ASCII.CR & ASCII.LF;
       Message_Body : Unbounded_String;
 
    begin
@@ -106,7 +106,7 @@ package body SOAP.Message is
 
       Append (Message_Body,
               "<awsns:" & Wrapper_Name (M)
-              & " xmlns:awsns=""http://mns.org/"">" & NL);
+              & " xmlns:awsns=""http://mns.org/"">" & New_Line);
 
       --  Procedure's parameters
 
@@ -116,16 +116,14 @@ package body SOAP.Message is
          for K in 1 .. SOAP.Parameters.Argument_Count (P) loop
             Append
               (Message_Body,
-               "   "
-               & Types.XML_Image (SOAP.Parameters.Argument (P, K))
-               & NL);
+               Types.XML_Image (SOAP.Parameters.Argument (P, K)) & New_Line);
          end loop;
       end;
 
       --  Close payload objects.
 
       Append (Message_Body,
-              Utils.Tag ("awsns:" & Wrapper_Name (M), False) & NL);
+              Utils.Tag ("awsns:" & Wrapper_Name (M), False) & New_Line);
 
       return Message_Body;
    end XML_Image;
