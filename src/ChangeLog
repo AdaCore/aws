@@ -1,3 +1,10 @@
+2002-10-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Parse_Request_Line): Add comments about URL query support for
+	 GET/HEAD/POST request. Support parameters for HEAD request as
+	 "permitted" by RFC 2616.
+	
 2002-10-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.adb:
