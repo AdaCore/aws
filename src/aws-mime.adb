@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,111 +31,399 @@
 --  $Id$
 
 with Ada.Characters.Handling;
-with Ada.Strings.Maps;
+with Ada.Exceptions;
 with Ada.Strings.Fixed;
+with Ada.Strings.Maps.Constants;
+with Ada.Strings.Unbounded;
+
+with GNAT.Directory_Operations;
+with GNAT.Dynamic_Tables;
+with GNAT.Regexp;
+
+with AWS.Containers.Key_Value;
+with AWS.OS_Lib;
+with AWS.Resources.Files;
 
 package body AWS.MIME is
 
    use Ada;
+   use Ada.Strings.Unbounded;
+   use GNAT;
 
-   type String_Access is access constant String;
+   Default_Content_Type : constant String := Application_Octet_Stream;
+   --  Default MIME Content Type used if nothing matches
 
-   type Mapping is record
-      File_Type    : String_Access;
-      Content_Type : String_Access;
+   --  Table regexp components
+
+   type R_MIME_Type is record
+      Regexp    : GNAT.Regexp.Regexp; -- Filename Regexp
+      MIME_Type : Unbounded_String;   -- Associated content type
    end record;
 
-   --  extensions
+   package Regexp_Table is
+      new Dynamic_Tables (R_MIME_Type, Natural, 1, 20, 10);
 
-   Dot_Html : aliased constant String := ".html";
-   Dot_Htm  : aliased constant String := ".htm";
-   Dot_XML  : aliased constant String := ".xml";
-   Dot_Txt  : aliased constant String := ".txt";
-   Dot_Ada  : aliased constant String := ".ada";
-   Dot_Ads  : aliased constant String := ".ads";
-   Dot_Adb  : aliased constant String := ".adb";
-   Dot_C    : aliased constant String := ".c";
-   Dot_H    : aliased constant String := ".h";
-   Dot_Gif  : aliased constant String := ".gif";
-   Dot_Jpg  : aliased constant String := ".jpg";
-   Dot_Jpeg : aliased constant String := ".jpeg";
-   Dot_Png  : aliased constant String := ".png";
-   Dot_Ps   : aliased constant String := ".ps";
-   Dot_Pdf  : aliased constant String := ".pdf";
-   Dot_Zip  : aliased constant String := ".zip";
-   Dot_Gz   : aliased constant String := ".gz";
-   Dot_Tar  : aliased constant String := ".tar";
-   Dot_Exe  : aliased constant String := ".exe";
+   --  Protected Set to access tables handling MIME types
 
-   Type_Table : constant array (Positive range <>) of Mapping :=
-     ((Dot_Html'Access, Text_HTML'Access),
-      (Dot_Htm'Access,  Text_HTML'Access),
-      (Dot_XML'Access,  Text_XML'Access),
+   protected Set is
 
-      (Dot_Txt'Access,  Text_Plain'Access),
-      (Dot_Ada'Access,  Text_Plain'Access),
-      (Dot_Ads'Access,  Text_Plain'Access),
-      (Dot_Adb'Access,  Text_Plain'Access),
-      (Dot_C'Access,    Text_Plain'Access),
-      (Dot_H'Access,    Text_Plain'Access),
+      function Get (Filename : in String) return String;
 
-      (Dot_Gif'Access,  Image_Gif'Access),
-      (Dot_Jpg'Access,  Image_Jpeg'Access),
-      (Dot_Jpeg'Access, Image_Jpeg'Access),
-      (Dot_Png'Access,  Image_Png'Access),
+      procedure Add_Extension (Ext : in String; MIME_Type : in String);
 
-      (Dot_Ps'Access,   Appl_Postscript'Access),
-      (Dot_Pdf'Access,  Appl_Pdf'Access),
-      (Dot_Zip'Access,  Appl_Zip'Access),
+      procedure Add_Regexp
+        (Filename  : in Regexp.Regexp;
+         MIME_Type : in String);
 
-      (Dot_Gz'Access,   Appl_Octet_Stream'Access),
-      (Dot_Tar'Access,  Appl_Octet_Stream'Access),
-      (Dot_Exe'Access,  Appl_Octet_Stream'Access));
+   private
+      Ext_Set : Containers.Key_Value.Set;
+      R_Table : Regexp_Table.Instance;
+   end Set;
 
-   --------------
-   -- To_Lower --
-   --------------
+   function To_Lower (Item : in String)
+     return String
+     renames Ada.Characters.Handling.To_Lower;
 
-   function To_Lower (Item : in String) return String renames
-     Ada.Characters.Handling.To_Lower;
-   --  Just a shorter name
+   procedure Initialize;
+   --  Initialize MIME table
+
+   function File_Extension (Filename : in String) return String;
+   pragma Inline (File_Extension);
+   --  Returns file extension without the dot.
+
+   function Is_Type
+     (MIME_Type : in String;
+      Type_Name : in String)
+      return Boolean;
+   pragma Inline (Is_Type);
+   --  Returns True if MIME_Type is of Type_Name type. The type name is the
+   --  first part of the MIME Type (the part before the /).
+
+   -------------------
+   -- Add_Extension --
+   -------------------
+
+   procedure Add_Extension (Ext : in String; MIME_Type : in String) is
+   begin
+      Set.Add_Extension (Ext, MIME_Type);
+   end Add_Extension;
+
+   ----------------
+   -- Add_Regexp --
+   ----------------
+
+   procedure Add_Regexp (Filename : in String; MIME_Type : in String) is
+      R_Filename : Regexp.Regexp;
+   begin
+      R_Filename := Regexp.Compile (Filename);
+      Set.Add_Regexp (R_Filename, MIME_Type);
+   exception
+      when Regexp.Error_In_Regexp =>
+         Exceptions.Raise_Exception
+           (Constraint_Error'Identity,
+            "Regexp " & Filename & " can't be compiled");
+   end Add_Regexp;
 
    -------------
    -- Content --
    -------------
 
    function Content_Type (Filename : in String) return String is
-
-      Default_Content_Type : constant String := "application/octet-stream";
-      Pos                  : constant Natural
-        := Strings.Fixed.Index (Filename,
-                                Strings.Maps.To_Set ("."),
-                                Going => Strings.Backward);
    begin
-      if Pos > 0 then
-         declare
-            File_Type : constant String
-              := To_Lower (Filename (Pos .. Filename'Last));
-         begin
-            for I in Type_Table'Range loop
-               if File_Type = Type_Table (I).File_Type.all then
-                  return Type_Table (I).Content_Type.all;
-               end if;
-            end loop;
-         end;
-      end if;
-      return Default_Content_Type;
+      return Set.Get (Filename);
    end Content_Type;
+
+   --------------------
+   -- File_Extension --
+   --------------------
+
+   function File_Extension (Filename : in String) return String is
+      Ext : constant String := Directory_Operations.File_Extension (Filename);
+   begin
+      if Ext'Length > 0 then
+         return Ext (Ext'First + 1 .. Ext'Last);
+      else
+         return Ext;
+      end if;
+   end File_Extension;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize is
+
+      AWS_MIME : constant String := "aws.mime";
+
+      procedure Load;
+      --  Load aws.mime file, record every MIME types. Note that this file can
+      --  be a resource (embedded file).
+
+      ----------
+      -- Load --
+      ----------
+
+      procedure Load is
+         use type Strings.Maps.Character_Set;
+
+         MIME_Set : constant Strings.Maps.Character_Set
+           := Strings.Maps.Constants.Letter_Set or Strings.Maps.To_Set ("/-");
+
+         File     : Resources.File_Type;
+
+         Buffer   : String (1 .. 1_024);
+         Last     : Natural;
+
+         --  MIME type slice (M_First .. M_Last)
+
+         M_First  : Positive;
+         M_Last   : Natural;
+
+         --  Extension slice (E_First .. E_Last)
+         E_First  : Positive;
+         E_Last   : Natural;
+
+      begin
+         Resources.Files.Open (File, AWS_MIME);
+
+         while Resources.End_Of_File (File) loop
+            Resources.Get_Line (File, Buffer, Last);
+
+            --  Look for the MIME type
+
+            Strings.Fixed.Find_Token
+              (Buffer (Buffer'First .. Last),
+               MIME_Set, Strings.Inside, M_First, M_Last);
+
+            E_First := M_Last + 1;
+
+            Read_Extension : loop
+               Strings.Fixed.Find_Token
+                 (Buffer (E_First .. Last),
+                  MIME_Set, Strings.Inside, E_First, E_Last);
+
+               exit Read_Extension when E_Last = 0;
+
+               Set.Add_Extension
+                 (Buffer (E_First .. E_Last),
+                  Buffer (M_First .. M_Last));
+            end loop Read_Extension;
+
+         end loop;
+
+         Resources.Close (File);
+      end Load;
+
+   begin
+      --  Text
+
+      Set.Add_Extension ("html",    Text_HTML);
+      Set.Add_Extension ("htm",     Text_HTML);
+      Set.Add_Extension ("txt",     Text_Plain);
+      Set.Add_Extension ("ada",     Text_Plain);
+      Set.Add_Extension ("ads",     Text_Plain);
+      Set.Add_Extension ("adb",     Text_Plain);
+      Set.Add_Extension ("c",       Text_Plain);
+      Set.Add_Extension ("h",       Text_Plain);
+      Set.Add_Extension ("xml",     Text_XML);
+      Set.Add_Extension ("sgml",    Text_X_SGML);
+      Set.Add_Extension ("sgm",     Text_X_SGML);
+
+      --  Image
+
+      Set.Add_Extension ("gif",     Image_Gif);
+      Set.Add_Extension ("jpg",     Image_Jpeg);
+      Set.Add_Extension ("jpeg",    Image_Jpeg);
+      Set.Add_Extension ("jpe",     Image_Jpeg);
+      Set.Add_Extension ("png",     Image_Png);
+      Set.Add_Extension ("tiff",    Image_Tiff);
+      Set.Add_Extension ("tif",     Image_Tiff);
+      Set.Add_Extension ("pnm",     Image_X_Portable_Anymap);
+      Set.Add_Extension ("pbm",     Image_X_Portable_Bitmap);
+      Set.Add_Extension ("pgm",     Image_X_Portable_Graymap);
+      Set.Add_Extension ("ppm",     Image_X_Portable_Pixmap);
+      Set.Add_Extension ("rgb",     Image_X_RGB);
+      Set.Add_Extension ("xbm",     Image_X_Xbitmap);
+      Set.Add_Extension ("xpm",     Image_X_Xpixmap);
+      Set.Add_Extension ("xwd",     Image_X_Xwindowdump);
+
+      --  Application
+
+      Set.Add_Extension ("ps",      Application_Postscript);
+      Set.Add_Extension ("eps",     Application_Postscript);
+      Set.Add_Extension ("ai",      Application_Postscript);
+      Set.Add_Extension ("pdf",     Application_Pdf);
+      Set.Add_Extension ("zip",     Application_Zip);
+      Set.Add_Extension ("gz",      Application_Octet_Stream);
+      Set.Add_Extension ("tar",     Application_Octet_Stream);
+      Set.Add_Extension ("exe",     Application_Octet_Stream);
+      Set.Add_Extension ("hqx",     Application_Mac_Binhex40);
+      Set.Add_Extension ("doc",     Application_Msword);
+      Set.Add_Extension ("ppt",     Application_Powerpoint);
+      Set.Add_Extension ("rtf",     Application_Rtf);
+      Set.Add_Extension ("Z",       Application_X_Compress);
+      Set.Add_Extension ("gtar",    Application_X_Gtar);
+      Set.Add_Extension ("gz",      Application_X_Gzip);
+      Set.Add_Extension ("latex",   Application_X_Latex);
+      Set.Add_Extension ("sh",      Application_X_Sh);
+      Set.Add_Extension ("shar",    Application_X_Shar);
+      Set.Add_Extension ("tar",     Application_X_Tar);
+      Set.Add_Extension ("tcl",     Application_X_Tcl);
+      Set.Add_Extension ("tex",     Application_X_Tex);
+      Set.Add_Extension ("texinfo", Application_X_Texinfo);
+      Set.Add_Extension ("texi",    Application_X_Texinfo);
+      Set.Add_Extension ("t",       Application_X_Troff);
+      Set.Add_Extension ("tr",      Application_X_Troff);
+      Set.Add_Extension ("roff",    Application_X_Troff);
+      Set.Add_Extension ("man",     Application_X_Troff_Man);
+
+      --  Audio
+
+      Set.Add_Extension ("au",      Audio_Basic);
+      Set.Add_Extension ("snd",     Audio_Basic);
+      Set.Add_Extension ("mpga",    Audio_Mpeg);
+      Set.Add_Extension ("mp2",     Audio_Mpeg);
+      Set.Add_Extension ("mp3",     Audio_Mpeg);
+      Set.Add_Extension ("wav",     Audio_X_Wav);
+      Set.Add_Extension ("ram",     Audio_X_Pn_Realaudio);
+      Set.Add_Extension ("rpm",     Audio_X_Pn_Realaudio_Plugin);
+      Set.Add_Extension ("ra",      Audio_X_Realaudio);
+
+      --  Video
+
+      Set.Add_Extension ("mpeg",    Video_Mpeg);
+      Set.Add_Extension ("mpg",     Video_Mpeg);
+      Set.Add_Extension ("mpe",     Video_Mpeg);
+      Set.Add_Extension ("qt",      Video_Quicktime);
+      Set.Add_Extension ("mov",     Video_Quicktime);
+      Set.Add_Extension ("avi",     Video_X_Msvideo);
+
+      --  Check if there is a aws.mime file to read
+
+      if AWS.OS_Lib.Is_Regular_File (AWS_MIME) then
+         Load;
+      end if;
+   end Initialize;
+
+   --------------------
+   -- Is_Application --
+   --------------------
+
+   function Is_Application (MIME_Type : in String) return Boolean is
+   begin
+      return Is_Type (MIME_Type, "application/");
+   end Is_Application;
+
+   --------------
+   -- Is_Audio --
+   --------------
+
+   function Is_Audio (MIME_Type : in String) return Boolean is
+   begin
+      return Is_Type (MIME_Type, "audio/");
+   end Is_Audio;
+
+   --------------
+   -- Is_Image --
+   --------------
+
+   function Is_Image (MIME_Type : in String) return Boolean is
+   begin
+      return Is_Type (MIME_Type, "image/");
+   end Is_Image;
 
    -------------
    -- Is_Text --
    -------------
 
-   function Is_Text (Mime_Type : in String) return Boolean is
+   function Is_Text (MIME_Type : in String) return Boolean is
    begin
-      return Mime_Type'Length > 5
-        and then To_Lower (Mime_Type (Mime_Type'First .. Mime_Type'First + 4))
-                   = "text/";
+      return Is_Type (MIME_Type, "text/");
    end Is_Text;
 
+   -------------
+   -- Is_Type --
+   -------------
+
+   function Is_Type
+     (MIME_Type : in String;
+      Type_Name : in String)
+      return Boolean is
+   begin
+      return MIME_Type'Length > Type_Name'Length
+          and then
+        To_Lower
+          (MIME_Type
+             (MIME_Type'First .. MIME_Type'First + Type_Name'Length - 1))
+        = Type_Name;
+   end Is_Type;
+
+   --------------
+   -- Is_Video --
+   --------------
+
+   function Is_Video (MIME_Type : in String) return Boolean is
+   begin
+      return Is_Type (MIME_Type, "video/");
+   end Is_Video;
+
+   ---------
+   -- Set --
+   ---------
+
+   protected body Set is
+
+      -------------------
+      -- Add_Extension --
+      -------------------
+
+      procedure Add_Extension (Ext : in String; MIME_Type : in String) is
+      begin
+         Containers.Key_Value.Insert
+           (Ext_Set, Ext, To_Unbounded_String (MIME_Type));
+      exception
+         when Containers.Key_Value.Table.Duplicate_Item_Error =>
+            Containers.Key_Value.Replace_Value
+              (Ext_Set, Ext, To_Unbounded_String (MIME_Type));
+      end Add_Extension;
+
+      ----------------
+      -- Add_Regexp --
+      ----------------
+
+      procedure Add_Regexp
+        (Filename  : in Regexp.Regexp;
+         MIME_Type : in String) is
+      begin
+         Regexp_Table.Append
+           (R_Table, R_MIME_Type'(Filename, To_Unbounded_String (MIME_Type)));
+      end Add_Regexp;
+
+      ---------
+      -- Get --
+      ---------
+
+      function Get (Filename : in String) return String is
+         Ext : constant String := File_Extension (Filename);
+      begin
+         if Containers.Key_Value.Is_Present (Ext_Set, Ext) then
+            return To_String (Containers.Key_Value.Value (Ext_Set, Ext));
+
+         else
+            --  Check now in regexp table
+
+            for K in 1 .. Regexp_Table.Last (R_Table) loop
+               if Regexp.Match (Filename, R_Table.Table (K).Regexp) then
+                  return To_String (R_Table.Table (K).MIME_Type);
+               end if;
+            end loop;
+         end if;
+
+         return Default_Content_Type;
+      end Get;
+
+   end Set;
+
+begin
+   Initialize;
 end AWS.MIME;
