@@ -77,7 +77,7 @@ distrib:
 		demos/cert.pem ssl/*.ad* ssl/ChangeLog ssl/makefile \
 		demos/page*.html demos/aws_status.thtml docs/TODO \
 		include/*.ad[sb] include/makefile demos/com*.adb \
-		docs/openssl.license
+		docs/openssl.license icons/*
 	rm readme.txt
 	gzip -9 aws.tar
 	mv aws.tar.gz aws-`grep " Version" src/aws.ads | cut -c 43-48`.tar.gz
