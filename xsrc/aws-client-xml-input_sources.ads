@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2004                               --
---                               ACT-Europe                                 --
+--                            Copyright (C) 2004                            --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -44,19 +44,20 @@ package AWS.Client.XML.Input_Sources is
 
    type HTTP_Input is new Sources.Input_Source with private;
    type HTTP_Input_Access is access all HTTP_Input'Class;
-   --  A special implementation of a reader, that reads from a file.
+   --  A special implementation of a reader, that reads from an HTTP stream
 
    procedure Create
      (Connection : in     HTTP_Connection;
       Input      :    out HTTP_Input);
+   --  Returns the HTTP_Input stream from a client connection
 
    procedure Next_Char
      (From : in out HTTP_Input;
       C    :    out Unicode.Unicode_Char);
-   --  Return the next character in the file.
+   --  Return the next character in the file
 
    function Eof (From : in HTTP_Input) return Boolean;
-   --  True if From is past the last character in the file.
+   --  True if From is past the last character in the file
 
 private
 
@@ -65,7 +66,7 @@ private
    type HTTP_Input is new Sources.Input_Source with record
       Self   : HTTP_Input_Access := HTTP_Input'Unchecked_Access;
       HTTP   : HTTP_Connection_Access;
-      Buffer : Stream_Element_Array (1 .. 4096);
+      Buffer : Stream_Element_Array (1 .. 4_096);
       First  : Stream_Element_Offset := 1;
       Last   : Stream_Element_Offset := 0;
       EOF    : Boolean := True;
