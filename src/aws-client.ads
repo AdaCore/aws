@@ -419,6 +419,7 @@ private
       Streaming     : Boolean;
       Cookie        : Unbounded_String;
       Socket        : AWS.Net.Socket_Access;
+      Tunneling     : Boolean                      := False;
       Retry         : Natural;
       Read_Timeout  : Duration;
       Write_Timeout : Duration;
