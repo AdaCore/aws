@@ -50,13 +50,6 @@ package body AWS.Services.Page_Server is
       URI      : constant String := AWS.Status.URI (Request);
       Filename : constant String := WWW_Root & URI (2 .. URI'Last);
 
-      --  What Spaces is for you asked ? Well it is to work around an IE
-      --  "feature". Microsoft decided that a 404 message whose length is less
-      --  than 512 bytes is junk and in this case the IE internal 404 message
-      --  will be used. So we just add 512 bytes to the 404 messages...
-
-      Spaces   : constant String := (1 .. 512 => ' ');
-
    begin
       if OS_Lib.Is_Regular_File (Filename) then
          return AWS.Response.File
@@ -77,9 +70,13 @@ package body AWS.Services.Page_Server is
                Table : AWS.Templates.Translate_Table
                  := (1 => Templates.Assoc ("PAGE", URI));
             begin
+               --  Here we return the 404.thtml page if found. Note that on
+               --  Microsoft IE this page will be displayed only if the total
+               --  page size is bigger than 512 bytes or if it includes at
+               --  leat one image.
+
                return AWS.Response.Acknowledge
-                 (Messages.S404,
-                  Templates.Parse ("404.thtml", Table) & Spaces);
+                 (Messages.S404, Templates.Parse ("404.thtml", Table));
             end;
 
          else
