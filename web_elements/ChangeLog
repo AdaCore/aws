@@ -1,3 +1,8 @@
+2004-12-17  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	Initial revision.
+
 2004-12-13  Pascal Obry  <pascal@obry.net>
 
 	* readme.txt:
