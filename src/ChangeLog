@@ -1,3 +1,22 @@
+2002-04-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.adb:
+	(File): Handle OS_Lib.No_Such_File exception here and return a 404
+	 message if the file is not found. It is nicer than to have a 500
+	 message (Server Error).
+
+	* aws-server.adb:
+	(Release): Remove exception handler, this case should never happen
+	 or is an AWS that is not properly handled here anyway.
+	(Shutdown): Do not set Sock to null as it is not possible to
+	 reclaim the associated memory.
+	(Wait): Use Duration'Last (cosmetic change).
+
+	* aws-server-protocol_handler.adb:
+	(Send_File): Filename new variable, use it. Do not ignore
+	 exception if the file is not readable.
+	(Send_File): If error, reraise exception after closing the file.
+
 2002-04-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
