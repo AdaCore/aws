@@ -700,15 +700,18 @@ package body SOAP.Message.XML is
    begin
       for K in 0 .. Length (Atts) - 1 loop
          declare
-            N : constant DOM.Core.Node := Item (Atts, K);
-            V : constant String        := Node_Value (N);
+            N     : constant DOM.Core.Node := Item (Atts, K);
+            Name  : constant String        := Node_Name (N);
+            Value : constant String        := Node_Value (N);
          begin
-            if V = URL_xsd or else V = URL_xsd_01 then
-               NS.xsd := To_Unbounded_String (Utils.No_NS (Node_Name (N)));
-            elsif V = URL_xsi or else V = URL_xsi_01 then
-               NS.xsi := To_Unbounded_String (Utils.No_NS (Node_Name (N)));
-            elsif V = URL_Enc then
-               NS.enc := To_Unbounded_String (Utils.No_NS (Node_Name (N)));
+            if Utils.NS (Name) = "xmlns" then
+               if Value = URL_xsd or else Value = URL_xsd_01 then
+                  NS.xsd := To_Unbounded_String (Utils.No_NS (Name));
+               elsif Value = URL_xsi or else Value = URL_xsi_01 then
+                  NS.xsi := To_Unbounded_String (Utils.No_NS (Name));
+               elsif Value = URL_Enc then
+                  NS.enc := To_Unbounded_String (Utils.No_NS (Name));
+               end if;
             end if;
          end;
       end loop;
@@ -804,7 +807,7 @@ package body SOAP.Message.XML is
                --  type defined. We have a single tag "<name>" which can
                --  only be the start or a record.
 
-               return Parse_Record (Name, Ref, S);
+               return Parse_Record (Name, Ref, LS);
             end if;
 
          else
@@ -817,7 +820,7 @@ package body SOAP.Message.XML is
                begin
                   if S_Type = T_Undefined then
                      if Is_Array then
-                        return Parse_Array (Name, Ref, S);
+                        return Parse_Array (Name, Ref, LS);
 
                      else
                         --  Not a known basic type, let's try to parse a
@@ -825,7 +828,7 @@ package body SOAP.Message.XML is
                         --  support schema so there is no way to check
                         --  for the real type here.
 
-                        return Parse_Record (Name, Ref, S);
+                        return Parse_Record (Name, Ref, LS);
                      end if;
 
                   else
