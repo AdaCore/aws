@@ -66,6 +66,7 @@ status.</H3>
 <tr bgcolor=yellow>
 <td>Slot number
 <td>Socket
+<td>Last client IP
 <td>Opened
 <td>Abortable
 <td>Activity Counter
@@ -77,6 +78,7 @@ status.</H3>
 <tr bgcolor=white>
 <td align=center>@@_TABLE_LINE_@@
 <td align=center>@@_SOCK_L_@@
+<td align=center>@@_PEER_NAME_L_@@
 <td align=center>@@YES_NO@@_OPENED_L_@@
 <td align=center>@@YES_NO@@_ABORTABLE_L_@@
 <td align=center>@@_ACTIVITY_COUNTER_L_@@
@@ -87,6 +89,7 @@ status.</H3>
 <tr bgcolor=turquoise>
 <td align=center>@@_TABLE_LINE_@@
 <td align=center>@@_SOCK_L_@@
+<td align=center>@@_PEER_NAME_L_@@
 <td align=center>@@YES_NO@@_OPENED_L_@@
 <td align=center>@@YES_NO@@_ABORTABLE_L_@@
 <td align=center>@@_ACTIVITY_COUNTER_L_@@
