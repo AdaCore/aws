@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            September 18th, 2002,
+   Pascal Obry                                             October 3rd, 2002,
 
 
 
@@ -57,6 +57,14 @@ Here are the main changes:
      aws/docs/html directory.
 
    - Add support for Digest authentication.
+
+   - Fix a serious file upload bug. Some files were not correctly detected in
+     the MIME sections.
+
+   - AWS is now safer, by default URL are checked for validity and an
+     exception is raised if an URL try to reach a resource above the Web
+     root. This was not a big problem in AWS as most URL are just "string"
+     which does not reference file on disk.
 
    - Plus many small fixes, enhancements and documentation work.
 
