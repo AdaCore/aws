@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -41,19 +41,12 @@ package body AWS.OS_Lib is
      return Ada.Calendar.Time;
    --  Returns a Calendar.Time from an OS_Time variable.
 
-   ------------------
-   -- Is_Directory --
-   ------------------
-
-   function Is_Directory (Filename : in String) return Boolean
-     renames GNAT.OS_Lib.Is_Directory;
-
-   ---------------------
-   -- Is_Regular_File --
-   ---------------------
-
-   function Is_Regular_File (Filename : in String) return Boolean
-     renames GNAT.OS_Lib.Is_Regular_File;
+   Max_Path : constant Integer;
+   pragma Import (C, Max_Path, "max_path_len");
+   --  Maximum full pathname supported by the OS including a terminating NUL
+   --  character.
+   --  ??? We have to check length of path for avoid GNAT bug with too long
+   --  path in versions older than 3.17 and 5.02.
 
    ---------------
    -- File_Size --
@@ -64,9 +57,9 @@ package body AWS.OS_Lib is
    is
       use GNAT.OS_Lib;
 
-      Name    : String := Filename & ASCII.NUL;
-      FD      : File_Descriptor;
-      Length  : Ada.Streams.Stream_Element_Offset := 0;
+      Name   : String := Filename & ASCII.NUL;
+      FD     : File_Descriptor;
+      Length : Ada.Streams.Stream_Element_Offset := 0;
    begin
       FD := Open_Read (Name'Address, Binary);
       if FD /= Invalid_FD then
@@ -103,6 +96,35 @@ package body AWS.OS_Lib is
       return OS_Time_To_Calendar_Time (C_Time (null));
    end GMT_Clock;
 
+   ------------------
+   -- Is_Directory --
+   ------------------
+
+   function Is_Directory (Filename : in String) return Boolean is
+   begin
+      --  ??? We have to check length of path for avoid GNAT bug with too long
+      --  path in versions older than 3.17 and 5.02.
+      --  The comparition operator is "<" because Max_Path is length of path
+      --  including terminating NUL. So Ada string length should be shorter for
+      --  one symbol.
+
+      return Filename'Length < Max_Path
+             and then GNAT.OS_Lib.Is_Directory (Filename);
+   end Is_Directory;
+
+   ---------------------
+   -- Is_Regular_File --
+   ---------------------
+
+   function Is_Regular_File (Filename : in String) return Boolean is
+   begin
+      --  ??? We have to check length of path for avoid GNAT bug with too long
+      --  path in versions older than 3.17 and 5.02.
+
+      return Filename'Length < Max_Path
+             and then GNAT.OS_Lib.Is_Regular_File (Filename);
+   end Is_Regular_File;
+
    ------------------------------
    -- OS_Time_To_Calendar_Time --
    ------------------------------
@@ -118,10 +140,9 @@ package body AWS.OS_Lib is
       Second : Integer;
    begin
       GNAT.OS_Lib.GM_Split (UTC, Year, Month, Day, Hour, Minute, Second);
-      return Ada.Calendar.Time_Of (Year, Month, Day,
-                                   Duration (Hour   * 3600 +
-                                             Minute * 60 +
-                                             Second));
+      return Ada.Calendar.Time_Of
+        (Year, Month, Day,
+         Duration (Hour   * 3600 + Minute * 60 + Second));
    end OS_Time_To_Calendar_Time;
 
 end AWS.OS_Lib;
