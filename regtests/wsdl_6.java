@@ -117,5 +117,20 @@ public class wsdl_6 {
 
 	System.out.println (nres.getNC());
 	printlnRec (nres.getNR());
+
+	// Set_Of_Int
+
+	int[] iarr = new int[7];
+	int[] ares;
+
+	for (int k=0; k<7; k++)
+	    iarr[k] = k;
+
+	ares = port.echo_Set (iarr);
+
+	System.out.println ("array ");
+
+	for (int k=0; k<7; k++) System.out.println (ares[k]);
+
    }
 }
