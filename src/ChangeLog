@@ -1,3 +1,17 @@
+2002-12-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status-set.ads:
+	Minor comment fix.
+
+	* aws-response.ads:
+	Fix comments with lines terminated with DOS end of line.
+
+	* aws-response-set.ads:
+	Fix comments with lines terminated with DOS end of line.
+
+	* aws-client.ads:
+	Fix typo in comment.
+
 2002-12-25  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-client.adb:
