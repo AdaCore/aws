@@ -32,8 +32,6 @@
 
 package body AWS.Headers is
 
-   subtype P_List is Containers.Tables.Table_Type;
-
    --------------
    -- Get_Line --
    --------------
