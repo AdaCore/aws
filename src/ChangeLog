@@ -1,5 +1,8 @@
 2004-06-03  Pascal Obry  <pascal@obry.org>
 
+	* aws-client.adb:
+	Minor reformatting.
+
 	* aws-digest.ads:
         (Nonce): Is now 45 characters long. Update comment.
 
