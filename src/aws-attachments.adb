@@ -90,7 +90,7 @@ package body AWS.Attachments is
       AWS.Headers.Set.Add
         (Headers => Tmp.Headers,
          Name    => AWS.Messages.Content_ID_Token,
-         Value   => '<' & Content_Id & '>');
+         Value   => '<' & Content_ID & '>');
 
       Tmp.Total_Length := AWS.Headers.Length (Tmp.Headers) + File_Size;
 
