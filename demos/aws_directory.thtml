@@ -186,7 +186,7 @@
 @@IF@@ @_IS_DIR_V_@
   <a href="@_NAME_V_@?MODE=@_MODE_@">@_NAME_V_@</a>
 @@ELSE@@
-  <a href="@_NAME_V_@">@_NAME_V_@</a>
+  <a href="@_URI_@@_NAME_V_@">@_NAME_V_@</a>
 @@END_IF@@
 </td>
 
