@@ -74,6 +74,12 @@ project Tools is
 
    package Builder renames Shared.Builder;
 
+   ---------
+   -- Ide --
+   ---------
+
+   package Ide renames Shared.Ide;
+
    ------------
    -- Linker --
    ------------
