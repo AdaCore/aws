@@ -43,7 +43,6 @@ with SHA.Process_Data;
 with SHA.Strings;
 with Unicode.CES.Basic_8bit;
 
-with AWS.Key_Value;
 with AWS.Net.Buffered;
 with AWS.Translator;
 with AWS.Utils;
@@ -315,7 +314,7 @@ package body AWS.Jabber is
       Server.MB.Get (Message);
       Check_Message (Message);
 
-      if Key_Value.Is_Present (Message.all, "digest") then
+      if Containers.Key_Value.Is_Present (Message.all, "digest") then
          --  Digest authentication supported, this is the prefered method if
          --  supported to avoid sending the password in plain ASCII over the
          --  Internet.
@@ -332,7 +331,7 @@ package body AWS.Jabber is
               & "</query>"
               & "</iq>");
 
-      elsif Key_Value.Is_Present (Message.all, "password") then
+      elsif Containers.Key_Value.Is_Present (Message.all, "password") then
          --  Plain authentication supported, use this one if digest is not
          --  supported by the server.
 
@@ -406,7 +405,7 @@ package body AWS.Jabber is
       pragma Unreferenced (Qname);
    begin
       if Handler.Key /= Null_Unbounded_String then
-         Key_Value.Insert
+         Containers.Key_Value.Insert
            (Handler.R.all, To_String (Handler.Key), Handler.Value);
       end if;
 
@@ -706,7 +705,7 @@ package body AWS.Jabber is
          new Ada.Unchecked_Deallocation (Jabber.Message, Message_Access);
    begin
       if Message /= null then
-         Key_Value.Destroy (Message.all);
+         Containers.Key_Value.Destroy (Message.all);
          Free (Message);
       end if;
    end Release;
@@ -765,12 +764,12 @@ package body AWS.Jabber is
 
       for J in 0 .. Get_Length (Atts) - 1 loop
          begin
-            Key_Value.Insert
+            Containers.Key_Value.Insert
               (Handler.R.all,
                Local_Name & '.' & Get_Qname (Atts, J),
                To_Unbounded_String (Get_Value (Atts, J)));
          exception
-            when Key_Value.Table.Duplicate_Item_Error =>
+            when Containers.Key_Value.Table.Duplicate_Item_Error =>
                null;
          end;
       end loop;
@@ -821,8 +820,8 @@ package body AWS.Jabber is
 
    function Value (M : in Message_Access; Key : in String) return String is
    begin
-      if Key_Value.Is_Present (M.all, Key) then
-         return To_String (Key_Value.Value (M.all, Key));
+      if Containers.Key_Value.Is_Present (M.all, Key) then
+         return To_String (Containers.Key_Value.Value (M.all, Key));
       else
          return "";
       end if;
