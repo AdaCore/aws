@@ -195,8 +195,6 @@ implemented:
 
 - Analyse and fix regression found on FreeBSD GCC 3.4.3.
 
-- AWS should not depends on IPv6 (should be an option).
-
 - Use GNAT.MD5 instead of include/md5.
 
 - Use Ada.Containers (remove AI302 components).
