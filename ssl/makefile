@@ -14,15 +14,15 @@ ssl-thin: force
 	$(GNATMAKE) -q $(GARGS) ssl
 	$(GNATMAKE) -q $(GARGS) ssl-thin
 
-ssl-wrappers: force
+ssl-wrappers.o: force
 	echo Building ssl-wrappers
 	$(GNATMAKE) -q $(GARGS) ssl-wrappers
 
-$(LIBNOSSLAWS):
+$(LIBNOSSLAWS): ssl-wrappers.o
 	$(AR) cr $(LIBNOSSLAWS) ssl-wrappers.o
 	$(RM) ssl-wrappers.o
 
-build: ssl-thin ssl-wrappers $(LIBNOSSLAWS)
+build: ssl-thin $(LIBNOSSLAWS)
 
 clean:
 	-$(RM) -f *.ali *.o
