@@ -4,7 +4,7 @@
 .SILENT: all auth runme agent ws wps clean soap hotplug com_1 com_2 hello_world
 .SILENT: main vh_demo dispatch text_input res_demo test_ldap test_jabber
 .SILENT: build_res build_std build_soap soap_client soap_server soap_svs
-.SILENT: soap_cvs wsdl_demo_client wsdl_demo_server interoplab_main 
+.SILENT: soap_cvs wsdl_demo_client wsdl_demo_server interoplab_main
 .SILENT: soap_server_disp build_wsdl
 
 GY_tmp  = $(patsubst -gnatwe,,$(GFLAGS))
@@ -30,7 +30,7 @@ else
 # Without SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS := $(LARGS) -lpoll ../lib/aws.coff
+LARGS := $(LARGS) ../lib/aws.coff
 endif
 endif
 
@@ -99,7 +99,7 @@ ifeq (${PRJ_XMLADA}, Installed)
 BUILD_EXT = build_wsdl
 endif
 
-gsetup: 
+gsetup:
 	-$(MKDIR) -p ../.build/debug/demos/obj
 	-$(MKDIR) -p ../.build/release/demos/obj
 

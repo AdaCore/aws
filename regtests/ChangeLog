@@ -1,3 +1,8 @@
+2004-09-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Remove -lpoll linker option for Win32.
+
 2004-09-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* wait_pack.adb:

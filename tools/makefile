@@ -17,10 +17,6 @@ TOOLS := $(TOOLS)  ada2wsdl-main
 GEN   = ada2wsdl-options.adb
 endif
 
-ifeq (${OS}, Windows_NT)
-POLL = -lpoll
-endif
-
 EXECS    = $(patsubst  ada2wsdl-main,ada2wsdl,$(TOOLS))
 ALL_EXEC = $(addsuffix $(EXEEXT), $(EXECS))
 
@@ -31,7 +27,7 @@ force:
 $(TOOLS): force
 	echo Building `basename $@ -main`
 	$(GNATMAKE) $(GARGS) $@ -o `basename $@ -main` \
-		-largs -s -L../lib $(LIBS) -lz $(POLL)
+		-largs -s -L../lib $(LIBS) -lz
 
 ada2wsdl-options.adb: force
 	echo "--  This file is generated automatically" > ada2wsdl-options.adb
@@ -56,7 +52,7 @@ clean:
 #############################################################################
 # Configuration for GNAT Projet Files
 
-gsetup: $(GEN) 
+gsetup: $(GEN)
 	$(MKDIR) -p ../.build/debug/tools/obj
 	$(MKDIR) -p ../.build/release/tools/obj
 

@@ -46,10 +46,6 @@ LARGS := $(LARGS) -lnosslaws
 
 endif
 
-ifeq (${OS}, Windows_NT)
-LARGS := $(LARGS) -lpoll
-endif
-
 # SOAP regression tests
 RT_SOAP = soap1 soap2 soap3 soap4 soap5 soap6 soap7 workorder testxml \
 	test_soap xmlt test_soap2 test_soap3 test_soap4 test_soap5 disp_soap \
