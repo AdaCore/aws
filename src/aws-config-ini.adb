@@ -50,7 +50,8 @@ package body AWS.Config.Ini is
    procedure Read_If_Present
      (Config   : in out Object;
       Filename : in     String);
-   --  In case or file with Filename does not exists returns without errors.
+   --  Read and parse Filename, does not raise an exception if the file does
+   --  not exists.
 
    ----------------------
    -- Program_Ini_File --
