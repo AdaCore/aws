@@ -795,6 +795,25 @@ package body AWS.Session is
          return 0.0;
    end Get;
 
+   function Get
+     (SID : in ID;
+      Key : in String)
+      return Boolean
+   is
+      Value : Unbounded_String;
+   begin
+      Database.Get_Value (SID, Key, Value);
+
+      if To_String (Value) = "T" then
+         return True;
+      else
+         return False;
+      end if;
+   exception
+      when others =>
+         return False;
+   end Get;
+
    ------------------
    -- Get_Lifetime --
    ------------------
@@ -992,6 +1011,22 @@ package body AWS.Session is
       else
          Database.Set_Value (SID, Key, V);
       end if;
+   end Set;
+
+   procedure Set
+     (SID   : in ID;
+      Key   : in String;
+      Value : in Boolean)
+   is
+      V : String (1 .. 1);
+   begin
+      if Value then
+         V := "T";
+      else
+         V := "F";
+      end if;
+
+      Database.Set_Value (SID, Key, V);
    end Set;
 
    ------------------
