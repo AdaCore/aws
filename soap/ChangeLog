@@ -1,3 +1,9 @@
+2003-03-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-xml.adb:
+	(A_State): Do not raise an exception if the SOAP_Record type is
+	 not a basic type. This is probably a record.
+
 2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
