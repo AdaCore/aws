@@ -2484,9 +2484,9 @@ package body Templates_Parser is
             return True;
 
          else
-            Line := Line + 1;
-
             loop
+               Line := Line + 1;
+
                Input.Get_Line (File, Buffer, Last);
                exit when Buffer (Buffer'First .. Buffer'First + 3) /= "@@--";
 
