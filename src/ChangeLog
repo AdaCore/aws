@@ -1,5 +1,8 @@
 2004-06-03  Pascal Obry  <pascal@obry.org>
 
+	* aws-digest.ads:
+        (Nonce): Is now 45 characters long. Update comment.
+
 	* aws-digest.adb:
         Minor clean-up.
 
