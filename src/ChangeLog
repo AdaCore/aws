@@ -1,3 +1,15 @@
+2003-09-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-server.ads:
+	(Give_Back_Socket): New routine.
+	(Socket_Semaphore): New private protected type.
+	(HTTP): Sock_Sem type is changed to Socket_Semaphore.
+
+	* aws-server.adb:
+	(Give_Back_Socket): New routine.
+	(Socket_Semaphore): New private protected type.
+	(Accept_Socket_Serialized): Use Socket_Semaphore for get back socket.
+
 2003-09-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
