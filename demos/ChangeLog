@@ -1,5 +1,8 @@
 2004-04-06  Pascal Obry  <pascal.obry@edf.fr>
 
+	* demos.gpr:
+	(Main): Add web_mail.adb.
+
 	* wm_summary.thtml:
 	Add summary link.
 	Fix some tag names.
