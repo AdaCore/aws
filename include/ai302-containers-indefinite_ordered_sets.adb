@@ -849,7 +849,6 @@ package body AI302.Containers.Indefinite_Ordered_Sets is
       Container : in     Set) is
 
       procedure Process (Node : Node_Access) is
-         pragma Inline (Process);
       begin
          Element_Type'Output (Stream, Node.Element.all);
       end;
