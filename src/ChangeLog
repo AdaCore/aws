@@ -1,3 +1,12 @@
+2003-09-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-status.adb:
+	(Get_Nonce): Fix typo.
+
+	* aws-status.ads:
+	(Check_Digest): Minor comment fixed.
+	Re-order all routines for better readability.
+
 2003-09-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-status.ads:
