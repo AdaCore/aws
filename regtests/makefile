@@ -8,13 +8,15 @@
 #   1) create the appropriate Ada program (let's call it mytest.adb)
 #   2) create the expected output mytest.out
 #   3) add mytest to either :
-#      RT_SOAP     : for SOAP tests using HTTP
-#      RT_STD      : for standard tests using HTTP
-#      RT_SOAP_SEC : for SOAP tests using HTTPS
-#      RT_STD_SEC  : for standard tests using HTTPS
-#      OTH_TESTS   : tests with specific target (not using standard procedure)
-#      WSDL_TESTS  : WSDL tests
-#      WSDL_ATESTS : WSDL tests using the wsdl2aws -a option (Ada Name Style)
+#      RT_SOAP      : for SOAP tests using HTTP
+#      RT_STD       : for standard tests using HTTP
+#      RT_SOAP_SEC  : for SOAP tests using HTTPS
+#      RT_STD_SEC   : for standard tests using HTTPS
+#      OTH_TESTS    : tests with specific target (not using standard procedure)
+#      WSDL_TESTS   : WSDL tests
+#      WSDL_ATESTS  : WSDL tests using the wsdl2aws -a option (Ada Name Style)
+#      RT_SOAP_ASIS : ada2wsdl tests using a server
+#      RT_SOAP_ASIS_PARSE : ada2wsdl tests using only the parser
 
 GARGS = -i -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
@@ -45,6 +47,8 @@ RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
 # and 9. Socket port is then 770<digit>.
 RT_SOAP_ASIS = wsdl_1 wsdl_2
 
+RT_SOAP_ASIS_PARSE = wsdl_a
+
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tres2 upload unexph auth auth2 moved turl2 turl3 test_templates_if \
@@ -54,11 +58,12 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	compress zapp zbig zfile zstrm dispatch dispatch_vh dispatch_method \
 	$(RT_STD_SEC)
 
-STD_TESTS   = $(RT_STD)
-OTH_TESTS   = tres
-WSDL_TESTS  =
-WSDL_ATESTS =
-ASIS_TESTS  =
+STD_TESTS    = $(RT_STD)
+OTH_TESTS    = tres
+WSDL_TESTS   =
+WSDL_ATESTS  =
+ASIS_TESTS   =
+ASIS2_TESTS  =
 
 ifdef XMLADA
 STD_TESTS   := $(STD_TESTS) $(RT_SOAP)
@@ -68,8 +73,15 @@ WSDL_ATESTS = test_wsdl3
 endif
 
 ifdef ASIS
-ASIS_TESTS  = $(RT_SOAP_ASIS)
+ASIS_TESTS   = $(RT_SOAP_ASIS)
+ASIS2_TESTS  = $(RT_SOAP_ASIS_PARSE)
 endif
+
+STD_TESTS    =
+OTH_TESTS    =
+WSDL_TESTS   =
+WSDL_ATESTS  =
+ASIS_TESTS   =
 
 ALL_EXEC = $(addsuffix $(EXEEXT), $(STD_TESTS)) \
 	$(addsuffix $(EXEEXT), $(OTH_TESTS)) \
@@ -81,7 +93,7 @@ run : build checks
 force:
 
 build: init $(STD_TESTS) $(WSDL_TESTS) $(WSDL_ATESTS) \
-	$(ASIS_TESTS) $(OTH_TESTS)
+	$(ASIS_TESTS) $(ASIS2_TESTS) $(OTH_TESTS)
 
 init:
 	cp ../demos/cert.pem .
@@ -142,6 +154,13 @@ ifdef GDB_REGTESTS
 else
 	./$@_main > $@.res
 endif
+	-diff -c -w $@.out $@.res >> alldifs
+
+$(ASIS2_TESTS): force
+	rm -f $@.res
+	echo -n Building $@
+	../tools/ada2wsdl -q -f $@.ads -o $@.wsdl 2> $@.res
+	echo ",  run it"
 	-diff -c -w $@.out $@.res >> alldifs
 
 tres: force
