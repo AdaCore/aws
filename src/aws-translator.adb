@@ -46,7 +46,7 @@ package body AWS.Translater is
       I, K   : Positive := Str'First;
       Result : String (Str'Range);
    begin
-      loop
+      while I <= Str'Last loop
          if Str (I) = '+' then
             Result (K) := ' ';
             I := I + 1;
@@ -69,8 +69,6 @@ package body AWS.Translater is
          end if;
 
          K := K + 1;
-
-         exit when I > Str'Last;
       end loop;
 
       return Result (Result'First .. K - 1);
