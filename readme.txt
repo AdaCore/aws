@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                June 3rd, 2004
+   Pascal Obry                                                June 19th, 2004
 
 
 
@@ -17,8 +17,7 @@ application using a standard Web browser and this without the need for a Web
 Server. AWS is fully developed in Ada with GNAT.
 
 AWS support SOAP/WSDL, Server Push, HTTPS/SSL, client HTTP, hotplug
-modules... We have worked very hard to make this release as stable as
-possible.
+modules...
 
 AWS comes with SOAP/WSDL support, two tools are proposed:
 
