@@ -41,3 +41,5 @@ implemented:
   a Web Farm.
 
 - Support SOAP and Web-Service framework.
+
+- Will be nice to add all timeouts to the AWS status page.
