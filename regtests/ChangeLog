@@ -1,3 +1,19 @@
+2002-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile: 
+	Add handling of turl3 regression test.
+
+	* turl.adb:
+	Change Pathname to Pathname_And_Parameters.
+	Update copyright notice to 2002.
+
+	* turl2.adb:
+	Change Pathname to Pathname_And_Parameters.
+	Update copyright notice to 2002.
+	
+	* turl3.adb, turl3.out:
+	Initial revision.
+
 2002-10-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* turl2.adb:

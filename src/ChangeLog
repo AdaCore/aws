@@ -1,3 +1,44 @@
+2002-10-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add aws-smtp.adb and aws-smtp-client.adb.
+
+	* aws-client.adb:
+	(Open_Send_Common_Header): Use Pathname_And_Parameters instead of
+	 Pathname.
+	Update copyright notice to 2002.
+
+	* aws-smtp.ads, aws-smtp.adb:
+	Initial revision. This is derived from Pascal Obry's SMTP component.
+
+	* aws-smtp-client.ads, aws-smtp-client.adb: 
+	Initial revision. This is derived from Pascal Obry's SMTP component.
+
+	* aws-url.adb:
+	(Abs_Path): New routine.
+	(Query): New routine.
+	(User): New routine.
+	(Password): New routine.
+	(Pathname_And_Parameters): New routine.
+	(Parse): Add support for user and password.
+	(URL): Add user and password if specified.
+	Update copyright notice to 2002.
+
+	* aws-url.ads:
+	(Abs_Path): New routine.
+	(Query): New routine.
+	(User): New routine.
+	(Password): New routine.
+	(Pathname_And_Parameters): New routine.
+	(Object): Add User and Password fields.
+	Cleaner API based on RFC, clearly separate extension, add support
+	 for user and password in URL.
+	Update copyright notice to 2002.
+
+	* aws-translator.adb:
+	(Base64_Encode): Use To_Stream_Element_Array. More efficient if
+	 the platform is using the fast version.
+
 2002-10-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-translator.adb:
