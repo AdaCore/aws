@@ -321,7 +321,7 @@ package body Skel is
             if Utils.Is_Array (To_String (N.C_Name)) then
                Text_IO.Put
                  (Skel_Adb, " SOAP.Types.A (To_Object_Set (Result."
-                    & To_String (N.Name) & ".all), """
+                    & To_String (N.Name) & ".Item.all), """
                     &  To_String (N.Name) & """)");
             else
                Text_IO.Put
