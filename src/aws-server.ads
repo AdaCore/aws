@@ -182,7 +182,7 @@ private
    --  Default unexpected exception handler.
 
    procedure Socket_Taken (Flag : in Boolean);
-   --  Mark socket of the cureent line of the current server taken.
+   --  Mark socket of the cureent line of the current server taken
 
    ------------
    -- Phases --
