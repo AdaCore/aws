@@ -67,6 +67,24 @@ package body AWS.Server is
       Index       : in     Positive);
    --  Handle the lines, this is where all the HTTP protocol is defined.
 
+   protected Counter is
+
+      procedure Add;
+      --  Add one to the server counter.
+
+      procedure Remove;
+      --  Removes one to the server counter.
+
+      entry Zero;
+      --  Accepted only when counter is equal to 0 (no more active server)
+
+   private
+
+      C : Natural := 0;
+
+   end Counter;
+
+
    ------------
    -- Config --
    ------------
@@ -75,6 +93,41 @@ package body AWS.Server is
    begin
       return Web_Server.Properties;
    end Config;
+
+   -------------
+   -- Counter --
+   -------------
+
+   protected body Counter is
+
+      ---------
+      -- Add --
+      ---------
+
+      procedure Add is
+      begin
+         C := C + 1;
+      end Add;
+
+      ------------
+      -- Remove --
+      ------------
+
+      procedure Remove is
+      begin
+         C := C - 1;
+      end Remove;
+
+      ----------
+      -- Zero --
+      ----------
+
+      entry Zero when C = 0 is
+      begin
+         null;
+      end Zero;
+
+   end Counter;
 
    ---------------------
    -- File_Upload_UID --
@@ -97,7 +150,17 @@ package body AWS.Server is
    procedure Finalize (Web_Server : in out HTTP) is
    begin
       Shutdown (Web_Server);
+      Counter.Remove;
    end Finalize;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (Web_Server : in out HTTP) is
+   begin
+      Counter.Add;
+   end Initialize;
 
    ----------
    -- Line --
@@ -721,5 +784,32 @@ package body AWS.Server is
    begin
       Log.Stop (Web_Server.Log);
    end Stop_Log;
+
+   ----------
+   -- Wait --
+   ----------
+
+   procedure Wait (Mode : in Termination := No_Server) is
+   begin
+      case Mode is
+         when No_Server =>
+            Counter.Zero;
+
+         when Q_Key_Pressed =>
+            declare
+               K : Character;
+            begin
+               loop
+                  Text_IO.Get_Immediate (K);
+                  exit when K = 'q' or else K = 'Q';
+               end loop;
+            end;
+
+         when Forever =>
+            loop
+               delay Calendar.Day_Duration'Last;
+            end loop;
+      end case;
+   end Wait;
 
 end AWS.Server;
