@@ -406,50 +406,64 @@ package body SOAP.Generator is
 
       --  Ouput header
 
-      Text_IO.Put_Line (File, "function " & L_Proc);
-      Text_IO.Put      (File, "      (");
+      if Output = null then
+         Text_IO.Put (File, "procedure " & L_Proc);
 
-      --  Output parameters
+         if Input /= null then
+            Text_IO.New_Line;
+         end if;
 
-      N := Input;
+      else
+         Text_IO.Put_Line (File, "function " & L_Proc);
+      end if;
 
-      while N /= null loop
-         declare
-            Name : constant String
-              := Format_Name (O, To_String (N.Name));
-         begin
-            Text_IO.Put (File, Name);
-            Text_IO.Put (File, (Max_Len - Name'Length) * ' ');
-         end;
+      if Input /= null then
+         Text_IO.Put      (File, "      (");
 
-         Text_IO.Put (File, " : in ");
+         --  Output parameters
 
-         if N.Mode = WSDL.Parameters.K_Simple then
-            Text_IO.Put (File, WSDL.To_Ada (N.P_Type));
-         else
+         N := Input;
 
-            if Utils.Is_Array (To_String (N.C_Name)) then
-               Text_IO.Put
-                 (File, Format_Name (O, To_String (N.C_Name)));
+         while N /= null loop
+            declare
+               Name : constant String
+                 := Format_Name (O, To_String (N.Name));
+            begin
+               Text_IO.Put (File, Name);
+               Text_IO.Put (File, (Max_Len - Name'Length) * ' ');
+            end;
+
+            Text_IO.Put (File, " : in ");
+
+            if N.Mode = WSDL.Parameters.K_Simple then
+               Text_IO.Put (File, WSDL.To_Ada (N.P_Type));
             else
-               Text_IO.Put
-                 (File, Format_Name (O, To_String (N.C_Name)) & "_Type");
+
+               if Utils.Is_Array (To_String (N.C_Name)) then
+                  Text_IO.Put
+                    (File, Format_Name (O, To_String (N.C_Name)));
+               else
+                  Text_IO.Put
+                    (File, Format_Name (O, To_String (N.C_Name)) & "_Type");
+               end if;
             end if;
-         end if;
 
-         if N.Next = null then
-            Text_IO.Put_Line (File, ")");
-         else
-            Text_IO.Put_Line (File, ";");
-            Text_IO.Put      (File, "       ");
-         end if;
+            if N.Next = null then
+               Text_IO.Put_Line (File, ")");
+            else
+               Text_IO.Put_Line (File, ";");
+               Text_IO.Put      (File, "       ");
+            end if;
 
-         N := N.Next;
-      end loop;
+            N := N.Next;
+         end loop;
+      end if;
 
-      Text_IO.Put (File, "       return ");
+      if Output /= null then
+         Text_IO.Put (File, "       return ");
 
-      Text_IO.Put (File, Result_Type (O, Proc, Output));
+         Text_IO.Put (File, Result_Type (O, Proc, Output));
+      end if;
    end Put_Header;
 
    ---------------
@@ -1101,29 +1115,32 @@ package body SOAP.Generator is
 
       Output_Types (Output);
 
-      --  Output mode and more than one parameter
+      if Output /= null then
+         --  Output mode and more than one parameter
 
-      if Output.Next = null then
-         --  A single declaration, if it is a composite type create a subtype
+         if Output.Next = null then
+            --  A single declaration, if it is a composite type create a
+            --  subtype
 
-         if Output.Mode = WSDL.Parameters.K_Composite then
+            if Output.Mode = WSDL.Parameters.K_Composite then
 
-            Text_IO.New_Line (Type_Ads);
-            Text_IO.Put
-              (Type_Ads,
-               "   subtype " & L_Proc & "_Result is "
-                 & To_String (Output.C_Name));
+               Text_IO.New_Line (Type_Ads);
+               Text_IO.Put
+                 (Type_Ads,
+                  "   subtype " & L_Proc & "_Result is "
+                    & To_String (Output.C_Name));
 
-            if Utils.Is_Array (To_String (Output.C_Name)) then
-               Text_IO.Put_Line (Type_Ads, ";");
+               if Utils.Is_Array (To_String (Output.C_Name)) then
+                  Text_IO.Put_Line (Type_Ads, ";");
 
-            else
-               Text_IO.Put_Line (Type_Ads, "_Type;");
+               else
+                  Text_IO.Put_Line (Type_Ads, "_Type;");
+               end if;
             end if;
-         end if;
 
-      else
-         Generate_Record (L_Proc & "_Result", Output, Output => True);
+         else
+            Generate_Record (L_Proc & "_Result", Output, Output => True);
+         end if;
       end if;
    end Put_Types;
 
