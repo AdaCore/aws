@@ -1,3 +1,13 @@
+2002-07-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* unexph.adb:
+	Minor reformatting.
+
+2002-07-09  Dmitriy Anisimkov  <anisimkov@yahoo.com>
+
+	* unexph.adb, unexph.out:
+	Initial revision.
+
 2002-07-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
