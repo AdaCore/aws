@@ -266,6 +266,15 @@ package body AWS.Utils is
       end loop;
    end Parse_HTTP_Header_Line;
 
+   -----------
+   -- Quote --
+   -----------
+
+   function Quote (Str : in String) return String is
+   begin
+      return '"' & Str & '"';
+   end Quote;
+
    ------------
    -- Random --
    ------------
