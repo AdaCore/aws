@@ -290,7 +290,7 @@ package body AWS.Net.Std is
       Res    : int;
       Result : aliased OSD.Addr_Info_Access;
       Hints  : constant OSD.Addr_Info
-        := (ai_family    => OSD.PF_INET, -- OSD.PF_UNSPEC,
+        := (ai_family    => OSD.PF_UNSPEC,
             ai_socktype  => OSD.SOCK_STREAM,
             ai_protocol  => OSD.IPPROTO_IP,
             ai_flags     => Flags,
