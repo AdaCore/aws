@@ -1,3 +1,8 @@
+2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* tools.gpr:
+	Initial revision.
+
 2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* wsdl2aws.adb:

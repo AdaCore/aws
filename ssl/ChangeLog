@@ -1,3 +1,8 @@
+2003-05-06  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl.gpr, nossl.gpr:
+	Initial revision.
+
 2002-02-28  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* makefile:
