@@ -34,9 +34,9 @@ with Ada.Text_IO;
 
 with AWS.Client;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Response;
 with AWS.Server;
-with AWS.Services.Files;
 with AWS.Status;
 
 procedure ZOpen is
@@ -56,7 +56,7 @@ procedure ZOpen is
       URI      : constant String := Status.URI (Request);
       Filename : constant String := URI (URI'First + 1 .. URI'Last);
    begin
-      return Services.Files.Open (Filename, Request);
+      return Response.File (MIME.Content_Type (Filename), Filename);
    end CB;
 
    R : Response.Data;
