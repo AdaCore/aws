@@ -53,20 +53,31 @@ package body SOAP.Types is
       new Ada.Unchecked_Deallocation (Natural, Counter_Access);
 
    function xsi_type (Name : in String) return String;
+   pragma Inline (xsi_type);
    --  Returns the xsi:type field for the XML type representation whose name
    --  is passed as argument.
 
    function Spaces (N : in Natural) return String;
+   pragma Inline (Spaces);
    --  Returns N * 3 spaces.
 
    package XML_Indent is new Ada.Task_Attributes (Natural, 0);
    --  Thread safe Indentation counter.
 
+   -------
+   -- - --
+   -------
+
+   function "-" (O : in Object_Safe_Pointer) return Object'Class is
+   begin
+      return O.O.all;
+   end "-";
+
    ---------
    -- "+" --
    ---------
 
-   function "+" (O : in Object'Class) return Object_Controlled is
+   function "+" (O : in Object'Class) return Object_Safe_Pointer is
    begin
       return (Finalization.Controlled with new Object'Class'(O));
    end "+";
@@ -80,26 +91,23 @@ package body SOAP.Types is
       Name : in String)
       return SOAP_Array is
    begin
-      return (To_Unbounded_String (Name), new Natural'(1), new Object_Set'(V));
+      return (Finalization.Controlled
+                with To_Unbounded_String (Name),
+                     new Natural'(1), new Object_Set'(V));
    end A;
 
    ------------
    -- Adjust --
    ------------
 
-   procedure Adjust (O : in out Object_Controlled) is
+   procedure Adjust (O : in out Object_Safe_Pointer) is
    begin
       if O.O /= null then
          O.O := new Object'Class'(O.O.all);
       end if;
    end Adjust;
 
-   procedure Adjust (O : in out SOAP_Array) is
-   begin
-      O.Ref_Counter.all := O.Ref_Counter.all + 1;
-   end Adjust;
-
-   procedure Adjust (O : in out SOAP_Record) is
+   procedure Adjust (O : in out Composite) is
    begin
       O.Ref_Counter.all := O.Ref_Counter.all + 1;
    end Adjust;
@@ -113,7 +121,7 @@ package body SOAP.Types is
       Name : in String  := "item")
       return XSD_Boolean is
    begin
-      return (To_Unbounded_String (Name), V);
+      return (Finalization.Controlled with To_Unbounded_String (Name), V);
    end B;
 
    ---------
@@ -125,7 +133,8 @@ package body SOAP.Types is
       Name   : in String  := "item")
       return SOAP_Base64 is
    begin
-      return (To_Unbounded_String (Name), To_Unbounded_String (V));
+      return (Finalization.Controlled
+                with To_Unbounded_String (Name), To_Unbounded_String (V));
    end B64;
 
    -------
@@ -137,14 +146,14 @@ package body SOAP.Types is
       Name : in String := "item")
       return XSD_Float is
    begin
-      return (To_Unbounded_String (Name), V);
+      return (Finalization.Controlled with To_Unbounded_String (Name), V);
    end F;
 
    --------------
    -- Finalize --
    --------------
 
-   procedure Finalize (O : in out Object_Controlled) is
+   procedure Finalize (O : in out Object_Safe_Pointer) is
       procedure Free is
          new Ada.Unchecked_Deallocation (Object'Class, Object_Access);
    begin
@@ -153,17 +162,7 @@ package body SOAP.Types is
       end if;
    end Finalize;
 
-   procedure Finalize (O : in out SOAP_Array) is
-   begin
-      O.Ref_Counter.all := O.Ref_Counter.all - 1;
-
-      if O.Ref_Counter.all = 0 then
-         Free (O.O);
-         Free (O.Ref_Counter);
-      end if;
-   end Finalize;
-
-   procedure Finalize (O : in out SOAP_Record) is
+   procedure Finalize (O : in out Composite) is
    begin
       O.Ref_Counter.all := O.Ref_Counter.all - 1;
 
@@ -264,7 +263,7 @@ package body SOAP.Types is
       Name : in String := "item")
      return XSD_Integer is
    begin
-      return (To_Unbounded_String (Name), V);
+      return (Finalization.Controlled with To_Unbounded_String (Name), V);
    end I;
 
    -----------
@@ -393,12 +392,7 @@ package body SOAP.Types is
    -- Initialize --
    ----------------
 
-   procedure Initialize (O : in out SOAP_Array) is
-   begin
-      O.Ref_Counter := new Natural'(1);
-   end Initialize;
-
-   procedure Initialize (O : in out SOAP_Record) is
+   procedure Initialize (O : in out Composite) is
    begin
       O.Ref_Counter := new Natural'(1);
    end Initialize;
@@ -409,7 +403,7 @@ package body SOAP.Types is
 
    function N (Name : in String  := "item") return XSD_Null is
    begin
-      return (Name => To_Unbounded_String (Name));
+      return (Finalization.Controlled with Name => To_Unbounded_String (Name));
    end N;
 
    ----------
@@ -430,7 +424,9 @@ package body SOAP.Types is
       Name : in String)
       return SOAP_Record is
    begin
-      return (To_Unbounded_String (Name), new Natural'(1), new Object_Set'(V));
+      return (Finalization.Controlled
+                with To_Unbounded_String (Name),
+                     new Natural'(1), new Object_Set'(V));
    end R;
 
    -------
@@ -444,11 +440,13 @@ package body SOAP.Types is
       return XSD_String is
    begin
       if Encode then
-         return (To_Unbounded_String (Name),
-                 To_Unbounded_String (Utils.Encode (V)));
+         return (Finalization.Controlled
+                   with To_Unbounded_String (Name),
+                        To_Unbounded_String (Utils.Encode (V)));
       else
-         return (To_Unbounded_String (Name),
-                 To_Unbounded_String (V));
+         return (Finalization.Controlled
+                   with To_Unbounded_String (Name),
+                        To_Unbounded_String (V));
       end if;
    end S;
 
@@ -472,7 +470,8 @@ package body SOAP.Types is
       Timezone : in TZ            := GMT)
       return XSD_Time_Instant is
    begin
-      return (To_Unbounded_String (Name), V, Timezone);
+      return (Finalization.Controlled
+                with To_Unbounded_String (Name), V, Timezone);
    end T;
 
    -------
