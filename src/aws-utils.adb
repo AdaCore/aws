@@ -163,7 +163,7 @@ package body AWS.Utils is
 
    function Dec (V : in Natural) return String is
       N   : Integer := V;
-      S   : String (1 .. 10);
+      S   : String (1 .. Natural'Width);
       Idx : Natural := S'Last;
    begin
       loop
