@@ -1,3 +1,13 @@
+2003-06-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* disp_soap.adb:
+	Change port used (must be uniq in the regtest run).
+	Minor reformatting.
+	Fix copyright header.
+
+	* test_soap5.adb:
+	Change port used (must be uniq in the regtest run).
+
 2003-06-24  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* disp_soap.adb, disp_soap.out:
