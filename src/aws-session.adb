@@ -36,6 +36,7 @@ with Ada.Streams.Stream_IO;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
+with Ada.Unchecked_Deallocation;
 
 with Strings_Maps;
 
@@ -58,11 +59,13 @@ package body AWS.Session is
    Session_Lifetime       : Duration := Default.Session_Lifetime;
    --  A session is obsolete if not used after Session_Lifetime seconds.
 
+   type Key_Value_Set_Access is access Key_Value.Set;
+
    --  table of session ID
 
    type Session_Node is record
       Time_Stamp : Calendar.Time;
-      Root       : Key_Value.Set;
+      Root       : Key_Value_Set_Access;
    end record;
 
    package Session_Set is new Strings_Maps (Session_Node, "=");
@@ -327,7 +330,9 @@ package body AWS.Session is
          Cursor   : Session_Set.Containers.Cursor;
          Success  : Boolean;
       begin
-         New_Node.Time_Stamp := Calendar.Clock;
+         New_Node := (Time_Stamp => Calendar.Clock,
+                      Root       => new Key_Value.Set);
+
          Session_Set.Insert
            (Sessions, String (SID), New_Node, Cursor, Success);
       end Add_Session;
@@ -354,9 +359,13 @@ package body AWS.Session is
          -------------
 
          procedure Destroy (Cursor : in Session_Set.Cursor) is
+            procedure Free is new Ada.Unchecked_Deallocation
+              (Key_Value.Set, Key_Value_Set_Access);
+
             Item : Session_Node := Session_Set.Containers.Element (Cursor);
          begin
-            Key_Value.Clear (Item.Root);
+            Key_Value.Clear (Item.Root.all);
+            Free (Item.Root);
          end Destroy;
 
          -------------------
@@ -420,7 +429,7 @@ package body AWS.Session is
             declare
                Cursor : Key_Value.Cursor;
             begin
-               Cursor := Key_Value.Find (Node.Root, Key);
+               Cursor := Key_Value.Find (Node.Root.all, Key);
 
                if Key_Value.Table.Has_Element (Cursor) then
                   Value := Key_Value.Table.Containers.Element (Cursor);
@@ -444,7 +453,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Cursor, Result);
 
          if Result then
-            Result := Key_Value.Is_In (Key, Node.Root);
+            Result := Key_Value.Is_In (Key, Node.Root.all);
          end if;
       end Key_Exist;
 
@@ -506,7 +515,8 @@ package body AWS.Session is
          Generate_UID : loop
             SID := Generate_ID;
 
-            New_Node.Time_Stamp := Calendar.Clock;
+            New_Node := (Time_Stamp => Calendar.Clock,
+                         Root       => new Key_Value.Set);
 
             if not Session_Set.Is_In (String (SID), Sessions) then
                Session_Set.Insert
@@ -532,7 +542,7 @@ package body AWS.Session is
 
          if Found then
             if Found then
-               Key_Value.Delete (Node.Root, Key);
+               Key_Value.Delete (Node.Root.all, Key);
             end if;
 
             Session_Set.Containers.Replace_Element (Cursor, Node);
@@ -563,20 +573,22 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Cursor, Found);
 
          if Found then
-            --  ??? can be optimized
-            if Key_Value.Is_In (Key, Node.Root) then
-               Key_Value.Replace
-                 (Node.Root, Key, To_Unbounded_String (Value));
-            else
-               declare
-                  Cursor  : Key_Value.Cursor;
-                  Success : Boolean;
-               begin
+            declare
+               Cursor  : Key_Value.Cursor;
+               Success : Boolean;
+            begin
+               Cursor := Key_Value.Find (Node.Root.all, Key);
+
+               if Key_Value.Has_Element (Cursor) then
+                  Key_Value.Table.Containers.Replace_Element
+                    (Cursor, To_Unbounded_String (Value));
+
+               else
                   Key_Value.Insert
-                    (Node.Root, Key, To_Unbounded_String (Value),
+                    (Node.Root.all, Key, To_Unbounded_String (Value),
                      Cursor, Success);
-               end;
-            end if;
+               end if;
+            end;
 
             Session_Set.Containers.Replace_Element (Cursor, Node);
          end if;
@@ -703,7 +715,7 @@ package body AWS.Session is
       procedure For_Every_Data (Node : in Session_Node) is
          Cursor : Key_Value.Cursor;
       begin
-         Cursor := Key_Value.First (Node.Root);
+         Cursor := Key_Value.First (Node.Root.all);
 
          while Key_Value.Has_Element (Cursor) loop
             Action
@@ -842,6 +854,7 @@ package body AWS.Session is
          Node.Time_Stamp := Calendar.Clock;
 
          Session_Set.Containers.Replace_Element (Cursor, Node);
+
       else
          Found := False;
       end if;
@@ -975,7 +988,7 @@ package body AWS.Session is
       begin
          Get_Node (Sessions, SID, Node, Cursor, Found);
 
-         Key_Value_Size := Natural (Key_Value.Length (Node.Root));
+         Key_Value_Size := Natural (Key_Value.Length (Node.Root.all));
 
          if Key_Value_Size > 0 then
             ID'Output (Stream_Ptr, SID);
