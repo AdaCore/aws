@@ -2,7 +2,7 @@
 # $Id$
 
 .SILENT: run rt_soap rt_std turl tgetparam param dummy simple tclientto
-.SILENT: checks checks_header checks_soap shutdown testxml turl2 turl3
+.SILENT: checks checks_header checks_soap shutdown testxml turl2 turl3 turl4
 .SILENT: soap1 soap2 soap3 workorder tres tres2 upload unexph test_speed
 .SILENT: test_soap moved auth strm test_templates_if head hval
 
