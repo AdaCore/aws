@@ -180,7 +180,7 @@ begin
    begin
       Test_Name (Bad_Name);
    exception
-      when Unicode.CES.Invalid_Encoding =>
+      when Unicode.CES.Invalid_Encoding | Sax.Readers.XML_Fatal_Error =>
          Put_Line ("Expected error.");
    end;
 
