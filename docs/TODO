@@ -3,4 +3,6 @@ $Id$
 
 Here a some notes about ideas and potential features to be implemented:
 
+- better handling of the forms parameter (look for ??? in AWS.Status package)
+
 - integrate Template_Parser with AWS
