@@ -130,9 +130,11 @@ package body Skel is
                  (Skel_Adb, " := " & To_String (N.E_Name) & "_Type'Value");
 
                Text_IO.Put      (Skel_Adb, "                ");
-               Text_IO.Put (Skel_Adb, "(SOAP.Parameters.Get (Params, """);
+               Text_IO.Put
+                 (Skel_Adb,
+                  "(SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """);
                Text_IO.Put      (Skel_Adb, To_String (N.Name));
-               Text_IO.Put_Line (Skel_Adb, """));");
+               Text_IO.Put_Line (Skel_Adb, """)));");
 
             when WSDL.Parameters.K_Array =>
                raise Constraint_Error;

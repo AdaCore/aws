@@ -990,10 +990,10 @@ package body SOAP.Generator is
                   Text_IO.Put_Line
                     (Type_Adb,
                      "      " & Format_Name (O, To_String (N.Name))
-                       & " : constant SOAP.Types.XSD_String");
+                       & " : constant SOAP.Types.SOAP_Enumeration");
                   Text_IO.Put_Line
                     (Type_Adb,
-                     "         := SOAP.Types.XSD_String (SOAP.Types.V "
+                     "         := SOAP.Types.SOAP_Enumeration (SOAP.Types.V "
                        & "(R, """ & To_String (N.Name) & """));");
 
                when WSDL.Parameters.K_Array =>
@@ -1046,7 +1046,7 @@ package body SOAP.Generator is
                when WSDL.Parameters.K_Enumeration =>
                   Text_IO.Put
                     (Type_Adb,
-                     To_String (N.D_Name) & "_Type'Value ("
+                     To_String (N.E_Name) & "_Type'Value ("
                        & "SOAP.Types.V ("
                        & Format_Name (O, To_String (N.Name)) & "))");
 
@@ -1120,9 +1120,10 @@ package body SOAP.Generator is
                when WSDL.Parameters.K_Enumeration =>
                   Text_IO.Put
                     (Type_Adb,
-                     " SOAP.Types.S (" & To_String (N.D_Name) & "'Image "
+                     " SOAP.Types.E (Image"
                        & " (R." & Format_Name (O, To_String (N.Name))
-                       & "), """ & To_String (N.Name) & """)");
+                       & "), """ & To_String (N.E_Name)
+                       & """, """ & To_String (N.Name) & """)");
 
                when WSDL.Parameters.K_Array =>
                   Text_IO.Put
