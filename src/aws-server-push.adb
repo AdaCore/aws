@@ -169,6 +169,7 @@ package body AWS.Server.Push is
 
             Net.Stream_IO.Flush (Holder.Stream);
 
+            Socket_Taken (True);
          exception
             when others =>
                Unregister (Client_Id, Close_Socket => False);
@@ -190,6 +191,7 @@ package body AWS.Server.Push is
          exception
             when others =>
                Unregister (Client_Id, Close_Socket => False);
+               Socket_Taken (False);
                raise;
          end;
       end Register;
