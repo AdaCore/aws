@@ -153,7 +153,7 @@ package body ZLib is
             Ada.Exceptions.Raise_Exception
                (ZLib_Error'Identity,
                 Return_Code_Enum'Image (Return_Code (Code))
-                & ": " & Error_Message);
+                  & ": " & Error_Message);
          end;
       end if;
    end Close;
