@@ -1,9 +1,15 @@
 2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
+	
+	* soap-generator-skel.adb:
+	(New_Procedure): Fix generated code layout for routine without
+	 parameter.
+	
+2003-11-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
 	(Output_Parameters): Handle enumerations.
 	(New_Procedure): Idem.
-	
+
 	* soap-generator-cb.adb:
 	Initial revision.
 
