@@ -89,7 +89,7 @@ procedure Sessions is
    begin
       accept Start;
 
-      Client.Create (C, "http://localhost:1248");
+      Client.Create (C, "http://localhost:1273");
 
       for K in 1 .. 10 loop
          Client.Get (C, R, "/");
@@ -149,7 +149,7 @@ procedure Sessions is
       AWS.Server.Start
         (WS, "session",
          CB'Unrestricted_Access,
-         Port           => 1248,
+         Port           => 1273,
          Max_Connection => 5,
          Session        => True);
 
@@ -160,6 +160,9 @@ procedure Sessions is
       accept Stop;
 
       Ada.Text_IO.Put_Line ("Ready to stop");
+   exception
+      when E : others =>
+         Ada.Text_IO.Put_Line ("Server error");
    end Server;
 
 begin
