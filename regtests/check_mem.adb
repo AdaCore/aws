@@ -42,6 +42,7 @@ with AWS.MIME;
 with AWS.Messages;
 with AWS.Parameters;
 with AWS.Response.Set;
+with AWS.Resources.Streams.Disk;
 with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Session;
@@ -110,6 +111,7 @@ procedure Check_Mem is
       SID         : constant Session.ID      := Status.Session (Request);
 
       N           : Natural := 0;
+      Strm        : Resources.Streams.Stream_Access;
    begin
       if Session.Exist (SID, "key") then
          N := Session.Get (SID, "key");
@@ -199,6 +201,12 @@ procedure Check_Mem is
               (MIME.Text_HTML,
                String'(Templates.Parse ("check_mem.tmplt", Trans)));
          end;
+
+      elsif URI = "/stream" then
+         Strm :=  new Resources.Streams.Disk.Stream_Type;
+         Resources.Streams.Disk.Open
+           (Resources.Streams.Disk.Stream_Type (Strm.all), "check_mem.adb");
+         return Response.Stream (MIME.Application_Octet_Stream, Strm);
 
       else
          Check ("Unknown URI " & URI);
@@ -340,6 +348,7 @@ procedure Check_Mem is
       Request ("/file");
       Request ("/template");
       Request ("/no-template");
+      Request ("/stream");
 
       Request ("multProc", 2, 3);
       Request ("multProc", 98, 123);
