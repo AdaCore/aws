@@ -1,0 +1,110 @@
+------------------------------------------------------------------------------
+--                              Ada Web Server                              --
+--                                                                          --
+--                            Copyright (C) 2003                            --
+--                                ACT-Europe                                --
+--                                                                          --
+--  Authors: Dmitriy Anisimkov - Pascal Obry                                --
+--                                                                          --
+--  This library is free software; you can redistribute it and/or modify    --
+--  it under the terms of the GNU General Public License as published by    --
+--  the Free Software Foundation; either version 2 of the License, or (at   --
+--  your option) any later version.                                         --
+--                                                                          --
+--  This library is distributed in the hope that it will be useful, but     --
+--  WITHOUT ANY WARRANTY; without even the implied warranty of              --
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --
+--  General Public License for more details.                                --
+--                                                                          --
+--  You should have received a copy of the GNU General Public License       --
+--  along with this library; if not, write to the Free Software Foundation, --
+--  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --
+--                                                                          --
+--  As a special exception, if other files instantiate generics from this   --
+--  unit, or you link this unit with other files to produce an executable,  --
+--  this  unit  does not  by itself cause  the resulting executable to be   --
+--  covered by the GNU General Public License. This exception does not      --
+--  however invalidate any other reasons why the executable file  might be  --
+--  covered by the  GNU Public License.                                     --
+------------------------------------------------------------------------------
+
+--  $Id$
+
+with "../shared";
+with "../include/include";
+with "../ssl/ssl";
+
+project Src is
+
+   ------------
+   -- Socket --
+   ------------
+
+   type Socket_Type is ("GNAT", "AdaSockets");
+   Socket : Socket_Type := external ("Socket", "GNAT");
+
+   ------------
+   -- OS_Lib --
+   ------------
+
+   type OS_Lib_Type is ("GNAT", "Win32", "POSIX");
+   OS_Lib : OS_Lib_Type := external ("OS_Lib", "GNAT");
+
+   for Source_Dirs use (".", "../config");
+
+   for Object_Dir use "../obj";
+
+   --------------
+   -- Compiler --
+   --------------
+
+   package Compiler renames Shared.Compiler;
+
+   -------------
+   -- Builder --
+   -------------
+
+   package Builder renames Shared.Builder;
+
+   case Shared.XMLAda is
+      when "Installed" =>
+         for Source_Dirs use project'Source_Dirs & ("../xsrc", "../soap");
+   end case;
+
+   ------------
+   -- Naming --
+   ------------
+
+   package Naming is
+
+      --  Socket implementation
+
+      case Socket is
+         when "GNAT" =>
+            for Implementation ("aws.net.std")
+              use "aws-net-std__gnat.adb";
+
+         when "AdaSockets" =>
+            for Implementation ("aws.net.std")
+              use "aws-net-std__adasockets.adb";
+      end case;
+
+      --  OS_Lib implementation
+
+      case OS_Lib is
+         when "GNAT" =>
+            for Implementation ("aws.os_lib")
+              use "aws-os_lib__gnat.adb";
+
+         when "Win32" =>
+            for Implementation ("aws.os_lib")
+              use "aws-os_lib__gnat.adb";
+
+         when "POSIX" =>
+            for Implementation ("aws.os_lib")
+              use "aws-os_lib__gnat.adb";
+      end case;
+
+   end Naming;
+
+end Src;
