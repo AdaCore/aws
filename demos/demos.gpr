@@ -96,15 +96,15 @@ project Demos is
       case Shared.OS is
          when "Windows_NT" =>
             for Default_Switches ("Ada") use COFF_Res & ("-lz");
-            for Switches ("soap_client.adb") 
+            for Switches ("soap_client.adb")
               use COFF_Res & Shared.LIB_XMLAda;
-            for Switches ("soap_server.adb") 
+            for Switches ("soap_server.adb")
               use COFF_Res & Shared.LIB_XMLAda;
             for Switches ("wsdl_demo_client.adb")
               use COFF_Res & Shared.LIB_XMLAda;
             for Switches ("wsdl_demo_server.adb")
               use COFF_Res & Shared.LIB_XMLAda;
-            for Switches ("runme.adb") 
+            for Switches ("runme.adb")
               use COFF_Res & LIB_Crypt;
 
          when others =>
@@ -117,7 +117,7 @@ project Demos is
               use LIB_Z & Shared.LIB_XMLAda;
             for Switches ("wsdl_demo_server.adb")
               use LIB_Z & Shared.LIB_XMLAda;
-            for Switches ("runme.adb") 
+            for Switches ("runme.adb")
               use LIB_Z & LIB_Crypt;
       end case;
 
