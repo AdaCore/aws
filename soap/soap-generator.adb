@@ -583,6 +583,13 @@ package body SOAP.Generator is
          P    : in WSDL.Parameters.P_Set);
       --  Generate enumeration type definition
 
+      procedure Generate_Safe_Array
+        (Name : in String;
+         P    : in WSDL.Parameters.P_Set);
+      --  Generate the safe array runtime support. This is only done when a
+      --  user spec is speficied. We must generate such reference to user's
+      --  spec only if we have an array inside a record.
+
       procedure Output_Types (P : in WSDL.Parameters.P_Set);
       --  Output types conversion routines
 
@@ -594,6 +601,10 @@ package body SOAP.Generator is
 
       function Set_Type (Name : in String) return String;
       --  Returns the SOAP type for Name
+
+      function Is_Inside_Record (Name : in String) return Boolean;
+      --  Returns True if Name is defined inside a record in the Input
+      --  or Output parameter list.
 
       ----------------
       -- Array_Type --
@@ -662,42 +673,50 @@ package body SOAP.Generator is
               (Type_Ads, "   type " & F_Name
                  & " is array (Positive range <>) of "
                  & To_Ada_Type (T_Name) & ";");
+            Text_IO.Put_Line
+              (Type_Ads, "   type "
+                 & F_Name & "_Access" & " is access all " & F_Name & ';');
+
+            Text_IO.New_Line (Type_Ads);
+            Text_IO.Put_Line
+              (Type_Ads, "   package " & F_Name & "_Safe_Pointer is");
+            Text_IO.Put_Line
+              (Type_Ads, "      new SOAP.Utils.Safe_Pointers ("
+                 & F_Name & ", " & F_Name & "_Access);");
+
+            Text_IO.New_Line (Type_Ads);
+            Text_IO.Put_Line
+              (Type_Ads, "   subtype " & F_Name & "_Safe_Access");
+            Text_IO.Put_Line
+              (Type_Ads, "      is " & F_Name & "_Safe_Pointer.Safe_Pointer;");
+
+            Text_IO.New_Line (Type_Ads);
+            Text_IO.Put_Line
+              (Type_Ads, "   function ""+""");
+            Text_IO.Put_Line
+              (Type_Ads, "     (O : in " & F_Name & ')');
+            Text_IO.Put_Line
+              (Type_Ads, "      return " & F_Name & "_Safe_Access");
+            Text_IO.Put_Line
+              (Type_Ads, "      renames " & F_Name
+                 & "_Safe_Pointer.To_Safe_Pointer;");
+            Text_IO.Put_Line
+              (Type_Ads, "   --  Convert an array to a safe pointer");
+
          else
+            --  Here we have a reference to a spec, just build alias to it
+
             Text_IO.Put_Line
               (Type_Ads, "   subtype " & F_Name & " is "
                  & To_String (O.Types_Spec)
                  & "." & To_String (P.T_Name) & ";");
+
+            --  Note that we can't generate safe array runtime support at this
+            --  point. It could be the case that this array is not inside a
+            --  record but another reference in the WSDL document will be
+            --  inside a record. As a type is analyzed only once we must
+            --  deferred this code generation. See Generate_Safe_Array.
          end if;
-
-         Text_IO.Put_Line
-           (Type_Ads, "   type "
-              & F_Name & "_Access" & " is access all " & F_Name & ';');
-
-         Text_IO.New_Line (Type_Ads);
-         Text_IO.Put_Line
-           (Type_Ads, "   package " & F_Name & "_Safe_Pointer is");
-         Text_IO.Put_Line
-           (Type_Ads, "      new SOAP.Utils.Safe_Pointers ("
-              & F_Name & ", " & F_Name & "_Access);");
-
-         Text_IO.New_Line (Type_Ads);
-         Text_IO.Put_Line
-           (Type_Ads, "   subtype " & F_Name & "_Safe_Access");
-         Text_IO.Put_Line
-           (Type_Ads, "      is " & F_Name & "_Safe_Pointer.Safe_Pointer;");
-
-         Text_IO.New_Line (Type_Ads);
-         Text_IO.Put_Line
-           (Type_Ads, "   function ""+""");
-         Text_IO.Put_Line
-           (Type_Ads, "     (O : in " & F_Name & ')');
-         Text_IO.Put_Line
-           (Type_Ads, "      return " & F_Name & "_Safe_Access");
-         Text_IO.Put_Line
-           (Type_Ads, "      renames " & F_Name
-              & "_Safe_Pointer.To_Safe_Pointer;");
-         Text_IO.Put_Line
-           (Type_Ads, "   --  Convert an array to a safe pointer");
 
          Text_IO.New_Line (Type_Ads);
          Text_IO.Put_Line
@@ -1173,6 +1192,51 @@ package body SOAP.Generator is
          Text_IO.Put_Line (Type_Adb, "   end To_SOAP_Object;");
       end Generate_Record;
 
+      -------------------------
+      -- Generate_Safe_Array --
+      -------------------------
+
+      procedure Generate_Safe_Array
+        (Name : in String;
+         P    : in WSDL.Parameters.P_Set)
+      is
+         F_Name : constant String := Format_Name (O, Name) & "_Type";
+      begin
+         if O.Types_Spec /= Null_Unbounded_String
+           and then Is_Inside_Record (Name)
+           and then not Name_Set.Exists (Name & "Safe_Array_Support__")
+         then
+            --  Only if we have a user's spec specificed and this array is
+            --  inside a record and we don't have generated this support.
+
+            Name_Set.Add (Name & "Safe_Array_Support__");
+
+            Text_IO.New_Line (Type_Ads);
+
+            Header_Box (O, Type_Ads, "Safe Array " & F_Name);
+
+            Text_IO.New_Line (Type_Ads);
+            Text_IO.Put_Line
+              (Type_Ads, "   subtype " & F_Name & "_Safe_Access");
+            Text_IO.Put_Line
+              (Type_Ads, "      is " & To_String (O.Types_Spec) & "."
+                 & To_String (P.T_Name) & "_Safe_Pointer.Safe_Pointer;");
+
+            Text_IO.New_Line (Type_Ads);
+            Text_IO.Put_Line
+              (Type_Ads, "   function ""+""");
+            Text_IO.Put_Line
+              (Type_Ads, "     (O : in " & F_Name & ')');
+            Text_IO.Put_Line
+              (Type_Ads, "      return " & F_Name & "_Safe_Access");
+            Text_IO.Put_Line
+              (Type_Ads, "      renames " & To_String (O.Types_Spec) & "."
+                 & To_String (P.T_Name) & "_Safe_Pointer.To_Safe_Pointer;");
+            Text_IO.Put_Line
+              (Type_Ads, "   --  Convert an array to a safe pointer");
+         end if;
+      end Generate_Safe_Array;
+
       -----------------
       -- Get_Routine --
       -----------------
@@ -1206,6 +1270,75 @@ package body SOAP.Generator is
                return "To_" & Type_Name (P);
          end case;
       end Get_Routine;
+
+      ----------------------
+      -- Is_Inside_Record --
+      ----------------------
+
+      function Is_Inside_Record (Name : in String) return Boolean is
+
+         use type WSDL.Parameters.Kind;
+
+         In_Record : Boolean := False;
+
+         procedure Check_Record
+           (P_Set : in     WSDL.Parameters.P_Set;
+            Mode  :    out Boolean);
+         --  Checks all record fields for Name
+
+         procedure Check_Parameters
+           (P_Set : in WSDL.Parameters.P_Set);
+         --  Checks P_Set for Name declared inside a record
+
+         ----------------------
+         -- Check_Parameters --
+         ----------------------
+
+         procedure Check_Parameters
+           (P_Set : in WSDL.Parameters.P_Set)
+         is
+            P : WSDL.Parameters.P_Set := P_Set;
+         begin
+            while P /= null loop
+               if P.Mode = WSDL.Parameters.K_Record then
+                  Check_Record (P.P, In_Record);
+               end if;
+
+               P := P.Next;
+            end loop;
+         end Check_Parameters;
+
+         ------------------
+         -- Check_Record --
+         ------------------
+
+         procedure Check_Record
+           (P_Set : in     WSDL.Parameters.P_Set;
+            Mode  :    out Boolean)
+         is
+            P : WSDL.Parameters.P_Set := P_Set;
+         begin
+            while P /= null loop
+               if P.Mode = WSDL.Parameters.K_Array
+                 and then To_String (P.T_Name) = Name
+               then
+                  Mode := True;
+               end if;
+
+               if P.Mode = WSDL.Parameters.K_Record then
+                  Check_Record (P.P, Mode);
+               end if;
+
+               P := P.Next;
+            end loop;
+         end Check_Record;
+
+      begin
+         Check_Parameters (Input);
+         Check_Parameters (Output);
+
+         return In_Record;
+      end Is_Inside_Record;
 
       ------------------
       -- Output_Types --
@@ -1243,7 +1376,7 @@ package body SOAP.Generator is
                      end if;
                   end;
 
-               when WSDL.Parameters.K_Array | WSDL.Parameters.K_Record =>
+               when WSDL.Parameters.K_Array =>
 
                   Output_Types (N.P);
 
@@ -1254,12 +1387,24 @@ package body SOAP.Generator is
 
                         Name_Set.Add (Name);
 
-                        if N.Mode = WSDL.Parameters.K_Array then
-                           Generate_Array (Name & "_Type", N);
+                        Generate_Array (Name & "_Type", N);
+                     end if;
 
-                        else
-                           Generate_Record (Name & "_Type", N);
-                        end if;
+                     Generate_Safe_Array (Name, N);
+                  end;
+
+               when WSDL.Parameters.K_Record =>
+
+                  Output_Types (N.P);
+
+                  declare
+                     Name : constant String := To_String (N.T_Name);
+                  begin
+                     if not Name_Set.Exists (Name) then
+
+                        Name_Set.Add (Name);
+
+                        Generate_Record (Name & "_Type", N);
                      end if;
                   end;
             end case;
