@@ -1,3 +1,10 @@
+2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* demos.gpr:
+	(Main): Add split.adb.
+	(Linker): Use Shared.Z_Lib variable.
+	Minor reformatting.
+
 2003-12-08  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* split.thtml:
