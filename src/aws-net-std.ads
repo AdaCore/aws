@@ -60,13 +60,13 @@ package AWS.Net.Std is
    procedure Accept_Socket
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type);
-   --  Accept a connection on a socket.
+   --  Accept a connection on a socket
 
    procedure Connect
-     (Socket   : in out Socket_Type;
-      Host     : in     String;
-      Port     : in     Positive;
-      Wait     : in     Boolean := True);
+     (Socket : in out Socket_Type;
+      Host   : in     String;
+      Port   : in     Positive;
+      Wait   : in     Boolean := True);
    --  Connect a socket on a given host/port. If Wait is True Connect will wait
    --  for the connection to be established for timeout seconds, specified by
    --  Set_Timeout routine. If Wait is False Connect will return immediately,
@@ -75,7 +75,7 @@ package AWS.Net.Std is
    --  True in Events parameter.
 
    procedure Shutdown (Socket : in Socket_Type);
-   --  Shutdown both side of the socket and close it.
+   --  Shutdown both side of the socket and close it
 
    procedure Free (Socket : in out Socket_Type);
    --  Release memory associated with the socket object
@@ -131,7 +131,7 @@ package AWS.Net.Std is
 
    function Errno return Integer;
    pragma Inline (Errno);
-   --  Return error code for the last socket operation.
+   --  Return error code for the last socket operation
 
 private
 
