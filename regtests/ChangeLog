@@ -1,5 +1,14 @@
 2004-04-27  Pascal Obry  <pascal@obry.org>
 
+	* sockto.adb:
+	(Port): Set to 1275.
+	(Client_Side): Add entry Start.
+	Call entry Start after binding the server to ensure that the
+	 server is ready before trying to connect to it.
+	Minor reformatting.
+
+2004-04-27  Pascal Obry  <pascal@obry.org>
+
 	* makefile:
 	(WSDL_ATESTS): Add test_wsdl5.
 
