@@ -108,8 +108,6 @@ implemented:
 
 =============== Point to fix before next release
 
-- Add support for more sockets in AWS.Server.Socket_Semaphore.
-
 - Add routine to compress a file on disk.
 
 - Change support for uncompressed memory stream. The data should be
