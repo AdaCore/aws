@@ -215,6 +215,7 @@ package body AWS.Connection is
 
          procedure Send_File is
             use type Calendar.Time;
+            use type AWS.Status.Request_Method;
          begin
             AWS.Status.Set_File_Up_To_Date
               (C_Stat,
@@ -239,8 +240,12 @@ package body AWS.Connection is
                               Messages.Content_Type
                               (Response.Content_Type (Answer)));
 
-            Send_File (Response.Message_Body (Answer),
-                       AWS.Status.HTTP_Version (C_Stat));
+            --  send message body only if needed
+
+            if AWS.Status.Method (C_Stat) /= AWS.Status.HEAD then
+               Send_File (Response.Message_Body (Answer),
+                          AWS.Status.HTTP_Version (C_Stat));
+            end if;
 
          end Send_File;
 
@@ -248,7 +253,38 @@ package body AWS.Connection is
          -- Send_Message --
          ------------------
 
+         procedure Send_Header is
+            use type AWS.Status.Request_Method;
+         begin
+            --  First let's output the status line
+
+            Sockets.Put_Line (Sock, Messages.Status_Line (Status));
+
+            Header_Date_Serv;
+
+            --  There is no content
+
+            Sockets.Put_Line (Sock, Messages.Content_Length (0));
+
+            --  the message content type
+
+            if Status = Messages.S401 then
+               Sockets.Put_Line
+                 (Sock,
+                  Messages.Www_Authenticate (Response.Realm (Answer)));
+            end if;
+
+            --  End of header
+
+            Sockets.New_Line (Sock);
+         end Send_Header;
+
+         ------------------
+         -- Send_Message --
+         ------------------
+
          procedure Send_Message is
+            use type AWS.Status.Request_Method;
          begin
             --  First let's output the status line
 
@@ -258,28 +294,31 @@ package body AWS.Connection is
 
             --  Now we output the message body length
 
-            Sockets.Put_Line (Sock,
-                              Messages.Content_Length
-                              (Response.Content_Length (Answer)));
+            Sockets.Put_Line
+              (Sock,
+               Messages.Content_Length (Response.Content_Length (Answer)));
 
             --  the message content type
 
-            Sockets.Put_Line (Sock,
-                              Messages.Content_Type
-                              (Response.Content_Type (Answer)));
+            Sockets.Put_Line
+              (Sock,
+               Messages.Content_Type (Response.Content_Type (Answer)));
 
             if Status = Messages.S401 then
-               Sockets.Put_Line (Sock,
-                                 "Www-Authenticate: Basic realm="""
-                                 & Response.Realm (Answer)
-                                 & """");
+               Sockets.Put_Line
+                 (Sock,
+                  Messages.Www_Authenticate (Response.Realm (Answer)));
             end if;
 
             --  End of header
 
             Sockets.New_Line (Sock);
 
-            Sockets.Put_Line (Sock, Response.Message_Body (Answer));
+            --  send message body only if needed
+
+            if AWS.Status.Method (C_Stat) /= AWS.Status.HEAD then
+               Sockets.Put_Line (Sock, Response.Message_Body (Answer));
+            end if;
          end Send_Message;
 
       begin
@@ -288,6 +327,9 @@ package body AWS.Connection is
 
          elsif Response.Mode (Answer) = Response.File then
             Send_File;
+
+         elsif Response.Mode (Answer) = Response.Header then
+            Send_Header;
 
          else
             raise Constraint_Error;
@@ -313,26 +355,46 @@ package body AWS.Connection is
 
       procedure Get_Message_Data is
          use type Status.Request_Method;
+
       begin
-         if Status.Method (C_Stat) = Status.POST
-           and then Status.Content_Length (C_Stat) /= 0
-         then
+         --  is there something to read ?
 
-            declare
-               Data : constant Streams.Stream_Element_Array
-                 := Sockets.Receive (Sock);
-               Char_Data : String (1 .. Data'Length);
-               CDI       : Positive := 1;
-            begin
-               CDI := 1;
-               for K in Data'Range loop
-                  Char_Data (CDI) := Character'Val (Data (K));
-                  CDI := CDI + 1;
-               end loop;
-               Status.Set_Parameters (C_Stat,
-                                      Translater.Decode_URL (Char_Data));
-            end;
+         if Status.Content_Length (C_Stat) /= 0 then
 
+            if Status.Method (C_Stat) = Status.POST
+              and then Status.Content_Type (C_Stat) = Messages.Form_Data
+
+            then
+               --  read data from the stream and convert it to a string as
+               --  these are a POST form parameters
+
+               declare
+                  Data : constant Streams.Stream_Element_Array
+                    := Sockets.Receive (Sock);
+                  Char_Data : String (1 .. Data'Length);
+                  CDI       : Positive := 1;
+               begin
+                  CDI := 1;
+                  for K in Data'Range loop
+                     Char_Data (CDI) := Character'Val (Data (K));
+                     CDI := CDI + 1;
+                  end loop;
+                  Status.Set_Parameters (C_Stat,
+                                         Translater.Decode_URL (Char_Data));
+               end;
+
+            else
+               --  let's suppose for now that all others content type data are
+               --  binary data.
+
+               declare
+                  Data : constant Streams.Stream_Element_Array
+                    := Sockets.Receive (Sock);
+               begin
+                  Status.Set_Parameters (C_Stat, Data);
+               end;
+
+            end if;
          end if;
       end Get_Message_Data;
 
@@ -450,6 +512,11 @@ package body AWS.Connection is
                                    URI, HTTP_Version, Parameters);
                return True;
 
+            elsif Messages.Is_Match (Command, Messages.Head_Token) then
+               Status.Set_Request (C_Stat, Status.HEAD,
+                                   URI, HTTP_Version, "");
+               return True;
+
             elsif Messages.Is_Match (Command, Messages.Post_Token) then
                Status.Set_Request (C_Stat, Status.POST,
                                    URI, HTTP_Version, "");
@@ -480,6 +547,12 @@ package body AWS.Connection is
                Natural'Value
                (Command (Messages.Content_Length_Token'Length + 1
                          .. Command'Last)));
+
+         elsif Messages.Is_Match (Command, Messages.Content_Type_Token) then
+            Status.Set_Content_Type
+              (C_Stat,
+               Command
+               (Messages.Content_Type_Token'Length + 1 .. Command'Last));
 
          elsif Messages.Is_Match
            (Command, Messages.If_Modified_Since_Token)
