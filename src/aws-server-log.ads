@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -39,8 +39,8 @@ package AWS.Server.Log is
    procedure Start
      (Web_Server      : in out HTTP;
       Split_Mode      : in     AWS.Log.Split_Mode := AWS.Log.None;
-      Filename_Prefix : in     String         := "";
-      Auto_Flush      : in     Boolean        := False);
+      Filename_Prefix : in     String             := "";
+      Auto_Flush      : in     Boolean            := False);
    --  Activate server's logging activity. See AWS.Log. If Auto_Flush is True
    --  the file will be flushed after all written data.
 
@@ -66,7 +66,7 @@ package AWS.Server.Log is
    procedure Start_Error
      (Web_Server      : in out HTTP;
       Split_Mode      : in     AWS.Log.Split_Mode := AWS.Log.None;
-      Filename_Prefix : in     String         := "");
+      Filename_Prefix : in     String             := "");
    --  Activate server's logging activity. See AWS.Log
 
    function Error_Name (Web_Server : in HTTP) return String;

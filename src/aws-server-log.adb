@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                          Copyright (C) 2003-2004                         --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -114,9 +114,9 @@ package body AWS.Server.Log is
    -----------------
 
    procedure Start_Error
-     (Web_Server        : in out HTTP;
-      Split_Mode        : in     AWS.Log.Split_Mode := AWS.Log.None;
-      Filename_Prefix   : in     String             := "")
+     (Web_Server      : in out HTTP;
+      Split_Mode      : in     AWS.Log.Split_Mode := AWS.Log.None;
+      Filename_Prefix : in     String             := "")
    is
       use type AWS.Log.Split_Mode;
    begin
