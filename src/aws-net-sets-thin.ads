@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2004                            --
---                               ACT-Europe                                 --
+--                                ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -27,11 +27,12 @@
 --  however invalidate any other reasons why the executable file  might be  --
 --  covered by the  GNU Public License.                                     --
 ------------------------------------------------------------------------------
---
+
 --  $Id$
---
---  Package with constants and types declarations for the Poll operation.
---
+
+--  Package with constant and type declarations for the Poll operation. This
+--  API is used to implement AWS.Net.Sets.
+
 with Interfaces.C;
 with System;
 
@@ -64,8 +65,9 @@ package AWS.Net.Sets.Thin is
      (Fds     : System.Address;
       Nfds    : Length_Type;
       Timeout : Timeout_Type)
-     return C.int;
+      return C.Int;
    pragma Import (C, Poll, "poll");
    --  Don't forget to link application with win32/poll.adb under the windows
+   --  ??? This must be fixed, poll.o should be part of libaws.a on Windows.
 
 end AWS.Net.Sets.Thin;
