@@ -74,6 +74,9 @@ package body AWS.Net.Std is
    procedure Raise_Socket_Error (Error : in Integer);
    pragma No_Return (Raise_Socket_Error);
 
+   function Errno (Socket : in Socket_Type) return Integer;
+   --  Returns and clears error state in socket.
+
    function Get_Addr_Info
      (Host  : in String;
       Port  : in Positive;
@@ -196,24 +199,41 @@ package body AWS.Net.Std is
          end;
       end if;
 
+      Set_Non_Blocking_Mode (Socket);
+
       Res := Sockets.Thin.C_Connect
                (C.int (Get_FD (Socket)),
                 Info.ai_addr,
                 C.int (Info.ai_addrlen));
 
-      if Res = Sockets.Thin.Failure then
-         Errno := Std.Errno;
-         Sockets.Close_Socket (Socket.S.FD);
-         Free (Socket.S);
-         OSD.FreeAddrInfo (Info);
-         Raise_Socket_Error (Errno);
-      end if;
-
       OSD.FreeAddrInfo (Info);
 
-      --  ??? Make non-blocking connect later.
+      if Res = Sockets.Thin.Failure then
+         Errno := Std.Errno;
 
-      Set_Non_Blocking_Mode (Socket);
+         if Errno = Sockets.Constants.EWOULDBLOCK
+           or else Errno = Sockets.Constants.EINPROGRESS
+         then
+            Errno := 0;
+
+            declare
+               Events : constant Event_Set
+                 := Wait (Socket, (Output => True, Input => False));
+            begin
+               if Events (Error) then
+                  Errno := Std.Errno (Socket);
+               elsif not Events (Output) then
+                  Errno := Sockets.Constants.ETIMEDOUT;
+               end if;
+            end;
+         end if;
+
+         if Errno /= 0 then
+            Sockets.Close_Socket (Socket.S.FD);
+            Free (Socket.S);
+            Raise_Socket_Error (Errno);
+         end if;
+      end if;
 
       Set_Cache (Socket);
    end Connect;
@@ -225,6 +245,28 @@ package body AWS.Net.Std is
    function Errno return Integer is
    begin
       return GNAT.Sockets.Thin.Socket_Errno;
+   end Errno;
+
+   function Errno (Socket : in Socket_Type) return Integer is
+      use Interfaces;
+      use type Interfaces.C.int;
+      use Sockets;
+      RC  : C.int;
+      Res : aliased C.int := 0;
+      Len : aliased C.int := Res'Size / System.Storage_Unit;
+   begin
+      RC := Thin.C_Getsockopt
+              (S       => Interfaces.C.int (Get_FD (Socket)),
+               Level   => Constants.SOL_SOCKET,
+               Optname => Constants.SO_ERROR,
+               Optval  => Res'Address,
+               Optlen  => Len'Access);
+
+      if RC = Thin.Failure then
+         Raise_Socket_Error (Errno);
+      end if;
+
+      return Integer (Res);
    end Errno;
 
    ----------

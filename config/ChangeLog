@@ -1,3 +1,9 @@
+2004-09-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__gnat.adb:
+	(Errno): New routine.
+	(Connect): Implement timeout.
+
 2004-09-21  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* src/check_config.c:
