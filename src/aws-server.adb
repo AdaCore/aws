@@ -73,8 +73,11 @@ package body AWS.Server is
 
    procedure Protocol_Handler
      (HTTP_Server : in out HTTP;
-      Index       : in     Positive);
+      Index       : in     Positive;
+      Keep_Alive  : in     Boolean);
    --  Handle the lines, this is where all the HTTP protocol is defined.
+   --  Keep_Alive is True when there is enough slots to enable Keep_Alive
+   --  connections.
 
    function Accept_Socket_Serialized
      (Server : in HTTP_Access)
@@ -312,7 +315,7 @@ package body AWS.Server is
                end select;
             end if;
 
-            Protocol_Handler (HTTP_Server.all, Slot_Index);
+            Protocol_Handler (HTTP_Server.all, Slot_Index, Free_Slots >= 1);
 
             HTTP_Server.Slots.Release (Slot_Index);
          end;
@@ -377,7 +380,8 @@ package body AWS.Server is
 
    procedure Protocol_Handler
      (HTTP_Server : in out HTTP;
-      Index       : in     Positive) is separate;
+      Index       : in     Positive;
+      Keep_Alive  : in     Boolean) is separate;
 
    ---------
    -- Set --

@@ -63,7 +63,8 @@ separate (AWS.Server)
 
 procedure Protocol_Handler
   (HTTP_Server : in out HTTP;
-   Index       : in     Positive)
+   Index       : in     Positive;
+   Keep_Alive  : in     Boolean)
 is
 
    use Ada;
@@ -1405,7 +1406,7 @@ is
       --  options [RFC 2616 - 14.10].
 
       Will_Close := AWS.Messages.Match (Connection, "close")
-        or else HTTP_Server.Slots.N = 1
+        or else not Keep_Alive
         or else (Status.HTTP_Version (C_Stat) = HTTP_10
                    and then
                  AWS.Messages.Does_Not_Match (Connection, "keep-alive"));
