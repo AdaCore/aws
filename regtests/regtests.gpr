@@ -42,7 +42,7 @@ project Regtests is
    for Languages use ("Ada", "ChangeLog", "Project file");
 
    type Build_Mode is ("Separated", "Generator", "Grouped");
-   Mode : Build_Mode := external ("TEST_MODE", "Separated");
+   Mode : Build_Mode := external ("Test_Mode", "Separated");
 
    Common := ("dispatch1.adb", "dispatch_method.adb",
               "dispatch_vh.adb", "upload2.adb", "upload3.adb",
