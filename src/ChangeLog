@@ -1,3 +1,8 @@
+2003-07-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	Minor reformatting.
+
 2003-07-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response-set.adb:
