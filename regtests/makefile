@@ -123,6 +123,7 @@ init:
 	-mkdir icons/test-dir3 2> /dev/null
 	(TZ=UTC; export TZ; \
 	touch -t 200102030405 icons/*.gif; \
+	touch -t 200411121314 icons/*.png; \
 	touch -t 200401020304 icons/test-dir?)
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
