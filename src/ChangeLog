@@ -1,3 +1,19 @@
+2004-01-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-digest.ads:
+	(Digest_String): Use new MD5 implementation.
+	Update copyright notice.
+
+	* aws-digest.adb:
+	Many changes to use new MD5 implementation.
+	Update copyright notice.
+	
+	* aws-pop.adb:
+	(Initialize): Change to use new MD5 implementation.
+	
+	* aws-utils.ads, aws-utils.adb:
+	(Get_MD5): Removed.
+
 2004-01-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -7,16 +23,16 @@
 	(TMPLT_UNITS): New variable.
 	(build): Add $(TMPLT_SOURCES)
 	Uses less restrictive rules to build the Templates_Engine.
-	
+
 	* templates_parser.adb, templates_parser-expr.adb:
 	Fix style errors.
-	
+
 	* templates_parser-cached_files.adb, templates_parser-filter.adb:
 	Fix style errors.
-	
+
 	* templates_parser-query.adb:
 	Fix style errors.
-	
+
 2004-01-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
@@ -38,7 +54,7 @@
 	* templates_parser-print_tree.adb:
 	Moved here from the include directory.
 
-	* templates_parser-query.ads, templates_parser-query.ads: 
+	* templates_parser-query.ads, templates_parser-query.ads:
 	Moved here from the include directory.
 
 	* templates_parser.ads, templates_parser.adb:
