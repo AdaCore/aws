@@ -116,12 +116,6 @@ package AWS.Session is
    function Get_Lifetime return Duration;
    --  Get current session lifetime for session data.
 
-   procedure Start;
-   --  Start session cleaner task.
-
-   procedure Shutdown;
-   --  Stop session cleaner task.
-
    procedure Save (File_Name : in String);
    --  Save all sessions data into File_Name.
 
@@ -133,5 +127,27 @@ private
    pragma Inline (Image, Value);
 
    type ID is new String (1 .. 11);
+
+   task type Cleaner;
+   --  Call Database.Clean every Session_Lifetime seconds.
+
+   type Cleaner_Access is access Cleaner;
+
+   ---------------------
+   -- Cleaner_Control --
+   ---------------------
+
+   protected Cleaner_Control is
+
+      procedure Start;
+      --  Launch the cleaner task the first time and does nothing after.
+
+      procedure Stop;
+      --  Stop the cleaner task when there is no more server using it.
+
+   private
+      Server_Count : Natural := 0;
+      Cleaner_Task : Cleaner_Access;
+   end Cleaner_Control;
 
 end AWS.Session;
