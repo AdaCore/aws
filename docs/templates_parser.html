@@ -10,7 +10,7 @@
 <h1>Templates Parser User's Guide</h1>
 <font size="+2">
 <p>$Revision$
-<p>Date: 3 November 2004
+<p>Date: 6 November 2004
 <p>Pascal Obry (pascal@obry.org)
 </font>
 
@@ -538,6 +538,16 @@ number nothing is done.
 filter's parameter. The regular expression is using a format as
 found in <code>gawk</code>, <code>sed</code> or <code>grep</code> tools.
 
+<br><dt><code>MAX(<i>N</i>)</code>
+<dd>
+
+<p>Returns the maximum value between the variable and the parameter.
+
+<br><dt><code>MIN(<i>N</i>)</code>
+<dd>
+
+<p>Returns the minimum value between the variable and the parameter.
+
 <br><dt><code>MOD(<i>N</i>)</code>
 <dd>
 
@@ -906,6 +916,16 @@ the include filename, 1 the first parameter and so on).
 
 <p>If an include variable references a non existing include parameter the
 tag is kept as-is.
+
+<p>Note that it is possible to pass the include parameters using names,
+a set of positional parameters can be pass first, so all following
+include command are identical:
+
+<br><pre>
+@@INCLUDE@@ another.tmplt one two three four "a text"
+@@INCLUDE@@ another.tmplt (one, two, 3 =&gt; three, 4 =&gt; four, 5 =&gt; "a text")
+@@INCLUDE@@ another.tmplt (one, 5 =&gt; "a text", 3 =&gt; three, 2 =&gt; two, 4 =&gt; four)
+</pre>
 
 <p><hr>
 Node:<a name="IF%20tag%20statement">IF tag statement</a>,
@@ -2332,6 +2352,8 @@ Up:<a rel=up accesskey=u href="#Top">Top</a>
 <li>Filter, LF_2_BR: <a href="#Filters">Filters</a>
 <li>Filter, LOWER: <a href="#Filters">Filters</a>
 <li>Filter, MATCH: <a href="#Filters">Filters</a>
+<li>Filter, MAX: <a href="#Filters">Filters</a>
+<li>Filter, MIN: <a href="#Filters">Filters</a>
 <li>Filter, MOD: <a href="#Filters">Filters</a>
 <li>Filter, NEG: <a href="#Filters">Filters</a>
 <li>Filter, NO_CONTEXT: <a href="#Filters">Filters</a>
