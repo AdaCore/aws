@@ -1,3 +1,50 @@
+2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Add Namespace parameter. Handle properly arrays
+	 as in parameter or as returned object.
+
+	* soap-generator-stub.adb:
+	(New_Procedure): Add Namespace parameter. Handle properly arrays
+	 as in parameter or as returned object.
+	(Output_Array): New procedure.
+	(Output_Parameter): Properly call Output_Array for array element.
+	(Output_Simple): Handle string declared into an array.
+	(Start_Service): Generate with clause for SOAP.Utils.
+
+	* soap-generator.adb:
+	(New_Procedure): Add Namespace parameter. Pass Namespace to 
+	 stub/skel New_Procedure calls.
+	(Put_Header): Properly handle array formal parameter.
+	(To_Ada_Type): Handle lower case type representation. Add int handling.
+	(Set_Routine): Handle string into an array which are Unbounded_String.
+	 Add int handling.
+	(Set_Type): Handle lower case type representation.
+	(Put_Types): Handle subtype declaration for routines returning an
+	 array.
+	
+	* soap-generator.ads:
+	(Version): Set to 0.8.
+	(New_Procedure): Add Namespace parameter.
+
+	* soap-message-xml.adb:
+	(Parse_Param): If not a simple SOAP type, try parsing the node as
+	 a SOAP struct.
+	Minor reformatting.
+	Update copyright header.
+
+	* soap-wsdl-parser.adb:
+	(Parse_Array): New function.
+	(New_Procedure): Add Namespace parameter.
+	(Parse_Element): Properly detect arrays and use Parse_Array procedure.
+	(Parse_Operation): Read and store the namespace.
+	(Parse_Part): Handle boolean type.
+	(Parse_PortType): Pass the namespace to New_Procedure call.
+	
+	* soap-wsdl-parser.ads:
+	(New_Procedure): Add Namespace parameter.
+	(Object): Add Namespace field.
+
 2003-03-11  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator-skel.adb:
