@@ -103,9 +103,7 @@ package body AWS.Server is
    begin
       Server.Sock_Sem.Seize;
 
-      New_Socket := Net.Socket (CNF.Security (Server.Properties));
-
-      Net.Accept_Socket (Server.Sock.all, New_Socket.all);
+      Net.Accept_Socket (Server.Sock.all, New_Socket);
 
       Server.Sock_Sem.Release;
 
@@ -635,7 +633,15 @@ package body AWS.Server is
             if not Table (Index).Socket_Taken then
 
                if Table (Index).Phase /= Aborted then
-                  Net.Buffered.Shutdown (Table (Index).Sock.all);
+                  begin
+                     --  This must never fail, it is possible that Shutdown
+                     --  raise Socket_Error if the slot has been aborted by
+                     --  the browser for example.
+                     Net.Buffered.Shutdown (Table (Index).Sock.all);
+                  exception
+                     when others =>
+                        null;
+                  end;
                end if;
 
                Net.Free (Table (Index).Sock);
