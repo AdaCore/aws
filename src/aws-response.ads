@@ -31,18 +31,30 @@
 with Ada.Strings.Unbounded;
 
 with AWS.Status;
+with AWS.Messages;
 
 package AWS.Response is
 
    type Data is private;
 
+   type Data_Mode is (Message, File);
+
    function Build (Content_Type : in String;
-                   Message_Body : in String)
+                   Message_Body : in String;
+                   Status_Code  : in Messages.Status_Code := Messages.S200)
                   return Data;
 
+   function Authenticate (Realm : in String) return Data;
+
+   function File (Content_Type : in String;
+                  Filename     : in String) return Data;
+
+   function Mode           (D : in Data) return Data_Mode;
+   function Status_Code    (D : in Data) return Messages.Status_Code;
    function Content_Length (D : in Data) return Positive;
    function Content_Type   (D : in Data) return String;
    function Message_Body   (D : in Data) return String;
+   function Realm          (D : in Data) return String;
 
    type Callback is access function (Request : in Status.Data) return Data;
 
@@ -53,9 +65,12 @@ private
    use Ada.Strings.Unbounded;
 
    type Data is record
-      Content_Length : Positive;
+      Mode           : Data_Mode;
+      Status_Code    : Messages.Status_Code;
+      Content_Length : Natural;
       Content_Type   : Unbounded_String;
       Message_Body   : Unbounded_String;
+      Realm          : Unbounded_String;
    end record;
 
 end AWS.Response;

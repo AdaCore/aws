@@ -43,6 +43,15 @@ package body AWS.Status is
       return To_String (D.Connection);
    end Connection;
 
+   --------------------
+   -- Content_Length --
+   --------------------
+
+   function Content_Length (D : in Data) return Natural is
+   begin
+      return D.Content_Length;
+   end Content_Length;
+
    ----------
    -- Host --
    ----------
@@ -73,6 +82,9 @@ package body AWS.Status is
    ---------------
    -- Parameter --
    ---------------
+
+   --  ??? this implementation is far from beein efficent and should be
+   --  reimplemented a some point.
 
    function Parameter (D : in Data; N : in Positive) return String is
       P : constant String := To_String (D.Parameters);
@@ -138,6 +150,16 @@ package body AWS.Status is
       D.Connection := To_Unbounded_String (Connection);
    end Set_Connection;
 
+   ------------------------
+   -- Set_Content_Length --
+   ------------------------
+
+   procedure Set_Content_Length (D              : in out Data;
+                                 Content_Length : in     Natural) is
+   begin
+      D.Content_Length := Content_Length;
+   end Set_Content_Length;
+
    --------------
    -- Set_Host --
    --------------
@@ -146,6 +168,15 @@ package body AWS.Status is
    begin
       D.Host := To_Unbounded_String (Host);
    end Set_Host;
+
+   --------------------
+   -- Set_Parameters --
+   --------------------
+
+   procedure Set_Parameters (D : in out Data; Parameters : in String) is
+   begin
+      D.Parameters := To_Unbounded_String (Parameters);
+   end Set_Parameters;
 
    -----------------
    -- Set_Request --

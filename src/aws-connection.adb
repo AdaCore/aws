@@ -29,11 +29,14 @@
 --  $Id$
 
 with Ada.Text_IO;
+with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
+with Ada.Streams.Stream_IO;
 
 with AWS.Messages;
 with AWS.Status;
+with AWS.Translater;
 
 package body AWS.Connection is
 
@@ -49,8 +52,14 @@ package body AWS.Connection is
    Get_Token : constant String := "GET ";
    subtype Get_Range is Positive range Get_Token'Range;
 
+   Post_Token : constant String := "POST ";
+   subtype Post_Range is Positive range Post_Token'Range;
+
    Connection_Token : constant String := "Connection: ";
    subtype Connection_Range is Positive range Connection_Token'Range;
+
+   Content_Length_Token : constant String := "Content-Length: ";
+   subtype Content_Length_Range is Positive range Content_Length_Token'Range;
 
    ----------
    -- Line --
@@ -64,6 +73,9 @@ package body AWS.Connection is
 
       procedure Parse (Command : in String);
       --  parse a line sent by the client and do what is needed
+
+      procedure Send_File (Filename : in String);
+      --  send content of filename as chunk data
 
       -----------
       -- Parse --
@@ -96,6 +108,10 @@ package body AWS.Connection is
          --  parse the request line:
          --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
+         function Is_Match (Str, Pattern : in String) return Boolean;
+         pragma Inline (Is_Match);
+         --  returns True if Pattern matches the begining of Str.
+
          -----------------
          -- Cut_Command --
          -----------------
@@ -106,6 +122,16 @@ package body AWS.Connection is
             I2 := Fixed.Index (Command (I1 + 1 .. Command'Last), " ");
             I3 := Fixed.Index (Command (I1 + 1 .. I2), "?");
          end Cut_Command;
+
+         --------------
+         -- Is_Match --
+         --------------
+
+         function Is_Match (Str, Pattern : in String) return Boolean is
+         begin
+            return Pattern'Length <= Str'Length
+              and then Str (1 .. Pattern'Length) = Pattern;
+         end Is_Match;
 
          ---------
          -- URI --
@@ -138,7 +164,7 @@ package body AWS.Connection is
             if I3 = 0 then
                return "";
             else
-               return Command (I3 + 1 .. I2 - 1);
+               return Translater.Decode_URL (Command (I3 + 1 .. I2 - 1));
             end if;
          end Parameters;
 
@@ -150,30 +176,85 @@ package body AWS.Connection is
          begin
             Cut_Command;
 
-            if Command (Get_Range) = Get_Token Then
+            if Is_Match (Command, Get_Token) then
                Status.Set_Request (C_Stat, Status.GET,
                                    URI, HTTP_Version, Parameters);
                return True;
+
+            elsif Is_Match (Command, Post_Token) then
+               Status.Set_Request (C_Stat, Status.POST,
+                                   URI, HTTP_Version, "");
+               return True;
+
             else
                return False;
             end if;
          end Parse_Request_Line;
 
       begin
-         if Command (Host_Range) = Host_Token then
+         if Parse_Request_Line (Command) then
+            null;
+
+         elsif Is_Match (Command, Host_Token) then
             Status.Set_Host (C_Stat,
                              Command (Host_Token'Length + 1 .. Command'Last));
 
-         elsif Parse_Request_Line (Command) then
-            null;
-
-         elsif Command (Connection_Range) = Connection_Token then
+         elsif Is_Match (Command, Connection_Token) then
             Status.Set_Connection
               (C_Stat,
                Command (Connection_Token'Length + 1 .. Command'Last));
 
+         elsif Is_Match (Command, Content_Length_Token) then
+            Status.Set_Content_Length
+              (C_Stat,
+               Natural'Value
+               (Command (Content_Length_Token'Length + 1 .. Command'Last)));
+
          end if;
       end Parse;
+
+      ---------------
+      -- Send_File --
+      ---------------
+
+      procedure Send_File (Filename : in String) is
+
+         function Hex (V : in Natural) return String;
+         --  returns the hexadecimal string representation of the decimal
+         --  number V.
+
+         File   : Streams.Stream_IO.File_Type;
+         Buffer : Streams.Stream_Element_Array (1 .. 256);
+         Last   : Streams.Stream_Element_Offset;
+
+         function Hex (V : in Natural) return String is
+            Hex_V : String (1 .. 8);
+         begin
+            Integer_Text_IO.Put (Hex_V, V, 16);
+            return Hex_V (Fixed.Index (Hex_V, "#") + 1 ..
+                          Fixed.Index (Hex_V, "#", Strings.Backward) - 1);
+         end Hex;
+
+      begin
+         Streams.Stream_IO.Open (File, Streams.Stream_IO.In_File, Filename);
+
+         loop
+            Streams.Stream_IO.Read (File, Buffer, Last);
+
+            exit when Integer (Last) = 0;
+
+            Sockets.Put_Line (Sock, Hex (Natural (Last)));
+
+            Sockets.Send (Sock, Buffer (1 .. Last));
+            Sockets.New_Line (Sock);
+         end loop;
+
+         --  last chunk
+         Sockets.Put_Line (Sock, "0");
+         Sockets.New_Line (Sock);
+      end Send_File;
+
+      use type Status.Request_Method;
 
    begin
       select
@@ -186,51 +267,134 @@ package body AWS.Connection is
          terminate;
       end select;
 
+      --  this new connection has been initialized because some data are
+      --  beeing sent. read the header now.
+
+      Text_IO.Put_Line ("New connection...");
+
       loop
-         declare
-            Data : constant String := Sockets.Get_Line (Sock);
-         begin
-            if Data = End_Of_Message then
-               Text_IO.Put_Line ("Ok let me answer to that...");
 
-               --  First let's pretend that there is no problem
+         Text_IO.Put_Line ("*** Read request...");
 
-               Sockets.Put_Line (Sock, Messages.Status_Line (Messages.S200));
+         Get_Message_Header : loop
+            declare
+               Data : constant String := Sockets.Get_Line (Sock);
+            begin
+               exit when Data = End_Of_Message;
 
-               --  Get the message body from user's callback
-
-               declare
-                  Answer : constant AWS.Response.Data := Handler (C_Stat);
-               begin
-
-                  --  Now we output the message body length
-
-                  Sockets.Put_Line (Sock,
-                                    Messages.Content_Length
-                                     (Response.Content_Length (Answer)));
-
-                  --  We handle only text/html message type
-
-                  Sockets.Put_Line (Sock,
-                                    Messages.Content_Type
-                                     (Response.Content_Type (Answer)));
-
-                  --  End of header
-
-                  Sockets.New_Line (Sock);
-
-                  Sockets.Put_Line (Sock, Response.Message_Body (Answer));
-               end;
-            else
-               Text_IO.Put_Line (Data);
+               Text_IO.Put_Line ("H=" & Data);
                Parse (Data);
+            end;
+         end loop Get_Message_Header;
+
+         Text_IO.New_Line;
+         Text_IO.Put_Line ("*** Ok let me answer to that...");
+
+         if Status.Method (C_Stat) = Status.POST
+           and then Status.Content_Length (C_Stat) /= 0
+         then
+
+            Text_IO.Put_Line ("*** Now read POST data...");
+
+            declare
+               Data : constant Streams.Stream_Element_Array
+                 := Sockets.Receive (Sock);
+               Char_Data : String (1 .. Data'Length);
+               CDI       : Positive := 1;
+            begin
+               CDI := 1;
+               for K in Data'Range loop
+                  Char_Data (CDI) := Character'Val (Data (K));
+                  CDI := CDI + 1;
+               end loop;
+               Status.Set_Parameters (C_Stat,
+                                      Translater.Decode_URL (Char_Data));
+            end;
+
+         end if;
+
+         --  Get the message body from user's callback
+
+         declare
+            use type Messages.Status_Code;
+            use type Response.Data_Mode;
+
+            Answer : constant Response.Data := Handler (C_Stat);
+
+            Status : constant Messages.Status_Code :=
+              Response.Status_Code (Answer);
+         begin
+
+            --  First let's output the status line
+
+            Sockets.Put_Line (Sock, Messages.Status_Line (Status));
+
+            Sockets.Put_Line (Sock,
+                              "Date: Sun, 15 Jan 2000 22:00:00 GMT");
+
+            Sockets.Put_Line (Sock,
+                              "Server: AWS (Ada Web Server) v"
+                              & Version);
+
+            if Response.Mode (Answer) = Response.Message then
+
+               --  Now we output the message body length
+
+               Sockets.Put_Line (Sock,
+                                 Messages.Content_Length
+                                 (Response.Content_Length (Answer)));
+
+               --  We handle only text/html message type
+
+               Sockets.Put_Line (Sock,
+                                 Messages.Content_Type
+                                 (Response.Content_Type (Answer)));
+
+               if Status = Messages.S401 then
+                  Sockets.Put_Line (Sock,
+                                    "Www-Authenticate: Basic realm="""
+                                    & Response.Realm (Answer)
+                                    & """");
+               end if;
+
+               --  End of header
+
+               Sockets.New_Line (Sock);
+
+               Sockets.Put_Line (Sock, Response.Message_Body (Answer));
+
+            elsif Response.Mode (Answer) = Response.File then
+
+               --  we are sending binary data as chunk
+
+               Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
+
+               Sockets.Put_Line (Sock,
+                                 Messages.Content_Type
+                                 (Response.Content_Type (Answer)));
+
+               Sockets.New_Line (Sock);
+
+               Send_File (Response.Message_Body (Answer));
+
+            else
+               raise Constraint_Error;
             end if;
+
          end;
+
+         exit when Status.Connection (C_Stat) /= "Keep-Alive";
+
       end loop;
+
+      Sockets.Shutdown (Sock);
 
    exception
       when Sockets.Connection_Closed =>
          Text_IO.Put_Line ("Connection closed");
+         Sockets.Shutdown (Sock, Sockets.Both);
+      when E : others =>
+         Text_IO.Put_Line ("Connection error...");
          Sockets.Shutdown (Sock, Sockets.Both);
    end Line;
 

@@ -30,17 +30,50 @@
 
 package body AWS.Response is
 
+   ------------------
+   -- Authenticate --
+   ------------------
+
+   function Authenticate (Realm : in String) return Data is
+
+      CRLF : constant String := ASCII.CR & ASCII.LF;
+
+      Auth_Mess : constant String :=
+        "<HTML><HEAD>" & CRLF
+        & "<TITLE>401 Authorization Required</TITLE>" & CRLF
+        & "</HEAD><BODY>" & CRLF
+        & "<H1>Authorization Required</H1>" & CRLF
+        & "This server could not verify that you" & CRLF
+        & "are authorized to access the document you" & CRLF
+        & "requested.  Either you supplied the wrong" & CRLF
+        & "credentials (e.g., bad password), or your" & CRLF
+        & "browser doesn't understand how to supply" & CRLF
+        & "the credentials required.<P>" & CRLF
+        & "</BODY></HTML>" & CRLF;
+   begin
+      return Data'(Message,
+                   Messages.S401,
+                   Auth_Mess'Length,
+                   To_Unbounded_String ("text/html"),
+                   To_Unbounded_String (Auth_Mess),
+                   To_Unbounded_String (Realm));
+   end Authenticate;
+
    -----------
    -- Build --
    -----------
 
    function Build (Content_Type : in String;
-                   Message_Body : in String)
+                   Message_Body : in String;
+                   Status_Code  : in Messages.Status_Code := Messages.S200)
                   return Data is
    begin
-      return Data'(Message_Body'Length,
+      return Data'(Message,
+                   Status_Code,
+                   Message_Body'Length,
                    To_Unbounded_String (Content_Type),
-                   To_Unbounded_String (Message_Body));
+                   To_Unbounded_String (Message_Body),
+                   Null_Unbounded_String);
    end Build;
 
    --------------------
@@ -61,6 +94,21 @@ package body AWS.Response is
       return To_String (D.Content_Type);
    end Content_Type;
 
+   ----------
+   -- File --
+   ----------
+
+   function File (Content_Type : in String;
+                  Filename     : in String) return Data is
+   begin
+      return Data'(File,
+                   Messages.S200,
+                   0,
+                   To_Unbounded_String (Content_Type),
+                   To_Unbounded_String (Filename),
+                   Null_Unbounded_String);
+   end File;
+
    ------------------
    -- Message_Body --
    ------------------
@@ -69,5 +117,32 @@ package body AWS.Response is
    begin
       return To_String (D.Message_Body);
    end Message_Body;
+
+   ----------
+   -- Mode --
+   ----------
+
+   function Mode (D : in Data) return Data_Mode is
+   begin
+      return D.Mode;
+   end Mode;
+
+   -----------
+   -- Realm --
+   -----------
+
+   function Realm (D : in Data) return String is
+   begin
+      return To_String (D.Realm);
+   end Realm;
+
+   -----------------
+   -- Status_Code --
+   -----------------
+
+   function Status_Code (D : in Data) return Messages.Status_Code is
+   begin
+      return D.Status_Code;
+   end Status_Code;
 
 end AWS.Response;

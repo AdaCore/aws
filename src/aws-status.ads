@@ -34,7 +34,7 @@ package AWS.Status is
 
    type Data is private;
 
-   type Request_Method is (GET);
+   type Request_Method is (GET, POST);
 
    procedure Set_Host (D : in out Data; Host : in String);
    function Host (D : in Data) return String;
@@ -42,11 +42,17 @@ package AWS.Status is
    procedure Set_Connection (D : in out Data; Connection : in String);
    function Connection (D : in Data) return String;
 
+   procedure Set_Content_Length (D              : in out Data;
+                                 Content_Length : in     Natural);
+   function Content_Length (D : in Data) return Natural;
+
    procedure Set_Request (D            : in out Data;
                           Method       : in     Request_Method;
                           URI          : in     String;
                           HTTP_Version : in     String;
                           Parameters   : in     String := "");
+
+   procedure Set_Parameters (D : in out Data; Parameters : in String);
 
    function Method       (D : in Data) return Request_Method;
    function URI          (D : in Data) return String;
@@ -66,12 +72,13 @@ private
    use Ada.Strings.Unbounded;
 
    type Data is record
-      Connection   : Unbounded_String;
-      Host         : Unbounded_String;
-      Method       : Request_Method;
-      URI          : Unbounded_String;
-      Parameters   : Unbounded_String;
-      HTTP_Version : Unbounded_String;
+      Connection     : Unbounded_String;
+      Host           : Unbounded_String;
+      Method         : Request_Method;
+      URI            : Unbounded_String;
+      Parameters     : Unbounded_String;
+      HTTP_Version   : Unbounded_String;
+      Content_Length : Natural;
    end record;
 
 end AWS.Status;
