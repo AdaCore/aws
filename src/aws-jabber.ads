@@ -32,9 +32,8 @@
 
 with Ada.Strings.Unbounded;
 
-with Sockets;
-
 with AWS.Key_Value;
+with AWS.Net;
 
 package AWS.Jabber is
 
@@ -64,10 +63,10 @@ package AWS.Jabber is
    --  Close the connection with the Jabber server.
 
    procedure Send_Message
-     (Server  : in out Jabber.Server;
-      JID     : in     String;
-      Subject : in     String;
-      Content : in     String);
+     (Server  : in Jabber.Server;
+      JID     : in String;
+      Subject : in String;
+      Content : in String);
    --  Send a message to user JID (Jabber ID) via the specified Server. The
    --  message is composed of Subject and a body (Content).
 
@@ -75,7 +74,7 @@ package AWS.Jabber is
       is (Offline, Available, Chat, Away, Extended_Away, Do_Not_Disturb);
 
    procedure Check_Presence
-     (Server : in out Jabber.Server;
+     (Server : in     Jabber.Server;
       JID    : in     String;
       Status :    out Presence_Status);
    --  Returns the presence status for JID.
@@ -152,29 +151,27 @@ private
    --  Mailbox. This task will terminate with the connection socket will be
    --  closed by the client.
 
-   task type Incoming_Stream (Server : access Jabber.Server) is
-      entry Start;
-      --  Must be called when the server connection socket is opened.
+   task type Incoming_Stream (Server : access Jabber.Server);
 
-      entry Stop;
-      --  Terminate the server, this must be called if Start has not be called
-      --  to properly stop the task.
-   end Incoming_Stream;
+   type Incoming_Stream_Access is access Incoming_Stream;
 
    ------------
    -- Server --
    ------------
 
+   type Server_Access is access all Server;
+
    type Server is record
+      Self    : Server_Access := Server'Unchecked_Access;
       Host    : Unbounded_String;
       Port    : Positive;
-      Sock    : Sockets.Socket_FD;
+      Sock    : Net.Socket_Access;
       User    : Unbounded_String;
       Started : Boolean := False;
       SID     : Unbounded_String;
 
       MB     : Mailbox (25); -- Mailbox with a maximum of 25 mesages
-      Stream : Incoming_Stream (Server'Unchecked_Access);
+      Stream : Incoming_Stream_Access;
    end record;
 
 end AWS.Jabber;
