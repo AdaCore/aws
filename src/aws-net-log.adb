@@ -56,7 +56,7 @@ package body AWS.Net.Log is
    procedure Start (Write : in Write_Callback) is
    begin
       State.Semaphore.Seize;
-      State.Write := Write;
+      State.Write  := Write;
       State.Active := True;
       State.Semaphore.Release;
    end Start;
@@ -80,8 +80,8 @@ package body AWS.Net.Log is
    procedure Write
      (Direction : in Data_Direction;
       FD        : in Integer;
-      Data      : in Ada.Streams.Stream_Element_Array;
-      Last      : in Ada.Streams.Stream_Element_Offset) is
+      Data      : in Stream_Element_Array;
+      Last      : in Stream_Element_Offset) is
    begin
       State.Semaphore.Seize;
 
