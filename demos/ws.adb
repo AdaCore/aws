@@ -43,6 +43,7 @@ procedure WS is
    WS  : AWS.Server.HTTP (5, 1234, False, WS_CB.Service'Access, False);
 
 begin
+   Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
    AWS.Server.Start (WS, "WS Demo");
 end WS;

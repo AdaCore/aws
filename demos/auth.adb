@@ -61,6 +61,7 @@ procedure Auth is
    WS : AWS.Server.HTTP (10, 1234, False, Get'Unrestricted_Access, False);
 
 begin
-   AWS.Server.Start (WS, "Auth demo");
+   Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
+   AWS.Server.Start (WS, "Auth demo");
 end Auth;
