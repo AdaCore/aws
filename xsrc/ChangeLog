@@ -1,3 +1,9 @@
+2004-06-01  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client-xml-input_sources.adb:
+	(Next_Char): Properly set the From.Last on Invalid_Encoding
+	 for handling buffer overrun. Do not use Clean_Buffer.
+
 2004-06-02  Pascal Obry  <pascal@obry.org>
 
 	* aws-client-xml-input_sources.adb:
