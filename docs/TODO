@@ -100,6 +100,12 @@ implemented:
 - Ada 2005 should support all sort of containers, use them instead of the
   include/Table_Of_* components.
 
+- Add option to awsres tool to support compressed embedded resources.
+
+- Add support for embedded resources in AWS. Have a way to either send
+  compressed or decompressed data to the browser depending on it's support for
+  compressed message body.
+
 =============== Point to fix before next release
 
 - Add support for more sockets in AWS.Server.Socket_Semaphore.
