@@ -1,3 +1,41 @@
+2004-10-31  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	Fix XMLADA test.
+	(gen_main): Do not add ASIS test explicitly, those tests are
+	 already part of the TESTS variable which is generated
+	 automatically.
+	(run): Remove specific checks for ASIS test. This is part of the
+	 standard scheme now.
+	($(GEN_SETUP1):): Removed, not used.
+	($(GEN_SETUP2):): Idem.
+	(setup_init): Idem.
+	(setup): Fix check for ASIS+SOAP tests which prevented thoses test
+	 to be properly added into the generated files.
+	
+	* test_soap_hotplug.adb, test_soap_hotplug.out: 
+	Initial revision.	
+
+	* soap_hotplug_pack_service.ads,
+	  soap_hotplug_pack_service-types.ads,
+	  soap_hotplug_pack_service-types.adb,
+	  soap_hotplug_pack_service-client.ads,
+	  soap_hotplug_pack_service-client.adb,
+	  soap_hotplug_pack_service-cb.ads,
+	  soap_hotplug_pack_service-cb.adb,
+	  soap_hotplug_pack_service-server.ads,
+	  soap_hotplug_pack_service-server.adb:
+	Initial revision.	
+
+	* wsdl_?.out:
+	Renamed to wsdl_?_main.out.
+	
+	* wsdl_?_main.out:
+	Renamed from wsdl_?.out.
+
+	* test_hotplug.adb, test_hotplug.out:
+	Update output.
+
 2004-10-30  Pascal Obry  <pascal@obry.org>
 
 	* test_hotplug.adb, test_hotplug.out:
@@ -17,8 +55,8 @@
 2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* nbconn_proc.adb:
-	(Server_Task): Add entry Done waiting for complete server task before close
-	 client connections. Fix regression on Linux.
+	(Server_Task): Add entry Done waiting for complete server task
+	 before close client connections. Fix regression on Linux.
 
 2004-10-16  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
