@@ -1,5 +1,11 @@
 2003-11-14  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-wsdl-parser.adb:
+	(Check_Character): New routine.
+	(Parse_Array): Add comment with ???.
+	(Parse_Derived): Call Check_Character.
+	(Parse_Part): Idem.
+
 	* soap-generator.adb:
 	(Put_Types): Fix handling of derived returned types.
 
