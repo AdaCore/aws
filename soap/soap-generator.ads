@@ -91,6 +91,10 @@ package SOAP.Generator is
    procedure Overwrite (O : in out Object);
    --  Add WSDL file in parent file comments (no overwritting by default)
 
+   procedure Set_Proxy (O : in out Object; Proxy, User, Password : in String);
+   --  Set proxy user and password, needed if behind a firewall with
+   --  authentication.
+
 private
 
    use Ada.Strings.Unbounded;
@@ -104,6 +108,9 @@ private
       Force     : Boolean := False;
       Location  : Unbounded_String;
       WSDL_File : Unbounded_String;
+      Proxy     : Unbounded_String;
+      P_User    : Unbounded_String;
+      P_Pwd     : Unbounded_String;
    end record;
 
 end SOAP.Generator;
