@@ -34,28 +34,39 @@ with AWS.Parameters;
 
 package AWS.Headers is
 
-   type Container is new AWS.Parameters.List;
+   type List is private;
+   --  Header container. This set handles a set of HTTP header line, each new
+   --  header line is inserted at the end of the list (see AWS.Headers.Set API)
+   --  and can be retrieved by the following services. Header lines are
+   --  numbered from 1 to N.
 
-   Header_Format_Error : exception;
-   --  raises when header format is wrong.
+   Format_Error : exception;
+   --  Raised when header line format is wrong.
 
-   subtype VString_Array is AWS.Parameters.VString_Array;
-   --  Just for the Get_Values inherited routine.
-
-   procedure Debug (Activate : in Boolean);
-   --  Turn on Debug output.
+   function Count (Headers : in List) return Natural;
+   pragma Inline (Count);
+   --  Returns the number of item in Headers.
 
    function Get_Line
-     (C : in Container;
-      N : in Positive)
+     (Headers : in List;
+      N       : in Positive)
       return String;
-   --  Returns the Nth Well formatted Header line in the placing order
-   --  or the empty string if there is no header line with this number.
-
-   --  See other inherited routines in the AWS.Parameters.
+   --  Returns the Nth header line in Headers container. The returned value is
+   --  formatted as a correct header line:
+   --
+   --     message-header = field-name ":" [ field-value ]
+   --
+   --  That is the header-name followed with character ':' and the header
+   --  values. If there is less than Nth header line it returns the empty
+   --  string. Note that this routine does returns all header line values, for
+   --  example it would return:
+   --
+   --     Content_Type: multipart/mixed; boundary="0123_The_Boundary_Value_"
+   --
+   --  For a file upload content type header style.
 
 private
 
-   Debug_Flag : Boolean := False;
+   type List is new AWS.Parameters.List;
 
 end AWS.Headers;
