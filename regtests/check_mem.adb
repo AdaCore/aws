@@ -487,7 +487,7 @@ procedure Check_Mem is
 
       R : Response.Data;
    begin
-      R := Services.Split_Pages.Parse ("split.tmplt", T1, T2, 2);
+      R := Services.Split_Pages.Parse ("split1.tmplt", T1, T2, 2);
    end Check_Transient;
 
    -----------------
