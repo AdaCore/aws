@@ -195,8 +195,8 @@ package body AWS.Server is
       -- Abort_On_Timeout --
       ----------------------
 
-      procedure Abort_On_Timeout (Mode : in Timeout_Mode; Done : out Boolean)
-      is
+      procedure Abort_On_Timeout
+        (Mode : in Timeout_Mode; Done : out Boolean) is
       begin
          Done := False;
          for S in Set'Range loop
@@ -221,13 +221,11 @@ package body AWS.Server is
       -- Get --
       ---------
 
-      entry Get (FD : in Sockets.Socket_FD; Index : in Positive)
-         when Count > 1 or else Set'Length = 1 is
+      procedure Get (FD : in Sockets.Socket_FD; Index : in Positive) is
       begin
          Set (Index).Sock := FD;
          Mark_Phase (Index, Client_Header);
          Set (Index).Activity_Counter := Set (Index).Activity_Counter + 1;
-
          Count := Count - 1;
       end Get;
 
