@@ -41,6 +41,11 @@
 --                           variable named PAGE. It will be replaced by the
 --                           ressource which was not found.
 --
+--                           Note that on Microsoft IE this page will be
+--                           displayed only if the total page size is bigger
+--                           than 512 bytes or it includes at least one
+--                           image.
+--
 --    aws_directory.thtml    The template page used for directory browsing.
 --                           See AWS.Services.Directory for a full description
 --                           of this template usage.
