@@ -1,0 +1,48 @@
+<html>
+  <head>
+@@INCLUDE@@ ../web_elements/menu_css/menu.tcss menu submenu
+  </head>
+
+  <body>
+     <div class="menu">
+       <ul>
+         <li>
+           <h2>Menu1</h2>
+           <ul>
+              <li><a href="#">Submenu1</a></li>
+              <li><a href="#" class="submenu">Submenu2</a>
+                <ul>
+                  <li><a href="#">SubSubmenu1</a></li>
+                  <li><a href="#">SubSubmenu2</a></li>
+                </ul>
+              </li>
+              <li><a href="#">Submenu3</a></li>
+           </ul>
+        </li>
+      </ul>
+
+      <ul>
+        <li>
+          <h2>Menu2</h2>
+          <ul>
+            <li><a href="#">Submenu4</a></li>
+             <li><a href="#">Submenu5</a></li>
+          </ul>
+       </li>
+      </ul>
+     </div>
+
+     <p style="padding-top: 50px">
+     Test that a second menu works on the same page.
+     </p>
+     <div class="menu">
+       <ul><li><h2>Menu3</h2>
+               <ul><li><a href="#">Submenu4</a></li>
+                   </ul>
+           </li>
+       </ul>
+     </div>
+     
+
+  </body>
+</html>

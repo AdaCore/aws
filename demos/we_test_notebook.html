@@ -1,0 +1,48 @@
+
+<html>
+   <head>
+@@INCLUDE@@ ../web_elements/notebook/notebook.thtml Tabs currentPage TabContents page1 white #ccc
+@@INCLUDE@@ ../web_elements/notebook/notebook.thtml Tabs2 currentPage2 TabContents2 pg1 #aaa white
+<style>
+.TabContents   { background: white; }
+.TabContents2  { background: #aaa; }
+</style>
+   </head>
+
+   <body>
+      Test when within a centered table.
+      <table width="80%" align="center">
+      <td>
+      <ul id="Tabs">
+        <li id="page1" class="currentPage">
+            <a href="#" onclick="switchTabPage_Tabs('page1')">Page 1</a></li>
+        <li id="page2">
+            <a href="#" onclick="switchTabPage_Tabs('page2')">Page 2</a></li>
+        <li id="page3">
+            <a href="#" onclick="switchTabPage_Tabs('page3')">Page 3</a></li>
+      </ul>
+      <div class="TabContents" id="page1"> This is page 1 </div>
+      <div class="TabContents" id="page2"> This is page 2 </div>
+      <div class="TabContents" id="page3"> This is page 3 </div>
+      </td>
+      </table>
+
+      <!--  Below is a second test with a different font-size -->
+      <!--  Also test that we can have two of these on the same page -->
+
+      Test when within a &lt;font&gt; element.
+      <font size="+3" >
+      <ul id="Tabs2">
+        <li id="pg1" class="currentPage2">
+            <a href="#" onclick="switchTabPage_Tabs2('pg1')">Page 1</a></li>
+        <li id="pg2">
+            <a href="#" onclick="switchTabPage_Tabs2('pg2')">Page 2</a></li>
+        <li id="pg3">
+            <a href="#" onclick="switchTabPage_Tabs2('pg3')">Page 3</a></li>
+      </ul>
+      <div class="TabContents2" id="pg1"> This is page 1 </div>
+      <div class="TabContents2" id="pg2"> This is page 2 </div>
+      <div class="TabContents2" id="pg3"> This is page 3 </div>
+      </font>
+   </body>
+</html>
