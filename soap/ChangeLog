@@ -1,3 +1,27 @@
+2002-03-24  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-message-xml.adb:
+	(Parse_Param): Detect object without type. Workaround a problem
+	 with interoperability with IIS server using WSDL and not providing
+	 the type into the payload. All such type are just encoded as
+	 XML_String objects. First part of the fix for a bug reported by
+	 Wiljan Derks.
+	Add node name to error message.
+	Minor reformatting.
+
+	* soap-message.adb:
+	(XML_Image): Rename NL to New_Line. Do not indent here the payload
+	 wrapper. This is now properly done into SOAP.Types.
+
+	* soap-types.adb:
+	(XML_Indent): Thread safe counter used to indent XML payload.
+	(Spaces): New routine.
+	(XML_Image): All version, use XML_Indent to properly indent the
+	 XML payload. Easier to read.
+	(Array_Type): Same_Type is false if we have composite type (Record
+	 or Array) into the Array. Second part of the fix for a bug
+	 reported by Wiljan Derks.
+
 2002-03-20  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap.ads:
