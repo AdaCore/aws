@@ -30,8 +30,10 @@
 
 --  $Id$
 
+with Ada.Characters.Handling;
 with Ada.Command_Line;
 with Ada.Integer_Text_IO;
+with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
@@ -58,7 +60,6 @@ procedure WSDL_6_Main is
    procedure Client is
 
       use Ada;
-      use Ada.Integer_Text_IO;
       use Ada.Strings.Unbounded;
       use Ada.Text_IO;
 
@@ -67,14 +68,61 @@ procedure WSDL_6_Main is
       ---------------
 
       package Double_IO is new Float_IO (Long_Long_Float);
-      use Double_IO;
 
       --------------
       -- Float_IO --
       --------------
 
       package Float_IO is new Text_IO.Float_IO (Long_Float);
-      use Client.Float_IO;
+
+      ---------
+      -- Put --
+      ---------
+
+      procedure Put (V : in Integer) is
+      begin
+         Integer_Text_IO.Put (V, Width => 0);
+      end Put;
+
+      procedure Put (V : in Boolean) is
+      begin
+         Put (Characters.Handling.To_Lower (Boolean'Image (V)));
+      end Put;
+
+      procedure Put_Float (V : in String) is
+         K : Natural;
+      begin
+         K := Strings.Fixed.Index (V, ".");
+         loop
+            K := K + 1;
+            exit when V (K + 1) = '0';
+         end loop;
+         Put (Strings.Fixed.Trim (V (V'First .. K), Strings.Left));
+      end Put_Float;
+
+      procedure Put (V : in Long_Float) is
+         Buffer : String (1 .. 30);
+      begin
+         Float_IO.Put (Buffer, V, Exp => 0);
+         Put_Float (Buffer);
+      end Put;
+
+      procedure Put (V : in Long_Long_Float) is
+         Buffer : String (1 .. 30);
+      begin
+         Double_IO.Put (Buffer, V, Exp => 0);
+         Put_Float (Buffer);
+      end Put;
+
+      procedure Put (V : in WSDL_6.Color) is
+      begin
+         case V is
+            when WSDL_6.Red   => Put ("Red");
+            when WSDL_6.Green => Put ("GrEEn");
+            when WSDL_6.Blue  => Put ("Blue");
+         end case;
+         New_Line;
+      end Put;
 
       -------------
       -- Put_Rec --
@@ -88,8 +136,8 @@ procedure WSDL_6_Main is
          Put (Rec.C); New_Line;
          Put (Rec.D); New_Line;
          Put (To_String (Rec.E)); New_Line;
-         Put (Boolean'Image (Rec.F)); New_Line;
-         Put_Line ("-----");
+         Put (Rec.F); New_Line;
+         Put ("-----"); New_Line;
       end Put_Rec;
 
       R   : constant WSDL_6.Rec
@@ -110,16 +158,15 @@ procedure WSDL_6_Main is
       C_Res : WSDL_6.Complex_Rec;
 
    begin
-      Put_Line
-        (WSDL_6.Color'Image (WSDL_6_Service.Client.Next (WSDL_6.Red)));
+      Put (WSDL_6_Service.Client.Next (WSDL_6.Red));
 
       Put (WSDL_6_Service.Client.Echo_Int (8)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Int (3)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Float (89.12)); New_Line;
       Put (WSDL_6_Service.Client.Echo_Double (998877.123456)); New_Line;
-      Put (Boolean'Image (WSDL_6_Service.Client.Echo_Boolean (True)));
+      Put (WSDL_6_Service.Client.Echo_Boolean (True));
       New_Line;
-      Put (Boolean'Image (WSDL_6_Service.Client.Echo_Boolean (False)));
+      Put (WSDL_6_Service.Client.Echo_Boolean (False));
       New_Line;
 
       --  Rec
@@ -130,13 +177,13 @@ procedure WSDL_6_Main is
       --  New_Rec
 
       N_Res := WSDL_6_Service.Client.Echo_New_Rec (NR);
-      Put_Line (WSDL_6.Color'Image (N_Res.NC));
+      Put (N_Res.NC);
       Put_Rec (N_Res.NR);
 
       --  Array
 
       for K in I_Arr'Range loop
-         I_Arr (K) := K;
+         I_Arr (K) := K - 1;
       end loop;
 
       A_Res := WSDL_6_Service.Client.Echo_Set (I_Arr);
@@ -151,9 +198,9 @@ procedure WSDL_6_Main is
 
       for K in R_Arr'Range loop
          R_Arr (K)
-           := (K, Long_Float (K), Long_Long_Float (K),
+           := (K - 1, Long_Float (K - 1), Long_Long_Float (K - 1),
                Character'Val (K + Character'Pos ('a') - 1),
-               To_Unbounded_String ("This is number " & Integer'Image (K)),
+               To_Unbounded_String ("This is number " & Integer'Image (K - 1)),
                K mod 2 = 0);
       end loop;
 
@@ -162,7 +209,7 @@ procedure WSDL_6_Main is
       Put_Line ("array of rec");
 
       for K in R_Res'Range loop
-         Put_Rec (R_Res (K)); New_Line;
+         Put_Rec (R_Res (K));
       end loop;
 
       --  Record with array
