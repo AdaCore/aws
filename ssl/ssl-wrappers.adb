@@ -37,12 +37,43 @@ package body SSL.Wrappers is
    --  Raises program error with a clear message that no-SSL support has been
    --  configured.
 
+   ------------------------
+   -- ERR_error_string_n --
+   ------------------------
+
+   procedure ERR_error_string_n is
+   begin
+      Raise_Error;
+   end ERR_error_string_n;
+
+   -------------------
+   -- ERR_get_error --
+   -------------------
+
+   procedure ERR_get_error is
+   begin
+      Raise_Error;
+   end ERR_get_error;
+
+   -----------------
+   -- Raise_Error --
+   -----------------
+
    procedure Raise_Error is
    begin
       Ada.Exceptions.Raise_Exception
         (Program_Error'Identity,
          "AWS has been configured without SSL support.");
    end Raise_Error;
+
+   ---------------
+   -- RAND_seed --
+   ---------------
+
+   procedure RAND_seed is
+   begin
+      null;
+   end RAND_seed;
 
    ----------------------
    -- RSA_generate_key --
@@ -52,6 +83,51 @@ package body SSL.Wrappers is
    begin
       Raise_Error;
    end RSA_generate_key;
+
+   ----------------
+   -- SSL_accept --
+   ----------------
+
+   procedure SSL_accept is
+   begin
+      Raise_Error;
+   end SSL_accept;
+
+   -----------------
+   -- SSL_connect --
+   -----------------
+
+   procedure SSL_connect is
+   begin
+      Raise_Error;
+   end SSL_connect;
+
+   -------------------------------
+   -- SSL_CTX_check_private_key --
+   -------------------------------
+
+   procedure SSL_CTX_check_private_key is
+   begin
+      Raise_Error;
+   end SSL_CTX_check_private_key;
+
+   ------------------
+   -- SSL_CTX_ctrl --
+   ------------------
+
+   procedure SSL_CTX_ctrl is
+   begin
+      Raise_Error;
+   end SSL_CTX_ctrl;
+
+   ------------------
+   -- SSL_CTX_free --
+   ------------------
+
+   procedure SSL_CTX_free is
+   begin
+      Raise_Error;
+   end SSL_CTX_free;
 
    -----------------
    -- SSL_CTX_new --
@@ -71,24 +147,6 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_CTX_set_quiet_shutdown;
 
-   ------------------
-   -- SSL_CTX_ctrl --
-   ------------------
-
-   procedure SSL_CTX_ctrl is
-   begin
-      Raise_Error;
-   end SSL_CTX_ctrl;
-
-   -------------------------------
-   -- SSL_CTX_check_private_key --
-   -------------------------------
-
-   procedure SSL_CTX_check_private_key is
-   begin
-      Raise_Error;
-   end SSL_CTX_check_private_key;
-
    ----------------------------------
    -- SSL_CTX_use_certificate_file --
    ----------------------------------
@@ -107,32 +165,14 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_CTX_use_PrivateKey_file;
 
-   -------------------------
-   -- SSLv3_client_method --
-   -------------------------
+   --------------
+   -- SSL_free --
+   --------------
 
-   procedure SSLv3_client_method is
+   procedure SSL_free is
    begin
       Raise_Error;
-   end SSLv3_client_method;
-
-   ------------------
-   -- SSLv3_method --
-   ------------------
-
-   procedure SSLv3_method is
-   begin
-      Raise_Error;
-   end SSLv3_method;
-
-   -------------------------
-   -- SSLv3_server_method --
-   -------------------------
-
-   procedure SSLv3_server_method is
-   begin
-      Raise_Error;
-   end SSLv3_server_method;
+   end SSL_free;
 
    ----------------------
    -- SSL_Library_Init --
@@ -170,6 +210,24 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_read;
 
+   --------------------------
+   -- SSL_set_accept_state --
+   --------------------------
+
+   procedure SSL_set_accept_state is
+   begin
+      Raise_Error;
+   end SSL_set_accept_state;
+
+   ---------------------------
+   -- SSL_set_connect_state --
+   ---------------------------
+
+   procedure SSL_set_connect_state is
+   begin
+      Raise_Error;
+   end SSL_set_connect_state;
+
    ----------------
    -- SSL_set_fd --
    ----------------
@@ -206,69 +264,6 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSL_write;
 
-   ----------------
-   -- SSL_accept --
-   ----------------
-
-   procedure SSL_accept is
-   begin
-      Raise_Error;
-   end SSL_accept;
-
-   --------------------------
-   -- SSL_set_accept_state --
-   --------------------------
-
-   procedure SSL_set_accept_state is
-   begin
-      Raise_Error;
-   end SSL_set_accept_state;
-
-   -----------------
-   -- SSL_connect --
-   -----------------
-
-   procedure SSL_connect is
-   begin
-      Raise_Error;
-   end SSL_connect;
-
-   ---------------------------
-   -- SSL_set_connect_state --
-   ---------------------------
-
-   procedure SSL_set_connect_state    is
-   begin
-      Raise_Error;
-   end SSL_set_connect_state;
-
-   -------------------------
-   -- TLSv1_client_method --
-   -------------------------
-
-   procedure TLSv1_client_method is
-   begin
-      Raise_Error;
-   end TLSv1_client_method;
-
-   -------------------------
-   -- TLSv1_server_method --
-   -------------------------
-
-   procedure TLSv1_server_method is
-   begin
-      Raise_Error;
-   end TLSv1_server_method;
-
-   ------------------
-   -- TLSv1_method --
-   ------------------
-
-   procedure TLSv1_method is
-   begin
-      Raise_Error;
-   end TLSv1_method;
-
    --------------------------
    -- SSLv23_client_method --
    --------------------------
@@ -277,15 +272,6 @@ package body SSL.Wrappers is
    begin
       Raise_Error;
    end SSLv23_client_method;
-
-   --------------------------
-   -- SSLv23_server_method --
-   --------------------------
-
-   procedure SSLv23_server_method is
-   begin
-      Raise_Error;
-   end SSLv23_server_method;
 
    -------------------
    -- SSLv23_method --
@@ -296,6 +282,15 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSLv23_method;
 
+   --------------------------
+   -- SSLv23_server_method --
+   --------------------------
+
+   procedure SSLv23_server_method is
+   begin
+      Raise_Error;
+   end SSLv23_server_method;
+
    -------------------------
    -- SSLv2_Client_Method --
    -------------------------
@@ -304,15 +299,6 @@ package body SSL.Wrappers is
    begin
       Raise_Error;
    end SSLv2_client_method;
-
-   -------------------------
-   -- SSLv2_server_method --
-   -------------------------
-
-   procedure SSLv2_server_method is
-   begin
-      Raise_Error;
-   end SSLv2_server_method;
 
    ------------------
    -- SSLv2_method --
@@ -323,49 +309,67 @@ package body SSL.Wrappers is
       Raise_Error;
    end SSLv2_method;
 
-   ---------------
-   -- RAND_seed --
-   ---------------
+   -------------------------
+   -- SSLv2_server_method --
+   -------------------------
 
-   procedure RAND_seed is
-   begin
-      null;
-   end RAND_seed;
-
-   --------------
-   -- SSL_free --
-   --------------
-
-   procedure SSL_free is
+   procedure SSLv2_server_method is
    begin
       Raise_Error;
-   end SSL_free;
+   end SSLv2_server_method;
+
+   -------------------------
+   -- SSLv3_client_method --
+   -------------------------
+
+   procedure SSLv3_client_method is
+   begin
+      Raise_Error;
+   end SSLv3_client_method;
 
    ------------------
-   -- SSL_CTX_free --
+   -- SSLv3_method --
    ------------------
 
-   procedure SSL_CTX_free is
+   procedure SSLv3_method is
    begin
       Raise_Error;
-   end SSL_CTX_free;
+   end SSLv3_method;
 
-   ------------------------
-   -- ERR_error_string_n --
-   ------------------------
+   -------------------------
+   -- SSLv3_server_method --
+   -------------------------
 
-   procedure ERR_error_string_n is
+   procedure SSLv3_server_method is
    begin
       Raise_Error;
-   end ERR_error_string_n;
+   end SSLv3_server_method;
 
-   -------------------
-   -- ERR_get_error --
-   -------------------
+   -------------------------
+   -- TLSv1_client_method --
+   -------------------------
 
-   procedure ERR_get_error is
+   procedure TLSv1_client_method is
    begin
       Raise_Error;
-   end ERR_get_error;
+   end TLSv1_client_method;
+
+   ------------------
+   -- TLSv1_method --
+   ------------------
+
+   procedure TLSv1_method is
+   begin
+      Raise_Error;
+   end TLSv1_method;
+
+   -------------------------
+   -- TLSv1_server_method --
+   -------------------------
+
+   procedure TLSv1_server_method is
+   begin
+      Raise_Error;
+   end TLSv1_server_method;
 
 end SSL.Wrappers;
