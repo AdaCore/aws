@@ -1,5 +1,8 @@
 2000-10-22  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-communication-server.adb:
+	Add missing Receive prototype. (fix style error).
+
 	* makefile:
 	(SOURCES): add aws-log.adb aws-hotplug.adb aws-communication.adb
 	 aws-communication-server.adb aws-communication-client.adb
