@@ -1,3 +1,17 @@
+2003-01-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(GCC): Removed.
+	(adasockets): New target.
+	(gnatsockets): New target.
+
+	* aws-net-std.adb:
+	New version. This is the default socket implementation and is
+	 based on GNAT.Sockets.
+
+	* aws-net.ads:
+	Add comments.
+
 2003-01-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.adb:
