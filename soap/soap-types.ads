@@ -93,143 +93,12 @@ package SOAP.Types is
    --  Composite types are using a by-reference semantic for efficiency
    --  reason. Not that these types are not thread safe.
 
-   -------------
-   -- Integer --
-   -------------
+   --------------
+   -- Any Type --
+   --------------
 
-   XML_Int : constant String := "xsd:int";
-
-   type XSD_Integer is new Scalar with private;
-
-   function Image     (O : in XSD_Integer) return String;
-   function XML_Image (O : in XSD_Integer) return String;
-   function XML_Type  (O : in XSD_Integer) return String;
-
-   function I (V : in Integer; Name : in String := "item") return XSD_Integer;
-   function V (O : in XSD_Integer) return Integer;
-
-   -----------
-   -- Float --
-   -----------
-
-   XML_Float : constant String := "xsd:float";
-
-   type XSD_Float is new Scalar with private;
-
-   function Image     (O : in XSD_Float) return String;
-   function XML_Image (O : in XSD_Float) return String;
-   function XML_Type  (O : in XSD_Float) return String;
-
-   function F (V : in Long_Float; Name : in String := "item") return XSD_Float;
-   function V (O : in XSD_Float) return Long_Float;
-
-   ------------
-   -- Double --
-   ------------
-
-   XML_Double : constant String := "xsd:double";
-
-   type XSD_Double is new Scalar with private;
-
-   function Image     (O : in XSD_Double) return String;
-   function XML_Image (O : in XSD_Double) return String;
-   function XML_Type  (O : in XSD_Double) return String;
-
-   function D (V : in Long_Long_Float;
-               Name : in String := "item") return XSD_Double;
-   function V (O : in XSD_Double) return Long_Long_Float;
-
-   ------------
-   -- String --
-   ------------
-
-   XML_String : constant String := "xsd:string";
-
-   type XSD_String is new Scalar with private;
-
-   function Image     (O : in XSD_String) return String;
-   function XML_Image (O : in XSD_String) return String;
-   function XML_Type  (O : in XSD_String) return String;
-
-   function S
-     (V      : in String;
-      Name   : in String  := "item")
-      return XSD_String;
-
-   function V (O : in XSD_String) return String;
-
-   -------------
-   -- Boolean --
-   -------------
-
-   XML_Boolean : constant String := "xsd:boolean";
-
-   type XSD_Boolean is new Scalar with private;
-
-   function Image     (O : in XSD_Boolean) return String;
-   function XML_Image (O : in XSD_Boolean) return String;
-   function XML_Type  (O : in XSD_Boolean) return String;
-
-   function B (V : in Boolean; Name : in String  := "item") return XSD_Boolean;
-   function V (O : in XSD_Boolean) return Boolean;
-
-   -----------------
-   -- TimeInstant --
-   -----------------
-
-   XML_Time_Instant : constant String := "xsd:timeInstant";
-   XML_Date_Time    : constant String := "xsd:dateTime";
-
-   type XSD_Time_Instant is new Scalar with private;
-
-   function Image     (O : in XSD_Time_Instant) return String;
-   function XML_Image (O : in XSD_Time_Instant) return String;
-   function XML_Type  (O : in XSD_Time_Instant) return String;
-
-   subtype TZ is Integer range -11 .. +11;
-   GMT : constant TZ := 0;
-
-   function T
-     (V        : in Ada.Calendar.Time;
-      Name     : in String        := "item";
-      Timezone : in TZ            := GMT)
-      return XSD_Time_Instant;
-
-   function V (O : in XSD_Time_Instant) return Ada.Calendar.Time;
-   --  Returns a GMT date and time.
-
-   ----------
-   -- Null --
-   ----------
-
-   XML_Null : constant String := "1";
-
-   type XSD_Null is new Scalar with private;
-
-   function XML_Image (O : in XSD_Null) return String;
-   function XML_Type  (O : in XSD_Null) return String;
-
-   function N (Name : in String  := "item") return XSD_Null;
-
-   ------------
-   -- Base64 --
-   ------------
-
-   XML_Base64        : constant String := "SOAP-ENC:base64";
-   XML_Base64_Binary : constant String := "xsd:base64Binary";
-
-   type SOAP_Base64 is new Scalar with private;
-
-   function Image     (O : in SOAP_Base64) return String;
-   function XML_Image (O : in SOAP_Base64) return String;
-   function XML_Type  (O : in SOAP_Base64) return String;
-
-   function B64
-     (V    : in String;
-      Name : in String := "item")
-      return SOAP_Base64;
-
-   function V (O : in SOAP_Base64) return String;
+   XML_Any_Type : constant String := "xsd:anyType";
+   --  Not supported by this implementation
 
    -----------
    -- Array --
@@ -258,6 +127,100 @@ package SOAP.Types is
    function V (O : in SOAP_Array) return Object_Set;
 
    ------------
+   -- Base64 --
+   ------------
+
+   XML_Base64        : constant String := "SOAP-ENC:base64";
+   XML_Base64_Binary : constant String := "xsd:base64Binary";
+
+   type SOAP_Base64 is new Scalar with private;
+
+   function Image     (O : in SOAP_Base64) return String;
+   function XML_Image (O : in SOAP_Base64) return String;
+   function XML_Type  (O : in SOAP_Base64) return String;
+
+   function B64
+     (V    : in String;
+      Name : in String := "item")
+      return SOAP_Base64;
+
+   function V (O : in SOAP_Base64) return String;
+
+   -------------
+   -- Boolean --
+   -------------
+
+   XML_Boolean : constant String := "xsd:boolean";
+
+   type XSD_Boolean is new Scalar with private;
+
+   function Image     (O : in XSD_Boolean) return String;
+   function XML_Image (O : in XSD_Boolean) return String;
+   function XML_Type  (O : in XSD_Boolean) return String;
+
+   function B (V : in Boolean; Name : in String  := "item") return XSD_Boolean;
+   function V (O : in XSD_Boolean) return Boolean;
+
+   ------------
+   -- Double --
+   ------------
+
+   XML_Double : constant String := "xsd:double";
+
+   type XSD_Double is new Scalar with private;
+
+   function Image     (O : in XSD_Double) return String;
+   function XML_Image (O : in XSD_Double) return String;
+   function XML_Type  (O : in XSD_Double) return String;
+
+   function D (V : in Long_Long_Float;
+               Name : in String := "item") return XSD_Double;
+   function V (O : in XSD_Double) return Long_Long_Float;
+
+   -----------
+   -- Float --
+   -----------
+
+   XML_Float : constant String := "xsd:float";
+
+   type XSD_Float is new Scalar with private;
+
+   function Image     (O : in XSD_Float) return String;
+   function XML_Image (O : in XSD_Float) return String;
+   function XML_Type  (O : in XSD_Float) return String;
+
+   function F (V : in Long_Float; Name : in String := "item") return XSD_Float;
+   function V (O : in XSD_Float) return Long_Float;
+
+   -------------
+   -- Integer --
+   -------------
+
+   XML_Int : constant String := "xsd:int";
+
+   type XSD_Integer is new Scalar with private;
+
+   function Image     (O : in XSD_Integer) return String;
+   function XML_Image (O : in XSD_Integer) return String;
+   function XML_Type  (O : in XSD_Integer) return String;
+
+   function I (V : in Integer; Name : in String := "item") return XSD_Integer;
+   function V (O : in XSD_Integer) return Integer;
+
+   ----------
+   -- Null --
+   ----------
+
+   XML_Null : constant String := "1";
+
+   type XSD_Null is new Scalar with private;
+
+   function XML_Image (O : in XSD_Null) return String;
+   function XML_Type  (O : in XSD_Null) return String;
+
+   function N (Name : in String  := "item") return XSD_Null;
+
+   ------------
    -- Record --
    ------------
 
@@ -277,12 +240,49 @@ package SOAP.Types is
 
    function V (O : in SOAP_Record) return Object_Set;
 
-   --------------
-   -- Any Type --
-   --------------
+   ------------
+   -- String --
+   ------------
 
-   XML_Any_Type : constant String := "xsd:anyType";
-   --  Not supported by this implementation
+   XML_String : constant String := "xsd:string";
+
+   type XSD_String is new Scalar with private;
+
+   function Image     (O : in XSD_String) return String;
+   function XML_Image (O : in XSD_String) return String;
+   function XML_Type  (O : in XSD_String) return String;
+
+   function S
+     (V      : in String;
+      Name   : in String  := "item")
+      return XSD_String;
+
+   function V (O : in XSD_String) return String;
+
+   -----------------
+   -- TimeInstant --
+   -----------------
+
+   XML_Time_Instant : constant String := "xsd:timeInstant";
+   XML_Date_Time    : constant String := "xsd:dateTime";
+
+   type XSD_Time_Instant is new Scalar with private;
+
+   function Image     (O : in XSD_Time_Instant) return String;
+   function XML_Image (O : in XSD_Time_Instant) return String;
+   function XML_Type  (O : in XSD_Time_Instant) return String;
+
+   subtype TZ is Integer range -11 .. +11;
+   GMT : constant TZ := 0;
+
+   function T
+     (V        : in Ada.Calendar.Time;
+      Name     : in String        := "item";
+      Timezone : in TZ            := GMT)
+      return XSD_Time_Instant;
+
+   function V (O : in XSD_Time_Instant) return Ada.Calendar.Time;
+   --  Returns a GMT date and time.
 
    ---------
    -- Get --
