@@ -110,6 +110,9 @@ package AWS.Session is
    procedure Start;
    --  Start session cleaner task.
 
+   procedure Shutdown;
+   --  Stop session cleaner task.
+
 private
 
    type ID is new Integer;
