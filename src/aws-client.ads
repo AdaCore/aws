@@ -279,11 +279,11 @@ package AWS.Client is
       URI        : in     String          := No_Data);
    --  Same as Upload above but using a Connection.
 
-   function SOAP_Post
-     (Connection  : access HTTP_Connection;
-      SOAPAction  : in     String          := No_Data;
-      Data        : in     String)
-      return Response.Data;
+   procedure SOAP_Post
+     (Connection : in     HTTP_Connection;
+      Result     :    out Response.Data;
+      SOAPAction : in     String          := No_Data;
+      Data       : in     String);
    --  Same as SOAP_Post above but using a Connection.
 
    procedure Close (Connection : in out HTTP_Connection);
