@@ -1,3 +1,14 @@
+2004-10-06  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(SSL_PATH1): New variable. Set only for non Windows OS.
+	(SSL_PATH2): Idem.
+	(setup): If SOCKET is std set LIB_Path to "" to disable library
+	 creation. It could be the case that this library is not install
+	 on the computer. On non Windows OS (and if SOCKET is ssl) set
+	 LIB_Path to point to the right location (either SSL_PATH1 or
+	 SSL_PATH2).
+
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
 	* ssl_wrappers.ads, ssl_wrappers.adb:
