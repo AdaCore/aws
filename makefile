@@ -30,17 +30,6 @@ all:
 	echo ""
 	echo "Targets :"
 	echo ""
-	echo "  Configurations :"
-	echo ""
-	echo "    gnatsockets:  Use GNAT.Sockets [default]"
-	echo "    adasockets:   Use AdaSockets"
-	echo ""
-	echo "    gnat_oslib:   OS_Lib implementation for GNAT only [default]"
-	echo "    posix_oslib:  OS_Lib implementation based on POSIX"
-	echo "    win32_oslib:  OS_Lib implementation for Win32 only"
-	echo ""
-	echo "    display       Display current configuration"
-	echo ""
 	echo "  Build :"
 	echo ""
 	echo "    setup:        setup build, must be done before build"
@@ -66,21 +55,6 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" \
 	GCC_FOR_HOST="$(GCC_FOR_HOST)" BDIR="$(BDIR)" INSTALL="$(INSTALL)"
 
-gnatsockets:
-	${MAKE} -C src gnatsockets $(ALL_OPTIONS)
-
-adasockets:
-	${MAKE} -C src adasockets $(ALL_OPTIONS)
-
-gnat_oslib:
-	${MAKE} -C src gnat_oslib $(ALL_OPTIONS)
-
-posix_oslib:
-	${MAKE} -C src posix_oslib $(ALL_OPTIONS)
-
-win32_oslib:
-	${MAKE} -C src win32_oslib $(ALL_OPTIONS)
-
 build_doc:
 	echo ""
 	echo "=== Build doc"
@@ -103,31 +77,6 @@ aws_regtests:
 	${MAKE} -C regtests run $(GALL_OPTIONS) GDB_REGTESTS="$(GDB_REGTESTS)"
 
 run_regtests: tp_regtests aws_regtests
-
-display:
-	echo ""
-	echo AWS current configuration
-	echo ""
-ifeq (${OS}, Windows_NT)
-	echo "Windows OS detected"
-	echo "   To build AWS on this OS you need to have a set of UNIX like"
-	echo "   tools (cp, mv, mkdir, chmod...) You should install"
-	echo "   Cygwin or Msys toolset."
-	echo ""
-else
-	echo "UNIX like OS detected"
-endif
-	echo "Install directory     : " $(INSTALL)
-ifeq (${XMLADA}, true)
-	echo "XMLada activated."
-else
-	echo "XMLada not activated, no SOAP/WSDL support"
-endif
-ifdef ADASOCKETS
-	echo "AdaSockets package in : " $(ADASOCKETS)
-else
-	echo "Using GNAT.Sockets"
-endif
 
 common_tarball:
 	$(CHMOD) uog+rx win32/*.dll
@@ -244,8 +193,8 @@ endif
 	$(CP) lib/libz.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
 	-$(CP) docs/aws_api.xml $(INSTALL)/AWS/docs
-	$(CP) templates_parser/docs/templates_parser.html $(INSTALL)/AWS/docs
-	$(CP) templates_parser/docs/templates_parser.info* $(INSTALL)/AWS/docs
+	-$(CP) templates_parser/docs/templates_parser.html $(INSTALL)/AWS/docs
+	-$(CP) templates_parser/docs/templates_parser.info* $(INSTALL)/AWS/docs
 	-$(CP) docs/aws.txt $(INSTALL)/AWS/docs
 	-$(CP) docs/*.info* $(INSTALL)/AWS/docs
 	-$(CP) -r docs/html/* $(INSTALL)/AWS/docs/html
@@ -344,8 +293,10 @@ endif
 
 ifdef ADASOCKETS
 GEXT_MODULE := $(GEXT_MODULE) gadasockets
+PRJ_SOCKLIB=AdaSockets
 else
 GEXT_MODULE := $(GEXT_MODULE) gsockets_dummy
+PRJ_SOCKLIB=GNAT
 endif
 
 ## ASIS
@@ -390,7 +341,9 @@ endif
 GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_BUILD="$(PRJ_BUILD)" \
 	PRJ_XMLADA="$(PRJ_XMLADA)" \
-	PRJ_ASIS="$(PRJ_ASIS)"
+	PRJ_ASIS="$(PRJ_ASIS)" \
+	PRJ_SOCKLIB="$(PRJ_SOCKLIB)" \
+	PRJ_OSLIB="$(OSLIB)"
 
 ${MODULES_BUILD}: force
 	${MAKE} -C ${@:%_build=%} build $(GALL_OPTIONS)
