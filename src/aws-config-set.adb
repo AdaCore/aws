@@ -30,7 +30,15 @@
 
 --  $Id$
 
+with Ada.Exceptions;
 package body AWS.Config.Set is
+
+   procedure Parameter
+     (Param_Set     : in out Parameter_Set;
+      Name, Value   : in     String;
+      Error_Context : in     String);
+   --  Set parameter Name/Value in Param_Set. Raises Constraint_Error with
+   --  Error_Context added to error message if Name / Value is wrong.
 
    -----------------------
    -- Accept_Queue_Size --
@@ -211,6 +219,127 @@ package body AWS.Config.Set is
    begin
       O.P (Max_Connection).Pos_Value := Value;
    end Max_Connection;
+
+   ---------------
+   -- Parameter --
+   ---------------
+
+   procedure Parameter
+     (Config        : in out Object;
+      Name          : in     String;
+      Value         : in     String;
+      Error_Context : in     String := "") is
+   begin
+      Parameter (Config.P, Name, Value, Error_Context);
+   end Parameter;
+
+   procedure Parameter
+     (Name          : in String;
+      Value         : in String;
+      Error_Context : in String := "") is
+   begin
+      Parameter (Process_Options, Name, Value, Error_Context);
+   end Parameter;
+
+   procedure Parameter
+     (Param_Set     : in out Parameter_Set;
+      Name, Value   : in     String;
+      Error_Context : in     String)
+   is
+      P : Parameter_Name;
+
+      procedure Set_Parameter (Param : in out Values);
+      --  Set parameter depending on the type (Param.Kind).
+
+      procedure Error (Message : in String);
+      --  Raises Constraint_Error with associated message and Error_Context
+      --  string.
+
+      function "+" (S : in String)
+        return Unbounded_String
+        renames To_Unbounded_String;
+
+      -----------
+      -- Error --
+      -----------
+
+      procedure Error (Message : in String) is
+      begin
+         Ada.Exceptions.Raise_Exception
+           (Constraint_Error'Identity,
+            Error_Context & ASCII.LF & Message & '.');
+      end Error;
+
+      Expected_Type : Unbounded_String;
+
+      -------------------
+      -- Set_Parameter --
+      -------------------
+
+      procedure Set_Parameter (Param : in out Values) is
+      begin
+         case Param.Kind is
+            when Str =>
+               Expected_Type := +"string";
+               Param.Str_Value := +Value;
+
+            when Dir =>
+               Expected_Type := +"string";
+
+               if Value (Value'Last) = '/'
+                 or else Value (Value'Last) = '\'
+               then
+                  Param.Dir_Value := +Value;
+               else
+                  Param.Dir_Value := +(Value & '/');
+               end if;
+
+            when Pos =>
+               Expected_Type := +"positive";
+               Param.Pos_Value := Positive'Value (Value);
+
+            when Dur =>
+               Expected_Type := +"duration";
+               Param.Dur_Value := Duration'Value (Value);
+
+            when Bool =>
+               Expected_Type := +"boolean";
+               Param.Bool_Value := Boolean'Value (Value);
+         end case;
+      end Set_Parameter;
+
+   begin
+      begin
+         P := Parameter_Name'Value (Name);
+      exception
+         when others =>
+            Error ("unrecognized option " & Name);
+            return;
+      end;
+
+      if P not in Param_Set'Range then
+         declare
+            Not_Supported_Msg : constant String
+              := " option '" & Name
+              & "' not supported for this configuration context.";
+         begin
+            if P in Process_Parameter_Name'Range then
+               Error ("Per process" & Not_Supported_Msg);
+            else
+               Error ("Per server" & Not_Supported_Msg);
+            end if;
+         end;
+         return;
+      else
+         Set_Parameter (Param_Set (P));
+      end if;
+
+   exception
+      when others =>
+         Error
+           ("wrong value for " & Name
+            & " " & To_String (Expected_Type) & " expected");
+   end Parameter;
 
    ---------------------
    -- Receive_Timeout --

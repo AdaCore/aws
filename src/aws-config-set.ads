@@ -174,6 +174,24 @@ package AWS.Config.Set is
    --  Number of seconds to keep a session if not used. After this period the
    --  session data is obsoleted and will be removed during new cleanup.
 
+   procedure Parameter
+     (Config        : in out Object;
+      Name          : in     String;
+      Value         : in     String;
+      Error_Context : in     String := "");
+   --  Set one of the AWS HTTP per server parameters. Raises Constraint_Error
+   --  in case of wrong parameter name or wrong parameter value.
+   --  Error_Context may contain additional information about the parameter.
+   --  This  message will be added to the Constraint_Error exception.
+   --  One way to use Error_Context is to set it with information about
+   --  where this parameter come form.
+
+   procedure Parameter
+     (Name          : in String;
+      Value         : in String;
+      Error_Context : in String := "");
+   --  Set one of the AWS HTTP per process parameters. See description above.
+
 private
 
    pragma Inline
