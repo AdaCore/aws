@@ -1,3 +1,8 @@
+2004-12-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* dispatch_vh.adb:
+	Use modified configuration to start server.
+
 2004-12-04  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
@@ -26,9 +31,9 @@
 
 2004-11-28  Pascal Obry  <pascal@obry.org>
 
-	* wsdl_6.java, anytype.java: 
+	* wsdl_6.java, anytype.java:
 	Add build command in comment.
-	
+
 2004-11-28  Pascal Obry  <pascal@obry.org>
 
 	* anytype.out:
@@ -71,7 +76,7 @@
 
 	* wsdl_a.out, wsdl_6_main.out, register.out:
 	Update output.
-	
+
 2004-11-27  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
