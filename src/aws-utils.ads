@@ -132,4 +132,36 @@ package AWS.Utils is
    procedure Free is new Ada.Unchecked_Deallocation
      (Ada.Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
+   -------------
+   -- Mailbox --
+   -------------
+
+   generic
+      type Message is private;
+   package Mailbox_G is
+
+      type Message_Set is array (Natural range <>) of Message;
+
+      protected type Mailbox (Max_Size : Positive) is
+
+         entry Add (M : in Message);
+         --  Add a new message into the Mailbox, only possible if there is
+         --  some free room on the Mailbox.
+
+         entry Get (M : out Message);
+         --  Get a message from the Mailbox, only possible if there is some
+         --  message in the Mailbox.
+
+         function Size return Natural;
+         --  Returns the current number of message waiting in the Mailbox.
+
+      private
+         Buffer       : Message_Set (1 .. Max_Size);
+         Current_Size : Natural := 0;
+         Current      : Natural := 0;
+         Last         : Natural := 0;
+      end Mailbox;
+
+   end Mailbox_G;
+
 end AWS.Utils;
