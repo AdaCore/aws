@@ -1,5 +1,8 @@
 2001-08-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-protocol_handler.adb:
+	Properly inititialize P_List before using it.
+
 	* makefile:
 	(build): add aws-server-push.adb in the list of file to not
 	 compile with style check.
