@@ -42,60 +42,60 @@ package body Memory_Streams is
    ------------
 
    procedure Append
-     (File  : in out Stream_Type;
-      Value : in     Element_Array)
+     (Stream : in out Stream_Type;
+      Value  : in     Element_Array)
    is
       Block_Length : constant Element_Offset
-        := File.Last_Length + Value'Length;
+        := Stream.Last_Length + Value'Length;
 
    begin
-      if File.First = null then
-         File.First := new Buffer_Type;
+      if Stream.First = null then
+         Stream.First := new Buffer_Type;
 
          if Value'Length >= First_Block_Length then
-            File.First.Data := new Element_Array (1 .. Value'Length);
+            Stream.First.Data := new Element_Array (1 .. Value'Length);
          else
-            File.First.Data := new Element_Array (1 .. First_Block_Length);
+            Stream.First.Data := new Element_Array (1 .. First_Block_Length);
          end if;
 
-         File.First.Data (1 .. Value'Length) := Value;
+         Stream.First.Data (1 .. Value'Length) := Value;
 
-         File.Current     := File.First;
-         File.Last        := File.First;
-         File.Last_Length := Value'Length;
+         Stream.Current     := Stream.First;
+         Stream.Last        := Stream.First;
+         Stream.Last_Length := Value'Length;
 
-      elsif Block_Length <= File.Last.Data'Length then
-         File.Last.Data (File.Last_Length + 1
+      elsif Block_Length <= Stream.Last.Data'Length then
+         Stream.Last.Data (Stream.Last_Length + 1
                          .. Block_Length) := Value;
-         File.Last_Length := Block_Length;
+         Stream.Last_Length := Block_Length;
 
       else
          declare
             Split_Value : constant Element_Index
-              := Value'First + File.Last.Data'Length - File.Last_Length;
+              := Value'First + Stream.Last.Data'Length - Stream.Last_Length;
             Next_Length : constant Element_Index
               := Value'Last - Split_Value + 1;
          begin
-            File.Last.Data (File.Last_Length + 1 .. File.Last.Data'Last)
+            Stream.Last.Data (Stream.Last_Length + 1 .. Stream.Last.Data'Last)
               := Value (Value'First .. Split_Value - 1);
 
-            File.Last.Next := new Buffer_Type;
-            File.Last      := File.Last.Next;
+            Stream.Last.Next := new Buffer_Type;
+            Stream.Last      := Stream.Last.Next;
 
             if Next_Length >= Next_Block_Length then
-               File.Last.Data := new Element_Array (1 .. Next_Length);
+               Stream.Last.Data := new Element_Array (1 .. Next_Length);
             else
-               File.Last.Data := new Element_Array (1 .. Next_Block_Length);
+               Stream.Last.Data := new Element_Array (1 .. Next_Block_Length);
             end if;
 
-            File.Last.Data (1 .. Next_Length)
+            Stream.Last.Data (1 .. Next_Length)
               := Value (Split_Value .. Value'Last);
 
-            File.Last_Length := Next_Length;
+            Stream.Last_Length := Next_Length;
          end;
       end if;
 
-      File.Length := File.Length + Value'Length;
+      Stream.Length := Stream.Length + Value'Length;
    end Append;
 
    ------------
@@ -103,78 +103,78 @@ package body Memory_Streams is
    ------------
 
    procedure Append
-     (File : in out Stream_Type;
-      Data : in     Element_Access) is
+     (Stream : in out Stream_Type;
+      Data   : in     Element_Access) is
    begin
-      if File.First = null then
-         File.First       := new Buffer_Type;
-         File.First.Data  := Data;
-         File.Current     := File.First;
-         File.Last        := File.First;
-         File.Last_Length := Data'Length;
+      if Stream.First = null then
+         Stream.First       := new Buffer_Type;
+         Stream.First.Data  := Data;
+         Stream.Current     := Stream.First;
+         Stream.Last        := Stream.First;
+         Stream.Last_Length := Data'Length;
 
       else
-         if File.Last.Data'Length > File.Last_Length then
+         if Stream.Last.Data'Length > Stream.Last_Length then
             declare
                Ptr : constant Element_Access
-                := new Element_Array'(File.Last.Data (1 .. File.Last_Length));
+                := new Element_Array'(Stream.Last.Data (1 .. Stream.Last_Length));
             begin
-               Free (File.Last.Data);
-               File.Last.Data := Ptr;
+               Free (Stream.Last.Data);
+               Stream.Last.Data := Ptr;
             end;
          end if;
 
-         File.Last.Next   := new Buffer_Type;
-         File.Last        := File.Last.Next;
-         File.Last.Data   := Data;
-         File.Last_Length := Data'Length;
+         Stream.Last.Next   := new Buffer_Type;
+         Stream.Last        := Stream.Last.Next;
+         Stream.Last.Data   := Data;
+         Stream.Last_Length := Data'Length;
       end if;
 
-      File.Length  := File.Length + Data'Length;
+      Stream.Length  := Stream.Length + Data'Length;
    end Append;
 
    -----------
    -- Close --
    -----------
 
-   procedure Close (File : in out Stream_Type) is
+   procedure Close (Stream : in out Stream_Type) is
       First  : Buffer_Access;
       Length : Element_Offset := 0;
    begin
-      while File.First /= null loop
-         First := File.First;
+      while Stream.First /= null loop
+         First := Stream.First;
 
          if First.Next = null then
-            Length := Length + File.Last_Length;
+            Length := Length + Stream.Last_Length;
          else
             Length := Length + First.Data'Length;
          end if;
 
-         File.First := First.Next;
+         Stream.First := First.Next;
          Free (First);
       end loop;
 
-      File.Current := null;
-      File.Last    := null;
+      Stream.Current := null;
+      Stream.Last    := null;
 
-      Reset (File);
+      Reset (Stream);
 
-      if File.Length /= Length then
+      if Stream.Length /= Length then
          raise Program_Error;
       end if;
 
-      File.Length := 0;
+      Stream.Length := 0;
    end Close;
 
    -----------------
    -- End_Of_File --
    -----------------
 
-   function End_Of_File (File : in Stream_Type) return Boolean is
+   function End_Of_File (Stream : in Stream_Type) return Boolean is
    begin
-      return File.Current = null
-        or else (File.Current.Next = null
-                   and then File.Current_Offset > File.Current.Data'Last);
+      return Stream.Current = null
+        or else (Stream.Current.Next = null
+                   and then Stream.Current_Offset > Stream.Current.Data'Last);
    end End_Of_File;
 
    ----------
@@ -194,7 +194,7 @@ package body Memory_Streams is
    ----------
 
    procedure Read
-     (File   : in out Stream_Type;
+     (Stream : in out Stream_Type;
       Buffer :    out Element_Array;
       Last   :    out Element_Offset)
    is
@@ -215,7 +215,7 @@ package body Memory_Streams is
          --  Buffer remain length minus 1
 
          Current_Len_1   : constant Element_Offset
-           := Data'Last - File.Current_Offset;
+           := Data'Last - Stream.Current_Offset;
          --  Data remain length minus 1
 
          Current_Last    : Element_Index;
@@ -226,49 +226,49 @@ package body Memory_Streams is
             Last := Buffer_Offset + Current_Len_1;
 
             Buffer (Buffer_Offset .. Last)
-              := Data (File.Current_Offset .. Data'Last);
+              := Data (Stream.Current_Offset .. Data'Last);
 
             Buffer_Offset := Last + 1;
 
-            File.Current_Offset := Data'Last + 1;
+            Stream.Current_Offset := Data'Last + 1;
 
          else
             Last := Buffer'Last;
 
-            Current_Last := File.Current_Offset + Buffer_Len_1;
+            Current_Last := Stream.Current_Offset + Buffer_Len_1;
 
             Buffer (Buffer_Offset .. Last)
-              := Data (File.Current_Offset .. Current_Last);
+              := Data (Stream.Current_Offset .. Current_Last);
 
-            File.Current_Offset := Current_Last + 1;
+            Stream.Current_Offset := Current_Last + 1;
          end if;
       end Append;
 
    begin
       Last := Buffer'First - 1;
 
-      if File.Current = null then
+      if Stream.Current = null then
          return;
       end if;
 
       loop
-         if File.Current.Next = null then
+         if Stream.Current.Next = null then
             --  Last block.
 
-            Append (File.Current.Data (1 .. File.Last_Length));
+            Append (Stream.Current.Data (1 .. Stream.Last_Length));
 
             if Block_Over then
-               File.Current := null;
+               Stream.Current := null;
                exit;
             end if;
 
          else
-            Append (File.Current.Data.all);
+            Append (Stream.Current.Data.all);
 
             if Block_Over then
-               File.Current := File.Current.Next;
+               Stream.Current := Stream.Current.Next;
 
-               File.Current_Offset := File.Current.Data'First;
+               Stream.Current_Offset := Stream.Current.Data'First;
             end if;
          end if;
 
@@ -280,19 +280,19 @@ package body Memory_Streams is
    -- Reset --
    -----------
 
-   procedure Reset (File : in out Stream_Type) is
+   procedure Reset (Stream : in out Stream_Type) is
    begin
-      File.Current        := File.First;
-      File.Current_Offset := 1;
+      Stream.Current        := Stream.First;
+      Stream.Current_Offset := 1;
    end Reset;
 
    ----------
    -- Size --
    ----------
 
-   function Size (File : in Stream_Type) return Element_Offset is
+   function Size (Stream : in Stream_Type) return Element_Offset is
    begin
-      return File.Length;
+      return Stream.Length;
    end Size;
 
 end Memory_Streams;

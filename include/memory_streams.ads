@@ -44,37 +44,37 @@ package Memory_Streams is
    subtype Element_Offset is Element_Index'Base range 0 .. Element_Index'Last;
 
    procedure Append
-     (File  : in out Stream_Type;
-      Value : in     Element_Array);
+     (Stream : in out Stream_Type;
+      Value  : in     Element_Array);
    --  Append the data to the resource.
 
    procedure Append
-     (File : in out Stream_Type;
-      Data : in     Element_Access);
+     (Stream : in out Stream_Type;
+      Data   : in     Element_Access);
    --  Append dynamically allocated data to the stream.
    --  Application could not use Data after send it to the stream,
    --  Stream would care about it, and free when necessary.
 
-   function Size (File : in Stream_Type) return Element_Offset;
+   function Size (Stream : in Stream_Type) return Element_Offset;
    --  Returns the size of the stream in bytes
 
-   procedure Reset (File : in out Stream_Type);
+   procedure Reset (Stream : in out Stream_Type);
    --  Set read index at the start of the stream.
 
-   function End_Of_File (File : in Stream_Type) return Boolean;
+   function End_Of_File (Stream : in Stream_Type) return Boolean;
    --  Returns true if there is no more data to read on the stream
 
    procedure Read
-     (File   : in out Stream_Type;
+     (Stream : in out Stream_Type;
       Buffer :    out Element_Array;
       Last   :    out Element_Offset);
    --  Read a chunk of data from File and put them into Buffer. Last is the
    --  index of the last item returned in Buffer.
 
-   procedure Close (File : in out Stream_Type);
+   procedure Close (Stream : in out Stream_Type);
    --  Close File.
 
-   procedure Clear (File : in out Stream_Type) renames Close;
+   procedure Clear (Stream : in out Stream_Type) renames Close;
 
 private
 
