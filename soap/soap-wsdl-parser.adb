@@ -1007,10 +1007,7 @@ package body SOAP.WSDL.Parser is
 
       N := Get_Node (Operation, "input");
 
-      if N = null then
-         Raise_Exception
-           (WSDL_Error'Identity, "No input parameters description found.");
-      else
+      if N /= null then
          O.Mode := Input;
          Get_Element (N);
       end if;
@@ -1019,10 +1016,7 @@ package body SOAP.WSDL.Parser is
 
       N := Get_Node (Operation, "output");
 
-      if N = null then
-         Raise_Exception
-           (WSDL_Error'Identity, "No output parameters description found.");
-      else
+      if N /= null then
          O.Mode := Output;
          Get_Element (N);
       end if;
