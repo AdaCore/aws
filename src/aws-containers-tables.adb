@@ -132,7 +132,7 @@ package body AWS.Containers.Tables is
       return Element is
    begin
       if N <= Natural (Data_Table.Length (Table.Data)) then
-         return Data_Table.Element (Table.Data, N).all;
+         return Data_Table.Element (Table.Data, N);
       else
          return Null_Element;
       end if;
