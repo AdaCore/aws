@@ -1,3 +1,18 @@
+2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
+
+	* ada2wsdl-parser.adb:
+	(Check_Float): New version based on ASIS entity. Checks for
+	 digits.
+	Minor reformatting.
+
+	* ada2wsdl.adb:
+	(Location): Return also the unit name enclosing the entity. The
+	 format is now <unit>:<line>:<column>.
+	(Raise_Spec_Error): Removes ada2wsdl output.
+
+	* ada2wsdl.ads:
+	(Location): Remove pragma Inline.
+
 2003-11-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
