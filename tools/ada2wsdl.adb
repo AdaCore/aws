@@ -31,7 +31,11 @@
 --  $Id$
 
 with Ada.Exceptions;
+with Ada.Strings.Fixed;
+with Ada.Characters.Handling;
 
+with Asis.Elements;
+with Asis.Declarations;
 with Asis.Text;
 
 with AWS.Utils;
@@ -47,9 +51,31 @@ package body Ada2WSDL is
    --------------
 
    function Location (E : in Asis.Element) return String is
-      E_Span : constant Text.Span := Text.Element_Span (E);
+
+      function Image (Str : in Wide_String) return String;
+      --  Return Str as a lower-case and trimmed string
+
+      -----------
+      -- Image --
+      -----------
+
+      function Image (Str : in Wide_String) return String is
+      begin
+         return Characters.Handling.To_Lower
+           (Strings.Fixed.Trim
+             (Characters.Handling.To_String (Str), Strings.Both));
+      end Image;
+
+      E_Span    : constant Text.Span := Text.Element_Span (E);
+      Unit      : constant Asis.Declaration
+        := Elements.Unit_Declaration (Elements.Enclosing_Compilation_Unit (E));
+      --  Unit containing element E
+
+      Unit_Name : constant Asis.Element := Declarations.Names (Unit) (1);
+      --  Unit name
    begin
-      return Utils.Image (E_Span.First_Line)
+      return Image (Text.Element_Image (Unit_Name)) & ".ads:"
+        & Utils.Image (E_Span.First_Line)
         & ':' & Utils.Image (E_Span.First_Column);
    end Location;
 
@@ -62,8 +88,7 @@ package body Ada2WSDL is
       Message : in String) is
    begin
       Exceptions.Raise_Exception
-        (Spec_Error'Identity,
-         "ada2wsdl:" & Location (E) & ": " & Message);
+        (Spec_Error'Identity, Location (E) & ": " & Message);
    end Raise_Spec_Error;
 
 end Ada2WSDL;
