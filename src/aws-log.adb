@@ -181,13 +181,15 @@ package body AWS.Log is
    -- Write --
    -----------
 
+   --  Here is the log format compatible with Apache:
+   --
    --  127.0.0.1 - - [25/Apr/1998:15:37:29 +0200] "GET / HTTP/1.0" 200 1363
+
 
    procedure Write
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
-      Answer       : in     Response.Data)
-   is
+      Answer       : in     Response.Data) is
    begin
       Write (Log, Connect_Stat,
          Messages.Image (Response.Status_Code (Answer))
@@ -223,7 +225,7 @@ package body AWS.Log is
             & " - "
             & Status.Authorization_Name (Connect_Stat)
             & " - ["
-            & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y %T")
+            & GNAT.Calendar.Time_IO.Image (Now, "%d/%b/%Y:%T")
             & "] """
             & Status.Request_Method'Image (Status.Method (Connect_Stat))
             & ' '
