@@ -1,3 +1,9 @@
+2004-03-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-sets.adb:
+        (Wait): Remove not actual comments marked by ???.
+	(Reset): Set Set.Last to zero.
+
 2004-03-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-sets.adb:
