@@ -32,6 +32,6 @@
 
 package AWS.Client.XML is
 
-   pragma Pure;
+   --  Root package for client HTTP XML support
 
 end AWS.Client.XML;
