@@ -167,6 +167,25 @@ package body AWS.Messages is
       return Connection_Token & Mode;
    end Connection;
 
+   -------------------------
+   -- Content_Disposition --
+   -------------------------
+
+   function Content_Disposition
+     (Format   : in String;
+      Name     : in String;
+      Filename : in String)
+      return String is
+   begin
+      if Filename = "" then
+         return Content_Disposition_Token & Format
+           & "; name=""" & Name & '"';
+      else
+         return Content_Disposition_Token & Format
+           & "; name=""" & Name & """; filename=""" & Filename & '"';
+      end if;
+   end Content_Disposition;
+
    --------------------
    -- Content_Length --
    --------------------
@@ -183,7 +202,7 @@ package body AWS.Messages is
    function Content_Type
      (Format   : in String;
       Boundary : in String := "")
-     return String is
+      return String is
    begin
       if Boundary = "" then
          return Content_Type_Token & Format;
