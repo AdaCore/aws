@@ -139,8 +139,6 @@ package body AWS.Services.Transient_Pages is
            (Ada.Text_IO.Current_Error,
             "Transient_Pages cleaner error: "
             & Ada.Exceptions.Exception_Information (E));
-
-         raise;
    end Cleaner;
 
    --------------
