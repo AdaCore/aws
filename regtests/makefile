@@ -37,7 +37,7 @@ endif
 
 # SOAP regression tests
 RT_SOAP = soap1 soap2 soap3 workorder testxml test_speed test_soap \
-	$(RT_SOAP_SEC)
+	test_wsdl $(RT_SOAP_SEC)
 
 # Standard regression tests
 RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
@@ -84,6 +84,15 @@ dirop: force
 	./$@ | grep -v "CVS/" > $@.res
 	-diff -c -w $@.out $@.res >> alldifs
 
+test_wsdl: force
+	echo -n Building test_wsdl
+	../tools/wsdl2aws -q -f hello.wsdl
+	gnatmake -g test_wsdl $(GARGS) -largs $(LARGS) -bargs -E
+	echo ",  run it"
+	rm -f $@.res
+	./$@ > $@.res
+	-diff -c -w $@.out $@.res >> alldifs
+
 tres: force
 	echo -n Building tres
 	echo "line 1, file 1" > file1.html
@@ -117,9 +126,9 @@ tres: force
 	cat tres-1.res tres-2.res > tres.res
 	-diff -c -w tres.out tres.res >> alldifs
 
-# We change 2 values in aws-containers-tables.ads because it's implementation
+# We change 2 values in aws-containers-tables.ads because its implementation
 # is based on GNAT.Dynamic_Tables which uses a low-level realloc. This
-# construct is not correctly handled by gnatmem. As this checks is really
+# construct is not correctly handled by gnatmem. As this check is really
 # target dependent what we do is to run twice the same program, each time with
 # a different number of HTTP requests, then we compare the final non freed
 # memory.
@@ -147,4 +156,4 @@ clean:
 	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
-	-rm -f alldifs *.log run? check_mem.run?
+	-rm -f alldifs *.log run? check_mem.run? hello_demo*
