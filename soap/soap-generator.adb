@@ -38,9 +38,9 @@ with Ada.Strings.Fixed;
 with Ada.Text_IO;
 
 with GNAT.Calendar.Time_IO;
-with GNAT.OS_Lib;
 
 with AWS;
+with AWS.OS_Lib;
 with SOAP.Utils;
 with SOAP.WSDL.Parameters;
 
@@ -1113,7 +1113,7 @@ package body SOAP.Generator is
         (File     : in out Text_IO.File_Type;
          Filename : in     String) is
       begin
-         if GNAT.OS_Lib.Is_Readable_File (Filename) and then not O.Force then
+         if AWS.OS_Lib.Is_Regular_File (Filename) and then not O.Force then
             Raise_Exception
               (Generator_Error'Identity,
                "File " & Filename & " exists, activate overwrite mode.");
