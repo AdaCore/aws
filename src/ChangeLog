@@ -1,3 +1,13 @@
+2004-09-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.adb:
+	(Open_Send_Common_Header): Make tunnel only when need reconnect.
+	(Create): Do not connect to server. It would be done in
+	 Open_Send_Common_Header.
+
+	* aws-client.ads:
+	(HTTP_Connection): Remove Tunneling field.
+
 2004-09-28  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.adb:
