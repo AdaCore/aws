@@ -33,6 +33,7 @@
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 
+with AWS.Net.Log;
 with AWS.OS_Lib.Definitions;
 with AWS.Utils;
 
@@ -502,6 +503,13 @@ package body AWS.Net.Std is
             Message => "Receive : Socket closed by peer.");
       end if;
 
+      if Net.Log.Is_Active then
+         Net.Log.Write
+           (Direction => Net.Log.Received,
+            FD        => Get_FD (Socket),
+            Data      => Data,
+            Last      => Last);
+      end if;
    exception
       when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Receive");
@@ -542,6 +550,14 @@ package body AWS.Net.Std is
       end if;
 
       Last := Data'First - 1 + Stream_Element_Offset (RC);
+
+      if Net.Log.Is_Active then
+         Net.Log.Write
+           (Direction => Net.Log.Sent,
+            FD        => Get_FD (Socket),
+            Data      => Data,
+            Last      => Last);
+      end if;
    end Send;
 
    ---------------------------
