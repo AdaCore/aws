@@ -1,5 +1,12 @@
 2004-09-25  Pascal Obry  <pascal@obry.org>
 
+	* aws-server-protocol_handler.adb:
+	(File_Upload): Register uploaded files as attachments this ensures
+	 that all files will be removed by the server.
+	(Store_Attachments): Rename Content_ID to Content_Id.
+	
+2004-09-25  Pascal Obry  <pascal@obry.org>
+
 	* aws-net.ads, aws-net-generic_sets.ads:
 	Minor reformatting.
 

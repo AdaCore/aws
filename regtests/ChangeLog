@@ -1,5 +1,11 @@
 2004-09-25  Pascal Obry  <pascal@obry.org>
 
+	* upload5.adb:
+	(CB): Do not delete the files (this is done by the server now) but
+	 rename the first one.
+
+2004-09-25  Pascal Obry  <pascal@obry.org>
+
 	* sslcfg.out:
 	Update output.
 
