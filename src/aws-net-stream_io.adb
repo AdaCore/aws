@@ -32,60 +32,9 @@
 
 with Ada.Unchecked_Deallocation;
 
+with AWS.Net.Buffered;
+
 package body AWS.Net.Stream_IO is
-
-   -----------------
-   -- Write_Cache --
-   -----------------
-
-   protected body Write_Cache is
-
-      -----------
-      -- Flush --
-      -----------
-
-      procedure Flush is
-      begin
-         if Last /= 0 then
-            Sockets.Send (Socket.all, Buffer (1 .. Last));
-            Last := 0;
-         end if;
-      exception
-         when others =>
-            Last := 0;
-            raise;
-      end Flush;
-
-      ----------------
-      -- Initialize --
-      ----------------
-
-      procedure Initialize (Socket : in Socket_Access) is
-      begin
-         Write_Cache.Socket := Initialize.Socket;
-      end Initialize;
-
-      -----------
-      -- Write --
-      -----------
-
-      procedure Write (Item : in Stream_Element_Array) is
-      begin
-         if Last + Item'Length > Cache_Size then
-            Sockets.Send (Socket.all, Buffer (1 .. Last) & Item);
-            Last := 0;
-         else
-            Buffer (Last + 1 .. Last + Item'Length) := Item;
-            Last := Last + Item'Length;
-         end if;
-
-      exception
-         when others =>
-            Last := 0;
-            raise;
-      end Write;
-
-   end Write_Cache;
 
    -----------
    -- Flush --
@@ -93,7 +42,7 @@ package body AWS.Net.Stream_IO is
 
    procedure Flush (Stream : in Socket_Stream_Access) is
    begin
-      Stream.Cache.Flush;
+      Buffered.Flush (Stream.Socket.all);
    end Flush;
 
    ----------
@@ -106,7 +55,7 @@ package body AWS.Net.Stream_IO is
         (Socket_Stream_Type, Socket_Stream_Access);
 
       procedure Free is new Ada.Unchecked_Deallocation
-        (Socket_Type, Socket_Access);
+        (Socket_Type'Class, Socket_Access);
 
    begin
       AWS.Net.Free (Stream.Socket.all);
@@ -123,8 +72,7 @@ package body AWS.Net.Stream_IO is
       Item   :    out Ada.Streams.Stream_Element_Array;
       Last   :    out Ada.Streams.Stream_Element_Offset) is
    begin
-      Stream.Cache.Flush;
-      Sockets.Receive (Stream.Socket.all, Item);
+      Buffered.Read (Stream.Socket.all, Item);
       Last := Item'Last;
    end Read;
 
@@ -134,8 +82,8 @@ package body AWS.Net.Stream_IO is
 
    procedure Shutdown (Stream : in Socket_Stream_Access) is
    begin
-      Flush (Stream);
-      Sockets.Shutdown (Stream.Socket.all);
+      Buffered.Flush (Stream.Socket.all);
+      Net.Shutdown (Stream.Socket.all);
    end Shutdown;
 
    ------------
@@ -143,13 +91,12 @@ package body AWS.Net.Stream_IO is
    ------------
 
    function Stream
-     (FD     : in Socket_Type)
-     return Socket_Stream_Access
+     (Socket : in Socket_Type'Class)
+      return Socket_Stream_Access
    is
       Result : Socket_Stream_Access := new Socket_Stream_Type;
    begin
-      Result.Socket := new Socket_Type'(FD);
-      Result.Cache.Initialize (Result.Socket);
+      Assign (Result.Socket.all, Socket);
       return Result;
    end Stream;
 
@@ -161,7 +108,7 @@ package body AWS.Net.Stream_IO is
      (Stream : in out Socket_Stream_Type;
       Item   : in     Stream_Element_Array) is
    begin
-      Stream.Cache.Write (Item);
+      Buffered.Write (Stream.Socket.all, Item);
    end Write;
 
 end AWS.Net.Stream_IO;

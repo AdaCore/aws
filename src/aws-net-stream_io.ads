@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -38,11 +38,9 @@ package AWS.Net.Stream_IO is
 
    type Socket_Stream_Access is access Socket_Stream_Type;
 
-   subtype Socket_Type is Sockets.Socket_FD'Class;
-
    function Stream
-     (FD : in Socket_Type)
-     return Socket_Stream_Access;
+     (Socket : in Socket_Type'Class)
+      return Socket_Stream_Access;
    --  Build a Stream Socket type.
 
    procedure Shutdown (Stream : in Socket_Stream_Access);
@@ -71,33 +69,8 @@ private
 
    use Ada.Streams;
 
-   type Socket_Access is access all Socket_Type;
-
-   --  This object is to cache data writed to the stream. It is more efficient
-   --  than to write byte by byte on the stream.
-
-   Cache_Size : constant := 256;
-
-   protected type Write_Cache is
-
-      procedure Flush;
-      --  Send all data in the cache to the peer.
-
-      procedure Initialize (Socket : in Socket_Access);
-      --  Initialize must be called before using the cache.
-
-      procedure Write (Item : in Stream_Element_Array);
-      --  Write data into the cache. Eventually Flush the cache if needed.
-
-   private
-      Socket : Socket_Access := null;
-      Buffer : Stream_Element_Array (1 .. Cache_Size);
-      Last   : Stream_Element_Offset := 0;
-   end Write_Cache;
-
    type Socket_Stream_Type is new Ada.Streams.Root_Stream_Type with record
       Socket : Socket_Access := null;
-      Cache  : Write_Cache;
    end record;
 
 end AWS.Net.Stream_IO;
