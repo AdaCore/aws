@@ -1,7 +1,28 @@
-2004-01-29  Pascal Obry  <pascal.obry@edf.fr>
+2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* readme.txt:
+	Document clearly the licenses used by each component. (sha is still
+	 missing and will be documented later, this component is optional
+	 in the AWS-HTTP distribution).
+
+2004-01-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* strings_cutter.ads:
+	Use GMGPL license.
+        Reformat code.
+	Document API.
+
+	* strings_cutter.adb:
+	Use GMGPL license.
+        Reformat code.
 
 	* makefile:
 	Minor reformatting.
+
+2004-01-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* md5.ads, md5.adb:
+	New version based on GNAT.MD5.
 
 2004-01-27  Pascal Obry  <p.obry@wanadoo.fr>
 
@@ -30,7 +51,7 @@
 	* templates_parser-print_tree.adb:
 	Moved to the src directory.
 
-	* templates_parser-query.ads, templates_parser-query.ads: 
+	* templates_parser-query.ads, templates_parser-query.adb:
 	Moved to the src directory.
 
 	* templates_parser.ads, templates_parser.ads:
