@@ -45,6 +45,7 @@ package body AWS.Digest is
    Private_Key : MD5.Context;
 
    Nonce_Expiration : constant Duration := 300.0;
+   --  Expiration expressed in seconds
 
    subtype Byte_Array_Of_Integer
       is MD5.Byte_Array (1 .. Integer'Size / MD5.Byte_Array'Component_Size);
