@@ -1,3 +1,20 @@
+2004-11-15  Pascal Obry  <pascal@obry.org>
+
+	Update to new version of Templates_Parser.
+	
+	* templates_parser-filter.adb:
+	(File_Exists_Token): New constant.
+	(Table): Add File_Exists filter.
+	(File_Exists): New filter.
+
+	* templates_parser.adb:
+	(Mode): Add File_Exists filter.
+	(File_Exists): New filter.
+	(Field): If Up_Level reference the top level (or above) we inline
+	 the variable.
+	(Parse): Properly detect the case where TERMINATE_SECTIONS
+	 attribute is used but no section is defined.
+
 2004-11-14  Pascal Obry  <pascal@obry.org>
 
 	* aws-services-web_mail.adb:
