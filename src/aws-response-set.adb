@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                            Copyright (C) 2002                            --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,10 +40,9 @@ package body AWS.Response.Set is
 
    procedure Authentication
      (D     : in out Data;
-      Realm : in String;
-      Mode  : in Authentication_Mode := Basic;
-      Stale : in Boolean             := False)
-   is
+      Realm : in     String;
+      Mode  : in     Authentication_Mode := Basic;
+      Stale : in     Boolean             := False) is
    begin
       D.Realm          := To_Unbounded_String (Realm);
       D.Authentication := Mode;
@@ -57,8 +56,7 @@ package body AWS.Response.Set is
 
    procedure Content_Type
      (D     : in out Data;
-      Value : in     String)
-   is
+      Value : in     String) is
    begin
       D.Content_Type := To_Unbounded_String (Value);
    end Content_Type;
@@ -69,8 +67,7 @@ package body AWS.Response.Set is
 
    procedure Filename
      (D     : in out Data;
-      Value : in     String)
-   is
+      Value : in     String) is
    begin
       D.Filename       := To_Unbounded_String (Value);
       D.Mode           := File;
@@ -86,19 +83,23 @@ package body AWS.Response.Set is
       Redirection_Code : Boolean;
    begin
       case D.Status_Code is
-      when
-         Messages.S300 | -- Section 10.3.1: Multiple Choices
-         Messages.S301 | -- Section 10.3.2: Moved Permanently
-         Messages.S302 | -- Section 10.3.3: Found
-         Messages.S303 | -- Section 10.3.4: See Other
-         Messages.S305 | -- Section 10.3.6: Use Proxy
-         Messages.S307   -- Section 10.3.8: Temporary Redirect
-                  => Redirection_Code := True;
-      when others => Redirection_Code := False;
+         when
+           Messages.S300 | -- Section 10.3.1: Multiple Choices
+           Messages.S301 | -- Section 10.3.2: Moved Permanently
+           Messages.S302 | -- Section 10.3.3: Found
+           Messages.S303 | -- Section 10.3.4: See Other
+           Messages.S305 | -- Section 10.3.6: Use Proxy
+           Messages.S307   -- Section 10.3.8: Temporary Redirect
+           =>
+            Redirection_Code := True;
+
+         when others =>
+            Redirection_Code := False;
       end case;
+
       return (Redirection_Code xor D.Location = Null_Unbounded_String)
-         and (D.Status_Code = Messages.S401
-                 xor D.Realm = Null_Unbounded_String);
+        and then (D.Status_Code = Messages.S401
+                    xor D.Realm = Null_Unbounded_String);
    end Is_Valid;
 
    --------------
@@ -107,8 +108,7 @@ package body AWS.Response.Set is
 
    procedure Location
      (D     : in out Data;
-      Value : in     String)
-   is
+      Value : in     String) is
    begin
       D.Location := To_Unbounded_String (Value);
    end Location;
@@ -119,9 +119,9 @@ package body AWS.Response.Set is
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     Streams.Stream_Element_Array)
-   is
+      Value : in     Streams.Stream_Element_Array) is
    begin
+      Free (D.Message_Body);
       D.Message_Body   := new Streams.Stream_Element_Array'(Value);
       D.Content_Length := Value'Length;
       D.Mode           := Message;
@@ -129,16 +129,14 @@ package body AWS.Response.Set is
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     String)
-   is
+      Value : in     String) is
    begin
       Message_Body (D, Translator.To_Stream_Element_Array (Value));
    end Message_Body;
 
    procedure Message_Body
      (D     : in out Data;
-      Value : in     Strings.Unbounded.Unbounded_String)
-   is
+      Value : in     Strings.Unbounded.Unbounded_String) is
    begin
       Message_Body (D, To_String (Value));
    end Message_Body;
@@ -149,8 +147,7 @@ package body AWS.Response.Set is
 
    procedure Mode
      (D     : in out Data;
-      Value : in     Data_Mode)
-   is
+      Value : in     Data_Mode) is
    begin
       D.Mode := Value;
    end Mode;
@@ -161,8 +158,7 @@ package body AWS.Response.Set is
 
    procedure Status_Code
      (D     : in out Data;
-      Value : in     Messages.Status_Code)
-   is
+      Value : in     Messages.Status_Code) is
    begin
       D.Status_Code := Value;
    end Status_Code;
@@ -174,8 +170,7 @@ package body AWS.Response.Set is
    procedure Stream
      (D              : in out Data;
       Handle         : in     Resources.Streams.Stream_Access;
-      Content_Length : in     Content_Length_Type)
-   is
+      Content_Length : in     Content_Length_Type) is
    begin
       D.Stream         := Handle;
       D.Content_Length := Content_Length;
@@ -183,4 +178,3 @@ package body AWS.Response.Set is
    end Stream;
 
 end AWS.Response.Set;
-
