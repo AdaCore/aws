@@ -55,6 +55,8 @@ procedure WSDL2AWS is
    Def : SOAP.WSDL.Object;
 
    Filename : Unbounded_String;
+   Proxy    : Unbounded_String;
+   Pu, Pp   : Unbounded_String;
 
    WSDL_Des : Boolean := False;
 
@@ -67,7 +69,9 @@ procedure WSDL2AWS is
    procedure Parse_Command_Line is
    begin
       loop
-         case Command_Line.Getopt ("q a f v rpc wsdl cvs nostub noskel") is
+         case Command_Line.Getopt
+           ("q a f v proxy: pu: pp: rpc wsdl cvs nostub noskel")
+         is
             when ASCII.NUL => exit;
 
             when 'q' =>
@@ -115,6 +119,20 @@ procedure WSDL2AWS is
                   raise Syntax_Error;
                end if;
 
+            when 'p' =>
+               if Command_Line.Full_Switch = "proxy" then
+                  Proxy := To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+               elsif Command_Line.Full_Switch = "pu" then
+                  Pu := To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+               elsif Command_Line.Full_Switch = "pp" then
+                  Pp := To_Unbounded_String (GNAT.Command_Line.Parameter);
+
+               else
+                  raise Syntax_Error;
+               end if;
+
             when others =>
                raise Program_Error;
          end case;
@@ -130,6 +148,25 @@ procedure WSDL2AWS is
 begin
    Parse_Command_Line;
 
+   if Proxy = Null_Unbounded_String
+     and then Pu = Null_Unbounded_String
+     and then Pp = Null_Unbounded_String
+   then
+      null;
+
+   elsif Proxy /= Null_Unbounded_String
+     and then Pu /= Null_Unbounded_String
+     and then Pp /= Null_Unbounded_String
+   then
+      SOAP.Generator.Set_Proxy
+        (Gen, To_String (Proxy), To_String (Pu), To_String (Pp));
+
+   else
+      Raise_Exception
+        (Constraint_Error'Identity,
+         "You must set all values for Proxy, Pu and Pp.");
+   end if;
+
    if Filename = Null_Unbounded_String then
       raise Syntax_Error;
    else
@@ -144,16 +181,19 @@ exception
       Text_IO.Put_Line ("wsdl2aws SOAP Generator v" & SOAP.Generator.Version);
       Text_IO.New_Line;
       Text_IO.Put_Line ("Usage: wsdl2aws [options] <file>");
-      Text_IO.Put_Line ("   -q       Quiet mode");
-      Text_IO.Put_Line ("   -a       Ada style identifier");
-      Text_IO.Put_Line ("   -f       Force stub/skeleton generation");
-      Text_IO.Put_Line ("   -rpc     Accept RPC style binding");
-      Text_IO.Put_Line ("   -v       Verbose mode");
-      Text_IO.Put_Line ("   -v -v    Very verbose mode");
-      Text_IO.Put_Line ("   -wsdl    Add WSDL file in unit comment");
-      Text_IO.Put_Line ("   -cvs     Add CVS tag in unit's headers");
-      Text_IO.Put_Line ("   -nostub  Do not create stub units");
-      Text_IO.Put_Line ("   -noskel  Do not create skeleton units");
+      Text_IO.Put_Line ("   -q        Quiet mode");
+      Text_IO.Put_Line ("   -a        Ada style identifier");
+      Text_IO.Put_Line ("   -f        Force stub/skeleton generation");
+      Text_IO.Put_Line ("   -rpc      Accept RPC style binding");
+      Text_IO.Put_Line ("   -v        Verbose mode");
+      Text_IO.Put_Line ("   -v -v     Very verbose mode");
+      Text_IO.Put_Line ("   -wsdl     Add WSDL file in unit comment");
+      Text_IO.Put_Line ("   -cvs      Add CVS tag in unit's headers");
+      Text_IO.Put_Line ("   -nostub   Do not create stub units");
+      Text_IO.Put_Line ("   -noskel   Do not create skeleton units");
+      Text_IO.Put_Line ("   -proxy n  Name or IP of the proxy");
+      Text_IO.Put_Line ("   -pu n     The proxy user name");
+      Text_IO.Put_Line ("   -pp n     The proxy password");
       Text_IO.New_Line;
 
    when E : others =>
