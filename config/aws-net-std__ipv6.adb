@@ -454,7 +454,10 @@ package body AWS.Net.Std is
             & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B3))
             & '.' & Utils.Image (Integer (Sin.Sin_Addr.S_B4));
 
-      elsif Sin6.Family = OSD.PF_INET6 then
+      elsif Sin6.Family = OSD.PF_INET6
+        or else Sin6.Family = OSD.PF_INET6 * 256 + OSD.PF_INET6
+      --  ??? looks like FreeBSD 4.10 error in ipv6 address structure result.
+      then
          declare
             Result : String (1 .. 8 * 5);
             Index  : Positive := Result'First;

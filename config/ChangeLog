@@ -1,5 +1,10 @@
 2004-11-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-net-std__ipv6.adb:
+	(Peer_Addr): Workaround bug in FreeBSD 4.10 family field result.
+
+2004-11-18  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* src/check_config.c:
 	(AF_INET): New constant.
 	(AF_INET6): New constant.
