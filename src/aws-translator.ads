@@ -33,7 +33,13 @@
 with Ada.Streams;
 with Ada.Strings.Unbounded;
 
+with AWS.Utils;
+
 package AWS.Translator is
+
+   ------------
+   -- Base64 --
+   ------------
 
    function Base64_Encode
      (Data : in Ada.Streams.Stream_Element_Array)
@@ -48,10 +54,18 @@ package AWS.Translator is
       return Ada.Streams.Stream_Element_Array;
    --  Decode B64_Data using the base64 algorithm
 
+   --------
+   -- QP --
+   --------
+
    function QP_Decode
      (QP_Data : in String)
       return String;
    --  Decode QP_Data using the Quoted Printable algorithm
+
+   ------------------------------------
+   -- String to Stream_Element_Array --
+   ------------------------------------
 
    function To_String
      (Data : in Ada.Streams.Stream_Element_Array)
@@ -61,15 +75,36 @@ package AWS.Translator is
    --  returns a String it should not be used with large array as this could
    --  break the stack size limit. Use the routine below for large array.
 
-   function To_Unbounded_String
-     (Data : in Ada.Streams.Stream_Element_Array)
-      return Ada.Strings.Unbounded.Unbounded_String;
-   --  Convert a Stream_Element_Array to an Unbounded_String.
-
    function To_Stream_Element_Array
      (Data : in String)
       return Ada.Streams.Stream_Element_Array;
    pragma Inline (To_Stream_Element_Array);
    --  Convert a String to a Stream_Element_Array.
+
+   function To_Unbounded_String
+     (Data : in Ada.Streams.Stream_Element_Array)
+      return Ada.Strings.Unbounded.Unbounded_String;
+   --  Convert a Stream_Element_Array to an Unbounded_String.
+
+   --------------------------
+   --  Compress/Decompress --
+   --------------------------
+
+   type Compression_Level is new Integer range -1 .. 9;
+
+   Default_Compression : constant Compression_Level := -1;
+
+   function Compress
+     (Data  : access Ada.Streams.Stream_Element_Array;
+      Level : in     Compression_Level                := -1)
+      return Utils.Stream_Element_Array_Access;
+   --  Returns Data compressed with a standard deflate algorithm based on the
+   --  zlib library. The results is dynamically allocated and must be
+   --  explicitly freed.
+
+   function Decompress (Data : access Ada.Streams.Stream_Element_Array)
+     return Utils.Stream_Element_Array_Access;
+   --  Returns Data decompressed based on the zlib library. The results is
+   --  dynamically allocated and must be explicitly freed.
 
 end AWS.Translator;
