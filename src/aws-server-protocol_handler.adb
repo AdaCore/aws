@@ -1264,7 +1264,7 @@ is
 
          Net.Buffered.New_Line (Sock);
 
-         if Method /= Status.HEAD then
+         if Method /= Status.HEAD and then Length /= 0 then
             Length := 0;
             Send_File;
          end if;
