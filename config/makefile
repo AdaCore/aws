@@ -13,7 +13,7 @@ setup: ../src/aws-translator-conversion.adb
 
 ../src/aws-translator-conversion.adb:
 	echo Setup conversion support
-	$(GNATMAKE) -q src/test_uconv
+	$(GNATMAKE_FOR_HOST) -q src/test_uconv
 	./test_uconv
 	-$(RM) test_uconv$(EXEEXT) test_uconv.o test_uconv.ali
 	$(MV) aws-translator-conversion.adb ../src
