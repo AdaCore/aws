@@ -67,6 +67,7 @@ package body Templates_Parser is
    Filter_Capitalize_Token   : aliased constant String := "CAPITALIZE";
    Filter_Reverse_Token      : aliased constant String := "REVERSE";
    Filter_Repeat_Token       : aliased constant String := "REPEAT";
+   Filter_Size_Token         : aliased constant String := "SIZE";
    Filter_Clean_Text_Token   : aliased constant String := "CLEAN_TEXT";
    Filter_Contract_Token     : aliased constant String := "CONTRACT";
    Filter_No_Space_Token     : aliased constant String := "NO_SPACE";
@@ -147,6 +148,9 @@ package body Templates_Parser is
       Repeat,
       --  Returns N copy of the original string. The number of copy is passed
       --  as parameter.
+
+      Size,
+      --  Returns the number of characters in the string value.
 
       Trim,
       --  Trim leading and trailing space.
@@ -254,10 +258,13 @@ package body Templates_Parser is
    function Point_2_Coma_Filter
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
+   function Repeat_Filter
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
+
    function Reverse_Filter
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
-   function Repeat_Filter
+   function Size_Filter
      (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Trim_Filter
@@ -1413,6 +1420,24 @@ package body Templates_Parser is
    end Reverse_Filter;
 
    -----------------
+   -- Size_Filter --
+   -----------------
+
+   function Size_Filter
+     (S : in String;
+      P : in Parameter_Data := No_Parameter)
+     return String is
+   begin
+      Check_Null_Parameter (P);
+
+      declare
+         R : constant String := Integer'Image (S'Length);
+      begin
+         return R (R'First + 1 .. R'Last);
+      end;
+   end Size_Filter;
+
+   -----------------
    -- Trim_Filter --
    -----------------
 
@@ -1470,6 +1495,10 @@ package body Templates_Parser is
             when '<' =>
                Result (Last .. Last + 3) := "&lt;";
                Last := Last + 3;
+
+            when '"' =>
+               Result (Last .. Last + 5) := "&quot;";
+               Last := Last + 5;
 
             when others =>
                Result (Last) := S (I);
@@ -1592,6 +1621,9 @@ package body Templates_Parser is
 
          Repeat         =>
            (Filter_Repeat_Token'Access,         Repeat_Filter'Access),
+
+         Size           =>
+           (Filter_Size_Token'Access,           Size_Filter'Access),
 
          Trim           =>
            (Filter_Trim_Token'Access,           Trim_Filter'Access),
