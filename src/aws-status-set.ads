@@ -105,10 +105,21 @@ package AWS.Status.Set is
    --  file is sent to the server.
 
    procedure Socket
-     (D     : in out Data;
-      Value : in     Socket_Access);
+     (D    : in out Data;
+      Sock : in     Socket_Access);
    --  Set the Socket for the status. User callback can then retreive the
    --  Socket for whatever it want. For example for passing it to the 'push'
    --  server.
+
+   procedure SOAPAction
+     (D          : in out Data;
+      SOAPAction : in     String);
+   --  Set value for "SOAPAction:" parameter. This is a standard header to
+   --  support SOAP over HTTP protocol.
+
+   procedure Payload
+     (D       : in out Data;
+      Payload : in     String);
+   --  Set the XML Payload message.
 
 end AWS.Status.Set;
