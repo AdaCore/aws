@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimokv - Pascal Obry                                --
@@ -65,7 +65,10 @@ procedure Upload is
       P_List : constant Parameters.List := Status.Parameters (Request);
    begin
       if URI = "/upload" then
-         Put_Line ("Filename = " & Parameters.Get (P_List, "filename"));
+         Put_Line ("Client Filename = "
+                     & Parameters.Get (P_List, "filename", 2));
+         Put_Line ("Server Filename = "
+                     & Parameters.Get (P_List, "filename"));
 
          return Response.Build (MIME.Text_HTML, "call ok");
 
