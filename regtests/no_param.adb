@@ -18,8 +18,6 @@ procedure No_Param is
    pragma warnings (On);
 
 begin
-   Parameters.Set.Reset (Empty);
-
    Put_Line ("Count      " & Natural'Image (Parameters.Count (Empty)));
    Put_Line ("Count-2    " & Natural'Image (Parameters.Count (Empty, "a")));
    Put_Line ("Name_Count " & Natural'Image (Parameters.Name_Count (Empty)));
