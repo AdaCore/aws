@@ -5,6 +5,7 @@
 
 	* soap-client.adb:
 	(Call): Use streaming XML parsing.
+	 Close HTTP connection on exception.
 
 	* soap-message-xml.ads, soap-message-xml.adb:
 	(Load_Response): New routine for streaming XML parsing just from HTTP
