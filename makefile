@@ -8,66 +8,18 @@
 
 include makefile.conf
 
-INCLUDES = $(EXTRA_INCLUDES)
-LIBS     = $(EXTRA_LIBS)
-
-ifdef ADASOCKETS
-INCLUDES := -I$(ADASOCKETS)/lib/adasockets $(INCLUDES)
-LIBS     := -L$(ADASOCKETS)/lib -ladasockets $(LIBS)
-endif
-
-ifdef XMLADA
-INCLUDES := -I$(XMLADA)/include/xmlada -I$(XMLADA)/lib $(INCLUDES)
-LIB_DOM  = -lxmlada_dom
-LIB_UNIC = -lxmlada_unicode
-LIB_SAX  = -lxmlada_sax
-LIB_IS   = -lxmlada_input_sources
-LIBS	 := -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX) $(LIBS)
-endif
-
-ifdef POSIX
-INCLUDES := $(INCLUDES) -I$(POSIX)
-endif
-
-ifdef ASIS
-INCLUDES := $(INCLUDES) -I$(ASIS)
-LIBS	 := $(LIBS) -L$(ASIS) -lasis
-endif
-
 ifeq (${OS}, Windows_NT)
 EXEEXT = .exe
 else
 EXEEXT =
 endif
 
-ifeq (${GNAT_VERSION}, 3.15)
-# On GNAT 3.15 pragma Obsolescent and -gnatwjmv options are not supported,
-# so we do not use this option and furtheremore we do not treat warnings as
-# errors.
-STYLE_FLAGS     = -gnatwcfipru -gnaty3abcefhiklmnoprst
-else
-# This is not GNAT 3.15, let's hope it is a version above
-STYLE_FLAGS	= -gnatwcfijmpruv -gnatwe -gnaty3abcefhiklmnoprst
-# -gnatwk (constant) should be added but in GNAT 3.16a it reports problems on
-# withed packages.
-endif
-
-# compiler
-RELEASE_GFLAGS	= -q -O2 -gnatn
-DEBUG_GFLAGS	= -g -m -gnata
-
-# linker
-RELEASE_LFLAGS	= -s
-DEBUG_LFLAGS	=
-
 ifdef DEBUG
-GFLAGS		= $(DEBUG_GFLAGS) $(STYLE_FLAGS)
-LFLAGS		= $(DEBUG_LFLAGS)
 MAKE_OPT	=
+BDIR		= ./.build/debug
 else
-GFLAGS		= $(RELEASE_GFLAGS) $(STYLE_FLAGS)
-LFLAGS		= $(RELEASE_LFLAGS)
 MAKE_OPT	= -s
+BDIR		= ./.build/release
 endif
 
 #############################################################################
@@ -106,8 +58,7 @@ all:
 
 EXTRA_TESTS = 1
 
-ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" \
-	LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" \
+ALL_OPTIONS	= $(MAKE_OPT) MODE="$(MODE)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" \
 	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
@@ -116,26 +67,6 @@ ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" \
 	GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)" ADASOCKETS="$(ADASOCKETS)" \
 	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" \
 	GCC_FOR_HOST="$(GCC_FOR_HOST)"
-
-build_stdlib: build_ssllib build_include build_aws build_win32
-
-ifdef XMLADA
-build_soap_internal: build_soaplib
-else
-build_soap_internal:
-endif
-
-build: build_stdlib build_soap_internal build_lib build_demos
-
-build_lib: build_scripts build_stdlib build_soap_internal
-	$(AR) cr lib/libaws.a src/*.o
-	$(AR) cr lib/libaws.a ssl/*.o
-ifdef XMLADA
-	-$(AR) cr lib/libaws.a soap/*.o
-endif
-ifeq (${OS}, Windows_NT)
-	-$(AR) cr lib/libaws.a win32/*.o
-endif
 
 build_scripts:
 	echo ""
@@ -162,33 +93,6 @@ build_scripts:
 	echo "set ADA_OBJECTS_PATH=%ADA_OBJECTS_PATH%;"$(INSTALL)/AWS/include >> set-aws.cmd
 	echo "set PATH=%PATH%;"$(INSTALL)/AWS/tools  >> set-aws.cmd
 
-build_aws:
-	echo ""
-	echo "=== Build AWS library"
-	${MAKE} -C src build $(ALL_OPTIONS)
-
-build_tools:
-	echo ""
-	echo "=== Build tools"
-	${MAKE} -C tools build $(ALL_OPTIONS)
-
-build_demos: build_stdlib build_tools
-	echo ""
-	echo "=== Build demos"
-	${MAKE} -C demos build $(ALL_OPTIONS)
-
-build_ssllib:
-	echo ""
-	echo "=== Build SSL support"
-	${MAKE} -C ssl build $(ALL_OPTIONS)
-
-build_soaplib: build_include build_stdlib
-	echo ""
-	echo "=== Build SOAP library"
-	${MAKE} -C soap build $(ALL_OPTIONS)
-
-build_soap: build_soaplib
-
 gnatsockets:
 	${MAKE} -C src gnatsockets $(ALL_OPTIONS)
 
@@ -209,42 +113,15 @@ build_doc:
 	echo "=== Build doc"
 	${MAKE} -C docs build $(ALL_OPTIONS)
 
-build_include:
-	echo ""
-	echo "=== Build components"
-	${MAKE} -C include build $(ALL_OPTIONS)
-
-build_win32:
-	echo ""
-	echo "=== Build win32 specific packages"
-	${MAKE} -C win32 build $(ALL_OPTIONS)
-
 build_apiref:
 	echo ""
 	echo "=== Build API References"
 	${MAKE} -s -C docs apiref $(ALL_OPTIONS)
 
-run_regtests: build_tools
+run_regtests:
 	echo ""
 	echo "=== Run regression tests"
 	${MAKE} -C regtests run $(ALL_OPTIONS) GDB_REGTESTS="$(GDB_REGTESTS)"
-
-clean: clean_noapiref
-	${MAKE} -C docs clean_apiref $(ALL_OPTIONS)
-	${MAKE} -C lib clean $(ALL_OPTIONS)
-
-clean_noapiref:
-	${MAKE} -C include clean $(ALL_OPTIONS)
-	${MAKE} -C config clean $(ALL_OPTIONS)
-	${MAKE} -C src clean $(ALL_OPTIONS)
-	${MAKE} -C demos clean $(ALL_OPTIONS)
-	${MAKE} -C ssl clean $(ALL_OPTIONS)
-	${MAKE} -C docs clean $(ALL_OPTIONS)
-	${MAKE} -C soap clean $(ALL_OPTIONS)
-	${MAKE} -C regtests clean $(ALL_OPTIONS)
-	${MAKE} -C win32 clean $(ALL_OPTIONS)
-	${MAKE} -C tools clean $(ALL_OPTIONS)
-	-rm -f *.~*.*~ set-aws.*
 
 display:
 	echo ""
@@ -356,12 +233,11 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/components
 	$(MKDIR) $(INSTALL)/AWS/tools
 	$(CP) -p src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
-	-$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
-	$(CP) -p src/[at]*.ali $(INSTALL)/AWS/lib
-	-$(CP) -p ssl/*.ali $(INSTALL)/AWS/lib
-	-$(CP) -p soap/*.ali $(INSTALL)/AWS/lib
-	$(CP) lib/libaws.a $(INSTALL)/AWS/lib
-	$(CP) lib/libnosslaws.a $(INSTALL)/AWS/lib
+	$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
+	$(CP) -p $(BDIR)/lib/* $(INSTALL)/AWS/lib
+	$(CP) -p $(BDIR)/obj/* $(INSTALL)/AWS/obj
+	-$(CP) -p $(BDIR)/ssl/lib/* $(INSTALL)/AWS/lib
+	-$(CP) -p $(BDIR)/ssl/obj/* $(INSTALL)/AWS/obj
 	$(CP) lib/libz.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
 	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
@@ -373,11 +249,12 @@ install: force
 	$(CP) icons/*.gif $(INSTALL)/AWS/icons
 	$(CP) demos/aws_*.png $(INSTALL)/AWS/images
 	-$(CP) -p include/*.ad? $(INSTALL)/AWS/components
-	-$(CP) -p include/*.o include/*.ali $(INSTALL)/AWS/components
-	-$(CP) tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
-	-$(CP) tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
-	-$(CP) tools/ada2wsdl${EXEEXT} $(INSTALL)/AWS/tools
-	$(CP) -p $(INSTALL)/AWS/lib/*.ali $(INSTALL)/AWS/obj
+	-$(CP) -p $(BDIR)/include/* $(INSTALL)/AWS/components
+	-$(CP) $(BDIR)/tools/awsres${EXEEXT} $(INSTALL)/AWS/tools
+	-$(CP) $(BDIR)/tools/hotplug_password${EXEEXT} $(INSTALL)/AWS/tools
+	-$(CP) $(BDIR)/tools/wsdl2aws${EXEEXT} $(INSTALL)/AWS/tools
+	-$(CP) $(BDIR)/tools/ada2wsdl-main${EXEEXT} \
+		$(INSTALL)/AWS/tools/ada2wsdl${EXEEXT}
 	$(CP) set-aws.* $(INSTALL)/AWS
 ifdef XMLADA
 	$(CP) config/projects/aws.gpr $(INSTALL)/AWS
@@ -386,20 +263,22 @@ else
 		< config/projects/aws.gpr \
 		> $(INSTALL)/AWS/aws.gpr
 endif
+ifeq (${OS}, Windows_NT)
+	-$(CP) -p $(BDIR)/win32/lib/* $(INSTALL)/AWS/lib
+	-$(CP) -p $(BDIR)/win32/obj/* $(INSTALL)/AWS/obj
+	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
+	-$(CP) win32/*.dll $(INSTALL)/AWS/lib
+endif
 	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 	-$(CHMOD) uog-w $(INSTALL)/AWS/components/*.ali
 	-$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
 	-$(CHMOD) uog-w $(INSTALL)/AWS/obj/*.ali
-ifeq (${OS}, Windows_NT)
-	$(CP) lib/lib*.a $(INSTALL)/AWS/lib
-	-$(CP) win32/*.dll $(INSTALL)/AWS/lib
-endif
 
 #############################################################################
 # Configuration for GNAT Projet Files
 
-MODULES = config win32 ssl include src tools demos
+MODULES = config ssl include src win32 tools demos
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -411,6 +290,7 @@ ifdef XMLADA
 PRJ_XMLADA=Installed
 else
 PRJ_XMLADA=Disabled
+GEXT_MODULE := gxmlada_dummy
 endif
 
 ifdef ASIS
@@ -418,7 +298,7 @@ PRJ_ASIS=Installed
 GEXT_MODULE := $(GEXT_MODULE) gasis
 else
 PRJ_ASIS=Disabled
-GEXT_MODULE := gasis_dummy
+GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
 endif
 
 ifdef DEBUG
@@ -433,31 +313,53 @@ GALL_OPTIONS := $(ALL_OPTIONS) \
 	PRJ_ASIS="$(PRJ_ASIS)"
 
 ${MODULES_BUILD}: force
-	${MAKE} -C ${@:%_build=%} gbuild $(GALL_OPTIONS)
+	${MAKE} -C ${@:%_build=%} build $(GALL_OPTIONS)
 
 ${MODULES_SETUP}: force
-	${MAKE} -C ${@:%_setup=%} gsetup $(GALL_OPTIONS)
+	${MAKE} -C ${@:%_setup=%} setup $(GALL_OPTIONS)
 
 ${MODULES_CLEAN}: force
-	${MAKE} -C ${@:%_clean=%} gclean $(GALL_OPTIONS)
+	${MAKE} -C ${@:%_clean=%} clean $(GALL_OPTIONS)
 
-gbuild: $(MODULES_BUILD)
+build: $(MODULES_BUILD)
 
-gclean: $(MODULES_CLEAN)
-	-rm -fr .build asis.gpr
+clean: $(MODULES_CLEAN)
+	-rm -fr .build
+
+PRJDIR = .build/projects
 
 gasis:
-	echo "project ASIS is" > asis.gpr
-	echo " Path := \"$(ASIS)\";" >> asis.gpr
-	echo " for Source_Dirs use (Path);" >> asis.gpr
-	echo " for Object_Dir use Path;" >> asis.gpr
-	echo " LIB_Path := \"-L\" & Path;" >> asis.gpr
-	echo "end ASIS;" >> asis.gpr
+	echo "project ASIS is" > $(PRJDIR)/asis.gpr
+	echo "   Path := \"$(ASIS)\";" >> $(PRJDIR)/asis.gpr
+	echo "   for Source_Dirs use (Path);" >> $(PRJDIR)/asis.gpr
+	echo "   for Object_Dir use Path;" >> $(PRJDIR)/asis.gpr
+	echo "   LIB_Path := \"-L\" & Path;" >> $(PRJDIR)/asis.gpr
+	echo "end ASIS;" >> $(PRJDIR)/asis.gpr
 
 gasis_dummy:
-	echo "project ASIS is" > asis.gpr
-	echo " for Source_Dirs use ();" >> asis.gpr
-	echo " LIB_Path := \"\";" >> asis.gpr
-	echo "end ASIS;" >> asis.gpr
+	echo "project ASIS is" > $(PRJDIR)/asis.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/asis.gpr
+	echo "   LIB_Path := \"\";" >> $(PRJDIR)/asis.gpr
+	echo "end ASIS;" >> $(PRJDIR)/asis.gpr
 
-gsetup: $(GEXT_MODULE) $(MODULES_SETUP)
+gposix:
+	echo "project POSIX is" > $(PRJDIR)/posix.gpr
+	echo "   Path := \"$(POSIX)\";" >> $(PRJDIR)/posix.gpr
+	echo "   for Source_Dirs use (Path);" >> $(PRJDIR)/posix.gpr
+	echo "   for Object_Dir use Path;" >> $(PRJDIR)/posix.gpr
+	echo "end POSIX;" >> $(PRJDIR)/posix.gpr
+
+gposix_dummy:
+	echo "project POSIX is" > $(PRJDIR)/posix.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/posix.gpr
+	echo "end POSIX;" >> $(PRJDIR)/posix.gpr
+
+gxmlada_dummy:
+	echo "project XMLADA is" > $(PRJDIR)/xmlada.gpr
+	echo "   for Source_Dirs use ();" >> $(PRJDIR)/xmlada.gpr
+	echo "end XMLADA;" >> $(PRJDIR)/xmlada.gpr
+
+setup_dir:
+	-$(MKDIR) -p $(PRJDIR)
+
+setup: setup_dir $(GEXT_MODULE) $(MODULES_SETUP)

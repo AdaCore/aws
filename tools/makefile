@@ -3,31 +3,11 @@
 
 .SILENT:
 
-GARGS	 = -q -m $(GFLAGS) -I../src -I../xsrc -I../soap -I../ssl -I../include $(INCLUDES)
-
-TOOLS	 = awsres hotplug_password
-GEN      =
-
-ifdef XMLADA
-TOOLS := $(TOOLS) wsdl2aws
-endif
-
 ifdef ASIS
-TOOLS := $(TOOLS)  ada2wsdl-main
 GEN   = ada2wsdl-options.adb
 endif
 
-EXECS    = $(patsubst  ada2wsdl-main,ada2wsdl,$(TOOLS))
-ALL_EXEC = $(addsuffix $(EXEEXT), $(EXECS))
-
-build: $(GEN) $(TOOLS)
-
 force:
-
-$(TOOLS): force
-	echo Building `basename $@ -main`
-	$(GNATMAKE) $(GARGS) $@ -o `basename $@ -main` \
-		-largs -s -L../lib $(LIBS) -lz
 
 ada2wsdl-options.adb: force
 	echo "--  This file is generated automatically" > ada2wsdl-options.adb
@@ -45,21 +25,14 @@ ada2wsdl-options.adb: force
 	echo "   end Set_Default;" >> ada2wsdl-options.adb
 	echo "end Ada2WSDL.Options;" >> ada2wsdl-options.adb
 
-clean:
-	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.ad[sb] *~
-	-$(RM) -f ada2wsdl-options.adb
-
-#############################################################################
-# Configuration for GNAT Projet Files
-
-gsetup: $(GEN)
+setup: $(GEN)
 	$(MKDIR) -p ../.build/debug/tools/obj
 	$(MKDIR) -p ../.build/release/tools/obj
 
-gbuild:
+build:
 	$(GNATMAKE) -Ptools -XBuild=${PRJ_BUILD} \
 		-XXMLADA=${PRJ_XMLADA} -XASIS=${PRJ_ASIS}
 
-gclean:
+clean:
 	$(RM) -fr ../.build/debug/tools
 	$(RM) -fr ../.build/release/tools
