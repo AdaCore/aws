@@ -1,3 +1,39 @@
+2003-05-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* soap-types.ads, soap-types.adb:
+	Add support for SOAP double type.
+
+	* soap-wsdl.ads:
+	(Parameter_Type): Add P_Double.
+	(Is_Ada_Reserved_Word): New routine.
+
+	* soap-wsdl.adb:
+	(Is_Ada_Reserved_Word): New routine.
+
+	* soap-wsdl-parser.adb:
+	(Parse_Array): Parse array element if this one is not a standard
+	 SOAP type.
+	(Parse_Parameter): Fix exception message.
+	
+	* soap-utils.ads, soap-utils.adb:
+	(Aray_Type): New routine.
+	(Is_Array): A name terminated with Array is also reported as an
+	 array type. Note that this has been found in the SOAP Google API
+	 and seems to be non standard. Add ??? about the right way to
+	 check for an array type.
+
+	* soap-generator.adb:
+	(Ada_Format): Add leading "v_" (v for variable) for Ada reserved words.
+	(Array_Type): Add Cut parameter to control if the trailing _xyz
+	 must be removed or not. Use Utils.Array_Type for the final work.
+	(Generate_Array): Properly retrieve the for array type element.
+	(Generate_Array): Use Array_Type routine.
+	(To_Ada_Type): Handles Double.
+	(Set_Routine): Handles Long_Long_Float (SOAP Double).
+	(Set_Type): Idem.
+	(SOAP_Constructor): Idem.
+	Minor reformatting.
+
 2003-05-08  Anisimkov Dmitriy <anisimkov@yahoo.com>
 
 	* soap-message-reader.adb:
