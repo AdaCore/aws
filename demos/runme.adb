@@ -58,6 +58,7 @@
 with Ada.Text_IO;
 
 with AWS.Server;
+with AWS.Log;
 with Runme_CB;
 
 procedure Runme is
@@ -73,4 +74,5 @@ begin
    Text_IO.Put_Line ("Kill me when you want me to stop...");
    AWS.Server.Start (WSS, "Runme Secure");
    AWS.Server.Start (WS, "Runme", "/Admin-Page");
+   AWS.Log.Start;
 end Runme;
