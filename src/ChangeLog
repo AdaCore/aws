@@ -1,5 +1,110 @@
 2001-10-12  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws.ads:
+	Fix typo in header.
+
+	* aws-utils.ads, aws-utils.adb:
+	Fix typo in header.
+
+	* aws-url.ads, aws-url.adb:
+	Fix typo in header.
+
+	* aws-translator.ads, aws-translator.adb:
+	Fix typo in header.
+
+	* aws-status.ads, aws-status.adb:
+	Fix typo in header.
+
+	* aws-status-set.ads, aws-status-set.adb:
+	Fix typo in header.
+
+	* aws-session.ads, aws-session.adb:
+	Fix typo in header.
+
+	* aws-session-control.ads, aws-session-control.adb:
+	Fix typo in header.
+
+	* aws-services.ads:
+	Fix typo in header.
+
+	* aws-services-directory.ads, aws-services-directory.adb:
+	Fix typo in header.
+
+	* aws-server.ads, aws-server.adb:
+	Fix typo in header.
+
+	* aws-server-push.ads, aws-server-push.adb:
+	Fix typo in header.
+
+	* aws-server-protocol_handler.adb:
+	Fix typo in header.
+
+	* aws-server-hotplug.ads, aws-server-hotplug.adb:
+	Fix typo in header.
+
+	* aws-server-get_status.ads, aws-server-get_status.adb:
+	Fix typo in header.
+
+	* aws-response.ads, aws-response.adb:
+	Fix typo in header.
+
+	* aws-parameters.ads, aws-parameters.adb:
+	Fix typo in header.
+
+	* aws-parameters-set.ads, aws-parameters-set.adb:
+	Fix typo in header.
+
+	* aws-os_lib.ads:
+	Fix typo in header.
+
+	* aws-net.ads:
+	Fix typo in header.
+
+	* aws-net-std.adb, aws-net-std.adb:
+	Fix typo in header.
+
+	* aws-mime.ads, aws-mime.adb:
+	Fix typo in header.
+
+	* aws-messages.ads, aws-messages.adb:
+	Fix typo in header.
+
+	* aws-log.ads, aws-log.adb:
+	Fix typo in header.
+
+	* aws-key_value.ads:
+	Fix typo in header.
+
+	* aws-hotplug.ads, aws-hotplug.adb:
+	Fix typo in header.
+
+	* aws-hotplug-get_status.ads, aws-hotplug-get_status.adb:
+	Fix typo in header.
+
+	* aws-default.ads:
+	Fix typo in header.
+
+	* aws-config.ads, aws-config.adb:
+	Fix typo in header.
+
+	* aws-config-set.ads, aws-config-set.adb:
+	Fix typo in header.
+
+	* aws-config-ini.ads, aws-config-ini.adb:
+	Fix typo in header.
+
+	* aws-communication.ads, aws-communication.adb:
+	Fix typo in header.
+
+	* aws-communication-server.ads, aws-communication-server.adb:
+	Fix typo in header.
+
+	* aws-communication-client.ads, aws-communication-client.adb:
+	Fix typo in header.
+
+	* aws-client.ads, aws-client.adb:
+	Fix typo in header.
+
 	* aws-server.ads:
 	Fix style (trailing spaces).
 
