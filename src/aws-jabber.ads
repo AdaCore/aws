@@ -152,7 +152,9 @@ private
    --  closed by the client.
 
    task type Incoming_Stream (Server : access Jabber.Server) is
-      pragma Storage_Size (16#200_000#);
+      pragma Storage_Size (16#1E8_000#);
+      --  This value must be below 2 Mb as this is the GNU/Linux thread
+      --  stack size limit.
    end Incoming_Stream;
 
    type Incoming_Stream_Access is access Incoming_Stream;
