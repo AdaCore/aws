@@ -28,11 +28,21 @@
 
 --  $Id$
 
+with Ada.Streams;
+
 package AWS.Translater is
 
    function Decode_URL (Str : in String) return String;
    --  The translations are:
    --     +     should be changed to a space
    --     %xy   should be replaced by the character whose code is xy
+
+   function Base64_Encode (Data : Ada.Streams.Stream_Element_Array)
+                          return String;
+   --  Encode Data using the base64 algorithm
+
+   function Base64_Decode (B64_Data : in String)
+                          return Ada.Streams.Stream_Element_Array;
+   --  Decode B64_Data using the base64 algorithm
 
 end AWS.Translater;
