@@ -62,4 +62,7 @@ package Ada2WSDL.Options is
    WS_Name        : Unbounded_String;
    --  Name of the Web Service, default value is the name of the Ada package
 
+   Enum_To_String : Boolean := False;
+   --  If True all enumeration types will be mapped to strings
+
 end Ada2WSDL.Options;
