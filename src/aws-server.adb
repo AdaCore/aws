@@ -45,8 +45,8 @@ package body AWS.Server is
 
    use Ada;
 
-   SSL_Initialized : Boolean := False;
-   pragma Atomic (SSL_Initialized);
+   Security_Initialized : Boolean := False;
+   pragma Atomic (Security_Initialized);
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
@@ -370,6 +370,16 @@ package body AWS.Server is
 
       Free (Old);
    end Set;
+
+   ------------------
+   -- Set_Security --
+   ------------------
+
+   procedure Set_Security (Certificate_Filename : in String) is
+   begin
+      Security_Initialized := True;
+      Net.SSL.Initialize (Certificate_Filename);
+   end Set_Security;
 
    --------------------------------------
    -- Set_Unexpected_Exception_Handler --
@@ -774,10 +784,10 @@ package body AWS.Server is
    begin
       --  If it is an SSL connection, initialize the SSL library
 
-      if not SSL_Initialized
+      if not Security_Initialized
         and then CNF.Security (Web_Server.Properties)
       then
-         SSL_Initialized := True;
+         Security_Initialized := True;
          Net.SSL.Initialize (CNF.Certificate);
       end if;
 
