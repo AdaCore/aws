@@ -102,7 +102,7 @@ package AWS.Net.SSL is
    type Method is
      (SSLv2,  SSLv2_Server,  SSLv2_Client,
       SSLv23, SSLv23_Server, SSLv23_Client,
-      Tlsv1,  Tlsv1_Server,  Tlsv1_Client,
+      TLSv1,  TLSv1_Server,  TLSv1_Client,
       SSLv3,  SSLv3_Server,  SSLv3_Client);
 
    procedure Initialize
