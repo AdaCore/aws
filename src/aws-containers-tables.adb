@@ -55,9 +55,8 @@ package body AWS.Containers.Tables is
       Name    : in     String;
       Indexes :    out Name_Index_Table;
       Found   :    out Boolean);
-   --  Return all Name/Value indexes for the spetsified name.
-   --  Parameter Found would be False in case of Name is not exists in
-   --  the table.
+   --  Returns all Name/Value indexes for the specified name.
+   --  Found is set to False if Name was not found in Table and True otherwise.
 
    -----------
    -- Count --
@@ -173,10 +172,14 @@ package body AWS.Containers.Tables is
         (Key   : in     String;
          Value : in out Name_Index_Table)
       is
-         pragma Warnings (Off, Key);
+         pragma Unreferenced (Key);
       begin
          Indexes := Value;
       end Action;
+
+      ------------------
+      -- Dummy_Update --
+      ------------------
 
       procedure Dummy_Update is
         new Index_Table.Update_Value_Or_Status_G (Action);
@@ -233,8 +236,8 @@ package body AWS.Containers.Tables is
          Order    : in     Positive;
          Continue : in out Boolean)
       is
-         pragma Warnings (Off, Value);
-         pragma Warnings (Off, Continue);
+         pragma Unreferenced (Value);
+         pragma Unreferenced (Continue);
       begin
          Result (Order) := To_Unbounded_String (Key);
       end Process;
