@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -236,15 +236,15 @@ private
 
    type Data is new Ada.Finalization.Controlled with record
       Ref_Counter    : Natural_Access;
-      Mode           : Data_Mode := No_Data;
-      Status_Code    : Messages.Status_Code;
-      Content_Length : Content_Length_Type;
+      Mode           : Data_Mode            := No_Data;
+      Status_Code    : Messages.Status_Code := Messages.S200;
+      Content_Length : Content_Length_Type  := 0;
       Content_Type   : Unbounded_String;
       Filename       : Unbounded_String;
       Location       : Unbounded_String;
       Realm          : Unbounded_String;
-      Authentication : Authentication_Mode;
-      Auth_Stale     : Boolean;
+      Authentication : Authentication_Mode  := Any;
+      Auth_Stale     : Boolean              := False;
       Stream         : AWS.Resources.Streams.Stream_Access;
       Message_Body   : Stream_Element_Array_Access;
    end record;
