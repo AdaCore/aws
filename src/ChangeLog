@@ -1,3 +1,16 @@
+2004-11-01  Pascal Obry  <pascal@obry.org>
+
+	* aws-net-log.ads:
+        Remove Ada.Streams with clause (already in parent package).
+        Remove all Ada.Streams prefix, a use clause is in parent package.
+
+	* aws-net-log.adb:
+        Minor reformatting.
+        Remove all Ada.Streams prefix, a use clause is in parent package.
+
+	* aws-net-log-callbacks.ads, aws-net-log-callbacks.adb:
+	Initial revision.
+
 2004-10-31  Pascal Obry  <pascal@obry.org>
 
 	* aws-status.ads:

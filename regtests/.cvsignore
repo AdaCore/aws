@@ -272,6 +272,7 @@ file1.html
 file1.txt
 file2
 file2.html
+file2.netlog
 file2.res
 file2.txt
 file3.html
@@ -455,6 +456,7 @@ test_sec_soap
 test_sec_soap.res
 test_sec_soap.tmp
 test_soap
+test_soap.netlog
 test_soap.res
 test_soap.tmp
 test_soap2
