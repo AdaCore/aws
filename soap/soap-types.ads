@@ -107,8 +107,19 @@ package SOAP.Types is
    -- Any Type --
    --------------
 
-   XML_Any_Type : constant String := "xsd:anyType";
-   --  Not supported by this implementation
+   XML_Any_Type : aliased constant String := "xsd:anyType";
+
+   type XSD_Any_Type is new Object with private;
+
+   function Image     (O : in XSD_Any_Type) return String;
+   function XML_Image (O : in XSD_Any_Type) return String;
+   function XML_Type  (O : in XSD_Any_Type) return String;
+
+   function Any
+     (V    : in Object'Class;
+      Name : in String  := "item") return XSD_Any_Type;
+
+   function V (O : in XSD_Any_Type) return Object_Access;
 
    -----------
    -- Array --
@@ -366,6 +377,10 @@ package SOAP.Types is
    -- Get --
    ---------
 
+   function Get (O : in Object'Class) return XSD_Any_Type;
+   --  Returns O value as an XSD_Any_Type. Raises Data_Error if O is not a
+   --  SOAP anyType.
+
    function Get (O : in Object'Class) return Integer;
    --  Returns O value as an Integer. Raises Data_Error if O is not a SOAP
    --  Integer.
@@ -458,6 +473,12 @@ private
 
    procedure Finalize   (O : in out Composite);
    pragma Inline (Finalize);
+
+   --  AnyType
+
+   type XSD_Any_Type is new Object with record
+      O : Object_Safe_Pointer;
+   end record;
 
    --  Simple SOAP types
 
