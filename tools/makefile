@@ -22,10 +22,26 @@ build: $(TOOLS)
 
 force:
 
-$(TOOLS): force
+$(TOOLS): ada2wsdl-options.adb force
 	echo Building `basename $@ -main`
 	$(GNATMAKE) $(GARGS) $@ -o `basename $@ -main` \
 		-largs -s -L../lib $(LIBS) -lz
+
+ada2wsdl-options.adb: force
+	echo "--  This file is generated automatically" > ada2wsdl-options.adb
+	echo "--  DO NOT EDIT, see tools/makefile" >> ada2wsdl-options.adb
+	echo "with Ada2WSDL.Parser;" >> ada2wsdl-options.adb
+	echo "package body Ada2WSDL.Options is" >> ada2wsdl-options.adb
+	echo "   procedure Set_Default is" >> ada2wsdl-options.adb
+	echo "   begin" >> ada2wsdl-options.adb
+	echo "      Parser.Add_Option (\"-I"$(XMLADA)"/include/xmlada\");" \
+		>> ada2wsdl-options.adb
+	echo "      Parser.Add_Option (\"-I"$(INSTALL)"/AWS/components\");" \
+		>> ada2wsdl-options.adb
+	echo "      Parser.Add_Option (\"-I"$(INSTALL)"/AWS/include\");" \
+		>> ada2wsdl-options.adb
+	echo "   end Set_Default;" >> ada2wsdl-options.adb
+	echo "end Ada2WSDL.Options;" >> ada2wsdl-options.adb
 
 clean:
 	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.ad[sb] *~
