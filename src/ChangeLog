@@ -15,6 +15,11 @@
         Update copyright notice.
         Work for E215-008.
 
+2005-03-08  Dmitriy Anisimkov <anisimkov@ada-ru.org>
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Data): Fix delimiter of HTTP parameters in comment.
+
 2005-02-16  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
