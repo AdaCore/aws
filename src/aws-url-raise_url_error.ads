@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -30,8 +30,9 @@
 
 --  $Id$
 
---  Raises exception URL_Error, message contain reference to URL.
+--  Raises exception URL_Error, exception message contains reference to URL
+--  and the specified message.
 
-procedure AWS.URL.Raise_URL_Error (URL : in String);
+procedure AWS.URL.Raise_URL_Error (URL : in String; Message : in String);
 pragma No_Return (Raise_URL_Error);
 pragma Inline (Raise_URL_Error);
