@@ -1,3 +1,10 @@
+2003-10-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.adb:
+	(Get_Response): Do not use dynamically allocated buffers to avoid
+	 memory leak. Clear the data in the Response before Append_Body calls
+	 to avoid leading data from previos response usage.
+
 2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-utils.adb:
