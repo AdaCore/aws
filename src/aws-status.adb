@@ -33,7 +33,6 @@
 with Ada.Strings;
 
 with AWS.Digest;
-with AWS.URL.Raise_URL_Error;
 
 package body AWS.Status is
 
