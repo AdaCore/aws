@@ -1,3 +1,12 @@
+2004-04-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	*  aws-headers-set.adb:
+	(Parse_Header_Lines):  Show erroneous line in Format_Error
+	 exception message.
+
+	* aws-server-protocol_handler.adb:
+	(Get_Message_Header): Ignore empty line(s) before Request-Line.
+
 2004-04-22  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:
