@@ -1,14 +1,16 @@
 
 <p>Simple Web Mail (AWS @_AWS_VERSION_@)
 
-<p>Message @_WM_INDEX_@ for mailbox <b>@_WM_USER_NAME_@</b> on server @_SERVER_NAME_@
+<p>Message @_WM_INDEX_@ for mailbox <b>@_WM_USER_NAME_@</b>
+on server @_WM_POP_SERVER_@
 
 <br>
 <br>
 
 <table>
 <tr><td><b>Date:</b><td>@_WM_DATE_@</tr>
-<tr><td><b>From:</b><td>@_WM_FROM_@</tr>
+<tr><td><b>From:</b><td>@_WEB_ESCAPE:WM_FROM_@</tr>
+<tr><td><b>CC:</b><td>@_WEB_ESCAPE:WM_CC_@</tr>
 <tr><td><b>Subject:</b><td>@_WM_SUBJECT_@</tr>
 </table>
 
