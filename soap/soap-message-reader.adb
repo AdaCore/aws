@@ -89,7 +89,6 @@ package body SOAP.Message.Reader is
    begin
       --  Ignore these white spaces at the toplevel
       if Ch'Length = 1
-        and then Ch (Ch'First) /= ASCII.CR
         and then Ch (Ch'First) /= ASCII.LF
         and then Handler.Current_Node /= Handler.Tree
       then
