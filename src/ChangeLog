@@ -1,5 +1,8 @@
 2001-11-06  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws.ads:
+	(Version): set to 1.2.
+
 	* aws-server.adb:
 	(Counter): new protected record.
 	(Wait): new procedure.
