@@ -6,6 +6,7 @@
 	(SHUT_RDWR): Idem.
 	(EAI_SYSTEM): Use Win32 definition instead of different generation.
 	Change "other constants" comment.
+	Add include sys/ioctl.h for get FION*** constants.
 
 	* aws-net-std__ipv6.adb:
 	Support for IPv6 protocol.
