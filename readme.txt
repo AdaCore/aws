@@ -1,10 +1,10 @@
 
 			    A W S - Ada Web Server
-			    1.4 release / SOAP 1.1
+			    1.4 release / SOAP 1.2
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                 April 21st, 2003
+   Pascal Obry                                                 May 21st, 2003
 
 
 
@@ -31,11 +31,13 @@ Here are the main changes since AWS 1.3 :
    - Add WSDL parser and SOAP stub/skeleton generator. This implementation has 
      passed many tests (base and B tests) from the SOAP Interoperability Tests
      Specification (see http://www.xmethods.net/ilab/ and
-     http://www.whitemesa.com/interop/proposal2.html)
+     http://www.whitemesa.com/interop/proposal2.html).
 
    - wsdl2aws, new tool. Generate SOAP/AWS stub/skeleton from a WSDL
      document. With this tool it is very easy to build or to connect to Web
      Services. This tool use the WSDL parser and SOAP generator API. See above.
+     wsdl2aws has been tested with some services on the Web, one of them was
+     the Google Search Service WSDL specification which is quite complex.
 
    - Fix memory leak in templates parser when using a non existent template
      file.
@@ -60,6 +62,9 @@ Here are the main changes since AWS 1.3 :
 
    - Handle properly accents in SOAP messages. Convert properly DOM Utf8
      encoded tree back to basic Ada 8 bits string.
+
+   - SOAP strings are now properly encoded using Utf8. This is needed for
+     better interoperability.
 
    - It is now possible to retrieve the running server from a callback
      procedure. From there it is also possible to get the server
