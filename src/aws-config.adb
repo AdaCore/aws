@@ -41,62 +41,179 @@ package body AWS.Config is
 
    use Ada.Strings.Unbounded;
 
-   Admin_URI_Value          : Unbounded_String
+   Admin_URI_Token          : aliased constant String := "admin_uri";
+   Server_Name_Token        : aliased constant String := "server_name";
+   Log_File_Directory_Token : aliased constant String := "log_file_directory";
+   Upload_Directory_Token   : aliased constant String := "upload_directory";
+   Max_Connection_Token     : aliased constant String := "max_connection";
+   Server_Port_Token        : aliased constant String := "server_port";
+   Send_Timeout_Token       : aliased constant String := "send_timeout";
+   Receive_Timeout_Token    : aliased constant String := "receive_timeout";
+   Status_Page_Token        : aliased constant String := "status_page";
+   Up_Image_Token           : aliased constant String := "up_image";
+   Down_Image_Token         : aliased constant String := "down_image";
+   Logo_Image_Token         : aliased constant String := "logo_image";
+
+   Cleaner_Wait_For_Client_Timeout_Token : aliased constant String
+     := "cleaner_wait_for_client_timeout";
+
+   Cleaner_Client_Header_Timeout_Token   : aliased constant String
+     := "cleaner_client_header_timeout";
+
+   Cleaner_Client_Data_Timeout_Token     : aliased constant String
+     := "cleaner_client_data_timeout";
+
+   Cleaner_Server_Response_Timeout_Token : aliased constant String
+     := "cleaner_server_response_timeout";
+
+   Force_Wait_For_Client_Timeout_Token   : aliased constant String
+     := "force_wait_for_client_timeout";
+
+   Force_Client_Header_Timeout_Token     : aliased constant String
+     := "force_client_header_timeout";
+
+   Force_Client_Data_Timeout_Token       : aliased constant String
+     := "force_client_data_timeout";
+
+   Force_Server_Response_Timeout_Token   : aliased constant String
+     := "force_server_response_timeout";
+
+   Admin_URI_Value          : aliased Unbounded_String
      := To_Unbounded_String (Default_Admin_URI);
 
-   Server_Name_Value        : Unbounded_String
+   Server_Name_Value        : aliased Unbounded_String
      := To_Unbounded_String (Default_Server_Name);
 
-   Log_File_Directory_Value : Unbounded_String
+   Log_File_Directory_Value : aliased Unbounded_String
      := To_Unbounded_String (Default_Log_File_Directory);
 
-   Upload_Directory_Value   : Unbounded_String
+   Upload_Directory_Value   : aliased Unbounded_String
      := To_Unbounded_String (Default_Upload_Directory);
 
-   Max_Connection_Value     : Positive := Default_Max_Connection;
-   Server_Port_Value        : Positive := Default_Server_Port;
+   Max_Connection_Value     : aliased Positive := Default_Max_Connection;
+   Server_Port_Value        : aliased Positive := Default_Server_Port;
 
-   Cleaner_Wait_For_Client_Timeout_Value : Duration
+   Cleaner_Wait_For_Client_Timeout_Value : aliased Duration
      := Default_Cleaner_Wait_For_Client_Timeout;
 
-   Cleaner_Client_Header_Timeout_Value : Duration
+   Cleaner_Client_Header_Timeout_Value : aliased Duration
      := Default_Cleaner_Client_Header_Timeout;
 
-   Cleaner_Client_Data_Timeout_Value : Duration
+   Cleaner_Client_Data_Timeout_Value : aliased Duration
      := Default_Cleaner_Client_Data_Timeout;
 
-   Cleaner_Server_Response_Timeout_Value : Duration
+   Cleaner_Server_Response_Timeout_Value : aliased Duration
      := Default_Cleaner_Server_Response_Timeout;
 
-   Force_Wait_For_Client_Timeout_Value : Duration
+   Force_Wait_For_Client_Timeout_Value : aliased Duration
      := Default_Force_Wait_For_Client_Timeout;
 
-   Force_Client_Header_Timeout_Value : Duration
+   Force_Client_Header_Timeout_Value : aliased Duration
      := Default_Force_Client_Header_Timeout;
 
-   Force_Client_Data_Timeout_Value : Duration
+   Force_Client_Data_Timeout_Value : aliased Duration
      := Default_Force_Client_Data_Timeout;
 
-   Force_Server_Response_Timeout_Value : Duration
+   Force_Server_Response_Timeout_Value : aliased Duration
      := Default_Force_Server_Response_Timeout;
 
-   Send_Timeout_Value : Duration
+   Send_Timeout_Value : aliased Duration
      := Default_Send_Timeout;
 
-   Receive_Timeout_Value : Duration
+   Receive_Timeout_Value : aliased Duration
      := Default_Receive_Timeout;
 
-   Status_Page_Value : Unbounded_String
+   Status_Page_Value : aliased Unbounded_String
      := To_Unbounded_String (Default_Status_Page);
 
-   Up_Image_Value    : Unbounded_String
+   Up_Image_Value    : aliased Unbounded_String
      := To_Unbounded_String (Default_Up_Image);
 
-   Down_Image_Value  : Unbounded_String
+   Down_Image_Value  : aliased Unbounded_String
      := To_Unbounded_String (Default_Down_Image);
 
-   Logo_Image_Value  : Unbounded_String
+   Logo_Image_Value  : aliased Unbounded_String
      := To_Unbounded_String (Default_Logo_Image);
+
+   -----------------------------
+   -- Describe all parameters --
+   -----------------------------
+
+   type Value_Type        is (Str, Dir, Pos, Dur);
+   type String_Pointer    is access constant String;
+   type UString_Pointer   is access all Unbounded_String;
+   type Positive_Pointer  is access all Positive;
+   type Duration_Pointer  is access all Duration;
+
+   type Values (Kind : Value_Type := Str) is record
+      Key : String_Pointer;
+
+      case Kind is
+         when Str =>
+            Str_Value : UString_Pointer;
+
+         when Dir =>
+            Dir_Value : UString_Pointer;
+
+         when Pos =>
+            Pos_Value : Positive_Pointer;
+
+         when Dur =>
+            Dur_Value : Duration_Pointer;
+      end case;
+   end record;
+
+   type Parameter_List is array (Positive range <>) of Values;
+
+   Parameters : constant Parameter_List :=
+
+     ((Str, Server_Name_Token'Access,
+       Server_Name_Value'Access),
+
+      (Str, Admin_URI_Token'Access,
+       Admin_URI_Value'Access),
+
+      (Dir, Log_File_Directory_Token'Access,
+       Log_File_Directory_Value'Access),
+
+      (Dir, Upload_Directory_Token'Access,
+       Upload_Directory_Value'Access),
+
+      (Pos, Max_Connection_Token'Access,
+       Max_Connection_Value'Access),
+
+      (Pos, Server_Port_Token'Access,
+       Server_Port_Value'Access),
+
+      (Dur, Cleaner_Wait_For_Client_Timeout_Token'Access,
+       Cleaner_Wait_For_Client_Timeout_Value'Access),
+
+      (Dur, Cleaner_Client_Header_Timeout_Token'Access,
+       Cleaner_Client_Header_Timeout_Value'Access),
+
+      (Dur, Cleaner_Client_Data_Timeout_Token'Access,
+       Cleaner_Client_Data_Timeout_Value'Access),
+
+      (Dur, Cleaner_Server_Response_Timeout_Token'Access,
+       Cleaner_Server_Response_Timeout_Value'Access),
+
+      (Dur, Force_Wait_For_Client_Timeout_Token'Access,
+       Force_Wait_For_Client_Timeout_Value'Access),
+
+      (Dur, Force_Client_Header_Timeout_Token'Access,
+       Force_Client_Header_Timeout_Value'Access),
+
+      (Dur, Force_Client_Data_Timeout_Token'Access,
+       Force_Client_Data_Timeout_Value'Access),
+
+      (Dur, Force_Server_Response_Timeout_Token'Access,
+       Force_Server_Response_Timeout_Value'Access),
+
+      (Dur, Send_Timeout_Token'Access,
+       Send_Timeout_Value'Access),
+
+      (Dur, Receive_Timeout_Token'Access,
+       Receive_Timeout_Value'Access));
 
    procedure Initialize;
    --  Read aws.ini file if present and initialize this package accordingly.
@@ -209,6 +326,16 @@ package body AWS.Config is
       --  Returns initialization filename for current server (using the
       --  executable name and adding .ini)
 
+      procedure Find_Key_And_Set_Value
+        (Params   : in     Parameter_List;
+         Filename : in     String;
+         Key      : in     String;
+         Value    : in     String;
+         Found    :    out Boolean);
+      --  Look for parameter whose name is Key in the parameter list. If found
+      --  the Found is set to True and the parameter is set with Value. If not
+      --  found it returns with Found set to False.
+
       Line : Natural;
       --  current line number parsed
 
@@ -220,8 +347,76 @@ package body AWS.Config is
       begin
          Text_IO.Put ('(' & Filename & ':');
          Text_IO.Put (AWS.Utils.Image (Line));
-         Text_IO.Put_Line (") " & Message);
+         Text_IO.Put_Line (") " & Message & '.');
       end Error_Message;
+
+      ----------------------------
+      -- Find_Key_And_Set_Value --
+      ----------------------------
+
+      procedure Find_Key_And_Set_Value
+        (Params   : in     Parameter_List;
+         Filename : in     String;
+         Key      : in     String;
+         Value    : in     String;
+         Found    :    out Boolean)
+      is
+         use Ada.Strings.Unbounded;
+
+         function "+" (S : in String)
+           return Unbounded_String
+           renames To_Unbounded_String;
+
+         Key_Value : constant String := Ada.Characters.Handling.To_Lower (Key);
+
+         Expected_Type : Unbounded_String;
+
+      begin
+         Found := False;
+
+         Look_For_Key : For I in Params'Range loop
+
+            if Key_Value = Params (I).Key.all then
+               Found := True;
+
+               begin
+                  case Params (I).Kind is
+                     when Str =>
+                        Expected_Type := +"string";
+                        Params (I).Str_Value.all := +Value;
+
+                     when Dir =>
+                        Expected_Type := +"string";
+                        if Value (Value'Last) = '/'
+                          or else Value (Value'Last) = '\'
+                        then
+                           Params (I).Dir_Value.all := +Value;
+                        else
+                           Params (I).Dir_Value.all := +(Value & '/');
+                        end if;
+
+                     when Pos =>
+                        Expected_Type := +"positive";
+                        Params (I).Pos_Value.all := Positive'Value (Value);
+
+                     when Dur =>
+                        Expected_Type := +"duration";
+                        Params (I).Dur_Value.all := Duration'Value (Value);
+                  end case;
+
+               exception
+                  when others =>
+                     Error_Message
+                       (Filename,
+                        "wrong value for " & Key
+                        & " " & To_String (Expected_Type) & " expected");
+               end;
+
+               exit Look_For_Key;
+            end if;
+
+         end loop Look_For_Key;
+      end Find_Key_And_Set_Value;
 
       -----------------
       -- Process_Ini --
@@ -277,167 +472,16 @@ package body AWS.Config is
                if K_Last /= 0 and then V_Last /= 0 then
 
                   declare
-                     use Characters.Handling;
-
-                     Key   : constant String :=
-                       To_Upper (Buffer (K_First .. K_Last));
+                     Key   : constant String := Buffer (K_First .. K_Last);
 
                      Value : constant String := Buffer (V_First .. V_Last);
 
+                     Found : Boolean;
                   begin
-                     if Key = "SERVER_NAME" then
-                        Server_Name_Value := To_Unbounded_String (Value);
+                     Find_Key_And_Set_Value (Parameters, Filename,
+                                             Key, Value, Found);
 
-                     elsif Key = "ADMIN_URI" then
-                        Admin_URI_Value := To_Unbounded_String (Value);
-
-                     elsif Key = "LOG_FILE_DIRECTORY" then
-                        if Value (Value'Last) = '/' then
-                           Log_File_Directory_Value
-                             := To_Unbounded_String (Value);
-                        else
-                           Log_File_Directory_Value
-                             := To_Unbounded_String (Value & '/');
-                        end if;
-
-                     elsif Key = "UPLOAD_DIRECTORY" then
-                        if Value (Value'Last) = '/' then
-                           Upload_Directory_Value
-                             := To_Unbounded_String (Value);
-                        else
-                           Upload_Directory_Value
-                             := To_Unbounded_String (Value & '/');
-                        end if;
-
-                     elsif Key = "MAX_CONNECTION" then
-                        begin
-                           Max_Connection_Value := Positive'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "SERVER_PORT" then
-                        begin
-                           Server_Port_Value := Positive'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "CLEANER_WAIT_FOR_CLIENT_TIMEOUT" then
-                        begin
-                           Cleaner_Wait_For_Client_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "CLEANER_WAIT_FOR_CLIENT_TIMEOUT" then
-                        begin
-                           Cleaner_Wait_For_Client_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "CLEANER_CLIENT_HEADER_TIMEOUT" then
-                        begin
-                           Cleaner_Client_Header_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "CLEANER_CLIENT_DATA_TIMEOUT" then
-                        begin
-                           Cleaner_Client_Data_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "CLEANER_SERVER_RESPONSE_TIMEOUT" then
-                        begin
-                           Cleaner_Server_Response_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "FORCE_WAIT_FOR_CLIENT_TIMEOUT" then
-                        begin
-                           Force_Wait_For_Client_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "FORCE_CLIENT_HEADER_TIMEOUT" then
-                        begin
-                           Force_Client_Header_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "FORCE_CLIENT_DATA_TIMEOUT" then
-                        begin
-                           Force_Client_Data_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "FORCE_SERVER_RESPONSE_TIMEOUT" then
-                        begin
-                           Force_Server_Response_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "SEND_TIMEOUT" then
-                        begin
-                           Send_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     elsif Key = "RECEIVE_TIMEOUT" then
-                        begin
-                           Receive_Timeout_Value
-                             := Duration'Value (Value);
-                        exception
-                           when others =>
-                              Error_Message
-                                (Filename, "wrong value for " & Key);
-                        end;
-
-                     else
+                     if not Found then
                         Error_Message (Filename, "unrecognized option " & Key);
                      end if;
                   end;
