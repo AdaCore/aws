@@ -1,3 +1,72 @@
+2000-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-protocol_handler.adb:
+	(Target_Filename): moved (one level up).
+	(File_Upload): better way to check for file upload mode. Fix
+	 algorithm to detect empty file upload parameter. Use new
+	 Set_Parameter procedure.
+
+	* aws-status.adb:
+	Removes Ada.Text_IO (not used).
+	(Set_Parameters): new procedure.
+
+	* aws-status.ads:
+	Minor reformating.
+	(Set_Parameters): new procedure.
+
+2000-10-04  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws.ads:
+	(Version): set to 0.9.
+
+	* aws-status.ads:
+	(Reset): new procedure.
+	(Set_Multipart_Boundary): new procedure.
+	(Multipart_Boundary): new function.
+	(Data): parameter field is now a AWS.Parameters.Set.
+	Add some comments.
+	
+	* aws-status.adb:
+	(Multipart_Boundary): new function.
+	(Parameter): complete reimplementation (more efficient now).
+	(Parameter_Name): idem.
+	(Reset): new procedure.
+	(Set_Multipart_Boundary): new procedure.
+	(Set_Parameters): complete reimplementation (more efficient now).
+	(Set_Request): call to Set_Parameters to setup the form
+	 parameters.
+	
+	* aws-server.ads:
+	(Default_Upload_Path): new constant.
+	(HTTP): add field Upload_Path.
+
+	* aws-server.adb:
+	(Start): set the Web_Server.Upload_Path	to the default value.
+
+	* aws-server-protocol_handler.adb:
+	(File_Upload): new procedure.
+	(Value_For): new function.
+	(Get_Message_Data): add some comments. Check if we have a
+	 multipart form data (file upload) to handle.
+	(Parse): correctly handle the Content-Type line. A Content-Type
+	 can be followed by a boundary information when uploading a
+	 file. Set the Multipart_Boundary if needed.
+	(Protocol_Handler): reset the status data before handling a new
+	 request.
+
+	* aws-messages.ads:
+	(Multipart_Form_Data): new constant.
+	
+2000-10-03  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server-config.ads, aws-server-config.adb:
+	Initial revision.
+
+2000-10-01  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-parameters.ads, aws-parameters.adb:
+	Initial revision.
+
 2000-09-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.ads:
