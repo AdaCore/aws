@@ -339,6 +339,7 @@ package body AWS.Net.Std is
          begin
             --  We catch socket exceptions here as we do not want this call to
             --  fail. A shutdown will fail on non connected sockets.
+
             Sockets.Shutdown_Socket (SFD (Socket.S.all));
          exception
             when Sockets.Socket_Error =>
@@ -350,6 +351,7 @@ package body AWS.Net.Std is
             --  descriptor is not valid (errno = EABF). This happen on
             --  GNU/Linux only and the problem is not fully understood at this
             --  point. We catch the exception here to hide this problem.
+
             Sockets.Close_Socket (SFD (Socket.S.all));
          exception
             when Sockets.Socket_Error =>
