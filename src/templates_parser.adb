@@ -52,14 +52,12 @@ package body Templates_Parser is
 
    Blank : constant Maps.Character_Set := Maps.To_Set (' ' & ASCII.HT);
 
-   function Image (N : in Integer) return String;
-   pragma Inline (Image);
-   --  Returns N image without leading blank
-
    function No_Quote (Str : in String) return String;
    --  Removes quotes around Str. If Str (Str'First) and Str (Str'Last)
    --  are quotes return Str (Str'First + 1 ..  Str'Last - 1) otherwise
    --  return Str as-is.
+
+   procedure Free is new Ada.Unchecked_Deallocation (Integer, Integer_Access);
 
    -----------
    -- Image --
@@ -104,6 +102,48 @@ package body Templates_Parser is
    Else_Token               : constant String := "@@ELSE@@";
    End_If_Token             : constant String := "@@END_IF@@";
    Include_Token            : constant String := "@@INCLUDE@@";
+
+   -------------------
+   -- Translate_Set --
+   -------------------
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (Set : in out Translate_Set) is
+   begin
+      Set.Ref_Count := new Integer'(1);
+      Set.Set       := new Containers.Map_Type;
+   end Initialize;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize (Set : in out Translate_Set) is
+      procedure Free is
+        new Unchecked_Deallocation (Containers.Map_Type, Map_Type_Access);
+   begin
+      Set.Ref_Count.all := Set.Ref_Count.all - 1;
+
+      if Set.Ref_Count.all = 0 then
+         Free (Set.Ref_Count);
+         Free (Set.Set);
+      end if;
+   end Finalize;
+
+   ------------
+   -- Adjust --
+   ------------
+
+   procedure Adjust (Set : in out Translate_Set) is
+   begin
+      Set.Ref_Count.all := Set.Ref_Count.all + 1;
+   end Adjust;
+
+   Null_Set : Translate_Set;
+   --  This is used as default parameter in some local calls
 
    ------------
    -- Filter --
@@ -295,9 +335,9 @@ package body Templates_Parser is
 
       type Callback is access function
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
-        return String;
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
+         return String;
       --  P is the filter parameter, no parameter by default. Parameter are
       --  untyped and will be parsed by the filter function if needed.
 
@@ -326,218 +366,218 @@ package body Templates_Parser is
 
       function Add_Param
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function BR_2_LF
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Capitalize
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Clean_Text
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Coma_2_Point
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Contract
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Del_Param
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Exist
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Format_Date
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Format_Number
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Is_Empty
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function LF_2_BR
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Lower
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Match
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function No_Digit
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function No_Letter
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function No_Space
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Oui_Non
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Point_2_Coma
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Repeat
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Replace
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Replace_All
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Replace_Param
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Reverse_Data
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Size
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Slice
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Trim
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Upper
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Web_Escape
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Web_NBSP
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Yes_No
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Plus
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Minus
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Divide
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Multiply
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Modulo
         (S : in String;
-         P : in Parameter_Data  := No_Parameter;
-         T : in Translate_Table := No_Translation)
+         P : in Parameter_Data := No_Parameter;
+         T : in Translate_Set  := Null_Set)
          return String;
 
       function Handle (Name : in String) return Callback;
@@ -561,34 +601,34 @@ package body Templates_Parser is
 
    type Attribute is (Nil, Length, Line, Min_Column, Max_Column);
 
-   type Tag is record
+   type Tag_Var is record
       Name    : Unbounded_String;
       Filters : Filter.Set_Access;
       Attr    : Attribute := Nil;
    end record;
 
-   function Build (Str : in String) return Tag;
+   function Build (Str : in String) return Tag_Var;
    --  Create a Tag from Str. A tag is composed of a name and a set of
    --  filters.
 
-   function Image (T : in Tag) return String;
+   function Image (T : in Tag_Var) return String;
    --  Returns string representation for the Tag variable.
 
    function Translate
-     (T            : in Tag;
+     (T            : in Tag_Var;
       Value        : in String;
-      Translations : in Translate_Table := No_Translation)
+      Translations : in Translate_Set := Null_Set)
       return String;
    --  Returns the result of Value after applying all filters for tag T.
 
-   procedure Release (T : in out Tag);
+   procedure Release (T : in out Tag_Var);
    --  Release all memory associated with Tag.
 
    -----------
    -- Image --
    -----------
 
-   function Image (T : in Tag) return String is
+   function Image (T : in Tag_Var) return String is
       use type Filter.Set_Access;
       R : Unbounded_String;
    begin
@@ -627,7 +667,7 @@ package body Templates_Parser is
    -- Build --
    -----------
 
-   function Build (Str : in String) return Tag is
+   function Build (Str : in String) return Tag_Var is
 
       function Get_Var_Name (Tag : in String) return Unbounded_String;
       --  Given a Tag name, it returns the variable name only. It removes
@@ -925,7 +965,7 @@ package body Templates_Parser is
    -- Release --
    -------------
 
-   procedure Release (T : in out Tag) is
+   procedure Release (T : in out Tag_Var) is
       use type Filter.Set_Access;
       procedure Free is
          new Ada.Unchecked_Deallocation (Filter.Set, Filter.Set_Access);
@@ -941,9 +981,9 @@ package body Templates_Parser is
    ---------------
 
    function Translate
-     (T            : in Tag;
+     (T            : in Tag_Var;
       Value        : in String;
-      Translations : in Translate_Table := No_Translation)
+      Translations : in Translate_Set := Null_Set)
       return String
    is
       use type Filter.Set_Access;
@@ -983,7 +1023,7 @@ package body Templates_Parser is
             when Text =>
                Value : Unbounded_String;
             when Var =>
-               Var   : Tag;
+               Var   : Tag_Var;
          end case;
       end record;
 
@@ -1036,7 +1076,7 @@ package body Templates_Parser is
                V   : Unbounded_String;
 
             when Var =>
-               Var : Tag;
+               Var : Tag_Var;
 
             when Op =>
                O           : Ops;
@@ -1176,243 +1216,62 @@ package body Templates_Parser is
 
    end Cached_Files;
 
-   ----------------
-   -- Vector_Tag --
-   ----------------
+   ---------
+   -- Tag --
+   ---------
 
    procedure Field
-     (Vect   : in     Vector_Tag;
+     (T      : in     Tag;
       N      : in     Positive;
+      Result :    out Tag_Node_Access;
+      Found  :    out Boolean);
+   --  Returns the Nth item in Tag
+
+   procedure Field
+     (T      : in     Tag;
+      Cursor : in     Indices;
       Result :    out Unbounded_String;
       Found  :    out Boolean);
-   --  Returns the Nth value in the vector tag. Found is set to False if
-   --  N > Vect_Value'Last.
+   --  Returns Value in Tag at position Cursor. Found is set to False if
+   --  there is no such value in Tag.
 
-   ---------
-   -- "+" --
-   ---------
+   ----------
+   -- Size --
+   ----------
 
-   function "+" (Value : in String) return Vector_Tag is
-      Item : constant Vector_Tag_Node_Access
-        := new Vector_Tag_Node'(To_Unbounded_String (Value), null);
+   function Size (T : in Tag) return Natural is
    begin
-      return Vector_Tag'
-        (Ada.Finalization.Controlled with
-           Ref_Count => new Integer'(1),
-           Count     => 1,
-           Head      => Item,
-           Last      => Item,
-           Current   => new Vector_Tag_Node_Access'(Item),
-           Pos       => new Integer'(1));
-   end "+";
-
-   function "+" (Value : in Character) return Vector_Tag is
-   begin
-      return +String'(1 => Value);
-   end "+";
-
-   function "+" (Value : in Boolean) return Vector_Tag is
-   begin
-      return +Boolean'Image (Value);
-   end "+";
-
-   function "+" (Value : in Strings.Unbounded.Unbounded_String)
-     return Vector_Tag is
-   begin
-      return +To_String (Value);
-   end "+";
-
-   function "+" (Value : in Integer) return Vector_Tag is
-   begin
-      return +Image (Value);
-   end "+";
-
-   ---------
-   -- "&" --
-   ---------
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in String)
-      return Vector_Tag
-   is
-      Item : constant Vector_Tag_Node_Access
-        := new Vector_Tag_Node'(To_Unbounded_String (Value), null);
-   begin
-      Vect.Ref_Count.all := Vect.Ref_Count.all + 1;
-
-      if Vect.Count = 0 then
-         return Vector_Tag'
-           (Ada.Finalization.Controlled with
-            Ref_Count => Vect.Ref_Count,
-            Count     => 1,
-            Head      => Item,
-            Last      => Item,
-            Current   => new Vector_Tag_Node_Access'(Item),
-            Pos       => Vect.Pos);
-      else
-         Vect.Last.Next := Item;
-         return Vector_Tag'
-           (Ada.Finalization.Controlled with
-            Ref_Count => Vect.Ref_Count,
-            Count     => Vect.Count + 1,
-            Head      => Vect.Head,
-            Last      => Item,
-            Current   => Vect.Current,
-            Pos       => Vect.Pos);
-      end if;
-   end "&";
-
-   function "&"
-     (Value : in String;
-      Vect  : in Vector_Tag)
-      return Vector_Tag
-   is
-      Item : constant Vector_Tag_Node_Access
-        := new Vector_Tag_Node'(To_Unbounded_String (Value), Vect.Head);
-
-      Current : Access_Vector_Tag_Node_Access;
-   begin
-      Vect.Ref_Count.all := Vect.Ref_Count.all + 1;
-
-      if Vect.Count = 0 then
-         return Vector_Tag'
-           (Ada.Finalization.Controlled with
-            Ref_Count => Vect.Ref_Count,
-            Count     => 1,
-            Head      => Item,
-            Last      => Item,
-            Current   => new Vector_Tag_Node_Access'(Item),
-            Pos       => Vect.Pos);
-      else
-         --  Link current iterator to Item
-         Current     := Vect.Current;
-         Current.all := Item;
-
-         return Vector_Tag'
-           (Ada.Finalization.Controlled with
-            Ref_Count => Vect.Ref_Count,
-            Count     => Vect.Count + 1,
-            Head      => Item,
-            Last      => Vect.Last,
-            Current   => Current,
-            Pos       => Vect.Pos);
-      end if;
-   end "&";
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in Character)
-      return Vector_Tag is
-   begin
-      return Vect & String'(1 => Value);
-   end "&";
-
-   function "&"
-     (Value : in Character;
-      Vect  : in Vector_Tag)
-      return Vector_Tag is
-   begin
-      return String'(1 => Value) & Vect;
-   end "&";
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in Boolean)
-      return Vector_Tag is
-   begin
-      return Vect & Boolean'Image (Value);
-   end "&";
-
-   function "&"
-     (Value : in Boolean;
-      Vect  : in Vector_Tag)
-      return Vector_Tag is
-   begin
-      return Boolean'Image (Value) & Vect;
-   end "&";
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in Strings.Unbounded.Unbounded_String)
-      return Vector_Tag is
-   begin
-      return Vect & To_String (Value);
-   end "&";
-
-   function "&"
-     (Value : in Strings.Unbounded.Unbounded_String;
-      Vect  : in Vector_Tag)
-      return Vector_Tag is
-   begin
-      return To_String (Value) & Vect;
-   end "&";
-
-   function "&"
-     (Vect  : in Vector_Tag;
-      Value : in Integer)
-      return Vector_Tag is
-   begin
-      return Vect & Image (Value);
-   end "&";
-
-   function "&"
-     (Value : in Integer;
-      Vect  : in Vector_Tag)
-      return Vector_Tag is
-   begin
-      return Image (Value) & Vect;
-   end "&";
+      return T.Count;
+   end Size;
 
    -----------
    -- Clear --
    -----------
 
-   procedure Clear (Vect : in out Vector_Tag) is
+   procedure Clear (T : in out Tag) is
    begin
       --  Here we just separate current vector from the new one. The memory
       --  used by the current one will be collected by the Finalize
       --  routine. We just want a new independant Vector_Tag here.
 
-      Finalize (Vect);
+      Finalize (T);
 
-      Vect.Ref_Count := new Integer'(1);
-      Vect.Pos       := new Integer'(1);
-      Vect.Count     := 0;
-      Vect.Head      := null;
-      Vect.Last      := null;
-      Vect.Current   := null;
+      T.Ref_Count := new Integer'(1);
+      T.Count     := 0;
+      T.Head      := null;
+      T.Last      := null;
+      T.Position  := (null, new Integer'(1));
    end Clear;
-
-   ------------
-   -- Adjust --
-   ------------
-
-   procedure Adjust (V : in out Vector_Tag) is
-   begin
-      V.Ref_Count.all := V.Ref_Count.all + 1;
-   end Adjust;
-
-   ----------------
-   -- Initialize --
-   ----------------
-
-   procedure Initialize (V : in out Vector_Tag) is
-   begin
-      V.Ref_Count := new Integer'(1);
-      V.Pos       := new Integer'(1);
-      V.Count     := 0;
-   end Initialize;
 
    ----------
    -- Item --
    ----------
 
-   function Item (Vect : in Vector_Tag; N : in Positive) return String is
+   function Item (T : in Tag; N : in Positive) return String is
       Result : Unbounded_String;
       Found  : Boolean;
    begin
-      Field (Vect, N, Result, Found);
+      Field (T, (1 => N), Result, Found);
 
       if not Found then
          raise Constraint_Error;
@@ -1421,191 +1280,82 @@ package body Templates_Parser is
       end if;
    end Item;
 
-   --------------
-   -- Finalize --
-   --------------
-
-   procedure Finalize (V : in out Vector_Tag) is
+   function Item (T : in Tag; N : in Positive) return Tag is
+      Result : Tag;
+      Found  : Boolean;
    begin
-      V.Ref_Count.all := V.Ref_Count.all - 1;
+      Field (T, N, Result, Found);
 
-      if V.Ref_Count.all = 0 then
-         declare
-            procedure Free is new Ada.Unchecked_Deallocation
-              (Vector_Tag_Node, Vector_Tag_Node_Access);
-
-            procedure Free is new Ada.Unchecked_Deallocation
-              (Vector_Tag_Node_Access, Access_Vector_Tag_Node_Access);
-
-            procedure Free is new Ada.Unchecked_Deallocation
-              (Integer, Integer_Access);
-
-            P, N : Vector_Tag_Node_Access;
-         begin
-            P := V.Head;
-
-            while P /= null loop
-               N := P.Next;
-               Free (P);
-               P := N;
-            end loop;
-
-            V.Head := null;
-            V.Last := null;
-
-            Free (V.Ref_Count);
-            Free (V.Pos);
-            Free (V.Current);
-         end;
-      end if;
-   end Finalize;
-
-   ----------
-   -- Size --
-   ----------
-
-   function Size (Vect : in Vector_Tag) return Natural is
-   begin
-      return Vect.Count;
-   end Size;
-
-   ----------------
-   -- Matrix_Tag --
-   ----------------
-
-   procedure Field
-     (Matrix : in     Matrix_Tag;
-      I, J   : in     Natural;
-      Result :    out Unbounded_String;
-      Found  :    out Boolean);
-   --  Returns Value in Mat_Value (I, J). Found is set to False if there is
-   --  no such value in Mat_Value.
-
-   procedure Vector
-     (Matrix : in     Matrix_Tag;
-      N      : in     Positive;
-      Vect   :    out Vector_Tag;
-      Found  :    out Boolean);
-   --  Returns Vect in Matrix (N). Found is set to False if there is no such
-   --  vector in Matrix.
-
-   ---------
-   -- "+" --
-   ---------
-
-   function "+" (Vect : in Vector_Tag) return Matrix_Tag is
-      Item : constant Matrix_Tag_Node_Access
-        := new Matrix_Tag_Node'(Vect, null);
-      V_Size : constant Natural := Size (Vect);
-   begin
-      return Matrix_Tag'
-        (M => (Ada.Finalization.Controlled with
-                 Ref_Count => new Integer'(1),
-                 Count     => 1,
-                 Min       => V_Size,
-                 Max       => V_Size,
-                 Head      => Item,
-                 Last      => Item,
-                 Current   => new Matrix_Tag_Node_Access'(Item),
-                 Pos       => new Integer'(1)));
-   end "+";
-
-   ---------
-   -- "&" --
-   ---------
-
-   function "&"
-     (Matrix : in Matrix_Tag;
-      Vect   : in Vector_Tag)
-      return Matrix_Tag
-   is
-      Item : constant Matrix_Tag_Node_Access
-        := new Matrix_Tag_Node'(Vect, null);
-      V_Size : constant Natural := Size (Vect);
-   begin
-      Matrix.M.Ref_Count.all := Matrix.M.Ref_Count.all + 1;
-
-      if Matrix.M.Head = null then
-         return (M => (Ada.Finalization.Controlled with
-                       Matrix.M.Ref_Count,
-                       Matrix.M.Count + 1,
-                       Min     => Natural'Min (Matrix.M.Min, V_Size),
-                       Max     => Natural'Max (Matrix.M.Max, V_Size),
-                       Head    => Item,
-                       Last    => Item,
-                       Current => new Matrix_Tag_Node_Access'(Item),
-                       Pos     => Matrix.M.Pos));
+      if Found then
+         return Result;
       else
-         Matrix.M.Last.Next := Item;
-         return (M => (Ada.Finalization.Controlled with
-                       Matrix.M.Ref_Count,
-                       Matrix.M.Count + 1,
-                       Min     => Natural'Min (Matrix.M.Min, V_Size),
-                       Max     => Natural'Max (Matrix.M.Max, V_Size),
-                       Head    => Matrix.M.Head,
-                       Last    => Item,
-                       Current => Matrix.M.Current,
-                       Pos     => Matrix.M.Pos));
+         raise Constraint_Error;
       end if;
-   end "&";
+   end Item;
 
-   ----------
-   -- Size --
-   ----------
+   -------------------
+   -- Set_Separator --
+   -------------------
 
-   function Size (Matrix : in Matrix_Tag) return Natural is
+   procedure Set_Separator (T : in out Tag; Separator : in String) is
    begin
-      return Matrix.M.Count;
-   end Size;
+      T.Separator := To_Unbounded_String (Separator);
+   end Set_Separator;
 
    ----------------
    -- Initialize --
    ----------------
 
-   procedure Initialize (M : in out Matrix_Tag_Int) is
+   procedure Initialize (T : in out Tag) is
    begin
-      M.Ref_Count := new Integer'(1);
-      M.Pos       := new Integer'(1);
-      M.Count     := 0;
-      M.Min       := Natural'Last;
-      M.Max       := 0;
+      T.Ref_Count := new Integer'(1);
+      T.Count     := 0;
+      T.Min       := Natural'Last;
+      T.Max       := 0;
+      T.Position  := (null, new Integer'(1));
    end Initialize;
 
    --------------
    -- Finalize --
    --------------
 
-   procedure Finalize (M : in out Matrix_Tag_Int) is
+   procedure Finalize (T : in out Tag) is
    begin
-      M.Ref_Count.all := M.Ref_Count.all - 1;
+      T.Ref_Count.all := T.Ref_Count.all - 1;
 
-      if M.Ref_Count.all = 0 then
+      if T.Ref_Count.all = 0 then
          declare
             procedure Free is new Ada.Unchecked_Deallocation
-              (Matrix_Tag_Node, Matrix_Tag_Node_Access);
+              (Tag_Node, Tag_Node_Access);
 
             procedure Free is new Ada.Unchecked_Deallocation
-              (Matrix_Tag_Node_Access, Access_Matrix_Tag_Node_Access);
+              (Tag, Tag_Access);
 
             procedure Free is new Ada.Unchecked_Deallocation
-              (Integer, Integer_Access);
+              (Tag_Node_Access, Access_Tag_Node_Access);
 
-            P, N : Matrix_Tag_Node_Access;
+            P, N : Tag_Node_Access;
          begin
-            P := M.Head;
+            P := T.Head;
 
             while P /= null loop
                N := P.Next;
+
+               if P.Kind = Value_Set then
+                  Free (P.VS);
+               end if;
+
                Free (P);
+
                P := N;
             end loop;
 
-            M.Head := null;
-            M.Last := null;
+            T.Head := null;
+            T.Last := null;
 
-            Free (M.Ref_Count);
-            Free (M.Pos);
-            Free (M.Current);
+            Free (T.Ref_Count);
+            Free (T.Position.Pos);
+            Free (T.Position.Current);
          end;
       end if;
    end Finalize;
@@ -1614,71 +1364,206 @@ package body Templates_Parser is
    -- Adjust --
    ------------
 
-   procedure Adjust (M : in out Matrix_Tag_Int) is
+   procedure Adjust (T : in out Tag) is
    begin
-      M.Ref_Count.all := M.Ref_Count.all + 1;
+      T.Ref_Count.all := T.Ref_Count.all + 1;
    end Adjust;
 
-   ------------
-   -- Vector --
-   ------------
+   ---------
+   -- "+" --
+   ---------
 
-   procedure Vector
-     (Matrix : in     Matrix_Tag;
-      N      : in     Positive;
-      Vect   :    out Vector_Tag;
-      Found  :    out Boolean) is
+   function "+" (Value : in String) return Tag is
+      Item : constant Tag_Node_Access
+        := new Tag_Node'(Templates_Parser.Value,
+                         null, To_Unbounded_String (Value));
    begin
-      Found := True;
+      return (Ada.Finalization.Controlled with
+              Ref_Count    => new Integer'(1),
+              Count        => 1,
+              Min          => 1,
+              Max          => 1,
+              Nested_Level => 1,
+              Separator    => To_Unbounded_String (Default_Separator),
+              Head         => Item,
+              Last         => Item,
+              Position     => (new Tag_Node_Access'(Item), new Integer'(1)));
+   end "+";
 
-      if N = Matrix.M.Count then
-         Vect := Matrix.M.Last.Vect;
-
-      elsif N >= Matrix.M.Pos.all then
-
-         for K in 1 .. N - Matrix.M.Pos.all loop
-            Matrix.M.Pos.all     := Matrix.M.Pos.all + 1;
-            Matrix.M.Current.all := Matrix.M.Current.all.Next;
-         end loop;
-
-         Vect := Matrix.M.Current.all.Vect;
-
-      elsif N > Matrix.M.Count then
-         Found  := False;
-
-      else
-         declare
-            P : Matrix_Tag_Node_Access := Matrix.M.Head;
-         begin
-            for K in 1 .. N - 1 loop
-               P := P.Next;
-            end loop;
-
-            Matrix.M.Pos.all     := N;
-            Matrix.M.Current.all := P;
-
-            Vect := P.Vect;
-         end;
-      end if;
-   end Vector;
-
-   function Vector
-     (Matrix : in Matrix_Tag;
-      N      : in Positive)
-      return Vector_Tag
-   is
-      Result : Vector_Tag;
-      Found  : Boolean;
+   function "+" (Value : in Character) return Tag is
    begin
-      Vector (Matrix, N, Result, Found);
+      return +String'(1 => Value);
+   end "+";
 
-      if Found then
-         return Result;
+   function "+" (Value : in Boolean) return Tag is
+   begin
+      return +Boolean'Image (Value);
+   end "+";
+
+   function "+" (Value : in Unbounded_String) return Tag is
+   begin
+      return +To_String (Value);
+   end "+";
+
+   function "+" (Value : in Integer) return Tag is
+   begin
+      return +Image (Value);
+   end "+";
+
+   function "+" (Value : in Tag) return Tag is
+      Result : Tag;
+   begin
+      Result := Result & Value;
+      --  This is an embedded tag, set separator to LF
+      Set_Separator (Result, (1 => ASCII.LF));
+      return Result;
+   end "+";
+
+   ---------
+   -- "&" --
+   ---------
+
+   function "&" (T : in Tag; Value : in String) return Tag is
+      Item : constant Tag_Node_Access
+        := new Tag_Node'
+          (Templates_Parser.Value, null, To_Unbounded_String (Value));
+   begin
+      T.Ref_Count.all := T.Ref_Count.all + 1;
+
+      if T.Head = null then
+         return (Ada.Finalization.Controlled with
+                 T.Ref_Count,
+                 T.Count + 1,
+                 Min          => Natural'Min (T.Min, 1),
+                 Max          => Natural'Max (T.Max, 1),
+                 Nested_Level => 1,
+                 Separator    => To_Unbounded_String (Default_Separator),
+                 Head         => Item,
+                 Last         => Item,
+                 Position     =>
+                   (new Tag_Node_Access'(Item), T.Position.Pos));
       else
-         Exceptions.Raise_Exception
-           (Constraint_Error'Identity, "Index out of range");
+         T.Last.Next := Item;
+         return (Ada.Finalization.Controlled with
+                 T.Ref_Count,
+                 T.Count + 1,
+                 Min          => Natural'Min (T.Min, 1),
+                 Max          => Natural'Max (T.Max, 1),
+                 Nested_Level => T.Nested_Level,
+                 Separator    => T.Separator,
+                 Head         => T.Head,
+                 Last         => Item,
+                 Position     => (T.Position.Current, T.Position.Pos));
       end if;
-   end Vector;
+   end "&";
+
+   function "&" (Value : in String; T : in Tag) return Tag is
+      Item : constant Tag_Node_Access
+        := new Tag_Node'
+          (Templates_Parser.Value, T.Head, To_Unbounded_String (Value));
+   begin
+      T.Ref_Count.all := T.Ref_Count.all + 1;
+
+      if T.Head = null then
+         return (Ada.Finalization.Controlled with
+                 T.Ref_Count,
+                 T.Count + 1,
+                 Min          => Natural'Min (T.Min, 1),
+                 Max          => Natural'Max (T.Max, 1),
+                 Nested_Level => 1,
+                 Separator    => To_Unbounded_String (Default_Separator),
+                 Head         => Item,
+                 Last         => Item,
+                 Position     =>
+                   (new Tag_Node_Access'(Item), T.Position.Pos));
+      else
+         return (Ada.Finalization.Controlled with
+                 T.Ref_Count,
+                 T.Count + 1,
+                 Min          => Natural'Min (T.Min, 1),
+                 Max          => Natural'Max (T.Max, 1),
+                 Nested_Level => T.Nested_Level,
+                 Separator    => T.Separator,
+                 Head         => Item,
+                 Last         => T.Last,
+                 Position     => (T.Position.Current, T.Position.Pos));
+      end if;
+   end "&";
+
+   function "&" (T : in Tag; Value : in Tag) return Tag is
+      Item   : constant Tag_Node_Access
+        := new Tag_Node'(Value_Set, null, new Tag'(Value));
+      T_Size : constant Natural := Size (Value);
+   begin
+      T.Ref_Count.all := T.Ref_Count.all + 1;
+
+      if T.Head = null then
+         return (Ada.Finalization.Controlled with
+                 T.Ref_Count,
+                 T.Count + 1,
+                 Min          => Natural'Min (T.Min, T_Size),
+                 Max          => Natural'Max (T.Max, T_Size),
+                 Nested_Level => Value.Nested_Level + 1,
+                 Separator    => To_Unbounded_String ((1 => ASCII.LF)),
+                 Head         => Item,
+                 Last         => Item,
+                 Position     =>
+                   (new Tag_Node_Access'(Item), T.Position.Pos));
+      else
+         T.Last.Next := Item;
+         return (Ada.Finalization.Controlled with
+                 T.Ref_Count,
+                 T.Count + 1,
+                 Min          => Natural'Min (T.Min, T_Size),
+                 Max          => Natural'Max (T.Max, T_Size),
+                 Nested_Level =>
+                   Positive'Max (T.Nested_Level, Value.Nested_Level),
+                 Separator    => T.Separator,
+                 Head         => T.Head,
+                 Last         => Item,
+                 Position     => (T.Position.Current, T.Position.Pos));
+      end if;
+   end "&";
+
+   function "&" (T : in Tag; Value : in Character) return Tag is
+   begin
+      return T & String'(1 => Value);
+   end "&";
+
+   function "&" (T : in Tag; Value : in Boolean) return Tag is
+   begin
+      return T & Boolean'Image (Value);
+   end "&";
+
+   function "&" (T : in Tag; Value : in Unbounded_String) return Tag is
+   begin
+      return T & To_String (Value);
+   end "&";
+
+   function "&" (T : in Tag; Value : in Integer) return Tag is
+   begin
+      return T & Image (Value);
+   end "&";
+
+   function "&" (Value : in Character; T : in Tag) return Tag is
+   begin
+      return String'(1 => Value) & T;
+   end "&";
+
+   function "&" (Value : in Boolean; T : in Tag) return Tag is
+   begin
+      return Boolean'Image (Value) & T;
+   end "&";
+
+   function "&" (Value : in Unbounded_String; T : in Tag) return Tag is
+   begin
+      return To_String (Value) & T;
+   end "&";
+
+   function "&" (Value : in Integer; T : in Tag) return Tag is
+   begin
+      return Image (Value) & T;
+   end "&";
 
    ------------------
    -- Cached_Files --
@@ -1703,82 +1588,165 @@ package body Templates_Parser is
    -----------
 
    procedure Field
-     (Vect   : in     Vector_Tag;
+     (T      : in     Tag;
       N      : in     Positive;
-      Result :    out Unbounded_String;
+      Result :    out Tag_Node_Access;
       Found  :    out Boolean) is
    begin
       Found := True;
 
-      if N = Vect.Count then
-         Result := Vect.Last.Value;
+      if N = T.Count then
+         Result := T.Last;
 
-      elsif N > Vect.Count then
-         Result := Null_Unbounded_String;
+      elsif N > T.Count then
+         --  No such item for this position
+         Result := null;
          Found  := False;
 
-      elsif N >= Vect.Pos.all then
+      elsif N > T.Position.Pos.all then
+         --  Use cursor to move to the right position
 
-         for K in 1 .. N - Vect.Pos.all loop
-            Vect.Pos.all     := Vect.Pos.all + 1;
-            Vect.Current.all := Vect.Current.all.Next;
+         for K in 1 .. N - T.Position.Pos.all loop
+            T.Position.Pos.all     := T.Position.Pos.all + 1;
+            T.Position.Current.all := T.Position.Current.all.Next;
          end loop;
 
-         Result := Vect.Current.all.Value;
-
+         Result := T.Position.Current.all;
       else
+
          declare
-            P : Vector_Tag_Node_Access := Vect.Head;
+            P : Tag_Node_Access := T.Head;
          begin
             for K in 1 .. N - 1 loop
                P := P.Next;
             end loop;
 
-            Vect.Pos.all     := N;
-            Vect.Current.all := P;
+            T.Position.Pos.all     := N;
+            T.Position.Current.all := P;
 
-            Result := P.Value;
+            Result := P;
          end;
       end if;
    end Field;
 
    procedure Field
-     (Matrix : in     Matrix_Tag;
-      I, J   : in     Natural;
+     (T      : in     Tag;
+      N      : in     Positive;
+      Result :    out Tag;
+      Found  :    out Boolean)
+   is
+      R : Tag_Node_Access;
+   begin
+      Field (T, N, R, Found);
+
+      if Found and then R.Kind = Value_Set then
+         --  There is a Tag at this position, return it
+         Result := R.VS.all;
+      else
+         Found := False;
+      end if;
+   end Field;
+
+   procedure Field
+     (T      : in     Tag;
+      Cursor : in     Indices;
       Result :    out Unbounded_String;
-      Found  :    out Boolean) is
+      Found  :    out Boolean)
+   is
+
+      function Image (T : in Tag) return Unbounded_String;
+      --  Returns T string representation
+
+      -----------
+      -- Image --
+      -----------
+
+      function Image (T : in Tag) return Unbounded_String is
+
+         function Image (N : in Tag_Node) return Unbounded_String;
+         --  Returns N string representation
+
+         -----------
+         -- Image --
+         -----------
+
+         function Image (N : in Tag_Node) return Unbounded_String is
+         begin
+            if N.Kind = Value then
+               return N.V;
+            else
+               return Image (N.VS.all);
+            end if;
+         end Image;
+
+         Result : Unbounded_String;
+         N      : Tag_Node_Access := T.Head;
+      begin
+         while N /= null loop
+            if Result /= Null_Unbounded_String then
+               Append (Result, T.Separator);
+            end if;
+            Append (Result, Image (N.all));
+            N := N.Next;
+         end loop;
+         return Result;
+      end Image;
+
+      C : Natural;
+      P : Natural;
+      R : Tag_Node_Access;
    begin
       Found := True;
 
-      if I = Matrix.M.Count then
-         Field (Matrix.M.Last.Vect, J, Result, Found);
+      if Cursor'Length > T.Nested_Level then
+         C := Cursor'Last - T.Nested_Level + 1;
+         P := Cursor (C);
 
-      elsif I > Matrix.M.Count then
-         Result := Null_Unbounded_String;
-         Found  := False;
+      elsif Cursor'Length /= 0 then
+         C := Cursor'First;
+         P := Cursor (C);
+      end if;
 
-      elsif I >= Matrix.M.Pos.all then
-
-         for K in 1 .. I - Matrix.M.Pos.all loop
-            Matrix.M.Pos.all     := Matrix.M.Pos.all + 1;
-            Matrix.M.Current.all := Matrix.M.Current.all.Next;
-         end loop;
-
-         Field (Matrix.M.Current.all.Vect, J, Result, Found);
+      if Cursor'Length = 0 then
+         --  No cursor, we just want the streamed T image
+         Result := Image (T);
 
       else
-         declare
-            P : Matrix_Tag_Node_Access := Matrix.M.Head;
-         begin
-            for K in 1 .. I - 1 loop
-               P := P.Next;
-            end loop;
+         Field (T, P, R, Found);
+      end if;
 
-            Matrix.M.Pos.all     := I;
-            Matrix.M.Current.all := P;
+      if R /= null then
+         --  We have found something at this indice
 
-            Field (P.Vect, J, Result, Found);
-         end;
+         if C = Cursor'Last then
+            --  This is the last position
+
+            if R.Kind = Value then
+               --  Found a leaf, just return the value
+               Result := R.V;
+            else
+               Result := Image (R.VS.all);
+            end if;
+
+         else
+            --  There is more position to look for in the cursor
+
+            if R.Kind = Value then
+               --  This is a leaf, there is nothing more to look for
+               Found  := False;
+               Result := Null_Unbounded_String;
+
+            else
+               --  Look into next dimention
+               Field
+                 (R.VS.all,
+                  Cursor (C + 1 .. Cursor'Last),
+                  Result, Found);
+            end if;
+         end if;
+
+      else
+         Found := False;
       end if;
    end Field;
 
@@ -1787,6 +1755,45 @@ package body Templates_Parser is
    ------------
 
    package body Filter is separate;
+
+   -------------------
+   -- Translate_Set --
+   -------------------
+
+   ------------
+   -- Insert --
+   ------------
+
+   procedure Insert (Set : in out Translate_Set; Item : in Association) is
+   begin
+      Association_Set.Containers.Replace
+        (Set.Set.all, To_String (Item.Variable), Item);
+   end Insert;
+
+   ------------
+   -- Exists --
+   ------------
+
+   function Exists
+     (Set      : in Translate_Set;
+      Variable : in String)
+      return Boolean is
+   begin
+      return Association_Set.Containers.Is_In (Variable, Set.Set.all);
+   end Exists;
+
+   ------------
+   -- To_Set --
+   ------------
+
+   function To_Set (Table : in Translate_Table) return Translate_Set is
+      Set : Translate_Set;
+   begin
+      for K in Table'Range loop
+         Insert (Set, Table (K));
+      end loop;
+      return Set;
+   end To_Set;
 
    -----------
    -- Assoc --
@@ -1835,28 +1842,16 @@ package body Templates_Parser is
 
    function Assoc
      (Variable  : in String;
-      Value     : in Vector_Tag;
-      Separator : in String     := Default_Separator)
-      return Association is
+      Value     : in Tag;
+      Separator : in String := Default_Separator)
+      return Association
+   is
+      T : Tag := Value;
    begin
       return Association'
-        (Vect,
+        (Composite,
          To_Unbounded_String (Variable),
-         Value,
-         To_Unbounded_String (Separator));
-   end Assoc;
-
-   function Assoc
-     (Variable  : in String;
-      Value     : in Matrix_Tag;
-      Separator : in String     := Default_Separator)
-      return Association is
-   begin
-      return Association'
-        (Matrix,
-         To_Unbounded_String (Variable),
-         Value,
-         To_Unbounded_String (Separator));
+         T);
    end Assoc;
 
    ----------
@@ -2477,27 +2472,35 @@ package body Templates_Parser is
                      --  Here we have an include variable name, replace it
 
                      T := Data.Parse (Get_Variable (To_String (T.Var.Name)));
-                     T.Next := Old.Next;
 
-                     case T.Kind is
-                        when Data.Var =>
-                           --  The new node is also a variable, inherit all the
-                           --  filters and attribute
-                           T.Var.Filters := Old.Var.Filters;
-                           T.Var.Attr    := Old.Var.Attr;
+                     if T = null then
+                        --  The result was the empty string, just remove this
+                        --  node from the tree.
+                        T := Old.Next;
 
-                        when Data.Text =>
-                           --  The new node is a value, apply filters if the
-                           --  previous node had some.
+                     else
+                        T.Next := Old.Next;
 
-                           if Old.Var.Filters /= null then
-                              T.Value := To_Unbounded_String
-                                (Translate (Old.Var, To_String (T.Value)));
-                           end if;
+                        case T.Kind is
+                           when Data.Var =>
+                              --  The new node is also a variable, inherit all
+                              --  the filters and attribute
+                              T.Var.Filters := Old.Var.Filters;
+                              T.Var.Attr    := Old.Var.Attr;
 
-                           --  Free filters
-                           Release (Old.Var);
-                     end case;
+                           when Data.Text =>
+                              --  The new node is a value, apply filters if the
+                              --  previous node had some.
+
+                              if Old.Var.Filters /= null then
+                                 T.Value := To_Unbounded_String
+                                   (Translate (Old.Var, To_String (T.Value)));
+                              end if;
+
+                              --  Free filters
+                              Release (Old.Var);
+                        end case;
+                     end if;
 
                      --  Free only node
                      Free (Old);
@@ -2692,24 +2695,6 @@ package body Templates_Parser is
          Fatal_Error (Exceptions.Exception_Message (E));
    end Load;
 
-   ----------------
-   -- Print_Tree --
-   ----------------
-
-   procedure Print_Tree (T : in Tree; Level : in Natural := 0) is separate;
-
-   ----------------
-   -- Print_Tree --
-   ----------------
-
-   procedure Print_Tree (Filename : in String) is
-      T : Static_Tree;
-   begin
-      T := Load (Filename);
-      Print_Tree (T.Info);
-      Release (T.Info);
-   end Print_Tree;
-
    -----------
    -- Parse --
    -----------
@@ -2725,26 +2710,45 @@ package body Templates_Parser is
         (Parse (Filename, Translations, Cached, Keep_Unknown_Tags));
    end Parse;
 
-   -----------
-   -- Parse --
-   -----------
-
    function Parse
      (Filename          : in String;
       Translations      : in Translate_Table := No_Translation;
       Cached            : in Boolean         := False;
       Keep_Unknown_Tags : in Boolean         := False)
+      return Unbounded_String is
+   begin
+      return Parse
+        (Filename, To_Set (Translations), Cached, Keep_Unknown_Tags);
+   end Parse;
+
+   function Parse
+     (Filename          : in String;
+      Translations      : in Translate_Set;
+      Cached            : in Boolean       := False;
+      Keep_Unknown_Tags : in Boolean       := False)
+      return String is
+   begin
+      return To_String
+        (Parse (Filename, Translations, Cached, Keep_Unknown_Tags));
+   end Parse;
+
+   function Parse
+     (Filename          : in String;
+      Translations      : in Translate_Set;
+      Cached            : in Boolean       := False;
+      Keep_Unknown_Tags : in Boolean       := False)
       return Unbounded_String
    is
+
       type Table_State is record
-         I, J           : Natural;
+         Cursor         : Indices (1 .. 10);
          Max_Lines      : Natural;
          Max_Expand     : Natural;
          Table_Level    : Natural;
          Section_Number : Natural;
       end record;
 
-      Empty_State : constant Table_State := (0, 0, 0, 0, 0, 0);
+      Empty_State : constant Table_State := ((1 .. 10 => 0), 0, 0, 0, 0);
 
       Results : Unbounded_String := Null_Unbounded_String;
 
@@ -2768,6 +2772,7 @@ package body Templates_Parser is
         (T     : in Tree;
          State : in Table_State)
       is
+         use type Containers.Cursor_Type;
 
          function Analyze (E : in Expr.Tree) return String;
          --  Analyse the expression tree and returns the result as a boolean
@@ -2796,7 +2801,7 @@ package body Templates_Parser is
          --  Return True if Str is one of "TRUE", "OUI", the case beeing not
          --  case sensitive.
 
-         function Translate (Var : in Tag) return String;
+         function Translate (Var : in Tag_Var) return String;
          --  Translate Tag variable using Translation table and apply all
          --  Filters and Atribute recorded for this variable.
 
@@ -2804,272 +2809,123 @@ package body Templates_Parser is
          -- Translate --
          ---------------
 
-         function Translate (Var : in Tag) return String is
-
-            function Vect_List (A : in Association) return String;
-            --  Returns the Vector_Tag for the Association as a String, each
-            --  value is separated by the given separator.
-
-            function Vect_Size (A : in Association) return String;
-            pragma Inline (Vect_Size);
-            --  Returns the number of items into the Vector_Tag
-
-            function Mat_List (A : in Association) return String;
-            --  Returns the Matrix_Tag as a string. If Matrix_Tag is not into
-            --  a table, each Vector_Tag is convected using Vect_List and a LF
-            --  is inserted between each rows. If the Matrix_Tag is into a
-            --  table of level 1, it returns only the Vector_Tag (converted
-            --  using Vect_List) for the current table line.
-
-            function Mat_Line (A : in Association) return String;
-            pragma Inline (Mat_Line);
-            --  Returns the number of line (vector) into the matrix
-
-            function Mat_Min_Column (A : in Association) return String;
-            pragma Inline (Mat_Line);
-            --  Returns the size of the smallest vector
-
-            function Mat_Max_Column (A : in Association) return String;
-            pragma Inline (Mat_Line);
-            --  Returns the size of the largest vector
-
-            ---------------
-            -- Vect_List --
-            ---------------
-
-            function Vect_List (A : in Association) return String is
-               Result : Unbounded_String;
-               P      : Vector_Tag_Node_Access := A.Vect_Value.Head;
-            begin
-               if P = null then
-                  return "";
-               else
-                  Result := P.Value;
-                  for K in 2 .. A.Vect_Value.Count loop
-                     P := P.Next;
-                     Append (Result, A.Separator & P.Value);
-                  end loop;
-
-                  return To_String (Result);
-               end if;
-            end Vect_List;
-
-            ---------------
-            -- Vect_Size --
-            ---------------
-
-            function Vect_Size (A : in Association) return String is
-            begin
-               return Image (A.Vect_Value.Count);
-            end Vect_Size;
-
-            --------------
-            -- Mat_List --
-            --------------
-
-            function Mat_List (A : in Association) return String is
-               Result : Unbounded_String;
-               P      : Matrix_Tag_Node_Access := A.Mat_Value.M.Head;
-
-               procedure Add_Vector (V : in Vector_Tag);
-               --  Add V Vector_Tag representation into Result variable.
-
-               ----------------
-               -- Add_Vector --
-               ----------------
-
-               procedure Add_Vector (V : in Vector_Tag) is
-                  P : Vector_Tag_Node_Access := V.Head;
-               begin
-                  --  Check that vector is not empty
-                  if P /= null then
-                     Result := Result & P.Value;
-
-                     for K in 2 .. V.Count loop
-                        P := P.Next;
-                        Append (Result, A.Column_Separator & P.Value);
-                     end loop;
-                  end if;
-               end Add_Vector;
-
-            begin
-               if State.Table_Level = 0 then
-                  --  A Matrix outside a table statement.
-
-                  loop
-                     Add_Vector (P.Vect);
-                     P := P.Next;
-
-                     exit when P = null;
-
-                     Append (Result, ASCII.LF);
-                  end loop;
-
-               else
-                  if not (State.J > A.Mat_Value.M.Count) then
-                     Add_Vector (Vector (A.Mat_Value, State.J));
-                  end if;
-               end if;
-
-               return To_String (Result);
-            end Mat_List;
-
-            --------------
-            -- Mat_Line --
-            --------------
-
-            function Mat_Line (A : in Association) return String is
-            begin
-               return Image (A.Mat_Value.M.Count);
-            end Mat_Line;
-
-            --------------------
-            -- Mat_Min_Column --
-            --------------------
-
-            function Mat_Min_Column (A : in Association) return String is
-            begin
-               return Image (A.Mat_Value.M.Min);
-            end Mat_Min_Column;
-
-            --------------------
-            -- Mat_Max_Column --
-            --------------------
-
-            function Mat_Max_Column (A : in Association) return String is
-            begin
-               return Image (A.Mat_Value.M.Max);
-            end Mat_Max_Column;
-
+         function Translate (Var : in Tag_Var) return String is
+            Pos : Containers.Cursor_Type;
          begin
-            for K in Translations'Range loop
-               --  ??? This loop should be removed when the translation table
-               --  will be in a map.
+            Pos := Containers.Find
+              (Translations.Set.all, To_String (Var.Name));
 
-               if Var.Name = Translations (K).Variable then
+            if Pos /= Containers.Null_Cursor then
+               declare
+                  Tk : constant Association := Containers.Element (Pos);
+               begin
+                  case Tk.Kind is
 
-                  declare
-                     Tk : constant Association := Translations (K);
-                  begin
-                     case Tk.Kind is
+                     when Std =>
+                        if Var.Attr = Nil then
+                           return Translate
+                             (Var, To_String (Tk.Value), Translations);
+                        else
+                           Exceptions.Raise_Exception
+                             (Template_Error'Identity,
+                              "Attribute not valid on a discrete tag");
+                        end if;
 
-                        when Std =>
-                           if Var.Attr = Nil then
-                              return Translate
-                                (Var, To_String (Tk.Value), Translations);
-                           else
-                              Exceptions.Raise_Exception
-                                (Template_Error'Identity,
-                                 "Attribute not valid on a discrete tag");
-                           end if;
+                     when Composite =>
+                        if Tk.Comp_Value.Nested_Level = 1 then
+                           --  This is a vector
 
-                        when Vect =>
                            if Var.Attr = Length then
-                              --  'Length on a vector
                               return Translate
-                                (Var, Vect_Size (Tk), Translations);
+                                (Var,
+                                 Image (Tk.Comp_Value.Count),
+                                 Translations);
 
                            elsif Var.Attr /= Nil then
                               Exceptions.Raise_Exception
                                 (Template_Error'Identity,
                                  "This attribute is not valid for a "
-                                   & "vector tag");
-
-                           elsif State.Table_Level = 0 then
-                              --  This is a vector tag (outside of a
-                              --  table tag statement), we display it as
-                              --  a list separated by the specified
-                              --  separator.
-                              return Translate
-                                (Var, Vect_List (Tk), Translations);
-
-                           else
-                              declare
-                                 Result : Unbounded_String;
-                                 Found  : Boolean;
-                              begin
-                                 Field (Tk.Vect_Value, State.J, Result, Found);
-                                 return Translate
-                                   (Var, To_String (Result), Translations);
-                              end;
+                                 & "vector tag");
                            end if;
 
-                        when Matrix =>
+                        elsif Tk.Comp_Value.Nested_Level = 2 then
                            if Var.Attr = Line then
                               --  'Line on a matrix
                               return Translate
-                                (Var, Mat_Line (Tk), Translations);
+                                (Var,
+                                 Image (Tk.Comp_Value.Count),
+                                 Translations);
 
                            elsif Var.Attr = Min_Column then
                               --  'Min_Column on a matrix
                               return Translate
-                                (Var, Mat_Min_Column (Tk), Translations);
+                                (Var,
+                                 Image (Tk.Comp_Value.Min),
+                                 Translations);
 
                            elsif Var.Attr = Max_Column then
                               --  'Max_Column on a matrix
                               return Translate
-                                (Var, Mat_Max_Column (Tk), Translations);
+                                (Var,
+                                 Image (Tk.Comp_Value.Max),
+                                 Translations);
 
                            elsif Var.Attr /= Nil then
                               Exceptions.Raise_Exception
                                 (Template_Error'Identity,
                                  "This attribute is not valid for a "
-                                   & "matrix tag");
-
-                           elsif State.Table_Level in 0 .. 1 then
-                              --  This is a matrix tag (outside of a
-                              --  level 2 table tag statement), convert
-                              --  it using Mat_List.
-                              return Translate
-                                (Var, Mat_List (Tk), Translations);
-
-                           else
-                              declare
-                                 Result : Unbounded_String;
-                                 Found  : Boolean;
-                              begin
-                                 Field (Tk.Mat_Value, State.I, State.J,
-                                        Result, Found);
-                                 return Translate
-                                   (Var, To_String (Result), Translations);
-                              end;
+                                 & "matrix tag");
                            end if;
-                     end case;
-                  end;
-               end if;
-            end loop;
+                        end if;
+
+                        declare
+                           Result : Unbounded_String;
+                           Found  : Boolean;
+                        begin
+                           Field
+                             (Tk.Comp_Value,
+                              State.Cursor (1 .. State.Table_Level),
+                              Result, Found);
+
+                           return Translate
+                             (Var, To_String (Result), Translations);
+                        end;
+                  end case;
+               end;
+            end if;
 
             --  Check now for an internal tag
 
             declare
                T_Name : constant String := To_String (Var.Name);
             begin
-
                if T_Name = "UP_TABLE_LINE" then
-                  return Translate
-                    (Var,
-                     Fixed.Trim (Positive'Image (State.I), Strings.Left),
-                     Translations);
+                  if State.Table_Level < 2 then
+                     return Translate (Var, "0", Translations);
+                  else
+                     return Translate
+                       (Var,
+                        Image (State.Cursor (State.Table_Level - 1)),
+                        Translations);
+                  end if;
 
                elsif T_Name = "TABLE_LINE" then
-                  return Translate
-                    (Var,
-                     Fixed.Trim (Positive'Image (State.J), Strings.Left),
-                     Translations);
+                  if State.Table_Level = 0 then
+                     return Translate (Var, "0", Translations);
+                  else
+                     return Translate
+                       (Var,
+                        Image (State.Cursor (State.Table_Level)),
+                        Translations);
+                  end if;
 
                elsif T_Name = "NUMBER_LINE" then
                   return Translate
-                    (Var,
-                     Fixed.Trim (Positive'Image (State.Max_Lines),
-                                 Strings.Left),
-                     Translations);
+                    (Var, Image (State.Max_Lines), Translations);
 
                elsif T_Name = "TABLE_LEVEL" then
                   return Translate
-                    (Var,
-                     Fixed.Trim (Positive'Image (State.Table_Level),
-                                 Strings.Left),
-                     Translations);
+                    (Var, Image (State.Table_Level), Translations);
 
                elsif T_Name = "NOW" then
                   return Translate
@@ -3339,6 +3195,7 @@ package body Templates_Parser is
 
             function F_Sup (L, R : in String) return String is
             begin
+               --  ??? remove exception handler
                if Integer'Value (L) > Integer'Value (R) then
                   return "TRUE";
                else
@@ -3411,7 +3268,10 @@ package body Templates_Parser is
                N : in Positive)
                return Natural;
             --  Recursivelly descend the tree and compute the max lines that
-            --  will be displayed into the table.
+            --  will be displayed into the table. N is the variable embedded
+            --  level regarding the table statement. N=1 means that the
+            --  variable is just under the analysed table. N=2 means that the
+            --  variable is found inside a nested table statement. And so on.
 
             function Count_Section return Natural;
             --  Returns the number of section into table T;
@@ -3448,76 +3308,99 @@ package body Templates_Parser is
                function Check (T : in Expr.Tree) return Natural;
                --  Idem for an expression subtree as found in a condition
 
-               function Check (T : in Tag) return Natural;
+               function Check (T : in Tag_Var) return Natural;
                --  Returns the length of Tag T for the current context
 
                -----------
                -- Check --
                -----------
 
-               function Check (T : in Tag) return Natural is
-               begin
-                  for K in Translations'Range loop
-                     --  ??? Remove this loop when the translation table
-                     --  will be handled by a map.
+               function Check (T : in Tag_Var) return Natural is
+                  Table_Level : constant Positive := State.Table_Level + 1;
+                  --  This is the current table level, State.Table_Level is
+                  --  not yet updated when calling this routine.
+
+                  function Max (T : in Tag; N : in Natural) return Natural;
+                  --  ???
+
+                  function Max (T : in Tag; N : in Natural) return Natural is
+                     Result : Natural := 0;
+                  begin
                      declare
-                        Tk : constant Association := Translations (K);
+                        P : Tag_Node_Access := T.Head;
                      begin
-                        if T.Name = Tk.Variable then
-                           if N = 1 then
-                              --  First block level analysed.
+                        while P /= null loop
+                           if P.Kind = Value_Set then
+                              if N = 1 then
+                                 Result :=
+                                   Natural'Max (Result, P.VS.Count);
+                              else
+                                 Result := Natural'Max
+                                   (Result, Max (P.VS.all, N - 1));
+                              end if;
+                           end if;
+                           P := P.Next;
+                        end loop;
+                     end;
+                     return Result;
+                  end Max;
 
-                              if Tk.Kind = Vect then
-                                 --  This is a Vector tag into a top
-                                 --  level table statement. The number
-                                 --  of iterations for this table
-                                 --  statement correspond to the number
-                                 --  of item into the vector.
-                                 return Size (Tk.Vect_Value);
+                  Pos : Containers.Cursor_Type;
 
-                              elsif Tk.Kind = Matrix then
+               begin
+                  Pos := Containers.Find
+                    (Translations.Set.all, To_String (T.Name));
 
-                                 if State.Table_Level = 0 then
-                                    --  This is Matrix tag into a top
-                                    --  level table statement. The
-                                    --  number of iterations for this
-                                    --  table statement correspond to
-                                    --  the number of vector into the
-                                    --  table.
-                                    return Size (Tk.Mat_Value);
+                  if Pos /= Containers.Null_Cursor then
+                     declare
+                        Tk : constant Association := Containers.Element (Pos);
+                     begin
+                        if Tk.Kind = Composite then
+                           if N > Tk.Comp_Value.Nested_Level then
+                              --  Ignore this variable as it is deeper than
+                              --  its nested level.
+                              return 0;
+                           end if;
+
+                           --  We look first at two common cases to handle
+                           --  more efficiently tag into a single or two
+                           --  table statement.
+
+                           if Table_Level = 1
+                             or else Tk.Comp_Value.Nested_Level = 1
+                           then
+                              --  First table level, or flat composite, the
+                              --  number of iterations corresponds to the
+                              --  number of item into this tag.
+                              return Size (Tk.Comp_Value);
+
+                           elsif Table_Level = 2
+                             and then N = 1
+                           then
+                              --  Table level 2 while looking to nested
+                              --  variable.
+                              return Tk.Comp_Value.Max;
+
+                           else
+                              --  All other cases here
+                              declare
+                                 K : constant Positive
+                                   := Tk.Comp_Value.Nested_Level - N + 1;
+                                 --  K is the variable indice for which
+                                 --  the number of items is looked for.
+                              begin
+                                 if K = 1 then
+                                    return Size (Tk.Comp_Value);
+                                 elsif K = 2 then
+                                    return Tk.Comp_Value.Max;
                                  else
-                                    --  This is Matrix tag into an
-                                    --  embbeded table statement (table
-                                    --  statement into a table
-                                    --  statement). The number of
-                                    --  iterations for this table
-                                    --  statement correspond to the
-                                    --  largest number of items in the
-                                    --  Matrix tag's vectors.
-                                    return Tk.Mat_Value.M.Max;
+                                    return Max (Tk.Comp_Value, K - 1);
                                  end if;
-                              end if;
-
-                           elsif N = 2 then
-                              --  Second block level analysed.
-
-                              if Tk.Kind = Matrix then
-                                 --  This is a Matrix tag into an
-                                 --  embedded table statement (table
-                                 --  statement into a table statement)
-                                 --  analysed at the second block
-                                 --  level. This is to report the number
-                                 --  of iterations for upper level table
-                                 --  statement. This number of
-                                 --  iterations correspond to the
-                                 --  smallest number of vectors into the
-                                 --  table.
-                                 return Size (Tk.Mat_Value);
-                              end if;
+                              end;
                            end if;
                         end if;
                      end;
-                  end loop;
+                  end if;
 
                   --  Tag not found
 
@@ -3580,13 +3463,9 @@ package body Templates_Parser is
                               Get_Max_Lines (T.N_False, N))));
 
                   when Table_Stmt =>
-                     if N = 1 then
-                        return Natural'Max
-                          (Get_Max_Lines (T.Sections, N + 1),
-                           Get_Max_Lines (T.Next, N));
-                     else
-                        return Natural'First;
-                     end if;
+                     return Natural'Max
+                       (Get_Max_Lines (T.Sections, N + 1),
+                        Get_Max_Lines (T.Next, N));
 
                   when Section_Stmt =>
                      return Natural'Max
@@ -3681,7 +3560,7 @@ package body Templates_Parser is
                   Get_Max (T, Max_Lines, Max_Expand);
 
                   Analyze (T.Sections,
-                           Table_State'(State.I, State.J,
+                           Table_State'(State.Cursor,
                                         Max_Lines, Max_Expand,
                                         State.Table_Level + 1,
                                         State.Section_Number + 1));
@@ -3697,11 +3576,16 @@ package body Templates_Parser is
                begin
 
                   for K in 1 .. State.Max_Expand loop
-                     Analyze (Current.Next,
-                              Table_State'(State.J,
-                                           K,
-                                           State.Max_Lines, State.Max_Expand,
-                                           State.Table_Level, Section));
+                     declare
+                        New_Cursor : Indices := State.Cursor;
+                     begin
+                        New_Cursor (State.Table_Level) := K;
+                        Analyze
+                          (Current.Next,
+                           Table_State'(New_Cursor,
+                                        State.Max_Lines, State.Max_Expand,
+                                        State.Table_Level, Section));
+                     end;
 
                      Current := Current.N_Section;
                      Section := Section + 1;
@@ -3742,6 +3626,20 @@ package body Templates_Parser is
 
       return Results;
    end Parse;
+
+   ----------------
+   -- Print_Tree --
+   ----------------
+
+   procedure Print_Tree (T : in Tree; Level : in Natural := 0) is separate;
+
+   procedure Print_Tree (Filename : in String) is
+      T : Static_Tree;
+   begin
+      T := Load (Filename);
+      Print_Tree (T.Info);
+      Release (T.Info);
+   end Print_Tree;
 
    -------------
    -- Release --
@@ -3818,6 +3716,14 @@ package body Templates_Parser is
    function Translate
      (Template     : in String;
       Translations : in Translate_Table := No_Translation)
+      return String is
+   begin
+      return Translate (Template, To_Set (Translations));
+   end Translate;
+
+   function Translate
+     (Template     : in String;
+      Translations : in Translate_Set)
       return String
    is
       T : Data.Tree := Data.Parse (Template);
@@ -3825,31 +3731,31 @@ package body Templates_Parser is
 
       Results : Unbounded_String;
 
-      function Translate (Var : in Tag) return String;
-      --  Returns translation for Var.
+      function Translate (Var : in Tag_Var) return String;
+      --  Returns translation for Var
 
       ---------------
       -- Translate --
       ---------------
 
-      function Translate (Var : in Tag) return String is
+      function Translate (Var : in Tag_Var) return String is
+         use type Containers.Cursor_Type;
+         Pos : Containers.Cursor_Type;
       begin
-         for K in Translations'Range loop
-            if Var.Name = Translations (K).Variable then
-               declare
-                  Tk : constant Association := Translations (K);
-               begin
-                  case Tk.Kind is
+         Pos := Containers.Find (Translations.Set.all, To_String (Var.Name));
 
-                     when Std =>
-                        return Translate (Var, To_String (Tk.Value));
-
-                     when others =>
-                        return "";
-                  end case;
-               end;
-            end if;
-         end loop;
+         if Pos /= Containers.Null_Cursor then
+            declare
+               Item : constant Association := Containers.Element (Pos);
+            begin
+               case Item.Kind is
+                  when Std =>
+                     return Translate (Var, To_String (Item.Value));
+                  when others =>
+                     return "";
+               end case;
+            end;
+         end if;
 
          return "";
       end Translate;
@@ -3859,11 +3765,8 @@ package body Templates_Parser is
    begin
       while P /= null loop
          case P.Kind is
-            when Data.Text =>
-               Append (Results, P.Value);
-
-            when Data.Var =>
-               Append (Results, Translate (P.Var));
+            when Data.Text => Append (Results, P.Value);
+            when Data.Var  => Append (Results, Translate (P.Var));
          end case;
 
          P := P.Next;
