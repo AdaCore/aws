@@ -1,3 +1,29 @@
+2003-11-13  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-generator.adb:
+	(Mode): Add Derived.
+	(Definition): Handle the Derived variant.
+	(Character_Schema): New variable.
+	(Record_Exists): Renamed to Types_Exists.
+	(Register_Derived): New routine.
+	(To_XSD): If character set tag to generate schema.
+	(Types_Exists): Was Record_Exists.
+	(Write_Schema.Write_Character): New procedure.
+	(Write_Schema.Write_Derived): New procedure.
+	(Write_Schema): Handle derived types.
+
+	* ada2wsdl-generator.ads:
+	(Record_Exists): Renamed to Types_Exists.
+	(Types_Exists): Was Record_Exists.
+	(Register_Derived): New routine.
+
+	* ada2wsdl-parser.adb:
+	(Analyse_Profile): Properly checks for A_Default_In_Mode to
+	 support routine without parameter mode specified.
+	(Analyse_Type): Handle derived types.
+	(Type_Name): Rewrite, cleaner and it handles derived types,
+	 character types and enumeration types (mapped to Ada strings).
+
 2003-11-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-parser.adb:
