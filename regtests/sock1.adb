@@ -48,5 +48,5 @@ exception
    when Net.Socket_Error =>
       Text_IO.Put_Line ("OK : Socket_Error");
    when E : others =>
-      Text_IO.Put_Line ("NOK : " & Exceptions.Exception_Name (E));
+      Text_IO.Put_Line ("NOK : " & Exceptions.Exception_Information (E));
 end Sock1;
