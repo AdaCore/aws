@@ -16,6 +16,8 @@ b~interoplab_main.adb
 b~interoplab_main.ads
 b~main.adb
 b~main.ads
+b~res_demo.adb
+b~res_demo.ads
 b~runme.adb
 b~runme.ads
 b~soap_client.adb
@@ -24,8 +26,14 @@ b~soap_cvs.adb
 b~soap_cvs.ads
 b~soap_server.adb
 b~soap_server.ads
+b~soap_server_disp.adb
+b~soap_server_disp.ads
 b~soap_svs.adb
 b~soap_svs.ads
+b~test_jabber.adb
+b~test_jabber.ads
+b~test_ldap.adb
+b~test_ldap.ads
 b~text_input.adb
 b~text_input.ads
 b~vh_demo.adb
@@ -34,6 +42,10 @@ b~wps.adb
 b~wps.ads
 b~ws.adb
 b~ws.ads
+b~wsdl_demo_client.adb
+b~wsdl_demo_client.ads
+b~wsdl_demo_server.adb
+b~wsdl_demo_server.ads
 hello_demo-client.adb
 hello_demo-client.ads
 hello_demo-server.adb
