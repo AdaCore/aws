@@ -102,6 +102,19 @@ begin
       when Include_Stmt =>
          Text_IO.Put_Line ("[INCLUDE_STMT] "
                            & To_String (T.File.Info.Filename));
+
+         declare
+            use type Data.Tree;
+         begin
+            for K in T.I_Params'Range loop
+               exit when T.I_Params (K) = null;
+               Print_Indent (Level + 2);
+               Text_IO.Put ("$" & Image (K) & " = ");
+               Data.Print_Tree (T.I_Params (K));
+               Text_IO.New_Line;
+            end loop;
+         end;
+
          Print_Tree (T.File.Info, Level + 1);
          Print_Tree (T.Next, Level);
    end case;
