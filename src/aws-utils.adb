@@ -30,6 +30,7 @@
 
 --  $Id$
 
+with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
 
 with Interfaces.C.Strings;
@@ -56,6 +57,20 @@ package body AWS.Utils is
       Res := Sockets.Thin.C_Gethostname (Name, Len);
       return C.Strings.Value (Name, C.size_t (Len));
    end Gethostname;
+
+   ---------
+   -- Hex --
+   ---------
+
+   function Hex (V : in Natural) return String is
+      use Ada.Strings;
+
+      Hex_V : String (1 .. 8);
+   begin
+      Ada.Integer_Text_IO.Put (Hex_V, V, 16);
+      return Hex_V (Fixed.Index (Hex_V, "#") + 1 ..
+                    Fixed.Index (Hex_V, "#", Backward) - 1);
+   end Hex;
 
    -----------
    -- Image --
