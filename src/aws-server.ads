@@ -147,9 +147,9 @@ private
       CB             : Response.Callback := Response.Default_Handler;
       Session        : Boolean           := False) is
    limited record
+      Self        : HTTP_Access := HTTP'Unchecked_Access;
       Name        : Unbounded_String;
       Upload_Path : Unbounded_String;
-      Self        : HTTP_Access := HTTP'Unchecked_Access;
       Sock        : Sockets.Socket_FD;
       --  this is the server socket for incoming connection.
 
