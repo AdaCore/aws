@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,11 +40,11 @@ package Ada2WSDL.Options is
    --  Set to True by Initialize, if initialization is successful
 
    Verbose        : Boolean := False;
-   --  If this flag is set ON, gnatstub generates the message about itself,
+   --  If this flag is set ON, Ada2WSDL generates the message about itself,
    --  including ASIS/GNAT version with which it is built
 
    Quiet          : Boolean := False;
-   --  If this flag is set ON, gnatstub does not generate a confirmation
+   --  If this flag is set ON, Ada2WSDL does not generate a confirmation
    --  in case when the sample body has successfully been created
 
    Overwrite_WSDL : Boolean := False;
