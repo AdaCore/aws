@@ -47,7 +47,7 @@ package body Data is
         := To_String (Templates_Parser.End_Tag);
 
       function Build (Line : in String) return Tree;
-      --  Recursive function to build the tree.
+      --  Recursive function to build the tree
 
       -----------
       -- Build --
@@ -63,7 +63,7 @@ package body Data is
             Start := Strings.Fixed.Index (Line, Begin_Tag);
 
             if Start = 0 then
-               --  no more tag
+               --  No more tag
                return new Node'(Text,
                                 null,
                                 To_Unbounded_String (Line));
@@ -89,7 +89,7 @@ package body Data is
                        (Text,
                         Build (Line (Start .. Line'Last)),
                         To_Unbounded_String
-                        (Line (Line'First .. Start - 1)));
+                          (Line (Line'First .. Start - 1)));
                   end if;
                end if;
             end if;

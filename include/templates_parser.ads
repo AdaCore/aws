@@ -73,32 +73,32 @@ package Templates_Parser is
    function "&"
      (Vect  : in Vector_Tag;
       Value : in String)
-     return Vector_Tag;
+      return Vector_Tag;
    --  Add Value at the end of the vector tag set.
 
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Character)
-     return Vector_Tag;
+      return Vector_Tag;
    --  Add Value at the end of the vector tag set.
 
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Boolean)
-     return Vector_Tag;
+      return Vector_Tag;
    --  Add Value (either string TRUE or FALSE) at the end of the vector tag
    --  set.
 
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Unbounded_String)
-     return Vector_Tag;
+      return Vector_Tag;
    --  Add Value at the end of the vector tag set.
 
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Integer)
-     return Vector_Tag;
+      return Vector_Tag;
    --  Add Value (converted to a String) at the end of the vector tag set.
 
    procedure Clear (Vect : in out Vector_Tag);
@@ -123,7 +123,7 @@ package Templates_Parser is
    function "&"
      (Matrix : in Matrix_Tag;
       Vect   : in Vector_Tag)
-     return Matrix_Tag;
+      return Matrix_Tag;
    --  Returns Matrix with Vect added to the end.
 
    function Size (Matrix : in Matrix_Tag) return Natural;
@@ -145,14 +145,14 @@ package Templates_Parser is
    function Assoc
      (Variable  : in String;
       Value     : in String)
-     return Association;
+      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is a string.
 
    function Assoc
      (Variable  : in String;
       Value     : in Unbounded_String)
-     return Association;
+      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is an
    --  Unbounded_String.
@@ -160,7 +160,7 @@ package Templates_Parser is
    function Assoc
      (Variable  : in String;
       Value     : in Integer)
-     return Association;
+      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a standard association, value is an Integer.
    --  It will be displayed without leading space if positive.
@@ -168,7 +168,7 @@ package Templates_Parser is
    function Assoc
      (Variable  : in String;
       Value     : in Boolean)
-     return Association;
+      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. It set the variable to TRUE or FALSE depending on
    --  value.
@@ -177,7 +177,7 @@ package Templates_Parser is
      (Variable  : in String;
       Value     : in Vector_Tag;
       Separator : in String     := Default_Separator)
-     return Association;
+      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a vector tag association, value is a
    --  Vector_Tag. If the vector tag is found outside a table tag statement
@@ -188,7 +188,7 @@ package Templates_Parser is
      (Variable  : in String;
       Value     : in Matrix_Tag;
       Separator : in String     := Default_Separator)
-     return Association;
+      return Association;
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a matrix tag association, value is a
    --  Matrix_Tag. If the matrix tag is found outside of a 2nd level table tag
@@ -204,7 +204,7 @@ package Templates_Parser is
       Translations      : in Translate_Table := No_Translation;
       Cached            : in Boolean         := False;
       Keep_Unknown_Tags : in Boolean         := False)
-     return String;
+      return String;
    --  Parse the Template_File replacing variables' occurrences by the
    --  corresponding values. If Cached is set to True, Filename tree will be
    --  recorded into a cache for quick retrieval. If Keep_Unknown_Tags is set
@@ -218,13 +218,13 @@ package Templates_Parser is
       Translations      : in Translate_Table := No_Translation;
       Cached            : in Boolean         := False;
       Keep_Unknown_Tags : in Boolean         := False)
-     return Unbounded_String;
+      return Unbounded_String;
    --  Idem as above but returns an Unbounded_String.
 
    function Translate
      (Template     : in String;
       Translations : in Translate_Table := No_Translation)
-     return String;
+      return String;
    --  Just translate the discrete variables in the Template string using the
    --  Translations table. This function does not parse the command tag
    --  (TABLE, IF, INCLUDE). All Vector and Matrix tag are replaced by the
@@ -278,7 +278,8 @@ private
 
    type Matrix_Tag_Int is new Ada.Finalization.Controlled with record
       Ref_Count : Integer_Access;
-      Count     : Natural;
+      Count     : Natural; -- Number of vector
+      Min, Max  : Natural; -- Min/Max vector's sizes
       Head      : Matrix_Tag_Node_Access;
       Last      : Matrix_Tag_Node_Access;
    end record;

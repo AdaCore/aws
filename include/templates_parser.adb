@@ -302,9 +302,12 @@ package body Templates_Parser is
    --  Tags variable --
    --------------------
 
+   type Attribute is (Nil, Length, Line, Min_Column, Max_Column);
+
    type Tag is record
       Name    : Unbounded_String;
       Filters : Filter_Set_Access;
+      Attr    : Attribute := Nil;
    end record;
 
    function Build (Str : in String) return Tag;
@@ -342,6 +345,8 @@ package body Templates_Parser is
    begin
       R := Begin_Tag;
 
+      --  Filters
+
       if T.Filters /= null then
          for K in reverse T.Filters'Range loop
             Append (R, Filter_Name (T.Filters (K).Handle));
@@ -350,7 +355,19 @@ package body Templates_Parser is
          end loop;
       end if;
 
+      --  Tag name
       Append (R, T.Name);
+
+      --  Attributes
+
+      case T.Attr is
+         when Nil        => null;
+         when Length     => Append (R, "'Length");
+         when Line       => Append (R, "'Line");
+         when Min_Column => Append (R, "'Min_Column");
+         when Max_Column => Append (R, "'Max_Column");
+      end case;
+
       Append (R, End_Tag);
 
       return To_String (R);
@@ -369,6 +386,55 @@ package body Templates_Parser is
       function Get_Filter_Set (Tag : in String) return Filter_Set_Access;
       --  Given a tag name, it retruns a set of filter to apply to this
       --  variable when translated.
+
+      function Get_Attribute (Tag : in String) return Attribute;
+      --  Returns attribute for the given tag.
+
+      F_Sep : constant Natural
+        := Strings.Fixed.Index (Str, ":", Strings.Backward);
+      --  Last filter separator
+
+      A_Sep : constant Natural
+        := Strings.Fixed.Index (Str, "'", Strings.Backward);
+      --  Attribute separator
+
+      -------------------
+      -- Get_Attribute --
+      -------------------
+
+      function Get_Attribute (Tag : in String) return Attribute is
+         Start, Stop : Natural;
+      begin
+         if A_Sep = 0 then
+            return Nil;
+         else
+            Start := A_Sep + 1;
+            Stop  := Tag'Last - Length (End_Tag);
+         end if;
+
+         declare
+            A_Name : constant String
+              := Characters.Handling.To_Lower (Tag (Start .. Stop));
+         begin
+            if A_Name = "length" then
+               return Length;
+
+            elsif A_Name = "line" then
+               return Line;
+
+            elsif A_Name = "min_column" then
+               return Min_Column;
+
+            elsif A_Name = "max_column" then
+               return Max_Column;
+
+            else
+               Exceptions.Raise_Exception
+                 (Template_Error'Identity,
+                  "Unknown attribute name """ & A_Name & '"');
+            end if;
+         end;
+      end Get_Attribute;
 
       --------------------
       -- Get_Filter_Set --
@@ -448,7 +514,7 @@ package body Templates_Parser is
               (Tag (Start .. Stop - 1), ":", Strings.Backward);
 
             if Start = 0 then
-               --  last filter found
+               --  Last filter found
                FS (K) := Name_Parameter
                  (Tag (Tag'First + Length (Begin_Tag) .. Stop - 1));
             else
@@ -468,22 +534,27 @@ package body Templates_Parser is
       ------------------
 
       function Get_Var_Name (Tag : in String) return Unbounded_String is
-         Pos : Natural;
+         Start, Stop : Natural;
       begin
-         Pos := Strings.Fixed.Index (Tag, ":", Strings.Backward);
-
-         if Pos = 0 then
-            return To_Unbounded_String
-              (Tag (Tag'First + Length (Begin_Tag)
-                    .. Tag'Last - Length (End_Tag)));
+         if A_Sep = 0 then
+            --  No attribute
+            Stop := Tag'Last - Length (End_Tag);
          else
-            return To_Unbounded_String
-              (Tag (Pos + 1 .. Tag'Last - Length (End_Tag)));
+            Stop := A_Sep - 1;
          end if;
+
+         if F_Sep = 0 then
+            --  No filter
+            Start := Tag'First + Length (Begin_Tag);
+         else
+            Start := F_Sep + 1;
+         end if;
+
+         return To_Unbounded_String (Tag (Start .. Stop));
       end Get_Var_Name;
 
    begin
-      return (Get_Var_Name (Str), Get_Filter_Set (Str));
+      return (Get_Var_Name (Str), Get_Filter_Set (Str), Get_Attribute (Str));
    end Build;
 
    -------------
@@ -792,7 +863,7 @@ package body Templates_Parser is
    function "&"
      (Vect  : in Vector_Tag;
       Value : in String)
-     return Vector_Tag
+      return Vector_Tag
    is
       Item : constant Vector_Tag_Node_Access
         := new Vector_Tag_Node'(To_Unbounded_String (Value), null);
@@ -820,7 +891,7 @@ package body Templates_Parser is
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Character)
-     return Vector_Tag is
+      return Vector_Tag is
    begin
       return Vect & String'(1 => Value);
    end "&";
@@ -828,7 +899,7 @@ package body Templates_Parser is
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Boolean)
-     return Vector_Tag is
+      return Vector_Tag is
    begin
       return Vect & Boolean'Image (Value);
    end "&";
@@ -836,7 +907,7 @@ package body Templates_Parser is
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Strings.Unbounded.Unbounded_String)
-     return Vector_Tag is
+      return Vector_Tag is
    begin
       return Vect & To_String (Value);
    end "&";
@@ -844,7 +915,7 @@ package body Templates_Parser is
    function "&"
      (Vect  : in Vector_Tag;
       Value : in Integer)
-     return Vector_Tag
+      return Vector_Tag
    is
       S_Value : constant String := Integer'Image (Value);
    begin
@@ -964,9 +1035,11 @@ package body Templates_Parser is
    function "+" (Vect : in Vector_Tag) return Matrix_Tag is
       Item : constant Matrix_Tag_Node_Access
         := new Matrix_Tag_Node'(Vect, null);
+      V_Size : constant Natural := Size (Vect);
    begin
-      return Matrix_Tag'(M => (Ada.Finalization.Controlled with
-                               new Integer'(1), 1, Item, Item));
+      return Matrix_Tag'
+        (M => (Ada.Finalization.Controlled with
+                 new Integer'(1), 1, V_Size, V_Size, Item, Item));
    end "+";
 
    ---------
@@ -980,6 +1053,7 @@ package body Templates_Parser is
    is
       Item : constant Matrix_Tag_Node_Access
         := new Matrix_Tag_Node'(Vect, null);
+      V_Size : constant Natural := Size (Vect);
    begin
       Matrix.M.Ref_Count.all := Matrix.M.Ref_Count.all + 1;
 
@@ -987,6 +1061,8 @@ package body Templates_Parser is
          return Matrix_Tag'(M => (Ada.Finalization.Controlled with
                                   Matrix.M.Ref_Count,
                                   Matrix.M.Count + 1,
+                                  Min  => Natural'Min (Matrix.M.Min, V_Size),
+                                  Max  => Natural'Max (Matrix.M.Min, V_Size),
                                   Head => Item,
                                   Last => Item));
       else
@@ -994,6 +1070,8 @@ package body Templates_Parser is
          return Matrix_Tag'(M => (Ada.Finalization.Controlled with
                                   Matrix.M.Ref_Count,
                                   Matrix.M.Count + 1,
+                                  Min  => Natural'Min (Matrix.M.Min, V_Size),
+                                  Max  => Natural'Max (Matrix.M.Min, V_Size),
                                   Head => Matrix.M.Head,
                                   Last => Item));
       end if;
@@ -1016,6 +1094,8 @@ package body Templates_Parser is
    begin
       M.Ref_Count := new Integer'(1);
       M.Count     := 0;
+      M.Min       := 0;
+      M.Max       := 0;
    end Initialize;
 
    --------------
@@ -2507,7 +2587,7 @@ package body Templates_Parser is
 
          function Translate (Var : in Tag) return String;
          --  Translate Tag variable using Translation table and apply all
-         --  Filters recorded for this variable.
+         --  Filters and Atribute recorded for this variable.
 
          ---------------
          -- Translate --
@@ -2519,12 +2599,28 @@ package body Templates_Parser is
             --  Returns the Vector_Tag for the Association as a String, each
             --  value is separated by the given separator.
 
+            function Vect_Size (A : in Association) return String;
+            pragma Inline (Vect_Size);
+            --  Returns the number of items into the Vector_Tag
+
             function Mat_List (A : in Association) return String;
             --  Returns the Matrix_Tag as a string. If Matrix_Tag is not into
             --  a table, each Vector_Tag is convected using Vect_List and a LF
             --  is inserted between each rows. If the Matrix_Tag is into a
             --  table of level 1, it returns only the Vector_Tag (converted
             --  using Vect_List) for the current table line.
+
+            function Mat_Line (A : in Association) return String;
+            pragma Inline (Mat_Line);
+            --  Returns the number of line (vector) into the matrix
+
+            function Mat_Min_Column (A : in Association) return String;
+            pragma Inline (Mat_Line);
+            --  Returns the size of the smallest vector
+
+            function Mat_Max_Column (A : in Association) return String;
+            pragma Inline (Mat_Line);
+            --  Returns the size of the largest vector
 
             ---------------
             -- Vect_List --
@@ -2546,6 +2642,16 @@ package body Templates_Parser is
                   return To_String (Result);
                end if;
             end Vect_List;
+
+            ---------------
+            -- Vect_Size --
+            ---------------
+
+            function Vect_Size (A : in Association) return String is
+               N : constant String := Natural'Image (A.Vect_Value.Count);
+            begin
+               return N (N'First + 1 .. N'Last);
+            end Vect_Size;
 
             --------------
             -- Mat_List --
@@ -2598,6 +2704,37 @@ package body Templates_Parser is
                return To_String (Result);
             end Mat_List;
 
+            --------------
+            -- Mat_Line --
+            --------------
+
+            function Mat_Line (A : in Association) return String is
+               N : constant String := Natural'Image (A.Mat_Value.M.Count);
+            begin
+               return N (N'First + 1 .. N'Last);
+            end Mat_Line;
+
+            --------------------
+            -- Mat_Min_Column --
+            --------------------
+
+            function Mat_Min_Column (A : in Association) return String is
+               N : constant String := Natural'Image (A.Mat_Value.M.Min);
+            begin
+               return N (N'First + 1 .. N'Last);
+            end Mat_Min_Column;
+
+            --------------------
+            -- Mat_Max_Column --
+            --------------------
+
+            function Mat_Max_Column (A : in Association) return String is
+               N : constant String := Natural'Image (A.Mat_Value.M.Max);
+            begin
+               return N (N'First + 1 .. N'Last);
+            end Mat_Max_Column;
+
+
          begin
             for K in Translations'Range loop
                if Var.Name = Translations (K).Variable then
@@ -2608,22 +2745,57 @@ package body Templates_Parser is
                      case Tk.Kind is
 
                         when Std =>
-                           return Translate (Var, To_String (Tk.Value));
+                           if Var.Attr = Nil then
+                              return Translate (Var, To_String (Tk.Value));
+                           else
+                              Exceptions.Raise_Exception
+                                (Template_Error'Identity,
+                                 "Attribute not valid on a discrete tag");
+                           end if;
 
                         when Vect =>
-                           if State.Table_Level = 0 then
+                           if Var.Attr = Length then
+                              --  'Length on a vector
+                              return Translate (Var, Vect_Size (Tk));
+
+                           elsif Var.Attr /= Nil then
+                              Exceptions.Raise_Exception
+                                (Template_Error'Identity,
+                                 "This attribute is not valid for a "
+                                   & "vector tag");
+
+                           elsif State.Table_Level = 0 then
                               --  This is a vector tag (outside of a
                               --  table tag statement), we display it as
                               --  a list separated by the specified
                               --  separator.
                               return Translate (Var, Vect_List (Tk));
+
                            else
                               return Translate
                                 (Var, Field (Tk.Vect_Value, State.J));
                            end if;
 
                         when Matrix =>
-                           if State.Table_Level in 0 .. 1 then
+                           if Var.Attr = Line then
+                              --  'Line on a matrix
+                              return Translate (Var, Mat_Line (Tk));
+
+                           elsif Var.Attr = Min_Column then
+                              --  'Min_Column on a matrix
+                              return Translate (Var, Mat_Min_Column (Tk));
+
+                           elsif Var.Attr = Max_Column then
+                              --  'Max_Column on a matrix
+                              return Translate (Var, Mat_Max_Column (Tk));
+
+                           elsif Var.Attr /= Nil then
+                              Exceptions.Raise_Exception
+                                (Template_Error'Identity,
+                                 "This attribute is not valid for a "
+                                   & "matrix tag");
+
+                           elsif State.Table_Level in 0 .. 1 then
                               --  This is a matrix tag (outside of a
                               --  level 2 table tag statement), convert
                               --  it using Mat_List.
@@ -2639,7 +2811,7 @@ package body Templates_Parser is
                end if;
             end loop;
 
-            --  check now for an internal tag
+            --  Check now for an internal tag
 
             declare
                T_Name : constant String := To_String (Var.Name);
@@ -3004,80 +3176,75 @@ package body Templates_Parser is
                   use type Data.Tree;
                   use type Data.NKind;
                   Iteration : Natural := Natural'First;
-                  D : Data.Tree := T;
+                  D         : Data.Tree := T;
                begin
                   while D /= null loop
 
-                     if D.Kind = Data.Var then
+                     if D.Kind = Data.Var and then D.Var.Attr = Nil then
 
                         for K in Translations'Range loop
                            declare
                               Tk : constant Association := Translations (K);
                            begin
-                           if D.Var.Name = Translations (K).Variable then
+                              if D.Var.Name = Tk.Variable then
+                                 if N = 1 then
+                                    --  First block level analysed.
 
-                              if N = 1 then
-                              --  First block level analysed.
+                                    if Tk.Kind = Vect then
+                                       --  This is a Vector tag into a top
+                                       --  level table statement. The number
+                                       --  of iterations for this table
+                                       --  statement correspond to the number
+                                       --  of item into the vector.
+                                       Iteration :=
+                                         Natural'Max (Iteration,
+                                                      Size (Tk.Vect_Value));
 
-                              if Tk.Kind = Vect then
-                                 --  This is a Vector tag into a top level
-                                 --  table statement. The number of iterations
-                                 --  for this table statement correspond to
-                                 --  the number of item into the vector.
-                                 Iteration :=
-                                   Natural'Max (Iteration,
-                                                Size (Tk.Vect_Value));
+                                    elsif Tk.Kind = Matrix then
 
-                              elsif Tk.Kind = Matrix then
-
-                                 if State.Table_Level = 0 then
-                                    --  This is Matrix tag into a top level
-                                    --  table statement. The number of
-                                    --  iterations for this table statement
-                                    --  correspond to the number of vector
-                                    --  into the table.
-                                    Iteration :=
-                                      Natural'Max (Iteration,
-                                                   Size (Tk.Mat_Value));
-                                 else
-                                    --  This is Matrix tag into an embbeded
-                                    --  table statement (table statement into
-                                    --  a table statement). The number of
-                                    --  iterations for this table statement
-                                    --  correspond to the smallest number of
-                                    --  items in the Matrix tag's vectors.
-                                    declare
-                                       P : Matrix_Tag_Node_Access
-                                         := Translations (K).Mat_Value.M.Head;
-                                    begin
-                                       while not (P = null) loop
+                                       if State.Table_Level = 0 then
+                                          --  This is Matrix tag into a top
+                                          --  level table statement. The
+                                          --  number of iterations for this
+                                          --  table statement correspond to
+                                          --  the number of vector into the
+                                          --  table.
                                           Iteration :=
                                             Natural'Max (Iteration,
-                                                         Size (P.Vect));
-                                          P := P . Next;
-                                       end loop;
-                                    end;
+                                                         Size (Tk.Mat_Value));
+                                       else
+                                          --  This is Matrix tag into an
+                                          --  embbeded table statement (table
+                                          --  statement into a table
+                                          --  statement). The number of
+                                          --  iterations for this table
+                                          --  statement correspond to the
+                                          --  largest number of items in the
+                                          --  Matrix tag's vectors.
+                                          Iteration := Tk.Mat_Value.M.Max;
+                                       end if;
+                                    end if;
+
+                                 elsif N = 2 then
+                                    --  Second block level analysed.
+
+                                    if Tk.Kind = Matrix then
+                                       --  This is a Matrix tag into an
+                                       --  embedded table statement (table
+                                       --  statement into a table statement)
+                                       --  analysed at the second block
+                                       --  level. This is to report the number
+                                       --  of iterations for upper level table
+                                       --  statement. This number of
+                                       --  iterations correspond to the
+                                       --  smallest number of vectors into the
+                                       --  table.
+                                       Iteration :=
+                                         Natural'Max (Iteration,
+                                                      Size (Tk.Mat_Value));
+                                    end if;
                                  end if;
                               end if;
-
-                           elsif N = 2 then
-                              --  Second block level analysed.
-
-                              if Tk.Kind = Matrix then
-                                 --  This is a Matrix tag into an embedded
-                                 --  table statement (table statement into a
-                                 --  table statement) analysed at the second
-                                 --  block level. This is to report the number
-                                 --  of iterations for upper level table
-                                 --  statement. This number of iterations
-                                 --  correspond to the smallest number of
-                                 --  vectors into the table.
-                                 Iteration :=
-                                   Natural'Max (Iteration,
-                                                Size (Tk.Mat_Value));
-                              end if;
-                              end if;
-                           end if;
                            end;
                         end loop;
                      end if;
@@ -3172,8 +3339,8 @@ package body Templates_Parser is
                      Exceptions.Raise_Exception
                        (Template_Error'Identity,
                         "In " & Filename
-                        & " at line" & Natural'Image (T.Line) & ' '
-                        & Exceptions.Exception_Information (E) & '.');
+                        & " at line" & Natural'Image (T.Line) & ", "
+                        & Exceptions.Exception_Message (E) & '.');
                end;
 
                Analyze (T.Next, State);
