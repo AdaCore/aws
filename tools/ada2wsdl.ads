@@ -34,7 +34,7 @@ with Asis;
 
 package Ada2WSDL is
 
-   Version : constant String := "0.3";
+   Version : constant String := "0.5";
 
    Fatal_Error     : exception;
    --  Raised when a non-recoverable error has been found
@@ -44,6 +44,10 @@ package Ada2WSDL is
 
    Spec_Error      : exception;
    --  Raised if ada2wsdl has found a problem while parsing the Ada spec
+
+   function Location (E : in Asis.Element) return String;
+   pragma Inline (Location);
+   --  Returns E's location in the form <line>:<column>
 
    procedure Raise_Spec_Error
      (E       : in Asis.Element;
