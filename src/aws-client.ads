@@ -61,13 +61,14 @@ package AWS.Client is
    No_Timeout : constant Timeouts_Values := (0, 0);
 
    function Get
-     (URL        : in String;
-      User       : in String          := No_Data;
-      Pwd        : in String          := No_Data;
-      Proxy      : in String          := No_Data;
-      Proxy_User : in String          := No_Data;
-      Proxy_Pwd  : in String          := No_Data;
-      Timeouts   : in Timeouts_Values := No_Timeout)
+     (URL                : in String;
+      User               : in String          := No_Data;
+      Pwd                : in String          := No_Data;
+      Proxy              : in String          := No_Data;
+      Proxy_User         : in String          := No_Data;
+      Proxy_Pwd          : in String          := No_Data;
+      Timeouts           : in Timeouts_Values := No_Timeout;
+      Follow_Redirection : in Boolean         := False)
       return Response.Data;
    --  retreive the message data given a specific URL. It open a connection
    --  with the server and ask for the resource specified in the URL it then
@@ -77,7 +78,13 @@ package AWS.Client is
    --  Eventually it connect through a PROXY using if necessary the Proxy
    --  authentification Proxy_User:Proxy_Pwd.
    --
-   --  Only Basic authetification is supported (i.e. Digest is not).
+   --  Only Basic authetification is supported (i.e. Digest is not). Digest
+   --  authentication is supported with the keep-alive client API, see below.
+   --
+   --  If Follow_Redirection is set to True, Get will follow the redirection
+   --  information for 301 status code response. Note that this is not
+   --  supported for keep-alive connections as the redirection could point to
+   --  another server.
    --
    --  Get will retry one time if it fails.
 
