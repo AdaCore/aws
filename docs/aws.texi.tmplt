@@ -3764,6 +3764,7 @@ AWS User API:
 * AWS.Jabber::
 * AWS.LDAP.Client::
 * AWS.Log::
+* AWS.Messages::
 * AWS.MIME::
 * AWS.Parameters::
 * AWS.Resources::
@@ -3926,6 +3927,13 @@ SOAP User API:
 @cindex AWS.Log
 
 @include aws-log.ads.texi
+
+@page
+@node AWS.Messages
+@appendixsec AWS.Messages
+@cindex AWS.Messages
+
+@include aws-messages.ads.texi
 
 @page
 @node AWS.MIME
