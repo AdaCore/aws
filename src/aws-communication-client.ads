@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,11 +34,12 @@ with AWS.Response;
 
 package AWS.Communication.Client is
 
-   function Send_Message (Server     : in String;
-                          Port       : in Positive;
-                          Name       : in String;
-                          Parameters : in Parameter_Set := Null_Parameter_Set)
-     return Response.Data;
+   function Send_Message
+     (Server     : in String;
+      Port       : in Positive;
+      Name       : in String;
+      Parameters : in Parameter_Set := Null_Parameter_Set)
+      return Response.Data;
    --  Send a message to server with a set of parameters. The destination is
    --  server is http://Server:Port, the message name is Name and the set of
    --  parameters is to be found into Parameters.
