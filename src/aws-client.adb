@@ -30,9 +30,8 @@
 
 with Ada.Strings.Unbounded;
 with Ada.Streams;
-with Interfaces.C;
 
-with Sockets.Thin;
+with Sockets;
 
 with AWS.Messages;
 with AWS.Translater;
@@ -88,6 +87,8 @@ package body AWS.Client is
      return Sockets.Socket_FD'Class
    is
 
+      URL_Data : constant AWS.URL.Object := AWS.URL.Parse (URL);
+
       function Open_Socket return Sockets.Socket_FD'Class;
       --  Opens socket (SSL if need) with server
 
@@ -119,8 +120,7 @@ package body AWS.Client is
       begin
          if Proxy = No_Data then
             declare
-               URL_Data : AWS.URL.Object := AWS.URL.Parse (URL);
-               Sock     : Sockets.Socket_FD'Class :=
+               Sock     : constant Sockets.Socket_FD'Class :=
                  AWS.Net.Connect (AWS.URL.Server_Name (URL_Data),
                                   AWS.URL.Port (URL_Data),
                                   AWS.URL.Security (URL_Data));
@@ -129,15 +129,12 @@ package body AWS.Client is
                                  & AWS.URL.URI (URL_Data)
                                  & ' ' & HTTP_Version);
                Sockets.Put_Line (Sock, "Connection: Keep-Alive");
-               Sockets.Put_Line (Sock, "Host: " &
-                                 AWS.URL.Server_Name (URL_Data) &
-                                 Port_Not_Default (AWS.URL.Port (URL_Data)));
                return Sock;
             end;
          else
             declare
-               Proxy_Data  : AWS.URL.Object := AWS.URL.Parse (Proxy);
-               Sock        : Sockets.Socket_FD'Class :=
+               Proxy_Data  : constant AWS.URL.Object := AWS.URL.Parse (Proxy);
+               Sock        : constant Sockets.Socket_FD'Class :=
                  AWS.Net.Connect (AWS.URL.Server_Name (Proxy_Data),
                                   AWS.URL.Port (Proxy_Data),
                                   AWS.URL.Security (Proxy_Data));
@@ -145,9 +142,6 @@ package body AWS.Client is
                Sockets.Put_Line (Sock,
                                  Method & ' ' & URL & ' ' & HTTP_Version);
                Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
-               Sockets.Put_Line (Sock, "Host: " &
-                                 AWS.URL.Server_Name (Proxy_Data) &
-                                 Port_Not_Default (AWS.URL.Port (Proxy_Data)));
                return Sock;
             end;
          end if;
@@ -159,6 +153,9 @@ package body AWS.Client is
 
    begin
 
+      Sockets.Put_Line (Sock, "Host: " &
+                        AWS.URL.Server_Name (URL_Data) &
+                        Port_Not_Default (AWS.URL.Port (URL_Data)));
       Sockets.Put_Line (Sock, "Accept: text/html, */*");
       Sockets.Put_Line (Sock, "Accept-Language: fr, us");
       Sockets.Put_Line (Sock, "User-Agent: AWS (Ada Web Server) v" & Version);
