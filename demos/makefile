@@ -10,14 +10,18 @@ ifeq ($(MODE),ssl)
 
 GARGS = -I../src -I../ssl -I../include -I../soap $(INCLUDES) -i -gnatwu -g
 BARGS = -E
-LARGS = -L../win32 -lssl -lcrypto -lRSAglue -lgdi32
+ifeq (${OS}, Windows_NT)
+LARGS = $(LIBS) -L../win32 -lssl -lcrypto -lRSAglue -lgdi32
+else
+LARGS = $(LIBS) -lssl -lcrypto
+endif
 
 else
 # Without SSL support
 
 GARGS = -I../src -I../include -I../soap $(INCLUDES) -i -gnatwu -g
 BARGS = -E
-LARGS =
+LARGS = $(LIBS)
 endif
 
 build: runme agent auth ws com_1 com_2 main hotplug hello_world soap
