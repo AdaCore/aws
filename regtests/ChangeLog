@@ -1,3 +1,15 @@
+2003-03-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Use touch command to set GMT timestamp to the files for the dirop
+	 regression test.
+
+	* dirop.out:
+	Update to new output.
+
+	* dirop.adb:
+	Restore complete time output.
+
 2003-03-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* dirop.out:
