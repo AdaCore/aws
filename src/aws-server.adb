@@ -857,9 +857,17 @@ package body AWS.Server is
       ----------------
 
       entry Put_Socket (Socket : in Net.Socket_Access)
-        when Socket_Semaphore.Socket = null is
+        when Size /= Max_Sockets is
       begin
-         Socket_Semaphore.Socket := Put_Socket.Socket;
+         Size := Size + 1;
+
+         if Last > Max_Sockets then
+            Last := Sockets'First;
+         end if;
+
+         Sockets (Last) := Socket;
+
+         Last := Last + 1;
       end Put_Socket;
 
       -------------
@@ -876,14 +884,21 @@ package body AWS.Server is
       ---------------------
 
       entry Seize_Or_Socket (Socket : out Net.Socket_Access)
-        when not Seized or else Socket_Semaphore.Socket /= null is
+        when not Seized or else Size /= 0 is
       begin
          if not Seized then
             Seized := True;
-            Seize_Or_Socket.Socket := null;
+
          else
-            Seize_Or_Socket.Socket  := Socket_Semaphore.Socket;
-            Socket_Semaphore.Socket := null;
+            Size := Size - 1;
+
+            if Current > Max_Sockets then
+               Current := Sockets'First;
+            end if;
+
+            Socket := Sockets (Current);
+
+            Current := Current + 1;
          end if;
       end Seize_Or_Socket;
 
