@@ -150,9 +150,9 @@ package AWS.Status is
    pragma Inline (Session);
    --  Returns the Session ID for the request.
 
-   function Session_Created (D : in Data) return Boolean;
-   --  Returns True is session was just created.
-   --  and it is going to be send to client.
+   function Session_Created        (D : in Data) return Boolean;
+   --  Returns True if session was just created and is going to be sent to
+   --  client.
 
    function Socket                 (D : in Data) return Socket_Type;
    pragma Inline (Socket);
