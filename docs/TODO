@@ -177,5 +177,3 @@ implemented:
   2. Remove all uploaded files after calling the user callback. The user is
      responsible to move/rename/whatever the uploaded file is necessary
      otherwise it is just removed.
-
-- Add an option in wsdl2aws to add debug output to the generated code.
