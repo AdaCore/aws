@@ -62,10 +62,11 @@ package body SOAP.Dispatchers.Callback is
 
    function Dispatch_SOAP
      (Dispatcher : in Handler;
+      Action     : in String;
       Request    : in Message.Payload.Object)
       return AWS.Response.Data is
    begin
-      return Dispatcher.SOAP_Callback (Request);
+      return Dispatcher.SOAP_Callback (Action, Request);
    end Dispatch_SOAP;
 
 end SOAP.Dispatchers.Callback;
