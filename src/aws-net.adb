@@ -47,7 +47,7 @@ package body AWS.Net is
       procedure Free is
          new Ada.Unchecked_Deallocation (Socket_Type'Class, Socket_Access);
    begin
-      if not (Socket = null) then
+      if Socket /= null then
          Release_Cache (Socket.all);
          Free (Socket.all);
          Free (Socket);
