@@ -78,6 +78,9 @@ package body SOAP.WSDL is
       then
          Result := P_Integer;
 
+      elsif L_Type = "short" then
+         Result := P_Short;
+
       elsif L_Type = "long" then
          Result := P_Long;
 
@@ -118,7 +121,7 @@ package body SOAP.WSDL is
          when P_Character =>
             return "SOAP.Utils.Get";
 
-         when P_Integer | P_Long | P_Double | P_Float | P_Boolean
+         when P_Integer | P_Short | P_Long | P_Double | P_Float | P_Boolean
            | P_Time | P_B64
            =>
             return "SOAP.Types.Get";
@@ -173,6 +176,7 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Integer   => return "SOAP.Types.I";
+         when P_Short     => return "SOAP.Types.S";
          when P_Long      => return "SOAP.Types.L";
          when P_Float     => return "SOAP.Types.F";
          when P_Double    => return "SOAP.Types.D";
@@ -197,6 +201,7 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Integer   => return "SOAP.Types.XSD_Integer";
+         when P_Short     => return "SOAP.Types.XSD_Short";
          when P_Long      => return "SOAP.Types.XSD_Long";
          when P_Float     => return "SOAP.Types.XSD_Float";
          when P_Double    => return "SOAP.Types.XSD_Double";
@@ -219,6 +224,7 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Integer    => return "Integer";
+         when P_Short      => return "SOAP.Types.Short";
          when P_Long       => return "SOAP.Types.Long";
          when P_Float      => return "Long_Float";
          when P_Double     => return "Long_Long_Float";
@@ -253,6 +259,9 @@ package body SOAP.WSDL is
 
       elsif L_Type = "integer" or else L_Type = "int" then
          Result := P_Integer;
+
+      elsif L_Type = "short" then
+         Result := P_Short;
 
       elsif L_Type = "long" then
          Result := P_Long;
@@ -305,6 +314,7 @@ package body SOAP.WSDL is
    begin
       case P is
          when P_Integer   => return XML_Int;
+         when P_Short     => return XML_Short;
          when P_Long      => return XML_Long;
          when P_Float     => return XML_Float;
          when P_Double    => return XML_Double;
@@ -336,7 +346,7 @@ package body SOAP.WSDL is
          when P_Character =>
             return "SOAP.Utils.V";
 
-         when P_Integer | P_Long | P_Double | P_Float | P_Boolean
+         when P_Integer | P_Short | P_Long | P_Double | P_Float | P_Boolean
            | P_Time | P_B64
            =>
             return "SOAP.Types.V";
