@@ -1,3 +1,50 @@
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	Rewrite a good part of it to build the non-regression tests using
+	 a GNAT Project file.
+
+	* regtests.gpr:
+	Rewrite to properly build the regression tests. This project files
+	 has 3 modes, one to build the non-regression test driver, one to
+	 build non-regression test separatly and one to run them
+	 grouped. This is far more easier to use than the makefile based
+	 build when building a single non-regression test was not handled.
+
+	* test_wsdl.wsdl:
+	Service name set to R_Hello_Demo to avoid name conflics with the demos.
+
+	* test_wsdl.adb:
+	Rename all Hello_Demo to R_Hello_Demo to avoid name conflics with
+	 the demos.
+	Update copyright notice.
+
+	* test_soap3.adb:
+	Update to serialize output.
+
+	* check_mem.adb:
+	Rename template from split.tmplt to split1.tmplt.
+
+	* split1.adb, split1.out, split1.tmplt, interoplab_main1.adb,
+	  interoplab_main1.out, dispatch1.adb, dispatch1.out, dispatch1.ini,
+	  auth1.adb, auth1.out:
+	Files have been renamed, see below.
+
+	* split.adb, split.out, split.tmplt:
+	Renamed split1.adb, split1.out and split1.ini to avoid
+	 duplicate name with demo.
+
+	* interoplab_main.adb, interoplab_main.out: 
+	Renamed interoplab_main1.adb and interoplab_main1.ini to avoid
+	 duplicate name with demo.
+
+	* dispatch.adb, dispatch.out, dispatch.ini: 
+	Renamed dispatch1.adb, dispatch1.out and dispatch1.ini to avoid
+	 duplicate name with demo.
+
+	* auth.adb, auth.out:
+	Renamed auth1.adb and auth1.out to avoid duplicate name with demo.
+
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
