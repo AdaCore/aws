@@ -36,6 +36,7 @@
 --  This procedure is responsible to treat the HTTP protocol. Every responses
 --  and coming requests are parsed/formated here.
 
+with Ada.Characters.Handling;
 with Ada.Streams.Stream_IO;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
@@ -44,7 +45,7 @@ with Ada.Strings.Unbounded;
 with Templates_Parser;
 
 with AWS.Config;
-with AWS.Digest;
+with AWS.Headers.Values;
 with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
@@ -76,7 +77,6 @@ is
    Admin_URI      : constant String
      := CNF.Admin_URI (HTTP_Server.Properties);
 
-   End_Of_Message : constant String := "";
    HTTP_10        : constant String := "HTTP/1.0";
 
    C_Stat         : AWS.Status.Data;     -- Connection status
@@ -100,9 +100,6 @@ is
    --  Will_Close is set to true when the connection will be closed by the
    --  server. It means that the server is about to send the lastest message
    --  to the client using this sockets.
-
-   procedure Parse (Command : in String);
-   --  Parse a line sent by the client and do what is needed
 
    procedure Send_Resource
      (Method : in     Status.Request_Method;
@@ -233,14 +230,6 @@ is
             Net.Buffered.Put_Line (Sock, Messages.Status_Line (Status));
          end if;
 
-         --  Handle redirection
-
-         if Status = Messages.S301 then
-            Net.Buffered.Put_Line
-              (Sock,
-               Messages.Location (Response.Location (Answer)));
-         end if;
-
          --  Checking if we have to close connection because of undefined
          --  message length comming from a user's stream.
 
@@ -264,9 +253,6 @@ is
               (Sock,
                Messages.Last_Modified (Resources.File_Timestamp (Filename)));
          end if;
-
-         Net.Buffered.Put_Line
-           (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
 
          --  Note that we cannot send the Content_Length header at this
          --  point. A server must not send Content_Length if the
@@ -325,48 +311,11 @@ is
             Net.Buffered.Put_Line (Sock, Messages.Connection ("keep-alive"));
          end if;
 
-         --  Cache control if specified
+         --  Send Content-Type, Cache-Control, Location, WWW-Authenticate
+         --  and others user defined header lines.
 
-         if Response.Cache_Control (Answer) /= Messages.Unspecified then
-            Net.Buffered.Put_Line
-              (Sock,
-               Messages.Cache_Control (Response.Cache_Control (Answer)));
-         end if;
+         Response.Send_Header (Socket => Sock, D => Answer);
 
-         --  Handle authentication message
-
-         if Status = Messages.S401 then
-            declare
-               use Response;
-               Authenticate : constant Authentication_Mode
-                 := Authentication (Answer);
-            begin
-               --  In case of Authenticate = Any
-               --  We should create both header lines
-               --  WWW-Authenticate: Basic
-               --  and
-               --  WWW-Authenticate: Digest
-
-               if Authenticate = Response.Digest
-                 or Authenticate = Any
-               then
-                  Net.Buffered.Put_Line
-                    (Sock,
-                     Messages.Www_Authenticate
-                       (Realm (Answer),
-                        Digest.Create_Nonce,
-                        Response.Authentication_Stale (Answer)));
-               end if;
-
-               if Authenticate = Basic
-                 or Authenticate = Any
-               then
-                  Net.Buffered.Put_Line
-                    (Sock,
-                     Messages.Www_Authenticate (Realm (Answer)));
-               end if;
-            end;
-         end if;
       end Send_General_Header;
 
       ----------------------
@@ -553,6 +502,9 @@ is
 
       use type Status.Request_Method;
 
+      Multipart_Boundary : constant String
+        := To_String (Status_Multipart_Boundary);
+
       procedure File_Upload
         (Start_Boundary, End_Boundary : in String;
          Parse_Boundary               : in Boolean);
@@ -579,9 +531,6 @@ is
          Content_Type    : Unbounded_String;
          File            : Streams.Stream_IO.File_Type;
          Is_File_Upload  : Boolean;
-
-         Multipart_Boundary : constant String
-           := To_String (Status_Multipart_Boundary);
 
          procedure Get_File_Data;
          --  Read file data from the stream
@@ -917,8 +866,8 @@ is
          then
             --  This is a file upload
 
-            File_Upload ("--" & To_String (Status_Multipart_Boundary),
-                         "--" & To_String (Status_Multipart_Boundary) & "--",
+            File_Upload ("--" & Multipart_Boundary,
+                         "--" & Multipart_Boundary & "--",
                          True);
 
          elsif Status.Method (C_Stat) = Status.POST
@@ -961,39 +910,6 @@ is
 
    procedure Get_Message_Header is
 
-      procedure Parse_Header_Lines (Line : in String);
-      --  Parse the Line eventually catenated with the next line if it is a
-      --  continuation line see [RFC 2616 - 4.2].
-
-      ------------------------
-      -- Parse_Header_Lines --
-      ------------------------
-
-      procedure Parse_Header_Lines (Line : in String) is
-      begin
-         if Line = End_Of_Message then
-            return;
-         else
-            declare
-               Next_Line : constant String := Net.Buffered.Get_Line (Sock);
-            begin
-               if Next_Line /= End_Of_Message
-                    and then
-                 (Next_Line (1) = ' ' or else Next_Line (1) = ASCII.HT)
-               then
-                  --  Continuing value on the next line. Header fields can be
-                  --  extended over multiple lines by preceding each extra
-                  --  line with at least one SP or HT.
-                  Parse_Header_Lines (Line & Next_Line);
-
-               else
-                  Parse (Line);
-                  Parse_Header_Lines (Next_Line);
-               end if;
-            end;
-         end if;
-      end Parse_Header_Lines;
-
    begin
       declare
          Data : constant String := Net.Buffered.Get_Line (Sock);
@@ -1002,7 +918,73 @@ is
          Parse_Request_Line (Data);
       end;
 
-      Parse_Header_Lines (Net.Buffered.Get_Line (Sock));
+      Status.Set.Read_Header (Socket => Sock, D => C_Stat);
+
+      Status_Connection := To_Unbounded_String
+        (Status.Connection (C_Stat));
+
+      --  Get necessary data from header for the reading HTTP body.
+
+      declare
+
+         procedure Named_Value
+           (Name, Value : in String;
+            Quit        : in out Boolean);
+         --  Looking for the Boundary value in the
+         --  Content-Type header line.
+
+         procedure Value (Item : in String; Quit : in out Boolean);
+         --  Reading the first unnamed value into the Status_Content_Type
+         --  variable from the Content-Type header line.
+
+         -----------------
+         -- Named_Value --
+         -----------------
+
+         procedure Named_Value
+           (Name, Value : in String;
+            Quit        : in out Boolean) is
+         begin
+            if Ada.Characters.Handling.To_Upper (Name) = "BOUNDARY" then
+               Status_Multipart_Boundary := To_Unbounded_String (Value);
+               Quit := True;
+
+            end if;
+         end Named_Value;
+
+         -----------
+         -- Value --
+         -----------
+
+         procedure Value (Item : in String; Quit : in out Boolean) is
+         begin
+            if Status_Content_Type /= Null_Unbounded_String then
+
+               --  Only first unnamed value is the Content_Type.
+
+               Quit := True;
+
+            elsif Item'Length > 0 and then Item (Item'Last) = ';' then
+               Status_Content_Type := To_Unbounded_String
+                  (Item (Item'First .. Item'Last - 1));
+
+            else
+               Status_Content_Type := To_Unbounded_String (Item);
+
+               --  Do not wait for Boundary if the first unnamed value
+               --  without ';' and the end.
+
+               Quit := True;
+
+            end if;
+         end Value;
+
+         procedure Parse is new Headers.Values.Parse (Value, Named_Value);
+
+      begin
+         Parse (Status.Content_Type (C_Stat));
+      end;
+
    end Get_Message_Header;
 
    ------------------------
@@ -1037,124 +1019,6 @@ is
 
       return Result;
    end Is_Valid_HTTP_Date;
-
-   -----------
-   -- Parse --
-   -----------
-
-   procedure Parse (Command : in String) is
-   begin
-      if Messages.Match (Command, Messages.Host_Token) then
-         Status.Set.Host
-           (C_Stat,
-            Command (Messages.Host_Token'Length + 1 .. Command'Last));
-
-      elsif Messages.Match (Command, Messages.Connection_Token) then
-         declare
-            Token : constant String := Command
-               (Messages.Connection_Token'Length + 1 .. Command'Last);
-         begin
-            Status.Set.Connection (C_Stat, Token);
-            Status_Connection := To_Unbounded_String (Token);
-         end;
-
-      elsif Messages.Match (Command, Messages.Content_Length_Token) then
-         Status.Set.Content_Length
-           (C_Stat,
-            Natural'Value
-              (Command (Messages.Content_Length_Token'Length + 1
-                          .. Command'Last)));
-
-      elsif Messages.Match (Command, Messages.Content_Type_Token) then
-         declare
-            Pos   : constant Natural := Fixed.Index (Command, ";");
-            Token : constant String  := Command
-              (Messages.Content_Type_Token'Length + 1 .. Command'Last);
-            Type_Last      : Natural;
-            Boundary_First : Natural;
-         begin
-            if Pos = 0 then
-               Status.Set.Content_Type (C_Stat, Token);
-               Status_Content_Type := To_Unbounded_String (Token);
-            else
-               Type_Last := Pos - 1;
-               Status.Set.Content_Type
-                 (C_Stat,
-                  Token (Token'First .. Type_Last));
-               Status_Content_Type := To_Unbounded_String
-                 (Token (Token'First .. Type_Last));
-
-               Boundary_First := Pos + 11;
-               Status.Set.Multipart_Boundary
-                 (C_Stat,
-                  Command (Boundary_First .. Command'Last));
-               Status_Multipart_Boundary := To_Unbounded_String
-                 (Command (Boundary_First .. Command'Last));
-            end if;
-         end;
-
-      elsif Messages.Match
-        (Command, Messages.If_Modified_Since_Token)
-      then
-         Status.Set.If_Modified_Since
-           (C_Stat,
-            Command (Messages.If_Modified_Since_Token'Length + 1
-                       .. Command'Last));
-
-      elsif Messages.Match
-        (Command, Messages.Authorization_Token)
-      then
-         Status.Set.Authorization
-           (C_Stat,
-            Command (Messages.Authorization_Token'Length + 1 .. Command'Last));
-
-      elsif Messages.Match (Command, Messages.Cookie_Token) then
-         declare
-            use Ada.Strings;
-
-            --  The expected Cookie line is:
-            --  Cookie: ... AWS=<cookieID>[,;] ...
-
-            Cookies : constant String
-              := Command (Messages.Cookie_Token'Length + 1 .. Command'Last);
-
-            AWS_Idx : constant Natural := Fixed.Index (Cookies, "AWS=");
-            Last    : Natural;
-
-         begin
-            if AWS_Idx /= 0 then
-               Last := Fixed.Index
-                 (Cookies (AWS_Idx .. Cookies'Last), Maps.To_Set (",;"));
-
-               if Last = 0 then
-                  Last := Cookies'Last;
-               else
-                  Last := Last - 1;
-               end if;
-
-               Status.Set.Session (C_Stat, Cookies (AWS_Idx + 4 .. Last));
-            end if;
-         end;
-
-      elsif Messages.Match (Command, Messages.SOAPAction_Token) then
-         Status.Set.SOAPAction
-           (C_Stat,
-            Command
-              (Messages.SOAPAction_Token'Length + 2 .. Command'Last - 1));
-
-      elsif Messages.Match (Command, Messages.User_Agent_Token) then
-         Status.Set.User_Agent
-           (C_Stat,
-            Command
-              (Messages.User_Agent_Token'Length + 1 .. Command'Last));
-
-      elsif Messages.Match (Command, Messages.Referer_Token) then
-         Status.Set.Referer
-           (C_Stat,
-            Command
-              (Messages.Referer_Token'Length + 1 .. Command'Last));
-      end if;
-   end Parse;
 
    ------------------------
    -- Parse_Request_Line --
