@@ -99,6 +99,7 @@ package body SOAP.Message is
 
    function XML_Image (M : in Object) return Unbounded_String is
       New_Line     : constant String := ASCII.CR & ASCII.LF;
+      NS           : constant String := Name_Space (M);
       Message_Body : Unbounded_String;
 
    begin
@@ -106,7 +107,7 @@ package body SOAP.Message is
 
       Append (Message_Body,
               "<awsns:" & Wrapper_Name (M)
-              & " xmlns:awsns=""http://mns.org/"">" & New_Line);
+              & " xmlns:awsns=""" & NS & """>" & New_Line);
 
       --  Procedure's parameters
 
@@ -129,4 +130,3 @@ package body SOAP.Message is
    end XML_Image;
 
 end SOAP.Message;
-
