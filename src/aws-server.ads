@@ -39,6 +39,7 @@ with AWS.Response;
 with AWS.Hotplug;
 with AWS.Config;
 with AWS.Default;
+with AWS.Log;
 
 package AWS.Server is
 
@@ -56,7 +57,11 @@ package AWS.Server is
      (Web_Server                : in out HTTP;
       Callback                  : in     Response.Callback;
       Config                    : in     AWS.Config.Object);
-   --  Start server using a full configuration object.
+   --  Start server using a full configuration object. With this routine it is
+   --  possible to control all features of the server. A simplified version of
+   --  Start is also provided below with the most common options.
+   --  User_Config_Filename is a specific configuration file that will parsed
+   --  after 'aws.ini', 'prognam.ini', '<servername>.ini' files.
 
    procedure Start
      (Web_Server                : in out HTTP;
@@ -67,7 +72,8 @@ package AWS.Server is
       Security                  : in     Boolean           := False;
       Session                   : in     Boolean           := False;
       Case_Sensitive_Parameters : in     Boolean           := True;
-      Upload_Directory          : in     String            := Def_Upload_Dir);
+      Upload_Directory          : in     String            := Def_Upload_Dir;
+      Log_Split_Mode            : in     Log.Split_Mode    := Log.None);
    --  Start the Web server. It initialize the connections lines.
    --  Name is just a string used to identify the server. This is used for
    --  example in the administrative page. Admin_URI must be set to enable the
@@ -83,6 +89,15 @@ package AWS.Server is
 
    procedure Shutdown (Web_Server : in out HTTP);
    --  Stop the server and release all associated memory.
+
+   function Config (Web_Server : in HTTP) return AWS.Config.Object;
+   --  Returns configuration object for Web_Server.
+
+   procedure Start_Log (Web_Server : in out HTTP);
+   --  Activate server's logging activity. See AWS.Log.
+
+   procedure Stop_Log (Web_Server : in out HTTP);
+   --  Stop server's logging activity. See AWS.Log.
 
    type HTTP_Access is access all HTTP;
 
@@ -141,6 +156,8 @@ private
    --  Also a line is closed after Keep_Open_Duration seconds of inactivity.
 
    type Slot_Set is array (Positive range <>) of Slot;
+
+   package CNF renames AWS.Config;
 
    -----------
    -- Slots --
@@ -203,6 +220,7 @@ private
 
       Set   : Slot_Set (1 .. N);
       Count : Natural := N;
+
    end Slots;
 
    ----------
@@ -229,26 +247,35 @@ private
    type HTTP
      (Max_Connection : Positive := Default.Max_Connection) is
    limited record
-      Self                      : HTTP_Access := HTTP'Unchecked_Access;
+      Self            : HTTP_Access := HTTP'Unchecked_Access;
       --  Point to the record.
-      Shutdown                  : Boolean     := False;
+
+      Shutdown        : Boolean     := False;
       --  True when shutdown has been requested.
-      Sock                      : Sockets.Socket_FD;
+
+      Sock            : Sockets.Socket_FD;
       --  This is the server socket for incoming connection.
-      Cleaner                   : Line_Cleaner (HTTP'Unchecked_Access);
+
+      Cleaner         : Line_Cleaner (HTTP'Unchecked_Access);
       --  Task in charge of cleaning slots status. It checks from time to time
       --  is the slots is still in used and closed it if possible.
 
-      Properties                : Config.Object := AWS.Config.Default_Config;
+      Properties      : CNF.Object := CNF.Get_Current;
       --  All server properties controled by the configuration file.
 
-      CB                        : Response.Callback;
+      Log             : AWS.Log.Object;
+      --  Loggin support.
+
+      CB              : Response.Callback;
       --  User's callback procedure.
-      Filters                   : Hotplug.Filter_Set;
+
+      Filters         : Hotplug.Filter_Set;
       --  Hotplug filters are recorded here.
-      Lines                     : Line_Set (1 .. Max_Connection);
+
+      Lines           : Line_Set (1 .. Max_Connection);
       --  The tasks doing the job.
-      Slots                     : Server.Slots (Max_Connection);
+
+      Slots           : Server.Slots (Max_Connection);
       --  Information about each tasks above. This is a protected object to
       --  support concurrency.
    end record;
