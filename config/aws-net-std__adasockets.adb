@@ -42,10 +42,13 @@ with Sockets.Thin;
 package body AWS.Net.Std is
 
    use Ada;
+   use Interfaces;
 
    type Socket_Hidden is record
-      FD : Sockets.Socket_FD;
+      FD      : Sockets.Socket_FD;
    end record;
+
+   procedure Wait_For (Mode : in C.short; Socket : in Socket_Type);
 
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
@@ -205,10 +208,13 @@ package body AWS.Net.Std is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array is
    begin
+      Wait_For (Sockets.Constants.Pollin, Socket);
+
       return Sockets.Receive (Socket.S.FD, Max);
    exception
-      when E : others =>
-         Raise_Exception (E, "Receive");
+      when E : Sockets.Socket_Error       |
+               Sockets.Connection_Closed  |
+               Sockets.Connection_Refused => Raise_Exception (E, "Receive");
    end Receive;
 
    ----------
@@ -219,10 +225,13 @@ package body AWS.Net.Std is
      (Socket : in Socket_Type;
       Data   : in Stream_Element_Array) is
    begin
+      Wait_For (Sockets.Constants.Pollout, Socket);
+
       Sockets.Send (Socket.S.FD, Data);
    exception
-      when E : others =>
-         Raise_Exception (E, "Send");
+      when E : Sockets.Socket_Error       |
+               Sockets.Connection_Closed  |
+               Sockets.Connection_Refused => Raise_Exception (E, "Send");
    end Send;
 
    -----------------------
@@ -290,5 +299,45 @@ package body AWS.Net.Std is
       when E : others =>
          Raise_Exception (E, "Shutdown");
    end Shutdown;
+
+   --------------
+   -- Wait_For --
+   --------------
+
+   procedure Wait_For (Mode : in C.short; Socket : in Socket_Type) is
+      use Sockets;
+      use type C.int;
+
+      PFD : Thin.Pollfd
+        := (Fd      => Get_FD (Socket.S.FD),
+            Events  => Mode,
+            Revents => 0);
+      RC    : C.int;
+      Errno : C.int;
+
+      procedure Raise_Exception (Message : in String);
+
+      ---------------------
+      -- Raise_Exception --
+      ---------------------
+
+      procedure Raise_Exception (Message : in String) is
+      begin
+         Ada.Exceptions.Raise_Exception (Socket_Error'Identity, Message);
+      end Raise_Exception;
+
+   begin
+      RC := Thin.C_Poll (PFD'Address, 1, C.int (Socket.Timeout * 1000));
+
+      case RC is
+         when -1 =>
+            Errno := C.int (Thin.Errno);
+
+            Raise_Exception ('[' & C.int'Image (Errno) & " ]");
+         when 0 => Raise_Exception ("Timeout.");
+         when 1 => return;
+         when others => raise Program_Error;
+      end case;
+   end Wait_For;
 
 end AWS.Net.Std;
