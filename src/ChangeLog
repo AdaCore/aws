@@ -1,3 +1,40 @@
+2003-10-08  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	Change references to Content_Encoding type now in AWS.Messages.
+
+	* aws-containers-tables.ads:
+	Minor reformatting.
+
+	* aws-headers-set.ads:
+	Minor reformatting.
+
+	* aws-messages.ads:
+	(Content_Encoding): Moved here from AWS.Response.
+	Minor reformatting.
+
+	* aws-response-set.ads, aws-response-set.adb:
+	Change references to Content_Encoding type now in AWS.Messages.
+
+	* aws-response.adb:
+	(Authentication): Set variable as constant.
+	(Authentication_State): Idem.
+	(File): Add encoding parameter. Properly set the encoding header
+	 in the response object.
+
+	* aws-response.ads:
+	(Content_Encoding): Type moved to AWS.Messages.
+	(File): Add encoding parameter.
+
+	* aws-status.adb:
+	(Accept_Encoding): New routine.
+	(Is_Supported): New routine.
+
+	* aws-status.ads:
+	(Accept_Encoding): New routine.
+	(Is_Supported): New routine.
+	Minor reformatting.
+
 2003-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-response-set.adb:
