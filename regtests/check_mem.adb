@@ -46,6 +46,7 @@ with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Session;
 with AWS.Services.Split_Pages;
+with AWS.Services.Files;
 with AWS.Status;
 with AWS.Templates;
 with AWS.Translator;
@@ -153,6 +154,12 @@ procedure Check_Mem is
 
       elsif URI = "/file" then
          return Response.File (MIME.Text_Plain, "check_mem.adb");
+
+      elsif URI = "/filea.txt"
+        or else URI = "/fileb.txt"
+        or else URI = "/filec.txt"
+      then
+         return Services.Files.Open (URI (URI'First + 1 .. URI'Last), Request);
 
       elsif URI = "/no-template" then
          declare
@@ -473,6 +480,21 @@ procedure Check_Mem is
       R := Services.Split_Pages.Parse ("split.tmplt", T1, T2, 2);
    end Check_Transient;
 
+   -----------------
+   -- Check_ZOpen --
+   -----------------
+
+   procedure Check_ZOpen is
+
+      use Templates;
+
+      R : Response.Data;
+   begin
+      R := AWS.Client.Get ("http://localhost:" & S_Port & "/filea.txt");
+      R := AWS.Client.Get ("http://localhost:" & S_Port & "/fileb.txt");
+      R := AWS.Client.Get ("http://localhost:" & S_Port & "/filec.txt");
+   end Check_ZOpen;
+
 begin
    Put_Line ("Start main, wait for server to start...");
 
@@ -489,6 +511,7 @@ begin
       Check_Dynamic_Message (Messages.Identity);
       Check_Dynamic_Message (Messages.Deflate);
       Check_Transient;
+      Check_Zopen;
    end loop;
 
    delay 4.0;
