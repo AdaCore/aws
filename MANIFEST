@@ -690,6 +690,7 @@ templates_parser/docs/templates_parser.html
 templates_parser/docs/templates_parser.info*
 templates_parser/docs/templates_parser.texi
 templates_parser/docs/user.tmplt
+templates_parser/makefile
 templates_parser/regtests/3l1.tmplt
 templates_parser/regtests/3l2.tmplt
 templates_parser/regtests/3level.tmplt
@@ -728,7 +729,6 @@ templates_parser/regtests/foot.tmplt
 templates_parser/regtests/ftp.out
 templates_parser/regtests/ftp.tmplt
 templates_parser/regtests/ftp2.tmplt
-templates_parser/regtests/gmem.out
 templates_parser/regtests/gtag.tmplt
 templates_parser/regtests/head.tmplt
 templates_parser/regtests/incl.tmplt
