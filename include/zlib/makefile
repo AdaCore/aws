@@ -4,25 +4,27 @@
 
 # Modified for AWS (Ada Web Server) by Dmitriy Anisimkov
 
-CC=gcc
+.PHONY: all
 
-CFLAGS=-O3
+CC = gcc
+
+CFLAGS = -O3
 #CFLAGS=-g -DDEBUG
 
-LIBS=../../lib/libz.a
+LIBZ = ../../lib/libz.a
 
-AR=ar rc
+AR = ar
 
 OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
        zutil.o inflate.o infback.o inftrees.o inffast.o
 
-all: $(LIBS)
+all: $(LIBZ)
 
-$(LIBS): $(OBJS)
-	$(AR) $@ $(OBJS)
+$(LIBZ): $(OBJS)
+	$(AR) rc $@ $(OBJS)
 
 clean:
-	rm -f *.o *~ $(LIBS)
+	rm -f *.o *~ $(LIBZ)
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
