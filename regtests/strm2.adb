@@ -72,8 +72,7 @@ procedure Strm2 is
       File : AWS.Resources.Streams.Stream_Access := new Error_Strm.File_Tagged;
    begin
       if Status.URI (Request) = "/toto" then
-         return AWS.Response.Stream
-           ("text/plain", File, Response.Undefined_Length);
+         return AWS.Response.Stream ("text/plain", File);
       else
          return AWS.Response.Build
            ("text/plain", "Unknown resource", Messages.S404);

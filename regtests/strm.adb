@@ -76,21 +76,15 @@ procedure Strm is
       File : AWS.Resources.Streams.Stream_Access
         := new User_Strm.File_Tagged;
    begin
-      User_Strm.Create
-        (Resource => File.all,
-         Size     => File_Size);
 
-      if Status.URI (Request) = Length_Defined_URI then
-         return AWS.Response.Stream
-           ("text/plain",
-            File,
-            File_Size);
-      else
-         return AWS.Response.Stream
-           ("text/plain",
-            File,
-            AWS.Response.Undefined_Length);
-      end if;
+      User_Strm.Create
+        (Resource       => File.all,
+         Undefined_Size => Status.URI (Request) = Length_Defined_URI,
+         Size           => File_Size);
+
+      return AWS.Response.Stream
+        ("text/plain",
+         File);
    end CB;
 
    ------------
@@ -128,7 +122,7 @@ procedure Strm is
       File : User_Strm.File_Tagged;
       Last : Stream_Element_Offset;
    begin
-      User_Strm.Create (File, File_Size);
+      User_Strm.Create (File, File_Size, False);
       User_Strm.Read (File, Same_Message, Last);
 
       if Message = Same_Message
