@@ -25,7 +25,7 @@
 --  this  unit  does not  by itself cause  the resulting executable to be   --
 --  covered by the GNU General Public License. This exception does not      --
 --  however invalidate any other reasons why the executable file  might be  --
---  covered by the  GNU Public License.                                     --
+--  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
 
 --  $Id$
@@ -37,6 +37,12 @@ package body AWS.Resources is
 
    use Ada;
 
+   procedure Read_Uncompressed
+     (Resource : in out File_Type;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset);
+   --  Read data from Resource and returned them uncompressed
+
    -----------
    -- Close --
    -----------
@@ -44,6 +50,11 @@ package body AWS.Resources is
    procedure Close (Resource : in out File_Type) is
    begin
       Close (Resource.all);
+
+      if not Resource.Support_Compressed then
+        ZLib.Close (Resource.U_Filter, Ignore_Error => True);
+      end if;
+
       Free (Resource);
    end Close;
 
@@ -60,9 +71,7 @@ package body AWS.Resources is
    -- File_Size --
    ---------------
 
-   function File_Size
-     (Name   : in String)
-      return Stream_Element_Offset is
+   function File_Size (Name   : in String) return Stream_Element_Offset is
    begin
       if Resources.Embedded.Exists (Name) then
          return Resources.Embedded.File_Size (Name);
@@ -75,9 +84,7 @@ package body AWS.Resources is
    -- File_Timestamp --
    --------------------
 
-   function File_Timestamp
-     (Name : in String)
-      return Ada.Calendar.Time is
+   function File_Timestamp (Name : in String) return Ada.Calendar.Time is
    begin
       if Resources.Embedded.Exists (Name) then
          return Resources.Embedded.File_Timestamp (Name);
@@ -128,13 +135,26 @@ package body AWS.Resources is
       end loop;
    end Get_Line;
 
+   -------------------
+   -- Is_Compressed --
+   -------------------
+
+   function Is_Compressed (Resource : in File_Type) return Boolean is
+   begin
+      return Is_Compressed (Resource.all);
+   end Is_Compressed;
+
+   function Is_Compressed (File : in File_Tagged) return Boolean is
+      pragma Unreferenced (File);
+   begin
+      return False;
+   end Is_Compressed;
+
    ---------------------
    -- Is_Regular_File --
    ---------------------
 
-   function Is_Regular_File
-     (Name : in String)
-      return Boolean is
+   function Is_Regular_File (Name : in String) return Boolean is
    begin
       if Resources.Embedded.Exists (Name) then
          return Resources.Embedded.Is_Regular_File (Name);
@@ -168,6 +188,8 @@ package body AWS.Resources is
       if File = null then
          Resources.Files.Open (File, Name, Form);
       end if;
+
+      File.Support_Compressed := True;
    end Open;
 
    ----------
@@ -179,8 +201,46 @@ package body AWS.Resources is
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset) is
    begin
-      Read (Resource.all, Buffer, Last);
+      if not Resource.Support_Compressed and then Is_Compressed (Resource) then
+         --  Compressed resources are not supported and the resource is
+         --  compressed.
+         Read_Uncompressed (Resource, Buffer, Last);
+      else
+         Read (Resource.all, Buffer, Last);
+      end if;
    end Read;
+
+   -----------------------
+   -- Read_Uncompressed --
+   -----------------------
+
+   procedure Read_Uncompressed
+     (Resource : in out File_Type;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset)
+   is
+
+      procedure Read
+        (Item : out Stream_Element_Array;
+         Last : out Stream_Element_Offset);
+
+      ----------
+      -- Read --
+      ----------
+
+      procedure Read
+        (Item : out Stream_Element_Array;
+         Last : out Stream_Element_Offset) is
+      begin
+         Read (Resource.all, Item, Last);
+      end Read;
+
+      procedure U_Read is new ZLib.Read
+        (Read, Resource.U_Buffer, Resource.R_First, Resource.R_Last);
+
+   begin
+      U_Read (Resource.U_Filter, Buffer, Last);
+   end Read_Uncompressed;
 
    -----------
    -- Reset --
@@ -199,5 +259,22 @@ package body AWS.Resources is
    begin
       return Size (Resource.all);
    end Size;
+
+   ------------------------
+   -- Support_Compressed --
+   ------------------------
+
+   procedure Support_Compressed
+     (Resource : in out File_Type;
+      State    : in     Boolean) is
+   begin
+      Resource.Support_Compressed := State;
+
+      if State = False then
+         --  No compressed resources supported, prepare to uncompress them
+         ZLib.Inflate_Init (Resource.U_Filter);
+         Resource.R_First := Resource.U_Buffer'Last + 1;
+      end if;
+   end Support_Compressed;
 
 end AWS.Resources;
