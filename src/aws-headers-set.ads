@@ -32,10 +32,6 @@
 
 package AWS.Headers.Set is
 
-   procedure Parse (Headers : in out List; Line : in String);
-   --  Parse HTTP header Line and insert the corresponding data at the end
-   --  of the Headers container.
-
    procedure Add (Headers : in out List; Name, Value : in String);
    pragma Inline (Add);
    --  Add HTTP header name/value at the end of the Headers container. Note
@@ -54,6 +50,9 @@ package AWS.Headers.Set is
    --     N <= M      => update the value
    --     N  = M + 1  => the pair name=value is appended to the table
    --     N  > M + 1  => Constraint_Error raised
+
+   procedure Read (Headers : in out List; Socket : in Net.Socket_Type'Class);
+   --  Read and parse HTTP header from the socket.
 
    procedure Reset (Headers : in out List);
    pragma Inline (Reset);
