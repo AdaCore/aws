@@ -1,0 +1,26 @@
+#! /bin/sh
+
+# example: release-test 1.4 /opt/gnatpro/3.16a1 /opt/xmlada
+
+if [ "x$1" == "x" ]; then
+	echo "Usage: release-test <AWS-Version> <GNAT PATH> <XMLADA>";
+	exit 1;
+fi;
+
+if [ "x$2" == "x" ]; then
+	echo "Usage: release-test <AWS-Version> <GNAT PATH> <XMLADA>";
+	exit 1;
+fi;
+
+if [ "x$3" == "x" ]; then
+	echo "Usage: release-test <AWS-Version> <GNAT PATH> <XMLADA>";
+	exit 1;
+fi;
+
+PATH=$2/bin:/bin:/usr/bin
+export LD_LIBRARY_PATH=$3/lib
+
+tar xfz aws-$1.tar.gz
+cd aws-$1
+make build XMLADA="$3"
+make run_regtests XMLADA="$3"
