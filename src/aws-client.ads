@@ -223,7 +223,7 @@ package AWS.Client is
       Destination : in out HTTP_Connection);
    --  Copy a session ID from connection Source to connection Destination.
    --  Allow both connections to share the same user environment. Note that
-   --  user's environemnt are thread-safe.
+   --  user's environment are thread-safe.
 
    function Read_Until
      (Connection : in HTTP_Connection;
