@@ -44,10 +44,16 @@ package body AWS.Digest is
 
    Private_Key : MD5.Context;
 
-   type Word is mod 2 ** 16;
+   type Word is mod 2 ** 31;
 
    Nonce_Idx   : Word := 0;
    pragma Atomic (Nonce_Idx);
+
+   subtype Timestamp_String is String (1 .. 5);
+   --  The timestamp string
+
+   subtype Nonce_String is String (1 .. 8);
+   --  The Nonce string is a 32 bits hex value
 
    Nonce_Expiration : constant Duration := 300.0;
    --  Expiration expressed in seconds
@@ -65,36 +71,55 @@ package body AWS.Digest is
    function Check_Nonce (Value : in String) return Boolean is
       use Calendar;
 
-      Now           : constant Time := Clock;
+      F             : constant Positive := Value'First;
+
+      subtype Timestamp_Range is
+        Positive range F      .. F + Timestamp_String'Length - 1;
+
+      subtype Index_Range is
+        Positive range Timestamp_Range'Last + 1
+          .. Timestamp_Range'Last + Nonce_String'Length;
+
+      subtype Digest_Range is
+        Positive range Index_Range'Last + 1
+          .. Index_Range'Last + MD5.Message_Digest'Length;
+
+      subtype Tag_Range is
+        Positive range Timestamp_Range'First .. Index_Range'Last;
+      --  This is AWS specific tag added before the MD5 digest
+
+      Now           : constant Time     := Clock;
       Nonce_Time    : Time;
       Year_Now      : Year_Number;
       Month_Now     : Month_Number;
       Day_Now       : Day_Number;
       Seconds_Now   : Day_Duration;
 
-      Index_Nonce   : String (1 .. 4);
+      Index_Nonce   : Nonce_String;
       Seconds_Nonce : Natural;
       Ctx           : MD5.Context;
       Sample        : Digest_String;
    begin
-      Split (Now, Year_Now, Month_Now, Day_Now, Seconds_Now);
-
       if Value'Length /= Nonce'Length then
          return False;
       end if;
+
+      --  Check that we have only hex digits in the timestamp and index
 
       declare
          use Ada.Strings.Maps;
       begin
          if not Is_Subset
-           (To_Set (String (Value (1 .. 9))), Constants.Hexadecimal_Digit_Set)
+           (To_Set (Value (Tag_Range)), Constants.Hexadecimal_Digit_Set)
          then
             return False;
          end if;
       end;
 
-      Seconds_Nonce := Utils.Hex_Value (String (Value (1 .. 5)));
-      Index_Nonce   := Value (6 .. 9);
+      Split (Now, Year_Now, Month_Now, Day_Now, Seconds_Now);
+
+      Seconds_Nonce := Utils.Hex_Value (Value (Timestamp_Range));
+      Index_Nonce   := Value (Index_Range);
 
       Nonce_Time := Time_Of
         (Year_Now, Month_Now, Day_Now, Day_Duration (Seconds_Nonce));
@@ -102,9 +127,7 @@ package body AWS.Digest is
       if Nonce_Time > Now then
          --  Could be next day
          Nonce_Time := Nonce_Time - Day_Duration'Last;
-
-         Split (Nonce_Time,
-                Year_Now, Month_Now, Day_Now, Seconds_Now);
+         Split (Nonce_Time, Year_Now, Month_Now, Day_Now, Seconds_Now);
       end if;
 
       if Now - Nonce_Time > Nonce_Expiration then
@@ -122,7 +145,7 @@ package body AWS.Digest is
 
       Sample := MD5.Digest (Ctx);
 
-      return String (Value (10 .. Value'Last)) = Sample;
+      return Value (Digest_Range) = Sample;
    end Check_Nonce;
 
    ------------
@@ -163,15 +186,16 @@ package body AWS.Digest is
    function Create_Nonce return Nonce is
       use Calendar;
 
-      Year_Now    : Year_Number;
-      Month_Now   : Month_Number;
-      Day_Now     : Day_Number;
-      Seconds_Now : Day_Duration;
+      Year_Now      : Year_Number;
+      Month_Now     : Month_Number;
+      Day_Now       : Day_Number;
+      Seconds_Now   : Day_Duration;
 
-      Seconds_Int : Natural;
-      Index_Nonce : String (1 .. 4);
-      Ctx         : MD5.Context;
-      Result      : Digest_String;
+      Seconds_Int   : Natural;
+      Timestamp_Str : Timestamp_String;
+      Index_Str     : Nonce_String;
+      Ctx           : MD5.Context;
+      Result        : Digest_String;
    begin
       Split (Clock, Year_Now, Month_Now, Day_Now, Seconds_Now);
 
@@ -179,23 +203,27 @@ package body AWS.Digest is
 
       Seconds_Int := Natural (Float'Floor (Float (Seconds_Now)));
       Nonce_Idx   := Nonce_Idx + 1;
-      Index_Nonce := Utils.Hex (Integer (Nonce_Idx), Width => 4);
+      Index_Str
+        := Utils.Hex (Integer (Nonce_Idx), Width => Nonce_String'Length);
+      Timestamp_Str
+        := Utils.Hex (Seconds_Int, Width => Timestamp_String'Length);
 
       MD5.Update (Ctx, To_Byte_Array (Year_Now));
       MD5.Update (Ctx, To_Byte_Array (Month_Now));
       MD5.Update (Ctx, To_Byte_Array (Day_Now));
       MD5.Update (Ctx, To_Byte_Array (Seconds_Int));
-      MD5.Update (Ctx, Index_Nonce);
+      MD5.Update (Ctx, Index_Str);
 
       --  Place the digest string representation into the result variable
 
       Result := MD5.Digest (Ctx);
 
-      --  Five hex digits before MD5 digest for the nonce expiration check
+      --  The Nonce result is composed of three parts:
+      --  Five Hex Digits : timestamp to check Nonce expiration
+      --  Uniq index      : to avoid generating the same Nonce twice
+      --  MD5 digest      : the Nonce main MD5 data
 
-      return Nonce (Utils.Hex (Seconds_Int, Width => 5)
-                      & Index_Nonce
-                      & Result);
+      return Nonce (Timestamp_Str & Index_Str & Result);
    end Create_Nonce;
 
 begin
