@@ -56,6 +56,12 @@ package AWS.Resources.Streams is
    pragma Inline (Create);
    --  Create the resource from user defined resource.
 
+   function Size
+     (Resource : in Stream_Type)
+      return   Stream_Element_Offset;
+   --  Returns the Undefined_Length. If the derived types has a defined size,
+   --  this routine should be redefined.
+
 private
 
    type Stream_Type is abstract new Resources.File_Tagged with null record;
