@@ -791,18 +791,6 @@ is
    ------------------------
 
    procedure Get_Message_Header is
-
-      function Check_Encoding (Encoding : in String) return Boolean;
-      pragma Inline (Check_Encoding);
-      --  Returns True if deflate encoding supported
-
-      function Check_Encoding (Encoding : in String) return Boolean is
-         L_Encoding : constant String
-           := Characters.Handling.To_Lower (Encoding);
-      begin
-         return Strings.Fixed.Index (L_Encoding, "deflate") /= 0;
-      end Check_Encoding;
-
    begin
       --  Get and parse request line
 
@@ -817,7 +805,7 @@ is
 
       Status_Connection := To_Unbounded_String (Status.Connection (C_Stat));
 
-      Support_Compressed := Check_Encoding (Status.Accept_Encoding (C_Stat));
+      Support_Compressed := Status.Is_Supported (C_Stat, Messages.Deflate);
 
       --  Get necessary data from header for reading HTTP body
 
