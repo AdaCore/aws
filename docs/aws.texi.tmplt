@@ -375,6 +375,11 @@ image and an @code{HTML} page. The executable is self contained.
 A complete example that test many @code{AWS} features. If this test runs fine
 on your platform, @code{AWS} is certainly ok.
 
+@item test_jabber
+
+A simple Jabber command line client to check the presence of a JID
+(Jabber ID). This uses the Jabber API, @pxref{AWS.Jabber}.
+
 @item test_ldap
 
 A simple LDAP demo which access a public LDAP server and display some
@@ -2317,7 +2322,7 @@ required an authentication. If not, the login/password must be empty strings.
 @smallexample
 @cartouche
 @group
-   LDAP.Client.Bind (Directory, "", "");
+LDAP.Client.Bind (Directory, "", "");
 @end group
 @end cartouche
 @end smallexample
@@ -2331,10 +2336,10 @@ a set of attributes to retrieve.
 @smallexample
 @cartouche
 @group
-   Response_Set := LDAP.Client.Search
-     (Directory, Base_DN, Filter, LDAP.Client.LDAP_Scope_Subtree,
-      LDAP.Client.Attributes
-        ("cn", "sn", "telephonenumber"));
+Response_Set := LDAP.Client.Search
+  (Directory, Base_DN, Filter, LDAP.Client.LDAP_Scope_Subtree,
+   LDAP.Client.Attributes
+     ("cn", "sn", "telephonenumber"));
 @end group
 @end cartouche
 @end smallexample
@@ -2420,8 +2425,8 @@ associated with LDAP objects.
 @smallexample
 @cartouche
 @group
-   LDAP.Client.Free (Message);
-   LDAP.Client.Unbind (Directory);
+LDAP.Client.Free (Message);
+LDAP.Client.Unbind (Directory);
 @end group
 @end cartouche
 @end smallexample
@@ -2444,20 +2449,113 @@ LDAP API closely.
 @cindex Jabber
 
 @noindent
-AWS support part of the Jabber protocol. At this stage only two kind
+@code{AWS} support part of the Jabber protocol. At this stage only two kind
 of messages are supported:
 
-@table @b
+@enumerate
+
+@item Presence
+
+To check the presence status of a specific JID (Jabber ID)
 
 @item Message
 
 To send messages to a specific JID (Jabber ID)
 
-@item Presence
+@end enumerate
 
-To check the presence status of a specific JID
+@noindent
+Note that if you want an application to check the presence or send
+message to users it is recommended to create a specific Jabber ID on the
+server for this application and ask users to accept this specific user
+to check their presence status.
 
-@end table
+@menu
+* Jabber presence::
+* Jabber message::
+@end menu
+
+@node Jabber presence
+@section Jabber presence
+@cindex Jabber presence
+
+@noindent
+To check for the presence of another JID you must first have the right
+to do so. The jabber server won't let you see presence of another JID
+unless the JID have permitted you to see its presence.
+
+@itemize
+
+@item First declare the server and status objects
+
+@smallexample
+@cartouche
+@group
+Server : AWS.Jabber.Server;
+Status : AWS.Jabber.Presence_Status;
+@end group
+@end cartouche
+@end smallexample
+
+@item Connect to the server, you must have an account created and must
+know the login and password
+
+@smallexample
+@cartouche
+@group
+AWS.Jabber.Connect
+  (Server, "jabber.domain.org", "joe", "mysuperpwd");
+@end group
+@end cartouche
+@end smallexample
+
+@item Then, to check the presence of user "john"
+
+@smallexample
+@cartouche
+@group
+AWS.Jabber.Check_Presence
+  (Server, "john@@jabber.domain.org", Status);
+@end group
+@end cartouche
+@end smallexample
+
+@item Then, you just have to close the server
+
+@smallexample
+@cartouche
+@group
+AWS.Jabber.Close (Server);
+@end group
+@end cartouche
+@end smallexample
+
+@end itemize
+
+@node Jabber message
+@section Jabber message
+@cindex Jabber message
+
+@noindent
+To send a message to a specific JID, you must connect to
+the server as above and close the server when you don't need to
+communicate with it anymore. The only different part is to send the
+message, here is an example:
+
+@smallexample
+@cartouche
+@group
+Send_Message
+   (Server,
+    JID     => "john@@jabber.domain.org",
+    Subject => "Hello there!",
+    Content => "Are you using AWS ?");
+@end group
+@end cartouche
+@end smallexample
+
+@noindent
+It is as simple as that !
 
 @c ----------------------------------------------------------------------
 
@@ -2467,7 +2565,7 @@ To check the presence status of a specific JID
 @cindex Self dependant
 
 @noindent
-AWS support embedded resources. It means that it is possible to build
+@code{AWS} support embedded resources. It means that it is possible to build
 a fully self dependent executable. This is useful when distributing a
 server. The server program contains the code but also the images (PNG,
 JPEG, GIF), the templates, the HTML pages... more generally any file the
