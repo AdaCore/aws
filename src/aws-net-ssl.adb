@@ -45,7 +45,7 @@ with AWS.Config;
 with AWS.Net.Std;
 with AWS.Utils;
 
-with Interfaces.C;
+with Interfaces.C.Strings;
 with System.Storage_Elements;
 with System;
 
@@ -224,13 +224,16 @@ package body AWS.Net.SSL is
    function Error_Str (Code : in TSSL.Error_Code) return String is
       use Interfaces;
       use type TSSL.Error_Code;
-      Buffer : C.char_array := (0 .. 511 => Interfaces.C.nul);
-      pragma Warnings (Off, Buffer);
+      Buffer : aliased C.char_array := (0 .. 511 => Interfaces.C.nul);
    begin
       if Code = 0 then
          return "Not an error";
       else
-         TSSL.ERR_error_string_n (Code, Buffer, Buffer'Length);
+         TSSL.ERR_error_string_n
+           (Code,
+            C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access),
+            Buffer'Length);
+
          return C.To_Ada (Buffer);
       end if;
    end Error_Str;
