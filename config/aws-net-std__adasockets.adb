@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -384,9 +384,16 @@ package body AWS.Net.Std is
         := (Fd      => Get_FD (Socket.S.FD),
             Events  => To_Poll_Mode (Mode),
             Revents => 0);
-      RC    : C.int;
+      RC      : C.int;
+      Timeout : C.int;
    begin
-      RC := Thin.C_Poll (PFD'Address, 1, C.int (Socket.Timeout * 1000));
+      if Socket.Timeout >= Duration (C.int'Last / 1000) then
+         Timeout := C.int'Last;
+      else
+         Timeout := C.int (Socket.Timeout * 1000);
+      end if;
+
+      RC := Thin.C_Poll (PFD'Address, 1, Timeout);
 
       case RC is
          when -1 => Raise_Exception
