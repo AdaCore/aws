@@ -201,8 +201,13 @@ package body AWS.Response is
    --------------------
 
    function Content_Length (D : in Data) return Content_Length_Type is
+      Image : String := Headers.Get (D.Header, Messages.Content_Length_Token);
    begin
-      return D.Content_Length;
+      if Image = "" then
+         return Undefined_Length;
+      else
+         return Content_Length_Type'Value (Image);
+      end if;
    end Content_Length;
 
    ------------------
@@ -475,14 +480,13 @@ package body AWS.Response is
    function Stream
      (Content_Type  : in     String;
       Handle        : access Resources.Streams.Stream_Type'Class;
-      Size          : in     Content_Length_Type     := Undefined_Length;
       Status_Code   : in     Messages.Status_Code    := Messages.S200;
       Cache_Control : in     Messages.Cache_Option   := Messages.No_Cache)
       return Data
    is
       Result : Data;
    begin
-      Set.Stream        (Result, Handle, Size);
+      Set.Stream        (Result, Handle);
       Set.Status_Code   (Result, Status_Code);
       Set.Content_Type  (Result, Content_Type);
       Set.Cache_Control (Result, Cache_Control);
