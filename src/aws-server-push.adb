@@ -159,7 +159,7 @@ package body AWS.Server.Push is
                String'Write
                  (Holder.Stream,
                   Messages.Content_Type
-                     (MIME.Multipart_Mixed_Replace, Boundary)
+                    (MIME.Multipart_X_Mixed_Replace, Boundary)
                     & New_Line);
 
             else
