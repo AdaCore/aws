@@ -1,3 +1,8 @@
+2004-09-30  Pascal Obry  <pascal@obry.org>
+
+	* demos.gpr:
+	Add test_jabber.adb demo for build with XML/Ada support.
+	
 2004-09-29  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
