@@ -1,3 +1,8 @@
+2004-08-10  Pascal Obry  <pascal@obry.org>
+
+	* aws-net.ads:
+	(Send): Minor reformatting and comment fixing.
+
 2004-08-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net.ads:
