@@ -35,6 +35,7 @@ with "../include/include";
 with "../src/src";
 with "../ssl/nossl";
 with "../xmlada";
+with "../asis";
 
 project Tools is
 
@@ -45,6 +46,11 @@ project Tools is
          for Main use project'Main & ("wsdl2aws.adb");
    end case;
 
+   case Shared.ASIS is
+      when "Installed" =>
+         for Main use project'Main & ("ada2wsdl.adb");
+   end case;
+
    case Shared.Build is
       when "Debug" =>
          for Object_Dir use "../.build/debug/tools/obj";
@@ -53,7 +59,6 @@ project Tools is
          for Object_Dir use "../.build/release/tools/obj";
          for Exec_Dir use "../.build/release/tools";
    end case;
-
 
    --------------
    -- Compiler --
@@ -72,7 +77,9 @@ project Tools is
    ------------
 
    package Linker is
-      for Switches ("wsdl2aws.adb") use ("-lz") & Shared.LIB_XMLAda;
+      for Switches ("awsres.adb")   use Shared.Z_Lib;
+      for Switches ("wsdl2aws.adb") use Shared.Z_Lib & Shared.LIB_XMLAda;
+      for Switches ("ada2wsdl.adb") use Shared.Z_Lib & Shared.LIB_XMLAda;
    end Linker;
 
 end Tools;
