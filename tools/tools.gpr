@@ -39,6 +39,8 @@ with "../asis";
 
 project Tools is
 
+   for Languages use ("Ada", "Changelog", "Project file", "makefile");
+
    for Main use ("awsres.adb");
 
    case Shared.XMLAda is
@@ -77,9 +79,9 @@ project Tools is
    ------------
 
    package Linker is
-      for Switches ("awsres.adb")   use Shared.Z_Lib;
-      for Switches ("wsdl2aws.adb") use Shared.Z_Lib & Shared.LIB_XMLAda;
-      for Switches ("ada2wsdl.adb") use Shared.Z_Lib & Shared.LIB_XMLAda;
+      for Switches ("awsres.adb")   use Shared.ZLib;
+      for Switches ("wsdl2aws.adb") use Shared.ZLib & Shared.LIB_XMLAda;
+      for Switches ("ada2wsdl.adb") use Shared.ZLib & Shared.LIB_XMLAda;
    end Linker;
 
 end Tools;
