@@ -388,7 +388,7 @@ private
       Dispatcher        : Dispatchers.Handler_Class_Access;
       --  Dispatcher for the user actions.
 
-      Dispatcher_Sem    : Utils.RW_Semaphore;
+      Dispatcher_Sem    : Utils.RW_Semaphore (Writers => 1);
       --  RW semaphore to be able to change dynamically the Dispatcher object.
 
       Filters           : Hotplug.Filter_Set;
