@@ -1,5 +1,22 @@
 2002-02-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-services-dispatchers-uri.adb,
+	  aws-services-dispatchers-virtual_host.adb:
+	(Ada.Unchecked_Deallocation): Added.
+	(Initialize): Call Dispatchers.Initialize (parent method).
+	(Finalize): Call Dispatchers.Finalize (parent method).
+
+	* aws-services-dispatchers.adb:
+	(Ada.Unchecked_Deallocation): Moved here from spec.
+	(Finalize): Set Ref_Counter to 0.
+	(Initialize): Set Ref_Counter to 1.
+
+	* aws-services-dispatchers.ads:
+	(Ada.Unchecked_Deallocation): Moved to body.
+	(Initialize): Add comments about reference counting.
+	(Adjust): Idem.
+	(Finalize): Idem.
+
 	* aws-server-push.adb:
 	A lot of changes to conform to new spec (see below).
 
