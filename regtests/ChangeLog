@@ -1,5 +1,10 @@
 2004-10-06  Pascal Obry  <pascal@obry.org>
 
+	* makefile:
+	(clean): Add filez.tmplt.
+	
+2004-10-06  Pascal Obry  <pascal@obry.org>
+
 	* makefile.lst:
 	Empty version needed by main makefile. This file will be generated
 	 during the setup procedure.

@@ -279,6 +279,7 @@ fileb.txt
 fileb.txt.gz
 filec.txt
 filec.txt.gz
+filez.tmplt
 generate
 get_post
 get_post.res
@@ -347,6 +348,7 @@ r_hello_demo.ads
 redirect
 redirect.res
 redirect.tmp
+regtests_lst.gpr
 run1
 run2
 sback
