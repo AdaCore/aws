@@ -60,6 +60,10 @@ package body Templates_Parser is
    --  are quotes return Str (Str'First + 1 ..  Str'Last - 1) otherwise
    --  return Str as-is.
 
+   function Is_Number (S : in String) return Boolean;
+   pragma Inline (Is_Number);
+   --  Returns True if S is a decimal number
+
    procedure Free is new Ada.Unchecked_Deallocation (Integer, Integer_Access);
 
    -----------
@@ -88,6 +92,19 @@ package body Templates_Parser is
          return Str;
       end if;
    end No_Quote;
+
+   ---------------
+   -- Is_Number --
+   ---------------
+
+   function Is_Number (S : in String) return Boolean is
+      use Strings.Maps;
+   begin
+      return S'Length > 0
+        and then Is_Subset
+          (To_Set (S),
+           Constants.Decimal_Digit_Set or To_Set ("-"));
+   end Is_Number;
 
    --------------
    -- Tag Info --
@@ -188,19 +205,19 @@ package body Templates_Parser is
          --  separator if needed.
 
          BR_2_LF,
-         --  Replaces all <BR> HTML tag by a LF character.
+         --  Replaces all <BR> HTML tag by a LF character
 
          Capitalize,
-         --  Lower case except char before spaces and underscores.
+         --  Lower case except char before spaces and underscores
 
          Clean_Text,
-         --  Only letter/digits all other chars are changed to spaces.
+         --  Only letter/digits all other chars are changed to spaces
 
          Coma_2_Point,
-         --  Replaces comas by points.
+         --  Replaces comas by points
 
          Contract,
-         --  Replaces a suite of spaces by a single space character.
+         --  Replaces a suite of spaces by a single space character
 
          Del_Param,
          --  Delete an HTTP parameter from the string, removes the '&'
@@ -226,16 +243,22 @@ package body Templates_Parser is
          --  number nothing is done. The data is trimmed before processing it.
 
          Is_Empty,
-         --  Returns "TRUE" if var is empty and "FALSE" otherwise.
+         --  Returns "TRUE" if var is empty and "FALSE" otherwise
 
          LF_2_BR,
-         --  Replaces all LF character to <BR> HTML tag.
+         --  Replaces all LF character to <BR> HTML tag
 
          Lower,
          --  Lower case.
 
          Match,
-         --  Returns "TRUE" if var match the pattern passed as argument.
+         --  Returns "TRUE" if var match the pattern passed as argument
+
+         Max,
+         --  Returns the max between the filter parameter and the value
+
+         Min,
+         --  Returns the min between the filter parameter and the value
 
          Modulo,
          --  Returns current value modulo N (N is the filter parameter)
@@ -253,19 +276,19 @@ package body Templates_Parser is
          --  This filter just returns the string as-is.
 
          No_Digit,
-         --  Replace all digits by spaces.
+         --  Replace all digits by spaces
 
          No_Letter,
-         --  Removes all letters by spaces.
+         --  Removes all letters by spaces
 
          No_Space,
-         --  Removes all spaces found in the value.
+         --  Removes all spaces found in the value
 
          Oui_Non,
-         --  If True return Oui, If False returns Non, else do nothing.
+         --  If True return Oui, If False returns Non, else do nothing
 
          Point_2_Coma,
-         --  Replaces points by comas.
+         --  Replaces points by comas
 
          Repeat,
          --  Returns N copy of the original string. The number of copy is
@@ -284,31 +307,31 @@ package body Templates_Parser is
          --  Idem as @_ADD_PARAM(key=value):DEL_PARAM(key):VAR_@
 
          Invert,
-         --  Reverse string.
+         --  Reverse string
 
          Size,
-         --  Returns the number of characters in the string value.
+         --  Returns the number of characters in the string value
 
          Slice,
-         --  Returns a slice of the string.
+         --  Returns a slice of the string
 
          Sub,
          --  Substract the given parameter to the string
 
          Trim,
-         --  Trim leading and trailing space.
+         --  Trim leading and trailing space
 
          Upper,
-         --  Upper case.
+         --  Upper case
 
          Web_Escape,
          --  Convert characters "<>&" to HTML equivalents: &lt;, &gt; and &amp;
 
          Web_NBSP,
-         --  Convert spaces to HTML &nbsp; - non breaking spaces.
+         --  Convert spaces to HTML &nbsp; - non breaking spaces
 
          Yes_No
-         --  If True return Yes, If False returns No, else do nothing.
+         --  If True return Yes, If False returns No, else do nothing
         );
 
       type Parameter_Mode is (Void, Str, Regexp, Regpat, Slice);
@@ -490,6 +513,20 @@ package body Templates_Parser is
          return String;
 
       function Match
+        (S : in String;
+         P : in Parameter_Data     := No_Parameter;
+         T : in Translate_Set      := Null_Set;
+         I : in Include_Parameters := No_Include_Parameters)
+         return String;
+
+      function Max
+        (S : in String;
+         P : in Parameter_Data     := No_Parameter;
+         T : in Translate_Set      := Null_Set;
+         I : in Include_Parameters := No_Include_Parameters)
+         return String;
+
+      function Min
         (S : in String;
          P : in Parameter_Data     := No_Parameter;
          T : in Translate_Set      := Null_Set;
@@ -679,10 +716,6 @@ package body Templates_Parser is
 
       function Is_No_Context (Filters : in Set_Access) return Boolean;
       --  Returns True if Filters contains NO_CONTEXT
-
-      function Is_Number (S : in String) return Boolean;
-      pragma Inline (Is_Number);
-      --  Returns True if S is a decimal number
 
    end Filter;
 
@@ -2366,9 +2399,181 @@ package body Templates_Parser is
         (Parameters : in String)
          return Include_Parameters
       is
+         procedure Load_Include_Named_Parameters (Parameters : in String);
+         --  Load parameters specified with a name:
+         --  (param_a, 5 => param_b, 3 => param_c)
+         --  Set Result variable accordingly.
+
+         procedure Get_Next_Parameter
+           (Parameters : in     String;
+            First      : in out Positive;
+            Last       :    out Natural;
+            Next_Last  :    out Natural);
+         --  Look for next parameter starting at position First, set First and
+         --  Last to the index of this parameter. Next_Last is set to the next
+         --  value to assigned to last.
+
          First, Last : Natural := 0;
+         Next_Last   : Natural;
          K           : Natural := 0;
          Result      : Include_Parameters;
+
+         ------------------------
+         -- Get_Next_Parameter --
+         ------------------------
+
+         procedure Get_Next_Parameter
+           (Parameters : in     String;
+            First      : in out Positive;
+            Last       :    out Natural;
+            Next_Last  :    out Natural) is
+         begin
+            --  Skip blanks
+
+            while First < Parameters'Last
+              and then (Parameters (First) = ' '
+                        or else Parameters (First) = ASCII.HT)
+            loop
+               First := First + 1;
+            end loop;
+            --  Look for end of parameter
+
+            Next_Last := First + 1;
+
+            if Parameters (First) = '"' then
+               --  Look for closing quote
+               while Next_Last < Parameters'Last
+                 and then Parameters (Next_Last) /= '"'
+               loop
+                  Next_Last := Next_Last + 1;
+               end loop;
+
+               if Parameters (Next_Last) /= '"' then
+                  Fatal_Error ("Missing closing quote in include parameters");
+               end if;
+
+               --  Skip quotes
+
+               First := First + 1;
+               Last := Next_Last - 1;
+
+            else
+               --  Look for end of word
+
+               while Next_Last < Parameters'Last
+                 and then Parameters (Next_Last) /= ' '
+                 and then Parameters (Next_Last) /= ASCII.HT
+               loop
+                  Next_Last := Next_Last + 1;
+               end loop;
+
+               if Next_Last /= Parameters'Last then
+                  Last := Next_Last - 1;
+               else
+                  Last := Next_Last;
+               end if;
+            end if;
+         end Get_Next_Parameter;
+
+         -----------------------------------
+         -- Load_Include_Named_Parameters --
+         -----------------------------------
+
+         procedure Load_Include_Named_Parameters (Parameters : in String) is
+
+            procedure Parse (Parameter : in String);
+            --  Parse one parameter
+
+            Named       : Boolean := False;
+            First, Last : Natural;
+
+            -----------
+            -- Parse --
+            -----------
+
+            procedure Parse (Parameter : in String) is
+               use type Data.Tree;
+               Sep : constant Natural := Strings.Fixed.Index (Parameter, "=>");
+               Ind : Natural;
+            begin
+               if Sep = 0 then
+                  --  A positional parameter, this is valid only if we have not
+                  --  yet found a named parameter.
+
+                  if Named then
+                     Fatal_Error
+                       ("Can't have a positional parameter after a named one");
+                  else
+                     Result (K) := Data.Parse (Parameter);
+                     K := K + 1;
+                  end if;
+
+               else
+                  --  A named parameter, get index
+                  Named := True;
+
+                  declare
+                     Ind_Str     : constant String
+                       := Strings.Fixed.Trim
+                           (Parameter (Parameter'First .. Sep - 1),
+                            Strings.Both);
+                     First, Last : Natural;
+                     Next_Last   : Natural;
+                     pragma Unreferenced (Next_Last);
+                  begin
+                     if Is_Number (Ind_Str) then
+                        Ind := Natural'Value (Ind_Str);
+
+                        if Result (Ind) = null then
+                           --  This parameter has not yet been found
+
+                           First := Sep + 2;
+
+                           Get_Next_Parameter
+                             (Parameter, First, Last, Next_Last);
+
+                           Result (Ind)
+                             := Data.Parse (Parameter (First .. Last));
+                        else
+                           Fatal_Error
+                             ("Parameter" & Natural'Image (Ind)
+                              & " defined multiple time");
+                        end if;
+
+                     else
+                        Fatal_Error ("Wrong number in named parameter");
+                     end if;
+                  end;
+               end if;
+            end Parse;
+
+         begin
+            if Parameters (Parameters'Last) /= ')' then
+               Fatal_Error
+                 ("Missing closing parenthesis in named include parameters");
+            end if;
+
+            First := Parameters'First + 1;
+            --  Skip the parenthesis
+
+            loop
+               Last := Strings.Fixed.Index
+                 (Parameters (First .. Parameters'Last), ",");
+               exit when Last = 0;
+
+               Parse
+                 (Strings.Fixed.Trim
+                    (Parameters (First .. Last - 1), Strings.Both));
+               First := Last + 1;
+            end loop;
+
+            --  Handle last parameter
+
+            Parse
+              (Strings.Fixed.Trim
+                 (Parameters (First .. Parameters'Last - 1), Strings.Both));
+         end Load_Include_Named_Parameters;
+
       begin
          First := Parameters'First;
 
@@ -2382,44 +2587,21 @@ package body Templates_Parser is
                First := First + 1;
             end loop;
 
-            --  Look for end of parameter
+            --  Check if parameters are specified with a name
 
-            Last := First + 1;
-
-            if Parameters (First) = '"' then
-               --  Look for closing quote
-               while Last < Parameters'Last
-                 and then Parameters (Last) /= '"'
-               loop
-                  Last := Last + 1;
-               end loop;
-
-               if Parameters (Last) /= '"' then
-                  Fatal_Error ("Missing closing quote in include parameters");
-               end if;
-
-               Result (K) := Data.Parse (Parameters (First + 1 .. Last - 1));
-               K := K + 1;
-
-            else
-               --  Look for end of word
-
-               while Last < Parameters'Last
-                 and then Parameters (Last) /= ' '
-                 and then Parameters (Last) /= ASCII.HT
-               loop
-                  Last := Last + 1;
-               end loop;
-
-               if Last = Parameters'Last then
-                  Result (K) := Data.Parse (Parameters (First .. Last));
-               else
-                  Result (K) := Data.Parse (Parameters (First .. Last - 1));
-               end if;
-
-               K := K + 1;
+            if K = 1 and then Parameters (First) = '(' then
+               --  Stop current processing, load as named parameters
+               Load_Include_Named_Parameters
+                 (Parameters (First .. Parameters'Last));
+               return Result;
             end if;
 
+            Get_Next_Parameter (Parameters, First, Last, Next_Last);
+
+            Result (K) := Data.Parse (Parameters (First .. Last));
+            K := K + 1;
+
+            Last := Next_Last;
             First := Last + 1;
          end loop;
 
