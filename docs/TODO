@@ -142,10 +142,6 @@ implemented:
   partially. It is better for big compressed data, but worse for relatively
   small compressed data, when user want to read it at once.
 
-  Make a streaming interface on the client and server side to do not buffer
-  data in memory, but get it just from socket. It would be faster and reduce
-  memory usage.
-
 - Add client's compress/decompress support.
 
 - Add more certificate information in AWS.Net.SSL.Certificate.
