@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             November 2nd, 2003
+   Pascal Obry                                             November 14th, 2003
 
 
 
@@ -44,6 +44,8 @@ Here are the main changes since AWS 1.4 :
    - Some improvement in the generated AWS/SOAP code from WSDL
      document. In the generated stub uses properly the
      Types.To_SOAP_Object routine.
+
+   - Better support for Notification and Request-response WSDL operations.
 
    - Add support for transient pages. These are stream objects that
      are not released by the server. Transient pages are released by a
