@@ -1,3 +1,8 @@
+2002-11-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-parameters-set.adb:
+	(Add): Keep the key name in original case in the HTTP_Data field.
+
 2002-11-11  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server-protocol_handler.adb:
