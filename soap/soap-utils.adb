@@ -41,20 +41,6 @@ package body SOAP.Utils is
 
    use Ada.Strings.Unbounded;
 
-   ----------------
-   -- Array_Type --
-   ----------------
-
-   function Array_Type (Name : in String) return String is
-   begin
-      if Name (Name'First .. Name'First + 6) = "ArrayOf" then
-         return Name (Name'First + 7 .. Name'Last);
-
-      else
-         return Name (Name'First .. Name'Last - 5);
-      end if;
-   end Array_Type;
-
    ------------
    -- Encode --
    ------------
@@ -94,22 +80,6 @@ package body SOAP.Utils is
    begin
       return To_Unbounded_String (String'(Types.Get (Item)));
    end Get;
-
-   --------------
-   -- Is_Array --
-   --------------
-
-   function Is_Array (Name : in String) return Boolean is
-   begin
-      --  ??? This is 2 conventions found in WSDL documents. It should be
-      --  properly implemented by checking the type definition in the schema
-      --  and not looking only at the type name.
-      return (Name'Length > 7
-                and then Name (Name'First .. Name'First + 6) = "ArrayOf")
-        or else
-          (Name'Length > 5
-             and then Name (Name'Last - 4 .. Name'Last) = "Array");
-   end Is_Array;
 
    -----------
    -- No_NS --
