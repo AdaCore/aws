@@ -1,3 +1,9 @@
+2003-05-30  Anisimkov Dmitriy <anisimkov@yahoo.com>
+
+	* aws-client.ads:
+	(HTTP_Connection): Initialize Opened field to False just for
+	 assertion control.
+
 2003-05-08  Anisimkov Dmitriy <anisimkov@yahoo.com>
 
 	* aws-ldap-client.adb:
