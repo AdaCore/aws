@@ -85,7 +85,7 @@ package body AWS.Client.XML.Input_Sources is
             Set_Encoding (Input, Utf8.Utf8_Encoding);
       end case;
 
-      -- Move First index past the BOM
+      --  Move First index past the BOM
 
       Input.First := Input.First + Stream_Element_Offset (Length);
    end Create;
