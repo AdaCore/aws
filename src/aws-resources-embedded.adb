@@ -30,7 +30,14 @@
 
 --  $Id$
 
+with Ada.Unchecked_Conversion;
+
+with AWS.Resources.Streams.Memory;
+with AWS.Resources.Streams.ZLib;
+
 with Table_Of_Strings_And_Static_Values_G;
+
+with ZLib;
 
 package body AWS.Resources.Embedded is
 
@@ -47,30 +54,25 @@ package body AWS.Resources.Embedded is
    Empty_Buffer : aliased constant Ada.Streams.Stream_Element_Array
      := (1 .. 0 => 0);
 
-   procedure Read_Uncompressed
-     (Resource : in out Z_File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset);
-   --  Read data from Resource and returned them uncompressed
+   procedure Append
+     (Stream : in Streams.Stream_Access;
+      Data   : in Buffer_Access);
 
-   -----------
-   -- Close --
-   -----------
+   ------------
+   -- Append --
+   ------------
 
-   procedure Close (Resource : in out File_Tagged) is
-      pragma Unreferenced (Resource);
+   procedure Append
+     (Stream : in Streams.Stream_Access;
+      Data   : in Buffer_Access)
+   is
+      function To_Buffer is
+        new Ada.Unchecked_Conversion
+              (Buffer_Access, Streams.Memory.Stream_Element_Access);
    begin
-      null;
-   end Close;
-
-   procedure Close (Resource : in out Z_File_Tagged) is
-      use type Utils.Stream_Element_Array_Access;
-   begin
-      if Resource.U_Buffer /= null then
-         ZLib.Close (Resource.U_Filter, Ignore_Error => True);
-         Utils.Free (Resource.U_Buffer);
-      end if;
-   end Close;
+      Streams.Memory.Append
+        (Streams.Memory.Stream_Type (Stream.all), To_Buffer (Data));
+   end Append;
 
    ------------
    -- Create --
@@ -78,32 +80,17 @@ package body AWS.Resources.Embedded is
 
    procedure Create
      (File   :    out File_Type;
-      Buffer : in     Buffer_Access;
-      Mode   : in     Data_Mode     := Uncompressed) is
+      Buffer : in     Buffer_Access)
+   is
+      Stream : Streams.Stream_Access;
+
    begin
-      if Mode = Uncompressed then
-         File := new File_Tagged;
-      else
-         File := new Z_File_Tagged;
-      end if;
+      Stream := new Streams.Memory.Stream_Type;
 
-      if Buffer = null then
-         File_Tagged (File.all).Buffer := Empty_Buffer'Access;
-      else
-         File_Tagged (File.all).Buffer := Buffer;
-      end if;
+      Append (Stream, Buffer);
 
-      File_Tagged (File.all).K := Buffer'First;
+      Streams.Create (File, Stream);
    end Create;
-
-   -----------------
-   -- End_Of_File --
-   -----------------
-
-   function End_Of_File (Resource : in File_Tagged) return Boolean is
-   begin
-      return Resource.K > Resource.Buffer'Last;
-   end End_Of_File;
 
    ---------------
    -- File_Size --
@@ -111,13 +98,26 @@ package body AWS.Resources.Embedded is
 
    function File_Size
      (Name : in String)
-      return Ada.Streams.Stream_Element_Offset is
+      return Ada.Streams.Stream_Element_Offset
+   is
+      N     : Node;
+      Found : Boolean;
    begin
-      if Res_Files.Is_Present (Files_Table, Name) then
-         return Res_Files.Value (Files_Table, Name).File_Buffer'Length;
+      Res_Files.Get_Value (Files_Table, Name, N, Found);
 
-      elsif Res_Files.Is_Present (Files_Table, Name & ".gz") then
-         return Res_Files.Value (Files_Table, Name & ".gz").File_Buffer'Length;
+      if Found then
+         return N.File_Buffer'Length;
+
+      elsif Is_GZip (Name) then
+         --  Don't look for resource Name & ".gz.gz";
+
+         raise Resource_Error;
+      end if;
+
+      Res_Files.Get_Value (Files_Table, Name & ".gz", N, Found);
+
+      if Found then
+         return N.File_Buffer'Length;
       else
          raise Resource_Error;
       end if;
@@ -128,13 +128,24 @@ package body AWS.Resources.Embedded is
    --------------------
 
    function File_Timestamp (Name : in String) return Ada.Calendar.Time is
+      N     : Node;
+      Found : Boolean;
    begin
-      if Res_Files.Is_Present (Files_Table, Name) then
-         return Res_Files.Value (Files_Table, Name).File_Time;
+      Res_Files.Get_Value (Files_Table, Name, N, Found);
 
-      elsif Res_Files.Is_Present (Files_Table, Name & ".gz") then
-         return Res_Files.Value (Files_Table, Name & ".gz").File_Time;
+      if Found then
+         return N.File_Time;
 
+      elsif Is_GZip (Name) then
+         --  Don't look for resource Name & ".gz.gz";
+
+         raise Resource_Error;
+      end if;
+
+      Res_Files.Get_Value (Files_Table, Name & ".gz", N, Found);
+
+      if Found then
+         return N.File_Time;
       else
          raise Resource_Error;
       end if;
@@ -147,7 +158,8 @@ package body AWS.Resources.Embedded is
    function Is_Regular_File (Name : in String) return Boolean is
    begin
       return Res_Files.Is_Present (Files_Table, Name)
-        or else Res_Files.Is_Present (Files_Table, Name & ".gz");
+        or else (not Is_GZip (Name)
+                 and then Res_Files.Is_Present (Files_Table, Name & ".gz"));
    end Is_Regular_File;
 
    ----------
@@ -157,112 +169,64 @@ package body AWS.Resources.Embedded is
    procedure Open
      (File :    out File_Type;
       Name : in     String;
-      Form : in     String    := "")
+      Form : in     String    := "";
+      GZip : in out Boolean)
    is
       pragma Unreferenced (Form);
-      N : Node;
+      Stream : Streams.Stream_Access;
+      Found  : Boolean;
+
+      procedure Open_File (Name : in String);
+
+      ---------------
+      -- Open_File --
+      ---------------
+
+      procedure Open_File (Name : in String) is
+         N        : Node;
+      begin
+         Res_Files.Get_Value (Files_Table, Name, N, Found);
+
+         if Found then
+            Stream := new Streams.Memory.Stream_Type;
+
+            Append (Stream, N.File_Buffer);
+         end if;
+      end Open_File;
+
    begin
-      if Res_Files.Is_Present (Files_Table, Name) then
-         N    := Res_Files.Value (Files_Table, Name);
-         File := new File_Tagged;
+      if Is_GZip (Name) then
+         --  Don't let to try get file Name & ".gz.gz".
 
-      elsif Res_Files.Is_Present (Files_Table, Name & ".gz") then
-         N    := Res_Files.Value (Files_Table, Name & ".gz");
-         File := new Z_File_Tagged;
+         GZip := False;
 
+         Open_File (Name);
+
+      elsif GZip then
+         Open_File (Name & ".gz");
+
+         if not Found then
+            Open_File (Name);
+
+            if Found then
+               GZip := False;
+            end if;
+         end if;
       else
-         File := null;
-      end if;
+         Open_File (Name);
 
-      if File /= null then
-         File_Tagged (File.all).Buffer := N.File_Buffer;
-         File_Tagged (File.all).K      := N.File_Buffer'First;
-      end if;
-   end Open;
+         if not Found then
+            Open_File (Name & ".gz");
 
-   ----------
-   -- Read --
-   ----------
-
-   procedure Read
-     (Resource : in out File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
-   is
-      K    : Stream_Element_Offset renames Resource.K;
-      Size : Stream_Element_Offset; --  Number of byte remaining in buffer
-   begin
-      if K > Resource.Buffer'Last then
-         Last := 0;
-      else
-         Size := Resource.Buffer'Length - (K - Resource.Buffer'First);
-
-         if Buffer'Length <= Size then
-            Buffer := Resource.Buffer (K .. K + Buffer'Length - 1);
-            Last := Buffer'Last;
-            K := K + Buffer'Length;
-         else
-            Last := Buffer'First + Size - 1;
-            Buffer (Buffer'First .. Last)
-              := Resource.Buffer (K .. Resource.Buffer'Last);
-            K := Resource.Buffer'Last + 1;
+            if Found then
+               Stream := Streams.ZLib.Inflate_Create
+                           (Stream, Header => ZLib.GZip);
+            end if;
          end if;
       end if;
 
-      Resource.K := K;
-   end Read;
-
-   ----------
-   -- Read --
-   ----------
-
-   procedure Read
-     (Resource : in out Z_File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
-   is
-      use type Utils.Stream_Element_Array_Access;
-   begin
-      if Resource.U_Buffer /= null then
-         --  Compressed resources are not supported and the resource is
-         --  compressed.
-         Read_Uncompressed (Resource, Buffer, Last);
-      else
-         Read (File_Tagged (Resource), Buffer, Last);
-      end if;
-   end Read;
-
-   -----------------------
-   -- Read_Uncompressed --
-   -----------------------
-
-   procedure Read_Uncompressed
-     (Resource : in out Z_File_Tagged;
-      Buffer   :    out Stream_Element_Array;
-      Last     :    out Stream_Element_Offset)
-   is
-
-      procedure Read
-        (Item : out Stream_Element_Array;
-         Last : out Stream_Element_Offset);
-
-      ----------
-      -- Read --
-      ----------
-
-      procedure Read
-        (Item : out Stream_Element_Array;
-         Last : out Stream_Element_Offset) is
-      begin
-         Read (File_Tagged (Resource), Item, Last);
-      end Read;
-
-      procedure U_Read is new ZLib.Read
-        (Read, Resource.U_Buffer.all, Resource.R_First, Resource.R_Last);
-
-   begin
-      U_Read (Resource.U_Filter, Buffer, Last);
-   end Read_Uncompressed;
+      Streams.Create (File, Stream);
+   end Open;
 
    --------------
    -- Register --
@@ -275,38 +239,5 @@ package body AWS.Resources.Embedded is
    begin
       Res_Files.Insert (Files_Table, Name, (Content, File_Time));
    end Register;
-
-   -----------
-   -- Reset --
-   -----------
-
-   procedure Reset (Resource : in out File_Tagged) is
-   begin
-      Resource.K := Resource.Buffer'First;
-   end Reset;
-
-   ----------
-   -- Size --
-   ----------
-
-   function Size (Resource : in File_Tagged) return Stream_Element_Offset is
-   begin
-      return Resource.Buffer'Length;
-   end Size;
-
-   ------------------------
-   -- Support_Compressed --
-   ------------------------
-
-   procedure Support_Compressed
-     (Resource : in out Z_File_Tagged;
-      State    : in     Boolean) is
-   begin
-      if State = False then
-         Resource.U_Buffer := new Stream_Element_Array (1 .. 4_096);
-         ZLib.Inflate_Init (Resource.U_Filter);
-         Resource.R_First := Resource.U_Buffer'Last + 1;
-      end if;
-   end Support_Compressed;
 
 end AWS.Resources.Embedded;
