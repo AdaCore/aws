@@ -48,7 +48,7 @@ package AWS.OS_Lib is
    function File_Timestamp (Filename : in String) return Ada.Calendar.Time;
    --  Get the time for last modification to a file in UTC/GMT.
 
-   function OS_Clock return Ada.Calendar.Time;
+   function GMT_Clock return Ada.Calendar.Time;
    --  Returns current UTC/GMT time.
 
 private
@@ -57,6 +57,6 @@ private
    pragma Inline (Is_Directory);
    pragma Inline (File_Size);
    pragma Inline (File_Timestamp);
-   pragma Inline (OS_Clock);
+   pragma Inline (GMT_Clock);
 
 end AWS.OS_Lib;
