@@ -425,6 +425,7 @@ wsdl_2_service-types.ads
 wsdl_2_service.ads
 wsdl_3.res
 wsdl_3.wsdl
+wsdl_3_main
 wsdl_3_service-client.adb
 wsdl_3_service-client.ads
 wsdl_3_service-server.adb
@@ -434,6 +435,7 @@ wsdl_3_service-types.ads
 wsdl_3_service.ads
 wsdl_4.res
 wsdl_4.wsdl
+wsdl_4_main
 wsdl_4_service-client.adb
 wsdl_4_service-client.ads
 wsdl_4_service-server.adb
