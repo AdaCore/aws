@@ -1,5 +1,8 @@
 2004-12-22  Pascal Obry  <pascal@obry.net>
 
+	* notebook/notebook.thtml:
+	Add the CVS tag removed in a previous check-in.
+
 	* readme.txt:
 	Fix javascripts alias.
 	
