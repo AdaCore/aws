@@ -1,0 +1,18 @@
+Ok, Server is set
+         zero
+         0
+R1 : Ok, 0
+
+Ok, Server is set
+         one
+         1
+     1 = first
+R2 : Ok, 1
+
+Ok, Server is set
+         two
+         2
+     1 = first
+     2 = second
+R3 : Ok, 2
+
