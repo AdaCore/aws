@@ -59,14 +59,17 @@ procedure Main is
 
    use Ada;
 
-   WS  : aliased AWS.Server.HTTP
-     (3, 1234, False, Hotplug_CB.Main'Access, False);
+   WS : aliased AWS.Server.HTTP (3);
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
 
-   AWS.Server.Start (WS, "Main", "/Admin-Page");
+   AWS.Server.Start (WS, "Main",
+                     Admin_URI => "/Admin-Page",
+                     Port      => 1234,
+                     Callback  => Hotplug_CB.Main'Access);
+
    AWS.Server.Hotplug.Activate (WS'Unchecked_Access, 2222);
    AWS.Log.Start;
 end Main;
