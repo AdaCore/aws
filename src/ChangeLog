@@ -1,3 +1,11 @@
+2002-09-26  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-digest.ads, aws-digest.adb:
+	(Get_MD5): New routine.
+
+	* aws-digest.adb:
+	(Create_Digest): Change implementation using Get_MD5.
+
 2002-09-26  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-session.adb:
