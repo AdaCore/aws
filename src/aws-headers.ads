@@ -46,12 +46,12 @@ package AWS.Headers is
    subtype Name_Value_Type is AWS.Containers.Tables.Name_Value_Type;
 
    Format_Error : exception;
-   --  Raised when header line format is wrong.
+   --  Raised when header line format is wrong
 
    procedure Send_Header
      (Headers : in List;
       Socket  : in Sockets.Socket_FD'Class);
-   --  Send all header lines to the socket appropriate formated.
+   --  Send all header lines in Headers list to the socket
 
    function Get_Line
      (Headers : in List;
