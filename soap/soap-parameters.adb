@@ -281,6 +281,11 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
+   function Get (P : in List; Name : in String) return Unbounded_String is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
    function Get (P : in List; Name : in String) return Boolean is
    begin
       return Types.Get (Argument (P, Name));

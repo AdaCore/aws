@@ -31,10 +31,13 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Strings.Unbounded;
 
 with SOAP.Types;
 
 package SOAP.Parameters is
+
+   use Ada.Strings.Unbounded;
 
    Max_Parameters : constant := 50;
    --  This is the maximum number of parameters supported by this
@@ -43,7 +46,7 @@ package SOAP.Parameters is
    type List is private;
 
    function Argument_Count (P : in List) return Natural;
-   --  Returns the number of parameters in P.
+   --  Returns the number of parameters in P
 
    function Argument (P : in List; Name : in String) return Types.Object'Class;
    --  Returns parameters named Name in P. Raises Types.Data_Error if not
@@ -53,7 +56,7 @@ package SOAP.Parameters is
    --  Returns Nth parameters in P. Raises Types.Data_Error if not found.
 
    function Exist (P : in List; Name : in String) return Boolean;
-   --  Returns True if parameter named Name exist in P and False otherwise.
+   --  Returns True if parameter named Name exist in P and False otherwise
 
    function Get (P : in List; Name : in String) return Integer;
    --  Returns parameter named Name in P as an Integer value. Raises
@@ -70,6 +73,9 @@ package SOAP.Parameters is
    function Get (P : in List; Name : in String) return String;
    --  Returns parameter named Name in P as a String value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a String.
+
+   function Get (P : in List; Name : in String) return Unbounded_String;
+   --  Idem as above, but return an Unbounded_String
 
    function Get (P : in List; Name : in String) return Boolean;
    --  Returns parameter named Name in P as a Boolean value. Raises
