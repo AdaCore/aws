@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2001                         --
+--                        Copyright (C) 1999 - 2004                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -99,8 +99,11 @@ package body Cached_Files is
                --  too early.
 
                if Old.Used = 0 then
-                  --  File is not currently used, we can release it safely.
-                  Release (Old);
+                  --  File is not currently used, we can release it safely
+                  Release (Old, Include => False);
+                  --  ??? Note that we do not currently handle properly include
+                  --  file references so it is not safe to release files
+                  --  included from this one.
                   Old := T.Next;
 
                else
@@ -110,12 +113,12 @@ package body Cached_Files is
                   Old.Obsolete := True;
 
                   --  But current tree is not used, it has been posted here
-                  --  for futur used. But if replaced right away it should be
+                  --  for futur use. But if replaced right away it should be
                   --  freed.
                   Files (N).Next.Used := 0;
                end if;
 
-               --  Nothing more to do in this case.
+               --  Nothing more to do in this case
 
                return;
 
@@ -136,7 +139,7 @@ package body Cached_Files is
          Files (S) := T;
 
          Old := T.Next;
-         --  Old point to the current C_Info tree.
+         --  Old point to the current C_Info tree
       end Add;
 
       ---------
