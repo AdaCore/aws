@@ -68,7 +68,9 @@ private
    --  Abortable is set to true when the line can be aborted by closing the
    --  associated socket. Get_Free_Slot use this info to get a free line when
    --  none are available. Activity_Time_Stamp is the last time the line has
-   --  been used. The line with the oldest activity is closed.
+   --  been used. The line with the oldest activity is closed. Aborted is set
+   --  to true when Sock has been closed. This is needed to avoid calling
+   --  Sockets.Shutdown two times on the same socket.
    --  Also a line is closed after Keep_Open_Duration seconds of inactivity.
 
    --  Note that Line discriminant is an auto-pointer to the line Slot record.
