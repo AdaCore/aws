@@ -1,3 +1,22 @@
+2002-12-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl.adb:
+	Remove this unit.
+
+	* makefile:
+	(wrappers): New target.
+	Add echo for the build.
+
+	* ssl-thin.ads:
+	Add with System here now (was in parent unit).
+
+	* ssl-wrappers.ads, ssl-wrappers.adb:
+	Initial revision.
+
+	* ssl.ads:
+	This is now an empty package. All the code has been moved to
+	 AWS.Net.SSL.
+
 2002-12-04  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
