@@ -52,29 +52,30 @@ package body AWS.Containers.Tables.Set is
       Name, Value : in     String)
    is
 
-      L_Key   : constant String   := Normalize_Name
-        (Name, not Table.Case_Sensitive);
+      L_Key   : constant String
+        :=  Normalize_Name (Name, not Table.Case_Sensitive);
 
       Found   : Boolean;
 
-      procedure Modify
+      procedure Add_Value
         (Key   : in     String;
          Value : in out Name_Index_Table);
+      --  Append value to the current key's values
 
-      ------------
-      -- Modify --
-      ------------
+      ---------------
+      -- Add_Value --
+      ---------------
 
-      procedure Modify
+      procedure Add_Value
         (Key   : in     String;
          Value : in out Name_Index_Table)
       is
          pragma Warnings (Off, Key);
       begin
          Name_Indexes.Append (Value, Data_Table.Last (Table.Data));
-      end Modify;
+      end Add_Value;
 
-      procedure Update is new Index_Table.Update_Value_Or_Status_G (Modify);
+      procedure Update is new Index_Table.Update_Value_Or_Status_G (Add_Value);
 
    begin
 
@@ -148,20 +149,20 @@ package body AWS.Containers.Tables.Set is
    -- Reset --
    -----------
 
-   procedure Reset (Table : in out Index_Table_Type)
-   is
+   procedure Reset (Table : in out Index_Table_Type) is
 
-      procedure Modify
+      procedure Release_Value
         (Key          : in     String;
          Value        : in out Name_Index_Table;
          Order_Number : in     Positive;
          Continue     : in out Boolean);
+      --  Release memory associted with the value
 
-      ------------
-      -- Modify --
-      ------------
+      -------------------
+      -- Release_Value --
+      -------------------
 
-      procedure Modify
+      procedure Release_Value
         (Key          : in     String;
          Value        : in out Name_Index_Table;
          Order_Number : in     Positive;
@@ -172,13 +173,13 @@ package body AWS.Containers.Tables.Set is
          pragma Warnings (Off, Continue);
       begin
          Name_Indexes.Free (Value);
-      end Modify;
+      end Release_Value;
 
-      procedure Traverse is new
-         Index_Table.Disorder_Traverse_And_Update_Value_G (Modify);
+      procedure Release_values is new
+         Index_Table.Disorder_Traverse_And_Update_Value_G (Release_Value);
 
    begin
-      Traverse (Index_Table.Table_Type (Table));
+      Release_Values (Index_Table.Table_Type (Table));
       Destroy (Table);
    end Reset;
 
@@ -186,10 +187,12 @@ package body AWS.Containers.Tables.Set is
    begin
       if Table.Index = null then
          Table.Index := new Index_Table_Type;
+
       else
          Reset (Table.Index.all);
          Free_Elements (Table.Data);
       end if;
+
       Data_Table.Init (Table.Data);
    end Reset;
 
