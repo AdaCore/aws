@@ -1,3 +1,8 @@
+2004-04-14  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(gbuild): Fix target to properly set the build mode.
+
 2004-04-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws.ads:
