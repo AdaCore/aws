@@ -42,7 +42,7 @@ procedure SockTO is
    use Streams;
 
    Port     : constant         := 8802;
-   Security : constant Boolean := True;
+   Security : constant Boolean := False;
 
    D1   : constant Duration := 1.0;
    D2   : constant Duration := D1 * 1.5;
