@@ -32,9 +32,8 @@
 
 with Ada.Calendar;
 with Ada.Finalization;
-with Ada.Strings.Unbounded;
 
-with Sockets;
+with Sockets.Naming;
 
 with AWS.Response;
 with AWS.Hotplug;
@@ -159,12 +158,15 @@ private
    type Slot is record
       Sock                  : Socket_Access := null;
       Socket_Taken          : Boolean := False;
-      Peername              : Ada.Strings.Unbounded.Unbounded_String;
+      Peer_Addr             : Sockets.Naming.Address
+         := Sockets.Naming.Any_Address;
       Phase                 : Slot_Phase := Closed;
       Phase_Time_Stamp      : Ada.Calendar.Time := Ada.Calendar.Clock;
       Data_Time_Stamp       : Ada.Calendar.Time;
+      Alive_Time_Stamp      : Ada.Calendar.Time;
       Slot_Activity_Counter : Natural := 0;
       Activity_Counter      : Natural := 0;
+      Alive_Counter         : Natural;
    end record;
 
    --  Abortable is set to true when the line can be aborted by closing the
@@ -183,8 +185,10 @@ private
 
    protected type Slots (N : Positive) is
 
-      procedure Set_Peername (Index : in Positive; Peername : in String);
-      --  Set the Peername for the associated socket.
+      procedure Set_Peer_Addr
+        (Index     : in Positive;
+         Peer_Addr : in Sockets.Naming.Address);
+      --  Set the Peer address for the associated socket.
 
       procedure Mark_Phase (Index : in Positive; Phase : Slot_Phase);
       --  Set Activity_Time_Stamp which is the last time where the line number
@@ -223,9 +227,6 @@ private
 
       procedure Release  (Index : in Positive);
       --  Release slot number Index. Slot phase is set to Closed.
-
-      function Free return Boolean;
-      --  Returns True if there is some free slots available.
 
       function Get (Index : in Positive) return Slot;
       --  Returns Slot data.
@@ -276,8 +277,6 @@ private
 
    type Line_Cleaner_Access is access Line_Cleaner;
    --  run through the slots and see if some of them could be closed.
-
-   use Ada.Strings.Unbounded;
 
    type HTTP is new Ada.Finalization.Limited_Controlled with record
       Self            : HTTP_Access := HTTP'Unchecked_Access;
