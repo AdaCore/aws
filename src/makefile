@@ -46,7 +46,7 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-server-log.adb aws-pop.adb \
 	aws-services-split_pages.adb aws-services-transient_pages.adb \
 	aws-services-transient_pages-control.adb \
-	aws-services-web_mail.adb aws-net-sets.adb aws-net-sets-thin.ads \
+	aws-services-web_mail.adb aws-net-sets.adb aws-net-thin.ads \
 	aws-services-dispatchers-timer.adb aws-net-ssl-certificate.adb \
 	aws-client-hotplug.adb
 

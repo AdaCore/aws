@@ -34,7 +34,7 @@ with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
 with Interfaces.C;
 
-with AWS.Net.Sets.Thin;
+with AWS.Net.Thin;
 with AWS.Net.Std;
 with AWS.Net.SSL;
 with AWS.OS_Lib.Definitions;
@@ -193,7 +193,6 @@ package body AWS.Net is
 
    procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type'Class) is
       use Interfaces;
-      use AWS.Net.Sets;
       use OS_Lib;
 
       use type C.int;
