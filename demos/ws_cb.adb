@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                          Copyright (C) 2000-2001                         --
+--                      Dmitriy Anisimkov & Pascal Obry                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -60,7 +60,7 @@ package body WS_CB is
            (Content_Type => "text/html",
             Message_Body =>
               AWS.Services.Directory.Browse
-              ("./" & Filename, "dir.tmplt", Request));
+              ("./" & Filename, "aws_directory.thtml", Request));
       else
 
          return AWS.Response.Acknowledge
