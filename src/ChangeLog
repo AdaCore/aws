@@ -1,3 +1,8 @@
+2004-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	Add aws-net.sets.adb to the file list.
+
 2004-03-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* src.gpr:
