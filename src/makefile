@@ -34,15 +34,21 @@ ifdef XMLADA
 SOURCES := $(SOURCES) aws-jabber.adb
 endif
 
-build: aws-translator-conversion.adb aws-net-std.adb
+UNITS = $(sort $(basename $(SOURCES)))
+
+force:
+
+$(UNITS): force
+	echo Building $@
+	gnatmake -u $(GARGS) $@
+
+build_specific:
 # compile aws-services-directory.adb without optimisation
 # work around a bug in GNAT 3.14, 3.15.
-	echo Building aws-services-directory.adb
-	gnatmake -u $(GARGS) -O0 aws-services-directory.adb -largs $(LFLAGS);
-	for file in $(SOURCES); do \
-	   echo Building $$file; \
-	   gnatmake -u $(GARGS) $$file -largs $(LFLAGS); \
-	done
+	echo Building aws-services-directory
+	gnatmake -u $(GARGS) -O0 aws-services-directory.adb
+
+build: aws-translator-conversion.adb aws-net-std.adb build_specific $(UNITS)
 
 aws-translator-conversion.adb:
 	echo Setup conversion support
