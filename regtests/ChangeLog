@@ -1,5 +1,8 @@
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* makefile:
+	(RT_STD_SEC): Add new test cert.
+
 	* client.pem:
 	Initial revision.
 

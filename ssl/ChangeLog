@@ -1,6 +1,15 @@
 2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ssl-wrappers.ads, ssl-wrappers.adb:
+	(X509_free): New routine.
+
+	* ssl-thin.ads:
+	(X509_free): New routine.
+	(X509_NAME_oneline): Fix spec.
+	
+2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl-wrappers.ads, ssl-wrappers.adb:
 	(SSL_CTX_set_verify): New procedure.
 	(SSL_get_peer_certificate): Idem.
 	(X509_NAME_oneline): Idem.
