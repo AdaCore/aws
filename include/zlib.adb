@@ -18,6 +18,8 @@ with ZLib.Thin;
 
 package body ZLib is
 
+   pragma Linker_Options ("-lz");
+
    use type Thin.Int;
 
    type Z_Stream is new Thin.Z_Stream;
