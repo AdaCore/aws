@@ -56,7 +56,7 @@ all:
 
 EXTRA_TESTS = 1
 
-ALL_OPTIONS	= $(MAKE_OPT) MODE="$(MODE)" XMLADA="$(XMLADA)" \
+ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" \
 	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
@@ -119,7 +119,7 @@ build_apiref:
 run_regtests:
 	echo ""
 	echo "=== Run regression tests"
-	${MAKE} -C regtests run $(ALL_OPTIONS) GDB_REGTESTS="$(GDB_REGTESTS)"
+	${MAKE} -C regtests run $(GALL_OPTIONS) GDB_REGTESTS="$(GDB_REGTESTS)"
 
 display:
 	echo ""
@@ -230,12 +230,14 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/docs/html
 	$(MKDIR) $(INSTALL)/AWS/components
 	$(MKDIR) $(INSTALL)/AWS/tools
+	$(MKDIR) $(INSTALL)/AWS/projects
 	$(CP) -p src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) -p $(BDIR)/lib/* $(INSTALL)/AWS/lib
 	$(CP) -p $(BDIR)/obj/* $(INSTALL)/AWS/obj
 	-$(CP) -p $(BDIR)/ssl/lib/* $(INSTALL)/AWS/lib
 	-$(CP) -p $(BDIR)/ssl/obj/* $(INSTALL)/AWS/obj
+	-$(CP) -p $(BDIR)/ssl/obj/* $(INSTALL)/AWS/lib
 	$(CP) lib/libz.a $(INSTALL)/AWS/lib
 	-$(CP) docs/aws.html $(INSTALL)/AWS/docs
 	$(CP) docs/templates_parser.html $(INSTALL)/AWS/docs
@@ -255,11 +257,15 @@ install: force
 		$(INSTALL)/AWS/tools/ada2wsdl${EXEEXT}
 	$(CP) set-aws.* $(INSTALL)/AWS
 ifdef XMLADA
-	$(CP) config/projects/aws.gpr $(INSTALL)/AWS
+	$(CP) config/projects/aws.gpr $(INSTALL)/AWS/projects
+	$(CP) config/projects/aws_ssl.gpr $(INSTALL)/AWS/projects
 else
 	$(SED) -e 's/with "xmlada";//' \
 		< config/projects/aws.gpr \
-		> $(INSTALL)/AWS/aws.gpr
+		> $(INSTALL)/AWS/projects/aws.gpr
+	$(SED) -e 's/with "xmlada";//' \
+		< config/projects/aws_ssl.gpr \
+		> $(INSTALL)/AWS/projects/aws_ssl.gpr
 endif
 ifeq (${OS}, Windows_NT)
 	-$(CP) -p $(BDIR)/win32/lib/* $(INSTALL)/AWS/lib
@@ -268,6 +274,8 @@ ifeq (${OS}, Windows_NT)
 	-$(CP) win32/*.dll $(INSTALL)/AWS/lib
 endif
 	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
+	$(CP) config/projects/*_lib.gpr $(INSTALL)/AWS/projects
+	$(CP) ssl/ssl_shared.gpr $(INSTALL)/AWS/projects
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 	-$(CHMOD) uog-w $(INSTALL)/AWS/components/*.ali
 	-$(CHMOD) uog-w $(INSTALL)/AWS/lib/*.ali
