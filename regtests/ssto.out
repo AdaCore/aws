@@ -1,0 +1,9 @@
+start
+accept
+INPUT timeout.
+receive
+INPUT timeout.
+send
+OUTPUT timeout.
+client task done.
+done.
