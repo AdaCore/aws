@@ -57,7 +57,6 @@
 --  separator.
 
 with Ada.Characters.Handling;
-with Ada.Unchecked_Deallocation;
 
 with AWS.Utils;
 
@@ -94,7 +93,7 @@ package body AWS.Containers.Tables is
       return Natural
    is
       Value : Unbounded_String;
-      CS    : Strings_Cutter.Cutted_String;
+      CS    : Strings_Cutter.Cut_String;
    begin
       Key_Value.Get_Value (Table.Data.all, Name, Value);
 
@@ -232,7 +231,7 @@ package body AWS.Containers.Tables is
       return VString_Array
    is
       Value : Unbounded_String;
-      CS    : Strings_Cutter.Cutted_String;
+      CS    : Strings_Cutter.Cut_String;
    begin
       Key_Value.Get_Value
         (Table.Data.all,
@@ -270,7 +269,7 @@ package body AWS.Containers.Tables is
       return String
    is
       Value : Unbounded_String;
-      CS    : Strings_Cutter.Cutted_String;
+      CS    : Strings_Cutter.Cut_String;
    begin
       Key_Value.Get_Value
         (Table.Data.all,
