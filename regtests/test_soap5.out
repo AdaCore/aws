@@ -10,6 +10,8 @@ Result =  81
 SOAPAction : /mul
 SOAP_Proc : multProc
 Result =  730
+SOAPAction : 
+Get : This is not a SOAP request : /this/resource
 SOAPAction : /add
 SOAP_Proc : addProc
 Result =  5
