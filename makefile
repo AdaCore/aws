@@ -209,8 +209,10 @@ install: force
 	$(MKDIR) $(INSTALL)/AWS/tools
 	$(MKDIR) $(INSTALL)/AWS/projects
 	$(CP) -p src/[at]*.ad[sb] ssl/*.ad[sb] $(INSTALL)/AWS/include
+ifeq ($(XMLADA),true)
 	$(CP) -p soap/*.ad[sb] $(INSTALL)/AWS/include
 	$(CP) -p xsrc/*.ad[sb] $(INSTALL)/AWS/include
+endif
 	$(CP) -p $(BDIR)/lib/* $(INSTALL)/AWS/lib
 	$(CP) -p $(BDIR)/obj/* $(INSTALL)/AWS/obj
 	-$(CP) -p $(BDIR)/ssl/lib/* $(INSTALL)/AWS/lib
