@@ -1055,7 +1055,7 @@ package body AWS.Server is
              Client_Data      =>
                CNF.Force_Client_Data_Timeout (Web_Server.Properties),
              Server_Response  =>
-               CNF.Cleaner_Server_Response_Timeout (Web_Server.Properties))),
+               CNF.Force_Server_Response_Timeout (Web_Server.Properties))),
 
          (Client_Data     =>
             CNF.Receive_Timeout (Web_Server.Properties),
