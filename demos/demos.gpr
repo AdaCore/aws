@@ -43,7 +43,8 @@ project Demos is
    for Main use ("hello_world.adb", "runme.adb", "com_1.adb", "com_2.adb",
                  "main.adb", "hotplug.adb", "dispatch.adb", "wps.adb",
                  "ws.adb", "auth.adb", "agent.adb", "text_input.adb",
-                 "vh_demo.adb", "res_demo.adb", "zdemo.adb", "split.adb");
+                 "vh_demo.adb", "res_demo.adb", "zdemo.adb", "split.adb",
+		 "web_mail.adb");
 
    case Shared.XMLAda is
       when "Installed" =>
