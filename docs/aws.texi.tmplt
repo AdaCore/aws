@@ -89,18 +89,18 @@ portable. To build @code{AWS} you need:
 
 @item an Ada95 compiler
 
-There is many of them. @code{AWS} has been developped with GNAT but should use
+There is many of them. @code{AWS} has been developped with GNAT but uses
 only Ada95 features. So any Ada95 compiler should be usable.
 
 @item a POSIX binding (Interface to the underlying OS services) ;
 
-Under Windows you can use the one distributed on my homepage: 
+Under Windows you can use the one distributed at: 
 @url{http://perso.wanadoo.fr/pascal.obry}. Under UNIX look for the 
 Florist package at @url{http://www.cs.fsu.edu/~baker/florist.html}.
 
 @item a socket binding ;
 
-Under Windows you must use the one on my homepage: 
+Under Windows you must use the one distributed at:
 @url{http://perso.wanadoo.fr/pascal.obry} which is a port (done 
 by Dmitriy Anisimkov) to Win32 of the 0.1.9 version from ENST.
 
@@ -135,6 +135,11 @@ to build AWS:
 
 @end itemize
 
+@noindent
+In each case you'll certainly have to edit the makefile to correctly set
+the include path for the libraries @code{POSIX}, @code{OpenSSL} and 
+@code{Socket}.
+
 @node How to use it ?
 @chapter How to use it ?
 
@@ -157,7 +162,6 @@ to build an application which can also answer to a standard browser like
 support client and server HTTP protocol applications can communicate
 through the HTTP channel. This give a way to build distributed
 applications, @xref{AWS.Client}.
-
 
 @noindent
 An application using @code{AWS} can open many HTTP channels. Each
@@ -249,11 +253,26 @@ AWS.Response.File (Content_Type => "image/gif",
 
 @end itemize
 
+@noindent
+The directory containing the server program must contain the following
+files if you plan to use a status page @xref{Status page}.
+
+@table @file
+@item status.tmplt
+
+The template HTML file for the @code{AWS} status page.
+
+@item logo.gif
+
+The @code{AWS} logo displayed on the status page.
+
+@end table
+
 @smallexample
 @cartouche
 @group
 This documentation is not complete. Have a look at the demos directory. 
-Almost every features are used by the samples there.
+Almost all features are used by the samples there.
 @end group
 @end cartouche
 @end smallexample
@@ -335,7 +354,7 @@ authentification. Only basic (and not digest) authentification is
 supported at this time.
 
 @noindent
-Let's say that you want to retreive the @code{contrib.html} page from
+Let's say that you want to retreive the @code{contrib.html} Web page from
 Pascal Obry homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
 code to do so is:
 
@@ -375,9 +394,9 @@ connection, the number of time a connection has been used...
 
 @noindent
 To display the information @code{AWS} use a template file. The template
-file is an HTML file with some specific file recongnized by the
-parser. For more information about how does the template parser works,
-please look for the template parser distribution at
+file @file{status.tmplt} is an HTML file with some specific file
+recongnized by the parser. For more information about how does the
+template parser works, please look for the template parser distribution at
 @url{http://perso.wanadoo.fr/} in the Ada section.
 
 @noindent
