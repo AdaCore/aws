@@ -43,8 +43,6 @@ implemented:
 - Support socket timeout options (send and receive timeout) at the OS
   level. Right now a task is doing the job.
 
-- Support compress/gzip encoding if client support it.
-
 - Sort out problem with client socket that are not closed and can't be
   reused. This happen if a lot of requests are done to the server.
 
@@ -93,4 +91,17 @@ implemented:
 - Add GNAT project files to use AWS. Only support for developpers has been
   implemented.
 
+- Support compress/gzip encoding if client support it.
+  All the compress/decompress features are implemented as memory compressed
+  streams. Should we have a direct implementation in AWS response circuitry ?
+
+- Add client's compress/decompress support.
+
+- Ada 2005 should support all sort of containers, use them instead of the
+  include/Table_Of_* components.
+
+=============== Point to fix before next release
+
 - Add support for more sockets in AWS.Server.Socket_Semaphore.
+
+- Add routine to compress a file on disk.
