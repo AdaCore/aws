@@ -390,9 +390,9 @@ is
          --  Returns the full path name for the file as stored on the
          --  server side.
 
-         --------------
-         -- Get_Data --
-         --------------
+         -------------------
+         -- Get_File_Data --
+         -------------------
 
          procedure Get_File_Data is
 
