@@ -1,3 +1,11 @@
+2003-02-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(check_oslib): Removed.
+	(../src/aws-os_lib.adb): New target.
+	This is a better way to check for missing file and works on all
+	 shells. Found while validating AWS on SPARC Solaris.
+
 2003-02-01  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
