@@ -92,6 +92,8 @@ package body Skel is
 
       procedure Output_Parameters (N : in WSDL.Parameters.P_Set) is
          use type WSDL.Parameters.Kind;
+         use type WSDL.Parameter_Type;
+
          R : WSDL.Parameters.P_Set;
       begin
          Text_IO.Put      (Skel_Adb, "           ");
@@ -124,9 +126,20 @@ package body Skel is
             end if;
 
          else
-            Text_IO.Put      (Skel_Adb, " := SOAP.Parameters.Get (Params, """);
-            Text_IO.Put      (Skel_Adb, To_String (N.Name));
-            Text_IO.Put_Line (Skel_Adb, """);");
+            --  Check for Base64 case
+
+            if N.P_Type = WSDL.P_B64 then
+               Text_IO.Put
+                 (Skel_Adb,
+                  " := V (SOAP_Base64'(SOAP.Parameters.Get (Params, """);
+               Text_IO.Put      (Skel_Adb, To_String (N.Name));
+               Text_IO.Put_Line (Skel_Adb, """)));");
+            else
+               Text_IO.Put
+                 (Skel_Adb, " := SOAP.Parameters.Get (Params, """);
+               Text_IO.Put      (Skel_Adb, To_String (N.Name));
+               Text_IO.Put_Line (Skel_Adb, """);");
+            end if;
          end if;
       end Output_Parameters;
 
@@ -385,7 +398,7 @@ package body Skel is
         (Skel_Adb, "   exception");
 
       Text_IO.Put_Line
-        (Skel_Adb, "      when SOAP.Types.Data_Error =>");
+        (Skel_Adb, "      when E : SOAP.Types.Data_Error =>");
 
       Text_IO.Put_Line
         (Skel_Adb, "         --  Here we have a problem with some"
@@ -396,8 +409,12 @@ package body Skel is
       Text_IO.Put_Line
         (Skel_Adb, "            (SOAP.Message.Response.Error.Build");
       Text_IO.Put_Line
-        (Skel_Adb, "               (SOAP.Message.Response.Error.Client, """
-           & "Parameter error""));");
+        (Skel_Adb, "               (SOAP.Message.Response.Error.Client,");
+      Text_IO.Put_Line
+        (Skel_Adb, "                """
+           & "Parameter error in " & L_Proc & " (""");
+      Text_IO.Put_Line
+        (Skel_Adb, "                  & Exception_Message (E) & "")""));");
 
       Text_IO.Put_Line (Skel_Adb, "   end " & L_Proc & "_CB;");
    end New_Procedure;
@@ -438,6 +455,8 @@ package body Skel is
 
       --  Body
 
+      Text_IO.Put_Line (Skel_Adb, "with Ada.Exceptions;");
+      Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Payload;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.Response.Error;");
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Message.XML;");
@@ -445,6 +464,8 @@ package body Skel is
       Text_IO.Put_Line (Skel_Adb, "with SOAP.Types;");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "package body " & L_Name & ".Server is");
+      Text_IO.New_Line (Skel_Adb);
+      Text_IO.Put_Line (Skel_Adb, "   use Ada.Exceptions;");
       Text_IO.New_Line (Skel_Adb);
       Text_IO.Put_Line (Skel_Adb, "   use SOAP.Types;");
       Text_IO.Put_Line (Skel_Adb, "   use type SOAP.Parameters.List;");
