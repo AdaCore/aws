@@ -41,6 +41,9 @@ package body AWS.Services.Transient_Pages is
    --  ??? This is the first implementation mostly as a proof-of concept. The
    --  real implementation will have a task to release the stream after theirs
    --  life-time and eventually move them to disk after a certain period...
+   --
+   --  Note that to release memory we just have to call parent's Release
+   --  routine.
 
    use Ada;
 
@@ -55,6 +58,15 @@ package body AWS.Services.Transient_Pages is
    Resources : Table.Table_Type;
 
    K : Natural := 0;
+
+   -----------
+   -- Close --
+   -----------
+
+   procedure Close (Resource : in out Stream_Type) is
+   begin
+      null;
+   end Close;
 
    ---------
    -- Get --
