@@ -18,16 +18,16 @@ ifeq ($(MODE),ssl)
 ifeq (${OS}, Windows_NT)
 LARGS = $(LFLAGS) $(LIBS) -L../win32 -L../ssl -lssl -lcrypto ../win32/aws.coff
 else
-LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto
+LARGS = $(LFLAGS) $(LIBS) -L../ssl -lssl -lcrypto
 endif
 
 else
 # Without SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) ../ssl/ssl-wrappers.o -L../win32 ../win32/aws.coff
+LARGS = $(LFLAGS) $(LIBS) -L../win32 ../win32/aws.coff
 else
-LARGS = $(LFLAGS) $(LIBS) ../ssl/ssl-wrappers.o
+LARGS = $(LFLAGS) $(LIBS)
 endif
 endif
 
