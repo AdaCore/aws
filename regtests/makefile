@@ -237,7 +237,7 @@ check_mem: force
 	-diff -c -w run1 run2 1>> alldifs 2>> alldifs
 
 clean:
-	-rm -f *.o *.ali b~*.ad* *.~*.*.~ *.res res.ad[sb] res2.ad[sb]
+	-rm -f *.o *.ali b~*.ad* *~ .*~ *.res res.ad[sb] res2.ad[sb]
 	-rm -f file.tmp file1.html file2.html file3.html file.tmplt tresres*
 	-rm -f ?.upload.* strm-*.log cert.pem run1 run2 gmem.out $(ALL_EXEC)
 	-rm -f alldifs *.log run? check_mem.run? hello_demo* *.tmp
