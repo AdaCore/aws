@@ -31,7 +31,6 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
-with Ada.Unchecked_Deallocation;
 
 with AWS.Translator;
 with AWS.Resources.Embedded;
@@ -260,9 +259,6 @@ package body AWS.Response is
    --------------
 
    procedure Finalize (Object : in out Data) is
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Streams.Stream_Element_Array, Stream_Element_Array_Access);
 
       procedure Free is new Ada.Unchecked_Deallocation
         (Natural, Natural_Access);
