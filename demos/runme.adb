@@ -33,13 +33,13 @@
 --  To build you need to have the Ada socket implementation. Either the one
 --  for Windows or the one for UNIX.
 --
---  This has been tested with the Windows version and GNAT, please let me know
---  if it does not work with the UNIX version.
+--  This has been tested with the Windows version, GNAT and Internet Explorer
+--  4.01. Please let me know if it does not work with other tools.
 --
---  Some pointer:
+--  Some pointers:
 --
---  Ada Windows sockets :
---  Ada UNIX socket     :
+--  Ada Windows sockets : http://stad.dsl.nl/~jvandyk/w32sock2.zip
+--  Ada UNIX socket     : http://www.infres.enst.fr/ANC/
 --
 --  How to build this demo ?
 --
