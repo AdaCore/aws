@@ -57,6 +57,7 @@ package body Templates_Parser is
    Section_Token             : constant String := "@@SECTION@@";
    End_Table_Token           : constant String := "@@END_TABLE@@";
    If_Token                  : constant String := "@@IF@@";
+   Elsif_Token               : constant String := "@@ELSIF@@";
    Else_Token                : constant String := "@@ELSE@@";
    End_If_Token              : constant String := "@@END_IF@@";
    Include_Token             : constant String := "@@INCLUDE@@";
@@ -96,7 +97,7 @@ package body Templates_Parser is
    --  Filters setting --
    ----------------------
 
-   --  a filter appear just before a tag variable (e.g. @@LOWER@@_SOME_VAT_@@
+   --  A filter appear just before a tag variable (e.g. @_LOWER:SOME_VAR_@
    --  and means that the filter LOWER should be applied to SOME_VAR before
    --  replacing it in the template file.
 
@@ -163,17 +164,40 @@ package body Templates_Parser is
       --  If True return Yes, If False returns No, else do nothing.
       );
 
-   No_Parameter : constant String := "";
+   function Expect_Regexp (Mode : in Filters_Mode) return Boolean;
+   --  Returns True is the filter named Filter_Name expect a regular
+   --  expression as parameter.
+
+   type Parameter_Mode is (Void, Str, Regexp);
+
+   type Parameter_Data (Mode : Parameter_Mode := Void) is record
+      case Mode is
+         when Void =>
+            null;
+
+         when Str =>
+            S : Unbounded_String;
+
+         when Regexp =>
+            R_Str  : Unbounded_String;
+            Regexp : GNAT.Regexp.Regexp;
+      end case;
+   end record;
+
+   No_Parameter : constant Parameter_Data := Parameter_Data'(Mode => Void);
+
+   function Image (P : in Parameter_Data) return String;
+   --  Returns parameter string representation.
 
    type Filter_Function is
-     access function (S : in String; P : in String := No_Parameter)
+     access function (S : in String; P : in Parameter_Data := No_Parameter)
      return String;
    --  P is the filter parameter, no parameter by default. Parameter are
    --  untyped and will be parsed by the filter function if needed.
 
    type Filter_Routine is record
       Handle     : Filter_Function;
-      Parameters : Unbounded_String;
+      Parameters : Parameter_Data;
    end record;
 
    type Filter_Set is array (Positive range <>) of Filter_Routine;
@@ -188,72 +212,79 @@ package body Templates_Parser is
 
    --  filter functions, see above.
 
-   procedure Check_Null_Parameter (P : in String);
+   procedure Check_Null_Parameter (P : in Parameter_Data);
    --  Raises Template_Error if P is not equal to Null_Parameter.
 
    function Capitalize_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Clean_Text_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Coma_2_Point_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Contract_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Exist_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Is_Empty_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Lower_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Match_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function No_Digit_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function No_Letter_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function No_Space_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Oui_Non_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Point_2_Coma_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Reverse_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Repeat_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Trim_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Upper_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Web_Escape_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Web_NBSP_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
    function Yes_No_Filter
-     (S : in String; P : in String := No_Parameter) return String;
+     (S : in String; P : in Parameter_Data := No_Parameter) return String;
 
 
    function Filter_Handle (Name : in String) return Filter_Function;
    --  Returns the filter function for the given filter name.
+
+   function Filter_Handle (Mode : in Filters_Mode) return Filter_Function;
+   --  Returns the filter function for the given filter mode.
+
+   function Filter_Mode (Name : in String) return Filters_Mode;
+   --  Returns the Filters_Mode for filter named Name. This is the internal
+   --  representation for this filter name.
 
    function Filter_Name (Handle : in Filter_Function) return String;
    --  Returns the filter name for the given filter function.
@@ -284,6 +315,19 @@ package body Templates_Parser is
    -- Image --
    -----------
 
+   function Image (P : in Parameter_Data) return String is
+   begin
+      case P.Mode is
+         when Void   => return "";
+         when Str    => return '(' & To_String (P.S) & ')';
+         when Regexp => return '(' & To_String (P.R_Str) & ')';
+      end case;
+   end Image;
+
+   -----------
+   -- Image --
+   -----------
+
    function Image (T : in Tag) return String is
       R : Unbounded_String;
    begin
@@ -292,13 +336,7 @@ package body Templates_Parser is
       if T.Filters /= null then
          for K in reverse T.Filters'Range loop
             Append (R, Filter_Name (T.Filters (K).Handle));
-
-            if T.Filters (K).Parameters /= Null_Unbounded_String then
-               Append (R, '(');
-               Append (R, T.Filters (K).Parameters);
-               Append (R, ')');
-            end if;
-
+            Append (R, Image (T.Filters (K).Parameters));
             Append (R, ":");
          end loop;
       end if;
@@ -358,10 +396,29 @@ package body Templates_Parser is
             end if;
 
             if P1 = 0 then
-               return (Filter_Handle (Filter), Null_Unbounded_String);
+               return (Filter_Handle (Filter), Parameter_Data'(Mode => Void));
+
             else
-               return (Filter_Handle (Filter (Filter'First .. P1 - 1)),
-                       To_Unbounded_String (Filter (P1 + 1 .. P2 - 1)));
+               declare
+                  Name : constant String
+                    := Filter (Filter'First .. P1 - 1);
+
+                  Mode : constant Filters_Mode := Filter_Mode (Name);
+
+                  Parameter : constant String
+                    := Filter (P1 + 1 .. P2 - 1);
+               begin
+                  if Expect_Regexp (Mode) then
+                     return (Filter_Handle (Mode),
+                             Parameter_Data'(Regexp,
+                                             To_Unbounded_String (Parameter),
+                                             GNAT.Regexp.Compile (Parameter)));
+                  else
+                     return (Filter_Handle (Mode),
+                             Parameter_Data'(Templates_Parser.Str,
+                                             To_Unbounded_String (Parameter)));
+                  end if;
+               end;
             end if;
          end Name_Parameter;
 
@@ -446,7 +503,7 @@ package body Templates_Parser is
             for K in T.Filters'Range loop
                R := To_Unbounded_String
                  (T.Filters (K).Handle (To_String (R),
-                                        To_String (T.Filters (K).Parameters)));
+                                        T.Filters (K).Parameters));
             end loop;
 
             return To_String (R);
@@ -943,571 +1000,40 @@ package body Templates_Parser is
    -- Cached_Files --
    ------------------
 
-   package body Cached_Files is
-
-      Initial_Size : constant := 20; -- cache initial size
-      Growing_Size : constant := 50; -- cache growing size
-
-      type File_Array is array (Positive range <>) of Tree;
-      type File_Array_Access is access File_Array;
-
-      Files : File_Array_Access;
-      Index : Natural := 0;
-
-      procedure Growth;
-      --  Growth the size (by Growing_Size places) of Files array.
-
-      function Get (Filename : in String) return Natural;
-      --  Look for Filename into the set and return its index. Returns 0 if
-      --  filename was not found.
-
-      function Up_To_Date (T : in Tree) return Boolean;
-      --  Returns True if the file tree is up to date (the templates files
-      --  have not been modified on disk) or False otherwise.
-
-      protected body Prot is
-
-         ---------
-         -- Add --
-         ---------
-
-         procedure Add
-           (Filename : in String;
-            T        : in Tree)
-         is
-            L_Filename : constant Unbounded_String
-              := To_Unbounded_String (Filename);
-
-            S : Natural := 1;
-            E : Natural := Index;
-            N : Natural;
-
-            Old : Tree;
-
-         begin
-            if Files = null or else Index = Files'Last then
-               Growth;
-            end if;
-
-            loop
-               exit when S > E;
-
-               N := (S + E) / 2;
-
-               if Files (N).Filename = L_Filename then
-
-                  --  This is a file that was already loaded. If loaded again
-                  --  it is because the file timestamp has changed. We want to
-                  --  just update the tree and not the info node.
-
-                  Old := Files (N).Next;
-                  --  This is a pointer to the tree, skiping the info node.
-
-                  Files (N).Next      := T.Next;
-                  Files (N).Timestamp := T.Timestamp;
-
-                  Release (Old);
-
-                  --  Nothing more to do in this case.
-
-                  return;
-
-               elsif Files (N).Filename < L_Filename then
-                  S := N + 1;
-
-               else
-                  E := N - 1;
-               end if;
-            end loop;
-
-            Files (S + 1 .. Index + 1) := Files (S .. Index);
-
-            Index := Index + 1;
-
-            Files (S) := T;
-         end Add;
-
-         ---------
-         -- Get --
-         ---------
-
-         function Get
-           (Filename : in String;
-            Load     : in Boolean)
-           return Tree
-         is
-
-            N : constant Natural := Get (Filename);
-
-         begin
-            if N = 0 then
-               return null;
-
-            else
-               if Load then
-                  Files (N).Ref := Files (N).Ref + 1;
-               end if;
-
-               return Files (N);
-            end if;
-         end Get;
-
-      end Prot;
-
-      ---------
-      -- Get --
-      ---------
-
-      function Get (Filename : in String) return Natural is
-
-         use type GNAT.OS_Lib.OS_Time;
-
-         L_Filename : constant Unbounded_String
-           := To_Unbounded_String (Filename);
-
-         S : Natural := 1;
-         E : Natural := Index;
-         N : Natural;
-
-      begin
-         loop
-            exit when S > E;
-
-            N := (S + E) / 2;
-
-            if Files (N).Filename = L_Filename then
-
-               if Up_To_Date (Files (N)) then
-                  return N;
-               else
-                  --  File has changed on disk, we need to read it again. Just
-                  --  pretend that the file was not found.
-                  return 0;
-               end if;
-
-            elsif Files (N).Filename < L_Filename then
-               S := N + 1;
-
-            else
-               E := N - 1;
-            end if;
-         end loop;
-
-         return 0;
-      end Get;
-
-      ------------
-      -- Growth --
-      ------------
-
-      procedure Growth is
-
-         procedure Free is
-            new Ada.Unchecked_Deallocation (File_Array, File_Array_Access);
-
-      begin
-         if Files = null then
-            Files := new File_Array (1 .. Initial_Size);
-         else
-
-            declare
-               New_Array : File_Array_Access;
-            begin
-               New_Array := new File_Array (1 .. Files'Length + Growing_Size);
-               New_Array (1 .. Files'Length) := Files.all;
-               Free (Files);
-               Files := New_Array;
-            end;
-         end if;
-      end Growth;
-
-      ----------------
-      -- Up_To_Date --
-      ----------------
-
-      function Up_To_Date (T : in Tree) return Boolean is
-         use type GNAT.OS_Lib.OS_Time;
-         P : Tree;
-      begin
-         --  Check main file
-
-         if GNAT.OS_Lib.File_Time_Stamp (To_String (T.Filename))
-           /= T.Timestamp
-         then
-            return False;
-         end if;
-
-         --  Check all include files
-
-         P := T.I_File;
-
-         while P /= null loop
-            if GNAT.OS_Lib.File_Time_Stamp (To_String (P.File.Filename))
-              /= P.File.Timestamp
-            then
-               return False;
-            end if;
-
-            P := P.Next;
-         end loop;
-
-         return True;
-      end Up_To_Date;
-
-   end Cached_Files;
+   package body Cached_Files is separate;
 
    ----------
    -- Data --
    ----------
 
-   package body Data is
-
-      -----------
-      -- Parse --
-      -----------
-
-      function Parse (Line : in String) return Tree is
-
-         Begin_Tag : constant String
-           := To_String (Templates_Parser.Begin_Tag);
-
-         End_Tag : constant String
-           := To_String (Templates_Parser.End_Tag);
-
-         function Build (Line : in String) return Tree;
-         --  Recursive function to build the tree.
-
-         -----------
-         -- Build --
-         -----------
-
-         function Build (Line : in String) return Tree is
-            Start, Stop : Natural;
-         begin
-            if Line = "" then
-               return null;
-
-            else
-               Start := Strings.Fixed.Index (Line, Begin_Tag);
-
-               if Start = 0 then
-                  --  no more tag
-                  return new Node'(Text,
-                                   null,
-                                   To_Unbounded_String (Line));
-               else
-                  Stop := Strings.Fixed.Index (Line, End_Tag);
-
-                  if Stop = 0 then
-                     Exceptions.Raise_Exception
-                       (Internal_Error'Identity,
-                        "Tag variable not terminated (missing "
-                        & End_Tag & ")");
-
-                  else
-                     Stop := Stop + End_Tag'Length - 1;
-
-                     if Start = Line'First then
-                        return new Node'
-                          (Var,
-                           Build (Line (Stop + 1 .. Line'Last)),
-                           Build (Line (Start .. Stop)));
-                     else
-                        return new Node'
-                          (Text,
-                           Build (Line (Start .. Line'Last)),
-                           To_Unbounded_String
-                             (Line (Line'First .. Start - 1)));
-                     end if;
-                  end if;
-               end if;
-            end if;
-         end Build;
-
-      begin
-         return Build (Line);
-      end Parse;
-
-      ----------------
-      -- Print_Tree --
-      ----------------
-
-      procedure Print_Tree (D : in Tree) is
-      begin
-         if D = null then
-            return;
-         end if;
-
-         case D.Kind is
-            when Text =>
-               Text_IO.Put (To_String (D.Value));
-
-            when Var =>
-               Text_IO.Put (Image (D.Var));
-         end case;
-
-         Print_Tree (D.Next);
-      end Print_Tree;
-
-      -------------
-      -- Release --
-      -------------
-
-      procedure Release (D : in out Tree) is
-
-         procedure Free is new Ada.Unchecked_Deallocation (Node, Tree);
-
-         P : Tree;
-         T : Tree := D;
-      begin
-         while T /= null loop
-            P := T;
-            T := T.Next;
-
-            if P.Kind = Var then
-               Release (P.Var);
-            end if;
-
-            Free (P);
-         end loop;
-      end Release;
-
-   end Data;
+   package body Data is separate;
 
    ----------
    -- Expr --
    ----------
 
-   package body Expr is
+   package body Expr is separate;
 
-      -----------
-      -- Image --
-      -----------
+   -------------
+   -- Filters --
+   -------------
 
-      function Image (O : in Ops) return String is
-      begin
-         case O is
-            when O_And   => return "and";
-            when O_Or    => return "or";
-            when O_Xor   => return "xor";
-            when O_Sup   => return ">";
-            when O_Inf   => return "<";
-            when O_Esup  => return ">=";
-            when O_Einf  => return "<=";
-            when O_Equal => return "=";
-         end case;
-      end Image;
-
-      -----------
-      -- Parse --
-      -----------
-
-      function Parse (Expression : in String) return Tree is
-
-         Index : Natural := Expression'First;
-
-         function Get_Token return String;
-         --  Returns next token. Set Index to the last analysed position in
-         --  Expression.
-
-         ---------------
-         -- Get_Token --
-         ---------------
-
-         function Get_Token return String is
-            use Strings;
-            K, I  : Natural;
-         begin
-            if Index > Expression'Last then
-               --  No more data to read.
-               return "";
-            end if;
-
-            Index := Fixed.Index_Non_Blank
-              (Expression (Index .. Expression'Last));
-
-            if Index = 0 then
-               --  There is only one token, return the whole string.
-               Index := Expression'Last + 1;
-               return Expression (Index .. Expression'Last);
-
-            elsif Expression (Index) = '(' then
-               --  This is a sub-expression, returns it.
-               K := 0;
-
-               declare
-                  L : Natural := 1;
-               begin
-                  Look_For_Sub_Exp : for I in Index + 1 .. Expression'Last loop
-                     if Expression (I) = '(' then
-                        L := L + 1;
-                     elsif Expression (I) = ')' then
-                        K := I;
-                        L := L - 1;
-                     end if;
-
-                     exit Look_For_Sub_Exp when L = 0;
-                  end loop Look_For_Sub_Exp;
-               end;
-
-               if K = 0 then
-                  --  No matching closing parenthesis.
-
-                  Exceptions.Raise_Exception
-                    (Internal_Error'Identity,
-                     "condition, no matching parenthesis for parent at pos "
-                     & Natural'Image (Index));
-
-               else
-                  I := Index;
-                  Index := K + 1;
-                  return Expression (I + 1 .. K - 1);
-               end if;
-
-            else
-               --  We have found the start of a token, look for end of it.
-               K := Fixed.Index (Expression (Index .. Expression'Last), Blank);
-
-               if K = 0 then
-                  --  Token end is the end of Expression.
-                  I := Index;
-                  Index := Expression'Last + 1;
-                  return Expression (I .. Expression'Last);
-               else
-                  I := Index;
-                  Index := K + 1;
-                  return Expression (I .. K - 1);
-               end if;
-            end if;
-         end Get_Token;
-
-         L_Tok : constant String := Get_Token;
-         O_Tok : constant String := Get_Token;
-         R_Tok : constant String := Get_Token;
-
-      begin
-         if O_Tok = "" then
-            --  No more operator, this is a leaf. It is either a variable or a
-            --  value.
-
-            if Strings.Fixed.Index (L_Tok, To_String (Begin_Tag)) = 0 then
-               --  a value
-               return new Node'(Value, To_Unbounded_String (L_Tok));
-
-            else
-               --  a variable
-               return new Node'(Var, Build (L_Tok));
-            end if;
-
-
-         else
-            if Index > Expression'Last then
-               --  This is the latest token
-
-               return new Node'(Op, Value (O_Tok),
-                                Parse (L_Tok), Parse (R_Tok));
-
-            else
-               declare
-                  NO_Tok : constant String := Get_Token;
-               begin
-                  return new Node'
-                    (Op, Value (NO_Tok),
-                     Parse (L_Tok & ' ' & O_Tok & ' ' & R_Tok),
-                     Parse (Expression (Index .. Expression'Last)));
-               end;
-            end if;
-         end if;
-      end Parse;
-
-      ----------------
-      -- Print_Tree --
-      ----------------
-
-      procedure Print_Tree (E : in Tree) is
-      begin
-         case E.Kind is
-            when Value =>
-               Text_IO.Put (To_String (E.V));
-
-            when Var =>
-               Text_IO.Put (Image (E.Var));
-
-            when Op =>
-               Text_IO.Put ('(');
-               Print_Tree (E.Left);
-               Text_IO.Put (' ' & Image (E.O) & ' ');
-               Print_Tree (E.Right);
-               Text_IO.Put (')');
-         end case;
-      end Print_Tree;
-
-      -------------
-      -- Release --
-      -------------
-
-      procedure Release (E : in out Tree) is
-         procedure Free is new Ada.Unchecked_Deallocation (Node, Tree);
-      begin
-         case E.Kind is
-            when Value =>
-               null;
-
-            when Var =>
-               Release (E.Var);
-
-            when Op =>
-               Release (E.Left);
-               Release (E.Right);
-               Free (E);
-         end case;
-      end Release;
-
-      -----------
-      -- Value --
-      -----------
-
-      function Value (O : in String) return Ops is
-      begin
-         if O = "and" then
-            return O_And;
-
-         elsif O = "or" then
-            return O_Or;
-
-         elsif O = "xor" then
-            return O_Xor;
-
-         elsif O = ">" then
-            return O_Sup;
-
-         elsif O = "<" then
-            return O_Inf;
-
-         elsif O = ">=" then
-            return O_Esup;
-
-         elsif O = "<=" then
-            return O_Einf;
-
-         elsif O = "=" then
-            return O_Equal;
-
-         else
-            Exceptions.Raise_Exception
-              (Internal_Error'Identity, "condition, unknown operator " & O);
-         end if;
-      end Value;
-
-   end Expr;
+   function Expect_Regexp (Mode : in Filters_Mode) return Boolean is
+   begin
+      if Mode = Match then
+         return True;
+      else
+         return False;
+      end if;
+   end Expect_Regexp;
 
    --------------------------
    -- Check_Null_Parameter --
    --------------------------
 
-   procedure Check_Null_Parameter (P : in String) is
+   procedure Check_Null_Parameter (P : in Parameter_Data) is
    begin
-      if P /= No_Parameter then
+      if P.Mode /= Void then
          Exceptions.Raise_Exception
            (Template_Error'Identity, "no parameter allowed in this filter");
       end if;
@@ -1519,7 +1045,7 @@ package body Templates_Parser is
 
    function Capitalize_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Result : String (S'Range);
@@ -1547,7 +1073,7 @@ package body Templates_Parser is
 
    function Clean_Text_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
 
@@ -1579,7 +1105,7 @@ package body Templates_Parser is
 
    function Coma_2_Point_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Result : String := S;
@@ -1601,7 +1127,7 @@ package body Templates_Parser is
 
    function Contract_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
 
@@ -1647,7 +1173,7 @@ package body Templates_Parser is
 
    function Exist_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String is
    begin
       Check_Null_Parameter (P);
@@ -1665,7 +1191,7 @@ package body Templates_Parser is
 
    function Is_Empty_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String is
    begin
       Check_Null_Parameter (P);
@@ -1683,7 +1209,7 @@ package body Templates_Parser is
 
    function Lower_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String is
    begin
       Check_Null_Parameter (P);
@@ -1697,19 +1223,15 @@ package body Templates_Parser is
 
    function Match_Filter
      (S : in String;
-      P : in String := No_Parameter)
-     return String
-   is
-      Regexp : GNAT.Regexp.Regexp;
+      P : in Parameter_Data := No_Parameter)
+     return String is
    begin
       if P = No_Parameter then
          Exceptions.Raise_Exception
            (Template_Error'Identity, "missing parameter for MATCH filter");
       end if;
 
-      Regexp := GNAT.Regexp.Compile (P);
-
-      if GNAT.Regexp.Match (S, Regexp) then
+      if GNAT.Regexp.Match (S, P.Regexp) then
          return "TRUE";
       else
          return "FALSE";
@@ -1722,7 +1244,7 @@ package body Templates_Parser is
 
    function No_Digit_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Result : String := S;
@@ -1746,7 +1268,7 @@ package body Templates_Parser is
 
    function No_Letter_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Result : String := S;
@@ -1768,7 +1290,7 @@ package body Templates_Parser is
 
    function No_Space_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Result : String (S'Range);
@@ -1792,7 +1314,7 @@ package body Templates_Parser is
 
    function Oui_Non_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String is
    begin
       Check_Null_Parameter (P);
@@ -1826,7 +1348,7 @@ package body Templates_Parser is
 
    function Point_2_Coma_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Result : String := S;
@@ -1848,12 +1370,12 @@ package body Templates_Parser is
 
    function Repeat_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       N : Natural;
    begin
-      N := Natural'Value (P);
+      N := Natural'Value (To_String (P.S));
 
       declare
          R : String (1 .. N * S'Length);
@@ -1877,7 +1399,7 @@ package body Templates_Parser is
 
    function Reverse_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Result : String (S'Range);
@@ -1896,7 +1418,7 @@ package body Templates_Parser is
 
    function Trim_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String is
    begin
       Check_Null_Parameter (P);
@@ -1910,7 +1432,7 @@ package body Templates_Parser is
 
    function Upper_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String is
    begin
       Check_Null_Parameter (P);
@@ -1924,7 +1446,7 @@ package body Templates_Parser is
 
    function Web_Escape_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Max_Escape_Sequence : constant Positive := 5;
@@ -1964,7 +1486,7 @@ package body Templates_Parser is
 
    function Web_NBSP_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String
    is
       Nbsp_Token          : constant String := "&nbsp;";
@@ -1995,7 +1517,7 @@ package body Templates_Parser is
 
    function Yes_No_Filter
      (S : in String;
-      P : in String := No_Parameter)
+      P : in Parameter_Data := No_Parameter)
      return String is
    begin
       Check_Null_Parameter (P);
@@ -2092,16 +1614,31 @@ package body Templates_Parser is
    -------------------
 
    function Filter_Handle (Name : in String) return Filter_Function is
+      Mode : Filters_Mode := Filter_Mode (Name);
+   begin
+      return Filter_Table (Mode).Handle;
+   end Filter_Handle;
+
+   function Filter_Handle (Mode : in Filters_Mode) return Filter_Function is
+   begin
+      return Filter_Table (Mode).Handle;
+   end Filter_Handle;
+
+   -----------------
+   -- Filter_Mode --
+   -----------------
+
+   function Filter_Mode (Name : in String) return Filters_Mode is
    begin
       for K in Filter_Table'Range loop
          if Filter_Table (K).Name.all = Name then
-            return Filter_Table (K).Handle;
+            return K;
          end if;
       end loop;
 
       Exceptions.Raise_Exception
         (Internal_Error'Identity, "Unknown filter " & Name);
-   end Filter_Handle;
+   end Filter_Mode;
 
    -----------------
    -- Filter_Name --
@@ -2291,6 +1828,7 @@ package body Templates_Parser is
       type Parse_Mode is
         (Parse_Std,              --  in standard line
          Parse_If,               --  in a if statement
+         Parse_Elsif,            --  in elsif part of a if statement
          Parse_Else,             --  in else part of a if statement
          Parse_Table,            --  in a table statement
          Parse_Section,          --  in new section
@@ -2425,7 +1963,7 @@ package body Templates_Parser is
       function Parse (Mode : in Parse_Mode) return Tree is
          T : Tree;
       begin
-         if Mode /= Parse_Section then
+         if Mode /= Parse_Section and then Mode /= Parse_Elsif then
             if Get_Next_Line then
                return null;
             end if;
@@ -2433,10 +1971,31 @@ package body Templates_Parser is
 
          case Mode is
             when Parse_Std =>
-               null;
+               if Is_Stmt (End_If_Token) then
+                  Fatal_Error ("@@END_IF@@ found outside an @@IF@@ statement");
+               end if;
+
+               if Is_Stmt (End_Table_Token) then
+                  Fatal_Error
+                    ("@@END_TABLE@@ found outside a @@TABLE@@ statement");
+               end if;
 
             when Parse_If =>
-               if Is_Stmt (Else_Token) or else Is_Stmt (End_If_Token) then
+               if Is_Stmt (Else_Token)
+                 or else Is_Stmt (Elsif_Token)
+                 or else Is_Stmt (End_If_Token)
+               then
+                  return null;
+               end if;
+
+               if Is_Stmt (End_Table_Token) then
+                  Fatal_Error ("@@END_TABLE@@ found, @@END_IF@@ expected");
+               end if;
+
+            when Parse_Elsif =>
+               if Is_Stmt (Else_Token)
+                 or else Is_Stmt (End_If_Token)
+               then
                   return null;
                end if;
 
@@ -2451,6 +2010,10 @@ package body Templates_Parser is
 
                if Is_Stmt (End_Table_Token) then
                   Fatal_Error ("@@END_TABLE@@ found, @@END_IF@@ expected");
+               end if;
+
+               if Is_Stmt (Elsif_Token) then
+                  Fatal_Error ("@@ELSIF@@ found after @@ELSE@@");
                end if;
 
             when Parse_Section =>
@@ -2495,7 +2058,7 @@ package body Templates_Parser is
 
          end case;
 
-         if Is_Stmt (If_Token) then
+         if Is_Stmt (If_Token) or else Is_Stmt (Elsif_Token) then
             T := new Node (If_Stmt);
 
             T.Line := Line;
@@ -2505,8 +2068,13 @@ package body Templates_Parser is
 
             if Is_Stmt (End_If_Token) then
                T.N_False := null;
+
+            elsif Is_Stmt (Elsif_Token) then
+               T.N_False := Parse (Parse_Elsif);
+
             else
                T.N_False := Parse (Parse_Else);
+
             end if;
 
             T.Next    := Parse (Mode);
@@ -2593,75 +2161,7 @@ package body Templates_Parser is
    -- Print_Tree --
    ----------------
 
-   procedure Print_Tree (T : in Tree; Level : in Natural := 0) is
-
-      procedure Print_Indent (L : in Natural) is
-         use Ada.Strings.Fixed;
-      begin
-         Text_IO.Put ((L * 2) * ' ');
-      end Print_Indent;
-
-   begin
-      if T = null then
-         return;
-      end if;
-
-      Print_Indent (Level);
-
-      case T.Kind is
-         when Info =>
-            Text_IO.Put_Line ("[INFO] " & To_String (T.Filename)
-                              & Natural'Image (T.Ref));
-            declare
-               I : Tree := T.I_File;
-            begin
-               while I /= null loop
-                  Text_IO.Put (" -> ");
-                  Text_IO.Put_Line (To_String (I.File.Filename));
-                  I := I.Next;
-               end loop;
-            end;
-
-            Print_Tree (T.Next, Level);
-
-         when Text =>
-            Text_IO.Put ("[TEXT] ");
-            Data.Print_Tree (T.Text);
-            Text_IO.New_Line;
-            Print_Tree (T.Next, Level);
-
-         when If_Stmt  =>
-            Text_IO.Put ("[IF_STMT] ");
-            Expr.Print_Tree (T.Cond);
-            Text_IO.New_Line;
-            Print_Tree (T.N_True, Level + 1);
-            Print_Indent (Level);
-            Text_IO.Put_Line ("[ELSE]");
-            Print_Tree (T.N_False, Level + 1);
-            Print_Indent (Level);
-            Text_IO.Put_Line ("[END_IF_STMT]");
-            Print_Tree (T.Next, Level);
-
-         when Table_Stmt =>
-            Text_IO.Put_Line ("[TABLE_STMT] TERMINATE_SECTIONS="
-                              & Boolean'Image (T.Terminate_Sections));
-            Print_Tree (T.Sections, Level + 1);
-            Print_Indent (Level);
-            Text_IO.Put_Line ("[END_TABLE_STMT]");
-            Print_Tree (T.Next, Level);
-
-         when Section_Stmt =>
-            Text_IO.Put_Line ("[SECION_STMT]");
-            Print_Tree (T.Next, Level + 1);
-            Print_Tree (T.N_Section, Level);
-
-         when Include_Stmt =>
-            Text_IO.Put_Line ("[INCLUDE_STMT] " & To_String (T.File.Filename));
-            Print_Tree (T.File, Level + 1);
-            Print_Tree (T.Next, Level);
-      end case;
-
-   end Print_Tree;
+   procedure Print_Tree (T : in Tree; Level : in Natural := 0) is separate;
 
    ----------------
    -- Print_Tree --
