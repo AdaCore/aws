@@ -49,7 +49,7 @@ package AWS.Utils is
    --  Returns a random integer number
 
    function Image (N : in Natural) return String;
-   --  Returns image of N without the leading blank.
+   --  Returns image of N without the leading blank
 
    function Image (D : in Duration) return String;
    --  Returns image of N without the leading blank and with only 2 decimals
@@ -59,6 +59,9 @@ package AWS.Utils is
    --  Returns the hexadecimal string representation of the decimal
    --  number V. if Width /= 0, the result will have exactly Width characters
    --  eventually padded with leading 0 or trimmed on the right.
+
+   function Dec (V : in Natural) return String;
+   --  Returns the decimal representation for V
 
    function Hex_Value (Hex : in String) return Natural;
    --  Returns the value for the hexadecimal number Hex. Raises
