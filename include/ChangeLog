@@ -1,5 +1,10 @@
 2003-02-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
+	* aws-net-std-adasockets.adb:
+	(Connect): Free and Close the socket in case of connection failure.
+
+2003-02-15  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
 	* aws-net-std-gnat.adb:
 	(Connect): Free and Close the socket in case of connection failure.
 	 same aws-net-std-adasockets.adb modification would be soon.
