@@ -1,5 +1,13 @@
 2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* interoplab_main.adb:
+	Put test for almost all routines (stub and skeleton).
+
+	* interoplab_main.wsdl:
+	Use localhost on port 9112 for the test.
+
+2003-03-12  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* makefile:
 	(WSDL_TESTS): Add interoplab_main.
 	(WSDL_TESTS): Generate SOAP spec with -rpc option.
