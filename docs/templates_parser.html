@@ -1,1642 +1,1578 @@
-<HTML>
-<HEAD>
-<!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 12 May 2004 -->
+<html lang="en">
+<head>
+<title>Templates Parser User's Guide</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name=description content="Templates Parser User's Guide">
+<meta name=generator content="makeinfo 4.2">
+<link href="http://www.gnu.org/software/texinfo/" rel=generator-home>
+</head>
+<body>
+<h1>Templates Parser User's Guide</h1>
+<font size="+2">
+<p>$Revision$
+<p>Date: 19 May 2004
+<p>Pascal Obry (pascal@obry.org)
+</font>
 
-<TITLE>Templates Parser</TITLE>
-</HEAD>
-<BODY>
-<H1>Templates Parser</H1>
-<H2>$Revision$</H2>
-<H2>Date: 12 May 2004</H2>
-<ADDRESS>Pascal Obry (<A HREF="mailto:pascal@obry.org">pascal@obry.org</A>)</ADDRESS>
-<P>
-<P><HR><P>
-<H1>Table of Contents</H1>
-<UL>
-<LI><A NAME="TOC1" HREF="templates_parser.html#SEC1">Introduction</A>
-<LI><A NAME="TOC2" HREF="templates_parser.html#SEC2">What is a tag ?</A>
-<LI><A NAME="TOC3" HREF="templates_parser.html#SEC3">Variable tags</A>
-<UL>
-<LI><A NAME="TOC4" HREF="templates_parser.html#SEC4">Discrete Boolean Composite</A>
-<LI><A NAME="TOC5" HREF="templates_parser.html#SEC5">Filters and Attributes</A>
-<UL>
-<LI><A NAME="TOC6" HREF="templates_parser.html#SEC6">Filters</A>
-<LI><A NAME="TOC7" HREF="templates_parser.html#SEC7">Attributes</A>
-</UL>
-<LI><A NAME="TOC8" HREF="templates_parser.html#SEC8">Other variable tags</A>
-</UL>
-<LI><A NAME="TOC9" HREF="templates_parser.html#SEC9">Translations</A>
-<LI><A NAME="TOC10" HREF="templates_parser.html#SEC10">Tag statements</A>
-<UL>
-<LI><A NAME="TOC11" HREF="templates_parser.html#SEC11">Comments tag statement</A>
-<LI><A NAME="TOC12" HREF="templates_parser.html#SEC12">INCLUDE tag statement</A>
-<LI><A NAME="TOC13" HREF="templates_parser.html#SEC13">IF tag statement</A>
-<LI><A NAME="TOC14" HREF="templates_parser.html#SEC14">TABLE tag statement</A>
-</UL>
-<LI><A NAME="TOC15" HREF="templates_parser.html#SEC15">Last notes</A>
-<LI><A NAME="TOC16" HREF="templates_parser.html#SEC16">Templates_Parser Ada spec</A>
-</UL>
-<P><HR><P>
+<font size="+1">
+<p>&lt;<code>http://www.obry.org</code>&gt;
+</font>
 
 
+<h2>Table of Contents</h2>
+<ul>
+<li><a name="toc_Top"></a>
+    <a href="#Top">Templates Parser</a>
+<li><a name="toc_Introduction"></a>
+    <a href="#Introduction">Introduction</a>
+<li><a name="toc_What%20is%20a%20tag%20%3f"></a>
+    <a href="#What%20is%20a%20tag%20%3f">What is a tag ?</a>
+<li><a name="toc_Variable%20tags"></a>
+    <a href="#Variable%20tags">Variable tags</a>
+<ul>
+<li><a href="#Discrete%20Boolean%20Composite">Discrete Boolean Composite</a>
+<li><a href="#Filters%20and%20Attributes">Filters and Attributes</a>
+<ul>
+<li><a href="#Filters">Filters</a>
+<li><a href="#Attributes">Attributes</a>
+</ul>
+<li><a href="#Other%20variable%20tags">Other variable tags</a>
+</ul>
+<li><a name="toc_Translations"></a>
+    <a href="#Translations">Translations</a>
+<li><a name="toc_Tag%20statements"></a>
+    <a href="#Tag%20statements">Tag statements</a>
+<ul>
+<li><a href="#Comments%20tag%20statement">Comments tag statement</a>
+<li><a href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>
+<li><a href="#IF%20tag%20statement">IF tag statement</a>
+<li><a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+</ul>
+<li><a name="toc_Other%20services"></a>
+    <a href="#Other%20services">Other services</a>
+<ul>
+<li><a href="#Tag%20utils">Tag utils</a>
+<li><a href="#XML%20representation">XML representation</a>
+<li><a href="#Debug">Debug</a>
+</ul>
+<li><a name="toc_Last%20notes"></a>
+    <a href="#Last%20notes">Last notes</a>
+<li><a name="toc_Templates_Parser%20API%20Reference"></a>
+    <a href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>
+<ul>
+<li><a href="#Templates_Parser">Templates_Parser</a>
+<li><a href="#Templates_Parser.Debug">Templates_Parser.Debug</a>
+<li><a href="#Templates_Parser.Utils">Templates_Parser.Utils</a>
+<li><a href="#Templates_Parser.XML">Templates_Parser.XML</a>
+</ul>
+<li><a name="toc_Index"></a>
+    <a href="#Index">Index</a>
+</ul>
 
-<H1><A NAME="SEC1" HREF="templates_parser.html#TOC1">Introduction</A></H1>
+<p><hr>
+Node:<a name="Top">Top</a>,
+Next:<a rel=next accesskey=n href="#Introduction">Introduction</a>,
+Up:<a rel=up accesskey=u href="#dir">(dir)</a>
+<br>
 
-<P>
-First of all this package is distributed under the GNAT modified GNU GPL.
+<h2>Templates Parser</h2>
 
-</P>
-<P>
-The templates parser package has been designed to parse files and to
+<ul>
+<li><a accesskey=1 href="#Introduction">Introduction</a>: 
+<li><a accesskey=2 href="#What%20is%20a%20tag%20%3f">What is a tag ?</a>: 
+<li><a accesskey=3 href="#Variable%20tags">Variable tags</a>: 
+<li><a accesskey=4 href="#Translations">Translations</a>: 
+<li><a accesskey=5 href="#Tag%20statements">Tag statements</a>: 
+<li><a accesskey=6 href="#Other%20services">Other services</a>: 
+<li><a accesskey=7 href="#Last%20notes">Last notes</a>: 
+<li><a accesskey=8 href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>: 
+<li><a accesskey=9 href="#Index">Index</a>: 
+</ul>
+
+<p><hr>
+Node:<a name="Introduction">Introduction</a>,
+Next:<a rel=next accesskey=n href="#What%20is%20a%20tag%20%3f">What is a tag ?</a>,
+Previous:<a rel=previous accesskey=p href="#Top">Top</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
+
+<h2>Introduction</h2>
+
+<p>First of all this package is distributed under the GNAT modified GNU GPL.
+
+<p>The templates parser package has been designed to parse files and to
 replace some specific tags into these files by some specified values.
 
-</P>
-<P>
-The main goal was to ease the development of Web servers. In CGI 
-(<I>Common Gateway Interface</I>) mode you have to write the HTML page in
+<p>The main goal was to ease the development of Web servers. In CGI
+(<i>Common Gateway Interface</i>) mode you have to write the HTML page in
 the program (in Ada or whatever other languages) by using some specific
-libraries or by using only basic output functions like Ada <CODE>Put_Line</CODE> for
+libraries or by using only basic output functions like Ada <code>Put_Line</code> for
 example. This is of course not mandatory but by lack of a good library
 every Web development end up doing just that.
 
-</P>
-<P>
-The main problems with this approach are:
+<p>The main problems with this approach are:
 
-</P>
+<ul>
 
-<UL>
-
-<LI>It is painful to have to recompile the program each time you have
-
+<li>It is painful to have to recompile the program each time you have
 a slight change to do in the design (center an image, change the border
 width of a table...)
 
-<LI>You have the design and the program merged together. It means that
-
+<li>You have the design and the program merged together. It means that
 to change the design you must know the Ada language. And to change the
 Ada program you need to understand what is going on with all these
 inline HTML command.
 
-<LI>You can't use the nice tools to generate your HTML.
+<li>You can't use the nice tools to generate your HTML.
 
-</UL>
+</ul>
 
-<P>
-With the templates parser package these problems are gone. The code and
-the design is <B>completely</B> separated. This is a very important
+<p>With the templates parser package these problems are gone. The code and
+the design is <b>completely</b> separated. This is a very important
 point. PHP or JSP have tried this but most of the time you have the
 script embedded into the Web template. And worst you need to use another
 language just for your Web development.
 
-</P>
+<ul>
 
-<UL>
-
-<LI>The HTML page is separated from the program code. Then you can
-
+<li>The HTML page is separated from the program code. Then you can
 change the design without changing the code. Moreover when you fix the
 code you don't have to handle all the specific HTML output. And you do
 not risk to break the design.
 
-<LI>It is easier to work on the design and the program at the same time
-
+<li>It is easier to work on the design and the program at the same time
 using the right peoples for the job.
 
-<LI>It reduce the number of <I>edit/build/test</I> cycles. Writing HTML
-
+<li>It reduce the number of <i>edit/build/test</i> cycles. Writing HTML
 code from a program is error prone.
 
-<LI>It is possible to use standard tools to produce the HTML.
+<li>It is possible to use standard tools to produce the HTML.
 
-<LI>You don't have to learn a new language.
+<li>You don't have to learn a new language.
 
-<LI>The script is Ada, so here you have the benefit of all the Ada power.
+<li>The script is Ada, so here you have the benefit of all the Ada power.
 
-</UL>
+</ul>
 
-<P>
-In fact, now the Ada program just compute some values, get some data
+<p>In fact, now the Ada program just compute some values, get some data
 from a database or whatever and then call the templates parser to output
 a page with the data displayed. To the templates parser you just pass
-the template filename and an associative table. 
+the template filename and an associative table.
 
-</P>
-<P>
-It is even more convenient to have different display with the same set
+<p>It is even more convenient to have different display with the same set
 of data. You just have to provides as many templates as you like.
 
-</P>
+<p><hr>
+Node:<a name="What%20is%20a%20tag%20%3f">What is a tag ?</a>,
+Next:<a rel=next accesskey=n href="#Variable%20tags">Variable tags</a>,
+Previous:<a rel=previous accesskey=p href="#Introduction">Introduction</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
 
+<h2>What is a tag ?</h2>
 
-
-<H1><A NAME="SEC2" HREF="templates_parser.html#TOC2">What is a tag ?</A></H1>
-
-<P>
-A tag is a string found in the template page and surrounded by a specific set
-of characters. The default is <B>@_</B> at the start and <B>_@</B> at the
-end of the tag. This default can be changed using <CODE>Set_Tag_Separators</CODE>
-routine, see section <A HREF="templates_parser.html#SEC16">Templates_Parser Ada spec</A>. Note that it must be changed
+<p>A tag is a string found in the template page and surrounded by a specific set
+of characters. The default is <b>@_</b> at the start and <b>_@</b> at the
+end of the tag. This default can be changed using <code>Set_Tag_Separators</code>
+routine, see <a href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>. Note that it must be changed
 as the first API call and should not be changed after that.
 
-</P>
-<P>
-The tag will be replaced by a value specified in a translation table.
+<p>The tag will be replaced by a value specified in a translation table.
 
-</P>
-<P>
-For example with the template file <TT>`demo.tmplt'</TT>:
+<p>For example with the template file <code>demo.tmplt</code>:
 
-</P>
+<br><pre>
 
-<PRE>
+&lt;P&gt;Hello @_NAME_@
+</pre>
 
-&#60;P&#62;Hello @_NAME_@
+<p>Using the following code <code>demo.adb</code>:
 
-</PRE>
+<br><pre>
 
-<P>
-Using the following code <TT>`demo.adb'</TT>:
 
-</P>
+<p><b>with</b> Ada.Text_IO;
+<b>with</b> Templates_Parser;
 
-<PRE>
+<b>procedure</b> Demo <b>is</b>
 
-<B>with</B> Ada.Text_IO;
-<B>with</B> Templates_Parser;
+   Translations : <b>constant</b> Templates_Parser.Translate_Table
+     := (1 =&gt; Templates_Parser.Assoc ("<i>NAME</i>", "<i>Ada</i>"));
 
-<B>procedure</B> Demo <B>is</B>
-
-   Translations : <B>constant</B> Templates_Parser.Translate_Table
-     := (1 =&#62; Templates_Parser.Assoc ("<I>NAME</I>", "<I>Ada</I>"));
-
-<B>begin</B>
+<b>begin</b>
    Ada.Text_IO.Put_Line
-     (Templates_Parser.Parse ("<I>demo.tmplt</I>", Translations));
-<B>end</B> Demo;
+     (Templates_Parser.Parse ("<i>demo.tmplt</i>", Translations));
+<b>end</b> Demo;
+</pre>
 
-</PRE>
+<p>The program will print out :
 
-<P>
-The program will print out :
+<br><pre>
+&lt;P&gt;Hello Ada
+</pre>
 
-</P>
-
-<PRE>
-&#60;P&#62;Hello Ada
-</PRE>
-
-<P>
-This is a very simple example, but you'll see that there is a lot of
+<p>This is a very simple example, but you'll see that there is a lot of
 powerful construct that you can use into a template file.
 
-</P>
+<p><hr>
+Node:<a name="Variable%20tags">Variable tags</a>,
+Next:<a rel=next accesskey=n href="#Translations">Translations</a>,
+Previous:<a rel=previous accesskey=p href="#What%20is%20a%20tag%20%3f">What is a tag ?</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
 
+<h2>Variable tags</h2>
 
+<ul>
+<li><a accesskey=1 href="#Discrete%20Boolean%20Composite">Discrete Boolean Composite</a>: 
+<li><a accesskey=2 href="#Filters%20and%20Attributes">Filters and Attributes</a>: 
+<li><a accesskey=3 href="#Other%20variable%20tags">Other variable tags</a>: 
+</ul>
 
-<H1><A NAME="SEC3" HREF="templates_parser.html#TOC3">Variable tags</A></H1>
+<p><hr>
+Node:<a name="Discrete%20Boolean%20Composite">Discrete Boolean Composite</a>,
+Next:<a rel=next accesskey=n href="#Filters%20and%20Attributes">Filters and Attributes</a>,
+Up:<a rel=up accesskey=u href="#Variable%20tags">Variable tags</a>
+<br>
 
+<h3>Discrete Boolean Composite</h3>
 
-<UL>
-<LI><A HREF="templates_parser.html#SEC4">Discrete Boolean Composite</A>
-<LI><A HREF="templates_parser.html#SEC5">Filters and Attributes</A>
-<LI><A HREF="templates_parser.html#SEC8">Other variable tags</A>
-</UL>
+<p>A variable tag is a specific string to be replaced by the template
+parser. There is three kinds of variable tags: <b>discrete</b>, <b>boolean</b>,
+<b>composite</b>. All variables tags are built using the <code>Assoc</code>
+constructors, see <a href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>.
 
+<dl>
 
-
-<H2><A NAME="SEC4" HREF="templates_parser.html#TOC4">Discrete Boolean Composite</A></H2>
-
-<P>
-A variable tag is a specific string to be replaced by the template
-parser. There is three kinds of variable tags: <B>discrete</B>, <B>boolean</B>,
-<B>composite</B>. All variables tags are built using the <CODE>Assoc</CODE>
-constructors, see section <A HREF="templates_parser.html#SEC16">Templates_Parser Ada spec</A>.
-
-</P>
-<DL COMPACT>
-
-<DT><B>discrete</B>
-<DD>
-We have already seen the discrete variable tag. This is a variable which
+<br><dt><b>discrete</b>
+<dd>We have already seen the discrete variable tag. This is a variable which
 has only one value. This value will replace the tag in the template
 file. Discrete variable constructors are provided for String,
 Unbounded_String and Integer (see Assoc routines).
-<P>
-
-<DT><B>boolean</B>
-<DD>
-A boolean tag as a value of TRUE or FALSE. This value will replace the
-tag in the template file. These tags can also be used with the <CODE>IF</CODE> tag
+<br><p>
+<br><dt><b>boolean</b>
+<dd>A boolean tag as a value of TRUE or FALSE. This value will replace the
+tag in the template file. These tags can also be used with the <code>IF</code> tag
 statement.
-<P>
-
-<DT><B>composite (Tag)</B>
-<DD>
-A composite tag is a variable which contains a set of values. These kind of
-variables will be used with the <CODE>TABLE</CODE> tag statement 
-see section <A HREF="templates_parser.html#SEC14">TABLE tag statement</A>. Outside a table statement it will be
+<br><p>
+<br><dt><b>composite (Tag)</b>
+<dd>A composite tag is a variable which contains a set of values. These kind of
+variables will be used with the <code>TABLE</code> tag statement
+see <a href="#TABLE%20tag%20statement">TABLE tag statement</a>. Outside a table statement it will be
 replaced by all values concatenated with a specified separator. See
-<CODE>Set_Separator</CODE> routine. Such tag are variables declared on the
-Ada program a <CODE>Templates_Parser.Tag</CODE> type.
+<code>Set_Separator</code> routine. Such tag are variables declared on the
+Ada program a <code>Templates_Parser.Tag</code> type.
 
-<P>
-There is many overloaded constructors to build a composite tags (see "+"
+<br><p>
+<p>There is many overloaded constructors to build a composite tags (see "+"
 operators).  The "+" operators are used to build a Tag item from
 standard types like String, Unbounded_String, Character, Integer and
 Boolean.
 
-<P>
-To add items to a Tag many overloaded operators are provided (see
-"&#38;" operators). The "&#38;" operators add one item at the start or the end
+<br><p>
+<p>To add items to a Tag many overloaded operators are provided (see
+"&amp;" operators). The "&amp;" operators add one item at the start or the end
 of the tag, it is possible to add directly String, Unbounded_String,
 Character, Integer and Boolean items using one of the overloaded operator.
 
-<P>
-A tag composed of only boolean values TRUE or FALSE is called a
-Boolean composite tag. This tag is to be used with a <CODE>IF</CODE> tag statement
-inside a <CODE>TABLE</CODE> tag statement.
+<br><p>
+<p>A tag composed of only boolean values TRUE or FALSE is called a
+Boolean composite tag. This tag is to be used with a <code>IF</code> tag statement
+inside a <code>TABLE</code> tag statement.
 
-<P>
-It is possible to build a composite tag having any number of nested
+<br><p>
+<p>It is possible to build a composite tag having any number of nested
 level. A vector is a composite tag with only one level, a matrix is a
 composite tag with two level (a Tag with a set of vector tag).
 
-<P>
-Two aliases exists for composite tags with one or two nested level,
-they are named <CODE>Vector_Tag</CODE> and <CODE>Matrix_Tag</CODE>. In the suite
-of the document, we call <I>vector tag</I> a tag with a single nested
-level and <I>matrix tag</I> a tag with two nested level.
+<br><p>
+<p>Two aliases exists for composite tags with one or two nested level,
+they are named <code>Vector_Tag</code> and <code>Matrix_Tag</code>. In the suite
+of the document, we call <i>vector tag</i> a tag with a single nested
+level and <i>matrix tag</i> a tag with two nested level.
 
-</DL>
+</dl>
 
+<p><hr>
+Node:<a name="Filters%20and%20Attributes">Filters and Attributes</a>,
+Next:<a rel=next accesskey=n href="#Other%20variable%20tags">Other variable tags</a>,
+Previous:<a rel=previous accesskey=p href="#Discrete%20Boolean%20Composite">Discrete Boolean Composite</a>,
+Up:<a rel=up accesskey=u href="#Variable%20tags">Variable tags</a>
+<br>
 
+<h3>Filters and Attributes</h3>
 
-<H2><A NAME="SEC5" HREF="templates_parser.html#TOC5">Filters and Attributes</A></H2>
-
-<P>
-All kinds of variable tag can have one or more function-prefix or
+<p>All kinds of variable tag can have one or more function-prefix or
 filter. The function prefix is applied to the variable value. The
 syntax is
-<CODE>@_[[FILTER_NAME[(parameter)]:]FILTER_NAME[(parameter)]:]SOME_VAR_@</CODE>.
+<code>@_[[FILTER_NAME[(parameter)]:]FILTER_NAME[(parameter)]:]SOME_VAR_@</code>. 
 Filters are evaluated from right to left.
 
-</P>
-<P>
-Composite tags can also have attributes. Attributes are placed
-after the tag name and preceded with a simple quote.
-<CODE>@_SOME_VAR['ATTRIBUTE_NAME]_@</CODE>. It is possible to use filters
+<p>Composite tags can also have attributes. Attributes are placed
+after the tag name and preceded with a simple quote. 
+<code>@_SOME_VAR['ATTRIBUTE_NAME]_@</code>. It is possible to use filters
 and attributes together. In that case the attribute is first evaluated and
 the result is passed-through the filters.
 
-</P>
+<ul>
+<li><a accesskey=1 href="#Filters">Filters</a>: 
+<li><a accesskey=2 href="#Attributes">Attributes</a>: 
+</ul>
 
-<UL>
-<LI><A HREF="templates_parser.html#SEC6">Filters</A>
-<LI><A HREF="templates_parser.html#SEC7">Attributes</A>
-</UL>
+<p><hr>
+Node:<a name="Filters">Filters</a>,
+Next:<a rel=next accesskey=n href="#Attributes">Attributes</a>,
+Up:<a rel=up accesskey=u href="#Filters%20and%20Attributes">Filters and Attributes</a>
+<br>
 
+<h4>Filters</h4>
 
+<p>The current supported filters are:
 
-<H3><A NAME="SEC6" HREF="templates_parser.html#TOC6">Filters</A></H3>
+<dl>
 
-<P>
-The current supported filters are:
+<br><dt><code>"+"(<i>N</i>) or ADD(<i>N</i>)</code>
+<dd>
 
-</P>
-<DL COMPACT>
-
-<DT><CODE>"+"(<I>N</I>) or ADD(<I>N</I>)</CODE>
-<DD>
-Add N to variable and return the result. If the current variable value
+<p>Add N to variable and return the result. If the current variable value
 is not a number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
 
-<DT><CODE>"-"(<I>N</I>) or SUB(<I>N</I>)</CODE>
-<DD>
-Subtract N to variable and return the result. If the current variable value
+<br><dt><code>"-"(<i>N</i>) or SUB(<i>N</i>)</code>
+<dd>
+
+<p>Subtract N to variable and return the result. If the current variable value
 is not a number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
 
-<DT><CODE>"*"(<I>N</I>) or MULT(<I>N</I>)</CODE>
-<DD>
-Multiply N with variable and return the result. If the current variable value
+<br><dt><code>"*"(<i>N</i>) or MULT(<i>N</i>)</code>
+<dd>
+
+<p>Multiply N with variable and return the result. If the current variable value
 is not a number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
 
-<DT><CODE>"/"(<I>N</I>) or DIV(<I>N</I>)</CODE>
-<DD>
-Divide variable by N and return the result. If the current variable value
+<br><dt><code>"/"(<i>N</i>) or DIV(<i>N</i>)</code>
+<dd>
+
+<p>Divide variable by N and return the result. If the current variable value
 is not a number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
 
-<DT><CODE>ADD_PARAM(<I>NAME[=VALUE]</I>)</CODE>
-<DD>
-Add a parameter into an URL. This routine adds the '?' and '&#38;'
-character if needed. <I>VALUE</I> can be a tag variable name.
+<br><dt><code>ADD_PARAM(<i>NAME[=VALUE]</i>)</code>
+<dd>
 
-<DT><CODE>BR_2_LF</CODE>
-<DD>
-Replaces all occurrences of the <CODE>&#60;br&#62;</CODE> HTML tag by a LF
+<p>Add a parameter into an URL. This routine adds the '?' and '&amp;'
+character if needed. <i>VALUE</i> can be a tag variable name.
+
+<br><dt><code>BR_2_LF</code>
+<dd>
+
+<p>Replaces all occurrences of the <code>&lt;br&gt;</code> HTML tag by a LF
 (Line-Feed) character.
 
-<DT><CODE>CAPITALIZE</CODE>
-<DD>
-Put all characters in the variable in lower case except characters after
+<br><dt><code>CAPITALIZE</code>
+<dd>
+
+<p>Put all characters in the variable in lower case except characters after
 a space or an underscore which are set in upper-case.
 
-<DT><CODE>CLEAN_TEXT</CODE>
-<DD>
-Keep only letters and digits all others characters are changed to
+<br><dt><code>CLEAN_TEXT</code>
+<dd>
+
+<p>Keep only letters and digits all others characters are changed to
 spaces.
 
-<DT><CODE>COMA_2_POINT</CODE>
-<DD>
-Replaces all comas by points.
+<br><dt><code>COMA_2_POINT</code>
+<dd>
 
-<DT><CODE>CONTRACT</CODE>
-<DD>
-Converts any suite of spaces by a single space character.
+<p>Replaces all comas by points.
 
-<DT><CODE>DEL_PARAM(<I>NAME</I>)</CODE>
-<DD>
-Delete parameter NAME from the URL. This routine removes the '?' and '&#38;'
+<br><dt><code>CONTRACT</code>
+<dd>
+
+<p>Converts any suite of spaces by a single space character.
+
+<br><dt><code>DEL_PARAM(<i>NAME</i>)</code>
+<dd>
+
+<p>Delete parameter NAME from the URL. This routine removes the '?' and '&amp;'
 character if needed. Returns the input string as-is if the parameter
 is not found.
 
-<DT><CODE>EXIST</CODE>
-<DD>
-Returns <B>True</B> if variable is set and has a value different that the null
-string and <B>False</B> otherwise.
+<br><dt><code>EXIST</code>
+<dd>
 
-<DT><CODE>FORMAT_DATE(<B>FORMAT</B>)</CODE>
-<DD>
-Returns the date with the given format. The date must be in the ISO
+<p>Returns <b>True</b> if variable is set and has a value different that the null
+string and <b>False</b> otherwise.
+
+<br><dt><code>FORMAT_DATE(<b>FORMAT</b>)</code>
+<dd>
+
+<p>Returns the date with the given format. The date must be in the ISO
 format (YYYY-MM-DD) eventually followed by a space and the time with
 the format HH:MM:SS. If the date is not given in the right format it
 returns the date as-is. The format is using the GNU/date description
-patterns as also implemented in <CODE>GNAT.Calendar.Time_IO</CODE>.
+patterns as also implemented in <code>GNAT.Calendar.Time_IO</code>.
 
-<P>
+<br><p>
+<br><p>
+<dl>
 
-<DL COMPACT>
+<br><dt><i>Characters:</i>
+<dd>
+<dl>
+<dt><b>%</b>
+<dd>a literal %
+<br><dt><b>n</b>
+<dd>a newline
+<br><dt><b>t</b>
+<dd>a horizontal tab
+</dl>
 
-<DT><I>Characters:</I>
-<DD>
-<DL COMPACT>
+<br><dt><i>Time fields:</i>
+<dd>
+<dl>
+<dt><b>%H</b>
+<dd>hour (00..23)
+<br><dt><b>%I</b>
+<dd>hour (01..12)
+<br><dt><b>%k</b>
+<dd>hour ( 0..23)
+<br><dt><b>%l</b>
+<dd>hour ( 1..12)
+<br><dt><b>%M</b>
+<dd>minute (00..59)
+<br><dt><b>%p</b>
+<dd>locale's AM or PM
+<br><dt><b>%r</b>
+<dd>time, 12-hour (hh:mm:ss [AP]M)
+<br><dt><b>%s</b>
+<dd>seconds  since 1970-01-01  00:00:00 UTC (a nonstandard extension)
+<br><dt><b>%S</b>
+<dd>second (00..59)
+<br><dt><b>%T</b>
+<dd>time, 24-hour (hh:mm:ss)
+</dl>
 
-<DT><B>%</B>
-<DD>
-a literal %
-<DT><B>n</B>
-<DD>
-a newline
-<DT><B>t</B>
-<DD>
-a horizontal tab
-</DL>
+<br><dt><i>Date fields:</i>
+<dd>
+<dl>
+<dt><b>%a</b>
+<dd>locale's abbreviated weekday name (Sun..Sat)
+<br><dt><b>%A</b>
+<dd>locale's full weekday name, variable length (Sunday..Saturday)
+<br><dt><b>%b</b>
+<dd>locale's abbreviated month name (Jan..Dec)
+<br><dt><b>%B</b>
+<dd>locale's full month name, variable length (January..December)
+<br><dt><b>%c</b>
+<dd>locale's date and time (Sat Nov 04 12:02:33 EST 1989)
+<br><dt><b>%d</b>
+<dd>day of month (01..31)
+<br><dt><b>%D</b>
+<dd>date (mm/dd/yy)
+<br><dt><b>%h</b>
+<dd>same as %b
+<br><dt><b>%j</b>
+<dd>day of year (001..366)
+<br><dt><b>%m</b>
+<dd>month (01..12)
+<br><dt><b>%U</b>
+<dd>week number of year with  Sunday as first day of week (00..53)
+<br><dt><b>%w</b>
+<dd>day of week (0..6) with 0 corresponding to Sunday
+<br><dt><b>%W</b>
+<dd>week number of year with  Monday as first day of week (00..53)
+<br><dt><b>%x</b>
+<dd>locale's date representation (mm/dd/yy)
+<br><dt><b>%y</b>
+<dd>last two digits of year (00..99)
+<br><dt><b>%Y</b>
+<dd>year (1970...) 
+</dl>
 
-<DT><I>Time fields:</I>
-<DD>
-<DL COMPACT>
+<br><dt><i>By default,  date pads numeric fields with zeroes. GNU date recognizes the following nonstandard numeric modifiers:</i>
+<dd>
+<dl>
+<dt><b>-    (hyphen)</b>
+<dd>do not pad the field
+<br><dt><b>_    (underscore)</b>
+<dd>pad the field with spaces
+</dl>
+</dl>
 
-<DT><B>%H</B>
-<DD>
-hour (00..23)
-<DT><B>%I</B>
-<DD>
-hour (01..12)
-<DT><B>%k</B>
-<DD>
-hour ( 0..23)
-<DT><B>%l</B>
-<DD>
-hour ( 1..12)
-<DT><B>%M</B>
-<DD>
-minute (00..59)
-<DT><B>%p</B>
-<DD>
-locale's AM or PM
-<DT><B>%r</B>
-<DD>
-time, 12-hour (hh:mm:ss [AP]M)
-<DT><B>%s</B>
-<DD>
-seconds  since 1970-01-01  00:00:00 UTC (a nonstandard extension)
-<DT><B>%S</B>
-<DD>
-second (00..59)
-<DT><B>%T</B>
-<DD>
-time, 24-hour (hh:mm:ss)
-</DL>
+<br><dt><code>FORMAT_NUMBER</code>
+<dd>
 
-<DT><I>Date fields:</I>
-<DD>
-<DL COMPACT>
-
-<DT><B>%a</B>
-<DD>
-locale's abbreviated weekday name (Sun..Sat)
-<DT><B>%A</B>
-<DD>
-locale's full weekday name, variable length (Sunday..Saturday)
-<DT><B>%b</B>
-<DD>
-locale's abbreviated month name (Jan..Dec)
-<DT><B>%B</B>
-<DD>
-locale's full month name, variable length (January..December)
-<DT><B>%c</B>
-<DD>
-locale's date and time (Sat Nov 04 12:02:33 EST 1989)
-<DT><B>%d</B>
-<DD>
-day of month (01..31)
-<DT><B>%D</B>
-<DD>
-date (mm/dd/yy)
-<DT><B>%h</B>
-<DD>
-same as %b
-<DT><B>%j</B>
-<DD>
-day of year (001..366)
-<DT><B>%m</B>
-<DD>
-month (01..12)
-<DT><B>%U</B>
-<DD>
-week number of year with  Sunday as first day of week (00..53)
-<DT><B>%w</B>
-<DD>
-day of week (0..6) with 0 corresponding to Sunday
-<DT><B>%W</B>
-<DD>
-week number of year with  Monday as first day of week (00..53)
-<DT><B>%x</B>
-<DD>
-locale's date representation (mm/dd/yy)
-<DT><B>%y</B>
-<DD>
-last two digits of year (00..99)
-<DT><B>%Y</B>
-<DD>
-year (1970...)
-</DL>
-
-<DT><I>By default,  date pads numeric fields with zeroes. GNU date recognizes the following nonstandard numeric modifiers:</I>
-<DD>
-<DL COMPACT>
-
-<DT><B>-    (hyphen)</B>
-<DD>
-do not pad the field
-<DT><B>_    (underscore)</B>
-<DD>
-pad the field with spaces
-</DL>
-</DL>
-
-<DT><CODE>FORMAT_NUMBER</CODE>
-<DD>
-Returns the number with a space added between each 3 digits
+<p>Returns the number with a space added between each 3 digits
 blocks. The decimal part is not transformed. If the data is not a
 number nothing is done.
 
-<DT><CODE>IS_EMPTY</CODE>
-<DD>
-Returns <B>True</B> if variable is the empty string and <B>False</B> otherwise.
+<br><dt><code>IS_EMPTY</code>
+<dd>
 
-<DT><CODE>LF_2_BR</CODE>
-<DD>
-Replaces all occurrences of the character LF (Line-Feed) by a
-<CODE>&#60;br&#62;</CODE> HTML tag.
+<p>Returns <b>True</b> if variable is the empty string and <b>False</b> otherwise.
 
-<DT><CODE>LOWER</CODE>
-<DD>
-Put all characters in the variable in lower-case.
+<br><dt><code>LF_2_BR</code>
+<dd>
 
-<DT><CODE>MATCH(<I>REGEXP</I>)</CODE>
-<DD>
-Returns <B>True</B> if variable match the regular expression passed as
+<p>Replaces all occurrences of the character LF (Line-Feed) by a
+<code>&lt;br&gt;</code> HTML tag.
+
+<br><dt><code>LOWER</code>
+<dd>
+
+<p>Put all characters in the variable in lower-case.
+
+<br><dt><code>MATCH(<i>REGEXP</i>)</code>
+<dd>
+
+<p>Returns <b>True</b> if variable match the regular expression passed as
 filter's parameter. The regular expression is using a format as
-found in <TT>`gawk'</TT>, <TT>`sed'</TT> or <TT>`grep'</TT> tools.
+found in <code>gawk</code>, <code>sed</code> or <code>grep</code> tools.
 
-<DT><CODE>MOD(<I>N</I>)</CODE>
-<DD>
-Returns variable modulo N. If the current variable value is not a
+<br><dt><code>MOD(<i>N</i>)</code>
+<dd>
+
+<p>Returns variable modulo N. If the current variable value is not a
 number it returns the empty string. N must be a number or a
 discrete tag variable whose value is a number.
 
-<DT><CODE>NO_DIGIT</CODE>
-<DD>
-Replaces all digits by spaces.
+<br><dt><code>NO_DIGIT</code>
+<dd>
 
-<DT><CODE>NO_LETTER</CODE>
-<DD>
-Replaces all letters by spaces.
+<p>Replaces all digits by spaces.
 
-<DT><CODE>NO_SPACE</CODE>
-<DD>
-Removes all spaces in the variable.
+<br><dt><code>NO_LETTER</code>
+<dd>
 
-<DT><CODE>OUI_NON</CODE>
-<DD>
-If variable value is <B>True</B> it returns <B>Oui</B>, if <B>False</B> it
-returns <B>Non</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
+<p>Replaces all letters by spaces.
+
+<br><dt><code>NO_SPACE</code>
+<dd>
+
+<p>Removes all spaces in the variable.
+
+<br><dt><code>OUI_NON</code>
+<dd>
+
+<p>If variable value is <b>True</b> it returns <b>Oui</b>, if <b>False</b> it
+returns <b>Non</b>, otherwise does nothing. It keeps the way <b>True/False</b> is
 capitalized (all upper, all lower or first letter capital).
 
-<DT><CODE>POINT_2_COMA</CODE>
-<DD>
-Replaces all comas by points.
+<br><dt><code>POINT_2_COMA</code>
+<dd>
 
-<DT><CODE>REPEAT(<I>N</I>)</CODE>
-<DD>
-Returns N times the variable, N being passed as filter's parameter. N
+<p>Replaces all comas by points.
+
+<br><dt><code>REPEAT(<i>N</i>)</code>
+<dd>
+
+<p>Returns N times the variable, N being passed as filter's parameter. N
 must be a number  or a discrete tag variable whose value is a number.
 
-<DT><CODE>REPLACE(<I>REGEXP</I>[/<I>STR</I>])</CODE>
-<DD>
-This filter replaces <B>\n</B> (where <I>n</I> is a number) <I>STR</I>'s
-occurences by the corresponding match from <I>REGEXP</I>. The first match
-in <I>REGEXP</I> will replace <B>\1</B>, the second match <B>\2</B> and so
-on. Each match in <I>REGEXP</I> must be parenthesized. It replaces only
-the first match. <I>STR</I> is an optional parameter, its default value
-is <B>\1</B>. <I>STR</I> can be a tag variable name.
+<br><dt><code>REPLACE(<i>REGEXP</i>[/<i>STR</i>])</code>
+<dd>
 
-<DT><CODE>REPLACE_ALL(<I>REGEXP</I>[/<I>STR</I>])</CODE>
-<DD>
-Idem as above but replaces all occurences.
+<p>This filter replaces <b>\n</b> (where <i>n</i> is a number) <i>STR</i>'s
+occurences by the corresponding match from <i>REGEXP</i>. The first match
+in <i>REGEXP</i> will replace <b>\1</b>, the second match <b>\2</b> and so
+on. Each match in <i>REGEXP</i> must be parenthesized. It replaces only
+the first match. <i>STR</i> is an optional parameter, its default value
+is <b>\1</b>. <i>STR</i> can be a tag variable name.
 
-<DT><CODE>REPLACE_PARAM(<I>NAME[=VALUE]</I>)</CODE>
-<DD>
-This is filter is equivalent to 
-ADD_PARAM(<I>NAME[=VALUE]</I>):DEL_PARAM(<I>NAME</I>). <I>VALUE</I> can be a
+<br><dt><code>REPLACE_ALL(<i>REGEXP</i>[/<i>STR</i>])</code>
+<dd>
+
+<p>Idem as above but replaces all occurences.
+
+<br><dt><code>REPLACE_PARAM(<i>NAME[=VALUE]</i>)</code>
+<dd>
+
+<p>This is filter is equivalent to
+ADD_PARAM(<i>NAME[=VALUE]</i>):DEL_PARAM(<i>NAME</i>). <i>VALUE</i> can be a
 tag variable name.
 
-<DT><CODE>REVERSE</CODE>
-<DD>
-Reverse the string.
+<br><dt><code>REVERSE</code>
+<dd>
 
-<DT><CODE>SIZE</CODE>
-<DD>
-Returns the size (number of characters) of the string value.
+<p>Reverse the string.
 
-<DT><CODE>SLICE(<I>x .. y</I>)</CODE>
-<DD>
-Returns the sub-string starting from position x and ending to position
+<br><dt><code>SIZE</code>
+<dd>
+
+<p>Returns the size (number of characters) of the string value.
+
+<br><dt><code>SLICE(<i>x .. y</i>)</code>
+<dd>
+
+<p>Returns the sub-string starting from position x and ending to position
 y. Note that the string to slice always start from position 1.
 
-<DT><CODE>TRIM</CODE>
-<DD>
-Removes leading and trailing spaces.
+<br><dt><code>TRIM</code>
+<dd>
 
-<DT><CODE>UPPER</CODE>
-<DD>
-Put all characters in the variable in upper-case.
+<p>Removes leading and trailing spaces.
 
-<DT><CODE>WEB_ESCAPE</CODE>
-<DD>
-Replaces characters '&#60;', '&#62;', '"' and '&#38;' by corresponding HTML
-sequences: &#38;lt; &#38;gt; &#38;quot; and &#38;amp; 
+<br><dt><code>UPPER</code>
+<dd>
 
-<DT><CODE>WEB_NBSP</CODE>
-<DD>
-Replaces all spaces by an HTML non breaking space.
+<p>Put all characters in the variable in upper-case.
 
-<DT><CODE>YES_NO</CODE>
-<DD>
-If variable value is <B>True</B> it returns <B>Yes</B>, if <B>False</B> it
-returns <B>No</B>, otherwise does nothing. It keeps the way <B>True/False</B> is
+<br><dt><code>WEB_ESCAPE</code>
+<dd>
+
+<p>Replaces characters '&lt;', '&gt;', '"' and '&amp;' by corresponding HTML
+sequences: &amp;lt; &amp;gt; &amp;quot; and &amp;amp;
+
+<br><dt><code>WEB_NBSP</code>
+<dd>
+
+<p>Replaces all spaces by an HTML non breaking space.
+
+<br><dt><code>YES_NO</code>
+<dd>
+
+<p>If variable value is <b>True</b> it returns <b>Yes</b>, if <b>False</b> it
+returns <b>No</b>, otherwise does nothing. It keeps the way <b>True/False</b> is
 capitalized (all upper, all lower or first letter capital).
 
-</DL>
+</dl>
 
-<P>
-For example:
+<p>For example:
 
-</P>
-
-<PRE>
-If VAR is set to "<I>vector_tag</I>", ONE to "1" and TWO to "2" then:
-
-@_VAR_@                                   -&#62;  vector_tag
-@_UPPER:VAR_@                             -&#62;  VECTOR_TAG
-@_CAPITALIZE:VAR_@                        -&#62;  Vector_Tag
-@_EXIST:VAR_@                             -&#62;  TRUE
-@_UPPER:REVERSE:VAR_@                     -&#62;  GAT_ROTCEV
-@_MATCH(VEC.*):UPPER:VAR_@                -&#62;  TRUE
-@_SLICE(1..6):VAR_@                       -&#62;  vector
-@_REPLACE(([^_]+)):VAR_@                  -&#62;  vector
-@_REPLACE(([a-z]+)_([a-z]+)/\2_\1):VAR_@  -&#62;  tag_vector
-@_"+"(TWO):ONE_@                          -&#62;  3
-@_"-"(TWO):ONE_@                          -&#62;  -1
-</PRE>
+<br><pre>
+If VAR is set to "<i>vector_tag</i>", ONE to "1" and TWO to "2" then:
 
 
+@_VAR_@                                   -&gt;  vector_tag
+@_UPPER:VAR_@                             -&gt;  VECTOR_TAG
+@_CAPITALIZE:VAR_@                        -&gt;  Vector_Tag
+@_EXIST:VAR_@                             -&gt;  TRUE
+@_UPPER:REVERSE:VAR_@                     -&gt;  GAT_ROTCEV
+@_MATCH(VEC.*):UPPER:VAR_@                -&gt;  TRUE
+@_SLICE(1..6):VAR_@                       -&gt;  vector
+@_REPLACE(([^_]+)):VAR_@                  -&gt;  vector
+@_REPLACE(([a-z]+)_([a-z]+)/\2_\1):VAR_@  -&gt;  tag_vector
+@_"+"(TWO):ONE_@                          -&gt;  3
+@_"-"(TWO):ONE_@                          -&gt;  -1
+</pre>
 
-<H3><A NAME="SEC7" HREF="templates_parser.html#TOC7">Attributes</A></H3>
+<p><hr>
+Node:<a name="Attributes">Attributes</a>,
+Previous:<a rel=previous accesskey=p href="#Filters">Filters</a>,
+Up:<a rel=up accesskey=u href="#Filters%20and%20Attributes">Filters and Attributes</a>
+<br>
 
-<P>
-Current supported attributes are:
+<h4>Attributes</h4>
 
-</P>
-<DL COMPACT>
+<p>Current supported attributes are:
 
-<DT><CODE>V'length</CODE>
-<DD>
-Returns the number of item in the composite tag (can be applied only
+<dl>
+
+<br><dt><code>V'length</code>
+<dd>
+
+<p>Returns the number of item in the composite tag (can be applied only
 to a composite tag having a single nested level - a vector).
 
-<DT><CODE>M'Line</CODE>
-<DD>
-Returns the number of line in the composite tag. This is identical to
+<br><dt><code>M'Line</code>
+<dd>
+
+<p>Returns the number of line in the composite tag. This is identical to
 'Length but can be applied only to a composite tag having two nested
 level - a matrix).
 
-<DT><CODE>M'Min_Column</CODE>
-<DD>
-Returns the size of smallest composite tag in M composite tag. This attribute
+<br><dt><code>M'Min_Column</code>
+<dd>
+
+<p>Returns the size of smallest composite tag in M composite tag. This attribute
 can be applied only to a composite tag having two nested level - a matrix.
 
-<DT><CODE>M'Max_Column</CODE>
-<DD>
-Returns the size of largest composite tag in M composite tag. This attribute
+<br><dt><code>M'Max_Column</code>
+<dd>
+
+<p>Returns the size of largest composite tag in M composite tag. This attribute
 can be applied only to a composite tag having two nested level - a matrix.
 
-</DL>
+</dl>
 
-<P>
-For example:
+<p>For example:
 
-</P>
-
-<PRE>
-If VEC is set to "<I>&#60;1 , 2&#62;</I>" and MAT to "<I>&#60;a, b, c&#62; ; &#60;2, 3, 5, 7&#62;</I>" then:
-
-@_VEC'Length_@              -&#62;  2
-@_ADD(3):VEC'Length_@       -&#62;  5
-@_MAT'Line_@                -&#62;  2
-@_MAT'Min_Column_@          -&#62;  3
-@_MAT'Max_Column_@          -&#62;  4
-
-</PRE>
+<br><pre>
+If VEC is set to "<i>&lt;1 , 2&gt;</i>" and MAT to "<i>&lt;a, b, c&gt; ; &lt;2, 3, 5, 7&gt;</i>" then:
 
 
+@_VEC'Length_@              -&gt;  2
+@_ADD(3):VEC'Length_@       -&gt;  5
+@_MAT'Line_@                -&gt;  2
+@_MAT'Min_Column_@          -&gt;  3
+@_MAT'Max_Column_@          -&gt;  4
+</pre>
 
-<H2><A NAME="SEC8" HREF="templates_parser.html#TOC8">Other variable tags</A></H2>
+<p><hr>
+Node:<a name="Other%20variable%20tags">Other variable tags</a>,
+Previous:<a rel=previous accesskey=p href="#Filters%20and%20Attributes">Filters and Attributes</a>,
+Up:<a rel=up accesskey=u href="#Variable%20tags">Variable tags</a>
+<br>
 
-<P>
-There is some specific variables tags that can be used in any
+<h3>Other variable tags</h3>
+
+<p>There is some specific variables tags that can be used in any
 templates. Here is a description of them:
 
-</P>
-<DL COMPACT>
+<dl>
 
-<DT><CODE>NOW</CODE>
-<DD>
-Current date and time with format "YYYY-MM-DD HH:MM:SS".
+<br><dt><code>NOW</code>
+<dd>
 
-<DT><CODE>YEAR</CODE>
-<DD>
-Current year number using 4 digits.
+<p>Current date and time with format "YYYY-MM-DD HH:MM:SS".
 
-<DT><CODE>MONTH</CODE>
-<DD>
-Current month number using 2 digits.
+<br><dt><code>YEAR</code>
+<dd>
 
-<DT><CODE>DAY</CODE>
-<DD>
-Current day number using 2 digits.
+<p>Current year number using 4 digits.
 
-<DT><CODE>HOUR</CODE>
-<DD>
-Current hour using range 0 to 23 using 2 digits.
+<br><dt><code>MONTH</code>
+<dd>
 
-<DT><CODE>MINUTE</CODE>
-<DD>
-Current minute using 2 digits.
+<p>Current month number using 2 digits.
 
-<DT><CODE>SECOND</CODE>
-<DD>
-Current seconds using 2 digits.
+<br><dt><code>DAY</code>
+<dd>
 
-<DT><CODE>MONTH_NAME</CODE>
-<DD>
-Current full month name (January .. December).
+<p>Current day number using 2 digits.
 
-<DT><CODE>DAY_NAME</CODE>
-<DD>
-Current full day name (Monday .. Sunday).
+<br><dt><code>HOUR</code>
+<dd>
 
-</DL>
+<p>Current hour using range 0 to 23 using 2 digits.
 
+<br><dt><code>MINUTE</code>
+<dd>
 
+<p>Current minute using 2 digits.
 
-<H1><A NAME="SEC9" HREF="templates_parser.html#TOC9">Translations</A></H1>
+<br><dt><code>SECOND</code>
+<dd>
 
-<P>
-Associations between variable tags and the template tag names are
-created with one of the <CODE>Assoc</CODE> routines. This set of
-associations are used by the parser (<CODE>Parse</CODE> routine). There is
+<p>Current seconds using 2 digits.
+
+<br><dt><code>MONTH_NAME</code>
+<dd>
+
+<p>Current full month name (January .. December).
+
+<br><dt><code>DAY_NAME</code>
+<dd>
+
+<p>Current full day name (Monday .. Sunday).
+
+</dl>
+
+<p><hr>
+Node:<a name="Translations">Translations</a>,
+Next:<a rel=next accesskey=n href="#Tag%20statements">Tag statements</a>,
+Previous:<a rel=previous accesskey=p href="#Variable%20tags">Variable tags</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
+
+<h2>Translations</h2>
+
+<p>Associations between variable tags and the template tag names are
+created with one of the <code>Assoc</code> routines. This set of
+associations are used by the parser (<code>Parse</code> routine). There is
 two kinds of associations set:
 
-</P>
+<ul>
 
-<UL>
+<li>Translate_Table
 
-<LI>Translate_Table
-
-an array of associations, this is easy to use when the number of
+<p>an array of associations, this is easy to use when the number of
 associations is known at the creation time.
 
-<LI>Translate_Set
+</p><li>Translate_Set
 
-a set of associations, it is possible to insert as many associations
-as needed into this object.
-</UL>
+<p>a set of associations, it is possible to insert as many associations
+as needed into this object. 
+</ul>
 
-<P>
-Note that this difference is only for users, the Templates_Parser
-engine uses only <CODE>Translate_Set</CODE> objects internally as it is much more
+<p>Note that this difference is only for users, the Templates_Parser
+engine uses only <code>Translate_Set</code> objects internally as it is much more
 efficient.
 
-</P>
+<p><hr>
+Node:<a name="Tag%20statements">Tag statements</a>,
+Next:<a rel=next accesskey=n href="#Other%20services">Other services</a>,
+Previous:<a rel=previous accesskey=p href="#Translations">Translations</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
 
+<h2>Tag statements</h2>
 
+<p>There is three different tag statements. A tag statement is surrounded
+by <code>@@</code>. The tag statements are:
 
-<H1><A NAME="SEC10" HREF="templates_parser.html#TOC10">Tag statements</A></H1>
+<ul>
+<li><a accesskey=1 href="#Comments%20tag%20statement">Comments tag statement</a>: 
+<li><a accesskey=2 href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>: 
+<li><a accesskey=3 href="#IF%20tag%20statement">IF tag statement</a>: 
+<li><a accesskey=4 href="#TABLE%20tag%20statement">TABLE tag statement</a>: 
+</ul>
 
-<P>
-There is three different tag statements. A tag statement is surrounded
-by <CODE>@@</CODE>. The tag statements are:
+<p><hr>
+Node:<a name="Comments%20tag%20statement">Comments tag statement</a>,
+Next:<a rel=next accesskey=n href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>,
+Up:<a rel=up accesskey=u href="#Tag%20statements">Tag statements</a>
+<br>
 
-</P>
+<h3>Comments tag statement</h3>
 
-<UL>
-<LI><A HREF="templates_parser.html#SEC11">Comments tag statement</A>
-<LI><A HREF="templates_parser.html#SEC12">INCLUDE tag statement</A>
-<LI><A HREF="templates_parser.html#SEC13">IF tag statement</A>
-<LI><A HREF="templates_parser.html#SEC14">TABLE tag statement</A>
-</UL>
-
-
-
-<H2><A NAME="SEC11" HREF="templates_parser.html#TOC11">Comments tag statement</A></H2>
-
-<P>
-Every line starting with <B>@@--</B> are comments and are completly
+<p>Every line starting with <b>@@-</b> are comments and are completly
 ignored by the parser. The resulting page will have the exact same
 format and number of lines with or without the comments.
 
-</P>
-
-<PRE>
+<br><pre>
 @@-- This template is used to display the client's data
 @@-- It uses the following tags:
 @@--
 @@--    @_CID_@       Client ID
 @@--    @_ITEMS_V_@   List of items (vector tag)
 
-&#60;P&#62;Client @_CID_@
+&lt;P&gt;Client @_CID_@
 
 ...
-</PRE>
+</pre>
 
+<p><hr>
+Node:<a name="INCLUDE%20tag%20statement">INCLUDE tag statement</a>,
+Next:<a rel=next accesskey=n href="#IF%20tag%20statement">IF tag statement</a>,
+Previous:<a rel=previous accesskey=p href="#Comments%20tag%20statement">Comments tag statement</a>,
+Up:<a rel=up accesskey=u href="#Tag%20statements">Tag statements</a>
+<br>
 
+<h3>INCLUDE tag statement</h3>
 
-<H2><A NAME="SEC12" HREF="templates_parser.html#TOC12">INCLUDE tag statement</A></H2>
-
-<P>
-This tag is used to include another template file. This is useful if you
+<p>This tag is used to include another template file. This is useful if you
 have the same header and/or footer in all your HTML pages. For example:
 
-</P>
-
-<PRE>
+<br><pre>
 @@INCLUDE@@ header.tmplt
 
-&#60;P&#62;This is by Web page
+&lt;P&gt;This is by Web page
 
 @@INCLUDE@@ footer.tmplt
-</PRE>
+</pre>
 
-<P>
-It is also possible to pass arguments to the include file. These parameters
+<p>It is also possible to pass arguments to the include file. These parameters
 are put after the include filename. It is possible to reference these
 parameters into the included file with the special variable names
-<CODE>@_$&#60;n&#62;_@</CODE>, where <I>n</I> is the include's parameter indice (0 is
+<code>@_$&lt;n&gt;_@</code>, where <i>n</i> is the include's parameter indice (0 is
 the include filename, 1 the first parameter and so on).
 
-</P>
-
-<PRE>
+<br><pre>
 @@INCLUDE@@ another.tmplt @_VAR_@ azerty
-</PRE>
+</pre>
 
-<P>
-In file <TT>`another.tmplt'</TT>
+<p>In file <code>another.tmplt</code>
 
-</P>
-<DL COMPACT>
+<dl>
+<dt><code>@_$0_@</code>
+<dd>is another.tmplt
+<br><dt><code>@_$1_@</code>
+<dd>is the variable @_VAR_@
+<br><dt><code>@_$2_@</code>
+<dd>is the string "azerty"
+</dl>
 
-<DT><CODE>@_$0_@</CODE>
-<DD>
-is another.tmplt
-<DT><CODE>@_$1_@</CODE>
-<DD>
-is the variable @_VAR_@
-<DT><CODE>@_$2_@</CODE>
-<DD>
-is the string "azerty"
-</DL>
-
-<P>
-If an include variable references a non existing include parameter the
+<p>If an include variable references a non existing include parameter the
 tag is kept as-is.
 
-</P>
+<p><hr>
+Node:<a name="IF%20tag%20statement">IF tag statement</a>,
+Next:<a rel=next accesskey=n href="#TABLE%20tag%20statement">TABLE tag statement</a>,
+Previous:<a rel=previous accesskey=p href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>,
+Up:<a rel=up accesskey=u href="#Tag%20statements">Tag statements</a>
+<br>
 
+<h3>IF tag statement</h3>
 
-<H2><A NAME="SEC13" HREF="templates_parser.html#TOC13">IF tag statement</A></H2>
+<p>This is the conditional tag statement. The complete form is:
 
-<P>
-This is the conditional tag statement. The complete form is:
-
-</P>
-
-<PRE>
-@@IF@@ &#60;expression1&#62;
+<br><pre>
+@@IF@@ &lt;expression1&gt;
    part1
-@@ELSIF@@ &#60;expression2&#62;
+@@ELSIF@@ &lt;expression2&gt;
    part2
 @@ELSE@@
    part3
 @@END_IF@@
-</PRE>
+</pre>
 
-<P>
-The part1 one will be parsed if expression1 evaluate to "TRUE", part2
+<p>The part1 one will be parsed if expression1 evaluate to "TRUE", part2
 will be parsed if expression2 evaluate to "TRUE" and the part3 will
-be parse in any other case. The <CODE>ELSIF</CODE> and <CODE>ELSE</CODE> part are
+be parse in any other case. The <code>ELSIF</code> and <code>ELSE</code> part are
 optional.
 
-</P>
-<P>
-The expression here is composed of boolean variable (or conditional
+<p>The expression here is composed of boolean variable (or conditional
 variable) and/or boolean expression. Recognized operators are:
 
-</P>
-<DL COMPACT>
+<dl>
+<dt><code>A = B</code>
+<dd>Returns TRUE if A equal B
 
-<DT><CODE>A = B</CODE>
-<DD>
-Returns TRUE if A equal B
+<br><dt><code>A /= B</code>
+<dd>Returns TRUE if A is not equal B
 
-<DT><CODE>A /= B</CODE>
-<DD>
-Returns TRUE if A is not equal B
+<br><dt><code>A &gt; B</code>
+<dd>Returns TRUE if A greater than B. If A and B are numbers it returns the
+the number comparison (5 &gt; 003 = TRUE) otherwise it returns the string
+comparison ("5" &gt; "003" = FALSE).
 
-<DT><CODE>A &#62; B</CODE>
-<DD>
-Returns TRUE if A greater than B. If A and B are numbers it returns the
-the number comparison (5 &#62; 003 = TRUE) otherwise it returns the string
-comparison ("5" &#62; "003" = FALSE).
+<br><dt><code>A &gt;= B</code>
+<dd>Returns TRUE if A greater than or equal to B. See above for rule about numbers.
 
-<DT><CODE>A &#62;= B</CODE>
-<DD>
-Returns TRUE if A greater than or equal to B. See above for rule about numbers.
+<br><dt><code>A &lt; B</code>
+<dd>Returns TRUE if A lesser than B. See above for rule about numbers.
 
-<DT><CODE>A &#60; B</CODE>
-<DD>
-Returns TRUE if A lesser than B. See above for rule about numbers.
+<br><dt><code>A &lt;= B</code>
+<dd>Returns TRUE if A lesser than or equal to B. See above for rule about numbers.
 
-<DT><CODE>A &#60;= B</CODE>
-<DD>
-Returns TRUE if A lesser than or equal to B. See above for rule about numbers.
+<br><dt><code>A and B</code>
+<dd>Returns TRUE if A and B is TRUE and FALSE otherwise.
 
-<DT><CODE>A and B</CODE>
-<DD>
-Returns TRUE if A and B is TRUE and FALSE otherwise.
+<br><dt><code>A or B</code>
+<dd>Returns TRUE if A or B is TRUE and FALSE otherwise.
 
-<DT><CODE>A or B</CODE>
-<DD>
-Returns TRUE if A or B is TRUE and FALSE otherwise.
+<br><dt><code>A xor B</code>
+<dd>Returns TRUE if either A or B (but not both) is TRUE and FALSE otherwise.
 
-<DT><CODE>A xor B</CODE>
-<DD>
-Returns TRUE if either A or B (but not both) is TRUE and FALSE otherwise.
+<br><dt><code>not A</code>
+<dd>Returns TRUE if either A is FALSE and FALSE otherwise. 
+</dl>
 
-<DT><CODE>not A</CODE>
-<DD>
-Returns TRUE if either A is FALSE and FALSE otherwise.
-</DL>
-
-<P>
-The default evaluation order is done from left to right, all operators
+<p>The default evaluation order is done from left to right, all operators
 having the same precedence. To build an expression it is possible to
 use the parentheses to change the evaluation order. A value with
 spaces must be quoted as a string. So valid expressions could be:
 
-</P>
+<br><pre>
+@@IF@@ (@_VAR1_@ &gt; 3) or (@_COND1_@ and @_COND2_@)
 
-<PRE>
-@@IF@@ (@_VAR1_@ &#62; 3) or (@_COND1_@ and @_COND2_@)
+@@IF@@ not (@_VAR1_@ &gt; 3) or (@_COND1_@ and @_COND2_@)
 
-@@IF@@ not (@_VAR1_@ &#62; 3) or (@_COND1_@ and @_COND2_@)
-
-@@IF@@ (@_VAR1_@ &#62; 3) and not @_COND1_@
+@@IF@@ (@_VAR1_@ &gt; 3) and not @_COND1_@
 
 @@IF@@ @_VAR1_@ = "a value"
-</PRE>
+</pre>
 
-<P>
-Note also that variables and values can be surrounded by quotes if needed.
+<p>Note also that variables and values can be surrounded by quotes if needed. 
 Quotes are needed if a value contain spaces.
 
-</P>
-<P>
-To generate a conditional variable tag it is possible to use the
-following <B>Templates_Parser</B> function:
+<p>To generate a conditional variable tag it is possible to use the
+following <b>Templates_Parser</b> function:
 
-</P>
+<br><pre>
+<p><b>function</b> Assoc (Variable  : <b>in</b> String;
+                Value     : <b>in</b> Boolean;
+                <b>return</b> Association;
+<i>--  build an Association (Variable = Value) to be added to a</i>
+<i>--  Translate_Table. It set the variable to TRUE or FALSE depending on</i>
+<i>--  Value.</i>
+</pre>
 
-<PRE>
-<B>function</B> Assoc (Variable  : <B>in</B> String;
-                Value     : <B>in</B> Boolean;
-                <B>return</B> Association;
-<I>--  build an Association (Variable = Value) to be added to a</I>
-<I>--  Translate_Table. It set the variable to TRUE or FALSE depending on</I>
-<I>--  Value.</I>
-</PRE>
-
-<P>
-Let's see an example using an <CODE>IF</CODE> tag statement. With the following
+<p>Let's see an example using an <code>IF</code> tag statement. With the following
 template:
 
-</P>
-
-<PRE>
+<br><pre>
 
 @@IF@@ @_USER_@
-   &#60;P&#62;As a <B>use</B>r you have a restricted <B>access</B> to this server.
+   &lt;P&gt;As a <b>use</b>r you have a restricted <b>access</b> to this server.
 @@ELSE@@
-   &#60;P&#62;As an administrator you have full <B>access</B> to this server.
+   &lt;P&gt;As an administrator you have full <b>access</b> to this server.
 @@END_IF@@
+</pre>
 
-</PRE>
+<p>The following program:
 
-<P>
-The following program:
+<br><pre>
 
-</P>
 
-<PRE>
+<p><b>with</b> Ada.Text_IO;
+<b>with</b> Templates_Parser;
 
-<B>with</B> Ada.Text_IO;
-<B>with</B> Templates_Parser;
+<b>procedure</b> User1 <b>is</b>
 
-<B>procedure</B> User1 <B>is</B>
+   Translations : <b>constant</b> Templates_Parser.Translate_Table
+     := (1 =&gt; Templates_Parser.Assoc ("<i>USER</i>", True));
 
-   Translations : <B>constant</B> Templates_Parser.Translate_Table
-     := (1 =&#62; Templates_Parser.Assoc ("<I>USER</I>", True));
-
-<B>begin</B>
+<b>begin</b>
    Ada.Text_IO.Put_Line
-     (Templates_Parser.Parse ("<I>user.tmplt</I>", Translations));
-<B>end</B> User1;
+     (Templates_Parser.Parse ("<i>user.tmplt</i>", Translations));
+<b>end</b> User1;
+</pre>
 
-</PRE>
+<p>Will display:
 
-<P>
-Will display:
+<br><pre>
+&lt;P&gt;As a user you have a restricted access to this server.
+</pre>
 
-</P>
+<p>But the following program:
 
-<PRE>
-   &#60;P&#62;As a user you have a restricted access to this server.
+<br><pre>
 
-</PRE>
 
-<P>
-But the following program:
+<p><b>with</b> Ada.Text_IO;
+<b>with</b> Templates_Parser;
 
-</P>
+<b>procedure</b> User2 <b>is</b>
 
-<PRE>
+   Translations : <b>constant</b> Templates_Parser.Translate_Table
+     := (1 =&gt; Templates_Parser.Assoc ("<i>USER</i>", False));
 
-<B>with</B> Ada.Text_IO;
-<B>with</B> Templates_Parser;
-
-<B>procedure</B> User2 <B>is</B>
-
-   Translations : <B>constant</B> Templates_Parser.Translate_Table
-     := (1 =&#62; Templates_Parser.Assoc ("<I>USER</I>", False));
-
-<B>begin</B>
+<b>begin</b>
    Ada.Text_IO.Put_Line
-     (Templates_Parser.Parse ("<I>user.tmplt</I>", Translations));
-<B>end</B> User2;
+     (Templates_Parser.Parse ("<i>user.tmplt</i>", Translations));
+<b>end</b> User2;
+</pre>
 
-</PRE>
+<p>Will display:
 
-<P>
-Will display:
+<br><pre>
+&lt;P&gt;As an administrator you have full access to this server.
+</pre>
 
-</P>
+<p><hr>
+Node:<a name="TABLE%20tag%20statement">TABLE tag statement</a>,
+Previous:<a rel=previous accesskey=p href="#IF%20tag%20statement">IF tag statement</a>,
+Up:<a rel=up accesskey=u href="#Tag%20statements">Tag statements</a>
+<br>
 
-<PRE>
-   &#60;P&#62;As an administrator you have full access to this server.
+<h3>TABLE tag statement</h3>
 
-</PRE>
-
-
-
-<H2><A NAME="SEC14" HREF="templates_parser.html#TOC14">TABLE tag statement</A></H2>
-
-<P>
-A table tag is useful to generate <CODE>HTML</CODE> table for example. Basically the
-code between the <CODE>@@TABLE@@</CODE> and <CODE>@@END_TABLE@@</CODE> will
+<p>A table tag is useful to generate <code>HTML</code> table for example. Basically the
+code between the <code>@@TABLE@@</code> and <code>@@END_TABLE@@</code> will
 be repeated as many time as the vector tag will have of values. If many
 vector tags are specified in a table statement, the code between the
 table will be repeated a number of time equal to the maximum length of
-all vector tags in the <CODE>TABLE</CODE> tag statement.
+all vector tags in the <code>TABLE</code> tag statement.
 
-</P>
-<P>
-A <CODE>TABLE</CODE> tag statement is a kind of implicit iterator. This is a very
+<p>A <code>TABLE</code> tag statement is a kind of implicit iterator. This is a very
 important concept to build HTML tables. Using a composite tag variable in
-a <CODE>@@TABLE@@</CODE> tag statement it is possible to build very
+a <code>@@TABLE@@</code> tag statement it is possible to build very
 complex Web pages.
 
-</P>
-<P>
-Syntax:
+<p>Syntax:
 
-</P>
-
-<PRE>
+<br><pre>
 @@TABLE@@ [@@TERMINATE_SECTIONS@@]
    ...
 [@@SECTION@@]
    ...
 @@END_TABLE@@
-</PRE>
+</pre>
 
-<P>
-Let's have an example. With the following template:
+<p>Let's have an example. With the following template:
 
-</P>
+<br><pre>
 
-<PRE>
 
-&#60;P&#62;Here <B>is</B> the ages <B>of</B> some peoples:
+&lt;P&gt;Here <b>is</b> the ages <b>of</b> some peoples:
 
-&#60;TABLE&#62;
+&lt;TABLE&gt;
 @@TABLE@@
-   &#60;TR&#62;
-   &#60;TD&#62;@_NAME_@
-   &#60;TD&#62;@_AGE_@
+   &lt;TR&gt;
+   &lt;TD&gt;@_NAME_@
+   &lt;TD&gt;@_AGE_@
 @@END_TABLE@@
-&#60;/TABLE&#62;
+&lt;/TABLE&gt;
+</pre>
 
-</PRE>
+<p>And the following program:
 
-<P>
-And the following program:
+<br><pre>
 
-</P>
 
-<PRE>
+<p><b>with</b> Ada.Text_IO;
+<b>with</b> Templates_Parser;
 
-<B>with</B> Ada.Text_IO;
-<B>with</B> Templates_Parser;
+<b>procedure</b> Table <b>is</b>
 
-<B>procedure</B> Table <B>is</B>
+   <b>use</b> <b>type</b> Templates_Parser.Vector_Tag;
 
-   <B>use</B> <B>type</B> Templates_Parser.Vector_Tag;
+   Names : <b>constant</b> Templates_Parser.Vector_Tag
+     := +"<i>Bob</i>" &amp; "<i>Bill</i>" &amp; "<i>Toto</i>";
+   Ages  : <b>constant</b> Templates_Parser.Vector_Tag
+     := +"<i>10</i>" &amp; "<i>30</i>" &amp; "<i>5</i>";
 
-   Names : <B>constant</B> Templates_Parser.Vector_Tag
-     := +"<I>Bob</I>" &#38; "<I>Bill</I>" &#38; "<I>Toto</I>";
-   Ages  : <B>constant</B> Templates_Parser.Vector_Tag
-     := +"<I>10</I>" &#38; "<I>30</I>" &#38; "<I>5</I>";
+   Translations : <b>constant</b> Templates_Parser.Translate_Table
+     := (1 =&gt; Templates_Parser.Assoc ("<i>NAME</i>", Names),
+         2 =&gt; Templates_Parser.Assoc ("<i>AGE</i>", Ages));
 
-   Translations : <B>constant</B> Templates_Parser.Translate_Table
-     := (1 =&#62; Templates_Parser.Assoc ("<I>NAME</I>", Names),
-         2 =&#62; Templates_Parser.Assoc ("<I>AGE</I>", Ages));
-
-<B>begin</B>
+<b>begin</b>
    Ada.Text_IO.Put_Line
-     (Templates_Parser.Parse ("<I>table.tmplt</I>", Translations));
-<B>end</B> Table;
+     (Templates_Parser.Parse ("<i>table.tmplt</i>", Translations));
+<b>end</b> Table;
+</pre>
 
-</PRE>
+<p>The following output will be generated:
 
-<P>
-The following output will be generated:
+<br><pre>
 
-</P>
+&lt;P&gt;Here is the ages of some peoples:
 
-<PRE>
+&lt;TABLE&gt;
+   &lt;TR&gt;
+   &lt;TD&gt;Bob
+   &lt;TD&gt;10
+   &lt;TR&gt;
+   &lt;TD&gt;Bill
+   &lt;TD&gt;30
+   &lt;TR&gt;
+   &lt;TD&gt;Toto
+   &lt;TD&gt;5
+&lt;/TABLE&gt;
+</pre>
 
-&#60;P&#62;Here is the ages of some peoples:
-
-&#60;TABLE&#62;
-   &#60;TR&#62;
-   &#60;TD&#62;Bob
-   &#60;TD&#62;10
-   &#60;TR&#62;
-   &#60;TD&#62;Bill
-   &#60;TD&#62;30
-   &#60;TR&#62;
-   &#60;TD&#62;Toto
-   &#60;TD&#62;5
-&#60;/TABLE&#62;
-</PRE>
-
-<P>
-Note that we use vector tag variables here. A discrete variable tag in a table
+<p>Note that we use vector tag variables here. A discrete variable tag in a table
 will be replaced by the same (the only one) value for each row. A vector
 tag outside a table will be displayed as a list of values, each value
 being separated by a specified separator. The default is a comma and a
 space ", ".
 
-</P>
-<P>
-The complete prototype for the <CODE>Tag</CODE> Assoc function is:
+<p>The complete prototype for the <code>Tag</code> Assoc function is:
 
-</P>
+<br><pre>
+<p><b>function</b> Assoc (Variable  : <b>in</b> String;
+                   Value     : <b>in</b> Tag;
+                   Separator : <b>in</b> String    := Default_Separator;
+                   <b>return</b> Association;
+<i>--  Build an Association (Variable = Value) to be added to Translate_Table.</i>
+<i>--  This is a tag association. Separator will be used when outputting the</i>
+<i>--  a flat representation of the Tag (outside a table statement).</i>
+</pre>
 
-<PRE>
-   <B>function</B> Assoc (Variable  : <B>in</B> String;
-                   Value     : <B>in</B> Tag;
-                   Separator : <B>in</B> String    := Default_Separator;
-                   <B>return</B> Association;
-<I>--  Build an Association (Variable = Value) to be added to Translate_Table.</I>
-<I>--  This is a tag association. Separator will be used when outputting the</I>
-<I>--  a flat representation of the Tag (outside a table statement).</I>
-</PRE>
-
-<P>
-A table can contain many sections. The section to use will be selected
+<p>A table can contain many sections. The section to use will be selected
 depending on the current line. For example, a table with two sections
 will use different data on even and odd lines. This is useful when you
 want to alternate the line background color for a better readability
 when working on HTML pages.
 
-</P>
-<P>
-A table with sections can have the modifier
-<CODE>@@TERMINATE_SECTIONS@@</CODE>. This ensure that the table output will end
+<p>A table with sections can have the modifier
+<code>@@TERMINATE_SECTIONS@@</code>. This ensure that the table output will end
 with the last section. If the number of data in the vector variable tag
 is not a multiple of the number of sections then the remaining section
 will be complete with empty tag value.
 
-</P>
+<br><pre>
 
-<PRE>
 
-&#60;P&#62;Here are some available computer devices:
+&lt;P&gt;Here are some available computer devices:
 
-&#60;TABLE&#62;
+&lt;TABLE&gt;
 @@TABLE@@
-   &#60;TR BGCOLOR=#F00&#62;
-   &#60;TD&#62;@_DEVICES_@
-   &#60;TD&#62;@_PRICES_@
+   &lt;TR BGCOLOR=#F00&gt;
+   &lt;TD&gt;@_DEVICES_@
+   &lt;TD&gt;@_PRICES_@
 @@SECTION@@
-   &#60;TR BGCOLOR=#00F&#62;
-   &#60;TD&#62;@_DEVICES_@
-   &#60;TD&#62;@_PRICES_@
+   &lt;TR BGCOLOR=#00F&gt;
+   &lt;TD&gt;@_DEVICES_@
+   &lt;TD&gt;@_PRICES_@
 @@END_TABLE@@
-&#60;/TABLE&#62;
+&lt;/TABLE&gt;
 
-&#60;TABLE&#62;
+&lt;TABLE&gt;
 @@TABLE@@ @@TERMINATE_SECTIONS@@
-   &#60;TR&#62;
-   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
-   &#60;TD WIDTH=150&#62;@_DEVICES_@
+   &lt;TR&gt;
+   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD WIDTH=150&gt;@_DEVICES_@
 @@SECTION@@
-   &#60;TD WIDTH=150&#62;@_DEVICES_@
+   &lt;TD WIDTH=150&gt;@_DEVICES_@
 @@SECTION@@
-   &#60;TD WIDTH=150&#62;@_DEVICES_@
-   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
+   &lt;TD WIDTH=150&gt;@_DEVICES_@
+   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
 @@END_TABLE@@
-&#60;/TABLE&#62;
+&lt;/TABLE&gt;
+</pre>
 
-</PRE>
+<p>And the following program:
 
-<P>
-And the following program:
+<br><pre>
 
-</P>
 
-<PRE>
+<p><b>with</b> Ada.Text_IO;
+<b>with</b> Templates_Parser;
 
-<B>with</B> Ada.Text_IO;
-<B>with</B> Templates_Parser;
+<b>procedure</b> Table_Section <b>is</b>
 
-<B>procedure</B> Table_Section <B>is</B>
+   <b>use</b> <b>type</b> Templates_Parser.Vector_Tag;
 
-   <B>use</B> <B>type</B> Templates_Parser.Vector_Tag;
+   Devices : <b>constant</b> Templates_Parser.Vector_Tag
+     := +"<i>Screen</i>" &amp; "<i>Keyboard</i>" &amp; "<i>Mouse</i>" &amp; "<i>Hard Drive</i>";
+   Prices  : <b>constant</b> Templates_Parser.Vector_Tag
+     := +"<i>$500</i>" &amp; "<i>$20</i>" &amp; "<i>$15</i>" &amp; "<i>$140</i>";
 
-   Devices : <B>constant</B> Templates_Parser.Vector_Tag
-     := +"<I>Screen</I>" &#38; "<I>Keyboard</I>" &#38; "<I>Mouse</I>" &#38; "<I>Hard Drive</I>";
-   Prices  : <B>constant</B> Templates_Parser.Vector_Tag
-     := +"<I>$500</I>" &#38; "<I>$20</I>" &#38; "<I>$15</I>" &#38; "<I>$140</I>";
+   Translations : <b>constant</b> Templates_Parser.Translate_Table
+     := (1 =&gt; Templates_Parser.Assoc ("<i>DEVICES</i>", Devices),
+         2 =&gt; Templates_Parser.Assoc ("<i>PRICES</i>", Prices));
 
-   Translations : <B>constant</B> Templates_Parser.Translate_Table
-     := (1 =&#62; Templates_Parser.Assoc ("<I>DEVICES</I>", Devices),
-         2 =&#62; Templates_Parser.Assoc ("<I>PRICES</I>", Prices));
-
-<B>begin</B>
+<b>begin</b>
    Ada.Text_IO.Put_Line
-     (Templates_Parser.Parse ("<I>table_section.tmplt</I>", Translations));
-<B>end</B> Table_Section;
+     (Templates_Parser.Parse ("<i>table_section.tmplt</i>", Translations));
+<b>end</b> Table_Section;
+</pre>
 
-</PRE>
+<p>The following output will be generated:
 
-<P>
-The following output will be generated:
+<br><pre>
 
-</P>
+&lt;P&gt;Here are some available computer devices:
 
-<PRE>
+&lt;TABLE&gt;
+   &lt;TR BGCOLOR=#F00&gt;
+   &lt;TD&gt;Screen
+   &lt;TD&gt;$500
+   &lt;TR BGCOLOR=#00F&gt;
+   &lt;TD&gt;Keyboard
+   &lt;TD&gt;$20
+   &lt;TR BGCOLOR=#F00&gt;
+   &lt;TD&gt;Mouse
+   &lt;TD&gt;$15
+   &lt;TR BGCOLOR=#00F&gt;
+   &lt;TD&gt;Hard Drive
+   &lt;TD&gt;$140
+&lt;/TABLE&gt;
 
-&#60;P&#62;Here are some available computer devices:
+&lt;TABLE&gt;
+   &lt;TR&gt;
+   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD WIDTH=150&gt;Screen
+   &lt;TD WIDTH=150&gt;Keyboard
+   &lt;TD WIDTH=150&gt;Mouse
+   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TR&gt;
+   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+   &lt;TD WIDTH=150&gt;Hard Drive
+   &lt;TD WIDTH=150&gt;
+   &lt;TD WIDTH=150&gt;
+   &lt;TD BGCOLOR=#00F WIDTH=10&gt;
+&lt;/TABLE&gt;
+</pre>
 
-&#60;TABLE&#62;
-   &#60;TR BGCOLOR=#F00&#62;
-   &#60;TD&#62;Screen
-   &#60;TD&#62;$500
-   &#60;TR BGCOLOR=#00F&#62;
-   &#60;TD&#62;Keyboard
-   &#60;TD&#62;$20
-   &#60;TR BGCOLOR=#F00&#62;
-   &#60;TD&#62;Mouse
-   &#60;TD&#62;$15
-   &#60;TR BGCOLOR=#00F&#62;
-   &#60;TD&#62;Hard Drive
-   &#60;TD&#62;$140
-&#60;/TABLE&#62;
+<p>Into a table construct there are some additional variable tags available:
 
-&#60;TABLE&#62;
-   &#60;TR&#62;
-   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
-   &#60;TD WIDTH=150&#62;Screen
-   &#60;TD WIDTH=150&#62;Keyboard
-   &#60;TD WIDTH=150&#62;Mouse
-   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
-   &#60;TR&#62;
-   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
-   &#60;TD WIDTH=150&#62;Hard Drive
-   &#60;TD WIDTH=150&#62;
-   &#60;TD WIDTH=150&#62;
-   &#60;TD BGCOLOR=#00F WIDTH=10&#62;
-&#60;/TABLE&#62;
-</PRE>
+<dl>
+<dt><code>@_UP_TABLE_LINE_@</code>
+<dd>
 
-<P>
-Into a table construct there are some additional variable tags available:
-
-</P>
-<DL COMPACT>
-
-<DT><CODE>@_UP_TABLE_LINE_@</CODE>
-<DD>
-This tag will be replaced by the table line number of the upper table
+<p>This tag will be replaced by the table line number of the upper table
 statement. It will be set to 0 outside a table statement or inside a
 single table statement.
 
-<DT><CODE>@_TABLE_LINE_@</CODE>
-<DD>
-This tag will be replaced by the current table line number. It will be
+<br><dt><code>@_TABLE_LINE_@</code>
+<dd>
+
+<p>This tag will be replaced by the current table line number. It will be
 replaced by 0 outside a table statement.
 
-<DT><CODE>@_NUMBER_LINE_@</CODE>
-<DD>
-This is the number of line displayed in the table. It will be replaced
+<br><dt><code>@_NUMBER_LINE_@</code>
+<dd>
+
+<p>This is the number of line displayed in the table. It will be replaced
 by 0 outside a table statement.
 
-<DT><CODE>@_TABLE_LEVEL_@</CODE>
-<DD>
-This is the table level number. A table construct declared in a table
+<br><dt><code>@_TABLE_LEVEL_@</code>
+<dd>
+
+<p>This is the table level number. A table construct declared in a table
 has a level value of 2.  It will be replaced by 0 outside a table statement.
 
-</DL>
+</dl>
 
-<P>
-Let's have a look at a more complex example with mixed IF and TABLE tag
+<p>Let's have a look at a more complex example with mixed IF and TABLE tag
 statement.
 
-</P>
-<P>
-Here is the template:
+<p>Here is the template:
 
-</P>
+<br><pre>
 
-<PRE>
 
-Hello here are a list <B>of</B> devices:
+Hello here are a list <b>of</b> devices:
 
-&#60;table&#62;
-&#60;tr&#62;
-&#60;th&#62;Device Name
-&#60;th&#62;Price
-&#60;th&#62;Order
+&lt;table&gt;
+&lt;tr&gt;
+&lt;th&gt;Device Name
+&lt;th&gt;Price
+&lt;th&gt;Order
 
 @@TABLE@@
-&#60;tr&#62;
-&#60;td&#62;@_DEVICES_@
-&#60;td&#62;@_PRICES_@
+&lt;tr&gt;
+&lt;td&gt;@_DEVICES_@
+&lt;td&gt;@_PRICES_@
 
-&#60;td&#62;
+&lt;td&gt;
 @@IF@@ @_AVAILABLE_@
-&#60;a href="<I>/order?DEVICE=@_DEVICES_@</I>"&#62;Order
+&lt;a href="<i>/order?DEVICE=@_DEVICES_@</i>"&gt;Order
 @@ELSE@@
 Sorry, not available
 @@END_IF@@
 
 @@END_TABLE@@
+</pre>
 
-</PRE>
+<p>And the following program:
 
-<P>
-And the following program:
+<br><pre>
 
-</P>
 
-<PRE>
+<p><b>with</b> Ada.Text_IO;
+<b>with</b> Templates_Parser;
 
-<B>with</B> Ada.Text_IO;
-<B>with</B> Templates_Parser;
+<b>procedure</b> Table_If <b>is</b>
 
-<B>procedure</B> Table_If <B>is</B>
+   <b>use</b> <b>type</b> Templates_Parser.Vector_Tag;
 
-   <B>use</B> <B>type</B> Templates_Parser.Vector_Tag;
+   <b>function</b> In_Stock (Device : <b>in</b> String) <b>return</b> Boolean;
+   -- <i> Complex function. Does a SQL access to the right database to know if</i>
+   -- <i> the Device is available and thus can be ordered.</i>
 
-   <B>function</B> In_Stock (Device : <B>in</B> String) <B>return</B> Boolean;
-   -- <I> Complex function. Does a SQL access to the right database to know if</I>
-   -- <I> the Device is available and thus can be ordered.</I>
-
-   <B>procedure</B> Add (Device, Price : <B>in</B> String);
-   -- <I> Add the device into the list to be displayed.</I>
+   <b>procedure</b> Add (Device, Price : <b>in</b> String);
+   -- <i> Add the device into the list to be displayed.</i>
 
    Devices   : Templates_Parser.Tag;
    Prices    : Templates_Parser.Tag;
    Available : Templates_Parser.Tag;
 
    ---------
-   -- <I>Add --</I>
+   -- <i>Add --</i>
    ---------
 
-   <B>procedure</B> Add (Device, Price : <B>in</B> String) <B>is</B>
-   <B>begin</B>
-      Devices   := Devices &#38; Device;
-      Prices    := Prices &#38; Price;
-      Available := Available &#38; In_Stock (Device);
-   <B>end</B> Add;
+   <b>procedure</b> Add (Device, Price : <b>in</b> String) <b>is</b>
+   <b>begin</b>
+      Devices   := Devices &amp; Device;
+      Prices    := Prices &amp; Price;
+      Available := Available &amp; In_Stock (Device);
+   <b>end</b> Add;
 
    --------------
-   -- <I>In_Stock --</I>
+   -- <i>In_Stock --</i>
    --------------
 
-   <B>function</B> In_Stock (Device : <B>in</B> String) <B>return</B> Boolean <B>is</B>
-   <B>begin</B>
-      <B>if</B> Device = "<I>Keyboard</I>" <B>then</B>
-         <B>return</B> True;
-      <B>else</B>
-         <B>return</B> False;
-      <B>end</B> <B>if</B>;
-   <B>end</B> In_Stock;
+   <b>function</b> In_Stock (Device : <b>in</b> String) <b>return</b> Boolean <b>is</b>
+   <b>begin</b>
+      <b>if</b> Device = "<i>Keyboard</i>" <b>then</b>
+         <b>return</b> True;
+      <b>else</b>
+         <b>return</b> False;
+      <b>end</b> <b>if</b>;
+   <b>end</b> In_Stock;
 
    Translations : Templates_Parser.Translate_Table (1 .. 3);
 
-<B>begin</B>
-   Add ("<I>Screen</I>", "<I>$500</I>");
-   Add ("<I>Keyboard</I>", "<I>$15</I>");
-   Add ("<I>Mouse</I>", "<I>$15</I>");
-   Add ("<I>Hard Drive</I>", "<I>$140</I>");
+<b>begin</b>
+   Add ("<i>Screen</i>", "<i>$500</i>");
+   Add ("<i>Keyboard</i>", "<i>$15</i>");
+   Add ("<i>Mouse</i>", "<i>$15</i>");
+   Add ("<i>Hard Drive</i>", "<i>$140</i>");
 
-   Translations := (Templates_Parser.Assoc ("<I>DEVICES</I>", Devices),
-                    Templates_Parser.Assoc ("<I>PRICES</I>", Prices),
-                    Templates_Parser.Assoc ("<I>AVAILABLE</I>", Available));
+   Translations := (Templates_Parser.Assoc ("<i>DEVICES</i>", Devices),
+                    Templates_Parser.Assoc ("<i>PRICES</i>", Prices),
+                    Templates_Parser.Assoc ("<i>AVAILABLE</i>", Available));
 
    Ada.Text_IO.Put_Line
-     (Templates_Parser.Parse ("<I>table_if.tmplt</I>", Translations));
-<B>end</B> Table_If;
+     (Templates_Parser.Parse ("<i>table_if.tmplt</i>", Translations));
+<b>end</b> Table_If;
+</pre>
 
-</PRE>
+<p>The following output will be generated:
 
-<P>
-The following output will be generated:
-
-</P>
-
-<PRE>
+<br><pre>
 
 Hello here are a list of devices:
 
-&#60;table&#62;
-&#60;tr&#62;
-&#60;th&#62;Device Name
-&#60;th&#62;Price
-&#60;th&#62;Order
+&lt;table&gt;
+&lt;tr&gt;
+&lt;th&gt;Device Name
+&lt;th&gt;Price
+&lt;th&gt;Order
 
-&#60;tr&#62;
-&#60;td&#62;Screen
-&#60;td&#62;$500
+&lt;tr&gt;
+&lt;td&gt;Screen
+&lt;td&gt;$500
 
-&#60;td&#62;
+&lt;td&gt;
 Sorry, not available
 
-&#60;tr&#62;
-&#60;td&#62;Keyboard
-&#60;td&#62;$15
+&lt;tr&gt;
+&lt;td&gt;Keyboard
+&lt;td&gt;$15
 
-&#60;td&#62;
-&#60;a href="/order?DEVICE=Keyboard"&#62;Order
+&lt;td&gt;
+&lt;a href="/order?DEVICE=Keyboard"&gt;Order
 
-&#60;tr&#62;
-&#60;td&#62;Mouse
-&#60;td&#62;$15
+&lt;tr&gt;
+&lt;td&gt;Mouse
+&lt;td&gt;$15
 
-&#60;td&#62;
+&lt;td&gt;
 Sorry, not available
 
-&#60;tr&#62;
-&#60;td&#62;Hard Drive
-&#60;td&#62;$140
+&lt;tr&gt;
+&lt;td&gt;Hard Drive
+&lt;td&gt;$140
 
-&#60;td&#62;
+&lt;td&gt;
 Sorry, not available
+</pre>
 
-
-</PRE>
-
-<P>
-Table tag statements can also be used with matrix tag or more nested
+<p>Table tag statements can also be used with matrix tag or more nested
 tag variables. In this case, for a tag variable with N nested level,
-the Nth closest enclosing <CODE>TABLE</CODE> tag statement will be used for
+the Nth closest enclosing <code>TABLE</code> tag statement will be used for
 the corresponding indices. If there is not enough indices, the last
 axis are just streamed as a single text value.
 
-</P>
-<P>
-Let's see what happen for a matrix tag:
+<p>Let's see what happen for a matrix tag:
 
-</P>
+<ol type=1 start=1>
 
-<OL>
-
-<LI>Inside a table of level 2 (a TABLE tag statement inside a TABLE tag
-
+</p><li>Inside a table of level 2 (a TABLE tag statement inside a TABLE tag
 statement).
 
-In this case the first <CODE>TABLE</CODE> iterates through the matrix lines.
+<p>In this case the first <code>TABLE</code> iterates through the matrix lines. 
 First iteration will use the first matrix's vector, second
 iteration will use second matrix's vector and so on. And the second
-<CODE>TABLE</CODE> will be use to iterate through the vector's values.
+<code>TABLE</code> will be use to iterate through the vector's values.
 
-<LI>Inside a table of level 1.
+</p><li>Inside a table of level 1.
 
-In this case the <CODE>TABLE</CODE> iterates through the matrix lines. First
+<p>In this case the <code>TABLE</code> iterates through the matrix lines. First
 iteration will use the first matrix's vector, second iteration will
 use second matrix's vector and so on. Each vector is then converted to
 a string by concatenating all values using the specified separator
-(see Assoc constructor for Tag or <CODE>Set_Separator</CODE> routine).
+(see Assoc constructor for Tag or <code>Set_Separator</code> routine).
 
-<LI>Outside a table statement.
+</p><li>Outside a table statement.
 
-In this case the matrix is converted to a string. Each line represents
+<p>In this case the matrix is converted to a string. Each line represents
 a vector converted as a string using the supplied separator (see point
 2 above), and each vector is separated by an ASCII.LF character. The
-separators to use for each level can be specified using <CODE>Set_Separator</CODE>.
+separators to use for each level can be specified using <code>Set_Separator</code>.
 
-</OL>
+</ol>
 
-<P>
-Let's look at an example, with the following template:
+<p>Let's look at an example, with the following template:
 
-</P>
+<br><pre>
 
-<PRE>
 
-A matrix <B>in</B>side a table <B>of</B> level 2:
+A matrix <b>in</b>side a table <b>of</b> level 2:
 
 @@TABLE@@
-&#60;tr&#62;
+&lt;tr&gt;
 @@TABLE@@
-&#60;td&#62;
+&lt;td&gt;
 @_MAT_@
-&#60;/td&#62;
+&lt;/td&gt;
 @@END_TABLE@@
-&#60;/tr&#62;
+&lt;/tr&gt;
 
 @@END_TABLE@@
 
-The same matrix <B>in</B>side a single table:
+The same matrix <b>in</b>side a single table:
 
 @@TABLE@@
-&#60;tr&#62;
-&#60;td&#62;
+&lt;tr&gt;
+&lt;td&gt;
 @_MAT_@
-&#60;/tr&#62;
+&lt;/tr&gt;
 
 @@END_TABLE@@
 
-The same matrix <B>out</B>side a table:
+The same matrix <b>out</b>side a table:
 
 @_MAT_@
+</pre>
 
-</PRE>
+<p>Using the program:
 
-<P>
-Using the program:
+<br><pre>
 
-</P>
 
-<PRE>
+<p><b>with</b> Ada.Text_IO;
+<b>with</b> Templates_Parser;
 
-<B>with</B> Ada.Text_IO;
-<B>with</B> Templates_Parser;
+<b>procedure</b> Matrix <b>is</b>
 
-<B>procedure</B> Matrix <B>is</B>
+   <b>package</b> TP renames Templates_Parser;
 
-   <B>package</B> TP renames Templates_Parser;
+   <b>use</b> <b>type</b> TP.Vector_Tag;
+   <b>use</b> <b>type</b> TP.Matrix_Tag;
 
-   <B>use</B> <B>type</B> TP.Vector_Tag;
-   <B>use</B> <B>type</B> TP.Matrix_Tag;
+   V1 : <b>constant</b> TP.Vector_Tag := +"<i>A1.1</i>" &amp; "<i>A1.2</i>";
+   V2 : <b>constant</b> TP.Vector_Tag := +"<i>A2.1</i>" &amp; "<i>A2.2</i>";
+   V3 : <b>constant</b> TP.Vector_Tag := +"<i>A3.1</i>" &amp; "<i>A3.2</i>";
 
-   V1 : <B>constant</B> TP.Vector_Tag := +"<I>A1.1</I>" &#38; "<I>A1.2</I>";
-   V2 : <B>constant</B> TP.Vector_Tag := +"<I>A2.1</I>" &#38; "<I>A2.2</I>";
-   V3 : <B>constant</B> TP.Vector_Tag := +"<I>A3.1</I>" &#38; "<I>A3.2</I>";
+   M  : <b>constant</b> TP.Matrix_Tag := +V1 &amp; V2 &amp; V3;
 
-   M  : <B>constant</B> TP.Matrix_Tag := +V1 &#38; V2 &#38; V3;
-
-<B>begin</B>
+<b>begin</b>
    Ada.Text_IO.Put_Line
-     (TP.Parse ("<I>matrix.tmplt</I>",
-                TP.Translate_Table'(1 =&#62; TP.Assoc ("<I>MAT</I>", M))));
-<B>end</B> Matrix;
+     (TP.Parse ("<i>matrix.tmplt</i>",
+                TP.Translate_Table'(1 =&gt; TP.Assoc ("<i>MAT</i>", M))));
+<b>end</b> Matrix;
+</pre>
 
-</PRE>
+<p>We get the following result:
 
-<P>
-We get the following result:
-
-</P>
-
-<PRE>
+<br><pre>
 
 A matrix inside a table of level 2:
 
-&#60;tr&#62;
-&#60;td&#62;
+&lt;tr&gt;
+&lt;td&gt;
 A1.1
-&#60;/td&#62;
-&#60;td&#62;
+&lt;/td&gt;
+&lt;td&gt;
 A1.2
-&#60;/td&#62;
-&#60;/tr&#62;
+&lt;/td&gt;
+&lt;/tr&gt;
 
-&#60;tr&#62;
-&#60;td&#62;
+&lt;tr&gt;
+&lt;td&gt;
 A2.1
-&#60;/td&#62;
-&#60;td&#62;
+&lt;/td&gt;
+&lt;td&gt;
 A2.2
-&#60;/td&#62;
-&#60;/tr&#62;
+&lt;/td&gt;
+&lt;/tr&gt;
 
-&#60;tr&#62;
-&#60;td&#62;
+&lt;tr&gt;
+&lt;td&gt;
 A3.1
-&#60;/td&#62;
-&#60;td&#62;
+&lt;/td&gt;
+&lt;td&gt;
 A3.2
-&#60;/td&#62;
-&#60;/tr&#62;
+&lt;/td&gt;
+&lt;/tr&gt;
 
 
 The same matrix inside a single table:
 
-&#60;tr&#62;
-&#60;td&#62;
+&lt;tr&gt;
+&lt;td&gt;
 A1.1, A1.2
-&#60;/tr&#62;
+&lt;/tr&gt;
 
-&#60;tr&#62;
-&#60;td&#62;
+&lt;tr&gt;
+&lt;td&gt;
 A2.1, A2.2
-&#60;/tr&#62;
+&lt;/tr&gt;
 
-&#60;tr&#62;
-&#60;td&#62;
+&lt;tr&gt;
+&lt;td&gt;
 A3.1, A3.2
-&#60;/tr&#62;
+&lt;/tr&gt;
 
 
 The same matrix outside a table:
@@ -1644,288 +1580,683 @@ The same matrix outside a table:
 A1.1, A1.2
 A2.1, A2.2
 A3.1, A3.2
-</PRE>
+</pre>
 
+<p><hr>
+Node:<a name="Other%20services">Other services</a>,
+Next:<a rel=next accesskey=n href="#Last%20notes">Last notes</a>,
+Previous:<a rel=previous accesskey=p href="#Tag%20statements">Tag statements</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
 
+<h2>Other services</h2>
 
-<H1><A NAME="SEC15" HREF="templates_parser.html#TOC15">Last notes</A></H1>
+<ul>
+<li><a accesskey=1 href="#Tag%20utils">Tag utils</a>: 
+<li><a accesskey=2 href="#XML%20representation">XML representation</a>: 
+<li><a accesskey=3 href="#Debug">Debug</a>: 
+</ul>
 
-<P>
-The templates parser has be written to parse <CODE>HTML</CODE> page but it is usable
-with any king of files. There is nothing hard coded for <CODE>HTML</CODE>, it is then
-possible to use it with plain text files, <CODE>XML</CODE> files, <CODE>SGML</CODE> files
+<p><hr>
+Node:<a name="Tag%20utils">Tag utils</a>,
+Next:<a rel=next accesskey=n href="#XML%20representation">XML representation</a>,
+Up:<a rel=up accesskey=u href="#Other%20services">Other services</a>
+<br>
+
+<h3>Tag utils</h3>
+
+<p>The child package <code>Utils</code>, see <a href="#Templates_Parser.Utils">Templates_Parser.Utils</a>
+contains a routine to encode a Tag variable into a string and the
+inverse routine that build a Tag given it's string
+representation. This is usefuln for example, in the context of AWS to
+store a Tag into a session variable. See AWS project.
+
+<p><hr>
+Node:<a name="XML%20representation">XML representation</a>,
+Next:<a rel=next accesskey=n href="#Debug">Debug</a>,
+Previous:<a rel=previous accesskey=p href="#Tag%20utils">Tag utils</a>,
+Up:<a rel=up accesskey=u href="#Other%20services">Other services</a>
+<br>
+
+<h3>XML representation</h3>
+
+<p>The child package <code>XML</code>, see <a href="#Templates_Parser.XML">Templates_Parser.XML</a> contains
+routines to save a <code>Translation_Set</code> into an XML document or to
+create a <code>Translation_Set</code> by loading an XML document. The XML
+document must conforms to a specific <code>DTD</code> (see Ada spec file).
+
+<p><hr>
+Node:<a name="Debug">Debug</a>,
+Previous:<a rel=previous accesskey=p href="#XML%20representation">XML representation</a>,
+Up:<a rel=up accesskey=u href="#Other%20services">Other services</a>
+<br>
+
+<h3>Debug</h3>
+
+<p>A set of routine to help debug the <code>Templates_Parser</code> engine,
+see <a href="#Templates_Parser.Debug">Templates_Parser.Debug</a>. For example, <code>Debug.Print_Tree</code>
+will display, to the standard output, a representation of the internal
+semantic tree for a template file.
+
+<p><hr>
+Node:<a name="Last%20notes">Last notes</a>,
+Next:<a rel=next accesskey=n href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>,
+Previous:<a rel=previous accesskey=p href="#Other%20services">Other services</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
+
+<h2>Last notes</h2>
+
+<p>The templates parser has be written to parse <code>HTML</code> page but it is usable
+with any king of files. There is nothing hard coded for <code>HTML</code>, it is then
+possible to use it with plain text files, <code>XML</code> files, <code>SGML</code> files
 or whatever as long as it is not a binary file.
 
-</P>
-<P>
+<br><p>
+<br><p>
+<p>All tag statements can be mixed together. A <code>TABLE</code> tag statement can be
+put in an <code>IF</code> tag statement. An <code>IF</code> tag statement can be put
+in a <code>TABLE</code> tag statement. Idem for the <code>INCLUDE</code> tag statement.
 
-<P>
-All tag statements can be mixed together. A <CODE>TABLE</CODE> tag statement can be
-put in an <CODE>IF</CODE> tag statement. An <CODE>IF</CODE> tag statement can be put
-in a <CODE>TABLE</CODE> tag statement. Idem for the <CODE>INCLUDE</CODE> tag statement.
+<p>Download page is &lt;<code>http://www.obry.org/</code>&gt;.
 
-</P>
-<P>
-Download page is <A HREF="http://www.obry.org/">http://www.obry.org/</A>.
+<br><p>
+<br><p>
+<br><p>
+<p><hr>
+Node:<a name="Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>,
+Next:<a rel=next accesskey=n href="#Index">Index</a>,
+Previous:<a rel=previous accesskey=p href="#Last%20notes">Last notes</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
 
-</P>
-<P>
+<h2>Templates_Parser API Reference</h2>
 
+<p>Templates_Parser User's API
 
+<ul>
+<li><a accesskey=1 href="#Templates_Parser">Templates_Parser</a>: 
+<li><a accesskey=2 href="#Templates_Parser.Debug">Templates_Parser.Debug</a>: 
+<li><a accesskey=3 href="#Templates_Parser.Utils">Templates_Parser.Utils</a>: 
+<li><a accesskey=4 href="#Templates_Parser.XML">Templates_Parser.XML</a>: 
+</ul>
 
-<H1><A NAME="SEC16" HREF="templates_parser.html#TOC16">Templates_Parser Ada spec</A></H1>
+<p><hr>
+Node:<a name="Templates_Parser">Templates_Parser</a>,
+Next:<a rel=next accesskey=n href="#Templates_Parser.Debug">Templates_Parser.Debug</a>,
+Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>
+<br>
 
+<h3>Templates_Parser</h3>
 
-<PRE>
-
+<br><pre>
 ------------------------------------------------------------------------------
--- <I>                            Templates Parser                             --</I>
--- <I>                                                                         --</I>
--- <I>                       Copyright (C) 1999 - 2004                         --</I>
--- <I>                              Pascal Obry                                --</I>
--- <I>                                                                         --</I>
--- <I> This library is free software; you can redistribute it and/or modify    --</I>
--- <I> it under the terms of the GNU General Public License as published by    --</I>
--- <I> the Free Software Foundation; either version 2 of the License, or (at   --</I>
--- <I> your option) any later version.                                         --</I>
--- <I>                                                                         --</I>
--- <I> This library is distributed in the hope that it will be useful, but     --</I>
--- <I> WITHOUT ANY WARRANTY; without even the implied warranty of              --</I>
--- <I> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --</I>
--- <I> General Public License for more details.                                --</I>
--- <I>                                                                         --</I>
--- <I> You should have received a copy of the GNU General Public License       --</I>
--- <I> along with this library; if not, write to the Free Software Foundation, --</I>
--- <I> Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --</I>
--- <I>                                                                         --</I>
--- <I> As a special exception, if other files instantiate generics from this   --</I>
--- <I> unit, or you link this unit with other files to produce an executable,  --</I>
--- <I> this  unit  does not  by itself cause  the resulting executable to be   --</I>
--- <I> covered by the GNU General Public License. This exception does not      --</I>
--- <I> however invalidate any other reasons why the executable file  might be  --</I>
--- <I> covered by the  GNU Public License.                                     --</I>
+-- <i>                            Templates Parser                             --</i>
+-- <i>                                                                         --</i>
+-- <i>                       Copyright (C) 1999 - 2004                         --</i>
+-- <i>                              Pascal Obry                                --</i>
+-- <i>                                                                         --</i>
+-- <i> This library is free software; you can redistribute it and/or modify    --</i>
+-- <i> it under the terms of the GNU General Public License as published by    --</i>
+-- <i> the Free Software Foundation; either version 2 of the License, or (at   --</i>
+-- <i> your option) any later version.                                         --</i>
+-- <i>                                                                         --</i>
+-- <i> This library is distributed in the hope that it will be useful, but     --</i>
+-- <i> WITHOUT ANY WARRANTY; without even the implied warranty of              --</i>
+-- <i> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --</i>
+-- <i> General Public License for more details.                                --</i>
+-- <i>                                                                         --</i>
+-- <i> You should have received a copy of the GNU General Public License       --</i>
+-- <i> along with this library; if not, write to the Free Software Foundation, --</i>
+-- <i> Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --</i>
+-- <i>                                                                         --</i>
+-- <i> As a special exception, if other files instantiate generics from this   --</i>
+-- <i> unit, or you link this unit with other files to produce an executable,  --</i>
+-- <i> this  unit  does not  by itself cause  the resulting executable to be   --</i>
+-- <i> covered by the GNU General Public License. This exception does not      --</i>
+-- <i> however invalidate any other reasons why the executable file  might be  --</i>
+-- <i> covered by the  GNU Public License.                                     --</i>
 ------------------------------------------------------------------------------
 
--- <I> $Id$</I>
+-- <i> $Id$</i>
 
-<B>with</B> Ada.Finalization;
-<B>with</B> Ada.Strings.Unbounded;
+<b>with</b> Ada.Finalization;
+<b>with</b> Ada.Strings.Unbounded;
 
-<B>with</B> Strings_Maps;
+<b>with</b> Strings_Maps;
 
-<B>package</B> Templates_Parser <B>is</B>
+<b>package</b> Templates_Parser <b>is</b>
 
-   <B>use</B> Ada.Strings.Unbounded;
+   <b>use</b> Ada.Strings.Unbounded;
 
-   Template_Error : <B>exception</B>;
+   Template_Error : <b>exception</b>;
 
-   Default_Begin_Tag : <B>constant</B> String := "<I>@_</I>";
-   Default_End_Tag   : <B>constant</B> String := "<I>_@</I>";
+   Default_Begin_Tag : <b>constant</b> String := "<i>@_</i>";
+   Default_End_Tag   : <b>constant</b> String := "<i>_@</i>";
 
-   Default_Separator : <B>constant</B> String := "<I>, </I>";
+   Default_Separator : <b>constant</b> String := "<i>, </i>";
 
-   <B>procedure</B> Set_Tag_Separators
-     (Start_With : <B>in</B> String := Default_Begin_Tag;
-      Stop_With  : <B>in</B> String := Default_End_Tag);
-   -- <I> Set the tag separators for the whole session. This should be changed as</I>
-   -- <I> the very first API call and should not be changed after.</I>
+   <b>procedure</b> Set_Tag_Separators
+     (Start_With : <b>in</b> String := Default_Begin_Tag;
+      Stop_With  : <b>in</b> String := Default_End_Tag);
+   -- <i> Set the tag separators for the whole session. This should be changed as</i>
+   -- <i> the very first API call and should not be changed after.</i>
 
    -----------------
-   -- <I>Generic Tag --</I>
+   -- <i>Generic Tag --</i>
    -----------------
 
-   <B>type</B> Tag <B>is</B> <B>private</B>;
+   <b>type</b> Tag <b>is</b> <b>private</b>;
 
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> String)           <B>return</B> Tag;
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Character)        <B>return</B> Tag;
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Boolean)          <B>return</B> Tag;
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Unbounded_String) <B>return</B> Tag;
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Integer)          <B>return</B> Tag;
-   <B>function</B> "<I>+</I>" (Value : <B>in</B> Tag)              <B>return</B> Tag;
-   -- <I> Tag constructors</I>
+   <b>function</b> "<i>+</i>" (Value : <b>in</b> String)           <b>return</b> Tag;
+   <b>function</b> "<i>+</i>" (Value : <b>in</b> Character)        <b>return</b> Tag;
+   <b>function</b> "<i>+</i>" (Value : <b>in</b> Boolean)          <b>return</b> Tag;
+   <b>function</b> "<i>+</i>" (Value : <b>in</b> Unbounded_String) <b>return</b> Tag;
+   <b>function</b> "<i>+</i>" (Value : <b>in</b> Integer)          <b>return</b> Tag;
+   <b>function</b> "<i>+</i>" (Value : <b>in</b> Tag)              <b>return</b> Tag;
+   -- <i> Tag constructors</i>
 
-   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> String)           <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Character)        <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Boolean)          <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Unbounded_String) <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Integer)          <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (T : <B>in</B> Tag; Value : <B>in</B> Tag)              <B>return</B> Tag;
-   -- <I> Add Value at the end of the tag</I>
+   <b>function</b> "<i>&amp;</i>" (T : <b>in</b> Tag; Value : <b>in</b> String)           <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (T : <b>in</b> Tag; Value : <b>in</b> Character)        <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (T : <b>in</b> Tag; Value : <b>in</b> Boolean)          <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (T : <b>in</b> Tag; Value : <b>in</b> Unbounded_String) <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (T : <b>in</b> Tag; Value : <b>in</b> Integer)          <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (T : <b>in</b> Tag; Value : <b>in</b> Tag)              <b>return</b> Tag;
+   -- <i> Add Value at the end of the tag</i>
 
-   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> String;           T : <B>in</B> Tag) <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> Character;        T : <B>in</B> Tag) <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> Boolean;          T : <B>in</B> Tag) <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> Unbounded_String; T : <B>in</B> Tag) <B>return</B> Tag;
-   <B>function</B> "<I>&#38;</I>" (Value : <B>in</B> Integer;          T : <B>in</B> Tag) <B>return</B> Tag;
-   -- <I> Add Value at the front of the tag</I>
+   <b>function</b> "<i>&amp;</i>" (Value : <b>in</b> String;           T : <b>in</b> Tag) <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (Value : <b>in</b> Character;        T : <b>in</b> Tag) <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (Value : <b>in</b> Boolean;          T : <b>in</b> Tag) <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (Value : <b>in</b> Unbounded_String; T : <b>in</b> Tag) <b>return</b> Tag;
+   <b>function</b> "<i>&amp;</i>" (Value : <b>in</b> Integer;          T : <b>in</b> Tag) <b>return</b> Tag;
+   -- <i> Add Value at the front of the tag</i>
 
-   <B>procedure</B> Set_Separator (T : <B>in</B> <B>out</B> Tag; Separator : <B>in</B> String);
-   -- <I> Set separator to be used when building a flat representation of</I>
-   -- <I> a composite tag.</I>
+   <b>procedure</b> Set_Separator (T : <b>in</b> <b>out</b> Tag; Separator : <b>in</b> String);
+   -- <i> Set separator to be used when building a flat representation of</i>
+   -- <i> a composite tag.</i>
 
-   <B>procedure</B> Clear (T : <B>in</B> <B>out</B> Tag);
-   -- <I> Removes all values in the tag. Current tag T is not released but</I>
-   -- <I> the returned object is separated (not using the same reference) than</I>
-   -- <I> the original one.</I>
+   <b>procedure</b> Clear (T : <b>in</b> <b>out</b> Tag);
+   -- <i> Removes all values in the tag. Current tag T is not released but</i>
+   -- <i> the returned object is separated (not using the same reference) than</i>
+   -- <i> the original one.</i>
 
-   <B>function</B> Size (T : <B>in</B> Tag) <B>return</B> Natural;
-   -- <I> Returns the number of value into T</I>
+   <b>function</b> Size (T : <b>in</b> Tag) <b>return</b> Natural;
+   -- <i> Returns the number of value into T</i>
 
-   <B>function</B> Item (T : <B>in</B> Tag; N : <B>in</B> Positive) <B>return</B> String;
-   -- <I> Returns the Nth Tag's item. Raises Constraint_Error if there is</I>
-   -- <I> no such Item in T (i.e. T length &#60; N).</I>
+   <b>function</b> Item (T : <b>in</b> Tag; N : <b>in</b> Positive) <b>return</b> String;
+   -- <i> Returns the Nth Tag's item. Raises Constraint_Error if there is</i>
+   -- <i> no such Item in T (i.e. T length &lt; N).</i>
 
-   <B>function</B> Item (T : <B>in</B> Tag; N : <B>in</B> Positive) <B>return</B> Tag;
-   -- <I> Returns the Nth Tag's item. Raises Constraint_Error if there is</I>
-   -- <I> no such Item in T (i.e. T length &#60; N).</I>
+   <b>function</b> Composite (T : <b>in</b> Tag; N : <b>in</b> Positive) <b>return</b> Tag;
+   -- <i> Returns the Nth Tag's item. Raises Constraint_Error if there is</i>
+   -- <i> no such Item in T (i.e. T length &lt; N).</i>
 
-   <B>subtype</B> Vector_Tag <B>is</B> Tag;
-   <B>subtype</B> Matrix_Tag <B>is</B> Tag;
+   <b>subtype</b> Vector_Tag <b>is</b> Tag;
+   <b>subtype</b> Matrix_Tag <b>is</b> Tag;
 
    ------------------
-   -- <I>Associations --</I>
+   -- <i>Associations --</i>
    ------------------
 
-   <B>type</B> Association <B>is</B> <B>private</B>;
+   <b>type</b> Association <b>is</b> <b>private</b>;
 
-   <B>type</B> Association_Kind <B>is</B> (Std, Composite);
-   -- <I> The kind of association which is either Std (a simple value), a vector</I>
-   -- <I> tag or a Matrix tag.</I>
+   <b>type</b> Association_Kind <b>is</b> (Std, Composite);
+   -- <i> The kind of association which is either Std (a simple value), a vector</i>
+   -- <i> tag or a Matrix tag.</i>
 
-   <B>function</B> Assoc
-     (Variable : <B>in</B> String;
-      Value    : <B>in</B> String)
-      <B>return</B> Association;
-   -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. This is a standard association, value is a string.</I>
+   <b>function</b> Assoc
+     (Variable : <b>in</b> String;
+      Value    : <b>in</b> String)
+      <b>return</b> Association;
+   -- <i> Build an Association (Variable = Value) to be added to a</i>
+   -- <i> Translate_Table. This is a standard association, value is a string.</i>
 
-   <B>function</B> Assoc
-     (Variable : <B>in</B> String;
-      Value    : <B>in</B> Unbounded_String)
-      <B>return</B> Association;
-   -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. This is a standard association, value is an</I>
-   -- <I> Unbounded_String.</I>
+   <b>function</b> Assoc
+     (Variable : <b>in</b> String;
+      Value    : <b>in</b> Unbounded_String)
+      <b>return</b> Association;
+   -- <i> Build an Association (Variable = Value) to be added to a</i>
+   -- <i> Translate_Table. This is a standard association, value is an</i>
+   -- <i> Unbounded_String.</i>
 
-   <B>function</B> Assoc
-     (Variable : <B>in</B> String;
-      Value    : <B>in</B> Integer)
-      <B>return</B> Association;
-   -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. This is a standard association, value is an Integer.</I>
-   -- <I> It will be displayed without leading space if positive.</I>
+   <b>function</b> Assoc
+     (Variable : <b>in</b> String;
+      Value    : <b>in</b> Integer)
+      <b>return</b> Association;
+   -- <i> Build an Association (Variable = Value) to be added to a</i>
+   -- <i> Translate_Table. This is a standard association, value is an Integer.</i>
+   -- <i> It will be displayed without leading space if positive.</i>
 
-   <B>function</B> Assoc
-     (Variable : <B>in</B> String;
-      Value    : <B>in</B> Boolean)
-      <B>return</B> Association;
-   -- <I> Build an Association (Variable = Value) to be added to a</I>
-   -- <I> Translate_Table. It set the variable to TRUE or FALSE depending on</I>
-   -- <I> value.</I>
+   <b>function</b> Assoc
+     (Variable : <b>in</b> String;
+      Value    : <b>in</b> Boolean)
+      <b>return</b> Association;
+   -- <i> Build an Association (Variable = Value) to be added to a</i>
+   -- <i> Translate_Table. It set the variable to TRUE or FALSE depending on</i>
+   -- <i> value.</i>
 
-   <B>function</B> Assoc
-     (Variable  : <B>in</B> String;
-      Value     : <B>in</B> Tag;
-      Separator : <B>in</B> String := Default_Separator)
-      <B>return</B> Association;
-   -- <I> Build an Association (Variable = Value) to be added to Translate_Table.</I>
-   -- <I> This is a tag association. Separator will be used when outputting the</I>
-   -- <I> a flat representation of the Tag (outside a table statement).</I>
+   <b>function</b> Assoc
+     (Variable  : <b>in</b> String;
+      Value     : <b>in</b> Tag;
+      Separator : <b>in</b> String := Default_Separator)
+      <b>return</b> Association;
+   -- <i> Build an Association (Variable = Value) to be added to Translate_Table.</i>
+   -- <i> This is a tag association. Separator will be used when outputting the</i>
+   -- <i> a flat representation of the Tag (outside a table statement).</i>
 
    ---------------------------
-   -- <I>Association table/set --</I>
+   -- <i>Association table/set --</i>
    ---------------------------
 
-   <B>type</B> Translate_Table <B>is</B> <B>array</B> (Positive <B>range</B> &#60;&#62;) <B>of</B> Association;
-   -- <I> A table with a set of associations, note that it is better to use</I>
-   -- <I> Translate_Set below as it is more efficient.</I>
+   <b>type</b> Translate_Table <b>is</b> <b>array</b> (Positive <b>range</b> &lt;&gt;) <b>of</b> Association;
+   -- <i> A table with a set of associations, note that it is better to use</i>
+   -- <i> Translate_Set below as it is more efficient.</i>
 
-   No_Translation : <B>constant</B> Translate_Table;
+   No_Translation : <b>constant</b> Translate_Table;
 
-   <B>type</B> Translate_Set <B>is</B> <B>private</B>;
-   -- <I> This is a set of association like Translate_Table but it is possible to</I>
-   -- <I> insert item into this set more easily, furthermore there is no need to</I>
-   -- <I> know the number of item before hand. This is the object used internally</I>
-   -- <I> by the templates engine as it is far more efficient to retrieve a</I>
-   -- <I> specific item from it.</I>
+   <b>type</b> Translate_Set <b>is</b> <b>private</b>;
+   -- <i> This is a set of association like Translate_Table but it is possible to</i>
+   -- <i> insert item into this set more easily, furthermore there is no need to</i>
+   -- <i> know the number of item before hand. This is the object used internally</i>
+   -- <i> by the templates engine as it is far more efficient to retrieve a</i>
+   -- <i> specific item from it.</i>
 
-   <B>procedure</B> Insert (Set : <B>in</B> <B>out</B> Translate_Set; Item : <B>in</B> Association);
-   -- <I> Add Item into the translate set. If an association for this variable</I>
-   -- <I> already exist it just replaces it by the new item.</I>
+   <b>procedure</b> Insert (Set : <b>in</b> <b>out</b> Translate_Set; Item : <b>in</b> Association);
+   -- <i> Add Item into the translate set. If an association for this variable</i>
+   -- <i> already exist it just replaces it by the new item.</i>
 
-   <B>function</B> Exists
-     (Set      : <B>in</B> Translate_Set;
-      Variable : <B>in</B> String) <B>return</B> Boolean;
-   -- <I> Returns True if an association for Variable exists into the Set</I>
+   <b>function</b> Exists
+     (Set      : <b>in</b> Translate_Set;
+      Variable : <b>in</b> String) <b>return</b> Boolean;
+   -- <i> Returns True if an association for Variable exists into the Set</i>
 
-   <B>function</B> To_Set (Table : <B>in</B> Translate_Table) <B>return</B> Translate_Set;
-   -- <I> Convert a Translate_Table into a Translate_Set</I>
+   <b>function</b> To_Set (Table : <b>in</b> Translate_Table) <b>return</b> Translate_Set;
+   -- <i> Convert a Translate_Table into a Translate_Set</i>
+
+   ---------------
+   -- <i>Callbacks --</i>
+   ---------------
+
+   <b>type</b> Context <b>is</b> tagged <b>private</b>;
+   <b>type</b> Context_Access <b>is</b> <b>access</b> all Context'Class;
+
+   <b>subtype</b> TP_Context <b>is</b> Context;
+
+   <b>procedure</b> Callback
+     (Context  : <b>access</b> TP_Context;
+      Variable : <b>in</b>     String;
+      Result   :    <b>out</b> Unbounded_String;
+      Found    :    <b>out</b> Boolean);
+   -- <i> Callback is called by the Parse routines below if a tag variable was not</i>
+   -- <i> found in the set of translations. This routine must then set Result with</i>
+   -- <i> the value to use for Variable (name of the variable tag) and in this</i>
+   -- <i> case Found must be set to True. If Variable is not handled in this</i>
+   -- <i> callback, Found must be set to False. This default implementation will</i>
+   -- <i> always return with Found set to False.</i>
+
+   Null_Context : <b>constant</b> Context_Access;
+   -- <i> ??? With Ada0Y it will be possible to use an anonymous access</i>
+   -- <i> "access Context"</i>
 
    -----------------------------
-   -- <I>Parsing and Translating --</I>
+   -- <i>Parsing and Translating --</i>
    -----------------------------
 
-   <B>function</B> Parse
-     (Filename          : <B>in</B> String;
-      Translations      : <B>in</B> Translate_Table := No_Translation;
-      Cached            : <B>in</B> Boolean         := False;
-      Keep_Unknown_Tags : <B>in</B> Boolean         := False)
-      <B>return</B> String;
-   -- <I> Parse the Template_File replacing variables' occurrences by the</I>
-   -- <I> corresponding values. If Cached is set to True, Filename tree will be</I>
-   -- <I> recorded into a cache for quick retrieval. If Keep_Unknown_Tags is set</I>
-   -- <I> to True then tags that are not in the translate table are kept</I>
-   -- <I> as-is if it is part of the template data. If this tags is part of a</I>
-   -- <I> condition (in an IF statement tag), the condition will evaluate to</I>
-   -- <I> False.</I>
+   <b>function</b> Parse
+     (Filename          : <b>in</b>     String;
+      Translations      : <b>in</b>     Translate_Table  := No_Translation;
+      Cached            : <b>in</b>     Boolean          := False;
+      Keep_Unknown_Tags : <b>in</b>     Boolean          := False;
+      Context           : <b>access</b> TP_Context'Class := Null_Context)
+      <b>return</b> String;
+   -- <i> Parse the Template_File replacing variables' occurrences by the</i>
+   -- <i> corresponding values. If Cached is set to True, Filename tree will be</i>
+   -- <i> recorded into a cache for quick retrieval. If Keep_Unknown_Tags is set</i>
+   -- <i> to True then tags that are not in the translate table are kept</i>
+   -- <i> as-is if it is part of the template data. If this tags is part of a</i>
+   -- <i> condition (in an IF statement tag), the condition will evaluate to</i>
+   -- <i> False.</i>
 
-   <B>function</B> Parse
-     (Filename          : <B>in</B> String;
-      Translations      : <B>in</B> Translate_Table := No_Translation;
-      Cached            : <B>in</B> Boolean         := False;
-      Keep_Unknown_Tags : <B>in</B> Boolean         := False)
-      <B>return</B> Unbounded_String;
-   -- <I> Idem but returns an Unbounded_String</I>
+   <b>function</b> Parse
+     (Filename          : <b>in</b>     String;
+      Translations      : <b>in</b>     Translate_Table  := No_Translation;
+      Cached            : <b>in</b>     Boolean          := False;
+      Keep_Unknown_Tags : <b>in</b>     Boolean          := False;
+      Context           : <b>access</b> TP_Context'Class := Null_Context)
+      <b>return</b> Unbounded_String;
+   -- <i> Idem but returns an Unbounded_String</i>
 
-   <B>function</B> Parse
-     (Filename          : <B>in</B> String;
-      Translations      : <B>in</B> Translate_Set;
-      Cached            : <B>in</B> Boolean       := False;
-      Keep_Unknown_Tags : <B>in</B> Boolean       := False)
-      <B>return</B> String;
-   -- <I> Idem with a Translation_Set</I>
+   <b>function</b> Parse
+     (Filename          : <b>in</b>     String;
+      Translations      : <b>in</b>     Translate_Set;
+      Cached            : <b>in</b>     Boolean          := False;
+      Keep_Unknown_Tags : <b>in</b>     Boolean          := False;
+      Context           : <b>access</b> TP_Context'Class := Null_Context)
+      <b>return</b> String;
+   -- <i> Idem with a Translation_Set</i>
 
-   <B>function</B> Parse
-     (Filename          : <B>in</B> String;
-      Translations      : <B>in</B> Translate_Set;
-      Cached            : <B>in</B> Boolean       := False;
-      Keep_Unknown_Tags : <B>in</B> Boolean       := False)
-      <B>return</B> Unbounded_String;
-   -- <I> Idem with a Translation_Set</I>
+   <b>function</b> Parse
+     (Filename          : <b>in</b>     String;
+      Translations      : <b>in</b>     Translate_Set;
+      Cached            : <b>in</b>     Boolean          := False;
+      Keep_Unknown_Tags : <b>in</b>     Boolean          := False;
+      Context           : <b>access</b> TP_Context'Class := Null_Context)
+      <b>return</b> Unbounded_String;
+   -- <i> Idem with a Translation_Set</i>
 
-   <B>function</B> Translate
-     (Template     : <B>in</B> String;
-      Translations : <B>in</B> Translate_Table := No_Translation)
-      <B>return</B> String;
-   -- <I> Just translate the discrete variables in the Template string using the</I>
-   -- <I> Translations table. This function does not parse the command tag (TABLE,</I>
-   -- <I> IF, INCLUDE). All composite tags are replaced by the empty string.</I>
+   <b>function</b> Translate
+     (Template     : <b>in</b> String;
+      Translations : <b>in</b> Translate_Table := No_Translation)
+      <b>return</b> String;
+   -- <i> Just translate the discrete variables in the Template string using the</i>
+   -- <i> Translations table. This function does not parse the command tag (TABLE,</i>
+   -- <i> IF, INCLUDE). All composite tags are replaced by the empty string.</i>
 
-   <B>function</B> Translate
-     (Template     : <B>in</B> String;
-      Translations : <B>in</B> Translate_Set)
-      <B>return</B> String;
-   -- <I> Idem with a Translation_Set</I>
+   <b>function</b> Translate
+     (Template     : <b>in</b> String;
+      Translations : <b>in</b> Translate_Set)
+      <b>return</b> String;
+   -- <i> Idem with a Translation_Set</i>
 
-<B>private</B>
-   -- <I> implementation removed</I>
-<B>end</B> Templates_Parser;
+<b>private</b>
+   -- <i> implementation removed</i>
+<b>end</b> Templates_Parser;
 
-</PRE>
+</pre>
 
-<P><HR><P>
-This document was generated on 12 May 2004 using the
-<A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
-translator version 1.52.</P>
-</BODY>
-</HTML>
+<p><hr>
+Node:<a name="Templates_Parser.Debug">Templates_Parser.Debug</a>,
+Next:<a rel=next accesskey=n href="#Templates_Parser.Utils">Templates_Parser.Utils</a>,
+Previous:<a rel=previous accesskey=p href="#Templates_Parser">Templates_Parser</a>,
+Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>
+<br>
+
+<h3>Templates_Parser.Debug</h3>
+
+<br><pre>
+------------------------------------------------------------------------------
+-- <i>                            Templates Parser                             --</i>
+-- <i>                                                                         --</i>
+-- <i>                           Copyright (C) 2004                            --</i>
+-- <i>                              Pascal Obry                                --</i>
+-- <i>                                                                         --</i>
+-- <i> This library is free software; you can redistribute it and/or modify    --</i>
+-- <i> it under the terms of the GNU General Public License as published by    --</i>
+-- <i> the Free Software Foundation; either version 2 of the License, or (at   --</i>
+-- <i> your option) any later version.                                         --</i>
+-- <i>                                                                         --</i>
+-- <i> This library is distributed in the hope that it will be useful, but     --</i>
+-- <i> WITHOUT ANY WARRANTY; without even the implied warranty of              --</i>
+-- <i> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --</i>
+-- <i> General Public License for more details.                                --</i>
+-- <i>                                                                         --</i>
+-- <i> You should have received a copy of the GNU General Public License       --</i>
+-- <i> along with this library; if not, write to the Free Software Foundation, --</i>
+-- <i> Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --</i>
+-- <i>                                                                         --</i>
+-- <i> As a special exception, if other files instantiate generics from this   --</i>
+-- <i> unit, or you link this unit with other files to produce an executable,  --</i>
+-- <i> this  unit  does not  by itself cause  the resulting executable to be   --</i>
+-- <i> covered by the GNU General Public License. This exception does not      --</i>
+-- <i> however invalidate any other reasons why the executable file  might be  --</i>
+-- <i> covered by the  GNU Public License.                                     --</i>
+------------------------------------------------------------------------------
+
+-- <i> $Id$</i>
+
+<b>package</b> Templates_Parser.Debug <b>is</b>
+
+   <b>procedure</b> Print (T : <b>in</b> Tag);
+   -- <i> Print tag representation</i>
+
+   <b>procedure</b> Print_Tree (Filename : <b>in</b> String);
+   -- <i> Print tree for template Filename</i>
+
+<b>end</b> Templates_Parser.Debug;
+
+</pre>
+
+<p><hr>
+Node:<a name="Templates_Parser.Utils">Templates_Parser.Utils</a>,
+Next:<a rel=next accesskey=n href="#Templates_Parser.XML">Templates_Parser.XML</a>,
+Previous:<a rel=previous accesskey=p href="#Templates_Parser.Debug">Templates_Parser.Debug</a>,
+Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>
+<br>
+
+<h3>Templates_Parser.Utils</h3>
+
+<br><pre>
+------------------------------------------------------------------------------
+-- <i>                            Templates Parser                             --</i>
+-- <i>                                                                         --</i>
+-- <i>                           Copyright (C) 2004                            --</i>
+-- <i>                              Pascal Obry                                --</i>
+-- <i>                                                                         --</i>
+-- <i> This library is free software; you can redistribute it and/or modify    --</i>
+-- <i> it under the terms of the GNU General Public License as published by    --</i>
+-- <i> the Free Software Foundation; either version 2 of the License, or (at   --</i>
+-- <i> your option) any later version.                                         --</i>
+-- <i>                                                                         --</i>
+-- <i> This library is distributed in the hope that it will be useful, but     --</i>
+-- <i> WITHOUT ANY WARRANTY; without even the implied warranty of              --</i>
+-- <i> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --</i>
+-- <i> General Public License for more details.                                --</i>
+-- <i>                                                                         --</i>
+-- <i> You should have received a copy of the GNU General Public License       --</i>
+-- <i> along with this library; if not, write to the Free Software Foundation, --</i>
+-- <i> Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --</i>
+-- <i>                                                                         --</i>
+-- <i> As a special exception, if other files instantiate generics from this   --</i>
+-- <i> unit, or you link this unit with other files to produce an executable,  --</i>
+-- <i> this  unit  does not  by itself cause  the resulting executable to be   --</i>
+-- <i> covered by the GNU General Public License. This exception does not      --</i>
+-- <i> however invalidate any other reasons why the executable file  might be  --</i>
+-- <i> covered by the  GNU Public License.                                     --</i>
+------------------------------------------------------------------------------
+
+-- <i> $Id$</i>
+
+<b>package</b> Templates_Parser.Utils <b>is</b>
+
+   <b>function</b> Image (T : <b>in</b> Tag) <b>return</b> String;
+   -- <i> Returns a string representation for this tag</i>
+
+   <b>function</b> Value (T : <b>in</b> String) <b>return</b> Tag;
+   -- <i> Give a string representation of a tag (as encoded with Image above),</i>
+   -- <i> build the corresponding Tag object. Raises Constraint_Error if T is</i>
+   -- <i> not a valid tag representation.</i>
+
+<b>end</b> Templates_Parser.Utils;
+
+</pre>
+
+<p><hr>
+Node:<a name="Templates_Parser.XML">Templates_Parser.XML</a>,
+Previous:<a rel=previous accesskey=p href="#Templates_Parser.Utils">Templates_Parser.Utils</a>,
+Up:<a rel=up accesskey=u href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>
+<br>
+
+<h3>Templates_Parser.XML</h3>
+
+<br><pre>
+------------------------------------------------------------------------------
+-- <i>                            Templates Parser                             --</i>
+-- <i>                                                                         --</i>
+-- <i>                           Copyright (C) 2004                            --</i>
+-- <i>                              Pascal Obry                                --</i>
+-- <i>                                                                         --</i>
+-- <i> This library is free software; you can redistribute it and/or modify    --</i>
+-- <i> it under the terms of the GNU General Public License as published by    --</i>
+-- <i> the Free Software Foundation; either version 2 of the License, or (at   --</i>
+-- <i> your option) any later version.                                         --</i>
+-- <i>                                                                         --</i>
+-- <i> This library is distributed in the hope that it will be useful, but     --</i>
+-- <i> WITHOUT ANY WARRANTY; without even the implied warranty of              --</i>
+-- <i> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       --</i>
+-- <i> General Public License for more details.                                --</i>
+-- <i>                                                                         --</i>
+-- <i> You should have received a copy of the GNU General Public License       --</i>
+-- <i> along with this library; if not, write to the Free Software Foundation, --</i>
+-- <i> Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.          --</i>
+-- <i>                                                                         --</i>
+-- <i> As a special exception, if other files instantiate generics from this   --</i>
+-- <i> unit, or you link this unit with other files to produce an executable,  --</i>
+-- <i> this  unit  does not  by itself cause  the resulting executable to be   --</i>
+-- <i> covered by the GNU General Public License. This exception does not      --</i>
+-- <i> however invalidate any other reasons why the executable file  might be  --</i>
+-- <i> covered by the  GNU Public License.                                     --</i>
+------------------------------------------------------------------------------
+
+-- <i> $Id$</i>
+
+-- <i> This API provides a way to save a Translate_Set as an XML document.</i>
+-- <i> There is special rules to know about composite tags.</i>
+--
+-- <i> Composite tags :</i>
+--
+-- <i>    If a tag named TAG exists, then the name TAG_LABEL is used as a label</i>
+-- <i>    for this specific tag. This label is meant to be used as label for this</i>
+-- <i>    set of values (vector, matrix or deeper).</i>
+--
+-- <i> Composite tags (more than one nested level)</i>
+--
+-- <i>    If a tag named TAG exists, then the names TAG_DIM[n]_LABEL is used as a</i>
+-- <i>    label for the tag's nth axis. In this case TAG_DIM[n]_LABEL must be a</i>
+-- <i>    vector tag, each entry corresponds to a label on this axis.</i>
+--
+-- <i> Here is the DTD :</i>
+--
+-- <i> &lt;?xml version="1.0" encoding="UTF-8"?&gt;</i>
+-- <i> &lt;!--Description of a tag or dimension (ex: year)--&gt;</i>
+-- <i> &lt;!ELEMENT Description (#PCDATA)&gt;</i>
+-- <i> &lt;!--a dimension--&gt;</i>
+-- <i> &lt;!ELEMENT Dim (Description, Labels)&gt;</i>
+-- <i> &lt;!ATTLIST Dim</i>
+-- <i> 	n CDATA #REQUIRED</i>
+-- <i> &gt;</i>
+-- <i> &lt;!--entry of a CompositeTag--&gt;</i>
+-- <i> &lt;!ELEMENT Entry (ind+, V)&gt;</i>
+-- <i> &lt;!--label of an indice of a dimension (ex: 2000)--&gt;</i>
+-- <i> &lt;!ELEMENT Label (#PCDATA)&gt;</i>
+-- <i> &lt;!ATTLIST Label</i>
+-- <i> 	ind CDATA #REQUIRED</i>
+-- <i> &gt;</i>
+-- <i> &lt;!--list of labels of one dimension (ex: 1999, 2000, 2001)--&gt;</i>
+-- <i> &lt;!ELEMENT Labels (Label+)&gt;</i>
+-- <i> &lt;!--alias and information--&gt;</i>
+-- <i> &lt;!ELEMENT Tag (Name, Description)&gt;</i>
+-- <i> &lt;!--tagged data to be published in templates--&gt;</i>
+-- <i> &lt;!ELEMENT Tagged (SimpleTag*, CompositeTag*)&gt;</i>
+-- <i> &lt;!--simple variable value--&gt;</i>
+-- <i> &lt;!ELEMENT V (#PCDATA)&gt;</i>
+-- <i> &lt;!ELEMENT ind (#PCDATA)&gt;</i>
+-- <i> &lt;!ATTLIST ind</i>
+-- <i> 	n CDATA #REQUIRED</i>
+-- <i> &gt;</i>
+-- <i> &lt;!--identification name for this tag--&gt;</i>
+-- <i> &lt;!ELEMENT Name (#PCDATA)&gt;</i>
+-- <i> &lt;!--Tag with no dimension (simple variable)--&gt;</i>
+-- <i> &lt;!ELEMENT SimpleTag (Tag, V)&gt;</i>
+-- <i> &lt;!--Tag with one or more dimensions--&gt;</i>
+-- <i> &lt;!ELEMENT CompositeTag (Tag, Dim+, Entry)&gt;</i>
+
+<b>package</b> Templates_Parser.XML <b>is</b>
+
+   <b>function</b> Image (Translations : <b>in</b> Translate_Set) <b>return</b> Unbounded_String;
+   -- <i> Returns a string representation encoded in XML for this</i>
+   -- <i> translate table.</i>
+
+   <b>procedure</b> Save (Filename : <b>in</b> String; Translations : <b>in</b> Translate_Set);
+   -- <i> Write the translate table into filename</i>
+
+<b>end</b> Templates_Parser.XML;
+
+</pre>
+
+<p><hr>
+Node:<a name="Index">Index</a>,
+Previous:<a rel=previous accesskey=p href="#Templates_Parser%20API%20Reference">Templates_Parser API Reference</a>,
+Up:<a rel=up accesskey=u href="#Top">Top</a>
+<br>
+
+<h2>Index</h2>
+
+<ul compact>
+<li>@_DAY_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>@_DAY_NAME_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>@_HOUR_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>@_MINUTE_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>@_MONTH_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>@_MONTH_NAME_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>@_NOW_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>@_NUMBER_LINE_@: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+<li>@_SECOND_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>@_TABLE_LEVEL_@: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+<li>@_TABLE_LINE_@: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+<li>@_UP_TABLE_LINE_@: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+<li>@_YEAR_@: <a href="#Other%20variable%20tags">Other variable tags</a>
+<li>Attribute, 'Length: <a href="#Attributes">Attributes</a>
+<li>Attribute, 'Line: <a href="#Attributes">Attributes</a>
+<li>Attribute, 'Max_Column: <a href="#Attributes">Attributes</a>
+<li>Attribute, 'Min_Column: <a href="#Attributes">Attributes</a>
+<li>Command, @@-: <a href="#Comments%20tag%20statement">Comments tag statement</a>
+<li>Command, comments: <a href="#Comments%20tag%20statement">Comments tag statement</a>
+<li>Command, IF: <a href="#IF%20tag%20statement">IF tag statement</a>
+<li>Command, IF expression: <a href="#IF%20tag%20statement">IF tag statement</a>
+<li>Command, INCLUDE: <a href="#INCLUDE%20tag%20statement">INCLUDE tag statement</a>
+<li>Command, TABLE: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+<li>Command, TERMINATE_SECTIONS: <a href="#TABLE%20tag%20statement">TABLE tag statement</a>
+<li>Debug: <a href="#Debug">Debug</a>
+<li>Filter, "*": <a href="#Filters">Filters</a>
+<li>Filter, "+": <a href="#Filters">Filters</a>
+<li>Filter, "-": <a href="#Filters">Filters</a>
+<li>Filter, "/": <a href="#Filters">Filters</a>
+<li>Filter, ADD_PARAM: <a href="#Filters">Filters</a>
+<li>Filter, BR_2_LF: <a href="#Filters">Filters</a>
+<li>Filter, CAPITALIZE: <a href="#Filters">Filters</a>
+<li>Filter, CLEAN_TEXT: <a href="#Filters">Filters</a>
+<li>Filter, COMA_2_POINT: <a href="#Filters">Filters</a>
+<li>Filter, CONTRACT: <a href="#Filters">Filters</a>
+<li>Filter, DEL_PARAM: <a href="#Filters">Filters</a>
+<li>Filter, EXIST: <a href="#Filters">Filters</a>
+<li>Filter, FORMAT_DATE: <a href="#Filters">Filters</a>
+<li>Filter, FORMAT_NUMBER: <a href="#Filters">Filters</a>
+<li>Filter, IS_EMPTY: <a href="#Filters">Filters</a>
+<li>Filter, LF_2_BR: <a href="#Filters">Filters</a>
+<li>Filter, LOWER: <a href="#Filters">Filters</a>
+<li>Filter, MATCH: <a href="#Filters">Filters</a>
+<li>Filter, MOD: <a href="#Filters">Filters</a>
+<li>Filter, NO_DIGIT: <a href="#Filters">Filters</a>
+<li>Filter, NO_LETTER: <a href="#Filters">Filters</a>
+<li>Filter, NO_SPACE: <a href="#Filters">Filters</a>
+<li>Filter, OUI_NON: <a href="#Filters">Filters</a>
+<li>Filter, POINT_2_COMA: <a href="#Filters">Filters</a>
+<li>Filter, REPEAT: <a href="#Filters">Filters</a>
+<li>Filter, REPLACE: <a href="#Filters">Filters</a>
+<li>Filter, REPLACE_ALL: <a href="#Filters">Filters</a>
+<li>Filter, REPLACE_PARAM: <a href="#Filters">Filters</a>
+<li>Filter, REVERSE: <a href="#Filters">Filters</a>
+<li>Filter, SIZE: <a href="#Filters">Filters</a>
+<li>Filter, SLICE: <a href="#Filters">Filters</a>
+<li>Filter, TRIM: <a href="#Filters">Filters</a>
+<li>Filter, UPPER: <a href="#Filters">Filters</a>
+<li>Filter, WEB_ESCAPE: <a href="#Filters">Filters</a>
+<li>Filter, WEB_NBSP: <a href="#Filters">Filters</a>
+<li>Filter, YES_NO: <a href="#Filters">Filters</a>
+<li>Filters: <a href="#Filters%20and%20Attributes">Filters and Attributes</a>
+<li>Tag utils: <a href="#Tag%20utils">Tag utils</a>
+<li>Tag, boolean: <a href="#Discrete%20Boolean%20Composite">Discrete Boolean Composite</a>
+<li>Tag, composite: <a href="#Discrete%20Boolean%20Composite">Discrete Boolean Composite</a>
+<li>Tag, discrete: <a href="#Discrete%20Boolean%20Composite">Discrete Boolean Composite</a>
+<li>Templates_Parser: <a href="#Templates_Parser">Templates_Parser</a>
+<li>Templates_Parser.Debug: <a href="#Templates_Parser.Debug">Templates_Parser.Debug</a>
+<li>Templates_Parser.Utils: <a href="#Templates_Parser.Utils">Templates_Parser.Utils</a>
+<li>Templates_Parser.XML: <a href="#Templates_Parser.XML">Templates_Parser.XML</a>
+<li>Translate_Set: <a href="#Translations">Translations</a>
+<li>Translate_Table: <a href="#Translations">Translations</a>
+<li>XML: <a href="#XML%20representation">XML representation</a>
+</ul>
+
+
+</body></html>
+
