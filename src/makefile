@@ -2,9 +2,10 @@
 # $Id$
 
 .SILENT: build ssl_mode std_mode gnat_oslib posix_oslib win32_oslib clean
+.SILENT: aws-translator-conversion.adb
 
 GCC	= gcc
-GARGS	= $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
+GARGS	= -q $(GFLAGS) -I. -I../ssl -I../include $(INCLUDES)
 
 SOURCES	= aws-client.adb aws-messages.adb aws-mime.adb aws-os_lib.adb \
 	aws-parameters.adb aws-response.adb aws-server-get_status.adb \
@@ -31,13 +32,16 @@ build: aws-translator-conversion.adb
 	(if ! [ -e aws-net.adb ]; then cp aws-net-std.adb aws-net.adb; fi)
 # compile aws-services-directory.adb without optimisation
 # work around a bug in GNAT 3.14, 3.15.
+	echo Building aws-services-directory.adb
 	gnatmake -u $(GARGS) -O0 aws-services-directory.adb -largs $(LFLAGS);
 	for file in $(SOURCES); do \
-	   gnatmake $(GARGS) $$file -largs $(LFLAGS); \
+	   echo Building $$file; \
+	   gnatmake -u $(GARGS) $$file -largs $(LFLAGS); \
 	done
 
 aws-translator-conversion.adb:
-	gnatmake test_uconv
+	echo Setup conversion support
+	gnatmake -q test_uconv
 	./test_uconv
 
 ssl_mode:
