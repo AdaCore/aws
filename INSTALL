@@ -1,18 +1,34 @@
 
 $Id$
 
+
+Building a release
+------------------
+
 To build AWS you need to change some settings in the top level 
 makefile.conf file.
 
 You also need to set ADA_PROJECT_PATH to at least point to .build/projects,
 you also need to set it properly if you use XML/Ada for example.
 
-        $ export ADA_PROJECT_PATH=<aws_root>/.build/projects
+   $ export ADA_PROJECT_PATH=<aws_root>/.build/projects
 
 Look for ADASOCKETS, XMLADA, ASIS, POSIX, and INSTALL make's
 variables. Then building AWS is as simple as:
 
-	$ make setup build install
+   $ make setup build install
 
 Note that you can find more information about the build procedure into
 the AWS User's Guide.
+
+
+
+				       
+Building from CVS
+-----------------
+
+If you got the AWS sources from CVS you'll also need to check out the
+Templates_Parser module:
+
+   $ cd AWS
+   $ cvs -d :pserver:anoncvs@libre.adacore.com:/anoncvs co templates_parser
