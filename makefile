@@ -81,4 +81,4 @@ distrib:
 		include/readme.txt
 	rm readme.txt
 	gzip -9 aws.tar
-	mv aws.tar.gz aws-`grep " Version" src/aws.ads | cut -c 43-48`.tar.gz
+	mv aws.tar.gz aws-`grep " Version" src/aws.ads | cut -c 43-45`.tar.gz
