@@ -268,8 +268,8 @@ package body AWS.MIME is
       Set.Add_Extension ("ppt",     Application_Powerpoint);
       Set.Add_Extension ("rtf",     Application_Rtf);
       Set.Add_Extension ("Z",       Application_X_Compress);
-      Set.Add_Extension ("gtar",    Application_X_Gtar);
-      Set.Add_Extension ("gz",      Application_X_Gzip);
+      Set.Add_Extension ("gtar",    Application_X_GTar);
+      Set.Add_Extension ("gz",      Application_X_GZip);
       Set.Add_Extension ("latex",   Application_X_Latex);
       Set.Add_Extension ("sh",      Application_X_Sh);
       Set.Add_Extension ("shar",    Application_X_Shar);
