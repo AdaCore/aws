@@ -1,3 +1,10 @@
+2003-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-headers-values.adb:
+	(Get_Unnamed_Value): Handle empty Header_Value paramer.
+	(Search): Handle empty Header_Value paramer.
+	(Unnamed_Value_Exists): Handle empty Header_Value paramer.
+
 2003-03-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-dispatchers-method.adb:

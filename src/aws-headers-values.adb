@@ -76,6 +76,11 @@ package body AWS.Headers.Values is
          Set    => Spaces,
          Test   => Outside);
 
+      if First = 0 then
+         --  Value is empty or contains only spaces
+         return "";
+      end if;
+
       loop
          Next_Value
            (Header_Value, First,
@@ -322,6 +327,11 @@ package body AWS.Headers.Values is
          Set    => Spaces,
          Test   => Outside);
 
+      if First = 0 then
+         --  Value is empty or contains only spaces
+         return "";
+      end if;
+
       if Case_Sensitive then
          Map    := Maps.Identity;
          M_Name := Name;
@@ -446,6 +456,16 @@ package body AWS.Headers.Values is
       M_Value : String (Value'Range);
 
    begin
+      First := Fixed.Index
+        (Source => Header_Value,
+         Set    => Spaces,
+         Test   => Outside);
+
+      if First = 0 then
+         --  Value is empty or contains only spaces
+         return False;
+      end if;
+
       if Case_Sensitive then
          Map     := Maps.Identity;
          M_Value := Value;
@@ -453,11 +473,6 @@ package body AWS.Headers.Values is
          Map     := Maps.Constants.Upper_Case_Map;
          M_Value := Fixed.Translate (Value, Map);
       end if;
-
-      First := Fixed.Index
-        (Source => Header_Value,
-         Set    => Spaces,
-         Test   => Outside);
 
       loop
          Next_Value
