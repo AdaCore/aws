@@ -257,7 +257,9 @@ GNU/Ada - GNAT
 Socket binding (Optional) :
 
    Since AWS 2.1 you need at least version 1.8.4.4 of the Socket binding. Note
-   that by default AWS uses GNAT.Sockets.
+   that by default AWS uses GNAT.Sockets. To be able to use AdaSockets with
+   AWS you need to copy all the .ali (cp -p) in the directory where the
+   libadasockets.a is. This is needed for the GNAT Project support.
 
    http://www.rfc1149.net/devel/adasockets
 
