@@ -36,6 +36,7 @@
 --  enable the templates resources handling.
 
 with "../shared";
+with "../ssl/ssl";
 
 project Src_Include is
 
