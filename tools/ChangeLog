@@ -1,3 +1,11 @@
+2004-11-26  Pascal Obry  <pascal@obry.org>
+
+	* wsdl2aws.adb:
+	Catch WSDL_Error to not display exception information.
+
+	* tools.gpr:
+	(Binder): New package renaming of Shared.Binder.
+
 2004-11-13  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
