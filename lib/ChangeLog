@@ -1,3 +1,8 @@
+2003-10-12  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(clean): Do not remove *.dll as they are not copied here anymore.
+
 2003-10-02  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
