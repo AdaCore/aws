@@ -40,7 +40,6 @@ with Sockets;
 with AWS.Net;
 with AWS.Messages;
 with AWS.Status;
-with AWS.Translater;
 
 package body AWS.Server is
 
