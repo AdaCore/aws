@@ -1,3 +1,9 @@
+2004-10-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* makefile:
+	(setup): Use complete template for find "--  ~ MAIN"
+	 and only in the *.adb files.
+
 2004-10-10  Pascal Obry  <pascal@obry.org>
 
 	* generate.adb:

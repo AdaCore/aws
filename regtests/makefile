@@ -245,7 +245,7 @@ setup_init:
 
 setup:
 # Get MAIN and standard sources
-	-$(GREP) "~ MAIN" *.ad* > all_mains.lst
+	-$(GREP) "\-\-  ~ MAIN" *.adb > all_mains.lst
 	-$(GREP) "\[STD\]" all_mains.lst | $(GREP) -v $(REGEXP) > s_tstd.lst
 	-$(CP) s_tstd.lst s_mains.lst
 	-$(GREP) "\[SOAP\]" all_mains.lst > s_tsoap.lst
