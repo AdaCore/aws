@@ -210,7 +210,7 @@ package body Skel is
                Text_IO.Put_Line
                  (Skel_Adb,
                   "            := SOAP.Parameters.Get (Params, """
-                    & Format_Name (O, To_String (N.Name)) & """);");
+                    & To_String (N.Name) & """);");
                Text_IO.Put      (Skel_Adb, "         ");
             end if;
          end if;
