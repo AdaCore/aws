@@ -2,7 +2,7 @@
 --                              Ada Web Server                              --
 --                                                                          --
 --                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                      Dmitriy Anisimov - Pascal Obry                      --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -37,6 +37,7 @@ with Sockets.Thin;
 with AWS.Messages;
 with AWS.Translater;
 with AWS.URL;
+with AWS.Net;
 
 package body AWS.Client is
 
@@ -45,20 +46,25 @@ package body AWS.Client is
 
    End_Section : constant String := "";
 
-   procedure Init_Connection
-     (Sock       :    out Sockets.Socket_FD;
-      Method     : in     String;
+   function Get_Response (Socket : in Sockets.Socket_FD'Class)
+                         return Response.Data;
+   --  Receives response from server for GET and POST commands
+
+   function Init_Connection
+     (Method     : in     String;
       URL        : in     String;
       User       : in     String            := No_Data;
       Pwd        : in     String            := No_Data;
       Proxy      : in     String            := No_Data;
       Proxy_User : in     String            := No_Data;
-      Proxy_Pwd  : in     String            := No_Data);
+      Proxy_Pwd  : in     String            := No_Data)
+   return Sockets.Socket_FD'Class;
+
    --  send a header to the server eventually going through a proxy server
    --  with authentification.
 
    procedure Parse_Header
-     (Sock              : in     Sockets.Socket_FD;
+     (Sock              : in     Sockets.Socket_FD'Class;
       Status            :    out Messages.Status_Code;
       Content_Length    :    out Natural;
       Content_Type      :    out Unbounded_String;
@@ -71,20 +77,21 @@ package body AWS.Client is
    -- Init_Connection --
    ---------------------
 
-   procedure Init_Connection
-     (Sock       :    out Sockets.Socket_FD;
-      Method     : in     String;
+   function Init_Connection
+     (Method     : in     String;
       URL        : in     String;
       User       : in     String            := No_Data;
       Pwd        : in     String            := No_Data;
       Proxy      : in     String            := No_Data;
       Proxy_User : in     String            := No_Data;
       Proxy_Pwd  : in     String            := No_Data)
+     return Sockets.Socket_FD'Class
    is
       function Get_Host_Name return String;
       --  returns the local hostname
 
-      Proxy_Data, URL_Data : AWS.URL.Object;
+      function Open_Socket return Sockets.Socket_FD'Class;
+      --  Opens socket (SSL if need) with server
 
       -------------------
       -- Get_Host_Name --
@@ -98,34 +105,47 @@ package body AWS.Client is
          return Interfaces.C.To_Ada (Buffer);
       end Get_Host_Name;
 
-   begin
-      URL_Data   := AWS.URL.Parse (URL);
-      Proxy_Data := AWS.URL.Parse (Proxy);
+      -----------------
+      -- Open_Socket --
+      -----------------
+
+      function Open_Socket return Sockets.Socket_FD'Class is
+      begin
+         if Proxy = No_Data then
+            declare
+               URL_Data : AWS.URL.Object := AWS.URL.Parse (URL);
+               Sock     : Sockets.Socket_FD'Class :=
+                 AWS.Net.Connect (AWS.URL.Server_Name (URL_Data),
+                                  AWS.URL.Port (URL_Data),
+                                  AWS.URL.Security (URL_Data));
+            begin
+               Sockets.Put_Line (Sock, Method & ' '
+                                 & AWS.URL.URI (URL_Data)
+                                 & ' ' & HTTP_Version);
+               Sockets.Put_Line (Sock, "Connection: Keep-Alive");
+               return Sock;
+            end;
+         else
+            declare
+               Proxy_Data  : AWS.URL.Object := AWS.URL.Parse (Proxy);
+               Sock        : Sockets.Socket_FD'Class :=
+                 AWS.Net.Connect (AWS.URL.Server_Name (Proxy_Data),
+                                  AWS.URL.Port (Proxy_Data),
+                                  AWS.URL.Security (Proxy_Data));
+            begin
+               Sockets.Put_Line (Sock,
+                                 Method & ' ' & URL & ' ' & HTTP_Version);
+               Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
+               return Sock;
+            end;
+         end if;
+      end Open_Socket;
 
       --  Connect to server
 
-      if Proxy = No_Data then
-         Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
+      Sock : Sockets.Socket_FD'Class := Open_Socket;
 
-         Sockets.Connect (Sock,
-                          AWS.URL.Server_Name (URL_Data),
-                          AWS.URL.Port (URL_Data));
-
-         Sockets.Put_Line (Sock, Method & ' '
-                           & AWS.URL.URI (URL_Data)
-                           & ' ' & HTTP_Version);
-         Sockets.Put_Line (Sock, "Connection: Keep-Alive");
-
-      else
-         Sockets.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
-
-         Sockets.Connect (Sock,
-                          AWS.URL.Server_Name (Proxy_Data),
-                          AWS.URL.Port (Proxy_Data));
-
-         Sockets.Put_Line (Sock, Method & ' ' & URL & ' ' & HTTP_Version);
-         Sockets.Put_Line (Sock, "Proxy-Connection: Keep-Alive");
-      end if;
+   begin
 
       Sockets.Put_Line (Sock, "Accept: text/html, */*");
       Sockets.Put_Line (Sock, "Accept-Language: fr, us");
@@ -143,18 +163,16 @@ package body AWS.Client is
            (Sock, "Proxy-Authorization: Basic " &
             AWS.Translater.Base64_Encode (Proxy_User & ':' & Proxy_Pwd));
       end if;
+
+      return Sock;
    end Init_Connection;
 
-   ---------
-   -- Get --
-   ---------
+   ------------------
+   -- Get_Response --
+   ------------------
 
-   function Get (URL        : in String;
-                 User       : in String := No_Data;
-                 Pwd        : in String := No_Data;
-                 Proxy      : in String := No_Data;
-                 Proxy_User : in String := No_Data;
-                 Proxy_Pwd  : in String := No_Data) return Response.Data
+   function Get_Response (Socket : in Sockets.Socket_FD'Class)
+                         return Response.Data
    is
 
       function Read_Chunk return Streams.Stream_Element_Array;
@@ -164,7 +182,8 @@ package body AWS.Client is
       --  read a textual message from the socket for which there is no known
       --  length.
 
-      Sock     : Sockets.Socket_FD;
+      Sock : Sockets.Socket_FD'Class := Socket;
+
       CT       : Unbounded_String;
       CT_Len   : Natural := 0;
       TE       : Unbounded_String;
@@ -186,7 +205,7 @@ package body AWS.Client is
 
          --  read the chunk size that is an hex number
 
-         Size     : Streams.Stream_Element_Offset
+         Size : Streams.Stream_Element_Offset
            := Streams.Stream_Element_Offset'Value
            ("16#" & Sockets.Get_Line (Sock) & '#');
 
@@ -237,11 +256,8 @@ package body AWS.Client is
 
       use type Messages.Status_Code;
 
-   begin
-      Init_Connection (Sock, "GET",
-                       URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
 
-      Sockets.New_Line (Sock);
+   begin
 
       Parse_Header (Sock, Status, CT_Len, CT, TE, Location);
 
@@ -308,10 +324,28 @@ package body AWS.Client is
             end;
          end if;
       end if;
+   end Get_Response;
 
-   exception
-      when others =>
-         raise URL_Error;
+   ---------
+   -- Get --
+   ---------
+
+   function Get (URL        : in String;
+                 User       : in String := No_Data;
+                 Pwd        : in String := No_Data;
+                 Proxy      : in String := No_Data;
+                 Proxy_User : in String := No_Data;
+                 Proxy_Pwd  : in String := No_Data) return Response.Data
+   is
+
+      Sock : Sockets.Socket_FD'Class :=
+        Init_Connection ("GET", URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
+
+   begin
+
+      Sockets.New_Line (Sock);
+
+      return Get_Response (Sock);
    end Get;
 
    ------------------
@@ -319,7 +353,7 @@ package body AWS.Client is
    ------------------
 
    procedure Parse_Header
-     (Sock              : in     Sockets.Socket_FD;
+     (Sock              : in     Sockets.Socket_FD'Class;
       Status            :    out Messages.Status_Code;
       Content_Length    :    out Natural;
       Content_Type      :    out Unbounded_String;
@@ -379,15 +413,14 @@ package body AWS.Client is
                  Proxy_User : in String := No_Data;
                  Proxy_Pwd  : in String := No_Data) return Response.Data
    is
-      Sock     : Sockets.Socket_FD;
+      Sock     : Sockets.Socket_FD'Class :=
+        Init_Connection ("PUT", URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
       CT       : Unbounded_String;
       CT_Len   : Natural;
       TE       : Unbounded_String;
       Status   : Messages.Status_Code;
       Location : Unbounded_String;
    begin
-      Init_Connection (Sock, "PUT",
-                       URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
 
       --  send message Content_Length
 
@@ -405,5 +438,39 @@ package body AWS.Client is
 
       return Response.Acknowledge (Status);
    end Put;
+
+   ----------
+   -- Post --
+   ----------
+
+   function Post (URL        : in String;
+                  Data       : in String;
+                  User       : in String := No_Data;
+                  Pwd        : in String := No_Data;
+                  Proxy      : in String := No_Data;
+                  Proxy_User : in String := No_Data;
+                  Proxy_Pwd  : in String := No_Data) return Response.Data
+   is
+      Sock : Sockets.Socket_FD'Class :=
+        Init_Connection ("POST", URL, User, Pwd, Proxy, Proxy_User, Proxy_Pwd);
+
+   begin
+
+      Sockets.Put_Line (Sock, Messages.Content_Type (Messages.Form_Data));
+
+      --  send message Content_Length
+      Sockets.Put_Line (Sock, Messages.Content_Length (Data'Length));
+
+      Sockets.New_Line (Sock);
+
+      --  send message body
+
+      Sockets.Put_Line (Sock, Data);
+
+      --  get answer from server
+
+      return Get_Response (Sock);
+
+   end Post;
 
 end AWS.Client;
