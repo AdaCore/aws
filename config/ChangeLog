@@ -1,3 +1,11 @@
+2003-08-02  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add section to build AWS based on project files.
+	(gbuild): New target.
+	(gclean): Idem.
+	(gsetup): Idem.
+
 2003-07-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-std__gnat.adb:
