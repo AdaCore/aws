@@ -29,6 +29,7 @@
 --  $Id$
 
 with Ada.Calendar;
+with System;
 
 package AWS.Session is
 
@@ -118,6 +119,6 @@ package AWS.Session is
 
 private
 
-   type ID is range 0 .. 2 ** 62;
+   type ID is range 0 .. System.Max_Int;
 
 end AWS.Session;
