@@ -146,6 +146,10 @@ icons/tex.gif
 icons/text.gif
 icons/unknown.gif
 icons/uu.gif
+include/ai302-containers-generic_array_sort.adb
+include/ai302-containers-generic_array_sort.ads
+include/ai302-containers-generic_constrained_array_sort.adb
+include/ai302-containers-generic_constrained_array_sort.ads
 include/ai302-containers-hash_tables.adb
 include/ai302-containers-hash_tables.ads
 include/ai302-containers-indefinite_hashed_maps.adb
@@ -156,6 +160,8 @@ include/ai302-containers-prime_numbers.adb
 include/ai302-containers-prime_numbers.ads
 include/ai302-containers-red_black_trees.adb
 include/ai302-containers-red_black_trees.ads
+include/ai302-containers-vectors.adb
+include/ai302-containers-vectors.ads
 include/ai302-containers.ads
 include/ai302-strings-hash.adb
 include/ai302-strings-hash.ads
