@@ -140,8 +140,6 @@ package body ZLib is
    begin
       Code := Flate (Filter.Compression).Done (To_Thin_Access (Filter.Strm));
 
-      Filter.Opened := False;
-
       if Ignore_Error or else Code = Thin.Z_OK then
          Free (Filter.Strm);
       else
@@ -217,7 +215,6 @@ package body ZLib is
       Filter.Strm        := new Z_Stream;
       Filter.Compression := True;
       Filter.Stream_End  := False;
-      Filter.Opened      := True;
       Filter.Header      := Header;
 
       if Thin.Deflate_Init
@@ -345,7 +342,6 @@ package body ZLib is
       Filter.Strm        := new Z_Stream;
       Filter.Compression := False;
       Filter.Stream_End  := False;
-      Filter.Opened      := True;
       Filter.Header      := Header;
 
       if Thin.Inflate_Init
@@ -361,7 +357,7 @@ package body ZLib is
 
    function Is_Open (Filter : in Filter_Type) return Boolean is
    begin
-      return Filter.Opened;
+      return Filter.Strm /= null;
    end Is_Open;
 
    -----------------
@@ -385,21 +381,29 @@ package body ZLib is
    procedure Read
      (Filter : in out Filter_Type;
       Item   :    out Ada.Streams.Stream_Element_Array;
-      Last   :    out Ada.Streams.Stream_Element_Offset)
+      Last   :    out Ada.Streams.Stream_Element_Offset;
+      Flush  : in     Flush_Mode := No_Flush)
    is
       In_Last    : Stream_Element_Offset;
       Item_First : Ada.Streams.Stream_Element_Offset := Item'First;
+      V_Flush    : Flush_Mode := Flush;
 
    begin
       pragma Assert (Rest_First in Buffer'First .. Buffer'Last + 1);
+      pragma Assert (Rest_Last in Buffer'First - 1 .. Buffer'Last);
 
       loop
-         if Rest_First > Buffer'Last then
+         if Rest_Last = Buffer'First - 1 then
+            V_Flush := Finish;
+
+         elsif Rest_First > Rest_Last then
             Read (Buffer, Rest_Last);
             Rest_First := Buffer'First;
-         end if;
 
-         pragma Assert (Rest_Last in Buffer'First - 1 .. Buffer'Last);
+            if Rest_Last < Buffer'First then
+               V_Flush := Finish;
+            end if;
+         end if;
 
          Translate
            (Filter   => Filter,
@@ -407,11 +411,13 @@ package body ZLib is
             In_Last  => In_Last,
             Out_Data => Item (Item_First .. Item'Last),
             Out_Last => Last,
-            Flush    => Flush_Finish (Rest_Last < Rest_First));
+            Flush    => V_Flush);
 
          Rest_First := In_Last + 1;
 
-         exit when Last = Item'Last or else Stream_End (Filter);
+         exit when Stream_End (Filter)
+           or else Last = Item'Last
+           or else (Last >= Item'First and then Allow_Read_Some);
 
          Item_First := Last + 1;
       end loop;
@@ -496,7 +502,7 @@ package body ZLib is
       Code : Thin.Int;
 
    begin
-      if Filter.Opened = False then
+      if Filter.Strm = null then
          raise ZLib_Error;
       end if;
 
@@ -649,7 +655,7 @@ package body ZLib is
    procedure Write
      (Filter : in out Filter_Type;
       Item   : in     Ada.Streams.Stream_Element_Array;
-      Flush  : in     Flush_Mode)
+      Flush  : in     Flush_Mode := No_Flush)
    is
       Buffer : Stream_Element_Array (1 .. Buffer_Size);
       In_Last, Out_Last : Stream_Element_Offset;
