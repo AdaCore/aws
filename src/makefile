@@ -9,10 +9,10 @@ GY_tmp  = $(patsubst -gnatwe,,$(GFLAGS)) -I../include
 TGARGS = $(patsubst -gnaty3abcefhiklmnoprst,-gnaty3abcefhiklmnprt,$(GY_tmp))
 # We do not want to check for separate spec for the demos (s option).
 
-TMPLT_GARGS = $(GFLAGSY) -I. -I../ssl -I../include $(INCLUDES)
+TMPLT_GARGS = $(TGARGS) -I. -I../ssl -I../include $(INCLUDES)
 
 TMPLT_SOURCES	= templates_parser.adb templates_parser-input.adb \
-	templates_parser-query.adb templates_parser-xml.adb
+	templates_parser-query.adb templates_parser-utils.adb
 
 SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-communication-server.adb aws-communication.adb \
@@ -49,7 +49,8 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-services-dispatchers-timer.adb aws-net-ssl-certificate.adb
 
 ifdef XMLADA
-SOURCES := $(SOURCES) ../xsrc/aws-jabber.adb
+SOURCES       := $(SOURCES) ../xsrc/aws-jabber.adb
+TMPLT_SOURCES := $(TMPLT_SOURCES) ../xsrc/templates_parser-xml.adb
 endif
 
 UNITS = $(sort $(basename $(SOURCES)))
@@ -66,7 +67,7 @@ $(UNITS): force
 
 $(TMPLT_UNITS): force
 	echo Building $@
-	$(GNATMAKE) -u $(TGARGS) $@
+	$(GNATMAKE) -u $(TMPLT_GARGS) $@
 
 build: $(CONF_UNITS) $(UNITS) $(TMPLT_UNITS)
 
