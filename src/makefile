@@ -1,19 +1,35 @@
 
 # $Id$
 
-.SILENT: all build distrib
+.SILENT: all build build_ssl build_std distrib
 
-GFLAGS	= -g -gnatwu -gnaty
+SSL	= ../ssl
+GFLAGS	= -g -gnatwu -gnaty -I../ssl
+
+SOURCES	= aws-client.adb aws-messages.adb aws-response.adb aws-server.adb \
+	aws-status.adb aws-translater.adb aws-url.adb
 
 all:
 	echo "Targets:"
 	echo ""
-	echo "build:     build library"
+	echo "build:     build library MODE=[std/ssl"
+	echo "           $ make build MODE=ssl"
 	echo ""
 
-build:
-	gnatmake $(GFLAGS) aws
-	for file in *.adb; do gnatmake $(GFLAGS) $$file; done
+build: build_$(MODE)
+	for file in $(SOURCES); do gnatmake $(GFLAGS) $$file; done
+
+build_ssl:
+	-rm *.o *.ali
+	echo 'pragma Source_File_Name' > gnat.adc
+	echo '   (aws.net,' >> gnat.adc
+	echo '    Body_File_Name => "aws-net-ssl.adb");' >> gnat.adc
+
+build_std:
+	-rm *.o *.ali
+	echo 'pragma Source_File_Name' > gnat.adc
+	echo '   (aws.net,' >> gnat.adc
+	echo '    Body_File_Name => "aws-net-std.adb");' >> gnat.adc
 
 clean:
-	-rm *.o *.ali *.exe aws.tar*
+	-rm *.o *.ali *.exe aws.tar* gnat.adc
