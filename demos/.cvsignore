@@ -12,6 +12,8 @@ b~hotplug.adb
 b~hotplug.ads
 b~main.adb
 b~main.ads
+b~runme.adb
+b~runme.ads
 b~soap_client.adb
 b~soap_client.ads
 b~soap_server.adb
