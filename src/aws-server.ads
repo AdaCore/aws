@@ -55,11 +55,10 @@ package AWS.Server is
    --  A Web server.
 
    type Unexpected_Exception_Handler is access
-      procedure (E : in Ada.Exceptions.Exception_Occurrence;
-            Termination : in Boolean);
+     procedure (E           : in Ada.Exceptions.Exception_Occurrence;
+                Termination : in Boolean);
    --  Unexpected exception handler can be set to monitor server errors.
    --  Termination is set to true if the line has been terminated.
-
 
    procedure Start
      (Web_Server : in out HTTP;
@@ -108,7 +107,7 @@ package AWS.Server is
 
    procedure Set_Unexpected_Exception_Handler
      (Web_Server : in out HTTP;
-      Handler   : in     Unexpected_Exception_Handler);
+      Handler    : in     Unexpected_Exception_Handler);
    --  Set the unexpected exception handler. It is called whenever an
    --  unrecoverable error has been detected. The default handler just display
    --  (on standard output) an error message with the location of the
@@ -146,9 +145,9 @@ package AWS.Server is
 private
 
    procedure Default_Unexpected_Exception_Handler
-     (E : Ada.Exceptions.Exception_Occurrence;
-      Termination : Boolean);
-   --  Default hander of the unexpected exception.
+     (E           : in Ada.Exceptions.Exception_Occurrence;
+      Termination : in Boolean);
+   --  Default unexpected exception handler.
 
    type Slot_Phase is
      (Closed,
