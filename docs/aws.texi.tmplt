@@ -348,7 +348,7 @@ The value is "Ok".
 @end table
 
 @noindent
-There is three functions (in @code{AWS.Status}) to retreive the tag name
+There is three functions (in @code{AWS.Status}) to retrieve the tag name
 or value. Here are some examples:
 
 @table @code
@@ -410,7 +410,7 @@ Almost all features are used by the samples there.
 @code{AWS} provides a way to keep session data while users are
 browsing. There is no need to mess with the Cookies, @code{AWS} will do
 that for you. The idea is simple. A session ID will be transparently
-created and then you'll be able to insert and retreive session data
+created and then you'll be able to insert and retrieve session data
 using a standard Ada API (@xref{AWS.Session}.). Session data
 are key/value pair each of them beeing strings. How to deal with that ?
 
@@ -432,7 +432,7 @@ connections using the port 1234. This channel is not secure (False) and
 answer will be given by the procedure Service. A session ID will be created.
 
 @item Next, in the Service callback procedure that you have provided you
-must retreive the Session ID. As we have seen, the callback procedure
+must retrieve the Session ID. As we have seen, the callback procedure
 has the following prototype:
 
 @smallexample
@@ -482,7 +482,7 @@ File to process: <INPUT NAME=filename TYPE=FILE>
 @end smallexample
 
 @noindent
-On the server side, AWS will retreive the file and put it into the
+On the server side, AWS will retrieve the file and put it into the
 upload directory. This directory can be changed using
 @code{Set_Upload_Directory} in @code{AWS.Server.Config}.
 
@@ -513,7 +513,7 @@ authentification. Only basic (and not digest) authentification is
 supported at this time.
 
 @noindent
-Let's say that you want to retreive the @code{contrib.html} Web page from
+Let's say that you want to retrieve the @code{contrib.html} Web page from
 Pascal Obry homepage which is @url{http://perso.wanadoo.fr/pascal.obry}. The
 code to do so is:
 
