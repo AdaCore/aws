@@ -38,6 +38,22 @@ package body AWS.Translator is
 
    use Ada.Streams;
 
+   package Binary is
+
+      function To_String
+        (Data : in Ada.Streams.Stream_Element_Array)
+         return String;
+      pragma Inline (To_String);
+      --  Convert a Stream_Element_Array to a string.
+
+      function To_Stream_Element_Array
+        (Data : in String)
+         return Ada.Streams.Stream_Element_Array;
+      pragma Inline (To_Stream_Element_Array);
+      --  Convert a String to a Stream_Element_Array.
+
+   end Binary;
+
    -------------------
    -- Base64_Decode --
    -------------------
@@ -228,6 +244,12 @@ package body AWS.Translator is
       return Base64_Encode (Stream_Data);
    end Base64_Encode;
 
+   ------------
+   -- Binary --
+   ------------
+
+   package body Binary is separate;
+
    ---------------
    -- QP_Decode --
    ---------------
@@ -276,17 +298,8 @@ package body AWS.Translator is
 
    function To_Stream_Element_Array
      (Data : in String)
-      return Stream_Element_Array
-   is
-      Result : Stream_Element_Array
-        (Stream_Element_Offset (Data'First)
-         .. Stream_Element_Offset (Data'Last));
-   begin
-      for K in Data'Range loop
-         Result (Stream_Element_Offset (K)) := Character'Pos (Data (K));
-      end loop;
-      return Result;
-   end To_Stream_Element_Array;
+     return Stream_Element_Array
+   renames Binary.To_Stream_Element_Array;
 
    ---------------
    -- To_String --
@@ -294,14 +307,7 @@ package body AWS.Translator is
 
    function To_String
      (Data : in Stream_Element_Array)
-      return String
-   is
-      Result : String (Integer (Data'First) .. Integer (Data'Last));
-   begin
-      for K in Data'Range loop
-         Result (Integer (K)) := Character'Val (Data (K));
-      end loop;
-      return Result;
-   end To_String;
+     return String
+   renames Binary.To_String;
 
 end AWS.Translator;
