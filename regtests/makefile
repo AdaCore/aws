@@ -45,7 +45,7 @@ RT_SOAP = soap1 soap2 soap3 soap4 workorder testxml test_speed test_soap \
 # SOAP/WSDL test using ada2wsdl (ASIS package required)
 # Names must start with wsdl_ and be followed by a single digit between 0
 # and 9. Socket port is then 770<digit>.
-RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3 wsdl_4
+RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5
 
 RT_SOAP_ASIS_PARSE = wsdl_a
 
@@ -147,7 +147,7 @@ $(ASIS_TESTS): force
 	echo -n Building $@
 	../tools/ada2wsdl -q -f \
 		-a http://localhost:770`echo $@ | cut -c 6-` $@.ads -o $@.wsdl
-	../tools/wsdl2aws -q -f -types $@ $@.wsdl
+	../tools/wsdl2aws -q -f -cb -types $@ $@.wsdl
 	gnatmake -g $@_main $(GARGS) -largs $(LARGS) -bargs -E
 	echo ",  run it"
 	rm -f $@.res
