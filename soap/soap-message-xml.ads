@@ -31,7 +31,7 @@
 --  $Id$
 
 with SOAP.Message.Payload;
-with SOAP.Message.Response.Error;
+with SOAP.Message.Response;
 
 package SOAP.Message.XML is
 
