@@ -35,7 +35,7 @@
 --  IMPORTANT: The default certificate used for the SSL connection is
 --  "cert.pem" (in the working directory) if it exists. If this file does not
 --  exists it is required to initialize the SSL layer certificate with
---  SSL.Set_Certificate.
+--  AWS.Server.Set_Security.
 
 with Ada.Calendar;
 with Ada.Exceptions;
@@ -97,7 +97,7 @@ package body AWS.Net.SSL is
    begin
       loop
          Net.Std.Accept_Socket
-           (NSST (Socket.S.all), NSST (Socket_Type (New_Socket).S.all));
+           (NSST (Socket), NSST (Socket_Type (New_Socket)));
 
          TS_SSL.Set_FD (Socket_Type (New_Socket));
 
@@ -119,21 +119,9 @@ package body AWS.Net.SSL is
      (Left  : in out Socket_Type;
       Right : in     Net.Socket_Type'Class) is
    begin
-      Free (Left.S);
-      Left.S := Socket_Type (Right).S;
+      Net.Std.Assign (NSST (Left), Right);
+      Left.SSL := Socket_Type (Right).SSL;
    end Assign;
-
-   ----------
-   -- Bind --
-   ----------
-
-   procedure Bind
-     (Socket : in Socket_Type;
-      Port   : in Natural;
-      Host   : in String := "") is
-   begin
-      Net.Std.Bind (NSST (Socket.S.all), Port, Host);
-   end Bind;
 
    -------------
    -- Connect --
@@ -144,7 +132,7 @@ package body AWS.Net.SSL is
       Host     : in String;
       Port     : in Positive) is
    begin
-      Net.Std.Connect (NSST (Socket.S.all), Host, Port);
+      Net.Std.Connect (NSST (Socket), Host, Port);
 
       TSSL.SSL_Set_Connect_State (Socket.SSL);
 
@@ -187,27 +175,9 @@ package body AWS.Net.SSL is
          Socket.SSL := Null_Ptr;
       end if;
 
-      Net.Std.Free (NSST (Socket.S.all));
+      Net.Std.Free (NSST (Socket));
       Release_Cache (Socket);
    end Free;
-
-   ------------
-   -- Get_FD --
-   ------------
-
-   function Get_FD (Socket : in Socket_Type) return Integer is
-   begin
-      return Net.Std.Get_FD (NSST (Socket.S.all));
-   end Get_FD;
-
-   ---------------
-   -- Host_Name --
-   ---------------
-
-   function Host_Name return String is
-   begin
-      return Net.Std.Host_Name;
-   end Host_Name;
 
    -----------------
    -- Init_Random --
@@ -238,26 +208,6 @@ package body AWS.Net.SSL is
    begin
       TS_SSL.Initialize (Certificate_Filename, Security_Mode, Key_Filename);
    end Initialize;
-
-   ------------
-   -- Listen --
-   ------------
-
-   procedure Listen
-     (Socket     : in Socket_Type;
-      Queue_Size : in Positive := 5) is
-   begin
-      Net.Std.Listen (NSST (Socket.S.all), Queue_Size);
-   end Listen;
-
-   ---------------
-   -- Peer_Addr --
-   ---------------
-
-   function Peer_Addr (Socket : in Socket_Type) return String is
-   begin
-      return Net.Std.Peer_Addr (NSST (Socket.S.all));
-   end Peer_Addr;
 
    -------------
    -- Receive --
@@ -307,7 +257,7 @@ package body AWS.Net.SSL is
    begin
       TSSL.SSL_Set_Shutdown
         (Socket.SSL, TSSL.SSL_SENT_SHUTDOWN + TSSL.SSL_RECEIVED_SHUTDOWN);
-      Net.Std.Shutdown (NSST (Socket.S.all));
+      Net.Std.Shutdown (NSST (Socket));
    end Shutdown;
 
    ------------
@@ -321,7 +271,7 @@ package body AWS.Net.SSL is
       S    := Net.Std.Socket;
       Sock := new Socket_Type;
 
-      Socket_Type (Sock.all).S := S;
+      Net.Std.Assign (NSST (Sock.all), S.all);
 
       TS_SSL.Set_FD (Socket_Type (Sock.all));
 
