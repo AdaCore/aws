@@ -15,6 +15,7 @@
 @subtitle Ada Web Server
 @subtitle $Revision$
 @subtitle $Date$
+@author Dmitriy Anisimkov (anisimkov@@yahoo.com)
 @author Pascal Obry (p.obry@@wanadoo.fr)
 @url {http://perso.wanadoo.fr/pascal.obry}
 
@@ -65,6 +66,10 @@ You must keep in mind that this is work in progress and only a very
 small part of the HTTP/1.1 protocol is implemented. Nevertheless the
 AWS project grows as days goes...
 
+@noindent
+AWS support also HTTPS (secure HTTP) using SSL. This is based on OpenSSL
+a very good and Open Source SSL implementation.
+
 @node How to build it ?, How to use it ?, Introduction, Top
 @chapter How to build it ?
 
@@ -90,6 +95,32 @@ by Dmitriy Anisimkov) to Win32 of the 0.1.6 version from ENST.
 Under UNIX you must use the socket binding from ENST 
 @url{http://www.infres.enst.fr/ANC/}.
 
+@item OpenSSL
+
+OpenSSL is an Open Source toolkit implementing the Secure Sockets Layer
+(SSL v2 and v3) and much more. You'll find libraries for Win32 into this
+distribution. For other paltforms just download the OpenSSL source
+distribution from @url{http://www.openssl.org} and build it.
+
+@end itemize
+
+@noindent
+When you have built all libraries you can build AWS. There is two ways
+to build AWS:
+
+@itemize @bullet
+@item with SSL support
+
+@smallexample
+   $ make build_ssl
+@end smallexample
+
+@item without SSL support
+
+@smallexample
+   $ make build_std
+@end smallexample
+
 @end itemize
 
 @node How to use it ?, The AWS packages, How to build it ?, Top
@@ -113,8 +144,7 @@ I'd like to thanks contributors and peoples who send me feedbacks, ideas
 about AWS. In the early stage of the project this is very valuable.
 
 @noindent
-So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau and
-Dmitriy Anisimkov.
+So thanks goes to Sune Falck, David C. Hoos, Jean-Fran@,cois Rameau.
 
 @noindent
 As always, I hope I did not forget somebody.
