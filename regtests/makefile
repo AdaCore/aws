@@ -56,10 +56,10 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	tlog unexph2 sp sessions dirop multiple tcom tmime sessions2 \
 	sessions3 huge_response server_info server_config sback append \
 	compress zapp zbig zfile zstrm dispatch dispatch_vh dispatch_method \
-	split zstrm2 zres once get_post $(RT_STD_SEC)
+	split zstrm2 once get_post zopen $(RT_STD_SEC)
 
 STD_TESTS    = $(RT_STD)
-OTH_TESTS    = tres
+OTH_TESTS    = tres zres
 WSDL_TESTS   =
 WSDL_ATESTS  =
 ASIS_TESTS   =
@@ -98,6 +98,12 @@ init:
 	   ../icons/*.gif
 	echo "" > alldifs
 	echo "### Every output after this line is a regression ###" >> alldifs
+	-rm file[abc].txt*
+	echo "content of filea.txt" > filea.txt
+	echo "content of fileb.txt" > fileb.txt
+	echo "content of filec.txt" > filec.txt
+	-gzip -2 fileb.txt
+	-gzip -9 filec.txt
 
 $(STD_TESTS): force
 	echo -n Building $@
@@ -211,7 +217,7 @@ zres: force
 	echo "Number @_ONE_@ following by @_TWO_@." > file.tmplt
 	../tools/awsres -q -r zresres file1.txt -z file2.txt file.tmplt
 	gnatmake -g zres $(GARGS) -largs $(LARGS) -bargs -E
-	echo -n ",  run it"
+	echo ",  run it"
 	./zres > zres.res
 	-diff -c -w zres.out zres.res >> alldifs
 
@@ -249,4 +255,4 @@ clean:
 	-rm -f stockquoteservice* stock_quote_service*
 	-rm -f interoplab-* interoplab.ad* googlesearchservice*
 	-rm -f wsdl_?_service* wsdl4*
-	-rm -fr WSDL_6 wsdl_6.class
+	-rm -fr WSDL_6 wsdl_6.class file[abc].txt* zresres*
