@@ -1,3 +1,9 @@
+2004-06-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-session.adb:
+	(Save): Size method returns hash table size. Length method returns
+	 number of elements.
+
 2004-06-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-server-push.adb:
