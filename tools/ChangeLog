@@ -1,5 +1,9 @@
 2003-11-01  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* ada2wsdl-parser.adb:
+	(Tree_Exist): Removed, not used.
+	(Analyse_Routine): Put in alphabetical order.
+
 	* makefile:
 	(EXECS): New target (real executable names).
 	(ALL_EXEC): Based on EXECS.
