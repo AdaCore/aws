@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -31,6 +31,7 @@
 --  $Id$
 
 with Ada.Streams;
+with Ada.Strings.Unbounded;
 
 package AWS.Translator is
 
@@ -56,7 +57,14 @@ package AWS.Translator is
      (Data : in Ada.Streams.Stream_Element_Array)
       return String;
    pragma Inline (To_String);
-   --  Convert a Stream_Element_Array to a string.
+   --  Convert a Stream_Element_Array to a string. Note that as this routine
+   --  returns a String it should not be used with large array as this could
+   --  break the stack size limit. Use the routine below for large array.
+
+   function To_Unbounded_String
+     (Data : in Ada.Streams.Stream_Element_Array)
+      return Ada.Strings.Unbounded.Unbounded_String;
+   --  Convert a Stream_Element_Array to an Unbounded_String.
 
    function To_Stream_Element_Array
      (Data : in String)
