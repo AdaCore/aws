@@ -85,6 +85,7 @@ is
 
    procedure Send_File
      (Filename     : in String;
+      File_Size    : in Natural;
       HTTP_Version : in String);
    --  Send content of filename as chunk data
 
@@ -104,12 +105,7 @@ is
    procedure Send_File_Time
      (Sock     : in Sockets.Socket_FD'Class;
       Filename : in String);
-   --  Send Last-Modified: header
-
-   procedure Send_File_Size
-     (Sock     : in Sockets.Socket_FD'Class;
-      Filename : in String);
-   --  Send Content-Length: header
+   --  Send Last-Modified: header for the filename.
 
    function Is_Valid_HTTP_Date (HTTP_Date : in String) return Boolean;
    --  Check the date format as some Web brower seems to return invalid date
@@ -265,11 +261,14 @@ is
             --  Send file info and terminate header
 
             Send_File_Time (Sock, Response.Message_Body (Answer));
-            Send_File_Size (Sock, Response.Message_Body (Answer));
+            Sockets.Put_Line
+              (Sock,
+               Messages.Content_Length (Response.Content_Length (Answer)));
             Sockets.New_Line (Sock);
 
          else
             Send_File (Response.Message_Body (Answer),
+                       Response.Content_Length (Answer),
                        AWS.Status.HTTP_Version (C_Stat));
          end if;
 
@@ -486,9 +485,6 @@ is
 
       Status := Response.Status_Code (Answer);
 
-      AWS.Log.Write (HTTP_Server.Log,
-                     C_Stat, Status, HTTP_Server.Slots.Get_Peername (Index));
-
       case Response.Mode (Answer) is
 
          when Response.Message =>
@@ -505,6 +501,12 @@ is
             Socket_Taken := True;
 
       end case;
+
+      AWS.Log.Write (HTTP_Server.Log,
+                     C_Stat,
+                     Answer,
+                     HTTP_Server.Slots.Get_Peername (Index));
+
    end Answer_To_Client;
 
    ----------------------
@@ -1221,8 +1223,9 @@ is
    ---------------
 
    procedure Send_File
-     (Filename          : in String;
-      HTTP_Version      : in String)
+     (Filename     : in String;
+      File_Size    : in Natural;
+      HTTP_Version : in String)
    is
 
       procedure Send_File;
@@ -1247,7 +1250,7 @@ is
       begin
          --  Terminate header
 
-         Send_File_Size (Sock, Filename);
+         Sockets.Put_Line (Sock, Messages.Content_Length (File_Size));
          Sockets.New_Line (Sock);
 
          --  Send file content
@@ -1331,23 +1334,8 @@ is
       Filename : in String) is
    begin
       Sockets.Put_Line
-        (Sock,
-         "Last-Modified: " &
-         Messages.To_HTTP_Date (OS_Lib.File_Timestamp (Filename)));
+        (Sock, Messages.Last_Modified (OS_Lib.File_Timestamp (Filename)));
    end Send_File_Time;
-
-   --------------------
-   -- Send_File_Size --
-   --------------------
-
-   procedure Send_File_Size
-     (Sock     : in Sockets.Socket_FD'Class;
-      Filename : in String) is
-   begin
-      Sockets.Put_Line
-        (Sock, "Content-Length:"
-         & Streams.Stream_Element_Offset'Image (OS_Lib.File_Size (Filename)));
-   end Send_File_Size;
 
 begin
    --  This new connection has been initialized because some data are
