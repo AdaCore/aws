@@ -2520,6 +2520,10 @@ package body Templates_Parser is
       -------------------
 
       function Get_Next_Line return Boolean is
+         use type Maps.Character_Set;
+
+         Skip_End : constant Maps.Character_Set
+           := Blank or Maps.To_Set (ASCII.CR);
       begin
          if Input.End_Of_File (File) then
             Last := 0;
@@ -2543,7 +2547,7 @@ package body Templates_Parser is
             end if;
 
             Last := Strings.Fixed.Index
-              (Buffer (1 .. Last), Blank, Outside, Strings.Backward);
+              (Buffer (1 .. Last), Skip_End, Outside, Strings.Backward);
 
             return False;
          end if;
