@@ -74,8 +74,8 @@ package body AWS.Containers.Tables is
    -----------
 
    function Count
-     (Table  : in Table_Type;
-      Name   : in String)
+     (Table : in Table_Type;
+      Name  : in String)
       return Natural
    is
       Value : Name_Index_Table;
@@ -97,11 +97,12 @@ package body AWS.Containers.Tables is
    -----------
 
    function Exist
-     (Table  : in Table_Type;
-      Name   : in String)
+     (Table : in Table_Type;
+      Name  : in String)
       return Boolean is
    begin
       pragma Assert (Table.Index /= null);
+
       return Is_Present
         (Table.Index.all,
          Normalize_Name (Name, not Table.Case_Sensitive));
@@ -112,9 +113,9 @@ package body AWS.Containers.Tables is
    ---------
 
    function Get
-     (Table  : in Table_Type;
-      Name   : in String;
-      N      : in Positive := 1)
+     (Table : in Table_Type;
+      Name  : in String;
+      N     : in Positive := 1)
       return String
    is
       Value : Name_Index_Table;
@@ -133,21 +134,16 @@ package body AWS.Containers.Tables is
    end Get;
 
    function Get
-     (Table  : in Table_Type;
-      N      : in Positive)
-      return Element
-   is
+     (Table : in Table_Type;
+      N     : in Positive)
+      return Element is
    begin
       pragma Assert (Table.Index /= null);
 
       if N <= Data_Table.Last (Table.Data) then
          return Table.Data.Table (N).all;
       else
-         return
-           (Name_Length  => 0,
-            Value_Length => 0,
-            Name         => "",
-            Value        => "");
+         return Null_Element;
       end if;
    end Get;
 
@@ -173,11 +169,12 @@ package body AWS.Containers.Tables is
    --------------
 
    function Get_Name
-     (Table  : in Table_Type;
-      N      : in Positive := 1)
+     (Table : in Table_Type;
+      N     : in Positive := 1)
       return String is
    begin
       pragma Assert (Table.Index /= null);
+
       if N <= Data_Table.Last (Table.Data) then
          return Table.Data.Table (N).Name;
       else
@@ -190,8 +187,8 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Names
-     (Table  : in Table_Type;
-      Sort   : in Boolean := False)
+     (Table : in Table_Type;
+      Sort  : in Boolean := False)
       return VString_Array
    is
 
@@ -250,8 +247,8 @@ package body AWS.Containers.Tables is
    ---------------
 
    function Get_Value
-     (Table  : in Table_Type;
-      N      : in Positive := 1)
+     (Table : in Table_Type;
+      N     : in Positive := 1)
       return String is
    begin
       pragma Assert (Table.Index /= null);
@@ -268,8 +265,8 @@ package body AWS.Containers.Tables is
    ----------------
 
    function Get_Values
-     (Table  : in Table_Type;
-      Name   : in String)
+     (Table : in Table_Type;
+      Name  : in String)
       return VString_Array
    is
       Value : Name_Index_Table;
