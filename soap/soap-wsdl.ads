@@ -48,7 +48,7 @@ package SOAP.WSDL is
    --  Load and parse a WSDL document and return the XML tree representation
 
    type Parameter_Type is
-     (P_Integer, P_Long, P_Float, P_Double, P_String, P_Character,
+     (P_Integer, P_Short, P_Long, P_Float, P_Double, P_String, P_Character,
       P_Boolean, P_Time, P_B64);
    --  These are the types supported by the WSDL parser
 
