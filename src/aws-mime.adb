@@ -37,7 +37,6 @@ with Ada.Strings.Maps.Constants;
 with Ada.Strings.Unbounded;
 
 with GNAT.Directory_Operations;
-with GNAT.Dynamic_Tables;
 with GNAT.Regexp;
 
 with AWS.Containers.Key_Value;
@@ -60,24 +59,33 @@ package body AWS.MIME is
       MIME_Type : Unbounded_String;   -- Associated content type
    end record;
 
-   package Regexp_Table is
-      new Dynamic_Tables (R_MIME_Type, Natural, 1, 20, 10);
+   type Node;
+   type Node_Access is access Node;
+
+   type Node is record
+      Item : R_MIME_Type;
+      Next : Node_Access;
+   end record;
 
    --  Protected Set to access tables handling MIME types
 
    protected Set is
 
       function Get (Filename : in String) return String;
+      --  Returns Filename's MIME content type
 
       procedure Add_Extension (Ext : in String; MIME_Type : in String);
+      --  Add Ext to the set of known content type extensions
 
       procedure Add_Regexp
         (Filename  : in Regexp.Regexp;
          MIME_Type : in String);
+      --  Add Filename to the set of known content type regular expressions
 
    private
       Ext_Set : Containers.Key_Value.Set;
-      R_Table : Regexp_Table.Instance;
+      R_Table : Node_Access;
+      Last    : Node_Access;
    end Set;
 
    function To_Lower (Item : in String)
@@ -393,10 +401,18 @@ package body AWS.MIME is
 
       procedure Add_Regexp
         (Filename  : in Regexp.Regexp;
-         MIME_Type : in String) is
+         MIME_Type : in String)
+      is
+         Item : constant R_MIME_Type
+           := (Filename, To_Unbounded_String (MIME_Type));
       begin
-         Regexp_Table.Append
-           (R_Table, R_MIME_Type'(Filename, To_Unbounded_String (MIME_Type)));
+         if R_Table = null then
+            R_Table := new Node'(Item, null);
+            Last    := R_Table;
+         else
+            Last.Next := new Node'(Item, null);
+            Last := Last.Next;
+         end if;
       end Add_Regexp;
 
       ---------
@@ -410,13 +426,19 @@ package body AWS.MIME is
             return To_String (Containers.Key_Value.Value (Ext_Set, Ext));
 
          else
-            --  Check now in regexp table
+            --  Check now in regexp list
 
-            for K in 1 .. Regexp_Table.Last (R_Table) loop
-               if Regexp.Match (Filename, R_Table.Table (K).Regexp) then
-                  return To_String (R_Table.Table (K).MIME_Type);
-               end if;
-            end loop;
+            declare
+               N : Node_Access := R_Table;
+            begin
+               while N /= null loop
+                  if Regexp.Match (Filename, N.Item.Regexp) then
+                     return To_String (N.Item.MIME_Type);
+                  end if;
+
+                  N := N.Next;
+               end loop;
+            end;
          end if;
 
          return Default_Content_Type;
