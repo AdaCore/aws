@@ -80,6 +80,7 @@ package body SOAP.Message.XML is
                         A_Boolean, A_Time_Instant, A_Base64);
 
    type State is record
+      Name_Space   : Unbounded_String;
       Wrapper_Name : Unbounded_String;
       Parameters   : SOAP.Parameters.List;
       A_State      : Array_State := Void;
@@ -205,7 +206,8 @@ package body SOAP.Message.XML is
 
       Free (Doc);
 
-      return Message.Payload.Build (To_String (S.Wrapper_Name), S.Parameters);
+      return Message.Payload.Build
+        (To_String (S.Wrapper_Name), S.Parameters, To_String (S.Name_Space));
    end Load_Payload;
 
    -------------------
@@ -250,9 +252,8 @@ package body SOAP.Message.XML is
                (String'(SOAP.Parameters.Get (S.Parameters, "faultcode"))),
             Faultstring => SOAP.Parameters.Get (S.Parameters, "faultstring"));
       else
-         return Message.Response.Object'(Null_Unbounded_String,
-                                         S.Wrapper_Name,
-                                         S.Parameters);
+         return Message.Response.Object'
+           (S.Name_Space, S.Wrapper_Name, S.Parameters);
       end if;
 
    exception
@@ -269,7 +270,7 @@ package body SOAP.Message.XML is
    function Parse_Array
      (N : in DOM.Core.Node;
       S : in State)
-     return Types.Object'Class
+      return Types.Object'Class
    is
       use type DOM.Core.Node;
       use SOAP.Types;
@@ -324,7 +325,7 @@ package body SOAP.Message.XML is
       while Field /= null loop
          K := K + 1;
          OS (K) := +Parse_Param
-           (Field, (S.Wrapper_Name, S.Parameters, A_Type));
+           (Field, (S.Name_Space, S.Wrapper_Name, S.Parameters, A_Type));
 
          Field := Next_Sibling (Field);
       end loop;
@@ -337,12 +338,21 @@ package body SOAP.Message.XML is
    ------------------
 
    function Parse_Base64 (N : in DOM.Core.Node) return Types.Object'Class is
+      use type DOM.Core.Node;
+
       Name  : constant String := Local_Name (N);
       Value : DOM.Core.Node;
    begin
       Normalize (N);
       Value := First_Child (N);
-      return Types.B64 (Node_Value (Value), Name);
+
+      if Value = null then
+         --  No node found, this is an empty Base64 content
+         return Types.B64 ("", Name);
+
+      else
+         return Types.B64 (Node_Value (Value), Name);
+      end if;
    end Parse_Base64;
 
    ----------------
@@ -428,7 +438,7 @@ package body SOAP.Message.XML is
    function Parse_Param
      (N        : in DOM.Core.Node;
       S        : in State)
-     return Types.Object'Class
+      return Types.Object'Class
    is
       use type DOM.Core.Node;
       use type DOM.Core.Node_Types;
@@ -553,7 +563,7 @@ package body SOAP.Message.XML is
    function Parse_Record
      (N : in DOM.Core.Node;
       S : in State)
-     return Types.Object'Class
+      return Types.Object'Class
    is
       use type DOM.Core.Node;
       use SOAP.Types;
@@ -604,7 +614,7 @@ package body SOAP.Message.XML is
 
    function Parse_Time_Instant
      (N : in DOM.Core.Node)
-     return Types.Object'Class
+      return Types.Object'Class
    is
       use Ada.Calendar;
 
@@ -630,9 +640,42 @@ package body SOAP.Message.XML is
    procedure Parse_Wrapper (N : in DOM.Core.Node; S : in out State) is
       use type SOAP.Parameters.List;
 
-      NL   : constant DOM.Core.Node_List := Child_Nodes (N);
-      Name : constant String             := Local_Name (N);
+      function Prefix return String;
+      --  Returns node prefix (with a ':' in front) if a prefix is used for
+      --  the node N.
+
+      NL   : constant DOM.Core.Node_List      := Child_Nodes (N);
+      Name : constant String                  := Local_Name (N);
+      Atts : constant DOM.Core.Named_Node_Map := Attributes (N);
+
+      ------------
+      -- Prefix --
+      ------------
+
+      function Prefix return String is
+         Prefix : constant String := DOM.Core.Nodes.Prefix (N);
+      begin
+         if Prefix = "" then
+            return "";
+         else
+            return ':' & Prefix;
+         end if;
+      end Prefix;
+
    begin
+      if Length (Atts) /= 0 then
+         declare
+            use type DOM.Core.Node;
+
+            xmlns : constant DOM.Core.Node
+              := Get_Named_Item (Atts, "xmlns" & Prefix);
+         begin
+            if xmlns /= null then
+               S.Name_Space := To_Unbounded_String (Node_Value (xmlns));
+            end if;
+         end;
+      end if;
+
       S.Wrapper_Name := To_Unbounded_String (Name);
 
       for K in 0 .. Length (NL) - 1 loop
