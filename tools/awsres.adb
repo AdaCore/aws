@@ -35,7 +35,7 @@
 
 with Ada.Calendar;
 with Ada.Integer_Text_IO;
-with Ada.Streams.Stream_IO;
+with Ada.Streams;
 with Ada.Strings.Fixed;
 with Ada.Strings.Maps;
 with Ada.Strings.Unbounded;
@@ -45,8 +45,10 @@ with GNAT.Command_Line;
 with GNAT.Calendar.Time_IO;
 
 with AWS.OS_Lib;
-with AWS.Translator;
-with AWS.Utils;
+with AWS.Resources.Streams.Disk;
+with AWS.Resources.Streams.ZLib;
+
+with ZLib;
 
 procedure AwsRes is
 
@@ -89,6 +91,8 @@ procedure AwsRes is
    procedure Create (Filename : in String) is
       use Streams;
 
+      package RS renames AWS.Resources.Streams;
+
       Max_Data  : constant := 14;
       --  Maximum number of data in a single line
 
@@ -107,12 +111,12 @@ procedure AwsRes is
       File_Time : Calendar.Time;
 
       O_File    : Text_IO.File_Type;
-      I_File    : Stream_IO.File_Type;
+
+      D_File    : aliased RS.Disk.Stream_Type;
+      Z_File    : aliased RS.ZLib.Stream_Type;
+      I_File    : RS.Stream_Access;
 
       First     : Boolean := True;
-
-      P_Buffer  : Utils.Stream_Element_Array_Access;
-      --  This buffer contains the prepared data
 
    begin
       if not Quiet then
@@ -122,7 +126,17 @@ procedure AwsRes is
       File_Time := AWS.OS_Lib.File_Timestamp (Filename);
 
       Text_IO.Create (O_File, Text_IO.Out_File, Pck_Name);
-      Stream_IO.Open (I_File, Stream_IO.In_File, Filename);
+
+      RS.Disk.Open (D_File, Filename);
+
+      if Compress then
+         RS.ZLib.Deflate_Initialize
+           (Z_File, D_File'Unchecked_Access, Header => ZLib.GZip);
+
+         I_File := Z_File'Unchecked_Access;
+      else
+         I_File := D_File'Unchecked_Access;
+      end if;
 
       --  Output package declaration
 
@@ -148,19 +162,9 @@ procedure AwsRes is
       I := 0;
 
       loop
-         Stream_IO.Read (I_File, Buffer, Last);
+         RS.Read (I_File.all, Buffer, Last);
 
-         exit when Last < Buffer'First;
-
-         Utils.Free (P_Buffer);
-
-         if Compress then
-            P_Buffer := Translator.Compress (Buffer (1 .. Last));
-         else
-            P_Buffer := new Stream_Element_Array'(Buffer (1 .. Last));
-         end if;
-
-         for K in P_Buffer'Range loop
+         for K in Buffer'First .. Last loop
             if I /= 0 then
                Text_IO.Put (O_File, ",");
 
@@ -174,7 +178,7 @@ procedure AwsRes is
             if First then
                --  No space after the open parentesis (style check)
                declare
-                  V : constant Integer := Integer (P_Buffer (K));
+                  V : constant Integer := Integer (Buffer (K));
                begin
                   if V < 10 then
                      Text_IO.Put
@@ -194,7 +198,7 @@ procedure AwsRes is
 
             else
                Integer_Text_IO.Put
-                 (O_File, Integer (P_Buffer (K)), Width => 4);
+                 (O_File, Integer (Buffer (K)), Width => 4);
             end if;
 
             I := I + 1;
@@ -203,6 +207,8 @@ procedure AwsRes is
                Text_IO.Put ('.');
             end if;
          end loop;
+
+         exit when Last < Buffer'Last;
       end loop;
 
       Text_IO.Put_Line
@@ -214,7 +220,7 @@ procedure AwsRes is
       Text_IO.Put_Line
         (O_File, "end " & To_String (Root_Pck) & '.' & Unit_Name & ';');
 
-      Stream_IO.Close (I_File);
+      RS.Close (I_File.all);
       Text_IO.Close (O_File);
 
       if not Quiet then
