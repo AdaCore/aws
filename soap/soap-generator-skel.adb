@@ -344,20 +344,20 @@ package body Skel is
                if Output.Next = null then
                   --  A single array as returned parameter
                   Text_IO.Put
-                    (Skel_Adb, " SOAP.Types.A (To_Object_Set (Result)"
+                    (Skel_Adb, "SOAP.Types.A (To_Object_Set (Result)"
                        &  ", """ & To_String (N.Name) & """)");
 
                else
                   --  Array here is part of an array
                   Text_IO.Put
-                    (Skel_Adb, " SOAP.Types.A (To_Object_Set (Result."
+                    (Skel_Adb, "SOAP.Types.A (To_Object_Set (Result."
                        & To_String (N.Name) & ".Item.all), """
                        & To_String (N.Name) & """)");
                end if;
 
             else
                Text_IO.Put
-                 (Skel_Adb, " To_SOAP_Object (Result, """
+                 (Skel_Adb, "To_SOAP_Object (Result, """
                     &  To_String (N.Name) & """)");
             end if;
          end if;
