@@ -47,28 +47,6 @@ package body AWS.Client.XML.Input_Sources is
    function "+" (Item : Stream_Element_Array) return String
      renames AWS.Translator.To_String;
 
-   procedure Clean_Buffer (From : in out HTTP_Input);
-   pragma Inline (Clean_Buffer);
-   --  Clean buffer in the connection. Ensure that the garbadge after the last
-   --  character read are cleaned.
-   --  ??? We have to remove this procedure sometime.
-   --  Now it is just for workaround some undefined problem.
-
-   ------------------
-   -- Clean_Buffer --
-   ------------------
-
-   procedure Clean_Buffer (From : in out HTTP_Input) is
-      First : constant Stream_Element_Offset := From.Last + 1;
-      Last  : constant Stream_Element_Offset
-        := Stream_Element_Offset'Min (First + 6, From.Buffer'Last);
-
-      --  pragma Unreferenced (First, Last);
-   begin
-      From.Buffer (First .. Last) := (others => 0);
-      null;
-   end Clean_Buffer;
-
    ------------
    -- Create --
    ------------
@@ -120,12 +98,10 @@ package body AWS.Client.XML.Input_Sources is
    begin
       if From.First > From.Last then
          Read_Some (From.Self.HTTP.all, From.Self.Buffer, From.Self.Last);
-         Clean_Buffer (HTTP_Input (From.Self.all));
-
          From.Self.First := From.Buffer'First;
       end if;
 
-      return From.First > From.Last;
+      return From.Self.First > From.Self.Last;
    end Eof;
 
    ---------------
@@ -166,8 +142,6 @@ package body AWS.Client.XML.Input_Sources is
 
          From.First := From.Buffer'First;
          From.Last  := Pos;
-
-         Clean_Buffer (From);
       end if;
 
       Read_Encoded_Char : loop
@@ -226,8 +200,6 @@ package body AWS.Client.XML.Input_Sources is
 
                raise Unicode.CES.Invalid_Encoding;
             end if;
-
-            Clean_Buffer (From);
 
          else
             --  No buffer overrun, C contains a valid character
