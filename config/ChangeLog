@@ -1,9 +1,14 @@
+2004-08-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-net-std__adasockets.adb, aws-net-std__gnat.adb:
+	(Send): Add Last out parameter. Change implementation.
+
 2004-07-23  Pascal Obry  <pascal@obry.org>
 
 	* src/check_config.c:
 	Initial revision.
 	Used to get some definitions from the OS include files.
-	
+
 	* makefile:
 	(setup): Add aws-os_lib-definitions.ads.
 	(aws-os_lib-definitions.ads): New target.
