@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -43,13 +43,13 @@ package body AWS.Server.Push is
    use AWS.Net;
 
    function To_Holder
-     (Socket      : in Socket_Type;
+     (Socket      : in Net.Socket_Type'Class;
       Environment : in Client_Environment;
       Kind        : in Mode)
      return Client_Holder;
 
-   function To_Stream (Socket : Socket_Type) return Stream_Access
-      renames AWS.Net.Stream_IO.Stream;
+   function To_Stream (Socket : in Net.Socket_Type'Class) return Stream_Access
+     renames AWS.Net.Stream_IO.Stream;
 
    New_Line : constant String := ASCII.CR & ASCII.LF;
    --  HTTP new line.
@@ -159,7 +159,7 @@ package body AWS.Server.Push is
                String'Write (Holder.Stream, New_Line);
             end if;
 
-            Stream_IO.Flush (Holder.Stream);
+            Net.Stream_IO.Flush (Holder.Stream);
 
          exception
          when others =>
@@ -297,7 +297,7 @@ package body AWS.Server.Push is
             String'Write (Holder.Stream, New_Line);
          end if;
 
-         Stream_IO.Flush (Holder.Stream);
+         Net.Stream_IO.Flush (Holder.Stream);
       end Send_Data;
 
       -------------
@@ -310,7 +310,6 @@ package body AWS.Server.Push is
          Content_Type : in String)
       is
          Holder : Client_Holder;
-         use Sockets;
       begin
          Holder := Table.Value (Container, Client_ID);
          Send_Data (Holder, Data, Content_Type);
@@ -368,9 +367,9 @@ package body AWS.Server.Push is
       begin
          Table.Remove (Container, Client_ID, Value);
          if Close_Socket then
-            Stream_IO.Shutdown (Value.Stream);
+            Net.Stream_IO.Shutdown (Value.Stream);
          end if;
-         Stream_IO.Free (Value.Stream);
+         Net.Stream_IO.Free (Value.Stream);
       exception
          when Table.Missing_Item_Error =>
             null;
@@ -396,7 +395,7 @@ package body AWS.Server.Push is
    procedure Register
      (Server            : in out Object;
       Client_ID         : in     Client_Key;
-      Socket            : in     Socket_Type;
+      Socket            : in     Net.Socket_Type'Class;
       Environment       : in     Client_Environment;
       Init_Data         : in     Client_Output_Type;
       Init_Content_Type : in     String := "";
@@ -412,15 +411,15 @@ package body AWS.Server.Push is
          Init_Content_Type,
          Close_Duplicate);
    exception
-   when Closed | Duplicate_Client_ID =>
-      Stream_IO.Free (Holder.Stream);
-      raise;
+      when Closed | Duplicate_Client_ID =>
+         Net.Stream_IO.Free (Holder.Stream);
+         raise;
    end Register;
 
    procedure Register
      (Server          : in out Object;
       Client_ID       : in     Client_Key;
-      Socket          : in     Socket_Type;
+      Socket          : in     Net.Socket_Type'Class;
       Environment     : in     Client_Environment;
       Kind            : in     Mode               := Plain;
       Close_Duplicate : in     Boolean := False)
@@ -431,9 +430,9 @@ package body AWS.Server.Push is
         (Client_ID,
          Holder, Close_Duplicate);
    exception
-   when Closed | Duplicate_Client_ID =>
-      Stream_IO.Free (Holder.Stream);
-      raise;
+      when Closed | Duplicate_Client_ID =>
+         Net.Stream_IO.Free (Holder.Stream);
+         raise;
    end Register;
 
    -------------
@@ -548,7 +547,7 @@ package body AWS.Server.Push is
    ---------------
 
    function To_Holder
-     (Socket      : in Socket_Type;
+     (Socket      : in Net.Socket_Type'Class;
       Environment : in Client_Environment;
       Kind        : in Mode)
      return Client_Holder is
