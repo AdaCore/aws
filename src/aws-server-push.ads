@@ -87,18 +87,18 @@ package AWS.Server.Push is
       Client_ID : in     Client_Key);
    --  Removes client from server subscription list.
 
-   procedure Data_For
+   procedure Send_To
      (Server       : in out Object;
       Client_ID    : in     Client_Key;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "");
    --  Push data to a specified client identified by Client_ID.
 
-   procedure Broadcast
+   procedure Send
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "");
-   --  Push data to the every client subscribed to the server.
+   --  Push data to the every client (broadcast) subscribed to the server.
 
 private
 
@@ -125,12 +125,12 @@ private
         (Client_ID : in Client_Key;
          Holder    : in Client_Holder);
 
-      procedure Data_For
+      procedure Send_To
         (Client_ID    : in Client_Key;
          Data         : in Client_Output_Type;
          Content_Type : in String);
 
-      procedure Broadcast
+      procedure Send
         (Data         : in Client_Output_Type;
          Content_Type : in String);
 

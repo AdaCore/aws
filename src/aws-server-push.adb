@@ -99,30 +99,30 @@ package body AWS.Server.Push is
       Free (Socket.Socket);
    end Close;
 
-   ---------------
-   -- Broadcast --
-   ---------------
+   ----------
+   -- Send --
+   ----------
 
-   procedure Broadcast
+   procedure Send
      (Server       : in out Object;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "") is
    begin
-      Server.Broadcast (Data, Content_Type);
-   end Broadcast;
+      Server.Send (Data, Content_Type);
+   end Send;
 
-   --------------
-   -- Data_For --
-   --------------
+   -------------
+   -- Send_To --
+   -------------
 
-   procedure Data_For
+   procedure Send_To
      (Server       : in out Object;
       Client_ID    : in     Client_Key;
       Data         : in     Client_Output_Type;
       Content_Type : in     String             := "") is
    begin
-      Server.Data_For (Client_ID, Data, Content_Type);
-   end Data_For;
+      Server.Send_To (Client_ID, Data, Content_Type);
+   end Send_To;
 
    ----------------
    -- Unregister --
@@ -162,11 +162,11 @@ package body AWS.Server.Push is
          Content_Type : in String);
       --  Send Data to a client identified by Holder.
 
-      ---------------
-      -- Broadcast --
-      ---------------
+      ----------
+      -- Send --
+      ----------
 
-      procedure Broadcast
+      procedure Send
         (Data         : in Client_Output_Type;
          Content_Type : in String)
       is
@@ -222,13 +222,13 @@ package body AWS.Server.Push is
          For_Each (Container);
          Remove_Each (For_Remove);
          Table.Destroy (For_Remove);
-      end Broadcast;
+      end Send;
 
-      --------------
-      -- Data_For --
-      --------------
+      -------------
+      -- Send_To --
+      -------------
 
-      procedure Data_For
+      procedure Send_To
         (Client_ID    : in Client_Key;
          Data         : in Client_Output_Type;
          Content_Type : in String)
@@ -240,7 +240,7 @@ package body AWS.Server.Push is
          when others =>
             Unregister (Client_ID);
             raise Client_Gone;
-      end Data_For;
+      end Send_To;
 
       --------------
       -- Register --
