@@ -91,8 +91,7 @@ package body AWS.Net is
          declare
             Sock : SSL.Handle;
          begin
-            SSL.Socket (Sock, Sockets.AF_INET,
-                        Sockets.SOCK_STREAM);
+            SSL.Socket (Sock, Sockets.AF_INET, Sockets.SOCK_STREAM);
             SSL.Connect (Sock, Host, Port);
             return Sock;
          end;
