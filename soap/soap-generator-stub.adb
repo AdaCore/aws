@@ -394,6 +394,16 @@ package body Stub is
          Text_IO.Put_Line (Stub_Adb, ", """ & Namespace & """);");
       end if;
 
+      if O.Debug then
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "      Put_Line (""[CLIENT/" & L_Proc & "] Payload : """);
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "                & SOAP.Message.XML.Image (Payload));");
+         Text_IO.New_Line (Stub_Adb);
+      end if;
+
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "      declare");
       Text_IO.Put_Line
@@ -436,6 +446,17 @@ package body Stub is
          "           := SOAP.Message.Parameters (Response);");
 
       Text_IO.Put_Line (Stub_Adb, "      begin");
+
+      if O.Debug then
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "         Put_Line (""[CLIENT/" & L_Proc & "] Response : """);
+         Text_IO.Put_Line
+           (Stub_Adb,
+            "                   & SOAP.Message.XML.Image (Response));");
+         Text_IO.New_Line (Stub_Adb);
+      end if;
+
       Text_IO.Put_Line
         (Stub_Adb,
          "         if SOAP.Message.Response.Is_Error (Response) then");
@@ -626,6 +647,12 @@ package body Stub is
 
       Text_IO.Put_Line (Stub_Adb, "pragma Warnings (Off);");
       Text_IO.New_Line (Stub_Adb);
+
+      if O.Debug then
+         Text_IO.Put_Line (Stub_Adb, "with Ada.Text_IO;");
+         Text_IO.Put_Line (Stub_Adb, "with SOAP.Message.XML;");
+      end if;
+
       Text_IO.Put_Line (Stub_Adb, "with Ada.Exceptions;");
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "with SOAP.Client;");
@@ -636,6 +663,11 @@ package body Stub is
       Text_IO.New_Line (Stub_Adb);
       Text_IO.Put_Line (Stub_Adb, "package body " & U_Name & ".Client is");
       Text_IO.New_Line (Stub_Adb);
+
+      if O.Debug then
+         Text_IO.Put_Line (Stub_Adb, "   use Ada.Text_IO;");
+      end if;
+
       Text_IO.Put_Line (Stub_Adb, "   use SOAP.Types;");
       Text_IO.Put_Line (Stub_Adb, "   use type SOAP.Parameters.List;");
       Text_IO.New_Line (Stub_Adb);
