@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2002                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -101,7 +101,7 @@ package body AWS.Net is
 
    procedure Set_Cache (Socket : in out Socket_Type'Class) is
    begin
-      --  Recreate cache if it already exists.
+      --  Recreate cache if it already exists
 
       if Socket.C /= null then
          Release_Cache (Socket);
