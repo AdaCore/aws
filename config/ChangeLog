@@ -1,6 +1,11 @@
 2004-09-21  Pascal Obry  <pascal@obry.org>
 
 	* src/check_config.c:
+	Back out previous change as it is not ok on FreeBSD after all.
+
+2004-09-21  Pascal Obry  <pascal@obry.org>
+
+	* src/check_config.c:
 	Include <sys/types.h> to fix build failure on FreeBSD.
 
 2004-09-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
