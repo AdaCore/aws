@@ -251,17 +251,8 @@ package body AWS.Client is
 
       Connection.User_Agent := To_Unbounded_String (User_Agent);
 
-      if Timeouts.Receive > 0 then
-         Connection.Read_Timeout := Duration (Timeouts.Receive);
-      else
-         Connection.Read_Timeout := Net.Forever;
-      end if;
-
-      if Timeouts.Send > 0 then
-         Connection.Write_Timeout := Duration (Timeouts.Send);
-      else
-         Connection.Write_Timeout := Net.Forever;
-      end if;
+      Connection.Read_Timeout  := Timeouts.Receive;
+      Connection.Write_Timeout := Timeouts.Send;
 
       --  If we have set the proxy or standard authentication we must set the
       --  authentication mode to Basic.
