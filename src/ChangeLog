@@ -1,3 +1,17 @@
+2004-03-23  Pascal Obry <p.obry@wanadoo.fr>
+
+	* aws-headers-set.adb:
+	Minor reformatting.
+        Update copyright notice.
+
+	* aws-services-web_mail.adb:
+	(Message): Add WM_CC tag variale to the translate table.
+        Update copyright notice.
+
+	* aws-services-web_mail.ads:
+	Document WM_CC tag for the message page.
+        Update copyright notice.
+
 2004-03-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-response.adb:
