@@ -43,7 +43,7 @@ force:
 
 $(UNITS): force
 	echo Building $@
-	gnatmake -u $(GARGS) $@
+	$(GNATMAKE) -u $(GARGS) $@
 
 build: $(CONF_UNITS) $(UNITS)
 
@@ -52,48 +52,48 @@ aws-translator-conversion.adb:
 
 aws-net-std.adb:
 ifdef ADASOCKETS
-	cp ../config/aws-net-std__adasockets.adb aws-net-std.adb
+	$(CP) ../config/aws-net-std__adasockets.adb aws-net-std.adb
 else
-	cp ../config/aws-net-std__gnat.adb aws-net-std.adb
+	$(CP) ../config/aws-net-std__gnat.adb aws-net-std.adb
 endif
 
 adasockets:
-	-rm -f *.o *.ali
-	cp ../config/aws-net-std__adasockets.adb aws-net-std.adb
+	-$(RM) -f *.o *.ali
+	$(CP) ../config/aws-net-std__adasockets.adb aws-net-std.adb
 
 gnatsockets:
-	-rm -f *.o *.ali
-	cp ../config/aws-net-std__gnat.adb aws-net-std.adb
+	-$(RM) -f *.o *.ali
+	$(CP) ../config/aws-net-std__gnat.adb aws-net-std.adb
 
 gnat_oslib:
-	-rm -f *.o *.ali
-	cp ../config/aws-os_lib__gnat.adb aws-os_lib.adb
+	-$(RM) -f *.o *.ali
+	$(CP) ../config/aws-os_lib__gnat.adb aws-os_lib.adb
 
 posix_oslib:
-	-rm -f *.o *.ali
-	cp ../config/aws-os_lib__posix.adb aws-os_lib.adb
+	-$(RM) -f *.o *.ali
+	$(CP) ../config/aws-os_lib__posix.adb aws-os_lib.adb
 
 win32_oslib:
-	-rm -f *.o *.ali
-	cp ../config/aws-os_lib__win32.adb aws-os_lib.adb
+	-$(RM) -f *.o *.ali
+	$(CP) ../config/aws-os_lib__win32.adb aws-os_lib.adb
 
 clean:
-	-rm -f *.o *.ali aws-os_lib.adb *.~*.*~
-	-rm -f aws-translator-conversion.adb
-	-rm -f aws-net-std.adb
-	-rm -f aws-soap.ad[sb]
+	-$(RM) -f *.o *.ali aws-os_lib.adb *.~*.*~
+	-$(RM) -f aws-translator-conversion.adb
+	-$(RM) -f aws-net-std.adb
+	-$(RM) -f aws-soap.ad[sb]
 
 #############################################################################
 # Configuration for GNAT Projet Files
 
 gsetup: gnatsockets gnat_oslib
-	-mkdir -p ../.build/debug/obj
-	-mkdir -p ../.build/debug/lib
-	-mkdir -p ../.build/release/obj
-	-mkdir -p ../.build/release/lib
+	-$(MKDIR) -p ../.build/debug/obj
+	-$(MKDIR) -p ../.build/debug/lib
+	-$(MKDIR) -p ../.build/release/obj
+	-$(MKDIR) -p ../.build/release/lib
 
 gbuild: 
-	gnatmake -Psrc -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
+	$(GNATMAKE) -Psrc -XAWS_BUILD=${PRJ_BUILD} -XXMLADA=${PRJ_XMLADA}
 
 gclean: clean
 	$(RM) -fr ../.build/debug/lib ../.build/debug/obj

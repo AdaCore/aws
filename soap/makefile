@@ -18,9 +18,9 @@ force:
 
 $(UNITS): force
 	echo Building $@;
-	gnatmake -u $(GARGS) $@;
+	$(GNATMAKE) -u $(GARGS) $@;
 
 build: $(UNITS)
 
 clean:
-	-rm -f *.o *.ali b~*.ad* *.~*.*.~
+	-$(RM) -f *.o *.ali b~*.ad* *.~*.*.~
