@@ -359,7 +359,10 @@ package body AWS.Services.Directory is
         (Item         : in     File_Record;
          Value        : in     Empty_Type;
          Order_Number : in     Positive;
-         Continue     : in out Boolean) is
+         Continue     : in out Boolean)
+      is
+         pragma Unreferenced (Value);
+         pragma Unreferenced (Order_Number);
       begin
          if Item.Directory then
             Sizes := Sizes & '-';
