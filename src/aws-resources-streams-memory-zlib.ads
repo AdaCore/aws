@@ -78,9 +78,17 @@ package AWS.Resources.Streams.Memory.ZLib is
       Buffer   : in     Stream_Element_Access);
    --  Compress and Append Buffer into the memory stream
 
-   procedure Flush (Resource : in out Stream_Type'Class);
-   --  Complete compression, flush internal compression buffer to the
-   --  memory stream.
+   procedure Read
+     (Resource : in out Stream_Type;
+      Buffer   :    out Stream_Element_Array;
+      Last     :    out Stream_Element_Offset);
+   --  Returns a chunck of data in Buffer, Last point to the last element
+   --  returned in Buffer.
+   --  We need redefine it for auto flush after append before read.
+
+   function Size (Resource : in Stream_Type) return Stream_Element_Offset;
+   --  Returns the number of bytes in the memory stream
+   --  We need redefine it for auto flush after append before get size.
 
    procedure Close (Resource : in out Stream_Type);
    --  Close the ZLib stream, release all memory associated with the Resource
@@ -88,8 +96,14 @@ package AWS.Resources.Streams.Memory.ZLib is
 
 private
 
+   type Stream_Access is access all Stream_Type;
+
    type Stream_Type is new Memory.Stream_Type with record
-      Filter : ZL.Filter_Type;
+      Self    : Stream_Access := Stream_Type'Unchecked_Access;
+      --  We need it for auto flush in the Size routine call.
+
+      Filter  : ZL.Filter_Type;
+      Flushed : Boolean;
    end record;
 
 end AWS.Resources.Streams.Memory.ZLib;
