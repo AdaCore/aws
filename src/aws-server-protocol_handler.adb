@@ -375,27 +375,28 @@ is
             when Templates_Parser.Template_Error =>
                Answer := Response.Build
                  (Content_Type => MIME.Text_HTML,
-                  Message_Body =>  "Status template error. Please check "
-                                 & "that 'status.tmplt' file is valid.");
+                  Message_Body =>
+                    "Status template error. Please check "
+                    & "that '" & Config.Status_Page & "' file is valid.");
          end;
 
       elsif URI = Admin_URI & "-logo" then
          --  Status page logo
          Answer := Response.File
-           (Content_Type => MIME.Image_Png,
-            Filename     => "logo.png");
+           (Content_Type => MIME.Content_Type (Config.Logo_Image),
+            Filename     => Config.Logo_Image);
 
       elsif URI = Admin_URI & "-uparr" then
          --  Status page hotplug up-arrow
          Answer := Response.File
-           (Content_Type => MIME.Image_Png,
-            Filename     => "up.png");
+           (Content_Type => MIME.Content_Type (Config.Up_Image),
+            Filename     => Config.Up_Image);
 
       elsif URI = Admin_URI & "-downarr" then
          --  Status page hotplug down-arrow
          Answer := Response.File
-           (Content_Type => MIME.Image_Png,
-            Filename     => "down.png");
+           (Content_Type => MIME.Content_Type (Config.Down_Image),
+            Filename     => Config.Down_Image);
 
       elsif URI = Admin_URI & "-HPup" then
          --  Status page hotplug up message
