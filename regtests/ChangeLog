@@ -1,3 +1,8 @@
+2004-08-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* sockext.adb, sockext_proc.adb, sockext_sec.adb, makefile:
+	Regression test for partial write.
+
 2004-08-08  Pascal Obry  <pascal@obry.org>
 
 	* test_speed.adb:
