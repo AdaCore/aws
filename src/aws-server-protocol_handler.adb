@@ -1197,11 +1197,14 @@ begin
 
    For_Every_Request : loop
 
+      HTTP_Server.Slots.Increment_Slot_Activity_Counter (Index);
+
       Get_Message_Header;
 
       Get_Message_Data;
 
-      Will_Close := AWS.Messages.Is_Match (Status.Connection (C_Stat), "close")
+      Will_Close :=
+        AWS.Messages.Does_Not_Match (Status.Connection (C_Stat), "Keep-Alive")
         or else Status.HTTP_Version (C_Stat) = HTTP_10
         or else HTTP_Server.Slots.N = 1;
 
