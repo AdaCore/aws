@@ -1,4 +1,15 @@
-2003-11-10  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-resources-streams.ads:
+	Reorder routines.
+
+	* aws-session.adb:
+	Minor reformatting.
+
+	* aws-resources-streams.adb:
+	Minor reformatting.
+
+2003-11-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
 	(SOURCES): Add aws-services-transient_pages-control.adb.
@@ -171,7 +182,7 @@
 	* aws-server-push.ads:
 	Fix typo in comment.
 
-2003-10-23  Pascal Obry  <pascal.obry@edf.fr>
+2003-10-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-streams-memory-zlib.adb:
 	Add pragma Linker_Options -lz.

@@ -4,7 +4,7 @@
 	Replace references to Tree_Readers by DOM.Readers to comply to
 	XMLAda 1.0.
 
-2003-11-03  Pascal Obry  <pascal.obry@edf.fr>
+2003-11-03  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb:
 	(New_Procedure): Do not output SOAPAction here.
