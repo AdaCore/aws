@@ -88,6 +88,8 @@ package body AWS.Client.XML.Input_Sources is
    begin
       if From.First > From.Last then
          Read_Some (From.Self.HTTP.all, From.Self.Buffer, From.Self.Last);
+
+         From.Self.First := From.Buffer'First;
       end if;
 
       return From.First > From.Last;
@@ -108,6 +110,8 @@ package body AWS.Client.XML.Input_Sources is
    begin
       if From.First > From.Last then
          Read_Some (From.HTTP.all, From.Buffer, From.Last);
+
+         From.First := From.Buffer'First;
       end if;
 
       ES := Get_Encoding (From);
