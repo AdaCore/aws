@@ -114,7 +114,8 @@ package body AWS.Status.Set is
                     .. Authorization'Last),
                Result => Result);
 
-            D.URI           := Result (URI);
+            D.URI
+              := URL.Parse (To_String (Result (URI)), False, False);
             D.Auth_Name     := Result (Username);
             D.Auth_Realm    := Result (Realm);
             D.Auth_Nonce    := Result (Nonce);
@@ -260,7 +261,7 @@ package body AWS.Status.Set is
       HTTP_Version : in     String) is
    begin
       D.Method       := Method;
-      D.URI          := To_Unbounded_String (URI);
+      D.URI          := URL.Parse (URI, False, False);
       D.HTTP_Version := To_Unbounded_String (HTTP_Version);
    end Request;
 
@@ -279,7 +280,6 @@ package body AWS.Status.Set is
       D.Connection        := Null_Unbounded_String;
       D.Host              := Null_Unbounded_String;
       D.Method            := GET;
-      D.URI               := Null_Unbounded_String;
       D.HTTP_Version      := Null_Unbounded_String;
       D.Content_Type      := Null_Unbounded_String;
       D.Boundary          := Null_Unbounded_String;
