@@ -149,7 +149,8 @@ package AWS.Status is
 
    function Session                (D : in Data) return Session.ID;
    pragma Inline (Session);
-   --  Returns the Session ID for the request.
+   --  Returns the Session ID for the request. Raises Constraint_Error if
+   --  server's session support not activated.
 
    function Session_Created        (D : in Data) return Boolean;
    --  Returns True if session was just created and is going to be sent to
