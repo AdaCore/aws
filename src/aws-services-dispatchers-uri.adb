@@ -132,8 +132,18 @@ package body AWS.Services.Dispatchers.URI is
    -----------
 
    function Match (URI : in Std_URI; Value : in String) return Boolean is
+      U : constant String := To_String (URI.URI);
    begin
-      return To_String (URI.URI) = Value;
+      if URI.Prefix then
+         if U'Length <= Value'Length then
+            return Value (Value'First .. Value'First + U'Length - 1) = U;
+         else
+            return False;
+         end if;
+
+      else
+         return U = Value;
+      end if;
    end Match;
 
    function Match (URI : in Reg_URI; Value : in String) return Boolean is
@@ -148,11 +158,12 @@ package body AWS.Services.Dispatchers.URI is
    procedure Register
      (Dispatcher : in out Handler;
       URI        : in     String;
-      Action     : in     AWS.Dispatchers.Handler'Class)
+      Action     : in     AWS.Dispatchers.Handler'Class;
+      Prefix     : in     Boolean := False)
    is
       Value : constant URI_Class_Access
         := new Std_URI'(new AWS.Dispatchers.Handler'Class'(Action),
-                        To_Unbounded_String (URI));
+                        To_Unbounded_String (URI), Prefix);
    begin
       URI_Table.Append (Dispatcher.Table, Value);
    end Register;
@@ -160,9 +171,11 @@ package body AWS.Services.Dispatchers.URI is
    procedure Register
      (Dispatcher : in out Handler;
       URI        : in     String;
-      Action     : in     Response.Callback) is
+      Action     : in     Response.Callback;
+      Prefix     : in     Boolean := False) is
    begin
-      Register (Dispatcher, URI, AWS.Dispatchers.Callback.Create (Action));
+      Register
+        (Dispatcher, URI, AWS.Dispatchers.Callback.Create (Action), Prefix);
    end Register;
 
    -------------------------------
@@ -191,7 +204,7 @@ package body AWS.Services.Dispatchers.URI is
    is
       Value : constant URI_Class_Access
         := new Reg_URI'(new AWS.Dispatchers.Handler'Class'(Action),
-                        To_Unbounded_String (URI),
+                        To_Unbounded_String (URI), False,
                         GNAT.Regexp.Compile (URI));
    begin
       URI_Table.Append (Dispatcher.Table, Value);
