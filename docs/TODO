@@ -113,5 +113,7 @@ implemented:
   partially. It is better for big compressed data, but worse for relatively
   small compressed data, when user want to read it at once.
 
+- Add SMTP authentication support
+
 =============== Point to fix before next release
 
