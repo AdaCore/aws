@@ -72,7 +72,7 @@ package body SOAP.Client is
                Response := AWS.Client.SOAP_Post
                  (URL,
                   To_String (Message_Body),
-                  AWS.URL.URL (URL_Object));
+                  AWS.URL.Pathname (URL_Object));
             end;
 
          else
@@ -90,6 +90,10 @@ package body SOAP.Client is
 
       return Message.XML.Load_Response (AWS.Response.Message_Body (Response));
    end Call;
+
+   ----------
+   -- Call --
+   ----------
 
    function Call
      (Connection : access AWS.Client.HTTP_Connection;
