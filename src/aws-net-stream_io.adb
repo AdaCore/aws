@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -121,8 +121,7 @@ package body AWS.Net.Stream_IO is
    procedure Read
      (Stream : in out Socket_Stream_Type;
       Item   :    out Ada.Streams.Stream_Element_Array;
-      Last   :    out Ada.Streams.Stream_Element_Offset)
-   is
+      Last   :    out Ada.Streams.Stream_Element_Offset) is
    begin
       Stream.Cache.Flush;
       Sockets.Receive (Stream.Socket.all, Item);
