@@ -1,3 +1,8 @@
+2003-03-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	Update to version 5.2. Fix include files memory leak.
+
 2003-03-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-net-std-gnat.adb:

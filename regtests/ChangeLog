@@ -1,3 +1,11 @@
+2003-03-25  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* check_mem.tmplt:
+	Add include.
+
+	* cm_include.tmplt:
+	Initial revision.
+
 2003-03-22  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
