@@ -30,8 +30,9 @@
 
 with Ada.Strings.Unbounded;
 with Ada.Streams;
+with Interfaces.C.Strings;
 
-with Sockets;
+with Sockets.Thin;
 
 with AWS.Messages;
 with AWS.Translater;
@@ -59,6 +60,9 @@ package body AWS.Client is
       function Read_Chunk return Streams.Stream_Element_Array;
       --  read a chunk object from the stream
 
+      function Get_Host_Name return String;
+      --  returns the local hostname
+
       Sock    : Sockets.Socket_FD;
       CT      : Unbounded_String;
       CT_Len  : Natural;
@@ -66,6 +70,10 @@ package body AWS.Client is
       Status  : Messages.Status_Code;
       Message : Unbounded_String;
       Proxy_Data, URL_Data : AWS.URL.Object;
+
+      ----------------
+      -- Read_Chunk --
+      ----------------
 
       function Read_Chunk return Streams.Stream_Element_Array is
 
@@ -100,6 +108,18 @@ package body AWS.Client is
          end if;
       end Read_Chunk;
 
+      -------------------
+      -- Get_Host_Name --
+      -------------------
+
+      function Get_Host_Name return String is
+         Buffer : Interfaces.C.char_array (1 .. 100);
+         Res    : Interfaces.C.int;
+      begin
+         Res := Sockets.Thin.C_gethostname (Buffer (1)'Address, 100);
+         return Interfaces.C.To_Ada (Buffer);
+      end Get_Host_Name;
+
    begin
 
       URL_Data   := AWS.URL.Parse (URL);
@@ -133,7 +153,7 @@ package body AWS.Client is
       Sockets.Put_Line (Sock, "Accept: text/html, */*");
       Sockets.Put_Line (Sock, "Accept-Language: fr, us");
       Sockets.Put_Line (Sock, "User-Agent: AWS/v" & Version);
-      Sockets.Put_Line (Sock, "Host: whatever_for_now");
+      Sockets.Put_Line (Sock, "Host: " & Get_Host_Name);
 
       if User /= No_Data and then Pwd /= No_Data then
          Sockets.Put_Line
