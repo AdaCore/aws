@@ -381,8 +381,20 @@ gxmlada_dummy:
 
 gai302_internal:
 	echo "project AI302 is" > $(PRJDIR)/ai302.gpr
-	echo "   for Source_Dirs use (\"../../include/ai302\");" \
+	echo '   for Source_Dirs use ("../../include/ai302");' \
 		>> $(PRJDIR)/ai302.gpr
+	echo '   type Build_Type is ("Debug", "Release");' \
+		>> $(PRJDIR)/ai302.gpr
+	echo '   Build : Build_Type := external ("PRJ_BUILD", "Debug");' \
+		>> $(PRJDIR)/ai302.gpr
+	echo "   case Build is" >> $(PRJDIR)/ai302.gpr
+	echo '      when "Debug" =>' >> $(PRJDIR)/ai302.gpr
+	echo '         for Object_Dir use "../../.build/debug/include";' \
+		>> $(PRJDIR)/ai302.gpr
+	echo '      when "Release" =>' >> $(PRJDIR)/ai302.gpr
+	echo '         for Object_Dir use "../../.build/release/include";' \
+		>> $(PRJDIR)/ai302.gpr
+	echo "   end case;" >> $(PRJDIR)/ai302.gpr
 	echo "end AI302;" >> $(PRJDIR)/ai302.gpr
 
 gai302_external:
