@@ -228,6 +228,11 @@ package body Runme_CB is
 
       elsif Status.Method (Request) = Status.PUT then
          return Put (Request);
+
+      else
+         return Response.Build
+           (Content_Type => "text/html",
+            Message_Body => "<p>Unknown Request method");
       end if;
    end Service;
 
@@ -246,6 +251,11 @@ package body Runme_CB is
 
       elsif Status.Method (Request) = Status.PUT then
          return Put (Request);
+
+      else
+         return Response.Build
+           (Content_Type => "text/html",
+            Message_Body => "<p>Unknown Request method");
       end if;
    end Service_Sec;
 
