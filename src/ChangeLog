@@ -3,6 +3,10 @@
 	* aws.ads:
 	(Version): Set to 1.3.
 
+	* aws-net.ads, aws-net-std.ads, aws-net-ssl.ads, aws-net-ssl.adb:
+	(Accept_Socket): New_Socket parameter is "in out" mode.
+	(Connect): Socket parameter is "in out" mode.
+
 2003-03-03  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-headers-values.adb:
