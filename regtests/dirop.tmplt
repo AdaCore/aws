@@ -1,7 +1,9 @@
 @_URI_@
 @@TABLE@@
    @@IF@@ @_IS_DIR_V_@
+      @@IF@@ @_NAME_V_@ /= "CVS/"
       @_NAME_V_@
+      @@END_IF@@
    @@ELSE@@
       @_NAME_V_@	@_SIZE_V_@	@_TIME_V_@
    @@END_IF@@
