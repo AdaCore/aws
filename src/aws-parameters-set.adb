@@ -74,7 +74,7 @@ package body AWS.Parameters.Set is
          end if;
       end Normalize_Name;
 
-      C       : constant Positive := Parameter_List.Count + 1;
+      C       : constant Positive := Count (Parameter_List) + 1;
 
       K_Key   : constant String   := "__AWS_K" & Utils.Image (C);
       K_Value : constant String   := "__AWS_V" & Utils.Image (C);
@@ -84,7 +84,6 @@ package body AWS.Parameters.Set is
 
       L_Value : constant String   := URL.Decode (Value);
    begin
-      Parameter_List.Count := Parameter_List.Count + 1;
 
       begin
          Key_Value.Insert
@@ -109,10 +108,10 @@ package body AWS.Parameters.Set is
       end;
 
       Key_Value.Insert
-        (Parameter_List.Data.all, K_Key, To_Unbounded_String (L_Key));
+        (Parameter_List.HTTP_Data.all, K_Key, To_Unbounded_String (L_Key));
 
       Key_Value.Insert
-        (Parameter_List.Data.all, K_Value, To_Unbounded_String (L_Value));
+        (Parameter_List.HTTP_Data.all, K_Value, To_Unbounded_String (L_Value));
    end Add;
 
    ---------
@@ -175,7 +174,9 @@ package body AWS.Parameters.Set is
    begin
       if not (Parameter_List.Data = null) then
          Key_Value.Destroy (Parameter_List.Data.all);
+         Key_Value.Destroy (Parameter_List.HTTP_Data.all);
          Free (Parameter_List.Data);
+         Free (Parameter_List.HTTP_Data);
       end if;
    end Free;
 
@@ -188,11 +189,12 @@ package body AWS.Parameters.Set is
    begin
       if Parameter_List.Data = null then
          Parameter_List.Data := new Key_Value.Set;
+         Parameter_List.HTTP_Data := new Key_Value.Set;
       else
          Key_Value.Destroy (Parameter_List.Data.all);
+         Key_Value.Destroy (Parameter_List.HTTP_Data.all);
       end if;
 
-      Parameter_List.Count      := 0;
       Parameter_List.Parameters := Null_Unbounded_String;
    end Reset;
 
