@@ -1,3 +1,8 @@
+2004-08-11  Pascal Obry  <pascal@obry.org>
+
+	* tres.adb:
+	Properly serialize output.
+
 2004-08-10  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sockext.adb, sockext_proc.adb, sockext_sec.adb, makefile,

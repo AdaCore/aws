@@ -375,6 +375,8 @@ sock1
 sock1.res
 sock1.tmp
 sock2.res
+sockext.res
+sockext_sec.res
 sockto.res
 sp
 sp.res
