@@ -65,7 +65,7 @@ package AWS.Resources.Streams.Memory is
 
    procedure Clear (Resource : in out Stream_Type);
    pragma Inline (Clear);
-   --  Delete all data from memory stream.
+   --  Delete all data from memory stream
 
    procedure Reset (Resource : in out Stream_Type);
    --  Reset the streaming data to the first position
@@ -74,7 +74,7 @@ package AWS.Resources.Streams.Memory is
    --  Returns the number of bytes in the memory stream
 
    procedure Close (Resource : in out Stream_Type);
-   --  Close the memory stream. Release all memory associated with the stream.
+   --  Close the memory stream. Release all memory associated with the stream
 
 private
 
