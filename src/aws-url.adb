@@ -38,6 +38,31 @@ package body AWS.URL is
 
    use Ada;
 
+   ------------
+   -- Encode --
+   ------------
+
+   function Encode (URL : in String) return String is
+      Res : String (1 .. URL'Length * 3);
+      K   : Natural := 0;
+   begin
+      for I in URL'Range loop
+
+         case URL (I) is
+            when ' ' =>
+               K := K + 1;
+               Res (K .. K + 2) := "%20";
+               K := K + 2;
+
+            when others =>
+               K := K + 1;
+               Res (K) := URL (I);
+         end case;
+      end loop;
+
+      return Res (1 .. K);
+   end Encode;
+
    -----------
    -- Parse --
    -----------
@@ -114,15 +139,6 @@ package body AWS.URL is
          raise URL_Error;
    end Parse;
 
-   -----------------
-   -- Server_Name --
-   -----------------
-
-   function Server_Name (URL : in Object) return String is
-   begin
-      return To_String (URL.Server_Name);
-   end Server_Name;
-
    ----------
    -- Port --
    ----------
@@ -147,13 +163,29 @@ package body AWS.URL is
       return URL.Security;
    end Security;
 
+   -----------------
+   -- Server_Name --
+   -----------------
+
+   function Server_Name (URL : in Object) return String is
+   begin
+      return To_String (URL.Server_Name);
+   end Server_Name;
+
    ---------
    -- URI --
    ---------
 
-   function URI (URL : in Object) return String is
+   function URI
+     (URL    : in Object;
+      Encode : in Boolean := False)
+     return String is
    begin
-      return To_String (URL.URI);
+      if Encode then
+         return AWS.URL.Encode (To_String (URL.URI));
+      else
+         return To_String (URL.URI);
+      end if;
    end URI;
 
 end AWS.URL;
