@@ -23,7 +23,7 @@ package body Tc_Soap_Names is
          begin
             Result := To_Unbounded_String (Ind & "ARRAY " & Name (Obj) & CrLf);
             for I in Arr'Range loop
-               Result := Result & Soap_Image (Arr (I).O.all, Indent + 3);
+               Result := Result & Soap_Image (-Arr (I), Indent + 3);
             end loop;
          end;
 
@@ -34,7 +34,7 @@ package body Tc_Soap_Names is
             Result := To_Unbounded_String
               (Ind & "RECORD " & Name (Obj) & CrLf);
             for I in Rec'Range loop
-               Result := Result & Soap_Image (Rec (I).O.all, Indent + 3);
+               Result := Result & Soap_Image (-Rec (I), Indent + 3);
             end loop;
          end;
 
