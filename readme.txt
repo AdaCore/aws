@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             Febuary 2nd, 2003
+   Pascal Obry                                              February 28, 2003
 
 
 
@@ -50,7 +50,7 @@ Here are the main changes since AWS 1.2:
 
    - Add support for client upload (see AWS.Client.Upload).
 
-   - Send file size in the chunk transfert encoding. This make it possible for
+   - Send file size in the chunk transfer encoding. This make it possible for
      the browser to display the download's progress-bar.
 
    - Fix SOAP name space handling. It is now possible to set the name space
@@ -91,10 +91,10 @@ Here are the main changes since AWS 1.2:
    - Fix bug in chunk protocol, it was working fine but was not conforming to
      the RFC.
 
-   - Fix chunked encoding over SSL incompatibiliy with Opera browser (really
+   - Fix chunked encoding over SSL incompatibility with Opera browser (really
      an Opera bug)
 
-   - Update to Templates_Parser 4.4 (add +,add,-,sub,*,mult,/,div,mod filters,
+   - Update to Templates_Parser 4.7 (add +,add,-,sub,*,mult,/,div,mod filters,
      support attributes for vectors and matrix, add not and /= operators).
      This new version completely preserve the template's format.
 
