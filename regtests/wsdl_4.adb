@@ -34,6 +34,13 @@ with Ada.Strings.Unbounded;
 
 package body WSDL_4 is
 
+   L_Integer : My_Int;
+   L_Float   : My_Float;
+
+   ---------
+   -- Try --
+   ---------
+
    procedure Try
      (Param1 : in My_Int;
       Param2 : in My_Float;
@@ -41,19 +48,38 @@ package body WSDL_4 is
       Param4 : in S_My_Float;
       Param5 : in Rec) is
    begin
-      null;
+      L_Integer := Param1;
+      L_Float   := Param2;
    end Try;
 
+   ----------
+   -- Try2 --
+   ----------
+
    function Try2 (Param1 : Integer; Param2 : String) return Rec is
-      pragma Warnings (Off);
-      R : Rec;
+      R : constant Rec
+        := (L_Integer, L_Float, Param1, 23.67,
+            To_Unbounded_String (Param2), '@');
    begin
       return R;
    end Try2;
+
+   ----------
+   -- Try3 --
+   ----------
 
    function Try3 (Param1 : My_Float; Param2 : S_My_Int) return S_My_Float is
    begin
       return Long_Float (Param1) + Long_Float (Param2);
    end Try3;
+
+   ----------
+   -- Try4 --
+   ----------
+
+   function Try4 return My_Int is
+   begin
+      return 432;
+   end Try4;
 
 end WSDL_4;
