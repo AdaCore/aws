@@ -65,10 +65,14 @@ package AWS.Log is
      (Log             : in out Object;
       Split           : in     Split_Mode := None;
       File_Directory  : in     String     := Not_Specified;
-      Filename_Prefix : in     String     := Not_Specified);
+      Filename_Prefix : in     String     := Not_Specified;
+      Auto_Flush      : in     Boolean    := False);
    --  Activate server's activity logging. Split indicate the way the log file
    --  should be created. Log_File_Prefix is the log filename prefix. If it is
    --  not specified the default prefix is the program name.
+   --  Set Auto_Flush to True if you want every write to log flushed.
+   --  Auto_Flush is True is usable for rare written logs, for example
+   --  error log.
 
    procedure Write
      (Log          : in out Object;
@@ -100,6 +104,10 @@ package AWS.Log is
    --  tag prefix is prepended to Data. This routine is designed to be used
    --  for user's info in error log file.
 
+   procedure Flush (Log : in out Object);
+   --  Flush the data to the Log file, for be able to see last logged
+   --  messages.
+
    procedure Stop (Log : in out Object);
    --  Stop logging activity.
 
@@ -127,6 +135,7 @@ private
       Split           : Split_Mode := None;
       Current_Tag     : Positive;
       Semaphore       : Utils.Semaphore;
+      Auto_Flush      : Boolean;
    end record;
 
 end AWS.Log;
