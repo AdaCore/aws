@@ -165,8 +165,11 @@ package body AWS.Server is
    ------------------------------------------
 
    procedure Default_Unexpected_Exception_Handler
-     (E           : in Ada.Exceptions.Exception_Occurrence;
-      Termination : in Boolean) is
+     (E           : in     Ada.Exceptions.Exception_Occurrence;
+      Termination : in     Boolean;
+      Answer      : in out Response.Data)
+   is
+      pragma Unreferenced (Answer);
    begin
       if Termination then
          Text_IO.Put_Line
@@ -231,8 +234,6 @@ package body AWS.Server is
       HTTP_Server : HTTP_Access;
       Slot_Index  : Positive;
 
-      Secure : Boolean;
-
    begin
 
       select
@@ -247,7 +248,8 @@ package body AWS.Server is
          terminate;
       end select;
 
-      Secure := CNF.Security (HTTP_Server.Properties);
+      --  Real job start here, we will exit only if there is an unrecoverable
+      --  problem.
 
       while not HTTP_Server.Shutdown loop
 
@@ -279,18 +281,6 @@ package body AWS.Server is
                HTTP_Server.Slots.Set (Socket'Unchecked_Access, Slot_Index);
 
                Protocol_Handler (HTTP_Server.all, Slot_Index);
-
-            exception
-               --  We must never exit from the outer loop as a Line task is
-               --  supposed to live forever.
-               --  We have here a pool of Line and each line is recycled when
-               --  needed.
-
-               when Net.Socket_Error =>
-                  null;
-
-               when E : others =>
-                  HTTP_Server.Exception_Handler (E, False);
             end;
 
             HTTP_Server.Slots.Release (Slot_Index);
@@ -300,7 +290,11 @@ package body AWS.Server is
    exception
       when E : others =>
          if not HTTP_Server.Shutdown then
-            HTTP_Server.Exception_Handler (E, True);
+            declare
+               Answer : Response.Data;
+            begin
+               HTTP_Server.Exception_Handler (E, True, Answer);
+            end;
          end if;
    end Line;
 
