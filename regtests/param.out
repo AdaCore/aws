@@ -1,0 +1,33 @@
+Start main, wait for server to start...
+Server started
+
+N  =  0
+p1 = 
+p2 = 
+=> call ok
+
+N  =  0
+p1 = 
+p2 = 
+=> call call ok
+
+N  =  2
+p1 = 8
+p2 = azerty> &<?qwerty
+=> call ok
+
+N  =  2
+p1 = 8
+p2 = azerty> qwerty
+=> call call ok
+
+N  =  1
+p1 = a a?
+p2 = 
+=> call call ok
+
+N  =  2
+p&1 = 1=1
+p=2 = 2&2
+=> call call ok
+
