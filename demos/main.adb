@@ -34,7 +34,7 @@
 --  $ main
 --
 --  On the same computer, or another one:
---  $ hotplug
+--  $ hotplug <main_hostname>
 --
 --  On the client side:
 --  * launch your Web Browser (this should work with any browser)
@@ -45,7 +45,7 @@
 --
 --  If you can ask for whatever URI containing string "AWS" the hotplug server
 --  will be triggered:
---  http://<servername>:1234/aws_hotplug_is_great
+--  http://<servername>:1234/AWS_hotplug_is_great
 --
 
 with Ada.Text_IO;
