@@ -56,7 +56,7 @@ private
    type File_Tagged is new Resources.File_Tagged with record
       File    : Stream_IO.File_Type;
       Stream  : Stream_IO.Stream_Access;
-      --  Below are data for buffered access to the file.
+      --  Below are data for buffered access to the file
       Buffer  : Stream_Element_Array (1 .. Buffer_Size);
       Current : Stream_Element_Offset := 1;
       Last    : Stream_Element_Offset := 0;
