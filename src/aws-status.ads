@@ -234,7 +234,7 @@ package AWS.Status is
 
    function Authorization_Name     (D : in Data) return String;
    pragma Inline (Authorization_Name);
-   --  Get the value for the name in the "Authorization:" parameter
+   --  Get the value for the username in the "Authorization:" parameter
 
    function Authorization_URI      (D : in Data) return String;
    pragma Inline (Authorization_URI);
