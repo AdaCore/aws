@@ -1,5 +1,9 @@
 2004-04-06  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws.ads:
+	(Version): Set to 2.0a.
+	Update copyright notice.
+
 	* aws-smtp-client.adb:
         (Address_Mode): Moved to AWS.SMTP.
         (E_Mail): Moved to AWS.SMTP and renamed Image.
