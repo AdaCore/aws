@@ -1492,7 +1492,7 @@ begin
                AWS.Log.Write
                  (HTTP_Server.Error_Log,
                   C_Stat,
-                  Exception_String (Exception_Information (E)));
+                  Exception_String (Ada.Exceptions.Exception_Information (E)));
 
                --  Call exception handler
 
