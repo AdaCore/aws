@@ -1,3 +1,11 @@
+2004-10-06  Pascal Obry  <pascal@obry.org>
+
+	* demos_shared.gpr:
+	(Socket_Type): Move this to the AWS's shared project.
+
+	* demos_ssl.gpr:
+	Use Shared.Socket instead of Demos_Shared.Socket.
+
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
 	* demos.gpr:
