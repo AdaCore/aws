@@ -105,7 +105,7 @@ package body AWS.Config is
 
    function Cleaner_Client_Header_Timeout return Duration is
    begin
-      return Cleaner_Client_Header_Timeout_value;
+      return Cleaner_Client_Header_Timeout_Value;
    end Cleaner_Client_Header_Timeout;
 
    -------------------------
@@ -133,7 +133,7 @@ package body AWS.Config is
 
    function Force_Wait_For_Client_Timeout return Duration is
    begin
-      return Force_Wait_For_Client_Timeout_value;
+      return Force_Wait_For_Client_Timeout_Value;
    end Force_Wait_For_Client_Timeout;
 
    ---------------------------------
@@ -142,7 +142,7 @@ package body AWS.Config is
 
    function Force_Client_Header_Timeout return Duration is
    begin
-      return Force_Client_Header_Timeout_value;
+      return Force_Client_Header_Timeout_Value;
    end Force_Client_Header_Timeout;
 
    -----------------------
@@ -160,7 +160,7 @@ package body AWS.Config is
 
    function Force_Server_Response_Timeout return Duration is
    begin
-      return Force_Server_Response_Timeout_value;
+      return Force_Server_Response_Timeout_Value;
    end Force_Server_Response_Timeout;
 
 
