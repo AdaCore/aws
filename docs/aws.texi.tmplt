@@ -1789,9 +1789,7 @@ WS   : AWS.Server.HTTP;
 
 Conf : @b{constant} AWS.Config.Object := AWS.Config.Get_Current;
 
-Server.Start (WS,
-              Callback => Service'Access,
-              Conf);
+Server.Start (WS, Service'Access, Conf);
 @end group
 @end cartouche
 @end smallexample
