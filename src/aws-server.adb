@@ -184,7 +184,13 @@ package body AWS.Server is
                --  We have here a pool of Line and each line is recycled when
                --  needed.
 
-               when Sockets.Connection_Closed | Connection_Error =>
+               when Sockets.Connection_Closed
+                 | Connection_Error
+                 | Constraint_Error =>
+                  --  ??? Constraint_Error should be removed at some
+                  --  point. This is just because AdaSockets Send raises a
+                  --  Constraint_Error when a connection was closed while
+                  --  sending data.
                   null;
 
                when E : others =>
