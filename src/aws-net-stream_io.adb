@@ -63,7 +63,6 @@ package body AWS.Net.Stream_IO is
       procedure Initialize (Socket : in Socket_Access) is
       begin
          Write_Cache.Socket := Initialize.Socket;
-         Last := 0;
       end Initialize;
 
       -----------
