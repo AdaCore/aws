@@ -40,7 +40,7 @@ with AWS.Parameters;
 
 package AWS.Status is
 
-   type Data (Parameters_Case_Sensitive : Boolean := True) is private;
+   type Data is private;
    --  Parameters_Case_Sensitive indicate if the parameters name are to be
    --  handled with case sensitivity or not. Default is True.
 
@@ -58,30 +58,11 @@ package AWS.Status is
    function If_Modified_Since      (D : in Data) return String;
    function Method                 (D : in Data) return Request_Method;
    function Multipart_Boundary     (D : in Data) return String;
+   function Parameters             (D : in Data) return Parameters.List;
    function Peername               (D : in Data) return String;
    function Session                (D : in Data) return String;
    function Session                (D : in Data) return AWS.Session.ID;
    function URI                    (D : in Data) return String;
-
-   function Parameter_Name (D : in Data; N : in Positive) return String;
-   --  Returns Nth parameter name or the empty string if there is no such
-   --  data.
-
-   function Parameter (D : in Data; N : in Positive) return String;
-   --  Returns Nth parameter value or the empty string if there is no such
-   --  data.
-
-   function Count (D : in Data; Name : in String) return Natural;
-   --  Returns the number of values associated with parameter Name.
-
-   function Parameter
-     (D              : in Data;
-      Name           : in String;
-      N              : in Positive := 1)
-     return String;
-   --  Returns the Nth parameter value associated with parameter named Name.
-   --  Case_Sensitive case be set to True or False to control the way the
-   --  parameter name is looked for.
 
    subtype Stream_Element_Array is Ada.Streams.Stream_Element_Array;
 
@@ -101,13 +82,13 @@ private
 
    type Stream_Element_Array_Access is access Stream_Element_Array;
 
-   type Data (Parameters_Case_Sensitive : Boolean := True) is record
+   type Data is record
       Connection        : Unbounded_String;
       Host              : Unbounded_String;
       Peername          : Unbounded_String;
       Method            : Request_Method     := GET;
       URI               : Unbounded_String;
-      Parameters        : AWS.Parameters.Set := AWS.Parameters.Empty_Set;
+      Parameters        : AWS.Parameters.List;
       Binary_Data       : Stream_Element_Array_Access := null;
       HTTP_Version      : Unbounded_String;
       Content_Type      : Unbounded_String;
@@ -119,10 +100,5 @@ private
       Auth_Password     : Unbounded_String;
       Session_ID        : Unbounded_String;
    end record;
-
-   function Normalize_Name (Name : in String; To_Upper : in Boolean)
-     return String;
-   --  Return Name in upper case if To_Upper is set to True and it returns
-   --  Name unchanged otherwise.
 
 end AWS.Status;
