@@ -51,6 +51,6 @@ package Framework is
 
    type Files_Table is array (Positive range <>) of Unbounded_String;
 
-   type Ranks_Table is array (1 .. 15) of Rank_Data;
+   type Ranks_Table is array (1 .. 15) of Framework.Rank_Data;
 
 end Framework;
