@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -40,12 +40,15 @@
 with Ada.Calendar;
 with Ada.Exceptions;
 with Ada.Unchecked_Deallocation;
+
+with AWS.Config;
+with AWS.Net.Std;
+with AWS.Utils;
+
 with Interfaces.C;
+with SSL.Thin;
 with System.Storage_Elements;
 with System;
-
-with AWS.Net.Std;
-with SSL.Thin;
 
 package body AWS.Net.SSL is
 
@@ -61,6 +64,8 @@ package body AWS.Net.SSL is
 
    subtype NSST is Net.Std.Socket_Type;
 
+   Default_Config : Config := new TS_SSL;
+
    procedure Error_If (Error : in Boolean);
    pragma Inline (Error_If);
    --  Raises Socket_Error if Error is true. Attach the SSL error message
@@ -73,6 +78,10 @@ package body AWS.Net.SSL is
 
    procedure Init_Random;
    --  Initialize the SSL library with a random number
+
+   procedure Initialize_Default_Config;
+   --  Initializes default config. It could be called more then once, because
+   --  secondary initialization is ignored.
 
    function Verify_Callback
      (preverify_ok : in Integer;
@@ -89,6 +98,11 @@ package body AWS.Net.SSL is
      (Socket     : in     Net.Socket_Type'Class;
       New_Socket : in out Socket_Type) is
    begin
+      if New_Socket.Config = null then
+         Initialize_Default_Config;
+         New_Socket.Config := Default_Config;
+      end if;
+
       loop
          Net.Std.Accept_Socket (Socket, NSST (New_Socket));
 
@@ -126,16 +140,30 @@ package body AWS.Net.SSL is
    begin
       Net.Std.Connect (NSST (Socket), Host, Port);
 
+      if Socket.Config = null then
+         Initialize_Default_Config;
+         Socket.Config := Default_Config;
+      end if;
+
       Socket.Config.Set_FD (Socket);
 
       TSSL.SSL_set_connect_state (Socket.SSL);
 
       if TSSL.SSL_connect (Socket.SSL) = -1 then
-         Net.Std.Shutdown (NSST (Socket));
-         Free (Socket);
+         declare
+            use Interfaces;
 
-         Ada.Exceptions.Raise_Exception
-           (Socket_Error'Identity, "Error on SSL connect initation.");
+            Error_Code : constant Integer
+              := Integer (TSSL.SSL_get_error (Socket.SSL, -1));
+         begin
+            Net.Std.Shutdown (NSST (Socket));
+            Free (Socket);
+
+            Ada.Exceptions.Raise_Exception
+              (Socket_Error'Identity,
+               "Error (" & Utils.Image (Error_Code)
+                 & ") on SSL connect initiation");
+         end;
       end if;
    end Connect;
 
@@ -221,6 +249,21 @@ package body AWS.Net.SSL is
         (Certificate_Filename, Security_Mode, Key_Filename,
          Exchange_Certificate);
    end Initialize;
+
+   -------------------------------
+   -- Initialize_Default_Config --
+   -------------------------------
+
+   procedure Initialize_Default_Config is
+      package CNF renames AWS.Config;
+      Default : CNF.Object renames CNF.Default_Config;
+   begin
+      Default_Config.Initialize
+        (Certificate_Filename => CNF.Certificate (Default),
+         Security_Mode        => Method'Value (CNF.Security_Mode (Default)),
+         Key_Filename         => CNF.Key (Default),
+         Exchange_Certificate => CNF.Exchange_Certificate (Default));
+   end Initialize_Default_Config;
 
    -------------
    -- Receive --
