@@ -119,27 +119,33 @@ package body AWS.Server is
         := Net.Socket (CNF.Security (Server.Properties));
 
       Back_Socket : Net.Socket_Access;
+      Give_Socket : Boolean;
 
       procedure Free is new Ada.Unchecked_Deallocation
                               (Net.Socket_Type'Class, Net.Socket_Access);
    begin
       Server.Sock_Sem.Seize_Or_Socket (Back_Socket);
 
-      if Back_Socket = null then
-         Net.Accept_Socket (Server.Sock, New_Socket);
+      Give_Socket := Back_Socket /= null;
 
-         Server.Sock_Sem.Release;
-      else
+      if Give_Socket then
          New_Socket := Back_Socket.all;
 
          Free (Back_Socket);
+      else
+         Net.Accept_Socket (Server.Sock, New_Socket);
+
+         Server.Sock_Sem.Release;
       end if;
 
       return New_Socket;
 
    exception
       when others =>
-         Server.Sock_Sem.Release;
+         if not Give_Socket then
+            Server.Sock_Sem.Release;
+         end if;
+
          raise;
    end Accept_Socket_Serialized;
 
