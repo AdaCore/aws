@@ -48,9 +48,9 @@ package body AWS.Server is
    use Ada;
 
    procedure Protocol_Handler
-     (Sock        : in Sockets.Socket_FD'Class;
-      HTTP_Server : in HTTP;
-      Index       : in Positive);
+     (Sock        : in     Sockets.Socket_FD'Class;
+      HTTP_Server : in out HTTP;
+      Index       : in     Positive);
    --  handle the line, this is where the HTTP protocol is defined.
 
    -----------
@@ -239,9 +239,9 @@ package body AWS.Server is
    ----------------------
 
    procedure Protocol_Handler
-     (Sock        : in Sockets.Socket_FD'Class;
-      HTTP_Server : in HTTP;
-      Index       : in Positive) is separate;
+     (Sock        : in     Sockets.Socket_FD'Class;
+      HTTP_Server : in out HTTP;
+      Index       : in     Positive) is separate;
 
    ----------
    -- Line --

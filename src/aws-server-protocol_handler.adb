@@ -43,9 +43,9 @@ with AWS.Session;
 separate (AWS.Server)
 
 procedure Protocol_Handler
-  (Sock        : in Sockets.Socket_FD'Class;
-   HTTP_Server : in HTTP;
-   Index       : in Positive)
+  (Sock        : in     Sockets.Socket_FD'Class;
+   HTTP_Server : in out HTTP;
+   Index       : in     Positive)
 is
 
    use Ada;
