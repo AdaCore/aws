@@ -74,19 +74,19 @@ package AWS.Net.Generic_Sets is
    --  Raises Socket_Error if an error occurs. Count would return number of
    --  activated sockets.
 
-   function Could_Read
+   function Is_Read_Ready
      (Set   : in Socket_Set_Type;
       Index : in Positive)
       return Boolean;
-   pragma Inline (Could_Read);
+   pragma Inline (Is_Read_Ready);
    --  Return True if data could be read from socket and socket was in Input
    --  or Both waiting mode.
 
-   function Could_Write
+   function Is_Write_Ready
      (Set   : in Socket_Set_Type;
       Index : in Positive)
       return Boolean;
-   pragma Inline (Could_Write);
+   pragma Inline (Is_Write_Ready);
    --  Return True if data could be written to socket and socket was in Output
    --  or Both waiting mode.
 
@@ -131,8 +131,9 @@ package AWS.Net.Generic_Sets is
 
    procedure Next (Set : in Socket_Set_Type; Index : in out Positive);
    --  Looking for active socket starting from Index and return Index of the
-   --  found active socket. After search use function Get_Socket_State to be
-   --  shure that active socket is found in the Set.
+   --  found active socket. After search use functions In_Range,
+   --  Is_Write_Ready, Is_Read_Ready and Is_Error to be shure that active
+   --  socket is found in the Set.
 
    procedure Reset (Set : in out Socket_Set_Type);
    --  Clear the set for another use
