@@ -179,6 +179,4 @@ install:
 	cp demos/*.thtml $(INSTALL)/templates
 	cp icons/*.gif $(INSTALL)/icons
 	cp demos/aws_*.png $(INSTALL)/images
-ifeq (${OS}, Windows_NT)
-	cp win32/*.a $(INSTALL)/lib
-endif
+	-cp ssl/*.a $(INSTALL)/lib
