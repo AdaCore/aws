@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,6 +34,7 @@ with AWS.Config;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.OS_Lib;
+with AWS.Server;
 with AWS.Services.Directory;
 with AWS.Templates;
 
@@ -57,17 +58,23 @@ package body AWS.Services.Page_Server is
             Filename     => Filename);
 
       elsif Browse_Directory and then OS_Lib.Is_Directory (Filename) then
-         return AWS.Response.Build
-           (Content_Type => "text/html",
-            Message_Body =>
-              AWS.Services.Directory.Browse
-              (Filename, "aws_directory.thtml", Request));
+         declare
+            Directory_Browser_Page : constant String
+              := Config.Directory_Browser_Page
+                   (Server.Config (Server.Get_Current.all));
+         begin
+            return AWS.Response.Build
+              (Content_Type => "text/html",
+               Message_Body =>
+                 AWS.Services.Directory.Browse
+                   (Filename, Directory_Browser_Page, Request));
+         end;
 
       else
          if OS_Lib.Is_Regular_File (WWW_Root & "404.thtml") then
 
             declare
-               Table : AWS.Templates.Translate_Table
+               Table : constant AWS.Templates.Translate_Table
                  := (1 => Templates.Assoc ("PAGE", URI));
             begin
                --  Here we return the 404.thtml page if found. Note that on
