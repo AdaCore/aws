@@ -85,6 +85,8 @@ procedure File2 is
 
       Client.Get (Connect, R, "file2.txt.gz");
 
+      Client.Close (Connect);
+
       Ptr := Translator.Decompress
                (Response.Message_Body (R), Header => ZLib.GZip);
 

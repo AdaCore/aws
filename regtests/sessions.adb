@@ -102,6 +102,8 @@ procedure Sessions is
 
       accept Stopped;
 
+      Client.Close (C);
+
    exception
       when E : others =>
          Text_IO.Put_Line (Exceptions.Exception_Information (E));

@@ -214,6 +214,8 @@ begin
 
    AWS.Server.Shutdown (HTTP);
 
+   AWS.Client.Close (Connect);
+
 exception
    when E : others =>
       Put_Line ("Main Error " & Exceptions.Exception_Information (E));

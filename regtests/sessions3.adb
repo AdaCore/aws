@@ -133,6 +133,8 @@ begin
 
    AWS.Server.Shutdown (WS);
 
+   Client.Close (C);
+
    Session.Clear;
    Ada.Text_IO.Put_Line ("shutdown");
 
