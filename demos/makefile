@@ -92,3 +92,4 @@ build_soap: force
 	fi)
 clean:
 	-rm -f *.o *.ali *.exe b~*.* *.~*.*.~ rdemo*
+	-rm runme-*.log
