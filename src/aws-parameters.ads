@@ -37,6 +37,8 @@ with AWS.Containers.Tables;
 package AWS.Parameters is
 
    type List is new AWS.Containers.Tables.Table_Type with private;
+   --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
+   --  is responsible for doing that.
 
    subtype VString_Array is AWS.Containers.Tables.VString_Array;
 
@@ -48,9 +50,6 @@ package AWS.Parameters is
    --  See AWS.Containers.Tables for inherited routines.
 
 private
-   --  A List must be initialized by calling AWS.Parameters.Set.Reset, Server
-   --  is responsible for doing that.
-
    use Ada.Strings.Unbounded;
 
    type List is new AWS.Containers.Tables.Table_Type with record
