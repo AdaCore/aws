@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2003                            --
+--                         Copyright (C) 2003-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -46,6 +46,12 @@ package SOAP.XML is
 
    function Get_Ref (N : in DOM.Core.Node) return DOM.Core.Node;
    --  If there is a ref in N returns the multiRef referenced node otherwise
-   --  just returns N
+   --  just returns N.
+
+   function First_Child (Parent : in DOM.Core.Node) return DOM.Core.Node;
+   --  Returns the first child, skip #text nodes
+
+   function Next_Sibling (N : in DOM.Core.Node) return DOM.Core.Node;
+   --  Returns the next sibling, skip #text nodes
 
 end SOAP.XML;
