@@ -4,7 +4,7 @@
 .SILENT: all build build clean distrib install set_std set_ssl build_tarball
 .SILENT: display build_aws build_lib build_doc build_tools build_soap
 .SILENT: build_soap_demos build_ssllib build_soaplib build_win32 build_include
-.SILENT: build_demos
+.SILENT: build_demos run_regtests
 
 include makefile.conf
 
@@ -23,7 +23,7 @@ ADASOCKETS = /usr/Ada.Libraries/adasockets
 # XMLADA package, needed if you want to build SOAP's AWS support.
 # comment out XMLADA if you don't want to build with SOAP support.
 
-XMLADA	 = /usr/Ada.Libraries/XMLada
+XMLADA	 = /usr/Ada.Libraries/xmlada
 
 # AWS will be installed under $(INSTALL)/AWS
 INSTALL	 = $(HOME)
@@ -121,18 +121,22 @@ build: build_lib build_demos
 endif
 
 build_aws:
+	echo ""
 	echo === Build library
 	${MAKE} -C src build $(ALL_OPTIONS)
 
 build_tools:
+	echo ""
 	echo === Build tools
 	${MAKE} -C tools build $(ALL_OPTIONS)
 
 build_demos: build_lib build_tools
+	echo ""
 	echo === Build demos
 	${MAKE} -C demos build $(ALL_OPTIONS)
 
 build_soap_demos:
+	echo ""
 	echo === Build SOAP demos
 	${MAKE} -C demos build_soap $(ALL_OPTIONS)
 
@@ -156,22 +160,28 @@ win32_oslib:
 	${MAKE} -C src win32_oslib
 
 build_doc:
+	echo ""
 	echo === Build doc
 	${MAKE} -C docs build $(ALL_OPTIONS)
 
 build_include:
+	echo ""
 	echo === Build components
 	${MAKE} -C include build $(ALL_OPTIONS)
 
 build_win32:
+	echo ""
 	echo === Build win32 specific packages
 	${MAKE} -C win32 build $(ALL_OPTIONS)
 
 build_apiref:
+	echo ""
 	echo === Build API References
 	${MAKE} -s -C docs apiref
 
 run_regtests: build_tools
+	echo ""
+	echo === Run regression tests
 	${MAKE} -C regtests run $(ALL_OPTIONS)
 
 clean: clean_noapiref
