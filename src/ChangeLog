@@ -1,5 +1,12 @@
 2002-02-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-services-dispatchers-uri.adb:
+	(GNAT.Regexp): Move here from spec.
+	(Dispatch): Fix minor type.
+
+	* aws-services-dispatchers-uri.ads:
+	(GNAT.Regexp): Move to body.
+
 	* aws-server-push.ads:
 	A lot of changes in the spec to make this interface easier to use
 	 and understand. Add lot of comments.
