@@ -78,6 +78,9 @@ package SOAP.WSDL.Parameters is
       end case;
    end record;
 
+   function Type_Name (P : in WSDL.Parameters.P_Set) return String;
+   --  Returns the type name for the given parameter
+
    procedure Append (P : in out P_Set; Param : in Parameter);
    --  Add Param at the end of P
 
