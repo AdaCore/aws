@@ -167,3 +167,5 @@ implemented:
 
 - Improve the Web_Mail high level service to be able to reply and to handle CC
   recipients.
+
+- Add more certificate information in AWS.Net.SSL.Certificate
