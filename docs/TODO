@@ -93,6 +93,4 @@ implemented:
 - When removing the session (AWS.Session.Delete) it would be good to also
   remove the cookie on the client side.
 
-- Documentation for AWS.SMTP
-
 - Add an LDAP binding
