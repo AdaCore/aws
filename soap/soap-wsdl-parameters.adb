@@ -161,4 +161,18 @@ package body SOAP.WSDL.Parameters is
       end if;
    end Release;
 
+   ---------------
+   -- Type_Name --
+   ---------------
+
+   function Type_Name (P : in WSDL.Parameters.P_Set) return String is
+   begin
+      case P.Mode is
+         when K_Simple           => return WSDL.To_Ada (P.P_Type);
+         when K_Derived          => return To_String (P.D_Name);
+         when K_Array | K_Record => return To_String (P.T_Name);
+         when K_Enumeration      => return To_String (P.E_Name);
+      end case;
+   end Type_Name;
+
 end SOAP.WSDL.Parameters;
