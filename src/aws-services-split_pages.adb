@@ -85,8 +85,7 @@ package body AWS.Services.Split_Pages is
       begin
          for A in Table'Range loop
             Max := Natural'Max
-              (Max,
-               Templates.Size (T_Query.Vector (Table (A))));
+              (Max, Templates.Size (T_Query.Composite (Table (A))));
          end loop;
 
          return Max;
@@ -248,34 +247,31 @@ package body AWS.Services.Split_Pages is
 
                   Split_Table (A) := Table (A);
 
-               when Templates.Vect =>
-                  --  Copy Max_Per_Page Vetor's items starting from Last
+               when Templates.Composite =>
+                  --  Copy Max_Per_Page items starting from Last
 
                   declare
-                     use type Templates.Vector_Tag;
+                     use type Templates.Tag;
 
-                     Vector : Templates.Vector_Tag
-                       renames T_Query.Vector (Table (A));
-                     V : Templates.Vector_Tag;
+                     T      : Templates.Tag
+                                renames T_Query.Composite (Table (A));
+                     Size   : constant Natural := Templates.Size (T);
+                     Nested : constant Natural := T_Query.Nested_Level (T);
+                     V      : Templates.Tag;
                   begin
-                     for K in Last .. Last + Max_Per_Page - 1 loop
-                        if K <= Templates.Size (Vector) then
-                           V := V & Templates.Item (Vector, K);
+                     for K in
+                       Last .. Natural'Min (Last + Max_Per_Page - 1, Size)
+                     loop
+                        if Nested > 1 then
+                           V := V & Templates.Tag'(Templates.Item (T, K));
                         else
-                           exit;
+                           V := V & String'(Templates.Item (T, K));
                         end if;
                      end loop;
 
                      Split_Table (A) := Templates.Assoc
                        (T_Query.Variable (Table (A)), V);
                   end;
-
-               when Templates.Matrix =>
-                  --  For now just copy this association as-is
-                  --  ??? to be completed
-
-                  Split_Table (A) := Table (A);
-
             end case;
          end loop;
 
