@@ -11,9 +11,10 @@ GARGS = -m -q $(GFLAGS) -I../src $(INCLUDES)
 LIBSSL		= ../lib/libssl.a
 LIBCRYPTO	= ../lib/libcrypto.a
 LIBLDAP		= ../lib/libldap.a
+AWS_COFF	= ../lib/aws.coff
 
 ifeq (${OS}, Windows_NT)
-   RES        = aws.coff
+   RES        = $(AWS_COFF)
    IMPORT_LIB = build_lib build_poll $(LIBLDAP)
 else
    RES        =
@@ -43,10 +44,9 @@ $(LIBLDAP): wldap32.def
 
 build_lib: $(LIBSSL) $(LIBCRYPTO)
 
-aws.coff: aws.rc
+$(AWS_COFF): aws.rc
 	echo Building aws.coff
-	$(WINDRES) -i aws.rc -o aws.coff
-	$(CP) aws.coff ../lib
+	$(WINDRES) -i aws.rc -o $(AWS_COFF)
 
 build_poll:
 	echo Building Win32 poll support
