@@ -55,6 +55,10 @@ procedure Test_Net_Log is
 
    DS, DR : File_Type;
 
+   --------------
+   -- HTTP_Log --
+   --------------
+
    procedure HTTP_Log
      (Direction : in Net.Log.Data_Direction;
       FD        : in Integer;
@@ -63,6 +67,10 @@ procedure Test_Net_Log is
    is
       procedure Write (F : in File_Type);
       --  Write info into file F
+
+      -----------
+      -- Write --
+      -----------
 
       procedure Write (F : in File_Type) is
          Buffer : String (1 .. 1024);
@@ -111,6 +119,10 @@ procedure Test_Net_Log is
       end case;
    end HTTP_Log;
 
+   -----------
+   -- HW_CB --
+   -----------
+
    function HW_CB
      (Request : in Status.Data)
       return AWS.Response.Data
@@ -118,11 +130,16 @@ procedure Test_Net_Log is
       URI : constant String := AWS.Status.URI (Request);
    begin
       if URI = "/hello" then
+         delay 3.0; -- wait a bit to have more chance to get a sync log
          return AWS.Response.Build ("text/html", "<p>Hello world !");
       else
          return AWS.Response.Build ("text/html", "<p>Hum...");
       end if;
    end HW_CB;
+
+   ------------
+   -- Output --
+   ------------
 
    procedure Output (F : in File_Type) is
       Buffer : String (1 .. 1024);
