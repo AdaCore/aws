@@ -1,3 +1,8 @@
+2003-10-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* strm.adb, tlog.adb:
+	Changed to use AWS.Server.Log.
+
 2003-10-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
