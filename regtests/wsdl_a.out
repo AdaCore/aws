@@ -3,7 +3,7 @@
 wsdl_a.ads:36:11: use Long_Float instead of Float for SOAP/WSDL items.
         X : Float (xsd:float)
    > procedure       P
-        A : Data (tns:Data)
+        A : Data (n3:Data)
    - record          Data
         A : Integer (xsd:int)
         B : Integer (xsd:int)
