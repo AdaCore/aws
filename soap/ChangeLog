@@ -1,10 +1,15 @@
+2005-03-07  Pascal Obry  <pascal@obry.org>
+
+	* soap-wsdl-parser.adb:
+	(Array_Elements): Fix attributes indexing (starting at 0).
+
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator.adb:
 	(Endpoint): New procedure.
 	(Start_Service): Use the endpoint specified in the command line
 	 if specified instead of the one found in the WSDL document.
-	
+
 	* soap-generator.ads:
 	(Endpoint): New procedure.
 	(Object): Add Endpoint field.
@@ -102,7 +107,7 @@
 	Rename SOAP-ENC to soapenc and SOAP-ENV to soap.
 	(XML_Image) [SOAP_Record]: Use namespace information to set
 	 xsi:type attribute.
-	
+
 	* soap-types.ads:
 	(V): New abstract routine for Composite types.
 	Rename SOAP-ENC to soapenc and SOAP-ENV to soap.
@@ -113,7 +118,7 @@
 	* soap-wsdl-parameters.ads:
 	(Parameter): Add NS field.
 	Update copyright notice.
-	
+
 	* soap-wsdl-parser.adb:
 	(Get_Target_Name_Space): New routine.
 	(Parse_Record): Use it.
@@ -123,7 +128,7 @@
 
 	* soap-types.adb:
 	Minor typo fix.
-	
+
 2004-11-28  Pascal Obry  <pascal@obry.org>
 
 	* soap-types.adb:
@@ -142,7 +147,7 @@
 	(Parse_Any_Type): New routine.
 	(Parse_Short): Idem.
 	(Handlers): Add entry for T_Short and T_Any_Type.
-	(Is_Array): Fix implementation to better support "literal" mode. 
+	(Is_Array): Fix implementation to better support "literal" mode.
 	 In this mode the xsi:type attribute is not present, we then use
 	 only the soapenc:arrayType one.
 	(Parse_Param): Better handling of array in encoded and literal mode.
@@ -189,7 +194,7 @@
 	(Exclude): New procedure.
 	(Parse_Binding): Check if the operation has been excluded from the
 	 code generation or not.
-	
+
 	* soap-wsdl-parser.ads:
 	(Exclude): New procedure.
 	(Exclude_Set): A new Infinite_Ordered_Sets.
