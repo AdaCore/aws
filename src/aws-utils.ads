@@ -30,9 +30,20 @@
 
 --  $Id$
 
+with System;
+with Ada.Strings.Unbounded;
+
 package AWS.Utils is
 
+   type Random_Integer is range 0 .. System.Max_Int;
+   --  Integer type for random generation for the general
+   --  security purpose.
+
    --  general helper functions are to be found here.
+
+   function Random return Random_Integer;
+   --  Generates random integer for
+   --  the general security purpose.
 
    function Image (N : in Natural) return String;
    --  return image of N without the leading blank.
@@ -47,5 +58,13 @@ package AWS.Utils is
    function Hex (V : in Natural) return String;
    --  Returns the hexadecimal string representation of the decimal
    --  number V.
+
+   generic
+      type Enum is (<>);
+      type Result_Set is array (Enum)
+         of Ada.Strings.Unbounded.Unbounded_String;
+   procedure Parse_HTTP_Header_Line
+     (Data   : in  String;
+      Result : out Result_Set);
 
 end AWS.Utils;

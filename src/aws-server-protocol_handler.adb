@@ -38,6 +38,7 @@ with Ada.Strings.Unbounded;
 with Templates_Parser;
 
 with AWS.Config;
+with AWS.Digest;
 with AWS.Log;
 with AWS.Messages;
 with AWS.MIME;
@@ -283,6 +284,38 @@ is
               (Sock,
                Messages.Connection (AWS.Status.Connection (C_Stat)));
          end if;
+
+         --  Handle authentication message
+
+         if Status = Messages.S401 then
+            declare
+               use Response;
+               Authenticate : Authentication_Mode
+                  := Authentication (Answer);
+            begin
+               --  In case of Authenticate = Any
+               --  We should create both header lines
+               --  WWW-Authenticate: Basic
+               --  and
+               --  WWW-Authenticate: Digest
+               if Authenticate = Response.Digest
+               or Authenticate = Any then
+                  Sockets.Put_Line
+                    (Sock,
+                     Messages.Www_Authenticate (Realm (Answer),
+                       Digest.Create_Nonce,
+                       Response.Authentication_Stale (Answer)
+                       ));
+               end if;
+               if Authenticate = Basic
+               or Authenticate = Any then
+                  Sockets.Put_Line
+                    (Sock,
+                     Messages.Www_Authenticate (Realm (Answer)));
+               end if;
+            end;
+         end if;
+
       end Send_General_Header;
 
       ----------------------
@@ -301,14 +334,6 @@ is
          --  There is no content
 
          Sockets.Put_Line (Sock, Messages.Content_Length (0));
-
-         --  The message content type
-
-         if Status = Messages.S401 then
-            Sockets.Put_Line
-              (Sock,
-               Messages.Www_Authenticate (Response.Realm (Answer)));
-         end if;
 
          --  End of header
 
@@ -347,14 +372,6 @@ is
          Sockets.Put_Line
            (Sock,
             Messages.Content_Type (Response.Content_Type (Answer)));
-
-         --  Handle authentication message
-
-         if Status = Messages.S401 then
-            Sockets.Put_Line
-              (Sock,
-               Messages.Www_Authenticate (Response.Realm (Answer)));
-         end if;
 
          --  End of header
 

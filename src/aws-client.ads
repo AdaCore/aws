@@ -48,6 +48,8 @@ package AWS.Client is
    --  Number of time a data is requested from the Server if the first
    --  time fails.
 
+   type Authentication_Mode is new AWS.Response.Authentication_Mode;
+
    type Timeouts_Values is record
       Send    : Natural;
       Receive : Natural;
@@ -175,6 +177,29 @@ package AWS.Client is
    --  Create a new connection. This is to be used with Keep-Alive client API
    --  below. The request will be tried Retry time if it fails.
 
+   procedure Set_WWW_Authentication
+     (Connection : in out HTTP_Connection;
+      User       : in     String;
+      Pwd        : in     String;
+      Mode       : in     Authentication_Mode);
+   --  Sets the username password and authentication mode
+   --  for the www authentication
+   --  "Any" mean that user want to use Digest
+   --  of the server authentication mode but could use Basic
+   --  if the server does not suport Digest
+   --  Basic mean that client going to send basic authentication
+   --  in the first request, it is usable for speed.
+   --  (Digest authentication require first unauthorized request
+   --  to server to receive "nonce" before user can authenticate)
+
+   procedure Set_Proxy_Authentication
+     (Connection : in out HTTP_Connection;
+      User       : in     String;
+      Pwd        : in     String;
+      Mode       : in     Authentication_Mode);
+   --  Sets the username password and authentication mode
+   --  for the proxy authentication
+
    procedure Adjust_Cookie
      (Destination : in out HTTP_Connection;
       Source      : in     HTTP_Connection);
@@ -273,18 +298,37 @@ private
 
    type Cleaner_Access is access Cleaner_Task;
 
+   type Authentication_Level is (WWW, Proxy);
+
+   type Authentication_Type is record
+      User      : Unbounded_String;
+      Pwd       : Unbounded_String;
+      --  Mode the user is want to use.
+      Init_Mode : Authentication_Mode := Any;
+
+      --  "Any" mean without authentication.
+      Work_Mode : Authentication_Mode := Any;
+      Requested : Boolean := False;
+
+      --  For digest authentication
+      Realm     : Unbounded_String;
+      Nonce     : Unbounded_String;
+      QOP       : Unbounded_String;
+      NC        : Natural := 0;
+   end record;
+
+   type Authentication_Set is
+     array (Authentication_Level) of Authentication_Type;
+
    type HTTP_Connection is limited record
       Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
 
       Connect_URL   : AWS.URL.Object;
       Host          : Unbounded_String;
       Host_URL      : AWS.URL.Object;
-      User          : Unbounded_String;
-      Pwd           : Unbounded_String;
       Proxy         : Unbounded_String;
       Proxy_URL     : AWS.URL.Object;
-      Proxy_User    : Unbounded_String;
-      Proxy_Pwd     : Unbounded_String;
+      Auth          : Authentication_Set;
       Opened        : Boolean;
       Persistent    : Boolean;
       Server_Push   : Boolean;

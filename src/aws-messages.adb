@@ -472,7 +472,18 @@ package body AWS.Messages is
 
    function Www_Authenticate (Realm : in String) return String is
    begin
-      return "Www-Authenticate: Basic realm=""" & Realm & """";
+      return WWW_Authenticate_Token & "Basic realm=""" & Realm & """";
+   end Www_Authenticate;
+
+   function Www_Authenticate
+     (Realm : in String;
+      Nonce : in String;
+      Stale : in Boolean)
+     return String is
+   begin
+      return WWW_Authenticate_Token & "Digest qop=""auth"", realm=""" & Realm
+         & """, stale=""" & Boolean'Image (Stale)
+         & """, nonce=""" & Nonce & """";
    end Www_Authenticate;
 
 end AWS.Messages;

@@ -32,10 +32,12 @@
 
 with Ada.Strings.Fixed;
 with Ada.Unchecked_Deallocation;
+with Ada.Exceptions;
 
 with AWS.Messages;
 with AWS.Translator;
 with AWS.Parameters.Set;
+with AWS.Utils;
 
 package body AWS.Status.Set is
 
@@ -50,8 +52,11 @@ package body AWS.Status.Set is
       Authorization : in     String)
    is
       Basic_Token : constant String := "Basic ";
+      Digest_Token : constant String := "Digest ";
    begin
       if Messages.Is_Match (Authorization, Basic_Token) then
+
+         D.Auth_Mode := Basic;
 
          declare
             use Ada.Streams;
@@ -82,6 +87,47 @@ package body AWS.Status.Set is
                  To_Unbounded_String (Auth_Str (Delimit + 1 .. Auth_Str'Last));
             end if;
          end;
+      elsif Messages.Is_Match (Authorization, Digest_Token) then
+
+         D.Auth_Mode := Digest;
+
+         declare
+
+            type Digest_Attribute is
+              (Username, Realm, Nonce, NC, CNonce, QOP,
+                 URI, Response, Algorithm);
+            type Result_Set is array (Digest_Attribute) of Unbounded_String;
+
+            Result : Result_Set;
+
+            procedure Parse_Auth_Line is new
+               AWS.Utils.Parse_HTTP_Header_Line (Digest_Attribute, Result_Set);
+
+         begin
+            Parse_Auth_Line (
+               Data => Authorization
+                  (Authorization'First + Digest_Token'Length
+                   .. Authorization'Last),
+               Result => Result);
+
+            D.URI           := Result (URI);
+            D.Auth_Name     := Result (Username);
+            D.Auth_Realm    := Result (Realm);
+            D.Auth_Nonce    := Result (Nonce);
+            D.Auth_Response := Result (Response);
+            D.Auth_NC       := Result (NC);
+            D.Auth_CNonce   := Result (CNonce);
+            D.Auth_QOP      := Result (QOP);
+
+            if Result (Algorithm) /= Null_Unbounded_String
+            and then To_String (Result (Algorithm)) /= "MD5" then
+               Ada.Exceptions.Raise_Exception
+                  (Constraint_Error'Identity,
+                   "Only MD5 algorithm is supported.");
+            end if;
+
+         end;
+
       end if;
    end Authorization;
 
@@ -236,8 +282,15 @@ package body AWS.Status.Set is
       D.Boundary          := Null_Unbounded_String;
       D.Content_Length    := 0;
       D.If_Modified_Since := Null_Unbounded_String;
+      D.Auth_Mode         := None;
       D.Auth_Name         := Null_Unbounded_String;
       D.Auth_Password     := Null_Unbounded_String;
+      D.Auth_Realm        := Null_Unbounded_String;
+      D.Auth_Nonce        := Null_Unbounded_String;
+      D.Auth_NC           := Null_Unbounded_String;
+      D.Auth_CNonce       := Null_Unbounded_String;
+      D.Auth_QOP          := Null_Unbounded_String;
+      D.Auth_Response     := Null_Unbounded_String;
       D.Session_ID        := AWS.Session.No_Session;
 
       AWS.Parameters.Set.Reset (D.Parameters);

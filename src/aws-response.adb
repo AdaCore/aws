@@ -60,6 +60,8 @@ package body AWS.Response is
                       Filename     => Null_Unbounded_String,
                       Location     => Null_Unbounded_String,
                       Realm        => Null_Unbounded_String,
+                      Authentication => Any,
+                      Auth_Stale    => False,
                       Message_Body => null);
       else
          return Data'(Finalization.Controlled with
@@ -71,6 +73,8 @@ package body AWS.Response is
                       Filename     => Null_Unbounded_String,
                       Location     => Null_Unbounded_String,
                       Realm        => Null_Unbounded_String,
+                      Authentication => Any,
+                      Auth_Stale    => False,
                       Message_Body => new Stream_Element_Array'
                         (Translator.To_Stream_Element_Array (Message_Body)));
       end if;
@@ -89,7 +93,11 @@ package body AWS.Response is
    -- Authenticate --
    ------------------
 
-   function Authenticate (Realm : in String) return Data is
+   function Authenticate
+     (Realm : in String;
+      Mode  : in Authentication_Mode := Basic;
+      Stale : in Boolean := False)
+     return Data is
 
       CRLF : constant String := ASCII.CR & ASCII.LF;
 
@@ -115,9 +123,31 @@ package body AWS.Response is
                    Filename     => Null_Unbounded_String,
                    Location     => Null_Unbounded_String,
                    Realm        => To_Unbounded_String (Realm),
+                   Authentication => Mode,
+                   Auth_Stale    => Stale,
                    Message_Body => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Auth_Mess)));
    end Authenticate;
+
+   --------------------
+   -- Authentication --
+   --------------------
+
+   function Authentication (D : in Data) return Authentication_Mode
+   is
+   begin
+      return D.Authentication;
+   end Authentication;
+
+   --------------------------
+   -- Authentication_Stale --
+   --------------------------
+
+   function Authentication_Stale  (D : in Data) return Boolean
+   is
+   begin
+      return D.Auth_Stale;
+   end Authentication_Stale;
 
    -----------
    -- Build --
@@ -138,6 +168,8 @@ package body AWS.Response is
                    Filename     => Null_Unbounded_String,
                    Location     => Null_Unbounded_String,
                    Realm        => Null_Unbounded_String,
+                   Authentication => Any,
+                   Auth_Stale    => False,
                    Message_Body => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Build;
@@ -159,6 +191,8 @@ package body AWS.Response is
                    Filename     => Null_Unbounded_String,
                    Location     => Null_Unbounded_String,
                    Realm        => Null_Unbounded_String,
+                   Authentication => Any,
+                   Auth_Stale    => False,
                    Message_Body => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Build;
@@ -178,6 +212,8 @@ package body AWS.Response is
                    Filename     => Null_Unbounded_String,
                    Location     => Null_Unbounded_String,
                    Realm        => Null_Unbounded_String,
+                   Authentication => Any,
+                   Auth_Stale    => False,
                    Message_Body =>
                      new Streams.Stream_Element_Array'(Message_Body));
    end Build;
@@ -215,6 +251,8 @@ package body AWS.Response is
                    Null_Unbounded_String,
                    Null_Unbounded_String,
                    Null_Unbounded_String,
+                   Any,
+                   False,
                    null);
    end Empty;
 
@@ -237,6 +275,8 @@ package body AWS.Response is
                    Filename     => To_Unbounded_String (Filename),
                    Location     => Null_Unbounded_String,
                    Realm        => Null_Unbounded_String,
+                   Authentication => Any,
+                   Auth_Stale    => False,
                    Message_Body => null);
    exception
       when Resources.Resource_Error =>
@@ -370,6 +410,8 @@ package body AWS.Response is
                    Filename     => Null_Unbounded_String,
                    Location     => To_Unbounded_String (Location),
                    Realm        => Null_Unbounded_String,
+                   Authentication => Any,
+                   Auth_Stale    => False,
                    Message_Body => new Stream_Element_Array'
                      (Translator.To_Stream_Element_Array (Message_Body)));
    end Moved;
@@ -398,6 +440,8 @@ package body AWS.Response is
                    Null_Unbounded_String,
                    Null_Unbounded_String,
                    Null_Unbounded_String,
+                   Any,
+                   False,
                    null);
    end Socket_Taken;
 
@@ -426,6 +470,8 @@ package body AWS.Response is
                    Filename     => Null_Unbounded_String,
                    Location     => To_Unbounded_String (Location),
                    Realm        => Null_Unbounded_String,
+                   Authentication => Any,
+                   Auth_Stale    => False,
                    Message_Body => null);
    end URL;
 
