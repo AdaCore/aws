@@ -100,12 +100,12 @@ implemented:
 - Ada 2005 should support all sort of containers, use them instead of the
   include/Table_Of_* components.
 
-- Change support for uncompressed memory stream. The data should be
-  uncompressed only when reading data and not when appending compressed data
-  into the stream. This enhancement will reduce the memory used by the data.
-
 =============== Point to fix before next release
 
 - Add support for more sockets in AWS.Server.Socket_Semaphore.
 
 - Add routine to compress a file on disk.
+
+- Change support for uncompressed memory stream. The data should be
+  uncompressed only when reading data and not when appending compressed data
+  into the stream. This enhancement will reduce the memory used by the data.
