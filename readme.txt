@@ -174,6 +174,10 @@ implementations.
    - AWS.Server.Set_Security is now a per server procedure. Add the Web Server
      as parameter.
 
+   - AWS.Net.Set_Send_Buffer and AWS.Net.Set_Receive_Buffer have been renamed
+     AWS.Net.Set_Send_Buffer_Size and AWS.Net.Set_Receive_Buffer_Size
+     respectively.
+
 
 Obsolescent features:
 ---------------------
