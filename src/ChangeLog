@@ -1,3 +1,49 @@
+2001-05-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-response.ads, aws-response.adb:
+	(Build): new function.
+	(Message_Body): new function.
+
+	* aws-server-protocol_handler.adb:
+	(Send_Message): send message body as many chunk and update the
+	 data timestamp between each.
+	(Answer_To_Client): Set Phase to Server_Processing before calling
+	 user's callback and put it to Server_Response just after.
+	(Get_Message_Data): declare the buffer with the right size and
+	 read data after.
+	(Send_File): update the data timestamp.
+	(Send_File_Chuncked): idem.
+
+	* aws-server.adb:
+	(Mark_Data_Time_Stamp): new procedure.
+	(Is_Abortable): check for Data_Phase. We do not want to break a
+	 transfert of big file.
+	(Mark_Phase): if Phase is in Data_Phase adjust the data timestamp.
+	Minor reformating.
+	
+	* aws-server.ads:
+	(Slot_Phase): add Server_Processing.
+	(Data_Phase): new subtype.
+	(Timeouts): defined as constant.
+	(Data_Timeouts): new constant.
+	(Slot): add Data_Time_Stamp field.
+	(Mark_Data_Time_Stamp): new procedure.
+
+	* aws-config.adb: 
+	(Send_Timeout): new function.
+	(Receive_Timeout): new function.
+	(Initialize): updated to parse Send_Timeout and Receive_Timeout.
+	(Send_Timeout_Value): new variable;
+	(Receive_Timeout_Value): new variable;
+	
+	* aws-config.ads:
+	(Send_Timeout): new function.
+	(Receive_Timeout): new function.
+	(Default_Cleaner_Client_Data_Timeout): set to Height_Hours.
+	(Default_Cleaner_Server_Response_Timeout): set to Height_Hours.
+	(Force_Cleaner_Client_Data_Timeout): set to Three_Hours.
+	(Force_Cleaner_Server_Response_Timeout): set to Three_Hours.
+	
 2001-05-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-config.adb:
