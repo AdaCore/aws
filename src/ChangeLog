@@ -1,3 +1,19 @@
+2002-06-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-resources.ads, aws-resources.adb:
+	Change implementation. Now all visible routines are using the same
+	 type and the dispatching routines are in the private part. This
+	 is a cleaner implementation.
+	
+	* aws-resources-files.ads, aws-resources-files.adb:
+	Change related to new AWS.Resources design.
+	
+	* aws-resources-embedded.ads, aws-resources-embedded.adb: 
+	Change related to new AWS.Resources design.
+	
+	* aws-server-protocol_handler.adb:
+	(Send_File): Use File_Type instead of File_Access.
+
 2002-06-23  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
