@@ -207,21 +207,96 @@ At this point you can build AWS. There is two ways to build AWS:
 @item with SSL support
 
 @smallexample
-   $ make build_ssl
+   $ make set_ssl
+   $ make build
 @end smallexample
 
 @item without SSL support (no need for the OpenSSL libraries in this case).
 
 @smallexample
-   $ make build_std
+   $ make set_std
+   $ make build
 @end smallexample
 
 @end itemize
 
 @noindent
+During the build the AWS library and demos will be compiled. The demos
+are:
+
+@table @file
+
+@item agent.exe
+
+A program using the AWS client interface. This simple tool can be used
+to retrieve Web page content. It supports passing through a proxy with
+authentication and basic authentication on the Web site.
+
+@item auth.exe
+
+A simple program to test the Web Basic authentication feature.
+
+@item com_1.exe
+@item com_2.exe
+
+Two simples program that uses the AWS communication service.
+
+@item hello_world.exe
+
+The famous Hello World program. This is a server that will always
+return a Web page saying ``Hello World!''.
+
+@item main.exe
+@item hotplug.exe
+
+A simple test for the hotplug feature.
+
+@item runme.exe
+
+A complete example that test many AWS features. If this test runs fine
+under your platform, AWS is certainly ok.
+
+@item ws.exe
+
+A simple static Web page server.
+
+@end table
+
+@noindent
+If @code{XMLAda} is installed it is possible to build the SOAP binding
+and the SOAP demos, for this just type:
+
+@smallexample
+   $ make build_soap
+@end smallexample
+
+@noindent
+There is four demos:
+
+@table @file
+
+@item soap_client.exe
+@item soap_server.exe
+
+A simple client/server program to test the SOAP protocol.
+
+@item soap_svs.exe
+
+A server that implements the seven SOAP procedure for the validation
+suite on @url{http://validator.soapware.org/}. This demo can be used
+to validate @code{AWS/SOAP} on your platform.
+
+@item soap_cvs.exe
+
+The client SOAP program that test all seven SOAP procedure of the
+above server.
+
+@end table
+
+@noindent
 In each case you'll certainly have to edit the makefile to correctly set
-the include path for the libraries @code{POSIX}, @code{OpenSSL} and 
-@code{Socket}. For more information, look at the makefiles.
+the include path for the libraries @code{POSIX}, @code{OpenSSL}, 
+@code{Socket} and @code{XMLAda}. For more information, look at the makefiles.
 
 @c ----------------------------------------------------------------------
 
