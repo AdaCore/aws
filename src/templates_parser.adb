@@ -4190,6 +4190,10 @@ package body Templates_Parser is
                function Check (T : in Tag_Var) return Natural;
                --  Returns the length of Tag T for the current context
 
+               function Check (I : in Include_Parameters) return Natural;
+               --  Returns the length of the largest vector tag found on the
+               --  include parameters.
+
                -----------
                -- Check --
                -----------
@@ -4325,6 +4329,18 @@ package body Templates_Parser is
                   return Iteration;
                end Check;
 
+               function Check (I : in Include_Parameters) return Natural is
+                  use type Data.Tree;
+                  Iteration : Natural := Natural'First;
+               begin
+                  for K in I'Range loop
+                     if I (K) /= null then
+                        Iteration := Natural'Max (Iteration, Check (I (K)));
+                     end if;
+                  end loop;
+                  return Iteration;
+               end Check;
+
             begin
                if T = null then
                   return Natural'First;
@@ -4367,7 +4383,9 @@ package body Templates_Parser is
                   when Include_Stmt =>
                      return Natural'Max
                        (Get_Max_Lines (T.File.Info, N),
-                        Get_Max_Lines (T.Next, N));
+                        Natural'Max
+                          (Check (T.I_Params),
+                           Get_Max_Lines (T.Next, N)));
                end case;
             end Get_Max_Lines;
 
