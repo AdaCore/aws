@@ -140,7 +140,9 @@ Here are the main changes since AWS 1.3 :
    - Support for memory streams and compressed memory streams (deflate /
      inflate) based on ZLib library.
 
-   - Add routines to compress / decompress a Stream_Element_Array.
+   - New routines to compress / decompress a Stream_Element_Array.
+
+   - New routines to compress / decompress a file using the Gzip encoding.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
