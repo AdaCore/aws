@@ -7,7 +7,7 @@
 	Removed. The features offered by this API is now part of AWS
 	 standard reponses.
 
-2004-03-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
+2004-03-02  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-sets.adb:
         (Wait): Remove not actual comments marked by ???.
