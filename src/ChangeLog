@@ -1,7 +1,7 @@
 2003-10-08  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-response-set.adb:
-	(Message_Body): Use properly dispatching Append_Body call.
+	(Message_Body): Use properly dispatching Append call.
 
 2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
 
