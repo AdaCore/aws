@@ -49,6 +49,8 @@
 
 with Ada.Strings.Unbounded;
 
+with AWS.Utils;
+
 with Strings_Cutter;
 
 package body AWS.Parameters is
@@ -56,10 +58,6 @@ package body AWS.Parameters is
    use Ada.Strings.Unbounded;
 
    Val_Separator : constant Character := ASCII.VT;
-
-   function Image (N : Natural) return String;
-   pragma Inline (Image);
-   --  Returns N as a string without the leading space.
 
    function Internal_Get (Parameter_Set : in Set;
                           Key           : in String;
@@ -79,8 +77,8 @@ package body AWS.Parameters is
       Key, Value    : in     String)
    is
       C       : constant Positive := Parameter_Set.Count + 1;
-      K_Key   : constant String   := "__AWS_K" & Image (C);
-      K_Value : constant String   := "__AWS_V" & Image (C);
+      K_Key   : constant String   := "__AWS_K" & Utils.Image (C);
+      K_Value : constant String   := "__AWS_V" & Utils.Image (C);
    begin
       Parameter_Set.Count := Parameter_Set.Count + 1;
 
@@ -98,8 +96,7 @@ package body AWS.Parameters is
                  Internal_Get (Parameter_Set, Key, 0);
             begin
                Key_Value.Update_Node
-                 (Key,
-                  (To_Unbounded_String (Key),
+                 ((To_Unbounded_String (Key),
                    To_Unbounded_String (Current_Value
                                         & Val_Separator
                                         & Value)),
@@ -181,7 +178,7 @@ package body AWS.Parameters is
       N             : in Positive)
      return String
    is
-      Key  : constant String := "__AWS_K" & Image (N);
+      Key  : constant String := "__AWS_K" & Utils.Image (N);
    begin
       return Get (Parameter_Set, Key);
    end Get_Key;
@@ -195,20 +192,10 @@ package body AWS.Parameters is
       N             : in Positive)
       return String
    is
-      Key  : constant String := "__AWS_V" & Image (N);
+      Key  : constant String := "__AWS_V" & Utils.Image (N);
    begin
       return Get (Parameter_Set, Key);
    end Get_Value;
-
-   -----------
-   -- Image --
-   -----------
-
-   function Image (N : Natural) return String is
-      NS : constant String := Natural'Image (N);
-   begin
-      return NS (2 .. NS'Last);
-   end Image;
 
    ------------------
    -- Internal_Get --
