@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                            Copyright (C) 2000                            --
---                               Pascal Obry                                --
+--                          Copyright (C) 2000-2001                         --
+--                      Dmitriy Anisimkov & Pascal Obry                     --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
 --  it under the terms of the GNU General Public License as published by    --
@@ -29,6 +29,7 @@
 --  $Id$
 
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 with AWS.Messages;
 with AWS.Translater;
@@ -153,8 +154,12 @@ package body AWS.Status.Set is
    ----------------
 
    procedure Parameters (D : in out Data; Name, Value : in String) is
+
    begin
-      AWS.Parameters.Add (D.Parameters, Name, Translater.Decode_URL (Value));
+      AWS.Parameters.Add
+        (D.Parameters,
+         Normalize_Name (Name, not D.Parameters_Case_Sensitive),
+         Translater.Decode_URL (Value));
    end Parameters;
 
    procedure Parameters (D : in out Data; Parameters : in String) is
@@ -214,9 +219,27 @@ package body AWS.Status.Set is
    -----------
 
    procedure Reset (D : in out Data) is
+
+      procedure Free is new Ada.Unchecked_Deallocation
+        (Stream_Element_Array, Stream_Element_Array_Access);
+
    begin
       AWS.Parameters.Release (D.Parameters);
-      D := No_Data;
+      Free (D.Binary_Data);
+
+      D.Connection        := Null_Unbounded_String;
+      D.Host              := Null_Unbounded_String;
+      D.Method            := GET;
+      D.URI               := Null_Unbounded_String;
+      D.HTTP_Version      := Null_Unbounded_String;
+      D.Content_Type      := Null_Unbounded_String;
+      D.Boundary          := Null_Unbounded_String;
+      D.Content_Length    := 0;
+      D.If_Modified_Since := Null_Unbounded_String;
+      D.File_Up_To_Date   := False;
+      D.Auth_Name         := Null_Unbounded_String;
+      D.Auth_Password     := Null_Unbounded_String;
+      D.Session_ID        := Null_Unbounded_String;
    end Reset;
 
    -------------
