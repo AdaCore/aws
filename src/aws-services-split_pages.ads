@@ -39,14 +39,17 @@ package AWS.Services.Split_Pages is
    --  using the transient Web Pages support. In the template file a set of
    --  specific tags are recongnized:
    --
-   --  NEXT         The href to the next page.
-   --  PREVIOUS     The href to the previous page.
-   --  PAGE_INDEX   Current page number.
-   --  V_HREFS      A vector tag containing a set of href to pages.
-   --  V_INDEXES    A vector tag (synchronized with V_HREFS) containing the
-   --               page numnbers for the hrefs.
+   --  NEXT          The href to the next page.
+   --  PREVIOUS      The href to the previous page.
+   --  PAGE_INDEX    Current page number.
+   --  NUMBER_PAGES  Number of pages generated.
+   --  OFFSET        Current table line offset real table line can be computed
+   --                using: @_"+"(OFFSET):TABLE_LINE_@
+   --  HREFS_V       A vector tag containing a set of href to pages.
+   --  INDEXES_V     A vector tag (synchronized with HREFS_V) containing the
+   --                page numnbers for the hrefs.
    --
-   --  V_HREFS and V_INDEXES can be used to create an index to the generated
+   --  HREFS_V and INDEXES_V can be used to create an index to the generated
    --  pages. Note that if there is more pages than Max_In_Index a
    --  continuation (the 3 characters "...") will be added.
 
