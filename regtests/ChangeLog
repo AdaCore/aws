@@ -1,3 +1,17 @@
+2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Copy cert.pem from the demos directory to run tsgetparam.
+	(clean): Remove cert.pem
+	
+2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	Add tsgetparam regression test.
+
+	* tsgetparam.adb:
+	Initial revision.
+
 2002-11-25  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

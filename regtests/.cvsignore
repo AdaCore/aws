@@ -39,6 +39,8 @@ b~tres.adb
 b~tres.ads
 b~tres2.adb
 b~tres2.ads
+b~tsgetparam.adb
+b~tsgetparam.ads
 b~turl.adb
 b~turl.ads
 b~turl2.adb
@@ -83,6 +85,7 @@ tresres-file2_html.ads
 tresres-file_tmplt.ads
 tresres.adb
 tresres.ads
+tsgetparam.res
 turl.res
 turl2.res
 turl3.res

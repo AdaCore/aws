@@ -1,5 +1,9 @@
 2002-11-26  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* soap-types.ads:
+	Group all Get routines together. Fix some comments.
+	Update copyright notice.
+
 	* soap-client.adb:
 	Minor reformatting.
 
