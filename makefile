@@ -31,9 +31,19 @@ else
 EXEEXT =
 endif
 
+# Checks if compiler version if 3.15
+GNAT_315 = $(`gnatls -v | grep "3\.15"`)
+
+ifeq (${GNAT_315}, )
+# This is not GNAT 3.15, let's hope it is a version above
 STYLE_FLAGS	= -gnatwcfijmpruv -gnatwe -gnaty3abcefhiklmnoprst
 # -gnatwk (constant) should be added but in GNAT 3.16a it reports problems on
 # withed packages.
+else
+# On GNAT 3.15 pragma Obsolescent and -gnatwj option is not supported, so we
+# do not use this option and furtheremore we do not treat warnings as errors.
+STYLE_FLAGS     = -gnatwcfimpruv -gnaty3abcefhiklmnoprst
+endif
 
 # compiler
 RELEASE_GFLAGS	= -q -O2 -gnatn
