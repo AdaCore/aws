@@ -42,6 +42,7 @@ with Templates_Parser;
 --     VERSION (discrete)
 --        AWS version string.
 --
+
 --     IS_DIR (vector)
 --        A list of booleans, indicate if Nth entry is a directory or not.
 --
