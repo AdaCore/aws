@@ -173,7 +173,7 @@ package body AWS.Session is
 
       Next_Run : Calendar.Time := Calendar.Clock + Session_Check_Interval;
    begin
-      Clean_Dead_Sessions: loop
+      Clean_Dead_Sessions : loop
          select
             accept Stop;
             exit Clean_Dead_Sessions;
