@@ -1,3 +1,8 @@
+2002-07-09  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-server.ads, aws-server.adb:
+	Minor reformatting and layout fix.
+
 2002-07-09  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* aws-server.ads, aws-server.adb:
