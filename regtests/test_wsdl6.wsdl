@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s0="http://81.67.51.47/HECATEEWebServices/encodedTypes" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://81.67.51.47/HECATEEWebServices/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" targetNamespace="http://81.67.51.47/HECATEEWebServices/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <s:schema targetNamespace="http://81.67.51.47/HECATEEWebServices/encodedTypes">
+      <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <s:import namespace="http://schemas.xmlsoap.org/wsdl/" />
+
+      <s:complexType name="ArrayOfT_Track">
+        <s:complexContent mixed="false">
+          <s:restriction base="soapenc:Array">
+            <s:attribute d7p1:arrayType="s0:T_Track[]" ref="soapenc:arrayType" xmlns:d7p1="http://schemas.xmlsoap.org/wsdl/" />
+          </s:restriction>
+        </s:complexContent>
+      </s:complexType>
+
+      <s:complexType name="T_Track">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="p_battleDimension" type="s0:T_Battle_Dimension" />
+          <s:element minOccurs="1" maxOccurs="1" name="p_affiliation" type="s0:T_Affiliation" />
+          <s:element minOccurs="1" maxOccurs="1" name="p_functionId" type="s0:T_FunctionID" />
+          <s:element minOccurs="1" maxOccurs="1" name="p_track_number" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="p_longitude" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="p_latitude" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="p_altitude" type="s:double" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="T_Battle_Dimension">
+        <s:restriction base="s:string">
+          <s:enumeration value="SPACE" />
+          <s:enumeration value="AIR" />
+          <s:enumeration value="GROUND" />
+          <s:enumeration value="SEA_SURFACE" />
+          <s:enumeration value="SEA_SUBSURFACE" />
+          <s:enumeration value="SOF" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="T_Affiliation">
+        <s:restriction base="s:string">
+          <s:enumeration value="PENDING" />
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="ASSUMED_FRIEND" />
+          <s:enumeration value="FRIEND" />
+          <s:enumeration value="NEUTRAL" />
+          <s:enumeration value="SUSPECT" />
+          <s:enumeration value="HOSTILE" />
+          <s:enumeration value="JOKER" />
+          <s:enumeration value="FAKER" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="T_FunctionID">
+        <s:restriction base="s:string">
+          <s:enumeration value="FIGHTER" />
+          <s:enumeration value="CARRIER" />
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
+  </types>
+
+  <message name="displayTrackSoapIn">
+    <part name="pa_track" type="s0:ArrayOfT_Track" />
+  </message>
+  <message name="displayTrackSoapOut" />
+
+  <portType name="HECATEEWebServicesClassSoap">
+    <operation name="displayTrack">
+      <input message="tns:displayTrackSoapIn" />
+      <output message="tns:displayTrackSoapOut" />
+    </operation>
+  </portType>
+
+  <binding name="HECATEEWebServicesClassSoap" type="tns:HECATEEWebServicesClassSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+    <operation name="displayTrack">
+      <soap:operation soapAction="http://81.67.51.47/HECATEEWebServices/displayTrack" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="http://81.67.51.47/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="http://81.67.51.47/HECATEEWebServices/" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+  </binding>
+
+  <service name="HECATEEWebServicesClass">
+    <documentation>A track display tool</documentation>
+    <port name="HECATEEWebServicesClassSoap" 
+	binding="tns:HECATEEWebServicesClassSoap">
+      <soap:address location="http://81.67.51.47/HECATEEWebSErvices/HECATEEWebServices.asmx" />
+    </port>
+  </service>
+</definitions>
