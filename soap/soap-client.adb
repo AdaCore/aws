@@ -49,7 +49,13 @@ package body SOAP.Client is
    function Call
      (URL        : in String;
       P          : in Message.Payload.Object;
-      SOAPAction : in String         := Not_Specified)
+      SOAPAction : in String                     := Not_Specified;
+      User       : in String                     := Not_Specified;
+      Pwd        : in String                     := Not_Specified;
+      Proxy      : in String                     := Not_Specified;
+      Proxy_User : in String                     := Not_Specified;
+      Proxy_Pwd  : in String                     := Not_Specified;
+      Timeouts   : in AWS.Client.Timeouts_Values := AWS.Client.No_Timeout)
       return Message.Response.Object'Class
    is
 
@@ -73,14 +79,16 @@ package body SOAP.Client is
                  (URL,
                   To_String (Message_Body),
                   AWS.URL.URL (URL_Object)
-                    & '#' & SOAP.Message.Payload.Procedure_Name (P));
+                    & '#' & SOAP.Message.Payload.Procedure_Name (P),
+                  User, Pwd, Proxy, Proxy_User, Proxy_Pwd, Timeouts);
             end;
 
          else
             Response := AWS.Client.SOAP_Post
               (URL,
                To_String (Message_Body),
-               SOAPAction);
+               SOAPAction,
+               User, Pwd, Proxy, Proxy_User, Proxy_Pwd, Timeouts);
          end if;
       end RPC_Call;
 
