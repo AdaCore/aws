@@ -39,6 +39,7 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-server-hotplug.ads.texi \
 	../src/aws-server-push.ads.texi \
 	../src/aws-server-status.ads.texi \
+	../src/aws-server-log.ads.texi \
 	../src/aws-server.ads.texi \
 	../src/aws-services-directory.ads.texi \
 	../src/aws-services-dispatchers-method.ads.texi \
