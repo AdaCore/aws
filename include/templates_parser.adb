@@ -467,8 +467,6 @@ package body Templates_Parser is
             Stop := Stop - 1;
          end loop;
 
-         pragma Assert (K = 1);
-
          return new Filter_Set'(FS);
       end Get_Filter_Set;
 
@@ -2103,7 +2101,11 @@ package body Templates_Parser is
                --  There is only spaces on this line, this is an empty line
                --  we just have to skip it.
                Last := 0;
+               return False;
             end if;
+
+            Last := Strings.Fixed.Index_Non_Blank
+              (Buffer (1 .. Last), Strings.Backward);
 
             return False;
          end if;
@@ -2497,14 +2499,19 @@ package body Templates_Parser is
                if State.Table_Level = 0 then
                   --  A Matrix outside a table statement.
 
-                  while P /= null loop
+                  loop
                      Add_Vector (P.Vect);
-                     Append (Result, ASCII.LF);
                      P := P.Next;
+
+                     exit when P = null;
+
+                     Append (Result, ASCII.LF);
                   end loop;
 
                else
-                  Add_Vector (Vector (A.Mat_Value, State.J));
+                  if not (State.J > A.Mat_Value.M.Count) then
+                     Add_Vector (Vector (A.Mat_Value, State.J));
+                  end if;
                end if;
 
                return To_String (Result);

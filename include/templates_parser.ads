@@ -181,7 +181,7 @@ package Templates_Parser is
    --  Build an Association (Variable = Value) to be added to a
    --  Translate_Table. This is a vector tag association, value is a
    --  Vector_Tag. If the vector tag is found outside a table tag statement
-   --  it is returned as a single string, each value beeing separater by the
+   --  it is returned as a single string, each value being separated by the
    --  specified separator.
 
    function Assoc
@@ -205,10 +205,10 @@ package Templates_Parser is
       Cached            : in Boolean         := False;
       Keep_Unknown_Tags : in Boolean         := False)
      return String;
-   --  Parse the Template_File replacing variables' occurences by the
+   --  Parse the Template_File replacing variables' occurrences by the
    --  corresponding values. If Cached is set to True, Filename tree will be
    --  recorded into a cache to quick retrieval. If Keep_Unknown_Tags is set
-   --  to True then tags that are not in the translate table are keept
+   --  to True then tags that are not in the translate table are kept
    --  as-is if it is part of the template data. If this tags is part of a
    --  condition (in an IF statement tag), the condition will evaluate to
    --  False.
