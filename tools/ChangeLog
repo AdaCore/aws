@@ -1,3 +1,9 @@
+2004-12-01  Pascal Obry  <obry@adacore.com>
+
+	* ada2wsdl-generator.adb:
+	(Write_Header): Change namespace to "http://soapaws/".
+	(Write_Array): Change "soap-enc" to "soapenc".
+
 2004-11-27  Pascal Obry  <pascal@obry.org>
 
 	* ada2wsdl-parser.adb:
