@@ -137,5 +137,21 @@ begin
                                "first_token")));
    Put_Line (Boolean'Image (Unnamed_Value_Exists
                        ("", "nothing")));
+
+   --  Test for parse accept tokents.
+   --  Got from RFC 2616
+
+   Test ("");
+   Test ("*");
+   Test ("text/plain; q=0.5, text/html,text/x-dvi; q=0.8, text/x-c");
+   Test (" text/*, text/html, text/html;level=1, */*");
+   Test ("text/*;q=0.3, text/html;q=0.7, text/html;level=1,"
+         & "text/html;level=2;q=0.4, */*;q=0.5 ");
+   Test ("iso-8859-5, unicode-1-1;q=0.8");
+   Test ("compress, gzip");
+   Test ("compress;q=0.5, gzip;q=1.0");
+   Test ("gzip;q=1.0, identity; q=0.5, *;q=0");
+   Test ("da, en-gb;q=0.8, en;q=0.7");
+
    Put_Line ("Done.");
 end HVal;
