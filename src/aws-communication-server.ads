@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2003                          --
 --                               ACT-Europe                                 --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -34,7 +34,7 @@ with AWS.Response;
 
 generic
 
-   type T (<>) is limited private;  --  data type received by this server
+   type T (<>) is limited private;  --  Data type received by this server
    type T_Access is access T;
 
    with function Callback
@@ -42,19 +42,19 @@ generic
       Name       : in String;
       Context    : in T_Access;
       Parameters : in Parameter_Set := Null_Parameter_Set)
-     return Response.Data;
+      return Response.Data;
 
 package AWS.Communication.Server is
 
    --  Each instantiation of this package will create an HTTP server waiting
-   --  for incoming request at the Port specified by the Start formal
+   --  for incoming request at the Port specified in the Start formal
    --  parameter. This communication server must be started with the Start
    --  procedure and can be stopped with the procedure Shutdown below.
 
    procedure Start (Port : in Positive; Context : in T_Access);
-   --  Start communication HTTP server listening at the given port.
+   --  Start communication HTTP server listening at the given port
 
    procedure Shutdown;
-   --  Shutdown the communication HTTP server.
+   --  Shutdown the communication HTTP server
 
 end AWS.Communication.Server;
