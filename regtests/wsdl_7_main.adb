@@ -38,7 +38,8 @@ with AWS.Server;
 with SOAP.Dispatchers.Callback;
 with SOAP.Types;
 
-with WSDL_7_Server;
+with WSDL_5_Server;
+with WSDL_7_Service.CB;
 with WSDL_7_Service.Client;
 
 procedure WSDL_7_Main is
@@ -49,13 +50,13 @@ procedure WSDL_7_Main is
 
    WS   : Server.HTTP;
 
-   H    : WSDL_7_Server.Handler;
+   H    : WSDL_7_Service.CB.Handler;
 
    Conf : Config.Object := Config.Get_Current;
 
 begin
    H := SOAP.Dispatchers.Callback.Create
-     (WSDL_7_Server.HTTP_CB'Access, WSDL_7_Server.SOAP_CB'Access);
+     (WSDL_5_Server.HTTP_CB'Access, WSDL_7_Service.CB.SOAP_CB'Access);
 
    Config.Set.Server_Port (Conf, 7707);
 
