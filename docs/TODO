@@ -104,3 +104,20 @@ implemented:
   same payload. Not efficient.
 
 - Document the wsdl2aws tool.
+
+- Add support for more XML Schema types
+  byte, unsignedByte, short, unsignedShort, unsignedInt, long, unsignedLong
+  double, date, time, xsd:hexBinary, decimal
+
+  decimal is certainly a bit difficult to support, we need an arbitrary
+  precision package.
+
+- Add support for array with multiple dimentions
+
+   <complexType name="ArrayOfString2D">
+     <complexContent>
+       <restriction base="SOAP-ENC:Array">
+         <attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="xsd:string[,]" /> 
+       </restriction>
+     </complexContent>
+   </complexType>
