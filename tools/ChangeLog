@@ -1,3 +1,30 @@
+2003-11-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ada2wsdl-generator.adb:
+	(Mode): Add Safe_Pointer_Definition.
+	(Definition): Add Safe_Pointer_Definition variant case.
+	(New_Component): Checks for a safe pointer array component.
+	(Register_Safe_Pointer): New routine.
+	(Write_Schema): Handle Safe_Pointer_Definition case.
+
+	* ada2wsdl-generator.ads:
+	(Register_Safe_Pointer): New routine.
+
+	* ada2wsdl-main.adb:
+	Add "ada2wsdl:" before the exception message.
+
+	* ada2wsdl-parser.adb:
+	(Analyse_Package_Instantiation): New routine. Used to analyse safe
+	 pointer for arrays in records on the spec.
+	(Analyse_Node): Do not analyse A_Generic_Function_Declaration and
+	 A_Generic_Procedure_Declaration. Add support for
+	 A_Package_Instantiation.
+	(Create_Element_Node): Handles A_Package_Instantiation nodes.
+	Minor reformatting.
+
+	* ada2wsdl.ads:
+	(Version): Set to 0.9.
+
 2003-11-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* ada2wsdl-generator.adb:
