@@ -1,3 +1,14 @@
+2002-04-10  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Create): Add exception handler arround the AWS.Net.Connect call
+	 to catch connection errors.
+	(Disconnect): Check if Connection.Socket is not null.
+
+	* aws-client.ads:
+	(URL_Error): Removed as it is not used.
+	(Connection_Error): New exception.
+
 2002-04-05  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-directory.adb:
