@@ -25,6 +25,11 @@ LIB_IS   = -lxmlada_input_sources
 LIBS	 := -L$(XMLADA)/lib $(LIB_IS) $(LIB_DOM) $(LIB_UNIC) $(LIB_SAX) $(LIBS)
 endif
 
+ifdef ASIS
+INCLUDES := $(INCLUDES) -I$(ASIS)
+LIBS	 := $(LIBS) -L$(ASIS) -lasis
+endif
+
 ifeq (${OS}, Windows_NT)
 EXEEXT = .exe
 else
@@ -97,7 +102,7 @@ all:
 	echo "    install:      install AWS library"
 	echo "    run_regtests: run tests"
 
-ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)" GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)"
+ALL_OPTIONS	= $(MAKE_OPT) GFLAGS="$(GFLAGS)" INCLUDES="$(INCLUDES)" LIBS="$(LIBS)" LFLAGS="$(LFLAGS)" MODE="$(MODE)" XMLADA="$(XMLADA)" ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)" GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)"
 
 build_lib: build_ssllib build_include build_aws build_win32
 
