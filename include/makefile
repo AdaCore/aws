@@ -18,7 +18,7 @@ SOURCES	= table_of_dynamic_keys_and_static_values_g.adb \
 	strings_cutter.adb md5.adb \
 	templates_parser.adb templates_parser-input.adb \
 	sha.ads sha-process_data.adb sha-strings.adb \
-	zlib.ads zlib-thin.adb zlib.adb
+	zlib-thin.adb zlib.adb
 
 UNITS = $(sort $(basename $(SOURCES)))
 
