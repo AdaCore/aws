@@ -1,3 +1,18 @@
+2002-10-19  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-embedded.ads, aws-resources-embedded.adb:
+	(Create): New routine for create resource from memory data.
+
+	* aws-response.ads, aws-response.adb:
+	(Create_Resource): New routine.
+
+	* aws-server-protocol_handler.adb:
+	(Send_File): Removed both routines.
+	(Send_Resource_Body): New routine.
+	(Send_File_Time): Removed.
+	(Send_Message): Removed.
+	(Send_Data): New routine.
+
 2002-10-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-services-page_server.adb:
