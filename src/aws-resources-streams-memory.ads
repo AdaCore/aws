@@ -34,12 +34,15 @@
 --  $Author$
 
 with Memory_Streams;
+with AWS.Utils;
 
 package AWS.Resources.Streams.Memory is
 
    use Ada;
 
-   type Stream_Type is tagged limited private;
+   type Stream_Type is new Streams.Stream_Type with private;
+
+   subtype Stream_Element_Access is Utils.Stream_Element_Array_Access;
 
    function End_Of_File (Resource : in Stream_Type) return Boolean;
 
@@ -47,18 +50,28 @@ package AWS.Resources.Streams.Memory is
      (Resource : in out Stream_Type;
       Buffer   : in     Stream_Element_Array);
 
+   procedure Append
+     (Resource : in out Stream_Type;
+      Buffer   : in     Stream_Element_Access);
+
    procedure Read
      (Resource : in out Stream_Type;
       Buffer   :    out Stream_Element_Array;
       Last     :    out Stream_Element_Offset);
 
    procedure Close (Resource : in out Stream_Type);
+   --  Close the memory stream.
+
+   procedure Clear (Resource : in out Stream_Type);
+   pragma Inline (Clear);
+   --  Delete all data from memory stream.
+
+   procedure Reset (Resource : in out Stream_Type);
+   --  Reset the streaming data to the first position.
 
    function Size (Resource : in Stream_Type) return Stream_Element_Offset;
 
 private
-
-   type Stream_Element_Access is access all Stream_Element_Array;
 
    package Containers is
       new Memory_Streams (Element        => Stream_Element,

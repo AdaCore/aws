@@ -46,6 +46,22 @@ package body AWS.Resources.Streams.Memory is
       Containers.Append (Resource.Data, Buffer);
    end Append;
 
+   procedure Append
+     (Resource : in out Stream_Type;
+      Buffer   : in     Stream_Element_Access) is
+   begin
+      Containers.Append (Resource.Data, Buffer);
+   end Append;
+
+   -----------
+   -- Clear --
+   -----------
+
+   procedure Clear (Resource : in out Stream_Type) is
+   begin
+      Containers.Clear (Resource.Data);
+   end Clear;
+
    -----------
    -- Close --
    -----------
@@ -75,6 +91,15 @@ package body AWS.Resources.Streams.Memory is
    begin
       Containers.Read (Resource.Data, Buffer, Last);
    end Read;
+
+   -----------
+   -- Reset --
+   -----------
+
+   procedure Reset (Resource : in out Stream_Type) is
+   begin
+      Containers.Reset (Resource.Data);
+   end Reset;
 
    ----------
    -- Size --
