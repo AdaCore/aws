@@ -4,7 +4,7 @@
 
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                            November 16th, 2004
+   Pascal Obry                                            November 26th, 2004
 
 
 
@@ -158,6 +158,11 @@ Here are the main changes since AWS 2.0 :
      used on a vector to use as index an upper level table.
 
    - Add new templates engine filter FILE_EXISTS.
+
+   - Add support for xsd:short SOAP type.
+
+   - Improve wsdl2aws to properly handle multiple schemas inside WSDL
+     documents.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
