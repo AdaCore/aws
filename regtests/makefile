@@ -19,13 +19,15 @@
 GARGS = -i -q -I../src -I../ssl -I../include -I../soap $(INCLUDES)
 BARGS = -E
 
+LARGS = $(LFLAGS) $(LIBS) -L../lib -lz
+
 ifeq ($(MODE),ssl)
 # With SSL support
 
 ifeq (${OS}, Windows_NT)
-LARGS = $(LFLAGS) $(LIBS) -L../lib -lssl -lcrypto
+LARGS := $(LARGS) -lssl -lcrypto
 else
-LARGS = $(LFLAGS) $(LIBS) -lssl -lcrypto
+LARGS := $(LARGS) -lssl -lcrypto
 endif
 
 RT_SOAP_SEC = test_sec_soap
@@ -34,7 +36,7 @@ RT_STD_SEC = tsgetparam ssp ssback
 else
 # Without SSL support
 
-LARGS = $(LFLAGS) $(LIBS) -L../lib -lnosslaws
+LARGS := $(LARGS) -lnosslaws
 
 endif
 
@@ -48,7 +50,7 @@ RT_STD = turl tgetparam param dummy simple tclientto shutdown strm strm2 \
 	head hval turl4 ctab sock1 file redirect hostip upload2 upload3 \
 	tlog unexph2 sp sessions dirop multiple tcom tmime sessions2 \
 	sessions3 huge_response server_info server_config sback append \
-	$(RT_STD_SEC)
+	compress $(RT_STD_SEC)
 
 ifeq ($(XMLADA),)
 STD_TESTS   = $(RT_STD)
