@@ -131,6 +131,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
       Activity_Counter      : Vector_Tag;
       Slot_Activity_Counter : Vector_Tag;
       Activity_Time_Stamp   : Vector_Tag;
+      Peer_Name             : Vector_Tag;
 
       Slot_Data             : Slot;
 
@@ -150,6 +151,12 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
          Activity_Counter := Activity_Counter & Slot_Data.Activity_Counter;
 
+         if Slot_Data.Peername = Null_Unbounded_String then
+            Peer_Name := Peer_Name & "&nbsp;";
+         else
+            Peer_Name := Peer_Name & Slot_Data.Peername;
+         end if;
+
          Slot_Activity_Counter := Slot_Activity_Counter
            & Slot_Data.Slot_Activity_Counter;
 
@@ -160,6 +167,7 @@ function AWS.Server.Get_Status (Server : in HTTP) return String is
 
       return Translate_Table'
         (Assoc ("SOCK_L",                  Sock),
+         Assoc ("PEER_NAME_L",             Peer_Name),
          Assoc ("OPENED_L",                Opened),
          Assoc ("ABORTABLE_L",             Abortable),
          Assoc ("SLOT_ACTIVITY_COUNTER_L", Slot_Activity_Counter),
