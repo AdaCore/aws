@@ -25,6 +25,7 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-ldap-thin.adb aws-ldap.ads aws-log.adb aws-messages.adb \
 	aws-mime.adb aws-net-buffered.adb aws-net-ssl.adb aws-net-std.adb \
 	aws-net-stream_io.adb aws-net.adb aws-os_lib.adb \
+        aws-os_lib-definitions.ads \
 	aws-parameters-set.adb aws-parameters.adb aws-resources-embedded.adb \
 	aws-resources-files.adb aws-resources-streams.adb aws-resources.adb \
 	aws-resources-streams-memory.ads aws-resources-streams-zlib.adb \
