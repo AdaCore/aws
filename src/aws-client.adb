@@ -139,6 +139,12 @@ package body AWS.Client is
 
       Disconnect (Connection);
       Net.Free (Connection.Socket);
+
+      if ZLib.Is_Open (Connection.Decode_Filter) then
+         ZLib.Close (Connection.Decode_Filter, Ignore_Error => True);
+      end if;
+
+      Utils.Free (Connection.Decode_Buffer);
    end Close;
 
    -------------
@@ -1245,12 +1251,34 @@ package body AWS.Client is
          Content_Encoding : constant String
            := Ada.Characters.Handling.To_Lower
                 (Header (Answer, Messages.Content_Encoding_Token));
+
+         procedure Decode_Init (Header : ZLib.Header_Type);
+
+         procedure Decode_Init (Header : ZLib.Header_Type) is
+            use type Utils.Stream_Element_Array_Access;
+         begin
+            ZLib.Inflate_Init (Connection.Decode_Filter, Header => Header);
+
+            if Connection.Decode_Buffer = null then
+               Connection.Decode_Buffer
+                 := new Stream_Element_Array (1 .. 8096);
+            end if;
+
+            Connection.Decode_First := Connection.Decode_Buffer'Last + 1;
+            Connection.Decode_Last  := Connection.Decode_Buffer'Last;
+         end Decode_Init;
+
       begin
+         if ZLib.Is_Open (Connection.Decode_Filter) then
+            ZLib.Close (Connection.Decode_Filter, Ignore_Error => True);
+         end if;
+
          if Content_Encoding = "gzip" then
-            Set.Data_Encoding (Answer, Messages.GZip, Set.Decode);
+            Decode_Init (ZLib.GZip);
 
          elsif Content_Encoding = "deflate" then
-            Set.Data_Encoding (Answer, Messages.Deflate, Set.Decode);
+            Decode_Init (ZLib.Default);
+
          end if;
       end;
 
@@ -1531,90 +1559,119 @@ package body AWS.Client is
       Data       :    out Ada.Streams.Stream_Element_Array;
       Last       :    out Ada.Streams.Stream_Element_Offset)
    is
-      use Ada.Streams;
-      Sock  : Net.Socket_Type'Class renames Connection.Socket.all;
+      procedure Read_Internal
+        (Data       :    out Ada.Streams.Stream_Element_Array;
+         Last       :    out Ada.Streams.Stream_Element_Offset);
 
-      procedure Skip_Line;
-      --  Skip a line in the sock stream
+      -------------------
+      -- Read_Internal --
+      -------------------
 
-      procedure Read_Limited;
-      --  Read Connection.Length characters if it can be contained in Data
-      --  buffer otherwise just fill the remaining space in Data.
+      procedure Read_Internal
+        (Data       :    out Ada.Streams.Stream_Element_Array;
+         Last       :    out Ada.Streams.Stream_Element_Offset)
+      is
+         use Ada.Streams;
+         Sock  : Net.Socket_Type'Class renames Connection.Socket.all;
 
-      ------------------
-      -- Read_Limited --
-      ------------------
+         procedure Skip_Line;
+         --  Skip a line in the sock stream
 
-      procedure Read_Limited is
-         Limit : constant Stream_Element_Offset
-           := Stream_Element_Offset'Min
-             (Data'Last,
-              Data'First + Stream_Element_Offset (Connection.Length) - 1);
+         procedure Read_Limited;
+         --  Read Connection.Length characters if it can be contained in Data
+         --  buffer otherwise just fill the remaining space in Data.
+
+         ------------------
+         -- Read_Limited --
+         ------------------
+
+         procedure Read_Limited is
+            Limit : constant Stream_Element_Offset
+              := Stream_Element_Offset'Min
+                (Data'Last,
+                 Data'First + Stream_Element_Offset (Connection.Length) - 1);
+         begin
+            Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
+
+            Connection.Length
+              := Connection.Length - Integer (Last - Data'First + 1);
+         end Read_Limited;
+
+         ---------------
+         -- Skip_Line --
+         ---------------
+
+         procedure Skip_Line is
+            D : constant String := Net.Buffered.Get_Line (Sock);
+            pragma Warnings (Off, D);
+         begin
+            null;
+         end Skip_Line;
+
       begin
-         Net.Buffered.Read (Sock, Data (Data'First .. Limit), Last);
-
-         Connection.Length
-           := Connection.Length - Integer (Last - Data'First + 1);
-      end Read_Limited;
-
-      ---------------
-      -- Skip_Line --
-      ---------------
-
-      procedure Skip_Line is
-         D : constant String := Net.Buffered.Get_Line (Sock);
-         pragma Warnings (Off, D);
-      begin
-         null;
-      end Skip_Line;
-
-   begin
-      case Connection.Transfer is
-         when End_Response =>
-            Last := Data'First - 1;
-
-         when Until_Close  =>
-            begin
-               Net.Buffered.Read (Sock, Data, Last);
-            exception
-               when Net.Socket_Error =>
-                  Connection.Transfer := End_Response;
-                  Last := Data'First - 1;
-            end;
-
-         when Content_Length =>
-            if Connection.Length = 0 then
-               Connection.Transfer := End_Response;
+         case Connection.Transfer is
+            when End_Response =>
                Last := Data'First - 1;
-               return;
-            end if;
 
-            Read_Limited;
+            when Until_Close  =>
+               begin
+                  Net.Buffered.Read (Sock, Data, Last);
+               exception
+                  when Net.Socket_Error =>
+                     Connection.Transfer := End_Response;
+                     Last := Data'First - 1;
+               end;
 
-         when Chunked =>
-            if Connection.Length = 0 then
-               Connection.Length
-                 := Utils.Hex_Value
-                      (Strings.Fixed.Trim
-                         (Net.Buffered.Get_Line (Sock), Strings.Both));
-
+            when Content_Length =>
                if Connection.Length = 0 then
-                  Skip_Line;
                   Connection.Transfer := End_Response;
-
                   Last := Data'First - 1;
                   return;
                end if;
-            end if;
 
-            Read_Limited;
+               Read_Limited;
 
-            if Connection.Length = 0 then
-               Skip_Line;
-            end if;
+            when Chunked =>
+               if Connection.Length = 0 then
+                  Connection.Length
+                    := Utils.Hex_Value
+                         (Strings.Fixed.Trim
+                            (Net.Buffered.Get_Line (Sock), Strings.Both));
 
-         when None => raise Constraint_Error;
-      end case;
+                  if Connection.Length = 0 then
+                     Skip_Line;
+                     Connection.Transfer := End_Response;
+
+                     Last := Data'First - 1;
+                     return;
+                  end if;
+               end if;
+
+               Read_Limited;
+
+               if Connection.Length = 0 then
+                  Skip_Line;
+               end if;
+
+            when None => raise Constraint_Error;
+         end case;
+      end Read_Internal;
+
+   begin
+      if ZLib.Is_Open (Connection.Decode_Filter) then
+         declare
+            procedure Read is new ZLib.Read
+                                    (Read_Internal,
+                                     Connection.Decode_Buffer.all,
+                                     Connection.Decode_First,
+                                     Connection.Decode_Last,
+                                     Allow_Read_Some => True);
+         begin
+            Read (Connection.Decode_Filter, Data, Last);
+         end;
+      else
+         Read_Internal (Data, Last);
+      end if;
    end Read_Some;
 
    ----------------
