@@ -1,3 +1,55 @@
+2002-12-16  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-containers-tables-set.adb:
+	Minor reformatting.
+	Add some comments.
+	Add ??? where comments are needed.
+
+	* aws-containers-tables.ads:
+	Fix comment. Some comments where having a DOS line terminator.
+
+	* aws-server.adb:
+	(Accept_Socket_Serialized): If exception is raised, free socket
+	 memory before leaving. Fix memory leak.
+	(Shutdown): Call Net.Free to release socket memory. Fix memory leak.
+
+	* aws-ldap.ads:
+	Add comment.
+
+	* aws-net-ssl.adb:
+	Fix comment.
+	(Bind): Removed, inherited routine is ok.
+	(Listen): Idem.
+	(Get_FD): Idem.
+	(Peer_Addr): Idem.
+	Fix reference to the Net.Std.Socket_Type as now it is inherited.
+
+	* aws-net-ssl.ads:
+	(Socket_Type): Inherit from Net.Std.Socket_Type. Removed S field.
+	(Bind): Removed, inherited routine is ok.
+	(Listen): Idem.
+	(Get_FD): Idem.
+	(Peer_Addr): Idem.
+	(Host_Name): Removed.
+
+	* aws-net.adb:
+	(Free): Use "not =" instead of /=.
+
+	* aws-ldap-client.adb:
+	(Init): Remove some not needed code.
+	(Bind): If thin call fail, set Dir to Null_Directory. Dir
+	 parameter is not "in out" mode.
+	(Is_Open): New function.
+
+	* aws-ldap-client.ads:
+	(Null_Directory): New constant.
+	(Init): Fix comment.
+	(Is_Open): New function.
+	(Bind): Dir parameter is now "in out" mode.
+
+	* aws-client.adb:
+	(Disconnect): Call Net.Free to release socket memory. Fix memory leak.
+
 2002-12-15  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-headers.ads:
