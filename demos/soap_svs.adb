@@ -538,4 +538,5 @@ begin
       Text_IO.Get_Immediate (C);
    end;
 
+   AWS.Server.Shutdown (WS);
 end SOAP_SVS;
