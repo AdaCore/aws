@@ -314,8 +314,7 @@ package body SOAP.Generator is
       Fault      : in     WSDL.Parameters.P_Set) is
    begin
       if not O.Quiet then
-         Text_IO.Put ("   > " & Proc);
-         Text_IO.Put_Line ("  " & SOAPAction);
+         Text_IO.Put_Line ("   > " & Proc);
       end if;
 
       Put_Types (O, Proc, Input, Output);
