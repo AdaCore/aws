@@ -25,7 +25,7 @@
 --  this  unit  does not  by itself cause  the resulting executable to be   --
 --  covered by the GNU General Public License. This exception does not      --
 --  however invalidate any other reasons why the executable file  might be  --
---  covered by the  GNU Public License.                                     --
+--  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
 
 --  $RCSfile$
@@ -89,6 +89,9 @@ package AWS.Resources.Streams.Memory.ZLib is
    procedure Close (Resource : in out Stream_Type);
    --  Close the ZLib stream, release all memory associated with the Resource
    --  object.
+
+   function Is_Compressed (Resource : in Stream_Type) return Boolean;
+   --  Returns True
 
 private
 

@@ -25,7 +25,7 @@
 --  this  unit  does not  by itself cause  the resulting executable to be   --
 --  covered by the GNU General Public License. This exception does not      --
 --  however invalidate any other reasons why the executable file  might be  --
---  covered by the  GNU Public License.                                     --
+--  covered by the GNU Public License.                                      --
 ------------------------------------------------------------------------------
 
 --  $RCSfile$
@@ -122,6 +122,16 @@ package body AWS.Resources.Streams.ZLib is
 
       ZL.Inflate_Init (Resource.Filter, Window_Bits, Header);
    end Inflate_Initialize;
+
+   -------------------
+   -- Is_Compressed --
+   -------------------
+
+   function Is_Compressed (Resource : in Stream_Type) return Boolean is
+      pragma Unreferenced (Resource);
+   begin
+      return True;
+   end Is_Compressed;
 
    ----------
    -- Read --
