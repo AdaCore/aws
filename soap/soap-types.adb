@@ -554,12 +554,32 @@ package body SOAP.Types is
 
    function R
      (V    : in Object_Set;
-      Name : in String)
-      return SOAP_Record is
+      Name : in String;
+      Type_Name : in String := "")
+      return SOAP_Record
+   is
+      function T_Name return String;
+      pragma Inline (T_Name);
+      --  Returns Type_Name is not empty and Name otherwise
+
+      ------------
+      -- T_Name --
+      ------------
+
+      function T_Name return String is
+      begin
+         if Type_Name = "" then
+            return Name;
+         else
+            return Type_Name;
+         end if;
+      end T_Name;
+
    begin
       return (Finalization.Controlled
                 with To_Unbounded_String (Name),
-                     new Natural'(1), new Object_Set'(V));
+                new Natural'(1), new Object_Set'(V),
+                To_Unbounded_String (T_Name));
    end R;
 
    -------
@@ -815,11 +835,14 @@ package body SOAP.Types is
             --  having the same name.
 
             declare
-               Name : constant String := Types.Name (O.O (O.O'First).O.all);
+               Name : constant String
+                 := Types.XML_Type (O.O (O.O'First).O.all);
             begin
+               --  For all remaining elements
+
                for K in O.O'First + 1 .. O.O'Last loop
                   if O.O (K).O'Tag /= SOAP_Record'Tag
-                    or else Name /= Types.Name (O.O (K).O.all)
+                    or else Name /= Types.XML_Type (O.O (K).O.all)
                   then
                      return XML_Undefined;
                   end if;
@@ -845,7 +868,7 @@ package body SOAP.Types is
 
          end loop;
 
-         --  We have the same type.
+         --  We have the same type for all items
 
          return XML_Type (O.O (O.O'First).O.all);
       end Array_Type;
@@ -894,7 +917,17 @@ package body SOAP.Types is
       Result : Unbounded_String;
    begin
       Append (Result, Spaces (Indent));
-      Append (Result, Utils.Tag (Name (O), Start => True));
+
+      if Name (O) = XML_Type (O) then
+         --  The name and the type are identical, we do not have to specify
+         --  the xsi:type in this case.
+         Append (Result, Utils.Tag (Name (O), Start => True));
+
+      else
+         Append (Result, "<" & Name (O)
+                   & " xsi:type=""awsns:" & XML_Type (O) & """>");
+      end if;
+
       Append (Result, New_Line);
 
       XML_Indent.Set_Value (Indent + 1);
@@ -989,9 +1022,8 @@ package body SOAP.Types is
    end XML_Type;
 
    function XML_Type  (O : in SOAP_Record) return String is
-      pragma Warnings (Off, O);
    begin
-      return "";
+      return To_String (O.Type_Name);
    end XML_Type;
 
    function XML_Type (O : in SOAP_Enumeration) return String is
