@@ -158,5 +158,27 @@ public class wsdl_6 {
 	for (int k=0; k<12; k++) {
 	    printlnRec (rres[k]);
 	}
+
+	//  Array in record
+
+	System.out.println ("array in record");
+
+	Complex_Rec c_rec = new Complex_Rec();
+	Complex_Rec c_res;
+
+	int[] crarr = new int[40];
+	
+	for (int k=0; k<40; k++) crarr[k] =2;
+	crarr[0] = 6;
+	crarr[3] = 6;
+	crarr[7] = 6;
+
+	c_rec.setSI (crarr);
+
+	c_res = port.echo_Complex_Rec (c_rec);
+
+	int[] resarr = c_res.getSI();
+
+	for (int k=0; k<40; k++) System.out.println (resarr[k]);
     }
 }
