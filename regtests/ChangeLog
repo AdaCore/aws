@@ -1,3 +1,11 @@
+2003-06-22  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP): Add test_soap5.adb.
+
+	* test_soap5.adb, test_soap5.out:
+	Initial revision.
+
 2003-06-21  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* interoplab_main.adb:
