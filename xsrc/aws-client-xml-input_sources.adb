@@ -131,9 +131,9 @@ package body AWS.Client.XML.Input_Sources is
      (From : in out HTTP_Input;
       C    :    out Unicode.Unicode_Char)
    is
-      ES   : Unicode.CES.Encoding_Scheme;
-      CS   : Unicode.CCS.Character_Set;
-      Temp : Stream_Element_Offset;
+      ES  : Unicode.CES.Encoding_Scheme;
+      CS  : Unicode.CCS.Character_Set;
+      Pos : Stream_Element_Offset;
    begin
       if From.First > From.Last then
          --  Unexpected end of stream detected. Data should have been taken
@@ -153,13 +153,13 @@ package body AWS.Client.XML.Input_Sources is
          --  character. We move remaining data in buffer to the begin, to
          --  have some place if we need to read some data.
 
-         Temp := From.Buffer'First + From.Last - From.First;
+         Pos := From.Buffer'First + From.Last - From.First;
 
-         From.Buffer (From.Buffer'First .. Temp)
+         From.Buffer (From.Buffer'First .. Pos)
            := From.Buffer (From.First .. From.Last);
 
          From.First := From.Buffer'First;
-         From.Last  := Temp;
+         From.Last  := Pos;
 
          Clean_Buffer (From);
       end if;
@@ -168,10 +168,12 @@ package body AWS.Client.XML.Input_Sources is
          --  We need a loop to append data to buffer if last character in
          --  buffer is only part of the encoded character.
 
+         --  Store the current position, the start of the character
+
+         Pos := From.First;
+
          begin
             ES.Read (+From.Buffer, Integer (From.First), C);
-            C := CS.To_Unicode (C);
-            exit Read_Encoded_Char;
          exception
             when Unicode.CES.Invalid_Encoding =>
                if From.Last - From.First < 5 then
@@ -184,25 +186,44 @@ package body AWS.Client.XML.Input_Sources is
                   --  characters. So we know about missing bytes in the buffer
                   --  only if we have an Invalid_Encoding exception.
 
-                  Temp := From.Last;
-
-                  Read_Some
-                    (From.HTTP.all,
-                     Data => From.Buffer (Temp + 1 .. From.Buffer'Last),
-                     Last => From.Last);
-
-                  Clean_Buffer (From);
-
-                  if From.Last <= Temp then
-                     --  No more bytes to read, so we have the start of an
-                     --  encoded character but not the end of it.
-                     raise Unicode.CES.Invalid_Encoding;
-                  end if;
+                  From.First := From.Last + 2;
 
                else
                   raise;
                end if;
          end;
+
+         if From.First > From.Last + 1 then
+            --  We have a buffer overrun, the read procedure has read bytes
+            --  pass the last valid character. So we probably had only part
+            --  of the character in the buffer. We have to read some more
+            --  bytes from the HTTP connection.
+
+            --  Reset start of character at the saved position above
+
+            From.First := Pos;
+
+            Pos := From.Last;
+
+            Read_Some
+              (From.HTTP.all,
+               Data => From.Buffer (Pos + 1 .. From.Buffer'Last),
+               Last => From.Last);
+
+            if From.Last <= Pos then
+               --  No more bytes to read, so we have the start of an encoded
+               --  character but not the end of it.
+               raise Unicode.CES.Invalid_Encoding;
+            end if;
+
+            Clean_Buffer (From);
+
+         else
+            --  No buffer overrun, C contains a valid character
+
+            C := CS.To_Unicode (C);
+            exit Read_Encoded_Char;
+         end if;
       end loop Read_Encoded_Char;
    end Next_Char;
 
