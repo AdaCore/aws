@@ -385,8 +385,6 @@ private
       Until_Close,    -- Document end on close socket
       End_Response);  -- Document is over
 
-   type Stream_Element_Access is access all Stream_Element_Array;
-
    type HTTP_Connection is limited record
       Self : HTTP_Connection_Access := HTTP_Connection'Unchecked_Access;
 
