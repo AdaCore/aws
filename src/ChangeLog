@@ -1,3 +1,17 @@
+2004-09-28  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-services-transient_pages.ads:
+	(Cleaner_Control.Register): Add Need_Start_Cleaner out parameter.
+
+	* aws-services-transient_pages.adb:
+	(Database): Remove internal flag Started.
+	(Database.Register): Remove Start out Boolean parameter.
+	(Cleaner_Control.Register): Add Need_Start_Cleaner out parameter.
+	(Register): Move cleaner task creation to the Control child package.
+
+	* aws-services-transient_pages-control.adb:
+	(Register): Create cleaner task if necessary.
+
 2004-09-27  Pascal Obry  <pascal@obry.org>
 
 	* aws-client.adb:
