@@ -116,6 +116,14 @@ package AWS.Net.Std is
       Blocking : in Boolean);
    --  Set the blocking mode for the socket.
 
+   function Get_Send_Buffer (Socket : in Socket_Type) return Natural;
+   --  Returns the internal socket send buffer size.
+   --  Do not confuse with buffers for the AWS.Net.Buffered operations.
+
+   function Get_Receive_Buffer (Socket : in Socket_Type) return Natural;
+   --  Returns the internal socket receive buffer size.
+   --  Do not confuse with buffers for the AWS.Net.Buffered operations.
+
 private
 
    type Socket_Hidden;

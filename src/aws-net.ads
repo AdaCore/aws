@@ -150,6 +150,16 @@ package AWS.Net is
    --  Set the internal socket receive buffer size.
    --  Do not confuse with buffers for the AWS.Net.Buffered operations.
 
+   function Get_Send_Buffer (Socket : in Socket_Type) return Natural
+      is abstract;
+   --  Returns the internal socket send buffer size.
+   --  Do not confuse with buffers for the AWS.Net.Buffered operations.
+
+   function Get_Receive_Buffer (Socket : in Socket_Type) return Natural
+      is abstract;
+   --  Returns the internal socket receive buffer size.
+   --  Do not confuse with buffers for the AWS.Net.Buffered operations.
+
    procedure Set_Blocking_Mode
      (Socket   : in Socket_Type;
       Blocking : in Boolean)
