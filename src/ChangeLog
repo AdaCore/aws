@@ -1,5 +1,8 @@
 2002-03-13  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-services-page_server.adb:
+	Do not use GNAT.OS_Lib but AWS.OS_Lib instead.
+
 	* aws-dispatchers.adb:
 	Remove trailing spaces.
 
