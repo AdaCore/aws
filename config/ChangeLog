@@ -1,3 +1,11 @@
+2003-06-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-soap__nosoap.ads, aws-soap__nosoap.adb:
+	Removed, not used. The new scheme is to use dispatchers.
+
+	* aws-soap__soap.ads, aws-soap__soap.adb:
+	Removed, not used. The new scheme is to use dispatchers.
+
 2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-soap__soap.ads, aws-soap__soap.adb:

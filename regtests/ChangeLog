@@ -1,3 +1,13 @@
+2003-06-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* interoplab_main.adb:
+	(CB): Pass the SOAPAction and Payload to all SOAP callbacks
+	 generated from WSDL document.
+
+	* test_wsdl.adb, test_wsdl2.adb, test_wsdl3.adb:
+	(SOAP_Wrapper): New function used to call the new WSDL generated
+	 callbacks.
+
 2003-06-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:

@@ -1,8 +1,45 @@
+2003-06-21  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add soap-dispatchers.adb soap-dispatchers-callback.adb
+
+	* soap-dispatchers-callback.ads, soap-dispatchers-callback.adb:
+	(Callback_Routine): Move to parent and renamed to SOAP_Callback.
+	(Dispatch_Base): Renamed to Dispatch_HTTP.
+	Reformat code.
+	Fix copyright notice.
+
+	* soap-dispatchers.ads:
+	(Dispatch_Base): Renamed to Dispatch_HTTP.
+	Add SOAP_Callback type (was in child package callback).
+	(Dispatch_SOAP): Rename Action parameter to SOAPAction, Request to
+	 Payload and add Request (Status.Data) paramater.
+	Fix comments.
+	Reformat code.
+	Fix copyright notice.
+
+	* soap-dispatchers.adb:
+	(Dispatch_Base): Renamed to Dispatch_HTTP.
+	(Dispatch_SOAP): Rename Action parameter to SOAPAction, Request to
+	 Payload and add Request (Status.Data) paramater.
+	Reformat code.
+	Fix copyright notice.
+
+	* soap-generator-skel.adb:
+	(New_Procedure): Generate new spec for the SOAP callbacks. This
+	 can be used directly by the SOAP.Dispatchers.
+	(Start_Service): Move SOAP.Message.Payload withed unit from the
+	 body to the spec.
+
+	* soap-utils.ads, soap-utils.adb:
+	(SOAP_Wrapper): New routine.
+
 2003-06-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* soap-dispatchers.ads, soap-dispatchers.adb,
 	  soap-dispatchers-callback.ads, soap-dispatchers-callback.adb:
-	New packages for be able to have special SOAP dispatchers and callbacks.
+	New packages for be able to have special SOAP dispatchers and 
+	 callbacks.
 
 2003-06-19  Pascal Obry  <p.obry@wanadoo.fr>
 
