@@ -754,7 +754,38 @@ package body SOAP.Generator is
         (Name : in String;
          P    : in WSDL.Parameters.P_Set)
       is
+         use type WSDL.Parameters.E_Node_Access;
+
          F_Name : constant String := Format_Name (O, Name);
+
+         function Image (E : in WSDL.Parameters.E_Node_Access) return String;
+         --  Returns the enumeration definition
+
+         -----------
+         -- Image --
+         -----------
+
+         function Image (E : in WSDL.Parameters.E_Node_Access) return String is
+            Result : Unbounded_String;
+            N      : WSDL.Parameters.E_Node_Access := E;
+         begin
+            while N /= null loop
+
+               if Result = Null_Unbounded_String then
+                  Append (Result, "(");
+               else
+                  Append (Result, ", ");
+               end if;
+
+               Append (Result, To_String (N.Value));
+
+               N := N.Next;
+            end loop;
+
+            return To_String (Result);
+         end Image;
+
+         N : WSDL.Parameters.E_Node_Access := P.E_Def;
       begin
          Text_IO.New_Line (Type_Ads);
 
@@ -763,13 +794,44 @@ package body SOAP.Generator is
          if O.Types_Spec = Null_Unbounded_String then
             Text_IO.Put_Line
               (Type_Ads, "   type " & F_Name
-                 & " is " & To_String (P.E_Def) & ";");
+                 & " is " & Image (P.E_Def) & ";");
          else
             Text_IO.Put_Line
               (Type_Ads, "   subtype " & F_Name & " is "
                  & To_String (O.Types_Spec)
                  & "." & To_String (P.E_Name) & ";");
          end if;
+
+         --  Generate Image function
+
+         Text_IO.New_Line (Type_Ads);
+         Text_IO.Put_Line
+           (Type_Ads,
+            "   function Image (E : in " & F_Name & ") return String;");
+
+         Text_IO.New_Line (Type_Adb);
+         Text_IO.Put_Line
+           (Type_Adb,
+            "   function Image (E : in " & F_Name & ") return String is");
+         Text_IO.Put_Line (Type_Adb, "   begin");
+         Text_IO.Put_Line (Type_Adb, "      case E is");
+
+         while N /= null loop
+            Text_IO.Put (Type_Adb, "         when ");
+
+            if O.Types_Spec /= Null_Unbounded_String then
+               Text_IO.Put (Type_Adb, To_String (O.Types_Spec) & '.');
+            end if;
+
+            Text_IO.Put_Line
+              (Type_Adb, To_String (N.Value)
+                 & " => return """ & To_String (N.Value) & """;");
+
+            N := N.Next;
+         end loop;
+
+         Text_IO.Put_Line (Type_Adb, "      end case;");
+         Text_IO.Put_Line (Type_Adb, "   end Image;");
       end Generate_Enumeration;
 
       ---------------------
