@@ -83,6 +83,12 @@ package body Stub is
          N      : in WSDL.Parameters.P_Set);
       --  Output a simple parameter
 
+      procedure Output_Derived
+        (K      : in Positive;
+         Prefix : in String;
+         N      : in WSDL.Parameters.P_Set);
+      --  Output a derived type parameter
+
       procedure Output_Record
         (K      : in Positive;
          Prefix : in String;
@@ -123,6 +129,39 @@ package body Stub is
          Output_Parameter (K + 1, Prefix, N.Next);
       end Output_Array;
 
+      --------------------
+      -- Output_Derived --
+      --------------------
+
+      procedure Output_Derived
+        (K      : in Positive;
+         Prefix : in String;
+         N      : in WSDL.Parameters.P_Set)
+      is
+         use type WSDL.Parameter_Type;
+      begin
+         if Prefix /= "" then
+            --  Inside a record
+            Text_IO.Put
+              (Stub_Adb,
+               WSDL.Set_Routine (N.P_Type, Context => WSDL.Component));
+         else
+            Text_IO.Put (Stub_Adb, WSDL.Set_Routine (N.Parent_Type));
+         end if;
+
+         Text_IO.Put
+           (Stub_Adb,
+            " (" & WSDL.To_Ada (N.Parent_Type) & " ("
+              & Prefix & Format_Name (O, To_String (N.Name))
+              & "), """ & To_String (N.Name) & """)");
+
+         if Prefix /= "" and then N.Next /= null then
+            Text_IO.Put (Stub_Adb, ",");
+         end if;
+
+         Output_Parameter (K + 1, Prefix, N.Next);
+      end Output_Derived;
+
       ----------------------
       -- Output_Parameter --
       ----------------------
@@ -152,6 +191,9 @@ package body Stub is
             case N.Mode is
                when WSDL.Parameters.K_Simple =>
                   Output_Simple (K, Prefix, N);
+
+               when WSDL.Parameters.K_Derived =>
+                  Output_Derived (K, Prefix, N);
 
                when WSDL.Parameters.K_Array =>
                   Output_Array (K, Prefix, N);
@@ -411,7 +453,7 @@ package body Stub is
             --  A single parameter is returned
 
             case Output.Mode is
-               when WSDL.Parameters.K_Simple =>
+               when WSDL.Parameters.K_Simple | WSDL.Parameters.K_Derived =>
                   if Output.P_Type = WSDL.P_B64 then
                      Text_IO.Put_Line
                        (Stub_Adb,
