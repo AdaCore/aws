@@ -35,7 +35,7 @@ with AWS.Utils;
 
 package AWS.Response.Set is
 
-   type Encode_Direction is (Encode, Decode);
+   type Encoding_Direction is (Encode, Decode);
    --  Server side would do gzip or deflate encoding,
    --  Client side would do gzip or deflate decoding.
 
@@ -104,15 +104,6 @@ package AWS.Response.Set is
    -- Data --
    ----------
 
-   procedure Append_Encode
-     (D         : in out Data;
-      Encoding  : in     Content_Encoding;
-      Direction : in     Encode_Direction := Encode);
-   pragma Inline (Append_Encode);
-   --  Set append encoding, Direction Encode is for server side.
-   --  Direction Decode is for client side.
-   --  This routine have to be called before any set data routines.
-
    procedure Mode
      (D     : in out Data;
       Value : in     Data_Mode);
@@ -132,7 +123,18 @@ package AWS.Response.Set is
       Handle   : access Resources.Streams.Stream_Type'Class;
       Encoding : in     Content_Encoding := Identity);
    pragma Inline (Stream);
-   --  Set the user defined data stream. Set the Mode field to Stream
+   --  Set the user defined data stream
+
+   procedure Data_Encoding
+     (D         : in out Data;
+      Encoding  : in     Content_Encoding;
+      Direction : in     Encoding_Direction := Encode);
+   --  Set data encoding, the encoding will be used for the Message_Body and
+   --  Append_Body routines below.
+   --  Direction Encode is for server side, Direction Decode is for client
+   --  side. This routine have to be called before calling Message_Body or
+   --  Append_Body routines to activate the encoding. Note that by default no
+   --  encoding is done if Data_Encoding is not called (Encoding => Identity).
 
    procedure Message_Body
      (D     : in out Data;
