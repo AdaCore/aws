@@ -317,6 +317,8 @@ is
       --  requested. These are AWS internal data that should not be handled by
       --  AWS users.
 
+      --  AWS Internal status page handling.
+
       if URI = Admin_URI then
          --  status page
          Answer := Response.Build
@@ -354,6 +356,8 @@ is
            (HTTP_Server.Filters,
             Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
          Answer := Response.Moved (Admin_URI);
+
+      --  End of Internal status page handling.
 
       else
          --  otherwise, check if a session needs to be created
