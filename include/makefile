@@ -28,11 +28,10 @@ all:
 	echo "clean:     remove generated files"
 	echo ""
 
-check_oslib:
-	(if ! [ -e ../src/aws-os_lib.adb ]; then \
-	   cp aws-os_lib-gnat.adb ../src/aws-os_lib.adb; fi)
+../src/aws-os_lib.adb:
+	cp aws-os_lib-gnat.adb ../src/aws-os_lib.adb
 
-build: check_oslib $(UNITS)
+build: ../src/aws-os_lib.adb $(UNITS)
 
 clean:
 	-rm -f *.o *.ali
