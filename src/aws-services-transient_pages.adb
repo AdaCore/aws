@@ -31,6 +31,8 @@
 --  $Id$
 
 with Ada.Calendar;
+with Ada.Exceptions;
+with Ada.Text_IO;
 
 with Strings_Maps;
 
@@ -130,6 +132,15 @@ package body AWS.Services.Transient_Pages is
 
          Next := Next + Clean_Interval;
       end loop Clean;
+
+   exception
+      when E : others =>
+         Ada.Text_IO.Put_Line
+           (Ada.Text_IO.Current_Error,
+            "Transient_Pages cleaner error: "
+            & Ada.Exceptions.Exception_Information (E));
+
+         raise;
    end Cleaner;
 
    --------------
@@ -156,8 +167,6 @@ package body AWS.Services.Transient_Pages is
             begin
                if Now > Value.Delete_Time then
                   declare
-                     Result  : constant Item
-                       := Table.Containers.Element (Cursor);
                      Current : Table.Cursor := Cursor;
                   begin
                      Table.Containers.Next (Cursor);
@@ -166,7 +175,7 @@ package body AWS.Services.Transient_Pages is
                      declare
                         Resource : AWS.Resources.File_Type;
                      begin
-                        AWS.Resources.Streams.Create (Resource, Result.Stream);
+                        AWS.Resources.Streams.Create (Resource, Value.Stream);
                         AWS.Resources.Close (Resource);
                      end;
                   end;
