@@ -1,6 +1,17 @@
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
 	* soap-generator.adb:
+	(Endpoint): New procedure.
+	(Start_Service): Use the endpoint specified in the command line
+	 if specified instead of the one found in the WSDL document.
+	
+	* soap-generator.ads:
+	(Endpoint): New procedure.
+	(Object): Add Endpoint field.
+
+2004-12-02  Pascal Obry  <pascal@obry.org>
+
+	* soap-generator.adb:
 	Remove some commented out code.
 
 2004-12-02  Pascal Obry  <pascal@obry.org>

@@ -1,5 +1,14 @@
 2004-12-02  Pascal Obry  <pascal@obry.org>
 
+	* wsdl2aws.adb:
+	Add support for new -e option (endpoint).
+	Update copyright notice.
+
+	* ada2wsdl-main.adb:
+	Minor reformatting.
+
+2004-12-02  Pascal Obry  <pascal@obry.org>
+
 	* ada2wsdl-generator.adb:
         (Write_Characters): Fix name space for Character types (simpleType).
 
