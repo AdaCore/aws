@@ -67,6 +67,13 @@ package body Ada2WSDL.Parser is
    use Ada.Strings.Unbounded;
    use GNAT;
 
+   --  The Compile routine is defined in Asis.Extensions in recent ASIS
+   --  version, it was defined in A4G.GNAT_Int in older ones.
+
+   use A4G.GNAT_Int;
+   use Asis.Extensions;
+   pragma Warnings (Off, A4G.GNAT_Int);
+
    use type Asis.Errors.Error_Kinds;
 
    subtype String_Access is OS_Lib.String_Access;
@@ -1207,8 +1214,7 @@ package body Ada2WSDL.Parser is
    begin
       File_Name := new String'(To_String (Options.File_Name));
 
-      A4G.GNAT_Int.Compile
-        (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success);
+      Compile (File_Name, Arg_List (Arg_List'First .. Arg_Index), Success);
 
       Tree_Name := new String'(Get_Tree_Name);
 
