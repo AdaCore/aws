@@ -1,3 +1,34 @@
+2003-09-30  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-resources-streams-memory.ads:
+	Fix typo in comment.
+
+	* aws-response.ads:
+	(Data): Message_Body field gone. Use memory stream now for keep message
+	 body.
+	(Release_Controller): New type instead of Natural for keep reference
+	 counter and flag for free stream if necessary.
+	(Message_Body): Add comment about user defined streams.
+
+	* aws-response.adb:
+	(Create_Resource): Use the same way to create user defined stream and
+	 memory stream.
+	(Message_Body): Get the message body from the memory stream.
+
+	* aws-response-set.ads:
+	(Append_Body): New routines.
+	
+	* aws-response-set.adb:
+	(Check_Memory_Stream): New routine.
+	(Clear_Memory_Stream): New routine.
+	(Append_Body): New routines.
+	(Message_Body): Put message body to the memory stream.
+
+	* aws-client.adb:
+	(Get_Response.Read_Chunk): Function removed.
+	(Get_Response.Read_Chunked): New procedure.
+	(Get_Response.Read_Until_Close): Removed. Use loop instead.
+
 2003-09-29  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-response.adb:
