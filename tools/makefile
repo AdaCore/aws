@@ -1,16 +1,25 @@
+
 # $Id$
 
 .SILENT: build clean awsres
 
-GARGS	= -q $(GFLAGS) -I../src $(INCLUDES)
+GARGS	 = -q $(GFLAGS) -I../src -I../soap -I../include $(INCLUDES)
 
-build: awsres
+TOOLS	 = awsres 
+
+ifdef XMLADA
+TOOLS := $(TOOLS) wsdl2aws
+endif
+
+ALL_EXEC = $(addsuffix $(EXEEXT), $(TOOLS))
+
+build: $(TOOLS)
 
 force:
 
-awsres: force
-	echo Building awsres tools
-	gnatmake $(GARGS) awsres -largs -s
+$(TOOLS): force
+	echo Building $@ tools
+	gnatmake $(GARGS) $@ -largs -s $(LIBS)
 
 clean:
-	-rm -f *.o *.ali *.exe b~*.ad[sb]
+	-rm -f *.o *.ali $(ALL_EXEC) b~*.ad[sb]
