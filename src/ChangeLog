@@ -1,3 +1,15 @@
+2002-07-15  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-url.ads:
+	(Parameters): New procedure.
+	Update comments.
+	
+	* aws-url.adb:
+	(Parameters): New procedure.
+	(Parse): Handler parameters.
+	(Pathname): Add parameters to result.
+	Minor reformatting.
+
 2002-07-09  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-server.ads, aws-server.adb:
