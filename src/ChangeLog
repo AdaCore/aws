@@ -1,3 +1,35 @@
+2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Get_Full_Line): Add clear notes about the fact that this is non
+	 standard but implemented because some servers use a continuation
+	 line on the status line.
+
+	* aws-net.adb:
+	Minor comments editing.
+	Minor reformatting.
+
+	* aws-net.ads:
+	(Socket): Fix comments (remove reference to non existing Create
+	 routine).
+	Minor comments editing.
+
+	* aws-server-protocol_handler.adb:
+	(Send_Data): Fix comment.
+	(Small_File_Size): Constant removed.
+	(Chunked_Message_Size): Removed routine.
+	(Send_Resource): Use the chunked encoding only if HTTP/1.1 and the
+	 length if not known. This is to work an Opera bug. The exact
+	 problem is hard to reproduce it involves Opera on Linux calling
+	 an Apache server (to get an image) in SSL mode which act as a
+	 proxy and redirect the call to an AWS module (non-SSL).
+	(Send_File_Chunked): Do not use the buffered IO as this can be a
+	 problem with Opera with an SSL socket.
+
+	* aws-server.adb:
+	(Accept_Socket_Serialized): Rename Result to New_Socket.
+	Minor reformatting.
+
 2003-01-23  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net.ads, aws-net.adb, aws-net-std.ads, aws-net-ssl.ads,

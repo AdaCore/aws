@@ -1,3 +1,11 @@
+2003-01-23  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add sock1.
+
+	* sock1.adb, sock1.out:
+	Initial revision.
+
 2003-01-14  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
