@@ -39,7 +39,6 @@ with Ada.Unchecked_Deallocation;
 
 with GNAT.Calendar.Time_IO;
 with AWS.OS_Lib;
-with GNAT.Regexp;
 with GNAT.Regpat;
 
 with Templates_Parser.Input;
@@ -262,7 +261,7 @@ package body Templates_Parser is
 
             when Regexp =>
                R_Str  : Unbounded_String;
-               Regexp : GNAT.Regexp.Regexp;
+               Regexp : Pattern_Matcher_Access;
 
             when Regpat =>
                P_Str  : Unbounded_String;
@@ -771,7 +770,8 @@ package body Templates_Parser is
                                 F.Parameter_Data'
                                   (F.Regexp,
                                    To_Unbounded_String (Parameter),
-                                   GNAT.Regexp.Compile (Parameter)));
+                                   new GNAT.Regpat.Pattern_Matcher'
+                                     (GNAT.Regpat.Compile (Parameter))));
 
                      when F.Regpat =>
                         declare

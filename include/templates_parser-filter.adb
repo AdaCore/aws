@@ -406,8 +406,8 @@ package body Filter is
 
       Clean_Set : constant Strings.Maps.Character_Set
         := Strings.Maps.Constants.Letter_Set
-        or Strings.Maps.Constants.Decimal_Digit_Set
-        or Strings.Maps.To_Set (" йикопафз");
+             or Strings.Maps.Constants.Decimal_Digit_Set
+             or Strings.Maps.To_Set (" йикопафз");
 
    begin
       Check_Null_Parameter (P);
@@ -719,17 +719,23 @@ package body Filter is
      (S : in String;
       P : in Parameter_Data  := No_Parameter;
       T : in Translate_Table := No_Translation)
-      return String is
+      return String
+   is
+      use type GNAT.Regpat.Match_Location;
+
+      Matches : GNAT.Regpat.Match_Array (0 .. 0);
    begin
       if P = No_Parameter then
          Exceptions.Raise_Exception
            (Template_Error'Identity, "missing parameter for MATCH filter");
       end if;
 
-      if GNAT.Regexp.Match (S, P.Regexp) then
-         return "TRUE";
-      else
+      GNAT.Regpat.Match (P.Regexp.all, S, Matches);
+
+      if Matches (0) = GNAT.Regpat.No_Match then
          return "FALSE";
+      else
+         return "TRUE";
       end if;
    end Match;
 
@@ -1404,6 +1410,8 @@ package body Filter is
    begin
       if P.Mode = Regpat then
          Free (P.Regpat);
+      elsif P.Mode = Regexp then
+         Free (P.Regexp);
       end if;
    end Release;
 
