@@ -96,7 +96,7 @@ package body Skel is
 
          R : WSDL.Parameters.P_Set;
       begin
-         Text_IO.Put      (Skel_Adb, "          ");
+         Text_IO.Put (Skel_Adb, "          ");
 
          case N.Mode is
             when WSDL.Parameters.K_Simple =>
@@ -200,18 +200,18 @@ package body Skel is
         (Skel_Adb, "      return AWS.Response.Data");
       Text_IO.Put_Line (Skel_Adb, "   is");
       Text_IO.Put_Line
-        (Skel_Adb, "      Proc_Name  : constant String");
+        (Skel_Adb, "      Proc_Name : constant String");
       Text_IO.Put_Line
         (Skel_Adb, "        := SOAP.Message.Payload.Procedure_Name"
            & " (Payload);");
       Text_IO.Put_Line
-        (Skel_Adb, "      Params     : constant SOAP.Parameters.List");
+        (Skel_Adb, "      Params    : constant SOAP.Parameters.List");
       Text_IO.Put_Line
         (Skel_Adb, "        := SOAP.Message.Parameters (Payload);");
       Text_IO.Put_Line
-        (Skel_Adb, "      Response   : SOAP.Message.Response.Object;");
+        (Skel_Adb, "      Response  : SOAP.Message.Response.Object;");
       Text_IO.Put_Line
-        (Skel_Adb, "      R_Params   : SOAP.Parameters.List;");
+        (Skel_Adb, "      R_Params  : SOAP.Parameters.List;");
       Text_IO.Put_Line (Skel_Adb, "   begin");
 
       --  Procedure body start here
