@@ -109,12 +109,6 @@ package body SOAP.Message.XML is
       return String
       renames To_String;
 
-   function Is_A
-     (T1_Name, T2_Name : in String;
-      NS               : in Unbounded_String) return Boolean;
-   pragma Inline (Is_A);
-   --  Returns True if T1_Name is equal to T2_Name based on namespace
-
    function To_Type
      (Type_Name : in String;
       NS        : in Namespaces)
@@ -293,17 +287,6 @@ package body SOAP.Message.XML is
 
       return Message_Body;
    end Image;
-
-   ----------
-   -- Is_A --
-   ----------
-
-   function Is_A
-     (T1_Name, T2_Name : in String;
-      NS               : in Unbounded_String) return Boolean is
-   begin
-      return T1_Name = Utils.With_NS (-NS, T2_Name);
-   end Is_A;
 
    ------------------
    -- Load_Payload --
@@ -1026,7 +1009,25 @@ package body SOAP.Message.XML is
    function To_Type
      (Type_Name : in String;
       NS        : in Namespaces)
-      return Type_State is
+      return Type_State
+   is
+      function Is_A
+        (T1_Name, T2_Name : in String;
+         NS               : in Unbounded_String) return Boolean;
+      pragma Inline (Is_A);
+      --  Returns True if T1_Name is equal to T2_Name based on namespace
+
+      ----------
+      -- Is_A --
+      ----------
+
+      function Is_A
+        (T1_Name, T2_Name : in String;
+         NS               : in Unbounded_String) return Boolean is
+      begin
+         return T1_Name = Utils.With_NS (-NS, T2_Name);
+      end Is_A;
+
    begin
       for K in Handlers'Range loop
          if Handlers (K).Name /= null
