@@ -41,8 +41,8 @@ package body AWS.Resources.Streams.ZLib is
 
    procedure Close (Resource : in out Stream_Type) is
    begin
-      ZL.Close (Resource.Filter);
       Close (Resource.Source);
+      ZL.Close (Resource.Filter, Ignore_Error => True);
    end Close;
 
    --------------------
