@@ -342,7 +342,7 @@ package body AWS.Client is
       --  If we have set the proxy or standard authentication we must set the
       --  authentication mode to Basic.
 
-      if Proxy /= No_Data then
+      if Proxy_User /= No_Data then
          Connection.Auth (Client.Proxy).Work_Mode := Basic;
       end if;
 
