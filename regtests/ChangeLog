@@ -1,3 +1,8 @@
+2004-08-13  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* strm.adb, user_strm.adb:
+	Make compressed stream last chunk size less then 4 bytes.
+
 2004-08-12  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* hload_pack.adb:
