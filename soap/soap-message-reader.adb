@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -63,7 +63,8 @@ package body SOAP.Message.Reader is
      (Handler       : in out Tree_Reader;
       Namespace_URI : in     Unicode.CES.Byte_Sequence := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence := "";
-      Qname         : in     Unicode.CES.Byte_Sequence := "") is
+      Qname         : in     Unicode.CES.Byte_Sequence := "")
+   is
       pragma Warnings (Off, Namespace_URI);
       pragma Warnings (Off, Local_Name);
       pragma Warnings (Off, Qname);
@@ -120,7 +121,8 @@ package body SOAP.Message.Reader is
       Namespace_URI : in     Unicode.CES.Byte_Sequence       := "";
       Local_Name    : in     Unicode.CES.Byte_Sequence       := "";
       Qname         : in     Unicode.CES.Byte_Sequence       := "";
-      Atts          : in     Sax.Attributes.Attributes'Class) is
+      Atts          : in     Sax.Attributes.Attributes'Class)
+   is
       pragma Warnings (Off, Local_Name);
    begin
       Handler.Current_Node := Append_Child
