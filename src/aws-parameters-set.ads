@@ -58,6 +58,6 @@ package AWS.Parameters.Set is
    --  ready for new use.
 
    procedure Free (Parameter_List : in out List);
-   --  Release all memory used by the list.
+   --  Release all memory used by the list
 
 end AWS.Parameters.Set;
