@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                                May 13th, 2004
+   Pascal Obry                                                May 20th, 2004
 
 
 
@@ -39,6 +39,18 @@ Changes
 
 Here are the main changes since AWS 2.0 :
 
+   - Uses the Ada.Containers reference implementation (known as AI302). These
+     containers are based on an hash table and is therefore faster than the
+     previous containers based on an AVL tree. A two times speedup has been
+     experienced.
+
+   - A new templates engine child package provides a way to save/load a
+     Translate_Table to/from an XML document. See Templates_Parser.XML.
+
+   - A new templates engine child package provides a way to store/retreive a
+     Tag to/from a string. This can be useful to store a complete template tag
+     into a session variable. See Templates_Parser.Utils.
+
    - Use socket timeout based on poll(), this is cleaner as it is not
      needed anymore to have a cleaner task on the client side to watch
      and close connections after the timeout.
@@ -68,7 +80,7 @@ but we really prefer to have a clean API instead of keeping awkward
 implementations.
 
    - In templates engine, the Vector routine is not present anymore.
-     Use Item instead.
+     Use Composite routine instead.
 
 
 Obsolescent features:
