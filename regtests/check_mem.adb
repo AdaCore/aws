@@ -42,6 +42,7 @@ with AWS.MIME;
 with AWS.Messages;
 with AWS.Parameters;
 with AWS.Response;
+with AWS.Resources.Streams.Memory.ZLib;
 with AWS.Server;
 with AWS.Session;
 with AWS.Status;
@@ -66,7 +67,15 @@ procedure Check_Mem is
 
    function CB (Request : in Status.Data) return Response.Data;
 
+   procedure Check (Str : in String);
+
+   procedure Client;
+
    function SOAP_CB (Request : in Status.Data) return Response.Data;
+
+   procedure Check_Zlib;
+
+   procedure Check_Memory_Streams;
 
    task Server is
       entry Started;
@@ -265,6 +274,10 @@ procedure Check_Mem is
 
    procedure Client is
 
+      procedure Request (URL : in String);
+
+      procedure Request (Proc : in String; X, Y : in Integer);
+
       -------------
       -- Request --
       -------------
@@ -327,9 +340,71 @@ procedure Check_Mem is
       Request ("addProc", 5, 9);
    end Client;
 
+   --------------------------
+   -- Check_Memory_Streams --
+   --------------------------
+
+   procedure Check_Memory_Streams is
+      use AWS.Resources.Streams.Memory;
+
+      use type Streams.Stream_Element_Array;
+
+      Sample : aliased Streams.Stream_Element_Array := (1 .. 64 => 20);
+
+      Plain  : Stream_Type;
+      Packed : ZLib.Stream_Type;
+
+      procedure Test
+        (Stream : in out Stream_Type'Class;
+         Data   : in     Utils.Stream_Element_Array_Access);
+      --  Append dynamically allocated data, test content and close the stream.
+
+      ----------
+      -- Test --
+      ----------
+
+      procedure Test
+        (Stream : in out Stream_Type'Class;
+         Data   : in     Utils.Stream_Element_Array_Access)
+      is
+         Test   : Streams.Stream_Element_Array (Sample'Range);
+         Last   : Streams.Stream_Element_Offset;
+      begin
+         Append (Stream, Data);
+         Read (Stream, Test, Last);
+
+         if Test (1 .. Last) /= Sample then
+            raise Program_Error;
+         end if;
+
+         --  ??? We could not free dynamically allocated data here,
+         --  becouse plain memory stream would free it in the Close call,
+         --  But ZLib stream would not free it, becouse it is keeping only
+         --  compressed copy of the data, not the original one.
+
+         Close (Stream);
+      end Test;
+
+   begin
+      ZLib.Inflate_Initialize (Packed);
+
+      Test (Packed, Translator.Compress (Sample'Access));
+      Test (Plain, new Streams.Stream_Element_Array'(Sample));
+   end Check_Memory_Streams;
+
+   ----------------
+   -- Check_Zlib --
+   ----------------
+
    procedure Check_Zlib is
 
       use type Streams.Stream_Element_Array;
+
+      procedure Test (Str : in String);
+
+      ----------
+      -- Test --
+      ----------
 
       procedure Test (Str : in String) is
          Data   : aliased Streams.Stream_Element_Array
@@ -337,7 +412,7 @@ procedure Check_Mem is
          Comp   : Utils.Stream_Element_Array_Access;
          Decomp : Utils.Stream_Element_Array_Access;
       begin
-         Comp   := Translator.Compress (Data'Unchecked_Access);
+         Comp   := Translator.Compress (Data'Access);
          Decomp := Translator.Decompress (Comp);
 
          if Data = Decomp.all then
@@ -373,6 +448,7 @@ begin
    for K in 1 .. Integer'Value (Command_Line.Argument (1)) loop
       Client;
       Check_Zlib;
+      Check_Memory_Streams;
    end loop;
 
    Server.Stopped;
