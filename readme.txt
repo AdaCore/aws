@@ -234,7 +234,7 @@ Pointers:
 AWS User's Mailing List:
    http://lists.act-europe.fr/mailman/listinfo/aws
 
-AWS Home Page (sources and documentation): 
+AWS Home Page (sources and  printable documentations in Postscript and PDF):
    http://libre.act-europe.fr/aws
 
 Templates_Parser sources: 
