@@ -1,5 +1,23 @@
 2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-communication-server.adb: 
+	(Com_Server): Not anymore a pointer to the server. This is not
+	 needed anymore.
+	(Shutdown): Remove Free.
+	(Start): Remove code to allocate the server object.
+	Minor reformatting.
+
+	* aws-dispatchers.ads:
+	Minor reformatting.
+
+	* aws-server.adb:
+	(Line_Attribute): New package, instance of Task_Attributes.
+	(Get_Current): New routine.
+	(Line): Properly set the current running server into HTTP_Attribute.
+
+	* aws-server.ads:
+	(Get_Current): New routine.
+
 	* aws-client.ads:
 	Minor reformatting.
 

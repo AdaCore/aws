@@ -23,6 +23,8 @@ b~interoplab_main.adb
 b~interoplab_main.ads
 b~moved.adb
 b~moved.ads
+b~multiple.adb
+b~multiple.ads
 b~param.adb
 b~param.ads
 b~redirect.adb
@@ -51,6 +53,8 @@ b~strm2.adb
 b~strm2.ads
 b~tclientto.adb
 b~tclientto.ads
+b~tcom.adb
+b~tcom.ads
 b~test_sec_soap.adb
 b~test_sec_soap.ads
 b~test_soap.adb

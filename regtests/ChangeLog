@@ -1,3 +1,19 @@
+2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_STD): Add multiple and tcom.
+
+	* tcom.adb, tcom.out:
+	Initial revision.
+
+	* multiple.adb:
+	Change server port used.
+
+2003-03-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* multiple.adb, multiple.out:
+	Initial revision.
+
 2003-03-18  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
