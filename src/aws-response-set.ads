@@ -55,7 +55,7 @@ package AWS.Response.Set is
 
    procedure Read_Header (Socket : in Net.Socket_Type'Class; D : in out Data);
    --  Read all header data from the socket and fill appropriate
-   --  internal data fields from the header values.
+   --  data's fields.
 
    procedure Mode
      (D     : in out Data;
