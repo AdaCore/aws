@@ -33,6 +33,9 @@
 --  This package handle the logging facility for AWS. The log file is named
 --  '<progname>-Y-M-D.log' and is written by default in the directory where
 --  the server is launched, see configuration file.
+--
+--  Note that this package is used internaly by AWS to log server requests but
+--  it can also be used by users to handle application's log.
 
 with Ada.Text_IO;
 with Ada.Strings.Unbounded;
@@ -43,6 +46,7 @@ with AWS.Response;
 package AWS.Log is
 
    type Object is limited private;
+   --  A log object. It must be activated by calling Start below.
 
    type Split_Mode is (None, Each_Run, Daily, Monthly);
    --  It specifies when to create a new log file.
@@ -65,9 +69,15 @@ package AWS.Log is
    procedure Write
      (Log          : in out Object;
       Connect_Stat : in     Status.Data;
-      Answer       : in     Response.Data;
-      Peername     : in     String);
+      Answer       : in     Response.Data);
    --  Write log info if activated (i.e. Start routine above as been called).
+
+   procedure Write
+     (Log          : in out Object;
+      Connect_Stat : in     Status.Data;
+      Data         : in     String);
+   --  Write user's log info if activated.  (i.e. Start routine above as been
+   --  called).
 
    procedure Stop (Log : in out Object);
    --  Stop logging activity.
