@@ -1,8 +1,8 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
---                               ACT-Europe                                 --
+--                         Copyright (C) 2000-2004                          --
+--                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
 --                                                                          --
@@ -172,9 +172,10 @@ package body AWS.Hotplug is
    begin
       Adjust (Filters);
       Filters.Count := Filters.Count + 1;
-      Filters.Set (Filters.Count) := (To_Unbounded_String (Regexp),
-                                      GNAT.Regexp.Compile (Regexp),
-                                      To_Unbounded_String (URL));
+      Filters.Set (Filters.Count)
+        := (To_Unbounded_String (Regexp),
+            GNAT.Regexp.Compile (Regexp),
+            To_Unbounded_String (URL));
    end Register;
 
    ----------------
@@ -187,8 +188,8 @@ package body AWS.Hotplug is
    begin
       for K in 1 .. Filters.Count loop
          if To_String (Filters.Set (K).Regexp_Str) = Regexp then
-            Filters.Set (K .. Filters.Count - 1) :=
-              Filters.Set (K + 1 .. Filters.Count);
+            Filters.Set (K .. Filters.Count - 1)
+              := Filters.Set (K + 1 .. Filters.Count);
             Filters.Count := Filters.Count - 1;
             exit;
          end if;
