@@ -1,3 +1,9 @@
+2004-09-26  Pascal Obry  <pascal@obry.org>
+
+	* upload5.adb:
+	Ensure that the file has been removed by the server (by waiting
+	 for the server to be shutdown) before removing the upload directory.
+
 2004-09-25  Pascal Obry  <pascal@obry.org>
 
 	* upload5.adb:
