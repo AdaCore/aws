@@ -1,3 +1,28 @@
+2004-05-13  Pascal Obry  <pascal@obry.org>
+
+	* makefile:
+	(SOURCES): Add containers: ai302-containers-hash_tables.adb
+	 ai302-containers-indefinite_hashed_maps.adb
+	 ai302-containers-prime_numbers.adb
+	 ai302-strings-hash.adb strings_maps.ads
+	 charles-algorithms-generic_lower_bound.adb
+	 charles-algorithms-generic_lower_bound.ads
+	 charles-algorithms.ads charles.ads
+
+	* ai302-containers-hash_tables.ads,
+	  ai302-containers-indefinite_hashed_maps.ads,
+	  ai302-containers-prime_numbers.ads, ai302-strings-hash.ads,
+	  ai302-strings-hash.adb, ai302-strings.ads, ai302-containers.ads,
+	  ai302.ads, charles-algorithms-generic_lower_bound.ads,
+	  charles-algorithms-generic_lower_bound.ads, charles.ads,
+	  charles-algorithms.ads:
+	Initial revision. All these packages are from an initial
+	 implementation of the Ada200Y Ada.Containers. When it will be
+	 part of the compiler those packages will be removed from AWS.
+
+	* strings_maps.ads:
+	Initial revision.
+
 2004-01-30  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
