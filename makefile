@@ -64,7 +64,7 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)" \
 	GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)" ADASOCKETS="$(ADASOCKETS)" \
 	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" \
-	GCC_FOR_HOST="$(GCC_FOR_HOST)" BDIR="$(BDIR)"
+	GCC_FOR_HOST="$(GCC_FOR_HOST)" BDIR="$(BDIR)" INSTALL="$(INSTALL)"
 
 gnatsockets:
 	${MAKE} -C src gnatsockets $(ALL_OPTIONS)
@@ -269,6 +269,7 @@ endif
 	-$(CHMOD) uog-w $(INSTALL)/AWS/obj/*.ali
 # We need to touch the libraries as we have changed the .gpr
 	-$(TOUCH) $(INSTALL)/AWS/lib/*.a
+	make -C web_elements install $(GALL_OPTIONS)
 
 # install-gnat is used to install AWS into the GNAT standard library
 # location. In this case there is no need to set ADA_PROJECT_PATH. This is
