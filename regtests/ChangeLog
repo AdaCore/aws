@@ -1,3 +1,8 @@
+2004-12-09  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* wait_proc.adb, wait.out:
+	Rewrite regression test.
+
 2004-12-07  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* dispatch_vh.adb:
