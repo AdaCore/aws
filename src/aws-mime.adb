@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -107,14 +107,15 @@ package body AWS.MIME is
    function Content_Type (Filename : in String) return String is
 
       Default_Content_Type : constant String := "application/octet-stream";
-      Pos                  : Natural :=
-        Strings.Fixed.Index (Filename,
-                             Strings.Maps.To_Set ("."),
-                             Going => Strings.Backward);
+      Pos                  : constant Natural
+        := Strings.Fixed.Index (Filename,
+                                Strings.Maps.To_Set ("."),
+                                Going => Strings.Backward);
    begin
       if Pos > 0 then
          declare
-            File_Type : String := To_Lower (Filename (Pos .. Filename'Last));
+            File_Type : constant String
+              := To_Lower (Filename (Pos .. Filename'Last));
          begin
             for I in Type_Table'Range loop
                if File_Type = Type_Table (I).File_Type.all then
