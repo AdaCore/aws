@@ -30,11 +30,9 @@
 
 with Ada.Text_IO;
 
-with AWS.Messages;
-with AWS.MIME;
-with AWS.Response;
 with AWS.Server;
-with AWS.Status;
+
+with Zdemo_CB;
 
 procedure Zdemo is
 
@@ -42,50 +40,6 @@ procedure Zdemo is
    use AWS;
 
    WS : AWS.Server.HTTP;
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : in Status.Data) return Response.Data is
-      URI : constant String := Status.URI (Request);
-   begin
-      if URI = "/" then
-         --  Main page, check if browser supports the GZIP encoding
-         if Status.Is_Supported (Request, Encoding => Messages.GZip) then
-            return Response.Build
-              (MIME.Text_HTML,
-               "<p>Your browser support GZIP encoding, "
-                 & "<a href=""z_content"">click here</a> to continue.");
-         else
-            return Response.Build
-              (MIME.Text_HTML,
-               "<p>Your browser does not support GZIP encoding.");
-         end if;
-
-      elsif URI = "/z_content" then
-         --  Returns a compressed message body (compressed by the server)
-         return Response.Build
-           (MIME.Text_HTML,
-            "<p>This Web Page has been transfered compressed from the server "
-              & " to your brower, and just below a compressed image has"
-              & " been included"
-              & "<p><img src=""/z_file"">"
-              & "<p>That's all.",
-            Encoding => Messages.GZip);
-
-      elsif URI = "/z_file" then
-         --  Returns a compressed file (already compressed on disk)
-         return Response.File
-           (Content_Type => MIME.Image_Png,
-            Filename     => "adains.png.gz",
-            Encoding     => Messages.GZip);
-
-      else
-         return Response.Build
-           (MIME.Text_HTML, "<p>Page not found in this server");
-      end if;
-   end CB;
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
@@ -95,7 +49,7 @@ begin
      (WS, "Gzip Demo",
       Port           => 1234,
       Max_Connection => 3,
-      Callback       => CB'Unrestricted_Access);
+      Callback       => Zdemo_CB.CB'Access);
 
    AWS.Server.Wait;
 end Zdemo;

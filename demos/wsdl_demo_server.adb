@@ -34,58 +34,22 @@
 --
 --  SOAP Server
 
-with AWS.MIME;
-with AWS.Response;
 with AWS.Server;
-with AWS.Status;
-
-with SOAP.Utils;
 
 with Hello_Demo.Server;
+
+with WSDL_Demo_Server_CB;
 
 procedure WSDL_Demo_Server is
 
    use AWS;
-
-   function sayHello (Firstname : in String) return String;
-
-   -------------
-   -- SOAP_CB --
-   -------------
-
-   function SOAP_CB is new Hello_Demo.Server.sayHello_CB (sayHello);
-
-   function SOAP_Wrapper is new SOAP.Utils.SOAP_Wrapper (SOAP_CB);
-
-   --------
-   -- CB --
-   --------
-
-   function CB (Request : in Status.Data) return Response.Data is
-      SOAPAction : constant String := Status.SOAPAction (Request);
-   begin
-      if SOAPAction = "sayHello" then
-         return SOAP_Wrapper (Request);
-      else
-         return Response.Build (MIME.Text_HTML, "<p>Not a SOAP request");
-      end if;
-   end CB;
-
-   --------------
-   -- sayHello --
-   --------------
-
-   function sayHello (Firstname : in String) return String is
-   begin
-      return "Hello " & Firstname & " and welcome!";
-   end sayHello;
 
    H_Server : Server.HTTP;
 
 begin
    Server.Start
      (H_Server, "WSDL Hello demo",
-      CB'Unrestricted_Access,
+      WSDL_Demo_Server_CB.CB'Access,
       Port => Hello_Demo.Server.Port);
 
    Server.Wait (Server.Q_Key_Pressed);
