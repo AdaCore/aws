@@ -1,14 +1,14 @@
 <HTML>
 <HEAD>
 <!-- This HTML file has been created by texi2html 1.52
-     from templates_parser.texi on 14 January 2004 -->
+     from templates_parser.texi on 7 March 2004 -->
 
 <TITLE>Templates Parser</TITLE>
 </HEAD>
 <BODY>
 <H1>Templates Parser</H1>
 <H2>$Revision$</H2>
-<H2>Date: 14 January 2004</H2>
+<H2>Date: 7 March 2004</H2>
 <ADDRESS>Pascal Obry (<A HREF="mailto:p.obry@wanadoo.fr">p.obry@wanadoo.fr</A>)</ADDRESS>
 <P>
 <P><HR><P>
@@ -551,15 +551,13 @@ must be a number  or a discrete tag variable whose value is a number.
 This filter replaces <B>\n</B> (where <I>n</I> is a number) <I>STR</I>'s
 occurences by the corresponding match from <I>REGEXP</I>. The first match
 in <I>REGEXP</I> will replace <B>\1</B>, the second match <B>\2</B> and so
-on. Each match in <I>REGEXP</I> must be parenthesized. <I>STR</I> is an optional
-parameter, its default value is <B>\1</B>. <I>STR</I> can be a tag variable
-name.
+on. Each match in <I>REGEXP</I> must be parenthesized. It replaces only
+the first match. <I>STR</I> is an optional parameter, its default value
+is <B>\1</B>. <I>STR</I> can be a tag variable name.
 
 <DT><CODE>REPLACE_ALL(<I>REGEXP</I>[/<I>STR</I>])</CODE>
 <DD>
-Idem as above but replaces all occurences. Note that <I>STR</I> can't
-have a replacement pattern (<B>\n</B>). <I>STR</I> can be a tag variable
-name.
+Idem as above but replaces all occurences.
 
 <DT><CODE>REPLACE_PARAM(<I>NAME[=VALUE]</I>)</CODE>
 <DD>
@@ -2000,7 +1998,7 @@ Download page is <A HREF="http://perso.wanadoo.fr/pascal.obry/">http://perso.wan
 </PRE>
 
 <P><HR><P>
-This document was generated on 14 January 2004 using the
+This document was generated on 7 March 2004 using the
 <A HREF="http://wwwinfo.cern.ch/dis/texi2html/">texi2html</A>
 translator version 1.52.</P>
 </BODY>
