@@ -45,6 +45,29 @@ package body AWS.Resources.Streams.ZLib is
       Close (Resource.Source);
    end Close;
 
+   --------------------
+   -- Deflate_Create --
+   --------------------
+
+   function Deflate_Create
+     (Source       : in     Streams.Stream_Access;
+      Level        : in     Compression_Level  := ZL.Default_Compression;
+      Strategy     : in     Strategy_Type      := ZL.Default_Strategy;
+      Method       : in     Compression_Method := ZL.Deflated;
+      Window_Bits  : in     Window_Bits_Type   := ZL.Default_Window_Bits;
+      Memory_Level : in     Memory_Level_Type  := ZL.Default_Memory_Level;
+      Header       : in     Header_Type        := ZL.Default)
+      return       Stream_Access
+   is
+      Result : Streams.Stream_Access := new Stream_Type;
+   begin
+      Deflate_Initialize
+        (Stream_Type (Result.all), Source, Level, Strategy, Method,
+         Window_Bits, Memory_Level, Header);
+
+      return Result;
+   end Deflate_Create;
+
    ------------------------
    -- Deflate_Initialize --
    ------------------------
