@@ -71,7 +71,7 @@ package body AWS.Services.Split_Pages is
       function Indexes  (P : in Positive) return Templates.Translate_Table;
       --  Returns the set of indexes for all the pages as a Translate_Table.
       --  This tables contains 2 Vector_Tag, one with the page numbers
-      --  named V_INDEXES and one with the href named V_HREFS.
+      --  named INDEXES_V and one with the href named HREFS_V.
 
       function Compute_Max_Items return Natural;
       --  Returns the maximum number of items on the table to split
@@ -196,8 +196,8 @@ package body AWS.Services.Split_Pages is
             end;
          end if;
 
-         return (Templates.Assoc ("V_HREFS", V),
-                 Templates.Assoc ("V_INDEXES", VI));
+         return (Templates.Assoc ("HREFS_V", V),
+                 Templates.Assoc ("INDEXES_V", VI));
       end Indexes;
 
       ----------
@@ -289,6 +289,8 @@ package body AWS.Services.Split_Pages is
                    & Templates.Assoc ("PREVIOUS", Previous (I))
                    & Templates.Assoc ("NEXT", Next (I))
                    & Templates.Assoc ("PAGE_INDEX", I)
+                   & Templates.Assoc ("NUMBER_PAGES", Nb_Pages)
+                   & Templates.Assoc ("OFFSET", Last - 1)
                    & Indexes (I);
 
             Stream : AWS.Resources.Streams.Stream_Access;
