@@ -32,6 +32,7 @@
 
 --  Usage: agent [options] [GET/PUT] <URL>
 --         -f                      force display of message body.
+--         -o                      output result in file agent.out.
 --         -k                      keep-alive connection.
 --         -s                      server-push mode.
 --         -n                      non stop for stress test.
@@ -51,7 +52,7 @@ with Ada.Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Command_Line;
 with Ada.Characters.Handling;
-with Ada.Streams;
+with Ada.Streams.Stream_IO;
 with Ada.Exceptions;
 
 with GNAT.Command_Line;
@@ -77,25 +78,32 @@ procedure Agent is
    Proxy_User : Unbounded_String;
    Proxy_Pwd  : Unbounded_String;
    Force      : Boolean := False;
+   File       : Boolean := False;
    Keep_Alive : Boolean := False;
    Server_Push : Boolean := False;
    Wait_Key   : Boolean := True;
    Connect    : AWS.Client.HTTP_Connection;
 
    procedure Parse_Command_Line;
-   --  parse Agent command line:
-   --  Usage: agent [-k -u -p -proxy -pu -pp] [GET/PUT] URL
+   --  parse Agent command line.
+
+   ------------------------
+   -- Parse_Command_Line --
+   ------------------------
 
    procedure Parse_Command_Line is
    begin
       loop
-         case GNAT.Command_Line.Getopt ("f d u: p: pu: pp: proxy: k n s") is
+         case GNAT.Command_Line.Getopt ("f o d u: p: pu: pp: proxy: k n s") is
 
             when ASCII.NUL =>
                exit;
 
             when 'f' =>
                Force := True;
+
+            when 'o' =>
+               File := True;
 
             when 'n' =>
                Wait_Key := False;
@@ -145,6 +153,7 @@ begin
    if Ada.Command_Line.Argument_Count = 0 then
       Text_IO.Put_Line ("Usage: agent [options] [GET/PUT] <URL>");
       Text_IO.Put_Line ("       -f           force display of message body.");
+      Text_IO.Put_Line ("       -o           output result in file agent.out");
       Text_IO.Put_Line ("       -k           keep-alive connection.");
       Text_IO.Put_Line ("       -s           server-push mode.");
       Text_IO.Put_Line ("       -n           non stop for stress test.");
@@ -184,12 +193,23 @@ begin
 
       Text_IO.Put_Line
         ("Status Code = "
-         & Messages.Image (Response.Status_Code (Data))
-         & " - "
-         & Messages.Reason_Phrase (Response.Status_Code (Data)));
+           & Messages.Image (Response.Status_Code (Data))
+           & " - "
+           & Messages.Reason_Phrase (Response.Status_Code (Data)));
 
       if MIME.Is_Text (Response.Content_Type (Data)) then
-         Text_IO.Put_Line (Response.Message_Body (Data));
+
+         if File then
+            declare
+               F : Text_IO.File_Type;
+            begin
+               Text_IO.Create (F, Text_IO.Out_File, "agent.out");
+               Text_IO.Put_Line (F, Response.Message_Body (Data));
+               Text_IO.Close (F);
+            end;
+         else
+            Text_IO.Put_Line (Response.Message_Body (Data));
+         end if;
 
       else
          Text_IO.Put_Line
@@ -198,27 +218,40 @@ begin
          Text_IO.Put_Line
            (Messages.Content_Length (Response.Content_Length (Data)));
 
-         if Force = True then
+         if Force or else File then
             --  this is not a text/html body, but output it anyway
 
             declare
                Message_Body : constant Streams.Stream_Element_Array
                  := Response.Binary (Data);
             begin
-               for K in Message_Body'Range loop
+               if File then
                   declare
-                     C : Character := Character'Val (Message_Body (K));
+                     use Streams;
+                     F : Streams.Stream_IO.File_Type;
                   begin
-                     if C = ASCII.CR
-                       or else C = ASCII.LF
-                       or else not Characters.Handling.Is_Control (C)
-                     then
-                        Text_IO.Put (C);
-                     else
-                        Text_IO.Put ('.');
-                     end if;
+                     Stream_IO.Create
+                       (F, Stream_IO.Out_File, "agent.out");
+                     Stream_IO.Write (F, Message_Body);
+                     Stream_IO.Close (F);
                   end;
-               end loop;
+
+               else
+                  for K in Message_Body'Range loop
+                     declare
+                        C : Character := Character'Val (Message_Body (K));
+                     begin
+                        if C = ASCII.CR
+                          or else C = ASCII.LF
+                          or else not Characters.Handling.Is_Control (C)
+                        then
+                           Text_IO.Put (C);
+                        else
+                           Text_IO.Put ('.');
+                        end if;
+                     end;
+                  end loop;
+               end if;
             end;
 
          end if;
