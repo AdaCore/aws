@@ -1,0 +1,22 @@
+2003-12-19  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* README.TXT:
+	Initial revision.
+
+	* g-calend.ads, g-calend.adb:
+	Initial revision.
+
+	* g-catiio.ads, g-catiio.adb:
+	Initial revision.
+
+	* g-dyntab.ads, g-dyntab.adb:
+	Initial revision.
+
+	* g-regexp.ads, g-regexp.adb:
+	Initial revision.
+
+	* g-regpat.ads, g-regpat.adb:
+	Initial revision.
+
+	* gnat.ads:
+	Initial revision.
