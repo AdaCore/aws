@@ -379,7 +379,9 @@ package body Ada2WSDL.Parser is
                begin
                   --  For each name create a new formal parameter
 
-                  if not (Mode = An_In_Mode) then
+                  if not (Mode = An_In_Mode
+                          or else Mode = A_Default_In_Mode)
+                  then
                      Raise_Spec_Error
                        (Parameters (I),
                         Message => "only in mode supported.");
@@ -493,6 +495,16 @@ package body Ada2WSDL.Parser is
                Generator.Start_Array
                  (Image (Text.Element_Image (Declarations.Names (Elem)(1))),
                   Image (Text.Element_Image (E)));
+
+            when A_Derived_Type_Definition =>
+
+               E := Definitions.Subtype_Mark
+                      (Definitions.Parent_Subtype_Indication (E));
+
+               Generator.Register_Derived
+                 (Image (Text.Element_Image (Declarations.Names (Elem) (1))),
+                  Type_Name (E));
+
             when others =>
                --  A type definition not handled by this version
                null;
@@ -549,42 +561,75 @@ package body Ada2WSDL.Parser is
 
          E := Declarations.Type_Declaration_View (CFS);
 
-         if Flat_Element_Kind (E) = A_Record_Type_Definition then
-            --  This is a record, checks if the record definition has
-            --  been parsed.
+         case Flat_Element_Kind (E) is
 
-            declare
-               Name : constant String
-                 := Image (Text.Element_Image (Declarations.Names (CFS) (1)));
-            begin
-               if not Generator.Record_Exists (Name) then
-                  Index := Index + 1;
-                  Deferred_Types (Index) := CFS;
-               end if;
+            when A_Record_Type_Definition =>
+               --  This is a record, checks if the record definition has
+               --  been parsed.
 
-               return Name;
-            end;
+               declare
+                  Name : constant String
+                    := Image (Text.Element_Image
+                                (Declarations.Names (CFS) (1)));
+               begin
+                  if not Generator.Type_Exists (Name) then
+                     Index := Index + 1;
+                     Deferred_Types (Index) := CFS;
+                  end if;
 
-         else
-            --  A simple type
+                  return Name;
+               end;
 
-            if Flat_Element_Kind (E) = A_Floating_Point_Definition then
-               Check_Float (E);
-            end if;
-
-            E := Declarations.Names (CFS) (1);
-
-            declare
-               E_Str : constant String := Image (Text.Element_Image (E));
-            begin
-               --  ??? There is probably a better way to achieve this
-               if E_Str = "" then
-                  return Image (Text.Element_Image (Elem));
+            when An_Enumeration_Type_Definition =>
+               --  Enumerations are mapped to Ada strings except for the
+               --  special type Character
+               if Image (Text.Element_Image (Elem)) = "Character" then
+                  return "character";
                else
-                  return E_Str;
+                  return "string";
                end if;
-            end;
-         end if;
+
+            when A_Floating_Point_Definition =>
+               Check_Float (E);
+               return "float";
+
+            when A_Signed_Integer_Type_Definition
+              | A_Modular_Type_Definition
+              =>
+               return "integer";
+
+            when A_Derived_Type_Definition =>
+               --  This is a derived type definition, analyse the name after
+               --  the "is new".
+               --  Record the type to generate the corresponding schema.
+
+               declare
+                  Name : constant String
+                    := Image (Text.Element_Image
+                                (Declarations.Names (CFS) (1)));
+               begin
+                  if not Generator.Type_Exists (Name) then
+                     Index := Index + 1;
+                     Deferred_Types (Index) := CFS;
+                  end if;
+
+                  return Name;
+               end;
+
+            when others =>
+               E := Declarations.Names (CFS) (1);
+
+               declare
+                  E_Str : constant String := Image (Text.Element_Image (E));
+               begin
+                  --  ??? There is probably a better way to achieve this
+                  if E_Str = "" then
+                     return Image (Text.Element_Image (Elem));
+                  else
+                     return E_Str;
+                  end if;
+               end;
+         end case;
       end Type_Name;
 
    begin
