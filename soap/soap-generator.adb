@@ -1674,8 +1674,7 @@ package body SOAP.Generator is
             Put_Line (File, "with AWS.Response;");
             Put_Line (File, "with SOAP.Dispatchers.Callback;");
             New_Line (File);
-            Put_Line (File,
-                      "with " & L_Name & ".CB;");
+            Put_Line (File, "with " & L_Name & ".CB;");
             Put_Line (File, "with " & L_Name& ".Server;");
             New_Line (File);
             Put_Line (File, "procedure " & Filename & " is");
@@ -1693,11 +1692,11 @@ package body SOAP.Generator is
             New_Line (File);
             Put_Line (File, "   WS   : AWS.Server.HTTP;");
             Put_Line (File, "   Conf : Config.Object;");
-            Put_Line (File, "   Disp : Simple_Service.CB.Handler;");
+            Put_Line (File, "   Disp : " & L_Name & ".CB.Handler;");
             New_Line (File);
             Put_Line (File, "begin");
             Put_Line (File, "   Config.Set.Server_Port");
-            Put_Line (File, "      (Conf, Simple_Service.Server.Port);");
+            Put_Line (File, "      (Conf, " & L_Name & ".Server.Port);");
             Put_Line (File, "   Disp := SOAP.Dispatchers.Callback.Create");
             Put_Line (File, "     (CB'Unrestricted_Access,");
             Put_Line (File, "      " & L_Name & ".CB.SOAP_CB'Access);");
