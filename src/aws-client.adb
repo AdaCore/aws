@@ -51,13 +51,13 @@ package body AWS.Client is
    --  Receives response from server for GET and POST commands
 
    function Init_Connection
-     (Method     : in     String;
-      URL        : in     String;
-      User       : in     String            := No_Data;
-      Pwd        : in     String            := No_Data;
-      Proxy      : in     String            := No_Data;
-      Proxy_User : in     String            := No_Data;
-      Proxy_Pwd  : in     String            := No_Data)
+     (Method     : in String;
+      URL        : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
    return Sockets.Socket_FD'Class;
 
    --  send a header to the server eventually going through a proxy server
@@ -78,13 +78,13 @@ package body AWS.Client is
    ---------------------
 
    function Init_Connection
-     (Method     : in     String;
-      URL        : in     String;
-      User       : in     String            := No_Data;
-      Pwd        : in     String            := No_Data;
-      Proxy      : in     String            := No_Data;
-      Proxy_User : in     String            := No_Data;
-      Proxy_Pwd  : in     String            := No_Data)
+     (Method     : in String;
+      URL        : in String;
+      User       : in String := No_Data;
+      Pwd        : in String := No_Data;
+      Proxy      : in String := No_Data;
+      Proxy_User : in String := No_Data;
+      Proxy_Pwd  : in String := No_Data)
      return Sockets.Socket_FD'Class
    is
       function Get_Host_Name return String;
