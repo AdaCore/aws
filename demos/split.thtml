@@ -4,7 +4,7 @@
 <p>ONE is @_ONE_@
 <p>TWO is @_TWO_@
 
-<p>This is page @_PAGE_INDEX_@ there is @_NUMBER_PAGES_@
+<p>This is page @_PAGE_NUMBER_@ there is @_NUMBER_PAGES_@
 
 <br>
 <br>
@@ -13,12 +13,18 @@
 @@TABLE@@
    <tr>
    <td>@_"+"(OFFSET):TABLE_LINE_@
+@@IF@@ @_ALPHA_@ = true
+   <td>@_KEY_@
+@@END_IF@@
    <td>@_V1_@
    <td>@_V2_@
    </tr>
 @@SECTION@@
    <tr bgcolor="turquoise">
    <td>@_"+"(OFFSET):TABLE_LINE_@
+@@IF@@ @_ALPHA_@ = true
+   <td>@_KEY_@
+@@END_IF@@
    <td>@_V1_@
    <td>@_V2_@
    </tr>
@@ -39,6 +45,9 @@
 Next
 @@END_IF@@
 
+@@IF@@ @_ALPHA_@ = true
+@@INCLUDE@@ simple_index.thtml
+@@ELSE@@
 <hr>
 <p align=center>
 @@TABLE@@
@@ -53,5 +62,6 @@ Next
    @@END_IF@@
 @@END_TABLE@@
 <hr>
+@@END_IF@@
 
 <p>And to terminate : @_THREE_@
