@@ -81,7 +81,7 @@ project Demos is
       case Shared.Build is
          when "Debug" =>
             for Default_Switches ("Ada")
-              use ("-m", "-g", "-gnaty3abcefhiklmnoprt");
+              use ("-g", "-gnaty3abcefhiklmnoprt");
 
          when "Release" =>
             for Default_Switches ("Ada")
