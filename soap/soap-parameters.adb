@@ -281,6 +281,11 @@ package body SOAP.Parameters is
       return Types.Get (Argument (P, Name));
    end Get;
 
+   function Get (P : in List; Name : in String) return Types.SOAP_Base64 is
+   begin
+      return Types.Get (Argument (P, Name));
+   end Get;
+
    function Get (P : in List; Name : in String) return Types.SOAP_Record is
    begin
       return Types.Get (Argument (P, Name));

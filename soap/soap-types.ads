@@ -248,6 +248,10 @@ package SOAP.Types is
    function V (O : in SOAP_Record; Name : in String) return Object'Class;
    function V (O : in SOAP_Record) return Object_Set;
 
+   function Get (O : in Object'Class) return SOAP_Base64;
+   --  Returns O value as a SOAP Base64. Raises Data_Error if O is not a SOAP
+   --  Struct.
+
    function Get (O : in Object'Class) return SOAP_Record;
    --  Returns O value as a SOAP Struct. Raises Data_Error if O is not a SOAP
    --  Struct.

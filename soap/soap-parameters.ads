@@ -69,6 +69,11 @@ package SOAP.Parameters is
    --  Returns parameter named Name in P as a Boolean value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a Boolean.
 
+   function Get (P : in List; Name : in String) return Types.SOAP_Base64;
+   --  Returns parameter named Name in P as a SOAP Base64 value. Raises
+   --  Types.Data_Error if this parameter does not exist or is not a SOAP
+   --  Base64.
+
    function Get (P : in List; Name : in String) return Types.SOAP_Record;
    --  Returns parameter named Name in P as a SOAP Struct value. Raises
    --  Types.Data_Error if this parameter does not exist or is not a SOAP
@@ -118,6 +123,8 @@ package SOAP.Parameters is
    --  Checks that parameter named Name exist and is an Array value.
 
 private
+
+   pragma Inline (Get);
 
    type List is record
       V : Types.Object_Set (1 .. Max_Parameters);

@@ -228,6 +228,19 @@ package body SOAP.Types is
       end if;
    end Get;
 
+   function Get (O : in Object'Class) return SOAP_Base64 is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.SOAP_Base64'Tag then
+         return SOAP_Base64 (O);
+
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "SOAP Base64 expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
    function Get (O : in Object'Class) return SOAP_Record is
       use type Ada.Tags.Tag;
    begin
