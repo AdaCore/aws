@@ -66,9 +66,6 @@ package body SOAP.WSDL.Parser is
    function Next_Sibling (N : in DOM.Core.Node) return DOM.Core.Node;
    --  Returns the next sibling, ship #text nodes
 
-   function Length (NL : in DOM.Core.Node_List) return Natural;
-   --  Returns the number of nodes in NT, ship #text nodes
-
    function "+" (Str : in String) return Unbounded_String
      renames To_Unbounded_String;
 
@@ -165,6 +162,12 @@ package body SOAP.WSDL.Parser is
       return Boolean;
    --  Returns True if N is an array description node. Set the array element
    --  name into the object.
+
+   function Is_Record
+     (O : in Object'Class;
+      N : in DOM.Core.Node)
+      return Boolean;
+   --  Returns True if N is a struct description node.
 
    procedure Check_Character (R : in DOM.Core.Node);
    --  Checks that N is a valid schema definition for a Character Ada type
@@ -540,25 +543,32 @@ package body SOAP.WSDL.Parser is
       return False;
    end Is_Array;
 
-   ------------
-   -- Length --
-   ------------
+   ---------------
+   -- Is_Record --
+   ---------------
 
-   function Length (NL : in DOM.Core.Node_List) return Natural is
-      Result : Natural := 0;
+   function Is_Record
+     (O : in Object'Class;
+      N : in DOM.Core.Node)
+      return Boolean
+   is
+      pragma Unreferenced (O);
+      L : DOM.Core.Node := N;
    begin
-      for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
-         declare
-            N : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
-         begin
-            if DOM.Core.Nodes.Node_Name (N) /= "#text" then
-               Result := Result + 1;
-            end if;
-         end;
-      end loop;
+      if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "complexType" then
+         L := First_Child (L);
 
-      return Result;
-   end Length;
+         if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "all" then
+            L := First_Child (L);
+
+            if Utils.No_NS (DOM.Core.Nodes.Node_Name (L)) = "element" then
+               return True;
+            end if;
+         end if;
+      end if;
+
+      return False;
+   end Is_Record;
 
    -------------------
    -- New_Procedure --
@@ -758,9 +768,8 @@ package body SOAP.WSDL.Parser is
       Element  : in     DOM.Core.Node;
       Document : in     WSDL.Object)
    is
-      N        : DOM.Core.Node := Element;
-      Sequence : Boolean;
-      CT_Node  : DOM.Core.Node;
+      N       : DOM.Core.Node := Element;
+      CT_Node : DOM.Core.Node;
    begin
       Trace ("(Parse_Element)", Element);
 
@@ -786,31 +795,20 @@ package body SOAP.WSDL.Parser is
 
          N := First_Child (N);
 
-         if N = null then
-            Raise_Exception
-              (WSDL_Error'Identity, "No element found in schema.");
+         if Is_Record (O, CT_Node) then
+            --  This is a record or composite type
 
-         elsif DOM.Core.Nodes.Local_Name (N) = "sequence" then
-            Sequence := True;
+            Add_Parameter (O, Parse_Record (O, CT_Node, Document));
+
+         elsif Is_Array (O, CT_Node) then
+
+            Add_Parameter (O, Parse_Array (O, CT_Node, Document));
 
          else
-            Sequence := False;
-         end if;
-
-         declare
-            NL : constant DOM.Core.Node_List := DOM.Core.Nodes.Child_Nodes (N);
-         begin
-            if (Length (NL) > 1 and then not Sequence) then
-               --  This is a record or composite type
-
-               Add_Parameter (O, Parse_Record (O, CT_Node, Document));
-
-            elsif Is_Array (O, CT_Node) then
-
-               Add_Parameter (O, Parse_Array (O, CT_Node, Document));
-
-            else
-
+            declare
+               NL : constant DOM.Core.Node_List
+                 := DOM.Core.Nodes.Child_Nodes (N);
+            begin
                for K in 0 .. DOM.Core.Nodes.Length (NL) - 1 loop
                   declare
                      N : constant DOM.Core.Node := DOM.Core.Nodes.Item (NL, K);
@@ -820,8 +818,8 @@ package body SOAP.WSDL.Parser is
                      end if;
                   end;
                end loop;
-            end if;
-         end;
+            end;
+         end if;
       end if;
    end Parse_Element;
 
