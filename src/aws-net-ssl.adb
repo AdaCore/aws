@@ -46,7 +46,6 @@ with AWS.Net.Std;
 with AWS.Utils;
 
 with Interfaces.C;
-with SSL.Thin;
 with System.Storage_Elements;
 with System;
 
@@ -103,14 +102,32 @@ package body AWS.Net.SSL is
          New_Socket.Config := Default_Config;
       end if;
 
-      loop
+      SSL_Accept : loop
          Net.Std.Accept_Socket (Socket, NSST (New_Socket));
 
          New_Socket.Config.Set_FD (New_Socket);
 
          TSSL.SSL_set_accept_state (New_Socket.SSL);
 
-         exit when TSSL.SSL_accept (New_Socket.SSL) > 0;
+         Handshake : loop
+            case TSSL.SSL_accept (New_Socket.SSL) is
+               when  1 => exit SSL_Accept;
+               when -1 =>
+                  declare
+                     Error_Code : constant Integer
+                       := Integer (TSSL.SSL_get_error (New_Socket.SSL, -1));
+                  begin
+                     case Error_Code is
+                        when TSSL.SSL_ERROR_WANT_READ  =>
+                           Wait_For (Input, New_Socket);
+                        when TSSL.SSL_ERROR_WANT_WRITE =>
+                           Wait_For (Output, New_Socket);
+                        when others => exit Handshake;
+                     end case;
+                  end;
+               when others => exit Handshake;
+            end case;
+         end loop Handshake;
 
          Shutdown (New_Socket);
 
@@ -119,7 +136,7 @@ package body AWS.Net.SSL is
 
          TSSL.SSL_free (New_Socket.SSL);
          New_Socket.SSL := TSSL.Null_Pointer;
-      end loop;
+      end loop SSL_Accept;
 
       Set_Read_Ahead (New_Socket, True);
 
@@ -149,22 +166,36 @@ package body AWS.Net.SSL is
 
       TSSL.SSL_set_connect_state (Socket.SSL);
 
-      if TSSL.SSL_connect (Socket.SSL) = -1 then
+      while TSSL.SSL_connect (Socket.SSL) = -1 loop
          declare
-            use Interfaces;
-
             Error_Code : constant Integer
               := Integer (TSSL.SSL_get_error (Socket.SSL, -1));
-         begin
-            Net.Std.Shutdown (NSST (Socket));
-            Free (Socket);
 
-            Ada.Exceptions.Raise_Exception
-              (Socket_Error'Identity,
-               "Error (" & Utils.Image (Error_Code)
-                 & ") on SSL connect initiation");
+            Err_Code : TSSL.Error_Code;
+
+            use type TSSL.Error_Code;
+         begin
+            case Error_Code is
+               when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
+               when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
+               when others =>
+                  Err_Code := TSSL.ERR_get_error;
+
+                  Net.Std.Shutdown (NSST (Socket));
+                  Free (Socket);
+
+                  if Err_Code = 0 then
+                     Ada.Exceptions.Raise_Exception
+                       (Socket_Error'Identity,
+                        "Error (" & Utils.Image (Error_Code)
+                        & ") on SSL connect initiation");
+                  else
+                     Ada.Exceptions.Raise_Exception
+                       (Socket_Error'Identity, Error_Str (Err_Code));
+                  end if;
+            end case;
          end;
-      end if;
+      end loop;
    end Connect;
 
    --------------
@@ -274,11 +305,27 @@ package body AWS.Net.SSL is
       Max    : in Stream_Element_Count := 4096)
       return Stream_Element_Array
    is
+      use Interfaces;
+
       Buffer : Stream_Element_Array (0 .. Max - 1);
-      Len    : Interfaces.C.int;
+      Len    : C.int;
    begin
-      Len := TSSL.SSL_read (Socket.SSL, Buffer'Address, Buffer'Length);
-      Error_If (Len <= 0);
+      loop
+         Len := TSSL.SSL_read (Socket.SSL, Buffer'Address, Buffer'Length);
+
+         exit when Len > 0;
+
+         declare
+            Error_Code : constant C.int
+              := TSSL.SSL_get_error (Socket.SSL, Len);
+         begin
+            case Error_Code is
+               when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
+               when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
+               when others => Error_If (True);
+            end case;
+         end;
+      end loop;
 
       return Buffer
         (Buffer'First .. Buffer'First - 1 + Stream_Element_Count (Len));
@@ -303,9 +350,52 @@ package body AWS.Net.SSL is
 
    procedure Send
      (Socket : in Socket_Type;
-      Data   : in Ada.Streams.Stream_Element_Array) is
+      Data   : in Ada.Streams.Stream_Element_Array)
+   is
+      use Interfaces;
+
+      Len    : C.int;
+      Index  : Stream_Element_Offset := Data'First;
+      Remain : C.int := Data'Length;
    begin
-      Error_If (TSSL.SSL_write (Socket.SSL, Data'Address, Data'Length) = -1);
+      loop
+         Len := TSSL.SSL_write
+                  (Socket.SSL, Data (Index)'Address, Remain);
+
+         if Len > 0 then
+            Index  := Index + Stream_Element_Offset (Len);
+            Remain := Remain - Len;
+
+            exit when Remain <= 0;
+
+         else
+            declare
+               Error_Code : constant C.int
+                 := TSSL.SSL_get_error (Socket.SSL, Len);
+
+               Err_Code : TSSL.Error_Code;
+
+               use type TSSL.Error_Code;
+            begin
+               case Error_Code is
+                  when TSSL.SSL_ERROR_WANT_READ  => Wait_For (Input, Socket);
+                  when TSSL.SSL_ERROR_WANT_WRITE => Wait_For (Output, Socket);
+                  when others =>
+                     Err_Code := TSSL.ERR_get_error;
+
+                     if Err_Code = 0 then
+                        Ada.Exceptions.Raise_Exception
+                          (Socket_Error'Identity,
+                           "Error (" & Utils.Image (Integer (Error_Code))
+                           & ") on SSL send");
+                     else
+                        Ada.Exceptions.Raise_Exception
+                          (Socket_Error'Identity, Error_Str (Err_Code));
+                     end if;
+               end case;
+            end;
+         end if;
+      end loop;
    end Send;
 
    ----------------
