@@ -40,12 +40,12 @@ package AWS.Net.Sets.Thin is
 
    use Interfaces;
 
-   Pollin   : constant := 1;
-   Pollpri  : constant := 2;
-   Pollout  : constant := 4;
-   Pollerr  : constant := 8;
-   Pollhup  : constant := 16;
-   Pollnval : constant := 32;
+   POLLIN   : constant := 1;
+   POLLPRI  : constant := 2;
+   POLLOUT  : constant := 4;
+   POLLERR  : constant := 8;
+   POLLHUP  : constant := 16;
+   POLLNVAL : constant := 32;
 
    subtype FD_Type is C.int;
    subtype Length_Type is C.unsigned_long;
