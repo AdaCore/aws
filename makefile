@@ -60,10 +60,10 @@ ALL_OPTIONS	= $(MAKE_OPT) SOCKET="$(SOCKET)" XMLADA="$(XMLADA)" \
 	ASIS="$(ASIS)" EXEEXT="$(EXEEXT)" LDAP="$(LDAP)" DEBUG="$(DEBUG)" \
 	RM="$(RM)" CP="$(CP)" MV="$(MV)" MKDIR="$(MKDIR)" AR="$(AR)" \
 	GREP="$(GREP)" SED="$(SED)" DIFF="$(DIFF)" CHMOD="$(CHMOD)" \
-	GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" \
+	GZIP="$(GZIP)" TAR="$(TAR)" GNATMAKE="$(GNATMAKE)" TOUCH="$(TOUCH)" \
 	DLLTOOL="$(DLLTOOL)" DLL2DEF="$(DLL2DEF)" WINDRES="$(WINDRES)" \
 	GNATMAKE_FOR_HOST="$(GNATMAKE_FOR_HOST)" ADASOCKETS="$(ADASOCKETS)" \
-	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" \
+	EXTRA_TESTS="$(EXTRA_TESTS)" GCC="$(GCC)" AWK="$(AWK)" CAT="$(CAT)" \
 	GCC_FOR_HOST="$(GCC_FOR_HOST)"
 
 build_scripts:
@@ -275,6 +275,8 @@ ifeq (${OS}, Windows_NT)
 endif
 	$(CP) config/projects/components.gpr $(INSTALL)/AWS/components
 	$(CP) config/projects/*_lib.gpr $(INSTALL)/AWS/projects
+# Regenerate the SSL project to properly point to the ssl/crypto libraries
+	$(MAKE) -C ssl SOCKET=ssl setup_ssl
 	$(CP) ssl/ssl_shared.gpr $(INSTALL)/AWS/projects
 	-$(CHMOD) -R og+r $(INSTALL)/AWS
 	-$(CHMOD) uog-w $(INSTALL)/AWS/components/*.ali
@@ -284,7 +286,7 @@ endif
 #############################################################################
 # Configuration for GNAT Projet Files
 
-MODULES = config ssl include src win32 tools demos
+MODULES = config ssl include src win32 tools demos regtests
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
@@ -306,6 +308,14 @@ GEXT_MODULE := $(GEXT_MODULE) gasis
 else
 PRJ_ASIS=Disabled
 GEXT_MODULE := $(GEXT_MODULE) gasis_dummy
+endif
+
+ifeq ($(AI302), Internal)
+PRJ_AI302=Internal
+GEXT_MODULE := $(GEXT_MODULE) gai302_internal
+else
+PRJ_AI302=External
+GEXT_MODULE := $(GEXT_MODULE) gai302_external
 endif
 
 ifdef DEBUG
@@ -368,6 +378,15 @@ gxmlada_dummy:
 	echo "project XMLADA is" > $(PRJDIR)/xmlada.gpr
 	echo "   for Source_Dirs use ();" >> $(PRJDIR)/xmlada.gpr
 	echo "end XMLADA;" >> $(PRJDIR)/xmlada.gpr
+
+gai302_internal:
+	echo "project AI302 is" > $(PRJDIR)/ai302.gpr
+	echo "   for Source_Dirs use (\"../../include/ai302\");" \
+		>> $(PRJDIR)/ai302.gpr
+	echo "end AI302;" >> $(PRJDIR)/ai302.gpr
+
+gai302_external:
+	-$(RM) -f $(PRJDIR)/ai302.gpr
 
 setup_dir:
 	-$(MKDIR) -p $(PRJDIR)
