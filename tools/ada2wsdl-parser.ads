@@ -42,9 +42,13 @@ package Ada2WSDL.Parser is
    --  If everything is OK, sets the global Is_Initialized variable True.
    --  This procedure does not use anything from ASIS
 
-   procedure Create_Sample;
+   procedure Start;
    --  If Is_Initialized, generates the sample body. This procedure is an
    --  ASIS application
+
+   procedure Add_Option (Option : in String);
+   --  Add an option to the parser, this will be passed to ASIS module to
+   --  create the tree.
 
    procedure Clean_Up;
    --  Now the only thing it does is removing the tree file, if needed
