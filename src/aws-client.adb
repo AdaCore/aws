@@ -2026,7 +2026,7 @@ package body AWS.Client is
 
                if Try_Count = 0 then
                   Result := Response.Build
-                    (MIME.Text_HTML, "Post Timeout", Messages.S408);
+                    (MIME.Text_HTML, "Upload Timeout", Messages.S408);
                   Set_Phase (Connection, Not_Monitored);
                   exit;
                end if;
