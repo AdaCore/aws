@@ -1,3 +1,9 @@
+2004-10-10  Pascal Obry  <pascal@obry.org>
+
+	* aws-services-split_pages.adb:
+	Minor reformatting.
+	Update copyright notice.
+
 2004-10-07  Pascal Obry  <pascal@obry.org>
 
 	* aws-services-dispatchers.ads:

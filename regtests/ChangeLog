@@ -1,3 +1,8 @@
+2004-10-10  Pascal Obry  <pascal@obry.org>
+
+	* generate.adb:
+	Minor reformatting.
+
 2004-10-09  Pascal Obry  <pascal@obry.org>
 
 	* makefile:
