@@ -558,11 +558,11 @@ package body Ada2WSDL.Generator is
       begin
          Put_Line ("<?xml version=""1.0"" encoding=""UTF-8""?>");
          Put_Line ("<definitions name=""" & WS_Name  & """");
-         Put_Line ("   targetNamespace=""urn:aws:" & WS_Name & """");
-         Put_Line ("   xmlns:tns=""urn:aws:" & WS_Name & """");
+         Put_Line ("   targetNamespace=""http://soapaws/" & WS_Name & """");
+         Put_Line ("   xmlns:tns=""http://soapaws/" & WS_Name & """");
          Put_Line ("   xmlns=""" & WSDL.NS_WSDL & '"');
          Put_Line ("   xmlns:soap=""" & WSDL.NS_SOAP & '"');
-         Put_Line ("   xmlns:soap-enc=""" & WSDL.NS_SOAPENC & '"');
+         Put_Line ("   xmlns:soapenc=""" & WSDL.NS_SOAPENC & '"');
          Put_Line ("   xmlns:wsdl=""" & WSDL.NS_WSDL & '"');
          Put_Line ("   xmlns:xsi=""" & WSDL.NS_XSI & '"');
          Put_Line ("   xmlns:xsd=""" & WSDL.NS_XSD & """>");
@@ -724,8 +724,8 @@ package body Ada2WSDL.Generator is
             New_Line;
             Put_Line ("         <complexType name=""" & (-E.Name) & """>");
             Put_Line ("            <complexContent>");
-            Put_Line ("               <restriction base=""soap-enc:Array"">");
-            Put_Line ("                  <attribute ref=""soap-enc:arrayType"""
+            Put_Line ("               <restriction base=""soapenc:Array"">");
+            Put_Line ("                  <attribute ref=""soapenc:arrayType"""
                         & " wsdl:arrayType=""" & (-E.Parameters.XSD_Name)
                         & Array_Constraint & """/>");
             Put_Line ("               </restriction>");
