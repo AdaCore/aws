@@ -50,11 +50,14 @@ with Ada.Strings.Unbounded;
 with Ada.Command_Line;
 with Ada.Characters.Handling;
 with Ada.Streams;
+with Ada.Exceptions;
+
 with GNAT.Command_Line;
 
 with AWS.Client;
 with AWS.Response;
 with AWS.Messages;
+with AWS.MIME;
 with AWS.Status;
 
 procedure Agent is
@@ -175,7 +178,7 @@ begin
          & " - "
          & Messages.Reason_Phrase (Response.Status_Code (Data)));
 
-      if Response.Content_Type (Data) = "text/html" then
+      if MIME.Is_Text (Response.Content_Type (Data)) then
          Text_IO.Put_Line (Response.Message_Body (Data));
 
       else
@@ -235,5 +238,8 @@ begin
 
    end loop;
 
+exception
+   when E : others =>
+      Text_IO.Put_Line (Exceptions.Exception_Information (E));
 end Agent;
 
