@@ -294,6 +294,9 @@ package body AWS.Server is
 
             Free_Slots  : Natural;
 
+            Keep_Alive_Limit : constant Positive
+               := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
+
          begin
             HTTP_Server.Slots.Set
               (Socket'Unchecked_Access,
@@ -315,13 +318,8 @@ package body AWS.Server is
                end select;
             end if;
 
-            declare
-               Keep_Alive_Limit : constant Positive
-                 := CNF.Free_Slots_Keep_Alive_Limit (HTTP_Server.Properties);
-            begin
-               Protocol_Handler
-                 (HTTP_Server.all, Slot_Index, Free_Slots >= Keep_Alive_Limit);
-            end;
+            Protocol_Handler
+              (HTTP_Server.all, Slot_Index, Free_Slots >= Keep_Alive_Limit);
 
             HTTP_Server.Slots.Release (Slot_Index);
          end;
