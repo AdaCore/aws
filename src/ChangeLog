@@ -1,3 +1,15 @@
+2003-02-05  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(build_specific): Removed.
+	(build): Remove build_specific.
+	No need to build aws-services-directory.adb without optimization.
+
+	* aws-services-directory.adb:
+	Remove pragma optimize off. (allow optimization again, the bug is
+	 fixed in GNAT 3.15a1 and GNAT 3.15p).
+	Minor reformatting.
+
 2003-02-04  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* aws-net-ssl.adb:
