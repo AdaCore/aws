@@ -86,4 +86,16 @@ package AWS.Headers.Values is
    --  Returns index for Name in the set or 0 if Name not found.
    --  If Case_Sensitive is false the find is case_insensitive.
 
+   function Search
+     (Header_Value   : in String;
+      Name           : in String;
+      Case_Sensitive : in Boolean := True) return String;
+   --  Returns Value for Name in the set or empty string if Name not found.
+   --  If Case_Sensitive is false the find is case_insensitive.
+
+   function Get_Unnamed_Value
+     (Header_Value : in String;
+      N            : in Positive := 1) return String;
+   --  Returns N-th alone value from the Header value.
+
 end AWS.Headers.Values;
