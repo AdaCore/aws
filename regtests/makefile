@@ -229,11 +229,11 @@ check_mem: force
 	gnatmake -g check_mem $(GARGS) -largs $(LARGS) -bargs -E -largs -lgmem
 	rm -f aws-containers-tables.* aws*.ali aws*.o soap*.o soap*.ali
 	echo -n ",  run it"
-	./check_mem 2 1248 > check_mem.res
+	./check_mem 2 1888 > check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) 2 1248 > check_mem.run1
 	grep "   Final" check_mem.run1 > run1
 	echo ",  run it again"
-	./check_mem 30 1249 >> check_mem.res
+	./check_mem 30 1889 >> check_mem.res
 	gnatmem 3 -i gmem.out ./check_mem$(EXEEXT) 30 1249 > check_mem.run2
 	grep "   Final" check_mem.run2 > run2
 	-diff -c -w run1 run2 1>> alldifs 2>> alldifs
