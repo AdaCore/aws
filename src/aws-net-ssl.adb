@@ -527,38 +527,39 @@ package body AWS.Net.SSL is
            (Cert_Filename : in String;
             Key_Filename  : in String := "")
          is
-
-            function Key_File_Name return String;
-            --  Returns the key file (Key_Filename) if it is defined and the
-            --  certificate filename (Cert_Filename) otherwise.
-
-            -------------------
-            -- Key_File_Name --
-            -------------------
-
-            function Key_File_Name return String is
-            begin
-               if Key_Filename = "" then
-                  return Cert_Filename;
-               else
-                  return Key_Filename;
-               end if;
-            end Key_File_Name;
-
             use Interfaces.C;
-
          begin
-            Error_If
-              (TSSL.SSL_CTX_use_certificate_file
-                 (Ctx    => Context,
-                  File   => To_C (Cert_Filename),
-                  C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
+            if Key_Filename = "" then
+               --  Get certificate and private key from the same file.
+               --  We could not use certificates chain this way.
 
-            Error_If
-              (TSSL.SSL_CTX_use_PrivateKey_file
-                 (Ctx    => Context,
-                  File   => To_C (Key_File_Name),
-                  C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
+               Error_If
+                 (TSSL.SSL_CTX_use_certificate_file
+                    (Ctx    => Context,
+                     File   => To_C (Cert_Filename),
+                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
+
+               Error_If
+                 (TSSL.SSL_CTX_use_PrivateKey_file
+                    (Ctx    => Context,
+                     File   => To_C (Cert_Filename),
+                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
+
+            else
+               --  Get the single certificate or certificate chain from
+               --  the file Cert_Filename
+
+               Error_If
+                 (TSSL.SSL_CTX_use_certificate_chain_file
+                    (Ctx    => Context,
+                     File   => To_C (Cert_Filename)) /= 1);
+
+               Error_If
+                 (TSSL.SSL_CTX_use_PrivateKey_file
+                    (Ctx    => Context,
+                     File   => To_C (Key_Filename),
+                     C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
+            end if;
 
             Error_If
               (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
