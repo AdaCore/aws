@@ -68,9 +68,11 @@ package AWS.Server is
       Dispatcher : in     Dispatchers.Handler'Class;
       Config     : in     AWS.Config.Object);
    --  Idem, but using the dispatcher tagged type instead of callback. See
-   --  AWS.Services.Dispatchers hierarchy for built-in services. Note that a
-   --  copy of the Dispatcher is keept into Web_Server. Any changes done to
-   --  the Dispatcher object will not be part of the Web server dispatcher.
+   --  AWS.Services.Dispatchers and AWS.Dispatchers hierarchies for built-in
+   --  services and interface to build your own dispatcher models.
+   --  Note that a copy of the Dispatcher is keept into Web_Server. Any
+   --  changes done to the Dispatcher object will not be part of the Web
+   --  server dispatcher.
 
    procedure Start
      (Web_Server                : in out HTTP;
