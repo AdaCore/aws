@@ -367,53 +367,66 @@ is
 
       --  AWS Internal status page handling.
 
-      if URI = Admin_URI then
+      if Admin_URI'Length > 0
+        and then URI'Length >= Admin_URI'Length
+        and then URI (URI'First .. URI'First + Admin_URI'Length - 1)
+          = Admin_URI
+      then
 
-         --  Status page
-         begin
-            Answer := Response.Build
-              (Content_Type => MIME.Text_HTML,
-               Message_Body => Get_Status (HTTP_Server));
-         exception
-            when Templates_Parser.Template_Error =>
+         if URI = Admin_URI then
+
+            --  Status page
+            begin
                Answer := Response.Build
                  (Content_Type => MIME.Text_HTML,
-                  Message_Body =>
-                    "Status template error. Please check "
-                    & "that '" & Config.Status_Page & "' file is valid.");
-         end;
+                  Message_Body => Get_Status (HTTP_Server));
+            exception
+               when Templates_Parser.Template_Error =>
+                  Answer := Response.Build
+                    (Content_Type => MIME.Text_HTML,
+                     Message_Body =>
+                       "Status template error. Please check "
+                       & "that '" & Config.Status_Page & "' file is valid.");
+            end;
 
-      elsif URI = Admin_URI & "-logo" then
-         --  Status page logo
-         Answer := Response.File
-           (Content_Type => MIME.Content_Type (Config.Logo_Image),
-            Filename     => Config.Logo_Image);
+         elsif URI = Admin_URI & "-logo" then
+            --  Status page logo
+            Answer := Response.File
+              (Content_Type => MIME.Content_Type (Config.Logo_Image),
+               Filename     => Config.Logo_Image);
 
-      elsif URI = Admin_URI & "-uparr" then
-         --  Status page hotplug up-arrow
-         Answer := Response.File
-           (Content_Type => MIME.Content_Type (Config.Up_Image),
-            Filename     => Config.Up_Image);
+         elsif URI = Admin_URI & "-uparr" then
+            --  Status page hotplug up-arrow
+            Answer := Response.File
+              (Content_Type => MIME.Content_Type (Config.Up_Image),
+               Filename     => Config.Up_Image);
 
-      elsif URI = Admin_URI & "-downarr" then
-         --  Status page hotplug down-arrow
-         Answer := Response.File
-           (Content_Type => MIME.Content_Type (Config.Down_Image),
-            Filename     => Config.Down_Image);
+         elsif URI = Admin_URI & "-downarr" then
+            --  Status page hotplug down-arrow
+            Answer := Response.File
+              (Content_Type => MIME.Content_Type (Config.Down_Image),
+               Filename     => Config.Down_Image);
 
-      elsif URI = Admin_URI & "-HPup" then
-         --  Status page hotplug up message
-         Hotplug.Move_Up
-           (HTTP_Server.Filters,
-            Positive'Value (AWS.Parameters.Get (P_List, "N")));
-         Answer := Response.URL (Admin_URI);
+         elsif URI = Admin_URI & "-HPup" then
+            --  Status page hotplug up message
+            Hotplug.Move_Up
+              (HTTP_Server.Filters,
+               Positive'Value (AWS.Parameters.Get (P_List, "N")));
+            Answer := Response.URL (Admin_URI);
 
-      elsif URI = Admin_URI & "-HPdown" then
-         --  Status page hotplug down message
-         Hotplug.Move_Down
-           (HTTP_Server.Filters,
-            Positive'Value (AWS.Parameters.Get (P_List, "N")));
-         Answer := Response.URL (Admin_URI);
+         elsif URI = Admin_URI & "-HPdown" then
+            --  Status page hotplug down message
+            Hotplug.Move_Down
+              (HTTP_Server.Filters,
+               Positive'Value (AWS.Parameters.Get (P_List, "N")));
+            Answer := Response.URL (Admin_URI);
+
+         else
+            Answer := Response.Build
+              (Content_Type => MIME.Text_HTML,
+               Message_Body =>
+                 "Invalid use of reserved status URI prefix: " & Admin_URI);
+         end if;
 
       --  End of Internal status page handling.
 
