@@ -38,15 +38,18 @@ generic
    type Data_Type is private;
 package AWS.Net.Generic_Sets is
 
-   type Waiting_Mode is (Error, Input, Output, Both);
+   type Waiting_Mode is (None, Input, Output, Both);
    --  Input  - would wait for data available for read from socket.
    --  Output - would wait output buffer availability for write.
    --  Both   - would wait for both Input and Output.
-   --  Error  - would wait only for error state in socket.
-   --  Note that all other waiting modes would be waiting for error state
-   --  anyway.
+   --  None   - would wait only for error state in socket.
+   --  Note that all waiting modes would be waiting for error state.
 
    type Socket_Set_Type is limited private;
+
+   type Socket_Count is new Natural;
+
+   subtype Socket_Index is Socket_Count range 1 .. Socket_Count'Last;
 
    procedure Add
      (Set    : in out Socket_Set_Type;
@@ -61,7 +64,7 @@ package AWS.Net.Generic_Sets is
       Mode   : in     Waiting_Mode);
    --  Add socket to the set.
 
-   function Count (Set : in Socket_Set_Type) return Natural;
+   function Count (Set : in Socket_Set_Type) return Socket_Count;
    pragma Inline (Count);
    --  Returns the number of sockets in the Set.
 
@@ -75,14 +78,14 @@ package AWS.Net.Generic_Sets is
    procedure Wait
      (Set     : in out Socket_Set_Type;
       Timeout : in     Duration;
-      Count   :    out Natural);
+      Count   :    out Socket_Count);
    --  Wait for a socket in the set to be ready for input or output operation.
    --  Raises Socket_Error if an error occurs. Count would return number of
    --  activated sockets.
 
    function Is_Read_Ready
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Boolean;
    pragma Inline (Is_Read_Ready);
    --  Return True if data could be read from socket and socket was in Input
@@ -90,7 +93,7 @@ package AWS.Net.Generic_Sets is
 
    function Is_Write_Ready
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Boolean;
    pragma Inline (Is_Write_Ready);
    --  Return True if data could be written to socket and socket was in Output
@@ -98,21 +101,21 @@ package AWS.Net.Generic_Sets is
 
    function Is_Error
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Boolean;
    pragma Inline (Is_Error);
    --  Return True if any error occured with socket while waiting.
 
    function In_Range
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Boolean;
    pragma Inline (In_Range);
    --  Return True if Index is in socket set range.
 
    function Get_Socket
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Socket_Type'Class;
    pragma Inline (Get_Socket);
    --  Return socket from the Index position or raise Constraint_Error
@@ -120,22 +123,24 @@ package AWS.Net.Generic_Sets is
 
    function Get_Data
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Data_Type;
    pragma Inline (Get_Data);
 
    procedure Set_Data
      (Set   : in out Socket_Set_Type;
-      Index : in     Positive;
+      Index : in     Socket_Index;
       Data  : in     Data_Type);
    pragma Inline (Set_Data);
 
-   procedure Remove_Socket (Set : in out Socket_Set_Type; Index : in Positive);
+   procedure Remove_Socket
+     (Set   : in out Socket_Set_Type;
+      Index : in     Socket_Index);
    --  Delete socket from Index position from the Set. If the Index is not
    --  last position in the set, last socket would be placed instead of
    --  deleted one.
 
-   procedure Next (Set : in Socket_Set_Type; Index : in out Positive);
+   procedure Next (Set : in Socket_Set_Type; Index : in out Socket_Index);
    --  Looking for active socket starting from Index and return Index of the
    --  found active socket. After search use functions In_Range,
    --  Is_Write_Ready, Is_Read_Ready and Is_Error to be shure that active
@@ -160,14 +165,14 @@ private
       Data : Data_Type;
    end record;
 
-   type Socket_Array is array (Positive range <>) of Socket_Record;
+   type Socket_Array is array (Socket_Index range <>) of Socket_Record;
 
    type Socket_Array_Access is access all Socket_Array;
 
    type Socket_Set_Type is new Ada.Finalization.Limited_Controlled with record
       Poll : Poll_Set_Access;
       Set  : Socket_Array_Access;
-      Last : Natural := 0;
+      Last : Socket_Count := 0;
    end record;
 
    procedure Finalize (Set : in out Socket_Set_Type);

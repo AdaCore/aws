@@ -38,7 +38,7 @@ with AWS.OS_Lib.Definitions;
 
 package body AWS.Net.Generic_Sets is
 
-   type Poll_Set_Type is array (Positive range <>) of Thin.Pollfd;
+   type Poll_Set_Type is array (Socket_Index range <>) of Thin.Pollfd;
    pragma Pack (Poll_Set_Type);
 
    procedure Free is
@@ -52,7 +52,7 @@ package body AWS.Net.Generic_Sets is
       --  We could not use AWS.Net.Free because Socket_Set_Type did not
       --  allocate internal socket data.
 
-   procedure Check_Range (Set : in Socket_Set_Type; Index : in Positive);
+   procedure Check_Range (Set : in Socket_Set_Type; Index : in Socket_Index);
    pragma Inline (Check_Range);
    --  Raise Constraint_Error if Index not in Set range.
 
@@ -114,7 +114,7 @@ package body AWS.Net.Generic_Sets is
          declare
             Prev_Set  : Socket_Array_Access := Set.Set;
             Prev_Poll : Poll_Set_Access     := Set.Poll;
-            Increment : Positive;
+            Increment : Socket_Index;
 
          begin
             if Set.Last < 256 then
@@ -140,7 +140,7 @@ package body AWS.Net.Generic_Sets is
       Set.Poll (Set.Last).FD := Thin.FD_Type (Get_FD (Socket.all));
 
       case Mode is
-         when Error  =>
+         when None   =>
             Set.Poll (Set.Last).Events := 0;
          when Input  =>
             Set.Poll (Set.Last).Events := OS_Lib.Definitions.POLLIN;
@@ -156,7 +156,7 @@ package body AWS.Net.Generic_Sets is
    -- Check_Range --
    -----------------
 
-   procedure Check_Range (Set : in Socket_Set_Type; Index : in Positive) is
+   procedure Check_Range (Set : in Socket_Set_Type; Index : in Socket_Index) is
    begin
       if Index > Set.Last then
          raise Constraint_Error;
@@ -167,7 +167,7 @@ package body AWS.Net.Generic_Sets is
    -- Count --
    -----------
 
-   function Count (Set : in Socket_Set_Type) return Natural is
+   function Count (Set : in Socket_Set_Type) return Socket_Count is
    begin
       return Set.Last;
    end Count;
@@ -189,7 +189,7 @@ package body AWS.Net.Generic_Sets is
 
    function Get_Data
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Data_Type is
    begin
       Check_Range (Set, Index);
@@ -203,7 +203,7 @@ package body AWS.Net.Generic_Sets is
 
    function Get_Socket
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Socket_Type'Class is
    begin
       Check_Range (Set, Index);
@@ -217,7 +217,7 @@ package body AWS.Net.Generic_Sets is
 
    function In_Range
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Boolean is
    begin
       return Index <= Set.Last;
@@ -229,7 +229,7 @@ package body AWS.Net.Generic_Sets is
 
    function Is_Error
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Boolean
    is
       use AWS.OS_Lib.Definitions;
@@ -246,7 +246,7 @@ package body AWS.Net.Generic_Sets is
 
    function Is_Read_Ready
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Boolean
    is
       use AWS.OS_Lib.Definitions;
@@ -262,7 +262,7 @@ package body AWS.Net.Generic_Sets is
 
    function Is_Write_Ready
      (Set   : in Socket_Set_Type;
-      Index : in Positive)
+      Index : in Socket_Index)
       return Boolean
    is
       use AWS.OS_Lib.Definitions;
@@ -278,7 +278,7 @@ package body AWS.Net.Generic_Sets is
 
    procedure Next
      (Set   : in     Socket_Set_Type;
-      Index : in out Positive)
+      Index : in out Socket_Index)
    is
       use type Thin.Events_Type;
    begin
@@ -296,7 +296,7 @@ package body AWS.Net.Generic_Sets is
 
    procedure Remove_Socket
      (Set   : in out Socket_Set_Type;
-      Index : in     Positive) is
+      Index : in     Socket_Index) is
    begin
       Check_Range (Set, Index);
 
@@ -331,7 +331,7 @@ package body AWS.Net.Generic_Sets is
 
    procedure Set_Data
      (Set   : in out Socket_Set_Type;
-      Index : in     Positive;
+      Index : in     Socket_Index;
       Data  : in     Data_Type) is
    begin
       Check_Range (Set, Index);
@@ -346,11 +346,11 @@ package body AWS.Net.Generic_Sets is
    procedure Wait
      (Set     : in out Socket_Set_Type;
       Timeout : in     Duration;
-      Count   :    out Natural)
+      Count   :    out Socket_Count)
    is
       use type Thin.Timeout_Type;
 
-      Result       : Integer;
+      Result       : Socket_Count'Base;
       Poll_Timeout : Thin.Timeout_Type;
    begin
       if Timeout >= Duration (Thin.Timeout_Type'Last / 1_000) then
@@ -359,7 +359,7 @@ package body AWS.Net.Generic_Sets is
          Poll_Timeout := Thin.Timeout_Type (Timeout * 1_000);
       end if;
 
-      Result := Integer
+      Result := Socket_Count'Base
         (Thin.Poll
            (FDS     => Set.Poll (Set.Poll'First)'Address,
             Nfds    => Thin.nfds_t (Set.Last),
@@ -377,7 +377,7 @@ package body AWS.Net.Generic_Sets is
      (Set     : in out Socket_Set_Type;
       Timeout : in     Duration)
    is
-      Dummy : Natural;
+      Dummy : Socket_Count;
    begin
       Wait (Set, Timeout, Dummy);
    end Wait;
