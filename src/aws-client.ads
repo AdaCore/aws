@@ -28,6 +28,7 @@
 
 --  $Id$
 
+with Ada.Streams;
 with Ada.Strings.Unbounded;
 with Sockets;
 
@@ -91,6 +92,15 @@ package AWS.Client is
    --  Send to the server URL a POST request with Data
    --  Post will retry one time if it fails.
 
+   function Post (URL        : in String;
+                  Data       : in Ada.Streams.Stream_Element_Array;
+                  User       : in String := No_Data;
+                  Pwd        : in String := No_Data;
+                  Proxy      : in String := No_Data;
+                  Proxy_User : in String := No_Data;
+                  Proxy_Pwd  : in String := No_Data) return Response.Data;
+   --  Idem as above but with binary data.
+
    --  Keep-Alive client implementation.
 
    type HTTP_Connection is private;
@@ -127,6 +137,12 @@ package AWS.Client is
    procedure Post (Connection : in out HTTP_Connection;
                    Result     :    out Response.Data;
                    Data       : in     String;
+                   URI        : in     String          := No_Data);
+   --  Same as Post above but using a Connection.
+
+   procedure Post (Connection : in out HTTP_Connection;
+                   Result     :    out Response.Data;
+                   Data       : in     Ada.Streams.Stream_Element_Array;
                    URI        : in     String          := No_Data);
    --  Same as Post above but using a Connection.
 
