@@ -454,7 +454,7 @@ package body AWS.Session is
          Get_Node (Sessions, SID, Node, Cursor, Result);
 
          if Result then
-            Result := Key_Value.Is_In (Node.Root.all, Key);
+            Result := Key_Value.Is_In (Key, Node.Root.all);
          end if;
       end Key_Exist;
 
@@ -519,7 +519,7 @@ package body AWS.Session is
             New_Node := (Time_Stamp => Calendar.Clock,
                          Root       => new Containers.Key_Value.Set);
 
-            if not Session_Set.Is_In (Sessions, String (SID)) then
+            if not Session_Set.Is_In (String (SID), Sessions) then
                Session_Set.Insert
                  (Sessions, String (SID), New_Node, Cursor, Found);
                exit Generate_UID;
@@ -556,7 +556,7 @@ package body AWS.Session is
 
       function Session_Exist (SID : in ID) return Boolean is
       begin
-         return Session_Set.Is_In (Sessions, String (SID));
+         return Session_Set.Is_In (String (SID), Sessions);
       end Session_Exist;
 
       ---------------
