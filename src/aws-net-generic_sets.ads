@@ -74,6 +74,12 @@ package AWS.Net.Generic_Sets is
       Mode   : in     Waiting_Mode);
    --  Add socket to the set
 
+   procedure Set_Mode
+     (Set    : in out Socket_Set_Type;
+      Index  : in     Socket_Index;
+      Mode   : in     Waiting_Mode);
+   --  Change waiting mode for the socket in the set.
+
    function Count (Set : in Socket_Set_Type) return Socket_Count;
    pragma Inline (Count);
    --  Returns the number of sockets in the Set
