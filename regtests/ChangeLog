@@ -1,3 +1,12 @@
+2003-10-06  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* zstrm.adb, zstrm.out, makefile:
+	New regression test for compression/decompression of user defined
+	 streams.
+
+	* strm.adb, strm.out:
+	Add compression mode for user defined stream test.
+
 2003-10-06  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* makefile:
