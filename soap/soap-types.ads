@@ -39,15 +39,13 @@ package SOAP.Types is
    Data_Error : exception;
    --  Raised when a variable has not the expected type.
 
-   type Object is tagged private;
+   type Object is abstract tagged private;
 
    type Object_Access is access all Object'Class;
 
-   type Object_Controlled is new Ada.Finalization.Controlled with record
-      O : Object_Access;
-   end record;
+   type Object_Safe_Pointer is tagged private;
 
-   type Object_Set is array (Positive range <>) of Object_Controlled;
+   type Object_Set is array (Positive range <>) of Object_Safe_Pointer;
 
    function Image (O : in Object) return String;
    --  Returns O value image.
@@ -78,8 +76,11 @@ package SOAP.Types is
    --  Returns O value as a Boolean. Raises Data_Error if O is not a SOAP
    --  Boolean.
 
-   function "+" (O : in Object'Class) return Object_Controlled;
-   --  Allocate an object into the heap and return an access to it.
+   function "+" (O : in Object'Class) return Object_Safe_Pointer;
+   --  Allocate an object into the heap and return a safe pointer to it.
+
+   function "-" (O : in Object_Safe_Pointer) return Object'Class;
+   --  Returns the object associated with the safe pointer.
 
    type Scalar is abstract new Object with private;
    --  Scalar types are using a by-copy semantic.
@@ -259,10 +260,17 @@ private
 
    use Ada.Strings.Unbounded;
 
-   procedure Adjust     (O : in out Object_Controlled);
-   procedure Finalize   (O : in out Object_Controlled);
+   type Object_Safe_Pointer is new Ada.Finalization.Controlled with record
+      O : Object_Access;
+   end record;
 
-   type Object is tagged record
+   procedure Adjust     (O : in out Object_Safe_Pointer);
+   pragma Inline (Adjust);
+
+   procedure Finalize   (O : in out Object_Safe_Pointer);
+   pragma Inline (Finalize);
+
+   type Object is abstract new Ada.Finalization.Controlled with record
       Name : Unbounded_String;
    end record;
 
@@ -270,9 +278,21 @@ private
 
    type Counter_Access is access Natural;
 
+   type Object_Set_Access is access Object_Set;
+
    type Composite is abstract new Object with record
       Ref_Counter : Counter_Access;
+      O           : Object_Set_Access;
    end record;
+
+   procedure Initialize (O : in out Composite);
+   pragma Inline (Initialize);
+
+   procedure Adjust     (O : in out Composite);
+   pragma Inline (Adjust);
+
+   procedure Finalize   (O : in out Composite);
+   pragma Inline (Finalize);
 
    type XSD_Integer is new Scalar with record
       V : Integer;
@@ -301,26 +321,8 @@ private
       V : Unbounded_String;
    end record;
 
-   type Object_Set_Access is access Object_Set;
+   type SOAP_Array is new Composite with null record;
 
-   type SOAP_Array is new Composite with record
-      O : Object_Set_Access;
-   end record;
-
-   procedure Initialize (O : in out SOAP_Array);
-   procedure Adjust     (O : in out SOAP_Array);
-   procedure Finalize   (O : in out SOAP_Array);
-
-   type SOAP_Record is new Composite with record
-      O : Object_Set_Access;
-   end record;
-
-   procedure Initialize (O : in out SOAP_Record);
-   procedure Adjust     (O : in out SOAP_Record);
-   procedure Finalize   (O : in out SOAP_Record);
-
-   pragma Inline (Initialize);
-   pragma Inline (Adjust);
-   pragma Inline (Finalize);
+   type SOAP_Record is new Composite with null record;
 
 end SOAP.Types;
