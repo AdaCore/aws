@@ -32,18 +32,15 @@
 
 with Ada.Strings.Unbounded;
 
-with Avl_Tree_Generic;
+with Table_Of_Strings_And_Static_Values_G;
 
 package AWS.Key_Value is
 
-   type Data is record
-      Key, Value : Ada.Strings.Unbounded.Unbounded_String;
-   end record;
+   package Table is new Table_Of_Strings_And_Static_Values_G
+     (Character, String, "<", "=", Ada.Strings.Unbounded.Unbounded_String);
 
-   function Key_For (Node : in Data) return String;
+   type Set is new Table.Table_Type;
 
-   package Tree is new Avl_Tree_Generic (String, Data, Key_For);
-
-   type Set is new Tree.Avl_Tree;
+   type Set_Access is access Set;
 
 end AWS.Key_Value;

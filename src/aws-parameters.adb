@@ -77,13 +77,13 @@ package body AWS.Parameters is
       Name           : in String)
      return Natural
    is
-      Item : Key_Value.Data;
-      CS   : Strings_Cutter.Cutted_String;
+      Value : Unbounded_String;
+      CS    : Strings_Cutter.Cutted_String;
    begin
-      Key_Value.Inquire (Name, Parameter_List.Data, Item);
+      Key_Value.Get_Value (Parameter_List.Data.all, Name, Value);
 
       Strings_Cutter.Create (CS,
-                             To_String (Item.Value),
+                             To_String (Value),
                              String'(1 => Val_Separator));
       declare
          Result : constant Natural := Strings_Cutter.Field_Count (CS);
@@ -104,15 +104,9 @@ package body AWS.Parameters is
    function Exist
      (Parameter_List : in List;
       Name           : in String)
-     return Boolean
-   is
-      Item : Key_Value.Data;
+     return Boolean is
    begin
-      Key_Value.Inquire (Name, Parameter_List.Data, Item);
-      return True;
-   exception
-      when others =>
-         return False;
+      return Key_Value.Is_Present (Parameter_List.Data.all, Name);
    end Exist;
 
    ---------
@@ -166,13 +160,13 @@ package body AWS.Parameters is
       N              : in Natural)
      return String
    is
-      Item : Key_Value.Data;
-      CS   : Strings_Cutter.Cutted_String;
+      Value : Unbounded_String;
+      CS    : Strings_Cutter.Cutted_String;
    begin
-      Key_Value.Inquire (Name, Parameter_List.Data, Item);
+      Key_Value.Get_Value (Parameter_List.Data.all, Name, Value);
 
       Strings_Cutter.Create (CS,
-                             To_String (Item.Value),
+                             To_String (Value),
                              String'(1 => Val_Separator));
       declare
          Result : constant String := Strings_Cutter.Field (CS, N);
