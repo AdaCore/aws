@@ -41,13 +41,24 @@ Here are the main changes since AWS 1.4 :
 
    - ada2wsdl a new tool to generate WSDL document from an Ada spec. This
      tool will help further to build Web Services with GNAT. ada2wsdl is
-     based on ASIS for GNAT. You have GNAT and ASIS installed. ada2wsdl
-     handles standard Ada types, Calendar.Time, records and arrays.
+     based on ASIS for GNAT. You must have GNAT and ASIS installed. ada2wsdl
+     handles standard Ada types, Calendar.Time, records, arrays
+     (constrained and unconstrained), derived types.
 
-   - Add -types wsdl2aws option to generate code compatible with an already
+   - Add -types wsdl2aws's option to generate code compatible with an already
      present Ada spec. This is to be used with ada2wsdl tool. With -types
      wsdl2aws will not generate records or arrays, instead it will use them
      from the specified Ada spec.
+
+   - Add -cb wsdl2aws's option to generate the SOAP callback procedure for the
+     server.
+
+   - Add -main wsdl2aws's option to generate a main procedure to build the
+     server. This main procedure can be generated from a template file.
+
+     Note that using wsdl2aws's -types, -main and -cb options together you
+     can build a SOAP server for any Ada API. This is one of the simplest way
+     to build a SOAP server.
 
    - Some improvement in the generated AWS/SOAP code from WSDL
      document. In the generated stub uses properly the
@@ -89,6 +100,11 @@ Here are the main changes since AWS 1.4 :
  
    - Fix WSDL SOAP record handling (code for record in record was
      sometimes not correctly generated).
+
+   - New package AWS.POP which implements the POP client protocol.
+
+   - New template engine filter REPLACE. Pattern matching with replacement
+     facility.
 
    - Plus many small fixes, enhancements, API comments, and documentation work.
 
