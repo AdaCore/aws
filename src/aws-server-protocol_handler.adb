@@ -102,12 +102,11 @@ is
    procedure Parse (Command : in String);
    --  Parse a line sent by the client and do what is needed
 
-   procedure Send_Resource_Body
+   procedure Send_Resource
      (File   : in out Resources.File_Type;
       Length :    out Natural);
-   --  Send the last header line Transfer-encoding if necessary.
-   --  terminate header
-   --  and message body from the File.
+   --  Send the last header line Transfer-encoding if necessary. Terminate
+   --  header and message body from the File.
    --  Length returns the actual number of bytes sent.
 
    procedure Answer_To_Client;
@@ -229,15 +228,17 @@ is
                Messages.Location (Response.Location (Answer)));
          end if;
 
-         --  Checking if we have to close connection becouse
-         --  of undefined message length.
+         --  Checking if we have to close connection because of undefined
+         --  message length comming from a user's stream.
+
          if Response.Content_Length (Answer) = Response.Undefined_Length
-            --  We could not use transfer-encoding chunked
-            --  for define length of message body.
             and then AWS.Status.HTTP_Version (C_Stat) = HTTP_10
-            --  We have to send message_body
+            --  We cannot use transfer-encoding chunked in HTTP_10
             and then AWS.Status.Method (C_Stat) /= AWS.Status.HEAD
+            --  We have to send message_body
          then
+            --  In this case we need to close the connection explicitly at the
+            --  end of the transfer.
             Will_Close := True;
          end if;
 
@@ -246,11 +247,9 @@ is
          --  Send file info in case of file
 
          if File_Mode then
-
             Sockets.Put_Line
               (Sock,
                Messages.Last_Modified (Resources.File_Timestamp (Filename)));
-
          end if;
 
          Sockets.Put_Line
@@ -267,12 +266,10 @@ is
          --  Send message body only if needed
 
          if AWS.Status.Method (C_Stat) = AWS.Status.HEAD then
-
             Sockets.New_Line (Sock);
-
          else
             Response.Create_Resource (File, Answer);
-            Send_Resource_Body (File, Length);
+            Send_Resource (File, Length);
          end if;
       end Send_Data;
 
@@ -1259,11 +1256,11 @@ is
       end if;
    end Parse_Request_Line;
 
-   ------------------------
-   -- Send_Resource_Body --
-   ------------------------
+   -------------------
+   -- Send_Resource --
+   -------------------
 
-   procedure Send_Resource_Body
+   procedure Send_Resource
      (File   : in out Resources.File_Type;
       Length :    out Natural)
    is
@@ -1364,7 +1361,7 @@ is
       when others =>
          Resources.Close (File);
          raise;
-   end Send_Resource_Body;
+   end Send_Resource;
 
 begin
    --  This new connection has been initialized because some data are
