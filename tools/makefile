@@ -5,7 +5,7 @@
 
 GARGS	 = -q -m $(GFLAGS) -I../src -I../xsrc -I../soap -I../ssl -I../include $(INCLUDES)
 
-TOOLS	 = awsres
+TOOLS	 = awsres hotplug_password
 GEN      =
 
 ifdef XMLADA
