@@ -264,6 +264,9 @@ private
       Self            : HTTP_Access := HTTP'Unchecked_Access;
       --  Point to the record.
 
+      Start_Time      : Ada.Calendar.Time;
+      --  Date and Time when server was started.
+
       Shutdown        : Boolean     := False;
       --  True when shutdown has been requested.
 
