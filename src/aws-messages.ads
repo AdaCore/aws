@@ -36,6 +36,10 @@ package AWS.Messages is
 
    use Ada;
 
+   -----------------
+   -- HTTP tokens --
+   -----------------
+
    HTTP_Token : constant String := "HTTP/";
 
    Accept_Token : constant String := "Accept: ";
@@ -105,6 +109,10 @@ package AWS.Messages is
    Last_Modified_Token : constant String := "Last-Modified: ";
    subtype Last_Modified_Range is Positive range Last_Modified_Token'Range;
 
+   -----------------
+   -- Status Code --
+   -----------------
+
    type Status_Code is
      (S100, S101,
       --  1xx : Informational - Request received, continuing process
@@ -131,38 +139,60 @@ package AWS.Messages is
 
    function Reason_Phrase (S : in Status_Code) return String;
 
-
-   --  HTTP message constructors
+   -------------------------------
+   -- HTTP message constructors --
+   -------------------------------
 
    function Accept_Type (Mode : in String) return String;
+   pragma Inline (Accept_Type);
 
    function Accept_Language (Mode : in String) return String;
+   pragma Inline (Accept_Language);
 
    function Authorization (Mode, Password : in String) return String;
+   pragma Inline (Authorization);
 
    function Connection (Mode : in String) return String;
+   pragma Inline (Connection);
 
    function Content_Length (Size : in Natural) return String;
+   pragma Inline (Content_Length);
 
-   function Content_Type (Format : in String) return String;
+   function Content_Type
+     (Format   : in String;
+      Boundary : in String := "")
+     return String;
+   pragma Inline (Content_Type);
 
    function Host (Name : in String) return String;
+   pragma Inline (Host);
 
    function Last_Modified (Date : in Calendar.Time) return String;
+   pragma Inline (Last_Modified);
 
    function Location (URL : in String) return String;
+   pragma Inline (Location);
 
    function Proxy_Authorization (Mode, Password : in String) return String;
+   pragma Inline (Proxy_Authorization);
 
    function Proxy_Connection (Mode : in String) return String;
+   pragma Inline (Proxy_Connection);
 
    function SOAPAction (URI : in String) return String;
+   pragma Inline (SOAPAction);
 
    function Status_Line (Code : in Status_Code) return String;
+   pragma Inline (Status_Line);
+
+   function Transfer_Encoding (Encoding : in String) return String;
+   pragma Inline (Transfer_Encoding);
 
    function User_Agent (Name : in String) return String;
+   pragma Inline (User_Agent);
 
    function Www_Authenticate (Realm : in String) return String;
+   pragma Inline (Www_Authenticate);
 
    --  helper functions
 
