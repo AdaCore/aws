@@ -656,13 +656,21 @@ is
                --  First value is the uniq name on the server side
 
                AWS.Parameters.Set.Add
-                 (P_List, To_String (Name), To_String (Server_Filename));
+                 (P_List,
+                  To_String (Name),
+                  To_String (Server_Filename),
+                  Decode => False);
+               --  Do not decode values for multipart/form-data
 
                --  Second value is the original name as found on the client
                --  side.
 
                AWS.Parameters.Set.Add
-                 (P_List, To_String (Name), To_String (Filename));
+                 (P_List,
+                  To_String (Name),
+                  To_String (Filename),
+                  Decode => False);
+               --  Do not decode values for multipart/form-data
 
                --  Read file data, set End_Found if the end-boundary signature
                --  has been read.
@@ -704,7 +712,11 @@ is
                end loop;
 
                AWS.Parameters.Set.Add
-                 (P_List, To_String (Name), To_String (Value));
+                 (P_List,
+                  To_String (Name),
+                  To_String (Value),
+                  Decode => False);
+               --  Do not decode values for multipart/form-data
             end;
 
             if not End_Found then
