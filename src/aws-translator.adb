@@ -39,6 +39,14 @@ package body AWS.Translator is
 
    use Ada.Streams;
 
+   procedure Compress_Decompress
+     (Stream : in out AWS.Resources.Streams.Memory.ZLib.Stream_Type'Class;
+      Data   : access Ada.Streams.Stream_Element_Array;
+      Result :    out Utils.Stream_Element_Array_Access);
+   --  Compress or decompress (depending on the Stream initialization)
+   --  Data. Set result with the compressed or decompressed string. This is
+   --  used to implement the Compress and Decompress routines.
+
    package Conversion is
 
       function To_String
@@ -240,6 +248,26 @@ package body AWS.Translator is
       return Base64_Encode (Stream_Data);
    end Base64_Encode;
 
+   --------------
+   -- Compress --
+   --------------
+
+   function Compress
+     (Data  : access Ada.Streams.Stream_Element_Array;
+      Level : in     Compression_Level                := -1)
+      return Utils.Stream_Element_Array_Access
+   is
+      package Deflate renames AWS.Resources.Streams.Memory.ZLib.Deflate;
+
+      Stream : Deflate.Stream_Type;
+      Result : Utils.Stream_Element_Array_Access;
+   begin
+      Deflate.Init (Stream, Level => Deflate.Compression_Level (Level));
+
+      Compress_Decompress (Stream, Data, Result);
+      return Result;
+   end Compress;
+
    -------------------------
    -- Compress_Decompress --
    -------------------------
@@ -252,6 +280,8 @@ package body AWS.Translator is
       use AWS.Resources.Streams.Memory.ZLib;
 
       Chunk_Size  : constant := 4_096;
+      --  This variable must be kept with a reasonable value as a chunk is
+      --  allocated on the stack.
 
       First, Last : Stream_Element_Offset;
    begin
@@ -290,26 +320,6 @@ package body AWS.Translator is
 
       Close (Stream);
    end Compress_Decompress;
-
-   --------------
-   -- Compress --
-   --------------
-
-   function Compress
-     (Data  : access Ada.Streams.Stream_Element_Array;
-      Level : in     Compression_Level                := -1)
-      return Utils.Stream_Element_Array_Access
-   is
-      package Deflate renames AWS.Resources.Streams.Memory.ZLib.Deflate;
-
-      Stream : Deflate.Stream_Type;
-      Result : Utils.Stream_Element_Array_Access;
-   begin
-      Deflate.Init (Stream, Level => Deflate.Compression_Level (Level));
-
-      Compress_Decompress (Stream, Data, Result);
-      return Result;
-   end Compress;
 
    ----------------
    -- Conversion --
