@@ -32,8 +32,14 @@ LARGS = $(LFLAGS) $(LIBS) -ladasockets
 endif
 endif
 
-build: runme agent auth ws wps com_1 com_2 main hotplug hello_world \
+DEMOS = runme agent auth ws wps com_1 com_2 main hotplug hello_world \
 	text_input vh_demo dispatch res_demo test_ldap
+
+ifdef XMLADA
+DEMOS  := test_jabber
+endif
+
+build: $(DEMOS)
 
 force:
 
@@ -82,6 +88,9 @@ res_demo: force
 
 test_ldap: force
 	gnatmake $(GARGS) test_ldap -bargs $(BARGS) -largs $(LARGS) -lldap
+
+test_jabber: force
+	gnatmake $(GARGS) test_jabber -bargs $(BARGS) -largs $(LARGS)
 
 build_soap: force
 	(if [ -e ../soap/soap.o ] ; then \
