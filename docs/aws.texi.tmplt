@@ -35,7 +35,7 @@
 * How to use it ?::
 * Status page::
 * Last notes::
-* AWS API::
+* AWS API Reference::
 * References::
 * Index::
 @end menu
@@ -1238,6 +1238,14 @@ A complete example can be found in the demos directory. Look for
 @end cartouche
 @end smallexample
 
+@node Server Push
+@section Server Push
+@cindex Server Push
+@cindex Push
+
+@noindent
+To be written.
+
 @node Server Log
 @section Server Log
 @cindex logs
@@ -1458,8 +1466,8 @@ about AWS. In the early stage of the project this is very valuable.
 So thanks goes to Wiljan Derks, Sune Falck, David C. Hoos,
 Jean-Fran@,cois Rameau.
 
-@node AWS API
-@chapter AWS API
+@node AWS API Reference
+@chapter AWS API Reference
 
 @ifinfo
 @menu
@@ -1476,6 +1484,7 @@ Jean-Fran@,cois Rameau.
 * AWS.Response::
 * AWS.Server::
 * AWS.Server.Hotplug::
+* AWS.Server.Push::
 * AWS.Session::
 * AWS.Status::
 @end menu
@@ -1558,6 +1567,12 @@ Jean-Fran@,cois Rameau.
 @cindex AWS.Server.Hotplug
 
 @include ../src/aws-server-hotplug.ads.texi
+
+@node AWS.Server.Push
+@section AWS.Server.Push
+@cindex AWS.Server.Push
+
+@include ../src/aws-server-push.ads.texi
 
 @node AWS.Session
 @section AWS.Session
