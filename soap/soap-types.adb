@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2003                          --
+--                         Copyright (C) 2000-2004                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -218,6 +218,19 @@ package body SOAP.Types is
       end if;
    end Get;
 
+   function Get (O : in Object'Class) return Long is
+      use type Ada.Tags.Tag;
+   begin
+      if O'Tag = Types.XSD_Long'Tag then
+         return V (XSD_Long (O));
+
+      else
+         Exceptions.Raise_Exception
+           (Data_Error'Identity,
+            "Long expected, found " & Tags.Expanded_Name (O'Tag));
+      end if;
+   end Get;
+
    function Get (O : in Object'Class) return Long_Float is
       use type Ada.Tags.Tag;
    begin
@@ -341,7 +354,7 @@ package body SOAP.Types is
    function I
      (V    : in Integer;
       Name : in String := "item")
-     return XSD_Integer is
+      return XSD_Integer is
    begin
       return (Finalization.Controlled with To_Unbounded_String (Name), V);
    end I;
@@ -362,6 +375,20 @@ package body SOAP.Types is
 
    function Image (O : in XSD_Integer) return String is
       V : constant String := Integer'Image (O.V);
+   begin
+      if O.V >= 0 then
+         return V (V'First + 1 .. V'Last);
+      else
+         return V;
+      end if;
+   end Image;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image (O : in XSD_Long) return String is
+      V : constant String := Long'Image (O.V);
    begin
       if O.V >= 0 then
          return V (V'First + 1 .. V'Last);
@@ -543,6 +570,18 @@ package body SOAP.Types is
    end Initialize;
 
    -------
+   -- L --
+   -------
+
+   function L
+     (V    : in Long;
+      Name : in String := "item")
+      return XSD_Long is
+   begin
+      return (Finalization.Controlled with To_Unbounded_String (Name), V);
+   end L;
+
+   -------
    -- N --
    -------
 
@@ -565,8 +604,8 @@ package body SOAP.Types is
    -------
 
    function R
-     (V    : in Object_Set;
-      Name : in String;
+     (V         : in Object_Set;
+      Name      : in String;
       Type_Name : in String := "")
       return SOAP_Record
    is
@@ -656,6 +695,11 @@ package body SOAP.Types is
    -------
 
    function V (O : in XSD_Integer) return Integer is
+   begin
+      return O.V;
+   end V;
+
+   function V (O : in XSD_Long) return Long is
    begin
       return O.V;
    end V;
@@ -754,6 +798,15 @@ package body SOAP.Types is
    ---------------
 
    function XML_Image (O : in XSD_Integer) return String is
+   begin
+      return XML_Image (Object (O));
+   end XML_Image;
+
+   ---------------
+   -- XML_Image --
+   ---------------
+
+   function XML_Image (O : in XSD_Long) return String is
    begin
       return XML_Image (Object (O));
    end XML_Image;
@@ -997,6 +1050,12 @@ package body SOAP.Types is
       pragma Warnings (Off, O);
    begin
       return XML_Int;
+   end XML_Type;
+
+   function XML_Type (O : in XSD_Long) return String is
+      pragma Warnings (Off, O);
+   begin
+      return XML_Long;
    end XML_Type;
 
    function XML_Type (O : in XSD_Float) return String is
