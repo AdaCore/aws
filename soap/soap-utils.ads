@@ -146,8 +146,13 @@ package SOAP.Utils is
    --  parameter. This is supposed to be a string with a single character
    --  to map to Ada type.
 
-   function US
-     (V    : in Unbounded_String;
+   function Any
+     (V    : in Types.XSD_Any_Type;
+      Name : in String  := "item")
+      return Types.XSD_Any_Type;
+   --  Return V with the given name
+
+   function US     (V    : in Unbounded_String;
       Name : in String  := "item")
       return Types.XSD_String;
    --  Returns the SOAP string for the given Unbounded_String value and name
