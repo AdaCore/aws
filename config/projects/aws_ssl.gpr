@@ -34,6 +34,7 @@ with "../components/components";
 with "crypto_lib";
 with "ssl_lib";
 with "xmlada";
+with "ai302";
 
 project AWS_SSL is
 
