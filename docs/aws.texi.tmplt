@@ -321,7 +321,7 @@ $ make gnatsockets
 @item AdaSockets implementation
 
 Version using @code{AdaSockets} packages. This was the default implementation
-used up to AWS 1.2. To select this implementation just do:
+used up to @code{AWS} 1.2. To select this implementation just do:
 
 @smallexample
 @cartouche
@@ -340,12 +340,22 @@ $ make adasockets
 @cindex Building
 
 @noindent
-When you have built and configured all libraries you must either set
-@var{ADA_INCLUDE_PATH} and @var{ADA_OBJECTS_PATH} (for @code{GNAT}) to
-point to the right directories or update the @var{ADASOCKETS},
-@var{XMLADA} and @var{INSTALL} variables in the top
-@file{makefile.conf}. You should have a look at file @file{INSTALL}
-for installation instructions.
+Before building be sure to edit @file{makefile.conf}, this file
+contains many settings important for the build. Note that it is
+important to run @code{make setup} each time you edit this file.
+
+@noindent
+When you have built and configured all external libraries you must set the
+@var{ADA_PROJECT_PATH} variable to point to the GNAT Project files for
+the different packages. At this point only @code{XML/Ada} is based on
+GNAT Project files. For @code{XML/Ada} support, you also need to set
+@var{XMLADA} in @file{makefile.conf}.
+
+@noindent
+The last step is to to add directory @file{<prefix>/AWS/.build/projects} at
+the end of @var{ADA_PROJECT_PATH} variable. This directory contains
+generated project files for packages that are not yet based on GNAT
+Project files.
 
 @noindent
 At this point you can build @code{AWS} with:
@@ -353,6 +363,7 @@ At this point you can build @code{AWS} with:
 @smallexample
 @cartouche
 @group
+$ make setup
 $ make build
 @end group
 @end cartouche
@@ -371,6 +382,7 @@ rebuild with:
 @smallexample
 @cartouche
 @group
+$ make setup
 $ make build
 @end group
 @end cartouche
@@ -387,40 +399,22 @@ It is is possible to build @code{AWS} in debug mode by setting
 @smallexample
 @cartouche
 @group
-$ make build DEBUG=1
+$ make DEBUG=1 build 
 @end group
 @end cartouche
 @end smallexample
 
 @noindent
-Others make's targets are:
-
-@table @code
-
-@item build_lib
-
-Build AWS library only.
-
-@item build_tools
-
-Build AWS tools only.
-
-@item build_demos
-
-Build AWS demos only.
-
-@end table
-
-@noindent
 For example, if you use @code{GNAT} and want to use the @code{GNAT.Sockets}
-implementation, you can build and install AWS with (you do not need to
+implementation, you can build and install @code{AWS} with (you do not need to
 edit the makefile.conf):
 
 @smallexample
 @cartouche
 @group
+$ make setup
 $ make build
-$ make install INSTALL=/opt
+$ make INSTALL=/opt install
 @end group
 @end cartouche
 @end smallexample
