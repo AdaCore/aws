@@ -59,7 +59,7 @@ endif
 # SOAP/WSDL test using ada2wsdl (ASIS package required)
 # Names must start with wsdl_ and be followed by a single digit between 0
 # and 9. Socket port is then 770<digit>.
-RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6
+RT_SOAP_ASIS = wsdl_1 wsdl_2 wsdl_3 wsdl_4 wsdl_5 wsdl_6 wsdl_7
 
 RT_SOAP_ASIS_PARSE = wsdl_a wsdl_b
 
@@ -134,9 +134,9 @@ init:
 	cp ../demos/cert.pem .
 	touch -t `date --date='Feb 3 04:05:00 GMT 2001' +%Y%m%d%H%M` \
 	   ../icons/*.gif
-	-mkdir ../icons/test-dir1
-	-mkdir ../icons/test-dir2
-	-mkdir ../icons/test-dir3
+	-mkdir ../icons/test-dir1 2> /dev/null
+	-mkdir ../icons/test-dir2 2> /dev/null
+	-mkdir ../icons/test-dir3 2> /dev/null
 	touch -t `date --date='Jan 2 03:04:00 GMT 2004' +%Y%m%d%H%M` \
 	   ../icons/test-dir?
 	echo "" > alldifs
