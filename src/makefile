@@ -32,7 +32,7 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-templates.ads aws-translator.adb aws-url-raise_url_error.adb \
 	aws-url.adb aws-utils.adb aws.ads aws-exceptions.ads \
 	aws-status-translate_table.adb aws-server-status.adb \
-	aws-server-log.adb
+	aws-server-log.adb aws-pop.adb
 
 ifdef XMLADA
 SOURCES := $(SOURCES) ../xsrc/aws-jabber.adb
