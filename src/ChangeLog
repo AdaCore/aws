@@ -1,3 +1,13 @@
+2002-07-28  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* aws-client.adb:
+	(Read_Binary_Message): Free memory if the connection is closed by
+	 the peer.
+	(Get_Response): Fix compilation error. Elements can't be a
+	 constant.
+	(Cleaner_Task): Fix typo in previous check-in.
+	Minor reformatting.
+
 2002-07-17  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-client.adb:
