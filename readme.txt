@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                             March 19th, 2004
+   Pascal Obry                                             March 22th, 2004
 
 
 
@@ -245,7 +245,7 @@ AWS 2.0 has been compiled and has passed all tests on:
 Others platforms / compiler version combinations have not been tested, it
 does not mean that it's not working.
 
-Previous version of AWS have been build on FreeBSD 4.1 and MacOSX.
+Previous version of AWS have been built on FreeBSD 4.1 and MacOSX.
 
 
 Pointers:
