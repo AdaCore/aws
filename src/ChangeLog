@@ -1,5 +1,8 @@
 2003-12-04  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-resources-streams-memory.ads:
+	(Append): Minor comment fixes.
+
 	* aws-services-files.adb:
 	(Open): Use Z_Filename everywhere. Minor comment fix and reformatting.
 
