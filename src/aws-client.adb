@@ -387,6 +387,7 @@ package body AWS.Client is
 
          if Connection.Socket /= null then
             Net.Buffered.Shutdown (Connection.Socket.all);
+            Net.Free (Connection.Socket);
          end if;
       end if;
    end Disconnect;
