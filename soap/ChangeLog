@@ -1,3 +1,9 @@
+2003-06-20  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* soap-dispatchers.ads, soap-dispatchers.adb,
+	  soap-dispatchers-callback.ads, soap-dispatchers-callback.adb:
+	New packages for be able to have special SOAP dispatchers and callbacks.
+
 2003-06-19  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* soap-generator.adb, soap-generator-stub.adb, soap-generator-skel.adb:
