@@ -81,7 +81,6 @@ procedure Sock3_Proc (Security : Boolean; Port : Positive) is
       delay 0.125;
 
       Net.Connect (Client, "localhost", Free_Port);
-
       Net.Set_Timeout (Client, 0.5);
 
       loop
@@ -91,13 +90,14 @@ procedure Sock3_Proc (Security : Boolean; Port : Positive) is
             Buffer : Stream_Element_Array (1 .. NVL (Net.Pending (Client)));
             Last   : Stream_Element_Offset;
          begin
-            --  Want see.
+            --  Want see ?
             --  Text_IO.Put_Line (Buffer'Length'Img);
 
             Net.Receive (Client, Buffer, Last);
 
-            if Last < Buffer'Last then
-               Text_IO.Put_Line ("Last < Buffer'Last");
+            if Last /= Buffer'Last then
+               Text_IO.Put_Line
+                 (Last'Img & " Last /= Buffer'Last" & Buffer'Last'Img);
             end if;
 
             Size := Size + Buffer'Length;
