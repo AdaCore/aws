@@ -34,8 +34,6 @@ APIFILES = ../src/aws.ads.texi \
 	../src/aws-resources-streams.ads.texi \
 	../src/aws-resources-streams-memory.ads.texi \
 	../src/aws-resources-streams-memory-zlib.ads.texi \
-	../src/aws-resources-streams-memory-zlib-deflate.ads.texi \
-	../src/aws-resources-streams-memory-zlib-inflate.ads.texi \
 	../src/aws-resources.ads.texi \
 	../src/aws-response.ads.texi \
 	../src/aws-server-hotplug.ads.texi \
@@ -120,7 +118,7 @@ aws.dvi: aws.texi $(APIFILES)
 
 prog: build.adb
 	$(GNATMAKE) -m -q build -I../src -I../soap -I../include \
-		$(INCLUDES) -largs $(LIBS)
+		$(INCLUDES) -largs $(LIBS) -L../lib -lz
 
 aws.texi: prog aws.texi.tmplt
 	./build | tr -d '\r' > aws.texi
