@@ -52,9 +52,6 @@ package body AWS.Net.Std is
 
    procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type);
 
-   function Get_Send_Buffer (Socket : in Socket_Type) return Natural;
-   --  Returns size of internal send buffer.
-
    procedure Free is
       new Ada.Unchecked_Deallocation (Socket_Hidden, Socket_Hidden_Access);
 
@@ -154,6 +151,22 @@ package body AWS.Net.Std is
       return Integer (Sockets.Get_FD (Socket.S.FD));
    end Get_FD;
 
+   ------------------------
+   -- Get_Receive_Buffer --
+   ------------------------
+
+   function Get_Receive_Buffer (Socket : in Socket_Type) return Natural is
+      use Sockets;
+      Size : Natural;
+   begin
+      Getsockopt (Socket.S.FD, Optname => SO_RCVBUF, Optval => Size);
+
+      return Size;
+   exception
+      when E : others =>
+         Raise_Exception (E, "Get_Receive_Buffer");
+   end Get_Receive_Buffer;
+
    ---------------------
    -- Get_Send_Buffer --
    ---------------------
@@ -166,7 +179,7 @@ package body AWS.Net.Std is
 
       return Size;
    exception
-      when E : others =>
+      when E : Sockets.Socket_Error =>
          Raise_Exception (E, "Get_Send_Buffer");
    end Get_Send_Buffer;
 
@@ -376,6 +389,7 @@ package body AWS.Net.Std is
    procedure Wait_For (Mode : in Wait_Mode; Socket : in Socket_Type) is
       use Sockets;
       use type C.int;
+      use type C.short;
 
       To_Poll_Mode : constant array (Wait_Mode) of C.short
         := (Read => Constants.Pollin, Write => Constants.Pollout);
@@ -402,7 +416,14 @@ package body AWS.Net.Std is
             Ada.Exceptions.Raise_Exception
               (Socket_Error'Identity,
                Wait_Mode'Image (Mode) & " timeout.");
-         when  1 => return;
+         when  1 =>
+            if PFD.Revents = To_Poll_Mode (Mode) then
+               return;
+            else
+               Ada.Exceptions.Raise_Exception
+                 (Socket_Error'Identity,
+                  Wait_Mode'Image (Mode) & "_Wait error.");
+            end if;
          when others => raise Program_Error;
       end case;
    end Wait_For;
