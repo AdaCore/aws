@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                         Copyright (C) 2000-2001                          --
+--                         Copyright (C) 2000-2002                          --
 --                                ACT-Europe                                --
 --                                                                          --
 --  Authors: Dmitriy Anisimkov - Pascal Obry                                --
@@ -45,6 +45,9 @@ with AWS.Dispatchers.Callback;
 package body AWS.Server is
 
    use Ada;
+
+   procedure Free is new Ada.Unchecked_Deallocation
+     (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
 
    protected File_Upload_UID is
       procedure Get (ID : out Natural);
@@ -368,6 +371,21 @@ package body AWS.Server is
 
    end Semaphore;
 
+   ---------
+   -- Set --
+   ---------
+
+   procedure Set
+     (Web_Server : in out HTTP;
+      Dispatcher : in     Dispatchers.Handler'Class)
+   is
+      Old : Dispatchers.Handler_Class_Access := Web_Server.Dispatcher;
+   begin
+      Web_Server.Dispatcher :=
+         new Dispatchers.Handler'Class'(Dispatcher);
+      Free (Old);
+   end Set;
+
    --------------------------------------
    -- Set_Unexpected_Exception_Handler --
    --------------------------------------
@@ -402,9 +420,6 @@ package body AWS.Server is
 
       procedure Free is
          new Ada.Unchecked_Deallocation (Line, Line_Access);
-
-      procedure Free is new Ada.Unchecked_Deallocation
-        (Dispatchers.Handler'Class, Dispatchers.Handler_Class_Access);
 
       All_Lines_Terminated : Boolean := False;
 
