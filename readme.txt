@@ -4,7 +4,7 @@
 				       
 Authors:
    Dmitriy Anisimkov
-   Pascal Obry                                               June 14rd, 2002,
+   Pascal Obry                                            September 18th, 2002,
 
 
 
@@ -45,6 +45,13 @@ Here are the main changes:
      tree and the AWSRes tools to help building the embedded resources.
 
    - Add support for client upload (see AWS.Client.Upload).
+
+   - Send file size in the chunk transfert encoding. This make it possible for
+     the browser to display the download's progression.
+
+   - Fix SOAP name space handling. It is now possible to set the name space
+     for a Payload and AWS correctly set the name space as defined in incoming
+     requests.
 
    - Add complete HTML code browsing facility using gnathtml. See
      aws/docs/html directory.
