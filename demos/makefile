@@ -19,7 +19,7 @@ BARGS = -E
 LARGS =
 endif
 
-build: runme agent auth ws com_1 com_2 main hotplug
+build: runme agent auth ws com_1 com_2 main hotplug hello_world
 
 runme:
 	gnatmake $(GARGS) runme -bargs $(BARGS) -largs $(LARGS)
@@ -44,6 +44,9 @@ main:
 
 hotplug:
 	gnatmake $(GARGS) hotplug -bargs $(BARGS) -largs $(LARGS)
+
+hello_world:
+	gnatmake $(GARGS) hello_world -bargs $(BARGS) -largs $(LARGS)
 
 clean:
 	-rm -f .o *.ali *.exe b~runme.* b~agent.*
