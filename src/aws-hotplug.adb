@@ -97,9 +97,22 @@ package body AWS.Hotplug is
                      & URI (URI'First + 1 .. URI'Last)
                      & Parameters);
                else
-                  Data := Client.Post
-                    (To_String (Item.URL) & URI (URI'First + 1 .. URI'Last),
-                     AWS.Status.Binary_Data (Status));
+                  --  This is a POST, check if it is a SOAP request
+                  declare
+                     Resource : constant String
+                       := URI (URI'First + 1 .. URI'Last);
+                  begin
+                     if AWS.Status.Is_SOAP (Status) then
+                        Data := Client.SOAP_Post
+                          (To_String (Item.URL) & Resource,
+                           AWS.Status.Payload (Status),
+                           AWS.Status.SOAPAction (Status));
+                     else
+                        Data := Client.Post
+                          (To_String (Item.URL) & Resource,
+                           AWS.Status.Binary_Data (Status));
+                     end if;
+                  end;
                end if;
 
                exit Look_For_Filters;
@@ -158,7 +171,8 @@ package body AWS.Hotplug is
       Cursor : Filter_Table.Cursor;
       U      : Unbounded_String;
    begin
-      --  Add / at the end of the URL is needed
+      --  Add '/' at the end of the URL if needed
+
       if URL'Length > 0 and then URL (URL'Last) /= '/' then
          U := To_Unbounded_String (URL & '/');
       else
