@@ -65,18 +65,18 @@ is
    C_Stat  : AWS.Status.Data;         --  connection status
 
    procedure Parse (Command : in String);
-   --  parse a line sent by the client and do what is needed
+   --  Parse a line sent by the client and do what is needed
 
    procedure Send_File (Filename          : in String;
                         HTTP_Version      : in String);
-   --  send content of filename as chunk data
+   --  Send content of filename as chunk data
 
    procedure Answer_To_Client;
    --  This procedure use the C_Stat status data to send the correct answer
    --  to the client.
 
    procedure Get_Message_Header;
-   --  parse HTTP message header. This procedure fill in the C_Stat status
+   --  Parse HTTP message header. This procedure fill in the C_Stat status
    --  data.
 
    procedure Get_Message_Data;
@@ -110,25 +110,25 @@ is
       Status : Messages.Status_Code;
 
       Send_Session_Cookie : Boolean := False;
-      --  will be set to True if a session Cookie must be sent in the header.
+      --  Will be set to True if a session Cookie must be sent in the header.
 
       procedure Create_Session;
-      --  create a session if needed
+      --  Create a session if needed
 
       procedure Header_Date_Serv;
-      --  send the Date: and Server: data
+      --  Send the Date: and Server: data
 
       procedure Send_Connection;
-      --  send the Connection: data
+      --  Send the Connection: data
 
       procedure Send_Header;
-      --  send HTTP message header.
+      --  Send HTTP message header.
 
       procedure Send_File;
-      --  send a binary file to the client
+      --  Send a binary file to the client
 
       procedure Send_Message;
-      --  answer by a text or HTML message.
+      --  Answer by a text or HTML message.
 
       --------------------
       -- Create_Session --
@@ -219,7 +219,7 @@ is
          Sockets.Put_Line
            (Sock, Messages.Content_Type (Response.Content_Type (Answer)));
 
-         --  send message body only if needed
+         --  Send message body only if needed
 
          if AWS.Status.Method (C_Stat) = AWS.Status.HEAD then
             --  Send file info and terminate header
@@ -235,7 +235,7 @@ is
 
       exception
          when AWS.OS_Lib.No_Such_File =>
-            --  file was not found, just ignore.
+            --  File was not found, just ignore.
             null;
       end Send_File;
 
@@ -256,7 +256,7 @@ is
 
          Sockets.Put_Line (Sock, Messages.Content_Length (0));
 
-         --  the message content type
+         --  The message content type
 
          if Status = Messages.S401 then
             Sockets.Put_Line
@@ -294,7 +294,7 @@ is
            (Sock,
             Messages.Content_Length (Response.Content_Length (Answer)));
 
-         --  the message content type
+         --  The message content type
 
          Sockets.Put_Line
            (Sock,
@@ -310,7 +310,7 @@ is
 
          Sockets.New_Line (Sock);
 
-         --  send message body only if needed
+         --  Send message body only if needed
 
          if AWS.Status.Method (C_Stat) /= AWS.Status.HEAD then
             Sockets.Put_Line (Sock, Response.Message_Body (Answer));
@@ -327,7 +327,8 @@ is
       --  AWS Internal status page handling.
 
       if URI = Admin_URI then
-         --  status page
+
+         --  Status page
          begin
             Answer := Response.Build
               (Content_Type => MIME.Text_HTML,
@@ -341,32 +342,32 @@ is
          end;
 
       elsif URI = Admin_URI & "-logo" then
-         --  status page logo
+         --  Status page logo
          Answer := Response.File
            (Content_Type => MIME.Image_Gif,
             Filename     => "logo.gif");
 
       elsif URI = Admin_URI & "-uparr" then
-         --  status page hotplug up-arrow
+         --  Status page hotplug up-arrow
          Answer := Response.File
            (Content_Type => MIME.Image_Gif,
             Filename     => "up.gif");
 
       elsif URI = Admin_URI & "-downarr" then
-         --  status page hotplug down-arrow
+         --  Status page hotplug down-arrow
          Answer := Response.File
            (Content_Type => MIME.Image_Gif,
             Filename     => "down.gif");
 
       elsif URI = Admin_URI & "-HPup" then
-         --  status page hotplug up message
+         --  Status page hotplug up message
          Hotplug.Move_Up
            (HTTP_Server.Filters,
             Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
          Answer := Response.Moved (Admin_URI);
 
       elsif URI = Admin_URI & "-HPdown" then
-         --  status page hotplug down message
+         --  Status page hotplug down message
          Hotplug.Move_Down
            (HTTP_Server.Filters,
             Positive'Value (AWS.Status.Parameter (C_Stat, "N")));
@@ -375,7 +376,7 @@ is
       --  End of Internal status page handling.
 
       else
-         --  otherwise, check if a session needs to be created
+         --  Otherwise, check if a session needs to be created
 
          Create_Session;
 
@@ -384,12 +385,12 @@ is
          declare
             Found : Boolean;
          begin
-            --  check the hotplug filters
+            --  Check the hotplug filters
 
             Hotplug.Apply (HTTP_Server.Filters,
                            AWS.Status.URI (C_Stat), Found, Answer);
 
-            --  if no one applied, run the default callback
+            --  If no one applied, run the default callback
             if not Found then
                Answer := HTTP_Server.CB (C_Stat);
             end if;
@@ -424,7 +425,7 @@ is
 
       procedure File_Upload (Start_Boundary, End_Boundary : in String;
                              Parse_Boundary               : in Boolean);
-      --  handle file upload data coming from the client browser.
+      --  Handle file upload data coming from the client browser.
 
       function Value_For (Name : in String; Into : in String) return String;
       --  Returns the value for the variable named "Name" into the string
@@ -448,7 +449,7 @@ is
          Is_File_Upload  : Boolean;
 
          procedure Get_File_Data;
-         --  read file data from the stream.
+         --  Read file data from the stream.
 
          function Target_Filename (Filename : in String) return String;
          --  Returns the full path name for the file as stored on the
@@ -632,7 +633,7 @@ is
             end loop;
          end if;
 
-         --  read file upload parameters
+         --  Read file upload parameters
 
          declare
             Data : constant String := Sockets.Get_Line (Sock);
@@ -640,11 +641,13 @@ is
             Is_File_Upload := Fixed.Index (Data, "filename=") /= 0;
 
             if not Parse_Boundary then
+
                if Data = "--" then
-                  --  check if this is the end of the finish boundary string.
+                  --  Check if this is the end of the finish boundary string.
                   return;
+
                else
-                  --  data should be CR+LF here
+                  --  Data should be CR+LF here
                   declare
                      Data : constant String := Sockets.Get_Line (Sock);
                   begin
@@ -654,19 +657,20 @@ is
                        := To_Unbounded_String (Value_For ("filename", Data));
                   end;
                end if;
+
             else
                Name     := To_Unbounded_String (Value_For ("name", Data));
                Filename := To_Unbounded_String (Value_For ("filename", Data));
             end if;
          end;
 
-         --  set Target_Filename, the name of the file in the local file
+         --  Set Target_Filename, the name of the file in the local file
          --  sytstem.
 
          Server_Filename := To_Unbounded_String
            (Target_Filename (To_String (Filename)));
 
-         --  reach the data
+         --  Reach the data
 
          loop
             declare
@@ -682,10 +686,10 @@ is
             end;
          end loop;
 
-         --  read file/field data
+         --  Read file/field data
 
          if Is_File_Upload then
-            --  this part of the multipart message contains file data.
+            --  This part of the multipart message contains file data.
 
             if To_String (Filename) /= "" then
                AWS.Status.Set.Parameters
@@ -697,7 +701,7 @@ is
                             "--" & Status.Multipart_Boundary (C_Stat) & "--",
                             False);
             else
-               --  there is no file for this multipart, user did not enter
+               --  There is no file for this multipart, user did not enter
                --  something in the field.
 
                File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
@@ -706,7 +710,7 @@ is
             end if;
 
          else
-            --  this part of the multipart message contains field value.
+            --  This part of the multipart message contains field value.
 
             declare
                Value : constant String := Sockets.Get_Line (Sock);
@@ -738,7 +742,7 @@ is
       end Value_For;
 
    begin
-      --  is there something to read ?
+      --  Is there something to read ?
 
       if Status.Content_Length (C_Stat) /= 0 then
 
@@ -746,7 +750,7 @@ is
            and then Status.Content_Type (C_Stat) = Messages.Form_Data
 
          then
-            --  read data from the stream and convert it to a string as
+            --  Read data from the stream and convert it to a string as
             --  these are a POST form parameters.
             --  The body as the format: name1=value1;name2=value2...
 
@@ -770,14 +774,14 @@ is
          elsif Status.Method (C_Stat) = Status.POST
            and then Status.Content_Type (C_Stat) = Messages.Multipart_Form_Data
          then
-            --  this is a file upload.
+            --  This is a file upload.
 
             File_Upload ("--" & Status.Multipart_Boundary (C_Stat),
                          "--" & Status.Multipart_Boundary (C_Stat) & "--",
                          True);
 
          else
-            --  let's suppose for now that all others content type data are
+            --  Let's suppose for now that all others content type data are
             --  binary data.
 
             begin
@@ -810,7 +814,7 @@ is
             declare
                Data : constant String := Sockets.Get_Line (Sock);
             begin
-               --  a request by the client has been received, do not abort
+               --  A request by the client has been received, do not abort
                --  until this request is handled.
 
                HTTP_Server.Slots.Set_Abortable (Index, False);
@@ -824,7 +828,7 @@ is
 
          exception
             when others =>
-               --  here we time-out on Sockets.Get_Line
+               --  Here we time-out on Sockets.Get_Line
                raise Sockets.Connection_Closed;
          end;
       end loop;
@@ -870,28 +874,28 @@ is
    procedure Parse (Command : in String) is
 
       I1, I2 : Natural;
-      --  index of first space and second space
+      --  Index of first space and second space
 
       I3 : Natural;
-      --  index of ? if present in the URI (means that there is some
+      --  Index of ? if present in the URI (means that there is some
       --  parameters)
 
       procedure Cut_Command;
-      --  parse Command and set I1, I2 and I3
+      --  Parse Command and set I1, I2 and I3
 
       function URI return String;
       pragma Inline (URI);
-      --  returns first parameter. parameters are separated by spaces.
+      --  Returns first parameter. parameters are separated by spaces.
 
       function Parameters return String;
-      --  returns parameters if some where specified in the URI.
+      --  Returns parameters if some where specified in the URI.
 
       function HTTP_Version return String;
       pragma Inline (HTTP_Version);
-      --  returns second parameter. parameters are separated by spaces.
+      --  Returns second parameter. parameters are separated by spaces.
 
       function Parse_Request_Line (Command : in String) return Boolean;
-      --  parse the request line:
+      --  Parse the request line:
       --  Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 
       -----------------
@@ -1050,10 +1054,10 @@ is
    is
 
       procedure Send_File;
-      --  send file in one part
+      --  Send file in one part
 
       procedure Send_File_Chunked;
-      --  send file in chunk (HTTP/1.1 only)
+      --  Send file in chunk (HTTP/1.1 only)
 
       File : Streams.Stream_IO.File_Type;
       Last : Streams.Stream_Element_Offset;
@@ -1069,12 +1073,12 @@ is
          Buffer : Streams.Stream_Element_Array (1 .. 4_096);
 
       begin
-         --  terminate header
+         --  Terminate header
 
          Send_File_Size (Sock, Filename);
          Sockets.New_Line (Sock);
 
-         --  send file content
+         --  Send file content
 
          loop
             Streams.Stream_IO.Read (File, Buffer, Last);
@@ -1091,7 +1095,7 @@ is
       procedure Send_File_Chunked is
 
          function Hex (V : in Natural) return String;
-         --  returns the hexadecimal string representation of the decimal
+         --  Returns the hexadecimal string representation of the decimal
          --  number V.
 
          Buffer : Streams.Stream_Element_Array (1 .. 1_024);
@@ -1105,7 +1109,7 @@ is
          end Hex;
 
       begin
-         --  terminate header
+         --  Terminate header
 
          Sockets.Put_Line (Sock, "Transfer-Encoding: chunked");
          Sockets.New_Line (Sock);
@@ -1121,7 +1125,7 @@ is
             Sockets.New_Line (Sock);
          end loop;
 
-         --  last chunk
+         --  Last chunk
 
          Sockets.Put_Line (Sock, "0");
          Sockets.New_Line (Sock);
@@ -1138,8 +1142,8 @@ is
       else
          --  Always use chunked transfer encoding method for HTTP/1.1 even if
          --  it also support standard method.
-         --  ??? it could be better to use the standard method for small file
-         --  (could be faster).
+         --  ??? it could be better to use the standard method for small files
+         --  (should be faster).
 
          Send_File_Chunked;
       end if;
@@ -1179,7 +1183,7 @@ is
 begin
    C_Stat := Status.No_Data;
 
-   --  this new connection has been initialized because some data are
+   --  This new connection has been initialized because some data are
    --  beeing sent. We are by default using HTTP/1.1 persistent
    --  connection. We will exit this loop only if the client request
    --  so or if we time-out on waiting for a request.
@@ -1192,7 +1196,7 @@ begin
 
       Answer_To_Client;
 
-      --  exit if connection has not the Keep-Alive status or we are working
+      --  Exit if connection has not the Keep-Alive status or we are working
       --  on HTTP/1.0 protocol or we have a single slot.
 
       exit For_Every_Request when Status.Connection (C_Stat) /= "Keep-Alive"
