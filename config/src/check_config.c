@@ -24,9 +24,22 @@
 #include <sys/filio.h>
 #endif
 
+/* For systems without IPv6 support */
+
+#ifndef AI_PASSIVE
+#define NO_IPV6_SUPPORT
+#define AI_PASSIVE -1
+#define AI_CANONNAME -1
+#define AI_NUMERICHOST -1
+#define EAI_SYSTEM -1
+#define PF_INET6 -1
+#define AF_INET6 -1
+#endif
+
 int
 main (void)
 {
+#ifndef NO_IPV6_SUPPORT
   const struct addrinfo ai;
 
   const void *ai_ptr = &ai;
@@ -39,6 +52,16 @@ main (void)
   const int ai_addr_offset      = (void *)&ai.ai_addr      - ai_ptr;
   const int ai_canonname_offset = (void *)&ai.ai_canonname - ai_ptr;
   const int ai_next_offset      = (void *)&ai.ai_next      - ai_ptr;
+#else
+  const int ai_flags_offset     = -8;
+  const int ai_family_offset    = -7;
+  const int ai_socktype_offset  = -6;
+  const int ai_protocol_offset  = -5;
+  const int ai_addrlen_offset   = -4;
+  const int ai_addr_offset      = -3;
+  const int ai_canonname_offset = -2;
+  const int ai_next_offset      = -1;
+#endif
 
 #if defined(__FreeBSD__) || defined(_WIN32)
   const int s_nfds_t = sizeof (int) * 8;
