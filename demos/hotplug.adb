@@ -69,7 +69,7 @@ procedure Hotplug is
          AWS.Communication.Parameters (Filter));
    end Wait_Terminate;
 
-   WS : AWS.Server.HTTP (3);
+   WS : AWS.Server.HTTP;
 
 begin
    if Command_Line.Argument_Count /= 1 then
@@ -84,9 +84,10 @@ begin
                      Command_Line.Argument (1));
 
    AWS.Server.Start (WS, "Hotplug",
-                     Admin_URI => "/Admin-Page",
-                     Port      => 1235,
-                     Callback  => Hotplug_CB.Hotplug'Access);
+                     Admin_URI      => "/Admin-Page",
+                     Port           => 1235,
+                     Max_Connection => 3,
+                     Callback       => Hotplug_CB.Hotplug'Access);
 
    Response := AWS.Communication.Client.Send_Message
      (Command_Line.Argument (1), 2222,

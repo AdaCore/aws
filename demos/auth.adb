@@ -58,13 +58,14 @@ procedure Auth is
       end if;
    end Get;
 
-   WS : AWS.Server.HTTP (10);
+   WS : AWS.Server.HTTP;
 
 begin
    Text_IO.Put_Line ("AWS " & AWS.Version);
    Text_IO.Put_Line ("Kill me when you want me to stop...");
 
    AWS.Server.Start (WS, "Auth demo",
-                     Port     => 1234,
-                     Callback => Get'Unrestricted_Access);
+                     Port           => 1234,
+                     Max_Connection => 10,
+                     Callback       => Get'Unrestricted_Access);
 end Auth;
