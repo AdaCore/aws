@@ -143,7 +143,7 @@ package body Runme_CB is
             & "<p>I'm the runme demo. Note that this"
             & " message could have been"
             & " fetched on my file system..."
-            & "See <a href=""http://perso.wanadoo.fr/pascal.obry/"
+            & "See <a href=""http://www.obry.net/archive/"
             & "templates_parser.html"">Templates_Parser</a> :)"
             & "<p>counter = " & Natural'Image (C)
             & "<p><img src=""/first_img"">"
