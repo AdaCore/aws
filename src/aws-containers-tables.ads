@@ -40,6 +40,8 @@ with AI302.Strings.Hash;
 package AWS.Containers.Tables is
 
    type Table_Type is tagged private;
+   --  A Table_Type must be initialized by calling
+   --  AWS.Containers.Tables.Set.Reset, Server is responsible for doing that.
 
    type Element (Name_Length, Value_Length : Natural) is record
       Name  : String (1 .. Name_Length);
@@ -109,8 +111,6 @@ package AWS.Containers.Tables is
    --  Returns all values for the specified parameter key name.
 
 private
-   --  A Table_Type must be initialized by calling
-   --  AWS.Containers.Tables.Set.Reset, Server is responsible for doing that.
 
    Null_Element : constant Element := (0, 0, "", "");
 
