@@ -17,6 +17,14 @@
 	* back_proc.adb, huge_response_proc.adb:
 	Replaced by XXXX_pack.
 
+2004-06-17  Pascal Obry  <pascal@obry.org>
+
+	* simple.adb:
+	Use Get_Free_Port instead of an hard coded port number.
+
+	* get_free_port.adb:
+	Initial revision.
+
 2004-06-17  Dmitriy Anisimkov <anisimkov@yahoo.com>
 
 	* sock2_proc.adb:

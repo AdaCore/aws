@@ -494,6 +494,7 @@ upload3.res
 upload3.tmp
 wait
 wait.res
+wait_sec.res
 workorder
 workorder.res
 workorder.tmp
