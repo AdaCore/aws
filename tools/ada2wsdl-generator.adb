@@ -840,7 +840,8 @@ package body Ada2WSDL.Generator is
             P : constant Parameter_Access := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <simpleType name=""" & (-E.Name) & """>");
+            Put_Line ("         <simpleType name=""" & (-E.Name) & '"');
+            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
             Put_Line ("            <restriction base="""
                         & (-P.XSD_Name) & """/>");
             Put_Line ("         </simpleType>");
@@ -854,7 +855,8 @@ package body Ada2WSDL.Generator is
             P : Parameter_Access := E.Parameters;
          begin
             New_Line;
-            Put_Line ("         <simpleType name=""" & (-E.Name) & """>");
+            Put_Line ("         <simpleType name=""" & (-E.Name) & '"');
+            Put_Line ("                 targetNamespace=""" & (-E.NS) & """>");
             Put_Line ("            <restriction base=""xsd:string"">");
 
             while P /= null loop
