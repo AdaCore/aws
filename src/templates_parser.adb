@@ -876,6 +876,8 @@ package body Templates_Parser is
          Start : Natural;
          Stop  : Natural := Tag'Last;
          FS    : Filter.Set (1 .. Strings.Fixed.Count (Tag, ":"));
+         --  Note that FS can be larger than needed as ':' can be used inside
+         --  filter parameters for example.
          K     : Positive := FS'First;
 
          function Name_Parameter (Filter : in String) return Filter.Routine;
@@ -889,6 +891,49 @@ package body Templates_Parser is
 
          function Find_Slash (Str : in String) return Natural;
          --  Returns the first slash index in Str, skip espaced slashes
+
+         function Find
+           (Str   : in String;
+            Start : in Positive;
+            C     : in Character) return Natural;
+         --  Look backward for character C in Str starting at position Start.
+         --  This procedure skips quoted strings and parenthesis. Returns 0 if
+         --  the character if not found otherwize it returns the positon of C
+         --  in Str.
+
+         ----------
+         -- Find --
+         ----------
+
+         function Find
+           (Str   : in String;
+            Start : in Positive;
+            C     : in Character) return Natural
+         is
+            Pos   : Natural := Start;
+            Count : Integer := 0;
+         begin
+            while Pos > Str'First
+              and then
+                (Str (Pos) /= C or else Count /= 0)
+            loop
+               if Pos > Str'First and then Str (Pos - 1) /= '\' then
+                  --  This is not a quoted character
+                  if Str (Pos) = ')' then
+                     Count := Count - 1;
+                  elsif Str (Pos) = '(' then
+                     Count := Count + 1;
+                  end if;
+               end if;
+               Pos := Pos - 1;
+            end loop;
+
+            if Pos = Str'First then
+               return 0;
+            else
+               return Pos;
+            end if;
+         end Find;
 
          ----------------
          -- Find_Slash --
@@ -940,6 +985,38 @@ package body Templates_Parser is
             use Strings;
 
             package F renames Templates_Parser.Filter;
+
+            function Unescape (Str : in String) return String;
+            --  Unespace characters Str, to be used with regpat replacement
+            --  pattern.
+
+            --------------
+            -- Unescape --
+            --------------
+
+            function Unescape (Str : in String) return String is
+               S : String (Str'Range);
+               I : Natural  := S'First - 1;
+               K : Positive := Str'First;
+            begin
+               loop
+                  exit when K > Str'Last;
+
+                  if Str (K) = '\'
+                    and then K < Str'Last
+                    and then not (Str (K + 1) in '0' .. '9')
+                  then
+                     --  An escaped character, skip it first backslash
+                     K := K + 1;
+                  end if;
+
+                  I := I + 1;
+                  S (I) := Str (K);
+                  K := K + 1;
+               end loop;
+
+               return S (S'First .. I);
+            end Unescape;
 
             P1 : constant Natural := Fixed.Index (Filter, "(");
             P2 : constant Natural := Fixed.Index (Filter, ")", Backward);
@@ -1008,8 +1085,9 @@ package body Templates_Parser is
                                               (Parameter
                                                  (Parameter'First .. K - 1))),
                                          To_Unbounded_String
-                                           (Parameter
-                                              (K + 1 .. Parameter'Last))));
+                                           (Unescape
+                                              (Parameter
+                                                 (K + 1 .. Parameter'Last)))));
                            end if;
                         end;
 
@@ -1045,13 +1123,11 @@ package body Templates_Parser is
          loop
             Start := Tag'First;
 
-            Stop := Strings.Fixed.Index
-              (Tag (Start .. Stop), ":", Strings.Backward);
+            Stop := Find (Str, Stop, ':');
 
             exit when Stop = 0;
 
-            Start := Strings.Fixed.Index
-              (Tag (Start .. Stop - 1), ":", Strings.Backward);
+            Start := Find (Str, Stop - 1, ':');
 
             if Start = 0 then
                --  Last filter found
@@ -1077,7 +1153,7 @@ package body Templates_Parser is
             Stop := Stop - 1;
          end loop;
 
-         return new Filter.Set'(FS);
+         return new Filter.Set'(FS (FS'First .. K - 1));
       end Get_Filter_Set;
 
       ------------------
