@@ -1121,7 +1121,6 @@ is
    exception
       when others =>
          Streams.Stream_IO.Close (File);
-         raise;
    end Send_File;
 
    --------------------
