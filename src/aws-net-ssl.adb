@@ -89,6 +89,14 @@ package body AWS.Net.SSL is
    --  Dummy verify procedure that always return ok. This is needed to be able
    --  to retreive the client's certificate.
 
+   protected Pivate_Key_Holder is
+      procedure Get (Key : out TSSL.RSA);
+   private
+      Private_Key : TSSL.RSA := TSSL.Null_Pointer;
+   end Pivate_Key_Holder;
+   --  Creation of private key takes quite a period of time,
+   --  and we need only one private key for process.
+
    -------------------
    -- Accept_Socket --
    -------------------
@@ -295,6 +303,35 @@ package body AWS.Net.SSL is
          Key_Filename         => CNF.Key (Default),
          Exchange_Certificate => CNF.Exchange_Certificate (Default));
    end Initialize_Default_Config;
+
+   -----------------------
+   -- Pivate_Key_Holder --
+   -----------------------
+
+   protected body Pivate_Key_Holder is
+
+      ---------
+      -- Get --
+      ---------
+
+      procedure Get (Key : out TSSL.RSA) is
+      begin
+         if Private_Key = TSSL.Null_Pointer then
+            --  Initialize private key
+
+            Private_Key := TSSL.RSA_generate_key
+              (Bits     => 512,
+               E        => TSSL.RSA_F4,
+               Callback => null,
+               Cb_Arg   => TSSL.Null_Pointer);
+
+            Error_If (Private_Key = TSSL.Null_Pointer);
+         end if;
+
+         Key := Private_Key;
+      end Get;
+
+   end Pivate_Key_Holder;
 
    -------------
    -- Receive --
@@ -514,16 +551,16 @@ package body AWS.Net.SSL is
               (TSSL.SSL_CTX_use_certificate_file
                  (Ctx    => Context,
                   File   => To_C (Cert_Filename),
-                  C_Type => TSSL.SSL_FILETYPE_PEM) = -1);
+                  C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
 
             Error_If
               (TSSL.SSL_CTX_use_PrivateKey_file
                  (Ctx    => Context,
                   File   => To_C (Key_File_Name),
-                  C_Type => TSSL.SSL_FILETYPE_PEM) = -1);
+                  C_Type => TSSL.SSL_FILETYPE_PEM) /= 1);
 
             Error_If
-              (TSSL.SSL_CTX_check_private_key (Ctx => Context) = -1);
+              (TSSL.SSL_CTX_check_private_key (Ctx => Context) /= 1);
 
             if TSSL.SSL_CTX_ctrl
               (Ctx  => Context,
@@ -531,12 +568,18 @@ package body AWS.Net.SSL is
                Larg => 0,
                Parg => TSSL.Null_Pointer) /= 0
             then
-               Error_If
-                 (TSSL.SSL_CTX_ctrl
-                    (Ctx  => Context,
-                     Cmd  => TSSL.SSL_CTRL_SET_TMP_RSA,
-                     Larg => 0,
-                     Parg => Private_Key) = -1);
+               declare
+                  Private_Key : TSSL.RSA;
+               begin
+                  Pivate_Key_Holder.Get (Private_Key);
+
+                  Error_If
+                    (TSSL.SSL_CTX_ctrl
+                       (Ctx  => Context,
+                        Cmd  => TSSL.SSL_CTRL_SET_TMP_RSA,
+                        Larg => 0,
+                        Parg => Private_Key) = -1);
+               end;
             end if;
          end Set_Certificate;
 
@@ -566,11 +609,7 @@ package body AWS.Net.SSL is
          end Set_Sess_Cache_Size;
 
       begin
-         if not Initialized then
-            if Context /= TSSL.Null_Pointer then
-               Finalize;
-            end if;
-
+         if Context = TSSL.Null_Pointer then
             --  Initialize context
 
             Context := TSSL.SSL_CTX_new (Methods (Security_Mode).all);
@@ -578,28 +617,17 @@ package body AWS.Net.SSL is
 
             if Exchange_Certificate then
                --  Client is requested to send its certificate once
+
                TSSL.SSL_CTX_set_verify
                  (Context,
                   TSSL.SSL_VERIFY_PEER + TSSL.SSL_VERIFY_CLIENT_ONCE,
                   Verify_Callback'Address);
             end if;
 
-            --  Initialize private key
-
-            Private_Key := TSSL.RSA_generate_key
-              (Bits     => 512,
-               E        => TSSL.RSA_F4,
-               Callback => null,
-               Cb_Arg   => TSSL.Null_Pointer);
-
-            Error_If (Private_Key = TSSL.Null_Pointer);
-
             Set_Certificate (Certificate_Filename, Key_Filename);
 
             Set_Quiet_Shutdown;
             Set_Sess_Cache_Size (16);
-
-            Initialized := True;
          end if;
       end Initialize;
 
