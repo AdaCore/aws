@@ -36,14 +36,11 @@ with "xmlada";
 
 project Shared is
 
-   type Build_Type is ("Debug", "Production");
+   type Build_Type is ("Debug", "Release");
    Build : Build_Type := external ("AWS_BUILD", "Debug");
 
    type OS_Type is ("GNU/Linux", "Windows_NT");
    OS : OS_Type := external ("OS", "GNU/Linux");
-
-   type SSL_Type is ("Enabled", "Disabled");
-   SSL : SSL_Type := external ("AWS_SSL", "Disabled");
 
    for Source_Dirs use ();
 
@@ -63,10 +60,10 @@ project Shared is
       case Build is
          when "Debug" =>
             for Default_Switches ("Ada") use
-              ("-m", "-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfipru",
+              ("-m", "-g", "-gnata", "-gnatVa", "-gnatQ", "-gnatwcfiru",
                "-gnatwe", "-gnaty3abcefhiklmnoprst", "-gnatwjmbeur", "-Wall");
 
-         when "Production" =>
+         when "Release" =>
             for Default_Switches ("Ada") use ("-O2", "-gnatws", "-gnatn");
       end case;
 
@@ -79,7 +76,7 @@ project Shared is
    package Linker is
 
       case Build is
-         when "Production" =>
+         when "Release" =>
             for Default_Switches ("Ada") use ("-s");
       end case;
 
@@ -91,10 +88,7 @@ project Shared is
 
    package Builder is
 
-      case Build is
-         when "Debug" =>
-            for Default_Switches ("Ada") use ("-m");
-      end case;
+      for Default_Switches ("Ada") use ("-m");
 
    end Builder;
 
