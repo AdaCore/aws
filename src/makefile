@@ -34,7 +34,8 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-url.adb aws-utils.adb aws.ads aws-exceptions.ads \
 	aws-status-translate_table.adb aws-server-status.adb \
 	aws-server-log.adb aws-pop.adb \
-	aws-services-split_pages.adb aws-services-transient_pages.adb
+	aws-services-split_pages.adb aws-services-transient_pages.adb \
+	aws-services-transient_pages-control.adb
 
 ifdef XMLADA
 SOURCES := $(SOURCES) ../xsrc/aws-jabber.adb
