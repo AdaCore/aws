@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                             Templates Parser                             --
 --                                                                          --
---                        Copyright (C) 1999 - 2002                         --
+--                        Copyright (C) 1999 - 2004                         --
 --                               Pascal Obry                                --
 --                                                                          --
 --  This library is free software; you can redistribute it and/or modify    --
@@ -49,8 +49,7 @@ begin
 
    case T.Kind is
       when Info =>
-         Text_IO.Put_Line ("[INFO] " & To_String (T.Filename)
-                           & Natural'Image (T.Ref));
+         Text_IO.Put_Line ("[INFO] " & To_String (T.Filename));
          declare
             I : Tree := T.I_File;
          begin
