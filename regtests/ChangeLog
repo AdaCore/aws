@@ -1,3 +1,11 @@
+2003-03-29  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(RT_SOAP): Add test_soap4.
+
+	* test_soap4.adb, test_soap4.out:
+	Initial revision.
+
 2003-03-27  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* check_mem.adb:
