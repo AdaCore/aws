@@ -197,7 +197,7 @@ package body Stub is
             begin
                Text_IO.Put_Line
                  (Stub_Adb,
-                  "+To_" & Name & " (V ");
+                  "+To_" & Name & "_Type (V ");
                Text_IO.Put_Line
                  (Stub_Adb,
                   "                       "
@@ -425,7 +425,7 @@ package body Stub is
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
-                       & ":= To_" & To_String (Output.T_Name));
+                       & ":= To_" & To_String (Output.T_Name) & "_Type");
                   Text_IO.Put_Line
                     (Stub_Adb,
                      "                 "
