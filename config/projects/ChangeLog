@@ -1,5 +1,10 @@
 2004-10-02  Pascal Obry  <pascal@obry.org>
 
+	* crypto_lib.gpr, ssl_lib.gpr:
+	New version based on SSL_Shared project.
+
+2004-10-02  Pascal Obry  <pascal@obry.org>
+
 	* aws.gpr:
 	Change path to other projects due to new directory structure.
 	All project files are put into AWS/projects (follows XML/Ada
