@@ -49,10 +49,11 @@ package body AWS.Parameters.Set is
      (Parameter_List : in out List;
       Name, Value    : in     String)
    is
+
       function Normalize_Name
         (Name : in String; To_Upper : in Boolean)
         return String;
-      --  Return Name in upper case if To_Upper is set to True and it returns
+      --  Returns Name in upper case if To_Upper is set to True and it returns
       --  Name unchanged otherwise.
 
       --------------------
@@ -71,11 +72,13 @@ package body AWS.Parameters.Set is
       end Normalize_Name;
 
       C       : constant Positive := Parameter_List.Count + 1;
+
       K_Key   : constant String   := "__AWS_K" & Utils.Image (C);
       K_Value : constant String   := "__AWS_V" & Utils.Image (C);
 
       L_Key   : constant String   := Normalize_Name
-        (Name, not Parameter_List.Case_Sensitive);
+        (Translator.Decode_URL (Name), not Parameter_List.Case_Sensitive);
+
       L_Value : constant String   := Translator.Decode_URL (Value);
    begin
       Parameter_List.Count := Parameter_List.Count + 1;
