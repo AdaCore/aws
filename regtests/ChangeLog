@@ -1,3 +1,11 @@
+2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* client.pem:
+	Initial revision.
+
+	* cert.adb, cert.out:
+	Initial revision.
+
 2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* timer.adb:

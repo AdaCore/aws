@@ -1,3 +1,89 @@
+2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* makefile:
+	(SOURCES): Add aws-net-ssl-certificate.adb.
+
+	* aws-url.adb:
+	Fix typo.
+
+	* aws-server.adb:
+	(Security_Initialized): Removed.
+	(Accept_Socket_Serialized): If secure socket, set the SSL
+	 configuration.
+	(Set_Security): New version that operate on a single server.
+	(Start): If secure server, initialize the security object.
+	
+	* aws-server.ads:
+	(Set_Security): New version that operate on a single server.
+	(HTTP): Add SSL_Config field.
+
+	* aws-net-ssl.adb:
+	(TS_SSL): Moved to spec private part.
+	(Accept_Socket): Use Config object.
+	(Connect): Idem.
+	(Initialize): Build the config object.
+	(Release) [SSL.Config]: New procedure.
+	(Set_Config): New procedure.
+	(TS_SSL.Initialize): Setup the context certificate exchange if
+	 needed.
+	(Verify_Callback): New procedure.
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-net-ssl.ads:
+	(Initialize): Now used to build an SSL configuration object. This
+	 make it possible to have different HTTPS server with different
+	 settings. New parameter Exchange_Certificate.
+	(Config): New type.
+	(Release) [SSL.Config]: New procedure.
+	(Set_Config): New procedure.
+	(TS_SSL): Move into private part from body. This is now a
+	 protected type.
+	(Null_Ptr): Removed, use now Thin.Null_Pointer.
+	(Socket_Type): Add Config field.
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-net-ssl-certificate.ads, aws-net-ssl-certificate.adb:
+	Initial revision.
+
+	* aws-default.ads:
+	(Security_Mode): New constant.
+	(Key): Idem.
+	(Client_Certificate): Idem.
+	(Exchange_Certificate): Idem.
+
+	* aws-client.adb:
+	(Close): Release SSL_Config object.
+	(Connect): Set security configuration if needed.
+	(Create): Handles User_Agent and initialize SSL if needed.
+	(Open_Send_Common_Header): Use User_Agent field.
+
+	* aws-client.ads:
+	(Create): Add Certificate and User_Agent parameter.
+	(Get_Certificate): New routine.
+	(HTTP_Connection): Add Certificate, User_Agent and SSL_Config fields.
+
+	* aws-config-set.ads, aws-config-set.adb:
+	(Certificate): Is now a per server option.
+	(Key): New routine.
+	(Security_Mode): New routine.
+	(Exchange_Certificate): New routine.
+
+	* aws-config.adb:
+	(Certificate): Is now a per server option.
+	(Key): New routine.
+	(Security_Mode): New routine.
+	(Exchange_Certificate): New routine.
+
+	* aws-config.ads:
+	(Certificate): Is now a per server option.
+	(Key): New routine.
+	(Security_Mode): New routine.
+	(Exchange_Certificate): New routine.
+	(Parameter_Name): Add Key, Security_Mode, Exchange_Certificate.
+	(Default_Parameters): Idem.
+
 2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-resources-embedded.adb:

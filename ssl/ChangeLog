@@ -1,3 +1,29 @@
+2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* ssl-wrappers.ads, ssl-wrappers.adb:
+	(SSL_CTX_set_verify): New procedure.
+	(SSL_get_peer_certificate): Idem.
+	(X509_NAME_oneline): Idem.
+	(X509_get_subject_name): Idem.
+	(X509_get_issuer_name): Idem.
+	Fix DOS style line ending.
+
+	* ssl-thin.ads:
+	(Null_Pointer): New constant.
+	(X509): New subtype.
+	(X509_Name): New subtype.
+	(SSL_VERIFY_NONE): New constant.
+	(SSL_VERIFY_PEER): Idem.
+	(SSL_VERIFY_FAIL_IF_NO_PEER_CERT): Idem.
+	(SSL_VERIFY_CLIENT_ONCE): Idem.
+	(SSL_F_SSL_VERIFY_CERT_CHAIN ): Idem.
+	(SSL_CTX_set_verify): New procedure.
+	(SSL_get_peer_certificate): Idem.
+	(X509_NAME_oneline): Idem.
+	(X509_get_subject_name): Idem.
+	(X509_get_issuer_name): Idem.
+	(SSL_CTX_set_default_verify_paths): Idem.
+
 2003-12-16  Dmitriy Anisimkov  <anisimkov@yahoo.com>
 
 	* ssl-thin.ads:
