@@ -19,7 +19,7 @@ force:
 
 $(TOOLS): force
 	echo Building $@ tools
-	$(GNATMAKE) $(GARGS) $@ -largs -s $(LIBS)
+	$(GNATMAKE) $(GARGS) $@ -largs -s -L../lib $(LIBS)
 
 clean:
 	-$(RM) -f *.o *.ali $(ALL_EXEC) b~*.ad[sb]
