@@ -34,36 +34,31 @@ endif
 DEMOS = runme agent auth ws wps com_1 com_2 main hotplug hello_world \
 	text_input vh_demo dispatch res_demo 
 
+BUILD_SPECIFIC = build_res
+
 ifdef XMLADA
-DEMOS := $(DEMOS) test_jabber
+DEMOS := $(DEMOS) test_jabber soap_client soap_server soap_svs soap_cvs \
+	wsdl_demo_client wsdl_demo_server
+BUILD_SPECIFIC := $(BUILD_SPECIFIC) build_wsdl
 endif
 
 ifeq ($(LDAP), 1)
 BUILD_OPT = test_ldap
 endif
 
-SOAP_DEMOS = soap_client soap_server soap_svs soap_cvs
-
-build: build_res build_std $(BUILD_OPT)
+build: $(BUILD_SPECIFIC) $(DEMOS) $(BUILD_OPT)
 
 $(DEMOS): force
 	echo Building $@;
 	gnatmake $(GARGS) $@ -bargs $(BARGS) -largs $(LARGS);
 
-$(SOAP_DEMOS): force
-	(if [ -e ../soap/soap.o ] ; then \
-	   echo Building $@; \
-	   gnatmake $(GARGS) $@ -bargs $(BARGS) -largs $(LARGS); \
-	else \
-	   echo ""; \
-	   echo Please build SOAP library before building SOAP demos;\
-	   exit 1; \
-	fi)
-
-build_std: $(DEMOS)
-
 build_res:
+	echo Generate resources for res_demo
 	../tools/awsres -q -r rdemo adains.png page3.html
+
+build_wsdl:
+	echo Generate stub/skel from WSDL document
+	../tools/wsdl2aws -q -f hello.wsdl
 
 force:
 
