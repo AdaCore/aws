@@ -1,5 +1,23 @@
 2001-09-10  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-server-get_status.adb:
+	Use Max_Connection from the server properties.
+
+	* aws-server.adb: 
+	(Shutdown): release memory allocated for the slots HTTP field. Use
+	 Max_Connection from the server properties.
+	(Start): add parameter Max_Connection. Use Max_Connection from the
+	 server properties.
+	(Line): Use Max_Connection from the server properties.
+	(Finalize): new routine for HTTP limited controlled type.
+
+	* aws-server.ads:
+	(HTTP): remove Max_Connection discriminant. It is now a limited
+	 controlled object, ressources will be freed automatically when
+	 leaving the HTTP variable scope. Field Slots is now an access type.
+	(Start): add parameter Max_Connection.
+	(Finalize): new routine for HTTP limited controlled type.
+
 	* aws-server-protocol_handler.adb:
 	(Answer_To_Client): Removes Peername parameter in Log.Write call
 	 since it is not needed anymore.
