@@ -13,7 +13,8 @@ APIFILES  = ../src/aws-response.ads.texi ../src/aws-status.ads.texi \
 	../src/aws-mime.ads.texi ../src/aws-communication.ads.texi \
 	../src/aws-communication-client.ads.texi \
 	../src/aws-communication-server.ads.texi \
-	../src/aws-server-hotplug.ads.texi ../src/aws-log.ads.texi
+	../src/aws-server-hotplug.ads.texi ../src/aws-log.ads.texi \
+	../src/aws-parameters.ads.texi
 
 build: aws.ps aws.html aws.txt aws.info
 
@@ -49,5 +50,10 @@ aws.html: aws.texi
 aws.txt: aws.texi
 	makeinfo --no-headers aws.texi > aws.txt
 
+aws.texi: aws.texi.tmplt build.adb
+	gnatmake build -I../src -I../include
+	./build > aws.texi
+
 clean:
-	-rm aws.dvi aws.html aws.info* aws.log aws.ps aws.txt $(APIFILES)
+	-rm aws.texi aws.dvi aws.html aws.info* aws.log aws.ps aws.txt \
+          $(APIFILES) *~ *.o *.ali
