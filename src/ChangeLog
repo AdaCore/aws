@@ -1,3 +1,9 @@
+2003-03-11  Dmitriy Anisimkov <anisimkov@yahoo.com>
+
+	* aws-client.adb:
+	(Parse_Header): Set Connection.Cookie only if the server sent
+	 Set-Cookie header line.
+
 2003-03-10  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* aws-ldap-client.adb:
