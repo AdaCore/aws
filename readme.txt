@@ -145,6 +145,8 @@ AWS 1.3 has been compiled and has passed all tests on:
 
    Windows XP, GNAT 3.15a1, 3.16a, 3.17w and 5.01w
 
+   Windows NT 4.0, GNAT 3.15a1
+
    GNU/Linux x66, GNAT 3.16a and 3.17w
 
    SPARC Solaris 8, GNAT 3.17w
