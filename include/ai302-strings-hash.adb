@@ -46,17 +46,9 @@ function AI302.Strings.Hash (Key : String) return Containers.Hash_Type is
 begin
 
    for J in Key'Range loop
-      Tmp := Rotate_Left (Tmp, 1) + Character'Pos (Key (J));
+      Tmp := Rotate_Left (Tmp, 3) + Tmp + Character'Pos (Key (J));
    end loop;
 
    return Tmp;
 
 end AI302.Strings.Hash;
-
-
-
-
-
-
-
-
