@@ -62,13 +62,12 @@ package AWS.Net.SSL is
       Host     : in     String;
       Port     : in     Positive;
       Wait     : in     Boolean := True);
-   --  Connect a socket on a given host/port.
-   --  If Wait is True routine would wait established connection
-   --  for timeout, specified by Set_Timeout routine.
-   --  If Wait is False routine would return immediately, not waiting
-   --  for establised connection and do not SSL handshake.
-   --  Connection completion could be waited by Wait routine with Output
-   --  set to True in Events parameter.
+   --  Connect a socket on a given host/port. If Wait is True Connect will wait
+   --  for the connection to be established for timeout seconds, specified by
+   --  Set_Timeout routine. If Wait is False Connect will return immediately,
+   --  not waiting for the connection to be establised and it does not make the
+   --  SSL handshake. It is possible to wait for the Connection completion by
+   --  calling Wait routine with Output set to True in Events parameter.
 
    procedure Shutdown (Socket : in Socket_Type);
    --  Shutdown both side of the socket and close it
@@ -148,9 +147,9 @@ package AWS.Net.SSL is
    --  call. Do not free or close source socket after this call.
 
    procedure Do_Handshake (Socket : in out Socket_Type);
-   --  Will wait for a SSL/TLS handshake to take place.
-   --  You need to call this routine if you just converted plain socket to
-   --  secure and need to get peer certificate.
+   --  Wait for a SSL/TLS handshake to take place. You need to call this
+   --  routine if you have converted a standard socket to secure one and need
+   --  to get the peer certificate.
 
 private
 
