@@ -196,6 +196,10 @@ package AWS.Status is
    pragma Inline (Binary_Data);
    --  Returns the binary data message content.
 
+   function Header (D : in Data) return Headers.List;
+   pragma Inline (Header);
+   --  Returns the list of header lines for the request.
+
 private
 
    use Ada.Strings.Unbounded;
