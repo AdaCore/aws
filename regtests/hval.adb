@@ -117,5 +117,21 @@ begin
    Put_Line (Get_Unnamed_Value (Test_7, 2));
    Put_Line (Get_Unnamed_Value (Test_7, 3));
    Put_Line (Get_Unnamed_Value (Test_7, 4)); -- should be empty line
+   Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_1")));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_2")));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "Token_5")));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "TOKEN_5")));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "TOKEN_5", False)));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists (Test_7, "token_6")));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists
+                              (Test_7 & " Last_Token", "Last_Token")));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists
+                              (Test_7 & " Last_Token", "Just_Token")));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists
+                              ("First_Token, " & Test_7,
+                               "first_token", False)));
+   Put_Line (Boolean'Image (Unnamed_Value_Exists
+                              ("First_Token, " & Test_7,
+                               "first_token")));
    Put_Line ("Done.");
 end HVal;
