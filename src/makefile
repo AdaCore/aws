@@ -29,17 +29,16 @@ SOURCES	= aws-client.adb aws-communication-client.adb \
 	aws-smtp-client.adb aws-smtp.adb aws-status-set.adb aws-status.adb \
 	aws-templates.ads aws-translator.adb aws-url-raise_url_error.adb \
 	aws-url.adb aws-utils.adb aws.ads aws-exceptions.ads \
-	aws-status-translate_table.adb aws-server-status.adb aws-soap.adb
+	aws-status-translate_table.adb aws-server-status.adb
 
 ifdef XMLADA
 SOURCES := $(SOURCES) ../xsrc/aws-jabber.adb
-GARGS := $(GARGS) -I../soap
 endif
 
 UNITS = $(sort $(basename $(SOURCES)))
 
-CONF_UNITS = aws-translator-conversion.adb aws-net-std.adb \
-		aws-soap.ads aws-soap.adb
+CONF_UNITS = aws-translator-conversion.adb aws-net-std.adb
+
 force:
 
 $(UNITS): force
@@ -56,15 +55,6 @@ ifdef ADASOCKETS
 	cp ../config/aws-net-std__adasockets.adb aws-net-std.adb
 else
 	cp ../config/aws-net-std__gnat.adb aws-net-std.adb
-endif
-
-aws-soap.ads aws-soap.adb:
-ifdef XMLADA
-	cp ../config/aws-soap__soap.ads aws-soap.ads
-	cp ../config/aws-soap__soap.adb aws-soap.adb
-else
-	cp ../config/aws-soap__nosoap.adb aws-soap.ads
-	cp ../config/aws-soap__nosoap.adb aws-soap.adb
 endif
 
 adasockets:
