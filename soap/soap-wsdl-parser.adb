@@ -838,31 +838,11 @@ package body SOAP.WSDL.Parser is
       O.Current_Name := +Get_Attr_Value (Part, "name");
 
       declare
-         T : constant String := -ET;
+         T       : constant String := -ET;
+         T_No_NS : constant String := Utils.No_NS (T);
       begin
-         if T = Types.XML_Int then
-            Add_Parameter (O, -O.Current_Name, P_Integer);
-
-         elsif T = Types.XML_Float then
-            Add_Parameter (O, -O.Current_Name, P_Float);
-
-         elsif T = Types.XML_Double then
-            Add_Parameter (O, -O.Current_Name, P_Double);
-
-         elsif T = Types.XML_String then
-            Add_Parameter (O, -O.Current_Name, P_String);
-
-         elsif T = Types.XML_Boolean then
-            Add_Parameter (O, -O.Current_Name, P_Boolean);
-
-         elsif T = Types.XML_Time_Instant then
-            Add_Parameter (O, -O.Current_Name, P_Time);
-
-         elsif T = Types.XML_Date_Time then
-            Add_Parameter (O, -O.Current_Name, P_Time);
-
-         elsif T = Types.XML_Base64_Binary then
-            Add_Parameter (O, -O.Current_Name, P_B64);
+         if WSDL.Is_Standard (T_No_NS) then
+            Add_Parameter (O, -O.Current_Name, WSDL.To_Type (T_No_NS));
 
          elsif T = Types.XML_Any_Type then
             Raise_Exception
@@ -874,14 +854,14 @@ package body SOAP.WSDL.Parser is
 
             N := Get_Node
               (First_Child (DOM.Core.Node (Document)),
-               "types.schema.element", Utils.No_NS (-ET));
+               "types.schema.element", T_No_NS);
 
             --  If not present look for a complexType
 
             if N = null then
                N := Get_Node
                  (First_Child (DOM.Core.Node (Document)),
-                  "types.schema.complexType", Utils.No_NS (-ET));
+                  "types.schema.complexType", T_No_NS);
             end if;
 
             Parse_Element (O, N, Document);
