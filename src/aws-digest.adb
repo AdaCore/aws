@@ -31,8 +31,6 @@
 --  $Id$
 
 with Ada.Calendar;
-with Ada.Strings.Fixed;
-with Ada.Integer_Text_IO;
 with Ada.Unchecked_Conversion;
 
 with MD5;
@@ -58,7 +56,7 @@ package body AWS.Digest is
    -----------------
 
    function Check_Nonce (Value : in String) return Boolean is
-      use Ada.Calendar;
+      use Calendar;
       use type MD5.Byte_Array;
 
       Now           : Time := Clock;
@@ -67,8 +65,8 @@ package body AWS.Digest is
       Month_Now     : Month_Number;
       Day_Now       : Day_Number;
       Seconds_Now   : Day_Duration;
+
       Seconds_Nonce : Natural;
-      Dummy_Last    : Natural;
       Ctx           : MD5.Context;
       Digest        : MD5.Fingerprint;
       Sample        : Digest_String;
@@ -81,8 +79,7 @@ package body AWS.Digest is
 
       Split (Now, Year_Now, Month_Now, Day_Now, Seconds_Now);
 
-      Integer_Text_IO.Get
-        ("16#" & Value (1 .. 5) & '#', Seconds_Nonce, Dummy_Last);
+      Seconds_Nonce := Utils.Hex_Value (Value (1 .. 5));
 
       Nonce_Time := Time_Of
         (Year_Now, Month_Now, Day_Now, Day_Duration (Seconds_Nonce));
@@ -152,19 +149,17 @@ package body AWS.Digest is
    ------------------
 
    function Create_Nonce return String is
-      use Ada.Calendar;
+      use Calendar;
 
-      Year_Now       : Year_Number;
-      Month_Now      : Month_Number;
-      Day_Now        : Day_Number;
-      Seconds_Now    : Day_Duration;
-      Seconds_Int    : Natural;
-      Digest         : MD5.Fingerprint;
-      Ctx            : MD5.Context;
-      Result         : Digest_String;
+      Year_Now    : Year_Number;
+      Month_Now   : Month_Number;
+      Day_Now     : Day_Number;
+      Seconds_Now : Day_Duration;
 
-      Duration_Image : String (1 .. 9);
-      Sharp_Index    : Natural;
+      Seconds_Int : Natural;
+      Digest      : MD5.Fingerprint;
+      Ctx         : MD5.Context;
+      Result      : Digest_String;
    begin
       Split (Clock, Year_Now, Month_Now, Day_Now, Seconds_Now);
 
@@ -184,11 +179,7 @@ package body AWS.Digest is
 
       --  Five hex digits before MD5 digest for the nonce expiration check
 
-      Ada.Integer_Text_IO.Put (Duration_Image, Seconds_Int, 16);
-      Sharp_Index := Ada.Strings.Fixed.Index (Duration_Image, "#");
-
-      return (4 .. Sharp_Index => '0')
-        & Duration_Image (Sharp_Index + 1 .. 8) & Result;
+      return Utils.Hex (Seconds_Int, Width => 5) & Result;
    end Create_Nonce;
 
 begin
