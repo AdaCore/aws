@@ -189,6 +189,7 @@ b~zstrm.ads
 b~zstrm2.adb
 b~zstrm2.ads
 cert.pem
+cert.res
 check_mem
 check_mem.res
 check_mem.run1
@@ -222,7 +223,9 @@ file2.html
 file2.txt
 file3.html
 filea.txt
+fileb.txt
 fileb.txt.gz
+filec.txt
 filec.txt.gz
 get_post
 get_post.res

@@ -1,3 +1,8 @@
+2003-12-17  Pascal Obry  <p.obry@wanadoo.fr>
+
+	* templates_parser.adb:
+	Update to new version, new variable tag NOW.
+
 2003-12-12  Pascal Obry  <p.obry@wanadoo.fr>
 
 	* templates_parser.adb, templates_parser-filter.adb:
