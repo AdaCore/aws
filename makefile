@@ -85,16 +85,24 @@ build_doc:
 	echo ""
 	echo "=== Build doc"
 	${MAKE} -C docs build $(GALL_OPTIONS)
+	${MAKE} -C templates_parser/docs doc $(GALL_OPTIONS)
 
 build_apiref:
 	echo ""
 	echo "=== Build API References"
 	${MAKE} -s -C docs apiref $(ALL_OPTIONS)
 
-run_regtests:
+tp_regtests:
+	echo ""
+	echo "=== Run Templates Parser regression tests"
+	${MAKE} -C templates_parser/regtests test $(GALL_OPTIONS)
+
+aws_regtests:
 	echo ""
 	echo "=== Run regression tests"
 	${MAKE} -C regtests run $(GALL_OPTIONS) GDB_REGTESTS="$(GDB_REGTESTS)"
+
+run_regtests: tp_regtests aws_regtests
 
 display:
 	echo ""
@@ -304,7 +312,7 @@ endif
 # Configuration for GNAT Projet Files
 
 EXTRA_MODULES = demos regtests
-MODULES = config ssl include src win32 tools ${EXTRA_MODULES}
+MODULES = config ssl include src win32 tools templates_parser ${EXTRA_MODULES}
 
 MODULES_BUILD = ${MODULES:%=%_build}
 
