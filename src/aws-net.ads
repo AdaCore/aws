@@ -88,7 +88,8 @@ package AWS.Net is
    --  socket will be used.
 
    procedure Shutdown (Socket : in Socket_Type) is abstract;
-   --  Shutdown both side of the socket and close it.
+   --  Shutdown both side of the socket and close it. Does not raise
+   --  Socket_Error if the socket is not connected.
 
    procedure Free (Socket : in out Socket_Type) is abstract;
    --  Release memory associated with the socket object
@@ -114,7 +115,8 @@ package AWS.Net is
       return Stream_Element_Array
       is abstract;
    pragma Inline (Receive);
-   --  Read a chunk of data from the socket and returns it
+   --  Read a chunk of data from the socket and returns it. It always return
+   --  something and then must wait for available data on the socket.
 
    ------------
    -- Others --
