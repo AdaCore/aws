@@ -1,5 +1,23 @@
 2003-01-20  Pascal Obry  <p.obry@wanadoo.fr>
 
+	* aws-digest.adb:
+	Minor reformatting.
+	Update copyright notice.
+
+	* aws-digest.ads:
+	Fix RFC reference format.
+	Update copyright notice.
+
+	* aws-headers-set.adb:
+	Minor reformatting.
+
+	* aws-headers.adb:
+	(Values): Set constant.
+	(Get_Values): Get parameter mode.
+	Update copyright notice.
+
+2003-01-20  Pascal Obry  <p.obry@wanadoo.fr>
+
 	* aws-server-protocol_handler.adb:
 	Fix RFC reference syntax.
 
